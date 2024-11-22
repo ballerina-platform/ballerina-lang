@@ -24,7 +24,6 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
 
 import java.nio.file.Path;
-import java.nio.file.Paths;
 
 /**
  * Base class for shell service tests.
@@ -38,7 +37,7 @@ public abstract class AbstractShellServiceTest {
     protected static final String GET_VARIABLES = "balShell/getVariableValues";
     protected static final String DELETE_DCLNS = "balShell/deleteDeclarations";
     protected static final String GET_SHELL_FILE_SOURCE = "balShell/getShellFileSource";
-    protected static final Path RES_DIR = Paths.get("src/test/resources/").toAbsolutePath();
+    protected static final Path RES_DIR = Path.of("src/test/resources/").toAbsolutePath();
     protected Endpoint serviceEndpoint;
 
     @BeforeClass

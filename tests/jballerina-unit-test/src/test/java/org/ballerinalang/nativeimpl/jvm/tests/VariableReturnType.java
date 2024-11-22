@@ -17,10 +17,10 @@
 
 package org.ballerinalang.nativeimpl.jvm.tests;
 
-import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.types.AnnotatableType;
+import io.ballerina.runtime.api.types.PredefinedTypes;
 import io.ballerina.runtime.api.types.RecordType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.utils.StringUtils;
@@ -52,30 +52,30 @@ import io.ballerina.runtime.internal.values.MapValueImpl;
 import io.ballerina.runtime.internal.values.ObjectValue;
 import io.ballerina.runtime.internal.values.TableValue;
 import io.ballerina.runtime.internal.values.TupleValueImpl;
+import org.testng.Assert;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import static io.ballerina.runtime.api.TypeTags.ARRAY_TAG;
-import static io.ballerina.runtime.api.TypeTags.BOOLEAN_TAG;
-import static io.ballerina.runtime.api.TypeTags.BYTE_TAG;
-import static io.ballerina.runtime.api.TypeTags.DECIMAL_TAG;
-import static io.ballerina.runtime.api.TypeTags.FLOAT_TAG;
-import static io.ballerina.runtime.api.TypeTags.INT_TAG;
-import static io.ballerina.runtime.api.TypeTags.OBJECT_TYPE_TAG;
-import static io.ballerina.runtime.api.TypeTags.RECORD_TYPE_TAG;
-import static io.ballerina.runtime.api.TypeTags.STRING_TAG;
-import static io.ballerina.runtime.api.TypeTags.XML_COMMENT_TAG;
-import static io.ballerina.runtime.api.TypeTags.XML_ELEMENT_TAG;
-import static io.ballerina.runtime.api.utils.TypeUtils.getReferredType;
+import static io.ballerina.runtime.api.types.TypeTags.ARRAY_TAG;
+import static io.ballerina.runtime.api.types.TypeTags.BOOLEAN_TAG;
+import static io.ballerina.runtime.api.types.TypeTags.BYTE_TAG;
+import static io.ballerina.runtime.api.types.TypeTags.DECIMAL_TAG;
+import static io.ballerina.runtime.api.types.TypeTags.FLOAT_TAG;
+import static io.ballerina.runtime.api.types.TypeTags.INT_TAG;
+import static io.ballerina.runtime.api.types.TypeTags.OBJECT_TYPE_TAG;
+import static io.ballerina.runtime.api.types.TypeTags.RECORD_TYPE_TAG;
+import static io.ballerina.runtime.api.types.TypeTags.STRING_TAG;
+import static io.ballerina.runtime.api.types.TypeTags.XML_COMMENT_TAG;
+import static io.ballerina.runtime.api.types.TypeTags.XML_ELEMENT_TAG;
 
 /**
  * Native methods for testing functions with variable return types.
  *
  * @since 2.0.0-preview1
  */
-public class VariableReturnType {
+public final class VariableReturnType {
 
     private static final BString NAME = new BmpStringValue("name");
     private static final BString AGE = new BmpStringValue("age");
@@ -84,6 +84,9 @@ public class VariableReturnType {
     private static final BString JOHN_DOE = new BmpStringValue("John Doe");
     private static final BString JANE_DOE = new BmpStringValue("Jane Doe");
     private static final BString SOFTWARE_ENGINEER = new BmpStringValue("Software Engineer");
+
+    private VariableReturnType() {
+    }
 
     public static Object echo(BValue value, BTypedesc td) {
         return value;
@@ -97,7 +100,7 @@ public class VariableReturnType {
         return value;
     }
 
-    public static TableValue getTable(TableValue value, BTypedesc td) {
+    public static TableValue<?, ?> getTable(TableValue<?, ?> value, BTypedesc td) {
         return value;
     }
 
@@ -132,20 +135,20 @@ public class VariableReturnType {
         return getValue(td.getDescribingType());
     }
 
-    public static MapValue query(BString query, BTypedesc typedesc) {
+    public static MapValue<BString, Object> query(BString query, BTypedesc typedesc) {
         Type type = typedesc.getDescribingType();
-        MapValue map;
+        MapValue<BString, Object> map;
 
         if (type.getTag() == INT_TAG) {
-            map = new MapValueImpl(new BMapType(type));
+            map = new MapValueImpl<>(new BMapType(type));
             map.put(new BmpStringValue("one"), 10);
             map.put(new BmpStringValue("two"), 20);
         } else if (type.getTag() == STRING_TAG) {
-            map = new MapValueImpl(new BMapType(type));
+            map = new MapValueImpl<>(new BMapType(type));
             map.put(NAME, new BmpStringValue("Pubudu"));
             map.put(CITY, new BmpStringValue("Panadura"));
         } else {
-            map = new MapValueImpl(new BMapType(PredefinedTypes.TYPE_ANY));
+            map = new MapValueImpl<>(new BMapType(PredefinedTypes.TYPE_ANY));
         }
 
         return map;
@@ -153,7 +156,7 @@ public class VariableReturnType {
 
     public static BStream getStreamOfRecords(ObjectValue objectValue, BStream strm, BTypedesc typedesc) {
         RecordType streamConstraint = (RecordType) typedesc.getDescribingType();
-        assert streamConstraint == TypeUtils.getReferredType(strm.getConstraintType());
+        Assert.assertSame(streamConstraint, TypeUtils.getImpliedType(strm.getConstraintType()));
         return strm;
     }
 
@@ -191,9 +194,9 @@ public class VariableReturnType {
         return arr;
     }
 
-    public static MapValue getRecord(BTypedesc td) {
+    public static MapValue<BString, Object> getRecord(BTypedesc td) {
         BRecordType recType = (BRecordType) td.getDescribingType();
-        MapValueImpl person = new MapValueImpl(recType);
+        MapValueImpl<BString, Object> person = new MapValueImpl<>(recType);
 
         if (recType.getName().equals("Person")) {
             person.put(NAME, JOHN_DOE);
@@ -222,7 +225,7 @@ public class VariableReturnType {
             }
         }
 
-        MapValueImpl rec = new MapValueImpl(type2);
+        MapValueImpl<BString, Object> rec = new MapValueImpl<>(type2);
         if (type2.getName().equals("Person")) {
             rec.put(NAME, JOHN_DOE);
             rec.put(AGE, 20);
@@ -238,12 +241,12 @@ public class VariableReturnType {
     }
 
     public static BXml getXml(BTypedesc td, BXml val) {
-        Type describingType = getReferredType(td.getDescribingType());
+        Type describingType = TypeUtils.getImpliedType(td.getDescribingType());
         if (describingType.getTag() == XML_ELEMENT_TAG) {
             return val;
         }
 
-        assert describingType.getTag() == XML_COMMENT_TAG : describingType;
+        Assert.assertEquals(describingType.getTag(), XML_COMMENT_TAG, describingType.toString());
         return val;
     }
 
@@ -254,7 +257,7 @@ public class VariableReturnType {
             return getRecord(td2);
         }
 
-        assert tag == RECORD_TYPE_TAG;
+        Assert.assertEquals(tag, RECORD_TYPE_TAG);
         return 200;
     }
 
@@ -274,7 +277,7 @@ public class VariableReturnType {
                 return 32;
             case RECORD_TYPE_TAG:
                 BRecordType recType = (BRecordType) type;
-                MapValueImpl person = new MapValueImpl(recType);
+                MapValueImpl<BString, Object> person = new MapValueImpl<>(recType);
 
                 if (recType.getName().equals("Person")) {
                     person.put(NAME, JOHN_DOE);
@@ -295,13 +298,11 @@ public class VariableReturnType {
     public static Object get(ObjectValue objectValue, BTypedesc td) {
         Type describingType = td.getDescribingType();
 
-        switch (describingType.getTag()) {
-            case INT_TAG:
-                return objectValue.getIntValue(StringUtils.fromString("a"));
-            case STRING_TAG:
-                return objectValue.getStringValue(StringUtils.fromString("b"));
-        }
-        return objectValue.get(StringUtils.fromString("c"));
+        return switch (describingType.getTag()) {
+            case INT_TAG -> objectValue.getIntValue(StringUtils.fromString("a"));
+            case STRING_TAG -> objectValue.getStringValue(StringUtils.fromString("b"));
+            default -> objectValue.get(StringUtils.fromString("c"));
+        };
     }
 
     public static Object getIntFieldOrDefault(ObjectValue objectValue, BTypedesc td) {
@@ -357,8 +358,8 @@ public class VariableReturnType {
         BMap<BString, Object> annotations = ((AnnotatableType) describingType).getAnnotations();
         if (annotations.containsKey(annotationName)) {
             Object annotValue = annotations.get(annotationName);
-            Long minValue = (Long) ((BMap) annotValue).get(StringUtils.fromString("minValue"));
-            Long maxValue = (Long) ((BMap) annotValue).get(StringUtils.fromString("maxValue"));
+            Long minValue = (Long) ((BMap<?, ?>) annotValue).get(StringUtils.fromString("minValue"));
+            Long maxValue = (Long) ((BMap<?, ?>) annotValue).get(StringUtils.fromString("maxValue"));
             if (minValue == min && maxValue == max) {
                 return value;
             }
@@ -393,7 +394,7 @@ public class VariableReturnType {
         return true;
     }
 
-    public static Object clientPost(BObject client, BTypedesc targetType, MapValue options) {
+    public static Object clientPost(BObject client, BTypedesc targetType, MapValue<?, ?> options) {
         BString mediaType =
                 Optional.ofNullable(options.getStringValue(StringUtils.fromString("mediaType")))
                         .orElse(StringUtils.fromString(""));
@@ -408,7 +409,7 @@ public class VariableReturnType {
         return mediaType.length() + header.length();
     }
 
-    public static Object calculate(BObject client, long i, BTypedesc targetType, MapValue options) {
+    public static Object calculate(BObject client, long i, BTypedesc targetType, MapValue<?, ?> options) {
         BString mediaType =
                 Optional.ofNullable(options.getStringValue(StringUtils.fromString("mediaType")))
                         .orElse(StringUtils.fromString(""));
@@ -429,8 +430,8 @@ public class VariableReturnType {
         if (targetTypeTag == STRING_TAG) {
             return StringUtils.fromString(path.toString());
         }
-        
-        assert targetTypeTag == INT_TAG;
+
+        Assert.assertEquals(targetTypeTag, INT_TAG);
         return 0;
     }
 
@@ -478,18 +479,18 @@ public class VariableReturnType {
             return arr;
         }
 
-        assert td.getDescribingType().getTag() == INT_TAG;
+        Assert.assertEquals(td.getDescribingType().getTag(), INT_TAG);
         return ValueCreator.createArrayValue(new long[]{arr.getLength(), i});
     }
 
     public static Object funcReturningUnionWithBuiltInRefType(Object strm, BTypedesc td) {
-        int tag = ((BStreamType) getReferredType(td.getDescribingType())).getConstrainedType().getTag();
+        int tag = ((BStreamType) TypeUtils.getImpliedType(td.getDescribingType())).getConstrainedType().getTag();
 
         if (tag == INT_TAG) {
             return strm;
         }
 
-        assert tag == BYTE_TAG;
+        Assert.assertEquals(tag, BYTE_TAG);
         if (strm == null) {
             return 100L;
         }
@@ -502,22 +503,22 @@ public class VariableReturnType {
 
         Type describingType = td.getDescribingType();
         if (tag == RECORD_TYPE_TAG) {
-            assert describingType.getTag() == INT_TAG;
+            Assert.assertEquals(describingType.getTag(), INT_TAG);
             return 101L;
         }
 
         if (tag == OBJECT_TYPE_TAG) {
-            assert describingType.getTag() == ARRAY_TAG &&
-                    ((BArrayType) describingType).getElementType().getTag() == STRING_TAG;
+            Assert.assertEquals(describingType.getTag(), ARRAY_TAG);
+            Assert.assertEquals(((BArrayType) describingType).getElementType().getTag(), STRING_TAG);
             return val;
         }
 
-        assert describingType.getTag() == BOOLEAN_TAG;
+        Assert.assertEquals(describingType.getTag(), BOOLEAN_TAG);
         return !((boolean) val);
     }
 
     public static BFunctionPointer getFunctionWithAnyFunctionParamType(BFunctionPointer x, BTypedesc td) {
-        assert td.getDescribingType().getTag() == INT_TAG;
+        Assert.assertEquals(td.getDescribingType().getTag(), INT_TAG);
         return x;
     }
 
@@ -530,7 +531,7 @@ public class VariableReturnType {
             return 9876L;
         }
 
-        assert tag == STRING_TAG;
+        Assert.assertEquals(tag, STRING_TAG);
         return StringUtils.fromString("hello!");
     }
 }

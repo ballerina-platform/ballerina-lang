@@ -26,6 +26,7 @@ import io.ballerina.tools.diagnostics.Location;
 import io.ballerina.tools.text.LinePosition;
 import io.ballerina.tools.text.LineRange;
 import org.ballerinalang.test.BCompileUtil;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -142,5 +143,10 @@ public abstract class FindAllReferencesTest {
         for (Location expLocation : expLocations) {
             assertTrue(lineRanges.contains(expLocation.lineRange()));
         }
+    }
+
+    @AfterClass
+    public void tearDown() {
+        model = null;
     }
 }

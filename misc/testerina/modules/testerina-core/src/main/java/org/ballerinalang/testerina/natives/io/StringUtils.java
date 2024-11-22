@@ -18,9 +18,9 @@
 
 package org.ballerinalang.testerina.natives.io;
 
-import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.types.ArrayType;
 import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.types.TypeTags;
 import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BError;
@@ -48,29 +48,28 @@ import java.util.regex.PatternSyntaxException;
  *
  * @since 2.0.0
  */
-public class StringUtils {
+public final class StringUtils {
 
     private static final String CHAR_PREFIX = "$";
-    private static List<String> specialCharacters = new ArrayList<>(Arrays.asList(",", "\\n", "\\r", "\\t", "\n", "\r",
-            "\t",
-            "\"", "\\", "!", "`"));
-    private static List<String> bracketCharacters = new ArrayList<>(Arrays.asList("{", "}", "[", "]", "(", ")"));
-    private static List<String> regexSpecialCharacters = new ArrayList<>(Arrays.asList("{", "}", "[", "]", "(", ")",
-            "+", "^", "|"));
+    private static final List<String> SPECIAL_CHARACTERS = new ArrayList<>(
+            Arrays.asList(",", "\\n", "\\r", "\\t", "\n", "\r", "\t", "\"", "\\", "!", "`"));
+    private static final List<String> BRACKET_CHARACTERS = new ArrayList<>(Arrays.asList("{", "}", "[", "]", "(", ")"));
+    private static final List<String> REGEX_SPECIAL_CHARACTERS = new ArrayList<>(
+            Arrays.asList("{", "}", "[", "]", "(", ")", "+", "^", "|"));
 
     private StringUtils() {
     }
 
     public static Object matchWildcard(BString functionName, BString functionPattern) {
-        Object encodedFunctionPattern = encode(functionPattern.getValue(), regexSpecialCharacters);
-        Object encodedFunctionName = encode(functionName.getValue(), regexSpecialCharacters);
+        Object encodedFunctionPattern = encode(functionPattern.getValue(), REGEX_SPECIAL_CHARACTERS);
+        Object encodedFunctionName = encode(functionName.getValue(), REGEX_SPECIAL_CHARACTERS);
 
         if (encodedFunctionPattern instanceof BError) {
-            return (BError) encodedFunctionPattern;
+            return encodedFunctionPattern;
         }
 
         if (encodedFunctionName instanceof BError) {
-            return (BError) encodedFunctionName;
+            return encodedFunctionName;
         }
 
         try {
@@ -85,16 +84,16 @@ public class StringUtils {
     public static Object escapeSpecialCharacters(BString key) {
         Object updatedKeyOrError = key.getValue();
         if (!isBalanced((String) updatedKeyOrError)) {
-            updatedKeyOrError = encode((String) updatedKeyOrError, bracketCharacters);
+            updatedKeyOrError = encode((String) updatedKeyOrError, BRACKET_CHARACTERS);
         }
 
         if (updatedKeyOrError instanceof BError) {
-            return (BError) updatedKeyOrError;
+            return updatedKeyOrError;
         }
-        updatedKeyOrError = encode((String) updatedKeyOrError, specialCharacters);
+        updatedKeyOrError = encode((String) updatedKeyOrError, SPECIAL_CHARACTERS);
 
         if (updatedKeyOrError instanceof BError) {
-            return (BError) updatedKeyOrError;
+            return updatedKeyOrError;
         }
         return io.ballerina.runtime.api.utils.StringUtils.fromString((String) updatedKeyOrError);
     }
@@ -146,14 +145,9 @@ public class StringUtils {
         String encodedKey = key;
         String encodedValue;
         for (String character : specialCharacters) {
-            try {
-                if (encodedKey.contains(character)) {
-                    encodedValue = URLEncoder.encode(character, StandardCharsets.UTF_8.toString());
-                    encodedKey = encodedKey.replace(character, encodedValue);
-                }
-            } catch (UnsupportedEncodingException e) {
-                return ErrorHelper.getRuntimeException(
-                        ErrorCodes.INCOMPATIBLE_ARGUMENTS, "Error while encoding: " + e.getMessage());
+            if (encodedKey.contains(character)) {
+                encodedValue = URLEncoder.encode(character, StandardCharsets.UTF_8);
+                encodedKey = encodedKey.replace(character, encodedValue);
             }
         }
         return encodedKey;
@@ -163,7 +157,7 @@ public class StringUtils {
         try {
             String javaStr = str.getValue();
             javaStr = javaStr.replaceAll("%(?![0-9a-fA-F]{2})", "%25");
-            javaStr = javaStr.replaceAll("\\+", "%2B");
+            javaStr = javaStr.replace("+", "%2B");
             return io.ballerina.runtime.api.utils.StringUtils.fromString(
                     URLDecoder.decode(javaStr, charset.getValue()));
         } catch (UnsupportedEncodingException | IllegalArgumentException e) {
@@ -248,7 +242,7 @@ public class StringUtils {
 
     private static void formatHexString(StringBuilder result, int k, StringBuilder padding, char x, Object... args) {
         final Object argsValues = args[k];
-        final Type type = TypeUtils.getReferredType(TypeChecker.getType(argsValues));
+        final Type type = TypeUtils.getImpliedType(TypeChecker.getType(argsValues));
         if (TypeTags.ARRAY_TAG == type.getTag() && TypeTags.BYTE_TAG == ((ArrayType) type).getElementType().getTag()) {
             BArray byteArray = ((BArray) argsValues);
             for (int i = 0; i < byteArray.size(); i++) {

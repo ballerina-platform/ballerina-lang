@@ -33,4 +33,11 @@ public class ErrorReturnTest {
         CompileResult compileResult = BCompileUtil.compile("test-src/services/error_return_function.bal");
         BRunUtil.invoke(compileResult, "testErrorFunction");
     }
+
+    @Test(description = "Tests invoking a function with default worker returning an error union value in a service")
+    public void testErrorReturnFunctionWithDistinctListenerArg() {
+        CompileResult compileResult = BCompileUtil.compile(
+                "test-src/services/error_union_return_with_default_worker.bal");
+        BRunUtil.invoke(compileResult, "testErrorUnionWithDefaultWorkerFunction");
+    }
 }

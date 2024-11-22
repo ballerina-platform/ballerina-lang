@@ -33,7 +33,7 @@ import java.util.stream.Collectors;
  */
 public class Manifest {
     private Project project = new Project();
-    private Map<String, Object> dependencies = new LinkedHashMap<>();
+    private final Map<String, Object> dependencies = new LinkedHashMap<>();
     public Platform platform = new Platform();
     private BuildOptions buildOptions;
 
@@ -59,15 +59,14 @@ public class Manifest {
                     dependency.setMetadata(convertObjectToDependencyMetadata(entry.getValue()));
                     return dependency;
                 })
-                .collect(Collectors.toList());
+                .toList();
     }
 
     private DependencyMetadata convertObjectToDependencyMetadata(Object obj) {
         DependencyMetadata metadata = new DependencyMetadata();
-        if (obj instanceof String) {
-            metadata.setVersion((String) obj);
-        } else if (obj instanceof Map) {
-            Map metadataMap = (Map) obj;
+        if (obj instanceof String s) {
+            metadata.setVersion(s);
+        } else if (obj instanceof Map<?, ?> metadataMap) {
             if (metadataMap.keySet().contains("version") && metadataMap.get("version") instanceof String) {
                 metadata.setVersion((String) metadataMap.get("version"));
             }
@@ -105,12 +104,10 @@ public class Manifest {
                         "\nSupported platforms : " + supportedPlatforms());
             }
             // Check if module have platform specific libraries
-            List<Library> deps = platform.libraries.stream().filter(library -> {
-                return library.getModules() == null ||
-                        Arrays.stream(library.getModules()).anyMatch(moduleName::equals);
-            }).collect(Collectors.toList());
+            List<Library> deps = platform.libraries.stream().filter(library -> library.getModules() == null ||
+                Arrays.stream(library.getModules()).anyMatch(moduleName::equals)).toList();
             // If not return any
-            if (deps.size() > 0) {
+            if (!deps.isEmpty()) {
                 return platform.target;
             }
         }

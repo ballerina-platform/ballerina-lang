@@ -11,6 +11,14 @@ Running Tests
 	    error("{ballerina}DivisionByZero",message=" / by zero")
 			callableName: before  fileName: skip-when-before-fails.bal lineNumber: 28
 			callableName: before$lambda6$  fileName: skip-when-before-fails.bal lineNumber: 32
+			callableName: call moduleName: ballerina.lang.function.0 fileName: function.bal lineNumber: 37
+			callableName: executeFunction moduleName: ballerina.test.0 fileName: serialExecuter.bal lineNumber: 142
+			callableName: executeBeforeFunction moduleName: ballerina.test.0 fileName: serialExecuter.bal lineNumber: 121
+			callableName: executeNonDataDrivenTest moduleName: ballerina.test.0 fileName: serialExecuter.bal lineNumber: 68
+			callableName: executeTest moduleName: ballerina.test.0 fileName: serialExecuter.bal lineNumber: 30
+			callableName: executeTests moduleName: ballerina.test.0 fileName: execute.bal lineNumber: 81
+			callableName: startSuite moduleName: ballerina.test.0 fileName: execute.bal lineNumber: 53
+			callableName: __execute__  fileName: skip-when-before-fails.bal lineNumber: 66
 		
 	[fail] afterSuite[after test suite function]:
 	    error {ballerina/test:0}TestError ("Assertion Failed!
@@ -31,7 +39,13 @@ Running Tests
 			callableName: createBallerinaError moduleName: ballerina.test.0 fileName: assert.bal lineNumber: 41
 			callableName: assertEquals moduleName: ballerina.test.0 fileName: assert.bal lineNumber: 109
 			callableName: afterSuite  fileName: skip-when-before-fails.bal lineNumber: 54
-			callableName: afterSuite$lambda5$  fileName: skip-when-before-fails.bal lineNumber: 61
+			callableName: afterSuite$lambda2$  fileName: skip-when-before-fails.bal lineNumber: 59
+			callableName: call moduleName: ballerina.lang.function.0 fileName: function.bal lineNumber: 37
+			callableName: executeFunction moduleName: ballerina.test.0 fileName: serialExecuter.bal lineNumber: 142
+			callableName: executeFunctions moduleName: ballerina.test.0 fileName: serialExecuter.bal lineNumber: 96
+			callableName: executeAfterSuiteFunctions moduleName: ballerina.test.0 fileName: execute.bal lineNumber: 104
+			callableName: startSuite moduleName: ballerina.test.0 fileName: execute.bal lineNumber: 58
+			callableName: __execute__  fileName: skip-when-before-fails.bal lineNumber: 66
 		
 		[pass] test3
 
@@ -39,4 +53,6 @@ Running Tests
 		1 passing
 		0 failing
 		2 skipped
-error: there are test failures
+
+		Test execution time :*****s
+error: there are test failures

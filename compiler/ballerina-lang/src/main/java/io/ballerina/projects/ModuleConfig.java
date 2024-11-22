@@ -17,7 +17,6 @@
  */
 package io.ballerina.projects;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -33,26 +32,20 @@ public class ModuleConfig {
     private final List<DocumentConfig> srcDocs;
     private final List<DocumentConfig> testSrcDocs;
     private final List<ModuleDescriptor> dependencies;
-    private final DocumentConfig moduleMd;
-    private final List<ResourceConfig> resources;
-    private final List<ResourceConfig> testResources;
+    private final DocumentConfig readmeMd;
 
     private ModuleConfig(ModuleId moduleId,
                          ModuleDescriptor moduleDescriptor,
                          List<DocumentConfig> srcDocs,
                          List<DocumentConfig> testSrcDocs,
-                         DocumentConfig moduleMd,
-                         List<ModuleDescriptor> dependencies,
-                         List<ResourceConfig> resources,
-                         List<ResourceConfig> testResources) {
+                         DocumentConfig readmeMd,
+                         List<ModuleDescriptor> dependencies) {
         this.moduleId = moduleId;
         this.moduleDescriptor = moduleDescriptor;
         this.srcDocs = srcDocs;
         this.testSrcDocs = testSrcDocs;
         this.dependencies = dependencies;
-        this.moduleMd = moduleMd;
-        this.resources = resources;
-        this.testResources = testResources;
+        this.readmeMd = readmeMd;
     }
 
     public static ModuleConfig from(ModuleId moduleId,
@@ -61,8 +54,7 @@ public class ModuleConfig {
                                     List<DocumentConfig> testSrcDocs,
                                     DocumentConfig moduleMd,
                                     List<ModuleDescriptor> dependencies) {
-        return new ModuleConfig(moduleId, moduleDescriptor, srcDocs, testSrcDocs, moduleMd, dependencies,
-                Collections.emptyList(), Collections.emptyList());
+        return new ModuleConfig(moduleId, moduleDescriptor, srcDocs, testSrcDocs, moduleMd, dependencies);
     }
 
     public static ModuleConfig from(ModuleId moduleId,
@@ -74,7 +66,7 @@ public class ModuleConfig {
                                     List<ResourceConfig> resources,
                                     List<ResourceConfig> testResources) {
         return new ModuleConfig(
-                moduleId, moduleDescriptor, srcDocs, testSrcDocs, moduleMd, dependencies, resources, testResources);
+                moduleId, moduleDescriptor, srcDocs, testSrcDocs, moduleMd, dependencies);
     }
 
     public ModuleId moduleId() {
@@ -101,15 +93,22 @@ public class ModuleConfig {
         return dependencies;
     }
 
+    @Deprecated (forRemoval = true, since = "2.11.0")
     public Optional<DocumentConfig> moduleMd() {
-        return Optional.ofNullable(this.moduleMd);
+        return Optional.ofNullable(this.readmeMd);
     }
 
+    public Optional<DocumentConfig> readmeMd() {
+        return Optional.ofNullable(this.readmeMd);
+    }
+
+    @Deprecated(since = "2201.10.0", forRemoval = true)
     public List<ResourceConfig> resources() {
-        return resources;
+        return null;
     }
 
+    @Deprecated(since = "2201.10.0", forRemoval = true)
     public List<ResourceConfig> testResources() {
-        return testResources;
+        return null;
     }
 }

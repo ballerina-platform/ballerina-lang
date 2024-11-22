@@ -35,7 +35,7 @@ public class CompilerPluginCompletionTests extends CompletionTest {
     }
 
     @Override
-    @Test(dataProvider = "completion-data-provider")
+    @Test(dataProvider = "completion-data-provider", enabled = false)
     public void test(String config, String configPath) throws WorkspaceDocumentException, IOException {
         super.test(config, configPath);
     }

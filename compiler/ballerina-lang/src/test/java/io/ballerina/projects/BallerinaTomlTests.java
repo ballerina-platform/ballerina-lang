@@ -29,7 +29,6 @@ import org.testng.annotations.Test;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -46,7 +45,7 @@ import static io.ballerina.projects.util.ProjectConstants.USER_NAME;
  */
 public class BallerinaTomlTests {
 
-    private static final Path RESOURCE_DIRECTORY = Paths.get("src", "test", "resources");
+    private static final Path RESOURCE_DIRECTORY = Path.of("src/test/resources");
     private static final Path BAL_TOML_REPO = RESOURCE_DIRECTORY.resolve("ballerina-toml");
 
     @Test
@@ -60,10 +59,10 @@ public class BallerinaTomlTests {
         Assert.assertEquals(descriptor.org().value(), "foo");
         Assert.assertEquals(descriptor.version().value().toString(), "0.1.0");
 
-        PackageManifest.Platform platform = packageManifest.platform("java17");
+        PackageManifest.Platform platform = packageManifest.platform(JvmTarget.JAVA_21.code());
         List<Map<String, Object>> platformDependencies = platform.dependencies();
         Assert.assertEquals(platformDependencies.size(), 2);
-        Assert.assertEquals(platform.graalvmCompatible().booleanValue(), true);
+        Assert.assertTrue(platform.graalvmCompatible());
         for (Map<String, Object> library : platformDependencies) {
             Assert.assertTrue(library.get("path").equals("../dummy-jars/toml4j.txt")
                                       || library.get("path").equals("../dummy-jars/swagger.txt"));
@@ -72,6 +71,8 @@ public class BallerinaTomlTests {
             Assert.assertEquals(library.get("version"), "0.7.2");
             Assert.assertTrue(library.get("groupId").equals("com.moandjiezana.toml")
                                       || library.get("groupId").equals("swagger.io"));
+            Assert.assertTrue(library.get("graalvmCompatible") == null
+                    || library.get("graalvmCompatible").equals(true));
         }
 
         Assert.assertEquals(packageManifest.license(), Collections.singletonList("Apache 2.0"));
@@ -111,7 +112,8 @@ public class BallerinaTomlTests {
         Assert.assertEquals(descriptor.org().value(), "ballerina");
         Assert.assertEquals(descriptor.version().value().toString(), "1.0.0");
 
-        List<Map<String, Object>> platformDependencies = packageManifest.platform("java17").dependencies();
+        List<Map<String, Object>> platformDependencies = packageManifest.platform(JvmTarget.JAVA_21.code())
+                .dependencies();
         Assert.assertEquals(platformDependencies.size(), 0);
     }
 
@@ -120,15 +122,20 @@ public class BallerinaTomlTests {
         PackageManifest packageManifest = getPackageManifest(BAL_TOML_REPO.resolve("platfoms-with-scope.toml"));
         Assert.assertFalse(packageManifest.diagnostics().hasErrors());
 
-        PackageManifest.Platform platform = packageManifest.platform("java17");
+        PackageManifest.Platform platform = packageManifest.platform(JvmTarget.JAVA_21.code());
         List<Map<String, Object>> platformDependencies = platform.dependencies();
-        Assert.assertEquals(platformDependencies.size(), 2);
+        Assert.assertEquals(platformDependencies.size(), 3);
         for (Map<String, Object> library : platformDependencies) {
             if (library.get("path").equals("../dummy-jars/swagger.txt")) {
                 Assert.assertEquals(library.get("scope"), "testOnly");
                 Assert.assertEquals(library.get("artifactId"), "swagger");
                 Assert.assertEquals(library.get("version"), "0.7.2");
                 Assert.assertEquals(library.get("groupId"), "swagger.io");
+            } else if (library.get("path").equals("../dummy-jars/ibm.mq.txt")) {
+                Assert.assertEquals(library.get("scope"), "provided");
+                Assert.assertEquals(library.get("artifactId"), "com.ibm.mq.allclient");
+                Assert.assertEquals(library.get("version"), "9.3.4.0");
+                Assert.assertEquals(library.get("groupId"), "com.ibm.mq");
             } else {
                 Assert.assertNull(library.get("scope"));
                 Assert.assertEquals(library.get("path"), "../dummy-jars/toml4j.txt");
@@ -137,6 +144,35 @@ public class BallerinaTomlTests {
                 Assert.assertEquals(library.get("groupId"), "com.moandjiezana.toml");
             }
         }
+    }
+
+    @Test(description = "Platform libraries with 'provided' scope specified in Ballerina.toml must have an" +
+            " artifactId, groupId and a version")
+    public void testBallerinaTomlWithMissingFieldsInProvidedPlatformLibs() throws IOException {
+        PackageManifest packageManifest =
+                getPackageManifest(BAL_TOML_REPO.resolve("provided-platform-missing-fields.toml"));
+        Assert.assertTrue(packageManifest.diagnostics().hasErrors());
+        Assert.assertEquals(packageManifest.diagnostics().errors().size(), 1);
+
+        Iterator<Diagnostic> iterator = packageManifest.diagnostics().errors().iterator();
+        Assert.assertEquals(iterator.next().message(),
+                "artifactId, groupId and version must be provided for platform dependencies with provided scope");
+    }
+
+    @Test(description = "Test a valid Ballerina.toml file with tool id, filePath and targetModule")
+    public void testBallerinaTomlWithTool() throws IOException {
+        PackageManifest packageManifest = getPackageManifest(BAL_TOML_REPO.resolve("tool-entries.toml"));
+        Assert.assertFalse(packageManifest.diagnostics().hasErrors());
+
+        PackageManifest.Tool tool = packageManifest.tools().get(0);
+        Assert.assertEquals(tool.type().value(), "openapi");
+        Assert.assertEquals(tool.type().location().lineRange().toString(), "(5:0,9:23)");
+        Assert.assertEquals(tool.id().value(), "generate-delivery-client");
+        Assert.assertEquals(tool.id().location().lineRange().toString(), "(6:0,6:31)");
+        Assert.assertEquals(tool.filePath().value(), "delivery.json");
+        Assert.assertEquals(tool.filePath().location().lineRange().toString(), "(7:0,7:26)");
+        Assert.assertEquals(tool.targetModule().value(), "delivery");
+        Assert.assertEquals(tool.targetModule().location().lineRange().toString(), "(8:0,8:25)");
     }
 
     // Negative tests
@@ -194,11 +230,40 @@ public class BallerinaTomlTests {
     public void testBallerinaTomlWithGraalvmBuildOptions() throws IOException {
         BuildOptions buildOptions =
                 getBuildOptions(BAL_TOML_REPO.resolve("build-options-as-table.toml"));
-        Assert.assertTrue(buildOptions.graalVMBuildOptions().equals("--static"));
+        Assert.assertEquals(buildOptions.graalVMBuildOptions(), "--static");
     }
 
-    @Test(description = "Platform libs should be given as [[platform.java17.dependency]], " +
-            "Here checking error when it given as [platform.java17.dependency]")
+    @DataProvider(name = "ballerinaTomlWithInvalidEntries")
+    public Object[][] provideBallerinaTomlWithInvalidEntries() {
+        return new Object[][] {
+                {
+                    "missing-tool-entries.toml",
+                    "missing key '[filePath]' in table '[tool.openapi]'.",
+                    "missing key '[id]' in table '[tool.openapi]'."
+                },
+                {
+                    "invalid-tool-entries.toml",
+                    "empty string found for key '[filePath]' in table '[tool.openapi]'.",
+                    "incompatible type found for key '[targetModule]': expected 'STRING'"
+                }
+        };
+    }
+
+    @Test(description = "Test Ballerina.toml file with invalid or missing tool properties",
+            dataProvider = "ballerinaTomlWithInvalidEntries")
+    public void testBallerinaTomlWithMissingToolEntries(String tomlFileName, String assertMessage1,
+        String assertMessage2) throws IOException {
+        PackageManifest packageManifest = getPackageManifest(BAL_TOML_REPO.resolve(tomlFileName));
+        Assert.assertTrue(packageManifest.diagnostics().hasErrors());
+        Assert.assertEquals(packageManifest.diagnostics().errors().size(), 2);
+
+        Iterator<Diagnostic> iterator = packageManifest.diagnostics().errors().iterator();
+        Assert.assertEquals(iterator.next().message(), assertMessage1);
+        Assert.assertEquals(iterator.next().message(), assertMessage2);
+    }
+
+    @Test(description = "Platform libs should be given as [[platform.java21.dependency]], " +
+            "Here checking error when it given as [platform.java21.dependency]")
     public void testBallerinaTomlWithPlatformLibsGivenAsTable() throws IOException {
         PackageManifest packageManifest =
                 getPackageManifest(BAL_TOML_REPO.resolve("platform-libs-as-table.toml"));
@@ -408,7 +473,7 @@ public class BallerinaTomlTests {
         DiagnosticResult diagnostics = packageManifest.diagnostics();
         Assert.assertTrue(diagnostics.hasErrors());
         Assert.assertEquals(diagnostics.errors().iterator().next().message(),
-                            "incompatible type for key 'java17': expected 'OBJECT', found 'ARRAY'");
+                            "incompatible type for key 'java21': expected 'OBJECT', found 'ARRAY'");
     }
 
     @Test(description = "Test Ballerina.toml having invalid types for entries in package and build options")
@@ -446,7 +511,7 @@ public class BallerinaTomlTests {
         String tomlContent = Files.readString(BAL_TOML_REPO.resolve("simple-ballerina.toml"));
         String replacedContent = tomlContent.replace("1.0.0", version);
         TomlDocument ballerinaToml = TomlDocument.from(ProjectConstants.BALLERINA_TOML, replacedContent);
-        PackageManifest manifest = ManifestBuilder.from(ballerinaToml, null, BAL_TOML_REPO).packageManifest();
+        PackageManifest manifest = ManifestBuilder.from(ballerinaToml, null, null, BAL_TOML_REPO).packageManifest();
         Assert.assertFalse(manifest.diagnostics().hasErrors());
     }
 
@@ -455,7 +520,7 @@ public class BallerinaTomlTests {
         String tomlContent = Files.readString(BAL_TOML_REPO.resolve("simple-ballerina.toml"));
         String replacedContent = tomlContent.replace("1.0.0", version);
         TomlDocument ballerinaToml = TomlDocument.from(ProjectConstants.BALLERINA_TOML, replacedContent);
-        PackageManifest manifest = ManifestBuilder.from(ballerinaToml, null, BAL_TOML_REPO).packageManifest();
+        PackageManifest manifest = ManifestBuilder.from(ballerinaToml, null, null, BAL_TOML_REPO).packageManifest();
         Assert.assertTrue(manifest.diagnostics().hasErrors());
         Assert.assertEquals(manifest.diagnostics().errors().iterator().next().message(),
                             "invalid 'version' under [package]: 'version' should be compatible with semver");
@@ -481,7 +546,8 @@ public class BallerinaTomlTests {
         Assert.assertEquals(frequency.longValue(), 225);
 
         // other entry table array
-        List<Map<String, Object>> userContacts = (ArrayList) packageManifest.getValue("userContact");
+        ArrayList<Map<String, Object>> userContacts =
+                (ArrayList<Map<String, Object>>) packageManifest.getValue("userContact");
         Assert.assertEquals(userContacts.size(), 2);
         Map<String, Object> firstContact = userContacts.get(0);
         Assert.assertEquals(firstContact.get("name"), "hevayo");
@@ -583,12 +649,12 @@ public class BallerinaTomlTests {
     static PackageManifest getPackageManifest(Path tomlPath) throws IOException {
         String tomlContent = Files.readString(tomlPath);
         TomlDocument ballerinaToml = TomlDocument.from(ProjectConstants.BALLERINA_TOML, tomlContent);
-        return ManifestBuilder.from(ballerinaToml, null, tomlPath.getParent()).packageManifest();
+        return ManifestBuilder.from(ballerinaToml, null, null, tomlPath.getParent()).packageManifest();
     }
 
     static BuildOptions getBuildOptions(Path tomlPath) throws IOException {
         String tomlContent = Files.readString(tomlPath);
         TomlDocument ballerinaToml = TomlDocument.from(ProjectConstants.BALLERINA_TOML, tomlContent);
-        return ManifestBuilder.from(ballerinaToml, null, tomlPath.getParent()).buildOptions();
+        return ManifestBuilder.from(ballerinaToml, null, null, tomlPath.getParent()).buildOptions();
     }
 }

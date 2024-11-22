@@ -1,12 +1,10 @@
 NAME
-       ballerina-graphql - Generate the Ballerina client sources for a GraphQL config file, 
-       generate the GraphQL schema for a Ballerina GraphQL service,
-       and generate the Ballerina service sources for a GraphQL schema.
+       ballerina-graphql - Generate the GraphQL schema for a Ballerina GraphQL service,
+       generate the Ballerina service sources for a GraphQL schema, and
+       generate the Ballerina client sources for a GraphQL config file [Experimental].
 
 
 SYNOPSIS
-       bal graphql [-i | --input] <graphql-configuration-file-path>
-                   [-o | --output] <output-location>
        bal graphql [-i | --input] <ballerina-graphql-service-file-path>
                    [-o | --output] <output-location>
                    [-s | --service] <service-base-path>
@@ -14,25 +12,28 @@ SYNOPSIS
                    [-o | --output] <output-location>
                    [-m | --mode] <operation-mode>
                    [-r | --use-records-for-objects]
+       bal graphql [-i | --input] <graphql-configuration-file-path>
+                   [-o | --output] <output-location>
 
 
 DESCRIPTION
+       Export a GraphQL schema (SDL) for a given Ballerina GraphQL service or generate the
+       Ballerina sources for a given GraphQL schema. The generated Ballerina sources or
+       GraphQL schema files will be written into the provided output location.
+
        Generate the Ballerina GraphQL client sources for a given GraphQL config file configured
        with GraphQL schemas specified by GraphQL Schema Definition Language(SDL) and GraphQL
-       queries or export a GraphQL schema (SDL) for a given Ballerina GraphQL service.
-    
-       The generated Ballerina sources or GraphQL schema files will be written into the provided
-       output location.
+       queries. GraphQL client generation is an experimental feature which supports only a limited
+       set of functionality.
 
 
 OPTIONS
-        -i, --input <graphql-configuration-file-path | ballerina-graphql-service-file-path | 
-        graphql-schema-file-path>
-            This is mandatory input. The given GraphQL config file which is configured with
-            GraphQL schemas (SDL) and queries, will generate the Ballerina GraphQL client sources.
-            The given Ballerina GraphQL service file will generate the GraphQL schema (SDL) file
-            relevant to the service.
+        -i, --input <ballerina-graphql-service-file-path | graphql-schema-file-path | graphql-configuration-file-path>
+            This is mandatory input. The given Ballerina GraphQL service file will generate
+            the GraphQL schema (SDL) file relevant to the service.
             The given GraphQL schema file will generate the Ballerina GraphQL service sources.
+            The given GraphQL config file which is configured with GraphQL schemas (SDL)
+            and queries, will generate the Ballerina GraphQL client sources.
         -o, --output <output-location>
             Location of the generated Ballerina source code or GraphQL schema. If this path is not
             specified, the output will be written to the same directory from which the command is
@@ -43,31 +44,32 @@ OPTIONS
             If this base path is not specified, schemas will be generated for each of the GraphQL
             services in the input file.
         -m, --mode
-            This mode is used to identify the operation mode. It can be `client`, `schema`, or 
-            `service`. The `client` argument indicates the Ballerina client source code 
-            generation, the `schema` argument indicates the GraphQL schema generation, and the 
-            `service` argument indicates the Ballerina GraphQL service source code generation. 
-            If the `mode` flag is not specified, the `graphql` tool will infer the mode from the 
+            This mode is used to identify the operation mode. It can be `schema`, `service`,
+            or `client`. The `schema` argument indicates the GraphQL schema generation,
+            the `service` argument indicates the Ballerina GraphQL service source code generation,
+            and the `client` argument indicates the Ballerina client source code generation.
+            If the `mode` flag is not specified, the `graphql` tool will infer the mode from the
             `input` file extension.
         -r, --use-records-for-objects
-            This flag is used without an argument. It is used only in the Ballerina GraphQL 
-            service generation. It will make the Ballerina CLI tool to use record types for 
+            This flag is used without an argument. It is used only in the Ballerina GraphQL
+            service generation. It will make the Ballerina CLI tool to use record types for
             GraphQL object types whenever possible.
 
 EXAMPLES
-       Generate Ballerina Graphql clients using a GraphQL config file (`graphql.config.yaml`).
-           $ bal graphql -i graphql.config.yaml
-
-       Generate Ballerina Graphql clients using a GraphQL config file (`graphql.config.yaml`) 
-       and write the output to the given directory.
-           $ bal graphql -i graphql.config.yaml -o ./output_path
-
        Generate a GraphQL schema for a selected GraphQL service from the given input file.
            $ bal graphql -i graphql_service.bal -o ./output_path -s /service_base_path
 
        Generate a Ballerina GraphQL service using a GraphQL schema file (`schema.graphql`).
            $ bal graphql -i schema.graphql -m service -o ./output_path
 
-       Generate a Ballerina GraphQL service using a GraphQL schema file (`schema.graphql`) 
+       Generate a Ballerina GraphQL service using a GraphQL schema file (`schema.graphql`)
        including record types whenever possible.
            $ bal graphql -i schema.graphql -m service -o ./output_path -r
+
+       Generate Ballerina Graphql clients using a GraphQL config file (`graphql.config.yaml`)
+       [Experimental].
+           $ bal graphql -i graphql.config.yaml
+
+       Generate Ballerina Graphql clients using a GraphQL config file (`graphql.config.yaml`)
+       and write the output to the given directory [Experimental].
+           $ bal graphql -i graphql.config.yaml -o ./output_path

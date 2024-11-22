@@ -17,6 +17,10 @@
  */
 package org.wso2.ballerinalang.compiler.bir.model;
 
+import org.wso2.ballerinalang.compiler.bir.codegen.model.JLargeArrayInstruction;
+import org.wso2.ballerinalang.compiler.bir.codegen.model.JLargeMapInstruction;
+import org.wso2.ballerinalang.compiler.bir.codegen.model.JMethodCallInstruction;
+
 /**
  * A BIR node visitor.
  *
@@ -25,272 +29,295 @@ package org.wso2.ballerinalang.compiler.bir.model;
 public abstract class BIRVisitor {
 
     public void visit(BIRNode.BIRPackage birPackage) {
-        throw new AssertionError();
+        throw new UnsupportedOperationException();
     }
 
     public void visit(BIRNode.BIRImportModule birImportModule) {
-        throw new AssertionError();
+        throw new UnsupportedOperationException();
     }
 
     public void visit(BIRNode.BIRTypeDefinition birTypeDefinition) {
-        throw new AssertionError();
+        throw new UnsupportedOperationException();
     }
 
     public void visit(BIRNode.BIRVariableDcl birVariableDcl) {
-        throw new AssertionError();
+        throw new UnsupportedOperationException();
     }
 
     public void visit(BIRNode.BIRFunctionParameter birFunctionParameter) {
-        throw new AssertionError();
+        throw new UnsupportedOperationException();
     }
 
     public void visit(BIRNode.BIRFunction birFunction) {
-        throw new AssertionError();
+        throw new UnsupportedOperationException();
     }
 
     public void visit(BIRNode.BIRBasicBlock birBasicBlock) {
-        throw new AssertionError();
+        throw new UnsupportedOperationException();
     }
 
     public void visit(BIRNode.BIRParameter birParameter) {
-        throw new AssertionError();
+        throw new UnsupportedOperationException();
     }
 
     public void visit(BIRNode.BIRAnnotation birAnnotation) {
-        throw new AssertionError();
+        throw new UnsupportedOperationException();
     }
 
     public void visit(BIRNode.BIRConstant birConstant) {
-        throw new AssertionError();
+        throw new UnsupportedOperationException();
     }
 
     public void visit(BIRNode.BIRAnnotationAttachment birAnnotAttach) {
-        throw new AssertionError();
+        throw new UnsupportedOperationException();
     }
 
     public void visit(BIRNode.BIRConstAnnotationAttachment birConstAnnotAttach) {
-        throw new AssertionError();
+        throw new UnsupportedOperationException();
     }
 
     public void visit(BIRNode.BIRErrorEntry birErrorEntry) {
-        throw new AssertionError();
+        throw new UnsupportedOperationException();
     }
 
     public void visit(BIRNode.BIRServiceDeclaration birServiceDecl) {
-        throw new AssertionError();
+        throw new UnsupportedOperationException();
     }
 
     // Terminating instructions
 
     public void visit(BIRTerminator.GOTO birGoto) {
-        throw new AssertionError();
+        throw new UnsupportedOperationException();
     }
 
     public void visit(BIRTerminator.Call birCall) {
-        throw new AssertionError();
+        throw new UnsupportedOperationException();
     }
 
     public void visit(BIRTerminator.AsyncCall birCall) {
-        throw new AssertionError();
+        throw new UnsupportedOperationException();
     }
 
     public void visit(BIRTerminator.Return birReturn) {
-        throw new AssertionError();
+        throw new UnsupportedOperationException();
     }
 
     public void visit(BIRTerminator.Branch birBranch) {
-        throw new AssertionError();
+        throw new UnsupportedOperationException();
     }
 
     public void visit(BIRTerminator.FPCall fpCall) {
-        throw new AssertionError();
+        throw new UnsupportedOperationException();
     }
 
     public void visit(BIRTerminator.Lock lock) {
-        throw new AssertionError();
+        throw new UnsupportedOperationException();
     }
 
     public void visit(BIRTerminator.FieldLock lock) {
-        throw new AssertionError();
+        throw new UnsupportedOperationException();
     }
 
     public void visit(BIRTerminator.Unlock unlock) {
-        throw new AssertionError();
+        throw new UnsupportedOperationException();
     }
 
     public void visit(BIRTerminator.Panic birPanic) {
-        throw new AssertionError();
+        throw new UnsupportedOperationException();
     }
 
     public void visit(BIRTerminator.Wait birWait) {
-        throw new AssertionError();
+        throw new UnsupportedOperationException();
     }
 
     public void visit(BIRTerminator.WaitAll waitAll) {
-        throw new AssertionError();
+        throw new UnsupportedOperationException();
     }
 
     public void visit(BIRTerminator.Flush birFlush) {
-        throw new AssertionError();
+        throw new UnsupportedOperationException();
     }
 
     public void visit(BIRTerminator.WorkerReceive workerReceive) {
-        throw new AssertionError();
+        throw new UnsupportedOperationException();
     }
 
     public void visit(BIRTerminator.WorkerSend workerSend) {
+        throw new UnsupportedOperationException();
+    }
+
+    public void visit(BIRTerminator.WorkerAlternateReceive altReceive) {
         throw new AssertionError();
     }
 
+    public void visit(BIRTerminator.WorkerMultipleReceive multipleReceive) {
+        throw new AssertionError();
+    }
 
     // Non-terminating instructions
 
     public void visit(BIRNonTerminator.Move birMove) {
-        throw new AssertionError();
+        throw new UnsupportedOperationException();
     }
 
     public void visit(BIRNonTerminator.BinaryOp birBinaryOp) {
-        throw new AssertionError();
+        throw new UnsupportedOperationException();
     }
 
     public void visit(BIRNonTerminator.UnaryOP birUnaryOp) {
-        throw new AssertionError();
+        throw new UnsupportedOperationException();
     }
 
     public void visit(BIRNonTerminator.ConstantLoad birConstantLoad) {
-        throw new AssertionError();
+        throw new UnsupportedOperationException();
     }
 
     public void visit(BIRNonTerminator.NewStructure birNewStructure) {
-        throw new AssertionError();
+        throw new UnsupportedOperationException();
     }
 
     public void visit(BIRNonTerminator.NewArray birNewArray) {
-        throw new AssertionError();
+        throw new UnsupportedOperationException();
     }
 
     public void visit(BIRNonTerminator.FieldAccess birFieldAccess) {
-        throw new AssertionError();
+        throw new UnsupportedOperationException();
     }
 
     public void visit(BIRNonTerminator.NewError birNewError) {
-        throw new AssertionError();
+        throw new UnsupportedOperationException();
     }
 
     public void visit(BIRNonTerminator.FPLoad fpLoad) {
-        throw new AssertionError();
+        throw new UnsupportedOperationException();
     }
 
     public void visit(BIRNonTerminator.TypeCast birTypeCast) {
-        throw new AssertionError();
+        throw new UnsupportedOperationException();
     }
 
     public void visit(BIRNonTerminator.NewInstance newInstance) {
-        throw new AssertionError();
+        throw new UnsupportedOperationException();
     }
 
     public void visit(BIRNonTerminator.IsLike birIsLike) {
-        throw new AssertionError();
+        throw new UnsupportedOperationException();
     }
 
     public void visit(BIRNonTerminator.TypeTest birTypeTest) {
-        throw new AssertionError();
+        throw new UnsupportedOperationException();
     }
 
     public void visit(BIRNonTerminator.NewTable newTable) {
-        throw new AssertionError();
+        throw new UnsupportedOperationException();
     }
 
     public void visit(BIRNonTerminator.NewTypeDesc newTypeDesc) {
-        throw new AssertionError();
+        throw new UnsupportedOperationException();
     }
 
     public void visit(BIRNonTerminator.NewStringXMLQName newStringXMLQName) {
-        throw new AssertionError();
+        throw new UnsupportedOperationException();
     }
 
     public void visit(BIRNonTerminator.NewXMLProcIns newXMLProcIns) {
-        throw new AssertionError();
+        throw new UnsupportedOperationException();
     }
 
     public void visit(BIRNonTerminator.NewXMLComment newXMLComment) {
-        throw new AssertionError();
+        throw new UnsupportedOperationException();
     }
 
     public void visit(BIRNonTerminator.XMLAccess xmlAccess) {
-        throw new AssertionError();
+        throw new UnsupportedOperationException();
     }
 
     public void visit(BIRNonTerminator.NewXMLText newXMLText) {
-        throw new AssertionError();
+        throw new UnsupportedOperationException();
     }
 
     public void visit(BIRNonTerminator.NewXMLSequence newXMLSequence) {
-        throw new AssertionError();
+        throw new UnsupportedOperationException();
     }
 
     public void visit(BIRNonTerminator.NewXMLQName newXMLQName) {
-        throw new AssertionError();
+        throw new UnsupportedOperationException();
     }
 
     public void visit(BIRNonTerminator.NewXMLElement newXMLElement) {
-        throw new AssertionError();
+        throw new UnsupportedOperationException();
     }
 
     public void visit(BIRNonTerminator.NewRegExp newRegExp) {
-        throw new AssertionError();
+        throw new UnsupportedOperationException();
     }
 
     public void visit(BIRNonTerminator.NewReDisjunction reDisjunction) {
-        throw new AssertionError();
+        throw new UnsupportedOperationException();
     }
 
     public void visit(BIRNonTerminator.NewReSequence reSequence) {
-        throw new AssertionError();
+        throw new UnsupportedOperationException();
     }
 
     public void visit(BIRNonTerminator.NewReAssertion reAssertion) {
-        throw new AssertionError();
+        throw new UnsupportedOperationException();
     }
 
     public void visit(BIRNonTerminator.NewReAtomQuantifier reAtomQuantifier) {
-        throw new AssertionError();
+        throw new UnsupportedOperationException();
     }
 
     public void visit(BIRNonTerminator.NewReLiteralCharOrEscape reLiteralCharOrEscape) {
-        throw new AssertionError();
+        throw new UnsupportedOperationException();
     }
 
     public void visit(BIRNonTerminator.NewReCharacterClass reCharacterClass) {
-        throw new AssertionError();
+        throw new UnsupportedOperationException();
     }
 
     public void visit(BIRNonTerminator.NewReCharSet reCharSet) {
-        throw new AssertionError();
+        throw new UnsupportedOperationException();
     }
 
     public void visit(BIRNonTerminator.NewReCharSetRange reCharSetRange) {
-        throw new AssertionError();
+        throw new UnsupportedOperationException();
     }
 
     public void visit(BIRNonTerminator.NewReCapturingGroup reCapturingGroup) {
-        throw new AssertionError();
+        throw new UnsupportedOperationException();
     }
 
     public void visit(BIRNonTerminator.NewReFlagExpression reFlagExpression) {
-        throw new AssertionError();
+        throw new UnsupportedOperationException();
     }
 
     public void visit(BIRNonTerminator.NewReFlagOnOff reFlagOnOff) {
-        throw new AssertionError();
+        throw new UnsupportedOperationException();
     }
 
     public void visit(BIRNonTerminator.NewReQuantifier reQuantifier) {
-        throw new AssertionError();
+        throw new UnsupportedOperationException();
+    }
+
+    public void visit(BIRNonTerminator.RecordDefaultFPLoad recordDefaultFPLoad) {
+        throw new UnsupportedOperationException();
     }
 
     // Operands
     public void visit(BIROperand birVarRef) {
-        throw new AssertionError();
+        throw new UnsupportedOperationException();
+    }
+
+    public void visit(JMethodCallInstruction methodCallInstruction) {
+        throw new UnsupportedOperationException();
+    }
+
+    public void visit(JLargeMapInstruction largeMapInstruction) {
+        throw new UnsupportedOperationException();
+    }
+
+    public void visit(JLargeArrayInstruction jLargeArrayInstruction) {
+        throw new UnsupportedOperationException();
     }
 }

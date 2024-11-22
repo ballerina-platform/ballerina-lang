@@ -33,6 +33,7 @@ public client isolated class Client {
 
 public function main() {
     testGetFunctionNameAndGetPathParameters();
+    testGetBallerinaNodeInformation();
 }
 
 function testGetFunctionNameAndGetPathParameters() {
@@ -44,3 +45,13 @@ function testGetFunctionNameAndGetPathParameters() {
     int intResult2 = clientResult->/greeting/[600]/[0]/[0.0].post(800, "", false);
     test:assertEquals(intResult2, 2);
 }
+
+function testGetBallerinaNodeInformation() {
+    string ballerinaNode = getBallerinaNode();
+    test:assertTrue(ballerinaNode.startsWith("balNode-"));
+}
+
+function getBallerinaNode() returns string = @java:Method {
+    'class: "org.ballerinalang.nativeimpl.jvm.runtime.api.tests.Values"
+} external;
+

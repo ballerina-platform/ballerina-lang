@@ -18,8 +18,8 @@
 
 package org.ballerinalang.langlib.string;
 
-import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.creators.ValueCreator;
+import io.ballerina.runtime.api.types.PredefinedTypes;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BIterator;
 import io.ballerina.runtime.api.values.BObject;
@@ -30,14 +30,14 @@ import io.ballerina.runtime.api.values.BString;
  *
  * @since 1.0
  */
-public class Next {
+public final class Next {
 
     private Next() {
     }
 
     //TODO: refactor hard coded values
     public static Object next(BObject stringObject) {
-        BIterator charIterator = (BIterator) stringObject.getNativeData("&iterator&");
+        BIterator<String> charIterator = (BIterator<String>) stringObject.getNativeData("&iterator&");
         if (charIterator == null) {
             BString bString = ((BString) stringObject.get(StringUtils.fromString("m")));
             charIterator = bString.getIterator();

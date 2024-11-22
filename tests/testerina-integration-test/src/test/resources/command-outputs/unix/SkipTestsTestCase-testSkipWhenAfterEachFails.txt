@@ -10,7 +10,15 @@ Running Tests
 	[fail] afterEach[after each test function for the test]:
 	    error("{ballerina}DivisionByZero",message=" / by zero")
 			callableName: afterEach  fileName: skip-when-afterEach-fails.bal lineNumber: 30
-			callableName: afterEach$lambda2$  fileName: skip-when-afterEach-fails.bal lineNumber: 54
+			callableName: afterEach$lambda2$  fileName: skip-when-afterEach-fails.bal lineNumber: 55
+			callableName: call moduleName: ballerina.lang.function.0 fileName: function.bal lineNumber: 37
+			callableName: executeFunction moduleName: ballerina.test.0 fileName: serialExecuter.bal lineNumber: 142
+			callableName: executeFunctions moduleName: ballerina.test.0 fileName: serialExecuter.bal lineNumber: 96
+			callableName: executeAfterEachFunctions moduleName: ballerina.test.0 fileName: serialExecuter.bal lineNumber: 80
+			callableName: executeTest moduleName: ballerina.test.0 fileName: serialExecuter.bal lineNumber: 37
+			callableName: executeTests moduleName: ballerina.test.0 fileName: execute.bal lineNumber: 81
+			callableName: startSuite moduleName: ballerina.test.0 fileName: execute.bal lineNumber: 53
+			callableName: __execute__  fileName: skip-when-afterEach-fails.bal lineNumber: 63
 		
 		[pass] test1
 
@@ -18,4 +26,6 @@ Running Tests
 		1 passing
 		0 failing
 		2 skipped
+
+		Test execution time :*****s
 error: there are test failures

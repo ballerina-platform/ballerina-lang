@@ -35,7 +35,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
 
 /**
  * Completion provider for {@link TypeReferenceNode} context.
@@ -65,7 +64,7 @@ public class TypeReferenceNodeContext extends AbstractCompletionProvider<TypeRef
             completionItems.addAll(this.getCompletionItemList(moduleContent, context));
         } else {
             List<Symbol> symbols = context.visibleSymbols(context.getCursorPosition()).stream()
-                    .filter(predicate.get()).collect(Collectors.toList());
+                    .filter(predicate.get()).toList();
             completionItems.addAll(this.getCompletionItemList(symbols, context));
             completionItems.addAll(this.getModuleCompletionItems(context));
         }

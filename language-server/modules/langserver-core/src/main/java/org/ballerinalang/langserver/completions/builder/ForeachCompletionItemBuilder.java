@@ -28,7 +28,7 @@ import java.util.List;
  *
  * @since 2.0.0
  */
-public class ForeachCompletionItemBuilder {
+public final class ForeachCompletionItemBuilder {
 
     private ForeachCompletionItemBuilder() {
     }

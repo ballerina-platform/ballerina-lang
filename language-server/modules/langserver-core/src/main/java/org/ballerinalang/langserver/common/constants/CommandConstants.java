@@ -22,7 +22,7 @@ import java.util.regex.Pattern;
  *
  * @since v0.964.0
  */
-public class CommandConstants {
+public final class CommandConstants {
 
     public static final String UNDEFINED_MODULE = "undefined module";
     public static final String UNDEFINED_FUNCTION = "undefined function";
@@ -105,6 +105,8 @@ public class CommandConstants {
     public static final String CREATE_INITIALIZER_TITLE = "Create initializer";
 
     public static final String PULL_MOD_TITLE = "Pull unresolved modules";
+    
+    public static final String ADD_MODULE_TO_BALLERINA_TOML = "Add module to Ballerina.toml";
 
     public static final String CHANGE_RETURN_TYPE_TITLE = "Change return type to '%s'";
 
@@ -117,6 +119,12 @@ public class CommandConstants {
     public static final String CHANGE_CONST_TYPE_TITLE = "Change constant '%s' type to '%s'";
 
     public static final String CHANGE_PARAM_TYPE_TITLE = "Change parameter '%s' type to '%s'";
+
+    public static final String ADD_PRIVATE_QUALIFIER = "Add private qualifier";
+
+    public static final String MAKE_VARIABLE_IMMUTABLE = "Add %s to the variable";
+
+    public static final String ADD_READONLY = "Add readonly to '%s'";
 
     public static final String CREATE_VAR_TYPE_GUARD_TITLE = "Create variable and type guard";
 
@@ -152,6 +160,8 @@ public class CommandConstants {
 
     public static final String SURROUND_WITH_DO_ON_FAIL = "Surround with do/on-fail";
 
+    public static final String SURROUND_WITH_LOCK = "Surround with lock";
+
     public static final String CONVERT_MODULE_VAR_TO_LISTENER_DECLARATION =
             "Convert module variable '%s' to listener declaration";
 
@@ -172,6 +182,8 @@ public class CommandConstants {
     public static final String EXTRACT_TYPE = "Extract type";
 
     public static final String EXTRACT_TO_FUNCTION = "Extract to function";
+
+    public static final String EXTRACT_TO_TRANSFORM_FUNCTION = "Extract to transform function";
 
     public static final String MAKE_ANNOT_DECL_CONST = "Convert '%s' to constant";
 
@@ -196,4 +208,23 @@ public class CommandConstants {
     public static final String RENAME_COMMAND_TITLE_FOR_CONSTANT = "Rename constant";
 
     public static final String RENAME_COMMAND_TITLE_FOR_FUNCTION = "Rename function";
+
+    public static final String CLONE_VALUE = "Clone the value";
+
+    public static final String CLONE_READONLY_VALUE = "Clone as a readonly value";
+
+    public static final String EXTRACT_TO_CONFIGURABLE = "Extract to configurable";
+
+    public static final String RENAME_COMMAND_TITLE_FOR_CONFIGURABLE = "Rename configurable";
+
+    public static final String CONVERT_TO_CONFIGURABLE = "Convert to configurable";
+
+    public static final String ADD_TO_CONFIG_TOML = "Add to Config.toml";
+
+    public static final String ADD_ALL_TO_CONFIG_TOML = "Add all to Config.toml";
+
+    public static final String CREATE_CONFIG_TOML_COMMAND = "create.config.toml";
+
+    private CommandConstants() {
+    }
 }

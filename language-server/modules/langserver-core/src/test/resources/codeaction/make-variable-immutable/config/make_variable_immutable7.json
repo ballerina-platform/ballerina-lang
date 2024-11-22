@@ -1,0 +1,56 @@
+{
+  "position": {
+    "line": 1,
+    "character": 14
+  },
+  "source": "make_variable_immutable7.bal",
+  "description": "Make immutable of a union variable",
+  "expected": [
+    {
+      "title": "Add 'final' and 'readonly' to the variable",
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 1,
+              "character": 4
+            },
+            "end": {
+              "line": 1,
+              "character": 4
+            }
+          },
+          "newText": "final "
+        },
+        {
+          "range": {
+            "start": {
+              "line": 1,
+              "character": 4
+            },
+            "end": {
+              "line": 1,
+              "character": 4
+            }
+          },
+          "newText": "("
+        },
+        {
+          "range": {
+            "start": {
+              "line": 1,
+              "character": 21
+            },
+            "end": {
+              "line": 1,
+              "character": 21
+            }
+          },
+          "newText": ") & readonly"
+        }
+      ],
+      "resolvable": false
+    }
+  ]
+}

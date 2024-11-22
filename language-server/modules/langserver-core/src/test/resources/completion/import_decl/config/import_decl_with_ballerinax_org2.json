@@ -1,0 +1,64 @@
+{
+  "position": {
+    "line": 0,
+    "character": 20
+  },
+  "source": "import_decl/source/import_decl_with_ballerinax_org2.bal",
+  "description": "Test completions for ballerinax packages",
+  "items": [
+    {
+      "label": "azure.sqldb",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "D",
+      "insertText": "azure.sqldb",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": []
+    },
+    {
+      "label": "azure.datalake",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "D",
+      "insertText": "azure.datalake",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": []
+    },
+    {
+      "label": "azure.iothub",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "D",
+      "insertText": "azure.iothub",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": []
+    },
+    {
+      "label": "azure.keyvault",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "D",
+      "insertText": "azure.keyvault",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": []
+    },
+    {
+      "label": "azure_storage_service",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "D",
+      "insertText": "azure_storage_service",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": []
+    },
+    {
+      "label": "azure_eventhub",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "D",
+      "insertText": "azure_eventhub",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": []
+    }
+  ]
+}

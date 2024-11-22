@@ -289,6 +289,398 @@ function testNestedRetryOnFailJump2() returns string {
     return str;
 }
 
+type SampleErrorData record {|
+    int code;
+    string reason;
+|};
+
+type SampleError error<SampleErrorData>;
+
+string testMessage = "";
+int testErrorCode = 0;
+string testErrorReason = "";
+
+function testSimpleOnFailWithErrorBP() {
+    retry(3) {
+        fail error("error!");
+    } on fail error error(msg) {
+        testMessage = msg;
+    }
+     assertEquality(testMessage, "error!");
+}
+
+function testSimpleOnFailWithErrorBPWithVar() {
+    retry(3) {
+        fail error("error!");
+    } on fail var error(msg) {
+        testMessage = msg;
+    }
+     assertEquality(testMessage, "error!");
+}
+
+function testOnFailWithErrorBPHavingUserDefinedTypeWithError() {
+    retry(3) {
+        fail error SampleError("error!", code = 20, reason = "deadlock condition");
+    } on fail error error(msg, code = errCode, reason = errReason) {
+        testErrorCode = errCode;
+        testErrorReason = errReason;
+        testMessage = msg;
+    }
+    assertEquality(testMessage, "error!");
+    assertEquality(testErrorCode, 20);
+    assertEquality(testErrorReason, "deadlock condition");
+    assertEquality(testErrorCode is int, true);
+    assertEquality(testErrorReason is string, true);
+}
+
+function testOnFailWithErrorBPHavingUserDefinedTypeWithVar() {
+    retry(3) {
+        fail error SampleError("error!", code = 20, reason = "deadlock condition");
+    } on fail var error(msg, code = errCode, reason = errReason) {
+        testErrorCode = errCode;
+        testErrorReason = errReason;
+        testMessage = msg;
+    }
+    assertEquality(testMessage, "error!");
+    assertEquality(testErrorCode, 20);
+    assertEquality(testErrorReason, "deadlock condition");
+    assertEquality(testErrorCode is int, true);
+    assertEquality(testErrorReason is string, true);
+}
+
+function testOnFailWithErrorBPHavingUserDefinedType() {
+    retry(3) {
+        fail error SampleError("error!", code = 20, reason = "deadlock condition");
+    } on fail SampleError error(msg, code = errCode, reason = errReason) {
+        testErrorCode = errCode;
+        testErrorReason = errReason;
+        testMessage = msg;
+    }
+    assertEquality(testMessage, "error!");
+    assertEquality(testErrorCode, 20);
+    assertEquality(testErrorReason, "deadlock condition");
+    assertEquality(testErrorCode is int, true);
+    assertEquality(testErrorReason is string, true);
+}
+
+function testOnFailWithErrorBPHavingUserDefinedTypeWithErrDetail1() {
+    retry(3) {
+        fail error SampleError("error!", code = 20, reason = "deadlock condition");
+    } on fail error<SampleErrorData> error(msg, code = errCode, reason = errReason) {
+        testErrorCode = errCode;
+        testErrorReason = errReason;
+        testMessage = msg;
+    }
+    assertEquality(testMessage, "error!");
+    assertEquality(testErrorCode, 20);
+    assertEquality(testErrorReason, "deadlock condition");
+    assertEquality(testErrorCode is int, true);
+    assertEquality(testErrorReason is string, true);
+}
+
+function testOnFailWithErrorBPHavingUserDefinedTypeWithErrDetail2() {
+    retry(3) {
+        fail error SampleError("error!", code = 20, reason = "deadlock condition");
+    } on fail error<record {int code;}> error(code = errCode) {
+        testErrorCode = errCode;
+    }
+    assertEquality(testErrorCode, 20);
+    assertEquality(testErrorCode is int, true);
+}
+
+function testOnFailWithErrorBPHavingUserDefinedTypeWithErrDetail3() {
+    retry(3) {
+        fail error SampleError("error!", code = 20, reason = "deadlock condition");
+    } on fail error<record {int code;}> error(code = errCode, reason = errReason) {
+        testErrorCode = errCode;
+        testErrorReason = errReason;
+    }
+    assertEquality(testErrorCode, 20);
+    assertEquality(testErrorReason, "deadlock condition");
+    assertEquality(testErrorCode is int, true);
+    assertEquality(testErrorReason is string, true);
+}
+
+function testOnFailWithErrorBPHavingUserDefinedTypeWithErrDetail4() {
+    retry(3) {
+        fail error SampleError("error!", code = 20, reason = "deadlock condition");
+    } on fail error<record {int|string code;}> error(code = errCode) {
+        testErrorCode = errCode;
+    }
+    assertEquality(testErrorCode, 20);
+    assertEquality(testErrorCode is int, true);
+}
+
+function testOnFailWithErrorBPHavingAnonDetailRecord() {
+    retry(3) {
+        error<record {int code;}> errVar = error("error", code = 34);
+        fail errVar;
+    } on fail error<record {int code;}> error(code = errCode) {
+        testErrorCode = errCode;
+    }
+    assertEquality(testErrorCode, 34);
+    assertEquality(testErrorCode is int, true);
+}
+
+function testOnFailWithErrorBPHavingAnonDetailRecordWithVar() {
+    retry(3) {
+        error<record {int code;}> errVar = error("error", code = 34);
+        fail errVar;
+    } on fail var error(msg, code = errCode) {
+        testErrorCode = errCode;
+        testErrorReason = msg;
+    }
+    assertEquality(testErrorCode, 34);
+    assertEquality(testErrorCode is int, true);
+    assertEquality(testErrorReason is string, true);
+    assertEquality(testErrorReason, "error");
+}
+
+function testOnFailWithErrorBPHavingAnonDetailRecordWithUnionType() {
+    retry(3) {
+        error<record {int code;}> errVar = error("error", code = 34);
+        fail errVar;
+    } on fail error<record {int|string code;}> error(code = errCode) {
+        testErrorCode = errCode;
+    }
+    assertEquality(testErrorCode, 34);
+    assertEquality(testErrorCode is int, true);
+}
+
+type SampleComplexErrorData record {|
+    error cause;
+    int code;
+    int[2] pos;
+    record {string moreInfo;} infoDetails;
+|};
+
+type SampleComplexError error<SampleComplexErrorData>;
+
+int testErrorPosRow = 0;
+int testErrorPosCol = 0;
+string testErrorMoreInfo = "";
+
+
+function testOnFailWithErrorBPWithErrorArgsHavingBP1() {
+    string causeMsg;
+    retry(3) {
+        fail error SampleComplexError("Transaction Failure", cause = error("Database Error"), code = 20, pos = [30, 45], infoDetails = {moreInfo: "deadlock condition"});
+    } on fail SampleComplexError error(_, cause = errCause, code = errCode, pos = errorPos, infoDetails = errInfo) {
+        testErrorCode = errCode;
+        testErrorPosRow = errorPos[0];
+        testErrorPosCol = errorPos[1];
+        testErrorMoreInfo = errInfo.moreInfo;
+        causeMsg = errCause.message();
+    }
+    assertEquality(testErrorPosRow, 30);
+    assertEquality(testErrorPosRow is int, true);
+    assertEquality(testErrorPosCol, 45);
+    assertEquality(testErrorPosCol is int, true);
+    assertEquality(testErrorMoreInfo, "deadlock condition");
+    assertEquality(testErrorMoreInfo is string,  true);
+    assertEquality(testErrorCode, 20);
+    assertEquality(testErrorCode is int, true);
+    assertEquality(causeMsg, "Database Error");
+    assertEquality(causeMsg is string, true);
+}
+
+function testOnFailWithErrorBPWithErrorArgsHavingBP2() {
+    retry(3) {
+        fail error SampleComplexError("Transaction Failure", cause = error("Database Error"), code = 20, pos = [30, 45], infoDetails = {moreInfo: "deadlock condition"});
+    } on fail SampleComplexError error(message, cause = error(msg), code = errCode, pos = errorPos, infoDetails = errInfo) {
+        testErrorCode = errCode;
+        testErrorPosRow = errorPos[0];
+        testErrorPosCol = errorPos[1];
+        testErrorMoreInfo = errInfo.moreInfo;
+        testMessage = msg;
+    }
+    assertEquality(testErrorPosRow, 30);
+    assertEquality(testErrorPosRow is int, true);
+    assertEquality(testErrorPosCol, 45);
+    assertEquality(testErrorPosCol is int, true);
+    assertEquality(testErrorMoreInfo, "deadlock condition");
+    assertEquality(testErrorMoreInfo is string,  true);
+    assertEquality(testErrorCode, 20);
+    assertEquality(testErrorCode is int, true);
+    assertEquality(testMessage, "Database Error");
+    assertEquality(testMessage is string, true);
+}
+
+function testOnFailWithErrorBPWithErrorArgsHavingBP3() {
+    retry(3) {
+        fail error SampleComplexError("Transaction Failure", cause = error("Database Error"), code = 20, pos = [30, 45], infoDetails = {moreInfo: "deadlock condition"});
+    } on fail SampleComplexError error(message, cause = error(msg), code = errCode, pos = [row, col], infoDetails = errInfo) {
+        testErrorCode = errCode;
+        testErrorPosRow = row;
+        testErrorPosCol = col;
+        testErrorMoreInfo = errInfo.moreInfo;
+        testMessage = msg;
+    }
+    assertEquality(testErrorPosRow, 30);
+    assertEquality(testErrorPosRow is int, true);
+    assertEquality(testErrorPosCol, 45);
+    assertEquality(testErrorPosCol is int, true);
+    assertEquality(testErrorMoreInfo, "deadlock condition");
+    assertEquality(testErrorMoreInfo is string,  true);
+    assertEquality(testErrorCode, 20);
+    assertEquality(testErrorCode is int, true);
+    assertEquality(testMessage, "Database Error");
+    assertEquality(testMessage is string, true);
+}
+
+function testOnFailWithErrorBPWithErrorArgsHavingBP4() {
+    retry(3) {
+        fail error SampleComplexError("Transaction Failure", cause = error("Database Error"), code = 20, pos = [30, 45], infoDetails = {moreInfo: "deadlock condition"});
+    } on fail SampleComplexError error(_, cause = error(msg), code = errCode, pos = [row, col], infoDetails = {moreInfo: errInfo}) {
+        testErrorCode = errCode;
+        testErrorPosRow = row;
+        testErrorPosCol = col;
+        testErrorMoreInfo = errInfo;
+        testMessage = msg;
+    }
+    assertEquality(testErrorPosRow, 30);
+    assertEquality(testErrorPosRow is int, true);
+    assertEquality(testErrorPosCol, 45);
+    assertEquality(testErrorPosCol is int, true);
+    assertEquality(testErrorMoreInfo, "deadlock condition");
+    assertEquality(testErrorMoreInfo is string,  true);
+    assertEquality(testErrorCode, 20);
+    assertEquality(testErrorCode is int, true);
+    assertEquality(testMessage, "Database Error");
+    assertEquality(testMessage is string, true);
+}
+
+function testOnFailWithErrorBPWithErrorArgsHavingBP5() {
+    retry(3) {
+        fail error SampleComplexError("Transaction Failure", cause = error("Database Error"), code = 20, pos = [30, 45], infoDetails = {moreInfo: "deadlock condition"});
+    } on fail var error(_, cause = error(msg), code = errCode, pos = [row, col], infoDetails = {moreInfo: errInfo}) {
+        testErrorCode = errCode;
+        testErrorPosRow = row;
+        testErrorPosCol = col;
+        testErrorMoreInfo = errInfo;
+        testMessage = msg;
+    }
+    assertEquality(testErrorPosRow, 30);
+    assertEquality(testErrorPosRow is int, true);
+    assertEquality(testErrorPosCol, 45);
+    assertEquality(testErrorPosCol is int, true);
+    assertEquality(testErrorMoreInfo, "deadlock condition");
+    assertEquality(testErrorMoreInfo is string,  true);
+    assertEquality(testErrorCode, 20);
+    assertEquality(testErrorCode is int, true);
+    assertEquality(testMessage, "Database Error");
+    assertEquality(testMessage is string, true);
+}
+
+int testErrorCodeNested = 0;
+string testMessageNested = "";
+
+function testNestedOnFailWithErrorBP() {
+    string testErrorReasonNested = "";
+    retry(3) {
+        fail error SampleError("error!", code = 20, reason = "deadlock condition");
+    } on fail var error(msg1, code = errCode1, reason = errReason1) {
+        if errCode1 == 20 {
+            retry(3) {
+                fail error SampleError("nested error!", code = 30, reason = "database error");
+            } on fail var error(msg2, code = errCode2, reason = errReason2) {
+                testErrorCode = errCode1;
+                testErrorCodeNested = errCode2;
+                testErrorReason = errReason1;
+                testErrorReasonNested = errReason2;
+                testMessage = msg1;
+                testMessageNested = msg2;
+            }
+        }
+    }
+
+    assertEquality(testErrorCode, 20);
+    assertEquality(testErrorCodeNested, 30);
+    assertEquality(testErrorReason, "deadlock condition");
+    assertEquality(testErrorReasonNested, "database error");
+    assertEquality(testMessage, "error!");
+    assertEquality(testMessageNested, "nested error!");
+}
+
+function testNestedOnFailWithErrorBPWithErrorArgsHavingBP() {
+    retry(3) {
+        fail error SampleError("error!", code = 20, reason = "deadlock condition");
+    } on fail var error(msg1, code = errCode1, reason = errReason1) {
+        if errCode1 == 20 {
+            retry(3) {
+                fail error SampleComplexError("nested error!", cause = error("Database Error"), code = 30, pos = [35, 45], infoDetails = {moreInfo: "deadlock condition"});
+            } on fail SampleComplexError error(_, cause = error(msg2), code = errCode2, pos = [row, col], infoDetails = {moreInfo: errInfo}) {
+                testErrorCode = errCode1;
+                testErrorCodeNested = errCode2;
+                testMessage = msg1;
+                testMessageNested = msg2;
+                testErrorPosRow = row;
+                testErrorPosCol = col;
+                testErrorMoreInfo = errInfo;
+            }
+        }
+    }
+
+    assertEquality(testErrorCode, 20);
+    assertEquality(testErrorCodeNested, 30);
+    assertEquality(testErrorMoreInfo, "deadlock condition");
+    assertEquality(testMessage, "error!");
+    assertEquality(testMessageNested, "Database Error");
+    assertEquality(testErrorPosRow, 35);
+    assertEquality(testErrorPosCol, 45);
+}
+
+function testMultiLevelOnFailWithErrorBP() {
+    int i = 2;
+    string str = "";
+
+    while i <= 2 {
+        retry(3) {
+            str += " -> Iteration " + i.toString() + ", ";
+            fail error SampleError("error!", code = 20, reason = "deadlock condition");
+        } on fail var error(msg1, code = errCode1, reason = errReason1) {
+                str += " -> On Fail #" + i.toString();
+                testMessage = msg1;
+                testErrorCode = errCode1;
+                testErrorReason = errReason1;
+        }
+        i = i + 1;
+        fail error SampleError("error!", code = 20, reason = "deadlock condition");
+    } on fail SampleError error(msg2, code = errCode2, reason = errReason2) {
+            str += " -> On Fail Final";
+    }
+
+    assertEquality(" -> Iteration 2,  -> On Fail #2 -> On Fail Final", str);
+    assertEquality(testErrorCode, 20);
+    assertEquality(testErrorReason, "deadlock condition");
+    assertEquality(testMessage, "error!");
+}
+
+function testMultiLevelOnFailWithoutErrorInOneLevel() {
+    int i = 2;
+    string str = "";
+
+    while i <= 2 {
+        retry(3) {
+            str += " -> Iteration " + i.toString() + ", ";
+            fail error SampleError("error!", code = 20, reason = "deadlock condition");
+        } on fail var error(msg1, code = errCode1, reason = errReason1) {
+                str += " -> On Fail #" + i.toString();
+                testMessage = msg1;
+                testErrorCode = errCode1;
+                testErrorReason = errReason1;
+        }
+        i = i + 1;
+    } on fail SampleError error(msg2, code = errCode2, reason = errReason2) {
+            str += " -> On Fail Final";
+    }
+
+    assertEquality(" -> Iteration 2,  -> On Fail #2", str);
+    assertEquality(testErrorCode, 20);
+    assertEquality(testErrorReason, "deadlock condition");
+    assertEquality(testMessage, "error!");
+}
+
 const ASSERTION_ERROR_REASON = "AssertionError";
 
 function assertEquality(any|error expected, any|error actual) {

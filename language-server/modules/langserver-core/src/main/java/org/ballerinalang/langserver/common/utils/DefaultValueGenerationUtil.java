@@ -33,14 +33,16 @@ import org.ballerinalang.langserver.commons.SnippetContext;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 /**
  * Carries a set of utilities used in default value generation.
  *
  * @since 2201.1.1
  */
-public class DefaultValueGenerationUtil {
+public final class DefaultValueGenerationUtil {
+
+    private DefaultValueGenerationUtil() {
+    }
 
     /**
      * Get the default value for the given BType.
@@ -132,18 +134,12 @@ public class DefaultValueGenerationUtil {
      * @see #getDefaultValueForType(TypeSymbol)
      */
     public static Optional<String> getDefaultValueForTypeDescKind(TypeSymbol typeSymbol) {
-        String defaultValue;
         TypeDescKind typeKind = typeSymbol.typeKind();
-        switch (typeKind) {
-            case SINGLETON:
-                defaultValue = typeSymbol.signature();
-                break;
-            case TYPE_REFERENCE:
-                defaultValue = getDefaultValueForTypeDescKind(CommonUtil.getRawType(typeSymbol)).orElse(null);
-                break;
-            default:
-                defaultValue = getDefaultValueForTypeDescKind(typeKind).orElse(null);
-        }
+        String defaultValue = switch (typeKind) {
+            case SINGLETON -> typeSymbol.signature();
+            case TYPE_REFERENCE -> getDefaultValueForTypeDescKind(CommonUtil.getRawType(typeSymbol)).orElse(null);
+            default -> getDefaultValueForTypeDescKind(typeKind).orElse(null);
+        };
         return Optional.ofNullable(defaultValue);
     }
 
@@ -165,7 +161,7 @@ public class DefaultValueGenerationUtil {
                 TupleTypeSymbol tupleType = (TupleTypeSymbol) rawType;
                 List<String> memberDefaultValues = tupleType.memberTypeDescriptors().stream()
                         .map(member -> getDefaultValueForTypeDescKind(member).orElse(""))
-                        .collect(Collectors.toList());
+                        .toList();
 
                 if (memberDefaultValues.isEmpty()) {
                     valueString = isSnippet ? "[${" + context.incrementAndGetPlaceholderCount() + "}]" : "[]";
@@ -199,7 +195,7 @@ public class DefaultValueGenerationUtil {
                 List<RecordFieldSymbol> mandatoryFieldSymbols = RecordUtil
                         .getMandatoryRecordFields(recordTypeSymbol).stream()
                         .filter(recordFieldSymbol -> recordFieldSymbol.getName().isPresent())
-                        .collect(Collectors.toList());
+                        .toList();
                 for (RecordFieldSymbol mandatoryField : mandatoryFieldSymbols) {
                     String value = getDefaultValueForTypeDescKind(CommonUtil.getRawType(mandatoryField
                             .typeDescriptor())).orElse("");
@@ -238,7 +234,7 @@ public class DefaultValueGenerationUtil {
                 List<TypeSymbol> members =
                         new ArrayList<>(((UnionTypeSymbol) rawType).memberTypeDescriptors());
                 List<TypeSymbol> nilMembers = members.stream()
-                        .filter(member -> member.typeKind() == TypeDescKind.NIL).collect(Collectors.toList());
+                        .filter(member -> member.typeKind() == TypeDescKind.NIL).toList();
                 if (nilMembers.isEmpty()) {
                     valueString = getDefaultValueForTypeDescKind(CommonUtil.getRawType(members.get(0))).orElse("");
                     valueString = isSnippet ?

@@ -15,6 +15,7 @@
 // under the License.
 
 import ballerina/jballerina.java;
+import ballerina/lang.'error as errorLib;
 import ballerina/lang.'value as value;
 import ballerina/test;
 
@@ -124,15 +125,15 @@ function workerReturnTest() returns int {
 }
 
 function workerSameThreadTest() returns any {
-    worker w1 returns string {
-        return getCurrentThreadName();
+    worker w1 returns boolean {
+        return isIsolated();
     }
 
-    worker w2 returns string {
-        return getCurrentThreadName();
+    worker w2 returns boolean {
+        return isIsolated();
     }
-    map<string> res = wait {w1, w2};
-    res["w"] = getCurrentThreadName();
+    map<boolean> res = wait {w1, w2};
+    res["w"] = isIsolated();
 
     return res;
 }
@@ -389,6 +390,32 @@ function foo() {
     }
 }
 
+function testEarlyReturnWithMessagePassing() {
+    foreach int i in 0 ... 100 {
+        func1();
+        func2();
+    }
+}
+
+function func2() {
+    func1();
+}
+
+function func1() {
+    foo();
+    worker w1 {
+        if (1 > 0) {
+            return;
+        } else {
+            10 -> w2;
+        }
+    }
+
+    worker w2 {
+        int|errorLib:NoMessage y = <- w1;
+    }
+}
+
 function testWorkerMessagePassingRepeatedly() {
 
     future<()> futureResult1 = @strand {thread: "any"} start testSyncSendRecursively(0, 10000);
@@ -574,12 +601,6 @@ function assertValueEquality(anydata expected, anydata actual) {
                 message = "expected '" + expected.toString() + "', found '" + actual.toString () + "'");
 }
 
-function getCurrentThreadName() returns string {
-    handle t = currentThread();
-    handle tName = getName(t);
-    return java:toString(tName) ?: "";
-}
-
 function basicWorkerTest1() returns error? {
     string username = "";
 
@@ -618,12 +639,9 @@ function basicWorkerTest2() returns error? {
     string _ = x;
 }
 
-function currentThread() returns handle = @java:Method {
-    'class: "java.lang.Thread"
-} external;
 
-function getName(handle thread) returns handle = @java:Method {
-    'class: "java.lang.Thread"
+public function isIsolated() returns boolean = @java:Method {
+    'class: "org.ballerinalang.test.utils.interop.Utils"
 } external;
 
 public function sleep(int millis) = @java:Method {

@@ -56,6 +56,7 @@ public class STReUnicodeScriptNode extends STReUnicodePropertyNode {
                 reUnicodePropertyValue);
     }
 
+    @Override
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
         return new STReUnicodeScriptNode(
                 this.scriptStart,
@@ -78,6 +79,7 @@ public class STReUnicodeScriptNode extends STReUnicodePropertyNode {
                 diagnostics);
     }
 
+    @Override
     public Node createFacade(int position, NonTerminalNode parent) {
         return new ReUnicodeScriptNode(this, position, parent);
     }

@@ -40,6 +40,7 @@ public class DebugInstructionTest extends BaseTestCase {
 
     DebugTestRunner debugTestRunner;
 
+    @Override
     @BeforeClass
     public void setup() {
     }
@@ -72,12 +73,8 @@ public class DebugInstructionTest extends BaseTestCase {
         debugTestRunner.initDebugSession(DebugUtils.DebuggeeExecutionKind.RUN);
         Pair<BallerinaTestDebugPoint, StoppedEventArguments> debugHitInfo = debugTestRunner.waitForDebugHit(25000);
 
-        // Debugger should hit the breakpoint inside the function invocation when trying to step over.
-        debugTestRunner.resumeProgram(debugHitInfo.getRight(), DebugTestRunner.DebugResumeKind.STEP_OVER);
-        debugHitInfo = debugTestRunner.waitForDebugHit(10000);
-        Assert.assertEquals(debugHitInfo.getLeft(), new BallerinaTestDebugPoint(debugTestRunner.testEntryFilePath, 46));
-
-        // Should go back to the caller function when stepping over again.
+        // Debugger should not hit the breakpoint inside function invocations when trying to step over the caller
+        // function.
         debugTestRunner.resumeProgram(debugHitInfo.getRight(), DebugTestRunner.DebugResumeKind.STEP_OVER);
         debugHitInfo = debugTestRunner.waitForDebugHit(10000);
         Assert.assertEquals(debugHitInfo.getLeft(), new BallerinaTestDebugPoint(debugTestRunner.testEntryFilePath, 31));
@@ -158,6 +155,7 @@ public class DebugInstructionTest extends BaseTestCase {
                 || debugHitInfo.getLeft().equals(new BallerinaTestDebugPoint(mainFilePath, 21)));
     }
 
+    @Override
     @AfterMethod(alwaysRun = true)
     public void cleanUp() {
         debugTestRunner.terminateDebugSession();

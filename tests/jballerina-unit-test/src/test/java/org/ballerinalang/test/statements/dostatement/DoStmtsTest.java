@@ -45,32 +45,40 @@ public class DoStmtsTest {
         BRunUtil.invoke(programFile, "testOnFailStatement");
     }
 
-    @Test(description = "Check not incompatible types and reachable statements.")
+    @Test(description = "Check not incompatible types.")
     public void testNegative1() {
         int index = 0;
-        BAssertUtil.validateError(negativeFile1, index++, "unreachable code", 15, 6);
-        BAssertUtil.validateWarning(negativeFile1, index++, "unused variable 'e'", 17, 4);
-        BAssertUtil.validateError(negativeFile1, index++, "incompatible error definition type: " +
-                "'ErrorTypeA' will not be matched to 'ErrorTypeB'", 30, 4);
-        BAssertUtil.validateWarning(negativeFile1, index++, "unused variable 'e'", 30, 4);
-        BAssertUtil.validateWarning(negativeFile1, index++, "unused variable 'e'", 43, 4);
-        BAssertUtil.validateWarning(negativeFile1, index++, "unused variable 'e'", 57, 4);
-        BAssertUtil.validateError(negativeFile1, index++, "unreachable code", 60, 7);
-        BAssertUtil.validateError(negativeFile1, index++, "unreachable code", 72, 3);
-        BAssertUtil.validateError(negativeFile1, index++, "this function must return a result", 73, 1);
-        BAssertUtil.validateError(negativeFile1, index++, "incompatible error definition type: " +
-                "'ErrorTypeB' will not be matched to 'ErrorTypeA'", 90, 4);
+        BAssertUtil.validateError(negativeFile1, index++, "incompatible types: expected 'ErrorTypeA', " +
+                "found 'ErrorTypeB'", 15, 12);
+        BAssertUtil.validateError(negativeFile1, index++, "incompatible types: expected " +
+                "'(ErrorTypeA|ErrorTypeB)', found 'ErrorTypeA'", 37, 12);
         Assert.assertEquals(negativeFile1.getDiagnostics().length, index);
+    }
+
+    @Test(description = "Check unreachable statements.")
+    public void testNegativeUnreachable() {
+        CompileResult negativeRes =
+                BCompileUtil.compile("test-src/statements/dostatement/do-stmt-negative-unreachable.bal");
+        int index = 0;
+        BAssertUtil.validateError(negativeRes, index++, "unreachable code", 15, 6);
+        BAssertUtil.validateWarning(negativeRes, index++, "unused variable 'e'", 17, 12);
+        BAssertUtil.validateWarning(negativeRes, index++, "unused variable 'e'", 30, 12);
+        BAssertUtil.validateWarning(negativeRes, index++, "unused variable 'e'", 43, 12);
+        BAssertUtil.validateWarning(negativeRes, index++, "unused variable 'e'", 57, 12);
+        BAssertUtil.validateError(negativeRes, index++, "unreachable code", 60, 7);
+        BAssertUtil.validateError(negativeRes, index++, "unreachable code", 72, 3);
+        Assert.assertEquals(negativeRes.getDiagnostics().length, index);
     }
 
     @Test(description = "Check on fail scope.")
     public void testNegative2() {
-        Assert.assertEquals(negativeFile2.getErrorCount(), 3);
-        BAssertUtil.validateError(negativeFile2, 0, "type 'string' not allowed here; " +
-                "expected an 'error' or a subtype of 'error'.", 6, 11);
-        BAssertUtil.validateError(negativeFile2, 1, "incompatible types: expected 'string', " +
-                "found 'error'", 8, 12);
-        BAssertUtil.validateError(negativeFile2, 2, "undefined symbol 'd'", 26, 12);
+        int index = 0;
+        BAssertUtil.validateError(negativeFile2, index++, "type 'string' not allowed here; " +
+                "expected an 'error' or a subtype of 'error'", 6, 11);
+        BAssertUtil.validateError(negativeFile2, index++, "invalid error variable; expecting " +
+                "an error type but found 'string' in type definition", 8, 12);
+        BAssertUtil.validateError(negativeFile2, index++, "undefined symbol 'd'", 26, 12);
+        Assert.assertEquals(negativeFile2.getErrorCount(), index);
     }
 
     @AfterClass

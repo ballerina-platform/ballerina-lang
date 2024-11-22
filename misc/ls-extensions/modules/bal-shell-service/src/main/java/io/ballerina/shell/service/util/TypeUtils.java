@@ -17,8 +17,8 @@
  */
 package io.ballerina.shell.service.util;
 
-import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.types.TypeTags;
 import io.ballerina.runtime.api.utils.StringUtils;
 
 /**
@@ -26,7 +26,11 @@ import io.ballerina.runtime.api.utils.StringUtils;
  *
  * @since 2201.1.1
  */
-public class TypeUtils {
+public final class TypeUtils {
+
+    private TypeUtils() {
+    }
+
     /**
      * Get applicable mime type for a given type.
      *
@@ -34,24 +38,20 @@ public class TypeUtils {
      * @return mime type
      */
     public static String getMimeTypeFromName(Type type) {
-        switch (type.getTag()) {
-            case TypeTags.JSON_TAG:
-            case TypeTags.RECORD_TYPE_TAG:
-            case TypeTags.MAP_TAG:
-            case TypeTags.ARRAY_TAG:
-            case TypeTags.TUPLE_TAG:
-                return Constants.MIME_TYPE_JSON;
-            case TypeTags.TABLE_TAG:
-                return Constants.MIME_TYPE_TABLE;
-            case TypeTags.XML_TAG:
-            case TypeTags.XML_ELEMENT_TAG:
-            case TypeTags.XML_PI_TAG:
-            case TypeTags.XML_COMMENT_TAG:
-            case TypeTags.XML_TEXT_TAG:
-                return Constants.MIME_TYPE_XML;
-            default:
-                return Constants.MIME_TYPE_PLAIN_TEXT;
-        }
+        return switch (type.getTag()) {
+            case TypeTags.JSON_TAG,
+                 TypeTags.RECORD_TYPE_TAG,
+                 TypeTags.MAP_TAG,
+                 TypeTags.ARRAY_TAG,
+                 TypeTags.TUPLE_TAG -> Constants.MIME_TYPE_JSON;
+            case TypeTags.TABLE_TAG -> Constants.MIME_TYPE_TABLE;
+            case TypeTags.XML_TAG,
+                 TypeTags.XML_ELEMENT_TAG,
+                 TypeTags.XML_PI_TAG,
+                 TypeTags.XML_COMMENT_TAG,
+                 TypeTags.XML_TEXT_TAG -> Constants.MIME_TYPE_XML;
+            default -> Constants.MIME_TYPE_PLAIN_TEXT;
+        };
     }
 
     /**
@@ -63,23 +63,20 @@ public class TypeUtils {
      */
     public static String convertToJsonIfAcceptable(Object value) {
         Type type = io.ballerina.runtime.api.utils.TypeUtils.getType(value);
-        switch (type.getTag()) {
-            case TypeTags.JSON_TAG:
-            case TypeTags.RECORD_TYPE_TAG:
-            case TypeTags.MAP_TAG:
-            case TypeTags.ARRAY_TAG:
-            case TypeTags.TUPLE_TAG:
-            case TypeTags.TABLE_TAG:
-                return StringUtils.getJsonString(value);
-            case TypeTags.XML_TAG:
-            case TypeTags.XML_ELEMENT_TAG:
-            case TypeTags.XML_COMMENT_TAG:
-            case TypeTags.XML_PI_TAG:
-            case TypeTags.XML_TEXT_TAG:
-            case TypeTags.OBJECT_TYPE_TAG:
-                return StringUtils.getStringValue(value);
-            default:
-                return StringUtils.getExpressionStringValue(value);
-        }
+        return switch (type.getTag()) {
+            case TypeTags.JSON_TAG,
+                 TypeTags.RECORD_TYPE_TAG,
+                 TypeTags.MAP_TAG,
+                 TypeTags.ARRAY_TAG,
+                 TypeTags.TUPLE_TAG,
+                 TypeTags.TABLE_TAG -> StringUtils.getJsonString(value);
+            case TypeTags.XML_TAG,
+                 TypeTags.XML_ELEMENT_TAG,
+                 TypeTags.XML_COMMENT_TAG,
+                 TypeTags.XML_PI_TAG,
+                 TypeTags.XML_TEXT_TAG,
+                 TypeTags.OBJECT_TYPE_TAG -> StringUtils.getStringValue(value);
+            default -> StringUtils.getExpressionStringValue(value);
+        };
     }
 }

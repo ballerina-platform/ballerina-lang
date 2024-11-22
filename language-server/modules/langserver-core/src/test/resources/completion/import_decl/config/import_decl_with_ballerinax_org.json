@@ -4,76 +4,181 @@
     "character": 18
   },
   "source": "import_decl/source/import_decl_with_ballerinax_org.bal",
-  "description": "",
+  "description": "Test completions for ballerinax packages",
   "items": [
     {
-      "label": "azure.ad",
+      "label": "azure_storage_service",
       "kind": "Module",
       "detail": "Module",
-      "insertText": "azure.ad",
+      "insertText": "azure_storage_service",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "hubspot.crm.quote",
+      "label": "azure_eventhub",
       "kind": "Module",
       "detail": "Module",
-      "insertText": "hubspot.crm.quote",
+      "insertText": "azure_eventhub",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "powertoolsdeveloper.datetime",
+      "label": "prometheus",
       "kind": "Module",
       "detail": "Module",
-      "insertText": "powertoolsdeveloper.datetime",
+      "insertText": "prometheus",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "azure.qnamaker",
+      "label": "asana",
       "kind": "Module",
       "detail": "Module",
-      "insertText": "azure.qnamaker",
+      "insertText": "asana",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "godaddy.aftermarket",
+      "label": "trigger.asb",
       "kind": "Module",
       "detail": "Module",
-      "insertText": "godaddy.aftermarket",
+      "insertText": "trigger.asb",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "googleapis.manufacturercenter",
+      "label": "shopify.admin",
       "kind": "Module",
       "detail": "Module",
-      "insertText": "googleapis.manufacturercenter",
+      "insertText": "shopify.admin",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "cloudmersive.barcode",
+      "label": "newsapi",
       "kind": "Module",
       "detail": "Module",
-      "insertText": "cloudmersive.barcode",
+      "insertText": "newsapi",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "saps4hana.wls.screeninghits",
+      "label": "hubspot.crm.company",
       "kind": "Module",
       "detail": "Module",
-      "insertText": "saps4hana.wls.screeninghits",
+      "insertText": "hubspot.crm.company",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "hubspot.crm.pipeline",
+      "label": "hubspot.marketing",
       "kind": "Module",
       "detail": "Module",
-      "insertText": "hubspot.crm.pipeline",
+      "insertText": "hubspot.marketing",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "workday.absencemanagement",
+      "label": "hubspot.crm.import",
       "kind": "Module",
       "detail": "Module",
-      "insertText": "workday.absencemanagement",
+      "insertText": "hubspot.crm.import",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "hubspot.crm.ticket",
+      "kind": "Module",
+      "detail": "Module",
+      "insertText": "hubspot.crm.ticket",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "hubspot.crm.product",
+      "kind": "Module",
+      "detail": "Module",
+      "insertText": "hubspot.crm.product",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "hubspot.files",
+      "kind": "Module",
+      "detail": "Module",
+      "insertText": "hubspot.files",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "hubspot.analytics",
+      "kind": "Module",
+      "detail": "Module",
+      "insertText": "hubspot.analytics",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "googleapis.vision",
+      "kind": "Module",
+      "detail": "Module",
+      "insertText": "googleapis.vision",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "azure.datalake",
+      "kind": "Module",
+      "detail": "Module",
+      "insertText": "azure.datalake",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "azure.keyvault",
+      "kind": "Module",
+      "detail": "Module",
+      "insertText": "azure.keyvault",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "azure.sqldb",
+      "kind": "Module",
+      "detail": "Module",
+      "insertText": "azure.sqldb",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "ebay.browse",
+      "kind": "Module",
+      "detail": "Module",
+      "insertText": "ebay.browse",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "azure.iothub",
+      "kind": "Module",
+      "detail": "Module",
+      "insertText": "azure.iothub",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "flatapi",
+      "kind": "Module",
+      "detail": "Module",
+      "insertText": "flatapi",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "confluent.cavroserdes",
+      "kind": "Module",
+      "detail": "Module",
+      "insertText": "confluent.cavroserdes",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "ellucian.studentcharges",
+      "kind": "Module",
+      "detail": "Module",
+      "insertText": "ellucian.studentcharges",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "interzoid.currencyexchange",
+      "kind": "Module",
+      "detail": "Module",
+      "insertText": "interzoid.currencyexchange",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "Apache",
+      "kind": "Module",
+      "detail": "Module",
+      "insertText": "Apache",
       "insertTextFormat": "Snippet"
     }
   ]

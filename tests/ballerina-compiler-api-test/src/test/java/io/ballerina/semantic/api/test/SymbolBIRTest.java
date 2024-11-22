@@ -58,11 +58,16 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
+import static io.ballerina.compiler.api.symbols.Qualifier.CLIENT;
+import static io.ballerina.compiler.api.symbols.Qualifier.DISTINCT;
+import static io.ballerina.compiler.api.symbols.Qualifier.ISOLATED;
+import static io.ballerina.compiler.api.symbols.Qualifier.SERVICE;
 import static io.ballerina.compiler.api.symbols.SymbolKind.ANNOTATION;
 import static io.ballerina.compiler.api.symbols.SymbolKind.CONSTANT;
 import static io.ballerina.compiler.api.symbols.SymbolKind.FUNCTION;
 import static io.ballerina.compiler.api.symbols.SymbolKind.MODULE;
 import static io.ballerina.compiler.api.symbols.SymbolKind.SERVICE_DECLARATION;
+import static io.ballerina.compiler.api.symbols.SymbolKind.TYPE;
 import static io.ballerina.compiler.api.symbols.SymbolKind.TYPE_DEFINITION;
 import static io.ballerina.compiler.api.symbols.SymbolKind.VARIABLE;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.INT;
@@ -175,16 +180,15 @@ public class SymbolBIRTest {
 
         BallerinaModule fooModule = (BallerinaModule) symbolsInScope.stream()
                 .filter(sym -> sym.getName().get().equals("testproject")).findAny().get();
-        SemanticAPITestUtils.assertList(fooModule.functions(), List.of("loadHuman", 
+        SemanticAPITestUtils.assertList(fooModule.functions(), List.of("loadHuman",
                 "testAnonTypeDefSymbolsIsNotVisible", "add", "testFnA", "testFnB"));
         SemanticAPITestUtils.assertList(fooModule.constants(), List.of("RED", "GREEN", "BLUE", "PI", "TRUE", "FALSE"));
-        
-        SemanticAPITestUtils.assertList(fooModule.typeDefinitions(), List.of("HumanObj", "ApplicationResponseError", 
-                "Person", "BasicType", "Digit", "FileNotFoundError", "EofError", "Error", "Pet", "Student", "Cat", 
-                "Annot", "Detail", "Service", "FnTypeA", "FnTypeB", "Address"));
-
-        
-        SemanticAPITestUtils.assertList(fooModule.classes(), List.of("PersonObj", "Dog", "EmployeeObj", "Human"));
+        SemanticAPITestUtils.assertList(fooModule.classes(), List.of("PersonObj", "Dog", "EmployeeObj", "Human", 
+                "Client", "Response"));
+        SemanticAPITestUtils.assertList(fooModule.typeDefinitions(), List.of("HumanObj", "ApplicationResponseError",
+                "Person", "BasicType", "Digit", "FileNotFoundError", "EofError", "Error", "Pet", "Student", "Cat",
+                "Annot", "Detail", "Service", "FnTypeA", "FnTypeB", "Address", "InterceptorClient", 
+                "InterceptorService"));
         SemanticAPITestUtils.assertList(fooModule.enums(), List.of("Colour"));
 
         List<String> allSymbols = getSymbolNames(fooPkgSymbol, 0);
@@ -318,8 +322,8 @@ public class SymbolBIRTest {
 
         for (SymbolInfo val : expectedValues) {
             assertTrue(actualValues.stream()
-                               .anyMatch(sym -> val.equals(new SymbolInfo(sym.getName().get(), sym.kind()))),
-                       "Symbol not found: " + val);
+                            .anyMatch(sym -> val.equals(new SymbolInfo(sym.getName().get(), sym.kind()))),
+                    "Symbol not found: " + val);
 
         }
     }
@@ -353,15 +357,15 @@ public class SymbolBIRTest {
 
     private List<SymbolInfo> createSymbolInfoList(Object[][] infoArr) {
         List<SymbolInfo> symInfo = new ArrayList<>();
-        for (int i = 0; i < infoArr.length; i++) {
-            symInfo.add(new SymbolInfo((String) infoArr[i][0], (SymbolKind) infoArr[i][1]));
+        for (Object[] objects : infoArr) {
+            symInfo.add(new SymbolInfo((String) objects[0], (SymbolKind) objects[1]));
         }
         return symInfo;
     }
 
     static class SymbolInfo {
-        private String name;
-        private SymbolKind kind;
+        private final String name;
+        private final SymbolKind kind;
 
         SymbolInfo(String name, SymbolKind kind) {
             this.name = name;
@@ -374,11 +378,10 @@ public class SymbolBIRTest {
                 return true;
             }
 
-            if (!(obj instanceof SymbolInfo)) {
+            if (!(obj instanceof SymbolInfo info)) {
                 return false;
             }
 
-            SymbolInfo info = (SymbolInfo) obj;
             return this.name.equals(info.name) && this.kind == info.kind;
         }
 
@@ -432,5 +435,32 @@ public class SymbolBIRTest {
         assertEquals(lineRange.startLine().offset(), 0);
         assertEquals(lineRange.endLine().line(), 147);
         assertEquals(lineRange.endLine().offset(), 2);
+    }
+
+    @Test
+    public void testObjectTypeSymbolDefQualifiers() {
+        Project project = BCompileUtil.loadProject("test-src/object_symbol_qualifiers.bal");
+        Document srcFile = getDocumentForSingleSource(project);
+        SemanticModel model = getDefaultModulesSemanticModel(project);
+        
+        Optional<Symbol> symbol = model.symbol(srcFile, from(19, 20));
+        assertTrue(symbol.isPresent());
+        Symbol sym = symbol.get();
+        assertEquals(sym.kind(), TYPE);
+        TypeSymbol typeSymbol = ((TypeReferenceTypeSymbol) sym).typeDescriptor();
+        assertEquals(typeSymbol.typeKind(), OBJECT);
+        ObjectTypeSymbol clientObjectTSymbol = (ObjectTypeSymbol) typeSymbol;
+        assertEquals(clientObjectTSymbol.qualifiers().size(), 3);
+        assertEquals(clientObjectTSymbol.qualifiers(), List.of(DISTINCT, ISOLATED, CLIENT));
+
+        symbol = model.symbol(srcFile, from(23, 23));
+        assertTrue(symbol.isPresent());
+        sym = symbol.get();
+        assertEquals(sym.kind(), TYPE);
+        typeSymbol = ((TypeReferenceTypeSymbol) sym).typeDescriptor();
+        assertEquals(typeSymbol.typeKind(), OBJECT);
+        ObjectTypeSymbol serviceObjectTSymbol = (ObjectTypeSymbol) typeSymbol;
+        assertEquals(serviceObjectTSymbol.qualifiers().size(), 3);
+        assertEquals(serviceObjectTSymbol.qualifiers(), List.of(DISTINCT, ISOLATED, SERVICE));
     }
 }

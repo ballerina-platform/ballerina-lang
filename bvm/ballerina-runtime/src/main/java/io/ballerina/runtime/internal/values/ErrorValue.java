@@ -19,22 +19,24 @@ package io.ballerina.runtime.internal.values;
 
 import io.ballerina.identifier.Utils;
 import io.ballerina.runtime.api.Module;
-import io.ballerina.runtime.api.PredefinedTypes;
-import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.constants.TypeConstants;
+import io.ballerina.runtime.api.types.PredefinedTypes;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.TypeId;
+import io.ballerina.runtime.api.types.TypeTags;
+import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BLink;
+import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BRefValue;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BTypedesc;
 import io.ballerina.runtime.api.values.BValue;
-import io.ballerina.runtime.internal.CycleUtils;
 import io.ballerina.runtime.internal.TypeChecker;
 import io.ballerina.runtime.internal.types.BErrorType;
 import io.ballerina.runtime.internal.types.BTypeIdSet;
+import io.ballerina.runtime.internal.utils.CycleUtils;
 
 import java.io.PrintStream;
 import java.io.PrintWriter;
@@ -42,15 +44,18 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.StringJoiner;
 
-import static io.ballerina.runtime.api.PredefinedTypes.TYPE_MAP;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.BLANG_SRC_FILE_SUFFIX;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.DOT;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.MODULE_INIT_CLASS_NAME;
-import static io.ballerina.runtime.internal.util.StringUtils.getExpressionStringVal;
-import static io.ballerina.runtime.internal.util.StringUtils.getStringVal;
+import static io.ballerina.runtime.api.types.PredefinedTypes.TYPE_MAP;
+import static io.ballerina.runtime.internal.TypeChecker.isEqual;
+import static io.ballerina.runtime.internal.utils.StringUtils.getExpressionStringVal;
+import static io.ballerina.runtime.internal.utils.StringUtils.getStringVal;
 
 /**
  * <p>
@@ -64,16 +69,15 @@ import static io.ballerina.runtime.internal.util.StringUtils.getStringVal;
  */
 public class ErrorValue extends BError implements RefValue {
 
-    private static final long serialVersionUID = 1L;
     private static final PrintStream outStream = System.err;
 
     private final Type type;
     private BTypedesc typedesc;
     private final BString message;
     private final BError cause;
-    private final Object details;
+    private final BMap<BString, Object> details;
 
-    private static final String GENERATE_OBJECT_CLASS_PREFIX = "$value$";
+    private static final String GENERATED_CLASS_TEXTS_REGEX = "\\$value\\$|\\$split\\$\\d|lambdas.\\$_generated\\d*";
     private static final String GENERATE_PKG_INIT = "___init_";
     private static final String GENERATE_PKG_START = "___start_";
     private static final String GENERATE_PKG_STOP = "___stop_";
@@ -86,12 +90,17 @@ public class ErrorValue extends BError implements RefValue {
              message, null,  new MapValueImpl<>(PredefinedTypes.TYPE_ERROR_DETAIL));
     }
 
-    public ErrorValue(BString message, Object details) {
+    public ErrorValue(BString message, BMap<BString, Object> details) {
         this(new BErrorType(TypeConstants.ERROR, PredefinedTypes.TYPE_ERROR.getPackage(), TypeChecker.getType(details)),
                 message, null, details);
     }
 
-    public ErrorValue(Type type, BString message, BError cause, Object details) {
+    public ErrorValue(BString message, BError cause) {
+        this(new BErrorType(TypeConstants.ERROR, PredefinedTypes.TYPE_ERROR.getPackage(), TYPE_MAP), message, cause,
+                null);
+    }
+
+    public ErrorValue(Type type, BString message, BError cause, BMap<BString, Object> details) {
         super(message);
         this.type = type;
         this.message = message;
@@ -99,7 +108,7 @@ public class ErrorValue extends BError implements RefValue {
         this.details = details;
     }
 
-    public ErrorValue(Type type, BString message, BError cause, Object details,
+    public ErrorValue(Type type, BString message, BError cause, BMap<BString, Object> details,
                       String typeIdName, Module typeIdPkg) {
         super(message);
         this.type = type;
@@ -108,17 +117,18 @@ public class ErrorValue extends BError implements RefValue {
         this.details = details;
         BTypeIdSet typeIdSet = new BTypeIdSet();
         typeIdSet.add(typeIdPkg, typeIdName, true);
-        ((BErrorType) TypeUtils.getReferredType(type)).setTypeIdSet(typeIdSet);
+        ((BErrorType) TypeUtils.getImpliedType(type)).setTypeIdSet(typeIdSet);
     }
 
     @Override
     public String stringValue(BLink parent) {
         CycleUtils.Node linkParent = new CycleUtils.Node(this, parent);
+        BString errMessage = Objects.requireNonNullElse(message, StringUtils.fromString(""));
         if (isEmptyDetail()) {
-            return "error" + getModuleNameToString() + "(" + ((StringValue) message).informalStringValue(linkParent)
+            return "error" + getModuleNameToString() + "(" + ((StringValue) errMessage).informalStringValue(linkParent)
                     + getCauseToString(linkParent) + ")";
         }
-        return "error" + getModuleNameToString() + "(" + ((StringValue) message).informalStringValue(linkParent) +
+        return "error" + getModuleNameToString() + "(" + ((StringValue) errMessage).informalStringValue(linkParent) +
                 getCauseToString(linkParent) + getDetailsToString(linkParent) + ")";
     }
 
@@ -142,13 +152,13 @@ public class ErrorValue extends BError implements RefValue {
 
     private String getDetailsToString(BLink parent) {
         StringJoiner sj = new StringJoiner(",");
-        for (Object key : ((MapValue) details).getKeys()) {
-            Object value = ((MapValue) details).get(key);
+        for (Object key : ((MapValue<?, ?>) details).getKeys()) {
+            Object value = ((MapValue<?, ?>) details).get(key);
             if (value == null) {
                 sj.add(key + "=null");
             } else {
                 Type type = TypeChecker.getType(value);
-                switch (type.getTag()) {
+                switch (TypeUtils.getImpliedType(type).getTag()) {
                     case TypeTags.STRING_TAG:
                     case TypeTags.XML_TAG:
                     case TypeTags.XML_ELEMENT_TAG:
@@ -174,8 +184,8 @@ public class ErrorValue extends BError implements RefValue {
 
     private String getDetailsToBalString(BLink parent) {
         StringJoiner sj = new StringJoiner(",");
-        for (Object key : ((MapValue) details).getKeys()) {
-            Object value = ((MapValue) details).get(key);
+        for (Object key : ((MapValue<?, ?>) details).getKeys()) {
+            Object value = ((MapValue<?, ?>) details).get(key);
             sj.add(key + "=" + getExpressionStringVal(value, parent));
         }
         return "," + sj;
@@ -189,7 +199,7 @@ public class ErrorValue extends BError implements RefValue {
     }
 
     private String getModuleNameToBalString() {
-        Type type = TypeUtils.getReferredType(this.type);
+        Type type = TypeUtils.getImpliedType(this.type);
         if (((BErrorType) type).typeIdSet == null) {
             return "";
         }
@@ -258,9 +268,10 @@ public class ErrorValue extends BError implements RefValue {
      *
      * @return detail record
      */
+    @Override
     public Object getDetails() {
-        if (details instanceof BRefValue) {
-            return ((BRefValue) details).frozenCopy(new HashMap<>());
+        if (details instanceof BRefValue bRefValue) {
+            return bRefValue.frozenCopy(new HashMap<>());
         }
         return details;
     }
@@ -301,6 +312,7 @@ public class ErrorValue extends BError implements RefValue {
      * Returns error stack trace as a string.
      * @return stack trace string
      */
+    @Override
     public String getPrintableStackTrace() {
         String errorMsg = getPrintableError();
         StringBuilder sb = new StringBuilder();
@@ -398,7 +410,7 @@ public class ErrorValue extends BError implements RefValue {
         if (details == null) {
             return true;
         }
-        return (details instanceof MapValue) && ((MapValue<?, ?>) details).isEmpty();
+        return (details instanceof MapValue<?, ?> mapValue) && mapValue.isEmpty();
     }
 
     private Optional<StackTraceElement> filterStackTraceElement(StackTraceElement stackFrame, int currentIndex) {
@@ -436,15 +448,30 @@ public class ErrorValue extends BError implements RefValue {
             // the stack frames which have compiler added method names
             return Optional.empty();
         }
-        return Optional.of(
-                new StackTraceElement(cleanupClassName(className), methodName, fileName, stackFrame.getLineNumber()));
+        return Optional.of(new StackTraceElement(cleanupClassName(className), methodName, fileName,
+                stackFrame.getLineNumber()));
     }
 
     private String cleanupClassName(String className) {
-        return className.replace(GENERATE_OBJECT_CLASS_PREFIX, "");
+        return className.replaceAll(GENERATED_CLASS_TEXTS_REGEX, "");
     }
 
     private boolean isCompilerAddedName(String name) {
         return name != null && name.startsWith("$") && name.endsWith("$");
+    }
+
+    /**
+     * Deep equality check for error values.
+     *
+     * @param o The error value to be compared
+     * @param visitedValues Visited values due to circular references
+     * @return True if the error values are equal, false otherwise
+     */
+    @Override
+    public boolean equals(Object o, Set<ValuePair> visitedValues) {
+        ErrorValue errorValue = (ErrorValue) o;
+        return isEqual(this.getMessage(), errorValue.getMessage(), visitedValues) &&
+                ((MapValueImpl<?, ?>) this.getDetails()).equals(errorValue.getDetails(), visitedValues) &&
+                isEqual(this.getCause(), errorValue.getCause(), visitedValues);
     }
 }

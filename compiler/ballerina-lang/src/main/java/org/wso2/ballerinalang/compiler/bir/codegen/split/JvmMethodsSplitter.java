@@ -18,6 +18,7 @@
 
 package org.wso2.ballerinalang.compiler.bir.codegen.split;
 
+import org.wso2.ballerinalang.compiler.bir.codegen.JarEntries;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmCastGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmTypeGen;
@@ -25,7 +26,6 @@ import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.TypeHashVisitor;
 
 import java.util.List;
-import java.util.Map;
 
 /**
  * Split initialization of types and other type related methods.
@@ -48,12 +48,12 @@ public class JvmMethodsSplitter {
         this.jvmPackageGen = jvmPackageGen;
         this.moduleInitClass = moduleInitClass;
         this.jvmCreateTypeGen = new JvmCreateTypeGen(jvmTypeGen, jvmConstantsGen, module.packageID, typeHashVisitor);
-        this.jvmAnnotationsGen = new JvmAnnotationsGen(module, jvmPackageGen, jvmTypeGen, jvmConstantsGen);
+        this.jvmAnnotationsGen = new JvmAnnotationsGen(module, jvmPackageGen, jvmTypeGen);
         this.jvmValueCreatorGen = new JvmValueCreatorGen(module.packageID, jvmTypeGen);
         jvmConstantsGen.setJvmCreateTypeGen(jvmCreateTypeGen);
     }
 
-    public void generateMethods(Map<String, byte[]> jarEntries, JvmCastGen jvmCastGen,
+    public void generateMethods(JarEntries jarEntries, JvmCastGen jvmCastGen,
                                 List<BIRNode.BIRFunction> sortedFunctions) {
         jvmCreateTypeGen.generateRefTypeConstants(module.typeDefs, jvmPackageGen.symbolTable);
         jvmCreateTypeGen.generateTypeClass(jvmPackageGen, module, jarEntries, moduleInitClass,
@@ -61,6 +61,7 @@ public class JvmMethodsSplitter {
         jvmValueCreatorGen.generateValueCreatorClasses(jvmPackageGen, module, moduleInitClass, jarEntries,
                 jvmPackageGen.symbolTable, jvmCastGen, sortedFunctions);
         jvmCreateTypeGen.generateAnonTypeClass(jvmPackageGen, module, moduleInitClass, jarEntries);
+        jvmCreateTypeGen.generateFunctionTypeClass(jvmPackageGen, module, jarEntries, sortedFunctions);
         jvmAnnotationsGen.generateAnnotationsClass(jarEntries);
     }
 }

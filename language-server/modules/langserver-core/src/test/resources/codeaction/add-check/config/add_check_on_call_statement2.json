@@ -1,0 +1,42 @@
+{
+  "position": {
+    "line": 6,
+    "character": 9
+  },
+  "source": "add_check_on_call_statement.bal",
+  "expected": [
+    {
+      "title": "Add 'check' error",
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 6,
+              "character": 8
+            },
+            "end": {
+              "line": 6,
+              "character": 8
+            }
+          },
+          "newText": "check "
+        },
+        {
+          "range": {
+            "start": {
+              "line": 4,
+              "character": 33
+            },
+            "end": {
+              "line": 4,
+              "character": 33
+            }
+          },
+          "newText": " returns error?"
+        }
+      ],
+      "resolvable": false
+    }
+  ]
+}

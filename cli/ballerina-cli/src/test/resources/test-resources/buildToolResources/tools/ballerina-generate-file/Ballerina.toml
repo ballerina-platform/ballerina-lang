@@ -1,0 +1,8 @@
+[package]
+org = "foo"
+name = "ballerina_generate_file"
+version = "0.1.0"
+distribution = "2201.8.5"
+
+[build-options]
+observabilityIncluded = true

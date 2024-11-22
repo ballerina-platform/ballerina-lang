@@ -1,0 +1,68 @@
+<Orders xmlns="www.example.com/orders">
+    <order xmlns="www.example.com/order">
+        <id>001</id>
+        <customer xmlns="www.example.com/customer" loyalty="premium" optedInNewsLetter="true">
+            <firstName>John</firstName>
+            <lastName>Doe</lastName>
+            <email>john.doe@example.com</email>
+            <id>1001</id>
+        </customer>
+        <items xmlns="www.example.com/items">
+            <item id="a1">
+                <name>Widget A</name>
+                <quantity>2</quantity>
+                <price>15.00</price>
+            </item>
+            <item id="b2">
+                <name>Gadget B</name>
+                <quantity>1</quantity>
+                <price>25.00</price>
+            </item>
+        </items>
+        <total>55.00</total>
+    </order>
+    <order xmlns="www.example.com/order">
+        <id>002</id>
+        <customer xmlns="www.example.com/customer" loyalty="regular" optedInNewsLetter="false">
+            <firstName>Jane</firstName>
+            <lastName>Smith</lastName>
+            <email>jane.smith@example.com</email>
+            <id>1002</id>
+        </customer>
+        <items xmlns="www.example.com/items">
+            <item id="c3">
+                <name>Tool C</name>
+                <quantity>3</quantity>
+                <price>10.00</price>
+            </item>
+            <item id="d4">
+                <name>Device D</name>
+                <quantity>1</quantity>
+                <price>40.00</price>
+            </item>
+        </items>
+        <total>70.00</total>
+    </order>
+    <order xmlns="www.example.com/order">
+        <id>003</id>
+        <customer xmlns="www.example.com/customer" loyalty="new" optedInNewsLetter="true">
+            <firstName>Alice</firstName>
+            <lastName>Brown</lastName>
+            <email>alice.brown@example.com</email>
+            <id>1003</id>
+        </customer>
+        <items xmlns="www.example.com/items">
+            <item id="e5">
+                <name>Accessory E</name>
+                <quantity>2</quantity>
+                <price>5.00</price>
+            </item>
+            <item id="f6">
+                <name>Supplement F</name>
+                <quantity>4</quantity>
+                <price>8.00</price>
+            </item>
+        </items>
+        <total>54.00</total>
+    </order>
+</Orders>

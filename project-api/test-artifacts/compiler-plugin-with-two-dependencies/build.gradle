@@ -14,8 +14,10 @@
  * limitations under the License.
  *
  */
- 
-apply from: "$rootDir/gradle/javaProject.gradle"
+
+plugins {
+    id 'javaProject'
+}
 
 description = 'Compiler Plugin Tests - Plugin with two dependencies'
 version = '1.0.0'
@@ -29,14 +31,3 @@ dependencies {
 }
 
 ext.moduleName = 'compiler.plugin.test.plugin.with.two.dependencies'
-
-compileJava {
-    doFirst {
-        options.compilerArgs = [
-                '--module-path', classpath.asPath,
-        ]
-        classpath = files()
-    }
-}
-
-

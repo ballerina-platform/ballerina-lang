@@ -70,7 +70,7 @@ function reset() = @java:Method {
     name: "reset"
 } external;
 
-public function callMethod(service object {} s, string name) returns future<any|error>  = @java:Method {
+public function callMethod(service object {} s, string name) returns any|error = @java:Method {
     'class:"org/ballerinalang/nativeimpl/jvm/servicetests/ServiceValue",
     name:"callMethod"
 } external;
@@ -86,7 +86,7 @@ service ServiceTypeTwo / on new Listener() {
 }
 
 function testServiceDecl() {
-    any|error v = wait callMethod(<service object {}> getService(), "$get$processRequest");
+    any|error v = callMethod(<service object {}> getService(), "$get$processRequest");
     reset();
     assertEquality(v, <json> { output: "Hello" });
 }

@@ -107,11 +107,13 @@ public class ManifestProcessor {
         try {
             Toml toml = new Toml().read(content);
             if (toml.isEmpty()) {
-                throw new TomlException("invalid Ballerina.toml file: organization name and the version of the " +
-                                        "project is missing. example: \n" +
-                                        "[project]\n" +
-                                        "org-name=\"my_org\"\n" +
-                                        "version=\"1.0.0\"\n");
+                throw new TomlException("""
+                        invalid Ballerina.toml file: organization name and the version of the \
+                        project is missing. example:\s
+                        [project]
+                        org-name="my_org"
+                        version="1.0.0"
+                        """);
             }
 
             if (null == toml.getTable("project")) {
@@ -141,11 +143,13 @@ public class ManifestProcessor {
         try {
             Toml toml = new Toml().read(inputStream);
             if (toml.isEmpty()) {
-                throw new TomlException("invalid Ballerina.toml file: organization name and the version of the " +
-                                        "project is missing. example: \n" +
-                                        "[project]\n" +
-                                        "org-name=\"my_org\"\n" +
-                                        "version=\"1.0.0\"\n");
+                throw new TomlException("""
+                        invalid Ballerina.toml file: organization name and the version of the \
+                        project is missing. example:\s
+                        [project]
+                        org-name="my_org"
+                        version="1.0.0"
+                        """);
             }
 
             if (null == toml.getTable("project")) {
@@ -224,11 +228,11 @@ public class ManifestProcessor {
         if (toml.containsKey("dependencies")) {
             Object tomlDepsAsObject = toml.get("dependencies");
             Map<String, Object> updatedDependencies = new HashMap<>();
-            if (tomlDepsAsObject instanceof HashMap) {
+            if (tomlDepsAsObject instanceof HashMap<?, ?> tomlDeps) {
                 // taking care of double quoted dependency names
-                Map<String, Object> tomlDeps = (HashMap<String, Object>) tomlDepsAsObject;
-                for (Map.Entry<String, Object> dep : tomlDeps.entrySet()) {
-                    updatedDependencies.put(dep.getKey().replaceAll("^\"|\"$", ""), dep.getValue());
+                for (Map.Entry<?, ?> dep : tomlDeps.entrySet()) {
+                    updatedDependencies.put(
+                            ((String) dep.getKey()).replaceAll("^\"|\"$", ""), dep.getValue());
                 }
                 dependencies = updatedDependencies;
             }

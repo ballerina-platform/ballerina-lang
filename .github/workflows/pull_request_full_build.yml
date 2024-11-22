@@ -16,13 +16,13 @@ jobs:
 
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
-      - name: Set up JDK 17
-        uses: actions/setup-java@v3
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
-          java-version: '17.0.7'
+          java-version: '21.0.3'
 
       - name: Checkout To Lang Branch
         run: |
@@ -32,17 +32,18 @@ jobs:
         id: lang-version
         run: |
           VERSION=$((grep -w "version" | cut -d= -f2) < gradle.properties)
-          echo "::set-output name=version::$VERSION"
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
 
       - name: Build ballerina-lang
         run: |
           ./gradlew clean build -x check publishToMavenLocal --stacktrace --scan
 
       - name: Archive Lang Artifacts
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: Ballerina Lang Artifacts
           path: ~/.m2/
+          include-hidden-files: true
 
     outputs:
       lang_version: ${{ steps.lang-version.outputs.version }}
@@ -62,20 +63,20 @@ jobs:
 
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
-      - name: Set up JDK 17
-        uses: actions/setup-java@v2
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
-          java-version: '17.0.7'
+          java-version: '21.0.3'
 
       - name: Setup NodeJs
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: 10.22.1
       - name: Download Ballerina Lang Artifacts
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v4
         with:
           name: Ballerina Lang Artifacts
           path: ~/.m2/
@@ -90,12 +91,6 @@ jobs:
           for module_name in $(jq -r '.standard_library| .[] | select(.level==${{ matrix.level }}) | .name' extensions.json); \
           do git clone https://github.com/ballerina-platform/${module_name}.git; \
           done
-
-#      - name: Checkout non-default branch
-#        run: |
-#          for module_name in $(jq -r '.standard_library| .[] | select(.level==${{ matrix.level }}) | .name' extensions.json); do \
-#          cd $module_name && git fetch origin && git checkout -t origin/java_17_migration && cd ..; \
-#          done
 
       - name: Update Lang Version in Module
         run: |
@@ -127,18 +122,18 @@ jobs:
 
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           repository: 'ballerina-platform/ballerina-distribution'
 
-      - name: Set up JDK 17
-        uses: actions/setup-java@v3
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
-          java-version: '17.0.7'
+          java-version: '21.0.3'
 
       - name: Download Ballerina Lang Artifacts
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v4
         with:
           name: Ballerina Lang Artifacts
           path: ~/.m2/

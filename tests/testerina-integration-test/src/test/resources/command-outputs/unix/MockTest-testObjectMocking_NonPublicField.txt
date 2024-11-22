@@ -5,19 +5,31 @@ Running Tests with Coverage
 
 	non_public_field_mock
 
+	testNonPublicMemberFieldMock has failed.
+
+
 		[fail] testNonPublicMemberFieldMock:
 
 		    error("NonPublicMemberFieldError",message="member field should be public to be mocked. The provided field 'url' is not public")
-				callableName: thenReturnExt moduleName: ballerina.test.0 fileName: mock.bal lineNumber: 355
-				callableName: thenReturn moduleName: ballerina.test.0.MemberVariableStub fileName: mock.bal lineNumber: 212
+				callableName: thenReturnExt moduleName: ballerina.test.0 fileName: mock.bal lineNumber: 562
+				callableName: thenReturn moduleName: ballerina.test.0.MemberVariableStub fileName: mock.bal lineNumber: 373
 				callableName: testNonPublicMemberFieldMock moduleName: intg_tests.non_public_field_mock$test.0.tests.main_error_test fileName: tests/main_error_test.bal lineNumber: 23
-				callableName: testNonPublicMemberFieldMock$lambda0$ moduleName: intg_tests.non_public_field_mock$test.0.tests.test_execute-generated_1 fileName: tests/test_execute-generated_1.bal lineNumber: 3
+				callableName: testNonPublicMemberFieldMock$lambda0$ moduleName: intg_tests.non_public_field_mock$test.0.tests.test_execute-generated_1 fileName: tests/test_execute-generated_1.bal lineNumber: 4
+				callableName: call moduleName: ballerina.lang.function.0 fileName: function.bal lineNumber: 37
+				callableName: executeTestFunction moduleName: ballerina.test.0 fileName: serialExecuter.bal lineNumber: 128
+				callableName: executeNonDataDrivenTest moduleName: ballerina.test.0 fileName: serialExecuter.bal lineNumber: 74
+				callableName: executeTest moduleName: ballerina.test.0 fileName: serialExecuter.bal lineNumber: 30
+				callableName: executeTests moduleName: ballerina.test.0 fileName: execute.bal lineNumber: 81
+				callableName: startSuite moduleName: ballerina.test.0 fileName: execute.bal lineNumber: 53
+				callableName: __execute__ moduleName: intg_tests.non_public_field_mock$test.0.tests.test_execute-generated_1 fileName: tests/test_execute-generated_1.bal lineNumber: 8
 			
 
 
 		0 passing
 		1 failing
 		0 skipped
+
+		Test execution time :*****s
 
 Generating Test Report*****project-based-tests/non-public-field-mock/target/report/test_results.json
 

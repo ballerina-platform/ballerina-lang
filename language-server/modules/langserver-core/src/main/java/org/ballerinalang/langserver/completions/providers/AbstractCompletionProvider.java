@@ -90,6 +90,7 @@ import org.wso2.ballerinalang.compiler.util.Names;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -188,7 +189,7 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
             if (symbol.kind() == FUNCTION || symbol.kind() == METHOD || symbol.kind() == RESOURCE_METHOD) {
                 FunctionSymbol functionSymbol = (FunctionSymbol) symbol;
                 if (functionSymbol.getName().isPresent() && !functionSymbol.getName().get().contains("$")) {
-                    completionItems.addAll(populateBallerinaFunctionCompletionItems((FunctionSymbol) symbol, ctx));
+                    completionItems.addAll(populateBallerinaFunctionCompletionItems(functionSymbol, ctx));
                 }
             } else if (symbol.kind() == SymbolKind.CONSTANT || symbol.kind() == SymbolKind.ENUM_MEMBER) {
                 CompletionItem constantCItem = ConstantCompletionItemBuilder.build((ConstantSymbol) symbol, ctx);
@@ -372,16 +373,16 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
         List<LSPackageLoader.ModuleInfo> modules =
                 LSPackageLoader.getInstance(ctx.languageServercontext()).getAllVisiblePackages(ctx);
         modules.forEach(pkg -> {
-            String name = pkg.packageName().value();
-            String orgName = ModuleUtil.escapeModuleName(pkg.packageOrg().value());
+            String name = pkg.packageName();
+            String orgName = ModuleUtil.escapeModuleName(pkg.packageOrg());
             if (ModuleUtil.matchingImportedModule(ctx, pkg).isEmpty()
                     && !processedList.contains(orgName + CommonKeys.SLASH_KEYWORD_KEY + name)
                     && !CommonUtil.PRE_DECLARED_LANG_LIBS.contains(name)) {
                 List<String> pkgNameComps = Arrays.stream(name.split("\\."))
                         .map(ModuleUtil::escapeModuleName)
                         .map(CommonUtil::escapeReservedKeyword)
-                        .collect(Collectors.toList());
-                String label = pkg.packageOrg().value().isEmpty() ? String.join(".", pkgNameComps)
+                        .toList();
+                String label = pkg.packageOrg().isEmpty() ? String.join(".", pkgNameComps)
                         : CommonUtil.getPackageLabel(pkg);
                 String aliasComponent = pkgNameComps.get(pkgNameComps.size() - 1);
                 // TODO: 2021-04-23 This has to be revamped with completion/resolve request for faster responses 
@@ -543,7 +544,8 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
         Predicate<Symbol> symbolFilter = getExpressionContextSymbolFilter();
         List<Symbol> filteredList = visibleSymbols.stream()
                 .filter(symbolFilter)
-                .collect(Collectors.toList());
+                .sorted(Comparator.comparing(symbol -> symbol.getName().get()))
+                .toList();
         completionItems.addAll(this.getCompletionItemList(filteredList, context));
         completionItems.addAll(this.getBasicAndOtherTypeCompletions(context));
         this.getAnonFunctionDefSnippet(context).ifPresent(completionItems::add);

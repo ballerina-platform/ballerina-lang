@@ -56,7 +56,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static io.ballerina.runtime.api.constants.RuntimeConstants.UNDERSCORE;
 
@@ -78,8 +77,8 @@ public class ServiceDesugar {
     private final SymbolTable symTable;
     private final SymbolResolver symResolver;
     private final Names names;
-    private DeclarativeAuthDesugar declarativeAuthDesugar;
-    private TransactionDesugar transactionDesugar;
+    private final DeclarativeAuthDesugar declarativeAuthDesugar;
+    private final TransactionDesugar transactionDesugar;
     private final Types types;
 
     public static ServiceDesugar getInstance(CompilerContext context) {
@@ -126,9 +125,9 @@ public class ServiceDesugar {
         final Location pos = variable.pos;
 
         // Find correct symbol.
-        BTypeSymbol listenerTypeSymbol = Types.getReferredType(
+        BTypeSymbol listenerTypeSymbol = Types.getImpliedType(
                 getListenerType(variable.getBType())).tsymbol;
-        final Name functionName = names
+        final Name functionName = Names
                 .fromString(Symbols.getAttachedFuncSymbolName(listenerTypeSymbol.name.value, method));
         BInvokableSymbol methodInvocationSymbol = (BInvokableSymbol) symResolver
                 .lookupMemberSymbol(pos, listenerTypeSymbol.scope, env, functionName,
@@ -194,7 +193,7 @@ public class ServiceDesugar {
             //      (.<init>)              ->      y.__attach(x, {});
             // Find correct symbol.
             BTypeSymbol listenerTypeSymbol = getListenerType(listenerVarRef.getBType()).tsymbol;
-            final Name functionName = names
+            final Name functionName = Names
                     .fromString(Symbols.getAttachedFuncSymbolName(listenerTypeSymbol.name.value, ATTACH_METHOD));
             BInvokableSymbol methodRef = (BInvokableSymbol) symResolver
                     .lookupMemberSymbol(pos, listenerTypeSymbol.scope, env, functionName, SymTag.INVOKABLE);
@@ -234,7 +233,7 @@ public class ServiceDesugar {
     }
 
     private BType getListenerTypeWithoutError(BType type) {
-        if (Types.getReferredType(type).tag == TypeTags.UNION) {
+        if (Types.getImpliedType(type).tag == TypeTags.UNION) {
             LinkedHashSet<BType> members = new LinkedHashSet<>();
             for (BType memberType : ((BUnionType) type).getMemberTypes()) {
                 if (types.isAssignable(memberType, symTable.errorType)) {
@@ -248,8 +247,8 @@ public class ServiceDesugar {
     }
 
     private BType getListenerType(BType type) {
-        if (Types.getReferredType(type).tag == TypeTags.UNION) {
-            for (BType memberType : ((BUnionType) Types.getReferredType(type)).getMemberTypes()) {
+        if (Types.getImpliedType(type).tag == TypeTags.UNION) {
+            for (BType memberType : ((BUnionType) Types.getImpliedType(type)).getMemberTypes()) {
                 if (types.checkListenerCompatibility(memberType)) {
                     return memberType;
                 }
@@ -288,8 +287,7 @@ public class ServiceDesugar {
     }
 
     void engageCustomServiceDesugar(BLangService service, SymbolEnv env) {
-        List<BType> expressionTypes = service.attachedExprs.stream().map(expression -> expression.getBType())
-                .collect(Collectors.toList());
+        List<BType> expressionTypes = service.attachedExprs.stream().map(expression -> expression.getBType()).toList();
         service.serviceClass.functions.stream()
                 .filter(fun -> Symbols.isResource(fun.symbol) || Symbols.isRemote(fun.symbol))
                 .forEach(func -> engageCustomResourceDesugar(func, env, expressionTypes));

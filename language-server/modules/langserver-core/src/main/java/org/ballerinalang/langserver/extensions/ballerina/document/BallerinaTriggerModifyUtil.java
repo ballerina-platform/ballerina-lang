@@ -46,14 +46,13 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 /**
  * Represents a request for a Ballerina AST Modify.
  *
  * @since 1.3.0
  */
-public class BallerinaTriggerModifyUtil {
+public final class BallerinaTriggerModifyUtil {
 
 //    private static final Logger logger = LoggerFactory.getLogger(BallerinaDocumentServiceImpl.class);
 
@@ -147,7 +146,7 @@ public class BallerinaTriggerModifyUtil {
             if (node.kind() == SyntaxKind.FUNCTION_DEFINITION) {
                 FunctionDefinitionNode functionDefinitionNode = (FunctionDefinitionNode) node;
                 List<String> qualifiers = functionDefinitionNode.qualifierList().stream().map(Token::text)
-                        .collect(Collectors.toList());
+                        .toList();
                 if (qualifiers.contains(SyntaxKind.RESOURCE_KEYWORD.stringValue())) {
                     resources.add(functionDefinitionNode);
                 }
@@ -251,7 +250,7 @@ public class BallerinaTriggerModifyUtil {
                     if (MAIN.equalsIgnoreCase(type)) {
                         if (service.get().metadata().isPresent()
                                 && service.get().metadata().get().annotations() != null &&
-                                service.get().metadata().get().annotations().size() > 0) {
+                                !service.get().metadata().get().annotations().isEmpty()) {
                             edits.add(BallerinaTreeModifyUtil.createTextEdit(oldTextDocument, config,
                                     "MAIN_START", service.get().metadata().get().annotations().get(0)
                                             .lineRange().startLine().line(),

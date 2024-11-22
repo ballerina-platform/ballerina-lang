@@ -19,8 +19,8 @@
 package org.ballerinalang.langlib.integer;
 
 import io.ballerina.runtime.api.values.BString;
-import io.ballerina.runtime.internal.MathUtils;
 import io.ballerina.runtime.internal.errors.ErrorReasons;
+import io.ballerina.runtime.internal.utils.MathUtils;
 
 import static io.ballerina.runtime.api.constants.RuntimeConstants.INT_LANG_LIB;
 import static io.ballerina.runtime.internal.errors.ErrorReasons.getModulePrefixedReason;
@@ -28,14 +28,11 @@ import static io.ballerina.runtime.internal.errors.ErrorReasons.getModulePrefixe
 /**
  * Native implementation of lang.int:sum(int...).
  */
-//@BallerinaFunction(
-//        orgName = "ballerina", packageName = "lang.int", functionName = "sum",
-//        args = {@Argument(name = "ns", type = TypeKind.ARRAY)},
-//        returnType = {@ReturnType(type = TypeKind.INT)},
-//        isPublic = true
-//)
 public class Sum {
 
+
+    private Sum() {
+    }
     public static long sum(long[] ns) {
         long sum = 0;
         BString errorMsg = getModulePrefixedReason(INT_LANG_LIB,

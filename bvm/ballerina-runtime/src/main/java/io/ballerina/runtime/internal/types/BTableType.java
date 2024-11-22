@@ -17,11 +17,11 @@
  */
 package io.ballerina.runtime.internal.types;
 
-import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.constants.TypeConstants;
 import io.ballerina.runtime.api.types.IntersectionType;
 import io.ballerina.runtime.api.types.TableType;
 import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.types.TypeTags;
 import io.ballerina.runtime.internal.values.ReadOnlyUtils;
 import io.ballerina.runtime.internal.values.TableValue;
 import io.ballerina.runtime.internal.values.TableValueImpl;
@@ -59,6 +59,7 @@ public class BTableType extends BType implements TableType {
         this.readonly = readonly;
     }
 
+    @Override
     public Type getConstrainedType() {
         return constraint;
     }
@@ -67,6 +68,7 @@ public class BTableType extends BType implements TableType {
         return keyType;
     }
 
+    @Override
     public String[] getFieldNames() {
         return fieldNames;
     }
@@ -96,7 +98,7 @@ public class BTableType extends BType implements TableType {
         String stringRep;
         if (fieldNames.length > 0) {
             for (String fieldName : fieldNames) {
-                if (!keyStringBuilder.toString().equals("")) {
+                if (!keyStringBuilder.toString().isEmpty()) {
                     keyStringBuilder.append(", ");
                 }
                 keyStringBuilder.append(fieldName);
@@ -112,11 +114,10 @@ public class BTableType extends BType implements TableType {
 
     @Override
     public boolean equals(Object obj) {
-        if (!super.equals(obj) || !(obj instanceof BTableType)) {
+        if (!super.equals(obj) || !(obj instanceof BTableType other)) {
             return false;
         }
 
-        BTableType other = (BTableType) obj;
         if (constraint == other.constraint && keyType == other.keyType) {
             return true;
         }

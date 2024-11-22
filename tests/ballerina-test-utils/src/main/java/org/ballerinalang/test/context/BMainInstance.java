@@ -31,7 +31,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintStream;
-import java.nio.file.Paths;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -46,14 +46,15 @@ import java.util.stream.Stream;
  * @since 0.982.0
  */
 public class BMainInstance implements BMain {
-    private static final Logger log = LoggerFactory.getLogger(BMainInstance.class);
+    private static final Logger LOG = LoggerFactory.getLogger(BMainInstance.class);
     private static final String JAVA_OPTS = "JAVA_OPTS";
     private String agentArgs = "";
     private BalServer balServer;
+    public static final int TIMEOUT = 10000;
 
     private static class StreamGobbler extends Thread {
-        private InputStream inputStream;
-        private PrintStream printStream;
+        private final InputStream inputStream;
+        private final PrintStream printStream;
 
         public StreamGobbler(InputStream inputStream, PrintStream printStream) {
             this.inputStream = inputStream;
@@ -79,7 +80,7 @@ public class BMainInstance implements BMain {
     }
 
 
-    public BMainInstance(BalServer balServer) throws BallerinaTestException {
+    public BMainInstance(BalServer balServer) {
         this.balServer = balServer;
         initialize();
     }
@@ -87,18 +88,15 @@ public class BMainInstance implements BMain {
     /**
      * Initialize the server instance with properties.
      *
-     * @throws BallerinaTestException when an exception is thrown while initializing the server
      */
-    private void initialize() throws BallerinaTestException {
+    private void initialize() {
         configureAgentArgs();
     }
 
-    private void configureAgentArgs() throws BallerinaTestException {
+    private void configureAgentArgs() {
         // add jacoco agent
-        String jacocoArgLine = "-javaagent:" + Paths.get(balServer.getServerHome())
-                .resolve("bre").resolve("lib").resolve("jacocoagent.jar").toString() + "=destfile=" +
-                Paths.get(System.getProperty("user.dir"))
-                        .resolve("build").resolve("jacoco").resolve("test.exec");
+        String jacocoArgLine = "-javaagent:" + Path.of(balServer.getServerHome(), "bre/lib/jacocoagent.jar")
+                + "=destfile=" + Path.of(System.getProperty("user.dir"), "build/jacoco/test.exec");
         agentArgs = jacocoArgLine + " ";
     }
 
@@ -120,7 +118,7 @@ public class BMainInstance implements BMain {
     @Override
     public void runMain(String balFile, String[] flags,
                         String[] args, LogLeecher[] leechers) throws BallerinaTestException {
-        runMain(balFile, flags, args, null, new String[]{}, leechers);
+        runMain(balFile, flags, args, new HashMap<>(), new String[]{}, leechers);
     }
 
     @Override
@@ -147,7 +145,6 @@ public class BMainInstance implements BMain {
         if (envProperties == null) {
             envProperties = new HashMap<>();
         }
-        addJavaAgents(envProperties);
 
         runMain("build", new String[]{balFile}, envProperties, null, leechers, balServer.getServerHome());
         runJar(balFile, ArrayUtils.addAll(flags, args), envProperties, clientArgs, leechers, balServer.getServerHome());
@@ -201,14 +198,12 @@ public class BMainInstance implements BMain {
         if (envProperties == null) {
             envProperties = new HashMap<>();
         }
-        addJavaAgents(envProperties);
-
         runMain("build", new String[]{packagePath}, envProperties, null, leechers, sourceRoot);
-        runJar(Paths.get(sourceRoot, packagePath).toString(), packagePath, ArrayUtils.addAll(flags, args),
+        runJar(Path.of(sourceRoot, packagePath).toString(), packagePath, ArrayUtils.addAll(flags, args),
                 envProperties, clientArgs, leechers, sourceRoot);
     }
 
-    public synchronized void addJavaAgents(Map<String, String> envProperties) throws BallerinaTestException {
+    public synchronized void addJavaAgents(Map<String, String> envProperties) {
         String javaOpts = "";
         if (envProperties.containsKey(JAVA_OPTS)) {
             javaOpts = envProperties.get(JAVA_OPTS);
@@ -217,10 +212,14 @@ public class BMainInstance implements BMain {
             return;
         }
         javaOpts = agentArgs + javaOpts;
-        if ("".equals(javaOpts)) {
+        if (javaOpts.isEmpty()) {
             return;
         }
         envProperties.put(JAVA_OPTS, javaOpts);
+    }
+
+    public String getBalServerHome() {
+        return Path.of(balServer.getServerHome()).toString();
     }
 
     /**
@@ -256,6 +255,7 @@ public class BMainInstance implements BMain {
                     env.put(entry.getKey(), entry.getValue());
                 }
             }
+            addJavaAgents(processBuilder.environment());
 
             Process process = processBuilder.start();
 
@@ -290,6 +290,48 @@ public class BMainInstance implements BMain {
             throw new BallerinaTestException("Error executing ballerina", e);
         } catch (InterruptedException e) {
             throw new BallerinaTestException("Error waiting for execution to finish", e);
+        }
+    }
+
+
+    /**
+     * Executing the sh or bat file to start the server and return the PID for service handling.
+     *
+     * @param command       command to run
+     * @param args          command line arguments to pass when executing the sh or bat file
+     * @param envProperties environment properties to be appended to the environment
+     * @param commandDir    where to execute the command
+     * @throws BallerinaTestException if starting services failed
+     */
+    public Process runCommandAndGetProcess(String command, String[] args, Map<String, String> envProperties,
+                                           String commandDir) throws BallerinaTestException {
+        String scriptName = Constant.BALLERINA_SERVER_SCRIPT_NAME;
+        String[] cmdArray;
+        try {
+            if (Utils.isWindowsOS()) {
+                cmdArray = new String[]{"cmd.exe", "/c", balServer.getServerHome() +
+                        File.separator + "bin" + File.separator + scriptName + ".bat", command};
+            } else {
+                cmdArray = new String[]{"bash", balServer.getServerHome() +
+                        File.separator + "bin/" + scriptName, command};
+            }
+            String[] cmdArgs = Stream.concat(Arrays.stream(cmdArray), Arrays.stream(args)).toArray(String[]::new);
+            ProcessBuilder processBuilder = new ProcessBuilder(cmdArgs).directory(new File(commandDir));
+            if (envProperties != null) {
+                Map<String, String> env = processBuilder.environment();
+                for (Map.Entry<String, String> entry : envProperties.entrySet()) {
+                    env.put(entry.getKey(), entry.getValue());
+                }
+            }
+            return processBuilder.start();
+        } catch (IOException e) {
+            throw new BallerinaTestException("Error executing bal command", e);
+        }
+    }
+
+    public void waitForLeechers(List<LogLeecher> logLeechers, int timeout) throws BallerinaTestException {
+        for (LogLeecher leecher : logLeechers) {
+            leecher.waitForText(timeout);
         }
     }
 
@@ -487,7 +529,7 @@ public class BMainInstance implements BMain {
      */
     private void runJar(String sourceRoot, String packageName, String[] args, Map<String, String> envProperties,
                         String[] clientArgs, LogLeecher[] leechers, String commandDir) throws BallerinaTestException {
-        executeJarFile(Paths.get(sourceRoot, "target", "bin", packageName + ".jar").toFile().getPath(),
+        executeJarFile(Path.of(sourceRoot, "target", "bin", packageName + ".jar").toFile().getPath(),
                 args, envProperties, clientArgs, leechers, commandDir);
     }
 
@@ -504,8 +546,8 @@ public class BMainInstance implements BMain {
      */
     private void runJar(String balFile, String[] args, Map<String, String> envProperties, String[] clientArgs,
                         LogLeecher[] leechers, String commandDir) throws BallerinaTestException {
-        String balFileName = Paths.get(balFile).getFileName().toString();
-        String jarPath = Paths.get(Paths.get(commandDir).toString(), balFileName.substring(0, balFileName.length() -
+        String balFileName = Path.of(balFile).getFileName().toString();
+        String jarPath = Path.of(Path.of(commandDir).toString(), balFileName.substring(0, balFileName.length() -
                 4) + ".jar").toString();
         executeJarFile(jarPath, args, envProperties, clientArgs, leechers, commandDir);
     }
@@ -526,6 +568,7 @@ public class BMainInstance implements BMain {
         try {
             List<String> runCmdSet = new ArrayList<>();
             runCmdSet.add("java");
+            addJavaAgents(envProperties);
             if (envProperties.containsKey(JAVA_OPTS)) {
                 runCmdSet.add(envProperties.get(JAVA_OPTS).trim());
             }
@@ -537,9 +580,7 @@ public class BMainInstance implements BMain {
 
             ProcessBuilder processBuilder = new ProcessBuilder(runCmdSet).directory(new File(commandDir));
             Map<String, String> env = processBuilder.environment();
-            for (Map.Entry<String, String> entry : envProperties.entrySet()) {
-                env.put(entry.getKey(), entry.getValue());
-            }
+            env.putAll(envProperties);
             Process process = processBuilder.start();
 
             ServerLogReader serverInfoLogReader = new ServerLogReader("inputStream", process.getInputStream());
@@ -662,5 +703,16 @@ public class BMainInstance implements BMain {
         }
         writer.flush();
         writer.close();
+    }
+
+    public void compilePackageAndPushToLocal(String packagPath, String balaFileName) throws BallerinaTestException {
+        LogLeecher buildLeecher = new LogLeecher("target/bala/" + balaFileName + ".bala");
+        LogLeecher pushLeecher = new LogLeecher("Successfully pushed target/bala/" + balaFileName + ".bala to " +
+                                                "'local' repository.");
+        this.runMain("pack", new String[]{}, null, null, new LogLeecher[]{buildLeecher}, packagPath);
+        buildLeecher.waitForText(5000);
+        this.runMain("push", new String[]{"--repository=local"}, null, null, new LogLeecher[]{pushLeecher},
+                packagPath);
+        pushLeecher.waitForText(5000);
     }
 }

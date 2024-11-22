@@ -17,13 +17,13 @@
  */
 package org.ballerinalang.test.isolation;
 
-import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.flags.SymbolFlags;
 import io.ballerina.runtime.api.types.MethodType;
 import io.ballerina.runtime.api.types.ObjectType;
 import io.ballerina.runtime.api.types.ResourceMethodType;
 import io.ballerina.runtime.api.types.ServiceType;
 import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.types.TypeTags;
 import io.ballerina.runtime.api.types.TypedescType;
 import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BObject;
@@ -86,7 +86,9 @@ public class IsolationInferenceTest {
                 "testObjectConstructorIsolatedInference",
                 "testFunctionsAccessingModuleLevelVarsIsolatedInference",
                 "testFunctionCallingFunctionWithIsolatedParamAnnotatedParam",
-                "testInferringIsolatedForAnonFuncArgForIsolatedParamAnnotatedParam"
+                "testInferringIsolatedForAnonFuncArgForIsolatedParamAnnotatedParam",
+                "testIsolatedObjectsWithNonInitializationSelfAccessInInitMethod",
+                "testIsolatedInferenceWithAnonFunctions"
         };
     }
 

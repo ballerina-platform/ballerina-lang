@@ -2,14 +2,14 @@
 org = "foo"
 name = "winery"
 version = "0.1.0"
-[[platform.java17.dependency]]
+[[platform.java21.dependency]]
 path = "/user/sameera/libs/toml4j.jar"
 
 groupId = "com.moandjiezana.toml"
 artifactId = "toml4j"
 version = "0.7.2"
 
-[[platform.java17.dependency]]
+[[platform.java21.dependency]]
 path = "path/to/swagger.jar"
 groupId = "swagger.io"
 artifactId = "swagger"

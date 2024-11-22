@@ -44,6 +44,7 @@ public class InlayHintContextImpl extends AbstractDocumentServiceContext impleme
             super(LSContextOperation.TXT_INLAY_HINT, serverContext);
         }
 
+        @Override
         public InlayHintContext build() {
             return new InlayHintContextImpl(
                     this.operation,

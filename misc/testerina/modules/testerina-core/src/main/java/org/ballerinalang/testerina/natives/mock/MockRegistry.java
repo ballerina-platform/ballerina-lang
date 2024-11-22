@@ -30,13 +30,13 @@ import java.util.Map;
 public class MockRegistry {
 
     public static final String ANY = "__ANY__";
-    private static MockRegistry instance = new MockRegistry();
+    private static final MockRegistry INSTANCE = new MockRegistry();
 
     public static MockRegistry getInstance() {
-        return instance;
+        return INSTANCE;
     }
-    private Map<String, Object> casesMap = new HashMap();
-    private Map<String, Integer> memberFuncHitsMap = new HashMap();
+    private final Map<String, Object> casesMap = new HashMap<>();
+    private final Map<String, Integer> memberFuncHitsMap = new HashMap<>();
 
     /**
      * Register a case for object mocking when a sequence of return value is provided.
@@ -77,8 +77,8 @@ public class MockRegistry {
             if (functionName != null) {
                 caseIdBuilder.append("-").append(functionName);
             }
-            if (argsList != null && argsList.size() > 0) {
-                BIterator argIterator = argsList.getIterator();
+            if (argsList != null && !argsList.isEmpty()) {
+                BIterator<?> argIterator = argsList.getIterator();
                 while (argIterator.hasNext()) {
                     caseIdBuilder.append("-").append(argIterator.next().toString());
                 }

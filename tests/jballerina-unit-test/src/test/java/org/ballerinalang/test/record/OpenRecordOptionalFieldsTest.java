@@ -17,7 +17,7 @@
  */
 package org.ballerinalang.test.record;
 
-import io.ballerina.runtime.api.TypeTags;
+import io.ballerina.runtime.api.types.TypeTags;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BMap;
@@ -64,12 +64,12 @@ public class OpenRecordOptionalFieldsTest {
     public void testNonDefReqField() {
         Object returns = BRunUtil.invoke(compileResult, "testNonDefReqField");
 
-        BMap person = (BMap) returns;
+        BMap<?, ?> person = (BMap<?, ?>) returns;
         Assert.assertEquals(person.get(StringUtils.fromString("fname")).toString(), "default");
         Assert.assertNull(person.get(StringUtils.fromString("lname")));
         Assert.assertNull(person.get(StringUtils.fromString("age")));
 
-        BMap adrs = (BMap) person.get(StringUtils.fromString("adrs"));
+        BMap<?, ?> adrs = (BMap<?, ?>) person.get(StringUtils.fromString("adrs"));
         Assert.assertEquals(adrs.get(StringUtils.fromString("street")).toString(), "");
         Assert.assertEquals(adrs.get(StringUtils.fromString("city")).toString(), "");
         Assert.assertEquals(adrs.get(StringUtils.fromString("country")).toString(), "LK");
@@ -80,12 +80,12 @@ public class OpenRecordOptionalFieldsTest {
     public void testNonDefReqField2() {
         Object returns = BRunUtil.invoke(compileResult, "testNonDefReqField2");
 
-        BMap person = (BMap) returns;
+        BMap<?, ?> person = (BMap<?, ?>) returns;
         Assert.assertEquals(person.get(StringUtils.fromString("fname")).toString(), "John");
         Assert.assertEquals(person.get(StringUtils.fromString("lname")).toString(), "Doe");
         Assert.assertNull(person.get(StringUtils.fromString("age")));
 
-        BMap adrs = (BMap) person.get(StringUtils.fromString("adrs"));
+        BMap<?, ?> adrs = (BMap<?, ?>) person.get(StringUtils.fromString("adrs"));
         Assert.assertEquals(adrs.get(StringUtils.fromString("street")).toString(), "");
         Assert.assertEquals(adrs.get(StringUtils.fromString("city")).toString(), "");
         Assert.assertEquals(adrs.get(StringUtils.fromString("country")).toString(), "LK");
@@ -95,12 +95,12 @@ public class OpenRecordOptionalFieldsTest {
     public void testDefaultableReqField() {
         Object returns = BRunUtil.invoke(compileResult, "testDefaultableReqField");
 
-        BMap person = (BMap) returns;
+        BMap<?, ?> person = (BMap<?, ?>) returns;
         Assert.assertEquals(person.get(StringUtils.fromString("fname")).toString(), "default");
         Assert.assertNull(person.get(StringUtils.fromString("lname")));
         Assert.assertNull(person.get(StringUtils.fromString("age")));
 
-        BMap adrs = (BMap) person.get(StringUtils.fromString("adrs"));
+        BMap<?, ?> adrs = (BMap<?, ?>) person.get(StringUtils.fromString("adrs"));
         Assert.assertEquals(adrs.get(StringUtils.fromString("street")).toString(), "");
         Assert.assertEquals(adrs.get(StringUtils.fromString("city")).toString(), "");
         Assert.assertEquals(adrs.get(StringUtils.fromString("country")).toString(), "LK");
@@ -109,7 +109,7 @@ public class OpenRecordOptionalFieldsTest {
     @Test(description = "Test non-defaultable user defined type as an optional field")
     public void testOptionalNonDefField() {
         Object returns = BRunUtil.invoke(compileResult, "testOptionalNonDefField");
-        BMap person = (BMap) returns;
+        BMap<?, ?> person = (BMap<?, ?>) returns;
         Assert.assertEquals(person.get(StringUtils.fromString("fname")).toString(), "default");
         Assert.assertNull(person.get(StringUtils.fromString("lname")));
         Assert.assertNull(person.get(StringUtils.fromString("age")));
@@ -148,7 +148,7 @@ public class OpenRecordOptionalFieldsTest {
     public void testOptionalDefaultableField() {
         Object returns = BRunUtil.invoke(compileResult, "testOptionalDefaultableField");
 
-        BMap person = (BMap) returns;
+        BMap<?, ?> person = (BMap<?, ?>) returns;
         Assert.assertEquals(person.get(StringUtils.fromString("fname")).toString(), "default");
         Assert.assertNull(person.get(StringUtils.fromString("lname")));
         Assert.assertNull(person.get(StringUtils.fromString("age")));

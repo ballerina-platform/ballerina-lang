@@ -23,10 +23,13 @@ import io.ballerina.tools.text.LineRange;
 import org.ballerinalang.model.clauses.GroupingKeyNode;
 import org.ballerinalang.model.clauses.OrderKeyNode;
 import org.ballerinalang.model.elements.Flag;
+import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.tree.Node;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
 import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLocation;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BResourceFunction;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BResourcePathSegmentSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
@@ -42,6 +45,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangRecordVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangResourceFunction;
+import org.wso2.ballerinalang.compiler.tree.BLangResourcePathSegment;
 import org.wso2.ballerinalang.compiler.tree.BLangRetrySpec;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
@@ -77,6 +81,7 @@ import org.wso2.ballerinalang.compiler.tree.clauses.BLangOrderByClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangOrderKey;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangSelectClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangWhereClause;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangAlternateWorkerReceive;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAccessExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrowFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
@@ -89,8 +94,9 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangElvisExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangExtendedXMLNavigationAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess.BLangNSPrefixedFieldBasedAccess;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess.BLangPrefixedFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangGroupExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
@@ -101,6 +107,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangLetExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchGuard;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangMultipleWorkerReceive;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNamedArgsExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangObjectConstructorExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangQueryAction;
@@ -136,6 +143,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypedescExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangUnaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWaitExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWaitForAllExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerAsyncSendExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerFlushExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerReceive;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerSyncSendExpr;
@@ -144,6 +152,9 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLCommentLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLElementAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLElementFilter;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLElementLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLFilterStepExtend;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLIndexedStepExtend;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLMethodCallStepExtend;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLNavigationAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLProcInsLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQName;
@@ -188,7 +199,6 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangTransaction;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTupleDestructure;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTupleVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWhile;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangWorkerSend;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangXMLNSStatement;
 import org.wso2.ballerinalang.compiler.tree.types.BLangArrayType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangConstrainedType;
@@ -207,7 +217,6 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static org.ballerinalang.model.symbols.SymbolOrigin.VIRTUAL;
 
@@ -259,10 +268,10 @@ public class ReferenceFinder extends BaseVisitor {
         find(pkgNode.typeDefinitions);
         find(pkgNode.classDefinitions.stream()
                      .filter(c -> !isGeneratedClassDefForService(c))
-                     .collect(Collectors.toList()));
+                     .toList());
         find(pkgNode.functions.stream()
                      .filter(f -> !f.flagSet.contains(Flag.LAMBDA))
-                     .collect(Collectors.toList()));
+                     .toList());
 
         if (!(pkgNode instanceof BLangTestablePackage)) {
             find(pkgNode.getTestablePkg());
@@ -307,6 +316,12 @@ public class ReferenceFinder extends BaseVisitor {
     @Override
     public void visit(BLangResourceFunction resourceFunction) {
         visit((BLangFunction) resourceFunction);
+        find(resourceFunction.resourcePathSegments);
+    }
+
+    @Override
+    public void visit(BLangResourcePathSegment resourcePathSegment) {
+        addIfSameSymbol(resourcePathSegment.symbol, resourcePathSegment.pos);
     }
 
     @Override
@@ -620,7 +635,7 @@ public class ReferenceFinder extends BaseVisitor {
     @Override
     public void visit(BLangJoinClause joinClause) {
         find((BLangNode) joinClause.variableDefinitionNode);
-        find((BLangOnClause) joinClause.onClause);
+        find(joinClause.onClause);
         find(joinClause.collection);
     }
 
@@ -753,9 +768,24 @@ public class ReferenceFinder extends BaseVisitor {
     }
 
     @Override
-    public void visit(BLangWorkerSend workerSendNode) {
-        find(workerSendNode.expr);
-        addIfSameSymbol(workerSendNode.workerSymbol, workerSendNode.workerIdentifier.pos);
+    public void visit(BLangWorkerAsyncSendExpr asyncSendExpr) {
+        find(asyncSendExpr.expr);
+        addIfSameSymbol(asyncSendExpr.workerSymbol, asyncSendExpr.workerIdentifier.pos);
+    }
+
+    @Override
+    public void visit(BLangAlternateWorkerReceive alternateWorkerReceive) {
+        for (BLangWorkerReceive workerReceive : alternateWorkerReceive.getWorkerReceives()) {
+            addIfSameSymbol(workerReceive.workerSymbol, workerReceive.workerIdentifier.pos);
+        }
+    }
+
+    @Override
+    public void visit(BLangMultipleWorkerReceive multipleWorkerReceive) {
+        for (BLangMultipleWorkerReceive.BLangReceiveField receiveField : multipleWorkerReceive.getReceiveFields()) {
+            BLangWorkerReceive workerReceive = receiveField.getWorkerReceive();
+            addIfSameSymbol(workerReceive.workerSymbol, workerReceive.workerIdentifier.pos);
+        }
     }
 
     @Override
@@ -786,7 +816,7 @@ public class ReferenceFinder extends BaseVisitor {
     @Override
     public void visit(BLangTupleVarRef varRefExpr) {
         find(varRefExpr.expressions);
-        find((BLangNode) varRefExpr.restParam);
+        find(varRefExpr.restParam);
     }
 
     @Override
@@ -795,7 +825,7 @@ public class ReferenceFinder extends BaseVisitor {
             find(recordRefField.getBindingPattern());
         }
 
-        find((BLangNode) varRefExpr.restParam);
+        find(varRefExpr.restParam);
     }
 
     @Override
@@ -836,9 +866,9 @@ public class ReferenceFinder extends BaseVisitor {
     }
 
     @Override
-    public void visit(BLangNSPrefixedFieldBasedAccess nsPrefixedFieldBasedAccess) {
-        find(nsPrefixedFieldBasedAccess.expr);
-        addIfSameSymbol(nsPrefixedFieldBasedAccess.nsSymbol, nsPrefixedFieldBasedAccess.nsPrefix.pos);
+    public void visit(BLangPrefixedFieldBasedAccess prefixedFieldBasedAccess) {
+        find(prefixedFieldBasedAccess.expr);
+        addIfSameSymbol(prefixedFieldBasedAccess.symbol, prefixedFieldBasedAccess.prefix.pos);
     }
 
     @Override
@@ -871,7 +901,7 @@ public class ReferenceFinder extends BaseVisitor {
     @Override
     public void visit(BLangTypeInit typeInit) {
         find(typeInit.userDefinedType);
-        find(typeInit.argsExpr);
+        find(typeInit.initInvocation);
     }
 
     @Override
@@ -1296,9 +1326,34 @@ public class ReferenceFinder extends BaseVisitor {
 
     @Override
     public void visit(BLangXMLNavigationAccess xmlNavigation) {
-        find(xmlNavigation.childIndex);
         find(xmlNavigation.filters);
         find(xmlNavigation.expr);
+    }
+
+    @Override
+    public void visit(BLangExtendedXMLNavigationAccess extendedXmlNavigationAccess) {
+        find(extendedXmlNavigationAccess.extensions);
+        find(extendedXmlNavigationAccess.stepExpr);
+    }
+
+    @Override
+    public void visit(BLangXMLIndexedStepExtend xmlIndexedStepExtend) {
+        find(xmlIndexedStepExtend.indexExpr);
+    }
+
+    @Override
+    public void visit(BLangXMLFilterStepExtend xmlFilterStepExtend) {
+        find(xmlFilterStepExtend.filters);
+    }
+
+    @Override
+    public void visit(BLangXMLMethodCallStepExtend xmlMethodCallStepExtend) {
+        BLangInvocation invocation = xmlMethodCallStepExtend.invocation;
+        List<BLangExpression> argExprs = invocation.argExprs;
+        for (int i = 1; i < argExprs.size(); i++) {
+            find(argExprs.get(i));
+        }
+        addIfSameSymbol(invocation.symbol, invocation.name.pos);
     }
 
     @Override
@@ -1340,6 +1395,8 @@ public class ReferenceFinder extends BaseVisitor {
         find(resourceAccessInvocation.annAttachments);
         find(resourceAccessInvocation.restArgs);
         find(resourceAccessInvocation.resourceAccessPathSegments);
+
+        findRefsInResourceAccessPathSegments(resourceAccessInvocation);
 
         if (!resourceAccessInvocation.pkgAlias.value.isEmpty()) {
             addIfSameSymbol(resourceAccessInvocation.symbol.owner, resourceAccessInvocation.pkgAlias.pos);
@@ -1424,6 +1481,38 @@ public class ReferenceFinder extends BaseVisitor {
     }
 
     // Private methods
+
+    private void findRefsInResourceAccessPathSegments(BLangInvocation.BLangResourceAccessInvocation invocation) {
+        if (this.targetSymbol.getKind() != SymbolKind.RESOURCE_PATH_IDENTIFIER_SEGMENT) {
+            return;
+        }
+
+        BResourceFunction targetResourceMethod = ((BResourcePathSegmentSymbol) this.targetSymbol).getResourceMethod();
+        BResourceFunction associatedResourceMethod = invocation.targetResourceFunc;
+
+        if (associatedResourceMethod == null || !targetResourceMethod.funcName.equals(associatedResourceMethod.funcName)
+                || !targetResourceMethod.symbol.pos.equals(associatedResourceMethod.symbol.pos)
+                || !targetResourceMethod.symbol.pkgID.equals(associatedResourceMethod.symbol.pkgID)) {
+            return;
+        }
+
+        List<BLangExpression> pathSegmentExprs = invocation.resourceAccessPathSegments.getExpressions();
+        List<BResourcePathSegmentSymbol> pathSegmentSymbols = targetResourceMethod.pathSegmentSymbols;
+
+        for (int i = 0; i < pathSegmentExprs.size(); i++) {
+            BResourcePathSegmentSymbol pathSymbol = pathSegmentSymbols.get(i);
+            BLangExpression expr = pathSegmentExprs.get(i);
+
+            if (!pathSymbol.equals(this.targetSymbol) || expr.getKind() != NodeKind.LITERAL) {
+                continue;
+            }
+            
+            BLangLiteral literal = (BLangLiteral) expr;
+            if (literal.value.equals(pathSymbol.name.value) && addIfSameSymbol(pathSymbol, expr.pos)) {
+                return;
+            }
+        }
+    }
 
     private void visitNamedArgWithoutAddingSymbol(List<BLangNamedArgsExpression> args) {
         for (BLangNamedArgsExpression arg : args) {

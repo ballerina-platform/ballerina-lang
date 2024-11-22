@@ -20,11 +20,14 @@ package org.ballerinalang.test.lock;
 
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BString;
+import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
+import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import static org.testng.Assert.assertEquals;
@@ -69,6 +72,45 @@ public class LocksWithOnFailTest {
     @Test
     public void testOnFailLockWithinLockWithoutVariable() {
         BRunUtil.invoke(compileResult, "onFailLockWithinLockWithoutVariable");
+    }
+
+    @Test(dataProvider = "onFailClauseWithErrorBPTestDataProvider")
+    public void testOnFailWithErrorBP(String funcName) {
+        BRunUtil.invoke(compileResult, funcName);
+    }
+
+    @DataProvider(name = "onFailClauseWithErrorBPTestDataProvider")
+    public Object[] onFailClauseWithErrorBPTestDataProvider() {
+        return new Object[]{
+                "testSimpleOnFailWithErrorBP",
+                "testSimpleOnFailWithErrorBPWithVar",
+                "testOnFailWithErrorBPHavingUserDefinedTypeWithError",
+                "testOnFailWithErrorBPHavingUserDefinedTypeWithVar",
+                "testOnFailWithErrorBPHavingUserDefinedType",
+                "testOnFailWithErrorBPHavingUserDefinedTypeWithErrDetail1",
+                "testOnFailWithErrorBPHavingUserDefinedTypeWithErrDetail2",
+                "testOnFailWithErrorBPHavingUserDefinedTypeWithErrDetail3",
+                "testOnFailWithErrorBPHavingUserDefinedTypeWithErrDetail4",
+                "testOnFailWithErrorBPHavingAnonDetailRecord",
+                "testOnFailWithErrorBPHavingAnonDetailRecordWithVar",
+                "testOnFailWithErrorBPHavingAnonDetailRecordWithUnionType",
+                "testOnFailWithErrorBPWithErrorArgsHavingBP1",
+                "testOnFailWithErrorBPWithErrorArgsHavingBP2",
+                "testOnFailWithErrorBPWithErrorArgsHavingBP3",
+                "testOnFailWithErrorBPWithErrorArgsHavingBP4",
+                "testOnFailWithErrorBPWithErrorArgsHavingBP5",
+                "testMultiLevelOnFailWithErrorBP",
+                "testMultiLevelOnFailWithoutErrorInOneLevel"
+        };
+    }
+
+    @Test(description = "Check incompatible types.")
+    public void testNegative() {
+        CompileResult resultNegative = BCompileUtil.compile("test-src/lock/lock-on-fail-negative.bal");
+        int i = 0;
+        BAssertUtil.validateError(resultNegative, i++, "invalid error variable; expecting an " +
+                "error type but found '(SampleComplexError|SampleError)' in type definition", 39, 15);
+        Assert.assertEquals(resultNegative.getErrorCount(), i);
     }
 
     @AfterClass

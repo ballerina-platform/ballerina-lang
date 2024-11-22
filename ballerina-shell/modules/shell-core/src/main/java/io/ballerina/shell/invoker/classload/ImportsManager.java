@@ -42,7 +42,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 /**
  * Imports that were stored to be able to search with the prefix.
@@ -288,7 +287,7 @@ public class ImportsManager {
         if (nextStart != 0) {
             newText.append(text.substring(nextStart));
         }
-        return newText.length() > 0 ? newText.toString() : text;
+        return !newText.isEmpty() ? newText.toString() : text;
     }
 
     /**
@@ -364,7 +363,7 @@ public class ImportsManager {
                         }
                     })
                     .filter(Objects::nonNull)
-                    .collect(Collectors.toList());
+                    .toList();
         } catch (ClassNotFoundException e) {
             return Collections.emptyList();
         }

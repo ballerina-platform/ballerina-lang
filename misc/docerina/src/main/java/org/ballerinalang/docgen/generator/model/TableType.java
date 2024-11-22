@@ -19,6 +19,8 @@ package org.ballerinalang.docgen.generator.model;
 
 import com.google.gson.annotations.Expose;
 
+import java.util.List;
+
 /**
  * Represents Ballerina Table Type.
  */
@@ -28,9 +30,9 @@ public class TableType extends Construct {
     @Expose
     public Type keyConstraint;
 
-    public TableType(String name, String description, boolean isDeprecated, Type rowParameterType,
-                  Type keyConstraint) {
-        super(name, description, isDeprecated);
+    public TableType(String name, String description, List<String> descriptionSections, boolean isDeprecated,
+                     Type rowParameterType, Type keyConstraint) {
+        super(name, description, descriptionSections, isDeprecated);
         this.rowParameterType = rowParameterType;
         this.keyConstraint = keyConstraint;
     }

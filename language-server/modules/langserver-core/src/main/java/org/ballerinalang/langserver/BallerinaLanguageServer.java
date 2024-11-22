@@ -17,6 +17,7 @@ package org.ballerinalang.langserver;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
+import com.google.gson.reflect.TypeToken;
 import io.ballerina.projects.util.ProjectConstants;
 import org.ballerinalang.langserver.command.LSCommandExecutorProvidersHolder;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
@@ -28,7 +29,6 @@ import org.ballerinalang.langserver.commons.registration.BallerinaClientCapabili
 import org.ballerinalang.langserver.commons.registration.BallerinaInitializeParams;
 import org.ballerinalang.langserver.commons.registration.BallerinaInitializeResult;
 import org.ballerinalang.langserver.commons.service.spi.ExtendedLanguageServerService;
-import org.ballerinalang.langserver.completions.providers.context.util.ServiceTemplateGenerator;
 import org.ballerinalang.langserver.config.ClientConfigListener;
 import org.ballerinalang.langserver.config.LSClientConfig;
 import org.ballerinalang.langserver.config.LSClientConfigHolder;
@@ -111,19 +111,23 @@ public class BallerinaLanguageServer extends AbstractExtendedLanguageServer
         return this.client;
     }
 
+    @Override
     public CompletableFuture<InitializeResult> initialize(InitializeParams params) {
         final InitializeResult res = new InitializeResult(new ServerCapabilities());
         res.getCapabilities().setTextDocumentSync(TextDocumentSyncKind.Full);
 
-        Map experimentalClientCapabilities = null;
+        Map<String, Object> experimentalClientCapabilities = null;
         if (params.getCapabilities().getExperimental() != null) {
             experimentalClientCapabilities = new Gson().fromJson(params.getCapabilities().getExperimental().toString(),
-                    HashMap.class);
+                    new TypeToken<>() {
+            });
         }
 
-        Map initializationOptions = null;
+        Map<String, Object> initializationOptions = null;
         if (params.getInitializationOptions() != null) {
-            initializationOptions = new Gson().fromJson(params.getInitializationOptions().toString(), HashMap.class);
+            initializationOptions = new Gson().fromJson(params.getInitializationOptions().toString(),
+                    new TypeToken<>() {
+            });
         }
 
         TextDocumentClientCapabilities textDocClientCapabilities = params.getCapabilities().getTextDocument();
@@ -216,10 +220,12 @@ public class BallerinaLanguageServer extends AbstractExtendedLanguageServer
         if (lsClientCapabilities.getInitializationOptions().isEnableLightWeightMode()) {
             return;
         }
-        //Initialize Service Template Generator.
-        ServiceTemplateGenerator.getInstance(this.serverContext);
-        CentralPackageDescriptorLoader.getInstance(this.serverContext)
-                .loadBallerinaxPackagesFromCentral(this.serverContext);
+        if (lsClientCapabilities.getInitializationOptions().isEnableIndexPackages()) {
+            LSPackageLoader.getInstance(this.serverContext).loadModules(this.serverContext);
+        }
+        if (lsClientCapabilities.getInitializationOptions().isEnableMemoryUsageMonitor()) {
+            MemoryUsageMonitor.getInstance(this.serverContext).start(client);
+        }
     }
 
     /**
@@ -349,6 +355,7 @@ public class BallerinaLanguageServer extends AbstractExtendedLanguageServer
         }
     }
 
+    @Override
     public CompletableFuture<Object> shutdown() {
         shutdown = 0;
         for (ExtendedLanguageServerService service : extendedServices) {
@@ -357,6 +364,7 @@ public class BallerinaLanguageServer extends AbstractExtendedLanguageServer
         return CompletableFuture.supplyAsync(Object::new);
     }
 
+    @Override
     public void exit() {
         for (ExtendedLanguageServerService service : extendedServices) {
             service.exit(shutdown);
@@ -364,6 +372,7 @@ public class BallerinaLanguageServer extends AbstractExtendedLanguageServer
         System.exit(shutdown);
     }
 
+    @Override
     public TextDocumentService getTextDocumentService() {
         return this.textService;
     }
@@ -373,6 +382,7 @@ public class BallerinaLanguageServer extends AbstractExtendedLanguageServer
         return this.notebookService;
     }
 
+    @Override
     public WorkspaceService getWorkspaceService() {
         return this.workspaceService;
     }

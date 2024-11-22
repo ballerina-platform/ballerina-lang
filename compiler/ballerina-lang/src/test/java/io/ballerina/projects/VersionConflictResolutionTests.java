@@ -30,10 +30,8 @@ import org.testng.annotations.Test;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Collection;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * Contain cases to test the version conflict resolution logic.
@@ -42,7 +40,7 @@ import java.util.stream.Collectors;
  */
 public class VersionConflictResolutionTests {
     private static final Gson gson = new Gson();
-    private static final Path testSourcesDirectory = Paths.get(
+    private static final Path testSourcesDirectory = Path.of(
             "src/test/resources/project_api/version_conflicts").toAbsolutePath().normalize();
 
     private static final PackageDescriptor rootPkgDesc = PackageDescriptor.from(PackageOrg.from("samjs"),
@@ -272,7 +270,7 @@ public class VersionConflictResolutionTests {
         DependencyGraph<DependencyNode> dependencyGraph =
                 getDependencyGraph(testSourcesDirectory.resolve("conflicts_negative_1.json"));
         List<DependencyNode> errorNodes = dependencyGraph.getNodes().stream().filter(
-                DependencyNode::errorNode).collect(Collectors.toList());
+                DependencyNode::errorNode).toList();
         Assert.assertEquals(errorNodes.size(), 1);
         Assert.assertEquals(errorNodes.get(0).pkgDesc().toString(), "samjs/package_b:2.1.0");
         Assert.assertEquals(dependencyGraph.getDirectDependencies(errorNodes.get(0)).size(), 0);

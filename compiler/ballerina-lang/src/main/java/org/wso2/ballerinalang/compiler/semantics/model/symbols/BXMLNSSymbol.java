@@ -35,12 +35,22 @@ public class BXMLNSSymbol extends BSymbol implements VariableSymbol {
      * Holds the namespace URI for lookup during semantic validations.
      */
     public String namespaceURI;
+    // Applicable to only module level XMLNS declarations
+    public Name compUnit;
 
     public BXMLNSSymbol(Name prefix, String namespaceURI, PackageID pkgID, BSymbol owner, Location pos,
                         SymbolOrigin origin) {
         super(SymTag.XMLNS, 0, prefix, pkgID, new BNoType(TypeTags.XMLNS), owner, pos, origin);
         this.namespaceURI = namespaceURI;
         this.kind = SymbolKind.XMLNS;
+    }
+
+    public BXMLNSSymbol(Name prefix, String namespaceURI, PackageID pkgID, BSymbol owner, Location pos,
+                        SymbolOrigin origin, Name compUnit) {
+        super(SymTag.XMLNS, 0, prefix, pkgID, new BNoType(TypeTags.XMLNS), owner, pos, origin);
+        this.namespaceURI = namespaceURI;
+        this.kind = SymbolKind.XMLNS;
+        this.compUnit = compUnit;
     }
 
     @Override

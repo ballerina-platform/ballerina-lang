@@ -92,6 +92,7 @@ public class STObjectFieldNode extends STNode {
                 semicolonToken);
     }
 
+    @Override
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
         return new STObjectFieldNode(
                 this.metadata,
@@ -138,6 +139,7 @@ public class STObjectFieldNode extends STNode {
                 diagnostics);
     }
 
+    @Override
     public Node createFacade(int position, NonTerminalNode parent) {
         return new ObjectFieldNode(this, position, parent);
     }

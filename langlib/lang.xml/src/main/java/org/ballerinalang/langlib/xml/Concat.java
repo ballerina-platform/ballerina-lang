@@ -22,7 +22,7 @@ import io.ballerina.runtime.api.types.XmlNodeType;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BXml;
 import io.ballerina.runtime.api.values.BXmlSequence;
-import io.ballerina.runtime.internal.XmlFactory;
+import io.ballerina.runtime.internal.xml.XmlFactory;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -32,14 +32,16 @@ import java.util.List;
  *
  * @since 1.0
  */
-public class Concat {
+public final class Concat {
+
+    private Concat() {
+    }
 
     public static BXml concat(Object... arrayValue) {
         List<BXml> backingArray = new ArrayList<>();
         BXml lastItem = null;
-        for (int i = 0; i < arrayValue.length; i++) {
-            Object refValue = arrayValue[i];
-            if (refValue instanceof BString) {
+        for (Object refValue : arrayValue) {
+            if (refValue instanceof BString bString) {
                 if (lastItem != null && lastItem.getNodeType() == XmlNodeType.TEXT) {
                     // If last added item is a string, then concat prev values with this values and replace prev value.
                     String concat = lastItem.getTextValue() + refValue;
@@ -48,11 +50,11 @@ public class Concat {
                     lastItem = xmlText;
                     continue;
                 }
-                BXml xmlText = XmlFactory.createXMLText((BString) refValue);
+                BXml xmlText = XmlFactory.createXMLText(bString);
                 backingArray.add(xmlText);
                 lastItem = xmlText;
-            } else if (refValue instanceof BXmlSequence) {
-                backingArray.addAll(((BXmlSequence) refValue).getChildrenList());
+            } else if (refValue instanceof BXmlSequence bXmlSequence) {
+                backingArray.addAll(bXmlSequence.getChildrenList());
                 lastItem = (BXml) refValue;
             } else {
                 backingArray.add((BXml) refValue);

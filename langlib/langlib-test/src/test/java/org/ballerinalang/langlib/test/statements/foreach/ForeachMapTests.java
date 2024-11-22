@@ -78,9 +78,11 @@ public class ForeachMapTests {
 
     @Test
     public void testAddWhileIteration() {
-        String result = "1A 1A 2B 3C 1A1A \n" +
-                        "2B 1A 2B 3C 1A1A 2B2B \n" +
-                        "3C 1A 2B 3C 1A1A 2B2B 3C3C \n";
+        String result = """
+                1A 1A 2B 3C 1A1A\s
+                2B 1A 2B 3C 1A1A 2B2B\s
+                3C 1A 2B 3C 1A1A 2B2B 3C3C\s
+                """;
         Object returns = BRunUtil.invoke(program, "testAddWhileIteration");
         Assert.assertEquals(returns.toString(), result);
     }

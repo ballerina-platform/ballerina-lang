@@ -17,6 +17,7 @@
  */
 package io.ballerina.projects.internal.model;
 
+import io.ballerina.projects.Module;
 import io.ballerina.projects.Package;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectUtils;
@@ -34,16 +35,18 @@ import java.nio.file.Path;
 public class Target {
     private final Path targetPath;
     private Path outputPath = null;
-    private Path cache;
-    private Path jarCachePath;
-    private Path balaCachePath;
-    private Path birCachePath;
-    private Path testsCachePath;
-    private Path binPath;
-    private Path reportPath;
-    private Path docPath;
-    private Path nativePath;
-    private Path nativeConfigPath;
+    private final Path cache;
+    private final Path jarCachePath;
+    private final Path balaCachePath;
+    private final Path birCachePath;
+    private final Path testsCachePath;
+    private final Path binPath;
+    private final Path reportPath;
+    private final Path docPath;
+    private final Path nativePath;
+    private final Path nativeConfigPath;
+    private final Path profilerPath;
+    private final Path resourcesPath;
 
     public Target(Path targetPath) throws IOException {
         this.targetPath = targetPath;
@@ -57,6 +60,8 @@ public class Target {
         this.docPath = this.targetPath.resolve(ProjectConstants.TARGET_API_DOC_DIRECTORY);
         this.nativePath = this.targetPath.resolve(ProjectConstants.NATIVE_DIR_NAME);
         this.nativeConfigPath = this.testsCachePath.resolve(ProjectConstants.NATIVE_CONFIG_DIR_NAME);
+        this.profilerPath = this.targetPath.resolve(ProjectConstants.PROFILER_DIR_NAME);
+        this.resourcesPath = this.targetPath.resolve(ProjectConstants.RESOURCE_DIR_NAME);
 
         if (Files.exists(this.targetPath)) {
             ProjectUtils.checkWritePermission(this.targetPath);
@@ -79,6 +84,12 @@ public class Target {
 
         if (Files.exists(this.reportPath)) {
             ProjectUtils.checkWritePermission(this.reportPath);
+        }
+        if (Files.exists(this.profilerPath)) {
+            ProjectUtils.checkWritePermission(this.profilerPath);
+        }
+        if (Files.exists(this.resourcesPath)) {
+            ProjectUtils.checkWritePermission(this.resourcesPath);
         }
     }
 
@@ -125,6 +136,24 @@ public class Target {
         return getBinPath().resolve(ProjectUtils.getExecutableName(pkg));
     }
 
+    public Path getTestExecutablePath(Module module) throws IOException {
+        if (outputPath != null) {
+            return outputPath;
+        }
+        String name = module.moduleName().toString();
+        return getTestBinPath().resolve(name +
+                ProjectConstants.TEST_UBER_JAR_SUFFIX +
+                ProjectConstants.BLANG_COMPILED_JAR_EXT);
+    }
+
+    public Path getTestExecutableBasePath() throws IOException {
+        if (outputPath != null) {
+            return outputPath.getParent();
+        }
+
+        return getTestBinPath();
+    }
+
     /**
      * Returns the bin directory path.
      *
@@ -135,9 +164,19 @@ public class Target {
         return binPath;
     }
 
+    public Path getTestBinPath() throws IOException {
+        Files.createDirectories(binPath.resolve(ProjectConstants.TEST_DIR_NAME));
+        return binPath.resolve(ProjectConstants.TEST_DIR_NAME);
+    }
+
     public Path getReportPath() throws IOException {
         Files.createDirectories(reportPath);
         return reportPath;
+    }
+
+    public Path getProfilerPath() throws IOException {
+        Files.createDirectories(profilerPath);
+        return profilerPath;
     }
 
     /**
@@ -203,7 +242,7 @@ public class Target {
     /**
      * Clean any files that created from the build.
      */
-    public void clean(boolean isModified, boolean cacheEnabled) throws IOException {
+    public void clean(boolean isModified, boolean cacheEnabled) {
         if (isModified || !cacheEnabled) {
             // Remove from cache
             ProjectUtils.deleteDirectory(this.cache);
@@ -214,12 +253,13 @@ public class Target {
         ProjectUtils.deleteDirectory(this.binPath);
         ProjectUtils.deleteDirectory(this.docPath);
         ProjectUtils.deleteDirectory(this.reportPath);
+        ProjectUtils.deleteDirectory(this.resourcesPath);
     }
 
     /**
      * Clean cache files that created from the build.
      */
-    public void cleanCache() throws IOException {
+    public void cleanCache() {
         // Remove from cache
         ProjectUtils.deleteDirectory(this.cache);
     }
@@ -232,5 +272,9 @@ public class Target {
     public Path getNativeConfigPath() throws IOException {
         Files.createDirectories(nativeConfigPath);
         return nativeConfigPath;
+    }
+
+    public void cleanBinTests() {
+        ProjectUtils.deleteDirectory(this.binPath.resolve(ProjectConstants.TEST_DIR_NAME));
     }
 }

@@ -17,7 +17,7 @@
  */
 package io.ballerina.runtime.internal.values;
 
-import io.ballerina.runtime.api.PredefinedTypes;
+import io.ballerina.runtime.api.types.PredefinedTypes;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.values.BHandle;
 import io.ballerina.runtime.api.values.BLink;
@@ -37,10 +37,9 @@ import java.util.Map;
  */
 public class HandleValue implements BHandle, RefValue {
 
-    private Object value;
+    private final Object value;
     private BTypedesc typedesc;
 
-    @Deprecated
     public HandleValue(Object value) {
         this.value = value;
     }
@@ -49,6 +48,7 @@ public class HandleValue implements BHandle, RefValue {
      * Returns the internal value of the handle.
      * @return {@code Object} value
      */
+    @Override
     public Object getValue() {
         return value;
     }

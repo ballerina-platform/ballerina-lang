@@ -23,13 +23,11 @@ package org.ballerinalang.langlib.floatingpoint;
  *
  * @since 1.0
  */
-//@BallerinaFunction(
-//        orgName = "ballerina", packageName = "lang.float", functionName = "isNaN",
-//        args = {@Argument(name = "x", type = TypeKind.FLOAT)},
-//        returnType = {@ReturnType(type = TypeKind.BOOLEAN)},
-//        isPublic = true
-//)
 public class IsNaN {
+
+
+    private IsNaN() {
+    }
 
     public static boolean isNaN(double x) {
         return Double.isNaN(x);

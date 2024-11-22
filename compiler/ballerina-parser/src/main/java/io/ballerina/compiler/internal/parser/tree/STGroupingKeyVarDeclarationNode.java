@@ -68,6 +68,7 @@ public class STGroupingKeyVarDeclarationNode extends STNode {
                 expression);
     }
 
+    @Override
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
         return new STGroupingKeyVarDeclarationNode(
                 this.typeDescriptor,
@@ -98,6 +99,7 @@ public class STGroupingKeyVarDeclarationNode extends STNode {
                 diagnostics);
     }
 
+    @Override
     public Node createFacade(int position, NonTerminalNode parent) {
         return new GroupingKeyVarDeclarationNode(this, position, parent);
     }

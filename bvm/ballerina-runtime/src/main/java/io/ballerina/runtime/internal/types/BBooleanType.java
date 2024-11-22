@@ -18,8 +18,8 @@
 package io.ballerina.runtime.internal.types;
 
 import io.ballerina.runtime.api.Module;
-import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.types.BooleanType;
+import io.ballerina.runtime.api.types.TypeTags;
 
 /**
  * {@code BBooleanType} represents boolean type in Ballerina.
@@ -37,6 +37,7 @@ public class BBooleanType extends BType implements BooleanType {
         super(typeName, pkg, Boolean.class);
     }
 
+    @Override
     @SuppressWarnings("unchecked")
     public <V extends Object> V getZeroValue() {
         return (V) Boolean.FALSE;

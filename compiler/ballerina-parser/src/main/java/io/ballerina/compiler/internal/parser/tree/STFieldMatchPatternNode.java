@@ -62,6 +62,7 @@ public class STFieldMatchPatternNode extends STNode {
                 matchPattern);
     }
 
+    @Override
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
         return new STFieldMatchPatternNode(
                 this.fieldNameNode,
@@ -88,6 +89,7 @@ public class STFieldMatchPatternNode extends STNode {
                 diagnostics);
     }
 
+    @Override
     public Node createFacade(int position, NonTerminalNode parent) {
         return new FieldMatchPatternNode(this, position, parent);
     }

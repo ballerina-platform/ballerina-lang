@@ -125,6 +125,7 @@ import org.ballerinalang.model.tree.expressions.TypeInitNode;
 import org.ballerinalang.model.tree.expressions.TypeTestExpressionNode;
 import org.ballerinalang.model.tree.expressions.TypedescExpressionNode;
 import org.ballerinalang.model.tree.expressions.UnaryExpressionNode;
+import org.ballerinalang.model.tree.expressions.WorkerSendExpressionNode;
 import org.ballerinalang.model.tree.expressions.XMLAttributeNode;
 import org.ballerinalang.model.tree.expressions.XMLCommentLiteralNode;
 import org.ballerinalang.model.tree.expressions.XMLElementLiteralNode;
@@ -172,7 +173,6 @@ import org.ballerinalang.model.tree.statements.TupleDestructureNode;
 import org.ballerinalang.model.tree.statements.VariableDefinitionNode;
 import org.ballerinalang.model.tree.statements.WhileNode;
 import org.ballerinalang.model.tree.statements.WorkerReceiveNode;
-import org.ballerinalang.model.tree.statements.WorkerSendNode;
 import org.ballerinalang.model.tree.statements.XMLNSDeclStatementNode;
 import org.ballerinalang.model.tree.types.ArrayTypeNode;
 import org.ballerinalang.model.tree.types.BuiltInReferenceTypeNode;
@@ -242,6 +242,7 @@ import org.wso2.ballerinalang.compiler.tree.clauses.BLangOrderByClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangOrderKey;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangSelectClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangWhereClause;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangAlternateWorkerReceive;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAccessExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrowFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
@@ -271,6 +272,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkdownDocumentati
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkdownParameterDocumentation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkdownReturnParameterDocumentation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchGuard;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangMultipleWorkerReceive;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNamedArgsExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNumericLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangObjectConstructorExpression;
@@ -309,6 +311,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypedescExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangUnaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWaitExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWaitForAllExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerAsyncSendExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerFlushExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerReceive;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerSyncSendExpr;
@@ -360,7 +363,6 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangTransaction;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTupleDestructure;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTupleVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWhile;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangWorkerSend;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangXMLNSStatement;
 import org.wso2.ballerinalang.compiler.tree.types.BLangArrayType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangBuiltInRefTypeNode;
@@ -384,7 +386,10 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangValueType;
  *
  * @since 0.94
  */
-public class TreeBuilder {
+public final class TreeBuilder {
+
+    private TreeBuilder() {
+    }
 
     public static CompilationUnitNode createCompilationUnit() {
         return new BLangCompilationUnit();
@@ -610,7 +615,7 @@ public class TreeBuilder {
     }
 
     public static FieldBasedAccessNode createFieldBasedAccessWithPrefixNode() {
-        return new BLangFieldBasedAccess.BLangNSPrefixedFieldBasedAccess();
+        return new BLangFieldBasedAccess.BLangPrefixedFieldBasedAccess();
     }
 
     public static TableKeySpecifierNode createTableKeySpecifierNode() {
@@ -914,8 +919,16 @@ public class TreeBuilder {
         return new BLangWorkerReceive();
     }
 
-    public static WorkerSendNode createWorkerSendNode() {
-        return new BLangWorkerSend();
+    public static BLangAlternateWorkerReceive createAlternateWorkerReceiveNode() {
+        return new BLangAlternateWorkerReceive();
+    }
+
+    public static BLangMultipleWorkerReceive createMultipleWorkerReceiveNode() {
+        return new BLangMultipleWorkerReceive();
+    }
+
+    public static WorkerSendExpressionNode createWorkerSendNode() {
+        return new BLangWorkerAsyncSendExpr();
     }
 
     public static ForkJoinNode createForkJoinNode() {

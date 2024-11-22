@@ -62,6 +62,7 @@ public class STListMatchPatternNode extends STNode {
                 closeBracket);
     }
 
+    @Override
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
         return new STListMatchPatternNode(
                 this.openBracket,
@@ -88,6 +89,7 @@ public class STListMatchPatternNode extends STNode {
                 diagnostics);
     }
 
+    @Override
     public Node createFacade(int position, NonTerminalNode parent) {
         return new ListMatchPatternNode(this, position, parent);
     }

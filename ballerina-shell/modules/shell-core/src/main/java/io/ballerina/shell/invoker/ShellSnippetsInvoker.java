@@ -29,20 +29,21 @@ import io.ballerina.projects.JBallerinaBackend;
 import io.ballerina.projects.JarResolver;
 import io.ballerina.projects.JvmTarget;
 import io.ballerina.projects.Module;
+import io.ballerina.projects.Package;
 import io.ballerina.projects.PackageCompilation;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.directory.SingleFileProject;
 import io.ballerina.projects.util.ProjectUtils;
-import io.ballerina.runtime.api.PredefinedTypes;
-import io.ballerina.runtime.api.values.BFuture;
-import io.ballerina.runtime.internal.scheduling.Scheduler;
-import io.ballerina.runtime.internal.scheduling.Strand;
+import io.ballerina.runtime.api.values.BError;
+import io.ballerina.runtime.internal.BalRuntime;
+import io.ballerina.runtime.internal.scheduling.ClassloaderRuntime;
 import io.ballerina.shell.DiagnosticReporter;
 import io.ballerina.shell.exceptions.InvokerException;
 import io.ballerina.shell.exceptions.InvokerPanicException;
 import io.ballerina.shell.invoker.classload.context.ClassLoadContext;
 import io.ballerina.shell.snippet.Snippet;
 import io.ballerina.shell.utils.StringUtils;
+import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 
 import java.io.File;
@@ -50,17 +51,12 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.io.StringWriter;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.nio.charset.Charset;
-import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 
 /**
  * Invoker that invokes a command to evaluate a list of snippets.
@@ -89,12 +85,6 @@ public abstract class ShellSnippetsInvoker extends DiagnosticReporter {
     private static final String TEMP_FILE_SUFFIX = ".bal";
     /* Error type codes */
     private static final String MODULE_NOT_FOUND_CODE = "BCE2003";
-
-    /**
-     * Scheduler used to run the init and main methods
-     * of the generated classes.
-     */
-    private final Scheduler scheduler;
     /**
      * File object that is used to create projects and write.
      * Depending on USE_TEMP_FILE flag, this may be either a file in cwd
@@ -103,7 +93,7 @@ public abstract class ShellSnippetsInvoker extends DiagnosticReporter {
     private File bufferFile;
 
     protected ShellSnippetsInvoker() {
-        this.scheduler = new Scheduler(false);
+
     }
 
     /**
@@ -276,7 +266,7 @@ public abstract class ShellSnippetsInvoker extends DiagnosticReporter {
             PackageCompilation packageCompilation = project.currentPackage().getCompilation();
             DiagnosticResult diagnosticResult = packageCompilation.diagnosticResult();
 
-            for (io.ballerina.tools.diagnostics.Diagnostic diagnostic : diagnosticResult.diagnostics()) {
+            for (Diagnostic diagnostic : diagnosticResult.diagnostics()) {
                 DiagnosticSeverity severity = diagnostic.diagnosticInfo().severity();
                 if (severity == DiagnosticSeverity.ERROR) {
                     containErrors = true;
@@ -328,7 +318,7 @@ public abstract class ShellSnippetsInvoker extends DiagnosticReporter {
      * @return Whether the compilation contains MODULE_NOT_FOUND error.
      */
     private boolean containsModuleNotFoundError(PackageCompilation compilation) {
-        for (io.ballerina.tools.diagnostics.Diagnostic diagnostic : compilation.diagnosticResult().diagnostics()) {
+        for (Diagnostic diagnostic : compilation.diagnosticResult().diagnostics()) {
             if (diagnostic.diagnosticInfo().code().equals(MODULE_NOT_FOUND_CODE)) {
                 return true;
             }
@@ -348,8 +338,11 @@ public abstract class ShellSnippetsInvoker extends DiagnosticReporter {
     protected void executeProject(ClassLoadContext context, String templateName) throws InvokerException {
         Project project = getProject(context, templateName);
         PackageCompilation compilation = compile(project);
-        JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(compilation, JvmTarget.JAVA_17);
-        executeProject(jBallerinaBackend);
+        JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(compilation, JvmTarget.JAVA_21);
+        Package pkg = project.currentPackage();
+        io.ballerina.runtime.api.Module module = new io.ballerina.runtime.api.Module(pkg
+                .packageOrg().value(), pkg.packageName().value(), pkg.packageVersion().toString());
+        executeProject(jBallerinaBackend, module);
     }
 
     /**
@@ -358,41 +351,28 @@ public abstract class ShellSnippetsInvoker extends DiagnosticReporter {
      * The process is run and the stdout is collected and printed.
      *
      * @param jBallerinaBackend Backed to use.
-     * @throws InvokerException If execution failed.
+     * @param module           Module to execute.
      */
-    protected void executeProject(JBallerinaBackend jBallerinaBackend) throws InvokerException {
+    protected void executeProject(JBallerinaBackend jBallerinaBackend, io.ballerina.runtime.api.Module module)
+            throws InvokerPanicException {
         if (bufferFile == null) {
             throw new UnsupportedOperationException("Buffer file must be set before execution");
         }
 
         PrintStream errorStream = getErrorStream();
         try {
-            // Main method class name is file name without extension
-            String fileName = bufferFile.getName();
-            String mainMethodClassName = fileName.substring(0, fileName.length() - TEMP_FILE_SUFFIX.length());
-
             JarResolver jarResolver = jBallerinaBackend.jarResolver();
             ClassLoader classLoader = jarResolver.getClassLoaderWithRequiredJarFilesForExecution();
-            // First run configure initialization
-            // TODO: (#28662) After configurables can be supported, change this to that file location
-            invokeMethodDirectly(classLoader, CONFIGURE_INIT_CLASS_NAME, CONFIGURE_INIT_METHOD_NAME,
-                    new Class[]{String[].class, Path[].class, String.class}, new Object[]{new String[]{},
-                            new Path[]{}, null});
-            // Initialize the module
-            invokeScheduledMethod(classLoader, MODULE_INIT_CLASS_NAME, MODULE_INIT_METHOD_NAME);
-            // Start the module
-            invokeScheduledMethod(classLoader, MODULE_INIT_CLASS_NAME, MODULE_START_METHOD_NAME);
-            // Then call run method
-            Object failErrorMessage = invokeScheduledMethod(classLoader, mainMethodClassName, MODULE_RUN_METHOD_NAME);
+            Object failErrorMessage = this.callRun(classLoader, module);
             if (failErrorMessage != null) {
                 errorStream.println("fail: " + failErrorMessage);
             }
-        } catch (InvokerPanicException panicError) {
+        } catch (Throwable panicError) {
             List<String> stacktrace = Arrays.stream(panicError.getCause().getStackTrace())
                     .filter(element -> !(element.toString().contains(MODULE_STATEMENT_METHOD_NAME) ||
                                         element.toString().contains(MODULE_RUN_METHOD_NAME)))
-                    .collect(Collectors.toList())
-                    .stream().map(element -> "at " + element.getMethodName() + "()").collect(Collectors.toList());
+                    .toList()
+                    .stream().map(element -> "at " + element.getMethodName() + "()").toList();
             errorStream.println("panic: " + StringUtils.getErrorStringValue(panicError.getCause()));
             stacktrace.forEach(errorStream::println);
             addErrorDiagnostic("Execution aborted due to unhandled runtime error.");
@@ -403,103 +383,40 @@ public abstract class ShellSnippetsInvoker extends DiagnosticReporter {
     /* Invocation methods */
 
     /**
-     * Invokes a method that is in the given class.
-     * The method must be a static method accepting only one parameter, a {@link Strand}.
+     * Invokes a run function.
      *
      * @param classLoader Class loader to find the class.
-     * @param className   Class name with the method.
-     * @param methodName  Method name to invoke.
-     * @return The result of the invocation.
-     * @throws InvokerException If invocation failed.
      */
-    protected Object invokeScheduledMethod(ClassLoader classLoader, String className, String methodName)
-            throws InvokerException {
+    protected Object callRun(ClassLoader classLoader, io.ballerina.runtime.api.Module module)
+            throws InvokerPanicException {
+        BalRuntime runtime = new ClassloaderRuntime(module, classLoader);
+        Object result;
         try {
-            addDebugDiagnostic(String.format("Running %s.%s on schedule", className, methodName));
-
-            // Get class and method references
-            Class<?> clazz = classLoader.loadClass(className);
-            Method method = clazz.getDeclaredMethod(methodName, Strand.class);
-            Function<Object[], Object> methodInvocation = createInvokerCallback(method);
-
-            // Schedule and run the function and return if result is valid
-            BFuture out = scheduler.schedule(new Object[1], methodInvocation, null, null, null,
-                    PredefinedTypes.TYPE_ERROR, null, null);
-            scheduler.start();
-
-            Object result = out.getResult();
-            Throwable panic = out.getPanic();
-
-            if (panic != null) {
-                // Unexpected runtime error
-                throw new InvokerPanicException(panic);
+            // Initialize the module
+            result = runtime.init();
+            if (result instanceof Throwable throwable) {
+                throw new InvokerPanicException(throwable);
             }
-            if (result instanceof Throwable) {
-                // Function returned error (panic)
-                throw new InvokerPanicException((Throwable) result);
+            // Start the module
+            result = runtime.start();
+            if (result instanceof Throwable throwable) {
+                throw new InvokerPanicException(throwable);
             }
-            return result;
-        } catch (ClassNotFoundException e) {
-            addErrorDiagnostic(className + " class not found: " + e.getMessage());
-            throw new InvokerException(e);
-        } catch (NoSuchMethodException e) {
-            addErrorDiagnostic(methodName + " method not found: " + e.getMessage());
-            throw new InvokerException(e);
-        }
-    }
-
-    /**
-     * Invokes a method that is in the given class.
-     * This is directly invoked without scheduling.
-     * The method must be a static method accepting the given parameters.
-     *
-     * @param classLoader Class loader to find the class.
-     * @param className   Class name with the method.
-     * @param methodName  Method name to invoke.
-     * @param argTypes    Types of arguments.
-     * @param args        Arguments to provide.
-     * @return The result of the invocation.
-     * @throws InvokerException If invocation failed.
-     */
-    protected Object invokeMethodDirectly(ClassLoader classLoader, String className, String methodName,
-                                          Class<?>[] argTypes, Object[] args) throws InvokerException {
-        try {
-            // Get class and method references
-            addDebugDiagnostic(String.format("Running %s.%s directly", className, methodName));
-            Class<?> clazz = classLoader.loadClass(className);
-            Method method = clazz.getDeclaredMethod(methodName, argTypes);
-            return method.invoke(null, args);
-        } catch (ClassNotFoundException e) {
-            addErrorDiagnostic(className + " class not found: " + e.getMessage());
-            throw new InvokerException(e);
-        } catch (NoSuchMethodException e) {
-            addErrorDiagnostic(methodName + " method not found: " + e.getMessage());
-            throw new InvokerException(e);
-        } catch (IllegalAccessException e) {
-            addErrorDiagnostic(methodName + " illegal access: " + e.getMessage());
-            throw new InvokerException(e);
-        } catch (InvocationTargetException e) {
-            addErrorDiagnostic(methodName + " exception at target: " + e.getTargetException());
-            throw new InvokerException(e);
-        }
-    }
-
-    /**
-     * Creates a callback to the method to directly call it with given params.
-     *
-     * @param method Method to create invocation.
-     * @return Created callback.
-     */
-    private Function<Object[], Object> createInvokerCallback(Method method) {
-        return (params) -> {
+            // Then call run method
+            result = runtime.callFunction(module, MODULE_RUN_METHOD_NAME, null);
+            if (result instanceof Throwable throwable) {
+                throw new InvokerPanicException(throwable);
+            }
+        } catch (Throwable throwable) {
+            throw new InvokerPanicException(throwable);
+        } finally {
             try {
-                return method.invoke(null, params);
-            } catch (InvocationTargetException e) {
-                return e.getTargetException();
-            } catch (IllegalAccessException e) {
-                throw new RuntimeException("Error while invoking function.", e);
+                runtime.stop();
+            } catch (BError ignored) {
+                // stop errors are ignored
             }
-        };
+        }
+        return result;
     }
 
     /* Util methods */
@@ -511,7 +428,7 @@ public abstract class ShellSnippetsInvoker extends DiagnosticReporter {
      * @param diagnostic Diagnostic to show.
      * @return The string with position highlighted.
      */
-    private String highlightedDiagnostic(Module module, io.ballerina.tools.diagnostics.Diagnostic diagnostic) {
+    private String highlightedDiagnostic(Module module, Diagnostic diagnostic) {
         Optional<DocumentId> documentId = module.documentIds().stream().findFirst();
         Document document = module.document(documentId.orElseThrow());
         return StringUtils.highlightDiagnostic(document.textDocument(), diagnostic);

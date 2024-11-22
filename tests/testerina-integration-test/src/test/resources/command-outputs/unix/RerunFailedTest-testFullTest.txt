@@ -4,6 +4,12 @@ Compiling source
 Running Tests with Coverage
 
 	rerun_failed
+
+	testFunctionFail1: has failed.
+
+
+	testFunctionFail2: has failed.
+
 		[pass] testFunctionPass1
 		[pass] testFunctionPass2
 
@@ -13,7 +19,14 @@ Running Tests with Coverage
 				callableName: createBallerinaError moduleName: ballerina.test.0 fileName: assert.bal lineNumber: 41
 				callableName: assertTrue moduleName: ballerina.test.0 fileName: assert.bal lineNumber: 61
 				callableName: testFunctionFail1 moduleName: intg_tests.rerun_failed$test.0.tests.main_test fileName: tests/main_test.bal lineNumber: 35
-				callableName: testFunctionFail1$lambda2$ moduleName: intg_tests.rerun_failed$test.0.tests.test_execute-generated_*****lineNumber: 5
+				callableName: testFunctionFail1$lambda2$ moduleName: intg_tests.rerun_failed$test.0.tests.test_execute-generated_*****lineNumber: 6
+				callableName: call moduleName: ballerina.lang.function.0 fileName: function.bal lineNumber: 37
+				callableName: executeTestFunction moduleName: ballerina.test.0 fileName: serialExecuter.bal lineNumber: 128
+				callableName: executeNonDataDrivenTest moduleName: ballerina.test.0 fileName: serialExecuter.bal lineNumber: 74
+				callableName: executeTest moduleName: ballerina.test.0 fileName: serialExecuter.bal lineNumber: 30
+				callableName: executeTests moduleName: ballerina.test.0 fileName: execute.bal lineNumber: 81
+				callableName: startSuite moduleName: ballerina.test.0 fileName: execute.bal lineNumber: 53
+				callableName: __execute__ moduleName: intg_tests.rerun_failed$test.0.tests.test_execute-generated_*****lineNumber: 11
 			
 
 		[fail] testFunctionFail2:
@@ -22,13 +35,22 @@ Running Tests with Coverage
 				callableName: createBallerinaError moduleName: ballerina.test.0 fileName: assert.bal lineNumber: 41
 				callableName: assertTrue moduleName: ballerina.test.0 fileName: assert.bal lineNumber: 61
 				callableName: testFunctionFail2 moduleName: intg_tests.rerun_failed$test.0.tests.main_test fileName: tests/main_test.bal lineNumber: 41
-				callableName: testFunctionFail2$lambda3$ moduleName: intg_tests.rerun_failed$test.0.tests.test_execute-generated_*****lineNumber: 6
+				callableName: testFunctionFail2$lambda3$ moduleName: intg_tests.rerun_failed$test.0.tests.test_execute-generated_*****lineNumber: 7
+				callableName: call moduleName: ballerina.lang.function.0 fileName: function.bal lineNumber: 37
+				callableName: executeTestFunction moduleName: ballerina.test.0 fileName: serialExecuter.bal lineNumber: 128
+				callableName: executeNonDataDrivenTest moduleName: ballerina.test.0 fileName: serialExecuter.bal lineNumber: 74
+				callableName: executeTest moduleName: ballerina.test.0 fileName: serialExecuter.bal lineNumber: 30
+				callableName: executeTests moduleName: ballerina.test.0 fileName: execute.bal lineNumber: 81
+				callableName: startSuite moduleName: ballerina.test.0 fileName: execute.bal lineNumber: 53
+				callableName: __execute__ moduleName: intg_tests.rerun_failed$test.0.tests.test_execute-generated_*****lineNumber: 11
 			
 
 
 		2 passing
 		2 failing
 		0 skipped
+
+		Test execution time :*****s
 
 Generating Test Report
 	rerun-failed-tests/target/report/test_results.json

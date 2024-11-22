@@ -23,6 +23,7 @@ import com.sun.jdi.ObjectReference;
 import com.sun.jdi.Value;
 import org.ballerinalang.debugadapter.SuspendedContext;
 import org.ballerinalang.debugadapter.evaluation.EvaluationException;
+import org.ballerinalang.debugadapter.jdi.JDIUtils;
 import org.ballerinalang.debugadapter.jdi.LocalVariableProxyImpl;
 
 import java.util.AbstractMap;
@@ -37,7 +38,7 @@ import static org.ballerinalang.debugadapter.evaluation.EvaluationException.crea
 /**
  * JDI-based debug variable implementation related utilities.
  */
-public class VariableUtils {
+public final class VariableUtils {
 
     public static final String FIELD_TYPE = "type";
     public static final String FIELD_TYPENAME = "typeName";
@@ -45,8 +46,11 @@ public class VariableUtils {
     public static final String FIELD_PACKAGE = "pkg";
     public static final String FIELD_PKG_ORG = "org";
     public static final String FIELD_PKG_NAME = "name";
+    public static final String FIELD_REFERRED_TYPE = "referredType";
+    public static final String FIELD_EFFECTIVE_TYPE = "effectiveType";
     private static final String FIELD_CONSTRAINT = "constraint";
-    private static final String METHOD_STRINGVALUE = "stringValue";
+    private static final String METHOD_STR_VALUE = "stringValue";
+    private static final String METHOD_EXP_STR_VALUE = "expressionStringValue";
     public static final String UNKNOWN_VALUE = "unknown";
     private static final String LAMBDA_PARAM_MAP_PATTERN = "\\$.*[Mm][Aa][Pp].*\\$.*";
     // Used to trim redundant beginning and ending double quotes from a string, if presents.
@@ -54,6 +58,10 @@ public class VariableUtils {
     static final String INTERNAL_VALUE_PREFIX = "io.ballerina.runtime.internal.values.";
     public static final String INTERNAL_TYPE_PREFIX = "io.ballerina.runtime.internal.types.";
     public static final String INTERNAL_TYPE_REF_TYPE = "BTypeReferenceType";
+    public static final String INTERNAL_TYPE_INTERSECTION_TYPE = "BIntersectionType";
+
+    private VariableUtils() {
+    }
 
     /**
      * Returns the corresponding ballerina variable type of a given ballerina backend jvm variable instance.
@@ -63,10 +71,9 @@ public class VariableUtils {
      */
     public static String getBType(Value value) {
         try {
-            if (!(value instanceof ObjectReference)) {
+            if (!(value instanceof ObjectReference valueRef)) {
                 return UNKNOWN_VALUE;
             }
-            ObjectReference valueRef = (ObjectReference) value;
             Field bTypeField = valueRef.referenceType().fieldByName(FIELD_TYPE);
             Value bTypeRef = valueRef.getValue(bTypeField);
             Field typeNameField = ((ObjectReference) bTypeRef).referenceType().fieldByName(FIELD_TYPENAME);
@@ -111,10 +118,10 @@ public class VariableUtils {
      */
     public static Map.Entry<String, String> getPackageOrgAndName(Value bValue) {
         try {
-            if (!(bValue instanceof ObjectReference)) {
+            if (!(bValue instanceof ObjectReference valueRef)) {
                 return null;
             }
-            ObjectReference valueRef = (ObjectReference) bValue;
+
             Field bTypeField = valueRef.referenceType().fieldByName(FIELD_TYPE);
             Value bTypeRef = valueRef.getValue(bTypeField);
             Field typePkgField = ((ObjectReference) bTypeRef).referenceType().fieldByName(FIELD_PACKAGE);
@@ -141,10 +148,9 @@ public class VariableUtils {
      */
     public static String getStringFrom(Value stringValue) {
         try {
-            if (!(stringValue instanceof ObjectReference)) {
+            if (!(stringValue instanceof ObjectReference stringRef)) {
                 return UNKNOWN_VALUE;
             }
-            ObjectReference stringRef = (ObjectReference) stringValue;
             if (!stringRef.referenceType().name().equals(JVMValueType.BMP_STRING.getString())
                     && !stringRef.referenceType().name().equals(JVMValueType.NON_BMP_STRING.getString())) {
                 // Additional filtering is required, as some ballerina variable type names may contain redundant
@@ -169,10 +175,67 @@ public class VariableUtils {
      */
     public static String getStringValue(SuspendedContext context, Value jvmObject) {
         try {
+            Value result = invokeRemoteVMMethod(context, jvmObject, METHOD_STR_VALUE, Collections.singletonList(null));
+            return getStringFrom(result);
+        } catch (DebugVariableException e) {
+            return UNKNOWN_VALUE;
+        }
+    }
+
+    public static Value invokeRemoteVMMethod(SuspendedContext context, Value jvmObject, String methodName,
+                                             List<Value> arguments) throws DebugVariableException {
+        if (!(jvmObject instanceof ObjectReference)) {
+            throw new DebugVariableException("Failed to invoke remote VM method.");
+        }
+        Optional<Method> method = VariableUtils.getMethod(jvmObject, methodName);
+        if (method.isEmpty()) {
+            throw new DebugVariableException("Failed to invoke remote VM method.");
+        }
+
+        return invokeRemoteVMMethod(context, jvmObject, method.get(), arguments);
+    }
+
+    public static Value invokeRemoteVMMethod(SuspendedContext context, Value jvmObject, Method method,
+                                             List<Value> arguments) throws DebugVariableException {
+        try {
+            if (!(jvmObject instanceof ObjectReference)) {
+                throw new DebugVariableException("Failed to invoke remote VM method.");
+            }
+
+            if (arguments == null) {
+                arguments = Collections.emptyList();
+            }
+            // Since the remote VM's active thread will be accessed from multiple debugger threads, there's a chance
+            // for 'IncompatibleThreadStateException's. Therefore debugger might need to retry few times until the
+            // thread gets released. (current wait time => ~1000ms)
+            for (int attempt = 0; attempt < 100; attempt++) {
+                try {
+                    return ((ObjectReference) jvmObject).invokeMethod(context.getOwningThread()
+                            .getThreadReference(), method, arguments, ObjectReference.INVOKE_SINGLE_THREADED);
+                } catch (Exception e) {
+                    JDIUtils.sleepMillis(10);
+                }
+            }
+            throw new DebugVariableException("Failed to invoke remote VM method as the invocation thread is busy");
+        } catch (Exception e) {
+            throw new DebugVariableException("Failed to invoke remote VM method due to an internal error");
+        }
+    }
+
+    /**
+     * Invokes "expressionStringValue()" method of the given ballerina jvm variable instance and, returns the result
+     * as a string.
+     *
+     * @param context   variable debug context.
+     * @param jvmObject ballerina jvm variable instance.
+     * @return result of the method invocation as a string.
+     */
+    public static String getExpressionStringValue(SuspendedContext context, Value jvmObject) {
+        try {
             if (!(jvmObject instanceof ObjectReference)) {
                 return UNKNOWN_VALUE;
             }
-            Optional<Method> method = VariableUtils.getMethod(jvmObject, METHOD_STRINGVALUE);
+            Optional<Method> method = VariableUtils.getMethod(jvmObject, METHOD_EXP_STR_VALUE);
             if (method.isPresent()) {
                 Value stringValue = ((ObjectReference) jvmObject).invokeMethod(context.getOwningThread()
                                 .getThreadReference(), method.get(), Collections.singletonList(null),
@@ -241,8 +304,76 @@ public class VariableUtils {
         }
     }
 
-    private static boolean isRecordType(Value typeValue) {
-        return typeValue.type().name().endsWith(JVMValueType.BTYPE_RECORD.getString());
+    private static boolean isRecordType(Value typeValue) throws DebugVariableException {
+        if (isTypeReferenceType(typeValue) || isIntersectionType(typeValue)) {
+            typeValue = getEffectiveType(typeValue);
+        }
+
+        return typeValue != null && typeValue.type().name().endsWith(JVMValueType.BTYPE_RECORD.getString());
+    }
+
+    /**
+     * Retrieves the effective type of given Ballerina runtime type instance. This includes resolving type references
+     * and intersection types.
+     */
+    private static Value getEffectiveType(Value typeValue) throws DebugVariableException {
+        if (isTypeReferenceType(typeValue)) {
+            typeValue = getReferredTypeFromTypeRefType(typeValue);
+        }
+
+        if (isIntersectionType(typeValue)) {
+            typeValue = getEffectiveTypeFromIntersectionType(typeValue);
+        }
+
+        return typeValue;
+    }
+
+    /**
+     * Verifies whether a given Ballerina runtime type is a type reference type.
+     *
+     * @param runtimeType JDI value instance.
+     * @return true if the given JDI value is a ballerina type reference type.
+     */
+    public static boolean isTypeReferenceType(Value runtimeType) {
+        return runtimeType.type().name().equals(INTERNAL_TYPE_PREFIX + INTERNAL_TYPE_REF_TYPE);
+    }
+
+    /**
+     * Verifies whether a given Ballerina runtime type is an intersection type.
+     *
+     * @param runtimeType JDI value instance.
+     * @return true if the given JDI value is a ballerina intersection type.
+     */
+    private static boolean isIntersectionType(Value runtimeType) {
+        return runtimeType.type().name().equals(INTERNAL_TYPE_PREFIX + INTERNAL_TYPE_INTERSECTION_TYPE);
+    }
+
+    /**
+     * Gets the referred type from a given Ballerina runtime TypeReferenceType instance.
+     *
+     * @param typeValue JDI value instance.
+     * @return referred type value.
+     */
+    private static Value getReferredTypeFromTypeRefType(Value typeValue) throws DebugVariableException {
+        while (typeValue != null && isTypeReferenceType(typeValue)) {
+            typeValue = getFieldValue(typeValue, FIELD_REFERRED_TYPE).orElse(null);
+        }
+
+        return typeValue;
+    }
+
+    /**
+     * Gets the effective type from a given Ballerina runtime IntersectionType instance.
+     *
+     * @param typeValue JDI value instance.
+     * @return effective type value.
+     */
+    private static Value getEffectiveTypeFromIntersectionType(Value typeValue) throws DebugVariableException {
+        while (typeValue != null && isIntersectionType(typeValue)) {
+            typeValue = getFieldValue(typeValue, FIELD_EFFECTIVE_TYPE).orElse(null);
+        }
+
+        return typeValue;
     }
 
     /**
@@ -300,10 +431,9 @@ public class VariableUtils {
      * @return JDI value of a given field, for a given JDI object reference (class instance).
      */
     public static Optional<Value> getFieldValue(Value parent, String fieldName) throws DebugVariableException {
-        if (!(parent instanceof ObjectReference)) {
+        if (!(parent instanceof ObjectReference parentRef)) {
             return Optional.empty();
         }
-        ObjectReference parentRef = (ObjectReference) parent;
         Field field = parentRef.referenceType().fieldByName(fieldName);
         if (field == null) {
             throw new DebugVariableException(
@@ -334,10 +464,9 @@ public class VariableUtils {
     public static Optional<Method> getMethod(Value parent, String methodName, String signature)
             throws DebugVariableException {
         List<Method> methods = new ArrayList<>();
-        if (!(parent instanceof ObjectReference)) {
+        if (!(parent instanceof ObjectReference parentRef)) {
             return Optional.empty();
         }
-        ObjectReference parentRef = (ObjectReference) parent;
 
         if (signature.isEmpty()) {
             methods = parentRef.referenceType().methodsByName(methodName);
@@ -376,10 +505,10 @@ public class VariableUtils {
      */
     public static Value getChildVarByName(BVariable variable, String childVarName) throws DebugVariableException,
             EvaluationException {
-        if (variable instanceof IndexedCompoundVariable) {
-            return ((IndexedCompoundVariable) variable).getChildByName(childVarName);
-        } else if (variable instanceof NamedCompoundVariable) {
-            return ((NamedCompoundVariable) variable).getChildByName(childVarName);
+        if (variable instanceof IndexedCompoundVariable indexedCompoundVariable) {
+            return indexedCompoundVariable.getChildByName(childVarName);
+        } else if (variable instanceof NamedCompoundVariable namedCompoundVariable) {
+            return namedCompoundVariable.getChildByName(childVarName);
         } else {
             throw createEvaluationException("Field access is not allowed for Ballerina simple types.");
         }

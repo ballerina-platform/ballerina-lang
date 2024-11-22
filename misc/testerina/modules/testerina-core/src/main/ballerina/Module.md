@@ -202,7 +202,7 @@ function testAssertFalse() {
 
 @test:Config {}
 function testAssertFail() {
-    if (true) {
+    if true {
         return;
     }
     test:assertFail(msg = "AssertFailed");

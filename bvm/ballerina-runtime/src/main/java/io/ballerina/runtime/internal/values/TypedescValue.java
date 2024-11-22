@@ -29,7 +29,9 @@ import io.ballerina.runtime.internal.scheduling.Strand;
  */
 public interface TypedescValue extends RefValue, BTypedesc {
 
+    @Override
     Object instantiate(Strand strand);
 
+    @Override
     Object instantiate(Strand strand, BInitialValueEntry[] initialValues);
 }

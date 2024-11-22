@@ -64,8 +64,8 @@ import java.util.stream.Collectors;
  */
 public class DocumentSymbolResolver extends NodeTransformer<Optional<DocumentSymbol>> {
 
-    private List<DocumentSymbol> documentSymbolStore;
-    private DocumentSymbolContext context;
+    private final List<DocumentSymbol> documentSymbolStore;
+    private final DocumentSymbolContext context;
 
     DocumentSymbolResolver(DocumentSymbolContext context) {
         this.context = context;
@@ -409,9 +409,7 @@ public class DocumentSymbolResolver extends NodeTransformer<Optional<DocumentSym
      */
     private List<DocumentSymbol> transformMembers(NodeList<? extends Node> nodes) {
         List<DocumentSymbol> childSymbols = new ArrayList<>();
-        nodes.forEach(node -> {
-            node.apply(this).ifPresent(childSymbols::add);
-        });
+        nodes.forEach(node -> node.apply(this).ifPresent(childSymbols::add));
         return childSymbols;
     }
 

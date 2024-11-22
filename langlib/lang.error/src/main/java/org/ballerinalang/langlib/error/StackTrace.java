@@ -19,12 +19,12 @@ package org.ballerinalang.langlib.error;
 
 import io.ballerina.identifier.Utils;
 import io.ballerina.runtime.api.Module;
-import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.creators.TypeCreator;
 import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.types.MethodType;
 import io.ballerina.runtime.api.types.ObjectType;
+import io.ballerina.runtime.api.types.PredefinedTypes;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.utils.TypeUtils;
@@ -54,7 +54,10 @@ import static io.ballerina.runtime.api.values.BError.CALL_STACK_ELEMENT;
  *
  * @since 0.990.4
  */
-public class StackTrace {
+public final class StackTrace {
+
+    private StackTrace() {
+    }
 
     public static BObject stackTrace(BError value) {
 
@@ -112,8 +115,8 @@ public class StackTrace {
 
         BArray callStack;
 
-        private ObjectType type;
-        private BTypedesc typedesc;
+        private final ObjectType type;
+        private final BTypedesc typedesc;
 
         public CallStack(ObjectType type) {
             this.type = type;
@@ -121,11 +124,13 @@ public class StackTrace {
         }
 
         @Override
+        @Deprecated
         public Object call(Strand strand, String funcName, Object... args) {
             throw ErrorCreator.createError(StringUtils.fromString("No such field or method: " + funcName));
         }
 
         @Override
+        @Deprecated
         public BFuture start(Strand strand, String funcName, Object... args) {
             throw ErrorCreator.createError(StringUtils.fromString("No such field or method: " + funcName));
         }
@@ -142,7 +147,7 @@ public class StackTrace {
 
         @Override
         public ObjectType getType() {
-            return (ObjectType) TypeUtils.getReferredType(type);
+            return (ObjectType) TypeUtils.getImpliedType(type);
         }
 
         @Override
@@ -179,7 +184,7 @@ public class StackTrace {
         }
 
         @Override
-        public BMap getMapValue(BString fieldName) {
+        public BMap<BString, Object> getMapValue(BString fieldName) {
             return null;
         }
 

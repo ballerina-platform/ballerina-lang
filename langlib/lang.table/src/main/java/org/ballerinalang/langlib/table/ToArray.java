@@ -33,19 +33,16 @@ import java.util.Collection;
  *
  * @since 1.3.0
  */
-//@BallerinaFunction(
-//        orgName = "ballerina", packageName = "lang.table",
-//        functionName = "toArray",
-//        args = {@Argument(name = "tbl", type = TypeKind.TABLE)},
-//        returnType = {@ReturnType(type = TypeKind.ARRAY, elementType = TypeKind.ANYDATA)},
-//        isPublic = true
-//)
-public class ToArray {
 
-    public static BArray toArray(BTable tbl) {
-        Type constrainedType = ((TableType) TypeUtils.getReferredType(tbl.getType())).getConstrainedType();
+public final class ToArray {
 
-        Collection values = tbl.values();
+    private ToArray() {
+    }
+
+    public static BArray toArray(BTable<?, ?> tbl) {
+        Type constrainedType = ((TableType) TypeUtils.getImpliedType(tbl.getType())).getConstrainedType();
+
+        Collection<?> values = tbl.values();
         //Basic constrain types not applicable for table type
         return ValueCreator.createArrayValue(values.toArray(), TypeCreator.createArrayType(constrainedType));
     }

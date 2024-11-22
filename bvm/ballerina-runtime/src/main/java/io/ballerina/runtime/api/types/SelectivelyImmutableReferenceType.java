@@ -25,7 +25,9 @@ package io.ballerina.runtime.api.types;
  */
 public interface SelectivelyImmutableReferenceType extends IntersectableReferenceType {
 
+    @Override
     IntersectionType getImmutableType();
 
+    @Override
     void setImmutableType(IntersectionType immutableType);
 }

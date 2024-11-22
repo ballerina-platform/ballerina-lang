@@ -1,0 +1,151 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Format Toml Spec",
+  "description": "Schema for Format Toml",
+  "type": "object",
+  "additionalProperties": true,
+  "properties": {
+    "braces": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "classBraceStyle": {
+          "type": "string",
+          "pattern": "\\b(?:NewLine|EndOfLine)\\b",
+          "message": {
+            "pattern": "Invalid value for 'classBraceStyle'. Only 'NewLine' or 'EndOfLine' are allowed."
+          }
+        },
+        "functionBraceStyle": {
+          "type": "string",
+          "pattern": "\\b(?:NewLine|EndOfLine)\\b",
+          "message": {
+            "pattern": "Invalid value for 'functionBraceStyle'. Only 'NewLine' or 'EndOfLine' are allowed."
+          }
+        }
+      }
+    },
+    "functionCall": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "argumentsWrap": {
+          "type": "string",
+          "pattern": "\\b(?:Wrap|NoWrap|ChopDown)\\b",
+          "message": {
+            "pattern": "Invalid wrapping style. Only, 'Wrap', 'NoWrap', or 'ChopDown' is allowed."
+          }
+        },
+        "alignMultilineArguments": {
+          "type": "boolean"
+        },
+        "newLineAfterLeftParen": {
+          "type": "boolean"
+        },
+        "rightParenOnNewLine": {
+          "type": "boolean"
+        }
+      }
+    },
+    "functionDefinition": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "parametersWrap": {
+          "type": "string",
+          "pattern": "\\b(?:Wrap|NoWrap|ChopDown)\\b",
+          "message": {
+            "pattern": "Invalid wrapping style. Only, 'Wrap', 'NoWrap', or 'ChopDown' is allowed."
+          }
+        },
+        "alignMultilineParameters": {
+          "type": "boolean"
+        },
+        "newLineAfterLeftParen": {
+          "type": "boolean"
+        },
+        "rightParenOnNewLine": {
+          "type": "boolean"
+        }
+      }
+    },
+    "ifStatement": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "elseOnNewLine": {
+          "type": "boolean"
+        }
+      }
+    },
+    "import": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "groupImports": {
+          "type": "boolean"
+        },
+        "sortImports": {
+          "type": "boolean"
+        },
+        "removeUnusedImports": {
+          "type": "boolean"
+        }
+      }
+    },
+    "indent": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "indentSize": {
+          "type": "integer"
+        },
+        "continuationIndentSize": {
+          "type": "integer"
+        }
+      }
+    },
+    "query": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "alignMultiLineQueries": {
+          "type": "boolean"
+        }
+      }
+    },
+    "spacing": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "afterTypeCast": {
+          "type": "boolean"
+        },
+        "aroundRecordBraces": {
+          "type": "boolean"
+        },
+        "alignConsecutiveDefinitions": {
+          "type": "boolean"
+        }
+      }
+    },
+    "wrapping": {
+      "type": "object",
+      "additionalProperties": true,
+      "properties": {
+        "maxLineLength": {
+          "type": "integer"
+        },
+        "lineWrap": {
+          "type": "boolean"
+        },
+        "simpleBlocksInOneLine": {
+          "type": "boolean"
+        },
+        "simpleFunctionsInOneLine": {
+          "type": "boolean"
+        }
+      }
+    }
+  }
+}

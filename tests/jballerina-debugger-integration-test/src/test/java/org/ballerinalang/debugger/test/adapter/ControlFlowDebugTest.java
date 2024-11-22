@@ -43,6 +43,7 @@ public class ControlFlowDebugTest extends BaseTestCase {
 
     DebugTestRunner debugTestRunner;
 
+    @Override
     @BeforeClass
     public void setup() {
         String testProjectName = "control-flow-tests";
@@ -177,10 +178,10 @@ public class ControlFlowDebugTest extends BaseTestCase {
         debugTestRunner.assertVariable(variables, "v10_future", "future<int>", "future");
 
         // Variable visibility test for Asynchronous function call child variables
-        Map<String, Variable> asyncChildVariables = debugTestRunner.fetchChildVariables(variables.get("v10_future"));
-        debugTestRunner.assertVariable(asyncChildVariables, "result", "90", "int");
+        debugTestRunner.assertVariable(variables, "result", "90", "int");
     }
 
+    @Override
     @AfterMethod(alwaysRun = true)
     public void cleanUp() {
         debugTestRunner.terminateDebugSession();

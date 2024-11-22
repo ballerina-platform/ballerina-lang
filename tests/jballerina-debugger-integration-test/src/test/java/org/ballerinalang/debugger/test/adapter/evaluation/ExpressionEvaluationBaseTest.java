@@ -64,6 +64,7 @@ public abstract class ExpressionEvaluationBaseTest extends BaseTestCase {
     protected static final String ANYDATA_VAR = "anydataVar";
     protected static final String BYTE_VAR = "byteVar";
     protected static final String JSON_VAR = "jsonVar";
+    protected static final String REGEX_VAR = "regexVar";
     protected static final String TABLE_VAR = "tableWithKeyVar";
     protected static final String STREAM_VAR = "oddNumberStream";
     protected static final String NEVER_VAR = "neverVar";
@@ -119,9 +120,9 @@ public abstract class ExpressionEvaluationBaseTest extends BaseTestCase {
 
     public abstract void literalEvaluationTest() throws BallerinaTestException;
 
-    public abstract void listConstructorEvaluationTest() throws BallerinaTestException;
+    public abstract void listConstructorEvaluationTest();
 
-    public abstract void mappingConstructorEvaluationTest() throws BallerinaTestException;
+    public abstract void mappingConstructorEvaluationTest();
 
     public abstract void stringTemplateEvaluationTest() throws BallerinaTestException;
 
@@ -177,7 +178,7 @@ public abstract class ExpressionEvaluationBaseTest extends BaseTestCase {
 
     public abstract void conditionalExpressionEvaluationTest() throws BallerinaTestException;
 
-    public abstract void checkingExpressionEvaluationTest() throws BallerinaTestException;
+    public abstract void checkingExpressionEvaluationTest();
 
     public abstract void trapExpressionEvaluationTest() throws BallerinaTestException;
 

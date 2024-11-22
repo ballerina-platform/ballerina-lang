@@ -18,12 +18,12 @@
 
 package org.ballerinalang.langlib.map;
 
-import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.creators.TypeCreator;
 import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.types.MapType;
 import io.ballerina.runtime.api.types.RecordType;
 import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.types.TypeTags;
 import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BMap;
@@ -32,40 +32,30 @@ import org.ballerinalang.langlib.map.util.MapLibUtils;
 
 import java.util.Collection;
 
-import static io.ballerina.runtime.internal.MapUtils.createOpNotSupportedError;
+import static io.ballerina.runtime.internal.utils.MapUtils.createOpNotSupportedError;
 
 /**
  * Function for returning the values of the map as an array. T[] vals = m.toArray();
  *
  * @since 1.2.0
  */
-//@BallerinaFunction(
-//        orgName = "ballerina", packageName = "lang.map",
-//        functionName = "toArray",
-//        args = {@Argument(name = "m", type = TypeKind.MAP)},
-//        returnType = {@ReturnType(type = TypeKind.ARRAY, elementType = TypeKind.ANY)},
-//        isPublic = true
-//)
-public class ToArray {
+public final class ToArray {
+
+    private ToArray() {
+    }
 
     public static BArray toArray(BMap<?, ?> m) {
-        Type mapType = TypeUtils.getReferredType(m.getType());
-        Type arrElemType;
-        switch (mapType.getTag()) {
-            case TypeTags.MAP_TAG:
-                arrElemType = ((MapType) mapType).getConstrainedType();
-                break;
-            case TypeTags.RECORD_TYPE_TAG:
-                arrElemType = MapLibUtils.getCommonTypeForRecordField((RecordType) mapType);
-                break;
-            default:
-                throw createOpNotSupportedError(mapType, "toArray()");
-        }
+        Type mapType = TypeUtils.getImpliedType(m.getType());
+        Type arrElemType = switch (mapType.getTag()) {
+            case TypeTags.MAP_TAG -> ((MapType) mapType).getConstrainedType();
+            case TypeTags.RECORD_TYPE_TAG -> MapLibUtils.getCommonTypeForRecordField((RecordType) mapType);
+            default -> throw createOpNotSupportedError(mapType, "toArray()");
+        };
 
-        Collection values = m.values();
+        Collection<?> values = m.values();
         int size = values.size();
         int i = 0;
-        switch (arrElemType.getTag()) {
+        switch (TypeUtils.getImpliedType(arrElemType).getTag()) {
             case TypeTags.INT_TAG:
                 long[] intArr = new long[size];
                 for (Object val : values) {

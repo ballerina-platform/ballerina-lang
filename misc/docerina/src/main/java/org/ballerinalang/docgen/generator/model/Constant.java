@@ -17,6 +17,8 @@ package org.ballerinalang.docgen.generator.model;
 
 import com.google.gson.annotations.Expose;
 
+import java.util.List;
+
 /**
  * Represent documentation for a Constant.
  */
@@ -26,8 +28,9 @@ public class Constant extends Construct {
     @Expose
     public String value;
 
-    public Constant(String name, String description, boolean isDeprecated, Type type, String value) {
-        super(name, description, isDeprecated);
+    public Constant(String name, String description, List<String> descriptionSections, boolean isDeprecated,
+                    Type type, String value) {
+        super(name, description, descriptionSections, isDeprecated);
         this.type = type;
         this.value = value;
     }

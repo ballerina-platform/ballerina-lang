@@ -38,7 +38,9 @@ import io.ballerina.projects.util.ProjectConstants;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -55,6 +57,7 @@ public class DefaultPackageResolver implements PackageResolver {
     private final PackageRepository distributionRepo;
     private final PackageRepository centralRepo;
     private final PackageRepository localRepo;
+    private final Map<String, PackageRepository> customRepos;
     private final WritablePackageCache packageCache;
 
     public DefaultPackageResolver(PackageRepository distributionRepo,
@@ -63,6 +66,19 @@ public class DefaultPackageResolver implements PackageResolver {
                                   PackageCache packageCache) {
         this.distributionRepo = distributionRepo;
         this.centralRepo = centralRepo;
+        this.localRepo = localRepo;
+        this.customRepos = new HashMap<>();
+        this.packageCache = (WritablePackageCache) packageCache;
+    }
+
+    public DefaultPackageResolver(PackageRepository distributionRepo,
+                                  PackageRepository centralRepo,
+                                  PackageRepository localRepo,
+                                  Map<String, PackageRepository> customRepos,
+                                  PackageCache packageCache) {
+        this.distributionRepo = distributionRepo;
+        this.centralRepo = centralRepo;
+        this.customRepos = customRepos;
         this.localRepo = localRepo;
         this.packageCache = (WritablePackageCache) packageCache;
     }
@@ -110,16 +126,37 @@ public class DefaultPackageResolver implements PackageResolver {
     public Collection<PackageMetadataResponse> resolvePackageMetadata(Collection<ResolutionRequest> requests,
                                                                       ResolutionOptions options) {
         Collection<ResolutionRequest> localRepoRequests = new ArrayList<>();
+        Map<PackageRepository, ArrayList<ResolutionRequest>> customRepoRequestMap = new HashMap<>();
         for (ResolutionRequest request : requests) {
             Optional<String> repository = request.packageDescriptor().repository();
             if (repository.isPresent() && repository.get().equals(ProjectConstants.LOCAL_REPOSITORY_NAME)) {
                 localRepoRequests.add(request);
+            } else if (repository.isPresent() && customRepos.containsKey(repository.get())) {
+                PackageRepository customRepository = customRepos.get(repository.get());
+
+                if (customRepoRequestMap.containsKey(customRepository)) {
+                    customRepoRequestMap.get(customRepository).add(request);
+                } else {
+                    ArrayList<ResolutionRequest> requestList = new ArrayList<>();
+                    requestList.add(request);
+                    customRepoRequestMap.put(customRepository, requestList);
+                }
             }
         }
 
         Collection<PackageMetadataResponse> localRepoPackages = localRepoRequests.isEmpty() ?
                 Collections.emptyList() :
                 localRepo.getPackageMetadata(localRepoRequests, options);
+
+        Collection<PackageMetadataResponse> allCustomRepoPackages = new ArrayList<>();
+        for (Map.Entry<PackageRepository, ArrayList<ResolutionRequest>> customRepoRequestEntry :
+                customRepoRequestMap.entrySet()) {
+            PackageRepository customRepository = customRepoRequestEntry.getKey();
+            ArrayList<ResolutionRequest> customRepoRequests = customRepoRequestEntry.getValue();
+            Collection<PackageMetadataResponse> customRepoPackages = customRepoRequests.isEmpty() ?
+                    Collections.emptyList() : customRepository.getPackageMetadata(customRepoRequests, options);
+            allCustomRepoPackages.addAll(customRepoPackages);
+        }
 
         // TODO Send ballerina* org names to dist repo
         Collection<PackageMetadataResponse> latestVersionsInDist =
@@ -128,7 +165,7 @@ public class DefaultPackageResolver implements PackageResolver {
         // Send non built in packages to central
         Collection<ResolutionRequest> centralLoadRequests = requests.stream()
                 .filter(r -> !r.packageDescriptor().isBuiltInPackage())
-                .collect(Collectors.toList());
+                .toList();
         Collection<PackageMetadataResponse> latestVersionsInCentral =
                 centralRepo.getPackageMetadata(centralLoadRequests, options);
 
@@ -136,7 +173,7 @@ public class DefaultPackageResolver implements PackageResolver {
         List<PackageMetadataResponse> responseDescriptors = new ArrayList<>(
                 // Since packages can be resolved from multiple repos
                 // the repos should be provided to the stream in the order of priority.
-                Stream.of(localRepoPackages, latestVersionsInDist, latestVersionsInCentral)
+                Stream.of(localRepoPackages, allCustomRepoPackages, latestVersionsInDist, latestVersionsInCentral)
                         .flatMap(Collection::stream).collect(Collectors.toMap(
                         PackageMetadataResponse::packageLoadRequest, Function.identity(),
                         (PackageMetadataResponse x, PackageMetadataResponse y) -> {
@@ -170,7 +207,7 @@ public class DefaultPackageResolver implements PackageResolver {
 
         return requests.stream()
                 .map(request -> resolvePackage(request, options))
-                .collect(Collectors.toList());
+                .toList();
     }
 
     private ResolutionResponse resolvePackage(ResolutionRequest resolutionReq, ResolutionOptions options) {
@@ -204,6 +241,10 @@ public class DefaultPackageResolver implements PackageResolver {
         // 2) Try to load from the local repo, if it is requested from the local repo.
         if (pkgDesc.repository().isPresent()) {
             String repository = pkgDesc.repository().get();
+            if (!ProjectConstants.LOCAL_REPOSITORY_NAME.equals(repository) && customRepos.containsKey(repository)) {
+                return customRepos.get(repository).getPackage(resolutionReq, options);
+            }
+
             if (!ProjectConstants.LOCAL_REPOSITORY_NAME.equals(repository)) {
                 return Optional.empty();
             }

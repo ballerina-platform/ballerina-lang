@@ -39,7 +39,7 @@ public class DataProviderTest extends BaseTestCase {
     private String projectPath;
 
     @BeforeClass()
-    public void setup() throws BallerinaTestException {
+    public void setup() {
         balClient = new BMainInstance(balServer);
         projectPath = projectBasedTestsPath.toString();
     }
@@ -83,9 +83,27 @@ public class DataProviderTest extends BaseTestCase {
         AssertionUtils.assertOutput("DataProviderTest-testValidDataProviderCase.txt", output);
     }
 
+    @Test (dependsOnMethods = "testValidDataProviderWithFail")
+    public void testValidDataProviderCaseWithoutQuotes() throws BallerinaTestException, IOException {
+        String[] args = mergeCoverageArgs(new String[]{"--tests", "dataproviders:jsonDataProviderTest#json1",
+                "data-providers"});
+        String output = balClient.runMainAndReadStdOut("test", args,
+                new HashMap<>(), projectPath, false);
+        AssertionUtils.assertOutput("DataProviderTest-testValidDataProviderCase.txt", output);
+    }
+
     @Test (dependsOnMethods = "testValidDataProviderCase")
     public void testDataProviderWithMixedType() throws BallerinaTestException, IOException {
         String[] args = mergeCoverageArgs(new String[]{"--tests", "testFunction1#'CaseNew*'",
+                "data-providers"});
+        String output = balClient.runMainAndReadStdOut("test", args,
+                new HashMap<>(), projectPath, false);
+        AssertionUtils.assertOutput("DataProviderTest-testDataProviderWithMixedType.txt", output);
+    }
+
+    @Test (dependsOnMethods = "testValidDataProviderCase")
+    public void testDataProviderWithMixedTypeWithoutQuotes() throws BallerinaTestException, IOException {
+        String[] args = mergeCoverageArgs(new String[]{"--tests", "testFunction1#CaseNew*",
                 "data-providers"});
         String output = balClient.runMainAndReadStdOut("test", args,
                 new HashMap<>(), projectPath, false);
@@ -197,9 +215,9 @@ public class DataProviderTest extends BaseTestCase {
                 "testDividingValuesWithBeforeFailing,testExecutionOfBeforeFailing", "data-providers"});
         String output = balClient.runMainAndReadStdOut("test", args,
                 new HashMap<>(), projectPath, false);
-//        String firstString = "tests.test_execute-generated_";
-//        String endString = "lineNumber";
-//        output = CommonUtils.replaceVaryingString(firstString, endString, output);
+        String firstString = "tests.test_execute-generated_";
+        String endString = "lineNumber";
+        output = CommonUtils.replaceVaryingString(firstString, endString, output);
         AssertionUtils.assertOutput("DataProviderTest-testValidDataProviderWithBeforeFailing.txt", output);
     }
 
@@ -209,6 +227,9 @@ public class DataProviderTest extends BaseTestCase {
                 "testDividingValuesWithAfterFailing,testExecutionOfAfterFailing", "data-providers"});
         String output = balClient.runMainAndReadStdOut("test", args,
                 new HashMap<>(), projectPath, false);
+        String firstString = "tests.test_execute-generated_";
+        String endString = "lineNumber";
+        output = CommonUtils.replaceVaryingString(firstString, endString, output);
         AssertionUtils.assertOutput("DataProviderTest-testValidDataProviderWithAfterFailing.txt", output);
     }
 

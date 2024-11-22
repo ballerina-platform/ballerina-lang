@@ -146,3 +146,11 @@ public type Address readonly & record {
     string street;
     string city;
 };
+
+public type InterceptorClient distinct isolated client object {
+    isolated remote function execute() returns anydata|error;
+};
+
+public type InterceptorService distinct isolated service object {
+    isolated remote function execute() returns anydata|error;
+};

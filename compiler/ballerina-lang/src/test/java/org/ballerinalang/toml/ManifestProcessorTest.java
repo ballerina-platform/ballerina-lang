@@ -27,7 +27,6 @@ import org.testng.annotations.Test;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Locale;
 
 /**
@@ -35,16 +34,19 @@ import java.util.Locale;
  */
 public class ManifestProcessorTest {
     private static final String OS = System.getProperty("os.name").toLowerCase(Locale.getDefault());
-    private String validProjectBlock = "[project]\n" +
-                                       "org-name = \"foo\"\n" +
-                                       "version = \"1.0.0\"\n";
+    private final String validProjectBlock = """
+            [project]
+            org-name = "foo"
+            version = "1.0.0"
+            """;
     
     @Test(description = "Empty Ballerina.toml file", expectedExceptions = TomlException.class,
-          expectedExceptionsMessageRegExp = ".*invalid Ballerina.toml file: organization name and the version of the " +
-                                            "project is missing. example: \n" +
-                                            "\\[project\\]\n" +
-                                            "org-name=\"my_org\"\n" +
-                                            "version=\"1.0.0\".*")
+          expectedExceptionsMessageRegExp = """
+                  .*invalid Ballerina.toml file: organization name and the version of the \
+                  project is missing. example:\s
+                  \\[project\\]
+                  org-name="my_org"
+                  version="1.0.0".*""")
     public void testEmpty() throws TomlException {
         ManifestProcessor.parseTomlContentFromString("");
     }
@@ -58,17 +60,22 @@ public class ManifestProcessorTest {
 
     @Test(description = "Attribute with single comment doesn't have an effect")
     public void testAttributeWithSingleComment() throws TomlException {
-        Manifest manifest = ManifestProcessor.parseTomlContentFromString("[project] \n" +
-                "#Name of the module \n org-name = \"foo\" \n" +
-                 "version = \"1.0.0\"");
+        Manifest manifest = ManifestProcessor.parseTomlContentFromString("""
+                [project]\s
+                #Name of the module\s
+                 org-name = "foo"\s
+                version = "1.0.0\"""");
         Assert.assertEquals(manifest.getProject().getOrgName(), "foo");
     }
 
     @Test(description = "Attribute with multiline comments doesn't have an effect")
     public void testAttributeWithMultilineComments() throws TomlException {
-        Manifest manifest = ManifestProcessor.parseTomlContentFromString("[project] \n" +
-                "# Name of the module \n #This is the module config section \n org-name = \"foo/string\"\n" +
-                                                                         "version = \"1.0.0\"");
+        Manifest manifest = ManifestProcessor.parseTomlContentFromString("""
+                [project]\s
+                # Name of the module\s
+                 #This is the module config section\s
+                 org-name = "foo/string"
+                version = "1.0.0\"""");
         Assert.assertEquals(manifest.getProject().getOrgName(), "foo/string");
     }
 
@@ -153,18 +160,18 @@ public class ManifestProcessorTest {
         Files.createFile(balaPath);
 
         if (balaPath.toString().contains("\\")) {
-            balaPath = Paths.get(balaPath.toString().replace("\\", "/"));
+            balaPath = Path.of(balaPath.toString().replace("\\", "/"));
         } else {
-            balaPath = Paths.get(balaPath.toString().replace("/", "\\"));
+            balaPath = Path.of(balaPath.toString().replace("/", "\\"));
         }
 
         Manifest manifest = ManifestProcessor.parseTomlContentFromString(this.validProjectBlock + "[dependencies] \n " +
                 "string-utils = {path = '" + balaPath + "', version = \"1.1.5\"} \n");
         Path manifestPath = manifest.getDependencies().get(0).getMetadata().getPath();
         if (manifestPath.toString().contains("\\")) {
-            manifestPath = Paths.get(manifestPath.toString().replace("\\", "/"));
+            manifestPath = Path.of(manifestPath.toString().replace("\\", "/"));
         } else {
-            manifestPath = Paths.get(manifestPath.toString().replace("/", "\\"));
+            manifestPath = Path.of(manifestPath.toString().replace("/", "\\"));
         }
 
         Assert.assertEquals(manifest.getDependencies().get(0).getModuleID(), "string-utils");
@@ -229,7 +236,7 @@ public class ManifestProcessorTest {
         Files.createFile(libPath);
 
         Manifest manifest = ManifestProcessor.parseTomlContentFromString(this.validProjectBlock +
-                "[platform] \n target = \"java17\" \n \n " +
+                "[platform] \n target = \"java21\" \n \n " +
                 "[[platform.libraries]] \n " +
                 "artifactId = \"utils\" \n path = '" + libPath + "'\n groupId = \"wso2\" \n " +
                 "modules = [\"mymodule\"] ");
@@ -246,20 +253,20 @@ public class ManifestProcessorTest {
         Files.createFile(libPath);
 
         if (libPath.toString().contains("\\")) {
-            libPath = Paths.get(libPath.toString().replace("\\", "/"));
+            libPath = Path.of(libPath.toString().replace("\\", "/"));
         } else {
-            libPath = Paths.get(libPath.toString().replace("/", "\\"));
+            libPath = Path.of(libPath.toString().replace("/", "\\"));
         }
         Manifest manifest = ManifestProcessor.parseTomlContentFromString(this.validProjectBlock +
-                "[platform] \n target = \"java17\" \n \n " +
+                "[platform] \n target = \"java21\" \n \n " +
                 "[[platform.libraries]] \n " +
                 "artifactId = \"utils\" \n path = '" + libPath + "'\n groupId = \"wso2\" \n " +
                 "modules = [\"mymodule\"] ");
-        Path manifestPath = Paths.get(manifest.platform.libraries.get(0).getPath());
+        Path manifestPath = Path.of(manifest.platform.libraries.get(0).getPath());
         if (manifestPath.toString().contains("\\")) {
-            manifestPath = Paths.get(manifestPath.toString().replace("\\", "/"));
+            manifestPath = Path.of(manifestPath.toString().replace("\\", "/"));
         } else {
-            manifestPath = Paths.get(manifestPath.toString().replace("/", "\\"));
+            manifestPath = Path.of(manifestPath.toString().replace("/", "\\"));
         }
         Assert.assertEquals(manifestPath.toString(), libPath.toString());
     }

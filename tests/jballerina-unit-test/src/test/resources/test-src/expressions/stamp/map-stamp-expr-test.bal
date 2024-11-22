@@ -206,6 +206,13 @@ function stampRecordTypeMultiDimensionMap() {
     map<Teacher> teacherMap = {"a": p1, "b": p2};
     map<map<Teacher>> multiMap = {"aa": teacherMap, "bb": teacherMap};
     map<map<Employee>> mapValue = checkpanic multiMap.cloneWithType(EmployeeDoubleMap);
+    assertMapValuePart1(mapValue);
+    assertMapValuePart2(mapValue);
+    test:assertEquals(mapValue.length(), 2);
+    test:assertEquals((typeof mapValue).toString(), "typedesc EmployeeDoubleMap");
+}
+
+function assertMapValuePart1(map<map<Employee>> mapValue) {
     test:assertEquals(mapValue["aa"]["a"]["name"], "Raja");
     test:assertEquals(mapValue["aa"]["a"]["age"], 25);
     test:assertEquals(mapValue["aa"]["a"]["status"], "single");
@@ -216,6 +223,9 @@ function stampRecordTypeMultiDimensionMap() {
     test:assertEquals(mapValue["aa"]["b"]["status"], "single");
     test:assertEquals(mapValue["aa"]["b"]["batch"], "LK2014");
     test:assertEquals(mapValue["aa"]["b"]["school"], "Hindu College");
+}
+
+function assertMapValuePart2(map<map<Employee>> mapValue) {
     test:assertEquals(mapValue["bb"]["a"]["name"], "Raja");
     test:assertEquals(mapValue["bb"]["a"]["age"], 25);
     test:assertEquals(mapValue["bb"]["a"]["status"], "single");
@@ -226,8 +236,6 @@ function stampRecordTypeMultiDimensionMap() {
     test:assertEquals(mapValue["bb"]["b"]["status"], "single");
     test:assertEquals(mapValue["bb"]["b"]["batch"], "LK2014");
     test:assertEquals(mapValue["bb"]["b"]["school"], "Hindu College");
-    test:assertEquals(mapValue.length(), 2);
-    test:assertEquals((typeof mapValue).toString(), "typedesc EmployeeDoubleMap");
 }
 
 function stampAnydataToIntMultiDimensionMap() returns map<map<map<int>>>|error {

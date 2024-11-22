@@ -1,0 +1,43 @@
+{
+  "position": {
+    "line": 18,
+    "character": 17
+  },
+  "source": "add_readonly6.bal",
+  "description": "Add readonly to an union type",
+  "expected": [
+    {
+      "title": "Add readonly to 'map<string>|int[]|boolean'",
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 2,
+              "character": 9
+            },
+            "end": {
+              "line": 2,
+              "character": 9
+            }
+          },
+          "newText": "("
+        },
+        {
+          "range": {
+            "start": {
+              "line": 2,
+              "character": 34
+            },
+            "end": {
+              "line": 2,
+              "character": 34
+            }
+          },
+          "newText": ") & readonly"
+        }
+      ],
+      "resolvable": false
+    }
+  ]
+}

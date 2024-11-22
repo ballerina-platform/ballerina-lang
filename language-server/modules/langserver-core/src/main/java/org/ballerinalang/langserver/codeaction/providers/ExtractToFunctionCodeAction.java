@@ -47,7 +47,6 @@ import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.CommonKeys;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.FunctionGenerator;
-import org.ballerinalang.langserver.common.utils.NameUtil;
 import org.ballerinalang.langserver.common.utils.PositionUtil;
 import org.ballerinalang.langserver.common.utils.SymbolUtil;
 import org.ballerinalang.langserver.commons.CodeActionContext;
@@ -156,8 +155,7 @@ public class ExtractToFunctionCodeAction implements RangeBasedCodeActionProvider
 
         String returnTypeDescriptor = "";
         if (updatedVar.isPresent()) {
-            Optional<String> posType =
-                    CodeActionUtil.getPossibleType(updatedVar.get().typeDescriptor(), new ArrayList<>(), context);
+            Optional<String> posType = CodeActionUtil.getPossibleType(updatedVar.get().typeDescriptor(), context);
             if (posType.isEmpty()) {
                 return Collections.emptyList();
             }
@@ -254,13 +252,13 @@ public class ExtractToFunctionCodeAction implements RangeBasedCodeActionProvider
         List<Symbol> updatedModVarSymbols = updatedSymbols.stream()
                 .filter(symbol -> symbol.getLocation().isPresent() && !PositionUtil
                         .isWithinLineRange(symbol.getLocation().get().lineRange(), enclosingNode.lineRange()))
-                .collect(Collectors.toList());
+                .toList();
 
         List<Symbol> updatedButNotDeclaredLocVarSymbolsInRange = updatedSymbols.stream()
                 .filter(symbol -> symbol.getLocation().isPresent() && !PositionUtil.isRangeWithinRange
                         (PositionUtil.toRange(symbol.getLocation().get().lineRange()), context.range()))
                 .filter(symbol -> !updatedModVarSymbols.contains(symbol))
-                .collect(Collectors.toList());
+                .toList();
 
         // LocalVarSymbols which are declared or updated inside the selected range and also referred after the range
         List<VariableSymbol> localVarSymbols = updatedOrDeclaredLocVarSymbolsInRange.stream()
@@ -270,7 +268,7 @@ public class ExtractToFunctionCodeAction implements RangeBasedCodeActionProvider
                                 (PositionUtil.toRange(location.lineRange()),
                                         getRangeAfterHighlightedRange(context, enclosingNode))))
                 .map(symbol -> (VariableSymbol) symbol)
-                .collect(Collectors.toList());
+                .toList();
 
         /*
          * Following checks are done when deciding whether the selected range R is extractable to a function.
@@ -279,7 +277,7 @@ public class ExtractToFunctionCodeAction implements RangeBasedCodeActionProvider
          * 2. The number of local variables in (1.) is less or equal to 1.
          *
          * */
-        boolean isRangeExtractable = updatedButNotDeclaredLocVarSymbolsInRange.size() == 0
+        boolean isRangeExtractable = updatedButNotDeclaredLocVarSymbolsInRange.isEmpty()
                 && localVarSymbols.size() <= 1;
 
         // Here we decide whether the selected range is extractable by the usages of symbols
@@ -316,7 +314,7 @@ public class ExtractToFunctionCodeAction implements RangeBasedCodeActionProvider
                 // this check is done to filter the local variables defined inside the function
                 .filter(symbol -> PositionUtil
                         .isWithinLineRange(symbol.getLocation().get().lineRange(), enclosingNode.lineRange()))
-                .collect(Collectors.toList());
+                .toList();
 
         // Declare a HashSet to collect local var symbols and param symbols and add param symbols
         HashSet<Symbol> paramAndLocVarSymbolsVisibleToRange = visibleSymbols.stream()
@@ -343,7 +341,7 @@ public class ExtractToFunctionCodeAction implements RangeBasedCodeActionProvider
         return Optional.of(argsSymbolsForExtractFunction.stream()
                 // getLocation() is present for each symbol
                 .sorted(Comparator.comparingInt(symbol -> symbol.getLocation().get().textRange().startOffset()))
-                .collect(Collectors.toList()));
+                .toList());
     }
 
     /**
@@ -450,14 +448,9 @@ public class ExtractToFunctionCodeAction implements RangeBasedCodeActionProvider
     }
 
     private String getFunctionName(CodeActionContext context, Node matchedNode) {
-        Set<String> visibleSymbolNames = getVisibleSymbols(context,
-                PositionUtil.toPosition(matchedNode.lineRange().endLine())).stream()
-                .map(Symbol::getName)
-                .filter(Optional::isPresent)
-                .map(Optional::get)
-                .collect(Collectors.toSet());
-
-        return NameUtil.generateTypeName(EXTRACTED_PREFIX, visibleSymbolNames);
+        List<Symbol> visibleSymbols = getVisibleSymbols(context,
+                PositionUtil.toPosition(matchedNode.lineRange().endLine()));
+        return FunctionGenerator.generateFunctionName(EXTRACTED_PREFIX, visibleSymbols);
     }
 
     private List<NonTerminalNode> getPossibleExpressionNodes(NonTerminalNode node) {
@@ -546,7 +539,7 @@ public class ExtractToFunctionCodeAction implements RangeBasedCodeActionProvider
                                 .anyMatch(location -> PositionUtil.isRangeWithinRange(PositionUtil
                                                 .getRangeFromLineRange(location.lineRange()),
                                         PositionUtil.toRange(matchedLineRange))))
-                        .collect(Collectors.toList());
+                        .toList();
 
         if (varAndParamSymbols.stream().anyMatch(symbol -> symbol.getLocation().isEmpty())) {
             return Optional.empty();
@@ -557,7 +550,7 @@ public class ExtractToFunctionCodeAction implements RangeBasedCodeActionProvider
                 .filter(symbol -> !PositionUtil.isWithinLineRange(symbol.getLocation().get().lineRange(),
                         matchedLineRange))
                 .sorted(Comparator.comparingInt(symbol -> symbol.getLocation().get().textRange().startOffset()))
-                .collect(Collectors.toList()));
+                .toList());
     }
 
     private Optional<ArgListsHolder> getArgLists(CodeActionContext context, List<Symbol> symbolsList,
@@ -588,8 +581,7 @@ public class ExtractToFunctionCodeAction implements RangeBasedCodeActionProvider
             if (typeSymbol.isEmpty()) {
                 return Optional.empty();
             }
-            Optional<String> possibleType =
-                    CodeActionUtil.getPossibleType(typeSymbol.get(), new ArrayList<>(), context);
+            Optional<String> possibleType = CodeActionUtil.getPossibleType(typeSymbol.get(), context);
             if (possibleType.isEmpty()) {
                 return Optional.empty();
             }

@@ -18,15 +18,15 @@
 
 package org.ballerinalang.langlib.internal;
 
-import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.creators.TypeCreator;
 import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.types.ArrayType;
 import io.ballerina.runtime.api.types.FiniteType;
-import io.ballerina.runtime.api.types.ReferenceType;
 import io.ballerina.runtime.api.types.StreamType;
 import io.ballerina.runtime.api.types.TupleType;
 import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.types.TypeTags;
+import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BTypedesc;
 import io.ballerina.runtime.api.values.BValue;
 
@@ -35,7 +35,7 @@ import io.ballerina.runtime.api.values.BValue;
  *
  * @since 1.2.0
  */
-public class GetElementType {
+public final class GetElementType {
 
     private GetElementType() {
     }
@@ -46,20 +46,15 @@ public class GetElementType {
     }
 
     private static BTypedesc getElementTypeDescValue(Type type) {
-        switch (type.getTag()) {
-            case TypeTags.ARRAY_TAG:
-                return ValueCreator.createTypedescValue(((ArrayType) type).getElementType());
-            case TypeTags.TUPLE_TAG:
-                return ValueCreator.createTypedescValue(
-                        TypeCreator.createUnionType(((TupleType) type).getTupleTypes()));
-            case TypeTags.FINITE_TYPE_TAG:
-                // this is reached only for immutable values
-                return getElementTypeDescValue(
-                        ((BValue) (((FiniteType) type).getValueSpace().iterator().next())).getType());
-            case TypeTags.TYPE_REFERENCED_TYPE_TAG:
-                return getElementTypeDescValue(((ReferenceType) type).getReferredType());
-            default:
-                return ValueCreator.createTypedescValue(((StreamType) type).getConstrainedType());
-        }
+        type = TypeUtils.getImpliedType(type);
+        return switch (type.getTag()) {
+            case TypeTags.ARRAY_TAG -> ValueCreator.createTypedescValue(((ArrayType) type).getElementType());
+            case TypeTags.TUPLE_TAG -> ValueCreator.createTypedescValue(
+                    TypeCreator.createUnionType(((TupleType) type).getTupleTypes()));
+            // this is reached only for immutable values
+            case TypeTags.FINITE_TYPE_TAG -> getElementTypeDescValue(
+                    ((BValue) (((FiniteType) type).getValueSpace().iterator().next())).getType());
+            default -> ValueCreator.createTypedescValue(((StreamType) type).getConstrainedType());
+        };
     }
 }

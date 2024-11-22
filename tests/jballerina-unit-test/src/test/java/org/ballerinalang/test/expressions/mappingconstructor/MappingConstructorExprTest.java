@@ -38,6 +38,8 @@ public class MappingConstructorExprTest {
     private CompileResult inferRecordResult;
     private CompileResult spreadOpFieldResult;
     private CompileResult readOnlyFieldResult;
+    private CompileResult resultWithTupleUpdateMethod;
+    private CompileResult resultWithoutTupleUpdateMethod;
 
     @BeforeClass
     public void setup() {
@@ -47,6 +49,10 @@ public class MappingConstructorExprTest {
         varNameFieldResult = BCompileUtil.compile("test-src/expressions/mappingconstructor/var_name_field.bal");
         spreadOpFieldResult = BCompileUtil.compile("test-src/expressions/mappingconstructor/spread_op_field.bal");
         readOnlyFieldResult = BCompileUtil.compile("test-src/expressions/mappingconstructor/readonly_field.bal");
+        resultWithTupleUpdateMethod =
+                BCompileUtil.compile("test-src/types/readonly/test_tuple_vs_array_readonly_violation_consistency.bal");
+        resultWithoutTupleUpdateMethod = BCompileUtil.compile("test-src/types/readonly/" +
+                "test_tuple_vs_array_readonly_violation_without_tuple_update_method.bal");
     }
 
     @Test(dataProvider = "mappingConstructorTests")
@@ -70,23 +76,36 @@ public class MappingConstructorExprTest {
     public void diagnosticsTest() {
         CompileResult result = BCompileUtil.compile(
                 "test-src/expressions/mappingconstructor/mapping_constructor_negative.bal");
-        Assert.assertEquals(result.getErrorCount(), 14);
-        validateError(result, 0, "incompatible mapping constructor expression for type '(string|Person)'", 33, 23);
-        validateError(result, 1, "ambiguous type '(PersonTwo|PersonThree)'", 37, 31);
-        validateError(result, 2,
-                      "a type compatible with mapping constructor expressions not found in type '(int|float)'", 41, 19);
-        validateError(result, 3, "ambiguous type '(map<int>|map<string>)'", 45, 31);
-        validateError(result, 4, "ambiguous type '(map<(int|string)>|map<(string|boolean)>)'", 47, 46);
-        validateError(result, 5, "unknown type 'NoRecord'", 55, 5);
-        validateError(result, 6, "incompatible types: 'int' cannot be cast to 'string'", 55, 22);
-        validateError(result, 7, "invalid field access: 'salary' is not a required field in record 'PersonThree', use" +
-                " member access to access a field that may have been specified as a rest field", 55, 41);
-        validateError(result, 8, "undefined symbol 'c'", 55, 55);
-        validateError(result, 9, "unknown type 'Foo'", 59, 5);
-        validateError(result, 10, "incompatible types: 'string' cannot be cast to 'boolean'", 59, 17);
-        validateError(result, 11, "unknown type 'Foo'", 60, 5);
-        validateError(result, 12, "incompatible types: 'int' cannot be cast to 'boolean'", 60, 30);
-        validateError(result, 13, "ambiguous type '(any|map)'", 64, 22);
+        int index = 0;
+        validateError(result, index++, "incompatible mapping constructor expression for type '(string|Person)'", 33,
+                23);
+        validateError(result, index++, "ambiguous type '(PersonTwo|PersonThree)'", 37, 31);
+        validateError(result, index++,
+                "a type compatible with mapping constructor expressions not found in type '(int|float)'", 41, 19);
+        validateError(result, index++, "ambiguous type '(map<int>|map<string>)'", 45, 31);
+        validateError(result, index++, "ambiguous type '(map<(int|string)>|map<(string|boolean)>)'", 47, 46);
+        validateError(result, index++, "unknown type 'NoRecord'", 55, 5);
+        validateError(result, index++, "incompatible types: 'int' cannot be cast to 'string'", 55, 22);
+        validateError(result, index++,
+                "invalid field access: 'salary' is not a required field in record 'PersonThree', use" +
+                        " member access to access a field that may have been specified as a rest field", 55, 41);
+        validateError(result, index++, "undefined symbol 'c'", 55, 55);
+        validateError(result, index++, "unknown type 'Foo'", 59, 5);
+        validateError(result, index++, "incompatible types: 'string' cannot be cast to 'boolean'", 59, 17);
+        validateError(result, index++, "unknown type 'Foo'", 60, 5);
+        validateError(result, index++, "incompatible types: 'int' cannot be cast to 'boolean'", 60, 30);
+        validateError(result, index++, "ambiguous type '(any|map)'", 64, 22);
+        validateError(result, index++, "incompatible mapping constructor expression for type 'map<string>?'", 68,
+                22);
+        validateError(result, index++, "undefined symbol 'NAME'", 68, 24);
+        validateError(result, index++, "incompatible mapping constructor expression for type 'map<string>?'", 69,
+                22);
+        validateError(result, index++, "undefined symbol 'NAME'", 69, 24);
+        validateError(result, index++, "undefined symbol 'NAME'", 69, 32);
+        validateError(result, index++, "missing non-defaultable required record field 'name'", 70, 34);
+        validateError(result, index++, "undefined symbol 'NAME'", 70, 36);
+        validateError(result, index++, "undefined symbol 'NAME'", 70, 44);
+        Assert.assertEquals(result.getErrorCount(), index);
     }
 
     @Test
@@ -142,28 +161,84 @@ public class MappingConstructorExprTest {
     public void testSpreadOpFieldSemanticAnalysisNegative() {
         CompileResult result = BCompileUtil.compile(
                 "test-src/expressions/mappingconstructor/spread_op_field_semantic_analysis_negative.bal");
-        Assert.assertEquals(result.getErrorCount(), 21);
-        validateError(result, 0, "incompatible types: expected a map or a record, found 'string'", 33, 17);
-        validateError(result, 1, "incompatible types: expected a map or a record, found 'boolean'", 33, 32);
-        validateError(result, 2, "incompatible types: expected 'int' for field 'i', found 'float'", 41, 17);
-        validateError(result, 3, "incompatible types: expected 'string' for field 's', found 'int'", 41, 17);
-        validateError(result, 4, "incompatible types: expected 'int' for field 'i', found 'boolean'", 41, 29);
-        validateError(result, 5, "undefined field 'x' in record 'Foo'", 49, 29);
-        validateError(result, 6, "incompatible types: expected a map or a record, found 'other'", 53, 26);
-        validateError(result, 7, "undefined symbol 'b'", 53, 26);
-        validateError(result, 8, "incompatible types: expected a map or a record, found 'int'", 60, 28);
-        validateError(result, 9, "incompatible types: expected 'string', found '(int|float)'", 68, 25);
-        validateError(result, 10, "incompatible types: expected 'string', found 'anydata'", 68, 39);
-        validateError(result, 11, "incompatible types: expected a map or a record, found 'other'", 72, 38);
-        validateError(result, 12, "undefined symbol 'b'", 72, 38);
-        validateError(result, 13, "incompatible types: expected a map or a record, found 'other'", 72, 44);
-        validateError(result, 14, "undefined function 'getFoo'", 72, 44);
-        validateError(result, 15, "incompatible types: expected 'json', found 'any'", 82, 18);
-        validateError(result, 16, "incompatible types: expected 'json', found 'anydata'", 82, 30);
-        validateError(result, 17, "incompatible types: expected 'json', found 'any'", 83, 30);
-        validateError(result, 18, "incompatible types: expected 'json', found 'anydata'", 83, 36);
-        validateError(result, 19, "incompatible types: expected 'int', found 'string'", 96, 18);
-        validateError(result, 20, "incompatible types: expected '(int|float)', found 'string'", 97, 32);
+        int i = 0;
+        validateError(result, i++, "incompatible types: expected a map or a record, found 'string'", 33, 17);
+        validateError(result, i++, "incompatible types: expected a map or a record, found 'boolean'", 33, 32);
+        validateError(result, i++, "incompatible types: expected 'int' for field 'i', found 'float'", 41, 17);
+        validateError(result, i++, "incompatible types: expected 'string' for field 's', found 'int'", 41, 17);
+        validateError(result, i++, "incompatible types: expected 'int' for field 'i', found 'boolean'", 41, 29);
+        validateError(result, i++,
+                "invalid usage of spread field with open record of type 'record {| boolean i; anydata...; |}', that " +
+                        "may have rest fields, to construct a closed record", 41, 29);
+        validateError(result, i++,
+                "invalid usage of spread field with open record of type 'record {| int i; boolean x; anydata...; |}'," +
+                        " that may have rest fields, to construct a closed record", 49, 29);
+        validateError(result, i++, "undefined field 'x' in record 'Foo'", 49, 29);
+        validateError(result, i++, "incompatible types: expected a map or a record, found 'other'", 53, 26);
+        validateError(result, i++, "undefined symbol 'b'", 53, 26);
+        validateError(result, i++, "incompatible types: expected 'int' for field 'i', found 'string'", 58, 17);
+        validateError(result, i++, "missing non-defaultable required record field 'i'", 61, 13);
+        validateError(result, i++, "missing non-defaultable required record field 'i'", 64, 13);
+        validateError(result, i++, "missing non-defaultable required record field 'i'", 67, 13);
+        validateError(result, i++, "missing non-defaultable required record field 'i'", 71, 13);
+        validateError(result, i++,
+                "invalid usage of spread field with open record of type 'Address', that may have rest fields, to " +
+                        "construct a closed record", 92, 39);
+        validateError(result, i++,
+                "invalid usage of spread field with open record of type 'Address', that may have rest fields, to " +
+                        "construct a closed record", 95, 20);
+        validateError(result, i++,
+                "invalid usage of spread field with open record of type 'record {| string street; anydata...; |}', " +
+                        "that may have rest fields, to construct a closed record", 98, 20);
+        validateError(result, i++,
+                "invalid usage of spread field with open record of type 'record {| string s; anydata...; |}', that " +
+                        "may have rest fields, to construct a closed record", 102, 17);
+        validateError(result, i++,
+                "invalid usage of spread field with open record of type 'record {| int i; anydata...; |}', that may " +
+                        "have rest fields, to construct a closed record", 102, 26);
+        validateError(result, i++,
+                "invalid usage of spread field with open record of type 'record {| int j; anydata...; |}', that may " +
+                        "have rest fields of type 'anydata', to construct a record that allows only 'string' rest " +
+                        "fields", 108, 36);
+        validateError(result, i++,
+                "invalid usage of spread field with open record of type 'record {| boolean b; anydata...; |}', that " +
+                        "may have rest fields of type 'anydata', to construct a record that allows only 'string' rest" +
+                        " fields", 108, 45);
+        validateError(result, i++,
+                "incompatible types: expected 'string' for field 'population', found 'int'", 119, 21);
+        validateError(result, i++,
+                "invalid usage of spread field with open record of type 'record {| string name; string continent; int" +
+                        " population; anydata...; |}', that may have rest fields of type 'anydata', to construct a " +
+                        "record that allows only 'string' rest fields", 119, 21);
+        validateError(result, i++,
+                "invalid usage of spread field with open record of type 'record {| string name; string continent; " +
+                        "anydata...; |}', that may have rest fields of type 'anydata', to construct a record that " +
+                        "allows only 'string' rest fields", 122, 21);
+        validateError(result, i++,
+                "invalid usage of spread field with open record of type 'record {| string name; anydata...; |}', that" +
+                        " may have rest fields of type 'anydata', to construct a record that allows only 'string' " +
+                        "rest fields", 125, 40);
+        validateError(result, i++,
+                "invalid usage of spread field with open record of type 'record {| string name; string continent; " +
+                        "string...; |}', that may have rest fields of type 'string', to construct a record that " +
+                        "allows only 'int' rest fields", 128, 64);
+        validateError(result, i++,
+                "invalid usage of spread field with open record of type 'record {| string name; string continent; " +
+                        "error...; |}', that may have rest fields, to construct a closed record", 131, 56);
+        validateError(result, i++, "incompatible types: expected a map or a record, found 'int'", 138, 28);
+        validateError(result, i++, "incompatible types: expected 'string', found '(int|float)'", 146, 25);
+        validateError(result, i++, "incompatible types: expected 'string', found 'anydata'", 146, 39);
+        validateError(result, i++, "incompatible types: expected a map or a record, found 'other'", 150, 38);
+        validateError(result, i++, "undefined symbol 'b'", 150, 38);
+        validateError(result, i++, "incompatible types: expected a map or a record, found 'other'", 150, 44);
+        validateError(result, i++, "undefined function 'getFoo'", 150, 44);
+        validateError(result, i++, "incompatible types: expected 'json', found 'any'", 160, 18);
+        validateError(result, i++, "incompatible types: expected 'json', found 'anydata'", 160, 30);
+        validateError(result, i++, "incompatible types: expected 'json', found 'any'", 161, 30);
+        validateError(result, i++, "incompatible types: expected 'json', found 'anydata'", 161, 36);
+        validateError(result, i++, "incompatible types: expected 'int', found 'string'", 174, 18);
+        validateError(result, i++, "incompatible types: expected '(int|float)', found 'string'", 175, 32);
+        Assert.assertEquals(result.getErrorCount(), i);
     }
 
     @Test
@@ -242,7 +317,9 @@ public class MappingConstructorExprTest {
                 { "testSpreadOpInConstMap" },
                 { "testSpreadOpInGlobalMap" },
                 { "testMappingConstrExprAsSpreadExpr" },
-                { "testSpreadFieldWithRecordTypeHavingNeverField" }
+                { "testSpreadFieldWithRecordTypeHavingNeverField" },
+                { "testSpreadFieldWithRecordTypeHavingRestDescriptor" },
+                { "testSpreadFieldWithRecordTypeReference" }
         };
     }
 
@@ -309,6 +386,16 @@ public class MappingConstructorExprTest {
         BRunUtil.invoke(readOnlyFieldResult, test);
     }
 
+    @Test
+    public void testReadOnlyFields2() {
+        BRunUtil.invoke(resultWithTupleUpdateMethod, "testFrozenAnyArrayElementUpdate");
+    }
+
+    @Test
+    public void testReadOnlyFields3() {
+        BRunUtil.invoke(resultWithoutTupleUpdateMethod, "testFrozenAnyArrayElementUpdate");
+    }
+
     @DataProvider(name = "readOnlyFieldTests")
     public Object[][] readOnlyFieldTests() {
         return new Object[][] {
@@ -327,7 +414,7 @@ public class MappingConstructorExprTest {
         };
     }
 
-    @Test(groups = "disableOnOldParser")
+    @Test()
     public void testReadOnlyFieldsSemanticNegative() {
         CompileResult compileResult =
                 BCompileUtil.compile("test-src/expressions/mappingconstructor/readonly_field_negative.bal");
@@ -337,34 +424,45 @@ public class MappingConstructorExprTest {
                       33, 35);
         validateError(compileResult, index++,
                       "incompatible mapping constructor expression for type '(Employee|Details)'", 34, 27);
+        validateError(compileResult, index++,
+                "incompatible types: expected 'readonly', found 'Details'", 34, 64);
         validateError(compileResult, index++, "incompatible types: expected '(Employee & readonly)', found 'Employee'",
                       40, 18);
         validateError(compileResult, index++, "incompatible types: expected '(Details & readonly)', found 'Details'",
                       42, 22);
         validateError(compileResult, index++,
-                      "incompatible types: expected '((Details & readonly)|string)', found 'Details'", 54, 49);
+                      "incompatible types: expected '((Details|string) & readonly)', found 'Details'", 54, 49);
         validateError(compileResult, index++,
                       "incompatible mapping constructor expression for type '(map<string>|map<(Details|string)>)'",
                       55, 42);
         validateError(compileResult, index++,
-                      "incompatible types: expected 'map<((Details|string) & readonly)> & readonly', " +
+                "incompatible types: expected 'readonly', found 'Details'", 55, 79);
+        validateError(compileResult, index++,
+                      "incompatible types: expected '(map<(Details|string)> & readonly)', " +
                               "found 'map<(Details|string)>'", 61, 18);
         validateError(compileResult, index++, "incompatible types: expected '(Details & readonly)', found 'Details'",
                       63, 13);
         validateError(compileResult, index++,
                       "invalid 'readonly' mapping field 'x': 'future<int>' can never be 'readonly'", 77, 40);
         validateError(compileResult, index++,
-                      "incompatible types: expected 'any & readonly', found 'stream<boolean>'", 77, 57);
+                      "incompatible types: expected '(any & readonly)', found 'stream<boolean>'", 77, 57);
         validateError(compileResult, index++, "incompatible mapping constructor expression for type '(" +
                 "record {| future<any>...; |}|NonReadOnlyFields)'", 78, 57);
         validateError(compileResult, index++,
-                      "incompatible types: expected '((any & readonly)|error)', found 'future<int>'", 81, 39);
+                "incompatible types: expected 'readonly', found 'future<int>'", 78, 67);
         validateError(compileResult, index++,
-                      "incompatible types: expected '((any & readonly)|error)', found 'stream<boolean>'", 81, 51);
+                "incompatible types: expected 'readonly', found 'stream<boolean>'", 78, 84);
+        validateError(compileResult, index++,
+                      "incompatible types: expected '((any|error) & readonly)', found 'future<int>'", 81, 39);
+        validateError(compileResult, index++,
+                      "incompatible types: expected '((any|error) & readonly)', found 'stream<boolean>'", 81, 51);
         validateError(compileResult, index++,
                       "incompatible mapping constructor expression for type '(map<(any|error)>|map<future<int>>)'",
                       82, 43);
-
+        validateError(compileResult, index++,
+                "incompatible types: expected 'readonly', found 'future<int>'", 82, 62);
+        validateError(compileResult, index++,
+                "incompatible types: expected 'readonly', found 'stream<boolean>'", 82, 74);
         validateError(compileResult, index++, "incompatible types: expected 'record {| int i; anydata...; |}', found " +
                 "'record {| readonly (Details & readonly) d1; readonly (Details & readonly) d2; " +
                 "record {| string str; |} d3; readonly record {| string str; readonly int count; |} & readonly d4; " +
@@ -421,5 +519,7 @@ public class MappingConstructorExprTest {
         inferRecordResult = null;
         spreadOpFieldResult = null;
         readOnlyFieldResult = null;
+        resultWithTupleUpdateMethod = null;
+        resultWithoutTupleUpdateMethod = null;
     }
 }

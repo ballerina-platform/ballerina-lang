@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+<catalog>
+    <book id="bk102">
+        <author>Gambardella, Matthew</author>
+        <title>XML Developer's Guide</title>
+        <price>44.95</price>
+        <isbn>123456789</isbn>
+    </book>
+    <book id="bk102">
+        <title>Midnight Rain</title>
+        <price>5.95</price>
+        <isbn>ST1234567</isbn>
+    </book>
+</catalog>

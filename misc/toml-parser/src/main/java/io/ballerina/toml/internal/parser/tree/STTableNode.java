@@ -68,6 +68,7 @@ public class STTableNode extends STDocumentMemberDeclarationNode {
                 fields);
     }
 
+    @Override
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
         return new STTableNode(
                 this.openBracket,
@@ -98,6 +99,7 @@ public class STTableNode extends STDocumentMemberDeclarationNode {
                 diagnostics);
     }
 
+    @Override
     public Node createFacade(int position, NonTerminalNode parent) {
         return new TableNode(this, position, parent);
     }

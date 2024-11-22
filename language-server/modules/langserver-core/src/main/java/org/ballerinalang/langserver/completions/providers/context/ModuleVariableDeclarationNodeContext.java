@@ -185,7 +185,7 @@ public class ModuleVariableDeclarationNodeContext extends
             case ISOLATED_KEYWORD:
                 if (qualKinds.contains(SyntaxKind.TRANSACTIONAL_KEYWORD)) {
                     completionItems.add(new SnippetCompletionItem(context, Snippet.DEF_FUNCTION.get()));
-                    completionItems.add(new SnippetCompletionItem(context, 
+                    completionItems.add(new SnippetCompletionItem(context,
                             Snippet.DEF_EXPRESSION_BODIED_FUNCTION.get()));
                     break;
                 }
@@ -207,6 +207,10 @@ public class ModuleVariableDeclarationNodeContext extends
             case CONFIGURABLE_KEYWORD:
                 completionItems.addAll(this.getTypeDescContextItems(context));
                 break;
+            case FINAL_KEYWORD:
+                completionItems.addAll(this.getTypeDescContextItems(context));
+                completionItems.add(new SnippetCompletionItem(context, Snippet.KW_ISOLATED.get()));
+                break;
             default:
         }
         return completionItems;
@@ -216,7 +220,7 @@ public class ModuleVariableDeclarationNodeContext extends
                                                   ModuleVariableDeclarationNode node) {
         List<String> leadingInvalidTokens = node.leadingInvalidTokens().stream()
                 .map(Token::text)
-                .collect(Collectors.toList());
+                .toList();
         boolean onServiceContext = leadingInvalidTokens.contains(SyntaxKind.SERVICE_KEYWORD.stringValue());
         CompleteExpressionValidator expressionValidator = new CompleteExpressionValidator();
         int cursor = ctx.getCursorPositionInTree();
@@ -229,7 +233,7 @@ public class ModuleVariableDeclarationNodeContext extends
     private boolean onServiceTypeDescriptorContext(BallerinaCompletionContext ctx, ModuleVariableDeclarationNode node) {
         List<String> leadingInvalidTokens = node.leadingInvalidTokens().stream()
                 .map(Token::text)
-                .collect(Collectors.toList());
+                .toList();
         boolean onServiceContext = leadingInvalidTokens.contains(SyntaxKind.SERVICE_KEYWORD.stringValue());
         CompleteExpressionValidator expressionValidator = new CompleteExpressionValidator();
         int cursor = ctx.getCursorPositionInTree();

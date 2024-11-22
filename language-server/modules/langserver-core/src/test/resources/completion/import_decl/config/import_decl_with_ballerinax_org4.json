@@ -1,0 +1,9 @@
+{
+  "position": {
+    "line": 0,
+    "character": 25
+  },
+  "source": "import_decl/source/import_decl_with_ballerinax_org4.bal",
+  "description": "Test completions for ballerinax packages",
+  "items": []
+}

@@ -61,7 +61,6 @@ import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
 import org.wso2.ballerinalang.util.RepoUtils;
 
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -109,7 +108,10 @@ public class BallerinaConnectorService implements ExtendedLanguageServerService 
                 Settings settings = RepoUtils.readSettings();
                 CentralAPIClient client = new CentralAPIClient(RepoUtils.getRemoteRepoURL(),
                         initializeProxy(settings.getProxy()), settings.getProxy().username(),
-                        settings.getProxy().password(), getAccessTokenOfCLI(settings));
+                        settings.getProxy().password(), getAccessTokenOfCLI(settings),
+                        settings.getCentral().getConnectTimeout(),
+                        settings.getCentral().getReadTimeout(), settings.getCentral().getWriteTimeout(),
+                        settings.getCentral().getCallTimeout(), settings.getCentral().getMaxRetries());
 
                 JsonElement connectorSearchResult = client.getConnectors(request.getQueryMap(),
                         "any", RepoUtils.getBallerinaVersion());
@@ -119,7 +121,7 @@ public class BallerinaConnectorService implements ExtendedLanguageServerService 
 
                 // Fetch local project connectors.
                 if (request.getTargetFile() != null) {
-                    Path filePath = Paths.get(request.getTargetFile());
+                    Path filePath = Path.of(request.getTargetFile());
                     List<Connector> localConnectors = fetchLocalConnectors(filePath, false, request.getQuery());
                     connectorList.setLocalConnectors(localConnectors);
                 }
@@ -194,7 +196,10 @@ public class BallerinaConnectorService implements ExtendedLanguageServerService 
             CentralAPIClient client = new CentralAPIClient(RepoUtils.getRemoteRepoURL(),
                     initializeProxy(settings.getProxy()), settings.getProxy().username(),
                     settings.getProxy().password(),
-                    getAccessTokenOfCLI(settings));
+                    getAccessTokenOfCLI(settings),
+                    settings.getCentral().getConnectTimeout(),
+                    settings.getCentral().getReadTimeout(), settings.getCentral().getWriteTimeout(),
+                    settings.getCentral().getCallTimeout(), settings.getCentral().getMaxRetries());
             if (request.getConnectorId() != null) {
                 // Fetch connector by connector Id.
                 connector = client.getConnector(request.getConnectorId(), "any", RepoUtils.getBallerinaVersion());
@@ -221,7 +226,7 @@ public class BallerinaConnectorService implements ExtendedLanguageServerService 
         try {
             if (request.getTargetFile() != null) {
                 // Generate local connector metadata.
-                filePath = Paths.get(request.getTargetFile());
+                filePath = Path.of(request.getTargetFile());
             } else {
                 // Generate connector metadata by connector FQN.
                 filePath = resolveBalaPath(request.getOrgName(), request.getModuleName(), request.getVersion());
@@ -265,9 +270,8 @@ public class BallerinaConnectorService implements ExtendedLanguageServerService 
 
                 Map<String, JsonElement> recordDefJsonMap = new HashMap<>();
                 ConnectorNodeVisitor connectorNodeVisitor = new ConnectorNodeVisitor(request.getName(), semanticModel);
-                module.documentIds().forEach(documentId -> {
-                    module.document(documentId).syntaxTree().rootNode().accept(connectorNodeVisitor);
-                });
+                module.documentIds().forEach(documentId ->
+                    module.document(documentId).syntaxTree().rootNode().accept(connectorNodeVisitor));
 
 
                 TypeDefinitionNode recordNode = null;
@@ -290,9 +294,9 @@ public class BallerinaConnectorService implements ExtendedLanguageServerService 
 
                 Gson gson = new Gson();
                 if (recordNode != null) {
-                    if (recordJson instanceof JsonObject) {
+                    if (recordJson instanceof JsonObject jsonObject) {
                         JsonElement recordsJson = gson.toJsonTree(recordDefJsonMap);
-                        ((JsonObject) recordJson).add("records", recordsJson);
+                        jsonObject.add("records", recordsJson);
                     }
                     recordCache.addRecordAST(request.getOrg(), request.getModule(),
                             request.getVersion(), request.getName(), recordJson);

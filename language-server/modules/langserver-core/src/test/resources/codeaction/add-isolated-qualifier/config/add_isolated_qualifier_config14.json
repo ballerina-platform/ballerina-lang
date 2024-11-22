@@ -1,0 +1,30 @@
+{
+  "position": {
+    "line": 7,
+    "character": 14
+  },
+  "source": "isolatedFunctionCodeAction/modules/module2/add_isolated_qualifier_source6.bal",
+  "description": "Add isolated qualifier to an array variable",
+  "expected": [
+    {
+      "title": "Add isolated qualifier to 'intArr'",
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "isolated "
+        }
+      ],
+      "resolvable": false
+    }
+  ]
+}

@@ -733,9 +733,16 @@ public enum ParserRuleContext {
     OPTIONAL_TOP_LEVEL_SEMICOLON("optional-top-level-semicolon"),
     TUPLE_MEMBERS("tuple-members"),
     TUPLE_MEMBER("tuple-member"),
+    SINGLE_OR_ALTERNATE_WORKER("single-or-alternate-worker"),
+    SINGLE_OR_ALTERNATE_WORKER_SEPARATOR("single-or-alternate-worker-separator"),
+    SINGLE_OR_ALTERNATE_WORKER_END("single-or-alternate-worker-end"),
+    XML_STEP_EXTENDS("xml-step-extends"),
+    XML_STEP_EXTEND("xml-step-extend"),
+    XML_STEP_EXTEND_END("xml-step-extend-end"),
+    XML_STEP_START_END("xml-step-start-end")
     ;
 
-    private String value;
+    private final String value;
 
     ParserRuleContext(String value) {
         this.value = value;

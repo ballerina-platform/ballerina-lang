@@ -26,7 +26,9 @@ import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.projects.Document;
 import io.ballerina.projects.Project;
+import io.ballerina.tools.diagnostics.Location;
 import io.ballerina.tools.text.LinePosition;
+import io.ballerina.tools.text.LineRange;
 import org.ballerinalang.test.BCompileUtil;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
@@ -97,11 +99,8 @@ public class TypeSymbolTest {
 //                {26, 4, TypeDescKind.XML, "xml"},
 //                {27, 4, TypeDescKind.XML, "xml<xml>"},
 //                {28, 4, TypeDescKind.XML, "xml<ballerina/lang.xml:0.8.0:Element>"},
-                {30, 4, MAP, "map<string>"},
                 {31, 4, TYPEDESC, "typedesc<anydata>"},
                 {32, 4, TYPEDESC, "typedesc<any|error>"},
-                {33, 4, TABLE, "table<Person>"},
-                {34, 4, TABLE, "table<Person> key<int>"},
                 {35, 4, FUTURE, "future<string>"},
                 {36, 4, FUTURE, "future<any|error>"},
                 {40, 4, INT, "int"},
@@ -120,6 +119,25 @@ public class TypeSymbolTest {
                 {61, 4, JSON, "json"},
                 {62, 4, BYTE, "byte"},
                 {63, 13, ERROR, "error"},
+        };
+    }
+
+    @Test(dataProvider = "StructuredPosProvider")
+    public void testStructuredTypeSymbolLookup(int line, int sCol, int eCol, TypeDescKind typeKind, String signature) {
+        TypeSymbol type = assertBasicsAndGetType(line, sCol, typeKind, signature);
+        assertTrue(type.getName().isEmpty());
+
+        Optional<Location> location = type.getLocation();
+        assertTrue(location.isPresent());
+        assertLocationPosition(location.get().lineRange(), line, sCol, eCol);
+    }
+
+    @DataProvider(name = "StructuredPosProvider")
+    public Object[][] getStructuredTypePosition() {
+        return new Object[][]{
+                {30, 4, 15, MAP, "map<string>"},
+                {33, 4, 17, TABLE, "table<Person>"},
+                {34, 4, 26, TABLE, "table<Person> key<int>"}
         };
     }
 
@@ -203,6 +221,31 @@ public class TypeSymbolTest {
         };
     }
 
+    @Test(dataProvider = "StructuredTypeSymbolLocationPos")
+    public void testStructuredTypeSymbolLocation(int line, int col, int expLine, int expSCol, int expECol) {
+        Optional<TypeSymbol> typeSymbol = model.typeOf(
+                LineRange.from(srcFile.name(), LinePosition.from(line, 8), LinePosition.from(line, col)));
+        assertTrue(typeSymbol.isPresent());
+
+        Optional<Location> location = typeSymbol.get().getLocation();
+        assertTrue(location.isPresent());
+        assertLocationPosition(location.get().lineRange(), expLine, expSCol, expECol);
+    }
+
+    @DataProvider(name = "StructuredTypeSymbolLocationPos")
+    public Object[][] getStructuredTypeSymbolLocationPos() {
+        return new Object[][]{
+                {67, 11, 92, 0, 5},
+                {68, 10, 93, 0, 11},
+                {69, 13, 94, 0, 13},
+                {70, 11, 95, 0, 30},
+                {71, 11, 96, 5, 8},
+                {72, 11, 98, 0, 10},
+                {73, 14, 99, 0, 17},
+                {74, 14, 100, 0, 25}
+        };
+    }
+
     // private utils
     private TypeSymbol assertBasicsAndGetType(int line, int col, TypeDescKind typeKind, String signature) {
         Optional<Symbol> symbol = model.symbol(srcFile, LinePosition.from(line, col));
@@ -214,5 +257,14 @@ public class TypeSymbolTest {
         assertEquals(type.typeKind(), typeKind);
         assertEquals(type.signature(), signature);
         return (TypeSymbol) symbol.get();
+    }
+
+    private void assertLocationPosition(LineRange actualLineRange, int line, int sCol, int eCol) {
+        LinePosition startLine = actualLineRange.startLine();
+        LinePosition endLine = actualLineRange.endLine();
+        assertEquals(startLine.line(), line);
+        assertEquals(endLine.line(), line);
+        assertEquals(startLine.offset(), sCol);
+        assertEquals(endLine.offset(), eCol);
     }
 }

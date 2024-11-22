@@ -30,14 +30,10 @@ import java.util.ArrayList;
  *
  * @since 1.2
  */
-//@BallerinaFunction(
-//        orgName = "ballerina", packageName = "lang.xml",
-//        functionName = "children",
-//        args = {@Argument(name = "BXML", type = TypeKind.XML)},
-//        returnType = {@ReturnType(type = TypeKind.XML)},
-//        isPublic = true
-//)
-public class Children {
+public final class Children {
+
+    private Children() {
+    }
 
     public static BXml children(BXml xmlVal) {
         if (xmlVal.getNodeType() == XmlNodeType.ELEMENT) {

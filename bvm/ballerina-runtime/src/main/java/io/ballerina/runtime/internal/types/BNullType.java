@@ -18,8 +18,8 @@
 package io.ballerina.runtime.internal.types;
 
 import io.ballerina.runtime.api.Module;
-import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.types.NullType;
+import io.ballerina.runtime.api.types.TypeTags;
 
 /**
  * {@code BNullType} represents the type of a {@code NullLiteral}.
@@ -38,6 +38,7 @@ public class BNullType extends BType implements NullType {
         super(typeName, pkg, null);
     }
 
+    @Override
     public <V extends Object> V getZeroValue() {
         return null;
     }
@@ -52,6 +53,7 @@ public class BNullType extends BType implements NullType {
         return TypeTags.NULL_TAG;
     }
 
+    @Override
     public boolean isNilable() {
         return true;
     }

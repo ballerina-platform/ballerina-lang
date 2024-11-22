@@ -17,10 +17,10 @@
  */
 package io.ballerina.runtime.observability.tracer;
 
-import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.creators.TypeCreator;
 import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.types.MapType;
+import io.ballerina.runtime.api.types.PredefinedTypes;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BMapInitialValueEntry;
@@ -31,6 +31,7 @@ import io.opentelemetry.api.trace.Span;
 import io.opentelemetry.api.trace.SpanBuilder;
 import io.opentelemetry.api.trace.SpanContext;
 import io.opentelemetry.api.trace.SpanKind;
+import io.opentelemetry.api.trace.StatusCode;
 import io.opentelemetry.api.trace.Tracer;
 import io.opentelemetry.context.Context;
 import io.opentelemetry.context.propagation.TextMapGetter;
@@ -53,8 +54,8 @@ public class BSpan {
     private static final MapType IMMUTABLE_STRING_MAP_TYPE = TypeCreator.createMapType(
             PredefinedTypes.TYPE_STRING, true);
 
-    private static PropagatingParentContextGetter getter = new PropagatingParentContextGetter();
-    private static PropagatingParentContextSetter setter = new PropagatingParentContextSetter();
+    private static final PropagatingParentContextGetter GETTER = new PropagatingParentContextGetter();
+    private static final PropagatingParentContextSetter SETTER = new PropagatingParentContextSetter();
 
     static class PropagatingParentContextGetter implements TextMapGetter<Map<String, String>> {
         @Override
@@ -137,7 +138,7 @@ public class BSpan {
 
         Tracer tracer = TracersStore.getInstance().getTracer(serviceName);
         Context parentContext = TracersStore.getInstance().getPropagators()
-                .getTextMapPropagator().extract(Context.current(), parentTraceContext, getter);
+                .getTextMapPropagator().extract(Context.current(), parentTraceContext, GETTER);
         return start(tracer, parentContext, operationName, isClient);
     }
 
@@ -147,6 +148,10 @@ public class BSpan {
 
     public void addEvent(String eventName, Attributes attributes) {
         span.addEvent(eventName, attributes);
+    }
+
+    public void setStatus(StatusCode statusCode) {
+        span.setStatus(statusCode);
     }
 
     public void addTags(Map<String, String> tags) {
@@ -165,7 +170,7 @@ public class BSpan {
         if (span != null) {
             carrierMap = new HashMap<>();
             TextMapPropagator propagator = TracersStore.getInstance().getPropagators().getTextMapPropagator();
-            propagator.inject(Context.current().with(span), carrierMap, setter);
+            propagator.inject(Context.current().with(span), carrierMap, SETTER);
         } else {
             carrierMap = Collections.emptyMap();
         }

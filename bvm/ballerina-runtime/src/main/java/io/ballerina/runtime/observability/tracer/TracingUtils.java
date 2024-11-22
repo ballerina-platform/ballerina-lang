@@ -20,6 +20,7 @@ package io.ballerina.runtime.observability.tracer;
 import io.ballerina.runtime.internal.values.ErrorValue;
 import io.ballerina.runtime.observability.ObserverContext;
 import io.ballerina.runtime.observability.metrics.Tag;
+import io.opentelemetry.api.trace.StatusCode;
 
 import java.util.Collections;
 import java.util.Map;
@@ -34,7 +35,7 @@ import static io.ballerina.runtime.observability.tracer.TraceConstants.TAG_KEY_S
 /**
  * Util class to hold tracing specific util methods.
  */
-public class TracingUtils {
+public final class TracingUtils {
 
     private TracingUtils() {
     }
@@ -79,6 +80,9 @@ public class TracingUtils {
             ErrorValue bError = (ErrorValue) observerContext.getProperty(PROPERTY_ERROR_VALUE);
             if (bError != null) {
                 span.addTag(TAG_KEY_STR_ERROR_MESSAGE, bError.getPrintableStackTrace());
+                span.setStatus(StatusCode.ERROR);
+            } else {
+                span.setStatus(StatusCode.OK);
             }
 
             // Adding specific error code to Trace Span

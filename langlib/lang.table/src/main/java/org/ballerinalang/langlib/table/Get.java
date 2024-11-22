@@ -26,15 +26,12 @@ import io.ballerina.runtime.api.values.BTable;
  *
  * @since 1.3.0
  */
-//@BallerinaFunction(
-//        orgName = "ballerina", packageName = "lang.table", functionName = "get",
-//        args = {@Argument(name = "tbl", type = TypeKind.TABLE), @Argument(name = "key", type = TypeKind.ANYDATA)},
-//        returnType = {@ReturnType(type = TypeKind.ANY)},
-//        isPublic = true
-//)
-public class Get {
+public final class Get {
 
-    public static BMap get(BTable tbl, Object key) {
-        return (BMap) tbl.getOrThrow(key);
+    private Get() {
+    }
+
+    public static BMap<?, ?> get(BTable<?, ?> tbl, Object key) {
+        return (BMap<?, ?>) tbl.getOrThrow(key);
     }
 }

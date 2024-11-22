@@ -62,6 +62,7 @@ public class STIntersectionTypeDescriptorNode extends STTypeDescriptorNode {
                 rightTypeDesc);
     }
 
+    @Override
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
         return new STIntersectionTypeDescriptorNode(
                 this.leftTypeDesc,
@@ -88,6 +89,7 @@ public class STIntersectionTypeDescriptorNode extends STTypeDescriptorNode {
                 diagnostics);
     }
 
+    @Override
     public Node createFacade(int position, NonTerminalNode parent) {
         return new IntersectionTypeDescriptorNode(this, position, parent);
     }

@@ -1,0 +1,172 @@
+{
+  "position": {
+    "line": 17,
+    "character": 24
+  },
+  "source": "action_node_context/source/client_resource_access_action_source39.bal",
+  "description": "Test completions after a resource path with the same prefix",
+  "items": [
+    {
+      "label": "/First(int val)",
+      "kind": "Function",
+      "detail": "int",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _._  \n  \n  \n**Params**  \n- `int` val  \n  \n**Return** `int`   \n  \n"
+        }
+      },
+      "sortText": "GA",
+      "filterText": "First|get",
+      "insertText": "/First(${1});",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 17,
+              "character": 23
+            },
+            "end": {
+              "line": 17,
+              "character": 24
+            }
+          },
+          "newText": ""
+        }
+      ],
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "/First/[string second]",
+      "kind": "Function",
+      "detail": "int",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _._  \n  \n  \n**Params**  \n- `string` second  \n  \n**Return** `int`   \n  \n"
+        }
+      },
+      "sortText": "GB",
+      "filterText": "First|get",
+      "insertText": "/First/[${1:\"path\"}];",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 17,
+              "character": 23
+            },
+            "end": {
+              "line": 17,
+              "character": 24
+            }
+          },
+          "newText": ""
+        }
+      ]
+    },
+    {
+      "label": "/First/<second>",
+      "kind": "Function",
+      "detail": "int",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _._  \n  \n  \n**Params**  \n- `string` second  \n  \n**Return** `int`   \n  \n"
+        }
+      },
+      "sortText": "GC",
+      "filterText": "First|get",
+      "insertText": "/First/${1:path};",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 17,
+              "character": 23
+            },
+            "end": {
+              "line": 17,
+              "character": 24
+            }
+          },
+          "newText": ""
+        }
+      ]
+    },
+    {
+      "label": "/First/[string second]/Third(string val)",
+      "kind": "Function",
+      "detail": "int",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _._  \n  \n  \n**Params**  \n- `string` second  \n- `string` val  \n  \n**Return** `int`   \n  \n"
+        }
+      },
+      "sortText": "GD",
+      "filterText": "First|Third|get",
+      "insertText": "/First/[${1:\"path\"}]/Third(${2});",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 17,
+              "character": 23
+            },
+            "end": {
+              "line": 17,
+              "character": 24
+            }
+          },
+          "newText": ""
+        }
+      ],
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "/First/<second>/Third(string val)",
+      "kind": "Function",
+      "detail": "int",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _._  \n  \n  \n**Params**  \n- `string` second  \n- `string` val  \n  \n**Return** `int`   \n  \n"
+        }
+      },
+      "sortText": "GE",
+      "filterText": "First|Third|get",
+      "insertText": "/First/${1:path}/Third(${2});",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 17,
+              "character": 23
+            },
+            "end": {
+              "line": 17,
+              "character": 24
+            }
+          },
+          "newText": ""
+        }
+      ],
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    }
+  ]
+}

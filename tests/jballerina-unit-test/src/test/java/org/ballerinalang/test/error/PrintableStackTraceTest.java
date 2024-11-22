@@ -51,13 +51,14 @@ public class PrintableStackTraceTest {
 
         Assert.assertNotNull(expectedException);
         String message = expectedException.getMessage();
-        Assert.assertEquals(message, "error: error2\n" +
-                "\tat test_org.project.0:testFunc(main.bal:24)\n" +
-                "\t   test_org.project.0:main(main.bal:20)\n" +
-                "cause: error1\n" +
-                "\tat test_org.project.foo.0:errorFunc(foo.bal:22)\n" +
-                "\t   test_org.project.foo.0:testFunc(foo.bal:18)\n" +
-                "\t   ... 2 more");
+        Assert.assertEquals(message, """
+                error: error2
+                \tat test_org.project.0:testFunc(main.bal:24)
+                \t   test_org.project.0:main(main.bal:20)
+                cause: error1
+                \tat test_org.project.foo.0:errorFunc(foo.bal:22)
+                \t   test_org.project.foo.0:testFunc(foo.bal:18)
+                \t   ... 2 more""");
     }
 
     @AfterClass

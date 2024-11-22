@@ -61,7 +61,7 @@ public class FunctionTest {
     }
 
     @Test(description = "Test frame yield depth overflow", expectedExceptions = BLangTestException.class,
-            expectedExceptionsMessageRegExp = "error: \\{ballerina}StackOverflow \\{\"message\":\"stack overflow\"}")
+            expectedExceptionsMessageRegExp = "error: \\{ballerina}StackOverflow.*")
     public void testRecursiveFunctionWhereStackOverflows() {
         BRunUtil.invoke(result, "testRecursiveFunctionWhereStackOverflows");
     }

@@ -17,12 +17,12 @@
 */
 package io.ballerina.runtime.internal.values;
 
-import io.ballerina.runtime.api.PredefinedTypes;
+import io.ballerina.runtime.api.types.PredefinedTypes;
 import io.ballerina.runtime.api.values.BLink;
 import io.ballerina.runtime.api.values.BStreamingJson;
-import io.ballerina.runtime.internal.JsonDataSource;
-import io.ballerina.runtime.internal.JsonGenerator;
-import io.ballerina.runtime.internal.JsonInternalUtils;
+import io.ballerina.runtime.internal.json.JsonDataSource;
+import io.ballerina.runtime.internal.json.JsonGenerator;
+import io.ballerina.runtime.internal.json.JsonInternalUtils;
 import io.ballerina.runtime.internal.types.BArrayType;
 import io.ballerina.runtime.internal.types.BMapType;
 
@@ -114,6 +114,7 @@ public class StreamingJsonValue extends ArrayValueImpl implements BStreamingJson
      * Serialize the value to given {@code Writer}.
      * @param writer {@code Writer} to be used
      */
+    @Override
     public void serialize(Writer writer) {
         try (JsonGenerator gen = new JsonGenerator(writer)) {
             serialize(gen);
@@ -199,7 +200,7 @@ public class StreamingJsonValue extends ArrayValueImpl implements BStreamingJson
     }
 
     @Override
-    public IteratorValue getIterator() {
+    public IteratorValue<Object> getIterator() {
         return new ArrayIterator(this);
     }
 
@@ -208,7 +209,7 @@ public class StreamingJsonValue extends ArrayValueImpl implements BStreamingJson
      *
      * @since 0.995.0
      */
-    static class StreamingJsonIterator implements IteratorValue {
+    static class StreamingJsonIterator implements IteratorValue<Object> {
         StreamingJsonValue array;
         long cursor = 0;
 

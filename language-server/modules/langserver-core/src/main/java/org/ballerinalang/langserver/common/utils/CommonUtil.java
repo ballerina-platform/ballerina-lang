@@ -36,6 +36,7 @@ import io.ballerina.compiler.syntax.tree.Minutiae;
 import io.ballerina.compiler.syntax.tree.ModulePartNode;
 import io.ballerina.compiler.syntax.tree.ModuleVariableDeclarationNode;
 import io.ballerina.compiler.syntax.tree.Node;
+import io.ballerina.compiler.syntax.tree.NodeList;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.ObjectFieldNode;
 import io.ballerina.compiler.syntax.tree.ObjectTypeDescriptorNode;
@@ -44,6 +45,7 @@ import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import io.ballerina.compiler.syntax.tree.Token;
 import io.ballerina.projects.Package;
+import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.text.LinePosition;
 import io.ballerina.tools.text.LineRange;
 import io.ballerina.tools.text.TextDocument;
@@ -51,6 +53,7 @@ import io.ballerina.tools.text.TextRange;
 import org.apache.commons.lang3.SystemUtils;
 import org.ballerinalang.langserver.LSPackageLoader;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
+import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.ballerinalang.langserver.commons.DocumentServiceContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.SymbolCompletionItem;
@@ -66,6 +69,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Predicate;
@@ -82,7 +86,7 @@ import static org.ballerinalang.langserver.common.utils.CommonKeys.SLASH_KEYWORD
 /**
  * Common utils to be reused in language server implementation.
  */
-public class CommonUtil {
+public final class CommonUtil {
 
     public static final String MD_LINE_SEPARATOR = "  " + System.lineSeparator();
 
@@ -173,10 +177,6 @@ public class CommonUtil {
      */
     public static List<TextEdit> getAutoImportTextEdits(@Nonnull String orgName, String pkgName, String alias,
                                                         DocumentServiceContext context) {
-        Map<ImportDeclarationNode, ModuleSymbol> currentDocImports = context.currentDocImportsMap();
-        Optional<ImportDeclarationNode> last = CommonUtil.getLastItem(new ArrayList<>(currentDocImports.keySet()));
-        int endLine = last.map(node -> node.lineRange().endLine().line()).orElse(0);
-        Position start = new Position(endLine, 0);
 
         StringBuilder builder = new StringBuilder(ItemResolverConstants.IMPORT + " "
                 + (!orgName.isEmpty() ? orgName + SLASH_KEYWORD_KEY : orgName)
@@ -186,7 +186,38 @@ public class CommonUtil {
         }
         builder.append(SEMI_COLON_SYMBOL_KEY).append(CommonUtil.LINE_SEPARATOR);
 
-        return Collections.singletonList(new TextEdit(new Range(start, start), builder.toString()));
+        Position insertPos = getImportPosition(context);
+        return Collections.singletonList(new TextEdit(new Range(insertPos, insertPos), builder.toString()));
+    }
+
+    public static Position getImportPosition(DocumentServiceContext context) {
+        // Calculate initial import insertion line
+        Optional<SyntaxTree> syntaxTree = context.currentSyntaxTree();
+        ModulePartNode modulePartNode = syntaxTree.orElseThrow().rootNode();
+        NodeList<ImportDeclarationNode> imports = modulePartNode.imports();
+        // If there is already an import, add the new import after the last import
+        if (!imports.isEmpty()) {
+            ImportDeclarationNode lastImport = imports.get(imports.size() - 1);
+            return new Position(lastImport.lineRange().endLine().line() + 1, 0);
+        }
+
+        // If the module part has no children, add the import at the beginning of the file
+        if (modulePartNode.members().isEmpty()) {
+            return new Position(0, 0);
+        }
+
+        Position insertPosition = new Position(0, 0);
+        for (Minutiae minutiae : modulePartNode.leadingMinutiae()) {
+            if (minutiae.kind() == SyntaxKind.END_OF_LINE_MINUTIAE
+                    && minutiae.lineRange().startLine().offset() == 0) {
+                // If we find a new line character with offset 0 (a blank line), add the import after that
+                // And no further processing is required
+                insertPosition = new Position(minutiae.lineRange().startLine().line(), 0);
+                break;
+            }
+        }
+
+        return insertPosition;
     }
 
     /**
@@ -197,18 +228,19 @@ public class CommonUtil {
      * @return Extracted last Item
      */
     public static <T> Optional<T> getLastItem(List<T> list) {
-        return (list.size() == 0) ? Optional.empty() : Optional.of(list.get(list.size() - 1));
+        return (list.isEmpty()) ? Optional.empty() : Optional.of(list.get(list.size() - 1));
     }
 
     /**
      * Whether the given module is a langlib module.
-     * public static String generateParameterName(String arg, Set<String> visibleNames) {
+     * <pre>
+     * public static String generateParameterName(String arg, Set&lt;String&gt; visibleNames) {
      * visibleNames.addAll(BALLERINA_KEYWORDS);
      * String newName = arg.replaceAll(".+[\\:\\.]", "");
-     * <p>
-     * <p>
-     * }
      *
+     *
+     * }
+     * </pre>
      * @param moduleID Module ID to evaluate
      * @return {@link Boolean} whether langlib or not
      */
@@ -221,13 +253,26 @@ public class CommonUtil {
     }
 
     /**
+     * Whether the given module is a langlib module or the Ballerina test module.
+     *
+     * @param moduleID Module ID to evaluate
+     * @return {@link Boolean} <code>true</code> if the given module is either a langlib module or
+     * the Ballerina test module. <code>false</code> otherwise.
+     */
+    public static boolean isLangLibOrLangTest(ModuleID moduleID) {
+        String orgName = moduleID.orgName();
+        String moduleName = moduleID.moduleName();
+        return orgName.equals("ballerina") && (moduleName.startsWith("lang.") ||  moduleName.equals("test"));
+    }
+
+    /**
      * Escapes the escape characters present in an identifier.
      *
      * @param identifier Identifier
      * @return The identifier with escape characters escaped
      */
     public static String escapeEscapeCharsInIdentifier(String identifier) {
-        return identifier.replaceAll("\\\\", "\\\\\\\\");
+        return identifier.replace("\\", "\\\\");
     }
 
     /**
@@ -237,8 +282,8 @@ public class CommonUtil {
      * @return Processed text
      */
     public static String escapeSpecialCharsInInsertText(String text) {
-        return text.replaceAll("\\\\", "\\\\\\\\")
-                .replaceAll("\\$", Matcher.quoteReplacement("\\$"));
+        return text.replace("\\", "\\\\")
+                .replace("$", "\\$");
     }
 
     /**
@@ -303,6 +348,63 @@ public class CommonUtil {
     }
 
     /**
+     * Check whether the given type is an error type or union of error types.
+     *
+     * @param type type descriptor to evaluate
+     * @return {@link Boolean} is error type or union or error types
+     */
+    public static boolean isErrorOrUnionOfErrors(TypeSymbol type) {
+        TypeDescKind kind = type.typeKind();
+        if (kind == TypeDescKind.ERROR) {
+            return true;
+        }
+        if (kind == TypeDescKind.TYPE_REFERENCE) {
+            TypeSymbol rawType = getRawType(type);
+            if (rawType.typeKind() == TypeDescKind.UNION) {
+                return ((UnionTypeSymbol) rawType).memberTypeDescriptors().stream()
+                        .allMatch(CommonUtil::isErrorOrUnionOfErrors);
+            }
+            return isErrorOrUnionOfErrors(rawType);
+        }
+        return false;
+    }
+    
+    private static void getErrorTypes(TypeSymbol type, TypeSymbol typeRef, List<TypeSymbol> errorTypes) {
+        TypeDescKind kind = type.typeKind();
+        if (kind == TypeDescKind.ERROR) {
+            errorTypes.add(Objects.requireNonNullElse(typeRef, type));
+        } else if (kind == TypeDescKind.TYPE_REFERENCE) {
+            TypeSymbol rawType = getRawType(type);
+            if (rawType.typeKind() == TypeDescKind.UNION) {
+                UnionTypeSymbol unionRawType = (UnionTypeSymbol) rawType;
+                if (unionRawType.memberTypeDescriptors().stream().allMatch(CommonUtil::isErrorOrUnionOfErrors)) { 
+                    errorTypes.add(type);    
+                } else {
+                    for (TypeSymbol memberType : unionRawType.userSpecifiedMemberTypes()) {
+                        getErrorTypes(memberType, memberType, errorTypes);
+                    }
+                }
+            } else {
+                getErrorTypes(rawType, type, errorTypes);
+            }
+        }
+    }
+
+    /**
+     * Extract member error types from the union type.
+     *
+     * @param unionType union type descriptor to evaluate
+     * @return {@link List<TypeSymbol>} member error types
+     */
+    public static List<TypeSymbol> extractErrorTypesFromUnion(UnionTypeSymbol unionType) {
+        List<TypeSymbol> exactErrorTypes = new ArrayList<>();
+        for (TypeSymbol memType : unionType.userSpecifiedMemberTypes()) {
+            getErrorTypes(memType, null, exactErrorTypes);
+        }
+        return exactErrorTypes;
+    }
+
+    /**
      * Check if the provided union type is a union of members of provided type desc kind.
      *
      * @param typeSymbol   Union type symbol
@@ -325,11 +427,11 @@ public class CommonUtil {
      */
     public static String getPackageLabel(LSPackageLoader.ModuleInfo module) {
         String orgName = "";
-        if (!module.packageOrg().value().isEmpty() && !module.packageOrg().value().equals(Names.ANON_ORG.getValue())) {
-            orgName = module.packageOrg().value() + "/";
+        if (!module.packageOrg().isEmpty() && !module.packageOrg().equals(Names.ANON_ORG.getValue())) {
+            orgName = module.packageOrg() + "/";
         }
 
-        return orgName + module.packageName().value();
+        return orgName + module.packageName();
     }
 
     /**
@@ -450,10 +552,8 @@ public class CommonUtil {
                 break;
             case MODULE_PART:
                 List<Token> qualsAtCursor = getQualifiersAtCursor(context);
-                Set<SyntaxKind> foundQuals = qualifiers.stream().map(Node::kind).collect(Collectors.toSet());
                 context.getNodeAtCursor().leadingInvalidTokens().stream()
                         .filter(token -> QUALIFIER_KINDS.contains(token.kind()))
-                        .filter(token -> !foundQuals.contains(token.kind()))
                         .forEach(qualifiers::add);
                 // Avoid duplicating the token at cursor.
                 qualsAtCursor.stream()
@@ -552,8 +652,7 @@ public class CommonUtil {
      */
     public static List<String> getFuncArguments(FunctionSymbol symbol, BallerinaCompletionContext ctx) {
         List<ParameterSymbol> params = CommonUtil.getFunctionParameters(symbol, ctx);
-        return params.stream().map(param -> getFunctionParamaterSyntax(param, ctx).orElse(""))
-                .collect(Collectors.toList());
+        return params.stream().map(param -> getFunctionParamaterSyntax(param, ctx).orElse("")).toList();
     }
 
     /**
@@ -654,6 +753,28 @@ public class CommonUtil {
             return Optional.empty();
         }
         return Optional.of(qualifiers.get(qualifiers.size() - 1));
+    }
+
+    /**
+     * Checks if there are multiple diagnostics for the considered code action.
+     *
+     * @param context               The code action context
+     * @param node                  The non-terminal node around which the diagnostics are being checked
+     * @param currentDiagnostic     The current diagnostic being evaluated
+     * @param diagnostics           The diagnostics relevant to the code action
+     * @param prioritizedDiagnostic The prioritized diagnostic that won't being ignored.
+     * @return {@code true} if there are multiple diagnostics for the relevant code action.
+     */
+    public static boolean hasMultipleDiagnostics(CodeActionContext context, NonTerminalNode node,
+                                                 Diagnostic currentDiagnostic,
+                                                 Set<String> diagnostics,
+                                                 String prioritizedDiagnostic) {
+        List<Diagnostic> projectDiagnostics = context.diagnostics(context.filePath());
+        return projectDiagnostics.size() > 1 &&
+                projectDiagnostics.stream().anyMatch(diagnostic -> !currentDiagnostic.equals(diagnostic) &&
+                        diagnostics.contains(diagnostic.diagnosticInfo().code()) &&
+                        PositionUtil.isWithinLineRange(diagnostic.location().lineRange(), node.lineRange())) &&
+                currentDiagnostic.diagnosticInfo().code().equals(prioritizedDiagnostic);
     }
 
     /**

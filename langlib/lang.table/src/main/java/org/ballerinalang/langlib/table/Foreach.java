@@ -18,40 +18,25 @@
 
 package org.ballerinalang.langlib.table;
 
-import io.ballerina.runtime.api.async.StrandMetadata;
+import io.ballerina.runtime.api.Environment;
 import io.ballerina.runtime.api.values.BFunctionPointer;
 import io.ballerina.runtime.api.values.BTable;
-import io.ballerina.runtime.internal.scheduling.AsyncUtils;
-import io.ballerina.runtime.internal.scheduling.Scheduler;
-
-import java.util.concurrent.atomic.AtomicInteger;
-
-import static io.ballerina.runtime.api.constants.RuntimeConstants.BALLERINA_BUILTIN_PKG_PREFIX;
-import static io.ballerina.runtime.api.constants.RuntimeConstants.TABLE_LANG_LIB;
-import static org.ballerinalang.util.BLangCompilerConstants.TABLE_VERSION;
 
 /**
  * Native implementation of lang.table:forEach(table&lt;Type&gt;, function).
  *
  * @since 1.3.0
  */
-//@BallerinaFunction(
-//        orgName = "ballerina", packageName = "lang.table", functionName = "forEach",
-//        args = {@Argument(name = "tbl", type = TypeKind.TABLE), @Argument(name = "func", type = TypeKind.FUNCTION)},
-//        isPublic = true
-//)
-public class Foreach {
+public final class Foreach {
 
-    private static final StrandMetadata METADATA = new StrandMetadata(BALLERINA_BUILTIN_PKG_PREFIX, TABLE_LANG_LIB,
-                                                                      TABLE_VERSION, "forEach");
-
-    public static void forEach(BTable tbl, BFunctionPointer<Object, Object> func) {
-        int size = tbl.size();
-        AtomicInteger index = new AtomicInteger(-1);
-        Object[] values = tbl.values().toArray();
-        AsyncUtils.invokeFunctionPointerAsyncIteratively(func, null, METADATA, size,
-                () -> new Object[]{values[index.incrementAndGet()], true}, result -> {
-                }, () -> null, Scheduler.getStrand().scheduler);
+    private Foreach() {
     }
 
+    public static void forEach(Environment env, BTable<?, ?> tbl, BFunctionPointer func) {
+        int size = tbl.size();
+        Object[] values = tbl.values().toArray();
+        for (int i = 0; i < size; i++) {
+            func.call(env.getRuntime(), values[i]);
+        }
+    }
 }

@@ -4,6 +4,7 @@
     "character": 40
   },
   "source": "function_def/source/source11.bal",
+  "description": "",
   "items": [
     {
       "label": "TestRecord1",
@@ -125,11 +126,11 @@
         {
           "range": {
             "start": {
-              "line": 0,
+              "line": 1,
               "character": 0
             },
             "end": {
-              "line": 0,
+              "line": 1,
               "character": 0
             }
           },
@@ -149,11 +150,11 @@
         {
           "range": {
             "start": {
-              "line": 0,
+              "line": 1,
               "character": 0
             },
             "end": {
-              "line": 0,
+              "line": 1,
               "character": 0
             }
           },
@@ -173,11 +174,11 @@
         {
           "range": {
             "start": {
-              "line": 0,
+              "line": 1,
               "character": 0
             },
             "end": {
-              "line": 0,
+              "line": 1,
               "character": 0
             }
           },
@@ -197,11 +198,11 @@
         {
           "range": {
             "start": {
-              "line": 0,
+              "line": 1,
               "character": 0
             },
             "end": {
-              "line": 0,
+              "line": 1,
               "character": 0
             }
           },
@@ -221,11 +222,11 @@
         {
           "range": {
             "start": {
-              "line": 0,
+              "line": 1,
               "character": 0
             },
             "end": {
-              "line": 0,
+              "line": 1,
               "character": 0
             }
           },
@@ -285,11 +286,11 @@
         {
           "range": {
             "start": {
-              "line": 0,
+              "line": 1,
               "character": 0
             },
             "end": {
-              "line": 0,
+              "line": 1,
               "character": 0
             }
           },
@@ -309,11 +310,11 @@
         {
           "range": {
             "start": {
-              "line": 0,
+              "line": 1,
               "character": 0
             },
             "end": {
-              "line": 0,
+              "line": 1,
               "character": 0
             }
           },
@@ -333,11 +334,11 @@
         {
           "range": {
             "start": {
-              "line": 0,
+              "line": 1,
               "character": 0
             },
             "end": {
-              "line": 0,
+              "line": 1,
               "character": 0
             }
           },
@@ -357,11 +358,11 @@
         {
           "range": {
             "start": {
-              "line": 0,
+              "line": 1,
               "character": 0
             },
             "end": {
-              "line": 0,
+              "line": 1,
               "character": 0
             }
           },
@@ -390,11 +391,11 @@
         {
           "range": {
             "start": {
-              "line": 0,
+              "line": 1,
               "character": 0
             },
             "end": {
-              "line": 0,
+              "line": 1,
               "character": 0
             }
           },
@@ -844,6 +845,54 @@
       "detail": "Class",
       "sortText": "BK",
       "insertText": "module1:Listener",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "module1:Error",
+      "kind": "Enum",
+      "detail": "Union",
+      "sortText": "BI",
+      "insertText": "module1:Error",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "module1:Error2",
+      "kind": "Enum",
+      "detail": "Union",
+      "sortText": "BI",
+      "insertText": "module1:Error2",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "module1:Error1",
+      "kind": "TypeParameter",
+      "detail": "Union",
+      "sortText": "BN",
+      "insertText": "module1:Error1",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "module1:E1",
+      "kind": "Event",
+      "detail": "Error",
+      "sortText": "BL",
+      "insertText": "module1:E1",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "module1:E3",
+      "kind": "Event",
+      "detail": "Error",
+      "sortText": "BL",
+      "insertText": "module1:E3",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "module1:E2",
+      "kind": "Event",
+      "detail": "Error",
+      "sortText": "BL",
+      "insertText": "module1:E2",
       "insertTextFormat": "Snippet"
     }
   ]

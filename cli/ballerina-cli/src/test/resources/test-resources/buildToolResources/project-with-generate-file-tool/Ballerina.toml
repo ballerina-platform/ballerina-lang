@@ -1,0 +1,10 @@
+[package]
+org = "foo"
+name = "winery"
+version = "0.1.0"
+
+[[tool.generate_file]]
+id = "generate_client.bal"
+filePath = "delivery.json"
+targetModule = "mod_generate"
+options.fileName = "client"

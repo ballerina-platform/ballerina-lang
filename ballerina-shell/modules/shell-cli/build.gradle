@@ -16,8 +16,10 @@
  * under the License.
  */
 
-apply from: "$rootDir/gradle/javaProject.gradle"
-apply from: "$rootDir/gradle/ballerinaLangLibLoad.gradle"
+plugins {
+    id 'javaProject'
+    id 'ballerinaLangLibLoad'
+}
 
 description = 'Ballerina - Ballerina Shell CLI'
 
@@ -26,21 +28,19 @@ group = 'io.ballerina'
 dependencies {
     implementation project(":ballerina-shell:shell-core")
     implementation project(':ballerina-parser')
-    implementation('org.jline:jline:3.11.0')
+    implementation libs.jline
     implementation project(':ballerina-lang')
     implementation project(':ballerina-tools-api')
 
-    testImplementation('org.testng:testng')
-    implementation 'com.google.code.gson:gson:2.10.1'
+    testImplementation libs.testng
+    implementation libs.gson
 }
 
 compileJava {
     doFirst {
         options.compilerArgs += [
-                "-Aproject=${project.group}/${project.name}",
-                '--module-path', classpath.asPath,
+                "-Aproject=${project.group}/${project.name}"
         ]
-        classpath = files()
     }
 }
 
@@ -51,13 +51,13 @@ test {
 }
 
 def mainCliClass = 'io.ballerina.shell.cli.ReplShellApplication'
-task run(type: JavaExec) {
-    main = mainCliClass
+tasks.register('run', JavaExec) {
+    mainClass = mainCliClass
     standardInput = System.in
     classpath = sourceSets.main.runtimeClasspath
 }
 
-task fatJar(type: Jar) {
+tasks.register('fatJar', Jar) {
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
     manifest { attributes 'Main-Class': mainCliClass }
     from { configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) } }

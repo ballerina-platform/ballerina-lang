@@ -22,7 +22,7 @@ package org.ballerinalang.model.types;
  *
  * @since 0.983.0
  */
-public interface ErrorType extends IntersectableReferenceType {
+public interface ErrorType {
 
     /**
      * Return error detail's type. Default type is a map.

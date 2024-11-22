@@ -20,7 +20,7 @@
               "character": 4
             }
           },
-          "newText": "object {public isolated function iterator() returns object {public isolated function next() returns record {|int value;|}?;};} objectResult = "
+          "newText": "isolated object {public isolated function iterator() returns isolated object {public isolated function next() returns record {|int value;|}?;};} objectResult = "
         }
       ],
       "command": {
@@ -30,7 +30,7 @@
           "createVariable5.bal",
           {
             "line": 85,
-            "character": 131
+            "character": 149
           }
         ]
       },

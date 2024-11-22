@@ -17,21 +17,13 @@
  */
 package org.ballerinalang.testerina.natives;
 
-import io.ballerina.runtime.api.PredefinedTypes;
-import io.ballerina.runtime.api.async.Callback;
-import io.ballerina.runtime.api.async.StrandMetadata;
 import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.utils.StringUtils;
-import io.ballerina.runtime.api.values.BError;
-import io.ballerina.runtime.api.values.BFuture;
-import io.ballerina.runtime.internal.scheduling.Scheduler;
+import io.ballerina.runtime.internal.scheduling.Strand;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Arrays;
-import java.util.HashMap;
-import java.util.concurrent.CountDownLatch;
-import java.util.function.Function;
 
 /**
  * {@code Executor} Is the entry point from server connector side to ballerina side. After doing the dispatching and
@@ -39,7 +31,7 @@ import java.util.function.Function;
  *
  * @since 0.995.0
  */
-public class Executor {
+public final class Executor {
 
     private Executor() {
     }
@@ -47,50 +39,32 @@ public class Executor {
     /**
      * This method will invoke Ballerina function in blocking manner.
      *
-     * @param scheduler   current scheduler
-     * @param strandName  name for newly creating strand which is used to execute the function pointer.
-     * @param metaData    meta data of new strand.
+     * @param strand   current strand
      * @param classLoader normal classLoader
      * @param className   which the function resides/ or file name
      * @param methodName  to be invokable unit
      * @param paramValues to be passed to invokable unit
      * @return return values
      */
-    public static Object executeFunction(Scheduler scheduler, String strandName, StrandMetadata metaData,
-                                         ClassLoader classLoader, String className, String methodName,
+    public static Object executeFunction(Strand strand, ClassLoader classLoader, String className, String methodName,
                                          Object... paramValues) {
         try {
             Class<?> clazz = classLoader.loadClass(className);
             int paramCount = paramValues.length + 1;
             Object[] jvmArgs = new Object[paramCount];
-            jvmArgs[0] = scheduler;
+            jvmArgs[0] = strand;
             for (int i = 0, j = 1; i < paramValues.length; i++) {
                 jvmArgs[j++] = paramValues[i];
             }
             Method method = getMethod(methodName, clazz);
-            Function<Object[], Object> func = args -> {
-                try {
-                    return method.invoke(null, args);
+            try {
+                    return method.invoke(null, jvmArgs);
                 } catch (IllegalAccessException | InvocationTargetException e) {
                     throw ErrorCreator.createError(StringUtils.fromString(
                             methodName + " function invocation failed: " + e.getMessage()));
                 }
-            };
-            CountDownLatch completeFunction = new CountDownLatch(1);
-            BFuture futureValue = scheduler.schedule(jvmArgs, func, null, new Callback() {
-                @Override
-                public void notifySuccess(Object result) {
-                    completeFunction.countDown();
-                }
 
-                @Override
-                public void notifyFailure(BError error) {
-                    completeFunction.countDown();
-                }
-            }, new HashMap<>(), PredefinedTypes.TYPE_NULL, strandName, metaData);
-            completeFunction.await();
-            return futureValue.getResult();
-        } catch (NoSuchMethodException | ClassNotFoundException | InterruptedException e) {
+        } catch (NoSuchMethodException | ClassNotFoundException e) {
             throw ErrorCreator.createError(StringUtils.fromString("invocation failed: " + e.getMessage()));
         }
     }

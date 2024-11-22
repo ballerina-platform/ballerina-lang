@@ -26,13 +26,11 @@ import java.math.RoundingMode;
  *
  * @since 1.0
  */
-//@BallerinaFunction(
-//        orgName = "ballerina", packageName = "lang.float", functionName = "round",
-//        args = {@Argument(name = "x", type = TypeKind.FLOAT)},
-//        returnType = {@ReturnType(type = TypeKind.FLOAT)},
-//        isPublic = true
-//)
 public class Round {
+
+
+    private Round() {
+    }
 
     public static double round(double x, long fractionDigits) {
         if (Double.isInfinite(x) || Double.isNaN(x) || x == 0.0d) {

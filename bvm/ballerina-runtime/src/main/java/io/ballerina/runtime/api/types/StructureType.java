@@ -30,5 +30,6 @@ public interface StructureType extends AnnotatableType {
 
     Map<String, Field> getFields();
 
+    @Override
     long getFlags();
 }

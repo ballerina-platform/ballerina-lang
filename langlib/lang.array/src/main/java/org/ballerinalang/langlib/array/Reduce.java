@@ -18,43 +18,31 @@
 
 package org.ballerinalang.langlib.array;
 
-import io.ballerina.runtime.api.async.StrandMetadata;
+import io.ballerina.runtime.api.Environment;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BFunctionPointer;
-import io.ballerina.runtime.internal.scheduling.AsyncUtils;
-import io.ballerina.runtime.internal.scheduling.Scheduler;
 import org.ballerinalang.langlib.array.utils.GetFunction;
 
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicReference;
-
-import static io.ballerina.runtime.api.constants.RuntimeConstants.ARRAY_LANG_LIB;
-import static io.ballerina.runtime.api.constants.RuntimeConstants.BALLERINA_BUILTIN_PKG_PREFIX;
 import static org.ballerinalang.langlib.array.utils.ArrayUtils.getElementAccessFunction;
-import static org.ballerinalang.util.BLangCompilerConstants.ARRAY_VERSION;
 
 /**
  * Native implementation of lang.array:reduce(Type[], function).
  *
  * @since 1.0
  */
-public class Reduce {
+public final class Reduce {
 
-    private static final StrandMetadata METADATA = new StrandMetadata(BALLERINA_BUILTIN_PKG_PREFIX, ARRAY_LANG_LIB,
-                                                                      ARRAY_VERSION, "reduce");
+    private Reduce() {
+    }
 
-    public static Object reduce(BArray arr, BFunctionPointer<Object, Boolean> func, Object initial) {
+    public static Object reduce(Environment env, BArray arr, BFunctionPointer func, Object initial) {
         Type arrType = arr.getType();
         int size = arr.size();
         GetFunction getFn = getElementAccessFunction(arrType, "reduce()");
-        AtomicReference<Object> accum = new AtomicReference<>(initial);
-        AtomicInteger index = new AtomicInteger(-1);
-        AsyncUtils.invokeFunctionPointerAsyncIteratively(func, null, METADATA, size,
-                () -> new Object[]{accum.get(), true, getFn.get(arr, index.incrementAndGet()), true }, accum::set,
-                accum::get, Scheduler.getStrand().scheduler);
-        return accum.get();
-
-        
+        for (int i = 0; i < size; i++) {
+            initial = func.call(env.getRuntime(), initial, getFn.get(arr, i));
+        }
+        return initial;
     }
 }

@@ -294,16 +294,12 @@ types:
         type: s4
   type_object_or_service:
     seq:
-      - id: is_object_type
-        type: s1
       - id: pkd_id_cp_index
         type: s4
       - id: name_cp_index
         type: s4
-      - id: is_abstract
-        type: u1
-      - id: is_client
-        type: u1
+      - id: object_symbol_flags
+        type: s8
       - id: object_fields_count
         type: s4
       - id: object_fields
@@ -471,17 +467,18 @@ types:
         type: record_field
         repeat: expr
         repeat-expr: record_fields_count
-      - id: has_init_function
-        type: s1
-      - id: record_init_function
-        type: record_init_function
-        if: has_init_function == 1
       - id: type_inclusions_count
         type: s4
       - id: type_inclusions_cp_index
         type: s4
         repeat: expr
         repeat-expr: type_inclusions_count
+      - id: default_values
+        type: s4
+      - id: default_value
+        type: default_value_body
+        repeat: expr
+        repeat-expr: default_values
   record_field:
     seq:
       - id: name_cp_index
@@ -1218,6 +1215,9 @@ types:
             'instruction_kind_enum::instruction_kind_new_re_flag_expr': instruction_new_re_flag_expr
             'instruction_kind_enum::instruction_kind_new_re_flag_on_off': instruction_new_re_flag_on_off
             'instruction_kind_enum::instruction_kind_new_re_quantifier': instruction_new_re_quantifier
+            'instruction_kind_enum::instruction_kind_record_default_fp_load': instruction_record_default_fp_load
+            'instruction_kind_enum::instruction_kind_wk_alt_receive': instruction_wk_alt_receive
+            'instruction_kind_enum::instruction_kind_wk_mul_receive': instruction_wk_mul_receive
     enums:
       instruction_kind_enum:
         1: instruction_kind_goto
@@ -1310,6 +1310,9 @@ types:
         99: instruction_kind_new_re_flag_expr
         100: instruction_kind_new_re_flag_on_off
         101: instruction_kind_new_re_quantifier
+        102: instruction_kind_record_default_fp_load
+        103: instruction_kind_wk_alt_receive
+        104: instruction_kind_wk_mul_receive
         128: instruction_kind_platform
   instruction_const_load:
     seq:
@@ -1494,11 +1497,43 @@ types:
         if: has_lhs_operand == 1
       - id: is_asynch
         type: u1
+      - id: annotation_attachments_content
+        type: annotation_attachments_content
       - id: then_bb_id_name_cp_index
         type: s4
   instruction_wk_receive:
     seq:
       - id: worker_name_cp_index
+        type: s4
+      - id: lhs_operand
+        type: operand
+      - id: is_same_strand
+        type: u1
+      - id: then_bb_id_name_cp_index
+        type: s4
+  instruction_wk_alt_receive:
+    seq:
+      - id: channel_name_count
+        type: s4
+      - id: channel_name_cp_index
+        type: s4
+        repeat: expr
+        repeat-expr: channel_name_count
+      - id: lhs_operand
+        type: operand
+      - id: is_same_strand
+        type: u1
+      - id: then_bb_id_name_cp_index
+        type: s4
+  instruction_wk_mul_receive:
+    seq:
+      - id: channel_field_count
+        type: s4
+      - id: channel_field_cp_index
+        type: receive_field
+        repeat: expr
+        repeat-expr: channel_field_count
+      - id: type_cp_index
         type: s4
       - id: lhs_operand
         type: operand
@@ -1899,6 +1934,14 @@ types:
         type: operand
       - id: non_greedy_char
         type: operand
+  instruction_record_default_fp_load:
+    seq:
+      - id: lhs_op
+        type: operand
+      - id: enclosed_type_index
+        type: s4
+      - id: field_name
+        type: s4
   operand:
     seq:
       - id: ignored_variable
@@ -1909,6 +1952,12 @@ types:
       - id: variable
         type: variable
         if: ignored_variable == 0
+  receive_field:
+    seq:
+      - id: field_name
+        type: s4
+      - id: channel_name
+        type: s4
   variable:
     seq:
       - id: kind

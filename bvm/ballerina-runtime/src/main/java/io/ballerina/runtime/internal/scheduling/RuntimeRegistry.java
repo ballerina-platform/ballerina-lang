@@ -16,21 +16,14 @@
  */
 package io.ballerina.runtime.internal.scheduling;
 
-import io.ballerina.runtime.api.async.Callback;
-import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BFunctionPointer;
 import io.ballerina.runtime.api.values.BObject;
-import io.ballerina.runtime.internal.types.BFunctionType;
-import io.ballerina.runtime.internal.values.FutureValue;
+import io.ballerina.runtime.internal.utils.RuntimeUtils;
+import io.ballerina.runtime.internal.values.ObjectValue;
 
-import java.io.PrintStream;
-import java.util.Iterator;
-import java.util.Set;
-import java.util.Stack;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.function.Function;
-
-import static io.ballerina.runtime.api.values.BError.ERROR_PRINT_PREFIX;
+import java.util.ArrayDeque;
+import java.util.Deque;
+import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * The registry for runtime dynamic listeners and stop handlers.
@@ -39,109 +32,50 @@ import static io.ballerina.runtime.api.values.BError.ERROR_PRINT_PREFIX;
  */
 public class RuntimeRegistry {
 
-    private final Scheduler scheduler;
-    private final Set<BObject> listenerSet = ConcurrentHashMap.newKeySet();
-    private final Stack<BFunctionPointer<?, ?>> stopHandlerStack = new Stack<>();
-
-    private static final PrintStream outStream = System.err;
+    public final Scheduler scheduler;
+    public final Deque<BObject> listenerQueue = new ArrayDeque<>();
+    private final Deque<BFunctionPointer> stopHandlerQueue = new ArrayDeque<>();
+    private final ReentrantLock listenerLock = new ReentrantLock();
+    private final ReentrantLock stopHandlerLock = new ReentrantLock();
 
     public RuntimeRegistry(Scheduler scheduler) {
         this.scheduler = scheduler;
     }
 
-    public synchronized void registerListener(BObject listener) {
-        listenerSet.add(listener);
-        scheduler.setImmortal(true);
-    }
-
-    public synchronized void deregisterListener(BObject listener) {
-        listenerSet.remove(listener);
-        if (!scheduler.isListenerDeclarationFound() && listenerSet.isEmpty()) {
-            scheduler.setImmortal(false);
+    public void registerListener(BObject listener) {
+        try {
+            listenerLock.lock();
+            listenerQueue.add(listener);
+        } finally {
+            listenerLock.unlock();
         }
     }
 
-    public synchronized void registerStopHandler(BFunctionPointer<?, ?> stopHandler) {
-        stopHandlerStack.push(stopHandler);
-    }
-
-    public synchronized void gracefulStop(Strand strand) {
-        Scheduler currentScheduler = strand.scheduler;
-        Iterator<BObject> iterator = listenerSet.iterator();
-        invokeListenerGracefulStop(strand, currentScheduler, iterator);
-    }
-
-    private synchronized void invokeListenerGracefulStop(Strand strand, Scheduler scheduler,
-                                                         Iterator<BObject> iterator) {
-        if (iterator.hasNext()) {
-            ListenerCallback callback = new ListenerCallback(strand, scheduler, iterator);
-            BObject listener = iterator.next();
-            Function<?, ?> func = o ->  listener.call((Strand) ((Object[]) o)[0], "gracefulStop");
-            scheduler.schedule(new Object[1], func, null, callback, null, null,
-                    null, strand.getMetadata());
-        } else {
-            invokeStopHandlerFunction(strand, scheduler);
+    public void deregisterListener(BObject listener) {
+        try {
+            listenerLock.lock();
+            listenerQueue.remove(listener);
+        } finally {
+            listenerLock.unlock();
         }
     }
 
-    private synchronized void invokeStopHandlerFunction(Strand strand, Scheduler scheduler) {
-        if (stopHandlerStack.isEmpty()) {
-            return;
-        }
-        BFunctionPointer<?, ?> bFunctionPointer = stopHandlerStack.pop();
-        StopHandlerCallback callback = new StopHandlerCallback(strand, scheduler);
-        final FutureValue future = scheduler.createFuture(strand, callback, null,
-                ((BFunctionType) bFunctionPointer.getType()).retType, null, strand.getMetadata());
-        scheduler.scheduleLocal(new Object[]{strand}, bFunctionPointer, strand, future);
-    }
-
-    /**
-     * The callback implementation for runtime dynamic listeners.
-     */
-    public class ListenerCallback implements Callback {
-
-        private final Iterator<BObject> iterator;
-        private final Strand strand;
-        private final Scheduler scheduler;
-
-        ListenerCallback(Strand strand, Scheduler scheduler, Iterator<BObject> iterator) {
-            this.strand = strand;
-            this.scheduler = scheduler;
-            this.iterator = iterator;
-        }
-
-        @Override
-        public void notifySuccess(Object result) {
-            invokeListenerGracefulStop(strand, scheduler, iterator);
-        }
-
-        @Override
-        public void notifyFailure(BError error) {
-            outStream.println(ERROR_PRINT_PREFIX + error.getPrintableStackTrace());
+    public void registerStopHandler(BFunctionPointer stopHandler) {
+        try {
+            stopHandlerLock.lock();
+            stopHandlerQueue.push(stopHandler);
+        } finally {
+            stopHandlerLock.unlock();
         }
     }
 
-    /**
-     * The callback implementation for stop handlers.
-     */
-    public class StopHandlerCallback implements Callback {
+    public void gracefulStop(Strand strand) {
+        while (!listenerQueue.isEmpty()) {
+            RuntimeUtils.handleErrorResult(((ObjectValue) listenerQueue.pollFirst()).call(strand, "gracefulStop"));
 
-        private final Strand strand;
-        private final Scheduler scheduler;
-
-        StopHandlerCallback(Strand strand, Scheduler scheduler) {
-            this.strand = strand;
-            this.scheduler = scheduler;
         }
-
-        @Override
-        public void notifySuccess(Object result) {
-            invokeStopHandlerFunction(strand, scheduler);
-        }
-
-        @Override
-        public void notifyFailure(BError error) {
-            outStream.println(ERROR_PRINT_PREFIX + error.getPrintableStackTrace());
+        while (!stopHandlerQueue.isEmpty()) {
+            RuntimeUtils.handleErrorResult(stopHandlerQueue.pollFirst().call(scheduler.runtime));
         }
     }
 }

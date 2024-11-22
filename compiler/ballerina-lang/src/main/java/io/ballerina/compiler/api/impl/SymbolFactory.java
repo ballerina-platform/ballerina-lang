@@ -41,6 +41,7 @@ import io.ballerina.compiler.api.impl.symbols.BallerinaVariableSymbol;
 import io.ballerina.compiler.api.impl.symbols.BallerinaWorkerSymbol;
 import io.ballerina.compiler.api.impl.symbols.BallerinaXMLNSSymbol;
 import io.ballerina.compiler.api.impl.symbols.TypesFactory;
+import io.ballerina.compiler.api.impl.symbols.resourcepath.util.BallerinaNamedPathSegment;
 import io.ballerina.compiler.api.impl.values.BallerinaConstantValue;
 import io.ballerina.compiler.api.symbols.AnnotationSymbol;
 import io.ballerina.compiler.api.symbols.ConstantSymbol;
@@ -74,6 +75,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BRecordTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BResourceFunction;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BResourcePathSegmentSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BServiceSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeDefinitionSymbol;
@@ -149,7 +151,7 @@ public class SymbolFactory {
             throw new IllegalArgumentException("Symbol is 'null'");
         }
 
-        if (symbol instanceof BVarSymbol) {
+        if (symbol instanceof BVarSymbol varSymbol) {
             if (symbol.kind == SymbolKind.FUNCTION && !isFunctionPointer(symbol)) {
                 if (Symbols.isFlagOn(symbol.flags, Flags.ATTACHED)) {
                     if (Symbols.isFlagOn(symbol.flags, Flags.RESOURCE)) {
@@ -159,61 +161,61 @@ public class SymbolFactory {
                 }
                 return createFunctionSymbol((BInvokableSymbol) symbol, name);
             }
-            if (symbol instanceof BConstantSymbol) {
-                return createConstantSymbol((BConstantSymbol) symbol, name);
+            if (symbol instanceof BConstantSymbol constantSymbol) {
+                return createConstantSymbol(constantSymbol, name);
             }
             if (symbol.kind == SymbolKind.WORKER) {
                 return createWorkerSymbol((BWorkerSymbol) symbol, name);
             }
             if (symbol.owner instanceof BRecordTypeSymbol) {
-                return createRecordFieldSymbol((BVarSymbol) symbol);
+                return createRecordFieldSymbol(varSymbol);
             }
             if (symbol.owner instanceof BClassSymbol) {
-                return createClassFieldSymbol((BVarSymbol) symbol);
+                return createClassFieldSymbol(varSymbol);
             }
             if (symbol.owner instanceof BObjectTypeSymbol) {
-                return createObjectFieldSymbol((BVarSymbol) symbol);
+                return createObjectFieldSymbol(varSymbol);
             }
             if (Symbols.isFlagOn(symbol.flags, Flags.REQUIRED_PARAM)) {
-                return createBallerinaParameter((BVarSymbol) symbol, ParameterKind.REQUIRED);
+                return createBallerinaParameter(varSymbol, ParameterKind.REQUIRED);
             }
             if (Symbols.isFlagOn(symbol.flags, Flags.DEFAULTABLE_PARAM)) {
-                return createBallerinaParameter((BVarSymbol) symbol, ParameterKind.DEFAULTABLE);
+                return createBallerinaParameter(varSymbol, ParameterKind.DEFAULTABLE);
             }
             if (Symbols.isFlagOn(symbol.flags, Flags.INCLUDED)) {
-                return createBallerinaParameter((BVarSymbol) symbol, ParameterKind.INCLUDED_RECORD);
+                return createBallerinaParameter(varSymbol, ParameterKind.INCLUDED_RECORD);
             }
             if (Symbols.isFlagOn(symbol.flags, Flags.REST_PARAM)) {
-                return createBallerinaParameter((BVarSymbol) symbol, ParameterKind.REST);
+                return createBallerinaParameter(varSymbol, ParameterKind.REST);
             }
             if (symbol.kind == SymbolKind.PATH_PARAMETER) {
-                return createPathParamSymbol((BVarSymbol) symbol, PathSegment.Kind.PATH_PARAMETER);
+                return createPathParamSymbol(name, symbol, PathSegment.Kind.PATH_PARAMETER);
             }
             if (symbol.kind == SymbolKind.PATH_REST_PARAMETER) {
-                return createPathParamSymbol((BVarSymbol) symbol, PathSegment.Kind.PATH_REST_PARAMETER);
+                return createPathParamSymbol(name, symbol, PathSegment.Kind.PATH_REST_PARAMETER);
             }
 
             // If the symbol is a wildcard('_'), a variable symbol will not be created.
-            if (((BVarSymbol) symbol).isWildcard) {
+            if (varSymbol.isWildcard) {
                 return null;
             }
 
             // return the variable symbol
-            return createVariableSymbol((BVarSymbol) symbol, name);
+            return createVariableSymbol(varSymbol, name);
         }
 
         if (symbol instanceof BTypeSymbol) {
             if (symbol.kind == SymbolKind.ANNOTATION) {
                 return createAnnotationSymbol((BAnnotationSymbol) symbol);
             }
-            if (symbol instanceof BPackageSymbol) {
-                return createModuleSymbol((BPackageSymbol) symbol, name);
+            if (symbol instanceof BPackageSymbol packageSymbol) {
+                return createModuleSymbol(packageSymbol, name);
             }
-            if (symbol instanceof BClassSymbol) {
-                return createClassSymbol((BClassSymbol) symbol, name);
+            if (symbol instanceof BClassSymbol classSymbol) {
+                return createClassSymbol(classSymbol, name);
             }
-            if (symbol instanceof BEnumSymbol) {
-                return createEnumSymbol((BEnumSymbol) symbol, name);
+            if (symbol instanceof BEnumSymbol enumSymbol) {
+                return createEnumSymbol(enumSymbol, name);
             }
 
             // For a type reference type symbol (SymTag.TYPE_REF)
@@ -231,6 +233,18 @@ public class SymbolFactory {
 
         if (symbol.kind == SymbolKind.XMLNS) {
             return createXMLNamespaceSymbol((BXMLNSSymbol) symbol);
+        }
+
+        if (symbol.kind == SymbolKind.RESOURCE_PATH_IDENTIFIER_SEGMENT) {
+            return createPathNameSymbol((BResourcePathSegmentSymbol) symbol);
+        }
+
+        if (symbol.kind == SymbolKind.RESOURCE_PATH_PARAM_SEGMENT) {
+            return createPathParamSymbol(name, symbol, PathSegment.Kind.PATH_PARAMETER);
+        }
+
+        if (symbol.kind == SymbolKind.RESOURCE_PATH_REST_PARAM_SEGMENT) {
+            return createPathParamSymbol(name, symbol, PathSegment.Kind.PATH_REST_PARAMETER);
         }
 
         throw new IllegalArgumentException("Unsupported symbol type: " + symbol.getClass().getName());
@@ -375,9 +389,21 @@ public class SymbolFactory {
         return new BallerinaMemberTypeSymbol(context, symbol, type);
     }
 
+    /**
+     * Create a named path segment symbol.
+     *
+     * @param symbol {@link BResourcePathSegmentSymbol} to convert
+     * @return {@link BallerinaNamedPathSegment} generated
+     */
+    public BallerinaNamedPathSegment createPathNameSymbol(BResourcePathSegmentSymbol symbol) {
+        return new BallerinaNamedPathSegment(symbol, context);
+    }
+
     private boolean isReadonlyIntersectionArrayType(BType type) {
-        if (type.tag == TypeTags.INTERSECTION 
-                && type.tsymbol != null && type.tsymbol.getOrigin() == SymbolOrigin.VIRTUAL) {
+        type = Types.getReferredType(type);
+        if (type.tag == TypeTags.INTERSECTION
+                && type.tsymbol != null && type.tsymbol.getOrigin() == SymbolOrigin.VIRTUAL &&
+                (type.flags & Flags.READONLY) ==  Flags.READONLY) {
             return true;
         }
         if (type.tag == TypeTags.ARRAY) {
@@ -447,15 +473,16 @@ public class SymbolFactory {
                                             kind, symbol, this.context);
     }
 
-    public PathParameterSymbol createPathParamSymbol(BVarSymbol symbol, PathSegment.Kind kind) {
-        if (symbol == null) {
-            return null;
-        }
-        return new BallerinaPathParameterSymbol(kind, symbol, this.context, false);
-    }
-
-    public PathParameterSymbol createPathParamSymbol(BTypeSymbol tsymbol, PathSegment.Kind kind) {
-        return new BallerinaPathParameterSymbol(kind, tsymbol, this.context, true);
+    /**
+     * Create a ballerina path parameter symbol.
+     *
+     * @param name  name of the parameter
+     * @param symbol {@link BSymbol} symbol of the parameter
+     * @param pathKind {@link PathSegment.Kind} path-kind of the path parameter
+     * @return  {@link PathParameterSymbol} generated path parameter
+     */
+    public PathParameterSymbol createPathParamSymbol(String name, BSymbol symbol, PathSegment.Kind pathKind) {
+        return new BallerinaPathParameterSymbol(name, pathKind, symbol, this.context);
     }
 
     /**
@@ -608,17 +635,16 @@ public class SymbolFactory {
             return null;
         }
 
-        if (constantValue.value instanceof BLangConstantValue) {
-            return createConstantValue((BLangConstantValue) constantValue.value);
+        if (constantValue.value instanceof BLangConstantValue bLangConstantValue) {
+            return createConstantValue(bLangConstantValue);
         }
 
-        if (constantValue.value instanceof HashMap) {
-            Map constValueMap = (Map) constantValue.value;
+        if (constantValue.value instanceof HashMap<?, ?> constValueMap) {
             Map<String, BallerinaConstantValue> constSymbolMap = new LinkedHashMap<>();
             constValueMap.forEach((key, value) -> {
                 BallerinaConstantValue newConstValue;
-                if (value instanceof BLangConstantValue) {
-                    newConstValue = createConstantValue((BLangConstantValue) value);
+                if (value instanceof BLangConstantValue bLangConstantValue) {
+                    newConstValue = createConstantValue(bLangConstantValue);
                     constSymbolMap.put((String) key, newConstValue);
                 }
             });
@@ -739,8 +765,8 @@ public class SymbolFactory {
 
         for (BAttachedFunction mthd : methods) {
             if (method == mthd.symbol) {
-                if (mthd instanceof BResourceFunction) {
-                    return ((BResourceFunction) mthd).accessor.value;
+                if (mthd instanceof BResourceFunction bResourceFunction) {
+                    return bResourceFunction.accessor.value;
                 }
                 return mthd.symbol.getOriginalName().getValue();
             }
@@ -776,8 +802,13 @@ public class SymbolFactory {
                     symTable.pkgEnvMap.get(symTable.langAnnotationModuleSymbol), annotTagRef);
         }
 
+        boolean testable = annotPkgId.isTestPkg;
         for (Entry<BPackageSymbol, SymbolEnv> entry : symTable.pkgEnvMap.entrySet()) {
-            if (entry.getKey().pkgID.equals(annotPkgId)) {
+            BPackageSymbol pkgSymbol = entry.getKey();
+            if (pkgSymbol.pkgID.equals(annotPkgId)) {
+                if (testable && !pkgSymbol.pkgID.isTestPkg) {
+                    continue;
+                }
                 return (BAnnotationSymbol) symResolver.lookupSymbolInAnnotationSpace(entry.getValue(), annotTagRef);
             }
         }

@@ -8,4 +8,6 @@ Running Tests
 	groups-test.bal
 
 
-		No tests found
+		No tests found
+
+		Test execution time :*****s

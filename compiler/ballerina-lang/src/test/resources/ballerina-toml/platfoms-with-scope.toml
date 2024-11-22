@@ -7,18 +7,25 @@ authors= ["jo", "pramodya"]
 keywords= ["toml", "ballerina"]
 repository= "https://github.com/ballerina-platform/ballerina-lang"
 
-[[platform.java17.dependency]]
+[[platform.java21.dependency]]
 path = "../dummy-jars/toml4j.txt"
 artifactId = "toml4j"
 version = "0.7.2"
 groupId = "com.moandjiezana.toml"
 
-[[platform.java17.dependency]]
+[[platform.java21.dependency]]
 path = "../dummy-jars/swagger.txt"
 artifactId = "swagger"
 version = "0.7.2"
 groupId = "swagger.io"
 scope = "testOnly"
+
+[[platform.java21.dependency]]
+path = "../dummy-jars/ibm.mq.txt"
+artifactId = "com.ibm.mq.allclient"
+version = "9.3.4.0"
+groupId = "com.ibm.mq"
+scope = "provided"
 
 [build-options]
 observabilityIncluded = false

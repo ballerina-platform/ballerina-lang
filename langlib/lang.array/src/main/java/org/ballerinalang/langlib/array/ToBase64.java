@@ -18,10 +18,10 @@
 
 package org.ballerinalang.langlib.array;
 
-import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.types.ArrayType;
 import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.types.TypeTags;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BArray;
@@ -38,13 +38,16 @@ import static io.ballerina.runtime.internal.errors.ErrorReasons.getModulePrefixe
  *
  * @since 1.0
  */
-public class ToBase64 {
+public final class ToBase64 {
 
     private static final BString NOT_SUPPORT_DETAIL_ERROR = StringUtils
             .fromString("toBase64() is only supported on 'byte[]'");
 
+    private ToBase64() {
+    }
+
     public static BString toBase64(BArray arr) {
-        Type arrType = TypeUtils.getReferredType(arr.getType());
+        Type arrType = TypeUtils.getImpliedType(arr.getType());
         if (arrType.getTag() != TypeTags.ARRAY_TAG ||
                 ((ArrayType) arrType).getElementType().getTag() != TypeTags.BYTE_TAG) {
             throw ErrorCreator.createError(getModulePrefixedReason(ARRAY_LANG_LIB,

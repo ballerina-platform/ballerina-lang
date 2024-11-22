@@ -17,7 +17,7 @@
  */
 package org.ballerinalang.test.expressions.stamp;
 
-import io.ballerina.runtime.api.TypeTags;
+import io.ballerina.runtime.api.types.TypeTags;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BMap;
@@ -67,26 +67,27 @@ public class TupleTypeStampInbuiltFunctionTest {
         Assert.assertEquals(getType(tupleValue2).getClass(), BRecordType.class);
         Assert.assertEquals(getType(tupleValue2).getName(), "Teacher");
 
-        Assert.assertEquals(((BMap) tupleValue2).size(), 5);
+        Assert.assertEquals(((BMap<?, ?>) tupleValue2).size(), 5);
 
-        Assert.assertEquals(((BMap) tupleValue2).get(StringUtils.fromString("name")).toString(), "Raja");
-        Assert.assertEquals(getType(((BMap) tupleValue2).get(StringUtils.fromString("name"))).getClass(),
+        Assert.assertEquals(((BMap<?, ?>) tupleValue2).get(StringUtils.fromString("name")).toString(), "Raja");
+        Assert.assertEquals(getType(((BMap<?, ?>) tupleValue2).get(StringUtils.fromString("name"))).getClass(),
                 BStringType.class);
 
-        Assert.assertEquals(((BMap) tupleValue2).get(StringUtils.fromString("age")).toString(), "25");
-        Assert.assertEquals(getType(((BMap) tupleValue2).get(StringUtils.fromString("age"))).getTag(),
+        Assert.assertEquals(((BMap<?, ?>) tupleValue2).get(StringUtils.fromString("age")).toString(), "25");
+        Assert.assertEquals(getType(((BMap<?, ?>) tupleValue2).get(StringUtils.fromString("age"))).getTag(),
                 TypeTags.INT_TAG);
 
-        Assert.assertEquals(((BMap) tupleValue2).get(StringUtils.fromString("status")).toString(), "single");
-        Assert.assertEquals(getType(((BMap) tupleValue2).get(StringUtils.fromString("status"))).getClass(),
+        Assert.assertEquals(((BMap<?, ?>) tupleValue2).get(StringUtils.fromString("status")).toString(), "single");
+        Assert.assertEquals(getType(((BMap<?, ?>) tupleValue2).get(StringUtils.fromString("status"))).getClass(),
                 BStringType.class);
 
-        Assert.assertEquals(((BMap) tupleValue2).get(StringUtils.fromString("batch")).toString(), "LK2014");
-        Assert.assertEquals(getType(((BMap) tupleValue2).get(StringUtils.fromString("batch"))).getClass(),
+        Assert.assertEquals(((BMap<?, ?>) tupleValue2).get(StringUtils.fromString("batch")).toString(), "LK2014");
+        Assert.assertEquals(getType(((BMap<?, ?>) tupleValue2).get(StringUtils.fromString("batch"))).getClass(),
                 BStringType.class);
 
-        Assert.assertEquals(((BMap) tupleValue2).get(StringUtils.fromString("school")).toString(), "Hindu College");
-        Assert.assertEquals(getType(((BMap) tupleValue2).get(StringUtils.fromString("school"))).getClass(),
+        Assert.assertEquals(((BMap<?, ?>) tupleValue2).get(StringUtils.fromString("school")).toString(),
+                "Hindu College");
+        Assert.assertEquals(getType(((BMap<?, ?>) tupleValue2).get(StringUtils.fromString("school"))).getClass(),
                 BStringType.class);
     }
 
@@ -106,26 +107,27 @@ public class TupleTypeStampInbuiltFunctionTest {
         Assert.assertEquals(getType(tupleValue2).getClass(), BRecordType.class);
         Assert.assertEquals(getType(tupleValue2).getName(), "Employee");
 
-        Assert.assertEquals(((BMap) tupleValue2).size(), 5);
+        Assert.assertEquals(((BMap<?, ?>) tupleValue2).size(), 5);
 
-        Assert.assertEquals(((BMap) tupleValue2).get(StringUtils.fromString("name")).toString(), "Raja");
-        Assert.assertEquals(getType(((BMap) tupleValue2).get(StringUtils.fromString("name"))).getClass(),
+        Assert.assertEquals(((BMap<?, ?>) tupleValue2).get(StringUtils.fromString("name")).toString(), "Raja");
+        Assert.assertEquals(getType(((BMap<?, ?>) tupleValue2).get(StringUtils.fromString("name"))).getClass(),
                 BStringType.class);
 
-        Assert.assertEquals(((BMap) tupleValue2).get(StringUtils.fromString("age")).toString(), "25");
-        Assert.assertEquals(getType(((BMap) tupleValue2).get(StringUtils.fromString("age"))).getTag(),
+        Assert.assertEquals(((BMap<?, ?>) tupleValue2).get(StringUtils.fromString("age")).toString(), "25");
+        Assert.assertEquals(getType(((BMap<?, ?>) tupleValue2).get(StringUtils.fromString("age"))).getTag(),
                 TypeTags.INT_TAG);
 
-        Assert.assertEquals(((BMap) tupleValue2).get(StringUtils.fromString("status")).toString(), "single");
-        Assert.assertEquals(getType(((BMap) tupleValue2).get(StringUtils.fromString("status"))).getClass(),
+        Assert.assertEquals(((BMap<?, ?>) tupleValue2).get(StringUtils.fromString("status")).toString(), "single");
+        Assert.assertEquals(getType(((BMap<?, ?>) tupleValue2).get(StringUtils.fromString("status"))).getClass(),
                 BStringType.class);
 
-        Assert.assertEquals(((BMap) tupleValue2).get(StringUtils.fromString("batch")).toString(), "LK2014");
-        Assert.assertEquals(getType(((BMap) tupleValue2).get(StringUtils.fromString("batch"))).getClass(),
+        Assert.assertEquals(((BMap<?, ?>) tupleValue2).get(StringUtils.fromString("batch")).toString(), "LK2014");
+        Assert.assertEquals(getType(((BMap<?, ?>) tupleValue2).get(StringUtils.fromString("batch"))).getClass(),
                 BStringType.class);
 
-        Assert.assertEquals(((BMap) tupleValue2).get(StringUtils.fromString("school")).toString(), "Hindu College");
-        Assert.assertEquals(getType(((BMap) tupleValue2).get(StringUtils.fromString("school"))).getClass(),
+        Assert.assertEquals(((BMap<?, ?>) tupleValue2).get(StringUtils.fromString("school")).toString(),
+                "Hindu College");
+        Assert.assertEquals(getType(((BMap<?, ?>) tupleValue2).get(StringUtils.fromString("school"))).getClass(),
                 BStringType.class);
     }
 
@@ -162,22 +164,23 @@ public class TupleTypeStampInbuiltFunctionTest {
         Assert.assertEquals(getType(arrayValue2).getClass(), BRecordType.class);
         Assert.assertEquals(getType(arrayValue2).getName(), "Employee");
 
-        Assert.assertEquals(((BMap) arrayValue2).size(), 4);
+        Assert.assertEquals(((BMap<?, ?>) arrayValue2).size(), 4);
 
-        Assert.assertEquals(((BMap) arrayValue2).get(StringUtils.fromString("name")).toString(), "Raja");
-        Assert.assertEquals(getType(((BMap) arrayValue2).get(StringUtils.fromString("name"))).getClass(),
+        Assert.assertEquals(((BMap<?, ?>) arrayValue2).get(StringUtils.fromString("name")).toString(), "Raja");
+        Assert.assertEquals(getType(((BMap<?, ?>) arrayValue2).get(StringUtils.fromString("name"))).getClass(),
                 BStringType.class);
 
-        Assert.assertEquals(((BMap) arrayValue2).get(StringUtils.fromString("status")).toString(), "single");
-        Assert.assertEquals(getType(((BMap) arrayValue2).get(StringUtils.fromString("status"))).getClass(),
+        Assert.assertEquals(((BMap<?, ?>) arrayValue2).get(StringUtils.fromString("status")).toString(), "single");
+        Assert.assertEquals(getType(((BMap<?, ?>) arrayValue2).get(StringUtils.fromString("status"))).getClass(),
                 BStringType.class);
 
-        Assert.assertEquals(((BMap) arrayValue2).get(StringUtils.fromString("batch")).toString(), "LK2014");
-        Assert.assertEquals(getType(((BMap) arrayValue2).get(StringUtils.fromString("batch"))).getClass(),
+        Assert.assertEquals(((BMap<?, ?>) arrayValue2).get(StringUtils.fromString("batch")).toString(), "LK2014");
+        Assert.assertEquals(getType(((BMap<?, ?>) arrayValue2).get(StringUtils.fromString("batch"))).getClass(),
                 BStringType.class);
 
-        Assert.assertEquals(((BMap) arrayValue2).get(StringUtils.fromString("school")).toString(), "Hindu College");
-        Assert.assertEquals(getType(((BMap) arrayValue2).get(StringUtils.fromString("school"))).getClass(),
+        Assert.assertEquals(((BMap<?, ?>) arrayValue2).get(StringUtils.fromString("school")).toString(),
+                "Hindu College");
+        Assert.assertEquals(getType(((BMap<?, ?>) arrayValue2).get(StringUtils.fromString("school"))).getClass(),
                 BStringType.class);
     }
 

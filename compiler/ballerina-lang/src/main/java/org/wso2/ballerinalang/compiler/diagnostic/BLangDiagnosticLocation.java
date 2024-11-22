@@ -33,38 +33,40 @@ import java.util.Objects;
  */
 public class BLangDiagnosticLocation implements Location {
 
-    private LineRange lineRange;
-    private TextRange textRange;
+    private final String filePath;
+    private final int startLine, endLine, startColumn, endColumn, startOffset, length;
 
     @Deprecated
     public BLangDiagnosticLocation(String filePath, int startLine, int endLine, int startColumn, int endColumn) {
-        this.lineRange = LineRange.from(filePath, LinePosition.from(startLine, startColumn),
-                LinePosition.from(endLine, endColumn));
-        this.textRange = TextRange.from(0, 0);
+        this(filePath, startLine, endLine, startColumn, endColumn, 0, 0);
     }
 
     public BLangDiagnosticLocation(String filePath, int startLine, int endLine, int startColumn, int endColumn,
                                    int startOffset, int length) {
-        this.lineRange = LineRange.from(filePath, LinePosition.from(startLine, startColumn),
-                LinePosition.from(endLine, endColumn));
-        this.textRange = TextRange.from(startOffset, length);
+        this.filePath = filePath;
+        this.startLine = startLine;
+        this.endLine = endLine;
+        this.startColumn = startColumn;
+        this.endColumn = endColumn;
+        this.startOffset = startOffset;
+        this.length = length;
     }
 
     @Override
     public LineRange lineRange() {
-        return lineRange;
+        return LineRange.from(filePath, LinePosition.from(startLine, startColumn),
+                LinePosition.from(endLine, endColumn));
     }
 
     @Override
     public TextRange textRange() {
-        return textRange;
+        return TextRange.from(startOffset, length);
     }
 
     @Override
     public boolean equals(Object obj) {
-        if (obj instanceof BLangDiagnosticLocation) {
-            BLangDiagnosticLocation location = (BLangDiagnosticLocation) obj;
-            return lineRange.equals(location.lineRange) && textRange.equals(location.textRange);
+        if (obj instanceof BLangDiagnosticLocation location) {
+            return lineRange().equals(location.lineRange()) && textRange().equals(location.textRange());
         }
 
         return false;
@@ -72,11 +74,13 @@ public class BLangDiagnosticLocation implements Location {
 
     @Override
     public int hashCode() {
-        return Objects.hash(lineRange, textRange);
+        return Objects.hash(lineRange(), textRange());
     }
 
     @Override
     public String toString() {
-        return lineRange.toString() + textRange.toString();
+        // Desugar of lineRange().toString() + textRange().toString();
+        int endOffset = startOffset + length;
+        return "(" + startLine + "," + endLine + ")" + "(" + startOffset + "," + endOffset + ")";
     }
 }

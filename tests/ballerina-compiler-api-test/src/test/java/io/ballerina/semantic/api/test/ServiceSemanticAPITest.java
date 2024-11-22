@@ -30,7 +30,6 @@ import io.ballerina.compiler.api.symbols.ResourceMethodSymbol;
 import io.ballerina.compiler.api.symbols.ServiceAttachPoint;
 import io.ballerina.compiler.api.symbols.ServiceDeclarationSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
-import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeReferenceTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.api.symbols.VariableSymbol;
@@ -50,7 +49,6 @@ import org.testng.internal.collections.Pair;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static io.ballerina.compiler.api.symbols.Qualifier.FINAL;
@@ -62,7 +60,7 @@ import static io.ballerina.compiler.api.symbols.ServiceAttachPointKind.ABSOLUTE_
 import static io.ballerina.compiler.api.symbols.ServiceAttachPointKind.STRING_LITERAL;
 import static io.ballerina.compiler.api.symbols.SymbolKind.RESOURCE_METHOD;
 import static io.ballerina.compiler.api.symbols.SymbolKind.SERVICE_DECLARATION;
-import static io.ballerina.compiler.api.symbols.TypeDescKind.ARRAY;
+import static io.ballerina.compiler.api.symbols.TypeDescKind.INT;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.OBJECT;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.STRING;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.TYPE_REFERENCE;
@@ -181,7 +179,7 @@ public class ServiceSemanticAPITest {
         List<ServiceDeclarationSymbol> services = model.moduleSymbols().stream()
                 .filter(s -> s.kind() == SERVICE_DECLARATION)
                 .map(s -> (ServiceDeclarationSymbol) s)
-                .collect(Collectors.toList());
+                .toList();
 
         assertEquals(services.size(), expVals.length);
 
@@ -236,8 +234,7 @@ public class ServiceSemanticAPITest {
         assertEquals(pathParams.get(0).getName().get(), "s");
 
         assertEquals(resourcePath.pathRestParameter().get().getName().get(), "r");
-        assertEquals(resourcePath.pathRestParameter().get().typeDescriptor().typeKind(),
-                     TypeDescKind.ARRAY);
+        assertEquals(resourcePath.pathRestParameter().get().typeDescriptor().typeKind(), STRING);
 
         List<PathSegment> segments = resourcePath.list();
         assertEquals(segments.size(), 3);
@@ -257,7 +254,7 @@ public class ServiceSemanticAPITest {
 
         PathRestParam resourcePath = (PathRestParam) method.resourcePath();
         assertEquals(resourcePath.parameter().getName().get(), "rest");
-        assertEquals(resourcePath.parameter().typeDescriptor().typeKind(), ARRAY);
+        assertEquals(resourcePath.parameter().typeDescriptor().typeKind(), INT);
     }
 
     @Test
@@ -265,7 +262,7 @@ public class ServiceSemanticAPITest {
         SemanticModel model = getDefaultModulesSemanticModel("test-src/service_with_multiple_listeners.bal");
         List<Symbol> services = model.moduleSymbols().stream()
                 .filter(s -> s.kind() == SERVICE_DECLARATION)
-                .collect(Collectors.toList());
+                .toList();
         ServiceDeclarationSymbol service = (ServiceDeclarationSymbol) services.get(0);
         List<TypeSymbol> listenerTypes = service.listenerTypes();
         assertEquals(listenerTypes.size(), 3);
@@ -327,10 +324,10 @@ public class ServiceSemanticAPITest {
         return symbols.stream()
                 .filter(s -> s.getModule().isPresent() &&
                         !"ballerina".equals(s.getModule().get().getModule().get().id().orgName()))
-                .collect(Collectors.toList());
+                .toList();
     }
 
     private List<String> concatSymbols(List<String> moduleSymbols, String... symbols) {
-        return Stream.concat(moduleSymbols.stream(), Arrays.stream(symbols)).collect(Collectors.toList());
+        return Stream.concat(moduleSymbols.stream(), Arrays.stream(symbols)).toList();
     }
 }

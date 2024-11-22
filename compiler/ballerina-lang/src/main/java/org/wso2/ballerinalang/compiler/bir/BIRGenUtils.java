@@ -28,7 +28,7 @@ import java.util.Comparator;
  *
  * @since 2201.6.0
  */
-public class BIRGenUtils {
+public final class BIRGenUtils {
 
     private BIRGenUtils () {
 
@@ -49,10 +49,15 @@ public class BIRGenUtils {
         int currentBBId = 0;
         // Re-arrange basic blocks
         for (BIRNode.BIRBasicBlock bb : birFunction.basicBlocks) {
-            bb.number = currentBBId;
-            bb.id = new Name(BIRBasicBlock.BIR_BASIC_BLOCK_PREFIX + currentBBId++);
+            currentBBId = renumberBasicBlock(currentBBId, bb);
         }
         // Re-arrange error entries
         birFunction.errorTable.sort(Comparator.comparingInt(o -> o.trapBB.number));
+    }
+
+    public static int renumberBasicBlock(int newBBNum, BIRBasicBlock bb) {
+        bb.number = newBBNum;
+        bb.id = new Name(BIRBasicBlock.BIR_BASIC_BLOCK_PREFIX + newBBNum);
+        return newBBNum + 1;
     }
 }

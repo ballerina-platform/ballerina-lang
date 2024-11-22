@@ -1,0 +1,13 @@
+[package]
+org = "sameera"
+name = "myproject"
+version = "0.1.0"
+
+[platform.java21]
+graalvmCompatible = true
+
+[[platform.java11.dependency]]
+path = "./libs/one-1.0.0.jar"
+
+[[platform.java17.dependency]]
+path = "./libs/two-2.0.0.jar"

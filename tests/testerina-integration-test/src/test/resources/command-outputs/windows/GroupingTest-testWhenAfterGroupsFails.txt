@@ -10,7 +10,15 @@ Running Tests
 	[fail] afterGroupsFunc1[after test group function for the test]:
 	    error("{ballerina}DivisionByZero",message=" / by zero")
 			callableName: afterGroupsFunc1  fileName: failed-after-groups-test.bal lineNumber: 37
-			callableName: afterGroupsFunc1$lambda3$  fileName: failed-after-groups-test.bal lineNumber: 79
+			callableName: afterGroupsFunc1$lambda3$  fileName: failed-after-groups-test.bal lineNumber: 80
+			callableName: call moduleName: ballerina.lang.function.0 fileName: function.bal lineNumber: 37
+			callableName: executeFunction moduleName: ballerina.test.0 fileName: serialExecuter.bal lineNumber: 142
+			callableName: executeFunctions moduleName: ballerina.test.0 fileName: serialExecuter.bal lineNumber: 96
+			callableName: executeAfterGroupFunctions moduleName: ballerina.test.0 fileName: serialExecuter.bal lineNumber: 86
+			callableName: executeTest moduleName: ballerina.test.0 fileName: serialExecuter.bal lineNumber: 38
+			callableName: executeTests moduleName: ballerina.test.0 fileName: execute.bal lineNumber: 81
+			callableName: startSuite moduleName: ballerina.test.0 fileName: execute.bal lineNumber: 53
+			callableName: __execute__  fileName: failed-after-groups-test.bal lineNumber: 91
 		
 		[pass] testFunction
 		[pass] testFunction2
@@ -22,4 +30,6 @@ Running Tests
 		5 passing
 		0 failing
 		0 skipped
-error: there are test failures
+
+		Test execution time :*****s
+error: there are test failures

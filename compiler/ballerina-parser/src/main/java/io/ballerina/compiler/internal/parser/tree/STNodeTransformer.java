@@ -621,6 +621,10 @@ public abstract class STNodeTransformer<T> {
         return transformSyntaxNode(receiveFieldsNode);
     }
 
+    public T transform(STAlternateReceiveNode alternateReceiveNode) {
+        return transformSyntaxNode(alternateReceiveNode);
+    }
+
     public T transform(STRestDescriptorNode restDescriptorNode) {
         return transformSyntaxNode(restDescriptorNode);
     }
@@ -707,6 +711,14 @@ public abstract class STNodeTransformer<T> {
 
     public T transform(STXMLNamePatternChainingNode xMLNamePatternChainingNode) {
         return transformSyntaxNode(xMLNamePatternChainingNode);
+    }
+
+    public T transform(STXMLStepIndexedExtendNode xMLStepIndexedExtendNode) {
+        return transformSyntaxNode(xMLStepIndexedExtendNode);
+    }
+
+    public T transform(STXMLStepMethodCallExtendNode xMLStepMethodCallExtendNode) {
+        return transformSyntaxNode(xMLStepMethodCallExtendNode);
     }
 
     public T transform(STXMLAtomicNamePatternNode xMLAtomicNamePatternNode) {
@@ -935,6 +947,10 @@ public abstract class STNodeTransformer<T> {
 
     public T transform(STMemberTypeDescriptorNode memberTypeDescriptorNode) {
         return transformSyntaxNode(memberTypeDescriptorNode);
+    }
+
+    public T transform(STReceiveFieldNode receiveFieldNode) {
+        return transformSyntaxNode(receiveFieldNode);
     }
 
     // Tokens

@@ -31,7 +31,10 @@ import io.ballerina.runtime.internal.values.XmlPi;
  * @since 1.0
  */
 
-public class GetTarget {
+public final class GetTarget {
+
+    private GetTarget() {
+    }
 
     public static BString getTarget(BXml xmlValue) {
         if (!IsProcessingInstruction.isProcessingInstruction(xmlValue)) {

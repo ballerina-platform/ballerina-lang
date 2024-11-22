@@ -19,8 +19,6 @@
 package io.ballerina.runtime.internal.configurable.providers.toml;
 
 import io.ballerina.runtime.api.Module;
-import io.ballerina.runtime.api.PredefinedTypes;
-import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.creators.TypeCreator;
 import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.flags.SymbolFlags;
@@ -28,10 +26,12 @@ import io.ballerina.runtime.api.types.Field;
 import io.ballerina.runtime.api.types.FiniteType;
 import io.ballerina.runtime.api.types.IntersectableReferenceType;
 import io.ballerina.runtime.api.types.IntersectionType;
+import io.ballerina.runtime.api.types.PredefinedTypes;
 import io.ballerina.runtime.api.types.RecordType;
 import io.ballerina.runtime.api.types.ReferenceType;
 import io.ballerina.runtime.api.types.TupleType;
 import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.types.TypeTags;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BMapInitialValueEntry;
@@ -66,19 +66,19 @@ import java.util.Map;
 import java.util.Set;
 
 import static io.ballerina.identifier.Utils.decodeIdentifier;
-import static io.ballerina.runtime.api.PredefinedTypes.TYPE_ANYDATA;
-import static io.ballerina.runtime.api.PredefinedTypes.TYPE_READONLY_ANYDATA;
-import static io.ballerina.runtime.internal.ValueUtils.createReadOnlyXmlValue;
+import static io.ballerina.runtime.api.types.PredefinedTypes.TYPE_ANYDATA;
+import static io.ballerina.runtime.api.types.PredefinedTypes.TYPE_READONLY_ANYDATA;
 import static io.ballerina.runtime.internal.configurable.providers.toml.TomlConstants.CONFIG_FILE_NAME;
 import static io.ballerina.runtime.internal.errors.ErrorCodes.CONFIG_TYPE_NOT_SUPPORTED;
 import static io.ballerina.runtime.internal.errors.ErrorCodes.CONFIG_UNION_VALUE_AMBIGUOUS_TARGET;
+import static io.ballerina.runtime.internal.utils.ValueUtils.createReadOnlyXmlValue;
 
 /**
  * Util methods required for configurable variables.
  *
  * @since 2.0.0
  */
-public class Utils {
+public final class Utils {
 
     private static final Type TYPE_READONLY_ANYDATA_INTERSECTION =
             new BIntersectionType(null, new Type[]{TYPE_READONLY_ANYDATA},
@@ -88,59 +88,40 @@ public class Utils {
     }
 
     static Object getTomlTypeString(TomlNode tomlNode) {
-        switch (tomlNode.kind()) {
-            case STRING:
-                return "string";
-            case INTEGER:
-                return "int";
-            case DOUBLE:
-                return "float";
-            case BOOLEAN:
-                return "boolean";
-            case ARRAY:
-                return "array";
-            case TABLE:
-            case INLINE_TABLE:
-                return "record";
-            case TABLE_ARRAY:
-                return "table";
-            case KEY_VALUE:
-                return getTomlTypeString(((TomlKeyValueNode) tomlNode).value());
-            default:
-                return "unsupported type";
-        }
+        return switch (tomlNode.kind()) {
+            case STRING -> "string";
+            case INTEGER -> "int";
+            case DOUBLE -> "float";
+            case BOOLEAN -> "boolean";
+            case ARRAY -> "array";
+            case TABLE, INLINE_TABLE -> "record";
+            case TABLE_ARRAY -> "table";
+            case KEY_VALUE -> getTomlTypeString(((TomlKeyValueNode) tomlNode).value());
+            default -> "unsupported type";
+        };
     }
 
     static Object getBalValueFromToml(TomlNode tomlNode, Set<TomlNode> visitedNodes, BUnionType unionType,
                                       Set<LineRange> invalidTomlLines, String variableName) {
         visitedNodes.add(tomlNode);
-        switch (tomlNode.kind()) {
-            case STRING:
-                return validateAndGetStringValue((TomlStringValueNode) tomlNode, unionType, invalidTomlLines,
-                        variableName);
-            case INTEGER:
-                return ((TomlLongValueNode) tomlNode).getValue();
-            case DOUBLE:
-                return validateAndGetDoubleValue((TomlDoubleValueNodeNode) tomlNode, unionType, invalidTomlLines,
-                        variableName);
-            case BOOLEAN:
-                return ((TomlBooleanValueNode) tomlNode).getValue();
-            case KEY_VALUE:
-                return getBalValueFromToml(((TomlKeyValueNode) tomlNode).value(), visitedNodes, unionType,
-                        invalidTomlLines, variableName);
-            case ARRAY:
-                return getAnydataArray((TomlArrayValueNode) tomlNode, visitedNodes, invalidTomlLines, variableName);
-            case TABLE:
-                return getAnydataMap((TomlTableNode) tomlNode, visitedNodes, invalidTomlLines, variableName);
-            case TABLE_ARRAY:
-                return getMapAnydataArray((TomlTableArrayNode) tomlNode, visitedNodes, invalidTomlLines, variableName);
-            case INLINE_TABLE:
-                return getAnydataMap(((TomlInlineTableValueNode) tomlNode).toTable(), visitedNodes, invalidTomlLines,
-                        variableName);
-            default:
-                // should not come here
-                return null;
-        }
+        return switch (tomlNode.kind()) {
+            case STRING -> validateAndGetStringValue(
+                    (TomlStringValueNode) tomlNode, unionType, invalidTomlLines, variableName);
+            case INTEGER -> ((TomlLongValueNode) tomlNode).getValue();
+            case DOUBLE -> validateAndGetDoubleValue(
+                    (TomlDoubleValueNodeNode) tomlNode, unionType, invalidTomlLines, variableName);
+            case BOOLEAN -> ((TomlBooleanValueNode) tomlNode).getValue();
+            case KEY_VALUE -> getBalValueFromToml(
+                    ((TomlKeyValueNode) tomlNode).value(), visitedNodes, unionType, invalidTomlLines, variableName);
+            case ARRAY -> getAnydataArray((TomlArrayValueNode) tomlNode, visitedNodes, invalidTomlLines, variableName);
+            case TABLE -> getAnydataMap((TomlTableNode) tomlNode, visitedNodes, invalidTomlLines, variableName);
+            case TABLE_ARRAY -> getMapAnydataArray(
+                    (TomlTableArrayNode) tomlNode, visitedNodes, invalidTomlLines, variableName);
+            case INLINE_TABLE -> getAnydataMap(
+                    ((TomlInlineTableValueNode) tomlNode).toTable(), visitedNodes, invalidTomlLines, variableName);
+            // should not come here
+            default -> null;
+        };
     }
 
     private static Object getAnydataMap(TomlTableNode tomlNode, Set<TomlNode> visitedNodes,
@@ -183,38 +164,31 @@ public class Utils {
     }
 
     static boolean checkEffectiveTomlType(TomlType kind, Type expectedType, String variableName) {
-        switch (expectedType.getTag()) {
-            case TypeTags.INT_TAG:
-            case TypeTags.BYTE_TAG:
-                return kind == TomlType.INTEGER;
-            case TypeTags.BOOLEAN_TAG:
-                return kind == TomlType.BOOLEAN;
-            case TypeTags.FLOAT_TAG:
-            case TypeTags.DECIMAL_TAG:
-                return kind == TomlType.DOUBLE;
-            case TypeTags.STRING_TAG:
-            case TypeTags.UNION_TAG:
-            case TypeTags.XML_ATTRIBUTES_TAG:
-            case TypeTags.XML_COMMENT_TAG:
-            case TypeTags.XML_ELEMENT_TAG:
-            case TypeTags.XML_PI_TAG:
-            case TypeTags.XML_TAG:
-            case TypeTags.XML_TEXT_TAG:
-                return kind == TomlType.STRING;
-            case TypeTags.ARRAY_TAG:
-            case TypeTags.TUPLE_TAG:
-                return kind == TomlType.ARRAY;
-            case TypeTags.MAP_TAG:
-            case TypeTags.RECORD_TYPE_TAG:
-                return kind == TomlType.INLINE_TABLE || kind == TomlType.TABLE;
-            case TypeTags.TABLE_TAG:
-                return kind == TomlType.TABLE_ARRAY || kind == TomlType.ARRAY;
-            case TypeTags.INTERSECTION_TAG:
+        return switch (expectedType.getTag()) {
+            case TypeTags.INT_TAG,
+                 TypeTags.BYTE_TAG -> kind == TomlType.INTEGER;
+            case TypeTags.BOOLEAN_TAG -> kind == TomlType.BOOLEAN;
+            case TypeTags.FLOAT_TAG,
+                 TypeTags.DECIMAL_TAG -> kind == TomlType.DOUBLE;
+            case TypeTags.STRING_TAG,
+                 TypeTags.UNION_TAG,
+                 TypeTags.XML_ATTRIBUTES_TAG,
+                 TypeTags.XML_COMMENT_TAG,
+                 TypeTags.XML_ELEMENT_TAG,
+                 TypeTags.XML_PI_TAG,
+                 TypeTags.XML_TAG,
+                 TypeTags.XML_TEXT_TAG -> kind == TomlType.STRING;
+            case TypeTags.ARRAY_TAG,
+                 TypeTags.TUPLE_TAG -> kind == TomlType.ARRAY;
+            case TypeTags.MAP_TAG,
+                 TypeTags.RECORD_TYPE_TAG -> kind == TomlType.INLINE_TABLE || kind == TomlType.TABLE;
+            case TypeTags.TABLE_TAG -> kind == TomlType.TABLE_ARRAY || kind == TomlType.ARRAY;
+            case TypeTags.INTERSECTION_TAG -> {
                 Type effectiveType = ((IntersectionType) expectedType).getEffectiveType();
-                return checkEffectiveTomlType(kind, effectiveType, variableName);
-            default:
-                throw new ConfigException(CONFIG_TYPE_NOT_SUPPORTED, variableName, expectedType.toString());
-        }
+                yield checkEffectiveTomlType(kind, effectiveType, variableName);
+            }
+            default -> throw new ConfigException(CONFIG_TYPE_NOT_SUPPORTED, variableName, expectedType.toString());
+        };
     }
 
     static boolean isSimpleType(int typeTag) {
@@ -241,31 +215,23 @@ public class Utils {
     }
 
     public static Type getTypeFromTomlValue(TomlNode tomlNode) {
-        switch (tomlNode.kind()) {
-            case STRING:
-                return PredefinedTypes.TYPE_STRING;
-            case INTEGER:
-                return PredefinedTypes.TYPE_INT;
-            case DOUBLE:
-                return PredefinedTypes.TYPE_FLOAT;
-            case BOOLEAN:
-                return PredefinedTypes.TYPE_BOOLEAN;
-            case KEY_VALUE:
-                return getTypeFromTomlValue(((TomlKeyValueNode) tomlNode).value());
-            case ARRAY:
+        return switch (tomlNode.kind()) {
+            case STRING -> PredefinedTypes.TYPE_STRING;
+            case INTEGER -> PredefinedTypes.TYPE_INT;
+            case DOUBLE -> PredefinedTypes.TYPE_FLOAT;
+            case BOOLEAN -> PredefinedTypes.TYPE_BOOLEAN;
+            case KEY_VALUE -> getTypeFromTomlValue(((TomlKeyValueNode) tomlNode).value());
+            case ARRAY -> {
                 if (containsInlineTable((TomlArrayValueNode) tomlNode)) {
-                    return TypeCreator.createArrayType(TypeCreator.createMapType(TYPE_ANYDATA), true);
+                    yield TypeCreator.createArrayType(TypeCreator.createMapType(TYPE_ANYDATA), true);
                 }
-                return TypeCreator.createArrayType(TYPE_ANYDATA, true);
-            case TABLE:
-            case INLINE_TABLE:
-                return TypeCreator.createMapType(TYPE_ANYDATA, true);
-            case TABLE_ARRAY:
-                return TypeCreator.createArrayType(TypeCreator.createMapType(TYPE_ANYDATA), true);
-            default:
-                // should not come here
-                return null;
-        }
+                yield TypeCreator.createArrayType(TYPE_ANYDATA, true);
+            }
+            case TABLE, INLINE_TABLE -> TypeCreator.createMapType(TYPE_ANYDATA, true);
+            case TABLE_ARRAY -> TypeCreator.createArrayType(TypeCreator.createMapType(TYPE_ANYDATA), true);
+            // should not come here
+            default -> null;
+        };
     }
 
     private static boolean containsInlineTable(TomlArrayValueNode tomlNode) {
@@ -316,7 +282,7 @@ public class Utils {
 
     private static boolean checkDoubleValue(BFiniteType type, int tag, double doubleValue) {
         for (Object value : type.getValueSpace()) {
-            if (TypeUtils.getReferredType(TypeChecker.getType(value)).getTag() == tag) {
+            if (TypeUtils.getImpliedType(TypeChecker.getType(value)).getTag() == tag) {
                 if (tag == TypeTags.DECIMAL_TAG) {
                     return doubleValue == ((DecimalValue) value).floatValue();
                 } else {
@@ -355,7 +321,7 @@ public class Utils {
             int typeTag = effectiveType.getTag();
             if (typeTag == TypeTags.FINITE_TYPE_TAG) {
                 for (Object obj : ((FiniteType) effectiveType).getValueSpace()) {
-                    if (TypeUtils.getReferredType(TypeChecker.getType(obj)).getTag() == tag) {
+                    if (TypeUtils.getImpliedType(TypeChecker.getType(obj)).getTag() == tag) {
                         return true;
                     }
                 }
@@ -385,14 +351,11 @@ public class Utils {
     }
 
     static Type getEffectiveType(Type type) {
-        switch (type.getTag()) {
-            case TypeTags.INTERSECTION_TAG:
-                return ((IntersectionType) type).getEffectiveType();
-            case TypeTags.TYPE_REFERENCED_TYPE_TAG:
-                return getEffectiveType(((ReferenceType) type).getReferredType());
-            default:
-                return type;
-        }
+        return switch (type.getTag()) {
+            case TypeTags.INTERSECTION_TAG -> ((IntersectionType) type).getEffectiveType();
+            case TypeTags.TYPE_REFERENCED_TYPE_TAG -> getEffectiveType(((ReferenceType) type).getReferredType());
+            default -> type;
+        };
     }
 
     private static boolean isMappingType(int typeTag) {
@@ -412,23 +375,17 @@ public class Utils {
                                            BFiniteType finiteType, Set<LineRange> invalidTomlLines,
                                            String variableName) {
         visitedNodes.add(tomlNode);
-        switch (tomlNode.kind()) {
-            case STRING:
-                return StringUtils.fromString(((TomlStringValueNode) tomlNode).getValue());
-            case INTEGER:
-                return ((TomlLongValueNode) tomlNode).getValue();
-            case DOUBLE:
-                return validateAndGetFiniteDoubleValue((TomlDoubleValueNodeNode) tomlNode, finiteType, invalidTomlLines,
-                        variableName);
-            case BOOLEAN:
-                return ((TomlBooleanValueNode) tomlNode).getValue();
-            case KEY_VALUE:
-                return getFiniteBalValue(((TomlKeyValueNode) tomlNode).value(), visitedNodes, finiteType,
-                        invalidTomlLines, variableName);
-            default:
-                // should not come here
-                return null;
-        }
+        return switch (tomlNode.kind()) {
+            case STRING -> StringUtils.fromString(((TomlStringValueNode) tomlNode).getValue());
+            case INTEGER -> ((TomlLongValueNode) tomlNode).getValue();
+            case DOUBLE -> validateAndGetFiniteDoubleValue(
+                    (TomlDoubleValueNodeNode) tomlNode, finiteType, invalidTomlLines, variableName);
+            case BOOLEAN -> ((TomlBooleanValueNode) tomlNode).getValue();
+            case KEY_VALUE -> getFiniteBalValue(
+                    ((TomlKeyValueNode) tomlNode).value(), visitedNodes, finiteType, invalidTomlLines, variableName);
+            // should not come here
+            default -> null;
+        };
 
     }
 

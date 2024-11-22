@@ -17,6 +17,7 @@
  */
 package io.ballerina.projects.test.resolution.packages.internal;
 
+import io.ballerina.projects.DependencyManifest;
 import io.ballerina.projects.DependencyResolutionType;
 import io.ballerina.projects.ModuleName;
 import io.ballerina.projects.PackageDependencyScope;
@@ -26,12 +27,17 @@ import io.ballerina.projects.PackageOrg;
 import io.ballerina.projects.PackageVersion;
 import io.ballerina.projects.environment.ModuleLoadRequest;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
 /**
  * Contains utility methods used throughout the test framework.
  *
  * @since 2.0.0
  */
-public class Utils {
+public final class Utils {
+
     private Utils() {
     }
 
@@ -46,6 +52,19 @@ public class Utils {
         } else {
             return PackageDependencyScope.DEFAULT;
         }
+    }
+
+    public static List<DependencyManifest.Module> getDependencyModules(PackageDescriptor pkgDesc, Object modulesValue) {
+        if (modulesValue == null) {
+            return Collections.emptyList();
+        }
+        List<DependencyManifest.Module> modules = new ArrayList<>();
+        String modulesStr = modulesValue.toString();
+        String[] moduleNames = modulesStr.split(",");
+        for (String moduleName : moduleNames) {
+            modules.add(new DependencyManifest.Module(pkgDesc.org().value(), pkgDesc.name().value(), moduleName));
+        }
+        return modules;
     }
 
     public static ModuleLoadRequest getModuleLoadRequest(String name,

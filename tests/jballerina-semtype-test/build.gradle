@@ -17,11 +17,13 @@
  *
  */
 
-apply from: "$rootDir/gradle/javaProject.gradle"
-apply from: "$rootDir/gradle/ballerinaLangLibLoad.gradle"
+plugins {
+    id 'javaProject'
+    id 'ballerinaLangLibLoad'
+}
 
 dependencies {
-    implementation 'org.slf4j:slf4j-api'
+    implementation libs.slf4j.api
     implementation project(':ballerina-lang')
     implementation project(':testerina:testerina-core')
     implementation project(':ballerina-cli')
@@ -30,7 +32,7 @@ dependencies {
     implementation project(':ballerina-runtime')
     implementation project(':docerina')
 
-    testImplementation 'org.testng:testng'
+    testImplementation libs.testng
     testImplementation project(path: ':ballerina-test-utils', configuration: 'shadow')
 }
 

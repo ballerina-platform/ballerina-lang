@@ -7,10 +7,18 @@ WARNING [skip-when-beforeGroups-fails.bal:(32:5,32:17)] unused variable 'b'
 Running Tests
 
 	skip-when-beforeGroups-fails.bal
-	[fail] beforeGroupsFunc2[before test group function for the test]:
+	[fail] beforeGroupsFunc2[before groups function for the test]:
 	    error("{ballerina}DivisionByZero",message=" / by zero")
 			callableName: beforeGroupsFunc2  fileName: skip-when-beforeGroups-fails.bal lineNumber: 32
-			callableName: beforeGroupsFunc2$lambda2$  fileName: skip-when-beforeGroups-fails.bal lineNumber: 85
+			callableName: beforeGroupsFunc2$lambda2$  fileName: skip-when-beforeGroups-fails.bal lineNumber: 86
+			callableName: call moduleName: ballerina.lang.function.0 fileName: function.bal lineNumber: 37
+			callableName: executeFunction moduleName: ballerina.test.0 fileName: serialExecuter.bal lineNumber: 142
+			callableName: executeFunctions moduleName: ballerina.test.0 fileName: serialExecuter.bal lineNumber: 96
+			callableName: executeBeforeGroupFunctions moduleName: ballerina.test.0 fileName: serialExecuter.bal lineNumber: 46
+			callableName: executeTest moduleName: ballerina.test.0 fileName: serialExecuter.bal lineNumber: 22
+			callableName: executeTests moduleName: ballerina.test.0 fileName: execute.bal lineNumber: 81
+			callableName: startSuite moduleName: ballerina.test.0 fileName: execute.bal lineNumber: 53
+			callableName: __execute__  fileName: skip-when-beforeGroups-fails.bal lineNumber: 97
 		
 	[fail] afterSuiteFunc[after test suite function]:
 	    error {ballerina/test:0}TestError ("Assertion Failed!
@@ -31,7 +39,13 @@ Running Tests
 			callableName: createBallerinaError moduleName: ballerina.test.0 fileName: assert.bal lineNumber: 41
 			callableName: assertEquals moduleName: ballerina.test.0 fileName: assert.bal lineNumber: 109
 			callableName: afterSuiteFunc  fileName: skip-when-beforeGroups-fails.bal lineNumber: 81
-			callableName: afterSuiteFunc$lambda9$  fileName: skip-when-beforeGroups-fails.bal lineNumber: 92
+			callableName: afterSuiteFunc$lambda4$  fileName: skip-when-beforeGroups-fails.bal lineNumber: 88
+			callableName: call moduleName: ballerina.lang.function.0 fileName: function.bal lineNumber: 37
+			callableName: executeFunction moduleName: ballerina.test.0 fileName: serialExecuter.bal lineNumber: 142
+			callableName: executeFunctions moduleName: ballerina.test.0 fileName: serialExecuter.bal lineNumber: 96
+			callableName: executeAfterSuiteFunctions moduleName: ballerina.test.0 fileName: execute.bal lineNumber: 104
+			callableName: startSuite moduleName: ballerina.test.0 fileName: execute.bal lineNumber: 58
+			callableName: __execute__  fileName: skip-when-beforeGroups-fails.bal lineNumber: 97
 		
 		[pass] testFunction
 		[pass] testFunction2
@@ -40,4 +54,6 @@ Running Tests
 		2 passing
 		0 failing
 		3 skipped
+
+		Test execution time :*****s
 error: there are test failures

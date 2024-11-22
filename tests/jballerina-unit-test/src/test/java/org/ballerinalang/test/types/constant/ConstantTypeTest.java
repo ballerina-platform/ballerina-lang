@@ -53,7 +53,8 @@ public class ConstantTypeTest {
            "testTypesOfConstantMaps",
            "testConstTypesInline",
            "testInvalidRuntimeUpdateOfConstMaps",
-           "testResolvingConstValForConstantsOfUserDefinedTypes"    
+           "testResolvingConstValForConstantsOfUserDefinedTypes",
+           "testConstByteArrLiteral"
         };
     }
 
@@ -63,7 +64,9 @@ public class ConstantTypeTest {
         int i = 0;
         BAssertUtil.validateError(compileResult1, i++, "incompatible types: expected '3', found 'int'", 34, 15);
         BAssertUtil.validateError(compileResult1, i++, "incompatible types: expected '3.0f', found 'float'", 35, 15);
-        BAssertUtil.validateError(compileResult1, i++, "incompatible types: expected '3.0d', found 'float'", 36, 15);
+        BAssertUtil.validateError(compileResult1, i++, "incompatible types: expected '3.0d', found 'decimal'", 36, 15);
+        // Activate this after fixing #33889
+        // BAssertUtil.validateError(compileResult1, i++, "incompatible types: expected '3', found 'int'", 37, 15);
         BAssertUtil.validateError(compileResult1, i++, "incompatible types: expected '3', found 'int'", 37, 17);
         BAssertUtil.validateError(compileResult1, i++, "incompatible types: expected 'false', found 'boolean'",
                 38, 15);
@@ -95,8 +98,8 @@ public class ConstantTypeTest {
                 "record {| record {| 1 a; |} b; |} a; (record {| (record {| 1 a; |} & readonly) a; " +
                 "(record {| 2 b; 3 c; |} & readonly) CMI2; record {| 1 d; |} c; |} & readonly) b; |} & readonly)'",
                 125, 16);
-        BAssertUtil.validateError(compileResult1, i++, "incompatible types: expected 'record {| readonly 1 a; |} & " +
-                "readonly', found '(record {| 2 b; 3 c; |} & readonly)'", 126, 17);
+        BAssertUtil.validateError(compileResult1, i++, "incompatible types: expected '(record {| 1 a; |} & " +
+                "readonly)', found '(record {| 2 b; 3 c; |} & readonly)'", 126, 17);
         BAssertUtil.validateError(compileResult1, i++, "redeclared symbol 'cmi4'", 127, 10);
         BAssertUtil.validateError(compileResult1, i++, "missing non-defaultable required record field 'b'", 128, 17);
         BAssertUtil.validateError(compileResult1, i++, "undefined field 'c' in record 'record {| readonly 0.11f a; " +
@@ -130,10 +133,9 @@ public class ConstantTypeTest {
         BAssertUtil.validateError(compileResult1, i++, "expression is not a constant expression", 172, 8);
         BAssertUtil.validateError(compileResult1, i++, "incompatible types: expected 'record {| 1 a; |}', found '" +
                 "(record {| 1 a; 2 b; |} & readonly)'", 192, 27);
-        BAssertUtil.validateError(compileResult1, i++, "incompatible types: expected 'record {| readonly " +
-                "(record {| 1 a; 2 b; |} & readonly) a; readonly (record {| 3 a; |} & readonly) b; |} & readonly'," +
-                " found '(record {| (record {| 1 a; 2 b; |} & readonly) a; record {| 1 a; |} b; |} & readonly)'",
-                193, 80);
+        BAssertUtil.validateError(compileResult1, i++, "incompatible types: expected '(record {| record " +
+                "{| 1 a; 2 b; |} a; record {| 3 a; |} b; |} & readonly)', found '(record {| (record {| 1 a; 2 b; |} " +
+                "& readonly) a; record {| 1 a; |} b; |} & readonly)'", 193, 80);
         BAssertUtil.validateError(compileResult1, i++, "cannot update 'readonly' value of type " +
                 "'record {| readonly 1 a; readonly 2 b; |} & readonly'", 198, 5);
         BAssertUtil.validateError(compileResult1, i++, "cannot update 'readonly' value of type " +

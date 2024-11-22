@@ -50,6 +50,7 @@ public class STXMLSimpleNameNode extends STXMLNameNode {
                 name);
     }
 
+    @Override
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
         return new STXMLSimpleNameNode(
                 this.name,
@@ -68,6 +69,7 @@ public class STXMLSimpleNameNode extends STXMLNameNode {
                 diagnostics);
     }
 
+    @Override
     public Node createFacade(int position, NonTerminalNode parent) {
         return new XMLSimpleNameNode(this, position, parent);
     }

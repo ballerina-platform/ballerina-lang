@@ -24,14 +24,12 @@ import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.Token;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
-import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.util.QNameRefCompletionUtil;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 /**
  * Completion Provider for {@link FunctionCallExpressionNode} context.
@@ -46,15 +44,14 @@ public class FunctionCallExpressionNodeContext extends InvocationNodeContextProv
     }
 
     @Override
-    public List<LSCompletionItem> getCompletions(BallerinaCompletionContext ctx, FunctionCallExpressionNode node)
-            throws LSCompletionException {
+    public List<LSCompletionItem> getCompletions(BallerinaCompletionContext ctx, FunctionCallExpressionNode node) {
         List<LSCompletionItem> completionItems = new ArrayList<>();
         if (QNameRefCompletionUtil.onQualifiedNameIdentifier(ctx, ctx.getNodeAtCursor())) {
             QualifiedNameReferenceNode qNameRef = (QualifiedNameReferenceNode) ctx.getNodeAtCursor();
             completionItems.addAll(this.getCompletionItemList(QNameRefCompletionUtil
                     .getExpressionContextEntries(ctx, qNameRef), ctx));
         } else {
-            if (this.isNotInNamedArgOnlyContext(ctx, node.arguments().stream().collect(Collectors.toList()))) {
+            if (this.isNotInNamedArgOnlyContext(ctx, node.arguments().stream().toList())) {
                 completionItems.addAll(this.actionKWCompletions(ctx));
                 completionItems.addAll(this.expressionCompletions(ctx));
             }

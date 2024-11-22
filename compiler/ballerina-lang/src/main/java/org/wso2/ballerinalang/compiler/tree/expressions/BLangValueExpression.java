@@ -21,7 +21,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 
 /**
  * {@code BLangValueExpression} represents value expressions that may be lvalues.
- * i.e: field access, index-based access & variable refs.
+ * i.e: field access, index-based access &amp; variable refs.
  * y = 1;
  * x.y = 1; // isLValue = true;
  * x["y"] = 1;

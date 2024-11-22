@@ -18,6 +18,14 @@
 
 <FindBugsFilter>
     <Match>
+        <Class name="io.ballerina.cli.cmd.PullCommand"/>
+        <Bug pattern="NP_NULL_ON_SOME_PATH_FROM_RETURN_VALUE"/>
+    </Match>
+    <Match>
+        <Class name="io.ballerina.cli.cmd.PullCommand"/>
+        <Bug pattern="RV_RETURN_VALUE_IGNORED_BAD_PRACTICE"/>
+    </Match>
+    <Match>
         <Class name="io.ballerina.cli.cmd.BuildCommand"/>
         <Bug pattern="URF_UNREAD_FIELD"/>
     </Match>
@@ -89,5 +97,9 @@
     </Match>
     <Match>
         <Bug pattern="EI_EXPOSE_REP2" />
+    </Match>
+    <Match>
+        <Class name="io.ballerina.cli.cmd.CommandUtil" />
+        <Bug pattern="UUF_UNUSED_FIELD" />
     </Match>
 </FindBugsFilter>

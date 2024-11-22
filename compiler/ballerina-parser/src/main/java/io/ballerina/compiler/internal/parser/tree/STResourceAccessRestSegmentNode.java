@@ -68,6 +68,7 @@ public class STResourceAccessRestSegmentNode extends STNode {
                 closeBracketToken);
     }
 
+    @Override
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
         return new STResourceAccessRestSegmentNode(
                 this.openBracketToken,
@@ -98,6 +99,7 @@ public class STResourceAccessRestSegmentNode extends STNode {
                 diagnostics);
     }
 
+    @Override
     public Node createFacade(int position, NonTerminalNode parent) {
         return new ResourceAccessRestSegmentNode(this, position, parent);
     }

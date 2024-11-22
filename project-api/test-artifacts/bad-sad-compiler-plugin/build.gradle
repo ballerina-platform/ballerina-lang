@@ -15,7 +15,9 @@
  *
  */
 
-apply from: "$rootDir/gradle/javaProject.gradle"
+plugins {
+    id 'javaProject'
+}
 
 description = 'Compiler Plugin Tests - Bad Sad Compiler Plugin'
 version = '1.0.0'
@@ -29,14 +31,3 @@ dependencies {
 }
 
 ext.moduleName = 'bad.sad.compiler.plugin'
-
-compileJava {
-    doFirst {
-        options.compilerArgs = [
-                '--module-path', classpath.asPath,
-        ]
-        classpath = files()
-    }
-}
-
-

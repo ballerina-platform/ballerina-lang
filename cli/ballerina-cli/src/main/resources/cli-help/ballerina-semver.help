@@ -6,14 +6,14 @@ SYNOPSIS
 
 
 DESCRIPTION
-       Compare the local package changes with any previously released package
+       Compare the local changes in the package with any previously released package
        version available in Ballerina Central.
 
        Provide suggestions for the next version based on the source code compatibility
        between the local changes and any specified previous release version.
 
-       Note: Validating SemVer compliance of standalone '.bal' files is not allowed.
-
+       Note: This feature is experimental and has limited support for some advanced
+       language constructs.
 
 OPTIONS
        -d, --show-diff

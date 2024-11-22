@@ -17,10 +17,10 @@
  */
 package io.ballerina.runtime.api;
 
-import io.ballerina.runtime.api.async.StrandMetadata;
+import io.ballerina.runtime.api.repository.Repository;
 import io.ballerina.runtime.api.types.Parameter;
 
-import java.util.Optional;
+import java.util.function.Supplier;
 
 /**
  * When this class is used as the first argument of an interop method, Ballerina will inject an instance of
@@ -45,14 +45,13 @@ public abstract class Environment {
     public abstract Parameter[] getFunctionPathParameters();
 
     /**
-     * Mark the current executing strand as async. Execution of Ballerina code after the current
-     * interop will stop until given Ballerina Future is completed. However the java thread will not be blocked
-     * and will be reused for running other Ballerina code in the meantime. Therefore callee of this method
-     * must return as soon as possible to avoid starvation of Ballerina code execution.
+     * Yield the current execution and run some operation so other non isolated functions can run in asynchronously.
      *
-     * @return {@link Future} which will resume the current strand when completed.
+     * @param supplier operation to be executed.
+     * @param <T>      supplier type.
+     * @return results supplied by this supplier.
      */
-    public abstract Future markAsync();
+    public abstract <T> T yieldAndRun(Supplier<T> supplier);
 
     /**
      * Gets an instance of Ballerina runtime.
@@ -81,28 +80,28 @@ public abstract class Environment {
      *
      * @return Optional strand name.
      */
-    public abstract Optional<String> getStrandName();
-
-    /**
-     * Gets {@link StrandMetadata}.
-     *
-     * @return metadata of the strand.
-     */
-    public abstract StrandMetadata getStrandMetadata();
+    public abstract String getStrandName();
 
     /**
      * Sets given local key value pair in strand.
      *
      * @param key   string key
-     * @param value value to be store in the strand
+     * @param value value to be stored in the strand
      */
     public abstract void setStrandLocal(String key, Object value);
 
     /**
-     * Gets the value stored in the strand on given key.
+     * Gets the value stored in the strand on a given key.
      *
      * @param key key
      * @return value stored in the strand.
      */
     public abstract Object getStrandLocal(String key);
+
+    /**
+     * Gets the current environment repository.
+     *
+     * @return repository.
+     */
+    public abstract Repository getRepository();
 }

@@ -32,6 +32,7 @@ under the License.
             <class name="io.ballerina.cli.cmd.InitCommandTest" />
             <class name="io.ballerina.cli.cmd.NewCommandTest" />
             <class name="io.ballerina.cli.cmd.PrintUtilsTest" />
+            <class name="io.ballerina.cli.cmd.ProfileCommandTest" />
             <class name="io.ballerina.cli.cmd.PullCommandTest" />
             <class name="io.ballerina.cli.cmd.PushCommandTest" />
             <class name="io.ballerina.cli.cmd.RunCommandTest" />
@@ -41,9 +42,10 @@ under the License.
             <class name="io.ballerina.cli.cmd.PackCommandTest" />
             <class name="io.ballerina.cli.cmd.CommandUtilTest" />
             <class name="io.ballerina.cli.cmd.TestNativeImageCommandTest"/>
-            <class name="io.ballerina.cli.cmd.BuildNativeImageCommandTest"/>
             <class name="io.ballerina.cli.cmd.DeprecateCommandTest"/>
             <class name="io.ballerina.cli.cmd.ToolCommandTest"/>
+            <class name="io.ballerina.cli.cmd.RunBuildToolsTaskTest"/>
+            <class name="io.ballerina.cli.cmd.ProjectWatcherTest"/>
         </classes>
     </test>
 </suite>

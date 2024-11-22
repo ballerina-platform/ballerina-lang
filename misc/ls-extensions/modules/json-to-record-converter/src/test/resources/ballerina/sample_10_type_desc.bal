@@ -1,22 +1,27 @@
-type Person record {
+type Person record {|
 
-    record {
+    record {|
         decimal ppu;
 
-        record {
-            record {
+        record {|
+            record {|
                 string id;
                 string 'type;
-            }[] batter;
-        } batters;
+                json...;
+            |}[] batter;
+            json...;
+        |} batters;
 
         string name;
         string id;
         string 'type;
 
-        record {
+        record {|
             string id;
             string 'type;
-        }[] topping;
-    }[] personlist;
-};
+            json...;
+        |}[] topping;
+        json...;
+    |}[] personlist;
+    json...;
+|};

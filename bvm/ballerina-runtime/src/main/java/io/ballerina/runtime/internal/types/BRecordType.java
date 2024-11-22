@@ -20,7 +20,6 @@ package io.ballerina.runtime.internal.types;
 
 import io.ballerina.identifier.Utils;
 import io.ballerina.runtime.api.Module;
-import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.flags.SymbolFlags;
 import io.ballerina.runtime.api.flags.TypeFlags;
@@ -28,13 +27,18 @@ import io.ballerina.runtime.api.types.Field;
 import io.ballerina.runtime.api.types.IntersectionType;
 import io.ballerina.runtime.api.types.RecordType;
 import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.types.TypeTags;
 import io.ballerina.runtime.api.utils.StringUtils;
+import io.ballerina.runtime.api.values.BFunctionPointer;
+import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.internal.scheduling.Scheduler;
 import io.ballerina.runtime.internal.values.MapValue;
 import io.ballerina.runtime.internal.values.MapValueImpl;
 import io.ballerina.runtime.internal.values.ReadOnlyUtils;
 
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Optional;
 
@@ -51,6 +55,8 @@ public class BRecordType extends BStructureType implements RecordType {
     private final boolean readonly;
     private IntersectionType immutableType;
     private IntersectionType intersectionType = null;
+
+    private final Map<String, BFunctionPointer> defaultValues = new LinkedHashMap<>();
 
     /**
      * Create a {@code BRecordType} which represents the user defined record type.
@@ -120,7 +126,15 @@ public class BRecordType extends BStructureType implements RecordType {
         if (isReadOnly()) {
             return (V) ValueCreator.createReadonlyRecordValue(this.pkg, typeName, new HashMap<>());
         }
-        return (V) ValueCreator.createRecordValue(this.pkg, typeName);
+        BMap<BString, Object> recordValue = ValueCreator.createRecordValue(this.pkg, typeName);
+        if (defaultValues.isEmpty()) {
+            return (V) recordValue;
+        }
+        for (Map.Entry<String, BFunctionPointer> field : defaultValues.entrySet()) {
+            recordValue.put(StringUtils.fromString(field.getKey()),
+                    field.getValue().call(Scheduler.getStrand().scheduler.runtime));
+        }
+        return (V) recordValue;
     }
 
     @SuppressWarnings("unchecked")
@@ -181,15 +195,27 @@ public class BRecordType extends BStructureType implements RecordType {
         this.intersectionType = intersectionType;
     }
 
+    @Override
     public boolean isSealed() {
         return sealed;
     }
 
+    @Override
     public Type getRestFieldType() {
         return restFieldType;
     }
 
+    @Override
     public int getTypeFlags() {
         return typeFlags;
     }
+
+    public void setDefaultValue(String fieldName, BFunctionPointer defaultValue) {
+        defaultValues.put(fieldName, defaultValue);
+    }
+
+    public Map<String, BFunctionPointer> getDefaultValues() {
+        return defaultValues;
+    }
+
 }

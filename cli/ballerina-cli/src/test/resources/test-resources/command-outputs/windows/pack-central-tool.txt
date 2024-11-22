@@ -2,4 +2,4 @@ Compiling source
 	testorg/sample_tool_template:1.0.0
 
 Creating bala
-	target\bala\testorg-sample_tool_template-any-1.0.0.bala
+	target\bala\testorg-sample_tool_template-java21-1.0.0.bala

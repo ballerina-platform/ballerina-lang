@@ -30,6 +30,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.io.PrintStream;
 
 /**
@@ -72,8 +73,7 @@ public class XMLAttributesTest {
                         "xmlns:ns3=\"http://sample.com/wso2/f\" foo1=\"bar\"/>");
     }
 
-    // ToDo: enable after fixing #40373
-    @Test(enabled = false)
+    @Test()
     public void testAddNamespaceAsAttribute1() {
         BArray returns = (BArray) BRunUtil.invoke(xmlAttrProgFile, "testAddNamespaceAsAttribute");
         Assert.assertTrue(returns.get(0) instanceof BXml);
@@ -132,8 +132,7 @@ public class XMLAttributesTest {
                         "xmlns:ns5=\"http://sample.com/wso2/f/\" ns5:diff=\"yes\" ns5:foo1=\"bar1\"/>");
     }
 
-    // ToDo: enable after fixing #40373
-    @Test(enabled = false)
+    @Test()
     public void testAddAttributeWithQName_5() {
         Object returns = BRunUtil.invoke(xmlAttrProgFile, "testAddAttributeWithDiffQName_5");
         Assert.assertTrue(returns instanceof BXml);
@@ -269,21 +268,15 @@ public class XMLAttributesTest {
     }
 
     @Test
-    public void testPrintAttribMap() {
+    public void testPrintAttribMap() throws IOException {
         PrintStream original = System.out;
-        ByteArrayOutputStream outContent = new ByteArrayOutputStream();
-        try {
+        try (ByteArrayOutputStream outContent = new ByteArrayOutputStream()) {
             System.setOut(new PrintStream(outContent));
             BRunUtil.invoke(xmlAttrProgFile, "testPrintAttribMap");
             Assert.assertEquals(outContent.toString(),
-                    "{\"{http://www.w3.org/2000/xmlns/}xmlns\":\"http://sample.com/wso2/c1\",\"name\":\"Foo\"}",
-                    "Invalid attribute map printed");
+                "{\"{http://www.w3.org/2000/xmlns/}xmlns\":\"http://sample.com/wso2/c1\",\"name\":\"Foo\"}",
+                "Invalid attribute map printed");
         } finally {
-            try {
-                outContent.close();
-            } catch (Throwable t) {
-                // ignore
-            }
             System.setOut(original);
         }
     }

@@ -15,7 +15,9 @@
  *
  */
 
-apply from: "$rootDir/gradle/javaProject.gradle"
+plugins {
+    id 'javaProject'
+}
 
 description = 'Compiler Plugin Tests - Diagnostic utils library'
 version = '1.0.0'
@@ -26,14 +28,4 @@ dependencies {
 }
 
 ext.moduleName = 'compiler.plugin.test.diagnostic.utils.lib'
-
-compileJava {
-    doFirst {
-        options.compilerArgs = [
-                '--module-path', classpath.asPath,
-        ]
-        classpath = files()
-    }
-}
-
 

@@ -2,7 +2,7 @@ NAME
        ballerina-doc - Build the documentation of a Ballerina package
 
 SYNOPSIS
-       bal build [OPTIONS] [<package>]
+       bal doc [OPTIONS] [<package>]
 
 
 DESCRIPTION
@@ -29,6 +29,15 @@ OPTIONS
 
        --target-dir <path>
            Target directory path.
+
+       --show-dependency-diagnostics
+           Print the diagnostics that are related to the dependencies. By default, these
+           diagnostics are not printed to the console.
+
+       --optimize-dependency-compilation
+           [EXPERIMENTAL] Enables memory-efficient compilation of package dependencies
+           using separate processes. This can help prevent out-of-memory issues during
+           the initial compilation with a clean central cache.
 
 
 EXAMPLES

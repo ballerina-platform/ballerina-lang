@@ -376,3 +376,40 @@ function testInvalidBoundMethodAccessWithRemoteMethod(ServiceClass a,
 
     _ = e.ser.fn;
 }
+
+function testInvalidXMLMapFieldAccess1() returns error? {
+    map<xml> m = {a: xml `foo`};
+    xml x = check m.a; // error
+}
+
+function testInvalidXMLMapFieldAccess2() returns error? {
+    map<xml> m = {a: xml `foo`};
+    xml x = check m.b; // error
+}
+
+function testInvalidXMLMapFieldAccess3() returns error? {
+    map<xml> m = {};
+    m["a"] = xml `foo`;
+    xml x = check m.a; // error
+}
+
+function testInvalidXMLMapFieldAccess4() returns error? {
+    map<xml|json> m = {};
+    m["a"] = xml `foo`;
+    xml|json x = check m.a; // error
+}
+
+function testInvalidXMLMapFieldAccess5() returns error? {
+    map<xml> m = {a: xml `foo`};
+    xml x = m?.a; // error
+}
+
+function testInvalidXMLMapFieldAccess6() returns error? {
+    record {|map<xml> a; xml c;|} m = {a: {b: xml `foo`}, c: xml `bar`};
+    xml? x = m["a"]?.b.c;
+}
+
+function testInvalidXMLMapFieldAccess7() returns error? {
+    map<xml> m = {a: xml `foo`};
+    xml x = m?.b; // error
+}

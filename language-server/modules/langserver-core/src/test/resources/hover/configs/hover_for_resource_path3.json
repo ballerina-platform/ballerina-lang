@@ -1,0 +1,21 @@
+{
+  "position": {
+    "line": 28,
+    "character": 55
+  },
+  "source": {
+    "file": "hover_for_resource_path.bal"
+  },
+  "expected": {
+    "result": {
+      "contents": {
+        "kind": "markdown",
+        "value": "Test Description.\n  \n  \n---  \n  \n### Parameters  \n  \n`string` ***param1*** : parameter description  \n`string` ***param2*** : parameter description  \n`string` ***param3*** : parameter description  \n`int...` ***param4*** :   \n  \n---  \n  \n### Return  \n`string` : return value description"
+      }
+    },
+    "id": {
+      "left": "324"
+    },
+    "jsonrpc": "2.0"
+  }
+}

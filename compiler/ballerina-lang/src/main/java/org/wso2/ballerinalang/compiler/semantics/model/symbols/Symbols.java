@@ -37,7 +37,10 @@ import java.util.Set;
 /**
  * @since 0.94
  */
-public class Symbols {
+public final class Symbols {
+
+    private Symbols() {
+    }
 
     public static BPackageSymbol createPackageSymbol(PackageID packageID,
                                                      SymbolTable symTable,
@@ -171,7 +174,7 @@ public class Symbols {
                                                BSymbol owner,
                                                Location pos,
                                                SymbolOrigin origin) {
-        if (type != null && Types.getReferredType(type).tag == TypeTags.INVOKABLE) {
+        if (type != null && Types.getImpliedType(type).tag == TypeTags.INVOKABLE) {
             BInvokableTypeSymbol invokableTypeSymbol =
                     createInvokableTypeSymbol(symTag, flags, pkgID, type, owner, pos, origin);
             invokableTypeSymbol.returnType = ((BInvokableType) type).retType;
@@ -218,8 +221,8 @@ public class Symbols {
                                                  PackageID pkgID,
                                                  BSymbol owner,
                                                  Location pos,
-                                                 SymbolOrigin origin) {
-        return new BXMLNSSymbol(name, nsURI, pkgID, owner, pos, origin);
+                                                 SymbolOrigin origin, Name compUnit) {
+        return new BXMLNSSymbol(name, nsURI, pkgID, owner, pos, origin, compUnit);
     }
     
     public static BResourcePathSegmentSymbol createResourcePathSegmentSymbol(Name name,

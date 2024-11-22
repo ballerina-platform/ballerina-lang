@@ -1,0 +1,75 @@
+{
+  "position": {
+    "line": 27,
+    "character": 24
+  },
+  "source": "source1.bal",
+  "expected": [
+    {
+      "title": "Create variable with 'module1:Response|mod2:ClientError2'",
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 27,
+              "character": 4
+            },
+            "end": {
+              "line": 27,
+              "character": 4
+            }
+          },
+          "newText": "module1:Response|mod2:ClientError2 push = "
+        },
+        {
+          "range": {
+            "start": {
+              "line": 1,
+              "character": 0
+            },
+            "end": {
+              "line": 1,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/module1.mod2;\n"
+        }
+      ],
+      "resolvable": false
+    },
+    {
+      "title": "Create variable with 'anydata|mod2:ClientError2'",
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 27,
+              "character": 4
+            },
+            "end": {
+              "line": 27,
+              "character": 4
+            }
+          },
+          "newText": "anydata|mod2:ClientError2 push = "
+        },
+        {
+          "range": {
+            "start": {
+              "line": 1,
+              "character": 0
+            },
+            "end": {
+              "line": 1,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/module1.mod2;\n"
+        }
+      ],
+      "resolvable": false
+    }
+  ]
+}

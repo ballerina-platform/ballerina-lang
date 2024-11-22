@@ -15,16 +15,18 @@
  *
  */
 
-apply from: "$rootDir/gradle/javaProject.gradle"
+plugins {
+    id 'javaProject'
+}
 
 dependencies {
     implementation project(':ballerina-parser')
     implementation project(':ballerina-tools-api')
 
-    implementation("com.google.code.gson:gson:2.10.1")
+    implementation libs.gson
 
-    testImplementation("org.testng:testng:${project.testngVersion}")
-    testImplementation(group: 'net.openhft', name: 'compiler', version: '2.23ea0')
+    testImplementation libs.testng
+    testImplementation libs.openhft.compiler
 }
 
 test {
@@ -38,13 +40,3 @@ test {
 description = 'Ballerina - Syntax API Calls Gennerator'
 
 ext.moduleName = 'syntax-api-calls-gen'
-
-compileJava {
-    inputs.property("moduleName", moduleName)
-    doFirst {
-        options.compilerArgs = [
-                '--module-path', classpath.asPath,
-        ]
-        classpath = files()
-    }
-}

@@ -19,7 +19,7 @@ package org.ballerinalang.test.expressions.binaryoperations;
 import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BString;
-import io.ballerina.runtime.internal.JsonParser;
+import io.ballerina.runtime.internal.json.JsonParser;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
@@ -60,7 +60,7 @@ public class EqualAndNotEqualOperationsTest {
                 "checkDecimalEquality", "checkStringEquality", "checkEqualityToNil", "checkAnyDataEquality",
                 "testIntByteEqualityPositive", "testIntByteEqualityNegative", "testIntersectingUnionEquality",
                 "testTableEquality", "testEqualityWithNonAnydataType", "testEqualityByteWithIntSubTypes",
-                "checkFiniteTypeEquality"
+                "checkFiniteTypeEquality", "testEqualityWithCyclicReferences"
         };
     }
 
@@ -171,7 +171,7 @@ public class EqualAndNotEqualOperationsTest {
         BRunUtil.invoke(result, "checkJsonEqualityNegative", new Object[]{jsonVal, jsonValTwo});
 
         jsonValTwo = JsonParser.parse("{\"hello\": \"world\", \"helloTwo\": \"worldTwo\", \"helloThree\": " +
-                "\"worldThree\"}");
+                                      "\"worldThree\"}");
         BRunUtil.invoke(result, "checkJsonEqualityNegative", new Object[]{jsonVal, jsonValTwo});
     }
 
@@ -190,7 +190,8 @@ public class EqualAndNotEqualOperationsTest {
                 "testUnequalXmlIgnoringAttributeOrder", "testEqualXmlWithPI", "testUnequalXmlWithUnequalPI",
                 "testUnequalXmlWithPIInWrongOrder", "testUnequalXmlWithMultiplePIInWrongOrder",
                 "testUnequalXmlWithMissingPI", "testXmlWithNamespacesPositive", "testXmlWithNamespacesNegative",
-                "testXmlSequenceAndXmlItemEqualityPositive", "testXmlSequenceAndXmlItemEqualityNegative"
+                "testXmlSequenceAndXmlItemEqualityPositive", "testXmlSequenceAndXmlItemEqualityNegative",
+                "testXmlSequenceLHSEquals"
         };
     }
 

@@ -48,9 +48,6 @@ public class BStream extends BSimpleVariable {
      * redundant information.
      */
     private static String processStringValue(String stringValue) {
-        if (stringValue.startsWith("stream <stream") && stringValue.endsWith(">>")) {
-            stringValue = stringValue.replaceFirst("^stream <stream", "stream").replaceFirst(">>$", ">");
-        }
         if (stringValue.startsWith("stream<(") && stringValue.endsWith(")>")) {
             stringValue = stringValue.replaceFirst("stream<\\(", "stream <").replaceFirst("\\)>$", ">");
         }

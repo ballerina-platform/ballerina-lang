@@ -18,8 +18,8 @@
 
 package io.ballerina.runtime.internal.errors;
 
-import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.creators.ErrorCreator;
+import io.ballerina.runtime.api.types.PredefinedTypes;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BMap;
@@ -36,7 +36,7 @@ import java.util.ResourceBundle;
  *
  * @since 2201.7.0
  */
-public class ErrorHelper {
+public final class ErrorHelper {
 
     private static final ResourceBundle messageBundle = ResourceBundle.getBundle("MessagesBundle", Locale.getDefault());
     private static final BString ERROR_MESSAGE_FIELD = StringUtils.fromString("message");
@@ -53,7 +53,8 @@ public class ErrorHelper {
         MappingInitialValueEntry[] initialValues = new MappingInitialValueEntry[1];
         initialValues[0] = new MappingInitialValueEntry.KeyValueEntry(ERROR_MESSAGE_FIELD, StringUtils
                 .fromString(MessageFormat.format(messageBundle.getString(errorCodes.messageKey()), params)));
-        MapValueImpl<BString, Object> errorDetail = new MapValueImpl(PredefinedTypes.TYPE_ERROR_DETAIL, initialValues);
+        MapValueImpl<BString, Object> errorDetail =
+                new MapValueImpl<>(PredefinedTypes.TYPE_ERROR_DETAIL, initialValues);
         return ErrorCreator.createError(reason, errorDetail);
     }
 
@@ -67,7 +68,7 @@ public class ErrorHelper {
         initialValues[0] = new MappingInitialValueEntry.KeyValueEntry(ERROR_MESSAGE_FIELD,
                 StringUtils.fromString(MessageFormat.format(messageBundle.getString(
                         errorCodes.messageKey()), params)));
-        return new MapValueImpl(PredefinedTypes.TYPE_ERROR_DETAIL, initialValues);
+        return new MapValueImpl<>(PredefinedTypes.TYPE_ERROR_DETAIL, initialValues);
     }
 
     public static BString getErrorMessage(String messageFormat, Object... params) {
@@ -97,10 +98,10 @@ public class ErrorHelper {
     }
 
     private static boolean isBErrorWithMessageDetail(Throwable e) {
-        if (!(e instanceof BError)) {
+        if (!(e instanceof BError error)) {
             return false;
         }
-        return hasMessageDetail((BError) e);
+        return hasMessageDetail(error);
     }
 
     public static boolean hasMessageDetail(BError bError) {

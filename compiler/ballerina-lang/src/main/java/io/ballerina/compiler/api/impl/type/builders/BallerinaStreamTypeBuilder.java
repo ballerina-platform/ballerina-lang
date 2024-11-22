@@ -86,16 +86,16 @@ public class BallerinaStreamTypeBuilder implements TypeBuilder.STREAM {
             return symTable.anyType;
         }
 
-        if (valueType instanceof AbstractTypeSymbol) {
-            return ((AbstractTypeSymbol) valueType).getBType();
+        if (valueType instanceof AbstractTypeSymbol abstractTypeSymbol) {
+            return abstractTypeSymbol.getBType();
         }
 
         return symTable.noType;
     }
 
     private BType getCompletionBType(TypeSymbol completionType) {
-        if (completionType instanceof AbstractTypeSymbol) {
-            return ((AbstractTypeSymbol) completionType).getBType();
+        if (completionType instanceof AbstractTypeSymbol abstractTypeSymbol) {
+            return abstractTypeSymbol.getBType();
         }
 
         return symTable.nilType;

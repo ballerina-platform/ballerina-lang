@@ -71,11 +71,8 @@ function workerActionSecTest() {
 
         string msg = "hello";
         msg -> w2;
-
-        if (true) {
-            i -> w2;
-        }
     }
+
     worker w2 {
         print("w1");
         string msg = "default";

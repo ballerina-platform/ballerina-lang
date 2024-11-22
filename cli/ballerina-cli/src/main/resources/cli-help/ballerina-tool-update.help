@@ -1,0 +1,15 @@
+NAME
+       ballerina-tool-update - Update a tool to the latest version compatible
+       with the current distribution.
+
+SYNOPSIS
+       bal tool update <tool-id>
+
+OPTIONS
+       -h, --help
+           Print the usage details of tool the update command.
+
+DESCRIPTION
+       Fetch the latest version of a given tool that is compatible
+       with the current distribution from the Ballerina Central
+       repository and set it as the active version.

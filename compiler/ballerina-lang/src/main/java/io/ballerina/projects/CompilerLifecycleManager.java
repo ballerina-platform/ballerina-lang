@@ -64,9 +64,9 @@ class CompilerLifecycleManager {
         return lifecycleTasks;
     }
 
-    public List<Diagnostic> runCodeGeneratedTasks(Path binaryPath) {
+    public List<Diagnostic> runCodeGeneratedTasks(Path binaryPath, BalCommand balCommand) {
         CompilerLifecycleEventContextImpl lifecycleEventContext =
-                new CompilerLifecycleEventContextImpl(this.currentPackage, this.compilation);
+                new CompilerLifecycleEventContextImpl(this.currentPackage, this.compilation, balCommand);
         lifecycleEventContext.setBinaryPath(binaryPath);
 
         for (List<CodeGenerationCompletedTask> taskList : lifecycleTasks.codeGenerationCompletedTasks.values()) {
@@ -157,8 +157,8 @@ class CompilerLifecycleManager {
 
     static class CodeGenerationCompletedTask {
 
-        private CompilerLifecycleTask<CompilerLifecycleEventContext> lifecycleTask;
-        private LifecycleListenerInfo lifecycleListenerInfo;
+        private final CompilerLifecycleTask<CompilerLifecycleEventContext> lifecycleTask;
+        private final LifecycleListenerInfo lifecycleListenerInfo;
 
         public CodeGenerationCompletedTask(CompilerLifecycleTask<CompilerLifecycleEventContext> lifecycleTask,
                                            LifecycleListenerInfo lifecycleListenerInfo) {
@@ -191,12 +191,16 @@ class CompilerLifecycleManager {
         private final Package currentPackage;
         private final PackageCompilation compilation;
 
+        private final BalCommand balCommand;
+
         private Path binaryPath;
         private final List<Diagnostic> diagnostics = new ArrayList<>();
 
-        public CompilerLifecycleEventContextImpl(Package currentPackage, PackageCompilation compilation) {
+        public CompilerLifecycleEventContextImpl(Package currentPackage, PackageCompilation compilation,
+                                                 BalCommand balCommand) {
             this.currentPackage = currentPackage;
             this.compilation = compilation;
+            this.balCommand = balCommand;
         }
 
         @Override
@@ -212,6 +216,11 @@ class CompilerLifecycleManager {
         @Override
         public void reportDiagnostic(Diagnostic diagnostic) {
             diagnostics.add(diagnostic);
+        }
+
+        @Override
+        public BalCommand balCommand() {
+            return balCommand;
         }
 
         void setBinaryPath(Path binaryPath) {

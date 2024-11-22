@@ -1,0 +1,16 @@
+<root xmlns:ns1="http://namespace1.com" xmlns:ns2="http://namespace2.com">
+    <ns1:element1 ns1:attribute1="attribute_value" ns2:attribute2="42">
+        <![CDATA[This is a CDATA section with <markup> and special characters &%!]]>
+    </ns1:element1>
+    <ns2:element2>
+        <ns2:subelement>Text content</ns2:subelement>
+        <ns2:number>123.456</ns2:number>
+        <ns2:boolean>true</ns2:boolean>
+        <ns2:null xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
+        <ns2:array>
+            <ns2:item>Item 1</ns2:item>
+            <ns2:item>Item 2</ns2:item>
+            <ns2:item>Item 3</ns2:item>
+        </ns2:array>
+    </ns2:element2>
+</root>

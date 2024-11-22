@@ -1,0 +1,15 @@
+<university xmlns:dept="http://example.com/departments" xmlns:course="http://example.com/courses" xmlns:instructor="http://example.com/instructors" xmlns:enrollment="http://example.com/enrollment">
+    <dept:department>
+        <dept:name>Computer Science</dept:name>
+        <dept:location>Engineering Building</dept:location>
+        <course:course>
+            <course:code>CS101</course:code>
+            <course:title lang="en" level="introductory">Introduction to Computer Science</course:title>
+            <instructor:instructor>
+                <instructor:name gender="male">Dr. Smith</instructor:name>
+                <instructor:office>Room 301</instructor:office>
+            </instructor:instructor>
+            <enrollment:enrollment capacity="50" enrolled="35"/>
+        </course:course>
+    </dept:department>
+</university>

@@ -57,6 +57,10 @@ public class NamedWorkerDeclarationNode extends NonTerminalNode {
         return childInBucket(5);
     }
 
+    public Optional<OnFailClauseNode> onFailClause() {
+        return optionalChildInBucket(6);
+    }
+
     @Override
     public void accept(NodeVisitor visitor) {
         visitor.visit(this);
@@ -75,7 +79,8 @@ public class NamedWorkerDeclarationNode extends NonTerminalNode {
                 "workerKeyword",
                 "workerName",
                 "returnTypeDesc",
-                "workerBody"};
+                "workerBody",
+                "onFailClause"};
     }
 
     public NamedWorkerDeclarationNode modify(
@@ -84,14 +89,16 @@ public class NamedWorkerDeclarationNode extends NonTerminalNode {
             Token workerKeyword,
             IdentifierToken workerName,
             Node returnTypeDesc,
-            BlockStatementNode workerBody) {
+            BlockStatementNode workerBody,
+            OnFailClauseNode onFailClause) {
         if (checkForReferenceEquality(
                 annotations.underlyingListNode(),
                 transactionalKeyword,
                 workerKeyword,
                 workerName,
                 returnTypeDesc,
-                workerBody)) {
+                workerBody,
+                onFailClause)) {
             return this;
         }
 
@@ -101,7 +108,8 @@ public class NamedWorkerDeclarationNode extends NonTerminalNode {
                 workerKeyword,
                 workerName,
                 returnTypeDesc,
-                workerBody);
+                workerBody,
+                onFailClause);
     }
 
     public NamedWorkerDeclarationNodeModifier modify() {
@@ -121,6 +129,7 @@ public class NamedWorkerDeclarationNode extends NonTerminalNode {
         private IdentifierToken workerName;
         private Node returnTypeDesc;
         private BlockStatementNode workerBody;
+        private OnFailClauseNode onFailClause;
 
         public NamedWorkerDeclarationNodeModifier(NamedWorkerDeclarationNode oldNode) {
             this.oldNode = oldNode;
@@ -130,6 +139,7 @@ public class NamedWorkerDeclarationNode extends NonTerminalNode {
             this.workerName = oldNode.workerName();
             this.returnTypeDesc = oldNode.returnTypeDesc().orElse(null);
             this.workerBody = oldNode.workerBody();
+            this.onFailClause = oldNode.onFailClause().orElse(null);
         }
 
         public NamedWorkerDeclarationNodeModifier withAnnotations(
@@ -172,6 +182,12 @@ public class NamedWorkerDeclarationNode extends NonTerminalNode {
             return this;
         }
 
+        public NamedWorkerDeclarationNodeModifier withOnFailClause(
+                OnFailClauseNode onFailClause) {
+            this.onFailClause = onFailClause;
+            return this;
+        }
+
         public NamedWorkerDeclarationNode apply() {
             return oldNode.modify(
                     annotations,
@@ -179,7 +195,8 @@ public class NamedWorkerDeclarationNode extends NonTerminalNode {
                     workerKeyword,
                     workerName,
                     returnTypeDesc,
-                    workerBody);
+                    workerBody,
+                    onFailClause);
         }
     }
 }

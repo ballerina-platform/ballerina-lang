@@ -1,0 +1,12 @@
+[indent]
+indentSize = 2
+
+[wrapping]
+simpleBlocksInOneLine = true
+
+[spacing]
+aroundRecordBraces = true
+alignConsecutiveDefinitions = true
+
+[query]
+alignMultiLineQueries = true

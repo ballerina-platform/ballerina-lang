@@ -35,10 +35,11 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.zip.ZipOutputStream;
 
@@ -55,32 +56,36 @@ public class JBallerinaBalaWriter extends BalaWriter {
     public static final String TOOL = "tool";
     public static final String LIBS = "libs";
     public static final String COMPILER_PLUGIN = "compiler-plugin";
-    private JBallerinaBackend backend;
+    public static final String ANNON = "annon";
+    private final JBallerinaBackend backend;
 
     public JBallerinaBalaWriter(JBallerinaBackend backend) {
         this.backend = backend;
         this.packageContext = backend.packageContext();
-        this.target = getTargetPlatform(packageContext.getResolution()).code();
         this.compilerPluginToml = readCompilerPluginToml();
         this.balToolToml = readBalToolToml();
+        this.target = getTargetPlatform(packageContext.getResolution()).code();
     }
 
 
     @Override
     protected Optional<JsonArray> addPlatformLibs(ZipOutputStream balaOutputStream)
             throws IOException {
-        // retrieve platform dependencies that have default scope
+        // retrieve platform dependencies
         Collection<PlatformLibrary> jars = backend.platformLibraryDependencies(packageContext.packageId(),
                 PlatformLibraryScope.DEFAULT);
-        if (jars.isEmpty()) {
+        Collection<PlatformLibrary> providedJars = backend.platformLibraryDependencies(packageContext.packageId(),
+                PlatformLibraryScope.PROVIDED);
+        if (jars.isEmpty() && providedJars.isEmpty()) {
             return Optional.empty();
         }
-        // Iterate through native dependencies and add them to bala
+        // Iterate through native dependencies with default scope and add them to bala
+        // Native dependencies with provided scope are not added to the bala
         // organization would be
         // -- Bala Root
         //   - libs
         //     - platform
-        //       - java17
+        //       - java21
         //         - java-library1.jar
         //         - java-library2.jar
         JsonArray newPlatformLibs = new JsonArray();
@@ -90,8 +95,8 @@ public class JBallerinaBalaWriter extends BalaWriter {
             Path libPath = jar.path();
             // null check is added for spot bug with the toml validation filename cannot be null
             String fileName = Optional.ofNullable(libPath.getFileName())
-                    .map(p -> p.toString()).orElse("annon");
-            Path entryPath = Paths.get(PLATFORM)
+                    .map(Path::toString).orElse(ANNON);
+            Path entryPath = Path.of(PLATFORM)
                     .resolve(target)
                     .resolve(fileName);
             // create a zip entry for each file
@@ -108,6 +113,21 @@ public class JBallerinaBalaWriter extends BalaWriter {
             newPlatformLibs.add(newDependency);
         }
 
+        // include platform dependencies with provided scope in the Package.json
+        for (PlatformLibrary platformLibrary : providedJars) {
+            JarLibrary jar = (JarLibrary) platformLibrary;
+            JsonObject newDependency = new JsonObject();
+
+            // Create the Package.json entry
+            if (jar.artifactId().isPresent() && jar.groupId().isPresent() && jar.version().isPresent()) {
+                newDependency.addProperty(JarLibrary.KEY_ARTIFACT_ID, jar.artifactId().get());
+                newDependency.addProperty(JarLibrary.KEY_GROUP_ID, jar.groupId().get());
+                newDependency.addProperty(JarLibrary.KEY_VERSION, jar.version().get());
+            }
+            newDependency.addProperty(JarLibrary.KEY_SCOPE, jar.scope().getStringValue());
+            newPlatformLibs.add(newDependency);
+        }
+
         return Optional.of(newPlatformLibs);
     }
 
@@ -117,32 +137,28 @@ public class JBallerinaBalaWriter extends BalaWriter {
             List<String> compilerPluginLibPaths = new ArrayList<>();
             List<String> compilerPluginDependencies = this.compilerPluginToml.get().getCompilerPluginDependencies();
 
-            if (compilerPluginDependencies.get(0) == null) {
+            if (compilerPluginDependencies.isEmpty()) {
                 throw new ProjectException("No dependencies found in CompilerPlugin.toml file");
             }
 
-            if (!compilerPluginDependencies.isEmpty()) {
+            // Iterate through compiler plugin dependencies and add them to bala
+            // organization would be
+            // -- Bala Root
+            //   - compiler-plugin/
+            //     - libs
+            //       - java-library1.jar
+            //       - java-library2.jar
 
-                // Iterate through compiler plugin dependencies and add them to bala
-                // organization would be
-                // -- Bala Root
-                //   - compiler-plugin/
-                //     - libs
-                //       - java-library1.jar
-                //       - java-library2.jar
-
-
-                // Iterate jars and create directories for each target
-                for (String compilerPluginLib : compilerPluginDependencies) {
-                    Path libPath = this.packageContext.project().sourceRoot().resolve(compilerPluginLib);
-                    // null check is added for spot bug with the toml validation filename cannot be null
-                    String fileName = Optional.ofNullable(libPath.getFileName())
-                            .map(p -> p.toString()).orElse("annon");
-                    Path entryPath = Paths.get("compiler-plugin").resolve("libs").resolve(fileName);
-                    // create a zip entry for each file
-                    putZipEntry(balaOutputStream, entryPath, new FileInputStream(libPath.toString()));
-                    compilerPluginLibPaths.add(entryPath.toString());
-                }
+            // Iterate jars and create directories for each target
+            for (String compilerPluginLib : compilerPluginDependencies) {
+                Path libPath = this.packageContext.project().sourceRoot().resolve(compilerPluginLib);
+                // null check is added for spot bug with the toml validation filename cannot be null
+                String fileName = Optional.ofNullable(libPath.getFileName())
+                        .map(Path::toString).orElse(ANNON);
+                Path entryPath = Path.of("compiler-plugin").resolve("libs").resolve(fileName);
+                // create a zip entry for each file
+                putZipEntry(balaOutputStream, entryPath, new FileInputStream(libPath.toString()));
+                compilerPluginLibPaths.add(entryPath.toString());
             }
 
             CompilerPluginJson compilerPluginJson = new CompilerPluginJson(
@@ -155,7 +171,7 @@ public class JBallerinaBalaWriter extends BalaWriter {
                     .registerTypeHierarchyAdapter(String.class, new JsonStringsAdaptor()).setPrettyPrinting().create();
 
             try {
-                putZipEntry(balaOutputStream, Paths.get(COMPILER_PLUGIN, COMPILER_PLUGIN_JSON),
+                putZipEntry(balaOutputStream, Path.of(COMPILER_PLUGIN, COMPILER_PLUGIN_JSON),
                         new ByteArrayInputStream(
                                 gson.toJson(compilerPluginJson).getBytes(Charset.defaultCharset())));
             } catch (IOException e) {
@@ -187,8 +203,8 @@ public class JBallerinaBalaWriter extends BalaWriter {
                 Path libPath = this.packageContext.project().sourceRoot().resolve(balToolLib);
                 // null check is added for spot bug with the toml validation filename cannot be null
                 String fileName = Optional.ofNullable(libPath.getFileName())
-                        .map(p -> p.toString()).orElse("annon");
-                Path entryPath = Paths.get(TOOL).resolve(LIBS).resolve(fileName);
+                        .map(Path::toString).orElse(ANNON);
+                Path entryPath = Path.of(TOOL).resolve(LIBS).resolve(fileName);
                 // create a zip entry for each file
                 putZipEntry(balaOutputStream, entryPath, new FileInputStream(libPath.toString()));
                 balToolLibPaths.add(entryPath.toString());
@@ -201,7 +217,7 @@ public class JBallerinaBalaWriter extends BalaWriter {
                 .registerTypeHierarchyAdapter(String.class, new JsonStringsAdaptor()).setPrettyPrinting().create();
 
         try {
-            putZipEntry(balaOutputStream, Paths.get(TOOL, BAL_TOOL_JSON),
+            putZipEntry(balaOutputStream, Path.of(TOOL, BAL_TOOL_JSON),
                     new ByteArrayInputStream(
                             gson.toJson(balToolJson).getBytes(Charset.defaultCharset())));
         } catch (IOException e) {
@@ -211,7 +227,7 @@ public class JBallerinaBalaWriter extends BalaWriter {
     }
 
     /**
-     * Mark target platform as `java17` if one of the following condition fulfils.
+     * Mark target platform as `java21` if one of the following condition fulfils.
      * 1) Direct dependencies of imports in the package have any `ballerina/java` dependency.
      * 2) Package has defined any platform dependency.
      *
@@ -227,23 +243,36 @@ public class JBallerinaBalaWriter extends BalaWriter {
         // 1) Check direct dependencies of imports in the package have any `ballerina/java` dependency
         for (ResolvedPackageDependency dependency : resolvedPackageDependencies) {
             if (dependency.packageInstance().packageOrg().value().equals(Names.BALLERINA_ORG.value) &&
-                    dependency.packageInstance().packageName().value().equals(Names.JAVA.value)) {
+                    dependency.packageInstance().packageName().value().equals(Names.JAVA.value) &&
+                    !dependency.scope().equals(PackageDependencyScope.TEST_ONLY)) {
                 return this.backend.targetPlatform();
             }
         }
 
         // 2) Check package has defined any platform dependency
         PackageManifest manifest = this.packageContext.project().currentPackage().manifest();
-        if (manifest.platform(this.backend.targetPlatform().code()) != null &&
-                !manifest.platform(this.backend.targetPlatform().code()).dependencies().isEmpty()) {
+        if (hasPlatformDependencies(manifest.platforms())) {
             return this.backend.targetPlatform();
         }
 
+        // 3) Check if the package has a BalTool.toml or a CompilerPlugin.toml
+        if (this.balToolToml.isPresent() || this.compilerPluginToml.isPresent()) {
+            return this.backend.targetPlatform();
+        }
         return AnyTarget.ANY;
     }
 
+    private boolean hasPlatformDependencies(Map<String, PackageManifest.Platform> platforms) {
+        for (PackageManifest.Platform value: platforms.values()) {
+            if (!value.dependencies().isEmpty() && !isPlatformDependenciesTestOnly(value.dependencies())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     private Optional<CompilerPluginDescriptor> readCompilerPluginToml() {
-        Optional<io.ballerina.projects.CompilerPluginToml> compilerPluginToml = backend.packageContext().project()
+        Optional<CompilerPluginToml> compilerPluginToml = backend.packageContext().project()
                 .currentPackage().compilerPluginToml();
 
         if (compilerPluginToml.isPresent()) {
@@ -262,5 +291,14 @@ public class JBallerinaBalaWriter extends BalaWriter {
             return Optional.of(BalToolDescriptor.from(tomlDocument, sourceRoot));
         }
         return Optional.empty();
+    }
+
+    private boolean isPlatformDependenciesTestOnly(List<Map<String, Object>> dependencies) {
+        for (Map<String, Object> dependency : dependencies) {
+            if (!Objects.equals(PlatformLibraryScope.TEST_ONLY.getStringValue(), dependency.get("scope"))) {
+                return false;
+            }
+        }
+        return true;
     }
 }

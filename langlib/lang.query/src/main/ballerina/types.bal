@@ -22,6 +22,7 @@ import ballerina/lang.'xml as lang_xml;
 import ballerina/lang.'stream as lang_stream;
 import ballerina/lang.'table as lang_table;
 import ballerina/lang.'object as lang_object;
+import ballerina/lang.'function;
 
 # A type parameter that is a subtype of `any|error`.
 # Has the special semantic that when used in a declaration
@@ -114,6 +115,11 @@ class _StreamPipeline {
         IterHelper itrObj = new (self, self.constraintTd);
         var strm = internal:construct(self.constraintTd, self.completionTd, itrObj);
         return strm;
+    }
+    
+    public function getStreamForOnConflict() returns stream<Type, CompletionType> {
+        OnConflictIterHelper itrObj = new (self, self.constraintTd);
+        return internal:construct(self.constraintTd, self.completionTd, itrObj);
     }
 }
 
@@ -794,6 +800,40 @@ class _SelectFunction {
     }
 }
 
+class _OnConflictFunction {
+    *_StreamFunction;
+    
+    # Desugared function to do;
+    # on conflict error("Duplicate key")
+    public function (_Frame _frame) returns _Frame|error? onConflictFunc;
+    
+    function init(function (_Frame _frame) returns _Frame|error? onConflictFunc) {
+        self.onConflictFunc = onConflictFunc;
+        self.prevFunc = ();
+    }
+    
+    public function process() returns _Frame|error? {
+        _StreamFunction pf = <_StreamFunction>self.prevFunc;
+        function (_Frame _frame) returns _Frame|error? f = self.onConflictFunc;
+        _Frame|error? pFrame = pf.process();
+        if (pFrame is _Frame) {
+            _Frame|error? cFrame = f(pFrame);
+            if (cFrame is error) {
+                return prepareQueryBodyError(cFrame);
+            }
+            return cFrame;
+        }
+        return pFrame;
+    }
+
+    public function reset() {
+        _StreamFunction? pf = self.prevFunc;
+        if (pf is _StreamFunction) {
+            pf.reset();
+        }
+    }
+}
+
 class _DoFunction {
     *_StreamFunction;
 
@@ -931,6 +971,28 @@ class IterHelper {
     }
 }
 
+class OnConflictIterHelper {
+    public _StreamPipeline pipeline;
+    public typedesc<Type> outputType;
+
+    function init(_StreamPipeline pipeline, typedesc<Type> outputType) {
+        self.pipeline = pipeline;
+        self.outputType = outputType;
+    }
+
+    public isolated function next() returns record {|Type value;|}|error? {
+        _StreamPipeline p = self.pipeline;
+        _Frame|error? f = p.next();
+        if (f is _Frame) {
+            Type v = <Type>f["$value$"];
+            error? err = <error?>f["$error$"];
+            record {|Type v; error? err;|} value = {v, err};
+            return internal:setNarrowType(self.outputType, {value: value});
+        }
+        return f;
+    }
+}
+
 class _OrderTreeNode {
     any? key = ();
     _Frame[]? frames = ();
@@ -992,39 +1054,14 @@ class _OrderTreeNode {
         return orderedFrames;
     }
 
-    # sorting is not supported for any[], therefore have to resolve runtime type and sort it.
+    # sorting is not supported for any[], thus use the `function:call` method call the sort operation.
     # + return - ordered array.
     function getSortedArray(any[] arr) returns any[] {
-        if (arr.length() > 0) {
-            int i = 0;
-            while (i < arr.length()) {
-                if (arr[i] is ()) {
-                    i += 1;
-                    continue;
-                } else if (arr[i] is boolean) {
-                    boolean?[] res = [];
-                    self.copyArray(arr, res);
-                    return res.sort(self.nodesDirection, (v) => v);
-                } else if (arr[i] is int) {
-                    int?[] res = [];
-                    self.copyArray(arr, res);
-                    return res.sort(self.nodesDirection, (v) => v);
-                } else if (arr[i] is float) {
-                    float?[] res = [];
-                    self.copyArray(arr, res);
-                    return res.sort(self.nodesDirection, (v) => v);
-                } else if (arr[i] is decimal) {
-                    decimal?[] res = [];
-                    self.copyArray(arr, res);
-                    return res.sort(self.nodesDirection, (v) => v);
-                } else if (arr[i] is string) {
-                    string?[] res = [];
-                    self.copyArray(arr, res);
-                    return res.sort(self.nodesDirection, (v) => v);
-                }
-            }
+        any|error res = function:call(lang_array:sort, arr, self.nodesDirection);
+        if res is any[] {
+            return res;
         }
-        return arr;
+        panic error(string `Error while sorting the arr: ${arr.toBalString()}`);
     }
 
     # copy every element of source array into empty target array.

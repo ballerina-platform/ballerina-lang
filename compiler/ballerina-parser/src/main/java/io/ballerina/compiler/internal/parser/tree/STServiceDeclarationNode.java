@@ -110,6 +110,7 @@ public class STServiceDeclarationNode extends STModuleMemberDeclarationNode {
                 semicolonToken);
     }
 
+    @Override
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
         return new STServiceDeclarationNode(
                 this.metadata,
@@ -168,6 +169,7 @@ public class STServiceDeclarationNode extends STModuleMemberDeclarationNode {
                 diagnostics);
     }
 
+    @Override
     public Node createFacade(int position, NonTerminalNode parent) {
         return new ServiceDeclarationNode(this, position, parent);
     }

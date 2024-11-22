@@ -5,7 +5,7 @@ All notable changes to this project will be documented in this file. When sendin
 
 ### Language
 
-- 
+- [Add getAllDependents and getAllDependencies method to the DependencyGraph class](https://github.com/ballerina-platform/ballerina-lang/pull/41561)
 - 
 - 
 - 

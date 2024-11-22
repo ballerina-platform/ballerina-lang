@@ -25,13 +25,11 @@ import io.ballerina.runtime.api.values.BString;
  *
  * @since 1.0
  */
-//@BallerinaFunction(
-//        orgName = "ballerina", packageName = "lang.string", functionName = "endsWith",
-//        args = {@Argument(name = "str", type = TypeKind.STRING), @Argument(name = "substr", type = TypeKind.STRING)},
-//        returnType = {@ReturnType(type = TypeKind.BOOLEAN)},
-//        isPublic = true
-//)
 public class EndsWith {
+
+
+    private EndsWith() {
+    }
 
     public static boolean endsWith(BString str, BString substr) {
         return str.getValue().endsWith(substr.getValue());

@@ -34,7 +34,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Set;
 
 /**
  * Attempts to capture a module member declaration.
@@ -44,8 +43,6 @@ import java.util.Set;
  * @since 2.0.0
  */
 public class ModuleMemberTrial extends TreeParserTrial {
-
-    private static final Set<String> RESTRICTED_FUNCTION_NAMES = ParserConstants.RESTRICTED_FUNCTION_NAMES;
 
     public ModuleMemberTrial(TrialTreeParser parentParser) {
         super(parentParser);
@@ -65,12 +62,12 @@ public class ModuleMemberTrial extends TreeParserTrial {
         ModulePartNode node = tree.rootNode();
         NodeList<ModuleMemberDeclarationNode> members = node.members();
         Iterator<ImportDeclarationNode> importIterator = node.imports().iterator();
-        Iterator memberIterator = members.iterator();
+        Iterator<ModuleMemberDeclarationNode> memberIterator = members.iterator();
         while (importIterator.hasNext()) {
             nodes.add(importIterator.next());
         }
         while (memberIterator.hasNext()) {
-            ModuleMemberDeclarationNode dclnNode = (ModuleMemberDeclarationNode) memberIterator.next();
+            ModuleMemberDeclarationNode dclnNode = memberIterator.next();
             validateModuleDeclaration(dclnNode);
             nodes.add(dclnNode);
         }
@@ -78,9 +75,9 @@ public class ModuleMemberTrial extends TreeParserTrial {
     }
 
     private void validateModuleDeclaration(ModuleMemberDeclarationNode declarationNode) {
-        if (declarationNode instanceof FunctionDefinitionNode) {
-            String functionName = ((FunctionDefinitionNode) declarationNode).functionName().text();
-            if (RESTRICTED_FUNCTION_NAMES.contains(functionName)) {
+        if (declarationNode instanceof FunctionDefinitionNode functionDefinitionNode) {
+            String functionName = functionDefinitionNode.functionName().text();
+            if (ParserConstants.isFunctionNameRestricted(functionName)) {
                 String message = "Function name " + "'" + functionName + "'" + " not allowed in Ballerina Shell.\n";
                 throw new InvalidMethodException(message);
             }

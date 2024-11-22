@@ -1,0 +1,60 @@
+{
+  "range": {
+    "start": {
+      "line": 42,
+      "character": 15
+    },
+    "end": {
+      "line": 42,
+      "character": 28
+    }
+  },
+  "source": "extract_to_transform_function15.bal",
+  "description": "Extract to transform function for a method call expression",
+  "expected": [
+    {
+      "title": "Extract to transform function",
+      "kind": "refactor.extract",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 43,
+              "character": 2
+            },
+            "end": {
+              "line": 43,
+              "character": 2
+            }
+          },
+          "newText": "\n\nfunction transform1(Address retAddress) returns Address => {\n    country: \"\",\n    city: \"\",\n    houseNo: \"\",\n    line2: \"\",\n    line1: \"\"\n};\n"
+        },
+        {
+          "range": {
+            "start": {
+              "line": 42,
+              "character": 13
+            },
+            "end": {
+              "line": 42,
+              "character": 33
+            }
+          },
+          "newText": "transform1(myClass.retAddress())"
+        }
+      ],
+      "command": {
+        "title": "Rename function",
+        "command": "ballerina.action.positional.rename",
+        "arguments": [
+          "extract_to_transform_function15.bal",
+          {
+            "line": 42,
+            "character": 13
+          }
+        ]
+      },
+      "resolvable": false
+    }
+  ]
+}

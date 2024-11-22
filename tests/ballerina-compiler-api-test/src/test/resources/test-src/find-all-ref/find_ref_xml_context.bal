@@ -28,4 +28,9 @@ function test() {
     xml x3 = x1.<ns0:*|ns1:*>;
     xml x4 = x1/<ns1:child>;
     var v1 = x1.ns0:id;
+
+    int i = 1;
+    xml x6 = x1/**/<ns1:foo>;
+    xml x7 = x1/*[i];
+    xml x8 = x1/<foo>.<ns0:foo>.get(i);
 }

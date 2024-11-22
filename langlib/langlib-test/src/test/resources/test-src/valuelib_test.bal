@@ -50,13 +50,31 @@ function testToJsonString() returns map<string> {
     json aNumber = 10;
     json aFloatNumber = 10.5;
     json anArray = ["hello", "world"];
-    map<string> aStringMap = { name : "anObject", value : "10", sub : "Science"};
-    map<()|int|float|boolean|string| map<json>> anotherMap = { name : "anObject", value : "10", sub : "Science",
-        intVal: 2324, boolVal: true, floatVal: 45.4, nestedMap: {xx: "XXStr", n: 343, nilVal: ()}};
-    json anObject = { name : "anObject", value : 10, sub : { subName : "subObject", subValue : 10 }};
-    map<()|int|float|boolean|string| map<json>>[] aArr =
-        [{ name : "anObject", value : "10", sub : "Science", intVal: 2324, boolVal: true, floatVal: 45.4, nestedMap:
-        {xx: "XXStr", n: 343, nilVal: ()}}, { name : "anObject", value : "10", sub : "Science"}];
+    map<string> aStringMap = {name: "anObject", value: "10", sub: "Science"};
+    map<()|int|float|boolean|string|map<json>> anotherMap = {
+        name: "anObject",
+        value: "10",
+        sub: "Science",
+        intVal: 2324,
+        boolVal: true,
+        floatVal: 45.4,
+        nestedMap: {xx: "XXStr", n: 343, nilVal: ()}
+    };
+    json anObject = {name: "anObject", value: 10, sub: {subName: "subObject", subValue: 10}};
+    map<()|int|float|boolean|string|map<json>>[] aArr =
+        [
+        {
+            name: "anObject",
+            value: "10",
+            sub: "Science",
+            intVal: 2324,
+            boolVal: true,
+            floatVal: 45.4,
+            nestedMap:
+        {xx: "XXStr", n: 343, nilVal: ()}
+        },
+        {name: "anObject", value: "10", sub: "Science"}
+    ];
     Address1 addr1 = {country: "x", city: "y", "street": "z", "no": 3};
     map<string> result = {};
     byte[] bArr = [0, 1, 255];
@@ -155,14 +173,14 @@ function testFromJsonString() returns map<json|error> {
 function testFromJsonStringNegative() {
     string s1 = "{\"fruits\":[\"apple', 'orange\", 'grapes']}";
     json|error j1 = s1.fromJsonString();
-    error err = <error> j1;
-    assert(<string> checkpanic err.detail()["message"], "unrecognized token ''grapes'' at line: 1 column: 40");
+    error err = <error>j1;
+    assert(<string>checkpanic err.detail()["message"], "unrecognized token ''grapes'' at line: 1 column: 40");
     assert(err.message(), "{ballerina/lang.value}FromJsonStringError");
 
     string s2 = "{'fruits':['apple', 'orange', \"grapes\"]}";
     json|error j2 = s2.fromJsonString();
-    err = <error> j2;
-    assert(<string> checkpanic err.detail()["message"], "expected '\"' or '}' at line: 1 column: 2");
+    err = <error>j2;
+    assert(<string>checkpanic err.detail()["message"], "expected '\"' or '}' at line: 1 column: 2");
     assert(err.message(), "{ballerina/lang.value}FromJsonStringError");
 }
 
@@ -247,10 +265,10 @@ function testToStringMethod() {
     anydata b = a;
     any c = b;
     var d = c.toString();
-    error err1 = error("Failed to get account balance", details = true, val1 = (0.0/0.0), val2 = "This Error",
-               val3 = {"x":"AA","y":(1.0/0.0)});
+    error err1 = error("Failed to get account balance", details = true, val1 = (0.0 / 0.0), val2 = "This Error",
+                val3 = {"x": "AA", "y": (1.0 / 0.0)});
     FirstError err2 = error FirstError(REASON_1, message = "Test passing error union to a function");
-    error err3 = error("first error", detail=(1.0/0.0));
+    error err3 = error("first error", detail = (1.0 / 0.0));
     error err4 = error("second error", err3);
 
     assertEquality("4", a.toString());
@@ -277,7 +295,7 @@ const MESSAGE = "message";
 
 function testNilAndNonNilJsonMerge() returns boolean {
     json j1 = ();
-    json j2 = { one: "hello", two: 2 };
+    json j2 = {one: "hello", two: 2};
     json j3 = 5;
 
     json|error mj1 = j1.mergeJson(j2);
@@ -300,7 +318,7 @@ function testNonNilNonMappingJsonMerge() returns boolean {
 }
 
 function testMappingJsonAndNonMappingJsonMerge1() returns boolean {
-    json j1 = { one: "hello", two: "world", three: 1 };
+    json j1 = {one: "hello", two: "world", three: 1};
     json j2 = "string value";
 
     json|error mj = j1.mergeJson(j2);
@@ -309,7 +327,7 @@ function testMappingJsonAndNonMappingJsonMerge1() returns boolean {
 }
 
 function testMappingJsonAndNonMappingJsonMerge2() returns boolean {
-    json j1 = { one: "hello", two: "world", three: 1 };
+    json j1 = {one: "hello", two: "world", three: 1};
     json[] j2 = [1, 2];
 
     json|error mj = j1.mergeJson(j2);
@@ -318,8 +336,8 @@ function testMappingJsonAndNonMappingJsonMerge2() returns boolean {
 }
 
 function testMappingJsonNoIntersectionMergeSuccess() returns boolean {
-    json j1 = { one: "hello", two: "world", three: 1 };
-    map<json> j2 = { x: 12.0, y: "test value" };
+    json j1 = {one: "hello", two: "world", three: 1};
+    map<json> j2 = {x: 12.0, y: "test value"};
 
     json|error mje = j1.mergeJson(j2);
 
@@ -327,13 +345,13 @@ function testMappingJsonNoIntersectionMergeSuccess() returns boolean {
         return false;
     }
 
-    json mj = <json> checkpanic mje;
+    json mj = <json>checkpanic mje;
     return mj.one === "hello" && mj.two === "world" && mj.three === 1 && mj.x === 12.0 && mj.y === "test value";
 }
 
 function testMappingJsonWithIntersectionMergeFailure1() returns boolean {
-    json j1 = { one: "hello", two: "world", three: 1 };
-    json j2 = { two: 1, y: "test value" };
+    json j1 = {one: "hello", two: "world", three: 1};
+    json j2 = {two: 1, y: "test value"};
 
     json j1Clone = j1.clone();
     json j2Clone = j2.clone();
@@ -345,16 +363,16 @@ function testMappingJsonWithIntersectionMergeFailure1() returns boolean {
         return false;
     }
 
-    error err = <error> mj;
-    error cause = <error> err.detail()["cause"];
+    error err = <error>mj;
+    error cause = <error>err.detail()["cause"];
     return cause.message() == MERGE_JSON_ERROR_REASON &&
             cause.detail()[MESSAGE] === "cannot merge JSON values of types 'string' and 'int'" &&
             j1 == j1Clone && j2 == j2Clone;
 }
 
 function testMappingJsonWithIntersectionMergeFailure2() returns boolean {
-    json j1 = { one: { a: "one", b: 2 }, three: 1 };
-    json j2 = { two: "test value", one: true };
+    json j1 = {one: {a: "one", b: 2}, three: 1};
+    json j2 = {two: "test value", one: true};
 
     json j1Clone = j1.clone();
     json j2Clone = j2.clone();
@@ -366,16 +384,16 @@ function testMappingJsonWithIntersectionMergeFailure2() returns boolean {
         return false;
     }
 
-    error err = <error> mj;
-    error cause = <error> err.detail()["cause"];
+    error err = <error>mj;
+    error cause = <error>err.detail()["cause"];
     return cause.message() == MERGE_JSON_ERROR_REASON &&
             cause.detail()[MESSAGE] === "cannot merge JSON values of types 'map<json>' and 'boolean'" &&
             j1 == j1Clone && j2 == j2Clone;
 }
 
 function testMappingJsonWithIntersectionMergeSuccess() returns boolean {
-    json j1 = { one: "hello", two: (), three: 1, four: { a: (), b: "test", c: "value" } };
-    json j2 = { four: { a: "strings", b: () }, one: (), two: "world", five: 5  };
+    json j1 = {one: "hello", two: (), three: 1, four: {a: (), b: "test", c: "value"}};
+    json j2 = {four: {a: "strings", b: ()}, one: (), two: "world", five: 5};
 
     json j2Clone = j2.clone();
     json|error mj = j1.mergeJson(j2);
@@ -383,26 +401,26 @@ function testMappingJsonWithIntersectionMergeSuccess() returns boolean {
     if (mj is error) {
         return false;
     } else {
-        map<json> expMap = { a: "strings", b: "test", c: "value" };
-        map<json> mj4 = <map<json>> (checkpanic mj.four);
+        map<json> expMap = {a: "strings", b: "test", c: "value"};
+        map<json> mj4 = <map<json>>(checkpanic mj.four);
         return mj === j1 && mj.one === "hello" && mj.two === "world" && mj.three === 1 &&
             mj4 == expMap && mj.five === 5 && j2 == j2Clone;
     }
 }
 
 function testMergeJsonSuccessForValuesWithNonIntersectingCyclicRefererences() returns boolean {
-    map<json> j1 = { x: { a: 1 } };
+    map<json> j1 = {x: {a: 1}};
     j1["z"] = j1;
-    map<json> j2 = { x: { b: 2 } };
+    map<json> j2 = {x: {b: 2}};
     j2["p"] = j2;
     var result = j1.mergeJson(j2);
-    return result === j1 && (checkpanic j1.x) == <json> { a: 1, b: 2 } && j1.z === j1 && j2.p === j2;
+    return result === j1 && (checkpanic j1.x) == <json>{a: 1, b: 2} && j1.z === j1 && j2.p === j2;
 }
 
 function testMergeJsonFailureForValuesWithIntersectingCyclicRefererences() returns boolean {
-    map<json> j1 = { x: { a: 1 } };
+    map<json> j1 = {x: {a: 1}};
     j1["z"] = j1;
-    map<json> j2 = { x: { b: 2 } };
+    map<json> j2 = {x: {b: 2}};
     j2["z"] = j2;
 
     var result = j1.mergeJson(j2);
@@ -414,7 +432,7 @@ function testMergeJsonFailureForValuesWithIntersectingCyclicRefererences() retur
             return false;
         }
     }
-    return (checkpanic j1.x) == <json> { a: 1 } && (checkpanic j2.x) == <json> { b: 2 }
+    return (checkpanic j1.x) == <json>{a: 1} && (checkpanic j2.x) == <json>{b: 2}
         && (checkpanic j1.z) == j1 && (checkpanic j2.z) == j2;
 }
 
@@ -424,6 +442,7 @@ public type AnotherDetail record {
 };
 
 public const REASON_1 = "Reason1";
+
 public type FirstError distinct error<AnotherDetail>;
 
 public class Student {
@@ -465,17 +484,17 @@ function testToString() returns string[] {
     float varFloat = 6.0;
     string varStr = "toString";
     () varNil = ();
-    Address addr = {country : "Sri Lanka", city: "Colombo", street: "Palm Grove"};
-    Person p = {name : "Gima", address: addr, age: 12};
+    Address addr = {country: "Sri Lanka", city: "Colombo", street: "Palm Grove"};
+    Person p = {name: "Gima", address: addr, age: 12};
     boolean varBool = true;
     decimal varDecimal = 345.2425341;
     map<any|error> varMap = {};
-    json varJson = {a: "STRING", b: 12, c: 12.4, d: true, e: {x:"x", y: ()}};
+    json varJson = {a: "STRING", b: 12, c: 12.4, d: true, e: {x: "x", y: ()}};
     any[] varArr = ["str", 23, 23.4, true];
     error err = error("ExampleError");
     FirstError varErr = error FirstError(REASON_1, err, message = "Test passing error union to a function");
-    Student varObj = new("Alaa", "MMV");
-    Teacher varObj2 = new("Rola", "MMV");
+    Student varObj = new ("Alaa", "MMV");
+    Teacher varObj2 = new ("Rola", "MMV");
     any[] varObjArr = [varObj, varObj2];
     xml varXml = xml `<CATALOG><CD><TITLE>Empire Burlesque</TITLE><ARTIST>Bob Dylan</ARTIST></CD><CD><TITLE>Hide your heart</TITLE><ARTIST>Bonnie Tyler</ARTIST></CD><CD><TITLE>Greatest Hits</TITLE><ARTIST>Dolly Parton</ARTIST></CD></CATALOG>`;
 
@@ -494,25 +513,39 @@ function testToString() returns string[] {
     varMap["varObjArr"] = varObjArr;
     varMap["varRecord"] = p;
 
-    return [varInt.toString(), varFloat.toString(), varStr.toString(), varNil.toString(), varBool.toString(),
-            varDecimal.toString(), varJson.toString(), varXml.toString(), varArr.toString(), varErr.toString(),
-            value:toString(varObj), varObj2.toString(), varObjArr.toString(), p.toString(), varMap.toString()];
+    return [
+        varInt.toString(),
+        varFloat.toString(),
+        varStr.toString(),
+        varNil.toString(),
+        varBool.toString(),
+        varDecimal.toString(),
+        varJson.toString(),
+        varXml.toString(),
+        varArr.toString(),
+        varErr.toString(),
+        value:toString(varObj),
+        varObj2.toString(),
+        varObjArr.toString(),
+        p.toString(),
+        varMap.toString()
+    ];
 }
 
 function testToStringMethodForTable() {
     table<Employee> employeeTable = table key(id) [
-            { id: 1, age: 30,  salary: 300.5, name: "Mary", married: true },
-            { id: 2, age: 20,  salary: 300.5, name: "John", married: true }
-        ];
+        {id: 1, age: 30, salary: 300.5, name: "Mary", married: true},
+        {id: 2, age: 20, salary: 300.5, name: "John", married: true}
+    ];
 
     assertEquality("[{\"id\":1,\"age\":30,\"salary\":300.5,\"name\":\"Mary\",\"married\":true},"
     + "{\"id\":2,\"age\":20,\"salary\":300.5,\"name\":\"John\",\"married\":true}]", employeeTable.toString());
 }
 
 public function xmlSequenceFragmentToString() returns string {
-   xml x = xml `<abc><def>DEF</def><ghi>1</ghi></abc>`;
+    xml x = xml `<abc><def>DEF</def><ghi>1</ghi></abc>`;
 
-   return (x/*).toString();
+    return (x/*).toString();
 }
 
 type Person2 record {
@@ -532,10 +565,10 @@ function testCloneWithTypeTupleToJSON() {
     [string, string, xml] tupleValue2 = ["Mohan", "single"];
     jsonValue = tupleValue2.cloneWithType();
     assert(jsonValue is error, true);
-    error err = <error> jsonValue;
+    error err = <error>jsonValue;
     assert(err.message(), "{ballerina/lang.value}ConversionError");
-    assert(<string> checkpanic err.detail()["message"], "'[string,string,xml<(lang.xml:Element|lang.xml:Comment|" +
-         "lang.xml:ProcessingInstruction|lang.xml:Text)>]' value cannot be converted to 'json'");
+    assert(<string>checkpanic err.detail()["message"], "'[string,string,xml<(lang.xml:Element|lang.xml:Comment|" +
+        "lang.xml:ProcessingInstruction|lang.xml:Text)>]' value cannot be converted to 'json'");
 
     [string, xml|int] tupleValue3 = ["text1", 1];
     jsonValue = tupleValue3.cloneWithType();
@@ -555,41 +588,41 @@ function testCloneWithTypeTupleToJSON() {
     [string, int|xml...] tupleValue6 = ["text", xml `text`, 1];
     jsonValue = tupleValue6.cloneWithType();
     assert(jsonValue is error, true);
-    err = <error> jsonValue;
+    err = <error>jsonValue;
     assert(err.message(), "{ballerina/lang.value}ConversionError");
-    assert(<string> checkpanic err.detail()["message"], "'[string,(int|xml<(lang.xml:Element|lang.xml:Comment|" +
-         "lang.xml:ProcessingInstruction|lang.xml:Text)>)...]' value cannot be converted to 'json'");
+    assert(<string>checkpanic err.detail()["message"], "'[string,(int|xml<(lang.xml:Element|lang.xml:Comment|" +
+        "lang.xml:ProcessingInstruction|lang.xml:Text)>)...]' value cannot be converted to 'json'");
 
     [string, anydata...] tupleValue7 = ["", xml `text`, true];
     jsonValue = tupleValue7.cloneWithType();
     assert(jsonValue is error, true);
-    err = <error> jsonValue;
+    err = <error>jsonValue;
     assert(err.message(), "{ballerina/lang.value}ConversionError");
-    assert(<string> checkpanic err.detail()["message"], "'[string,anydata...]' value cannot be converted to 'json'");
+    assert(<string>checkpanic err.detail()["message"], "'[string,anydata...]' value cannot be converted to 'json'");
 
     [string, xml|int] tupleValue8 = ["text1", xml `<elem></elem>`];
     jsonValue = tupleValue8.cloneWithType();
     assert(jsonValue is error, true);
-    err = <error> jsonValue;
+    err = <error>jsonValue;
     assert(err.message(), "{ballerina/lang.value}ConversionError");
-    assert(<string> checkpanic err.detail()["message"], "'[string,(xml<(lang.xml:Element|lang.xml:Comment|" +
-         "lang.xml:ProcessingInstruction|lang.xml:Text)>|int)]' value cannot be converted to 'json'");
+    assert(<string>checkpanic err.detail()["message"], "'[string,(xml<(lang.xml:Element|lang.xml:Comment|" +
+        "lang.xml:ProcessingInstruction|lang.xml:Text)>|int)]' value cannot be converted to 'json'");
 
     A tupleValue9 = [1, ""];
     jsonValue = tupleValue9.cloneWithType();
     assert(jsonValue is error, false);
     assert(jsonValue is json[], true);
 
-    A tupleValue10 = [1,  xml `<elem></elem>`];
+    A tupleValue10 = [1, xml `<elem></elem>`];
     jsonValue = tupleValue10.cloneWithType();
     assert(jsonValue is error, true);
-    err = <error> jsonValue;
+    err = <error>jsonValue;
     assert(err.message(), "{ballerina/lang.value}ConversionError");
-    assert(<string> checkpanic err.detail()["message"], "'A' value cannot be converted to 'json'");
+    assert(<string>checkpanic err.detail()["message"], "'A' value cannot be converted to 'json'");
 }
 
 function testCloneWithTypeJsonRec1() {
-    Person2  p = {name: "N", age: 3};
+    Person2 p = {name: "N", age: 3};
     json|error ss = p.cloneWithType(json);
     assert(ss is json, true);
 
@@ -597,15 +630,15 @@ function testCloneWithTypeJsonRec1() {
 }
 
 function testCloneWithTypeJsonRec2() {
-   json pj = { name : "tom", age: 2};
-   Person2 pe = checkpanic pj.cloneWithType(Person2);
-   assert(pe.name, "tom");
-   assert(pe.age, 2);
+    json pj = {name: "tom", age: 2};
+    Person2 pe = checkpanic pj.cloneWithType(Person2);
+    assert(pe.name, "tom");
+    assert(pe.age, 2);
 
-   Person2 s = { name : "bob", age: 4};
-   json|error ss = s.cloneWithType(json);
-   assert(ss is json, true);
-   assert((checkpanic ss).toJsonString(), "{\"name\":\"bob\", \"age\":4}");
+    Person2 s = {name: "bob", age: 4};
+    json|error ss = s.cloneWithType(json);
+    assert(ss is json, true);
+    assert((checkpanic ss).toJsonString(), "{\"name\":\"bob\", \"age\":4}");
 }
 
 type BRec record {
@@ -617,13 +650,13 @@ type CRec record {
 };
 
 public function testCloneWithTypeOptionalFieldToMandotoryField() {
-    CRec c = {  };
+    CRec c = {};
     var b = c.cloneWithType(BRec);
     assert(b is error, true);
 
-    error bbe = <error> b;
+    error bbe = <error>b;
     var message = bbe.detail()["message"];
-    string messageString = message is error? message.toString(): message.toString();
+    string messageString = message is error ? message.toString() : message.toString();
     assert(bbe.message(), "{ballerina/lang.value}ConversionError");
     assert(messageString, "'CRec' value cannot be converted to 'BRec': " +
     "\n\t\tmissing required field 'i' of type 'int' in record 'BRec'");
@@ -658,6 +691,7 @@ function testCloneWithTypeAmbiguousTargetType() {
 }
 
 type StringOrNull string?;
+
 function testCloneWithTypeForNilPositive() {
     anydata a = ();
     string|error? c1 = a.cloneWithType(StringOrNull);
@@ -667,7 +701,9 @@ function testCloneWithTypeForNilPositive() {
 }
 
 type FooOrBar typedesc<Foo|Bar>;
+
 type StringOrInt string|int;
+
 function testCloneWithTypeForNilNegative() {
     anydata a = ();
     string|int|error c1 = a.cloneWithType(StringOrInt);
@@ -675,9 +711,9 @@ function testCloneWithTypeForNilNegative() {
     assert(c1 is error, true);
     assert(c2 is error, true);
 
-    error c1e = <error> c1;
+    error c1e = <error>c1;
     var message = c1e.detail()["message"];
-    string messageString = message is error? message.toString(): message.toString();
+    string messageString = message is error ? message.toString() : message.toString();
     assert(messageString, "cannot convert '()' to type 'StringOrInt'");
 }
 
@@ -708,18 +744,18 @@ type Y record {|
 |};
 
 function testCloneWithTypeNumeric3() {
-    X x = { a: 21, b: "Alice", c : 1000.5 };
+    X x = {a: 21, b: "Alice", c: 1000.5};
     Y|error ye = x.cloneWithType(Y);
     assert(ye is Y, true);
 
     Y y = checkpanic ye;
     assert(y.a, 21.0);
     assert(y.b, "Alice");
-    assert(y["c"], <decimal> 1000.5);
+    assert(y["c"], <decimal>1000.5);
 }
 
 function testCloneWithTypeNumeric4() {
-    json j = { a: 21.3, b: "Alice", c : 1000 };
+    json j = {a: 21.3, b: "Alice", c: 1000};
     X|error xe = j.cloneWithType(X);
     assert(xe is X, true);
 
@@ -730,7 +766,9 @@ function testCloneWithTypeNumeric4() {
 }
 
 type FloatArray float[];
+
 type FloatOrBooleanArray (float|boolean)[];
+
 function testCloneWithTypeNumeric5() {
     int[] i = [1, 2];
     float[]|error je = i.cloneWithType(FloatArray);
@@ -741,20 +779,20 @@ function testCloneWithTypeNumeric5() {
     assert(j.length(), i.length());
     assert(j[0], 1.0);
     assert(j[1], 2.0);
-    assert(j, <(float|boolean)[]> j2);
+    assert(j, <(float|boolean)[]>j2);
 }
 
-function testCloneWithTypeToArrayOfRecord () {
-    X x1 = { a: 21, b: "Alice", c: 1000.5 };
-    X x2 = { a: 25, b: "Michel", c: 1020.5};
+function testCloneWithTypeToArrayOfRecord() {
+    X x1 = {a: 21, b: "Alice", c: 1000.5};
+    X x2 = {a: 25, b: "Michel", c: 1020.5};
     X[] x = [x1, x2];
     Y[] y = checkpanic x.cloneWithType();
-    assert(y, <Y[]> [{"a":21.0,"b":"Alice","c":1000.5},{"a":25.0,"b":"Michel","c":1020.5}]);
+    assert(y, <Y[]>[{"a": 21.0, "b": "Alice", "c": 1000.5}, {"a": 25.0, "b": "Michel", "c": 1020.5}]);
 }
 
-function testCloneWithTypeToArrayOfMap () {
-    map<float> m1 = { a: 1.2, b: 2.7 };
-    map<float> m2 = { a: 1.8, b: 2.3 };
+function testCloneWithTypeToArrayOfMap() {
+    map<float> m1 = {a: 1.2, b: 2.7};
+    map<float> m2 = {a: 1.8, b: 2.3};
     map<float>[] m = [m1, m2];
     map<string|int>[]|error res = m.cloneWithType();
     assert(res is error, false);
@@ -762,9 +800,11 @@ function testCloneWithTypeToArrayOfMap () {
 }
 
 type IntMap map<int>;
+
 type IntOrStringMap map<string|int>;
+
 function testCloneWithTypeNumeric6() {
-    map<float> m = { a: 1.2, b: 2.7 };
+    map<float> m = {a: 1.2, b: 2.7};
     map<int>|error m1e = m.cloneWithType(IntMap);
     map<string|int> m3 = checkpanic m.cloneWithType(IntOrStringMap);
     assert(m1e is map<int>, true);
@@ -773,10 +813,11 @@ function testCloneWithTypeNumeric6() {
     assert(m1.length(), m.length());
     assert(m1["a"], 1);
     assert(m1["b"], 3);
-    assert(m1, <map<string|int>> m3);
+    assert(m1, <map<string|int>>m3);
 }
 
 type DecimalArray decimal[];
+
 function testCloneWithTypeNumeric7() {
     int[] a1 = [1, 2, 3];
     decimal[]|error a2e = a1.cloneWithType(DecimalArray);
@@ -784,12 +825,13 @@ function testCloneWithTypeNumeric7() {
 
     decimal[] a2 = checkpanic a2e;
     assert(a2.length(), a1.length());
-    assert(a2[0], <decimal> 1);
-    assert(a2[1], <decimal> 2);
-    assert(a2[2], <decimal> 3);
+    assert(a2[0], <decimal>1);
+    assert(a2[1], <decimal>2);
+    assert(a2[2], <decimal>3);
 }
 
 type ByteArray byte[];
+
 type IntArray int[];
 
 function testCloneWithTypeDecimalToInt() {
@@ -854,7 +896,9 @@ function testCloneWithTypeDecimalToIntNegative() {
 }
 
 type IntSubtypeArray1 int:Signed32[];
+
 type IntSubtypeArray2 int:Unsigned16[];
+
 function testCloneWithTypeIntSubTypeArray() {
     float[] a = [1.25, 3.46, 7.52];
     int:Signed32[]|error b = a.cloneWithType(IntSubtypeArray1);
@@ -918,7 +962,7 @@ function testCloneWithTypeIntArrayToUnionArray() {
     assert(m is decimal[], false);
     assert(m is error, false);
     assert(m is (int:Signed16|int:Unsigned8|decimal)[], true);
-    assert(checkpanic m, [10,20]);
+    assert(checkpanic m, [10, 20]);
 
     byte[] z = [1, 2, 3];
 
@@ -960,11 +1004,11 @@ function testCloneWithTypeIntArrayToUnionArray() {
 
     (byte|int:Signed16)[]|error u = x1.cloneWithType();
     assert(u is error, true);
-    error err = <error> u;
+    error err = <error>u;
     var message = err.detail()["message"];
     string messageString = message is error ? message.toString() : message.toString();
     string errMsg = "'int[]' value cannot be converted to '(byte|lang.int:Signed16)[]': " +
-              		"\n\t\tarray element '[2]' should be of type '(byte|lang.int:Signed16)', found '65000'";
+                "\n\t\tarray element '[2]' should be of type '(byte|lang.int:Signed16)', found '65000'";
     assert(err.message(), "{ballerina/lang.value}ConversionError");
     assert(messageString, errMsg);
 
@@ -988,7 +1032,7 @@ function testCloneWithTypeIntArrayToUnionArray() {
 function testCloneWithTypeArrayToTupleWithRestType() {
     int[] arr = [1, 2, 3];
     [decimal, byte...]|error a = arr.cloneWithType();
-    assert(checkpanic a, <[decimal, byte...]> [1.0, 2, 3]);
+    assert(checkpanic a, <[decimal, byte...]>[1.0, 2, 3]);
 }
 
 function testCloneWithTypeArrayToTupleWithRestTypeUnionType() {
@@ -1001,7 +1045,7 @@ function testCloneWithTypeArrayToUnionTupleNegative() {
     int[] arr = [1, 2, 3];
     [int|decimal, byte|int:Unsigned8]|error c = arr.cloneWithType();
     assert(c is error, true);
-    error err = <error> c;
+    error err = <error>c;
     var message = err.detail()["message"];
     string messageString = message is error ? message.toString() : message.toString();
     assert(err.message(), "{ballerina/lang.value}ConversionError");
@@ -1012,7 +1056,7 @@ function testCloneWithTypeArrayToTupleWithMoreTargetTypes() {
     int[] arr = [1, 2];
     [int, float, decimal, byte]|error d = arr.cloneWithType();
     assert(d is error, true);
-    error err = <error> d;
+    error err = <error>d;
     var message = err.detail()["message"];
     string messageString = message is error ? message.toString() : message.toString();
     assert(err.message(), "{ballerina/lang.value}ConversionError");
@@ -1024,20 +1068,20 @@ function testCloneWithTypeArrayToTupleWithUnionRestTypeNegative() {
     [float|decimal, int|byte...]|error e = arr1.cloneWithType();
     assert(e is [float|decimal, int|byte...], true);
     assert(e is error, false);
-    assert(checkpanic e, [1.0,2,3]);
+    assert(checkpanic e, [1.0, 2, 3]);
 
     float[] arr2 = [1, 1.2, 1.5, 2.1, 2.2, 2.3, 2.5, 2.7, 3.4, 4.1, 5, 1.2, 1.5, 2.1, 2.2, 2.3, 2.5, 2.7, 3.4, 4.1, 5, 7, 10];
     [byte|decimal, string|int, int|decimal...]|error f = arr2.cloneWithType();
     assert(f is [byte|decimal, string|int, int|decimal...], true);
     assert(f is error, false);
-    assert(checkpanic f, [1,1,2,2,2,2,2,3,3,4,5,1,2,2,2,2,2,3,3,4,5,7,10]);
+    assert(checkpanic f, [1, 1, 2, 2, 2, 2, 2, 3, 3, 4, 5, 1, 2, 2, 2, 2, 2, 3, 3, 4, 5, 7, 10]);
 }
 
 function testCloneWithTypeArrayToTupleNegative() {
     float[] arr = [1, 2.3, 3.5];
     [string, string:Char, string|string:Char]|error f = arr.cloneWithType();
     assert(f is error, true);
-    error err = <error> f;
+    error err = <error>f;
     var message = err.detail()["message"];
     string messageString = message is error ? message.toString() : message.toString();
     assert(err.message(), "{ballerina/lang.value}ConversionError");
@@ -1051,7 +1095,7 @@ function testCloneWithTypeArrayToTupleWithStructureRestTypeNegative() {
     int[] arr = [10, 20, 30];
     [map<int>, [string, int]...]|error g = arr.cloneWithType();
     assert(g is error, true);
-    error err = <error> g;
+    error err = <error>g;
     var message = err.detail()["message"];
     string messageString = message is error ? message.toString() : message.toString();
     assert(err.message(), "{ballerina/lang.value}ConversionError");
@@ -1080,7 +1124,7 @@ function testCloneWithTypeTupleRestTypeNegative() {
 
     [string...]|error c = t.cloneWithType();
     assert(c is error, true);
-    error err = <error> c;
+    error err = <error>c;
     var message = err.detail()["message"];
     string messageString = message is error ? message.toString() : message.toString();
     assert(err.message(), "{ballerina/lang.value}ConversionError");
@@ -1098,15 +1142,15 @@ function testCloneWithTypeUnionTupleRestTypeNegative() {
     assert(d is [int, decimal|int...], false);
     assert(d is [float, decimal|int...], false);
     assert(d is error, false);
-    assert(checkpanic d, <[int|float, decimal|int...]>[1,2.5,3,5.2]);
+    assert(checkpanic d, <[int|float, decimal|int...]>[1, 2.5, 3, 5.2]);
 }
 
 function testCloneWithTypeToTupleTypeWithFiniteTypesNegative() {
     [1|"1"|"2", 2|"2"|"3"] tupleVal = [1, "2"];
     ["1", 2]|error ans = trap tupleVal.cloneWithType();
     assert(ans is error, true);
-    error err = <error> ans;
-    string message = <string> checkpanic err.detail()["message"];
+    error err = <error>ans;
+    string message = <string>checkpanic err.detail()["message"];
     assert(err.message(), "{ballerina/lang.value}ConversionError");
     assert(message, "'[(1|\"1\"|\"2\"),(2|\"2\"|\"3\")]' value cannot be converted to '[\"1\",2]': "
     + "\n\t\ttuple element '[0]' should be of type '\"1\"', found '1'"
@@ -1116,30 +1160,55 @@ function testCloneWithTypeToTupleTypeWithFiniteTypesNegative() {
 const CONST_TWO = 2;
 
 type Foo1 1|2;
+
 type Bar1 0|4;
+
 type Foo2 "1"|"2";
+
 type Bar2 "0"|"";
+
 type nil ();
+
 type integer int;
+
 type sym1 112|string|int[3];
-type Foo3 1|2|sym1|3|[Bar3,sym1];
+
+type Foo3 1|2|sym1|3|[Bar3, sym1];
+
 type Bar3 7|int|integer;
+
 type sym2 Foo3|Bar3|boolean[];
+
 type sym3 7|Bar3|byte;
+
 type sym4 11|0;
+
 type sym5 11|sym4|12;
+
 type WithFillerValSym Bar3|20|sym3;
+
 type NoFillerValSym sym2|20|sym3;
+
 type finiteUnionType false|byte|0|0.0f|0d|""|["a"]|string:Char|int:Unsigned16;
+
 type LiteralConstAndIntType int|CONST_TWO;
+
 type NoFillerValue 1|"foo";
+
 type finiteA 1|2|3;
+
 type finiteB 0|-100;
+
 type unionA finiteA|finiteB|int;
+
 type unionB finiteA|4|5;
+
 type finiteDec 1.0d|0d|4d;
+
 type finiteFloat 1.2|1.4|0.0|10.0;
+
 type finiteBoolean true|false;
+
 type emptyString "";
 
 function testCloneWithTypeTupleConsideringFillerValues() {
@@ -1173,54 +1242,54 @@ function testCloneWithTypeTupleConsideringFillerValues() {
         assert(result3, ["test", "string", "", "", ""]);
     }
 
-    [int, byte, 3] tuple4 = [1,2,3];
+    [int, byte, 3] tuple4 = [1, 2, 3];
     unionA[4] result4 = checkpanic tuple4.cloneWithType();
-    assert(result4, [1,2,3,0]);
+    assert(result4, [1, 2, 3, 0]);
 
     unionB[4]|error result5 = trap tuple4.cloneWithType();
     assert(result5 is error, true);
-    err = <error> result5;
+    err = <error>result5;
     message = err.detail()["message"];
     messageString = message is error ? message.toString() : message.toString();
     assert(err.message(), "{ballerina/lang.value}ConversionError");
     assert(messageString, "'[int,byte,3]' value cannot be converted to 'unionB[4]': "
     + "\n\t\tarray cannot be expanded to size '4' because, the target type 'unionB[4]' does not have a filler value");
 
-    [decimal, 1.0d, 4d] tuple5 = [1.0,1.0d,4d];
+    [decimal, 1.0d, 4d] tuple5 = [1.0, 1.0d, 4d];
     finiteDec[4] resultTuple5 = checkpanic tuple5.cloneWithType();
-    assert(resultTuple5, [1.0d,1.0d,4d,0d]);
+    assert(resultTuple5, [1.0d, 1.0d, 4d, 0d]);
 
-    [float, 1.2, 1.4] tuple6 = [10,1.2,1.4];
+    [float, 1.2, 1.4] tuple6 = [10, 1.2, 1.4];
     finiteFloat[4] result6 = checkpanic tuple6.cloneWithType();
-    assert(result6, [10.0,1.2,1.4,0.0]);
+    assert(result6, [10.0, 1.2, 1.4, 0.0]);
 
-    [true, boolean, false] tuple7 = [true,false,false];
+    [true, boolean, false] tuple7 = [true, false, false];
     finiteBoolean[4] result7 = checkpanic tuple7.cloneWithType();
-    assert(result7, [true,false,false,false]);
+    assert(result7, [true, false, false, false]);
 
     [2] tuple8 = [2];
     LiteralConstAndIntType[2] result8 = checkpanic tuple8.cloneWithType();
-    assert(result8, [2,0]);
+    assert(result8, [2, 0]);
 
     (Foo1|Bar1)[2] result9 = checkpanic tuple8.cloneWithType();
-    assert(result9, [2,0]);
+    assert(result9, [2, 0]);
 
     ["1"] tuple10 = ["1"];
     (Foo2|Bar2)[2] result10 = checkpanic tuple10.cloneWithType();
-    assert(result10, ["1",""]);
+    assert(result10, ["1", ""]);
 
     (nil|int)[2] result11 = checkpanic tuple8.cloneWithType();
-    assert(result11, [2,()]);
+    assert(result11, [2, ()]);
 
     (Foo1|integer)[2] result12 = checkpanic tuple8.cloneWithType();
-    assert(result12, [2,0]);
+    assert(result12, [2, 0]);
 
     [100] tuple12 = [100];
     WithFillerValSym[2] result13 = checkpanic tuple12.cloneWithType();
-    assert(result13, [100,0]);
+    assert(result13, [100, 0]);
 
     (Bar3|20|sym5)[2] result14 = checkpanic tuple12.cloneWithType();
-    assert(result14, [100,0]);
+    assert(result14, [100, 0]);
 
     NoFillerValSym[2]|error result15 = tuple12.cloneWithType();
     assert(result15 is error, true);
@@ -1271,7 +1340,7 @@ function testCloneWithTypeTupleConsideringFillerValues() {
     + "\n\t\tarray cannot be expanded to size '2' because, the target type '(lang.xml:Text|lang.xml:Comment|finiteA)[2]' does not have a filler value");
 
     (string:Char|emptyString)[2] result20 = checkpanic tuple18.cloneWithType();
-    assert(result20, ["0",""]);
+    assert(result20, ["0", ""]);
 
     (string:Char|"k")[2]|error result21 = tuple18.cloneWithType();
     assert(result21 is error, true);
@@ -1283,7 +1352,7 @@ function testCloneWithTypeTupleConsideringFillerValues() {
     + "\n\t\tarray cannot be expanded to size '2' because, the target type '(lang.string:Char|\"k\")[2]' does not have a filler value");
 
     (string:Char|Bar2)[2] result22 = checkpanic tuple18.cloneWithType();
-    assert(result22, ["0",""]);
+    assert(result22, ["0", ""]);
 }
 
 type Default record {|
@@ -1305,15 +1374,16 @@ function testCloneWithTypeConsideringReadOnlyFillerValues() {
     assertEquality("[[0,0],[0,0],[0,0],[0,0]]", arr2.toString());
     assertEquality("[[0,\"\"],[0,\"\"],[0,\"\"],[0,\"\"]]", arr3.toString());
     assertEquality("[{},{}]", arr4.toString());
-    assertEquality("[{\"id\":0,\"name\":\"Tom\"},{\"id\":0,\"name\":\"Tom\"},{\"id\":0,\"name\":\"Tom\"},"+
+    assertEquality("[{\"id\":0,\"name\":\"Tom\"},{\"id\":0,\"name\":\"Tom\"},{\"id\":0,\"name\":\"Tom\"}," +
     "{\"id\":0,\"name\":\"Tom\"}]", arr5.toString());
     assertEquality("[[],[]]", arr6.toString());
 }
 
 type StringArray string[];
+
 function testCloneWithTypeStringArray() {
-   string anArray = "[\"hello\", \"world\"]";
-   json j = <json> checkpanic anArray.fromJsonString();
+    string anArray = "[\"hello\", \"world\"]";
+    json j = <json>checkpanic anArray.fromJsonString();
     string[]|error cloned = j.cloneWithType(StringArray);
     assert(cloned is string[], true);
 
@@ -1323,157 +1393,157 @@ function testCloneWithTypeStringArray() {
 }
 
 function testCloneWithTypeWithInferredArgument() {
-   Person2 a = {name: "N", age: 3};
-   json|error b = a.cloneWithType();
-   assert(b is json, true);
-   assert((checkpanic b).toJsonString(), "{\"name\":\"N\", \"age\":3}");
+    Person2 a = {name: "N", age: 3};
+    json|error b = a.cloneWithType();
+    assert(b is json, true);
+    assert((checkpanic b).toJsonString(), "{\"name\":\"N\", \"age\":3}");
 
-   json c = {name: "tom", age: 2};
-   Person2 d = checkpanic c.cloneWithType();
-   assert(d.name, "tom");
-   assert(d.age, 2);
+    json c = {name: "tom", age: 2};
+    Person2 d = checkpanic c.cloneWithType();
+    assert(d.name, "tom");
+    assert(d.age, 2);
 
-   Person2 e = {name: "bob", age: 4};
-   json|error f = e.cloneWithType();
-   assert(f is json, true);
-   assert((checkpanic f).toJsonString(), "{\"name\":\"bob\", \"age\":4}");
+    Person2 e = {name: "bob", age: 4};
+    json|error f = e.cloneWithType();
+    assert(f is json, true);
+    assert((checkpanic f).toJsonString(), "{\"name\":\"bob\", \"age\":4}");
 
-   CRec g = {};
-   BRec|error h = g.cloneWithType();
-   assert(h is error, true);
-   error err = <error>h;
-   var message = err.detail()["message"];
-   string messageString = message is error ? message.toString() : message.toString();
-   assert(err.message(), "{ballerina/lang.value}ConversionError");
-   assert(messageString, "'CRec' value cannot be converted to 'BRec': " +
-   "\n\t\tmissing required field 'i' of type 'int' in record 'BRec'");
+    CRec g = {};
+    BRec|error h = g.cloneWithType();
+    assert(h is error, true);
+    error err = <error>h;
+    var message = err.detail()["message"];
+    string messageString = message is error ? message.toString() : message.toString();
+    assert(err.message(), "{ballerina/lang.value}ConversionError");
+    assert(messageString, "'CRec' value cannot be converted to 'BRec': " +
+    "\n\t\tmissing required field 'i' of type 'int' in record 'BRec'");
 
-   Foo i = {s: "test string"};
-   Bar|Baz|error j = i.cloneWithType();
-   assert(j is Bar, true);
-   assert(j is Baz, false);
-   assert(j is error, false);
-   assert(j is Bar|Baz, true);
-   if (j is Bar|Baz) {
-       assert(<Bar|Baz>j, {s: "test string"});
-   }
+    Foo i = {s: "test string"};
+    Bar|Baz|error j = i.cloneWithType();
+    assert(j is Bar, true);
+    assert(j is Baz, false);
+    assert(j is error, false);
+    assert(j is Bar|Baz, true);
+    if (j is Bar|Baz) {
+        assert(<Bar|Baz>j, {s: "test string"});
+    }
 
-   anydata k = ();
-   string|error? l = k.cloneWithType();
-   json|error m = k.cloneWithType();
-   assert(l is (), true);
-   assert(m is (), true);
+    anydata k = ();
+    string|error? l = k.cloneWithType();
+    json|error m = k.cloneWithType();
+    assert(l is (), true);
+    assert(m is (), true);
 
-   anydata n = ();
-   string|int|error o = n.cloneWithType();
-   Foo|Bar|error p = n.cloneWithType();
-   assert(o is error, true);
-   assert(p is error, true);
+    anydata n = ();
+    string|int|error o = n.cloneWithType();
+    Foo|Bar|error p = n.cloneWithType();
+    assert(o is error, true);
+    assert(p is error, true);
 
-   err = <error>o;
-   message = err.detail()["message"];
-   messageString = message is error ? message.toString() : message.toString();
-   assert(messageString, "cannot convert '()' to type '(string|int)'");
+    err = <error>o;
+    message = err.detail()["message"];
+    messageString = message is error ? message.toString() : message.toString();
+    assert(messageString, "cannot convert '()' to type '(string|int)'");
 
-   int q = 1234;
-   float|error r = q.cloneWithType();
-   assert(r is float, true);
-   assert(checkpanic r, 1234.0);
+    int q = 1234;
+    float|error r = q.cloneWithType();
+    assert(r is float, true);
+    assert(checkpanic r, 1234.0);
 
-   anydata s = 1234.6;
-   int|error t = s.cloneWithType();
-   assert(t is int, true);
-   assert(checkpanic t, 1235);
+    anydata s = 1234.6;
+    int|error t = s.cloneWithType();
+    assert(t is int, true);
+    assert(checkpanic t, 1235);
 
-   X u = {a: 21, b: "Alice", c: 1000.5};
-   Y|error v = value:cloneWithType(u);
-   assert(v is Y, true);
+    X u = {a: 21, b: "Alice", c: 1000.5};
+    Y|error v = value:cloneWithType(u);
+    assert(v is Y, true);
 
-   Y w = checkpanic v;
-   assert(w.a, 21.0);
-   assert(w.b, "Alice");
-   assert(w["c"], <decimal>1000.5);
+    Y w = checkpanic v;
+    assert(w.a, 21.0);
+    assert(w.b, "Alice");
+    assert(w["c"], <decimal>1000.5);
 
-   json x = {a: 21.3, b: "Alice", c: 1000};
-   X|error y = x.cloneWithType();
-   assert(y is X, true);
+    json x = {a: 21.3, b: "Alice", c: 1000};
+    X|error y = x.cloneWithType();
+    assert(y is X, true);
 
-   X z = checkpanic y;
-   assert(z.a, 21);
-   assert(z.b, "Alice");
-   assert(z.c, 1000.0);
+    X z = checkpanic y;
+    assert(z.a, 21);
+    assert(z.b, "Alice");
+    assert(z.c, 1000.0);
 
-   int[] a2 = [1, 2];
-   float[]|error b2 = a2.cloneWithType();
-   (float|boolean)[] o2 = checkpanic value:cloneWithType(a2);
-   assert(b2 is float[], true);
+    int[] a2 = [1, 2];
+    float[]|error b2 = a2.cloneWithType();
+    (float|boolean)[] o2 = checkpanic value:cloneWithType(a2);
+    assert(b2 is float[], true);
 
-   float[] c2 = checkpanic b2;
-   assert(c2.length(), a2.length());
-   assert(c2[0], 1.0);
-   assert(c2[1], 2.0);
-   assert(c2, <(float|boolean)[]>o2);
+    float[] c2 = checkpanic b2;
+    assert(c2.length(), a2.length());
+    assert(c2[0], 1.0);
+    assert(c2[1], 2.0);
+    assert(c2, <(float|boolean)[]>o2);
 
-   map<float> d2 = {a: 1.2, b: 2.7};
-   map<int>|error e2 = d2.cloneWithType();
-   map<string|int> f2 = checkpanic d2.cloneWithType();
-   assert(e2 is map<int>, true);
+    map<float> d2 = {a: 1.2, b: 2.7};
+    map<int>|error e2 = d2.cloneWithType();
+    map<string|int> f2 = checkpanic d2.cloneWithType();
+    assert(e2 is map<int>, true);
 
-   map<int> g2 = checkpanic e2;
-   assert(g2.length(), d2.length());
-   assert(g2["a"], 1);
-   assert(g2["b"], 3);
-   assert(g2, <map<string|int>>f2);
+    map<int> g2 = checkpanic e2;
+    assert(g2.length(), d2.length());
+    assert(g2["a"], 1);
+    assert(g2["b"], 3);
+    assert(g2, <map<string|int>>f2);
 
-   int[] h2 = [1, 2, 3];
-   decimal[]|error i2 = value:cloneWithType(h2);
-   assert(i2 is decimal[], true);
+    int[] h2 = [1, 2, 3];
+    decimal[]|error i2 = value:cloneWithType(h2);
+    assert(i2 is decimal[], true);
 
-   decimal[] j2 = checkpanic i2;
-   assert(j2.length(), h2.length());
-   assert(j2[0], <decimal>1);
-   assert(j2[1], <decimal>2);
-   assert(j2[2], <decimal>3);
+    decimal[] j2 = checkpanic i2;
+    assert(j2.length(), h2.length());
+    assert(j2[0], <decimal>1);
+    assert(j2[1], <decimal>2);
+    assert(j2[2], <decimal>3);
 
-   string k2 = "[\"hello\", \"world\"]";
-   json l2 = <json>checkpanic k2.fromJsonString();
-   string[]|error m2 = l2.cloneWithType();
-   assert(m2 is string[], true);
+    string k2 = "[\"hello\", \"world\"]";
+    json l2 = <json>checkpanic k2.fromJsonString();
+    string[]|error m2 = l2.cloneWithType();
+    assert(m2 is string[], true);
 
-   string[] n2 = checkpanic m2;
-   assert(n2[0], "hello");
-   assert(n2[1], "world");
+    string[] n2 = checkpanic m2;
+    assert(n2[0], "hello");
+    assert(n2[1], "world");
 }
 
 type Map map<anydata>;
 
 function testCloneWithTypeWithImmutableTypes() {
 
-   map<int> & readonly m = {a: 1, b: 2};
-   map<map<int>> n = {m};
-   var o = checkpanic n.cloneWithType(Map);
-   assert(o["m"] === m, false);
-   assert(o["m"].isReadOnly(), false);
-   anydata p = o["m"];
-   assert(p is map<anydata>, true);
-   map<anydata> q = <map<anydata>>p;
-   q["c"] = "foo";
-   assert(q.length(), 3);
-   assert(q["a"], 1);
-   assert(q["b"], 2);
-   assert(q["c"], "foo");
+    map<int> & readonly m = {a: 1, b: 2};
+    map<map<int>> n = {m};
+    var o = checkpanic n.cloneWithType(Map);
+    assert(o["m"] === m, false);
+    assert(o["m"].isReadOnly(), false);
+    anydata p = o["m"];
+    assert(p is map<anydata>, true);
+    map<anydata> q = <map<anydata>>p;
+    q["c"] = "foo";
+    assert(q.length(), 3);
+    assert(q["a"], 1);
+    assert(q["b"], 2);
+    assert(q["c"], "foo");
 
-   int[] & readonly array = [3, 4];
-   map<int[]> n2 = {array};
-   var o2 = checkpanic n2.cloneWithType(Map);
-   assert(o2["array"] === array, false);
-   assert(o2["array"].isReadOnly(), false);
-   anydata[] anyDataArray = <anydata[]>o2["array"];
-   anyDataArray[2] = "foo";
-   assert(anyDataArray.length(), 3);
-   assert(anyDataArray[0], 3);
-   assert(anyDataArray[1], 4);
-   assert(anyDataArray[2], "foo");
+    int[] & readonly array = [3, 4];
+    map<int[]> n2 = {array};
+    var o2 = checkpanic n2.cloneWithType(Map);
+    assert(o2["array"] === array, false);
+    assert(o2["array"].isReadOnly(), false);
+    anydata[] anyDataArray = <anydata[]>o2["array"];
+    anyDataArray[2] = "foo";
+    assert(anyDataArray.length(), 3);
+    assert(anyDataArray[0], 3);
+    assert(anyDataArray[1], 4);
+    assert(anyDataArray[2], "foo");
 }
 
 type Person3 record {|
@@ -1498,28 +1568,39 @@ function testCloneWithTypeImmutableStructuredTypes() {
 
     table<Person4> m2 = table [{id: 13}];
     table<Person3 & readonly> tab = checkpanic m2.cloneWithType();
-    record {| Person3 & readonly value; |} p = <record {| Person3 & readonly value; |}>tab.iterator().next();
+    record {|Person3 & readonly value;|} p = <record {|Person3 & readonly value;|}>tab.iterator().next();
     Person3 person3 = p["value"];
     assert(person3.id, 13);
 
     table<Person4> key(id) m3 = table [{id: 14}];
-    table<Person3 & readonly>  key(id) tab2 = checkpanic m3.cloneWithType();
-    record {| Person3 & readonly value; |} p2 = <record {| Person3 & readonly value; |}>tab2.iterator().next();
+    table<Person3 & readonly> key(id) tab2 = checkpanic m3.cloneWithType();
+    record {|Person3 & readonly value;|} p2 = <record {|Person3 & readonly value;|}>tab2.iterator().next();
     Person3 person4 = p2["value"];
     assert(person4.id, 14);
 }
 
 type IntOne 1;
+
 type FloatOne 1.0;
+
 type DecimalOne 1d;
+
 type IntOneOrTwo 1|2;
+
 type IntTwoOrThree 2|3;
+
 type IntThreeOrFour 3|4;
+
 type FloatOneOrTwo 1.0|2.0;
+
 type FloatTwoOrThree 2.0|3.0;
+
 type FloatThreeOrFour 3.0|4.0;
+
 type IntOneOrFloatTwo 1|2.0;
+
 type IntTwoOrFloatTwo 2|2.0;
+
 type DecimalOneOrTwo 1d|2d;
 
 function testCloneWithTypeWithFiniteType() {
@@ -1619,7 +1700,7 @@ function testCloneWithTypeWithUnionOfFiniteTypeArraysFromIntArray() {
     assert(a is error, false);
 
     (IntOneOrTwo|IntTwoOrThree)[] b = checkpanic a;
-    assert(b, [1,2,3]);
+    assert(b, [1, 2, 3]);
 
     float[] y = [3.0, 4.0];
     (IntTwoOrThree|FloatThreeOrFour)[]|error c = y.cloneWithType();
@@ -1634,7 +1715,7 @@ function testCloneWithTypeWithUnionTypeArrayFromIntArray() {
     (string|IntOneOrTwo|IntTwoOrThree)[]|error a = x.cloneWithType();
     assert(a is error, false);
     (string|IntOneOrTwo|IntTwoOrThree)[] b = checkpanic a;
-    assert(b, [1,2,3]);
+    assert(b, [1, 2, 3]);
 
     int[] y = [3, 4];
 
@@ -1655,9 +1736,9 @@ function testCloneWithTypeWithFiniteTypeArrayFromIntArrayNegative() {
     IntTwoOrThree[]|error a = x.cloneWithType();
     assert(a is error, true);
 
-    error err = <error> a;
+    error err = <error>a;
     var message = err.detail()["message"];
-    string messageString = message is error? message.toString(): message.toString();
+    string messageString = message is error ? message.toString() : message.toString();
     string errMsg = "'int[]' value cannot be converted to 'IntTwoOrThree[]': " +
     "\n\t\tarray element '[0]' should be of type 'IntTwoOrThree', found '1'" +
     "\n\t\tarray element '[3]' should be of type 'IntTwoOrThree', found '4'";
@@ -1665,9 +1746,9 @@ function testCloneWithTypeWithFiniteTypeArrayFromIntArrayNegative() {
 
     (IntTwoOrThree|IntThreeOrFour)[]|error c = x.cloneWithType();
     assert(c is error, true);
-    err = <error> c;
+    err = <error>c;
     message = err.detail()["message"];
-    messageString = message is error? message.toString(): message.toString();
+    messageString = message is error ? message.toString() : message.toString();
     errMsg = "'int[]' value cannot be converted to '(IntTwoOrThree|IntThreeOrFour)[]': " +
     "\n\t\tarray element '[0]' should be of type '(IntTwoOrThree|IntThreeOrFour)', found '1'";
     assert(messageString, errMsg);
@@ -1718,37 +1799,37 @@ type Student1 record {|
 |};
 
 json jsonVal = {
-        "man1": {
-            "fname": "Jane",
-            "age": "14"
+    "man1": {
+        "fname": "Jane",
+        "age": "14"
+    },
+    "man2": {
+        "name": 2,
+        "aage": 14,
+        "height": 67.5
+    },
+    "man3": {
+        "man": {
+            "namee": "Jane",
+            "age": "14",
+            "height": 67.5
         },
-        "man2": {
-            "name": 2,
-            "aage": 14,
-            "height":67.5
-        },
-        "man3": {
-            "man": {
-                "namee": "Jane",
-                "age": "14",
-                "height":67.5
-            },
-            "department": 4
-        },
-        "intern": {
-            "name": 12,
-            "fruit": {
-                "color": 4,
-                "amount": "five"
-            }
-        },
-        "black": "color",
-        "blue": 4,
-        "white": true,
-        "yellow": "color",
-        "green": 4,
-        "permanant": true
-    };
+        "department": 4
+    },
+    "intern": {
+        "name": 12,
+        "fruit": {
+            "color": 4,
+            "amount": "five"
+        }
+    },
+    "black": "color",
+    "blue": 4,
+    "white": true,
+    "yellow": "color",
+    "green": 4,
+    "permanant": true
+};
 
 string errorMsgContent = "\n\t\tmissing required field 'grade' of type 'float' in record 'Factory'" +
         "\n\t\tmissing required field 'man1.name' of type 'string' in record 'Person5'" +
@@ -1796,10 +1877,10 @@ function testConvertJsonToNestedRecordsWithErrors() {
 
     Factory|error val = trap jsonVal.cloneWithType(Factory);
 
-    error err = <error> val;
+    error err = <error>val;
     string errorMsg = "'map<json>' value cannot be converted to 'Factory': " + errorMsgContent;
-    assert(<string> checkpanic err.detail()["message"], errorMsg);
-    assert(err.message(),"{ballerina/lang.value}ConversionError");
+    assert(<string>checkpanic err.detail()["message"], errorMsg);
+    assert(err.message(), "{ballerina/lang.value}ConversionError");
 
     json j = {
         x: [
@@ -1811,7 +1892,7 @@ function testConvertJsonToNestedRecordsWithErrors() {
 
     Bazz|error result = trap j.cloneWithType();
     assert(result is error, true);
-    err = <error> result;
+    err = <error>result;
     string errMsg = "'map<json>' value cannot be converted to 'Bazz': " +
     "\n\t\t{" +
     "\n\t\t  missing required field 'x[2].id' of type 'string' in record 'User'" +
@@ -1822,7 +1903,7 @@ function testConvertJsonToNestedRecordsWithErrors() {
     "\n\t\t  field 'x[2].login' in record 'Organization' should be of type 'string', found '4'" +
     "\n\t\tor" +
     "\n\t\t  missing required field 'x[2].orgName' of type 'string' in record 'Repository'\n\t\t}";
-    assert(<string> checkpanic err.detail()["message"], errMsg);
+    assert(<string>checkpanic err.detail()["message"], errMsg);
     assert(err.message(), "{ballerina/lang.value}ConversionError");
 }
 
@@ -1877,52 +1958,52 @@ type Journey record {|
     [string, decimal] rating;
 |};
 
-type tupleType [map<float>,[Journey, map<Journey>],()[],int...];
+type tupleType [map<float>, [Journey, map<Journey>], ()[], int...];
 
 function testCloneWithTypeNestedStructuredTypesNegative() {
     json j = [
-                {
+        {
+            "destinations": {
+                "Bali": 2,
+                "Hawaii": 3
+            },
+            "enjoyable": [
+                true
+            ],
+            "rating": [
+                "high",
+                8.5
+            ]
+        },
+        [
+            12,
+            {
+                "first": {
                     "destinations": {
-                        "Bali": 2,
-                        "Hawaii": 3
+                        "Bali": true,
+                        "Hawaii": "3"
                     },
                     "enjoyable": [
-                        true
+                        1
                     ],
                     "rating": [
-                        "high",
+                        10,
                         8.5
                     ]
                 },
-                [
-                    12,
-                    {
-                        "first": {
-                            "destinations": {
-                                "Bali": true,
-                                "Hawaii": "3"
-                            },
-                            "enjoyable": [
-                                1
-                            ],
-                            "rating": [
-                                10,
-                                8.5
-                            ]
-                        },
-                        "second": 2
-                    }
-                ],
-                [
-                    null,
-                    null,
-                    0
-                ],
-                "12345678901234567890123"
-            ];
+                "second": 2
+            }
+        ],
+        [
+            null,
+            null,
+            0
+        ],
+        "12345678901234567890123"
+    ];
     tupleType|error val = trap j.cloneWithType(tupleType);
 
-    error err = <error> val;
+    error err = <error>val;
     string errorMsgContent2 =
         "\n\t\tmap field '[0].destinations' should be of type 'float', found '{\"Bali\":2,\"Hawaii\":3...'" +
         "\n\t\tmap field '[0].enjoyable' should be of type 'float', found '[true]'" +
@@ -1937,8 +2018,8 @@ function testCloneWithTypeNestedStructuredTypesNegative() {
         "\n\t\ttuple element '[3]' should be of type 'int', found '\"1234567890123456789...'";
     string errorMsg = "'json[]' value cannot be converted to 'tupleType': " +
         errorMsgContent2;
-    assert(<string> checkpanic err.detail()["message"], errorMsg);
-    assert(err.message(),"{ballerina/lang.value}ConversionError");
+    assert(<string>checkpanic err.detail()["message"], errorMsg);
+    assert(err.message(), "{ballerina/lang.value}ConversionError");
 }
 
 type OpenRec record {
@@ -1953,11 +2034,11 @@ function testCloneWithTypeJsonToRecordRestField() {
         mapVal: {
         }
     };
-    
+
     (OpenRec & readonly)|error result = jsonVal.cloneWithType();
     assert(result is error, false);
     OpenRec & readonly rec = checkpanic result;
-    assert(rec, {"arrVal":[{}],"mapVal":{}});
+    assert(rec, {"arrVal": [{}], "mapVal": {}});
 }
 
 type Movie record {
@@ -2017,13 +2098,13 @@ function testCloneWithTypeWithAmbiguousUnion() {
     assert(clone2D2, [[1.2d, 2.3d]]);
     assertTrue(clone2D2 is decimal[][]);
 
-    [[int,int...]]|[decimal,decimal...][] clone2DRest = checkpanic val.cloneWithType();
+    [[int, int...]]|[decimal, decimal...][] clone2DRest = checkpanic val.cloneWithType();
     assert(clone2DRest, [[1, 2]]);
-    assertTrue(clone2DRest is [[int,int...]]);
+    assertTrue(clone2DRest is [[int, int...]]);
 
-    [decimal,decimal...][]|[[int,int...]] clone2DRest2 = checkpanic val.cloneWithType();
+    [decimal, decimal...][]|[[int, int...]] clone2DRest2 = checkpanic val.cloneWithType();
     assert(clone2DRest2, [[1.2d, 2.3d]]);
-    assertTrue(clone2DRest2 is [decimal,decimal...][] );
+    assertTrue(clone2DRest2 is [decimal, decimal...][]);
 
     val = [[1.2d, "l"], 9];
     [[decimal, string], int]|int[][]|decimal[][] cloneTuple = checkpanic val.cloneWithType();
@@ -2066,19 +2147,19 @@ function testCloneWithTypeWithAmbiguousUnion() {
     ];
 
     table<map<json>> tableJson = table [
-            {
-                title: "Inception",
-                year: [2010, 2011]
-            },
-            {
-                title: "Alice in wonderland",
-                year: [2010, 2016]
-            },
-            {
-                title: "Coco",
-                year: [2017, 2018]
-            }
-        ];
+        {
+            title: "Inception",
+            year: [2010, 2011]
+        },
+        {
+            title: "Alice in wonderland",
+            year: [2010, 2016]
+        },
+        {
+            title: "Coco",
+            year: [2017, 2018]
+        }
+    ];
 
     Movie[]|table<map<anydata>> movieArr = checkpanic moviesJson.cloneWithType();
     assertTrue(movieArr is Movie[]);
@@ -2171,19 +2252,19 @@ function testCloneWithTypeWithAmbiguousUnion() {
     ];
 
     table<map<anydata>> tableAnydata = table [
-            {
-                title: "Inception",
-                year: [2010, 2011]
-            },
-            {
-                title: "Alice in wonderland",
-                year: [2010, 2016]
-            },
-            {
-                title: "Coco",
-                year: [2017, 2018]
-            }
-        ];
+        {
+            title: "Inception",
+            year: [2010, 2011]
+        },
+        {
+            title: "Alice in wonderland",
+            year: [2010, 2016]
+        },
+        {
+            title: "Coco",
+            year: [2017, 2018]
+        }
+    ];
 
     Movie[] movieArr1 = checkpanic moviesAnydata.cloneWithType();
     assertTrue(movieArr1[0].year is int[]);
@@ -2249,19 +2330,19 @@ function testCloneWithTypeWithAmbiguousUnion() {
     ];
 
     table<map<Union>> tableUnion = table [
-            {
-                title: "Inception",
-                year: [2010, 2011]
-            },
-            {
-                title: "Alice in wonderland",
-                year: [2010, 2016]
-            },
-            {
-                title: "Coco",
-                year: [2017, 2018]
-            }
-        ];
+        {
+            title: "Inception",
+            year: [2010, 2011]
+        },
+        {
+            title: "Alice in wonderland",
+            year: [2010, 2016]
+        },
+        {
+            title: "Coco",
+            year: [2017, 2018]
+        }
+    ];
 
     Movie[]|table<map<anydata>> movieArr2 = checkpanic moviesUnion.cloneWithType();
     assertTrue(movieArr2 is Movie[]);
@@ -2330,7 +2411,7 @@ function testCloneWithTypeWithAmbiguousUnion() {
     assert(result3 is map<int[]>, false);
     assert(result3 is map<decimal[]>, false);
     assert(result3 is error, false);
-    assert(checkpanic result3,  {a:[1,2],b:[2,3,4]});
+    assert(checkpanic result3, {a: [1, 2], b: [2, 3, 4]});
 
     // Negative cases
     jVal = {a: ["aaa"], b: [3.2]};
@@ -2351,6 +2432,89 @@ function testCloneWithTypeWithAmbiguousUnion() {
     <string>checkpanic err.detail()["message"]);
 }
 
+public type CodingExtension record {|
+    *Element;
+
+    uri url;
+    Coding valueCoding;
+|};
+
+public type Coding record {|
+    *Element;
+
+    string id?;
+    Extension[] extension?;
+    uri system?;
+    string 'version?;
+    code code?;
+    string display?;
+    boolean userSelected?;
+|};
+
+public type code string;
+
+public type uri string;
+
+public type ElementReadOnlyCyclic record {|
+    string id?;
+    Extension[] extension?;
+    ((ElementReadOnlyCyclic & readonly)|())...;
+|};
+
+public type Element record {|
+    string id?;
+    Extension[] extension?;
+    Element...;
+|};
+
+public type ExtensionExtension record {|
+    *Element;
+
+    uri url;
+    Extension[] extension?;
+|};
+
+public type CodeableConceptExtension record {|
+    *Element;
+
+    uri url;
+    CodeableConcept valueCodeableConcept;
+|};
+
+public type CodeableConcept record {|
+    *Element;
+
+    string id?;
+    Extension[] extension?;
+    Coding[] coding?;
+    string text?;
+|};
+
+public type ExtensionExtension2 record {|
+    *ElementReadOnlyCyclic;
+
+    uri url;
+    Extension[] extension?;
+|};
+
+public type CodeableConceptExtension2 record {|
+    *ElementReadOnlyCyclic;
+
+    uri url;
+    CodeableConcept valueCodeableConcept;
+|};
+
+public type CodingExtension2 record {|
+    *ElementReadOnlyCyclic;
+
+    uri url;
+    Coding valueCoding;
+|};
+
+public type Extension CodeableConceptExtension|ExtensionExtension|CodingExtension;
+
+public type Extension2 CodeableConceptExtension2|ExtensionExtension2|CodingExtension2;
+
 function testCloneWithTypeToUnion() {
     int|float|[string, string] unionVar = 2;
     float|decimal|[string, int]|error tupleValue = unionVar.cloneWithType(UnionTypedesc);
@@ -2359,12 +2523,39 @@ function testCloneWithTypeToUnion() {
     assertFalse(tupleValue is decimal);
     assertFalse(tupleValue is [string, int]);
     assertFalse(tupleValue is error);
+
+    json extCoding = {
+        "valueCoding": {
+            "system": "http://loinc.org",
+            "code": "LA29518-0",
+            "display": "he/him/his/himself"
+        },
+        "url": "http://open.epic.com/FHIR/StructureDefinition/extension/calculated-pronouns-to-use-for-text"
+    };
+
+    Extension ext = checkpanic extCoding.cloneWithType();
+    assertEquality(ext, <Extension>{
+        "url":
+    "http://open.epic.com/FHIR/StructureDefinition/extension/calculated-pronouns-to-use-for-text",
+        "valueCoding": {"system": "http://loinc.org", "code": "LA29518-0", "display": "he/him/his/himself"}
+    });
+    assertEquality((typeof ext).toString(), "typedesc CodingExtension");
+
+    Extension2 ext2 = checkpanic extCoding.cloneWithType();
+    assertEquality(ext2, <Extension2>{
+        "url":
+    "http://open.epic.com/FHIR/StructureDefinition/extension/calculated-pronouns-to-use-for-text",
+        "valueCoding": {"system": "http://loinc.org", "code": "LA29518-0", "display": "he/him/his/himself"}
+    });
+    assertEquality((typeof ext2).toString(), "typedesc CodingExtension2");
 }
 
 type UnionTypedesc typedesc<float|decimal|[string, int]>;
 
 public type Array ["array", 1];
+
 public type Mapping ["mapping", 2];
+
 function testCloneWithTypeWithTuples() returns error? {
     Array|Mapping x = check (["mapping", 2]).cloneWithType();
     assertTrue(x is Mapping);
@@ -2396,9 +2587,13 @@ type FooTab6 record {
 };
 
 type TableFoo2 table<FooTab2>;
+
 type TableFoo3 table<FooTab3>;
+
 type TableFoo4 table<FooTab4>;
+
 type TableFoo5 table<FooTab5>;
+
 type TableFoo6 table<FooTab6>;
 
 function testCloneWithTypeTable() {
@@ -2474,7 +2669,6 @@ function testCloneWithTypeOnRegExp() {
     if (x1 is string:RegExp) {
         assertEquality(re `\p{sc=Latin}\p{gc=Lu}\p{Lt}\tA+?\)*` == x1, true);
     }
-
 
     s = "[\\r\\n\\^]";
     x1 = s.cloneWithType(RegExpType);
@@ -2727,13 +2921,13 @@ function testCloneWithTypeWithXML() {
     xml bal = xml `<name>Ballerina</name>`;
     json mapXmlJson = {name: wso2.toJson(), team: bal.toJson()};
     map<xml> mapXml = checkpanic mapXmlJson.cloneWithType();
-    test:assertValueEqual(mapXml, {"name": xml `<name>WSO2</name>`,"team": xml `<name>Ballerina</name>`});
+    test:assertValueEqual(mapXml, {"name": xml `<name>WSO2</name>`, "team": xml `<name>Ballerina</name>`});
 
     json[] tableMapXmlJson = [
         {id: wso2.toJson(), title: bal.toJson()}
     ];
     table<map<xml>> tableMapXml = checkpanic tableMapXmlJson.cloneWithType();
-    test:assertValueEqual(tableMapXml, table [{"id": xml `<name>WSO2</name>`,"title": xml `<name>Ballerina</name>`}]);
+    test:assertValueEqual(tableMapXml, table [{"id": xml `<name>WSO2</name>`, "title": xml `<name>Ballerina</name>`}]);
 
     anydata xmlArrayAnydata = [xml `<name>WSO2</name>`, xml `<name>Ballerina</name>`];
     json xmlArrayJson = xmlArrayAnydata.toJson();
@@ -3069,7 +3263,7 @@ type Student4 record {
 
 function testCloneWithTypeRecordWithXMLField() {
     Student4 student = {id: 1, x: xml `<book>DJ</book>`};
-    json j = <json> student.toJson();
+    json j = <json>student.toJson();
     Student4|error ss = j.cloneWithType(Student4);
     assertEquality(ss is Student4, true);
 }
@@ -3176,7 +3370,7 @@ function testCloneWithTypeToArrays() {
     if (names is error) {
         test:assertValueEqual("{ballerina/lang.value}ConversionError", names.message());
         test:assertValueEqual("'string[2]' value cannot be converted to 'string[0]': \n\t\t" +
-        "element count exceeds the target array size '0'", <string> checkpanic names.detail()["message"]);
+        "element count exceeds the target array size '0'", <string>checkpanic names.detail()["message"]);
     }
 
     names = firstNames.cloneWithType();
@@ -3184,7 +3378,7 @@ function testCloneWithTypeToArrays() {
     if (names is error) {
         test:assertValueEqual("{ballerina/lang.value}ConversionError", names.message());
         test:assertValueEqual("'string[]' value cannot be converted to 'string[0]': \n\t\t" +
-        "element count exceeds the target array size '0'", <string> checkpanic names.detail()["message"]);
+        "element count exceeds the target array size '0'", <string>checkpanic names.detail()["message"]);
     }
 }
 
@@ -3262,7 +3456,7 @@ function testCloneWithTypeXmlToUnion() {
     test:assertValueEqual(z7 is error, true);
     if (z7 is error) {
         test:assertValueEqual("{ballerina/lang.value}ConversionError", z7.message());
-        test:assertValueEqual("'lang.xml:Comment' value cannot be converted to '(BigXml|json)'",
+        test:assertValueEqual("'lang.xml:Comment' value cannot be converted to 'JsonUnion2'",
         <string>checkpanic z7.detail()["message"]);
     }
 
@@ -3565,13 +3759,13 @@ type UnionTable Table1|Table2;
 type UnionTable2 UnionTable & readonly;
 
 type NewEmployee record {
-   	readonly string name;
-   	int salary;
+    readonly string name;
+    int salary;
 };
 
 type OldEmployee record {|
-   	readonly string name;
-   	int salary;
+    readonly string name;
+    int salary;
 |};
 
 type NewestEmployeee table<NewEmployee> key(name);
@@ -3581,65 +3775,65 @@ function testCloneWithTypeToUnionOfTypeReference() {
 
     BoundAssertion|error t1 = arrValue.cloneWithType();
     assertFalse(t1 is error);
-    assertEquality(t1, <BoundAssertion> ["let", 3]);
+    assertEquality(t1, <BoundAssertion>["let", 3]);
 
     Assertion|BoundAssertion|error t2 = arrValue.cloneWithType();
     assertFalse(t2 is error);
     assertTrue(t2 is BoundAssertion);
-    assertEquality(t2, <BoundAssertion> ["let", 3]);
+    assertEquality(t2, <BoundAssertion>["let", 3]);
 
     UnionTuple|error t3 = arrValue.cloneWithType();
     assertFalse(t3 is error);
     assertTrue(t3 is BoundAssertion);
-    assertEquality(t3, <BoundAssertion> ["let", 3]);
+    assertEquality(t3, <BoundAssertion>["let", 3]);
 
     table<map<anydata>> tab = table [{a: "a", b: "b"}];
     Table1|Table2|error t4 = tab.cloneWithType();
     assertFalse(t4 is error);
     assertTrue(t4 is Table2);
-    assertEquality(t4, <Table2> table [{a: "a", b: "b"}]);
+    assertEquality(t4, <Table2>table [{a: "a", b: "b"}]);
 
     UnionTable|error t5 = tab.cloneWithType();
     assertFalse(t5 is error);
     assertTrue(t5 is Table2);
-    assertEquality(t5, <Table2> table [{a: "a", b: "b"}]);
+    assertEquality(t5, <Table2>table [{a: "a", b: "b"}]);
 
     map<json>[] tab2 = [{a: "a", b: "b"}];
     UnionTable2|error t10 = tab2.cloneWithType();
     assertTrue(t10 is UnionTable2);
-    assertEquality(t10, <UnionTable2> table [{a: "a", b: "b"}]);
+    assertEquality(t10, <UnionTable2>table [{a: "a", b: "b"}]);
 
     table<map<json>> tab3 = table [{a: "a", b: "b"}];
     UnionTable2|error t11 = tab3.cloneWithType();
     assertTrue(t11 is UnionTable2);
-    assertEquality(t11, <UnionTable2> table [{a: "a", b: "b"}]);
+    assertEquality(t11, <UnionTable2>table [{a: "a", b: "b"}]);
 
     [record {|string name; int salary;|}, OldEmployee, NewEmployee, map<anydata>...] listResult = [
-   	    { name: "John", salary: 100 },
-   	    { name: "Jane", salary: 200 },
-        { name: "Jean", salary: 300 },
-        { name: "Joe", salary: 400 }
-   	];
+        {name: "John", salary: 100},
+        {name: "Jane", salary: 200},
+        {name: "Jean", salary: 300},
+        {name: "Joe", salary: 400}
+    ];
 
     table<OldEmployee> key(name) oldEmployees = checkpanic listResult.cloneWithType();
-    assertEquality(oldEmployees, <table<OldEmployee> key(name)> table [
-   	    { name: "John", salary: 100 },
-   	    { name: "Jane", salary: 200 },
-        { name: "Jean", salary: 300 },
-        { name: "Joe", salary: 400 }
-   	]);
+    assertEquality(oldEmployees, <table<OldEmployee> key(name)>table [
+        {name: "John", salary: 100},
+        {name: "Jane", salary: 200},
+        {name: "Jean", salary: 300},
+        {name: "Joe", salary: 400}
+    ]);
 
     NewestEmployeee newestEmployees = checkpanic listResult.cloneWithType();
-    assertEquality(newestEmployees, <NewestEmployeee> table [
-   	    { name: "John", salary: 100 },
-   	    { name: "Jane", salary: 200 },
-        { name: "Jean", salary: 300 },
-        { name: "Joe", salary: 400 }
-   	]);
+    assertEquality(newestEmployees, <NewestEmployeee>table [
+        {name: "John", salary: 100},
+        {name: "Jane", salary: 200},
+        {name: "Jean", salary: 300},
+        {name: "Joe", salary: 400}
+    ]);
 }
 
 function testCloneWithTypeToTableNegative() {
-    table<map<anydata>> tab = table [{a: true, b: 10, c:(), d: "10", e: false}];
+    table<map<anydata>> tab = table [{a: true, b: 10, c: (), d: "10", e: false}];
     Table1|Table2|error t1 = tab.cloneWithType();
     assertTrue(t1 is error);
     string errMsgPrefix = "'table<map<anydata>>' value cannot be converted to '(Table1|Table2)': ";
@@ -3657,25 +3851,31 @@ function testCloneWithTypeToTableNegative() {
     string errMsg = errMsgPrefix + errMsgSuffix;
     if (t1 is error) {
         assertEquality("{ballerina/lang.value}ConversionError", t1.message());
-        assertEquality(errMsg, <string> checkpanic t1.detail()["message"]);
+        assertEquality(errMsg, <string>checkpanic t1.detail()["message"]);
     }
 
     UnionTable|error t2 = tab.cloneWithType();
     assertTrue(t2 is error);
+    errMsg = "'table<map<anydata>>' value cannot be converted to 'UnionTable': " + errMsgSuffix;
     if (t2 is error) {
         assertEquality("{ballerina/lang.value}ConversionError", t2.message());
-        assertEquality(errMsg, <string> checkpanic t2.detail()["message"]);
+        assertEquality(errMsg, <string>checkpanic t2.detail()["message"]);
     }
 
-    map<json>[] tab2 = [{a: true, b: 10, c:(), d: "10", e: false}];
+    map<json>[] tab2 = [{a: true, b: 10, c: (), d: "10", e: false}];
     UnionTable2|error t3 = tab2.cloneWithType();
     if (t3 is error) {
         assertEquality("{ballerina/lang.value}ConversionError", t3.message());
         assertEquality("'map<json>[]' value cannot be converted to 'UnionTable2': " + errMsgSuffix,
-        <string> checkpanic t3.detail()["message"]);
+        <string>checkpanic t3.detail()["message"]);
     }
 
-    table<map<anydata>> tab3 = table [{a: true}, {b: 10}, {c:()}, {d: "10", e: false}];
+    table<map<anydata>> tab3 = table [
+        {a: true},
+        {b: 10},
+        {c: ()},
+        {d: "10", e: false}
+    ];
     Table1|Table2|error t4 = tab3.cloneWithType();
     assertTrue(t4 is error);
     errMsgSuffix = "\n\t\t{" +
@@ -3692,17 +3892,18 @@ function testCloneWithTypeToTableNegative() {
     errMsg = errMsgPrefix + errMsgSuffix;
     if (t4 is error) {
         assertEquality("{ballerina/lang.value}ConversionError", t4.message());
-        assertEquality(errMsg, <string> checkpanic t4.detail()["message"]);
+        assertEquality(errMsg, <string>checkpanic t4.detail()["message"]);
     }
 
     UnionTable|error t5 = tab3.cloneWithType();
     assertTrue(t5 is error);
+    errMsg = "'table<map<anydata>>' value cannot be converted to 'UnionTable': " + errMsgSuffix;
     if (t5 is error) {
         assertEquality("{ballerina/lang.value}ConversionError", t5.message());
-        assertEquality(errMsg, <string> checkpanic t5.detail()["message"]);
+        assertEquality(errMsg, <string>checkpanic t5.detail()["message"]);
     }
 
-    map<json>[] tab4 = [{a: true}, {b: 10, c:()}, {d: "10", e: false}];
+    map<json>[] tab4 = [{a: true}, {b: 10, c: ()}, {d: "10", e: false}];
     UnionTable2|error t6 = tab4.cloneWithType();
     errMsgSuffix = "\n\t\t{" +
     "\n\t\t  map field '[0].a' should be of type 'int', found 'true'" +
@@ -3718,16 +3919,16 @@ function testCloneWithTypeToTableNegative() {
     if (t6 is error) {
         assertEquality("{ballerina/lang.value}ConversionError", t6.message());
         assertEquality("'map<json>[]' value cannot be converted to 'UnionTable2': " + errMsgSuffix,
-        <string> checkpanic t6.detail()["message"]);
+        <string>checkpanic t6.detail()["message"]);
     }
 
     [record {string name; int salary;}, OldEmployee, NewEmployee, map<anydata>...] listResult = [
-   	    { name: "John", salary: 100, "age": 20 },
-   	    { name: "Jane", salary: 200 },
-        { name: "Jean", salary: 300, "qualified": true},
-        { name: 11, salary: 300, "qualified": true},
-        { salary: 300}
-   	];
+        {name: "John", salary: 100, "age": 20},
+        {name: "Jane", salary: 200},
+        {name: "Jean", salary: 300, "qualified": true},
+        {name: 11, salary: 300, "qualified": true},
+        {salary: 300}
+    ];
 
     table<OldEmployee> key(name)|error oldEmployees = listResult.cloneWithType();
     errMsg = "'[record {| string name; int salary; anydata...; |},OldEmployee,NewEmployee,map<anydata>...]' value " +
@@ -3739,7 +3940,7 @@ function testCloneWithTypeToTableNegative() {
     "\n\t\tmissing required field '[4].name' of type 'string' in record 'OldEmployee'";
     if (oldEmployees is error) {
         assertEquality("{ballerina/lang.value}ConversionError", oldEmployees.message());
-        assertEquality(errMsg, <string> checkpanic oldEmployees.detail()["message"]);
+        assertEquality(errMsg, <string>checkpanic oldEmployees.detail()["message"]);
     }
 
     NewestEmployeee|error newestEmployees = listResult.cloneWithType();
@@ -3749,8 +3950,30 @@ function testCloneWithTypeToTableNegative() {
     "\n\t\tmissing required field '[4].name' of type 'string' in record 'NewEmployee'";
     if (newestEmployees is error) {
         assertEquality("{ballerina/lang.value}ConversionError", newestEmployees.message());
-        assertEquality(errMsg, <string> checkpanic newestEmployees.detail()["message"]);
+        assertEquality(errMsg, <string>checkpanic newestEmployees.detail()["message"]);
     }
+}
+
+type A1 record {
+    int a;
+};
+
+type AB A1|int;
+
+type AC A1|string;
+
+function testCloneWithTypeToRecordWithIntersectingUnionMembers() {
+    // `AB & AC` is `A1`
+    map<anydata> x = {a: "Ballerina", b: true};
+    AB|AC|boolean|error z = x.cloneWithType();
+    assertTrue(z is error);
+    string errMsg = "'map<anydata>' value cannot be converted to '(AB|AC|boolean)': " +
+                    "\n\t\t{" +
+                    "\n\t\t  field 'a' in record 'A1' should be of type 'int', found '\"Ballerina\"'" +
+                    "\n\t\t}";
+    error errorZ = <error>z;
+    assertEquality("{ballerina/lang.value}ConversionError", errorZ.message());
+    assertEquality(errMsg, <string>checkpanic errorZ.detail()["message"]);
 }
 
 type GraphQLQuery record {|
@@ -3807,9 +4030,18 @@ function testCloneWithTypeToJson() {
     GraphQLQueries2 payload6 = [1, {query: "abc"}, {query: "xyz", variables: {"nonJson": xml `<a>abc</a>`}}];
     GraphQLQueries3 payload7 = {"a": {query: "abc"}, "b": {query: "xyz", variables: {"nonJson": xml `<a>abc</a>`}}};
     GraphQLQueries4 payload8 = {a: {query: "abc", variables: {"nonJson": xml `<a>abc</a>`}}};
-    table<GraphQLQuery> payload9 = table [{query: "abc"}, {query: "xyz"}];
-    GraphQLQueries5 payload10 = table [{query: "abc"}, {query: "xyz"}];
-    GraphQLQueries6 payload11 = table [{query: "abc"}, {query: "xyz"}];
+    table<GraphQLQuery> payload9 = table [
+        {query: "abc"},
+        {query: "xyz"}
+    ];
+    GraphQLQueries5 payload10 = table [
+        {query: "abc"},
+        {query: "xyz"}
+    ];
+    GraphQLQueries6 payload11 = table [
+        {query: "abc"},
+        {query: "xyz"}
+    ];
 
     json|error stdJson5 = payload5.cloneWithType();
     assertEquality(stdJson5 is error, true);
@@ -3898,7 +4130,45 @@ function testToJsonWithArray() {
     string[] arrString = ["hello", "world"];
     json arrStringJson = arrString.toJson();
     assert(arrStringJson is json[], true);
-    assert(<json[]> arrStringJson, <json[]> ["hello", "world"]);
+    assert(<json[]>arrStringJson, <json[]>["hello", "world"]);
+}
+
+type Counter record {|
+    int[] x = getX();
+    int[] y = getY();
+|};
+
+isolated int counter = 0;
+
+isolated function getX() returns int[] {
+    lock {
+        counter += 1;
+    }
+    return [1];
+}
+
+isolated function getY() returns int[] {
+    lock {
+        counter += 1;
+    }
+    return [2];
+}
+
+function testCloneWithTypeRecordDefaultValues() {
+    map<anydata> m = {y: [3]};
+    Counter n = checkpanic m.cloneWithType();
+    lock {
+        assertEquality(1, counter);
+    }
+    assertEquality((typeof n).toString(), "typedesc Counter");
+
+    m = {y: <readonly>[3]};
+    Counter & readonly n2 = checkpanic m.cloneWithType();
+    lock {
+        assertEquality(2, counter);
+    }
+    assertTrue(n2 is readonly);
+    assertEquality((typeof n2).toString(), "typedesc {\"x\":[1],\"y\":[3]}");
 }
 
 type XmlType xml;
@@ -3910,10 +4180,10 @@ function testToJsonWithXML() {
                   </movie>`;
     json j = x1.toJson();
     xml x2 = checkpanic j.fromJsonWithType(XmlType);
-    assert(<xml> x2, x1);
+    assert(<xml>x2, x1);
 
     x2 = checkpanic j.cloneWithType(XmlType);
-    assert(<xml> x2, x1);
+    assert(<xml>x2, x1);
 
     map<anydata> m2 = {a: 1, b: x1};
     json j3 = m2.toJson();
@@ -3927,14 +4197,14 @@ function testToJsonWithMap() {
         line2: "Line2"
     };
     json j = m.toJson();
-    assert(j.toJsonString(),"{\"line1\":\"Line1\", \"line2\":\"Line2\"}");
+    assert(j.toJsonString(), "{\"line1\":\"Line1\", \"line2\":\"Line2\"}");
     map<string> m2 = checkpanic j.fromJsonWithType(MapOfString);
-    assert(<map<string>> m2, m);
+    assert(<map<string>>m2, m);
 }
 
 function testToJsonWithMapInt() {
     map<int> m = {a: 1, b: 2};
-    map<json> mj = <map<json>> m.toJson();
+    map<json> mj = <map<json>>m.toJson();
     mj["c"] = "non-int json";
 }
 
@@ -3965,65 +4235,65 @@ type PersonTable table<RetEmployee> key(id);
 
 function testToJsonWithTable() {
     table<Boo> tb = table [
-            {id: 12, str: "abc"},
-            {id: 34, str: "def"}
+        {id: 12, str: "abc"},
+        {id: 34, str: "def"}
     ];
     json j = tb.toJson();
     assert(j.toJsonString(), "[{\"id\":12, \"str\":\"abc\"}, {\"id\":34, \"str\":\"def\"}]");
 
     PersonTable tbPerson = table [
-                {id: "AA", name: "John", salary: 300.50},
-                {id: "BB", name: "Bella", salary: 500.50},
-                {id: "CC", name: "Peter", salary: 750.0}
-            ];
+        {id: "AA", name: "John", salary: 300.50},
+        {id: "BB", name: "Bella", salary: 500.50},
+        {id: "CC", name: "Peter", salary: 750.0}
+    ];
 
     json sourceJson = [
-                        {id: "AA", name: "John", salary: 300.50},
-                        {id: "BB", name: "Bella", salary: 500.50},
-                        {id: "CC", name: "Peter", salary: 750.0}
-            ];
+        {id: "AA", name: "John", salary: 300.50},
+        {id: "BB", name: "Bella", salary: 500.50},
+        {id: "CC", name: "Peter", salary: 750.0}
+    ];
 
     assertEquality(sourceJson, tbPerson.toJson());
 
     table<map<anydata>> tab1 = table [
-          {id: 12, name: "abc"},
-          {id: 34, name: "def"}
+        {id: 12, name: "abc"},
+        {id: 34, name: "def"}
     ];
     json j1 = tab1.toJson();
     assert(j1.toJsonString(), "[{\"id\":12, \"name\":\"abc\"}, {\"id\":34, \"name\":\"def\"}]");
 
     table<map<string>> tab2 = table [
-          {fname: "John", lname: "Wick"},
-          {fname: "Robert", lname: "Downey"}
+        {fname: "John", lname: "Wick"},
+        {fname: "Robert", lname: "Downey"}
     ];
     json j2 = tab2.toJson();
     assert(j2.toJsonString(), "[{\"fname\":\"John\", \"lname\":\"Wick\"}, {\"fname\":\"Robert\", " +
     "\"lname\":\"Downey\"}]");
 
     table<map<anydata>> tab3 = table [
-          {id: 12, name: "abc"},
-          {id: 34, name: "def"}
+        {id: 12, name: "abc"},
+        {id: 34, name: "def"}
     ];
     json j3 = tab3.toJson();
     assert(j3.toJsonString(), "[{\"id\":12, \"name\":\"abc\"}, {\"id\":34, \"name\":\"def\"}]");
 
     table<map<Boo>> tab4 = table [
-          {info: {id: 12, str: "abc"}},
-          {info: {id: 12, str: "abc"}}
+        {info: {id: 12, str: "abc"}},
+        {info: {id: 12, str: "abc"}}
     ];
     json j4 = tab4.toJson();
     assert(j4.toJsonString(), "[{\"info\":{\"id\":12, \"str\":\"abc\"}}, {\"info\":{\"id\":12, \"str\":\"abc\"}}]");
 }
 
 function testToStringOnCycles() {
-     map<anydata> x = {"ee" : 3};
-     map<anydata> y = {"qq" : 5};
-     anydata[] arr = [2 , 3, 5];
-     x["1"] = y;
-     y["1"] = x;
-     y["2"] = arr;
-     arr.push(x);
-     assert(x.toString(), "{\"ee\":3,\"1\":{\"qq\":5,\"1\":...,\"2\":[2,3,5,...]}}");
+    map<anydata> x = {"ee": 3};
+    map<anydata> y = {"qq": 5};
+    anydata[] arr = [2, 3, 5];
+    x["1"] = y;
+    y["1"] = x;
+    y["2"] = arr;
+    arr.push(x);
+    assert(x.toString(), "{\"ee\":3,\"1\":{\"qq\":5,\"1\":...,\"2\":[2,3,5,...]}}");
 }
 
 function testToJsonWithCyclicParameter() {
@@ -4031,9 +4301,9 @@ function testToJsonWithCyclicParameter() {
     x.push(x);
     json|error y = trap x.toJson();
     assert(y is error, true);
-    error err = <error> y;
+    error err = <error>y;
     assert(err.message(), "{ballerina/lang.value}CyclicValueReferenceError");
-    assert(<string> checkpanic err.detail()["message"], "'anydata[]' value has cyclic reference");
+    assert(<string>checkpanic err.detail()["message"], "'anydata[]' value has cyclic reference");
 }
 
 function assert(anydata actual, anydata expected) {
@@ -4086,7 +4356,7 @@ type RecordWithOptionalAndRestFields record {|
     int a;
     map<B> b;
     string c?;
-    float ...;
+    float...;
 |};
 
 type B [float, string, B...];
@@ -4099,7 +4369,7 @@ function testTableToJsonConversion() {
 
     json j1 = tb1.toJson();
     assert(j1.toJsonString(), "[{\"a\":5, \"b\":1, \"c\":2.5, \"d\":3.1, \"e\":\"abc\", \"f\":true}, " +
-                                 "{\"a\":7, \"b\":2, \"c\":4.5, \"d\":5.2, \"e\":\"def\", \"f\":false, \"g\":13.5}]");
+                                "{\"a\":7, \"b\":2, \"c\":4.5, \"d\":5.2, \"e\":\"def\", \"f\":false, \"g\":13.5}]");
 
     table<RecordWithArrayValueFields> tb2 = table [
         {a: [1.2, 2.4], t: ["abc", 5]},
@@ -4116,7 +4386,7 @@ function testTableToJsonConversion() {
 
     json j3 = tb3.toJson();
     assert(j3.toJsonString(), "[{\"r\":{\"id\":10001, \"a\":\"<book>The Lost World</book>\"}}, " +
-                                          "{\"r\":{\"id\":10002, \"a\":\"<book>Shadows of the Empire</book>\"}}]");
+                                        "{\"r\":{\"id\":10002, \"a\":\"<book>Shadows of the Empire</book>\"}}]");
 
     table<RecordWithMapField> tb4 = table [
         {m: {a: 5, b: "abc"}},
@@ -4127,12 +4397,12 @@ function testTableToJsonConversion() {
     assert(j4.toJsonString(), "[{\"m\":{\"a\":5, \"b\":\"abc\"}}, {\"m\":{\"c\":12.5, \"d\":\"A\"}}]");
 
     table<RecordWithXmlField> tb5 = table [
-        {x: xml `<bar>Text</bar>`, e: xml `<foo/>`, c: xml `<!--Comment-->`, p: xml `<?PI ?>`, t: xml `Text`}
+        {x: xml `<bar>Text</bar>`, e: xml `<foo/>`, c: xml `<!--Comment-->`, p: xml `<?PI?>`, t: xml `Text`}
     ];
 
     json j5 = tb5.toJson();
     assert(j5.toJsonString(), "[{\"x\":\"<bar>Text</bar>\", \"e\":\"<foo/>\", \"c\":\"<!--Comment-->\", " +
-                                          "\"p\":\"<?PI ?>\", \"t\":\"Text\"}]");
+                                        "\"p\":\"<?PI ?>\", \"t\":\"Text\"}]");
 
     table<RecordWithOptionalAndRestFields> tb6 = table [
         {a: 1, b: {x: [12.4, "abc"], y: [23.8, "def", [36.9, "ghi"]]}, c: "xyz"},
@@ -4144,17 +4414,66 @@ function testTableToJsonConversion() {
                                 "\"c\":\"xyz\"}, {\"a\":5, \"b\":{\"x\":[45.6, \"asd\"]}, \"d\":10.0, \"e\":12.5}]");
 }
 
+type Basic record {|
+    int id?;
+|};
+
+type PersonRec record {|
+    string name;
+    int age?;
+    Basic ...;
+|};
+
+type StudentRec record {|
+    *PersonRec;
+    int studentId;
+    string code?;
+|};
+
+type PartTimeStudent record {|
+    *PersonRec;
+    string:Char code?;
+    StudentRec s;
+|};
+
+type StudentResearcher record {|
+    *PersonRec;
+    string code?;
+|};
+
+type StudentTutor record {|
+    *PersonRec;
+|};
+
+type S StudentTutor|StudentResearcher|PartTimeStudent;
+
+function testCloneWithTypeWithUnionOfRecordsWithTypeInclusion() returns error? {
+    json student = {
+        name: "Anne",
+        code: "A",
+        s: {
+            name: "Anne",
+            studentId: 1001
+        }
+    };
+    S s = check student.cloneWithType();
+    assertTrue(s is PartTimeStudent);
+    assertFalse(s is StudentResearcher);
+    assertFalse(s is StudentTutor);
+    assert(s.toString(), "{\"code\":\"A\",\"s\":{\"studentId\":1001,\"name\":\"Anne\"},\"name\":\"Anne\"}");
+}
+
 ///////////////////////// Tests for `ensureType()` ///////////////////////////
 
-json  p = {
+json p = {
     name: "Chiran",
     age: 24,
     email: "chirans",
     height: 178.5,
     weight: 72.5,
-    property: (), 
+    property: (),
     address: [
-        125.0/3.0,
+        125.0 / 3.0,
         "xyz street",
         {province: "southern", Country: "Sri Lanka"},
         81000
@@ -4246,18 +4565,25 @@ function testEnsureTypeWithJson6() returns json|error {
     return isMarried;
 }
 
+function testEnsureTypeWithXMLSequence() returns xml:Text|error {
+    xml text1 = xml `<a>abc</a><b>def</b>`;
+    xml text2 = xml:map(xml:elements(text1), y => y.getChildren());
+    xml:Text|error t1 =  text2.ensureType();
+    return t1;
+}
+
 function testEnsureTypeWithCast1() returns boolean|error {
-    boolean isMarried = <boolean> check p.married;
+    boolean isMarried = <boolean>check p.married;
     return isMarried;
 }
 
 function testEnsureTypeWithCast2() returns json[]|error {
-    json[] address = <json[]> check p.address;
+    json[] address = <json[]>check p.address;
     return address;
 }
 
 function testEnsureTypeWithCast3() returns map<json>|error {
-    map<json> bloodType = <map<json>> check p.bloodType;
+    map<json> bloodType = <map<json>>check p.bloodType;
     return bloodType;
 }
 
@@ -4270,13 +4596,13 @@ function testEnsureTypeFunction() returns int:Unsigned32|error {
 type StrArray string[];
 
 function testEnsureTypeFunction1() returns string|error {
-    string|int a =  "chirans";
+    string|int a = "chirans";
     string|error str = a.ensureType(string);
     return str;
 }
 
 function testEnsureTypeFunction2() returns string[]|error {
-    string[]|int a =  ["Chiran", "Sachintha"];
+    string[]|int a = ["Chiran", "Sachintha"];
     string[]|error strArray = a.ensureType(StrArray);
     return strArray;
 }
@@ -4284,7 +4610,7 @@ function testEnsureTypeFunction2() returns string[]|error {
 type T string[]|int|string;
 
 function testEnsureTypeFunction3() returns int|error {
-    T a =  "chiran";
+    T a = "chiran";
     int|error val = a.ensureType(int);
     return val;
 }
@@ -4304,20 +4630,29 @@ function testEnsureType() {
     assert(<decimal>(checkpanic testEnsureTypeWithDecimal()), h);
     assert(<decimal>(checkpanic testEnsureTypeWithDecimal2()), d);
     assert(<()>(checkpanic testEnsureTypeWithNil()), ());
-    assert( <string>(checkpanic testEnsureTypeWithString()), "Chiran");
+    assert(<string>(checkpanic testEnsureTypeWithString()), "Chiran");
     assert(<float>(checkpanic testEnsureTypeWithFloat()), w1);
     assert(<float|int>(checkpanic testEnsureTypeWithUnion1()), w2);
     assert(<float|string>(checkpanic testEnsureTypeWithUnion2()), name2);
     assert(<json>(checkpanic testEnsureTypeWithJson1()), 24);
-    assert(<json>(checkpanic testEnsureTypeWithJson2()),h1);
+    assert(<json>(checkpanic testEnsureTypeWithJson2()), h1);
     assert(<json>(checkpanic testEnsureTypeWithJson3()), {bloodGroup: "O", RHD: "+"});
-    assert(<json>(checkpanic testEnsureTypeWithJson4()), [125.0/3.0, "xyz street",
-    {province: "southern", Country: "Sri Lanka"}, 81000]);
+    assert(<json>(checkpanic testEnsureTypeWithJson4()), [
+        125.0 / 3.0,
+        "xyz street",
+        {province: "southern", Country: "Sri Lanka"},
+        81000
+    ]);
     assert(<json>(checkpanic testEnsureTypeWithJson5()), 72.5);
     assert(<json>(checkpanic testEnsureTypeWithJson6()), false);
+    assert(<xml:Text>(checkpanic testEnsureTypeWithXMLSequence()), xml `abcdef`);
     assert(<boolean>(checkpanic testEnsureTypeWithCast1()), false);
-    assert(<json[]>(checkpanic testEnsureTypeWithCast2()), [125.0/3.0, "xyz street",
-    {province: "southern", Country: "Sri Lanka"}, 81000]);
+    assert(<json[]>(checkpanic testEnsureTypeWithCast2()), [
+        125.0 / 3.0,
+        "xyz street",
+        {province: "southern", Country: "Sri Lanka"},
+        81000
+    ]);
     assert(<map<json>>(checkpanic testEnsureTypeWithJson3()), {bloodGroup: "O", RHD: "+"});
     assert(testEnsureTypeFunction() is int:Unsigned32, true);
     assert(testEnsureTypeFunction1() is string, true);
@@ -4338,7 +4673,7 @@ function testRequiredTypeWithInvalidCast3() returns error? {
 }
 
 function testRequiredTypeWithInvalidCast4() returns error? {
-    float[] quality = <float[]> check p.name;
+    float[] quality = <float[]>check p.name;
 }
 
 function testRequiredTypeWithInvalidCast5() returns error? {
@@ -4357,12 +4692,12 @@ function testEnsureTypeNegative() {
     error? err5 = testRequiredTypeWithInvalidCast5();
     error? err6 = testRequiredTypeWithInvalidCast6();
 
-    error e1 = <error> err1;
-    error e2 = <error> err2;
-    error e3 = <error> err3;
-    error e4 = <error> err4;
-    error e5 = <error> err5;
-    error e6 = <error> err6;
+    error e1 = <error>err1;
+    error e2 = <error>err2;
+    error e3 = <error>err3;
+    error e4 = <error>err4;
+    error e5 = <error>err5;
+    error e6 = <error>err6;
 
     assertEquality("error(\"{ballerina}TypeCastError\",message=\"incompatible types: 'string' cannot be cast to 'int'\")", e1.toString());
     assertEquality("error(\"{ballerina}TypeCastError\",message=\"incompatible types: 'string' cannot be cast to 'decimal'\")", e2.toString());
@@ -4377,18 +4712,18 @@ function testEnsureTypeJsonToNestedRecordsWithErrors() {
     json clonedJsonVal = jsonVal.cloneReadOnly();
     Factory|error val = trap clonedJsonVal.ensureType(Factory);
 
-    error err = <error> val;
+    error err = <error>val;
     string errorMsgPrefix = "incompatible types: 'map<(json & readonly)> & readonly' cannot be cast to 'Factory': ";
-    string errorMsg =  errorMsgPrefix + errorMsgContent;
-    assert(<string> checkpanic err.detail()["message"], errorMsg);
-    assert(err.message(),"{ballerina}TypeCastError");
+    string errorMsg = errorMsgPrefix + errorMsgContent;
+    assert(<string>checkpanic err.detail()["message"], errorMsg);
+    assert(err.message(), "{ballerina}TypeCastError");
 }
 
 function testEnsureTypeWithInferredArgument() {
     int|error age = p.age.ensureType();
     assertEquality(24, age);
 
-    any a = <string[]> ["hello", "world"];
+    any a = <string[]>["hello", "world"];
     string[] strArray = checkpanic a.ensureType();
     assertEquality(a, strArray);
     string[]|error strArray2 = value:ensureType(a);
@@ -4399,7 +4734,7 @@ function testEnsureTypeWithInferredArgument() {
     if (intArr is error) {
         assertEquality("{ballerina}TypeCastError", intArr.message());
         assertEquality("incompatible types: 'string[]' cannot be cast to 'int[]'",
-        <string> checkpanic intArr.detail()["message"]);
+        <string>checkpanic intArr.detail()["message"]);
     }
 }
 
@@ -4421,7 +4756,7 @@ public type Value record {|
 |};
 
 public function testConvertJsonToAmbiguousType() {
-    json j = {"value": <map<int>> {i: 1}};
+    json j = {"value": <map<int>>{i: 1}};
     Value|error res = j.cloneWithType(Value);
 
     if res is error {
@@ -4444,8 +4779,8 @@ function testAssigningCloneableToAnyOrError() {
 }
 
 function testXMLWithAngleBrackets() {
-    xml xy = xml`x&amp;y`;
-    xml:Element e = xml`<p/>`;
+    xml xy = xml `x&amp;y`;
+    xml:Element e = xml `<p/>`;
     e.setChildren(xy);
     xml exy = xy + e + xy;
 
@@ -4456,8 +4791,16 @@ function testXMLWithAngleBrackets() {
     panic error("AssertionError : expected: " + expected + " found: " + exy.toString());
 }
 
+function testXMLSequenceWithOneTextElement() {
+    xml text1 = xml `<a>abc</a><b>def</b>`;
+    xml text2 = xml:map(xml:elements(text1), y => y.getChildren());
+    var item = text2.cloneWithType(xml:Text);
+    assertTrue(item is xml:Text);
+    assertEquality(xml `abcdef`, item);
+}
+
 public type KeyVals record {|
-    anydata ...;
+    anydata...;
 |};
 
 function foo(*KeyVals kvPairs) returns string {
@@ -4465,14 +4808,18 @@ function foo(*KeyVals kvPairs) returns string {
 }
 
 public function testDestructuredNamedArgs() returns any {
-   string actual =  foo(message = "This is a sample message", a = "foo", b = "bar", c = 100);
-   assertEquality("{\"message\":\"This is a sample message\",\"a\":\"foo\",\"b\":\"bar\",\"c\":100}", actual);
+    string actual = foo(message = "This is a sample message", a = "foo", b = "bar", c = 100);
+    assertEquality("{\"message\":\"This is a sample message\",\"a\":\"foo\",\"b\":\"bar\",\"c\":100}", actual);
 }
 
 type Ints 12|21;
+
 type Strings "a"|"bc";
+
 type True true;
+
 type Boolean false|true;
+
 type Combo 1|2f|"abc"|false|true;
 
 function testToStringOnSubTypes() {
@@ -4519,11 +4866,11 @@ public client class Caller {
 }
 
 function getUsername(Caller ep, string key) returns string|error {
-    return <string> check ep.getAttribute(key);
+    return <string>check ep.getAttribute(key);
 }
 
 function testUsingCloneableReturnType() {
-    Caller caller = new();
+    Caller caller = new ();
     assertEquality("dummyVal", caller.getAttribute("dummy"));
 }
 
@@ -4541,7 +4888,7 @@ function testDecimalZeroToString() {
     assertTrue(d1.toString() == d2.toString());
     assertTrue(checkpanic decimal:fromString(d1.toString()) == checkpanic decimal:fromString(d2.toString()));
     assertTrue(checkpanic decimal:fromString(d1.toString()) === checkpanic decimal:fromString(d2.toString()));
-    
+
     d1 = 0.0000d;
     d2 = 0.0000d;
 
@@ -4597,7 +4944,7 @@ function testFirst() {
     assertEquality(1, value:first(1, 2, 4, 5));
     var f = value:first(error("Message"), 2.0, true, {"m": 2});
     assertEquality(true, f is error);
-    assertEquality("Message", (<error> f).message());
+    assertEquality("Message", (<error>f).message());
     assertEquality(1, value:first(1, [2, 4, 5]));
     assertEquality(1, value:first(1, ...[2, 4, 5]));
     var b = value:first([false, true], ...[2, 4, 5]);
@@ -4614,11 +4961,44 @@ function testLast() {
     assertEquality(3, value:last(4, ...ar));
     var x1 = value:last(error("Message1"), error("Message2"));
     assertEquality(true, x1 is error);
-    assertEquality("Message2", (<error> x1).message());
+    assertEquality("Message2", (<error>x1).message());
     ar = [];
     assertEquality(4, value:last(4, ...ar));
     int[] ar1 = [1, 2, 3];
     assertTrue([] == value:last(ar1, ar));
+}
+
+public type Copybook record {
+    DFH\-COMMAREA DFH\-COMMAREA?;
+};
+
+public type DFH\-COMMAREA record {
+    record {
+        string MI\-HDR\-VERSION?;
+        string MI\-HDR\-MSGID?;
+        string MI\-HDR\-LOGGINGID?;
+        record {
+            string MI\-HDR\-REPLYQMGR?;
+        }[2] MI\-HDR\-REPLYSTACK?;
+    } BROKER\-MESSAGE\-AREA?;
+};
+
+function testCloneWithTypeToRecordWithSpecialChars() {
+    string s = string `{
+    "DFH-COMMAREA": {
+        "BROKER-MESSAGE-AREA": {
+            "MI-HDR-VERSION": "2",
+            "MI-HDR-MSGID":"3238763233323598798798712321187612",
+            "MI-HDR-LOGGINGID": "Z5118761-Z"
+        }
+    }
+    }`;
+    json rec = checkpanic value:fromJsonString(s);
+    map<json> mapJson = checkpanic rec.ensureType();
+    Copybook|error dfh\-commarea = mapJson.cloneWithType();
+    assertTrue(dfh\-commarea is Copybook);
+    Copybook cb =  checkpanic dfh\-commarea.ensureType();
+    assertEquality(cb.DFH\-COMMAREA?.BROKER\-MESSAGE\-AREA.toString(), string `{"MI-HDR-VERSION":"2","MI-HDR-MSGID":"3238763233323598798798712321187612","MI-HDR-LOGGINGID":"Z5118761-Z"}`);
 }
 
 type AssertionError distinct error;
@@ -4633,7 +5013,7 @@ function assertTrue(any|error actual) {
     assertEquality(true, actual);
 }
 
-function assertEquality(any|error expected, any|error actual) {
+isolated function assertEquality(any|error expected, any|error actual) {
     if expected is anydata && actual is anydata && expected == actual {
         return;
     }

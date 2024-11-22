@@ -30,14 +30,10 @@ import static org.ballerinalang.langlib.array.utils.ArrayUtils.getElementAccessF
  *
  * @since 1.2.0
  */
-//@BallerinaFunction(
-//        orgName = "ballerina", packageName = "lang.array", functionName = "lastIndexOf",
-//        args = {@Argument(name = "arr", type = TypeKind.ARRAY), @Argument(name = "val", type = TypeKind.UNION),
-//                @Argument(name = "startIndex", type = TypeKind.INT)},
-//        returnType = {@ReturnType(type = TypeKind.UNION)},
-//        isPublic = true
-//)
-public class LastIndexOf {
+public final class LastIndexOf {
+
+    private LastIndexOf() {
+    }
 
     public static Object lastIndexOf(BArray arr, Object val, long startIndex) {
         Type arrType = arr.getType();

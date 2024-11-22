@@ -9,7 +9,16 @@ Running Tests with Coverage
 	[fail] [before test function for the test]:
 	    error("{ballerina}DivisionByZero",message=" / by zero")
 			callableName: beforeFailsFunction moduleName: intg_tests.dataproviders$test.0.tests.new-data-provider-tests fileName: tests/new-data-provider-tests.bal lineNumber: 121
-			callableName: beforeFailsFunction$lambda33$ moduleName: intg_tests.dataproviders$test.0.tests.new-data-provider-tests fileName: tests/new-data-provider-tests.bal lineNumber: 127
+			callableName: beforeFailsFunction$lambda55$ moduleName: intg_tests.dataproviders$test.0.tests.new-data-provider-tests fileName: tests/new-data-provider-tests.bal lineNumber: 127
+			callableName: call moduleName: ballerina.lang.function.0 fileName: function.bal lineNumber: 37
+			callableName: executeFunction moduleName: ballerina.test.0 fileName: serialExecuter.bal lineNumber: 142
+			callableName: executeBeforeFunction moduleName: ballerina.test.0 fileName: serialExecuter.bal lineNumber: 121
+			callableName: prepareDataDrivenTest moduleName: ballerina.test.0 fileName: serialExecuter.bal lineNumber: 102
+			callableName: executeDataDrivenTestSet moduleName: ballerina.test.0 fileName: serialExecuter.bal lineNumber: 63
+			callableName: executeTest moduleName: ballerina.test.0 fileName: serialExecuter.bal lineNumber: 28
+			callableName: executeTests moduleName: ballerina.test.0 fileName: execute.bal lineNumber: 81
+			callableName: startSuite moduleName: ballerina.test.0 fileName: execute.bal lineNumber: 53
+			callableName: __execute__ moduleName: intg_tests.dataproviders$test.0.tests.test_execute-generated_*****lineNumber: 27
 		
 		[pass] testDividingValuesWithBeforeFailing#0
 		[pass] testDividingValuesWithBeforeFailing#1
@@ -22,12 +31,16 @@ Running Tests with Coverage
 		0 failing
 		1 skipped
 
+		Test execution time :*****s
+
 	dataproviders.module1
 
 
 		No tests found
 
+		Test execution time :*****s
+
 Generating Test Report
 	data-providers\target\report\test_results.json
 
-error: there are test failures
+error: there are test failures

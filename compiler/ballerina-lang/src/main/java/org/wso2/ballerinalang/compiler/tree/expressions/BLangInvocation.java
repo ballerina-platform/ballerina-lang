@@ -41,7 +41,7 @@ import java.util.Set;
 import java.util.StringJoiner;
 
 /**
- * Implementation of {@link org.ballerinalang.model.tree.expressions.InvocationNode}.
+ * Implementation of {@link InvocationNode}.
  *
  * @since 0.94
  */
@@ -115,7 +115,7 @@ public class BLangInvocation extends BLangExpression implements InvocationNode {
         }
         br.append(name == null ? String.valueOf(symbol.name) : String.valueOf(name));
         br.append("(");
-        if (argExprs.size() > 0) {
+        if (!argExprs.isEmpty()) {
             String s = Arrays.toString(argExprs.toArray());
             br.append(s, 1, s.length() - 1);
         }
@@ -193,6 +193,7 @@ public class BLangInvocation extends BLangExpression implements InvocationNode {
             this.symbol = parent.symbol;
             this.async = parent.async;
             this.expr = varRef;
+            this.annAttachments = parent.annAttachments;
             this.setBType(parent.getBType());
         }
 

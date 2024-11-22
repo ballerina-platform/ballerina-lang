@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+<root>
+    <item>
+        <id>1</id>
+        <name>Item A</name>
+        <price>19.99</price>
+        <quantity>8</quantity>
+        <code>CODE1234</code>
+    </item>
+    <item>
+        <id>2</id>
+        <name>Item B</name>
+        <cost>19.99</cost>
+        <price>29.99</price>
+        <description>This is a description for Item B.</description>
+    </item>
+    <item>
+        <id>3</id>
+        <name>Item C</name>
+        <quantity>5</quantity>
+        <discount>10%</discount>
+    </item>
+</root>

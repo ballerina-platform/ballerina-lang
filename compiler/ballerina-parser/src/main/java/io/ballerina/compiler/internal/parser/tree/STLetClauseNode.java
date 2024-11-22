@@ -56,6 +56,7 @@ public class STLetClauseNode extends STIntermediateClauseNode {
                 letVarDeclarations);
     }
 
+    @Override
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
         return new STLetClauseNode(
                 this.letKeyword,
@@ -78,6 +79,7 @@ public class STLetClauseNode extends STIntermediateClauseNode {
                 diagnostics);
     }
 
+    @Override
     public Node createFacade(int position, NonTerminalNode parent) {
         return new LetClauseNode(this, position, parent);
     }

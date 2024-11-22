@@ -17,14 +17,14 @@
  */
 package org.ballerinalang.test.types.json;
 
-import io.ballerina.runtime.api.TypeTags;
+import io.ballerina.runtime.api.types.TypeTags;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
-import io.ballerina.runtime.internal.JsonDataSource;
-import io.ballerina.runtime.internal.JsonParser;
+import io.ballerina.runtime.internal.json.JsonDataSource;
+import io.ballerina.runtime.internal.json.JsonParser;
 import io.ballerina.runtime.internal.values.StreamingJsonValue;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
@@ -156,7 +156,7 @@ public class JSONTest {
         Object returns = BRunUtil.invoke(compileResult, "testParse", args);
         Assert.assertTrue(returns instanceof BError);
         String errorMsg =
-                (((BMap) ((BError) returns).getDetails()).get(StringUtils.fromString("message"))).toString();
+                (((BMap<?, ?>) ((BError) returns).getDetails()).get(StringUtils.fromString("message"))).toString();
         Assert.assertEquals(errorMsg, "unrecognized token 'some' at line: 1 column: 6");
     }
 

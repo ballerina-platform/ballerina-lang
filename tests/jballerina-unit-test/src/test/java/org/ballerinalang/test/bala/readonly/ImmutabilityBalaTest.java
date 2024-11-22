@@ -42,6 +42,7 @@ public class ImmutabilityBalaTest {
     public void setup() {
         BCompileUtil.compileAndCacheBala("test-src/bala/test_projects/test_project_selectively_immutable");
         BCompileUtil.compileAndCacheBala("test-src/bala/test_projects/test_project_immutable");
+        BCompileUtil.compileAndCacheBala("test-src/bala/test_projects/test_project_types");
         BCompileUtil.compileAndCacheBala("test-src/bala/test_projects/test_project_records");
         result = BCompileUtil.compile("test-src/bala/test_bala/readonly/test_selectively_immutable_type.bal");
         inherentlyImmutableResult = BCompileUtil.compile(
@@ -75,25 +76,25 @@ public class ImmutabilityBalaTest {
 
         // Assignment and initialization.
         validateError(result, index++, "incompatible types: expected '(testorg/selectively_immutable:1" +
-                ":MixedRecord & readonly)', found 'testorg/selectively_immutable:1.0.0:MixedRecord'", 20, 38);
-        validateError(result, index++, "incompatible types: expected 'map<(json & readonly)> & readonly', " +
-                              "found 'map<json>'", 23, 31);
-        validateError(result, index++, "incompatible types: expected '(testorg/selectively_immutable:1:Details & " +
-                "readonly)', found 'testorg/selectively_immutable:1.0.0:Details'", 31, 18);
+                ".0.0:MixedRecord & readonly)', found 'testorg/selectively_immutable:1.0.0:MixedRecord'", 20, 38);
+        validateError(result, index++, "incompatible types: expected '(map<json> & readonly)', " +
+                "found 'map<json>'", 23, 31);
+        validateError(result, index++, "incompatible types: expected '(testorg/selectively_immutable:1" +
+                ".0.0:Details & readonly)', found 'testorg/selectively_immutable:1.0.0:Details'", 31, 18);
         validateError(result, index++,
                 "incompatible types: expected 'testorg/selectively_immutable:1.0.0:ReadOnlyStudent', " +
                               "found 'testorg/selectively_immutable:1.0.0:Student'", 43, 29);
         validateError(result, index++, "incompatible types: expected '(ABAny & readonly)', found 'Obj'", 57, 26);
 
         // Updates.
-        validateError(result, index++, "cannot update 'readonly' value of type 'testorg/selectively_immutable:1.0" +
-                ".0:ReadOnlyStudent'", 62, 5);
-        validateError(result, index++, "cannot update 'readonly' value of type 'testorg/selectively_immutable:1.0" +
-                ".0:ReadOnlyStudent'", 66, 5);
+        validateError(result, index++, "cannot update 'readonly' value of type 'testorg/" +
+                "selectively_immutable:1.0.0:(testorg/selectively_immutable:1:Student & readonly)'", 62, 5);
+        validateError(result, index++, "cannot update 'readonly' value of type " +
+                "'(testorg/selectively_immutable:1.0.0:Student & readonly)'", 66, 5);
         validateError(result, index++, "cannot update 'readonly' value of type '(testorg/selectively_immutable:1" +
                 ":Details & readonly)'", 76, 5);
         validateError(result, index++, "cannot update 'readonly' value of type '(testorg/selectively_immutable:1" +
-                ":Details & readonly)'", 77, 5);
+                ".0.0:Details & readonly)'", 77, 5);
         validateError(result, index++, "cannot update 'readonly' value of type 'testorg/selectively_immutable:1.0.0:" +
                 "(testorg/selectively_immutable:1:Config & readonly)'", 82, 5);
         validateError(result, index++, "cannot update 'readonly' value of type '(testorg/selectively_immutable:1" +

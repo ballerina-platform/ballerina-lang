@@ -18,34 +18,28 @@
 
 package org.ballerinalang.langlib.map;
 
-import io.ballerina.runtime.api.async.StrandMetadata;
+import io.ballerina.runtime.api.Environment;
 import io.ballerina.runtime.api.values.BFunctionPointer;
 import io.ballerina.runtime.api.values.BMap;
-import io.ballerina.runtime.internal.scheduling.AsyncUtils;
-import io.ballerina.runtime.internal.scheduling.Scheduler;
 
 import java.util.concurrent.atomic.AtomicInteger;
-
-import static io.ballerina.runtime.api.constants.RuntimeConstants.BALLERINA_BUILTIN_PKG_PREFIX;
-import static io.ballerina.runtime.api.constants.RuntimeConstants.MAP_LANG_LIB;
-import static org.ballerinalang.util.BLangCompilerConstants.MAP_VERSION;
 
 /**
  * Native implementation of lang.map:forEach(map&lt;Type&gt;, function).
  *
  * @since 1.0
  */
-public class ForEach {
+public final class ForEach {
 
-    private static final StrandMetadata METADATA = new StrandMetadata(BALLERINA_BUILTIN_PKG_PREFIX, MAP_LANG_LIB,
-                                                                      MAP_VERSION, "forEach");
+    private ForEach() {
+    }
 
-    public static void forEach(BMap<?, ?> m, BFunctionPointer<Object, Object> func) {
+    public static void forEach(Environment env, BMap<?, ?> m, BFunctionPointer func) {
         int size = m.size();
         AtomicInteger index = new AtomicInteger(-1);
         Object[] keys = m.getKeys();
-        AsyncUtils.invokeFunctionPointerAsyncIteratively(func, null, METADATA, size,
-                () -> new Object[]{m.get(keys[index.incrementAndGet()]), true}, result -> {
-                }, () -> null, Scheduler.getStrand().scheduler);
+        for (int i = 0; i < size; i++) {
+            func.call(env.getRuntime(), m.get(keys[index.incrementAndGet()]));
+        }
     }
 }

@@ -21,14 +21,17 @@ package org.ballerinalang.langlib.string;
 import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BArray;
-import org.wso2.ballerinalang.compiler.util.Constants;
+import org.ballerinalang.langlib.string.utils.Constants;
 
 /**
  * Extern function lang.string:fromCodePointInts(int[]).
  *
  * @since 1.0
  */
-public class FromCodePointInts {
+public final class FromCodePointInts {
+
+    private FromCodePointInts() {
+    }
 
     public static Object fromCodePointInts(BArray codePoints) {
         int codePoint = 0;

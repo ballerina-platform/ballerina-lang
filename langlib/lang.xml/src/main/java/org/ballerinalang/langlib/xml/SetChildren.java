@@ -18,18 +18,18 @@
 
 package org.ballerinalang.langlib.xml;
 
-import io.ballerina.runtime.api.PredefinedTypes;
-import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.creators.TypeCreator;
 import io.ballerina.runtime.api.flags.TypeFlags;
+import io.ballerina.runtime.api.types.PredefinedTypes;
 import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.types.TypeTags;
 import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BXml;
 import io.ballerina.runtime.internal.TypeChecker;
-import io.ballerina.runtime.internal.XmlFactory;
 import io.ballerina.runtime.internal.errors.ErrorCodes;
 import io.ballerina.runtime.internal.errors.ErrorHelper;
+import io.ballerina.runtime.internal.xml.XmlFactory;
 
 import java.util.Arrays;
 
@@ -39,22 +39,19 @@ import java.util.Arrays;
  * 
  * @since 0.88
  */
-//@BallerinaFunction(
-//        orgName = "ballerina", packageName = "lang.xml",
-//        functionName = "setChildren",
-//        args = {@Argument(name = "children", type = TypeKind.UNION)},
-//        isPublic = true
-//)
 public class SetChildren {
 
     private static final String OPERATION = "set children to xml element";
+
+    private SetChildren() {
+    }
 
     public static void setChildren(BXml xml, Object children) {
         if (!IsElement.isElement(xml)) {
             throw ErrorHelper.getRuntimeException(ErrorCodes.XML_FUNC_TYPE_ERROR, "setChildren", "element");
         }
 
-        Type childrenType = TypeUtils.getReferredType(TypeChecker.getType(children));
+        Type childrenType = TypeUtils.getImpliedType(TypeChecker.getType(children));
         if (childrenType.getTag() == TypeTags.STRING_TAG) {
             BXml xmlText = XmlFactory.createXMLText((BString) children);
             children = xmlText;

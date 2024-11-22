@@ -56,6 +56,7 @@ under the License.
             <package name="org.ballerinalang.langserver.lspackageloader.*"/>
             <package name="org.ballerinalang.langserver.inlayhint.*"/>
             <package name="org.ballerinalang.langserver.common.utils.*"/>
+            <package name="org.ballerinalang.langserver.memoryusagemonitor.*"/>
         </packages>
         <classes>
             <class name="org.ballerinalang.langserver.extensions.document.SyntaxTreeByRangeTest"/>

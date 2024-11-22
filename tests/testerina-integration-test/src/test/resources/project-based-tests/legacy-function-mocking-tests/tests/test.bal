@@ -33,8 +33,21 @@ function intSubMock(int a, int b) returns int {
     return 0;
 }
 
+@test:Mock {
+    moduleName: "function_mocking_legacy.moduleB",
+    functionName: "intMul"
+}
+function intMulMock(int a, int b) returns int {
+    return 1;
+}
+
 @test:Config {}
 function testIntAdd() {
     test:assertEquals(intAdd(3, 7), 5);
     test:assertEquals(moduleA:intSub(3, 7), 0);
+}
+
+@test:Config {}
+function testIntMul() {
+    test:assertEquals(intMul3Num(3, 7, 2), 1);
 }

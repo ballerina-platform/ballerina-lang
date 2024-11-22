@@ -46,7 +46,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
 
 import static org.ballerinalang.langserver.completions.util.SortingUtil.genSortText;
 
@@ -55,7 +54,7 @@ import static org.ballerinalang.langserver.completions.util.SortingUtil.genSortT
  *
  * @since 2.0.0
  */
-public class ModulePartNodeContextUtil {
+public final class ModulePartNodeContextUtil {
 
     private ModulePartNodeContextUtil() {
     }
@@ -207,7 +206,7 @@ public class ModulePartNodeContextUtil {
      */
     public static List<Symbol> serviceTypeDescContextSymbols(BallerinaCompletionContext context) {
         List<Symbol> visibleSymbols = context.visibleSymbols(context.getCursorPosition());
-        return visibleSymbols.stream().filter(serviceTypeDescPredicate()).collect(Collectors.toList());
+        return visibleSymbols.stream().filter(serviceTypeDescPredicate()).toList();
     }
 
     /**
@@ -277,7 +276,7 @@ public class ModulePartNodeContextUtil {
         List<Token> qualifiers = CommonUtil.getQualifiersOfNode(context, node)
                 .stream()
                 .filter(qualifier -> qualifier.lineRange().endLine().line() == cursorPos.getLine())
-                .collect(Collectors.toList());
+                .toList();
         if (qualifiers.isEmpty()) {
             return Optional.empty();
         }

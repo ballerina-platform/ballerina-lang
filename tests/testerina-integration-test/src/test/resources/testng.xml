@@ -23,12 +23,6 @@ under the License.
 
     <!-- ballerina.test Related Test Cases. -->
     <test name="testerina-intg-tests">
-        <parameter name="enableTesterinaTests" value="true" />
-        <groups>
-            <run>
-                <exclude name="brokenOnJBallerina"/>
-            </run>
-        </groups>
         <classes>
             <class name="org.ballerinalang.testerina.test.BasicCasesTest" />
             <class name="org.ballerinalang.testerina.test.negative.MissingFunctionsTestCase"/>
@@ -48,6 +42,8 @@ under the License.
             <class name="org.ballerinalang.testerina.test.ImportTest" />
             <class name="org.ballerinalang.testerina.test.ModuleExecutionTest" />
             <class name="org.ballerinalang.testerina.test.ModuleExecutionFlowTest" />
+            <class name="org.ballerinalang.testerina.test.ModuleGracefulStopTest" />
+            <class name="org.ballerinalang.testerina.test.ModuleExecutionWithInitStartFailuresTest" />
             <class name="org.ballerinalang.testerina.test.CodeCoverageReportTest" />
             <class name="org.ballerinalang.testerina.test.SourcelessTestExecutionTests"/>
             <class name="org.ballerinalang.testerina.test.DataProviderTest"/>
@@ -55,6 +51,10 @@ under the License.
             <class name="org.ballerinalang.testerina.test.ExcludeFromCodeCoverageTest"/>
             <class name="org.ballerinalang.testerina.test.ConfigurableCliArgsTest"/>
             <class name="org.ballerinalang.testerina.test.negative.InvalidConfigurableCliArgsTestCase"/>
+            <class name="org.ballerinalang.testerina.test.TestparallelizationTest"/>
+            <class name="org.ballerinalang.testerina.test.SingleTestExecutionWithInitFailuresTest"/>
+            <class name="org.ballerinalang.testerina.test.TestExecutionWithInitFailuresTest"/>
+            <class name="org.ballerinalang.testerina.test.EscapedIdentifiersValidationTest"/>
         </classes>
     </test>
 </suite>

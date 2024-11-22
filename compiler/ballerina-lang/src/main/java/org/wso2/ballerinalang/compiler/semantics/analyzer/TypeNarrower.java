@@ -69,10 +69,10 @@ import static org.ballerinalang.model.symbols.SymbolOrigin.VIRTUAL;
 public class TypeNarrower extends BLangNodeVisitor {
 
     private SymbolEnv env;
-    private SymbolTable symTable;
-    private Types types;
-    private SymbolEnter symbolEnter;
-    private TypeChecker typeChecker;
+    private final SymbolTable symTable;
+    private final Types types;
+    private final SymbolEnter symbolEnter;
+    private final TypeChecker typeChecker;
     private static final CompilerContext.Key<TypeNarrower> TYPE_NARROWER_KEY = new CompilerContext.Key<>();
 
     private TypeNarrower(CompilerContext context) {
@@ -345,8 +345,12 @@ public class TypeNarrower extends BLangNodeVisitor {
         var nonLoggingContext = Types.IntersectionContext.typeTestIntersectionCalculationContext();
         if (operator == OperatorKind.AND) {
             trueType = types.getTypeIntersection(nonLoggingContext, lhsTrueType, rhsTrueType, this.env);
-            BType tmpType = types.getTypeIntersection(nonLoggingContext, lhsTrueType, rhsFalseType, this.env);
-            falseType = getTypeUnion(lhsFalseType, tmpType);
+            BType tmpType1 = types.getTypeIntersection(nonLoggingContext, lhsTrueType, rhsFalseType, this.env);
+            BType tmpType2 = types.getTypeIntersection(nonLoggingContext, lhsFalseType, rhsTrueType, this.env);
+            if (tmpType1.tag == TypeTags.SEMANTIC_ERROR) {
+                tmpType1 = tmpType2;
+            }
+            falseType = getTypeUnion(lhsFalseType, tmpType1);
         } else {
             BType tmpType = types.getTypeIntersection(nonLoggingContext, lhsFalseType, rhsTrueType, this.env);
             trueType = lhsTypes.containsKey(symbol) ? getTypeUnion(lhsTrueType, tmpType) :
@@ -362,10 +366,10 @@ public class TypeNarrower extends BLangNodeVisitor {
             BVarSymbol symbolInScope = (BVarSymbol) env.scope.entries.get(symbol.name).symbol;
             BType typeInScope = symbolInScope.type;
             if (!types.isAssignable(symbol.type, typeInScope)) {
-                return Types.getReferredType(typeInScope);
+                return Types.getImpliedType(typeInScope);
             }
         }
-        return Types.getReferredType(symbol.type);
+        return Types.getImpliedType(symbol.type);
     }
 
     private BType getTypeUnion(BType currentType, BType targetType) {

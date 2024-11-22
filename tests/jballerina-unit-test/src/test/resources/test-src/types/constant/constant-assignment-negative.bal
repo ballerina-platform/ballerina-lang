@@ -24,3 +24,9 @@ const Foo F1 = {x: {b : "a"}, i: 1, c: 2};
 const record{|X x; int i;|} F2 = {x: {b : "a"}, i: 1, c: 2};
 
 const X F3 = {b : "b"};
+
+const string[] Y = base16 `aabb`;
+
+const [string, int] Z =  base16 `aabb`;
+
+const [170] Z1 =  base16 `aabb`;

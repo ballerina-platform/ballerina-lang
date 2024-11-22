@@ -18,6 +18,7 @@
 
 package org.ballerinalang.langlib.array;
 
+import io.ballerina.runtime.api.Environment;
 import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.creators.TypeCreator;
 import io.ballerina.runtime.api.creators.ValueCreator;
@@ -26,8 +27,8 @@ import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BFunctionPointer;
 import io.ballerina.runtime.api.values.BMap;
-import io.ballerina.runtime.internal.ValueComparisonUtils;
-import io.ballerina.runtime.internal.scheduling.Scheduler;
+import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.internal.utils.ValueComparisonUtils;
 
 import static io.ballerina.runtime.api.constants.RuntimeConstants.ARRAY_LANG_LIB;
 import static io.ballerina.runtime.internal.errors.ErrorReasons.INVALID_TYPE_TO_SORT;
@@ -39,18 +40,21 @@ import static org.ballerinalang.langlib.array.utils.ArrayUtils.checkIsArrayOnlyO
  *
  * @since 1.0
  */
-public class Sort {
+public final class Sort {
 
-    public static BArray sort(BArray arr, Object direction, Object func) {
-        checkIsArrayOnlyOperation(TypeUtils.getReferredType(arr.getType()), "sort()");
-        BFunctionPointer<Object, Object> function = (BFunctionPointer<Object, Object>) func;
+    private Sort() {
+    }
+
+    public static BArray sort(Environment env, BArray arr, Object direction, Object func) {
+        checkIsArrayOnlyOperation(TypeUtils.getImpliedType(arr.getType()), "sort()");
+        BFunctionPointer function = (BFunctionPointer) func;
 
         Object[][] sortArr = new Object[arr.size()][2];
         Object[][] sortArrClone = new Object[arr.size()][2];
 
         if (function != null) {
             for (int i = 0; i < arr.size(); i++) {
-                sortArr[i][0] = function.call(new Object[]{Scheduler.getStrand(), arr.get(i), true});
+                sortArr[i][0] = function.call(env.getRuntime(), arr.get(i));
                 sortArr[i][1] = arr.get(i);
             }
         } else {
@@ -109,7 +113,7 @@ public class Sort {
 
             } catch (BError error) {
                 throw ErrorCreator.createError(getModulePrefixedReason(ARRAY_LANG_LIB, INVALID_TYPE_TO_SORT),
-                        (BMap) error.getDetails());
+                        (BMap<BString, Object>) error.getDetails());
             }
         }
     }

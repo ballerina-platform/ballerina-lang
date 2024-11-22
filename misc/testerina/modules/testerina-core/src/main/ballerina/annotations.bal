@@ -22,6 +22,7 @@
 # + before - Function to be run before the test is run
 # + after - Function to be run after the test is run
 # + dependsOn - A list of functions the test function depends on and will be run before the test
+# + serialExecution - Flag to mandate the test to run serially, despite the parallel eligibility
 public type TestConfig record {
     boolean enable = true;
     string[] groups = [];
@@ -29,6 +30,7 @@ public type TestConfig record {
     function () returns (any|error) before?;
     function () returns (any|error) after?;
     function[] dependsOn = [];
+    true serialExecution?;
 };
 
 # Configuration of the function to be mocked.

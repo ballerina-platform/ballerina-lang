@@ -17,24 +17,25 @@
  *
  */
 
-apply from: "$rootDir/gradle/javaProject.gradle"
-apply from: "$rootDir/gradle/ballerinaLangLibLoad.gradle"
+plugins {
+    id 'javaProject'
+    id 'ballerinaLangLibLoad'
+}
 
 dependencies {
-    implementation 'org.slf4j:slf4j-api'
+    implementation libs.slf4j.api
     implementation project(':ballerina-lang')
     implementation project(':ballerina-lang:jballerina.java')
     implementation project(':ballerina-lang-test')
     implementation project(':ballerina-runtime')
     implementation project(':ballerina-lang:value');
     implementation project(':ballerina-lang:regexp');
-    implementation project(':observability-symbol-collector');
 
-    testImplementation "org.mockito:mockito-core:${project.mockitoCoreVersion}"
-    testImplementation "org.mockito:mockito-testng:${project.mockitoTestNGVersion}"
-    testImplementation 'org.wso2.transport.http:org.wso2.transport.http.netty'
-    testImplementation 'org.wso2.carbon.messaging:org.wso2.carbon.messaging'
-    testImplementation 'org.testng:testng'
+    testImplementation libs.mockito.core
+    testImplementation libs.mockito.testng
+    testImplementation libs.wso2.transport.http
+    testImplementation libs.wso2.carbon.messaging
+    testImplementation libs.testng
     testImplementation project(path: ':ballerina-test-utils', configuration: 'shadow')
     testImplementation project(':ballerina-runtime')
     testRuntimeOnly project(':ballerina-runtime')
@@ -46,7 +47,6 @@ description = 'JBallerina - Unit Test Module'
 
 test {
     systemProperty "java.util.logging.config.file", "src/test/resources/logging.properties"
-    systemProperty "enableJBallerinaTests", "true"
 
     jvmArgs = ['-Xms512m', '-Xmx3g', '--add-opens=java.base/java.util=ALL-UNNAMED',
                '--add-opens=java.base/java.lang=ALL-UNNAMED']

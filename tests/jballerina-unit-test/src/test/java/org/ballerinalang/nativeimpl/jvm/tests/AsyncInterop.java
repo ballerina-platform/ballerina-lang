@@ -18,11 +18,7 @@
 package org.ballerinalang.nativeimpl.jvm.tests;
 
 import io.ballerina.runtime.api.Environment;
-import io.ballerina.runtime.api.Future;
-import io.ballerina.runtime.internal.scheduling.AsyncUtils;
-
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.atomic.AtomicInteger;
+import org.testng.Assert;
 
 /**
  * This class is used for Java interoperability tests.
@@ -31,35 +27,21 @@ import java.util.concurrent.atomic.AtomicInteger;
  *
  * @since 1.0.0
  */
-public class AsyncInterop {
+public final class AsyncInterop {
 
-    public static int countSlowly() {
-        CompletableFuture<Object> future = AsyncUtils.markAsync();
-
-        new Thread(() -> {
-            sleep();
-            future.complete(42);
-        }).start();
-
-        return -1;
+    private AsyncInterop() {
     }
 
-    public static void completeFutureMoreThanOnce(Environment env) {
-        Future future = env.markAsync();
-        final AtomicInteger count = new AtomicInteger();
-        new Thread(() -> {
-            while (count.incrementAndGet() < 100) {
-
-                future.complete(null);
-            }
-        }).start();
+    public static int countSlowly(Environment env) {
+        Thread.startVirtualThread(AsyncInterop::sleep);
+        return 42;
     }
 
     private static void sleep() {
         try {
             Thread.sleep(1000);
         } catch (InterruptedException e) {
-            assert false;
+            Assert.fail(e.getMessage());
         }
     }
 }

@@ -18,9 +18,9 @@
  */
 package org.ballerinalang.test.statements.arrays.arraysofarrays;
 
-import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.creators.TypeCreator;
 import io.ballerina.runtime.api.creators.ValueCreator;
+import io.ballerina.runtime.api.types.PredefinedTypes;
 import io.ballerina.runtime.api.values.BArray;
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
@@ -55,7 +55,7 @@ public class SealedArraysOfArraysTest {
 
         BArray returnValues = (BArray) BRunUtil.invoke(compileResult, "initTwoDimensionalSealedArray");
         Assert.assertFalse(
-                returnValues == null || returnValues.size() == 0 || returnValues.get(0) == null,
+                returnValues == null || returnValues.isEmpty() || returnValues.get(0) == null,
                 "Invalid Return Values.");
         Assert.assertEquals(returnValues.get(0), 3L, "Value didn't match");
         Assert.assertEquals(returnValues.get(1), 4L, "Value didn't match");
@@ -68,7 +68,7 @@ public class SealedArraysOfArraysTest {
 
         BArray returnValues = (BArray) BRunUtil.invoke(compileResult, "initThreeDimensionalSealedArray");
         Assert.assertFalse(
-                returnValues == null || returnValues.size() == 0 || returnValues.get(0) == null,
+                returnValues == null || returnValues.isEmpty() || returnValues.get(0) == null,
                 "Invalid Return Values.");
         Assert.assertEquals(returnValues.get(0), 3L, "Value didn't match");
         Assert.assertEquals(returnValues.get(1), 4L, "Value didn't match");
@@ -87,7 +87,7 @@ public class SealedArraysOfArraysTest {
         Object[] args = {arrayValue};
 
         BArray returnValues = (BArray) BRunUtil.invoke(compileResult, "twoDArrayIntAssignment", args);
-        Assert.assertFalse(returnValues == null || returnValues.size() == 0 || returnValues.get(0) == null, "Invalid " +
+        Assert.assertFalse(returnValues == null || returnValues.isEmpty() || returnValues.get(0) == null, "Invalid " +
                 "Return Values.");
         Assert.assertEquals(returnValues.get(0), 3L, "Value didn't match");
         Assert.assertEquals(returnValues.get(1), 10L, "Value didn't match");
@@ -105,7 +105,7 @@ public class SealedArraysOfArraysTest {
 
         BArray returnValues = (BArray) BRunUtil.invoke(compileResult, "twoDArrayStringAssignment", args);
         Assert.assertFalse(
-                returnValues == null || returnValues.size() == 0 || returnValues.get(0) == null,
+                returnValues == null || returnValues.isEmpty() || returnValues.get(0) == null,
                 "Invalid Return Values.");
         Assert.assertEquals((returnValues.get(0)).toString(), "val1", "Value didn't match");
         Assert.assertEquals((returnValues.get(1)).toString(), "ballerina", "Value didn't match");
@@ -155,7 +155,7 @@ public class SealedArraysOfArraysTest {
         BAssertUtil.validateError(
                 resultNegative, i++, "invalid usage of closed type: array not initialized", 73, 5);
         BAssertUtil.validateError(
-                resultNegative, i++, "incompatible types: expected '((float[*][] & readonly)|string)', " +
+                resultNegative, i++, "incompatible types: expected '((float[*][]|string) & readonly)', " +
                         "found '(float[2][2] & readonly)'", 76, 40);
         BAssertUtil.validateError(
                 resultNegative, i++, "list index out of range: index: '4'", 83, 11);

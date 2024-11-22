@@ -69,6 +69,7 @@ public class RenameContextImpl extends ReferencesContextImpl implements RenameCo
             this.params = params;
         }
 
+        @Override
         public RenameContext build() {
             return new RenameContextImpl(this.operation,
                     this.fileUri,

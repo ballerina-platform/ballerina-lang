@@ -1,0 +1,148 @@
+{
+  "position": {
+    "line": 0,
+    "character": 24
+  },
+  "source": "import_decl/source/import_decl_with_ballerinax_org3.bal",
+  "description": "Test completions for ballerinax packages",
+  "items": [
+    {
+      "label": "azure.sqldb",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "A",
+      "insertText": "azure.sqldb",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 18
+            },
+            "end": {
+              "line": 1,
+              "character": 0
+            }
+          },
+          "newText": ""
+        }
+      ]
+    },
+    {
+      "label": "azure.datalake",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "A",
+      "insertText": "azure.datalake",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 18
+            },
+            "end": {
+              "line": 1,
+              "character": 0
+            }
+          },
+          "newText": ""
+        }
+      ]
+    },
+    {
+      "label": "azure.iothub",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "A",
+      "insertText": "azure.iothub",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 18
+            },
+            "end": {
+              "line": 1,
+              "character": 0
+            }
+          },
+          "newText": ""
+        }
+      ]
+    },
+    {
+      "label": "azure.keyvault",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "A",
+      "insertText": "azure.keyvault",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 18
+            },
+            "end": {
+              "line": 1,
+              "character": 0
+            }
+          },
+          "newText": ""
+        }
+      ]
+    },
+    {
+      "label": "azure_storage_service",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "D",
+      "insertText": "azure_storage_service",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 18
+            },
+            "end": {
+              "line": 1,
+              "character": 0
+            }
+          },
+          "newText": ""
+        }
+      ]
+    },
+    {
+      "label": "azure_eventhub",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "D",
+      "insertText": "azure_eventhub",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 18
+            },
+            "end": {
+              "line": 1,
+              "character": 0
+            }
+          },
+          "newText": ""
+        }
+      ]
+    }
+  ]
+}

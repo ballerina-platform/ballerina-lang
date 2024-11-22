@@ -108,6 +108,7 @@ public class TypeByConstructorExprTest extends TypeByNodeTest {
         };
     }
 
+    @Override
     void verifyAssertCount() {
         assertEquals(getAssertCount(), 8);
     }

@@ -46,14 +46,13 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.regex.Matcher;
-import java.util.stream.Collectors;
 
 /**
  * Represents a request for a Ballerina AST Modify.
  *
  * @since 1.3.0
  */
-public class BallerinaTreeModifyUtil {
+public final class BallerinaTreeModifyUtil {
 
     private static final String DELETE = "delete";
     private static final String IMPORT = "import";
@@ -174,7 +173,7 @@ public class BallerinaTreeModifyUtil {
         List<TextEdit> edits = new ArrayList<>();
         List<ASTModification> importModifications = Arrays.stream(astModifications)
                 .filter(ASTModification::isImport)
-                .collect(Collectors.toList());
+                .toList();
         for (ASTModification importModification : importModifications) {
             if (importExist(unusedSymbolsVisitor, importModification)) {
                 continue;

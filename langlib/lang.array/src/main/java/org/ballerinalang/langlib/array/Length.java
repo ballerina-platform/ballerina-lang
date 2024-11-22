@@ -25,13 +25,11 @@ import io.ballerina.runtime.api.values.BArray;
  *
  * @since 1.0
  */
-//@BallerinaFunction(
-//        orgName = "ballerina", packageName = "lang.array", functionName = "length",
-//        args = {@Argument(name = "arr", type = TypeKind.ARRAY)},
-//        returnType = {@ReturnType(type = TypeKind.INT)},
-//        isPublic = true
-//)
 public class Length {
+
+
+    private Length() {
+    }
 
     public static long length(BArray arr) {
         return arr.size();

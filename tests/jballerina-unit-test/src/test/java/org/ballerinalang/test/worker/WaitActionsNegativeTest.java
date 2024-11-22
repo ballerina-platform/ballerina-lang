@@ -33,7 +33,6 @@ public class WaitActionsNegativeTest {
     public void testNegativeWorkerActions() {
         CompileResult resultNegative = BCompileUtil.compile("test-src/workers/wait-actions-negative.bal");
         int index = 0;
-        Assert.assertEquals(resultNegative.getErrorCount(), 45, "Wait actions negative test error count");
         BAssertUtil.validateError(resultNegative, index++,
                 "incompatible types: expected 'future<string>', found 'future<int>'", 56, 22);
         BAssertUtil.validateError(resultNegative, index++,
@@ -143,9 +142,34 @@ public class WaitActionsNegativeTest {
                         "expression 'f2'", 90, 45);
         BAssertUtil.validateError(resultNegative, index++,
                 "incompatible types: expected 'future<string>', found 'future<(int|error)>'", 90, 54);
-        BAssertUtil.validateError(resultNegative, index,
+        BAssertUtil.validateError(resultNegative, index++,
                 "incompatible types: expected 'string', found eventual type '(string|error)' for wait future " +
                         "expression 'f4'", 90, 54);
+        BAssertUtil.validateError(resultNegative, index++,
+                "cannot use an alternate wait action within a multiple wait action", 115, 38);
+        BAssertUtil.validateError(resultNegative, index++,
+                "cannot use an alternate wait action within a multiple wait action", 116, 48);
+        BAssertUtil.validateError(resultNegative, index++,
+                "cannot use an alternate wait action within a multiple wait action", 117, 27);
+        BAssertUtil.validateError(resultNegative, index++,
+                "cannot use an alternate wait action within a multiple wait action", 117, 58);
+        BAssertUtil.validateError(resultNegative, index++,
+                "cannot use an alternate wait action within a multiple wait action", 119, 27);
+        BAssertUtil.validateError(resultNegative, index++,
+                "cannot use an alternate wait action within a multiple wait action", 120, 48);
+        BAssertUtil.validateError(resultNegative, index++,
+                "cannot use an alternate wait action within a multiple wait action", 121, 27);
+        BAssertUtil.validateError(resultNegative, index++,
+                "cannot use an alternate wait action within a multiple wait action", 121, 72);
+        BAssertUtil.validateError(resultNegative, index++, "expected an expression of type 'future'," +
+                " found '(future<(boolean|error)>|future<(boolean|error)>)'", 136, 38);
+        BAssertUtil.validateError(resultNegative, index++, "expected an expression of type 'future'," +
+                " found '(future<boolean>|future<boolean>)'", 137, 48);
+        BAssertUtil.validateError(resultNegative, index++, "expected an expression of type 'future'," +
+                " found '(future<(boolean|error)>|future<(boolean|error)>)'", 138, 27);
+        BAssertUtil.validateError(resultNegative, index++, "expected an expression of type 'future'," +
+                " found '(future<boolean>|future<boolean>)'", 138, 40);
+        Assert.assertEquals(resultNegative.getErrorCount(), index, "Wait actions negative test error count");
     }
 
     @Test
@@ -173,12 +197,13 @@ public class WaitActionsNegativeTest {
         String msg = "worker send/receive interactions are invalid; worker(s) cannot move onwards from the state: '%s'";
         BAssertUtil.validateError(result, index++, String.format(msg, "[wait v, wait w, FINISHED]"), 19, 14);
         BAssertUtil.validateError(result, index++, String.format(msg, "[wait v, wait w, wait x, FINISHED]"), 29, 14);
-        BAssertUtil.validateError(result, index++, String.format(msg, "[wait w2,  <- w, wait w1, FINISHED]"), 43, 14);
+        BAssertUtil.validateError(result, index++, "invalid worker send, no matching worker receive", 46, 9);
+        BAssertUtil.validateError(result, index++, "invalid worker receive, no matching worker send", 50, 17);
         BAssertUtil.validateError(result, index++, String.format(msg, "[wait v, wait w, wait x, FINISHED]"), 61, 18);
         BAssertUtil.validateError(result, index++,
                 String.format(msg, "[wait vi, wait wi, wait xi, FINISHED, FINISHED]"), 78, 23);
-        BAssertUtil.validateError(result, index++,
-                String.format(msg, "[11 -> w3, FINISHED, FINISHED, wait {w1,w2,w3}]"), 94, 15);
+        BAssertUtil.validateError(result, index++, "invalid worker send, no matching worker receive", 95, 9);
+        BAssertUtil.validateError(result, index++, "invalid worker receive, no matching worker send", 96, 20);
         Assert.assertEquals(result.getErrorCount(), index);
     }
 }

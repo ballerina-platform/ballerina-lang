@@ -18,14 +18,10 @@ package org.ballerinalang.langserver.codeaction.providers.imports;
 import io.ballerina.compiler.api.symbols.ModuleSymbol;
 import io.ballerina.compiler.syntax.tree.ImportDeclarationNode;
 import io.ballerina.compiler.syntax.tree.ImportPrefixNode;
-import io.ballerina.compiler.syntax.tree.Minutiae;
-import io.ballerina.compiler.syntax.tree.ModulePartNode;
-import io.ballerina.compiler.syntax.tree.NodeList;
 import io.ballerina.compiler.syntax.tree.NodeVisitor;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
-import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import io.ballerina.compiler.syntax.tree.Token;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import org.ballerinalang.annotation.JavaSPIService;
@@ -40,12 +36,14 @@ import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.ballerinalang.langserver.commons.codeaction.spi.DiagBasedPositionDetails;
 import org.ballerinalang.langserver.commons.codeaction.spi.DiagnosticBasedCodeActionProvider;
 import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
+import org.ballerinalang.model.Name;
 import org.ballerinalang.util.diagnostic.DiagnosticErrorCode;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.CodeActionKind;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextEdit;
+import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -83,7 +81,7 @@ public class ImportModuleCodeAction implements DiagnosticBasedCodeActionProvider
         // Find the qualified name reference node within the diagnostic location
         Range diagRange = PositionUtil.toRange(diagnostic.location().lineRange());
         NonTerminalNode node = CommonUtil.findNode(diagRange, context.currentSyntaxTree().get());
-        QNameRefFinder finder = new QNameRefFinder();
+        QNameRefFinder finder = new QNameRefFinder(diagnostic.properties().get(0).value());
         node.accept(finder);
         Optional<QualifiedNameReferenceNode> qNameReferenceNode = finder.getQNameReferenceNode();
         if (qNameReferenceNode.isEmpty()) {
@@ -104,7 +102,7 @@ public class ImportModuleCodeAction implements DiagnosticBasedCodeActionProvider
 
         List<ModuleSymbol> existingModules = symbolMap.values().stream()
                 .filter(moduleSymbol -> moduleSymbol.getModule().isPresent())
-                .map(moduleSymbol -> moduleSymbol.getModule().get()).collect(Collectors.toList());
+                .map(moduleSymbol -> moduleSymbol.getModule().get()).toList();
 
         List<CodeAction> actions = new ArrayList<>();
 
@@ -116,7 +114,7 @@ public class ImportModuleCodeAction implements DiagnosticBasedCodeActionProvider
             Token prefix = prefixNode.prefix();
             if (prefix.kind() == SyntaxKind.UNDERSCORE_KEYWORD) {
                 int startOffset = importNode.moduleName().get(importNode.moduleName().size() - 1)
-                        .textRange().endOffset();;
+                        .textRange().endOffset();
                 Range insertRange = PositionUtil.toRange(startOffset,
                         prefixNode.textRange().endOffset(), context.currentSyntaxTree().get().textDocument());
                 List<TextEdit> edits = Collections.singletonList(new TextEdit(insertRange, ""));
@@ -137,18 +135,18 @@ public class ImportModuleCodeAction implements DiagnosticBasedCodeActionProvider
         // Here we filter out the already imported packages
         moduleList.stream()
                 .filter(pkgEntry -> existingModules.stream()
-                        .noneMatch(moduleSymbol -> moduleSymbol.id().orgName().equals(pkgEntry.packageOrg().value()) &&
-                                moduleSymbol.id().moduleName().equals(pkgEntry.packageName().value()))
+                        .noneMatch(moduleSymbol -> moduleSymbol.id().orgName().equals(pkgEntry.packageOrg()) &&
+                                moduleSymbol.id().moduleName().equals(pkgEntry.packageName()))
                 )
                 .filter(pkgEntry -> {
-                    String pkgName = pkgEntry.packageName().value();
+                    String pkgName = pkgEntry.packageName();
                     return pkgName.endsWith("." + modulePrefix) || pkgName.equals(modulePrefix);
                 })
                 .forEach(pkgEntry -> {
-                    String orgName = pkgEntry.packageOrg().value();
-                    String pkgName = pkgEntry.packageName().value();
+                    String orgName = pkgEntry.packageOrg();
+                    String pkgName = pkgEntry.packageName();
                     String moduleName = ModuleUtil.escapeModuleName(pkgName);
-                    Position insertPos = getImportPosition(context);
+                    Position insertPos = CommonUtil.getImportPosition(context);
                     String importText = orgName.isEmpty() ?
                             String.format("%s %s;%n", ItemResolverConstants.IMPORT, moduleName)
                             : String.format("%s %s/%s;%n", ItemResolverConstants.IMPORT, orgName, moduleName);
@@ -169,49 +167,29 @@ public class ImportModuleCodeAction implements DiagnosticBasedCodeActionProvider
         return NAME;
     }
 
-    private static Position getImportPosition(CodeActionContext context) {
-        // Calculate initial import insertion line
-        Optional<SyntaxTree> syntaxTree = context.currentSyntaxTree();
-        ModulePartNode modulePartNode = syntaxTree.orElseThrow().rootNode();
-        NodeList<ImportDeclarationNode> imports = modulePartNode.imports();
-        // If there is already an import, add the new import after the last import
-        if (!imports.isEmpty()) {
-            ImportDeclarationNode lastImport = imports.get(imports.size() - 1);
-            return new Position(lastImport.lineRange().endLine().line() + 1, 0);
-        }
-
-        // If the module part has no children, add the import at the beginning of the file
-        if (modulePartNode.members().isEmpty()) {
-            return new Position(0, 0);
-        }
-
-        Position insertPosition = new Position(0, 0);
-        for (Minutiae minutiae : modulePartNode.leadingMinutiae()) {
-            if (minutiae.kind() == SyntaxKind.END_OF_LINE_MINUTIAE
-                    && minutiae.lineRange().startLine().offset() == 0) {
-                // If we find a new line character with offset 0 (a blank line), add the import after that
-                // And no further processing is required
-                insertPosition = new Position(minutiae.lineRange().startLine().line(), 0);
-                break;
-            } else if (minutiae.kind() == SyntaxKind.COMMENT_MINUTIAE) {
-                // If we find a comment, consider the import's position to be the next line
-                insertPosition = new Position(minutiae.lineRange().endLine().line() + 1, 0);
-            }
-        }
-
-        return insertPosition;
-    }
-
     /**
      * A visitor to find the qualified name reference node within an expression.
      */
     static class QNameRefFinder extends NodeVisitor {
+        private final String moduleName;
+
+        public QNameRefFinder(Object nameObj) {
+            if (nameObj instanceof Name name) {
+                this.moduleName = name.getValue();
+            } else if (nameObj instanceof BLangIdentifier identifier) {
+                this.moduleName = identifier.getValue();
+            } else {
+                this.moduleName = nameObj.toString();
+            }
+        }
 
         private QualifiedNameReferenceNode qualifiedNameReferenceNode;
 
         @Override
         public void visit(QualifiedNameReferenceNode qualifiedNameReferenceNode) {
-            this.qualifiedNameReferenceNode = qualifiedNameReferenceNode;
+            if (qualifiedNameReferenceNode.modulePrefix().text().equals(moduleName)) {
+                this.qualifiedNameReferenceNode = qualifiedNameReferenceNode;
+            }
         }
 
         Optional<QualifiedNameReferenceNode> getQNameReferenceNode() {

@@ -35,3 +35,26 @@ function testTypeNarrowingWithClosure2() returns int|string {
     };
     return x;
 }
+
+function testBasicClosureWithInvalidTypeNarrowing() {
+    int|string a = "32";
+    var fn = function () {
+        int b;
+        if a is int {
+            b = a;
+        }
+    };
+}
+
+function testMultiLevelClosureWithInvalidTypeNarrowing() {
+    int|string a = "32";
+    var fn1 = function() {
+        int|boolean|error b = 32;
+        var fn2 = function(int|string|boolean c) {
+            int d;
+            if a is int && b is int && c is int {
+                d = a + b + c;
+            }
+        };
+    };
+}

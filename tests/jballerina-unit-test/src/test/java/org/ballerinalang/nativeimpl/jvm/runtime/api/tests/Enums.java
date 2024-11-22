@@ -19,7 +19,6 @@
 package org.ballerinalang.nativeimpl.jvm.runtime.api.tests;
 
 import io.ballerina.runtime.api.Module;
-import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.creators.TypeCreator;
 import io.ballerina.runtime.api.creators.ValueCreator;
@@ -27,6 +26,7 @@ import io.ballerina.runtime.api.flags.SymbolFlags;
 import io.ballerina.runtime.api.flags.TypeFlags;
 import io.ballerina.runtime.api.types.ArrayType;
 import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.types.TypeTags;
 import io.ballerina.runtime.api.types.UnionType;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.utils.TypeUtils;
@@ -47,9 +47,12 @@ import java.util.Set;
  *
  * @since 2201.1.0
  */
-public class Enums {
+public final class Enums {
 
     private static final Module enumModule = new Module("testorg", "values.enum", "1");
+
+    private Enums() {
+    }
 
     public static BArray createEnumArray(BString enumName) {
         List<Type> memberTypes = new ArrayList<>(2);
@@ -73,7 +76,7 @@ public class Enums {
         BError matchError = ErrorCreator.createError(
                 StringUtils.fromString("type name does not match given names"));
 
-        Type describingType = TypeUtils.getReferredType(t.getDescribingType());
+        Type describingType = TypeUtils.getImpliedType(t.getDescribingType());
         if (describingType.getTag() == TypeTags.UNION_TAG) {
             UnionType unionType = (UnionType) describingType;
             for (Type memberType : unionType.getMemberTypes()) {

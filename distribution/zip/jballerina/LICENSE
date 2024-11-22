@@ -55,7 +55,7 @@ ballerina-jaeger-extension-1.1.0.jar                                            
 value-1.1.0.jar                                                                                     jar            apache2
 module_cli_token_updater.jar                                                                        jar            apache2
 jsonutils.jar                                                                                       jar            apache2
-asm-analysis-9.5.jar                                                                                bundle         bsd
+asm-analysis-9.7.jar                                                                                bundle         bsd
 ballerina-openshift-1.1.0.jar                                                                       jar            apache2
 kafka-clients-2.0.1.jar                                                                             jar            apache2
 openshift.jar                                                                                       jar            apache2
@@ -82,7 +82,7 @@ openapi-to-ballerina-generator-1.1.0.jar                                        
 kubernetes-extension-1.1.0.jar                                                                      jar            apache2
 jaxen-1.1.6.jar                                                                                     bundle         apache2
 math.jar                                                                                            jar            apache2
-asm-tree-9.5.jar                                                                                    bundle         bsd
+asm-tree-9.7.jar                                                                                    bundle         bsd
 test.jar                                                                                            jar            apache2
 xmlutils.jar                                                                                        jar            apache2
 ballerina-openapi-1.1.0.jar                                                                         jar            apache2
@@ -116,7 +116,7 @@ lang.table.jar                                                                  
 ballerina-prometheus-extension-1.1.0.jar                                                            jar            apache2
 ballerina-jvm-1.1.0.jar                                                                             jar            apache2
 filepath.jar                                                                                        jar            apache2
-asm-9.5.jar                                                                                         bundle         bsd
+asm-9.7.jar                                                                                         bundle         bsd
 netty-resolver-4.1.39.Final.jar                                                                     bundle         apache2
 llvm.jar                                                                                            jar            apache2
 java.jar                                                                                            jar            apache2
@@ -178,7 +178,7 @@ netty-transport-4.1.39.Final.jar                                                
 encoding.jar                                                                                        jar            apache2
 axiom-impl-1.4.0.jar                                                                                bundle         apache2
 ballerina-jdbc-1.1.0.jar                                                                            jar            apache2
-asm-util-9.5.jar                                                                                    bundle         bsd
+asm-util-9.7.jar                                                                                    bundle         bsd
 streams.jar                                                                                         jar            apache2
 broker-common-0.970.0.jar                                                                           bundle         apache2
 integer-1.1.0.jar                                                                                   jar            apache2

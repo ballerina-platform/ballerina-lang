@@ -376,3 +376,32 @@ function testCustomTupleTypesAccessNegative() {
     var x14 = t7[2][index];
     boolean _ = x14; //error: incompatible types: expected 'boolean', found 'int'
 }
+
+type Str string;
+type StrOrInt1 string|int;
+
+function testMemberAccessWithUnionTypedIndexExprNegative() {
+    record {|
+        int a;
+    |} r = {a: 1};
+    string|int s = "a";
+    r[s] = 2;       // error: incompatible types: expected 'string', found '(string|int)'
+
+    int[] arr = [1, 2, 3];
+    int|float|int x = 1;
+    arr[x] = 4;     // error: incompatible types: expected 'int', found '(int|float|int)'
+
+    string[] arr1 = ["1", "2", "3"];
+    string|int x2 = 1;
+    arr[x2] = 4;    // error: incompatible types: expected 'int', found '(string|int)'
+
+    StrOrInt1 x3 = 2;
+    arr[x3] = "4";  // error: incompatible types: expected 'int', found 'StrOrInt1'
+
+    [string, int] t = ["a", 1];
+    string|int y = 0;
+    t[y] = "b";   // error: incompatible types: expected 'int', found '(string|int)'
+
+    int|Str y2 = 1;
+    t[y2] = 0;    // error: incompatible types: expected 'int', found '(int|Str)'
+}

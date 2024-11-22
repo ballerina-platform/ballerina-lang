@@ -18,10 +18,10 @@
 
 package org.ballerinalang.langlib.array;
 
-import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.creators.TypeCreator;
 import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.types.TypeTags;
 import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BArray;
 import org.ballerinalang.langlib.array.utils.ArrayUtils;
@@ -33,21 +33,15 @@ import static org.ballerinalang.langlib.array.utils.ArrayUtils.createOpNotSuppor
  *
  * @since 1.0
  */
-public class Reverse {
+public final class Reverse {
 
     public static BArray reverse(BArray arr) {
-        Type arrType = TypeUtils.getReferredType(arr.getType());
-        BArray reversedArr;
-        switch (arrType.getTag()) {
-            case TypeTags.ARRAY_TAG:
-                reversedArr = ValueCreator.createArrayValue(TypeCreator.createArrayType(arr.getElementType()));
-                break;
-            case TypeTags.TUPLE_TAG:
-                reversedArr = ArrayUtils.createEmptyArrayFromTuple(arr);
-                break;
-            default:
-                throw createOpNotSupportedError(arrType, "reverse()");
-        }
+        Type arrType = TypeUtils.getImpliedType(arr.getType());
+        BArray reversedArr = switch (arrType.getTag()) {
+            case TypeTags.ARRAY_TAG -> ValueCreator.createArrayValue(TypeCreator.createArrayType(arr.getElementType()));
+            case TypeTags.TUPLE_TAG -> ArrayUtils.createEmptyArrayFromTuple(arr);
+            default -> throw createOpNotSupportedError(arrType, "reverse()");
+        };
         for (int i = arr.size() - 1, j = 0; i >= 0; i--, j++) {
             reversedArr.add(j, arr.get(i));
         }

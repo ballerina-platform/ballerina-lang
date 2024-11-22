@@ -147,6 +147,10 @@
                                       "kind": "GT_TOKEN"
                                     }
                                   ]
+                                },
+                                {
+                                  "kind": "LIST",
+                                  "children": []
                                 }
                               ]
                             },
@@ -249,6 +253,10 @@
                                   "kind": "GT_TOKEN"
                                 }
                               ]
+                            },
+                            {
+                              "kind": "LIST",
+                              "children": []
                             }
                           ]
                         },
@@ -349,6 +357,10 @@
                                       "kind": "GT_TOKEN"
                                     }
                                   ]
+                                },
+                                {
+                                  "kind": "LIST",
+                                  "children": []
                                 }
                               ]
                             },
@@ -463,6 +475,10 @@
                                   "kind": "GT_TOKEN"
                                 }
                               ]
+                            },
+                            {
+                              "kind": "LIST",
+                              "children": []
                             }
                           ]
                         },
@@ -590,6 +606,10 @@
                                       "kind": "GT_TOKEN"
                                     }
                                   ]
+                                },
+                                {
+                                  "kind": "LIST",
+                                  "children": []
                                 }
                               ]
                             },
@@ -728,6 +748,10 @@
                                   "kind": "GT_TOKEN"
                                 }
                               ]
+                            },
+                            {
+                              "kind": "LIST",
+                              "children": []
                             }
                           ]
                         },
@@ -863,6 +887,10 @@
                                       "kind": "GT_TOKEN"
                                     }
                                   ]
+                                },
+                                {
+                                  "kind": "LIST",
+                                  "children": []
                                 }
                               ]
                             },
@@ -1013,6 +1041,10 @@
                                   "kind": "GT_TOKEN"
                                 }
                               ]
+                            },
+                            {
+                              "kind": "LIST",
+                              "children": []
                             }
                           ]
                         },
@@ -1065,66 +1097,66 @@
                           ]
                         },
                         {
-                          "kind": "INDEXED_EXPRESSION",
+                          "kind": "XML_STEP_EXPRESSION",
                           "children": [
                             {
-                              "kind": "XML_STEP_EXPRESSION",
+                              "kind": "SIMPLE_NAME_REFERENCE",
                               "children": [
                                 {
-                                  "kind": "SIMPLE_NAME_REFERENCE",
-                                  "children": [
-                                    {
-                                      "kind": "IDENTIFIER_TOKEN",
-                                      "value": "a"
-                                    }
-                                  ]
-                                },
-                                {
-                                  "kind": "XML_NAME_PATTERN_CHAIN",
-                                  "children": [
-                                    {
-                                      "kind": "SLASH_LT_TOKEN"
-                                    },
-                                    {
-                                      "kind": "LIST",
-                                      "children": [
-                                        {
-                                          "kind": "SIMPLE_NAME_REFERENCE",
-                                          "children": [
-                                            {
-                                              "kind": "IDENTIFIER_TOKEN",
-                                              "value": "b"
-                                            }
-                                          ]
-                                        }
-                                      ]
-                                    },
-                                    {
-                                      "kind": "GT_TOKEN"
-                                    }
-                                  ]
+                                  "kind": "IDENTIFIER_TOKEN",
+                                  "value": "a"
                                 }
                               ]
                             },
                             {
-                              "kind": "OPEN_BRACKET_TOKEN"
+                              "kind": "XML_NAME_PATTERN_CHAIN",
+                              "children": [
+                                {
+                                  "kind": "SLASH_LT_TOKEN"
+                                },
+                                {
+                                  "kind": "LIST",
+                                  "children": [
+                                    {
+                                      "kind": "SIMPLE_NAME_REFERENCE",
+                                      "children": [
+                                        {
+                                          "kind": "IDENTIFIER_TOKEN",
+                                          "value": "b"
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                },
+                                {
+                                  "kind": "GT_TOKEN"
+                                }
+                              ]
                             },
                             {
                               "kind": "LIST",
                               "children": [
                                 {
-                                  "kind": "SIMPLE_NAME_REFERENCE",
+                                  "kind": "XML_STEP_INDEXED_EXTEND",
                                   "children": [
                                     {
-                                      "kind": "IDENTIFIER_TOKEN",
-                                      "value": "c"
+                                      "kind": "OPEN_BRACKET_TOKEN"
+                                    },
+                                    {
+                                      "kind": "SIMPLE_NAME_REFERENCE",
+                                      "children": [
+                                        {
+                                          "kind": "IDENTIFIER_TOKEN",
+                                          "value": "c"
+                                        }
+                                      ]
+                                    },
+                                    {
+                                      "kind": "CLOSE_BRACKET_TOKEN"
                                     }
                                   ]
                                 }
                               ]
-                            },
-                            {
-                              "kind": "CLOSE_BRACKET_TOKEN"
                             }
                           ]
                         },
@@ -1211,6 +1243,10 @@
                                       "kind": "GT_TOKEN"
                                     }
                                   ]
+                                },
+                                {
+                                  "kind": "LIST",
+                                  "children": []
                                 }
                               ]
                             },

@@ -78,7 +78,7 @@ public class MapAccessExprTest {
 
         Assert.assertTrue(returns instanceof  BMap);
 
-        BMap mapValue = (BMap) returns;
+        BMap<?, ?> mapValue = (BMap<?, ?>) returns;
         Assert.assertEquals(mapValue.size(), 3);
 
         Assert.assertEquals(mapValue.get(StringUtils.fromString("fname")).toString(), "Chanaka");
@@ -147,7 +147,7 @@ public class MapAccessExprTest {
         Assert.assertEquals(returns.get(1).toString(), "Colombo");
     }
 
-    @Test(description = "Map access negative scenarios", groups = {"disableOnOldParser"})
+    @Test(description = "Map access negative scenarios")
     public void testNegativeSemantics() {
         Assert.assertEquals(resultSemanticsNegative.getDiagnostics().length, 4);
         int index = 0;

@@ -15,15 +15,17 @@
  *
  */
 
-apply from: "$rootDir/gradle/javaProject.gradle"
-apply from: "$rootDir/gradle/ballerinaLangLibLoad.gradle"
+plugins {
+    id 'javaProject'
+    id 'ballerinaLangLibLoad'
+}
 
 dependencies {
     implementation project(':ballerina-lang')
     implementation project(':ballerina-parser')
     implementation project(':ballerina-tools-api')
 
-    testImplementation 'org.testng:testng'
+    testImplementation libs.testng
     testImplementation project(path: ':ballerina-test-utils', configuration: 'shadow')
     distributionBala project(path: ':testerina:testerina-core', configuration: 'distributionBala')
 }

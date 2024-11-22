@@ -42,14 +42,18 @@ import static io.ballerina.runtime.internal.errors.ErrorReasons.ITERATOR_MUTABIL
  *
  * @since 1.3.0
  */
-public class Next {
+public final class Next {
 
     private static final BString MUTATED_TABLE_ERROR_DETAIL =  StringUtils.fromString("Table was mutated after the " +
                                                                                                "iterator was created");
+
+    private Next() {
+    }
+
     //TODO: refactor hard coded values
     public static Object next(BObject t) {
-        BIterator tableIterator = (BIterator) t.getNativeData("&iterator&");
-        BTable table = (BTable) t.get(StringUtils.fromString("t"));
+        BIterator<?> tableIterator = (BIterator<?>) t.getNativeData("&iterator&");
+        BTable<?, ?> table = (BTable<?, ?>) t.get(StringUtils.fromString("t"));
         BArray keys = (BArray) t.get(StringUtils.fromString("keys"));
         long initialSize = (long) t.get(StringUtils.fromString("size"));
         if (tableIterator == null) {
@@ -72,11 +76,11 @@ public class Next {
         return null;
     }
 
-    private static void handleMutation(BTable table, BArray keys,
+    private static void handleMutation(BTable<?, ?> table, BArray keys,
                                        List<Object> returnedKeys, long initialSize) {
         if (initialSize < table.size() ||
                 // Key-less situation, mutation can occur only by calling add() or removeAll()
-                (initialSize > 0 && table.size() == 0)) {
+                (initialSize > 0 && table.isEmpty())) {
             throw ErrorCreator.createError(ITERATOR_MUTABILITY_ERROR, MUTATED_TABLE_ERROR_DETAIL);
         }
 
@@ -91,7 +95,7 @@ public class Next {
             }
         }
 
-        BArray currentKeyArray = ValueCreator.createArrayValue((ArrayType) TypeUtils.getReferredType(keys.getType()));
+        BArray currentKeyArray = ValueCreator.createArrayValue((ArrayType) TypeUtils.getImpliedType(keys.getType()));
         for (int i = 0; i < currentKeys.size(); i++) {
             Object key = currentKeys.get(i);
             currentKeyArray.add(i, key);

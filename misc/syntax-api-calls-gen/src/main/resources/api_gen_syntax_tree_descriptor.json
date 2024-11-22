@@ -1808,6 +1808,11 @@
         {
           "name": "workerBody",
           "type": "BlockStatementNode"
+        },
+        {
+          "name": "onFailClause",
+          "type": "OnFailClauseNode",
+          "isOptional": true
         }
       ]
     },
@@ -3327,12 +3332,24 @@
         },
         {
           "name": "receiveFields",
-          "type": "NameReferenceNode",
+          "type": "Node",
           "occurrences": "MULTIPLE_SEPARATED"
         },
         {
           "name": "closeBrace",
           "type": "Token"
+        }
+      ]
+    },
+    {
+      "name": "AlternateReceiveNode",
+      "base": "Node",
+      "kind": "ALTERNATE_RECEIVE",
+      "attributes": [
+        {
+          "name": "workers",
+          "type": "SimpleNameReferenceNode",
+          "occurrences": "MULTIPLE_SEPARATED"
         }
       ]
     },
@@ -3757,6 +3774,11 @@
         {
           "name": "xmlStepStart",
           "type": "Node"
+        },
+        {
+          "name": "xmlStepExtend",
+          "type": "Node",
+          "occurrences": "MULTIPLE"
         }
       ]
     },
@@ -3777,6 +3799,44 @@
         {
           "name": "gtToken",
           "type": "Token"
+        }
+      ]
+    },
+    {
+      "name": "XMLStepIndexedExtendNode",
+      "base": "Node",
+      "kind": "XML_STEP_INDEXED_EXTEND",
+      "attributes": [
+        {
+          "name": "openBracket",
+          "type": "Token"
+        },
+        {
+          "name": "expression",
+          "type": "ExpressionNode"
+        },
+        {
+          "name": "closeBracket",
+          "type": "Token"
+        }
+      ]
+    },
+    {
+      "name": "XMLStepMethodCallExtendNode",
+      "base": "Node",
+      "kind": "XML_STEP_METHOD_CALL_EXTEND",
+      "attributes": [
+        {
+          "name": "dotToken",
+          "type": "Token"
+        },
+        {
+          "name": "methodName",
+          "type": "SimpleNameReferenceNode"
+        },
+        {
+          "name": "parenthesizedArgList",
+          "type": "ParenthesizedArgList"
         }
       ]
     },
@@ -4267,13 +4327,8 @@
           "type": "Token"
         },
         {
-          "name": "typeDescriptor",
-          "type": "TypeDescriptorNode",
-          "isOptional": true
-        },
-        {
-          "name": "failErrorName",
-          "type": "IdentifierToken",
+          "name": "typedBindingPattern",
+          "type": "TypedBindingPatternNode",
           "isOptional": true
         },
         {
@@ -4943,6 +4998,25 @@
         {
           "name": "typeDescriptor",
           "type": "TypeDescriptorNode"
+        }
+      ]
+    },
+    {
+      "name": "ReceiveFieldNode",
+      "base": "Node",
+      "kind": "RECEIVE_FIELD",
+      "attributes": [
+        {
+          "name": "fieldName",
+          "type": "SimpleNameReferenceNode"
+        },
+        {
+          "name": "colon",
+          "type": "Token"
+        },
+        {
+          "name": "peerWorker",
+          "type": "SimpleNameReferenceNode"
         }
       ]
     }

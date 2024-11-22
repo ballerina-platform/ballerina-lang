@@ -18,8 +18,15 @@
 
 package io.ballerina.cli.cmd;
 
+import io.ballerina.cli.launcher.BLauncherException;
+import io.ballerina.projects.ProjectEnvironmentBuilder;
+import io.ballerina.projects.environment.Environment;
+import io.ballerina.projects.environment.EnvironmentBuilder;
+import io.ballerina.projects.util.BuildToolUtils;
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.test.BCompileUtil;
+import org.mockito.MockedStatic;
+import org.mockito.Mockito;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -37,8 +44,13 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.util.List;
 import java.util.Objects;
+
+import static io.ballerina.cli.cmd.CommandOutputUtils.getOutput;
+import static io.ballerina.cli.cmd.CommandOutputUtils.replaceDependenciesTomlContent;
+import static io.ballerina.projects.util.ProjectConstants.DIST_CACHE_DIRECTORY;
+import static io.ballerina.projects.util.ProjectConstants.USER_DIR_PROPERTY;
 
 /**
  * Graph command tests.
@@ -47,13 +59,20 @@ import java.util.Objects;
  */
 public class GraphCommandTest extends BaseCommandTest {
     private Path testResources;
-    private Path projectsWithDependencyConflicts;
+    private Path testDistCacheDirectory;
+    private ProjectEnvironmentBuilder projectEnvironmentBuilder;
 
+    @Override
     @BeforeClass
     public void setup() throws IOException {
         super.setup();
+        Path testBuildDirectory = Path.of("build").toAbsolutePath();
+        testDistCacheDirectory = testBuildDirectory.resolve(DIST_CACHE_DIRECTORY);
+        Path customUserHome = Path.of("build", "user-home");
+        Environment environment = EnvironmentBuilder.getBuilder().setUserHome(customUserHome).build();
+        projectEnvironmentBuilder = ProjectEnvironmentBuilder.getBuilder(environment);
         this.testResources = super.tmpDir.resolve("build-test-resources");
-        projectsWithDependencyConflicts = this.testResources.resolve("projectsWithDependencyConflicts")
+        Path projectsWithDependencyConflicts = this.testResources.resolve("projectsWithDependencyConflicts")
                 .resolve("package_p");
         try {
             copyTestResourcesToTmpDir();
@@ -102,6 +121,19 @@ public class GraphCommandTest extends BaseCommandTest {
 
         String actualLog = readFormattedOutput();
         String expectedLog = CommandOutputUtils.getOutput("graph-for-bal-project-with-no-dependencies.txt");
+        Assert.assertEquals(actualLog, expectedLog);
+    }
+
+    @Test(description = "Print the dependency graph of a ballerina project with build tools")
+    public void testPrintGraphForBalProjectWithBuildTools() throws IOException {
+        Path balProjectPath = this.testResources.resolve("proper-build-tool");
+
+        GraphCommand graphCommand = new GraphCommand(balProjectPath, printStream, printStream, false);
+        new CommandLine(graphCommand).parseArgs(balProjectPath.toString());
+        graphCommand.execute();
+
+        String actualLog = readFormattedOutput();
+        String expectedLog = CommandOutputUtils.getOutput("graph-with-build-tool.txt");
         Assert.assertEquals(actualLog, expectedLog);
     }
 
@@ -191,10 +223,32 @@ public class GraphCommandTest extends BaseCommandTest {
 
         GraphCommand graphCommand = new GraphCommand(emptyPackagePath, printStream, printStream, false);
         new CommandLine(graphCommand).parseArgs(emptyPackagePath.toString());
-        graphCommand.execute();
+        try {
+            graphCommand.execute();
+        } catch (BLauncherException e) {
+            List<String> messages = e.getMessages();
+            Assert.assertEquals(messages.size(), 1);
+            Assert.assertEquals(messages.get(0), getOutput("build-empty-package.txt"));
+        }
+    }
 
+    @Test(description = "Call bal graph for an empty project with build tools")
+    public void testEmptyBalProjectGraphWithBuildTools() throws IOException {
+        BCompileUtil.compileAndCacheBala(testResources.resolve("buildToolResources").resolve("tools")
+                .resolve("ballerina-generate-file").toString(), testDistCacheDirectory, projectEnvironmentBuilder);
+        Path emptyPackagePath = this.testResources.resolve("emptyProjectWithBuildTool");
+        replaceDependenciesTomlContent(emptyPackagePath, "**INSERT_DISTRIBUTION_VERSION_HERE**",
+                RepoUtils.getBallerinaShortVersion());
+        System.setProperty(USER_DIR_PROPERTY, emptyPackagePath.toString());
+        try (MockedStatic<BuildToolUtils> repoUtils = Mockito.mockStatic(
+                BuildToolUtils.class, Mockito.CALLS_REAL_METHODS)) {
+            repoUtils.when(BuildToolUtils::getCentralBalaDirPath).thenReturn(testDistCacheDirectory.resolve("bala"));
+            GraphCommand graphCommand = new GraphCommand(emptyPackagePath, printStream, printStream, false);
+            new CommandLine(graphCommand).parseArgs(emptyPackagePath.toString());
+            graphCommand.execute();
+        }
         String actualLog = readFormattedOutput();
-        String expectedLog = "ballerina: package is empty. Please add at least one .bal file.";
+        String expectedLog = CommandOutputUtils.getOutput("graph-empty-project-with-build-tools.txt");
         Assert.assertEquals(actualLog, expectedLog);
     }
 
@@ -340,25 +394,31 @@ public class GraphCommandTest extends BaseCommandTest {
     private void copyTestResourcesToTmpDir() throws URISyntaxException, IOException {
         URI testResourcesURI = Objects.requireNonNull(getClass().getClassLoader().getResource("test-resources"))
                 .toURI();
-        Path originalTestResources = Paths.get(testResourcesURI);
+        Path originalTestResources = Path.of(testResourcesURI);
         Files.walkFileTree(originalTestResources, new BuildCommandTest.Copy(originalTestResources,
                 this.testResources));
     }
 
     private void compileAndCacheTestDependencies() {
         Path dumpGraphResourcePath = this.testResources.resolve("projectsForDumpGraph");
-        BCompileUtil.compileAndCacheBala(dumpGraphResourcePath.resolve("package_c").toString());
-        BCompileUtil.compileAndCacheBala(dumpGraphResourcePath.resolve("package_b").toString());
+        BCompileUtil.compileAndCacheBala(dumpGraphResourcePath.resolve("package_c").toString(),
+                testDistCacheDirectory, projectEnvironmentBuilder);
+        BCompileUtil.compileAndCacheBala(dumpGraphResourcePath.resolve("package_b").toString(),
+                testDistCacheDirectory, projectEnvironmentBuilder);
 
         Path dependencyConflictPath = this.testResources.resolve("projectsWithDependencyConflicts");
-        BCompileUtil.compileAndCacheBala(dependencyConflictPath.resolve("package_o_1_0_0").toString());
-        BCompileUtil.compileAndCacheBala(dependencyConflictPath.resolve("package_o_1_0_2").toString());
-        BCompileUtil.compileAndCacheBala(dependencyConflictPath.resolve("package_o_1_1_0").toString());
-        BCompileUtil.compileAndCacheBala(dependencyConflictPath.resolve("package_o_2_1_0").toString());
+        BCompileUtil.compileAndCacheBala(dependencyConflictPath.resolve("package_o_1_0_0").toString(),
+                testDistCacheDirectory, projectEnvironmentBuilder);
+        BCompileUtil.compileAndCacheBala(dependencyConflictPath.resolve("package_o_1_0_2").toString(),
+                testDistCacheDirectory, projectEnvironmentBuilder);
+        BCompileUtil.compileAndCacheBala(dependencyConflictPath.resolve("package_o_1_1_0").toString(),
+                testDistCacheDirectory, projectEnvironmentBuilder);
+        BCompileUtil.compileAndCacheBala(dependencyConflictPath.resolve("package_o_2_1_0").toString(),
+                testDistCacheDirectory, projectEnvironmentBuilder);
     }
 
     private String readFormattedOutput() throws IOException {
-        return readOutput(true).replaceAll("\n\t\n", "\n\n").replaceAll("\r", "").strip();
+        return readOutput(true).replace("\n\t\n", "\n\n").replace("\r", "").strip();
     }
 
     private void replaceDependenciesTomlVersion(Path projectPath) throws IOException {

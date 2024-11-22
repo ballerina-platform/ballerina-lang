@@ -62,6 +62,7 @@ public class STMappingBindingPatternNode extends STBindingPatternNode {
                 closeBrace);
     }
 
+    @Override
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
         return new STMappingBindingPatternNode(
                 this.openBrace,
@@ -88,6 +89,7 @@ public class STMappingBindingPatternNode extends STBindingPatternNode {
                 diagnostics);
     }
 
+    @Override
     public Node createFacade(int position, NonTerminalNode parent) {
         return new MappingBindingPatternNode(this, position, parent);
     }

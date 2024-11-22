@@ -22,7 +22,7 @@ package org.ballerinalang.central.client;
  *
  * @since 1.2.0
  */
-public class CentralClientConstants {
+public final class CentralClientConstants {
 
     private CentralClientConstants() {
     }
@@ -43,8 +43,11 @@ public class CentralClientConstants {
     static final String ORGANIZATION = "organization";
     static final String VERSION = "version";
     static final String BALA_URL = "balaURL";
+    static final String PLATFORM = "platform";
+    static final String ANY_PLATFORM = "any";
     static final String PKG_NAME = "name";
     static final String IS_DEPRECATED = "isdeprecated";
+    static final String DIGEST = "digest";
     static final String DEPRECATE_MESSAGE = "deprecatemessage";
     public static final String ENABLE_OUTPUT_STREAM = "enableOutputStream";
     static final String PRODUCTION_REPO = "central.ballerina.io";
@@ -52,5 +55,11 @@ public class CentralClientConstants {
     static final String DEV_REPO = "dev-central.ballerina.io";
     public static final String BALLERINA_STAGE_CENTRAL = "BALLERINA_STAGE_CENTRAL";
     public static final String BALLERINA_DEV_CENTRAL = "BALLERINA_DEV_CENTRAL";
-
+    public static final int BYTES_FOR_KB = 1024;
+    public static final int PROGRESS_BAR_BYTE_THRESHOLD = 5;
+    public static final int UPDATE_INTERVAL_MILLIS = 1000;
+    public static final String SHA256 = "sha-256=";
+    public static final String SHA256_ALGORITHM = "SHA-256";
+    public static final String TEST_MODE_ACTIVE = "TEST_MODE_ACTIVE";
+    public static final String BALLERINA_CENTRAL_TELEMETRY_DISABLED = "Ballerina-Central-Telemetry-Disabled";
 }

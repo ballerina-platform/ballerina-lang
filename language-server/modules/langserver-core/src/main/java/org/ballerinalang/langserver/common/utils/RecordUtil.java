@@ -46,7 +46,10 @@ import static org.ballerinalang.langserver.common.utils.CommonKeys.PKG_DELIMITER
  *
  * @since 2201.1.1
  */
-public class RecordUtil {
+public final class RecordUtil {
+
+    private RecordUtil() {
+    }
 
     /**
      * Get completion items list for struct fields.
@@ -59,9 +62,8 @@ public class RecordUtil {
                                                                Map<RecordField.RecordFieldIdentifier,
                                                                List<RecordField>> fieldsMap) {
         List<LSCompletionItem> completionItems = new ArrayList<>();
-        fieldsMap.forEach((recordFieldIdentifier, fields) -> {
-            completionItems.add(getRecordFieldCompletionItem(context, recordFieldIdentifier, fields));
-        });
+        fieldsMap.forEach((recordFieldIdentifier, fields) ->
+            completionItems.add(getRecordFieldCompletionItem(context, recordFieldIdentifier, fields)));
 
         return completionItems;
     }
@@ -186,7 +188,7 @@ public class RecordUtil {
     public static Map<String, RecordFieldSymbol> getRecordFields(RawTypeSymbolWrapper<RecordTypeSymbol> wrapper,
                                                                  List<String> existingFields) {
         return wrapper.getRawType().fieldDescriptors().entrySet().stream()
-                .filter(e -> !existingFields.contains(e.getKey()))
+                .filter(e -> !existingFields.contains(e.getValue().getName().get()))
                 .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
     }
 
@@ -199,7 +201,7 @@ public class RecordUtil {
     public static List<RecordFieldSymbol> getMandatoryRecordFields(RecordTypeSymbol recordType) {
         return recordType.fieldDescriptors().values().stream()
                 .filter(field -> !field.hasDefaultValue() && !field.isOptional())
-                .collect(Collectors.toList());
+                .toList();
     }
 
     /**
@@ -237,7 +239,7 @@ public class RecordUtil {
                     .map(tSymbol -> {
                         RecordTypeSymbol recordTypeSymbol = (RecordTypeSymbol) CommonUtil.getRawType(tSymbol);
                         return RawTypeSymbolWrapper.from(tSymbol, recordTypeSymbol);
-                    }).collect(Collectors.toList());
+                    }).toList();
         }
 
         return Collections.emptyList();

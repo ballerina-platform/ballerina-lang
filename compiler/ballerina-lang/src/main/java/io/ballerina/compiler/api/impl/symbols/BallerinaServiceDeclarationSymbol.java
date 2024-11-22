@@ -142,8 +142,7 @@ public class BallerinaServiceDeclarationSymbol extends BallerinaSymbol implement
         Map<String, MethodSymbol> methods = new LinkedHashMap<>();
 
         for (BAttachedFunction method : classSymbol.attachedFuncs) {
-            if (method instanceof BResourceFunction) {
-                BResourceFunction resFn = (BResourceFunction) method;
+            if (method instanceof BResourceFunction resFn) {
                 StringJoiner stringJoiner = new StringJoiner("/");
 
                 for (BResourcePathSegmentSymbol pathSegmentSym : resFn.pathSegmentSymbols) {

@@ -18,6 +18,7 @@
 
 package io.ballerina.toml.semantic.ast;
 
+import io.ballerina.identifier.Utils;
 import io.ballerina.toml.internal.diagnostics.DiagnosticErrorCode;
 import io.ballerina.toml.semantic.TomlType;
 import io.ballerina.toml.semantic.diagnostics.DiagnosticLog;
@@ -46,7 +47,6 @@ import io.ballerina.toml.syntax.tree.Token;
 import io.ballerina.toml.syntax.tree.ValueNode;
 import io.ballerina.tools.text.LineRange;
 import io.ballerina.tools.text.TextRange;
-import org.apache.commons.text.StringEscapeUtils;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -61,7 +61,7 @@ import java.util.Optional;
  */
 public class TomlTransformer extends NodeTransformer<TomlNode> {
 
-    private DiagnosticLog dlog;
+    private final DiagnosticLog dlog;
 
     public TomlTransformer() {
         this.dlog = DiagnosticLog.getInstance();
@@ -426,7 +426,7 @@ public class TomlTransformer extends NodeTransformer<TomlNode> {
         SeparatedNodeList<ValueNode> identifierList = identifier.value();
         List<TomlKeyEntryNode> nodeList = new ArrayList<>();
         for (Node node : identifierList) {
-            TomlBasicValueNode transformedNode = (TomlBasicValueNode) node.apply(this);
+            TomlBasicValueNode<?> transformedNode = (TomlBasicValueNode<?>) node.apply(this);
             nodeList.add(new TomlKeyEntryNode((ValueNode) node, transformedNode));
         }
         return new TomlKeyNode(identifier, nodeList, getTomlNodeListLocation(nodeList));
@@ -482,7 +482,7 @@ public class TomlTransformer extends NodeTransformer<TomlNode> {
                 valueString = trimBackslashWhitespaces(valueString);
             }
         }
-        String unescapedJava = StringEscapeUtils.unescapeJava(valueString);
+        String unescapedJava = Utils.unescapeJava(valueString);
         TomlNodeLocation position = getPosition(stringLiteralNode);
 
         return new TomlStringValueNode(stringLiteralNode, unescapedJava, position);
@@ -615,7 +615,7 @@ public class TomlTransformer extends NodeTransformer<TomlNode> {
      * @return TomlNodeLocation
      */
     private TomlNodeLocation getTomlNodeListLocation(List<? extends TomlNode> tomlNodes) {
-        if (tomlNodes.size() == 0) {
+        if (tomlNodes.isEmpty()) {
             return null;
         }
         TomlNode firstNode = tomlNodes.get(0);

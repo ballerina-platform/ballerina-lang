@@ -15,7 +15,9 @@
  *
  */
 
-apply from: "$rootDir/gradle/javaProject.gradle"
+plugins {
+    id 'javaProject'
+}
 
 description = 'Compiler Plugin Tests - Function node analyzer plugin'
 version = '1.0.0'
@@ -28,14 +30,3 @@ dependencies {
 }
 
 ext.moduleName = 'function.node.analyzer.compiler.plugin'
-
-compileJava {
-    doFirst {
-        options.compilerArgs = [
-                '--module-path', classpath.asPath,
-        ]
-        classpath = files()
-    }
-}
-
-

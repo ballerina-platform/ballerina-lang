@@ -132,6 +132,74 @@ function testSimpleQueryReturnStream() returns boolean {
     return testPassed;
 }
 
+function testSimpleQueryReturnStream2() {
+    boolean testPassed = true;
+
+    Person p1 = {firstName: "Alex", lastName: "George", age: 23};
+    Person p2 = {firstName: "Ranjan", lastName: "Fonseka", age: 30};
+    Person p3 = {firstName: "John", lastName: "David", age: 33};
+
+    Person[] personList = [p1, p2, p3];
+
+    var outputPersonStream = stream from var person in personList
+        where person.firstName == "John"
+        let int newAge = 34
+        select {
+            firstName: person.firstName,
+            lastName: person.lastName,
+            age: newAge
+        };
+
+    assertTrue(outputPersonStream is stream<Person>);
+    stream<Person> _ = outputPersonStream;
+
+    record {| Person value; |}? person = getPersonValue(outputPersonStream.next());
+    testPassed = testPassed && person?.value?.firstName == "John" && person?.value?.lastName == "David" &&
+    person?.value?.age == 34;
+
+    person = getPersonValue(outputPersonStream.next());
+    testPassed = testPassed && person == ();
+
+    assertTrue(testPassed);
+}
+
+type ValueRecord record {|
+    string value;
+|};
+
+type TestStream stream<string, error?>;
+
+class TestGenerator {
+    public isolated function next() returns ValueRecord|error? {
+        return {value: "Ballerina"};
+    }
+}
+
+function testSimpleQueryReturnStream3() {
+    TestGenerator generator = new ();
+    TestStream testStream = new (generator);
+
+    var outputIntPersonStream = stream from var _ in testStream select 1;
+    assertTrue(outputIntPersonStream is stream<int, error?>);
+    stream<int, error?> _ = outputIntPersonStream;
+    (record {| int value; |}|error)? x1 = outputIntPersonStream.next();
+    if (x1 is record {| int value; |}) {
+        assertEqual(x1.value, 1);
+    } else {
+        assertTrue(false);
+    }
+
+    var outputStringPersonStream = stream from var _ in testStream select "ABCD";
+    assertTrue(outputStringPersonStream is stream<string, error?>);
+    stream<string, error?> _ = outputStringPersonStream;
+    (record {| string value; |}|error)? x2 = outputStringPersonStream.next();
+    if (x2 is record {| string value; |}) {
+        assertEqual(x2.value, "ABCD");
+    } else {
+        assertTrue(false);
+    }
+}
+
 function testStreamInFromClauseWithReturnStream() returns boolean {
     boolean testPassed = true;
 
@@ -166,6 +234,44 @@ function testStreamInFromClauseWithReturnStream() returns boolean {
     testPassed = testPassed && employee == ();
 
     return testPassed;
+}
+
+function testStreamInFromClauseWithReturnStream2() {
+    boolean testPassed = true;
+
+    Person p1 = {firstName: "Alex", lastName: "George", age: 23};
+    Person p2 = {firstName: "Ranjan", lastName: "Fonseka", age: 30};
+    Person p3 = {firstName: "John", lastName: "David", age: 33};
+
+    Person[] personList = [p1, p2, p3];
+
+    var outputEmployeeStream = stream from var {firstName, lastName, dept} in
+                   <stream<Employee>>personList.toStream().filter(function (Person person) returns boolean {
+                       return person.firstName == "John";
+                       }).'map(function (Person person) returns Employee {
+                           Employee employee = {
+                               firstName: person.firstName,
+                               lastName: person.lastName,
+                               dept: "Engineering"
+                           };
+                           return employee;
+                           })
+                   select {
+                       firstName: firstName,
+                       lastName: lastName,
+                       dept: dept
+                   };
+
+    assertTrue(outputEmployeeStream is stream<Employee>);
+    stream<Employee> _ = outputEmployeeStream;
+
+    record {| Employee value; |}? employee = getEmployeeValue(outputEmployeeStream.next());
+    testPassed = testPassed && employee?.value?.firstName == "John" && employee?.value?.lastName == "David" &&
+    employee?.value?.dept == "Engineering";
+
+    employee = getEmployeeValue(outputEmployeeStream.next());
+    testPassed = testPassed && employee == ();
+    assertTrue(testPassed);
 }
 
 function testMultipleFromWhereAndLetReturnStream() returns boolean {
@@ -206,6 +312,99 @@ function testMultipleFromWhereAndLetReturnStream() returns boolean {
     return testPassed;
 }
 
+function testMultipleFromWhereAndLetReturnStream2() {
+    boolean testPassed = true;
+
+    Employee e1 = {firstName: "John", lastName: "Fonseka", dept: "Engineering"};
+    Employee e2 = {firstName: "John", lastName: "David", dept: "HR"};
+
+    Department d1 = {dept: "Support"};
+    Department d2 = {dept: "Dev"};
+
+    Employee[] employeeList = [e1, e2];
+    Department[] departmentList = [d1, d2];
+
+    var outputEmployeeStream = stream from var emp in employeeList
+         from var department in departmentList
+         where emp.firstName == "John"
+         where emp.dept == "Engineering"
+         let string fname = "Johns"
+         let string deptName = "Research"
+         select {
+             firstName: fname,
+             lastName: emp.lastName,
+             dept: deptName
+         };
+
+    assertTrue(outputEmployeeStream is stream<Employee>);
+    stream<Employee> _ = outputEmployeeStream;
+
+    record {| Employee value; |}? employee = getEmployeeValue(outputEmployeeStream.next());
+    testPassed = testPassed && employee?.value?.firstName == "Johns" && employee?.value?.lastName == "Fonseka" &&
+        employee?.value?.dept == "Research";
+
+    employee = getEmployeeValue(outputEmployeeStream.next());
+    testPassed = testPassed && employee?.value?.firstName == "Johns" && employee?.value?.lastName == "Fonseka" &&
+        employee?.value?.dept == "Research";
+
+    employee = getEmployeeValue(outputEmployeeStream.next());
+    testPassed = testPassed && employee == ();
+    assertTrue(testPassed);
+}
+
+type Employee2 record {
+    readonly string name;
+    int salary;
+};
+
+type Tbl table<Employee2> key(name);
+
+function testConstructTablesWithRecords() {
+    table<Employee2> key(name) t = table [
+        { name: "John", salary: 100 },
+        { name: "Jane", salary: 200 }
+    ];
+
+    var ct = from Employee2 e in t select e;
+    assertTrue(ct is table<Employee2>);
+    table<Employee2> a = ct;
+    assertEqual(a.toString(), "[{\"name\":\"John\",\"salary\":100},{\"name\":\"Jane\",\"salary\":200}]");
+
+    table<record { readonly string name; int salary; }> key(name) t2 = table [
+            { name: "John", salary: 100 },
+            { name: "Jane", salary: 200 }
+        ];
+
+    var ct2 = from record { readonly string name; int salary; } e in t2 select e;
+    assertTrue(ct2 is table<record { readonly string name; int salary; }>);
+    table<record { readonly string name; int salary; }> a2 = ct2;
+    assertEqual(a2.toString(), "[{\"name\":\"John\",\"salary\":100},{\"name\":\"Jane\",\"salary\":200}]");
+
+    var ct3 = from Employee2 e in t select {name: e.name};
+    assertTrue(ct3 is table<record {string name;}>);
+    table<record {string name;}> a3 = ct3;
+    assertEqual(a3.toString(), "[{\"name\":\"John\"},{\"name\":\"Jane\"}]");
+
+    Tbl t3 = table [
+        { name: "John", salary: 100 },
+        { name: "Jane", salary: 200 }
+    ];
+
+    var ct4 = from Employee2 e in t3 select e;
+    assertTrue(ct4 is table<Employee2>);
+    table<Employee2> a4 = ct4;
+    assertEqual(a4.toString(), "[{\"name\":\"John\",\"salary\":100},{\"name\":\"Jane\",\"salary\":200}]");
+}
+
+function testConstructMapsWithTuples() {
+    map<int> a = {"a": 1, "b": 2};
+
+   var cm = map from var i in a select ["A",1];
+   assertTrue(cm is map<int>);
+   map<int> cm2 = cm;
+   assertEqual(cm2, {"A": 1});
+}
+
 function testInnerJoinAndLimitReturnStream() returns boolean {
     boolean testPassed = true;
 
@@ -242,6 +441,44 @@ function testInnerJoinAndLimitReturnStream() returns boolean {
     return testPassed;
 }
 
+function testInnerJoinAndLimitReturnStream2() {
+    boolean testPassed = true;
+
+    Person p1 = {firstName: "Alex", lastName: "George", age: 23};
+    Person p2 = {firstName: "Ranjan", lastName: "Fonseka", age: 30};
+
+    Employee e1 = {firstName: "Alex", lastName: "George", dept: "Engineering"};
+    Employee e2 = {firstName: "John", lastName: "David", dept: "HR"};
+    Employee e3 = {firstName: "Ranjan", lastName: "Fonseka", dept: "Operations"};
+
+    Person[] personList = [p1, p2];
+    Employee[] employeeList = [e1, e2, e3];
+
+    var outputEmpProfileStream = stream from var person in personList.toStream()
+            join Employee employee in employeeList.toStream()
+            on person.firstName equals employee.firstName
+            limit 1
+            select {
+                firstName: employee.firstName,
+                lastName: employee.lastName,
+                age: person.age,
+                dept: employee.dept,
+                status: "Permanent"
+            };
+
+    assertTrue(outputEmpProfileStream is stream<EmpProfile>);
+    stream<EmpProfile> _ = outputEmpProfileStream;
+
+    record {| EmpProfile value; |}? empProfile = getEmpProfileValue(outputEmpProfileStream.next());
+    testPassed = testPassed && empProfile?.value?.firstName == "Alex" && empProfile?.value?.lastName == "George" &&
+        empProfile?.value?.age == 23 && empProfile?.value?.dept == "Engineering" &&
+        empProfile?.value?.status == "Permanent";
+
+    empProfile = getEmpProfileValue(outputEmpProfileStream.next());
+    testPassed = testPassed && empProfile == ();
+    assertTrue(testPassed);
+}
+
 // functions to test query-construct-type --> table
 
 function testSimpleQueryExprReturnTable() returns boolean {
@@ -275,6 +512,40 @@ function testSimpleQueryExprReturnTable() returns boolean {
     return testPassed;
 }
 
+function testSimpleQueryExprReturnTable2() {
+    boolean testPassed = true;
+
+    Customer c1 = {id: 1, name: "Melina", noOfItems: 12};
+    Customer c2 = {id: 2, name: "James", noOfItems: 5};
+    Customer c3 = {id: 3, name: "Anne", noOfItems: 20};
+
+    Customer[] customerList = [c1, c2, c3];
+
+    var customerTable = table key(id, name) from var customer in customerList
+        select {
+            id: customer.id,
+            name: customer.name,
+            noOfItems: customer.noOfItems
+        };
+
+    assertTrue(customerTable is CustomerTable);
+    CustomerTable _ = customerTable;
+
+    if (customerTable is CustomerTable) {
+        var itr = customerTable.iterator();
+        Customer? customer = getCustomer(itr.next());
+        testPassed = testPassed && customer == customerList[0];
+        customer = getCustomer(itr.next());
+        testPassed = testPassed && customer == customerList[1];
+        customer = getCustomer(itr.next());
+        testPassed = testPassed && customer == customerList[2];
+        customer = getCustomer(itr.next());
+        testPassed = testPassed && customer == ();
+    }
+
+    assertTrue(testPassed);
+}
+
 function testTableWithDuplicateKeys() {
     Customer c1 = {id: 1, name: "Melina", noOfItems: 12};
     Customer c2 = {id: 2, name: "James", noOfItems: 5};
@@ -287,6 +558,25 @@ function testTableWithDuplicateKeys() {
             name: customer.name,
             noOfItems: customer.noOfItems
         };
+
+    assertEqual(customerTable, table key(id,name) [{"id":1,"name":"Melina","noOfItems":12},{"id":2,"name":"James","noOfItems":5}]);
+}
+
+function testTableWithDuplicateKeys2() {
+    Customer c1 = {id: 1, name: "Melina", noOfItems: 12};
+    Customer c2 = {id: 2, name: "James", noOfItems: 5};
+
+    Customer[] customerList = [c1, c2, c1];
+
+    var customerTable = table key(id, name) from var customer in customerList
+        select {
+            id: customer.id,
+            name: customer.name,
+            noOfItems: customer.noOfItems
+        };
+
+    assertTrue(customerTable is CustomerTable);
+    CustomerTable _ = customerTable;
 
     assertEqual(customerTable, table key(id,name) [{"id":1,"name":"Melina","noOfItems":12},{"id":2,"name":"James","noOfItems":5}]);
 }
@@ -687,6 +977,30 @@ function testQueryConstructingTableWithOnConflictClauseHavingNonTableQueryInWher
     if tbl2 is error {
         assertEqual("Duplicate Key", tbl2.message());
     }
+}
+
+function testQueryConstructingTableWithOnConflictsWithVarRef() {
+     TokenTable|error tbl1 = table key(idx) from int i in [1, 2, 3, 1, 2, 3]
+        let string value = "A" + i.toString()
+        select {
+            idx: i,
+            value
+        }
+        on conflict error(string `Duplicate Key: ${i} Value: ${value}`);
+
+    assertEqual(true, tbl1 is error);
+    assertEqual("Duplicate Key: 1 Value: A1", (<error>tbl1).message());
+
+    int duplicateKey = 1;
+    TokenTable|error tbl2 = table key(idx) from int i in [1, 2, 3, 1, 2, 3]
+        let string value = "A" + i.toString()
+        select {
+            idx: i,
+            value
+        }
+        on conflict error(string `Duplicate Key: ${duplicateKey} Value: ${value}`);
+    assertEqual(true, tbl2 is error);
+    assertEqual("Duplicate Key: 1 Value: A1", (<error>tbl2).message());
 }
 
 function testMapConstructingQueryExpr() {
@@ -1319,28 +1633,46 @@ function testQueryConstructingMapsAndTablesWithClausesMayCompleteSEarlyWithError
     assertEqual(table6, error("Error"));
 }
 
+function testQueryConstructingMapWithOnConflictsWithVarRef() {
+     map<string>|error mp1 = map from int i in [1, 2, 3, 1, 2, 3]
+        let string value = "A" + i.toString()
+        select [i.toString(), value]
+        on conflict error(string `Duplicate Key: ${i} Value: ${value}`);
+
+    assertEqual(mp1 is error, true);
+    assertEqual((<error>mp1).message(), "Duplicate Key: 1 Value: A1");
+
+    int duplicateKey = 1;
+    map<string>|error mp2 = map from int i in [1, 2, 3, 1, 2, 3]
+        let string value = "A" + i.toString()
+        select [i.toString(), value]
+        on conflict error(string `Duplicate Key: ${duplicateKey} Value: ${value}`);
+    assertEqual(mp2 is error, true);
+    assertEqual((<error>mp2).message(), "Duplicate Key: 1 Value: A1");
+}
+
 function testQueryConstructingMapsAndTablesWithClausesMayCompleteSEarlyWithError2() {
     EvenNumberGenerator evenGen = new();
     stream<int, error> evenNumberStream = new(evenGen);
 
-    map<int>|error map1 = map from var item in (from var integer in evenNumberStream select integer)
+    map<int>|error map1 = map from var item in (stream from var integer in evenNumberStream select integer)
                             select [item.toBalString(), item];
     assertEqual(map1, error("Greater than 20!"));
 
-    table<ResultValue>|error table1 = table key() from var item in (from var integer in evenNumberStream select integer)
+    table<ResultValue>|error table1 = table key() from var item in (stream from var integer in evenNumberStream select integer)
                                         select {value: item};
     assertEqual(table1, error("Greater than 20!"));
 
-    table<NumberRecord> key(id)|error table2 = table key(id) from var item in (from var integer in evenNumberStream select integer)
+    table<NumberRecord> key(id)|error table2 = table key(id) from var item in (stream from var integer in evenNumberStream select integer)
                                                 select {id: item, value: item.toBalString()};
     assertEqual(table2, error("Greater than 20!"));
 
-    map<int>|error map3 = map from var item in (from var integer in (from var integer in evenNumberStream select integer) select integer)
+    map<int>|error map3 = map from var item in (stream from var integer in (stream from var integer in evenNumberStream select integer) select integer)
                             select [item.toBalString(), item];
     assertEqual(map3, error("Greater than 20!"));
 
     table<ResultValue>|error table4 = table key() from var item in
-                                        (from var integer in (from var integer in evenNumberStream select integer) select integer)
+                                        (stream from var integer in (stream from var integer in evenNumberStream select integer) select integer)
                                             select {value: item};
     assertEqual(table4, error("Greater than 20!"));
 }
@@ -1510,6 +1842,98 @@ function testJoinedQueryExprConstructingMapWithRegExp() {
     }, arr3);
 }
 
+type ModuleDecls [string, FuncDecl...];
+
+type FuncDecl [string, Signature];
+
+public type Signature [string, string[], string];
+
+type ModuleDeclsMemo record {|
+    readonly string id;
+    map<Signature> funcs = {};
+|};
+
+function testInnerQueryConstructedWithCEP() {
+    map<ModuleDeclsMemo> funcMap = {
+        "1": {id: "01", funcs: {"func1": ["foo", ["int", "string"], "boolean"]}},
+        "2": {id: "02", funcs: {"func2": ["bar", ["int", "int"], "boolean"]}}
+    };
+    ModuleDecls[] decl = from var {id, funcs} in funcMap
+        select [
+            id,
+            ...from var [name, sig] in funcs.entries()
+                where name.equalsIgnoreCaseAscii("func1")
+                select <FuncDecl>[name, sig]
+        ];
+
+    assertEqual([["01",["func1",["foo",["int","string"],"boolean"]]],["02"]], decl);
+}
+
+error onConflictError = error("Key Conflict", message = "cannot insert.");
+
+function testTableConstructQueryWithNonConflictingKeys() {
+    Customer c1 = {id: 1, name: "Melina", noOfItems: 12};
+    Customer c2 = {id: 2, name: "James", noOfItems: 5};
+    Customer c3 = {id: 3, name: "Anne", noOfItems: 20};
+    Customer[] customerList = [c1, c2, c3];
+    CustomerTable|error customerTable = getQueryResult(onConflictError, customerList);
+    assertEqual(true, customerTable is CustomerTable);
+    CustomerTable expectedTableValue = table [{id: 1, name: "Melina", noOfItems: 12},
+                             {id: 2, name: "James", noOfItems: 5},
+                             {id: 3, name: "Anne", noOfItems: 20}];
+    assertEqual(customerTable, expectedTableValue);
+}
+
+function testTableConstructQueryWithConflictingKeys() {
+    Customer c1 = {id: 1, name: "Melina", noOfItems: 12};
+    Customer c2 = {id: 2, name: "James", noOfItems: 5};
+    Customer c3 = {id: 3, name: "Anne", noOfItems: 20};
+    Customer[] customerList = [c1, c2, c3, c1];
+    CustomerTable|error customerTable = getQueryResult(onConflictError, customerList);
+    assertEqual(customerTable is error, true);
+    assertEqual((<error>customerTable).message(), "Key Conflict");
+}
+
+function getQueryResult(error onConflictError, Customer[] customerList) returns CustomerTable|error {
+    return <CustomerTable|error> table key(id, name) from var customer in customerList
+    select {
+            id: customer.id,
+            name: customer.name,
+            noOfItems: customer.noOfItems
+    }
+    on conflict onConflictError;
+}
+
+function testMapConstructNestedQueryWithConflictingKeys() {
+    Customer c1 = {id: 1, name: "Melina", noOfItems: 12};
+    Customer c2 = {id: 2, name: "James", noOfItems: 5};
+    Customer c3 = {id: 3, name: "Anne", noOfItems: 20};
+    Customer[] customerList = [c1, c2, c3, c1];
+    (anydata|error)[] result = from var i in [1]
+        select table key(id, name) from var customer in customerList
+                   select {
+                           id: customer.id,
+                           name: customer.name,
+                           noOfItems: customer.noOfItems
+                   }
+                   on conflict error(string `Error key: ${customer.id} iteration: ${i}`);
+    assertEqual(result[0] is error, true);
+    assertEqual((<error>result[0]).message(), "Error key: 1 iteration: 1");
+}
+
+function testMapConstructQueryWithConflictingKeys() {
+    Customer c1 = {id: 1, name: "Abba", noOfItems: 10};
+    Customer c2 = {id: 2, name: "Jim", noOfItems: 20};
+    Customer c3 = {id: 3, name: "James", noOfItems: 30};
+    Customer c4 = {id: 3, name: "Abba", noOfItems: 40};
+    Customer[] customerList = [c1, c2, c3, c4];
+    anydata|error result = map from var {name, noOfItems} in customerList
+                            group by name
+                            select [name, [noOfItems]]
+                            on conflict error(string `value: ${[noOfItems].toString()}`);
+    assertEqual(result is map<anydata>, true);
+}
+
 function assertEqual(anydata|error actual, anydata|error expected) {
     anydata expectedValue = (expected is error)? (<error> expected).message() : expected;
     anydata actualValue = (actual is error)? (<error> actual).message() : actual;
@@ -1517,4 +1941,8 @@ function assertEqual(anydata|error actual, anydata|error expected) {
         return;
     }
     panic error(string `expected '${expectedValue.toBalString()}', found '${actualValue.toBalString()}'`);
+}
+
+function assertTrue(anydata|error actual) {
+    assertEqual(true, actual);
 }

@@ -25,7 +25,6 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import java.nio.file.Path;
-import java.nio.file.Paths;
 
 /**
  * Contains test cases to validate json schema input.
@@ -35,7 +34,7 @@ import java.nio.file.Paths;
 public class SchemaTest {
     @Test
     public void ensureBooleanField() {
-        Path resourceDirectory = Paths.get("src", "test", "resources", "validator", "schema",
+        Path resourceDirectory = Path.of("src", "test", "resources", "validator", "schema",
                 "additional-properties-boolean.json");
         JsonSchemaException jsonSchemaException =
                 Assert.expectThrows(JsonSchemaException.class, () -> new TomlValidator(Schema.from(resourceDirectory)));
@@ -46,7 +45,7 @@ public class SchemaTest {
 
     @Test
     public void ensureNumberField() {
-        Path resourceDirectory = Paths.get("src", "test", "resources", "validator", "schema",
+        Path resourceDirectory = Path.of("src", "test", "resources", "validator", "schema",
                 "min-number.json");
         JsonSchemaException jsonSchemaException =
                 Assert.expectThrows(JsonSchemaException.class, () -> new TomlValidator(Schema.from(resourceDirectory)));
@@ -57,7 +56,7 @@ public class SchemaTest {
 
     @Test
     public void ensureStringField() {
-        Path resourceDirectory = Paths.get("src", "test", "resources", "validator", "schema",
+        Path resourceDirectory = Path.of("src", "test", "resources", "validator", "schema",
                 "pattern-string.json");
         JsonSchemaException jsonSchemaException =
                 Assert.expectThrows(JsonSchemaException.class, () -> new TomlValidator(Schema.from(resourceDirectory)));

@@ -33,7 +33,7 @@ public enum VarScope {
      */
     GLOBAL((byte) 2);
 
-    byte value;
+    final byte value;
 
     VarScope(byte value) {
         this.value = value;

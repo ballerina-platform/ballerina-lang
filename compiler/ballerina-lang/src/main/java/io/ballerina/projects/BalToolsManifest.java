@@ -19,6 +19,7 @@ package io.ballerina.projects;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * Represents a bal-tools.toml file.
@@ -26,9 +27,9 @@ import java.util.Map;
  * @since 2201.6.0
  */
 public class BalToolsManifest {
-    private final Map<String, Tool> tools;
+    private final Map<String, Map<String, Map<String, Tool>>> tools;
 
-    private BalToolsManifest(Map<String, Tool> tools) {
+    private BalToolsManifest(Map<String, Map<String, Map<String, Tool>>> tools) {
         this.tools = tools;
     }
 
@@ -36,16 +37,47 @@ public class BalToolsManifest {
         return new BalToolsManifest(new HashMap<>());
     }
 
-    public static BalToolsManifest from(Map<String, Tool> tools) {
+    public static BalToolsManifest from(Map<String, Map<String, Map<String, Tool>>> tools) {
         return new BalToolsManifest(tools);
     }
 
-    public Map<String, Tool> tools() {
+    public Map<String, Map<String, Map<String, Tool>>> tools() {
         return tools;
     }
 
-    public void addTool(String id, String org, String name, String version) {
-        tools.put(id, new Tool(id, org, name, version));
+    public void addTool(String id, String org, String name, String version, Boolean active, String repository) {
+        if (!tools.containsKey(id)) {
+            tools.put(id, new HashMap<>());
+        }
+        if (!tools.get(id).containsKey(version)) {
+            tools.get(id).put(version, new HashMap<>());
+        }
+
+        if (active) {
+            flipCurrentActiveToolVersion(id);
+        }
+        tools.get(id).get(version).put(repository, new Tool(id, org, name, version, active, repository));
+    }
+
+    public Optional<Tool> getTool(String id, String version, String repository) {
+        if (tools.containsKey(id) && tools.get(id).containsKey(version)) {
+            return Optional.ofNullable(tools.get(id).get(version).get(repository));
+        }
+        return Optional.empty();
+    }
+
+    public Optional<Tool> getActiveTool(String id) {
+        if (tools.containsKey(id)) {
+            return tools.get(id).values().stream().flatMap(v -> v.values().stream()).filter(Tool::active).findFirst();
+        }
+        return Optional.empty();
+    }
+
+    public void setActiveToolVersion(String id, String version, String repository) {
+        if (tools.containsKey(id)) {
+            flipCurrentActiveToolVersion(id);
+            tools.get(id).get(version).get(repository).setActive(true);
+        }
     }
 
     public void removeTool(String id) {
@@ -53,6 +85,16 @@ public class BalToolsManifest {
             return;
         }
         tools.remove(id);
+    }
+
+    public void removeToolVersion(String id, String version, String repository) {
+        if (tools.containsKey(id) && tools.get(id).containsKey(version)) {
+            tools.get(id).get(version).remove(repository);
+        }
+    }
+
+    private void flipCurrentActiveToolVersion(String id) {
+        tools.get(id).forEach((k, v) -> v.forEach((k1, v1) -> v1.setActive(false)));
     }
 
     /**
@@ -65,12 +107,16 @@ public class BalToolsManifest {
         private final String org;
         private final String name;
         private final String version;
+        private Boolean active;
+        private final String repository;
 
-        public Tool(String id, String org, String name, String version) {
+        public Tool(String id, String org, String name, String version, Boolean active, String repository) {
             this.id = id;
             this.org = org;
             this.name = name;
             this.version = version;
+            this.active = active;
+            this.repository = repository;
         }
 
         public String id() {
@@ -87,6 +133,18 @@ public class BalToolsManifest {
 
         public String version() {
             return version;
+        }
+
+        public Boolean active() {
+            return active;
+        }
+
+        public String repository() {
+            return repository;
+        }
+
+        public void setActive(boolean active) {
+            this.active = active;
         }
     }
 }

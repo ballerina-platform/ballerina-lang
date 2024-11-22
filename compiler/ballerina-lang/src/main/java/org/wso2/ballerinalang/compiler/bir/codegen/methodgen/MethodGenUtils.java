@@ -22,24 +22,12 @@ import io.ballerina.identifier.Utils;
 import org.ballerinalang.model.elements.PackageID;
 import org.objectweb.asm.MethodVisitor;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil;
-import org.wso2.ballerinalang.compiler.bir.codegen.internal.AsyncDataCollector;
-import org.wso2.ballerinalang.compiler.bir.codegen.internal.ScheduleFunctionInfo;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.util.Names;
-import org.wso2.ballerinalang.compiler.util.TypeTags;
 
 import static org.objectweb.asm.Opcodes.ARETURN;
-import static org.objectweb.asm.Opcodes.GETSTATIC;
-import static org.objectweb.asm.Opcodes.INVOKEVIRTUAL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ENCODED_DOT_CHARACTER;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.FRAME_CLASS_PREFIX;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.LAMBDA_PREFIX;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAIN_METHOD;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SCHEDULER;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SCHEDULE_FUNCTION_METHOD;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_STRAND_METADATA;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.SCHEDULE_LOCAL;
 import static org.wso2.ballerinalang.compiler.util.CompilerUtils.getMajorVersion;
 
 /**
@@ -47,8 +35,9 @@ import static org.wso2.ballerinalang.compiler.util.CompilerUtils.getMajorVersion
  *
  * @since 2.0.0
  */
-public class MethodGenUtils {
-    static final String FRAMES = "frames";
+public final class MethodGenUtils {
+
+    public static final String FRAMES = "frames";
     static final String INIT_FUNCTION_SUFFIX = ".<init>";
     static final String STOP_FUNCTION_SUFFIX = ".<stop>";
     static final String START_FUNCTION_SUFFIX = ".<start>";
@@ -66,17 +55,7 @@ public class MethodGenUtils {
         return func.name.value.equals(encodeModuleSpecialFuncName(INIT_FUNCTION_SUFFIX));
     }
 
-    static void submitToScheduler(MethodVisitor mv, String moduleClassName, String workerName,
-                                  AsyncDataCollector asyncDataCollector) {
-        String metaDataVarName = JvmCodeGenUtil.getStrandMetadataVarName(MAIN_METHOD);
-        asyncDataCollector.getStrandMetadata().putIfAbsent(metaDataVarName, new ScheduleFunctionInfo(MAIN_METHOD));
-        mv.visitLdcInsn(workerName);
-        mv.visitFieldInsn(GETSTATIC, moduleClassName, metaDataVarName, GET_STRAND_METADATA);
-        mv.visitMethodInsn(INVOKEVIRTUAL, SCHEDULER, SCHEDULE_FUNCTION_METHOD,
-                SCHEDULE_LOCAL, false);
-    }
-
-    static void visitReturn(MethodVisitor mv, String funcName, String className) {
+    public static void visitReturn(MethodVisitor mv, String funcName, String className) {
         mv.visitInsn(ARETURN);
         JvmCodeGenUtil.visitMaxStackForMethod(mv, funcName, className);
         mv.visitEnd();
@@ -100,7 +79,7 @@ public class MethodGenUtils {
         String funcName;
         if (moduleName.equals(ENCODED_DOT_CHARACTER)) {
             funcName = ".." + funcSuffix;
-        } else if (version.equals("")) {
+        } else if (version.isEmpty()) {
             funcName = moduleName + "." + funcSuffix;
         } else {
             funcName = moduleName + ":" + version + "." + funcSuffix;
@@ -114,20 +93,5 @@ public class MethodGenUtils {
     }
 
     private MethodGenUtils() {
-    }
-
-    static String getFrameClassName(String pkgName, String funcName, BType attachedType) {
-        String frameClassName = pkgName + FRAME_CLASS_PREFIX;
-        if (isValidType(attachedType)) {
-            frameClassName += JvmCodeGenUtil.toNameString(attachedType) + "_";
-        }
-
-        return frameClassName + funcName;
-    }
-
-    private static boolean isValidType(BType attachedType) {
-        BType referredAttachedType = JvmCodeGenUtil.getReferredType(attachedType);
-        return attachedType != null && (referredAttachedType.tag == TypeTags.OBJECT
-                || referredAttachedType.tag == TypeTags.RECORD);
     }
 }

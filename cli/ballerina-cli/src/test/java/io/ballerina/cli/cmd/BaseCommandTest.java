@@ -28,14 +28,15 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.DataProvider;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.util.stream.Stream;
 
 import static io.ballerina.projects.util.ProjectConstants.CENTRAL_REPOSITORY_CACHE_NAME;
 
@@ -49,12 +50,13 @@ public abstract class BaseCommandTest {
     private ByteArrayOutputStream console;
     protected PrintStream printStream;
     protected Path homeCache;
+    private final String userDir = System.getProperty("user.dir");
     
     @BeforeClass
     public void setup() throws IOException {
         System.setProperty("java.command", "java");
         this.tmpDir = Files.createTempDirectory("b7a-cmd-test-" + System.nanoTime());
-        this.homeCache = Paths.get("build", "userHome");
+        this.homeCache = Path.of("build", "userHome");
         this.console = new ByteArrayOutputStream();
         this.printStream = new PrintStream(this.console);
     }
@@ -65,23 +67,34 @@ public abstract class BaseCommandTest {
         this.printStream = new PrintStream(this.console);
     }
 
+    @DataProvider(name = "optimizeDependencyCompilation")
+    public Object [] [] provideOptimizeDependencyCompilation() {
+        return new Object [][] {{ false }, { true }};
+    }
+
     protected String readOutput() throws IOException {
         return readOutput(false);
     }
 
     protected String readOutput(boolean silent) throws IOException {
+        return readOutput(silent, true);
+    }
+
+    protected String readOutput(boolean silent, boolean closeConsole) throws IOException {
         String output = "";
         output = console.toString();
-        console.close();
-        console = new ByteArrayOutputStream();
-        printStream = new PrintStream(console);
+        if (closeConsole) {
+            console.close();
+            console = new ByteArrayOutputStream();
+            printStream = new PrintStream(console);
+        }
         if (!silent) {
             PrintStream out = System.out;
             out.println(output);
         }
         return output;
     }
-    
+
     /**
      * Execute a command and get the exception.
      *
@@ -113,9 +126,9 @@ public abstract class BaseCommandTest {
         Path balaDestPath = centralRepoPath.resolve(org).resolve(name).resolve(version).resolve(platform);
         Files.createDirectories(balaDestPath);
 
-        try {
-            Files.walk(balaProjectDirectory).forEach(a -> {
-                Path b = Paths.get(String.valueOf(balaDestPath),
+        try (Stream<Path> files = Files.walk(balaProjectDirectory)) {
+            files.forEach(a -> {
+                Path b = Path.of(String.valueOf(balaDestPath),
                         a.toString().substring(balaProjectDirectory.toString().length()));
                 try {
                     if (!a.toString().equals(String.valueOf(balaProjectDirectory))) {
@@ -137,7 +150,8 @@ public abstract class BaseCommandTest {
     }
 
     @AfterClass (alwaysRun = true)
-    public void cleanup() throws IOException {
+    public void cleanup() {
         ProjectUtils.deleteDirectory(this.tmpDir);
+        System.setProperty("user.dir", userDir);
     }
 }

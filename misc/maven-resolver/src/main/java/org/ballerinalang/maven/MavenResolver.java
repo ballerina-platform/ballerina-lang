@@ -57,7 +57,7 @@ import java.util.List;
  */
 public class MavenResolver {
     org.ballerinalang.maven.Dependency rootNode = null;
-    private List<RemoteRepository> repositories;
+    private final List<RemoteRepository> repositories;
     RepositorySystem system;
     DefaultRepositorySystemSession session;
 
@@ -79,6 +79,8 @@ public class MavenResolver {
         repositories = new ArrayList<>();
         repositories.add(new RemoteRepository.Builder(
                 "central", "default", "https://repo.maven.apache.org/maven2/").build());
+        repositories.add(new RemoteRepository.Builder(
+                "wso2-nexus", "default", "https://maven.wso2.org/nexus/content/groups/public/").build());
 
         String localRepoPath = System.getProperty("user.home") + File.separator + ".m2"
                 + File.separator + "repository";

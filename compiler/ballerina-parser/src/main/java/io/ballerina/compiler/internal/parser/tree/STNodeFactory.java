@@ -979,7 +979,8 @@ public class STNodeFactory extends STAbstractNodeFactory {
             STNode workerKeyword,
             STNode workerName,
             STNode returnTypeDesc,
-            STNode workerBody) {
+            STNode workerBody,
+            STNode onFailClause) {
 
         return new STNamedWorkerDeclarationNode(
                 annotations,
@@ -987,7 +988,8 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 workerKeyword,
                 workerName,
                 returnTypeDesc,
-                workerBody);
+                workerBody,
+                onFailClause);
     }
 
     public static STNode createNamedWorkerDeclarator(
@@ -1824,6 +1826,13 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 closeBrace);
     }
 
+    public static STNode createAlternateReceiveNode(
+            STNode workers) {
+
+        return new STAlternateReceiveNode(
+                workers);
+    }
+
     public static STNode createRestDescriptorNode(
             STNode typeDescriptor,
             STNode ellipsisToken) {
@@ -2050,11 +2059,13 @@ public class STNodeFactory extends STAbstractNodeFactory {
 
     public static STNode createXMLStepExpressionNode(
             STNode expression,
-            STNode xmlStepStart) {
+            STNode xmlStepStart,
+            STNode xmlStepExtend) {
 
         return new STXMLStepExpressionNode(
                 expression,
-                xmlStepStart);
+                xmlStepStart,
+                xmlStepExtend);
     }
 
     public static STNode createXMLNamePatternChainingNode(
@@ -2066,6 +2077,28 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 startToken,
                 xmlNamePattern,
                 gtToken);
+    }
+
+    public static STNode createXMLStepIndexedExtendNode(
+            STNode openBracket,
+            STNode expression,
+            STNode closeBracket) {
+
+        return new STXMLStepIndexedExtendNode(
+                openBracket,
+                expression,
+                closeBracket);
+    }
+
+    public static STNode createXMLStepMethodCallExtendNode(
+            STNode dotToken,
+            STNode methodName,
+            STNode parenthesizedArgList) {
+
+        return new STXMLStepMethodCallExtendNode(
+                dotToken,
+                methodName,
+                parenthesizedArgList);
     }
 
     public static STNode createXMLAtomicNamePatternNode(
@@ -2336,15 +2369,13 @@ public class STNodeFactory extends STAbstractNodeFactory {
     public static STNode createOnFailClauseNode(
             STNode onKeyword,
             STNode failKeyword,
-            STNode typeDescriptor,
-            STNode failErrorName,
+            STNode typedBindingPattern,
             STNode blockStatement) {
 
         return new STOnFailClauseNode(
                 onKeyword,
                 failKeyword,
-                typeDescriptor,
-                failErrorName,
+                typedBindingPattern,
                 blockStatement);
     }
 
@@ -2711,6 +2742,17 @@ public class STNodeFactory extends STAbstractNodeFactory {
         return new STMemberTypeDescriptorNode(
                 annotations,
                 typeDescriptor);
+    }
+
+    public static STNode createReceiveFieldNode(
+            STNode fieldName,
+            STNode colon,
+            STNode peerWorker) {
+
+        return new STReceiveFieldNode(
+                fieldName,
+                colon,
+                peerWorker);
     }
 }
 

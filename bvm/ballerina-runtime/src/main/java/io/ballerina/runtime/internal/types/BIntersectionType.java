@@ -18,11 +18,12 @@
 package io.ballerina.runtime.internal.types;
 
 import io.ballerina.runtime.api.Module;
-import io.ballerina.runtime.api.TypeTags;
+import io.ballerina.runtime.api.constants.TypeConstants;
 import io.ballerina.runtime.api.flags.TypeFlags;
 import io.ballerina.runtime.api.types.IntersectableReferenceType;
 import io.ballerina.runtime.api.types.IntersectionType;
 import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.types.TypeTags;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -55,19 +56,32 @@ public class BIntersectionType extends BType implements IntersectionType {
 
     public BIntersectionType(Module pkg, Type[] constituentTypes, Type effectiveType,
                              int typeFlags, boolean readonly) {
-        this(pkg, constituentTypes, typeFlags, readonly);
+        this(TypeConstants.INTERSECTION_TNAME, pkg, constituentTypes, typeFlags, readonly);
         this.effectiveType = effectiveType;
     }
 
     public BIntersectionType(Module pkg, Type[] constituentTypes, IntersectableReferenceType effectiveType,
                              int typeFlags, boolean readonly) {
-        this(pkg, constituentTypes, typeFlags, readonly);
+        this(TypeConstants.INTERSECTION_TNAME, pkg, constituentTypes, typeFlags, readonly);
         this.effectiveType = effectiveType;
         effectiveType.setIntersectionType(this);
     }
 
-    private BIntersectionType(Module pkg, Type[] constituentTypes, int typeFlags, boolean readonly) {
-        super(null, pkg, Object.class);
+    public BIntersectionType(String typeName, Module pkg, Type[] constituentTypes, Type effectiveType,
+                             int typeFlags, boolean readonly) {
+        this(typeName, pkg, constituentTypes, typeFlags, readonly);
+        this.effectiveType = effectiveType;
+    }
+
+    public BIntersectionType(String typeName, Module pkg, Type[] constituentTypes,
+                             IntersectableReferenceType effectiveType, int typeFlags, boolean readonly) {
+        this(typeName, pkg, constituentTypes, typeFlags, readonly);
+        this.effectiveType = effectiveType;
+        effectiveType.setIntersectionType(this);
+    }
+
+    private BIntersectionType(String typeName, Module pkg, Type[] constituentTypes, int typeFlags, boolean readonly) {
+        super(typeName, pkg, Object.class);
         this.constituentTypes = Arrays.asList(constituentTypes);
         this.typeFlags = typeFlags;
         this.readonly = readonly;
@@ -131,11 +145,10 @@ public class BIntersectionType extends BType implements IntersectionType {
             return true;
         }
 
-        if (!(o instanceof BIntersectionType)) {
+        if (!(o instanceof BIntersectionType that)) {
             return false;
         }
 
-        BIntersectionType that = (BIntersectionType) o;
         if (this.constituentTypes.size() != that.constituentTypes.size()) {
             return false;
         }
@@ -188,6 +201,7 @@ public class BIntersectionType extends BType implements IntersectionType {
         this.immutableType = immutableType;
     }
 
+    @Override
     public Type getEffectiveType() {
         return this.effectiveType;
     }

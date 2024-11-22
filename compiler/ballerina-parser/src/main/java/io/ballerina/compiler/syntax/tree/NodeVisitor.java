@@ -631,6 +631,10 @@ public abstract class NodeVisitor {
         visitSyntaxNode(receiveFieldsNode);
     }
 
+    public void visit(AlternateReceiveNode alternateReceiveNode) {
+        visitSyntaxNode(alternateReceiveNode);
+    }
+
     public void visit(RestDescriptorNode restDescriptorNode) {
         visitSyntaxNode(restDescriptorNode);
     }
@@ -717,6 +721,14 @@ public abstract class NodeVisitor {
 
     public void visit(XMLNamePatternChainingNode xMLNamePatternChainingNode) {
         visitSyntaxNode(xMLNamePatternChainingNode);
+    }
+
+    public void visit(XMLStepIndexedExtendNode xMLStepIndexedExtendNode) {
+        visitSyntaxNode(xMLStepIndexedExtendNode);
+    }
+
+    public void visit(XMLStepMethodCallExtendNode xMLStepMethodCallExtendNode) {
+        visitSyntaxNode(xMLStepMethodCallExtendNode);
     }
 
     public void visit(XMLAtomicNamePatternNode xMLAtomicNamePatternNode) {
@@ -945,6 +957,10 @@ public abstract class NodeVisitor {
 
     public void visit(MemberTypeDescriptorNode memberTypeDescriptorNode) {
         visitSyntaxNode(memberTypeDescriptorNode);
+    }
+
+    public void visit(ReceiveFieldNode receiveFieldNode) {
+        visitSyntaxNode(receiveFieldNode);
     }
 
     // Tokens

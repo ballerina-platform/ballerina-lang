@@ -28,19 +28,22 @@ import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.internal.errors.ErrorCodes;
 import io.ballerina.runtime.internal.errors.ErrorHelper;
 
-import static io.ballerina.runtime.internal.MapUtils.checkIsMapOnlyOperation;
 import static io.ballerina.runtime.internal.errors.ErrorReasons.MAP_KEY_NOT_FOUND_ERROR;
+import static io.ballerina.runtime.internal.utils.MapUtils.checkIsMapOnlyOperation;
+import static org.ballerinalang.langlib.map.util.Constants.REMOVE;
 import static org.ballerinalang.langlib.map.util.MapLibUtils.validateRequiredFieldForRecord;
-import static org.wso2.ballerinalang.compiler.util.Constants.REMOVE;
 
 /**
  * Extern function to remove element from the map.
  * ballerina.model.map:remove(string)
  */
-public class Remove {
+public final class Remove {
+
+    private Remove() {
+    }
 
     public static Object remove(BMap<?, ?> m, BString k) {
-        Type type = TypeUtils.getReferredType(m.getType());
+        Type type = TypeUtils.getImpliedType(m.getType());
 
         checkIsMapOnlyOperation(type, REMOVE);
         validateRequiredFieldForRecord(m, k.getValue());

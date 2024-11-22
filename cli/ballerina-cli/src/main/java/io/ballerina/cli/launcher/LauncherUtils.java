@@ -17,101 +17,48 @@
  */
 package io.ballerina.cli.launcher;
 
-import io.ballerina.cli.cmd.CommandUtil;
+import io.ballerina.cli.BLauncherCmd;
+import io.ballerina.cli.launcher.util.BalToolsUtil;
 import io.ballerina.projects.BalToolsManifest;
 import io.ballerina.projects.BalToolsToml;
 import io.ballerina.projects.internal.BalToolsManifestBuilder;
 import io.ballerina.runtime.api.values.BError;
 import org.wso2.ballerinalang.util.RepoUtils;
+import picocli.CommandLine;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.nio.file.Files;
 import java.nio.file.LinkOption;
 import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
-import java.util.stream.Stream;
+import java.util.Map;
 
-import static io.ballerina.cli.cmd.Constants.ADD_COMMAND;
-import static io.ballerina.cli.cmd.Constants.ASYNCAPI_COMMAND;
-import static io.ballerina.cli.cmd.Constants.BINDGEN_COMMAND;
-import static io.ballerina.cli.cmd.Constants.BUILD_COMMAND;
-import static io.ballerina.cli.cmd.Constants.CLEAN_COMMAND;
-import static io.ballerina.cli.cmd.Constants.DEBUG_OPTION;
-import static io.ballerina.cli.cmd.Constants.DEPRECATE_COMMAND;
-import static io.ballerina.cli.cmd.Constants.DIST_COMMAND;
-import static io.ballerina.cli.cmd.Constants.DIST_TOOL_TOML_PREFIX;
-import static io.ballerina.cli.cmd.Constants.DOC_COMMAND;
-import static io.ballerina.cli.cmd.Constants.FORMAT_COMMAND;
-import static io.ballerina.cli.cmd.Constants.GENCACHE_COMMAND;
-import static io.ballerina.cli.cmd.Constants.GRAPHQL_COMMAND;
-import static io.ballerina.cli.cmd.Constants.GRAPH_COMMAND;
-import static io.ballerina.cli.cmd.Constants.GRPC_COMMAND;
-import static io.ballerina.cli.cmd.Constants.HELP_COMMAND;
-import static io.ballerina.cli.cmd.Constants.HELP_OPTION;
-import static io.ballerina.cli.cmd.Constants.HELP_SHORT_OPTION;
-import static io.ballerina.cli.cmd.Constants.HOME_COMMAND;
-import static io.ballerina.cli.cmd.Constants.INIT_COMMAND;
-import static io.ballerina.cli.cmd.Constants.NEW_COMMAND;
-import static io.ballerina.cli.cmd.Constants.OPENAPI_COMMAND;
-import static io.ballerina.cli.cmd.Constants.PACK_COMMAND;
-import static io.ballerina.cli.cmd.Constants.PERSIST_COMMAND;
-import static io.ballerina.cli.cmd.Constants.PULL_COMMAND;
-import static io.ballerina.cli.cmd.Constants.PUSH_COMMAND;
-import static io.ballerina.cli.cmd.Constants.RUN_COMMAND;
-import static io.ballerina.cli.cmd.Constants.SEARCH_COMMAND;
-import static io.ballerina.cli.cmd.Constants.SEMVER_COMMAND;
-import static io.ballerina.cli.cmd.Constants.SHELL_COMMAND;
-import static io.ballerina.cli.cmd.Constants.START_DEBUG_ADAPTER_COMMAND;
-import static io.ballerina.cli.cmd.Constants.START_LANG_SERVER_COMMAND;
-import static io.ballerina.cli.cmd.Constants.TEST_COMMAND;
-import static io.ballerina.cli.cmd.Constants.TOML_EXT;
-import static io.ballerina.cli.cmd.Constants.TOOL_COMMAND;
-import static io.ballerina.cli.cmd.Constants.UPDATE_COMMAND;
-import static io.ballerina.cli.cmd.Constants.VERSION_COMMAND;
-import static io.ballerina.cli.cmd.Constants.VERSION_OPTION;
-import static io.ballerina.cli.cmd.Constants.VERSION_SHORT_OPTION;
-import static io.ballerina.projects.util.ProjectConstants.BALA_DIR_NAME;
-import static io.ballerina.projects.util.ProjectConstants.CENTRAL_REPOSITORY_CACHE_NAME;
+import static io.ballerina.cli.launcher.BallerinaCliCommands.HELP;
+import static io.ballerina.projects.util.ProjectConstants.BAL_TOOLS_TOML;
 import static io.ballerina.projects.util.ProjectConstants.CONFIG_DIR;
-import static io.ballerina.projects.util.ProjectConstants.HOME_REPO_DEFAULT_DIRNAME;
-import static io.ballerina.projects.util.ProjectConstants.REPOSITORIES_DIR;
-import static org.wso2.ballerinalang.programfile.ProgramFileConstants.ANY_PLATFORM;
 
 /**
  * Contains utility methods for executing a Ballerina program.
  *
  * @since 0.8.0
  */
-public class LauncherUtils {
-    private static final String TOOL = "tool";
-    public static final String LIBS = "libs";
+public final class LauncherUtils {
 
-    private static final List<String> options = Arrays.asList(VERSION_OPTION, VERSION_SHORT_OPTION, HELP_OPTION,
-            HELP_SHORT_OPTION, DEBUG_OPTION);
-    private static final List<String> coreCommands = Arrays.asList(
-            BUILD_COMMAND, RUN_COMMAND, TEST_COMMAND, DOC_COMMAND, PACK_COMMAND);
-    private static final List<String> packageCommands = Arrays.asList(NEW_COMMAND, ADD_COMMAND, PULL_COMMAND,
-            PUSH_COMMAND, SEARCH_COMMAND, SEMVER_COMMAND, GRAPH_COMMAND, DEPRECATE_COMMAND);
-    private static final List<String> otherCommands = Arrays.asList(CLEAN_COMMAND, FORMAT_COMMAND, GRPC_COMMAND,
-            GRAPHQL_COMMAND, OPENAPI_COMMAND, ASYNCAPI_COMMAND, PERSIST_COMMAND, BINDGEN_COMMAND, SHELL_COMMAND,
-            VERSION_COMMAND);
-    private static final List<String> hiddenCommands = Arrays.asList(INIT_COMMAND, TOOL_COMMAND, DIST_COMMAND,
-            UPDATE_COMMAND, START_LANG_SERVER_COMMAND, START_DEBUG_ADAPTER_COMMAND, HELP_COMMAND, HOME_COMMAND,
-            GENCACHE_COMMAND);
+    private LauncherUtils() {
+    }
 
     public static Path getSourceRootPath(String sourceRoot) {
         // Get source root path.
         Path sourceRootPath;
         if (sourceRoot == null || sourceRoot.isEmpty()) {
-            sourceRootPath = Paths.get(System.getProperty("user.dir"));
+            sourceRootPath = Path.of(System.getProperty("user.dir"));
         } else {
             try {
-                sourceRootPath = Paths.get(sourceRoot).toRealPath(LinkOption.NOFOLLOW_LINKS);
+                sourceRootPath = Path.of(sourceRoot).toRealPath(LinkOption.NOFOLLOW_LINKS);
             } catch (IOException e) {
                 throw new RuntimeException("error reading from directory: " + sourceRoot + " reason: " +
                         e.getMessage(), e);
@@ -123,7 +70,6 @@ public class LauncherUtils {
         }
         return sourceRootPath;
     }
-
 
     public static BLauncherException createUsageExceptionWithHelp(String errorMsg) {
         BLauncherException launcherException = new BLauncherException();
@@ -140,17 +86,24 @@ public class LauncherUtils {
 
     public static BLauncherException createLauncherException(String errorPrefix, Throwable cause) {
         String message;
-        if (cause instanceof BError) {
-            message = ((BError) cause).getPrintableStackTrace();
+        if (cause instanceof BError bError) {
+            message = bError.getPrintableStackTrace();
         } else {
-            message = cause.toString();
+            StringWriter sw = new StringWriter();
+            cause.printStackTrace(new PrintWriter(sw));
+            message = sw.toString();
         }
         BLauncherException launcherException = new BLauncherException();
         launcherException.addMessage("error: " + errorPrefix + message);
         return launcherException;
     }
 
-    static void printLauncherException(BLauncherException e, PrintStream outStream) {
+
+    public static String prepareCompilerErrorMessage(String message) {
+        return "error: " + LauncherUtils.makeFirstLetterLowerCase(message);
+    }
+
+    public static void printLauncherException(BLauncherException e, PrintStream outStream) {
         List<String> errorMessages = e.getMessages();
         errorMessages.forEach(outStream::println);
     }
@@ -164,45 +117,87 @@ public class LauncherUtils {
         return new String(c);
     }
 
-    static boolean isToolCommand(String commandName) {
-        // TODO: if openapi was to be pushed as a tool, here it will be ignored and openapi in distribution will be used
-        //  instead. Need to look into possible solutions.
-        return Stream.of(options, coreCommands, packageCommands, otherCommands, hiddenCommands)
-                .flatMap(List::stream).noneMatch(commandName::equals);
-    }
+    static String generateGeneralHelp(Map<String, CommandLine> subCommands) {
+        StringBuilder helpBuilder = new StringBuilder();
+        helpBuilder.append(BLauncherCmd.getCommandUsageInfo(HELP));
 
-    static List<File> getToolCommandJarAndDependenciesPath(String commandName) {
-        Path userHomeDirPath = Path.of(System.getProperty(CommandUtil.USER_HOME), HOME_REPO_DEFAULT_DIRNAME);
+        Path balToolsTomlPath = RepoUtils.createAndGetHomeReposPath().resolve(CONFIG_DIR).resolve(BAL_TOOLS_TOML);
+        BalToolsToml balToolsToml = BalToolsToml.from(balToolsTomlPath);
+        BalToolsManifest balToolsManifest = BalToolsManifestBuilder.from(balToolsToml).build();
+        Map<String, String> activeToolsVsRepos = new HashMap<>();
 
-        String distSpecificToolsTomlName = DIST_TOOL_TOML_PREFIX + RepoUtils.getBallerinaShortVersion() + TOML_EXT;
-        Path distSpecificToolsTomlPath = userHomeDirPath.resolve(Path.of(CONFIG_DIR, distSpecificToolsTomlName));
+        // if there are any tools, add Tool Commands section
+        List<String> toolNames = subCommands.keySet().stream()
+                .filter(BalToolsUtil::isNonBuiltInToolCommand)
+                .sorted().toList();
 
-        Path centralBalaDirPath = userHomeDirPath.resolve(
-                Path.of(REPOSITORIES_DIR, CENTRAL_REPOSITORY_CACHE_NAME, BALA_DIR_NAME));
-        BalToolsToml distSpecificToolsToml = BalToolsToml.from(distSpecificToolsTomlPath);
-        BalToolsManifest distSpecificToolsManifest = BalToolsManifestBuilder.from(distSpecificToolsToml).build();
-
-        if (distSpecificToolsManifest.tools().containsKey(commandName)) {
-            BalToolsManifest.Tool tool = distSpecificToolsManifest.tools().get(commandName);
-            File libsDir = centralBalaDirPath.resolve(
-                    Path.of(tool.org(), tool.name(), tool.version(), ANY_PLATFORM, TOOL, LIBS)).toFile();
-            return findJarFiles(libsDir);
+        if (!toolNames.isEmpty()) {
+            toolNames.forEach(toolName ->
+                balToolsManifest.getActiveTool(toolName).ifPresent(tool ->
+                    activeToolsVsRepos.put(toolName, tool.repository() == null ? "" : "[" + tool.repository()
+                            .toUpperCase() + "] ")));
+            helpBuilder.append("\n\n   Tool Commands:");
+            toolNames.forEach(key -> generateCommandDescription(subCommands.get(key), helpBuilder,
+                    activeToolsVsRepos.get(key)));
         }
-        throw LauncherUtils.createUsageExceptionWithHelp("unknown command '" + commandName + "'");
+        return helpBuilder.toString();
     }
 
-    static List<File> findJarFiles(File directory) {
-        List<File> jarFiles = new ArrayList<>();
-        if (directory.isDirectory()) {
-            File[] files = directory.listFiles();
-            if (files != null) {
-                for (File file : files) {
-                    if (file.isFile() && file.getName().toLowerCase().endsWith(".jar")) {
-                        jarFiles.add(file);
-                    }
-                }
+    static String generateCommandHelp(String commandName, Map<String, CommandLine> subCommands) {
+        if (!BalToolsUtil.isNonBuiltInToolCommand(commandName)) {
+            return BLauncherCmd.getCommandUsageInfo(commandName);
+        }
+        StringBuilder commandUsageInfo = new StringBuilder();
+        BLauncherCmd cmd = subCommands.get(commandName).getCommand();
+        cmd.printLongDesc(commandUsageInfo);
+        return commandUsageInfo.toString();
+    }
+
+    private static void generateCommandDescription(CommandLine command, StringBuilder stringBuilder,
+                                                   String repository) {
+        String commandName = command.getCommandName();
+        BLauncherCmd bLauncherCmd = (BLauncherCmd) command.getCommandSpec().userObject();
+        CommandLine.Command annotation = bLauncherCmd.getClass().getAnnotation(CommandLine.Command.class);
+        String commandDescription = "";
+        if (annotation != null) {
+            String[] descValues = annotation.description();
+            if (descValues != null && descValues.length > 0) {
+                // wrapLength, indent selected to match `ballerina-help.help` formatting
+                commandDescription = wrapString(descValues[0], 64, 24);
             }
         }
-        return jarFiles;
+        stringBuilder.append("\n")
+                .append("        ")
+                .append(String.format("%-15s %s", commandName, repository + commandDescription));
+    }
+
+    static String wrapString(String str, int wrapLength, int indent) {
+        StringBuilder wrappedStr = new StringBuilder();
+        int i = 0;
+        while (i < str.length()) {
+            if (Character.isWhitespace(str.charAt(i))) {
+                i++;
+                continue;
+            }
+            if (i > 0) {
+                wrappedStr.append("\n");
+                wrappedStr.append(" ".repeat(indent));
+            }
+            int lineEnd = Math.min(i + wrapLength, str.length());
+            if (lineEnd < str.length() && !Character.isWhitespace(str.charAt(lineEnd))) {
+                // find the last whitespace character before the maximum line length
+                int lastWhitespace = str.lastIndexOf(' ', lineEnd);
+                if (lastWhitespace > i) {
+                    lineEnd = lastWhitespace;
+                }
+            }
+            wrappedStr.append(str, i, lineEnd);
+            i = lineEnd;
+            // skip any whitespace characters at the beginning of the next line
+            while (i < str.length() && Character.isWhitespace(str.charAt(i))) {
+                i++;
+            }
+        }
+        return wrappedStr.toString();
     }
 }
