@@ -1,0 +1,128 @@
+{
+  "method": "textDocument/rangeFormatting",
+  "parameters": [
+    {
+      "name": "param0",
+      "schema": {
+        "properties": {
+          "workDoneToken": {
+            "properties": {
+              "left": {
+                "type": "object",
+                "className": "java.lang.Object"
+              },
+              "right": {
+                "type": "object",
+                "className": "java.lang.Object"
+              }
+            },
+            "type": "object",
+            "className": "org.eclipse.lsp4j.jsonrpc.messages.Either"
+          },
+          "textDocument": {
+            "properties": {
+              "uri": {
+                "type": "string",
+                "className": "java.lang.String"
+              }
+            },
+            "type": "object",
+            "className": "org.eclipse.lsp4j.TextDocumentIdentifier"
+          },
+          "options": {
+            "item": {
+              "type": "object",
+              "className": "java.lang.Object"
+            },
+            "type": "map",
+            "className": "org.eclipse.lsp4j.FormattingOptions"
+          },
+          "range": {
+            "properties": {
+              "start": {
+                "properties": {
+                  "character": {
+                    "type": "integer",
+                    "className": "int"
+                  },
+                  "line": {
+                    "type": "integer",
+                    "className": "int"
+                  }
+                },
+                "type": "object",
+                "className": "org.eclipse.lsp4j.Position"
+              },
+              "end": {
+                "properties": {
+                  "character": {
+                    "type": "integer",
+                    "className": "int"
+                  },
+                  "line": {
+                    "type": "integer",
+                    "className": "int"
+                  }
+                },
+                "type": "object",
+                "className": "org.eclipse.lsp4j.Position"
+              }
+            },
+            "type": "object",
+            "className": "org.eclipse.lsp4j.Range"
+          }
+        },
+        "type": "object",
+        "className": "org.eclipse.lsp4j.DocumentRangeFormattingParams"
+      }
+    }
+  ],
+  "returnType": {
+    "item": {
+      "properties": {
+        "newText": {
+          "type": "string",
+          "className": "java.lang.String"
+        },
+        "range": {
+          "properties": {
+            "start": {
+              "properties": {
+                "character": {
+                  "type": "integer",
+                  "className": "int"
+                },
+                "line": {
+                  "type": "integer",
+                  "className": "int"
+                }
+              },
+              "type": "object",
+              "className": "org.eclipse.lsp4j.Position"
+            },
+            "end": {
+              "properties": {
+                "character": {
+                  "type": "integer",
+                  "className": "int"
+                },
+                "line": {
+                  "type": "integer",
+                  "className": "int"
+                }
+              },
+              "type": "object",
+              "className": "org.eclipse.lsp4j.Position"
+            }
+          },
+          "type": "object",
+          "className": "org.eclipse.lsp4j.Range"
+        }
+      },
+      "type": "object",
+      "className": "org.eclipse.lsp4j.TextEdit"
+    },
+    "type": "array",
+    "className": "java.util.List<? extends org.eclipse.lsp4j.TextEdit>"
+  }
+}

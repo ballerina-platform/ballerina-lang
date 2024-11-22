@@ -3,4 +3,5 @@ module io.ballerina.language.server.cli {
     requires io.ballerina.cli;
     requires info.picocli;
     requires io.ballerina.language.server.stdio.launcher;
+    requires com.google.gson;
 }

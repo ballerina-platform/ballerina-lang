@@ -1,0 +1,150 @@
+{
+  "method": "ballerinaSymbol/getTypesFromFnDefinition",
+  "parameters": [
+    {
+      "name": "param0",
+      "schema": {
+        "properties": {
+          "documentIdentifier": {
+            "properties": {
+              "uri": {
+                "type": "string",
+                "className": "java.lang.String"
+              }
+            },
+            "type": "object",
+            "className": "org.eclipse.lsp4j.TextDocumentIdentifier"
+          },
+          "returnTypeDescPosition": {
+            "properties": {
+              "offset": {
+                "type": "integer",
+                "className": "int"
+              },
+              "line": {
+                "type": "integer",
+                "className": "int"
+              }
+            },
+            "type": "object",
+            "className": "io.ballerina.tools.text.LinePosition"
+          },
+          "fnPosition": {
+            "properties": {
+              "offset": {
+                "type": "integer",
+                "className": "int"
+              },
+              "line": {
+                "type": "integer",
+                "className": "int"
+              }
+            },
+            "type": "object",
+            "className": "io.ballerina.tools.text.LinePosition"
+          }
+        },
+        "type": "object",
+        "className": "org.ballerinalang.langserver.extensions.ballerina.symbol.TypesFromFnDefinitionRequest"
+      }
+    }
+  ],
+  "returnType": {
+    "properties": {
+      "types": {
+        "item": {
+          "properties": {
+            "type": {
+              "properties": {
+                "defaultable": {
+                  "type": "boolean",
+                  "className": "boolean"
+                },
+                "isRestType": {
+                  "type": "boolean",
+                  "className": "boolean"
+                },
+                "typeInfo": {
+                  "properties": {
+                    "orgName": {
+                      "type": "string",
+                      "className": "java.lang.String"
+                    },
+                    "name": {
+                      "type": "string",
+                      "className": "java.lang.String"
+                    },
+                    "moduleName": {
+                      "type": "string",
+                      "className": "java.lang.String"
+                    },
+                    "packageName": {
+                      "type": "string",
+                      "className": "java.lang.String"
+                    },
+                    "version": {
+                      "type": "string",
+                      "className": "java.lang.String"
+                    }
+                  },
+                  "type": "object",
+                  "className": "org.ballerinalang.diagramutil.connector.models.connector.TypeInfo"
+                },
+                "defaultValue": {
+                  "type": "string",
+                  "className": "java.lang.String"
+                },
+                "documentation": {
+                  "type": "string",
+                  "className": "java.lang.String"
+                },
+                "name": {
+                  "type": "string",
+                  "className": "java.lang.String"
+                },
+                "typeName": {
+                  "type": "string",
+                  "className": "java.lang.String"
+                },
+                "displayAnnotation": {
+                  "item": {
+                    "type": "string",
+                    "className": "java.lang.String"
+                  },
+                  "type": "map",
+                  "className": "java.util.Map<java.lang.String, java.lang.String>"
+                },
+                "optional": {
+                  "type": "boolean",
+                  "className": "boolean"
+                }
+              },
+              "type": "object",
+              "className": "org.ballerinalang.diagramutil.connector.models.connector.Type"
+            },
+            "requestedPosition": {
+              "properties": {
+                "offset": {
+                  "type": "integer",
+                  "className": "int"
+                },
+                "line": {
+                  "type": "integer",
+                  "className": "int"
+                }
+              },
+              "type": "object",
+              "className": "io.ballerina.tools.text.LinePosition"
+            }
+          },
+          "type": "object",
+          "className": "org.ballerinalang.langserver.extensions.ballerina.symbol.ResolvedTypeForSymbol"
+        },
+        "type": "array",
+        "className": "java.util.List<org.ballerinalang.langserver.extensions.ballerina.symbol.ResolvedTypeForSymbol>"
+      }
+    },
+    "type": "object",
+    "className": "org.ballerinalang.langserver.extensions.ballerina.symbol.TypesFromSymbolResponse"
+  }
+}

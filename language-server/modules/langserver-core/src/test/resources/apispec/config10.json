@@ -1,0 +1,90 @@
+{
+  "method": "textDocument/selectionRange",
+  "parameters": [
+    {
+      "name": "param0",
+      "schema": {
+        "properties": {
+          "textDocument": {
+            "properties": {
+              "uri": {
+                "type": "string",
+                "className": "java.lang.String"
+              }
+            },
+            "type": "object",
+            "className": "org.eclipse.lsp4j.TextDocumentIdentifier"
+          },
+          "positions": {
+            "item": {
+              "properties": {
+                "character": {
+                  "type": "integer",
+                  "className": "int"
+                },
+                "line": {
+                  "type": "integer",
+                  "className": "int"
+                }
+              },
+              "type": "object",
+              "className": "org.eclipse.lsp4j.Position"
+            },
+            "type": "array",
+            "className": "java.util.List<org.eclipse.lsp4j.Position>"
+          }
+        },
+        "type": "object",
+        "className": "org.eclipse.lsp4j.SelectionRangeParams"
+      }
+    }
+  ],
+  "returnType": {
+    "item": {
+      "properties": {
+        "parent": {
+          "type": "object",
+          "className": "org.eclipse.lsp4j.SelectionRange"
+        },
+        "range": {
+          "properties": {
+            "start": {
+              "properties": {
+                "character": {
+                  "type": "integer",
+                  "className": "int"
+                },
+                "line": {
+                  "type": "integer",
+                  "className": "int"
+                }
+              },
+              "type": "object",
+              "className": "org.eclipse.lsp4j.Position"
+            },
+            "end": {
+              "properties": {
+                "character": {
+                  "type": "integer",
+                  "className": "int"
+                },
+                "line": {
+                  "type": "integer",
+                  "className": "int"
+                }
+              },
+              "type": "object",
+              "className": "org.eclipse.lsp4j.Position"
+            }
+          },
+          "type": "object",
+          "className": "org.eclipse.lsp4j.Range"
+        }
+      },
+      "type": "object",
+      "className": "org.eclipse.lsp4j.SelectionRange"
+    },
+    "type": "array",
+    "className": "java.util.List<org.eclipse.lsp4j.SelectionRange>"
+  }
+}

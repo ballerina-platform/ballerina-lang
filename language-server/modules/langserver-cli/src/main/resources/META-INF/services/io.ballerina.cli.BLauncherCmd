@@ -1,1 +1,2 @@
 org.ballerinalang.langserver.cmd.LangServerStartCmd
+org.ballerinalang.langserver.cmd.LangServerSpecCmd
