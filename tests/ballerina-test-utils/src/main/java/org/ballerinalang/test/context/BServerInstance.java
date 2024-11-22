@@ -387,8 +387,8 @@ public class BServerInstance implements BServer {
                     env.put(entry.getKey(), entry.getValue());
                 }
             }
-            processBuilder.inheritIO();
-            process = processBuilder.start();
+
+            Process process = processBuilder.start();
 
             serverInfoLogReader = new ServerLogReader("inputStream", process.getInputStream());
             tmpInfoLeechers.forEach(leecher -> serverInfoLogReader.addLeecher(leecher));
@@ -504,8 +504,8 @@ public class BServerInstance implements BServer {
             for (Map.Entry<String, String> entry : envProperties.entrySet()) {
                 env.put(entry.getKey(), entry.getValue());
             }
-            processBuilder.inheritIO();
-            process = processBuilder.start();
+
+            Process process = processBuilder.start();
 
             serverInfoLogReader = new ServerLogReader("inputStream", process.getInputStream());
             tmpInfoLeechers.forEach(leecher -> serverInfoLogReader.addLeecher(leecher));
