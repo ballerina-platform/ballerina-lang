@@ -63,7 +63,9 @@ import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
+import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
+import java.security.cert.CertificateFactory;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -161,8 +163,9 @@ public class CentralAPIClient {
     private static final int MAX_RETRY = 1;
     public static final String CONNECTION_RESET = "Connection reset";
     private static final String ENV_CENTRAL_VERBOSE_ENABLED = "CENTRAL_VERBOSE_ENABLED";
-    private static final String ENV_TRUSTSTORE_PATH = "BALLERINA_TRUSTSTORE_PATH";
-    private static final String ENV_TRUSTSTORE_PASSWORD = "BALLERINA_TRUSTSTORE_PASSWORD";
+    private static final String ENV_TRUSTSTORE_PATH = "BALLERINA_CA_BUNDLE";
+    private static final String ENV_TRUSTSTORE_PASSWORD = "BALLERINA_CA_PASSWORD";
+    private static final String ENV_CERT_PATH = "BALLERINA_CA_CERT";
 
     private final String baseUrl;
     private final Proxy proxy;
@@ -178,6 +181,7 @@ public class CentralAPIClient {
     private final int maxRetries;
     private final String trustStorePath;
     private final String trustStorePassword;
+    private final String singleCertPath;
 
     public CentralAPIClient(String baseUrl, Proxy proxy, String accessToken) {
         this.outStream = System.out;
@@ -194,6 +198,7 @@ public class CentralAPIClient {
         this.maxRetries = MAX_RETRY;
         this.trustStorePath = System.getenv(ENV_TRUSTSTORE_PATH);
         this.trustStorePassword = System.getenv(ENV_TRUSTSTORE_PASSWORD);
+        this.singleCertPath = System.getenv(ENV_CERT_PATH);
     }
 
     public CentralAPIClient(String baseUrl, Proxy proxy, String accessToken, boolean verboseEnabled, int maxRetries,
@@ -212,6 +217,7 @@ public class CentralAPIClient {
         this.maxRetries = maxRetries;
         this.trustStorePath = System.getenv(ENV_TRUSTSTORE_PATH);
         this.trustStorePassword = System.getenv(ENV_TRUSTSTORE_PASSWORD);
+        this.singleCertPath = System.getenv(ENV_CERT_PATH);
     }
 
     public CentralAPIClient(String baseUrl, Proxy proxy, String proxyUsername, String proxyPassword,
@@ -231,6 +237,7 @@ public class CentralAPIClient {
         this.maxRetries = maxRetries;
         this.trustStorePath = System.getenv(ENV_TRUSTSTORE_PATH);
         this.trustStorePassword = System.getenv(ENV_TRUSTSTORE_PASSWORD);
+        this.singleCertPath = System.getenv(ENV_CERT_PATH);
     }
 
     /**
@@ -1609,26 +1616,45 @@ public class CentralAPIClient {
                 .retryOnConnectionFailure(true)
                 .proxy(this.proxy)
                 .addInterceptor(new CustomRetryInterceptor(this.maxRetries));
-        if (this.trustStorePath != null && this.trustStorePassword != null) {
-            try {
-                KeyStore truststore = KeyStore.getInstance(KeyStore.getDefaultType());
+
+        // Load custom truststore if provided, otherwise use the default truststore
+        try {
+            KeyStore truststore;
+            if (this.trustStorePath != null && this.trustStorePassword != null) {
+                truststore = KeyStore.getInstance(KeyStore.getDefaultType());
                 try (InputStream keys = new FileInputStream(trustStorePath)) {
                     truststore.load(keys, trustStorePassword.toCharArray());
                 }
-                TrustManagerFactory trustManagerFactory = TrustManagerFactory.getInstance(
-                        TrustManagerFactory.getDefaultAlgorithm());
-                trustManagerFactory.init(truststore);
-
-                SSLContext sslContext = SSLContext.getInstance("TLS");
-                sslContext.init(null, trustManagerFactory.getTrustManagers(), new SecureRandom());
-                SSLContext.setDefault(sslContext);
-
-                builder.sslSocketFactory(sslContext.getSocketFactory(),
-                        (X509TrustManager) trustManagerFactory.getTrustManagers()[0]);
-            } catch (CertificateException | KeyStoreException | IOException | NoSuchAlgorithmException |
-                     KeyManagementException e) {
-                throw new CentralClientException(e.getMessage());
+            } else {
+                truststore = KeyStore.getInstance(KeyStore.getDefaultType());
+                try (InputStream defaultKeys = new FileInputStream(System.getProperty("java.home") +
+                        "/lib/security/cacerts")) {
+                    truststore.load(defaultKeys, "changeit".toCharArray()); // Default password for cacerts
+                }
             }
+
+            // If there's a single certificate to add
+            if (this.singleCertPath != null) {
+                CertificateFactory certificateFactory = CertificateFactory.getInstance("X.509");
+                try (InputStream certInputStream = new FileInputStream(singleCertPath)) {
+                    Certificate certificate = certificateFactory.generateCertificate(certInputStream);
+                    truststore.setCertificateEntry("bal-cert", certificate);
+                }
+            }
+
+            TrustManagerFactory trustManagerFactory = TrustManagerFactory.getInstance(
+                    TrustManagerFactory.getDefaultAlgorithm());
+            trustManagerFactory.init(truststore);
+
+            SSLContext sslContext = SSLContext.getInstance("TLS");
+            sslContext.init(null, trustManagerFactory.getTrustManagers(), new SecureRandom());
+            SSLContext.setDefault(sslContext);
+
+            builder.sslSocketFactory(sslContext.getSocketFactory(),
+                    (X509TrustManager) trustManagerFactory.getTrustManagers()[0]);
+        } catch (CertificateException | KeyStoreException | IOException | NoSuchAlgorithmException |
+                 KeyManagementException e) {
+            throw new CentralClientException(e.getMessage());
         }
 
         OkHttpClient okHttpClient = builder.build();
