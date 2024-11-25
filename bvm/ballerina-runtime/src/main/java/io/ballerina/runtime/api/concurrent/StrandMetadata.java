@@ -19,8 +19,6 @@ package io.ballerina.runtime.api.concurrent;
 
 import java.util.Map;
 
-import org.jetbrains.annotations.Nullable;
-
 /**
  * Holds metadata of a Ballerina strand.
  *

@@ -119,7 +119,8 @@ public abstract class ValueCreator {
 
     public abstract MapValue<BString, Object> createRecordValue(String recordTypeName) throws BError;
 
-    public abstract BObject createObjectValue(String objectTypeName, @Nullable Strand parent, Object[] args) throws BError;
+    public abstract BObject createObjectValue(String objectTypeName, @Nullable Strand parent, Object[] args)
+            throws BError;
 
     public abstract BError createErrorValue(String errorTypeName, BString message, BError cause, Object details)
             throws BError;
