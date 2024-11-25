@@ -125,7 +125,7 @@ public class ServerLogReader implements Runnable {
                     }
                     feedAndPrint(s);
                 } else {
-                    TimeUnit.MILLISECONDS.sleep(5);
+                    TimeUnit.MICROSECONDS.sleep(200);
                 }
             }
             String s = bufferedReader.readLine();
