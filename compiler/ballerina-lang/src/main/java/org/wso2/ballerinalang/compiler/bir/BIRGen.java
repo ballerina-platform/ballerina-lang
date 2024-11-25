@@ -214,10 +214,8 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.function.Supplier;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-
 import javax.xml.XMLConstants;
 
 import static org.ballerinalang.model.tree.NodeKind.CLASS_DEFN;
@@ -2235,7 +2233,7 @@ public class BIRGen extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangTypedescExpr accessExpr) {
-        createNewTypedescInst(accessExpr.resolvedType, accessExpr.pos);
+        this.env.targetOperand = new BIROperand(getTypedescVariable(accessExpr.resolvedType, accessExpr.pos));
     }
 
     @Override
@@ -2410,23 +2408,24 @@ public class BIRGen extends BLangNodeVisitor {
     }
 
     private BIRVariableDcl getTypedescVariable(BType type, Location pos) {
-        Supplier<BIRVariableDcl>[] checks = new Supplier[] {
-                () -> findInPackageScope(type),
-                () -> findInLocalSymbolVarMap(type, env.symbolVarMap, false),
-                () -> findInLocalSymbolVarMap(type, env.symbolVarMap, true),
-                () -> findInGlobalSymbolVarMap(type, this.globalVarMap, false),
-                () -> findInGlobalSymbolVarMap(type, this.globalVarMap, true)
-        };
+        BIRVariableDcl variableDcl = findInPackageScope(type);
+        if (variableDcl != null && variableDcl.initialized) return variableDcl;
 
-        // Iterate through the suppliers and return the first non-null result
-        for (Supplier<BIRVariableDcl> check : checks) {
-            BIRVariableDcl variableDcl = check.get();
-            if (variableDcl != null) {
-                return variableDcl;
-            }
-        }
+        variableDcl = findInLocalSymbolVarMap(type, env.symbolVarMap, false);
+        if (variableDcl != null && variableDcl.initialized) return variableDcl;
 
-        // TODO: we need to remove typedesc creating completely from here and handle it in the Desugar phase
+        variableDcl = findInLocalSymbolVarMap(type, env.symbolVarMap, true);
+        if (variableDcl != null && variableDcl.initialized) return variableDcl;
+
+        variableDcl = findInGlobalSymbolVarMap(type, this.globalVarMap, false);
+        if (variableDcl != null && variableDcl.initialized) return variableDcl;
+
+        variableDcl = findInGlobalSymbolVarMap(type, this.globalVarMap, true);
+        if (variableDcl != null && variableDcl.initialized) return variableDcl;
+
+        // Create new type desc instruction if the typedesc variable is not found
+        // TODO: we need to handle duplicate typedesc creation for some cases.
+        //   eg: function params ie `foo(record {int a;})`
         createNewTypedescInst(type, pos);
         return this.env.targetOperand.variableDcl;
     }

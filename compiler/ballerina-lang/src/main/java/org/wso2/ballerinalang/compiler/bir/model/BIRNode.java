@@ -146,6 +146,7 @@ public abstract class BIRNode {
         public BIRBasicBlock startBB;
         public int insOffset;
         public boolean onlyUsedInSingleBB;
+        public boolean initialized = false;
 
         // Stores the scope of the current instruction with respect to local variables.
         public BirScope insScope;

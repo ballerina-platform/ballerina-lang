@@ -57,6 +57,7 @@ public abstract class BIRNonTerminator extends BIRAbstractInstruction implements
             super(pos, InstructionKind.MOVE);
             this.rhsOp = fromOperand;
             this.lhsOp = toOperand;
+            toOperand.variableDcl.initialized = true;
         }
 
         @Override
