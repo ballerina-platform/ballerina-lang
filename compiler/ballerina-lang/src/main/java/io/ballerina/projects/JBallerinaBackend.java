@@ -291,6 +291,9 @@ public class JBallerinaBackend extends CompilerBackend {
     private void markTestDependenciesForDuplicateBIRGen() {
         for (int i = pkgResolution.topologicallySortedModuleList().size() - 1; i >= 0; i--) {
             ModuleContext moduleContext = pkgResolution.topologicallySortedModuleList().get(i);
+            if (moduleContext.compilationState() != ModuleCompilationState.COMPILED) {
+                continue;
+            }
             BLangPackage bLangPackage = moduleContext.bLangPackage();
 
             if (isRootModule(moduleContext) && bLangPackage.hasTestablePackage()) {
