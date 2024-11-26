@@ -31,7 +31,7 @@ dependencies {
     dependency 'org.eclipse.lsp4j:org.eclipse.lsp4j.jsonrpc:0.12.0'
     dependency 'org.eclipse.lsp4j:org.eclipse.lsp4j.jsonrpc.debug:0.12.0'
     dependency 'com.github.zafarkhaja:java-semver:0.9.0'
-    dependency 'commons-io:commons-io:2.7'
+    dependency "commons-io:commons-io:${project.commonsIoVersion}"
 }
 
 task createZip(type: Zip) {
