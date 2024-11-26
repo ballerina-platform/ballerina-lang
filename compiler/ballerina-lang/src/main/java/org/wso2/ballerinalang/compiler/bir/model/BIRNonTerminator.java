@@ -363,6 +363,9 @@ public abstract class BIRNonTerminator extends BIRAbstractInstruction implements
             if (typedescOp != null) {
                 typedescOp = operands[i++];
             }
+            if (elementTypedescOp != null) {
+                elementTypedescOp = operands[i++];
+            }
             sizeOp = operands[i++];
             for (BIRListConstructorEntry listValueEntry : values) {
                 listValueEntry.exprOp = operands[i++];

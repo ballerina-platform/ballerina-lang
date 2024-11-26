@@ -2501,7 +2501,7 @@ public class BIRGen extends BLangNodeVisitor {
         // table<Identifier> & readonly q = table [{name: "Jo"}];
         // Row type will be Immutable Identifier and there will be no intersection type created for that
         BType constraint = ((BTypedescType) symbol.type).constraint;
-        return constraint == targetType ||
+        return targetType == constraint ||
             (targetType.tag == TypeTags.INTERSECTION && (((BIntersectionType) targetType).effectiveType == constraint));
     }
 
