@@ -904,9 +904,6 @@ public class Desugar extends BLangNodeVisitor {
         }
 
         Name name = generateTypedescVariableName(type);
-        BType typedescType = new BTypedescType(type, symTable.typeDesc.tsymbol);
-        BSymbol owner = this.env.scope.owner;
-        BVarSymbol varSymbol  = new BVarSymbol(0, name, owner.pkgID, typedescType, owner, pos, VIRTUAL);
         if (type.tag == TypeTags.TYPEREFDESC) {
             BType referredType = ((BTypeReferenceType) type).referredType;
             int tag = referredType.tag;
@@ -914,6 +911,9 @@ public class Desugar extends BLangNodeVisitor {
                 type = referredType;
             }
         }
+        BType typedescType = new BTypedescType(type, symTable.typeDesc.tsymbol);
+        BSymbol owner = this.env.scope.owner;
+        BVarSymbol varSymbol  = new BVarSymbol(0, name, owner.pkgID, typedescType, owner, pos, VIRTUAL);
         BLangTypedescExpr typedescExpr = ASTBuilderUtil.createTypedescExpr(pos, typedescType, type);
         typedescList.add(createSimpleVariableDef(pos, name.value, typedescType, typedescExpr, varSymbol));
     }

@@ -82,6 +82,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BXMLNSSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BIntersectionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
@@ -216,6 +217,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+
 import javax.xml.XMLConstants;
 
 import static org.ballerinalang.model.tree.NodeKind.CLASS_DEFN;
@@ -2408,20 +2410,28 @@ public class BIRGen extends BLangNodeVisitor {
     }
 
     private BIRVariableDcl getTypedescVariable(BType type, Location pos) {
+        if (type.tag == TypeTags.TYPEREFDESC) {
+            BType referredType = ((BTypeReferenceType) type).referredType;
+            int tag = referredType.tag;
+            if (tag == TypeTags.RECORD) {
+                type = referredType;
+            }
+        }
+
         BIRVariableDcl variableDcl = findInPackageScope(type);
-        if (variableDcl != null && variableDcl.initialized) return variableDcl;
+        if (variableDcl != null && variableDcl.initialized) {
+            return variableDcl;
+        }
 
-        variableDcl = findInLocalSymbolVarMap(type, env.symbolVarMap, false);
-        if (variableDcl != null && variableDcl.initialized) return variableDcl;
-
-        variableDcl = findInLocalSymbolVarMap(type, env.symbolVarMap, true);
-        if (variableDcl != null && variableDcl.initialized) return variableDcl;
+        variableDcl = findInLocalSymbolVarMap(type, env.symbolVarMap);
+        if (variableDcl != null && variableDcl.initialized) {
+            return variableDcl;
+        }
 
         variableDcl = findInGlobalSymbolVarMap(type, this.globalVarMap, false);
-        if (variableDcl != null && variableDcl.initialized) return variableDcl;
-
-        variableDcl = findInGlobalSymbolVarMap(type, this.globalVarMap, true);
-        if (variableDcl != null && variableDcl.initialized) return variableDcl;
+        if (variableDcl != null && variableDcl.initialized) {
+            return variableDcl;
+        }
 
         // Create new type desc instruction if the typedesc variable is not found
         // TODO: we need to handle duplicate typedesc creation for some cases.
@@ -2450,10 +2460,9 @@ public class BIRGen extends BLangNodeVisitor {
         return packageVarRef;
     }
 
-    private BIRVariableDcl findInLocalSymbolVarMap(BType type, Map<BSymbol, BIRVariableDcl> varMap,
-                                                   boolean checkImpliedType) {
+    private BIRVariableDcl findInLocalSymbolVarMap(BType type, Map<BSymbol, BIRVariableDcl> varMap) {
         for (Map.Entry<BSymbol, BIRVariableDcl> entry : varMap.entrySet()) {
-            if (isMatchingTypeDescSymbol(entry.getKey(), type, checkImpliedType)) {
+            if (isMatchingTypeDescSymbol(entry.getKey(), type)) {
                 return varMap.get(entry.getKey());
             }
         }
@@ -2464,7 +2473,7 @@ public class BIRGen extends BLangNodeVisitor {
                                                     boolean checkImpliedType) {
         for (Map.Entry<BSymbol, BIRGlobalVariableDcl> entry : varMap.entrySet()) {
             BSymbol varSymbol = entry.getKey();
-            if (isMatchingTypeDescSymbol(varSymbol, type, checkImpliedType)) {
+            if (isMatchingTypeDescSymbol(varSymbol, type)) {
                 BIRGlobalVariableDcl globalVarDcl =  varMap.get(varSymbol);
                 if (!isInSameModule(varSymbol, env.enclPkg.packageID) || env.enclPkg.packageID.isTestPkg) {
                     this.env.enclPkg.importedGlobalVarsDummyVarDcls.add(globalVarDcl);
@@ -2475,26 +2484,25 @@ public class BIRGen extends BLangNodeVisitor {
         return null;
     }
 
-    private boolean isMatchingTypeDescSymbol(BSymbol symbol, BType targetType, boolean checkImpliedType) {
+    private boolean isMatchingTypeDescSymbol(BSymbol symbol, BType targetType) {
         // ATM there is no proper way to generate the full name of the target typedesc variable for the anonymous
         // types because `tsymbol.name.value` is empty for those.
         // Hence, we are using the TYPEDESC prefix to identify the typedesc variables and then match type constant type.
         if (!symbol.name.value.startsWith(TYPEDESC)) {
             return false;
         }
-        // We need to match with the original type first and then with the implied type because for some cases
-        // there is no typedesc var with the original type.
+        // We need to match with the original type first and then with the effective type because for some cases
+        // there is no typedesc var with the original intersection type.
         // Eg:
         // public type Identifier record {|
         //    string name;
         // |};
         //
         // table<Identifier> & readonly q = table [{name: "Jo"}];
-        // Row type will be Immutable Identifier and there will be not intersection type created for that
+        // Row type will be Immutable Identifier and there will be no intersection type created for that
         BType constraint = ((BTypedescType) symbol.type).constraint;
-        constraint = checkImpliedType ? Types.getImpliedType(constraint) : constraint;
-        targetType = checkImpliedType ? Types.getImpliedType(targetType) : targetType;
-        return constraint == targetType;
+        return constraint == targetType ||
+            (targetType.tag == TypeTags.INTERSECTION && (((BIntersectionType) targetType).effectiveType == constraint));
     }
 
     private void createNewTypedescInst(BType resolveType, Location position) {
