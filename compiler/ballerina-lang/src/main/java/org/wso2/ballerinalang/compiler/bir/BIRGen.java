@@ -82,7 +82,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BXMLNSSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BIntersectionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
@@ -2428,7 +2427,7 @@ public class BIRGen extends BLangNodeVisitor {
             return variableDcl;
         }
 
-        variableDcl = findInGlobalSymbolVarMap(type, this.globalVarMap, false);
+        variableDcl = findInGlobalSymbolVarMap(type, this.globalVarMap);
         if (variableDcl != null && variableDcl.initialized) {
             return variableDcl;
         }
@@ -2469,8 +2468,7 @@ public class BIRGen extends BLangNodeVisitor {
         return null;
     }
 
-    private BIRVariableDcl findInGlobalSymbolVarMap(BType type, Map<BSymbol, BIRGlobalVariableDcl> varMap,
-                                                    boolean checkImpliedType) {
+    private BIRVariableDcl findInGlobalSymbolVarMap(BType type, Map<BSymbol, BIRGlobalVariableDcl> varMap) {
         for (Map.Entry<BSymbol, BIRGlobalVariableDcl> entry : varMap.entrySet()) {
             BSymbol varSymbol = entry.getKey();
             if (isMatchingTypeDescSymbol(varSymbol, type)) {
@@ -2491,18 +2489,8 @@ public class BIRGen extends BLangNodeVisitor {
         if (!symbol.name.value.startsWith(TYPEDESC)) {
             return false;
         }
-        // We need to match with the original type first and then with the effective type because for some cases
-        // there is no typedesc var with the original intersection type.
-        // Eg:
-        // public type Identifier record {|
-        //    string name;
-        // |};
-        //
-        // table<Identifier> & readonly q = table [{name: "Jo"}];
-        // Row type will be Immutable Identifier and there will be no intersection type created for that
         BType constraint = ((BTypedescType) symbol.type).constraint;
-        return targetType == constraint ||
-            (targetType.tag == TypeTags.INTERSECTION && (((BIntersectionType) targetType).effectiveType == constraint));
+        return targetType == constraint;
     }
 
     private void createNewTypedescInst(BType resolveType, Location position) {
