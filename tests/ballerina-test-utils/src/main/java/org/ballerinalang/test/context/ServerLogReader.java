@@ -55,8 +55,7 @@ public class ServerLogReader implements Runnable {
      * Start reading the stream.
      */
     public void start() {
-        Thread thread = new Thread(this);
-        thread.start();
+        Thread.startVirtualThread(this);
     }
 
     /**
