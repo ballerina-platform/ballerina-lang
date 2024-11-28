@@ -674,9 +674,9 @@ class _GroupByFunction {
     }
 
     private function getKey(_Frame f) returns anydata|error {
-        anydata[] keys = [];
+        record{} keys = {};
         foreach var key in self.keys {
-            keys.push(<anydata> check f[key]);
+            keys[key] = <anydata> check f[key];
         }
         return keys;
     }
