@@ -97,7 +97,7 @@ public final class ObserveUtils {
         metricsReporter = readConfig(metricsReporterKey, providerKey, StringUtils.fromString("choreo"));
         tracingEnabled = readConfig(tracingEnabledKey, enabledKey, false);
         tracingProvider = readConfig(tracingProviderKey, providerKey, StringUtils.fromString("choreo"));
-        metricsLogsEnabled = readConfig(metricsLogsEnabledKey, enabledKey, false);
+        metricsLogsEnabled = readConfig(metricsLogsEnabledKey, metricsLogsEnabledKey, false);
         enabled = metricsEnabled || tracingEnabled || metricsLogsEnabled;
     }
 
