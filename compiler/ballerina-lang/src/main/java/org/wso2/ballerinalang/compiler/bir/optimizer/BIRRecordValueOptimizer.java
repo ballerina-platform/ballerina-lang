@@ -196,8 +196,10 @@ public class BIRRecordValueOptimizer extends BIRVisitor {
             return false;
         }
         return switch (firstBB.instructions.size()) {
-            case 1 -> firstBB.instructions.get(0).kind == CONST_LOAD;
-            case 2 -> firstBB.instructions.get(0).kind == CONST_LOAD && firstBB.instructions.get(1).kind == TYPE_CAST;
+            case 1 -> firstBB.instructions.get(0).kind == CONST_LOAD && firstBB.instructions.get(0).lhsOp.variableDcl
+                    .kind == VarKind.RETURN;
+            case 2 -> firstBB.instructions.get(0).kind == CONST_LOAD && firstBB.instructions.get(1).kind == TYPE_CAST
+                    && firstBB.instructions.get(1).lhsOp.variableDcl.kind == VarKind.RETURN;
             default -> false;
         };
     }
