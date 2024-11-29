@@ -2433,7 +2433,7 @@ public class BIRGen extends BLangNodeVisitor {
         }
 
         // Create new type desc instruction if the typedesc variable is not found
-        // TODO: we need to handle duplicate typedesc creation for some cases.
+        // TODO: we need to handle duplicate typedesc creation for some anonymous type cases.
         //   eg: function params ie `foo(record {int a;})`
         createNewTypedescInst(type, pos);
         return this.env.targetOperand.variableDcl;
