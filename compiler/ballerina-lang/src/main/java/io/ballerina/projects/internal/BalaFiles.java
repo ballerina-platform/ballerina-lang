@@ -32,6 +32,7 @@ import io.ballerina.projects.PackageVersion;
 import io.ballerina.projects.PlatformLibraryScope;
 import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.internal.bala.BalToolJson;
+import io.ballerina.projects.internal.bala.BalaJson;
 import io.ballerina.projects.internal.bala.CompilerPluginJson;
 import io.ballerina.projects.internal.bala.DependencyGraphJson;
 import io.ballerina.projects.internal.bala.ModuleDependency;
@@ -66,6 +67,7 @@ import static io.ballerina.projects.DependencyGraph.DependencyGraphBuilder.getBu
 import static io.ballerina.projects.internal.ProjectFiles.loadDocuments;
 import static io.ballerina.projects.internal.ProjectFiles.loadResources;
 import static io.ballerina.projects.util.ProjectConstants.BALA_DOCS_DIR;
+import static io.ballerina.projects.util.ProjectConstants.BALA_JSON;
 import static io.ballerina.projects.util.ProjectConstants.BAL_TOOL_JSON;
 import static io.ballerina.projects.util.ProjectConstants.COMPILER_PLUGIN_DIR;
 import static io.ballerina.projects.util.ProjectConstants.COMPILER_PLUGIN_JSON;
@@ -754,6 +756,41 @@ public final class BalaFiles {
             }
         }
         return packageJson;
+    }
+
+    public static BalaJson readBalaJson(Path balaPath) {
+        BalaJson balaJson;
+        if (balaPath.toFile().isDirectory()) {
+            Path balaJsonPath = balaPath.resolve(BALA_JSON);
+            if (Files.notExists(balaJsonPath)) {
+                throw new ProjectException("bala.json does not exists in '" + balaPath + "'");
+            }
+            try (BufferedReader bufferedReader = Files.newBufferedReader(balaJsonPath)) {
+                balaJson = gson.fromJson(bufferedReader, BalaJson.class);
+            } catch (JsonSyntaxException e) {
+                throw new ProjectException("Invalid bala.json format in '" + balaPath + "'");
+            } catch (IOException e) {
+                throw new ProjectException("Failed to read the bala.json in '" + balaPath + "'");
+            }
+        } else {
+            URI zipURI = getZipURI(balaPath);
+            try (FileSystem zipFileSystem = FileSystems.newFileSystem(zipURI, new HashMap<>())) {
+                Path balaJsonPath = zipFileSystem.getPath(BALA_JSON);
+                if (Files.notExists(balaJsonPath)) {
+                    throw new ProjectException("package.json does not exists in '" + balaPath + "'");
+                }
+                try (BufferedReader bufferedReader = Files.newBufferedReader(balaJsonPath)) {
+                    balaJson = gson.fromJson(bufferedReader, BalaJson.class);
+                } catch (JsonSyntaxException e) {
+                    throw new ProjectException("Invalid package.json format in '" + balaPath + "'");
+                } catch (IOException e) {
+                    throw new ProjectException("Failed to read the package.json in '" + balaPath + "'");
+                }
+            } catch (IOException e) {
+                throw new ProjectException("Failed to read bala file:" + balaPath);
+            }
+        }
+        return balaJson;
     }
 
     private static URI getZipURI(Path balaPath) {

@@ -18,6 +18,8 @@
 package io.ballerinalang.compiler.parser.test.tree.nodeparser;
 
 import io.ballerina.compiler.syntax.tree.BlockStatementNode;
+import io.ballerina.compiler.syntax.tree.Node;
+import io.ballerina.compiler.syntax.tree.NodeAndCommentList;
 import io.ballerina.compiler.syntax.tree.NodeList;
 import io.ballerina.compiler.syntax.tree.NodeParser;
 import io.ballerina.compiler.syntax.tree.StatementNode;
@@ -27,6 +29,8 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import java.util.List;
+
+import static io.ballerinalang.compiler.parser.test.ParserTestUtils.assertCommentNode;
 
 /**
  * Test {@code parseBlockStatement} method.
@@ -177,4 +181,30 @@ public class ParseBlockStatementTest {
 
         Assert.assertEquals(blockStmtNode.toString(), " INVALID[%]{ int a; INVALID[;] } INVALID[;] INVALID[;]");
     }
+
+    @Test
+    public void testCommentInBlockStatementBody() {
+        String blockStatement = """
+                {
+                    // Initialize x
+                    int x = 1;
+                    // Initialize y
+                    int y = 1;
+
+                    // new comment
+                    // another new comment
+                }""";
+        BlockStatementNode blockStmtNode = NodeParser.parseBlockStatement(blockStatement);
+        Assert.assertEquals(blockStmtNode.kind(), SyntaxKind.BLOCK_STATEMENT);
+        Assert.assertFalse(blockStmtNode.hasDiagnostics());
+
+        NodeAndCommentList<Node> nodes = blockStmtNode.statementsWithComments();
+        Assert.assertEquals(nodes.size(), 5);
+
+        assertCommentNode(nodes.get(0), List.of("Initialize x"));
+        assertCommentNode(nodes.get(2), List.of("Initialize y"));
+        assertCommentNode(nodes.get(4), List.of("new comment", "another new comment"));
+    }
+
+
 }
