@@ -268,7 +268,8 @@ public class BreakpointProcessor {
      */
     private boolean isWithinSameSource(Location currentLocation, Location prevLocation) {
         try {
-            return Objects.equals(currentLocation.sourcePath(), prevLocation.sourcePath());
+            return Objects.equals(currentLocation.sourcePath(), prevLocation.sourcePath())
+                    && Objects.equals(currentLocation.method().name(), prevLocation.method().name());
         } catch (AbsentInformationException e) {
             return false;
         }
