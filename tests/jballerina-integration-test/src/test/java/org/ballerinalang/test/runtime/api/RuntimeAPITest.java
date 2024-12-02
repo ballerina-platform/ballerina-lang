@@ -22,6 +22,7 @@ import org.ballerinalang.test.context.BallerinaTestException;
 import org.ballerinalang.test.context.LogLeecher;
 import org.ballerinalang.test.context.ServerLogReader;
 import org.ballerinalang.test.util.BFileUtil;
+import org.testng.SkipException;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -33,17 +34,19 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static io.ballerina.cli.utils.OsUtils.isWindows;
+
 /**
  * Test class to test the functionality of Ballerina runtime APIs for invoking functions.
  *
  * @since 2201.9.0
  */
 public class RuntimeAPITest extends BaseTest {
-
-    private static final String testFileLocation = Path.of("src", "test", "resources", "runtime.api")
+    
+    private static final String testFileLocation = Path.of("src/test/resources/runtime.api")
             .toAbsolutePath().toString();
-    private static final Path javaSrcLocation = Path.of("src", "test", "java", "org", "ballerinalang",
-            "test", "runtime", "api").toAbsolutePath();
+    private static final Path javaSrcLocation = Path.of("src/test/java/org/ballerinalang/test/runtime/api")
+            .toAbsolutePath();
     private static final String JAVA_OPTS = "JAVA_OPTS";
     private BMainInstance bMainInstance;
 
@@ -57,8 +60,11 @@ public class RuntimeAPITest extends BaseTest {
 
     @Test
     public void testRuntimeAPIsForBalFunctionInvocation() throws BallerinaTestException {
-        Path jarPath = Path.of(testFileLocation, "function_invocation", "target", "bin",
-                "function_invocation.jar").toAbsolutePath();
+        if (isWindows()) {
+            throw new SkipException("Unzip is not supported in Windows");
+        }
+        Path jarPath = Path.of(testFileLocation, "function_invocation/target/bin/function_invocation.jar")
+                .toAbsolutePath();
         compileJavaSource(jarPath, "targetDir", "RuntimeAPICall.java");
         unzipJarFile(jarPath, "targetDir");
         createExecutableJar("targetDir", "org.ballerinalang.test.runtime.api.RuntimeAPICall");
@@ -66,7 +72,7 @@ public class RuntimeAPITest extends BaseTest {
         bMainInstance.addJavaAgents(envProperties);
 
         // Run the executable jar and assert the output
-        Path execJarPath = Path.of(javaSrcLocation.toString(), "targetDir", "test-exec.jar").toAbsolutePath();
+        Path execJarPath = Path.of(javaSrcLocation.toString(), "targetDir/test-exec.jar").toAbsolutePath();
         List<String> runCmdSet = new ArrayList<>();
         runCmdSet.add("java");
         if (envProperties.containsKey(JAVA_OPTS)) {
@@ -99,8 +105,11 @@ public class RuntimeAPITest extends BaseTest {
 
     @Test
     public void testBalFunctionInvocationAPINegative() throws BallerinaTestException {
-        Path jarPath = Path.of(testFileLocation, "function_invocation", "target", "bin",
-                "function_invocation.jar").toAbsolutePath();
+        if (isWindows()) {
+            throw new SkipException("Unzip is not supported in Windows");
+        }
+        Path jarPath = Path.of(testFileLocation, "function_invocation/target/bin/function_invocation.jar")
+                .toAbsolutePath();
         compileJavaSource(jarPath, "target-dir-negative", "RuntimeAPICallNegative.java");
         unzipJarFile(jarPath, "target-dir-negative");
         createExecutableJar("target-dir-negative",
@@ -109,8 +118,8 @@ public class RuntimeAPITest extends BaseTest {
         bMainInstance.addJavaAgents(envProperties);
 
         // Run the executable jar and assert the output
-        Path execJarPath = Path.of(javaSrcLocation.toString(), "target-dir-negative",
-                "test-exec.jar").toAbsolutePath();
+        Path execJarPath = Path.of(javaSrcLocation.toString(), "target-dir-negative/test-exec.jar")
+                .toAbsolutePath();
         List<String> runCmdSet = new ArrayList<>();
         runCmdSet.add("java");
         if (envProperties.containsKey(JAVA_OPTS)) {
@@ -194,7 +203,7 @@ public class RuntimeAPITest extends BaseTest {
             Process process = unzipProcess.start();
             process.waitFor();
         } catch (IOException | InterruptedException e) {
-            throw new BallerinaTestException("Error occurred while unzipping the jar file");
+            throw new BallerinaTestException("Error occurred while unzipping the jar file", e);
         }
     }
 

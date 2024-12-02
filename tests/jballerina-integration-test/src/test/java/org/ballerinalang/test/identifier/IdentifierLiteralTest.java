@@ -35,8 +35,8 @@ import java.util.HashMap;
  *  @since 2.0.0
  */
 public class IdentifierLiteralTest  extends BaseTest {
-
-    private static final String testFileLocation = Path.of("src", "test", "resources", "identifier")
+    
+    private static final String testFileLocation = Path.of("src/test/resources/identifier")
             .toAbsolutePath().toString();
     private BMainInstance bMainInstance;
 
@@ -49,8 +49,7 @@ public class IdentifierLiteralTest  extends BaseTest {
 
     @Test(description = "Test clashes in module names contain '.' and '_'")
     public void testModuleIdentifierClash() throws BallerinaTestException {
-        Path projectPath = Path.of(testFileLocation, "ModuleNameClashProject")
-                .toAbsolutePath();
+        Path projectPath = Path.of(testFileLocation, "ModuleNameClashProject").toAbsolutePath();
         LogLeecher runLeecher = new LogLeecher("1 passing");
         bMainInstance.runMain("test", new String[0], new HashMap<>(), new String[0],
                 new LogLeecher[]{runLeecher}, projectPath.toString());

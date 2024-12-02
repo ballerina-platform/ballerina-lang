@@ -23,6 +23,7 @@ import org.ballerinalang.test.context.BMainInstance;
 import org.ballerinalang.test.context.BallerinaTestException;
 import org.ballerinalang.test.context.LogLeecher;
 import org.ballerinalang.test.packaging.PackerinaTestUtils;
+import org.testng.SkipException;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -31,9 +32,8 @@ import java.io.File;
 import java.nio.file.Path;
 import java.util.Map;
 
-import static io.ballerina.runtime.internal.configurable.providers.toml.TomlConstants.CONFIG_DATA_ENV_VARIABLE;
-import static io.ballerina.runtime.internal.configurable.providers.toml.TomlConstants.CONFIG_FILES_ENV_VARIABLE;
-import static io.ballerina.runtime.internal.configurable.providers.toml.TomlConstants.ENV_VAR_PREFIX;
+import static io.ballerina.cli.utils.OsUtils.isWindows;
+import static io.ballerina.runtime.internal.configurable.providers.toml.TomlConstants.*;
 import static org.ballerinalang.test.context.LogLeecher.LeecherType.ERROR;
 
 /**
@@ -269,6 +269,9 @@ public class ConfigurableTest extends BaseTest {
 
     @Test
     public void testConfigurableVariablesWithInvalidCliArgs() throws BallerinaTestException {
+        if (isWindows()) {
+            throw new SkipException("Currently this test is not supported for Windows");
+        }
         LogLeecher errorLeecher1 = new LogLeecher("error: [intVar=waruna] configurable variable 'intVar' is expected " +
                                                           "to be of type 'int', but found 'waruna'", ERROR);
         LogLeecher errorLeecher2 = new LogLeecher("error: [byteVar=2200] value provided for byte variable 'byteVar' " +
@@ -288,7 +291,7 @@ public class ConfigurableTest extends BaseTest {
                 "=true", "-CxmlVar=123<?????", "-CtestOrg.main.floatVar=eee",
                 "-Cmain.decimalVar=24.87", "-Cfiles=pqr-1.toml", "-Cdata=intVar=bbb"}, null, new String[]{},
                 new LogLeecher[]{errorLeecher1, errorLeecher2, errorLeecher3, errorLeecher4, errorLeecher5},
-                testFileLocation + "/configurableSimpleProject");
+                Path.of(testFileLocation, "configurableSimpleProject").toString());
         errorLeecher1.waitForText(5000);
         errorLeecher2.waitForText(5000);
         errorLeecher3.waitForText(5000);
@@ -302,7 +305,7 @@ public class ConfigurableTest extends BaseTest {
                 "creates an ambiguity with module 'testOrg/subModuleClash.test:0.1.0'", ERROR);
         bMainInstance.runMain("pack", new String[]{}, null, new String[]{},
                 new LogLeecher[]{errorLog},
-                Path.of(testFileLocation, "testAmbiguousCases", "subModuleClash").toString());
+                Path.of(testFileLocation, "testAmbiguousCases/subModuleClash").toString());
         errorLog.waitForText(5000);
     }
 
@@ -314,7 +317,7 @@ public class ConfigurableTest extends BaseTest {
         bMainInstance.compilePackageAndPushToLocal(Path.of(projectPath, "importedModuleClash", "test").toString(),
                 "testOrg-test-any-0.1.0");
         bMainInstance.runMain("pack", new String[]{"main"}, null, new String[]{},
-                new LogLeecher[]{errorLog}, projectPath + "/importedModuleClash");
+                new LogLeecher[]{errorLog}, Path.of(projectPath, "importedModuleClash").toString());
         errorLog.waitForText(5000);
     }
 
@@ -324,7 +327,7 @@ public class ConfigurableTest extends BaseTest {
                 "ambiguity with module 'testOrg/multipleSubModuleClash.mod1.test:0.1.0'", ERROR);
         bMainInstance.runMain("pack", new String[]{}, null, new String[]{},
                 new LogLeecher[]{errorLog},
-                Path.of(testFileLocation, "testAmbiguousCases", "multipleSubModuleClash").toString());
+                Path.of(testFileLocation, "testAmbiguousCases/multipleSubModuleClash").toString());
         errorLog.waitForText(5000);
     }
 
@@ -357,7 +360,7 @@ public class ConfigurableTest extends BaseTest {
 
         bMainInstance.runMain("run", new String[]{"main"}, addEnvironmentVariables(envVariables),
                 new String[]{}, new LogLeecher[]{errorLeecher1, errorLeecher2, errorLeecher3, errorLeecher4,
-                        errorLeecher5}, testFileLocation + "/configurableSimpleProject");
+                        errorLeecher5}, Path.of(testFileLocation, "configurableSimpleProject").toString());
         errorLeecher1.waitForText(5000);
         errorLeecher2.waitForText(5000);
         errorLeecher3.waitForText(5000);
@@ -368,14 +371,15 @@ public class ConfigurableTest extends BaseTest {
     private void executeBalCommand(String projectPath, String packageName,
                                    Map<String, String> envProperties) throws BallerinaTestException {
         LogLeecher logLeecher = new LogLeecher(testsPassed);
-        bMainInstance.runMain(testFileLocation + projectPath, packageName, null, new String[]{}, envProperties, null,
+        bMainInstance.runMain(
+                Path.of(testFileLocation, projectPath).toString(), packageName, null, new String[]{}, envProperties, null,
                 new LogLeecher[]{logLeecher});
         logLeecher.waitForText(5000);
     }
 
     @Test(dataProvider = "structured-project-provider")
     public void testStructuredTypeConfigurable(String packageName, String configFile) throws BallerinaTestException {
-        executeBalCommand("/configStructuredTypesProject", packageName,
+        executeBalCommand("configStructuredTypesProject", packageName,
                 addEnvironmentVariables(Map.ofEntries(Map.entry(CONFIG_FILES_ENV_VARIABLE, configFile))));
     }
 
@@ -405,7 +409,7 @@ public class ConfigurableTest extends BaseTest {
 
     @Test
     public void testLargeNoOfConfigVariables() throws BallerinaTestException {
-        executeBalCommand("/largeProject", "main", null);
+        executeBalCommand("largeProject", "main", null);
     }
 
     @Test

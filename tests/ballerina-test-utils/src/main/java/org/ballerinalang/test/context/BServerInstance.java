@@ -29,12 +29,7 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Stream;
@@ -361,8 +356,8 @@ public class BServerInstance implements BServer {
     public void removeAllLeechers() {
         serverInfoLogReader.removeAllLeechers();
         serverErrorLogReader.removeAllLeechers();
-        tmpInfoLeechers.forEach(logLeecher -> tmpInfoLeechers.remove(logLeecher));
-        tmpErrorLeechers.forEach(logLeecher -> tmpErrorLeechers.remove(logLeecher));
+        tmpInfoLeechers.forEach(tmpInfoLeechers::remove);
+        tmpErrorLeechers.forEach(tmpErrorLeechers::remove);
     }
 
     /**
@@ -388,9 +383,7 @@ public class BServerInstance implements BServer {
             ProcessBuilder processBuilder = new ProcessBuilder(cmdArgs).directory(commandDir);
             if (envProperties != null) {
                 Map<String, String> env = processBuilder.environment();
-                for (Map.Entry<String, String> entry : envProperties.entrySet()) {
-                    env.put(entry.getKey(), entry.getValue());
-                }
+                env.putAll(envProperties);
             }
             process = processBuilder.start();
 
@@ -505,9 +498,7 @@ public class BServerInstance implements BServer {
 
             ProcessBuilder processBuilder = new ProcessBuilder(runCmdSet).directory(commandDir);
             Map<String, String> env = processBuilder.environment();
-            for (Map.Entry<String, String> entry : envProperties.entrySet()) {
-                env.put(entry.getKey(), entry.getValue());
-            }
+            env.putAll(envProperties);
             process = processBuilder.start();
 
             serverInfoLogReader = new ServerLogReader("inputStream", process.getInputStream());
