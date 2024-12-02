@@ -20,6 +20,8 @@ package io.ballerinalang.compiler.parser.test.tree.nodeparser;
 import io.ballerina.compiler.syntax.tree.FunctionBodyBlockNode;
 import io.ballerina.compiler.syntax.tree.NamedWorkerDeclarationNode;
 import io.ballerina.compiler.syntax.tree.NamedWorkerDeclarator;
+import io.ballerina.compiler.syntax.tree.Node;
+import io.ballerina.compiler.syntax.tree.NodeAndCommentList;
 import io.ballerina.compiler.syntax.tree.NodeList;
 import io.ballerina.compiler.syntax.tree.NodeParser;
 import io.ballerina.compiler.syntax.tree.StatementNode;
@@ -30,6 +32,8 @@ import org.testng.annotations.Test;
 
 import java.util.List;
 import java.util.Optional;
+
+import static io.ballerinalang.compiler.parser.test.ParserTestUtils.assertCommentNode;
 
 /**
  * Test {@code parseFunctionBodyBlock} method.
@@ -254,5 +258,29 @@ public class ParseFunctionBodyBlock {
         Assert.assertEquals(tokens.get(0).kind(), SyntaxKind.SEMICOLON_TOKEN);
 
         Assert.assertEquals(funcBodyBlockNode.toString(), " INVALID[%]{ int a; INVALID[;] }; INVALID[;]");
+    }
+
+    @Test
+    public void testCommentInFunctionBody() {
+        String funcBodyBlock = """
+                {
+                    // Initialize x
+                    int x = 1;
+                    // Initialize y
+                    int y = 1;
+
+                    // new comment
+                    // another new comment
+                }""";
+        FunctionBodyBlockNode funcBodyBlockNode = NodeParser.parseFunctionBodyBlock(funcBodyBlock);
+        Assert.assertEquals(funcBodyBlockNode.kind(), SyntaxKind.FUNCTION_BODY_BLOCK);
+        Assert.assertFalse(funcBodyBlockNode.hasDiagnostics());
+
+        NodeAndCommentList<Node> nodes = funcBodyBlockNode.statementsWithComments();
+        Assert.assertEquals(nodes.size(), 5);
+
+        assertCommentNode(nodes.get(0), List.of("Initialize x"));
+        assertCommentNode(nodes.get(2), List.of("Initialize y"));
+        assertCommentNode(nodes.get(4), List.of("new comment", "another new comment"));
     }
 }

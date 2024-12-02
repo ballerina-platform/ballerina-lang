@@ -1,0 +1,921 @@
+{
+    "id": 1,
+    "name": "Kafka Service",
+    "type": "inbuilt",
+    "displayName": "Kafka",
+    "documentation": "The Kafka service can be attached to a Kafka listener which listens to Kafka topic(s) and triggers the service when a message is received for Kafka topic(s). The service should implement the `onConsumerRecord` remote method to process the received message(s). Additionally, the service can implement the `onError` remote method to handle errors that occur during the message processing.",
+    "moduleName": "kafka",
+    "listenerProtocol": "kafka",
+    "displayAnnotation": {
+        "label": "Kafka",
+        "iconPath": "docs/icon.png"
+    },
+    "package": {
+        "id": 15511,
+        "organization": "ballerinax",
+        "name": "kafka",
+        "version": "4.2.0",
+        "platform": "java17",
+        "languageSpecificationVersion": "2024R1",
+        "isDeprecated": false,
+        "deprecateMessage": "",
+        "URL": "/ballerinax/kafka/4.2.0",
+        "balaVersion": "2.0.0",
+        "balaURL": "https://fileserver.central.ballerina.io/2.0/ballerinax/kafka/4.2.0/ballerinax-kafka-java17-4.2.0.bala?Expires=1729564876&Signature=yyLs~P-0T666fFFKjpIqPJWc5LA9uuzqNaIz5yFGAh0FLgFJjAhA~kxi9~z5O1dIzsdN-si2srv7z0KmYrok5KRzczVdfMJmfab5Q7D0ZInrMguEAR9GZB6TYbrv6OMaTDOH6jXGaz0Dr0HLWZZj63IuDEpf4JLfy8cvfclcf2jKmYGFmcfii-tCQ-PfgBC6QBqQQmBX0xaHjutgNA0lLG9OVLaAT51qwOQsmmceYKD6wnK-DtWsPLshyHAKbORy2hZkTvahq-yz4kQf4PYDId51egzijhCO48hOUo1n8IAMnBfrMqB8dBy6s8KZNnbmljN5PXcJRzrj1hiIA8EQJA__&Key-Pair-Id=K27IQ7NPTKLKDU",
+        "digest": "sha-256=07b3e7b48e21aadb0c7bcfb3c221b2648c75f95b31b82de41f2b36119b70a53d",
+        "summary": "This package provides an implementation to interact with Kafka Brokers via Kafka Consumer and Kafka Producer clients.",
+        "readme": "## Overview\nThis package provides an implementation to interact with Kafka Brokers via Kafka Consumer and Kafka Producer clients.\n\nApache Kafka is an open-source distributed event streaming platform used for high-performance data pipelines, streaming analytics, data integration, and mission-critical applications.\n\nThis package supports Kafka 1.x.x, 2.x.x and 3.x.x versions.\n\n### Consumer and producer\n#### Kafka producer\nA Kafka producer is a Kafka client that publishes records to the Kafka cluster. The producer is thread-safe and sharing a single producer instance across threads will generally be faster than having multiple instances. When working with a Kafka producer, the first thing to do is to initialize the producer.\nFor the producer to execute successfully, an active Kafka broker should be available.\n\nThe code snippet given below initializes a producer with the basic configuration.\n```ballerina\nimport ballerinax\/kafka;\n\nkafka:ProducerConfiguration producerConfiguration = {\n    clientId: \"basic-producer\",\n    acks: \"all\",\n    retryCount: 3\n};\n\nkafka:Producer kafkaProducer = check new (kafka:DEFAULT_URL, producerConfiguration);\n```\n#### Kafka consumer\nA Kafka consumer is a subscriber responsible for reading records from one or more topics and one or more partitions of a topic. When working with a Kafka consumer, the first thing to do is initialize the consumer.\nFor the consumer to execute successfully, an active Kafka broker should be available.\n\nThe code snippet given below initializes a consumer with the basic configuration.\n```ballerina\nkafka:ConsumerConfiguration consumerConfiguration = {\n    groupId: \"group-id\",    \/\/ Unique string that identifies the consumer\n    offsetReset: \"earliest\",    \/\/ Offset reset strategy if no initial offset\n    topics: [\"kafka-topic\"]\n};\n\nkafka:Consumer kafkaConsumer = check new (kafka:DEFAULT_URL, consumerConfiguration);\n```\n### Listener\nThe Kafka consumer can be used as a listener to a set of topics without the need to manually `poll` the messages.\n\nYou can use the `Caller` to manually commit the offsets of the messages that are read by the service. The following code snippet shows how to initialize and define the listener and how to commit the offsets manually.\n```ballerina\nkafka:ConsumerConfiguration consumerConfiguration = {\n    groupId: \"group-id\",\n    topics: [\"kafka-topic-1\"],\n    pollingInterval: 1,\n    autoCommit: false\n};\n\nlistener kafka:Listener kafkaListener = new (kafka:DEFAULT_URL, consumerConfiguration);\n\nservice on kafkaListener {\n    remote function onConsumerRecord(kafka:Caller caller, kafka:BytesConsumerRecord[] records) {\n        \/\/ processes the records\n        ...\n        \/\/ commits the offsets manually\n        kafka:Error? commitResult = caller->commit();\n\n        if commitResult is kafka:Error {\n            log:printError(\"Error occurred while committing the offsets for the consumer \", 'error = commitResult);\n        }\n    }\n}\n```\n### Data serialization\nSerialization is the process of converting data into a stream of bytes that is used for transmission. Kafka\nstores and transmits these bytes of arrays in its queue. Deserialization does the opposite of serialization\nin which bytes of arrays are converted into the desired data type.\n\nCurrently, this package only supports the `byte array` data type for both the keys and values. The following code snippets\nshow how to produce and read a message from Kafka.\n```ballerina\nstring message = \"Hello World, Ballerina\";\nstring key = \"my-key\";\n\/\/ converts the message and key to a byte array\ncheck kafkaProducer->send({ topic: \"test-kafka-topic\", key: key.toBytes(), value: message.toBytes() });\n```\n```ballerina\nkafka:BytesConsumerRecord[] records = check kafkaConsumer->poll(1);\n\nforeach var kafkaRecord in records {\n    byte[] messageContent = kafkaRecord.value;\n    \/\/ tries to generate the string value from the byte array\n    string result = check string:fromBytes(messageContent);\n    io:println(\"The result is : \", result);\n}\n```\n### Concurrency\nIn Kafka, records are grouped into smaller units called partitions. These can be processed independently without\ncompromising the correctness of the results and lays the foundation for parallel processing. This can be achieved by\nusing multiple consumers within the same group each reading and processing data from a subset of topic partitions and\nrunning in a single thread.\n\nTopic partitions are assigned to consumers automatically or you can manually assign topic partitions.\n\nThe following code snippet joins a consumer to the `consumer-group` and assigns it to a topic partition manually.\n```ballerina\nkafka:ConsumerConfiguration consumerConfiguration = {\n    \/\/ `groupId` determines the consumer group\n    groupId: \"consumer-group\",\n    pollingInterval: 1,\n    autoCommit: false\n};\n\nkafka:Consumer kafkaConsumer = check new (kafka:DEFAULT_URL, consumerConfiguration);\n\/\/ creates a topic partition\nkafka:TopicPartition topicPartition = {\n    topic: \"kafka-topic-1\",\n    partition: 1\n};\n\/\/ passes the topic partitions to the assign function as an array\ncheck kafkaConsumer->assign([topicPartition]);\n```\n\n### Report issues\n\nTo report bugs, request new features, start new discussions, view project boards, etc., go to the [Ballerina standard library parent repository](https:\/\/github.com\/ballerina-platform\/ballerina-standard-library).\n\n### Useful links\n\n- Chat live with us via our [Discord server](https:\/\/discord.gg\/ballerinalang).\n- Post all technical questions on Stack Overflow with the [#ballerina](https:\/\/stackoverflow.com\/questions\/tagged\/ballerina) tag.",
+        "template": false,
+        "licenses": [
+            "Apache-2.0"
+        ],
+        "authors": [
+            "Ballerina"
+        ],
+        "sourceCodeLocation": "https://github.com/ballerina-platform/module-ballerinax-kafka",
+        "keywords": [
+            "kafka",
+            "event streaming",
+            "network",
+            "messaging"
+        ],
+        "ballerinaVersion": "2201.10.0",
+        "icon": "https://bcentral-packageicons.azureedge.net/images/ballerinax_kafka_4.2.0.png",
+        "ownerUUID": "b5a9e54d-8ade-47a1-8abc-6bc46e89069d",
+        "createdDate": 1724147879000,
+        "pullCount": 1270,
+        "visibility": "public",
+        "modules": [
+            {
+                "packageURL": "/ballerinax/kafka/4.2.0",
+                "apiDocURL": "https://lib.ballerina.io/ballerinax/kafka/4.2.0",
+                "name": "kafka",
+                "summary": "This module provides an implementation to interact with Kafka Brokers via Kafka Consumer and Kafka Producer clients.",
+                "readme": "## Overview\n\nThis module provides an implementation to interact with Kafka Brokers via Kafka Consumer and Kafka Producer clients.\n\nApache Kafka is an open-source distributed event streaming platform used for high-performance data pipelines, streaming analytics, data integration, and mission-critical applications.\n\nThis module supports Kafka 1.x.x, 2.x.x and 3.x.x versions.\n\n### Consumer and producer\n#### Kafka producer\nA Kafka producer is a Kafka client that publishes records to the Kafka cluster. The producer is thread-safe and sharing a single producer instance across threads will generally be faster than having multiple instances. When working with a Kafka producer, the first thing to do is to initialize the producer.\nFor the producer to execute successfully, an active Kafka broker should be available.\n\nThe code snippet given below initializes a producer with the basic configuration.\n```ballerina\nimport ballerinax\/kafka;\n\nkafka:ProducerConfiguration producerConfiguration = {\n    clientId: \"basic-producer\",\n    acks: \"all\",\n    retryCount: 3\n};\n\nkafka:Producer kafkaProducer = check new (kafka:DEFAULT_URL, producerConfiguration);\n```\n#### Kafka consumer\nA Kafka consumer is a subscriber responsible for reading records from one or more topics and one or more partitions of a topic. When working with a Kafka consumer, the first thing to do is initialize the consumer.\nFor the consumer to execute successfully, an active Kafka broker should be available.\n\nThe code snippet given below initializes a consumer with the basic configuration.\n```ballerina\nkafka:ConsumerConfiguration consumerConfiguration = {\n    groupId: \"group-id\",    \/\/ Unique string that identifies the consumer\n    offsetReset: \"earliest\",    \/\/ Offset reset strategy if no initial offset\n    topics: [\"kafka-topic\"]\n};\n\nkafka:Consumer kafkaConsumer = check new (kafka:DEFAULT_URL, consumerConfiguration);\n```\n### Listener\nThe Kafka consumer can be used as a listener to a set of topics without the need to manually `poll` the messages.\n\nYou can use the `Caller` to manually commit the offsets of the messages that are read by the service. The following code snippet shows how to initialize and define the listener and how to commit the offsets manually.\n```ballerina\nkafka:ConsumerConfiguration consumerConfiguration = {\n    groupId: \"group-id\",\n    topics: [\"kafka-topic-1\"],\n    pollingInterval: 1,\n    autoCommit: false\n};\n\nlistener kafka:Listener kafkaListener = new (kafka:DEFAULT_URL, consumerConfiguration);\n\nservice on kafkaListener {\n    remote function onConsumerRecord(kafka:Caller caller, kafka:BytesConsumerRecord[] records) {\n        \/\/ processes the records\n        ...\n        \/\/ commits the offsets manually\n        kafka:Error? commitResult = caller->commit();\n\n        if commitResult is kafka:Error {\n            log:printError(\"Error occurred while committing the offsets for the consumer \", 'error = commitResult);\n        }\n    }\n}\n```\n### Data serialization\nSerialization is the process of converting data into a stream of bytes that is used for transmission. Kafka\nstores and transmits these bytes of arrays in its queue. Deserialization does the opposite of serialization\nin which bytes of arrays are converted into the desired data type.\n\nCurrently, this module only supports the `byte array` data type for both the keys and values. The following code snippets\nshow how to produce and read a message from Kafka.\n```ballerina\nstring message = \"Hello World, Ballerina\";\nstring key = \"my-key\";\n\/\/ converts the message and key to a byte array\ncheck kafkaProducer->send({ topic: \"test-kafka-topic\", key: key.toBytes(), value: message.toBytes() });\n```\n```ballerina\nkafka:BytesConsumerRecord[] records = check kafkaConsumer->poll(1);\n\nforeach var kafkaRecord in records {\n    byte[] messageContent = kafkaRecord.value;\n    \/\/ tries to generate the string value from the byte array\n    string result = check string:fromBytes(messageContent);\n    io:println(\"The result is : \", result);\n}\n```\n### Concurrency\nIn Kafka, records are grouped into smaller units called partitions. These can be processed independently without\ncompromising the correctness of the results and lays the foundation for parallel processing. This can be achieved by\nusing multiple consumers within the same group each reading and processing data from a subset of topic partitions and \nrunning in a single thread.\n\nTopic partitions are assigned to consumers automatically or you can manually assign topic partitions.\n\nThe following code snippet joins a consumer to the `consumer-group` and assigns it to a topic partition manually.\n```ballerina\nkafka:ConsumerConfiguration consumerConfiguration = {\n    \/\/ `groupId` determines the consumer group\n    groupId: \"consumer-group\",\n    pollingInterval: 1,\n    autoCommit: false\n};\n\nkafka:Consumer kafkaConsumer = check new (kafka:DEFAULT_URL, consumerConfiguration);\n\/\/ creates a topic partition\nkafka:TopicPartition topicPartition = {\n    topic: \"kafka-topic-1\",\n    partition: 1\n};\n\/\/ passes the topic partitions to the assign function as an array\ncheck kafkaConsumer->assign([topicPartition]);\n```"
+            }
+        ],
+        "balToolId": "",
+        "graalvmCompatible": "Yes"
+    },
+    "serviceTypes": [
+        {
+            "name": "Kafka",
+            "description": "Kafka Service",
+            "functions": [
+                {
+                    "name": "onConsumerRecord",
+                    "enabled": true,
+                    "documentation": "The `onConsumerRecord` remote method will be triggered when a message is received from Kafka topic(s).",
+                    "optional": false,
+                    "editable": true,
+                    "qualifiers": [
+                        "remote"
+                    ],
+                    "parameters": [
+                        {
+                            "name": "records",
+                            "typeName": "kafka:ConsumerAnydataRecord[]|anydata[]",
+                            "optional": false,
+                            "arrayType": true,
+                            "defaultTypeName": "kafka:ConsumerAnydataRecord[]",
+                            "type": [
+                                "kafka:ConsumerAnydataRecord[]",
+                                "anydata[]"
+                            ],
+                            "documentation": "The records received for Kafka topic(s).",
+                            "enabled": true,
+                            "value": "kafka:ConsumerAnydataRecord[]"
+                        },
+                        {
+                            "name": "caller",
+                            "typeName": "kafka:Caller",
+                            "type": [
+                                "kafka:Caller"
+                            ],
+                            "typeInfo": {
+                                "name": "Caller",
+                                "orgName": "ballerinax",
+                                "moduleName": "kafka",
+                                "version": "4.2.0"
+                            },
+                            "enabled": false,
+                            "optional": true,
+                            "documentation": "The Kafka caller object to commit the offsets."
+                        }
+                    ],
+                    "returnType": {
+                        "typeName": "error?",
+                        "type": [
+                            "error?"
+                        ],
+                        "optional": true,
+                        "documentation": "Error object.",
+                        "defaultTypeName": "error?",
+                        "enabled": "true",
+                        "value": "error?"
+                    }
+                },
+                {
+                    "name": "onError",
+                    "enabled": false,
+                    "documentation": "The `onError` remote method will be triggered when an error occurs during the message processing.",
+                    "optional": true,
+                    "qualifiers": [
+                        "remote"
+                    ],
+                    "parameters": [
+                        {
+                            "name": "err",
+                            "typeName": "kafka:Error",
+                            "type": [
+                                "kafka:Error"
+                            ],
+                            "optional": false,
+                            "typeInfo": {
+                                "name": "Error",
+                                "orgName": "ballerinax",
+                                "moduleName": "kafka",
+                                "version": "4.2.0"
+                            },
+                            "documentation": "The error occurred during the message processing.",
+                            "enabled": "true",
+                            "value": "kafka:Error"
+                        }
+                    ],
+                    "returnType": {
+                        "typeName": "error?",
+                        "type": [
+                            "error?"
+                        ],
+                        "optional": true,
+                        "documentation": "Error object.",
+                        "defaultTypeName": "error?",
+                        "enabled": "true",
+                        "value": "error?"
+                    }
+                }
+            ]
+        }
+    ],
+    "listener": {
+        "metadata": {
+            "label": "Kafka Listener",
+            "description": "The Kafka listener listens to Kafka topic(s) and triggers the service when a message is received for Kafka topic(s)."
+        },
+        "valueType": "kafka:Listener",
+        "valueTypeConstraint": "kafka:Listener",
+        "value": "",
+        "optional": false,
+        "editable": true,
+        "properties": {
+            "bootstrapServers": {
+                "metadata": {
+                    "label": "bootstrapServers",
+                    "description": "The Kafka bootstrap server URL. For a clustered use case, provide a comma-separated list of URLs."
+                },
+                "valueType": "EXPRESSION",
+                "valueTypeConstraint": "string|string[]",
+                "value": "",
+                "placeholder": "kafka:DEFAULT_URL",
+                "optional": false,
+                "editable": true,
+                "advanced": false
+            },
+            "config": {
+                "metadata": {
+                    "label": "config",
+                    "description": "The Kafka listener configurations."
+                },
+                "valueType": "EXPRESSION",
+                "valueTypeConstraint": "kafka:ConsumerConfiguration",
+                "value": "",
+                "placeholder": "",
+                "optional": true,
+                "editable": true,
+                "advanced": true,
+                "fields": {
+                    "groupId": {
+                        "metadata": {
+                            "label": "groupId",
+                            "description": "Unique string that identifies the consumer"
+                        },
+                        "valueType": "string",
+                        "valueTypeConstraint": "string",
+                        "value": "",
+                        "placeholder": "",
+                        "optional": false,
+                        "editable": true,
+                        "advanced": false
+                    },
+                    "topics": {
+                        "metadata": {
+                            "label": "topics",
+                            "description": "Topics to be subscribed by the consumer"
+                        },
+                        "valueType": "string[]",
+                        "valueTypeConstraint": "string[]",
+                        "value": "",
+                        "placeholder": "",
+                        "optional": false,
+                        "editable": true,
+                        "advanced": false
+                    },
+                    "offsetReset": {
+                        "metadata": {
+                            "label": "offsetReset",
+                            "description": "Offset reset strategy if no initial offset"
+                        },
+                        "valueType": "string",
+                        "valueTypeConstraint": "string",
+                        "value": "",
+                        "placeholder": "",
+                        "optional": true,
+                        "editable": true,
+                        "advanced": false,
+                        "enum": [
+                            "kafka:OFFSET_RESET_EARLIEST",
+                            "kafka:OFFSET_RESET_LATEST",
+                            "kafka:OFFSET_RESET_NONE"
+                        ]
+                    },
+                    "partitionAssignmentStrategy": {
+                        "metadata": {
+                            "label": "partitionAssignmentStrategy",
+                            "description": "Strategy class for handling the partition assignment among consumers"
+                        },
+                        "valueType": "string",
+                        "valueTypeConstraint": "string",
+                        "value": "",
+                        "placeholder": "",
+                        "optional": true,
+                        "editable": true,
+                        "advanced": false
+                    },
+                    "metricsRecordingLevel": {
+                        "metadata": {
+                            "label": "metricsRecordingLevel",
+                            "description": "Metrics recording level"
+                        },
+                        "valueType": "string",
+                        "valueTypeConstraint": "string",
+                        "value": "",
+                        "placeholder": "",
+                        "optional": true,
+                        "editable": true,
+                        "advanced": false
+                    },
+                    "metricsReporterClasses": {
+                        "metadata": {
+                            "label": "metricsReporterClasses",
+                            "description": "Metrics reporter classes"
+                        },
+                        "valueType": "string",
+                        "valueTypeConstraint": "string",
+                        "value": "",
+                        "placeholder": "",
+                        "optional": true,
+                        "editable": true,
+                        "advanced": false
+                    },
+                    "clientId": {
+                        "metadata": {
+                            "label": "clientId",
+                            "description": "Identifier to be used for server side logging"
+                        },
+                        "valueType": "string",
+                        "valueTypeConstraint": "string",
+                        "value": "",
+                        "placeholder": "",
+                        "optional": true,
+                        "editable": true,
+                        "advanced": false
+                    },
+                    "interceptorClasses": {
+                        "metadata": {
+                            "label": "interceptorClasses",
+                            "description": "Interceptor classes to be used before sending the records"
+                        },
+                        "valueType": "string",
+                        "valueTypeConstraint": "string",
+                        "value": "",
+                        "placeholder": "",
+                        "optional": true,
+                        "editable": true,
+                        "advanced": false
+                    },
+                    "isolationLevel": {
+                        "metadata": {
+                            "label": "isolationLevel",
+                            "description": "Transactional message reading method"
+                        },
+                        "valueType": "string",
+                        "valueTypeConstraint": "string",
+                        "value": "",
+                        "placeholder": "",
+                        "optional": true,
+                        "editable": true,
+                        "advanced": false,
+                        "enum": [
+                            "kafka:ISOLATION_COMMITTED",
+                            "kafka:ISOLATION_UNCOMMITTED"
+                        ]
+                    },
+                    "schemaRegistryUrl": {
+                        "metadata": {
+                            "label": "schemaRegistryUrl",
+                            "description": "Avro schema registry URL. Use this field to specify the schema registry URL, if the Avro serializer is used"
+                        },
+                        "valueType": "string",
+                        "valueTypeConstraint": "string",
+                        "value": "",
+                        "placeholder": "",
+                        "optional": true,
+                        "editable": true,
+                        "advanced": false
+                    },
+                    "additionalProperties": {
+                        "metadata": {
+                            "label": "additionalProperties",
+                            "description": "Additional properties for the property fields not provided by the Ballerina `kafka` module. Use this with caution since this can override any of the fields. It is not recommended to use this field except in an extreme situation"
+                        },
+                        "valueType": "map<string>",
+                        "valueTypeConstraint": "map<string>",
+                        "value": "",
+                        "placeholder": "",
+                        "optional": true,
+                        "editable": true,
+                        "advanced": false
+                    },
+                    "sessionTimeout": {
+                        "metadata": {
+                            "label": "sessionTimeout",
+                            "description": "Timeout (in seconds) used to detect consumer failures when the heartbeat threshold is reached"
+                        },
+                        "valueType": "decimal",
+                        "valueTypeConstraint": "decimal",
+                        "value": "",
+                        "placeholder": "",
+                        "optional": true,
+                        "editable": true,
+                        "advanced": false
+                    },
+                    "heartBeatInterval": {
+                        "metadata": {
+                            "label": "heartBeatInterval",
+                            "description": "Expected time (in seconds) between the heartbeats"
+                        },
+                        "valueType": "decimal",
+                        "valueTypeConstraint": "decimal",
+                        "value": "",
+                        "placeholder": "",
+                        "optional": true,
+                        "editable": true,
+                        "advanced": false
+                    },
+                    "metadataMaxAge": {
+                        "metadata": {
+                            "label": "metadataMaxAge",
+                            "description": "Maximum time (in seconds) to force a refresh of metadata"
+                        },
+                        "valueType": "decimal",
+                        "valueTypeConstraint": "decimal",
+                        "value": "",
+                        "placeholder": "",
+                        "optional": true,
+                        "editable": true,
+                        "advanced": false
+                    },
+                    "autoCommitInterval": {
+                        "metadata": {
+                            "label": "autoCommitInterval",
+                            "description": "Auto committing interval (in seconds) for commit offset when auto-committing is enabled"
+                        },
+                        "valueType": "decimal",
+                        "valueTypeConstraint": "decimal",
+                        "value": "",
+                        "placeholder": "",
+                        "optional": true,
+                        "editable": true,
+                        "advanced": false
+                    },
+                    "maxPartitionFetchBytes": {
+                        "metadata": {
+                            "label": "maxPartitionFetchBytes",
+                            "description": "The maximum amount of data the server returns per partition"
+                        },
+                        "valueType": "int",
+                        "valueTypeConstraint": "int",
+                        "value": "",
+                        "placeholder": "",
+                        "optional": true,
+                        "editable": true,
+                        "advanced": false
+                    },
+                    "sendBuffer": {
+                        "metadata": {
+                            "label": "sendBuffer",
+                            "description": "Size of the TCP send buffer (SO_SNDBUF)"
+                        },
+                        "valueType": "int",
+                        "valueTypeConstraint": "int",
+                        "value": "",
+                        "placeholder": "",
+                        "optional": true,
+                        "editable": true,
+                        "advanced": false
+                    },
+                    "receiveBuffer": {
+                        "metadata": {
+                            "label": "receiveBuffer",
+                            "description": "Size of the TCP receive buffer (SO_RCVBUF)"
+                        },
+                        "valueType": "int",
+                        "valueTypeConstraint": "int",
+                        "value": "",
+                        "placeholder": "",
+                        "optional": true,
+                        "editable": true,
+                        "advanced": false
+                    },
+                    "fetchMinBytes": {
+                        "metadata": {
+                            "label": "fetchMinBytes",
+                            "description": "Minimum amount of data the server should return for a fetch request"
+                        },
+                        "valueType": "int",
+                        "valueTypeConstraint": "int",
+                        "value": "",
+                        "placeholder": "",
+                        "optional": true,
+                        "editable": true,
+                        "advanced": false
+                    },
+                    "fetchMaxBytes": {
+                        "metadata": {
+                            "label": "fetchMaxBytes",
+                            "description": "Maximum amount of data the server should return for a fetch request"
+                        },
+                        "valueType": "int",
+                        "valueTypeConstraint": "int",
+                        "value": "",
+                        "placeholder": "",
+                        "optional": true,
+                        "editable": true,
+                        "advanced": false
+                    },
+                    "fetchMaxWaitTime": {
+                        "metadata": {
+                            "label": "fetchMaxWaitTime",
+                            "description": "Maximum amount of time (in seconds) the server will block before answering the fetch request"
+                        },
+                        "valueType": "decimal",
+                        "valueTypeConstraint": "decimal",
+                        "value": "",
+                        "placeholder": "",
+                        "optional": true,
+                        "editable": true,
+                        "advanced": false
+                    },
+                    "reconnectBackoffTimeMax": {
+                        "metadata": {
+                            "label": "reconnectBackoffTimeMax",
+                            "description": "Maximum amount of time in seconds to wait when reconnecting"
+                        },
+                        "valueType": "decimal",
+                        "valueTypeConstraint": "decimal",
+                        "value": "",
+                        "placeholder": "",
+                        "optional": true,
+                        "editable": true,
+                        "advanced": false
+                    },
+                    "retryBackoff": {
+                        "metadata": {
+                            "label": "retryBackoff",
+                            "description": "Time (in seconds) to wait before attempting to retry a failed request"
+                        },
+                        "valueType": "decimal",
+                        "valueTypeConstraint": "decimal",
+                        "value": "",
+                        "placeholder": "",
+                        "optional": true,
+                        "editable": true,
+                        "advanced": false
+                    },
+                    "metricsSampleWindow": {
+                        "metadata": {
+                            "label": "metricsSampleWindow",
+                            "description": "Window of time (in seconds) a metrics sample is computed over"
+                        },
+                        "valueType": "decimal",
+                        "valueTypeConstraint": "decimal",
+                        "value": "",
+                        "placeholder": "",
+                        "optional": true,
+                        "editable": true,
+                        "advanced": false
+                    },
+                    "metricsNumSamples": {
+                        "metadata": {
+                            "label": "metricsNumSamples",
+                            "description": "Number of samples maintained to compute metrics"
+                        },
+                        "valueType": "int",
+                        "valueTypeConstraint": "int",
+                        "value": "",
+                        "placeholder": "",
+                        "optional": true,
+                        "editable": true,
+                        "advanced": false
+                    },
+                    "requestTimeout": {
+                        "metadata": {
+                            "label": "requestTimeout",
+                            "description": "Wait time (in seconds) for response of a request"
+                        },
+                        "valueType": "decimal",
+                        "valueTypeConstraint": "decimal",
+                        "value": "",
+                        "placeholder": "",
+                        "optional": true,
+                        "editable": true,
+                        "advanced": false
+                    },
+                    "connectionMaxIdleTime": {
+                        "metadata": {
+                            "label": "connectionMaxIdleTime",
+                            "description": "Close idle connections after the number of seconds"
+                        },
+                        "valueType": "decimal",
+                        "valueTypeConstraint": "decimal",
+                        "value": "",
+                        "placeholder": "",
+                        "optional": true,
+                        "editable": true,
+                        "advanced": false
+                    },
+                    "maxPollRecords": {
+                        "metadata": {
+                            "label": "maxPollRecords",
+                            "description": "Maximum number of records returned in a single call to poll"
+                        },
+                        "valueType": "int",
+                        "valueTypeConstraint": "int",
+                        "value": "",
+                        "placeholder": "",
+                        "optional": true,
+                        "editable": true,
+                        "advanced": false
+                    },
+                    "maxPollInterval": {
+                        "metadata": {
+                            "label": "maxPollInterval",
+                            "description": "Maximum delay between invocations of poll"
+                        },
+                        "valueType": "int",
+                        "valueTypeConstraint": "int",
+                        "value": "",
+                        "placeholder": "",
+                        "optional": true,
+                        "editable": true,
+                        "advanced": false
+                    },
+                    "reconnectBackoffTime": {
+                        "metadata": {
+                            "label": "reconnectBackoffTime",
+                            "description": "Time (in seconds) to wait before attempting to reconnect"
+                        },
+                        "valueType": "decimal",
+                        "valueTypeConstraint": "decimal",
+                        "value": "",
+                        "placeholder": "",
+                        "optional": true,
+                        "editable": true,
+                        "advanced": false
+                    },
+                    "pollingTimeout": {
+                        "metadata": {
+                            "label": "pollingTimeout",
+                            "description": "Timeout interval for polling in seconds"
+                        },
+                        "valueType": "decimal",
+                        "valueTypeConstraint": "decimal",
+                        "value": "",
+                        "placeholder": "",
+                        "optional": true,
+                        "editable": true,
+                        "advanced": false
+                    },
+                    "pollingInterval": {
+                        "metadata": {
+                            "label": "pollingInterval",
+                            "description": "Polling interval for the consumer in seconds"
+                        },
+                        "valueType": "decimal",
+                        "valueTypeConstraint": "decimal",
+                        "value": "",
+                        "placeholder": "",
+                        "optional": true,
+                        "editable": true,
+                        "advanced": false
+                    },
+                    "concurrentConsumers": {
+                        "metadata": {
+                            "label": "concurrentConsumers",
+                            "description": "Number of concurrent consumers"
+                        },
+                        "valueType": "int",
+                        "valueTypeConstraint": "int",
+                        "value": "",
+                        "placeholder": "",
+                        "optional": true,
+                        "editable": true,
+                        "advanced": false
+                    },
+                    "defaultApiTimeout": {
+                        "metadata": {
+                            "label": "defaultApiTimeout",
+                            "description": "Default API timeout value (in seconds) for APIs with duration"
+                        },
+                        "valueType": "decimal",
+                        "valueTypeConstraint": "decimal",
+                        "value": "",
+                        "placeholder": "",
+                        "optional": true,
+                        "editable": true,
+                        "advanced": false
+                    },
+                    "autoCommit": {
+                        "metadata": {
+                            "label": "autoCommit",
+                            "description": "Enables auto committing offsets"
+                        },
+                        "valueType": "boolean",
+                        "valueTypeConstraint": "boolean",
+                        "value": "",
+                        "placeholder": "true",
+                        "optional": true,
+                        "editable": true,
+                        "advanced": false
+                    },
+                    "checkCRCS": {
+                        "metadata": {
+                            "label": "checkCRCS",
+                            "description": "Checks the CRC32 of the records consumed. This ensures that no on-the-wire or on-disk corruption occurred to the messages. This may add some overhead and might need to be set to `false` if extreme performance is required"
+                        },
+                        "valueType": "boolean",
+                        "valueTypeConstraint": "boolean",
+                        "value": "",
+                        "placeholder": "true",
+                        "optional": true,
+                        "editable": true,
+                        "advanced": false
+                    },
+                    "excludeInternalTopics": {
+                        "metadata": {
+                            "label": "excludeInternalTopics",
+                            "description": "Whether records from internal topics should be exposed to the consumer"
+                        },
+                        "valueType": "boolean",
+                        "valueTypeConstraint": "boolean",
+                        "value": "",
+                        "placeholder": "true",
+                        "optional": true,
+                        "editable": true,
+                        "advanced": false
+                    },
+                    "decoupleProcessing": {
+                        "metadata": {
+                            "label": "decoupleProcessing",
+                            "description": "Decouples processing"
+                        },
+                        "valueType": "boolean",
+                        "valueTypeConstraint": "boolean",
+                        "value": "",
+                        "placeholder": "true",
+                        "optional": true,
+                        "editable": true,
+                        "advanced": false
+                    },
+                    "validation": {
+                        "metadata": {
+                            "label": "validation",
+                            "description": "Configuration related to constraint validation check"
+                        },
+                        "valueType": "boolean",
+                        "valueTypeConstraint": "boolean",
+                        "value": "",
+                        "placeholder": "true",
+                        "optional": true,
+                        "editable": true,
+                        "advanced": false
+                    },
+                    "autoSeekOnValidationFailure": {
+                        "metadata": {
+                            "label": "autoSeekOnValidationFailure",
+                            "description": "Automatically seeks past the errornous records in the event of an data-binding or validating constraints failure"
+                        },
+                        "valueType": "boolean",
+                        "valueTypeConstraint": "boolean",
+                        "value": "",
+                        "placeholder": "true",
+                        "optional": true,
+                        "editable": true,
+                        "advanced": false
+                    },
+                    "secureSocket": {
+                        "metadata": {
+                            "label": "secureSocket",
+                            "description": "Configurations related to SSL/TLS encryption"
+                        },
+                        "valueType": "EXPRESSION",
+                        "valueTypeConstraint": "kafka:SecureSocket",
+                        "value": "",
+                        "placeholder": "",
+                        "optional": true,
+                        "editable": true,
+                        "advanced": true,
+                        "fields": {
+                            "cert": {
+                                "metadata": {
+                                    "label": "cert",
+                                    "description": "Configurations associated with crypto:TrustStore or single certificate file that the client trusts"
+                                },
+                                "valueType": "string",
+                                "valueTypeConstraint": "string",
+                                "value": "",
+                                "placeholder": "",
+                                "optional": true,
+                                "editable": true,
+                                "advanced": false
+                            },
+                            "key": {
+                                "metadata": {
+                                    "label": "key",
+                                    "description": "Configurations associated with crypto:KeyStore or combination of certificate and private key of the client"
+                                },
+                                "valueType": "string",
+                                "valueTypeConstraint": "string",
+                                "value": "",
+                                "placeholder": "",
+                                "optional": true,
+                                "editable": true,
+                                "advanced": false
+                            },
+                            "protocol": {
+                                "metadata": {
+                                    "label": "protocol",
+                                    "description": "SSL/TLS protocol related options"
+                                },
+                                "valueType": "EXPRESSION",
+                                "valueTypeConstraint": "record",
+                                "value": "",
+                                "placeholder": "",
+                                "optional": true,
+                                "editable": true,
+                                "advanced": true,
+                                "fields": {
+                                    "name": {
+                                        "metadata": {
+                                            "label": "name",
+                                            "description": "The name of the protocol"
+                                        },
+                                        "valueType": "string",
+                                        "valueTypeConstraint": "string",
+                                        "value": "",
+                                        "placeholder": "",
+                                        "optional": true,
+                                        "editable": true,
+                                        "advanced": false,
+                                        "enum": [
+                                            "kafka:SSL",
+                                            "kafka:TLS",
+                                            "kafka:DTLS"
+                                        ]
+                                    },
+                                    "versions": {
+                                        "metadata": {
+                                            "label": "versions",
+                                            "description": "The versions of the protocol"
+                                        },
+                                        "valueType": "string[]",
+                                        "valueTypeConstraint": "string[]",
+                                        "value": "",
+                                        "placeholder": "",
+                                        "optional": true,
+                                        "editable": true,
+                                        "advanced": false
+                                    }
+                                }
+                            },
+                            "ciphers": {
+                                "metadata": {
+                                    "label": "ciphers",
+                                    "description": "List of ciphers to be used. By default, all the available cipher suites are supported"
+                                },
+                                "valueType": "string[]",
+                                "valueTypeConstraint": "string[]",
+                                "value": "",
+                                "placeholder": "",
+                                "optional": true,
+                                "editable": true,
+                                "advanced": false
+                            },
+                            "provider": {
+                                "metadata": {
+                                    "label": "provider",
+                                    "description": "Name of the security provider used for SSL connections. The default value is the default security provider of the JVM"
+                                },
+                                "valueType": "string",
+                                "valueTypeConstraint": "string",
+                                "value": "",
+                                "placeholder": "",
+                                "optional": true,
+                                "editable": true,
+                                "advanced": false
+                            }
+                        }
+                    },
+                    "auth": {
+                        "metadata": {
+                            "label": "auth",
+                            "description": "Authentication-related configurations for the `kafka:Consumer`"
+                        },
+                        "valueType": "EXPRESSION",
+                        "valueTypeConstraint": "kafka:AuthenticationConfiguration",
+                        "value": "",
+                        "placeholder": "",
+                        "optional": true,
+                        "editable": true,
+                        "advanced": true,
+                        "fields": {
+                            "mechanism": {
+                                "metadata": {
+                                    "label": "mechanism",
+                                    "description": "Type of the authentication mechanism. Currently `SASL_PLAIN`, `SASL_SCRAM_256` & `SASL_SCRAM_512` is supported"
+                                },
+                                "valueType": "string",
+                                "valueTypeConstraint": "string",
+                                "value": "",
+                                "placeholder": "kafka:AUTH_SASL_PLAIN",
+                                "optional": true,
+                                "editable": true,
+                                "advanced": false,
+                                "enum": [
+                                    "kafka:AUTH_SASL_PLAIN",
+                                    "kafka:AUTH_SASL_SCRAM_SHA_256",
+                                    "kafka:AUTH_SASL_SCRAM_SHA_512"
+                                ]
+                            },
+                            "username": {
+                                "metadata": {
+                                    "label": "username",
+                                    "description": "The username to authenticate the Kafka producer/consumer"
+                                },
+                                "valueType": "string",
+                                "valueTypeConstraint": "string",
+                                "value": "",
+                                "placeholder": "",
+                                "optional": true,
+                                "editable": true,
+                                "advanced": false
+                            },
+                            "password": {
+                                "metadata": {
+                                    "label": "password",
+                                    "description": "The password to authenticate the Kafka producer/consumer"
+                                },
+                                "valueType": "string",
+                                "valueTypeConstraint": "string",
+                                "value": "",
+                                "placeholder": "",
+                                "optional": true,
+                                "editable": true,
+                                "advanced": false
+                            }
+                        }
+                    },
+                    "securityProtocol": {
+                        "metadata": {
+                            "label": "securityProtocol",
+                            "description": "Type of the security protocol to use in the broker connection"
+                        },
+                        "valueType": "string",
+                        "valueTypeConstraint": "kafka:SecurityProtocol",
+                        "value": "",
+                        "placeholder": "kafka:PROTOCOL_PLAINTEXT",
+                        "optional": true,
+                        "editable": true,
+                        "advanced": false,
+                        "enum": [
+                            "kafka:PROTOCOL_PLAINTEXT",
+                            "kafka:PROTOCOL_SASL_PLAINTEXT",
+                            "kafka:PROTOCOL_SASL_SSL",
+                            "kafka:PROTOCOL_SSL"
+                        ]
+                    }
+                }
+            }
+        }
+    }
+}

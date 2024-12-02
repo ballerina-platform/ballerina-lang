@@ -15,6 +15,7 @@
  */
 package org.ballerinalang.langserver.command.executors;
 
+import com.google.gson.JsonArray;
 import com.google.gson.JsonPrimitive;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.commons.ExecuteCommandContext;
@@ -27,6 +28,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.function.Supplier;
 
@@ -42,7 +45,8 @@ public class RunExecutor implements LSCommandExecutor {
     @Override
     public Boolean execute(ExecuteCommandContext context) throws LSCommandExecutorException {
         try {
-            Optional<Process> processOpt = context.workspace().run(extractPath(context));
+            Optional<Process> processOpt = context.workspace().run(extractPath(context),
+                    extractMainFunctionArgs(context));
             if (processOpt.isEmpty()) {
                 return false;
             }
@@ -57,6 +61,17 @@ public class RunExecutor implements LSCommandExecutor {
 
     private static Path extractPath(ExecuteCommandContext context) {
         return Path.of(context.getArguments().get(0).<JsonPrimitive>value().getAsString());
+    }
+
+    private static List<String> extractMainFunctionArgs(ExecuteCommandContext context) {
+        List<String> args = new ArrayList<>();
+        if (context.getArguments().size() == 1) {
+            return args;
+        }
+        context.getArguments().get(1).<JsonArray>value().getAsJsonArray().iterator().forEachRemaining(arg -> {
+            args.add(arg.getAsString());
+        });
+        return args;
     }
 
     public void listenOutputAsync(ExtendedLanguageClient client, Supplier<InputStream> getInputStream, String channel) {

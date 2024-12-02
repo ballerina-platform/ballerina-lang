@@ -113,6 +113,12 @@
         <Class name="org.ballerinalang.langserver.extensions.ballerina.document.BallerinaServiceListResponse" />
     </Match>
     <Match>
+        <Class name="org.ballerinalang.langserver.extensions.ballerina.runner.BallerinaRunnerUtil"/>
+        <OR>
+            <Bug pattern="BC_UNCONFIRMED_CAST"/>
+        </OR>
+    </Match>
+    <Match>
         <Class name="org.ballerinalang.langserver.hover.HoverUtil" />
         <OR>
             <Bug pattern="BC_UNCONFIRMED_CAST" />

@@ -962,6 +962,9 @@ public abstract class NodeVisitor {
     public void visit(ReceiveFieldNode receiveFieldNode) {
         visitSyntaxNode(receiveFieldNode);
     }
+    public void visit(CommentNode commentNode) {
+        visitSyntaxNode(commentNode);
+    }
 
     // Tokens
 

@@ -19,6 +19,7 @@ module io.ballerina.language.server.core {
     exports org.ballerinalang.langserver.codeaction.providers;
     exports org.ballerinalang.langserver.exception;
     exports org.ballerinalang.langserver.extensions;
+    exports org.ballerinalang.langserver.extensions.ballerina.packages;
     exports org.ballerinalang.langserver.config;
     exports org.ballerinalang.langserver.telemetry;
     exports org.ballerinalang.langserver.util;

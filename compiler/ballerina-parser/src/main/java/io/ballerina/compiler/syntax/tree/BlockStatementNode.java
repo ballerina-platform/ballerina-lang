@@ -40,6 +40,10 @@ public class BlockStatementNode extends StatementNode {
         return new NodeList<>(childInBucket(1));
     }
 
+    public NodeAndCommentList<Node> statementsWithComments() {
+        return new NodeAndCommentList<>(childInBucket(1), childInBucket(2));
+    }
+
     public Token closeBraceToken() {
         return childInBucket(2);
     }

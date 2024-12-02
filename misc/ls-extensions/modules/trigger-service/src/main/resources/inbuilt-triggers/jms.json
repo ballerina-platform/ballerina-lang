@@ -1,0 +1,421 @@
+{
+  "id": 5,
+  "name": "JMS Service",
+  "type": "inbuilt",
+  "displayName": "JMS",
+  "documentation": "The JMS service can be attached to a JMS listener which listens to messages from a JMS broker. The service should implement the `onMessage` remote method to process the received messages. Additionally, the service can implement the `onError` remote method to handle errors that occur during message processing.",
+  "moduleName": "java.jms",
+  "listenerProtocol": "jms",
+  "displayAnnotation": {
+    "label": "jms",
+    "iconPath": "docs/icon.png"
+  },
+  "package": {
+    "id": 14134,
+    "organization": "ballerinax",
+    "name": "java.jms",
+    "version": "1.0.1",
+    "platform": "java17",
+    "languageSpecificationVersion": "2023R1",
+    "isDeprecated": false,
+    "deprecateMessage": "",
+    "URL": "/ballerinax/java.jms/1.0.1",
+    "balaVersion": "2.0.0",
+    "balaURL": "https://fileserver.central.ballerina.io/2.0/ballerinax/java.jms/1.0.1/ballerinax-java.jms-java17-1.0.1.bala?Expires=1729736702&Signature=iGZK64YQyN7Ebpk8hVOtguqSkJitQbQPp7nJyT1DA50dHOWsbbYzO~39iXFbKCyyzsrf3CUWOj1fAK~TYwO-oZ0nGOH9t5ZOnlxRkh39r~76TpojOpGWkhydKJRfy5yEVdC5DV6WkbO2j13ruXELJnxDjsjAAN7QeAXR0xPwUw1785FqhrHNC0odeDEF7rtWmTZ~KoulrCXmsTO4o8p9Z9ig7IsXai7Ev~UHqIfamaoeiPVrfoAo9uM9lCZejn0uoi7Dw6-OkyrT65OmODqsDXudXiEAUD5WsL5r4edXBxoPbYSIzq0UhEMd2393MMuf3~K8YSGONWZlPSO4k--FmQ__&Key-Pair-Id=K27IQ7NPTKLKDU",
+    "digest": "sha-256=532c8a3f906efa50d5c91cc163ed794665b5d19ce9a77e9a75fc2f33b45405bf",
+    "summary": "The `ballerinax/java.jms` package provides an API to connect to an external JMS provider like ActiveMQ from Ballerina.",
+    "readme": "## Package overview\n\nThe `ballerinax\/java.jms` package provides an API to connect to an external JMS provider like ActiveMQ from Ballerina.\n\nThis package is created with minimal deviation from the JMS API to make it easy for the developers who are used to working with the JMS API. This package is written to support both JMS 2.0 and JMS 1.0 API. \n \nCurrently, the following JMS API Classes are supported through this package.\n \n - Connection\n - Session\n - Destination (Queue, Topic, TemporaryQueue, TemporaryTopic)\n - Message (TextMessage, MapMessage, BytesMessage)\n - MessageConsumer\n - MessageProducer\n \n The following sections provide details on how to use the JMS connector.\n \n - [Samples](#samples)\n\n## Samples\n\n### JMS message Producer\n\nThe following Ballerina program sends messages to a queue named *MyQueue*.\n\n```ballerina\nimport ballerinax\/activemq.driver as _;\nimport ballerinax\/java.jms;\n\npublic function main() returns error? {\n    jms:Connection connection = check new (\n        initialContextFactory = \"org.apache.activemq.jndi.ActiveMQInitialContextFactory\",\n        providerUrl = \"tcp:\/\/localhost:61616\"\n    );\n    jms:Session session = check connection->createSession();\n    jms:MessageProducer producer = check session.createProducer({\n        'type: jms:QUEUE,\n        name: \"MyQueue\"\n    });\n    jms:TextMessage msg = {\n        content: \"Hello Ballerina!\"\n    };\n    check producer->send(msg);\n}\n```\n\n## JMS message consumer\nThe following Ballerina program receives messages from a queue named *MyQueue*.\n```ballerina\nimport ballerinax\/activemq.driver as _;\nimport ballerinax\/java.jms;\nimport ballerina\/log;\n\npublic function main() returns error? {\n    jms:Connection connection = check new (\n        initialContextFactory = \"org.apache.activemq.jndi.ActiveMQInitialContextFactory\",\n        providerUrl = \"tcp:\/\/localhost:61616\"\n    );\n    jms:Session session = check connection->createSession();\n    jms:MessageConsumer consumer = check session.createConsumer(\n        destination = {\n            'type: jms:QUEUE,\n            name: \"MyQueue\"\n    });\n    while true {\n        jms:Message? response = check consumer->receive(3000);\n        if response is jms:TextMessage {\n            log:printInfo(\"Message received: \", content = response.toString());\n        }\n    }\n}\n```\n\n### Asynchronous message consumer\n\nOne of the key deviations from the JMS API was the asynchronous message consumption using message listeners. In \nBallerina transport listener concept is covered with **service** type, hence we have used the Ballerina service to \nimplement the message listener. Following is a message listener example listening on a queue named *MyQueue*.\n\n```ballerina\nimport ballerinax\/activemq.driver as _;\nimport ballerina\/log;\nimport ballerinax\/java.jms;\n\nservice \"consumer-service\" on new jms:Listener(\n    connectionConfig = {\n        initialContextFactory: \"org.apache.activemq.jndi.ActiveMQInitialContextFactory\",\n        providerUrl: \"tcp:\/\/localhost:61616\"\n    },\n    consumerOptions = {\n        destination: {\n            'type: jms:QUEUE,\n            name: \"MyQueue\"\n        }\n    }\n) {\n    remote function onMessage(jms:Message message) returns error? {\n        if message is jms:TextMessage {\n            log:printInfo(\"Text message received\", content = message.content);\n        }\n    }\n}\n```",
+    "template": false,
+    "licenses": [
+      "Apache-2.0"
+    ],
+    "authors": [
+      "Ballerina"
+    ],
+    "sourceCodeLocation": "https://github.com/ballerina-platform/module-ballerina-java.jms",
+    "keywords": [
+      "jms"
+    ],
+    "ballerinaVersion": "2201.8.0",
+    "icon": "https://bcentral-packageicons.azureedge.net/images/ballerinax_java.jms_1.0.1.png",
+    "ownerUUID": "02ea02ee-e509-41d5-bb61-60467748ddc5",
+    "createdDate": 1710919297000,
+    "pullCount": 36,
+    "visibility": "public",
+    "modules": [
+      {
+        "packageURL": "/ballerinax/java.jms/1.0.1",
+        "apiDocURL": "https://lib.ballerina.io/ballerinax/java.jms/1.0.1",
+        "name": "java.jms",
+        "summary": "The `ballerinax/java.jms` module provides an API to connect to an external JMS provider like ActiveMQ from Ballerina.",
+        "readme": "## Overview\n\nThe `ballerinax\/java.jms` module provides an API to connect to an external JMS provider like ActiveMQ from Ballerina.\n\nThis module is created with minimal deviation from the JMS API to make it easy for the developers who are used to working \n with the JMS API. This module is written to support both JMS 2.0 and JMS 1.0 API. \n \nCurrently, the following JMS API Classes are supported through this module.\n \n - Connection\n - Session\n - Destination (Queue, Topic, TemporaryQueue, TemporaryTopic)\n - Message (TextMessage, MapMessage, BytesMessage)\n - MessageConsumer\n - MessageProducer\n \n The following sections provide details on how to use the JMS connector.\n \n - [Samples](#samples)\n\n## Samples\n\n### JMS message Producer\n\nThe following Ballerina program sends messages to a queue named *MyQueue*.\n\n```ballerina\nimport ballerinax\/activemq.driver as _;\nimport ballerinax\/java.jms;\n\npublic function main() returns error? {\n    jms:Connection connection = check new (\n        initialContextFactory = \"org.apache.activemq.jndi.ActiveMQInitialContextFactory\",\n        providerUrl = \"tcp:\/\/localhost:61616\"\n    );\n    jms:Session session = check connection->createSession();\n    jms:MessageProducer producer = check session.createProducer({\n        'type: jms:QUEUE,\n        name: \"MyQueue\"\n    });\n    jms:TextMessage msg = {\n        content: \"Hello Ballerina!\"\n    };\n    check producer->send(msg);\n}\n```\n\n## JMS message consumer\nThe following Ballerina program receives messages from a queue named *MyQueue*.\n```ballerina\nimport ballerinax\/activemq.driver as _;\nimport ballerinax\/java.jms;\nimport ballerina\/log;\n\npublic function main() returns error? {\n    jms:Connection connection = check new (\n        initialContextFactory = \"org.apache.activemq.jndi.ActiveMQInitialContextFactory\",\n        providerUrl = \"tcp:\/\/localhost:61616\"\n    );\n    jms:Session session = check connection->createSession();\n    jms:MessageConsumer consumer = check session.createConsumer(\n        destination = {\n            'type: jms:QUEUE,\n            name: \"MyQueue\"\n    });\n    while true {\n        jms:Message? response = check consumer->receive(3000);\n        if response is jms:TextMessage {\n            log:printInfo(\"Message received: \", content = response.toString());\n        }\n    }\n}\n```\n\n### Asynchronous message consumer\n\nOne of the key deviations from the JMS API was the asynchronous message consumption using message listeners. In \nBallerina transport listener concept is covered with **service** type, hence we have used the Ballerina service to \nimplement the message listener. Following is a message listener example listening on a queue named *MyQueue*.\n\n```ballerina\nimport ballerinax\/activemq.driver as _;\nimport ballerina\/log;\nimport ballerinax\/java.jms;\n\nservice \"consumer-service\" on new jms:Listener(\n    connectionConfig = {\n        initialContextFactory: \"org.apache.activemq.jndi.ActiveMQInitialContextFactory\",\n        providerUrl: \"tcp:\/\/localhost:61616\"\n    },\n    consumerOptions = {\n        destination: {\n            'type: jms:QUEUE,\n            name: \"MyQueue\"\n        }\n    }\n) {\n    remote function onMessage(jms:Message message) returns error? {\n        if message is jms:TextMessage {\n            log:printInfo(\"Text message received\", content = message.content);\n        }\n    }\n}\n```"
+      }
+    ],
+    "balToolId": "",
+    "graalvmCompatible": "Yes"
+  },
+  "serviceTypes": [
+    {
+      "name": "JMS",
+      "description": "JMS Service",
+      "enabled": true,
+      "functions": [
+        {
+          "name": "onMessage",
+          "documentation": "The `onMessage` remote method will be triggered when a message is received from the JMS broker.",
+          "optional": false,
+          "qualifiers": [
+            "remote"
+          ],
+          "enabled": true,
+          "parameters": [
+            {
+              "name": "message",
+              "typeName": "jms:Message",
+              "optional": false,
+              "type": [
+                "jms:Message"
+              ],
+              "typeInfo": {
+                "name": "Message",
+                "orgName": "ballerinax",
+                "moduleName": "java.jms",
+                "version": "1.0.1"
+              },
+              "documentation": "The message received from the JMS broker",
+              "enabled": true,
+              "value": "jms:Message"
+            },
+            {
+              "name": "caller",
+              "typeName": "jms:Caller",
+              "type": [
+                "jms:Caller"
+              ],
+              "typeInfo": {
+                "name": "Caller",
+                "orgName": "ballerinax",
+                "moduleName": "java.jms",
+                "version": "1.0.1"
+              },
+              "optional": true,
+              "documentation": "The JMS caller object to acknowledge the message",
+              "enabled": false,
+              "value": "jms:Caller"
+            }
+          ],
+          "returnType": {
+            "typeName": "error?",
+            "type": [
+              "error?"
+            ],
+            "optional": true,
+            "documentation": "Error object.",
+            "defaultTypeName": "error?",
+            "enabled": true,
+            "value": "error?"
+          }
+        },
+        {
+          "name": "onError",
+          "documentation": "The `onError` remote method will be triggered when an error occurs during message processing.",
+          "optional": true,
+          "qualifiers": [
+            "remote"
+          ],
+          "enabled": false,
+          "parameters": [
+            {
+              "name": "err",
+              "typeName": "jms:Error",
+              "type": [
+                "jms:Error"
+              ],
+              "optional": false,
+              "typeInfo": {
+                "name": "Error",
+                "orgName": "ballerinax",
+                "moduleName": "java.jms",
+                "version": "1.0.1"
+              },
+              "documentation": "The error occurred during message processing",
+              "enabled": true,
+              "value": "jms:Error"
+            }
+          ],
+          "returnType": {
+            "typeName": "error?",
+            "type": [
+              "error?"
+            ],
+            "optional": true,
+            "documentation": "Error object.",
+            "defaultTypeName": "error?",
+            "enabled": true,
+            "value": "error?"
+          }
+        }
+      ]
+    }
+  ],
+  "listener": {
+    "metadata": {
+      "label": "JMS Listener",
+      "description": "The JMS listener listens to messages from a JMS broker."
+    },
+    "valueType": "jms:Listener",
+    "valueTypeConstraint": "jms:Listener",
+    "value": "",
+    "enabled": true,
+    "optional": false,
+    "editable": true,
+    "properties": {
+      "listenerConfig": {
+        "metadata": {
+          "label": "listenerConfig",
+          "description": "The JMS listener configuration"
+        },
+        "valueType": "EXPRESSION",
+        "valueTypeConstraint": "jms:MessageListenerConfigurations",
+        "value": "",
+        "editable": true,
+        "optional": true,
+        "advanced": true,
+        "fields": {
+          "connectionConfig": {
+            "metadata": {
+              "label": "connectionConfig",
+              "description": "Configurations related to the broker connection"
+            },
+            "valueType": "EXPRESSION",
+            "valueTypeConstraint": "jms:ConnectionConfiguration",
+            "value": "",
+            "placeholder": "",
+            "optional": false,
+            "editable": true,
+            "advanced": true,
+            "fields": {
+              "initialContextFactory": {
+                "metadata": {
+                  "label": "initialContextFactory",
+                  "description": "JMS provider specific initial context factory"
+                },
+                "valueType": "string",
+                "valueTypeConstraint": "string",
+                "value": "",
+                "placeholder": "",
+                "optional": false,
+                "editable": true,
+                "advanced": false
+              },
+              "providerUrl": {
+                "metadata": {
+                  "label": "providerUrl",
+                  "description": "JMS provider specific provider URL used to configure a connection"
+                },
+                "valueType": "string",
+                "valueTypeConstraint": "string",
+                "value": "",
+                "placeholder": "",
+                "optional": false,
+                "editable": true,
+                "advanced": false
+              },
+              "connectionFactoryName": {
+                "metadata": {
+                  "label": "connectionFactoryName",
+                  "description": "JMS connection factory to be used in creating JMS connections"
+                },
+                "valueType": "string",
+                "valueTypeConstraint": "string",
+                "value": "",
+                "placeholder": "ConnectionFactory",
+                "optional": true,
+                "editable": true,
+                "advanced": false
+              },
+              "username": {
+                "metadata": {
+                  "label": "username",
+                  "description": "Username for the JMS connection"
+                },
+                "valueType": "string",
+                "valueTypeConstraint": "string",
+                "value": "",
+                "placeholder": "",
+                "optional": true,
+                "editable": true,
+                "advanced": false
+              },
+              "password": {
+                "metadata": {
+                  "label": "password",
+                  "description": "Password for the JMS connection"
+                },
+                "valueType": "string",
+                "valueTypeConstraint": "string",
+                "value": "",
+                "placeholder": "",
+                "optional": true,
+                "editable": true,
+                "advanced": false
+              },
+              "properties": {
+                "metadata": {
+                  "label": "properties",
+                  "description": "Additional properties used in initializing the initial context"
+                },
+                "valueType": "map",
+                "valueTypeConstraint": "map<string>",
+                "value": "",
+                "placeholder": "",
+                "optional": true,
+                "editable": true,
+                "advanced": false
+              }
+            }
+          },
+          "acknowledgementMode": {
+            "metadata": {
+              "label": "acknowledgementMode",
+              "description": "Configuration indicating how messages received by the session will be acknowledged"
+            },
+            "valueType": "enum",
+            "valueTypeConstraint": "jms:AcknowledgementMode",
+            "value": "",
+            "placeholder": "jms:AUTO_ACKNOWLEDGE",
+            "optional": true,
+            "editable": true,
+            "advanced": false,
+            "enum": [
+              "jms:SESSION_TRANSACTED",
+              "jms:AUTO_ACKNOWLEDGE",
+              "jms:CLIENT_ACKNOWLEDGE",
+              "jms:DUPS_OK_ACKNOWLEDGE"
+            ]
+          },
+          "consumerOptions": {
+            "metadata": {
+              "label": "consumerOptions",
+              "description": "Underlying JMS message consumer configurations"
+            },
+            "valueType": "EXPRESSION",
+            "valueTypeConstraint": "jms:ConsumerOptions",
+            "value": "",
+            "placeholder": "",
+            "optional": false,
+            "editable": true,
+            "advanced": true,
+            "fields": {
+              "type": {
+                "metadata": {
+                  "label": "type",
+                  "description": "Message consumer type"
+                },
+                "valueType": "enum",
+                "valueTypeConstraint": "ConsumerType",
+                "value": "jms:DEFAULT",
+                "placeholder": "jms:DEFAULT",
+                "optional": true,
+                "editable": true,
+                "advanced": false,
+                "enum": [
+                  "jms:DURABLE",
+                  "jms:SHARED",
+                  "jms:SHARED_DURABLE",
+                  "jms:DEFAULT"
+                ]
+              },
+              "destination": {
+                "metadata": {
+                  "label": "destination",
+                  "description": "Name of the JMS destination"
+                },
+                "valueType": "EXPRESSION",
+                "valueTypeConstraint": "jms:Destination",
+                "value": "",
+                "placeholder": "",
+                "optional": false,
+                "editable": true,
+                "advanced": true,
+                "fields": {
+                  "type": {
+                    "metadata": {
+                      "label": "type",
+                      "description": "JMS destination types"
+                    },
+                    "valueType": "enum",
+                    "valueTypeConstraint": "jms:DestinationType",
+                    "value": "",
+                    "placeholder": "",
+                    "optional": false,
+                    "editable": true,
+                    "advanced": false,
+                    "enum": [
+                      "jms:QUEUE",
+                      "jms:TEMPORARY_QUEUE",
+                      "jms:TOPIC",
+                      "jms:TEMPORARY_TOPIC"
+                    ]
+                  },
+                  "name": {
+                    "metadata": {
+                      "label": "name",
+                      "description": "Name of the destination"
+                    },
+                    "valueType": "string",
+                    "valueTypeConstraint": "string",
+                    "value": "",
+                    "placeholder": "",
+                    "optional": true,
+                    "editable": true,
+                    "advanced": false
+                  }
+                }
+              },
+              "messageSelector": {
+                "metadata": {
+                  "label": "messageSelector",
+                  "description": "Only messages with properties matching the message selector expression are added to the durable subscription. An empty string indicates that there is no message selector for the durable subscription."
+                },
+                "valueType": "string",
+                "valueTypeConstraint": "string",
+                "value": "",
+                "placeholder": "",
+                "optional": true,
+                "editable": true,
+                "advanced": false
+              },
+              "noLocal": {
+                "metadata": {
+                  "label": "noLocal",
+                  "description": "If true then any messages published to the topic using this session's connection, or any other connection with the same client identifier, will not be added to the durable subscription."
+                },
+                "valueType": "boolean",
+                "valueTypeConstraint": "boolean",
+                "value": false,
+                "placeholder": "false",
+                "optional": true,
+                "editable": true,
+                "advanced": false
+              },
+              "subscriberName": {
+                "metadata": {
+                  "label": "subscriberName",
+                  "description": "The name used to identify the subscription"
+                },
+                "valueType": "string",
+                "valueTypeConstraint": "string",
+                "value": "",
+                "placeholder": "",
+                "optional": true,
+                "editable": true,
+                "advanced": false
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

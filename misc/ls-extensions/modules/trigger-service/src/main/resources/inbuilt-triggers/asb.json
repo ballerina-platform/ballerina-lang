@@ -1,0 +1,402 @@
+{
+  "id": 7,
+  "name": "ASB Service",
+  "type": "inbuilt",
+  "displayName": "ASB",
+  "documentation": "This ASB service can be attached to a ASB listener which listens to a given ASB topic/queue and triggers the service when a message is received. The service should have the `onMessage` remote function to handle the received message. Additionally, the service can have the `onError` remote method to handle errors that occur during the message processing.",
+  "listenerProtocol": "asb",
+  "displayAnnotation": {
+    "label": "ASB",
+    "iconPath": "docs/icon.png"
+  },
+  "package": {
+    "id": 19946,
+    "organization": "ballerinax",
+    "name": "asb",
+    "version": "3.8.2",
+    "platform": "java17",
+    "languageSpecificationVersion": "2023R1",
+    "isDeprecated": false,
+    "deprecateMessage": "",
+    "URL": "/ballerinax/asb/3.8.2",
+    "balaVersion": "2.0.0",
+    "balaURL": "https://fileserver.central.ballerina.io/2.0/ballerinax/asb/3.8.2/ballerinax-asb-java17-3.8.2.bala?Expires=1730862517&Signature=N~sZ4dOOu9vC74hlcpKXySnm1U~flnHxRvW4O~XBQxpea0fbQCrRZvUHqMcxG218O2FM6yZzu9dm2-NaV8y6rQz~grHh88yRdnJcnf0RVloWakL8MtCkmz88AxgSihK3uJLloJBrV7hsHLsIm7K~QyARVyS9KXs5hGneCGz5FM7WrVsi9C3gk2gAYIk2PBnYk~hk2dshHgciZAwlJKf95i66hpN9RjY1ZQa49zsrxT-8y-HtghMdQZgYNaSwPZktVv9VCGrVKbLJUxC0R883PVXyBXq6MDut17TlNWORVqyGPkwZnDJMeUmjeIS-tOXNuXVZpUsEt87ZDJWCwEjUvg__&Key-Pair-Id=K27IQ7NPTKLKDU",
+    "digest": "sha-256=847f1c1ec1de7ce81891be8845772ae0e64e8cc7d5b4b0d302a4565b54cda4b0",
+    "summary": "The [Azure Service Bus](https://docs.microsoft.com/en-us/azure/service-bus-messaging/) is a fully managed enterprise message broker with message queues and publish-subscribe topics. It",
+    "readme": "## Overview\n\nThe [Azure Service Bus](https:\/\/docs.microsoft.com\/en-us\/azure\/service-bus-messaging\/) is a fully managed enterprise message broker with message queues and publish-subscribe topics. It\nprovides the capability to send and receive messages from Service Bus queues, topics, and subscriptions. The Azure\nService Bus handles messages that include data representing any kind of information, including structured data encoded\nwith common formats such as the following ones: JSON, XML, and Plain Text.\n\nThe [Ballerina](https:\/\/ballerina.io\/) connector for Azure Service Bus allows you to connect to\nan [Azure Service Bus](https:\/\/docs.microsoft.com\/en-us\/azure\/service-bus-messaging\/) via the Ballerina language.\n\nThis connector supports the following operations:\n- Manage (Get\/Create\/Update\/Delete\/list) a queue, topic, subscription or rule.\n- Send messages to a queue, topic, or subscription.\n- Receive messages from a queue, topic, or subscription.\n\nThe Ballerina Azure Service Bus module utilizes Microsoft's [Azure Service Bus JAVA SDK 7.13.1](https:\/\/learn.microsoft.com\/en-us\/java\/api\/overview\/azure\/service-bus?view=azure-java-stable#libraries-for-data-access). \n\n## Setup guide\n\nBefore using this connector in your Ballerina application, complete the following:\n\n### Create a namespace in the Azure portal\n\nTo begin using Service Bus messaging in Azure, you must first create a namespace with a name that is unique across Azure. A namespace provides a scoping container for Service Bus resources within your application.\n\nTo create a namespace:\n\n#### Step 1: Sign in to the [Azure portal](https:\/\/portal.azure.com\/)\nIf you don't have an Azure subscription, [sign up for a free Azure account](https:\/\/azure.microsoft.com\/free\/).\n\n#### Step 2: Go to the Create Resource Service Bus menu\n\nIn the left navigation pane of the portal, select **All services**, select **Integration** from the list of categories, hover the mouse over **Service Bus**, and then select **Create** on the Service Bus tile.\n\n![Create Resource Service Bus Menu](https:\/\/raw.githubusercontent.com\/ballerina-platform\/module-ballerinax-azure-service-bus\/main\/ballerina\/resources\/create-resource-service-bus-menu.png)\n\n#### Step 3: In the Basics tag of the Create namespace page, follow these steps:\n\n1. For **Subscription**, choose an Azure subscription in which to create the namespace.\n\n2. For **Resource group**, choose an existing resource group in which the namespace will live, or create a new one.\n\n3. Enter a **name for the namespace**. The namespace name should adhere to the following naming conventions:\n\n* The name must be unique across Azure. The system immediately checks to see if the name is available.\n* The name length is at least 6 and at most 50 characters.\n* The name can contain only letters, numbers, and hyphens ?-?.\n* The name must start with a letter and end with a letter or number.\n* The name doesn't end with ?-sb? or ?-mgmt?.\n\n4. For **Location**, choose the region in which your namespace should be hosted.\n\n5. For **Pricing tier**, select the pricing tier (Basic, Standard, or Premium) for the namespace. For this quickstart, select Standard.\n\n> **Notice:** If you want to use topics and subscriptions, choose either Standard or Premium. Topics\/subscriptions aren't supported in the Basic pricing tier. If you selected the Premium pricing tier, specify the number of messaging units. The premium tier provides resource isolation at the CPU and memory level so that each workload runs in isolation. This resource container is called a messaging unit. A premium namespace has at least one messaging unit. You can select 1, 2, 4, 8, or 16 messaging units for each Service Bus Premium namespace. For more information, see [Service Bus Premium Messaging](https:\/\/learn.microsoft.com\/en-us\/azure\/service-bus-messaging\/service-bus-premium-messaging).`\n\n6. Select **Review + create** at the bottom of the page.\n\n![Create Namespace](https:\/\/raw.githubusercontent.com\/ballerina-platform\/module-ballerinax-azure-service-bus\/main\/ballerina\/resources\/create-namespace.png)\n\n7. On the **Review + create** page, review settings, and select **Create**.\n\n\n### Obtain tokens for authentication\n\nTo send and receive messages from a Service Bus queue or topic, clients must use a token that is signed by a shared access key, which is part of a shared access policy. A shared access policy defines a set of permissions that can be assigned to one or more Service Bus entities (queues, topics, event hubs, or relays). A shared access policy can be assigned to more than one entity, and a single entity can have more than one shared access policy assigned to it.\n\nTo obtain a token following steps should be followed:\n\n1. In the left navigation pane of the portal, select *All services*, select *Integration* from the list of categories, hover the mouse over *Service Bus*, and then select your namespace.\n\n2. In the left navigation pane of the namespace page, select *Shared access policies*.\n\n3. Click on the *RootManageSharedAccessKey* policy.\n\n4. Copy the *Primary Connection String* value and save it in a secure location. This is the connection string that you use to authenticate with the Service Bus service.\n\n![Connection String](https:\/\/raw.githubusercontent.com\/ballerina-platform\/module-ballerinax-azure-service-bus\/main\/ballerina\/resources\/connection-string.png)\n\n\n## Quickstart\nTo use the ASB connector in your Ballerina application, modify the .bal file as follows:\n\n### Step 1: Import connector\n\nImport the `ballerinax\/asb` module into the Ballerina project.\n\n```ballerina\nimport ballerinax\/asb;\n```\n\n### Step 2: Create a new connector instance\n\n#### Initialize an Admin Client\n\nThis can be done by providing a connection string.\n\n````ballerina\n    configurable string connectionString = ?;\n    asb:AdminClient admin = check new (connectionString);\n````\n\n#### Initialize a Message Sender client\n\nThis can be done by providing a connection string with a queue or topic name.\n\n```ballerina\n    configurable string connectionString = ?;\n\n    ASBServiceSenderConfig senderConfig = {\n        connectionString: connectionString,\n        entityType: QUEUE,\n        topicOrQueueName: \"myQueue\"\n    };\n    asb:MessageSender sender = check new (senderConfig);\n```\n\n#### Initialize a Message Receiver client\n\nThis can be done by providing a connection string with a queue name, topic name, or subscription path. \n\n> Here, the Receive mode is optional. (Default: PEEKLOCK)\n\n```ballerina\n    configurable string connectionString = ?;\n\n    ASBServiceReceiverConfig receiverConfig = {\n        connectionString: connectionString,\n        entityConfig: {\n            queueName: \"myQueue\"\n        },\n        receiveMode: PEEK_LOCK\n    };\n    asb:MessageReceiver receiver = check new (receiverConfig);\n```\n\n#### Initialize a message listener\n\nThis can be done by providing a connection string with a queue name, topic name, or subscription path.\n\n> Here, the Receive mode is optional. (Default: PEEKLOCK)\n\n```ballerina\n    configurable string connectionString = ?;\n\n    listener asb:Listener asbListener = check new (\n        connectionString = connectionString,\n        entityConfig = {\n            queueName: \"myQueue\"\n        }\n    );\n```\n\n### Step 3: Invoke connector operation\n\nNow you can use the remote operations available within the connector,\n\n**Create a queue in the Azure Service Bus**\n\n ```ballerina\npublic function main() returns error? {\n    asb:AdminClient admin = check new (adminConfig);\n\n    check admin->createQueue(\"myQueue\");\n\n    check admin->close();\n}\n ```\n\n**Send a message to the Azure Service Bus**\n\n```ballerina\npublic function main() returns error? {\n    asb:MessageSender queueSender = check new (senderConfig);\n\n    string stringContent = \"This is My Message Body\"; \n    byte[] byteContent = stringContent.toBytes();\n    int timeToLive = 60; \/\/ In seconds\n\n    asb:ApplicationProperties applicationProperties = {\n        properties: {a: \"propertyValue1\", b: \"propertyValue2\"}\n    };\n\n    asb:Message message = {\n        body: byteContent,\n        contentType: asb:TEXT,\n        timeToLive: timeToLive,\n        applicationProperties: applicationProperties\n    };\n\n    check queueSender->send(message);\n\n    check queueSender->close();\n}\n```\n\n**Receive a message from the Azure Service Bus**\n\n```ballerina\npublic function main() returns error? {\n    asb:MessageReceiver queueReceiver = check new (receiverConfig);\n\n    int serverWaitTime = 60; \/\/ In seconds\n\n    asb:Message|asb:Error? messageReceived = queueReceiver->receive(serverWaitTime);\n\n    if (messageReceived is asb:Message) {\n        log:printInfo(\"Reading Received Message : \" + messageReceived.toString());\n    } else if (messageReceived is ()) {\n        log:printError(\"No message in the queue.\");\n    } else {\n        log:printError(\"Receiving message via Asb receiver connection failed.\");\n    }\n\n    check queueReceiver->close();\n}\n```\n\n**Receive messages from Azure service bus using `asb:Service`**\n\n```ballerina\nservice asb:Service on asbListener {\n\n    isolated remote function onMessage(asb:Message message) returns error? {\n        log:printInfo(\"Reading Received Message : \" + message.toString());\n    }\n\n    isolated remote function onError(asb:MessageRetrievalError 'error) returns error? {\n        log:printError(\"Error occurred while receiving messages from ASB\", 'error);\n    }\n}\n```\n\n### Step 4: Run the Ballerina application\n\n```bash\nbal run\n```\n\n## Examples\n\nThere are two sets of examples demonstrating the use of the Ballerina Azure Service Bus (ASB) Connector.\n\n- **[Management Related Examples](https:\/\/github.com\/ballerina-platform\/module-ballerinax-azure-service-bus\/tree\/main\/examples\/admin)**: These examples cover operations related to managing the Service Bus, such as managing queues, topics, subscriptions, and rules. \n\n- **[Message Sending and Receiving Related Examples](https:\/\/github.com\/ballerina-platform\/module-ballerinax-azure-service-bus\/tree\/main\/examples\/sender_reciever)**: This set includes examples for sending to and receiving messages from queues, topics, and subscriptions in the Service Bus.",
+    "template": false,
+    "licenses": [
+      "Apache-2.0"
+    ],
+    "authors": [
+      "Ballerina"
+    ],
+    "sourceCodeLocation": "https://github.com/ballerina-platform/module-ballerinax-azure-service-bus",
+    "keywords": [
+      "IT Operations/Message Brokers",
+      "Cost/Paid",
+      "Vendor/Microsoft"
+    ],
+    "ballerinaVersion": "2201.8.0",
+    "icon": "https://bcentral-packageicons.azureedge.net/images/ballerinax_asb_3.8.2.png",
+    "ownerUUID": "b5a9e54d-8ade-47a1-8abc-6bc46e89069d",
+    "createdDate": 1727786875000,
+    "pullCount": 6,
+    "visibility": "public",
+    "modules": [
+      {
+        "packageURL": "/ballerinax/asb/3.8.2",
+        "apiDocURL": "https://lib.ballerina.io/ballerinax/asb/3.8.2",
+        "name": "asb",
+        "summary": "The [Azure Service Bus](https://docs.microsoft.com/en-us/azure/service-bus-messaging/) is a fully managed enterprise message broker with message queues and publish-subscribe topics. It",
+        "readme": "## Overview\n\nThe [Azure Service Bus](https:\/\/docs.microsoft.com\/en-us\/azure\/service-bus-messaging\/) is a fully managed enterprise message broker with message queues and publish-subscribe topics. It\nprovides the capability to send and receive messages from Service Bus queues, topics, and subscriptions. The Azure\nService Bus handles messages that include data representing any kind of information, including structured data encoded\nwith common formats such as the following ones: JSON, XML, and Plain Text.\n\nThe [Ballerina](https:\/\/ballerina.io\/) connector for Azure Service Bus allows you to connect to\nan [Azure Service Bus](https:\/\/docs.microsoft.com\/en-us\/azure\/service-bus-messaging\/) via the Ballerina language.\n\nThis connector supports the following operations:\n- Manage (Get\/Create\/Update\/Delete\/list) a queue, topic, subscription or rule.\n- Send messages to a queue, topic, or subscription.\n- Receive messages from a queue, topic, or subscription.\n\nThe Ballerina Azure Service Bus module utilizes Microsoft's [Azure Service Bus JAVA SDK 7.13.1](https:\/\/learn.microsoft.com\/en-us\/java\/api\/overview\/azure\/service-bus?view=azure-java-stable#libraries-for-data-access). \n\n## Setup guide\n\nBefore using this connector in your Ballerina application, complete the following:\n\n### Create a namespace in the Azure portal\n\nTo begin using Service Bus messaging in Azure, you must first create a namespace with a name that is unique across Azure. A namespace provides a scoping container for Service Bus resources within your application.\n\nTo create a namespace:\n\n#### Step 1: Sign in to the [Azure portal](https:\/\/portal.azure.com\/)\nIf you don't have an Azure subscription, [sign up for a free Azure account](https:\/\/azure.microsoft.com\/free\/).\n\n#### Step 2: Go to the Create Resource Service Bus menu\n\nIn the left navigation pane of the portal, select **All services**, select **Integration** from the list of categories, hover the mouse over **Service Bus**, and then select **Create** on the Service Bus tile.\n\n![Create Resource Service Bus Menu](https:\/\/raw.githubusercontent.com\/ballerina-platform\/module-ballerinax-azure-service-bus\/main\/ballerina\/resources\/create-resource-service-bus-menu.png)\n\n#### Step 3: In the Basics tag of the Create namespace page, follow these steps:\n\n1. For **Subscription**, choose an Azure subscription in which to create the namespace.\n\n2. For **Resource group**, choose an existing resource group in which the namespace will live, or create a new one.\n\n3. Enter a **name for the namespace**. The namespace name should adhere to the following naming conventions:\n\n* The name must be unique across Azure. The system immediately checks to see if the name is available.\n* The name length is at least 6 and at most 50 characters.\n* The name can contain only letters, numbers, and hyphens ?-?.\n* The name must start with a letter and end with a letter or number.\n* The name doesn't end with ?-sb? or ?-mgmt?.\n\n4. For **Location**, choose the region in which your namespace should be hosted.\n\n5. For **Pricing tier**, select the pricing tier (Basic, Standard, or Premium) for the namespace. For this quickstart, select Standard.\n\n> **Notice:** If you want to use topics and subscriptions, choose either Standard or Premium. Topics\/subscriptions aren't supported in the Basic pricing tier. If you selected the Premium pricing tier, specify the number of messaging units. The premium tier provides resource isolation at the CPU and memory level so that each workload runs in isolation. This resource container is called a messaging unit. A premium namespace has at least one messaging unit. You can select 1, 2, 4, 8, or 16 messaging units for each Service Bus Premium namespace. For more information, see [Service Bus Premium Messaging](https:\/\/learn.microsoft.com\/en-us\/azure\/service-bus-messaging\/service-bus-premium-messaging).`\n\n6. Select **Review + create** at the bottom of the page.\n\n![Create Namespace](https:\/\/raw.githubusercontent.com\/ballerina-platform\/module-ballerinax-azure-service-bus\/main\/ballerina\/resources\/create-namespace.png)\n\n7. On the **Review + create** page, review settings, and select **Create**.\n\n\n### Obtain tokens for authentication\n\nTo send and receive messages from a Service Bus queue or topic, clients must use a token that is signed by a shared access key, which is part of a shared access policy. A shared access policy defines a set of permissions that can be assigned to one or more Service Bus entities (queues, topics, event hubs, or relays). A shared access policy can be assigned to more than one entity, and a single entity can have more than one shared access policy assigned to it.\n\nTo obtain a token following steps should be followed:\n\n1. In the left navigation pane of the portal, select *All services*, select *Integration* from the list of categories, hover the mouse over *Service Bus*, and then select your namespace.\n\n2. In the left navigation pane of the namespace page, select *Shared access policies*.\n\n3. Click on the *RootManageSharedAccessKey* policy.\n\n4. Copy the *Primary Connection String* value and save it in a secure location. This is the connection string that you use to authenticate with the Service Bus service.\n\n![Connection String](https:\/\/raw.githubusercontent.com\/ballerina-platform\/module-ballerinax-azure-service-bus\/main\/ballerina\/resources\/connection-string.png)\n\n\n## Quickstart\nTo use the ASB connector in your Ballerina application, modify the .bal file as follows:\n\n### Step 1: Import connector\n\nImport the `ballerinax\/asb` module into the Ballerina project.\n\n```ballerina\nimport ballerinax\/asb;\n```\n\n### Step 2: Create a new connector instance\n\n#### Initialize an Admin Client\n\nThis can be done by providing a connection string.\n\n````ballerina\n    configurable string connectionString = ?;\n    asb:AdminClient admin = check new (connectionString);\n````\n\n#### Initialize a Message Sender client\n\nThis can be done by providing a connection string with a queue or topic name.\n\n```ballerina\n    configurable string connectionString = ?;\n\n    ASBServiceSenderConfig senderConfig = {\n        connectionString: connectionString,\n        entityType: QUEUE,\n        topicOrQueueName: \"myQueue\"\n    };\n    asb:MessageSender sender = check new (senderConfig);\n```\n\n#### Initialize a Message Receiver client\n\nThis can be done by providing a connection string with a queue name, topic name, or subscription path. \n\n> Here, the Receive mode is optional. (Default: PEEKLOCK)\n\n```ballerina\n    configurable string connectionString = ?;\n\n    ASBServiceReceiverConfig receiverConfig = {\n        connectionString: connectionString,\n        entityConfig: {\n            queueName: \"myQueue\"\n        },\n        receiveMode: PEEK_LOCK\n    };\n    asb:MessageReceiver receiver = check new (receiverConfig);\n```\n\n#### Initialize a message listener\n\nThis can be done by providing a connection string with a queue name, topic name, or subscription path.\n\n> Here, the Receive mode is optional. (Default: PEEKLOCK)\n\n```ballerina\n    configurable string connectionString = ?;\n\n    listener asb:Listener asbListener = check new (\n        connectionString = connectionString,\n        entityConfig = {\n            queueName: \"myQueue\"\n        }\n    );\n```\n\n### Step 3: Invoke connector operation\n\nNow you can use the remote operations available within the connector,\n\n**Create a queue in the Azure Service Bus**\n\n ```ballerina\npublic function main() returns error? {\n    asb:AdminClient admin = check new (adminConfig);\n\n    check admin->createQueue(\"myQueue\");\n\n    check admin->close();\n}\n ```\n\n**Send a message to the Azure Service Bus**\n\n```ballerina\npublic function main() returns error? {\n    asb:MessageSender queueSender = check new (senderConfig);\n\n    string stringContent = \"This is My Message Body\"; \n    byte[] byteContent = stringContent.toBytes();\n    int timeToLive = 60; \/\/ In seconds\n\n    asb:ApplicationProperties applicationProperties = {\n        properties: {a: \"propertyValue1\", b: \"propertyValue2\"}\n    };\n\n    asb:Message message = {\n        body: byteContent,\n        contentType: asb:TEXT,\n        timeToLive: timeToLive,\n        applicationProperties: applicationProperties\n    };\n\n    check queueSender->send(message);\n\n    check queueSender->close();\n}\n```\n\n**Receive a message from the Azure Service Bus**\n\n```ballerina\npublic function main() returns error? {\n    asb:MessageReceiver queueReceiver = check new (receiverConfig);\n\n    int serverWaitTime = 60; \/\/ In seconds\n\n    asb:Message|asb:Error? messageReceived = queueReceiver->receive(serverWaitTime);\n\n    if (messageReceived is asb:Message) {\n        log:printInfo(\"Reading Received Message : \" + messageReceived.toString());\n    } else if (messageReceived is ()) {\n        log:printError(\"No message in the queue.\");\n    } else {\n        log:printError(\"Receiving message via Asb receiver connection failed.\");\n    }\n\n    check queueReceiver->close();\n}\n```\n\n**Receive messages from Azure service bus using `asb:Service`**\n\n```ballerina\nservice asb:Service on asbListener {\n\n    isolated remote function onMessage(asb:Message message) returns error? {\n        log:printInfo(\"Reading Received Message : \" + message.toString());\n    }\n\n    isolated remote function onError(asb:MessageRetrievalError 'error) returns error? {\n        log:printError(\"Error occurred while receiving messages from ASB\", 'error);\n    }\n}\n```\n\n### Step 4: Run the Ballerina application\n\n```bash\nbal run\n```\n\n## Examples\n\nThere are two sets of examples demonstrating the use of the Ballerina Azure Service Bus (ASB) Connector.\n\n- **[Management Related Examples](https:\/\/github.com\/ballerina-platform\/module-ballerinax-azure-service-bus\/tree\/main\/examples\/admin)**: These examples cover operations related to managing the Service Bus, such as managing queues, topics, subscriptions, and rules. \n\n- **[Message Sending and Receiving Related Examples](https:\/\/github.com\/ballerina-platform\/module-ballerinax-azure-service-bus\/tree\/main\/examples\/sender_reciever)**: This set includes examples for sending to and receiving messages from queues, topics, and subscriptions in the Service Bus."
+      }
+    ],
+    "balToolId": "",
+    "graalvmCompatible": "Yes"
+  },
+  "serviceTypes": [
+    {
+      "name": "ASB",
+      "description": "ASB Service",
+      "enabled": true,
+      "functions": [
+        {
+          "name": "onMessage",
+          "documentation": "The `onMessage` remote method will be triggered when a message is received for the ASB topic/queue.",
+          "optional": false,
+          "qualifiers": [
+            "remote"
+          ],
+          "enabled": true,
+          "parameters": [
+            {
+              "name": "message",
+              "typeName": "asb:Message",
+              "optional": false,
+              "type": [
+                "asb:Message"
+              ],
+              "typeInfo": {
+                "name": "Message",
+                "orgName": "ballerinax",
+                "moduleName": "asb",
+                "version": "3.8.2"
+              },
+              "documentation": "The message received for ASB topic/queue.",
+              "enabled": true,
+              "value": "asb:Message"
+            },
+            {
+              "name": "caller",
+              "typeName": "asb:Caller",
+              "type": [
+                "asb:Caller"
+              ],
+              "typeInfo": {
+                "name": "Caller",
+                "orgName": "ballerinax",
+                "moduleName": "asb",
+                "version": "3.8.2"
+              },
+              "optional": true,
+              "documentation": "The ASB caller object which can be used to mark messages as complete, abandon, deadLetter, or defer.",
+              "enabled": false,
+              "value": "asb:Caller"
+            }
+          ],
+          "returnType": {
+            "typeName": "error?",
+            "type": [
+              "error?"
+            ],
+            "optional": true,
+            "documentation": "Error object.",
+            "defaultTypeName": "error?",
+            "enabled": true,
+            "value": "error?"
+          }
+        },
+        {
+          "name": "onError",
+          "documentation": "The `onError` remote method will be triggered when an error occurs during the message processing.",
+          "optional": true,
+          "enabled": false,
+          "qualifiers": [
+            "remote"
+          ],
+          "parameters": [
+            {
+              "name": "err",
+              "typeName": "asb:MessageRetrievalError",
+              "type": [
+                "asb:MessageRetrievalError"
+              ],
+              "optional": false,
+              "typeInfo": {
+                "name": "MessageRetrievalError",
+                "orgName": "ballerinax",
+                "moduleName": "asb",
+                "version": "3.8.2"
+              },
+              "documentation": "The error occurred during the message processing.",
+              "enabled": true,
+              "value": "asb:MessageRetrievalError"
+            }
+          ],
+          "returnType": {
+            "typeName": "error?",
+            "type": [
+              "error?"
+            ],
+            "optional": true,
+            "documentation": "Error object.",
+            "defaultTypeName": "error?",
+            "enabled": true,
+            "value": "error?"
+          }
+        }
+      ]
+    }
+  ],
+  "listener": {
+    "metadata": {
+      "label": "ASB Listener",
+      "description": "The ASB listener to which the ASB service should be attached."
+    },
+    "valueType": "OBJECT",
+    "valueTypeConstraint": "asb:Listener",
+    "value": "",
+    "enabled": true,
+    "optional": false,
+    "editable": true,
+    "properties": {
+      "config": {
+        "metadata": {
+          "label": "ASB Listener Configuration",
+          "description": "The configuration of the ASB listener."
+        },
+        "valueType": "EXPRESSION",
+        "valueTypeConstraint": "asb:ListenerConfiguration",
+        "placeholder": "",
+        "editable": true,
+        "enabled": true,
+        "optional": false,
+        "advanced": true,
+        "fields": {
+          "connectionString": {
+            "metadata": {
+              "label": "Connection String",
+              "description": "Service bus connection string with Shared Access Signatures."
+            },
+            "valueType": "STRING",
+            "valueTypeConstraint": "string",
+            "placeholder": "",
+            "editable": true,
+            "enabled": true,
+            "optional": false,
+            "advanced": false
+          },
+          "entityConfig": {
+            "metadata": {
+              "label": "Entity Configuration",
+              "description": "This field holds the configuration details of either a topic or a queue. The type of the entity is determined by the entityType field. The actual configuration details are stored in either a TopicSubsConfig or a QueueConfig record"
+            },
+            "valueType": "UNION",
+            "valueTypeConstraint": "asb:TopicSubsConfig|asb:QueueConfig",
+            "placeholder": "",
+            "editable": true,
+            "enabled": true,
+            "optional": false,
+            "advanced": true,
+            "unionTypes": [
+              {
+                "metadata": {
+                  "label": "Topic Configuration",
+                  "description": "The configuration details of a topic."
+                },
+                "valueType": "EXPRESSION",
+                "valueTypeConstraint": "asb:TopicSubsConfig",
+                "placeholder": "",
+                "editable": true,
+                "enabled": true,
+                "optional": false,
+                "advanced": true,
+                "fields": {
+                  "topicName": {
+                    "metadata": {
+                      "label": "Topic Name",
+                      "description": "The name of the topic."
+                    },
+                    "valueType": "STRING",
+                    "valueTypeConstraint": "string",
+                    "placeholder": "",
+                    "editable": true,
+                    "enabled": true,
+                    "optional": false,
+                    "advanced": false
+                  },
+                  "subscriptionName": {
+                    "metadata": {
+                      "label": "Subscription Name",
+                      "description": "A string field that holds the name of the topic."
+                    },
+                    "valueType": "STRING",
+                    "valueTypeConstraint": "string",
+                    "placeholder": "",
+                    "editable": true,
+                    "enabled": true,
+                    "optional": false,
+                    "advanced": false
+                  }
+                }
+              },
+              {
+                "metadata": {
+                  "label": "Queue Configuration",
+                  "description": "The configuration details of a queue."
+                },
+                "valueType": "EXPRESSION",
+                "valueTypeConstraint": "asb:QueueConfig",
+                "placeholder": "",
+                "editable": true,
+                "enabled": true,
+                "optional": false,
+                "advanced": true,
+                "fields": {
+                  "queueName": {
+                    "metadata": {
+                      "label": "Queue Name",
+                      "description": "A string field that holds the name of the queue."
+                    },
+                    "valueType": "STRING",
+                    "valueTypeConstraint": "string",
+                    "placeholder": "",
+                    "editable": true,
+                    "enabled": true,
+                    "optional": false,
+                    "advanced": false
+                  }
+                }
+              }
+            ]
+          },
+          "receiveMode": {
+            "metadata": {
+              "label": "Receive Mode",
+              "description": "This field holds the receive modes(RECEIVE_AND_DELETE/PEEK_LOCK) for the connection. The receive mode determines how messages are retrieved from the entity"
+            },
+            "valueType": "ENUM",
+            "valueTypeConstraint": "asb:ReceiveMode",
+            "placeholder": "asb:PEEK_LOCK",
+            "editable": true,
+            "enabled": true,
+            "optional": true,
+            "advanced": true,
+            "enum": [
+              "asb:PEEK_LOCK",
+              "asb:RECEIVE_AND_DELETE"
+            ]
+          },
+          "maxAutoLockRenewDuration": {
+            "metadata": {
+              "label": "Max Auto Lock Renew Duration",
+              "description": "Max lock renewal duration under PEEK_LOCK mode in seconds. Setting to 0 disables auto-renewal. For RECEIVE_AND_DELETE mode, auto-renewal is disabled."
+            },
+            "valueType": "INT",
+            "valueTypeConstraint": "",
+            "placeholder": 300,
+            "editable": true,
+            "enabled": true,
+            "optional": true,
+            "advanced": false
+          },
+          "amqpRetryOptions": {
+            "metadata": {
+              "label": "AMQP Retry Options",
+              "description": "The AMQP retry options."
+            },
+            "valueType": "EXPRESSION",
+            "valueTypeConstraint": "asb:AmqpRetryOptions",
+            "placeholder": "",
+            "editable": true,
+            "enabled": true,
+            "optional": true,
+            "advanced": true,
+            "fields": {
+              "maxRetries": {
+                "metadata": {
+                  "label": "Max Retries",
+                  "description": "Maximum number of retry attempts."
+                },
+                "valueType": "INT",
+                "valueTypeConstraint": "int",
+                "placeholder": 3,
+                "editable": true,
+                "enabled": true,
+                "optional": true,
+                "advanced": false
+              },
+              "delay": {
+                "metadata": {
+                  "label": "Delay",
+                  "description": "Delay between retry attempts in seconds."
+                },
+                "valueType": "DECIMAL",
+                "valueTypeConstraint": "decimal",
+                "placeholder": 10,
+                "editable": true,
+                "enabled": true,
+                "optional": true,
+                "advanced": false
+              },
+              "maxDelay": {
+                "metadata": {
+                  "label": "Max Delay",
+                  "description": "Maximum permissible delay between retry attempts in seconds."
+                },
+                "valueType": "DECIMAL",
+                "valueTypeConstraint": "decimal",
+                "placeholder": 60,
+                "editable": true,
+                "enabled": true,
+                "optional": true,
+                "advanced": false
+              },
+              "tryTimeout": {
+                "metadata": {
+                  "label": "Try Timeout",
+                  "description": "Maximum duration to wait for completion of a single attempt in seconds."
+                },
+                "valueType": "DECIMAL",
+                "valueTypeConstraint": "decimal",
+                "placeholder": 60,
+                "editable": true,
+                "enabled": true,
+                "optional": true,
+                "advanced": false
+              },
+              "retryMode": {
+                "metadata": {
+                  "label": "Retry Mode",
+                  "description": "The retry mode."
+                },
+                "valueType": "ENUM",
+                "valueTypeConstraint": "asb:AmqpRetryMode",
+                "placeholder": "asb:FIXED",
+                "editable": true,
+                "enabled": true,
+                "optional": true,
+                "advanced": false,
+                "enum": [
+                  "asb:EXPONENTIAL",
+                  "asb:FIXED"
+                ]
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

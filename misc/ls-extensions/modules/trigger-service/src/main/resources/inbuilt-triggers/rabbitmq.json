@@ -1,0 +1,644 @@
+{
+    "id": 2,
+    "name": "RabbitMQ Service",
+    "type": "inbuilt",
+    "displayName": "RabbitMQ",
+    "documentation": "The RabbitMQ service can be attached to a RabbitMQ listener which listens to messages from a RabbitMQ server. The service should define the queue name as the base path and should implement either the `onMessage` or `onRequest` remote method to handle the incoming messages. Additionally, the service can implement the `onError` remote method to handle errors.",
+    "moduleName": "rabbitmq",
+    "listenerProtocol": "rabbitmq",
+    "displayAnnotation": {
+        "label": "RabbitMQ",
+        "iconPath": "docs/icon.png"
+    },
+    "package": {
+        "id": 15584,
+        "organization": "ballerinax",
+        "name": "rabbitmq",
+        "version": "3.1.0",
+        "platform": "java17",
+        "languageSpecificationVersion": "2024R1",
+        "isDeprecated": false,
+        "deprecateMessage": "",
+        "URL": "/ballerinax/rabbitmq/3.1.0",
+        "balaVersion": "2.0.0",
+        "balaURL": "https://fileserver.central.ballerina.io/2.0/ballerinax/rabbitmq/3.1.0/ballerinax-rabbitmq-java17-3.1.0.bala?Expires=1729566129&Signature=G2~Nt3a2HtLalmYyl~v~PnM6F7owpZC6u8KOOyKDERjMmHoWsAbY3w3Nhj4aKUINjkHrKX-Gy3KTNtbvrw6MwaDmYN~wz7zCP09kkKb-LQMRgxrmRU9gUhSSoToQELQBGmYs5UzYsUnNPtEU1tdpc8fDFmKHmUSyFPt8nsAZ5f7981KA22bdFNxYV-FT-squ06I0cq9D8Q-E4Tt4g9k~d~bD5TLc536Rxz-BJaJ5p7IG9Bi8mzU-FHr12jPW4nAJ5LEqxq71dV8L0FGMmeFGNHiHNvp8l~AgWw4UMBu8BiV6MuUoA-0T0LVU91EFmgeKnusZt7BFSg5P-M0MQDTqLA__&Key-Pair-Id=K27IQ7NPTKLKDU",
+        "digest": "sha-256=3b44e994547d8a28034078e0695c1ceaceab4524647ccdd4430fd9800e7daaa3",
+        "summary": "This package provides the capability to send and receive messages by connecting to the RabbitMQ server.",
+        "readme": "## Package Overview\n\nThis package provides the capability to send and receive messages by connecting to the RabbitMQ server.\n\nRabbitMQ gives your applications a common platform to send and receive messages and a safe place for your messages to live until received. RabbitMQ is one of the most popular open-source message brokers. It is lightweight and easy to deploy on-premise and in the cloud.\n\n### Basic usage\n\n#### Set up the connection\n\nFirst, you need to set up the connection with the RabbitMQ server. The following ways can be used to connect to a\nRabbitMQ server.\n\n1. Connect to a RabbitMQ node with the default host and port:\n```ballerina\n    rabbitmq:Client rabbitmqClient = check new(rabbitmq:DEFAULT_HOST, rabbitmq:DEFAULT_PORT);\n```\n\n2. Connect to a RabbitMQ node with a custom host and port:\n```ballerina\n    rabbitmq:Client rabbitmqClient = check new(\"localhost\", 5672);\n```\n\n3. Connect to a RabbitMQ node with host, port, and additional configurations:\n```ballerina\n    rabbitmq:ConnectionConfiguration config = {\n        username: \"ballerina\",\n        password: \"password\"\n    };\n    rabbitmq:Client rabbitmqClient = check new(\"localhost\", 5672, configs);\n```\n\nThe `rabbitmq:Client` can now be used to send and receive messages as described in the subsequent sections.\n\n#### Exchanges and queues\n\nClient applications work with exchanges and queues, which are the high-level building blocks of the AMQP protocol. These must be declared before they can be used. The following code declares an exchange and a server-named queue and then binds them together.\n\n```ballerina\n    check rabbitmqClient->exchangeDeclare(\"MyExchange\", rabbitmq:DIRECT_EXCHANGE);\n    check rabbitmqClient->queueDeclare(\"MyQueue\");\n    check rabbitmqClient->queueBind(\"MyQueue\", \"MyExchange\", \"routing-key\");\n```\n\nThis sample code will declare,\n- a durable auto-delete exchange of the type `rabbitmq:DIRECT_EXCHANGE`\n- a non-durable, exclusive auto-delete queue with an auto-generated name\n\nNext, the `queueBind` function is called to bind the queue to the exchange with the given routing key.\n\n```ballerina\n    check rabbitmqClient->exchangeDeclare(\"MyExchange\", rabbitmq:DIRECT_EXCHANGE);\n    check rabbitmqClient->queueDeclare(\"MyQueue\", { durable: true,\n                                                   exclusive: false,\n                                                   autoDelete: false });\n    check rabbitmqClient->queueBind(\"MyQueue\", \"MyExchange\", \"routing-key\");\n```\n\nThis sample code will declare,\n- a durable auto-delete exchange of the type `rabbitmq:DIRECT_EXCHANGE`\n- a durable, non-exclusive, non-auto-delete queue with a well-known name\n\n#### Delete entities and purge queues\n\n- Delete a queue:\n```ballerina\n    check rabbitmqClient->queueDelete(\"MyQueue\");\n```\n- Delete a queue only if it is empty:\n```ballerina\n    check rabbitmqClient->queueDelete(\"MyQueue\", false, true);\n```\n- Delete a queue only if it is unused (does not have any consumers):\n```ballerina\n    check rabbitmqClient->queueDelete(\"MyQueue\", true, false);\n```\n- Delete an exchange:\n```ballerina\n    check rabbitmqClient->exchangeDelete(\"MyExchange\");\n```\n- Purge a queue (delete all of its messages):\n```ballerina\n    check rabbitmqClient->queuePurge(\"MyQueue\");\n```\n\n#### Publish messages\n\nTo publish a message to an exchange, use the `publishMessage()` function as follows:\n\n```ballerina\n    string message = \"Hello from Ballerina\";\n    check rabbitmqClient->publishMessage({ content: message.toBytes(), routingKey: queueName });\n``` \nSetting other properties of the message such as routing headers can be done by using the `BasicProperties` record with the appropriate values.\n\n```ballerina\n    rabbitmq:BasicProperties props = {\n       replyTo: \"reply-queue\"  \n    };\n    string message = \"Hello from Ballerina\";\n    check rabbitmqClient->publishMessage({ content: message.toBytes(), routingKey: queueName, properties: props });\n```\n\n#### Consume messages using consumer services\n\nThe most efficient way to receive messages is to set up a subscription using a Ballerina RabbitMQ `rabbitmq:Listener` and any number of consumer services. The messages will then be delivered automatically as they arrive rather than having to be explicitly requested. Multiple consumer services can be bound to one Ballerina RabbitMQ `rabbitmq:Listener`. The queue to which the service is listening is configured in the `rabbitmq:ServiceConfig` annotation of the service or else as the name of the service.\n\n1. Listen to incoming messages with the `onMessage` remote method:\n\n```ballerina\n    listener rabbitmq:Listener channelListener= new(rabbitmq:DEFAULT_HOST, rabbitmq:DEFAULT_PORT);\n    \n    @rabbitmq:ServiceConfig {\n        queueName: \"MyQueue\"\n    }\n    service rabbitmq:Service on channelListener {\n        remote function onMessage(rabbitmq:BytesMessage message) {\n        }\n    }\n```\n\n2. Listen to incoming messages and reply directly with the `onRequest` remote method:\n\n```ballerina\n    listener rabbitmq:Listener channelListener= new(rabbitmq:DEFAULT_HOST, rabbitmq:DEFAULT_PORT);\n    \n    @rabbitmq:ServiceConfig {\n        queueName: \"MyQueue\"\n    }\n    service rabbitmq:Service on channelListener {\n        remote function onRequest(rabbitmq:BytesMessage message) returns string {\n            return \"Hello Back!\";\n        }\n    }\n```\n\nThe `rabbitmq:BytesMessage` record received can be used to retrieve its contents.\n\n### Advanced usage\n\n#### Client acknowledgements\n\nThe message consuming is supported by mainly two types of acknowledgement modes, which are auto acknowledgements and client acknowledgements.\nClient acknowledgements can further be divided into two different types as positive and negative acknowledgements.\nThe default acknowledgement mode is auto-ack (messages are acknowledged immediately after consuming). The following examples show the usage of positive and negative acknowledgements.\n> WARNING: To ensure the reliability of receiving messages, use the client-ack mode.\n\n1. Positive client acknowledgement:\n```ballerina\n    listener rabbitmq:Listener channelListener= new(rabbitmq:DEFAULT_HOST, rabbitmq:DEFAULT_PORT);\n    \n    @rabbitmq:ServiceConfig {\n        queueName: \"MyQueue\",\n        autoAck: false\n    }\n    service rabbitmq:Service on channelListener {\n        remote function onMessage(rabbitmq:BytesMessage message, rabbitmq:Caller caller) {\n            rabbitmq:Error? result = caller->basicAck();\n        }\n    }\n```\n\n2. Negative client acknowledgement:\n```ballerina\n    listener rabbitmq:Listener channelListener= new(rabbitmq:DEFAULT_HOST, rabbitmq:DEFAULT_PORT);\n    \n    @rabbitmq:ServiceConfig {\n        queueName: \"MyQueue\",\n        autoAck: false\n    }\n    service rabbitmq:Service on channelListener {\n        remote function onMessage(rabbitmq:BytesMessage message) {\n            rabbitmq:Error? result = caller->basicNack(true, requeue = false);\n        }\n    }\n```\n\nThe negatively-acknowledged (rejected) messages can be re-queued by setting the `requeue` to `true`.\n\n### Report issues\n\nTo report bugs, request new features, start new discussions, view project boards, etc., go to the [Ballerina standard library parent repository](https:\/\/github.com\/ballerina-platform\/ballerina-standard-library).\n\n### Useful links\n\n- Chat live with us via our [Discord server](https:\/\/discord.gg\/ballerinalang).\n- Post all technical questions on Stack Overflow with the [#ballerina](https:\/\/stackoverflow.com\/questions\/tagged\/ballerina) tag.",
+        "template": false,
+        "licenses": [
+            "Apache-2.0"
+        ],
+        "authors": [
+            "Ballerina"
+        ],
+        "sourceCodeLocation": "https://github.com/ballerina-platform/module-ballerinax-rabbitmq",
+        "keywords": [
+            "service",
+            "client",
+            "messaging",
+            "network",
+            "pubsub"
+        ],
+        "ballerinaVersion": "2201.10.0",
+        "icon": "https://bcentral-packageicons.azureedge.net/images/ballerinax_rabbitmq_3.1.0.png",
+        "ownerUUID": "b5a9e54d-8ade-47a1-8abc-6bc46e89069d",
+        "createdDate": 1724153093000,
+        "pullCount": 24,
+        "visibility": "public",
+        "modules": [
+            {
+                "packageURL": "/ballerinax/rabbitmq/3.1.0",
+                "apiDocURL": "https://lib.ballerina.io/ballerinax/rabbitmq/3.1.0",
+                "name": "rabbitmq",
+                "summary": "This module provides the capability to send and receive messages by connecting to the RabbitMQ server.",
+                "readme": "## Overview\n\nThis module provides the capability to send and receive messages by connecting to the RabbitMQ server.\n\nRabbitMQ gives your applications a common platform to send and receive messages and a safe place for your messages to live until received. RabbitMQ is one of the most popular open-source message brokers. It is lightweight and easy to deploy on-premise and in the cloud.\n\n### Basic usage\n\n#### Set up the connection\n\nFirst, you need to set up the connection with the RabbitMQ server. The following ways can be used to connect to a\nRabbitMQ server.\n\n1. Connect to a RabbitMQ node with the default host and port:\n```ballerina\n    rabbitmq:Client rabbitmqClient = check new(rabbitmq:DEFAULT_HOST, rabbitmq:DEFAULT_PORT);\n```\n\n2. Connect to a RabbitMQ node with a custom host and port:\n```ballerina\n    rabbitmq:Client rabbitmqClient = check new(\"localhost\", 5672);\n```\n\n3. Connect to a RabbitMQ node with host, port, and additional configurations:\n```ballerina\n    rabbitmq:ConnectionConfiguration config = {\n        username: \"ballerina\",\n        password: \"password\"\n    };\n    rabbitmq:Client rabbitmqClient = check new(\"localhost\", 5672, configs);\n```\n\nThe `rabbitmq:Client` can now be used to send and receive messages as described in the subsequent sections.\n\n#### Exchanges and queues\n\nClient applications work with exchanges and queues, which are the high-level building blocks of the AMQP protocol. These must be declared before they can be used. The following code declares an exchange and a server-named queue and then binds them together.\n\n```ballerina\n    check rabbitmqClient->exchangeDeclare(\"MyExchange\", rabbitmq:DIRECT_EXCHANGE);\n    check rabbitmqClient->queueDeclare(\"MyQueue\");\n    check rabbitmqClient->queueBind(\"MyQueue\", \"MyExchange\", \"routing-key\");\n```\n\nThis sample code will declare,\n- a durable auto-delete exchange of the type `rabbitmq:DIRECT_EXCHANGE`\n- a non-durable, exclusive auto-delete queue with an auto-generated name\n\nNext, the `queueBind` function is called to bind the queue to the exchange with the given routing key.\n\n```ballerina\n    check rabbitmqClient->exchangeDeclare(\"MyExchange\", rabbitmq:DIRECT_EXCHANGE);\n    check rabbitmqClient->queueDeclare(\"MyQueue\", { durable: true,\n                                                   exclusive: false,\n                                                   autoDelete: false });\n    check rabbitmqClient->queueBind(\"MyQueue\", \"MyExchange\", \"routing-key\");\n```\n\nThis sample code will declare,\n- a durable auto-delete exchange of the type `rabbitmq:DIRECT_EXCHANGE`\n- a durable, non-exclusive, non-auto-delete queue with a well-known name\n\n#### Delete entities and purge queues\n\n- Delete a queue:\n```ballerina\n    check rabbitmqClient->queueDelete(\"MyQueue\");\n```\n- Delete a queue only if it is empty:\n```ballerina\n    check rabbitmqClient->queueDelete(\"MyQueue\", false, true);\n```\n- Delete a queue only if it is unused (does not have any consumers):\n```ballerina\n    check rabbitmqClient->queueDelete(\"MyQueue\", true, false);\n```\n- Delete an exchange:\n```ballerina\n    check rabbitmqClient->exchangeDelete(\"MyExchange\");\n```\n- Purge a queue (delete all of its messages):\n```ballerina\n    check rabbitmqClient->queuePurge(\"MyQueue\");\n```\n\n#### Publish messages\n\nTo publish a message to an exchange, use the `publishMessage()` function as follows:\n\n```ballerina\n    string message = \"Hello from Ballerina\";\n    check rabbitmqClient->publishMessage({ content: message.toBytes(), routingKey: queueName });\n``` \nSetting other properties of the message such as routing headers can be done by using the `BasicProperties` record with the appropriate values.\n\n```ballerina\n    rabbitmq:BasicProperties props = {\n       replyTo: \"reply-queue\"  \n    };\n    string message = \"Hello from Ballerina\";\n    check rabbitmqClient->publishMessage({ content: message.toBytes(), routingKey: queueName, properties: props });\n```\n\n#### Consume messages using consumer services\n\nThe most efficient way to receive messages is to set up a subscription using a Ballerina RabbitMQ `rabbitmq:Listener` and any number of consumer services. The messages will then be delivered automatically as they arrive rather than having to be explicitly requested. Multiple consumer services can be bound to one Ballerina RabbitMQ `rabbitmq:Listener`. The queue to which the service is listening is configured in the `rabbitmq:ServiceConfig` annotation of the service or else as the name of the service.\n\n1. Listen to incoming messages with the `onMessage` remote method:\n\n```ballerina\n    listener rabbitmq:Listener channelListener= new(rabbitmq:DEFAULT_HOST, rabbitmq:DEFAULT_PORT);\n    \n    @rabbitmq:ServiceConfig {\n        queueName: \"MyQueue\"\n    }\n    service rabbitmq:Service on channelListener {\n        remote function onMessage(rabbitmq:AnydataMessage message) {\n        }\n    }\n```\n\n2. Listen to incoming messages and reply directly with the `onRequest` remote method:\n\n```ballerina\n    listener rabbitmq:Listener channelListener= new(rabbitmq:DEFAULT_HOST, rabbitmq:DEFAULT_PORT);\n    \n    @rabbitmq:ServiceConfig {\n        queueName: \"MyQueue\"\n    }\n    service rabbitmq:Service on channelListener {\n        remote function onRequest(rabbitmq:AnydataMessage message) returns string {\n            return \"Hello Back!\";\n        }\n    }\n```\n\nThe `rabbitmq:AnydataMessage` record received can be used to retrieve its contents.\n\n### Advanced usage\n\n#### Client acknowledgements\n\nThe message consuming is supported by mainly two types of acknowledgement modes, which are auto acknowledgements and client acknowledgements.\nClient acknowledgements can further be divided into two different types as positive and negative acknowledgements.\nThe default acknowledgement mode is auto-ack (messages are acknowledged immediately after consuming). The following examples show the usage of positive and negative acknowledgements.\n> WARNING: To ensure the reliability of receiving messages, use the client-ack mode.\n\n1. Positive client acknowledgement:\n```ballerina\n    listener rabbitmq:Listener channelListener= new(rabbitmq:DEFAULT_HOST, rabbitmq:DEFAULT_PORT);\n    \n    @rabbitmq:ServiceConfig {\n        queueName: \"MyQueue\",\n        autoAck: false\n    }\n    service rabbitmq:Service on channelListener {\n        remote function onMessage(rabbitmq:BytesMessage message, rabbitmq:Caller caller) {\n            rabbitmq:Error? result = caller->basicAck();\n        }\n    }\n```\n\n2. Negative client acknowledgement:\n```ballerina\n    listener rabbitmq:Listener channelListener= new(rabbitmq:DEFAULT_HOST, rabbitmq:DEFAULT_PORT);\n    \n    @rabbitmq:ServiceConfig {\n        queueName: \"MyQueue\",\n        autoAck: false\n    }\n    service rabbitmq:Service on channelListener {\n        remote function onMessage(rabbitmq:BytesMessage message) {\n            rabbitmq:Error? result = caller->basicNack(true, requeue = false);\n        }\n    }\n```\n\nThe negatively-acknowledged (rejected) messages can be re-queued by setting the `requeue` to `true`."
+            }
+        ],
+        "balToolId": "",
+        "graalvmCompatible": "Yes"
+    },
+    "serviceTypes": [
+        {
+            "name": "RabbitMQ",
+            "description": "RabbitMQ Service",
+            "enabled": true,
+            "basePath": {
+                "optional": false,
+                "typeName": "string",
+                "type": [
+                    "string"
+                ],
+                "defaultable": false,
+                "documentation": "The RabbitMQ queue name.",
+                "enabled": true,
+                "value": "",
+                "placeholder": "queue-name"
+            },
+            "functions": [
+                {
+                    "name": "onMessage",
+                    "documentation": "The `onMessage` remote method will be triggered when a message is received in the specified queue.",
+                    "optional": false,
+                    "qualifiers": [
+                        "remote"
+                    ],
+                    "enabled": true,
+                    "parameters": [
+                        {
+                            "name": "message",
+                            "typeName": "rabbitmq:AnydataMessage",
+                            "type": [
+                                "rabbitmq:AnydataMessage"
+                            ],
+                            "optional": false,
+                            "typeInfo": {
+                                "name": "AnydataMessage",
+                                "orgName": "ballerinax",
+                                "moduleName": "rabbitmq",
+                                "version": "3.1.0"
+                            },
+                            "documentation": "The message received from the RabbitMQ queue.",
+                            "enabled": true,
+                            "value": "rabbitmq:AnydataMessage"
+                        },
+                        {
+                            "name": "caller",
+                            "typeName": "rabbitmq:Caller",
+                            "type": [
+                                "rabbitmq:Caller"
+                            ],
+                            "typeInfo": {
+                                "name": "Caller",
+                                "orgName": "ballerinax",
+                                "moduleName": "rabbitmq",
+                                "version": "3.1.0"
+                            },
+                            "optional": true,
+                            "documentation": "The RabbitMQ caller object to acknowledge the message.",
+                            "enabled": false
+                        }
+                    ],
+                    "returnType": {
+                        "typeName": "error?",
+                        "type": [
+                            "error?"
+                        ],
+                        "optional": true,
+                        "documentation": "Error object.",
+                        "defaultTypeName": "error?",
+                        "enabled": true,
+                        "value": "error?"
+                    },
+                    "group": {
+                        "id": 1,
+                        "name": "group-1",
+                        "type": "exclusive",
+                        "documentation": "RabbitMQ message trigger method.",
+                        "default": "onMessage"
+                    }
+                },
+                {
+                    "name": "onRequest",
+                    "documentation": "The `onRequest` remote method will be triggered when a message is received in the specified queue and a response is expected.",
+                    "optional": false,
+                    "qualifiers": [
+                        "remote"
+                    ],
+                    "enabled": false,
+                    "parameters": [
+                        {
+                            "name": "message",
+                            "typeName": "rabbitmq:AnydataMessage",
+                            "type": [
+                                "rabbitmq:AnydataMessage"
+                            ],
+                            "optional": false,
+                            "typeInfo": {
+                                "name": "AnydataMessage",
+                                "orgName": "ballerinax",
+                                "moduleName": "rabbitmq",
+                                "version": "3.1.0"
+                            },
+                            "documentation": "The message received from the RabbitMQ queue.",
+                            "enabled": true,
+                            "value": "rabbitmq:AnydataMessage"
+                        },
+                        {
+                            "name": "caller",
+                            "typeName": "rabbitmq:Caller",
+                            "type": [
+                                "rabbitmq:Caller"
+                            ],
+                            "typeInfo": {
+                                "name": "Caller",
+                                "orgName": "ballerinax",
+                                "moduleName": "rabbitmq",
+                                "version": "3.1.0"
+                            },
+                            "optional": true,
+                            "documentation": "The RabbitMQ caller object to acknowledge the message.",
+                            "enabled": "false"
+                        }
+                    ],
+                    "returnType": {
+                        "typeName": "anydata|error",
+                        "type": [
+                            "anydata|error"
+                        ],
+                        "optional": false,
+                        "documentation": "The response message.",
+                        "editable": false,
+                        "enabled": true,
+                        "value": "anydata|error"
+                    },
+                    "group": {
+                        "id": 1,
+                        "name": "group-1",
+                        "type": "exclusive",
+                        "documentation": "RabbitMQ message trigger method.",
+                        "default": "onMessage"
+                    }
+                },
+                {
+                    "name": "onError",
+                    "optional": true,
+                    "documentation": "The `onError` remote method will be triggered when an error occurs during the message processing.",
+                    "qualifiers": [
+                        "remote"
+                    ],
+                    "enabled": false,
+                    "parameters": [
+                        {
+                            "name": "message",
+                            "typeName": "rabbitmq:AnydataMessage",
+                            "type": [
+                                "rabbitmq:AnydataMessage"
+                            ],
+                            "optional": false,
+                            "typeInfo": {
+                                "name": "AnydataMessage",
+                                "orgName": "ballerinax",
+                                "moduleName": "rabbitmq",
+                                "version": "3.1.0"
+                            },
+                            "documentation": "The message received from the RabbitMQ queue.",
+                            "enabled": "true",
+                            "value": "rabbitmq:AnydataMessage"
+                        },
+                        {
+                            "name": "err",
+                            "typeName": "rabbitmq:Error",
+                            "type": [
+                                "rabbitmq:Error"
+                            ],
+                            "typeInfo": {
+                                "name": "Error",
+                                "orgName": "ballerinax",
+                                "moduleName": "rabbitmq",
+                                "version": "3.1.0"
+                            },
+                            "optional": false,
+                            "documentation": "The error occurred during the message processing.",
+                            "enabled": "true",
+                            "value": "rabbitmq:Error"
+                        }
+                    ],
+                    "returnType": {
+                        "typeName": "error?",
+                        "type": [
+                            "error?"
+                        ],
+                        "optional": true,
+                        "documentation": "Error object.",
+                        "defaultTypeName": "error?",
+                        "enabled": "true",
+                        "value": "error?"
+                    }
+                }
+            ]
+        }
+    ],
+    "listener": {
+        "metadata": {
+            "label": "RabbitMQ Listener",
+            "description": "The RabbitMQ listener listens to messages from a RabbitMQ server."
+        },
+        "valueType": "rabbitmq:Listener",
+        "valueTypeConstraint": "rabbitmq:Listener",
+        "value": "",
+        "enabled": true,
+        "optional": false,
+        "editable": true,
+        "properties": {
+            "host": {
+                "metadata": {
+                    "label": "host",
+                    "description": "The RabbitMQ server host name used for establishing the connection."
+                },
+                "valueType": "string",
+                "valueTypeConstraint": "string",
+                "value": "",
+                "placeholder": "rabbitmq:DEFAULT_HOST",
+                "editable": true,
+                "optional": false,
+                "advanced": false
+            },
+            "port": {
+                "metadata": {
+                    "label": "port",
+                    "description": "The RabbitMQ server port used for establishing the connection."
+                },
+                "valueType": "int",
+                "valueTypeConstraint": "int",
+                "value": "",
+                "placeholder": "rabbitmq:DEFAULT_PORT",
+                "editable": true,
+                "optional": false,
+                "advanced": false
+            },
+            "qosSettings": {
+                "metadata": {
+                    "label": "qosSettings",
+                    "description": "The consumer prefetch settings."
+                },
+                "valueType": "rabbitmq:QosSettings",
+                "valueTypeConstraint": "rabbitmq:QosSettings",
+                "value": "",
+                "placeholder": "",
+                "editable": true,
+                "optional": true,
+                "advanced": true,
+                "fields": {
+                    "prefetchCount": {
+                        "metadata": {
+                            "label": "prefetchCount",
+                            "description": "The maximum number of messages that the server will deliver. Give the value as 0 if unlimited"
+                        },
+                        "valueType": "int",
+                        "valueTypeConstraint": "int",
+                        "value": "",
+                        "placeholder": "",
+                        "editable": true,
+                        "optional": false,
+                        "advanced": false
+                    },
+                    "prefetchSize": {
+                        "metadata": {
+                            "label": "prefetchSize",
+                            "description": "The maximum amount of content (measured in octets) that the server will deliver and 0 if unlimited"
+                        },
+                        "valueType": "int",
+                        "valueTypeConstraint": "int",
+                        "value": "",
+                        "placeholder": "",
+                        "editable": true,
+                        "optional": true,
+                        "advanced": false
+                    },
+                    "global": {
+                        "metadata": {
+                            "label": "global",
+                            "description": "Indicates whether the settings should be shared among all the consumers."
+                        },
+                        "valueType": "boolean",
+                        "valueTypeConstraint": "boolean",
+                        "value": "",
+                        "placeholder": "false",
+                        "editable": true,
+                        "optional": true,
+                        "advanced": false
+                    }
+                }
+            },
+            "connectionData": {
+                "metadata": {
+                    "label": "connectionData",
+                    "description": "The connection data used for establishing the connection."
+                },
+                "valueType": "rabbitmq:ConnectionData",
+                "valueTypeConstraint": "rabbitmq:ConnectionData",
+                "value": "",
+                "placeholder": "",
+                "editable": true,
+                "optional": true,
+                "advanced": true,
+                "fields": {
+                    "username": {
+                        "metadata": {
+                            "label": "username",
+                            "description": "The username used for establishing the connection."
+                        },
+                        "valueType": "string",
+                        "valueTypeConstraint": "string",
+                        "value": "",
+                        "placeholder": "",
+                        "editable": true,
+                        "optional": true,
+                        "advanced": false
+                    },
+                    "password": {
+                        "metadata": {
+                            "label": "password",
+                            "description": "The password used for establishing the connection."
+                        },
+                        "valueType": "string",
+                        "valueTypeConstraint": "string",
+                        "value": "",
+                        "placeholder": "",
+                        "editable": true,
+                        "optional": true,
+                        "advanced": false
+                    },
+                    "virtualHost": {
+                        "metadata": {
+                            "label": "virtualHost",
+                            "description": "The virtual host to use when connecting to the broker."
+                        },
+                        "valueType": "string",
+                        "valueTypeConstraint": "string",
+                        "value": "",
+                        "placeholder": "",
+                        "editable": true,
+                        "optional": true,
+                        "advanced": false
+                    },
+                    "connectionTimeout": {
+                        "metadata": {
+                            "label": "connectionTimeout",
+                            "description": "Connection TCP establishment timeout in seconds and zero for infinite."
+                        },
+                        "valueType": "decimal",
+                        "valueTypeConstraint": "decimal",
+                        "value": "",
+                        "placeholder": "",
+                        "editable": true,
+                        "optional": true,
+                        "advanced": false
+                    },
+                    "handshakeTimeout": {
+                        "metadata": {
+                            "label": "handshakeTimeout",
+                            "description": "The AMQP 0-9-1 protocol handshake timeout in seconds."
+                        },
+                        "valueType": "decimal",
+                        "valueTypeConstraint": "decimal",
+                        "value": "",
+                        "placeholder": "",
+                        "editable": true,
+                        "optional": true,
+                        "advanced": false
+                    },
+                    "shutdownTimeout": {
+                        "metadata": {
+                            "label": "shutdownTimeout",
+                            "description": "Shutdown timeout in seconds, zero for infinite, and the default value is 10. If the consumers exceed this timeout, then any remaining queued deliveries (and other Consumer callbacks) will be lost."
+                        },
+                        "valueType": "decimal",
+                        "valueTypeConstraint": "decimal",
+                        "value": "",
+                        "placeholder": "",
+                        "editable": true,
+                        "optional": true,
+                        "advanced": false
+                    },
+                    "heartbeat": {
+                        "metadata": {
+                            "label": "heartbeat",
+                            "description": "The initially-requested heartbeat timeout in seconds and zero for none."
+                        },
+                        "valueType": "decimal",
+                        "valueTypeConstraint": "decimal",
+                        "value": "",
+                        "placeholder": "",
+                        "editable": true,
+                        "optional": true,
+                        "advanced": false
+                    },
+                    "validation": {
+                        "metadata": {
+                            "label": "validation",
+                            "description": "Configuration related to constraint validation check."
+                        },
+                        "valueType": "boolean",
+                        "valueTypeConstraint": "boolean",
+                        "value": "",
+                        "placeholder": "true",
+                        "editable": true,
+                        "optional": true,
+                        "advanced": false
+                    },
+                    "secureSocket": {
+                        "metadata": {
+                            "label": "secureSocket",
+                            "description": "Configurations for facilitating secure connections."
+                        },
+                        "valueType": "rabbitmq:SecureSocket",
+                        "valueTypeConstraint": "rabbitmq:SecureSocket",
+                        "value": "",
+                        "placeholder": "",
+                        "editable": true,
+                        "optional": true,
+                        "advanced": true,
+                        "fields": {
+                            "cert": {
+                                "metadata": {
+                                    "label": "cert",
+                                    "description": "Configurations associated with `crypto:TrustStore` or single certificate file that the client trusts"
+                                },
+                                "valueType": "string",
+                                "valueTypeConstraint": "string",
+                                "value": "",
+                                "placeholder": "",
+                                "optional": true,
+                                "editable": true,
+                                "advanced": false
+                            },
+                            "key": {
+                                "metadata": {
+                                    "label": "key",
+                                    "description": "Configurations associated with `crypto:KeyStore` or combination of certificate and private key of the client"
+                                },
+                                "valueType": "EXPRESSION",
+                                "valueTypeConstraint": "rabbitmq:CertKey",
+                                "value": "",
+                                "placeholder": "",
+                                "optional": true,
+                                "editable": true,
+                                "advanced": true,
+                                "fields": {
+                                    "certFile": {
+                                        "metadata": {
+                                            "label": "certFile",
+                                            "description": "A file containing the certificate"
+                                        },
+                                        "valueType": "string",
+                                        "valueTypeConstraint": "string",
+                                        "value": "",
+                                        "placeholder": "",
+                                        "optional": true,
+                                        "editable": true,
+                                        "advanced": false
+                                    },
+                                    "keyFile": {
+                                        "metadata": {
+                                            "label": "keyFile",
+                                            "description": "A file containing the private key in PKCS8 format"
+                                        },
+                                        "valueType": "string",
+                                        "valueTypeConstraint": "string",
+                                        "value": "",
+                                        "placeholder": "",
+                                        "optional": true,
+                                        "editable": true,
+                                        "advanced": false
+                                    },
+                                    "keyPassword": {
+                                        "metadata": {
+                                            "label": "keyPassword",
+                                            "description": "Password of the private key if it is encrypted"
+                                        },
+                                        "valueType": "string",
+                                        "valueTypeConstraint": "string",
+                                        "value": "",
+                                        "placeholder": "",
+                                        "optional": true,
+                                        "editable": true,
+                                        "advanced": false
+                                    }
+                                },
+                                "protocol": {
+                                    "metadata": {
+                                        "label": "protocol",
+                                        "description": "SSL/TLS protocol related options"
+                                    },
+                                    "valueType": "EXPRESSION",
+                                    "valueTypeConstraint": "record",
+                                    "value": "",
+                                    "placeholder": "",
+                                    "optional": true,
+                                    "editable": true,
+                                    "advanced": true,
+                                    "fields": {
+                                        "name": {
+                                            "metadata": {
+                                                "label": "name",
+                                                "description": "The name of the protocol"
+                                            },
+                                            "valueType": "string",
+                                            "valueTypeConstraint": "string",
+                                            "value": "",
+                                            "placeholder": "",
+                                            "optional": true,
+                                            "editable": true,
+                                            "advanced": false,
+                                            "enum": [
+                                                "rabbitmq:SSL",
+                                                "rabbitmq:TLS",
+                                                "rabbitmq:DTLS"
+                                            ]
+                                        }
+                                    }
+                                },
+                                "verifyHostName": {
+                                    "metadata": {
+                                        "label": "verifyHostName",
+                                        "description": "Enable/disable host name verification"
+                                    },
+                                    "valueType": "boolean",
+                                    "valueTypeConstraint": "boolean",
+                                    "value": "",
+                                    "placeholder": "true",
+                                    "optional": true,
+                                    "editable": true,
+                                    "advanced": false
+                                }
+                            }
+                        },
+                        "auth": {
+                            "metadata": {
+                                "label": "auth",
+                                "description": "Configurations related to authentication."
+                            },
+                            "valueType": "rabbitmq:Credentials",
+                            "valueTypeConstraint": "rabbitmq:Credentials",
+                            "value": "",
+                            "placeholder": "",
+                            "editable": true,
+                            "optional": true,
+                            "advanced": true,
+                            "fields": {
+                                "username": {
+                                    "metadata": {
+                                        "label": "username",
+                                        "description": "Username to use for authentication"
+                                    },
+                                    "valueType": "string",
+                                    "valueTypeConstraint": "string",
+                                    "value": "",
+                                    "placeholder": "",
+                                    "editable": true,
+                                    "optional": true,
+                                    "advanced": false
+                                },
+                                "password": {
+                                    "metadata": {
+                                        "label": "password",
+                                        "description": "Password/secret/token to use for authentication"
+                                    },
+                                    "valueType": "string",
+                                    "valueTypeConstraint": "string",
+                                    "value": "",
+                                    "placeholder": "",
+                                    "editable": true,
+                                    "optional": true,
+                                    "advanced": false
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

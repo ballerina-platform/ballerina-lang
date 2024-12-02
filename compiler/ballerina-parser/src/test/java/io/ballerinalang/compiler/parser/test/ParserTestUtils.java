@@ -32,6 +32,7 @@ import io.ballerina.compiler.internal.parser.tree.STNodeDiagnostic;
 import io.ballerina.compiler.internal.parser.tree.STNodeList;
 import io.ballerina.compiler.internal.parser.tree.STToken;
 import io.ballerina.compiler.internal.syntax.SyntaxUtils;
+import io.ballerina.compiler.syntax.tree.CommentNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.SyntaxTree;
@@ -46,6 +47,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collection;
+import java.util.List;
 
 import static io.ballerina.compiler.internal.syntax.SyntaxUtils.isSTNodePresent;
 import static io.ballerinalang.compiler.parser.test.ParserTestConstants.CHILDREN_FIELD;
@@ -986,5 +988,15 @@ public final class ParserTestUtils {
             // Unsupported
             default -> throw new UnsupportedOperationException("cannot find syntax kind: " + kind);
         };
+    }
+
+    public static void assertCommentNode(Node node, List<String> comments) {
+        Assert.assertTrue(node instanceof CommentNode);
+        CommentNode commentNode = (CommentNode) node;
+        List<String> commentLines = commentNode.getCommentLines();
+        Assert.assertEquals(commentLines.size(), comments.size());
+        for (int i = 0; i < comments.size(); i++) {
+            Assert.assertEquals(commentLines.get(i), comments.get(i));
+        }
     }
 }

@@ -15,31 +15,56 @@
  */
 package org.ballerinalang.langserver;
 
+import com.google.common.reflect.TypeToken;
+import com.google.gson.Gson;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 import io.ballerina.compiler.api.ModuleID;
 import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.projects.Module;
 import io.ballerina.projects.Package;
-import io.ballerina.projects.*;
+import io.ballerina.projects.PackageCompilation;
+import io.ballerina.projects.PackageDependencyScope;
+import io.ballerina.projects.PackageDescriptor;
+import io.ballerina.projects.PackageName;
+import io.ballerina.projects.PackageOrg;
+import io.ballerina.projects.PackageVersion;
+import io.ballerina.projects.Project;
 import io.ballerina.projects.directory.ProjectLoader;
-import io.ballerina.projects.environment.*;
+import io.ballerina.projects.environment.Environment;
+import io.ballerina.projects.environment.EnvironmentBuilder;
+import io.ballerina.projects.environment.PackageRepository;
+import io.ballerina.projects.environment.ResolutionOptions;
+import io.ballerina.projects.environment.ResolutionRequest;
 import io.ballerina.projects.internal.environment.BallerinaDistribution;
 import io.ballerina.projects.internal.environment.BallerinaUserHome;
+import io.ballerina.projects.util.FileUtils;
 import org.ballerinalang.langserver.codeaction.CodeActionModuleId;
 import org.ballerinalang.langserver.common.utils.ModuleUtil;
 import org.ballerinalang.langserver.commons.DocumentServiceContext;
 import org.ballerinalang.langserver.commons.LanguageServerContext;
 import org.ballerinalang.langserver.commons.client.ExtendedLanguageClient;
 import org.ballerinalang.langserver.completions.providers.context.util.ServiceTemplateGenerator;
-import org.eclipse.lsp4j.*;
+import org.eclipse.lsp4j.ProgressParams;
+import org.eclipse.lsp4j.WorkDoneProgressBegin;
+import org.eclipse.lsp4j.WorkDoneProgressCreateParams;
+import org.eclipse.lsp4j.WorkDoneProgressEnd;
+import org.eclipse.lsp4j.WorkDoneProgressReport;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.wso2.ballerinalang.compiler.util.Names;
 
+import java.io.IOException;
 import java.nio.file.Path;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
 /**
@@ -118,33 +143,11 @@ public class LSPackageLoader {
                 lsClientLogger.logTrace("Loading packages from Ballerina distribution");
                 this.distRepoPackages.addAll(checkAndResolvePackagesFromRepository(packageRepository,
                         skippedLangLibs, Collections.emptySet()));
-                Set<String> distRepoModuleIdentifiers = distRepoPackages.stream().map(ModuleInfo::packageIdentifier)
-                        .collect(Collectors.toSet());
                 lsClientLogger.logTrace("Successfully loaded packages from Ballerina distribution");
-
-                lsClientLogger.logTrace("Loading packages from Ballerina User Home");
-                BallerinaUserHome ballerinaUserHome = BallerinaUserHome.from(environment);
-                //Load modules from local repo
-                PackageRepository localRepository = ballerinaUserHome.localPackageRepository();
-                this.localRepoPackages.addAll(checkAndResolvePackagesFromRepository(localRepository,
-                        Collections.emptyList(), distRepoModuleIdentifiers));
-
-                //Load modules from remote repo
-                PackageRepository remoteRepository = ballerinaUserHome.remotePackageRepository();
-                Set<String> loadedModules = new HashSet<>();
-                loadedModules.addAll(distRepoModuleIdentifiers);
-                loadedModules.addAll(localRepoPackages.stream().map(ModuleInfo::packageIdentifier)
-                        .collect(Collectors.toSet()));
-                this.remoteRepoPackages.addAll(checkAndResolvePackagesFromRepository(remoteRepository,
-                        Collections.emptyList(),
-                        loadedModules));
-                lsClientLogger.logTrace("Successfully loaded packages from Ballerina User Home");
 
                 this.getDistributionRepoModules().forEach(packageInfo ->
                         packagesList.put(packageInfo.packageIdentifier(), packageInfo));
-                List<ModuleInfo> repoPackages = new ArrayList<>();
-                repoPackages.addAll(this.getRemoteRepoModules());
-                repoPackages.addAll(this.getLocalRepoModules());
+                List<ModuleInfo> repoPackages = new ArrayList<>(this.getLocalRepoModules());
                 repoPackages.stream().filter(packageInfo -> !packagesList.containsKey(packageInfo.packageIdentifier()))
                         .forEach(packageInfo -> packagesList.put(packageInfo.packageIdentifier(), packageInfo));
             }).thenRunAsync(() -> {
@@ -158,10 +161,11 @@ public class LSPackageLoader {
                 progressNotification.setCancellable(false);
                 languageClient.notifyProgress(new ProgressParams(Either.forLeft(taskId),
                         Either.forLeft(progressNotification)));
-            }).thenRunAsync(() -> {
                 try {
-                    this.centralPackages.addAll(this.centralPackageDescriptorLoader.getCentralPackages().get());
-                } catch (InterruptedException | ExecutionException e) {
+                    String moduleInfo = FileUtils.readFileAsString("moduleInfo.json");
+                    this.centralPackages.addAll(new Gson().fromJson(moduleInfo, new TypeToken<List<ModuleInfo>>() {
+                    }.getType()));
+                } catch (IOException e) {
                     throw new RuntimeException(e);
                 }
             }).thenRunAsync(() -> {

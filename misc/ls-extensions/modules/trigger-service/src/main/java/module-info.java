@@ -10,4 +10,5 @@ module io.ballerina.LSExtensions.BallerinaTriggerService {
     requires io.ballerina.language.server.commons;
     requires org.eclipse.lsp4j;
     requires org.eclipse.lsp4j.jsonrpc;
+    requires com.google.common;
 }

@@ -50,6 +50,18 @@ public class BallerinaTriggerListResponse {
         }
     }
 
+    public void addCentralTriggers(List<Trigger> central) {
+        if (central != null && !central.isEmpty()) {
+            this.central.addAll(central);
+        }
+    }
+
+    public void addInBuiltTriggers(List<Trigger> inBuiltTriggers) {
+        if (inBuiltTriggers != null && !inBuiltTriggers.isEmpty()) {
+            this.central.addAll(inBuiltTriggers);
+        }
+    }
+
     public List<Trigger> getLocalTriggers() {
         return local;
     }

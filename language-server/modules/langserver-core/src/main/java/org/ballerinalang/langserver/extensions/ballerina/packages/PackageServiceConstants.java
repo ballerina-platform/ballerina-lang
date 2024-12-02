@@ -23,6 +23,7 @@ package org.ballerinalang.langserver.extensions.ballerina.packages;
 public final class PackageServiceConstants {
 
     static final String CAPABILITY_NAME = "ballerinaPackage";
+    static final String MAIN_FUNCTION = "main";
     static final String NAME = "name";
     static final String FILE_PATH = "filePath";
     static final String START_LINE = "startLine";
@@ -41,6 +42,8 @@ public final class PackageServiceConstants {
     static final String CLASSES = "classes";
     static final String LISTENERS = "listeners";
     static final String MODULE_LEVEL_VARIABLE = "moduleVariables";
+    static final String CONFIGURABLE_VARIABLES = "configurableVariables";
+    static final String AUTOMATIONS = "automations";
 
     private PackageServiceConstants() {
     }

@@ -1,0 +1,17 @@
+{
+  "sourceRoot": "project1",
+  "result": {
+    "hasMain": true,
+    "params": [
+      {
+        "type": "string",
+        "paramName": "host"
+      },
+      {
+        "type": "int",
+        "paramName": "port",
+        "defaultValue": "9000"
+      }
+    ]
+  }
+}
