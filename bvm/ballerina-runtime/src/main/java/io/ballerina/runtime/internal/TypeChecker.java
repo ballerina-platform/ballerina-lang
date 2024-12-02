@@ -601,7 +601,7 @@ public final class TypeChecker {
                 .orElse(false);
     }
 
-    private synchronized static boolean isSubType(Type source, Type target) {
+    private static synchronized boolean isSubType(Type source, Type target) {
         if (source instanceof CacheableTypeDescriptor sourceCacheableType &&
                 target instanceof CacheableTypeDescriptor targetCacheableType) {
             return isSubTypeWithCache(sourceCacheableType, targetCacheableType);
