@@ -4088,8 +4088,9 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
             return;
         } else if (targetResourceFuncCount > 1) {
             //Filter the resource function with identifier segment
-            Optional<BResourceFunction> first = resourceFunctions.stream().filter(func -> func.pathSegmentSymbols
-                    .get(func.pathSegmentSymbols.size() - 1).kind == SymbolKind.RESOURCE_PATH_IDENTIFIER_SEGMENT)
+            Optional<BResourceFunction> first = resourceFunctions
+                    .stream().filter(func -> func.pathSegmentSymbols.stream()
+                            .allMatch(segment -> segment.kind == SymbolKind.RESOURCE_PATH_IDENTIFIER_SEGMENT))
                     .findFirst();
             if (first.isPresent()) {
                 resourceFunctions = new ArrayList<>(List.of(first.get()));
