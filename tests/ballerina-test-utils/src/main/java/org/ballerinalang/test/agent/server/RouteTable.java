@@ -21,6 +21,7 @@ import io.netty.handler.codec.http.HttpMethod;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * The RouteTable class contains all URL routes in the WebServer.
@@ -28,11 +29,7 @@ import java.util.ArrayList;
  * @since 0.982.0
  */
 class RouteTable {
-    private final ArrayList<Route> routes;
-
-    RouteTable() {
-        this.routes = new ArrayList<Route>();
-    }
+    private final List<Route> routes = new ArrayList<>();
 
     void addRoute(final Route route) {
         this.routes.add(route);

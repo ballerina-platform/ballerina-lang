@@ -48,8 +48,7 @@ public class BindgenTestCase extends BaseTest {
     public void setUp() throws IOException {
         tempProjectsDir = Files.createTempDirectory("bal-test-integration-bindgen-");
         // copy TestProject to a temp
-        Path testProject = Path.of("src", "test", "resources", "bindgen")
-                .toAbsolutePath();
+        Path testProject = Path.of("src/test/resources/bindgen").toAbsolutePath();
         copyFolder(testProject, tempProjectsDir);
         balClient = new BMainInstance(balServer);
     }
@@ -61,7 +60,7 @@ public class BindgenTestCase extends BaseTest {
      */
     @Test(description = "Test the bindgen command functionality.")
     public void bindgenTest() throws BallerinaTestException {
-        String buildMsg = "target/bin/bindgen.jar";
+        String buildMsg = Path.of("target/bin/bindgen.jar").toString();
         LogLeecher buildLeecher = new LogLeecher(buildMsg);
 
         String bindgenMsg1 = "error: unable to generate the '";

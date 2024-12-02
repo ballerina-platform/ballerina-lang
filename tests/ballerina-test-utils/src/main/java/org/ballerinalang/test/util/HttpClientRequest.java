@@ -32,6 +32,7 @@ import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.net.HttpURLConnection;
 import java.net.ProtocolException;
+import java.net.URI;
 import java.net.URL;
 import java.net.URLConnection;
 import java.nio.charset.Charset;
@@ -240,7 +241,7 @@ public final class HttpClientRequest {
     }
 
     private static HttpURLConnection getURLConnection(String requestUrl, int readTimeout) throws IOException {
-        URL url = new URL(requestUrl);
+        URL url = URI.create(requestUrl).toURL();
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
         conn.setDoOutput(true);
         conn.setReadTimeout(readTimeout);

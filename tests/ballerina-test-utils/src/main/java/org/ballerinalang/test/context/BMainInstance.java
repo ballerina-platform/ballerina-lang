@@ -19,8 +19,6 @@ package org.ballerinalang.test.context;
 
 import org.apache.commons.lang3.ArrayUtils;
 import org.jetbrains.annotations.Nullable;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -47,10 +45,9 @@ import java.util.stream.Stream;
  * @since 0.982.0
  */
 public class BMainInstance implements BMain {
-    private static final Logger LOG = LoggerFactory.getLogger(BMainInstance.class);
     private static final String JAVA_OPTS = "JAVA_OPTS";
     private String agentArgs = "";
-    private BalServer balServer;
+    private final BalServer balServer;
     public static final int TIMEOUT = 10000;
 
     private static class StreamGobbler extends Thread {
@@ -65,7 +62,7 @@ public class BMainInstance implements BMain {
         @Override
         public void run() {
             BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
-            String lineContent = null;
+            String lineContent;
             while (true) {
                 try {
                     lineContent = bufferedReader.readLine();
@@ -254,9 +251,7 @@ public class BMainInstance implements BMain {
             ProcessBuilder processBuilder = new ProcessBuilder(cmdArgs).directory(new File(commandDir));
             if (envProperties != null) {
                 Map<String, String> env = processBuilder.environment();
-                for (Map.Entry<String, String> entry : envProperties.entrySet()) {
-                    env.put(entry.getKey(), entry.getValue());
-                }
+                env.putAll(envProperties);
             }
             addJavaAgents(processBuilder.environment());
 
@@ -322,9 +317,7 @@ public class BMainInstance implements BMain {
             ProcessBuilder processBuilder = new ProcessBuilder(cmdArgs).directory(new File(commandDir));
             if (envProperties != null) {
                 Map<String, String> env = processBuilder.environment();
-                for (Map.Entry<String, String> entry : envProperties.entrySet()) {
-                    env.put(entry.getKey(), entry.getValue());
-                }
+                env.putAll(envProperties);
             }
             return processBuilder.start();
         } catch (IOException e) {
@@ -358,7 +351,7 @@ public class BMainInstance implements BMain {
             throws BallerinaTestException {
         String scriptName = Constant.BALLERINA_SERVER_SCRIPT_NAME;
         String[] cmdArray;
-        String[] cmdArgs = new String[0];
+        String[] cmdArgs;
         Process process = null;
 
         if (envProperties != null) {
@@ -378,9 +371,7 @@ public class BMainInstance implements BMain {
             ProcessBuilder processBuilder = new ProcessBuilder(cmdArgs).directory(new File(commandDir));
             if (envProperties != null) {
                 Map<String, String> env = processBuilder.environment();
-                for (Map.Entry<String, String> entry : envProperties.entrySet()) {
-                    env.put(entry.getKey(), entry.getValue());
-                }
+                env.putAll(envProperties);
             }
             process = processBuilder.start();
 
@@ -711,9 +702,9 @@ public class BMainInstance implements BMain {
     }
 
     public void compilePackageAndPushToLocal(String packagPath, String balaFileName) throws BallerinaTestException {
-        LogLeecher buildLeecher = new LogLeecher("target/bala/" + balaFileName + ".bala");
-        LogLeecher pushLeecher = new LogLeecher("Successfully pushed target/bala/" + balaFileName + ".bala to " +
-                                                "'local' repository.");
+        String targetBala = Path.of("target/bala/" + balaFileName + ".bala").toString();
+        LogLeecher buildLeecher = new LogLeecher(targetBala);
+        LogLeecher pushLeecher = new LogLeecher("Successfully pushed " + targetBala + " to 'local' repository.");
         this.runMain("pack", new String[]{}, null, null, new LogLeecher[]{buildLeecher}, packagPath);
         buildLeecher.waitForText(5000);
         this.runMain("push", new String[]{"--repository=local"}, null, null, new LogLeecher[]{pushLeecher},

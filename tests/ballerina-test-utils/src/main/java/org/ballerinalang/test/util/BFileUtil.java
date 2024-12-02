@@ -18,6 +18,7 @@
 package org.ballerinalang.test.util;
 
 import org.ballerinalang.test.exceptions.BLangTestException;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -57,15 +58,16 @@ public final class BFileUtil {
      */
     public static void copy(Path sourcePath, Path targetPath) {
         try {
-            Files.walkFileTree(sourcePath, new SimpleFileVisitor<Path>() {
+            Files.walkFileTree(sourcePath, new SimpleFileVisitor<>() {
 
                 @Override
-                public FileVisitResult visitFileFailed(Path file, IOException exc) {
+                public @NotNull FileVisitResult visitFileFailed(Path file, @NotNull IOException exc) {
                     return FileVisitResult.CONTINUE;
                 }
 
                 @Override
-                public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
+                @NotNull
+                public FileVisitResult preVisitDirectory(Path dir, @NotNull BasicFileAttributes attrs) throws IOException {
                     if (Files.exists(dir)) {
                         Files.createDirectories(targetPath.resolve(sourcePath.relativize(dir)));
                     }
@@ -73,7 +75,8 @@ public final class BFileUtil {
                 }
 
                 @Override
-                public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+                @NotNull
+                public FileVisitResult visitFile(Path file, @NotNull BasicFileAttributes attrs) throws IOException {
                     if (!IGNORE.equals(file.getFileName().toString()) && Files.exists(file)) {
                         CopyOption[] option = {
                                 StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.COPY_ATTRIBUTES
@@ -96,22 +99,25 @@ public final class BFileUtil {
      */
     public static void delete(Path path) {
         try {
-            Files.walkFileTree(path, new SimpleFileVisitor<Path>() {
-
+            Files.walkFileTree(path, new SimpleFileVisitor<>() {
+                
                 @Override
-                public FileVisitResult visitFileFailed(Path file, IOException exc) {
+                @NotNull
+                public FileVisitResult visitFileFailed(Path file, @NotNull IOException exc) {
                     return FileVisitResult.CONTINUE;
                 }
-
+                
                 @Override
-                public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+                @NotNull
+                public FileVisitResult visitFile(Path file, @NotNull BasicFileAttributes attrs) throws IOException {
                     if (Files.exists(file)) {
                         Files.delete(file);
                     }
                     return FileVisitResult.CONTINUE;
                 }
-
+                
                 @Override
+                @NotNull
                 public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
                     if (Files.exists(dir)) {
                         try (Stream<Path> paths = Files.list(dir)) {

@@ -50,8 +50,7 @@ public class MavenTestCase extends BaseTest {
         this.projectPath = Files.createTempDirectory("bal-test-integration-maven-");
 
         // copy TestProject1 to a temp
-        Path originalTestProj1 = Path.of("src", "test", "resources", "packaging", "maven", "jyaml")
-                .toAbsolutePath();
+        Path originalTestProj1 = Path.of("src/test/resources/packaging/maven/jyaml").toAbsolutePath();
         PackerinaTestUtils.copyFolder(originalTestProj1, this.projectPath);
 
         envVariables = addEnvVariables(PackerinaTestUtils.getEnvVariables());
@@ -70,8 +69,8 @@ public class MavenTestCase extends BaseTest {
                 new LogLeecher[]{}, projectPath.toString());
         // delete the platform lib directory
         deleteFiles(this.projectPath.resolve("target").resolve("platform-libs"));
-
-        String mvnBuildMsg = "target/bin/tests.jar";
+        
+        String mvnBuildMsg = Path.of("target/bin/tests.jar").toString();
         LogLeecher mvnBuildLeecher = new LogLeecher(mvnBuildMsg);
         balClient.runMain("build", new String[]{}, envVariables, new String[]{},
                 new LogLeecher[]{mvnBuildLeecher}, projectPath.toString());
