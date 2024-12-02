@@ -36,7 +36,7 @@ public final class Next {
 
     private Next() {
     }
-    
+
     @Nullable
     public static Object next(BObject m) {
         BIterator<?> mapIterator = (BIterator<?>) m.getNativeData("&iterator&");
