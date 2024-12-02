@@ -67,7 +67,8 @@ public final class BFileUtil {
 
                 @Override
                 @NotNull
-                public FileVisitResult preVisitDirectory(Path dir, @NotNull BasicFileAttributes attrs) throws IOException {
+                public FileVisitResult preVisitDirectory(Path dir,
+                                                         @NotNull BasicFileAttributes attrs) throws IOException {
                     if (Files.exists(dir)) {
                         Files.createDirectories(targetPath.resolve(sourcePath.relativize(dir)));
                     }
