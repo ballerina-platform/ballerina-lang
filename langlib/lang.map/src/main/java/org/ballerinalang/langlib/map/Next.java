@@ -36,8 +36,8 @@ public final class Next {
 
     private Next() {
     }
-
-	@Nullable
+    
+    @Nullable
     public static Object next(BObject m) {
         BIterator<?> mapIterator = (BIterator<?>) m.getNativeData("&iterator&");
         BMap<?, ?> bMap = (BMap<?, ?>) m.get(StringUtils.fromString("m"));

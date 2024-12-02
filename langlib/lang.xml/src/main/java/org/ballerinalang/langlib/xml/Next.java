@@ -36,7 +36,8 @@ public final class Next {
 
     private Next() {
     }
-	@Nullable
+    
+    @Nullable
     public static Object next(BObject m) {
         BIterator<?> xmlIterator = (BIterator<?>) m.getNativeData("&iterator&");
         BXml bXml = (BXml) m.get(StringUtils.fromString("m"));
