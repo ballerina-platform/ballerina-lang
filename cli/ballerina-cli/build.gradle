@@ -120,7 +120,7 @@ test {
     dependsOn copyCompilerPluginJars
     dependsOn copyProfilerResources
 
-    systemProperty "ballerina.home", "${getLayout().getBuildDirectory().get()}"
+    systemProperty "ballerina.home", "${getLayout().getBuildDirectory().get()}".toString()
 
     useTestNG() {
         suites 'src/test/resources/testng.xml'

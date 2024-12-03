@@ -51,11 +51,11 @@ test {
     dependsOn extractDistribution
 
     maxParallelForks = 1
-    systemProperty 'basedir', "${getLayout().getBuildDirectory().get()}"
-    systemProperty 'libdir', "${getLayout().getBuildDirectory().get()}"
+    systemProperty 'basedir', "${getLayout().getBuildDirectory().get()}".toString()
+    systemProperty 'libdir', "${getLayout().getBuildDirectory().get()}".toString()
     systemProperty 'server.zip', configurations.jballerinaTools.asPath
     systemProperty 'jballerina.server.zip', configurations.jballerinaTools.asPath
-    systemProperty 'java.util.logging.config.file', "${getLayout().getBuildDirectory().get()}/src/test/resources/logging.properties"
+    systemProperty 'java.util.logging.config.file', "${getLayout().getBuildDirectory().get()}/src/test/resources/logging.properties".toString()
 
     useTestNG() {
         suites 'src/test/resources/testng.xml'

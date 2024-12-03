@@ -89,11 +89,11 @@ test {
     dependsOn ':jballerina-tools:build'
 
     maxParallelForks = 1
-    systemProperty 'basedir', "${getLayout().getBuildDirectory().get()}"
-    systemProperty 'libdir', "${getLayout().getBuildDirectory().get()}"
+    systemProperty 'basedir', "${getLayout().getBuildDirectory().get()}".toString()
+    systemProperty 'libdir', "${getLayout().getBuildDirectory().get()}".toString()
     systemProperty 'server.zip', configurations.jballerinaTools.asPath
     systemProperty 'jballerina.server.zip', configurations.jballerinaTools.asPath
-    systemProperty 'java.util.logging.config.file', "${getLayout().getBuildDirectory().get()}/resources/test/logging.properties"
+    systemProperty 'java.util.logging.config.file', "${getLayout().getBuildDirectory().get()}/resources/test/logging.properties".toString()
     systemProperty 'ballerina.agent.path', configurations.testUtils.asPath
     systemProperty 'observability.test.utils.bala', configurations.observeTestUtilsBala.asPath
     systemProperty 'observability.test.utils.jar', configurations.observeTestUtilsJar.asPath

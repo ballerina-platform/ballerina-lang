@@ -412,7 +412,7 @@ tasks.register('generateDocs', JavaExec) {
     dependsOn ':docerina-gradle-plugin:build'
     outputs.dir("${getLayout().getBuildDirectory().get()}/api-docs")
     outputs.cacheIf { true }
-    systemProperty("ballerina.home", "${getLayout().getBuildDirectory().get()}")
+    systemProperty("ballerina.home", "${getLayout().getBuildDirectory().get()}".toString())
     classpath = files(pathingJar.archiveFile)
     mainClass = 'org.ballerinalang.plugin.gradle.doc.DocerinaGen'
     args("${getLayout().getBuildDirectory().get()}/api-docs")

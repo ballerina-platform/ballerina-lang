@@ -62,7 +62,7 @@ tasks.register('copyCompilerPluginJars', Copy) {
 test {
     dependsOn copyCompilerPluginJars
     dependsOn loadDistributionCache
-    systemProperty "ballerina.home", "${getLayout().getBuildDirectory().get()}/"
+    systemProperty "ballerina.home", "${getLayout().getBuildDirectory().get()}/".toString()
     systemProperty "experimental", "true"
     systemProperty "ballerina.version", project.version
     useTestNG() {

@@ -67,7 +67,7 @@ test {
 
     inputs.files(configurations.balaTestImplementation);
 
-    systemProperty "ballerina.home", "${getLayout().getBuildDirectory().get()}/ballerina-home/test"
+    systemProperty "ballerina.home", "${getLayout().getBuildDirectory().get()}/ballerina-home/test".toString()
 
     systemProperty "java.util.logging.config.file", "src/test/resources/logging.properties"
     systemProperty "LANG_REPO_BUILD", "true"

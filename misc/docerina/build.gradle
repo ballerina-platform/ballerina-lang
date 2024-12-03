@@ -72,7 +72,7 @@ test {
     dependsOn createTestDistributionCache
     dependsOn createTestBre
 
-    systemProperty "ballerina.home", "${getLayout().getBuildDirectory().get()}"
+    systemProperty "ballerina.home", "${getLayout().getBuildDirectory().get()}".toString()
 
     testLogging {
         events "failed"

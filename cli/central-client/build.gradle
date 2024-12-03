@@ -76,7 +76,7 @@ test {
     dependsOn configurations.birJar
     dependsOn configurations.birJarCompile
 
-    systemProperty "ballerina.home", "${getLayout().getBuildDirectory().get()}"
+    systemProperty "ballerina.home", "${getLayout().getBuildDirectory().get()}".toString()
     useTestNG() {
         suites 'src/test/resources/testng.xml'
     }
