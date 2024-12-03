@@ -48,7 +48,7 @@ public class BalServer {
     }
 
     public BalServer(Path serverZipFile) throws BallerinaTestException {
-        setUpServerHome(serverZipFile);
+        setUpServerHome(serverZipFile.toAbsolutePath());
         log.info("Server Home " + serverHome);
     }
 

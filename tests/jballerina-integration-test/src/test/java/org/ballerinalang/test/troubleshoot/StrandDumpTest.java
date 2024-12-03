@@ -24,6 +24,7 @@ import org.ballerinalang.test.context.BallerinaTestException;
 import org.ballerinalang.test.context.LogLeecher;
 import org.ballerinalang.test.context.ServerLogReader;
 import org.ballerinalang.test.context.Utils;
+import org.testng.SkipException;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -45,7 +46,8 @@ import java.util.stream.Stream;
  */
 public class StrandDumpTest extends BaseTest {
 
-    private static final Path testFileLocation = Path.of("src/test/resources/troubleshoot/strandDump");
+    private static final Path testFileLocation = Path.of("src/test/resources/troubleshoot/strandDump")
+            .toAbsolutePath();
     private static final String JAVA_OPTS = "JAVA_OPTS";
     private static final int TIMEOUT = 60000;
     private BMainInstance bMainInstance;
@@ -74,18 +76,17 @@ public class StrandDumpTest extends BaseTest {
     @Test
     public void testStrandDumpDuringBalTest() throws BallerinaTestException {
         if (Utils.isWindowsOS()) {
-            return;
+            throw new SkipException("Currently not working on windows");
         }
 
         Path expectedOutputFilePath = testFileLocation.resolve("testOutputs/balTestStrandDumpRegEx.txt");
         Path steadyStateOutputFilePath = testFileLocation.resolve("testOutputs/balTestSteadyState.txt");
-        Path sourceRoot = testFileLocation;
         String packageName = "testPackageWithModules";
         Map<String, String> envProperties = new HashMap<>();
         bMainInstance.addJavaAgents(envProperties);
 
         String[] cmdArgs = new String[]{"bash", balServer.getServerHome() + "/bin/bal", "test", packageName};
-        ProcessBuilder processBuilder = new ProcessBuilder(cmdArgs).directory(sourceRoot.toFile());
+        ProcessBuilder processBuilder = new ProcessBuilder(cmdArgs).directory(testFileLocation.toFile());
         startProcessAndVerifyStrandDump(processBuilder, envProperties, expectedOutputFilePath,
                 steadyStateOutputFilePath, false);
     }
@@ -109,7 +110,7 @@ public class StrandDumpTest extends BaseTest {
                                            Path expectedStrandDumpFilePath, Path steadyStateOutputFilePath)
             throws BallerinaTestException {
         if (Utils.isWindowsOS()) {
-            return;
+            throw new SkipException("Currently not working on windows");
         }
 
         List<String> runCmdSet = new ArrayList<>();
@@ -120,7 +121,7 @@ public class StrandDumpTest extends BaseTest {
         runCmdSet.add("-Dballerina.home=" + tempBalHome);
         runCmdSet.addAll(Arrays.asList("-jar", jarPath.toAbsolutePath().toString()));
 
-        ProcessBuilder processBuilder = new ProcessBuilder(runCmdSet).directory(commandDir.toFile());
+        ProcessBuilder processBuilder = new ProcessBuilder(runCmdSet).directory(commandDir.toAbsolutePath().toFile());
         startProcessAndVerifyStrandDump(processBuilder, envProperties, expectedStrandDumpFilePath,
                 steadyStateOutputFilePath, true);
     }
