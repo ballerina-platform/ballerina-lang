@@ -111,7 +111,7 @@ tasks.register('createZip', Zip) {
 
 tasks.register('testJar', Jar) {
     dependsOn testClasses
-    archiveBaseName = "test-${project.archivesBaseName}"
+    archiveBaseName = "test-${project.base.archivesName}"
     from sourceSets.test.output
 }
 
@@ -148,7 +148,7 @@ tasks.register('copyRuntime') {
         configurations.dist.each { artifact ->
             copy {
                 from artifact.getPath()
-                into "$buildDir/bre/lib"
+                into "${getLayout().getBuildDirectory().get()}/bre/lib"
             }
         }
     }
@@ -158,7 +158,7 @@ test {
     dependsOn deleteGeneratedModules
     dependsOn loadDistributionCache
     dependsOn copyRuntime
-    systemProperty "ballerina.home", "$buildDir/"
+    systemProperty "ballerina.home", "${getLayout().getBuildDirectory().get()}/".toString()
     systemProperty "experimental", "true"
     systemProperty "ballerina.version", project.version
     systemProperty "responseTimeThreshold", 2000

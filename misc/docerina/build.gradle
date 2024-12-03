@@ -56,7 +56,7 @@ dependencies {
 tasks.register('createTestDistributionCache', Copy) {
     dependsOn configurations.distributionBala
     from configurations.distributionBala
-    into "$buildDir/repo"
+    into "${getLayout().getBuildDirectory().get()}/repo"
 }
 
 tasks.register('createTestBre', Copy) {
@@ -64,7 +64,7 @@ tasks.register('createTestBre', Copy) {
     from configurations.testRt
     from configurations.testCore
     from configurations.distributionBirJar
-    into "$buildDir/bre/lib"
+    into "${getLayout().getBuildDirectory().get()}/bre/lib"
 }
 
 test {
@@ -72,7 +72,7 @@ test {
     dependsOn createTestDistributionCache
     dependsOn createTestBre
 
-    systemProperty "ballerina.home", "$buildDir"
+    systemProperty "ballerina.home", "${getLayout().getBuildDirectory().get()}".toString()
 
     testLogging {
         events "failed"
@@ -101,7 +101,7 @@ processResources {
 
 tasks.register('copyBala', Copy) {
     from configurations.distBal
-    into("$buildDir/lib")
+    into("${getLayout().getBuildDirectory().get()}/lib")
 }
 
 description = 'Ballerina - Docerina'

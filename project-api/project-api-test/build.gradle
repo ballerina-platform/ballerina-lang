@@ -87,7 +87,7 @@ dependencies {
 tasks.register('createTestDistributionCache', Copy) {
     dependsOn configurations.distributionBala
     from configurations.distributionBala
-    into "$buildDir/repo"
+    into "${getLayout().getBuildDirectory().get()}/repo"
 }
 
 tasks.register('createTestBre', Copy) {
@@ -95,12 +95,12 @@ tasks.register('createTestBre', Copy) {
     from configurations.testRt
     from configurations.testCore
     from configurations.distributionBirJar
-    into "$buildDir/bre/lib"
+    into "${getLayout().getBuildDirectory().get()}/bre/lib"
 }
 
 tasks.register('copyCompilerPluginJars', Copy) {
     from configurations.compilerPluginJar
-    into "$buildDir/compiler-plugin-jars"
+    into "${getLayout().getBuildDirectory().get()}/compiler-plugin-jars"
 }
 
 test {

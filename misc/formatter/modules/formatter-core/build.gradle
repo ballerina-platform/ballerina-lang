@@ -48,7 +48,7 @@ ext.moduleName = 'ballerina.metrics'
 
 tasks.register('parserTests', Copy) {
     from "../../../../compiler/ballerina-parser/src/test/resources"
-    into "$buildDir/resources/test/parser-tests"
+    into "${getLayout().getBuildDirectory().get()}/resources/test/parser-tests"
     include "**/*.bal"
 }
 

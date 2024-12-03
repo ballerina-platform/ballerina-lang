@@ -147,7 +147,7 @@ artifacts {
     bin file('bin')
     staticFiles configurations.staticArtifacts.files
     resourceFiles file('resources')
-    zip file: file("$buildDir/distributions/${basePath}.zip"), builtBy: createZip
+    zip file: file("${getLayout().getBuildDirectory().get()}/distributions/${basePath}.zip"), builtBy: createZip
 }
 
 build {

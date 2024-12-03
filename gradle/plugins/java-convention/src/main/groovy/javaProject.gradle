@@ -165,7 +165,7 @@ test {
         showStackTraces = true
         showStandardStreams = true
     }
-    systemProperty "ballerina.home", "$buildDir"
+    systemProperty "ballerina.home", "${getLayout().getBuildDirectory().get()}".toString()
     systemProperty "org.apache.commons.logging.Log", "org.apache.commons.logging.impl.NoOpLog"
     systemProperty "LANG_REPO_BUILD", "true"
     testLogging {
@@ -174,7 +174,7 @@ test {
     }
 
     jacoco {
-        destinationFile = file("$buildDir/jacoco/jacoco.exec")
+        destinationFile = file("${getLayout().getBuildDirectory().get()}/jacoco/jacoco.exec")
     }
 }
 
@@ -195,7 +195,7 @@ check {
 }
 
 tasks.register('jacocoMergeExec', JacocoReport) {
-    getExecutionData().setFrom(fileTree("$buildDir/jacoco/").matching {
+    getExecutionData().setFrom(fileTree("${getLayout().getBuildDirectory().get()}/jacoco/").matching {
         include "**.exec"
     } as FileCollection)
 }

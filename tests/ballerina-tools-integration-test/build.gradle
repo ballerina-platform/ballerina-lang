@@ -54,12 +54,12 @@ test {
                  // ":examples-test:test"
                  ]
 
-    systemProperty 'project.build.directory', "$buildDir"
+    systemProperty 'project.build.directory', "${getLayout().getBuildDirectory().get()}".toString()
     systemProperty 'server.zip', configurations.ballerinaTools.asPath
     systemProperty 'jballerina.server.zip', configurations.jballerinaTools.asPath
-    systemProperty 'java.util.logging.config.file', "$buildDir/resources/test/logging.properties"
+    systemProperty 'java.util.logging.config.file', "${getLayout().getBuildDirectory().get()}/resources/test/logging.properties".toString()
     systemProperty 'integration.test.utils.service.file', configurations.testUtilsBal.asPath
-    systemProperty 'javax.net.ssl.trustStore', "${configurations.ballerina.asPath}/security/ballerinaTruststore.p12"
+    systemProperty 'javax.net.ssl.trustStore', "${configurations.ballerina.asPath}/security/ballerinaTruststore.p12".toString()
     systemProperty 'javax.net.ssl.trustStorePassword', 'ballerina'
     systemProperty 'ballerina.agent.path', configurations.testUtilsJar.asPath
     useTestNG() {

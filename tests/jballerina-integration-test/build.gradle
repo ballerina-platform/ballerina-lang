@@ -81,7 +81,7 @@ dependencies {
 
 tasks.register('createBre', Copy) {
     from configurations.balRuntime
-    into '$buildDir/bre/lib'
+    into '${getLayout().getBuildDirectory().get()}/bre/lib'
 }
 
 test {
@@ -89,11 +89,11 @@ test {
     dependsOn ':jballerina-tools:build'
 
     maxParallelForks = 1
-    systemProperty 'basedir', "$buildDir"
-    systemProperty 'libdir', "$buildDir"
+    systemProperty 'basedir', "${getLayout().getBuildDirectory().get()}".toString()
+    systemProperty 'libdir', "${getLayout().getBuildDirectory().get()}".toString()
     systemProperty 'server.zip', configurations.jballerinaTools.asPath
     systemProperty 'jballerina.server.zip', configurations.jballerinaTools.asPath
-    systemProperty 'java.util.logging.config.file', "$buildDir/resources/test/logging.properties"
+    systemProperty 'java.util.logging.config.file', "${getLayout().getBuildDirectory().get()}/resources/test/logging.properties".toString()
     systemProperty 'ballerina.agent.path', configurations.testUtils.asPath
     systemProperty 'observability.test.utils.bala', configurations.observeTestUtilsBala.asPath
     systemProperty 'observability.test.utils.jar', configurations.observeTestUtilsJar.asPath
@@ -113,7 +113,7 @@ configurations.all {
 }
 
 tasks.register('copyToLib', Copy) {
-    into "${buildDir}/libs"
+    into "${getLayout().getBuildDirectory().get()}/libs"
     from configurations.testLibs
 }
 

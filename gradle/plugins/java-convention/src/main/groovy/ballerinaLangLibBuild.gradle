@@ -102,7 +102,7 @@ tasks.register('createDistributionCache') {
         configurations.distributionBala.each { artifact ->
             copy {
                 from zipTree( artifact.getPath() )
-                into "$buildDir/repo"
+                into "${getLayout().getBuildDirectory().get()}/repo"
             }
         }
     }
@@ -117,7 +117,7 @@ def jarFileName = modOrg + "-" + project.ext.modName + "-" + modVersion
 
 tasks.register('copyBallerinaProject', Copy) {
     from project.projectDir.toString() + "/src/main/ballerina/"
-    into project.buildDir.toString() + "/ballerina-src"
+    into project.getLayout().getBuildDirectory().get().toString() + "/ballerina-src"
 }
 
 tasks.register('ballerinaLangLibBuild', BallerinaLangLibBuildTask) {
@@ -129,13 +129,13 @@ tasks.register('ballerinaLangLibBuild', BallerinaLangLibBuildTask) {
 }
 
 artifacts {
-    distributionBala file("$buildDir/ballerina-src/target/" + modName + ".zip"), {
+    distributionBala file("${getLayout().getBuildDirectory().get()}/ballerina-src/target/" + modName + ".zip"), {
         builtBy(ballerinaLangLibBuild)
     }
-    distributionBirJar file("$buildDir/ballerina-src/target/${jarFileName}.jar"), {
+    distributionBirJar file("${getLayout().getBuildDirectory().get()}/ballerina-src/target/${jarFileName}.jar"), {
         builtBy(ballerinaLangLibBuild)
     }
-    balDoc file("$buildDir/ballerina-src/target/apidocs/"), {
+    balDoc file("${getLayout().getBuildDirectory().get()}/ballerina-src/target/apidocs/"), {
         builtBy(ballerinaLangLibBuild)
     }
 }

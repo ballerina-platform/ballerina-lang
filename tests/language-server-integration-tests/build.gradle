@@ -56,13 +56,13 @@ description = 'Ballerina - Language Server Integration Tests'
 
 tasks.register('copyCompilerPluginJars', Copy) {
     from configurations.compilerPluginJar
-    into "$buildDir/compiler-plugin-jars"
+    into "${getLayout().getBuildDirectory().get()}/compiler-plugin-jars"
 }
 
 test {
     dependsOn copyCompilerPluginJars
     dependsOn loadDistributionCache
-    systemProperty "ballerina.home", "$buildDir/"
+    systemProperty "ballerina.home", "${getLayout().getBuildDirectory().get()}/".toString()
     systemProperty "experimental", "true"
     systemProperty "ballerina.version", project.version
     useTestNG() {

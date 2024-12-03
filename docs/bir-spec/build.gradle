@@ -40,9 +40,9 @@ kaitai {
     cacheDir = new File("${project.gradle.gradleUserHomeDir}/kaitai-cache")
     executionTimeout = 10_000
     version = "${libs.versions.kaitaiStructCompilerVersion.get()}"
-    url = new URL("https://github.com/kaitai-io/kaitai_struct_compiler/releases/download/"+
+    url = URI.create("https://github.com/kaitai-io/kaitai_struct_compiler/releases/download/"+
             "${libs.versions.kaitaiStructCompilerVersion.get()}"+"/kaitai-struct-compiler-" +
-            "${libs.versions.kaitaiStructCompilerVersion.get()}"+".zip")
+            "${libs.versions.kaitaiStructCompilerVersion.get()}"+".zip").toURL()
 }
 
 sourceSets.main.java.srcDirs += 'build/generated/kaitai'
