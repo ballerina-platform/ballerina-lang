@@ -32,19 +32,17 @@ import java.util.HashMap;
 public class FunctionNameValidationTest extends BaseTestCase {
 
     private BMainInstance balClient;
-    private String projectPath;
 
     @BeforeClass
     public void setup() {
         balClient = new BMainInstance(balServer);
-        projectPath = projectBasedTestsPath.toString();
     }
 
     @Test
     public void validateFunctionNamesTest() throws BallerinaTestException, IOException {
         String[] args = mergeCoverageArgs(new String[]{"validate-function-names"});
         String output = balClient.runMainAndReadStdOut("test", args,
-                new HashMap<>(), projectPath, true);
+                new HashMap<>(), projectBasedTestsPath, true);
         AssertionUtils.assertOutput("FunctionNameValidationTest-validateFunctionNamesTest.txt", output);
     }
 

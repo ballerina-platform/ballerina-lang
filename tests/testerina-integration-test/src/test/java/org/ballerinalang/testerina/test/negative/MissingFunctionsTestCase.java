@@ -25,6 +25,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.HashMap;
 
 /**
@@ -33,12 +34,12 @@ import java.util.HashMap;
 public class MissingFunctionsTestCase extends BaseTestCase {
 
     private BMainInstance balClient;
-    private String projectPath;
+    private Path projectPath;
 
     @BeforeClass
     public void setup() {
         balClient = new BMainInstance(balServer);
-        projectPath = singleFileTestsPath.resolve("missing-functions").toString();
+        projectPath = singleFileTestsPath.resolve("missing-functions");
     }
 
     @Test
