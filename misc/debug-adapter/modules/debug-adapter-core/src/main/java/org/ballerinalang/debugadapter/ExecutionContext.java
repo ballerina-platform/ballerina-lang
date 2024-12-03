@@ -171,6 +171,19 @@ public class ExecutionContext {
         return supportsRunInTerminalRequest;
     }
 
+    public void clear() {
+        this.projectCache.clear();
+        this.debugMode = null;
+        this.debuggeeVM = null;
+        this.prevLocation = null;
+        this.sourceProject = null;
+        this.launchedProcess = null;
+        this.sourceProjectRoot = null;
+        this.terminateRequestReceived = false;
+        this.supportsRunInTerminalRequest = false;
+        this.prevInstruction = DebugInstruction.CONTINUE;
+    }
+
     /**
      * Currently supported debug configuration modes.
      */

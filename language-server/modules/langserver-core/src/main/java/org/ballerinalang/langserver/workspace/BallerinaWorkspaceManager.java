@@ -629,6 +629,7 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
         commands.add(System.getProperty("java.command"));
         commands.add("-XX:+HeapDumpOnOutOfMemoryError");
         commands.add("-XX:HeapDumpPath=" + System.getProperty(USER_DIR));
+        commands.add("-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=5005");
         commands.add("-cp");
         commands.add(getAllClassPaths(jarResolver));
         commands.add(initClassName);
