@@ -38,7 +38,7 @@ dependencies {
 }
 
 compileJava {
-    def generatedSources = "${getLayout().getBuildDirectory().get()}/generated-from-annot"
+    def generatedSources = "${getLayout().getBuildDirectory().get()}/generated-from-annot".toString()
     def generatedOutputDir = file("$generatedSources")
     def pkgName = project.name.replace("ballerina", "").replaceAll("-","")
     options.compilerArgs += ["-AnativeEntityProviderClass=StandardNativeElementProvider",
