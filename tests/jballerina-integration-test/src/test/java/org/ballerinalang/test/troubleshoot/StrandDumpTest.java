@@ -68,7 +68,7 @@ public class StrandDumpTest extends BaseTest {
         Map<String, String> envProperties = new HashMap<>();
         bMainInstance.runMain("build", new String[]{packageName}, envProperties, null, null, sourceRoot);
 
-        Path jarPath = sourceRoot.resolve(packageName + "target/bin/" + packageName + ".jar");
+        Path jarPath = sourceRoot.resolve(packageName + "/target/bin/" + packageName + ".jar");
         runJarAndVerifyStrandDump(envProperties, jarPath, sourceRoot, expectedOutputFilePath,
                 steadyStateOutputFilePath);
     }
@@ -93,7 +93,7 @@ public class StrandDumpTest extends BaseTest {
 
     @Test
     public void testStrandDumpOfSingleBalFile() throws BallerinaTestException {
-        Path expectedOutputFilePath = testFileLocation.resolve("testOutputs/bbalProgram1StrandDumpRegEx.txt");
+        Path expectedOutputFilePath = testFileLocation.resolve("testOutputs/balProgram1StrandDumpRegEx.txt");
         Path steadyStateOutputFilePath = testFileLocation.resolve("testOutputs/balProgram1SteadyStateOutput.txt");
         Path commandDir = balServer.getServerHome();
         Path balFile = testFileLocation.resolve("singleBalFiles/balProgram1.bal");
