@@ -81,9 +81,9 @@ public class ProcessStreamConnectionProvider implements StreamConnectionProvider
      * Injects jacoco agent args into the debug server VM environment.
      */
     private void configureJacocoAgentArgs(Map<String, String> envProperties) {
-        Path jacocoAgentPath = balHome.resolve("bre").resolve("lib").resolve("jacocoagent.jar");
-        Path destinationFile = Path.of(System.getProperty("user.dir")).resolve("build").resolve("jacoco")
-                .resolve("debugger-core-test.exec");
+        Path jacocoAgentPath = balHome.resolve("bre/lib/jacocoagent.jar");
+        Path destinationFile = Path.of(System.getProperty("user.dir"))
+                .resolve("build/jacoco/debugger-core-test.exec");
         String agentArgs = String.format(JACOCO_AGENT_ARGS, jacocoAgentPath, destinationFile);
 
         String javaOpts = "";

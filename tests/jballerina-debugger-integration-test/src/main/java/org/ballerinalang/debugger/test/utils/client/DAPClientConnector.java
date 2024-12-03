@@ -181,7 +181,7 @@ public class DAPClientConnector {
             requestArgs.put(CONFIG_SOURCE, entryFilePath.toString());
             requestArgs.put(CONFIG_DEBUGEE_HOST, host);
             requestArgs.put(CONFIG_DEBUGEE_PORT, Integer.toString(port));
-            requestArgs.put(CONFIG_BAL_HOME, balHome);
+            requestArgs.put(CONFIG_BAL_HOME, balHome.toAbsolutePath().toString());
             if (launchKind == DebugUtils.DebuggeeExecutionKind.TEST) {
                 requestArgs.put(CONFIG_IS_TEST_CMD, true);
             }
