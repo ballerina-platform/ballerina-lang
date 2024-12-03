@@ -535,10 +535,9 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
             symbol = symbol.type.tsymbol;
         }
         this.currDependentSymbolDeque.push(symbol);
-        // Todo: need to uncomment this line when we handle annotations inline with the type definition. issue #41946
-//        for (BLangAnnotationAttachment bLangAnnotationAttachment : typeDefinition.annAttachments) {
-//            analyzeNode(bLangAnnotationAttachment.expr, env);
-//        }
+        for (BLangAnnotationAttachment bLangAnnotationAttachment : typeDefinition.annAttachments) {
+            analyzeNode(bLangAnnotationAttachment.expr, env);
+        }
         analyzeNode(typeDefinition.typeNode, env);
         this.currDependentSymbolDeque.pop();
     }
