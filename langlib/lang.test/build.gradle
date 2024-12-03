@@ -31,7 +31,7 @@ dependencies {
 tasks.register('updateVersion') {
     doLast {
         ant.replaceregexp(
-                file: "${project.buildDir}/ballerina-src/Ballerina.toml",
+                file: "${project.getLayout().getBuildDirectory().get()}/ballerina-src/Ballerina.toml",
                 match: "${project.name}-(.*).jar",
                 replace: "${project.name}-${project.version}.jar"
         )

@@ -8,12 +8,12 @@ tasks.register('downloadFile', Download) {
             'https://raw.githubusercontent.com/wso2/code-quality-tools/v1.4/checkstyle/jdk-17/checkstyle.xml',
             'https://raw.githubusercontent.com/wso2/code-quality-tools/v1.4/checkstyle/jdk-17/suppressions.xml'
     ])
-    dest buildDir
+    dest getLayout().getBuildDirectory().get()
     overwrite false
-    outputs.files("$project.buildDir/checkstyle.xml")
+    outputs.files("${project.getLayout().getBuildDirectory().get()}/checkstyle.xml")
 }
 
-artifacts.add('default', file("$project.buildDir/checkstyle.xml")) {
+artifacts.add('default', file("${project.getLayout().getBuildDirectory().get()}/checkstyle.xml")) {
     builtBy('downloadFile') 
 }
 
