@@ -165,7 +165,7 @@ test {
         showStackTraces = true
         showStandardStreams = true
     }
-    systemProperty "ballerina.home", "${getLayout().getBuildDirectory().get()}"
+    systemProperty "ballerina.home", "${getLayout().getBuildDirectory().get()}".toString()
     systemProperty "org.apache.commons.logging.Log", "org.apache.commons.logging.impl.NoOpLog"
     systemProperty "LANG_REPO_BUILD", "true"
     testLogging {

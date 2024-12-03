@@ -117,7 +117,7 @@ tasks.register('loadDistributionCache') {
 test {
     dependsOn loadDistributionCache
     systemProperty "java.util.logging.config.file", "src/test/resources/logging.properties"
-    systemProperty "ballerina.home", "${getLayout().getBuildDirectory().get()}"
+    systemProperty "ballerina.home", "${getLayout().getBuildDirectory().get()}".toString()
 
     afterSuite { suite, result ->
         result.exception?.printStackTrace()
