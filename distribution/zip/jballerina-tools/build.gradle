@@ -228,7 +228,7 @@ dependencies {
 
 tasks.register('configured') {
     configurations.distBal.allDependencies.withType(ProjectDependency) {
-        def path = it.getDependencyProject().path
+        // def path = it.getDependencyProject().path
 //        dependencies.add("bir", dependencies.project(path: path, configuration: 'bir'))
 //        dependencies.add("birJar", dependencies.project(path: path, configuration: 'birJar'))
     }
@@ -246,7 +246,9 @@ def copyBalaSpec = {
     path -> copySpec {
         from configurations.distBal
         into(path + 'lib')
-        fileMode 0644
+        filePermissions {
+            unix(0644)
+        }
     }
 }
 
@@ -378,7 +380,7 @@ def apiDocsSpec = {
 }
 
 tasks.register('extractBalxBirs', Copy) {
-//    def path = "$buildDir/bir-cache"
+//    def path = "${getLayout().getBuildDirectory().get()}/bir-cache"
 //    from configurations.balxBir.files
 //    into path
 }
@@ -398,7 +400,7 @@ tasks.register('pathingJar', Jar) {
 tasks.register('copyApiDocs', Copy) {
     dependsOn configurations.balDoc
     from configurations.balDoc.files
-    into "$buildDir/api-docs"
+    into "${getLayout().getBuildDirectory().get()}/api-docs"
     exclude "index.html"
     exclude "html-template-resources"
     exclude "syntax-highlighter"
@@ -408,12 +410,12 @@ tasks.register('generateDocs', JavaExec) {
     dependsOn pathingJar
     dependsOn copyApiDocs
     dependsOn ':docerina-gradle-plugin:build'
-    outputs.dir("$buildDir/api-docs")
+    outputs.dir("${getLayout().getBuildDirectory().get()}/api-docs")
     outputs.cacheIf { true }
-    systemProperty("ballerina.home", "$buildDir")
+    systemProperty("ballerina.home", "${getLayout().getBuildDirectory().get()}")
     classpath = files(pathingJar.archiveFile)
     mainClass = 'org.ballerinalang.plugin.gradle.doc.DocerinaGen'
-    args("$buildDir/api-docs")
+    args("${getLayout().getBuildDirectory().get()}/api-docs")
 }
 
 tasks.register('createApiDocsZip', Zip) {
@@ -469,7 +471,7 @@ tasks.register('updateBalHome', Copy) {
 
 tasks.register('createDistribution', Copy) {
     mustRunAfter(':language-server:language-server-core:createZip')
-    def filePath = "$buildDir/extracted-distributions/${project.name}-${project.version}"
+    def filePath = "${getLayout().getBuildDirectory().get()}/extracted-distributions/${project.name}-${project.version}"
     file(filePath).mkdirs()
     with copyJarSpec("")
     with copyBirSpec("")
@@ -501,8 +503,8 @@ build {
 
 artifacts {
     bala configurations.distBal.files
-    zip file: file("$buildDir/distributions/${project.name}-${project.version}.zip"), builtBy: createZip
-    unzipped file: file("$buildDir/extracted-distributions/${project.name}-${project.version}"), builtBy: createDistribution
+    zip file: file("${getLayout().getBuildDirectory().get()}/distributions/${project.name}-${project.version}.zip"), builtBy: createZip
+    unzipped file: file("${getLayout().getBuildDirectory().get()}/extracted-distributions/${project.name}-${project.version}"), builtBy: createDistribution
 }
 
 // This section makes sure that checkstyle/spotbug runs when dist is build.

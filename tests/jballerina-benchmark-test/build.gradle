@@ -54,7 +54,7 @@ dependencies {
 }
 
 tasks.register('copyToLib', Copy) {
-    into "${buildDir}/libs"
+    into "${getLayout().getBuildDirectory().get()}/libs"
     from configurations.testLibs
 }
 
@@ -74,10 +74,10 @@ test {
     def benchmarkIterations = 400000
     def ballerinaHome = "${configurations.ballerinaTools.asPath}"
     def sourceLocation = "${project.projectDir}/src/main/ballerina/"
-    def resultsLocation = "${buildDir}/results"
+    def resultsLocation = "${getLayout().getBuildDirectory().get()}/results"
     def resultsFileName = "benchmark_ballerina_${project.version}"
-    def gcLogsLocation = "${buildDir}/gc-logs"
-    def gcViewerJar = "${buildDir}/libs/gcviewer-1.36.jar"
+    def gcLogsLocation = "${getLayout().getBuildDirectory().get()}/gc-logs"
+    def gcViewerJar = "${getLayout().getBuildDirectory().get()}/libs/gcviewer-1.36.jar"
     if (project.hasProperty("warmup.iterations")) {
         warmupIterations = project.findProperty("warmup.iterations")
     }
