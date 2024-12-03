@@ -100,8 +100,7 @@ public class StrandDumpTest extends BaseTest {
         bMainInstance.runMain("build", new String[]{balFile.toString()}, envProperties, null, null, commandDir);
 
         String balFileName = balFile.getFileName().toString();
-        Path jarPath = commandDir.resolve(
-                balFileName.substring(0, balFileName.length() - 4) + ".jar");
+        Path jarPath = commandDir.resolve(balFileName.substring(0, balFileName.length() - 4) + ".jar");
         runJarAndVerifyStrandDump(envProperties, jarPath, commandDir, expectedOutputFilePath,
                 steadyStateOutputFilePath);
     }
@@ -117,10 +116,9 @@ public class StrandDumpTest extends BaseTest {
         bMainInstance.addJavaAgents(envProperties);
         runCmdSet.add("java");
         runCmdSet.add(envProperties.get(JAVA_OPTS).trim());
-        String tempBalHome = new File("src" + File.separator + "test" + File.separator +
-                "resources" + File.separator + "ballerina.home").getAbsolutePath();
+        String tempBalHome = Path.of("src/test/resources/ballerina.home").toAbsolutePath().toString();
         runCmdSet.add("-Dballerina.home=" + tempBalHome);
-        runCmdSet.addAll(Arrays.asList("-jar", jarPath.toString()));
+        runCmdSet.addAll(Arrays.asList("-jar", jarPath.toAbsolutePath().toString()));
 
         ProcessBuilder processBuilder = new ProcessBuilder(runCmdSet).directory(commandDir.toFile());
         startProcessAndVerifyStrandDump(processBuilder, envProperties, expectedStrandDumpFilePath,
