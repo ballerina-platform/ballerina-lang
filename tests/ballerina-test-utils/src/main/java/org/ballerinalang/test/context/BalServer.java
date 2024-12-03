@@ -22,6 +22,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 
 /**
  * This class hold the server location and manage the a server location.
@@ -30,12 +31,12 @@ import java.io.IOException;
  */
 public class BalServer {
     private static final Logger log = LoggerFactory.getLogger(BalServer.class);
-    private String serverHome;
+    private Path serverHome;
 
     /**
      * The parent directory which the ballerina runtime will be extracted to.
      */
-    private String extractDir;
+    private Path extractDir;
 
     /**
      * This will unzip a new Ballerina server and create a new server location.
@@ -43,11 +44,11 @@ public class BalServer {
      * @throws BallerinaTestException if something fails
      */
     public BalServer() throws BallerinaTestException {
-        this(System.getProperty(Constant.SYSTEM_PROP_SERVER_ZIP));
+        this(Path.of(System.getProperty(Constant.SYSTEM_PROP_SERVER_ZIP)));
     }
 
-    public BalServer(String serverZipFile) throws BallerinaTestException {
-        setUpServerHome(serverZipFile);
+    public BalServer(Path serverZipFile) throws BallerinaTestException {
+        setUpServerHome(serverZipFile.toAbsolutePath());
         log.info("Server Home " + serverHome);
     }
 
@@ -59,28 +60,21 @@ public class BalServer {
      * @param serverZipFile server zip file location
      * @throws BallerinaTestException if setting up the server fails
      */
-    private void setUpServerHome(String serverZipFile) throws BallerinaTestException {
-
-        int indexOfZip = serverZipFile.lastIndexOf(".zip");
-        if (indexOfZip == -1) {
+    private void setUpServerHome(Path serverZipFile) throws BallerinaTestException {
+        if (!serverZipFile.getFileName().toString().endsWith(".zip")) {
             throw new IllegalArgumentException(serverZipFile + " is not a zip file");
         }
-        String fileSeparator = (File.separator.equals("\\")) ? "\\" : "/";
-        if (fileSeparator.equals("\\")) {
-            serverZipFile = serverZipFile.replace("/", "\\");
-        }
-        String extractedBalDir = serverZipFile.substring(serverZipFile.lastIndexOf(fileSeparator) + 1, indexOfZip);
-        String baseDir = (System.getProperty("libdir", "."));
+        String extractedBalDir = serverZipFile.getFileName().toString().replace(".zip", "");
+        String baseDir = System.getProperty("libdir", ".");
 
-        extractDir = new File(baseDir).getAbsolutePath() +
-                File.separator + "ballerinatmp" + System.currentTimeMillis();
+        extractDir = Path.of(baseDir, "ballerinatmp" + System.currentTimeMillis());
 
         log.info("Extracting ballerina zip file.. ");
 
         try {
-            Utils.extractFile(serverZipFile, extractDir);
+            Utils.extractFile(serverZipFile.toFile(), extractDir.toFile());
 
-            this.serverHome = extractDir + File.separator + extractedBalDir;
+            this.serverHome = extractDir.resolve(extractedBalDir);
         } catch (IOException e) {
             throw new BallerinaTestException("Error extracting server zip file", e);
         }
@@ -98,7 +92,7 @@ public class BalServer {
      *
      * @return absolute path of the server location
      */
-    public String getServerHome() {
+    public Path getServerHome() {
         return serverHome;
     }
 
@@ -106,7 +100,7 @@ public class BalServer {
      * Delete the working directory with the extracted ballerina instance to cleanup data after execution is complete.
      */
     private void deleteWorkDir() {
-        File workDir = new File(extractDir);
+        File workDir = extractDir.toFile();
         Utils.deleteFolder(workDir);
     }
 }

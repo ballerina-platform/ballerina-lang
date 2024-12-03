@@ -47,8 +47,7 @@ public class ExcludeFromCodeCoverageTest extends BaseTestCase {
     public void setup() {
         balClient = new BMainInstance(balServer);
         projectPath = projectBasedTestsPath.resolve("code-cov-exclusion");
-        resultsJsonPath = projectBasedTestsPath.resolve("code-cov-exclusion").resolve("target").resolve("report")
-                .resolve("test_results.json");
+        resultsJsonPath = projectBasedTestsPath.resolve("code-cov-exclusion/target/report/test_results.json");
     }
 
     @Test(description = "Exclude coverage with relative source paths and wildcards")
@@ -72,7 +71,7 @@ public class ExcludeFromCodeCoverageTest extends BaseTestCase {
             String[] args = mergeCoverageArgs(new String[]{"--test-report", "--coverage-format=xml",
                     "--excludes=" + String.join(",", exclusionList)});
             String output = balClient.runMainAndReadStdOut("test", args,
-                    new HashMap<>(), projectPath.toString(), false);
+                    new HashMap<>(), projectPath, false);
             Gson gson = new Gson();
 
             try (BufferedReader bufferedReader = Files.newBufferedReader(resultsJsonPath, StandardCharsets.UTF_8)) {
@@ -90,7 +89,7 @@ public class ExcludeFromCodeCoverageTest extends BaseTestCase {
         String[] args = mergeCoverageArgs(new String[]{"--test-report", "--coverage-format=xml",
                 "--excludes=" + String.join(",", exclusionList)});
         String output = balClient.runMainAndReadStdOut("test", args,
-                new HashMap<>(), projectPath.toString(), false);
+                new HashMap<>(), projectPath, false);
         Gson gson = new Gson();
 
         try (BufferedReader bufferedReader = Files.newBufferedReader(resultsJsonPath, StandardCharsets.UTF_8)) {
@@ -108,7 +107,7 @@ public class ExcludeFromCodeCoverageTest extends BaseTestCase {
         String[] args = mergeCoverageArgs(new String[]{"--test-report", "--coverage-format=xml",
                 "--excludes=" + String.join(",", exclusionList)});
         String output = balClient.runMainAndReadStdOut("test", args,
-                new HashMap<>(), projectPath.toString(), false);
+                new HashMap<>(), projectPath, false);
         Gson gson = new Gson();
 
         try (BufferedReader bufferedReader = Files.newBufferedReader(resultsJsonPath, StandardCharsets.UTF_8)) {

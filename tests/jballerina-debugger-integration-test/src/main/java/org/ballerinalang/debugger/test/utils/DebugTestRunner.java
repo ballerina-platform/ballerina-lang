@@ -133,7 +133,7 @@ public class DebugTestRunner {
         return assertionMode == AssertionMode.SOFT_ASSERT;
     }
 
-    public void runDebuggeeProgram(String projectPath, int port) throws BallerinaTestException {
+    public void runDebuggeeProgram(Path projectPath, int port) throws BallerinaTestException {
         String msg = "Listening for transport dt_socket at address: " + port;
         LogLeecher clientLeecher = new LogLeecher(msg);
         balClient = new BMainInstance(balServer);

@@ -55,7 +55,7 @@ public class BalRunFunctionNegativeTestCase extends BaseTest {
 
     private void executeTest(String message, String fileName, String... args) throws BallerinaTestException {
         LogLeecher errLogLeecher = new LogLeecher(message, LeecherType.ERROR);
-        String balFile = Path.of("src/test/resources/run/file", fileName).toAbsolutePath().toString();
+        Path balFile = Path.of("src/test/resources/run/file", fileName);
         BMainInstance bMainInstance = new BMainInstance(balServer);
         bMainInstance.runMain(balFile, new String[0], args, new LogLeecher[]{errLogLeecher});
         errLogLeecher.waitForText(10000);

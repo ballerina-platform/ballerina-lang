@@ -39,14 +39,14 @@ public class ProcessStreamConnectionProvider implements StreamConnectionProvider
 
     private final List<String> commands;
     private final String workingDir;
-    private final String balHome;
+    private final Path balHome;
 
     private static final String ENV_JAVA_OPTS = "JAVA_OPTS";
     private static final String ENV_DEBUGGER_TEST_MODE = "BAL_DEBUGGER_TEST";
     private static final String JACOCO_AGENT_ARGS = " -javaagent:%s=destfile=%s ";
     private static final Logger LOG = LoggerFactory.getLogger(ProcessStreamConnectionProvider.class);
 
-    public ProcessStreamConnectionProvider(List<String> commands, String workingDir, String balHome) {
+    public ProcessStreamConnectionProvider(List<String> commands, String workingDir, Path balHome) {
         this.commands = commands;
         this.workingDir = workingDir;
         this.balHome = balHome;
@@ -81,9 +81,9 @@ public class ProcessStreamConnectionProvider implements StreamConnectionProvider
      * Injects jacoco agent args into the debug server VM environment.
      */
     private void configureJacocoAgentArgs(Map<String, String> envProperties) {
-        Path jacocoAgentPath = Path.of(balHome).resolve("bre").resolve("lib").resolve("jacocoagent.jar");
-        Path destinationFile = Path.of(System.getProperty("user.dir")).resolve("build").resolve("jacoco")
-                .resolve("debugger-core-test.exec");
+        Path jacocoAgentPath = balHome.resolve("bre/lib/jacocoagent.jar");
+        Path destinationFile = Path.of(System.getProperty("user.dir"))
+                .resolve("build/jacoco/debugger-core-test.exec");
         String agentArgs = String.format(JACOCO_AGENT_ARGS, jacocoAgentPath, destinationFile);
 
         String javaOpts = "";

@@ -37,12 +37,12 @@ import static org.ballerinalang.testerina.test.BaseTestCase.projectBasedTestsPat
 public class TestExecutionWithInitFailuresTest {
 
     private BMainInstance balClient;
-    private String projectPath;
+    private Path projectPath;
 
     @BeforeClass
     public void setup() {
         balClient = new BMainInstance(balServer);
-        projectPath = projectBasedTestsPath.resolve("test-execution-with-init-failure").toString();
+        projectPath = projectBasedTestsPath.resolve("test-execution-with-init-failure");
     }
 
     @Test()
@@ -59,7 +59,7 @@ public class TestExecutionWithInitFailuresTest {
     @AfterMethod
     public void copyExec() {
         try {
-            FileUtils.copyBallerinaExec(Path.of(projectPath), String.valueOf(System.currentTimeMillis()));
+            FileUtils.copyBallerinaExec(projectPath, String.valueOf(System.currentTimeMillis()));
         } catch (IOException e) {
             // ignore exception
         }

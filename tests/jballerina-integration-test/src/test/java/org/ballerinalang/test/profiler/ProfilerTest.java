@@ -27,7 +27,6 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.ballerinalang.util.Lists;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.HashMap;
@@ -41,7 +40,7 @@ import java.util.Map;
  * @since 2201.8.0
  */
 public class ProfilerTest extends BaseTest {
-    private static final String testFileLocation = Path.of("src/test/resources/profiler").toAbsolutePath().toString();
+    private static final Path testFileLocation = Path.of("src/test/resources/profiler");
     private final String outputFile = "ProfilerReport.html";
     private BMainInstance bMainInstance;
     public static final String BALLERINA_HOME = "ballerina.home";
@@ -53,13 +52,13 @@ public class ProfilerTest extends BaseTest {
 
     @Test
     public void testProfilerExecutionWithBalPackage() throws BallerinaTestException {
-        String packageName = "projectForProfile" + File.separator + "package_a";
-        String sourceRoot = testFileLocation + File.separator;
+        Path packageName = Path.of("projectForProfile/package_a");
+        Path sourceRoot = testFileLocation;
         Map<String, String> envProperties = new HashMap<>();
-        String htmlFilePath = Path.of(sourceRoot, packageName, "target", "profiler", outputFile).toString();
+        Path htmlFilePath = sourceRoot.resolve(packageName).resolve("target/profiler/" + outputFile);
         List<LogLeecher> leechers = getProfilerLogLeechers(htmlFilePath);
         leechers.add(new LogLeecher("Is the array sorted? true"));
-        bMainInstance.runMain("profile", new String[]{packageName}, envProperties,  null,
+        bMainInstance.runMain("profile", new String[]{packageName.toString()}, envProperties, null,
                 leechers.toArray(new LogLeecher[0]), sourceRoot);
         for (LogLeecher leecher : leechers) {
             leecher.waitForText(5000);
@@ -68,11 +67,10 @@ public class ProfilerTest extends BaseTest {
 
     @Test
     public void testProfilerExecutionWithConfigurableVars() throws BallerinaTestException {
-        String packageName = "projectForProfile" + File.separator + "package_b";
-        String sourceRoot = testFileLocation + File.separator + packageName;
+        Path packageName = Path.of("projectForProfile/package_b");
+        Path sourceRoot = testFileLocation.resolve(packageName);
         Map<String, String> envProperties = new HashMap<>();
-        List<LogLeecher> leechers = getProfilerLogLeechers(packageName + File.separator + "target" +
-                File.separator + "profiler" + File.separator + outputFile);
+        List<LogLeecher> leechers = getProfilerLogLeechers(packageName.resolve("target/profiler/" + outputFile));
         leechers.add(new LogLeecher("Tests passed"));
         bMainInstance.runMain("profile", new String[]{}, envProperties, null,
                 leechers.toArray(new LogLeecher[0]), sourceRoot);
@@ -81,7 +79,7 @@ public class ProfilerTest extends BaseTest {
         }
     }
 
-    private List<LogLeecher> getProfilerLogLeechers(String htmlFilePath) {
+    private List<LogLeecher> getProfilerLogLeechers(Path htmlFilePath) {
         return Lists.of(
                 new LogLeecher("[1/6] Initializing..."),
                 new LogLeecher("[2/6] Copying executable..."),
@@ -93,18 +91,17 @@ public class ProfilerTest extends BaseTest {
                 new LogLeecher("[6/6] Generating output..."),
                 new LogLeecher("      Execution time: [1-2]?[0-9] seconds ", true, LogLeecher.LeecherType.INFO),
                 new LogLeecher("      Output: "),
-                new LogLeecher(htmlFilePath));
+                new LogLeecher(htmlFilePath.toString()));
     }
 
     @Test
     public void testProfilerExecutionWithSingleBalFile() throws BallerinaTestException {
-        String sourceRoot = testFileLocation + File.separator;
         String fileName = "profiler_single_file.bal";
         Map<String, String> envProperties = new HashMap<>();
         envProperties.put(BALLERINA_HOME, bMainInstance.getBalServerHome());
-        List<LogLeecher> leechers = getProfilerLogLeechers(sourceRoot + "profiler" + File.separator + outputFile);
+        List<LogLeecher> leechers = getProfilerLogLeechers(testFileLocation.resolve("profiler/" + outputFile));
         bMainInstance.runMain("profile", new String[]{fileName}, envProperties,
-                null, leechers.toArray(new LogLeecher[0]), sourceRoot);
+                null, leechers.toArray(new LogLeecher[0]), testFileLocation);
         for (LogLeecher leecher : leechers) {
             leecher.waitForText(5000);
         }
@@ -112,8 +109,7 @@ public class ProfilerTest extends BaseTest {
 
     @Test
     public void testProfilerExecutionWithKillSignal() throws BallerinaTestException {
-        String sourceRoot = testFileLocation + File.separator;
-        String packageName = "serviceProjectForProfile" + File.separator + "package_a";
+        Path packageName = Path.of("serviceProjectForProfile/package_a");
         Map<String, String> envProperties = new HashMap<>();
         bMainInstance.addJavaAgents(envProperties);
         LogLeecher[] beforeExecleechers = new LogLeecher[]{new LogLeecher("[1/6] Initializing..."),
@@ -127,8 +123,9 @@ public class ProfilerTest extends BaseTest {
                 new LogLeecher("[6/6] Generating output..."),
                 new LogLeecher("      Execution time:"),
                 new LogLeecher("      Output: ")};
-        Process process = bMainInstance.runCommandAndGetProcess("profile", new String[]{packageName},
-                envProperties, sourceRoot);
+        Process process = bMainInstance.runCommandAndGetProcess("profile",
+                new String[]{packageName.toString()},
+                envProperties, testFileLocation);
         ServerLogReader serverInfoLogReader = new ServerLogReader("inputStream", process.getInputStream());
         addLogLeechers(beforeExecleechers, serverInfoLogReader);
         try {

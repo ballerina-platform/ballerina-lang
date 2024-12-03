@@ -38,12 +38,12 @@ import java.util.Map;
 public class RerunFailedTest extends BaseTestCase {
 
     private BMainInstance balClient;
-    private String projectPath;
+    private Path projectPath;
 
     @BeforeClass
     public void setup() {
         balClient = new BMainInstance(balServer);
-        projectPath = projectBasedTestsPath.toString();
+        projectPath = projectBasedTestsPath;
     }
 
     @Test
@@ -101,7 +101,7 @@ public class RerunFailedTest extends BaseTestCase {
     @AfterMethod
     public void copyExec() {
         try {
-            FileUtils.copyBallerinaExec(Path.of(projectPath), String.valueOf(System.currentTimeMillis()));
+            FileUtils.copyBallerinaExec(projectPath, String.valueOf(System.currentTimeMillis()));
         } catch (IOException e) {
             // ignore exception
         }
@@ -110,7 +110,7 @@ public class RerunFailedTest extends BaseTestCase {
     private void runBalClean(String packageDirName) throws BallerinaTestException {
         String[] args = new String[]{"--target-dir", packageDirName + "/target"};
         Map<String, String> envProperties = new HashMap<>();
-        envProperties.put("user.dir", projectPath);
+        envProperties.put("user.dir", projectPath.toString());
         balClient.runMain("clean", args, envProperties, null, null, projectPath);
     }
 }

@@ -18,6 +18,7 @@
 
 package org.ballerinalang.test.context;
 
+import java.nio.file.Path;
 import java.util.Map;
 
 /**
@@ -34,7 +35,7 @@ public interface BMain {
      * @param balFile   bal file path
      * @throws BallerinaTestException if any exception is thrown when running the main function
      */
-    void runMain(String balFile) throws BallerinaTestException;
+    void runMain(Path balFile) throws BallerinaTestException;
 
     /**
      * Run ballerina main function provided .bal file.
@@ -43,7 +44,7 @@ public interface BMain {
      * @param leechers  log leechers to check the log if any
      * @throws BallerinaTestException if any exception is thrown when running the main function
      */
-    void runMain(String balFile, LogLeecher[] leechers) throws BallerinaTestException;
+    void runMain(Path balFile, LogLeecher[] leechers) throws BallerinaTestException;
 
     /**
      * Run ballerina main function provided .bal file.
@@ -53,7 +54,7 @@ public interface BMain {
      * @param args      arguments to pass
      * @throws BallerinaTestException if any exception is thrown when running the main function
      */
-    void runMain(String balFile, String[] flags, String[] args) throws BallerinaTestException;
+    void runMain(Path balFile, String[] flags, String[] args) throws BallerinaTestException;
 
     /**
      * Run ballerina main function provided .bal file.
@@ -64,7 +65,7 @@ public interface BMain {
      * @param leechers  log leechers to check the log if any
      * @throws BallerinaTestException if any exception is thrown when running the main function
      */
-    void runMain(String balFile, String[] flags, String[] args, LogLeecher[] leechers) throws BallerinaTestException;
+    void runMain(Path balFile, String[] flags, String[] args, LogLeecher[] leechers) throws BallerinaTestException;
 
     /**
      * Run ballerina main function provided .bal file.
@@ -76,7 +77,7 @@ public interface BMain {
      * @param clientArgs    arguments which program expects
      * @throws BallerinaTestException if any exception is thrown when running the main function
      */
-    void runMain(String balFile, String[] flags, String[] args, Map<String, String> envProperties,
+    void runMain(Path balFile, String[] flags, String[] args, Map<String, String> envProperties,
                  String[] clientArgs) throws BallerinaTestException;
 
     /**
@@ -90,7 +91,7 @@ public interface BMain {
      * @param leechers      log leechers to check the log if any
      * @throws BallerinaTestException if any exception is thrown when running the main function
      */
-    void runMain(String balFile, String[] flags, String[] args, Map<String, String> envProperties,
+    void runMain(Path balFile, String[] flags, String[] args, Map<String, String> envProperties,
                  String[] clientArgs, LogLeecher[] leechers) throws BallerinaTestException;
     // ********************* End bal file run methods. *******************
 
@@ -103,7 +104,7 @@ public interface BMain {
      * @param packagePath   package path
      * @throws BallerinaTestException if any exception is thrown when running the main function
      */
-    void runMain(String sourceRoot, String packagePath) throws BallerinaTestException;
+    void runMain(Path sourceRoot, String packagePath) throws BallerinaTestException;
 
     /**
      * Run ballerina main function provided bal package.
@@ -113,7 +114,7 @@ public interface BMain {
      * @param leechers      log leechers to check the log if any
      * @throws BallerinaTestException if any exception is thrown when running the main function
      */
-    void runMain(String sourceRoot, String packagePath, LogLeecher[] leechers) throws BallerinaTestException;
+    void runMain(Path sourceRoot, String packagePath, LogLeecher[] leechers) throws BallerinaTestException;
 
     /**
      * Run ballerina main function provided bal package.
@@ -124,7 +125,7 @@ public interface BMain {
      * @param args          arguments to parse
      * @throws BallerinaTestException if any exception is thrown when running the main function
      */
-    void runMain(String sourceRoot, String packagePath, String[] flags, String[] args) throws BallerinaTestException;
+    void runMain(Path sourceRoot, String packagePath, String[] flags, String[] args) throws BallerinaTestException;
 
     /**
      * Run ballerina main function provided bal package.
@@ -136,7 +137,7 @@ public interface BMain {
      * @param leechers      log leechers to check the log if any
      * @throws BallerinaTestException if any exception is thrown when running the main function
      */
-    void runMain(String sourceRoot, String packagePath, String[] flags, String[] args,
+    void runMain(Path sourceRoot, String packagePath, String[] flags, String[] args,
                  LogLeecher[] leechers) throws BallerinaTestException;
 
     /**
@@ -150,7 +151,7 @@ public interface BMain {
      * @param clientArgs    arguments which program expects
      * @throws BallerinaTestException if any exception is thrown when running the main function
      */
-    void runMain(String sourceRoot, String packagePath, String[] flags, String[] args,
+    void runMain(Path sourceRoot, String packagePath, String[] flags, String[] args,
                  Map<String, String> envProperties, String[] clientArgs) throws BallerinaTestException;
 
     /**
@@ -165,7 +166,7 @@ public interface BMain {
      * @param leechers      log leechers to check the log if any
      * @throws BallerinaTestException if any exception is thrown when running the main function
      */
-    void runMain(String sourceRoot, String packagePath,
+    void runMain(Path sourceRoot, String packagePath,
                  String[] flags, String[] args, Map<String, String> envProperties,
                  String[] clientArgs, LogLeecher[] leechers) throws BallerinaTestException;
     // ********************* End bal package run methods. *******************

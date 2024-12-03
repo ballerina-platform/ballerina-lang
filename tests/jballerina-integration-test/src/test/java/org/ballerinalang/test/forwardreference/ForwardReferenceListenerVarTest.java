@@ -43,8 +43,8 @@ public class ForwardReferenceListenerVarTest extends BaseTest {
     @BeforeClass
     private void setup() throws Exception {
         serverInstance = new BServerInstance(balServer);
-        String balFile = Path.of("src/test/resources/forwardreference/forward_ref_service.bal")
-                .toAbsolutePath().toString();
+        Path balFile = Path.of("src/test/resources/forwardreference/forward_ref_service.bal")
+                .toAbsolutePath();
         serverInstance.startServer(balFile, new int[SERVICE_PORT]);
     }
 

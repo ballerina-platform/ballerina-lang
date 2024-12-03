@@ -42,9 +42,8 @@ import static io.ballerina.cli.utils.OsUtils.isWindows;
  * @since 2201.9.0
  */
 public class RuntimeAPITest extends BaseTest {
-    
-    private static final String testFileLocation = Path.of("src/test/resources/runtime.api")
-            .toAbsolutePath().toString();
+
+    private static final Path testFileLocation = Path.of("src/test/resources/runtime.api").toAbsolutePath();
     private static final Path javaSrcLocation = Path.of("src/test/java/org/ballerinalang/test/runtime/api")
             .toAbsolutePath();
     private static final String JAVA_OPTS = "JAVA_OPTS";
@@ -53,9 +52,9 @@ public class RuntimeAPITest extends BaseTest {
     @BeforeClass
     public void setup() throws BallerinaTestException {
         bMainInstance = new BMainInstance(balServer);
-        Path sourceRoot = Path.of(testFileLocation, "function_invocation").toAbsolutePath();
+        Path sourceRoot = testFileLocation.resolve("function_invocation");
         bMainInstance.runMain("build", new String[0], new HashMap<>(), new String[0], null,
-                sourceRoot.toString());
+                sourceRoot);
     }
 
     @Test
@@ -63,8 +62,7 @@ public class RuntimeAPITest extends BaseTest {
         if (isWindows()) {
             throw new SkipException("Unzip is not supported in Windows");
         }
-        Path jarPath = Path.of(testFileLocation, "function_invocation/target/bin/function_invocation.jar")
-                .toAbsolutePath();
+        Path jarPath = testFileLocation.resolve("function_invocation/target/bin/function_invocation.jar");
         compileJavaSource(jarPath, "targetDir", "RuntimeAPICall.java");
         unzipJarFile(jarPath, "targetDir");
         createExecutableJar("targetDir", "org.ballerinalang.test.runtime.api.RuntimeAPICall");
@@ -72,7 +70,7 @@ public class RuntimeAPITest extends BaseTest {
         bMainInstance.addJavaAgents(envProperties);
 
         // Run the executable jar and assert the output
-        Path execJarPath = Path.of(javaSrcLocation.toString(), "targetDir/test-exec.jar").toAbsolutePath();
+        Path execJarPath = javaSrcLocation.resolve("targetDir/test-exec.jar");
         List<String> runCmdSet = new ArrayList<>();
         runCmdSet.add("java");
         if (envProperties.containsKey(JAVA_OPTS)) {
@@ -108,8 +106,7 @@ public class RuntimeAPITest extends BaseTest {
         if (isWindows()) {
             throw new SkipException("Unzip is not supported in Windows");
         }
-        Path jarPath = Path.of(testFileLocation, "function_invocation/target/bin/function_invocation.jar")
-                .toAbsolutePath();
+        Path jarPath = testFileLocation.resolve("function_invocation/target/bin/function_invocation.jar");
         compileJavaSource(jarPath, "target-dir-negative", "RuntimeAPICallNegative.java");
         unzipJarFile(jarPath, "target-dir-negative");
         createExecutableJar("target-dir-negative",
@@ -118,8 +115,7 @@ public class RuntimeAPITest extends BaseTest {
         bMainInstance.addJavaAgents(envProperties);
 
         // Run the executable jar and assert the output
-        Path execJarPath = Path.of(javaSrcLocation.toString(), "target-dir-negative/test-exec.jar")
-                .toAbsolutePath();
+        Path execJarPath = javaSrcLocation.resolve("target-dir-negative/test-exec.jar");
         List<String> runCmdSet = new ArrayList<>();
         runCmdSet.add("java");
         if (envProperties.containsKey(JAVA_OPTS)) {
@@ -165,9 +161,9 @@ public class RuntimeAPITest extends BaseTest {
     @AfterClass
     public void tearDown() {
         bMainInstance = null;
-        BFileUtil.deleteDirectory(Path.of(javaSrcLocation.toString(), "targetDir").toFile());
-        BFileUtil.deleteDirectory(Path.of(javaSrcLocation.toString(), "target-dir-negative").toFile());
-        BFileUtil.deleteDirectory(Path.of(javaSrcLocation.toString(), "start-call-negative").toFile());
+        BFileUtil.deleteDirectory(javaSrcLocation.resolve("targetDir").toFile());
+        BFileUtil.deleteDirectory(javaSrcLocation.resolve("target-dir-negative").toFile());
+        BFileUtil.deleteDirectory(javaSrcLocation.resolve("start-call-negative").toFile());
     }
 
     private static void compileJavaSource(Path jarPath, String targetDir, String... srcFiles)
@@ -179,14 +175,14 @@ public class RuntimeAPITest extends BaseTest {
         compileCmdSet.add("-d");
         compileCmdSet.add(targetDir);
         for (String srcFile : srcFiles) {
-            compileCmdSet.add(Path.of(javaSrcLocation.toString(), srcFile).toString());
+            compileCmdSet.add(javaSrcLocation.resolve(srcFile).toString());
         }
         ProcessBuilder compile = new ProcessBuilder(compileCmdSet).directory(javaSrcLocation.toFile());
         try {
             Process process = compile.start();
             process.waitFor();
         } catch (InterruptedException | IOException e) {
-            throw new BallerinaTestException("Error occurred while compiling the java file");
+            throw new BallerinaTestException("Error occurred while compiling the java file", e);
         }
     }
 
@@ -214,7 +210,7 @@ public class RuntimeAPITest extends BaseTest {
         jarCmdSet.add("test-exec.jar");
         jarCmdSet.add(mainClass);
         jarCmdSet.add(".");
-        Path targetPath = Path.of(javaSrcLocation.toString(), targetDir).toAbsolutePath();
+        Path targetPath = javaSrcLocation.resolve(targetDir);
         ProcessBuilder jarProcess = new ProcessBuilder(jarCmdSet).inheritIO().directory(targetPath.toFile());
         try {
             Process process = jarProcess.start();

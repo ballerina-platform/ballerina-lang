@@ -24,6 +24,7 @@ import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
+import java.nio.file.Path;
 import java.util.HashMap;
 
 /**
@@ -34,12 +35,12 @@ import java.util.HashMap;
 public class InvalidTestDefinitionsTestCase extends BaseTestCase {
 
     private BMainInstance balClient;
-    private String projectPath;
+    private Path projectPath;
 
     @BeforeClass
     public void setup() {
         balClient = new BMainInstance(balServer);
-        projectPath = singleFileTestsPath.resolve("invalid-test-definitions").toString();
+        projectPath = singleFileTestsPath.resolve("invalid-test-definitions");
     }
 
     @Test

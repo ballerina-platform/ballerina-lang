@@ -33,20 +33,19 @@ import java.nio.file.Path;
  */
 public class MultipleModuleVersionTests extends BaseTest {
 
-    private static final String testFileLocation = Path.of("src/test/resources/packaging/versions")
-            .toAbsolutePath().toString();
+    private static final Path testFileLocation = Path.of("src/test/resources/packaging/versions");
     private BMainInstance bMainInstance;
 
     @BeforeClass
     public void setup() throws BallerinaTestException {
         bMainInstance = new BMainInstance(balServer);
         // Build and push down stream packages.
-        compilePackageAndPushToLocal(Path.of(testFileLocation, "http1.1.1").toString(), "waruna-http-any-1.1.1");
-        compilePackageAndPushToLocal(Path.of(testFileLocation, "http1.1.2").toString(), "waruna-http-any-1.1.2");
-        compilePackageAndPushToLocal(Path.of(testFileLocation, "websub").toString(), "waruna-websub-any-1.0.1");
+        compilePackageAndPushToLocal(testFileLocation.resolve("http1.1.1"), "waruna-http-any-1.1.1");
+        compilePackageAndPushToLocal(testFileLocation.resolve("http1.1.2"), "waruna-http-any-1.1.2");
+        compilePackageAndPushToLocal(testFileLocation.resolve("websub"), "waruna-websub-any-1.0.1");
     }
 
-    private void compilePackageAndPushToLocal(String packagePath, String balaFileName) throws BallerinaTestException {
+    private void compilePackageAndPushToLocal(Path packagePath, String balaFileName) throws BallerinaTestException {
         String targetBala = Path.of("target/bala/" + balaFileName + ".bala").toString();
         LogLeecher buildLeecher = new LogLeecher(targetBala);
         LogLeecher pushLeecher = new LogLeecher("Successfully pushed " + targetBala + " to 'local' repository.");
@@ -71,7 +70,7 @@ public class MultipleModuleVersionTests extends BaseTest {
     private void executeBalCommand(String packageName) throws BallerinaTestException {
         String testsPassed = "Tests passed";
         LogLeecher logLeecher = new LogLeecher(testsPassed);
-        bMainInstance.runMain(testFileLocation + "/", packageName, null, new String[]{}, null, null,
+        bMainInstance.runMain(testFileLocation, packageName, null, new String[]{}, null, null,
                 new LogLeecher[]{logLeecher});
         logLeecher.waitForText(5000);
     }

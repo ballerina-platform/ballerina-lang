@@ -63,7 +63,7 @@ public class TestarinaTestCase extends BaseTest {
         LogLeecher clientLeecher2 = new LogLeecher(secondMsg);
         balClient.runMain("test", new String[]{"--all"}, null, new String[]{},
                 new LogLeecher[]{clientLeecher1, clientLeecher2},
-                serviceProjectPath.toString());
+                serviceProjectPath);
         clientLeecher1.waitForText(20000);
         clientLeecher2.waitForText(20000);
     }

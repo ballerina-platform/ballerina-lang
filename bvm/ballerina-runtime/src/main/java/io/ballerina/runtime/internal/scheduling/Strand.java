@@ -20,6 +20,7 @@ package io.ballerina.runtime.internal.scheduling;
 
 import io.ballerina.runtime.internal.utils.ErrorUtils;
 import io.ballerina.runtime.transactions.TransactionLocalContext;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
 import java.util.Map;

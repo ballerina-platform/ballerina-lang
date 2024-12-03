@@ -60,7 +60,7 @@ public class CodegenCodeCoverageTest extends BaseTestCase {
         balClient = new BMainInstance(balServer);
         FileUtils.copyFolder(Path.of("build/compiler-plugin-jars"),
                 projectBasedTestsPath.resolve("compiler-plugin-jars"));
-        repoBalaPath = Path.of(balServer.getServerHome(), "repo");
+        repoBalaPath = balServer.getServerHome().resolve("repo");
     }
 
     @DataProvider(name = "provideCoverageData")
@@ -117,8 +117,8 @@ public class CodegenCodeCoverageTest extends BaseTestCase {
     }
 
     private void publishCompilerPlugin(String compilerPluginName) throws BallerinaTestException, IOException {
-        String compilerPluginBalaPath = projectBasedTestsPath.resolve("compiler-plugins")
-                .resolve(compilerPluginName).toString();
+        Path compilerPluginBalaPath = projectBasedTestsPath.resolve("compiler-plugins")
+                .resolve(compilerPluginName);
         balClient.runMain("pack", new String[]{}, null, null, new LogLeecher[]{}, compilerPluginBalaPath);
         Path balaPath = projectBasedTestsPath.resolve(compilerPluginBalaPath).resolve("target").resolve("bala")
                 .resolve("samjs-" + compilerPluginName + "-java21-0.1.0.bala");
@@ -197,7 +197,7 @@ public class CodegenCodeCoverageTest extends BaseTestCase {
     private void runCommand(String projectName, String[] args) throws BallerinaTestException {
         Path projectPath = projectBasedTestsPath.resolve("code-coverage-report-test").resolve(projectName);
         Path resultsJsonPath = projectPath.resolve("target").resolve("report").resolve("test_results.json");
-        balClient.runMain("test", args, null, new String[]{}, new LogLeecher[]{}, projectPath.toString());
+        balClient.runMain("test", args, null, new String[]{}, new LogLeecher[]{}, projectPath);
         Gson gson = new Gson();
         try (BufferedReader bufferedReader = Files.newBufferedReader(resultsJsonPath, StandardCharsets.UTF_8)) {
             resultObj = gson.fromJson(bufferedReader, JsonObject.class);

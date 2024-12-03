@@ -48,7 +48,7 @@ public class BasicJavaJarRunTestCase extends BaseTest {
 
     private void executeTest(String serverResponse, String fileName, String... args) throws BallerinaTestException {
         BMainInstance ballerinaClient = new BMainInstance(balServer);
-        String balFile = Path.of("src/test/resources/run/file", fileName).toAbsolutePath().toString();
+        Path balFile = Path.of("src/test/resources/run/file", fileName);
         LogLeecher clientLeecher = new LogLeecher(serverResponse);
         ballerinaClient.runMain(balFile, null, args, new LogLeecher[]{clientLeecher});
         clientLeecher.waitForText(10000);

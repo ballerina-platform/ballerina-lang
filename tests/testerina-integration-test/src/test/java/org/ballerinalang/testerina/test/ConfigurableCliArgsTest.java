@@ -24,6 +24,8 @@ import org.ballerinalang.test.context.LogLeecher;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
+import java.nio.file.Path;
+
 /**
  * Test class containing tests related to configurable cli arguments.
  *
@@ -33,14 +35,14 @@ import org.testng.annotations.Test;
 public class ConfigurableCliArgsTest extends BaseTestCase {
 
     private BMainInstance bMainInstance;
-    private String testFileLocation;
-    private String singleFileTestLocation;
+    private Path testFileLocation;
+    private Path singleFileTestLocation;
 
     @BeforeClass
     public void setup() {
         bMainInstance = new BMainInstance(balServer);
-        testFileLocation = projectBasedTestsPath.resolve("configurable-cli-args-test").toString();
-        singleFileTestLocation = singleFileTestsPath.resolve("configurable-cli-arguments").toString();
+        testFileLocation = projectBasedTestsPath.resolve("configurable-cli-args-test");
+        singleFileTestLocation = singleFileTestsPath.resolve("configurable-cli-arguments");
     }
 
     @Test

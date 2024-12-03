@@ -35,23 +35,22 @@ import java.nio.file.Path;
  */
 public class ReadOnlyIntersectionViaMultipleModulesTest3 extends BaseTest {
 
-    private static final String testFileLocation = Path.of("src/test/resources/packaging/readonly/three")
-            .toAbsolutePath().toString();
+    private static final Path testFileLocation = Path.of("src/test/resources/packaging/readonly/three");
     private BMainInstance bMainInstance;
 
     @BeforeClass
     public void setup() throws BallerinaTestException {
         bMainInstance = new BMainInstance(balServer);
         // Build and push down stream packages.
-        compilePackageAndPushToLocal(Path.of(testFileLocation, "test_project_immutable_foo").toString(),
+        compilePackageAndPushToLocal(testFileLocation.resolve("test_project_immutable_foo"),
                                      "testorg-selectively_immutable_foo3-any-1.0.0");
-        compilePackageAndPushToLocal(Path.of(testFileLocation, "test_project_immutable_bar").toString(),
+        compilePackageAndPushToLocal(testFileLocation.resolve("test_project_immutable_bar"),
                                      "testorg-selectively_immutable_bar3-any-1.0.0");
-        compilePackageAndPushToLocal(Path.of(testFileLocation, "test_project_immutable_baz").toString(),
+        compilePackageAndPushToLocal(testFileLocation.resolve("test_project_immutable_baz"),
                                      "testorg-selectively_immutable_baz3-any-1.0.0");
     }
 
-    private void compilePackageAndPushToLocal(String packagePath, String balaFileName) throws BallerinaTestException {
+    private void compilePackageAndPushToLocal(Path packagePath, String balaFileName) throws BallerinaTestException {
         String targetBala = Path.of("target/bala/" + balaFileName + ".bala").toString();
         LogLeecher buildLeecher = new LogLeecher(targetBala);
         LogLeecher pushLeecher = new LogLeecher("Successfully pushed " + targetBala + " to 'local' repository.");
@@ -74,7 +73,7 @@ public class ReadOnlyIntersectionViaMultipleModulesTest3 extends BaseTest {
         LogLeecher buildLeecher = new LogLeecher(
                 Path.of("target/bala/testorg-selectively_immutable_qux3-any-1.0.0.bala").toString());
         bMainInstance.runMain("pack", new String[]{}, null, null, new LogLeecher[]{buildLeecher},
-                              Path.of(testFileLocation, "test_project_immutable_qux").toString());
+                testFileLocation.resolve("test_project_immutable_qux"));
         buildLeecher.waitForText(5000);
     }
 }

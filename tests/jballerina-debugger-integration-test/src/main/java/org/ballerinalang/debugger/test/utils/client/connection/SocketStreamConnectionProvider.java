@@ -27,6 +27,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.Socket;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Path;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
@@ -51,7 +52,7 @@ public class SocketStreamConnectionProvider extends ProcessStreamConnectionProvi
     private OutputStream outputStream;
 
     public SocketStreamConnectionProvider(List<String> commands, String workingDir, String address, int port,
-                                          String balHome) {
+                                          Path balHome) {
         super(commands, workingDir, balHome);
         this.address = address;
         this.port = port;

@@ -51,7 +51,7 @@ public class DAPClientConnector {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DAPClientConnector.class);
 
-    private final String balHome;
+    private final Path balHome;
     private final Path projectPath;
     private final Path entryFilePath;
     private final String host;
@@ -75,12 +75,12 @@ public class DAPClientConnector {
 
     private static final String OFFLINE_CMD_OPTION = "--offline";
 
-    public DAPClientConnector(String balHome, Path projectPath, Path entryFilePath, int port,
+    public DAPClientConnector(Path balHome, Path projectPath, Path entryFilePath, int port,
                               boolean supportsRunInTerminalRequest) {
         this(balHome, projectPath, entryFilePath, "localhost", port, supportsRunInTerminalRequest);
     }
 
-    public DAPClientConnector(String balHome, Path projectPath, Path entryFilePath, String host, int port,
+    public DAPClientConnector(Path balHome, Path projectPath, Path entryFilePath, String host, int port,
                               boolean supportsRunInTerminalRequest) {
         this.balHome = balHome;
         this.projectPath = projectPath;
@@ -181,7 +181,7 @@ public class DAPClientConnector {
             requestArgs.put(CONFIG_SOURCE, entryFilePath.toString());
             requestArgs.put(CONFIG_DEBUGEE_HOST, host);
             requestArgs.put(CONFIG_DEBUGEE_PORT, Integer.toString(port));
-            requestArgs.put(CONFIG_BAL_HOME, balHome);
+            requestArgs.put(CONFIG_BAL_HOME, balHome.toAbsolutePath().toString());
             if (launchKind == DebugUtils.DebuggeeExecutionKind.TEST) {
                 requestArgs.put(CONFIG_IS_TEST_CMD, true);
             }
@@ -229,17 +229,17 @@ public class DAPClientConnector {
         return "Unknown";
     }
 
-    private StreamConnectionProvider createConnectionProvider(String balHome) {
+    private StreamConnectionProvider createConnectionProvider(Path balHome) {
 
         List<String> processArgs = new ArrayList<>();
 
         if (Utils.getOSName().toLowerCase(Locale.ENGLISH).contains("windows")) {
             processArgs.add("cmd.exe");
             processArgs.add("/c");
-            processArgs.add(Path.of(balHome, "bin", Constant.BALLERINA_SERVER_SCRIPT_NAME + ".bat").toString());
+            processArgs.add(balHome.resolve("bin/" + Constant.BALLERINA_SERVER_SCRIPT_NAME + ".bat").toString());
         } else {
             processArgs.add("bash");
-            processArgs.add(Path.of(balHome, "bin", Constant.BALLERINA_SERVER_SCRIPT_NAME).toString());
+            processArgs.add(balHome.resolve("bin/" + Constant.BALLERINA_SERVER_SCRIPT_NAME).toString());
         }
 
         processArgs.add(DebugUtils.JBAL_DEBUG_CMD_NAME);

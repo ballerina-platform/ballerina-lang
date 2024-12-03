@@ -36,14 +36,14 @@ import java.util.HashMap;
 public class InvalidDataProviderTestCase extends BaseTestCase {
 
     private BMainInstance balClient;
-    private String projectPath;
+    private Path projectPath;
     private Path errorlogFile;
 
     @BeforeClass
     public void setup() {
         balClient = new BMainInstance(balServer);
-        projectPath = singleFileTestsPath.resolve("invalid-data-providers").toString();
-        errorlogFile = Path.of(projectPath).resolve("ballerina-internal.log");
+        projectPath = singleFileTestsPath.resolve("invalid-data-providers");
+        errorlogFile = projectPath.resolve("ballerina-internal.log");
     }
 
     @BeforeMethod

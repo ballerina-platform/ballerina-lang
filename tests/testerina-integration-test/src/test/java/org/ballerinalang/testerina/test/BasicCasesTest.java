@@ -34,13 +34,13 @@ import java.util.HashMap;
 public class BasicCasesTest extends BaseTestCase {
 
     private BMainInstance balClient;
-    private String projectPath;
+    private Path projectPath;
 
     @BeforeClass()
     public void setup() throws IOException {
         balClient = new BMainInstance(balServer);
-        projectPath = projectBasedTestsPath.toString();
-        FileUtils.copyFolder(Path.of("build/libs"), Path.of(projectPath, "runtime-api-tests", "libs"));
+        projectPath = projectBasedTestsPath;
+        FileUtils.copyFolder(Path.of("build/libs"), projectPath.resolve("runtime-api-tests/libs"));
     }
 
     @Test

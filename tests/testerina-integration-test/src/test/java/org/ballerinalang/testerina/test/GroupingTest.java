@@ -24,6 +24,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.HashMap;
 
 /**
@@ -32,12 +33,12 @@ import java.util.HashMap;
 public class GroupingTest extends BaseTestCase {
 
     private BMainInstance balClient;
-    private String projectPath;
+    private Path projectPath;
 
     @BeforeClass
     public void setup() {
         balClient = new BMainInstance(balServer);
-        projectPath = singleFileTestsPath.resolve("grouping").toString();
+        projectPath = singleFileTestsPath.resolve("grouping");
     }
 
     @Test
@@ -101,7 +102,7 @@ public class GroupingTest extends BaseTestCase {
         String[] args = {"--list-groups"};
         String output = balClient.runMainAndReadStdOut("test", args,
                 new HashMap<>(),
-                projectBasedTestsPath.resolve("group-test").toString(),
+                projectBasedTestsPath.resolve("group-test"),
                 false);
         AssertionUtils.assertOutput("GroupingTest-testListingOfTestGroups.txt", output);
     }

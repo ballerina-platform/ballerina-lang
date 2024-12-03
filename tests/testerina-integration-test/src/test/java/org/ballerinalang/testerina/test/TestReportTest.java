@@ -44,7 +44,7 @@ import java.util.HashMap;
 public class TestReportTest extends BaseTestCase {
 
     private BMainInstance balClient;
-    private String projectPath;
+    private Path projectPath;
     private Path resultsJsonPath;
     private JsonObject resultObj;
 
@@ -56,7 +56,7 @@ public class TestReportTest extends BaseTestCase {
     @BeforeClass
     public void setup() {
         balClient = new BMainInstance(balServer);
-        projectPath = projectBasedTestsPath.resolve("test-report-tests").toString();
+        projectPath = projectBasedTestsPath.resolve("test-report-tests");
         resultsJsonPath = projectBasedTestsPath.resolve("test-report-tests").resolve("target").resolve("report")
                 .resolve("test_results.json");
     }

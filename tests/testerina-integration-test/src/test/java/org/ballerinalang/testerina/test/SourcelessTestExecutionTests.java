@@ -7,6 +7,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.HashMap;
 
 /**
@@ -15,12 +16,12 @@ import java.util.HashMap;
 public class SourcelessTestExecutionTests extends BaseTestCase {
 
     private BMainInstance balClient;
-    private String projectPath;
+    private Path projectPath;
 
     @BeforeClass
     public void setup() {
         balClient = new BMainInstance(balServer);
-        projectPath = projectBasedTestsPath.resolve("sourceless-test-execution-tests").toString();
+        projectPath = projectBasedTestsPath.resolve("sourceless-test-execution-tests");
     }
 
     // Scenario : Modules only have tests and no sourcefiles. Default module doesnt have sources or tests

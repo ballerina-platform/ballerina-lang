@@ -966,13 +966,14 @@ public class JBallerinaDebugServer implements BallerinaExtendedDebugServer {
 
     private Variable[] computeGlobalScopeVariables(VariablesArguments requestArgs) {
         int stackFrameReference = requestArgs.getVariablesReference();
-        String classQName = PackageUtils.getQualifiedClassName(suspendedContext, INIT_CLASS_NAME);
-        List<ReferenceType> cls = suspendedContext.getAttachedVm().classesByName(classQName);
+        String classQName = PackageUtils.getQualifiedClassName(
+                Objects.requireNonNull(suspendedContext), INIT_CLASS_NAME);
+        List<ReferenceType> cls = Objects.requireNonNull(suspendedContext).getAttachedVm().classesByName(classQName);
         if (cls.size() != 1) {
             return new Variable[0];
         }
         List<CompletableFuture<Variable>> scheduledVariables = new ArrayList<>();
-        ReferenceType initClassReference = cls.get(0);
+        ReferenceType initClassReference = cls.getFirst();
         for (Field field : initClassReference.allFields()) {
             String fieldName = Utils.decodeIdentifier(field.name());
             if (!field.isPublic() || !field.isStatic() || fieldName.startsWith(GENERATED_VAR_PREFIX)) {
@@ -1080,16 +1081,19 @@ public class JBallerinaDebugServer implements BallerinaExtendedDebugServer {
     private CompletableFuture<Variable> computeVariableAsync(String name, Value value, Integer stackFrameRef) {
         return CompletableFuture.supplyAsync(() -> {
             BVariable variable = VariableFactory.getVariable(suspendedContext, name, value);
-            if (variable == null) {
-                return null;
-            }
-            if (variable instanceof BSimpleVariable) {
-                variable.getDapVariable().setVariablesReference(0);
-            } else if (variable instanceof BCompoundVariable) {
-                int variableReference = nextVarReference.getAndIncrement();
-                variable.getDapVariable().setVariablesReference(variableReference);
-                loadedCompoundVariables.put(variableReference, (BCompoundVariable) variable);
-                updateVariableToStackFrameMap(stackFrameRef, variableReference);
+            switch (variable) {
+                case null -> {
+                    return null;
+                }
+                case BSimpleVariable bSimpleVariable -> bSimpleVariable.getDapVariable().setVariablesReference(0);
+                case BCompoundVariable bCompoundVariable -> {
+                    int variableReference = nextVarReference.getAndIncrement();
+                    variable.getDapVariable().setVariablesReference(variableReference);
+                    loadedCompoundVariables.put(variableReference, bCompoundVariable);
+                    updateVariableToStackFrameMap(stackFrameRef, variableReference);
+                }
+                default -> {
+                }
             }
             return variable.getDapVariable();
         }, variableExecutor);
@@ -1135,15 +1139,19 @@ public class JBallerinaDebugServer implements BallerinaExtendedDebugServer {
             String name = entry.getKey();
             Value value = entry.getValue();
             BVariable variable = VariableFactory.getVariable(suspendedContext, name, value);
-            if (variable == null) {
-                return null;
-            } else if (variable instanceof BSimpleVariable) {
-                variable.getDapVariable().setVariablesReference(0);
-            } else if (variable instanceof BCompoundVariable) {
-                int variableReference = nextVarReference.getAndIncrement();
-                variable.getDapVariable().setVariablesReference(variableReference);
-                loadedCompoundVariables.put(variableReference, (BCompoundVariable) variable);
-                updateVariableToStackFrameMap(args.getVariablesReference(), variableReference);
+            switch (variable) {
+                case null -> {
+                    return null;
+                }
+                case BSimpleVariable bSimpleVariable -> bSimpleVariable.getDapVariable().setVariablesReference(0);
+                case BCompoundVariable bCompoundVariable -> {
+                    int variableReference = nextVarReference.getAndIncrement();
+                    variable.getDapVariable().setVariablesReference(variableReference);
+                    loadedCompoundVariables.put(variableReference, bCompoundVariable);
+                    updateVariableToStackFrameMap(args.getVariablesReference(), variableReference);
+                }
+                default -> {
+                }
             }
             return variable.getDapVariable();
         }).filter(Objects::nonNull).toArray(Variable[]::new);
@@ -1156,15 +1164,19 @@ public class JBallerinaDebugServer implements BallerinaExtendedDebugServer {
         return varMap.stream().map(value -> {
             String name = String.format("[%d]", index.getAndIncrement());
             BVariable variable = VariableFactory.getVariable(suspendedContext, name, value);
-            if (variable == null) {
-                return null;
-            } else if (variable instanceof BSimpleVariable) {
-                variable.getDapVariable().setVariablesReference(0);
-            } else if (variable instanceof BCompoundVariable) {
-                int variableReference = nextVarReference.getAndIncrement();
-                variable.getDapVariable().setVariablesReference(variableReference);
-                loadedCompoundVariables.put(variableReference, (BCompoundVariable) variable);
-                updateVariableToStackFrameMap(args.getVariablesReference(), variableReference);
+            switch (variable) {
+                case null -> {
+                    return null;
+                }
+                case BSimpleVariable bSimpleVariable -> bSimpleVariable.getDapVariable().setVariablesReference(0);
+                case BCompoundVariable bCompoundVariable -> {
+                    int variableReference = nextVarReference.getAndIncrement();
+                    variable.getDapVariable().setVariablesReference(variableReference);
+                    loadedCompoundVariables.put(variableReference, bCompoundVariable);
+                    updateVariableToStackFrameMap(args.getVariablesReference(), variableReference);
+                }
+                default -> {
+                }
             }
             return variable.getDapVariable();
         }).filter(Objects::nonNull).toArray(Variable[]::new);
@@ -1178,15 +1190,19 @@ public class JBallerinaDebugServer implements BallerinaExtendedDebugServer {
      */
     private EvaluateResponse constructEvaluateResponse(EvaluateArguments args, BVariable evaluationResult) {
         EvaluateResponse response = new EvaluateResponse();
-        if (evaluationResult == null) {
-            return response;
-        } else if (evaluationResult instanceof BSimpleVariable) {
-            evaluationResult.getDapVariable().setVariablesReference(0);
-        } else if (evaluationResult instanceof BCompoundVariable) {
-            int variableReference = nextVarReference.getAndIncrement();
-            evaluationResult.getDapVariable().setVariablesReference(variableReference);
-            loadedCompoundVariables.put(variableReference, (BCompoundVariable) evaluationResult);
-            updateVariableToStackFrameMap(args.getFrameId(), variableReference);
+        switch (evaluationResult) {
+            case null -> {
+                return response;
+            }
+            case BSimpleVariable bSimpleVariable -> bSimpleVariable.getDapVariable().setVariablesReference(0);
+            case BCompoundVariable bCompoundVariable -> {
+                int variableReference = nextVarReference.getAndIncrement();
+                evaluationResult.getDapVariable().setVariablesReference(variableReference);
+                loadedCompoundVariables.put(variableReference, bCompoundVariable);
+                updateVariableToStackFrameMap(args.getFrameId(), variableReference);
+            }
+            default -> {
+            }
         }
 
         Variable dapVariable = evaluationResult.getDapVariable();

@@ -50,7 +50,7 @@ import javax.xml.parsers.ParserConfigurationException;
 public class CodeCoverageReportTest extends BaseTestCase {
 
     private BMainInstance balClient;
-    private String projectPath;
+    private Path projectPath;
     private Path coverageXMLPath;
     private String multiModuleTestRoot;
     private String singleModuleTestRoot;
@@ -64,7 +64,7 @@ public class CodeCoverageReportTest extends BaseTestCase {
 
     @Test
     public void singleModulePkgCoverageTest() throws BallerinaTestException {
-        projectPath = projectBasedTestsPath.resolve(singleModuleTestRoot).toString();
+        projectPath = projectBasedTestsPath.resolve(singleModuleTestRoot);
         coverageXMLPath = projectBasedTestsPath.resolve(singleModuleTestRoot).resolve("target").resolve("report")
                 .resolve("codecov").resolve("coverage-report.xml");
         balClient.runMain("test", new String[]{"--code-coverage", "--coverage-format=xml"}, null,
@@ -98,7 +98,7 @@ public class CodeCoverageReportTest extends BaseTestCase {
 
     @Test
     public void multipleModulePkgCoverageTest() throws BallerinaTestException {
-        projectPath = projectBasedTestsPath.resolve(multiModuleTestRoot).toString();
+        projectPath = projectBasedTestsPath.resolve(multiModuleTestRoot);
         coverageXMLPath = projectBasedTestsPath.resolve(multiModuleTestRoot).resolve("target").resolve("report")
                 .resolve("foo").resolve("coverage-report.xml");
         balClient.runMain("test", new String[]{"--code-coverage", "--coverage-format=xml"}, null,
@@ -176,7 +176,7 @@ public class CodeCoverageReportTest extends BaseTestCase {
 
     @Test
     public void normalizedCoverageClassTest() throws BallerinaTestException {
-        projectPath = projectBasedTestsPath.resolve(multiModuleTestRoot).toString();
+        projectPath = projectBasedTestsPath.resolve(multiModuleTestRoot);
         balClient.runMain("test", new String[]{"--code-coverage", "--coverage-format=xml"}, null,
                 new String[]{}, new LogLeecher[]{}, projectPath);
         Path reportRoot = projectBasedTestsPath.resolve(multiModuleTestRoot).resolve("target").

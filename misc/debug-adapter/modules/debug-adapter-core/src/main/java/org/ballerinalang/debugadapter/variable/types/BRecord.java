@@ -88,7 +88,7 @@ public class BRecord extends NamedCompoundVariable {
     @Nullable
     private Map<Value, Value> getRecordFields() {
         try {
-            loadAllKeys();
+            ArrayReference loadedKeys = loadAllKeys();
             Map<Value, Value> recordFields = new LinkedHashMap<>();
             if (loadedKeys == null) {
                 return null;
@@ -105,19 +105,22 @@ public class BRecord extends NamedCompoundVariable {
         }
     }
 
-    private void loadAllKeys() {
-        if (loadedKeys == null) {
-            try {
-                Optional<Method> getKeysMethod = VariableUtils.getMethod(jvmValue, METHOD_GET_KEYS,
-                        GETKEYS_METHOD_SIGNATURE_PATTERN);
-                Value keyArray = ((ObjectReference) jvmValue).invokeMethod(
-                        context.getOwningThread().getThreadReference(), getKeysMethod.get(), Collections.emptyList(),
-                        ObjectReference.INVOKE_SINGLE_THREADED);
-                loadedKeys = (ArrayReference) keyArray;
-            } catch (Exception ignored) {
-                loadedKeys = null;
-            }
+    @Nullable
+    private ArrayReference loadAllKeys() {
+        if (loadedKeys != null) {
+            return loadedKeys;
         }
+        try {
+            Optional<Method> getKeysMethod = VariableUtils.getMethod(jvmValue, METHOD_GET_KEYS,
+                    GETKEYS_METHOD_SIGNATURE_PATTERN);
+            Value keyArray = ((ObjectReference) jvmValue).invokeMethod(
+                    context.getOwningThread().getThreadReference(), getKeysMethod.get(), Collections.emptyList(),
+                    ObjectReference.INVOKE_SINGLE_THREADED);
+            loadedKeys = (ArrayReference) keyArray;
+        } catch (Exception ignored) {
+            loadedKeys = null;
+        }
+        return loadedKeys;
     }
 
     @Nullable
@@ -140,7 +143,7 @@ public class BRecord extends NamedCompoundVariable {
             if (!(jvmValue instanceof ObjectReference)) {
                 return 0;
             }
-            loadAllKeys();
+            ArrayReference loadedKeys = loadAllKeys();
             return loadedKeys == null ? 0 : loadedKeys.length();
         } catch (Exception ignored) {
             return 0;
