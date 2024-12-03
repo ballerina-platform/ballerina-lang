@@ -171,7 +171,7 @@ public class ExecutionContext {
         return supportsRunInTerminalRequest;
     }
 
-    public void clear() {
+    public void reset() {
         this.projectCache.clear();
         this.debugMode = null;
         this.debuggeeVM = null;

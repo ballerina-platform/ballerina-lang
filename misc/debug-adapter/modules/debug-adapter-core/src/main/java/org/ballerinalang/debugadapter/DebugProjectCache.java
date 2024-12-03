@@ -69,6 +69,13 @@ public class DebugProjectCache {
     }
 
     /**
+     * Clears the project cache.
+     */
+    public void clear() {
+        loadedProjects.clear();
+    }
+
+    /**
      * Loads the target ballerina source project instance using the Project API, from the file path of the open/active
      * editor instance in the client(plugin) side.
      *
