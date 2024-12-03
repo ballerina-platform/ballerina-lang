@@ -51,7 +51,7 @@ public class BalRunFunctionPositiveTestCase extends BaseTest {
     private void executeTest(String[] args, String expected) throws BallerinaTestException {
         BMainInstance bMainInstance = new BMainInstance(balServer);
         String output = bMainInstance.runMainAndReadStdOut("run", args,
-                Path.of("src/test/resources/run/file").toString());
+                Path.of("src/test/resources/run/file"));
         Assert.assertTrue(output.stripTrailing().endsWith(expected.stripTrailing()), output);
     }
 }

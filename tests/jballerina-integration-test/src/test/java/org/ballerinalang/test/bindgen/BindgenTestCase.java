@@ -72,7 +72,7 @@ public class BindgenTestCase extends BaseTest {
         String[] args = {"-mvn=org.yaml:snakeyaml:2.0", "-o=.", "org.yaml.snakeyaml.Yaml"};
         try {
             balClient.runMain("bindgen", args, null, new String[]{},
-                    new LogLeecher[]{bindgenLeecher1, bindgenLeecher2}, tempProjectsDir.toString());
+                    new LogLeecher[]{bindgenLeecher1, bindgenLeecher2}, tempProjectsDir);
             throw new BallerinaTestException("Contains classes not generated.");
         } catch (BallerinaTestException e) {
             if (bindgenLeecher1.isTextFound()) {
@@ -83,7 +83,7 @@ public class BindgenTestCase extends BaseTest {
         }
 
         balClient.runMain("build", new String[]{}, null, new String[]{},
-                new LogLeecher[]{buildLeecher}, tempProjectsDir.toString());
+                new LogLeecher[]{buildLeecher}, tempProjectsDir);
         buildLeecher.waitForText(5000);
     }
 

@@ -66,14 +66,14 @@ public class MavenTestCase extends BaseTest {
     public void mavenResolvingTest() throws BallerinaTestException, IOException {
         String[] args = {"-mvn=org.yaml:snakeyaml:2.0", "org.yaml.snakeyaml.Yaml"};
         balClient.runMain("bindgen", args, envVariables, new String[]{},
-                new LogLeecher[]{}, projectPath.toString());
+                new LogLeecher[]{}, projectPath);
         // delete the platform lib directory
         deleteFiles(this.projectPath.resolve("target").resolve("platform-libs"));
         
         String mvnBuildMsg = Path.of("target/bin/tests.jar").toString();
         LogLeecher mvnBuildLeecher = new LogLeecher(mvnBuildMsg);
         balClient.runMain("build", new String[]{}, envVariables, new String[]{},
-                new LogLeecher[]{mvnBuildLeecher}, projectPath.toString());
+                new LogLeecher[]{mvnBuildLeecher}, projectPath);
         mvnBuildLeecher.waitForText(5000);
         // delete the platform lib directory
         deleteFiles(this.projectPath.resolve("target").resolve("platform-libs"));
@@ -81,7 +81,7 @@ public class MavenTestCase extends BaseTest {
         Path tempFile = projectPath.resolve("temp.txt");
         Assert.assertFalse(tempFile.toFile().exists());
         balClient.runMain("run", new String[]{"--", tempFile.toString()}, envVariables, new String[]{},
-                new LogLeecher[]{}, projectPath.toString());
+                new LogLeecher[]{}, projectPath);
         Assert.assertTrue(tempFile.toFile().exists());
         Files.delete(tempFile);
     }

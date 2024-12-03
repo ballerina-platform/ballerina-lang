@@ -45,8 +45,7 @@ import java.util.stream.Stream;
  */
 public class StrandDumpTest extends BaseTest {
 
-    private static final String testFileLocation = Path.of("src/test/resources/troubleshoot/strandDump")
-            .toAbsolutePath().toString();
+    private static final Path testFileLocation = Path.of("src/test/resources/troubleshoot/strandDump");
     private static final String JAVA_OPTS = "JAVA_OPTS";
     private static final int TIMEOUT = 60000;
     private BMainInstance bMainInstance;
@@ -58,17 +57,16 @@ public class StrandDumpTest extends BaseTest {
 
     @Test
     public void testStrandDumpOfBalPackage() throws BallerinaTestException {
-        Path expectedOutputFilePath = Path.of(testFileLocation, "testOutputs",
-                "testPackageWithModulesStrandDumpRegEx.txt");
-        Path steadyStateOutputFilePath = Path.of(testFileLocation, "testOutputs",
-                "testPackageWithModulesSteadyState.txt");
-        String sourceRoot = testFileLocation + "/";
+        Path expectedOutputFilePath = testFileLocation.resolve(
+                "testOutputs/testPackageWithModulesStrandDumpRegEx.txt");
+        Path steadyStateOutputFilePath = testFileLocation.resolve(
+                "testOutputs/testPackageWithModulesSteadyState.txt");
+        Path sourceRoot = testFileLocation;
         String packageName = "testPackageWithModules";
         Map<String, String> envProperties = new HashMap<>();
         bMainInstance.runMain("build", new String[]{packageName}, envProperties, null, null, sourceRoot);
 
-        String jarPath = Path.of(Path.of(sourceRoot, packageName).toString(), "target", "bin",
-                packageName + ".jar").toFile().getPath();
+        Path jarPath = sourceRoot.resolve(packageName + "target/bin/" + packageName + ".jar");
         runJarAndVerifyStrandDump(envProperties, jarPath, sourceRoot, expectedOutputFilePath,
                 steadyStateOutputFilePath);
     }
@@ -79,36 +77,36 @@ public class StrandDumpTest extends BaseTest {
             return;
         }
 
-        Path expectedOutputFilePath = Path.of(testFileLocation, "testOutputs", "balTestStrandDumpRegEx.txt");
-        Path steadyStateOutputFilePath = Path.of(testFileLocation, "testOutputs", "balTestSteadyState.txt");
-        String sourceRoot = testFileLocation + "/";
+        Path expectedOutputFilePath = testFileLocation.resolve("testOutputs/balTestStrandDumpRegEx.txt");
+        Path steadyStateOutputFilePath = testFileLocation.resolve("testOutputs/balTestSteadyState.txt");
+        Path sourceRoot = testFileLocation;
         String packageName = "testPackageWithModules";
         Map<String, String> envProperties = new HashMap<>();
         bMainInstance.addJavaAgents(envProperties);
 
         String[] cmdArgs = new String[]{"bash", balServer.getServerHome() + "/bin/bal", "test", packageName};
-        ProcessBuilder processBuilder = new ProcessBuilder(cmdArgs).directory(new File(sourceRoot));
+        ProcessBuilder processBuilder = new ProcessBuilder(cmdArgs).directory(sourceRoot.toFile());
         startProcessAndVerifyStrandDump(processBuilder, envProperties, expectedOutputFilePath,
                 steadyStateOutputFilePath, false);
     }
 
     @Test
     public void testStrandDumpOfSingleBalFile() throws BallerinaTestException {
-        Path expectedOutputFilePath = Path.of(testFileLocation, "testOutputs", "balProgram1StrandDumpRegEx.txt");
-        Path steadyStateOutputFilePath = Path.of(testFileLocation, "testOutputs", "balProgram1SteadyStateOutput.txt");
-        String commandDir = balServer.getServerHome();
-        String balFile = testFileLocation + "/singleBalFiles/balProgram1.bal";
+        Path expectedOutputFilePath = testFileLocation.resolve("testOutputs/bbalProgram1StrandDumpRegEx.txt");
+        Path steadyStateOutputFilePath = testFileLocation.resolve("testOutputs/balProgram1SteadyStateOutput.txt");
+        Path commandDir = balServer.getServerHome();
+        Path balFile = testFileLocation.resolve("singleBalFiles/balProgram1.bal");
         Map<String, String> envProperties = new HashMap<>();
-        bMainInstance.runMain("build", new String[]{balFile}, envProperties, null, null, commandDir);
+        bMainInstance.runMain("build", new String[]{balFile.toString()}, envProperties, null, null, commandDir);
 
-        String balFileName = Path.of(balFile).getFileName().toString();
-        String jarPath = Path.of(Path.of(commandDir).toString(),
-                balFileName.substring(0, balFileName.length() - 4) + ".jar").toString();
+        String balFileName = balFile.getFileName().toString();
+        Path jarPath = commandDir.resolve(
+                balFileName.substring(0, balFileName.length() - 4) + ".jar");
         runJarAndVerifyStrandDump(envProperties, jarPath, commandDir, expectedOutputFilePath,
                 steadyStateOutputFilePath);
     }
 
-    private void runJarAndVerifyStrandDump(Map<String, String> envProperties, String jarPath, String commandDir,
+    private void runJarAndVerifyStrandDump(Map<String, String> envProperties, Path jarPath, Path commandDir,
                                            Path expectedStrandDumpFilePath, Path steadyStateOutputFilePath)
             throws BallerinaTestException {
         if (Utils.isWindowsOS()) {
@@ -122,9 +120,9 @@ public class StrandDumpTest extends BaseTest {
         String tempBalHome = new File("src" + File.separator + "test" + File.separator +
                 "resources" + File.separator + "ballerina.home").getAbsolutePath();
         runCmdSet.add("-Dballerina.home=" + tempBalHome);
-        runCmdSet.addAll(Arrays.asList("-jar", jarPath));
+        runCmdSet.addAll(Arrays.asList("-jar", jarPath.toString()));
 
-        ProcessBuilder processBuilder = new ProcessBuilder(runCmdSet).directory(new File(commandDir));
+        ProcessBuilder processBuilder = new ProcessBuilder(runCmdSet).directory(commandDir.toFile());
         startProcessAndVerifyStrandDump(processBuilder, envProperties, expectedStrandDumpFilePath,
                 steadyStateOutputFilePath, true);
     }
@@ -134,9 +132,7 @@ public class StrandDumpTest extends BaseTest {
                                                  boolean isJar) throws BallerinaTestException {
 
         Map<String, String> env = processBuilder.environment();
-        for (Map.Entry<String, String> entry : envProperties.entrySet()) {
-            env.put(entry.getKey(), entry.getValue());
-        }
+        env.putAll(envProperties);
 
         try {
             Process process = processBuilder.start();

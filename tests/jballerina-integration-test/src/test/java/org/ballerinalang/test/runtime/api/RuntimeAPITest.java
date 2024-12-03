@@ -42,20 +42,18 @@ import static io.ballerina.cli.utils.OsUtils.isWindows;
  * @since 2201.9.0
  */
 public class RuntimeAPITest extends BaseTest {
-    
-    private static final String testFileLocation = Path.of("src/test/resources/runtime.api")
-            .toAbsolutePath().toString();
-    private static final Path javaSrcLocation = Path.of("src/test/java/org/ballerinalang/test/runtime/api")
-            .toAbsolutePath();
+
+    private static final Path testFileLocation = Path.of("src/test/resources/runtime.api");
+    private static final Path javaSrcLocation = Path.of("src/test/java/org/ballerinalang/test/runtime/api");
     private static final String JAVA_OPTS = "JAVA_OPTS";
     private BMainInstance bMainInstance;
 
     @BeforeClass
     public void setup() throws BallerinaTestException {
         bMainInstance = new BMainInstance(balServer);
-        Path sourceRoot = Path.of(testFileLocation, "function_invocation").toAbsolutePath();
+        Path sourceRoot = testFileLocation.resolve("function_invocation");
         bMainInstance.runMain("build", new String[0], new HashMap<>(), new String[0], null,
-                sourceRoot.toString());
+                sourceRoot);
     }
 
     @Test
@@ -63,8 +61,7 @@ public class RuntimeAPITest extends BaseTest {
         if (isWindows()) {
             throw new SkipException("Unzip is not supported in Windows");
         }
-        Path jarPath = Path.of(testFileLocation, "function_invocation/target/bin/function_invocation.jar")
-                .toAbsolutePath();
+        Path jarPath = testFileLocation.resolve("function_invocation/target/bin/function_invocation.jar");
         compileJavaSource(jarPath, "targetDir", "RuntimeAPICall.java");
         unzipJarFile(jarPath, "targetDir");
         createExecutableJar("targetDir", "org.ballerinalang.test.runtime.api.RuntimeAPICall");
@@ -108,8 +105,7 @@ public class RuntimeAPITest extends BaseTest {
         if (isWindows()) {
             throw new SkipException("Unzip is not supported in Windows");
         }
-        Path jarPath = Path.of(testFileLocation, "function_invocation/target/bin/function_invocation.jar")
-                .toAbsolutePath();
+        Path jarPath = testFileLocation.resolve("function_invocation/target/bin/function_invocation.jar");
         compileJavaSource(jarPath, "target-dir-negative", "RuntimeAPICallNegative.java");
         unzipJarFile(jarPath, "target-dir-negative");
         createExecutableJar("target-dir-negative",

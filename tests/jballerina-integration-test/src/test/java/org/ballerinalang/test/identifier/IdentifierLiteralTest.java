@@ -25,7 +25,6 @@ import org.ballerinalang.test.context.LogLeecher;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import java.io.File;
 import java.nio.file.Path;
 import java.util.HashMap;
 
@@ -35,24 +34,23 @@ import java.util.HashMap;
  *  @since 2.0.0
  */
 public class IdentifierLiteralTest  extends BaseTest {
-    
-    private static final String testFileLocation = Path.of("src/test/resources/identifier")
-            .toAbsolutePath().toString();
+
+    private static final Path testFileLocation = Path.of("src/test/resources/identifier");
     private BMainInstance bMainInstance;
 
     @BeforeClass
     public void setup() throws BallerinaTestException {
         bMainInstance = new BMainInstance(balServer);
-        bMainInstance.compilePackageAndPushToLocal(Path.of(testFileLocation, "testProject").toString(),
+        bMainInstance.compilePackageAndPushToLocal(testFileLocation.resolve("testProject"),
                 "a_b-foo-any-0.1.0");
     }
 
     @Test(description = "Test clashes in module names contain '.' and '_'")
     public void testModuleIdentifierClash() throws BallerinaTestException {
-        Path projectPath = Path.of(testFileLocation, "ModuleNameClashProject").toAbsolutePath();
+        Path projectPath = testFileLocation.resolve("ModuleNameClashProject");
         LogLeecher runLeecher = new LogLeecher("1 passing");
         bMainInstance.runMain("test", new String[0], new HashMap<>(), new String[0],
-                new LogLeecher[]{runLeecher}, projectPath.toString());
+                new LogLeecher[]{runLeecher}, projectPath);
         runLeecher.waitForText(5000);
     }
 
@@ -60,7 +58,7 @@ public class IdentifierLiteralTest  extends BaseTest {
     public void testPackageIDClash() throws BallerinaTestException {
         LogLeecher runLeecher = new LogLeecher("Tests passed");
         bMainInstance.runMain("run", new String[0], null, new String[0], new LogLeecher[]{runLeecher},
-                testFileLocation + File.separator + "PackageNameClashProject");
+                testFileLocation.resolve("PackageNameClashProject"));
         runLeecher.waitForText(5000);
     }
 
@@ -71,7 +69,7 @@ public class IdentifierLiteralTest  extends BaseTest {
         // Run and see output
         String msg = "Tests passed";
         LogLeecher runLeecher = new LogLeecher(msg);
-        String runCommandPath =  testFileLocation + File.separator + testBalFile;
+        String runCommandPath = testFileLocation.resolve(testBalFile).toAbsolutePath().toString();
         bMainInstance.runMain("run", new String[]{runCommandPath}, new HashMap<>(), new String[0],
                 new LogLeecher[]{runLeecher}, testFileLocation);
         runLeecher.waitForText(5000);
@@ -81,12 +79,12 @@ public class IdentifierLiteralTest  extends BaseTest {
     public void testResourceFunctionCall() throws BallerinaTestException {
         LogLeecher testLeecher = new LogLeecher("1 passing");
         bMainInstance.runMain("test", new String[0], null, new String[0], new LogLeecher[]{testLeecher},
-                testFileLocation + File.separator + "ResourceCallProject");
+                testFileLocation.resolve("ResourceCallProject"));
         testLeecher.waitForText(5000);
 
         LogLeecher runLeecher = new LogLeecher("Tests passed");
         bMainInstance.runMain("run", new String[0], null, new String[0], new LogLeecher[]{runLeecher},
-                testFileLocation + File.separator + "ResourceCallProject");
+                testFileLocation.resolve("ResourceCallProject"));
         runLeecher.waitForText(5000);
     }
 }
