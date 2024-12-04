@@ -23,6 +23,8 @@ import io.ballerina.projects.DiagnosticResult;
 import io.ballerina.projects.PackageDependencyScope;
 import io.ballerina.projects.PackageDescriptor;
 import io.ballerina.projects.PackageVersion;
+import io.ballerina.projects.ProjectException;
+import io.ballerina.projects.SemanticVersion;
 import io.ballerina.projects.SemanticVersion.VersionCompatibilityResult;
 import io.ballerina.projects.environment.ModuleLoadRequest;
 import io.ballerina.projects.environment.PackageLockingMode;
@@ -32,18 +34,24 @@ import io.ballerina.projects.environment.ResolutionOptions;
 import io.ballerina.projects.environment.ResolutionRequest;
 import io.ballerina.projects.environment.ResolutionResponse;
 import io.ballerina.projects.internal.PackageDependencyGraphBuilder.NodeStatus;
+import io.ballerina.projects.internal.index.Index;
+import io.ballerina.projects.internal.index.IndexDependency;
+import io.ballerina.projects.internal.index.IndexPackage;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.diagnostics.DiagnosticInfo;
 import io.ballerina.tools.diagnostics.DiagnosticSeverity;
+import org.wso2.ballerinalang.util.RepoUtils;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Queue;
 import java.util.Set;
 
 /**
@@ -62,12 +70,16 @@ public class ResolutionEngine {
     private String dependencyGraphDump;
     private DiagnosticResult diagnosticResult;
     private Set<DependencyNode> unresolvedDeps = null;
+    private Index index;
+    private boolean indexTest;
 
     public ResolutionEngine(PackageDescriptor rootPkgDesc,
                             BlendedManifest blendedManifest,
                             PackageResolver packageResolver,
                             ModuleResolver moduleResolver,
-                            ResolutionOptions resolutionOptions) {
+                            ResolutionOptions resolutionOptions,
+                            Index index,
+                            boolean indexTest) {
         this.rootPkgDesc = rootPkgDesc;
         this.blendedManifest = blendedManifest;
         this.packageResolver = packageResolver;
@@ -77,6 +89,13 @@ public class ResolutionEngine {
         this.graphBuilder = new PackageDependencyGraphBuilder(rootPkgDesc, resolutionOptions);
         this.diagnostics = new ArrayList<>();
         this.dependencyGraphDump = "";
+        this.index = index;
+        this.indexTest = indexTest;
+    }
+
+    // TODO: remove this and have the logic in the constructor once this is finalized.
+    public void populateIndex(List<IndexPackage> packageDescriptors) {
+        index.putPackages(packageDescriptors);
     }
 
     public DiagnosticResult diagnosticResult() {
@@ -90,6 +109,9 @@ public class ResolutionEngine {
         // 1) Resolve import declarations into Packages.
         Collection<DependencyNode> directDependencies = resolvePackages(moduleLoadRequests);
 
+        if (indexTest) {
+            return resolveDependenciesWithIndex(directDependencies);
+        }
         // 2) Create the static/initial dependency graph.
         //    This graph contains direct dependencies and their transitives,
         //     but we don't update versions.
@@ -106,6 +128,92 @@ public class ResolutionEngine {
 
         // 5) Build final the dependency graph.
         return buildFinalDependencyGraph();
+    }
+
+    private DependencyGraph<DependencyNode> resolveDependenciesWithIndex(Collection<DependencyNode> directDependencies) {
+        // TODO: look at how to handle the blended manifest versions
+        IndexBasedDependencyGraphBuilder graphBuilder = new IndexBasedDependencyGraphBuilder(rootPkgDesc);
+        for (DependencyNode directDependency : directDependencies) {
+            graphBuilder.addDirectDependency(directDependency);
+        }
+        Queue<DependencyNode> unresolvedNodes = new LinkedList<>(directDependencies);
+        while (!unresolvedNodes.isEmpty()) {
+            DependencyNode pkgNode = unresolvedNodes.remove();
+            PackageDescriptor pkg = pkgNode.pkgDesc();
+            List<IndexPackage> indexPackageVersions = index.getPackage(pkg.org(), pkg.name());
+            if (indexPackageVersions == null || indexPackageVersions.isEmpty()) {
+                throw new ProjectException("Package not found in the index: " + pkg);
+            }
+            // TODO: make locking mode, a part of the node itself.
+            Optional<BlendedManifest.Dependency> manifestPkg = blendedManifest.dependency(pkg.org(), pkg.name());
+            IndexPackage selectedPackage = getLatestCompatibleIndexVersion(indexPackageVersions, pkg, manifestPkg, graphBuilder);
+            DependencyNode updatedPkgNode = new DependencyNode(selectedPackage.descriptor(), pkgNode.scope(),
+                    pkgNode.resolutionType());
+            for (IndexDependency dep : selectedPackage.dependencies()) {
+                PackageDescriptor depDesc = PackageDescriptor.from(dep.org(), dep.name(), dep.version());
+                // TODO: handle different resolution types
+                // TODO: the scope of the dependency is currently not recorded in the index. Can we safely do that?
+                //  The testOnly scoped packages won't be needed by any transitive dependencies.
+                DependencyNode depNode = new DependencyNode(depDesc, pkgNode.scope(), pkgNode.resolutionType());
+                unresolvedNodes.add(depNode);
+                graphBuilder.addDependency(updatedPkgNode, depNode);
+            }
+        }
+        return graphBuilder.buildGraph();
+    }
+
+    // TODO: refactor and make this method pretty
+    //  Consider the repositories, scope etc here.
+    private IndexPackage getLatestCompatibleIndexVersion(List<IndexPackage> indexPackageVersions,
+                                                         PackageDescriptor recordedPkg,
+                                                         Optional<BlendedManifest.Dependency> manifestPkg,
+                                                         IndexBasedDependencyGraphBuilder graph) {
+        // TODO: use the value in the graph as well
+        SemanticVersion currentBallerinaVersion = SemanticVersion.from(RepoUtils.getBallerinaShortVersion());
+
+        Optional<IndexPackage> latest = Optional.empty();
+
+        // compare with the previously fetched value from the index
+        if (recordedPkg.version() != null) {
+            Optional<IndexPackage> latestOpt = index.getVersion(recordedPkg.org(), recordedPkg.name(), recordedPkg.version());
+            if (latestOpt.isEmpty()) {
+                throw new ProjectException("Package not found in the index: " + recordedPkg);
+            }
+            latest = latestOpt;
+        }
+
+        // compare with the version recorded in the blended manifest
+        if (manifestPkg.isPresent()) {
+            BlendedManifest.Dependency dep = manifestPkg.get();
+            Optional<IndexPackage> latestOpt = index.getVersion(dep.org(), dep.name(), dep.version());
+            if (latestOpt.isEmpty()) {
+                throw new ProjectException("Package not found in the index: " + dep.org() + "/" + dep.name() + ":" + dep.version());
+            }
+            if (latest.isEmpty()) {
+                latest = latestOpt;
+            } else if (latest.get().version().compareTo(latestOpt.get().version()) == VersionCompatibilityResult.LESS_THAN) {
+                latest = latestOpt;
+            }
+        }
+
+        for (IndexPackage indexPackage : indexPackageVersions) {
+            // Distribution version check
+            if (currentBallerinaVersion.major() != indexPackage.ballerinaVersion().major()
+                    || currentBallerinaVersion.minor() < indexPackage.ballerinaVersion().minor()) {
+                continue;
+            }
+            if (latest.isEmpty()) {
+                latest = Optional.of(indexPackage);
+                continue;
+            }
+            if (latest.get().version().compareTo(indexPackage.version()) == VersionCompatibilityResult.LESS_THAN) {
+                latest = Optional.of(indexPackage);
+            }
+        }
+        if (latest.isEmpty()) {
+            throw new ProjectException("No compatible version found in the index for package: " + recordedPkg);
+        }
+        return latest.get();
     }
 
     private Collection<DependencyNode> resolvePackages(Collection<ModuleLoadRequest> moduleLoadRequests) {

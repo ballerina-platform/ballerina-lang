@@ -35,6 +35,8 @@ import io.ballerina.projects.internal.BlendedManifest;
 import io.ballerina.projects.internal.ModuleResolver;
 import io.ballerina.projects.internal.ResolutionEngine.DependencyNode;
 import io.ballerina.projects.internal.environment.DefaultPackageResolver;
+import io.ballerina.projects.internal.index.Index;
+import io.ballerina.projects.internal.index.IndexPackage;
 import io.ballerina.projects.internal.repositories.AbstractPackageRepository;
 import io.ballerina.tools.diagnostics.Location;
 import io.ballerina.tools.text.LineRange;
@@ -78,6 +80,8 @@ public final class PackageResolutionTestCaseBuilder {
         PackageManifest packageManifest = getPackageManifest(
                 filePaths.ballerinaTomlPath().orElse(null), rootPkgDes);
 
+        Index index = getPackageIndex(filePaths.indexPath().orElse(null));
+
         // Create expected dependency graph with sticky
         DependencyGraph<DependencyNode> expectedGraphSticky = getPkgDescGraph(
                 filePaths.expectedGraphStickyPath().orElse(null));
@@ -92,7 +96,7 @@ public final class PackageResolutionTestCaseBuilder {
                 getModulesInRootPackage(rootPkgDescWrapper, rootPkgDes),
                 blendedManifest, packageResolver, ResolutionOptions.builder().setSticky(sticky).build());
         return new PackageResolutionTestCase(rootPkgDes, blendedManifest,
-                packageResolver, moduleResolver, moduleLoadRequests,
+                packageResolver, moduleResolver, index, moduleLoadRequests,
                 expectedGraphSticky, expectedGraphNoSticky);
     }
 
@@ -188,6 +192,20 @@ public final class PackageResolutionTestCaseBuilder {
         }
 
         return PackageManifest.from(rootPkgDesc, null, null, Collections.emptyMap(), dependencies);
+    }
+
+    private static Index getPackageIndex(Path indexPath) {
+        if (indexPath == null) {
+            return Index.EMPTY_INDEX;
+        }
+        MutableGraph repoDotGraph = DotGraphUtils.createGraph(indexPath);
+        Index index = new Index();
+        for (MutableGraph packageGraph : repoDotGraph.graphs()) {
+            IndexPackage indexPackage = Utils.getIndexPkgFromNode(packageGraph.name(), packageGraph.graphAttrs(), packageGraph.nodes());
+            index.putVersion(indexPackage);
+            // TODO: Consider modules when introducing module constraint
+        }
+        return index;
     }
 
     private static PackageDescWrapper getRootPkgDescWrapper(Path appDotFilePath) {
