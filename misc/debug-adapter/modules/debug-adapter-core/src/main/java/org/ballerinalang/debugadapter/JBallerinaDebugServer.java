@@ -265,21 +265,8 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
     @Override
     public CompletableFuture<Void> launch(Map<String, Object> args) {
         try {
-            context.setDebugMode(ExecutionContext.DebugMode.LAUNCH);
             clientConfigHolder = new ClientLaunchConfigHolder(args);
-            Project sourceProject = context.getProjectCache().getProject(Path.of(clientConfigHolder.getSourcePath()));
-            context.setSourceProject(sourceProject);
-            String sourceProjectRoot = context.getSourceProjectRoot();
-            BProgramRunner programRunner = context.getSourceProject() instanceof SingleFileProject ?
-                    new BSingleFileRunner((ClientLaunchConfigHolder) clientConfigHolder, sourceProjectRoot) :
-                    new BPackageRunner((ClientLaunchConfigHolder) clientConfigHolder, sourceProjectRoot);
-
-            if (context.getSupportsRunInTerminalRequest() && clientConfigHolder.getRunInTerminalKind() != null) {
-                launchInTerminal(programRunner);
-            } else {
-                context.setLaunchedProcess(programRunner.start());
-                startListeningToProgramOutput();
-            }
+            launchDebuggee();
             return CompletableFuture.completedFuture(null);
         } catch (Exception e) {
             outputLogger.sendErrorOutput("Failed to launch the ballerina program due to: " + e);
@@ -466,24 +453,28 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
 
         try {
             resetServer();
-            context.setDebugMode(ExecutionContext.DebugMode.LAUNCH);
-            Project sourceProject = context.getProjectCache().getProject(Path.of(clientConfigHolder.getSourcePath()));
-            context.setSourceProject(sourceProject);
-            String sourceProjectRoot = context.getSourceProjectRoot();
-            BProgramRunner programRunner = context.getSourceProject() instanceof SingleFileProject ?
-                    new BSingleFileRunner((ClientLaunchConfigHolder) clientConfigHolder, sourceProjectRoot) :
-                    new BPackageRunner((ClientLaunchConfigHolder) clientConfigHolder, sourceProjectRoot);
-
-            if (context.getSupportsRunInTerminalRequest() && clientConfigHolder.getRunInTerminalKind() != null) {
-                launchInTerminal(programRunner);
-            } else {
-                context.setLaunchedProcess(programRunner.start());
-                startListeningToProgramOutput();
-            }
+            launchDebuggee();
             return CompletableFuture.completedFuture(null);
         } catch (Throwable e) {
             outputLogger.sendErrorOutput("Failed to restart the ballerina program due to: " + e);
             return CompletableFuture.completedFuture(null);
+        }
+    }
+
+    private void launchDebuggee() throws Exception {
+        context.setDebugMode(ExecutionContext.DebugMode.LAUNCH);
+        Project sourceProject = context.getProjectCache().getProject(Path.of(clientConfigHolder.getSourcePath()));
+        context.setSourceProject(sourceProject);
+        String sourceProjectRoot = context.getSourceProjectRoot();
+        BProgramRunner programRunner = context.getSourceProject() instanceof SingleFileProject ?
+                new BSingleFileRunner((ClientLaunchConfigHolder) clientConfigHolder, sourceProjectRoot) :
+                new BPackageRunner((ClientLaunchConfigHolder) clientConfigHolder, sourceProjectRoot);
+
+        if (context.getSupportsRunInTerminalRequest() && clientConfigHolder.getRunInTerminalKind() != null) {
+            launchInTerminal(programRunner);
+        } else {
+            context.setLaunchedProcess(programRunner.start());
+            startListeningToProgramOutput();
         }
     }
 
