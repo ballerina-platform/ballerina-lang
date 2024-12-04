@@ -152,7 +152,7 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
     private DebugExpressionEvaluator evaluator;
     private ThreadReferenceProxyImpl activeThread;
 
-    private final AtomicInteger nextVarReference = new AtomicInteger();
+    private final AtomicInteger nextVarReference = new AtomicInteger(1);
     private final Map<Integer, StackFrameProxyImpl> stackFrames = new HashMap<>();
     private final Map<Long, StackFrame[]> threadStackTraces = new HashMap<>();
     private final Map<Integer, Integer> scopeIdToFrameIds = new HashMap<>();
@@ -269,17 +269,16 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
             launchDebuggeeProgram();
             return CompletableFuture.completedFuture(null);
         } catch (Exception e) {
-            outputLogger.sendErrorOutput("Failed to launch the ballerina program due to: " + e);
-            return CompletableFuture.completedFuture(null);
+            outputLogger.sendErrorOutput("Failed to launch the Ballerina program due to: " + e.getMessage());
+            return CompletableFuture.failedFuture(e);
         }
     }
 
     @Override
     public CompletableFuture<Void> attach(Map<String, Object> args) {
         try {
-            resetServer();
-            context.setDebugMode(ExecutionContext.DebugMode.ATTACH);
             clientConfigHolder = new ClientAttachConfigHolder(args);
+            context.setDebugMode(ExecutionContext.DebugMode.ATTACH);
             Project sourceProject = context.getProjectCache().getProject(Path.of(clientConfigHolder.getSourcePath()));
             context.setSourceProject(sourceProject);
             ClientAttachConfigHolder configHolder = (ClientAttachConfigHolder) clientConfigHolder;
@@ -287,6 +286,7 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
             String hostName = configHolder.getHostName().orElse("");
             int portName = configHolder.getDebuggePort();
             attachToRemoteVM(hostName, portName);
+            return CompletableFuture.completedFuture(null);
         } catch (Exception e) {
             String host = ((ClientAttachConfigHolder) clientConfigHolder).getHostName().orElse(LOCAL_HOST);
             String portName;
@@ -296,11 +296,11 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
                 portName = VALUE_UNKNOWN;
             }
             LOGGER.error(e.getMessage());
-            outputLogger.sendErrorOutput(String.format("Failed to attach to the target VM, address: '%s:%s'.",
-                    host, portName));
+            outputLogger.sendErrorOutput(String.format("Failed to attach to the target VM address: '%s:%s' due to: %s",
+                    host, portName, e.getMessage()));
             terminateDebugSession(context.getDebuggeeVM() != null, false);
+            return CompletableFuture.failedFuture(e);
         }
-        return CompletableFuture.completedFuture(null);
     }
 
     @Override
@@ -1235,8 +1235,8 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
      * Clears all state information.
      */
     private void resetServer() {
-        eventProcessor.reset();
-        outputLogger.reset();
+        Optional.ofNullable(eventProcessor).ifPresent(JDIEventProcessor::reset);
+        Optional.ofNullable(outputLogger).ifPresent(DebugOutputLogger::reset);
         terminateDebuggee();
         clearSuspendedState();
         context.reset();
