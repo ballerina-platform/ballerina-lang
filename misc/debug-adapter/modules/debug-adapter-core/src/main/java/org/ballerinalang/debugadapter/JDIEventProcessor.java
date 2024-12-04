@@ -71,6 +71,7 @@ public class JDIEventProcessor {
         this.breakpointProcessor = new BreakpointProcessor(context, this);
         this.isRemoteVmAttached = true;
         this.interruptFlag = false;
+        this.listeningTask = null;
     }
 
     BreakpointProcessor getBreakpointProcessor() {
