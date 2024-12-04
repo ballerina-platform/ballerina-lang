@@ -86,15 +86,15 @@ mockitoCoreVersion="5.3.1"
 mockitoTestNGVersion="0.5.0"
 mustacheJavaCompilerVersion="0.8.9"
 mvel2Version="2.4.4.Final"
-nettyBufferVersion="4.1.100.Final"
-nettyCodecHttpVersion="4.1.45.Final"
-nettyCodecHttp2Version="4.1.45.Final"
-nettyCommonVersion="4.1.100.Final"
-nettyHandlerVersion="4.1.45.Final"
-nettyResolverVersion="4.1.100.Final"
-nettyTransportNativeEpollVersion="4.1.100.Final"
-nettyTransportNativeKqueueVersion="4.1.100.Final"
-nettyTransportVersion="4.1.100.Final"
+nettyBufferVersion="4.1.115.Final"
+nettyCodecHttpVersion="4.1.115.Final"
+nettyCodecHttp2Version="4.1.115.Final"
+nettyCommonVersion="4.1.115.Final"
+nettyHandlerVersion="4.1.115.Final"
+nettyResolverVersion="4.1.115.Final"
+nettyTransportNativeEpollVersion="4.1.115.Final"
+nettyTransportNativeKqueueVersion="4.1.115.Final"
+nettyTransportVersion="4.1.115.Final"
 okhttpVersion="3.14.0"
 openhftCompilerVersion="2.23ea0"
 openTelemetryApiVersion="1.32.0"
@@ -115,6 +115,7 @@ slf4jJdk14Version="2.0.7"
 slf4jSimpleVersion="2.0.7"
 snakeyamlVersion="2.0"
 sonarqubeGradlePluginVersion="4.0.0.2929"
+sqliteJdbcVersion="3.47.0.0"
 squareupOkioVersion="3.4.0"
 swaggerModelsVersion="2.2.22"
 swaggerParserV2Version="2.1.22"
@@ -239,6 +240,7 @@ slf4j-api = { module = "org.slf4j:slf4j-api", version.ref = "slf4jApiVersion"}
 slf4j-jdk14 = { module = "org.slf4j:slf4j-jdk14", version.ref = "slf4jJdk14Version"}
 slf4j-simple = { module = "org.slf4j:slf4j-simple", version.ref = "slf4jSimpleVersion"}
 snakeyaml = { module = "org.yaml:snakeyaml", version.ref = "snakeyamlVersion"}
+sqlite-jdbc = { module = "org.xerial:sqlite-jdbc", version.ref = "sqliteJdbcVersion"}
 squareup-okhttp = { module = "com.squareup.okhttp3:okhttp", version.ref = "okhttpVersion"}
 squareup-mock-webserver = { module = "com.squareup.okhttp3:mockwebserver", version.ref = "okhttpVersion"}
 squareup-okio = { module = "com.squareup.okio:okio", version.ref = "squareupOkioVersion"}

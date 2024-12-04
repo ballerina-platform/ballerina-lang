@@ -363,6 +363,7 @@ public class LambdaGen {
         lambdaDetails.lhsType = asyncIns.lhsOp != null ? asyncIns.lhsOp.variableDcl.type : null;
         lambdaDetails.packageID = asyncIns.calleePkg;
         lambdaDetails.funcName = asyncIns.name.getValue();
+        lambdaDetails.encodedFuncName = Utils.encodeFunctionIdentifier(lambdaDetails.funcName);
         if (!asyncIns.isVirtual) {
             populateLambdaFunctionDetails(lambdaDetails);
         }

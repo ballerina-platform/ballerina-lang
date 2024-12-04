@@ -6,6 +6,8 @@ on:
       - master
       - java21
       - nutcracker
+      - 2201.[0-9]+.x
+      - 2201.[0-9]+.[0-9]+-stage
 jobs:
   build-lang:
     name: Build Ballerina Lang
