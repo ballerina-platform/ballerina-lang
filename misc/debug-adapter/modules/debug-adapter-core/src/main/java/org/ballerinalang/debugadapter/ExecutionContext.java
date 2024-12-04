@@ -144,15 +144,10 @@ public class ExecutionContext {
     public void setSourceProject(Project sourceProject) {
         this.sourceProject = sourceProject;
         this.setSourceProjectRoot(sourceProject.sourceRoot().toAbsolutePath().toString());
-        updateProjectCache(sourceProject);
     }
 
     public DebugProjectCache getProjectCache() {
         return projectCache;
-    }
-
-    public void updateProjectCache(Project project) {
-        this.projectCache.addProject(project);
     }
 
     public String getSourceProjectRoot() {
