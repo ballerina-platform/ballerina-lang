@@ -20,13 +20,18 @@ package io.ballerina.runtime.internal.types;
 import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.types.NullType;
 import io.ballerina.runtime.api.types.TypeTags;
+import io.ballerina.runtime.api.types.semtype.Builder;
+import io.ballerina.runtime.api.types.semtype.ConcurrentLazySupplier;
+import io.ballerina.runtime.api.types.semtype.SemType;
+
+import java.util.function.Supplier;
 
 /**
  * {@code BNullType} represents the type of a {@code NullLiteral}.
  *
  * @since 0.995.0
  */
-public class BNullType extends BType implements NullType {
+public sealed class BNullType extends BSemTypeWrapper<BNullType.BNullTypeImpl> implements NullType permits BNeverType {
 
     /**
      * Create a {@code BNullType} represents the type of a {@code NullLiteral}.
@@ -35,31 +40,47 @@ public class BNullType extends BType implements NullType {
      * @param pkg package path
      */
     public BNullType(String typeName, Module pkg) {
-        super(typeName, pkg, null);
+        this(() -> new BNullTypeImpl(typeName, pkg), typeName, pkg, TypeTags.NULL_TAG, Builder.getNilType());
     }
 
-    @Override
-    public <V extends Object> V getZeroValue() {
-        return null;
+    protected BNullType(String typeName, Module pkg, SemType semType, int tag) {
+        this(() -> new BNullTypeImpl(typeName, pkg), typeName, pkg, tag, semType);
     }
 
-    @Override
-    public <V extends Object> V getEmptyValue() {
-        return null;
+    private BNullType(Supplier<BNullTypeImpl> bNullTypeSupplier, String typeName, Module pkg, int tag,
+                      SemType semType) {
+        super(new ConcurrentLazySupplier<>(bNullTypeSupplier), typeName, pkg, tag, semType);
     }
 
-    @Override
-    public int getTag() {
-        return TypeTags.NULL_TAG;
-    }
+    protected static final class BNullTypeImpl extends BType implements NullType {
 
-    @Override
-    public boolean isNilable() {
-        return true;
-    }
+        private BNullTypeImpl(String typeName, Module pkg) {
+            super(typeName, pkg, null);
+        }
 
-    @Override
-    public boolean isReadOnly() {
-        return true;
+        @Override
+        public <V extends Object> V getZeroValue() {
+            return null;
+        }
+
+        @Override
+        public <V extends Object> V getEmptyValue() {
+            return null;
+        }
+
+        @Override
+        public int getTag() {
+            return TypeTags.NULL_TAG;
+        }
+
+        @Override
+        public boolean isNilable() {
+            return true;
+        }
+
+        @Override
+        public boolean isReadOnly() {
+            return true;
+        }
     }
 }

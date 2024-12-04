@@ -126,7 +126,7 @@ final class TypeEmitter {
     }
 
     private static String emitTableType(BTableType bType, int tabs) {
-        boolean readonly = Symbols.isFlagOn(bType.flags, Flags.READONLY);
+        boolean readonly = Symbols.isFlagOn(bType.getFlags(), Flags.READONLY);
         if (bType.constraint == null) {
             return readonly ? bType.toString().concat(" & readonly") : bType.toString();
         }
@@ -240,8 +240,8 @@ final class TypeEmitter {
     private static String emitBArrayType(BArrayType bType, int tabs) {
         String arrStr = emitTypeRef(bType.eType, 0);
         arrStr += "[";
-        if (bType.size > 0) {
-            arrStr += bType.size;
+        if (bType.getSize() > 0) {
+            arrStr += bType.getSize();
         }
         arrStr += "]";
         return arrStr;
@@ -256,7 +256,7 @@ final class TypeEmitter {
         for (BField bField : bType.fields.values()) {
             if (bField != null) {
                 recordStr.append(emitTabs(tabs + 1));
-                String flags = emitFlags(bField.type.flags);
+                String flags = emitFlags(bField.type.getFlags());
                 recordStr.append(flags);
                 if (!flags.isEmpty()) {
                     recordStr.append(emitSpaces(1));
@@ -273,7 +273,7 @@ final class TypeEmitter {
     }
 
     private static String emitBObjectType(BObjectType bType, int tabs) {
-        boolean isService = (bType.flags & Flags.SERVICE) == Flags.SERVICE;
+        boolean isService = Symbols.isFlagOn(bType.getFlags(), Flags.SERVICE);
 
         StringBuilder str = new StringBuilder();
         str.append(isService ? "service object" : "object");
@@ -283,7 +283,7 @@ final class TypeEmitter {
         for (BField bField : bType.fields.values()) {
             if (bField != null) {
                 str.append(emitTabs(tabs + 1));
-                String flags = emitFlags(bField.type.flags);
+                String flags = emitFlags(bField.type.getFlags());
                 str.append(flags);
                 if (!flags.isEmpty()) {
                     str.append(emitSpaces(1));
@@ -366,21 +366,7 @@ final class TypeEmitter {
     }
 
     private static String emitBFiniteType(BFiniteType bType, int tabs) {
-
-        StringBuilder str = new StringBuilder();
-        str.append("[");
-        int i = 0;
-        int length = bType.getValueSpace().size();
-        for (Object v : bType.getValueSpace()) {
-            str.append(v.toString());
-            i += 1;
-            if (i < length) {
-                str.append(",");
-                str.append(emitSpaces(1));
-            }
-        }
-        str.append("]");
-        return str.toString();
+        return "[" + bType.toString() + "]";
     }
 
     private static String emitBTypeHandle(BHandleType bType, int tabs) {

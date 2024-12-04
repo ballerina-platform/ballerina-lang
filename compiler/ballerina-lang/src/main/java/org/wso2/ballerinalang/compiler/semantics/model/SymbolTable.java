@@ -18,6 +18,9 @@
 package org.wso2.ballerinalang.compiler.semantics.model;
 
 import io.ballerina.tools.diagnostics.Location;
+import io.ballerina.types.Env;
+import io.ballerina.types.PredefinedType;
+import io.ballerina.types.SemTypes;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.SymbolOrigin;
@@ -26,7 +29,6 @@ import org.ballerinalang.model.types.SelectivelyImmutableReferenceType;
 import org.ballerinalang.model.types.TypeKind;
 import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLocation;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConstructorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BErrorTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BOperatorSymbol;
@@ -48,8 +50,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BIntersectionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BJSONType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BNeverType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BNilType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BNoType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BReadonlyType;
@@ -76,7 +76,6 @@ import org.wso2.ballerinalang.util.Flags;
 import org.wso2.ballerinalang.util.Lists;
 
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -114,49 +113,45 @@ public class SymbolTable {
     public final Scope rootScope;
 
     public final BType noType = new BNoType(TypeTags.NONE);
-    public final BType nilType = new BNilType();
-    public final BType neverType = new BNeverType();
-    public final BType intType = new BType(TypeTags.INT, null, Flags.READONLY);
-    public final BType byteType = new BType(TypeTags.BYTE, null, Flags.READONLY);
-    public final BType floatType = new BType(TypeTags.FLOAT, null, Flags.READONLY);
-    public final BType decimalType = new BType(TypeTags.DECIMAL, null, Flags.READONLY);
-    public final BType stringType = new BType(TypeTags.STRING, null, Flags.READONLY);
-    public final BType booleanType = new BType(TypeTags.BOOLEAN, null, Flags.READONLY);
+    public final BType nilType = BType.createNilType();
+    public final BType neverType = BType.createNeverType();
+    public final BType intType = new BType(TypeTags.INT, null, Flags.READONLY, PredefinedType.INT);
+    public final BType byteType = new BType(TypeTags.BYTE, null, Flags.READONLY, PredefinedType.BYTE);
+    public final BType floatType = new BType(TypeTags.FLOAT, null, Flags.READONLY, PredefinedType.FLOAT);
+    public final BType decimalType = new BType(TypeTags.DECIMAL, null, Flags.READONLY, PredefinedType.DECIMAL);
+    public final BType stringType = new BType(TypeTags.STRING, null, Flags.READONLY, PredefinedType.STRING);
+    public final BType booleanType = new BType(TypeTags.BOOLEAN, null, Flags.READONLY, PredefinedType.BOOLEAN);
 
-    public final BType anyType = new BAnyType(TypeTags.ANY, null);
-    public final BMapType mapType = new BMapType(TypeTags.MAP, anyType, null);
-    public final BMapType mapStringType = new BMapType(TypeTags.MAP, stringType, null);
+    public final BType anyType = new BAnyType();
+    public final BMapType mapType;
+    public final BMapType mapStringType;
 
-    public final BFutureType futureType = new BFutureType(TypeTags.FUTURE, nilType, null);
-    public final BArrayType arrayType = new BArrayType(anyType);
-    public final BArrayType byteArrayType = new BArrayType(byteType);
-    public final BArrayType arrayStringType = new BArrayType(stringType);
+    public final BFutureType futureType;
+    public final BArrayType arrayType;
+    public final BArrayType byteArrayType;
+    public final BArrayType arrayStringType;
     BVarSymbol varSymbol = new BVarSymbol(0, null, null,
             noType, null, null, SymbolOrigin.VIRTUAL);
-    public final BType tupleType = new BTupleType(Lists.of(new BTupleMember(noType, varSymbol)));
-    public final BType recordType = new BRecordType(null);
-    public final BType stringArrayType = new BArrayType(stringType);
-    public final BType handleType = new BHandleType(TypeTags.HANDLE, null);
-    public final BTypedescType typeDesc = new BTypedescType(this.anyType, null);
-    public final BType readonlyType = new BReadonlyType(TypeTags.READONLY, null);
-    public final BType pathParamAllowedType = BUnionType.create(null,
-            intType, stringType, floatType, booleanType, decimalType);
+    public final BType tupleType;
+    public final BType recordType;
+    public final BType stringArrayType;
+    public final BType handleType = new BHandleType();
+    public final BTypedescType typeDesc;
+    public final BType readonlyType = new BReadonlyType();
+    public final BType pathParamAllowedType;
     public final BIntersectionType anyAndReadonly;
     public BUnionType anyAndReadonlyOrError;
 
-    public final BType errorIntersectionType = new BErrorType(null, null);
-
-    public final BType semanticError = new BType(TypeTags.SEMANTIC_ERROR, null);
-    public final BType nullSet = new BType(TypeTags.NULL_SET, null);
-    public final BType invokableType = new BInvokableType(null, null, null, null);
+    public final BType semanticError = new BType(TypeTags.SEMANTIC_ERROR, null, PredefinedType.NEVER);
+    public final BType nullSet = new BType(TypeTags.NULL_SET, null, PredefinedType.NEVER);
+    public final BType invokableType;
     public final BType empty = new BType(TypeTags.EMPTY, null);
 
-    public BConstructorSymbol errorConstructor;
     public BUnionType anyOrErrorType;
     public BUnionType pureType;
     public BUnionType errorOrNilType;
-    public BFiniteType trueType;
-    public BFiniteType falseType;
+    public BType trueType;
+    public BType falseType;
     public BObjectType intRangeType;
     public BMapType mapAllType;
     public BArrayType arrayAllType;
@@ -164,23 +159,25 @@ public class SymbolTable {
     public BObjectType iterableType;
 
     // builtin subtypes
-    public final BIntSubType signed32IntType = new BIntSubType(TypeTags.SIGNED32_INT, Names.SIGNED32);
-    public final BIntSubType signed16IntType = new BIntSubType(TypeTags.SIGNED16_INT, Names.SIGNED16);
-    public final BIntSubType signed8IntType = new BIntSubType(TypeTags.SIGNED8_INT, Names.SIGNED8);
-    public final BIntSubType unsigned32IntType = new BIntSubType(TypeTags.UNSIGNED32_INT, Names.UNSIGNED32);
-    public final BIntSubType unsigned16IntType = new BIntSubType(TypeTags.UNSIGNED16_INT, Names.UNSIGNED16);
-    public final BIntSubType unsigned8IntType = new BIntSubType(TypeTags.UNSIGNED8_INT, Names.UNSIGNED8);
-    public final BStringSubType charStringType = new BStringSubType(TypeTags.CHAR_STRING, Names.CHAR);
-    public final BXMLSubType xmlElementType = new BXMLSubType(TypeTags.XML_ELEMENT, Names.XML_ELEMENT);
-    public final BXMLSubType xmlPIType = new BXMLSubType(TypeTags.XML_PI, Names.XML_PI);
-    public final BXMLSubType xmlCommentType = new BXMLSubType(TypeTags.XML_COMMENT, Names.XML_COMMENT);
-    public final BXMLSubType xmlTextType = new BXMLSubType(TypeTags.XML_TEXT, Names.XML_TEXT, Flags.READONLY);
-    public final BRegexpType regExpType = new BRegexpType(TypeTags.REGEXP, Names.REGEXP_TYPE);
-    public final BType xmlNeverType = new BXMLType(neverType,  null);
-    public final BType xmlElementSeqType = new BXMLType(xmlElementType, null);
+    public final BIntSubType signed32IntType = BIntSubType.SIGNED32;
+    public final BIntSubType signed16IntType = BIntSubType.SIGNED16;
+    public final BIntSubType signed8IntType = BIntSubType.SIGNED8;
+    public final BIntSubType unsigned32IntType = BIntSubType.UNSIGNED32;
+    public final BIntSubType unsigned16IntType = BIntSubType.UNSIGNED16;
+    public final BIntSubType unsigned8IntType = BIntSubType.UNSIGNED8;
 
-    public final BType xmlType = new BXMLType(BUnionType.create(null, xmlElementType, xmlCommentType,
-            xmlPIType, xmlTextType),  null);
+    public final BStringSubType charStringType = BStringSubType.CHAR;
+
+    public final BXMLSubType xmlElementType = BXMLSubType.XML_ELEMENT;
+    public final BXMLSubType xmlPIType = BXMLSubType.XML_PI;
+    public final BXMLSubType xmlCommentType = BXMLSubType.XML_COMMENT;
+    public final BXMLSubType xmlTextType = BXMLSubType.XML_TEXT;
+
+    public final BRegexpType regExpType = new BRegexpType();
+    public final BType xmlNeverType = new BXMLType(neverType,  null);
+
+    public final BType xmlType;
+    public final BType xmlElementSeqType = new BXMLType(xmlElementType, null);
 
     public BAnydataType anydataType;
     public BArrayType arrayAnydataType;
@@ -225,6 +222,7 @@ public class SymbolTable {
 
     private final Names names;
     private final Types types;
+
     public Map<BPackageSymbol, SymbolEnv> pkgEnvMap = new HashMap<>();
     public Map<Name, BPackageSymbol> predeclaredModules = new HashMap<>();
     public Map<String, Map<SelectivelyImmutableReferenceType, BIntersectionType>> immutableTypeMaps = new HashMap<>();
@@ -244,7 +242,7 @@ public class SymbolTable {
         this.names = Names.getInstance(context);
         this.types = Types.getInstance(context);
 
-        this.rootPkgNode = (BLangPackage) TreeBuilder.createPackageNode();
+        this.rootPkgNode = (BLangPackage) TreeBuilder.createPackageNode(types.typeEnv());
         this.rootPkgSymbol = new BPackageSymbol(PackageID.ANNOTATIONS, null, null, BUILTIN);
         this.builtinPos = new BLangDiagnosticLocation(Names.EMPTY.value, -1, -1,
                                             -1, -1);
@@ -263,15 +261,10 @@ public class SymbolTable {
         initializeType(decimalType, TypeKind.DECIMAL.typeName(), BUILTIN);
         initializeType(stringType, TypeKind.STRING.typeName(), BUILTIN);
         initializeType(booleanType, TypeKind.BOOLEAN.typeName(), BUILTIN);
-        initializeType(xmlType, TypeKind.XML.typeName(), BUILTIN);
-        initializeType(mapType, TypeKind.MAP.typeName(), VIRTUAL);
-        initializeType(mapStringType, TypeKind.MAP.typeName(), VIRTUAL);
-        initializeType(futureType, TypeKind.FUTURE.typeName(), BUILTIN);
         initializeType(anyType, TypeKind.ANY.typeName(), BUILTIN);
         initializeType(nilType, TypeKind.NIL.typeName(), BUILTIN);
         initializeType(neverType, TypeKind.NEVER.typeName(), BUILTIN);
         initializeType(handleType, TypeKind.HANDLE.typeName(), BUILTIN);
-        initializeType(typeDesc, TypeKind.TYPEDESC.typeName(), BUILTIN);
         initializeType(readonlyType, TypeKind.READONLY.typeName(), BUILTIN);
 
         // Define subtypes
@@ -296,22 +289,41 @@ public class SymbolTable {
         falseLiteral.setBType(this.booleanType);
         falseLiteral.value = Boolean.FALSE;
 
+        arrayType = new BArrayType(types.typeEnv(), anyType);
+        byteArrayType = new BArrayType(types.typeEnv(), byteType);
+        arrayStringType = new BArrayType(types.typeEnv(), stringType);
+        stringArrayType = new BArrayType(types.typeEnv(), stringType);
+
+        mapType = new BMapType(typeEnv(), TypeTags.MAP, anyType, null);
+        mapStringType = new BMapType(typeEnv(), TypeTags.MAP, stringType, null);
+        initializeType(mapType, TypeKind.MAP.typeName(), VIRTUAL);
+        initializeType(mapStringType, TypeKind.MAP.typeName(), VIRTUAL);
+
+        pathParamAllowedType = BUnionType.create(types.typeEnv(), null,
+                intType, stringType, floatType, booleanType, decimalType);
+        tupleType = new BTupleType(types.typeEnv(), Lists.of(new BTupleMember(noType, varSymbol)));
+        recordType = new BRecordType(typeEnv(), null);
+        invokableType = new BInvokableType(types.typeEnv(), List.of(), null, null, null);
+
+        xmlType = new BXMLType(BUnionType.create(types.typeEnv(), null, xmlElementType, xmlCommentType,
+                xmlPIType, xmlTextType), null);
+        futureType = new BFutureType(types.typeEnv(), nilType, null, PredefinedType.FUTURE);
+        typeDesc = new BTypedescType(types.typeEnv(), this.anyType, null, PredefinedType.TYPEDESC);
+        initializeType(xmlType, TypeKind.XML.typeName(), BUILTIN);
+        initializeType(futureType, TypeKind.FUTURE.typeName(), BUILTIN);
+        initializeType(typeDesc, TypeKind.TYPEDESC.typeName(), BUILTIN);
+
         defineCyclicUnionBasedInternalTypes();
 
-        BTypeSymbol finiteTypeSymbol = Symbols.createTypeSymbol(SymTag.FINITE_TYPE, Flags.PUBLIC,
-                                                                Names.fromString("$anonType$TRUE"),
-                                                                rootPkgNode.packageID, null, rootPkgNode.symbol.owner,
-                                                                this.builtinPos, VIRTUAL);
-        this.trueType = new BFiniteType(finiteTypeSymbol, new HashSet<>() {{
-            add(trueLiteral);
-        }});
+        BTypeSymbol trueFiniteTypeSymbol = Symbols.createTypeSymbol(SymTag.FINITE_TYPE, Flags.PUBLIC,
+                Names.fromString("$anonType$TRUE"), rootPkgNode.packageID, null, rootPkgNode.symbol.owner,
+                this.builtinPos, VIRTUAL);
+        this.trueType = BFiniteType.newSingletonBFiniteType(trueFiniteTypeSymbol, SemTypes.booleanConst(true));
 
         BTypeSymbol falseFiniteTypeSymbol = Symbols.createTypeSymbol(SymTag.FINITE_TYPE, Flags.PUBLIC,
                 Names.fromString("$anonType$FALSE"), rootPkgNode.packageID, null, rootPkgNode.symbol.owner,
                 this.builtinPos, VIRTUAL);
-        this.falseType = new BFiniteType(falseFiniteTypeSymbol, new HashSet<>() {{
-            add(falseLiteral);
-        }});
+        this.falseType = BFiniteType.newSingletonBFiniteType(falseFiniteTypeSymbol, SemTypes.booleanConst(false));
 
         this.anyAndReadonly =
                 ImmutableTypeCloner.getImmutableIntersectionType(this.anyType, this, names, this.types,
@@ -319,7 +331,7 @@ public class SymbolTable {
         initializeType(this.anyAndReadonly, this.anyAndReadonly.effectiveType.name.getValue(), BUILTIN);
 
         // Initialize the invokable type
-        this.invokableType.flags = Flags.ANY_FUNCTION;
+        this.invokableType.setFlags(Flags.ANY_FUNCTION);
         BInvokableTypeSymbol tSymbol = Symbols.createInvokableTypeSymbol(SymTag.FUNCTION_TYPE, Flags.ANY_FUNCTION,
                 rootPkgSymbol.pkgID, this.invokableType, rootPkgNode.symbol.scope.owner, builtinPos, BUILTIN);
         tSymbol.params = null;
@@ -331,7 +343,7 @@ public class SymbolTable {
     }
 
     private void defineReadonlyCompoundType() {
-        anyAndReadonlyOrError = BUnionType.create(null, anyAndReadonly, errorType);
+        anyAndReadonlyOrError = BUnionType.create(typeEnv(), null, anyAndReadonly, errorType);
     }
 
     public BType getTypeFromTag(int tag) {
@@ -639,9 +651,7 @@ public class SymbolTable {
     }
 
     private BUnionType getNilableBType(BType type) {
-        BUnionType nilableType = BUnionType.create(null, type, nilType);
-        nilableType.setNullable(true);
-        return nilableType;
+        return BUnionType.create(typeEnv(), null, type, nilType);
     }
 
     private void defineNilableIntegerUnaryOperations() {
@@ -1103,7 +1113,7 @@ public class SymbolTable {
     private void defineOperator(Name name,
                                 List<BType> paramTypes,
                                 BType retType) {
-        BInvokableType opType = new BInvokableType(paramTypes, retType, null);
+        BInvokableType opType = new BInvokableType(typeEnv(), paramTypes, retType, null);
         BOperatorSymbol symbol = new BOperatorSymbol(name, rootPkgSymbol.pkgID, opType, rootPkgSymbol, this.builtinPos,
                                                      BUILTIN);
 
@@ -1123,7 +1133,7 @@ public class SymbolTable {
     }
 
     private void defineCloneableCyclicTypeAndDependentTypes() {
-        cloneableType = BUnionType.create(null, readonlyType, xmlType);
+        cloneableType = BUnionType.create(typeEnv(), null, readonlyType, xmlType);
         addCyclicArrayMapTableOfMapMembers(cloneableType);
 
         // `cloneableType` and its symbol gets replaced by `Cloneable` type defined in lang value module. To prevent
@@ -1132,31 +1142,31 @@ public class SymbolTable {
         cloneableType.tsymbol = new BTypeSymbol(SymTag.TYPE, Flags.PRIVATE, Names.CLONEABLE, rootPkgSymbol.pkgID,
                 cloneableType, rootPkgSymbol, builtinPos, BUILTIN);
 
-        detailType = new BMapType(TypeTags.MAP, cloneableType, null);
-        errorType = new BErrorType(null, detailType);
+        detailType = new BMapType(typeEnv(), TypeTags.MAP, cloneableType, null);
+        errorType = new BErrorType(typeEnv(), null, detailType);
         errorType.tsymbol = new BErrorTypeSymbol(SymTag.ERROR, Flags.PUBLIC, Names.ERROR,
                 rootPkgSymbol.pkgID, errorType, rootPkgSymbol, builtinPos, BUILTIN);
 
-        errorOrNilType = BUnionType.create(null, errorType, nilType);
-        anyOrErrorType = BUnionType.create(null, anyType, errorType);
+        errorOrNilType = BUnionType.create(typeEnv(), null, errorType, nilType);
+        anyOrErrorType = BUnionType.create(typeEnv(), null, anyType, errorType);
 
-        mapAllType = new BMapType(TypeTags.MAP, anyOrErrorType, null);
-        arrayAllType = new BArrayType(anyOrErrorType);
+        mapAllType = new BMapType(typeEnv(), TypeTags.MAP, anyOrErrorType, null);
+        arrayAllType = new BArrayType(typeEnv(), anyOrErrorType);
         typeDesc.constraint = anyOrErrorType;
         futureType.constraint = anyOrErrorType;
 
-        pureType = BUnionType.create(null, anydataType, errorType);
-        streamType = new BStreamType(TypeTags.STREAM, pureType, nilType, null);
-        tableType = new BTableType(TypeTags.TABLE, pureType, null);
+        pureType = BUnionType.create(typeEnv(), null, anydataType, errorType);
+        streamType = new BStreamType(typeEnv(), TypeTags.STREAM, pureType, nilType, null);
+        tableType = new BTableType(typeEnv(), pureType, null);
 
         initializeType(streamType, TypeKind.STREAM.typeName(), BUILTIN);
         initializeType(tableType, TypeKind.TABLE.typeName(), BUILTIN);
     }
 
     private void addCyclicArrayMapTableOfMapMembers(BUnionType unionType) {
-        BArrayType arrayCloneableType = new BArrayType(unionType);
-        BMapType mapCloneableType = new BMapType(TypeTags.MAP, unionType, null);
-        BType tableMapCloneableType = new BTableType(TypeTags.TABLE, mapCloneableType, null);
+        BArrayType arrayCloneableType = new BArrayType(typeEnv(), unionType);
+        BMapType mapCloneableType = new BMapType(typeEnv(), TypeTags.MAP, unionType, null);
+        BType tableMapCloneableType = new BTableType(typeEnv(), mapCloneableType, null);
         unionType.add(arrayCloneableType);
         unionType.add(mapCloneableType);
         unionType.add(tableMapCloneableType);
@@ -1164,15 +1174,16 @@ public class SymbolTable {
     }
 
     private void defineJsonCyclicTypeAndDependentTypes() {
-        BUnionType jsonInternal = BUnionType.create(null, nilType, booleanType, intType, floatType, decimalType,
+        BUnionType jsonInternal =
+                BUnionType.create(typeEnv(), null, nilType, booleanType, intType, floatType, decimalType,
                 stringType);
-        BArrayType arrayJsonTypeInternal = new BArrayType(jsonInternal);
-        BMapType mapJsonTypeInternal = new BMapType(TypeTags.MAP, jsonInternal, null);
+        BArrayType arrayJsonTypeInternal = new BArrayType(typeEnv(), jsonInternal);
+        BMapType mapJsonTypeInternal = new BMapType(typeEnv(), TypeTags.MAP, jsonInternal, null);
         jsonInternal.add(arrayJsonTypeInternal);
         jsonInternal.add(mapJsonTypeInternal);
         jsonInternal.isCyclic = true;
 
-        jsonType = new BJSONType(jsonInternal);
+        jsonType = new BJSONType(types.typeCtx(), jsonInternal);
         PackageID pkgID = rootPkgSymbol.pkgID;
         Optional<BIntersectionType> immutableType = Types.getImmutableType(this, pkgID, jsonInternal);
         if (immutableType.isPresent()) {
@@ -1181,16 +1192,17 @@ public class SymbolTable {
         jsonType.tsymbol = new BTypeSymbol(SymTag.TYPE, Flags.PUBLIC, Names.JSON, pkgID, jsonType,
                                            rootPkgSymbol, builtinPos, BUILTIN);
 
-        arrayJsonType = new BArrayType(jsonType);
-        mapJsonType = new BMapType(TypeTags.MAP, jsonType, null);
+        arrayJsonType = new BArrayType(typeEnv(), jsonType);
+        mapJsonType = new BMapType(typeEnv(), TypeTags.MAP, jsonType, null);
     }
 
     private void defineAnydataCyclicTypeAndDependentTypes() {
-        BUnionType anyDataInternal = BUnionType.create(null, nilType, booleanType, intType, floatType, decimalType,
+        BUnionType anyDataInternal =
+                BUnionType.create(typeEnv(), null, nilType, booleanType, intType, floatType, decimalType,
                 stringType, xmlType);
         addCyclicArrayMapTableOfMapMembers(anyDataInternal);
 
-        anydataType = new BAnydataType(anyDataInternal);
+        anydataType = new BAnydataType(types.typeCtx(), anyDataInternal);
         PackageID pkgID = rootPkgSymbol.pkgID;
         Optional<BIntersectionType> immutableType = Types.getImmutableType(this, pkgID, anyDataInternal);
         if (immutableType.isPresent()) {
@@ -1199,10 +1211,15 @@ public class SymbolTable {
 
         anydataType.tsymbol = new BTypeSymbol(SymTag.TYPE, Flags.PUBLIC, Names.ANYDATA, pkgID,
                                               anydataType, rootPkgSymbol, builtinPos, BUILTIN);
-        arrayAnydataType = new BArrayType(anydataType);
-        mapAnydataType = new BMapType(TypeTags.MAP, anydataType, null);
-        anydataOrReadonly = BUnionType.create(null, anydataType, readonlyType);
+        arrayAnydataType = new BArrayType(typeEnv(), anydataType);
+        mapAnydataType = new BMapType(typeEnv(), TypeTags.MAP, anydataType, null);
+        anydataOrReadonly = BUnionType.create(typeEnv(), null, anydataType, readonlyType);
 
         initializeType(mapAnydataType, TypeKind.MAP.typeName(), VIRTUAL);
+    }
+
+    public Env typeEnv() {
+        assert types.typeEnv() != null;
+        return types.typeEnv();
     }
 }

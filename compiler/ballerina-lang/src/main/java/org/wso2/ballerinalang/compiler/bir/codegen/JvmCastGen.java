@@ -17,6 +17,7 @@
  */
 package org.wso2.ballerinalang.compiler.bir.codegen;
 
+import io.ballerina.types.Env;
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
@@ -633,7 +634,7 @@ public class JvmCastGen {
                     mv.visitTypeInsn(INSTANCEOF, SIMPLE_VALUE);
                     mv.visitJumpInsn(IFNE, afterHandle);
                 }
-                if (isNillable(targetType)) {
+                if (targetType.isNullable()) {
                     mv.visitInsn(DUP);
                     mv.visitJumpInsn(IFNULL, afterHandle);
                 }
@@ -652,15 +653,6 @@ public class JvmCastGen {
                     DECIMAL_TO_HANDLE, false);
             default -> throw new BLangCompilerException("Casting is not supported from '" + sourceType + "' to 'any'");
         }
-    }
-
-    private static boolean isNillable(BType targetType) {
-        return switch (targetType.tag) {
-            case TypeTags.NIL, TypeTags.NEVER, TypeTags.JSON, TypeTags.ANY, TypeTags.ANYDATA, TypeTags.READONLY -> true;
-            case TypeTags.UNION, TypeTags.INTERSECTION, TypeTags.FINITE -> targetType.isNullable();
-            case TypeTags.TYPEREFDESC -> isNillable(JvmCodeGenUtil.getImpliedType(targetType));
-            default -> false;
-        };
     }
 
     private void generateCheckCastJToBJSON(MethodVisitor mv, BIRVarToJVMIndexMap indexMap, JType sourceType) {
@@ -1130,7 +1122,7 @@ public class JvmCastGen {
     public void generateCheckCastToAnyData(MethodVisitor mv, BType type) {
         BType sourceType = JvmCodeGenUtil.getImpliedType(type);
         if (sourceType.tag == TypeTags.UNION || (types.isAssignable(sourceType, symbolTable.anyType) &&
-                        !Symbols.isFlagOn(sourceType.flags, Flags.READONLY))) {
+                        !Symbols.isFlagOn(sourceType.getFlags(), Flags.READONLY))) {
             checkCast(mv, symbolTable.anydataType);
         } else {
             // if value types, then ad box instruction
@@ -1406,5 +1398,10 @@ public class JvmCastGen {
 
     private void generateXMLToAttributesMap(MethodVisitor mv) {
         mv.visitMethodInsn(INVOKEVIRTUAL, XML_VALUE, "getAttributesMap", GET_ATTRAIBUTE_MAP, false);
+    }
+
+    public Env typeEnv() {
+        assert types.typeEnv() != null;
+        return types.typeEnv();
     }
 }

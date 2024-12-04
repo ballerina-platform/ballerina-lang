@@ -16,7 +16,12 @@
  */
 package org.wso2.ballerinalang.compiler.semantics.model.types;
 
+import io.ballerina.types.Env;
+import io.ballerina.types.PredefinedType;
+import io.ballerina.types.SemType;
+import io.ballerina.types.SemTypes;
 import org.ballerinalang.model.types.ConstrainedType;
+import org.ballerinalang.model.types.TypeKind;
 import org.wso2.ballerinalang.compiler.semantics.model.TypeVisitor;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
@@ -26,19 +31,26 @@ import org.wso2.ballerinalang.compiler.util.TypeTags;
  *
  * @since 0.965.0
  */
-public class BFutureType extends BBuiltInRefType implements ConstrainedType {
+public class BFutureType extends BType implements ConstrainedType {
 
     public BType constraint;
     public boolean workerDerivative;
+    private final Env env;
 
-    public BFutureType(int tag, BType constraint, BTypeSymbol tsymbol) {
-        super(tag, tsymbol);
+    public BFutureType(Env env, BType constraint, BTypeSymbol tsymbol) {
+        super(TypeTags.FUTURE, tsymbol);
         this.constraint = constraint;
+        this.env = env;
     }
 
-    public BFutureType(int tag, BType constraint, BTypeSymbol tsymbol, boolean workerDerivative) {
-        this(tag, constraint, tsymbol);
+    public BFutureType(Env env, BType constraint, BTypeSymbol tsymbol, boolean workerDerivative) {
+        this(env, constraint, tsymbol);
         this.workerDerivative = workerDerivative;
+    }
+
+    public BFutureType(Env env, BType constraint, BTypeSymbol tsymbol, SemType semType) {
+        this(env, constraint, tsymbol);
+        this.semType = semType;
     }
 
     @Override
@@ -46,11 +58,21 @@ public class BFutureType extends BBuiltInRefType implements ConstrainedType {
         return constraint;
     }
 
+    public void setConstraint(BType constraint) {
+        this.constraint = constraint;
+        this.semType = null;
+    }
+
     @Override
     public <T, R> R accept(BTypeVisitor<T, R> visitor, T t) {
         return visitor.visit(this, t);
     }
-    
+
+    @Override
+    public TypeKind getKind() {
+        return TypeKind.FUTURE;
+    }
+
     @Override
     public String toString() {
         if (constraint.tag == TypeTags.NONE || constraint.tag == TypeTags.SEMANTIC_ERROR
@@ -64,5 +86,19 @@ public class BFutureType extends BBuiltInRefType implements ConstrainedType {
     @Override
     public void accept(TypeVisitor visitor) {
         visitor.visit(this);
+    }
+
+    @Override
+    public SemType semType() {
+        if (this.semType != null) {
+            return this.semType;
+        }
+
+        if (constraint == null || constraint instanceof BNoType) {
+            this.semType = PredefinedType.FUTURE;
+        } else {
+            this.semType = SemTypes.futureContaining(env, constraint.semType());
+        }
+        return this.semType;
     }
 }

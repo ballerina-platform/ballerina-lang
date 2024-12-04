@@ -17,6 +17,7 @@
 package org.wso2.ballerinalang.compiler.desugar;
 
 import io.ballerina.tools.diagnostics.Location;
+import io.ballerina.types.Env;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.PackageID;
@@ -180,7 +181,7 @@ public final class ASTBuilderUtil {
 
     static BLangExpression wrapToConversionExpr(BType sourceType, BLangExpression exprToWrap,
                                                 SymbolTable symTable, Types types) {
-        if (types.isSameType(sourceType, exprToWrap.getBType()) || !isValueType(exprToWrap.getBType())) {
+        if (types.isSameTypeIncludingTags(sourceType, exprToWrap.getBType()) || !isValueType(exprToWrap.getBType())) {
             // No conversion needed.
             return exprToWrap;
         }
@@ -329,7 +330,7 @@ public final class ASTBuilderUtil {
     public static BLangReturn createNilReturnStmt(Location pos, BType nilType) {
         final BLangReturn returnStmt = (BLangReturn) TreeBuilder.createReturnNode();
         returnStmt.pos = pos;
-        returnStmt.expr = createLiteral(pos, nilType, Names.NIL_VALUE);
+        returnStmt.expr = createLiteral(pos, nilType, Names.NIL_VALUE.value);
         return returnStmt;
     }
 
@@ -844,7 +845,7 @@ public final class ASTBuilderUtil {
         return node;
     }
 
-    public static BInvokableSymbol duplicateInvokableSymbol(BInvokableSymbol invokableSymbol) {
+    public static BInvokableSymbol duplicateInvokableSymbol(Env typeEnv, BInvokableSymbol invokableSymbol) {
         BInvokableSymbol dupFuncSymbol =
                 Symbols.createFunctionSymbol(invokableSymbol.flags, invokableSymbol.name, invokableSymbol.originalName,
                                              invokableSymbol.pkgID, invokableSymbol.type, invokableSymbol.owner,
@@ -864,18 +865,18 @@ public final class ASTBuilderUtil {
                 new ArrayList<>((List<BAnnotationAttachmentSymbol>) invokableSymbol.getAnnotations()));
 
         BInvokableType prevFuncType = (BInvokableType) invokableSymbol.type;
-        BInvokableType dupInvokableType = new BInvokableType(new ArrayList<>(prevFuncType.paramTypes),
-                                                          prevFuncType.restType, prevFuncType.retType,
-                                                          prevFuncType.tsymbol);
+        BInvokableType dupInvokableType =
+                new BInvokableType(typeEnv, List.copyOf(prevFuncType.paramTypes),
+                        prevFuncType.restType, prevFuncType.retType, prevFuncType.tsymbol);
 
         if (Symbols.isFlagOn(invokableSymbol.flags, Flags.ISOLATED)) {
             dupFuncSymbol.flags |= Flags.ISOLATED;
-            dupInvokableType.flags |= Flags.ISOLATED;
+            dupInvokableType.addFlags(Flags.ISOLATED);
         }
 
         if (Symbols.isFlagOn(invokableSymbol.flags, Flags.TRANSACTIONAL)) {
             dupFuncSymbol.flags |= Flags.TRANSACTIONAL;
-            dupInvokableType.flags |= Flags.TRANSACTIONAL;
+            dupInvokableType.addFlags(Flags.TRANSACTIONAL);
         }
 
         dupFuncSymbol.type = dupInvokableType;
@@ -884,7 +885,8 @@ public final class ASTBuilderUtil {
         return dupFuncSymbol;
     }
 
-    public static BInvokableSymbol duplicateFunctionDeclarationSymbol(BInvokableSymbol invokableSymbol,
+    public static BInvokableSymbol duplicateFunctionDeclarationSymbol(Env typeEnv,
+                                                                      BInvokableSymbol invokableSymbol,
                                                                       BSymbol owner,
                                                                       Name newName,
                                                                       PackageID newPkgID,
@@ -914,9 +916,9 @@ public final class ASTBuilderUtil {
         dupFuncSymbol.markdownDocumentation = invokableSymbol.markdownDocumentation;
 
         BInvokableType prevFuncType = (BInvokableType) invokableSymbol.type;
-        BType newFuncType = new BInvokableType(new ArrayList<>(prevFuncType.paramTypes), prevFuncType.restType,
-                                               prevFuncType.retType, prevFuncType.tsymbol);
-        newFuncType.flags |= prevFuncType.flags;
+        BType newFuncType = new BInvokableType(typeEnv, List.copyOf(prevFuncType.paramTypes),
+                prevFuncType.restType, prevFuncType.retType, prevFuncType.tsymbol);
+        newFuncType.addFlags(prevFuncType.getFlags());
         dupFuncSymbol.type = newFuncType;
         return dupFuncSymbol;
     }

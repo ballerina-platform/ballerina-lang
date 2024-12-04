@@ -31,6 +31,7 @@ import io.opentelemetry.api.trace.Span;
 import io.opentelemetry.api.trace.SpanBuilder;
 import io.opentelemetry.api.trace.SpanContext;
 import io.opentelemetry.api.trace.SpanKind;
+import io.opentelemetry.api.trace.StatusCode;
 import io.opentelemetry.api.trace.Tracer;
 import io.opentelemetry.context.Context;
 import io.opentelemetry.context.propagation.TextMapGetter;
@@ -147,6 +148,10 @@ public class BSpan {
 
     public void addEvent(String eventName, Attributes attributes) {
         span.addEvent(eventName, attributes);
+    }
+
+    public void setStatus(StatusCode statusCode) {
+        span.setStatus(statusCode);
     }
 
     public void addTags(Map<String, String> tags) {

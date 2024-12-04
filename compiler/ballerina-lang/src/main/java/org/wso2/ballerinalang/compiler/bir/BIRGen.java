@@ -22,6 +22,7 @@ import io.ballerina.identifier.Utils;
 import io.ballerina.tools.diagnostics.Location;
 import io.ballerina.tools.text.LinePosition;
 import io.ballerina.tools.text.LineRange;
+import io.ballerina.types.PredefinedType;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.PackageID;
@@ -59,6 +60,7 @@ import org.wso2.ballerinalang.compiler.bir.model.VarKind;
 import org.wso2.ballerinalang.compiler.bir.model.VarScope;
 import org.wso2.ballerinalang.compiler.bir.optimizer.BIROptimizer;
 import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLocation;
+import org.wso2.ballerinalang.compiler.semantics.analyzer.SemTypeHelper;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationSymbol;
@@ -634,7 +636,7 @@ public class BIRGen extends BLangNodeVisitor {
 
         // TODO: Return variable with NIL type should be written to BIR
         // Special %0 location for storing return values
-        BType retType = unifier.build(astFunc.symbol.type.getReturnType());
+        BType retType = unifier.build(symTable.typeEnv(), astFunc.symbol.type.getReturnType());
         birFunc.returnVariable = new BIRVariableDcl(astFunc.pos, retType, this.env.nextLocalVarId(names),
                                                     VarScope.FUNCTION, VarKind.RETURN, null);
         birFunc.localVars.add(0, birFunc.returnVariable);
@@ -2119,7 +2121,7 @@ public class BIRGen extends BLangNodeVisitor {
         BIRNonTerminator.NewXMLElement newXMLElement =
                 new BIRNonTerminator.NewXMLElement(xmlElementLiteral.pos, toVarRef, startTagNameIndex,
                                                    defaultNsURIVarRef,
-                                                   Symbols.isFlagOn(xmlElementLiteral.getBType().flags,
+                                                   Symbols.isFlagOn(xmlElementLiteral.getBType().getFlags(),
                                                                     Flags.READONLY));
         setScopeAndEmit(newXMLElement);
 
@@ -2185,7 +2187,7 @@ public class BIRGen extends BLangNodeVisitor {
 
         BIRNonTerminator.NewXMLComment newXMLComment =
                 new BIRNonTerminator.NewXMLComment(xmlCommentLiteral.pos, toVarRef, xmlCommentIndex,
-                                                   Symbols.isFlagOn(xmlCommentLiteral.getBType().flags,
+                                                   Symbols.isFlagOn(xmlCommentLiteral.getBType().getFlags(),
                                                                     Flags.READONLY));
         setScopeAndEmit(newXMLComment);
         this.env.targetOperand = toVarRef;
@@ -2206,7 +2208,7 @@ public class BIRGen extends BLangNodeVisitor {
 
         BIRNonTerminator.NewXMLProcIns newXMLProcIns =
                 new BIRNonTerminator.NewXMLProcIns(xmlProcInsLiteral.pos, toVarRef, dataIndex, targetIndex,
-                                                   Symbols.isFlagOn(xmlProcInsLiteral.getBType().flags,
+                                                   Symbols.isFlagOn(xmlProcInsLiteral.getBType().getFlags(),
                                                                     Flags.READONLY));
         setScopeAndEmit(newXMLProcIns);
         this.env.targetOperand = toVarRef;
@@ -2284,7 +2286,8 @@ public class BIRGen extends BLangNodeVisitor {
         BLangArrayLiteral dataLiteral = new BLangArrayLiteral();
         dataLiteral.pos = tableConstructorExpr.pos;
         dataLiteral.setBType(
-                new BArrayType(((BTableType) Types.getImpliedType(tableConstructorExpr.getBType())).constraint));
+                new BArrayType(symTable.typeEnv(),
+                        ((BTableType) Types.getImpliedType(tableConstructorExpr.getBType())).constraint));
         dataLiteral.exprs = new ArrayList<>(tableConstructorExpr.recordLiteralList);
         dataLiteral.accept(this);
         BIROperand dataOp = this.env.targetOperand;
@@ -2723,7 +2726,7 @@ public class BIRGen extends BLangNodeVisitor {
         BType referredType = Types.getImpliedType(listConstructorExprType);
         if (referredType.tag == TypeTags.ARRAY &&
                 ((BArrayType) referredType).state != BArrayState.OPEN) {
-            size = ((BArrayType) referredType).size;
+            size = ((BArrayType) referredType).getSize();
         } else if (referredType.tag == TypeTags.TUPLE) {
             typedescOp = this.env.targetOperand;
             size = exprs.size();
@@ -2809,10 +2812,7 @@ public class BIRGen extends BLangNodeVisitor {
             if (astIndexBasedAccessExpr.getKind() == NodeKind.XML_ATTRIBUTE_ACCESS_EXPR) {
                 insKind = InstructionKind.XML_ATTRIBUTE_STORE;
                 keyRegIndex = getQNameOP(astIndexBasedAccessExpr.indexExpr, keyRegIndex);
-            } else if (astAccessExprExprType.tag == TypeTags.OBJECT ||
-                    (astAccessExprExprType.tag == TypeTags.UNION &&
-                            Types.getImpliedType(((BUnionType) astAccessExprExprType).getMemberTypes().iterator()
-                                    .next()).tag == TypeTags.OBJECT)) {
+            } else if (SemTypeHelper.isSubtypeSimple(astAccessExprExprType, PredefinedType.OBJECT)) {
                 insKind = InstructionKind.OBJECT_STORE;
             } else {
                 insKind = InstructionKind.MAP_STORE;
@@ -2841,10 +2841,7 @@ public class BIRGen extends BLangNodeVisitor {
                         keyRegIndex);
                 this.varAssignment = false;
                 return;
-            } else if (astAccessExprExprType.tag == TypeTags.OBJECT ||
-                    (astAccessExprExprType.tag == TypeTags.UNION &&
-                            Types.getImpliedType(((BUnionType) astAccessExprExprType).getMemberTypes().iterator()
-                                    .next()).tag == TypeTags.OBJECT)) {
+            } else if (SemTypeHelper.isSubtypeSimple(astAccessExprExprType, PredefinedType.OBJECT)) {
                 insKind = InstructionKind.OBJECT_LOAD;
             } else {
                 insKind = InstructionKind.MAP_LOAD;

@@ -20,12 +20,15 @@ package io.ballerina.runtime.internal.values;
 import io.ballerina.runtime.api.Runtime;
 import io.ballerina.runtime.api.constants.RuntimeConstants;
 import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.types.semtype.Context;
+import io.ballerina.runtime.api.types.semtype.SemType;
 import io.ballerina.runtime.api.values.BFunctionPointer;
 import io.ballerina.runtime.api.values.BLink;
 import io.ballerina.runtime.api.values.BTypedesc;
 import io.ballerina.runtime.internal.BalRuntime;
 
 import java.util.Map;
+import java.util.Optional;
 import java.util.function.Function;
 
 /**
@@ -100,5 +103,10 @@ public class FPValue implements BFunctionPointer, RefValue {
     @Override
     public String toString() {
         return RuntimeConstants.EMPTY;
+    }
+
+    @Override
+    public Optional<SemType> inherentTypeOf(Context cx) {
+        return Optional.of(SemType.tryInto(getType()));
     }
 }

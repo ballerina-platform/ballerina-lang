@@ -24,20 +24,32 @@ import io.ballerina.runtime.api.types.IntersectableReferenceType;
 import io.ballerina.runtime.api.types.IntersectionType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.TypeTags;
+import io.ballerina.runtime.api.types.semtype.Builder;
+import io.ballerina.runtime.api.types.semtype.Context;
+import io.ballerina.runtime.api.types.semtype.Core;
+import io.ballerina.runtime.api.types.semtype.SemType;
+import io.ballerina.runtime.api.types.semtype.ShapeAnalyzer;
+import io.ballerina.runtime.internal.TypeChecker;
+import io.ballerina.runtime.internal.types.semtype.ErrorUtils;
+import io.ballerina.runtime.internal.types.semtype.ObjectDefinition;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.StringJoiner;
+import java.util.function.Function;
+
+import static io.ballerina.runtime.api.utils.TypeUtils.getImpliedType;
 
 /**
  * {@code BIntersectionType} represents an intersection type in Ballerina.
  *
  * @since 2.0.0
  */
-public class BIntersectionType extends BType implements IntersectionType {
+public class BIntersectionType extends BType implements IntersectionType, TypeWithShape {
 
     private static final String PADDED_AMPERSAND = " & ";
     private static final String OPENING_PARENTHESIS = "(";
@@ -215,4 +227,71 @@ public class BIntersectionType extends BType implements IntersectionType {
     public void setIntersectionType(IntersectionType intersectionType) {
         this.intersectionType = intersectionType;
     }
+
+    @Override
+    public SemType createSemType() {
+        return createSemTypeInner(SemType::tryInto);
+    }
+
+    @Override
+    protected boolean isDependentlyTypedInner(Set<MayBeDependentType> visited) {
+        return constituentTypes.stream().filter(each -> each instanceof MayBeDependentType)
+                .anyMatch(type -> ((MayBeDependentType) type).isDependentlyTyped(visited));
+    }
+
+    private SemType createSemTypeInner(Function<Type, SemType> semTypeFunction) {
+        if (constituentTypes.isEmpty()) {
+            return Builder.getNeverType();
+        }
+        SemType result = constituentTypes.stream().map(semTypeFunction).reduce(Core::intersect).orElseThrow();
+        Optional<SemType> distinctPart = distinctTypePart(result);
+        if (distinctPart.isPresent()) {
+            result = Core.intersect(result, distinctPart.get());
+        }
+        return result;
+    }
+
+    private Optional<SemType> distinctTypePart(SemType result) {
+        if (Core.isSubtypeSimple(result, Builder.getErrorType())) {
+            BErrorType effectiveErrorType = (BErrorType) getImpliedType(effectiveType);
+            DistinctIdSupplier distinctIdSupplier =
+                    new DistinctIdSupplier(TypeChecker.context().env, effectiveErrorType.getTypeIdSet());
+            return distinctIdSupplier.get().stream().map(ErrorUtils::errorDistinct).reduce(Core::intersect);
+        } else if (Core.isSubtypeSimple(result, Builder.getObjectType())) {
+            BObjectType effectiveObjectType = (BObjectType) getImpliedType(effectiveType);
+            DistinctIdSupplier distinctIdSupplier =
+                    new DistinctIdSupplier(TypeChecker.context().env, effectiveObjectType.getTypeIdSet());
+            return distinctIdSupplier.get().stream().map(ObjectDefinition::distinct).reduce(Core::intersect);
+        }
+        return Optional.empty();
+    }
+
+    @Override
+    public Optional<SemType> shapeOf(Context cx, ShapeSupplier shapeSupplierFn, Object object) {
+        Type effectiveType = getEffectiveType();
+        if (effectiveType instanceof TypeWithShape typeWithShape) {
+            return typeWithShape.shapeOf(cx, shapeSupplierFn, object);
+        }
+        return Optional.empty();
+    }
+
+    @Override
+    public Optional<SemType> acceptedTypeOf(Context cx) {
+        return Optional.of(createSemTypeInner(type -> ShapeAnalyzer.acceptedTypeOf(cx, type).orElseThrow()));
+    }
+
+    @Override
+    public Optional<SemType> inherentTypeOf(Context cx, ShapeSupplier shapeSupplier, Object object) {
+        Type effectiveType = getEffectiveType();
+        if (effectiveType instanceof TypeWithShape typeWithShape) {
+            return typeWithShape.inherentTypeOf(cx, shapeSupplier, object);
+        }
+        return Optional.empty();
+    }
+
+    @Override
+    public boolean couldInherentTypeBeDifferent() {
+        return true;
+    }
+
 }

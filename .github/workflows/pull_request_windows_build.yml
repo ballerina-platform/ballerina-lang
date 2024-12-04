@@ -15,6 +15,9 @@ on:
       - native-build
       - revert-client-decl-master
       - query-grouping-aggregation
+      - java21
+      - nutcracker
+
 jobs:
   windows_build:
     name: Build with some tests on Windows
