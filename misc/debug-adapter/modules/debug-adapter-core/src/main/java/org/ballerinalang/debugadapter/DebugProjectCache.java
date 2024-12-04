@@ -52,20 +52,8 @@ public class DebugProjectCache {
     public Project getProject(Path filePath) {
         Map.Entry<ProjectKind, Path> projectKindAndRoot = computeProjectKindAndRoot(filePath);
         Path projectRoot = projectKindAndRoot.getValue();
-        if (!loadedProjects.containsKey(projectRoot)) {
-            addProject(loadProject(filePath.toAbsolutePath().toString()));
-        }
-        return loadedProjects.get(projectRoot);
-    }
 
-    /**
-     * Adds the given project instance into the cache.
-     *
-     * @param project project instance.
-     */
-    public void addProject(Project project) {
-        Path projectSourceRoot = project.sourceRoot().toAbsolutePath();
-        loadedProjects.put(projectSourceRoot, project);
+        return loadedProjects.computeIfAbsent(projectRoot, key -> loadProject(projectKindAndRoot));
     }
 
     /**
@@ -78,13 +66,10 @@ public class DebugProjectCache {
     /**
      * Loads the target ballerina source project instance using the Project API, from the file path of the open/active
      * editor instance in the client(plugin) side.
-     *
-     * @param filePath file path of the open/active editor instance in the plugin side.
      */
-    private static Project loadProject(String filePath) {
-        Map.Entry<ProjectKind, Path> projectKindAndProjectRootPair = computeProjectKindAndRoot(Path.of(filePath));
-        ProjectKind projectKind = projectKindAndProjectRootPair.getKey();
-        Path projectRoot = projectKindAndProjectRootPair.getValue();
+    private static Project loadProject(Map.Entry<ProjectKind, Path> projectKindAndRoot) {
+        ProjectKind projectKind = projectKindAndRoot.getKey();
+        Path projectRoot = projectKindAndRoot.getValue();
         BuildOptions options = BuildOptions.builder().setOffline(true).build();
         if (projectKind == ProjectKind.BUILD_PROJECT) {
             return BuildProject.load(projectRoot, options);
