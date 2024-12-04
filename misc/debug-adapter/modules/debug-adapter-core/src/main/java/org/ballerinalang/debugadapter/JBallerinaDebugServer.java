@@ -266,7 +266,7 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
     public CompletableFuture<Void> launch(Map<String, Object> args) {
         try {
             clientConfigHolder = new ClientLaunchConfigHolder(args);
-            launchDebuggee();
+            launchDebuggeeProgram();
             return CompletableFuture.completedFuture(null);
         } catch (Exception e) {
             outputLogger.sendErrorOutput("Failed to launch the ballerina program due to: " + e);
@@ -453,7 +453,7 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
 
         try {
             resetServer();
-            launchDebuggee();
+            launchDebuggeeProgram();
             return CompletableFuture.completedFuture(null);
         } catch (Throwable e) {
             outputLogger.sendErrorOutput("Failed to restart the ballerina program due to: " + e);
@@ -461,7 +461,7 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
         }
     }
 
-    private void launchDebuggee() throws Exception {
+    private void launchDebuggeeProgram() throws Exception {
         context.setDebugMode(ExecutionContext.DebugMode.LAUNCH);
         Project sourceProject = context.getProjectCache().getProject(Path.of(clientConfigHolder.getSourcePath()));
         context.setSourceProject(sourceProject);
@@ -660,17 +660,31 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
     /**
      * Terminates the debug server.
      *
-     * @param terminateDebuggee indicates whether the remote VM should also be terminated
-     * @param enableClientLogs  indicates whether the debug server logs should be sent to the client
+     * @param shouldTerminateDebuggee indicates whether the remote VM should also be terminated
+     * @param enableClientLogs        indicates whether the debug server logs should be sent to the client
      */
-    void terminateDebugSession(boolean terminateDebuggee, boolean enableClientLogs) {
+    void terminateDebugSession(boolean shouldTerminateDebuggee, boolean enableClientLogs) {
         // Destroys launched process, if presents.
         if (context.getLaunchedProcess().isPresent() && context.getLaunchedProcess().get().isAlive()) {
             killProcessWithDescendants(context.getLaunchedProcess().get());
         }
-        // Destroys remote VM process, if `terminateDebuggee' flag is set.
-        if (terminateDebuggee) {
-            terminateDebuggee(enableClientLogs);
+        // Destroys remote VM process, if `shouldTerminateDebuggee' flag is set.
+        if (shouldTerminateDebuggee) {
+            terminateDebuggee();
+        }
+
+        // If 'terminationRequestReceived' is false, debug server termination should have been triggered from the
+        // JDI event processor, after receiving a 'VMDisconnected'/'VMExited' event.
+        if (!context.isTerminateRequestReceived()) {
+            ExitedEventArguments exitedEventArguments = new ExitedEventArguments();
+            exitedEventArguments.setExitCode(0);
+            context.getClient().exited(exitedEventArguments);
+        }
+
+        // Notifies user.
+        if (executionManager != null && enableClientLogs) {
+            outputLogger.sendDebugServerOutput(String.format(System.lineSeparator() + "Disconnected from the target " +
+                    "VM, address: '%s'", executionManager.getRemoteVMAddress()));
         }
 
         // Exits from the debug server VM.
@@ -683,7 +697,7 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
     /**
      * Terminates the debuggee VM.
      */
-    private void terminateDebuggee(boolean logsEnabled) {
+    private void terminateDebuggee() {
         if (Objects.isNull(context.getDebuggeeVM())) {
             return;
         }
@@ -696,20 +710,6 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
             context.getDebuggeeVM().exit(exitCode);
         } catch (Exception ignored) {
             // It is okay to ignore the VM exit Exceptions, in-case the remote debuggee is already terminated.
-        }
-
-        // If 'terminationRequestReceived' is false, debug server termination should have been triggered from the
-        // JDI event processor, after receiving a 'VMDisconnected'/'VMExited' event.
-        if (!context.isTerminateRequestReceived()) {
-            ExitedEventArguments exitedEventArguments = new ExitedEventArguments();
-            exitedEventArguments.setExitCode(0);
-            context.getClient().exited(exitedEventArguments);
-        }
-
-        // Notifies user.
-        if (executionManager != null && logsEnabled) {
-            outputLogger.sendDebugServerOutput(String.format(System.lineSeparator() + "Disconnected from the target " +
-                    "VM, address: '%s'", executionManager.getRemoteVMAddress()));
         }
     }
 
@@ -1236,7 +1236,7 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
     private void resetServer() {
         eventProcessor.reset();
         outputLogger.reset();
-        terminateDebuggee(false);
+        terminateDebuggee();
         clearSuspendedState();
         context.reset();
     }
