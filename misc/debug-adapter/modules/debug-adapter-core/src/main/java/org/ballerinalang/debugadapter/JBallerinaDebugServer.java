@@ -455,8 +455,9 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
             resetServer();
             launchDebuggeeProgram();
             return CompletableFuture.completedFuture(null);
-        } catch (Throwable e) {
-            outputLogger.sendErrorOutput("Failed to restart the ballerina program due to: " + e);
+        } catch (Exception e) {
+            LOGGER.error("Failed to restart the ballerina program due to: " + e.getMessage(), e);
+            outputLogger.sendErrorOutput("Failed to restart the ballerina program");
             return CompletableFuture.completedFuture(null);
         }
     }
@@ -668,7 +669,7 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
         if (context.getLaunchedProcess().isPresent() && context.getLaunchedProcess().get().isAlive()) {
             killProcessWithDescendants(context.getLaunchedProcess().get());
         }
-        // Destroys remote VM process, if `shouldTerminateDebuggee' flag is set.
+        // Destroys remote VM process, if 'shouldTerminateDebuggee' flag is set.
         if (shouldTerminateDebuggee) {
             terminateDebuggee();
         }
