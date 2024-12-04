@@ -96,9 +96,7 @@ public class JDIEventProcessor {
                         processEvent(eventSet, eventIterator.next());
                     }
                 } catch (Exception e) {
-                    LOGGER.error(e.getMessage(), e);
-                    // Break the loop on serious errors
-                    break;
+                    LOGGER.error("Error occurred while processing JDI events.", e);
                 }
             }
 
