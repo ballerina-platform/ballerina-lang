@@ -17,6 +17,12 @@
  */
 package io.ballerina.projects.test.resolution.packages.internal;
 
+import guru.nidi.graphviz.attribute.ForGraph;
+import guru.nidi.graphviz.attribute.Label;
+import guru.nidi.graphviz.model.Link;
+import guru.nidi.graphviz.model.MutableAttributed;
+import guru.nidi.graphviz.model.MutableGraph;
+import guru.nidi.graphviz.model.MutableNode;
 import io.ballerina.projects.DependencyManifest;
 import io.ballerina.projects.DependencyResolutionType;
 import io.ballerina.projects.ModuleName;
@@ -25,11 +31,16 @@ import io.ballerina.projects.PackageDescriptor;
 import io.ballerina.projects.PackageName;
 import io.ballerina.projects.PackageOrg;
 import io.ballerina.projects.PackageVersion;
+import io.ballerina.projects.SemanticVersion;
 import io.ballerina.projects.environment.ModuleLoadRequest;
+import io.ballerina.projects.internal.index.IndexDependency;
+import io.ballerina.projects.internal.index.IndexPackage;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * Contains utility methods used throughout the test framework.
@@ -76,6 +87,24 @@ public final class Utils {
                     "should have <org>/<module-name> format");
         }
         return new ModuleLoadRequest(PackageOrg.from(split[0]), split[1], scope, resolutionType);
+    }
+
+    public static IndexPackage getIndexPkgFromNode(Label name, MutableAttributed<MutableGraph, ForGraph> attrs, Collection<MutableNode> nodes) {
+        PackageDescriptor descriptor = getPkgDescFromNode(name.toString());
+        String balVersionStr = "2201.0.0";
+        if (attrs.get("ballerinaVersion") != null) {
+            balVersionStr = Objects.requireNonNull(attrs.get("ballerinaVersion")).toString();
+        }
+        SemanticVersion ballerinaVersion = SemanticVersion.from(balVersionStr);
+        List<IndexDependency> dependencies = new ArrayList<>();
+
+        for (MutableNode node: nodes) {
+            for (Link link : node.links()) {
+                String dependency = link.to().name().toString();
+                dependencies.add(IndexDependency.from(getPkgDescFromNode(dependency)));
+            }
+        }
+        return IndexPackage.from(descriptor, ballerinaVersion, dependencies);
     }
 
     public static PackageDescriptor getPkgDescFromNode(String name, String repo) {

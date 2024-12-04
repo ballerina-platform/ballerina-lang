@@ -89,4 +89,5 @@ module io.ballerina.lang {
             io.ballerina.language.server.core;
     exports io.ballerina.projects.plugins.completion;
     exports io.ballerina.projects.buildtools;
+    exports io.ballerina.projects.internal.index to io.ballerina.cli;
 }
