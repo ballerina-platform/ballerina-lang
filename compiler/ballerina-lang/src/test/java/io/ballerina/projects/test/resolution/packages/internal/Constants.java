@@ -31,6 +31,7 @@ public final class Constants {
     public static final String LOCAL_REPO_DIR_NAME = "local";
     public static final String DEPS_TOML_FILE_NAME = "Dependencies_toml.dot";
     public static final String BAL_TOML_FILE_NAME = "Ballerina_toml.dot";
+    public static final String INDEX_FILE_NAME = "index.dot";
     public static final String EXP_GRAPH_STICKY_FILE_NAME = "expected-graph-sticky.dot";
     public static final String EXP_GRAPH_NO_STICKY_FILE_NAME = "expected-graph-nosticky.dot";
 

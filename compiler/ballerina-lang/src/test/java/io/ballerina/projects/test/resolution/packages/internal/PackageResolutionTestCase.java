@@ -26,6 +26,7 @@ import io.ballerina.projects.internal.BlendedManifest;
 import io.ballerina.projects.internal.ModuleResolver;
 import io.ballerina.projects.internal.ResolutionEngine;
 import io.ballerina.projects.internal.ResolutionEngine.DependencyNode;
+import io.ballerina.projects.internal.index.Index;
 
 import java.util.Collection;
 
@@ -40,6 +41,7 @@ public class PackageResolutionTestCase {
     private final BlendedManifest blendedManifest;
     private final PackageResolver packageResolver;
     private final ModuleResolver moduleResolver;
+    private final Index index;
     private final Collection<ModuleLoadRequest> moduleLoadRequests;
     private final DependencyGraph<DependencyNode> expectedGraphSticky;
     private final DependencyGraph<DependencyNode> expectedGraphNoSticky;
@@ -48,6 +50,7 @@ public class PackageResolutionTestCase {
                                      BlendedManifest blendedManifest,
                                      PackageResolver packageResolver,
                                      ModuleResolver moduleResolver,
+                                     Index index,
                                      Collection<ModuleLoadRequest> moduleLoadRequests,
                                      DependencyGraph<DependencyNode> expectedGraphSticky,
                                      DependencyGraph<DependencyNode> expectedGraphNoSticky) {
@@ -55,6 +58,7 @@ public class PackageResolutionTestCase {
         this.blendedManifest = blendedManifest;
         this.packageResolver = packageResolver;
         this.moduleResolver = moduleResolver;
+        this.index = index;
         this.moduleLoadRequests = moduleLoadRequests;
         this.expectedGraphSticky = expectedGraphSticky;
         this.expectedGraphNoSticky = expectedGraphNoSticky;
@@ -63,7 +67,7 @@ public class PackageResolutionTestCase {
     public DependencyGraph<DependencyNode> execute(boolean sticky) {
         ResolutionOptions options = ResolutionOptions.builder().setOffline(true).setSticky(sticky).build();
         ResolutionEngine resolutionEngine = new ResolutionEngine(rootPkgDesc, blendedManifest,
-                packageResolver, moduleResolver, options);
+                packageResolver, moduleResolver, options, index, true);
         return resolutionEngine.resolveDependencies(moduleLoadRequests);
     }
 
