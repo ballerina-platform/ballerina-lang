@@ -51,6 +51,7 @@ import org.ballerinalang.debugadapter.runner.BPackageRunner;
 import org.ballerinalang.debugadapter.runner.BProgramRunner;
 import org.ballerinalang.debugadapter.runner.BSingleFileRunner;
 import org.ballerinalang.debugadapter.utils.PackageUtils;
+import org.ballerinalang.debugadapter.utils.ServerUtils;
 import org.ballerinalang.debugadapter.variable.BCompoundVariable;
 import org.ballerinalang.debugadapter.variable.BSimpleVariable;
 import org.ballerinalang.debugadapter.variable.BVariable;
@@ -83,7 +84,6 @@ import org.eclipse.lsp4j.debug.ScopesResponse;
 import org.eclipse.lsp4j.debug.SetBreakpointsArguments;
 import org.eclipse.lsp4j.debug.SetBreakpointsResponse;
 import org.eclipse.lsp4j.debug.SetExceptionBreakpointsArguments;
-import org.eclipse.lsp4j.debug.Source;
 import org.eclipse.lsp4j.debug.SourceArguments;
 import org.eclipse.lsp4j.debug.SourceBreakpoint;
 import org.eclipse.lsp4j.debug.SourceResponse;
@@ -132,10 +132,13 @@ import static org.ballerinalang.debugadapter.completion.util.CompletionUtil.getR
 import static org.ballerinalang.debugadapter.completion.util.CompletionUtil.getTriggerCharacters;
 import static org.ballerinalang.debugadapter.completion.util.CompletionUtil.getVisibleSymbolCompletions;
 import static org.ballerinalang.debugadapter.completion.util.CompletionUtil.triggerCharactersFound;
-import static org.ballerinalang.debugadapter.utils.PackageUtils.BAL_FILE_EXT;
 import static org.ballerinalang.debugadapter.utils.PackageUtils.GENERATED_VAR_PREFIX;
 import static org.ballerinalang.debugadapter.utils.PackageUtils.INIT_CLASS_NAME;
 import static org.ballerinalang.debugadapter.utils.PackageUtils.getQualifiedClassName;
+import static org.ballerinalang.debugadapter.utils.ServerUtils.isBalStackFrame;
+import static org.ballerinalang.debugadapter.utils.ServerUtils.isBalStrand;
+import static org.ballerinalang.debugadapter.utils.ServerUtils.isNoDebugMode;
+import static org.ballerinalang.debugadapter.utils.ServerUtils.toBalBreakpoint;
 
 /**
  * JBallerina debug server implementation.
@@ -178,7 +181,7 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
         return context;
     }
 
-    ClientConfigHolder getClientConfigHolder() {
+    public ClientConfigHolder getClientConfigHolder() {
         return clientConfigHolder;
     }
 
@@ -221,12 +224,13 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
     public CompletableFuture<SetBreakpointsResponse> setBreakpoints(SetBreakpointsArguments args) {
         return CompletableFuture.supplyAsync(() -> {
             SetBreakpointsResponse bpResponse = new SetBreakpointsResponse();
-            if (isNoDebugMode()) {
+            if (isNoDebugMode(context)) {
                 return bpResponse;
             }
 
             BalBreakpoint[] balBreakpoints = Arrays.stream(args.getBreakpoints())
-                    .map((SourceBreakpoint sourceBreakpoint) -> toBalBreakpoint(sourceBreakpoint, args.getSource()))
+                    .map((SourceBreakpoint sourceBreakpoint) -> toBalBreakpoint(context, sourceBreakpoint,
+                            args.getSource()))
                     .toArray(BalBreakpoint[]::new);
 
             LinkedHashMap<Integer, BalBreakpoint> breakpointsMap = new LinkedHashMap<>();
@@ -345,7 +349,7 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
             } else {
                 StackFrame[] validFrames = activeThread.frames().stream()
                         .map(this::toDapStackFrame)
-                        .filter(JBallerinaDebugServer::isValidFrame)
+                        .filter(ServerUtils::isValidFrame)
                         .toArray(StackFrame[]::new);
                 stackTraceResponse.setStackFrames(validFrames);
                 threadStackTraces.put(activeThread.uniqueID(), validFrames);
@@ -785,13 +789,6 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
         }
     }
 
-    private BalBreakpoint toBalBreakpoint(SourceBreakpoint sourceBreakpoint, Source source) {
-        BalBreakpoint breakpoint = new BalBreakpoint(source, sourceBreakpoint.getLine());
-        breakpoint.setCondition(sourceBreakpoint.getCondition());
-        breakpoint.setLogMessage(sourceBreakpoint.getLogMessage());
-        return breakpoint;
-    }
-
     /**
      * Returns a map of all currently running threads in the remote VM, against their unique ID.
      * <p>
@@ -842,47 +839,6 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
             }
         });
         return balStrandThreads;
-    }
-
-    /**
-     * Validates whether the given DAP thread reference represents a ballerina strand.
-     * <p>
-     *
-     * @param threadReference DAP thread reference
-     * @return true if the given DAP thread reference represents a ballerina strand.
-     */
-    private static boolean isBalStrand(ThreadReference threadReference) {
-        // Todo - Refactor to use thread proxy implementation
-        try {
-            return isBalStackFrame(threadReference.frames().get(0));
-        } catch (Exception e) {
-            return false;
-        }
-    }
-
-    /**
-     * Validates whether the given DAP stack frame represents a ballerina call stack frame.
-     *
-     * @param frame DAP stack frame
-     * @return true if the given DAP stack frame represents a ballerina call stack frame.
-     */
-    static boolean isBalStackFrame(com.sun.jdi.StackFrame frame) {
-        // Todo - Refactor to use stack frame proxy implementation
-        try {
-            return frame.location().sourceName().endsWith(BAL_FILE_EXT);
-        } catch (Exception e) {
-            return false;
-        }
-    }
-
-    /**
-     * Validates a given ballerina stack frame for its source information.
-     *
-     * @param stackFrame ballerina stack frame
-     * @return true if its a valid ballerina frame
-     */
-    static boolean isValidFrame(StackFrame stackFrame) {
-        return stackFrame != null && stackFrame.getSource() != null && stackFrame.getLine() > 0;
     }
 
     /**
@@ -976,11 +932,6 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
             bpProcessor.activateDynamicBreakPoints(threadId, DynamicBreakpointMode.CURRENT, true);
         }
         context.setPrevInstruction(instruction);
-    }
-
-    private boolean isNoDebugMode() {
-        ClientConfigHolder confHolder = context.getAdapter().getClientConfigHolder();
-        return confHolder instanceof ClientLaunchConfigHolder launchConfigHolder && launchConfigHolder.isNoDebugMode();
     }
 
     private Variable[] computeGlobalScopeVariables(VariablesArguments requestArgs) {
