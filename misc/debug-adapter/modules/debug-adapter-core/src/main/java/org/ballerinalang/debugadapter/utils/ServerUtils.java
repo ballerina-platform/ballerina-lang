@@ -97,8 +97,8 @@ public class ServerUtils {
         breakpoint.setCondition(sourceBp.getCondition());
         breakpoint.setLogMessage(sourceBp.getLogMessage());
         // If the debug client doesn't support breakpoint verification, mark the breakpoint as verified by default.
-        if (!supportsBreakpointVerification(context)) {
-            breakpoint.setVerified(true);
+        if (supportsBreakpointVerification(context)) {
+            breakpoint.setSupportsVerification(true);
         }
 
         return breakpoint;
