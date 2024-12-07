@@ -90,6 +90,9 @@ dependencies {
     dist libs.ow2.asm.util
     dist libs.jackson.datatype.jsr310
 
+    // Following dependencies are required for lang-server
+    dist libs.sqlite.jdbc;
+
     // Following dependencies are required for transactions
     dist libs.atomikos.transactions.jta
     dist libs.atomikos.transactions.api

@@ -144,15 +144,10 @@ public class ExecutionContext {
     public void setSourceProject(Project sourceProject) {
         this.sourceProject = sourceProject;
         this.setSourceProjectRoot(sourceProject.sourceRoot().toAbsolutePath().toString());
-        updateProjectCache(sourceProject);
     }
 
     public DebugProjectCache getProjectCache() {
         return projectCache;
-    }
-
-    public void updateProjectCache(Project project) {
-        this.projectCache.addProject(project);
     }
 
     public String getSourceProjectRoot() {
@@ -169,6 +164,19 @@ public class ExecutionContext {
 
     public boolean getSupportsRunInTerminalRequest() {
         return supportsRunInTerminalRequest;
+    }
+
+    public void reset() {
+        this.projectCache.clear();
+        this.debugMode = null;
+        this.debuggeeVM = null;
+        this.prevLocation = null;
+        this.sourceProject = null;
+        this.launchedProcess = null;
+        this.sourceProjectRoot = null;
+        this.terminateRequestReceived = false;
+        this.supportsRunInTerminalRequest = false;
+        this.prevInstruction = DebugInstruction.CONTINUE;
     }
 
     /**

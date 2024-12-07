@@ -44,6 +44,7 @@ import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -57,22 +58,24 @@ public class JDIEventProcessor {
 
     private final ExecutionContext context;
     private final BreakpointProcessor breakpointProcessor;
-    private boolean isRemoteVmAttached = false;
+    private volatile boolean isRemoteVmAttached;
+    private volatile boolean interruptFlag;
     private final List<EventRequest> stepRequests = new CopyOnWriteArrayList<>();
     private static final List<ThreadReference> virtualThreads = new CopyOnWriteArrayList<>();
     private static final Logger LOGGER = LoggerFactory.getLogger(JDIEventProcessor.class);
 
+    private CompletableFuture<Void> listeningTask;
+
     JDIEventProcessor(ExecutionContext context) {
         this.context = context;
-        breakpointProcessor = new BreakpointProcessor(context, this);
+        this.breakpointProcessor = new BreakpointProcessor(context, this);
+        this.isRemoteVmAttached = true;
+        this.interruptFlag = false;
+        this.listeningTask = null;
     }
 
     BreakpointProcessor getBreakpointProcessor() {
         return breakpointProcessor;
-    }
-
-    List<EventRequest> getStepRequests() {
-        return stepRequests;
     }
 
     List<ThreadReference> getVirtualThreads() {
@@ -82,28 +85,50 @@ public class JDIEventProcessor {
     /**
      * Asynchronously listens and processes the incoming JDI events.
      */
-    void listenAsync() {
-        CompletableFuture.runAsync(() -> {
-            isRemoteVmAttached = true;
-            while (isRemoteVmAttached) {
+    void startListenAsync() {
+        // Store the future for potential cancellation
+        listeningTask = CompletableFuture.runAsync(() -> {
+            while (isRemoteVmAttached && !interruptFlag) {
                 try {
                     EventSet eventSet = context.getDebuggeeVM().eventQueue().remove();
                     EventIterator eventIterator = eventSet.eventIterator();
-                    while (eventIterator.hasNext() && isRemoteVmAttached) {
+                    while (eventIterator.hasNext() && isRemoteVmAttached && !interruptFlag) {
                         processEvent(eventSet, eventIterator.next());
                     }
                 } catch (Exception e) {
-                    LOGGER.error(e.getMessage(), e);
+                    LOGGER.error("Error occurred while processing JDI events.", e);
                 }
             }
-            // Tries terminating the debug server, only if there is no any termination requests received from the
-            // debug client.
-            if (!context.isTerminateRequestReceived()) {
-                // It is not required to terminate the debuggee (remote VM) in here, since it must be disconnected or
-                // dead by now.
-                context.getAdapter().terminateDebugServer(false, true);
-            }
+
+            cleanupAfterListening();
         });
+    }
+
+    /**
+     * Stops the async listening process.
+     *
+     * @param force if true, immediately stops listening;
+     *              if false, allows current event processing to complete
+     */
+    private void stopListening(boolean force) {
+        interruptFlag = true;
+        if (Objects.nonNull(listeningTask) && !listeningTask.isDone() && force) {
+            // Attempt to interrupt the task if possible
+            listeningTask.cancel(true);
+        }
+    }
+
+    /**
+     * Performs cleanup after listening stops.
+     */
+    private void cleanupAfterListening() {
+        if (!context.isTerminateRequestReceived() && !interruptFlag) {
+            // It is not required to terminate the debuggee (remote VM) at this point, since it must be disconnected or
+            // dead by now.
+            context.getAdapter().terminateDebugSession(false, true);
+        }
+        isRemoteVmAttached = true;
+        interruptFlag = false;
     }
 
     private void processEvent(EventSet eventSet, Event event) {
@@ -252,5 +277,11 @@ public class JDIEventProcessor {
         stoppedEventArguments.setThreadId((int) threadId);
         stoppedEventArguments.setAllThreadsStopped(true);
         context.getClient().stopped(stoppedEventArguments);
+    }
+
+    public void reset() {
+        stopListening(true);
+        stepRequests.clear();
+        virtualThreads.clear();
     }
 }

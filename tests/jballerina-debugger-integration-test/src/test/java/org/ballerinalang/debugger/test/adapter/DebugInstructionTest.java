@@ -131,7 +131,7 @@ public class DebugInstructionTest extends BaseTestCase {
         debugTestRunner.addBreakPoint(new BallerinaTestDebugPoint(mainFilePath, 18));
         debugTestRunner.initDebugSession(DebugUtils.DebuggeeExecutionKind.RUN);
         Pair<BallerinaTestDebugPoint, StoppedEventArguments> debugHitInfo = debugTestRunner.waitForDebugHit(25000);
-        Assert.assertEquals(debugHitInfo.getLeft(), new BallerinaTestDebugPoint(mainFilePath, 18));
+        Assert.assertEquals(debugHitInfo.getLeft(), debugTestRunner.testBreakpoints.get(0));
         Thread[] activeThreads = debugTestRunner.fetchThreads();
         if (activeThreads.length == 0) {
             throw new BallerinaTestException("Failed to retrieve active threads in the program VM");
@@ -153,6 +153,32 @@ public class DebugInstructionTest extends BaseTestCase {
         debugHitInfo = debugTestRunner.waitForDebugHit(15000);
         Assert.assertTrue(debugHitInfo.getLeft().equals(new BallerinaTestDebugPoint(mainFilePath, 20))
                 || debugHitInfo.getLeft().equals(new BallerinaTestDebugPoint(mainFilePath, 21)));
+    }
+
+    @Test(description = "Tests whether the debugger honors restart requests")
+    public void debugRestartTest() throws BallerinaTestException {
+        String testProjectName = "debug-instruction-tests-1";
+        String testModuleFileName = "main.bal";
+        debugTestRunner = new DebugTestRunner(testProjectName, testModuleFileName, true);
+        Path mainFilePath = debugTestRunner.testEntryFilePath;
+
+        debugTestRunner.addBreakPoint(new BallerinaTestDebugPoint(mainFilePath, 30));
+        debugTestRunner.addBreakPoint(new BallerinaTestDebugPoint(mainFilePath, 34));
+        debugTestRunner.initDebugSession(DebugUtils.DebuggeeExecutionKind.RUN);
+
+        // Initial debug hit
+        Pair<BallerinaTestDebugPoint, StoppedEventArguments> debugHitInfo = debugTestRunner.waitForDebugHit(15000);
+        Assert.assertEquals(debugHitInfo.getLeft(), debugTestRunner.testBreakpoints.get(0));
+
+        // Resume the program and hit the next debug point.
+        debugTestRunner.resumeProgram(debugHitInfo.getRight(), DebugTestRunner.DebugResumeKind.NEXT_BREAKPOINT);
+        debugHitInfo = debugTestRunner.waitForDebugHit(10000);
+        Assert.assertEquals(debugHitInfo.getLeft(), debugTestRunner.testBreakpoints.get(1));
+
+        // Restart the program and check whether the debugger hits the first debug point again.
+        debugTestRunner.restartProgram();
+        debugHitInfo = debugTestRunner.waitForDebugHit(15000);
+        Assert.assertEquals(debugHitInfo.getLeft(), debugTestRunner.testBreakpoints.get(0));
     }
 
     @Override
