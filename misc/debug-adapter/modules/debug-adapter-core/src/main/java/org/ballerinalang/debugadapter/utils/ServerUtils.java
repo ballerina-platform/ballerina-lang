@@ -30,6 +30,8 @@ import static org.ballerinalang.debugadapter.utils.PackageUtils.BAL_FILE_EXT;
 
 /**
  * Ballerina debug server related utility functions.
+ *
+ * @since 2201.11.0
  */
 public class ServerUtils {
 
