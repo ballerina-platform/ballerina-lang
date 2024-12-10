@@ -35,6 +35,7 @@ import com.sun.jdi.request.StepRequest;
 import org.ballerinalang.debugadapter.breakpoint.BalBreakpoint;
 import org.ballerinalang.debugadapter.jdi.StackFrameProxyImpl;
 import org.ballerinalang.debugadapter.jdi.ThreadReferenceProxyImpl;
+import org.ballerinalang.debugadapter.utils.ServerUtils;
 import org.eclipse.lsp4j.debug.ContinuedEventArguments;
 import org.eclipse.lsp4j.debug.StoppedEventArguments;
 import org.eclipse.lsp4j.debug.StoppedEventArgumentsReason;
@@ -48,8 +49,8 @@ import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-import static org.ballerinalang.debugadapter.JBallerinaDebugServer.isBalStackFrame;
 import static org.ballerinalang.debugadapter.utils.PackageUtils.BAL_FILE_EXT;
+import static org.ballerinalang.debugadapter.utils.ServerUtils.isBalStackFrame;
 
 /**
  * JDI Event processor implementation.
@@ -226,7 +227,7 @@ public class JDIEventProcessor {
                 if (balStackFrame.getAsDAPStackFrame().isEmpty()) {
                     continue;
                 }
-                if (JBallerinaDebugServer.isValidFrame(balStackFrame.getAsDAPStackFrame().get())) {
+                if (ServerUtils.isValidFrame(balStackFrame.getAsDAPStackFrame().get())) {
                     validFrames.add(balStackFrame);
                 }
             } catch (Exception ignored) {

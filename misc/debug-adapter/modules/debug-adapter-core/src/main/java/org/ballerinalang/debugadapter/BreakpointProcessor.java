@@ -54,6 +54,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 import static org.ballerinalang.debugadapter.utils.PackageUtils.getQualifiedClassName;
+import static org.ballerinalang.debugadapter.utils.ServerUtils.supportsBreakpointVerification;
 
 /**
  * Implementation of Ballerina breakpoint processor. The existing implementation is capable of processing advanced
@@ -202,7 +203,7 @@ public class BreakpointProcessor {
                     bpReq.enable();
 
                     // verifies the breakpoint reachability and notifies the client if required.
-                    if (!breakpoint.isVerified()) {
+                    if (supportsBreakpointVerification(context) && !breakpoint.isVerified()) {
                         breakpoint.setVerified(true);
                         if (shouldNotify) {
                             notifyBreakPointChangesToClient(breakpoint);
