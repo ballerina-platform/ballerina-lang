@@ -19,11 +19,7 @@
 package io.ballerina.runtime.internal;
 
 import io.ballerina.runtime.api.Future;
-import io.ballerina.runtime.api.PredefinedTypes;
-import io.ballerina.runtime.api.creators.ErrorCreator;
-import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.internal.scheduling.Strand;
-import io.ballerina.runtime.internal.values.MapValueImpl;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -43,8 +39,7 @@ public class BalFuture extends Future {
     @Override
     public void complete(Object returnValue) {
         if (visited.getAndSet(true)) {
-            throw ErrorCreator.createError(StringUtils.fromString("cannot complete the same future twice."),
-                                           new MapValueImpl<>(PredefinedTypes.TYPE_ERROR_DETAIL));
+            throw new IllegalStateException("cannot complete the same future twice.");
         }
         strand.returnValue = returnValue;
         strand.scheduler.unblockStrand(strand);
