@@ -39,7 +39,7 @@ import static org.ballerinalang.debugadapter.utils.PackageUtils.BAL_FILE_EXT;
  */
 public class ServerUtils {
 
-    private static final String START_FAST_RUN = "startFastRun";
+    private static final String FAST_RUN_NOTIFICATION_NAME = "startFastRun";
 
     /**
      * Checks whether the debug server should run in no-debug mode.
@@ -56,6 +56,12 @@ public class ServerUtils {
         }
     }
 
+    /**
+     * Checks whether the fast-run mode is enabled in the connected debug client.
+     *
+     * @param context debug context
+     * @return true if the debug mode is fast-run mode
+     */
     public static boolean isFastRunEnabled(ExecutionContext context) {
         try {
             Optional<ClientConfigHolder.ExtendedClientCapabilities> extendedCapabilities =
@@ -150,8 +156,8 @@ public class ServerUtils {
      */
     public static void sendFastRunNotification(ExecutionContext context, int port) {
         Endpoint endPoint = new GenericEndpoint(context.getClient());
-        FastRunArguments arguments = new FastRunArguments(port);
-        endPoint.notify(START_FAST_RUN, arguments);
+        FastRunArgs arguments = new FastRunArgs(port);
+        endPoint.notify(FAST_RUN_NOTIFICATION_NAME, arguments);
     }
 
     /**
@@ -169,9 +175,11 @@ public class ServerUtils {
     }
 
     /**
-     * Represents the arguments of the 'restarted' notification.
+     * Represents the arguments of the 'startFastRun' notification.
+     *
+     * @param port port number to start the fast-run
      */
-    public record FastRunArguments(int port) {
+    public record FastRunArgs(int port) {
 
     }
 }

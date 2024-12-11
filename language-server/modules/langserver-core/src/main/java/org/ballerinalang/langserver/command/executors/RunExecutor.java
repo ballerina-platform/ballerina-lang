@@ -49,13 +49,13 @@ public class RunExecutor implements LSCommandExecutor {
             RunContext.Builder builder = new RunContext.Builder(extractPath(context));
             builder.withProgramArgs(extractProgramArgs(context));
             int debugPort = extractDebugArgs(context);
-            if (debugPort > 0) {
+            if (debugPort >= 0) {
                 builder.withDebugPort(debugPort);
             }
-            // TODO handle env vars
+            // TODO: handle env vars
 
-            RunContext RunContext = builder.build();
-            Optional<Process> processOpt = context.workspace().run(RunContext);
+            RunContext runContext = builder.build();
+            Optional<Process> processOpt = context.workspace().run(runContext);
             if (processOpt.isEmpty()) {
                 return false;
             }

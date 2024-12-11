@@ -30,12 +30,12 @@ import java.util.concurrent.CompletableFuture;
 public interface BallerinaExtendedDebugServer extends IDebugProtocolServer {
 
     /**
-     * Custom request to send the program output from the remote VM (initiated by the debug client) to the debug server.
-     * This extension is specifically used in the fast-run mode to forward the program output to the debug adapter,
-     * to be sent to the client.
+     * Custom request to forward the program output from the remote VM (initiated by the debug client) to the debug
+     * server. This extension is specifically designed for fast-run mode, enabling the debug adapter to forward the
+     * program output to the client.
      *
-     * @param arguments output event arguments
-     * @return completable future
+     * @param arguments the output event arguments
+     * @return a CompletableFuture representing the completion of the request
      */
     @JsonRequest
     CompletableFuture<Void> output(OutputEventArguments arguments);
