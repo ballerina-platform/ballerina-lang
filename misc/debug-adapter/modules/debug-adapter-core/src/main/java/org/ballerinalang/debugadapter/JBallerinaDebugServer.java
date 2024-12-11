@@ -619,7 +619,7 @@ public class JBallerinaDebugServer implements BallerinaExtendedDebugServer {
         return CompletableFuture.completedFuture(null);
     }
 
-    @JsonRequest
+    @Override
     public CompletableFuture<Void> output(OutputEventArguments arguments) {
         switch (arguments.getCategory()) {
             case OutputEventArgumentsCategory.STDOUT -> outputLogger.sendProgramOutput(arguments.getOutput());
