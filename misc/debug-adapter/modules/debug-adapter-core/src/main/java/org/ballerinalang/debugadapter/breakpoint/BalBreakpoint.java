@@ -40,6 +40,7 @@ public class BalBreakpoint {
     private String condition;
     private LogMessage logMessage;
     private boolean isVerified;
+    private boolean supportsVerification;
 
     private static final AtomicInteger nextID = new AtomicInteger(0);
 
@@ -48,6 +49,7 @@ public class BalBreakpoint {
         this.source = source;
         this.line = line;
         this.isVerified = false;
+        this.supportsVerification = false;
     }
 
     public Integer getLine() {
@@ -91,11 +93,15 @@ public class BalBreakpoint {
         breakpoint.setId(id);
         breakpoint.setLine(line);
         breakpoint.setSource(source);
-        breakpoint.setVerified(isVerified);
+        breakpoint.setVerified(!supportsVerification || isVerified);
         return breakpoint;
     }
 
     private boolean isTemplate(String logMessage) {
         return logMessage != null && Pattern.compile(INTERPOLATION_REGEX).matcher(logMessage).find();
+    }
+
+    public void setSupportsVerification(boolean supportsVerification) {
+        this.supportsVerification = supportsVerification;
     }
 }
