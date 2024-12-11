@@ -110,12 +110,11 @@ public class DebugExecutionManager {
 
                 return attachedVm;
             } catch (IOException e) {
-                LOGGER.debug(String.format("Attachment attempt %d/%d failed: %s", attempt, maxAttempts, e.getMessage()));
+                LOGGER.debug(String.format("Attach attempt %d/%d failed: %s", attempt, maxAttempts, e.getMessage()));
                 try {
                     Thread.sleep(retryIntervalMs);
-                } catch (InterruptedException ie) {
-                    Thread.currentThread().interrupt();
-                    throw new IOException("Attachment interrupted", e);
+                } catch (InterruptedException ignored) {
+                    // ignored
                 }
             }
         }
