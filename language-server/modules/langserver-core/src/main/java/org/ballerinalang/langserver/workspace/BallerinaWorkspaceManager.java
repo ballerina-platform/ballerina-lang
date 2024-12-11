@@ -60,6 +60,7 @@ import org.ballerinalang.langserver.commons.LanguageServerContext;
 import org.ballerinalang.langserver.commons.client.ExtendedLanguageClient;
 import org.ballerinalang.langserver.commons.eventsync.EventKind;
 import org.ballerinalang.langserver.commons.eventsync.exceptions.EventSyncException;
+import org.ballerinalang.langserver.commons.workspace.RunContext;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentException;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceManager;
@@ -101,7 +102,6 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
-
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
@@ -588,8 +588,9 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
     }
 
     @Override
-    public Optional<Process> run(Path filePath, List<String> mainFuncArgs) throws IOException {
-        Optional<ProjectContext> projectPairOpt = projectContext(projectRoot(filePath));
+    public Optional<Process> run(RunContext context) throws IOException {
+        Path projectRoot = projectRoot(context.balSourcePath());
+        Optional<ProjectContext> projectPairOpt = projectContext(projectRoot);
         if (projectPairOpt.isEmpty()) {
             String msg = "Run command execution aborted because project is not loaded";
             UserErrorException e = new UserErrorException(msg);
@@ -629,10 +630,13 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
         commands.add(System.getProperty("java.command"));
         commands.add("-XX:+HeapDumpOnOutOfMemoryError");
         commands.add("-XX:HeapDumpPath=" + System.getProperty(USER_DIR));
+        if (context.debugPort() > 0) {
+            commands.add("-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=*:" + context.debugPort());
+        }
         commands.add("-cp");
         commands.add(getAllClassPaths(jarResolver));
         commands.add(initClassName);
-        commands.addAll(mainFuncArgs);
+        commands.addAll(context.programArgs());
         ProcessBuilder pb = new ProcessBuilder(commands);
 
         Lock lock = projectContext.lockAndGet();
@@ -669,7 +673,6 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
             lock.unlock();
         }
     }
-
 
     @Override
     public boolean stop(Path filePath) {
