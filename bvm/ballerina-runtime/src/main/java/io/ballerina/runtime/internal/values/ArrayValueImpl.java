@@ -614,7 +614,6 @@ public class ArrayValueImpl extends AbstractArrayValue {
     }
 
     public void addRefValue(long index, Object value) {
-        Type type = TypeChecker.getType(value);
         switch (this.elementReferredType.getTag()) {
             case TypeTags.BOOLEAN_TAG:
                 prepareForAdd(index, value, booleanValues.length);
@@ -662,27 +661,31 @@ public class ArrayValueImpl extends AbstractArrayValue {
 
     public void addInt(long index, long value) {
         if (intValues != null) {
-            prepareForAdd(index, value, intValues.length);
+            prepareForAddWithoutTypeCheck(index, intValues.length);
             intValues[(int) index] = value;
             return;
         }
-
-        prepareForAdd(index, value, byteValues.length);
+        if (!TypeChecker.isByteLiteral(value)) {
+            throw ErrorCreator.createError(getModulePrefixedReason(ARRAY_LANG_LIB,
+                    INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER), ErrorHelper.getErrorDetails(
+                    ErrorCodes.INCOMPATIBLE_TYPE, this.elementType, TypeChecker.getType(value)));
+        }
+        prepareForAddWithoutTypeCheck(index, byteValues.length);
         byteValues[(int) index] = (byte) ((Long) value).intValue();
     }
 
     private void addBoolean(long index, boolean value) {
-        prepareForAdd(index, value, booleanValues.length);
+        prepareForAddWithoutTypeCheck(index, booleanValues.length);
         booleanValues[(int) index] = value;
     }
 
     private void addByte(long index, byte value) {
-        prepareForAdd(index, value, byteValues.length);
+        prepareForAddWithoutTypeCheck(index, byteValues.length);
         byteValues[(int) index] = value;
     }
 
     private void addFloat(long index, double value) {
-        prepareForAdd(index, value, floatValues.length);
+        prepareForAddWithoutTypeCheck(index, floatValues.length);
         floatValues[(int) index] = value;
     }
 
@@ -692,7 +695,7 @@ public class ArrayValueImpl extends AbstractArrayValue {
     }
 
     private void addBString(long index, BString value) {
-        prepareForAdd(index, value, bStringValues.length);
+        prepareForAddWithoutTypeCheck(index, bStringValues.length);
         bStringValues[(int) index] = value;
     }
 
