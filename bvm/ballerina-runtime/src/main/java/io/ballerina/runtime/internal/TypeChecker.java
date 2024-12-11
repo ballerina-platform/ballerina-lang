@@ -257,12 +257,15 @@ public final class TypeChecker {
      * @return true if the value belongs to the given type, false otherwise
      */
     public static boolean checkIsType(Object sourceVal, Type targetType) {
-        Context cx = context();
         Type sourceType = getType(sourceVal);
+        if (sourceType == targetType || (sourceType.getTag() == targetType.getTag() && sourceType.equals(targetType))) {
+            return true;
+        }
         if (isSubType(sourceType, targetType)) {
             return true;
         }
         SemType sourceSemType = SemType.tryInto(sourceType);
+        Context cx = context();
         return couldInherentTypeBeDifferent(sourceSemType) &&
                 isSubTypeWithInherentType(cx, sourceVal, SemType.tryInto(targetType));
     }
