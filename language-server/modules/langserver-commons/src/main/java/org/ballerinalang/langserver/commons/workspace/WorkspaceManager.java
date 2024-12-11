@@ -239,12 +239,13 @@ public interface WorkspaceManager {
 
     /**
      * Compiles and runs the project of the given file path. Run happens in a separate process.
-     * @param filePath Path that belongs to the project to be run.
+     *
+     * @param runContext context related to the project to be run.
      * @return Process created by running the project. Empty if failed due to non process related issues.
      * @throws IOException If failed to start the process.
      * @since 2201.6.0
      */
-    Optional<Process> run(Path filePath, List<String> mainFuncArgs) throws IOException;
+    Optional<Process> run(RunContext runContext) throws IOException;
 
     /**
      * Stop a running process started with {@link #run}.

@@ -22,6 +22,7 @@ import org.ballerinalang.langserver.commons.ExecuteCommandContext;
 import org.ballerinalang.langserver.commons.client.ExtendedLanguageClient;
 import org.ballerinalang.langserver.commons.command.LSCommandExecutorException;
 import org.ballerinalang.langserver.commons.command.spi.LSCommandExecutor;
+import org.ballerinalang.langserver.commons.workspace.RunContext;
 import org.eclipse.lsp4j.LogTraceParams;
 
 import java.io.IOException;
@@ -45,8 +46,16 @@ public class RunExecutor implements LSCommandExecutor {
     @Override
     public Boolean execute(ExecuteCommandContext context) throws LSCommandExecutorException {
         try {
-            Optional<Process> processOpt = context.workspace().run(extractPath(context),
-                    extractMainFunctionArgs(context));
+            RunContext.Builder builder = new RunContext.Builder(extractPath(context));
+            builder.withProgramArgs(extractProgramArgs(context));
+            int debugPort = extractDebugArgs(context);
+            if (debugPort > 0) {
+                builder.withDebugPort(debugPort);
+            }
+            // TODO handle env vars
+
+            RunContext RunContext = builder.build();
+            Optional<Process> processOpt = context.workspace().run(RunContext);
             if (processOpt.isEmpty()) {
                 return false;
             }
@@ -60,17 +69,25 @@ public class RunExecutor implements LSCommandExecutor {
     }
 
     private static Path extractPath(ExecuteCommandContext context) {
-        return Path.of(context.getArguments().get(0).<JsonPrimitive>value().getAsString());
+        return Path.of(context.getArguments().getFirst().<JsonPrimitive>value().getAsString());
     }
 
-    private static List<String> extractMainFunctionArgs(ExecuteCommandContext context) {
+    private int extractDebugArgs(ExecuteCommandContext context) {
+        return context.getArguments().stream()
+                .filter(commandArg -> commandArg.key().equals("debugPort"))
+                .map(commandArg -> commandArg.<JsonPrimitive>value().getAsInt())
+                .findAny()
+                .orElse(-1);
+    }
+
+    private static List<String> extractProgramArgs(ExecuteCommandContext context) {
         List<String> args = new ArrayList<>();
-        if (context.getArguments().size() == 1) {
+        if (context.getArguments().size() <= 2) {
             return args;
         }
-        context.getArguments().get(1).<JsonArray>value().getAsJsonArray().iterator().forEachRemaining(arg -> {
-            args.add(arg.getAsString());
-        });
+        context.getArguments().get(2).<JsonArray>value().getAsJsonArray().iterator()
+                .forEachRemaining(arg -> args.add(arg.getAsString()));
+
         return args;
     }
 
