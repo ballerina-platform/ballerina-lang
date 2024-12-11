@@ -74,6 +74,8 @@ import org.eclipse.lsp4j.debug.EvaluateResponse;
 import org.eclipse.lsp4j.debug.ExitedEventArguments;
 import org.eclipse.lsp4j.debug.InitializeRequestArguments;
 import org.eclipse.lsp4j.debug.NextArguments;
+import org.eclipse.lsp4j.debug.OutputEventArguments;
+import org.eclipse.lsp4j.debug.OutputEventArgumentsCategory;
 import org.eclipse.lsp4j.debug.PauseArguments;
 import org.eclipse.lsp4j.debug.RestartArguments;
 import org.eclipse.lsp4j.debug.RunInTerminalRequestArguments;
@@ -100,10 +102,10 @@ import org.eclipse.lsp4j.debug.Variable;
 import org.eclipse.lsp4j.debug.VariablesArguments;
 import org.eclipse.lsp4j.debug.VariablesResponse;
 import org.eclipse.lsp4j.debug.services.IDebugProtocolClient;
-import org.eclipse.lsp4j.debug.services.IDebugProtocolServer;
 import org.eclipse.lsp4j.jsonrpc.Endpoint;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.eclipse.lsp4j.jsonrpc.services.GenericEndpoint;
+import org.eclipse.lsp4j.jsonrpc.services.JsonRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -144,7 +146,7 @@ import static org.ballerinalang.debugadapter.utils.ServerUtils.toBalBreakpoint;
 /**
  * JBallerina debug server implementation.
  */
-public class JBallerinaDebugServer implements IDebugProtocolServer {
+public class JBallerinaDebugServer implements BallerinaExtendedDebugServer {
 
     private IDebugProtocolClient client;
     private ClientConfigHolder clientConfigHolder;
@@ -476,6 +478,8 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
         // re-attach to the new VM.
         if (isFastRunEnabled(context)) {
             int port = ServerUtils.findFreePort();
+            outputLogger.sendDebugServerOutput("Waiting for the debug process to start...%s%s"
+                    .formatted(System.lineSeparator(), System.lineSeparator()));
             ServerUtils.sendFastRunNotification(context, port);
             attachToRemoteVM(LOCAL_HOST, port);
         } else {
@@ -612,6 +616,17 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
     public CompletableFuture<Void> terminate(TerminateArguments args) {
         context.setTerminateRequestReceived(true);
         terminateDebugSession(true, true);
+        return CompletableFuture.completedFuture(null);
+    }
+
+    @JsonRequest
+    public CompletableFuture<Void> output(OutputEventArguments arguments) {
+        switch (arguments.getCategory()) {
+            case OutputEventArgumentsCategory.STDOUT -> outputLogger.sendProgramOutput(arguments.getOutput());
+            case OutputEventArgumentsCategory.STDERR -> outputLogger.sendErrorOutput(arguments.getOutput());
+            default -> {
+            }
+        }
         return CompletableFuture.completedFuture(null);
     }
 
@@ -882,8 +897,8 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
 
             try (BufferedReader inputStream = context.getInputStream()) {
                 String line;
-                outputLogger.sendDebugServerOutput("Waiting for debug process to start..." + System.lineSeparator()
-                        + System.lineSeparator());
+                outputLogger.sendDebugServerOutput("Waiting for the debug process to start...%s%s"
+                        .formatted(System.lineSeparator(), System.lineSeparator()));
                 while ((line = inputStream.readLine()) != null) {
                     if (line.contains("Listening for transport dt_socket")) {
                         attachToRemoteVM(LOCAL_HOST, clientConfigHolder.getDebuggePort());
