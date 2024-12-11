@@ -38,7 +38,7 @@ public record RunContext(Path balSourcePath, List<String> programArgs, Map<Strin
         private final Path sourcePath;
         private List<String> programArgs = new ArrayList<>();
         private Map<String, String> env = Map.of();
-        private Integer debugPort = -1;
+        private int debugPort = -1;
 
         public Builder(Path sourcePath) {
             this.sourcePath = sourcePath;
@@ -54,7 +54,7 @@ public record RunContext(Path balSourcePath, List<String> programArgs, Map<Strin
             return this;
         }
 
-        public Builder withDebugPort(Integer debugPort) {
+        public Builder withDebugPort(int debugPort) {
             this.debugPort = debugPort;
             return this;
         }
