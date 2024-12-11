@@ -23,8 +23,12 @@ import org.ballerinalang.debugadapter.config.ClientLaunchConfigHolder;
 import org.eclipse.lsp4j.debug.Source;
 import org.eclipse.lsp4j.debug.SourceBreakpoint;
 import org.eclipse.lsp4j.debug.StackFrame;
+import org.eclipse.lsp4j.jsonrpc.Endpoint;
+import org.eclipse.lsp4j.jsonrpc.services.GenericEndpoint;
 
+import java.net.ServerSocket;
 import java.util.Objects;
+import java.util.Optional;
 
 import static org.ballerinalang.debugadapter.utils.PackageUtils.BAL_FILE_EXT;
 
@@ -35,6 +39,8 @@ import static org.ballerinalang.debugadapter.utils.PackageUtils.BAL_FILE_EXT;
  */
 public class ServerUtils {
 
+    private static final String START_FAST_RUN = "startFastRun";
+
     /**
      * Checks whether the debug server should run in no-debug mode.
      *
@@ -42,8 +48,24 @@ public class ServerUtils {
      * @return true if the debug mode is no-debug mode
      */
     public static boolean isNoDebugMode(ExecutionContext context) {
-        ClientConfigHolder confHolder = context.getAdapter().getClientConfigHolder();
-        return confHolder instanceof ClientLaunchConfigHolder launchConfigHolder && launchConfigHolder.isNoDebugMode();
+        try {
+            ClientConfigHolder confHolder = context.getAdapter().getClientConfigHolder();
+            return confHolder instanceof ClientLaunchConfigHolder launchConfHolder && launchConfHolder.isNoDebugMode();
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    public static boolean isFastRunEnabled(ExecutionContext context) {
+        try {
+            Optional<ClientConfigHolder.ExtendedClientCapabilities> extendedCapabilities =
+                    context.getAdapter().getClientConfigHolder().getExtendedCapabilities();
+            return extendedCapabilities
+                    .map(ClientConfigHolder.ExtendedClientCapabilities::supportsFastRun)
+                    .orElse(false);
+        } catch (Exception e) {
+            return false;
+        }
     }
 
     /**
@@ -118,5 +140,38 @@ public class ServerUtils {
         return Objects.nonNull(configHolder) && configHolder.getExtendedCapabilities()
                 .map(ClientConfigHolder.ExtendedClientCapabilities::supportsBreakpointVerification)
                 .orElse(false);
+    }
+
+    /**
+     * Sends a custom notification to the debug client to trigger a fast-run.
+     *
+     * @param context debug context
+     * @param port    port number
+     */
+    public static void sendFastRunNotification(ExecutionContext context, int port) {
+        Endpoint endPoint = new GenericEndpoint(context.getClient());
+        FastRunArguments arguments = new FastRunArguments(port);
+        endPoint.notify(START_FAST_RUN, arguments);
+    }
+
+    /**
+     * Finds an available port.
+     *
+     * @return available port number.
+     */
+    public static int findFreePort() {
+        try (ServerSocket socket = new ServerSocket(0)) {
+            socket.setReuseAddress(true);
+            return socket.getLocalPort();
+        } catch (Exception e) {
+            throw new IllegalStateException("Could not find a free TCP/IP port to start debugging", e);
+        }
+    }
+
+    /**
+     * Represents the arguments of the 'restarted' notification.
+     */
+    public record FastRunArguments(int port) {
+
     }
 }
