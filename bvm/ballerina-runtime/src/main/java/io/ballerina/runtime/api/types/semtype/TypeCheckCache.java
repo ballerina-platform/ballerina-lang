@@ -29,9 +29,6 @@ public class TypeCheckCache<T extends Type> {
     }
 
     public Optional<Boolean> cachedTypeCheckResult(T other) {
-        if (other.equals(owner)) {
-            return Optional.of(true);
-        }
         return Optional.ofNullable(cachedResults.get(other));
     }
 
