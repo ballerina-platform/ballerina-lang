@@ -27,6 +27,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 
 /**
@@ -72,27 +73,59 @@ public class DebugExecutionManager {
      * Attaches to an existing JVM using an SocketAttachingConnector and returns the attached VM instance.
      */
     public VirtualMachine attach(String hostName, int port) throws IOException, IllegalConnectorArgumentsException {
-        AttachingConnector socketAttachingConnector = Bootstrap.virtualMachineManager().attachingConnectors().stream()
+        // Default retry configuration
+        return attach(hostName, port, 50, 100); // 100 attempts, 50ms between attempts
+    }
+
+    public VirtualMachine attach(String hostName, int port, long retryIntervalMs, int maxAttempts)
+            throws IOException, IllegalConnectorArgumentsException {
+
+        AttachingConnector attachingConnector = Bootstrap.virtualMachineManager().attachingConnectors().stream()
                 .filter(ac -> ac.name().equals(SOCKET_CONNECTOR_NAME))
                 .findFirst()
                 .orElseThrow(() -> new RuntimeException("Unable to locate SocketAttachingConnector"));
 
-        Map<String, Connector.Argument> connectorArgs = socketAttachingConnector.defaultArguments();
-        if (!hostName.isEmpty()) {
-            connectorArgs.get(CONNECTOR_ARGS_HOST).setValue(hostName);
-        }
+        hostName = Objects.isNull(hostName) || hostName.isBlank() ? LOCAL_HOST : hostName;
+        Map<String, Connector.Argument> connectorArgs = attachingConnector.defaultArguments();
+        connectorArgs.get(CONNECTOR_ARGS_HOST).setValue(hostName);
         connectorArgs.get(CONNECTOR_ARGS_PORT).setValue(String.valueOf(port));
-        LOGGER.info(String.format("Debugger is attaching to: %s:%d", hostName, port));
 
-        attachedVm = socketAttachingConnector.attach(connectorArgs);
-        this.host = !hostName.isEmpty() ? hostName : LOCAL_HOST;
-        this.port = port;
+        return attachWithRetries(attachingConnector, connectorArgs, retryIntervalMs, maxAttempts);
+    }
 
-        // Todo - enable for launch-mode after implementing debug server client logger
-        if (server.getClientConfigHolder().getKind() == ClientConfigHolder.ClientConfigKind.ATTACH_CONFIG) {
-            server.getOutputLogger().sendDebugServerOutput((String.format("Connected to the target VM, address: " +
-                    "'%s:%s'", host, port)));
+    private VirtualMachine attachWithRetries(AttachingConnector connector, Map<String, Connector.Argument> args,
+                                             long retryIntervalMs, int maxAttempts)
+            throws IOException, IllegalConnectorArgumentsException {
+
+        for (int attempt = 1; attempt <= maxAttempts; attempt++) {
+            try {
+                attachedVm = connector.attach(args);
+                this.host = args.get(CONNECTOR_ARGS_HOST).value();
+                this.port = Integer.parseInt(args.get(CONNECTOR_ARGS_PORT).value());
+                if (server.getClientConfigHolder().getKind() == ClientConfigHolder.ClientConfigKind.ATTACH_CONFIG) {
+                    server.getOutputLogger().sendDebugServerOutput(
+                            String.format("Connected to the target VM, address: '%s:%s'", host, port)
+                    );
+                }
+
+                return attachedVm;
+            } catch (IOException e) {
+                LOGGER.debug(String.format("Attachment attempt %d/%d failed: %s", attempt, maxAttempts, e.getMessage()));
+                try {
+                    Thread.sleep(retryIntervalMs);
+                } catch (InterruptedException ie) {
+                    Thread.currentThread().interrupt();
+                    throw new IOException("Attachment interrupted", e);
+                }
+            }
         }
-        return attachedVm;
+
+        throw new IOException("Failed to attach to the target VM.");
+    }
+
+    public void reset() {
+        attachedVm = null;
+        host = null;
+        port = null;
     }
 }

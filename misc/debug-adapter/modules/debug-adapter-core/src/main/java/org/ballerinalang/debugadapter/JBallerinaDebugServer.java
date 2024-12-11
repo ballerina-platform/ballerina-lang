@@ -137,6 +137,7 @@ import static org.ballerinalang.debugadapter.utils.PackageUtils.INIT_CLASS_NAME;
 import static org.ballerinalang.debugadapter.utils.PackageUtils.getQualifiedClassName;
 import static org.ballerinalang.debugadapter.utils.ServerUtils.isBalStackFrame;
 import static org.ballerinalang.debugadapter.utils.ServerUtils.isBalStrand;
+import static org.ballerinalang.debugadapter.utils.ServerUtils.isFastRunEnabled;
 import static org.ballerinalang.debugadapter.utils.ServerUtils.isNoDebugMode;
 import static org.ballerinalang.debugadapter.utils.ServerUtils.toBalBreakpoint;
 
@@ -471,15 +472,24 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
         Project sourceProject = context.getProjectCache().getProject(Path.of(clientConfigHolder.getSourcePath()));
         context.setSourceProject(sourceProject);
         String sourceProjectRoot = context.getSourceProjectRoot();
-        BProgramRunner programRunner = context.getSourceProject() instanceof SingleFileProject ?
-                new BSingleFileRunner((ClientLaunchConfigHolder) clientConfigHolder, sourceProjectRoot) :
-                new BPackageRunner((ClientLaunchConfigHolder) clientConfigHolder, sourceProjectRoot);
-
-        if (context.getSupportsRunInTerminalRequest() && clientConfigHolder.getRunInTerminalKind() != null) {
-            launchInTerminal(programRunner);
+        // if the debug server runs in fast-run mode, send a notification to the client to re-run the remote program and
+        // re-attach to the new VM.
+        if (isFastRunEnabled(context)) {
+            int port = ServerUtils.findFreePort();
+            ServerUtils.sendFastRunNotification(context, port);
+            attachToRemoteVM(LOCAL_HOST, port);
         } else {
-            context.setLaunchedProcess(programRunner.start());
-            startListeningToProgramOutput();
+            BProgramRunner programRunner = context.getSourceProject() instanceof SingleFileProject ?
+                    new BSingleFileRunner((ClientLaunchConfigHolder) clientConfigHolder, sourceProjectRoot) :
+                    new BPackageRunner((ClientLaunchConfigHolder) clientConfigHolder, sourceProjectRoot);
+
+            if (context.getSupportsRunInTerminalRequest() && clientConfigHolder.getRunInTerminalKind() != null) {
+                launchInTerminal(programRunner);
+            } else {
+                Process debuggeeProcess = programRunner.start();
+                context.setLaunchedProcess(debuggeeProcess);
+                startListeningToProgramOutput();
+            }
         }
     }
 
@@ -615,7 +625,7 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
             while (context.getDebuggeeVM() == null && tryCounter < 10) {
                 try {
                     JDIUtils.sleepMillis(3000);
-                    attachToRemoteVM("", clientConfigHolder.getDebuggePort());
+                    attachToRemoteVM(LOCAL_HOST, clientConfigHolder.getDebuggePort());
                 } catch (IOException ignored) {
                     tryCounter++;
                 } catch (IllegalConnectorArgumentsException | ClientConfigurationException e) {
@@ -876,7 +886,7 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
                         + System.lineSeparator());
                 while ((line = inputStream.readLine()) != null) {
                     if (line.contains("Listening for transport dt_socket")) {
-                        attachToRemoteVM("", clientConfigHolder.getDebuggePort());
+                        attachToRemoteVM(LOCAL_HOST, clientConfigHolder.getDebuggePort());
                     } else if (context.getDebuggeeVM() == null && line.contains(COMPILATION_ERROR_MESSAGE)) {
                         terminateDebugSession(false, true);
                     }
@@ -1188,6 +1198,7 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
     private void resetServer() {
         Optional.ofNullable(eventProcessor).ifPresent(JDIEventProcessor::reset);
         Optional.ofNullable(outputLogger).ifPresent(DebugOutputLogger::reset);
+        Optional.ofNullable(executionManager).ifPresent(DebugExecutionManager::reset);
         terminateDebuggee();
         clearSuspendedState();
         context.reset();
