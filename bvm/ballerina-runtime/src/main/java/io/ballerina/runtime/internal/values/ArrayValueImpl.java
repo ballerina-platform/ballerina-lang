@@ -661,7 +661,12 @@ public class ArrayValueImpl extends AbstractArrayValue {
 
     public void addInt(long index, long value) {
         if (intValues != null) {
-            prepareForAddWithoutTypeCheck(index, intValues.length);
+            if (elementType == PredefinedTypes.TYPE_INT) {
+                prepareForAddWithoutTypeCheck(index, intValues.length);
+            } else {
+                // We need type checker for int subtypes
+                prepareForAdd(index, value, intValues.length);
+            }
             intValues[(int) index] = value;
             return;
         }
