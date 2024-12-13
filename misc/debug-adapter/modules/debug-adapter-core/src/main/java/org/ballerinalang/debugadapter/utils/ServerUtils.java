@@ -27,6 +27,7 @@ import org.eclipse.lsp4j.jsonrpc.Endpoint;
 import org.eclipse.lsp4j.jsonrpc.services.GenericEndpoint;
 
 import java.net.ServerSocket;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -156,8 +157,12 @@ public class ServerUtils {
      */
     public static void sendFastRunNotification(ExecutionContext context, int port) {
         Endpoint endPoint = new GenericEndpoint(context.getClient());
-        FastRunArgs arguments = new FastRunArgs(port);
-        endPoint.notify(FAST_RUN_NOTIFICATION_NAME, arguments);
+        ClientConfigHolder configs = context.getAdapter().getClientConfigHolder();
+        Map<String, String> envVarMap = ((ClientLaunchConfigHolder) configs).getEnv().orElse(Map.of());
+        String[] programArgs = ((ClientLaunchConfigHolder) configs).getProgramArgs().toArray(new String[0]);
+
+        FastRunArgs args = new FastRunArgs(port, envVarMap, programArgs);
+        endPoint.notify(FAST_RUN_NOTIFICATION_NAME, args);
     }
 
     /**
@@ -177,9 +182,11 @@ public class ServerUtils {
     /**
      * Represents the arguments of the 'startFastRun' notification.
      *
-     * @param port port number to start the fast-run
+     * @param debugPort   debug port number
+     * @param env         environment variables
+     * @param programArgs program arguments
      */
-    public record FastRunArgs(int port) {
+    public record FastRunArgs(int debugPort, Map<String, String> env, String[] programArgs) {
 
     }
 }
