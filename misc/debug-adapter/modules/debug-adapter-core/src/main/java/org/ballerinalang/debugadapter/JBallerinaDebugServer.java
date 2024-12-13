@@ -289,8 +289,8 @@ public class JBallerinaDebugServer implements BallerinaExtendedDebugServer {
             try {
                 clientConfigHolder = new ClientAttachConfigHolder(args);
                 context.setDebugMode(ExecutionContext.DebugMode.ATTACH);
-                Project sourceProject = context.getProjectCache().getProject(Path.of(clientConfigHolder.getSourcePath()));
-                context.setSourceProject(sourceProject);
+                Project srcProject = context.getProjectCache().getProject(Path.of(clientConfigHolder.getSourcePath()));
+                context.setSourceProject(srcProject);
                 ClientAttachConfigHolder configHolder = (ClientAttachConfigHolder) clientConfigHolder;
 
                 String hostName = configHolder.getHostName().orElse("");

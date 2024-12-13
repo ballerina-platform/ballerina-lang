@@ -102,6 +102,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
+
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
@@ -120,7 +121,7 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
     private static final String USER_DIR = System.getProperty("user.dir");
     private static final String HEAP_DUMP_FLAG = "-XX:+HeapDumpOnOutOfMemoryError";
     private static final String HEAP_DUMP_PATH_FLAG = "-XX:HeapDumpPath=";
-    private static final String DEBUG_SOCKET_CONFIG = "-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=*:";
+    private static final String DEBUG_ARGS = "-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=*:";
 
     /**
      * Cache mapping of document path to source root.
@@ -670,22 +671,22 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
         }
     }
 
-    private List<String> prepareExecutionCommands(RunContext context, Module executableModule, JarResolver jarResolver) {
+    private List<String> prepareExecutionCommands(RunContext context, Module module, JarResolver jarResolver) {
         List<String> commands = new ArrayList<>();
         commands.add(JAVA_COMMAND);
         commands.add(HEAP_DUMP_FLAG);
         commands.add(HEAP_DUMP_PATH_FLAG + USER_DIR);
         if (context.debugPort() > 0) {
-            commands.add(DEBUG_SOCKET_CONFIG + context.debugPort());
+            commands.add(DEBUG_ARGS + context.debugPort());
         }
 
         commands.add("-cp");
         commands.add(getAllClassPaths(jarResolver));
 
         String initClassName = JarResolver.getQualifiedClassName(
-                executableModule.packageInstance().packageOrg().toString(),
-                executableModule.packageInstance().packageName().toString(),
-                executableModule.packageInstance().packageVersion().toString(),
+                module.packageInstance().packageOrg().toString(),
+                module.packageInstance().packageName().toString(),
+                module.packageInstance().packageVersion().toString(),
                 MODULE_INIT_CLASS_NAME
         );
         commands.add(initClassName);
