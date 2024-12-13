@@ -105,7 +105,6 @@ import org.eclipse.lsp4j.debug.services.IDebugProtocolClient;
 import org.eclipse.lsp4j.jsonrpc.Endpoint;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.eclipse.lsp4j.jsonrpc.services.GenericEndpoint;
-import org.eclipse.lsp4j.jsonrpc.services.JsonRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -122,6 +121,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionException;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
@@ -271,43 +271,39 @@ public class JBallerinaDebugServer implements BallerinaExtendedDebugServer {
 
     @Override
     public CompletableFuture<Void> launch(Map<String, Object> args) {
-        try {
-            clientConfigHolder = new ClientLaunchConfigHolder(args);
-            launchDebuggeeProgram();
-            return CompletableFuture.completedFuture(null);
-        } catch (Exception e) {
-            outputLogger.sendErrorOutput("Failed to launch the Ballerina program due to: " + e.getMessage());
-            return CompletableFuture.failedFuture(e);
-        }
+        return CompletableFuture.supplyAsync(() -> {
+            try {
+                clientConfigHolder = new ClientLaunchConfigHolder(args);
+                launchDebuggeeProgram();
+                return null;
+            } catch (Exception e) {
+                outputLogger.sendErrorOutput("Failed to launch the Ballerina program due to: " + e.getMessage());
+                throw new CompletionException(e);
+            }
+        });
     }
 
     @Override
     public CompletableFuture<Void> attach(Map<String, Object> args) {
-        try {
-            clientConfigHolder = new ClientAttachConfigHolder(args);
-            context.setDebugMode(ExecutionContext.DebugMode.ATTACH);
-            Project sourceProject = context.getProjectCache().getProject(Path.of(clientConfigHolder.getSourcePath()));
-            context.setSourceProject(sourceProject);
-            ClientAttachConfigHolder configHolder = (ClientAttachConfigHolder) clientConfigHolder;
-
-            String hostName = configHolder.getHostName().orElse("");
-            int portName = configHolder.getDebuggePort();
-            attachToRemoteVM(hostName, portName);
-            return CompletableFuture.completedFuture(null);
-        } catch (Exception e) {
-            String host = ((ClientAttachConfigHolder) clientConfigHolder).getHostName().orElse(LOCAL_HOST);
-            String portName;
+        return CompletableFuture.supplyAsync(() -> {
             try {
-                portName = Integer.toString(clientConfigHolder.getDebuggePort());
-            } catch (ClientConfigurationException clientConfigurationException) {
-                portName = VALUE_UNKNOWN;
+                clientConfigHolder = new ClientAttachConfigHolder(args);
+                context.setDebugMode(ExecutionContext.DebugMode.ATTACH);
+                Project sourceProject = context.getProjectCache().getProject(Path.of(clientConfigHolder.getSourcePath()));
+                context.setSourceProject(sourceProject);
+                ClientAttachConfigHolder configHolder = (ClientAttachConfigHolder) clientConfigHolder;
+
+                String hostName = configHolder.getHostName().orElse("");
+                int portName = configHolder.getDebuggePort();
+                attachToRemoteVM(hostName, portName);
+                return null;
+            } catch (Exception e) {
+                String errorMessage = getAttachmentErrorMessage(e);
+                outputLogger.sendErrorOutput(errorMessage);
+                terminateDebugSession(context.getDebuggeeVM() != null, false);
+                throw new CompletionException(e);
             }
-            LOGGER.error(e.getMessage());
-            outputLogger.sendErrorOutput(String.format("Failed to attach to the target VM address: '%s:%s' due to: %s",
-                    host, portName, e.getMessage()));
-            terminateDebugSession(context.getDebuggeeVM() != null, false);
-            return CompletableFuture.failedFuture(e);
-        }
+        });
     }
 
     @Override
@@ -1190,6 +1186,18 @@ public class JBallerinaDebugServer implements BallerinaExtendedDebugServer {
         response.setNamedVariables(dapVariable.getNamedVariables());
         response.setVariablesReference(dapVariable.getVariablesReference());
         return response;
+    }
+
+    private String getAttachmentErrorMessage(Exception e) {
+        String host = ((ClientAttachConfigHolder) clientConfigHolder).getHostName().orElse(LOCAL_HOST);
+        String portName;
+        try {
+            portName = Integer.toString(clientConfigHolder.getDebuggePort());
+        } catch (ClientConfigurationException clientConfigurationException) {
+            portName = VALUE_UNKNOWN;
+        }
+        return String.format("Failed to attach to the target VM address: '%s:%s' due to: %s",
+                host, portName, e.getMessage());
     }
 
     /**
