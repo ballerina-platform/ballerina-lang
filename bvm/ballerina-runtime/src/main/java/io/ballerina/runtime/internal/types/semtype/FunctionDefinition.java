@@ -65,9 +65,7 @@ public class FunctionDefinition extends Definition {
         } else {
             atom = env.functionAtom(atomicType);
         }
-        SemType semType = this.createSemType(atom);
-        notifyContainer();
-        return semType;
+        return this.createSemType(atom);
     }
 
 }

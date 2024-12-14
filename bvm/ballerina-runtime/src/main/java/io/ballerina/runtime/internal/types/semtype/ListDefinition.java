@@ -63,9 +63,7 @@ public class ListDefinition extends Definition {
         }
         SemType restCell =
                 Builder.getCellContaining(env, union(rest, getUndefType()), isNever(rest) ? CELL_MUT_NONE : mut);
-        SemType semType = define(env, initialCells, fixedLength, restCell);
-        notifyContainer();
-        return semType;
+        return define(env, initialCells, fixedLength, restCell);
     }
 
     private SemType define(Env env, SemType[] initial, int fixedLength, SemType rest) {

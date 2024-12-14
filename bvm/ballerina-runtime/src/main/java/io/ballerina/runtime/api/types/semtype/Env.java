@@ -31,6 +31,8 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.WeakHashMap;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.Phaser;
+import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
@@ -47,6 +49,11 @@ import java.util.function.Supplier;
 public final class Env {
     // Currently there is no reason to worry about above restrictions since Env is a singleton, but strictly speaking
     // there is not technical restriction preventing multiple instances of Env.
+
+    private static final int TYPE_RESOLUTION_MAX_PERMITS = 10000;
+    private final Semaphore typeResolutionSemaphore = new Semaphore(TYPE_RESOLUTION_MAX_PERMITS);
+
+    private final Phaser typeResolutionPhaser = new Phaser();
 
     private static final Env INSTANCE = new Env();
 
@@ -256,5 +263,43 @@ public final class Env {
         } finally {
             atomLock.readLock().unlock();
         }
+    }
+
+    // When it comes to types there are 2 distinct stages, first we need to resolve types (ie turn type
+    // descriptor in to a semtype) and then do the type checking. In the compiler there is a clear temporal separation
+    // between these stages, but in runtime since we allow creating type dynamically we must allow them to interleave.
+    // As result, we have to treat both these stages of the type check. When a type is being used for type checking
+    // it is resolved (modifying the type after this point is undefined behaviour). To understand concurrency model for
+    // type checking we can break up type checking to 2 phases as type resolution and type checking. To allow
+    // concurrent type checking we need ensure fallowing invariants.
+    // 1. Phase 1 should be able to run in a non-blocking manner. Assume we are checking T1 < T2 and T3 < T4
+    //    concurrently with T1 depending on T3 and T4 depending on T2. If they are blocking we can have a deadlock.
+    // 2. Before starting phase 2 all the types involved in the type check must be resolved. In above example T3 which
+    //    is needed for first type check is being resolved as a part of the second type check.
+    // Furthermore, ideally we shouldn't resolve the same type multiple times and both type checks should be able to
+    // run parallel as much as possible.
+    // Given each (strand) thread has its own context, it is easier to reason about concurrency using Context. First
+    // we require all phase changes to go via the context which will synchronize with other contexts via the shared Env.
+    // First we allow any number of context to enter phase 1 and run without blocking(property 1). When context
+    // need to move to phase 2 it must wait for all contexts in phase 1 to finish. To prevent starvation when a
+    // context has indicated that it needs to move to phase 2 we stop any new context from entering phase 1. When all
+    // the contexts have reached phase 2 again they all can continue in parallel. At the same time we can allow new
+    // context to enter phase 1.
+
+    void enterTypeResolutionPhase() throws InterruptedException {
+        assert typeResolutionSemaphore.availablePermits() >= 0;
+        typeResolutionSemaphore.acquire();
+        typeResolutionPhaser.register();
+    }
+
+    int enterTypeCheckingPhase() {
+        int drained = typeResolutionSemaphore.drainPermits();
+        typeResolutionPhaser.awaitAdvance(typeResolutionPhaser.arriveAndDeregister());
+        return drained;
+    }
+
+    void exitTypeCheckingPhase(int permits) {
+        typeResolutionSemaphore.release(permits);
+        assert typeResolutionSemaphore.availablePermits() > 0;
     }
 }

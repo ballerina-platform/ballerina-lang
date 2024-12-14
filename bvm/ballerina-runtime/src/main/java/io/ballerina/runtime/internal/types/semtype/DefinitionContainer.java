@@ -4,11 +4,10 @@ import io.ballerina.runtime.api.types.semtype.Definition;
 import io.ballerina.runtime.api.types.semtype.Env;
 import io.ballerina.runtime.api.types.semtype.SemType;
 
-import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantLock;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.function.Supplier;
 
+// FIXME: doc
 /**
  * Container used to maintain concurrency invariants when creating a potentially recursive semtype.
  *
@@ -28,39 +27,32 @@ import java.util.function.Supplier;
  */
 public class DefinitionContainer<E extends Definition> {
 
-    private final ReadWriteLock rwLock = new ReentrantReadWriteLock();
     private volatile E definition;
 
-    private final ReentrantLock recTypeLock = new ReentrantLock();
-    private volatile boolean isDefining = false;
+    private final ReentrantLock lock = new ReentrantLock();
 
     public boolean isDefinitionReady() {
         try {
-            rwLock.readLock().lock();
+            lock.lock();
             return definition != null;
         } finally {
-            rwLock.readLock().unlock();
+            lock.unlock();
         }
     }
 
+    /**
+     * Get the semtype of the definition. Must call {@code isDefinitionReady} before calling this method.
+     *
+     * @param env {@code Env} in which type is defined at
+     * @return recursive semtype representing the type
+     */
     public SemType getSemType(Env env) {
-        try {
-            rwLock.readLock().lock();
-            // We don't need this check to be synchronized since {@code trySetDefinition} will hold the write lock until
-            // it completes, So isDefining should always be at a consistent state
-            if (isDefining) {
-                // This should prevent threads other than the defining thread to access the rec atom.
-                recTypeLock.lock();
-            }
-            return definition.getSemType(env);
-        } finally {
-            rwLock.readLock().unlock();
-        }
+        return definition.getSemType(env);
     }
 
     public DefinitionUpdateResult<E> trySetDefinition(Supplier<E> supplier) {
         try {
-            rwLock.writeLock().lock();
+            lock.lock();
             boolean updated;
             E newDefinition;
             if (this.definition != null) {
@@ -69,31 +61,21 @@ public class DefinitionContainer<E extends Definition> {
             } else {
                 updated = true;
                 newDefinition = supplier.get();
-                newDefinition.registerContainer(this);
-                this.recTypeLock.lock();
-                isDefining = true;
                 this.definition = newDefinition;
             }
             return new DefinitionUpdateResult<>(newDefinition, updated);
         } finally {
-            rwLock.writeLock().unlock();
+            lock.unlock();
         }
     }
 
     public void clear() {
         try {
-            rwLock.writeLock().lock();
-            // This shouldn't happen because defining thread should hold the lock.
-            assert !isDefining;
+            lock.lock();
             this.definition = null;
         } finally {
-            rwLock.writeLock().unlock();
+            lock.unlock();
         }
-    }
-
-    public void definitionUpdated() {
-        recTypeLock.unlock();
-        isDefining = false;
     }
 
     /**

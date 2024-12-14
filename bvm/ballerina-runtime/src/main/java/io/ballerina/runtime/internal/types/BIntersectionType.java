@@ -229,8 +229,8 @@ public class BIntersectionType extends BType implements IntersectionType, TypeWi
     }
 
     @Override
-    public SemType createSemType() {
-        return createSemTypeInner(SemType::tryInto);
+    public SemType createSemType(Context cx) {
+        return createSemTypeInner(type -> SemType.tryInto(cx, type));
     }
 
     @Override

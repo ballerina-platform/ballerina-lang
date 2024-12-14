@@ -75,9 +75,7 @@ public class MappingDefinition extends Definition {
         }
         SemType restCell = Builder.getCellContaining(env, union(rest, getUndefType()),
                 isNever(rest) ? CellAtomicType.CellMutability.CELL_MUT_NONE : mut);
-        SemType semType = define(env, cellFields, restCell);
-        notifyContainer();
-        return semType;
+        return define(env, cellFields, restCell);
     }
 
     SemType define(Env env, BCellField[] cellFields, SemType rest) {

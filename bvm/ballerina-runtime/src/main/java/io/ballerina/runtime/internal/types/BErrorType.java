@@ -128,12 +128,12 @@ public class BErrorType extends BAnnotatableType implements ErrorType, TypeWithS
     }
 
     @Override
-    public SemType createSemType() {
+    public SemType createSemType(Context cx) {
         SemType err;
         if (detailType == null || isTopType()) {
             err = Builder.getErrorType();
         } else {
-            err = ErrorUtils.errorDetail(tryInto(getDetailType()));
+            err = ErrorUtils.errorDetail(tryInto(cx, getDetailType()));
         }
 
         initializeDistinctIdSupplierIfNeeded();
@@ -163,7 +163,7 @@ public class BErrorType extends BAnnotatableType implements ErrorType, TypeWithS
     @Override
     public Optional<SemType> inherentTypeOf(Context cx, ShapeSupplier shapeSupplier, Object object) {
         if (!couldInherentTypeBeDifferent()) {
-            return Optional.of(getSemType());
+            return Optional.of(getSemType(cx));
         }
         BError errorValue = (BError) object;
         Object details = errorValue.getDetails();
@@ -190,7 +190,7 @@ public class BErrorType extends BAnnotatableType implements ErrorType, TypeWithS
 
     @Override
     public Optional<SemType> acceptedTypeOf(Context cx) {
-        return Optional.of(getSemType());
+        return Optional.of(getSemType(cx));
     }
 
     @Override

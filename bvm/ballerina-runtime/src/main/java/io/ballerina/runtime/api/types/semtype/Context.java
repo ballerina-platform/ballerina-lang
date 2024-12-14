@@ -48,6 +48,9 @@ public final class Context {
     public final Map<Bdd, BddMemo> functionMemo = new WeakHashMap<>();
     private static final int MAX_CACHE_SIZE = 100;
     private final Map<CacheableTypeDescriptor, TypeCheckCache<CacheableTypeDescriptor>> typeCheckCacheMemo;
+    private int drainedPermits = 0;
+    private int nTypeChecking = 0;
+    private Phase phase = Phase.INIT;
 
     private Context(Env env) {
         this.env = env;
@@ -88,6 +91,62 @@ public final class Context {
     public boolean memoSubtypeIsEmpty(Map<Bdd, BddMemo> memoTable, BddIsEmptyPredicate isEmptyPredicate, Bdd bdd) {
         BddMemo m = memoTable.computeIfAbsent(bdd, ignored -> new BddMemo());
         return m.isEmpty().orElseGet(() -> memoSubTypeIsEmptyInner(isEmptyPredicate, bdd, m));
+    }
+
+    public void enterTypeResolutionPhase() {
+        switch (phase) {
+            case INIT -> {
+                try {
+                    env.enterTypeResolutionPhase();
+                } catch (InterruptedException e) {
+                    throw new RuntimeException("Failed to enter type resolution phase", e);
+                }
+                phase = Phase.TYPE_RESOLUTION;
+            }
+            case TYPE_RESOLUTION -> {
+            }
+            case TYPE_CHECKING -> {
+                throw new IllegalStateException("Cannot enter type resolution phase while in type checking phase");
+            }
+        }
+    }
+
+    public void enterTypeCheckingPhase() {
+        switch (phase) {
+            case INIT -> {
+                // This can happen if both types are immutable semtypes
+                phase = Phase.TYPE_CHECKING;
+                nTypeChecking = 1;
+            }
+            case TYPE_RESOLUTION -> {
+                drainedPermits = env.enterTypeCheckingPhase();
+                phase = Phase.TYPE_CHECKING;
+                nTypeChecking = 1;
+            }
+            case TYPE_CHECKING -> {
+                nTypeChecking += 1;
+            }
+        }
+    }
+
+    public void exitTypeCheckingPhase() {
+        switch (phase) {
+            case INIT -> {
+                throw new IllegalStateException("Cannot exit type checking phase without entering it");
+            }
+            case TYPE_RESOLUTION -> {
+                throw new IllegalStateException("Cannot exit type checking phase while in type resolution phase");
+            }
+            case TYPE_CHECKING -> {
+                assert nTypeChecking > 0;
+                nTypeChecking -= 1;
+                if (nTypeChecking == 0) {
+                    env.exitTypeCheckingPhase(drainedPermits + 1);
+                    phase = Phase.INIT;
+                    drainedPermits = 0;
+                }
+            }
+        }
     }
 
     private boolean memoSubTypeIsEmptyInner(BddIsEmptyPredicate isEmptyPredicate, Bdd bdd, BddMemo m) {
@@ -154,6 +213,11 @@ public final class Context {
     }
 
     public TypeCheckCache<CacheableTypeDescriptor> getTypeCheckCache(CacheableTypeDescriptor typeDescriptor) {
+        // TODO: move this to env
         return typeCheckCacheMemo.computeIfAbsent(typeDescriptor, TypeCheckCache::new);
+    }
+
+    private enum Phase {
+        INIT, TYPE_RESOLUTION, TYPE_CHECKING
     }
 }

@@ -23,8 +23,8 @@ import io.ballerina.runtime.api.types.FutureType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.TypeTags;
 import io.ballerina.runtime.api.types.semtype.Builder;
+import io.ballerina.runtime.api.types.semtype.Context;
 import io.ballerina.runtime.api.types.semtype.SemType;
-import io.ballerina.runtime.internal.TypeChecker;
 import io.ballerina.runtime.internal.types.semtype.FutureUtils;
 
 import java.util.Objects;
@@ -101,11 +101,11 @@ public class BFutureType extends BType implements FutureType {
     }
 
     @Override
-    public SemType createSemType() {
+    public SemType createSemType(Context cx) {
         if (constraint == null) {
             return Builder.getFutureType();
         }
-        return FutureUtils.futureContaining(TypeChecker.context().env, tryInto(constraint));
+        return FutureUtils.futureContaining(cx.env, tryInto(cx, constraint));
     }
 
     @Override

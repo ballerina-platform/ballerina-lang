@@ -57,10 +57,12 @@ public sealed class SemType extends BasicTypeBitSet
         this.subTypeData = subTypeData;
     }
 
-    public static SemType tryInto(Type type) {
+    public static SemType tryInto(Context cx, Type type) {
         if (type instanceof MutableSemType mutableSemType) {
-            mutableSemType.updateInnerSemTypeIfNeeded();
+            cx.enterTypeResolutionPhase();
+            mutableSemType.updateInnerSemTypeIfNeeded(cx);
         }
+
         return (SemType) type;
     }
 
