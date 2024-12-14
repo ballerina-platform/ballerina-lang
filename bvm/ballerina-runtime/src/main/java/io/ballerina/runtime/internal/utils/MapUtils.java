@@ -118,7 +118,7 @@ public final class MapUtils {
     }
 
     private static boolean containsNilType(Type type) {
-        return Core.containsBasicType(SemType.tryInto(type), Builder.getNilType());
+        return Core.containsBasicType(SemType.tryInto(TypeChecker.context(), type), Builder.getNilType());
     }
 
     public static BError createOpNotSupportedError(Type type, String op) {

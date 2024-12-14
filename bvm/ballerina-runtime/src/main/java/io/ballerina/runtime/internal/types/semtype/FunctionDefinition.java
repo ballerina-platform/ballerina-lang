@@ -27,6 +27,9 @@ import io.ballerina.runtime.api.types.semtype.Env;
 import io.ballerina.runtime.api.types.semtype.RecAtom;
 import io.ballerina.runtime.api.types.semtype.SemType;
 
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
+
 /**
  * {@code Definition} used to create function subtypes.
  *
@@ -36,15 +39,21 @@ public class FunctionDefinition extends Definition {
 
     private volatile RecAtom rec;
     private volatile SemType semType;
+    private final Lock lock = new ReentrantLock();
 
     @Override
     public SemType getSemType(Env env) {
-        if (this.semType != null) {
-            return this.semType;
-        } else {
-            RecAtom rec = env.recFunctionAtom();
-            this.rec = rec;
-            return this.createSemType(rec);
+        try {
+            this.lock.lock();
+            if (this.semType != null) {
+                return this.semType;
+            } else {
+                RecAtom rec = env.recFunctionAtom();
+                this.rec = rec;
+                return this.createSemType(rec);
+            }
+        } finally {
+            this.lock.unlock();
         }
     }
 
@@ -57,17 +66,20 @@ public class FunctionDefinition extends Definition {
 
     public SemType define(Env env, SemType args, SemType ret, FunctionQualifiers qualifiers) {
         FunctionAtomicType atomicType = new FunctionAtomicType(args, ret, qualifiers.toSemType(env));
-        RecAtom rec = this.rec;
-        Atom atom;
-        if (rec != null) {
-            atom = rec;
-            env.setRecFunctionAtomType(rec, atomicType);
-        } else {
-            atom = env.functionAtom(atomicType);
+        try {
+            lock.lock();
+            RecAtom rec = this.rec;
+            Atom atom;
+            if (rec != null) {
+                atom = rec;
+                env.setRecFunctionAtomType(rec, atomicType);
+            } else {
+                atom = env.functionAtom(atomicType);
+            }
+            return this.createSemType(atom);
+        } finally {
+            lock.unlock();
         }
-        SemType semType = this.createSemType(atom);
-        notifyContainer();
-        return semType;
     }
 
 }

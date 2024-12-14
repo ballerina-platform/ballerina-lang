@@ -22,6 +22,7 @@ import io.ballerina.runtime.internal.types.semtype.BddMemo;
 import io.ballerina.runtime.internal.types.semtype.FunctionAtomicType;
 import io.ballerina.runtime.internal.types.semtype.ListAtomicType;
 import io.ballerina.runtime.internal.types.semtype.MappingAtomicType;
+import io.ballerina.runtime.internal.types.semtype.MutableSemType;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -48,10 +49,17 @@ public final class Context {
     public final Map<Bdd, BddMemo> functionMemo = new WeakHashMap<>();
     private static final int MAX_CACHE_SIZE = 100;
     private final Map<CacheableTypeDescriptor, TypeCheckCache<CacheableTypeDescriptor>> typeCheckCacheMemo;
+    private Phase phase = Phase.INIT;
+    List<PhaseData> typeResolutionPhases = new ArrayList<>();
+    List<PhaseData> typeCheckPhases = new ArrayList<>();
+    private final boolean collectDiagnostic;
+    private int typeCheckDepth = 0;
+    private int typeResolutionDepth = 0;
 
     private Context(Env env) {
         this.env = env;
         this.typeCheckCacheMemo = createTypeCheckCacheMemo();
+        this.collectDiagnostic = "true".equalsIgnoreCase(System.getenv("BAL_TYPE_CHECK_DIAGNOSTIC_ENABLE"));
     }
 
     private static Map<CacheableTypeDescriptor, TypeCheckCache<CacheableTypeDescriptor>> createTypeCheckCacheMemo() {
@@ -88,6 +96,111 @@ public final class Context {
     public boolean memoSubtypeIsEmpty(Map<Bdd, BddMemo> memoTable, BddIsEmptyPredicate isEmptyPredicate, Bdd bdd) {
         BddMemo m = memoTable.computeIfAbsent(bdd, ignored -> new BddMemo());
         return m.isEmpty().orElseGet(() -> memoSubTypeIsEmptyInner(isEmptyPredicate, bdd, m));
+    }
+
+    public void enterTypeResolutionPhase(MutableSemType type) throws InterruptedException {
+        switch (phase) {
+            case INIT -> {
+                typeResolutionDepth++;
+                env.enterTypeResolutionPhase(this, type);
+                phase = Phase.TYPE_RESOLUTION;
+                if (collectDiagnostic) {
+                    typeResolutionPhases.add(new PhaseData());
+                }
+            }
+            case TYPE_RESOLUTION -> {
+                typeResolutionDepth++;
+            }
+            case TYPE_CHECKING -> {
+                StringBuilder sb = new StringBuilder();
+                sb.append("Cannot enter type resolution phase while in type checking phase\n");
+                if (collectDiagnostic) {
+                    appendPhaseDataToError(sb);
+                }
+                throw new IllegalStateException(sb.toString());
+            }
+        }
+    }
+
+    public void exitTypeResolutionPhaseAbruptly(Exception ex) {
+        env.exitTypeResolutionPhaseAbruptly(this, ex);
+    }
+
+    public void enterTypeCheckingPhase(SemType t1, SemType t2) {
+        typeCheckDepth++;
+        switch (phase) {
+            case INIT -> {
+                env.enterTypeCheckingPhase(this, t1, t2);
+                if (collectDiagnostic) {
+                    typeCheckPhases.add(new PhaseData());
+                }
+                phase = Phase.TYPE_CHECKING;
+            }
+            case TYPE_RESOLUTION -> {
+                StringBuilder sb = new StringBuilder();
+                sb.append("Cannot enter type checking phase while in type resolution phase\n");
+                if (collectDiagnostic) {
+                    appendPhaseDataToError(sb);
+                }
+                throw new IllegalStateException(sb.toString());
+            }
+            case TYPE_CHECKING -> {
+            }
+        }
+    }
+
+    public void exitTypeResolutionPhase() {
+        if (phase == Phase.TYPE_RESOLUTION) {
+            typeResolutionDepth--;
+            if (typeResolutionDepth == 0) {
+                env.exitTypeResolutionPhase(this);
+                phase = Phase.INIT;
+                if (collectDiagnostic) {
+                    typeResolutionPhases.removeLast();
+                }
+            }
+        } else {
+            throw new IllegalStateException("Cannot exit type resolution phase without entering it");
+        }
+    }
+
+    public void exitTypeCheckingPhase() {
+        switch (phase) {
+            case INIT -> {
+                StringBuilder sb = new StringBuilder();
+                sb.append("Cannot exit type checking phase without entering it");
+                if (collectDiagnostic) {
+                    appendPhaseDataToError(sb);
+                }
+                throw new IllegalStateException(sb.toString());
+            }
+            case TYPE_RESOLUTION -> {
+                StringBuilder sb = new StringBuilder();
+                sb.append("Cannot exit type checking phase while in type resolution phase\n");
+                if (collectDiagnostic) {
+                    appendPhaseDataToError(sb);
+                }
+                throw new IllegalStateException(sb.toString());
+            }
+            case TYPE_CHECKING -> {
+                env.exitTypeCheckingPhase(this);
+                typeCheckDepth--;
+                if (typeCheckDepth == 0) {
+                    phase = Phase.INIT;
+                }
+            }
+        }
+    }
+
+    private void appendPhaseDataToError(StringBuilder sb) {
+        sb.append("Type resolution phases:\n");
+        for (PhaseData phaseData : typeResolutionPhases) {
+            sb.append(phaseData).append("\n");
+        }
+        sb.append("Type checking phases:\n");
+        for (PhaseData phaseData : typeCheckPhases) {
+            sb.append(phaseData).append("\n");
+        }
     }
 
     private boolean memoSubTypeIsEmptyInner(BddIsEmptyPredicate isEmptyPredicate, Bdd bdd, BddMemo m) {
@@ -131,6 +244,7 @@ public final class Context {
 
     public ListAtomicType listAtomType(Atom atom) {
         if (atom instanceof RecAtom recAtom) {
+            assert this.env.getRecListAtomType(recAtom) != null;
             return this.env.getRecListAtomType(recAtom);
         } else {
             return (ListAtomicType) ((TypeAtom) atom).atomicType();
@@ -139,6 +253,7 @@ public final class Context {
 
     public MappingAtomicType mappingAtomType(Atom atom) {
         if (atom instanceof RecAtom recAtom) {
+            assert this.env.getRecMappingAtomType(recAtom) != null;
             return this.env.getRecMappingAtomType(recAtom);
         } else {
             return (MappingAtomicType) ((TypeAtom) atom).atomicType();
@@ -147,6 +262,7 @@ public final class Context {
 
     public FunctionAtomicType functionAtomicType(Atom atom) {
         if (atom instanceof RecAtom recAtom) {
+            assert this.env.getRecFunctionAtomType(recAtom) != null;
             return this.env.getRecFunctionAtomType(recAtom);
         } else {
             return (FunctionAtomicType) ((TypeAtom) atom).atomicType();
@@ -155,5 +271,29 @@ public final class Context {
 
     public TypeCheckCache<CacheableTypeDescriptor> getTypeCheckCache(CacheableTypeDescriptor typeDescriptor) {
         return typeCheckCacheMemo.computeIfAbsent(typeDescriptor, TypeCheckCache::new);
+    }
+
+    public void registerAbruptTypeCheckEnd(Exception ex) {
+        env.registerAbruptTypeCheckEnd(this, ex);
+    }
+
+    enum Phase {
+        INIT, TYPE_RESOLUTION, TYPE_CHECKING
+    }
+
+    record PhaseData(StackTraceElement[] stackTrace) {
+
+        PhaseData() {
+            this(Thread.currentThread().getStackTrace());
+        }
+
+        @Override
+        public String toString() {
+            StringBuilder builder = new StringBuilder();
+            for (StackTraceElement element : stackTrace) {
+                builder.append("\tat ").append(element).append("\n");
+            }
+            return builder.toString();
+        }
     }
 }
