@@ -140,8 +140,7 @@ public final class TypeConverter {
         };
     }
 
-    private static Object castValueToInt(SemType targetType, Object inputValue) {
-        Context cx = TypeChecker.context();
+    private static Object castValueToInt(Context cx, SemType targetType, Object inputValue) {
         assert Core.isSubType(cx, targetType, Builder.getIntType());
         if (targetType instanceof BByteType) {
             return anyToByteCast(inputValue, () ->
@@ -172,14 +171,13 @@ public final class TypeConverter {
 
     public static Object castValues(Type targetType, Object inputValue) {
         Context cx = TypeChecker.context();
-        return castValuesInner(SemType.tryInto(cx, targetType), inputValue,
+        return castValuesInner(cx, SemType.tryInto(cx, targetType), inputValue,
                 () -> ErrorUtils.createTypeCastError(inputValue, targetType));
     }
 
-    static Object castValuesInner(SemType targetType, Object inputValue, Supplier<BError> errorSupplier) {
-        Context cx = TypeChecker.context();
+    static Object castValuesInner(Context cx, SemType targetType, Object inputValue, Supplier<BError> errorSupplier) {
         if (Core.isSubType(cx, targetType, Builder.getIntType())) {
-            return castValueToInt(targetType, inputValue);
+            return castValueToInt(cx, targetType, inputValue);
         }
         if (Core.isSubType(cx, targetType, Builder.getDecimalType())) {
             return anyToDecimalCast(inputValue, () ->
@@ -425,10 +423,11 @@ public final class TypeConverter {
     public static Type getConvertibleFiniteType(Object inputValue, BFiniteType targetFiniteType,
                                                 String varName, List<String> errors,
                                                 Set<TypeValuePair> unresolvedValues, boolean allowNumericConversion) {
+        Context cx = TypeChecker.context();
         // only the first matching type is returned.
         if (targetFiniteType.valueSpace.size() == 1) {
             Type valueType = getType(targetFiniteType.valueSpace.iterator().next());
-            if (!belongToSingleBasicTypeOrString(valueType) && valueType.getTag() != TypeTags.NULL_TAG) {
+            if (!belongToSingleBasicTypeOrString(cx, valueType) && valueType.getTag() != TypeTags.NULL_TAG) {
                 return getConvertibleType(inputValue, valueType, varName, unresolvedValues,
                         errors, allowNumericConversion);
             }

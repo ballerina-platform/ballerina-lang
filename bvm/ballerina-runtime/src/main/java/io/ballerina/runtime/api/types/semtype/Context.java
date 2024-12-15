@@ -213,7 +213,6 @@ public final class Context {
     }
 
     public TypeCheckCache<CacheableTypeDescriptor> getTypeCheckCache(CacheableTypeDescriptor typeDescriptor) {
-        // TODO: move this to env
         return typeCheckCacheMemo.computeIfAbsent(typeDescriptor, TypeCheckCache::new);
     }
 

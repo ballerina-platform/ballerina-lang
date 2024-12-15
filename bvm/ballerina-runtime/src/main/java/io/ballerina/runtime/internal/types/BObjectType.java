@@ -40,7 +40,6 @@ import io.ballerina.runtime.api.types.semtype.ShapeAnalyzer;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.api.values.BString;
-import io.ballerina.runtime.internal.TypeChecker;
 import io.ballerina.runtime.internal.scheduling.Scheduler;
 import io.ballerina.runtime.internal.scheduling.Strand;
 import io.ballerina.runtime.internal.types.semtype.CellAtomicType;
@@ -527,7 +526,7 @@ public class BObjectType extends BStructureType implements ObjectType, TypeWithS
                 returnType = Builder.getNilType();
             }
             ListDefinition paramListDefinition = new ListDefinition();
-            Env env = TypeChecker.context().env;
+            Env env = cx.env;
             SemType paramType = paramListDefinition.defineListTypeWrapped(env, paramTypes.toArray(SemType[]::new),
                     paramTypes.size(), rest, CellAtomicType.CellMutability.CELL_MUT_NONE);
             FunctionDefinition fd = new FunctionDefinition();
