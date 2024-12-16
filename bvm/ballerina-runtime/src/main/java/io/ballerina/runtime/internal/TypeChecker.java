@@ -258,9 +258,6 @@ public final class TypeChecker {
      */
     public static boolean checkIsType(Object sourceVal, Type targetType) {
         Type sourceType = getType(sourceVal);
-        if (sourceType == targetType || (sourceType.getTag() == targetType.getTag() && sourceType.equals(targetType))) {
-            return true;
-        }
         if (isSubType(sourceType, targetType)) {
             return true;
         }
@@ -604,7 +601,10 @@ public final class TypeChecker {
                 .orElse(false);
     }
 
-    private static synchronized boolean isSubType(Type source, Type target) {
+    private static boolean isSubType(Type source, Type target) {
+        if (source == target || (source.getTag() == target.getTag() && source.equals(target))) {
+            return true;
+        }
         if (source instanceof CacheableTypeDescriptor sourceCacheableType &&
                 target instanceof CacheableTypeDescriptor targetCacheableType) {
             return isSubTypeWithCache(sourceCacheableType, targetCacheableType);

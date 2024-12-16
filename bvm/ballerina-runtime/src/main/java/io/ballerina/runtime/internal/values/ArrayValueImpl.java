@@ -660,22 +660,21 @@ public class ArrayValueImpl extends AbstractArrayValue {
     }
 
     public void addInt(long index, long value) {
+        Type sourceType = TypeChecker.getType(value);
         if (intValues != null) {
-            if (elementType == PredefinedTypes.TYPE_INT) {
+            if (sourceType == this.elementType) {
                 prepareForAddWithoutTypeCheck(index, intValues.length);
             } else {
-                // We need type checker for int subtypes
                 prepareForAdd(index, value, intValues.length);
             }
             intValues[(int) index] = value;
             return;
         }
-        if (!TypeChecker.isByteLiteral(value)) {
-            throw ErrorCreator.createError(getModulePrefixedReason(ARRAY_LANG_LIB,
-                    INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER), ErrorHelper.getErrorDetails(
-                    ErrorCodes.INCOMPATIBLE_TYPE, this.elementType, TypeChecker.getType(value)));
+        if (sourceType == this.elementType) {
+            prepareForAddWithoutTypeCheck(index, byteValues.length);
+        } else {
+            prepareForAdd(index, value, byteValues.length);
         }
-        prepareForAddWithoutTypeCheck(index, byteValues.length);
         byteValues[(int) index] = (byte) ((Long) value).intValue();
     }
 
@@ -700,7 +699,12 @@ public class ArrayValueImpl extends AbstractArrayValue {
     }
 
     private void addBString(long index, BString value) {
-        prepareForAddWithoutTypeCheck(index, bStringValues.length);
+        Type sourceType = TypeChecker.getType(value);
+        if (sourceType == this.elementType) {
+            prepareForAddWithoutTypeCheck(index, bStringValues.length);
+        } else {
+            prepareForAdd(index, value, bStringValues.length);
+        }
         bStringValues[(int) index] = value;
     }
 
