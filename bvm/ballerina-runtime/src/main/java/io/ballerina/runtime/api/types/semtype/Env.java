@@ -288,7 +288,7 @@ public final class Env {
 
     void enterTypeResolutionPhase() throws InterruptedException {
         assert typeResolutionSemaphore.availablePermits() >= 0;
-        typeResolutionSemaphore.acquire();
+        typeResolutionSemaphore.acquireUninterruptibly();
         typeResolutionPhaser.register();
     }
 
