@@ -27,6 +27,9 @@ import io.ballerina.runtime.api.types.semtype.Env;
 import io.ballerina.runtime.api.types.semtype.RecAtom;
 import io.ballerina.runtime.api.types.semtype.SemType;
 
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
+
 /**
  * {@code Definition} used to create function subtypes.
  *
@@ -36,15 +39,29 @@ public class FunctionDefinition extends Definition {
 
     private volatile RecAtom rec;
     private volatile SemType semType;
+    private final ReadWriteLock lock = new ReentrantReadWriteLock();
 
     @Override
     public SemType getSemType(Env env) {
-        if (this.semType != null) {
-            return this.semType;
-        } else {
-            RecAtom rec = env.recFunctionAtom();
-            this.rec = rec;
-            return this.createSemType(rec);
+        try {
+            this.lock.readLock().lock();
+            if (this.semType != null) {
+                return this.semType;
+            }
+        } finally {
+            this.lock.readLock().unlock();
+        }
+        try {
+            this.lock.writeLock().lock();
+            if (this.semType != null) {
+                return this.semType;
+            } else {
+                RecAtom rec = env.recFunctionAtom();
+                this.rec = rec;
+                return this.createSemType(rec);
+            }
+        } finally {
+            this.lock.writeLock().unlock();
         }
     }
 

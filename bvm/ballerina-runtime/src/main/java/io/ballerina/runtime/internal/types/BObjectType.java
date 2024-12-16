@@ -63,6 +63,8 @@ import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Set;
 import java.util.StringJoiner;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.BiFunction;
 
 import static io.ballerina.runtime.api.types.TypeTags.SERVICE_TAG;
@@ -88,6 +90,7 @@ public class BObjectType extends BStructureType implements ObjectType, TypeWithS
     private final DefinitionContainer<ObjectDefinition> defn = new DefinitionContainer<>();
     private final DefinitionContainer<ObjectDefinition> acceptedTypeDefn = new DefinitionContainer<>();
     private volatile DistinctIdSupplier distinctIdSupplier;
+    private final Lock typeResolutionLock = new ReentrantLock();
 
     /**
      * Create a {@code BObjectType} which represents the user defined struct type.
@@ -281,24 +284,32 @@ public class BObjectType extends BStructureType implements ObjectType, TypeWithS
 
     @Override
     public final SemType createSemType(Context cx) {
-        Env env = cx.env;
-        initializeDistinctIdSupplierIfNeeded(env);
-        CellAtomicType.CellMutability mut =
-                SymbolFlags.isFlagOn(getFlags(), SymbolFlags.READONLY) ? CellAtomicType.CellMutability.CELL_MUT_NONE :
-                        CellAtomicType.CellMutability.CELL_MUT_LIMITED;
-        SemType innerType;
-        if (defn.isDefinitionReady()) {
-            innerType = defn.getSemType(env);
-        } else {
-            var result = defn.trySetDefinition(ObjectDefinition::new);
-            if (!result.updated()) {
+        try {
+            // This is wrong (See {@code Env}). Instead this should be done similar to mapping and list definitions
+            // using rec atoms.
+            typeResolutionLock.lock();
+            Env env = cx.env;
+            initializeDistinctIdSupplierIfNeeded(env);
+            CellAtomicType.CellMutability mut =
+                    SymbolFlags.isFlagOn(getFlags(), SymbolFlags.READONLY) ?
+                            CellAtomicType.CellMutability.CELL_MUT_NONE :
+                            CellAtomicType.CellMutability.CELL_MUT_LIMITED;
+            SemType innerType;
+            if (defn.isDefinitionReady()) {
                 innerType = defn.getSemType(env);
             } else {
-                ObjectDefinition od = result.definition();
-                innerType = semTypeInner(cx, od, mut, SemType::tryInto);
+                var result = defn.trySetDefinition(ObjectDefinition::new);
+                if (!result.updated()) {
+                    innerType = defn.getSemType(env);
+                } else {
+                    ObjectDefinition od = result.definition();
+                    innerType = semTypeInner(cx, od, mut, SemType::tryInto);
+                }
             }
+            return distinctIdSupplier.get().stream().map(ObjectDefinition::distinct).reduce(innerType, Core::intersect);
+        } finally {
+            typeResolutionLock.unlock();
         }
-        return distinctIdSupplier.get().stream().map(ObjectDefinition::distinct).reduce(innerType, Core::intersect);
     }
 
     private static boolean skipField(Set<String> seen, String name) {

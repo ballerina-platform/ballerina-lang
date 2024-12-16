@@ -27,6 +27,9 @@ import io.ballerina.runtime.api.types.semtype.Env;
 import io.ballerina.runtime.api.types.semtype.RecAtom;
 import io.ballerina.runtime.api.types.semtype.SemType;
 
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
+
 import static io.ballerina.runtime.api.types.semtype.BddNode.bddAtom;
 import static io.ballerina.runtime.api.types.semtype.Builder.basicSubType;
 import static io.ballerina.runtime.api.types.semtype.Builder.getUndefType;
@@ -43,16 +46,30 @@ public class ListDefinition extends Definition {
 
     private volatile RecAtom rec = null;
     private volatile SemType semType = null;
+    private final ReadWriteLock lock = new ReentrantReadWriteLock();
 
     @Override
     public SemType getSemType(Env env) {
-        SemType s = this.semType;
-        if (s == null) {
-            RecAtom rec = env.recListAtom();
-            this.rec = rec;
-            return this.createSemType(env, rec);
+        try {
+            this.lock.readLock().lock();
+            if (this.semType != null) {
+                return this.semType;
+            }
+        } finally {
+            this.lock.readLock().unlock();
         }
-        return s;
+        try {
+            this.lock.writeLock().lock();
+            SemType s = this.semType;
+            if (s == null) {
+                RecAtom rec = env.recListAtom();
+                this.rec = rec;
+                return this.createSemType(env, rec);
+            }
+            return s;
+        } finally {
+            this.lock.writeLock().unlock();
+        }
     }
 
     public SemType defineListTypeWrapped(Env env, SemType[] initial, int fixedLength, SemType rest,
