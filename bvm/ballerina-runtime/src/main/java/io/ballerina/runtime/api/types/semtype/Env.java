@@ -22,6 +22,7 @@ import io.ballerina.runtime.internal.types.semtype.CellAtomicType;
 import io.ballerina.runtime.internal.types.semtype.FunctionAtomicType;
 import io.ballerina.runtime.internal.types.semtype.ListAtomicType;
 import io.ballerina.runtime.internal.types.semtype.MappingAtomicType;
+import io.ballerina.runtime.internal.types.semtype.MutableSemType;
 
 import java.lang.ref.Reference;
 import java.lang.ref.WeakReference;
@@ -75,6 +76,7 @@ public final class Env {
     private final Map<CellSemTypeCacheKey, SemType> cellTypeCache = new ConcurrentHashMap<>();
 
     private final AtomicInteger distinctAtomCount = new AtomicInteger(0);
+    private final TypeCheckSelfDiagnosticsRunner selfDiagnosticsRunner;
 
     private Env() {
         this.atomTable = new WeakHashMap<>();
@@ -83,6 +85,12 @@ public final class Env {
         this.recFunctionAtoms = new ArrayList<>();
 
         PredefinedTypeEnv.getInstance().initializeEnv(this);
+        String diagnosticEnable = System.getenv("BAL_TYPE_CHECK_DIAGNOSTIC_ENABLE");
+        if ("true".equalsIgnoreCase(diagnosticEnable)) {
+            this.selfDiagnosticsRunner = new DebugSelfDiagnosticRunner(this);
+        } else {
+            this.selfDiagnosticsRunner = new NonOpSelfDiagnosticRunner();
+        }
     }
 
     public static Env getInstance() {
@@ -286,20 +294,46 @@ public final class Env {
     // the contexts have reached phase 2 again they all can continue in parallel. At the same time we can allow new
     // context to enter phase 1.
 
-    void enterTypeResolutionPhase() throws InterruptedException {
+    void enterTypeResolutionPhase(Context cx, MutableSemType t) throws InterruptedException {
         assert typeResolutionSemaphore.availablePermits() >= 0;
-        typeResolutionSemaphore.acquireUninterruptibly();
+        typeResolutionSemaphore.acquire();
         typeResolutionPhaser.register();
+        this.selfDiagnosticsRunner.registerTypeResolutionStart(cx, t);
     }
 
-    int enterTypeCheckingPhase() {
+    void exitTypeResolutionPhaseAbruptly(Context cx, Exception ex) {
+        typeResolutionSemaphore.release();
+        typeResolutionPhaser.arriveAndDeregister();
+        releaseLock((ReentrantReadWriteLock) atomLock);
+        releaseLock((ReentrantReadWriteLock) recListLock);
+        releaseLock((ReentrantReadWriteLock) recMapLock);
+        releaseLock((ReentrantReadWriteLock) recFunctionLock);
+        this.selfDiagnosticsRunner.registerAbruptTypeResolutionEnd(cx, ex);
+    }
+
+    private void releaseLock(ReentrantReadWriteLock lock) {
+        if (lock.writeLock().isHeldByCurrentThread()) {
+            lock.writeLock().unlock();
+        }
+        if (lock.getReadHoldCount() > 0) {
+            lock.readLock().unlock();
+        }
+    }
+
+    int enterTypeCheckingPhase(Context cx, SemType t1, SemType t2) {
         int drained = typeResolutionSemaphore.drainPermits();
         typeResolutionPhaser.awaitAdvance(typeResolutionPhaser.arriveAndDeregister());
+        this.selfDiagnosticsRunner.registerTypeCheckStart(cx, t1, t2);
         return drained;
     }
 
-    void exitTypeCheckingPhase(int permits) {
+    void exitTypeCheckingPhase(Context cx, int permits) {
         typeResolutionSemaphore.release(permits);
+        this.selfDiagnosticsRunner.registerTypeCheckEnd(cx);
         assert typeResolutionSemaphore.availablePermits() > 0;
+    }
+
+    void registerAbruptTypeCheckEnd(Context context, Exception ex) {
+        this.selfDiagnosticsRunner.registerAbruptTypeCheckEnd(context, ex);
     }
 }
