@@ -5,6 +5,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.lang.management.ManagementFactory;
+import java.lang.management.ThreadInfo;
+import java.lang.management.ThreadMXBean;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
@@ -79,6 +82,7 @@ public class DebugSelfDiagnosticRunner implements TypeCheckSelfDiagnosticsRunner
         synchronized (pendingTypeResolutions) {
             logBuilder.append(pendingTypeResolutionsToString(pendingTypeResolutions));
         }
+        logBuilder.append("\n\n");
         try {
             Files.write(Paths.get(LOG_FILE_PATH), logBuilder.toString().getBytes(), StandardOpenOption.CREATE,
                     StandardOpenOption.APPEND);
@@ -101,6 +105,8 @@ public class DebugSelfDiagnosticRunner implements TypeCheckSelfDiagnosticsRunner
         synchronized (pendingTypeResolutions) {
             logBuilder.append(pendingTypeResolutionsToString(pendingTypeResolutions));
         }
+
+        logBuilder.append("\n\n");
         try {
             Files.write(Paths.get(LOG_FILE_PATH), logBuilder.toString().getBytes(), StandardOpenOption.CREATE,
                     StandardOpenOption.APPEND);
@@ -187,7 +193,17 @@ public class DebugSelfDiagnosticRunner implements TypeCheckSelfDiagnosticsRunner
                     }
                 });
                 uncaughtExceptions.clear();
+                ThreadMXBean tmx = ManagementFactory.getThreadMXBean();
+                long[] ids = tmx.findDeadlockedThreads();
+                if (ids != null) {
+                    ThreadInfo[] infos = tmx.getThreadInfo(ids, true, true);
+                    logBuilder.append("The following threads are deadlocked:");
+                    for (ThreadInfo ti : infos) {
+                        logBuilder.append(ti);
+                    }
+                }
 
+                logBuilder.append("\n\n");
                 try {
                     Files.write(Paths.get(LOG_FILE_PATH), logBuilder.toString().getBytes(),
                             StandardOpenOption.CREATE, StandardOpenOption.APPEND);
