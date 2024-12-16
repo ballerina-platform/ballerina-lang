@@ -117,7 +117,7 @@ import static io.ballerina.runtime.api.constants.RuntimeConstants.MODULE_INIT_CL
 public class BallerinaWorkspaceManager implements WorkspaceManager {
 
     // workspace run related constants
-    private static final String JAVA_COMMAND = System.getProperty("java.command");
+    private static final String JAVA_COMMAND = "java.command";
     private static final String USER_DIR = System.getProperty("user.dir");
     private static final String HEAP_DUMP_FLAG = "-XX:+HeapDumpOnOutOfMemoryError";
     private static final String HEAP_DUMP_PATH_FLAG = "-XX:HeapDumpPath=";
@@ -673,7 +673,7 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
 
     private List<String> prepareExecutionCommands(RunContext context, Module module, JarResolver jarResolver) {
         List<String> commands = new ArrayList<>();
-        commands.add(JAVA_COMMAND);
+        commands.add(System.getProperty(JAVA_COMMAND));
         commands.add(HEAP_DUMP_FLAG);
         commands.add(HEAP_DUMP_PATH_FLAG + USER_DIR);
         if (context.debugPort() > 0) {
