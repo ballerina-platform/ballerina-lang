@@ -110,7 +110,12 @@ public final class Context {
             case TYPE_RESOLUTION -> {
             }
             case TYPE_CHECKING -> {
-                throw new IllegalStateException("Cannot enter type resolution phase while in type checking phase");
+                StringBuilder sb = new StringBuilder();
+                sb.append("Cannot enter type resolution phase while in type checking phase\n");
+                if (collectDiagnostic) {
+                    appendPhaseDataToError(sb);
+                }
+                throw new IllegalStateException(sb.toString());
             }
         }
     }
@@ -155,9 +160,22 @@ public final class Context {
     public void exitTypeCheckingPhase() {
         nTypeChecking -= 1;
         switch (phase) {
-            case INIT -> throw new IllegalStateException("Cannot exit type checking phase without entering it");
-            case TYPE_RESOLUTION ->
-                    throw new IllegalStateException("Cannot exit type checking phase while in type resolution phase");
+            case INIT -> {
+                StringBuilder sb = new StringBuilder();
+                sb.append("Cannot exit type checking phase without entering it");
+                if (collectDiagnostic) {
+                    appendPhaseDataToError(sb);
+                }
+                throw new IllegalStateException(sb.toString());
+            }
+            case TYPE_RESOLUTION -> {
+                StringBuilder sb = new StringBuilder();
+                sb.append("Cannot exit type checking phase while in type resolution phase\n");
+                if (collectDiagnostic) {
+                    appendPhaseDataToError(sb);
+                }
+                throw new IllegalStateException(sb.toString());
+            }
             case TYPE_CHECKING -> {
                 assert nTypeChecking >= 0;
                 if (nTypeChecking == 0) {
@@ -170,6 +188,17 @@ public final class Context {
                 }
                 assert nTypeChecking >= 0;
             }
+        }
+    }
+
+    private void appendPhaseDataToError(StringBuilder sb) {
+        sb.append("Type resolution phases:\n");
+        for (PhaseData phaseData : typeResolutionPhases) {
+            sb.append(phaseData).append("\n");
+        }
+        sb.append("Type checking phases:\n");
+        for (PhaseData phaseData : typeCheckPhases) {
+            sb.append(phaseData).append("\n");
         }
     }
 

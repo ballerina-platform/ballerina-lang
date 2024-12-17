@@ -13,6 +13,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.util.ArrayDeque;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -169,7 +170,8 @@ public class DebugSelfDiagnosticRunner implements TypeCheckSelfDiagnosticsRunner
                 logBuilder.append("\tat ").append(element).append("\n");
             }
             logBuilder.append("Entry point\n");
-            data.cx.typeResolutionPhases.forEach(each -> logBuilder.append(each.toString()).append("\n"));
+            var typeCheckPhases = new ArrayList<>(data.cx.typeCheckPhases);
+            typeCheckPhases.forEach(each -> logBuilder.append(each.toString()).append("\n"));
         });
         return logBuilder.toString();
     }
@@ -184,7 +186,8 @@ public class DebugSelfDiagnosticRunner implements TypeCheckSelfDiagnosticsRunner
                 logBuilder.append("\tat ").append(element).append("\n");
             }
             logBuilder.append("Entry point\n");
-            data.cx.typeResolutionPhases.forEach(each -> logBuilder.append(each.toString()).append("\n"));
+            List<Context.PhaseData> typeResolutionPhases = new ArrayList<>(data.cx.typeResolutionPhases);
+            typeResolutionPhases.forEach(each -> logBuilder.append(each.toString()).append("\n"));
         });
         return logBuilder.toString();
     }
