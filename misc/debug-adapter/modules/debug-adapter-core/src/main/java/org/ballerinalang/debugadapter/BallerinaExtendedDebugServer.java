@@ -25,7 +25,7 @@ import java.util.concurrent.CompletableFuture;
 /**
  * Extended debug server interface for Ballerina debug adapter.
  *
- * @since 2201.11.0
+ * @since 2201.12.0
  */
 public interface BallerinaExtendedDebugServer extends IDebugProtocolServer {
 

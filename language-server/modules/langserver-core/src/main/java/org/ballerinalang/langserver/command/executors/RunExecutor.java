@@ -40,7 +40,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Supplier;
-import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
 /**
@@ -131,7 +130,7 @@ public class RunExecutor implements LSCommandExecutor {
                         .map(JsonElement::getAsJsonPrimitive)
                         .filter(JsonPrimitive::isString)
                         .map(JsonPrimitive::getAsString)
-                        .collect(Collectors.toList()))
+                        .toList())
                 .orElse(Collections.emptyList());
     }
 
