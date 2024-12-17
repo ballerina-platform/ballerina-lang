@@ -53,6 +53,7 @@ public final class Context {
     private int nTypeChecking = 0;
     private Phase phase = Phase.INIT;
     List<PhaseData> typeResolutionPhases = new ArrayList<>();
+    List<PhaseData> typeCheckPhases = new ArrayList<>();
     private final boolean collectDiagnostic;
 
     private Context(Env env) {
@@ -123,13 +124,17 @@ public final class Context {
         switch (phase) {
             case INIT -> {
                 // This can happen if both types are immutable semtypes
+                if (collectDiagnostic) {
+                    typeCheckPhases.add(new PhaseData());
+                }
                 phase = Phase.TYPE_CHECKING;
             }
             case TYPE_RESOLUTION -> {
+                drainedPermits = env.enterTypeCheckingPhase(this, t1, t2);
                 if (collectDiagnostic) {
+                    typeCheckPhases.add(new PhaseData());
                     typeResolutionPhases.removeLast();
                 }
-                drainedPermits = env.enterTypeCheckingPhase(this, t1, t2);
                 phase = Phase.TYPE_CHECKING;
             }
             case TYPE_CHECKING -> {
@@ -140,6 +145,10 @@ public final class Context {
     public void exitTypeResolutionPhase() {
         if (phase == Phase.TYPE_RESOLUTION) {
             env.exitTypeResolutionPhase(this);
+            phase = Phase.INIT;
+            if (collectDiagnostic) {
+                typeResolutionPhases.removeLast();
+            }
         }
     }
 
@@ -153,6 +162,9 @@ public final class Context {
                 assert nTypeChecking >= 0;
                 if (nTypeChecking == 0) {
                     env.exitTypeCheckingPhase(this, drainedPermits + 1);
+                    if (collectDiagnostic) {
+                        typeCheckPhases.removeLast();
+                    }
                     phase = Phase.INIT;
                     drainedPermits = 0;
                 }

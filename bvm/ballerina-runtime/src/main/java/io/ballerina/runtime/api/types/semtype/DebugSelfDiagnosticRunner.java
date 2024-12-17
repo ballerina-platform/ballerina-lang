@@ -168,6 +168,8 @@ public class DebugSelfDiagnosticRunner implements TypeCheckSelfDiagnosticsRunner
             for (StackTraceElement element : data.t.getStackTrace()) {
                 logBuilder.append("\tat ").append(element).append("\n");
             }
+            logBuilder.append("Entry point\n");
+            data.cx.typeResolutionPhases.forEach(each -> logBuilder.append(each.toString()).append("\n"));
         });
         return logBuilder.toString();
     }
@@ -181,7 +183,7 @@ public class DebugSelfDiagnosticRunner implements TypeCheckSelfDiagnosticsRunner
             for (StackTraceElement element : data.t.getStackTrace()) {
                 logBuilder.append("\tat ").append(element).append("\n");
             }
-            logBuilder.append("Entry points\n");
+            logBuilder.append("Entry point\n");
             data.cx.typeResolutionPhases.forEach(each -> logBuilder.append(each.toString()).append("\n"));
         });
         return logBuilder.toString();
