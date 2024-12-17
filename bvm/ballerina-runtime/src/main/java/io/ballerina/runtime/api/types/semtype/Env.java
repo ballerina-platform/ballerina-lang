@@ -316,18 +316,15 @@ public final class Env {
     // context to enter phase 1.
 
     void enterTypeResolutionPhase(Context cx, MutableSemType t) throws InterruptedException {
-        assert typeResolutionSemaphore.availablePermits() >= 0;
         typeResolutionSemaphore.acquire();
         if (typeResolutionPhaser.isTerminated()) {
             synchronized (this) {
                 if (typeResolutionPhaser.isTerminated()) {
                     typeResolutionPhaser = new Phaser();
-                    typeResolutionPhaser.register();
                 }
             }
-        } else {
-            typeResolutionPhaser.register();
         }
+        typeResolutionPhaser.register();
         this.selfDiagnosticsRunner.registerTypeResolutionStart(cx, t);
     }
 
@@ -366,7 +363,6 @@ public final class Env {
     void exitTypeCheckingPhase(Context cx, int permits) {
         typeResolutionSemaphore.release(permits);
         this.selfDiagnosticsRunner.registerTypeCheckEnd(cx);
-        assert typeResolutionSemaphore.availablePermits() > 0;
     }
 
     void registerAbruptTypeCheckEnd(Context context, Exception ex) {

@@ -272,9 +272,11 @@ public final class TypeChecker {
             return true;
         }
         SemType sourceSemType = SemType.tryInto(cx, sourceType);
-        cx.exitTypeResolutionPhase();
-        return couldInherentTypeBeDifferent(sourceSemType) &&
-                isSubTypeWithInherentType(cx, sourceVal, SemType.tryInto(cx, targetType));
+        if (!couldInherentTypeBeDifferent(sourceSemType)) {
+            cx.exitTypeResolutionPhase();
+            return false;
+        }
+        return isSubTypeWithInherentType(cx, sourceVal, SemType.tryInto(cx, targetType));
     }
 
     /**
@@ -607,9 +609,9 @@ public final class TypeChecker {
     // Private methods
 
     private static boolean isSubTypeWithInherentType(Context cx, Object sourceValue, SemType target) {
+        cx.exitTypeResolutionPhase();
         return ShapeAnalyzer.inherentTypeOf(cx, sourceValue)
                 .map(source -> !Core.isEmpty(cx, source) && Core.isSubType(cx, source, target))
-                // OR else do the normal type check by taking the shape of
                 .orElse(false);
     }
 
