@@ -29,9 +29,9 @@ import io.ballerina.tools.text.TextDocuments;
  */
 class MdDocumentContext {
     private TextDocument textDocument;
-    private DocumentId documentId;
-    private String name;
-    private String content;
+    private final DocumentId documentId;
+    private final String name;
+    private final String content;
 
     private MdDocumentContext(DocumentId documentId, String name, String content) {
         this.documentId = documentId;

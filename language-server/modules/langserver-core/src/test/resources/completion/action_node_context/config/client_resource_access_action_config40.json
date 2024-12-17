@@ -1,0 +1,40 @@
+{
+  "position": {
+    "line": 8,
+    "character": 9
+  },
+  "source": "action_node_context/source/client_resource_access_action_source33.bal",
+  "description": "Test completions in resource param with a subtype of expression",
+  "items": [
+    {
+      "label": "/[int|string:Char a].accessor",
+      "kind": "Function",
+      "detail": "()",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _._  \n  \n  \n**Params**  \n- `int|string:Char` a"
+        }
+      },
+      "sortText": "CD",
+      "filterText": "|accessor",
+      "insertText": "/[${1:\"path\"}].accessor;",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "/<a>.accessor",
+      "kind": "Function",
+      "detail": "()",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _._  \n  \n  \n**Params**  \n- `int|string:Char` a"
+        }
+      },
+      "sortText": "CE",
+      "filterText": "|accessor",
+      "insertText": "/${1:path}.accessor;",
+      "insertTextFormat": "Snippet"
+    }
+  ]
+}

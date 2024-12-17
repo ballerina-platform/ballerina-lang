@@ -633,44 +633,41 @@ public class BallerinaParser extends AbstractParser {
     private boolean isModuleVarDeclStart(int lookahead) {
         // Assumes that we reach here after a peek()
         STToken nextToken = peek(lookahead + 1);
-        switch (nextToken.kind) {
-            case EQUAL_TOKEN: // Scenario: foo = . Even though this is not valid, consider this as a var-decl and
-                // continue;
-            case OPEN_BRACKET_TOKEN: // Scenario foo[] (Array type descriptor with custom type)
-            case QUESTION_MARK_TOKEN: // Scenario foo? (Optional type descriptor with custom type)
-            case PIPE_TOKEN: // Scenario foo | (Union type descriptor with custom type)
-            case BITWISE_AND_TOKEN: // Scenario foo & (Intersection type descriptor with custom type)
-            case OPEN_BRACE_TOKEN: // Scenario foo{} (mapping-binding-pattern)
-            case ERROR_KEYWORD: // Scenario foo error (error-binding-pattern)
-            case EOF_TOKEN:
-                return true;
-            case IDENTIFIER_TOKEN:
-                switch (peek(lookahead + 2).kind) {
-                    case EQUAL_TOKEN: // Scenario: foo bar =
-                    case SEMICOLON_TOKEN: // Scenario: foo bar;
-                    case EOF_TOKEN:
-                        return true;
-                    default:
-                        return false;
-                }
-            case COLON_TOKEN:
+        return switch (nextToken.kind) {
+            case EQUAL_TOKEN, // Scenario: foo = . Even though this is not valid, consider this as a var-decl and
+                 // continue;
+                 OPEN_BRACKET_TOKEN, // Scenario foo[] (Array type descriptor with custom type)
+                 QUESTION_MARK_TOKEN, // Scenario foo? (Optional type descriptor with custom type)
+                 PIPE_TOKEN, // Scenario foo | (Union type descriptor with custom type)
+                 BITWISE_AND_TOKEN, // Scenario foo & (Intersection type descriptor with custom type)
+                 OPEN_BRACE_TOKEN, // Scenario foo{} (mapping-binding-pattern)
+                 ERROR_KEYWORD, // Scenario foo error (error-binding-pattern)
+                 EOF_TOKEN -> true;
+            case IDENTIFIER_TOKEN -> switch (peek(lookahead + 2).kind) {
+                case EQUAL_TOKEN,
+                     // Scenario: foo bar =
+                     SEMICOLON_TOKEN,
+                     // Scenario: foo bar;
+                     EOF_TOKEN -> true;
+                default -> false;
+            };
+            case COLON_TOKEN -> {
                 if (lookahead > 1) {
                     // This means there's a colon somewhere after the type name.
                     // This is not a valid var-decl.
-                    return false;
+                    yield false;
                 }
 
-                switch (peek(lookahead + 2).kind) {
-                    case IDENTIFIER_TOKEN: // Scenario: foo:bar baz ...
-                        return isModuleVarDeclStart(lookahead + 2);
-                    case EOF_TOKEN: // Scenario: foo: recovery
-                        return true;
-                    default:
-                        return false;
-                }
-            default:
-                return false;
-        }
+                yield switch (peek(lookahead + 2).kind) {
+                    // Scenario: foo:bar baz ...
+                    case IDENTIFIER_TOKEN -> isModuleVarDeclStart(lookahead + 2);
+                    // Scenario: foo: recovery
+                    case EOF_TOKEN -> true;
+                    default -> false;
+                };
+            }
+            default -> false;
+        };
     }
 
     /**
@@ -831,36 +828,32 @@ public class BallerinaParser extends AbstractParser {
     }
 
     private STNode parseModuleNameRhs() {
-        switch(peek().kind) {
-            case DOT_TOKEN:
-                return consume();
-            case AS_KEYWORD:
-            case SEMICOLON_TOKEN:
-                return null;
-            default:
+        return switch (peek().kind) {
+            case DOT_TOKEN -> consume();
+            case AS_KEYWORD, SEMICOLON_TOKEN -> null;
+            default -> {
                 recover(peek(), ParserRuleContext.AFTER_IMPORT_MODULE_NAME);
-                return parseModuleNameRhs();
-        }
+                yield parseModuleNameRhs();
+            }
+        };
     }
 
     private boolean isEndOfImportDecl(STToken nextToken) {
-        switch (nextToken.kind) {
-            case SEMICOLON_TOKEN:
-            case PUBLIC_KEYWORD:
-            case FUNCTION_KEYWORD:
-            case TYPE_KEYWORD:
-            case ABSTRACT_KEYWORD:
-            case CONST_KEYWORD:
-            case EOF_TOKEN:
-            case SERVICE_KEYWORD:
-            case IMPORT_KEYWORD:
-            case FINAL_KEYWORD:
-            case TRANSACTIONAL_KEYWORD:
-            case ISOLATED_KEYWORD:
-                return true;
-            default:
-                return false;
-        }
+        return switch (nextToken.kind) {
+            case SEMICOLON_TOKEN,
+                 PUBLIC_KEYWORD,
+                 FUNCTION_KEYWORD,
+                 TYPE_KEYWORD,
+                 ABSTRACT_KEYWORD,
+                 CONST_KEYWORD,
+                 EOF_TOKEN,
+                 SERVICE_KEYWORD,
+                 IMPORT_KEYWORD,
+                 FINAL_KEYWORD,
+                 TRANSACTIONAL_KEYWORD,
+                 ISOLATED_KEYWORD -> true;
+            default -> false;
+        };
     }
 
     /**
@@ -1105,14 +1098,10 @@ public class BallerinaParser extends AbstractParser {
     }
 
     boolean isModuleVarDeclQualifier(SyntaxKind tokenKind) {
-        switch (tokenKind) {
-            case FINAL_KEYWORD:
-            case ISOLATED_KEYWORD:
-            case CONFIGURABLE_KEYWORD:
-                return true;
-            default:
-                return false;
-        }
+        return switch (tokenKind) {
+            case FINAL_KEYWORD, ISOLATED_KEYWORD, CONFIGURABLE_KEYWORD -> true;
+            default -> false;
+        };
     }
 
     private void reportInvalidQualifier(STNode qualifier) {
@@ -1158,85 +1147,81 @@ public class BallerinaParser extends AbstractParser {
 
     private boolean isTopLevelQualifier(SyntaxKind tokenKind) {
         STToken nextNextToken;
-        switch (tokenKind) {
-            case FINAL_KEYWORD: // final-qualifier
-            case CONFIGURABLE_KEYWORD: // configurable-qualifier
-                return true;
-            case READONLY_KEYWORD: // readonly-type-desc, class-def
+        return switch (tokenKind) {
+            case FINAL_KEYWORD, // final-qualifier
+                 CONFIGURABLE_KEYWORD // configurable-qualifier
+                    -> true;
+            // readonly-type-desc, class-def
+            case READONLY_KEYWORD -> {
                 nextNextToken = getNextNextToken();
                 // Treat readonly as a top level qualifier only with class definition.
-                switch (nextNextToken.kind) {
-                    case CLIENT_KEYWORD:
-                    case SERVICE_KEYWORD:
-                    case DISTINCT_KEYWORD:
-                    case ISOLATED_KEYWORD:
-                    case CLASS_KEYWORD:
-                        return true;
-                    default:
-                        return false;
-                }
-            case DISTINCT_KEYWORD: // class-def, distinct-type-desc
+                yield switch (nextNextToken.kind) {
+                    case CLIENT_KEYWORD,
+                         SERVICE_KEYWORD,
+                         DISTINCT_KEYWORD,
+                         ISOLATED_KEYWORD,
+                         CLASS_KEYWORD -> true;
+                    default -> false;
+                };
+            }
+            // class-def, distinct-type-desc
+            case DISTINCT_KEYWORD -> {
                 nextNextToken = getNextNextToken();
                 // distinct-type-desc can occur recursively.
                 // e.g. `distinct distinct student` is a valid type descriptor
                 // Treat distinct as a top level qualifier only with class definition.
-                switch (nextNextToken.kind) {
-                    case CLIENT_KEYWORD:
-                    case SERVICE_KEYWORD:
-                    case READONLY_KEYWORD:
-                    case ISOLATED_KEYWORD:
-                    case CLASS_KEYWORD:
-                        return true;
-                    default:
-                        return false;
-                }
-            default:
-                return isTypeDescQualifier(tokenKind);
-        }
+                yield switch (nextNextToken.kind) {
+                    case CLIENT_KEYWORD,
+                         SERVICE_KEYWORD,
+                         READONLY_KEYWORD,
+                         ISOLATED_KEYWORD,
+                         CLASS_KEYWORD -> true;
+                    default -> false;
+                };
+            }
+            default -> isTypeDescQualifier(tokenKind);
+        };
     }
 
     private boolean isTypeDescQualifier(SyntaxKind tokenKind) {
-        switch (tokenKind) {
-            case TRANSACTIONAL_KEYWORD: // func-type-dec, func-def
-            case ISOLATED_KEYWORD: // func-type-dec, object-type-desc, func-def, class-def, isolated-final-qual
-            case CLIENT_KEYWORD: // object-type-desc, class-def
-            case ABSTRACT_KEYWORD: // object-type-desc(outdated)
-            case SERVICE_KEYWORD: // object-type-desc, object-constructor, class-def, service-decl
-                return true;
-            default:
-                return false;
-        }
+        return switch (tokenKind) {
+            case TRANSACTIONAL_KEYWORD, // func-type-dec, func-def
+                 ISOLATED_KEYWORD, // func-type-dec, object-type-desc, func-def, class-def, isolated-final-qual
+                 CLIENT_KEYWORD, // object-type-desc, class-def
+                 ABSTRACT_KEYWORD, // object-type-desc(outdated)
+                 SERVICE_KEYWORD // object-type-desc, object-constructor, class-def, service-decl
+                    -> true;
+            default -> false;
+        };
     }
 
     private boolean isObjectMemberQualifier(SyntaxKind tokenKind) {
-        switch (tokenKind) {
-            case REMOTE_KEYWORD: // method-def, method-decl
-            case RESOURCE_KEYWORD: // resource-method-def
-            case FINAL_KEYWORD: // final-qualifier
-                return true;
-            default:
-                return isTypeDescQualifier(tokenKind);
-        }
+        return switch (tokenKind) {
+            case REMOTE_KEYWORD, // method-def, method-decl
+                 RESOURCE_KEYWORD, // resource-method-def
+                 FINAL_KEYWORD // final-qualifier
+                    -> true;
+            default -> isTypeDescQualifier(tokenKind);
+        };
     }
 
     private boolean isExprQualifier(SyntaxKind tokenKind) {
-        switch (tokenKind) {
-            case TRANSACTIONAL_KEYWORD: // transactional-expr, object-type, func-type
+        return switch (tokenKind) {
+            // transactional-expr, object-type, func-type
+            case TRANSACTIONAL_KEYWORD -> {
                 STToken nextNextToken = getNextNextToken();
                 // Treat transactional as a expr level qualifier only with object-type and func-type.
-                switch (nextNextToken.kind) {
-                    case CLIENT_KEYWORD:
-                    case ABSTRACT_KEYWORD:
-                    case ISOLATED_KEYWORD:
-                    case OBJECT_KEYWORD:
-                    case FUNCTION_KEYWORD:
-                        return true;
-                    default:
-                        return false;
-                }
-            default:
-                return isTypeDescQualifier(tokenKind);
-        }
+                yield switch (nextNextToken.kind) {
+                    case CLIENT_KEYWORD,
+                         ABSTRACT_KEYWORD,
+                         ISOLATED_KEYWORD,
+                         OBJECT_KEYWORD,
+                         FUNCTION_KEYWORD -> true;
+                    default -> false;
+                };
+            }
+            default -> isTypeDescQualifier(tokenKind);
+        };
     }
 
     private void parseTopLevelQualifiers(List<STNode> qualifiers) {
@@ -1412,15 +1397,13 @@ public class BallerinaParser extends AbstractParser {
     }
 
     private boolean isBindingPatternsStartToken(SyntaxKind tokenKind) {
-        switch (tokenKind) {
-            case IDENTIFIER_TOKEN:
-            case OPEN_BRACKET_TOKEN:
-            case OPEN_BRACE_TOKEN:
-            case ERROR_KEYWORD:
-                return true;
-            default:
-                return false;
-        }
+        return switch (tokenKind) {
+            case IDENTIFIER_TOKEN,
+                 OPEN_BRACKET_TOKEN,
+                 OPEN_BRACE_TOKEN,
+                 ERROR_KEYWORD -> true;
+            default -> false;
+        };
     }
 
     /**
@@ -2184,14 +2167,11 @@ public class BallerinaParser extends AbstractParser {
 
         // Check for [isolated] service match
         STNode firstElement = nodeList.get(0);
-        switch (firstElement.kind) {
-            case SERVICE_KEYWORD:
-                return true;
-            case ISOLATED_KEYWORD:
-                return nodeList.size() > 1 && nodeList.get(1).kind == SyntaxKind.SERVICE_KEYWORD;
-            default:
-                return false;
-        }
+        return switch (firstElement.kind) {
+            case SERVICE_KEYWORD -> true;
+            case ISOLATED_KEYWORD -> nodeList.size() > 1 && nodeList.get(1).kind == SyntaxKind.SERVICE_KEYWORD;
+            default -> false;
+        };
     }
 
     private STNode parseParameterRhs() {
@@ -2199,15 +2179,14 @@ public class BallerinaParser extends AbstractParser {
     }
 
     private STNode parseParameterRhs(SyntaxKind tokenKind) {
-        switch (tokenKind) {
-            case COMMA_TOKEN:
-                return consume();
-            case CLOSE_PAREN_TOKEN:
-                return null;
-            default:
+        return switch (tokenKind) {
+            case COMMA_TOKEN -> consume();
+            case CLOSE_PAREN_TOKEN -> null;
+            default -> {
                 recover(peek(), ParserRuleContext.PARAM_END);
-                return parseParameterRhs();
-        }
+                yield parseParameterRhs();
+            }
+        };
 
     }
 
@@ -2330,7 +2309,7 @@ public class BallerinaParser extends AbstractParser {
         }
 
         recover(token, ParserRuleContext.AFTER_PARAMETER_TYPE);
-        return parseAfterParamType(prevParamKind, annots, inclusionSymbol, type, isParamNameOptional);
+        return parseAfterParamType(prevParamKind, annots, inclusionSymbol, type, false);
     }
 
     /**
@@ -2452,21 +2431,19 @@ public class BallerinaParser extends AbstractParser {
     }
 
     private boolean isSafeMissingReturnsParseCtx(ParserRuleContext ctx) {
-        switch (ctx) {
-            case TYPE_DESC_IN_ANNOTATION_DECL:
-            case TYPE_DESC_BEFORE_IDENTIFIER:
-            case TYPE_DESC_BEFORE_IDENTIFIER_IN_GROUPING_KEY:
-            case TYPE_DESC_IN_RECORD_FIELD:
-            case TYPE_DESC_IN_PARAM:
-            case TYPE_DESC_IN_TYPE_BINDING_PATTERN:
-            case VAR_DECL_STARTED_WITH_DENTIFIER:
-            case TYPE_DESC_IN_PATH_PARAM:
-            case AMBIGUOUS_STMT:
-                // Contexts that expect an identifier after function type are not safe to parse as a missing return type
-                return false;
-            default:
-                return true;
-        }
+        return switch (ctx) {
+            // Contexts that expect an identifier after function type are not safe to parse as a missing return type
+            case TYPE_DESC_IN_ANNOTATION_DECL,
+                 TYPE_DESC_BEFORE_IDENTIFIER,
+                 TYPE_DESC_BEFORE_IDENTIFIER_IN_GROUPING_KEY,
+                 TYPE_DESC_IN_RECORD_FIELD,
+                 TYPE_DESC_IN_PARAM,
+                 TYPE_DESC_IN_TYPE_BINDING_PATTERN,
+                 VAR_DECL_STARTED_WITH_DENTIFIER,
+                 TYPE_DESC_IN_PATH_PARAM,
+                 AMBIGUOUS_STMT -> false;
+            default -> true;
+        };
     }
 
     /**
@@ -2619,7 +2596,7 @@ public class BallerinaParser extends AbstractParser {
                 }
                 
                 STNode arrayTypeDesc = parseArrayTypeDescriptor(typeDesc);
-                return parseComplexTypeDescriptorInternal(arrayTypeDesc, context, isTypedBindingPattern, precedence);
+                return parseComplexTypeDescriptorInternal(arrayTypeDesc, context, false, precedence);
             case PIPE_TOKEN:
                 if (precedence.isHigherThanOrEqual(TypePrecedence.UNION)) {
                     return  typeDesc;
@@ -2640,15 +2617,10 @@ public class BallerinaParser extends AbstractParser {
     }
 
     private boolean isValidTypeContinuationToken(STToken token) {
-        switch (token.kind) {
-            case QUESTION_MARK_TOKEN:
-            case OPEN_BRACKET_TOKEN:
-            case PIPE_TOKEN:
-            case BITWISE_AND_TOKEN:
-                return true;
-            default:
-                return false;
-        }
+        return switch (token.kind) {
+            case QUESTION_MARK_TOKEN, OPEN_BRACKET_TOKEN, PIPE_TOKEN, BITWISE_AND_TOKEN -> true;
+            default -> false;
+        };
     }
 
     private STNode validateForUsageOfVar(STNode typeDesc) {
@@ -2761,17 +2733,12 @@ public class BallerinaParser extends AbstractParser {
         }
 
         STNode lastQualifier = getLastNodeInList(qualifiers);
-        switch (lastQualifier.kind) {
-            case ISOLATED_KEYWORD:
-                return ParserRuleContext.TYPE_DESC_WITHOUT_ISOLATED;
-            case TRANSACTIONAL_KEYWORD:
-                return ParserRuleContext.FUNC_TYPE_DESC;
-            case SERVICE_KEYWORD:
-            case CLIENT_KEYWORD:
-            default:
-                // We reach here for service and client only.
-                return ParserRuleContext.OBJECT_TYPE_DESCRIPTOR;
-        }
+        return switch (lastQualifier.kind) {
+            case ISOLATED_KEYWORD -> ParserRuleContext.TYPE_DESC_WITHOUT_ISOLATED;
+            case TRANSACTIONAL_KEYWORD -> ParserRuleContext.FUNC_TYPE_DESC;
+            // We reach here for service and client only.
+            default -> ParserRuleContext.OBJECT_TYPE_DESCRIPTOR;
+        };
     }
 
     /**
@@ -2781,15 +2748,10 @@ public class BallerinaParser extends AbstractParser {
      * @return <code>true</code> if the given token is a parameterized type keyword. <code>false</code> otherwise
      */
     static boolean isParameterizedTypeToken(SyntaxKind tokenKind) {
-        switch (tokenKind) {
-            case TYPEDESC_KEYWORD:
-            case FUTURE_KEYWORD:
-            case XML_KEYWORD:
-            case ERROR_KEYWORD:
-                return true;
-            default:
-                return false;
-        }
+        return switch (tokenKind) {
+            case TYPEDESC_KEYWORD, FUTURE_KEYWORD, XML_KEYWORD, ERROR_KEYWORD -> true;
+            default -> false;
+        };
     }
 
     private STNode parseQualifiedIdentWithTransactionPrefix(ParserRuleContext context) {
@@ -2843,27 +2805,31 @@ public class BallerinaParser extends AbstractParser {
     }
 
     private STNode parseTypeDescStartWithPredeclPrefix(STToken preDeclaredPrefix, List<STNode> qualifiers) {
-        switch (preDeclaredPrefix.kind) {
-            case MAP_KEYWORD:
+        return switch (preDeclaredPrefix.kind) {
+            case MAP_KEYWORD -> {
                 reportInvalidQualifierList(qualifiers);
-                return parseMapTypeDescriptor(preDeclaredPrefix);
-            case OBJECT_KEYWORD:
+                yield parseMapTypeDescriptor(preDeclaredPrefix);
+            }
+            case OBJECT_KEYWORD -> {
                 STNode objectTypeQualifiers = createObjectTypeQualNodeList(qualifiers);
-                return parseObjectTypeDescriptor(preDeclaredPrefix, objectTypeQualifiers);
-            case STREAM_KEYWORD:
+                yield parseObjectTypeDescriptor(preDeclaredPrefix, objectTypeQualifiers);
+            }
+            case STREAM_KEYWORD -> {
                 reportInvalidQualifierList(qualifiers);
-                return parseStreamTypeDescriptor(preDeclaredPrefix);
-            case TABLE_KEYWORD:
+                yield parseStreamTypeDescriptor(preDeclaredPrefix);
+            }
+            case TABLE_KEYWORD -> {
                 reportInvalidQualifierList(qualifiers);
-                return parseTableTypeDescriptor(preDeclaredPrefix);
-            default:
+                yield parseTableTypeDescriptor(preDeclaredPrefix);
+            }
+            default -> {
                 if (isParameterizedTypeToken(preDeclaredPrefix.kind)) {
                     reportInvalidQualifierList(qualifiers);
-                    return parseParameterizedTypeDescriptor(preDeclaredPrefix);
+                    yield parseParameterizedTypeDescriptor(preDeclaredPrefix);
                 }
-                
-                return createBuiltinSimpleNameReference(preDeclaredPrefix);
-        }
+                yield createBuiltinSimpleNameReference(preDeclaredPrefix);
+            }
+        };
     }
 
     private STNode parseQualifiedIdentifierWithPredeclPrefix(STToken preDeclaredPrefix, boolean isInConditionalExpr) {
@@ -2959,17 +2925,15 @@ public class BallerinaParser extends AbstractParser {
      */
     protected STNode parseFunctionBody() {
         STToken token = peek();
-        switch (token.kind) {
-            case EQUAL_TOKEN:
-                return parseExternalFunctionBody();
-            case OPEN_BRACE_TOKEN:
-                return parseFunctionBodyBlock(false);
-            case RIGHT_DOUBLE_ARROW_TOKEN:
-                return parseExpressionFuncBody(false, false);
-            default:
+        return switch (token.kind) {
+            case EQUAL_TOKEN -> parseExternalFunctionBody();
+            case OPEN_BRACE_TOKEN -> parseFunctionBodyBlock(false);
+            case RIGHT_DOUBLE_ARROW_TOKEN -> parseExpressionFuncBody(false, false);
+            default -> {
                 recover(token, ParserRuleContext.FUNC_BODY);
-                return parseFunctionBody();
-        }
+                yield parseFunctionBody();
+            }
+        };
     }
 
     /**
@@ -3083,12 +3047,7 @@ public class BallerinaParser extends AbstractParser {
     }
 
     private boolean isEndOfRecordTypeNode(SyntaxKind nextTokenKind) {
-        switch (nextTokenKind) {
-            case TYPE_KEYWORD:
-            case PUBLIC_KEYWORD:
-            default:
-                return isEndOfModuleLevelNode(1);
-        }
+        return isEndOfModuleLevelNode(1);
     }
 
     private boolean isEndOfObjectTypeNode() {
@@ -3096,12 +3055,10 @@ public class BallerinaParser extends AbstractParser {
     }
 
     private boolean isEndOfStatements() {
-        switch (peek().kind) {
-            case RESOURCE_KEYWORD:
-                return true;
-            default:
-                return isEndOfModuleLevelNode(1);
-        }
+        return switch (peek().kind) {
+            case RESOURCE_KEYWORD -> true;
+            default -> isEndOfModuleLevelNode(1);
+        };
     }
 
     private boolean isEndOfModuleLevelNode(int peekIndex) {
@@ -3109,31 +3066,28 @@ public class BallerinaParser extends AbstractParser {
     }
 
     private boolean isEndOfModuleLevelNode(int peekIndex, boolean isObject) {
-        switch (peek(peekIndex).kind) {
-            case EOF_TOKEN:
-            case CLOSE_BRACE_TOKEN:
-            case CLOSE_BRACE_PIPE_TOKEN:
-            case IMPORT_KEYWORD:
-            case ANNOTATION_KEYWORD:
-            case LISTENER_KEYWORD:
-            case CLASS_KEYWORD:
-                return true;
-            case SERVICE_KEYWORD:
-                return isServiceDeclStart(ParserRuleContext.OBJECT_CONSTRUCTOR_MEMBER, 1);
-            case PUBLIC_KEYWORD:
-                return !isObject && isEndOfModuleLevelNode(peekIndex + 1, false);
-            case FUNCTION_KEYWORD:
+        return switch (peek(peekIndex).kind) {
+            case EOF_TOKEN,
+                 CLOSE_BRACE_TOKEN,
+                 CLOSE_BRACE_PIPE_TOKEN,
+                 IMPORT_KEYWORD,
+                 ANNOTATION_KEYWORD,
+                 LISTENER_KEYWORD,
+                 CLASS_KEYWORD -> true;
+            case SERVICE_KEYWORD -> isServiceDeclStart(ParserRuleContext.OBJECT_CONSTRUCTOR_MEMBER, 1);
+            case PUBLIC_KEYWORD -> !isObject && isEndOfModuleLevelNode(peekIndex + 1, false);
+            case FUNCTION_KEYWORD -> {
                 if (isObject) {
-                    return false;
+                    yield false;
                 }
 
                 // if function keyword follows by a identifier treat is as
                 // the function name. Only function def can have func-name
-                return peek(peekIndex + 1).kind == SyntaxKind.IDENTIFIER_TOKEN &&
+                yield peek(peekIndex + 1).kind == SyntaxKind.IDENTIFIER_TOKEN &&
                         peek(peekIndex + 2).kind == SyntaxKind.OPEN_PAREN_TOKEN;
-            default:
-                return false;
-        }
+            }
+            default -> false;
+        };
     }
 
     /**
@@ -3143,21 +3097,19 @@ public class BallerinaParser extends AbstractParser {
      * @return <code>true</code> if the token represents an end of a parameter. <code>false</code> otherwise
      */
     private boolean isEndOfParameter(SyntaxKind tokenKind) {
-        switch (tokenKind) {
-            case CLOSE_PAREN_TOKEN:
-            case CLOSE_BRACKET_TOKEN:
-            case SEMICOLON_TOKEN:
-            case COMMA_TOKEN:
-            case RETURNS_KEYWORD:
-            case TYPE_KEYWORD:
-            case IF_KEYWORD:
-            case WHILE_KEYWORD:
-            case DO_KEYWORD:
-            case AT_TOKEN:
-                return true;
-            default:
-                return isEndOfModuleLevelNode(1);
-        }
+        return switch (tokenKind) {
+            case CLOSE_PAREN_TOKEN,
+                 CLOSE_BRACKET_TOKEN,
+                 SEMICOLON_TOKEN,
+                 COMMA_TOKEN,
+                 RETURNS_KEYWORD,
+                 TYPE_KEYWORD,
+                 IF_KEYWORD,
+                 WHILE_KEYWORD,
+                 DO_KEYWORD,
+                 AT_TOKEN -> true;
+            default -> isEndOfModuleLevelNode(1);
+        };
     }
 
     /**
@@ -3167,19 +3119,17 @@ public class BallerinaParser extends AbstractParser {
      * @return <code>true</code> if the token represents an end of a parameter-list. <code>false</code> otherwise
      */
     private boolean isEndOfParametersList(SyntaxKind tokenKind) {
-        switch (tokenKind) {
-            case CLOSE_PAREN_TOKEN:
-            case SEMICOLON_TOKEN:
-            case RETURNS_KEYWORD:
-            case TYPE_KEYWORD:
-            case IF_KEYWORD:
-            case WHILE_KEYWORD:
-            case DO_KEYWORD:
-            case RIGHT_DOUBLE_ARROW_TOKEN:
-                return true;
-            default:
-                return isEndOfModuleLevelNode(1);
-        }
+        return switch (tokenKind) {
+            case CLOSE_PAREN_TOKEN,
+                 SEMICOLON_TOKEN,
+                 RETURNS_KEYWORD,
+                 TYPE_KEYWORD,
+                 IF_KEYWORD,
+                 WHILE_KEYWORD,
+                 DO_KEYWORD,
+                 RIGHT_DOUBLE_ARROW_TOKEN -> true;
+            default -> isEndOfModuleLevelNode(1);
+        };
     }
 
     /**
@@ -3357,35 +3307,33 @@ public class BallerinaParser extends AbstractParser {
      * @return <code>true</code> if the token kind refers to a binary operator. <code>false</code> otherwise
      */
     private boolean isBinaryOperator(SyntaxKind kind) {
-        switch (kind) {
-            case PLUS_TOKEN:
-            case MINUS_TOKEN:
-            case SLASH_TOKEN:
-            case ASTERISK_TOKEN:
-            case GT_TOKEN:
-            case LT_TOKEN:
-            case DOUBLE_EQUAL_TOKEN:
-            case TRIPPLE_EQUAL_TOKEN:
-            case LT_EQUAL_TOKEN:
-            case GT_EQUAL_TOKEN:
-            case NOT_EQUAL_TOKEN:
-            case NOT_DOUBLE_EQUAL_TOKEN:
-            case BITWISE_AND_TOKEN:
-            case BITWISE_XOR_TOKEN:
-            case PIPE_TOKEN:
-            case LOGICAL_AND_TOKEN:
-            case LOGICAL_OR_TOKEN:
-            case PERCENT_TOKEN:
-            case DOUBLE_LT_TOKEN:
-            case DOUBLE_GT_TOKEN:
-            case TRIPPLE_GT_TOKEN:
-            case ELLIPSIS_TOKEN:
-            case DOUBLE_DOT_LT_TOKEN:
-            case ELVIS_TOKEN:
-                return true;
-            default:
-                return false;
-        }
+        return switch (kind) {
+            case PLUS_TOKEN,
+                 MINUS_TOKEN,
+                 SLASH_TOKEN,
+                 ASTERISK_TOKEN,
+                 GT_TOKEN,
+                 LT_TOKEN,
+                 DOUBLE_EQUAL_TOKEN,
+                 TRIPPLE_EQUAL_TOKEN,
+                 LT_EQUAL_TOKEN,
+                 GT_EQUAL_TOKEN,
+                 NOT_EQUAL_TOKEN,
+                 NOT_DOUBLE_EQUAL_TOKEN,
+                 BITWISE_AND_TOKEN,
+                 BITWISE_XOR_TOKEN,
+                 PIPE_TOKEN,
+                 LOGICAL_AND_TOKEN,
+                 LOGICAL_OR_TOKEN,
+                 PERCENT_TOKEN,
+                 DOUBLE_LT_TOKEN,
+                 DOUBLE_GT_TOKEN,
+                 TRIPPLE_GT_TOKEN,
+                 ELLIPSIS_TOKEN,
+                 DOUBLE_DOT_LT_TOKEN,
+                 ELVIS_TOKEN -> true;
+            default -> false;
+        };
     }
 
     /**
@@ -3395,67 +3343,50 @@ public class BallerinaParser extends AbstractParser {
      * @return Precedence of the given operator
      */
     private OperatorPrecedence getOpPrecedence(SyntaxKind binaryOpKind) {
-        switch (binaryOpKind) {
-            case ASTERISK_TOKEN: // multiplication
-            case SLASH_TOKEN: // division
-            case PERCENT_TOKEN: // remainder
-                return OperatorPrecedence.MULTIPLICATIVE;
-            case PLUS_TOKEN:
-            case MINUS_TOKEN:
-                return OperatorPrecedence.ADDITIVE;
-            case GT_TOKEN:
-            case LT_TOKEN:
-            case GT_EQUAL_TOKEN:
-            case LT_EQUAL_TOKEN:
-            case IS_KEYWORD:
-            case NOT_IS_KEYWORD:
-                return OperatorPrecedence.BINARY_COMPARE;
-            case DOT_TOKEN:
-            case OPEN_BRACKET_TOKEN:
-            case OPEN_PAREN_TOKEN:
-            case ANNOT_CHAINING_TOKEN:
-            case OPTIONAL_CHAINING_TOKEN:
-            case DOT_LT_TOKEN:
-            case SLASH_LT_TOKEN:
-            case DOUBLE_SLASH_DOUBLE_ASTERISK_LT_TOKEN:
-            case SLASH_ASTERISK_TOKEN:
-                return OperatorPrecedence.MEMBER_ACCESS;
-            case DOUBLE_EQUAL_TOKEN:
-            case TRIPPLE_EQUAL_TOKEN:
-            case NOT_EQUAL_TOKEN:
-            case NOT_DOUBLE_EQUAL_TOKEN:
-                return OperatorPrecedence.EQUALITY;
-            case BITWISE_AND_TOKEN:
-                return OperatorPrecedence.BITWISE_AND;
-            case BITWISE_XOR_TOKEN:
-                return OperatorPrecedence.BITWISE_XOR;
-            case PIPE_TOKEN:
-                return OperatorPrecedence.BITWISE_OR;
-            case LOGICAL_AND_TOKEN:
-                return OperatorPrecedence.LOGICAL_AND;
-            case LOGICAL_OR_TOKEN:
-                return OperatorPrecedence.LOGICAL_OR;
-            case RIGHT_ARROW_TOKEN:
-                return OperatorPrecedence.REMOTE_CALL_ACTION;
-            case RIGHT_DOUBLE_ARROW_TOKEN:
-                return OperatorPrecedence.ANON_FUNC_OR_LET;
-            case SYNC_SEND_TOKEN:
-                return OperatorPrecedence.ACTION;
-            case DOUBLE_LT_TOKEN:
-            case DOUBLE_GT_TOKEN:
-            case TRIPPLE_GT_TOKEN:
-                return OperatorPrecedence.SHIFT;
-            case ELLIPSIS_TOKEN:
-            case DOUBLE_DOT_LT_TOKEN:
-                return OperatorPrecedence.RANGE;
-            case ELVIS_TOKEN:
-                return OperatorPrecedence.ELVIS_CONDITIONAL;
-            case QUESTION_MARK_TOKEN:
-            case COLON_TOKEN:
-                return OperatorPrecedence.CONDITIONAL;
-            default:
-                throw new UnsupportedOperationException("Unsupported binary operator '" + binaryOpKind + "'");
-        }
+        return switch (binaryOpKind) {
+            case ASTERISK_TOKEN, // multiplication
+                 SLASH_TOKEN, // division
+                 PERCENT_TOKEN // remainder
+                    -> OperatorPrecedence.MULTIPLICATIVE;
+            case PLUS_TOKEN,
+                 MINUS_TOKEN -> OperatorPrecedence.ADDITIVE;
+            case GT_TOKEN,
+                 LT_TOKEN,
+                 GT_EQUAL_TOKEN,
+                 LT_EQUAL_TOKEN,
+                 IS_KEYWORD,
+                 NOT_IS_KEYWORD -> OperatorPrecedence.BINARY_COMPARE;
+            case DOT_TOKEN,
+                 OPEN_BRACKET_TOKEN,
+                 OPEN_PAREN_TOKEN,
+                 ANNOT_CHAINING_TOKEN,
+                 OPTIONAL_CHAINING_TOKEN,
+                 DOT_LT_TOKEN,
+                 SLASH_LT_TOKEN,
+                 DOUBLE_SLASH_DOUBLE_ASTERISK_LT_TOKEN,
+                 SLASH_ASTERISK_TOKEN -> OperatorPrecedence.MEMBER_ACCESS;
+            case DOUBLE_EQUAL_TOKEN,
+                 TRIPPLE_EQUAL_TOKEN,
+                 NOT_EQUAL_TOKEN,
+                 NOT_DOUBLE_EQUAL_TOKEN -> OperatorPrecedence.EQUALITY;
+            case BITWISE_AND_TOKEN -> OperatorPrecedence.BITWISE_AND;
+            case BITWISE_XOR_TOKEN -> OperatorPrecedence.BITWISE_XOR;
+            case PIPE_TOKEN -> OperatorPrecedence.BITWISE_OR;
+            case LOGICAL_AND_TOKEN -> OperatorPrecedence.LOGICAL_AND;
+            case LOGICAL_OR_TOKEN -> OperatorPrecedence.LOGICAL_OR;
+            case RIGHT_ARROW_TOKEN -> OperatorPrecedence.REMOTE_CALL_ACTION;
+            case RIGHT_DOUBLE_ARROW_TOKEN -> OperatorPrecedence.ANON_FUNC_OR_LET;
+            case SYNC_SEND_TOKEN -> OperatorPrecedence.ACTION;
+            case DOUBLE_LT_TOKEN,
+                 DOUBLE_GT_TOKEN,
+                 TRIPPLE_GT_TOKEN -> OperatorPrecedence.SHIFT;
+            case ELLIPSIS_TOKEN,
+                 DOUBLE_DOT_LT_TOKEN -> OperatorPrecedence.RANGE;
+            case ELVIS_TOKEN -> OperatorPrecedence.ELVIS_CONDITIONAL;
+            case QUESTION_MARK_TOKEN,
+                 COLON_TOKEN -> OperatorPrecedence.CONDITIONAL;
+            default -> throw new UnsupportedOperationException("Unsupported binary operator '" + binaryOpKind + "'");
+        };
     }
 
     /**
@@ -3467,43 +3398,30 @@ public class BallerinaParser extends AbstractParser {
      * @return Kind of the operator to insert
      */
     private SyntaxKind getBinaryOperatorKindToInsert(OperatorPrecedence opPrecedenceLevel) {
-        switch (opPrecedenceLevel) {
-            case MULTIPLICATIVE:
-                return SyntaxKind.ASTERISK_TOKEN;
-            case DEFAULT:
-            case UNARY:
-            case ACTION:
-            case EXPRESSION_ACTION:
-            case REMOTE_CALL_ACTION:
-            case ANON_FUNC_OR_LET:
-            case QUERY:
-            case TRAP:
-            case ADDITIVE:
-                return SyntaxKind.PLUS_TOKEN;
-            case SHIFT:
-                return SyntaxKind.DOUBLE_LT_TOKEN;
-            case RANGE:
-                return SyntaxKind.ELLIPSIS_TOKEN;
-            case BINARY_COMPARE:
-                return SyntaxKind.LT_TOKEN;
-            case EQUALITY:
-                return SyntaxKind.DOUBLE_EQUAL_TOKEN;
-            case BITWISE_AND:
-                return SyntaxKind.BITWISE_AND_TOKEN;
-            case BITWISE_XOR:
-                return SyntaxKind.BITWISE_XOR_TOKEN;
-            case BITWISE_OR:
-                return SyntaxKind.PIPE_TOKEN;
-            case LOGICAL_AND:
-                return SyntaxKind.LOGICAL_AND_TOKEN;
-            case LOGICAL_OR:
-                return SyntaxKind.LOGICAL_OR_TOKEN;
-            case ELVIS_CONDITIONAL:
-                return SyntaxKind.ELVIS_TOKEN;
-            default:
-                throw new UnsupportedOperationException(
-                        "Unsupported operator precedence level'" + opPrecedenceLevel + "'");
-        }
+        return switch (opPrecedenceLevel) {
+            case MULTIPLICATIVE -> SyntaxKind.ASTERISK_TOKEN;
+            case DEFAULT,
+                 UNARY,
+                 ACTION,
+                 EXPRESSION_ACTION,
+                 REMOTE_CALL_ACTION,
+                 ANON_FUNC_OR_LET,
+                 QUERY,
+                 TRAP,
+                 ADDITIVE -> SyntaxKind.PLUS_TOKEN;
+            case SHIFT -> SyntaxKind.DOUBLE_LT_TOKEN;
+            case RANGE -> SyntaxKind.ELLIPSIS_TOKEN;
+            case BINARY_COMPARE -> SyntaxKind.LT_TOKEN;
+            case EQUALITY -> SyntaxKind.DOUBLE_EQUAL_TOKEN;
+            case BITWISE_AND -> SyntaxKind.BITWISE_AND_TOKEN;
+            case BITWISE_XOR -> SyntaxKind.BITWISE_XOR_TOKEN;
+            case BITWISE_OR -> SyntaxKind.PIPE_TOKEN;
+            case LOGICAL_AND -> SyntaxKind.LOGICAL_AND_TOKEN;
+            case LOGICAL_OR -> SyntaxKind.LOGICAL_OR_TOKEN;
+            case ELVIS_CONDITIONAL -> SyntaxKind.ELVIS_TOKEN;
+            default -> throw new UnsupportedOperationException(
+                    "Unsupported operator precedence level'" + opPrecedenceLevel + "'");
+        };
     }
     /**
      * <p>
@@ -3514,43 +3432,30 @@ public class BallerinaParser extends AbstractParser {
      * @return Context of the missing operator
      */
     private ParserRuleContext getMissingBinaryOperatorContext(OperatorPrecedence opPrecedenceLevel) {
-        switch (opPrecedenceLevel) {
-            case MULTIPLICATIVE:
-                return ParserRuleContext.ASTERISK;
-            case DEFAULT:
-            case UNARY:
-            case ACTION:
-            case EXPRESSION_ACTION:
-            case REMOTE_CALL_ACTION:
-            case ANON_FUNC_OR_LET:
-            case QUERY:
-            case TRAP:
-            case ADDITIVE:
-                return ParserRuleContext.PLUS_TOKEN;
-            case SHIFT:
-                return ParserRuleContext.DOUBLE_LT;
-            case RANGE:
-                return ParserRuleContext.ELLIPSIS;
-            case BINARY_COMPARE:
-                return ParserRuleContext.LT_TOKEN;
-            case EQUALITY:
-                return ParserRuleContext.DOUBLE_EQUAL;
-            case BITWISE_AND:
-                return ParserRuleContext.BITWISE_AND_OPERATOR;
-            case BITWISE_XOR:
-                return ParserRuleContext.BITWISE_XOR;
-            case BITWISE_OR:
-                return ParserRuleContext.PIPE;
-            case LOGICAL_AND:
-                return ParserRuleContext.LOGICAL_AND;
-            case LOGICAL_OR:
-                return ParserRuleContext.LOGICAL_OR;
-            case ELVIS_CONDITIONAL:
-                return ParserRuleContext.ELVIS;
-            default:
-                throw new UnsupportedOperationException(
-                        "Unsupported operator precedence level'" + opPrecedenceLevel + "'");
-        }
+        return switch (opPrecedenceLevel) {
+            case MULTIPLICATIVE -> ParserRuleContext.ASTERISK;
+            case DEFAULT,
+                 UNARY,
+                 ACTION,
+                 EXPRESSION_ACTION,
+                 REMOTE_CALL_ACTION,
+                 ANON_FUNC_OR_LET,
+                 QUERY,
+                 TRAP,
+                 ADDITIVE -> ParserRuleContext.PLUS_TOKEN;
+            case SHIFT -> ParserRuleContext.DOUBLE_LT;
+            case RANGE -> ParserRuleContext.ELLIPSIS;
+            case BINARY_COMPARE -> ParserRuleContext.LT_TOKEN;
+            case EQUALITY -> ParserRuleContext.DOUBLE_EQUAL;
+            case BITWISE_AND -> ParserRuleContext.BITWISE_AND_OPERATOR;
+            case BITWISE_XOR -> ParserRuleContext.BITWISE_XOR;
+            case BITWISE_OR -> ParserRuleContext.PIPE;
+            case LOGICAL_AND -> ParserRuleContext.LOGICAL_AND;
+            case LOGICAL_OR -> ParserRuleContext.LOGICAL_OR;
+            case ELVIS_CONDITIONAL -> ParserRuleContext.ELVIS;
+            default -> throw new UnsupportedOperationException(
+                    "Unsupported operator precedence level'" + opPrecedenceLevel + "'");
+        };
     }
 
     /**
@@ -3604,33 +3509,24 @@ public class BallerinaParser extends AbstractParser {
     }
 
     private boolean isClassTypeQual(SyntaxKind tokenKind) {
-        switch (tokenKind) {
-            case READONLY_KEYWORD:
-            case DISTINCT_KEYWORD:
-            case ISOLATED_KEYWORD:
-                return true;
-            default:
-                return isObjectNetworkQual(tokenKind);
-        }
+        return switch (tokenKind) {
+            case READONLY_KEYWORD, DISTINCT_KEYWORD, ISOLATED_KEYWORD -> true;
+            default -> isObjectNetworkQual(tokenKind);
+        };
     }
 
     private boolean isObjectTypeQual(SyntaxKind tokenKind) {
-        switch (tokenKind) {
-            case ISOLATED_KEYWORD:
-                return true;
-            default:
-                return isObjectNetworkQual(tokenKind);
-        }
+        return switch (tokenKind) {
+            case ISOLATED_KEYWORD -> true;
+            default -> isObjectNetworkQual(tokenKind);
+        };
     }
 
     private boolean isObjectNetworkQual(SyntaxKind tokenKind) {
-        switch (tokenKind) {
-            case SERVICE_KEYWORD:
-            case CLIENT_KEYWORD:
-                return true;
-            default:
-                return false;
-        }
+        return switch (tokenKind) {
+            case SERVICE_KEYWORD, CLIENT_KEYWORD -> true;
+            default -> false;
+        };
     }
 
     /**
@@ -3828,7 +3724,7 @@ public class BallerinaParser extends AbstractParser {
 
             token = peek();
             if (field.kind == SyntaxKind.RECORD_REST_TYPE && bodyStartDelimiter.kind == SyntaxKind.OPEN_BRACE_TOKEN) {
-                if (recordFields.size() == 0) {
+                if (recordFields.isEmpty()) {
                     bodyStartDelimiter = SyntaxErrors.cloneWithTrailingInvalidNodeMinutiae(bodyStartDelimiter, field,
                             DiagnosticErrorCode.ERROR_INCLUSIVE_RECORD_TYPE_CANNOT_CONTAIN_REST_FIELD);
                 } else {
@@ -3868,15 +3764,14 @@ public class BallerinaParser extends AbstractParser {
      */
     private STNode parseRecordBodyStartDelimiter() {
         STToken nextToken = peek();
-        switch (nextToken.kind) {
-            case OPEN_BRACE_PIPE_TOKEN:
-                return parseClosedRecordBodyStart();
-            case OPEN_BRACE_TOKEN:
-                return parseOpenBrace();
-            default:
+        return switch (nextToken.kind) {
+            case OPEN_BRACE_PIPE_TOKEN -> parseClosedRecordBodyStart();
+            case OPEN_BRACE_TOKEN -> parseOpenBrace();
+            default -> {
                 recover(nextToken, ParserRuleContext.RECORD_BODY_START);
-                return parseRecordBodyStartDelimiter();
-        }
+                yield parseRecordBodyStartDelimiter();
+            }
+        };
     }
 
     /**
@@ -4337,16 +4232,17 @@ public class BallerinaParser extends AbstractParser {
      * @return <code>true</code> if the statement is not valid <code>false</code> otherwise
      */
     boolean validateStatement(STNode statement) {
-        switch (statement.kind) {
-            case LOCAL_TYPE_DEFINITION_STATEMENT:
+        return switch (statement.kind) {
+            case LOCAL_TYPE_DEFINITION_STATEMENT -> {
                 addInvalidNodeToNextToken(statement, DiagnosticErrorCode.ERROR_LOCAL_TYPE_DEFINITION_NOT_ALLOWED);
-                return true;
-            case CONST_DECLARATION:
+                yield true;
+            }
+            case CONST_DECLARATION -> {
                 addInvalidNodeToNextToken(statement, DiagnosticErrorCode.ERROR_LOCAL_CONST_DECL_NOT_ALLOWED);
-                return true;
-            default:
-                return false;
-        }
+                yield true;
+            }
+            default -> false;
+        };
     }
 
     private STNode getAnnotations(STNode nullbaleAnnot) {
@@ -4734,7 +4630,7 @@ public class BallerinaParser extends AbstractParser {
         // Invalidate public qualifier with isolated qualifier and declared with var
         if (publicQualifier != null) {
             if (((STTypedBindingPatternNode) typedBindingPattern).typeDescriptor.kind == SyntaxKind.VAR_TYPE_DESC) {
-                if (varDeclQuals.size() > 0) {
+                if (!varDeclQuals.isEmpty()) {
                     updateFirstNodeInListWithLeadingInvalidNode(varDeclQuals, publicQualifier,
                             DiagnosticErrorCode.ERROR_VARIABLE_DECLARED_WITH_VAR_CANNOT_BE_PUBLIC);
                 } else {
@@ -4780,7 +4676,7 @@ public class BallerinaParser extends AbstractParser {
         STNode typedBindingPattern = STNodeFactory.createTypedBindingPatternNode(simpleNameRef, captureBP);
         
         if (isModuleVar) {
-            List<STNode> varDeclQuals = extractVarDeclQualifiers(qualifiers, isModuleVar);
+            List<STNode> varDeclQuals = extractVarDeclQualifiers(qualifiers, true);
             typedBindingPattern = modifyNodeWithInvalidTokenList(qualifiers, typedBindingPattern);
 
             if (isSyntaxKindInList(varDeclQuals, SyntaxKind.CONFIGURABLE_KEYWORD)) {
@@ -4850,17 +4746,12 @@ public class BallerinaParser extends AbstractParser {
         STTypedBindingPatternNode typedBindingPatternNode = (STTypedBindingPatternNode) typedBindingPattern;
         STNode typeDescriptor = typedBindingPatternNode.typeDescriptor;
         STNode bindingPattern = typedBindingPatternNode.bindingPattern;
-        switch (typeDescriptor.kind) {
-            case OBJECT_TYPE_DESC:
-                typeDescriptor = modifyObjectTypeDescWithALeadingQualifier(typeDescriptor, isolatedQualifier);
-                break;
-            case FUNCTION_TYPE_DESC:
-                typeDescriptor = modifyFuncTypeDescWithALeadingQualifier(typeDescriptor, isolatedQualifier);
-                break;
-            default:
-                typeDescriptor = SyntaxErrors.cloneWithLeadingInvalidNodeMinutiae(typeDescriptor, isolatedQualifier,
-                        DiagnosticErrorCode.ERROR_QUALIFIER_NOT_ALLOWED, ((STToken) isolatedQualifier).text());
-        }
+        typeDescriptor = switch (typeDescriptor.kind) {
+            case OBJECT_TYPE_DESC -> modifyObjectTypeDescWithALeadingQualifier(typeDescriptor, isolatedQualifier);
+            case FUNCTION_TYPE_DESC -> modifyFuncTypeDescWithALeadingQualifier(typeDescriptor, isolatedQualifier);
+            default -> SyntaxErrors.cloneWithLeadingInvalidNodeMinutiae(typeDescriptor, isolatedQualifier,
+                    DiagnosticErrorCode.ERROR_QUALIFIER_NOT_ALLOWED, ((STToken) isolatedQualifier).text());
+        };
 
         return STNodeFactory.createTypedBindingPatternNode(typeDescriptor, bindingPattern);
     }
@@ -4994,37 +4885,28 @@ public class BallerinaParser extends AbstractParser {
     }
 
     private boolean isValidLVExpr(STNode expression) {
-        switch (expression.kind) {
-            case SIMPLE_NAME_REFERENCE:
-            case QUALIFIED_NAME_REFERENCE:
-            case LIST_BINDING_PATTERN:
-            case MAPPING_BINDING_PATTERN:
-            case ERROR_BINDING_PATTERN:
-            case WILDCARD_BINDING_PATTERN:
-                return true;
-            case FIELD_ACCESS:
-                return isValidLVMemberExpr(((STFieldAccessExpressionNode) expression).expression);
-            case INDEXED_EXPRESSION:
-                return isValidLVMemberExpr(((STIndexedExpressionNode) expression).containerExpression);
-            default:
-                return (expression instanceof STMissingToken);
-        }
+        return switch (expression.kind) {
+            case SIMPLE_NAME_REFERENCE,
+                 QUALIFIED_NAME_REFERENCE,
+                 LIST_BINDING_PATTERN,
+                 MAPPING_BINDING_PATTERN,
+                 ERROR_BINDING_PATTERN,
+                 WILDCARD_BINDING_PATTERN -> true;
+            case FIELD_ACCESS -> isValidLVMemberExpr(((STFieldAccessExpressionNode) expression).expression);
+            case INDEXED_EXPRESSION -> isValidLVMemberExpr(((STIndexedExpressionNode) expression).containerExpression);
+            default -> (expression instanceof STMissingToken);
+        };
     }
 
     private boolean isValidLVMemberExpr(STNode expression) {
-        switch (expression.kind) {
-            case SIMPLE_NAME_REFERENCE:
-            case QUALIFIED_NAME_REFERENCE:
-                return true;
-            case FIELD_ACCESS:
-                return isValidLVMemberExpr(((STFieldAccessExpressionNode) expression).expression);
-            case INDEXED_EXPRESSION:
-                return isValidLVMemberExpr(((STIndexedExpressionNode) expression).containerExpression);
-            case BRACED_EXPRESSION:
-                return isValidLVMemberExpr(((STBracedExpressionNode) expression).expression);
-            default:
-                return (expression instanceof STMissingToken);
-        }
+        return switch (expression.kind) {
+            case SIMPLE_NAME_REFERENCE,
+                 QUALIFIED_NAME_REFERENCE -> true;
+            case FIELD_ACCESS -> isValidLVMemberExpr(((STFieldAccessExpressionNode) expression).expression);
+            case INDEXED_EXPRESSION -> isValidLVMemberExpr(((STIndexedExpressionNode) expression).containerExpression);
+            case BRACED_EXPRESSION -> isValidLVMemberExpr(((STBracedExpressionNode) expression).expression);
+            default -> (expression instanceof STMissingToken);
+        };
     }
 
     /**
@@ -5266,70 +5148,66 @@ public class BallerinaParser extends AbstractParser {
     }
 
     private boolean isAnnotAllowedExprStart(STToken nextToken) {
-        switch (nextToken.kind) {
-            case START_KEYWORD:
-            case FUNCTION_KEYWORD:
-            case OBJECT_KEYWORD:
-                return true;
-            default:
-                return false;
-        }
+        return switch (nextToken.kind) {
+            case START_KEYWORD, FUNCTION_KEYWORD, OBJECT_KEYWORD -> true;
+            default -> false;
+        };
     }
 
     private boolean isValidExprStart(SyntaxKind tokenKind) {
-        switch (tokenKind) {
-            case DECIMAL_INTEGER_LITERAL_TOKEN:
-            case HEX_INTEGER_LITERAL_TOKEN:
-            case STRING_LITERAL_TOKEN:
-            case NULL_KEYWORD:
-            case TRUE_KEYWORD:
-            case FALSE_KEYWORD:
-            case DECIMAL_FLOATING_POINT_LITERAL_TOKEN:
-            case HEX_FLOATING_POINT_LITERAL_TOKEN:
-            case IDENTIFIER_TOKEN:
-            case OPEN_PAREN_TOKEN:
-            case CHECK_KEYWORD:
-            case CHECKPANIC_KEYWORD:
-            case OPEN_BRACE_TOKEN:
-            case TYPEOF_KEYWORD:
-            case PLUS_TOKEN:
-            case MINUS_TOKEN:
-            case NEGATION_TOKEN:
-            case EXCLAMATION_MARK_TOKEN:
-            case TRAP_KEYWORD:
-            case OPEN_BRACKET_TOKEN:
-            case LT_TOKEN:
-            case TABLE_KEYWORD:
-            case STREAM_KEYWORD:
-            case FROM_KEYWORD:
-            case ERROR_KEYWORD:
-            case LET_KEYWORD:
-            case BACKTICK_TOKEN:
-            case XML_KEYWORD:
-            case RE_KEYWORD:
-            case STRING_KEYWORD:
-            case FUNCTION_KEYWORD:
-            case AT_TOKEN:
-            case NEW_KEYWORD:
-            case START_KEYWORD:
-            case FLUSH_KEYWORD:
-            case LEFT_ARROW_TOKEN:
-            case WAIT_KEYWORD:
-            case COMMIT_KEYWORD:
-            case SERVICE_KEYWORD:
-            case BASE16_KEYWORD:
-            case BASE64_KEYWORD:
-            case ISOLATED_KEYWORD:
-            case TRANSACTIONAL_KEYWORD:
-            case CLIENT_KEYWORD:
-            case OBJECT_KEYWORD:
-                return true;
-            default:
+        return switch (tokenKind) {
+            case DECIMAL_INTEGER_LITERAL_TOKEN,
+                 HEX_INTEGER_LITERAL_TOKEN,
+                 STRING_LITERAL_TOKEN,
+                 NULL_KEYWORD,
+                 TRUE_KEYWORD,
+                 FALSE_KEYWORD,
+                 DECIMAL_FLOATING_POINT_LITERAL_TOKEN,
+                 HEX_FLOATING_POINT_LITERAL_TOKEN,
+                 IDENTIFIER_TOKEN,
+                 OPEN_PAREN_TOKEN,
+                 CHECK_KEYWORD,
+                 CHECKPANIC_KEYWORD,
+                 OPEN_BRACE_TOKEN,
+                 TYPEOF_KEYWORD,
+                 PLUS_TOKEN,
+                 MINUS_TOKEN,
+                 NEGATION_TOKEN,
+                 EXCLAMATION_MARK_TOKEN,
+                 TRAP_KEYWORD,
+                 OPEN_BRACKET_TOKEN,
+                 LT_TOKEN,
+                 TABLE_KEYWORD,
+                 STREAM_KEYWORD,
+                 FROM_KEYWORD,
+                 ERROR_KEYWORD,
+                 LET_KEYWORD,
+                 BACKTICK_TOKEN,
+                 XML_KEYWORD,
+                 RE_KEYWORD,
+                 STRING_KEYWORD,
+                 FUNCTION_KEYWORD,
+                 AT_TOKEN,
+                 NEW_KEYWORD,
+                 START_KEYWORD,
+                 FLUSH_KEYWORD,
+                 LEFT_ARROW_TOKEN,
+                 WAIT_KEYWORD,
+                 COMMIT_KEYWORD,
+                 SERVICE_KEYWORD,
+                 BASE16_KEYWORD,
+                 BASE64_KEYWORD,
+                 ISOLATED_KEYWORD,
+                 TRANSACTIONAL_KEYWORD,
+                 CLIENT_KEYWORD,
+                 OBJECT_KEYWORD -> true;
+            default -> {
                 if (isPredeclaredPrefix(tokenKind)) {
-                    return true;
+                    yield true;
                 }
-                return isSimpleTypeInExpression(tokenKind);
-        }
+                yield isSimpleTypeInExpression(tokenKind);
+            }
+        };
     }
 
     /**
@@ -5686,7 +5564,8 @@ public class BallerinaParser extends AbstractParser {
         }
 
         STNode namePattern = parseXMLNamePatternChain(slashLT);
-        newLhsExpr = STNodeFactory.createXMLStepExpressionNode(lhsExpr, namePattern);
+        STNode xmlStepExtends = parseXMLStepExtends();
+        newLhsExpr = STNodeFactory.createXMLStepExpressionNode(lhsExpr, namePattern, xmlStepExtends);
         return newLhsExpr;
     }
 
@@ -5762,32 +5641,29 @@ public class BallerinaParser extends AbstractParser {
     }
 
     private boolean isValidExprRhsStart(SyntaxKind tokenKind, SyntaxKind precedingNodeKind) {
-        switch (tokenKind) {
-            case OPEN_PAREN_TOKEN:
-                // Only an identifier or a qualified identifier is followed by a function call.
-                return precedingNodeKind == SyntaxKind.QUALIFIED_NAME_REFERENCE ||
-                        precedingNodeKind == SyntaxKind.SIMPLE_NAME_REFERENCE;
-            case DOT_TOKEN:
-            case OPEN_BRACKET_TOKEN:
-            case IS_KEYWORD:
-            case RIGHT_ARROW_TOKEN:
-            case RIGHT_DOUBLE_ARROW_TOKEN:
-            case SYNC_SEND_TOKEN:
-            case ANNOT_CHAINING_TOKEN:
-            case OPTIONAL_CHAINING_TOKEN:
-            case COLON_TOKEN:
-            case DOT_LT_TOKEN:
-            case SLASH_LT_TOKEN:
-            case DOUBLE_SLASH_DOUBLE_ASTERISK_LT_TOKEN:
-            case SLASH_ASTERISK_TOKEN:
-            case NOT_IS_KEYWORD:
-                return true;
-            case QUESTION_MARK_TOKEN:
-                // TODO : Should fix properly #33259
-                return getNextNextToken().kind != SyntaxKind.EQUAL_TOKEN && peek(3).kind != SyntaxKind.EQUAL_TOKEN;
-            default:
-                return isBinaryOperator(tokenKind);
-        }
+        return switch (tokenKind) {
+            // Only an identifier or a qualified identifier is followed by a function call.
+            case OPEN_PAREN_TOKEN -> precedingNodeKind == SyntaxKind.QUALIFIED_NAME_REFERENCE ||
+                    precedingNodeKind == SyntaxKind.SIMPLE_NAME_REFERENCE;
+            case DOT_TOKEN,
+                 OPEN_BRACKET_TOKEN,
+                 IS_KEYWORD,
+                 RIGHT_ARROW_TOKEN,
+                 RIGHT_DOUBLE_ARROW_TOKEN,
+                 SYNC_SEND_TOKEN,
+                 ANNOT_CHAINING_TOKEN,
+                 OPTIONAL_CHAINING_TOKEN,
+                 COLON_TOKEN,
+                 DOT_LT_TOKEN,
+                 SLASH_LT_TOKEN,
+                 DOUBLE_SLASH_DOUBLE_ASTERISK_LT_TOKEN,
+                 SLASH_ASTERISK_TOKEN,
+                 NOT_IS_KEYWORD -> true;
+            // TODO : Should fix properly #33259
+            case QUESTION_MARK_TOKEN ->
+                    getNextNextToken().kind != SyntaxKind.EQUAL_TOKEN && peek(3).kind != SyntaxKind.EQUAL_TOKEN;
+            default -> isBinaryOperator(tokenKind);
+        };
     }
 
     /**
@@ -5854,15 +5730,14 @@ public class BallerinaParser extends AbstractParser {
     }
 
     private STNode parseMemberAccessKeyExprEnd() {
-        switch (peek().kind) {
-            case COMMA_TOKEN:
-                return parseComma();
-            case CLOSE_BRACKET_TOKEN:
-                return null;
-            default:
+        return switch (peek().kind) {
+            case COMMA_TOKEN -> parseComma();
+            case CLOSE_BRACKET_TOKEN -> null;
+            default -> {
                 recover(peek(), ParserRuleContext.MEMBER_ACCESS_KEY_EXPR_END);
-                return parseMemberAccessKeyExprEnd();
-        }
+                yield parseMemberAccessKeyExprEnd();
+            }
+        };
     }
 
     /**
@@ -5898,9 +5773,7 @@ public class BallerinaParser extends AbstractParser {
      */
     private STNode parseFieldAccessOrMethodCall(STNode lhsExpr, boolean isInConditionalExpr) {
         STNode dotToken = parseDotToken();
-        STToken token = peek();
-        if (token.kind == SyntaxKind.MAP_KEYWORD || token.kind == SyntaxKind.START_KEYWORD || 
-                token.kind == SyntaxKind.JOIN_KEYWORD) {
+        if (isSpecialMethodName(peek())) {
             STNode methodName = getKeywordAsSimpleNameRef();
             STNode openParen = parseArgListOpenParenthesis();
             STNode args = parseArgsList();
@@ -5995,24 +5868,22 @@ public class BallerinaParser extends AbstractParser {
      * @return <code>true</code> if the node is an action node. <code>false</code> otherwise
      */
     private boolean isAction(STNode node) {
-        switch (node.kind) {
-            case REMOTE_METHOD_CALL_ACTION:
-            case BRACED_ACTION:
-            case CHECK_ACTION:
-            case START_ACTION:
-            case TRAP_ACTION:
-            case FLUSH_ACTION:
-            case ASYNC_SEND_ACTION:
-            case SYNC_SEND_ACTION:
-            case RECEIVE_ACTION:
-            case WAIT_ACTION:
-            case QUERY_ACTION:
-            case COMMIT_ACTION:
-            case CLIENT_RESOURCE_ACCESS_ACTION:    
-                return true;
-            default:
-                return false;
-        }
+        return switch (node.kind) {
+            case REMOTE_METHOD_CALL_ACTION,
+                 BRACED_ACTION,
+                 CHECK_ACTION,
+                 START_ACTION,
+                 TRAP_ACTION,
+                 FLUSH_ACTION,
+                 ASYNC_SEND_ACTION,
+                 SYNC_SEND_ACTION,
+                 RECEIVE_ACTION,
+                 WAIT_ACTION,
+                 QUERY_ACTION,
+                 COMMIT_ACTION,
+                 CLIENT_RESOURCE_ACCESS_ACTION -> true;
+            default -> false;
+        };
     }
 
     /**
@@ -6034,48 +5905,44 @@ public class BallerinaParser extends AbstractParser {
             }
         }
 
-        switch (tokenKind) {
-            case EOF_TOKEN:
-            case CLOSE_BRACE_TOKEN:
-            case OPEN_BRACE_TOKEN:
-            case CLOSE_PAREN_TOKEN:
-            case CLOSE_BRACKET_TOKEN:
-            case SEMICOLON_TOKEN:
-            case COMMA_TOKEN:
-            case PUBLIC_KEYWORD:
-            case CONST_KEYWORD:
-            case LISTENER_KEYWORD:
-            case RESOURCE_KEYWORD:
-            case EQUAL_TOKEN:
-            case DOCUMENTATION_STRING:
-            case AT_TOKEN:
-            case AS_KEYWORD:
-            case IN_KEYWORD:
-            case FROM_KEYWORD:
-            case WHERE_KEYWORD:
-            case LET_KEYWORD:
-            case SELECT_KEYWORD:
-            case DO_KEYWORD:
-            case COLON_TOKEN:
-            case ON_KEYWORD:
-            case CONFLICT_KEYWORD:
-            case LIMIT_KEYWORD:
-            case JOIN_KEYWORD:
-            case OUTER_KEYWORD:
-            case ORDER_KEYWORD:
-            case BY_KEYWORD:
-            case ASCENDING_KEYWORD:
-            case DESCENDING_KEYWORD:
-            case EQUALS_KEYWORD:
-            case TYPE_KEYWORD:
-                return true;
-            case RIGHT_DOUBLE_ARROW_TOKEN:
-                return isInMatchGuard;
-            case IDENTIFIER_TOKEN:
-                return isGroupOrCollectKeyword(nextToken);
-            default:
-                return isSimpleType(tokenKind);
-        }
+        return switch (tokenKind) {
+            case EOF_TOKEN,
+                 CLOSE_BRACE_TOKEN,
+                 OPEN_BRACE_TOKEN,
+                 CLOSE_PAREN_TOKEN,
+                 CLOSE_BRACKET_TOKEN,
+                 SEMICOLON_TOKEN,
+                 COMMA_TOKEN,
+                 PUBLIC_KEYWORD,
+                 CONST_KEYWORD,
+                 LISTENER_KEYWORD,
+                 RESOURCE_KEYWORD,
+                 EQUAL_TOKEN,
+                 DOCUMENTATION_STRING,
+                 AT_TOKEN,
+                 AS_KEYWORD,
+                 IN_KEYWORD,
+                 FROM_KEYWORD,
+                 WHERE_KEYWORD,
+                 LET_KEYWORD,
+                 SELECT_KEYWORD,
+                 DO_KEYWORD,
+                 COLON_TOKEN,
+                 ON_KEYWORD,
+                 CONFLICT_KEYWORD,
+                 LIMIT_KEYWORD,
+                 JOIN_KEYWORD,
+                 OUTER_KEYWORD,
+                 ORDER_KEYWORD,
+                 BY_KEYWORD,
+                 ASCENDING_KEYWORD,
+                 DESCENDING_KEYWORD,
+                 EQUALS_KEYWORD,
+                 TYPE_KEYWORD -> true;
+            case RIGHT_DOUBLE_ARROW_TOKEN -> isInMatchGuard;
+            case IDENTIFIER_TOKEN -> isGroupOrCollectKeyword(nextToken);
+            default -> isSimpleType(tokenKind);
+        };
     }
 
     /**
@@ -6090,30 +5957,18 @@ public class BallerinaParser extends AbstractParser {
     }
 
     private STNode parseBasicLiteral(STNode literalToken) {
-        SyntaxKind nodeKind;
-        switch (literalToken.kind) {
-            case NULL_KEYWORD:
-                nodeKind = SyntaxKind.NULL_LITERAL;
-                break;
-            case TRUE_KEYWORD:
-            case FALSE_KEYWORD:
-                nodeKind = SyntaxKind.BOOLEAN_LITERAL;
-                break;
-            case DECIMAL_INTEGER_LITERAL_TOKEN:
-            case DECIMAL_FLOATING_POINT_LITERAL_TOKEN:
-            case HEX_INTEGER_LITERAL_TOKEN:
-            case HEX_FLOATING_POINT_LITERAL_TOKEN:
-                nodeKind = SyntaxKind.NUMERIC_LITERAL;
-                break;
-            case STRING_LITERAL_TOKEN:
-                nodeKind = SyntaxKind.STRING_LITERAL;
-                break;
-            case ASTERISK_TOKEN:
-                nodeKind = SyntaxKind.ASTERISK_LITERAL;
-                break;
-            default:
-                nodeKind = literalToken.kind;
-        }
+        SyntaxKind nodeKind = switch (literalToken.kind) {
+            case NULL_KEYWORD -> SyntaxKind.NULL_LITERAL;
+            case TRUE_KEYWORD,
+                 FALSE_KEYWORD -> SyntaxKind.BOOLEAN_LITERAL;
+            case DECIMAL_INTEGER_LITERAL_TOKEN,
+                 DECIMAL_FLOATING_POINT_LITERAL_TOKEN,
+                 HEX_INTEGER_LITERAL_TOKEN,
+                 HEX_FLOATING_POINT_LITERAL_TOKEN -> SyntaxKind.NUMERIC_LITERAL;
+            case STRING_LITERAL_TOKEN -> SyntaxKind.STRING_LITERAL;
+            case ASTERISK_TOKEN -> SyntaxKind.ASTERISK_LITERAL;
+            default -> literalToken.kind;
+        };
         return STNodeFactory.createBasicLiteralNode(nodeKind, literalToken);
     }
 
@@ -6347,16 +6202,15 @@ public class BallerinaParser extends AbstractParser {
     }
 
     private STNode parseArgEnd() {
-        switch (peek().kind) {
-            case COMMA_TOKEN:
-                return parseComma();
-            case CLOSE_PAREN_TOKEN:
-                // null marks the end of args
-                return null;
-            default:
+        return switch (peek().kind) {
+            case COMMA_TOKEN -> parseComma();
+            // null marks the end of args
+            case CLOSE_PAREN_TOKEN -> null;
+            default -> {
                 recover(peek(), ParserRuleContext.ARG_END);
-                return parseArgEnd();
-        }
+                yield parseArgEnd();
+            }
+        };
     }
 
     /**
@@ -6623,7 +6477,7 @@ public class BallerinaParser extends AbstractParser {
         switch (nextToken.kind) {
             case EOF_TOKEN:
             case CLOSE_BRACE_TOKEN:
-                if (metadata != null || qualifiers.size() > 0) {
+                if (metadata != null || !qualifiers.isEmpty()) {
                     return createMissingSimpleObjectField(metadata, qualifiers, isObjectTypeDesc);
                 }
                 return null;
@@ -6683,28 +6537,24 @@ public class BallerinaParser extends AbstractParser {
      */
     private boolean isObjectFieldStart() {
         STToken nextNextToken = getNextNextToken();
-        switch (nextNextToken.kind) {
-            case ERROR_KEYWORD: // error-binding-pattern not allowed in fields
-            case OPEN_BRACE_TOKEN: // mapping-binding-pattern not allowed in fields
-                return false;
-            case CLOSE_BRACE_TOKEN:
-                return true;
-            default:
-                return isModuleVarDeclStart(1);
-        }
+        return switch (nextNextToken.kind) {
+            case ERROR_KEYWORD, // error-binding-pattern not allowed in fields
+                 OPEN_BRACE_TOKEN // mapping-binding-pattern not allowed in fields
+                    -> false;
+            case CLOSE_BRACE_TOKEN -> true;
+            default -> isModuleVarDeclStart(1);
+        };
     }
 
     private boolean isObjectMethodStart(STToken token) {
-        switch (token.kind) {
-            case FUNCTION_KEYWORD:
-            case REMOTE_KEYWORD:
-            case RESOURCE_KEYWORD:
-            case ISOLATED_KEYWORD:
-            case TRANSACTIONAL_KEYWORD:
-                return true;
-            default:
-                return false;
-        }
+        return switch (token.kind) {
+            case FUNCTION_KEYWORD,
+                 REMOTE_KEYWORD,
+                 RESOURCE_KEYWORD,
+                 ISOLATED_KEYWORD,
+                 TRANSACTIONAL_KEYWORD -> true;
+            default -> false;
+        };
     }
     
     /**
@@ -6893,13 +6743,10 @@ public class BallerinaParser extends AbstractParser {
     }
 
     private boolean isEndRelativeResourcePath(SyntaxKind tokenKind) {
-        switch (tokenKind) {
-            case EOF_TOKEN:
-            case OPEN_PAREN_TOKEN:
-                return true;
-            default:
-                return false;
-        }
+        return switch (tokenKind) {
+            case EOF_TOKEN, OPEN_PAREN_TOKEN -> true;
+            default -> false;
+        };
     }
 
     private STNode createResourcePathNodeList(List<STNode> pathElementList) {
@@ -6942,22 +6789,25 @@ public class BallerinaParser extends AbstractParser {
      */
     private STNode parseResourcePathSegment(boolean isFirstSegment) {
         STToken nextToken = peek();
-        switch (nextToken.kind) {
-            case IDENTIFIER_TOKEN:
+        return switch (nextToken.kind) {
+            case IDENTIFIER_TOKEN -> {
                 if (isFirstSegment && nextToken.isMissing() && isInvalidNodeStackEmpty() &&
                         getNextNextToken().kind == SyntaxKind.SLASH_TOKEN) {
                     // special case `[MISSING]/` to improve the error message for `/hello`
                     removeInsertedToken(); // to ignore current missing identifier diagnostic
-                    return SyntaxErrors.createMissingTokenWithDiagnostics(SyntaxKind.IDENTIFIER_TOKEN, 
+                    yield SyntaxErrors.createMissingTokenWithDiagnostics(SyntaxKind.IDENTIFIER_TOKEN,
                             DiagnosticErrorCode.ERROR_RESOURCE_PATH_CANNOT_BEGIN_WITH_SLASH);
                 }
-                return consume();
-            case OPEN_BRACKET_TOKEN:
-                return parseResourcePathParameter();
-            default:
+                // special case `[MISSING]/` to improve the error message for `/hello`
+                // to ignore current missing identifier diagnostic
+                yield consume();
+            }
+            case OPEN_BRACKET_TOKEN -> parseResourcePathParameter();
+            default -> {
                 recover(nextToken, ParserRuleContext.RESOURCE_PATH_SEGMENT);
-                return parseResourcePathSegment(isFirstSegment);
-        }
+                yield parseResourcePathSegment(isFirstSegment);
+            }
+        };
     }
 
     /**
@@ -6983,29 +6833,26 @@ public class BallerinaParser extends AbstractParser {
 
     private STNode parseOptionalPathParamName() {
         STToken nextToken = peek();
-        switch (nextToken.kind) {
-            case IDENTIFIER_TOKEN:
-                return consume();
-            case CLOSE_BRACKET_TOKEN:
-                return STNodeFactory.createEmptyNode();
-            default:
+        return switch (nextToken.kind) {
+            case IDENTIFIER_TOKEN -> consume();
+            case CLOSE_BRACKET_TOKEN -> STNodeFactory.createEmptyNode();
+            default -> {
                 recover(nextToken, ParserRuleContext.OPTIONAL_PATH_PARAM_NAME);
-                return parseOptionalPathParamName();
-        }
+                yield parseOptionalPathParamName();
+            }
+        };
     }
     
     private STNode parseOptionalEllipsis() {
         STToken nextToken = peek();
-        switch (nextToken.kind) {
-            case ELLIPSIS_TOKEN:
-                return consume();
-            case IDENTIFIER_TOKEN:
-            case CLOSE_BRACKET_TOKEN:    
-                return STNodeFactory.createEmptyNode();
-            default:
+        return switch (nextToken.kind) {
+            case ELLIPSIS_TOKEN -> consume();
+            case IDENTIFIER_TOKEN, CLOSE_BRACKET_TOKEN -> STNodeFactory.createEmptyNode();
+            default -> {
                 recover(nextToken, ParserRuleContext.PATH_PARAM_ELLIPSIS);
-                return parseOptionalEllipsis();
-        }
+                yield parseOptionalEllipsis();
+            }
+        };
     }
 
     /**
@@ -7015,17 +6862,15 @@ public class BallerinaParser extends AbstractParser {
      */
     private STNode parseRelativeResourcePathEnd() {
         STToken nextToken = peek();
-        switch (nextToken.kind) {
-            case OPEN_PAREN_TOKEN:
-            case EOF_TOKEN:
-                // null represents the end of resource path.
-                return null;
-            case SLASH_TOKEN:
-                return consume();
-            default:
+        return switch (nextToken.kind) {
+            // null represents the end of resource path.
+            case OPEN_PAREN_TOKEN, EOF_TOKEN -> null;
+            case SLASH_TOKEN -> consume();
+            default -> {
                 recover(nextToken, ParserRuleContext.RELATIVE_RESOURCE_PATH_END);
-                return parseRelativeResourcePathEnd();
-        }
+                yield parseRelativeResourcePathEnd();
+            }
+        };
     }
 
     /**
@@ -7120,15 +6965,14 @@ public class BallerinaParser extends AbstractParser {
      */
     private STNode parseElseBody() {
         STToken nextToken = peek();
-        switch (nextToken.kind) {
-            case IF_KEYWORD:
-                return parseIfElseBlock();
-            case OPEN_BRACE_TOKEN:
-                return parseBlockNode();
-            default:
+        return switch (nextToken.kind) {
+            case IF_KEYWORD -> parseIfElseBlock();
+            case OPEN_BRACE_TOKEN -> parseBlockNode();
+            default -> {
                 recover(peek(), ParserRuleContext.ELSE_BODY);
-                return parseElseBody();
-        }
+                yield parseElseBody();
+            }
+        };
     }
 
     /**
@@ -7385,14 +7229,10 @@ public class BallerinaParser extends AbstractParser {
     private STNode parseReturnStatementRhs(STNode returnKeyword) {
         STNode expr;
         STToken token = peek();
-        switch (token.kind) {
-            case SEMICOLON_TOKEN:
-                expr = STNodeFactory.createEmptyNode();
-                break;
-            default:
-                expr = parseActionOrExpression();
-                break;
-        }
+        expr = switch (token.kind) {
+            case SEMICOLON_TOKEN -> STNodeFactory.createEmptyNode();
+            default -> parseActionOrExpression();
+        };
 
         STNode semicolon = parseSemicolon();
         return STNodeFactory.createReturnStatementNode(returnKeyword, expr, semicolon);
@@ -7457,41 +7297,37 @@ public class BallerinaParser extends AbstractParser {
     }
 
     private STNode parseMappingFieldEnd() {
-        switch (peek().kind) {
-            case COMMA_TOKEN:
-                return parseComma();
-            case CLOSE_BRACE_TOKEN:
-                return null;
-            default:
+        return switch (peek().kind) {
+            case COMMA_TOKEN -> parseComma();
+            case CLOSE_BRACE_TOKEN -> null;
+            default -> {
                 recover(peek(), ParserRuleContext.MAPPING_FIELD_END);
-                return parseMappingFieldEnd();
-        }
+                yield parseMappingFieldEnd();
+            }
+        };
     }
 
     private boolean isEndOfMappingConstructor(SyntaxKind tokenKind) {
-        switch (tokenKind) {
-            case IDENTIFIER_TOKEN:
-            case READONLY_KEYWORD:
-                return false;
-            case EOF_TOKEN:
-            case DOCUMENTATION_STRING:
-            case AT_TOKEN:
-            case CLOSE_BRACE_TOKEN:
-            case SEMICOLON_TOKEN:
-            case PUBLIC_KEYWORD:
-            case PRIVATE_KEYWORD:
-            case FUNCTION_KEYWORD:
-            case RETURNS_KEYWORD:
-            case SERVICE_KEYWORD:
-            case TYPE_KEYWORD:
-            case LISTENER_KEYWORD:
-            case CONST_KEYWORD:
-            case FINAL_KEYWORD:
-            case RESOURCE_KEYWORD:
-                return true;
-            default:
-                return isSimpleType(tokenKind);
-        }
+        return switch (tokenKind) {
+            case IDENTIFIER_TOKEN,
+                 READONLY_KEYWORD -> false;
+            case EOF_TOKEN,
+                 DOCUMENTATION_STRING,
+                 AT_TOKEN,
+                 CLOSE_BRACE_TOKEN,
+                 SEMICOLON_TOKEN,
+                 PUBLIC_KEYWORD,
+                 PRIVATE_KEYWORD,
+                 FUNCTION_KEYWORD,
+                 RETURNS_KEYWORD,
+                 SERVICE_KEYWORD,
+                 TYPE_KEYWORD,
+                 LISTENER_KEYWORD,
+                 CONST_KEYWORD,
+                 FINAL_KEYWORD,
+                 RESOURCE_KEYWORD -> true;
+            default -> isSimpleType(tokenKind);
+        };
     }
 
     /**
@@ -7533,15 +7369,14 @@ public class BallerinaParser extends AbstractParser {
 
     private STNode parseSpecificField(STNode readonlyKeyword) {
         STToken nextToken = peek();
-        switch (nextToken.kind) {
-            case STRING_LITERAL_TOKEN:
-                return parseQualifiedSpecificField(readonlyKeyword);
-            case IDENTIFIER_TOKEN:
-                return parseSpecificFieldWithOptionalValue(readonlyKeyword);
-            default:
+        return switch (nextToken.kind) {
+            case STRING_LITERAL_TOKEN -> parseQualifiedSpecificField(readonlyKeyword);
+            case IDENTIFIER_TOKEN -> parseSpecificFieldWithOptionalValue(readonlyKeyword);
+            default -> {
                 recover(peek(), ParserRuleContext.SPECIFIC_FIELD);
-                return parseSpecificField(readonlyKeyword);
-        }
+                yield parseSpecificField(readonlyKeyword);
+            }
+        };
     }
 
     private STNode parseQualifiedSpecificField(STNode readonlyKeyword) {
@@ -7836,7 +7671,7 @@ public class BallerinaParser extends AbstractParser {
                                     STNode serviceKeyword, STNode serviceType) {
         // Invalidate public qualifier if present
         if (publicQualifier != null) {
-            if (qualList.size() > 0) {
+            if (!qualList.isEmpty()) {
                 updateFirstNodeInListWithLeadingInvalidNode(qualList, publicQualifier,
                         DiagnosticErrorCode.ERROR_QUALIFIER_NOT_ALLOWED);
             } else {
@@ -7950,13 +7785,10 @@ public class BallerinaParser extends AbstractParser {
     }
 
     private boolean isEndAbsoluteResourcePath(SyntaxKind tokenKind) {
-        switch (tokenKind) {
-            case EOF_TOKEN:
-            case ON_KEYWORD:
-                return true;
-            default:
-                return false;
-        }
+        return switch (tokenKind) {
+            case EOF_TOKEN, ON_KEYWORD -> true;
+            default -> false;
+        };
     }
 
     /**
@@ -8010,21 +7842,19 @@ public class BallerinaParser extends AbstractParser {
      * @return <code>true</code> if the token kind refers to a binary operator. <code>false</code> otherwise
      */
     static boolean isCompoundBinaryOperator(SyntaxKind tokenKind) {
-        switch (tokenKind) {
-            case PLUS_TOKEN:
-            case MINUS_TOKEN:
-            case SLASH_TOKEN:
-            case ASTERISK_TOKEN:
-            case BITWISE_AND_TOKEN:
-            case BITWISE_XOR_TOKEN:
-            case PIPE_TOKEN:
-            case DOUBLE_LT_TOKEN:
-            case DOUBLE_GT_TOKEN:
-            case TRIPPLE_GT_TOKEN:
-                return true;
-            default:
-                return false;
-        }
+        return switch (tokenKind) {
+            case PLUS_TOKEN,
+                 MINUS_TOKEN,
+                 SLASH_TOKEN,
+                 ASTERISK_TOKEN,
+                 BITWISE_AND_TOKEN,
+                 BITWISE_XOR_TOKEN,
+                 PIPE_TOKEN,
+                 DOUBLE_LT_TOKEN,
+                 DOUBLE_GT_TOKEN,
+                 TRIPPLE_GT_TOKEN -> true;
+            default -> false;
+        };
     }
 
     private boolean isCompoundAssignment(SyntaxKind tokenKind) {
@@ -8084,26 +7914,23 @@ public class BallerinaParser extends AbstractParser {
     }
 
     private boolean isEndOfListeners(SyntaxKind tokenKind) {
-        switch (tokenKind) {
-            case OPEN_BRACE_TOKEN:
-            case EOF_TOKEN:
-                return true;
-            default:
-                return false;
-        }
+        return switch (tokenKind) {
+            case OPEN_BRACE_TOKEN,
+                 EOF_TOKEN -> true;
+            default -> false;
+        };
     }
 
     private STNode parseListenersMemberEnd() {
         STToken nextToken = peek();
-        switch (nextToken.kind) {
-            case COMMA_TOKEN:
-                return parseComma();
-            case OPEN_BRACE_TOKEN:
-                return null;
-            default:
+        return switch (nextToken.kind) {
+            case COMMA_TOKEN -> parseComma();
+            case OPEN_BRACE_TOKEN -> null;
+            default -> {
                 recover(nextToken, ParserRuleContext.LISTENERS_LIST_END);
-                return parseListenersMemberEnd();
-        }
+                yield parseListenersMemberEnd();
+            }
+        };
     }
 
     /**
@@ -8118,28 +7945,29 @@ public class BallerinaParser extends AbstractParser {
      */
     private boolean isServiceDeclStart(ParserRuleContext currentContext, int lookahead) {
         // Assume we always reach here after a peek()
-        switch (peek(lookahead + 1).kind) {
-            case IDENTIFIER_TOKEN:
+        return switch (peek(lookahead + 1).kind) {
+            case IDENTIFIER_TOKEN -> {
                 SyntaxKind tokenAfterIdentifier = peek(lookahead + 2).kind;
-                switch (tokenAfterIdentifier) {
-                    case ON_KEYWORD: // service foo on ...
-                    case OPEN_BRACE_TOKEN: // missing listeners--> service foo {
-                        return true;
-                    case EQUAL_TOKEN: // service foo = ...
-                    case SEMICOLON_TOKEN: // service foo;
-                    case QUESTION_MARK_TOKEN: // service foo?;
-                        return false;
-                    default:
-                        // If not any of above, this is not a valid syntax.
-                        return false;
-                }
-            case ON_KEYWORD:
-                // Next token sequence is similar to: `service on ...`.
-                // Then this is a service decl.
-                return true;
-            default:
-                return false;
-        }
+                yield switch (tokenAfterIdentifier) {
+                    case ON_KEYWORD,
+                         // service foo on ...
+                         OPEN_BRACE_TOKEN  // missing listeners--> service foo {
+                            -> true;
+                    case EQUAL_TOKEN,
+                         // service foo = ...
+                         SEMICOLON_TOKEN,
+                         // service foo;
+                         QUESTION_MARK_TOKEN // service foo?;
+                            -> false;
+                    // If not any of above, this is not a valid syntax.
+                    default -> false;
+                };
+            }
+            // Next token sequence is similar to: `service on ...`.
+            // Then this is a service decl.
+            case ON_KEYWORD -> true;
+            default -> false;
+        };
     }
 
     /**
@@ -8426,15 +8254,10 @@ public class BallerinaParser extends AbstractParser {
      * @return <code>true</code> if the token kind refers to a unary operator. <code>false</code> otherwise
      */
     private boolean isUnaryOperator(SyntaxKind kind) {
-        switch (kind) {
-            case PLUS_TOKEN:
-            case MINUS_TOKEN:
-            case NEGATION_TOKEN:
-            case EXCLAMATION_MARK_TOKEN:
-                return true;
-            default:
-                return false;
-        }
+        return switch (kind) {
+            case PLUS_TOKEN, MINUS_TOKEN, NEGATION_TOKEN, EXCLAMATION_MARK_TOKEN -> true;
+            default -> false;
+        };
     }
 
     /**
@@ -8487,7 +8310,7 @@ public class BallerinaParser extends AbstractParser {
         }
         
         // If the member type desc is an array type desc flatten the dimensions
-        List<STNode> arrayDimensions = new ArrayList();
+        List<STNode> arrayDimensions = new ArrayList<>();
         if (memberTypeDesc.kind == SyntaxKind.ARRAY_TYPE_DESC) {
             STArrayTypeDescriptorNode innerArrayType = (STArrayTypeDescriptorNode) memberTypeDesc;
             STNode innerArrayDimensions = innerArrayType.dimensions;
@@ -8523,20 +8346,18 @@ public class BallerinaParser extends AbstractParser {
      */
     private STNode parseArrayLength() {
         STToken token = peek();
-        switch (token.kind) {
-            case DECIMAL_INTEGER_LITERAL_TOKEN:
-            case HEX_INTEGER_LITERAL_TOKEN:
-            case ASTERISK_TOKEN:
-                return parseBasicLiteral();
-            case CLOSE_BRACKET_TOKEN:
-                return STNodeFactory.createEmptyNode();
+        return switch (token.kind) {
+            case DECIMAL_INTEGER_LITERAL_TOKEN,
+                 HEX_INTEGER_LITERAL_TOKEN,
+                 ASTERISK_TOKEN -> parseBasicLiteral();
+            case CLOSE_BRACKET_TOKEN -> STNodeFactory.createEmptyNode();
             // Parsing variable-reference-expr is same as parsing qualified identifier
-            case IDENTIFIER_TOKEN:
-                return parseQualifiedIdentifier(ParserRuleContext.ARRAY_LENGTH);
-            default:
+            case IDENTIFIER_TOKEN -> parseQualifiedIdentifier(ParserRuleContext.ARRAY_LENGTH);
+            default -> {
                 recover(token, ParserRuleContext.ARRAY_LENGTH);
-                return parseArrayLength();
-        }
+                yield parseArrayLength();
+            }
+        };
     }
 
     /**
@@ -8769,26 +8590,24 @@ public class BallerinaParser extends AbstractParser {
     }
 
     private boolean isPossibleExpressionStatement(STNode expression) {
-        switch (expression.kind) {
-            case METHOD_CALL:
-            case FUNCTION_CALL:
-            case CHECK_EXPRESSION:
-            case REMOTE_METHOD_CALL_ACTION:
-            case CHECK_ACTION:
-            case BRACED_ACTION:
-            case START_ACTION:
-            case TRAP_ACTION:
-            case FLUSH_ACTION:
-            case ASYNC_SEND_ACTION:
-            case SYNC_SEND_ACTION:
-            case RECEIVE_ACTION:
-            case WAIT_ACTION:
-            case QUERY_ACTION:
-            case COMMIT_ACTION:
-                return true;
-            default:
-                return false;
-        }
+        return switch (expression.kind) {
+            case METHOD_CALL,
+                 FUNCTION_CALL,
+                 CHECK_EXPRESSION,
+                 REMOTE_METHOD_CALL_ACTION,
+                 CHECK_ACTION,
+                 BRACED_ACTION,
+                 START_ACTION,
+                 TRAP_ACTION,
+                 FLUSH_ACTION,
+                 ASYNC_SEND_ACTION,
+                 SYNC_SEND_ACTION,
+                 RECEIVE_ACTION,
+                 WAIT_ACTION,
+                 QUERY_ACTION,
+                 COMMIT_ACTION -> true;
+            default -> false;
+        };
     }
 
     private STNode getExpressionAsStatement(STNode expression) {
@@ -9048,15 +8867,14 @@ public class BallerinaParser extends AbstractParser {
     
     private STNode parseResourceAccessSegment() {
         STToken nextToken = peek();
-        switch (nextToken.kind) {
-            case IDENTIFIER_TOKEN:
-                return consume();
-            case OPEN_BRACKET_TOKEN:
-                return parseComputedOrResourceAccessRestSegment(consume());
-            default:
+        return switch (nextToken.kind) {
+            case IDENTIFIER_TOKEN -> consume();
+            case OPEN_BRACKET_TOKEN -> parseComputedOrResourceAccessRestSegment(consume());
+            default -> {
                 recover(nextToken, ParserRuleContext.RESOURCE_ACCESS_PATH_SEGMENT);
-                return parseResourceAccessSegment();
-        }
+                yield parseResourceAccessSegment();
+            }
+        };
     }
 
     /**
@@ -9113,13 +8931,11 @@ public class BallerinaParser extends AbstractParser {
     }
     
     private boolean isEndOfResourceAccessPathSegments(STToken nextToken, boolean isRhsExpr, boolean isInMatchGuard) {
-        switch (nextToken.kind) {
-            case DOT_TOKEN:
-            case OPEN_PAREN_TOKEN:
-                return true;
-            default:
-                return isEndOfActionOrExpression(nextToken, isRhsExpr, isInMatchGuard);
-        }
+        return switch (nextToken.kind) {
+            case DOT_TOKEN,
+                 OPEN_PAREN_TOKEN -> true;
+            default -> isEndOfActionOrExpression(nextToken, isRhsExpr, isInMatchGuard);
+        };
     }
     
     private STNode parseRemoteMethodCallOrClientResourceAccessOrAsyncSendAction(STNode expression, boolean isRhsExpr,
@@ -9276,17 +9092,12 @@ public class BallerinaParser extends AbstractParser {
     }
 
     private SyntaxKind getParameterizedTypeDescKind(STNode keywordToken) {
-        switch (keywordToken.kind) {
-            case TYPEDESC_KEYWORD:
-                return SyntaxKind.TYPEDESC_TYPE_DESC;
-            case FUTURE_KEYWORD:
-                return SyntaxKind.FUTURE_TYPE_DESC;
-            case XML_KEYWORD:
-                return SyntaxKind.XML_TYPE_DESC;
-            case ERROR_KEYWORD:
-            default:
-                return SyntaxKind.ERROR_TYPE_DESC;
-        }
+        return switch (keywordToken.kind) {
+            case TYPEDESC_KEYWORD -> SyntaxKind.TYPEDESC_TYPE_DESC;
+            case FUTURE_KEYWORD -> SyntaxKind.FUTURE_TYPE_DESC;
+            case XML_KEYWORD -> SyntaxKind.XML_TYPE_DESC;
+            default -> SyntaxKind.ERROR_TYPE_DESC;
+        };
     }
     
     /**
@@ -9589,26 +9400,22 @@ public class BallerinaParser extends AbstractParser {
      * @return Parsed node
      */
     private STNode parseAttachPointEnd() {
-        switch (peek().kind) {
-            case SEMICOLON_TOKEN:
-                // null represents the end of attach points.
-                return null;
-            case COMMA_TOKEN:
-                return consume();
-            default:
+        return switch (peek().kind) {
+            // null represents the end of attach points.
+            case SEMICOLON_TOKEN -> null;
+            case COMMA_TOKEN -> consume();
+            default -> {
                 recover(peek(), ParserRuleContext.ATTACH_POINT_END);
-                return parseAttachPointEnd();
-        }
+                yield parseAttachPointEnd();
+            }
+        };
     }
 
     private boolean isEndAnnotAttachPointList(SyntaxKind tokenKind) {
-        switch (tokenKind) {
-            case EOF_TOKEN:
-            case SEMICOLON_TOKEN:
-                return true;
-            default:
-                return false;
-        }
+        return switch (tokenKind) {
+            case EOF_TOKEN, SEMICOLON_TOKEN -> true;
+            default -> false;
+        };
     }
 
     /**
@@ -9793,14 +9600,13 @@ public class BallerinaParser extends AbstractParser {
      */
     private STNode parseIdentAfterObjectIdent() {
         STToken token = peek();
-        switch (token.kind) {
-            case FUNCTION_KEYWORD:
-            case FIELD_KEYWORD:
-                return consume();
-            default:
+        return switch (token.kind) {
+            case FUNCTION_KEYWORD, FIELD_KEYWORD -> consume();
+            default -> {
                 recover(token, ParserRuleContext.IDENT_AFTER_OBJECT_IDENT);
-                return parseIdentAfterObjectIdent();
-        }
+                yield parseIdentAfterObjectIdent();
+            }
+        };
     }
 
     /**
@@ -9877,15 +9683,10 @@ public class BallerinaParser extends AbstractParser {
     }
 
     private boolean isValidXMLNameSpaceURI(STNode expr) {
-        switch (expr.kind) {
-            case STRING_LITERAL:
-            case QUALIFIED_NAME_REFERENCE:
-            case SIMPLE_NAME_REFERENCE:
-                return true;
-            case IDENTIFIER_TOKEN:
-            default:
-                return false;
-        }
+        return switch (expr.kind) {
+            case STRING_LITERAL, QUALIFIED_NAME_REFERENCE, SIMPLE_NAME_REFERENCE -> true;
+            default -> false;
+        };
     }
 
     private STNode parseSimpleConstExpr() {
@@ -9978,9 +9779,9 @@ public class BallerinaParser extends AbstractParser {
      * Parse named worker declaration.
      * <p>
      * <code>named-worker-decl := [annots] [transactional] worker worker-name return-type-descriptor { sequence-stmt }
-     * </code>
+     * [on-fail-clause]</code>
      *
-     * @param annots Annotations attached to the worker decl
+     * @param annots     Annotations attached to the worker decl
      * @param qualifiers Preceding transactional keyword in a list
      * @return Parsed node
      */
@@ -9992,8 +9793,9 @@ public class BallerinaParser extends AbstractParser {
         STNode returnTypeDesc = parseReturnTypeDescriptor();
         STNode workerBody = parseBlockNode();
         endContext();
+        STNode onFailClause = parseOptionalOnFailClause();
         return STNodeFactory.createNamedWorkerDeclarationNode(annots, transactionalKeyword, workerKeyword, workerName,
-                returnTypeDesc, workerBody);
+                returnTypeDesc, workerBody, onFailClause);
     }
 
     private STNode getTransactionalKeyword(List<STNode> qualifierList) {
@@ -10198,57 +10000,50 @@ public class BallerinaParser extends AbstractParser {
      * @return <code>true</code> for simple type token in expression. <code>false</code> otherwise.
      */
     private boolean isSimpleTypeInExpression(SyntaxKind nodeKind) {
-        switch (nodeKind) {
-            case VAR_KEYWORD:
-            case READONLY_KEYWORD:
-                return false;
-            default:
-                return isSimpleType(nodeKind);
-        }
+        return switch (nodeKind) {
+            case VAR_KEYWORD, READONLY_KEYWORD -> false;
+            default -> isSimpleType(nodeKind);
+        };
     }
 
     static boolean isSimpleType(SyntaxKind nodeKind) {
-        switch (nodeKind) {
-            case INT_KEYWORD:
-            case FLOAT_KEYWORD:
-            case DECIMAL_KEYWORD:
-            case BOOLEAN_KEYWORD:
-            case STRING_KEYWORD:
-            case BYTE_KEYWORD:
-            case JSON_KEYWORD:
-            case HANDLE_KEYWORD:
-            case ANY_KEYWORD:
-            case ANYDATA_KEYWORD:
-            case NEVER_KEYWORD:
-            case VAR_KEYWORD:
-            case READONLY_KEYWORD:
-                return true;
-            default:
-                return false;
-        }
+        return switch (nodeKind) {
+            case INT_KEYWORD,
+                 FLOAT_KEYWORD,
+                 DECIMAL_KEYWORD,
+                 BOOLEAN_KEYWORD,
+                 STRING_KEYWORD,
+                 BYTE_KEYWORD,
+                 JSON_KEYWORD,
+                 HANDLE_KEYWORD,
+                 ANY_KEYWORD,
+                 ANYDATA_KEYWORD,
+                 NEVER_KEYWORD,
+                 VAR_KEYWORD,
+                 READONLY_KEYWORD -> true;
+            default -> false;
+        };
     }
 
     static boolean isPredeclaredPrefix(SyntaxKind nodeKind) {
-        switch (nodeKind) {
-            case BOOLEAN_KEYWORD:
-            case DECIMAL_KEYWORD:
-            case ERROR_KEYWORD:
-            case FLOAT_KEYWORD:
-            case FUNCTION_KEYWORD:
-            case FUTURE_KEYWORD:
-            case INT_KEYWORD:
-            case MAP_KEYWORD:
-            case OBJECT_KEYWORD:
-            case STREAM_KEYWORD:
-            case STRING_KEYWORD:
-            case TABLE_KEYWORD:
-            case TRANSACTION_KEYWORD:
-            case TYPEDESC_KEYWORD:
-            case XML_KEYWORD:
-                return true;
-            default:
-                return false;
-        }
+        return switch (nodeKind) {
+            case BOOLEAN_KEYWORD,
+                 DECIMAL_KEYWORD,
+                 ERROR_KEYWORD,
+                 FLOAT_KEYWORD,
+                 FUNCTION_KEYWORD,
+                 FUTURE_KEYWORD,
+                 INT_KEYWORD,
+                 MAP_KEYWORD,
+                 OBJECT_KEYWORD,
+                 STREAM_KEYWORD,
+                 STRING_KEYWORD,
+                 TABLE_KEYWORD,
+                 TRANSACTION_KEYWORD,
+                 TYPEDESC_KEYWORD,
+                 XML_KEYWORD -> true;
+            default -> false;
+        };
     }
 
     private boolean isQualifiedIdentifierPredeclaredPrefix(SyntaxKind nodeKind) {
@@ -10256,37 +10051,25 @@ public class BallerinaParser extends AbstractParser {
     }
 
     private static SyntaxKind getBuiltinTypeSyntaxKind(SyntaxKind typeKeyword) {
-        switch (typeKeyword) {
-            case INT_KEYWORD:
-                return SyntaxKind.INT_TYPE_DESC;
-            case FLOAT_KEYWORD:
-                return SyntaxKind.FLOAT_TYPE_DESC;
-            case DECIMAL_KEYWORD:
-                return SyntaxKind.DECIMAL_TYPE_DESC;
-            case BOOLEAN_KEYWORD:
-                return SyntaxKind.BOOLEAN_TYPE_DESC;
-            case STRING_KEYWORD:
-                return SyntaxKind.STRING_TYPE_DESC;
-            case BYTE_KEYWORD:
-                return SyntaxKind.BYTE_TYPE_DESC;
-            case JSON_KEYWORD:
-                return SyntaxKind.JSON_TYPE_DESC;
-            case HANDLE_KEYWORD:
-                return SyntaxKind.HANDLE_TYPE_DESC;
-            case ANY_KEYWORD:
-                return SyntaxKind.ANY_TYPE_DESC;
-            case ANYDATA_KEYWORD:
-                return SyntaxKind.ANYDATA_TYPE_DESC;
-            case NEVER_KEYWORD:
-                return SyntaxKind.NEVER_TYPE_DESC;
-            case VAR_KEYWORD:
-                return SyntaxKind.VAR_TYPE_DESC;
-            case READONLY_KEYWORD:
-                return SyntaxKind.READONLY_TYPE_DESC;
-            default:
+        return switch (typeKeyword) {
+            case INT_KEYWORD -> SyntaxKind.INT_TYPE_DESC;
+            case FLOAT_KEYWORD -> SyntaxKind.FLOAT_TYPE_DESC;
+            case DECIMAL_KEYWORD -> SyntaxKind.DECIMAL_TYPE_DESC;
+            case BOOLEAN_KEYWORD -> SyntaxKind.BOOLEAN_TYPE_DESC;
+            case STRING_KEYWORD -> SyntaxKind.STRING_TYPE_DESC;
+            case BYTE_KEYWORD -> SyntaxKind.BYTE_TYPE_DESC;
+            case JSON_KEYWORD -> SyntaxKind.JSON_TYPE_DESC;
+            case HANDLE_KEYWORD -> SyntaxKind.HANDLE_TYPE_DESC;
+            case ANY_KEYWORD -> SyntaxKind.ANY_TYPE_DESC;
+            case ANYDATA_KEYWORD -> SyntaxKind.ANYDATA_TYPE_DESC;
+            case NEVER_KEYWORD -> SyntaxKind.NEVER_TYPE_DESC;
+            case VAR_KEYWORD -> SyntaxKind.VAR_TYPE_DESC;
+            case READONLY_KEYWORD -> SyntaxKind.READONLY_TYPE_DESC;
+            default -> {
                 assert false : typeKeyword + " is not a built-in type";
-                return SyntaxKind.TYPE_REFERENCE;
-        }
+                yield SyntaxKind.TYPE_REFERENCE;
+            }
+        };
     }
 
     /**
@@ -10486,26 +10269,22 @@ public class BallerinaParser extends AbstractParser {
     }
 
     private boolean isEndOfListConstructor(SyntaxKind tokenKind) {
-        switch (tokenKind) {
-            case EOF_TOKEN:
-            case CLOSE_BRACKET_TOKEN:
-                return true;
-            default:
-                return false;
-        }
+        return switch (tokenKind) {
+            case EOF_TOKEN, CLOSE_BRACKET_TOKEN -> true;
+            default -> false;
+        };
     }
 
     private STNode parseListConstructorMemberEnd() {
         STToken nextToken = peek();
-        switch (nextToken.kind) {
-            case COMMA_TOKEN:
-                return consume();
-            case CLOSE_BRACKET_TOKEN:
-                return null;
-            default:
+        return switch (nextToken.kind) {
+            case COMMA_TOKEN -> consume();
+            case CLOSE_BRACKET_TOKEN -> null;
+            default -> {
                 recover(nextToken, ParserRuleContext.LIST_CONSTRUCTOR_MEMBER_END);
-                return parseListConstructorMemberEnd();
-        }
+                yield parseListConstructorMemberEnd();
+            }
+        };
     }
 
     /**
@@ -10684,29 +10463,22 @@ public class BallerinaParser extends AbstractParser {
     }
 
     private boolean isEndOfTableRowList(SyntaxKind tokenKind) {
-        switch (tokenKind) {
-            case EOF_TOKEN:
-            case CLOSE_BRACKET_TOKEN:
-                return true;
-            case COMMA_TOKEN:
-            case OPEN_BRACE_TOKEN:
-                return false;
-            default:
-                return isEndOfMappingConstructor(tokenKind);
-        }
+        return switch (tokenKind) {
+            case EOF_TOKEN, CLOSE_BRACKET_TOKEN -> true;
+            case COMMA_TOKEN, OPEN_BRACE_TOKEN -> false;
+            default -> isEndOfMappingConstructor(tokenKind);
+        };
     }
 
     private STNode parseTableRowEnd() {
-        switch (peek().kind) {
-            case COMMA_TOKEN:
-                return parseComma();
-            case CLOSE_BRACKET_TOKEN:
-            case EOF_TOKEN:
-                return null;
-            default:
+        return switch (peek().kind) {
+            case COMMA_TOKEN -> parseComma();
+            case CLOSE_BRACKET_TOKEN, EOF_TOKEN -> null;
+            default -> {
                 recover(peek(), ParserRuleContext.TABLE_ROW_END);
-                return parseTableRowEnd();
-        }
+                yield parseTableRowEnd();
+            }
+        };
     }
 
     /**
@@ -10794,13 +10566,10 @@ public class BallerinaParser extends AbstractParser {
     }
 
     private boolean isEndOfFieldNamesList(SyntaxKind tokenKind) {
-        switch (tokenKind) {
-            case COMMA_TOKEN:
-            case IDENTIFIER_TOKEN:
-                return false;
-            default:
-                return true;
-        }
+        return switch (tokenKind) {
+            case COMMA_TOKEN, IDENTIFIER_TOKEN -> false;
+            default -> true;
+        };
     }
 
     /**
@@ -10955,15 +10724,11 @@ public class BallerinaParser extends AbstractParser {
 
     static boolean isEndOfLetVarDeclarations(STToken nextToken, STToken nextNextToken) {
         SyntaxKind tokenKind = nextToken.kind;
-        switch (tokenKind) {
-            case COMMA_TOKEN:
-            case AT_TOKEN:
-                return false;
-            case IN_KEYWORD:
-                return true;
-            default:
-                return isGroupOrCollectKeyword(nextToken) || !isTypeStartingToken(tokenKind, nextNextToken);
-        }
+        return switch (tokenKind) {
+            case COMMA_TOKEN, AT_TOKEN -> false;
+            case IN_KEYWORD -> true;
+            default -> isGroupOrCollectKeyword(nextToken) || !isTypeStartingToken(tokenKind, nextNextToken);
+        };
     }
 
     /**
@@ -11012,13 +10777,10 @@ public class BallerinaParser extends AbstractParser {
     }
 
     private boolean isEndOfBacktickContent(SyntaxKind kind) {
-        switch (kind) {
-            case EOF_TOKEN:
-            case BACKTICK_TOKEN:
-                return true;
-            default:
-                return false;
-        }
+        return switch (kind) {
+            case EOF_TOKEN, BACKTICK_TOKEN -> true;
+            default -> false;
+        };
     }
 
     private STNode parseTemplateItem() {
@@ -11221,16 +10983,15 @@ public class BallerinaParser extends AbstractParser {
 
     private boolean isEndOfInterpolation() {
         SyntaxKind nextTokenKind = peek().kind;
-        switch (nextTokenKind) {
-            case EOF_TOKEN:
-            case BACKTICK_TOKEN:
-                return true;
-            default:
-                // Validate if the close brace is the end close brace of interpolation
+        return switch (nextTokenKind) {
+            case EOF_TOKEN, BACKTICK_TOKEN -> true;
+            default -> {
                 ParserMode currentLexerMode = this.tokenReader.getCurrentMode();
-                return nextTokenKind == SyntaxKind.CLOSE_BRACE_TOKEN && currentLexerMode != ParserMode.INTERPOLATION &&
+                // Validate if the close brace is the end close brace of interpolation
+                yield nextTokenKind == SyntaxKind.CLOSE_BRACE_TOKEN && currentLexerMode != ParserMode.INTERPOLATION &&
                         currentLexerMode != ParserMode.INTERPOLATION_BRACED_CONTENT;
-        }
+            }
+        };
     }
 
     /**
@@ -11329,15 +11090,14 @@ public class BallerinaParser extends AbstractParser {
      * @return Parsed node.
      */
     private STNode parseKeyConstraint(STNode keyKeywordToken) {
-        switch (peek().kind) {
-            case OPEN_PAREN_TOKEN:
-                return parseKeySpecifier(keyKeywordToken);
-            case LT_TOKEN:
-                return parseKeyTypeConstraint(keyKeywordToken);
-            default:
+        return switch (peek().kind) {
+            case OPEN_PAREN_TOKEN -> parseKeySpecifier(keyKeywordToken);
+            case LT_TOKEN -> parseKeyTypeConstraint(keyKeywordToken);
+            default -> {
                 recover(peek(), ParserRuleContext.KEY_CONSTRAINTS_RHS);
-                return parseKeyConstraint(keyKeywordToken);
-        }
+                yield parseKeyConstraint(keyKeywordToken);
+            }
+        };
     }
 
     /**
@@ -11437,13 +11197,10 @@ public class BallerinaParser extends AbstractParser {
     }
 
     private boolean isRegularFuncQual(SyntaxKind tokenKind) {
-        switch (tokenKind) {
-            case ISOLATED_KEYWORD:
-            case TRANSACTIONAL_KEYWORD:
-                return true;
-            default:
-                return false;
-        }
+        return switch (tokenKind) {
+            case ISOLATED_KEYWORD, TRANSACTIONAL_KEYWORD -> true;
+            default -> false;
+        };
     }
 
     /**
@@ -11624,36 +11381,33 @@ public class BallerinaParser extends AbstractParser {
     }
 
     private STNode parseImplicitAnonFuncParamEnd() {
-        switch (peek().kind) {
-            case COMMA_TOKEN:
-                return parseComma();
-            case CLOSE_PAREN_TOKEN:
-                return null;
-            default:
+        return switch (peek().kind) {
+            case COMMA_TOKEN -> parseComma();
+            case CLOSE_PAREN_TOKEN -> null;
+            default -> {
                 recover(peek(), ParserRuleContext.ANON_FUNC_PARAM_RHS);
-                return parseImplicitAnonFuncParamEnd();
-        }
+                yield parseImplicitAnonFuncParamEnd();
+            }
+        };
     }
 
     private boolean isEndOfAnonFuncParametersList(SyntaxKind tokenKind) {
-        switch (tokenKind) {
-            case EOF_TOKEN:
-            case CLOSE_BRACE_TOKEN:
-            case CLOSE_PAREN_TOKEN:
-            case CLOSE_BRACKET_TOKEN:
-            case SEMICOLON_TOKEN:
-            case RETURNS_KEYWORD:
-            case TYPE_KEYWORD:
-            case LISTENER_KEYWORD:
-            case IF_KEYWORD:
-            case WHILE_KEYWORD:
-            case DO_KEYWORD:
-            case OPEN_BRACE_TOKEN:
-            case RIGHT_DOUBLE_ARROW_TOKEN:
-                return true;
-            default:
-                return false;
-        }
+        return switch (tokenKind) {
+            case EOF_TOKEN,
+                 CLOSE_BRACE_TOKEN,
+                 CLOSE_PAREN_TOKEN,
+                 CLOSE_BRACKET_TOKEN,
+                 SEMICOLON_TOKEN,
+                 RETURNS_KEYWORD,
+                 TYPE_KEYWORD,
+                 LISTENER_KEYWORD,
+                 IF_KEYWORD,
+                 WHILE_KEYWORD,
+                 DO_KEYWORD,
+                 OPEN_BRACE_TOKEN,
+                 RIGHT_DOUBLE_ARROW_TOKEN -> true;
+            default -> false;
+        };
     }
 
     /**
@@ -11761,43 +11515,38 @@ public class BallerinaParser extends AbstractParser {
 
     private STNode parseTupleMemberRhs() {
         STToken nextToken = peek();
-        switch (nextToken.kind) {
-            case COMMA_TOKEN:
-                return parseComma();
-            case CLOSE_BRACKET_TOKEN:
-                return null;
-            default:
+        return switch (nextToken.kind) {
+            case COMMA_TOKEN -> parseComma();
+            case CLOSE_BRACKET_TOKEN -> null;
+            default -> {
                 recover(nextToken, ParserRuleContext.TUPLE_TYPE_MEMBER_RHS);
-                return parseTupleMemberRhs();
-        }
+                yield parseTupleMemberRhs();
+            }
+        };
     }
 
     private STNode parseTypeDescInTupleRhs() {
         STToken nextToken = peek();
-        switch (nextToken.kind) {
-            case COMMA_TOKEN:
-            case CLOSE_BRACKET_TOKEN:
-                return null;
-            case ELLIPSIS_TOKEN:
-                return parseEllipsis();
-            default:
+        return switch (nextToken.kind) {
+            case COMMA_TOKEN, CLOSE_BRACKET_TOKEN -> null;
+            case ELLIPSIS_TOKEN -> parseEllipsis();
+            default -> {
                 recover(nextToken, ParserRuleContext.TYPE_DESC_IN_TUPLE_RHS);
-                return parseTypeDescInTupleRhs();
-        }
+                yield parseTypeDescInTupleRhs();
+            }
+        };
     }
 
     private boolean isEndOfTypeList(SyntaxKind nextTokenKind) {
-        switch (nextTokenKind) {
-            case CLOSE_BRACKET_TOKEN:
-            case CLOSE_BRACE_TOKEN:
-            case CLOSE_PAREN_TOKEN:
-            case EOF_TOKEN:
-            case EQUAL_TOKEN:
-            case SEMICOLON_TOKEN:
-                return true;
-            default:
-                return false;
-        }
+        return switch (nextTokenKind) {
+            case CLOSE_BRACKET_TOKEN,
+                 CLOSE_BRACE_TOKEN,
+                 CLOSE_PAREN_TOKEN,
+                 EOF_TOKEN,
+                 EQUAL_TOKEN,
+                 SEMICOLON_TOKEN -> true;
+            default -> false;
+        };
     }
 
     /**
@@ -11871,15 +11620,15 @@ public class BallerinaParser extends AbstractParser {
 
     private STNode parseTableConstructorOrQueryRhs(STNode tableKeyword, STNode keySpecifier, boolean isRhsExpr,
                                                    boolean allowActions) {
-        switch (peek().kind) {
-            case FROM_KEYWORD:
-                return parseQueryExprRhs(parseQueryConstructType(tableKeyword, keySpecifier), isRhsExpr, allowActions);
-            case OPEN_BRACKET_TOKEN:
-                return parseTableConstructorExprRhs(tableKeyword, keySpecifier);
-            default:
+        return switch (peek().kind) {
+            case FROM_KEYWORD ->
+                    parseQueryExprRhs(parseQueryConstructType(tableKeyword, keySpecifier), isRhsExpr, allowActions);
+            case OPEN_BRACKET_TOKEN -> parseTableConstructorExprRhs(tableKeyword, keySpecifier);
+            default -> {
                 recover(peek(), ParserRuleContext.TABLE_CONSTRUCTOR_OR_QUERY_RHS);
-                return parseTableConstructorOrQueryRhs(tableKeyword, keySpecifier, isRhsExpr, allowActions);
-        }
+                yield parseTableConstructorOrQueryRhs(tableKeyword, keySpecifier, isRhsExpr, allowActions);
+            }
+        };
     }
 
     /**
@@ -11949,10 +11698,11 @@ public class BallerinaParser extends AbstractParser {
             }
         }
 
-        if (peek().kind == SyntaxKind.DO_KEYWORD && (!isNestedQueryExpr() || selectClause == null)) {
+        if (peek().kind == SyntaxKind.DO_KEYWORD && 
+                (!isNestedQueryExpr() || (selectClause == null && collectClause == null))) {
             STNode intermediateClauses = STNodeFactory.createNodeList(clauses);
             STNode queryPipeline = STNodeFactory.createQueryPipelineNode(fromClause, intermediateClauses);
-            return parseQueryAction(queryConstructType, queryPipeline, selectClause);
+            return parseQueryAction(queryConstructType, queryPipeline, selectClause, collectClause);
         }
 
         if (selectClause == null && collectClause == null) {
@@ -11992,24 +11742,21 @@ public class BallerinaParser extends AbstractParser {
     }
 
     private boolean isValidIntermediateQueryStart(STToken token) {
-        switch (token.kind) {
-            case FROM_KEYWORD:
-            case WHERE_KEYWORD:
-            case LET_KEYWORD:
-            case SELECT_KEYWORD:
-            case JOIN_KEYWORD:
-            case OUTER_KEYWORD:
-            case ORDER_KEYWORD:
-            case BY_KEYWORD:
-            case ASCENDING_KEYWORD:
-            case DESCENDING_KEYWORD:
-            case LIMIT_KEYWORD:
-                return true;
-            case IDENTIFIER_TOKEN:
-                return isGroupOrCollectKeyword(token);
-            default:
-                return false;
-        }
+        return switch (token.kind) {
+            case FROM_KEYWORD,
+                 WHERE_KEYWORD,
+                 LET_KEYWORD,
+                 SELECT_KEYWORD,
+                 JOIN_KEYWORD,
+                 OUTER_KEYWORD,
+                 ORDER_KEYWORD,
+                 BY_KEYWORD,
+                 ASCENDING_KEYWORD,
+                 DESCENDING_KEYWORD,
+                 LIMIT_KEYWORD -> true;
+            case IDENTIFIER_TOKEN -> isGroupOrCollectKeyword(token);
+            default -> false;
+        };
     }
 
     private static boolean isGroupOrCollectKeyword(STToken nextToken) {
@@ -12133,31 +11880,29 @@ public class BallerinaParser extends AbstractParser {
     }
 
     private boolean isEndOfIntermediateClause(SyntaxKind tokenKind) {
-        switch (tokenKind) {
-            case CLOSE_BRACE_TOKEN:
-            case CLOSE_PAREN_TOKEN:
-            case CLOSE_BRACKET_TOKEN:
-            case OPEN_BRACE_TOKEN:
-            case SEMICOLON_TOKEN:
-            case PUBLIC_KEYWORD:
-            case FUNCTION_KEYWORD:
-            case EOF_TOKEN:
-            case RESOURCE_KEYWORD:
-            case LISTENER_KEYWORD:
-            case DOCUMENTATION_STRING:
-            case PRIVATE_KEYWORD:
-            case RETURNS_KEYWORD:
-            case SERVICE_KEYWORD:
-            case TYPE_KEYWORD:
-            case CONST_KEYWORD:
-            case FINAL_KEYWORD:
-            case DO_KEYWORD:
-            case ON_KEYWORD:
-            case CONFLICT_KEYWORD:
-                return true;
-            default:
-                return isValidExprRhsStart(tokenKind, SyntaxKind.NONE);
-        }
+        return switch (tokenKind) {
+            case CLOSE_BRACE_TOKEN,
+                 CLOSE_PAREN_TOKEN,
+                 CLOSE_BRACKET_TOKEN,
+                 OPEN_BRACE_TOKEN,
+                 SEMICOLON_TOKEN,
+                 PUBLIC_KEYWORD,
+                 FUNCTION_KEYWORD,
+                 EOF_TOKEN,
+                 RESOURCE_KEYWORD,
+                 LISTENER_KEYWORD,
+                 DOCUMENTATION_STRING,
+                 PRIVATE_KEYWORD,
+                 RETURNS_KEYWORD,
+                 SERVICE_KEYWORD,
+                 TYPE_KEYWORD,
+                 CONST_KEYWORD,
+                 FINAL_KEYWORD,
+                 DO_KEYWORD,
+                 ON_KEYWORD,
+                 CONFLICT_KEYWORD -> true;
+            default -> isValidExprRhsStart(tokenKind, SyntaxKind.NONE);
+        };
     }
 
     /**
@@ -12419,47 +12164,38 @@ public class BallerinaParser extends AbstractParser {
     }
 
     private boolean isEndOfGroupByKeyListElement(STToken nextToken) {
-        switch (nextToken.kind) {
-            case COMMA_TOKEN:
-                return false;
-            case EOF_TOKEN:
-                return true;
-            default:
-                return isQueryClauseStartToken(nextToken);
-        }
+        return switch (nextToken.kind) {
+            case COMMA_TOKEN -> false;
+            case EOF_TOKEN -> true;
+            default -> isQueryClauseStartToken(nextToken);
+        };
     }
 
     private boolean isEndOfOrderKeys(STToken nextToken) {
-        switch (nextToken.kind) {
-            case COMMA_TOKEN:
-            case ASCENDING_KEYWORD:
-            case DESCENDING_KEYWORD:
-                return false;
-            case SEMICOLON_TOKEN:
-            case EOF_TOKEN:
-                return true;
-            default:
-                return isQueryClauseStartToken(nextToken);
-        }
+        return switch (nextToken.kind) {
+            case COMMA_TOKEN,
+                 ASCENDING_KEYWORD,
+                 DESCENDING_KEYWORD -> false;
+            case SEMICOLON_TOKEN,
+                 EOF_TOKEN -> true;
+            default -> isQueryClauseStartToken(nextToken);
+        };
     }
 
     private boolean isQueryClauseStartToken(STToken nextToken) {
-        switch (nextToken.kind) {
-            case SELECT_KEYWORD:
-            case LET_KEYWORD:
-            case WHERE_KEYWORD:
-            case OUTER_KEYWORD:
-            case JOIN_KEYWORD:
-            case ORDER_KEYWORD:
-            case DO_KEYWORD:
-            case FROM_KEYWORD:
-            case LIMIT_KEYWORD:
-                return true;
-            case IDENTIFIER_TOKEN:
-                return isGroupOrCollectKeyword(nextToken);
-            default:
-                return false;
-        }
+        return switch (nextToken.kind) {
+            case SELECT_KEYWORD,
+                 LET_KEYWORD,
+                 WHERE_KEYWORD,
+                 OUTER_KEYWORD,
+                 JOIN_KEYWORD,
+                 ORDER_KEYWORD,
+                 DO_KEYWORD,
+                 FROM_KEYWORD,
+                 LIMIT_KEYWORD -> true;
+            case IDENTIFIER_TOKEN -> isGroupOrCollectKeyword(nextToken);
+            default -> false;
+        };
     }
 
     private STNode parseGroupingKeyListMemberEnd() {
@@ -12546,14 +12282,10 @@ public class BallerinaParser extends AbstractParser {
 
         STNode orderDirection;
         STToken nextToken = peek();
-        switch (nextToken.kind) {
-            case ASCENDING_KEYWORD:
-            case DESCENDING_KEYWORD:
-                orderDirection = consume();
-                break;
-            default:
-                orderDirection = STNodeFactory.createEmptyNode();
-        }
+        orderDirection = switch (nextToken.kind) {
+            case ASCENDING_KEYWORD, DESCENDING_KEYWORD -> consume();
+            default -> STNodeFactory.createEmptyNode();
+        };
 
         return STNodeFactory.createOrderKeyNode(expression, orderDirection);
     }
@@ -12756,20 +12488,22 @@ public class BallerinaParser extends AbstractParser {
         STNode closeParenToken = SyntaxErrors.createMissingTokenWithDiagnostics(SyntaxKind.CLOSE_PAREN_TOKEN,
                 DiagnosticErrorCode.ERROR_MISSING_CLOSE_PAREN_TOKEN);
 
-        switch (expr.kind) {
-            case FIELD_ACCESS:
+        return switch (expr.kind) {
+            case FIELD_ACCESS -> {
                 STFieldAccessExpressionNode fieldAccessExpr = (STFieldAccessExpressionNode) expr;
-                return STNodeFactory.createMethodCallExpressionNode(fieldAccessExpr.expression,
+                yield STNodeFactory.createMethodCallExpressionNode(fieldAccessExpr.expression,
                         fieldAccessExpr.dotToken, fieldAccessExpr.fieldName, openParenToken, arguments,
                         closeParenToken);
-            case ASYNC_SEND_ACTION:
+            }
+            case ASYNC_SEND_ACTION -> {
                 STAsyncSendActionNode asyncSendAction = (STAsyncSendActionNode) expr;
-                return STNodeFactory.createRemoteMethodCallActionNode(asyncSendAction.expression,
+                yield STNodeFactory.createRemoteMethodCallActionNode(asyncSendAction.expression,
                         asyncSendAction.rightArrowToken, asyncSendAction.peerWorker, openParenToken, arguments,
                         closeParenToken);
-            default: // QualifiedNameRef or SimpleNameRef
-                return STNodeFactory.createFunctionCallExpressionNode(expr, openParenToken, arguments, closeParenToken);
-        }
+            }
+            // QualifiedNameRef or SimpleNameRef
+            default -> STNodeFactory.createFunctionCallExpressionNode(expr, openParenToken, arguments, closeParenToken);
+        };
     }
 
     /**
@@ -12824,13 +12558,10 @@ public class BallerinaParser extends AbstractParser {
      */
     private STNode parseOptionalPeerWorkerName() {
         STToken token = peek();
-        switch (token.kind) {
-            case IDENTIFIER_TOKEN:
-            case FUNCTION_KEYWORD:
-                return STNodeFactory.createSimpleNameReferenceNode(consume());
-            default:
-                return STNodeFactory.createEmptyNode();
-        }
+        return switch (token.kind) {
+            case IDENTIFIER_TOKEN, FUNCTION_KEYWORD -> STNodeFactory.createSimpleNameReferenceNode(consume());
+            default -> STNodeFactory.createEmptyNode();
+        };
     }
 
     /**
@@ -12892,48 +12623,41 @@ public class BallerinaParser extends AbstractParser {
         STNode operator = parseUnaryOperator();
         STNode literal;
         STToken nextToken = peek();
-        switch (nextToken.kind) {
-            case HEX_INTEGER_LITERAL_TOKEN:
-            case DECIMAL_FLOATING_POINT_LITERAL_TOKEN:
-            case HEX_FLOATING_POINT_LITERAL_TOKEN:
-                literal = parseBasicLiteral();
-                break;
-            default: // decimal integer literal
-                literal = parseDecimalIntLiteral(ParserRuleContext.DECIMAL_INTEGER_LITERAL_TOKEN);
-                literal = STNodeFactory.createBasicLiteralNode(SyntaxKind.NUMERIC_LITERAL, literal);
-        }
+        literal = switch (nextToken.kind) {
+            case HEX_INTEGER_LITERAL_TOKEN,
+                 DECIMAL_FLOATING_POINT_LITERAL_TOKEN,
+                 HEX_FLOATING_POINT_LITERAL_TOKEN -> parseBasicLiteral();
+            // decimal integer literal
+            default -> STNodeFactory.createBasicLiteralNode(SyntaxKind.NUMERIC_LITERAL,
+                    parseDecimalIntLiteral(ParserRuleContext.DECIMAL_INTEGER_LITERAL_TOKEN));
+        };
         return STNodeFactory.createUnaryExpressionNode(operator, literal);
     }
 
     private static boolean isSingletonTypeDescStart(SyntaxKind tokenKind, STToken nextNextToken) {
-        switch (tokenKind) {
-            case STRING_LITERAL_TOKEN:
-            case DECIMAL_INTEGER_LITERAL_TOKEN:
-            case HEX_INTEGER_LITERAL_TOKEN:
-            case DECIMAL_FLOATING_POINT_LITERAL_TOKEN:
-            case HEX_FLOATING_POINT_LITERAL_TOKEN:
-            case TRUE_KEYWORD:
-            case FALSE_KEYWORD:
-            case NULL_KEYWORD:
-                return true;
-            case PLUS_TOKEN:
-            case MINUS_TOKEN:
-                return isIntOrFloat(nextNextToken);
-            default:
-                return false;
-        }
+        return switch (tokenKind) {
+            case STRING_LITERAL_TOKEN,
+                 DECIMAL_INTEGER_LITERAL_TOKEN,
+                 HEX_INTEGER_LITERAL_TOKEN,
+                 DECIMAL_FLOATING_POINT_LITERAL_TOKEN,
+                 HEX_FLOATING_POINT_LITERAL_TOKEN,
+                 TRUE_KEYWORD,
+                 FALSE_KEYWORD,
+                 NULL_KEYWORD -> true;
+            case PLUS_TOKEN,
+                 MINUS_TOKEN -> isIntOrFloat(nextNextToken);
+            default -> false;
+        };
     }
 
     static boolean isIntOrFloat(STToken token) {
-        switch (token.kind) {
-            case DECIMAL_INTEGER_LITERAL_TOKEN:
-            case HEX_INTEGER_LITERAL_TOKEN:
-            case DECIMAL_FLOATING_POINT_LITERAL_TOKEN:
-            case HEX_FLOATING_POINT_LITERAL_TOKEN:
-                return true;
-            default:
-                return false;
-        }
+        return switch (token.kind) {
+            case DECIMAL_INTEGER_LITERAL_TOKEN,
+                 HEX_INTEGER_LITERAL_TOKEN,
+                 DECIMAL_FLOATING_POINT_LITERAL_TOKEN,
+                 HEX_FLOATING_POINT_LITERAL_TOKEN -> true;
+            default -> false;
+        };
     }
 
     /**
@@ -13038,14 +12762,14 @@ public class BallerinaParser extends AbstractParser {
      */
     private STNode parsePeerWorkerName() {
         STToken token = peek();
-        switch (token.kind) {
-            case IDENTIFIER_TOKEN:
-            case FUNCTION_KEYWORD:
-                return STNodeFactory.createSimpleNameReferenceNode(consume());
-            default:
+        return switch (token.kind) {
+            case IDENTIFIER_TOKEN,
+                 FUNCTION_KEYWORD -> STNodeFactory.createSimpleNameReferenceNode(consume());
+            default -> {
                 recover(token, ParserRuleContext.PEER_WORKER_NAME);
-                return parsePeerWorkerName();
-        }
+                yield parsePeerWorkerName();
+            }
+        };
     }
 
     /**
@@ -13068,7 +12792,14 @@ public class BallerinaParser extends AbstractParser {
     /**
      * Parse receive action.
      * <p>
-     * <code>receive-action := single-receive-action | multiple-receive-action</code>
+     * <code>receive-action := single-receive-action | multiple-receive-action | alternate-receive-action</code>
+     * <p><code>
+     * single-receive-action := <- peer-worker
+     * <br></br>
+     * multiple-receive-action := <-  { receive-field (, receive-field)* }
+     * <br></br>
+     * alternate-receive-action := <- peer-worker (| peer-worker)*
+     * </code>
      *
      * @return Receive action
      */
@@ -13079,16 +12810,40 @@ public class BallerinaParser extends AbstractParser {
     }
 
     private STNode parseReceiveWorkers() {
-        switch (peek().kind) {
-            case FUNCTION_KEYWORD:
-            case IDENTIFIER_TOKEN:
-                return parsePeerWorkerName();
-            case OPEN_BRACE_TOKEN:
-                return parseMultipleReceiveWorkers();
-            default:
+        return switch (peek().kind) {
+            case FUNCTION_KEYWORD, IDENTIFIER_TOKEN -> parseSingleOrAlternateReceiveWorkers();
+            case OPEN_BRACE_TOKEN -> parseMultipleReceiveWorkers();
+            default -> {
                 recover(peek(), ParserRuleContext.RECEIVE_WORKERS);
-                return parseReceiveWorkers();
+                yield parseReceiveWorkers();
+            }
+        };
+    }
+
+    private STNode parseSingleOrAlternateReceiveWorkers() {
+        startContext(ParserRuleContext.SINGLE_OR_ALTERNATE_WORKER);
+        List<STNode> workers = new ArrayList<>();
+        // Parse first peer worker name, that has no leading comma
+        STNode peerWorker = parsePeerWorkerName();
+        workers.add(peerWorker);
+
+        STToken nextToken = peek();
+        if (nextToken.kind != SyntaxKind.PIPE_TOKEN) {
+            endContext();
+            return peerWorker;
         }
+
+        // Parse the remaining peer worker names
+        while (nextToken.kind == SyntaxKind.PIPE_TOKEN) {
+            STNode pipeToken = consume();
+            workers.add(pipeToken);
+            peerWorker = parsePeerWorkerName();
+            workers.add(peerWorker);
+            nextToken = peek();
+        }
+
+        endContext();
+        return STNodeFactory.createAlternateReceiveNode(STNodeFactory.createNodeList(workers));
     }
 
     /**
@@ -13142,25 +12897,21 @@ public class BallerinaParser extends AbstractParser {
     }
 
     private boolean isEndOfReceiveFields(SyntaxKind nextTokenKind) {
-        switch (nextTokenKind) {
-            case EOF_TOKEN:
-            case CLOSE_BRACE_TOKEN:
-                return true;
-            default:
-                return false;
-        }
+        return switch (nextTokenKind) {
+            case EOF_TOKEN, CLOSE_BRACE_TOKEN -> true;
+            default -> false;
+        };
     }
 
     private STNode parseReceiveFieldEnd() {
-        switch (peek().kind) {
-            case COMMA_TOKEN:
-                return parseComma();
-            case CLOSE_BRACE_TOKEN:
-                return null;
-            default:
+        return switch (peek().kind) {
+            case COMMA_TOKEN -> parseComma();
+            case CLOSE_BRACE_TOKEN -> null;
+            default -> {
                 recover(peek(), ParserRuleContext.RECEIVE_FIELD_END);
-                return parseReceiveFieldEnd();
-        }
+                yield parseReceiveFieldEnd();
+            }
+        };
     }
 
     /**
@@ -13171,27 +12922,31 @@ public class BallerinaParser extends AbstractParser {
      * @return Receiver field node
      */
     private STNode parseReceiveField() {
-        switch (peek().kind) {
-            case FUNCTION_KEYWORD:
+        return switch (peek().kind) {
+            case FUNCTION_KEYWORD -> {
                 STNode functionKeyword = consume();
-                return STNodeFactory.createSimpleNameReferenceNode(functionKeyword);
-            case IDENTIFIER_TOKEN:
+                yield STNodeFactory.createSimpleNameReferenceNode(functionKeyword);
+            }
+            case IDENTIFIER_TOKEN -> {
                 STNode identifier = parseIdentifier(ParserRuleContext.RECEIVE_FIELD_NAME);
-                return createQualifiedReceiveField(identifier);
-            default:
+                yield createReceiveField(identifier);
+            }
+            default -> {
                 recover(peek(), ParserRuleContext.RECEIVE_FIELD);
-                return parseReceiveField();
-        }
+                yield parseReceiveField();
+            }
+        };
     }
 
-    private STNode createQualifiedReceiveField(STNode identifier) {
+    private STNode createReceiveField(STNode identifier) {
         if (peek().kind != SyntaxKind.COLON_TOKEN) {
-            return identifier;
+            return STNodeFactory.createSimpleNameReferenceNode(identifier);
         }
 
+        identifier = STNodeFactory.createSimpleNameReferenceNode(identifier);
         STNode colon = parseColon();
         STNode peerWorker = parsePeerWorkerName();
-        return createQualifiedNameReferenceNode(identifier, colon, peerWorker);
+        return STNodeFactory.createReceiveFieldNode(identifier, colon, peerWorker);
     }
 
     /**
@@ -13346,16 +13101,10 @@ public class BallerinaParser extends AbstractParser {
     }
 
     private boolean isEndOfWaitFutureExprList(SyntaxKind nextTokenKind) {
-        switch (nextTokenKind) {
-            case EOF_TOKEN:
-            case CLOSE_BRACE_TOKEN:
-            case SEMICOLON_TOKEN:
-            case OPEN_BRACE_TOKEN:
-                return true;
-            case PIPE_TOKEN:
-            default:
-                return false;
-        }
+        return switch (nextTokenKind) {
+            case EOF_TOKEN, CLOSE_BRACE_TOKEN, SEMICOLON_TOKEN, OPEN_BRACE_TOKEN -> true;
+            default -> false;
+        };
     }
 
     private STNode parseWaitFutureExpr() {
@@ -13438,25 +13187,21 @@ public class BallerinaParser extends AbstractParser {
     }
 
     private boolean isEndOfWaitFields(SyntaxKind nextTokenKind) {
-        switch (nextTokenKind) {
-            case EOF_TOKEN:
-            case CLOSE_BRACE_TOKEN:
-                return true;
-            default:
-                return false;
-        }
+        return switch (nextTokenKind) {
+            case EOF_TOKEN, CLOSE_BRACE_TOKEN -> true;
+            default -> false;
+        };
     }
 
     private STNode parseWaitFieldEnd() {
-        switch (peek().kind) {
-            case COMMA_TOKEN:
-                return parseComma();
-            case CLOSE_BRACE_TOKEN:
-                return null;
-            default:
+        return switch (peek().kind) {
+            case COMMA_TOKEN -> parseComma();
+            case CLOSE_BRACE_TOKEN -> null;
+            default -> {
                 recover(peek(), ParserRuleContext.WAIT_FIELD_END);
-                return parseWaitFieldEnd();
-        }
+                yield parseWaitFieldEnd();
+            }
+        };
     }
 
     /**
@@ -13553,7 +13298,8 @@ public class BallerinaParser extends AbstractParser {
      * @param selectClause       Select clause if any This is only for validation.
      * @return Query action node
      */
-    private STNode parseQueryAction(STNode queryConstructType, STNode queryPipeline, STNode selectClause) {
+    private STNode parseQueryAction(STNode queryConstructType, STNode queryPipeline, STNode selectClause,
+                                    STNode collectClause) {
         if (queryConstructType != null) {
             queryPipeline = SyntaxErrors.cloneWithLeadingInvalidNodeMinutiae(queryPipeline, queryConstructType,
                     DiagnosticErrorCode.ERROR_QUERY_CONSTRUCT_TYPE_IN_QUERY_ACTION);
@@ -13561,6 +13307,10 @@ public class BallerinaParser extends AbstractParser {
         if (selectClause != null) {
             queryPipeline = SyntaxErrors.cloneWithTrailingInvalidNodeMinutiae(queryPipeline, selectClause,
                     DiagnosticErrorCode.ERROR_SELECT_CLAUSE_IN_QUERY_ACTION);
+        }
+        if (collectClause != null) {
+            queryPipeline = SyntaxErrors.cloneWithTrailingInvalidNodeMinutiae(queryPipeline, collectClause,
+                    DiagnosticErrorCode.ERROR_COLLECT_CLAUSE_IN_QUERY_ACTION);
         }
 
         startContext(ParserRuleContext.DO_CLAUSE);
@@ -13814,15 +13564,10 @@ public class BallerinaParser extends AbstractParser {
      * @return Parsed enum member node.
      */
     private STNode parseEnumMember() {
-        STNode metadata;
-        switch (peek().kind) {
-            case DOCUMENTATION_STRING:
-            case AT_TOKEN:
-                metadata = parseMetaData();
-                break;
-            default:
-                metadata = STNodeFactory.createEmptyNode();
-        }
+        STNode metadata = switch (peek().kind) {
+            case DOCUMENTATION_STRING, AT_TOKEN -> parseMetaData();
+            default -> STNodeFactory.createEmptyNode();
+        };
 
         STNode identifierNode = parseIdentifier(ParserRuleContext.ENUM_MEMBER_NAME);
         return parseEnumMemberRhs(metadata, identifierNode);
@@ -13849,15 +13594,14 @@ public class BallerinaParser extends AbstractParser {
     }
 
     private STNode parseEnumMemberEnd() {
-        switch (peek().kind) {
-            case COMMA_TOKEN:
-                return parseComma();
-            case CLOSE_BRACE_TOKEN:
-                return null;
-            default:
+        return switch (peek().kind) {
+            case COMMA_TOKEN -> parseComma();
+            case CLOSE_BRACE_TOKEN -> null;
+            default -> {
                 recover(peek(), ParserRuleContext.ENUM_MEMBER_END);
-                return parseEnumMemberEnd();
-        }
+                yield parseEnumMemberEnd();
+            }
+        };
     }
 
     private STNode parseTransactionStmtOrVarDecl(STNode annots, List<STNode> qualifiers, STToken transactionKeyword) {
@@ -13949,19 +13693,16 @@ public class BallerinaParser extends AbstractParser {
 
     private STNode parseRetryKeywordRhs(STNode retryKeyword) {
         STToken nextToken = peek();
-        switch (nextToken.kind) {
-            case LT_TOKEN:
-                STNode typeParam = parseTypeParameter();
-                return parseRetryTypeParamRhs(retryKeyword, typeParam);
-            case OPEN_PAREN_TOKEN:
-            case OPEN_BRACE_TOKEN:
-            case TRANSACTION_KEYWORD:
-                typeParam = STNodeFactory.createEmptyNode();
-                return parseRetryTypeParamRhs(retryKeyword, typeParam);
-            default:
+        return switch (nextToken.kind) {
+            case LT_TOKEN -> parseRetryTypeParamRhs(retryKeyword, parseTypeParameter());
+            case OPEN_PAREN_TOKEN,
+                 OPEN_BRACE_TOKEN,
+                 TRANSACTION_KEYWORD -> parseRetryTypeParamRhs(retryKeyword, STNodeFactory.createEmptyNode());
+            default -> {
                 recover(peek(), ParserRuleContext.RETRY_KEYWORD_RHS);
-                return parseRetryKeywordRhs(retryKeyword);
-        }
+                yield parseRetryKeywordRhs(retryKeyword);
+            }
+        };
     }
 
     private STNode parseRetryTypeParamRhs(STNode retryKeyword, STNode typeParam) {
@@ -13986,15 +13727,14 @@ public class BallerinaParser extends AbstractParser {
     }
 
     private STNode parseRetryBody() {
-        switch (peek().kind) {
-            case OPEN_BRACE_TOKEN:
-                return parseBlockNode();
-            case TRANSACTION_KEYWORD:
-                return parseTransactionStatement(consume());
-            default:
+        return switch (peek().kind) {
+            case OPEN_BRACE_TOKEN -> parseBlockNode();
+            case TRANSACTION_KEYWORD -> parseTransactionStatement(consume());
+            default -> {
                 recover(peek(), ParserRuleContext.RETRY_BODY);
-                return parseRetryBody();
-        }
+                yield parseRetryBody();
+            }
+        };
     }
 
     /**
@@ -14017,15 +13757,10 @@ public class BallerinaParser extends AbstractParser {
     }
 
     private boolean isEndOfRegularCompoundStmt(SyntaxKind nodeKind) {
-        switch (nodeKind) {
-            case CLOSE_BRACE_TOKEN:
-            case SEMICOLON_TOKEN:
-            case AT_TOKEN:
-            case EOF_TOKEN:
-                return true;
-            default:
-                return isStatementStartingToken(nodeKind);
-        }
+        return switch (nodeKind) {
+            case CLOSE_BRACE_TOKEN, SEMICOLON_TOKEN, AT_TOKEN, EOF_TOKEN -> true;
+            default -> isStatementStartingToken(nodeKind);
+        };
     }
 
     private boolean isStatementStartingToken(SyntaxKind nodeKind) {
@@ -14532,6 +14267,84 @@ public class BallerinaParser extends AbstractParser {
     }
 
     /**
+     * Parse xml step extends.
+     * <p>
+     * <code>
+     * xml-step-extends := xml-step-extend*
+     * </code>
+     *
+     * @return Parsed node
+     */
+    private STNode parseXMLStepExtends() {
+        STToken nextToken = peek();
+        if (isEndOfXMLStepExtend(nextToken.kind)) {
+            return STNodeFactory.createEmptyNodeList();
+        }
+
+        List<STNode> xmlStepExtendList = new ArrayList<>();
+        startContext(ParserRuleContext.XML_STEP_EXTENDS);
+        STNode stepExtension;
+        while (!isEndOfXMLStepExtend(nextToken.kind)) {
+            if (nextToken.kind == SyntaxKind.DOT_TOKEN) {
+                stepExtension = parseXMLStepMethodCallExtend();
+            } else if (nextToken.kind == SyntaxKind.DOT_LT_TOKEN) {
+                stepExtension = parseXMLFilterExpressionRhs();
+            } else {
+                stepExtension = parseXMLIndexedStepExtend();
+            }
+            xmlStepExtendList.add(stepExtension);
+            nextToken = peek();
+        }
+        endContext();
+        return STNodeFactory.createNodeList(xmlStepExtendList);
+    }
+
+    /**
+     * <p>
+     * Parse xml indexed step extension.
+     * <br/>
+     * <code>
+     *     xml-indexed-step-extend:= [ expression ]
+     * </code>
+     * </p>
+     *
+     * @return Parsed node
+     */
+    private STNode parseXMLIndexedStepExtend() {
+        startContext(ParserRuleContext.MEMBER_ACCESS_KEY_EXPR);
+        STNode openBracket = parseOpenBracket();
+        STNode keyExpr = parseKeyExpr(true);
+        STNode closeBracket = parseCloseBracket();
+        endContext();
+        return STNodeFactory.createXMLStepIndexedExtendNode(openBracket, keyExpr, closeBracket);
+    }
+
+    /**
+     * <p>
+     * Parse xml method call step extension.
+     * <br/>
+     * <code>
+     *     xml-method-call-step-extend:= . method-name ( arg-list )
+     * </code>
+     * </p>
+     *
+     * @return Parsed node
+     */
+    private STNode parseXMLStepMethodCallExtend() {
+        STNode dotToken = parseDotToken();
+        STNode methodName = parseMethodName();
+        STNode parenthesizedArgsList = parseParenthesizedArgList();
+        return STNodeFactory.createXMLStepMethodCallExtendNode(dotToken, methodName, parenthesizedArgsList);
+    }
+
+    private STNode parseMethodName() {
+        if (isSpecialMethodName(peek())) {
+            return getKeywordAsSimpleNameRef();
+        }
+        return STNodeFactory.createSimpleNameReferenceNode(parseIdentifier(ParserRuleContext.IDENTIFIER));
+    }
+
+    /**
      * Parse <code> .< </code> token.
      *
      * @return Parsed node
@@ -14583,30 +14396,30 @@ public class BallerinaParser extends AbstractParser {
     }
 
     private boolean isEndOfXMLNamePattern(SyntaxKind tokenKind) {
-        switch (tokenKind) {
-            case GT_TOKEN:
-            case EOF_TOKEN:
-                return true;
-            case IDENTIFIER_TOKEN:
-            case ASTERISK_TOKEN:
-            case COLON_TOKEN:
-            default:
-                return false;
-        }
+        return switch (tokenKind) {
+            case GT_TOKEN, EOF_TOKEN -> true;
+            default -> false;
+        };
+    }
+
+    private boolean isEndOfXMLStepExtend(SyntaxKind tokenKind) {
+        return switch (tokenKind) {
+            case OPEN_BRACKET_TOKEN, DOT_LT_TOKEN -> false;
+            case DOT_TOKEN -> peek(3).kind != SyntaxKind.OPEN_PAREN_TOKEN;
+            default -> true;
+        };
     }
 
     private STNode parseXMLNamePatternSeparator() {
         STToken token = peek();
-        switch (token.kind) {
-            case PIPE_TOKEN:
-                return consume();
-            case GT_TOKEN:
-            case EOF_TOKEN:
-                return null;
-            default:
+        return switch (token.kind) {
+            case PIPE_TOKEN -> consume();
+            case GT_TOKEN, EOF_TOKEN -> null;
+            default -> {
                 recover(token, ParserRuleContext.XML_NAME_PATTERN_RHS);
-                return parseXMLNamePatternSeparator();
-        }
+                yield parseXMLNamePatternSeparator();
+            }
+        };
     }
 
     /**
@@ -14662,14 +14475,15 @@ public class BallerinaParser extends AbstractParser {
     /**
      * Parse xml step expression.
      * <p>
-     * <code>xml-step-expr := expression xml-step-start</code>
+     * <code>xml-step-expr := expression xml-step-start xml-step-extend*</code>
      *
      * @param lhsExpr Preceding expression of /*, /<, or /**\/< token
      * @return Parsed node
      */
     private STNode parseXMLStepExpression(STNode lhsExpr) {
         STNode xmlStepStart = parseXMLStepStart();
-        return STNodeFactory.createXMLStepExpressionNode(lhsExpr, xmlStepStart);
+        STNode xmlStepExtends = parseXMLStepExtends();
+        return STNodeFactory.createXMLStepExpressionNode(lhsExpr, xmlStepStart, xmlStepExtends);
     }
 
     /**
@@ -14784,14 +14598,10 @@ public class BallerinaParser extends AbstractParser {
     }
 
     private boolean isEndOfMatchClauses(SyntaxKind nextTokenKind) {
-        switch (nextTokenKind) {
-            case EOF_TOKEN:
-            case CLOSE_BRACE_TOKEN:
-            case TYPE_KEYWORD:
-                return true;
-            default:
-                return isEndOfStatements();
-        }
+        return switch (nextTokenKind) {
+            case EOF_TOKEN, CLOSE_BRACE_TOKEN, TYPE_KEYWORD -> true;
+            default -> isEndOfStatements();
+        };
     }
 
     /**
@@ -14878,14 +14688,10 @@ public class BallerinaParser extends AbstractParser {
     }
 
     private boolean isEndOfMatchPattern(SyntaxKind nextTokenKind) {
-        switch (nextTokenKind) {
-            case PIPE_TOKEN:
-            case IF_KEYWORD:
-            case RIGHT_DOUBLE_ARROW_TOKEN:
-                return true;
-            default:
-                return false;
-        }
+        return switch (nextTokenKind) {
+            case PIPE_TOKEN, IF_KEYWORD, RIGHT_DOUBLE_ARROW_TOKEN -> true;
+            default -> false;
+        };
     }
 
     /**
@@ -14910,46 +14716,41 @@ public class BallerinaParser extends AbstractParser {
             return parseErrorMatchPatternOrConsPattern(typeRefOrConstExpr);
         }
 
-        switch (nextToken.kind) {
-            case OPEN_PAREN_TOKEN:
-            case NULL_KEYWORD:
-            case TRUE_KEYWORD:
-            case FALSE_KEYWORD:
-            case PLUS_TOKEN:
-            case MINUS_TOKEN:
-            case DECIMAL_INTEGER_LITERAL_TOKEN:
-            case HEX_INTEGER_LITERAL_TOKEN:
-            case DECIMAL_FLOATING_POINT_LITERAL_TOKEN:
-            case HEX_FLOATING_POINT_LITERAL_TOKEN:
-            case STRING_LITERAL_TOKEN:
-                return parseSimpleConstExpr();
-            case VAR_KEYWORD:
-                return parseVarTypedBindingPattern();
-            case OPEN_BRACKET_TOKEN:
-                return parseListMatchPattern();
-            case OPEN_BRACE_TOKEN:
-                return parseMappingMatchPattern();
-            case ERROR_KEYWORD:
-                return parseErrorMatchPattern();
-            default:
+        return switch (nextToken.kind) {
+            case OPEN_PAREN_TOKEN,
+                 NULL_KEYWORD,
+                 TRUE_KEYWORD,
+                 FALSE_KEYWORD,
+                 PLUS_TOKEN,
+                 MINUS_TOKEN,
+                 DECIMAL_INTEGER_LITERAL_TOKEN,
+                 HEX_INTEGER_LITERAL_TOKEN,
+                 DECIMAL_FLOATING_POINT_LITERAL_TOKEN,
+                 HEX_FLOATING_POINT_LITERAL_TOKEN,
+                 STRING_LITERAL_TOKEN -> parseSimpleConstExpr();
+            case VAR_KEYWORD -> parseVarTypedBindingPattern();
+            case OPEN_BRACKET_TOKEN -> parseListMatchPattern();
+            case OPEN_BRACE_TOKEN -> parseMappingMatchPattern();
+            case ERROR_KEYWORD -> parseErrorMatchPattern();
+            default -> {
                 recover(nextToken, ParserRuleContext.MATCH_PATTERN_START);
-                return parseMatchPattern();
-        }
+                yield parseMatchPattern();
+            }
+        };
     }
 
     private STNode parseMatchPatternListMemberRhs() {
         STToken nextToken = peek();
-        switch (nextToken.kind) {
-            case PIPE_TOKEN:
-                return parsePipeToken();
-            case IF_KEYWORD:
-            case RIGHT_DOUBLE_ARROW_TOKEN:
-                // Returning null indicates the end of the match-patterns list
-                return null;
-            default:
+        return switch (nextToken.kind) {
+            case PIPE_TOKEN -> parsePipeToken();
+            // Returning null indicates the end of the match-patterns list
+            case IF_KEYWORD,
+                 RIGHT_DOUBLE_ARROW_TOKEN -> null;
+            default -> {
                 recover(nextToken, ParserRuleContext.MATCH_PATTERN_LIST_MEMBER_RHS);
-                return parseMatchPatternListMemberRhs();
-        }
+                yield parseMatchPatternListMemberRhs();
+            }
+        };
     }
 
     /**
@@ -15042,24 +14843,19 @@ public class BallerinaParser extends AbstractParser {
     }
 
     public boolean isEndOfListMatchPattern() {
-        switch (peek().kind) {
-            case CLOSE_BRACKET_TOKEN:
-            case EOF_TOKEN:
-                return true;
-            default:
-                return false;
-        }
+        return switch (peek().kind) {
+            case CLOSE_BRACKET_TOKEN, EOF_TOKEN -> true;
+            default -> false;
+        };
     }
 
     private STNode parseListMatchPatternMember() {
         STNode nextToken = peek();
-        switch (nextToken.kind) {
-            case ELLIPSIS_TOKEN:
-                return parseRestMatchPattern();
-            default:
-                // No need of recovery here
-                return parseMatchPattern();
-        }
+        return switch (nextToken.kind) {
+            case ELLIPSIS_TOKEN -> parseRestMatchPattern();
+            // No need of recovery here
+            default -> parseMatchPattern();
+        };
     }
 
     /**
@@ -15085,16 +14881,14 @@ public class BallerinaParser extends AbstractParser {
     }
 
     private STNode parseListMatchPatternMemberRhs() {
-        switch (peek().kind) {
-            case COMMA_TOKEN:
-                return parseComma();
-            case CLOSE_BRACKET_TOKEN:
-            case EOF_TOKEN:
-                return null;
-            default:
+        return switch (peek().kind) {
+            case COMMA_TOKEN -> parseComma();
+            case CLOSE_BRACKET_TOKEN, EOF_TOKEN -> null;
+            default -> {
                 recover(peek(), ParserRuleContext.LIST_MATCH_PATTERN_MEMBER_RHS);
-                return parseListMatchPatternMemberRhs();
-        }
+                yield parseListMatchPatternMemberRhs();
+            }
+        };
     }
 
     /**
@@ -15198,19 +14992,16 @@ public class BallerinaParser extends AbstractParser {
 
     private STNode parseFieldMatchPatternMember() {
         STToken nextToken = peek();
-        switch (nextToken.kind) {
-            case IDENTIFIER_TOKEN:
-                return parseFieldMatchPattern();
-            case ELLIPSIS_TOKEN:
-                return parseRestMatchPattern();
-            case CLOSE_BRACE_TOKEN:
-            case EOF_TOKEN:
-                // null marks the end of field-match-patterns
-                return null;
-            default:
+        return switch (nextToken.kind) {
+            case IDENTIFIER_TOKEN -> parseFieldMatchPattern();
+            case ELLIPSIS_TOKEN -> parseRestMatchPattern();
+            // null marks the end of field-match-patterns
+            case CLOSE_BRACE_TOKEN, EOF_TOKEN -> null;
+            default -> {
                 recover(nextToken, ParserRuleContext.FIELD_MATCH_PATTERNS_START);
-                return parseFieldMatchPatternMember();
-        }
+                yield parseFieldMatchPatternMember();
+            }
+        };
     }
 
     /**
@@ -15229,26 +15020,21 @@ public class BallerinaParser extends AbstractParser {
     }
 
     public boolean isEndOfMappingMatchPattern() {
-        switch (peek().kind) {
-            case CLOSE_BRACE_TOKEN:
-            case EOF_TOKEN:
-                return true;
-            default:
-                return false;
-        }
+        return switch (peek().kind) {
+            case CLOSE_BRACE_TOKEN, EOF_TOKEN -> true;
+            default -> false;
+        };
     }
 
     private STNode parseFieldMatchPatternRhs() {
-        switch (peek().kind) {
-            case COMMA_TOKEN:
-                return parseComma();
-            case CLOSE_BRACE_TOKEN:
-            case EOF_TOKEN:
-                return null;
-            default:
+        return switch (peek().kind) {
+            case COMMA_TOKEN -> parseComma();
+            case CLOSE_BRACE_TOKEN, EOF_TOKEN -> null;
+            default -> {
                 recover(peek(), ParserRuleContext.FIELD_MATCH_PATTERN_MEMBER_RHS);
-                return parseFieldMatchPatternRhs();
-        }
+                yield parseFieldMatchPatternRhs();
+            }
+        };
     }
 
     private STNode parseErrorMatchPatternOrConsPattern(STNode typeRefOrConstExpr) {
@@ -15269,19 +15055,17 @@ public class BallerinaParser extends AbstractParser {
     }
 
     private boolean isMatchPatternEnd(SyntaxKind tokenKind) {
-        switch (tokenKind) {
-            case RIGHT_DOUBLE_ARROW_TOKEN:
-            case COMMA_TOKEN:
-            case CLOSE_BRACE_TOKEN:
-            case CLOSE_BRACKET_TOKEN:
-            case CLOSE_PAREN_TOKEN:
-            case PIPE_TOKEN:
-            case IF_KEYWORD:
-            case EOF_TOKEN:
-                return true;
-            default:
-                return false;
-        }
+        return switch (tokenKind) {
+            case RIGHT_DOUBLE_ARROW_TOKEN,
+                 COMMA_TOKEN,
+                 CLOSE_BRACE_TOKEN,
+                 CLOSE_BRACKET_TOKEN,
+                 CLOSE_PAREN_TOKEN,
+                 PIPE_TOKEN,
+                 IF_KEYWORD,
+                 EOF_TOKEN -> true;
+            default -> false;
+        };
     }
 
     /**
@@ -15378,35 +15162,28 @@ public class BallerinaParser extends AbstractParser {
     }
 
     private boolean isSimpleMatchPattern(SyntaxKind matchPatternKind) {
-        switch (matchPatternKind) {
-            case IDENTIFIER_TOKEN:
-            case SIMPLE_NAME_REFERENCE:
-            case QUALIFIED_NAME_REFERENCE:
-            case NUMERIC_LITERAL:
-            case STRING_LITERAL:
-            case NULL_LITERAL:
-            case NIL_LITERAL:
-            case BOOLEAN_LITERAL:
-            case TYPED_BINDING_PATTERN:
-            case UNARY_EXPRESSION:
-                return true;
-            default:
-                return false;
-        }
+        return switch (matchPatternKind) {
+            case IDENTIFIER_TOKEN,
+                 SIMPLE_NAME_REFERENCE,
+                 QUALIFIED_NAME_REFERENCE,
+                 NUMERIC_LITERAL,
+                 STRING_LITERAL,
+                 NULL_LITERAL,
+                 NIL_LITERAL,
+                 BOOLEAN_LITERAL,
+                 TYPED_BINDING_PATTERN,
+                 UNARY_EXPRESSION -> true;
+            default -> false;
+        };
     }
 
     private boolean isValidSecondArgMatchPattern(SyntaxKind syntaxKind) {
-        switch (syntaxKind) {
-            case ERROR_MATCH_PATTERN:
-            case NAMED_ARG_MATCH_PATTERN:
-            case REST_MATCH_PATTERN:
-                return true;
-            default:
-                if (isSimpleMatchPattern(syntaxKind)) {
-                    return true;
-                }
-                return false;
-        }
+        return switch (syntaxKind) {
+            case ERROR_MATCH_PATTERN,
+                 NAMED_ARG_MATCH_PATTERN,
+                 REST_MATCH_PATTERN -> true;
+            default -> isSimpleMatchPattern(syntaxKind);
+        };
     }
 
     /**
@@ -15431,7 +15208,7 @@ public class BallerinaParser extends AbstractParser {
                 argListMatchPatterns.add(argEnd);
                 argListMatchPatterns.add(currentArg);
                 lastValidArgKind = currentArg.kind;
-            } else if (argListMatchPatterns.size() == 0) {
+            } else if (argListMatchPatterns.isEmpty()) {
                 addInvalidNodeToNextToken(argEnd, null);
                 addInvalidNodeToNextToken(currentArg, errorCode);
             } else {
@@ -15447,15 +15224,14 @@ public class BallerinaParser extends AbstractParser {
     }
 
     private STNode parseErrorArgListMatchPatternEnd(ParserRuleContext currentCtx) {
-        switch (peek().kind) {
-            case COMMA_TOKEN:
-                return consume();
-            case CLOSE_PAREN_TOKEN:
-                return null;
-            default:
+        return switch (peek().kind) {
+            case COMMA_TOKEN -> consume();
+            case CLOSE_PAREN_TOKEN -> null;
+            default -> {
                 recover(peek(), currentCtx);
-                return parseErrorArgListMatchPatternEnd(currentCtx);
-        }
+                yield parseErrorArgListMatchPatternEnd(currentCtx);
+            }
+        };
     }
 
     private STNode parseErrorArgListMatchPattern(ParserRuleContext context) {
@@ -15523,17 +15299,17 @@ public class BallerinaParser extends AbstractParser {
     }
 
     private DiagnosticErrorCode validateErrorFieldMatchPatternOrder(SyntaxKind prevArgKind, SyntaxKind currentArgKind) {
-        switch (currentArgKind) {
-            case NAMED_ARG_MATCH_PATTERN:
-            case REST_MATCH_PATTERN:
+        return switch (currentArgKind) {
+            case NAMED_ARG_MATCH_PATTERN,
+                 REST_MATCH_PATTERN -> {
                 // Nothing is allowed after a rest arg
                 if (prevArgKind == SyntaxKind.REST_MATCH_PATTERN) {
-                    return DiagnosticErrorCode.ERROR_REST_ARG_FOLLOWED_BY_ANOTHER_ARG;
+                    yield DiagnosticErrorCode.ERROR_REST_ARG_FOLLOWED_BY_ANOTHER_ARG;
                 }
-                return null;
-            default:
-                return DiagnosticErrorCode.ERROR_MATCH_PATTERN_NOT_ALLOWED;
-        }
+                yield null;
+            }
+            default -> DiagnosticErrorCode.ERROR_MATCH_PATTERN_NOT_ALLOWED;
+        };
     }
 
     /**
@@ -15905,17 +15681,15 @@ public class BallerinaParser extends AbstractParser {
     }
 
     private boolean isExpression(SyntaxKind kind) {
-        switch (kind) {
-            case NUMERIC_LITERAL:
-            case STRING_LITERAL_TOKEN:
-            case NIL_LITERAL:
-            case NULL_LITERAL:
-            case BOOLEAN_LITERAL:
-                return true;
-            default:
-                return kind.compareTo(SyntaxKind.BINARY_EXPRESSION) >= 0 &&
-                        kind.compareTo(SyntaxKind.ERROR_CONSTRUCTOR) <= 0;
-        }
+        return switch (kind) {
+            case NUMERIC_LITERAL,
+                 STRING_LITERAL_TOKEN,
+                 NIL_LITERAL,
+                 NULL_LITERAL,
+                 BOOLEAN_LITERAL -> true;
+            default -> kind.compareTo(SyntaxKind.BINARY_EXPRESSION) >= 0 &&
+                    kind.compareTo(SyntaxKind.ERROR_CONSTRUCTOR) <= 0;
+        };
     }
 
     /**
@@ -16095,8 +15869,7 @@ public class BallerinaParser extends AbstractParser {
                 return true;
             case BINARY_EXPRESSION:
                 STBinaryExpressionNode binaryExpr = (STBinaryExpressionNode) node;
-                if (binaryExpr.operator.kind != SyntaxKind.PIPE_TOKEN ||
-                        binaryExpr.operator.kind == SyntaxKind.BITWISE_AND_TOKEN) {
+                if (binaryExpr.operator.kind != SyntaxKind.PIPE_TOKEN) {
                     return false;
                 }
                 return isAmbiguous(binaryExpr.lhsExpr) && isAmbiguous(binaryExpr.rhsExpr);
@@ -16135,8 +15908,7 @@ public class BallerinaParser extends AbstractParser {
                 return true;
             case BINARY_EXPRESSION:
                 STBinaryExpressionNode binaryExpr = (STBinaryExpressionNode) node;
-                if (binaryExpr.operator.kind != SyntaxKind.PIPE_TOKEN ||
-                        binaryExpr.operator.kind == SyntaxKind.BITWISE_AND_TOKEN) {
+                if (binaryExpr.operator.kind != SyntaxKind.PIPE_TOKEN) {
                     return false;
                 }
                 return isAmbiguous(binaryExpr.lhsExpr) && isAmbiguous(binaryExpr.rhsExpr);
@@ -16169,12 +15941,10 @@ public class BallerinaParser extends AbstractParser {
     }
 
     private boolean isNumericLiteral(STNode node) {
-        switch (node.kind) {
-            case NUMERIC_LITERAL:
-                return true;
-            default:
-                return false;
-        }
+        return switch (node.kind) {
+            case NUMERIC_LITERAL -> true;
+            default -> false;
+        };
     }
 
     // ------------------------ Typed binding patterns ---------------------------
@@ -16230,19 +16000,16 @@ public class BallerinaParser extends AbstractParser {
      * @return binding-pattern node
      */
     private STNode parseBindingPattern() {
-        switch (peek().kind) {
-            case OPEN_BRACKET_TOKEN:
-                return parseListBindingPattern();
-            case IDENTIFIER_TOKEN:
-                return parseBindingPatternStartsWithIdentifier();
-            case OPEN_BRACE_TOKEN:
-                return parseMappingBindingPattern();
-            case ERROR_KEYWORD:
-                return parseErrorBindingPattern();
-            default:
+        return switch (peek().kind) {
+            case OPEN_BRACKET_TOKEN -> parseListBindingPattern();
+            case IDENTIFIER_TOKEN -> parseBindingPatternStartsWithIdentifier();
+            case OPEN_BRACE_TOKEN -> parseMappingBindingPattern();
+            case ERROR_KEYWORD -> parseErrorBindingPattern();
+            default -> {
                 recover(peek(), ParserRuleContext.BINDING_PATTERN);
-                return parseBindingPattern();
-        }
+                yield parseBindingPattern();
+            }
+        };
     }
 
     private STNode parseBindingPatternStartsWithIdentifier() {
@@ -16298,7 +16065,7 @@ public class BallerinaParser extends AbstractParser {
     }
 
     private STNode parseListBindingPattern(STNode openBracket, List<STNode> bindingPatternsList) {
-        if (isEndOfListBindingPattern(peek().kind) && bindingPatternsList.size() == 0) {
+        if (isEndOfListBindingPattern(peek().kind) && bindingPatternsList.isEmpty()) {
             // Handle empty list binding pattern
             STNode closeBracket = parseCloseBracket();
             STNode bindingPatternsNode = STNodeFactory.createNodeList(bindingPatternsList);
@@ -16333,25 +16100,21 @@ public class BallerinaParser extends AbstractParser {
     }
 
     private STNode parseListBindingPatternMemberRhs() {
-        switch (peek().kind) {
-            case COMMA_TOKEN:
-                return parseComma();
-            case CLOSE_BRACKET_TOKEN:
-                return null;
-            default:
+        return switch (peek().kind) {
+            case COMMA_TOKEN -> parseComma();
+            case CLOSE_BRACKET_TOKEN -> null;
+            default -> {
                 recover(peek(), ParserRuleContext.LIST_BINDING_PATTERN_MEMBER_END);
-                return parseListBindingPatternMemberRhs();
-        }
+                yield parseListBindingPatternMemberRhs();
+            }
+        };
     }
 
     private boolean isEndOfListBindingPattern(SyntaxKind nextTokenKind) {
-        switch (nextTokenKind) {
-            case CLOSE_BRACKET_TOKEN:
-            case EOF_TOKEN:
-                return true;
-            default:
-                return false;
-        }
+        return switch (nextTokenKind) {
+            case CLOSE_BRACKET_TOKEN, EOF_TOKEN -> true;
+            default -> false;
+        };
     }
 
     /**
@@ -16367,18 +16130,17 @@ public class BallerinaParser extends AbstractParser {
      * @return List binding pattern member
      */
     private STNode parseListBindingPatternMember() {
-        switch (peek().kind) {
-            case ELLIPSIS_TOKEN:
-                return parseRestBindingPattern();
-            case OPEN_BRACKET_TOKEN:
-            case IDENTIFIER_TOKEN:
-            case OPEN_BRACE_TOKEN:
-            case ERROR_KEYWORD:
-                return parseBindingPattern();
-            default:
+        return switch (peek().kind) {
+            case ELLIPSIS_TOKEN -> parseRestBindingPattern();
+            case OPEN_BRACKET_TOKEN,
+                 IDENTIFIER_TOKEN,
+                 OPEN_BRACE_TOKEN,
+                 ERROR_KEYWORD -> parseBindingPattern();
+            default -> {
                 recover(peek(), ParserRuleContext.LIST_BINDING_PATTERN_MEMBER);
-                return parseListBindingPatternMember();
-        }
+                yield parseListBindingPatternMember();
+            }
+        };
     }
 
     /**
@@ -16503,25 +16265,22 @@ public class BallerinaParser extends AbstractParser {
      */
     private STNode parseMappingBindingPatternMember() {
         STToken token = peek();
-        switch (token.kind) {
-            case ELLIPSIS_TOKEN:
-                return parseRestBindingPattern();
-            default:
-                return parseFieldBindingPattern();
-        }
+        return switch (token.kind) {
+            case ELLIPSIS_TOKEN -> parseRestBindingPattern();
+            default -> parseFieldBindingPattern();
+        };
     }
 
     private STNode parseMappingBindingPatternEnd() {
         STToken nextToken = peek();
-        switch (nextToken.kind) {
-            case COMMA_TOKEN:
-                return parseComma();
-            case CLOSE_BRACE_TOKEN:
-                return null;
-            default:
+        return switch (nextToken.kind) {
+            case COMMA_TOKEN -> parseComma();
+            case CLOSE_BRACE_TOKEN -> null;
+            default -> {
                 recover(nextToken, ParserRuleContext.MAPPING_BINDING_PATTERN_END);
-                return parseMappingBindingPatternEnd();
-        }
+                yield parseMappingBindingPatternEnd();
+            }
+        };
     }
 
     /**
@@ -16763,7 +16522,7 @@ public class BallerinaParser extends AbstractParser {
                 argListBindingPatterns.add(argEnd);
                 argListBindingPatterns.add(currentArg);
                 lastValidArgKind = currentArg.kind;
-            } else if (argListBindingPatterns.size() == 0) {
+            } else if (argListBindingPatterns.isEmpty()) {
                 addInvalidNodeToNextToken(argEnd, null);
                 addInvalidNodeToNextToken(currentArg, errorCode);
             } else {
@@ -16777,25 +16536,22 @@ public class BallerinaParser extends AbstractParser {
 
     private boolean isEndOfErrorFieldBindingPatterns() {
         SyntaxKind nextTokenKind = peek().kind;
-        switch (nextTokenKind) {
-            case CLOSE_PAREN_TOKEN:
-            case EOF_TOKEN:
-                return true;
-            default:
-                return false;
-        }
+        return switch (nextTokenKind) {
+            case CLOSE_PAREN_TOKEN,
+                 EOF_TOKEN -> true;
+            default -> false;
+        };
     }
 
     private STNode parseErrorArgsBindingPatternEnd(ParserRuleContext currentCtx) {
-        switch (peek().kind) {
-            case COMMA_TOKEN:
-                return consume();
-            case CLOSE_PAREN_TOKEN:
-                return null;
-            default:
+        return switch (peek().kind) {
+            case COMMA_TOKEN -> consume();
+            case CLOSE_PAREN_TOKEN -> null;
+            default -> {
                 recover(peek(), currentCtx);
-                return parseErrorArgsBindingPatternEnd(currentCtx);
-        }
+                yield parseErrorArgsBindingPatternEnd(currentCtx);
+            }
+        };
     }
 
     private STNode parseErrorArgListBindingPattern(ParserRuleContext context, boolean isFirstArg) {
@@ -16839,22 +16595,17 @@ public class BallerinaParser extends AbstractParser {
 
     private DiagnosticErrorCode validateErrorFieldBindingPatternOrder(SyntaxKind prevArgKind,
                                                                       SyntaxKind currentArgKind) {
-        switch (currentArgKind) {
-            case NAMED_ARG_BINDING_PATTERN:
-            case REST_BINDING_PATTERN:
+        return switch (currentArgKind) {
+            case NAMED_ARG_BINDING_PATTERN,
+                 REST_BINDING_PATTERN -> {
                 // Nothing is allowed after a rest arg
                 if (prevArgKind == SyntaxKind.REST_BINDING_PATTERN) {
-                    return DiagnosticErrorCode.ERROR_REST_ARG_FOLLOWED_BY_ANOTHER_ARG;
+                    yield DiagnosticErrorCode.ERROR_REST_ARG_FOLLOWED_BY_ANOTHER_ARG;
                 }
-                return null;
-            case CAPTURE_BINDING_PATTERN:
-            case WILDCARD_BINDING_PATTERN:
-            case ERROR_BINDING_PATTERN:
-            case LIST_BINDING_PATTERN:
-            case MAPPING_BINDING_PATTERN:
-            default:
-                return DiagnosticErrorCode.ERROR_BINDING_PATTERN_NOT_ALLOWED;
-        }
+                yield null;
+            }
+            default -> DiagnosticErrorCode.ERROR_BINDING_PATTERN_NOT_ALLOWED;
+        };
     }
 
     // ------------------------ Typed binding patterns ---------------------------
@@ -16979,13 +16730,10 @@ public class BallerinaParser extends AbstractParser {
     }
 
     private boolean isBracketedListEnd(SyntaxKind nextTokenKind) {
-        switch (nextTokenKind) {
-            case EOF_TOKEN:
-            case CLOSE_BRACKET_TOKEN:
-                return true;
-            default:
-                return false;
-        }
+        return switch (nextTokenKind) {
+            case EOF_TOKEN, CLOSE_BRACKET_TOKEN -> true;
+            default -> false;
+        };
     }
 
     /**
@@ -17061,15 +16809,14 @@ public class BallerinaParser extends AbstractParser {
     }
 
     private STNode parseBracketedListMemberEnd() {
-        switch (peek().kind) {
-            case COMMA_TOKEN:
-                return parseComma();
-            case CLOSE_BRACKET_TOKEN:
-                return null;
-            default:
+        return switch (peek().kind) {
+            case COMMA_TOKEN -> parseComma();
+            case CLOSE_BRACKET_TOKEN -> null;
+            default -> {
                 recover(peek(), ParserRuleContext.BRACKETED_LIST_MEMBER_END);
-                return parseBracketedListMemberEnd();
-        }
+                yield parseBracketedListMemberEnd();
+            }
+        };
     }
 
     /**
@@ -17862,7 +17609,7 @@ public class BallerinaParser extends AbstractParser {
         }
 
         STNode annots = STNodeFactory.createEmptyNodeList();
-        return parseStmtStartsWithTupleTypeOrExprRhs(annots, tupleTypeOrListConst, isRoot);
+        return parseStmtStartsWithTupleTypeOrExprRhs(annots, tupleTypeOrListConst, true);
 
     }
 
@@ -17901,7 +17648,7 @@ public class BallerinaParser extends AbstractParser {
             return typeDesc;
         }
 
-        STNode typedBindingPattern = parseTypedBindingPatternTypeRhs(typeDesc, ParserRuleContext.VAR_DECL_STMT, isRoot);
+        STNode typedBindingPattern = parseTypedBindingPatternTypeRhs(typeDesc, ParserRuleContext.VAR_DECL_STMT, true);
 
         switchContext(ParserRuleContext.VAR_DECL_STMT);
         return parseVarDeclRhs(annots, new ArrayList<>(), typedBindingPattern, false);
@@ -17954,45 +17701,42 @@ public class BallerinaParser extends AbstractParser {
             return SyntaxKind.TUPLE_TYPE_DESC;
         }
 
-        switch (memberNode.kind) {
-            case WILDCARD_BINDING_PATTERN:
-            case CAPTURE_BINDING_PATTERN:
-            case LIST_BINDING_PATTERN:
-            case MAPPING_BINDING_PATTERN:
-            case ERROR_BINDING_PATTERN:
-                return SyntaxKind.LIST_BINDING_PATTERN;
-            case QUALIFIED_NAME_REFERENCE: // a qualified-name-ref can only be a type-ref
-                return SyntaxKind.TUPLE_TYPE_DESC;
-            case LIST_CONSTRUCTOR:
-            case MAPPING_CONSTRUCTOR:
-            case SPREAD_MEMBER:
-                return SyntaxKind.LIST_CONSTRUCTOR;
-            case MAPPING_BP_OR_MAPPING_CONSTRUCTOR:
-            case REST_BINDING_PATTERN:
+        return switch (memberNode.kind) {
+            case WILDCARD_BINDING_PATTERN,
+                 CAPTURE_BINDING_PATTERN,
+                 LIST_BINDING_PATTERN,
+                 MAPPING_BINDING_PATTERN,
+                 ERROR_BINDING_PATTERN -> SyntaxKind.LIST_BINDING_PATTERN;
+            // a qualified-name-ref can only be a type-ref
+            case QUALIFIED_NAME_REFERENCE -> SyntaxKind.TUPLE_TYPE_DESC;
+            case LIST_CONSTRUCTOR,
+                 MAPPING_CONSTRUCTOR,
+                 SPREAD_MEMBER -> SyntaxKind.LIST_CONSTRUCTOR;
+            case MAPPING_BP_OR_MAPPING_CONSTRUCTOR,
+                 REST_BINDING_PATTERN ->
                 // can be either list-bp or list-constructor. Cannot be a tuple-type-desc
-                return SyntaxKind.LIST_BP_OR_LIST_CONSTRUCTOR;
-            case SIMPLE_NAME_REFERENCE: // member is a simple type-ref/var-ref
-            case BRACKETED_LIST: // member is again ambiguous
-                return SyntaxKind.NONE;
-            case ERROR_CONSTRUCTOR:
+                    SyntaxKind.LIST_BP_OR_LIST_CONSTRUCTOR;
+            case SIMPLE_NAME_REFERENCE, // member is a simple type-ref/var-ref
+                 BRACKETED_LIST // member is again ambiguous
+                    -> SyntaxKind.NONE;
+            case ERROR_CONSTRUCTOR -> {
                 if (isPossibleErrorBindingPattern((STErrorConstructorExpressionNode) memberNode)) {
-                    return SyntaxKind.NONE;
+                    yield SyntaxKind.NONE;
                 }
-                return SyntaxKind.LIST_CONSTRUCTOR;
-            case INDEXED_EXPRESSION:
-                return SyntaxKind.TUPLE_TYPE_DESC_OR_LIST_CONST;
-            case MEMBER_TYPE_DESC:
-                return SyntaxKind.MEMBER_TYPE_DESC;
-            case REST_TYPE:
-                return SyntaxKind.REST_TYPE;
-            default:
+                yield SyntaxKind.LIST_CONSTRUCTOR;
+            }
+            case INDEXED_EXPRESSION -> SyntaxKind.TUPLE_TYPE_DESC_OR_LIST_CONST;
+            case MEMBER_TYPE_DESC -> SyntaxKind.MEMBER_TYPE_DESC;
+            case REST_TYPE -> SyntaxKind.REST_TYPE;
+            default -> {
                 if (isExpression(memberNode.kind) && !isAllBasicLiterals(memberNode) && !isAmbiguous(memberNode)) {
-                    return SyntaxKind.LIST_CONSTRUCTOR;
+                    yield SyntaxKind.LIST_CONSTRUCTOR;
                 }
+                yield SyntaxKind.NONE;
 
                 // can be any of the three.
-                return SyntaxKind.NONE;
-        }
+            }
+        };
     }
 
     private boolean isPossibleErrorBindingPattern(STErrorConstructorExpressionNode errorConstructor) {
@@ -18015,19 +17759,12 @@ public class BallerinaParser extends AbstractParser {
     }
 
     private boolean isPosibleArgBindingPattern(STFunctionArgumentNode arg) {
-        switch (arg.kind) {
-            case POSITIONAL_ARG:
-                STNode expr = ((STPositionalArgumentNode) arg).expression;
-                return isPosibleBindingPattern(expr);
-            case NAMED_ARG:
-                expr = ((STNamedArgumentNode) arg).expression;
-                return isPosibleBindingPattern(expr);
-            case REST_ARG:
-                expr = ((STRestArgumentNode) arg).expression;
-                return expr.kind == SyntaxKind.SIMPLE_NAME_REFERENCE;
-            default:
-                return false;
-        }
+        return switch (arg.kind) {
+            case POSITIONAL_ARG -> isPosibleBindingPattern(((STPositionalArgumentNode) arg).expression);
+            case NAMED_ARG -> isPosibleBindingPattern(((STNamedArgumentNode) arg).expression);
+            case REST_ARG -> ((STRestArgumentNode) arg).expression.kind == SyntaxKind.SIMPLE_NAME_REFERENCE;
+            default -> false;
+        };
     }
 
     private boolean isPosibleBindingPattern(STNode node) {
@@ -18153,16 +17890,14 @@ public class BallerinaParser extends AbstractParser {
     }
 
     private boolean isWildcardBP(STNode node) {
-        switch (node.kind) {
-            case SIMPLE_NAME_REFERENCE:
+        return switch (node.kind) {
+            case SIMPLE_NAME_REFERENCE -> {
                 STToken nameToken = (STToken) ((STSimpleNameReferenceNode) node).name;
-                return isUnderscoreToken(nameToken);
-            case IDENTIFIER_TOKEN:
-                return isUnderscoreToken((STToken) node);
-            default:
-                return false;
-
-        }
+                yield isUnderscoreToken(nameToken);
+            }
+            case IDENTIFIER_TOKEN -> isUnderscoreToken((STToken) node);
+            default -> false;
+        };
     }
 
     private boolean isUnderscoreToken(STToken token) {
@@ -18454,22 +18189,29 @@ public class BallerinaParser extends AbstractParser {
                     return STNodeFactory.createSpecificFieldNode(readonlyKeyword, identifier, colon, value);
                 }
 
-                switch (peek().kind) {
-                    case OPEN_BRACKET_TOKEN: // { foo:[
+                return switch (peek().kind) {
+                    // { foo:[
+                    case OPEN_BRACKET_TOKEN -> {
                         STNode bindingPatternOrExpr = parseListBindingPatternOrListConstructor();
-                        return getMappingField(identifier, colon, bindingPatternOrExpr);
-                    case OPEN_BRACE_TOKEN: // { foo:{
-                        bindingPatternOrExpr = parseMappingBindingPatterOrMappingConstructor();
-                        return getMappingField(identifier, colon, bindingPatternOrExpr);
-                    case ERROR_KEYWORD: // { foo: error
-                        bindingPatternOrExpr = parseErrorBindingPatternOrErrorConstructor();
-                        return getMappingField(identifier, colon, bindingPatternOrExpr);
-                    case IDENTIFIER_TOKEN: // { foo:bar
-                        return parseQualifiedIdentifierRhsInStmtStartBrace(identifier, colon);
-                    default:
+                        yield getMappingField(identifier, colon, bindingPatternOrExpr);
+                    }
+                    // { foo:{
+                    case OPEN_BRACE_TOKEN -> {
+                        STNode bindingPatternOrExpr = parseMappingBindingPatterOrMappingConstructor();
+                        yield getMappingField(identifier, colon, bindingPatternOrExpr);
+                    }
+                    // { foo: error
+                    case ERROR_KEYWORD -> {
+                        STNode bindingPatternOrExpr = parseErrorBindingPatternOrErrorConstructor();
+                        yield getMappingField(identifier, colon, bindingPatternOrExpr);
+                    }
+                    // { foo:bar
+                    case IDENTIFIER_TOKEN -> parseQualifiedIdentifierRhsInStmtStartBrace(identifier, colon);
+                    default -> {
                         STNode expr = parseExpression();
-                        return getMappingField(identifier, colon, expr);
-                }
+                        yield getMappingField(identifier, colon, expr);
+                    }
+                };
             default:
                 switchContext(ParserRuleContext.BLOCK_STMT);
                 if (!isEmpty(readonlyKeyword)) {
@@ -18562,21 +18304,19 @@ public class BallerinaParser extends AbstractParser {
                 }
 
                 // "{foo," and "{foo:bar," is ambiguous
-                switch (expr.kind) {
-                    case SIMPLE_NAME_REFERENCE:
-                    case LIST_BP_OR_LIST_CONSTRUCTOR:
-                    case MAPPING_BP_OR_MAPPING_CONSTRUCTOR:
-                        return SyntaxKind.MAPPING_BP_OR_MAPPING_CONSTRUCTOR;
-                    case ERROR_BINDING_PATTERN:
-                        return SyntaxKind.MAPPING_BINDING_PATTERN;
-                    case ERROR_CONSTRUCTOR:
+                return switch (expr.kind) {
+                    case SIMPLE_NAME_REFERENCE,
+                         LIST_BP_OR_LIST_CONSTRUCTOR,
+                         MAPPING_BP_OR_MAPPING_CONSTRUCTOR -> SyntaxKind.MAPPING_BP_OR_MAPPING_CONSTRUCTOR;
+                    case ERROR_BINDING_PATTERN -> SyntaxKind.MAPPING_BINDING_PATTERN;
+                    case ERROR_CONSTRUCTOR -> {
                         if (isPossibleErrorBindingPattern((STErrorConstructorExpressionNode) expr)) {
-                            return SyntaxKind.MAPPING_BP_OR_MAPPING_CONSTRUCTOR;
+                            yield SyntaxKind.MAPPING_BP_OR_MAPPING_CONSTRUCTOR;
                         }
-                        return SyntaxKind.MAPPING_CONSTRUCTOR;
-                    default:
-                        return SyntaxKind.MAPPING_CONSTRUCTOR;
-                }
+                        yield SyntaxKind.MAPPING_CONSTRUCTOR;
+                    }
+                    default -> SyntaxKind.MAPPING_CONSTRUCTOR;
+                };
             case SPREAD_FIELD:
             case COMPUTED_NAME_FIELD:
                 return SyntaxKind.MAPPING_CONSTRUCTOR;
@@ -18606,13 +18346,10 @@ public class BallerinaParser extends AbstractParser {
     }
 
     private boolean isBracedListEnd(SyntaxKind nextTokenKind) {
-        switch (nextTokenKind) {
-            case EOF_TOKEN:
-            case CLOSE_BRACE_TOKEN:
-                return true;
-            default:
-                return false;
-        }
+        return switch (nextTokenKind) {
+            case EOF_TOKEN, CLOSE_BRACE_TOKEN -> true;
+            default -> false;
+        };
     }
 
     private STNode parseMappingBindingPatternOrMappingConstructor(STNode openBrace, List<STNode> memberList) {
@@ -18700,21 +18437,14 @@ public class BallerinaParser extends AbstractParser {
 
     private STNode parseMappingFieldValue(STNode key, STNode colon) {
         // {foo: ...
-        STNode expr;
-        switch (peek().kind) {
-            case IDENTIFIER_TOKEN:
-                expr = parseExpression();
-                break;
-            case OPEN_BRACKET_TOKEN: // { foo:[
-                expr = parseListBindingPatternOrListConstructor();
-                break;
-            case OPEN_BRACE_TOKEN: // { foo:{
-                expr = parseMappingBindingPatterOrMappingConstructor();
-                break;
-            default:
-                expr = parseExpression();
-                break;
-        }
+        STNode expr = switch (peek().kind) {
+            case IDENTIFIER_TOKEN -> parseExpression();
+            // { foo:[
+            case OPEN_BRACKET_TOKEN -> parseListBindingPatternOrListConstructor();
+            // { foo:{
+            case OPEN_BRACE_TOKEN -> parseMappingBindingPatterOrMappingConstructor();
+            default -> parseExpression();
+        };
 
         if (isBindingPattern(expr.kind)) {
             key = STNodeFactory.createSimpleNameReferenceNode(key);
@@ -18726,16 +18456,14 @@ public class BallerinaParser extends AbstractParser {
     }
 
     private boolean isBindingPattern(SyntaxKind kind) {
-        switch (kind) {
-            case FIELD_BINDING_PATTERN:
-            case MAPPING_BINDING_PATTERN:
-            case CAPTURE_BINDING_PATTERN:
-            case LIST_BINDING_PATTERN:
-            case WILDCARD_BINDING_PATTERN:
-                return true;
-            default:
-                return false;
-        }
+        return switch (kind) {
+            case FIELD_BINDING_PATTERN,
+                 MAPPING_BINDING_PATTERN,
+                 CAPTURE_BINDING_PATTERN,
+                 LIST_BINDING_PATTERN,
+                 WILDCARD_BINDING_PATTERN -> true;
+            default -> false;
+        };
     }
 
     private SyntaxKind getTypeOfMappingBPOrMappingCons(STNode memberNode) {
@@ -18860,21 +18588,17 @@ public class BallerinaParser extends AbstractParser {
     }
 
     private SyntaxKind getParsingNodeTypeOfListBPOrListCons(STNode memberNode) {
-        switch (memberNode.kind) {
-            case CAPTURE_BINDING_PATTERN:
-            case LIST_BINDING_PATTERN:
-            case MAPPING_BINDING_PATTERN:
-            case WILDCARD_BINDING_PATTERN:
-                return SyntaxKind.LIST_BINDING_PATTERN;
-            case SIMPLE_NAME_REFERENCE: // member is a simple type-ref/var-ref
-            case LIST_BP_OR_LIST_CONSTRUCTOR: // member is again ambiguous
-            case MAPPING_BP_OR_MAPPING_CONSTRUCTOR:
-            case REST_BINDING_PATTERN:
-                return SyntaxKind.LIST_BP_OR_LIST_CONSTRUCTOR;
-            case SPREAD_MEMBER:
-            default:
-                return SyntaxKind.LIST_CONSTRUCTOR;
-        }
+        return switch (memberNode.kind) {
+            case CAPTURE_BINDING_PATTERN,
+                 LIST_BINDING_PATTERN,
+                 MAPPING_BINDING_PATTERN,
+                 WILDCARD_BINDING_PATTERN -> SyntaxKind.LIST_BINDING_PATTERN;
+            case SIMPLE_NAME_REFERENCE, // member is a simple type-ref/var-ref
+                 LIST_BP_OR_LIST_CONSTRUCTOR, // member is again ambiguous
+                 MAPPING_BP_OR_MAPPING_CONSTRUCTOR,
+                 REST_BINDING_PATTERN -> SyntaxKind.LIST_BP_OR_LIST_CONSTRUCTOR;
+            default -> SyntaxKind.LIST_CONSTRUCTOR;
+        };
     }
 
     private STNode parseAsListConstructor(STNode openBracket, List<STNode> memberList, STNode member, boolean isRoot) {
@@ -19217,7 +18941,7 @@ public class BallerinaParser extends AbstractParser {
         DiagnosticCode errorCode = DiagnosticErrorCode.ERROR_INVALID_BINDING_PATTERN;
 
         if (isEmpty(ambiguousNode)) {
-            return ambiguousNode;
+            return null;
         }
 
         switch (ambiguousNode.kind) {
@@ -19377,7 +19101,7 @@ public class BallerinaParser extends AbstractParser {
                 STIndexedExpressionNode indexedExpressionNode = (STIndexedExpressionNode) ambiguousNode;
                 STNodeList keys = (STNodeList) indexedExpressionNode.keyExpression;
                 
-                if (keys.size() != 0) {
+                if (!keys.isEmpty()) {
                     return ambiguousNode;
                 }
                 
@@ -19406,23 +19130,22 @@ public class BallerinaParser extends AbstractParser {
 
     private STNode getMappingField(STNode identifier, STNode colon, STNode bindingPatternOrExpr) {
         STNode simpleNameRef = STNodeFactory.createSimpleNameReferenceNode(identifier);
-        switch (bindingPatternOrExpr.kind) {
-            case LIST_BINDING_PATTERN:
-            case MAPPING_BINDING_PATTERN:
-                return STNodeFactory.createFieldBindingPatternFullNode(simpleNameRef, colon, bindingPatternOrExpr);
-            case LIST_CONSTRUCTOR:
-            case MAPPING_CONSTRUCTOR:
+        return switch (bindingPatternOrExpr.kind) {
+            case LIST_BINDING_PATTERN,
+                 MAPPING_BINDING_PATTERN ->
+                    STNodeFactory.createFieldBindingPatternFullNode(simpleNameRef, colon, bindingPatternOrExpr);
+            case LIST_CONSTRUCTOR,
+                 MAPPING_CONSTRUCTOR -> {
                 STNode readonlyKeyword = STNodeFactory.createEmptyNode();
-                return STNodeFactory
+                yield STNodeFactory
                         .createSpecificFieldNode(readonlyKeyword, identifier, colon, bindingPatternOrExpr);
-            case LIST_BP_OR_LIST_CONSTRUCTOR:
-            case MAPPING_BP_OR_MAPPING_CONSTRUCTOR:
-            default:
-                // If ambiguous, return an specific node, since it is used to represent any
-                // ambiguous mapping field
-                readonlyKeyword = STNodeFactory.createEmptyNode();
-                return STNodeFactory.createSpecificFieldNode(readonlyKeyword, identifier, colon, bindingPatternOrExpr);
-        }
+            }
+            // If ambiguous, return an specific node, since it is used to represent any  ambiguous mapping field
+            default -> {
+                STNode readonlyKeyword = STNodeFactory.createEmptyNode();
+                yield STNodeFactory.createSpecificFieldNode(readonlyKeyword, identifier, colon, bindingPatternOrExpr);
+            }
+        };
     }
 
     // ----------------------------------------- Error Recovery ----------------------------------------
@@ -19452,24 +19175,27 @@ public class BallerinaParser extends AbstractParser {
     }
 
     private boolean isBlockContext(ParserRuleContext ctx) {
-        switch (ctx) {
-            case FUNC_BODY_BLOCK:
-            case CLASS_MEMBER:
-            case OBJECT_CONSTRUCTOR_MEMBER:
-            case OBJECT_TYPE_MEMBER:
-            case BLOCK_STMT:
-            case MATCH_BODY:
-            case MAPPING_MATCH_PATTERN:
-            case MAPPING_BINDING_PATTERN:
-            case MAPPING_CONSTRUCTOR:
-            case FORK_STMT:
-            case MULTI_RECEIVE_WORKERS:
-            case MULTI_WAIT_FIELDS:
-            case MODULE_ENUM_DECLARATION:
-                return true;
-            default:
-                return false;
-        }
+        return switch (ctx) {
+            case FUNC_BODY_BLOCK,
+                 CLASS_MEMBER,
+                 OBJECT_CONSTRUCTOR_MEMBER,
+                 OBJECT_TYPE_MEMBER,
+                 BLOCK_STMT,
+                 MATCH_BODY,
+                 MAPPING_MATCH_PATTERN,
+                 MAPPING_BINDING_PATTERN,
+                 MAPPING_CONSTRUCTOR,
+                 FORK_STMT,
+                 MULTI_RECEIVE_WORKERS,
+                 MULTI_WAIT_FIELDS,
+                 MODULE_ENUM_DECLARATION -> true;
+            default -> false;
+        };
+    }
+
+    private boolean isSpecialMethodName(STToken token) {
+        return token.kind == SyntaxKind.MAP_KEYWORD || token.kind == SyntaxKind.START_KEYWORD ||
+                token.kind == SyntaxKind.JOIN_KEYWORD;
     }
 
     // ----------------------------------------- ~ End of Parser ~ ----------------------------------------

@@ -33,7 +33,6 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Map;
 import java.util.regex.Pattern;
 
@@ -50,8 +49,8 @@ import static org.wso2.ballerinalang.compiler.util.ProjectDirs.isModuleExist;
  */
 public class BindgenMvnResolver {
 
-    private PrintStream outStream;
-    private BindgenEnv env;
+    private final PrintStream outStream;
+    private final BindgenEnv env;
 
     public BindgenMvnResolver(PrintStream outStream, BindgenEnv env) {
         this.outStream = outStream;
@@ -63,12 +62,12 @@ public class BindgenMvnResolver {
         Path mvnRepository;
         if (projectRoot == null) {
             if (env.getOutputPath() != null) {
-                mvnRepository = Paths.get(env.getOutputPath(), TARGET_DIR, MVN_REPO);
+                mvnRepository = Path.of(env.getOutputPath(), TARGET_DIR, MVN_REPO);
             } else {
-                mvnRepository = Paths.get(System.getProperty(USER_DIR), TARGET_DIR, MVN_REPO);
+                mvnRepository = Path.of(System.getProperty(USER_DIR), TARGET_DIR, MVN_REPO);
             }
         } else {
-            mvnRepository = Paths.get(projectRoot.toString(), TARGET_DIR, MVN_REPO);
+            mvnRepository = Path.of(projectRoot.toString(), TARGET_DIR, MVN_REPO);
         }
         Dependency dependency = resolveDependency(groupId, artifactId, version, mvnRepository.toString());
         handleDependency(groupId, artifactId, version, mvnRepository.toString(), projectRoot, null, parentJvmTarget);
@@ -106,10 +105,10 @@ public class BindgenMvnResolver {
 
     private void handleDependency(String groupId, String artifactId, String version, String mvnRepository,
                                   Path projectRoot, String parent, JvmTarget parentJvmTarget) throws BindgenException {
-        Path mvnPath = Paths.get(mvnRepository, getPathFromGroupId(groupId), artifactId, version);
+        Path mvnPath = Path.of(mvnRepository, getPathFromGroupId(groupId), artifactId, version);
         this.env.addClasspath(mvnPath.toString());
         if (projectRoot != null) {
-            File tomlFile = new File(Paths.get(projectRoot.toString(), ProjectConstants.BALLERINA_TOML).toString());
+            File tomlFile = new File(Path.of(projectRoot.toString(), ProjectConstants.BALLERINA_TOML).toString());
             if (tomlFile.exists() && !tomlFile.isDirectory()) {
                 populateBallerinaToml(groupId, artifactId, version, tomlFile, projectRoot, parent, parentJvmTarget);
             }
@@ -119,13 +118,14 @@ public class BindgenMvnResolver {
     private void populateBallerinaToml(String groupId, String artifactId, String version,
                                        File tomlFile, Path projectRoot, String parent,
                                        JvmTarget parentJvmTarget) throws BindgenException {
-        try (FileWriterWithEncoding fileWriter = new FileWriterWithEncoding(tomlFile, StandardCharsets.UTF_8, true)) {
+        try (FileWriterWithEncoding fileWriter = FileWriterWithEncoding.builder()
+                .setFile(tomlFile).setCharset(StandardCharsets.UTF_8).setAppend(true).get()) {
             TomlDocument tomlDocument = env.getTomlDocument();
             if (tomlDocument == null) {
                 return;
             }
             // TODO: Syntax tree of the toml document could be used for the update.
-            PackageManifest packageManifest = ManifestBuilder.from(tomlDocument, null, projectRoot)
+            PackageManifest packageManifest = ManifestBuilder.from(tomlDocument, null, null, projectRoot)
                     .packageManifest();
             if (packageManifest == null) {
                 return;
@@ -181,7 +181,7 @@ public class BindgenMvnResolver {
 
     private static String getModuleName(Path projectRoot, String outputPath) {
         if (outputPath == null) {
-            outputPath = Paths.get(System.getProperty(USER_DIR)).toString();
+            outputPath = Path.of(System.getProperty(USER_DIR)).toString();
         }
         String splitRegex = Pattern.quote(System.getProperty(FILE_SEPARATOR));
         String[] splittedPath = outputPath.split(splitRegex);

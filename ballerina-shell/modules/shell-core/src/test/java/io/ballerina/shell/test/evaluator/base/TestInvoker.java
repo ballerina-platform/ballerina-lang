@@ -18,7 +18,8 @@
 
 package io.ballerina.shell.test.evaluator.base;
 
-import io.ballerina.shell.exceptions.InvokerException;
+import io.ballerina.runtime.api.Module;
+import io.ballerina.shell.exceptions.InvokerPanicException;
 import io.ballerina.shell.invoker.classload.ClassLoadInvoker;
 
 import java.io.ByteArrayOutputStream;
@@ -40,12 +41,11 @@ public class TestInvoker extends ClassLoadInvoker {
     }
 
     @Override
-    protected Object invokeScheduledMethod(ClassLoader classLoader, String className, String methodName)
-            throws InvokerException {
+    protected Object callRun(ClassLoader classLoader, Module module) throws InvokerPanicException {
         PrintStream stdOut = System.out;
         try {
             System.setOut(stdOutMock);
-            return super.invokeScheduledMethod(classLoader, className, methodName);
+            return super.callRun(classLoader, module);
         } finally {
             System.setOut(stdOut);
         }
@@ -61,6 +61,7 @@ public class TestInvoker extends ClassLoadInvoker {
         return output.replace("\r\n", "\n");
     }
 
+    @Override
     public void reset() {
         this.stdOutBaOs.reset();
     }

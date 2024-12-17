@@ -64,10 +64,8 @@ import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLocation;
 import org.wso2.ballerinalang.compiler.diagnostic.properties.BSymbolicProperty;
 
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 /**
  * Tests for language server's extensions.
@@ -75,7 +73,7 @@ import java.util.stream.Collectors;
 @Test
 public class LanguageServerExtensionTests {
 
-    private static final Path RESOURCE_DIRECTORY = Paths.get(
+    private static final Path RESOURCE_DIRECTORY = Path.of(
             "src/test/resources/compiler_plugin_tests").toAbsolutePath();
 
     @BeforeSuite
@@ -89,7 +87,7 @@ public class LanguageServerExtensionTests {
         String path = RESOURCE_DIRECTORY.resolve("package_plugin_user_with_codeactions_1").toString();
         CompileResult result = BCompileUtil.compileAndCacheBala(path);
 
-        Path filePath = Paths.get(path, "main.bal");
+        Path filePath = Path.of(path, "main.bal");
         Project project = result.project();
         DocumentId documentId = project.documentId(filePath);
         Module module = project.currentPackage().module(documentId.moduleId());
@@ -125,7 +123,7 @@ public class LanguageServerExtensionTests {
         List<CodeActionArgument> arguments = info.get().getArguments();
         arguments = arguments.stream()
                 .map(codeActionArgument -> CodeActionArgument.from(gson.toJsonTree(codeActionArgument)))
-                .collect(Collectors.toList());
+                .toList();
 
         Assert.assertFalse(arguments.isEmpty());
 
@@ -160,7 +158,7 @@ public class LanguageServerExtensionTests {
         Project project = result.project();
         PackageCompilation packageCompilation = project.currentPackage().getCompilation();
         CompletionManager completionManager = packageCompilation.getCompletionManager();
-        Path filePath = Paths.get(path, "main.bal");
+        Path filePath = Path.of(path, "main.bal");
         DocumentId documentId = project.documentId(filePath);
         Module module = project.currentPackage().module(documentId.moduleId());
         Document document = module.document(documentId);
@@ -203,7 +201,7 @@ public class LanguageServerExtensionTests {
         Project project = result.project();
         PackageCompilation packageCompilation = project.currentPackage().getCompilation();
         CompletionManager completionManager = packageCompilation.getCompletionManager();
-        Path filePath = Paths.get(path, "main.bal");
+        Path filePath = Path.of(path, "main.bal");
         DocumentId documentId = project.documentId(filePath);
         Module module = project.currentPackage().module(documentId.moduleId());
         Document document = module.document(documentId);
@@ -234,7 +232,7 @@ public class LanguageServerExtensionTests {
         Project project = result.project();
         PackageCompilation packageCompilation = project.currentPackage().getCompilation();
         CompletionManager completionManager = packageCompilation.getCompletionManager();
-        Path filePath = Paths.get(path, "main.bal");
+        Path filePath = Path.of(path, "main.bal");
         DocumentId documentId = project.documentId(filePath);
         Module module = project.currentPackage().module(documentId.moduleId());
         Document document = module.document(documentId);

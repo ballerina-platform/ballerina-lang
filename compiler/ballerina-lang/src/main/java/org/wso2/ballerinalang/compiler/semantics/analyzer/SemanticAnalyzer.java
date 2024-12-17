@@ -118,7 +118,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckedExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLambdaFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLetExpression;
@@ -223,9 +222,11 @@ import org.wso2.ballerinalang.compiler.util.Unifier;
 import org.wso2.ballerinalang.util.AttachPoints;
 import org.wso2.ballerinalang.util.Flags;
 
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Deque;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -234,7 +235,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.Stack;
 import java.util.stream.Collectors;
 
 import static org.ballerinalang.model.symbols.SymbolOrigin.COMPILED_SOURCE;
@@ -246,6 +246,7 @@ import static org.ballerinalang.model.tree.NodeKind.NUMERIC_LITERAL;
 import static org.ballerinalang.model.tree.NodeKind.RECORD_LITERAL_EXPR;
 import static org.ballerinalang.model.tree.NodeKind.REG_EXP_CAPTURING_GROUP;
 import static org.ballerinalang.model.tree.NodeKind.REG_EXP_CHARACTER_CLASS;
+import static org.wso2.ballerinalang.compiler.util.CompilerUtils.isAssignmentToOptionalField;
 
 /**
  * @since 0.94
@@ -267,7 +268,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
     private final TypeNarrower typeNarrower;
     private final Types types;
     private final Unifier unifier;
-    private final Stack<String> anonTypeNameSuffixes;
+    private final Deque<String> anonTypeNameSuffixes;
     private final CompilerContext compilerContext;
 
     public static SemanticAnalyzer getInstance(CompilerContext context) {
@@ -295,7 +296,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
         this.constantValueResolver = ConstantValueResolver.getInstance(context);
         this.anonModelHelper = BLangAnonymousModelHelper.getInstance(context);
         this.unifier = new Unifier();
-        this.anonTypeNameSuffixes = new Stack<>();
+        this.anonTypeNameSuffixes = new ArrayDeque<>();
     }
 
     public BLangPackage analyze(BLangPackage pkgNode) {
@@ -321,6 +322,9 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
 
         // Visit constants first.
         List<TopLevelNode> topLevelNodes = pkgNode.topLevelNodes;
+
+        // topLevelNodes are modified while iterating over them
+        // noinspection ForLoopReplaceableByForEach
         for (int i = 0; i < topLevelNodes.size(); i++) {
             TopLevelNode constant = topLevelNodes.get(i);
             if (constant.getKind() == NodeKind.CONSTANT) {
@@ -331,9 +335,9 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
         validateEnumMemberMetadata(pkgNode.constants);
 
         // Then resolve user defined types without analyzing type definitions that get added while analyzing other nodes
-        for (int i = 0; i < copyOfOriginalTopLevelNodes.size(); i++)  {
-            if (copyOfOriginalTopLevelNodes.get(i).getKind() == NodeKind.TYPE_DEFINITION) {
-                analyzeNode((BLangNode) copyOfOriginalTopLevelNodes.get(i), data);
+        for (TopLevelNode copyOfOriginalTopLevelNode : copyOfOriginalTopLevelNodes) {
+            if (copyOfOriginalTopLevelNode.getKind() == NodeKind.TYPE_DEFINITION) {
+                analyzeNode((BLangNode) copyOfOriginalTopLevelNode, data);
             }
         }
 
@@ -416,14 +420,12 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
         SymbolEnv currentEnv = data.env;
         xmlnsNode.setBType(symTable.stringType);
 
-        // Namespace node already having the symbol means we are inside an init-function,
-        // and the symbol has already been declared by the original statement.
-        if (xmlnsNode.symbol == null) {
-            symbolEnter.defineNode(xmlnsNode, currentEnv);
-        }
-
         typeChecker.checkExpr(xmlnsNode.namespaceURI, currentEnv, symTable.stringType, data.prevEnvs,
                 data.commonAnalyzerData);
+        // For module-level XML namespace declarations the symbol is already defined at symbol enter.
+        if (currentEnv.node.getKind() != NodeKind.PACKAGE) {
+            symbolEnter.defineNode(xmlnsNode, currentEnv);
+        }
     }
 
     @Override
@@ -498,12 +500,18 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
         //set function param flag to final
         funcNode.symbol.params.forEach(param -> param.flags |= Flags.FUNCTION_FINAL);
 
+        BVarSymbol restParamSym = funcNode.symbol.restParam;
+        if (restParamSym != null) {
+            restParamSym.flags |= Flags.FUNCTION_FINAL;
+        }
+
         if (!funcNode.flagSet.contains(Flag.WORKER)) {
             // annotation validation for workers is done for the invocation.
             funcNode.annAttachments.forEach(annotationAttachment -> {
                 if (Symbols.isFlagOn(funcNode.symbol.flags, Flags.REMOTE) && funcNode.receiver != null
-                        && Symbols.isService(funcNode.receiver.symbol)) {
+                        && Symbols.isService(funcNode.receiver.getBType().tsymbol)) {
                     annotationAttachment.attachPoints.add(AttachPoint.Point.SERVICE_REMOTE);
+                    annotationAttachment.attachPoints.add(AttachPoint.Point.OBJECT_METHOD);
                 } else if (funcNode.attachedFunction) {
                     annotationAttachment.attachPoints.add(AttachPoint.Point.OBJECT_METHOD);
                 }
@@ -1071,8 +1079,8 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
     @Override
     public void visit(BLangAnnotationAttachment annAttachmentNode, AnalyzerData data) {
         BSymbol symbol = this.symResolver.resolveAnnotation(annAttachmentNode.pos, data.env,
-                names.fromString(annAttachmentNode.pkgAlias.getValue()),
-                names.fromString(annAttachmentNode.getAnnotationName().getValue()));
+                Names.fromString(annAttachmentNode.pkgAlias.getValue()),
+                Names.fromString(annAttachmentNode.getAnnotationName().getValue()));
         if (symbol == this.symTable.notFoundSymbol) {
             this.dlog.error(annAttachmentNode.pos, DiagnosticErrorCode.UNDEFINED_ANNOTATION,
                     annAttachmentNode.getAnnotationName().getValue());
@@ -1270,7 +1278,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
 
     @Override
     public void visit(BLangRegExpTemplateLiteral node, AnalyzerData data) {
-        if (node.reDisjunction.sequenceList.size() == 0) {
+        if (node.reDisjunction.sequenceList.isEmpty()) {
             dlog.error(node.reDisjunction.pos, DiagnosticErrorCode.EMPTY_REGEXP_STRING_DISALLOWED, node.reDisjunction);
         } else {
             analyzeNode(node.reDisjunction, data);
@@ -1510,6 +1518,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
         }
     }
 
+    @Override
     public void visit(BLangRecordVariable varNode, AnalyzerData data) {
 
         // Only simple variables are allowed to be configurable.
@@ -1530,6 +1539,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
             varNode.setBType(symResolver.resolveTypeNode(varNode.typeNode, currentEnv));
         }
 
+        analyzeNode(varNode.typeNode, data);
         long ownerSymTag = currentEnv.scope.owner.tag;
         // If this is a module record variable, checkTypeAndVarCountConsistency already done at symbolEnter.
         if ((ownerSymTag & SymTag.PACKAGE) != SymTag.PACKAGE &&
@@ -1563,6 +1573,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
 
     }
 
+    @Override
     public void visit(BLangTupleVariable varNode, AnalyzerData data) {
 
         // Only simple variables are allowed to be configurable.
@@ -1584,6 +1595,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
             varNode.setBType(symResolver.resolveTypeNode(varNode.typeNode, currentEnv));
         }
 
+        analyzeNode(varNode.typeNode, data);
         long ownerSymTag = currentEnv.scope.owner.tag;
         // If this is a module tuple variable, checkTypeAndVarCountConsistency already done at symbolEnter.
         if ((ownerSymTag & SymTag.PACKAGE) != SymTag.PACKAGE &&
@@ -1733,6 +1745,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
         if (varNode.getBType() == null) {
             varNode.setBType(symResolver.resolveTypeNode(varNode.typeNode, currentEnv));
         }
+        analyzeNode(varNode.typeNode, data);
 
         // match err1 { error(reason,....) => ... }
         // reason must be a const of subtype of string.
@@ -1745,7 +1758,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
                 List<BErrorType> errorMembers = members.stream()
                         .filter(m -> Types.getImpliedType(m).tag == TypeTags.ERROR)
                         .map(m -> (BErrorType) Types.getImpliedType(m))
-                        .collect(Collectors.toList());
+                        .toList();
 
                 if (errorMembers.isEmpty()) {
                     dlog.error(varNode.pos, DiagnosticErrorCode.INVALID_ERROR_MATCH_PATTERN);
@@ -1795,13 +1808,13 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
     }
 
     private void validateErrorDetailBindingPatterns(BLangErrorVariable errorVariable) {
-        BType rhsType = types.getImpliedType(errorVariable.expr.getBType());
+        BType rhsType = Types.getImpliedType(errorVariable.expr.getBType());
         if (rhsType.getKind() != TypeKind.ERROR) {
             return;
         }
 
         BErrorType errorType = (BErrorType) rhsType;
-        BType detailType = types.getImpliedType(errorType.detailType);
+        BType detailType = Types.getImpliedType(errorType.detailType);
 
         if (detailType.getKind() != TypeKind.RECORD) {
             for (BLangErrorVariable.BLangErrorDetailEntry errorDetailEntry : errorVariable.detail) {
@@ -2190,11 +2203,6 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
 
     @Override
     public void visit(BLangRecordVariableDef varDefNode, AnalyzerData data) {
-        // TODO: 10/18/18 Need to support record literals as well
-        if (varDefNode.var.expr != null && varDefNode.var.expr.getKind() == RECORD_LITERAL_EXPR) {
-            dlog.error(varDefNode.pos, DiagnosticErrorCode.INVALID_LITERAL_FOR_TYPE, "record binding pattern");
-            return;
-        }
         analyzeNode(varDefNode.var, data);
     }
 
@@ -2311,15 +2319,20 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
         validateFunctionVarRef(varRef, data);
 
         checkInvalidTypeDef(varRef);
-        if (varRef.getKind() == NodeKind.FIELD_BASED_ACCESS_EXPR && data.expType.tag != TypeTags.SEMANTIC_ERROR) {
-            BLangFieldBasedAccess fieldBasedAccessVarRef = (BLangFieldBasedAccess) varRef;
-            int varRefTypeTag = Types.getImpliedType(fieldBasedAccessVarRef.expr.getBType()).tag;
-            if (varRefTypeTag == TypeTags.RECORD && Symbols.isOptional(fieldBasedAccessVarRef.symbol)) {
-                data.expType = types.addNilForNillableAccessType(data.expType);
-            }
+        BType actualExpectedType = null;
+        // For optional field assignments we add nil to the expected type before doing type checking in order to get
+        // the type in error messages correct. But we don't need an implicit conversion since desugar will add a
+        // cast if needed.
+        if (data.expType != symTable.semanticError && isAssignmentToOptionalField(assignNode)) {
+            actualExpectedType = data.expType;
+            data.expType = types.addNilForNillableAccessType(actualExpectedType);
         }
 
-        data.typeChecker.checkExpr(assignNode.expr, data.env, data.expType, data.prevEnvs, data.commonAnalyzerData);
+        BLangExpression expr = assignNode.expr;
+        data.typeChecker.checkExpr(expr, data.env, data.expType, data.prevEnvs, data.commonAnalyzerData);
+        if (actualExpectedType != null && expr.impConversionExpr != null) {
+            data.typeChecker.resetImpConversionExpr(expr, expr.getBType(), actualExpectedType);
+        }
 
         validateWorkerAnnAttachments(assignNode.expr, data);
 
@@ -2372,15 +2385,9 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
         setTypeOfVarRef(recordDeStmt.varRef, data);
 
         SymbolEnv currentEnv = data.env;
-        typeChecker.checkExpr(recordDeStmt.varRef, currentEnv, symTable.noType, data.prevEnvs,
+        data.typeChecker.checkExpr(recordDeStmt.varRef, currentEnv, symTable.noType, data.prevEnvs,
                 data.commonAnalyzerData);
-
-        if (recordDeStmt.expr.getKind() == RECORD_LITERAL_EXPR) {
-            // TODO: 10/18/18 Need to support record literals as well
-            dlog.error(recordDeStmt.expr.pos, DiagnosticErrorCode.INVALID_RECORD_LITERAL_BINDING_PATTERN);
-            return;
-        }
-        typeChecker.checkExpr(recordDeStmt.expr, currentEnv, symTable.noType, data.prevEnvs,
+        data.typeChecker.checkExpr(recordDeStmt.expr, currentEnv, symTable.noType, data.prevEnvs,
                 data.commonAnalyzerData);
         checkRecordVarRefEquivalency(recordDeStmt.pos, recordDeStmt.varRef, recordDeStmt.expr.getBType(),
                                      recordDeStmt.expr.pos, data);
@@ -2458,7 +2465,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
         for (BField rhsField : rhsRecordType.fields.values()) {
             List<BLangRecordVarRefKeyValue> expField = lhsVarRef.recordRefFields.stream()
                     .filter(field -> field.variableName.value.equals(rhsField.name.toString()))
-                    .collect(Collectors.toList());
+                    .toList();
 
             if (expField.isEmpty()) {
                 continue;
@@ -2497,7 +2504,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
             if (Types.getImpliedType(varRefRest.getBType()).tag == TypeTags.RECORD) {
                 lhsRefType = varRefRest.getBType();
             } else {
-                lhsRefType = ((BLangSimpleVarRef) lhsVarRef.restParam).getBType();
+                lhsRefType = lhsVarRef.restParam.getBType();
             }
 
             BType rhsRestConstraint = rhsRecordType.restFieldType == symTable.noType ? symTable.neverType
@@ -2592,7 +2599,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
             if ((target.expressions.size() > i)) {
                 varRefExpr = target.expressions.get(i);
             } else {
-                varRefExpr = (BLangExpression) target.restParam;
+                varRefExpr = target.restParam;
             }
 
             BType sourceType = sourceTypes.get(i);
@@ -2866,7 +2873,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
                 data.commonAnalyzerData);
 
         List<BLangMatchClause> matchClauses = matchStatement.matchClauses;
-        if (matchClauses.size() == 0) {
+        if (matchClauses.isEmpty()) {
             return;
         }
         boolean onFailExists = matchStatement.onFailClause != null;
@@ -2893,7 +2900,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
     @Override
     public void visit(BLangMatchClause matchClause, AnalyzerData data) {
         List<BLangMatchPattern> matchPatterns = matchClause.matchPatterns;
-        if (matchPatterns.size() == 0) {
+        if (matchPatterns.isEmpty()) {
             return;
         }
         SymbolEnv currentEnv = data.env;
@@ -3069,8 +3076,6 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
 
             BLangRecordTypeNode recordTypeNode = TypeDefBuilderHelper.createRecordTypeNode(matchPatternRecType,
                     currentEnv.enclPkg.packageID, symTable, mappingMatchPattern.pos);
-            recordTypeNode.initFunction =
-                    TypeDefBuilderHelper.createInitFunctionForRecordType(recordTypeNode, currentEnv, names, symTable);
             TypeDefBuilderHelper.createTypeDefinitionForTSymbol(matchPatternRecType, matchPattenRecordSym,
                     recordTypeNode, currentEnv);
         }
@@ -3607,8 +3612,6 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
 
             BLangRecordTypeNode recordTypeNode = TypeDefBuilderHelper.createRecordTypeNode(matchPatternRecType,
                     currentEnv.enclPkg.packageID, symTable, restBindingPattern.pos);
-            recordTypeNode.initFunction =
-                    TypeDefBuilderHelper.createInitFunctionForRecordType(recordTypeNode, currentEnv, names, symTable);
             TypeDefBuilderHelper.createTypeDefinitionForTSymbol(matchPatternRecType, matchPattenRecordSym,
                     recordTypeNode, currentEnv);
         }
@@ -3861,7 +3864,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
         // Create a new block environment for the on-fail node.
         SymbolEnv onFailEnv = SymbolEnv.createBlockEnv(onFailClause.body, data.env);
         VariableDefinitionNode onFailVarDefNode = onFailClause.variableDefinitionNode;
-        Stack<LinkedHashSet<BType>> onFailErrTypes = data.commonAnalyzerData.errorTypes;
+        Deque<LinkedHashSet<BType>> onFailErrTypes = data.commonAnalyzerData.errorTypes;
 
         if (onFailVarDefNode != null) {
             BLangVariable variableNode = (BLangVariable) onFailVarDefNode.getVariable();
@@ -3979,7 +3982,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
         BLangExpression errorExpression = failNode.expr;
         BType errorExpressionType = typeChecker.checkExpr(errorExpression, data.env, data.prevEnvs,
                 data.commonAnalyzerData);
-        if (!data.commonAnalyzerData.errorTypes.empty()) {
+        if (!data.commonAnalyzerData.errorTypes.isEmpty()) {
             BType failExprType = failNode.expr.getBType();
             if (failExprType != symTable.semanticError) {
                 BType errorTypes = types.getErrorTypes(failExprType);
@@ -4108,7 +4111,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
     private BTypeIdSet getTypeIds(BType type) {
         type = Types.getImpliedType(type);
         int tag = type.tag;
-        if (tag == TypeTags.SERVICE || tag == TypeTags.OBJECT) {
+        if (tag == TypeTags.OBJECT) {
             return ((BObjectType) type).typeIdSet;
         }
         return BTypeIdSet.emptySet();
@@ -4309,13 +4312,13 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
         analyzeNode(node, data);
     }
 
-    public void analyzeNode(BLangNode node, SymbolEnv env, Stack<SymbolEnv> prevEnvs) {
+    public void analyzeNode(BLangNode node, SymbolEnv env, Deque<SymbolEnv> prevEnvs) {
         AnalyzerData data = new AnalyzerData(env);
         data.prevEnvs = prevEnvs;
         analyzeNode(node, data);
     }
 
-    public void analyzeNode(BLangNode node, SymbolEnv env, Stack<SymbolEnv> prevEnvs,
+    public void analyzeNode(BLangNode node, SymbolEnv env, Deque<SymbolEnv> prevEnvs,
                             Types.CommonAnalyzerData commonAnalyzerData) {
         AnalyzerData data = new AnalyzerData(env);
         data.prevEnvs = prevEnvs;
@@ -4323,7 +4326,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
         analyzeNode(node, data);
     }
 
-    public void analyzeNode(BLangNode node, SymbolEnv env, Stack<SymbolEnv> prevEnvs,
+    public void analyzeNode(BLangNode node, SymbolEnv env, Deque<SymbolEnv> prevEnvs,
                             QueryTypeChecker queryTypeChecker, Types.CommonAnalyzerData commonAnalyzerData) {
         AnalyzerData data = new AnalyzerData(env);
         data.prevEnvs = prevEnvs;
@@ -4332,7 +4335,8 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
         analyzeNode(node, data);
     }
 
-    public void analyzeNode(BLangNode node,  AnalyzerData data) {
+    @Override
+    public void analyzeNode(BLangNode node, AnalyzerData data) {
         analyzeNode(node, symTable.noType, data);
     }
 
@@ -4578,7 +4582,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
                 recordVarRef.recordRefFields
                         .forEach(refKeyValue -> setTypeOfVarRefForBindingPattern(refKeyValue.variableReference, data));
                 if (recordVarRef.restParam != null) {
-                    setTypeOfVarRefForBindingPattern((BLangExpression) recordVarRef.restParam, data);
+                    setTypeOfVarRefForBindingPattern(recordVarRef.restParam, data);
                 }
                 return;
             case ERROR_VARIABLE_REF:
@@ -4616,7 +4620,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
                     checkInvalidTypeDef(tupleExpr);
                 }
                 if (tupleVarRef.restParam != null) {
-                    checkInvalidTypeDef((BLangExpression) tupleVarRef.restParam);
+                    checkInvalidTypeDef(tupleVarRef.restParam);
                 }
                 return;
             case RECORD_VARIABLE_REF:
@@ -4625,7 +4629,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
                     checkInvalidTypeDef(refKeyValue.variableReference);
                 }
                 if (recordVarRef.restParam != null) {
-                    checkInvalidTypeDef((BLangExpression) recordVarRef.restParam);
+                    checkInvalidTypeDef(recordVarRef.restParam);
                 }
                 return;
             case ERROR_VARIABLE_REF:
@@ -5100,7 +5104,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
         boolean notCompletedNormally;
         boolean breakFound;
         Types.CommonAnalyzerData commonAnalyzerData = new Types.CommonAnalyzerData();
-        Stack<SymbolEnv> prevEnvs = new Stack<>();
+        Deque<SymbolEnv> prevEnvs = new ArrayDeque<>();
         // The `typeChecker` field is used to set the correct typeChecker to call in query context.
         // TODO: Create new SemanticAnalyzer by extending current SemanticAnalyzer and use from QueryTypeChecker.
         TypeChecker typeChecker = TypeChecker.getInstance(compilerContext);

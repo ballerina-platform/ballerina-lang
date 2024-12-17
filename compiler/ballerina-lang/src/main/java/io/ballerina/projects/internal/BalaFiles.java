@@ -29,10 +29,13 @@ import io.ballerina.projects.PackageManifest;
 import io.ballerina.projects.PackageName;
 import io.ballerina.projects.PackageOrg;
 import io.ballerina.projects.PackageVersion;
+import io.ballerina.projects.PlatformLibraryScope;
 import io.ballerina.projects.ProjectException;
+import io.ballerina.projects.internal.bala.BalToolJson;
 import io.ballerina.projects.internal.bala.CompilerPluginJson;
 import io.ballerina.projects.internal.bala.DependencyGraphJson;
 import io.ballerina.projects.internal.bala.ModuleDependency;
+import io.ballerina.projects.internal.model.BalToolDescriptor;
 import io.ballerina.projects.internal.model.CompilerPluginDescriptor;
 import io.ballerina.projects.internal.model.PackageJson;
 import io.ballerina.projects.util.ProjectConstants;
@@ -47,13 +50,13 @@ import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -63,6 +66,7 @@ import static io.ballerina.projects.DependencyGraph.DependencyGraphBuilder.getBu
 import static io.ballerina.projects.internal.ProjectFiles.loadDocuments;
 import static io.ballerina.projects.internal.ProjectFiles.loadResources;
 import static io.ballerina.projects.util.ProjectConstants.BALA_DOCS_DIR;
+import static io.ballerina.projects.util.ProjectConstants.BAL_TOOL_JSON;
 import static io.ballerina.projects.util.ProjectConstants.COMPILER_PLUGIN_DIR;
 import static io.ballerina.projects.util.ProjectConstants.COMPILER_PLUGIN_JSON;
 import static io.ballerina.projects.util.ProjectConstants.DEPENDENCY_GRAPH_JSON;
@@ -70,50 +74,75 @@ import static io.ballerina.projects.util.ProjectConstants.DEPRECATED_META_FILE_N
 import static io.ballerina.projects.util.ProjectConstants.MODULES_ROOT;
 import static io.ballerina.projects.util.ProjectConstants.MODULE_NAME_SEPARATOR;
 import static io.ballerina.projects.util.ProjectConstants.PACKAGE_JSON;
+import static io.ballerina.projects.util.ProjectConstants.TOOL_DIR;
 
 /**
  * Contains a set of utility methods that create an in-memory representation of a Ballerina project using a bala.
  *
  * @since 2.0.0
  */
-public class BalaFiles {
+public final class BalaFiles {
+
     private static final Gson gson = new Gson();
 
     // TODO change class name to utils
     private BalaFiles() {
     }
 
-    static PackageData loadPackageData(Path balaPath, PackageManifest packageManifest) {
+    static PackageData loadPackageData(Path balaPath, PackageJson packageJson) {
         if (balaPath.toFile().isDirectory()) {
-            return loadPackageDataFromBalaDir(balaPath, packageManifest);
+            return loadPackageDataFromBalaDir(balaPath, packageJson);
         } else {
-            return loadPackageDataFromBalaFile(balaPath, packageManifest);
+            return loadPackageDataFromBalaFile(balaPath, packageJson);
         }
     }
 
-    private static PackageData loadPackageDataFromBalaDir(Path balaPath, PackageManifest packageManifest) {
+    private static PackageData loadPackageDataFromBalaDir(Path balaPath, PackageJson packageJson) {
         // Load default module
-        String pkgName = packageManifest.name().toString();
-        ModuleData defaultModule = loadModule(pkgName, pkgName, balaPath);
-        DocumentData packageMd = loadDocument(balaPath.resolve(BALA_DOCS_DIR)
-                .resolve(ProjectConstants.PACKAGE_MD_FILE_NAME));
+        String pkgName = packageJson.getName();
+        ModuleData defaultModule = loadModule(pkgName, pkgName, balaPath, packageJson);
         // load other modules
-        List<ModuleData> otherModules = loadOtherModules(pkgName, balaPath);
-        return PackageData.from(balaPath, defaultModule, otherModules, null, null, null, null, null, packageMd);
+        List<ModuleData> otherModules = loadOtherModules(pkgName, balaPath, packageJson);
+        List<Path> resources = loadResources(balaPath);
+        if (resources.isEmpty()) {
+            // get resources from default module path - to support balas before 2201.10.0
+            resources = loadResources(balaPath.resolve(MODULES_ROOT).resolve(pkgName));
+        }
+        DocumentData readmeMd;
+        if (packageJson.getReadme() == null) {
+            readmeMd = loadDocument(balaPath.resolve(BALA_DOCS_DIR).resolve(ProjectConstants.PACKAGE_MD_FILE_NAME));
+        } else {
+            readmeMd = loadDocument(balaPath.resolve(packageJson.getReadme()));
+        }
+
+        return PackageData.from(balaPath, defaultModule, otherModules, null, null,
+                null, null, null, readmeMd, resources, Collections.emptyList());
     }
 
-    private static PackageData loadPackageDataFromBalaFile(Path balaPath, PackageManifest packageManifest) {
-        URI zipURI = URI.create("jar:" + balaPath.toUri().toString());
+    private static PackageData loadPackageDataFromBalaFile(Path balaPath, PackageJson packageJson) {
+        URI zipURI = getZipURI(balaPath);
         try (FileSystem zipFileSystem = FileSystems.newFileSystem(zipURI, new HashMap<>())) {
             // Load default module
-            String pkgName = packageManifest.name().toString();
+            String pkgName = packageJson.getName();
             Path packageRoot = zipFileSystem.getPath("/");
-            ModuleData defaultModule = loadModule(pkgName, pkgName, packageRoot);
-            DocumentData packageMd = loadDocument(zipFileSystem.getPath(BALA_DOCS_DIR)
-                    .resolve(ProjectConstants.PACKAGE_MD_FILE_NAME));
+            ModuleData defaultModule = loadModule(pkgName, pkgName, packageRoot, packageJson);
             // load other modules
-            List<ModuleData> otherModules = loadOtherModules(pkgName, packageRoot);
-            return PackageData.from(balaPath, defaultModule, otherModules, null, null, null, null, null, packageMd);
+            List<ModuleData> otherModules = loadOtherModules(pkgName, packageRoot, packageJson);
+            List<Path> resources = loadResources(packageRoot);
+            if (resources.isEmpty()) {
+                // get resources from default module path - to support bala files before 2201.10.0
+                resources = loadResources(packageRoot.resolve(MODULES_ROOT).resolve(pkgName));
+            }
+
+            DocumentData readmeMd;
+            if (packageJson.getReadme() == null) {
+                readmeMd = loadDocument(packageRoot.resolve(BALA_DOCS_DIR)
+                        .resolve(ProjectConstants.PACKAGE_MD_FILE_NAME));
+            } else {
+                readmeMd = loadDocument(packageRoot.resolve(packageJson.getReadme()));
+            }
+            return PackageData.from(balaPath, defaultModule, otherModules, null, null,
+                    null, null, null, readmeMd, resources, Collections.emptyList());
         } catch (IOException e) {
             throw new ProjectException("Failed to read bala file:" + balaPath);
         }
@@ -145,7 +174,8 @@ public class BalaFiles {
         }
     }
 
-    private static ModuleData loadModule(String pkgName, String fullModuleName,  Path packagePath) {
+    private static ModuleData loadModule(String pkgName, String fullModuleName, Path packagePath,
+                                         PackageJson packageJson) {
         Path modulePath = packagePath.resolve(MODULES_ROOT).resolve(fullModuleName);
         Path moduleDocPath = packagePath.resolve(BALA_DOCS_DIR).resolve(MODULES_ROOT).resolve(fullModuleName);
         // check module path exists
@@ -171,14 +201,22 @@ public class BalaFiles {
 
         List<DocumentData> srcDocs = loadDocuments(modulePath);
         List<DocumentData> testSrcDocs = Collections.emptyList();
-        DocumentData moduleMd = loadDocument(moduleDocPath.resolve(ProjectConstants.MODULE_MD_FILE_NAME));
-        List<Path> resources = loadResources(modulePath);
+        DocumentData readmeMd = null;
+        if (packageJson.getReadme() == null) {
+            // v2 bala structure
+            readmeMd = loadDocument(moduleDocPath.resolve(ProjectConstants.MODULE_MD_FILE_NAME));
+        } else if (packageJson.getModules() != null) {
+            Optional<PackageManifest.Module> module = packageJson.getModules().stream().filter(mod ->
+                    fullModuleName.equals(mod.name())).findAny();
+            if (module.isPresent() && module.get().readme() != null && !module.get().readme().isEmpty()) {
+                readmeMd = loadDocument(packagePath.resolve(module.get().readme()));
+            }
+        }
 
-        return ModuleData.from(modulePath, moduleName, srcDocs, testSrcDocs, moduleMd, resources,
-                Collections.emptyList());
+        return ModuleData.from(modulePath, moduleName, srcDocs, testSrcDocs, readmeMd);
     }
 
-    private static List<ModuleData> loadOtherModules(String pkgName, Path packagePath) {
+    private static List<ModuleData> loadOtherModules(String pkgName, Path packagePath, PackageJson packageJson) {
         Path modulesDirPath = packagePath.resolve(MODULES_ROOT);
         try (Stream<Path> pathStream = Files.walk(modulesDirPath, 1)) {
             return pathStream
@@ -187,8 +225,8 @@ public class BalaFiles {
                             && !path.getFileName().toString().equals(pkgName))
                     .filter(Files::isDirectory)
                     .map(modulePath -> modulePath.getFileName().toString())
-                    .map(fullModuleName -> loadModule(pkgName, fullModuleName, packagePath))
-                    .collect(Collectors.toList());
+                    .map(fullModuleName -> loadModule(pkgName, fullModuleName, packagePath, packageJson))
+                    .toList();
         } catch (IOException e) {
             throw new ProjectException("Failed to read modules from directory: " + modulesDirPath, e);
         }
@@ -216,7 +254,7 @@ public class BalaFiles {
             Path dependencyGraphJsonPath = balaPath.resolve(DEPENDENCY_GRAPH_JSON);
             dependencyGraphResult = createPackageDependencyGraphFromJson(dependencyGraphJsonPath);
         } else {
-            URI zipURI = URI.create("jar:" + balaPath.toAbsolutePath().toUri().toString());
+            URI zipURI = getZipURI(balaPath);
             try (FileSystem zipFileSystem = FileSystems.newFileSystem(zipURI, new HashMap<>())) {
                 Path dependencyGraphJsonPath = zipFileSystem.getPath(DEPENDENCY_GRAPH_JSON);
                 dependencyGraphResult = createPackageDependencyGraphFromJson(dependencyGraphJsonPath);
@@ -244,7 +282,7 @@ public class BalaFiles {
     }
 
     private static PackageManifest createPackageManifestFromBalaFile(Path balrPath) {
-        URI zipURI = URI.create("jar:" + balrPath.toAbsolutePath().toUri().toString());
+        URI zipURI = getZipURI(balrPath);
         try (FileSystem zipFileSystem = FileSystems.newFileSystem(zipURI, new HashMap<>())) {
             Path packageJsonPath = zipFileSystem.getPath(PACKAGE_JSON);
             if (Files.notExists(packageJsonPath)) {
@@ -257,13 +295,21 @@ public class BalaFiles {
             extractPlatformLibraries(packageJson, balrPath, zipFileSystem);
 
             // Load `compiler-plugin.json`
+            Optional<CompilerPluginJson> compilerPluginJson = Optional.empty();
             Path compilerPluginJsonPath = zipFileSystem.getPath(COMPILER_PLUGIN_DIR, COMPILER_PLUGIN_JSON);
             if (!Files.notExists(compilerPluginJsonPath)) {
-                CompilerPluginJson compilerPluginJson = readCompilerPluginJson(balrPath, compilerPluginJsonPath);
-                extractCompilerPluginLibraries(compilerPluginJson, balrPath, zipFileSystem);
-                return getPackageManifest(packageJson, Optional.of(compilerPluginJson), null);
+                compilerPluginJson = Optional.of(readCompilerPluginJson(balrPath, compilerPluginJsonPath));
+                extractCompilerPluginLibraries(compilerPluginJson.get(), balrPath, zipFileSystem);
             }
-            return getPackageManifest(packageJson, Optional.empty(), null);
+
+            // Load `bal-tool.json`
+            Optional<BalToolJson> balToolJson = Optional.empty();
+            Path balToolJsonPath = zipFileSystem.getPath(TOOL_DIR, BAL_TOOL_JSON);
+            if (!Files.notExists(balToolJsonPath)) {
+                balToolJson = Optional.of(readBalToolJson(balrPath, balToolJsonPath));
+                extractBalToolLibraries(balToolJson, balrPath, zipFileSystem);
+            }
+            return getPackageManifest(packageJson, compilerPluginJson, balToolJson, null);
         } catch (IOException e) {
             throw new ProjectException("Failed to read balr file:" + balrPath);
         }
@@ -279,13 +325,20 @@ public class BalaFiles {
         validatePackageJson(packageJson, balrPath);
 
         // Load `compiler-plugin.json`
+        Optional<CompilerPluginJson> compilerPluginJson = Optional.empty();
         Path compilerPluginJsonPath = balrPath.resolve(COMPILER_PLUGIN_DIR).resolve(COMPILER_PLUGIN_JSON);
         if (!Files.notExists(compilerPluginJsonPath)) {
-            CompilerPluginJson compilerPluginJson = readCompilerPluginJson(balrPath, compilerPluginJsonPath);
-            setCompilerPluginDependencyPaths(compilerPluginJson, balrPath);
-            return getPackageManifest(packageJson, Optional.of(compilerPluginJson), getDeprecationMsg(balrPath));
+            compilerPluginJson = Optional.of(readCompilerPluginJson(balrPath, compilerPluginJsonPath));
+            setCompilerPluginDependencyPaths(compilerPluginJson.get(), balrPath);
         }
-        return getPackageManifest(packageJson, Optional.empty(), getDeprecationMsg(balrPath));
+
+        Optional<BalToolJson> balToolJson = Optional.empty();
+        Path balToolJsonPath = balrPath.resolve(ProjectConstants.TOOL_DIR).resolve(BAL_TOOL_JSON);
+        if (Files.exists(balToolJsonPath)) {
+            balToolJson = Optional.of(readBalToolJson(balrPath, balToolJsonPath));
+            setBalToolDependencyPaths(balToolJson.get(), balrPath);
+        }
+        return getPackageManifest(packageJson, compilerPluginJson, balToolJson, getDeprecationMsg(balrPath));
     }
 
     private static String getDeprecationMsg(Path balaPath) {
@@ -339,21 +392,23 @@ public class BalaFiles {
             return;
         }
         packageJson.getPlatformDependencies().forEach(dependency -> {
-            Path libPath = balaPath.getParent().resolve(dependency.getPath());
-            if (!Files.exists(libPath)) {
-                try {
-                    Files.createDirectories(libPath.getParent());
-                    Files.copy(zipFileSystem.getPath(dependency.getPath()), libPath);
-                } catch (IOException e) {
-                    throw new ProjectException("Failed to extract platform dependency:" + libPath.getFileName(), e);
+            if (!Objects.equals(PlatformLibraryScope.PROVIDED.getStringValue(), dependency.getScope())) {
+                Path libPath = balaPath.getParent().resolve(dependency.getPath());
+                if (!Files.exists(libPath)) {
+                    try {
+                        Files.createDirectories(libPath.getParent());
+                        Files.copy(zipFileSystem.getPath(dependency.getPath()), libPath);
+                    } catch (IOException e) {
+                        throw new ProjectException("Failed to extract platform dependency:" + libPath.getFileName(), e);
+                    }
                 }
+                dependency.setPath(libPath.toString());
             }
-            dependency.setPath(libPath.toString());
         });
     }
 
     private static void extractCompilerPluginLibraries(CompilerPluginJson compilerPluginJson, Path balaPath,
-            FileSystem zipFileSystem) {
+                                                       FileSystem zipFileSystem) {
         if (compilerPluginJson.dependencyPaths() == null) {
             return;
         }
@@ -364,9 +419,9 @@ public class BalaFiles {
                 try {
                     Files.createDirectories(libPath.getParent());
                     // TODO: Need to refactor this fix
-                    Path libPathInZip = Paths.get(dependencyPath);
+                    Path libPathInZip = Path.of(dependencyPath);
                     if (!dependencyPath.contains(COMPILER_PLUGIN_DIR)) {
-                        libPathInZip = Paths.get(COMPILER_PLUGIN_DIR, String.valueOf(libPathInZip));
+                        libPathInZip = Path.of(COMPILER_PLUGIN_DIR, String.valueOf(libPathInZip));
                     }
                     Files.copy(zipFileSystem.getPath(String.valueOf(libPathInZip)), libPath);
                 } catch (IOException e) {
@@ -377,6 +432,31 @@ public class BalaFiles {
             dependencyLibPaths.add(libPath.toString());
         });
         compilerPluginJson.setDependencyPaths(dependencyLibPaths);
+    }
+
+    private static void extractBalToolLibraries(Optional<BalToolJson> balToolJson, Path balaPath,
+                                                FileSystem zipFileSystem) {
+        if (balToolJson.isEmpty() || balToolJson.get().dependencyPaths() == null) {
+            return;
+        }
+        List<String> dependencyLibPaths = new ArrayList<>();
+        balToolJson.get().dependencyPaths().forEach(dependencyPath -> {
+            Path libPath = balaPath.getParent().resolve(dependencyPath).normalize();
+            if (!Files.exists(libPath)) {
+                try {
+                    Files.createDirectories(libPath.getParent());
+                    Path libPathInZip = Path.of(dependencyPath);
+                    if (!dependencyPath.contains(TOOL_DIR)) {
+                        libPathInZip = Path.of(TOOL_DIR, String.valueOf(libPathInZip));
+                    }
+                    Files.copy(zipFileSystem.getPath(String.valueOf(libPathInZip)), libPath);
+                } catch (IOException e) {
+                    throw new ProjectException("Failed to extract bal tool dependency:" + libPath.getFileName(), e);
+                }
+            }
+            dependencyLibPaths.add(libPath.toString());
+        });
+        balToolJson.get().setDependencyPaths(dependencyLibPaths);
     }
 
     private static void setCompilerPluginDependencyPaths(CompilerPluginJson compilerPluginJson, Path balaPath) {
@@ -391,8 +471,21 @@ public class BalaFiles {
         compilerPluginJson.setDependencyPaths(dependencyLibPaths);
     }
 
+    private static void setBalToolDependencyPaths(BalToolJson balToolJson, Path balaPath) {
+        if (balToolJson.dependencyPaths() == null) {
+            return;
+        }
+        List<String> dependencyLibPaths = new ArrayList<>();
+        balToolJson.dependencyPaths().forEach(dependencyPath -> {
+            Path libPath = balaPath.resolve(dependencyPath);
+            dependencyLibPaths.add(libPath.toString());
+        });
+        balToolJson.setDependencyPaths(dependencyLibPaths);
+    }
+
     private static PackageManifest getPackageManifest(PackageJson packageJson,
-            Optional<CompilerPluginJson> compilerPluginJson, String deprecationMsg) {
+                                                      Optional<CompilerPluginJson> compilerPluginJson,
+                                                      Optional<BalToolJson> balToolJson, String deprecationMsg) {
         PackageDescriptor pkgDesc;
         if (deprecationMsg != null) {
             pkgDesc = PackageDescriptor.from(PackageOrg.from(packageJson.getOrganization()),
@@ -413,19 +506,27 @@ public class BalaFiles {
                 dependencies.add(dependency);
             });
         }
-
-        return compilerPluginJson.map(pluginJson -> PackageManifest
-                        .from(pkgDesc, CompilerPluginDescriptor.from(pluginJson), platforms, dependencies,
-                                packageJson.getLicenses(), packageJson.getAuthors(), packageJson.getKeywords(),
-                                packageJson.getExport(), packageJson.getInclude(), packageJson.getSourceRepository(),
-                                packageJson.getBallerinaVersion(), packageJson.getVisibility(),
-                                packageJson.getTemplate()))
-                .orElseGet(() -> PackageManifest
-                        .from(pkgDesc, null, platforms, dependencies, packageJson.getLicenses(),
-                                packageJson.getAuthors(), packageJson.getKeywords(), packageJson.getExport(),
-                                packageJson.getInclude(), packageJson.getSourceRepository(),
-                                packageJson.getBallerinaVersion(), packageJson.getVisibility(),
-                                packageJson.getTemplate()));
+        CompilerPluginDescriptor compilerPluginDescriptor = compilerPluginJson
+                .map(CompilerPluginDescriptor::from).orElse(null);
+        BalToolDescriptor balToolDescriptor = balToolJson.map(BalToolDescriptor::from).orElse(null);
+        List<String> exports = new ArrayList<>();
+        if (packageJson.getExport() == null) {
+            // new bala structure
+            exports.add(packageJson.getName()); // default module is always exported
+            if (packageJson.getModules() != null) {
+                exports.addAll(packageJson.getModules().stream().filter(
+                        PackageManifest.Module::export).map(PackageManifest.Module::name).toList());
+            }
+        } else {
+            exports = packageJson.getExport();
+        }
+        return PackageManifest
+                .from(pkgDesc, compilerPluginDescriptor, balToolDescriptor, platforms, dependencies,
+                        packageJson.getLicenses(), packageJson.getAuthors(), packageJson.getKeywords(),
+                        exports, packageJson.getInclude(), packageJson.getSourceRepository(),
+                        packageJson.getBallerinaVersion(), packageJson.getVisibility(),
+                        packageJson.getTemplate(), packageJson.getReadme(), packageJson.getDescription(),
+                        packageJson.getModules());
     }
 
     private static Map<String, PackageManifest.Platform> getPlatforms(PackageJson packageJson) {
@@ -462,23 +563,23 @@ public class BalaFiles {
             if (dependency.getModules() != null && !dependency.getModules().isEmpty()) {
                 for (io.ballerina.projects.internal.model.Dependency.Module depModule : dependency.getModules()) {
                     DependencyManifest.Module module = new DependencyManifest.Module(depModule.org(),
-                                                                                     depModule.packageName(),
-                                                                                     depModule.moduleName());
+                            depModule.packageName(),
+                            depModule.moduleName());
                     modules.add(module);
                 }
             }
 
             DependencyManifest.Package pkg = new
                     DependencyManifest.Package(PackageName.from(dependency.getName()),
-                                               PackageOrg.from(dependency.getOrg()),
-                                               PackageVersion.from(dependency.getVersion()),
-                                               dependency.getScope() != null ? dependency.getScope().name() : null,
-                                               dependency.isTransitive(),
-                                               dependencies,
-                                               modules);
+                    PackageOrg.from(dependency.getOrg()),
+                    PackageVersion.from(dependency.getVersion()),
+                    dependency.getScope() != null ? dependency.getScope().name() : null,
+                    dependency.isTransitive(),
+                    dependencies,
+                    modules);
             packages.add(pkg);
         }
-        return DependencyManifest.from(null, null, packages);
+        return DependencyManifest.from(null, null, packages, Collections.emptyList());
     }
 
     private static PackageJson readPackageJson(Path balaPath, Path packageJsonPath) {
@@ -530,6 +631,18 @@ public class BalaFiles {
         return pluginJson;
     }
 
+    private static BalToolJson readBalToolJson(Path balaPath, Path balToolJsonPath) {
+        BalToolJson balToolJson;
+        try (BufferedReader bufferedReader = Files.newBufferedReader(balToolJsonPath)) {
+            balToolJson = gson.fromJson(bufferedReader, BalToolJson.class);
+        } catch (JsonSyntaxException e) {
+            throw new ProjectException("Invalid " + BAL_TOOL_JSON + " format in '" + balaPath + "'");
+        } catch (IOException e) {
+            throw new ProjectException("Failed to read the " + BAL_TOOL_JSON + " in '" + balaPath + "'");
+        }
+        return balToolJson;
+    }
+
     private static DependencyGraph<PackageDescriptor> createPackageDependencyGraph(
             List<io.ballerina.projects.internal.model.Dependency> packageDependencyGraph) {
         DependencyGraph.DependencyGraphBuilder<PackageDescriptor> graphBuilder = getBuilder();
@@ -574,7 +687,7 @@ public class BalaFiles {
     private static List<ModuleDescriptor> createModDescriptorList(List<ModuleDependency> modDepEntries) {
         return modDepEntries.stream()
                 .map(BalaFiles::getModuleDescriptorFromDependencyEntry)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     private static DependencyGraphJson readDependencyGraphJson(Path dependencyGraphJsonPath) {
@@ -629,7 +742,7 @@ public class BalaFiles {
             }
             packageJson = readPackageJson(balaPath, packageJsonPath);
         } else {
-            URI zipURI = URI.create("jar:" + balaPath.toAbsolutePath().toUri().toString());
+            URI zipURI = getZipURI(balaPath);
             try (FileSystem zipFileSystem = FileSystems.newFileSystem(zipURI, new HashMap<>())) {
                 Path packageJsonPath = zipFileSystem.getPath(PACKAGE_JSON);
                 if (Files.notExists(packageJsonPath)) {
@@ -641,5 +754,9 @@ public class BalaFiles {
             }
         }
         return packageJson;
+    }
+
+    private static URI getZipURI(Path balaPath) {
+        return URI.create("jar:" + balaPath.toAbsolutePath().toUri());
     }
 }

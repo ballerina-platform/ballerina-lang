@@ -23,12 +23,6 @@ under the License.
 
     <!-- ballerina.test Related Test Cases. -->
     <test name="testerina-intg-tests">
-        <parameter name="enableTesterinaTests" value="true" />
-        <groups>
-            <run>
-                <exclude name="brokenOnJBallerina"/>
-            </run>
-        </groups>
         <classes>
             <class name="org.ballerinalang.testerina.test.BasicCasesTest" />
             <class name="org.ballerinalang.testerina.test.negative.MissingFunctionsTestCase"/>
@@ -57,6 +51,10 @@ under the License.
             <class name="org.ballerinalang.testerina.test.ExcludeFromCodeCoverageTest"/>
             <class name="org.ballerinalang.testerina.test.ConfigurableCliArgsTest"/>
             <class name="org.ballerinalang.testerina.test.negative.InvalidConfigurableCliArgsTestCase"/>
+            <class name="org.ballerinalang.testerina.test.TestparallelizationTest"/>
+            <class name="org.ballerinalang.testerina.test.SingleTestExecutionWithInitFailuresTest"/>
+            <class name="org.ballerinalang.testerina.test.TestExecutionWithInitFailuresTest"/>
+            <class name="org.ballerinalang.testerina.test.EscapedIdentifiersValidationTest"/>
         </classes>
     </test>
 </suite>

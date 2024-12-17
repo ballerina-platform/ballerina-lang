@@ -18,13 +18,13 @@
 
 package org.ballerinalang.test.jvm;
 
-import io.ballerina.runtime.api.PredefinedTypes;
-import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.creators.TypeCreator;
 import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.flags.SymbolFlags;
 import io.ballerina.runtime.api.types.FunctionType;
+import io.ballerina.runtime.api.types.PredefinedTypes;
 import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.types.TypeTags;
 import io.ballerina.runtime.api.types.UnionType;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.utils.TypeUtils;
@@ -160,6 +160,11 @@ public class TypesTest {
         Assert.assertSame(returns.getClass(), Long.class);
         long intValue = (long) returns;
         Assert.assertEquals(intValue, input, "Invalid integer value returned.");
+    }
+
+    @Test(description = "Test comparison between XML Sequence with one text member and xml:Text")
+    public void testXMLSequenceWithOneTextMemberToXMLTextCast() {
+        BRunUtil.invoke(compileResult, "testXMLSequenceWithOneTextMember");
     }
 
     @Test(description = "Test integer to byte cast")
@@ -592,7 +597,7 @@ public class TypesTest {
             expectedExceptionsMessageRegExp = "error: \\{ballerina\\}JSONOperationError \\{\"message\":\"JSON value " +
                     "is not " +
                     "a mapping\"\\}\n" +
-                    "\tat types:testGetFromNull\\(types.bal:588\\)")
+                    "\tat types:testGetFromNull\\(types.bal:595\\)")
     public void testGetFromNull() {
         BRunUtil.invoke(compileResult, "testGetFromNull");
     }

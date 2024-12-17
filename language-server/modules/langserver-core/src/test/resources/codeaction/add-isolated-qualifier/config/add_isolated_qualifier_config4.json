@@ -1,8 +1,29 @@
 {
   "position": {
     "line": 6,
-    "character": 24
+    "character": 42
   },
   "source": "isolatedFunctionCodeAction/modules/module2/add_isolated_qualifier_source4.bal",
-  "expected": []
+  "expected": [
+    {
+      "title": "Add isolated qualifier to 'Anonymous function expression'",
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 6,
+              "character": 36
+            },
+            "end": {
+              "line": 6,
+              "character": 36
+            }
+          },
+          "newText": "isolated "
+        }
+      ],
+      "resolvable": false
+    }
+  ]
 }

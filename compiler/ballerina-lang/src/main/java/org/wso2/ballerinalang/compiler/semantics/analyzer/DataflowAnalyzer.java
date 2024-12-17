@@ -94,6 +94,7 @@ import org.wso2.ballerinalang.compiler.tree.clauses.BLangOrderKey;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangSelectClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangWhereClause;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAccessExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangAlternateWorkerReceive;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAccessExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrowFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
@@ -107,6 +108,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangElvisExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangExtendedXMLNavigationAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangGroupExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
@@ -123,6 +125,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkdownDocumentati
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkdownParameterDocumentation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkdownReturnParameterDocumentation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchGuard;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangMultipleWorkerReceive;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNamedArgsExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangObjectConstructorExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangQueryAction;
@@ -167,6 +170,9 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLAttribute;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLCommentLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLElementAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLElementLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLFilterStepExtend;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLIndexedStepExtend;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLMethodCallStepExtend;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLNavigationAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLProcInsLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQName;
@@ -232,6 +238,7 @@ import java.util.ArrayList;
 import java.util.Deque;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -239,7 +246,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
-import java.util.Stack;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -259,22 +265,22 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     private final SymbolResolver symResolver;
     private final Names names;
     private SymbolEnv env;
-    private SymbolTable symTable;
-    private BLangDiagnosticLog dlog;
-    private Types types;
+    private final SymbolTable symTable;
+    private final BLangDiagnosticLog dlog;
+    private final Types types;
     private Map<BSymbol, InitStatus> uninitializedVars;
     private Map<BSymbol, Location> unusedErrorVarsDeclaredWithVar;
     private Map<BSymbol, Location> unusedLocalVariables;
     private Map<BSymbol, Set<BSymbol>> globalNodeDependsOn;
     private Map<BSymbol, Set<BSymbol>> functionToDependency;
     private Map<BLangOnFailClause, Map<BSymbol, InitStatus>> possibleFailureUnInitVars;
-    private Stack<BLangOnFailClause> enclosingOnFailClause;
+    private Deque<BLangOnFailClause> enclosingOnFailClause;
     private boolean flowTerminated = false;
     private boolean possibleFailureReached = false;
     private boolean definiteFailureReached = false;
 
     private static final CompilerContext.Key<DataflowAnalyzer> DATAFLOW_ANALYZER_KEY = new CompilerContext.Key<>();
-    private Deque<BSymbol> currDependentSymbolDeque;
+    private final Deque<BSymbol> currDependentSymbolDeque;
     private final GlobalVariableRefAnalyzer globalVariableRefAnalyzer;
 
     private DataflowAnalyzer(CompilerContext context) {
@@ -308,7 +314,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         this.globalNodeDependsOn = new LinkedHashMap<>();
         this.functionToDependency = new HashMap<>();
         this.possibleFailureUnInitVars = new LinkedHashMap<>();
-        this.enclosingOnFailClause = new Stack<>();
+        this.enclosingOnFailClause = new ArrayDeque<>();
         this.dlog.setCurrentPackageId(pkgNode.packageID);
         SymbolEnv pkgEnv = this.symTable.pkgEnvMap.get(pkgNode.symbol);
         analyzeNode(pkgNode, pkgEnv);
@@ -994,7 +1000,10 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         // Update the enclosing on-fail clause's possible failure uninitialized variables
         int enclosingOnFailSize = this.enclosingOnFailClause.size();
         if (enclosingOnFailSize > 1) {
-            BLangOnFailClause enclosingOnFail = this.enclosingOnFailClause.get(enclosingOnFailSize - 2);
+            Iterator<BLangOnFailClause> iterator = this.enclosingOnFailClause.iterator();
+            // get second top element
+            iterator.next();
+            BLangOnFailClause enclosingOnFail = iterator.next();
             this.possibleFailureUnInitVars.put(enclosingOnFail, possibleUninitializedVars);
         }
     }
@@ -1022,6 +1031,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         return ifResult.definiteFailureReached && elseResult.definiteFailureReached;
     }
 
+    @Override
     public void visit(BLangFail failNode) {
         if (isOnFailEnclosed()) {
             this.possibleFailureReached = true;
@@ -1041,8 +1051,8 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         analyzeStmtWithOnFail(transactionNode.transactionBody, transactionNode.onFailClause);
 
         // marks the injected import as used
-        Name transactionPkgName = names.fromString(Names.DOT.value + Names.TRANSACTION_PACKAGE.value);
-        Name compUnitName = names.fromString(transactionNode.pos.lineRange().fileName());
+        Name transactionPkgName = Names.fromString(Names.DOT.value + Names.TRANSACTION_PACKAGE.value);
+        Name compUnitName = Names.fromString(transactionNode.pos.lineRange().fileName());
         this.symResolver.resolvePrefixSymbol(env, transactionPkgName, compUnitName);
     }
 
@@ -1080,6 +1090,21 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangWorkerSyncSendExpr syncSendExpr) {
         analyzeNode(syncSendExpr.expr, env);
+    }
+
+    @Override
+    public void visit(BLangAlternateWorkerReceive altWorkerReceive) {
+        for (BLangWorkerReceive workerReceive : altWorkerReceive.getWorkerReceives()) {
+            analyzeNode(workerReceive, env);
+        }
+    }
+
+    @Override
+    public void visit(BLangMultipleWorkerReceive multipleWorkerReceive) {
+        for (BLangMultipleWorkerReceive.BLangReceiveField rvField : multipleWorkerReceive.getReceiveFields()) {
+            analyzeNode(rvField.getKey(), env);
+            analyzeNode(rvField.getWorkerReceive(), env);
+        }
     }
 
     @Override
@@ -1341,7 +1366,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
             }
         } else if (node.getKind() == NodeKind.RECORD_LITERAL_KEY_VALUE) {
             BLangRecordLiteral.BLangRecordKeyValueField field = (BLangRecordLiteral.BLangRecordKeyValueField) node;
-            result = 31 * result + hash(field.key.expr) + hash(field.valueExpr);
+            result = hash(field.key.expr) + hash(field.valueExpr);
         } else if (node.getKind() == NodeKind.ARRAY_LITERAL_EXPR) {
             BLangListConstructorExpr.BLangArrayLiteral arrayLiteral =
                     (BLangListConstructorExpr.BLangArrayLiteral) node;
@@ -1353,25 +1378,25 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
             result = Objects.hash(literal.value);
         } else if (node.getKind() == NodeKind.XML_TEXT_LITERAL) {
             BLangXMLTextLiteral literal = (BLangXMLTextLiteral) node;
-            result = 31 * result + hash(literal.concatExpr);
+            result = hash(literal.concatExpr);
             for (BLangExpression expr : literal.textFragments) {
                 result = result * 31 + hash(expr);
             }
         } else if (node.getKind() == NodeKind.XML_ATTRIBUTE) {
             BLangXMLAttribute attribute = (BLangXMLAttribute) node;
-            result = 31 * result + hash(attribute.name) + hash(attribute.value);
+            result = hash(attribute.name) + hash(attribute.value);
         } else if (node.getKind() == NodeKind.XML_QNAME) {
             BLangXMLQName xmlqName = (BLangXMLQName) node;
-            result = 31 * result + hash(xmlqName.localname) + hash(xmlqName.prefix);
+            result = hash(xmlqName.localname) + hash(xmlqName.prefix);
         } else if (node.getKind() == NodeKind.XML_COMMENT_LITERAL) {
             BLangXMLCommentLiteral literal = (BLangXMLCommentLiteral) node;
-            result = 31 * result + hash(literal.concatExpr);
+            result = hash(literal.concatExpr);
             for (BLangExpression expr : literal.textFragments) {
                 result = result * 31 + hash(expr);
             }
         } else if (node.getKind() == NodeKind.XML_ELEMENT_LITERAL) {
             BLangXMLElementLiteral literal = (BLangXMLElementLiteral) node;
-            result = 31 * result + hash(literal.startTagName) + hash(literal.endTagName);
+            result = hash(literal.startTagName) + hash(literal.endTagName);
             for (BLangExpression expr : literal.attributes) {
                 result = 31 * result + hash(expr);
             }
@@ -1380,16 +1405,16 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
             }
         } else if (node.getKind() == NodeKind.XML_QUOTED_STRING) {
             BLangXMLQuotedString literal = (BLangXMLQuotedString) node;
-            result = 31 * result + hash(literal.concatExpr);
+            result = hash(literal.concatExpr);
             for (BLangExpression expr : literal.textFragments) {
                 result = result * 31 + hash(expr);
             }
         } else if (node.getKind() == NodeKind.XMLNS) {
             BLangXMLNS xmlns = (BLangXMLNS) node;
-            result = result * 31 + hash(xmlns.prefix) + hash(xmlns.namespaceURI);
+            result = hash(xmlns.prefix) + hash(xmlns.namespaceURI);
         } else if (node.getKind() == NodeKind.XML_PI_LITERAL) {
             BLangXMLProcInsLiteral literal = (BLangXMLProcInsLiteral) node;
-            result = 31 * result + hash(literal.target) + hash(literal.dataConcatExpr);
+            result = hash(literal.target) + hash(literal.dataConcatExpr);
             for (BLangExpression expr : literal.dataFragments) {
                 result = result * 31 + hash(expr);
             }
@@ -1422,25 +1447,24 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
             }
         } else if (node.getKind() == NodeKind.TYPE_CONVERSION_EXPR) {
             BLangTypeConversionExpr typeConversionExpr = (BLangTypeConversionExpr) node;
-            result = 31 * result + hash(typeConversionExpr.expr);
+            result = hash(typeConversionExpr.expr);
         } else if (node.getKind() == NodeKind.BINARY_EXPR) {
             BLangBinaryExpr binaryExpr = (BLangBinaryExpr) node;
-            result = 31 * result + hash(binaryExpr.lhsExpr) + hash(binaryExpr.rhsExpr);
+            result = hash(binaryExpr.lhsExpr) + hash(binaryExpr.rhsExpr);
         } else if (node.getKind() == NodeKind.UNARY_EXPR) {
             BLangUnaryExpr unaryExpr = (BLangUnaryExpr) node;
-            result = 31 * result + hash(unaryExpr.expr);
+            result = hash(unaryExpr.expr);
         } else if (node.getKind() == NodeKind.TYPE_TEST_EXPR) {
             BLangTypeTestExpr typeTestExpr = (BLangTypeTestExpr) node;
-            result = 31 * result + hash(typeTestExpr.expr);
+            result = hash(typeTestExpr.expr);
         } else if (node.getKind() == NodeKind.TERNARY_EXPR) {
             BLangTernaryExpr ternaryExpr = (BLangTernaryExpr) node;
-            result = 31 * result + hash(ternaryExpr.expr) + hash(ternaryExpr.thenExpr) + hash(ternaryExpr.elseExpr);
+            result = hash(ternaryExpr.expr) + hash(ternaryExpr.thenExpr) + hash(ternaryExpr.elseExpr);
         } else if (node.getKind() == NodeKind.GROUP_EXPR) {
             BLangGroupExpr groupExpr = (BLangGroupExpr) node;
-            result = 31 * result + hash(groupExpr.expression);
+            result = hash(groupExpr.expression);
         } else if (node.getKind() == NodeKind.REG_EXP_TEMPLATE_LITERAL) {
-            result = 31 * result +
-                    generateHashForRegExp(((BLangRegExpTemplateLiteral) node).reDisjunction.sequenceList);
+            result = generateHashForRegExp(((BLangRegExpTemplateLiteral) node).reDisjunction.sequenceList);
         } else {
             dlog.error(((BLangExpression) node).pos, DiagnosticErrorCode.EXPRESSION_IS_NOT_A_CONSTANT_EXPRESSION);
         }
@@ -1541,7 +1565,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
                 fieldMap.put(recordVarNameField.getVariableName().value, recordVarNameField);
             }
         }
-        return fieldNames.stream().map(fieldMap::get).collect(Collectors.toList());
+        return fieldNames.stream().map(fieldMap::get).toList();
     }
 
     private List<String> getFieldNames(BLangTableConstructorExpr constructorExpr) {
@@ -1556,7 +1580,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
                 !constructorExpr.tableKeySpecifier.fieldNameIdentifierList.isEmpty()) {
             BLangTableKeySpecifier tableKeySpecifier = constructorExpr.tableKeySpecifier;
             return tableKeySpecifier.fieldNameIdentifierList.stream().map(identifier ->
-                    ((BLangIdentifier) identifier).value).collect(Collectors.toList());
+                    ((BLangIdentifier) identifier).value).toList();
         } else {
             return new ArrayList<>();
         }
@@ -1600,11 +1624,11 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangFieldBasedAccess.BLangNSPrefixedFieldBasedAccess nsPrefixedFieldBasedAccess) {
-        if (!nsPrefixedFieldBasedAccess.isLValue && isObjectMemberAccessWithSelf(nsPrefixedFieldBasedAccess)) {
-            checkVarRef(nsPrefixedFieldBasedAccess.symbol, nsPrefixedFieldBasedAccess.pos);
+    public void visit(BLangFieldBasedAccess.BLangPrefixedFieldBasedAccess prefixedFieldBasedAccess) {
+        if (!prefixedFieldBasedAccess.isLValue && isObjectMemberAccessWithSelf(prefixedFieldBasedAccess)) {
+            checkVarRef(prefixedFieldBasedAccess.symbol, prefixedFieldBasedAccess.pos);
         }
-        analyzeNode(nsPrefixedFieldBasedAccess.expr, env);
+        analyzeNode(prefixedFieldBasedAccess.expr, env);
     }
 
     @Override
@@ -1621,9 +1645,27 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangXMLNavigationAccess xmlNavigation) {
         analyzeNode(xmlNavigation.expr, env);
-        if (xmlNavigation.childIndex == null) {
-            analyzeNode(xmlNavigation.childIndex, env);
-        }
+    }
+
+    @Override
+    public void visit(BLangExtendedXMLNavigationAccess extendedXmlNavigationAccess) {
+        analyzeNode(extendedXmlNavigationAccess.stepExpr, env);
+        extendedXmlNavigationAccess.extensions.forEach(extension -> analyzeNode(extension, env));
+    }
+
+    @Override
+    public void visit(BLangXMLIndexedStepExtend xmlIndexedStepExtend) {
+        analyzeNode(xmlIndexedStepExtend.indexExpr, env);
+    }
+
+    @Override
+    public void visit(BLangXMLFilterStepExtend xmlFilterStepExtend) {
+        /* ignore */
+    }
+
+    @Override
+    public void visit(BLangXMLMethodCallStepExtend xmlMethodCallStepExtend) {
+        analyzeNode(xmlMethodCallStepExtend.invocation, env);
     }
 
     @Override
@@ -1664,10 +1706,10 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
             if (symbol != symTable.notFoundSymbol) {
                 addDependency(invokableOwnerSymbol, symbol);
             }
-        } else if (symbol != null && symbol.kind == SymbolKind.FUNCTION) {
+        } else if (symbol.kind == SymbolKind.FUNCTION) {
             BInvokableSymbol invokableProviderSymbol = (BInvokableSymbol) symbol;
             BSymbol curDependent = this.currDependentSymbolDeque.peek();
-            if (curDependent != null && isGlobalVarSymbol(curDependent)) {
+            if (isGlobalVarSymbol(curDependent)) {
                 addDependency(curDependent, invokableProviderSymbol);
             }
         }
@@ -1724,7 +1766,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
                                             (BLangVariable) joinClause.variableDefinitionNode.getVariable());
         analyzeNode(joinClause.collection, env);
         if (joinClause.onClause != null) {
-            analyzeNode((BLangNode) joinClause.onClause, env);
+            analyzeNode(joinClause.onClause, env);
         }
     }
 
@@ -1829,7 +1871,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         StringBuilder uninitializedFields =
                 getUninitializedFieldsForSelfKeyword((BObjectType) ((BLangSimpleVarRef)
                         invocationExpr.expr).symbol.type);
-        if (uninitializedFields.length() != 0) {
+        if (!uninitializedFields.isEmpty()) {
             this.dlog.error(invocationExpr.pos, DiagnosticErrorCode.CONTAINS_UNINITIALIZED_FIELDS,
                     uninitializedFields.toString());
             return false;
@@ -1844,7 +1886,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
             if (isSelfKeyWordExpr(expr)) {
                 StringBuilder uninitializedFields =
                         getUninitializedFieldsForSelfKeyword((BObjectType) ((BLangSimpleVarRef) expr).symbol.type);
-                if (uninitializedFields.length() != 0) {
+                if (!uninitializedFields.isEmpty()) {
                     this.dlog.error(location, DiagnosticErrorCode.CONTAINS_UNINITIALIZED_FIELDS,
                             uninitializedFields.toString());
                     return false;
@@ -1875,7 +1917,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
                     uninitializedFields.append(", ").append(symbol.getName().value);
                 }
             }
-            if (uninitializedFields.length() != 0) {
+            if (!uninitializedFields.isEmpty()) {
                 this.dlog.error(pos, DiagnosticErrorCode.INVALID_FUNCTION_CALL_WITH_UNINITIALIZED_VARIABLES,
                         uninitializedFields.toString());
                 return false;
@@ -2346,6 +2388,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         analyzeNode(trapExpr.expr, env);
     }
 
+    @Override
     public void visit(BLangServiceConstructorExpr serviceConstructorExpr) {
         if (this.currDependentSymbolDeque.peek() != null) {
             addDependency(this.currDependentSymbolDeque.peek(),
@@ -2607,14 +2650,14 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
                 BLangRecordVarRef recordVarRef = (BLangRecordVarRef) varRef;
                 recordVarRef.recordRefFields.forEach(field -> checkAssignment(field.variableReference));
                 if (recordVarRef.restParam != null) {
-                    checkAssignment((BLangExpression) recordVarRef.restParam);
+                    checkAssignment(recordVarRef.restParam);
                 }
                 return;
             case TUPLE_VARIABLE_REF:
                 BLangTupleVarRef tupleVarRef = (BLangTupleVarRef) varRef;
                 tupleVarRef.expressions.forEach(this::checkAssignment);
                 if (tupleVarRef.restParam != null) {
-                    checkAssignment((BLangExpression) tupleVarRef.restParam);
+                    checkAssignment(tupleVarRef.restParam);
                 }
                 return;
             case ERROR_VARIABLE_REF:
@@ -2712,7 +2755,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
             }
 
             BObjectTypeSymbol objTypeSymbol = (BObjectTypeSymbol) type.tsymbol;
-            Name funcName = names.fromString(Symbols.getAttachedFuncSymbolName(objTypeSymbol.name.value, fieldName));
+            Name funcName = Names.fromString(Symbols.getAttachedFuncSymbolName(objTypeSymbol.name.value, fieldName));
             BSymbol funcSymbol = symResolver.resolveObjectMethod(pos, env, funcName, objTypeSymbol);
 
             // Object member functions are inherently final
@@ -2860,7 +2903,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
                     populateUnusedVariableMapForMembers(unusedLocalVariables, member.valueBindingPattern);
                 }
 
-                populateUnusedVariableMapForMembers(unusedLocalVariables, (BLangVariable) recordVariable.restParam);
+                populateUnusedVariableMapForMembers(unusedLocalVariables, recordVariable.restParam);
                 break;
             case TUPLE_VARIABLE:
                 BLangTupleVariable tupleVariable = (BLangTupleVariable) variable;
@@ -2927,7 +2970,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         UN_INIT, PARTIAL_INIT
     }
 
-    private class BranchResult {
+    private static class BranchResult {
 
         Map<BSymbol, InitStatus> uninitializedVars;
         Map<BSymbol, InitStatus> possibleFailureUnInitVars;

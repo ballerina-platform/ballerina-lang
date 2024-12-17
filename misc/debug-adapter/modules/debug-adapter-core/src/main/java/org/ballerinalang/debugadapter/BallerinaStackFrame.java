@@ -35,8 +35,8 @@ import java.nio.file.Path;
 import java.util.Map;
 import java.util.Optional;
 
-import static org.ballerinalang.debugadapter.JBallerinaDebugServer.isBalStackFrame;
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.STRAND_VAR_NAME;
+import static org.ballerinalang.debugadapter.utils.ServerUtils.isBalStackFrame;
 import static org.ballerinalang.debugadapter.variable.VariableUtils.isService;
 import static org.ballerinalang.debugadapter.variable.VariableUtils.removeRedundantQuotes;
 import static org.wso2.ballerinalang.compiler.parser.BLangAnonymousModelHelper.LAMBDA;
@@ -77,7 +77,7 @@ public class BallerinaStackFrame {
     /**
      * Returns a debugger adapter protocol compatible instance of this breakpoint.
      *
-     * @return as an instance of {@link org.eclipse.lsp4j.debug.StackFrame}
+     * @return as an instance of {@link StackFrame}
      */
     public Optional<StackFrame> getAsDAPStackFrame() {
         if (dapStackFrame != null) {

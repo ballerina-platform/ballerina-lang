@@ -38,7 +38,6 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.HashMap;
 
 /**
@@ -53,8 +52,8 @@ public class MockTest extends BaseTestCase {
     public void setup() throws BallerinaTestException, IOException {
         balClient = new BMainInstance(balServer);
         projectPath = projectBasedTestsPath.toString();
-        FileUtils.copyFolder(Paths.get("build/libs"),
-                Paths.get(projectPath, "object-mocking-tests", "libs"));
+        FileUtils.copyFolder(Path.of("build/libs"),
+                Path.of(projectPath, "object-mocking-tests", "libs"));
         // Build and push config Lib project.
         compilePackageAndPushToLocal(projectBasedTestsPath.resolve("mockLibProject").toString(),
                 "testOrg-mockLib-any-0.1.0");
@@ -101,6 +100,14 @@ public class MockTest extends BaseTestCase {
         String output = balClient.runMainAndReadStdOut("test", args,
                 new HashMap<>(), projectPath, false);
         AssertionUtils.assertOutput("MockTest-testObjectMockDouble.txt", output);
+    }
+
+    @Test()
+    public void testResourceMocking() throws BallerinaTestException, IOException {
+        String[] args = mergeCoverageArgs(new String[]{"resource-mocking-tests"});
+        String output = balClient.runMainAndReadStdOut("test", args,
+                new HashMap<>(), projectPath, false);
+        AssertionUtils.assertOutput("MockTest-testResourceMocking.txt", output);
     }
 
     @Test()

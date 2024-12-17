@@ -48,7 +48,6 @@ import org.ballerinalang.langserver.completions.util.SortingUtil;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 /**
  * Completion provider for {@link TypeTestExpressionNode} context.
@@ -104,7 +103,7 @@ public class TypeTestExpressionNodeContext extends AbstractCompletionProvider<Ty
         if (typeSymbol.get().typeKind() == TypeDescKind.UNION) {
             typeReferences = ((UnionTypeSymbol) typeSymbol.get()).memberTypeDescriptors().stream()
                     .filter(type -> type.typeKind() == TypeDescKind.TYPE_REFERENCE)
-                    .map(type -> (TypeReferenceTypeSymbol) type).collect(Collectors.toList());
+                    .map(type -> (TypeReferenceTypeSymbol) type).toList();
         } else if (typeSymbol.get().typeKind() == TypeDescKind.TYPE_REFERENCE) {
             typeReferences = List.of((TypeReferenceTypeSymbol) typeSymbol.get());
         } else {
@@ -157,6 +156,7 @@ public class TypeTestExpressionNodeContext extends AbstractCompletionProvider<Ty
         return cursor < isKeyword.textRange().startOffset();
     }
 
+    @Override
     protected List<LSCompletionItem> expressionCompletions(BallerinaCompletionContext context,
                                                            TypeTestExpressionNode node) {
         if (QNameRefCompletionUtil.onQualifiedNameIdentifier(context, context.getNodeAtCursor())) {

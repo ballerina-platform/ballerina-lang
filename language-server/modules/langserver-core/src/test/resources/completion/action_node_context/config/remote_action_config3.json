@@ -16,7 +16,7 @@
           "value": "**Package:** _ballerina/module1:0.1.0_  \n  \nThe `Client.post()` function can be used to send HTTP POST requests to HTTP endpoints.\n  \n**Params**  \n- `string` path: Resource path  \n- `mod:RequestMessage` message: An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`  \n- `string` targetType: Specifies the target type(Defaultable)  \n  \n**Return** `mod:Response`   \n- The response for the request  \n  \n"
         }
       },
-      "sortText": "C",
+      "sortText": "CA",
       "filterText": "post",
       "insertText": "post(${1})",
       "insertTextFormat": "Snippet",
@@ -35,7 +35,7 @@
           "value": "**Package:** _ballerina/module1:0.1.0_  \n  \nSample remote method with java interoperability\n  \n**Params**  \n- `string` path: Resource path  \n- `mod:TargetType` targetType: Response or `anydata`, which is expected to be returned after data binding(Defaultable)  \n  \n**Return** `targetType|mod:ClientError`   \n- The Response or the ClientError  \n  \n"
         }
       },
-      "sortText": "C",
+      "sortText": "CB",
       "filterText": "get",
       "insertText": "get(${1})",
       "insertTextFormat": "Snippet",
@@ -54,7 +54,7 @@
           "value": "**Package:** _ballerina/module1:0.1.0_  \n  \nSample remote method with java interoperability\n  \n**Params**  \n- `string` path: Resource path  \n- `handle` request: Request need to be forward  \n- `mod:TargetType` targetType: Response or `anydata`, which is expected to be returned after data binding(Defaultable)  \n  \n**Return** `targetType`   \n- Response  \n  \n"
         }
       },
-      "sortText": "C",
+      "sortText": "CF",
       "filterText": "forward",
       "insertText": "forward(${1})",
       "insertTextFormat": "Snippet",
@@ -73,7 +73,7 @@
           "value": "**Package:** _ballerina/module1:0.1.0_  \n  \nSample remote method with java interoperability\n  \n**Params**  \n- `mod:TargetType2` targetType: `any`type which is expected to be returned after data binding(Defaultable)  \n  \n**Return** `targetType`   \n- Type any  \n  \n"
         }
       },
-      "sortText": "C",
+      "sortText": "CG",
       "filterText": "delete",
       "insertText": "delete(${1})",
       "insertTextFormat": "Snippet",
@@ -92,7 +92,7 @@
           "value": "**Package:** _ballerina/module1:0.1.0_  \n  \nSample resource function with rest path praram with multiple target types with java interoperability\n  \n**Params**  \n- `string[]` path: Request path  \n- `mod:RequestMessage` message: An HTTP outbound request or any allowed payload  \n- `map<string|string[]>?` headers: The entity headers(Defaultable)  \n- `string?` mediaType: The MIME type header of the request entity(Defaultable)  \n- `mod:TargetType` targetType: HTTP response or `anydata`, which is expected to be returned after data binding(Defaultable)  \n  \n**Return** `targetType|mod:ClientError`   \n- The response or the payload (if the `targetType` is configured) or an `http:ClientError` if failed to  \nestablish the communication with the upstream server or a data binding failure  \n  \n"
         }
       },
-      "sortText": "C",
+      "sortText": "CH",
       "filterText": "post",
       "insertText": "/[${1:\"path\"}].post(${2});",
       "insertTextFormat": "Snippet",
@@ -111,9 +111,66 @@
           "value": "**Package:** _ballerina/module1:0.1.0_  \n  \nSample resource function with rest path praram with multiple target types with java interoperability\n  \n**Params**  \n- `string[]` path: Request path  \n- `mod:RequestMessage` message: An HTTP outbound request or any allowed payload  \n- `map<string|string[]>?` headers: The entity headers(Defaultable)  \n- `string?` mediaType: The MIME type header of the request entity(Defaultable)  \n- `mod:TargetType` targetType: HTTP response or `anydata`, which is expected to be returned after data binding(Defaultable)  \n  \n**Return** `targetType|mod:ClientError`   \n- The response or the payload (if the `targetType` is configured) or an `http:ClientError` if failed to  \nestablish the communication with the upstream server or a data binding failure  \n  \n"
         }
       },
-      "sortText": "C",
+      "sortText": "CI",
       "filterText": "post",
       "insertText": "/${1:path}.post(${2});",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "push(string path, mod:TargetType targetType)",
+      "kind": "Function",
+      "detail": "targetType|mod2:ClientError2",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/module1:0.1.0_  \n  \nSample remote method with java interoperability.\n  \n**Params**  \n- `string` path: Resource path  \n- `mod:TargetType` targetType: Response or `anydata`, which is expected to be returned after data binding(Defaultable)  \n  \n**Return** `targetType|mod2:ClientError2`   \n- The Response or the ClientError  \n  \n"
+        }
+      },
+      "sortText": "CC",
+      "filterText": "push",
+      "insertText": "push(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "pull(string path, typedesc<anydata> targetType)",
+      "kind": "Function",
+      "detail": "targetType|mod2:ClientError2",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/module1:0.1.0_  \n  \nSample remote method with java interoperability.\n  \n**Params**  \n- `string` path: Resource path  \n- `typedesc<anydata>` targetType: Response or `anydata`, which is expected to be returned after data binding(Defaultable)  \n  \n**Return** `targetType|mod2:ClientError2`   \n- The Response or the ClientError  \n  \n"
+        }
+      },
+      "sortText": "CD",
+      "filterText": "pull",
+      "insertText": "pull(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "clear(string path, typedesc<anydata> targetType)",
+      "kind": "Function",
+      "detail": "targetType|mod:ClientError",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/module1:0.1.0_  \n  \nSample remote method with java interoperability.\n  \n**Params**  \n- `string` path: Resource path  \n- `typedesc<anydata>` targetType: Response or `anydata`, which is expected to be returned after data binding(Defaultable)  \n  \n**Return** `targetType|mod:ClientError`   \n- The Response or the ClientError  \n  \n"
+        }
+      },
+      "sortText": "CE",
+      "filterText": "clear",
+      "insertText": "clear(${1})",
       "insertTextFormat": "Snippet",
       "command": {
         "title": "editor.action.triggerParameterHints",

@@ -38,6 +38,8 @@ import org.ballerinalang.langserver.extensions.ballerina.document.SyntaxTreeNode
 import org.ballerinalang.langserver.extensions.ballerina.packages.PackageComponentsRequest;
 import org.ballerinalang.langserver.extensions.ballerina.packages.PackageConfigSchemaRequest;
 import org.ballerinalang.langserver.extensions.ballerina.packages.PackageMetadataRequest;
+import org.ballerinalang.langserver.extensions.ballerina.runner.MainFunctionParamsRequest;
+import org.ballerinalang.langserver.extensions.ballerina.runner.ProjectDiagnosticsRequest;
 import org.eclipse.lsp4j.ClientCapabilities;
 import org.eclipse.lsp4j.CodeActionCapabilities;
 import org.eclipse.lsp4j.CodeActionContext;
@@ -101,7 +103,6 @@ import java.io.OutputStream;
 import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -115,7 +116,7 @@ import java.util.concurrent.ExecutionException;
 /**
  * Common utils that are reused within test suits.
  */
-public class TestUtil {
+public final class TestUtil {
 
     private static final String HOVER = "textDocument/hover";
 
@@ -164,6 +165,9 @@ public class TestUtil {
     private static final String DOCUMENT_EXEC_POSITIONS = "ballerinaDocument/executorPositions";
 
     private static final String SEMANTIC_TOKENS_FULL = "textDocument/semanticTokens/full";
+
+    private static final String RUNNER_DIAGNOSTICS = "ballerinaRunner/diagnostics";
+    private static final String RUNNER_MAIN_FUNC_PARAMS = "ballerinaRunner/mainFunctionParams";
 
     private static final Gson GSON = new Gson();
 
@@ -457,11 +461,35 @@ public class TestUtil {
     public static String getPackageComponentsResponse(Endpoint serviceEndpoint, Iterator<String> filePaths) {
         PackageComponentsRequest packageComponentsRequest = new PackageComponentsRequest();
         List<TextDocumentIdentifier> documentIdentifiers = new ArrayList<>();
-        filePaths.forEachRemaining(filePath -> {
-            documentIdentifiers.add(getTextDocumentIdentifier(filePath));
-        });
+        filePaths.forEachRemaining(filePath -> documentIdentifiers.add(getTextDocumentIdentifier(filePath)));
         packageComponentsRequest.setDocumentIdentifiers(documentIdentifiers.toArray(new TextDocumentIdentifier[0]));
         return getResponseString(serviceEndpoint.request(PACKAGE_COMPONENTS, packageComponentsRequest));
+    }
+
+    /**
+     * Get runner service's diagnostics response.
+     *
+     * @param serviceEndpoint Language Server Service endpoint
+     * @param projectDir root directory of the project
+     * @return {@link String} Runner diagnostics response
+     */
+    public static String getRunnerDiagnosticsResponse(Endpoint serviceEndpoint, String projectDir) {
+        ProjectDiagnosticsRequest projectDiagnosticsRequest = new ProjectDiagnosticsRequest();
+        projectDiagnosticsRequest.setDocumentIdentifier(getTextDocumentIdentifier(projectDir));
+        return getResponseString(serviceEndpoint.request(RUNNER_DIAGNOSTICS, projectDiagnosticsRequest));
+    }
+
+    /**
+     * Get runner service's main function params response.
+     *
+     * @param serviceEndpoint Language Server Service endpoint
+     * @param projectDir root directory of the project
+     * @return {@link String} Runner diagnostics response
+     */
+    public static String getRunnerMainFuncParamsResponse(Endpoint serviceEndpoint, String projectDir) {
+        MainFunctionParamsRequest mainFunctionParamsRequest = new MainFunctionParamsRequest();
+        mainFunctionParamsRequest.setDocumentIdentifier(getTextDocumentIdentifier(projectDir));
+        return getResponseString(serviceEndpoint.request(RUNNER_MAIN_FUNC_PARAMS, mainFunctionParamsRequest));
     }
 
     /**
@@ -535,9 +563,8 @@ public class TestUtil {
      * @param serviceEndpoint Language Server Service Endpoint
      * @param fileUri         uri of the document to open
      * @param content         File content
-     * @throws IOException Exception while reading the file content
      */
-    public static void openDocument(Endpoint serviceEndpoint, String fileUri, String content) throws IOException {
+    public static void openDocument(Endpoint serviceEndpoint, String fileUri, String content) {
         DidOpenTextDocumentParams documentParams = new DidOpenTextDocumentParams();
         TextDocumentItem textDocumentItem = new TextDocumentItem();
 
@@ -670,7 +697,7 @@ public class TestUtil {
     @Deprecated
     public static TextDocumentIdentifier getTextDocumentIdentifier(String filePath) {
         TextDocumentIdentifier identifier = new TextDocumentIdentifier();
-        identifier.setUri(Paths.get(filePath).toUri().toString());
+        identifier.setUri(Path.of(filePath).toUri().toString());
 
         return identifier;
     }
@@ -832,6 +859,7 @@ public class TestUtil {
         private OutputStream outputStream;
         private InitializeParams initializeParams;
         private final Map<String, Object> initOptions = new HashMap<>();
+        private ExtendedLanguageClient client;
 
         public LanguageServerBuilder withLanguageServer(BallerinaLanguageServer languageServer) {
             this.languageServer = languageServer;
@@ -853,6 +881,11 @@ public class TestUtil {
             return this;
         }
 
+        public LanguageServerBuilder withClient(ExtendedLanguageClient client) {
+            this.client = client;
+            return this;
+        }
+
         public Endpoint build() {
             if (languageServer == null) {
                 languageServer = new BallerinaLanguageServer();
@@ -866,9 +899,12 @@ public class TestUtil {
                 outputStream = OutputStream.nullOutputStream();
             }
 
-            Launcher<ExtendedLanguageClient> launcher = Launcher.createLauncher(this.languageServer,
-                    ExtendedLanguageClient.class, inputStream, outputStream);
-            ExtendedLanguageClient client = launcher.getRemoteProxy();
+            if (client == null) {
+                Launcher<ExtendedLanguageClient> launcher = Launcher.createLauncher(this.languageServer,
+                        ExtendedLanguageClient.class, inputStream, outputStream);
+                this.client = launcher.getRemoteProxy();
+            }
+
             languageServer.connect(client);
 
             if (initializeParams == null) {
@@ -923,6 +959,8 @@ public class TestUtil {
             initializationOptions.put(InitializationOptions.KEY_BALA_SCHEME_SUPPORT, true);
             if (!initOptions.isEmpty()) {
                 initializationOptions.putAll(initOptions);
+            } else {
+                initializationOptions.put(InitializationOptions.KEY_ENABLE_INDEX_PACKAGES, false);
             }
             initializeParams.setInitializationOptions(GSON.toJsonTree(initializationOptions));
 

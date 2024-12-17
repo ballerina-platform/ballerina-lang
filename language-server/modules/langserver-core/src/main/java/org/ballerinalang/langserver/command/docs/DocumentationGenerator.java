@@ -25,6 +25,7 @@ import io.ballerina.compiler.syntax.tree.DefaultableParameterNode;
 import io.ballerina.compiler.syntax.tree.EnumDeclarationNode;
 import io.ballerina.compiler.syntax.tree.FunctionDefinitionNode;
 import io.ballerina.compiler.syntax.tree.FunctionSignatureNode;
+import io.ballerina.compiler.syntax.tree.IncludedRecordParameterNode;
 import io.ballerina.compiler.syntax.tree.MetadataNode;
 import io.ballerina.compiler.syntax.tree.MethodDeclarationNode;
 import io.ballerina.compiler.syntax.tree.ModuleMemberDeclarationNode;
@@ -60,7 +61,7 @@ import java.util.Optional;
  *
  * @since 0.985.0
  */
-public class DocumentationGenerator {
+public final class DocumentationGenerator {
 
     private DocumentationGenerator() {
     }
@@ -104,62 +105,47 @@ public class DocumentationGenerator {
      */
     public static Optional<DocAttachmentInfo> getDocumentationEditForNode(NonTerminalNode node,
                                                                           SyntaxTree syntaxTree) {
-        switch (node.kind()) {
-            case FUNCTION_DEFINITION:
-            case RESOURCE_ACCESSOR_DEFINITION:
-            case OBJECT_METHOD_DEFINITION: {
-                return Optional.of(generateFunctionDocumentation((FunctionDefinitionNode) node, syntaxTree));
-            }
-            case METHOD_DECLARATION: {
-                return Optional.of(generateMethodDocumentation((MethodDeclarationNode) node, syntaxTree));
-            }
-            case SERVICE_DECLARATION: {
-                return Optional.of(generateServiceDocumentation((ServiceDeclarationNode) node, syntaxTree));
-            }
-            case TYPE_DEFINITION: {
-                return Optional.of(generateRecordOrObjectDocumentation((TypeDefinitionNode) node, syntaxTree));
-            }
-            case CLASS_DEFINITION: {
-                return Optional.of(generateClassDocumentation((ClassDefinitionNode) node, syntaxTree));
-            }
-            case CONST_DECLARATION: {
-                return Optional.of(generateModuleMemberDocumentation((ConstantDeclarationNode) node, syntaxTree));
-            }
-            case ENUM_DECLARATION: {
-                return Optional.of(generateModuleMemberDocumentation((EnumDeclarationNode) node, syntaxTree));
-            }
-            case MODULE_VAR_DECL: {
-                return Optional.of(generateModuleMemberDocumentation((ModuleVariableDeclarationNode) node, syntaxTree));
-            }
-            case ANNOTATION_DECLARATION: {
-                return Optional.of(generateAnnotationDocumentation((AnnotationDeclarationNode) node, syntaxTree));
-            }
-            default:
-                break;
-        }
-        return Optional.empty();
+        return switch (node.kind()) {
+            case FUNCTION_DEFINITION,
+                 RESOURCE_ACCESSOR_DEFINITION,
+                 OBJECT_METHOD_DEFINITION ->
+                    Optional.of(generateFunctionDocumentation((FunctionDefinitionNode) node, syntaxTree));
+            case METHOD_DECLARATION ->
+                    Optional.of(generateMethodDocumentation((MethodDeclarationNode) node, syntaxTree));
+            case SERVICE_DECLARATION ->
+                    Optional.of(generateServiceDocumentation((ServiceDeclarationNode) node, syntaxTree));
+            case TYPE_DEFINITION ->
+                    Optional.of(generateRecordOrObjectDocumentation((TypeDefinitionNode) node, syntaxTree));
+            case CLASS_DEFINITION -> Optional.of(generateClassDocumentation((ClassDefinitionNode) node, syntaxTree));
+            case CONST_DECLARATION ->
+                    Optional.of(generateModuleMemberDocumentation((ConstantDeclarationNode) node, syntaxTree));
+            case ENUM_DECLARATION ->
+                    Optional.of(generateModuleMemberDocumentation((EnumDeclarationNode) node, syntaxTree));
+            case MODULE_VAR_DECL ->
+                    Optional.of(generateModuleMemberDocumentation((ModuleVariableDeclarationNode) node, syntaxTree));
+            case ANNOTATION_DECLARATION ->
+                    Optional.of(generateAnnotationDocumentation((AnnotationDeclarationNode) node, syntaxTree));
+            default -> Optional.empty();
+        };
     }
 
     public static Optional<Symbol> getDocumentableSymbol(NonTerminalNode node, SemanticModel semanticModel) {
-        switch (node.kind()) {
-            case FUNCTION_DEFINITION:
-            case OBJECT_METHOD_DEFINITION:
-            case RESOURCE_ACCESSOR_DEFINITION:
-            case METHOD_DECLARATION:
-            case SERVICE_DECLARATION:    
-//            case SERVICE_DECLARATION: {
-//                ServiceDeclarationNode serviceDeclrNode = (ServiceDeclarationNode) node;
-//                return semanticModel.symbol(fileName, serviceDeclrNode.typeDescriptor().map(s->s.lineRange()
-//                .startLine()).);
-//            }
-            case TYPE_DEFINITION:
-            case ANNOTATION_DECLARATION:
-            case CLASS_DEFINITION:
-                return semanticModel.symbol(node);
-            default:
-                break;
-        }
-        return Optional.empty();
+        return switch (node.kind()) {
+            case FUNCTION_DEFINITION,
+                 OBJECT_METHOD_DEFINITION,
+                 RESOURCE_ACCESSOR_DEFINITION,
+                 METHOD_DECLARATION,
+                 SERVICE_DECLARATION,
+ //              SERVICE_DECLARATION -> {
+ //                  ServiceDeclarationNode serviceDeclrNode = (ServiceDeclarationNode) node;
+ //                  yield semanticModel.symbol(fileName, serviceDeclrNode.typeDescriptor().map(s->s.lineRange()
+ //                  .startLine()).);
+ //              }
+                 TYPE_DEFINITION,
+                 ANNOTATION_DECLARATION,
+                 CLASS_DEFINITION -> semanticModel.symbol(node);
+            default -> Optional.empty();
+        };
     }
 
     /**
@@ -240,7 +226,7 @@ public class DocumentationGenerator {
         if (metadata != null && !metadata.annotations().isEmpty()) {
             docStart = PositionUtil.toRange(metadata.annotations().get(0).lineRange()).getStart();
         }
-        io.ballerina.compiler.syntax.tree.Node typeDesc = typeDefNode.typeDescriptor();
+        Node typeDesc = typeDefNode.typeDescriptor();
         String desc = String.format("Description.%n");
         LinkedHashMap<String, String> parameters = new LinkedHashMap<>();
         switch (typeDesc.kind()) {
@@ -311,7 +297,7 @@ public class DocumentationGenerator {
         boolean hasDeprecated = false;
         if (metadata != null && !metadata.annotations().isEmpty()) {
             for (AnnotationNode annotationNode : metadata.annotations()) {
-                io.ballerina.compiler.syntax.tree.Node annotReference = annotationNode.annotReference();
+                Node annotReference = annotationNode.annotReference();
                 if (annotReference.kind() == SyntaxKind.SIMPLE_NAME_REFERENCE &&
                         "deprecated".equals(((SimpleNameReferenceNode) annotReference).name().text())) {
                     hasDeprecated = true;
@@ -324,25 +310,24 @@ public class DocumentationGenerator {
         // Resource function path parameters
         if (!resourceNodes.isEmpty()) {
             resourceNodes.forEach(param-> {
-                if (param instanceof ResourcePathParameterNode) {
+                if (param instanceof ResourcePathParameterNode resourcePathParameterNode) {
                     Optional<Token> paramName = Optional.empty();
                     if (param.kind() == SyntaxKind.RESOURCE_PATH_SEGMENT_PARAM
                             || param.kind() == SyntaxKind.RESOURCE_PATH_REST_PARAM) {
-                        paramName = Optional.ofNullable(((ResourcePathParameterNode) param).paramName().orElse(null));
+                        paramName = Optional.ofNullable(resourcePathParameterNode.paramName().orElse(null));
                     }
                     paramName.ifPresent(token -> parameters.put(token.text(), "parameter description"));
                 } 
             });
         }
         signatureNode.parameters().forEach(param -> {
-            Optional<Token> paramName = Optional.empty();
-            if (param.kind() == SyntaxKind.REQUIRED_PARAM) {
-                paramName = ((RequiredParameterNode) param).paramName();
-            } else if (param.kind() == SyntaxKind.DEFAULTABLE_PARAM) {
-                paramName = ((DefaultableParameterNode) param).paramName();
-            } else if (param.kind() == SyntaxKind.REST_PARAM) {
-                paramName = ((RestParameterNode) param).paramName();
-            }
+            Optional<Token> paramName = switch (param.kind()) {
+                case REQUIRED_PARAM -> ((RequiredParameterNode) param).paramName();
+                case DEFAULTABLE_PARAM -> ((DefaultableParameterNode) param).paramName();
+                case REST_PARAM -> ((RestParameterNode) param).paramName();
+                case INCLUDED_RECORD_PARAM -> ((IncludedRecordParameterNode) param).paramName();
+                default -> Optional.empty();
+            };
             paramName.ifPresent(token -> parameters.put(token.text(), "parameter description"));
         });
         String returnDesc = signatureNode.returnTypeDesc().isPresent() ? "return value description" : null;

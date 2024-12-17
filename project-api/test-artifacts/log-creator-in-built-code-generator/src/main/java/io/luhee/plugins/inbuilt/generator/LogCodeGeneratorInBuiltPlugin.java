@@ -23,12 +23,13 @@ import io.ballerina.projects.plugins.CompilerPlugin;
 import io.ballerina.projects.plugins.CompilerPluginContext;
 import io.ballerina.projects.plugins.SyntaxNodeAnalysisContext;
 
-import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
 
 /***
@@ -37,8 +38,8 @@ import java.nio.charset.StandardCharsets;
  * @since 2.7.1
  */
 public class LogCodeGeneratorInBuiltPlugin extends CompilerPlugin {
-    static String filePath = "./src/test/resources/compiler_plugin_tests/" +
-            "log_creator_combined_plugin/compiler-plugin.txt";
+    private static final Path filePath = Path.of("build/logs/log_creator_combined_plugin/compiler-plugin.txt")
+            .toAbsolutePath();
 
     @Override
     public void init(CompilerPluginContext pluginContext) {
@@ -51,9 +52,8 @@ public class LogCodeGeneratorInBuiltPlugin extends CompilerPlugin {
     public static class LogCodeGenerator extends CodeGenerator {
         @Override
         public void init(CodeGeneratorContext generatorContext) {
-            generatorContext.addSourceGeneratorTask(sourceGeneratorContext -> {
-                appendToOutputFile(filePath, "source-generator");
-            });
+            generatorContext.addSourceGeneratorTask(sourceGeneratorContext ->
+                appendToOutputFile("source-generator"));
 
             generatorContext.addSyntaxNodeAnalysisTask(new LogSyntaxNodeAnalysis(), SyntaxKind.FUNCTION_DEFINITION);
         }
@@ -67,16 +67,23 @@ public class LogCodeGeneratorInBuiltPlugin extends CompilerPlugin {
 
         @Override
         public void perform(SyntaxNodeAnalysisContext syntaxNodeAnalysisContext) {
-            appendToOutputFile(filePath, "syntax-node-analysis-generator");
+            appendToOutputFile("syntax-node-analysis-generator");
         }
     }
 
-
-    private static void appendToOutputFile(String filePath, String content) {
-        File outputFile = new File(filePath);
-        try (FileOutputStream fileStream = new FileOutputStream(outputFile, true);
-             Writer writer = new OutputStreamWriter(fileStream, StandardCharsets.UTF_8)) {
-            writer.write("in-built-" + content + "\n");
+    private static void appendToOutputFile(String content) {
+        try {
+            Path parentDir = filePath.getParent();
+            if (parentDir != null) {
+                Files.createDirectories(parentDir);
+            }
+            if (Files.notExists(filePath)) {
+                Files.createFile(filePath);
+            }
+            try (FileOutputStream fileStream = new FileOutputStream(filePath.toFile(), true);
+                 Writer writer = new OutputStreamWriter(fileStream, StandardCharsets.UTF_8)) {
+                writer.write("in-built-" + content + "\n");
+            }
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

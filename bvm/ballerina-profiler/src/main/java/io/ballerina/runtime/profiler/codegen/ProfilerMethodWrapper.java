@@ -34,13 +34,16 @@ import java.io.InputStreamReader;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.jar.Attributes;
 import java.util.jar.Manifest;
 
+import static io.ballerina.runtime.profiler.util.Constants.CURRENT_DIR_KEY;
 import static io.ballerina.runtime.profiler.util.Constants.ERROR_STREAM;
 import static io.ballerina.runtime.profiler.util.Constants.OUT_STREAM;
+import static io.ballerina.runtime.profiler.util.Constants.USER_DIR;
 
 /**
  * This class is used as the method wrapper for the Ballerina profiler.
@@ -49,24 +52,34 @@ import static io.ballerina.runtime.profiler.util.Constants.OUT_STREAM;
  */
 public class ProfilerMethodWrapper extends ClassLoader {
 
+    public static final String JAVA_OPTS = "JAVA_OPTS";
+
     public void invokeMethods(String debugArg) throws IOException, InterruptedException {
         String balJarArgs = Main.getBalJarArgs();
         List<String> commands = new ArrayList<>();
-        commands.add("java");
+        String javaOpts = System.getenv().get(JAVA_OPTS);
+        commands.add(System.getenv("java.command"));
+        if (javaOpts != null) {
+            commands.add(javaOpts.trim());
+        }
         commands.add("-jar");
         if (debugArg != null) {
             commands.add(debugArg);
         }
-        commands.add(Constants.TEMP_JAR_FILE_NAME);
+        commands.add(Path.of(System.getProperty(USER_DIR), Constants.TEMP_JAR_FILE_NAME).toString());
         if (balJarArgs != null) {
             commands.add(balJarArgs);
         }
         ProcessBuilder processBuilder = new ProcessBuilder(commands);
-        processBuilder.redirectErrorStream(true);
+        processBuilder.inheritIO();
+        processBuilder.directory(new File(System.getenv(CURRENT_DIR_KEY)));
+        if (javaOpts != null) {
+            processBuilder.environment().put(JAVA_OPTS, javaOpts.trim());
+        }
         Process process = processBuilder.start();
         OUT_STREAM.printf(Constants.ANSI_CYAN + "[5/6] Running executable..." + Constants.ANSI_RESET + "%n");
-        try (BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream(),
-                StandardCharsets.UTF_8))) {
+        try (InputStreamReader streamReader = new InputStreamReader(process.getInputStream(), StandardCharsets.UTF_8);
+                BufferedReader reader = new BufferedReader(streamReader)) {
             reader.lines().forEach(OUT_STREAM::println);
         }
         process.waitFor();
@@ -84,13 +97,13 @@ public class ProfilerMethodWrapper extends ClassLoader {
         }
     }
 
-    public byte[] modifyMethods(InputStream inputStream) {
+    public byte[] modifyMethods(InputStream inputStream, String className) {
         byte[] code;
         try {
             ClassReader reader = new ClassReader(inputStream);
             ClassWriter classWriter = new ProfilerClassWriter(reader, ClassWriter.COMPUTE_MAXS |
                     ClassWriter.COMPUTE_FRAMES);
-            ClassVisitor change = new ProfilerClassVisitor(classWriter);
+            ClassVisitor change = new ProfilerClassVisitor(className, classWriter);
             reader.accept(change, ClassReader.EXPAND_FRAMES);
             code = classWriter.toByteArray();
             return code;

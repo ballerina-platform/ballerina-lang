@@ -80,7 +80,8 @@ public class QueryActionOrExprTest {
                 "testQueryActionOrExpressionWithUnionRecordResultType",
                 "testQueryActionOrExprWithAnyOrErrResultType",
                 "testNestedQueryActionOrExprWithClientResourceAccessAction",
-                "testQueryActionWithQueryExpression"
+                "testQueryActionWithQueryExpression",
+                "testQueryActionWithLetExpression"
         };
     }
 
@@ -112,20 +113,8 @@ public class QueryActionOrExprTest {
         validateError(negativeResult, i++, "incompatible types: '()' is not an iterable collection", 93, 27);
         validateError(negativeResult, i++, "incompatible types: '()' is not an iterable collection", 133, 27);
         validateError(negativeResult, i++, "incompatible types: 'other' is not an iterable collection", 151, 27);
-        validateError(negativeResult, i++, "invalid usage of receive expression, var not allowed", 151, 27);
-        validateError(negativeResult, i++, "incompatible types: 'other' is not an iterable collection", 168, 27);
-        validateError(negativeResult, i++, "invalid usage of receive expression, var not allowed", 168, 27);
-        validateError(negativeResult, i++, "multiple receive action not yet supported", 168, 30);
-        validateError(negativeResult, i++, "multiple receive action not yet supported", 169, 28);
-        validateError(negativeResult, i++, "multiple receive action not yet supported", 170, 23);
-        validateError(negativeResult, i++, "multiple receive action not yet supported", 179, 28);
-        validateError(negativeResult, i++, "multiple receive action not yet supported", 180, 23);
-        validateError(negativeResult, i++, "multiple receive action not yet supported", 189, 28);
-        validateError(negativeResult, i++, "multiple receive action not yet supported", 191, 23);
-        validateError(negativeResult, i++, "multiple receive action not yet supported", 200, 28);
-        validateError(negativeResult, i++, "multiple receive action not yet supported", 202, 23);
-        validateError(negativeResult, i++, "multiple receive action not yet supported", 211, 28);
-        validateError(negativeResult, i++, "multiple receive action not yet supported", 213, 23);
+        validateError(negativeResult, i++, "receive action not supported wth 'var' type", 151, 27);
+        validateError(negativeResult, i++, "receive action not supported wth 'var' type", 168, 27);
         validateError(negativeResult, i++, "action invocation as an expression not allowed here", 279, 15);
         validateError(negativeResult, i++, "action invocation as an expression not allowed here", 291, 18);
         validateError(negativeResult, i++, "order by not supported for complex type fields, order key should " +

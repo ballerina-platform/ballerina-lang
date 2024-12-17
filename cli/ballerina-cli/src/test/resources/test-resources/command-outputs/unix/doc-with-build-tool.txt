@@ -1,0 +1,8 @@
+
+Executing Build Tools
+	openapi(generate-delivery-client)
+
+Compiling source
+	foo/winery:0.1.0
+Generating API Documentation
+Saved to: apidocs

@@ -74,6 +74,7 @@ public class STErrorConstructorExpressionNode extends STExpressionNode {
                 closeParenToken);
     }
 
+    @Override
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
         return new STErrorConstructorExpressionNode(
                 this.errorKeyword,
@@ -108,6 +109,7 @@ public class STErrorConstructorExpressionNode extends STExpressionNode {
                 diagnostics);
     }
 
+    @Override
     public Node createFacade(int position, NonTerminalNode parent) {
         return new ErrorConstructorExpressionNode(this, position, parent);
     }

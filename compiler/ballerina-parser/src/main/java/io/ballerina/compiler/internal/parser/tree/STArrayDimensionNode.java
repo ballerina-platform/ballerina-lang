@@ -62,6 +62,7 @@ public class STArrayDimensionNode extends STNode {
                 closeBracket);
     }
 
+    @Override
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
         return new STArrayDimensionNode(
                 this.openBracket,
@@ -88,6 +89,7 @@ public class STArrayDimensionNode extends STNode {
                 diagnostics);
     }
 
+    @Override
     public Node createFacade(int position, NonTerminalNode parent) {
         return new ArrayDimensionNode(this, position, parent);
     }

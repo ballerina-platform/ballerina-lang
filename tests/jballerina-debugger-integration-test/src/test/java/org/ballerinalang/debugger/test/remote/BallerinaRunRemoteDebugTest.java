@@ -26,7 +26,7 @@ import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import java.nio.file.Paths;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -43,8 +43,9 @@ public class BallerinaRunRemoteDebugTest extends BaseTestCase {
     DebugTestRunner debugTestRunner;
     private static final String REMOTE_DEBUG_LISTENING = "Listening for transport dt_socket at address: ";
 
+    @Override
     @BeforeClass
-    public void setup() throws BallerinaTestException {
+    public void setup() {
         testProjectName = "basic-project";
         String testSingleFileName = "hello_world.bal";
         debugTestRunner = new DebugTestRunner(testProjectName, testSingleFileName, false);
@@ -85,7 +86,7 @@ public class BallerinaRunRemoteDebugTest extends BaseTestCase {
     }
 
     public void testBalJarInDebugMode(String... debugOptions) throws BallerinaTestException {
-        String executablePath = Paths.get("target", "bin", testProjectName.replaceAll("-", "_") + ".jar")
+        String executablePath = Path.of("target", "bin", testProjectName.replaceAll("-", "_") + ".jar")
                 .toFile().getPath();
         LogLeecher clientLeecher = new LogLeecher(executablePath);
         balClient.runMain("build", new String[0], null, null, new LogLeecher[]{clientLeecher},
@@ -102,6 +103,7 @@ public class BallerinaRunRemoteDebugTest extends BaseTestCase {
         clientLeecher.waitForText(20000);
     }
 
+    @Override
     @AfterMethod(alwaysRun = true)
     public void cleanUp() {
         debugTestRunner.terminateDebugSession();

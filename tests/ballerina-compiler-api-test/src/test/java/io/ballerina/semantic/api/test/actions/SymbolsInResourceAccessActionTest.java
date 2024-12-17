@@ -79,7 +79,7 @@ public class SymbolsInResourceAccessActionTest {
                 {43, 25, "get", Map.of(
                         "foo", PathSegment.Kind.NAMED_SEGMENT,
                         "[string id]", PathSegment.Kind.PATH_PARAMETER)},
-                {44, 28, "post", Map.of(
+                {44, 39, "post", Map.of(
                         "bar", PathSegment.Kind.NAMED_SEGMENT,
                         "[string... ids]", PathSegment.Kind.PATH_REST_PARAMETER)},
                 {66, 11, "get", Map.of(
@@ -108,7 +108,7 @@ public class SymbolsInResourceAccessActionTest {
     public Object[][] getSymbolPosInResourceAccessAction() {
         return new Object[][]{
                 {42, 23, "fooClient", SymbolKind.VARIABLE}, // <c>fooClient->/foo
-                {42, 32, null, null},   // -><c>/foo
+                {42, 32, "get", SymbolKind.RESOURCE_METHOD},   // -><c>/foo
                 {42, 34, "get", SymbolKind.RESOURCE_METHOD},    // -><c>/
                 {42, 35, "foo", SymbolKind.PATH_NAME_SEGMENT}, // ->/<c>foo
                 {42, 49, "x", SymbolKind.CONSTANT},  // ["3"](<c>x, 2);

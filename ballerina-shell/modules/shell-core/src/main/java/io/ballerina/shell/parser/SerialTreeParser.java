@@ -40,7 +40,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
-import java.util.Set;
 
 /**
  * Parses the source code line using a trial based method.
@@ -50,7 +49,7 @@ import java.util.Set;
  * @since 2.0.0
  */
 public class SerialTreeParser extends TrialTreeParser {
-    private static final Set<String> RESTRICTED_FUNCTION_NAMES = ParserConstants.RESTRICTED_FUNCTION_NAMES;
+
     private static final String COMMAND_PREFIX = "/";
     private final List<TreeParserTrial> nodeParserTrials;
 
@@ -103,7 +102,7 @@ public class SerialTreeParser extends TrialTreeParser {
             ModulePartTrial modulePartTrial = new ModulePartTrial(this);
             Collection<Node> nodes = modulePartTrial.parse(source);
             List<Node> declarationNodes = new ArrayList<>();
-            for (Node node:nodes) {
+            for (Node node : nodes) {
                 ModulePartNode modulePartNode = (ModulePartNode) node;
                 modulePartNode.imports().forEach(declarationNodes::add);
                 modulePartNode.members().stream().filter(this::isModuleDeclarationAllowed)
@@ -121,9 +120,9 @@ public class SerialTreeParser extends TrialTreeParser {
      * Whether the declaration is allowed to be parsed.
      */
     private boolean isModuleDeclarationAllowed(ModuleMemberDeclarationNode declarationNode) {
-        if (declarationNode instanceof FunctionDefinitionNode) {
-            String functionName = ((FunctionDefinitionNode) declarationNode).functionName().text();
-            if (RESTRICTED_FUNCTION_NAMES.contains(functionName)) {
+        if (declarationNode instanceof FunctionDefinitionNode functionDefinitionNode) {
+            String functionName = functionDefinitionNode.functionName().text();
+            if (ParserConstants.isFunctionNameRestricted(functionName)) {
                 addWarnDiagnostic("Found '" + functionName + "' function in the declarations.\n" +
                         "Discarded '" + functionName + "' function without loading.");
                 return false;

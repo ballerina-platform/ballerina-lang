@@ -46,8 +46,13 @@ public class XMLToRecordConverterService implements ExtendedLanguageServerServic
             boolean isRecordTypeDesc = request.getIsRecordTypeDesc();
             boolean isClosed = request.getIsClosed();
             boolean forceFormatRecordFields = request.getForceFormatRecordFields();
+            String textFieldName = request.getTextFieldName();
+            boolean withNameSpace = request.getIsWithNameSpace();
+            boolean withoutAttributes = request.getWithoutAttributes();
+            boolean withoutAttributeAnnot = request.getWithoutAttributeAnnot();
 
-            return XMLToRecordConverter.convert(xmlValue, isRecordTypeDesc, isClosed, forceFormatRecordFields);
+            return XMLToRecordConverter.convert(xmlValue, isRecordTypeDesc, isClosed, forceFormatRecordFields,
+                    textFieldName, withNameSpace, withoutAttributes, withoutAttributeAnnot);
         });
     }
 

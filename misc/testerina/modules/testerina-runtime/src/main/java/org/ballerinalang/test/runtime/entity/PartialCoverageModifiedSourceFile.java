@@ -33,7 +33,7 @@ public class PartialCoverageModifiedSourceFile implements ISourceFileCoverage {
 
     private final ISourceFileCoverage oldSourceFile;
     private final List<ILine> modifiedLines;
-    private String normalizedPackageName;
+    private final String normalizedPackageName;
 
     public PartialCoverageModifiedSourceFile(ISourceFileCoverage oldSourcefile, List<ILine> modifiedLines,
                                              String normalizedPackageName) {
@@ -57,7 +57,7 @@ public class PartialCoverageModifiedSourceFile implements ISourceFileCoverage {
      */
     @Override
     public ILine getLine(int lineNumber) {
-        if (modifiedLines.size() == 0 || lineNumber < getFirstLine() || lineNumber > getLastLine()) {
+        if (modifiedLines.isEmpty() || lineNumber < getFirstLine() || lineNumber > getLastLine()) {
             return oldSourceFile.getLine(lineNumber);
         }
         ILine reqLine = modifiedLines.get(lineNumber - getFirstLine());

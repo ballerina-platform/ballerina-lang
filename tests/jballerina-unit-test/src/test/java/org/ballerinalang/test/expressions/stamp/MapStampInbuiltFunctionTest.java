@@ -17,7 +17,7 @@
  */
 package org.ballerinalang.test.expressions.stamp;
 
-import io.ballerina.runtime.api.TypeTags;
+import io.ballerina.runtime.api.types.TypeTags;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BError;
@@ -256,19 +256,19 @@ public class MapStampInbuiltFunctionTest {
         Assert.assertEquals(mapValue.size(), 2);
 
         Assert.assertEquals(getType(mapValue.get(StringUtils.fromString("a"))).getName(), "Employee");
-        Assert.assertEquals(getType(((Object) ((BMap) mapValue.get(StringUtils.fromString("a"))).get(
-                        StringUtils.fromString("age")))).getTag(),
+        Assert.assertEquals(getType(((BMap<?, ?>) mapValue.get(StringUtils.fromString("a"))).get(
+                        StringUtils.fromString("age"))).getTag(),
                 TypeTags.INT_TAG);
-        Assert.assertEquals(getType(((Object) ((BMap) mapValue.get(StringUtils.fromString("a"))).get(
-                StringUtils.fromString("school")))).
+        Assert.assertEquals(getType(((BMap<?, ?>) mapValue.get(StringUtils.fromString("a"))).get(
+                StringUtils.fromString("school"))).
                 getClass(), BStringType.class);
 
         Assert.assertEquals(getType(mapValue.get(StringUtils.fromString("b"))).getName(), "Employee");
-        Assert.assertEquals(getType(((Object) ((BMap) mapValue.get(StringUtils.fromString("b"))).get(
-                        StringUtils.fromString("age")))).getTag(),
+        Assert.assertEquals(getType(((BMap<?, ?>) mapValue.get(StringUtils.fromString("b"))).get(
+                        StringUtils.fromString("age"))).getTag(),
                 TypeTags.INT_TAG);
-        Assert.assertEquals(getType(((Object) ((BMap) mapValue.get(StringUtils.fromString("b"))).get(
-                StringUtils.fromString("school")))).
+        Assert.assertEquals(getType(((BMap<?, ?>) mapValue.get(StringUtils.fromString("b"))).get(
+                StringUtils.fromString("school"))).
                 getClass(), BStringType.class);
     }
 
@@ -291,9 +291,9 @@ public class MapStampInbuiltFunctionTest {
         Assert.assertEquals(mapValue.size(), 2);
 
         Assert.assertEquals(getType(mapValue.get(StringUtils.fromString("a"))).getClass(), BMapType.class);
-        Assert.assertEquals(((BMap) mapValue.get(StringUtils.fromString("a"))).size(), 5);
+        Assert.assertEquals(((BMap<?, ?>) mapValue.get(StringUtils.fromString("a"))).size(), 5);
         Assert.assertEquals(getType(mapValue.get(StringUtils.fromString("b"))).getClass(), BMapType.class);
-        Assert.assertEquals(((BMap) mapValue.get(StringUtils.fromString("b"))).size(), 5);
+        Assert.assertEquals(((BMap<?, ?>) mapValue.get(StringUtils.fromString("b"))).size(), 5);
     }
 
     @Test
@@ -306,18 +306,20 @@ public class MapStampInbuiltFunctionTest {
 
         Assert.assertEquals(getType(mapValue.get(StringUtils.fromString("a"))).getName(), "Employee");
         Assert.assertEquals(
-                getType(((BMap) mapValue.get(StringUtils.fromString("a"))).get(StringUtils.fromString("age"))).getTag(),
+                getType(((BMap<?, ?>) mapValue.get(StringUtils.fromString("a")))
+                        .get(StringUtils.fromString("age"))).getTag(),
                 TypeTags.INT_TAG);
         Assert.assertEquals(
-                getType(((BMap) mapValue.get(StringUtils.fromString("a"))).get(StringUtils.fromString("school"))).
+                getType(((BMap<?, ?>) mapValue.get(StringUtils.fromString("a"))).get(StringUtils.fromString("school"))).
                         getClass(), BStringType.class);
 
         Assert.assertEquals(getType(mapValue.get(StringUtils.fromString("b"))).getName(), "Employee");
         Assert.assertEquals(
-                getType(((BMap) mapValue.get(StringUtils.fromString("b"))).get(StringUtils.fromString("age"))).getTag(),
+                getType(((BMap<?, ?>) mapValue.get(StringUtils.fromString("b")))
+                        .get(StringUtils.fromString("age"))).getTag(),
                 TypeTags.INT_TAG);
         Assert.assertEquals(
-                getType(((BMap) mapValue.get(StringUtils.fromString("b"))).get(StringUtils.fromString("school"))).
+                getType(((BMap<?, ?>) mapValue.get(StringUtils.fromString("b"))).get(StringUtils.fromString("school"))).
                         getClass(), BStringType.class);
     }
 
@@ -346,10 +348,12 @@ public class MapStampInbuiltFunctionTest {
         Assert.assertEquals(mapValue.size(), 2);
 
         Assert.assertEquals(
-                getType(((BMap) ((BMap) mapValue.get(StringUtils.fromString("a"))).get(StringUtils.fromString("aa")))
+                getType(((BMap<?, ?>) ((BMap<?, ?>) mapValue.get(StringUtils.fromString("a")))
+                        .get(StringUtils.fromString("aa")))
                         .get(StringUtils.fromString("aa"))).getTag(), TypeTags.INT_TAG);
         Assert.assertEquals(
-                ((BMap) ((BMap) mapValue.get(StringUtils.fromString("a"))).get(StringUtils.fromString("aa")))
+                ((BMap<?, ?>) ((BMap<?, ?>) mapValue.get(StringUtils.fromString("a")))
+                        .get(StringUtils.fromString("aa")))
                         .get(StringUtils.fromString("aa")).toString(), "11");
     }
 
@@ -362,11 +366,12 @@ public class MapStampInbuiltFunctionTest {
         Assert.assertEquals(mapValue.size(), 2);
         Assert.assertEquals(mapValue.size(), 2);
 
-        Assert.assertEquals(getType(((BMap) ((BMap) mapValue.get(StringUtils.fromString("a"))).get(
+        Assert.assertEquals(getType(((BMap<?, ?>) ((BMap<?, ?>) mapValue.get(StringUtils.fromString("a"))).get(
                         StringUtils.fromString("aa"))).get(StringUtils.fromString("aa"))).getTag(),
                 TypeTags.INT_TAG);
         Assert.assertEquals(
-                ((BMap) ((BMap) mapValue.get(StringUtils.fromString("a"))).get(StringUtils.fromString("aa"))).get(
+                ((BMap<?, ?>) ((BMap<?, ?>) mapValue.get(StringUtils.fromString("a")))
+                        .get(StringUtils.fromString("aa"))).get(
                         StringUtils.fromString("aa")).toString(), "11");
     }
 

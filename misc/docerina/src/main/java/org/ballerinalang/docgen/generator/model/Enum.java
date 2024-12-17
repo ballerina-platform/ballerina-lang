@@ -27,8 +27,9 @@ public class Enum extends Construct {
     @Expose
     public List<Construct> members;
 
-    public Enum(String name, String description, boolean isDeprecated, List<Construct> members) {
-        super(name, description, isDeprecated);
+    public Enum(String name, String description, List<String> descriptionSections, boolean isDeprecated,
+                List<Construct> members) {
+        super(name, description, descriptionSections, isDeprecated);
         this.members = members;
     }
 }

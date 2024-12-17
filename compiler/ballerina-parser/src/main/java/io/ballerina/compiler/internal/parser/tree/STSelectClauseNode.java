@@ -56,6 +56,7 @@ public class STSelectClauseNode extends STClauseNode {
                 expression);
     }
 
+    @Override
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
         return new STSelectClauseNode(
                 this.selectKeyword,
@@ -78,6 +79,7 @@ public class STSelectClauseNode extends STClauseNode {
                 diagnostics);
     }
 
+    @Override
     public Node createFacade(int position, NonTerminalNode parent) {
         return new SelectClauseNode(this, position, parent);
     }

@@ -18,26 +18,21 @@
 
 package org.ballerinalang.langlib.array;
 
-import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BArray;
-
-import static org.ballerinalang.langlib.array.utils.ArrayUtils.checkIsArrayOnlyOperation;
+import io.ballerina.runtime.internal.values.ArrayValue;
 
 /**
  * Native implementation of lang.array:remove((any|error)[], int).
  *
  * @since 1.0
  */
-//@BallerinaFunction(
-//        orgName = "ballerina", packageName = "lang.array", functionName = "remove",
-//        args = {@Argument(name = "arr", type = TypeKind.ARRAY), @Argument(name = "i", type = TypeKind.INT)},
-//        returnType = {@ReturnType(type = TypeKind.ANY)},
-//        isPublic = true
-//)
 public class Remove {
 
+
+    private Remove() {
+    }
+
     public static Object remove(BArray arr, long i) {
-        checkIsArrayOnlyOperation(TypeUtils.getImpliedType(arr.getType()), "remove()");
-        return arr.shift(i);
+        return ((ArrayValue) arr).remove(i);
     }
 }

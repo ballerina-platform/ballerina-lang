@@ -19,8 +19,6 @@ package io.ballerina.runtime.internal.values;
 
 import io.ballerina.identifier.Utils;
 import io.ballerina.runtime.api.Module;
-import io.ballerina.runtime.api.PredefinedTypes;
-import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.constants.TypeConstants;
 import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.flags.SymbolFlags;
@@ -28,10 +26,13 @@ import io.ballerina.runtime.api.flags.TypeFlags;
 import io.ballerina.runtime.api.types.Field;
 import io.ballerina.runtime.api.types.IntersectableReferenceType;
 import io.ballerina.runtime.api.types.IntersectionType;
+import io.ballerina.runtime.api.types.PredefinedTypes;
 import io.ballerina.runtime.api.types.ReferenceType;
 import io.ballerina.runtime.api.types.SelectivelyImmutableReferenceType;
 import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.types.TypeTags;
 import io.ballerina.runtime.api.utils.TypeUtils;
+import io.ballerina.runtime.api.values.BFunctionPointer;
 import io.ballerina.runtime.internal.TypeChecker;
 import io.ballerina.runtime.internal.errors.ErrorHelper;
 import io.ballerina.runtime.internal.types.BArrayType;
@@ -65,7 +66,7 @@ import static io.ballerina.runtime.internal.errors.ErrorReasons.getModulePrefixe
  *
  * @since 1.3.0
  */
-public class ReadOnlyUtils {
+public final class ReadOnlyUtils {
 
     /**
      * Method to handle an update to a value, that is invalid due to the value being immutable.
@@ -223,8 +224,8 @@ public class ReadOnlyUtils {
                 for (Map.Entry<String, Field> entry : originalFields.entrySet()) {
                     Field originalField = entry.getValue();
                     fields.put(entry.getKey(),
-                               new BField(getImmutableType(originalField.getFieldType(), unresolvedTypes),
-                                          originalField.getFieldName(), originalField.getFlags()));
+                            new BField(getImmutableType(originalField.getFieldType(), unresolvedTypes),
+                                    originalField.getFieldName(), originalField.getFlags() | SymbolFlags.READONLY));
                 }
 
                 BRecordType immutableRecordType = new BRecordType(
@@ -233,6 +234,10 @@ public class ReadOnlyUtils {
                         origRecordType.flags |= SymbolFlags.READONLY, fields,
                         null, origRecordType.sealed,
                         origRecordType.typeFlags);
+                for (Map.Entry<String, BFunctionPointer> field : origRecordType.getDefaultValues()
+                        .entrySet()) {
+                    immutableRecordType.setDefaultValue(field.getKey(), field.getValue());
+                }
                 BIntersectionType intersectionType = createAndSetImmutableIntersectionType(origRecordType,
                                                                                            immutableRecordType);
 

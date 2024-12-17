@@ -1135,6 +1135,17 @@ public function testXmlSequenceAndXmlItemEqualityNegative() {
     test:assertFalse(x1 == x3 || !(x1 != x3) || x3 == x1 || !(x3 != x1));
 }
 
+public function testXmlSequenceLHSEquals() {
+    string a = "hello";
+    xml x1 = xml `AS-${a}`;
+    xml x2 = xml `AS-${a}`;
+    test:assertTrue(x1 == x2 && !(x1 != x2));
+
+    x1 = xml `<?target data?><?target_two data_two?>`;
+    x2 = xml `<?target data?><?target_two data_two?>`;
+    test:assertTrue(x1 == x2 && !(x1 != x2));
+}
+
 function testXmlStringNegative() {
     anydata x1 = xml `<book>The Lost World</book>`;
     anydata x2 = "<book>The Lost World</book>";
@@ -1767,4 +1778,45 @@ function testEqualityByteWithIntSubTypes() {
     test:assertFalse((b !== a) || (c !== a) || (d !== a) || (e !== a) ||
     (g !== a) || (h !== a));
     // Need to add (a !== f) , (f !== a) after fixing #32924
+}
+
+type Part anydata[];
+type J anydata;
+
+function testEqualityWithCyclicReferences() {
+    map<anydata> m1 = {one: 1, two: 2};
+    map<anydata> m2 = {one: 1, two: 2};
+    m1["three"] = m2;
+    m2["three"] = m1;
+    test:assertTrue(m1 == m2);
+    test:assertFalse(m1 != m2);
+
+    map<J> j1 = { loop: () };
+    map<J> j2 = { loop: () };
+    j1["loop"] = j1;
+    j2["loop"] = j1;
+    map<J> j3 = { loop: () };
+    j3["loop"] = { loop: { loop: { loop: j3 }}};
+    test:assertTrue(j1 == j3);
+
+    Part yin = [];
+    Part yang = [];
+    yin[0] = yang;
+    yang[0] = yin;
+    test:assertTrue(yin == yang);
+
+    table<map<anydata>> t1 = table [];
+    table<map<anydata>> t2 = table [];
+    t1.add({loop: t2});
+    t2.add({loop: t1});
+    test:assertTrue(t1 == t2);
+
+    table<map<anydata>> t3 = table [];
+    table<map<anydata>> t4 = table [];
+    table<map<anydata>> t5 = table [];
+    t3.add({loop: t4});
+    t4.add({loop: t5});
+    t5.add({loop: t3});
+    test:assertTrue(t3 == t4);
+    test:assertTrue(t3 == t5);
 }

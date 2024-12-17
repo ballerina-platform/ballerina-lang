@@ -17,7 +17,7 @@
  */
 package org.ballerinalang.test.error;
 
-import io.ballerina.runtime.api.TypeTags;
+import io.ballerina.runtime.api.types.TypeTags;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BError;
@@ -116,12 +116,12 @@ public class ErrorTest {
             expectedException = e;
         }
         Assert.assertNotNull(expectedException);
-        String message = ((BLangTestException) expectedException).getMessage();
+        String message = expectedException.getMessage();
 
-        Assert.assertEquals(message,
-                "error: largeNumber {\"message\":\"large number\"}\n" +
-                        "\tat error_test:errorPanicCallee(error_test.bal:62)\n" +
-                        "\t   error_test:errorPanicTest(error_test.bal:56)");
+        Assert.assertEquals(message, """
+                error: largeNumber {"message":"large number"}
+                \tat error_test:errorPanicCallee(error_test.bal:62)
+                \t   error_test:errorPanicTest(error_test.bal:56)""");
     }
 
     @Test
@@ -199,7 +199,7 @@ public class ErrorTest {
         Assert.assertTrue(returns instanceof BError);
         Assert.assertEquals(((BError) returns).getMessage(), CONST_ERROR_REASON);
         Assert.assertEquals(
-                ((BMap) ((BError) returns).getDetails()).get(StringUtils.fromString("message")).toString(),
+                ((BMap<?, ?>) ((BError) returns).getDetails()).get(StringUtils.fromString("message")).toString(),
                 "error detail message");
     }
 
@@ -338,9 +338,10 @@ public class ErrorTest {
 
         Assert.assertNotNull(expectedException);
         String message = expectedException.getMessage();
-        Assert.assertEquals(message, "error: array index out of range: index: 4, size: 2\n\t" +
-                "at ballerina.lang.array.0:slice(array.bal:219)\n\t" +
-                "   error_test:testStackTraceInNative(error_test.bal:337)");
+        Assert.assertEquals(message, """
+                error: array index out of range: index: 4, size: 2
+                \tat ballerina.lang.array.0:slice(array.bal:219)
+                \t   error_test:testStackTraceInNative(error_test.bal:337)""");
     }
 
     @Test
@@ -402,16 +403,17 @@ public class ErrorTest {
 
         Assert.assertNotNull(expectedException);
         String message = expectedException.getMessage();
-        Assert.assertEquals(message, "error: error1\n" +
-                "\tat error_test:foo(error_test.bal:468)\n" +
-                "\t   error_test:testStackTraceWithErrorCauseLocation(error_test.bal:464)\n" +
-                "cause: error2\n" +
-                "\tat error_test:baz(error_test.bal:477)\n" +
-                "\t   error_test:x(error_test.bal:473)\n" +
-                "\t   ... 2 more\n" +
-                "cause: error3\n" +
-                "\tat error_test:foobar(error_test.bal:482)\n" +
-                "\t   ... 4 more");
+        Assert.assertEquals(message, """
+                error: error1
+                \tat error_test:foo(error_test.bal:468)
+                \t   error_test:testStackTraceWithErrorCauseLocation(error_test.bal:464)
+                cause: error2
+                \tat error_test:baz(error_test.bal:477)
+                \t   error_test:x(error_test.bal:473)
+                \t   ... 2 more
+                cause: error3
+                \tat error_test:foobar(error_test.bal:482)
+                \t   ... 4 more""");
     }
 
     @Test
@@ -425,9 +427,10 @@ public class ErrorTest {
 
         Assert.assertNotNull(expectedException);
         String message = expectedException.getMessage();
-        Assert.assertEquals(message, "error: error\n" +
-                "\tat Person:init(error_test.bal:493)\n" +
-                "\t   error_test:testStacktraceWithPanicInsideInitMethod(error_test.bal:498)");
+        Assert.assertEquals(message, """
+                error: error
+                \tat Person:init(error_test.bal:493)
+                \t   error_test:testStacktraceWithPanicInsideInitMethod(error_test.bal:498)""");
     }
 
     @Test
@@ -441,9 +444,10 @@ public class ErrorTest {
 
         Assert.assertNotNull(expectedException);
         String message = expectedException.getMessage();
-        Assert.assertEquals(message, "error: error!!!\n" +
-                "\tat error_test:$lambda$_2(error_test.bal:504)\n" +
-                "\t   error_test:testStacktraceWithPanicInsideAnonymousFunction(error_test.bal:507)");
+        Assert.assertEquals(message, """
+                error: error!!!
+                \tat error_test:$lambda$_2(error_test.bal:504)
+                \t   error_test:testStacktraceWithPanicInsideAnonymousFunction(error_test.bal:507)""");
     }
 
     @DataProvider(name = "cloneableTests")

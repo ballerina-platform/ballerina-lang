@@ -33,6 +33,7 @@ import io.ballerina.compiler.api.symbols.VariableSymbol;
 import io.ballerina.projects.Document;
 import io.ballerina.projects.Project;
 import io.ballerina.tools.text.LinePosition;
+import io.ballerina.tools.text.LineRange;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.test.BCompileUtil;
 import org.testng.annotations.BeforeClass;
@@ -175,6 +176,33 @@ public class TypeReferenceTSymbolTest {
         return new Object[][]{
                 {46, 4, "Foo"},
                 {48, 4, "Baz"},
+        };
+    }
+
+    @Test(dataProvider = "TypeRefPosForTypeNarrowing")
+    public void testTypeRefLookupForTypeNarrowing(int line, int start, int end) {
+        Optional<TypeSymbol> typeSymbol = model.typeOf(LineRange.from(srcFile.name(), LinePosition.from(line, start),
+                LinePosition.from(line, end)));
+
+        assertTrue(typeSymbol.isPresent());
+        assertEquals(typeSymbol.get().typeKind(), TypeDescKind.TYPE_REFERENCE);
+
+        TypeReferenceTypeSymbol typeRefTSymbol = (TypeReferenceTypeSymbol) typeSymbol.get();
+        Symbol definition = typeRefTSymbol.definition();
+        assertEquals(definition.kind(), TYPE_DEFINITION);
+
+        Optional<String> definitionName = definition.getName();
+        assertTrue(definitionName.isPresent());
+        assertEquals(definitionName.get(), "(Person & readonly)");
+    }
+
+    @DataProvider(name = "TypeRefPosForTypeNarrowing")
+    public Object[][] getTypeRefPosForTypeNarrowing() {
+        return new Object[][]{
+                {56, 8, 14},
+                {62, 12, 18},
+                {68, 8, 14},
+                {76, 8, 11},
         };
     }
 }

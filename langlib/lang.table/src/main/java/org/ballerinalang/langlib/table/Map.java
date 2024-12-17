@@ -18,48 +18,39 @@
 
 package org.ballerinalang.langlib.table;
 
-import io.ballerina.runtime.api.PredefinedTypes;
-import io.ballerina.runtime.api.async.StrandMetadata;
+import io.ballerina.runtime.api.Environment;
 import io.ballerina.runtime.api.creators.TypeCreator;
 import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.types.FunctionType;
+import io.ballerina.runtime.api.types.PredefinedTypes;
 import io.ballerina.runtime.api.types.TableType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BFunctionPointer;
 import io.ballerina.runtime.api.values.BTable;
-import io.ballerina.runtime.internal.scheduling.AsyncUtils;
-import io.ballerina.runtime.internal.scheduling.Scheduler;
-
-import java.util.concurrent.atomic.AtomicInteger;
-
-import static io.ballerina.runtime.api.constants.RuntimeConstants.BALLERINA_BUILTIN_PKG_PREFIX;
-import static io.ballerina.runtime.api.constants.RuntimeConstants.TABLE_LANG_LIB;
-import static org.ballerinalang.util.BLangCompilerConstants.TABLE_VERSION;
 
 /**
  * Native implementation of lang.table:map(table&lt;Type&gt;, function).
  *
  * @since 1.3.0
  */
-public class Map {
+public final class Map {
 
-    private static final StrandMetadata METADATA = new StrandMetadata(BALLERINA_BUILTIN_PKG_PREFIX, TABLE_LANG_LIB,
-                                                                      TABLE_VERSION, "map");
+    private Map() {
+    }
 
-    public static BTable map(BTable tbl, BFunctionPointer<Object, Object> func) {
+    public static BTable<?, ?> map(Environment env, BTable<?, ?> tbl, BFunctionPointer func) {
         Type newConstraintType = ((FunctionType) TypeUtils.getImpliedType(func.getType())).getReturnType();
         TableType tblType = (TableType) TypeUtils.getImpliedType(tbl.getType());
-        TableType newTableType =
-                TypeCreator.createTableType(newConstraintType, PredefinedTypes.TYPE_NEVER, tblType.isReadOnly());
+        TableType newTableType = TypeCreator.createTableType(newConstraintType,
+                PredefinedTypes.TYPE_NEVER, tblType.isReadOnly());
 
-        BTable newTable = ValueCreator.createTableValue(newTableType);
+        BTable<Object, Object> newTable = (BTable<Object, Object>) ValueCreator.createTableValue(newTableType);
         int size = tbl.size();
         Object[] tableValues = tbl.values().toArray();
-        AtomicInteger index = new AtomicInteger(-1);
-        AsyncUtils.invokeFunctionPointerAsyncIteratively(func, null, METADATA, size,
-                () -> new Object[]{tableValues[index.incrementAndGet()], true}, newTable::add, () -> newTable,
-                Scheduler.getStrand().scheduler);
+        for (int i = 0; i < size; i++) {
+            newTable.add(func.call(env.getRuntime(), tableValues[i]));
+        }
         return newTable;
     }
 }

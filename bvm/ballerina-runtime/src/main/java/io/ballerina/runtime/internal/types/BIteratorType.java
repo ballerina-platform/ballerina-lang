@@ -18,8 +18,8 @@
 package io.ballerina.runtime.internal.types;
 
 import io.ballerina.runtime.api.Module;
-import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.types.IteratorType;
+import io.ballerina.runtime.api.types.TypeTags;
 import io.ballerina.runtime.internal.values.IteratorValue;
 
 /**
@@ -33,6 +33,7 @@ public class BIteratorType extends BType implements IteratorType {
         super(typeName, pkg, IteratorValue.class);
     }
 
+    @Override
     public <V extends Object> V getZeroValue() {
         return null;
     }

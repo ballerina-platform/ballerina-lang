@@ -18,56 +18,39 @@
 
 package org.ballerinalang.langlib.table;
 
-import io.ballerina.runtime.api.async.StrandMetadata;
+import io.ballerina.runtime.api.Environment;
 import io.ballerina.runtime.api.creators.TypeCreator;
 import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.types.TableType;
 import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BFunctionPointer;
 import io.ballerina.runtime.api.values.BTable;
-import io.ballerina.runtime.internal.scheduling.AsyncUtils;
-import io.ballerina.runtime.internal.scheduling.Scheduler;
-
-import java.util.concurrent.atomic.AtomicInteger;
-
-import static io.ballerina.runtime.api.constants.RuntimeConstants.BALLERINA_BUILTIN_PKG_PREFIX;
-import static io.ballerina.runtime.api.constants.RuntimeConstants.TABLE_LANG_LIB;
-import static org.ballerinalang.util.BLangCompilerConstants.TABLE_VERSION;
 
 /**
  * Native implementation of lang.table:filter(table&lt;Type&gt;, function).
  *
  * @since 1.3.0
  */
-//@BallerinaFunction(
-//        orgName = "ballerina", packageName = "lang.table", functionName = "filter",
-//        args = {@Argument(name = "tbl", type = TypeKind.TABLE), @Argument(name = "func", type = TypeKind.FUNCTION)},
-//        returnType = {@ReturnType(type = TypeKind.TABLE)},
-//        isPublic = true
-//)
-public class Filter {
+public final class Filter {
 
-    private static final StrandMetadata METADATA = new StrandMetadata(BALLERINA_BUILTIN_PKG_PREFIX, TABLE_LANG_LIB,
-                                                                      TABLE_VERSION, "filter");
+    private Filter() {
+    }
 
-    public static BTable filter(BTable tbl, BFunctionPointer<Object, Boolean> func) {
+    public static BTable<Object, Object> filter(Environment env, BTable<?, ?> tbl, BFunctionPointer func) {
         TableType tableType = (TableType) TypeUtils.getImpliedType(tbl.getType());
-        BTable newTable =
+        BTable<Object, Object> newTable = (BTable<Object, Object>)
                 ValueCreator.createTableValue(TypeCreator.createTableType(tableType.getConstrainedType(),
                         tableType.getFieldNames(), false));
         int size = tbl.size();
-        AtomicInteger index = new AtomicInteger(-1);
         Object[] keys = tbl.getKeys();
-        AsyncUtils.invokeFunctionPointerAsyncIteratively(func, null, METADATA, size,
-                () -> new Object[]{tbl.get(keys[index.incrementAndGet()]), true},
-                result -> {
-                    if ((Boolean) result) {
-                        Object key = keys[index.get()];
-                        Object value = tbl.get(key);
-                        newTable.put(key, value);
-                    }
-                }, () -> newTable, Scheduler.getStrand().scheduler);
+        for (int i = 0; i < size; i++) {
+            Object key = keys[i];
+            Object value = tbl.get(key);
+            boolean isFiltered = (boolean) func.call(env.getRuntime(), value);
+            if (isFiltered) {
+                newTable.put(key, value);
+            }
+        }
         return newTable;
     }
-
 }

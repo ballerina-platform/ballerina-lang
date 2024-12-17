@@ -47,6 +47,12 @@ public [int, float] [a, b] = [1, 1.5];
 # A public variable of string type
 public string pubString = "123";
 
+# A configurable variable of string type without default value
+configurable string confString = ?;
+
+# A configurable variable of string type with default value
+configurable string defaultConfString = "confidential";
+
 public type Coordinates record {|
     decimal latitude;
     decimal longitude;

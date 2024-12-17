@@ -21,10 +21,17 @@ package io.ballerina.runtime.profiler.ui;
 import io.ballerina.runtime.profiler.runtime.ProfilerRuntimeException;
 
 import java.io.BufferedReader;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+
+import static io.ballerina.runtime.profiler.util.Constants.BALLERINA_HOME;
+import static io.ballerina.runtime.profiler.util.Constants.HTML_TEMPLATE_FILE;
+import static io.ballerina.runtime.profiler.util.Constants.PROFILE_DATA;
 
 /**
  * This class contains the front end of the Ballerina profiler.
@@ -32,9 +39,6 @@ import java.nio.charset.StandardCharsets;
  * @since 2201.8.0
  */
 public class FrontEnd {
-
-    private static final String PROFILE_DATA = "${profile_data}";
-    private static final String FILE_LOCATION = "profiler_output.html";
 
     String getSiteData(String contents) {
         String htmlContent;
@@ -47,12 +51,13 @@ public class FrontEnd {
     }
 
     public String readFileAsString() throws IOException {
+        Path resourceFilePath = Path.of(System.getenv(BALLERINA_HOME)).resolve("resources")
+                .resolve("profiler").resolve(HTML_TEMPLATE_FILE);
+        if (!Files.exists(resourceFilePath)) {
+            throw new ProfilerRuntimeException("resource file not found: " + HTML_TEMPLATE_FILE);
+        }
         StringBuilder sb = new StringBuilder();
-
-        try (InputStream inputStream = getClass().getClassLoader().getResourceAsStream(FILE_LOCATION)) {
-            if (inputStream == null) {
-                throw new ProfilerRuntimeException("resource file not found: " + FILE_LOCATION);
-            }
+        try (InputStream inputStream = new FileInputStream(resourceFilePath.toFile())) {
             try (InputStreamReader inputStreamReader = new InputStreamReader(inputStream, StandardCharsets.UTF_8);
                  BufferedReader br = new BufferedReader(inputStreamReader)) {
                 String content = br.readLine();

@@ -24,6 +24,6 @@ function testRemoteMethodCallWithCheck2() returns error? {
     check 'client->/path4/["pathParam"];
 }
 
-function testResourceAccessOfStreamReturnType() returns error? {
-    'client->/responses
+function testImportFromModule() returns error? {
+    'client->push(path = "/path");
 }

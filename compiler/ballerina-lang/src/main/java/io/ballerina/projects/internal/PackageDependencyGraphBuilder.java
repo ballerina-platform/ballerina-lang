@@ -43,7 +43,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 /**
  * This class is responsible for creating the Package dependency graph with no version conflicts.
@@ -145,7 +144,7 @@ public class PackageDependencyGraphBuilder {
     public Collection<DependencyNode> getAllDependencies() {
         return vertices.values().stream()
                 .filter(vertex -> !vertex.equals(rootDepNode))
-                .collect(Collectors.toList());
+                .toList();
     }
 
     public DependencyGraph<DependencyNode> buildGraph() {
@@ -176,7 +175,7 @@ public class PackageDependencyGraphBuilder {
     public Collection<DependencyNode> getUnresolvedNodes() {
         Collection<DependencyNode> unresolvedNodes = unresolvedVertices.stream()
                 .map(vertices::get)
-                .collect(Collectors.toList());
+                .toList();
         this.unresolvedVertices = new HashSet<>();
         return unresolvedNodes;
     }
@@ -326,14 +325,16 @@ public class PackageDependencyGraphBuilder {
             if (resolutionOptions.dumpRawGraphs()) {
                 rawGraphBuilder.add(resolvedPkgDep);
             }
-            // Update the scope of dependencies
-            for (Vertex depVertex : depGraph.get(vertex)) {
-                DependencyNode dependencyNode = vertices.get(depVertex);
-                DependencyNode newDependencyNode = new DependencyNode(dependencyNode.pkgDesc(), resolvedPkgDep.scope(),
-                        dependencyNode.resolutionType());
-                vertices.put(depVertex, newDependencyNode);
-                if (resolutionOptions.dumpRawGraphs()) {
-                    rawGraphBuilder.addDependency(resolvedPkgDep, newDependencyNode);
+            // Update the scope of dependencies only if rejected node scope is DEFAULT
+            if (resolvedPkgDep.scope() == PackageDependencyScope.DEFAULT) {
+                for (Vertex depVertex : depGraph.get(vertex)) {
+                    DependencyNode dependencyNode = vertices.get(depVertex);
+                    DependencyNode newDependencyNode = new DependencyNode(dependencyNode.pkgDesc(),
+                            resolvedPkgDep.scope(), dependencyNode.resolutionType());
+                    vertices.put(depVertex, newDependencyNode);
+                    if (resolutionOptions.dumpRawGraphs()) {
+                        rawGraphBuilder.addDependency(resolvedPkgDep, newDependencyNode);
+                    }
                 }
             }
         }

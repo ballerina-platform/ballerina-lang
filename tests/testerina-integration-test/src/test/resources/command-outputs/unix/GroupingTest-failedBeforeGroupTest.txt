@@ -6,10 +6,18 @@ Compiling source
 Running Tests
 
 	failed-before-groups-test.bal
-	[fail] beforeGroupsFunc1[before test group function for the test]:
+	[fail] beforeGroupsFunc1[before groups function for the test]:
 	    error("Failed before group for g1")
 			callableName: beforeGroupsFunc1  fileName: failed-before-groups-test.bal lineNumber: 28
 			callableName: beforeGroupsFunc1$lambda1$  fileName: failed-before-groups-test.bal lineNumber: 96
+			callableName: call moduleName: ballerina.lang.function.0 fileName: function.bal lineNumber: 37
+			callableName: executeFunction moduleName: ballerina.test.0 fileName: serialExecuter.bal lineNumber: 142
+			callableName: executeFunctions moduleName: ballerina.test.0 fileName: serialExecuter.bal lineNumber: 96
+			callableName: executeBeforeGroupFunctions moduleName: ballerina.test.0 fileName: serialExecuter.bal lineNumber: 46
+			callableName: executeTest moduleName: ballerina.test.0 fileName: serialExecuter.bal lineNumber: 22
+			callableName: executeTests moduleName: ballerina.test.0 fileName: execute.bal lineNumber: 81
+			callableName: startSuite moduleName: ballerina.test.0 fileName: execute.bal lineNumber: 53
+			callableName: __execute__  fileName: failed-before-groups-test.bal lineNumber: 110
 		
 		[pass] testFunction
 		[pass] testFunction4
@@ -19,4 +27,6 @@ Running Tests
 		3 passing
 		0 failing
 		2 skipped
+
+		Test execution time :*****s
 error: there are test failures

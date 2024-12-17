@@ -137,14 +137,15 @@ public class BallerinaAnnotationSymbol extends BallerinaSymbol implements Annota
         private final List<Qualifier> qualifiers = new ArrayList<>();
         private TypeSymbol typeDescriptor;
         private List<AnnotationAttachPoint> attachPoints;
-        private List<AnnotationSymbol> annots = new ArrayList<>();
-        private List<AnnotationAttachmentSymbol> annotAttachments = new ArrayList<>();
+        private final List<AnnotationSymbol> annots = new ArrayList<>();
+        private final List<AnnotationAttachmentSymbol> annotAttachments = new ArrayList<>();
 
         public AnnotationSymbolBuilder(String name, BAnnotationSymbol annotationSymbol, CompilerContext context) {
             super(name, SymbolKind.ANNOTATION, annotationSymbol, context);
             withAttachPoints(annotationSymbol);
         }
 
+        @Override
         public BallerinaAnnotationSymbol build() {
             return new BallerinaAnnotationSymbol(this.name, this.qualifiers, this.typeDescriptor, this.attachPoints,
                                                  this.annots, this.annotAttachments, this.bSymbol, this.context);

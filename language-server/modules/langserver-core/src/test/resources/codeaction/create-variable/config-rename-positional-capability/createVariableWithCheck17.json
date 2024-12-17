@@ -1,0 +1,80 @@
+{
+  "position": {
+    "line": 37,
+    "character": 17
+  },
+  "source": "testproject/modules/module3/module3.bal",
+  "description": "Add multiple error types to return with import statment",
+  "expected": [
+    {
+      "title": "Create variable and check error",
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 37,
+              "character": 4
+            },
+            "end": {
+              "line": 37,
+              "character": 4
+            }
+          },
+          "newText": "int valueOrError1 = "
+        },
+        {
+          "range": {
+            "start": {
+              "line": 37,
+              "character": 4
+            },
+            "end": {
+              "line": 37,
+              "character": 4
+            }
+          },
+          "newText": "check "
+        },
+        {
+          "range": {
+            "start": {
+              "line": 36,
+              "character": 15
+            },
+            "end": {
+              "line": 36,
+              "character": 15
+            }
+          },
+          "newText": " returns module1:Error1?"
+        },
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/module1;\n"
+        }
+      ],
+      "command": {
+        "title": "Rename variable",
+        "command": "ballerina.action.positional.rename",
+        "arguments": [
+          "testproject/modules/module3/module3.bal",
+          {
+            "line": 38,
+            "character": 8
+          }
+        ]
+      },
+      "resolvable": false
+    }
+  ]
+}

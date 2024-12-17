@@ -1,0 +1,13 @@
+[indent]
+continuationIndentSize = 4
+
+[wrapping]
+maxLineLength = 80
+
+
+[functionDefinition]
+alignMultilineParameters = true
+newLineAfterLeftParen = true
+
+[spacing]
+afterTypeCast = true

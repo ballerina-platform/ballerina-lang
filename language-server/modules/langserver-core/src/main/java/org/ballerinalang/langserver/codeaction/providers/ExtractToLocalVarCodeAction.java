@@ -64,6 +64,7 @@ public class ExtractToLocalVarCodeAction implements RangeBasedCodeActionProvider
     public static final String NAME = "Extract To Local Variable";
     private static final String VARIABLE_NAME_PREFIX = "var";
 
+    @Override
     public List<SyntaxKind> getSyntaxKinds() {
         return List.of(SyntaxKind.BOOLEAN_LITERAL, SyntaxKind.NUMERIC_LITERAL, SyntaxKind.STRING_LITERAL,
                 SyntaxKind.BINARY_EXPRESSION, SyntaxKind.BRACED_EXPRESSION, SyntaxKind.XML_TEMPLATE_EXPRESSION,
@@ -139,7 +140,7 @@ public class ExtractToLocalVarCodeAction implements RangeBasedCodeActionProvider
             CodeAction codeAction = CodeActionUtil.createCodeAction(CommandConstants.EXTRACT_TO_VARIABLE,
                     textEdits, context.fileUri(), CodeActionKind.RefactorExtract);
             CodeActionUtil.addRenamePopup(context, codeAction, CommandConstants.RENAME_COMMAND_TITLE_FOR_VARIABLE,
-                    getRenamePosition(textEdits.get(1).getRange().getStart()));
+                    getRenamePosition(textEdits.get(1).getRange()));
             return Collections.singletonList(codeAction);
         }
 
@@ -165,7 +166,7 @@ public class ExtractToLocalVarCodeAction implements RangeBasedCodeActionProvider
             String key = extractableNode.toSourceCode().strip();
             textEditMap.put(key,
                     getTextEdits(context, tSymbol.get(), extractableNode, statementNode));
-            renamePositionMap.put(key, getRenamePosition(PositionUtil.toRange(extractableNode.lineRange()).getStart()));
+            renamePositionMap.put(key, getRenamePosition(PositionUtil.toRange(extractableNode.lineRange())));
         });
 
         if (lsClientCapabilities.getInitializationOptions().isPositionalRefactorRenameSupported()) {
@@ -198,8 +199,8 @@ public class ExtractToLocalVarCodeAction implements RangeBasedCodeActionProvider
         return List.of(varDeclEdit, replaceEdit);
     }
 
-    private Position getRenamePosition(Position position) {
-        return new Position(position.getLine() + 1, position.getCharacter());
+    private Position getRenamePosition(Range range) {
+        return new Position(range.getEnd().getLine() + 1, range.getStart().getCharacter());
     }
 
     private static List<Node> getPossibleExpressionNodes(Node node) {
@@ -255,9 +256,9 @@ public class ExtractToLocalVarCodeAction implements RangeBasedCodeActionProvider
                                 PositionUtil.isWithinLineRange(location.lineRange(), matchedNode.lineRange())))
                 .filter(symbol -> symbol.getLocation().isPresent() && PositionUtil.isWithinLineRange(
                         symbol.getLocation().get().lineRange(), getStatementNode(matchedNode).lineRange()))
-                .collect(Collectors.toList());
+                .toList();
 
-        if (symbolsWithinRange.size() == 0) {
+        if (symbolsWithinRange.isEmpty()) {
             return false;
         }
 

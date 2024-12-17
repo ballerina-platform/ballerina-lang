@@ -17,13 +17,11 @@
 */
 package org.ballerinalang.test.context;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.PrintStream;
 import java.nio.charset.Charset;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -35,12 +33,12 @@ import java.util.concurrent.TimeUnit;
 public class ServerLogReader implements Runnable {
     private static final String STREAM_TYPE_IN = "inputStream";
     private static final String STREAM_TYPE_ERROR = "errorStream";
-    private final Logger log = LoggerFactory.getLogger(ServerLogReader.class);
-    private String streamType;
-    private InputStream inputStream;
+    private final String streamType;
+    private final InputStream inputStream;
     private volatile boolean running = true;
-
-    private Set<LogLeecher> leechers = ConcurrentHashMap.newKeySet();
+    private final Set<LogLeecher> leechers = ConcurrentHashMap.newKeySet();
+    public final PrintStream out = System.out;
+    public final PrintStream err = System.err;
 
     /**
      * Initialize the reader with reader name and stream to read.
@@ -57,8 +55,7 @@ public class ServerLogReader implements Runnable {
      * Start reading the stream.
      */
     public void start() {
-        Thread thread = new Thread(this);
-        thread.start();
+        Thread.startVirtualThread(this);
     }
 
     /**
@@ -94,7 +91,7 @@ public class ServerLogReader implements Runnable {
      * Removes all added log leechers from this instance.
      */
     public void removeAllLeechers() {
-        leechers.forEach(e -> leechers.remove(e));
+        leechers.forEach(leechers::remove);
     }
 
     /**
@@ -112,6 +109,7 @@ public class ServerLogReader implements Runnable {
     /**
      * This will get executed when log reading is started.
      */
+    @Override
     public void run() {
         InputStreamReader inputStreamReader = null;
         BufferedReader bufferedReader = null;
@@ -134,21 +132,21 @@ public class ServerLogReader implements Runnable {
                 feedAndPrint(s);
             }
         } catch (Exception ex) {
-            log.error("Problem reading the [" + streamType + "] due to: " + ex.getMessage(), ex);
+            err.println("Problem reading the [" + streamType + "] due to: " + ex.getMessage());
         } finally {
             if (inputStreamReader != null) {
                 try {
                     inputStream.close();
                     inputStreamReader.close();
                 } catch (IOException e) {
-                    log.error("Error occurred while closing the server log stream: " + e.getMessage(), e);
+                    err.println("Error occurred while closing the server log stream: " + e.getMessage());
                 }
             }
             if (bufferedReader != null) {
                 try {
                     bufferedReader.close();
                 } catch (IOException e) {
-                    log.error("Error occurred while closing the server log stream: " + e.getMessage(), e);
+                    err.println("Error occurred while closing the server log stream: " + e.getMessage());
                 }
             }
         }
@@ -157,10 +155,10 @@ public class ServerLogReader implements Runnable {
     private void feedAndPrint(String s) {
         if (STREAM_TYPE_IN.equals(streamType)) {
             feedLeechers(s);
-            log.info(s);
+            out.println(s);
         } else if (STREAM_TYPE_ERROR.equals(streamType)) {
             feedLeechers(s);
-            log.error(s);
+            err.println(s);
         }
     }
 }

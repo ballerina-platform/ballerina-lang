@@ -24,14 +24,9 @@ package io.ballerina.runtime.api.types;
  */
 public interface FunctionType extends AnnotatableType {
 
-    /*
-     * @deprecated use {@link #getParameters()} instead.
-     */
-    @Deprecated
-    Type[] getParameterTypes();
-
     Type getReturnType();
 
+    @Override
     long getFlags();
 
     Type getReturnParameterType();

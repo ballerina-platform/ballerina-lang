@@ -1,0 +1,18 @@
+<library xmlns:book="http://example.com/books"
+         xmlns:author="http://example.com/authors"
+         xmlns:meta="http://example.com/meta">
+    <book:book>
+        <book:title>Sample Book</book:title>
+        <book:author>
+            <author:name>John Doe</author:name>
+            <author:country>USA</author:country>
+        </book:author>
+        <book:genre>Fiction</book:genre>
+        <book:publication_date>2023-01-01</book:publication_date>
+        <meta:rating>4.5</meta:rating>
+        <meta:reviews>
+            <meta:review>Excellent read!</meta:review>
+            <meta:review>Highly recommended.</meta:review>
+        </meta:reviews>
+    </book:book>
+</library>

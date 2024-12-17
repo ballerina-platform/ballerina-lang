@@ -24,7 +24,9 @@ import io.ballerina.projects.CodeModifierResult;
 import io.ballerina.projects.JBallerinaBackend;
 import io.ballerina.projects.JvmTarget;
 import io.ballerina.projects.PackageCompilation;
+import io.ballerina.projects.PackageManifest;
 import io.ballerina.projects.PackageResolution;
+import io.ballerina.projects.PlatformLibraryScope;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.ProjectKind;
@@ -43,10 +45,15 @@ import org.wso2.ballerinalang.util.RepoUtils;
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 
 import static io.ballerina.cli.launcher.LauncherUtils.createLauncherException;
+import static io.ballerina.projects.internal.ProjectDiagnosticErrorCode.CORRUPTED_DEPENDENCIES_TOML;
 import static io.ballerina.projects.util.ProjectConstants.DOT;
+import static io.ballerina.projects.util.ProjectConstants.TOOL_DIAGNOSTIC_CODE_PREFIX;
 
 /**
  * Task for compiling a package.
@@ -57,27 +64,33 @@ public class CompileTask implements Task {
     private final transient PrintStream out;
     private final transient PrintStream err;
     private final boolean compileForBalPack;
+    private final boolean compileForBalBuild;
     private final boolean isPackageModified;
     private final boolean cachesEnabled;
 
     public CompileTask(PrintStream out, PrintStream err) {
-        this(out, err, false, true, false);
+        this(out, err, false, false, true, false);
     }
 
     public CompileTask(PrintStream out,
                        PrintStream err,
                        boolean compileForBalPack,
+                       boolean compileForBalBuild,
                        boolean isPackageModified,
                        boolean cachesEnabled) {
         this.out = out;
         this.err = err;
         this.compileForBalPack = compileForBalPack;
+        this.compileForBalBuild = compileForBalBuild;
         this.isPackageModified = isPackageModified;
         this.cachesEnabled = cachesEnabled;
     }
 
     @Override
     public void execute(Project project) {
+        if (ProjectUtils.isProjectEmpty(project) && skipCompilationForBalPack(project)) {
+            throw createLauncherException("package is empty. Please add at least one .bal file.");
+        }
         this.out.println("Compiling source");
 
         String sourceName;
@@ -97,6 +110,9 @@ public class CompileTask implements Task {
         try {
             printWarningForHigherDistribution(project);
             List<Diagnostic> diagnostics = new ArrayList<>();
+            if (this.compileForBalBuild) {
+                addDiagnosticForProvidedPlatformLibs(project, diagnostics);
+            }
             long start = 0;
 
             if (project.currentPackage().compilationOptions().dumpGraph()
@@ -185,34 +201,56 @@ public class CompileTask implements Task {
                 diagnostics.addAll(project.currentPackage().manifest().diagnostics().diagnostics());
                 // add dependency manifest diagnostics
                 diagnostics.addAll(project.currentPackage().dependencyManifest().diagnostics().diagnostics());
-                diagnostics.forEach(d -> err.println(d.toString()));
+                diagnostics.forEach(d -> {
+                    if (!d.diagnosticInfo().code().startsWith(TOOL_DIAGNOSTIC_CODE_PREFIX)) {
+                        err.println(d);
+                    }
+                });
                 throw createLauncherException("package resolution contains errors");
             }
+
+            // Add corrupted dependencies toml diagnostic
+            project.currentPackage().dependencyManifest().diagnostics().diagnostics().forEach(diagnostic -> {
+                if (diagnostic.diagnosticInfo().code().equals(CORRUPTED_DEPENDENCIES_TOML.diagnosticId())) {
+                    diagnostics.add(diagnostic);
+                }
+            });
 
             // Package resolution is successful. Continue compiling the package.
             if (project.buildOptions().dumpBuildTime()) {
                 start = System.currentTimeMillis();
             }
+
+            Optional<Diagnostic> projectLoadingDiagnostic = ProjectUtils.getProjectLoadingDiagnostic().stream().filter(
+                    diagnostic -> diagnostic.diagnosticInfo().code().equals(
+                            ProjectDiagnosticErrorCode.DEPRECATED_RESOURCES_STRUCTURE.diagnosticId())).findAny();
+
+            projectLoadingDiagnostic.ifPresent(out::println);
             PackageCompilation packageCompilation = project.currentPackage().getCompilation();
             if (project.buildOptions().dumpBuildTime()) {
                 BuildTime.getInstance().packageCompilationDuration = System.currentTimeMillis() - start;
                 start = System.currentTimeMillis();
             }
-            JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(packageCompilation, JvmTarget.JAVA_17);
+            JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(packageCompilation, JvmTarget.JAVA_21);
             if (project.buildOptions().dumpBuildTime()) {
                 BuildTime.getInstance().codeGenDuration = System.currentTimeMillis() - start;
             }
 
             // Report package compilation and backend diagnostics
             diagnostics.addAll(jBallerinaBackend.diagnosticResult().diagnostics(false));
+            diagnostics.forEach(d -> {
+                if (d.diagnosticInfo().code() == null || (!d.diagnosticInfo().code().equals(
+                        ProjectDiagnosticErrorCode.BUILT_WITH_OLDER_SL_UPDATE_DISTRIBUTION.diagnosticId()) &&
+                        !d.diagnosticInfo().code().startsWith(TOOL_DIAGNOSTIC_CODE_PREFIX))) {
+                    err.println(d);
+                }
+            });
+            // Add tool resolution diagnostics to diagnostics
+            diagnostics.addAll(project.currentPackage().getBuildToolResolution().getDiagnosticList());
             boolean hasErrors = false;
             for (Diagnostic d : diagnostics) {
                 if (d.diagnosticInfo().severity().equals(DiagnosticSeverity.ERROR)) {
                     hasErrors = true;
-                }
-                if (d.diagnosticInfo().code() == null || !d.diagnosticInfo().code().equals(
-                        ProjectDiagnosticErrorCode.BUILT_WITH_OLDER_SL_UPDATE_DISTRIBUTION.diagnosticId())) {
-                    err.println(d);
                 }
             }
             if (hasErrors) {
@@ -275,5 +313,38 @@ public class CompileTask implements Task {
                 err.println(diagnostic);
             }
         }
+    }
+
+    private void addDiagnosticForProvidedPlatformLibs(Project project, List<Diagnostic> diagnostics) {
+        Map<String, PackageManifest.Platform> platforms = project.currentPackage().manifest().platforms();
+        for (PackageManifest.Platform javaPlatform : platforms.values()) {
+            if (javaPlatform == null || javaPlatform.dependencies().isEmpty()) {
+                continue;
+            }
+            for (Map<String, Object> dependency : javaPlatform.dependencies()) {
+                if (Objects.equals(dependency.get("scope"), PlatformLibraryScope.PROVIDED.getStringValue())) {
+                    DiagnosticInfo diagnosticInfo = new DiagnosticInfo(
+                            ProjectDiagnosticErrorCode.INVALID_PROVIDED_SCOPE_IN_BUILD.diagnosticId(),
+                            String.format("'%s' scope for platform dependencies is not allowed with package build%n",
+                                    PlatformLibraryScope.PROVIDED.getStringValue()),
+                            DiagnosticSeverity.ERROR);
+                    diagnostics.add(new PackageDiagnostic(diagnosticInfo,
+                            project.currentPackage().descriptor().name().toString()));
+                    return;
+                }
+            }
+        }
+    }
+
+    /**
+     * If CompileTask is triggered by `bal pack` command, and project does not have CompilerPlugin.toml or BalTool.toml,
+     * skip the compilation if project is empty. The project should be evaluated for emptiness before calling this.
+     *
+     * @param project project instance
+     * @return true if compilation should be skipped, false otherwise
+     */
+    private boolean skipCompilationForBalPack(Project project) {
+        return (!compileForBalPack || project.currentPackage().compilerPluginToml().isEmpty() &&
+                project.currentPackage().balToolToml().isEmpty());
     }
 }

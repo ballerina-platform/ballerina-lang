@@ -17,6 +17,7 @@
  */
 package io.ballerina.projects.environment;
 
+import io.ballerina.projects.CompilerPluginCache;
 import io.ballerina.projects.internal.environment.BallerinaDistribution;
 import io.ballerina.projects.internal.environment.BallerinaUserHome;
 import io.ballerina.projects.internal.environment.DefaultEnvironment;
@@ -96,6 +97,7 @@ public class EnvironmentBuilder {
         CompilerContext compilerContext = populateCompilerContext();
         environment.addService(CompilerContext.class, compilerContext);
         ballerinaDistribution.loadLangLibPackages(compilerContext, packageResolver);
+        environment.addService(CompilerPluginCache.class, new CompilerPluginCache());
         return environment;
     }
 

@@ -35,7 +35,7 @@ import java.util.stream.Collectors;
  *
  * @since 1.2.0
  */
-class EmitterUtils {
+final class EmitterUtils {
 
     private EmitterUtils() {}
 
@@ -62,7 +62,7 @@ class EmitterUtils {
         String str = "";
         str += modId.orgName + "/";
         str += modId.name;
-        if (!modId.version.value.equals("")) {
+        if (!modId.version.value.isEmpty()) {
             str += ":";
             str += modId.version.value;
         }
@@ -70,54 +70,31 @@ class EmitterUtils {
     }
 
     static String emitBinaryOpInstructionKind(InstructionKind kind) {
-        switch (kind) {
-            case ADD:
-                return "+";
-            case SUB:
-                return "-";
-            case MUL:
-                return "*";
-            case DIV:
-                return "/";
-            case MOD:
-                return "%";
-            case EQUAL:
-                return "==";
-            case NOT_EQUAL:
-                return "!=";
-            case GREATER_THAN:
-                return ">";
-            case GREATER_EQUAL:
-                return ">=";
-            case LESS_THAN:
-                return "<";
-            case LESS_EQUAL:
-                return "<=";
-            case REF_EQUAL:
-                return "===";
-            case REF_NOT_EQUAL:
-                return "!==";
-            case CLOSED_RANGE:
-                return "...";
-            case HALF_OPEN_RANGE:
-                return "..<";
-            case ANNOT_ACCESS:
-                return ".@";
-            case BITWISE_AND:
-                return "&";
-            case BITWISE_OR:
-                return "|";
-            case BITWISE_XOR:
-                return "^";
-            case BITWISE_LEFT_SHIFT:
-                return "<<";
-            case BITWISE_RIGHT_SHIFT:
-                return ">>";
-            case BITWISE_UNSIGNED_RIGHT_SHIFT:
-                return ">>>";
-            default:
-                throw new IllegalStateException("Not a binary opkind");
-        }
+        return switch (kind) {
+            case ADD -> "+";
+            case SUB -> "-";
+            case MUL -> "*";
+            case DIV -> "/";
+            case MOD -> "%";
+            case EQUAL -> "==";
+            case NOT_EQUAL -> "!=";
+            case GREATER_THAN -> ">";
+            case GREATER_EQUAL -> ">=";
+            case LESS_THAN -> "<";
+            case LESS_EQUAL -> "<=";
+            case REF_EQUAL -> "===";
+            case REF_NOT_EQUAL -> "!==";
+            case CLOSED_RANGE -> "...";
+            case HALF_OPEN_RANGE -> "..<";
+            case ANNOT_ACCESS -> ".@";
+            case BITWISE_AND -> "&";
+            case BITWISE_OR -> "|";
+            case BITWISE_XOR -> "^";
+            case BITWISE_LEFT_SHIFT -> "<<";
+            case BITWISE_RIGHT_SHIFT -> ">>";
+            case BITWISE_UNSIGNED_RIGHT_SHIFT -> ">>>";
+            default -> throw new IllegalStateException("Not a binary opkind");
+        };
     }
 
     static String emitFlags(long flag) {
@@ -171,7 +148,7 @@ class EmitterUtils {
     }
 
     static boolean isEmpty(Name nameVal) {
-        return nameVal.value.equals("");
+        return nameVal.value.isEmpty();
     }
 
     static String emitValue(Object value, BType type) {
@@ -183,48 +160,20 @@ class EmitterUtils {
     }
 
     static boolean isBinaryInstructionKind(InstructionKind insKind) {
-        switch (insKind) {
-            case ADD:
-            case SUB:
-            case MUL:
-            case DIV:
-            case MOD:
-            case EQUAL:
-            case NOT_EQUAL:
-            case GREATER_THAN:
-            case GREATER_EQUAL:
-            case LESS_THAN:
-            case LESS_EQUAL:
-            case AND:
-            case OR:
-            case REF_EQUAL:
-            case REF_NOT_EQUAL:
-            case CLOSED_RANGE:
-            case HALF_OPEN_RANGE:
-            case ANNOT_ACCESS:
-            case BITWISE_AND:
-            case BITWISE_OR:
-            case BITWISE_XOR:
-            case BITWISE_LEFT_SHIFT:
-            case BITWISE_RIGHT_SHIFT:
-            case BITWISE_UNSIGNED_RIGHT_SHIFT:
-                return true;
-            default:
-                return false;
-        }
+        return switch (insKind) {
+            case ADD, SUB, MUL, DIV, MOD, EQUAL, NOT_EQUAL, GREATER_THAN, GREATER_EQUAL, LESS_THAN, LESS_EQUAL, AND,
+                    OR, REF_EQUAL, REF_NOT_EQUAL, CLOSED_RANGE, HALF_OPEN_RANGE, ANNOT_ACCESS, BITWISE_AND,
+                    BITWISE_OR, BITWISE_XOR, BITWISE_LEFT_SHIFT, BITWISE_RIGHT_SHIFT, BITWISE_UNSIGNED_RIGHT_SHIFT ->
+                    true;
+            default -> false;
+        };
     }
 
     static boolean isUnaryInstructionKind(InstructionKind insKind) {
-        switch (insKind) {
-            case TYPEOF:
-            case NOT:
-            case NEGATE:
-            case SUB:
-            case ADD:
-                return true;
-            default:
-                return false;
-        }
+        return switch (insKind) {
+            case TYPEOF, NOT, NEGATE, SUB, ADD -> true;
+            default -> false;
+        };
     }
 }
 

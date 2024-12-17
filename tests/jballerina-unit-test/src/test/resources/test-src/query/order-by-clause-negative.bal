@@ -47,3 +47,17 @@ function testOrderByClauseWithComplexTypeFieldInOrderBy() {
         order by customer.address
         select customer;
 }
+
+function testOrderByClauseWithArrayTypeFieldInOrderBy() {
+    record {|(int|boolean)[] t; string s;|}[] data1 = [];
+
+    _ = from var rec in data1
+        order by rec.t descending
+        select rec.s;
+
+    record {|int k; [decimal|float, int] arr;|}[] data2 = [];
+
+    _ = from var rec in data2
+        order by rec.arr
+        select rec.k;
+}

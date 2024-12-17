@@ -3,17 +3,24 @@ org = "sameera"
 name = "myproject"
 version = "0.1.0"
 
-[[platform.java17.dependency]]
+[[platform.java21.dependency]]
 path = "/user/foo/libs/toml4j.jar"
 
-[[platform.java17.dependency]]
+[[platform.java21.dependency]]
+artifactId = "com.ibm.mq.allclient"
+version = "9.3.4.0"
+groupId = "com.ibm.mq"
+path = "/user/foo/libs/ibm.mq.jar"
+scope = "provided"
+
+[[platform.java21.dependency]]
 path = "/user/foo/libs/bazz.jar"
 scope = "testOnly"
 
-[[platform.java17.dependency]]
+[[platform.java21.dependency]]
 path = "/user/foo/libs/was.jar"
 scope = "testOnly"
 
-[[platform.java17.dependency]]
+[[platform.java21.dependency]]
 path = "/user/foo/libs/abc.jar"
 scope = "testOnly"

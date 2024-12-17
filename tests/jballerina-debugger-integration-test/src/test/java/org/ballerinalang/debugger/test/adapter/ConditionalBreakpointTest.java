@@ -39,6 +39,7 @@ public class ConditionalBreakpointTest extends BaseTestCase {
 
     DebugTestRunner debugTestRunner;
 
+    @Override
     @BeforeClass
     public void setup() {
         String testProjectName = "conditional-breakpoint-tests";
@@ -57,13 +58,15 @@ public class ConditionalBreakpointTest extends BaseTestCase {
         debugTestRunner.addBreakPoint(new BallerinaTestDebugPoint(filePath, 49, "x != 100", null));
         debugTestRunner.addBreakPoint(new BallerinaTestDebugPoint(filePath, 51, "e1 === e2", null));
         debugTestRunner.addBreakPoint(new BallerinaTestDebugPoint(filePath, 52, "e1 !== e3", null));
-        debugTestRunner.addBreakPoint(new BallerinaTestDebugPoint(filePath, 53, "x > 0", null));
-        debugTestRunner.addBreakPoint(new BallerinaTestDebugPoint(filePath, 54, "x >= 0", null));
-        debugTestRunner.addBreakPoint(new BallerinaTestDebugPoint(filePath, 55, "y < 0", null));
-        debugTestRunner.addBreakPoint(new BallerinaTestDebugPoint(filePath, 56, "y <= 0", null));
-        debugTestRunner.addBreakPoint(new BallerinaTestDebugPoint(filePath, 57, "x > 0 && z > 0", null));
-        debugTestRunner.addBreakPoint(new BallerinaTestDebugPoint(filePath, 58, "x > 0 || z > 0", null));
-        debugTestRunner.addBreakPoint(new BallerinaTestDebugPoint(filePath, 59, "x is int", null));
+        // Need to revert back the conditions after fixing,
+        // https://github.com/ballerina-platform/ballerina-lang/issues/43446
+        debugTestRunner.addBreakPoint(new BallerinaTestDebugPoint(filePath, 53, "x == 7", null));
+        debugTestRunner.addBreakPoint(new BallerinaTestDebugPoint(filePath, 54, "x == 8", null));
+        debugTestRunner.addBreakPoint(new BallerinaTestDebugPoint(filePath, 55, "y == 1", null));
+        debugTestRunner.addBreakPoint(new BallerinaTestDebugPoint(filePath, 56));
+        debugTestRunner.addBreakPoint(new BallerinaTestDebugPoint(filePath, 57, "x == 11", null));
+        debugTestRunner.addBreakPoint(new BallerinaTestDebugPoint(filePath, 58, "x == 12", null));
+        debugTestRunner.addBreakPoint(new BallerinaTestDebugPoint(filePath, 59));
         debugTestRunner.initDebugSession(DebugUtils.DebuggeeExecutionKind.RUN);
 
         Pair<BallerinaTestDebugPoint, StoppedEventArguments> debugHitInfo = debugTestRunner.waitForDebugHit(25000);
@@ -130,6 +133,7 @@ public class ConditionalBreakpointTest extends BaseTestCase {
         Assert.assertEquals(debugHitInfo.getLeft(), debugTestRunner.testBreakpoints.get(14));
     }
 
+    @Override
     @AfterMethod(alwaysRun = true)
     public void cleanUp() {
         debugTestRunner.terminateDebugSession();

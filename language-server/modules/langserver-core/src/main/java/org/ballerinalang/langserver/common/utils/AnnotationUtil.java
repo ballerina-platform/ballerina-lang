@@ -57,7 +57,7 @@ import static org.ballerinalang.langserver.common.utils.ModuleUtil.getPackageNam
  *
  * @since 2.0.0
  */
-public class AnnotationUtil {
+public final class AnnotationUtil {
 
     private AnnotationUtil() {
     }
@@ -93,7 +93,7 @@ public class AnnotationUtil {
                         return false;
                     }
                     String orgName = importOrgNameNode.get().orgName().text();
-                    String importPkgName = (orgName.equals("") ? currentProjectOrgName : orgName) + "/"
+                    String importPkgName = (orgName.isEmpty() ? currentProjectOrgName : orgName) + "/"
                             + getPackageNameComponentsCombined(bLangImportPackage);
                     String annotationPkgOrgName = moduleID.orgName();
                     String annotationPkgName = annotationPkgOrgName + "/" + moduleID.moduleName();
@@ -147,7 +147,7 @@ public class AnnotationUtil {
                         return false;
                     }
                     String orgName = importNode.orgName().get().orgName().text();
-                    String importPkgName = (orgName.equals("") ? currentProjectOrgName : orgName) + "/"
+                    String importPkgName = (orgName.isEmpty() ? currentProjectOrgName : orgName) + "/"
                             + getPackageNameComponentsCombined(importNode);
                     String annotationPkgOrgName = moduleID.orgName();
                     String annotationPkgName = annotationPkgOrgName + "/" + moduleID.moduleName();
@@ -189,27 +189,26 @@ public class AnnotationUtil {
         }
         if (annotationSymbol.typeDescriptor().isPresent()) {
             annotationStart.append(annotationSymbol.getName().get());
-            Optional<TypeSymbol> attachedType
-                    = Optional.ofNullable(CommonUtil.getRawType(annotationSymbol.typeDescriptor().get()));
-            Optional<TypeSymbol> resultType;
-            if (attachedType.isPresent() && attachedType.get().typeKind() == TypeDescKind.ARRAY) {
-                resultType = Optional.of(((ArrayTypeSymbol) attachedType.get()).memberTypeDescriptor());
+            TypeSymbol attachedType
+                    = CommonUtil.getRawType(annotationSymbol.typeDescriptor().get());
+            TypeSymbol resultType;
+            if (attachedType.typeKind() == TypeDescKind.ARRAY) {
+                resultType = ((ArrayTypeSymbol) attachedType).memberTypeDescriptor();
             } else {
                 resultType = attachedType;
             }
-            if (resultType.isPresent() && (resultType.get().typeKind() == TypeDescKind.RECORD
-                    || resultType.get().typeKind() == TypeDescKind.MAP)) {
+            if ((resultType.typeKind() == TypeDescKind.RECORD
+                    || resultType.typeKind() == TypeDescKind.MAP)) {
                 List<RecordFieldSymbol> requiredFields = new ArrayList<>();
-                if (resultType.get().typeKind() == TypeDescKind.RECORD) {
+                if (resultType.typeKind() == TypeDescKind.RECORD) {
                     requiredFields.addAll(RecordUtil.getMandatoryRecordFields((RecordTypeSymbol) 
-                            resultType.get()));
+                            resultType));
                 }
                 if (!requiredFields.isEmpty()) {
                     annotationStart.append(" ").append(OPEN_BRACE_KEY).append(LINE_SEPARATOR);
                     List<String> insertTexts = new ArrayList<>();
                     SnippetContext snippetContext = new SnippetContext();
-                    for (int i = 0; i < requiredFields.size(); i++) {
-                        RecordFieldSymbol field = requiredFields.get(i);
+                    for (RecordFieldSymbol field : requiredFields) {
                         String fieldInsertionText = "\t" +
                                 RecordUtil.getRecordFieldCompletionInsertText(field, snippetContext);
                         insertTexts.add(fieldInsertionText);

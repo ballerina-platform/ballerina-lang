@@ -88,6 +88,7 @@ public class BasicWorkerTest {
     public void workerSameThreadSchedulingTest() {
         Object vals = BRunUtil.invoke(result, "workerSameThreadTest", new Object[0]);
         BMap result = (BMap) vals;
+        Assert.assertEquals(result.get(StringUtils.fromString("w")), false);
         Assert.assertEquals(result.get(StringUtils.fromString("w")), result.get(StringUtils.fromString("w1")));
         Assert.assertEquals(result.get(StringUtils.fromString("w")), result.get(StringUtils.fromString("w2")));
     }
@@ -131,7 +132,8 @@ public class BasicWorkerTest {
     public Object[] workerMessagePassingFunctions() {
         return new Object[]{
                 "testWorkerMessagePassingRepeatedly",
-                "testPanicWithMessagePassing"
+                "testPanicWithMessagePassing",
+                "testEarlyReturnWithMessagePassing"
         };
     }
 

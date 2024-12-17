@@ -11,6 +11,8 @@ Running Tests with Coverage
 		0 failing
 		0 skipped
 
+		Test execution time :*****s
+
 	sourcelessModulesTest.module2
 		[pass] test2
 
@@ -19,6 +21,8 @@ Running Tests with Coverage
 		0 failing
 		0 skipped
 
+		Test execution time :*****s
+
 Generating Test Report
 	sourceless-modules-test\target\report\test_results.json
-
+

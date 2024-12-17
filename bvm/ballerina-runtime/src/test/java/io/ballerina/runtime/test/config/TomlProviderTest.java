@@ -19,13 +19,13 @@
 package io.ballerina.runtime.test.config;
 
 import io.ballerina.runtime.api.Module;
-import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.creators.TypeCreator;
 import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.types.ArrayType;
 import io.ballerina.runtime.api.types.FiniteType;
 import io.ballerina.runtime.api.types.IntersectionType;
 import io.ballerina.runtime.api.types.MapType;
+import io.ballerina.runtime.api.types.PredefinedTypes;
 import io.ballerina.runtime.api.types.TupleType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.utils.StringUtils;
@@ -53,12 +53,12 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
 
-import static io.ballerina.runtime.api.PredefinedTypes.TYPE_ANYDATA;
-import static io.ballerina.runtime.api.PredefinedTypes.TYPE_BYTE;
-import static io.ballerina.runtime.api.PredefinedTypes.TYPE_DECIMAL;
-import static io.ballerina.runtime.api.PredefinedTypes.TYPE_FLOAT;
-import static io.ballerina.runtime.api.PredefinedTypes.TYPE_INT;
-import static io.ballerina.runtime.api.PredefinedTypes.TYPE_STRING;
+import static io.ballerina.runtime.api.types.PredefinedTypes.TYPE_ANYDATA;
+import static io.ballerina.runtime.api.types.PredefinedTypes.TYPE_BYTE;
+import static io.ballerina.runtime.api.types.PredefinedTypes.TYPE_DECIMAL;
+import static io.ballerina.runtime.api.types.PredefinedTypes.TYPE_FLOAT;
+import static io.ballerina.runtime.api.types.PredefinedTypes.TYPE_INT;
+import static io.ballerina.runtime.api.types.PredefinedTypes.TYPE_STRING;
 import static io.ballerina.runtime.api.utils.StringUtils.fromString;
 import static io.ballerina.runtime.test.TestUtils.getConfigPath;
 import static io.ballerina.runtime.test.TestUtils.getIntersectionType;
@@ -539,8 +539,12 @@ public class TomlProviderTest {
         VariableKey booleanArr = new VariableKey(ROOT_MODULE, "booleanArr", new BIntersectionType(ROOT_MODULE,
                 new BType[]{}, TypeCreator.createArrayType(PredefinedTypes.TYPE_BOOLEAN), 0, false), true);
         configVarMap.put(ROOT_MODULE, new VariableKey[]{intVar, stringVar, stringArr, booleanArr});
-        String tomlContent = "[rootOrg.test_module]\nintVar = 33\nstringVar = \"xyz\"\n" +
-                "stringArr = [\"aa\", \"bb\", \"cc\"]\nbooleanArr = [false, true, true, false]";
+        String tomlContent = """
+                [rootOrg.test_module]
+                intVar = 33
+                stringVar = "xyz"
+                stringArr = ["aa", "bb", "cc"]
+                booleanArr = [false, true, true, false]""";
         ConfigResolver configResolver = new ConfigResolver(configVarMap, new RuntimeDiagnosticLog(),
                 List.of(new TomlContentProvider(ROOT_MODULE, tomlContent, configVarMap.keySet())));
         Map<VariableKey, ConfigValue> configValueMap = configResolver.resolveConfigs();

@@ -6,6 +6,12 @@ Compiling source
 Running Tests
 
 	groups-test.bal
+
+	testFunc4: has failed.
+
+
+	testFunc5: has failed.
+
 		[pass] testFunc1
 		[pass] testFunc2
 		[pass] testFunc3
@@ -18,6 +24,13 @@ Running Tests
 				callableName: assertFalse moduleName: ballerina.test.0 fileName: assert.bal lineNumber: 82
 				callableName: testFunc4  fileName: groups-test.bal lineNumber: 48
 				callableName: testFunc4$lambda3$  fileName: groups-test.bal lineNumber: 67
+				callableName: call moduleName: ballerina.lang.function.0 fileName: function.bal lineNumber: 37
+				callableName: executeTestFunction moduleName: ballerina.test.0 fileName: serialExecuter.bal lineNumber: 128
+				callableName: executeNonDataDrivenTest moduleName: ballerina.test.0 fileName: serialExecuter.bal lineNumber: 74
+				callableName: executeTest moduleName: ballerina.test.0 fileName: serialExecuter.bal lineNumber: 30
+				callableName: executeTests moduleName: ballerina.test.0 fileName: execute.bal lineNumber: 81
+				callableName: startSuite moduleName: ballerina.test.0 fileName: execute.bal lineNumber: 53
+				callableName: __execute__  fileName: groups-test.bal lineNumber: 73
 			
 
 		[fail] testFunc5:
@@ -27,10 +40,19 @@ Running Tests
 				callableName: assertFalse moduleName: ballerina.test.0 fileName: assert.bal lineNumber: 82
 				callableName: testFunc5  fileName: groups-test.bal lineNumber: 55
 				callableName: testFunc5$lambda4$  fileName: groups-test.bal lineNumber: 68
+				callableName: call moduleName: ballerina.lang.function.0 fileName: function.bal lineNumber: 37
+				callableName: executeTestFunction moduleName: ballerina.test.0 fileName: serialExecuter.bal lineNumber: 128
+				callableName: executeNonDataDrivenTest moduleName: ballerina.test.0 fileName: serialExecuter.bal lineNumber: 74
+				callableName: executeTest moduleName: ballerina.test.0 fileName: serialExecuter.bal lineNumber: 30
+				callableName: executeTests moduleName: ballerina.test.0 fileName: execute.bal lineNumber: 81
+				callableName: startSuite moduleName: ballerina.test.0 fileName: execute.bal lineNumber: 53
+				callableName: __execute__  fileName: groups-test.bal lineNumber: 73
 			
 
 
 		4 passing
 		2 failing
 		0 skipped
+
+		Test execution time :*****s
 error: there are test failures

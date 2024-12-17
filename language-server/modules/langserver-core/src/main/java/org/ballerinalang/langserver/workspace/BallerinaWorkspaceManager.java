@@ -141,7 +141,7 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
         // We are only doing a best effort cleanup here. If we held a strong reference to the map
         // GC will not be able to clean the projects. It impacts tests since all run in the same JVM.
         WeakReference<Map<Path, ProjectContext>> weekMap = new WeakReference<>(sourceRootToProject);
-        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+        Runtime.getRuntime().addShutdownHook(Thread.ofVirtual().unstarted(() -> {
             Map<Path, ProjectContext> map = weekMap.get();
             if (map == null) {
                 return;
@@ -171,6 +171,7 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
      * @param filePath ballerina project or standalone file path
      * @return project root
      */
+    @Override
     public Path projectRoot(Path filePath) {
         return pathToSourceRootCache.computeIfAbsent(filePath, this::computeProjectRoot);
     }
@@ -276,7 +277,7 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
      * Returns syntax tree from the path provided.
      *
      * @param filePath file path of the document
-     * @return {@link io.ballerina.compiler.syntax.tree.SyntaxTree}
+     * @return {@link SyntaxTree}
      */
     @Override
     public Optional<SyntaxTree> syntaxTree(Path filePath) {
@@ -587,7 +588,7 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
     }
 
     @Override
-    public Optional<Process> run(Path filePath) throws IOException {
+    public Optional<Process> run(Path filePath, List<String> mainFuncArgs) throws IOException {
         Optional<ProjectContext> projectPairOpt = projectContext(projectRoot(filePath));
         if (projectPairOpt.isEmpty()) {
             String msg = "Run command execution aborted because project is not loaded";
@@ -610,7 +611,7 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
         if (packageCompilation.isEmpty()) {
             return Optional.empty();
         }
-        JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(packageCompilation.get(), JvmTarget.JAVA_17);
+        JBallerinaBackend jBallerinaBackend = execBackend(projectContext, packageCompilation.get());
         Collection<Diagnostic> diagnostics = jBallerinaBackend.diagnosticResult().diagnostics(false);
         if (diagnostics.stream().anyMatch(BallerinaWorkspaceManager::isError)) {
             String msg = "Run command execution aborted due to compilation errors: " + diagnostics;
@@ -631,6 +632,7 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
         commands.add("-cp");
         commands.add(getAllClassPaths(jarResolver));
         commands.add(initClassName);
+        commands.addAll(mainFuncArgs);
         ProcessBuilder pb = new ProcessBuilder(commands);
 
         Lock lock = projectContext.lockAndGet();
@@ -650,6 +652,24 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
             lock.unlock();
         }
     }
+
+    private static JBallerinaBackend execBackend(ProjectContext projectContext,
+                                                 PackageCompilation packageCompilation) {
+        Lock lock = projectContext.lockAndGet();
+        try {
+            JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(packageCompilation, JvmTarget.JAVA_21, false);
+            Package pkg = projectContext.project.currentPackage();
+            for (Module module : pkg.modules()) {
+                for (DocumentId id : module.documentIds()) {
+                    module.document(id).modify().apply();
+                }
+            }
+            return jBallerinaBackend;
+        } finally {
+            lock.unlock();
+        }
+    }
+
 
     @Override
     public boolean stop(Path filePath) {
@@ -1403,23 +1423,19 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
 
     private boolean hasDocumentOrToml(Path filePath, Project project) {
         String fileName = Optional.of(filePath.getFileName()).get().toString();
-        switch (fileName) {
-            case ProjectConstants.BALLERINA_TOML:
-                return project.currentPackage().ballerinaToml().isPresent();
-            case ProjectConstants.CLOUD_TOML:
-                return project.currentPackage().cloudToml().isPresent();
-            case ProjectConstants.COMPILER_PLUGIN_TOML:
-                return project.currentPackage().compilerPluginToml().isPresent();
-            case ProjectConstants.BAL_TOOL_TOML:
-                return project.currentPackage().balToolToml().isPresent();
-            case ProjectConstants.DEPENDENCIES_TOML:
-                return project.currentPackage().dependenciesToml().isPresent();
-            default:
+        return switch (fileName) {
+            case ProjectConstants.BALLERINA_TOML -> project.currentPackage().ballerinaToml().isPresent();
+            case ProjectConstants.CLOUD_TOML -> project.currentPackage().cloudToml().isPresent();
+            case ProjectConstants.COMPILER_PLUGIN_TOML -> project.currentPackage().compilerPluginToml().isPresent();
+            case ProjectConstants.BAL_TOOL_TOML -> project.currentPackage().balToolToml().isPresent();
+            case ProjectConstants.DEPENDENCIES_TOML -> project.currentPackage().dependenciesToml().isPresent();
+            default -> {
                 if (fileName.endsWith(ProjectConstants.BLANG_SOURCE_EXT)) {
-                    return document(filePath, project, null).isPresent();
+                    yield document(filePath, project, null).isPresent();
                 }
-                return false;
-        }
+                yield false;
+            }
+        };
     }
 
     private void reloadProject(ProjectContext projectContext, Path filePath, String operationName) {
@@ -1483,6 +1499,7 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
         private ProjectContext(Project project, Lock lock) {
             this.project = project;
             this.lock = lock;
+            this.compilationCrashed = false;
         }
 
         public static ProjectContext from(Project project) {
@@ -1536,7 +1553,7 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
          * @return whether the compilation is in a crashed state
          */
         public boolean compilationCrashed() {
-            return Boolean.TRUE.equals(this.compilationCrashed);
+            return this.compilationCrashed;
         }
 
         /**
@@ -1589,7 +1606,6 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
 
     /**
      * Represents a map of Path to ProjectContext.
-     * <p>
      *
      * @param <K> cache key
      * @param <V> cache value
@@ -1613,6 +1629,7 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
             return old;
         }
 
+        @Override
         public V remove(Object key) {
             V result = super.remove(key);
             // Clear dependent cache

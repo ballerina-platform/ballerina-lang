@@ -84,6 +84,7 @@ import org.wso2.ballerinalang.compiler.tree.clauses.BLangOrderByClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangOrderKey;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangSelectClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangWhereClause;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangAlternateWorkerReceive;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAccessExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrowFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
@@ -97,6 +98,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangElvisExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangExtendedXMLNavigationAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangGroupExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIgnoreExpr;
@@ -114,6 +116,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkdownDocumentati
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkdownParameterDocumentation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkdownReturnParameterDocumentation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchGuard;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangMultipleWorkerReceive;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNamedArgsExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNumericLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangQueryAction;
@@ -160,6 +163,9 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLCommentLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLElementAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLElementFilter;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLElementLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLFilterStepExtend;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLIndexedStepExtend;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLMethodCallStepExtend;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLNavigationAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLProcInsLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQName;
@@ -823,6 +829,25 @@ class SymbolFinder extends BaseVisitor {
     }
 
     @Override
+    public void visit(BLangAlternateWorkerReceive alternateWorkerReceive) {
+        for (BLangWorkerReceive workerReceive : alternateWorkerReceive.getWorkerReceives()) {
+            if (setEnclosingNode(workerReceive.workerSymbol, workerReceive.workerIdentifier.pos)) {
+                return;
+            }
+        }
+    }
+
+    @Override
+    public void visit(BLangMultipleWorkerReceive multipleWorkerReceive) {
+        for (BLangMultipleWorkerReceive.BLangReceiveField receiveField : multipleWorkerReceive.getReceiveFields()) {
+            BLangWorkerReceive workerReceive = receiveField.getWorkerReceive();
+            if (setEnclosingNode(workerReceive.workerSymbol, workerReceive.workerIdentifier.pos)) {
+                return;
+            }
+        }
+    }
+
+    @Override
     public void visit(BLangWorkerReceive workerReceiveNode) {
         setEnclosingNode(workerReceiveNode.workerSymbol, workerReceiveNode.workerIdentifier.pos);
     }
@@ -899,12 +924,12 @@ class SymbolFinder extends BaseVisitor {
     }
 
     @Override
-    public void visit(BLangFieldBasedAccess.BLangNSPrefixedFieldBasedAccess nsPrefixedFieldBasedAccess) {
-        if (setEnclosingNode(nsPrefixedFieldBasedAccess.nsSymbol, nsPrefixedFieldBasedAccess.nsPrefix.pos)) {
+    public void visit(BLangFieldBasedAccess.BLangPrefixedFieldBasedAccess prefixedFieldBasedAccess) {
+        if (setEnclosingNode(prefixedFieldBasedAccess.symbol, prefixedFieldBasedAccess.prefix.pos)) {
             return;
         }
 
-        lookupNode(nsPrefixedFieldBasedAccess.expr);
+        lookupNode(prefixedFieldBasedAccess.expr);
     }
 
     @Override
@@ -1649,8 +1674,28 @@ class SymbolFinder extends BaseVisitor {
     @Override
     public void visit(BLangXMLNavigationAccess xmlNavigation) {
         lookupNode(xmlNavigation.expr);
-        lookupNode(xmlNavigation.childIndex);
         lookupNodes(xmlNavigation.filters);
+    }
+
+    @Override
+    public void visit(BLangExtendedXMLNavigationAccess extendedXmlNavigationAccess) {
+        lookupNode(extendedXmlNavigationAccess.stepExpr);
+        lookupNodes(extendedXmlNavigationAccess.extensions);
+    }
+
+    @Override
+    public void visit(BLangXMLIndexedStepExtend xmlIndexedStepExtend) {
+        lookupNode(xmlIndexedStepExtend.indexExpr);
+    }
+
+    @Override
+    public void visit(BLangXMLFilterStepExtend xmlFilterStepExtend) {
+        lookupNodes(xmlFilterStepExtend.filters);
+    }
+
+    @Override
+    public void visit(BLangXMLMethodCallStepExtend xmlMethodCallStepExtend) {
+        lookupNode(xmlMethodCallStepExtend.invocation);
     }
 
     @Override
@@ -1663,13 +1708,13 @@ class SymbolFinder extends BaseVisitor {
 
         // The assumption is that if it's moduled-qualified, it must be a public symbol.
         // Hence, the owner would be a package symbol.
-        if (resourceAccessInvocation.symbol != null &&
-                setEnclosingNode(resourceAccessInvocation.symbol.owner, resourceAccessInvocation.pkgAlias.pos)) {
+        BSymbol symbol = resourceAccessInvocation.symbol;
+        if (symbol != null && setEnclosingNode(symbol.owner, resourceAccessInvocation.pkgAlias.pos)) {
             return;
         }
 
         if (this.symbolAtCursor == null) {
-            setEnclosingNode(resourceAccessInvocation.symbol, resourceAccessInvocation.resourceAccessPathSegments.pos);
+            setEnclosingNode(symbol, resourceAccessInvocation.name.pos);
         }
     }
 
@@ -1760,7 +1805,7 @@ class SymbolFinder extends BaseVisitor {
         List<BResourcePathSegmentSymbol> pathSegSymbols = resourceInvocation.targetResourceFunc.pathSegmentSymbols;
         List<BLangExpression> pathExprs = resourceInvocation.resourceAccessPathSegments.exprs;
 
-        if (pathExprs.size() == 0 && pathSegSymbols.get(0).getKind() == SymbolKind.RESOURCE_ROOT_PATH_SEGMENT) {
+        if (pathExprs.isEmpty() && pathSegSymbols.get(0).getKind() == SymbolKind.RESOURCE_ROOT_PATH_SEGMENT) {
             // Returns since the resource-function has only the root-path segment
             // Assumption: If a resource-action with 0 path-expr matches with a resource function, 
             // then it must have a root-path
@@ -1809,10 +1854,9 @@ class SymbolFinder extends BaseVisitor {
     }
 
     private boolean isWithinNodeMetaData(TopLevelNode node) {
-        if (node instanceof AnnotatableNode) {
+        if (node instanceof AnnotatableNode annotatableNode) {
 
-            List<AnnotationAttachmentNode> nodes =
-                    (List<AnnotationAttachmentNode>) ((AnnotatableNode) node).getAnnotationAttachments();
+            List<? extends AnnotationAttachmentNode> nodes = annotatableNode.getAnnotationAttachments();
 
             for (AnnotationAttachmentNode annotAttachment : nodes) {
                 if (PositionUtil.withinBlock(this.cursorPos, annotAttachment.getPosition())) {
@@ -1821,8 +1865,8 @@ class SymbolFinder extends BaseVisitor {
             }
         }
 
-        if (node instanceof DocumentableNode) {
-            BLangMarkdownDocumentation markdown = ((DocumentableNode) node).getMarkdownDocumentationAttachment();
+        if (node instanceof DocumentableNode documentableNode) {
+            BLangMarkdownDocumentation markdown = documentableNode.getMarkdownDocumentationAttachment();
             if (markdown != null) {
                 LinkedList<BLangMarkdownParameterDocumentation> parameters = markdown.getParameters();
                 for (BLangMarkdownParameterDocumentation parameter : parameters) {

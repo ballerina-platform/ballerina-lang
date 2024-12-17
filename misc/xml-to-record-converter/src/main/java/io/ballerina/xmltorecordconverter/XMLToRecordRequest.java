@@ -25,48 +25,57 @@ package io.ballerina.xmltorecordconverter;
  */
 public class XMLToRecordRequest {
 
-    private String xmlValue;
-    private boolean isRecordTypeDesc;
-    private boolean isClosed;
-    private boolean forceFormatRecordFields;
+    private final String xmlValue;
+    private final boolean isRecordTypeDesc;
+    private final boolean isClosed;
+    private final boolean forceFormatRecordFields;
+    private final String textFieldName;
+    private final boolean withNameSpace;
+    private final boolean withoutAttributes;
+    private final boolean withoutAttributeAnnot;
 
     public XMLToRecordRequest(String xmlValue, boolean isRecordTypeDesc, boolean isClosed,
-                               boolean forceFormatRecordFields) {
+                              boolean forceFormatRecordFields, String textFieldName, boolean withNameSpace,
+                              boolean withoutAttributes, boolean withoutAttributeAnnot) {
         this.xmlValue = xmlValue;
         this.isRecordTypeDesc = isRecordTypeDesc;
         this.isClosed = isClosed;
         this.forceFormatRecordFields = forceFormatRecordFields;
+        this.textFieldName = textFieldName;
+        this.withNameSpace = withNameSpace;
+        this.withoutAttributes = withoutAttributes;
+        this.withoutAttributeAnnot = withoutAttributeAnnot;
     }
 
     public String getXmlValue() {
         return xmlValue;
     }
 
-    public void setXmlValue(String xmlValue) {
-        this.xmlValue = xmlValue;
-    }
-
     public boolean getIsRecordTypeDesc() {
         return isRecordTypeDesc;
-    }
-
-    public void setIsRecordTypeDesc(boolean isRecordTypeDesc) {
-        this.isRecordTypeDesc = isRecordTypeDesc;
     }
 
     public boolean getIsClosed() {
         return isClosed;
     }
 
-    public void setIsClosed(boolean isClosed) {
-        this.isClosed = isClosed;
-    }
-
     public boolean getForceFormatRecordFields() {
         return forceFormatRecordFields;
     }
 
-    public void setForceFormatRecordFields(boolean forceFormatRecordFields) {
-        this.forceFormatRecordFields = forceFormatRecordFields;
+    public String getTextFieldName() {
+        return textFieldName;
+    }
+
+    public boolean getIsWithNameSpace() {
+        return withNameSpace;
+    }
+
+    public boolean getWithoutAttributes() {
+        return withoutAttributes;
+    }
+
+    public boolean getWithoutAttributeAnnot() {
+        return withoutAttributeAnnot;
     }
 }

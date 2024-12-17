@@ -19,7 +19,6 @@
 package io.ballerina.runtime.internal.configurable.providers.toml;
 
 import io.ballerina.runtime.api.Module;
-import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.flags.SymbolFlags;
 import io.ballerina.runtime.api.types.ArrayType;
@@ -31,6 +30,7 @@ import io.ballerina.runtime.api.types.ReferenceType;
 import io.ballerina.runtime.api.types.TableType;
 import io.ballerina.runtime.api.types.TupleType;
 import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.types.TypeTags;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.internal.TypeConverter;
@@ -68,7 +68,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
-import static io.ballerina.runtime.internal.ValueUtils.createReadOnlyXmlValue;
 import static io.ballerina.runtime.internal.configurable.providers.toml.Utils.checkEffectiveTomlType;
 import static io.ballerina.runtime.internal.configurable.providers.toml.Utils.getEffectiveType;
 import static io.ballerina.runtime.internal.configurable.providers.toml.Utils.getLineRange;
@@ -87,7 +86,8 @@ import static io.ballerina.runtime.internal.errors.ErrorCodes.CONFIG_TOML_REQUIR
 import static io.ballerina.runtime.internal.errors.ErrorCodes.CONFIG_TOML_TABLE_KEY_NOT_PROVIDED;
 import static io.ballerina.runtime.internal.errors.ErrorCodes.CONFIG_TOML_UNUSED_VALUE;
 import static io.ballerina.runtime.internal.errors.ErrorCodes.CONFIG_TYPE_NOT_SUPPORTED;
-import static io.ballerina.runtime.internal.util.RuntimeUtils.isByteLiteral;
+import static io.ballerina.runtime.internal.utils.RuntimeUtils.isByteLiteral;
+import static io.ballerina.runtime.internal.utils.ValueUtils.createReadOnlyXmlValue;
 
 /**
  * Toml value provider for configurable implementation.
@@ -618,14 +618,14 @@ public class TomlProvider implements ConfigProvider {
         Optional<Toml> table = baseToml.getTable(moduleKey);
         List<TomlTableNode> moduleNodes = new ArrayList<>();
         if (table.isPresent()) {
-            moduleNodes.add(table.get().rootNode());
+            addToModuleNodesList(table.get(), moduleNodes);
         } else if (moduleInfo.hasModuleAmbiguity()) {
             throw new ConfigException(ErrorCodes.CONFIG_TOML_MODULE_AMBIGUITY, getLineRange(baseToml.rootNode()),
                     moduleName, moduleKey);
         }
         table = baseToml.getTable(moduleName);
         table.ifPresent(toml -> addToModuleNodesList(toml, moduleNodes));
-        moduleNodes.add(baseToml.rootNode());
+        addToModuleNodesList(baseToml, moduleNodes);
         return moduleNodes;
     }
 

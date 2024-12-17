@@ -884,3 +884,91 @@ function testIsolatedObjectConstructorWithInvalidInitMethod() {
         }
     };
 }
+
+isolated class TestInvalidAccessOfIsolatedObjectSelfInAnonFunctions {
+    private int[][] arr = [];
+
+    function init(int[] node) {
+        function _ = function () {
+            self.arr.push(node);
+        };
+    }
+
+    function f1(int[] node) {
+        function _ = function () {
+            self.arr.push(node);
+        };
+    }
+
+    function f2(int[] node) {
+        lock {
+            function _ = function () {
+                object {} _ = isolated object {
+                    private int[][] innerArr = [];
+
+                    function innerF(int[] innerNode) {
+                        function _ = function () {
+                            self.innerArr.push(innerNode);
+                        };
+                    }
+                };
+            };
+        }
+    }
+}
+
+isolated class TestInvalidTransferOfValuesInAnonFunctionsInIsolatedObject {
+    private int[][] arr = [];
+
+    function init(int[] node) {
+        function _ = function () {
+            lock {
+                self.arr.push(node);
+            }
+        };
+    }
+
+    function f1(int[] node) {
+        function _ = function () returns int[] {
+            lock {
+                return self.arr[0];
+            }
+        };
+    }
+
+    function f2(int[] node) {
+        lock {
+            function _ = function () {
+                object {} _ = isolated object {
+                    private int[][] innerArr = [];
+
+                    function innerF(int[] innerNode) {
+                        function _ = function () {
+                            lock {
+                                self.innerArr.push(innerNode);
+                            }
+                        };
+                    }
+                };
+            };
+        }
+    }
+}
+
+client isolated class TestInvalidAccessOfSelfWithinAnonFunctionInRemoteAndResourceMethods {
+    private int[][] arr = [];
+
+    resource function get test() {
+        function _ = function (int[] node) {
+            self.arr.push(node);
+        };
+    }
+
+    remote function testFn() {
+        function _ = function (int[] node) {
+            lock {
+                self.arr.push(node);
+            }
+        };
+    }
+}

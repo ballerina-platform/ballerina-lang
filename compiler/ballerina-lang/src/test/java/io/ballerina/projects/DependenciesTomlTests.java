@@ -27,7 +27,6 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -39,7 +38,7 @@ import static io.ballerina.projects.BallerinaTomlTests.getPackageManifest;
  */
 public class DependenciesTomlTests {
 
-    private static final Path RESOURCE_DIRECTORY = Paths.get("src", "test", "resources");
+    private static final Path RESOURCE_DIRECTORY = Path.of("src/test/resources");
     private static final Path DEPENDENCIES_TOML_REPO = RESOURCE_DIRECTORY.resolve("dependencies-toml");
     static final PrintStream OUT = System.out;
 
@@ -93,6 +92,21 @@ public class DependenciesTomlTests {
         Assert.assertTrue(github.isTransitive());
         Assert.assertEquals(github.dependencies().size(), 1);
         Assert.assertEquals(github.modules().size(), 0);
+
+        List<DependencyManifest.Tool> tools = new ArrayList<>(depsManifest.tools());
+        Assert.assertEquals(tools.size(), 2);
+
+        DependencyManifest.Tool openapiTool = tools.get(0);
+        Assert.assertEquals(openapiTool.id().value(), "openapi");
+        Assert.assertEquals(openapiTool.org().value(), "ballerina");
+        Assert.assertEquals(openapiTool.name().value(), "openapi_tool");
+        Assert.assertEquals(openapiTool.version().toString(), "0.2.0");
+
+        DependencyManifest.Tool persistTool = tools.get(1);
+        Assert.assertEquals(persistTool.id().value(), "persist");
+        Assert.assertEquals(persistTool.org().value(), "ballerinax");
+        Assert.assertEquals(persistTool.name().value(), "persist_tool");
+        Assert.assertEquals(persistTool.version().toString(), "1.2.0");
     }
 
     @Test(description = "Test dependencies.toml without distribution version")
@@ -117,13 +131,12 @@ public class DependenciesTomlTests {
                 DEPENDENCIES_TOML_REPO.resolve("dependency-wo-org.toml"));
         DiagnosticResult diagnostics = depsManifest.diagnostics();
         diagnostics.errors().forEach(OUT::println);
-        Assert.assertTrue(diagnostics.hasErrors());
-        Assert.assertEquals(diagnostics.errors().size(), 2);
-        Iterator<Diagnostic> iterator = diagnostics.errors().iterator();
+        Assert.assertEquals(diagnostics.diagnostics().size(), 1);
+        Iterator<Diagnostic> iterator = diagnostics.diagnostics().iterator();
         Diagnostic firstDiagnostic = iterator.next();
-        Assert.assertEquals(firstDiagnostic.message(), "'org' under [[package]] is missing");
-        Assert.assertEquals(firstDiagnostic.location().lineRange().toString(), "(20:0,22:17)");
-        Assert.assertEquals(iterator.next().message(), "'org' under [[package]] is missing");
+        Assert.assertEquals(firstDiagnostic.message(), "Detected corrupted Dependencies.toml file. " +
+                "Dependencies will be updated to the latest versions.");
+        Assert.assertEquals(firstDiagnostic.location().lineRange().toString(), "(5:0,26:17)");
     }
 
     /**
@@ -139,13 +152,13 @@ public class DependenciesTomlTests {
         DependencyManifest depsManifest = getDependencyManifest(
                 DEPENDENCIES_TOML_REPO.resolve("dependency-wo-org-value.toml"));
         DiagnosticResult diagnostics = depsManifest.diagnostics();
-        diagnostics.errors().forEach(OUT::println);
-        Assert.assertTrue(diagnostics.hasErrors());
-        Assert.assertEquals(diagnostics.errors().size(), 1);
-        Iterator<Diagnostic> iterator = diagnostics.errors().iterator();
+        diagnostics.diagnostics().forEach(OUT::println);
+        Assert.assertEquals(diagnostics.diagnostics().size(), 1);
+        Iterator<Diagnostic> iterator = diagnostics.diagnostics().iterator();
         Diagnostic firstDiagnostic = iterator.next();
-        Assert.assertEquals(firstDiagnostic.location().lineRange().toString(), "(22:0,22:0)");
-        Assert.assertEquals(firstDiagnostic.message(), "missing value");
+        Assert.assertEquals(firstDiagnostic.message(), "Detected corrupted Dependencies.toml file. " +
+                "Dependencies will be updated to the latest versions.");
+        Assert.assertEquals(firstDiagnostic.location().lineRange().toString(), "(5:0,28:17)");
     }
 
     /**
@@ -161,30 +174,12 @@ public class DependenciesTomlTests {
         DependencyManifest depsManifest = getDependencyManifest(
                 DEPENDENCIES_TOML_REPO.resolve("invalid-org-name-value.toml"));
         DiagnosticResult diagnostics = depsManifest.diagnostics();
-        diagnostics.errors().forEach(OUT::println);
-
-        Assert.assertTrue(diagnostics.hasErrors());
-        Assert.assertEquals(diagnostics.errors().size(), 7);
-
-        Iterator<Diagnostic> iterator = diagnostics.errors().iterator();
+        Assert.assertEquals(diagnostics.diagnostics().size(), 1);
+        Iterator<Diagnostic> iterator = diagnostics.diagnostics().iterator();
         Diagnostic firstDiagnostic = iterator.next();
-        Assert.assertEquals(firstDiagnostic.message(), "invalid 'org' under 'dependencies': " +
-                "'org' can only contain alphanumerics and underscores");
-        Assert.assertEquals(firstDiagnostic.location().lineRange().toString(), "(13:11,13:18)");
-        Assert.assertEquals(iterator.next().message(), "invalid 'name' under 'dependencies': " +
-                "'name' can only contain alphanumerics, underscores and periods");
-        Diagnostic thirdDiagnostic = iterator.next();
-        Assert.assertEquals(thirdDiagnostic.message(), "invalid 'org' under [[package]]: " +
-                "'org' can only contain alphanumerics and underscores");
-        Assert.assertEquals(thirdDiagnostic.location().lineRange().toString(), "(21:6,21:13)");
-        Assert.assertEquals(iterator.next().message(), "invalid 'name' under [[package]]: " +
-                "'name' can only contain alphanumerics, underscores and periods");
-        Assert.assertEquals(iterator.next().message(), "invalid 'version' under [[package]]: " +
-                "'version' should be compatible with semver");
-        Assert.assertEquals(iterator.next().message(),
-                "invalid 'org' under [[package]]: " + "maximum length of 'org' is 256 characters");
-        Assert.assertEquals(iterator.next().message(),
-                "invalid 'name' under [[dependency]]: " + "maximum length of 'name' is 256 characters");
+        Assert.assertEquals(firstDiagnostic.message(), "Detected corrupted Dependencies.toml file. " +
+                "Dependencies will be updated to the latest versions.");
+        Assert.assertEquals(firstDiagnostic.location().lineRange().toString(), "(5:0,33:17)");
     }
 
     @Test(description = "Test dependencies.toml with invalid distribution version")
@@ -192,15 +187,11 @@ public class DependenciesTomlTests {
         DependencyManifest depsManifest = getDependencyManifest(
                 DEPENDENCIES_TOML_REPO.resolve("invalid-dist-version-value.toml"));
         DiagnosticResult diagnostics = depsManifest.diagnostics();
-        diagnostics.errors().forEach(OUT::println);
-
-        Assert.assertTrue(diagnostics.hasErrors());
-        Assert.assertEquals(diagnostics.errors().size(), 1);
-
-        Iterator<Diagnostic> iterator = diagnostics.errors().iterator();
+        Assert.assertEquals(diagnostics.diagnostics().size(), 1);
+        Iterator<Diagnostic> iterator = diagnostics.diagnostics().iterator();
         Diagnostic firstDiagnostic = iterator.next();
-        Assert.assertEquals(firstDiagnostic.message(), "invalid 'distribution-version' under [ballerina]: " +
-                "'distribution-version' should be compatible with semver rules");
+        Assert.assertEquals(firstDiagnostic.message(), "Detected corrupted Dependencies.toml file. " +
+                "Dependencies will be updated to the latest versions.");
     }
 
     @Test
@@ -232,20 +223,22 @@ public class DependenciesTomlTests {
         DependencyManifest depsManifest = getDependencyManifest(
                 DEPENDENCIES_TOML_REPO.resolve("dependencies-non-array.toml"));
         depsManifest.diagnostics().errors().forEach(OUT::println);
-        Assert.assertTrue(depsManifest.diagnostics().hasErrors());
-        Assert.assertEquals(depsManifest.diagnostics().errors().iterator().next().message(),
-                            "incompatible type for key 'package': expected 'ARRAY', found 'OBJECT'");
+        Assert.assertEquals(depsManifest.diagnostics().diagnostics().size(), 1);
+        Iterator<Diagnostic> iterator = depsManifest.diagnostics().diagnostics().iterator();
+        Diagnostic firstDiagnostic = iterator.next();
+        Assert.assertEquals(firstDiagnostic.message(), "Detected corrupted Dependencies.toml file. " +
+                "Dependencies will be updated to the latest versions.");
     }
 
     @Test
     public void testDependenciesTomlWithInvalidDependencyScope() throws IOException {
         DependencyManifest depsManifest = getDependencyManifest(
                 DEPENDENCIES_TOML_REPO.resolve("dependencies-invalid-scope.toml"));
-        depsManifest.diagnostics().errors().forEach(OUT::println);
-        Assert.assertTrue(depsManifest.diagnostics().hasErrors());
-        Assert.assertEquals(depsManifest.diagnostics().errorCount(), 1);
-        Assert.assertEquals(depsManifest.diagnostics().errors().iterator().next().message(),
-                            "invalid 'scope' under [[package]]: 'scope' can only contain value 'testOnly'");
+        Assert.assertEquals(depsManifest.diagnostics().diagnostics().size(), 1);
+        Iterator<Diagnostic> iterator = depsManifest.diagnostics().diagnostics().iterator();
+        Diagnostic firstDiagnostic = iterator.next();
+        Assert.assertEquals(firstDiagnostic.message(), "Detected corrupted Dependencies.toml file. " +
+                "Dependencies will be updated to the latest versions.");
     }
 
     @Test
@@ -253,14 +246,11 @@ public class DependenciesTomlTests {
         DependencyManifest depsManifest = getDependencyManifest(
                 DEPENDENCIES_TOML_REPO.resolve("without-deps-toml-version.toml"));
         depsManifest.diagnostics().diagnostics().forEach(OUT::println);
-        // old dependency version warning
-        Assert.assertTrue(depsManifest.diagnostics().hasWarnings());
-        Assert.assertEquals(depsManifest.diagnostics().warnings().iterator().next().message(),
-                            "Detected an old version of Dependencies.toml file. This will be updated to v2 format.");
-        // [[package]] not supported in the old dependencies toml spec
-        Assert.assertTrue(depsManifest.diagnostics().hasErrors());
-        Assert.assertEquals(depsManifest.diagnostics().errors().iterator().next().message(),
-                            "key 'package' not supported in schema 'Dependencies Toml Spec'");
+        Assert.assertEquals(depsManifest.diagnostics().diagnostics().size(), 1);
+        Iterator<Diagnostic> iterator = depsManifest.diagnostics().diagnostics().iterator();
+        Diagnostic firstDiagnostic = iterator.next();
+        Assert.assertEquals(firstDiagnostic.message(), "Detected corrupted Dependencies.toml file. " +
+                "Dependencies will be updated to the latest versions.");
     }
 
     @Test
@@ -286,13 +276,15 @@ public class DependenciesTomlTests {
         Iterator<Diagnostic> iterator = depsManifest.diagnostics().warnings().iterator();
         Assert.assertEquals(iterator.next().message(),
                             "Detected an old version of Dependencies.toml file. This will be updated to v2 format.");
-        String localDepsWarning = "Detected local dependency declarations in Dependencies.toml file. "
-                + "Add them to Ballerina.toml using following syntax:\n"
-                + "[[dependency]]\n"
-                + "org = \"wso2\"\n"
-                + "name = \"locally\"\n"
-                + "version = \"1.2.3\"\n"
-                + "repository = \"local\"\n";
+        String localDepsWarning = """
+                Detected local dependency declarations in Dependencies.toml file. \
+                Add them to Ballerina.toml using following syntax:
+                [[dependency]]
+                org = "wso2"
+                name = "locally"
+                version = "1.2.3"
+                repository = "local"
+                """;
         Assert.assertEquals(iterator.next().message(), localDepsWarning);
     }
 
@@ -312,15 +304,12 @@ public class DependenciesTomlTests {
         DependencyManifest depsManifest = getDependencyManifest(
                 DEPENDENCIES_TOML_REPO.resolve("dependencies-with-additional-attribute-in-modules.toml"));
         DiagnosticResult diagnostics = depsManifest.diagnostics();
-        diagnostics.errors().forEach(OUT::println);
-
-        Assert.assertTrue(diagnostics.hasErrors());
-        Assert.assertEquals(diagnostics.errors().size(), 1);
-
-        Iterator<Diagnostic> iterator = diagnostics.errors().iterator();
+        Assert.assertEquals(diagnostics.diagnostics().size(), 1);
+        Iterator<Diagnostic> iterator = diagnostics.diagnostics().iterator();
         Diagnostic firstDiagnostic = iterator.next();
-        Assert.assertEquals(firstDiagnostic.message(), "key 'name' not supported in schema 'modules'");
-        Assert.assertEquals(firstDiagnostic.location().lineRange().toString(), "(31:44,31:60)");
+        Assert.assertEquals(firstDiagnostic.message(), "Detected corrupted Dependencies.toml file. " +
+                "Dependencies will be updated to the latest versions.");
+        Assert.assertEquals(firstDiagnostic.location().lineRange().toString(), "(5:0,41:1)");
     }
 
     @Test(description = "Invalid Dependencies.toml file with additional attribute in dependencies array")
@@ -328,15 +317,66 @@ public class DependenciesTomlTests {
         DependencyManifest depsManifest = getDependencyManifest(
                 DEPENDENCIES_TOML_REPO.resolve("dependencies-with-additional-attribute-in-dependencies.toml"));
         DiagnosticResult diagnostics = depsManifest.diagnostics();
-        diagnostics.errors().forEach(OUT::println);
-
-        Assert.assertTrue(diagnostics.hasErrors());
-        Assert.assertEquals(diagnostics.errors().size(), 1);
-
-        Iterator<Diagnostic> iterator = diagnostics.errors().iterator();
+        Assert.assertEquals(diagnostics.diagnostics().size(), 1);
+        Iterator<Diagnostic> iterator = diagnostics.diagnostics().iterator();
         Diagnostic firstDiagnostic = iterator.next();
-        Assert.assertEquals(firstDiagnostic.message(), "key 'version' not supported in schema 'dependencies'");
-        Assert.assertEquals(firstDiagnostic.location().lineRange().toString(), "(13:37,13:54)");
+        Assert.assertEquals(firstDiagnostic.message(), "Detected corrupted Dependencies.toml file. " +
+                "Dependencies will be updated to the latest versions.");
+        Assert.assertEquals(firstDiagnostic.location().lineRange().toString(), "(5:0,41:1)");
+    }
+
+    @Test(description = "Invalid Dependencies.toml file with invalid tool ids")
+    public void testDependenciesTomlWithInvalidToolId() throws IOException {
+        DependencyManifest depsManifest = getDependencyManifest(
+                DEPENDENCIES_TOML_REPO.resolve("tool-with-invalid-id-value.toml"));
+        DiagnosticResult diagnostics = depsManifest.diagnostics();
+        Assert.assertEquals(diagnostics.diagnostics().size(), 1);
+        Iterator<Diagnostic> iterator = diagnostics.diagnostics().iterator();
+        Diagnostic firstDiagnostic = iterator.next();
+        Assert.assertEquals(firstDiagnostic.message(), "Detected corrupted Dependencies.toml file. " +
+                "Dependencies will be updated to the latest versions.");
+        Assert.assertEquals(firstDiagnostic.location().lineRange().toString(), "(5:0,53:17)");
+    }
+
+    @Test(description = "Invalid Dependencies.toml file with invalid org, name in tool array")
+    public void testDependenciesTomlWithInvalidToolOrgNameVersion() throws IOException {
+        DependencyManifest depsManifest = getDependencyManifest(
+                DEPENDENCIES_TOML_REPO.resolve("tool-with-invalid-org-name-version-value.toml"));
+        DiagnosticResult diagnostics = depsManifest.diagnostics();
+        Assert.assertEquals(diagnostics.diagnostics().size(), 1);
+        Iterator<Diagnostic> iterator = diagnostics.diagnostics().iterator();
+        Diagnostic firstDiagnostic = iterator.next();
+        Assert.assertEquals(firstDiagnostic.message(), "Detected corrupted Dependencies.toml file. " +
+                "Dependencies will be updated to the latest versions.");
+        Assert.assertEquals(firstDiagnostic.location().lineRange().toString(), "(5:0,28:16)");
+    }
+
+    @Test(description = "Invalid Dependencies.toml file with missing org field in tool array")
+    public void testInvalidDependenciesTomlToolWithoutOrg() throws IOException {
+        DependencyManifest depsManifest = getDependencyManifest(
+                DEPENDENCIES_TOML_REPO.resolve("tool-wo-org.toml"));
+        DiagnosticResult diagnostics = depsManifest.diagnostics();
+        diagnostics.errors().forEach(OUT::println);
+        Assert.assertEquals(diagnostics.diagnostics().size(), 1);
+        Iterator<Diagnostic> iterator = diagnostics.diagnostics().iterator();
+        Diagnostic firstDiagnostic = iterator.next();
+        Assert.assertEquals(firstDiagnostic.message(), "Detected corrupted Dependencies.toml file. " +
+                "Dependencies will be updated to the latest versions.");
+        Assert.assertEquals(firstDiagnostic.location().lineRange().toString(), "(5:0,28:17)");
+    }
+
+    @Test(description = "Invalid Dependencies.toml file with missing org value in tool array")
+    public void testInvalidDependenciesTomlWithoutToolOrgValue() throws IOException {
+        DependencyManifest depsManifest = getDependencyManifest(
+                DEPENDENCIES_TOML_REPO.resolve("tool-wo-org-value.toml"));
+        DiagnosticResult diagnostics = depsManifest.diagnostics();
+        diagnostics.errors().forEach(OUT::println);
+        Assert.assertEquals(diagnostics.diagnostics().size(), 1);
+        Iterator<Diagnostic> iterator = diagnostics.diagnostics().iterator();
+        Diagnostic firstDiagnostic = iterator.next();
+        Assert.assertEquals(firstDiagnostic.message(), "Detected corrupted Dependencies.toml file. " +
+                "Dependencies will be updated to the latest versions.");
+        Assert.assertEquals(firstDiagnostic.location().lineRange().toString(), "(5:0,29:17)");
     }
 
     private DependencyManifest getDependencyManifest(Path dependenciesTomlPath) throws IOException {

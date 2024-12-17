@@ -55,6 +55,7 @@ public class NodeBasedUpdateDocumentationCodeAction implements RangeBasedCodeAct
 
     public static final String NAME = "Update Documentation";
 
+    @Override
     public List<SyntaxKind> getSyntaxKinds() {
         return Arrays.asList(SyntaxKind.FUNCTION_DEFINITION,
                 SyntaxKind.OBJECT_TYPE_DESC,

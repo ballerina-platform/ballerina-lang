@@ -19,12 +19,12 @@
 package org.ballerinalang.nativeimpl.jvm.runtime.api.tests;
 
 import io.ballerina.runtime.api.Module;
-import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.constants.TypeConstants;
 import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.creators.TypeCreator;
 import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.types.ErrorType;
+import io.ballerina.runtime.api.types.PredefinedTypes;
 import io.ballerina.runtime.api.types.TypeId;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.utils.TypeUtils;
@@ -43,14 +43,17 @@ import static io.ballerina.runtime.api.creators.TypeCreator.createErrorType;
  *
  * @since 2.0.0
  */
-public class Errors {
+public final class Errors {
 
-    private static Module errorModule = new Module("testorg", "errors.error_utils", "1");
+    private static final Module ERROR_MODULE = new Module("testorg", "errors.error_utils", "1");
+
+    private Errors() {
+    }
 
     public static BError getError(BString errorName) {
         BMap<BString, Object> errorDetails = ValueCreator.createMapValue();
         errorDetails.put(StringUtils.fromString("cause"), StringUtils.fromString("Person age cannot be negative"));
-        return ErrorCreator.createError(errorModule, errorName.getValue(), StringUtils.fromString("Invalid age"),
+        return ErrorCreator.createError(ERROR_MODULE, errorName.getValue(), StringUtils.fromString("Invalid age"),
                                         ErrorCreator.createError(StringUtils.fromString("Invalid data given")),
                                         errorDetails);
     }
@@ -71,7 +74,7 @@ public class Errors {
     public static BError getDistinctErrorNegative(BString errorName) {
         BMap<BString, Object> errorDetails = ValueCreator.createMapValue();
         errorDetails.put(StringUtils.fromString("detail"), "detail error message");
-        return ErrorCreator.createError(errorModule, errorName.getValue(), StringUtils.fromString("msg"),
+        return ErrorCreator.createError(ERROR_MODULE, errorName.getValue(), StringUtils.fromString("msg"),
                 null, errorDetails);
     }
 
@@ -92,11 +95,11 @@ public class Errors {
         String typeIdName = "RuntimeError";
         BMap<BString, Object> errorDetails = ValueCreator.createMapValue();
         errorDetails.put(StringUtils.fromString("detail"), "this is runtime failure");
-        return ErrorCreator.createDistinctError(typeIdName, errorModule, msg, errorDetails);
+        return ErrorCreator.createDistinctError(typeIdName, ERROR_MODULE, msg, errorDetails);
     }
 
     public static BError getDistinctErrorWithNullDetailNegative(BString errorName) {
-        return ErrorCreator.createError(errorModule, errorName.getValue(), StringUtils.fromString("msg"),
+        return ErrorCreator.createError(ERROR_MODULE, errorName.getValue(), StringUtils.fromString("msg"),
                 null, null);
     }
 
@@ -112,12 +115,12 @@ public class Errors {
     public static BError getDistinctErrorWithEmptyDetailNegative2(BString msg) {
         String typeIdName = "RuntimeError";
         BMap<BString, Object> errorDetails = new MapValueImpl<>(PredefinedTypes.TYPE_ERROR_DETAIL);
-        return ErrorCreator.createDistinctError(typeIdName, errorModule, msg, errorDetails);
+        return ErrorCreator.createDistinctError(typeIdName, ERROR_MODULE, msg, errorDetails);
     }
 
     public static BError getDistinctErrorWithNullDetailNegative2(BString msg) {
         String typeIdName = "RuntimeError";
-        return ErrorCreator.createDistinctError(typeIdName, errorModule, msg, (BMap<BString, Object>) null);
+        return ErrorCreator.createDistinctError(typeIdName, ERROR_MODULE, msg, (BMap<BString, Object>) null);
     }
 
     public static BError getErrorWithEmptyDetailNegative2(BString msg) {
@@ -129,5 +132,9 @@ public class Errors {
     public static BError getErrorWithNullDetailNegative2(BString msg) {
         ErrorType bErrorType = createErrorType(TypeConstants.ERROR, PredefinedTypes.TYPE_ERROR.getPackage());
         return ErrorCreator.createError(bErrorType, msg, null, null);
+    }
+
+    public static BError getNullDetailError(BString msg) {
+        return ErrorCreator.createError(msg, new NullPointerException("cause for the error"));
     }
 }

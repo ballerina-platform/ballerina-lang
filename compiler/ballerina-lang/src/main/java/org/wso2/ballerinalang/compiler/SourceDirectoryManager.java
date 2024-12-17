@@ -36,7 +36,6 @@ import org.wso2.ballerinalang.util.RepoUtils;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.List;
 import java.util.stream.Stream;
 
@@ -118,7 +117,7 @@ public class SourceDirectoryManager implements Project {
 
         //Check for built-in packages
         if (orgName.equals(Names.BUILTIN_ORG)) {
-            return new PackageID(orgName, names.fromString(sourcePackage), version);
+            return new PackageID(orgName, Names.fromString(sourcePackage), version);
         }
 
         //Check for source files
@@ -129,7 +128,7 @@ public class SourceDirectoryManager implements Project {
         //Check for packages
         List<String> packageNames = this.sourceDirectory.getSourcePackageNames();
         if (packageNames.contains(sourcePackage)) {
-            return new PackageID(orgName, names.fromString(sourcePackage), version);
+            return new PackageID(orgName, Names.fromString(sourcePackage), version);
         }
 
         return null;
@@ -153,7 +152,7 @@ public class SourceDirectoryManager implements Project {
                 throw new IllegalArgumentException("invalid project directory path");
             }
         
-            Path sourceRoot = Paths.get(srcDirPathName);
+            Path sourceRoot = Path.of(srcDirPathName);
         
             if (Files.notExists(sourceRoot)) {
                 throw new BLangCompilerException("'" + sourceRoot + "' project directory does not exist.");
@@ -216,7 +215,7 @@ public class SourceDirectoryManager implements Project {
 
     private Name getOrgName(Manifest manifest) {
         return manifest.getProject().getOrgName() == null || manifest.getProject().getOrgName().isEmpty() ?
-                Names.ANON_ORG : names.fromString(manifest.getProject().getOrgName());
+                Names.ANON_ORG : Names.fromString(manifest.getProject().getOrgName());
     }
 
     /**

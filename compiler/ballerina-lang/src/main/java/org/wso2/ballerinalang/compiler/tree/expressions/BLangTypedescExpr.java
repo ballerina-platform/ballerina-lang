@@ -38,10 +38,12 @@ public class BLangTypedescExpr extends BLangExpression implements TypedescExpres
     // Semantic Data
     public BType resolvedType;
 
+    @Override
     public BLangType getTypeNode() {
         return typeNode;
     }
 
+    @Override
     public void setTypeNode(TypeNode typeNode) {
         this.typeNode = (BLangType) typeNode;
     }

@@ -18,9 +18,9 @@
 
 package org.ballerinalang.langlib.internal;
 
-import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.creators.TypeCreator;
 import io.ballerina.runtime.api.types.FunctionType;
+import io.ballerina.runtime.api.types.PredefinedTypes;
 import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BFunctionPointer;
 
@@ -31,7 +31,10 @@ import java.util.List;
  *
  * @since 1.2.0
  */
-public class GetFilterFunc {
+public final class GetFilterFunc {
+
+    private GetFilterFunc() {
+    }
 
     public static BFunctionPointer getFilterFunc(Object obj) {
         BFunctionPointer bFunctionPointer = (BFunctionPointer) obj;

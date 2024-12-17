@@ -29,16 +29,29 @@ function testArrayForeachAndTrap() {
 
 function testArrayForeachAndPanic() {
     string[] invalidArray = ["2", "waruna", "7"];
-    int result = convertAndGetSumFromArray(invalidArray);
-    // This line should not be executed.
-    panic error(ASSERTION_ERROR_REASON,
+    int|error result = trap convertAndGetSumFromArray(invalidArray);
+    assertTrue(result is error);
+    if (result is error) {
+        error e = result;
+        assertEquality("error(\"{ballerina/lang.int}NumberParsingError\",message=\"'string' value 'waruna' cannot be " +
+                "converted to 'int'\")", e.toString());
+        string expected = "[callableName: fromString moduleName: ballerina.lang.int.0 fileName: int.bal lineNumber: 175," +
+        "callableName: $lambda$_0  fileName: foreach_error_handling.bal lineNumber: 54,callableName: forEach moduleName: " +
+        "ballerina.lang.array.0 fileName: array.bal lineNumber: 115,callableName: convertAndGetSumFromArray  fileName: " +
+        "foreach_error_handling.bal lineNumber: 53,callableName: testArrayForeachAndPanic  fileName: " +
+        "foreach_error_handling.bal lineNumber: 32]";
+        assertEquality(expected, e.stackTrace().toString());
+    } else {
+        // This line should not be executed.
+        panic error(ASSERTION_ERROR_REASON,
                 message = "Program should be panic before this line");
+    }
 }
 
 function convertAndGetSumFromArray(string[] stringNumbers) returns int {
     int sum = 0;
-    stringNumbers.forEach(function (string s) {
-	    int val = checkpanic ints:fromString(s);
+    stringNumbers.forEach(function(string s) {
+        int val = checkpanic ints:fromString(s);
         sum = sum + val;
     });
     return sum;
@@ -53,4 +66,12 @@ function assertTrue(any|error actual) {
 
     string actualValAsString = actual is error ? actual.toString() : actual.toString();
     panic error(ASSERTION_ERROR_REASON, message = "expected 'true', found '" + actualValAsString + "'");
+}
+
+function assertEquality(anydata expected, anydata actual) {
+    if expected == actual {
+        return;
+    }
+
+    panic error(ASSERTION_ERROR_REASON, message = "expected '" + expected.toString() + "', found '" + actual.toString() + "'");
 }

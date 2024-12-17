@@ -32,13 +32,13 @@ public class ResponseHandler extends ChannelInboundHandlerAdapter {
 
     private CountDownLatch latch;
     private CountDownLatch waitForConnectionClosureLatch;
-    private LinkedList<FullHttpResponse> fullHttpResponses = new LinkedList<>();
+    private final LinkedList<FullHttpResponse> fullHttpResponses = new LinkedList<>();
     private String channelEventMsg;
 
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) {
-        if (msg instanceof FullHttpResponse) {
-            this.fullHttpResponses.add((FullHttpResponse) msg);
+        if (msg instanceof FullHttpResponse httpResponse) {
+            this.fullHttpResponses.add(httpResponse);
             if (latch != null) {
                 latch.countDown();
             }

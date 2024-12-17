@@ -23,10 +23,11 @@ import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.wso2.ballerinalang.compiler.bir.codegen.BallerinaClassWriter;
+import org.wso2.ballerinalang.compiler.bir.codegen.JarEntries;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmCastGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen;
-import org.wso2.ballerinalang.compiler.bir.codegen.interop.BIRFunctionWrapper;
+import org.wso2.ballerinalang.compiler.bir.codegen.model.BIRFunctionWrapper;
 import org.wso2.ballerinalang.compiler.bir.codegen.split.JvmCreateTypeGen;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
@@ -34,7 +35,6 @@ import org.wso2.ballerinalang.compiler.util.TypeTags;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import static org.objectweb.asm.ClassWriter.COMPUTE_FRAMES;
 import static org.objectweb.asm.Opcodes.AALOAD;
@@ -46,7 +46,7 @@ import static org.objectweb.asm.Opcodes.ALOAD;
 import static org.objectweb.asm.Opcodes.ARETURN;
 import static org.objectweb.asm.Opcodes.INVOKESTATIC;
 import static org.objectweb.asm.Opcodes.L2I;
-import static org.objectweb.asm.Opcodes.V17;
+import static org.objectweb.asm.Opcodes.V21;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil.createDefaultCase;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil.getModuleLevelClassName;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CALL_FUNCTION;
@@ -72,10 +72,10 @@ public class JvmFunctionCallsCreatorsGen {
     }
 
     public void generateFunctionCallsClass(JvmPackageGen jvmPackageGen, BIRNode.BIRPackage module,
-                                           Map<String, byte[]> jarEntries, JvmCastGen jvmCastGen,
+                                           JarEntries jarEntries, JvmCastGen jvmCastGen,
                                            List<BIRNode.BIRFunction> sortedFunctions) {
         ClassWriter cw = new BallerinaClassWriter(COMPUTE_FRAMES);
-        cw.visit(V17, ACC_PUBLIC + ACC_SUPER, functionCallsClass, null, OBJECT, null);
+        cw.visit(V21, ACC_PUBLIC + ACC_SUPER, functionCallsClass, null, OBJECT, null);
         createAndSplitFunctionCallMethod(cw, module.packageID, sortedFunctions, jvmPackageGen, jvmCastGen);
         cw.visitEnd();
         byte[] bytes = jvmPackageGen.getBytes(cw, module);
@@ -135,8 +135,8 @@ public class JvmFunctionCallsCreatorsGen {
                 jvmCastGen.addUnboxInsn(mv, paramType);
                 j += 1;
             }
-            mv.visitMethodInsn(INVOKESTATIC, functionWrapper.fullQualifiedClassName, func.name.value,
-                    functionWrapper.jvmMethodDescription, false);
+            mv.visitMethodInsn(INVOKESTATIC, functionWrapper.fullQualifiedClassName(), func.name.value,
+                    functionWrapper.jvmMethodDescription(), false);
             int retTypeTag = JvmCodeGenUtil.getImpliedType(retType).tag;
             if (retType == null || retTypeTag == TypeTags.NIL || retTypeTag == TypeTags.NEVER) {
                 mv.visitInsn(ACONST_NULL);

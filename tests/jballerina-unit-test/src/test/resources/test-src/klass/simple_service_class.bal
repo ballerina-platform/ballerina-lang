@@ -73,28 +73,28 @@ service class SClass {
 function testServiceObjectValue() {
     SType s = new SClass();
     assertEquality(s.message, "returned from `barPath`");
-    var x = wait callMethod(s, "$get$barPath");
+    var x = callMethod(s, "$get$barPath");
     assertEquality(x, s.message);
 
-    var y = wait callMethod(s, "$get$foo$path");
+    var y = callMethod(s, "$get$foo$path");
     assertEquality(y, s.message + "foo");
 
-    // "$get$." is encorded into "$gen$$get$$0046"
-    var z = wait callMethod(s, "$gen$$get$$0046");
+    // "$get$." is encoded into "$gen$$get$&0046"
+    var z = callMethod(s, "$gen$$get$&0046");
     assertEquality(z, s.message + "dot");
 
-    var rParamVal0 = wait callMethodWithParams(s, "$get$foo$^", [1]);
+    var rParamVal0 = callMethodWithParams(s, "$get$foo$^", [1]);
     assertEquality(rParamVal0, 1);
 
     any[] ar = ["hey", ["hello", " ", "world", "!"]];
-    var rParamVal1 = wait callMethodWithParams(s, "$get$foo$^$^^", ar);
+    var rParamVal1 = callMethodWithParams(s, "$get$foo$^$^^", ar);
     assertEquality(rParamVal1, "hey, hello world!");
 
     boolean[] paramDefaultability = <boolean[]> getParamDefaultability(s, "$get$foo$zee");
     boolean[] d = [false, true, true, true];
     assertEquality(paramDefaultability, d);
 
-    var persons = wait callMethodWithParams(s, "$get$profile", ["Will Smith"]);
+    var persons = callMethodWithParams(s, "$get$profile", ["Will Smith"]);
     if (persons is Person[]) {
         Person[] personArray = <Person[]> persons;
         assertEquality(personArray[0].age, 30);
@@ -104,12 +104,12 @@ function testServiceObjectValue() {
 }
 
 
-public function callMethod(service object {} s, string name) returns future<any|error>  = @java:Method {
+public function callMethod(service object {} s, string name) returns any|error  = @java:Method {
     'class:"org/ballerinalang/nativeimpl/jvm/servicetests/ServiceValue",
     name:"callMethod"
 } external;
 
-public function callMethodWithParams(service object {} s, string name, (any|error)[] ar) returns future<any|error>  = @java:Method {
+public function callMethodWithParams(service object {} s, string name, (any|error)[] ar) returns any|error  = @java:Method {
     'class:"org/ballerinalang/nativeimpl/jvm/servicetests/ServiceValue",
     name:"callMethodWithParams"
 } external;

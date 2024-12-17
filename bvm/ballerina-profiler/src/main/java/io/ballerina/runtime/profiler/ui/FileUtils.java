@@ -18,22 +18,37 @@
 
 package io.ballerina.runtime.profiler.ui;
 
+import io.ballerina.runtime.profiler.runtime.ProfilerRuntimeException;
+
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 
-public class FileUtils {
+public final class FileUtils {
+
+    // Maximum wait time for the file to be created. This will wait 600*100 ms = 60 s.
+    private static final int MAX_WAIT_TIME_FOR_FILE = 600;
+
+    private FileUtils() {
+    }
 
     static String readFileAsString(String file) throws IOException {
-        Path path = Paths.get(file);
+        Path path = Path.of(file);
+        int count = 0;
         while (!Files.exists(path)) {
-            try {
-                Thread.sleep(100);
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
+            if (count++ > MAX_WAIT_TIME_FOR_FILE) {
+                throw new ProfilerRuntimeException("File not found: " + file);
             }
+            waitForFile();
         }
         return Files.readString(path);
+    }
+
+    private static void waitForFile() {
+        try {
+            Thread.sleep(100);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
     }
 }

@@ -20,22 +20,12 @@ import com.google.gson.JsonElement;
 import io.ballerina.projects.Settings;
 import io.ballerina.projects.util.ProjectUtils;
 import org.ballerinalang.central.client.CentralAPIClient;
-import org.ballerinalang.central.client.model.Package;
 import org.ballerinalang.langserver.commons.LanguageServerContext;
-import org.ballerinalang.langserver.commons.client.ExtendedLanguageClient;
-import org.ballerinalang.langserver.extensions.ballerina.connector.CentralPackageListResult;
-import org.eclipse.lsp4j.ProgressParams;
-import org.eclipse.lsp4j.WorkDoneProgressBegin;
-import org.eclipse.lsp4j.WorkDoneProgressCreateParams;
-import org.eclipse.lsp4j.WorkDoneProgressEnd;
-import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.wso2.ballerinalang.util.RepoUtils;
 
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Collections;
 import java.util.List;
-import java.util.Map;
-import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
 /**
@@ -46,8 +36,12 @@ import java.util.concurrent.CompletableFuture;
 public class CentralPackageDescriptorLoader {
     public static final LanguageServerContext.Key<CentralPackageDescriptorLoader> CENTRAL_PACKAGE_HOLDER_KEY =
             new LanguageServerContext.Key<>();
-    private final List<Package> centralPackages = new ArrayList<>();
+    private final List<LSPackageLoader.ModuleInfo> centralPackages = new ArrayList<>();
+    private static final String GET_PACKAGES_QUERY =
+            "{\"query\": \"{packages(orgName:\\\"%s\\\" limit: %s) {packages {name version organization}}}\"}";
     private boolean isLoaded = false;
+
+    private final LSClientLogger clientLogger;
 
     public static CentralPackageDescriptorLoader getInstance(LanguageServerContext context) {
         CentralPackageDescriptorLoader centralPackageDescriptorLoader = context.get(CENTRAL_PACKAGE_HOLDER_KEY);
@@ -59,123 +53,46 @@ public class CentralPackageDescriptorLoader {
 
     private CentralPackageDescriptorLoader(LanguageServerContext context) {
         context.put(CENTRAL_PACKAGE_HOLDER_KEY, this);
+        this.clientLogger = LSClientLogger.getInstance(context);
     }
 
-    public void loadBallerinaxPackagesFromCentral(LanguageServerContext lsContext) {
-        String taskId = UUID.randomUUID().toString();
-        ExtendedLanguageClient languageClient = lsContext.get(ExtendedLanguageClient.class);
-        CompletableFuture.runAsync(() -> {
-            WorkDoneProgressCreateParams workDoneProgressCreateParams = new WorkDoneProgressCreateParams();
-            workDoneProgressCreateParams.setToken(taskId);
-            languageClient.createProgress(workDoneProgressCreateParams);
-
-            WorkDoneProgressBegin beginNotification = new WorkDoneProgressBegin();
-            beginNotification.setTitle("Ballerina Central Packages");
-            beginNotification.setCancellable(false);
-            beginNotification.setMessage("Loading...");
-            languageClient.notifyProgress(new ProgressParams(Either.forLeft(taskId),
-                    Either.forLeft(beginNotification)));
-        }).thenRunAsync(() -> {
-            centralPackages.addAll(CentralPackageDescriptorLoader.getInstance(lsContext).getPackagesFromCentral());
-        }).thenRunAsync(() -> {
-            WorkDoneProgressEnd endNotification = new WorkDoneProgressEnd();
-            endNotification.setMessage("Loaded Successfully!");
-            languageClient.notifyProgress(new ProgressParams(Either.forLeft(taskId),
-                    Either.forLeft(endNotification)));
-        });
-        isLoaded = true;
-    }
-
-    public List<Package> getCentralPackages(LanguageServerContext context) {
-        if (!isLoaded) {
-            loadBallerinaxPackagesFromCentral(context);
-        }
-        return centralPackages;
-    }
-
-    private List<Package> getPackagesFromCentral() {
-        List<Package> packageList = new ArrayList<>();
-        try {
-            for (int page = 0;; page++) {
-                Settings settings = RepoUtils.readSettings();
-
-                CentralAPIClient centralAPIClient = new CentralAPIClient(RepoUtils.getRemoteRepoURL(),
-                        ProjectUtils.initializeProxy(settings.getProxy()), ProjectUtils.getAccessTokenOfCLI(settings));
-                CentralPackageDescriptor descriptor = new CentralPackageDescriptor("ballerinax", 10, page * 10);
-
-                JsonElement newClientConnectors = centralAPIClient.getPackages(descriptor.getQueryMap(),
-                        "any", RepoUtils.getBallerinaVersion());
-
-                CentralPackageListResult packageListResult = new Gson().fromJson(newClientConnectors.getAsString(),
-                        CentralPackageListResult.class);
-                packageList.addAll(packageListResult.getPackages());
-                int listResultCount = packageListResult.getCount();
-
-                if (packageList.size() == listResultCount || descriptor.getOffset() >= listResultCount) {
-                    break;
-                }
+    public CompletableFuture<List<LSPackageLoader.ModuleInfo>> getCentralPackages() {
+        return CompletableFuture.supplyAsync(() -> {
+            if (!isLoaded) {
+                //Load packages from central
+                clientLogger.logTrace("Loading packages from Ballerina Central");
+                centralPackages.addAll(this.getCentralGraphQLPackages());
+                clientLogger.logTrace("Successfully loaded packages from Ballerina Central");
             }
+            isLoaded = true;
+            return this.centralPackages;
+        });
+    }
+
+    private List<LSPackageLoader.ModuleInfo> getCentralGraphQLPackages() {
+        try {
+            Settings settings = RepoUtils.readSettings();
+            CentralAPIClient centralAPIClient = new CentralAPIClient(RepoUtils.getRemoteRepoGraphQLURL(),
+                    ProjectUtils.initializeProxy(settings.getProxy()), ProjectUtils.getAccessTokenOfCLI(settings));
+            String query = String.format(GET_PACKAGES_QUERY, "ballerinax", 800);
+            JsonElement allPackagesResponse = centralAPIClient.getCentralPackagesUsingGraphQL(query, "any",
+                    RepoUtils.getBallerinaVersion());
+            CentralPackageGraphQLResponse response = new Gson().fromJson(allPackagesResponse.getAsString(),
+                    CentralPackageGraphQLResponse.class);
+            return response.data.packages.packages;
 
         } catch (Exception e) {
             // ignore
         }
-        return packageList;
+        return Collections.emptyList();
     }
 
-    /**
-     * Central package descriptor.
-     */
-    public static class CentralPackageDescriptor {
-        private String organization;
-        private int limit;
-        private int offset;
+    public record CentralPackageGraphQLResponse(Packages data) {
+    }
 
-        public CentralPackageDescriptor(String organization, int limit, int offset) {
-            this.organization = organization;
-            this.limit = limit;
-            this.offset = offset;
-        }
+    public record Packages(PackageList packages) {
+    }
 
-        public String getOrganization() {
-            return organization;
-        }
-
-        public void setOrganization(String organization) {
-            this.organization = organization;
-        }
-
-        public int getLimit() {
-            return limit;
-        }
-
-        public void setLimit(int limit) {
-            this.limit = limit;
-        }
-
-        public int getOffset() {
-            return offset;
-        }
-
-        public void setOffset(int offset) {
-            this.offset = offset;
-        }
-
-        public Map<String, String> getQueryMap() {
-            Map<String, String> params = new HashMap();
-
-            if (getOrganization() != null) {
-                params.put("org", getOrganization());
-            }
-
-            if (getLimit() != 0) {
-                params.put("limit", Integer.toString(getLimit()));
-            }
-
-            if (getOffset() != 0) {
-                params.put("offset", Integer.toString(getOffset()));
-            }
-
-            return params;
-        }
+    public record PackageList(List<LSPackageLoader.ModuleInfo> packages) {
     }
 }

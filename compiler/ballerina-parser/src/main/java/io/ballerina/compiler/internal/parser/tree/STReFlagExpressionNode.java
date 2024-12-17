@@ -62,6 +62,7 @@ public class STReFlagExpressionNode extends STNode {
                 colon);
     }
 
+    @Override
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
         return new STReFlagExpressionNode(
                 this.questionMark,
@@ -88,6 +89,7 @@ public class STReFlagExpressionNode extends STNode {
                 diagnostics);
     }
 
+    @Override
     public Node createFacade(int position, NonTerminalNode parent) {
         return new ReFlagExpressionNode(this, position, parent);
     }

@@ -18,13 +18,15 @@
 
 package org.ballerinalang.nativeimpl.jvm.runtime.api.tests;
 
+import io.ballerina.runtime.api.Environment;
 import io.ballerina.runtime.api.Module;
-import io.ballerina.runtime.api.PredefinedTypes;
-import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.creators.TypeCreator;
 import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.flags.SymbolFlags;
+import io.ballerina.runtime.api.repository.Artifact;
+import io.ballerina.runtime.api.repository.Node;
+import io.ballerina.runtime.api.repository.Repository;
 import io.ballerina.runtime.api.types.AnnotatableType;
 import io.ballerina.runtime.api.types.Field;
 import io.ballerina.runtime.api.types.FunctionType;
@@ -33,6 +35,7 @@ import io.ballerina.runtime.api.types.IntersectionType;
 import io.ballerina.runtime.api.types.MethodType;
 import io.ballerina.runtime.api.types.ObjectType;
 import io.ballerina.runtime.api.types.Parameter;
+import io.ballerina.runtime.api.types.PredefinedTypes;
 import io.ballerina.runtime.api.types.RecordType;
 import io.ballerina.runtime.api.types.ReferenceType;
 import io.ballerina.runtime.api.types.RemoteMethodType;
@@ -41,6 +44,7 @@ import io.ballerina.runtime.api.types.ServiceType;
 import io.ballerina.runtime.api.types.TupleType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.TypeId;
+import io.ballerina.runtime.api.types.TypeTags;
 import io.ballerina.runtime.api.utils.IdentifierUtils;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.utils.TypeUtils;
@@ -54,6 +58,7 @@ import io.ballerina.runtime.api.values.BMapInitialValueEntry;
 import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BTypedesc;
+import io.ballerina.runtime.api.values.BXml;
 import io.ballerina.runtime.internal.TypeChecker;
 import io.ballerina.runtime.internal.types.BArrayType;
 import io.ballerina.runtime.internal.types.BFunctionType;
@@ -65,6 +70,7 @@ import io.ballerina.runtime.internal.values.ReadOnlyUtils;
 import org.jetbrains.annotations.Nullable;
 import org.testng.Assert;
 
+import java.io.ByteArrayInputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -77,7 +83,7 @@ import java.util.Optional;
  *
  * @since 2.0.0
  */
-public class Values {
+public final class Values {
 
     private static final Module objectModule = new Module("testorg", "values.objects", "1");
     private static final Module recordModule = new Module("testorg", "values.records", "1");
@@ -86,6 +92,9 @@ public class Values {
     private static final BString intAnnotation = StringUtils.fromString("testorg/types.typeref:1:Int");
     private static final BError constraintError =
             ErrorCreator.createError(StringUtils.fromString("Validation failed for 'minValue' constraint(s)."));
+
+    private Values() {
+    }
 
     public static BMap<BString, Object> getRecord(BString recordName) {
         HashMap<String, Object> address = new HashMap<>();
@@ -201,7 +210,7 @@ public class Values {
     }
 
     public static BArray getTypeIds(BObject bObject) {
-        List<TypeId> typeIds = ((ObjectType) bObject.getType()).getTypeIdSet().getIds();
+        List<TypeId> typeIds = bObject.getType().getTypeIdSet().getIds();
         int size = typeIds.size();
         BArray arrayValue = ValueCreator.createArrayValue(TypeCreator.createArrayType(PredefinedTypes.TYPE_STRING,
                 size));
@@ -323,7 +332,7 @@ public class Values {
         BMap<BString, Object> annotations = ((AnnotatableType) describingType).getAnnotations();
         if (annotations.containsKey(intAnnotation)) {
             Object annotValue = annotations.get(intAnnotation);
-            Long minValue = (Long) ((BMap) annotValue).get(StringUtils.fromString("minValue"));
+            Long minValue = (Long) ((BMap<?, ?>) annotValue).get(StringUtils.fromString("minValue"));
             if (((Long) value) >= minValue) {
                 return value;
             }
@@ -333,11 +342,12 @@ public class Values {
 
     public static Object validateRecord(Object value, BTypedesc typedesc) {
         Type describingType = typedesc.getDescribingType();
-        Long age = ((BMap) value).getIntValue(StringUtils.fromString("age"));
+        Long age = ((BMap<?, ?>) value).getIntValue(StringUtils.fromString("age"));
         for (Field field : ((BRecordType) describingType).getFields().values()) {
             BMap<BString, Object> annotations = ((AnnotatableType) field.getFieldType()).getAnnotations();
             if (annotations.containsKey(intAnnotation)) {
-                Long minValue = (Long) ((BMap) annotations.get(intAnnotation)).get(StringUtils.fromString("minValue"));
+                Long minValue = (Long) ((BMap<?, ?>) annotations.get(intAnnotation))
+                        .get(StringUtils.fromString("minValue"));
                 if (age < minValue) {
                     return constraintError;
                 }
@@ -351,7 +361,7 @@ public class Values {
         BMap<BString, Object> annotations = ((AnnotatableType) describingType).getAnnotations();
         if (annotations.containsKey(intAnnotation)) {
             Object annotValue = annotations.get(intAnnotation);
-            Long minValue = (Long) ((BMap) annotValue).get(StringUtils.fromString("minValue"));
+            Long minValue = (Long) ((BMap<?, ?>) annotValue).get(StringUtils.fromString("minValue"));
             for (Object element : ((BArray) value).getValues()) {
                 if (((Long) element) >= minValue) {
                     return value;
@@ -367,20 +377,20 @@ public class Values {
         BString annotKey = StringUtils.fromString("testorg/types.typeref:1:Array");
         if (annotations.containsKey(annotKey)) {
             Object annotValue = annotations.get(annotKey);
-            Long maxLength = (Long) ((BMap) annotValue).get(StringUtils.fromString("maxLength"));
+            Long maxLength = (Long) ((BMap<?, ?>) annotValue).get(StringUtils.fromString("maxLength"));
             BArray array = (BArray) value;
             if (maxLength < array.getLength()) {
                 return ErrorCreator.createError(
                         StringUtils.fromString("Validation failed for 'maxLength' constraint(s)."));
             }
-            AnnotatableType eType = (AnnotatableType) ((ReferenceType) (((BArrayType)
-                    TypeUtils.getImpliedType(describingType)).getElementType())).getReferredType();
+            AnnotatableType eType = (AnnotatableType) ((ReferenceType) ((BArrayType) ((ReferenceType) describingType)
+                    .getReferredType()).getElementType()).getReferredType();
             annotations = eType.getAnnotations();
             if (!annotations.containsKey(intAnnotation)) {
                 return constraintError;
             }
             annotValue = annotations.get(intAnnotation);
-            Long minValue = (Long) ((BMap) annotValue).get(StringUtils.fromString("minValue"));
+            Long minValue = (Long) ((BMap<?, ?>) annotValue).get(StringUtils.fromString("minValue"));
             for (int i = 0; i < array.getLength(); i++) {
                 if (((Long) array.get(i)) < minValue) {
                     return constraintError;
@@ -421,7 +431,7 @@ public class Values {
     }
 
     public static BArray getIntArray(BTypedesc typedesc) {
-        BArrayType arrayType = (BArrayType) TypeUtils.getImpliedType(typedesc.getDescribingType());
+        BArrayType arrayType = (BArrayType) TypeUtils.getReferredType(typedesc.getDescribingType());
         BArray arrayValue = ValueCreator.createArrayValue(arrayType);
         arrayValue.add(0, 1L);
         arrayValue.add(1, 2L);
@@ -430,7 +440,7 @@ public class Values {
     }
 
     public static BArray getIntArrayWithInitialValues(BTypedesc typedesc, BArray array) {
-        BArrayType arrayType = (BArrayType) TypeUtils.getImpliedType(typedesc.getDescribingType());
+        BArrayType arrayType = (BArrayType) TypeUtils.getReferredType(typedesc.getDescribingType());
         int size = array.size();
         BListInitialValueEntry[] elements = new BListInitialValueEntry[size];
         for (int i = 0; i < size; i++) {
@@ -440,7 +450,7 @@ public class Values {
     }
 
     public static BArray getTupleWithInitialValues(BTypedesc typedesc, BArray array) {
-        BTupleType tupleType = (BTupleType) TypeUtils.getImpliedType(typedesc.getDescribingType());
+        BTupleType tupleType = (BTupleType) TypeUtils.getReferredType(typedesc.getDescribingType());
         int size = array.size();
         BListInitialValueEntry[] elements = new BListInitialValueEntry[size];
         for (int i = 0; i < size; i++) {
@@ -464,7 +474,7 @@ public class Values {
             throw ErrorCreator.createError(StringUtils.fromString("Annotation is not available."));
         }
         BString annotKey = StringUtils.fromString("testorg/types.typeref:1:String");
-        return TypeChecker.checkIsType(((BMap) annotation).get(annotKey), constraint.getDescribingType());
+        return TypeChecker.checkIsType(((BMap<?, ?>) annotation).get(annotKey), constraint.getDescribingType());
     }
 
     public static BString getParameterName(BFunctionPointer fpValue) {
@@ -503,5 +513,49 @@ public class Values {
                 ErrorCreator.createError(errorMsg), ValueCreator.createMapValue());
         Assert.assertEquals(bError.getType().getName(), errorTypeName.getValue());
         return bError;
+    }
+
+    public static BXml getXMLValueFromString1() {
+        return ValueCreator.createXmlValue("<book>The Lost World</book>");
+    }
+
+    public static BXml getXMLValueFromString2() {
+        return ValueCreator.createXmlValue("<reservationID>12345678901234567890123456789012345678901234567890" +
+                "12345678901234567890123456789012345678901234567890aaaaaa</reservationID>");
+    }
+
+    public static BXml getXMLValueFromInputStream1() {
+        return ValueCreator.createXmlValue(new ByteArrayInputStream("<book>The Lost World</book>".getBytes()));
+    }
+
+    public static BXml getXMLValueFromInputStream2() {
+        String xmlString = """
+                <Reservation>
+                <reservationID>1234567890123456789012345678901234567890123456789012345678901234567890\
+                12345678901234567890123456789exceeding100chars</reservationID>
+                    <confirmationID>RPFABE</confirmationID>
+                </Reservation>""";
+        return ValueCreator.createXmlValue(new ByteArrayInputStream(xmlString.getBytes()));
+    }
+
+    public static void validateArtifactCount(Environment env) {
+        Repository repository = env.getRepository();
+        List<Artifact> artifacts = repository.getArtifacts();
+        Assert.assertFalse(artifacts.isEmpty());
+    }
+
+    public static BString getBallerinaNode(Environment env) {
+        Repository repository = env.getRepository();
+        Node node = repository.getNode();
+        Assert.assertNotNull(node);
+        Assert.assertNotNull(node.nodeId);
+        Assert.assertNotNull(node.getDetail("osVersion"));
+        Assert.assertNotNull(node.getDetail("osName"));
+        return StringUtils.fromString("balNode-" + node.nodeId);
+    }
+
+    public static void validateIsRemoteManagementEnabled(Environment env) {
+        Repository repository = env.getRepository();
+        Assert.assertTrue(repository.isRemoteManagementEnabled());
     }
 }

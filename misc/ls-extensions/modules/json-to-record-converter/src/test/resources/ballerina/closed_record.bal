@@ -1,13 +1,13 @@
-type City record {
+type City record {|
     string code;
     string name;
-};
+|};
 
-type Address record {
+type Address record {|
     string country;
     City city;
     string Lane;
-};
+|};
 
 type NewRecord record {|
     Address address;

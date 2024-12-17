@@ -18,33 +18,22 @@
 
 package org.ballerinalang.langlib.internal;
 
-import io.ballerina.runtime.api.async.StrandMetadata;
+import io.ballerina.runtime.api.Environment;
 import io.ballerina.runtime.api.values.BFunctionPointer;
-
-import java.util.ArrayList;
-import java.util.List;
-
-import static io.ballerina.runtime.api.constants.RuntimeConstants.BALLERINA_BUILTIN_PKG_PREFIX;
-import static org.ballerinalang.util.BLangCompilerConstants.INTERNAL_VERSION;
 
 /**
  * Native implementation of lang.internal:invokeAsExternal(func, args).
  *
  * @since 2.0.0
  */
-public class InvokeAsExternal {
+public final class InvokeAsExternal {
 
-    private static final StrandMetadata METADATA = new StrandMetadata(BALLERINA_BUILTIN_PKG_PREFIX, "lang.internal",
-            INTERNAL_VERSION, "invokeAsExternal");
+    private InvokeAsExternal() {
 
-    public static Object invokeAsExternal(Object func, Object[] args) {
+    }
 
+    public static Object invokeAsExternal(Environment env, Object func, Object[] args) {
         BFunctionPointer function = (BFunctionPointer) func;
-        List<Object> argList = new ArrayList<>();
-        for (Object arg : args) {
-            argList.add(arg);
-            argList.add(true);
-        }
-        return function.asyncCall(argList.toArray(), o -> o, METADATA);
+        return function.call(env.getRuntime(), args);
     }
 }

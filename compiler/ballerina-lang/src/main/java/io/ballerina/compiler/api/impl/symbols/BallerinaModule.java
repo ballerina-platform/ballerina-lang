@@ -46,7 +46,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import static org.ballerinalang.model.symbols.SymbolOrigin.BUILTIN;
 import static org.ballerinalang.model.symbols.SymbolOrigin.COMPILED_SOURCE;
@@ -60,7 +59,7 @@ import static org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols.is
  */
 public class BallerinaModule extends BallerinaSymbol implements ModuleSymbol {
 
-    private BPackageSymbol packageSymbol;
+    private final BPackageSymbol packageSymbol;
     private List<TypeDefinitionSymbol> typeDefs;
     private List<ClassSymbol> classes;
     private List<FunctionSymbol> functions;
@@ -136,7 +135,7 @@ public class BallerinaModule extends BallerinaSymbol implements ModuleSymbol {
             this.typeDefs = this.allSymbols().stream()
                     .filter(symbol -> symbol.kind() == SymbolKind.TYPE_DEFINITION)
                     .map(symbol -> (TypeDefinitionSymbol) symbol)
-                    .collect(Collectors.toUnmodifiableList());
+                    .toList();
         }
 
         return this.typeDefs;
@@ -263,11 +262,10 @@ public class BallerinaModule extends BallerinaSymbol implements ModuleSymbol {
             return true;
         }
 
-        if (!(obj instanceof ModuleSymbol)) {
+        if (!(obj instanceof ModuleSymbol symbol)) {
             return false;
         }
 
-        ModuleSymbol symbol = (ModuleSymbol) obj;
         return this.id().equals(symbol.id());
     }
 

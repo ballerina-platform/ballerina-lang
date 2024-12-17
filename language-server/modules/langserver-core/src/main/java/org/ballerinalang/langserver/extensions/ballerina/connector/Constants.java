@@ -20,7 +20,10 @@ package org.ballerinalang.langserver.extensions.ballerina.connector;
  *
  * @since 2.0.0
  */
-public class Constants {
+public final class Constants {
 
-    protected static final String CAPABILITY_NAME = "ballerinaConnector";
+    static final String CAPABILITY_NAME = "ballerinaConnector";
+
+    private Constants() {
+    }
 }

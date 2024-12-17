@@ -28,12 +28,10 @@ import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BRecordTypeSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BStructureTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeDefinitionSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
@@ -81,9 +79,12 @@ import static org.wso2.ballerinalang.compiler.desugar.ASTBuilderUtil.createIdent
  *
  * @since 1.2.0
  */
-public class TypeDefBuilderHelper {
+public final class TypeDefBuilderHelper {
 
     public static final String INTERSECTED_ERROR_DETAIL = "$IntersectedErrorDetail$";
+
+    private TypeDefBuilderHelper() {
+    }
 
     public static BLangRecordTypeNode createRecordTypeNode(BRecordType recordType, PackageID packageID,
                                                            SymbolTable symTable, Location pos) {
@@ -135,21 +136,6 @@ public class TypeDefBuilderHelper {
         return objectTypeNode;
     }
 
-    public static BLangFunction createInitFunctionForRecordType(BLangRecordTypeNode recordTypeNode, SymbolEnv env,
-                                                                Names names, SymbolTable symTable) {
-        BLangFunction initFunction = createInitFunctionForStructureType(recordTypeNode.symbol, env,
-                                                                        names, Names.INIT_FUNCTION_SUFFIX, symTable,
-                                                                        recordTypeNode.getBType());
-        BStructureTypeSymbol structureSymbol = ((BStructureTypeSymbol) recordTypeNode.getBType().tsymbol);
-        structureSymbol.initializerFunc = new BAttachedFunction(initFunction.symbol.name, initFunction.symbol,
-                                                                (BInvokableType) initFunction.getBType(),
-                                                                initFunction.pos);
-        recordTypeNode.initFunction = initFunction;
-        structureSymbol.scope.define(structureSymbol.initializerFunc.symbol.name,
-                                     structureSymbol.initializerFunc.symbol);
-        return initFunction;
-    }
-
     public static BLangFunction createInitFunctionForStructureType(BSymbol symbol,
                                                                    SymbolEnv env,
                                                                    Names names,
@@ -182,7 +168,7 @@ public class TypeDefBuilderHelper {
         initFunction.setBType(new BInvokableType(new ArrayList<>(), returnType, null));
 
         // Create the function symbol
-        Name funcSymbolName = names.fromString(Symbols.getAttachedFuncSymbolName(structTypeName, suffix.value));
+        Name funcSymbolName = Names.fromString(Symbols.getAttachedFuncSymbolName(structTypeName, suffix.value));
         initFunction.symbol = Symbols
                 .createFunctionSymbol(Flags.asMask(initFunction.flagSet), funcSymbolName, funcSymbolName,
                                       env.enclPkg.symbol.pkgID, initFunction.getBType(), symbol,
@@ -311,14 +297,17 @@ public class TypeDefBuilderHelper {
         return ""; // current module
     }
 
-    public static void populateStructureFields(Types types, SymbolTable symTable,
-                                               BLangAnonymousModelHelper anonymousModelHelper, Names names,
-                                               BLangStructureTypeNode structureTypeNode, BStructureType structureType,
-                                               BStructureType origStructureType, Location pos, SymbolEnv env,
-                                               PackageID pkgID, Set<BType> unresolvedTypes,
-                                               long flag, boolean isImmutable) {
+    public static void populateStructureFieldsAndTypeInclusions(Types types, SymbolTable symTable,
+                                                                BLangAnonymousModelHelper anonymousModelHelper,
+                                                                Names names, BLangStructureTypeNode structureTypeNode,
+                                                                BStructureType structureType,
+                                                                BStructureType origStructureType, Location pos,
+                                                                SymbolEnv env, PackageID pkgID,
+                                                                Set<BType> unresolvedTypes, long flag,
+                                                                boolean isImmutable) {
         BTypeSymbol structureSymbol = structureType.tsymbol;
         LinkedHashMap<String, BField> fields = new LinkedHashMap<>();
+        structureType.typeInclusions = origStructureType.typeInclusions;
         for (BField origField : origStructureType.fields.values()) {
             BType fieldType;
             if (isImmutable) {
@@ -341,7 +330,7 @@ public class TypeDefBuilderHelper {
                 invokableSymbol.params = tsymbol.params == null ? null : new ArrayList<>(tsymbol.params);
                 invokableSymbol.restParam = tsymbol.restParam;
                 invokableSymbol.retType = tsymbol.returnType;
-                invokableSymbol.flags = tsymbol.flags;
+                invokableSymbol.flags = invokableSymbol.flags | tsymbol.flags;
             } else if (fieldType == symTable.semanticError) {
                 // Can only happen for records.
                 fieldSymbol = new BVarSymbol(origField.symbol.flags | flag | Flags.OPTIONAL,
@@ -352,6 +341,7 @@ public class TypeDefBuilderHelper {
                         fieldType, structureSymbol,
                         origField.symbol.pos, SOURCE);
             }
+            fieldSymbol.isDefaultable = origField.symbol.isDefaultable;
             String nameString = fieldName.value;
             fields.put(nameString, new BField(fieldName, null, fieldSymbol));
             structureSymbol.scope.define(fieldName, fieldSymbol);
@@ -396,8 +386,9 @@ public class TypeDefBuilderHelper {
 
         BLangRecordTypeNode recordTypeNode = TypeDefBuilderHelper.createRecordTypeNode(new ArrayList<>(), type,
                 pos);
-        TypeDefBuilderHelper.populateStructureFields(types, symTable, null, names, recordTypeNode, type, type, pos,
-                env, env.scope.owner.pkgID, null, Flags.REQUIRED, false);
+        TypeDefBuilderHelper.populateStructureFieldsAndTypeInclusions(types, symTable, null, names, recordTypeNode,
+                                                                      type, type, pos, env, env.scope.owner.pkgID,
+                                                                      null, Flags.REQUIRED, false);
         recordTypeNode.sealed = true;
         recordTypeNode.analyzed = true;
         type.restFieldType = new BNoType(TypeTags.NONE);

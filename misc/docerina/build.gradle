@@ -15,8 +15,10 @@
  *
  */
 
-apply from: "$rootDir/gradle/javaProject.gradle"
-apply from: "$rootDir/gradle/ballerinaLangLibLoad.gradle"
+plugins {
+    id 'javaProject'
+    id 'ballerinaLangLibLoad'
+}
 
 configurations.all {
     resolutionStrategy.preferProjectModules()
@@ -38,25 +40,26 @@ dependencies {
     implementation project(':ballerina-parser')
     implementation project(':ballerina-lang')
     implementation project(':ballerina-lang:annotations')
-    implementation 'commons-io:commons-io'
-    implementation "com.google.code.gson:gson:${project.gsonVersion}"
+    implementation libs.commons.io
+    implementation libs.squareup.okhttp
+    implementation libs.gson
 
     distBal project(path: ':ballerina-lang:annotations', configuration: 'balaImplementation')
 
-    testImplementation 'org.testng:testng'
-    testImplementation 'org.slf4j:slf4j-jdk14'
+    testImplementation libs.testng
+    testImplementation libs.slf4j.jdk14
 
     balRt project(':ballerina-rt')
 }
 
 
-task createTestDistributionCache(type: Copy) {
+tasks.register('createTestDistributionCache', Copy) {
     dependsOn configurations.distributionBala
     from configurations.distributionBala
     into "$buildDir/repo"
 }
 
-task createTestBre(type: Copy) {
+tasks.register('createTestBre', Copy) {
     from configurations.balRt
     from configurations.testRt
     from configurations.testCore
@@ -96,7 +99,7 @@ processResources {
     filter { String line -> line.replace('${short.version}', "${project.version}")}
 }
 
-task copyBala(type: Copy) {
+tasks.register('copyBala', Copy) {
     from configurations.distBal
     into("$buildDir/lib")
 }
@@ -104,13 +107,3 @@ task copyBala(type: Copy) {
 description = 'Ballerina - Docerina'
 
 ext.moduleName = 'docerina'
-
-compileJava {
-    inputs.property("moduleName", moduleName)
-    doFirst {
-        options.compilerArgs = [
-                '--module-path', classpath.asPath,
-        ]
-        classpath = files()
-    }
-}

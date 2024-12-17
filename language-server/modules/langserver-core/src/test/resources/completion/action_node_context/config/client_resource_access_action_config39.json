@@ -1,0 +1,40 @@
+{
+  "position": {
+    "line": 8,
+    "character": 9
+  },
+  "source": "action_node_context/source/client_resource_access_action_source32.bal",
+  "description": "Test completions in union of singleton resource params",
+  "items": [
+    {
+      "label": "/[\"A1\"|\"A2\" a].accessor",
+      "kind": "Function",
+      "detail": "()",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _._  \n  \n  \n**Params**  \n- `\"A1\"|\"A2\"` a"
+        }
+      },
+      "sortText": "CD",
+      "filterText": "|accessor",
+      "insertText": "/[${1:\"path\"}].accessor;",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "/<a>.accessor",
+      "kind": "Function",
+      "detail": "()",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _._  \n  \n  \n**Params**  \n- `\"A1\"|\"A2\"` a"
+        }
+      },
+      "sortText": "CE",
+      "filterText": "|accessor",
+      "insertText": "/${1:path}.accessor;",
+      "insertTextFormat": "Snippet"
+    }
+  ]
+}

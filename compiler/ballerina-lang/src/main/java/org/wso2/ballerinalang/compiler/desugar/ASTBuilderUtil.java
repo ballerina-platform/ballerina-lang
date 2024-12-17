@@ -102,6 +102,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangSimpleVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTupleVariableDef;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangWhile;
 import org.wso2.ballerinalang.compiler.tree.types.BLangType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangValueType;
@@ -114,7 +115,6 @@ import org.wso2.ballerinalang.util.Lists;
 import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static org.ballerinalang.model.symbols.SymbolOrigin.VIRTUAL;
 
@@ -123,7 +123,10 @@ import static org.ballerinalang.model.symbols.SymbolOrigin.VIRTUAL;
  *
  * @since 0.965.0
  */
-public class ASTBuilderUtil {
+public final class ASTBuilderUtil {
+
+    private ASTBuilderUtil() {
+    }
 
     /**
      * Prepend generated code to given body.
@@ -158,7 +161,7 @@ public class ASTBuilderUtil {
 
     static void appendStatement(BLangStatement stmt, BLangBlockStmt target) {
         int index = 0;
-        if (target.stmts.size() > 0 && target.stmts.get(target.stmts.size() - 1).getKind() == NodeKind.RETURN) {
+        if (!target.stmts.isEmpty() && target.stmts.get(target.stmts.size() - 1).getKind() == NodeKind.RETURN) {
             index = target.stmts.size() - 1;
         }
         target.stmts.add(index, stmt);
@@ -268,6 +271,16 @@ public class ASTBuilderUtil {
         foreach.body = ASTBuilderUtil.createBlockStmt(pos);
         foreach.collection = collectionVarRef;
         return foreach;
+    }
+
+    static BLangWhile createWhile(Location pos,
+                                  BLangExpression condition,
+                                  BLangBlockStmt body) {
+        final BLangWhile whileNode = (BLangWhile) TreeBuilder.createWhileNode();
+        whileNode.pos = pos;
+        whileNode.body = body;
+        whileNode.expr = condition;
+        return whileNode;
     }
 
     static BLangSimpleVariableDef createVariableDefStmt(Location pos, BlockNode target) {
@@ -622,7 +635,7 @@ public class ASTBuilderUtil {
         assignableExpr.lhsExpr = lhsExpr;
         assignableExpr.targetType = targetType;
         assignableExpr.setBType(type);
-        assignableExpr.opSymbol = new BOperatorSymbol(names.fromString(assignableExpr.opKind.value()),
+        assignableExpr.opSymbol = new BOperatorSymbol(Names.fromString(assignableExpr.opKind.value()),
                                                       null, targetType, null, opSymPos, VIRTUAL);
         return assignableExpr;
     }
@@ -890,7 +903,7 @@ public class ASTBuilderUtil {
 
         dupFuncSymbol.params = invokableSymbol.params.stream()
                 .map(param -> duplicateParamSymbol(param, dupFuncSymbol))
-                .collect(Collectors.toList());
+                .toList();
         if (dupFuncSymbol.restParam != null) {
             dupFuncSymbol.restParam = duplicateParamSymbol(invokableSymbol.restParam, dupFuncSymbol);
         }

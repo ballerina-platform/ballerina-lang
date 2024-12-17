@@ -40,6 +40,15 @@ public class ReadonlyRecordFieldTest {
         BRunUtil.invoke(result, testFunction);
     }
 
+    @Test
+    public void testReadonlyInheritanceForInvokableTypeRecordField() {
+        BCompileUtil.compileAndCacheBala(
+                "test-src/record/cloned_record_field_flag_inheritance/imported_module_with_readonly_records");
+        CompileResult result = BCompileUtil.compile(
+                "test-src/record/cloned_record_field_flag_inheritance/module_with_field_access_for_readonly_record");
+        assertEquals(result.getErrorCount(), 0);
+    }
+
     @DataProvider(name = "readonlyRecordFieldTestFunctions")
     public Object[][] readonlyRecordFieldTestFunctions() {
         return new Object[][]{
@@ -123,6 +132,8 @@ public class ReadonlyRecordFieldTest {
         validateError(result, index++, "incompatible types: expected 'readonly', found 'R2'", 302, 18);
         validateError(result, index++, "incompatible types: expected 'readonly'," +
                 " found 'record {| int x; never y?; anydata...; |}'", 308, 18);
+        validateError(result, index++, "missing non-defaultable required record field 'x'", 323, 25);
+        validateError(result, index++, "missing non-defaultable required record field 'y'", 324, 25);
         assertEquals(result.getErrorCount(), index);
     }
 }

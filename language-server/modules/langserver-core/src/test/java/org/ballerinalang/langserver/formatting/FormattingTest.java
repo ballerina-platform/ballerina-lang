@@ -32,7 +32,6 @@ import org.testng.annotations.Test;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.List;
 
 /**
@@ -57,7 +56,7 @@ public class FormattingTest {
         DocumentFormattingParams documentFormattingParams = new DocumentFormattingParams();
 
         TextDocumentIdentifier textDocumentIdentifier1 = new TextDocumentIdentifier();
-        textDocumentIdentifier1.setUri(Paths.get(inputFilePath.toString()).toUri().toString());
+        textDocumentIdentifier1.setUri(Path.of(inputFilePath.toString()).toUri().toString());
 
         FormattingOptions formattingOptions = new FormattingOptions();
         formattingOptions.setInsertSpaces(true);
@@ -71,14 +70,44 @@ public class FormattingTest {
         String result = TestUtil.getFormattingResponse(documentFormattingParams, this.serviceEndpoint);
         Gson gson = new Gson();
         ResponseMessage responseMessage = gson.fromJson(result, ResponseMessage.class);
-        String actual = (String) ((LinkedTreeMap) ((List) responseMessage.getResult()).get(0)).get("newText");
+        String actual = (String) ((LinkedTreeMap<?, ?>) ((List<?>) responseMessage.getResult()).get(0)).get("newText");
+        actual = actual.replaceAll("\\r\\n", "\n");
+        TestUtil.closeDocument(this.serviceEndpoint, inputFilePath);
+        Assert.assertEquals(actual, expected);
+    }
+
+    @Test(description = "test formatting functionality on functions with configurations")
+    public void formatTestSuiteWithConfigurations() throws IOException {
+        Path inputProject = formattingDirectory.resolve("project");
+        Path expectedProject = formattingDirectory.resolve("projectExpected");
+        Path expectedFilePath = expectedProject.resolve("main.bal");
+        Path inputFilePath = inputProject.resolve("main.bal");
+
+        String expected = new String(Files.readAllBytes(expectedFilePath));
+        expected = expected.replaceAll("\\r\\n", "\n");
+        DocumentFormattingParams documentFormattingParams = new DocumentFormattingParams();
+
+        TextDocumentIdentifier textDocumentIdentifier1 = new TextDocumentIdentifier();
+        textDocumentIdentifier1.setUri(Path.of(inputFilePath.toString()).toUri().toString());
+
+        FormattingOptions formattingOptions = new FormattingOptions();
+
+        documentFormattingParams.setOptions(formattingOptions);
+        documentFormattingParams.setTextDocument(textDocumentIdentifier1);
+
+        TestUtil.openDocument(this.serviceEndpoint, inputFilePath);
+
+        String result = TestUtil.getFormattingResponse(documentFormattingParams, this.serviceEndpoint);
+        Gson gson = new Gson();
+        ResponseMessage responseMessage = gson.fromJson(result, ResponseMessage.class);
+        String actual = (String) ((LinkedTreeMap<?, ?>) ((List<?>) responseMessage.getResult()).get(0)).get("newText");
         actual = actual.replaceAll("\\r\\n", "\n");
         TestUtil.closeDocument(this.serviceEndpoint, inputFilePath);
         Assert.assertEquals(actual, expected);
     }
 
     @AfterClass
-    public void shutdownLanguageServer() throws IOException {
+    public void shutdownLanguageServer() {
         TestUtil.shutdownLanguageServer(this.serviceEndpoint);
     }
 }

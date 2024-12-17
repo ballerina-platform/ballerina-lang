@@ -26,14 +26,17 @@ import io.ballerina.runtime.api.values.BString;
  *
  * @since 1.0
  */
-public class Concat {
+public final class Concat {
+
+    private Concat() {
+    }
 
     public static BString concat(BString[] str) {
         StringBuilder stringBuilder = new StringBuilder();
         int size = str.length;
 
-        for (int i = 0; i < size; i++) {
-            stringBuilder.append(str[i]);
+        for (BString bString : str) {
+            stringBuilder.append(bString);
         }
 
         return StringUtils.fromString(stringBuilder.toString());

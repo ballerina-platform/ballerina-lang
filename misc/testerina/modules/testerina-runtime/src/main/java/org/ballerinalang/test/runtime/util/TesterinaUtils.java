@@ -17,9 +17,8 @@
  */
 package org.ballerinalang.test.runtime.util;
 
-import io.ballerina.identifier.Utils;
 import io.ballerina.runtime.api.values.BError;
-import io.ballerina.runtime.internal.util.RuntimeUtils;
+import io.ballerina.runtime.internal.utils.RuntimeUtils;
 import org.ballerinalang.test.runtime.entity.Test;
 import org.ballerinalang.test.runtime.entity.TestSuite;
 import org.ballerinalang.test.runtime.exceptions.BallerinaTestException;
@@ -39,6 +38,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 import java.util.regex.Pattern;
+import java.util.stream.Stream;
 
 import static io.ballerina.identifier.Utils.encodeNonFunctionIdentifier;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.BLANG_SRC_FILE_SUFFIX;
@@ -53,7 +53,7 @@ import static org.ballerinalang.test.runtime.util.TesterinaConstants.TESTERINA_M
 /**
  * Utility methods.
  */
-public class TesterinaUtils {
+public final class TesterinaUtils {
 
     private static final PrintStream errStream = System.err;
 
@@ -65,6 +65,9 @@ public class TesterinaUtils {
     private static final String START_FUNCTION_SUFFIX = ".<start>";
     private static final String STOP_FUNCTION_SUFFIX = ".<stop>";
 
+    private TesterinaUtils() {
+    }
+
     /**
      * Cleans up any remaining testerina metadata.
      *
@@ -73,7 +76,9 @@ public class TesterinaUtils {
     public static void cleanUpDir(Path path) {
         try {
             if (Files.exists(path)) {
-                Files.walk(path).sorted(Comparator.reverseOrder()).map(Path::toFile).forEach(File::delete);
+                try (Stream<Path> paths = Files.walk(path)) {
+                    paths.sorted(Comparator.reverseOrder()).map(Path::toFile).forEach(File::delete);
+                }
             }
         } catch (IOException e) {
             errStream.println("Error occurred while deleting the dir : " + path + " with error : "
@@ -115,7 +120,7 @@ public class TesterinaUtils {
             throw new BallerinaTestException("failed to load init class :" + initClassName);
         }
         String suiteExecuteFilePath = suite.getExecuteFilePath();
-        if (suiteExecuteFilePath.equals("")) {
+        if (suiteExecuteFilePath.isEmpty()) {
             out.println("\tNo tests found");
             return 0;
         }
@@ -128,9 +133,9 @@ public class TesterinaUtils {
     private static void startSuite(Class<?> initClazz, String[] args) {
         // Call test module main
         Object response = runTestModuleMain(initClazz, args, String[].class);
-        if (response instanceof Throwable) {
+        if (response instanceof Throwable throwable) {
             throw new BallerinaTestException("dependant module execution for test suite failed due to " +
-                    formatErrorMessage((Throwable) response), (Throwable) response);
+                    RuntimeUtils.formatErrorMessage(throwable), throwable);
         }
     }
 
@@ -147,7 +152,7 @@ public class TesterinaUtils {
             return targetException;
         } catch (NoSuchMethodException | IllegalAccessException | IllegalArgumentException e) {
             return new BallerinaTestException("Failed to invoke the function '" + TESTERINA_MAIN_METHOD + " due to " +
-                    formatErrorMessage(e), e);
+                    RuntimeUtils.formatErrorMessage(e), e);
         }
     }
 
@@ -157,22 +162,7 @@ public class TesterinaUtils {
             return Math.toIntExact((long) method.invoke(null));
         } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
             throw new BallerinaTestException("Failed to invoke the function '" + GET_TEST_EXEC_STATE + " due to " +
-                    formatErrorMessage(e), e);
-        }
-    }
-
-    private static String formatErrorMessage(Throwable e) {
-        try {
-            if (e instanceof BError) {
-                return ((BError) e).getPrintableStackTrace();
-            } else if (e instanceof Exception | e instanceof Error) {
-                return TesterinaUtils.getPrintableStackTrace(e);
-            } else {
-                return TesterinaUtils.getPrintableStackTrace(e);
-            }
-        } catch (ClassCastException classCastException) {
-            // If an unhandled error type is passed to format error message
-            return TesterinaUtils.getPrintableStackTrace(e);
+                    RuntimeUtils.formatErrorMessage(e), e);
         }
     }
 
@@ -184,7 +174,7 @@ public class TesterinaUtils {
      */
     public static String formatError(String errorMsg) {
         StringBuilder newErrMsg = new StringBuilder();
-        errorMsg = errorMsg.replaceAll("\n", "\n\t");
+        errorMsg = errorMsg.replace("\n", "\n\t");
         List<String> msgParts = Arrays.asList(errorMsg.split("\n"));
         boolean stackTraceStartFlag = true;
 
@@ -341,57 +331,8 @@ public class TesterinaUtils {
         }
     }
 
-    public static List<org.ballerinalang.test.runtime.entity.Test> getSingleExecutionTestsOld(
-            List<org.ballerinalang.test.runtime.entity.Test> currentTests, List<String> functions) {
+    public static List<Test> getSingleExecutionTestsOld(List<Test> currentTests, List<String> functions) {
         return Collections.emptyList();
-    }
-
-    public static String getPrintableStackTrace(Throwable throwable) {
-        String errorMsg = throwable.toString();
-        StringBuilder sb = new StringBuilder();
-        sb.append(errorMsg);
-        // Append function/action/resource name with package path (if any)
-        StackTraceElement[] stackTrace = throwable.getStackTrace();
-        if (stackTrace.length == 0) {
-            return sb.toString();
-        }
-        sb.append("\n\tat ");
-        // print first element
-        printStackElement(sb, stackTrace[0], "");
-        for (int i = 1; i < stackTrace.length; i++) {
-            printStackElement(sb, stackTrace[i], "\n\t   ");
-        }
-        return sb.toString();
-    }
-
-    private static void printStackElement(StringBuilder sb, StackTraceElement stackTraceElement, String tab) {
-        String pkgName = Utils.decodeIdentifier(stackTraceElement.getClassName());
-        String fileName = stackTraceElement.getFileName();
-
-        if (fileName == null) {
-            fileName = "unknown-source";
-        }
-
-        // clean file name from pkgName since we print the file name after the method name.
-        fileName = fileName.replace(BLANG_SRC_FILE_SUFFIX, "");
-        fileName = fileName.replace("/", "-");
-        int index = pkgName.lastIndexOf("." + fileName);
-        if (index != -1) {
-            pkgName = pkgName.substring(0, index);
-        }
-        // todo we need to seperate orgname and module name with '/'
-
-        sb.append(tab);
-        if (!pkgName.equals(MODULE_INIT_CLASS_NAME)) {
-            sb.append(pkgName).append(":");
-        }
-
-        // Append the method name
-        sb.append(Utils.decodeIdentifier(stackTraceElement.getMethodName()));
-        // Append the filename
-        sb.append("(").append(fileName);
-        // Append the line number
-        sb.append(":").append(stackTraceElement.getLineNumber()).append(")");
     }
 
     public static StackTraceElement[] getStackTrace(Throwable throwable) {
@@ -450,7 +391,7 @@ public class TesterinaUtils {
 
     public static String decodeIdentifier(String encodedIdentifier) {
         if (encodedIdentifier == null) {
-            return encodedIdentifier;
+            return null;
         }
         StringBuilder sb = new StringBuilder();
         int index = 0;

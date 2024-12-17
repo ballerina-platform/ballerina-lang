@@ -80,12 +80,12 @@ public class DependentlyTypedFunctionsTest {
         validateError(errors, indx++, "incompatible types: expected 'function (typedesc<(string|int)>) " +
                 "returns (string)', found 'function (typedesc<(int|string)>) returns (aTypeVar)'", 126, 61);
         validateError(errors, indx++, "mismatched function signatures: expected 'public function get" +
-                "(typedesc<anydata> td) returns (td|error)', found 'public function get(typedesc<anydata> td) returns" +
+                "(typedesc<anydata>) returns (td|error)', found 'public function get(typedesc<anydata>) returns" +
                 " (other|error)'", 140, 5);
         validateError(errors, indx++, "a function with a non-'external' function body cannot be a dependently-typed " +
                 "function", 140, 64);
         validateError(errors, indx++, "mismatched function signatures: expected 'public function get" +
-                "(typedesc<anydata> td) returns (td|error)', found 'public function get(typedesc<anydata> td) returns" +
+                "(typedesc<anydata>) returns (td|error)', found 'public function get(typedesc<anydata>) returns" +
                 " (other|error)'", 144, 5);
         validateError(errors, indx++, "a function with a non-'external' function body cannot be a dependently-typed " +
                 "function", 144, 64);
@@ -158,7 +158,7 @@ public class DependentlyTypedFunctionsTest {
         validateError(errors, indx++, "incompatible types: expected 'string', found 'int'", 340, 17);
         validateError(errors, indx++, "incompatible types: expected 'string', found 'int'", 341, 17);
         validateError(errors, indx++, "incompatible types: expected 'int', found 'string'", 342, 14);
-        validateError(errors, indx++, "undefined defaultable parameter 'targetTypes'", 343, 74);
+        validateError(errors, indx++, "undefined parameter 'targetTypes'", 343, 74);
         validateError(errors, indx++, "incompatible types: expected 'int', found '(string|error)'", 345, 14);
         validateError(errors, indx++, "incompatible types: expected 'string', found '(int|error)'", 346, 17);
         validateError(errors, indx++, "incompatible types: expected 'string', found '(int|error)'", 347, 17);
@@ -179,6 +179,8 @@ public class DependentlyTypedFunctionsTest {
         validateError(errors, indx++, "incompatible type for parameter 't' with inferred typedesc value: expected " +
                 "'typedesc<(int|string)>', found 'typedesc<boolean>'", 369, 17);
         validateError(errors, indx++, "incompatible types: expected 'TargetType', found 'typedesc<boolean>'", 371, 64);
+        validateError(errors, indx++, "incompatible type for parameter 'td' with inferred typedesc value: expected " +
+                "'typedesc<anydata>', found 'typedesc'", 383, 24);
         Assert.assertEquals(errors.getErrorCount(), indx);
     }
 
@@ -237,7 +239,8 @@ public class DependentlyTypedFunctionsTest {
                 {"testDependentlyTypedMethodCallOnObjectType"},
                 {"testDependentlyTypedMethodCallOnObjectTypeWithInferredArgument"},
                 {"testDependentlyTypedFunctionWithInferredArgForParamOfTypeReferenceType"},
-                {"testDependentlyTypedResourceMethods"}
+                {"testDependentlyTypedResourceMethods"},
+                {"testDependentlyTypedFunctionWithTypeReferenceType"}
         };
     }
 

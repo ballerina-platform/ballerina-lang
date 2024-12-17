@@ -78,9 +78,69 @@ public class XMLAttributeAccessTest {
     @Test
     public void testXMLAttributeAccessNegative() {
         CompileResult negative = BCompileUtil.compile("test-src/types/xml/xml-attribute-access-syntax-neg.bal");
-        Assert.assertEquals(negative.getErrorCount(), 2);
-        BAssertUtil.validateError(negative, 0, "invalid character ':' in field access expression", 7, 13);
-        BAssertUtil.validateError(negative, 1, "invalid character ':' in field access expression", 10, 13);
+        int index = 0;
+        BAssertUtil.validateError(negative, index++, "invalid character ':' in field access expression", 7, 13);
+        BAssertUtil.validateError(negative, index++, "invalid character ':' in field access expression", 10, 13);
+        BAssertUtil.validateError(negative, index++, "incompatible types: expected 'xml', found '(string|error)'", 17,
+                13);
+        BAssertUtil.validateError(negative, index++, "incompatible types: expected 'xml', found '(string|error)?'", 18,
+                13);
+        BAssertUtil.validateError(negative, index++, "incompatible types: expected 'string', found '(string|error)'",
+                19, 16);
+        BAssertUtil.validateError(negative, index++, "incompatible types: expected 'string', found '(string|error)?'",
+                20, 16);
+        BAssertUtil.validateError(negative, index++, "incompatible types: expected 'xml', found '(string|error)'", 23,
+                13);
+        BAssertUtil.validateError(negative, index++, "incompatible types: expected 'xml', found '(string|error)?'", 24,
+                13);
+        BAssertUtil.validateError(negative, index++, "incompatible types: expected 'string', found '(string|error)'",
+                25, 16);
+        BAssertUtil.validateError(negative, index++,
+                "incompatible types: expected '(string|error)', found '(string|error)?'", 26, 22);
+        BAssertUtil.validateError(negative, index++, "incompatible types: expected 'xml?', found '(string|error)'", 29,
+                14);
+        BAssertUtil.validateError(negative, index++, "incompatible types: expected 'xml', found '(string|error)?'", 30,
+                13);
+        BAssertUtil.validateError(negative, index++, "incompatible types: expected 'string?', found '(string|error)'",
+                31, 17);
+        BAssertUtil.validateError(negative, index++,
+                "incompatible types: expected '(string|error)', found '(string|error)?'", 32, 9);
+        BAssertUtil.validateError(negative, index++, "incompatible types: expected 'xml?', found '(string|error)'", 35,
+                14);
+        BAssertUtil.validateError(negative, index++, "incompatible types: expected 'xml', found '(string|error)?'", 36,
+                13);
+        BAssertUtil.validateError(negative, index++, "incompatible types: expected 'string', found '(string|error)'",
+                37, 16);
+        BAssertUtil.validateError(negative, index++,
+                "incompatible types: expected '(string|error)', found '(string|error)?'", 38, 9);
+        BAssertUtil.validateError(negative, index++, "incompatible types: expected 'xml', found '(string|error)'", 41,
+                13);
+        BAssertUtil.validateError(negative, index++,
+                "invalid operation: type '(string|error)' does not support field access", 42, 13);
+        BAssertUtil.validateError(negative, index++,
+                "invalid operation: type '(string|error)' does not support optional field access", 43, 16);
+        BAssertUtil.validateError(negative, index++, "incompatible types: expected 'string', found '(string|error)'",
+                49, 16);
+        BAssertUtil.validateError(negative, index++, "incompatible types: expected 'string?', found '(string|error)?'",
+                50, 17);
+        BAssertUtil.validateError(negative, index++, "incompatible types: expected 'string', found '(string|error)'",
+                53, 16);
+        BAssertUtil.validateError(negative, index++,
+                "incompatible types: expected '(string|error)', found '(string|error)?'", 54, 22);
+        BAssertUtil.validateError(negative, index++, "incompatible types: expected 'string', found '(string|error)'",
+                57, 16);
+        BAssertUtil.validateError(negative, index++, "incompatible types: expected 'string?', found '(string|error)?'",
+                58, 17);
+        BAssertUtil.validateError(negative, index++, "incompatible types: expected 'string?', found '(string|error)'",
+                61, 17);
+        BAssertUtil.validateError(negative, index++, "incompatible types: expected 'string?', found '(string|error)?'",
+                62, 17);
+        BAssertUtil.validateError(negative, index++, "incompatible types: expected 'string', found '(string|error)'",
+                65, 16);
+        BAssertUtil.validateError(negative, index++, "incompatible types: expected 'xml?', found '(string|error)?'", 66,
+                14);
+        Assert.assertEquals(negative.getErrorCount(), index);
+
     }
 
     @Test
@@ -102,6 +162,31 @@ public class XMLAttributeAccessTest {
     @Test
     public void testXMLAfterRemoveAttribute() {
         BRunUtil.invoke(compileResult, "testXMLAfterRemoveAttribute");
+    }
+
+    @Test
+    public void testXMLIndexedOptionalAttributeAccess() {
+        BRunUtil.invoke(compileResult, "testXMLIndexedOptionalAttributeAccess");
+    }
+
+    @Test
+    public void testErrorsOnXMLIndexedOptionalAttributeAccess() {
+        BRunUtil.invoke(compileResult, "testErrorsOnXMLIndexedOptionalAttributeAccess");
+    }
+
+    @Test
+    public void testXMLIndexedOptionalAttributeAccessWithNS() {
+        BRunUtil.invoke(compileResult, "testXMLIndexedOptionalAttributeAccessWithNS");
+    }
+
+    @Test
+    public void testXmlAttributeAccessOnXmlUnionTypes() {
+        BRunUtil.invoke(compileResult, "testXmlAttributeAccessOnXmlUnionTypes");
+    }
+
+    @Test
+    public void testErrorsOnXmlAttributeAccessOnNonXmlElementValue() {
+        BRunUtil.invoke(compileResult, "testErrorsOnXmlAttributeAccessOnNonXmlElementValue");
     }
 
     @AfterClass

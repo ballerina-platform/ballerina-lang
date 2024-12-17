@@ -15,6 +15,7 @@
  */
 package org.ballerinalang.langserver.command.executors;
 
+import com.google.gson.JsonArray;
 import com.google.gson.JsonPrimitive;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.commons.ExecuteCommandContext;
@@ -27,12 +28,14 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.function.Supplier;
 
 /**
  * Command executor for running a Ballerina file. Each project at most has a single instance running at a time.
- * See {@link org.ballerinalang.langserver.command.executors.StopExecutor} for stopping a running instance.
+ * See {@link StopExecutor} for stopping a running instance.
  *
  * @since 2201.6.0
  */
@@ -42,7 +45,8 @@ public class RunExecutor implements LSCommandExecutor {
     @Override
     public Boolean execute(ExecuteCommandContext context) throws LSCommandExecutorException {
         try {
-            Optional<Process> processOpt = context.workspace().run(extractPath(context));
+            Optional<Process> processOpt = context.workspace().run(extractPath(context),
+                    extractMainFunctionArgs(context));
             if (processOpt.isEmpty()) {
                 return false;
             }
@@ -59,28 +63,31 @@ public class RunExecutor implements LSCommandExecutor {
         return Path.of(context.getArguments().get(0).<JsonPrimitive>value().getAsString());
     }
 
+    private static List<String> extractMainFunctionArgs(ExecuteCommandContext context) {
+        List<String> args = new ArrayList<>();
+        if (context.getArguments().size() == 1) {
+            return args;
+        }
+        context.getArguments().get(1).<JsonArray>value().getAsJsonArray().iterator().forEachRemaining(arg -> {
+            args.add(arg.getAsString());
+        });
+        return args;
+    }
+
     public void listenOutputAsync(ExtendedLanguageClient client, Supplier<InputStream> getInputStream, String channel) {
-        Thread thread = new Thread(() -> listenOutput(client, getInputStream, channel));
-        thread.setDaemon(true);
-        thread.start();
+        Thread.startVirtualThread(() -> listenOutput(client, getInputStream, channel));
     }
 
     private static void listenOutput(ExtendedLanguageClient client, Supplier<InputStream> inSupplier, String channel) {
-        InputStream in = inSupplier.get();
-        try { // Can't use resource style due to SpotBugs bug.
+        try (InputStream in = inSupplier.get()) {
             byte[] buffer = new byte[1024];
             int count;
-            while ((count = in.read(buffer)) > 0) {
+            while ((count = in.read(buffer)) >= 0) {
                 String str = new String(buffer, 0, count, StandardCharsets.UTF_8);
                 client.logTrace(new LogTraceParams(str, channel));
             }
         } catch (IOException ignored) {
-        } finally {
-            try {
-                in.close();
-            } catch (IOException ignored) {
-                // ignore
-            }
+            // ignore
         }
         client.logTrace(new LogTraceParams("", "stopped"));
     }

@@ -197,7 +197,7 @@ public class IncompleteInputFinder extends NodeTransformer<Boolean> {
             return true;
         }
 
-        if (node.statements().size() > 0) {
+        if (!node.statements().isEmpty()) {
             return node.statements().get(0).apply(this);
         }
 

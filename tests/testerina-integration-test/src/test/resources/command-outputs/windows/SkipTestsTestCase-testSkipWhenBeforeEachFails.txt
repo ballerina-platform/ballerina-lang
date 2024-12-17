@@ -7,14 +7,24 @@ WARNING [skip-when-beforeEach-fails.bal:(25:5,25:18)] unused variable 'i'
 Running Tests
 
 	skip-when-beforeEach-fails.bal
-	[fail] beforeEach[before each test function for the test]:
+	[fail] beforeEach[before each function for the test]:
 	    error("{ballerina}DivisionByZero",message=" / by zero")
 			callableName: beforeEach  fileName: skip-when-beforeEach-fails.bal lineNumber: 25
 			callableName: beforeEach$lambda1$  fileName: skip-when-beforeEach-fails.bal lineNumber: 54
+			callableName: call moduleName: ballerina.lang.function.0 fileName: function.bal lineNumber: 37
+			callableName: executeFunction moduleName: ballerina.test.0 fileName: serialExecuter.bal lineNumber: 142
+			callableName: executeFunctions moduleName: ballerina.test.0 fileName: serialExecuter.bal lineNumber: 96
+			callableName: executeBeforeEachFunctions moduleName: ballerina.test.0 fileName: serialExecuter.bal lineNumber: 52
+			callableName: executeTest moduleName: ballerina.test.0 fileName: serialExecuter.bal lineNumber: 23
+			callableName: executeTests moduleName: ballerina.test.0 fileName: execute.bal lineNumber: 81
+			callableName: startSuite moduleName: ballerina.test.0 fileName: execute.bal lineNumber: 53
+			callableName: __execute__  fileName: skip-when-beforeEach-fails.bal lineNumber: 63
 		
 
 
 		0 passing
 		0 failing
 		3 skipped
+
+		Test execution time :*****s
 error: there are test failures

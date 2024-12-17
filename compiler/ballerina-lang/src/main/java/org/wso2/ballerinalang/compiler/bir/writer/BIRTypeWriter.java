@@ -96,8 +96,8 @@ public class BIRTypeWriter implements TypeVisitor {
     private final ByteBuf buff;
 
     private final ConstantPool cp;
-    private static IsPureTypeUniqueVisitor isPureTypeUniqueVisitor = new IsPureTypeUniqueVisitor();
-    private static IsAnydataUniqueVisitor isAnydataUniqueVisitor = new IsAnydataUniqueVisitor();
+    private static final IsPureTypeUniqueVisitor isPureTypeUniqueVisitor = new IsPureTypeUniqueVisitor();
+    private static final IsAnydataUniqueVisitor isAnydataUniqueVisitor = new IsAnydataUniqueVisitor();
 
     public BIRTypeWriter(ByteBuf buff, ConstantPool cp) {
         this.buff = buff;
@@ -176,12 +176,12 @@ public class BIRTypeWriter implements TypeVisitor {
         buff.writeLong(tsymbol.flags);
         buff.writeInt(bFiniteType.getValueSpace().size());
         for (BLangExpression valueLiteral : bFiniteType.getValueSpace()) {
-            if (!(valueLiteral instanceof BLangLiteral)) {
+            if (!(valueLiteral instanceof BLangLiteral bLangLiteral)) {
                 throw new AssertionError(
                         "Type serialization is not implemented for finite type with value: " + valueLiteral.getKind());
             }
             writeTypeCpIndex(valueLiteral.getBType());
-            writeValue(((BLangLiteral) valueLiteral).value, valueLiteral.getBType());
+            writeValue(bLangLiteral.value, valueLiteral.getBType());
         }
     }
 
@@ -363,9 +363,9 @@ public class BIRTypeWriter implements TypeVisitor {
         writeMembers(bUnionType.getMemberTypes());
         writeMembers(bUnionType.getOriginalMemberTypes());
 
-        if (tsymbol instanceof BEnumSymbol) {
+        if (tsymbol instanceof BEnumSymbol enumSymbol) {
             buff.writeBoolean(true);
-            writeEnumSymbolInfo((BEnumSymbol) tsymbol);
+            writeEnumSymbolInfo(enumSymbol);
         } else {
             buff.writeBoolean(false);
         }
@@ -424,18 +424,13 @@ public class BIRTypeWriter implements TypeVisitor {
                     getBIRAnnotAttachments(field.symbol.getAnnotations()));
         }
 
-        BAttachedFunction initializerFunc = tsymbol.initializerFunc;
-        if (initializerFunc == null) {
-            buff.writeByte(0);
-            return;
-        }
-
-        buff.writeByte(1);
-        buff.writeInt(addStringCPEntry(initializerFunc.funcName.value));
-        buff.writeLong(initializerFunc.symbol.flags);
-        writeTypeCpIndex(initializerFunc.type);
-
         writeTypeInclusions(bRecordType.typeInclusions);
+
+        buff.writeInt(tsymbol.defaultValues.size());
+        tsymbol.defaultValues.forEach((k, v) -> {
+            buff.writeInt(addStringCPEntry(k));
+            writeSymbolOfClosure(v);
+        });
     }
 
     @Override

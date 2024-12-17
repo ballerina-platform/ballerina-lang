@@ -31,7 +31,7 @@ import io.ballerina.runtime.api.values.BLink;
  */
 public class RegExpCharacterClass extends RegExpCommonValue implements RegExpAtom {
     private String characterClassStart;
-    private String negation;
+    private final String negation;
     private RegExpCharSet reCharSet;
     private String characterClassEnd;
 

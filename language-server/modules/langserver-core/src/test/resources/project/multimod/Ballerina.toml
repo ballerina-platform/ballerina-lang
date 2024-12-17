@@ -1,0 +1,4 @@
+[package]
+org = "baltest"
+name = "multimod"
+version = "0.1.0"

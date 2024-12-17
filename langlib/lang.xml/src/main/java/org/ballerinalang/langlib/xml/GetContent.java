@@ -23,7 +23,6 @@ import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BXml;
 import io.ballerina.runtime.internal.errors.ErrorCodes;
 import io.ballerina.runtime.internal.errors.ErrorHelper;
-import io.ballerina.runtime.internal.values.XmlComment;
 import io.ballerina.runtime.internal.values.XmlPi;
 import io.ballerina.runtime.internal.values.XmlSequence;
 
@@ -32,7 +31,10 @@ import io.ballerina.runtime.internal.values.XmlSequence;
  *
  * @since 0.90
  */
-public class GetContent {
+public final class GetContent {
+
+    private GetContent() {
+    }
 
     public static BString getContent(Object xmlVal) {
         BXml value = (BXml) xmlVal;
@@ -47,7 +49,7 @@ public class GetContent {
 
     private static BString getCommentContent(BXml value) {
         if (value.getNodeType() == XmlNodeType.COMMENT) {
-            return StringUtils.fromString(((XmlComment) value).getTextValue());
+            return StringUtils.fromString(value.getTextValue());
         }
         return getCommentContent(((XmlSequence) value).getItem(0));
     }

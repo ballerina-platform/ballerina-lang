@@ -8,7 +8,7 @@ jobs:
   Add-label:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Check for Type label inclusion
         if: ${{ !(contains(join(github.event.issue.labels.*.name, ','), 'Type/')) }}
@@ -49,13 +49,6 @@ jobs:
       - name: Check for Website related issue
         if: ${{ contains(github.event.issue.body, '-> Website') }}
         run: gh issue transfer $ISSUE "ballerina-platform/ballerina-dev-website"
-        env:
-          GITHUB_TOKEN: ${{ secrets.BALLERINA_BOT_TOKEN }}
-          ISSUE: ${{ github.event.issue.number }}
-
-      - name: Check for APIDocs related issue
-        if: ${{ contains(github.event.issue.body, '-> API Docs') }}
-        run: gh issue transfer $ISSUE "ballerina-platform/ballerina-dev-tools"
         env:
           GITHUB_TOKEN: ${{ secrets.BALLERINA_BOT_TOKEN }}
           ISSUE: ${{ github.event.issue.number }}

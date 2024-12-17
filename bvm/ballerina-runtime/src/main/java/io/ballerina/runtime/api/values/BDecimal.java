@@ -19,8 +19,8 @@
 package io.ballerina.runtime.api.values;
 
 import io.ballerina.runtime.api.types.Type;
-import io.ballerina.runtime.internal.DecimalValueKind;
 import io.ballerina.runtime.internal.values.DecimalValue;
+import io.ballerina.runtime.internal.values.DecimalValueKind;
 
 import java.math.BigDecimal;
 
@@ -102,8 +102,8 @@ public interface BDecimal {
     BDecimal subtract(BDecimal subtrahend);
 
     /**
-     * Returns a decimal whose value is <tt>(this &times;
-     * multiplicand)</tt>.
+     * Returns a decimal whose value is {@code (this &times;
+     * multiplicand)}.
      *
      * @param multiplicand value to be multiplied
      * @return value after multiplication

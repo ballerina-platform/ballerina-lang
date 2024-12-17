@@ -20,9 +20,10 @@ package org.ballerinalang.test.types.map;
 import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BMap;
-import io.ballerina.runtime.internal.XmlFactory;
+import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.internal.values.MapValue;
 import io.ballerina.runtime.internal.values.MapValueImpl;
+import io.ballerina.runtime.internal.xml.XmlFactory;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
@@ -43,7 +44,7 @@ public class BMapValueTest {
     @Test
     public void testBMap() {
 
-        BMap map = ValueCreator.createMapValue();
+        BMap<BString, Object> map = ValueCreator.createMapValue();
         map.put(StringUtils.fromString("Chanaka"), 1L);
         map.put(StringUtils.fromString("Udaya"), 2L);
         map.put(StringUtils.fromString("Chanaka"), 1L);
@@ -63,7 +64,7 @@ public class BMapValueTest {
 
     @Test
     public void testBMapClear() {
-        BMap map = ValueCreator.createMapValue();
+        BMap<BString, Object> map = ValueCreator.createMapValue();
         map.put(StringUtils.fromString("IS"), 0L);
         map.put(StringUtils.fromString("ESB"), 1L);
         map.put(StringUtils.fromString("APIM"), 2L);
@@ -74,7 +75,7 @@ public class BMapValueTest {
 
     @Test
     public void testBMapHasKey() {
-        BMap map = ValueCreator.createMapValue();
+        BMap<BString, Object> map = ValueCreator.createMapValue();
         map.put(StringUtils.fromString("IS"), (0));
         map.put(StringUtils.fromString("ESB"), (1));
         map.put(StringUtils.fromString("APIM"), (2));
@@ -168,7 +169,7 @@ public class BMapValueTest {
 
     @Test(description = "Testing convert map values to string")
     public void testBMapToString() {
-        MapValue<io.ballerina.runtime.api.values.BString, Object> map = new MapValueImpl<>();
+        MapValue<BString, Object> map = new MapValueImpl<>();
         map.put(StringUtils.fromString("key1"), 1);
         map.put(StringUtils.fromString("key2"), StringUtils.fromString("foo"));
         map.put(StringUtils.fromString("key3"), XmlFactory.parse("<bar>hello</bar>"));
@@ -178,7 +179,7 @@ public class BMapValueTest {
     @Test(dependsOnMethods = "testGrammar")
     public void testMapOrder() {
         Object returnVals = BRunUtil.invoke(programFile, "testMapOrder", new Object[0]);
-        BMap m = (BMap) returnVals;
+        BMap<?, ?> m = (BMap<?, ?>) returnVals;
         Object[] keys = m.getKeys();
         int counter = 0;
         String[] values = {"Element 1", "Element 2", "Element 3"};
@@ -193,14 +194,14 @@ public class BMapValueTest {
     @Test(description = "Test string representations of a map with a nil value", dependsOnMethods = "testGrammar")
     public void testMapStringRepresentation() {
         Object returnVals = BRunUtil.invoke(programFile, "testMapStringRepresentation", new Object[0]);
-        BMap m = (BMap) returnVals;
+        BMap<?, ?> m = (BMap<?, ?>) returnVals;
         String mapString = m.toString();
         Assert.assertEquals(mapString, "{\"key1\":\"Element 1\",\"key2\":\"Element 2\",\"key3\":null}");
     }
 
     @Test
     public void testBMapOrder() {
-        BMap map = ValueCreator.createMapValue();
+        BMap<BString, Object> map = ValueCreator.createMapValue();
         map.put(StringUtils.fromString("Entry1"), StringUtils.fromString("foo"));
         map.put(StringUtils.fromString("Entry2"), StringUtils.fromString("bar"));
         map.put(StringUtils.fromString("Entry3"), StringUtils.fromString("foobar"));

@@ -1270,6 +1270,11 @@ public abstract class NodeFactory extends AbstractNodeFactory {
         return stFunctionBodyBlockNode.createUnlinkedFacade();
     }
 
+    /**
+     * @deprecated Use {@link #createNamedWorkerDeclarationNode(NodeList, Token, Token, IdentifierToken, Node,
+     * BlockStatementNode, OnFailClauseNode)} instead.
+     */
+    @Deprecated
     public static NamedWorkerDeclarationNode createNamedWorkerDeclarationNode(
             NodeList<AnnotationNode> annotations,
             Token transactionalKeyword,
@@ -1277,6 +1282,24 @@ public abstract class NodeFactory extends AbstractNodeFactory {
             IdentifierToken workerName,
             Node returnTypeDesc,
             BlockStatementNode workerBody) {
+        return createNamedWorkerDeclarationNode(
+                annotations,
+                transactionalKeyword,
+                workerKeyword,
+                workerName,
+                returnTypeDesc,
+                workerBody,
+                null);
+    }
+
+    public static NamedWorkerDeclarationNode createNamedWorkerDeclarationNode(
+            NodeList<AnnotationNode> annotations,
+            Token transactionalKeyword,
+            Token workerKeyword,
+            IdentifierToken workerName,
+            Node returnTypeDesc,
+            BlockStatementNode workerBody,
+            OnFailClauseNode onFailClause) {
         Objects.requireNonNull(annotations, "annotations must not be null");
         Objects.requireNonNull(workerKeyword, "workerKeyword must not be null");
         Objects.requireNonNull(workerName, "workerName must not be null");
@@ -1288,7 +1311,8 @@ public abstract class NodeFactory extends AbstractNodeFactory {
                 workerKeyword.internalNode(),
                 workerName.internalNode(),
                 getOptionalSTNode(returnTypeDesc),
-                workerBody.internalNode());
+                workerBody.internalNode(),
+                getOptionalSTNode(onFailClause));
         return stNamedWorkerDeclarationNode.createUnlinkedFacade();
     }
 
@@ -2393,7 +2417,7 @@ public abstract class NodeFactory extends AbstractNodeFactory {
 
     public static ReceiveFieldsNode createReceiveFieldsNode(
             Token openBrace,
-            SeparatedNodeList<NameReferenceNode> receiveFields,
+            SeparatedNodeList<Node> receiveFields,
             Token closeBrace) {
         Objects.requireNonNull(openBrace, "openBrace must not be null");
         Objects.requireNonNull(receiveFields, "receiveFields must not be null");
@@ -2404,6 +2428,15 @@ public abstract class NodeFactory extends AbstractNodeFactory {
                 receiveFields.underlyingListNode().internalNode(),
                 closeBrace.internalNode());
         return stReceiveFieldsNode.createUnlinkedFacade();
+    }
+
+    public static AlternateReceiveNode createAlternateReceiveNode(
+            SeparatedNodeList<SimpleNameReferenceNode> workers) {
+        Objects.requireNonNull(workers, "workers must not be null");
+
+        STNode stAlternateReceiveNode = STNodeFactory.createAlternateReceiveNode(
+                workers.underlyingListNode().internalNode());
+        return stAlternateReceiveNode.createUnlinkedFacade();
     }
 
     public static RestDescriptorNode createRestDescriptorNode(
@@ -2701,13 +2734,16 @@ public abstract class NodeFactory extends AbstractNodeFactory {
 
     public static XMLStepExpressionNode createXMLStepExpressionNode(
             ExpressionNode expression,
-            Node xmlStepStart) {
+            Node xmlStepStart,
+            NodeList<Node> xmlStepExtend) {
         Objects.requireNonNull(expression, "expression must not be null");
         Objects.requireNonNull(xmlStepStart, "xmlStepStart must not be null");
+        Objects.requireNonNull(xmlStepExtend, "xmlStepExtend must not be null");
 
         STNode stXMLStepExpressionNode = STNodeFactory.createXMLStepExpressionNode(
                 expression.internalNode(),
-                xmlStepStart.internalNode());
+                xmlStepStart.internalNode(),
+                xmlStepExtend.underlyingListNode().internalNode());
         return stXMLStepExpressionNode.createUnlinkedFacade();
     }
 
@@ -2724,6 +2760,36 @@ public abstract class NodeFactory extends AbstractNodeFactory {
                 xmlNamePattern.underlyingListNode().internalNode(),
                 gtToken.internalNode());
         return stXMLNamePatternChainingNode.createUnlinkedFacade();
+    }
+
+    public static XMLStepIndexedExtendNode createXMLStepIndexedExtendNode(
+            Token openBracket,
+            ExpressionNode expression,
+            Token closeBracket) {
+        Objects.requireNonNull(openBracket, "openBracket must not be null");
+        Objects.requireNonNull(expression, "expression must not be null");
+        Objects.requireNonNull(closeBracket, "closeBracket must not be null");
+
+        STNode stXMLStepIndexedExtendNode = STNodeFactory.createXMLStepIndexedExtendNode(
+                openBracket.internalNode(),
+                expression.internalNode(),
+                closeBracket.internalNode());
+        return stXMLStepIndexedExtendNode.createUnlinkedFacade();
+    }
+
+    public static XMLStepMethodCallExtendNode createXMLStepMethodCallExtendNode(
+            Token dotToken,
+            SimpleNameReferenceNode methodName,
+            ParenthesizedArgList parenthesizedArgList) {
+        Objects.requireNonNull(dotToken, "dotToken must not be null");
+        Objects.requireNonNull(methodName, "methodName must not be null");
+        Objects.requireNonNull(parenthesizedArgList, "parenthesizedArgList must not be null");
+
+        STNode stXMLStepMethodCallExtendNode = STNodeFactory.createXMLStepMethodCallExtendNode(
+                dotToken.internalNode(),
+                methodName.internalNode(),
+                parenthesizedArgList.internalNode());
+        return stXMLStepMethodCallExtendNode.createUnlinkedFacade();
     }
 
     public static XMLAtomicNamePatternNode createXMLAtomicNamePatternNode(
@@ -3588,6 +3654,21 @@ public abstract class NodeFactory extends AbstractNodeFactory {
                 annotations.underlyingListNode().internalNode(),
                 typeDescriptor.internalNode());
         return stMemberTypeDescriptorNode.createUnlinkedFacade();
+    }
+
+    public static ReceiveFieldNode createReceiveFieldNode(
+            SimpleNameReferenceNode fieldName,
+            Token colon,
+            SimpleNameReferenceNode peerWorker) {
+        Objects.requireNonNull(fieldName, "fieldName must not be null");
+        Objects.requireNonNull(colon, "colon must not be null");
+        Objects.requireNonNull(peerWorker, "peerWorker must not be null");
+
+        STNode stReceiveFieldNode = STNodeFactory.createReceiveFieldNode(
+                fieldName.internalNode(),
+                colon.internalNode(),
+                peerWorker.internalNode());
+        return stReceiveFieldNode.createUnlinkedFacade();
     }
 }
 

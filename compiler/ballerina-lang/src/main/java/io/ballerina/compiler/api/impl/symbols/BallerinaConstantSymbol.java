@@ -33,7 +33,6 @@ import org.wso2.ballerinalang.util.Flags;
 
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.StringJoiner;
 
@@ -49,7 +48,7 @@ import static org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols.is
 public class BallerinaConstantSymbol extends BallerinaVariableSymbol implements ConstantSymbol {
 
     private final BallerinaConstantValue constValue;
-    private TypeSymbol broaderType;
+    private final TypeSymbol broaderType;
 
     private BallerinaConstantSymbol(String name, List<Qualifier> qualifiers, List<AnnotationSymbol> annots,
                                     List<AnnotationAttachmentSymbol> annotAttachments, TypeSymbol typeDescriptor,
@@ -125,20 +124,19 @@ public class BallerinaConstantSymbol extends BallerinaVariableSymbol implements 
             return null;
         }
 
-        if (value.value() instanceof BallerinaConstantValue) {
-            return stringValueOf((BallerinaConstantValue) value.value());
+        if (value.value() instanceof BallerinaConstantValue ballerinaConstantValue) {
+            return stringValueOf(ballerinaConstantValue);
         }
 
-        if (value.value() instanceof HashMap) {
+        if (value.value() instanceof HashMap<?, ?> map) {
             StringJoiner joiner = new StringJoiner(", ", "{", "}");
-            Map map = (Map) value.value();
 
             map.forEach((k, v) -> {
                 StringBuilder builder = new StringBuilder();
                 builder.append(k).append(": ");
 
-                if (v instanceof BallerinaConstantValue) {
-                    builder.append(stringValueOf((BallerinaConstantValue) v));
+                if (v instanceof BallerinaConstantValue ballerinaConstantValue) {
+                    builder.append(stringValueOf(ballerinaConstantValue));
                 } else {
                     builder.append(toStringVal(v, value.valueType()));
                 }
@@ -177,6 +175,7 @@ public class BallerinaConstantSymbol extends BallerinaVariableSymbol implements 
             super(name, symbol, context);
         }
 
+        @Override
         public BallerinaConstantSymbol build() {
             return new BallerinaConstantSymbol(this.name, this.qualifiers, this.annots, this.annotAttachments,
                                                this.typeDescriptor, this.broaderType, this.constantValue, this.bSymbol,

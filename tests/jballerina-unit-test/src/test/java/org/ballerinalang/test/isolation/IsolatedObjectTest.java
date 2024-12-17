@@ -276,6 +276,14 @@ public class IsolatedObjectTest {
         validateError(result, i++, ERROR_INVALID_NON_ISOLATED_INVOCATION_IN_LOCK_WITH_RESTRICTED_VAR_USAGE, 865, 27);
         validateError(result, i++, ERROR_INVALID_TRANSFER_IN_IN_LOCK_WITH_RESTRICTED_VAR_USAGE, 880, 31);
         validateError(result, i++, ERROR_INVALID_NON_ISOLATED_INVOCATION_IN_LOCK_WITH_RESTRICTED_VAR_USAGE, 881, 32);
+        validateError(result, i++, INVALID_ACCESS_OF_ISOLATED_OBJECT_MUTABLE_FIELD_OUTSIDE_A_LOCK_STATEMENT, 893, 13);
+        validateError(result, i++, INVALID_ACCESS_OF_ISOLATED_OBJECT_MUTABLE_FIELD_OUTSIDE_A_LOCK_STATEMENT, 899, 13);
+        validateError(result, i++, INVALID_ACCESS_OF_ISOLATED_OBJECT_MUTABLE_FIELD_OUTSIDE_A_LOCK_STATEMENT, 911, 29);
+        validateError(result, i++, ERROR_INVALID_TRANSFER_IN_IN_LOCK_WITH_RESTRICTED_VAR_USAGE, 926, 31);
+        validateError(result, i++, ERROR_INVALID_TRANSFER_OUT_IN_LOCK_WITH_RESTRICTED_VAR_USAGE, 934, 24);
+        validateError(result, i++, ERROR_INVALID_TRANSFER_IN_IN_LOCK_WITH_RESTRICTED_VAR_USAGE, 948, 52);
+        validateError(result, i++, INVALID_ACCESS_OF_ISOLATED_OBJECT_MUTABLE_FIELD_OUTSIDE_A_LOCK_STATEMENT, 963, 13);
+        validateError(result, i++, ERROR_INVALID_TRANSFER_IN_IN_LOCK_WITH_RESTRICTED_VAR_USAGE, 970, 31);
         Assert.assertEquals(result.getErrorCount(), i - 19);
         Assert.assertEquals(result.getWarnCount(), 19);
     }

@@ -40,7 +40,7 @@ public class SymbolDocumentationTest {
             .resolve("symbolDocumentation.bal");
 
     @BeforeClass
-    public void startLangServer() throws IOException {
+    public void startLangServer() {
         this.serviceEndpoint = TestUtil.initializeLanguageSever();
     }
 
@@ -203,12 +203,13 @@ public class SymbolDocumentationTest {
                 inputFile.toString(), functionPos, this.serviceEndpoint);
 
         Assert.assertNotEquals(symbolInfoResponse.getDocumentation(), null);
-        Assert.assertEquals(symbolInfoResponse.getDocumentation().getDescription(),
-                "Returns the length of the string.\n" +
-                        "\n" +
-                        "```ballerina\n" +
-                        "\"Hello, World!\".length() ⇒ 13;\n" +
-                        "```\n");
+        Assert.assertEquals(symbolInfoResponse.getDocumentation().getDescription(), """
+                Returns the length of the string.
+
+                ```ballerina
+                "Hello, World!".length() ⇒ 13;
+                ```
+                """);
         Assert.assertEquals(symbolInfoResponse.getDocumentation().getReturnValueDescription(),
                 "the number of characters (code points) in parameter `str`");
         Assert.assertEquals(symbolInfoResponse.getDocumentation().getParameters(), null);
@@ -227,12 +228,13 @@ public class SymbolDocumentationTest {
                 inputFile.toString(), functionPos, this.serviceEndpoint);
 
         Assert.assertNotEquals(symbolInfoResponse.getDocumentation(), null);
-        Assert.assertEquals(symbolInfoResponse.getDocumentation().getDescription(),
-                "Returns the length of the string.\n" +
-                        "\n" +
-                        "```ballerina\n" +
-                        "\"Hello, World!\".length() ⇒ 13;\n" +
-                        "```\n");
+        Assert.assertEquals(symbolInfoResponse.getDocumentation().getDescription(), """
+                Returns the length of the string.
+
+                ```ballerina
+                "Hello, World!".length() ⇒ 13;
+                ```
+                """);
         Assert.assertEquals(symbolInfoResponse.getDocumentation().getReturnValueDescription(),
                 "the number of characters (code points) in parameter `str`");
         Assert.assertEquals(symbolInfoResponse.getDocumentation().getParameters().get(0).getName(), "str");

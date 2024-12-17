@@ -23,7 +23,7 @@ import java.io.InputStream;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.charset.Charset;
-import java.nio.file.Paths;
+import java.nio.file.Path;
 import java.util.Objects;
 import java.util.Scanner;
 
@@ -32,8 +32,12 @@ import java.util.Scanner;
  *
  * @since 2.0.0
  */
-public class FileReaderUtils {
+public final class FileReaderUtils {
+
     private static final String SPECIAL_DELIMITER = "\\A";
+
+    private FileReaderUtils() {
+    }
 
     /**
      * Reads a file path content from the resources directory.
@@ -52,6 +56,6 @@ public class FileReaderUtils {
     public static File getResourceFile(String fileName) throws URISyntaxException {
         URL fileUrl = FileReaderUtils.class.getClassLoader().getResource(fileName);
         Objects.requireNonNull(fileUrl, "Template file resource could not be found.");
-        return Paths.get(fileUrl.toURI()).toFile();
+        return Path.of(fileUrl.toURI()).toFile();
     }
 }

@@ -21,6 +21,7 @@ import org.ballerinalang.model.elements.PackageID;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.MethodVisitor;
 import org.wso2.ballerinalang.compiler.bir.codegen.BallerinaClassWriter;
+import org.wso2.ballerinalang.compiler.bir.codegen.JarEntries;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmTypeGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.BIRVarToJVMIndexMap;
@@ -62,7 +63,7 @@ import static org.objectweb.asm.Opcodes.L2I;
 import static org.objectweb.asm.Opcodes.NEW;
 import static org.objectweb.asm.Opcodes.POP;
 import static org.objectweb.asm.Opcodes.RETURN;
-import static org.objectweb.asm.Opcodes.V17;
+import static org.objectweb.asm.Opcodes.V21;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil.getModuleLevelClassName;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil.toNameString;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CLASS_FILE_SUFFIX;
@@ -121,10 +122,10 @@ public class JvmObjectTypeGen {
         this.jvmTypeGen = jvmTypeGen;
         this.jvmConstantsGen = jvmConstantsGen;
         this.objectTypesCw = new BallerinaClassWriter(COMPUTE_FRAMES);
-        this.objectTypesCw.visit(V17, ACC_PUBLIC + ACC_SUPER, objectTypesClass, null, OBJECT, null);
+        this.objectTypesCw.visit(V21, ACC_PUBLIC + ACC_SUPER, objectTypesClass, null, OBJECT, null);
     }
 
-    public void visitEnd(JvmPackageGen jvmPackageGen, BIRNode.BIRPackage module, Map<String, byte[]> jarEntries) {
+    public void visitEnd(JvmPackageGen jvmPackageGen, BIRNode.BIRPackage module, JarEntries jarEntries) {
         objectTypesCw.visitEnd();
         jarEntries.put(objectTypesClass + CLASS_FILE_SUFFIX, jvmPackageGen.getBytes(objectTypesCw, module));
     }
@@ -386,7 +387,7 @@ public class JvmObjectTypeGen {
     }
 
     /**
-     * Create a attached function information for objects.
+     * Create an attached function information for objects.
      *
      * @param mv           method visitor
      * @param attachedFunc object attached function

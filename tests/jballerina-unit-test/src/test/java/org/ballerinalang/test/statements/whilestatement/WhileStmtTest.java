@@ -244,6 +244,12 @@ public class WhileStmtTest {
         Assert.assertEquals(actual, expected);
     }
 
+    @Test(description = "Test while statement with infinite loop")
+    public void testWhileStmtWithEndlessLoop() {
+        CompileResult compiled = BCompileUtil.compile("test-src/statements/whilestatement/while-stmt-infinite.bal");
+        Assert.assertEquals(compiled.getErrorCount(), 0);
+    }
+
     @Test(description = "Check incompatible types.")
     public void testNegative1() {
         int index = 0;

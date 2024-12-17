@@ -1288,6 +1288,54 @@
       "sortText": "K",
       "insertText": "module1:Listener",
       "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "module1:Error",
+      "kind": "Enum",
+      "detail": "Union",
+      "sortText": "I",
+      "insertText": "module1:Error",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "module1:Error2",
+      "kind": "Enum",
+      "detail": "Union",
+      "sortText": "I",
+      "insertText": "module1:Error2",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "module1:Error1",
+      "kind": "TypeParameter",
+      "detail": "Union",
+      "sortText": "N",
+      "insertText": "module1:Error1",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "module1:E1",
+      "kind": "Event",
+      "detail": "Error",
+      "sortText": "L",
+      "insertText": "module1:E1",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "module1:E3",
+      "kind": "Event",
+      "detail": "Error",
+      "sortText": "L",
+      "insertText": "module1:E3",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "module1:E2",
+      "kind": "Event",
+      "detail": "Error",
+      "sortText": "L",
+      "insertText": "module1:E2",
+      "insertTextFormat": "Snippet"
     }
   ]
 }

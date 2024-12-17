@@ -242,6 +242,7 @@ import org.wso2.ballerinalang.compiler.tree.clauses.BLangOrderByClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangOrderKey;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangSelectClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangWhereClause;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangAlternateWorkerReceive;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAccessExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrowFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
@@ -271,6 +272,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkdownDocumentati
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkdownParameterDocumentation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkdownReturnParameterDocumentation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchGuard;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangMultipleWorkerReceive;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNamedArgsExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNumericLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangObjectConstructorExpression;
@@ -384,7 +386,10 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangValueType;
  *
  * @since 0.94
  */
-public class TreeBuilder {
+public final class TreeBuilder {
+
+    private TreeBuilder() {
+    }
 
     public static CompilationUnitNode createCompilationUnit() {
         return new BLangCompilationUnit();
@@ -610,7 +615,7 @@ public class TreeBuilder {
     }
 
     public static FieldBasedAccessNode createFieldBasedAccessWithPrefixNode() {
-        return new BLangFieldBasedAccess.BLangNSPrefixedFieldBasedAccess();
+        return new BLangFieldBasedAccess.BLangPrefixedFieldBasedAccess();
     }
 
     public static TableKeySpecifierNode createTableKeySpecifierNode() {
@@ -912,6 +917,14 @@ public class TreeBuilder {
 
     public static WorkerReceiveNode createWorkerReceiveNode() {
         return new BLangWorkerReceive();
+    }
+
+    public static BLangAlternateWorkerReceive createAlternateWorkerReceiveNode() {
+        return new BLangAlternateWorkerReceive();
+    }
+
+    public static BLangMultipleWorkerReceive createMultipleWorkerReceiveNode() {
+        return new BLangMultipleWorkerReceive();
     }
 
     public static WorkerSendExpressionNode createWorkerSendNode() {

@@ -36,7 +36,7 @@ public class ReceiveFieldsNode extends NonTerminalNode {
         return childInBucket(0);
     }
 
-    public SeparatedNodeList<NameReferenceNode> receiveFields() {
+    public SeparatedNodeList<Node> receiveFields() {
         return new SeparatedNodeList<>(childInBucket(1));
     }
 
@@ -64,7 +64,7 @@ public class ReceiveFieldsNode extends NonTerminalNode {
 
     public ReceiveFieldsNode modify(
             Token openBrace,
-            SeparatedNodeList<NameReferenceNode> receiveFields,
+            SeparatedNodeList<Node> receiveFields,
             Token closeBrace) {
         if (checkForReferenceEquality(
                 openBrace,
@@ -91,7 +91,7 @@ public class ReceiveFieldsNode extends NonTerminalNode {
     public static class ReceiveFieldsNodeModifier {
         private final ReceiveFieldsNode oldNode;
         private Token openBrace;
-        private SeparatedNodeList<NameReferenceNode> receiveFields;
+        private SeparatedNodeList<Node> receiveFields;
         private Token closeBrace;
 
         public ReceiveFieldsNodeModifier(ReceiveFieldsNode oldNode) {
@@ -109,7 +109,7 @@ public class ReceiveFieldsNode extends NonTerminalNode {
         }
 
         public ReceiveFieldsNodeModifier withReceiveFields(
-                SeparatedNodeList<NameReferenceNode> receiveFields) {
+                SeparatedNodeList<Node> receiveFields) {
             Objects.requireNonNull(receiveFields, "receiveFields must not be null");
             this.receiveFields = receiveFields;
             return this;

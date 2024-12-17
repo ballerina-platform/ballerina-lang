@@ -22,8 +22,8 @@ import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BXml;
 import io.ballerina.runtime.api.values.BXmlItem;
 import io.ballerina.runtime.api.values.BXmlSequence;
-import io.ballerina.runtime.internal.XmlFactory;
 import io.ballerina.runtime.internal.values.XmlValue;
+import io.ballerina.runtime.internal.xml.XmlFactory;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
@@ -178,14 +178,14 @@ public class XMLLiteralWithNamespacesTest {
     @Test
     public void xmlWithDefaultNamespaceToString() {
         Object returns = BRunUtil.invoke(literalWithNamespacesResult, "XMLWithDefaultNamespaceToString");
-        Assert.assertEquals(returns.toString(),
-                "<Order xmlns=\"http://acme.company\" xmlns:acme=\"http://acme.company.nondefault\">\n" +
-                        "        <OrderLines>\n" +
-                        "            <OrderLine acme:lineNo=\"334\" itemCode=\"334-2\"/>\n" +
-                        "        </OrderLines>\n" +
-                        "        <ShippingAddress>\n" +
-                        "        </ShippingAddress>\n" +
-                        "    </Order>");
+        Assert.assertEquals(returns.toString(), """
+                        <Order xmlns="http://acme.company" xmlns:acme="http://acme.company.nondefault">
+                                <OrderLines>
+                                    <OrderLine acme:lineNo="334" itemCode="334-2"/>
+                                </OrderLines>
+                                <ShippingAddress>
+                                </ShippingAddress>
+                            </Order>""");
     }
 
     @Test

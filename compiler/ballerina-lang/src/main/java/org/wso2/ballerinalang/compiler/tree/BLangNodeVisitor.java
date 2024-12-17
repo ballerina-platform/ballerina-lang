@@ -47,6 +47,7 @@ import org.wso2.ballerinalang.compiler.tree.clauses.BLangOrderByClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangOrderKey;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangSelectClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangWhereClause;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangAlternateWorkerReceive;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAccessExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrowFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
@@ -60,6 +61,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangDynamicArgExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangElvisExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorVarRef;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangExtendedXMLNavigationAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess.BLangStructFunctionVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangGroupExpr;
@@ -91,6 +93,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkdownDocumentati
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkdownParameterDocumentation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkdownReturnParameterDocumentation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchGuard;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangMultipleWorkerReceive;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNamedArgsExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNumericLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangObjectConstructorExpression;
@@ -110,7 +113,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangReFlagsOnOff;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangReQuantifier;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangReSequence;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangChannelLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangMapLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangStructLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordVarRef;
@@ -146,6 +148,9 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLCommentLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLElementAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLElementFilter;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLElementLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLFilterStepExtend;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLIndexedStepExtend;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLMethodCallStepExtend;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLNavigationAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLProcInsLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQName;
@@ -215,6 +220,7 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangValueType;
  * @since 0.94
  * @deprecated since 2.0.0. Use {@link BLangNodeAnalyzer} or {@link BLangNodeTransformer}.
  */
+@Deprecated(since = "2.0.0")
 public abstract class BLangNodeVisitor {
 
     public void visit(BLangPackage pkgNode) {
@@ -578,6 +584,14 @@ public abstract class BLangNodeVisitor {
         throw new AssertionError();
     }
 
+    public void visit(BLangAlternateWorkerReceive alternateWorkerReceive) {
+        throw new AssertionError();
+    }
+
+    public void visit(BLangMultipleWorkerReceive multipleWorkerReceive) {
+        throw new AssertionError();
+    }
+
     public void visit(BLangRollback rollbackNode) {
         throw new AssertionError();
     }
@@ -620,7 +634,7 @@ public abstract class BLangNodeVisitor {
         throw new AssertionError();
     }
 
-    public void visit(BLangFieldBasedAccess.BLangNSPrefixedFieldBasedAccess nsPrefixedFieldBasedAccess) {
+    public void visit(BLangFieldBasedAccess.BLangPrefixedFieldBasedAccess prefixedFieldBasedAccess) {
         throw new AssertionError();
     }
 
@@ -936,10 +950,6 @@ public abstract class BLangNodeVisitor {
         throw new AssertionError();
     }
 
-    public void visit(BLangChannelLiteral channelLiteral) {
-        throw new AssertionError();
-    }
-
     public void visit(BFunctionPointerInvocation bFunctionPointerInvocation) {
         throw new AssertionError();
     }
@@ -1137,6 +1147,22 @@ public abstract class BLangNodeVisitor {
     }
 
     public void visit(BLangReFlagExpression reFlagsOnOff) {
+        throw new AssertionError();
+    }
+
+    public void visit(BLangXMLIndexedStepExtend xmlIndexedStepExtend) {
+        throw new AssertionError();
+    }
+
+    public void visit(BLangXMLFilterStepExtend xmlFilterStepExtend) {
+        throw new AssertionError();
+    }
+
+    public void visit(BLangXMLMethodCallStepExtend xmlMethodCallStepExtend) {
+        throw new AssertionError();
+    }
+
+    public void visit(BLangExtendedXMLNavigationAccess extendedXMLNavigationAccess) {
         throw new AssertionError();
     }
 }

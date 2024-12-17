@@ -1,0 +1,30 @@
+{
+  "position": {
+    "line": 3,
+    "character": 22
+  },
+  "source": "add_lock26.bal",
+  "description": "Wrap in a lock statement for a isolated variable in a if condition",
+  "expected": [
+    {
+      "title": "Surround with lock",
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 3,
+              "character": 0
+            },
+            "end": {
+              "line": 6,
+              "character": 0
+            }
+          },
+          "newText": "    lock {\n\t    if count >= moduleCount / 2 {\n\t        return true;\n\t    }\n    }\n"
+        }
+      ],
+      "resolvable": false
+    }
+  ]
+}

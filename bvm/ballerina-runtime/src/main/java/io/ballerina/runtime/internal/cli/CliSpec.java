@@ -18,13 +18,13 @@
 
 package io.ballerina.runtime.internal.cli;
 
-import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.creators.TypeCreator;
 import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.types.ArrayType;
 import io.ballerina.runtime.api.types.RecordType;
 import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.types.TypeTags;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BArray;
@@ -64,7 +64,7 @@ public class CliSpec {
             mainArgs.add(optionLocation, recordVal);
         } else {
             RecordType type = TypeCreator.createRecordType("dummy", null, 1, new HashMap<>(), null, true, 6);
-            Option dummyOption = new Option(type, ValueCreator.createRecordValue(type));
+            Option dummyOption = new Option(type, 0);
             dummyOption.parseRecord(args);
             processOperands(dummyOption.getOperandArgs());
         }
@@ -107,12 +107,10 @@ public class CliSpec {
         while (opIndex < operands.length) {
             Operand operand = operands[opIndex++];
             Type opType = operand.type;
-            if (operand.hasDefaultable) {
-                mainArgs.add(getDefaultBValue(opType));
+            if (operand.hasDefaultable || CliUtil.isUnionWithNil(opType)) {
+                mainArgs.add(null);
             } else if (isSupportedArrayType(opType)) {
                 mainArgs.add(ValueCreator.createArrayValue((ArrayType) opType));
-            } else if ((CliUtil.isUnionWithNil(opType))) {
-                mainArgs.add(null);
             } else {
                 throw ErrorCreator.createError(StringUtils.fromString(
                         "missing operand arguments for parameter '" + operand.name + "' of type '" + opType + "'"));
@@ -126,28 +124,6 @@ public class CliSpec {
             return CliUtil.isSupportedType(elementType.getTag());
         }
         return false;
-    }
-
-    private static Object getDefaultBValue(Type type) {
-        switch (TypeUtils.getImpliedType(type).getTag()) {
-            case TypeTags.INT_TAG:
-            case TypeTags.SIGNED32_INT_TAG:
-            case TypeTags.SIGNED16_INT_TAG:
-            case TypeTags.SIGNED8_INT_TAG:
-            case TypeTags.UNSIGNED32_INT_TAG:
-            case TypeTags.UNSIGNED16_INT_TAG:
-            case TypeTags.UNSIGNED8_INT_TAG:
-            case TypeTags.FLOAT_TAG:
-            case TypeTags.DECIMAL_TAG:
-            case TypeTags.BYTE_TAG:
-                return 0;
-            case TypeTags.BOOLEAN_TAG:
-                return false;
-            case TypeTags.TYPE_REFERENCED_TYPE_TAG:
-                return getDefaultBValue(TypeUtils.getImpliedType(type));
-            default:
-                return null;
-        }
     }
 
     private int getElementCount(Operand[] operands, int opIndex) {

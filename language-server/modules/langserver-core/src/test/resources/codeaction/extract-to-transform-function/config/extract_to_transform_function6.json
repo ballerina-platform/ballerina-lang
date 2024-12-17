@@ -1,0 +1,60 @@
+{
+  "range": {
+    "start": {
+      "line": 33,
+      "character": 14
+    },
+    "end": {
+      "line": 33,
+      "character": 28
+    }
+  },
+  "source": "extract_to_transform_function6.bal",
+  "description": "Extract to transform function with an imported record as input",
+  "expected": [
+    {
+      "title": "Extract to transform function",
+      "kind": "refactor.extract",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 34,
+              "character": 2
+            },
+            "end": {
+              "line": 34,
+              "character": 2
+            }
+          },
+          "newText": "\n\nfunction transform1(mod1:TestRecord1 testRecord1) returns Address => {\n    country: \"\",\n    city: \"\",\n    houseNo: \"\",\n    line2: \"\",\n    line1: \"\"\n};\n"
+        },
+        {
+          "range": {
+            "start": {
+              "line": 33,
+              "character": 13
+            },
+            "end": {
+              "line": 33,
+              "character": 34
+            }
+          },
+          "newText": "transform1(admission.testRecord1)"
+        }
+      ],
+      "command": {
+        "title": "Rename function",
+        "command": "ballerina.action.positional.rename",
+        "arguments": [
+          "extract_to_transform_function6.bal",
+          {
+            "line": 33,
+            "character": 13
+          }
+        ]
+      },
+      "resolvable": false
+    }
+  ]
+}

@@ -22,6 +22,7 @@ import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.wso2.ballerinalang.compiler.bir.codegen.BallerinaClassWriter;
+import org.wso2.ballerinalang.compiler.bir.codegen.JarEntries;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmTypeGen;
@@ -32,7 +33,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import static org.objectweb.asm.ClassWriter.COMPUTE_FRAMES;
 import static org.objectweb.asm.Opcodes.ACC_PUBLIC;
@@ -44,7 +44,7 @@ import static org.objectweb.asm.Opcodes.DUP;
 import static org.objectweb.asm.Opcodes.INVOKESPECIAL;
 import static org.objectweb.asm.Opcodes.INVOKESTATIC;
 import static org.objectweb.asm.Opcodes.NEW;
-import static org.objectweb.asm.Opcodes.V17;
+import static org.objectweb.asm.Opcodes.V21;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil.NAME_HASH_COMPARATOR;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil.createDefaultCase;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil.getModuleLevelClassName;
@@ -75,11 +75,11 @@ public class JvmErrorCreatorGen {
     }
 
     public void generateErrorsClass(JvmPackageGen jvmPackageGen, BIRNode.BIRPackage module,
-                                    String moduleInitClass, Map<String, byte[]> jarEntries,
+                                    JarEntries jarEntries,
                                     List<BIRNode.BIRTypeDefinition> errorTypeDefList, SymbolTable symbolTable) {
         ClassWriter cw = new BallerinaClassWriter(COMPUTE_FRAMES);
-        cw.visit(V17, ACC_PUBLIC + ACC_SUPER, errorsClass, null, OBJECT, null);
-        generateCreateErrorMethods(cw, errorTypeDefList, moduleInitClass, errorsClass, symbolTable);
+        cw.visit(V21, ACC_PUBLIC + ACC_SUPER, errorsClass, null, OBJECT, null);
+        generateCreateErrorMethods(cw, errorTypeDefList, errorsClass, symbolTable);
         cw.visitEnd();
         byte[] bytes = jvmPackageGen.getBytes(cw, module);
         jarEntries.put(errorsClass + CLASS_FILE_SUFFIX, bytes);
@@ -87,7 +87,7 @@ public class JvmErrorCreatorGen {
 
 
     private void generateCreateErrorMethods(ClassWriter cw, List<BIRNode.BIRTypeDefinition> errorTypeDefList,
-                                            String moduleInitClass, String typeOwnerClass, SymbolTable symbolTable) {
+                                            String typeOwnerClass, SymbolTable symbolTable) {
         MethodVisitor mv = cw.visitMethod(ACC_PUBLIC + ACC_STATIC, CREATE_ERROR_VALUE,
                 CREATE_ERROR, null, null);
         mv.visitCode();
@@ -101,15 +101,14 @@ public class JvmErrorCreatorGen {
             mv.visitMethodInsn(INVOKESTATIC, typeOwnerClass, CREATE_ERROR_VALUE + 0,
                     CREATE_ERROR, false);
             mv.visitInsn(ARETURN);
-            generateCreateErrorMethodSplits(cw, errorTypeDefList, moduleInitClass, typeOwnerClass, symbolTable);
+            generateCreateErrorMethodSplits(cw, errorTypeDefList, typeOwnerClass, symbolTable);
         }
         JvmCodeGenUtil.visitMaxStackForMethod(mv, CREATE_ERROR_VALUE, errorsClass);
         mv.visitEnd();
     }
 
     private void generateCreateErrorMethodSplits(ClassWriter cw, List<BIRNode.BIRTypeDefinition> errorTypeDefList,
-                                                 String moduleInitClass, String typeOwnerClass,
-                                                 SymbolTable symbolTable) {
+                                                 String typeOwnerClass, SymbolTable symbolTable) {
         int bTypesCount = 0;
         int methodCount = 0;
         MethodVisitor mv = null;
@@ -127,9 +126,8 @@ public class JvmErrorCreatorGen {
         int i = 0;
         for (BIRNode.BIRTypeDefinition errorDefinition : errorTypeDefList) {
             if (bTypesCount % MAX_TYPES_PER_METHOD == 0) {
-                mv = cw.visitMethod(ACC_PUBLIC + ACC_STATIC, CREATE_ERROR_VALUE + methodCount++,
-                        CREATE_ERROR
-                        , null, null);
+                mv = cw.visitMethod(ACC_PUBLIC + ACC_STATIC, CREATE_ERROR_VALUE + methodCount++, CREATE_ERROR, null,
+                        null);
                 mv.visitCode();
                 defaultCaseLabel = new Label();
                 int remainingCases = errorTypeDefList.size() - bTypesCount;
@@ -150,8 +148,7 @@ public class JvmErrorCreatorGen {
             mv.visitVarInsn(ALOAD, messageIndex);
             mv.visitVarInsn(ALOAD, causeIndex);
             mv.visitVarInsn(ALOAD, detailsIndex);
-            mv.visitMethodInsn(INVOKESPECIAL, ERROR_VALUE, JVM_INIT_METHOD,
-                    ERROR_INIT, false);
+            mv.visitMethodInsn(INVOKESPECIAL, ERROR_VALUE, JVM_INIT_METHOD, ERROR_INIT, false);
             mv.visitInsn(ARETURN);
             i += 1;
             bTypesCount++;

@@ -52,6 +52,7 @@ public class ReferencesContextImpl extends PositionedOperationContextImpl implem
             super(LSContextOperation.TXT_REFERENCES, serverContext);
         }
         
+        @Override
         public ReferencesContext build() {
             return new ReferencesContextImpl(this.operation,
                     this.fileUri,

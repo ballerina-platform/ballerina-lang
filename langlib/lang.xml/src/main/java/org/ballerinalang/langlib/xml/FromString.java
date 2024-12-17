@@ -26,14 +26,10 @@ import io.ballerina.runtime.internal.TypeConverter;
  *
  * @since 0.90
  */
-//@BallerinaFunction(
-//        orgName = "ballerina", packageName = "lang.xml",
-//        functionName = "fromString",
-//        args = {@Argument(name = "string", type = TypeKind.STRING)},
-//        returnType = {@ReturnType(type = TypeKind.XML)},
-//        isPublic = true
-//)
-public class FromString {
+public final class FromString {
+
+    private FromString() {
+    }
 
     public static Object fromString(BString string) {
         try {

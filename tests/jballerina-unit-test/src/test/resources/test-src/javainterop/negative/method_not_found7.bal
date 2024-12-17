@@ -28,3 +28,7 @@ function concatString(handle h, string s1, string s2) returns handle = @java:Met
     'class: "io.ballerina.runtime.api.values.BString",
     name: "concat"
 } external;
+
+function indexOf() returns byte = @java:Method {
+    'class: "java.lang.String"
+} external;

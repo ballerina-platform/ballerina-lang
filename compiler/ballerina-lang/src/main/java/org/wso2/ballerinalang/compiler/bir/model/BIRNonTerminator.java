@@ -27,6 +27,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import static org.wso2.ballerinalang.compiler.bir.model.InstructionKind.RECORD_DEFAULT_FP_LOAD;
+
 /**
  * A non-terminating instruction.
  * <p>
@@ -90,7 +92,6 @@ public abstract class BIRNonTerminator extends BIRAbstractInstruction implements
 
         public BinaryOp(Location pos,
                         InstructionKind kind,
-                        BType type,
                         BIROperand lhsOp,
                         BIROperand rhsOp1,
                         BIROperand rhsOp2) {
@@ -235,8 +236,7 @@ public abstract class BIRNonTerminator extends BIRAbstractInstruction implements
             int i = 0;
             operands[i++] = rhsOp;
             for (BIRMappingConstructorEntry mappingEntry : initialValues) {
-                if (mappingEntry instanceof BIRMappingConstructorKeyValueEntry) {
-                    BIRMappingConstructorKeyValueEntry entry = (BIRMappingConstructorKeyValueEntry) mappingEntry;
+                if (mappingEntry instanceof BIRMappingConstructorKeyValueEntry entry) {
                     operands[i++] = entry.keyOp;
                     operands[i++] = entry.valueOp;
                 } else {
@@ -253,8 +253,7 @@ public abstract class BIRNonTerminator extends BIRAbstractInstruction implements
             this.rhsOp = operands[0];
             int i = 1;
             for (BIRMappingConstructorEntry mappingEntry : initialValues) {
-                if (mappingEntry instanceof BIRMappingConstructorKeyValueEntry) {
-                    BIRMappingConstructorKeyValueEntry entry = (BIRMappingConstructorKeyValueEntry) mappingEntry;
+                if (mappingEntry instanceof BIRMappingConstructorKeyValueEntry entry) {
                     entry.keyOp = operands[i++];
                     entry.valueOp = operands[i++];
                 } else {
@@ -867,15 +866,14 @@ public abstract class BIRNonTerminator extends BIRAbstractInstruction implements
         public String strandName;
         public Name funcName;
         public PackageID pkgId;
-        public PackageID boundMethodPkgId;
         public List<BIRVariableDcl> params;
         public List<BIROperand> closureMaps;
         public BType type;
-        public boolean isWorker;
+        public PackageID boundMethodPkgId;
 
         public FPLoad(Location location, PackageID pkgId, Name funcName, BIROperand lhsOp,
                       List<BIRVariableDcl> params, List<BIROperand> closureMaps, BType type, String strandName,
-                      SchedulerPolicy schedulerPolicy) {
+                      SchedulerPolicy schedulerPolicy, PackageID boundMethodPkgId) {
             super(location, InstructionKind.FP_LOAD);
             this.schedulerPolicy = schedulerPolicy;
             this.strandName = strandName;
@@ -886,14 +884,7 @@ public abstract class BIRNonTerminator extends BIRAbstractInstruction implements
             this.closureMaps = closureMaps;
             this.type = type;
             this.type.name = funcName;
-        }
-
-        public FPLoad(Location location, PackageID pkgId, PackageID boundMethodPkgId, Name funcName, BIROperand lhsOp,
-                      List<BIRVariableDcl> params, List<BIROperand> closureMaps, BType type, String strandName,
-                      SchedulerPolicy schedulerPolicy, boolean isWorker) {
-            this(location, pkgId, funcName, lhsOp, params, closureMaps, type, strandName, schedulerPolicy);
-            this.boundMethodPkgId = boundMethodPkgId;
-            this.isWorker = isWorker;
+            this.boundMethodPkgId = boundMethodPkgId == null ? pkgId : boundMethodPkgId;
         }
 
         @Override
@@ -1429,4 +1420,38 @@ public abstract class BIRNonTerminator extends BIRAbstractInstruction implements
             this.nonGreedyChar = operands[1];
         }
     }
+
+    /**
+     * Function pointer load instruction for record default values.
+     *
+     * @since 2201.9.0
+     */
+    public static class RecordDefaultFPLoad extends BIRNonTerminator {
+        public BType enclosedType;
+        public String fieldName;
+
+        public RecordDefaultFPLoad(Location pos, BIROperand lhsOp, BType enclosedType, String fieldName) {
+            super(pos, RECORD_DEFAULT_FP_LOAD);
+            this.enclosedType = enclosedType;
+            this.fieldName = fieldName;
+            this.lhsOp = lhsOp;
+        }
+
+        @Override
+        public BIROperand[] getRhsOperands() {
+            return new BIROperand[0];
+        }
+
+        @Override
+        public void setRhsOperands(BIROperand[] operands) {
+            // Do nothing
+        }
+
+        @Override
+        public void accept(BIRVisitor visitor) {
+            visitor.visit(this);
+        }
+
+    }
+
 }

@@ -16,7 +16,7 @@
           "value": "**Package:** _._  \n  \n  \n**Params**  \n- `PathParamType[]` path"
         }
       },
-      "sortText": "C",
+      "sortText": "CA",
       "filterText": "path1|post",
       "insertText": "/path1/[${1:\"path\"}].post;",
       "insertTextFormat": "Snippet",
@@ -46,7 +46,7 @@
           "value": "**Package:** _._  \n  \n  \n**Params**  \n- `PathParamType[]` path"
         }
       },
-      "sortText": "C",
+      "sortText": "CB",
       "filterText": "path1|post",
       "insertText": "/path1/${1:path}.post;",
       "insertTextFormat": "Snippet",

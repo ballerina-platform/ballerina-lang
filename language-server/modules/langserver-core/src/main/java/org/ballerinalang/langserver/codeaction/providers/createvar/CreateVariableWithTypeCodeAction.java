@@ -17,7 +17,6 @@ package org.ballerinalang.langserver.codeaction.providers.createvar;
 
 import io.ballerina.compiler.api.ModuleID;
 import io.ballerina.compiler.api.SemanticModel;
-import io.ballerina.compiler.api.TypeBuilder;
 import io.ballerina.compiler.api.Types;
 import io.ballerina.compiler.api.symbols.MethodSymbol;
 import io.ballerina.compiler.api.symbols.ModuleSymbol;
@@ -59,10 +58,12 @@ import org.eclipse.lsp4j.TextEdit;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * Create variable code action when type infer diagnostic is presented.
@@ -150,7 +151,7 @@ public class CreateVariableWithTypeCodeAction extends CreateVariableCodeAction {
 
         List<TextEdit> edits = new ArrayList<>();
         List<Integer> renamePositions = new ArrayList<>();
-        List<String> types = getPossibleTypes(typeDescriptor, context);
+        List<String> types = getPossibleTypes(typeDescriptor, context, importsAcceptor);
         Position insertPos = range.getStart();
         List<Position> varRenamePositions = new ArrayList<>();
         for (String type : types) {
@@ -174,9 +175,12 @@ public class CreateVariableWithTypeCodeAction extends CreateVariableCodeAction {
      * @param context    CodeActionContext
      * @return {@link List<String>}
      */
-    private List<String> getPossibleTypes(TypeSymbol typeSymbol, CodeActionContext context) {
+    private List<String> getPossibleTypes(TypeSymbol typeSymbol, CodeActionContext context,
+                                          ImportsAcceptor importsAcceptor) {
         typeSymbol = getRawType(typeSymbol, context);
         Set<String> possibleTypes = new HashSet<>();
+        Set<String> unionTypes = new HashSet<>();
+        String unionType = null;
         List<TypeSymbol> errorTypes = new ArrayList<>();
         if (typeSymbol.typeKind() == TypeDescKind.UNION) {
             ((UnionTypeSymbol) typeSymbol)
@@ -185,39 +189,43 @@ public class CreateVariableWithTypeCodeAction extends CreateVariableCodeAction {
                     .map(memberTypeSymbol -> getRawType(memberTypeSymbol, context))
                     .forEach(memberTypeSymbol -> {
                         if (memberTypeSymbol.typeKind() == TypeDescKind.UNION) {
+                            unionTypes.add(getTypeName(memberTypeSymbol, context, importsAcceptor));
                             possibleTypes.addAll(
                                     ((UnionTypeSymbol) memberTypeSymbol)
                                             .memberTypeDescriptors()
                                             .stream()
                                             .map(memberTSymbol -> getRawType(memberTSymbol, context))
-                                            .map(symbol -> getTypeName(symbol, context))
-                                            .collect(Collectors.toList()));
+                                            .map(symbol -> getTypeName(symbol, context, importsAcceptor))
+                                            .toList());
                         } else if (memberTypeSymbol.typeKind() == TypeDescKind.ERROR ||
                                 CommonUtil.getRawType(memberTypeSymbol).typeKind() == TypeDescKind.ERROR) {
                             errorTypes.add(memberTypeSymbol);
                         } else {
-                            possibleTypes.add(getTypeName(memberTypeSymbol, context));
+                            possibleTypes.add(getTypeName(memberTypeSymbol, context, importsAcceptor));
                         }
                     });
+            if (unionTypes.isEmpty()) {
+                unionType = getTypeName(typeSymbol, context, importsAcceptor);
+            }
         } else {
-            String type = getTypeName(typeSymbol, context);
+            String type = getTypeName(typeSymbol, context, importsAcceptor);
             if (!"any".equals(type)) {
                 return Collections.singletonList(type);
             }
         }
 
+        Set<String> typesSet = new LinkedHashSet<>(unionTypes);
+        typesSet.addAll(possibleTypes);
+        Stream<String> typeStream = typesSet.stream().filter(type -> !"any".equals(type));
+
         if (!errorTypes.isEmpty()) {
             String errorTypeStr = errorTypes.stream()
-                    .map(type -> getTypeName(type, context))
+                    .map(type -> getTypeName(type, context, importsAcceptor))
                     .collect(Collectors.joining("|"));
-            return possibleTypes.stream()
-                    .filter(type -> !"any".equals(type))
-                    .map(type -> type + "|" + errorTypeStr)
-                    .collect(Collectors.toList());
+            typeStream = typeStream.map(type -> type + "|" + errorTypeStr);
         }
-        return possibleTypes.stream()
-                .filter(type -> !"any".equals(type))
-                .collect(Collectors.toList());
+
+        return Stream.concat(Stream.ofNullable(unionType), typeStream).toList();
     }
 
     private boolean isInRemoteMethodCallOrResourceAccess(CodeActionContext context) {
@@ -249,7 +257,7 @@ public class CreateVariableWithTypeCodeAction extends CreateVariableCodeAction {
         return actionNode.parent().kind() == SyntaxKind.ACTION_STATEMENT;
     }
 
-    private String getTypeName(TypeSymbol symbol, CodeActionContext context) {
+    private String getTypeName(TypeSymbol symbol, CodeActionContext context, ImportsAcceptor importsAcceptor) {
         Optional<ModuleSymbol> module = symbol.getModule();
         if (module.isPresent()) {
             String fqPrefix = "";
@@ -259,9 +267,9 @@ public class CreateVariableWithTypeCodeAction extends CreateVariableCodeAction {
             }
             String moduleQualifiedName = fqPrefix + (symbol.getName().isPresent() ? symbol.getName().get()
                     : getRawType(symbol, context).signature());
-            return FunctionGenerator.processModuleIDsInText(new ImportsAcceptor(context), moduleQualifiedName, context);
+            return FunctionGenerator.processModuleIDsInText(importsAcceptor, moduleQualifiedName, context);
         }
-        return FunctionGenerator.processModuleIDsInText(new ImportsAcceptor(context), symbol.signature(), context);
+        return FunctionGenerator.processModuleIDsInText(importsAcceptor, symbol.signature(), context);
     }
 
     private boolean isLangAnnotationModule(ModuleID moduleID) {
@@ -271,12 +279,15 @@ public class CreateVariableWithTypeCodeAction extends CreateVariableCodeAction {
     private TypeSymbol getRawType(TypeSymbol typeSymbol, CodeActionContext context) {
         TypeSymbol rawType = CommonUtil.getRawType(typeSymbol);
         Types types = context.currentSemanticModel().get().types();
-        TypeBuilder builder = types.builder();
-        RecordTypeSymbol recordTypeSymbol = builder.RECORD_TYPE.withRestField(types.ANY).build();
-        if (rawType.subtypeOf(types.ERROR) || rawType.subtypeOf(recordTypeSymbol)) {
+        if (rawType.subtypeOf(types.ERROR) || subTypeOfRecord(types, rawType)) {
             return typeSymbol;
         }
         return rawType;
+    }
+
+    private boolean subTypeOfRecord(Types types, TypeSymbol rawType) {
+        RecordTypeSymbol recordTypeSymbol = types.builder().RECORD_TYPE.withRestField(types.ANY).build();
+        return rawType.typeKind() != TypeDescKind.UNION && rawType.subtypeOf(recordTypeSymbol);
     }
 
     /**
@@ -332,7 +343,7 @@ public class CreateVariableWithTypeCodeAction extends CreateVariableCodeAction {
 
         List<TypeSymbol> memberTypes = ((UnionTypeSymbol) returnTypeDesc.get()).memberTypeDescriptors().stream()
                 .filter(member -> CommonUtil.getRawType(member).typeKind() != TypeDescKind.ERROR)
-                .collect(Collectors.toList());
+                .toList();
 
         if (memberTypes.isEmpty()) {
             // If there are no non-error members (which is highly unlikely), there's no return type

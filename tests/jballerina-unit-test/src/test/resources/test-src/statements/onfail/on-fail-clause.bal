@@ -524,7 +524,7 @@ function reset() = @java:Method {
     name: "reset"
 } external;
 
-public function callMethod(service object {} s, string name) returns future<any|error> = @java:Method {
+public function callMethod(service object {} s, string name) returns any|error = @java:Method {
     'class: "org/ballerinalang/nativeimpl/jvm/servicetests/ServiceValue",
     name: "callMethod"
 } external;
@@ -546,13 +546,13 @@ isolated function externStart(object {} o) returns error? = @java:Method {
 
 function testOnFailWithinInLineServiceObj() {
     service object {} serviceObj1 = <service object {}>
-            (checkpanic (wait callMethod(<service object {}>getService(), "$get$foo")));
-    string str1 = <string>(checkpanic (wait callMethod(serviceObj1, "$get$foo")));
+            (checkpanic (callMethod(<service object {}>getService(), "$get$foo")));
+    string str1 = <string>(checkpanic (callMethod(serviceObj1, "$get$foo")));
     assertEquality(str1, "Error thrown from on-fail: Custom Error");
 
     service object {} serviceObj2 = <service object {}>
-                (checkpanic (wait callMethod(<service object {}>getService(), "$get$bar")));
-    string str2 = <string>(checkpanic (wait callMethod(serviceObj2, "$get$bar")));
+                (checkpanic (callMethod(<service object {}>getService(), "$get$bar")));
+    string str2 = <string>(checkpanic (callMethod(serviceObj2, "$get$bar")));
     assertEquality(str2, "Error thrown from on-fail: Custom Error");
 
     reset();

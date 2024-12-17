@@ -19,6 +19,7 @@
 package io.ballerina.projects.test;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 import io.ballerina.projects.DiagnosticResult;
 import io.ballerina.projects.EmitResult;
 import io.ballerina.projects.JBallerinaBackend;
@@ -48,7 +49,6 @@ import java.io.IOException;
 import java.nio.file.AccessDeniedException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -66,7 +66,7 @@ import static org.mockito.Mockito.when;
  * @since 2.0.0
  */
 public class TestBalaWriter {
-    private static final Path RESOURCE_DIRECTORY = Paths.get("src", "test", "resources");
+    private static final Path RESOURCE_DIRECTORY = Path.of("src", "test", "resources");
     private static final Path BALA_WRITER_RESOURCES = RESOURCE_DIRECTORY.resolve("balawriter");
     private static final String PACKAGE_PATH = "packagePath";
     private Path tmpDir;
@@ -76,7 +76,7 @@ public class TestBalaWriter {
     public void setUp() throws IOException {
         this.tmpDir = Files.createTempDirectory("b7a-bala-writer-test-" + System.nanoTime());
         this.balaExportPath = this.tmpDir.resolve("tmpBalaDir");
-        Files.createDirectory(Paths.get(String.valueOf(this.balaExportPath)));
+        Files.createDirectory(Path.of(String.valueOf(this.balaExportPath)));
     }
 
     @Test
@@ -94,12 +94,12 @@ public class TestBalaWriter {
         Target target = new Target(project.sourceRoot());
         Path balaPath = target.getBalaPath();
         // invoke write bala method
-        JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(packageCompilation, JvmTarget.JAVA_17);
+        JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(packageCompilation, JvmTarget.JAVA_21);
         EmitResult emitResult = jBallerinaBackend.emit(JBallerinaBackend.OutputType.BALA, balaPath);
         Assert.assertTrue(emitResult.successful());
 
         // unzip bala
-        TestUtils.unzip(String.valueOf(balaPath.resolve("foo-winery-java17-0.1.0.bala")),
+        TestUtils.unzip(String.valueOf(balaPath.resolve("foo-winery-java21-0.1.0.bala")),
                         String.valueOf(balaExportPath));
 
         // bala.json
@@ -108,7 +108,7 @@ public class TestBalaWriter {
 
         try (FileReader reader = new FileReader(String.valueOf(balaJsonPath))) {
             BalaJson balaJson = gson.fromJson(reader, BalaJson.class);
-            Assert.assertEquals(balaJson.getBala_version(), "2.0.0");
+            Assert.assertEquals(balaJson.getBala_version(), "3.0.0");
             Assert.assertEquals(balaJson.getBuilt_by(), "WSO2");
         }
 
@@ -148,14 +148,14 @@ public class TestBalaWriter {
 
             Assert.assertEquals(packageJson.getVisibility(), "private");
 
-            Assert.assertEquals(packageJson.getPlatform(), "java17");
+            Assert.assertEquals(packageJson.getPlatform(), JvmTarget.JAVA_21.code());
             Assert.assertEquals(packageJson.getPlatformDependencies().size(), 1);
 
             Assert.assertEquals(packageJson.getBallerinaVersion(), RepoUtils.getBallerinaShortVersion());
             Assert.assertEquals(packageJson.getImplementationVendor(), "WSO2");
             Assert.assertEquals(packageJson.getLanguageSpecVersion(), RepoUtils.getBallerinaSpecVersion());
 
-            Assert.assertEquals(Paths.get(packageJson.getIcon()), Paths.get("docs/samplePng01.png"));
+            Assert.assertEquals(Path.of(packageJson.getIcon()), Path.of("docs/samplePng01.png"));
             Assert.assertTrue(balaExportPath.resolve(packageJson.getIcon()).toFile().exists());
         }
 
@@ -184,9 +184,6 @@ public class TestBalaWriter {
         // docs
         Path packageMdPath = balaExportPath.resolve("docs").resolve("Package.md");
         Assert.assertTrue(packageMdPath.toFile().exists());
-        Path defaultModuleMdPath = balaExportPath
-                .resolve("docs").resolve("modules").resolve("winery").resolve("Module.md");
-        Assert.assertTrue(defaultModuleMdPath.toFile().exists());
         Path servicesModuleMdPath = balaExportPath.resolve("docs").resolve("modules").resolve("winery.services")
                 .resolve("Module.md");
         Assert.assertTrue(servicesModuleMdPath.toFile().exists());
@@ -217,14 +214,14 @@ public class TestBalaWriter {
                 .resolve("modules/winery.services/non-default-module-include-dir/include_image.png");
         Assert.assertTrue(nonDefaultModuleIncludeImageFile.toFile().exists());
 
+        // package resources
+        Assert.assertTrue(balaExportPath.resolve(Path.of("resources", "main.json")).toFile().exists());
         // module sources
         // default module
         Path defaultModuleSrcPath = balaExportPath.resolve("modules").resolve("winery");
         Assert.assertTrue(defaultModuleSrcPath.toFile().exists());
-        Assert.assertTrue(defaultModuleSrcPath.resolve(Paths.get("main.bal")).toFile().exists());
-        Assert.assertTrue(defaultModuleSrcPath.resolve(Paths.get("utils.bal")).toFile().exists());
-        Assert.assertTrue(defaultModuleSrcPath.resolve(Paths.get("resources")).toFile().exists());
-        Assert.assertTrue(defaultModuleSrcPath.resolve(Paths.get("resources", "main.json")).toFile().exists());
+        Assert.assertTrue(defaultModuleSrcPath.resolve(Path.of("main.bal")).toFile().exists());
+        Assert.assertTrue(defaultModuleSrcPath.resolve(Path.of("utils.bal")).toFile().exists());
         Assert.assertFalse(defaultModuleSrcPath.resolve("modules").toFile().exists());
         Assert.assertFalse(defaultModuleSrcPath.resolve("tests").toFile().exists());
         Assert.assertFalse(defaultModuleSrcPath.resolve("targets").toFile().exists());
@@ -234,18 +231,16 @@ public class TestBalaWriter {
         // storage module
         Path storageModuleSrcPath = balaExportPath.resolve("modules").resolve("winery.storage");
         Assert.assertTrue(storageModuleSrcPath.resolve("db.bal").toFile().exists());
-        Assert.assertTrue(storageModuleSrcPath.resolve("resources").toFile().exists());
-        Assert.assertTrue(storageModuleSrcPath.resolve("resources").resolve("db.json").toFile().exists());
         Assert.assertFalse(storageModuleSrcPath.resolve("tests").toFile().exists());
         Assert.assertFalse(storageModuleSrcPath.resolve("Module.md").toFile().exists());
 
         // Check if platform dependencies exists
-        Path platformDependancy = balaExportPath.resolve("platform").resolve("java17")
+        Path platformDependancy = balaExportPath.resolve("platform").resolve(JvmTarget.JAVA_21.code())
                 .resolve("ballerina-io-1.0.0-java.txt");
         Assert.assertTrue(platformDependancy.toFile().exists());
 
         // Check if test scoped platform dependencies not exists
-        Path testScopePlatformDependancy = balaExportPath.resolve("platform").resolve("java17")
+        Path testScopePlatformDependancy = balaExportPath.resolve("platform").resolve(JvmTarget.JAVA_21.code())
                 .resolve("ballerina-io-1.2.0-java.txt");
         Assert.assertFalse(testScopePlatformDependancy.toFile().exists());
 
@@ -305,7 +300,7 @@ public class TestBalaWriter {
         PackageCompilation packageCompilation = project.currentPackage().getCompilation();
         Target target = new Target(project.sourceRoot());
 
-        JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(packageCompilation, JvmTarget.JAVA_17);
+        JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(packageCompilation, JvmTarget.JAVA_21);
         jBallerinaBackend.emit(JBallerinaBackend.OutputType.BALA, target.getBalaPath());
 
         // invoke write bala method
@@ -321,7 +316,7 @@ public class TestBalaWriter {
 
         try (FileReader reader = new FileReader(String.valueOf(balaJsonPath))) {
             BalaJson balaJson = gson.fromJson(reader, BalaJson.class);
-            Assert.assertEquals(balaJson.getBala_version(), "2.0.0");
+            Assert.assertEquals(balaJson.getBala_version(), "3.0.0");
             Assert.assertEquals(balaJson.getBuilt_by(), "WSO2");
         }
 
@@ -343,7 +338,51 @@ public class TestBalaWriter {
         // module sources
         Path defaultModuleSrcPath = balaExportPath.resolve("modules").resolve("winery");
         Assert.assertTrue(defaultModuleSrcPath.toFile().exists());
-        Assert.assertTrue(defaultModuleSrcPath.resolve(Paths.get("main.bal")).toFile().exists());
+        Assert.assertTrue(defaultModuleSrcPath.resolve(Path.of("main.bal")).toFile().exists());
+    }
+
+    @Test
+    public void testBalaWriterWithProvidedPlatformLibs(ITestContext ctx) throws IOException {
+        Gson gson = new Gson();
+        Path projectPath = BALA_WRITER_RESOURCES.resolve("projectProvidedScope");
+        ctx.getCurrentXmlTest().addParameter(PACKAGE_PATH, String.valueOf(projectPath));
+        Project project = TestUtils.loadBuildProject(projectPath);
+
+        PackageCompilation packageCompilation = project.currentPackage().getCompilation();
+        if (packageCompilation.diagnosticResult().hasErrors()) {
+            Assert.fail("compilation failed:" + packageCompilation.diagnosticResult().errors());
+        }
+
+        Target target = new Target(project.sourceRoot());
+        Path balaPath = target.getBalaPath();
+        // invoke write bala method
+        JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(packageCompilation, JvmTarget.JAVA_21);
+        EmitResult emitResult = jBallerinaBackend.emit(JBallerinaBackend.OutputType.BALA, balaPath);
+        Assert.assertTrue(emitResult.successful());
+
+        // unzip bala
+        TestUtils.unzip(String.valueOf(balaPath.resolve("foo-pkg_a-java21-1.0.0.bala")),
+                String.valueOf(balaExportPath));
+
+        // package.json
+        Path packageJsonPath = balaExportPath.resolve("package.json");
+        Assert.assertTrue(packageJsonPath.toFile().exists());
+        try (FileReader reader = new FileReader(String.valueOf(packageJsonPath))) {
+            PackageJson packageJson = gson.fromJson(reader, PackageJson.class);
+            Assert.assertEquals(packageJson.getPlatform(), JvmTarget.JAVA_21.code());
+            JsonObject foundInBala = packageJson.getPlatformDependencies().get(0).getAsJsonObject();
+            JsonObject expected = new JsonObject();
+            expected.addProperty("artifactId", "project1");
+            expected.addProperty("groupId", "com.example");
+            expected.addProperty("version", "1.0");
+            expected.addProperty("scope", "provided");
+            Assert.assertEquals(packageJson.getPlatformDependencies().size(), 1);
+            Assert.assertEquals(foundInBala, expected);
+        }
+        // Check if test scoped platform dependencies not exists
+        Path providedScopePlatformDependancy = balaExportPath.resolve("platform").resolve(JvmTarget.JAVA_21.code())
+                .resolve("project1-1.0.0.jar");
+        Assert.assertFalse(providedScopePlatformDependancy.toFile().exists());
     }
 
     @Test
@@ -356,14 +395,14 @@ public class TestBalaWriter {
         PackageCompilation packageCompilation = project.currentPackage().getCompilation();
         Target target = new Target(project.sourceRoot());
 
-        JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(packageCompilation, JvmTarget.JAVA_17);
+        JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(packageCompilation, JvmTarget.JAVA_21);
         jBallerinaBackend.emit(JBallerinaBackend.OutputType.BALA, target.getBalaPath());
 
         // invoke write bala method
         jBallerinaBackend.emit(JBallerinaBackend.OutputType.BALA, target.getBalaPath());
 
         // unzip bala
-        TestUtils.unzip(String.valueOf(target.getBalaPath().resolve("foo-tool_test-java17-1.0.1.bala")),
+        TestUtils.unzip(String.valueOf(target.getBalaPath().resolve("foo-tool_test-java21-1.0.1.bala")),
                 String.valueOf(balaExportPath));
 
         // bala.json
@@ -372,7 +411,7 @@ public class TestBalaWriter {
 
         try (FileReader reader = new FileReader(String.valueOf(balaJsonPath))) {
             BalaJson balaJson = gson.fromJson(reader, BalaJson.class);
-            Assert.assertEquals(balaJson.getBala_version(), "2.0.0");
+            Assert.assertEquals(balaJson.getBala_version(), "3.0.0");
             Assert.assertEquals(balaJson.getBuilt_by(), "WSO2");
         }
 
@@ -398,7 +437,7 @@ public class TestBalaWriter {
         // module sources
         Path defaultModuleSrcPath = balaExportPath.resolve("modules").resolve("tool_test");
         Assert.assertTrue(defaultModuleSrcPath.toFile().exists());
-        Path mainFilePath = defaultModuleSrcPath.resolve(Paths.get("main.bal"));
+        Path mainFilePath = defaultModuleSrcPath.resolve(Path.of("main.bal"));
         Assert.assertTrue(mainFilePath.toFile().exists());
         String expectedMainContent = """
                 // AUTO-GENERATED FILE.
@@ -420,7 +459,7 @@ public class TestBalaWriter {
         PackageCompilation packageCompilation = project.currentPackage().getCompilation();
         Target target = new Target(project.sourceRoot());
         // invoke write bala method
-        JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(packageCompilation, JvmTarget.JAVA_17);
+        JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(packageCompilation, JvmTarget.JAVA_21);
         jBallerinaBackend.emit(JBallerinaBackend.OutputType.BALA, target.getBalaPath());
 
         // unzip bala
@@ -433,7 +472,7 @@ public class TestBalaWriter {
 
         try (FileReader reader = new FileReader(String.valueOf(balaJsonPath))) {
             BalaJson balaJson = gson.fromJson(reader, BalaJson.class);
-            Assert.assertEquals(balaJson.getBala_version(), "2.0.0");
+            Assert.assertEquals(balaJson.getBala_version(), "3.0.0");
             Assert.assertEquals(balaJson.getBuilt_by(), "WSO2");
         }
 
@@ -453,7 +492,7 @@ public class TestBalaWriter {
         // default module
         Path defaultModuleSrcPath = balaExportPath.resolve("modules").resolve("package_d");
         Assert.assertTrue(defaultModuleSrcPath.toFile().exists());
-        Assert.assertTrue(defaultModuleSrcPath.resolve(Paths.get("main.bal")).toFile().exists());
+        Assert.assertTrue(defaultModuleSrcPath.resolve(Path.of("main.bal")).toFile().exists());
 
         // dependencies.json
         Path dependencyGraphJsonPath = balaExportPath.resolve(DEPENDENCY_GRAPH_JSON);
@@ -495,11 +534,8 @@ public class TestBalaWriter {
         Project project = TestUtils.loadBuildProject(projectPath);
 
         PackageCompilation packageCompilation = project.currentPackage().getCompilation();
-        JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(packageCompilation, JvmTarget.JAVA_17);
+        JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(packageCompilation, JvmTarget.JAVA_21);
         jBallerinaBackend.emit(JBallerinaBackend.OutputType.BALA, balaPath);
-
-//        // invoke write bala method
-//        BalaWriter.write(project.currentPackage(), balaPath);
     }
 
     @Test(description = "tests build project with a valid icon in Ballerina.toml")
@@ -512,7 +548,7 @@ public class TestBalaWriter {
 
         Target target = new Target(buildProject.sourceRoot());
         // invoke write bala method
-        JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(compilation, JvmTarget.JAVA_17);
+        JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(compilation, JvmTarget.JAVA_21);
         jBallerinaBackend.emit(JBallerinaBackend.OutputType.BALA, target.getBalaPath());
 
         // Check whether there are any diagnostics
@@ -553,7 +589,7 @@ public class TestBalaWriter {
         Target target = new Target(buildProject.sourceRoot());
         Path balaPath = target.getBalaPath();
 
-        JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(packageCompilation, JvmTarget.JAVA_17);
+        JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(packageCompilation, JvmTarget.JAVA_21);
         EmitResult emitResult = jBallerinaBackend.emit(JBallerinaBackend.OutputType.BALA, balaPath);
         Assert.assertTrue(emitResult.successful());
 

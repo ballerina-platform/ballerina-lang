@@ -61,7 +61,6 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 /**
  * Compiler plugin code action extension implementation for ballerina.
@@ -116,11 +115,10 @@ public class CompilerPluginCodeActionExtension implements CodeActionExtension {
                 })
                 .peek(codeActionResult -> {
                     // Log all the errors captured while calculating code actions
-                    codeActionResult.getErrors().forEach(ex -> {
+                    codeActionResult.getErrors().forEach(ex ->
                         clientLogger.logError(LSContextOperation.TXT_CODE_ACTION,
                                 "Exception thrown while getting code action: '%s'" + ex.getCodeActionName(),
-                                ex.getCause(), new TextDocumentIdentifier(context.fileUri()));
-                    });
+                                ex.getCause(), new TextDocumentIdentifier(context.fileUri())));
                 })
                 .flatMap(codeActionResult -> codeActionResult.getCodeActions().stream())
                 .map(codeActionInfo -> {
@@ -130,7 +128,7 @@ public class CompilerPluginCodeActionExtension implements CodeActionExtension {
                     return CodeActionUtil.createResolvableCodeAction(codeActionInfo.getTitle(),
                             CodeActionKind.QuickFix, codeActionData);
                 })
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @Override
@@ -156,7 +154,7 @@ public class CompilerPluginCodeActionExtension implements CodeActionExtension {
         List<CodeActionArgument> arguments = actionData.stream()
                 .map(gson::toJsonTree)
                 .map(CodeActionArgument::from)
-                .collect(Collectors.toList());
+                .toList();
         // Build the execution context and execute code action
         CodeActionExecutionContext codeActionContext = CodeActionExecutionContextImpl.from(
                 codeActionData.getFileUri(),

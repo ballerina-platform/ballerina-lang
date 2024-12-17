@@ -26,14 +26,12 @@ import io.ballerina.runtime.api.values.BTable;
  *
  * @since 1.3.0
  */
-//@BallerinaFunction(
-//        orgName = "ballerina", packageName = "lang.table", functionName = "iterator",
-//        args = {@Argument(name = "tbl", type = TypeKind.TABLE)},
-//        returnType = {@ReturnType(type = TypeKind.OBJECT)},
-//        isPublic = true
-//)
-public class GetIterator {
-    public static BIterator iterator(BTable tbl) {
+public final class GetIterator {
+
+    private GetIterator() {
+    }
+
+    public static BIterator<?> iterator(BTable<?, ?> tbl) {
         return tbl.getIterator();
     }
 }

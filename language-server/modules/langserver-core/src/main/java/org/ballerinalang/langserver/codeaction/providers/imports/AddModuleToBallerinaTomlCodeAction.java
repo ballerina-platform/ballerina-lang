@@ -18,8 +18,6 @@ package org.ballerinalang.langserver.codeaction.providers.imports;
 import io.ballerina.projects.BallerinaToml;
 import io.ballerina.projects.PackageVersion;
 import io.ballerina.projects.Project;
-import io.ballerina.projects.environment.PackageRepository;
-import io.ballerina.projects.internal.environment.BallerinaUserHome;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.toml.syntax.tree.DocumentNode;
 import io.ballerina.toml.syntax.tree.SyntaxKind;
@@ -132,14 +130,11 @@ public class AddModuleToBallerinaTomlCodeAction implements DiagnosticBasedCodeAc
     
     private List<PackageVersion> getAvailablePackageVersionsFromLocalRepo(
             LSPackageLoader lsPackageLoader, Project project, String orgName, String pkgName) {
-        BallerinaUserHome ballerinaUserHome = 
-                BallerinaUserHome.from(project.projectEnvironmentContext().environment());
-        PackageRepository localRepository = ballerinaUserHome.localPackageRepository();
-        List<ModuleInfo> modules = lsPackageLoader.getLocalRepoPackages(localRepository);
+        List<ModuleInfo> modules = lsPackageLoader.getLocalRepoModules();
         List<PackageVersion> versions = new ArrayList<>();
         for (ModuleInfo mod : modules) {
-            if (mod.packageOrg().value().equals(orgName) && mod.packageName().value().equals(pkgName)) {
-                versions.add(mod.packageVersion());
+            if (mod.packageOrg().equals(orgName) && mod.packageName().equals(pkgName)) {
+                versions.add(PackageVersion.from(mod.packageVersion()));
             }
         }
         return versions;
@@ -162,7 +157,7 @@ public class AddModuleToBallerinaTomlCodeAction implements DiagnosticBasedCodeAc
                 .filter(member -> member.kind().equals(SyntaxKind.TABLE) &&
                         TomlSyntaxTreeUtil.toQualifiedName(((TableNode) member).identifier().value()).equals("package"))
                 .findFirst()
-                .map(member -> ((TableNode) member).lineRange().endLine().line() + 2)
+                .map(member -> member.lineRange().endLine().line() + 2)
                 .orElse(0);
     }
 }

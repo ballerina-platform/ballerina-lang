@@ -160,7 +160,20 @@ public class CreateVariableWithPositionalRenameSupportCapabilityTest extends Abs
                 {"createVariableWithCheck10.json"},
                 {"createVariableWithCheck11.json"},
                 {"createVariableWithCheck12.json"},
-                {"createVariableWithCheck13.json"}
+                {"createVariableWithCheck13.json"},
+                {"createVariableWithCheck14.json"},
+                {"createVariableWithCheck15.json"},
+                {"createVariableWithCheck16.json"},
+                {"createVariableWithCheck17.json"},
+                {"createVariableWithCheck18.json"},
+                {"createVariableWithCheck19.json"},
+                {"createVariableWithCheck20.json"},
+
+                // Related to imported types
+                {"createVariableWithInferredType1.json"},
+                {"createVariableWithInferredType2.json"},
+                {"createVariableWithInferredType3.json"},
+                {"createVariableWithInferredType4.json"}
         };
     }
 
@@ -171,7 +184,8 @@ public class CreateVariableWithPositionalRenameSupportCapabilityTest extends Abs
                 {"createVariableNegative2.json"},
                 {"createVariableNegative3.json"},
                 {"createVariableNegative4.json"},
-                {"createVariableInQueryActionNegative.json"}
+                {"createVariableInQueryActionNegative.json"},
+                {"createVariableWithCheckNegative1.json"},
         };
     }
 }

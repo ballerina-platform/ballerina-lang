@@ -18,77 +18,36 @@
 <!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd" >
 
 <suite name="jBallerina-Test-Suite" time-out="120000">
-    <listeners>
-        <listener class-name="org.ballerinalang.test.listener.TestExecutionListener"/>
-        <listener class-name="org.ballerinalang.test.listener.TestNGListener"/>
-        <listener class-name="org.ballerinalang.test.listener.JBallerinaTestInitializer"/>
-    </listeners>
-
-    <test name="ballerina-data-streaming-tests">
-        <groups>
-            <run>
-                <exclude name="brokenOnXMLChange"/>
-                <exclude name="brokenOnTableRemove"/>
-            </run>
-        </groups>
-        <classes>
-            <class name="org.ballerinalang.test.data.streaming.TableDataStreamingTestCase"/>
-        </classes>
-    </test>
-
     <test name="ballerina-packerina-tests">
-        <parameter name="enableJBallerinaTests" value="true"/>
-        <groups>
-            <run>
-                <exclude name="brokenOnJBallerina"/>
-            </run>
-        </groups>
         <classes>
             <class name="org.ballerinalang.test.packaging.ModuleExecutionFlowTests"/>
             <class name="org.ballerinalang.test.packaging.MultipleModuleVersionTests"/>
             <class name="org.ballerinalang.test.packaging.MavenTestCase"/>
         </classes>
     </test>
-
     <test name="ballerina-readonly-intersection-tests">
-        <parameter name="enableJBallerinaTests" value="true"/>
         <classes>
             <class name="org.ballerinalang.test.readonly.ReadOnlyIntersectionViaMultipleModulesTest"/>
             <class name="org.ballerinalang.test.readonly.ReadOnlyIntersectionViaMultipleModulesTest2"/>
             <class name="org.ballerinalang.test.readonly.ReadOnlyIntersectionViaMultipleModulesTest3"/>
         </classes>
     </test>
-
     <test name="ballerina-isolated-tests">
-        <parameter name="enableJBallerinaTests" value="true"/>
         <classes>
             <class name="org.ballerinalang.test.isolated.IsolatedInferenceWithTestsTest"/>
         </classes>
     </test>
-
     <test name="ballerina-type-id-tests">
-        <parameter name="enableJBallerinaTests" value="true"/>
         <classes>
             <class name="org.ballerinalang.test.distinct.TypeIdViaDifferentVersionsTest"/>
         </classes>
     </test>
-
-    <test name="ballerina-run-tests" preserve-order="true">
-        <parameter name="enableJBallerinaTests" value="true"/>
+    <test name="ballerina-run-tests">
         <packages>
             <package name="org.ballerinalang.test.run.*"/>
         </packages>
     </test>
-
-    <test name="ballerina-launch-listener-tests">
-        <parameter name="enableJBallerinaTests" value="true" />
-        <classes>
-            <class name="org.ballerinalang.test.listener.LaunchListenerTestCase"/>
-        </classes>
-    </test>
-
     <test name="ballerina-testerina-tests">
-        <parameter name="enableJBallerinaTests" value="true" />
         <groups>
             <run>
                 <exclude name="brokenOnJBallerina"/>
@@ -98,57 +57,45 @@
             <class name="org.ballerinalang.test.testarina.TestarinaTestCase" />
         </classes>
     </test>
-
-    <test name="ballerina-docerina-tests">
-        <parameter name="enableJBallerinaTests" value="true" />
-        <classes>
-<!--            <class name="org.ballerinalang.test.docerina.BallerinaApiDocsTestCase" />-->
-        </classes>
-    </test>
-
     <test name="ballerina-identifier-tests">
-        <parameter name="enableJBallerinaTests" value="true" />
         <classes>
             <class name="org.ballerinalang.test.identifier.IdentifierLiteralTest"/>
         </classes>
     </test>
-
     <test name="ballerina-configurables-tests">
-        <parameter name="enableJBallerinaTests" value="true" />
         <classes>
             <class name="org.ballerinalang.test.configurables.ConfigurableTest"/>
         </classes>
     </test>
-
     <test name="ballerina-bindgen-tests">
-        <parameter name="enableJBallerinaTests" value="true" />
         <classes>
             <class name="org.ballerinalang.test.bindgen.BindgenTestCase" />
         </classes>
     </test>
     <test name="ballerina-async-tests">
-        <parameter name="enableJBallerinaTests" value="true" />
         <classes>
             <class name="org.ballerinalang.test.async.AsyncFunctionsTest" />
         </classes>
     </test>
     <test name="ballerina-strand-dump-tests">
-        <parameter name="enableJBallerinaTests" value="true" />
         <classes>
             <class name="org.ballerinalang.test.troubleshoot.StrandDumpTest" />
         </classes>
     </test>
     <test name="ballerina-semver-validator-tests">
-        <parameter name="enableJBallerinaTests" value="true"/>
         <classes>
             <class name="org.ballerinalang.test.semver.SemverValidatorTest"/>
             <class name="org.ballerinalang.test.semver.SemverValidatorNegativeTest"/>
         </classes>
     </test>
     <test name="ballerina-profiler-tests">
-        <parameter name="enableJBallerinaTests" value="true" />
         <classes>
             <class name="org.ballerinalang.test.profiler.ProfilerTest"/>
+        </classes>
+    </test>
+    <test name="ballerina-runtime-api-tests">
+        <classes>
+            <class name="org.ballerinalang.test.runtime.api.RuntimeAPITest"/>
         </classes>
     </test>
 </suite>

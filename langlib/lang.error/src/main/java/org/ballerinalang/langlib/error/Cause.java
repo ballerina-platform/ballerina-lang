@@ -24,13 +24,12 @@ import io.ballerina.runtime.api.values.BError;
  *
  * @since 2.0.0
  */
-//@BallerinaFunction(
-//        orgName = "ballerina", packageName = "lang.error", version = ERROR_VERSION,
-//        functionName = "cause",
-//        args = {@Argument(name = "value", type = TypeKind.ERROR)},
-//        returnType = {@ReturnType(type = TypeKind.UNION)})
 public class Cause {
 
+
+
+    private Cause() {
+    }
 
     @Deprecated
     public static Object cause(BError value) {

@@ -19,14 +19,17 @@ package org.ballerinalang.langlib.xml;
 
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BXml;
-import io.ballerina.runtime.internal.XmlFactory;
+import io.ballerina.runtime.internal.xml.XmlFactory;
 
 /**
  * Create XML text value from string.
  *
  * @since 2.0.0
  */
-public class CreateText {
+public final class CreateText {
+
+    private CreateText() {
+    }
 
     public static BXml createText(BString string) {
         return XmlFactory.createXMLText(string);

@@ -26,3 +26,29 @@ function hashCodeStatic(int receiver) returns int = @java:Method {
     'class: "java.lang.Byte"
 } external;
 
+function getSeatCount(handle receiver) returns int = @java:Method {
+    'class: "org.ballerinalang.test.javainterop.overloading.pkg.SportsCar"
+} external;
+
+function getSeatCountWithModel(handle receiver) returns int = @java:Method {
+    name: "getSeatCount",
+    'class: "org.ballerinalang.test.javainterop.overloading.pkg.SportsCar"
+} external;
+
+function getDescription(handle receiver, handle val) returns handle = @java:Method {
+    'class: "org.ballerinalang.test.javainterop.overloading.pkg.SportsCar"
+} external;
+
+function newByte(int val) returns handle = @java:Constructor {
+   'class: "java.lang.Byte"
+} external;
+
+function getCarCategorization(handle receiver, handle val1, handle val2) returns handle = @java:Method {
+    name: "getCategorization",
+    'class: "org.ballerinalang.test.javainterop.overloading.pkg.SportsCar"
+} external;
+
+function getBatteryType(handle receiver, handle val) returns handle = @java:Method {
+    name: "getBatteryType",
+    'class: "org.ballerinalang.test.javainterop.overloading.pkg.SportsCar"
+} external;

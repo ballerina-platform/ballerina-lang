@@ -688,6 +688,8 @@ function testInvalidPushOnUnionOfSameBasicType() {
 
 function testShiftOperation() {
     testShiftOnTupleWithoutValuesForRestParameter();
+    testShiftOnTupleWithVariableInherentTypes();
+    testShiftOnTupleWithProperConditions();
 }
 
 function testShiftOnTupleWithoutValuesForRestParameter() {
@@ -704,7 +706,242 @@ function testShiftOnTupleWithoutValuesForRestParameter() {
     var message = err.detail()["message"];
     string detailMessage = message is error ? message.toString() : message.toString();
     assertValueEquality("{ballerina/lang.array}OperationNotSupported", err.message());
-    assertValueEquality("shift() not supported on type '[int,int...]'", detailMessage);
+    assertValueEquality("the number of members in a tuple value should be greater " +
+    "than the member types of the tuple to perform a 'shift' operation", detailMessage);
+}
+
+type TestRecord1 record {string name; int age;};
+type TestRecord2 record {string classname;};
+function testShiftOnTupleWithVariableInherentTypes() {
+    [int, int, string...] tupleWithVariableInherentTypes1 = [0, 1, "hello"];
+    [anydata, anydata, anydata...] tempTuple1 = tupleWithVariableInherentTypes1;
+
+    [int, string, string...] tupleWithVariableInherentTypes2 = [0, "hello", "world"];
+    [anydata, anydata, anydata...] tempTuple2 = tupleWithVariableInherentTypes2;
+
+    TestRecord1 person1 = {
+        name:"James",
+        age:15
+        };
+
+    TestRecord2 student = {
+        classname: "Science"
+        };
+
+    [TestRecord1, TestRecord2...] tupleTemp = [person1, student];
+    [anydata, anydata...] tuplePeople = tupleTemp;
+
+    var fn1 = function() {
+        var x = tempTuple1.shift();
+    };
+
+    var fn2 = function() {
+        var y = tempTuple2.shift();
+    };
+
+    var fn3 = function() {
+        var z = tuplePeople.shift();
+    };
+
+    error? res1 = trap fn1();
+    error? res2 = trap fn2();
+    error? res3 = trap fn3();
+    assertTrue(res1 is error);
+    assertTrue(res2 is error);
+    assertTrue(res3 is error);
+
+    error err1 = <error>res1;
+    error err2 = <error>res2;
+    error err3 = <error>res3;
+    var message1 = err1.detail()["message"];
+    var message2 = err2.detail()["message"];
+    var message3 = err3.detail()["message"];
+    string detailMessage1 = message1 is error ? message1.toString() : message1.toString();
+    string detailMessage2 = message2 is error ? message2.toString() : message2.toString();
+    string detailMessage3 = message3 is error ? message3.toString() : message3.toString();
+    assertValueEquality("{ballerina/lang.array}InherentTypeViolation", err1.message());
+    assertValueEquality("{ballerina/lang.array}InherentTypeViolation", err2.message());
+    assertValueEquality("{ballerina/lang.array}InherentTypeViolation", err3.message());
+    assertValueEquality("incompatible types: expected 'int', found 'string'", detailMessage1);
+    assertValueEquality("incompatible types: expected 'int', found 'string'", detailMessage2);
+    assertValueEquality("incompatible types: expected 'TestRecord1', found 'TestRecord2'", detailMessage3);
+}
+
+function testShiftOnTupleWithProperConditions() {
+    [int, int, int...] properTuple = [0, 1, 3];
+    [int|string, int|boolean, boolean|string...] properTuple2 = ["hello", 3, false];
+    [anydata, anydata, anydata...] properTuple3 = properTuple2;
+    [int|string, int|string, int|string...] properTuple4 = [1, 3, "world"];
+
+    TestRecord1 person1 = {
+        name:"James",
+        age:15
+        };
+
+    TestRecord1 person2 = {
+        name:"Sally",
+        age:18
+        };
+
+    [TestRecord1, TestRecord1...] properTuple5 = [person1, person2];
+
+    int x = properTuple.shift();
+    anydata val = properTuple3.shift();
+    int|string val2 = properTuple4.shift();
+    TestRecord1 val3 = properTuple5.shift();
+
+    assertTrue(x is int);
+    assertTrue(val2 is int|string);
+    assertTrue(val3 is TestRecord1);
+    assertValueEquality(0, x);
+    assertValueEquality("hello", val);
+    assertValueEquality(val2, 1);
+    assertValueEquality(val3, person1);
+    assertValueEquality([1, 3], properTuple);
+    assertValueEquality([3, false], properTuple3);
+    assertValueEquality([3, "world"], properTuple4);
+    assertValueEquality([person2], properTuple5);
+}
+
+function testTupleRemove() {
+    [int, string, Person2...] tuple1 = [5, "hello", {id:56, name:"Sam", age:27}, {id:66, name:"John", age:77}, {id:88, name:"Ally", age:67}];
+    anydata val = tuple1.remove(3);
+    assertTrue(val is Person2);
+    assertValueEquality({id:66, name:"John", age:77}, val);
+    var fn1 = function() {
+        var _ = tuple1.remove(1);
+    };
+    error? res1 = trap fn1();
+    assertTrue(res1 is error);
+    error err1 = <error>res1;
+    var message1 = err1.detail()["message"];
+    string detailMessage1 = message1 is error ? message1.toString() : message1.toString();
+    assertValueEquality("{ballerina/lang.array}InherentTypeViolation", err1.message());
+    assertValueEquality("incompatible types: expected 'string', found 'Person2'", detailMessage1);
+
+    TupleTypeA tuple2 = [7, "hello", 67.5, 89.7];
+    var result2 = tuple2.remove(2);
+    assertTrue(result2 is float);
+    assertValueEquality(67.5, result2);
+    assertTrue(tuple2 is TupleTypeA);
+    assertValueEquality([7, "hello", 89.7], tuple2);
+
+    [int...] tuple3 = [];
+    var result3 = trap tuple3.remove(2);
+    assertTrue(result3 is error);
+    if (result3 is error) {
+        assertValueEquality("{ballerina/lang.array}OperationNotSupported", result3.message());
+        assertValueEquality("the number of members in a tuple value should be greater than the member types of the tuple to perform a 'remove' operation",
+        <string> checkpanic result3.detail()["message"]);
+    }
+
+    [int...] tuple4 = [5];
+    var result4 = trap tuple4.remove(2);
+    assertTrue(result4 is error);
+    if (result4 is error) {
+        assertValueEquality("{ballerina/lang.array}IndexOutOfRange", result4.message());
+        assertValueEquality("tuple index out of range: index: 2, size: 1",
+        <string> checkpanic result4.detail()["message"]);
+    }
+
+    [int, int...] & readonly tuple5 = [1, 4, 5];
+    [anydata, anydata...] tuple6 = tuple5;
+    var result7 = trap tuple6.remove(1);
+    assertTrue(result7 is error);
+    if (result7 is error) {
+        assertValueEquality("{ballerina/lang.array}InvalidUpdate", result7.message());
+        assertValueEquality("modification not allowed on readonly value",
+        <string> checkpanic result7.detail()["message"]);
+    }
+
+    [int, [string, float...], boolean] tuple7 = [5, ["hello", 92.5, 82.6], false];
+    var result8 = tuple7[1].remove(1);
+    assertTrue(result8 is float);
+    assertValueEquality(92.5, result8);
+    assertValueEquality([5, ["hello", 82.6], false], tuple7);
+}
+
+type UnshiftType1 record {string val1; int val2;};
+type UnshiftType2 record {string val1;};
+function testUnshiftOperation() {
+    testUnshiftTuplesPositives();
+    testUnshiftTuplesNegatives();
+}
+
+function testUnshiftTuplesPositives() {
+    [int, int...] tuple1 = [];
+    [int, int, int...] tuple3 = [1, 3, 4, 5, 7];
+    [int, int...] list = [];
+    [UnshiftType1, UnshiftType1...] tuple4 = [{val1:"Hello", val2:67}];
+
+    tuple1.unshift(5, 6, 7, 8);
+    tuple3.unshift(12, 67);
+    foreach int i in 0 ..< 400 {
+        list.unshift(i);
+    }
+    tuple4.unshift({val1:"world", val2:82});
+
+    assertValueEquality([5, 6, 7, 8, 0], tuple1);
+    assertValueEquality([12, 67, 1, 3, 4, 5, 7], tuple3);
+    assertValueEquality(401, list.length());
+    assertValueEquality(399, list[0]);
+    assertValueEquality(199, list[200]);
+    assertValueEquality(0, list[399]);
+    assertValueEquality(0, list[400]);
+    assertValueEquality([{val1:"world", val2:82}, {val1:"Hello", val2:67}], tuple4);
+}
+
+function testUnshiftTuplesNegatives() {
+    [boolean, string...] tuple1 = [];
+    [int, boolean, string...] tuple2 = [8, false, "hello"];
+    [int, boolean, string...] tuple3 = [];
+    [UnshiftType1, UnshiftType2...] tuple4 = [{val1:"Hello", val2:67}];
+
+    var fn1 = function() {
+        tuple1.unshift("hello");
+    };
+
+    var fn2 = function() {
+        tuple2.unshift(false, 78, "world");
+    };
+
+    var fn3 = function() {
+        tuple3.unshift(10, false, "Hello", "World");
+    };
+
+    var fn4 = function() {
+        tuple4.unshift({val1:"world"});
+    };
+
+    error? res1 = trap fn1();
+    error? res2 = trap fn2();
+    error? res3 = trap fn3();
+    error? res4 = trap fn4();
+    assertTrue(res1 is error);
+    assertTrue(res2 is error);
+    assertTrue(res3 is error);
+    assertTrue(res4 is error);
+
+    error err1 = <error>res1;
+    error err2 = <error>res2;
+    error err3 = <error>res3;
+    error err4 = <error>res4;
+    var message1 = err1.detail()["message"];
+    var message2 = err2.detail()["message"];
+    var message3 = err3.detail()["message"];
+    var message4 = err4.detail()["message"];
+    string detailMessage1 = message1 is error ? message1.toString() : message1.toString();
+    string detailMessage2 = message2 is error ? message2.toString() : message2.toString();
+    string detailMessage3 = message3 is error ? message3.toString() : message3.toString();
+    string detailMessage4 = message4 is error ? message4.toString() : message4.toString();
+    assertValueEquality("{ballerina/lang.array}InherentTypeViolation", err1.message());
+    assertValueEquality("incompatible types: expected 'boolean', found 'string'", detailMessage1);
+    assertValueEquality("{ballerina/lang.array}InherentTypeViolation", err2.message());
+    assertValueEquality("incompatible types: expected 'int', found 'string'", detailMessage2);
+    assertValueEquality("{ballerina/lang.array}InherentTypeViolation", err3.message());
+    assertValueEquality("incompatible types: expected 'int', found 'string'", detailMessage3);
+    assertValueEquality("{ballerina/lang.array}InherentTypeViolation", err4.message());
+    assertValueEquality("incompatible types: expected 'UnshiftType1', found 'UnshiftType2'", detailMessage4);
 }
 
 type Student record {|
@@ -1789,6 +2026,7 @@ function testPushWithErrorConstructorExpr() {
     assertValueEquality("e2", e.message());
 }
 
+type TupleTypeA [int, string, float...];
 function testArrayPop() {
     int[] arr1 = [1, 2];
     assertValueEquality(arr1.pop(), 2);
@@ -1811,6 +2049,55 @@ function testArrayPop() {
         assertValueEquality("pop() not supported on type 'int[2]'",
         <string> checkpanic result.detail()["message"]);
     }
+
+    [int, string, int...] tuple1 = [1, "hello", 4];
+    int|string result2 = tuple1.pop();
+    assertTrue(result2 is int);
+    assertValueEquality(4, result2);
+    int|string|error result3 = trap tuple1.pop();
+    assertTrue(result3 is error);
+    if (result3 is error) {
+        assertValueEquality("{ballerina/lang.array}OperationNotSupported", result3.message());
+        assertValueEquality("the number of members in a tuple value should be greater than the member types of the tuple to perform a 'pop' operation",
+        <string> checkpanic result3.detail()["message"]);
+    }
+
+    [int, string, Person2...] tuple2 = [1, "hello", {id:5, name:"John", age:56}];
+    int|string|Person2 result4 = tuple2.pop();
+    assertTrue(result4 is Person2);
+    assertValueEquality({id:5, name:"John", age:56}, result4);
+
+    TupleTypeA tuple3 = [7, "hello", 67.5, 89.7];
+    var result5 = tuple3.pop();
+    assertTrue(result5 is float);
+    assertValueEquality(89.7, result5);
+    assertTrue(tuple3 is TupleTypeA);
+    assertValueEquality([7, "hello", 67.5], tuple3);
+
+    [int...] tuple4 = [];
+    var result6 = trap tuple4.pop();
+    assertTrue(result6 is error);
+    if (result6 is error) {
+        assertValueEquality("{ballerina/lang.array}OperationNotSupported", result6.message());
+        assertValueEquality("the number of members in a tuple value should be greater than the member types of the tuple to perform a 'pop' operation",
+        <string> checkpanic result6.detail()["message"]);
+    }
+
+    [int, int...] & readonly tuple5 = [1, 4, 5];
+    [anydata, anydata...] tuple6 = tuple5;
+    var result7 = trap tuple6.pop();
+    assertTrue(result7 is error);
+    if (result7 is error) {
+        assertValueEquality("{ballerina/lang.array}InvalidUpdate", result7.message());
+        assertValueEquality("modification not allowed on readonly value",
+        <string> checkpanic result7.detail()["message"]);
+    }
+
+    [int, [string, float...], boolean] tuple7 = [5, ["hello", 92.5], false];
+    var result8 = tuple7[1].pop();
+    assertTrue(result8 is float);
+    assertValueEquality(92.5, result8);
+    assertValueEquality([5, ["hello"], false], tuple7);
 }
 
 function testSetLengthNegative() {
@@ -1831,4 +2118,20 @@ function testSetLengthNegative() {
         assertValueEquality("tuple of length 2 cannot be expanded into tuple of length 10 without filler values",
         <string> checkpanic result.detail()["message"]);
     }
+}
+
+function testArrayFilterWithEmptyArrayAndTypeBinding() {
+    var x = [];
+    anydata[] y = x;
+    anydata[] z = y.filter(v => v is int);
+    assertValueEquality(z, []);
+    assertTrue(z is never[]);
+}
+
+function testArrayReverseWithEmptyArrayAndTypeBinding() {
+    var x = [];
+    anydata[] y = x;
+    anydata[] z = y.reverse();
+    assertValueEquality(z, []);
+    assertTrue(z is never[]);
 }

@@ -23,7 +23,6 @@ import io.ballerina.compiler.syntax.tree.TypedBindingPatternNode;
 import io.ballerina.tools.text.LinePosition;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
-import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.SnippetCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
@@ -45,8 +44,7 @@ public class ForEachStatementNodeContext extends AbstractCompletionProvider<ForE
     }
 
     @Override
-    public List<LSCompletionItem> getCompletions(BallerinaCompletionContext context, ForEachStatementNode node)
-            throws LSCompletionException {
+    public List<LSCompletionItem> getCompletions(BallerinaCompletionContext context, ForEachStatementNode node) {
         List<LSCompletionItem> completionItems = new ArrayList<>();
 
         if (withinTypeDescContext(context, node)) {
@@ -101,7 +99,7 @@ public class ForEachStatementNodeContext extends AbstractCompletionProvider<ForE
     public boolean onPreValidation(BallerinaCompletionContext context, ForEachStatementNode node) {
         int cursor = context.getCursorPositionInTree();
         Token matchKeyword = node.forEachKeyword();
-        BlockStatementNode blockStatement = (BlockStatementNode) node.blockStatement();
+        BlockStatementNode blockStatement = node.blockStatement();
         
         /*
         Validates the following

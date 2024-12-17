@@ -105,7 +105,7 @@ public class ClosedRecordEquivalencyTest {
     @Test(description = "Test case for record equivalence")
     public void testRecordEquivalence() {
         Object returns = BRunUtil.invoke(compileResult, "testRecordEquivalence");
-        BMap foo = (BMap) returns;
+        BMap<?, ?> foo = (BMap<?, ?>) returns;
 
         Assert.assertEquals(foo.size(), 6);
         Assert.assertEquals(foo.get(StringUtils.fromString("a")).toString(), "A");
@@ -119,7 +119,7 @@ public class ClosedRecordEquivalencyTest {
     @Test(description = "Test case for using records with unordered fields in a match")
     public void testUnorderedFieldRecordsInAMatch() {
         Object returns = BRunUtil.invoke(compileResult, "testUnorderedFieldRecordsInAMatch");
-        BMap foo = (BMap) returns;
+        BMap<?, ?> foo = (BMap<?, ?>) returns;
 
         Assert.assertEquals(foo.size(), 6);
         Assert.assertEquals(foo.get(StringUtils.fromString("a")).toString(), "A");

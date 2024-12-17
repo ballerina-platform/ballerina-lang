@@ -22,7 +22,7 @@ import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BXml;
 import io.ballerina.runtime.api.values.BXmlQName;
-import io.ballerina.runtime.internal.XmlFactory;
+import io.ballerina.runtime.internal.xml.XmlFactory;
 
 import java.util.Map;
 
@@ -33,30 +33,24 @@ import javax.xml.XMLConstants;
  *
  * @since 1.0
  */
-//@BallerinaFunction(
-//        orgName = "ballerina", packageName = "lang.xml",
-//        functionName = "createElement",
-//        args = {
-//                @Argument(name = "name", type = TypeKind.STRING),
-//                @Argument(name = "children", type = TypeKind.STRING)},
-//        returnType = {@ReturnType(type = TypeKind.XML)},
-//        isPublic = true
-//)
-public class CreateElement {
+public final class CreateElement {
+
     private static final String XML = "xml";
     private static final String XML_NS_URI_PREFIX = "{" + XMLConstants.XML_NS_URI + "}";
     private static final String XMLNS_NS_URI_PREFIX = "{" + XMLConstants.XMLNS_ATTRIBUTE_NS_URI + "}";
 
+    private CreateElement() {
+    }
+
     public static BXml createElement(BString name, BMap<BString, BString> attributes, BXml children) {
         String prefix = getPrefix(name.getValue(), attributes);
         BXmlQName xmlqName;
-        if (prefix.equals("")) {
+        if (prefix.isEmpty()) {
             xmlqName = ValueCreator.createXmlQName(name);
         } else {
             xmlqName = ValueCreator.createXmlQName(name, prefix);
         }
-        String temp = null;
-        BXml xmlElement = XmlFactory.createXMLElement(xmlqName, temp);
+        BXml xmlElement = XmlFactory.createXMLElement(xmlqName, (String) null);
         xmlElement.setAttributes(attributes);
         xmlElement.setChildren(getChildren(children));
         return xmlElement;

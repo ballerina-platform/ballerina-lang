@@ -16,7 +16,6 @@ import org.testng.annotations.Test;
 
 import java.io.FileReader;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 
 /**
  * Test syntaxTreeLocate call.
@@ -25,7 +24,7 @@ import java.nio.file.Paths;
 
 public class SyntaxTreeLocateTest {
     private Endpoint serviceEndpoint;
-    private static final Path RESOURCE_DIRECTORY = Paths.get(
+    private static final Path RESOURCE_DIRECTORY = Path.of(
             "src/test/resources/extensions/document/syntaxTree/locate/");
 
     private final Path mainFile = FileUtils.RES_DIR.resolve("extensions")
@@ -45,7 +44,7 @@ public class SyntaxTreeLocateTest {
             .resolve("source.bal");
 
     @BeforeClass
-    public void startLanguageServer() throws Exception {
+    public void startLanguageServer() {
         this.serviceEndpoint = TestUtil.initializeLanguageSever();
     }
 

@@ -1,0 +1,30 @@
+{
+  "position": {
+    "line": 7,
+    "character": 36
+  },
+  "source": "isolatedFunctionCodeAction/modules/module2/add_isolated_qualifier_source6.bal",
+  "description": "Add isolated qualifier to a map variable",
+  "expected": [
+    {
+      "title": "Add isolated qualifier to 'jsonMap'",
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 1,
+              "character": 0
+            },
+            "end": {
+              "line": 1,
+              "character": 0
+            }
+          },
+          "newText": "isolated "
+        }
+      ],
+      "resolvable": false
+    }
+  ]
+}

@@ -99,7 +99,7 @@ public class BLangFunctionTypeNode extends BLangType implements FunctionTypeNode
             return "function";
         }
         br.append("function(");
-        if (params.size() > 0) {
+        if (!params.isEmpty()) {
             br.append(getParamNames(params));
         }
         if (returnTypeNode != null) {

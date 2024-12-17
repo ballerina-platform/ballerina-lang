@@ -16,8 +16,10 @@
  * under the License.
  */
 
-apply from: "$rootDir/gradle/javaProject.gradle"
-apply from: "$rootDir/gradle/ballerinaLangLibLoad.gradle"
+plugins {
+    id 'javaProject'
+    id 'ballerinaLangLibLoad'
+}
 
 description = 'Ballerina - Ballerina Shell'
 
@@ -30,10 +32,10 @@ dependencies {
     implementation project(':ballerina-tools-api')
     implementation project(':ballerina-runtime')
     implementation project(':identifier-util')
-    implementation 'com.github.spullara.mustache.java:compiler'
+    implementation libs.mustache.java.compiler
 
-    testImplementation('org.testng:testng')
-    testImplementation('com.google.code.gson:gson')
+    testImplementation libs.testng
+    testImplementation libs.gson
 }
 
 test {
@@ -44,9 +46,14 @@ test {
 
 compileJava {
     doFirst {
-        options.compilerArgs = [
-                '--module-path', classpath.asPath,
-        ]
+        options.compilerArgs << '--module-path' << classpath.asPath
+        classpath = files()
+    }
+}
+
+javadoc {
+    doFirst {
+        options.modulePath = classpath.toList()
         classpath = files()
     }
 }

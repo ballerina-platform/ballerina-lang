@@ -15,6 +15,7 @@
 // under the License.
 
 function testBasicTypes() {
+    _ = start add(5, 2);
     future<int> f1 = start add(5, 2);
     future<boolean> f2 = start status();
     future<string> f3 = start concat("foo");

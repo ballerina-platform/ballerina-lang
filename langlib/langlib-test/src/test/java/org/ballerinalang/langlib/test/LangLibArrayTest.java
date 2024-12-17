@@ -18,8 +18,8 @@
 
 package org.ballerinalang.langlib.test;
 
-import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.types.ArrayType;
+import io.ballerina.runtime.api.types.TypeTags;
 import io.ballerina.runtime.api.values.BArray;
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
@@ -552,6 +552,8 @@ public class LangLibArrayTest {
                 "testLastIndexOf",
                 "testPush",
                 "testShiftOperation",
+                "testTupleRemove",
+                "testUnshiftOperation",
                 "testSort1",
                 "testSort2",
                 "testSort4",
@@ -602,7 +604,9 @@ public class LangLibArrayTest {
                 "testArrSortWithNamedArgs2",
                 "testArrSortWithNamedArgs3",
                 "testArrayPop",
-                "testSetLengthNegative"
+                "testSetLengthNegative",
+                "testArrayFilterWithEmptyArrayAndTypeBinding",
+                "testArrayReverseWithEmptyArrayAndTypeBinding"
         };
     }
 }

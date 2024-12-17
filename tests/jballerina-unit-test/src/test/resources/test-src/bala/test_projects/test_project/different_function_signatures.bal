@@ -1,4 +1,3 @@
-
 type BooleanArray boolean[];
 type StringArray string[];
 
@@ -45,7 +44,6 @@ public function functionWithOnlyRestParam(int... z) returns int[] {
 public function functionAnyRestParam(any... z) returns any[] {
     return z;
 }
-
 
 // ------------------- Test function signature with union types for default parameter
 

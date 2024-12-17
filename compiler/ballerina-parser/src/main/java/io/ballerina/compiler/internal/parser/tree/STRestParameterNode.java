@@ -68,6 +68,7 @@ public class STRestParameterNode extends STParameterNode {
                 paramName);
     }
 
+    @Override
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
         return new STRestParameterNode(
                 this.annotations,
@@ -98,6 +99,7 @@ public class STRestParameterNode extends STParameterNode {
                 diagnostics);
     }
 
+    @Override
     public Node createFacade(int position, NonTerminalNode parent) {
         return new RestParameterNode(this, position, parent);
     }

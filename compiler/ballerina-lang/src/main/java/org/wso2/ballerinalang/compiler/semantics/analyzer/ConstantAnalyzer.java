@@ -42,7 +42,8 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangUnaryExpr;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Names;
 
-import java.util.Stack;
+import java.util.ArrayDeque;
+import java.util.Deque;
 
 /**
  * Validate Given constant expressions.
@@ -58,8 +59,8 @@ public class ConstantAnalyzer extends BLangNodeVisitor {
     private final Names names;
     private final SymbolTable symTable;
     private final SymbolResolver symResolver;
-    private BLangDiagnosticLog dlog;
-    private Stack<BLangExpression> expressions = new Stack<>();
+    private final BLangDiagnosticLog dlog;
+    private final Deque<BLangExpression> expressions = new ArrayDeque<>();
 
     private ConstantAnalyzer(CompilerContext context) {
 
@@ -140,6 +141,7 @@ public class ConstantAnalyzer extends BLangNodeVisitor {
         analyzeExpr(binaryExpr.rhsExpr);
     }
 
+    @Override
     public void visit(BLangGroupExpr expr) {
         analyzeExpr(expr.expression);
     }
@@ -158,12 +160,14 @@ public class ConstantAnalyzer extends BLangNodeVisitor {
         }
     }
 
+    @Override
     public void visit(BLangListConstructorExpr listConstructorExpr) {
         for (BLangExpression expr : listConstructorExpr.exprs) {
             analyzeExpr(expr);
         }
     }
 
+    @Override
     public void visit(BLangListConstructorExpr.BLangListConstructorSpreadOpExpr spreadOpExpr) {
         analyzeExpr(spreadOpExpr.expr);
     }

@@ -28,24 +28,27 @@ public class Central {
     private int readTimeout = 60;
     private int writeTimeout = 60;
     private int callTimeout = 60;
+    private int maxRetries = 1;
 
 
     private Central(String accesstoken, int connectTimeout, int readTimeout, int writeTimeout,
-                    int callTimeout) {
+                    int callTimeout, int maxRetries) {
         this.accesstoken = accesstoken;
         this.connectTimeout = connectTimeout;
         this.readTimeout = readTimeout;
         this.writeTimeout = writeTimeout;
         this.callTimeout = callTimeout;
+        this.maxRetries = maxRetries;
+
     }
 
     public static Central from(String accesstoken, int connectTimeout, int readTimeout, int writeTimeout,
-                               int callTimeout) {
-        return new Central(accesstoken, connectTimeout, readTimeout, writeTimeout, callTimeout);
+                               int callTimeout, int maxRetries) {
+        return new Central(accesstoken, connectTimeout, readTimeout, writeTimeout, callTimeout, maxRetries);
     }
 
     public static Central from() {
-        return new Central("", 60, 60, 60, 0);
+        return new Central("", 60, 60, 60, 0, 1);
     }
 
     /**
@@ -91,6 +94,15 @@ public class Central {
      */
     public int getCallTimeout() {
         return callTimeout;
+    }
+
+    /**
+     * Get the max retries.
+     *
+     * @return max retries
+     */
+    public int getMaxRetries() {
+        return maxRetries;
     }
 
     /**

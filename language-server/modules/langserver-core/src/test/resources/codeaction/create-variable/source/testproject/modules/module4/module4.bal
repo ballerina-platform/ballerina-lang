@@ -30,3 +30,15 @@ public function getInt2() returns int|Error2|Error3 {
 public function getInt3() returns int|module1:ErrorOne|module1:ErrorTwo|Error1 {
     return 10;
 }
+
+public function getValueOrError1() returns int|module1:Error1 => 1;
+
+public function getValueOrError2() returns int|module1:Error => 1;
+
+public function getValueOrError3() returns int|module1:Error|module1:Error1 => 1;
+
+public type Error4 distinct error;
+type Error5 distinct error;
+public type NonPublicError int|Error5;
+
+public function getValueOrError4() returns NonPublicError|Error4 => 1;

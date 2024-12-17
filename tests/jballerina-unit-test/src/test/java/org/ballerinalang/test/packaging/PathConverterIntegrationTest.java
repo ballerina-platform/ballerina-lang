@@ -10,10 +10,8 @@ import org.wso2.ballerinalang.compiler.packaging.converters.PathConverter;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Comparator;
 import java.util.List;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static org.wso2.ballerinalang.compiler.packaging.Patten.LATEST_VERSION_DIR;
@@ -32,11 +30,11 @@ public class PathConverterIntegrationTest {
     @BeforeClass
     public void setup() throws IOException {
         tempDirectory = Files.createTempDirectory("bal-unit-test-patten-resolver-");
-        Path deep = tempDirectory.resolve(Paths.get("very", "deep", "path#to the", "dir.bal"));
+        Path deep = tempDirectory.resolve(Path.of("very", "deep", "path#to the", "dir.bal"));
         Files.createDirectories(deep);
-        Path semVer = tempDirectory.resolve(Paths.get("1.2.3", "path#to the", "dir.bal"));
+        Path semVer = tempDirectory.resolve(Path.of("1.2.3", "path#to the", "dir.bal"));
         Files.createDirectories(semVer);
-        Path semVerLatest = tempDirectory.resolve(Paths.get("1.5.0", "path#to the", "dir.bal"));
+        Path semVerLatest = tempDirectory.resolve(Path.of("1.5.0", "path#to the", "dir.bal"));
         Files.createDirectories(semVerLatest);
         tempNonSourceFile = Files.createFile(deep.resolve("my.bala"));
         tempFile = Files.createFile(deep.resolve("tempFile.bal"));
@@ -50,7 +48,7 @@ public class PathConverterIntegrationTest {
 
         Stream<Path> pathStream = patten.convert(subject, null);
 
-        List<Path> paths = pathStream.collect(Collectors.toList());
+        List<Path> paths = pathStream.toList();
         Assert.assertEquals(paths.size(), 1);
         Assert.assertEquals(paths.get(0).toString(), tempSemVerFile.toString());
     }
@@ -63,7 +61,7 @@ public class PathConverterIntegrationTest {
 
         Stream<Path> pathStream = patten.convert(subject, null);
 
-        List<Path> paths = pathStream.collect(Collectors.toList());
+        List<Path> paths = pathStream.toList();
         Assert.assertEquals(paths.size(), 0);
     }
 
@@ -74,7 +72,7 @@ public class PathConverterIntegrationTest {
 
         Stream<Path> pathStream = patten.convert(subject, null);
 
-        List<Path> paths = pathStream.collect(Collectors.toList());
+        List<Path> paths = pathStream.toList();
         Assert.assertEquals(paths.size(), 1);
         Assert.assertEquals(paths.get(0).toString(), tempFile.toString());
     }
@@ -84,15 +82,16 @@ public class PathConverterIntegrationTest {
         Files.delete(tempFile);
         Files.delete(tempSemVerFile);
         Files.delete(tempNonSourceFile);
-        Files.walk(tempDirectory)
-             .sorted(Comparator.reverseOrder())
-             .filter(Files::isDirectory)
-             .forEach(path -> {
-                 try {
-                     Files.delete(path);
-                 } catch (IOException e) {
-                     Assert.fail(e.getMessage(), e);
-                 }
-             });
+        try (Stream<Path> paths = Files.walk(tempDirectory)) {
+            paths.sorted(Comparator.reverseOrder())
+                .filter(Files::isDirectory)
+                .forEach(path -> {
+                    try {
+                        Files.delete(path);
+                    } catch (IOException e) {
+                        Assert.fail(e.getMessage(), e);
+                    }
+                });
+        }
     }
 }

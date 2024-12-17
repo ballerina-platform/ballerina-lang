@@ -224,3 +224,31 @@ function (int) returns int func4 = a => a + a;
 function func3(string s1) returns function (int) returns int {
     return func4;
 }
+
+function testAlternateReceive() {
+    worker w1 {
+        3 -> w3;
+    }
+
+    worker w2 {
+        4 -> w3;
+    }
+
+    worker w3 {
+        int _ = <- w1|w2;
+    }
+}
+
+function testMultipleReceive() {
+    worker w1 {
+        5 -> w3;
+    }
+
+    worker w2 {
+        6 -> w3;
+    }
+
+    worker w3 {
+        _ = <- {a: w1, b: w2};
+    }
+}

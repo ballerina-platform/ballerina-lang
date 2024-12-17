@@ -25,19 +25,15 @@ import io.ballerina.runtime.api.values.BDecimal;
  *
  * @since 1.0
  */
-//@BallerinaFunction(
-//        orgName = "ballerina", packageName = "lang.decimal", functionName = "max",
-//        args = {@Argument(name = "n", type = TypeKind.DECIMAL), @Argument(name = "ns", type = TypeKind.ARRAY)},
-//        returnType = {@ReturnType(type = TypeKind.DECIMAL)},
-//        isPublic = true
-//)
 public class Max {
+
+
+    private Max() {
+    }
 
     public static BDecimal max(BDecimal n, BDecimal[] ns) {
         BDecimal max = n;
-        int size = ns.length;
-        for (int i = 0; i < size; i++) {
-            BDecimal current = ns[i];
+        for (BDecimal current : ns) {
             max = current.value().compareTo(max.value()) >= 0 ? current : max;
         }
         return max;

@@ -1,0 +1,29 @@
+{
+  "position": {
+    "line": 23,
+    "character": 86
+  },
+  "source": "fixReturnTypeForConditionalExpr.bal",
+  "expected": [
+    {
+      "title": "Change return type to 'string|int|boolean|module1:TestRecord1|float'",
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 21,
+              "character": 91
+            },
+            "end": {
+              "line": 21,
+              "character": 91
+            }
+          },
+          "newText": " returns string|int|boolean|module1:TestRecord1|float"
+        }
+      ],
+      "resolvable": false
+    }
+  ]
+}

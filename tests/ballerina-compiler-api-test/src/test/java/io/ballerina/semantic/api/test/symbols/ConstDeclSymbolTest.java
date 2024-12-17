@@ -93,7 +93,7 @@ public class ConstDeclSymbolTest {
 
         // check qualifiers
         List<Qualifier> qualifiers = symbol.qualifiers();
-        if (expQuals.size() > 0) {
+        if (!expQuals.isEmpty()) {
             expQuals.forEach(expQual -> assertTrue(qualifiers.contains(expQual)));
         } else {
             assertTrue(qualifiers.isEmpty());
@@ -150,7 +150,7 @@ public class ConstDeclSymbolTest {
         TypeDefinitionSymbol typeDefSym = (TypeDefinitionSymbol) symbol.get();
 
         List<AnnotationAttachmentSymbol> attachments = typeDefSym.annotAttachments();
-        assertTrue(attachments.size() > 0);
+        assertTrue(!attachments.isEmpty());
 
         AnnotationAttachmentSymbol annotAttachment = attachments.get(0);
         assertTrue(annotAttachment.isConstAnnotation());
@@ -167,7 +167,7 @@ public class ConstDeclSymbolTest {
 
         // Test const value
         assertTrue(constVal.value() instanceof HashMap);
-        HashMap valueMap = (HashMap) constVal.value();
+        HashMap<?, ?> valueMap = (HashMap<?, ?>) constVal.value();
 
         assertTrue(valueMap.get("id") instanceof BallerinaConstantValue);
         BallerinaConstantValue idValue =
@@ -180,7 +180,7 @@ public class ConstDeclSymbolTest {
                 (BallerinaConstantValue) valueMap.get("perm");
         assertEquals(permValue.valueType().typeKind(), TypeDescKind.RECORD);
         assertTrue(permValue.value() instanceof HashMap);
-        HashMap permMap = (HashMap) permValue.value();
+        HashMap<?, ?> permMap = (HashMap<?, ?>) permValue.value();
         assertEquals(((BallerinaConstantValue) permMap.get("a")).value(), 1L);
         assertEquals(((BallerinaConstantValue) permMap.get("a")).valueType().typeKind(), TypeDescKind.INT);
         assertEquals(((BallerinaConstantValue) permMap.get("b")).value(), 2L);

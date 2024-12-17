@@ -20,6 +20,7 @@ package org.ballerinalang.test.util;
 import org.ballerinalang.test.exceptions.BLangTestException;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -33,16 +34,20 @@ import java.nio.file.SimpleFileVisitor;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.Objects;
+import java.util.stream.Stream;
 
 /**
  * Utility methods for doing file operations.
  *
  * @since 0.975.0
  */
-public class BFileUtil {
+public final class BFileUtil {
 
     private static final String IGNORE = ".gitignore";
+
+    private BFileUtil() {
+    }
 
     /**
      * Copy a file or directory to a target location.
@@ -109,7 +114,9 @@ public class BFileUtil {
                 @Override
                 public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
                     if (Files.exists(dir)) {
-                        Files.list(dir).forEach(BFileUtil::delete);
+                        try (Stream<Path> paths = Files.list(dir)) {
+                            paths.forEach(BFileUtil::delete);
+                        }
                     }
                     return FileVisitResult.CONTINUE;
                 }
@@ -130,8 +137,12 @@ public class BFileUtil {
         if (!Files.exists(path)) {
             return;
         }
-        List<Path> files = Files.find(path, Integer.MAX_VALUE, (p, attribute) ->
-                p.toString().contains(pattern)).collect(Collectors.toList());
+        List<Path> files;
+        try (Stream<Path> paths = Files.find(path, Integer.MAX_VALUE, (p, attribute) ->
+                        p.toString().contains(pattern))) {
+            files = paths.toList();
+        }
+
         for (Path file : files) {
             BFileUtil.delete(file);
         }
@@ -172,4 +183,21 @@ public class BFileUtil {
         return sb.toString();
     }
 
+    /**
+     * Delete a directory and all its contents.
+     *
+     * @param directory Directory to be deleted
+     * @return whether the directory is deleted
+     */
+    public static boolean deleteDirectory(File directory) {
+        if (directory.isDirectory()) {
+            for (File f : Objects.requireNonNull(directory.listFiles())) {
+                boolean success = deleteDirectory(f);
+                if (!success) {
+                    return false;
+                }
+            }
+        }
+        return directory.delete();
+    }
 }

@@ -19,7 +19,6 @@
 package io.ballerina.runtime.test.config.negative;
 
 import io.ballerina.runtime.api.Module;
-import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.creators.TypeCreator;
 import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.flags.SymbolFlags;
@@ -28,6 +27,7 @@ import io.ballerina.runtime.api.types.Field;
 import io.ballerina.runtime.api.types.FiniteType;
 import io.ballerina.runtime.api.types.IntersectionType;
 import io.ballerina.runtime.api.types.MapType;
+import io.ballerina.runtime.api.types.PredefinedTypes;
 import io.ballerina.runtime.api.types.RecordType;
 import io.ballerina.runtime.api.types.TableType;
 import io.ballerina.runtime.api.types.TupleType;
@@ -50,7 +50,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import static io.ballerina.runtime.api.PredefinedTypes.TYPE_ANYDATA;
+import static io.ballerina.runtime.api.types.PredefinedTypes.TYPE_ANYDATA;
 import static io.ballerina.runtime.api.utils.StringUtils.fromString;
 import static io.ballerina.runtime.test.TestUtils.getConfigPath;
 import static io.ballerina.runtime.test.TestUtils.getConfigPathForNegativeCases;
@@ -84,10 +84,12 @@ public class TomlProviderNegativeTest {
                 {"NoConfig.toml",
                         "warning: configuration file is not found in path '" +
                                 getConfigPathForNegativeCases("NoConfig.toml") + "'", 1},
-                {"InvalidConfig.toml", "warning: invalid TOML file : \n" +
-                        "[InvalidConfig.toml:(1:8,1:8)] missing identifier\n" +
-                        "[InvalidConfig.toml:(1:26,1:26)] missing identifier\n" +
-                        "[InvalidConfig.toml:(1:27,1:27)] missing identifier\n", 1},
+                {"InvalidConfig.toml", """
+                        warning: invalid TOML file :\s
+                        [InvalidConfig.toml:(1:8,1:8)] missing identifier
+                        [InvalidConfig.toml:(1:26,1:26)] missing identifier
+                        [InvalidConfig.toml:(1:27,1:27)] missing identifier
+                        """, 1},
                 {"InvalidByteRange.toml", "error: [InvalidByteRange.toml:(2:11,2:14)] value provided for byte " +
                         "variable 'byteVar' is out of range. Expected range is (0-255), found '355'", 0}
         };
@@ -456,8 +458,10 @@ public class TomlProviderNegativeTest {
         VariableKey[] clashingVariableKeys = getSimpleVariableKeys(clashingModule);
         Map<Module, VariableKey[]> variableMap =
                 Map.ofEntries(Map.entry(subModule, subVariableKeys), Map.entry(clashingModule, clashingVariableKeys));
-        String errorMsg = "warning: invalid TOML file : \n" +
-                "[ClashingOrgModuleError1.toml:(5:1,7:19)] existing node 'foo'\n";
+        String errorMsg = """
+                warning: invalid TOML file :\s
+                [ClashingOrgModuleError1.toml:(5:1,7:19)] existing node 'foo'
+                """;
         RuntimeDiagnosticLog diagnosticLog = new RuntimeDiagnosticLog();
         ConfigResolver configResolver = new ConfigResolver(variableMap, diagnosticLog,
                 List.of(new TomlFileProvider(TomlProviderNegativeTest.ROOT_MODULE,

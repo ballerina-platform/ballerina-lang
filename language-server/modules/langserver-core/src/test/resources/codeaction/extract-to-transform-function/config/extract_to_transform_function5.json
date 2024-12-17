@@ -1,0 +1,60 @@
+{
+  "range": {
+    "start": {
+      "line": 39,
+      "character": 18
+    },
+    "end": {
+      "line": 39,
+      "character": 42
+    }
+  },
+  "source": "extract_to_transform_function5.bal",
+  "description": "Extract to transform function for for a record with a nested record",
+  "expected": [
+    {
+      "title": "Extract to transform function",
+      "kind": "refactor.extract",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 40,
+              "character": 2
+            },
+            "end": {
+              "line": 40,
+              "character": 2
+            }
+          },
+          "newText": "\n\nfunction transform1(AddressLine addressLine) returns AddressLine => {\n    houseNo: \"\",\n    line2: \"\",\n    line1: \"\"\n};\n"
+        },
+        {
+          "range": {
+            "start": {
+              "line": 39,
+              "character": 17
+            },
+            "end": {
+              "line": 39,
+              "character": 43
+            }
+          },
+          "newText": "transform1(person.address.addressLine)"
+        }
+      ],
+      "command": {
+        "title": "Rename function",
+        "command": "ballerina.action.positional.rename",
+        "arguments": [
+          "extract_to_transform_function5.bal",
+          {
+            "line": 39,
+            "character": 17
+          }
+        ]
+      },
+      "resolvable": false
+    }
+  ]
+}

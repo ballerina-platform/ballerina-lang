@@ -1,0 +1,21 @@
+{
+  "packages": [
+    {
+      "org": "ballerina",
+      "name": "cloud",
+      "version": "2.11.3",
+      "transitive": false,
+      "dependencies": [],
+      "modules": []
+    }
+  ],
+  "modules": [
+    {
+      "org": "ballerina",
+      "package_name": "cloud",
+      "version": "2.11.3",
+      "module_name": "cloud",
+      "dependencies": []
+    }
+  ]
+}

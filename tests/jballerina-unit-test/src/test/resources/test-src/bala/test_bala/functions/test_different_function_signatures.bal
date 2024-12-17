@@ -1,4 +1,5 @@
 import testorg/foo as foo;
+import testorg/functions;
 
 //------------ Testing a function with all types of parameters ---------
 
@@ -83,6 +84,12 @@ function testInvokeFuncWithAnyRestParam1() returns any[] {
     int[] a = [10, 20, 30];
     json j = {"name":"John"};
     return foo:functionAnyRestParam(a, j);
+}
+
+// ------------------- Test function signature with invocation as default value of parameter
+
+function testFuncCallingFuncFromDifferentModuleAsParamDefault() {
+    assertValueEquality(101, functions:funcCallingFuncFromDifferentModuleAsParamDefault());
 }
 
 // ------------------- Test function signature with union types for default parameter

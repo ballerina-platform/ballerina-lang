@@ -15,7 +15,9 @@
  *
  */
 
-apply from: "$rootDir/gradle/javaProject.gradle"
+plugins {
+    id 'javaProject'
+}
 
 configurations {
     implementation.exclude group: "org.slf4j"
@@ -35,16 +37,18 @@ jar {
 }
 
 dependencies {
-    implementation "org.apache.maven:maven-resolver-provider:${project.apacheMavenProviderVersion}"
-    implementation "org.apache.maven.resolver:maven-resolver-api:${project.apacheMavenApiVersion}"
-    implementation "org.apache.maven.resolver:maven-resolver-spi:${project.apacheMavenSpiVersion}"
-    implementation "org.apache.maven.resolver:maven-resolver-util:${project.apacheMavenUtilVersion}"
-    implementation "org.apache.maven.resolver:maven-resolver-impl:${project.apacheMavenImplVersion}"
-    implementation "org.apache.maven.resolver:maven-resolver-connector-basic:${project.apacheMavenConnectorVersion}"
-    implementation "org.apache.maven.resolver:maven-resolver-transport-file:${project.apacheMavenTransportFileVersion}"
-    implementation "org.apache.maven.resolver:maven-resolver-transport-http:${project.apacheMavenTransportHttpVersion}"
-    implementation 'me.tongfei:progressbar'
-    testImplementation 'org.testng:testng'
+    implementation libs.apache.maven.provider
+    implementation libs.apache.maven.api
+    implementation libs.apache.maven.spi
+    implementation libs.apache.maven.util
+    implementation libs.apache.maven.impl
+    implementation libs.apache.maven.connector
+    implementation libs.apache.maven.transport.file
+    implementation libs.apache.maven.transport.http
+    implementation libs.tongfei.progressbar
+
+    testImplementation libs.testng
 }
 
 description = 'Ballerina - Maven dependency resolver'
+

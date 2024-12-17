@@ -621,6 +621,10 @@ public abstract class STNodeVisitor {
         visitSyntaxNode(receiveFieldsNode);
     }
 
+    public void visit(STAlternateReceiveNode alternateReceiveNode) {
+        visitSyntaxNode(alternateReceiveNode);
+    }
+
     public void visit(STRestDescriptorNode restDescriptorNode) {
         visitSyntaxNode(restDescriptorNode);
     }
@@ -707,6 +711,14 @@ public abstract class STNodeVisitor {
 
     public void visit(STXMLNamePatternChainingNode xMLNamePatternChainingNode) {
         visitSyntaxNode(xMLNamePatternChainingNode);
+    }
+
+    public void visit(STXMLStepIndexedExtendNode xMLStepIndexedExtendNode) {
+        visitSyntaxNode(xMLStepIndexedExtendNode);
+    }
+
+    public void visit(STXMLStepMethodCallExtendNode xMLStepMethodCallExtendNode) {
+        visitSyntaxNode(xMLStepMethodCallExtendNode);
     }
 
     public void visit(STXMLAtomicNamePatternNode xMLAtomicNamePatternNode) {
@@ -935,6 +947,10 @@ public abstract class STNodeVisitor {
 
     public void visit(STMemberTypeDescriptorNode memberTypeDescriptorNode) {
         visitSyntaxNode(memberTypeDescriptorNode);
+    }
+
+    public void visit(STReceiveFieldNode receiveFieldNode) {
+        visitSyntaxNode(receiveFieldNode);
     }
 
     // STNodeList

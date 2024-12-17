@@ -18,34 +18,50 @@
 
 package io.ballerina.runtime.profiler.runtime;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
+import io.ballerina.identifier.Utils;
+
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * A map that keeps profile stack the index values against the stack-trace.
  *
  * @since 2201.8.0
  */
-public class StackTraceMap {
+public final class StackTraceMap {
 
-    private static int localVarIndex = 0;
+    private static final AtomicInteger localVarIndex = new AtomicInteger(0);
+    private static final ConcurrentHashMap<String, Integer> stackTraceIndexMap = new ConcurrentHashMap<>();
+    private static final ConcurrentHashMap<String, String> indexStackTraceMap = new ConcurrentHashMap<>();
 
     private StackTraceMap() {
     }
 
-    private static final Map<String, Integer> stackTraceIndexMap = new HashMap<>();
+    static String getStackIndex(String stackElement) {
+        Integer stackIndex = stackTraceIndexMap.get(stackElement);
+        if (stackIndex != null) {
+            return String.valueOf(stackIndex);
+        }
+        int index = localVarIndex.getAndIncrement();
+        stackTraceIndexMap.put(stackElement, index);
+        String indexStr = String.valueOf(index);
+        indexStackTraceMap.put(indexStr, stackElement);
+        return indexStr;
+    }
 
-    static String getStackKey(ArrayList<String> stacks) {
-         StringBuilder keyBuilder = new StringBuilder();
-         for (String stack : stacks) {
-             if (stackTraceIndexMap.containsKey(stack)) {
-                 keyBuilder.append(stackTraceIndexMap.get(stack));
-             } else {
-                 stackTraceIndexMap.put(stack, localVarIndex);
-                 keyBuilder.append(localVarIndex++);
-             }
-         }
-        return keyBuilder.toString();
+    static String getCallStackString(String stackKey) {
+        String[] stackElements = stackKey.split("\\$");
+        StringBuilder sb = new StringBuilder();
+        sb.append("[");
+        for (int i = 0; i < (stackElements.length - 1); i++) {
+            sb.append("\"").append(decodeStackElement(indexStackTraceMap.get(stackElements[i]))).append("\",");
+        }
+        sb.append("\"").append(decodeStackElement(indexStackTraceMap.get(stackElements[stackElements.length - 1])))
+                .append("\"]");
+        return sb.toString();
+    }
+
+    private static String decodeStackElement(String stackElement) {
+        return Utils.decodeIdentifier(stackElement.replace("$value$", ""));
     }
 }

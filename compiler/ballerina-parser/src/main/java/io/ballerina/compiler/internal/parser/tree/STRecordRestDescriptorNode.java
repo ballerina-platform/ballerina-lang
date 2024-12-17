@@ -62,6 +62,7 @@ public class STRecordRestDescriptorNode extends STNode {
                 semicolonToken);
     }
 
+    @Override
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
         return new STRecordRestDescriptorNode(
                 this.typeName,
@@ -88,6 +89,7 @@ public class STRecordRestDescriptorNode extends STNode {
                 diagnostics);
     }
 
+    @Override
     public Node createFacade(int position, NonTerminalNode parent) {
         return new RecordRestDescriptorNode(this, position, parent);
     }

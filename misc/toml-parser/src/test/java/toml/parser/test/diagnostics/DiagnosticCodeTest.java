@@ -57,16 +57,16 @@ public class DiagnosticCodeTest {
             }
         }
 
-        if (duplicateDiagnosticIds.size() > 0) {
+        if (!duplicateDiagnosticIds.isEmpty()) {
             Assert.fail(DUPLICATE_DIAGNOSTIC_IDS_FOUND + ": " + arrayToString(duplicateDiagnosticIds));
         }
 
-        if (duplicateDiagnosticMsgKey.size() > 0) {
+        if (!duplicateDiagnosticMsgKey.isEmpty()) {
             Assert.fail(DUPLICATE_DIAGNOSTIC_MSGKEYS_FOUND + ": " + arrayToString(duplicateDiagnosticMsgKey));
         }
     }
 
-    private String arrayToString(List listOfStrings) {
+    private String arrayToString(List<String> listOfStrings) {
         return String.join(", ", listOfStrings);
     }
 }

@@ -25,3 +25,5 @@ public enum BazQux {
     BAZ,
     QUX
 }
+
+public int? IntOrNull = 3;

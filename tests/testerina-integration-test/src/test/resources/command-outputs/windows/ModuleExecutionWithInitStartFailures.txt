@@ -16,6 +16,9 @@ error: Error from start of moduleC
 	at wso2.moduleExecutionInitStartFailure.moduleC.0.Listener:start(main.bal:32)
 
 	moduleExecutionInitStartFailure.moduleB
+
+	test2: has failed.
+
 		[pass] test1
 		[pass] test3
 
@@ -29,10 +32,19 @@ error: Error from start of moduleC
 				callableName: assertEquals moduleName: ballerina.test.0 fileName: assert.bal lineNumber: 109
 				callableName: test2 moduleName: wso2.moduleExecutionInitStartFailure.moduleB$test.0.tests.test_moduleB fileName: tests/test_moduleB.bal lineNumber: 26
 				callableName: test2$lambda1$ moduleName: wso2.moduleExecutionInitStartFailure.moduleB$test.0.tests.test_execute-generated_*****lineNumber: 5
+				callableName: call moduleName: ballerina.lang.function.0 fileName: function.bal lineNumber: 37
+				callableName: executeTestFunction moduleName: ballerina.test.0 fileName: serialExecuter.bal lineNumber: 128
+				callableName: executeNonDataDrivenTest moduleName: ballerina.test.0 fileName: serialExecuter.bal lineNumber: 74
+				callableName: executeTest moduleName: ballerina.test.0 fileName: serialExecuter.bal lineNumber: 30
+				callableName: executeTests moduleName: ballerina.test.0 fileName: execute.bal lineNumber: 81
+				callableName: startSuite moduleName: ballerina.test.0 fileName: execute.bal lineNumber: 53
+				callableName: __execute__ moduleName: wso2.moduleExecutionInitStartFailure.moduleB$test.0.tests.test_execute-generated_*****lineNumber: 10
 			
 
 
 		2 passing
 		1 failing
 		0 skipped
+
+		Test execution time :*****s
 error: there are test failures

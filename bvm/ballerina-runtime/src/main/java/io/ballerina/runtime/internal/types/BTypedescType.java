@@ -19,10 +19,10 @@
 package io.ballerina.runtime.internal.types;
 
 import io.ballerina.runtime.api.Module;
-import io.ballerina.runtime.api.PredefinedTypes;
-import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.constants.TypeConstants;
+import io.ballerina.runtime.api.types.PredefinedTypes;
 import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.types.TypeTags;
 import io.ballerina.runtime.api.types.TypedescType;
 import io.ballerina.runtime.internal.values.TypedescValue;
 import io.ballerina.runtime.internal.values.TypedescValueImpl;
@@ -64,12 +64,13 @@ public class BTypedescType extends BType implements TypedescType {
         if (this == obj) {
             return true;
         }
-        if (obj instanceof BTypedescType) {
-            return constraint.equals(((BTypedescType) obj).getConstraint());
+        if (obj instanceof BTypedescType typedescType) {
+            return constraint.equals(typedescType.getConstraint());
         }
         return false;
     }
 
+    @Override
     public Type getConstraint() {
         return constraint;
     }

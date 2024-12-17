@@ -24,6 +24,7 @@ distinct class FieldsTestResource {
     function toString() returns string? {
         return java:toString(self.jObj);
     }
+
     # The function that maps to the `equals` method of `org.ballerinalang.bindgen.FieldsTestResource`.
     #
     # + arg0 - The `Object` value required to map with the Java method parameter.
@@ -75,6 +76,20 @@ distinct class FieldsTestResource {
     # + return - The `int` value returning from the Java mapping.
     function testMethod(int arg0) returns int {
         return org_ballerinalang_bindgen_FieldsTestResource_testMethod(self.jObj, arg0);
+    }
+
+    # The function that maps to the `testMethodWithException` method of `org.ballerinalang.bindgen.FieldsTestResource`.
+    #
+    # + arg0 - The `Object` value required to map with the Java method parameter.
+    # + return - The `string?` or the `IOException` value returning from the Java mapping.
+    function testMethodWithException(Object arg0) returns string?|IOException {
+        handle|error externalObj = org_ballerinalang_bindgen_FieldsTestResource_testMethodWithException(self.jObj, arg0.jObj);
+        if (externalObj is error) {
+            IOException e = error IOException(IOEXCEPTION, externalObj, message = externalObj.message());
+            return e;
+        } else {
+            return java:toString(externalObj);
+        }
     }
 
     # The function that maps to the `wait` method of `org.ballerinalang.bindgen.FieldsTestResource`.
@@ -1098,6 +1113,12 @@ function org_ballerinalang_bindgen_FieldsTestResource_testMethod(handle receiver
     name: "testMethod",
     'class: "org.ballerinalang.bindgen.FieldsTestResource",
     paramTypes: ["int"]
+} external;
+
+function org_ballerinalang_bindgen_FieldsTestResource_testMethodWithException(handle receiver, handle arg0) returns handle|error = @java:Method {
+    name: "testMethodWithException",
+    'class: "org.ballerinalang.bindgen.FieldsTestResource",
+    paramTypes: ["java.lang.Object"]
 } external;
 
 function org_ballerinalang_bindgen_FieldsTestResource_wait(handle receiver) returns error? = @java:Method {

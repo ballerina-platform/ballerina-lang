@@ -54,7 +54,7 @@ function testFunctionParameters() {
 function testIdentifierDecoding() {
     test:assertEquals(decodeIdentifier("üňĩćőđę_ƈȏɳʂʈ_IL"), "üňĩćőđę_ƈȏɳʂʈ_IL");
     test:assertEquals(decodeIdentifier("const_IL_123"), "const_IL_123");
-    test:assertEquals(decodeIdentifier(" $0047$0058@$0091`{~_IL"), " /:@[`{~_IL");
+    test:assertEquals(decodeIdentifier(" &0047&0058@&0091`{~_IL"), " /:@[`{~_IL");
 }
 
 function testEscapeSpecialCharacters() {

@@ -101,11 +101,11 @@ public class TypeParamAnalyzer {
     private static final CompilerContext.Key<TypeParamAnalyzer> TYPE_PARAM_ANALYZER_KEY =
             new CompilerContext.Key<>();
 
-    private SymbolTable symTable;
-    private Types types;
-    private Names names;
-    private BLangDiagnosticLog dlog;
-    private BLangAnonymousModelHelper anonymousModelHelper;
+    private final SymbolTable symTable;
+    private final Types types;
+    private final Names names;
+    private final BLangDiagnosticLog dlog;
+    private final BLangAnonymousModelHelper anonymousModelHelper;
 
     public static TypeParamAnalyzer getInstance(CompilerContext context) {
 
@@ -270,23 +270,19 @@ public class TypeParamAnalyzer {
         BType referredType = Types.getImpliedType(type);
         int tag = referredType.tag;
         // Handle built-in types.
-        switch (tag) {
-            case TypeTags.INT:
-            case TypeTags.BYTE:
-            case TypeTags.FLOAT:
-            case TypeTags.DECIMAL:
-            case TypeTags.STRING:
-            case TypeTags.BOOLEAN:
-                return new BType(tag, null, name, flags);
-            case TypeTags.ANY:
-                return new BAnyType(tag, null, name, flags);
-            case TypeTags.ANYDATA:
-                return createAnydataType((BUnionType) referredType, name, flags);
-            case TypeTags.READONLY:
-                return new BReadonlyType(tag, null, name, flags);
-        }
-        // For others, we will use TSymbol.
-        return type;
+        return switch (tag) {
+            case TypeTags.INT,
+                 TypeTags.BYTE,
+                 TypeTags.FLOAT,
+                 TypeTags.DECIMAL,
+                 TypeTags.STRING,
+                 TypeTags.BOOLEAN -> new BType(tag, null, name, flags);
+            case TypeTags.ANY -> new BAnyType(tag, null, name, flags);
+            case TypeTags.ANYDATA -> createAnydataType((BUnionType) referredType, name, flags);
+            case TypeTags.READONLY -> new BReadonlyType(tag, null, name, flags);
+            // For others, we will use TSymbol.
+            default -> type;
+        };
     }
 
     private BType createTypeParamType(BSymbol symbol, BType type, Name name, long flags) {
@@ -392,10 +388,7 @@ public class TypeParamAnalyzer {
         // Bound type is a structure. Visit recursively to find bound type.
         switch (expType.tag) {
             case TypeTags.XML:
-                if (!TypeTags.isXMLTypeTag(Types.getImpliedType(actualType).tag)) {
-                    if (Types.getImpliedType(actualType).tag == TypeTags.UNION) {
-                        dlog.error(loc, DiagnosticErrorCode.XML_FUNCTION_DOES_NOT_SUPPORT_ARGUMENT_TYPE, actualType);
-                    }
+                if (!types.isAssignable(actualType, symTable.xmlType)) {
                     return;
                 }
                 switch (actualType.tag) {
@@ -657,6 +650,7 @@ public class TypeParamAnalyzer {
             if (TypeTags.isXMLTypeTag(referredType.tag)) {
                 if (referredType.tag == TypeTags.XML) {
                     members.add(((BXMLType) referredType).constraint);
+                    continue;
                 }
                 members.add(type);
             }
@@ -967,7 +961,6 @@ public class TypeParamAnalyzer {
         recordSymbol.isTypeParamResolved = true;
         recordSymbol.typeParamTSymbol = expTSymbol;
         recordSymbol.scope = new Scope(recordSymbol);
-        recordSymbol.initializerFunc = expTSymbol.initializerFunc;
 
         LinkedHashMap<String, BField> fields = new LinkedHashMap<>();
         for (BField expField : expType.fields.values()) {
@@ -1101,7 +1094,7 @@ public class TypeParamAnalyzer {
             actObjectSymbol.attachedFuncs.add(duplicateAttachFunc(expFunc, matchType, invokableSymbol));
             String funcName = Symbols.getAttachedFuncSymbolName(actObjectSymbol.type.tsymbol.name.value,
                     expFunc.funcName.value);
-            actObjectSymbol.scope.define(names.fromString(funcName), invokableSymbol);
+            actObjectSymbol.scope.define(Names.fromString(funcName), invokableSymbol);
         }
 
         if (!hasDifferentType) {
@@ -1113,8 +1106,7 @@ public class TypeParamAnalyzer {
 
     private BAttachedFunction duplicateAttachFunc(BAttachedFunction expFunc, BInvokableType matchType,
                                                   BInvokableSymbol invokableSymbol) {
-        if (expFunc instanceof BResourceFunction) {
-            BResourceFunction resourceFunction = (BResourceFunction) expFunc;
+        if (expFunc instanceof BResourceFunction resourceFunction) {
             BResourceFunction newResourceFunc = new BResourceFunction(resourceFunction.funcName, invokableSymbol,
                     matchType, resourceFunction.accessor, resourceFunction.pathParams, resourceFunction.restPathParam,
                     expFunc.pos);

@@ -15,25 +15,45 @@
  */
 package org.ballerinalang.langserver;
 
+import com.google.common.reflect.TypeToken;
+import com.google.gson.Gson;
+import com.google.gson.annotations.Expose;
+import com.google.gson.annotations.SerializedName;
+import io.ballerina.compiler.api.ModuleID;
+import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.projects.Module;
 import io.ballerina.projects.Package;
+import io.ballerina.projects.PackageCompilation;
 import io.ballerina.projects.PackageDependencyScope;
 import io.ballerina.projects.PackageDescriptor;
 import io.ballerina.projects.PackageName;
 import io.ballerina.projects.PackageOrg;
 import io.ballerina.projects.PackageVersion;
 import io.ballerina.projects.Project;
+import io.ballerina.projects.directory.ProjectLoader;
+import io.ballerina.projects.environment.Environment;
+import io.ballerina.projects.environment.EnvironmentBuilder;
 import io.ballerina.projects.environment.PackageRepository;
 import io.ballerina.projects.environment.ResolutionOptions;
 import io.ballerina.projects.environment.ResolutionRequest;
 import io.ballerina.projects.internal.environment.BallerinaDistribution;
 import io.ballerina.projects.internal.environment.BallerinaUserHome;
-import io.ballerina.projects.internal.environment.DefaultEnvironment;
+import io.ballerina.projects.util.FileUtils;
+import org.ballerinalang.langserver.codeaction.CodeActionModuleId;
 import org.ballerinalang.langserver.common.utils.ModuleUtil;
 import org.ballerinalang.langserver.commons.DocumentServiceContext;
 import org.ballerinalang.langserver.commons.LanguageServerContext;
+import org.ballerinalang.langserver.commons.client.ExtendedLanguageClient;
+import org.ballerinalang.langserver.completions.providers.context.util.ServiceTemplateGenerator;
+import org.eclipse.lsp4j.ProgressParams;
+import org.eclipse.lsp4j.WorkDoneProgressBegin;
+import org.eclipse.lsp4j.WorkDoneProgressCreateParams;
+import org.eclipse.lsp4j.WorkDoneProgressEnd;
+import org.eclipse.lsp4j.WorkDoneProgressReport;
+import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.wso2.ballerinalang.compiler.util.Names;
 
+import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -43,22 +63,31 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
 /**
- * Loads the Ballerina builtin core and builtin packages.
+ * An in-memory cache for Ballerina modules(packages) in local, remote and central repositories.
  */
 public class LSPackageLoader {
 
     public static final LanguageServerContext.Key<LSPackageLoader> LS_PACKAGE_LOADER_KEY =
             new LanguageServerContext.Key<>();
 
-    private List<ModuleInfo> distRepoPackages = new ArrayList<>();
+    private final List<ModuleInfo> distRepoPackages = new ArrayList<>();
     private final List<ModuleInfo> remoteRepoPackages = new ArrayList<>();
     private final List<ModuleInfo> localRepoPackages = new ArrayList<>();
-    private List<ModuleInfo> centralPackages = new ArrayList<>();
-
+    private final List<ModuleInfo> centralPackages = new ArrayList<>();
     private final LSClientLogger clientLogger;
+
+    ExtendedLanguageClient languageClient;
+
+    private String notificationTaskId;
+
+    private boolean initialized = false;
+
+    private final CentralPackageDescriptorLoader centralPackageDescriptorLoader;
 
     public static LSPackageLoader getInstance(LanguageServerContext context) {
         LSPackageLoader lsPackageLoader = context.get(LS_PACKAGE_LOADER_KEY);
@@ -71,68 +100,129 @@ public class LSPackageLoader {
 
     private LSPackageLoader(LanguageServerContext context) {
         this.clientLogger = LSClientLogger.getInstance(context);
+        this.centralPackageDescriptorLoader = CentralPackageDescriptorLoader.getInstance(context);
         context.put(LS_PACKAGE_LOADER_KEY, this);
     }
 
-    /**
-     * Get the local repo packages.
-     *
-     * @return {@link List} of local repo packages
-     */
-    public List<ModuleInfo> getLocalRepoPackages(PackageRepository repository) {
-        if (!this.localRepoPackages.isEmpty()) {
-            return this.localRepoPackages;
-        }
-        this.localRepoPackages.addAll(checkAndResolvePackagesFromRepository(repository, Collections.emptyList(),
-                this.distRepoPackages.stream().map(ModuleInfo::packageIdentifier).collect(Collectors.toSet())));
-        return localRepoPackages;
+    public boolean isInitialized() {
+        return Boolean.TRUE.equals(initialized);
     }
 
     /**
-     * Get the remote repo packages.
+     * Load modules from the Ballerina environment.
      *
-     * @return {@link List} of remote repo packages
+     * @param context language server context.
      */
-    public List<ModuleInfo> getRemoteRepoPackages(PackageRepository repository) {
-        if (!this.remoteRepoPackages.isEmpty()) {
-            return this.remoteRepoPackages;
-        }
-        this.remoteRepoPackages.addAll(checkAndResolvePackagesFromRepository(repository, Collections.emptyList(),
-                Collections.emptySet()));
+    public void loadModules(LanguageServerContext context) {
+            LSClientLogger lsClientLogger = LSClientLogger.getInstance(context);
+            String taskId = UUID.randomUUID().toString();
+            notificationTaskId = taskId;
+            Map<String, ModuleInfo> packagesList = new HashMap<>();
+            CompletableFuture.runAsync(() -> {
+                this.languageClient = context.get(ExtendedLanguageClient.class);
+                if (languageClient == null) {
+                    return;
+                }
+                // Initialize progress notification
+                WorkDoneProgressCreateParams workDoneProgressCreateParams = new WorkDoneProgressCreateParams();
+                workDoneProgressCreateParams.setToken(taskId);
+                languageClient.createProgress(workDoneProgressCreateParams);
+
+                // Start progress
+                WorkDoneProgressBegin beginNotification = new WorkDoneProgressBegin();
+                beginNotification.setTitle("Indexing");
+                beginNotification.setCancellable(false);
+                beginNotification.setMessage("Loading packages from Ballerina home...");
+                languageClient.notifyProgress(new ProgressParams(Either.forLeft(taskId),
+                        Either.forLeft(beginNotification)));
+            }).thenRunAsync(() -> {
+                Environment environment = EnvironmentBuilder.getBuilder().build();
+                BallerinaDistribution ballerinaDistribution = BallerinaDistribution.from(environment);
+                PackageRepository packageRepository = ballerinaDistribution.packageRepository();
+                List<String> skippedLangLibs = Arrays.asList("lang.annotations", "lang.__internal", "lang.query");
+                lsClientLogger.logTrace("Loading packages from Ballerina distribution");
+                this.distRepoPackages.addAll(checkAndResolvePackagesFromRepository(packageRepository,
+                        skippedLangLibs, Collections.emptySet()));
+                lsClientLogger.logTrace("Successfully loaded packages from Ballerina distribution");
+
+                this.getDistributionRepoModules().forEach(packageInfo ->
+                        packagesList.put(packageInfo.packageIdentifier(), packageInfo));
+                List<ModuleInfo> repoPackages = new ArrayList<>(this.getLocalRepoModules());
+                repoPackages.stream().filter(packageInfo -> !packagesList.containsKey(packageInfo.packageIdentifier()))
+                        .forEach(packageInfo -> packagesList.put(packageInfo.packageIdentifier(), packageInfo));
+            }).thenRunAsync(() -> {
+                WorkDoneProgressCreateParams workDoneProgressCreateParams = new WorkDoneProgressCreateParams();
+                workDoneProgressCreateParams.setToken(taskId);
+                languageClient.createProgress(workDoneProgressCreateParams);
+
+                // Start progress
+                WorkDoneProgressReport progressNotification = new WorkDoneProgressReport();
+                progressNotification.setMessage("Loading packages from Ballerina central");
+                progressNotification.setCancellable(false);
+                languageClient.notifyProgress(new ProgressParams(Either.forLeft(taskId),
+                        Either.forLeft(progressNotification)));
+                try {
+                    String moduleInfo = FileUtils.readFileAsString("moduleInfo.json");
+                    this.centralPackages.addAll(new Gson().fromJson(moduleInfo, new TypeToken<List<ModuleInfo>>() {
+                    }.getType()));
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+            }).thenRunAsync(() -> {
+                WorkDoneProgressEnd endNotification = new WorkDoneProgressEnd();
+                endNotification.setMessage("Initialized Successfully!");
+                languageClient.notifyProgress(new ProgressParams(Either.forLeft(taskId),
+                        Either.forLeft(endNotification)));
+            }).exceptionally(e -> {
+                WorkDoneProgressEnd endNotification = new WorkDoneProgressEnd();
+                endNotification.setMessage("Initialization Failed!");
+                languageClient.notifyProgress(new ProgressParams(Either.forLeft(taskId),
+                        Either.forLeft(endNotification)));
+                clientLogger.logTrace("Failed initializing the Package Loader due to "
+                        + e.getMessage());
+                return null;
+            });
+
+            this.initialized = true;
+    }
+
+    /**
+     * Get the local repo module descriptors.
+     *
+     * @return {@link List} of local repo package module descriptors.
+     */
+    public List<ModuleInfo> getLocalRepoModules() {
+        return this.localRepoPackages;
+    }
+
+    /**
+     * Get the module descriptors from remote repo packages.
+     *
+     * @return {@link List} of remote repo module descriptors.
+     */
+    public List<ModuleInfo> getRemoteRepoModules() {
         return this.remoteRepoPackages;
     }
 
     /**
-     * Get the distribution repo packages.
-     * Here the distRepoPackages does not contain the langlib packages and ballerinai packages
+     * Get the module descriptors available in the Ballerina distribution.
+     * Here, the list of modules descriptors does not
+     * the certain langlib package modules
+     * and ballerinai package modules
      *
-     * @return {@link List} of distribution repo packages
+     * @return {@link List} of modules in Ballerina distribution
      */
-    public List<ModuleInfo> getDistributionRepoPackages() {
-        if (this.distRepoPackages != null && !this.distRepoPackages.isEmpty()) {
-            return this.distRepoPackages;
-        }
-        DefaultEnvironment environment = new DefaultEnvironment();
-        // Creating a Ballerina distribution instance
-        BallerinaDistribution ballerinaDistribution = BallerinaDistribution.from(environment);
-        PackageRepository packageRepository = ballerinaDistribution.packageRepository();
-        List<String> skippedLangLibs = Arrays.asList("lang.annotations", "lang.__internal", "lang.query");
-        this.distRepoPackages = checkAndResolvePackagesFromRepository(packageRepository, skippedLangLibs,
-                Collections.emptySet());
-        return distRepoPackages;
+    public List<ModuleInfo> getDistributionRepoModules() {
+        return this.distRepoPackages;
     }
 
-    public List<ModuleInfo> getCentralPackages(LanguageServerContext context) {
-        if (centralPackages == null || centralPackages.isEmpty()) {
-            centralPackages = CentralPackageDescriptorLoader.getInstance(context).getCentralPackages(context).stream()
-                    .map(packageInfo -> {
-                        PackageOrg packageOrg = PackageOrg.from(packageInfo.getOrganization());
-                        PackageName packageName = PackageName.from(packageInfo.getName());
-                        PackageVersion packageVersion = PackageVersion.from(packageInfo.getVersion());
-                        return new ModuleInfo(packageOrg, packageName, packageVersion, null);
-                    }).collect(Collectors.toList());
-        }
-        return centralPackages;
+    /**
+     * Returns the list of modules available in Ballerina central.
+     *
+     * @return {@link List<ModuleInfo>} list of module descriptors.
+     */
+    public List<ModuleInfo> getCentralPackages() {
+        return this.centralPackages;
     }
 
     /**
@@ -142,9 +232,11 @@ public class LSPackageLoader {
      */
     public List<ModuleInfo> getAllVisiblePackages(DocumentServiceContext ctx) {
         Map<String, ModuleInfo> packagesList = new HashMap<>();
-        this.getDistributionRepoPackages().forEach(packageInfo ->
+        this.getDistributionRepoModules().forEach(packageInfo ->
                 packagesList.put(packageInfo.packageIdentifier(), packageInfo));
-        List<ModuleInfo> repoPackages = this.getPackagesFromBallerinaUserHome(ctx);
+        List<ModuleInfo> repoPackages = new ArrayList<>();
+        repoPackages.addAll(this.getRemoteRepoModules());
+        repoPackages.addAll(this.getLocalRepoModules());
         repoPackages.stream().filter(packageInfo -> !packagesList.containsKey(packageInfo.packageIdentifier()))
                 .forEach(packageInfo -> packagesList.put(packageInfo.packageIdentifier(), packageInfo));
         Package currentPackage = ctx.workspace().project(ctx.filePath()).get().currentPackage();
@@ -152,18 +244,18 @@ public class LSPackageLoader {
             Package packageInstance = module.packageInstance();
             ModuleInfo moduleInfo = new ModuleInfo(PackageOrg.from(""), packageInstance.packageName(),
                     packageInstance.packageVersion(), packageInstance.project().sourceRoot());
-
+            moduleInfo.setModuleFromCurrentPackage(true);
             Optional<Module> currentModule = ctx.currentModule();
-            String packageName = moduleInfo.packageName().value();
+            String packageName = moduleInfo.packageName();
             String moduleName = module.descriptor().name().moduleNamePart();
             String qualifiedModName = packageName + Names.DOT + moduleName;
             if (currentModule.isEmpty() || module.isDefaultModule() || module.equals(currentModule.get()) ||
                     ModuleUtil.matchingImportedModule(ctx, "", qualifiedModName).isPresent()) {
                 return;
             } else {
-                moduleInfo.packageName = PackageName.from(packageName + "." + moduleName);
+                moduleInfo.packageName = packageName + "." + moduleName;
             }
-            packagesList.put(moduleInfo.packageName.value(), moduleInfo);
+            packagesList.put(moduleInfo.packageName, moduleInfo);
         });
         return new ArrayList<>(packagesList.values());
     }
@@ -180,16 +272,10 @@ public class LSPackageLoader {
         if (project.isEmpty()) {
             return Collections.emptyList();
         }
-        BallerinaUserHome ballerinaUserHome = BallerinaUserHome
-                .from(project.get().projectEnvironmentContext().environment());
-        PackageRepository localRepository = ballerinaUserHome.localPackageRepository();
-        PackageRepository remoteRepository = ballerinaUserHome.remotePackageRepository();
-        packagesList.addAll(this.getRemoteRepoPackages(remoteRepository));
-        packagesList.addAll(this.getLocalRepoPackages(localRepository));
         return packagesList;
     }
 
-    private List<ModuleInfo> checkAndResolvePackagesFromRepository(PackageRepository repository, List<String> skipList,
+    public List<ModuleInfo> checkAndResolvePackagesFromRepository(PackageRepository repository, List<String> skipList,
                                                                    Set<String> loadedPackages) {
         Map<String, List<String>> packageMap = repository.getPackages();
         List<ModuleInfo> packages = new ArrayList<>();
@@ -250,41 +336,86 @@ public class LSPackageLoader {
     /**
      * A light-weight package information holder.
      */
+    /**
+     * A light-weight package information holder.
+     */
     public static class ModuleInfo {
 
-        private PackageOrg packageOrg;
-        private PackageName packageName;
-        private PackageVersion packageVersion;
-        private Path sourceRoot;
+        private static final String JSON_PROPERTY_ORGANIZATION = "organization";
+        @SerializedName(JSON_PROPERTY_ORGANIZATION)
+        private final String packageOrg;
 
-        private String moduleIdentifier;
+        private static final String JSON_PROPERTY_NAME = "name";
+        @SerializedName(JSON_PROPERTY_NAME)
+        private String packageName;
 
-        public ModuleInfo(PackageOrg packageOrg, PackageName packageName, PackageVersion version, Path path) {
+        private static final String JSON_PROPERTY_VERSION = "version";
+        @SerializedName(JSON_PROPERTY_VERSION)
+        private final String packageVersion;
+
+        @Expose(deserialize = false)
+        private final Path sourceRoot;
+
+        @Expose(deserialize = false)
+        private final String moduleIdentifier;
+
+        @Expose(deserialize = false)
+        private boolean isModuleFromCurrentPackage = false;
+
+        @Expose(deserialize = false)
+        private final List<ServiceTemplateGenerator.ListenerMetaData> listenerMetaData = new ArrayList<>();
+
+        public ModuleInfo(String packageOrg, String packageName, String packageVersion) {
             this.packageOrg = packageOrg;
             this.packageName = packageName;
-            this.packageVersion = version;
+            this.packageVersion = packageVersion;
+            this.sourceRoot = null;
+            this.moduleIdentifier = packageOrg + "/" + packageName;
+        }
+
+        public ModuleInfo(PackageOrg packageOrg, PackageName packageName, PackageVersion version, Path path) {
+            this.packageOrg = packageOrg.value();
+            this.packageName = packageName.value();
+            this.packageVersion = version.value().toString();
             this.sourceRoot = path;
             this.moduleIdentifier = packageOrg.toString().isEmpty() ? packageName.toString() :
-                    packageOrg + "/" + packageName.toString();
+                    packageOrg + "/" + packageName;
         }
 
         public ModuleInfo(Package pkg) {
-            this.packageOrg = pkg.packageOrg();
-            this.packageName = pkg.packageName();
-            this.packageVersion = pkg.packageVersion();
+            this.packageOrg = pkg.packageOrg().value();
+            this.packageName = pkg.packageName().value();
+            this.packageVersion = pkg.packageVersion().value().toString();
             this.sourceRoot = pkg.project().sourceRoot();
             this.moduleIdentifier = packageOrg.toString() + "/" + packageName.toString();
+            addServiceTemplateMetaData();
         }
 
-        public PackageName packageName() {
+        public List<ServiceTemplateGenerator.ListenerMetaData> getListenerMetaData() {
+            return listenerMetaData;
+        }
+
+        public String getModuleIdentifier() {
+            return moduleIdentifier;
+        }
+
+        public boolean isModuleFromCurrentPackage() {
+            return isModuleFromCurrentPackage;
+        }
+
+        public void setModuleFromCurrentPackage(boolean moduleFromCurrentPackage) {
+            isModuleFromCurrentPackage = moduleFromCurrentPackage;
+        }
+
+        public String packageName() {
             return packageName;
         }
 
-        public PackageOrg packageOrg() {
+        public String packageOrg() {
             return packageOrg;
         }
 
-        public PackageVersion packageVersion() {
+        public String packageVersion() {
             return packageVersion;
         }
 
@@ -294,6 +425,24 @@ public class LSPackageLoader {
 
         public String packageIdentifier() {
             return moduleIdentifier;
+        }
+
+        private void addServiceTemplateMetaData() {
+            String orgName = ModuleUtil.escapeModuleName(this.packageOrg());
+            Project project = ProjectLoader.loadProject(this.sourceRoot());
+            //May take some time as we are compiling projects.
+            PackageCompilation packageCompilation = project.currentPackage().getCompilation();
+            Module module = project.currentPackage().getDefaultModule();
+
+            String moduleName = module.descriptor().name().toString();
+            String version = module.packageInstance().descriptor().version().value().toString();
+            ModuleID moduleID = CodeActionModuleId.from(orgName, moduleName, version);
+
+            SemanticModel semanticModel = packageCompilation.getSemanticModel(module.moduleId());
+            semanticModel.moduleSymbols().stream().filter(ServiceTemplateGenerator.listenerPredicate())
+                    .forEach(listener ->
+                            ServiceTemplateGenerator.generateServiceSnippetMetaData(listener, moduleID)
+                                    .ifPresent(listenerMetaData::add));
         }
     }
 }

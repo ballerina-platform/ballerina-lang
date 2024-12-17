@@ -28,6 +28,7 @@ import io.ballerina.runtime.api.values.BMapInitialValueEntry;
  */
 public abstract class MappingInitialValueEntry implements BMapInitialValueEntry {
 
+    @Override
     public boolean isKeyValueEntry() {
         return true;
     }
@@ -55,9 +56,9 @@ public abstract class MappingInitialValueEntry implements BMapInitialValueEntry 
      */
     public static class SpreadFieldEntry extends MappingInitialValueEntry {
 
-        public BMap values;
+        public BMap<?, ?> values;
 
-        public SpreadFieldEntry(BMap mappingValue) {
+        public SpreadFieldEntry(BMap<?, ?> mappingValue) {
             this.values = mappingValue;
         }
 

@@ -15,13 +15,17 @@
  */
 package org.ballerinalang.langserver.codeaction.providers;
 
+import io.ballerina.compiler.api.symbols.ClassSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
+import io.ballerina.compiler.api.symbols.TypeReferenceTypeSymbol;
 import io.ballerina.compiler.syntax.tree.ExplicitAnonymousFunctionExpressionNode;
 import io.ballerina.compiler.syntax.tree.FunctionDefinitionNode;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
+import io.ballerina.compiler.syntax.tree.TypedBindingPatternNode;
 import io.ballerina.projects.Project;
 import io.ballerina.tools.diagnostics.Diagnostic;
+import io.ballerina.tools.text.LineRange;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.codeaction.CodeActionNodeValidator;
 import org.ballerinalang.langserver.codeaction.CodeActionUtil;
@@ -51,8 +55,12 @@ import java.util.Set;
  */
 @JavaSPIService("org.ballerinalang.langserver.commons.codeaction.spi.LSCodeActionProvider")
 public class AddIsolatedQualifierCodeAction implements DiagnosticBasedCodeActionProvider {
+
     public static final String NAME = "Add Isolated Qualifier";
-    public static final Set<String> DIAGNOSTIC_CODES = Set.of("BCE3946", "BCE3947");
+    private static final String DIAGNOSTIC_CODE_3961 = "BCE3961";
+    private static final String ANONYMOUS_FUNCTION_EXPRESSION = "Anonymous function expression";
+    private static final Set<String> DIAGNOSTIC_CODES =
+            Set.of("BCE3943", "BCE3946", "BCE3947", "BCE3950", DIAGNOSTIC_CODE_3961);
 
     @Override
     public boolean validate(Diagnostic diagnostic,
@@ -68,56 +76,98 @@ public class AddIsolatedQualifierCodeAction implements DiagnosticBasedCodeAction
     public List<CodeAction> getCodeActions(Diagnostic diagnostic,
                                            DiagBasedPositionDetails positionDetails,
                                            CodeActionContext context) {
-        Range diagnosticRange = PositionUtil.toRange(diagnostic.location().lineRange());
-        // isPresent() check is done in the validator
-        NonTerminalNode nonTerminalNode = CommonUtil.findNode(diagnosticRange, context.currentSyntaxTree().get());
+        NonTerminalNode nonTerminalNode = positionDetails.matchedNode();
 
+        // Check if the diagnostic is for an anonymous function expression
         if (nonTerminalNode.kind() == SyntaxKind.EXPLICIT_ANONYMOUS_FUNCTION_EXPRESSION) {
-            return getExplicitAnonFuncExpressionCodeAction((ExplicitAnonymousFunctionExpressionNode) nonTerminalNode,
-                    context);
+            ExplicitAnonymousFunctionExpressionNode functionExpressionNode =
+                    (ExplicitAnonymousFunctionExpressionNode) nonTerminalNode;
+            return getCodeAction(functionExpressionNode.functionKeyword().lineRange(), ANONYMOUS_FUNCTION_EXPRESSION,
+                    context.fileUri());
         }
-        Optional<Symbol> symbol = context.currentSemanticModel().get().symbol(nonTerminalNode);
-        if (symbol.isEmpty() || symbol.get().getModule().isEmpty()) {
+
+        // Check if there are multiple diagnostics of the considered category
+        if (CommonUtil.hasMultipleDiagnostics(context, nonTerminalNode, diagnostic, DIAGNOSTIC_CODES,
+                DIAGNOSTIC_CODE_3961)) {
             return Collections.emptyList();
         }
 
+        // Obtain the symbol of the referred symbol
+        Optional<Symbol> optSymbol = getReferredSymbol(context, nonTerminalNode);
+        if (optSymbol.isEmpty()) {
+            return Collections.emptyList();
+        }
+        Symbol symbol = optSymbol.get();
+        if (symbol.getModule().isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        // Obtain the current project
         Optional<Project> project = context.workspace().project(context.filePath());
         if (project.isEmpty()) {
             return Collections.emptyList();
         }
-        Optional<Path> filePath = PathUtil.getFilePathForSymbol(symbol.get(), project.get(), context);
-        if (filePath.isEmpty() || context.workspace().syntaxTree(filePath.get()).isEmpty()) {
+
+        // Obtain the file path of the referred symbol
+        Optional<Path> optFilePath = PathUtil.getFilePathForSymbol(symbol, project.get(), context);
+        if (optFilePath.isEmpty()) {
+            return Collections.emptyList();
+        }
+        Path filePath = optFilePath.get();
+        if (context.workspace().syntaxTree(filePath).isEmpty()) {
             return Collections.emptyList();
         }
 
-        Optional<NonTerminalNode> node = CommonUtil.findNode(symbol.get(),
-                context.workspace().syntaxTree(filePath.get()).get());
-        if (node.isEmpty() || !node.get().kind().equals(SyntaxKind.FUNCTION_DEFINITION)) {
+        // Obtain the node of the referred symbol
+        Optional<NonTerminalNode> optNode = CommonUtil.findNode(symbol, context.workspace().syntaxTree(filePath).get());
+        if (optNode.isEmpty()) {
             return Collections.emptyList();
         }
+        NonTerminalNode node = optNode.get();
+        String symbolName = symbol.getName().orElse("");
+        String filePathString = filePath.toUri().toString();
 
-        FunctionDefinitionNode functionDefinitionNode = (FunctionDefinitionNode) node.get();
-        Position position = PositionUtil.toPosition(functionDefinitionNode.functionKeyword().lineRange().startLine());
-
-        Range range = new Range(position, position);
-        String editText = SyntaxKind.ISOLATED_KEYWORD.stringValue() + " ";
-        TextEdit textEdit = new TextEdit(range, editText);
-        List<TextEdit> editList = List.of(textEdit);
-        String commandTitle = String.format(CommandConstants.MAKE_FUNCTION_ISOLATE, symbol.get().getName().orElse(""));
-        return Collections.singletonList(CodeActionUtil
-                .createCodeAction(commandTitle, editList, filePath.get().toUri().toString(), CodeActionKind.QuickFix));
+        return switch (node.kind()) {
+            case FUNCTION_DEFINITION, OBJECT_METHOD_DEFINITION -> {
+                FunctionDefinitionNode functionDefinitionNode = (FunctionDefinitionNode) node;
+                yield getCodeAction(functionDefinitionNode.functionKeyword().lineRange(), symbolName, filePathString);
+            }
+            case CAPTURE_BINDING_PATTERN -> {
+                NonTerminalNode parentNode = node.parent();
+                if (parentNode.kind() != SyntaxKind.TYPED_BINDING_PATTERN) {
+                    yield Collections.emptyList();
+                }
+                TypedBindingPatternNode typeNode = (TypedBindingPatternNode) parentNode;
+                yield getCodeAction(typeNode.typeDescriptor().lineRange(), symbolName, filePathString);
+            }
+            default -> Collections.emptyList();
+        };
     }
 
-    private List<CodeAction> getExplicitAnonFuncExpressionCodeAction(ExplicitAnonymousFunctionExpressionNode node,
-                                                                     CodeActionContext context) {
-        Position position = PositionUtil.toPosition(node.functionKeyword().lineRange().startLine());
-        Range range = new Range(position, position);
+    private static Optional<Symbol> getReferredSymbol(CodeActionContext context, NonTerminalNode node) {
+        SyntaxKind kind = node.kind();
+        if (kind == SyntaxKind.EXPLICIT_NEW_EXPRESSION || kind == SyntaxKind.IMPLICIT_NEW_EXPRESSION) {
+            try {
+                TypeReferenceTypeSymbol typeSymbol = (TypeReferenceTypeSymbol) context.currentSemanticModel()
+                        .flatMap(semanticModel -> semanticModel.typeOf(node))
+                        .orElseThrow();
+                ClassSymbol definition = (ClassSymbol) typeSymbol.definition();
+                return Optional.of(definition.initMethod().orElseThrow());
+            } catch (RuntimeException e) {
+                assert false : "This line is unreachable because the diagnostic is not produced otherwise.";
+                return Optional.empty();
+            }
+        }
+        return context.currentSemanticModel().flatMap(semanticModel -> semanticModel.symbol(node));
+    }
+
+    private static List<CodeAction> getCodeAction(LineRange lineRange, String expressionName, String filePath) {
+        Position position = PositionUtil.toPosition(lineRange.startLine());
         String editText = SyntaxKind.ISOLATED_KEYWORD.stringValue() + " ";
-        TextEdit textEdit = new TextEdit(range, editText);
-        List<TextEdit> editList = List.of(textEdit);
-        String commandTitle = String.format(CommandConstants.MAKE_FUNCTION_ISOLATE, "Anonymous function expression");
-        return Collections.singletonList(CodeActionUtil.createCodeAction(commandTitle, editList, context.fileUri(),
-                CodeActionKind.QuickFix));
+        TextEdit textEdit = new TextEdit(new Range(position, position), editText);
+        String commandTitle = String.format(CommandConstants.MAKE_FUNCTION_ISOLATE, expressionName);
+        return Collections.singletonList(
+                CodeActionUtil.createCodeAction(commandTitle, List.of(textEdit), filePath, CodeActionKind.QuickFix));
     }
 
     @Override

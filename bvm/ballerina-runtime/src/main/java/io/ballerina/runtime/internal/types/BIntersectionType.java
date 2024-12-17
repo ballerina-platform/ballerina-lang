@@ -18,12 +18,12 @@
 package io.ballerina.runtime.internal.types;
 
 import io.ballerina.runtime.api.Module;
-import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.constants.TypeConstants;
 import io.ballerina.runtime.api.flags.TypeFlags;
 import io.ballerina.runtime.api.types.IntersectableReferenceType;
 import io.ballerina.runtime.api.types.IntersectionType;
 import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.types.TypeTags;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -145,11 +145,10 @@ public class BIntersectionType extends BType implements IntersectionType {
             return true;
         }
 
-        if (!(o instanceof BIntersectionType)) {
+        if (!(o instanceof BIntersectionType that)) {
             return false;
         }
 
-        BIntersectionType that = (BIntersectionType) o;
         if (this.constituentTypes.size() != that.constituentTypes.size()) {
             return false;
         }
@@ -202,6 +201,7 @@ public class BIntersectionType extends BType implements IntersectionType {
         this.immutableType = immutableType;
     }
 
+    @Override
     public Type getEffectiveType() {
         return this.effectiveType;
     }

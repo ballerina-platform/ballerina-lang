@@ -27,19 +27,47 @@ import io.ballerina.tools.diagnostics.DiagnosticSeverity;
  */
 public enum ProjectDiagnosticErrorCode implements DiagnosticCode {
 
-    INVALID_BALA_FILE("BCE5000", "invalid.bala.file"),
-    OLD_DEPENDENCIES_TOML("BCE5001", "old.dependencies.toml"),
-    LOCAL_PACKAGES_IN_DEPENDENCIES_TOML("BCE5002", "local.packages.in.dependencies.toml"),
-    CORRUPTED_DEPENDENCIES_TOML("BCE5003", "corrupted.dependencies.toml"),
-    INCOMPATIBLE_DEPENDENCY_VERSIONS("BCE5004", "incompatible.dependency.versions"),
-    PACKAGE_NOT_FOUND("BCE5005", "package.not.found"),
-    MISSING_PKG_INFO_IN_BALLERINA_TOML("BCE5006", "missing.package.info"),
-    DEPRECATED_PACKAGE("BCE5007", "deprecated.package"),
-    BUILT_WITH_OLDER_SL_UPDATE_DISTRIBUTION("BCE5008", "built.with.older.sl.update.distribution"),
-    CUSTOM_REPOSITORY_NOT_FOUND("BCE5009", "custom.repository.not.found"),
-    MODULE_NOT_FOUND("BCE5100", "module.not.found"),
-    UNSUPPORTED_COMPILER_PLUGIN_TYPE("BCE5200", "unsupported.compiler.plugin.type"),
-    CONFLICTING_PLATFORM_JAR_FILES("BCE5300", "conflicting.platform.jars.type"),
+    // Error codes used in the ManifestBuilder
+    MISSING_PKG_INFO_IN_BALLERINA_TOML("BCE5001", "missing.package.info"),
+    INVALID_PATH("BCE5002", "error.invalid.path"),
+    INVALID_FILE_FORMAT("BCE5003", "error.invalid.file.format"),
+    INVALID_PROVIDED_DEPENDENCY("BCE5004", "invalid.provided.dependency"),
+    INVALID_PROVIDED_SCOPE_IN_BUILD("BCE5005", "invalid.provided.scope"),
+
+    // Error codes used in DependencyManifestBuilder.
+    OLD_DEPENDENCIES_TOML("BCE5101", "old.dependencies.toml"),
+    LOCAL_PACKAGES_IN_DEPENDENCIES_TOML("BCE5102", "local.packages.in.dependencies.toml"),
+    CORRUPTED_DEPENDENCIES_TOML("BCE5103", "corrupted.dependencies.toml"),
+    DEPRECATED_BALLERINA_TOML_ENTRY("BCE5104", "deprecated.ballerina.toml.entry"),
+    INVALID_MODULE("BCE5105", "invalid.module"),
+    DEPRECATED_DOC_FILE("BCE5106", "deprecated.doc.file"),
+
+    // Error codes used during dependency resolution.
+    INCOMPATIBLE_DEPENDENCY_VERSIONS("BCE5201", "incompatible.dependency.versions"),
+    PACKAGE_NOT_FOUND("BCE5202", "package.not.found"),
+    DEPRECATED_PACKAGE("BCE5203", "deprecated.package"),
+    BUILT_WITH_OLDER_SL_UPDATE_DISTRIBUTION("BCE5204", "built.with.older.sl.update.distribution"),
+    CUSTOM_REPOSITORY_NOT_FOUND("BCE5205", "custom.repository.not.found"),
+
+    // Error codes related to build tools.
+    MISSING_TOOL_PROPERTIES_IN_BALLERINA_TOML("BCE5301", "missing.tool.properties"),
+    INCOMPATIBLE_TYPE_FOR_TOOL_PROPERTY("BCE5302", "incompatible.tool.properties"),
+    EMPTY_TOOL_PROPERTY("BCE5303", "empty.tool.properties"),
+    TOOL_OPTIONS_VALIDATION_SKIPPED("BCE5304", "tool.options.validation.skipped"),
+    RECURRING_TOOL_PROPERTIES("BCE5305", "recurring.tool.properties"),
+    BUILD_TOOL_NOT_FOUND("BCE5306", "build.tool.not.found"),
+    TOOL_OPTIONS_VALIDATION_FAILED("BCE5307", "tool.options.validation.failed"),
+
+    // Error codes used for compiler plugins.
+    UNSUPPORTED_COMPILER_PLUGIN_TYPE("BCE5401", "unsupported.compiler.plugin.type"),
+
+    // Error codes used for Jar resolving.
+    CONFLICTING_PLATFORM_JAR_FILES("BCE5501", "conflicting.platform.jars.type"),
+    PROVIDED_PLATFORM_JAR_IN_EXECUTABLE("BCE5502", "provided.platform.jars"),
+
+    // Error codes used in resources resolution
+    CONFLICTING_RESOURCE_FILE("BCE5601", "conflicting.resources.type"),
+    DEPRECATED_RESOURCES_STRUCTURE("BCE5602", "deprecated.resources.structure"),
     ;
 
     private final String diagnosticId;

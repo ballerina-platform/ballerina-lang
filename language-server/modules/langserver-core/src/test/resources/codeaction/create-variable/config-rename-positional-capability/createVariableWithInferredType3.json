@@ -1,0 +1,29 @@
+{
+  "position": {
+    "line": 13,
+    "character": 18
+  },
+  "source": "createVariableWithInferredType.bal",
+  "expected": [
+    {
+      "title": "Create variable with 'anydata|module1:ClientError'",
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 13,
+              "character": 4
+            },
+            "end": {
+              "line": 13,
+              "character": 4
+            }
+          },
+          "newText": "anydata|module1:ClientError clear = "
+        }
+      ],
+      "resolvable": false
+    }
+  ]
+}

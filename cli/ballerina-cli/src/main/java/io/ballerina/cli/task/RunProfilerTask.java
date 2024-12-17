@@ -21,13 +21,13 @@ package io.ballerina.cli.task;
 import io.ballerina.cli.launcher.RuntimePanicException;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectKind;
+import io.ballerina.projects.internal.model.Target;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.List;
@@ -50,22 +50,27 @@ import static io.ballerina.runtime.api.constants.RuntimeConstants.BALLERINA_HOME
 public class RunProfilerTask implements Task {
     private final PrintStream err;
     private static final String JAVA_OPTS = "JAVA_OPTS";
+    private static final String CURRENT_DIR_KEY = "current.dir";
+    private static final Path TARGET_OUTPUT_PATH = Path.of(System.getProperty(USER_DIR));
 
     public RunProfilerTask(PrintStream errStream) {
         this.err = errStream;
     }
 
     private void initiateProfiler(Project project) {
-        String profilerSource = Paths.get(System.getProperty(BALLERINA_HOME), "bre", "lib",
+        String profilerSource = Path.of(System.getProperty(BALLERINA_HOME), "bre", "lib",
                 "ballerina-profiler-1.0.jar").toString();
-        ProjectKind projectKind = project.kind();
         Path sourcePath = Path.of(profilerSource);
         Path targetPath = getTargetProfilerPath(project);
         StandardCopyOption copyOption = StandardCopyOption.REPLACE_EXISTING;
+        String javaOpts = System.getenv().get(JAVA_OPTS);
         try {
             Files.copy(sourcePath, targetPath, copyOption);
             List<String> commands = new ArrayList<>();
             commands.add(System.getProperty("java.command"));
+            if (javaOpts != null) {
+                commands.add(javaOpts.trim());
+            }
             commands.add("-jar");
             if (isInDebugMode()) {
                 commands.add(getDebugArgs(err));
@@ -73,18 +78,19 @@ public class RunProfilerTask implements Task {
             commands.add("Profiler.jar");
             // Sets classpath with executable thin jar and all dependency jar paths.
             commands.add("--file");
-            commands.add(getPackageJarName(project, projectKind));
-            commands.add("--target");
-            commands.add(targetPath.toString());
-            commands.add("--sourceroot");
-            commands.add(getProjectPath(project).toString());
+            commands.add(getTargetFilePath(project));
             if (isInProfileDebugMode()) {
-                commands.add("--profilerDebug");
+                commands.add("--profiler-debug");
                 commands.add(getProfileDebugArg(err));
             }
             ProcessBuilder pb = new ProcessBuilder(commands).inheritIO();
-            pb.environment().put(JAVA_OPTS, getAgentArgs());
-            setWorkingDirectory(project, projectKind, pb);
+            if (javaOpts != null) {
+                pb.environment().put(JAVA_OPTS, javaOpts.trim());
+            }
+            pb.environment().put(BALLERINA_HOME, System.getProperty(BALLERINA_HOME));
+            pb.environment().put(CURRENT_DIR_KEY, System.getProperty(USER_DIR));
+            pb.environment().put("java.command", System.getProperty("java.command"));
+            pb.directory(new File(getProfilerPath(project).toUri()));
             Process process = pb.start();
             process.waitFor();
             int exitValue = process.exitValue();
@@ -93,22 +99,13 @@ public class RunProfilerTask implements Task {
             }
         } catch (IOException | InterruptedException e) {
             throw createLauncherException("error occurred while running the profiler ", e);
+        } finally {
+            try {
+                Files.deleteIfExists(targetPath);
+            } catch (IOException e) {
+                err.println("error occurred while deleting the profiler.jar file");
+            }
         }
-    }
-
-    private static void setWorkingDirectory(Project project, ProjectKind projectKind, ProcessBuilder pb) {
-        if (projectKind == ProjectKind.BUILD_PROJECT) {
-            pb.directory(new File(project.targetDir() + "/bin"));
-        } else {
-            pb.directory(new File(System.getProperty(USER_DIR)));
-        }
-    }
-
-    private static String getPackageJarName(Project project, ProjectKind kind) {
-        if (kind == ProjectKind.SINGLE_FILE_PROJECT) {
-            return getFileNameWithoutExtension(project.sourceRoot()) + BLANG_COMPILED_JAR_EXT;
-        }
-        return project.currentPackage().packageName() + BLANG_COMPILED_JAR_EXT;
     }
 
     @Override
@@ -116,23 +113,32 @@ public class RunProfilerTask implements Task {
         initiateProfiler(project);
     }
 
-    private String getAgentArgs() {
-        // add jacoco agent
-        String jacocoArgLine = "-javaagent:" + Paths.get(System.getProperty(BALLERINA_HOME), "bre", "lib",
-                "jacocoagent.jar") + "=destfile=" + Paths.get(System.getProperty(USER_DIR))
-                        .resolve("build").resolve("jacoco").resolve("test.exec");
-        return jacocoArgLine + " ";
-    }
-
     private Path getTargetProfilerPath(Project project) {
-        return getProjectPath(project).resolve("Profiler" + BLANG_COMPILED_JAR_EXT);
+        return getProfilerPath(project).resolve("Profiler" + BLANG_COMPILED_JAR_EXT);
     }
 
-    private Path getProjectPath(Project project) {
-        // If the --output flag is not set, create the executable in the current directory
-        if (project.kind() == ProjectKind.SINGLE_FILE_PROJECT) {
-            return Paths.get(System.getProperty(USER_DIR));
+    private Path getProfilerPath(Project project) {
+        try {
+            Target target = new Target(getTargetPath(project));
+            return target.getProfilerPath();
+        } catch (IOException e) {
+            throw createLauncherException("error while creating profiler directory: ", e);
         }
-        return project.targetDir().resolve("bin");
+    }
+
+    private Path getTargetPath(Project project) {
+        if (project.kind() == ProjectKind.SINGLE_FILE_PROJECT) {
+            return TARGET_OUTPUT_PATH;
+        }
+        return project.targetDir();
+    }
+
+    private String getTargetFilePath(Project project) {
+        if (project.kind() == ProjectKind.SINGLE_FILE_PROJECT) {
+            return Path.of(TARGET_OUTPUT_PATH.resolve(getFileNameWithoutExtension(project.sourceRoot()) +
+                    BLANG_COMPILED_JAR_EXT).toUri()).toString();
+        }
+        return Path.of(project.targetDir().resolve("bin").resolve(project.currentPackage().packageName() +
+                BLANG_COMPILED_JAR_EXT).toUri()).toString();
     }
 }

@@ -27,15 +27,12 @@ import io.ballerina.runtime.internal.scheduling.Strand;
  * 
  * @since 0.88
  */
-//@BallerinaFunction(
-//        orgName = "ballerina", packageName = "lang.xml",
-//        functionName = "isSingleton",
-//        returnType = {@ReturnType(type = TypeKind.BOOLEAN)},
-//        isPublic = true
-//)
 public class IsSingleton {
 
     private static final String OPERATION = "check xml is singleton";
+
+    private IsSingleton() {
+    }
 
     public static boolean isSingleton(Strand strand, BXml xml) {
         try {

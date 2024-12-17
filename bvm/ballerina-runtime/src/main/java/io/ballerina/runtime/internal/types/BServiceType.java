@@ -17,8 +17,8 @@
 package io.ballerina.runtime.internal.types;
 
 import io.ballerina.runtime.api.Module;
-import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.types.ServiceType;
+import io.ballerina.runtime.api.types.TypeTags;
 
 /**
  * {@code BServiceType} represents a service object in Ballerina.
@@ -26,6 +26,8 @@ import io.ballerina.runtime.api.types.ServiceType;
  * @since 0.995.0
  */
 public class BServiceType extends BNetworkObjectType implements ServiceType {
+
+    public Object attachPoint = null;
     public BServiceType(String typeName, Module pkg, long flags) {
         super(typeName, pkg, flags);
     }

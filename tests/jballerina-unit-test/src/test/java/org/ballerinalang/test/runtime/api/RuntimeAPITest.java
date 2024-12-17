@@ -17,11 +17,21 @@
  */
 package org.ballerinalang.test.runtime.api;
 
+import io.ballerina.projects.Package;
+import io.ballerina.runtime.api.Module;
+import io.ballerina.runtime.api.creators.ValueCreator;
+import io.ballerina.runtime.api.utils.StringUtils;
+import io.ballerina.runtime.api.values.BMap;
+import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.internal.BalRuntime;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
+import org.testng.Assert;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
+
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * Test cases for runtime api.
@@ -46,7 +56,57 @@ public class RuntimeAPITest {
                 "async",
                 "utils",
                 "identifier_utils",
-                "environment"
+                "environment",
+                "stream",
+                "json"
         };
+    }
+
+    @Test
+    public void testRecordNoStrandDefaultValue() {
+        CompileResult strandResult = BCompileUtil.compile("test-src/runtime/api/no_strand");
+        Package currentPackage = strandResult.project().currentPackage();
+        final BalRuntime runtime = strandResult.getRuntime();
+        AtomicReference<Throwable> exceptionRef = new AtomicReference<>();
+        Thread thread1 = Thread.ofVirtual().unstarted(() -> {
+            try {
+                BRunUtil.invoke(strandResult, "main");
+            } catch (Throwable e) {
+                exceptionRef.set(e);
+            }
+        });
+        Thread thread2 = Thread.ofVirtual().unstarted(() -> {
+            try {
+                Thread.sleep(2000);
+                BMap<BString, Object> recordValue = ValueCreator.createRecordValue(new Module("testorg",
+                        "no_strand", "1"), "MutualSslHandshake");
+                Assert.assertEquals(recordValue.getType().getName(), "MutualSslHandshake");
+                Assert.assertEquals(recordValue.get(StringUtils.fromString("status")),
+                        StringUtils.fromString("passed"));
+                Assert.assertNull(recordValue.get(StringUtils.fromString("base64EncodedCert")));
+            } catch (Throwable e) {
+                exceptionRef.set(e);
+            } finally {
+                runtime.gracefulExit();
+            }
+        });
+        try {
+            thread1.start();
+            thread2.start();
+            thread1.join();
+            thread2.join();
+            Throwable storedException = exceptionRef.get();
+            if (storedException != null) {
+                throw new AssertionError("Test failed due to an exception in a thread", storedException);
+            }
+        } catch (InterruptedException e) {
+            throw new RuntimeException("Error while invoking function 'main'", e);
+        }
+    }
+
+    @Test
+    public void testRuntimeManagementAPI() {
+        CompileResult strandResult = BCompileUtil.compileWithoutInitInvocation("test-src/runtime/api/runtime_mgt");
+        BRunUtil.runMain(strandResult);
     }
 }

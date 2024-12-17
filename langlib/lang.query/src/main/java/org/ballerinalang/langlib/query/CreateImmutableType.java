@@ -17,25 +17,28 @@ import io.ballerina.runtime.internal.values.TableValueImpl;
  * @since 2201.2.0
  */
 
-public class CreateImmutableType {
+public final class CreateImmutableType {
+
+    private CreateImmutableType() {
+    }
 
     public static void createImmutableValue(BRefValue value) {
         value.freezeDirect();
     }
 
-    public static BTable createImmutableTable(BTable tbl, BArray arr) {
+    public static BTable<?, ?> createImmutableTable(BTable<?, ?> tbl, BArray arr) {
         Type type =  tbl.getType();
         TableType tableType = (TableType) TypeUtils.getImpliedType(type);
-        BTable immutableTable = new TableValueImpl(type,
+        BTable<?, ?> immutableTable = new TableValueImpl<>(type,
                 new ArrayValueImpl(arr.getValues(), (ArrayType) TypeUtils.getImpliedType(arr.getType())),
                 new ArrayValueImpl(tableType.getFieldNames(), true));
         immutableTable.freezeDirect();
         return immutableTable;
     }
 
-    public static BTable createTableWithKeySpecifier(BTable immutableTable, BTypedesc tableType) {
+    public static BTable<?, ?> createTableWithKeySpecifier(BTable<?, ?> immutableTable, BTypedesc tableType) {
         TableType type = (TableType) TypeUtils.getImpliedType(tableType.getDescribingType());
-        BTable tbl = new TableValueImpl(type,
+        BTable<?, ?> tbl = new TableValueImpl<>(type,
                 new ArrayValueImpl(((TableType) TypeUtils.getImpliedType(immutableTable.getType())).getFieldNames(),
                         false));
         return tbl;

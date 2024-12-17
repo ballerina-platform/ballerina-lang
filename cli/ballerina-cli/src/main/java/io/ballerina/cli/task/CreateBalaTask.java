@@ -66,7 +66,7 @@ public class CreateBalaTask implements Task {
 
         try {
             PackageCompilation packageCompilation = project.currentPackage().getCompilation();
-            jBallerinaBackend = JBallerinaBackend.from(packageCompilation, JvmTarget.JAVA_17);
+            jBallerinaBackend = JBallerinaBackend.from(packageCompilation, JvmTarget.JAVA_21);
             long start = 0;
             if (project.buildOptions().dumpBuildTime()) {
                 start = System.currentTimeMillis();
@@ -99,7 +99,7 @@ public class CreateBalaTask implements Task {
                 relativePathToExecutable.toString().contains("." + File.separator)) {
             this.out.println("\t" + emitResult.generatedArtifactPath().toString());
         } else {
-            this.out.println("\t" + relativePathToExecutable.toString());
+            this.out.println("\t" + relativePathToExecutable);
         }
     }
 

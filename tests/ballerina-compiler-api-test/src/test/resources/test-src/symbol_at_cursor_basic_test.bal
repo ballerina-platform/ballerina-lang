@@ -216,3 +216,31 @@ public type ReturnValue02 readonly & string;
 ReturnValue02 stringVar01 = "ballerina";
 
 public type ReadOnlyPrimitiveUnion readonly & string|int;
+
+function testAlternateReceive() {
+    worker w1 {
+        3 -> w3;
+    }
+
+    worker w2 {
+        4 -> w3;
+    }
+
+    worker w2 {
+        int _ = <- w1|w2;
+    }
+}
+
+function testMultipleReceive() {
+    worker w1 {
+        5 -> w3;
+    }
+
+    worker w2 {
+        6 -> w3;
+    }
+
+    worker w2 {
+        _ = <- {a: w1, b: w2};
+    }
+}

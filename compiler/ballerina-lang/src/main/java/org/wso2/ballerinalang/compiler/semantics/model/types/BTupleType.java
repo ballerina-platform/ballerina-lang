@@ -129,7 +129,7 @@ public class BTupleType extends BType implements TupleType {
         this.resolvingToString = true;
 
         String stringRep = "[" + members.stream().map(BTupleMember::toString).collect(Collectors.joining(","))
-                + ((restType != null) ? (members.size() > 0 ? "," : "") + restType.toString() + "...]" : "]");
+                + ((restType != null) ? (!members.isEmpty() ? "," : "") + restType.toString() + "...]" : "]");
 
         this.resolvingToString = false;
         return !Symbols.isFlagOn(flags, Flags.READONLY) ? stringRep : stringRep.concat(" & readonly");
@@ -171,7 +171,7 @@ public class BTupleType extends BType implements TupleType {
     }
 
     public void setMembers(List<BTupleMember> members) {
-        assert members.size() == 0;
+        assert members.isEmpty();
         this.memberTypes = null;
         this.members = members;
     }
@@ -181,28 +181,24 @@ public class BTupleType extends BType implements TupleType {
             return;
         }
 
-        if (type instanceof BArrayType) {
-            BArrayType arrayType = (BArrayType) type;
+        if (type instanceof BArrayType arrayType) {
             if (arrayType.eType == this) {
                 isCyclic = true;
             }
         }
 
-        if (type instanceof BMapType) {
-            BMapType mapType = (BMapType) type;
+        if (type instanceof BMapType mapType) {
             if (mapType.constraint == this) {
                 isCyclic = true;
             }
         }
 
-        if (type instanceof BTableType) {
-            BTableType tableType = (BTableType) type;
+        if (type instanceof BTableType tableType) {
             if (tableType.constraint == this) {
                 isCyclic = true;
             }
 
-            if (tableType.constraint instanceof BMapType) {
-                BMapType mapType = (BMapType) tableType.constraint;
+            if (tableType.constraint instanceof BMapType mapType) {
                 if (mapType.constraint == this) {
                     isCyclic = true;
                 }

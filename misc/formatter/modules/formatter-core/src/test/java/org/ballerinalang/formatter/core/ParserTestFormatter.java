@@ -20,11 +20,11 @@ import org.testng.annotations.Test;
 
 import java.io.IOException;
 import java.nio.file.Files;
-import java.nio.file.Paths;
+import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * Test the formatting of parser test cases.
@@ -33,6 +33,7 @@ import java.util.stream.Collectors;
  */
 public class ParserTestFormatter extends FormatterTest {
 
+    @Override
     @Test(dataProvider = "test-file-provider")
     public void test(String fileName, String path) throws IOException {
         super.testParserResources(path);
@@ -41,7 +42,7 @@ public class ParserTestFormatter extends FormatterTest {
 //    // Uncomment to run a subset of test cases.
 //    @Override
 //    public Object[][] testSubset() {
-//        Path buildDirectory = Paths.get("build").toAbsolutePath().normalize();
+//        Path buildDirectory = Path.of("build").toAbsolutePath().normalize();
 //
 //        return new Object[][] {
 //                {"annot_decl_source_01.bal", getFilePath("annot_decl_source_01.bal",
@@ -89,12 +90,10 @@ public class ParserTestFormatter extends FormatterTest {
                 "service_decl_source_02.bal", "service_decl_source_05.bal", "service_decl_source_17.bal",
                 "service_decl_source_20.bal",
 
-                // The following tests are disabled due to tokens merging together after formatting. issue #35240
-                "query_expr_source_121.bal", "query_expr_source_123.bal", "query_expr_source_124.bal",
-                "query_expr_source_126.bal", "match_stmt_source_21.bal",
-                "func_params_source_27.bal",
-
                 "separated_node_list_import_decl.bal", "node_location_test_03.bal",
+
+                // formatter keeps adding whitespaces #41698
+                "worker_decl_source_07.bal",
 
                 // parser tests with syntax errors that cannot be handled by the formatter
                 "worker_decl_source_03.bal", "worker_decl_source_05.bal", "invalid_identifier_source_01.bal",
@@ -204,14 +203,13 @@ public class ParserTestFormatter extends FormatterTest {
 
     @Override
     public String getTestResourceDir() {
-        return Paths.get("parser-tests").toString();
+        return Path.of("parser-tests").toString();
     }
 
     private Optional<String> getFilePath(String fileName, String directoryPath) {
-        try {
-            return Optional.ofNullable(Files.walk(Paths.get(directoryPath))
-                    .filter(f -> f.getFileName().toString().equals(fileName))
-                    .collect(Collectors.toList()).get(0).toString());
+        try (Stream<Path> paths = Files.walk(Path.of(directoryPath))) {
+            return Optional.ofNullable(paths.filter(f -> f.getFileName().toString().equals(fileName))
+                    .toList().get(0).toString());
         } catch (IOException e) {
             return Optional.empty();
         }

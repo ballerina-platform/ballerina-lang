@@ -22,13 +22,13 @@ package org.ballerinalang.langserver.commons.trace;
  */
 public class Message {
     private String id;
-    private String direction;
-    private String headers;
-    private String httpMethod;
-    private String path;
-    private String contentType;
-    private String payload;
-    private String headerType;
+    private final String direction;
+    private final String headers;
+    private final String httpMethod;
+    private final String path;
+    private final String contentType;
+    private final String payload;
+    private final String headerType;
 
     public Message(String id, String direction, String headers, String httpMethod, String path, String contentType,
             String payload, String headerType) {

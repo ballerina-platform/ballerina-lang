@@ -20,7 +20,7 @@ package io.ballerinalang.compiler.parser.test.syntax.expressions;
 import io.ballerina.compiler.internal.parser.ParserRuleContext;
 import io.ballerinalang.compiler.parser.test.ParserTestUtils;
 
-import java.nio.file.Paths;
+import java.nio.file.Path;
 
 /**
  * Test parsing expressions.
@@ -28,11 +28,11 @@ import java.nio.file.Paths;
 public class AbstractExpressionsTest {
 
     void test(String source, String filePath) {
-        ParserTestUtils.test(source, ParserRuleContext.EXPRESSION, Paths.get("expressions", filePath));
+        ParserTestUtils.test(source, ParserRuleContext.EXPRESSION, Path.of("expressions", filePath));
     }
 
     void testFile(String path, String filePath) {
-        ParserTestUtils.test(Paths.get("expressions/", path), ParserRuleContext.TOP_LEVEL_NODE,
-                Paths.get("expressions/", filePath));
+        ParserTestUtils.test(Path.of("expressions/", path), ParserRuleContext.TOP_LEVEL_NODE,
+                Path.of("expressions/", filePath));
     }
 }

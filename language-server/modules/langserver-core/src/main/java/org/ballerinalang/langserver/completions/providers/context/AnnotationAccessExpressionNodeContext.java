@@ -48,7 +48,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
 
 import static io.ballerina.compiler.api.symbols.SymbolKind.ANNOTATION;
 
@@ -144,7 +143,7 @@ public class AnnotationAccessExpressionNodeContext extends AbstractCompletionPro
             case UNION:
                 List<TypeDescKind> typeDescKinds = ((UnionTypeSymbol) symbol).memberTypeDescriptors().stream()
                         .map(TypeSymbol::typeKind)
-                        .collect(Collectors.toList());
+                        .toList();
                 if (typeDescKinds.contains(TypeDescKind.ANY) || !typeDescKinds.contains(TypeDescKind.ANYDATA)) {
                     annotationAttachPoints.addAll(Arrays.asList(
                             AnnotationAttachPoint.TYPE,
@@ -179,12 +178,12 @@ public class AnnotationAccessExpressionNodeContext extends AbstractCompletionPro
                     QNameRefCompletionUtil.getModuleContent(ctx, (QualifiedNameReferenceNode) nodeAtCursor, predicate)
                             .stream()
                             .map(symbol -> (AnnotationSymbol) symbol)
-                            .collect(Collectors.toList());
+                            .toList();
         } else {
             annotationSymbols = ctx.visibleSymbols(ctx.getCursorPosition()).stream()
                     .filter(predicate)
                     .map(symbol -> (AnnotationSymbol) symbol)
-                    .collect(Collectors.toList());
+                    .toList();
         }
 
         return annotationSymbols;

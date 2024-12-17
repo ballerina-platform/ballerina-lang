@@ -5,16 +5,28 @@ Running Tests
 
 	incompatible_type_mock
 
+	functionMockingTest has failed.
+
+
 		[fail] functionMockingTest:
 
 		    error {ballerina/test:0}FunctionSignatureMismatchError ("Return type of function stringHello does not match function intAdd")
-				callableName: mockHandler moduleName: ballerina.test.0 fileName: mock.bal lineNumber: 383
+				callableName: mockHandler moduleName: ballerina.test.0 fileName: mock.bal lineNumber: 590
 				callableName: functionMockingTest moduleName: intg_tests.incompatible_type_mock$test.0.tests.test fileName: tests/test.bal lineNumber: 15
 				callableName: functionMockingTest$lambda0$ moduleName: intg_tests.incompatible_type_mock$test.0.tests.test_execute-generated_*****lineNumber: 4
+				callableName: call moduleName: ballerina.lang.function.0 fileName: function.bal lineNumber: 37
+				callableName: executeTestFunction moduleName: ballerina.test.0 fileName: serialExecuter.bal lineNumber: 128
+				callableName: executeNonDataDrivenTest moduleName: ballerina.test.0 fileName: serialExecuter.bal lineNumber: 74
+				callableName: executeTest moduleName: ballerina.test.0 fileName: serialExecuter.bal lineNumber: 30
+				callableName: executeTests moduleName: ballerina.test.0 fileName: execute.bal lineNumber: 81
+				callableName: startSuite moduleName: ballerina.test.0 fileName: execute.bal lineNumber: 53
+				callableName: __execute__ moduleName: intg_tests.incompatible_type_mock$test.0.tests.test_execute-generated_*****lineNumber: 8
 
 
 
 		0 passing
 		1 failing
 		0 skipped
+
+		Test execution time :*****s
 error: there are test failures

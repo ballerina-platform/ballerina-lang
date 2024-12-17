@@ -17,7 +17,7 @@
 */
 package io.ballerina.runtime.internal.values;
 
-import io.ballerina.runtime.api.PredefinedTypes;
+import io.ballerina.runtime.api.types.PredefinedTypes;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.values.BLink;
 import io.ballerina.runtime.api.values.BString;
@@ -27,7 +27,7 @@ import io.ballerina.runtime.api.values.BXmlQName;
 import java.util.Map;
 import java.util.Objects;
 
-import static io.ballerina.runtime.internal.ValueUtils.getTypedescValue;
+import static io.ballerina.runtime.internal.utils.ValueUtils.getTypedescValue;
 
 /**
  * <p>
@@ -162,26 +162,32 @@ public final class XmlQName implements RefValue, BXmlQName {
         return copy;
     }
 
+    @Override
     public String getLocalName() {
         return localName;
     }
 
+    @Override
     public void setLocalName(String localName) {
         this.localName = localName;
     }
 
+    @Override
     public String getUri() {
         return uri;
     }
 
+    @Override
     public void setUri(String uri) {
         this.uri = uri;
     }
 
+    @Override
     public String getPrefix() {
         return prefix;
     }
 
+    @Override
     public void setPrefix(String prefix) {
         this.prefix = prefix;
     }

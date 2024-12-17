@@ -33,7 +33,6 @@ import org.wso2.ballerinalang.util.RepoUtils;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.Iterator;
 
@@ -53,7 +52,7 @@ import static io.ballerina.projects.util.ProjectConstants.TARGET_DIR_NAME;
 public class OldPackageMigrationTests extends BaseTest {
 
     private static final Path RESOURCE_DIRECTORY =
-            Paths.get("src/test/resources/projects_for_resolution_tests").toAbsolutePath();
+            Path.of("src/test/resources/projects_for_resolution_tests").toAbsolutePath();
     private static Path tempResourceDir;
 
     @BeforeClass
@@ -144,21 +143,25 @@ public class OldPackageMigrationTests extends BaseTest {
                 "Detected an old version of Dependencies.toml file. This will be updated to v2 format.");
         // Check detected local dependency declarations warnings
         Assert.assertEquals(diagnosticIterator.next().message(),
-                "Detected local dependency declarations in Dependencies.toml file. "
-                        + "Add them to Ballerina.toml using following syntax:\n"
-                        + "[[dependency]]\n"
-                        + "org = \"samjs\"\n"
-                        + "name = \"package_b\"\n"
-                        + "version = \"0.1.0\"\n"
-                        + "repository = \"local\"\n");
+                """
+                        Detected local dependency declarations in Dependencies.toml file. \
+                        Add them to Ballerina.toml using following syntax:
+                        [[dependency]]
+                        org = "samjs"
+                        name = "package_b"
+                        version = "0.1.0"
+                        repository = "local"
+                        """);
         Assert.assertEquals(diagnosticIterator.next().message(),
-                "Detected local dependency declarations in Dependencies.toml file. "
-                        + "Add them to Ballerina.toml using following syntax:\n"
-                        + "[[dependency]]\n"
-                        + "org = \"samjs\"\n"
-                        + "name = \"package_d\"\n"
-                        + "version = \"0.1.0\"\n"
-                        + "repository = \"local\"\n");
+                """
+                        Detected local dependency declarations in Dependencies.toml file. \
+                        Add them to Ballerina.toml using following syntax:
+                        [[dependency]]
+                        org = "samjs"
+                        name = "package_d"
+                        version = "0.1.0"
+                        repository = "local"
+                        """);
         // Check updated Dependencies.toml
         assertTomlFilesEquals(packagePath.resolve(DEPENDENCIES_TOML),
                 packagePath.resolve(RESOURCE_DIR_NAME).resolve("UpdatedDependencies.toml"));

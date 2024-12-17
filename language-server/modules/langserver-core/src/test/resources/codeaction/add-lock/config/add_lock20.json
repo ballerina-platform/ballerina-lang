@@ -1,0 +1,30 @@
+{
+  "position": {
+    "line": 14,
+    "character": 14
+  },
+  "source": "add_lock20.bal",
+  "description": "Wrap in a lock statement for a isolated variable within a remote method",
+  "expected": [
+    {
+      "title": "Surround with lock",
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 14,
+              "character": 0
+            },
+            "end": {
+              "line": 15,
+              "character": 0
+            }
+          },
+          "newText": "    lock {\n\t    cl->fn(arr[0]);\n    }\n"
+        }
+      ],
+      "resolvable": false
+    }
+  ]
+}

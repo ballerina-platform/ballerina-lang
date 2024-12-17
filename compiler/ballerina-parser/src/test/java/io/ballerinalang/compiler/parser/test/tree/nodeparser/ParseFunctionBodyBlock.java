@@ -20,6 +20,8 @@ package io.ballerinalang.compiler.parser.test.tree.nodeparser;
 import io.ballerina.compiler.syntax.tree.FunctionBodyBlockNode;
 import io.ballerina.compiler.syntax.tree.NamedWorkerDeclarationNode;
 import io.ballerina.compiler.syntax.tree.NamedWorkerDeclarator;
+import io.ballerina.compiler.syntax.tree.Node;
+import io.ballerina.compiler.syntax.tree.NodeAndCommentList;
 import io.ballerina.compiler.syntax.tree.NodeList;
 import io.ballerina.compiler.syntax.tree.NodeParser;
 import io.ballerina.compiler.syntax.tree.StatementNode;
@@ -30,6 +32,8 @@ import org.testng.annotations.Test;
 
 import java.util.List;
 import java.util.Optional;
+
+import static io.ballerinalang.compiler.parser.test.ParserTestUtils.assertCommentNode;
 
 /**
  * Test {@code parseFunctionBodyBlock} method.
@@ -78,14 +82,15 @@ public class ParseFunctionBodyBlock {
 
     @Test
     public void testMultipleStmtsWithNewlines() {
-        String funcBodyBlock = "{\n" +
-                "int[] nums = [1, 2, 3, 4];\n" +
-                "int[] evenNums = from var i in nums\n" +
-                "                 where i % 2 == 0\n" +
-                "                 select i;\n" +
-                "int[] evenNums = from var i in nums\n" +
-                "                 select i * 10;\n" +
-                "}";
+        String funcBodyBlock = """
+                {
+                int[] nums = [1, 2, 3, 4];
+                int[] evenNums = from var i in nums
+                                 where i % 2 == 0
+                                 select i;
+                int[] evenNums = from var i in nums
+                                 select i * 10;
+                }""";
         FunctionBodyBlockNode funcBodyBlockNode = NodeParser.parseFunctionBodyBlock(funcBodyBlock);
         Assert.assertEquals(funcBodyBlockNode.kind(), SyntaxKind.FUNCTION_BODY_BLOCK);
         Assert.assertFalse(funcBodyBlockNode.hasDiagnostics());
@@ -102,12 +107,13 @@ public class ParseFunctionBodyBlock {
 
     @Test
     public void testNamedWorkerOnly() {
-        String funcBodyBlock = "{\n" +
-                "    @strand { thread:\"any\" }\n" +
-                "    worker w1 {\n" +
-                "        int sum = 0;\n" +
-                "    }\n" +
-                "}";
+        String funcBodyBlock = """
+                {
+                    @strand { thread:"any" }
+                    worker w1 {
+                        int sum = 0;
+                    }
+                }""";
         FunctionBodyBlockNode funcBodyBlockNode = NodeParser.parseFunctionBodyBlock(funcBodyBlock);
         Assert.assertEquals(funcBodyBlockNode.kind(), SyntaxKind.FUNCTION_BODY_BLOCK);
         Assert.assertFalse(funcBodyBlockNode.hasDiagnostics());
@@ -126,16 +132,19 @@ public class ParseFunctionBodyBlock {
 
     @Test
     public void testNamedWorkerAndStmts() {
-        String funcBodyBlock = "{\n" +
-                "    int x = 1;\n" +
-                "    int y = 1;\n\n" +
-                "    @strand { thread:\"any\" }\n" +
-                "    worker w1 {\n" +
-                "        x += x;\n" +
-                "        x *= 2;\n" +
-                "    }\n\n" +
-                "    boolean z = x == y;\n" +
-                "}";
+        String funcBodyBlock = """
+                {
+                    int x = 1;
+                    int y = 1;
+
+                    @strand { thread:"any" }
+                    worker w1 {
+                        x += x;
+                        x *= 2;
+                    }
+
+                    boolean z = x == y;
+                }""";
         FunctionBodyBlockNode funcBodyBlockNode = NodeParser.parseFunctionBodyBlock(funcBodyBlock);
         Assert.assertEquals(funcBodyBlockNode.kind(), SyntaxKind.FUNCTION_BODY_BLOCK);
         Assert.assertFalse(funcBodyBlockNode.hasDiagnostics());
@@ -249,5 +258,29 @@ public class ParseFunctionBodyBlock {
         Assert.assertEquals(tokens.get(0).kind(), SyntaxKind.SEMICOLON_TOKEN);
 
         Assert.assertEquals(funcBodyBlockNode.toString(), " INVALID[%]{ int a; INVALID[;] }; INVALID[;]");
+    }
+
+    @Test
+    public void testCommentInFunctionBody() {
+        String funcBodyBlock = """
+                {
+                    // Initialize x
+                    int x = 1;
+                    // Initialize y
+                    int y = 1;
+
+                    // new comment
+                    // another new comment
+                }""";
+        FunctionBodyBlockNode funcBodyBlockNode = NodeParser.parseFunctionBodyBlock(funcBodyBlock);
+        Assert.assertEquals(funcBodyBlockNode.kind(), SyntaxKind.FUNCTION_BODY_BLOCK);
+        Assert.assertFalse(funcBodyBlockNode.hasDiagnostics());
+
+        NodeAndCommentList<Node> nodes = funcBodyBlockNode.statementsWithComments();
+        Assert.assertEquals(nodes.size(), 5);
+
+        assertCommentNode(nodes.get(0), List.of("Initialize x"));
+        assertCommentNode(nodes.get(2), List.of("Initialize y"));
+        assertCommentNode(nodes.get(4), List.of("new comment", "another new comment"));
     }
 }

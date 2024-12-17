@@ -35,6 +35,7 @@ import static org.ballerinalang.debugger.test.adapter.evaluation.EvaluationExcep
  */
 public abstract class ExpressionEvaluationNegativeTest extends ExpressionEvaluationBaseTest {
 
+    @Override
     @BeforeClass(alwaysRun = true)
     public void setup() throws BallerinaTestException {
         prepareForEvaluation();
@@ -42,19 +43,19 @@ public abstract class ExpressionEvaluationNegativeTest extends ExpressionEvaluat
 
     @Override
     @Test(enabled = false)
-    public void literalEvaluationTest() throws BallerinaTestException {
+    public void literalEvaluationTest() {
         // Todo
     }
 
     @Override
     @Test(enabled = false)
-    public void listConstructorEvaluationTest() throws BallerinaTestException {
+    public void listConstructorEvaluationTest() {
         // Todo
     }
 
     @Override
     @Test(enabled = false)
-    public void mappingConstructorEvaluationTest() throws BallerinaTestException {
+    public void mappingConstructorEvaluationTest() {
         // Todo
     }
 
@@ -69,7 +70,7 @@ public abstract class ExpressionEvaluationNegativeTest extends ExpressionEvaluat
 
     @Override
     @Test(enabled = false)
-    public void xmlTemplateEvaluationTest() throws BallerinaTestException {
+    public void xmlTemplateEvaluationTest() {
         // Todo
     }
 
@@ -111,13 +112,13 @@ public abstract class ExpressionEvaluationNegativeTest extends ExpressionEvaluat
 
     @Override
     @Test(enabled = false)
-    public void builtInNameReferenceEvaluationTest() throws BallerinaTestException {
+    public void builtInNameReferenceEvaluationTest() {
         // Todo
     }
 
     @Override
     @Test(enabled = false)
-    public void fieldAccessEvaluationTest() throws BallerinaTestException {
+    public void fieldAccessEvaluationTest() {
         // Todo
     }
 
@@ -186,7 +187,7 @@ public abstract class ExpressionEvaluationNegativeTest extends ExpressionEvaluat
                 "too many arguments in call to 'calculate'.");
 
         debugTestRunner.assertEvaluationError(context, "calculate(5, 6, 7, d = 8)", EvaluationExceptionKind.PREFIX +
-                "undefined defaultable parameter 'd'.");
+                "undefined parameter 'd'.");
 
         debugTestRunner.assertEvaluationError(context, "calculate(5, ...b, 7)", String.format(EvaluationExceptionKind
                 .SYNTAX_ERROR.getString(), "arguments not allowed after rest argument"));
@@ -274,7 +275,7 @@ public abstract class ExpressionEvaluationNegativeTest extends ExpressionEvaluat
 
     @Override
     @Test(enabled = false)
-    public void typeOfExpressionEvaluationTest() throws BallerinaTestException {
+    public void typeOfExpressionEvaluationTest() {
         // Todo
     }
 
@@ -359,7 +360,7 @@ public abstract class ExpressionEvaluationNegativeTest extends ExpressionEvaluat
 
     @Override
     @Test(enabled = false)
-    public void equalityEvaluationTest() throws BallerinaTestException {
+    public void equalityEvaluationTest() {
         // Todo
     }
 
@@ -390,19 +391,19 @@ public abstract class ExpressionEvaluationNegativeTest extends ExpressionEvaluat
 
     @Override
     @Test(enabled = false)
-    public void conditionalExpressionEvaluationTest() throws BallerinaTestException {
+    public void conditionalExpressionEvaluationTest() {
         // Todo
     }
 
     @Override
     @Test(enabled = false)
-    public void checkingExpressionEvaluationTest() throws BallerinaTestException {
+    public void checkingExpressionEvaluationTest() {
         // Todo
     }
 
     @Override
     @Test(enabled = false)
-    public void trapExpressionEvaluationTest() throws BallerinaTestException {
+    public void trapExpressionEvaluationTest() {
         // Todo
     }
 
@@ -508,6 +509,7 @@ public abstract class ExpressionEvaluationNegativeTest extends ExpressionEvaluat
                 String.format(REMOTE_METHOD_NOT_FOUND.getString(), "undefinedFunction", "Child"));
     }
 
+    @Override
     @AfterClass(alwaysRun = true)
     public void cleanUp() {
         debugTestRunner.terminateDebugSession();

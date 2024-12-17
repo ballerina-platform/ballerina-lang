@@ -1,0 +1,22 @@
+<store xmlns:st="http://example.com/store" xmlns:mk="http://example.com/maker" xmlns:pr="http://example.com/price">
+    <st:product>
+        <st:name>Laptop</st:name>
+        <st:name>Desktop</st:name>
+    </st:product>
+    <mk:maker>
+        <mk:brand>
+            <mk:name>Dell</mk:name>
+            <st:counry>USA</st:counry>
+            <year>2024</year>
+        </mk:brand>
+        <mk:brand>
+            <mk:name>HP</mk:name>
+            <st:counry>USA</st:counry>
+            <year>2023</year>
+        </mk:brand>
+    </mk:maker>
+    <pr:cost>
+        <pr:amount>1000</pr:amount>
+        <pr:amount>800</pr:amount>
+    </pr:cost>
+</store>

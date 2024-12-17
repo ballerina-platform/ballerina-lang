@@ -17,8 +17,8 @@
  */
 package org.ballerinalang.test.expressions.stamp;
 
-import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.types.TypeTags;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BArray;
@@ -150,24 +150,24 @@ public class UnionTypeStampInbuiltFunctionTest {
         Assert.assertEquals(constrainedType.getName(), "Teacher");
 
         Assert.assertEquals(getType(employee0.get(StringUtils.fromString("a"))).getName(), "Teacher");
-        Assert.assertEquals(getType(((BMap) employee0.get(StringUtils.fromString("a"))).get(
+        Assert.assertEquals(getType(((BMap<?, ?>) employee0.get(StringUtils.fromString("a"))).get(
                         StringUtils.fromString("age"))).getTag(),
                 TypeTags.INT_TAG);
-        Assert.assertEquals(getType(((BMap) employee0.get(StringUtils.fromString("a"))).get(
+        Assert.assertEquals(getType(((BMap<?, ?>) employee0.get(StringUtils.fromString("a"))).get(
                         StringUtils.fromString("school"))).getClass(),
                 BStringType.class);
-        Assert.assertEquals(getType(((BMap) employee0.get(StringUtils.fromString("a"))).get(
+        Assert.assertEquals(getType(((BMap<?, ?>) employee0.get(StringUtils.fromString("a"))).get(
                         StringUtils.fromString("batch"))).getClass(),
                 BStringType.class);
 
         Assert.assertEquals(getType(employee0.get(StringUtils.fromString("b"))).getName(), "Teacher");
-        Assert.assertEquals(getType(((BMap) employee0.get(StringUtils.fromString("b"))).get(
+        Assert.assertEquals(getType(((BMap<?, ?>) employee0.get(StringUtils.fromString("b"))).get(
                         StringUtils.fromString("age"))).getTag(),
                 TypeTags.INT_TAG);
-        Assert.assertEquals(getType(((BMap) employee0.get(StringUtils.fromString("b"))).get(
+        Assert.assertEquals(getType(((BMap<?, ?>) employee0.get(StringUtils.fromString("b"))).get(
                         StringUtils.fromString("school"))).getClass(),
                 BStringType.class);
-        Assert.assertEquals(getType(((BMap) employee0.get(StringUtils.fromString("b"))).get(
+        Assert.assertEquals(getType(((BMap<?, ?>) employee0.get(StringUtils.fromString("b"))).get(
                         StringUtils.fromString("batch"))).getClass(),
                 BStringType.class);
     }

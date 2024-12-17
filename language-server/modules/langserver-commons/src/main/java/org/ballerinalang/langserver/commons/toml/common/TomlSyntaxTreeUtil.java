@@ -26,7 +26,7 @@ import org.ballerinalang.langserver.commons.toml.visitor.ValueType;
  *
  * @since 2.0.0
  */
-public class TomlSyntaxTreeUtil {
+public final class TomlSyntaxTreeUtil {
 
     //Toml node types.
     public static final String NUMBER = "Number";
@@ -95,15 +95,11 @@ public class TomlSyntaxTreeUtil {
      * @return {@link String} default value.
      */
     public static String getDefaultValueForType(ValueType type) {
-        switch (type) {
-            case NUMBER:
-                return "0";
-            case BOOLEAN:
-                return "false";
-            case STRING:
-            default:
-                return "";
-        }
+        return switch (type) {
+            case NUMBER -> "0";
+            case BOOLEAN -> "false";
+            default -> "";
+        };
     }
 
 }

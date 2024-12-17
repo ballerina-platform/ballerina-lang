@@ -53,10 +53,12 @@ import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Stream;
 
 import static io.ballerina.identifier.Utils.decodeIdentifier;
 import static org.ballerinalang.test.runtime.util.TesterinaConstants.BIN_DIR;
@@ -77,17 +79,16 @@ public class CoverageReport {
 
     private final String title;
     private final Path coverageDir;
-    private Path executionDataFile;
-    private Path classesDirectory;
-    private ExecFileLoader execFileLoader;
-    private Module module;
-    private Target target;
-    private Map<String, ModuleCoverage> moduleCoverageMap;
-    private List<IClassCoverage> packageNativeClassCoverageList;
-    private List<IClassCoverage> packageBalClassCoverageList;
-    private List<ISourceFileCoverage> packageSourceCoverageList;
-    private List<ExecutionData> packageExecData;
-    private List<SessionInfo> sessionInfoList;
+    private final Path executionDataFile;
+    private final Path classesDirectory;
+    private final ExecFileLoader execFileLoader;
+    private final Module module;
+    private final Map<String, ModuleCoverage> moduleCoverageMap;
+    private final List<IClassCoverage> packageNativeClassCoverageList;
+    private final List<IClassCoverage> packageBalClassCoverageList;
+    private final List<ISourceFileCoverage> packageSourceCoverageList;
+    private final List<ExecutionData> packageExecData;
+    private final List<SessionInfo> sessionInfoList;
 
     public CoverageReport(Module module, Map<String, ModuleCoverage> moduleCoverageMap,
                           List<IClassCoverage> packageNativeClassCoverageList,
@@ -95,7 +96,7 @@ public class CoverageReport {
                           List<ISourceFileCoverage> packageSourceCoverageList, List<ExecutionData> packageExecData,
                           List<SessionInfo> sessionInfoList) throws IOException {
         this.module = module;
-        this.target = new Target(module.project().targetDir());
+        Target target = new Target(module.project().targetDir());
         this.coverageDir = target.getTestsCachePath().resolve(TesterinaConstants.COVERAGE_DIR);
         this.title = coverageDir.toFile().getName();
         this.classesDirectory = coverageDir.resolve(TesterinaConstants.BIN_DIR);
@@ -115,7 +116,7 @@ public class CoverageReport {
      * @param jBallerinaBackend  JBallerinaBackend
      * @param includesInCoverage boolean
      * @param exclusionClassList list of classes to be excluded
-     * @throws IOException
+     * @throws IOException if an error occurs while generating the report
      */
     public void generateReport(JBallerinaBackend jBallerinaBackend, String includesInCoverage,
                                String reportFormat, Module originalModule, Set<String> exclusionClassList)
@@ -182,7 +183,7 @@ public class CoverageReport {
      * @param originalModule     Module
      * @param exclusionClassList list of classes to be excluded
      * @return CoverageBuilder
-     * @throws IOException
+     * @throws IOException if an error occurs while generating the report
      */
     private CoverageBuilder generateTesterinaCoverageReport(String orgName, String packageName,
                                                             List<Path> filteredPathList,
@@ -200,12 +201,8 @@ public class CoverageReport {
 
     private List<DocumentId> getGeneratedFilesToExclude(Module originalModules) {
         List<DocumentId> excludedDocumentIds = new ArrayList<>(this.module.documentIds());
-        List<DocumentId> oldDocuementIds = new ArrayList<>();
-        // Add all old document ids
-        for (DocumentId documentId : originalModules.documentIds()) {
-            oldDocuementIds.add(documentId);
-        }
-        excludedDocumentIds.removeAll(oldDocuementIds);
+        List<DocumentId> oldDocumentIds = new ArrayList<>(originalModules.documentIds());
+        excludedDocumentIds.removeAll(oldDocumentIds);
         return excludedDocumentIds;
     }
 
@@ -247,9 +244,7 @@ public class CoverageReport {
         }
         // Jacoco is capable of handling duplicated execution data,
         // so it is not needed to remove duplicates.
-        for (ExecutionData executionData : execFileLoader.getExecutionDataStore().getContents()) {
-            packageExecData.add(executionData);
-        }
+        packageExecData.addAll(execFileLoader.getExecutionDataStore().getContents());
     }
 
     private boolean isExistingSessionInfo(SessionInfo sessionInfo) {
@@ -276,7 +271,7 @@ public class CoverageReport {
                 coverageToRemove = coverage;
             }
         }
-        if (isExists && coverageToRemove != null) {
+        if (isExists) {
             packageNativeClassCoverageList.remove(coverageToRemove);
         }
     }
@@ -336,7 +331,7 @@ public class CoverageReport {
 
         for (IPackageCoverage packageCoverage : bundleCoverage.getPackages()) {
 
-            if (TesterinaConstants.DOT.equals(this.module.moduleName())) {
+            if (TesterinaConstants.DOT.equals(this.module.moduleName().toString())) {
                 containsSourceFiles = packageCoverage.getName().isEmpty();
             }
             if (containsSourceFiles) {
@@ -375,29 +370,56 @@ public class CoverageReport {
                             Optional<List<Integer>> coveredLinesList =
                                     moduleCoverage.getCoveredLinesList(
                                             sourceFileCoverage.getName());
-                            if (!missedLinesList.isEmpty() && !coveredLinesList.isEmpty()) {
+                            Optional<List<Integer>> emptyLinesList = moduleCoverage.getEmptyLinesList(
+                                    sourceFileCoverage.getName());
+                            if (missedLinesList.isPresent() && coveredLinesList.isPresent() &&
+                                    emptyLinesList.isPresent()) {
                                 List<Integer> missedLines = missedLinesList.get();
                                 List<Integer> coveredLines = coveredLinesList.get();
+                                List<Integer> emptyLines = emptyLinesList.get();
                                 List<Integer> existingMissedLines = new ArrayList<>(missedLines);
+                                List<Integer> existingEmptyLines =  new ArrayList<>(emptyLines);
                                 boolean isCoverageUpdated = false;
-                                int updateMissedLineCount = 0;
-                                for (int missedLine : existingMissedLines) {
+                                int coveredMissedLineCount = 0;
+                                int coveredEmptyLineCount = 0;
+                                int missedEmptyLineCount = 0;
+                                for (Integer missedLine : existingMissedLines) {
                                     // Traverse through the missed lines of a source file and update
                                     // coverage status if it is covered in the current module.
                                     // This is to make sure multi module tests are reflected in test coverage
                                     ILine line = sourceFileCoverage.getLine(missedLine);
                                     if (line.getStatus() == PARTLY_COVERED || line.getStatus() == FULLY_COVERED) {
                                         isCoverageUpdated = true;
-                                        missedLines.remove(Integer.valueOf(missedLine));
-                                        coveredLines.add(Integer.valueOf(missedLine));
-                                        updateMissedLineCount++;
+                                        missedLines.remove(missedLine);
+                                        coveredLines.add(missedLine);
+                                        coveredMissedLineCount++;
+                                    }
+                                }
+                                for (Integer emptyLine : existingEmptyLines) {
+                                    // Traverse through the empty lines of a source file and update
+                                    // coverage status if it is covered/missed in the current java package.
+                                    // This is to ensure the proper coverage calculation when the original source file
+                                    // is split under multiple java packages during the code generation.
+                                    ILine line = sourceFileCoverage.getLine(emptyLine);
+                                    if (line.getStatus() == PARTLY_COVERED || line.getStatus() == FULLY_COVERED) {
+                                        isCoverageUpdated = true;
+                                        emptyLines.remove(emptyLine);
+                                        coveredLines.add(emptyLine);
+                                        coveredEmptyLineCount++;
+                                    } else if (line.getStatus() == NOT_COVERED) {
+                                        isCoverageUpdated = true;
+                                        emptyLines.remove(emptyLine);
+                                        missedLines.add(emptyLine);
+                                        missedEmptyLineCount++;
                                     }
                                 }
                                 if (isCoverageUpdated) {
                                     // Update the coverage only if there is a coverage change
                                     if (document != null) {
-                                        moduleCoverage.updateCoverage(document, coveredLines, missedLines,
-                                                updateMissedLineCount);
+                                        Collections.sort(coveredLines);
+                                        Collections.sort(missedLines);
+                                        moduleCoverage.updateCoverage(document, coveredLines, missedLines, emptyLines,
+                                                coveredMissedLineCount, coveredEmptyLineCount, missedEmptyLineCount);
                                     }
                                 }
                             }
@@ -405,20 +427,23 @@ public class CoverageReport {
                             // Calculate coverage for new source file only if belongs to current module
                             List<Integer> coveredLines = new ArrayList<>();
                             List<Integer> missedLines = new ArrayList<>();
-
-                            for (int i = sourceFileCoverage.getFirstLine(); i <= sourceFileCoverage.getLastLine();
-                                 i++) {
+                            List<Integer> emptyLines = new ArrayList<>();
+                            int firstLine = sourceFileCoverage.getFirstLine();
+                            int lastLine = sourceFileCoverage.getLastLine();
+                            for (int i = firstLine; i <= lastLine; i++) {
                                 ILine line = sourceFileCoverage.getLine(i);
                                 if (line.getStatus() == NOT_COVERED) {
                                     missedLines.add(i);
                                 } else if (line.getStatus() == PARTLY_COVERED ||
                                         line.getStatus() == FULLY_COVERED) {
                                     coveredLines.add(i);
+                                } else if (line.getStatus() == EMPTY) {
+                                    emptyLines.add(i);
                                 }
                             }
-                            if (document != null) {
+                            if (document != null && firstLine != -1) {
                                 moduleCoverage.addSourceFileCoverage(document, coveredLines,
-                                        missedLines);
+                                        missedLines, emptyLines);
                             }
                             moduleCoverageMap.put(sourceFileModule, moduleCoverage);
                         }
@@ -444,7 +469,7 @@ public class CoverageReport {
                         modifiedDocument.textDocument().textLines());
                 if (!stringPatch.getDeltas().isEmpty()) {
                     List<AbstractDelta<String>> patchDeltas = stringPatch.getDeltas();
-                    List<Integer> insertedLines = new ArrayList();
+                    List<Integer> insertedLines = new ArrayList<>();
                     List<Integer> modifiedLines = new ArrayList<>();
                     List<Integer> deletedLines = new ArrayList<>();
                     for (AbstractDelta<String> delta : patchDeltas) {
@@ -463,7 +488,10 @@ public class CoverageReport {
                             }
                         } else if (delta.getType().equals(DeltaType.DELETE)) {
                             int lineNumber = delta.getSource().getPosition();
-                            deletedLines.add(lineNumber);
+                            int size = delta.getSource().size();
+                            for (int i = lineNumber; i < lineNumber + size; i++) {
+                                deletedLines.add(i);
+                            }
                         }
                     }
 
@@ -471,54 +499,53 @@ public class CoverageReport {
                     List<Integer> coveredLinesList = moduleCoverage.getCoveredLinesList(modifiedDocument.name()).get();
                     List<Integer> missedLinesList = moduleCoverage.getMissedLinesList(modifiedDocument.name()).get();
 
-                    // Populate lineStatus with zeroes
-                    List<Integer> lineStatus = new ArrayList<>();
+                    // create the modified document coverage list
+                    List<Integer> modifiedDocLineStatus = new ArrayList<>();
                     for (int i = 0; i < modifiedDocument.textDocument().textLines().size(); i++) {
-                        lineStatus.add(0);
-                    }
-
-                    // Replace line status with respective covered and missed statuses
-                    for (Integer coveredLine : coveredLinesList) {
-                        lineStatus.remove(coveredLine);
-                        lineStatus.add(coveredLine, FULLY_COVERED);
-                    }
-                    for (Integer missedLine : missedLinesList) {
-                        lineStatus.remove(missedLine);
-                        lineStatus.add(missedLine, NOT_COVERED);
-                    }
-
-                    List<Integer> newLineStatus = new ArrayList<>();
-                    for (int i = 0; i < lineStatus.size(); i++) {
-                        if (insertedLines.contains(i)) {
-                            continue;
-                        }
-                        // If an empty line was modified or deleted, add the line status as empty
-                        if (modifiedLines.contains(i)) {
-                            newLineStatus.add(EMPTY);
+                        if (coveredLinesList.contains(i + 1)) {
+                            modifiedDocLineStatus.add(FULLY_COVERED);
+                        } else if (missedLinesList.contains(i + 1)) {
+                            modifiedDocLineStatus.add(NOT_COVERED);
                         } else {
-                            newLineStatus.add(lineStatus.get(i));
+                            modifiedDocLineStatus.add(EMPTY);
                         }
-                        // If a deleted line exists
-                        if (deletedLines.contains(i)) {
-                            newLineStatus.add(EMPTY);
+                    }
+
+                    // iterate the modified coverage list and map to the original document
+                    List<Integer> originalDocLineStatus = new ArrayList<>();
+                    for (int i = 0; i < modifiedDocument.textDocument().textLines().size(); i++) {
+                        while (deletedLines.contains(originalDocLineStatus.size() + 1)) {
+                            // if the next line is deleted in the source, we add the line status as empty
+                            originalDocLineStatus.add(EMPTY);
                         }
+                        if (modifiedLines.contains(i)) {
+                            // if the line is modified, we add the line status as empty
+                            originalDocLineStatus.add(EMPTY);
+                        } else if (!insertedLines.contains(i)) {
+                            // if the line is not modified, nor inserted, we add the line status as it is
+                            originalDocLineStatus.add(modifiedDocLineStatus.get(i));
+                        }
+                        // if the line is inserted, we ignore it
                     }
 
                     List<Integer> newCoveredLines = new ArrayList<>();
                     List<Integer> newMissedLines = new ArrayList<>();
+                    List<Integer> newEmptyLines = new ArrayList<>();
 
                     // Go through line status and get the new covered and missed lines
-                    for (int i = 0; i < newLineStatus.size(); i++) {
-                        if (newLineStatus.get(i).equals(FULLY_COVERED)) {
+                    for (int i = 0; i < originalDocLineStatus.size(); i++) {
+                        if (originalDocLineStatus.get(i).equals(FULLY_COVERED)) {
                             newCoveredLines.add(i + 1);
-                        } else if (newLineStatus.get(i).equals(NOT_COVERED)) {
+                        } else if (originalDocLineStatus.get(i).equals(NOT_COVERED)) {
                             newMissedLines.add(i + 1);
+                        } else if (originalDocLineStatus.get(i).equals(EMPTY)) {
+                            newEmptyLines.add(i + 1);
                         }
                     }
 
                     // Remove previous source file module and replace it with new module coverage
                     moduleCoverageMap.remove(originalModule.moduleName().toString());
-                    moduleCoverage.replaceCoverage(originalDocument, newCoveredLines, newMissedLines);
+                    moduleCoverage.replaceCoverage(originalDocument, newCoveredLines, newMissedLines, newEmptyLines);
                     moduleCoverageMap.put(originalModule.moduleName().toString(), moduleCoverage);
                 }
 
@@ -526,7 +553,6 @@ public class CoverageReport {
                 // Diff exception caught when diff cannot be calculated properly
                 // NullPointer caught when a Generated Source File is passed or if its an empty file
                 // continue to consider other files in the coverage
-                continue;
             }
         }
     }
@@ -593,17 +619,15 @@ public class CoverageReport {
     }
 
     private List<Path> getPlatformLibsList(JBallerinaBackend jBallerinaBackend, Package pkg) {
-        List<Path> platformLibsList = new ArrayList<>();
-        Collection<PlatformLibrary> otherJarDependencies = jBallerinaBackend.platformLibraryDependencies(
-                pkg.packageId(), PlatformLibraryScope.DEFAULT);
-        for (PlatformLibrary otherJarDependency : otherJarDependencies) {
-            if (!platformLibsList.contains(otherJarDependency.path())) {
-                platformLibsList.add(otherJarDependency.path());
-            }
-        }
-        return platformLibsList;
+        return Stream.concat(
+                jBallerinaBackend.platformLibraryDependencies(
+                        pkg.packageId(), PlatformLibraryScope.DEFAULT).stream(),
+                jBallerinaBackend.platformLibraryDependencies(
+                        pkg.packageId(), PlatformLibraryScope.PROVIDED).stream())
+                .map(PlatformLibrary::path)
+                .distinct()
+                .toList();
     }
-
 
     private List<Path> getDependencyJarList(JBallerinaBackend jBallerinaBackend) {
         List<Path> dependencyPathList = new ArrayList<>();
@@ -619,8 +643,12 @@ public class CoverageReport {
                             dependencyPathList.add(generatedJarLibrary.path());
                         }
                     }
-                    Collection<PlatformLibrary> otherJarDependencies = jBallerinaBackend.platformLibraryDependencies(
-                            pkg.packageId(), PlatformLibraryScope.DEFAULT);
+                    Collection<PlatformLibrary> otherJarDependencies = Stream.concat(
+                            jBallerinaBackend.platformLibraryDependencies(
+                                    pkg.packageId(), PlatformLibraryScope.DEFAULT).stream(),
+                            jBallerinaBackend.platformLibraryDependencies(
+                                    pkg.packageId(), PlatformLibraryScope.PROVIDED).stream()).toList();
+
                     for (PlatformLibrary otherJarDependency : otherJarDependencies) {
                         if (!dependencyPathList.contains(otherJarDependency.path())) {
                             dependencyPathList.add(otherJarDependency.path());
@@ -630,5 +658,4 @@ public class CoverageReport {
                 });
         return dependencyPathList;
     }
-
 }

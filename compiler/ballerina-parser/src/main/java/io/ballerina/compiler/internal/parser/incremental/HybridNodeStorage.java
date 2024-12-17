@@ -19,7 +19,6 @@ package io.ballerina.compiler.internal.parser.incremental;
 
 import io.ballerina.compiler.internal.parser.BallerinaLexer;
 import io.ballerina.compiler.internal.parser.tree.STToken;
-import io.ballerina.compiler.internal.parser.utils.PersistentStack;
 import io.ballerina.compiler.syntax.tree.ModulePartNode;
 import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import io.ballerina.compiler.syntax.tree.Token;
@@ -27,7 +26,9 @@ import io.ballerina.tools.text.TextDocumentChange;
 import io.ballerina.tools.text.TextEdit;
 import io.ballerina.tools.text.TextRange;
 
+import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Deque;
 import java.util.List;
 
 /**
@@ -146,18 +147,18 @@ public class HybridNodeStorage {
                                          BallerinaLexer lexer,
                                          TextDocumentChange textDocumentChange) {
         NodePointer oldTreePtr = new NodePointer(oldTree);
-        PersistentStack<TextEditRange> textEditRanges = markAffectedRanges(oldTree, textDocumentChange);
+        Deque<TextEditRange> textEditRanges = markAffectedRanges(oldTree, textDocumentChange);
         HybridNode.State state = new HybridNode.State(0, 0, lexer, oldTreePtr.nextChild(), textEditRanges);
         return new HybridNode(null, state);
     }
 
-    private PersistentStack<TextEditRange> markAffectedRanges(ModulePartNode oldTree,
+    private Deque<TextEditRange> markAffectedRanges(ModulePartNode oldTree,
                                                               TextDocumentChange textDocumentChange) {
         int textEditCount = textDocumentChange.getTextEditCount();
-        PersistentStack<TextEditRange> markedTextEdits = PersistentStack.getEmpty();
+        Deque<TextEditRange> markedTextEdits = new ArrayDeque<>(textEditCount);
         for (int index = textEditCount - 1; index >= 0; index--) {
             TextEdit textEdit = textDocumentChange.getTextEdit(index);
-            markedTextEdits = markedTextEdits.push(markAffectedRange(oldTree, textEdit));
+            markedTextEdits.push(markAffectedRange(oldTree, textEdit));
         }
         return markedTextEdits;
     }

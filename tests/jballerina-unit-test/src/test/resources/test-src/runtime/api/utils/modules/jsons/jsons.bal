@@ -118,6 +118,10 @@ function testConvertJSON() {
     jval = null;
     jval_result = trap convertJSON(jval, typeof ());
     test:assertEquals(jval_result, ());
+
+    handle val = java:fromString("apple");
+    jval_result = trap convertJSON(val, string);
+    test:assertEquals(jval_result, "apple");
 }
 
 function convertJSONToRecord(anydata v, typedesc<anydata> t) returns map<anydata> = @java:Method {
@@ -125,7 +129,7 @@ function convertJSONToRecord(anydata v, typedesc<anydata> t) returns map<anydata
     name: "testConvertJSONToRecord"
 } external;
 
-function convertJSON(anydata v, typedesc<anydata> t) returns anydata = @java:Method {
+function convertJSON(any v, typedesc<anydata> t) returns anydata = @java:Method {
     'class: "org.ballerinalang.nativeimpl.jvm.runtime.api.tests.JsonValues",
     name: "testConvertJSON"
 } external;

@@ -51,18 +51,18 @@ public class StringUtilsTest {
 
     @Test
     public void testHighlightDiagnostic() {
-        testHighlightDiagnostic("int i = 100", "" +
-                "error: missing semicolon token\n" +
-                "\tint i = 100\n" +
-                "\t           ^");
-        testHighlightDiagnostic("int i\\-\\like\\-hyphens = 100", "" +
-                "error: invalid escape sequence '\\l'\n" +
-                "\tint i\\-\\like\\-hyphens = 100\n" +
-                "\t    ^---------------^");
-        testHighlightDiagnostic("\\l", "" +
-                "error: invalid escape sequence '\\l'\n" +
-                "\t\\l\n" +
-                "\t^^");
+        testHighlightDiagnostic("int i = 100", """
+                error: missing semicolon token
+                \tint i = 100
+                \t           ^""");
+        testHighlightDiagnostic("int i\\-\\like\\-hyphens = 100", """
+                error: invalid escape sequence '\\l'
+                \tint i\\-\\like\\-hyphens = 100
+                \t    ^---------------^""");
+        testHighlightDiagnostic("\\l", """
+                error: invalid escape sequence '\\l'
+                \t\\l
+                \t^^""");
     }
 
     private void testHighlightDiagnostic(String code, String expectedError) {

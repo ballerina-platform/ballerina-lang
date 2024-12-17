@@ -35,7 +35,10 @@ import java.util.Optional;
  *
  * @since 2.0.0
  */
-public class ProjectLoader {
+public final class ProjectLoader {
+
+    private ProjectLoader() {
+    }
 
     public static Project loadProject(Path path) {
         return loadProject(path, ProjectEnvironmentBuilder.getDefaultBuilder(), BuildOptions.builder().build());
@@ -81,7 +84,7 @@ public class ProjectLoader {
                 return BuildProject.load(projectEnvironmentBuilder, projectRoot, buildOptions);
             } else if (Files.exists(projectRoot.resolve(ProjectConstants.PACKAGE_JSON))) {
                 projectEnvironmentBuilder.addCompilationCacheFactory(TempDirCompilationCache::from);
-                return BalaProject.loadProject(projectEnvironmentBuilder, projectRoot);
+                return BalaProject.loadProject(projectEnvironmentBuilder, projectRoot, buildOptions);
             } else {
                 throw new ProjectException("provided directory does not belong to any supported project types");
             }
@@ -92,7 +95,7 @@ public class ProjectLoader {
         }
 
         if (!ProjectPaths.isBalFile(absFilePath)) {
-            throw new ProjectException("provided path is not a valid Ballerina source file");
+            throw new ProjectException("'" + absFilePath + "' is not a valid Ballerina source file");
         }
 
         try {

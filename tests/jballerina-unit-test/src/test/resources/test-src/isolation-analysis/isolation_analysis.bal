@@ -528,7 +528,11 @@ isolated class IsolatedFunctionWithIsolatedSelfAsCapturedVariable {
 
     isolated function compare() returns boolean {
         lock {
-            return self.words.some(isolated function (string s) returns boolean => s.length() > self.min);
+            return self.words.some(isolated function (string s) returns boolean {
+                                       lock {
+                                           return s.length() > self.min;
+                                       }
+                                   });
         }
     }
 }

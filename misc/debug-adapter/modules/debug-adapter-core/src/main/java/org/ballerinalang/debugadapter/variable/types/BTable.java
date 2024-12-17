@@ -34,13 +34,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import static org.ballerinalang.debugadapter.variable.VariableUtils.FIELD_REFERRED_TYPE;
 import static org.ballerinalang.debugadapter.variable.VariableUtils.FIELD_TYPE;
 import static org.ballerinalang.debugadapter.variable.VariableUtils.FIELD_TYPENAME;
-import static org.ballerinalang.debugadapter.variable.VariableUtils.INTERNAL_TYPE_PREFIX;
-import static org.ballerinalang.debugadapter.variable.VariableUtils.INTERNAL_TYPE_REF_TYPE;
 import static org.ballerinalang.debugadapter.variable.VariableUtils.UNKNOWN_VALUE;
 import static org.ballerinalang.debugadapter.variable.VariableUtils.getFieldValue;
 import static org.ballerinalang.debugadapter.variable.VariableUtils.getStringFrom;
+import static org.ballerinalang.debugadapter.variable.VariableUtils.isTypeReferenceType;
 
 /**
  * Ballerina table variable type.
@@ -51,7 +51,6 @@ public class BTable extends IndexedCompoundVariable {
     private final Map<String, Value> tableValues = new LinkedHashMap<>();
 
     private static final String FIELD_CONSTRAINT = "constraint";
-    private static final String FIELD_REFERRED_TYPE = "referredType";
     private static final String METHOD_SIZE = "size";
     private static final String METHOD_GET_ITERATOR = "getIterator";
     private static final String METHOD_HAS_NEXT = "hasNext";
@@ -125,10 +124,6 @@ public class BTable extends IndexedCompoundVariable {
         }
     }
 
-    private boolean isTypeReferenceType(Value runtimeType) {
-        return runtimeType.type().name().equals(INTERNAL_TYPE_PREFIX + INTERNAL_TYPE_REF_TYPE);
-    }
-
     private int getTableSize() {
         if (tableSize < 0) {
             populateTableSize();
@@ -149,8 +144,7 @@ public class BTable extends IndexedCompoundVariable {
                 tableSize = -1;
                 return;
             }
-            Value size = ((ObjectReference) jvmValue).invokeMethod(getContext().getOwningThread().getThreadReference(),
-                    method.get(), new ArrayList<>(), ObjectReference.INVOKE_SINGLE_THREADED);
+            Value size = VariableUtils.invokeRemoteVMMethod(context, jvmValue, method.get(), null);
             tableSize = ((IntegerValue) size).intValue();
         } catch (Exception e) {
             this.tableSize = -1;
@@ -191,8 +185,7 @@ public class BTable extends IndexedCompoundVariable {
         if (getIteratorMethod.isEmpty()) {
             return null;
         }
-        return ((ObjectReference) jvmValue).invokeMethod(getContext().getOwningThread().getThreadReference(),
-                getIteratorMethod.get(), new ArrayList<>(), ObjectReference.INVOKE_SINGLE_THREADED);
+        return VariableUtils.invokeRemoteVMMethod(context, jvmValue, getIteratorMethod.get(), null);
     }
 
     private boolean hasNext(Value iterator) throws Exception {
@@ -200,8 +193,7 @@ public class BTable extends IndexedCompoundVariable {
         if (hasNextMethod.isEmpty()) {
             return false;
         }
-        Value hasNext = ((ObjectReference) iterator).invokeMethod(getContext().getOwningThread().getThreadReference(),
-                hasNextMethod.get(), new ArrayList<>(), ObjectReference.INVOKE_SINGLE_THREADED);
+        Value hasNext = VariableUtils.invokeRemoteVMMethod(context, iterator, hasNextMethod.get(), null);
         return Boolean.parseBoolean(hasNext.toString());
     }
 
@@ -210,8 +202,7 @@ public class BTable extends IndexedCompoundVariable {
         if (nextMethod.isEmpty()) {
             return null;
         }
-        return ((ObjectReference) iterator).invokeMethod(getContext().getOwningThread().getThreadReference(),
-                nextMethod.get(), new ArrayList<>(), ObjectReference.INVOKE_SINGLE_THREADED);
+        return VariableUtils.invokeRemoteVMMethod(context, iterator, nextMethod.get(), null);
     }
 
     private Value getValues(Value next) throws Exception {
@@ -219,7 +210,6 @@ public class BTable extends IndexedCompoundVariable {
         if (getValuesMethod.isEmpty()) {
             return null;
         }
-        return ((ObjectReference) next).invokeMethod(getContext().getOwningThread().getThreadReference(),
-                getValuesMethod.get(), new ArrayList<>(), ObjectReference.INVOKE_SINGLE_THREADED);
+        return VariableUtils.invokeRemoteVMMethod(context, next, getValuesMethod.get(), null);
     }
 }

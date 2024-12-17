@@ -23,16 +23,15 @@ import io.ballerina.projects.DiagnosticResult;
 import io.ballerina.projects.Document;
 import io.ballerina.projects.DocumentId;
 import io.ballerina.projects.JBallerinaBackend;
+import io.ballerina.projects.JarLibrary;
 import io.ballerina.projects.JvmTarget;
-import io.ballerina.projects.Module;
-import io.ballerina.projects.ModuleId;
 import io.ballerina.projects.Package;
 import io.ballerina.projects.PackageCompilation;
 import io.ballerina.projects.Project;
-import io.ballerina.projects.Resource;
 import io.ballerina.projects.directory.BuildProject;
 import io.ballerina.projects.directory.SingleFileProject;
 import io.ballerina.projects.test.TestUtils;
+import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 import org.ballerinalang.test.BAssertUtil;
@@ -53,12 +52,11 @@ import java.io.PrintStream;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.util.Collection;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 /**
  * Contains cases to test compiler plugin loading and running.
@@ -67,7 +65,7 @@ import java.util.stream.Collectors;
  */
 public class CompilerPluginTests {
 
-    private static final Path RESOURCE_DIRECTORY = Paths.get(
+    private static final Path RESOURCE_DIRECTORY = Path.of(
             "src/test/resources/compiler_plugin_tests").toAbsolutePath();
     private static final PrintStream OUT = System.out;
     private static final String PLUGIN_OP_FILE_PATH = "./src/test/resources/compiler_plugin_tests/" +
@@ -104,6 +102,8 @@ public class CompilerPluginTests {
                 "compiler_plugin_tests/log_creator_pkg_provided_code_generator_im");
         BCompileUtil.compileAndCacheBala(
                 "compiler_plugin_tests/log_creator_pkg_provided_code_analyzer_im");
+        BCompileUtil.compileAndCacheBala(
+                    "compiler_plugin_tests/pkg_provided_compiler_plugin_with_shared_data");
     }
 
     @Test
@@ -182,7 +182,7 @@ public class CompilerPluginTests {
         Assert.assertEquals(diagnosticResult.errorCount(), 1);
         Assert.assertEquals(diagnosticResult.warningCount(), 2);
 
-        Path logFilePath = Paths.get("build/logs/diagnostics.log");
+        Path logFilePath = Path.of("build/logs/diagnostics.log");
         Assert.assertTrue(Files.exists(logFilePath));
         String logFileContent = Files.readString(logFilePath, Charset.defaultCharset());
         Assert.assertTrue(logFileContent.contains(diagnosticResult.warnings().stream().findFirst().get().toString()));
@@ -200,7 +200,7 @@ public class CompilerPluginTests {
         Assert.assertEquals(diagnosticResult.errorCount(), 1);
         Assert.assertEquals(diagnosticResult.warningCount(), 1);
 
-        Path logFilePath = Paths.get("build/logs/single-file/diagnostics.log");
+        Path logFilePath = Path.of("build/logs/single-file/diagnostics.log");
         Assert.assertTrue(Files.exists(logFilePath));
         String logFileContent = Files.readString(logFilePath, Charset.defaultCharset());
         Assert.assertTrue(logFileContent.contains(diagnosticResult.warnings().stream().findFirst().get().toString()));
@@ -214,12 +214,12 @@ public class CompilerPluginTests {
         DiagnosticResult diagnosticResult = currentPackage.getCompilation().diagnosticResult();
         Assert.assertEquals(diagnosticResult.diagnosticCount(), 3, "Unexpected number of compilation diagnostics");
         Iterator<Diagnostic> diagnosticIterator = diagnosticResult.diagnostics().iterator();
-        Assert.assertEquals(diagnosticIterator.next().toString(), "ERROR [Ballerina.toml:(8:1,8:65)] "
+        Assert.assertEquals(diagnosticIterator.next().toString(), "ERROR [Ballerina.toml:(7:1,7:65)] "
                 + "could not locate dependency path '../libs/ballerina-runtime-api-2.0.0-beta.2-SNAPSHOT.jar'");
-        Assert.assertEquals(diagnosticIterator.next().toString(), "ERROR [Ballerina.toml:(5:11,5:16)] "
-                + "exported module 'abc' is not a module of the package");
-        Assert.assertEquals(diagnosticIterator.next().toString(), "ERROR [Ballerina.toml:(5:18,5:23)] "
-                + "exported module 'xyz' is not a module of the package");
+        Assert.assertEquals(diagnosticIterator.next().toString(), "ERROR [Ballerina.toml:(16:1,16:13)] " +
+                "module 'abc' not found");
+        Assert.assertEquals(diagnosticIterator.next().toString(), "ERROR [Ballerina.toml:(20:1,20:13)] " +
+                "module 'xyz' not found");
     }
 
     @Test(description = "Test `package-toml-semantic-analyzer` compiler plugin by checking valid export "
@@ -289,34 +289,7 @@ public class CompilerPluginTests {
         // This import causes the dependencies count to be updated to 2.
         Assert.assertEquals(newPackage.packageDependencies().size(), 2,
                 "Unexpected number of dependencies");
-
-        // Check resources
-        for (ModuleId moduleId : project.currentPackage().moduleIds()) {
-            Module module = project.currentPackage().module(moduleId);
-            if (!module.isDefaultModule()) {
-                Assert.assertEquals(module.resourceIds().size(), 0);
-                continue;
-            }
-            Assert.assertEquals(module.resourceIds().size(), 1);
-            Resource resource = module.resource(module.resourceIds().stream().findFirst().orElseThrow());
-            Assert.assertEquals(resource.name(), "openapi-spec.yaml");
-            Assert.assertEquals(resource.content(), "".getBytes());
-            Assert.assertEquals(resource.module(), module);
-        }
-
-        // Check test resources
-        for (ModuleId moduleId : project.currentPackage().moduleIds()) {
-            Module module = project.currentPackage().module(moduleId);
-            if (!module.isDefaultModule()) {
-                Assert.assertEquals(module.testResourceIds().size(), 0);
-                continue;
-            }
-            Assert.assertEquals(module.testResourceIds().size(), 1);
-            Resource testResource = module.resource(module.testResourceIds().stream().findFirst().orElseThrow());
-            Assert.assertEquals(testResource.name(), "sample.json");
-            Assert.assertEquals(testResource.content(), "".getBytes());
-            Assert.assertEquals(testResource.module(), module);
-        }
+        // Adding resources using code generators is deprecated with 2201.10.0 and will be removed with 2201.11.0
     }
 
     @Test(description = "Test basic package code modify using code modifier plugin")
@@ -377,8 +350,7 @@ public class CompilerPluginTests {
 
     @Test(description = "Test a combination of in-built and package provided compiler plugins")
     public void testCombinationOfCompilerPlugins() throws IOException {
-        Path logFile = Paths.get("./src/test/resources/compiler_plugin_tests/" +
-                "log_creator_combined_plugin/compiler-plugin.txt");
+        Path logFile = Path.of("build/logs/log_creator_combined_plugin/compiler-plugin.txt").toAbsolutePath();
         Files.writeString(logFile, "");
         Package currentPackage = loadPackage("log_creator_combined_plugin");
         currentPackage.getCompilation();
@@ -491,7 +463,7 @@ public class CompilerPluginTests {
         List<Diagnostic> reportedDiagnostics = diagnosticResult.diagnostics()
                 .stream()
                 .sorted(Comparator.comparing(Diagnostic::message))
-                .collect(Collectors.toList());
+                .toList();
 
         Assert.assertEquals(reportedDiagnostics.get(0).diagnosticInfo().severity(), DiagnosticSeverity.ERROR);
         Assert.assertEquals(reportedDiagnostics.get(1).diagnosticInfo().severity(), DiagnosticSeverity.WARNING);
@@ -510,7 +482,7 @@ public class CompilerPluginTests {
         Assert.assertNotNull(newPackage, "Cannot be null, because there exist code modifiers");
 
         PackageCompilation packageCompilation = newPackage.getCompilation();
-        JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(packageCompilation, JvmTarget.JAVA_17);
+        JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(packageCompilation, JvmTarget.JAVA_21);
         CompileResult compileResult = new CompileResult(newPackage, jBallerinaBackend);
 
         try {
@@ -532,7 +504,7 @@ public class CompilerPluginTests {
         Assert.assertNotNull(newPackage, "Cannot be null, because there exist code modifiers");
 
         PackageCompilation packageCompilation = newPackage.getCompilation();
-        JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(packageCompilation, JvmTarget.JAVA_17);
+        JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(packageCompilation, JvmTarget.JAVA_21);
         CompileResult compileResult = new CompileResult(newPackage, jBallerinaBackend);
 
         try {
@@ -603,6 +575,44 @@ public class CompilerPluginTests {
                 "Invalid compiler plugin file logs after running code generators and modifiers");
     }
 
+    @Test(description = "Test the usage of BuildContext as a data holder for compiler plugins")
+    public void testBuildContextForCompilerPlugins() {
+        Package currentPackage = loadPackage("shared_data_plugin");
+
+        // Run code modifiers
+        CodeModifierResult codeModifierResult = currentPackage.runCodeModifierPlugins();
+        Assert.assertEquals(codeModifierResult.reportedDiagnostics().diagnosticCount(), 2,
+                "Unexpected compilation diagnostics from modifier");
+        OUT.println("Diagnostics from modifier");
+        codeModifierResult.reportedDiagnostics().diagnostics().forEach(OUT::println);
+
+        // Get the compilation
+        PackageCompilation compilation = codeModifierResult.updatedPackage().get().getCompilation();
+        DiagnosticResult diagnosticResult = compilation.diagnosticResult();
+        OUT.println("Diagnostics from analyzer");
+        diagnosticResult.diagnostics().forEach(OUT::println);
+        Assert.assertEquals(diagnosticResult.diagnosticCount(), 0,
+                "Unexpected compilation diagnostic from analyzer");
+    }
+
+    // TODO: Resource addition using code generators is deprecated with 2201.10.0 and
+    //  will be removed with 2201.11.0
+    @Test(description = "Test resource addition", enabled = false)
+    public void testResourceAdditionFromCompilerPlugins() {
+        Package currentPackage = loadPackage("resource_addition_plugin");
+        // Run code analyzers
+        PackageCompilation packageCompilation = currentPackage.getCompilation();
+        Assert.assertEquals(packageCompilation.diagnosticResult().diagnosticCount(), 0,
+                "Unexpected compilation diagnostics from the resource addition");
+        JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(packageCompilation, JvmTarget.JAVA_17);
+        CompileResult compileResult = new CompileResult(currentPackage, jBallerinaBackend);
+        Collection<JarLibrary> jarPathRequiredForExecution = compileResult.getJarPathRequiredForExecution();
+        boolean hasResourcesJar = jarPathRequiredForExecution.stream()
+                .anyMatch(jarLibrary -> jarLibrary.path().endsWith(ProjectConstants.RESOURCE_DIR_NAME +
+                        ProjectConstants.BLANG_COMPILED_JAR_EXT));
+        Assert.assertTrue(hasResourcesJar);
+    }
+
     private Package loadPackage(String path) {
         Path projectDirPath = RESOURCE_DIRECTORY.resolve(path);
         BuildProject buildProject = TestUtils.loadBuildProject(projectDirPath);
@@ -655,7 +665,7 @@ public class CompilerPluginTests {
 
     private void releaseLock() {
         try {
-            Files.delete(Paths.get(PLUGIN_LOCK_FILE_PATH));
+            Files.delete(Path.of(PLUGIN_LOCK_FILE_PATH));
         } catch (IOException e) {
             throw new RuntimeException(
                     "Error while deleting the lock file: " + PLUGIN_LOCK_FILE_PATH + " " + e.getMessage());
@@ -664,8 +674,7 @@ public class CompilerPluginTests {
 
     @AfterSuite
     private void cleanup() throws IOException {
-        Path logFile = Paths.get("./src/test/resources/compiler_plugin_tests/" +
-                "log_creator_combined_plugin/compiler-plugin.txt");
+        Path logFile = Path.of("build/logs/log_creator_combined_plugin/compiler-plugin.txt").toAbsolutePath();
         Files.delete(logFile);
     }
 }

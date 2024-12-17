@@ -29,6 +29,7 @@ import java.util.List;
  * @since 2.0.0
  */
 public class ExpressionsTest extends AbstractSignatureHelpTest {
+    @Override
     @Test(dataProvider = "signature-help-data-provider", description = "Test Signature Help for Expressions")
     public void test(String config, String source)
             throws WorkspaceDocumentException, InterruptedException, IOException {

@@ -22,7 +22,7 @@ package io.ballerina.runtime.api.flags;
  *
  * @since 0.95.7
  */
-public class SymbolFlags {
+public final class SymbolFlags {
 
     public static final long PUBLIC = 1;
     public static final long NATIVE = 2;
@@ -41,6 +41,9 @@ public class SymbolFlags {
     public static final long ISOLATED = 536870912;
     public static final long ENUM = 8589934592L;
     public static final long ANY_FUNCTION = 549755813888L;
+
+    private SymbolFlags() {
+    }
 
     public static boolean isFlagOn(long bitmask, long flag) {
         return (bitmask & flag) == flag;

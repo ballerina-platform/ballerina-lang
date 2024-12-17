@@ -24,11 +24,10 @@ public class DocumentSymbolTest {
     private Path configRoot;
     private Path sourceRoot;
     protected Gson gson = new Gson();
-    protected JsonParser parser = new JsonParser();
     protected Endpoint serviceEndpoint;
 
     @BeforeClass
-    public void init() throws Exception {
+    public void init() {
         this.configRoot = FileUtils.RES_DIR.resolve("documentsymbol").resolve("config");
         this.sourceRoot = FileUtils.RES_DIR.resolve("documentsymbol").resolve("source");
         this.serviceEndpoint = TestUtil.initializeLanguageSever();
@@ -44,7 +43,7 @@ public class DocumentSymbolTest {
         String response = TestUtil.getDocumentSymbolResponse(serviceEndpoint, sourcePath.toString());
         TestUtil.closeDocument(serviceEndpoint, sourcePath);
         JsonArray expected = resultJson.getAsJsonArray("result");
-        JsonArray actual = parser.parse(response).getAsJsonObject().getAsJsonArray("result");
+        JsonArray actual = JsonParser.parseString(response).getAsJsonObject().getAsJsonArray("result");
         Assert.assertEquals(actual, expected);
     }
 
@@ -54,7 +53,7 @@ public class DocumentSymbolTest {
     }
 
     @AfterClass
-    public void shutDownLanguageServer() throws IOException {
+    public void shutDownLanguageServer() {
         TestUtil.shutdownLanguageServer(this.serviceEndpoint);
     }
 

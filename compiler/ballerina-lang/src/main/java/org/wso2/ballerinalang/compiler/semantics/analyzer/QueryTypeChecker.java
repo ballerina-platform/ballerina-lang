@@ -90,13 +90,13 @@ import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.util.Flags;
 
+import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Deque;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.Stack;
-import java.util.stream.Collectors;
 
 import static org.ballerinalang.model.symbols.SymbolOrigin.VIRTUAL;
 import static org.ballerinalang.util.diagnostic.DiagnosticErrorCode.INVALID_QUERY_CONSTRUCT_INFERRED_MAP;
@@ -159,8 +159,8 @@ public class QueryTypeChecker extends TypeChecker {
         HashSet<BType> prevCheckedErrorList = commonAnalyzerData.checkedErrorList;
         commonAnalyzerData.checkedErrorList = new HashSet<>();
 
-        Stack<BLangNode> prevQueryFinalClauses = commonAnalyzerData.queryFinalClauses;
-        commonAnalyzerData.queryFinalClauses = new Stack<>();
+        Deque<BLangNode> prevQueryFinalClauses = commonAnalyzerData.queryFinalClauses;
+        commonAnalyzerData.queryFinalClauses = new ArrayDeque<>();
 
         int prevLetCount = commonAnalyzerData.letCount;
         commonAnalyzerData.letCount = 0;
@@ -183,6 +183,7 @@ public class QueryTypeChecker extends TypeChecker {
         if (finalClause.getKind() == NodeKind.SELECT) {
             actualType = resolveQueryType(commonAnalyzerData.queryEnvs.peek(),
                     ((BLangSelectClause) finalClause).expression, data.expType, queryExpr, clauses, data);
+            queryExpr.setDeterminedType(actualType);
             actualType = (actualType == symTable.semanticError) ? actualType : types.checkType(queryExpr.pos,
                     actualType, data.expType, DiagnosticErrorCode.INCOMPATIBLE_TYPES);
         } else {
@@ -196,6 +197,7 @@ public class QueryTypeChecker extends TypeChecker {
             if (completionType != null) {
                 queryType = BUnionType.create(null, queryType, completionType);
             }
+            queryExpr.setDeterminedType(queryType);
             actualType = types.checkType(finalClauseExpr.pos, queryType, data.expType,
                     DiagnosticErrorCode.INCOMPATIBLE_TYPES);
         }
@@ -237,8 +239,8 @@ public class QueryTypeChecker extends TypeChecker {
         Types.CommonAnalyzerData commonAnalyzerData = data.commonAnalyzerData;
 
         //reset common analyzer data
-        Stack<BLangNode> prevQueryFinalClauses = commonAnalyzerData.queryFinalClauses;
-        commonAnalyzerData.queryFinalClauses = new Stack<>();
+        Deque<BLangNode> prevQueryFinalClauses = commonAnalyzerData.queryFinalClauses;
+        commonAnalyzerData.queryFinalClauses = new ArrayDeque<>();
 
         int prevLetCount = commonAnalyzerData.letCount;
         commonAnalyzerData.letCount = 0;
@@ -280,10 +282,10 @@ public class QueryTypeChecker extends TypeChecker {
         List<BType> safeResultTypes = types.getAllTypes(targetType, true).stream()
                 .filter(t -> !types.isAssignable(t, symTable.errorType))
                 .filter(t -> !types.isAssignable(t, symTable.nilType))
-                .collect(Collectors.toList());
+                .toList();
         // resultTypes will be empty if the targetType is `error?`
         if (safeResultTypes.isEmpty()) {
-            safeResultTypes.add(symTable.noType);
+            safeResultTypes = List.of(symTable.noType);
         }
         BType actualType = symTable.semanticError;
         List<BType> selectTypes = new ArrayList<>();
@@ -481,8 +483,8 @@ public class QueryTypeChecker extends TypeChecker {
                 }
             }
             errorTypes.forEach(expType -> {
-                checkExpr(selectExp, env, expType, data);
                 selectExp.typeChecked = false;
+                checkExpr(selectExp, env, expType, data);
             });
             selectExp.typeChecked = true;
         }
@@ -494,7 +496,7 @@ public class QueryTypeChecker extends TypeChecker {
             validateKeySpecifier(queryExpr.fieldNameIdentifierList, constraintType);
             markReadOnlyForConstraintType(constraintType);
             tableType.fieldNameList = queryExpr.fieldNameIdentifierList.stream()
-                    .map(identifier -> ((BLangIdentifier) identifier).value).collect(Collectors.toList());
+                    .map(identifier -> ((BLangIdentifier) identifier).value).toList();
         }
         if (Symbols.isFlagOn(resolvedType.flags, Flags.READONLY)) {
             return ImmutableTypeCloner.getImmutableIntersectionType(null, types,
@@ -640,7 +642,7 @@ public class QueryTypeChecker extends TypeChecker {
         return clauses.stream()
                 .filter(clause -> (clause.getKind() == NodeKind.FROM || clause.getKind() == NodeKind.JOIN))
                 .map(clause -> ((BLangInputClause) clause).collection.getBType())
-                .collect(Collectors.toList());
+                .toList();
     }
 
     private BType getResolvedType(BType initType, BType expType, boolean isReadonly, SymbolEnv env) {
@@ -961,6 +963,7 @@ public class QueryTypeChecker extends TypeChecker {
         }
     }
 
+    @Override
     public void visit(BLangInvocation iExpr, TypeChecker.AnalyzerData data) {
         if (!hasSequenceArgs(iExpr, data)) {
             super.visit(iExpr, data);
@@ -1050,7 +1053,7 @@ public class QueryTypeChecker extends TypeChecker {
     private boolean isNilReturnInvocationInCollectClause(BLangInvocation invocation, TypeChecker.AnalyzerData data) {
         BInvokableSymbol symbol = (BInvokableSymbol) invocation.symbol;
         return symbol != null && symbol.restParam != null
-                && symbol.params.size() > 0 && invocation.argExprs.size() == 1 && invocation.restArgs.size() == 1;
+                && !symbol.params.isEmpty() && invocation.argExprs.size() == 1 && invocation.restArgs.size() == 1;
     }
 
     // Check the argument within sequence context.
@@ -1072,6 +1075,7 @@ public class QueryTypeChecker extends TypeChecker {
         data.queryData.withinSequenceContext = false;
     }
 
+    @Override
     public void visit(BLangCollectContextInvocation collectContextInvocation, TypeChecker.AnalyzerData data) {
         BLangInvocation invocation = collectContextInvocation.invocation;
         data.resultType = checkExpr(invocation, data.env, data);
@@ -1081,6 +1085,7 @@ public class QueryTypeChecker extends TypeChecker {
         collectContextInvocation.setBType(data.resultType);
     }
 
+    @Override
     public void visit(BLangSimpleVarRef varRefExpr, TypeChecker.AnalyzerData data) {
         // Set error type as the actual type.
         BType actualType = symTable.semanticError;

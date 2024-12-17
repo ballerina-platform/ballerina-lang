@@ -24,9 +24,9 @@ import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BXml;
 import io.ballerina.runtime.api.values.BXmlNonElementItem;
-import io.ballerina.runtime.internal.BallerinaXmlSerializer;
 import io.ballerina.runtime.internal.errors.ErrorCodes;
 import io.ballerina.runtime.internal.errors.ErrorHelper;
+import io.ballerina.runtime.internal.xml.BallerinaXmlSerializer;
 import org.apache.axiom.om.OMAbstractFactory;
 import org.apache.axiom.om.OMFactory;
 import org.apache.axiom.om.OMNode;
@@ -176,15 +176,15 @@ public abstract class XmlNonElementItem extends XmlValue implements BXmlNonEleme
     public abstract OMNode value();
 
     @Override
-    public IteratorValue getIterator() {
-        return new IteratorValue() {
+    public IteratorValue<?> getIterator() {
+        return new IteratorValue<>() {
             @Override
             public boolean hasNext() {
                 return false;
             }
 
             @Override
-            public Object next() {
+            public Void next() {
                 throw new NoSuchElementException();
             }
         };

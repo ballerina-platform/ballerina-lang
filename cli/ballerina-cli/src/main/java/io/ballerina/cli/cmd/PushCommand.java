@@ -17,6 +17,8 @@
 */
 package io.ballerina.cli.cmd;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 import io.ballerina.cli.BLauncherCmd;
 import io.ballerina.cli.utils.FileUtils;
 import io.ballerina.projects.DependencyManifest;
@@ -40,18 +42,20 @@ import org.ballerinalang.central.client.exceptions.CentralClientException;
 import org.ballerinalang.central.client.exceptions.NoPackageException;
 import org.ballerinalang.maven.bala.client.MavenResolverClient;
 import org.ballerinalang.maven.bala.client.MavenResolverClientException;
-import org.ballerinalang.toml.exceptions.SettingsTomlException;
 import org.wso2.ballerinalang.util.RepoUtils;
 import picocli.CommandLine;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintStream;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.util.Arrays;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
@@ -60,6 +64,7 @@ import static io.ballerina.cli.cmd.Constants.PUSH_COMMAND;
 import static io.ballerina.cli.utils.CentralUtils.authenticate;
 import static io.ballerina.cli.utils.CentralUtils.getBallerinaCentralCliTokenUrl;
 import static io.ballerina.cli.utils.CentralUtils.getCentralPackageURL;
+import static io.ballerina.projects.util.ProjectConstants.LOCAL_TOOLS_JSON;
 import static io.ballerina.projects.util.ProjectConstants.SETTINGS_FILE_NAME;
 import static io.ballerina.projects.util.ProjectUtils.getAccessTokenOfCLI;
 import static io.ballerina.projects.util.ProjectUtils.initializeProxy;
@@ -73,6 +78,11 @@ import static io.ballerina.runtime.api.constants.RuntimeConstants.SYSTEM_PROP_BA
 @CommandLine.Command(name = PUSH_COMMAND, description = "Publish a package to Ballerina Central")
 public class PushCommand implements BLauncherCmd {
 
+    private static final String TOOL_DIR = "tool";
+    private static final String BAL_TOOL_JSON = "bal-tool.json";
+    private static final String TOOL_ID = "tool_id";
+    private static final String ORG = "org";
+    private static final String PACKAGE_NAME = "name";
     @CommandLine.Parameters (arity = "0..1")
     private Path balaPath;
 
@@ -88,13 +98,13 @@ public class PushCommand implements BLauncherCmd {
     @CommandLine.Option(names = {"--skip-source-check"}, description = "skip checking if source has changed")
     private boolean skipSourceCheck;
 
-    private Path userDir;
-    private PrintStream errStream;
-    private PrintStream outStream;
-    private boolean exitWhenFinish;
+    private final Path userDir;
+    private final PrintStream errStream;
+    private final PrintStream outStream;
+    private final boolean exitWhenFinish;
 
     public PushCommand() {
-        this.userDir = Paths.get(System.getProperty(ProjectConstants.USER_DIR));
+        this.userDir = Path.of(System.getProperty(ProjectConstants.USER_DIR));
         this.errStream = System.err;
         this.outStream = System.out;
         this.exitWhenFinish = true;
@@ -182,7 +192,7 @@ public class PushCommand implements BLauncherCmd {
                     if (!FileUtils.getExtension(balaPath).equals("bala")) {
                         throw new ProjectException("file provided is not a bala file: " + balaPath + ".");
                     }
-                    validatePackageMdAndBalToml(balaPath);
+                    validateReadmeAndBalToml(balaPath);
                     pushBalaToCustomRepo(balaPath);
                     return;
                 }
@@ -197,16 +207,16 @@ public class PushCommand implements BLauncherCmd {
                 Proxy proxy = settings.getProxy();
                 mvnClient.setProxy(proxy.host(), proxy.port(), proxy.username(), proxy.password());
 
-                if (balaPath == null && isCustomRepository) {
+                if (balaPath == null) {
                     pushPackage(project, mvnClient);
-                } else if (isCustomRepository) {
+                } else {
                     if (!balaPath.toFile().exists()) {
                         throw new ProjectException("path provided for the bala file does not exist: " + balaPath + ".");
                     }
                     if (!FileUtils.getExtension(balaPath).equals("bala")) {
                         throw new ProjectException("file provided is not a bala file: " + balaPath + ".");
                     }
-                    validatePackageMdAndBalToml(balaPath);
+                    validateReadmeAndBalToml(balaPath);
                     pushBalaToCustomRepo(balaPath, mvnClient);
                 }
 
@@ -222,7 +232,7 @@ public class PushCommand implements BLauncherCmd {
                         settings.getProxy().password(), getAccessTokenOfCLI(settings),
                         settings.getCentral().getConnectTimeout(),
                         settings.getCentral().getReadTimeout(), settings.getCentral().getWriteTimeout(),
-                        settings.getCentral().getCallTimeout());
+                        settings.getCentral().getCallTimeout(), settings.getCentral().getMaxRetries());
                 if (balaPath == null) {
                     pushPackage(project, client);
                 } else {
@@ -233,11 +243,11 @@ public class PushCommand implements BLauncherCmd {
                     if (!FileUtils.getExtension(balaPath).equals("bala")) {
                         throw new ProjectException("file provided is not a bala file: " + balaPath + ".");
                     }
-                    validatePackageMdAndBalToml(balaPath);
+                    validateReadmeAndBalToml(balaPath);
                     pushBalaToRemote(balaPath, client);
                 }
             }
-        } catch (ProjectException | CentralClientException | SettingsTomlException e) {
+        } catch (ProjectException | CentralClientException e) {
             CommandUtil.printError(this.errStream, e.getMessage(), null, false);
             CommandUtil.exitError(this.exitWhenFinish);
             return;
@@ -339,20 +349,29 @@ public class PushCommand implements BLauncherCmd {
                             + "' in " + ProjectConstants.BALLERINA_TOML
                             + " file. Run 'bal pack' to recompile and generate the bala.");
         }
-        validatePackageMdAndBalToml(packageBalaFile);
+        validateReadmeAndBalToml(packageBalaFile);
 
         // bala file path
         return packageBalaFile;
     }
 
-    private static void validatePackageMdAndBalToml(Path balaPath) {
+    private static void validateReadmeAndBalToml(Path balaPath) {
+        ProjectEnvironmentBuilder defaultBuilder = ProjectEnvironmentBuilder.getDefaultBuilder();
+        defaultBuilder.addCompilationCacheFactory(TempDirCompilationCache::from);
+        BalaProject balaProject = BalaProject.loadProject(defaultBuilder, balaPath);
+
         try (ZipInputStream zip = new ZipInputStream(Files.newInputStream(balaPath, StandardOpenOption.READ))) {
             ZipEntry entry;
+            String readme;
             while ((entry = zip.getNextEntry()) != null) {
-                if (entry.getName().equals(
-                        ProjectConstants.BALA_DOCS_DIR + "/" + ProjectConstants.PACKAGE_MD_FILE_NAME)) {
+                if (balaProject.currentPackage().manifest().readme() == null) {
+                    readme = ProjectConstants.BALA_DOCS_DIR + "/" + ProjectConstants.PACKAGE_MD_FILE_NAME;
+                } else {
+                    readme = balaProject.currentPackage().manifest().readme();
+                }
+                if (entry.getName().equals(readme)) {
                     if (entry.getSize() == 0) {
-                        throw new ProjectException(ProjectConstants.PACKAGE_MD_FILE_NAME + " cannot be empty.");
+                        throw new ProjectException("README file cannot be empty.");
                     }
                     return;
                 }
@@ -360,7 +379,7 @@ public class PushCommand implements BLauncherCmd {
         } catch (IOException e) {
             throw new ProjectException("error while validating the bala file: " + e.getMessage(), e);
         }
-        throw new ProjectException(ProjectConstants.PACKAGE_MD_FILE_NAME + " is missing in bala file:" + balaPath);
+        throw new ProjectException("README file is missing in the bala file:" + balaPath);
     }
 
     private void pushBalaToCustomRepo(Path balaFilePath) {
@@ -391,9 +410,11 @@ public class PushCommand implements BLauncherCmd {
                 ProjectUtils.deleteDirectory(balaCachesPath);
             }
             ProjectUtils.extractBala(balaFilePath, balaDestPath);
+            createLocalToolsJsonIfLocalTool(balaDestPath, org, packageName, repoPath.resolve(
+                    ProjectConstants.BALA_DIR_NAME));
         } catch (IOException e) {
             throw new ProjectException("error while pushing bala file '" + balaFilePath + "' to '"
-                    + ProjectConstants.LOCAL_REPOSITORY_NAME + "' repository. " + e.getMessage());
+                    + ProjectConstants.LOCAL_REPOSITORY_NAME + "' repository: " + e.getMessage());
         }
 
         Path relativePathToBalaFile;
@@ -404,6 +425,51 @@ public class PushCommand implements BLauncherCmd {
         }
         outStream.println("Successfully pushed " + relativePathToBalaFile
                 + " to '" + repositoryName + "' repository.");
+    }
+
+    private void createLocalToolsJsonIfLocalTool(Path balaDestPath, String org, String packageName,
+                                                 Path localRepoBalaPath) {
+        Path balToolJsonPath = balaDestPath.resolve(TOOL_DIR).resolve(BAL_TOOL_JSON);
+        JsonObject balToolJson;
+        JsonObject localToolJson;
+        Gson gson = new Gson();
+        if (!balToolJsonPath.toFile().exists()) {
+            return;
+        }
+        try (BufferedReader bufferedReader = Files.newBufferedReader(balToolJsonPath, StandardCharsets.UTF_8)) {
+            balToolJson = gson.fromJson(bufferedReader, JsonObject.class);
+        } catch (IOException e) {
+            throw new ProjectException("Failed to read bal-tools.json file: " + e.getMessage());
+        }
+        Optional<String> optionalToolId = Optional.ofNullable(balToolJson.get(TOOL_ID).getAsString());
+        if (optionalToolId.isEmpty()) {
+            return;
+        }
+        String toolId = optionalToolId.get();
+        JsonObject packageDesc = new JsonObject();
+        packageDesc.addProperty(ORG, org);
+        packageDesc.addProperty(PACKAGE_NAME, packageName);
+        Path localToolJsonPath = localRepoBalaPath.resolve(LOCAL_TOOLS_JSON);
+        if (localToolJsonPath.toFile().exists()) {
+            try (BufferedReader bufferedReader = Files.newBufferedReader(localToolJsonPath, StandardCharsets.UTF_8)) {
+                localToolJson = gson.fromJson(bufferedReader, JsonObject.class);
+                if (localToolJson.has(toolId)) {
+                    localToolJson.remove(toolId);
+                }
+                localToolJson.add(toolId, packageDesc);
+            } catch (IOException e) {
+                throw new ProjectException("Failed to read local-tools.json file: " + e.getMessage());
+            }
+        } else {
+            localToolJson = new JsonObject();
+            localToolJson.add(toolId, packageDesc);
+        }
+
+        try (FileWriter writer = new FileWriter(localToolJsonPath.toFile(), StandardCharsets.UTF_8)) {
+            writer.write(gson.toJson(localToolJson));
+        } catch (IOException e) {
+            throw new ProjectException("Failed to write local-tools.json file: " + e.getMessage());
+        }
     }
 
     /**
@@ -425,25 +491,20 @@ public class PushCommand implements BLauncherCmd {
             Path ballerinaHomePath = RepoUtils.createAndGetHomeReposPath();
             Path settingsTomlFilePath = ballerinaHomePath.resolve(SETTINGS_FILE_NAME);
 
-            try {
-                authenticate(errStream, getBallerinaCentralCliTokenUrl(), settingsTomlFilePath, client);
-            } catch (SettingsTomlException e) {
-                CommandUtil.printError(this.errStream, e.getMessage(), null, false);
-                return;
-            }
+            authenticate(errStream, getBallerinaCentralCliTokenUrl(), settingsTomlFilePath, client);
 
             try {
-                client.pushPackage(balaPath, org, name, version, JvmTarget.JAVA_17.code(),
+                client.pushPackage(balaPath, org, name, version, JvmTarget.JAVA_21.code(),
                                    RepoUtils.getBallerinaVersion());
             } catch (CentralClientException e) {
                 String errorMessage = e.getMessage();
-                if (null != errorMessage && !"".equals(errorMessage.trim())) {
+                if (null != errorMessage && !errorMessage.trim().isEmpty()) {
                     // removing the error stack
                     if (errorMessage.contains("\n\tat")) {
                         errorMessage = errorMessage.substring(0, errorMessage.indexOf("\n\tat"));
                     }
 
-                    errorMessage = errorMessage.replaceAll("error: ", "");
+                    errorMessage = errorMessage.replace("error: ", "");
 
                     // when unauthorized access token for organization is given
                     if (errorMessage.contains("subject claims missing in the user info repsonse")) {

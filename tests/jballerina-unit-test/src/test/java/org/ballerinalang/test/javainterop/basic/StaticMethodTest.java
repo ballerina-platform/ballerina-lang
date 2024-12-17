@@ -169,8 +169,8 @@ public class StaticMethodTest {
     }
 
     @Test(expectedExceptions = BLangTestException.class,
-          expectedExceptionsMessageRegExp = ".*Invalid update of record field: modification not allowed on readonly " +
-                  "value.*")
+            expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.map}InherentTypeViolation \\{\"message\":" +
+                    "\"cannot update 'readonly' field 'name' in record of type 'Details & readonly'\".*")
     public void testCreateDetails() {
         BRunUtil.invoke(result, "testCreateDetails");
     }
@@ -186,7 +186,7 @@ public class StaticMethodTest {
                 "testBalEnvFastAsync", "testReturnNullString", "testReturnNotNullString", "testStaticResolve",
                 "testStringCast", "testGetCurrentModule", "testGetDefaultValueWithBEnv", "testCreateStudentUsingType",
                 "testCreateStudent", "testDefaultDecimalArgs", "testDefaultDecimalArgsAddition",
-                "testJavaNullPointerException", "testBalEnvAcceptingMethodRetType"};
+                "testJavaNullPointerException", "testBalEnvAcceptingMethodRetType", "testBundleFuncArgsToBArray"};
     }
 
     @AfterClass

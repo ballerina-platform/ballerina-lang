@@ -180,4 +180,24 @@ public class QueryNegativeTests {
                 "type 'never' not allowed here", 48, 17);
         Assert.assertEquals(compileResult.getDiagnostics().length, index);
     }
+
+    @Test
+    public void testQueryExpressionWithMismatchedReturnType() {
+        CompileResult compileResult = BCompileUtil.compile("test-src/query/query-with-mismatch-return.bal");
+        int index = 0;
+        validateError(compileResult, index++, "missing non-defaultable required record field 'y'", 39, 16);
+        validateError(compileResult, index++, "missing non-defaultable required record field 'x'", 47, 24);
+        Assert.assertEquals(compileResult.getDiagnostics().length, index);
+    }
+
+    @Test(description = "Test the query actions having select or collect clauses")
+    public void testQueryActionsWithInvalidFinalClause() {
+        CompileResult compileResult = BCompileUtil.compile(
+                "test-src/query/query_action_with_final_clause_negative.bal");
+        int index = 0;
+        validateError(compileResult, index++, "select clause in query action", 3, 5);
+        validateError(compileResult, index++, "collect clause in query action", 11, 5);
+        validateError(compileResult, index++, "collect clause in query action", 19, 5);
+        Assert.assertEquals(compileResult.getDiagnostics().length, index);
+    }
 }

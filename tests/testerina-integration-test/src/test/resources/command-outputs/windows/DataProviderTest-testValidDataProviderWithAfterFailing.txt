@@ -9,7 +9,16 @@ Running Tests with Coverage
 	[fail] [after test function for the test]:
 	    error("{ballerina}DivisionByZero",message=" / by zero")
 			callableName: afterFailsFunction moduleName: intg_tests.dataproviders$test.0.tests.new-data-provider-tests fileName: tests/new-data-provider-tests.bal lineNumber: 153
-			callableName: afterFailsFunction$lambda37$ moduleName: intg_tests.dataproviders$test.0.tests.new-data-provider-tests fileName: tests/new-data-provider-tests.bal lineNumber: 160
+			callableName: afterFailsFunction$lambda65$ moduleName: intg_tests.dataproviders$test.0.tests.new-data-provider-tests fileName: tests/new-data-provider-tests.bal lineNumber: 160
+			callableName: call moduleName: ballerina.lang.function.0 fileName: function.bal lineNumber: 37
+			callableName: executeFunction moduleName: ballerina.test.0 fileName: serialExecuter.bal lineNumber: 142
+			callableName: executeAfterFunction moduleName: ballerina.test.0 fileName: serialExecuter.bal lineNumber: 136
+			callableName: prepareDataDrivenTest moduleName: ballerina.test.0 fileName: serialExecuter.bal lineNumber: 106
+			callableName: executeDataDrivenTestSet moduleName: ballerina.test.0 fileName: serialExecuter.bal lineNumber: 63
+			callableName: executeTest moduleName: ballerina.test.0 fileName: serialExecuter.bal lineNumber: 28
+			callableName: executeTests moduleName: ballerina.test.0 fileName: execute.bal lineNumber: 81
+			callableName: startSuite moduleName: ballerina.test.0 fileName: execute.bal lineNumber: 53
+			callableName: __execute__ moduleName: intg_tests.dataproviders$test.0.tests.test_execute-generated_*****lineNumber: 27
 		
 		[pass] testDividingValuesWithAfterFailing#0
 		[pass] testDividingValuesWithAfterFailing#1
@@ -23,12 +32,16 @@ Running Tests with Coverage
 		0 failing
 		0 skipped
 
+		Test execution time :*****s
+
 	dataproviders.module1
 
 
 		No tests found
 
+		Test execution time :*****s
+
 Generating Test Report
 	data-providers\target\report\test_results.json
 
-error: there are test failures
+error: there are test failures

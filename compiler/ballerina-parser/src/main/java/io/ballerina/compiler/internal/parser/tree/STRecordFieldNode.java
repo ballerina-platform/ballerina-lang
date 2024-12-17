@@ -80,6 +80,7 @@ public class STRecordFieldNode extends STNode {
                 semicolonToken);
     }
 
+    @Override
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
         return new STRecordFieldNode(
                 this.metadata,
@@ -118,6 +119,7 @@ public class STRecordFieldNode extends STNode {
                 diagnostics);
     }
 
+    @Override
     public Node createFacade(int position, NonTerminalNode parent) {
         return new RecordFieldNode(this, position, parent);
     }

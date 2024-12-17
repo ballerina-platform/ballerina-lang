@@ -14,8 +14,10 @@
  * limitations under the License.
  *
  */
- 
-apply from: "$rootDir/gradle/javaProject.gradle"
+
+plugins {
+    id 'javaProject'
+}
 
 description = 'Compiler Plugin Tests - Bal File Diagnostic'
 version = '1.0.0'
@@ -28,14 +30,3 @@ dependencies {
 }
 
 ext.moduleName = 'compiler.plugin.test.init.balfilediagnostic'
-
-compileJava {
-    doFirst {
-        options.compilerArgs = [
-                '--module-path', classpath.asPath,
-        ]
-        classpath = files()
-    }
-}
-
-

@@ -62,6 +62,7 @@ public class STExpressionFunctionBodyNode extends STFunctionBodyNode {
                 semicolon);
     }
 
+    @Override
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
         return new STExpressionFunctionBodyNode(
                 this.rightDoubleArrow,
@@ -88,6 +89,7 @@ public class STExpressionFunctionBodyNode extends STFunctionBodyNode {
                 diagnostics);
     }
 
+    @Override
     public Node createFacade(int position, NonTerminalNode parent) {
         return new ExpressionFunctionBodyNode(this, position, parent);
     }

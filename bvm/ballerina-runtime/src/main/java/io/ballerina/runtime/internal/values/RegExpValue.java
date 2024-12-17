@@ -15,7 +15,7 @@
  */
 package io.ballerina.runtime.internal.values;
 
-import io.ballerina.runtime.api.PredefinedTypes;
+import io.ballerina.runtime.api.types.PredefinedTypes;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.values.BLink;
 import io.ballerina.runtime.api.values.BRegexpValue;
@@ -23,8 +23,9 @@ import io.ballerina.runtime.api.values.BTypedesc;
 
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 
-import static io.ballerina.runtime.internal.ValueUtils.getTypedescValue;
+import static io.ballerina.runtime.internal.utils.ValueUtils.getTypedescValue;
 
 /**
  * <p>
@@ -45,6 +46,7 @@ public class RegExpValue implements BRegexpValue, RefValue {
         this.regExpDisjunction = regExpDisjunction;
     }
 
+    @Override
     public RegExpDisjunction getRegExpDisjunction() {
         return this.regExpDisjunction;
     }
@@ -105,5 +107,20 @@ public class RegExpValue implements BRegexpValue, RefValue {
     @Override
     public String toString() {
         return this.stringValue(null);
+    }
+
+    /**
+     * Deep equality check for regular expression.
+     *
+     * @param o The regular expression on the right hand side
+     * @param visitedValues Visited values in order to break cyclic references.
+     * @return True if the regular expressions are equal, else false.
+     */
+    @Override
+    public boolean equals(Object o, Set<ValuePair> visitedValues) {
+        if (!(o instanceof RegExpValue rhsRegExpValue)) {
+            return false;
+        }
+        return this.stringValue(null).equals(rhsRegExpValue.stringValue(null));
     }
 }

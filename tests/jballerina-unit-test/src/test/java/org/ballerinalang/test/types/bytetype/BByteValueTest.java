@@ -17,9 +17,9 @@
  */
 package org.ballerinalang.test.types.bytetype;
 
-import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.creators.TypeCreator;
 import io.ballerina.runtime.api.creators.ValueCreator;
+import io.ballerina.runtime.api.types.PredefinedTypes;
 import io.ballerina.runtime.api.values.BArray;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
@@ -39,6 +39,7 @@ import org.testng.annotations.Test;
  * @since 0.980
  */
 
+@SuppressWarnings("ConstantValue")
 public class BByteValueTest {
 
     private CompileResult result;

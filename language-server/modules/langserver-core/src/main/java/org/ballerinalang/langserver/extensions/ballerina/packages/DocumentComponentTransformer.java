@@ -26,6 +26,7 @@ import io.ballerina.compiler.syntax.tree.NodeTransformer;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.ServiceDeclarationNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
+import io.ballerina.compiler.syntax.tree.Token;
 import io.ballerina.compiler.syntax.tree.TypeDefinitionNode;
 import io.ballerina.tools.text.LineRange;
 
@@ -36,6 +37,7 @@ import java.util.stream.Collectors;
  * The node transformer class to get the list of module level components.
  */
 public class DocumentComponentTransformer extends NodeTransformer<Optional<MapperObject>> {
+
     private final ModuleObject module;
 
     DocumentComponentTransformer(ModuleObject moduleObject) {
@@ -49,10 +51,10 @@ public class DocumentComponentTransformer extends NodeTransformer<Optional<Mappe
 
     @Override
     public Optional<MapperObject> transformSyntaxNode(Node node) {
-        if (!(node instanceof NonTerminalNode)) {
+        if (!(node instanceof NonTerminalNode nonTerminalNode)) {
             return Optional.empty();
         }
-        ((NonTerminalNode) node).children().forEach(child -> {
+        nonTerminalNode.children().forEach(child -> {
             Optional<MapperObject> mapperObject = child.apply(this);
             if (mapperObject != null) {
                 mapperObject.ifPresent(this.module::addDataObject);
@@ -61,29 +63,51 @@ public class DocumentComponentTransformer extends NodeTransformer<Optional<Mappe
         return Optional.empty();
     }
 
+    @Override
     public Optional<MapperObject> transform(FunctionDefinitionNode functionDefinitionNode) {
+        if (functionDefinitionNode.functionName().text().equals(PackageServiceConstants.MAIN_FUNCTION)) {
+            return Optional.of(new MapperObject(PackageServiceConstants.AUTOMATIONS,
+                    createDataObject(PackageServiceConstants.MAIN_FUNCTION, functionDefinitionNode)));
+        }
+
         return Optional.of(new MapperObject(PackageServiceConstants.FUNCTIONS,
                 createDataObject(functionDefinitionNode.functionName().text(), functionDefinitionNode)));
     }
 
+    @Override
     public Optional<MapperObject> transform(ListenerDeclarationNode listenerDeclarationNode) {
         return Optional.of(new MapperObject(PackageServiceConstants.LISTENERS,
                 createDataObject(listenerDeclarationNode.variableName().text(), listenerDeclarationNode)));
     }
 
+    @Override
     public Optional<MapperObject> transform(ServiceDeclarationNode serviceDeclarationNode) {
         String name = serviceDeclarationNode.absoluteResourcePath().stream().map(node -> String.join("_",
                 node.toString())).collect(Collectors.joining());
+        if (name.isEmpty()) {
+            name = serviceDeclarationNode.typeDescriptor().map(typeDescriptorNode ->
+                    typeDescriptorNode.toSourceCode().strip()).orElse("");
+        }
+
         DataObject dataObject = createDataObject(name, serviceDeclarationNode);
         serviceDeclarationNode.members().forEach(member -> {
             if (member.kind() == SyntaxKind.RESOURCE_ACCESSOR_DEFINITION) {
-                dataObject.addResource(createDataObject(((FunctionDefinitionNode) member).functionName().text(),
-                        member));
+                FunctionDefinitionNode functionDefinitionNode = (FunctionDefinitionNode) member;
+                String resourceName = functionDefinitionNode.functionName().text() + "-" +
+                        functionDefinitionNode.relativeResourcePath().stream()
+                                .map(Node::toSourceCode)
+                                .collect(Collectors.joining(""));
+                dataObject.addResource(createDataObject(resourceName, member));
+            } else if (member.kind() == SyntaxKind.OBJECT_METHOD_DEFINITION) {
+                FunctionDefinitionNode functionDefinitionNode = (FunctionDefinitionNode) member;
+                String functionName = functionDefinitionNode.functionName().text();
+                dataObject.addFunction(this.createDataObject(functionName, member));
             }
         });
         return Optional.of(new MapperObject(PackageServiceConstants.SERVICES, dataObject));
     }
 
+    @Override
     public Optional<MapperObject> transform(ClassDefinitionNode classDefinitionNode) {
         DataObject dataObject = createDataObject(classDefinitionNode.className().text(), classDefinitionNode);
         classDefinitionNode.members().forEach(member -> {
@@ -95,6 +119,7 @@ public class DocumentComponentTransformer extends NodeTransformer<Optional<Mappe
         return Optional.of(new MapperObject(PackageServiceConstants.CLASSES, dataObject));
     }
 
+    @Override
     public Optional<MapperObject> transform(TypeDefinitionNode typeDefinitionNode) {
         if (typeDefinitionNode.typeDescriptor().kind() == SyntaxKind.RECORD_TYPE_DESC) {
             return Optional.of(new MapperObject(PackageServiceConstants.RECORDS,
@@ -108,17 +133,28 @@ public class DocumentComponentTransformer extends NodeTransformer<Optional<Mappe
         }
     }
 
+    @Override
     public Optional<MapperObject> transform(ModuleVariableDeclarationNode moduleVariableDeclarationNode) {
+        Optional<Token> isConfigurable = moduleVariableDeclarationNode.qualifiers().stream()
+                .filter(qualifier -> qualifier.kind() == SyntaxKind.CONFIGURABLE_KEYWORD)
+                .findFirst();
+        if (isConfigurable.isPresent()) {
+            return Optional.of(new MapperObject(PackageServiceConstants.CONFIGURABLE_VARIABLES,
+                    createDataObject(moduleVariableDeclarationNode.typedBindingPattern().bindingPattern().toString(),
+                            moduleVariableDeclarationNode)));
+        }
         return Optional.of(new MapperObject(PackageServiceConstants.MODULE_LEVEL_VARIABLE,
                 createDataObject(moduleVariableDeclarationNode.typedBindingPattern().bindingPattern().toString(),
-                moduleVariableDeclarationNode)));
+                        moduleVariableDeclarationNode)));
     }
 
+    @Override
     public Optional<MapperObject> transform(ConstantDeclarationNode constantDeclarationNode) {
         return Optional.of(new MapperObject(PackageServiceConstants.CONSTANTS,
                 createDataObject(constantDeclarationNode.variableName().text(), constantDeclarationNode)));
     }
 
+    @Override
     public Optional<MapperObject> transform(EnumDeclarationNode enumDeclarationNode) {
         return Optional.of(new MapperObject(PackageServiceConstants.ENUMS,
                 createDataObject(enumDeclarationNode.identifier().text(), enumDeclarationNode)));

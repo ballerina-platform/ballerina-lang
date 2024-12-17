@@ -62,6 +62,7 @@ public class STReFlagsOnOffNode extends STNode {
                 rhsReFlags);
     }
 
+    @Override
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
         return new STReFlagsOnOffNode(
                 this.lhsReFlags,
@@ -88,6 +89,7 @@ public class STReFlagsOnOffNode extends STNode {
                 diagnostics);
     }
 
+    @Override
     public Node createFacade(int position, NonTerminalNode parent) {
         return new ReFlagsOnOffNode(this, position, parent);
     }

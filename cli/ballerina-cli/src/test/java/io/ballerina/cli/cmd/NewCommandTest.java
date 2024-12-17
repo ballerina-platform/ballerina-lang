@@ -23,6 +23,7 @@ import io.ballerina.projects.util.FileUtils;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectUtils;
 import org.testng.Assert;
+import org.testng.SkipException;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
@@ -37,7 +38,6 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.attribute.BasicFileAttributes;
@@ -45,6 +45,7 @@ import java.util.Locale;
 
 import static io.ballerina.cli.cmd.CommandOutputUtils.getOutput;
 import static io.ballerina.cli.cmd.CommandOutputUtils.readFileAsString;
+import static io.ballerina.cli.utils.OsUtils.isWindows;
 import static io.ballerina.projects.util.ProjectConstants.TOOL_DIR;
 import static io.ballerina.projects.util.ProjectConstants.USER_NAME;
 
@@ -57,7 +58,7 @@ public class NewCommandTest extends BaseCommandTest {
 
     Path testResources;
     Path centralCache;
-    private PrintStream errStream = System.err;
+    private final PrintStream errStream = System.err;
 
     @DataProvider(name = "invalidProjectNames")
     public Object[][] provideInvalidProjectNames() {
@@ -67,15 +68,20 @@ public class NewCommandTest extends BaseCommandTest {
         };
     }
 
+    @Override
     @BeforeClass
     public void setup() throws IOException {
         super.setup();
-        testResources = Paths.get("src/test/resources/test-resources");
+        testResources = Path.of("src/test/resources/test-resources");
         centralCache = homeCache.resolve("repositories/central.ballerina.io").resolve("bala");
         Files.createDirectories(centralCache);
 
         Path testTemplatesDir = testResources.resolve("balacache-template");
         Files.walkFileTree(testTemplatesDir, new Copy(testTemplatesDir, centralCache));
+
+        Files.createDirectories(this.tmpDir.resolve("dir1"));
+        Files.createDirectories(this.tmpDir.resolve("dir2/dir1"));
+        ProjectUtils.clearDiagnostics();
     }
 
     @AfterClass
@@ -83,10 +89,18 @@ public class NewCommandTest extends BaseCommandTest {
         ProjectUtils.deleteDirectory(centralCache);
     }
 
-    @Test(description = "Create a new project")
-    public void testNewCommand() throws IOException {
+    @DataProvider(name = "validPaths")
+    public Object[][] validPaths() {
+        return new Object[][] {
+                { "projectA"},
+                { "dir1/projectA" },
+                { "dir2/dir1/projectA" }
+        };
+    }
+    @Test(description = "Create a new project", dataProvider = "validPaths")
+    public void testNewCommandWithAbsolutePaths(String packagePath) throws IOException {
         System.setProperty(USER_NAME, "testuserorg");
-        Path packageDir = tmpDir.resolve("project_name");
+        Path packageDir = tmpDir.resolve(packagePath);
         String[] args = {packageDir.toString()};
         NewCommand newCommand = new NewCommand(printStream, false);
         new CommandLine(newCommand).parseArgs(args);
@@ -98,7 +112,7 @@ public class NewCommandTest extends BaseCommandTest {
 
         Assert.assertTrue(Files.exists(packageDir));
         Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.BALLERINA_TOML)));
-        String name = Paths.get(args[0]).getFileName().toString();
+        String name = Path.of(args[0]).getFileName().toString();
         String tomlContent = Files.readString(
                 packageDir.resolve(ProjectConstants.BALLERINA_TOML), StandardCharsets.UTF_8);
         String expectedContent = "[package]\n" +
@@ -115,17 +129,19 @@ public class NewCommandTest extends BaseCommandTest {
         Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.GITIGNORE_FILE_NAME)));
         String gitignoreContent = Files.readString(
                 packageDir.resolve(ProjectConstants.GITIGNORE_FILE_NAME), StandardCharsets.UTF_8);
-        String expectedGitignoreContent = "# Ballerina generates this directory during the compilation of a package. " +
-                "\n# It contains compiler-generated artifacts and the final executable if this is an application " +
-                "package.\ntarget/\n" +
-                "\n" +
-                "# Ballerina maintains the compiler-generated source code here.\n" +
-                "# Remove this if you want to commit generated sources.\n" +
-                "generated/\n" +
-                "\n" +
-                "# Contains configuration values used during development time.\n" +
-                "# See https://ballerina.io/learn/provide-values-to-configurable-variables/ for more details.\n" +
-                "Config.toml\n";
+        String expectedGitignoreContent = """
+                # Ballerina generates this directory during the compilation of a package.
+                # It contains compiler-generated artifacts and the final executable if this is an application package.
+                target/
+
+                # Ballerina maintains the compiler-generated source code here.
+                # Remove this if you want to commit generated sources.
+                generated/
+
+                # Contains configuration values used during development time.
+                # See https://ballerina.io/learn/provide-values-to-configurable-variables/ for more details.
+                Config.toml
+                """;
         Assert.assertEquals(gitignoreContent.trim(), expectedGitignoreContent.trim());
         Assert.assertTrue(readOutput().contains("Created new package"));
 
@@ -150,7 +166,7 @@ public class NewCommandTest extends BaseCommandTest {
 
         Assert.assertTrue(Files.exists(packageDir));
         Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.BALLERINA_TOML)));
-        String name = Paths.get(args[0]).getFileName().toString();
+        String name = Path.of(args[0]).getFileName().toString();
         String tomlContent = Files.readString(
                 packageDir.resolve(ProjectConstants.BALLERINA_TOML), StandardCharsets.UTF_8);
         String expectedContent = "[package]\n" +
@@ -167,17 +183,19 @@ public class NewCommandTest extends BaseCommandTest {
         Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.GITIGNORE_FILE_NAME)));
         String gitignoreContent = Files.readString(
                 packageDir.resolve(ProjectConstants.GITIGNORE_FILE_NAME), StandardCharsets.UTF_8);
-        String expectedGitignoreContent = "# Ballerina generates this directory during the compilation of a package. " +
-                "\n# It contains compiler-generated artifacts and the final executable if this is an application " +
-                "package.\ntarget/\n" +
-                "\n" +
-                "# Ballerina maintains the compiler-generated source code here.\n" +
-                "# Remove this if you want to commit generated sources.\n" +
-                "generated/\n" +
-                "\n" +
-                "# Contains configuration values used during development time.\n" +
-                "# See https://ballerina.io/learn/provide-values-to-configurable-variables/ for more details.\n" +
-                "Config.toml\n";
+        String expectedGitignoreContent = """
+                # Ballerina generates this directory during the compilation of a package.
+                # It contains compiler-generated artifacts and the final executable if this is an application package.
+                target/
+
+                # Ballerina maintains the compiler-generated source code here.
+                # Remove this if you want to commit generated sources.
+                generated/
+
+                # Contains configuration values used during development time.
+                # See https://ballerina.io/learn/provide-values-to-configurable-variables/ for more details.
+                Config.toml
+                """;
         Assert.assertEquals(gitignoreContent.trim(), expectedGitignoreContent.trim());
         Assert.assertTrue(readOutput().contains("Created new package"));
 
@@ -189,8 +207,12 @@ public class NewCommandTest extends BaseCommandTest {
     @Test(description = "Create a new project in an existing directory containing .bal files with default template")
     public void testNewCommandInExistingDirectoryWithExistingBalFilesForDefaultTemplate() throws IOException {
         System.setProperty(USER_NAME, "testuserorg");
-        Path packageDir = testResources.resolve(ProjectConstants.EXISTING_PACKAGE_FILES_DIR).
-                resolve("directoryWithBalFilesForDefaultTemplate");
+        Path packageDir = Files.createDirectory(this.tmpDir.resolve("directoryWithBalFiles"));
+        Path srcDirectory = testResources.resolve(
+                ProjectConstants.EXISTING_PACKAGE_FILES_DIR).resolve("directoryWithBalFiles");
+
+        Files.walkFileTree(srcDirectory, new Copy(srcDirectory, packageDir));
+
         String[] args = {packageDir.toString()};
         NewCommand newCommand = new NewCommand(printStream, false);
         new CommandLine(newCommand).parseArgs(args);
@@ -202,7 +224,7 @@ public class NewCommandTest extends BaseCommandTest {
 
         Assert.assertTrue(Files.exists(packageDir));
         Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.BALLERINA_TOML)));
-        String name = Paths.get(args[0]).getFileName().toString();
+        String name = Path.of(args[0]).getFileName().toString();
         String tomlContent = Files.readString(
                 packageDir.resolve(ProjectConstants.BALLERINA_TOML), StandardCharsets.UTF_8);
         String expectedContent = "[package]\n" +
@@ -214,29 +236,30 @@ public class NewCommandTest extends BaseCommandTest {
                 "observabilityIncluded = true\n";
         Assert.assertEquals(tomlContent.trim(), expectedContent.trim());
 
-        Assert.assertFalse(Files.exists(packageDir.resolve("main.bal")));
+        Assert.assertTrue(Files.exists(packageDir.resolve("main.bal")));
         Assert.assertFalse(Files.exists(packageDir.resolve(ProjectConstants.PACKAGE_MD_FILE_NAME)));
         Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.GITIGNORE_FILE_NAME)));
         String gitignoreContent = Files.readString(
                 packageDir.resolve(ProjectConstants.GITIGNORE_FILE_NAME), StandardCharsets.UTF_8);
-        String expectedGitignoreContent = "# Ballerina generates this directory during the compilation of a package. " +
-                "\n# It contains compiler-generated artifacts and the final executable if this is an application " +
-                "package.\ntarget/\n" +
-                "\n" +
-                "# Ballerina maintains the compiler-generated source code here.\n" +
-                "# Remove this if you want to commit generated sources.\n" +
-                "generated/\n" +
-                "\n" +
-                "# Contains configuration values used during development time.\n" +
-                "# See https://ballerina.io/learn/provide-values-to-configurable-variables/ for more details.\n" +
-                "Config.toml\n";
+        String expectedGitignoreContent = """
+                # Ballerina generates this directory during the compilation of a package.
+                # It contains compiler-generated artifacts and the final executable if this is an application package.
+                target/
+
+                # Ballerina maintains the compiler-generated source code here.
+                # Remove this if you want to commit generated sources.
+                generated/
+
+                # Contains configuration values used during development time.
+                # See https://ballerina.io/learn/provide-values-to-configurable-variables/ for more details.
+                Config.toml
+                """;
         Assert.assertEquals(gitignoreContent.trim(), expectedGitignoreContent.trim());
         Assert.assertTrue(readOutput().contains("Created new package"));
 
         Assert.assertTrue(Files.exists(packageDir.resolve(".devcontainer.json")));
         String devcontainerContent = Files.readString(packageDir.resolve(".devcontainer.json"));
         Assert.assertTrue(devcontainerContent.contains(RepoUtils.getBallerinaVersion()));
-        ProjectUtils.deleteAllButOneInDirectory(packageDir, "main2.bal");
     }
 
     @Test(description = "Create a new project in an existing directory containing .bal files with service template")
@@ -248,8 +271,8 @@ public class NewCommandTest extends BaseCommandTest {
         NewCommand newCommand = new NewCommand(printStream, false);
         new CommandLine(newCommand).parseArgs(args);
         newCommand.execute();
-
-        Assert.assertTrue(readOutput().contains("Existing .bal files found"));
+        String readOutput = readOutput();
+        Assert.assertTrue(readOutput.contains("existing .bal files found"), readOutput);
     }
 
     @DataProvider(name = "directoriesWithExistingPackageFiles")
@@ -274,7 +297,8 @@ public class NewCommandTest extends BaseCommandTest {
         new CommandLine(newCommand).parseArgs(args);
         newCommand.execute();
 
-        Assert.assertTrue(readOutput().contains("Existing " + existing + " file/directory(s) were found"));
+        String readOutput = readOutput();
+        Assert.assertTrue(readOutput.contains("existing " + existing + " file/directory(s) were found"), readOutput);
     }
 
     @Test(description = "New package in an existing directory with existing package files using default template")
@@ -296,7 +320,7 @@ public class NewCommandTest extends BaseCommandTest {
 
         Assert.assertTrue(Files.exists(tempPackageDir));
         Assert.assertTrue(Files.exists(tempPackageDir.resolve(ProjectConstants.BALLERINA_TOML)));
-        String name = Paths.get(args[0]).getFileName().toString();
+        String name = Path.of(args[0]).getFileName().toString();
         String tomlContent = Files.readString(
                 tempPackageDir.resolve(ProjectConstants.BALLERINA_TOML), StandardCharsets.UTF_8);
         String expectedContent = "[package]\n" +
@@ -322,8 +346,8 @@ public class NewCommandTest extends BaseCommandTest {
         NewCommand newCommand = new NewCommand(printStream, false);
         new CommandLine(newCommand).parseArgs(args);
         newCommand.execute();
-
-        Assert.assertTrue(readOutput().contains("Directory already contains a Ballerina project"));
+        String readOutput = readOutput();
+        Assert.assertTrue(readOutput.contains("directory already contains a Ballerina project"), readOutput);
     }
 
     @Test(description = "Create a new project inside an existing directory with an invalid name")
@@ -359,17 +383,19 @@ public class NewCommandTest extends BaseCommandTest {
         Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.GITIGNORE_FILE_NAME)));
         String gitignoreContent = Files.readString(
                 packageDir.resolve(ProjectConstants.GITIGNORE_FILE_NAME), StandardCharsets.UTF_8);
-        String expectedGitignoreContent = "# Ballerina generates this directory during the compilation of a package. " +
-                "\n# It contains compiler-generated artifacts and the final executable if this is an application " +
-                "package.\ntarget/\n" +
-                "\n" +
-                "# Ballerina maintains the compiler-generated source code here.\n" +
-                "# Remove this if you want to commit generated sources.\n" +
-                "generated/\n" +
-                "\n" +
-                "# Contains configuration values used during development time.\n" +
-                "# See https://ballerina.io/learn/provide-values-to-configurable-variables/ for more details.\n" +
-                "Config.toml\n";
+        String expectedGitignoreContent = """
+                # Ballerina generates this directory during the compilation of a package.
+                # It contains compiler-generated artifacts and the final executable if this is an application package.
+                target/
+
+                # Ballerina maintains the compiler-generated source code here.
+                # Remove this if you want to commit generated sources.
+                generated/
+
+                # Contains configuration values used during development time.
+                # See https://ballerina.io/learn/provide-values-to-configurable-variables/ for more details.
+                Config.toml
+                """;
         Assert.assertEquals(gitignoreContent.trim(), expectedGitignoreContent.trim());
         Assert.assertTrue(readOutput().contains("Created new package"));
 
@@ -388,7 +414,7 @@ public class NewCommandTest extends BaseCommandTest {
             packagePath = ".\\relative_project_name";
         }
         String[] args = {packagePath};
-        Path packageDir = Paths.get(packagePath);
+        Path packageDir = Path.of(packagePath);
         NewCommand newCommand = new NewCommand(printStream, false);
         new CommandLine(newCommand).parseArgs(args);
         newCommand.execute();
@@ -397,11 +423,11 @@ public class NewCommandTest extends BaseCommandTest {
         // - Ballerina.toml
         // - main.bal
 
-        Path currentDir = Paths.get(System.getProperty(ProjectConstants.USER_DIR));
-        Path relativeToCurrentDir = Paths.get(currentDir.toString(), packagePath.toString()).normalize();
+        Path currentDir = Path.of(System.getProperty(ProjectConstants.USER_DIR));
+        Path relativeToCurrentDir = Path.of(currentDir.toString(), packagePath).normalize();
         Assert.assertTrue(Files.exists(relativeToCurrentDir));
         Assert.assertTrue(Files.exists(relativeToCurrentDir.resolve(ProjectConstants.BALLERINA_TOML)));
-        String name = Paths.get(args[0]).getFileName().toString();
+        String name = Path.of(args[0]).getFileName().toString();
         String tomlContent = Files.readString(
                 relativeToCurrentDir.resolve(ProjectConstants.BALLERINA_TOML), StandardCharsets.UTF_8);
         String expectedContent = "[package]\n" +
@@ -418,17 +444,19 @@ public class NewCommandTest extends BaseCommandTest {
         Assert.assertTrue(Files.exists(relativeToCurrentDir.resolve(ProjectConstants.GITIGNORE_FILE_NAME)));
         String gitignoreContent = Files.readString(
                 relativeToCurrentDir.resolve(ProjectConstants.GITIGNORE_FILE_NAME), StandardCharsets.UTF_8);
-        String expectedGitignoreContent = "# Ballerina generates this directory during the compilation of a package. " +
-                "\n# It contains compiler-generated artifacts and the final executable if this is an application " +
-                "package.\ntarget/\n" +
-                "\n" +
-                "# Ballerina maintains the compiler-generated source code here.\n" +
-                "# Remove this if you want to commit generated sources.\n" +
-                "generated/\n" +
-                "\n" +
-                "# Contains configuration values used during development time.\n" +
-                "# See https://ballerina.io/learn/provide-values-to-configurable-variables/ for more details.\n" +
-                "Config.toml\n";
+        String expectedGitignoreContent = """
+                # Ballerina generates this directory during the compilation of a package.
+                # It contains compiler-generated artifacts and the final executable if this is an application package.
+                target/
+
+                # Ballerina maintains the compiler-generated source code here.
+                # Remove this if you want to commit generated sources.
+                generated/
+
+                # Contains configuration values used during development time.
+                # See https://ballerina.io/learn/provide-values-to-configurable-variables/ for more details.
+                Config.toml
+                """;
         Assert.assertEquals(gitignoreContent.trim(), expectedGitignoreContent.trim());
         Assert.assertTrue(readOutput().contains("Created new package"));
 
@@ -437,10 +465,10 @@ public class NewCommandTest extends BaseCommandTest {
         Assert.assertTrue(devcontainerContent.contains(RepoUtils.getBallerinaVersion()));
     }
 
-    @Test(description = "Test new command with main template")
-    public void testNewCommandWithMain() throws IOException {
+    @Test(description = "Test new command with main template", dataProvider = "validPaths")
+    public void testNewCommandWithMain(String packagePath) throws IOException {
         System.setProperty(USER_NAME, "testuserorg");
-        Path packageDir = tmpDir.resolve("main_sample");
+        Path packageDir = tmpDir.resolve(packagePath + "_main");
         String[] args = {packageDir.toString(), "-t", "main"};
         NewCommand newCommand = new NewCommand(printStream, false);
         new CommandLine(newCommand).parseArgs(args);
@@ -455,7 +483,7 @@ public class NewCommandTest extends BaseCommandTest {
 
         Assert.assertTrue(Files.exists(packageDir));
         Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.BALLERINA_TOML)));
-        String packageName = Paths.get(args[0]).getFileName().toString();
+        String packageName = Path.of(args[0]).getFileName().toString();
         String tomlContent = Files.readString(
                 packageDir.resolve(ProjectConstants.BALLERINA_TOML), StandardCharsets.UTF_8);
         String expectedContent = "[package]\n" +
@@ -476,10 +504,10 @@ public class NewCommandTest extends BaseCommandTest {
         Assert.assertTrue(readOutput().contains("Created new package"));
     }
 
-    @Test(description = "Test new command with service template")
-    public void testNewCommandWithService() throws IOException {
+    @Test(description = "Test new command with service template", dataProvider = "validPaths")
+    public void testNewCommandWithService(String packagePath) throws IOException {
         // Test if no arguments was passed in
-        Path packageDir = tmpDir.resolve("service_sample");
+        Path packageDir = tmpDir.resolve(packagePath + "_svc");
         String[] args = {packageDir.toString(), "-t", "service"};
         NewCommand newCommand = new NewCommand(printStream, false);
         new CommandLine(newCommand).parseArgs(args);
@@ -498,8 +526,10 @@ public class NewCommandTest extends BaseCommandTest {
         Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.BALLERINA_TOML)));
         String tomlContent = Files.readString(
                 packageDir.resolve(ProjectConstants.BALLERINA_TOML), StandardCharsets.UTF_8);
-        String expectedContent = "[build-options]\n" +
-                "observabilityIncluded = true\n";
+        String expectedContent = """
+                [build-options]
+                observabilityIncluded = true
+                """;
         Assert.assertTrue(tomlContent.contains(expectedContent));
 
         Assert.assertTrue(Files.exists(packageDir.resolve("service.bal")));
@@ -511,10 +541,10 @@ public class NewCommandTest extends BaseCommandTest {
         Assert.assertTrue(readOutput().contains("Created new package"));
     }
 
-    @Test(description = "Test new command with lib template")
-    public void testNewCommandWithLib() throws IOException {
+    @Test(description = "Test new command with lib template", dataProvider = "validPaths")
+    public void testNewCommandWithLib(String packagePath) throws IOException {
         // Test if no arguments was passed in
-        Path packageDir = tmpDir.resolve("lib_sample");
+        Path packageDir = tmpDir.resolve(packagePath + "_lib");
         String[] args = {packageDir.toString(), "-t", "lib"};
         NewCommand newCommand = new NewCommand(printStream, false);
         new CommandLine(newCommand).parseArgs(args);
@@ -537,17 +567,17 @@ public class NewCommandTest extends BaseCommandTest {
         String tomlContent = Files.readString(
                 packageDir.resolve(ProjectConstants.BALLERINA_TOML), StandardCharsets.UTF_8);
 
+        String packageName = Path.of(args[0]).getFileName().toString();
         String expectedTomlContent = "[package]\n" +
                 "org = \"" + System.getProperty("user.name").replaceAll("[^a-zA-Z0-9_]", "_") + "\"\n" +
-                "name = \"lib_sample\"\n" +
+                "name = \"" + packageName + "\"\n" +
                 "version = \"0.1.0\"\n" +
                 "distribution = \"" + RepoUtils.getBallerinaShortVersion() + "\"" +
                 "\n";
         Assert.assertTrue(tomlContent.contains(expectedTomlContent));
-        Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.PACKAGE_MD_FILE_NAME)));
-        Assert.assertTrue(Files.exists(packageDir.resolve("lib_sample.bal")));
+        Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.README_MD_FILE_NAME)));
+        Assert.assertTrue(Files.exists(packageDir.resolve(packageName + ".bal")));
         Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.TEST_DIR_NAME)));
-        Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.RESOURCE_DIR_NAME)));
 
         Assert.assertTrue(readOutput().contains("Created new package"));
     }
@@ -571,7 +601,7 @@ public class NewCommandTest extends BaseCommandTest {
         Assert.assertTrue(Files.exists(packageDir));
         Assert.assertTrue(Files.isDirectory(packageDir));
         Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.BALLERINA_TOML)));
-        String packageName = Paths.get(args[0]).getFileName().toString();
+        String packageName = Path.of(args[0]).getFileName().toString();
         String tomlContent = Files.readString(
                 packageDir.resolve(ProjectConstants.BALLERINA_TOML), StandardCharsets.UTF_8);
         String expectedContent = "[package]\n" +
@@ -591,7 +621,7 @@ public class NewCommandTest extends BaseCommandTest {
                 "[[dependency]]\n";
         Assert.assertTrue(toolTomlContent.contains(expectedToolTomlContent));
 
-        Assert.assertTrue(Files.notExists(packageDir.resolve(ProjectConstants.PACKAGE_MD_FILE_NAME)));
+        Assert.assertTrue(Files.notExists(packageDir.resolve(ProjectConstants.README_MD_FILE_NAME)));
         Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.TOOL_DIR)));
 
         Assert.assertTrue(readOutput().contains("Created new package"));
@@ -606,7 +636,7 @@ public class NewCommandTest extends BaseCommandTest {
             errStream.println(e.getDetailedMessages().toString());
         }
         String buildLog = readOutput(true);
-        Assert.assertEquals(buildLog.replaceAll("\r", ""), getOutput("build-tool-template.txt"));
+        Assert.assertEquals(buildLog.replace("\r", ""), getOutput("build-tool-template.txt"));
         Assert.assertTrue(packageDir.resolve("target").resolve("bin").resolve("tool_sample.jar")
                 .toFile().exists());
 
@@ -621,10 +651,10 @@ public class NewCommandTest extends BaseCommandTest {
         packCommand.execute();
         String packBuildLog = readOutput(true);
 
-        Assert.assertEquals(packBuildLog.replaceAll("\r", ""), getOutput("pack-tool-template.txt"));
+        Assert.assertEquals(packBuildLog.replace("\r", ""), getOutput("pack-tool-template.txt"));
         Assert.assertTrue(
                 packageDir.resolve("target").resolve("bala")
-                        .resolve("testuserorg-tool_sample-java17-0.1.0.bala").toFile().exists());
+                        .resolve("testuserorg-tool_sample-java21-0.1.0.bala").toFile().exists());
     }
 
     @Test(description = "Test new command with invalid project name", dataProvider = "invalidProjectNames")
@@ -638,8 +668,8 @@ public class NewCommandTest extends BaseCommandTest {
         Assert.assertTrue(Files.exists(packageDir));
         Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.BALLERINA_TOML)));
         Assert.assertTrue(Files.exists(packageDir.resolve("main.bal")));
-        String buildOutput = readOutput().replaceAll("\r", "");
-        Assert.assertEquals(buildOutput, "package name is derived as '" + derivedPkgName + "'. " +
+        String buildOutput = readOutput().replace("\r", "");
+        Assert.assertEquals(buildOutput, "Package name is derived as '" + derivedPkgName + "'. " +
                 "Edit the Ballerina.toml to change it.\n\n" +
                 "Created new package '" + derivedPkgName + "' at " + packageDir + ".\n");
     }
@@ -669,7 +699,6 @@ public class NewCommandTest extends BaseCommandTest {
                 "org = \"testorg\"\n" +
                 "name = \"" + packageName + "\"\n" +
                 "version = \"1.0.0\"\n" +
-                "export = [\"sample_tool_template\"]\n" +
                 "distribution = \"2201.6.0-SNAPSHOT\"\n\n" +
                 "[build-options]\n" +
                 "observabilityIncluded = true\n";
@@ -684,7 +713,7 @@ public class NewCommandTest extends BaseCommandTest {
                 "path = \"tool/libs/platform-io-1.3.0-java.jar\"\n";
         Assert.assertTrue(toolTomlContent.contains(expectedToolTomlContent));
 
-        Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.PACKAGE_MD_FILE_NAME)));
+        Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.README_MD_FILE_NAME)));
         Path dependencyPath = packageDir.resolve(TOOL_DIR).resolve("libs")
                 .resolve("platform-io-1.3.0-java.jar");
         Assert.assertTrue(Files.exists(dependencyPath));
@@ -710,10 +739,45 @@ public class NewCommandTest extends BaseCommandTest {
         new CommandLine(packCommand).parseArgs();
         packCommand.execute();
         String packBuildLog = readOutput(true);
-        Assert.assertEquals(packBuildLog.replaceAll("\r", ""), getOutput("pack-central-tool.txt"));
+        Assert.assertEquals(packBuildLog.replace("\r", ""), getOutput("pack-central-tool.txt"));
         Assert.assertTrue(
                 packageDir.resolve("target").resolve("bala")
-                        .resolve("testorg-sample_tool_template-java17-1.0.0.bala").toFile().exists());
+                        .resolve("testorg-sample_tool_template-java21-1.0.0.bala").toFile().exists());
+    }
+
+    @Test(description = "Test new command by pulling a central template with provided platform jars")
+    public void testNewCommandWithProvidedTemplateCentral() throws IOException {
+        String templateArg = "testorg/projectProvidedScope:1.0.0";
+        String packageName = "sample_provided_template";
+        Path packageDir = tmpDir.resolve(packageName);
+        String[] args = {packageDir.toString(), "-t", templateArg};
+        NewCommand newCommand = new NewCommand(printStream, false, homeCache);
+        new CommandLine(newCommand).parseArgs(args);
+        newCommand.execute();
+        Assert.assertTrue(Files.exists(packageDir));
+        Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.BALLERINA_TOML)));
+        String expectedTomlContent = """
+                [package]
+                org = "testorg"
+                name = "sample_provided_template"
+                version = "1.0.0"
+                distribution = "2201.9.0-SNAPSHOT"
+
+                [build-options]
+                observabilityIncluded = true
+
+                [[platform.java17.dependency]]
+                artifactId = "project1"
+                groupId = "com.example"
+                version = "1.0"
+                scope = "provided"
+                """;
+        Assert.assertEquals(
+                readFileAsString(packageDir.resolve(ProjectConstants.BALLERINA_TOML)), expectedTomlContent);
+        Assert.assertTrue(readOutput().replace("\r", "").contains(
+                "WARNING: path for the platform dependency project1 with provided " +
+                "scope should be specified in the Ballerina.toml\n" +
+                "Created new package 'sample_provided_template'"));
     }
 
     @Test(description = "Test new command with central template in the local cache")
@@ -729,18 +793,20 @@ public class NewCommandTest extends BaseCommandTest {
         Assert.assertTrue(Files.exists(packageDir));
 
         Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.BALLERINA_TOML)));
-        String expectedTomlContent = "[package]\n" +
-                "org = \"admin\"\n" +
-                "name = \"sample_pull_local\"\n" +
-                "version = \"0.1.5\"\n" +
-                "export = [\"sample_pull_local\"]\n" +
-                "distribution = \"slbeta4\"\n" +
-                "\n[build-options]\n" +
-                "observabilityIncluded = true\n";
+        String expectedTomlContent = """
+                [package]
+                org = "admin"
+                name = "sample_pull_local"
+                version = "0.1.5"
+                distribution = "slbeta4"
+
+                [build-options]
+                observabilityIncluded = true
+                """;
         Assert.assertEquals(
                 readFileAsString(packageDir.resolve(ProjectConstants.BALLERINA_TOML)), expectedTomlContent);
 
-        Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.PACKAGE_MD_FILE_NAME)));
+        Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.README_MD_FILE_NAME)));
         Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.GITIGNORE_FILE_NAME)));
         Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.DEVCONTAINER)));
         Assert.assertTrue(readOutput().contains("Created new package"));
@@ -759,17 +825,19 @@ public class NewCommandTest extends BaseCommandTest {
         Assert.assertTrue(Files.exists(packageDir));
 
         Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.BALLERINA_TOML)));
-        String expectedTomlContent = "[package]\n" +
-                "org = \"parkavik\"\n" +
-                "name = \"sample_pull_WO_Module_Version\"\n" +
-                "version = \"1.0.1\"\n" +
-                "export = [\"sample_pull_WO_Module_Version\"]\n" +
-                "distribution = \"slbeta4\"\n" +
-                "\n[build-options]\n" +
-                "observabilityIncluded = true\n";
+        String expectedTomlContent = """
+                [package]
+                org = "parkavik"
+                name = "sample_pull_WO_Module_Version"
+                version = "1.0.1"
+                distribution = "slbeta4"
+
+                [build-options]
+                observabilityIncluded = true
+                """;
         Assert.assertEquals(
                 readFileAsString(packageDir.resolve(ProjectConstants.BALLERINA_TOML)), expectedTomlContent);
-        Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.PACKAGE_MD_FILE_NAME)));
+        Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.README_MD_FILE_NAME)));
         Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.GITIGNORE_FILE_NAME)));
         Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.DEVCONTAINER)));
         Assert.assertTrue(readOutput().contains("Created new package"));
@@ -788,23 +856,28 @@ public class NewCommandTest extends BaseCommandTest {
         Assert.assertTrue(Files.exists(packageDir));
 
         Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.BALLERINA_TOML)));
-        String expectedTomlContent = "[package]\n" +
-                "org = \"parkavik\"\n" +
-                "name = \"sample_pull\"\n" +
-                "version = \"1.0.0\"\n" +
-                "export = [\"sample_pull\"]\n" +
-                "distribution = \"slbeta4\"\n" +
-                "\n[build-options]\n" +
-                "observabilityIncluded = true\n";
+        String expectedTomlContent = """
+                [package]
+                org = "parkavik"
+                name = "sample_pull"
+                version = "1.0.0"
+                distribution = "slbeta4"
+
+                [build-options]
+                observabilityIncluded = true
+                """;
         Assert.assertEquals(
                 readFileAsString(packageDir.resolve(ProjectConstants.BALLERINA_TOML)), expectedTomlContent);
-        Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.PACKAGE_MD_FILE_NAME)));
+        Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.README_MD_FILE_NAME)));
         Assert.assertTrue(Files.exists(packageDir.resolve("docs").resolve("icon.png")));
         Assert.assertTrue(readOutput().contains("Created new package"));
     }
 
     @Test(description = "Test pulling a central template and replacing the template name in module imports")
     public void testNewCommandCentralTemplateReplaceImports() throws IOException {
+        if (isWindows()) {
+            throw new SkipException("Not working on Windows");
+        }
         String templateArg = "testorg/centralSample:1.0.2";
         String packageName = "central_sample";
         Path packageDir = tmpDir.resolve(packageName);
@@ -820,7 +893,6 @@ public class NewCommandTest extends BaseCommandTest {
                 "org = \"testorg\"\n" +
                 "name = \"" + packageName + "\"\n" +
                 "version = \"1.0.2\"\n" +
-                "export = [\"central_sample\"]\n" +
                 "distribution = \"2201.7.0-SNAPSHOT\"\n\n" +
                 "[build-options]\n" +
                 "observabilityIncluded = true\n";
@@ -829,10 +901,10 @@ public class NewCommandTest extends BaseCommandTest {
 
         String mainContent = readFileAsString(packageDir.resolve("main.bal"));
         Assert.assertTrue(mainContent.contains("import central_sample.mod1;"));
-        Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.PACKAGE_MD_FILE_NAME)));
+        Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.README_MD_FILE_NAME)));
         Assert.assertTrue(readOutput().contains("Created new package"));
 
-        System.setProperty("user.dir", packageDir.toString());
+//        System.setProperty("user.dir", packageDir.toString());
         BuildCommand buildCommand = new BuildCommand(packageDir, printStream, printStream, false);
         new CommandLine(buildCommand).parseArgs();
         try {
@@ -855,8 +927,7 @@ public class NewCommandTest extends BaseCommandTest {
         newCommand.execute();
 
         Assert.assertTrue(Files.exists(packageDir));
-        Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.PACKAGE_MD_FILE_NAME)));
-        Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.MODULE_MD_FILE_NAME)));
+        Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.README_MD_FILE_NAME)));
         Assert.assertTrue(Files.exists(packageDir.resolve("natives.bal")));
         Assert.assertTrue(Files.exists(packageDir.resolve("libs/protobuf-native-1.0.1.txt")));
         Assert.assertTrue(Files.exists(packageDir.resolve("modules/types.timestamp")));
@@ -865,15 +936,13 @@ public class NewCommandTest extends BaseCommandTest {
         Assert.assertTrue(Files.exists(packageDir.resolve("modules/types.wrappers/int.bal")));
         Assert.assertTrue(Files.exists(packageDir.resolve("modules/types.wrappers/string.bal")));
         Assert.assertTrue(Files.exists(packageDir.resolve("modules/types.wrappers/" +
-                ProjectConstants.MODULE_MD_FILE_NAME)));
+                ProjectConstants.README_MD_FILE_NAME)));
 
         Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.BALLERINA_TOML)));
         String expectedTomlContent = "[package]\n" +
                 "org = \"ballerina\"\n" +
                 "name = \"sample_multi_module\"\n" +
                 "version = \"1.0.1\"\n" +
-                "export = [\"sample_multi_module\",\"sample_multi_module.types.timestamp\"," +
-                "\"sample_multi_module.types.wrappers\"]\n" +
                 "distribution = \"slbeta4\"\n" +
                 "license = [\"Apache-2.0\"]\n" +
                 "authors = [\"Ballerina\"]\n" +
@@ -881,6 +950,13 @@ public class NewCommandTest extends BaseCommandTest {
                 "repository = \"https://github.com/ballerina-platform/module-ballerina-protobuf\"\n" +
                 "\n[build-options]\n" +
                 "observabilityIncluded = true\n" +
+                "\n" +
+                "[[package.modules]]\n" +
+                "name = \"sample_multi_module.types.timestamp\"\n" +
+                "export = true\n\n" +
+                "[[package.modules]]\n" +
+                "name = \"sample_multi_module.types.wrappers\"\n" +
+                "export = true\n" +
                 "\n[[platform.java11.dependency]]\n" +
                 "path = \"libs" + File.separator + "protobuf-native-1.0.1.jar\"";
         Assert.assertEquals(
@@ -916,21 +992,22 @@ public class NewCommandTest extends BaseCommandTest {
         String tomlContent = Files.readString(
                 packageDir.resolve(ProjectConstants.BALLERINA_TOML), StandardCharsets.UTF_8);
 
-        String expectedTomlPkgContent = "[package]\n" +
-                "org = \"admin\"\n" +
-                "name = \"sample_pull_libs\"\n" +
-                "version = \"0.1.0\"\n" +
-                "export = [\"sample_pull_libs\"]\n" +
-                "distribution = \"slbeta4\"\n";
-        String expectedTomlLibContent =
-                "artifactId = \"snakeyaml\"\n" +
-                "groupId = \"org.yaml\"\n" +
-                "version = \"2.0\"";
+        String expectedTomlPkgContent = """
+                [package]
+                org = "admin"
+                name = "sample_pull_libs"
+                version = "0.1.0"
+                distribution = "slbeta4"
+                """;
+        String expectedTomlLibContent = """
+                artifactId = "snakeyaml"
+                groupId = "org.yaml"
+                version = "2.0\"""";
 
         Assert.assertTrue(tomlContent.contains(expectedTomlPkgContent));
         Assert.assertTrue(tomlContent.contains(expectedTomlLibContent));
 
-        Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.PACKAGE_MD_FILE_NAME)));
+        Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.README_MD_FILE_NAME)));
 
         Assert.assertTrue(readOutput().contains("Created new package"));
     }
@@ -964,10 +1041,11 @@ public class NewCommandTest extends BaseCommandTest {
         Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.BALLERINA_TOML)));
         String depsTomlContent = Files.readString(
                 packageDir.resolve(ProjectConstants.DEPENDENCIES_TOML), StandardCharsets.UTF_8);
-        Assert.assertTrue(depsTomlContent.contains("[[package]]\n" +
-                "org = \"pramodya\"\n" +
-                "name = \"winery\"\n" +
-                "version = \"0.1.0\""));
+        Assert.assertTrue(depsTomlContent.contains("""
+                [[package]]
+                org = "pramodya"
+                name = "winery"
+                version = "0.1.0\""""));
     }
     @Test(description = "Test new command by pulling a central template that has simple include patterns")
     public void testNewCommandTemplateWithSimpleIncludePatterns() throws IOException {
@@ -1091,7 +1169,7 @@ public class NewCommandTest extends BaseCommandTest {
         // Test if no arguments was passed in
         String[] args = {};
         NewCommand newCommand = new NewCommand(printStream, false);
-        new CommandLine(newCommand).parse(args);
+        new CommandLine(newCommand).parseArgs(args);
         newCommand.execute();
 
         Assert.assertTrue(readOutput().contains("project path is not provided"));
@@ -1104,7 +1182,7 @@ public class NewCommandTest extends BaseCommandTest {
         Path packageDir2 = tmpDir.resolve("sample3");
         String[] args = {packageDir1.toString(), packageDir2.toString()};
         NewCommand newCommand = new NewCommand(printStream, false);
-        new CommandLine(newCommand).parse(args);
+        new CommandLine(newCommand).parseArgs(args);
         newCommand.execute();
 
         Assert.assertTrue(readOutput().contains("too many arguments"));
@@ -1116,7 +1194,7 @@ public class NewCommandTest extends BaseCommandTest {
         Path packageDir = tmpDir.resolve("sample2");
         String[] args = {packageDir.toString(), "--help"};
         NewCommand newCommand = new NewCommand(printStream, false);
-        new CommandLine(newCommand).parse(args);
+        new CommandLine(newCommand).parseArgs(args);
         newCommand.execute();
 
         Assert.assertTrue(readOutput().contains("ballerina-new - Create a new Ballerina package"));
@@ -1127,7 +1205,7 @@ public class NewCommandTest extends BaseCommandTest {
         // Test if no arguments was passed in
         String[] args = {"-h"};
         NewCommand newCommand = new NewCommand(printStream, false);
-        new CommandLine(newCommand).parse(args);
+        new CommandLine(newCommand).parseArgs(args);
         newCommand.execute();
 
         Assert.assertTrue(readOutput().contains("ballerina-new - Create a new Ballerina package"));
@@ -1139,7 +1217,7 @@ public class NewCommandTest extends BaseCommandTest {
         Path parentDir = tmpDir.resolve("parent");
         String[] args = {parentDir.toString()};
         NewCommand newCommand = new NewCommand(printStream, false);
-        new CommandLine(newCommand).parse(args);
+        new CommandLine(newCommand).parseArgs(args);
         newCommand.execute();
         readOutput(true);
 
@@ -1148,7 +1226,7 @@ public class NewCommandTest extends BaseCommandTest {
         Path subDir = parentDir.resolve("subdir");
         String[] args2 = {subDir.toString()};
         newCommand = new NewCommand(printStream, false);
-        new CommandLine(newCommand).parse(args2);
+        new CommandLine(newCommand).parseArgs(args2);
         newCommand.execute();
 
         Assert.assertFalse(readOutput().contains("directory is already a ballerina project."));
@@ -1162,7 +1240,7 @@ public class NewCommandTest extends BaseCommandTest {
         Files.createDirectory(parentPath);
         String[] args = {parentPath.resolve("sample").toString()};
         NewCommand newCommand = new NewCommand(printStream, false);
-        new CommandLine(newCommand).parse(args);
+        new CommandLine(newCommand).parseArgs(args);
         newCommand.execute();
 
         Assert.assertFalse(readOutput().contains("directory is already within a ballerina project."));
@@ -1181,7 +1259,7 @@ public class NewCommandTest extends BaseCommandTest {
         Path packageDir = tmpDir.resolve(longPkgName);
         String[] args = {packageDir.toString()};
         NewCommand newCommand = new NewCommand(printStream, false);
-        new CommandLine(newCommand).parse(args);
+        new CommandLine(newCommand).parseArgs(args);
         newCommand.execute();
 
         Assert.assertTrue(readOutput().contains("invalid package name : '" + longPkgName + "' :\n"
@@ -1208,7 +1286,7 @@ public class NewCommandTest extends BaseCommandTest {
         String buildLog = readOutput();
         String outLog = getOutput(outputLog);
         String replacedOutLog = outLog.replace(packageName, args[0]);
-        Assert.assertEquals(buildLog.replaceAll("\r", ""), replacedOutLog);
+        Assert.assertEquals(buildLog.replace("\r", ""), replacedOutLog);
     }
 
     @DataProvider(name = "PackageNameHasOnlyNonAlphanumeric")
@@ -1230,16 +1308,16 @@ public class NewCommandTest extends BaseCommandTest {
         Assert.assertTrue(Files.exists(packageDir));
         Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.BALLERINA_TOML)));
         Assert.assertTrue(Files.exists(packageDir.resolve("main.bal")));
-        String buildOutput = readOutput().replaceAll("\r", "");
-        Assert.assertEquals(buildOutput, "package name is derived as '" + derivedPkgName + "'. " +
+        String buildOutput = readOutput().replace("\r", "");
+        Assert.assertEquals(buildOutput, "Package name is derived as '" + derivedPkgName + "'. " +
                 "Edit the Ballerina.toml to change it.\n\n" +
                 "Created new package '" + derivedPkgName + "' at " + packageDir + ".\n");
     }
 
     static class Copy extends SimpleFileVisitor<Path> {
-        private Path fromPath;
-        private Path toPath;
-        private StandardCopyOption copyOption;
+        private final Path fromPath;
+        private final Path toPath;
+        private final StandardCopyOption copyOption;
 
 
         public Copy(Path fromPath, Path toPath, StandardCopyOption copyOption) {

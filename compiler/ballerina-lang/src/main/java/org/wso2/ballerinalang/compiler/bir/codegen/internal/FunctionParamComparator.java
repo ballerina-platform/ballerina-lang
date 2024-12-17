@@ -18,11 +18,12 @@
 package org.wso2.ballerinalang.compiler.bir.codegen.internal;
 
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
+import org.wso2.ballerinalang.compiler.bir.model.VarKind;
 
 import java.util.Comparator;
 
 /**
- * BIR Function Param comparator to sort according to RETURN and ARG kinds.
+ * BIR Function Param comparator to sort according to RETURN, ARG varkinds and TEMP vars according to their names.
  *
  * @since 1.2.0
  */
@@ -30,19 +31,22 @@ public class FunctionParamComparator implements Comparator<BIRNode.BIRVariableDc
 
     @Override
     public int compare(BIRNode.BIRVariableDcl o1, BIRNode.BIRVariableDcl o2) {
-
-        return Integer.compare(getWeight(o1), getWeight(o2));
+        if (o1.kind != o2.kind) {
+            return Integer.compare(getWeight(o1), getWeight(o2));
+        }
+        if (o1.kind == VarKind.TEMP) {
+            return Integer.compare(o1.name.value.hashCode(), o2.name.value.hashCode());
+        }
+        return 0;
     }
 
     private int getWeight(BIRNode.BIRVariableDcl variableDcl) {
 
-        switch (variableDcl.kind) {
-            case RETURN:
-                return 1;
-            case ARG:
-                return 2;
-            default:
-                return 3;
-        }
+        return switch (variableDcl.kind) {
+            case RETURN -> 1;
+            case ARG -> 2;
+            case TEMP -> 3;
+            default -> 4;
+        };
     }
 }

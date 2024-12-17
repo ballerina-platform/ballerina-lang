@@ -18,26 +18,21 @@
 
 package org.ballerinalang.langlib.array;
 
-import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BArray;
+import io.ballerina.runtime.internal.values.ArrayValue;
 
-import static org.ballerinalang.langlib.array.utils.ArrayUtils.checkIsArrayOnlyOperation;
 
 /**
  * Native implementation of lang.array:shift((any|error)[]).
  *
  * @since 1.0
  */
-//@BallerinaFunction(
-//        orgName = "ballerina", packageName = "lang.array", functionName = "shift",
-//        args = {@Argument(name = "arr", type = TypeKind.ARRAY)},
-//        returnType = {@ReturnType(type = TypeKind.ANY)},
-//        isPublic = true
-//)
 public class Shift {
 
+    private Shift() {
+    }
+
     public static Object shift(BArray arr) {
-        checkIsArrayOnlyOperation(TypeUtils.getImpliedType(arr.getType()), "shift()");
-        return arr.shift(0);
+        return ((ArrayValue) arr).shift(0);
     }
 }

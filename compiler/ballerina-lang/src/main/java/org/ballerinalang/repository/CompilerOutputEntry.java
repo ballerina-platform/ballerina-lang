@@ -17,7 +17,6 @@
  */
 package org.ballerinalang.repository;
 
-import java.io.IOException;
 import java.io.InputStream;
 
 /**
@@ -38,7 +37,7 @@ public interface CompilerOutputEntry {
         OBJ("obj"),
         ROOT("/");
 
-        private String value;
+        private final String value;
 
         Kind(String value) {
             this.value = value;
@@ -67,7 +66,6 @@ public interface CompilerOutputEntry {
      * Returns the content as an input stream.
      *
      * @return the {@link InputStream} of the entry
-     * @throws IOException if input is not resolved
      */
-    InputStream getInputStream() throws IOException;
+    InputStream getInputStream();
 }

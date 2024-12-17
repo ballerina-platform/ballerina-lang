@@ -1,0 +1,3 @@
+[plugin]
+class = "io.samjs.plugins.badsad.BadSadCompilerPlugin42"
+

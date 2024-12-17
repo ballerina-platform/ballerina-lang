@@ -19,6 +19,8 @@ package io.ballerina.runtime.internal.values;
 
 import io.ballerina.runtime.api.values.BRefValue;
 
+import java.util.Set;
+
 /**
  * <p>
  * Interface to be implemented by all the reference types.
@@ -31,4 +33,7 @@ import io.ballerina.runtime.api.values.BRefValue;
  */
 public interface RefValue extends SimpleValue, BRefValue {
 
+    default boolean equals(Object o, Set<ValuePair> visitedValues) {
+        return o.equals(this);
+    }
 }

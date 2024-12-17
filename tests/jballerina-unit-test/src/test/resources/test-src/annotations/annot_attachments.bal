@@ -337,3 +337,32 @@ type F3 record {|
 type F4 record {|
     int x;
 |};
+
+public annotation record {| int increment; |} v31 on service remote function;
+public const annotation record {| int increment; |} v32 on source type, source service remote function;
+
+service class ServiceClass {
+    @v31 {
+        increment: 1111
+    }
+    @v32 {
+        increment: 1112
+    }
+    remote function serviceRemoteFn1() {
+    }
+}
+
+type ServiceObject service object {
+    @v31 {
+        increment: 1113
+    }
+    remote function serviceRemoteFn2();
+};
+
+service /ser2 on new Listener() {
+    @v32 {
+        increment: 1114
+    }
+    remote function serviceRemoteFn3() {
+    }
+}

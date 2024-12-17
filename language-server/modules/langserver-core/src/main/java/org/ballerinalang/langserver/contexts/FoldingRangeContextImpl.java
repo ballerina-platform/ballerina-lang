@@ -58,6 +58,7 @@ public class FoldingRangeContextImpl extends AbstractDocumentServiceContext impl
             this.lineFoldingOnly = lineFoldingOnly;
         }
 
+        @Override
         public FoldingRangeContext build() {
             return new FoldingRangeContextImpl(this.operation,
                     this.fileUri,

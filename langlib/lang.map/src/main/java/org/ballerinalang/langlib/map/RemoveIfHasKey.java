@@ -26,7 +26,7 @@ import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.internal.errors.ErrorHelper;
 
-import static io.ballerina.runtime.internal.MapUtils.checkIsMapOnlyOperation;
+import static io.ballerina.runtime.internal.utils.MapUtils.checkIsMapOnlyOperation;
 import static org.ballerinalang.langlib.map.util.MapLibUtils.validateRequiredFieldForRecord;
 
 /**
@@ -35,7 +35,10 @@ import static org.ballerinalang.langlib.map.util.MapLibUtils.validateRequiredFie
  *
  * @since 1.2.0
  */
-public class RemoveIfHasKey {
+public final class RemoveIfHasKey {
+
+    private RemoveIfHasKey() {
+    }
 
     public static Object removeIfHasKey(BMap<?, ?> m, BString k) {
         String op = "removeIfHasKey()";

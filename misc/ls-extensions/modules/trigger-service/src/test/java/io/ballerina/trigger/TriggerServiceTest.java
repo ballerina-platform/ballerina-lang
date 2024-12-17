@@ -37,6 +37,8 @@ public class TriggerServiceTest {
 
     private static final String BALLERINA_TRIGGERS = "ballerinaTrigger/triggers";
     private static final String BALLERINA_TRIGGER = "ballerinaTrigger/trigger";
+    private static final String BALLERINA_TRIGGERS_NEW = "ballerinaTrigger/triggersNew";
+    private static final String BALLERINA_TRIGGER_NEW = "ballerinaTrigger/triggerNew";
 
     @Test(description = "Test triggers endpoint of trigger service")
     public void testTriggersService() throws ExecutionException, InterruptedException {
@@ -46,7 +48,23 @@ public class TriggerServiceTest {
         CompletableFuture<?> result = serviceEndpoint.request(BALLERINA_TRIGGERS, request);
         BallerinaTriggerListResponse response = (BallerinaTriggerListResponse) result.get();
 
-        Assert.assertTrue(response.getCentralTriggers().size() > 0);
+        Assert.assertTrue(!response.getCentralTriggers().isEmpty());
+    }
+
+    @Test(description = "Test new triggers endpoint of trigger service")
+    public void testTriggersNewService() throws ExecutionException, InterruptedException {
+        Endpoint serviceEndpoint = TestUtil.initializeLanguageSever();
+
+        BallerinaTriggerListRequest request = new BallerinaTriggerListRequest();
+        CompletableFuture<?> result = serviceEndpoint.request(BALLERINA_TRIGGERS_NEW, request);
+        JsonObject response = (JsonObject) result.get();
+
+        Assert.assertTrue(response.has("central"));
+        Assert.assertFalse(response.getAsJsonArray("central").isEmpty());
+        Assert.assertTrue(response.getAsJsonArray("central").asList().stream()
+                .anyMatch(trigger -> trigger.getAsJsonObject().get("moduleName").getAsString().contains("kafka")));
+        Assert.assertTrue(response.getAsJsonArray("central").asList().stream()
+                .anyMatch(trigger -> trigger.getAsJsonObject().get("moduleName").getAsString().contains("ftp")));
     }
 
     @Test(description = "Test trigger endpoint of trigger service")
@@ -58,5 +76,96 @@ public class TriggerServiceTest {
         JsonObject response = (JsonObject) result.get();
 
         Assert.assertEquals(response.get("id").getAsString(), "2");
+    }
+
+    @Test(description = "Test new trigger endpoint of trigger service")
+    public void testTriggerNewService() throws ExecutionException, InterruptedException {
+        Endpoint serviceEndpoint = TestUtil.initializeLanguageSever();
+
+        BallerinaTriggerRequest request = new BallerinaTriggerRequest("2");
+        CompletableFuture<?> result = serviceEndpoint.request(BALLERINA_TRIGGER_NEW, request);
+        JsonObject response = (JsonObject) result.get();
+
+        Assert.assertEquals(response.get("id").getAsString(), "2");
+        Assert.assertEquals(response.get("moduleName").getAsString(), "rabbitmq");
+    }
+
+    @Test(description = "Test new trigger endpoint of trigger service without id")
+    public void testTriggerNewServiceWithoutId() throws ExecutionException, InterruptedException {
+        Endpoint serviceEndpoint = TestUtil.initializeLanguageSever();
+
+        BallerinaTriggerRequest request = new BallerinaTriggerRequest("ballerinax", "kafka",  "kafka",
+                "*", "Kafka Event Listener");
+        CompletableFuture<?> result = serviceEndpoint.request(BALLERINA_TRIGGER_NEW, request);
+        JsonObject response = (JsonObject) result.get();
+
+        Assert.assertEquals(response.get("id").getAsString(), "1");
+        Assert.assertEquals(response.get("moduleName").getAsString(), "kafka");
+
+        request = new BallerinaTriggerRequest("ballerina", "mqtt",  "mqtt",
+                "*", "MQTT Event Listener");
+        result = serviceEndpoint.request(BALLERINA_TRIGGER_NEW, request);
+        response = (JsonObject) result.get();
+
+        Assert.assertEquals(response.get("id").getAsString(), "4");
+        Assert.assertEquals(response.get("moduleName").getAsString(), "mqtt");
+    }
+
+    @Test(description = "Test new triggers endpoint of trigger service with query")
+    public void testTriggersNewServiceWithQuery() throws ExecutionException, InterruptedException {
+        Endpoint serviceEndpoint = TestUtil.initializeLanguageSever();
+
+        BallerinaTriggerListRequest request = new BallerinaTriggerListRequest();
+        request.setQuery("kafka");
+        CompletableFuture<?> result = serviceEndpoint.request(BALLERINA_TRIGGERS_NEW, request);
+        JsonObject response = (JsonObject) result.get();
+
+        Assert.assertTrue(response.has("central"));
+        Assert.assertFalse(response.getAsJsonArray("central").isEmpty());
+        Assert.assertTrue(response.getAsJsonArray("central").asList().stream()
+                .anyMatch(trigger -> trigger.getAsJsonObject().get("moduleName").getAsString().contains("kafka")));
+        Assert.assertTrue(response.getAsJsonArray("central").asList().stream()
+                .noneMatch(trigger -> trigger.getAsJsonObject().get("moduleName").getAsString().contains("ftp")));
+    }
+
+    @Test(description = "Test new triggers endpoint of trigger service with organization")
+    public void testTriggersNewServiceWithOrg() throws ExecutionException, InterruptedException {
+        Endpoint serviceEndpoint = TestUtil.initializeLanguageSever();
+
+        BallerinaTriggerListRequest request = new BallerinaTriggerListRequest();
+        request.setOrganization("ballerina");
+        CompletableFuture<?> result = serviceEndpoint.request(BALLERINA_TRIGGERS_NEW, request);
+        JsonObject response = (JsonObject) result.get();
+
+        Assert.assertTrue(response.has("central"));
+        Assert.assertFalse(response.getAsJsonArray("central").isEmpty());
+        Assert.assertTrue(response.getAsJsonArray("central").asList().stream()
+                .anyMatch(trigger -> trigger.getAsJsonObject().get("moduleName").getAsString().contains("mqtt")));
+        Assert.assertTrue(response.getAsJsonArray("central").asList().stream()
+                .anyMatch(trigger -> trigger.getAsJsonObject().get("moduleName").getAsString().contains("ftp")));
+        Assert.assertTrue(response.getAsJsonArray("central").asList().stream()
+                .noneMatch(trigger -> trigger.getAsJsonObject().get("moduleName").getAsString().contains("kafka")));
+    }
+
+    @Test(description = "Test new triggers endpoint of trigger service with limit")
+    public void testTriggersNewServiceWithLimit() throws ExecutionException, InterruptedException {
+        Endpoint serviceEndpoint = TestUtil.initializeLanguageSever();
+
+        BallerinaTriggerListRequest request = new BallerinaTriggerListRequest();
+        request.setLimit(10);
+        CompletableFuture<?> result = serviceEndpoint.request(BALLERINA_TRIGGERS_NEW, request);
+        JsonObject response = (JsonObject) result.get();
+
+        Assert.assertTrue(response.has("central"));
+        Assert.assertFalse(response.getAsJsonArray("central").isEmpty());
+        Assert.assertTrue(response.getAsJsonArray("central").size() == 9);
+
+        request.setLimit(2);
+        result = serviceEndpoint.request(BALLERINA_TRIGGERS_NEW, request);
+        response = (JsonObject) result.get();
+
+        Assert.assertTrue(response.has("central"));
+        Assert.assertFalse(response.getAsJsonArray("central").isEmpty());
+        Assert.assertTrue(response.getAsJsonArray("central").size() == 2);
     }
 }

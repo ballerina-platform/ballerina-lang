@@ -56,6 +56,7 @@ public class STReSimpleCharClassEscapeNode extends STNode {
                 reSimpleCharClassCode);
     }
 
+    @Override
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
         return new STReSimpleCharClassEscapeNode(
                 this.slashToken,
@@ -78,6 +79,7 @@ public class STReSimpleCharClassEscapeNode extends STNode {
                 diagnostics);
     }
 
+    @Override
     public Node createFacade(int position, NonTerminalNode parent) {
         return new ReSimpleCharClassEscapeNode(this, position, parent);
     }

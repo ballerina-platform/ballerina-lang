@@ -25,13 +25,10 @@ import io.ballerina.runtime.api.values.BString;
  *
  * @since 0.990.4
  */
-//@BallerinaFunction(
-//        orgName = "ballerina", packageName = "lang.error", version = ERROR_VERSION,
-//        functionName = "message",
-//        args = {@Argument(name = "value", type = TypeKind.ERROR)},
-//        returnType = {@ReturnType(type = TypeKind.STRING)})
 public class Message {
 
+    private Message() {
+    }
 
     @Deprecated
     public static BString message(BError value) {

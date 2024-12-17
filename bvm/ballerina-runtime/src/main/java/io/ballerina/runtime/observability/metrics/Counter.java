@@ -80,6 +80,7 @@ public interface Counter extends Metric {
             return this;
         }
 
+        @Override
         public Counter build() {
             return DefaultMetricRegistry.getInstance().getMetricProvider().
                     newCounter(new MetricId(name, description, tags));
@@ -99,6 +100,7 @@ public interface Counter extends Metric {
     /**
      * Register the Metric to the registry.
      */
+    @Override
     default Counter register() {
         return DefaultMetricRegistry.getInstance().register(this);
     }
@@ -106,6 +108,7 @@ public interface Counter extends Metric {
     /**
      * Unregisters the metric to the registry.
      */
+    @Override
     default void unregister() {
         DefaultMetricRegistry.getInstance().unregister(this);
     }

@@ -34,17 +34,18 @@ import org.ballerinalang.debugadapter.SuspendedContext;
 import java.io.File;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.nio.file.Files;
 import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.StringJoiner;
 
+import static io.ballerina.projects.util.ProjectConstants.BALLERINA_TOML;
+import static io.ballerina.projects.util.ProjectPaths.isBalFile;
 import static org.ballerinalang.debugadapter.DebugSourceType.DEPENDENCY;
 import static org.ballerinalang.debugadapter.DebugSourceType.PACKAGE;
 import static org.ballerinalang.debugadapter.evaluation.IdentifierModifier.encodeModuleName;
@@ -52,7 +53,7 @@ import static org.ballerinalang.debugadapter.evaluation.IdentifierModifier.encod
 /**
  * Package Utils.
  */
-public class PackageUtils {
+public final class PackageUtils {
 
     public static final String BAL_FILE_EXT = ".bal";
     public static final String BAL_TOML_FILE_NAME = "Ballerina.toml";
@@ -61,11 +62,15 @@ public class PackageUtils {
     public static final String GENERATED_VAR_PREFIX = "$";
     static final String USER_MODULE_DIR = "modules";
     static final String GEN_MODULE_DIR = "generated";
+    static final String PERSIST_DIR = "persist";
     static final String TEST_PKG_POSTFIX = "$test";
     private static final String URI_SCHEME_FILE = "file";
     private static final String URI_SCHEME_BALA = "bala";
 
     private static final String FILE_SEPARATOR_REGEX = File.separatorChar == '\\' ? "\\\\" : File.separator;
+
+    private PackageUtils() {
+    }
 
     /**
      * Returns the corresponding debug source path based on the given stack frame location.
@@ -109,15 +114,57 @@ public class PackageUtils {
      * @return A pair of project kind and the project root.
      */
     public static Map.Entry<ProjectKind, Path> computeProjectKindAndRoot(Path path) {
-        if (ProjectPaths.isStandaloneBalFile(path)) {
+        if (ProjectPaths.isStandaloneBalFile(path) && !isBalToolSpecificFile(path)) {
             return new AbstractMap.SimpleEntry<>(ProjectKind.SINGLE_FILE_PROJECT, path);
         }
-        // Following is a temp fix to distinguish Bala and Build projects.
-        Path tomlPath = ProjectPaths.packageRoot(path).resolve(ProjectConstants.BALLERINA_TOML);
-        if (Files.exists(tomlPath)) {
-            return new AbstractMap.SimpleEntry<>(ProjectKind.BUILD_PROJECT, ProjectPaths.packageRoot(path));
+        // TODO: Revert 'findProjectRoot()' to `ProjectPaths.packageRoot()` API once
+        //  https://github.com/ballerina-platform/ballerina-lang/issues/43538#issuecomment-2469488458
+        //  is addressed from the Ballerina platform side.
+        Optional<Path> packageRoot = findProjectRoot(path);
+        if (packageRoot.isEmpty()) {
+            return new AbstractMap.SimpleEntry<>(ProjectKind.SINGLE_FILE_PROJECT, path);
+        } else if (hasBallerinaToml(packageRoot.get())) {
+            return new AbstractMap.SimpleEntry<>(ProjectKind.BUILD_PROJECT, packageRoot.get());
+        } else {
+            return new AbstractMap.SimpleEntry<>(ProjectKind.BALA_PROJECT, packageRoot.get());
         }
-        return new AbstractMap.SimpleEntry<>(ProjectKind.BALA_PROJECT, ProjectPaths.packageRoot(path));
+    }
+
+    private static boolean isBalToolSpecificFile(Path filePath) {
+        // TODO: Remove after https://github.com/ballerina-platform/ballerina-lang/issues/43538#issuecomment-2469488458
+        //  is addressed from the Ballerina platform side.
+        Path parentPath = filePath.toAbsolutePath().normalize().getParent();
+        return isBalFile(filePath)
+                && parentPath.toFile().isDirectory()
+                && parentPath.toFile().getName().equals(PERSIST_DIR)
+                && hasBallerinaToml(parentPath.getParent());
+    }
+
+    private static boolean hasBallerinaToml(Path filePath) {
+        if (Objects.isNull(filePath)) {
+            return false;
+        }
+        Path absFilePath = filePath.toAbsolutePath().normalize();
+        return absFilePath.resolve(BALLERINA_TOML).toFile().exists();
+    }
+
+    private static Optional<Path> findProjectRoot(Path filePath) {
+        if (filePath == null) {
+            return Optional.empty();
+        }
+
+        filePath = filePath.toAbsolutePath().normalize();
+        if (filePath.toFile().isDirectory()) {
+            if (hasBallerinaToml(filePath) || hasPackageJson(filePath)) {
+                return Optional.of(filePath);
+            }
+        }
+        return findProjectRoot(filePath.getParent());
+    }
+
+    private static boolean hasPackageJson(Path filePath) {
+        Path absFilePath = filePath.toAbsolutePath().normalize();
+        return absFilePath.resolve(ProjectConstants.PACKAGE_JSON).toFile().exists();
     }
 
     /**
@@ -262,7 +309,7 @@ public class PackageUtils {
         String[] moduleParts;
         // Makes the path os-independent, as some of the incoming windows source paths can contain both of the
         // separator types(possibly due to a potential JDI bug).
-        path = path.replaceAll("\\\\", "/");
+        path = path.replace("\\", "/");
         if (path.contains("/")) {
             moduleParts = path.split("/");
         } else {
@@ -295,7 +342,7 @@ public class PackageUtils {
     private static Optional<Path> getPathFromURI(String fileUri) {
         try {
             if (isValidPath(fileUri)) {
-                return Optional.of(Paths.get(fileUri).normalize());
+                return Optional.of(Path.of(fileUri).normalize());
             }
 
             URI uri = URI.create(fileUri);
@@ -304,7 +351,7 @@ public class PackageUtils {
                 scheme = URI_SCHEME_FILE;
             }
             URI converted = new URI(scheme, uri.getHost(), uri.getPath(), uri.getFragment());
-            return Optional.of(Paths.get(converted).normalize());
+            return Optional.of(Path.of(converted).normalize());
         } catch (URISyntaxException e) {
             return Optional.empty();
         }
@@ -318,7 +365,7 @@ public class PackageUtils {
             return false;
         }
         try {
-            Paths.get(path);
+            Path.of(path);
         } catch (InvalidPathException ex) {
             return false;
         }
@@ -349,9 +396,9 @@ public class PackageUtils {
 
     private static String replaceSeparators(String path) {
         if (path.contains("/")) {
-            return path.replaceAll("/", ".");
+            return path.replace("/", ".");
         } else if (path.contains("\\")) {
-            return path.replaceAll("\\\\", ".");
+            return path.replace("\\", ".");
         }
         return path;
     }

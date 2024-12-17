@@ -1,0 +1,29 @@
+{
+  "position": {
+    "line": 13,
+    "character": 53
+  },
+  "source": "changeVarTypeOfWildcardBindings.bal",
+  "expected": [
+    {
+      "title": "Change variable '_' type to 'int'",
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 13,
+              "character": 4
+            },
+            "end": {
+              "line": 13,
+              "character": 10
+            }
+          },
+          "newText": "int"
+        }
+      ],
+      "resolvable": false
+    }
+  ]
+}

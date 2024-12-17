@@ -31,16 +31,12 @@ import javax.xml.namespace.QName;
  *
  * @since 1.0
  */
-//@BallerinaFunction(
-//        orgName = "ballerina", packageName = "lang.xml",
-//        functionName = "setName",
-//        args = {@Argument(name = "BXML", type = TypeKind.XML),
-//                @Argument(name = "newName", type = TypeKind.STRING)},
-//        returnType = {@ReturnType(type = TypeKind.NIL)},
-//        isPublic = true
-//)
-public class SetName {
+public final class SetName {
+
     private static final String OPERATION = "set element name in xml";
+
+    private SetName() {
+    }
 
 
     public static void setName(BXml xmlVal, BString newNameBStr) {

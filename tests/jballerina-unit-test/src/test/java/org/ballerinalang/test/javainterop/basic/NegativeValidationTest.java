@@ -138,7 +138,7 @@ public class NegativeValidationTest {
     public void testMethodNotFound7() {
         String path = "test-src/javainterop/negative/method_not_found7.bal";
         CompileResult compileResult = BCompileUtil.compile(path);
-        Assert.assertEquals(compileResult.getDiagnostics().length, 3);
+        Assert.assertEquals(compileResult.getDiagnostics().length, 4);
         String message = "{ballerina/jballerina.java}METHOD_NOT_FOUND 'No such public static method '%s' with " +
                 "'%s' parameter(s) found in class '%s''";
         BAssertUtil.validateError(compileResult, 0, String.format(message, "getPrintableStackTrace", "1",
@@ -149,6 +149,10 @@ public class NegativeValidationTest {
                 "{ballerina/jballerina.java}METHOD_NOT_FOUND 'No such public method 'concat' " +
                         "with '3' parameter(s) found in class 'io.ballerina.runtime.api.values.BString''",
                 "method_not_found7.bal", 27, 1);
+        BAssertUtil.validateError(compileResult, 3,
+                "{ballerina/jballerina.java}METHOD_NOT_FOUND 'No such public static method 'indexOf' " +
+                        "with '0' parameter(s) found in class 'java.lang.String''",
+                "method_not_found7.bal", 32, 1);
     }
 
     @Test
@@ -401,34 +405,62 @@ public class NegativeValidationTest {
         String path = "test-src/javainterop/negative/method_resolve_error.bal";
         CompileResult compileResult = BCompileUtil.compile(path);
         compileResult.getDiagnostics();
-        Assert.assertEquals(compileResult.getDiagnostics().length, 2);
+        Assert.assertEquals(compileResult.getDiagnostics().length, 8);
         BAssertUtil.validateError(compileResult, 0,
                                   "{ballerina/jballerina.java}OVERLOADED_METHODS 'Overloaded methods " +
-                                          "cannot be differentiated. Please specify the parameterTypes for each " +
+                                          "cannot be differentiated. Please specify the parameter types for each " +
                                           "parameter in 'paramTypes' field in the annotation'",
-                                  "method_resolve_error.bal", 19, 1);
+                "method_resolve_error.bal", 19, 1);
         BAssertUtil.validateError(compileResult, 1,
                                   "{ballerina/jballerina.java}OVERLOADED_METHODS 'Overloaded methods " +
-                                          "cannot be differentiated. Please specify the parameterTypes for each " +
+                                          "cannot be differentiated. Please specify the parameter types for each " +
                                           "parameter in 'paramTypes' field in the annotation'",
-                                  "method_resolve_error.bal", 24, 1);
-
+                "method_resolve_error.bal", 24, 1);
+        BAssertUtil.validateError(compileResult, 2,
+                "{ballerina/jballerina.java}OVERLOADED_METHODS 'Overloaded methods cannot be " +
+                        "differentiated. Please specify the parameter types for each parameter in 'paramTypes' " +
+                        "field in the annotation'", "method_resolve_error.bal", 29, 1);
+        BAssertUtil.validateError(compileResult, 3,
+                "{ballerina/jballerina.java}OVERLOADED_METHODS 'Overloaded methods cannot be " +
+                        "differentiated. Please specify the parameter types for each parameter in 'paramTypes' " +
+                        "field in the annotation'", "method_resolve_error.bal", 33, 1);
+        BAssertUtil.validateError(compileResult, 4,
+                "{ballerina/jballerina.java}OVERLOADED_METHODS 'Overloaded methods 'getDescription' " +
+                        "with '1' parameter(s) in class " +
+                        "'org.ballerinalang.test.javainterop.overloading.pkg.SportsCar', please specify the " +
+                        "parameter types for each parameter in 'paramTypes' field in the annotation'",
+                "method_resolve_error.bal", 38, 1);
+        BAssertUtil.validateError(compileResult, 5,
+                "{ballerina/jballerina.java}OVERLOADED_METHODS 'Overloaded constructors with '1' " +
+                        "parameter(s) in class 'java.lang.Byte', please specify the parameter types for each " +
+                        "parameter in 'paramTypes' field in the annotation'",
+                "method_resolve_error.bal", 42, 1);
+        BAssertUtil.validateError(compileResult, 6,
+                "{ballerina/jballerina.java}OVERLOADED_METHODS 'Overloaded methods " +
+                        "'getCategorization' with '2' parameter(s) in class " +
+                        "'org.ballerinalang.test.javainterop.overloading.pkg.SportsCar', please specify the " +
+                        "parameter types for each parameter in 'paramTypes' field in the annotation'",
+                "method_resolve_error.bal", 46, 1);
     }
 
     @Test
     public void testOverloadedMethods() {
         String path = "test-src/javainterop/negative/overloaded_methods.bal";
         CompileResult compileResult = BCompileUtil.compile(path);
-        Assert.assertEquals(compileResult.getDiagnostics().length, 2);
+        Assert.assertEquals(compileResult.getDiagnostics().length, 3);
         BAssertUtil.validateError(compileResult, 0,
-                "{ballerina/jballerina.java}OVERLOADED_METHODS 'Overloaded methods " +
-                        "cannot be differentiated. Please specify the parameterTypes for each " +
-                        "parameter in 'paramTypes' field in the annotation'",
-                "overloaded_methods.bal", 24, 5);
+                "{ballerina/jballerina.java}OVERLOADED_METHODS 'Overloaded methods cannot be " +
+                        "differentiated. Please specify the parameter types for each parameter in 'paramTypes' field " +
+                        "in the annotation'", "overloaded_methods.bal", 24, 5);
         BAssertUtil.validateError(compileResult, 1,
-                "{ballerina/jballerina.java}OVERLOADED_METHODS 'Overloaded methods " +
-                "cannot be differentiated. Please specify the parameterTypes for each parameter in " +
-                "'paramTypes' field in the annotation'", "overloaded_methods.bal", 30, 1);
+                "{ballerina/jballerina.java}OVERLOADED_METHODS 'Overloaded methods cannot be " +
+                        "differentiated. Please specify the parameter types for each parameter in 'paramTypes' field " +
+                        "in the annotation'", "overloaded_methods.bal", 30, 1);
+        BAssertUtil.validateError(compileResult, 2,
+                "{ballerina/jballerina.java}OVERLOADED_METHODS 'Overloaded methods 'getPrice' with '1' " +
+                        "parameter(s) in class 'org.ballerinalang.test.javainterop.overloading.pkg.SportsCar', " +
+                        "please specify the parameter types for each parameter in 'paramTypes' " +
+                        "field in the annotation'", "overloaded_methods.bal", 35, 1);
     }
 
     @Test

@@ -33,6 +33,7 @@ import org.eclipse.lsp4j.debug.NextArguments;
 import org.eclipse.lsp4j.debug.OutputEventArguments;
 import org.eclipse.lsp4j.debug.PauseArguments;
 import org.eclipse.lsp4j.debug.ProcessEventArguments;
+import org.eclipse.lsp4j.debug.RestartArguments;
 import org.eclipse.lsp4j.debug.RunInTerminalRequestArguments;
 import org.eclipse.lsp4j.debug.RunInTerminalRequestArgumentsKind;
 import org.eclipse.lsp4j.debug.RunInTerminalResponse;
@@ -54,8 +55,6 @@ import org.eclipse.lsp4j.debug.services.IDebugProtocolServer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.time.Duration;
-import java.time.Instant;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
@@ -190,14 +189,8 @@ public class DAPRequestManager {
 
     public VariablesResponse variables(VariablesArguments args, long timeoutMillis) throws Exception {
         if (checkStatus()) {
-            Instant start = Instant.now();
             CompletableFuture<VariablesResponse> resp = server.variables(args);
-            VariablesResponse variablesResponse = resp.get(timeoutMillis, TimeUnit.MILLISECONDS);
-            Instant end = Instant.now();
-            // Todo - remove after monitoring if the debugger integration tests are failing due to averagely high
-            //  response times or, due to sudden spikes (potential concurrency issues?)
-            LOGGER.info(String.format("debug variables request took %s ms", Duration.between(start, end).toMillis()));
-            return variablesResponse;
+            return resp.get(timeoutMillis, TimeUnit.MILLISECONDS);
         } else {
             throw new IllegalStateException("DAP request manager is not active");
         }
@@ -209,14 +202,8 @@ public class DAPRequestManager {
 
     public EvaluateResponse evaluate(EvaluateArguments args, long timeoutMillis) throws Exception {
         if (checkStatus()) {
-            Instant start = Instant.now();
             CompletableFuture<EvaluateResponse> resp = server.evaluate(args);
-            EvaluateResponse evaluateResponse = resp.get(timeoutMillis, TimeUnit.MILLISECONDS);
-            Instant end = Instant.now();
-            // Todo - remove after monitoring if the debugger integration tests are failing due to averagely high
-            //  response times or, due to sudden spikes (potential concurrency issues?)
-            LOGGER.info(String.format("evaluation request took %s ms", Duration.between(start, end).toMillis()));
-            return evaluateResponse;
+            return resp.get(timeoutMillis, TimeUnit.MILLISECONDS);
         } else {
             throw new IllegalStateException("DAP request manager is not active");
         }
@@ -281,6 +268,19 @@ public class DAPRequestManager {
     public void pause(PauseArguments args, long timeoutMillis) throws Exception {
         if (checkStatus()) {
             CompletableFuture<Void> resp = server.pause(args);
+            resp.get(timeoutMillis, TimeUnit.MILLISECONDS);
+        } else {
+            throw new IllegalStateException("DAP request manager is not active");
+        }
+    }
+
+    public void restart(RestartArguments args) throws Exception {
+        restart(args, DefaultTimeouts.RESTART.getValue());
+    }
+
+    public void restart(RestartArguments args, long timeoutMillis) throws Exception {
+        if (checkStatus()) {
+            CompletableFuture<Void> resp = server.restart(args);
             resp.get(timeoutMillis, TimeUnit.MILLISECONDS);
         } else {
             throw new IllegalStateException("DAP request manager is not active");
@@ -395,6 +395,7 @@ public class DAPRequestManager {
         STEP_OUT(5000),
         RESUME(5000),
         PAUSE(5000),
+        RESTART(10000),
         DISCONNECT(5000);
 
         private final long value;

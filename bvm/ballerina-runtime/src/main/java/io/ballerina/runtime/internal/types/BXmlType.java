@@ -18,10 +18,10 @@
 package io.ballerina.runtime.internal.types;
 
 import io.ballerina.runtime.api.Module;
-import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.constants.TypeConstants;
 import io.ballerina.runtime.api.types.IntersectionType;
 import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.types.TypeTags;
 import io.ballerina.runtime.api.types.XmlType;
 import io.ballerina.runtime.internal.values.ReadOnlyUtils;
 import io.ballerina.runtime.internal.values.XmlSequence;
@@ -99,11 +99,10 @@ public class BXmlType extends BType implements XmlType {
 
     @Override
     public boolean equals(Object obj) {
-        if (!(this == obj && obj instanceof BXmlType)) {
+        if (!(this == obj && obj instanceof BXmlType other)) {
             return false;
         }
 
-        BXmlType other = (BXmlType) obj;
         if (constraint == other.constraint) {
             return true;
         }
