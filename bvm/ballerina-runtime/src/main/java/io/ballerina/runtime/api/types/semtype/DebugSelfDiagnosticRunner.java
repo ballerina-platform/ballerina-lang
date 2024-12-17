@@ -16,7 +16,6 @@ import java.util.ArrayDeque;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -50,20 +49,26 @@ public class DebugSelfDiagnosticRunner implements TypeCheckSelfDiagnosticsRunner
     }
 
     private void validateRecAtomState() {
-        StringBuilder logBuilder = new StringBuilder();
 
         List<MappingAtomicType> recMappingAtomsCopy = env.getRecMappingAtomsCopy();
         List<FunctionAtomicType> recFunctionAtomsCopy = env.getRecFunctionAtomsCopy();
         List<ListAtomicType> recListAtomsCopy = env.getRecListAtomsCopy();
         Thread validateThread = new Thread(() -> {
-            if (recMappingAtomsCopy.stream().anyMatch(Objects::isNull)) {
-                logBuilder.append("Rec mapping atoms contain null values\n");
+            StringBuilder logBuilder = new StringBuilder();
+            for (int i = 0; i < recMappingAtomsCopy.size(); i++) {
+                if (recMappingAtomsCopy.get(i) == null) {
+                    logBuilder.append("Rec mapping atoms contain null values at ").append(i).append("\n");
+                }
             }
-            if (recListAtomsCopy.stream().anyMatch(Objects::isNull)) {
-                logBuilder.append("Rec list atoms contain null values\n");
+            for (int i = 0; i < recFunctionAtomsCopy.size(); i++) {
+                if (recFunctionAtomsCopy.get(i) == null) {
+                    logBuilder.append("Rec function atoms contain null values at ").append(i).append("\n");
+                }
             }
-            if (recFunctionAtomsCopy.stream().anyMatch(Objects::isNull)) {
-                logBuilder.append("Rec function atoms contain null values\n");
+            for (int i = 0; i < recListAtomsCopy.size(); i++) {
+                if (recListAtomsCopy.get(i) == null) {
+                    logBuilder.append("Rec list atoms contain null values at ").append(i).append("\n");
+                }
             }
             try {
                 Files.write(Paths.get(LOG_FILE_PATH), logBuilder.toString().getBytes(), StandardOpenOption.CREATE,
