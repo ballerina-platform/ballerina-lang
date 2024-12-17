@@ -63,8 +63,6 @@ import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Set;
 import java.util.StringJoiner;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.BiFunction;
 
 import static io.ballerina.runtime.api.types.TypeTags.SERVICE_TAG;
@@ -90,7 +88,7 @@ public class BObjectType extends BStructureType implements ObjectType, TypeWithS
     private final DefinitionContainer<ObjectDefinition> defn = new DefinitionContainer<>();
     private final DefinitionContainer<ObjectDefinition> acceptedTypeDefn = new DefinitionContainer<>();
     private volatile DistinctIdSupplier distinctIdSupplier;
-    private final Lock typeResolutionLock = new ReentrantLock();
+    //private final Lock typeResolutionLock = new ReentrantLock();
 
     /**
      * Create a {@code BObjectType} which represents the user defined struct type.
@@ -287,7 +285,7 @@ public class BObjectType extends BStructureType implements ObjectType, TypeWithS
         try {
             // This is wrong (See {@code Env}). Instead this should be done similar to mapping and list definitions
             // using rec atoms.
-            typeResolutionLock.lock();
+            //typeResolutionLock.lock();
             Env env = cx.env;
             initializeDistinctIdSupplierIfNeeded(env);
             CellAtomicType.CellMutability mut =
@@ -308,7 +306,7 @@ public class BObjectType extends BStructureType implements ObjectType, TypeWithS
             }
             return distinctIdSupplier.get().stream().map(ObjectDefinition::distinct).reduce(innerType, Core::intersect);
         } finally {
-            typeResolutionLock.unlock();
+            // typeResolutionLock.unlock();
         }
     }
 

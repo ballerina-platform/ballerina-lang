@@ -57,6 +57,7 @@ public class MappingDefinition extends Definition {
             if (this.semType != null) {
                 return this.semType;
             }
+            assert this.rec == null;
             RecAtom rec = env.recMappingAtom();
             this.rec = rec;
             return this.createSemType(env, rec);

@@ -27,11 +27,11 @@ import io.ballerina.runtime.internal.types.semtype.MutableSemType;
 import java.lang.ref.Reference;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.WeakHashMap;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Phaser;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -73,7 +73,8 @@ public final class Env {
     private final ReadWriteLock recFunctionLock = new ReentrantReadWriteLock();
     private final List<FunctionAtomicType> recFunctionAtoms;
 
-    private final Map<CellSemTypeCacheKey, SemType> cellTypeCache = new ConcurrentHashMap<>();
+    private final ReadWriteLock cellTypeCacheLock = new ReentrantReadWriteLock();
+    private final Map<CellSemTypeCacheKey, SemType> cellTypeCache = new HashMap<>();
 
     private final AtomicInteger distinctAtomCount = new AtomicInteger(0);
     private final TypeCheckSelfDiagnosticsRunner selfDiagnosticsRunner;
@@ -131,7 +132,27 @@ public final class Env {
         if (ty.some() != 0) {
             return semTypeCreator.get();
         }
-        return this.cellTypeCache.computeIfAbsent(new CellSemTypeCacheKey(ty, mut), k -> semTypeCreator.get());
+        try {
+            cellTypeCacheLock.readLock().lock();
+            SemType cached = this.cellTypeCache.get(new CellSemTypeCacheKey(ty, mut));
+            if (cached != null) {
+                return cached;
+            }
+        } finally {
+            cellTypeCacheLock.readLock().unlock();
+        }
+        try {
+            cellTypeCacheLock.writeLock().lock();
+            SemType cached = this.cellTypeCache.get(new CellSemTypeCacheKey(ty, mut));
+            if (cached != null) {
+                return cached;
+            }
+            var result = semTypeCreator.get();
+            this.cellTypeCache.put(new CellSemTypeCacheKey(ty, mut), result);
+            return result;
+        } finally {
+            cellTypeCacheLock.writeLock().unlock();
+        }
     }
 
     public RecAtom recListAtom() {
@@ -335,5 +356,32 @@ public final class Env {
 
     void registerAbruptTypeCheckEnd(Context context, Exception ex) {
         this.selfDiagnosticsRunner.registerAbruptTypeCheckEnd(context, ex);
+    }
+
+    List<ListAtomicType> getRecListAtomsCopy() {
+        recListLock.readLock().lock();
+        try {
+            return new ArrayList<>(this.recListAtoms);
+        } finally {
+            recListLock.readLock().unlock();
+        }
+    }
+
+    List<MappingAtomicType> getRecMappingAtomsCopy() {
+        recMapLock.readLock().lock();
+        try {
+            return new ArrayList<>(this.recMappingAtoms);
+        } finally {
+            recMapLock.readLock().unlock();
+        }
+    }
+
+    List<FunctionAtomicType> getRecFunctionAtomsCopy() {
+        recFunctionLock.readLock().lock();
+        try {
+            return new ArrayList<>(this.recFunctionAtoms);
+        } finally {
+            recFunctionLock.readLock().unlock();
+        }
     }
 }

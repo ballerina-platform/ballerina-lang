@@ -27,8 +27,8 @@ import io.ballerina.runtime.api.types.semtype.Env;
 import io.ballerina.runtime.api.types.semtype.RecAtom;
 import io.ballerina.runtime.api.types.semtype.SemType;
 
-import java.util.concurrent.locks.ReadWriteLock;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * {@code Definition} used to create function subtypes.
@@ -39,20 +39,12 @@ public class FunctionDefinition extends Definition {
 
     private volatile RecAtom rec;
     private volatile SemType semType;
-    private final ReadWriteLock lock = new ReentrantReadWriteLock();
+    private final Lock lock = new ReentrantLock();
 
     @Override
     public SemType getSemType(Env env) {
         try {
-            this.lock.readLock().lock();
-            if (this.semType != null) {
-                return this.semType;
-            }
-        } finally {
-            this.lock.readLock().unlock();
-        }
-        try {
-            this.lock.writeLock().lock();
+            this.lock.lock();
             if (this.semType != null) {
                 return this.semType;
             } else {
@@ -61,7 +53,7 @@ public class FunctionDefinition extends Definition {
                 return this.createSemType(rec);
             }
         } finally {
-            this.lock.writeLock().unlock();
+            this.lock.unlock();
         }
     }
 
@@ -74,15 +66,20 @@ public class FunctionDefinition extends Definition {
 
     public SemType define(Env env, SemType args, SemType ret, FunctionQualifiers qualifiers) {
         FunctionAtomicType atomicType = new FunctionAtomicType(args, ret, qualifiers.toSemType(env));
-        RecAtom rec = this.rec;
-        Atom atom;
-        if (rec != null) {
-            atom = rec;
-            env.setRecFunctionAtomType(rec, atomicType);
-        } else {
-            atom = env.functionAtom(atomicType);
+        try {
+            lock.lock();
+            RecAtom rec = this.rec;
+            Atom atom;
+            if (rec != null) {
+                atom = rec;
+                env.setRecFunctionAtomType(rec, atomicType);
+            } else {
+                atom = env.functionAtom(atomicType);
+            }
+            return this.createSemType(atom);
+        } finally {
+            lock.unlock();
         }
-        return this.createSemType(atom);
     }
 
 }

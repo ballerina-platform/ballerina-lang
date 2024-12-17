@@ -1,8 +1,9 @@
 package io.ballerina.runtime.api.types.semtype;
 
+import io.ballerina.runtime.internal.types.semtype.FunctionAtomicType;
+import io.ballerina.runtime.internal.types.semtype.ListAtomicType;
+import io.ballerina.runtime.internal.types.semtype.MappingAtomicType;
 import io.ballerina.runtime.internal.types.semtype.MutableSemType;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.lang.management.ManagementFactory;
@@ -15,6 +16,7 @@ import java.util.ArrayDeque;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -22,7 +24,6 @@ public class DebugSelfDiagnosticRunner implements TypeCheckSelfDiagnosticsRunner
 
     private static final int MAX_TIMEOUT = 1000;
     private static final String LOG_FILE_PATH = "/tmp/type_check_diagnostics.log";
-    private static final Logger log = LoggerFactory.getLogger(DebugSelfDiagnosticRunner.class);
     private final Queue<TypeResolutionData> pendingTypeResolutions = new ArrayDeque<>();
     private final Queue<TypeCheckData> pendingTypeChecks = new ArrayDeque<>();
     private final Map<Thread, String> uncaughtExceptions = new ConcurrentHashMap<>();
@@ -48,6 +49,32 @@ public class DebugSelfDiagnosticRunner implements TypeCheckSelfDiagnosticsRunner
         t.setUncaughtExceptionHandler((thread, throwable) -> uncaughtExceptions.put(thread, throwable.getMessage()));
     }
 
+    private void validateRecAtomState() {
+        StringBuilder logBuilder = new StringBuilder();
+
+        List<MappingAtomicType> recMappingAtomsCopy = env.getRecMappingAtomsCopy();
+        List<FunctionAtomicType> recFunctionAtomsCopy = env.getRecFunctionAtomsCopy();
+        List<ListAtomicType> recListAtomsCopy = env.getRecListAtomsCopy();
+        Thread validateThread = new Thread(() -> {
+            if (recMappingAtomsCopy.stream().anyMatch(Objects::isNull)) {
+                logBuilder.append("Rec mapping atoms contain null values\n");
+            }
+            if (recListAtomsCopy.stream().anyMatch(Objects::isNull)) {
+                logBuilder.append("Rec list atoms contain null values\n");
+            }
+            if (recFunctionAtomsCopy.stream().anyMatch(Objects::isNull)) {
+                logBuilder.append("Rec function atoms contain null values\n");
+            }
+            try {
+                Files.write(Paths.get(LOG_FILE_PATH), logBuilder.toString().getBytes(), StandardOpenOption.CREATE,
+                        StandardOpenOption.APPEND);
+            } catch (IOException ignored) {
+            }
+        });
+        validateThread.setDaemon(true);
+        validateThread.start();
+    }
+
     @Override
     public void registerTypeCheckStart(Context cx, SemType t1, SemType t2) {
         synchronized (pendingTypeResolutions) {
@@ -56,6 +83,7 @@ public class DebugSelfDiagnosticRunner implements TypeCheckSelfDiagnosticsRunner
         synchronized (pendingTypeChecks) {
             pendingTypeChecks.add(new TypeCheckData(cx, t1, t2));
         }
+        validateRecAtomState();
         Thread t = Thread.currentThread();
         t.setUncaughtExceptionHandler((thread, throwable) -> uncaughtExceptions.put(thread, throwable.getMessage()));
     }
