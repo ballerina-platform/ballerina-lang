@@ -64,9 +64,7 @@ public sealed class SemType extends BasicTypeBitSet
                 mutableSemType.updateInnerSemTypeIfNeeded(cx);
             } catch (Exception ex) {
                 cx.exitTypeResolutionPhaseAbruptly(ex);
-                if (ex instanceof RuntimeException runtimeException) {
-                    throw runtimeException;
-                }
+                throw new RuntimeException("Error while resolving type: " + mutableSemType, ex);
             }
         }
 
