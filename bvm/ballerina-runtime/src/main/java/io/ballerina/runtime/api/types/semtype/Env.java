@@ -54,7 +54,7 @@ public final class Env {
     private static final int TYPE_RESOLUTION_MAX_PERMITS = 10000;
     private final Semaphore typeResolutionSemaphore = new Semaphore(TYPE_RESOLUTION_MAX_PERMITS);
 
-    private final Phaser typeResolutionPhaser = new Phaser();
+    private volatile Phaser typeResolutionPhaser = new Phaser();
 
     private static final Env INSTANCE = new Env();
 
@@ -318,6 +318,13 @@ public final class Env {
     void enterTypeResolutionPhase(Context cx, MutableSemType t) throws InterruptedException {
         assert typeResolutionSemaphore.availablePermits() >= 0;
         typeResolutionSemaphore.acquire();
+        if (typeResolutionPhaser.isTerminated()) {
+            synchronized (this) {
+                if (typeResolutionPhaser.isTerminated()) {
+                    typeResolutionPhaser = new Phaser();
+                }
+            }
+        }
         typeResolutionPhaser.register();
         this.selfDiagnosticsRunner.registerTypeResolutionStart(cx, t);
     }
