@@ -566,27 +566,17 @@ final class PredefinedTypeEnv {
     // Due to some reason SpotBug thinks this method is overrideable if we don't put final here as well.
     final void initializeEnv(Env env) {
         assert initialized.get() : "PredefinedTypeEnv has not fully initialized, check concurrency issues";
-        fillRecAtoms(env.recListAtoms, initializedRecListAtoms);
-        fillRecAtoms(env.recMappingAtoms, initializedRecMappingAtoms);
+        fillRecAtoms(env.recListAtoms, initializedRecListAtoms, initializedRecListAtoms.size());
+        fillRecAtoms(env.recMappingAtoms, initializedRecMappingAtoms, initializedRecMappingAtoms.size());
         initializedCellAtoms.forEach(each -> env.cellAtom(each.atomicType()));
         initializedListAtoms.forEach(each -> env.listAtom(each.atomicType()));
     }
 
-    private <E extends AtomicType> void fillRecAtoms(List<E> envRecAtomList, List<E> initializedRecAtoms) {
-        int count = reservedRecAtomCount();
-        for (int i = 0; i < count; i++) {
-            if (i < initializedRecAtoms.size()) {
-                envRecAtomList.add(initializedRecAtoms.get(i));
-            } else {
-                // This is mainly to help with bir serialization/deserialization logic. Given the number of such atoms
-                // will be small this shouldn't be a problem.
-                envRecAtomList.add(null);
-            }
+    private <E extends AtomicType> void fillRecAtoms(List<E> envRecAtomList, List<E> initializedRecAtoms,
+                                                     int reservedAtomCount) {
+        for (int i = 0; i < reservedAtomCount; i++) {
+            envRecAtomList.add(initializedRecAtoms.get(i));
         }
-    }
-
-    private int reservedRecAtomCount() {
-        return Integer.max(initializedRecListAtoms.size(), initializedRecMappingAtoms.size());
     }
 
     SemType cellSemTypeInner() {
