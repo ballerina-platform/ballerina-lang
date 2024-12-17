@@ -329,12 +329,16 @@ public final class Env {
     }
 
     void exitTypeResolutionPhaseAbruptly(Context cx, Exception ex) {
-        typeResolutionSemaphore.release();
-        typeResolutionPhaser.arriveAndDeregister();
-        releaseLock((ReentrantReadWriteLock) atomLock);
-        releaseLock((ReentrantReadWriteLock) recListLock);
-        releaseLock((ReentrantReadWriteLock) recMapLock);
-        releaseLock((ReentrantReadWriteLock) recFunctionLock);
+        try {
+            typeResolutionSemaphore.release();
+            typeResolutionPhaser.arriveAndDeregister();
+            releaseLock((ReentrantReadWriteLock) atomLock);
+            releaseLock((ReentrantReadWriteLock) recListLock);
+            releaseLock((ReentrantReadWriteLock) recMapLock);
+            releaseLock((ReentrantReadWriteLock) recFunctionLock);
+        } catch (Exception ignored) {
+
+        }
         this.selfDiagnosticsRunner.registerAbruptTypeResolutionEnd(cx, ex);
     }
 
