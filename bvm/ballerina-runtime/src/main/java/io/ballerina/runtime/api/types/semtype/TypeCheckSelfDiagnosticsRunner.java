@@ -13,4 +13,6 @@ interface TypeCheckSelfDiagnosticsRunner {
     void registerAbruptTypeResolutionEnd(Context cx, Exception ex);
 
     void registerAbruptTypeCheckEnd(Context cx, Exception ex);
+
+    void registerTypeResolutionExit(Context cx);
 }

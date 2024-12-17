@@ -147,6 +147,13 @@ public class DebugSelfDiagnosticRunner implements TypeCheckSelfDiagnosticsRunner
         }
     }
 
+    @Override
+    public void registerTypeResolutionExit(Context cx) {
+        synchronized (pendingTypeResolutions) {
+            pendingTypeResolutions.removeIf(data -> data.cx == cx);
+        }
+    }
+
     private static String withIdentity(Object o) {
         return o + "[" + System.identityHashCode(o) + "]";
     }
@@ -174,6 +181,8 @@ public class DebugSelfDiagnosticRunner implements TypeCheckSelfDiagnosticsRunner
             for (StackTraceElement element : data.t.getStackTrace()) {
                 logBuilder.append("\tat ").append(element).append("\n");
             }
+            logBuilder.append("Entry points\n");
+            data.cx.typeResolutionPhases.forEach(each -> logBuilder.append(each.toString()).append("\n"));
         });
         return logBuilder.toString();
     }

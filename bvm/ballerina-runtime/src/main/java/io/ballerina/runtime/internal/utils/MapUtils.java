@@ -24,8 +24,6 @@ import io.ballerina.runtime.api.types.MapType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.TypeTags;
 import io.ballerina.runtime.api.types.semtype.Builder;
-import io.ballerina.runtime.api.types.semtype.Core;
-import io.ballerina.runtime.api.types.semtype.SemType;
 import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BString;
@@ -37,6 +35,7 @@ import io.ballerina.runtime.internal.types.BTypeReferenceType;
 import io.ballerina.runtime.internal.values.MapValue;
 
 import static io.ballerina.runtime.api.constants.RuntimeConstants.MAP_LANG_LIB;
+import static io.ballerina.runtime.internal.TypeChecker.containsBasicType;
 import static io.ballerina.runtime.internal.errors.ErrorReasons.INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER;
 import static io.ballerina.runtime.internal.errors.ErrorReasons.MAP_KEY_NOT_FOUND_ERROR;
 import static io.ballerina.runtime.internal.errors.ErrorReasons.OPERATION_NOT_SUPPORTED_IDENTIFIER;
@@ -118,7 +117,7 @@ public final class MapUtils {
     }
 
     private static boolean containsNilType(Type type) {
-        return Core.containsBasicType(SemType.tryInto(TypeChecker.context(), type), Builder.getNilType());
+        return containsBasicType(TypeChecker.context(), type, Builder.getNilType());
     }
 
     public static BError createOpNotSupportedError(Type type, String op) {

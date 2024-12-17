@@ -28,4 +28,9 @@ public class NonOpSelfDiagnosticRunner implements TypeCheckSelfDiagnosticsRunner
     public void registerAbruptTypeCheckEnd(Context cx, Exception ex) {
 
     }
+
+    @Override
+    public void registerTypeResolutionExit(Context cx) {
+
+    }
 }

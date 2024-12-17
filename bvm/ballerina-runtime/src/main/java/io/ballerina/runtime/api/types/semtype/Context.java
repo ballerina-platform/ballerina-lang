@@ -52,11 +52,13 @@ public final class Context {
     private int drainedPermits = 0;
     private int nTypeChecking = 0;
     private Phase phase = Phase.INIT;
-    // List<PhaseData> typeCheckPhases = new ArrayList<>();
+    List<PhaseData> typeResolutionPhases = new ArrayList<>();
+    private final boolean collectDiagnostic;
 
     private Context(Env env) {
         this.env = env;
         this.typeCheckCacheMemo = createTypeCheckCacheMemo();
+        this.collectDiagnostic = "true".equalsIgnoreCase(System.getenv("BAL_TYPE_CHECK_DIAGNOSTIC_ENABLE"));
     }
 
     private static Map<CacheableTypeDescriptor, TypeCheckCache<CacheableTypeDescriptor>> createTypeCheckCacheMemo() {
@@ -100,6 +102,9 @@ public final class Context {
             case INIT -> {
                 env.enterTypeResolutionPhase(this, type);
                 phase = Phase.TYPE_RESOLUTION;
+                if (collectDiagnostic) {
+                    typeResolutionPhases.add(new PhaseData());
+                }
             }
             case TYPE_RESOLUTION -> {
             }
@@ -115,13 +120,15 @@ public final class Context {
 
     public void enterTypeCheckingPhase(SemType t1, SemType t2) {
         nTypeChecking += 1;
-//        typeCheckPhases.add(new PhaseData(phase, nTypeChecking, Thread.currentThread().getStackTrace()));
         switch (phase) {
             case INIT -> {
                 // This can happen if both types are immutable semtypes
                 phase = Phase.TYPE_CHECKING;
             }
             case TYPE_RESOLUTION -> {
+                if (collectDiagnostic) {
+                    typeResolutionPhases.removeLast();
+                }
                 drainedPermits = env.enterTypeCheckingPhase(this, t1, t2);
                 phase = Phase.TYPE_CHECKING;
             }
@@ -130,9 +137,14 @@ public final class Context {
         }
     }
 
+    public void exitTypeResolutionPhase() {
+        if (phase == Phase.TYPE_RESOLUTION) {
+            env.exitTypeResolutionPhase(this);
+        }
+    }
+
     public void exitTypeCheckingPhase() {
         nTypeChecking -= 1;
-//        typeCheckPhases.removeLast();
         switch (phase) {
             case INIT -> throw new IllegalStateException("Cannot exit type checking phase without entering it");
             case TYPE_RESOLUTION ->
@@ -227,17 +239,15 @@ public final class Context {
         INIT, TYPE_RESOLUTION, TYPE_CHECKING
     }
 
-    int getNTypeChecking() {
-        return nTypeChecking;
-    }
+    record PhaseData(StackTraceElement[] stackTrace) {
 
-    record PhaseData(Phase phase, int nTypeCheck, StackTraceElement[] stackTrace) {
+        PhaseData() {
+            this(Thread.currentThread().getStackTrace());
+        }
 
         @Override
         public String toString() {
             StringBuilder builder = new StringBuilder();
-            builder.append("Phase: ").append(phase).append("\n");
-            builder.append("N type checking: ").append(nTypeCheck).append("\n");
             for (StackTraceElement element : stackTrace) {
                 builder.append("\tat ").append(element).append("\n");
             }

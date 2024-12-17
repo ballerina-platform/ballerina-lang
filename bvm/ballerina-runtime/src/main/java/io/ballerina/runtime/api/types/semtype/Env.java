@@ -322,10 +322,12 @@ public final class Env {
             synchronized (this) {
                 if (typeResolutionPhaser.isTerminated()) {
                     typeResolutionPhaser = new Phaser();
+                    typeResolutionPhaser.register();
                 }
             }
+        } else {
+            typeResolutionPhaser.register();
         }
-        typeResolutionPhaser.register();
         this.selfDiagnosticsRunner.registerTypeResolutionStart(cx, t);
     }
 
@@ -346,6 +348,12 @@ public final class Env {
         if (lock.getReadHoldCount() > 0) {
             lock.readLock().unlock();
         }
+    }
+
+    void exitTypeResolutionPhase(Context cx) {
+        typeResolutionSemaphore.release();
+        typeResolutionPhaser.arriveAndDeregister();
+        this.selfDiagnosticsRunner.registerTypeResolutionExit(cx);
     }
 
     int enterTypeCheckingPhase(Context cx, SemType t1, SemType t2) {
