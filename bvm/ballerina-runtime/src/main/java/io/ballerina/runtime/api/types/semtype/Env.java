@@ -32,9 +32,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.WeakHashMap;
-import java.util.concurrent.Phaser;
-import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.function.Supplier;
@@ -50,11 +49,6 @@ import java.util.function.Supplier;
 public final class Env {
     // Currently there is no reason to worry about above restrictions since Env is a singleton, but strictly speaking
     // there is not technical restriction preventing multiple instances of Env.
-
-    private static final int TYPE_RESOLUTION_MAX_PERMITS = 10000;
-    private final Semaphore typeResolutionSemaphore = new Semaphore(TYPE_RESOLUTION_MAX_PERMITS);
-
-    private volatile Phaser typeResolutionPhaser = new Phaser();
 
     private static final Env INSTANCE = new Env();
 
@@ -78,6 +72,8 @@ public final class Env {
 
     private final AtomicInteger distinctAtomCount = new AtomicInteger(0);
     private final TypeCheckSelfDiagnosticsRunner selfDiagnosticsRunner;
+
+    private final AtomicLong pendingTypeResolutions = new AtomicLong(0);
 
     private Env() {
         this.atomTable = new WeakHashMap<>();
@@ -316,22 +312,13 @@ public final class Env {
     // context to enter phase 1.
 
     void enterTypeResolutionPhase(Context cx, MutableSemType t) throws InterruptedException {
-        typeResolutionSemaphore.acquire();
-        if (typeResolutionPhaser.isTerminated()) {
-            synchronized (this) {
-                if (typeResolutionPhaser.isTerminated()) {
-                    typeResolutionPhaser = new Phaser();
-                }
-            }
-        }
-        typeResolutionPhaser.register();
+        pendingTypeResolutions.incrementAndGet();
         this.selfDiagnosticsRunner.registerTypeResolutionStart(cx, t);
     }
 
     void exitTypeResolutionPhaseAbruptly(Context cx, Exception ex) {
         try {
-            typeResolutionSemaphore.release();
-            typeResolutionPhaser.arriveAndDeregister();
+            pendingTypeResolutions.decrementAndGet();
             releaseLock((ReentrantReadWriteLock) atomLock);
             releaseLock((ReentrantReadWriteLock) recListLock);
             releaseLock((ReentrantReadWriteLock) recMapLock);
@@ -352,20 +339,23 @@ public final class Env {
     }
 
     void exitTypeResolutionPhase(Context cx) {
-        typeResolutionSemaphore.release();
-        typeResolutionPhaser.arriveAndDeregister();
+        pendingTypeResolutions.decrementAndGet();
         this.selfDiagnosticsRunner.registerTypeResolutionExit(cx);
     }
 
-    int enterTypeCheckingPhase(Context cx, SemType t1, SemType t2) {
-        int drained = typeResolutionSemaphore.drainPermits();
-        typeResolutionPhaser.awaitAdvance(typeResolutionPhaser.arriveAndDeregister());
+    void enterTypeCheckingPhase(Context cx, SemType t1, SemType t2) {
+        long pendingResolutions = pendingTypeResolutions.decrementAndGet();
+        while (pendingResolutions > 0) {
+            try {
+                Thread.sleep(10);
+            } catch (InterruptedException ignored) {
+            }
+            pendingResolutions = pendingTypeResolutions.get();
+        }
         this.selfDiagnosticsRunner.registerTypeCheckStart(cx, t1, t2);
-        return drained;
     }
 
-    void exitTypeCheckingPhase(Context cx, int permits) {
-        typeResolutionSemaphore.release(permits);
+    void exitTypeCheckingPhase(Context cx) {
         this.selfDiagnosticsRunner.registerTypeCheckEnd(cx);
     }
 

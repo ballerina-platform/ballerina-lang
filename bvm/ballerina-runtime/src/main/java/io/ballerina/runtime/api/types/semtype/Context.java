@@ -49,7 +49,6 @@ public final class Context {
     public final Map<Bdd, BddMemo> functionMemo = new WeakHashMap<>();
     private static final int MAX_CACHE_SIZE = 100;
     private final Map<CacheableTypeDescriptor, TypeCheckCache<CacheableTypeDescriptor>> typeCheckCacheMemo;
-    private int drainedPermits = 0;
     private int nTypeChecking = 0;
     private Phase phase = Phase.INIT;
     List<PhaseData> typeResolutionPhases = new ArrayList<>();
@@ -135,7 +134,7 @@ public final class Context {
                 phase = Phase.TYPE_CHECKING;
             }
             case TYPE_RESOLUTION -> {
-                drainedPermits = env.enterTypeCheckingPhase(this, t1, t2);
+                env.enterTypeCheckingPhase(this, t1, t2);
                 if (collectDiagnostic) {
                     typeCheckPhases.add(new PhaseData());
                     typeResolutionPhases.removeLast();
@@ -179,12 +178,11 @@ public final class Context {
             case TYPE_CHECKING -> {
                 assert nTypeChecking >= 0;
                 if (nTypeChecking == 0) {
-                    env.exitTypeCheckingPhase(this, drainedPermits + 1);
+                    env.exitTypeCheckingPhase(this);
                     if (collectDiagnostic) {
                         typeCheckPhases.removeLast();
                     }
                     phase = Phase.INIT;
-                    drainedPermits = 0;
                 }
                 assert nTypeChecking >= 0;
             }
