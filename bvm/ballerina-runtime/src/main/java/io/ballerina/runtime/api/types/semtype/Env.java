@@ -339,18 +339,18 @@ public final class Env {
     }
 
     void exitTypeResolutionPhase(Context cx) {
-        pendingTypeResolutions.decrementAndGet();
+        long res = pendingTypeResolutions.decrementAndGet();
+        assert res >= 0;
         this.selfDiagnosticsRunner.registerTypeResolutionExit(cx);
     }
 
     void enterTypeCheckingPhase(Context cx, SemType t1, SemType t2) {
-        long pendingResolutions = pendingTypeResolutions.decrementAndGet();
-        while (pendingResolutions > 0) {
+        assert pendingTypeResolutions.get() >= 0;
+        while (pendingTypeResolutions.get() != 0) {
             try {
                 Thread.sleep(10);
             } catch (InterruptedException ignored) {
             }
-            pendingResolutions = pendingTypeResolutions.get();
         }
         this.selfDiagnosticsRunner.registerTypeCheckStart(cx, t1, t2);
     }

@@ -125,8 +125,9 @@ public final class TypeChecker {
         }
         Type sourceType = getType(sourceVal);
         Context cx = context();
-        if (containsBasicType(cx, sourceType, ConvertibleCastMaskHolder.CONVERTIBLE_CAST_MASK) &&
-                containsBasicType(cx, targetType, ConvertibleCastMaskHolder.CONVERTIBLE_CAST_MASK)) {
+        if (Core.containsBasicType(SemType.tryInto(cx, sourceType), ConvertibleCastMaskHolder.CONVERTIBLE_CAST_MASK) &&
+                Core.containsBasicType(SemType.tryInto(cx, targetType),
+                        ConvertibleCastMaskHolder.CONVERTIBLE_CAST_MASK)) {
             // We need to maintain order for these?
             if (targetType instanceof BUnionType unionType) {
                 for (Type memberType : unionType.getMemberTypes()) {
@@ -141,14 +142,6 @@ public final class TypeChecker {
             }
         }
         throw createTypeCastError(sourceVal, targetType, errors);
-    }
-
-    public static boolean containsBasicType(Context cx, Type type, SemType semType) {
-        try {
-            return Core.containsBasicType(SemType.tryInto(context(), type), semType);
-        } finally {
-            cx.exitTypeResolutionPhase();
-        }
     }
 
     public static Context context() {
@@ -272,11 +265,8 @@ public final class TypeChecker {
             return true;
         }
         SemType sourceSemType = SemType.tryInto(cx, sourceType);
-        if (!couldInherentTypeBeDifferent(sourceSemType)) {
-            cx.exitTypeResolutionPhase();
-            return false;
-        }
-        return isSubTypeWithInherentType(cx, sourceVal, SemType.tryInto(cx, targetType));
+        return couldInherentTypeBeDifferent(sourceSemType) &&
+                isSubTypeWithInherentType(cx, sourceVal, SemType.tryInto(cx, targetType));
     }
 
     /**
@@ -609,7 +599,6 @@ public final class TypeChecker {
     // Private methods
 
     private static boolean isSubTypeWithInherentType(Context cx, Object sourceValue, SemType target) {
-        cx.exitTypeResolutionPhase();
         return ShapeAnalyzer.inherentTypeOf(cx, sourceValue)
                 .map(source -> !Core.isEmpty(cx, source) && Core.isSubType(cx, source, target))
                 .orElse(false);
@@ -832,7 +821,6 @@ public final class TypeChecker {
     private static boolean checkValueEqual(Context cx, Object lhsValue, Object rhsValue, Set<ValuePair> checkedValues) {
         SemType lhsShape = ShapeAnalyzer.inherentTypeOf(cx, lhsValue).orElseThrow();
         SemType rhsShape = ShapeAnalyzer.inherentTypeOf(cx, rhsValue).orElseThrow();
-        cx.exitTypeResolutionPhase();
         Predicate<SemType> belongToSameBasicType = (basicType) -> Core.containsBasicType(lhsShape, basicType) &&
                 Core.containsBasicType(rhsShape, basicType);
         if (belongToSameBasicType.test(Builder.getStringType()) ||
@@ -998,7 +986,6 @@ public final class TypeChecker {
     }
 
     private static FillerValueResult hasFillerValueSemType(Context cx, SemType type) {
-        cx.exitTypeResolutionPhase();
         if (Core.containsBasicType(type, Builder.getNilType())) {
             return FillerValueResult.TRUE;
         }

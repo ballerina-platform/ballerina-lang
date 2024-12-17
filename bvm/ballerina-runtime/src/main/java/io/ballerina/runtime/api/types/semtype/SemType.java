@@ -59,13 +59,7 @@ public sealed class SemType extends BasicTypeBitSet
 
     public static SemType tryInto(Context cx, Type type) {
         if (type instanceof MutableSemType mutableSemType) {
-            try {
-                cx.enterTypeResolutionPhase(mutableSemType);
-                mutableSemType.updateInnerSemTypeIfNeeded(cx);
-            } catch (Exception ex) {
-                cx.exitTypeResolutionPhaseAbruptly(ex);
-                throw new RuntimeException("Error while resolving type: " + mutableSemType, ex);
-            }
+            mutableSemType.updateInnerSemTypeIfNeeded(cx);
         }
 
         return (SemType) type;

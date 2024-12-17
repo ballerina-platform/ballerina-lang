@@ -49,11 +49,12 @@ public final class Context {
     public final Map<Bdd, BddMemo> functionMemo = new WeakHashMap<>();
     private static final int MAX_CACHE_SIZE = 100;
     private final Map<CacheableTypeDescriptor, TypeCheckCache<CacheableTypeDescriptor>> typeCheckCacheMemo;
-    private int nTypeChecking = 0;
     private Phase phase = Phase.INIT;
     List<PhaseData> typeResolutionPhases = new ArrayList<>();
     List<PhaseData> typeCheckPhases = new ArrayList<>();
     private final boolean collectDiagnostic;
+    private int typeCheckDepth = 0;
+    private int typeResolutionDepth = 0;
 
     private Context(Env env) {
         this.env = env;
@@ -100,6 +101,7 @@ public final class Context {
     public void enterTypeResolutionPhase(MutableSemType type) throws InterruptedException {
         switch (phase) {
             case INIT -> {
+                typeResolutionDepth++;
                 env.enterTypeResolutionPhase(this, type);
                 phase = Phase.TYPE_RESOLUTION;
                 if (collectDiagnostic) {
@@ -107,6 +109,7 @@ public final class Context {
                 }
             }
             case TYPE_RESOLUTION -> {
+                typeResolutionDepth++;
             }
             case TYPE_CHECKING -> {
                 StringBuilder sb = new StringBuilder();
@@ -124,22 +127,22 @@ public final class Context {
     }
 
     public void enterTypeCheckingPhase(SemType t1, SemType t2) {
-        nTypeChecking += 1;
+        typeCheckDepth++;
         switch (phase) {
             case INIT -> {
-                // This can happen if both types are immutable semtypes
+                env.enterTypeCheckingPhase(this, t1, t2);
                 if (collectDiagnostic) {
                     typeCheckPhases.add(new PhaseData());
                 }
                 phase = Phase.TYPE_CHECKING;
             }
             case TYPE_RESOLUTION -> {
-                env.enterTypeCheckingPhase(this, t1, t2);
+                StringBuilder sb = new StringBuilder();
+                sb.append("Cannot enter type checking phase while in type resolution phase\n");
                 if (collectDiagnostic) {
-                    typeCheckPhases.add(new PhaseData());
-                    typeResolutionPhases.removeLast();
+                    appendPhaseDataToError(sb);
                 }
-                phase = Phase.TYPE_CHECKING;
+                throw new IllegalStateException(sb.toString());
             }
             case TYPE_CHECKING -> {
             }
@@ -148,16 +151,20 @@ public final class Context {
 
     public void exitTypeResolutionPhase() {
         if (phase == Phase.TYPE_RESOLUTION) {
-            env.exitTypeResolutionPhase(this);
-            phase = Phase.INIT;
-            if (collectDiagnostic) {
-                typeResolutionPhases.removeLast();
+            typeResolutionDepth--;
+            if (typeResolutionDepth == 0) {
+                env.exitTypeResolutionPhase(this);
+                phase = Phase.INIT;
+                if (collectDiagnostic) {
+                    typeResolutionPhases.removeLast();
+                }
             }
+        } else {
+            throw new IllegalStateException("Cannot exit type resolution phase without entering it");
         }
     }
 
     public void exitTypeCheckingPhase() {
-        nTypeChecking -= 1;
         switch (phase) {
             case INIT -> {
                 StringBuilder sb = new StringBuilder();
@@ -176,15 +183,11 @@ public final class Context {
                 throw new IllegalStateException(sb.toString());
             }
             case TYPE_CHECKING -> {
-                assert nTypeChecking >= 0;
-                if (nTypeChecking == 0) {
-                    env.exitTypeCheckingPhase(this);
-                    if (collectDiagnostic) {
-                        typeCheckPhases.removeLast();
-                    }
+                env.exitTypeCheckingPhase(this);
+                typeCheckDepth--;
+                if (typeCheckDepth == 0) {
                     phase = Phase.INIT;
                 }
-                assert nTypeChecking >= 0;
             }
         }
     }
