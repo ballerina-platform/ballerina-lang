@@ -29,7 +29,6 @@ import io.ballerina.runtime.api.types.semtype.Context;
 import io.ballerina.runtime.api.types.semtype.Core;
 import io.ballerina.runtime.api.types.semtype.SemType;
 import io.ballerina.runtime.api.values.BError;
-import io.ballerina.runtime.internal.TypeChecker;
 import io.ballerina.runtime.internal.types.semtype.ErrorUtils;
 import io.ballerina.runtime.internal.values.ErrorValue;
 import io.ballerina.runtime.internal.values.MapValueImpl;
@@ -128,23 +127,23 @@ public class BErrorType extends BAnnotatableType implements ErrorType, TypeWithS
     }
 
     @Override
-    public SemType createSemType() {
+    public SemType createSemType(Context cx) {
         SemType err;
         if (detailType == null || isTopType()) {
             err = Builder.getErrorType();
         } else {
-            err = ErrorUtils.errorDetail(tryInto(getDetailType()));
+            err = ErrorUtils.errorDetail(tryInto(cx, getDetailType()));
         }
 
-        initializeDistinctIdSupplierIfNeeded();
+        initializeDistinctIdSupplierIfNeeded(cx);
         return distinctIdSupplier.get().stream().map(ErrorUtils::errorDistinct).reduce(err, Core::intersect);
     }
 
-    private void initializeDistinctIdSupplierIfNeeded() {
+    private void initializeDistinctIdSupplierIfNeeded(Context cx) {
         if (distinctIdSupplier == null) {
             synchronized (this) {
                 if (distinctIdSupplier == null) {
-                    distinctIdSupplier = new DistinctIdSupplier(TypeChecker.context().env, getTypeIdSet());
+                    distinctIdSupplier = new DistinctIdSupplier(cx.env, getTypeIdSet());
                 }
             }
         }
@@ -163,14 +162,14 @@ public class BErrorType extends BAnnotatableType implements ErrorType, TypeWithS
     @Override
     public Optional<SemType> inherentTypeOf(Context cx, ShapeSupplier shapeSupplier, Object object) {
         if (!couldInherentTypeBeDifferent()) {
-            return Optional.of(getSemType());
+            return Optional.of(getSemType(cx));
         }
         BError errorValue = (BError) object;
         Object details = errorValue.getDetails();
         if (!(details instanceof MapValueImpl<?, ?> errorDetails)) {
             return Optional.empty();
         }
-        initializeDistinctIdSupplierIfNeeded();
+        initializeDistinctIdSupplierIfNeeded(cx);
         // Should we actually pass the readonly shape supplier here?
         return BMapType.shapeOfInner(cx, shapeSupplier, errorDetails)
                 .map(ErrorUtils::errorDetail)
@@ -190,7 +189,7 @@ public class BErrorType extends BAnnotatableType implements ErrorType, TypeWithS
 
     @Override
     public Optional<SemType> acceptedTypeOf(Context cx) {
-        return Optional.of(getSemType());
+        return Optional.of(getSemType(cx));
     }
 
     @Override

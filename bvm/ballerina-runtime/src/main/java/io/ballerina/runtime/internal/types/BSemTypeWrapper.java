@@ -140,12 +140,14 @@ public sealed class BSemTypeWrapper<E extends BType> extends ImmutableSemType im
 
     @Override
     public boolean isPureType() {
-        Context cx = TypeChecker.context();
-        return Core.isSubType(cx, this, Builder.getErrorType()) || isAnydata();
+        return Core.isSubtypeSimple(this, Builder.getErrorType()) || isAnydata();
     }
 
     @Override
     public boolean isReadOnly() {
+        if (Core.isSubtypeSimple(this, Builder.getInherentlyImmutable())) {
+            return true;
+        }
         Context cx = TypeChecker.context();
         return Core.isSubType(cx, this, Builder.getReadonlyType());
     }
