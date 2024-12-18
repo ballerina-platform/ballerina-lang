@@ -964,6 +964,10 @@ public abstract class NodeTransformer<T> {
         return transformSyntaxNode(receiveFieldNode);
     }
 
+    public T transform(CommentNode commentNode) {
+        return transformSyntaxNode(commentNode);
+    }
+
     // Tokens
 
     public T transform(Token token) {

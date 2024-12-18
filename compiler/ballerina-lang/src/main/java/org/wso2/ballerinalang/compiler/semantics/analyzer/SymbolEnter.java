@@ -4881,7 +4881,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         List<BResourcePathSegmentSymbol> pathSegmentSymbols = new ArrayList<>(resourcePathCount);
         BResourcePathSegmentSymbol parentResource = null;
         for (BLangResourcePathSegment pathSegment : pathSegments) {
-            Name resourcePathSymbolName = Names.fromString(pathSegment.name.value);
+            Name resourcePathSymbolName = Names.fromString(pathSegment.name.originalValue);
             BType resourcePathSegmentType = pathSegment.typeNode == null ?
                     symTable.noType : symResolver.resolveTypeNode(pathSegment.typeNode, env);
             pathSegment.setBType(resourcePathSegmentType);

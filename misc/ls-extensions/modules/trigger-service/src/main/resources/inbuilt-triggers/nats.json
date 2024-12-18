@@ -1,0 +1,559 @@
+{
+  "id": 3,
+  "name": "NATS Service",
+  "type": "inbuilt",
+  "displayName": "NATS",
+  "documentation": "The NATS service can be attached to a NATS listener to listen to messages from the NATS server. The service should define the subject name as the base path and should implement wither the `onMessage` or `onRequest` remote method to handle incoming messages. Additionally, the service can implement the `onError` remote method to handle errors.",
+  "moduleName": "nats",
+  "listenerProtocol": "nats",
+  "displayAnnotation": {
+    "label": "NATS",
+    "iconPath": "docs/icon.png"
+  },
+  "package": {
+    "id": 15727,
+    "organization": "ballerinax",
+    "name": "nats",
+    "version": "3.1.0",
+    "platform": "java17",
+    "languageSpecificationVersion": "2024R1",
+    "isDeprecated": false,
+    "deprecateMessage": "",
+    "URL": "/ballerinax/nats/3.1.0",
+    "balaVersion": "2.0.0",
+    "balaURL": "https://fileserver.central.ballerina.io/2.0/ballerinax/nats/3.1.0/ballerinax-nats-java17-3.1.0.bala?Expires=1729734714&Signature=zi0ymoW3~H-QcrUyFYSIKuHH3S2SDQC6hvvFrOo9Ev1HzSNIbtpmDsMUpRT6tm5lHVooNTqvInoP-rFG4tFuQ0~vzjcMxk7pjEeCR6PFfH~pN0qEoXe1q7~Y6agp9omjpp61CJ8i~9O1mFl-D3z~5qx4VhzSzi741Kr~fjBI9qWWVM1mrK8IyIWUbN7G3TsTF7QwTDLBemdl3XI21NHpabv71CfNp26LfhST-DQEC0yZmIdIsYq8JARe~JPCfUnaFSHVCcNZjmN5QygXQnI8FngSkb8N8uoKfgSkRJ2GUVfUjYnq4bVOvRWRNIzdQSaveu5O7jQkPuO-L7zckgtoQQ__&Key-Pair-Id=K27IQ7NPTKLKDU",
+    "digest": "sha-256=835e5b66b017233318eef15766f44d075b9181ab5a23d69d03d55afb4e9b1e9b",
+    "summary": "This package provides the capability to send and receive messages by connecting to the NATS server.",
+    "readme": "## Package Overview\n\nThis package provides the capability to send and receive messages by connecting to the NATS server.\n\nNATS messaging enables the communication of data that is segmented into messages among computer applications and services. Data is encoded and framed as a message and sent by a publisher. The message is received, decoded, and processed by one or more subscribers. NATS makes it easy for programs to communicate across different environments, languages, cloud providers, and on-premise systems. Clients connect to the NATS system usually via a single URL and then subscribe or publish messages to a subject.\n\n### Basic usage\n\n#### Set up the connection\n\nFirst, you need to set up the connection with the NATS Basic server. The following ways can be used to connect to a\nNATS Basic server.\n\n1. Connect to a server using the default URL:\n```ballerina\nnats:Client natsClient = check new(nats:DEFAULT_URL);\n```\n\n2. Connect to a server using the URL:\n```ballerina\nnats:Client natsClient = check new(\"nats:\/\/serverone:4222\");\n```\n\n3. Connect to one or more servers with custom configurations:\n```ballerina\nnats:ConnectionConfiguration config = {\n    connectionName: \"my-nats\",\n    noEcho: true\n};\nnats:Client natsClient = check new([\"nats:\/\/serverone:4222\",  \"nats:\/\/servertwo:4222\"],  config);\n```\n\n#### Publish messages\n\n##### Publish messages to the NATS basic server\n\nOnce connected, publishing is accomplished via one of the three methods below.\n\n1. Publish with the subject and the message content:\n```ballerina\nstring message = \"hello world\";\nnats:Error? result = \n    natsClient->publishMessage({ content: message.toBytes(), subject: \"demo.nats.basic\"});\n```\n\n2. Publish as a request that expects a reply:\n```ballerina\nstring message = \"hello world\";\nnats:AnydataMessage|nats:Error reqReply = \n    natsClient->requestMessage({ content: message.toBytes(), subject: \"demo.nats.basic\"}, 5);\n```\n\n3. Publish messages with a `replyTo` subject:\n```ballerina\nstring message = \"hello world\";\nnats:Error? result = natsClient->publish({ content: message.toBytes(), subject: \"demo.nats.basic\",\n                                                    replyTo: \"demo.reply\" });\n```\n\n#### Listen to incoming messages\n\n##### Listen to messages from a NATS server\n\n1. Listen to incoming messages with the `onMessage` remote method:\n```ballerina\n\/\/ Binds the consumer to listen to the messages published to the 'demo.example.*' subject\n@nats:ServiceConfig {\n    subject: \"demo.example.*\"\n}\nservice nats:Service on new nats:Listener(nats:DEFAULT_URL) {\n\n    remote function onMessage(nats:AnydataMessage message) {\n    }\n}\n```\n\n2. Listen to incoming messages and reply directly with the `onRequest` remote method:\n```ballerina\n\/\/ Binds the consumer to listen to the messages published to the 'demo.example.*' subject\n@nats:ServiceConfig {\n    subject: \"demo.example.*\"\n}\nservice nats:Service on new nats:Listener(nats:DEFAULT_URL) {\n\n    \/\/ The returned message will be published to the replyTo subject of the consumed message\n    remote function onRequest(nats:AnydataMessage message) returns string? {\n        return \"Reply Message\";\n    }\n}\n```\n\n### Advanced usage\n\n#### Set up TLS\n\nThe Ballerina NATS package allows the use of TLS in communication. This setting expects a secure socket to be\nset in the connection configuration as shown below.\n\n##### Configure TLS in the `nats:Listener`\n```ballerina\nnats:SecureSocket secured = {\n    cert: {\n        path: \"<path>\/truststore.p12\",\n        password: \"password\"\n    },\n    key: {\n        path: \"<path>\/keystore.p12\",\n        password: \"password\"\n    }\n};\nnats:Listener natsListener = check new(\"nats:\/\/serverone:4222\", secureSocket = secured);\n```\n\n##### Configure TLS in the `nats:Client`\n```ballerina\nnats:SecureSocket secured = {\n    cert: {\n        path: \"<path>\/truststore.p12\",\n        password: \"password\"\n    },\n    key: {\n        path: \"<path>\/keystore.p12\",\n        password: \"password\"\n    }\n};\nnats:Client natsClient = check new(\"nats:\/\/serverone:4222\", secureSocket = secured);\n```\n\n### Report issues\n\nTo report bugs, request new features, start new discussions, view project boards, etc., go to the [Ballerina standard library parent repository](https:\/\/github.com\/ballerina-platform\/ballerina-standard-library).\n\n### Useful links\n\n- Chat live with us via our [Discord server](https:\/\/discord.gg\/ballerinalang).\n- Post all technical questions on Stack Overflow with the [#ballerina](https:\/\/stackoverflow.com\/questions\/tagged\/ballerina) tag.",
+    "template": false,
+    "licenses": [
+      "Apache-2.0"
+    ],
+    "authors": [
+      "Ballerina"
+    ],
+    "sourceCodeLocation": "https://github.com/ballerina-platform/module-ballerinax-nats",
+    "keywords": [
+      "service",
+      "client",
+      "messaging",
+      "network",
+      "pubsub"
+    ],
+    "ballerinaVersion": "2201.10.0",
+    "icon": "https://bcentral-packageicons.azureedge.net/images/ballerinax_nats_3.1.0.png",
+    "ownerUUID": "b5a9e54d-8ade-47a1-8abc-6bc46e89069d",
+    "createdDate": 1724302519000,
+    "pullCount": 32,
+    "visibility": "public",
+    "modules": [
+      {
+        "packageURL": "/ballerinax/nats/3.1.0",
+        "apiDocURL": "https://lib.ballerina.io/ballerinax/nats/3.1.0",
+        "name": "nats",
+        "summary": "This module provides the capability to send and receive messages by connecting to the NATS server.",
+        "readme": "## Overview\n\nThis module provides the capability to send and receive messages by connecting to the NATS server.\n\nNATS messaging enables the communication of data that is segmented into messages among computer applications and services. Data is encoded and framed as a message and sent by a publisher. The message is received, decoded, and processed by one or more subscribers. NATS makes it easy for programs to communicate across different environments, languages, cloud providers, and on-premise systems. Clients connect to the NATS system usually via a single URL and then subscribe or publish messages to a subject.\n\n### Basic usage\n\n#### Set up the connection\n\nFirst, you need to set up the connection with the NATS Basic server. The following ways can be used to connect to a\nNATS Basic server.\n\n1. Connect to a server using the default URL:\n```ballerina\nnats:Client natsClient = check new(nats:DEFAULT_URL);\n```\n\n2. Connect to a server using the URL:\n```ballerina\nnats:Client natsClient = check new(\"nats:\/\/serverone:4222\");\n```\n\n3. Connect to one or more servers with custom configurations:\n```ballerina\nnats:ConnectionConfiguration config = {\n    connectionName: \"my-nats\",\n    noEcho: true\n};\nnats:Client natsClient = check new([\"nats:\/\/serverone:4222\",  \"nats:\/\/servertwo:4222\"],  config);\n```\n\n#### Publish messages\n\n##### Publish messages to the NATS basic server\n\nOnce connected, publishing is accomplished via one of the three methods below.\n\n1. Publish with the subject and the message content:\n```ballerina\nstring message = \"hello world\";\nnats:Error? result = \n    natsClient->publishMessage({ content: message.toBytes(), subject: \"demo.nats.basic\"});\n```\n\n2. Publish as a request that expects a reply:\n```ballerina\nstring message = \"hello world\";\nnats:AnydataMessage|nats:Error reqReply = \n    natsClient->requestMessage({ content: message.toBytes(), subject: \"demo.nats.basic\"}, 5);\n```\n\n3. Publish messages with a `replyTo` subject:\n```ballerina\nstring message = \"hello world\";\nnats:Error? result = natsClient->publish({ content: message.toBytes(), subject: \"demo.nats.basic\",\n                                                    replyTo: \"demo.reply\" });\n```\n\n#### Listen to incoming messages\n\n##### Listen to messages from a NATS server\n\n1. Listen to incoming messages with the `onMessage` remote method:\n```ballerina\n\/\/ Binds the consumer to listen to the messages published to the 'demo.example.*' subject\n@nats:ServiceConfig {\n    subject: \"demo.example.*\"\n}\nservice nats:Service on new nats:Listener(nats:DEFAULT_URL) {\n\n    remote function onMessage(nats:AnydataMessage message) {\n    }\n}\n```\n\n2. Listen to incoming messages and reply directly with the `onRequest` remote method:\n```ballerina\n\/\/ Binds the consumer to listen to the messages published to the 'demo.example.*' subject\n@nats:ServiceConfig {\n    subject: \"demo.example.*\"\n}\nservice nats:Service on new nats:Listener(nats:DEFAULT_URL) {\n\n    \/\/ The returned message will be published to the replyTo subject of the consumed message\n    remote function onRequest(nats:AnydataMessage message) returns string? {\n        return \"Reply Message\";\n    }\n}\n```\n\n### Advanced usage\n\n#### Set up TLS\n\nThe Ballerina NATS module allows the use of TLS in communication. This setting expects a secure socket to be\nset in the connection configuration as shown below.\n\n##### Configure TLS in the `nats:Listener`\n```ballerina\nnats:SecureSocket secured = {\n    cert: {\n        path: \"<path>\/truststore.p12\",\n        password: \"password\"\n    },\n    key: {\n        path: \"<path>\/keystore.p12\",\n        password: \"password\"\n    }\n};\nnats:Listener natsListener = check new(\"nats:\/\/serverone:4222\", secureSocket = secured);\n```\n\n##### Configure TLS in the `nats:Client`\n```ballerina\nnats:SecureSocket secured = {\n    cert: {\n        path: \"<path>\/truststore.p12\",\n        password: \"password\"\n    },\n    key: {\n        path: \"<path>\/keystore.p12\",\n        password: \"password\"\n    }\n};\nnats:Client natsClient = check new(\"nats:\/\/serverone:4222\", secureSocket = secured);\n```"
+      }
+    ],
+    "balToolId": "",
+    "graalvmCompatible": "Yes"
+  },
+  "serviceTypes": [
+    {
+      "name": "NATS",
+      "description": "NATS Service",
+      "enabled": true,
+      "basePath": {
+        "optional": false,
+        "typeName": "string",
+        "type": [
+          "string"
+        ],
+        "defaultable": false,
+        "documentation": "The NATS subject name.",
+        "enabled": true,
+        "value": "",
+        "placeholder": "nats.subject"
+      },
+      "functions": [
+        {
+          "name": "onMessage",
+          "documentation": "The `onMessage` remote method will be triggered when a message is received for the specified subject",
+          "optional": false,
+          "qualifiers": [
+            "remote"
+          ],
+          "enabled": true,
+          "parameters": [
+            {
+              "name": "message",
+              "typeName": "nats:AnydataMessage",
+              "type": [
+                "nats:AnydataMessage"
+              ],
+              "optional": false,
+              "typeInfo": {
+                "name": "AnydataMessage",
+                "orgName": "ballerinax",
+                "moduleName": "nats",
+                "version": "3.1.0"
+              },
+              "documentation": "The message received for the NATS subject.",
+              "enabled": true,
+              "value": "nats:AnydataMessage"
+            }
+          ],
+          "returnType": {
+            "typeName": "error?",
+            "type": [
+              "error?"
+            ],
+            "optional": true,
+            "documentation": "Error object.",
+            "defaultTypeName": "error?"
+          },
+          "group": {
+            "id": 1,
+            "name": "group-1",
+            "type": "exclusive",
+            "documentation": "NATS message trigger method.",
+            "default": "onMessage"
+          }
+        },
+        {
+          "name": "onRequest",
+          "documentation": "The `onRequest` remote method will be triggered when a request is received for the specified subject and a response is expected.",
+          "optional": false,
+          "qualifiers": [
+            "remote"
+          ],
+          "enabled": false,
+          "parameters": [
+            {
+              "name": "message",
+              "typeName": "nats:AnydataMessage",
+              "type": [
+                "nats:AnydataMessage"
+              ],
+              "optional": false,
+              "enabled": true,
+              "value": "nats:AnydataMessage",
+              "typeInfo": {
+                "name": "AnydataMessage",
+                "orgName": "ballerinax",
+                "moduleName": "nats",
+                "version": "3.1.0"
+              },
+              "documentation": "The message received for the NATS subject."
+            }
+          ],
+          "returnType": {
+            "typeName": "anydata|error",
+            "type": [
+              "anydata|error"
+            ],
+            "optional": false,
+            "documentation": "The response message.",
+            "editable": false,
+            "enabled": true,
+            "value": "anydata|error"
+          },
+          "group": {
+            "id": 1,
+            "name": "group-1",
+            "type": "exclusive",
+            "documentation": "NATS message trigger method.",
+            "default": "onMessage"
+          }
+        },
+        {
+          "name": "onError",
+          "optional": true,
+          "enabled": false,
+          "documentation": "The `onError` remote method will be triggered when an error occurs during the message processing.",
+          "qualifiers": [
+            "remote"
+          ],
+          "parameters": [
+            {
+              "name": "message",
+              "typeName": "nats:AnydataMessage",
+              "type": [
+                "nats:AnydataMessage"
+              ],
+              "optional": false,
+              "typeInfo": {
+                "name": "AnydataMessage",
+                "orgName": "ballerinax",
+                "moduleName": "nats",
+                "version": "3.1.0"
+              },
+              "documentation": "The message received for the NATS subject.",
+              "enabled": true,
+              "value": "nats:AnydataMessage"
+            },
+            {
+              "name": "err",
+              "typeName": "nats:Error",
+              "type": [
+                "nats:Error"
+              ],
+              "typeInfo": {
+                "name": "Error",
+                "orgName": "ballerinax",
+                "moduleName": "nats",
+                "version": "3.1.0"
+              },
+              "optional": false,
+              "documentation": "The error occurred during the message processing.",
+              "enabled": true,
+              "value": "nats:Error"
+            }
+          ],
+          "returnType": {
+            "typeName": "error?",
+            "type": [
+              "error?"
+            ],
+            "optional": true,
+            "documentation": "Error object",
+            "defaultTypeName": "error?",
+            "enabled": true,
+            "value": "error?"
+          }
+        }
+      ]
+    }
+  ],
+  "listener": {
+    "metadata": {
+      "label": "NATS Listener",
+      "description": "The NATS listener listens to messages from the NATS server"
+    },
+    "valueType": "nats:Listener",
+    "valueTypeConstraint": "nats:Listener",
+    "value": "",
+    "enabled": true,
+    "optional": false,
+    "editable": true,
+    "properties": {
+      "url": {
+        "metadata": {
+          "label": "url",
+          "description": "The NATS broker URL. For a clustered use case, provide the URLs as a string array"
+        },
+        "valueType": "string",
+        "valueTypeConstraint": "string|string[]",
+        "value": "",
+        "placeholder": "nats:DEFAULT_URL",
+        "editable": true,
+        "optional": false,
+        "advanced": false
+      },
+      "config": {
+        "metadata": {
+          "label": "config",
+          "description": "The NATS connection configurations"
+        },
+        "valueType": "EXPRESSION",
+        "valueTypeConstraint": "nats:ConnectionConfiguration",
+        "value": "",
+        "editable": true,
+        "optional": true,
+        "advanced": true,
+        "fields": {
+          "connectionName": {
+            "metadata": {
+              "label": "connectionName",
+              "description": "The name of the connection"
+            },
+            "valueType": "string",
+            "valueTypeConstraint": "string",
+            "value": "",
+            "placeholder": "ballerina-nats",
+            "optional": true,
+            "editable": true,
+            "advanced": false
+          },
+          "retryConfig": {
+            "metadata": {
+              "label": "retryConfig",
+              "description": "The configurations related to connection reconnect attempts"
+            },
+            "valueType": "EXPRESSION",
+            "valueTypeConstraint": "nats:RetryConfig",
+            "value": "",
+            "placeholder": "",
+            "optional": true,
+            "editable": true,
+            "advanced": true,
+            "fields": {
+              "maxReconnect": {
+                "metadata": {
+                  "label": "maxReconnect",
+                  "description": "Maximum number of reconnect attempts. The reconnect state is triggered when an already established connection is lost. During the initial connection attempt, the client will cycle over its server list one time regardless of the `maxReconnects` value that is set. Use 0 to turn off auto reconnecting. Use -1 to turn on infinite reconnects."
+                },
+                "valueType": "int",
+                "valueTypeConstraint": "int",
+                "value": "",
+                "placeholder": "60",
+                "optional": true,
+                "editable": true,
+                "advanced": false
+              },
+              "reconnectWait": {
+                "metadata": {
+                  "label": "reconnectWait",
+                  "description": "The time(in seconds) to wait between the reconnect attempts to reconnect to the same server"
+                },
+                "valueType": "decimal",
+                "valueTypeConstraint": "decimal",
+                "value": "",
+                "placeholder": "2",
+                "optional": true,
+                "editable": true,
+                "advanced": false
+              },
+              "connectionTimeout": {
+                "metadata": {
+                  "label": "connectionTimeout",
+                  "description": "The timeout (in seconds) for the connection attempts"
+                },
+                "valueType": "decimal",
+                "valueTypeConstraint": "decimal",
+                "value": "",
+                "placeholder": "2",
+                "optional": true,
+                "editable": true,
+                "advanced": false
+              }
+            }
+          },
+          "ping": {
+            "metadata": {
+              "label": "ping",
+              "description": "The configurations related to pinging the server"
+            },
+            "valueType": "EXPRESSION",
+            "valueTypeConstraint": "nats:Ping",
+            "value": "",
+            "placeholder": "",
+            "optional": true,
+            "editable": true,
+            "advanced": true,
+            "fields": {
+              "pingInterval": {
+                "metadata": {
+                  "label": "pingInterval",
+                  "description": "The interval (in seconds) between the attempts of pinging the server"
+                },
+                "valueType": "decimal",
+                "valueTypeConstraint": "decimal",
+                "value": "",
+                "placeholder": "120",
+                "optional": true,
+                "editable": true,
+                "advanced": false
+              },
+              "maxPingsOut": {
+                "metadata": {
+                  "label": "maxPingsOut",
+                  "description": "The maximum number of pings the client can have in flight"
+                },
+                "valueType": "int",
+                "valueTypeConstraint": "int",
+                "value": "",
+                "placeholder": "2",
+                "optional": true,
+                "editable": true,
+                "advanced": false
+              }
+            }
+          },
+          "auth": {
+            "metadata": {
+              "label": "auth",
+              "description": "The configurations related to authentication"
+            },
+            "valueType": "EXPRESSION",
+            "valueTypeConstraint": "nats:Tokens",
+            "value": "",
+            "placeholder": "",
+            "optional": true,
+            "editable": true,
+            "advanced": true,
+            "fields": {
+              "token": {
+                "metadata": {
+                  "label": "token",
+                  "description": "The token for token-based authentication"
+                },
+                "valueType": "string",
+                "valueTypeConstraint": "string",
+                "value": "",
+                "placeholder": "",
+                "optional": false,
+                "editable": true,
+                "advanced": false
+              }
+            }
+          },
+          "inboxPrefix": {
+            "metadata": {
+              "label": "inboxPrefix",
+              "description": "The connection's inbox prefix, which all inboxes will start with"
+            },
+            "valueType": "string",
+            "valueTypeConstraint": "string",
+            "value": "",
+            "placeholder": "_INBOX.",
+            "optional": true,
+            "editable": true,
+            "advanced": false
+          },
+          "noEcho": {
+            "metadata": {
+              "label": "noEcho",
+              "description": "Turns off echoing. This prevents the server from echoing messages back to the connection if it has subscriptions on the subject being published to"
+            },
+            "valueType": "boolean",
+            "valueTypeConstraint": "boolean",
+            "value": "",
+            "placeholder": "false",
+            "optional": true,
+            "editable": true,
+            "advanced": false
+          },
+          "secureSocket": {
+            "metadata": {
+              "label": "secureSocket",
+              "description": "The configurations related to SSL/TLS"
+            },
+            "valueType": "EXPRESSION",
+            "valueTypeConstraint": "SecureSocket",
+            "value": "",
+            "placeholder": "",
+            "optional": true,
+            "editable": true,
+            "advanced": true,
+            "fields": {
+              "cert": {
+                "metadata": {
+                  "label": "cert",
+                  "description": "Configurations associated with `crypto:TrustStore` or single certificate file that the client trusts"
+                },
+                "valueType": "string",
+                "valueTypeConstraint": "string",
+                "value": "",
+                "placeholder": "",
+                "optional": false,
+                "editable": true,
+                "advanced": false
+              },
+              "key": {
+                "metadata": {
+                  "label": "key",
+                  "description": "Configurations associated with `crypto:KeyStore` or combination of certificate and private key of the client"
+                },
+                "valueType": "EXPRESSION",
+                "valueTypeConstraint": "CertKey",
+                "value": "",
+                "placeholder": "",
+                "optional": true,
+                "editable": true,
+                "advanced": true,
+                "fields": {
+                  "certFile": {
+                    "metadata": {
+                      "label": "certFile",
+                      "description": "A file containing the certificate"
+                    },
+                    "valueType": "string",
+                    "valueTypeConstraint": "string",
+                    "value": "",
+                    "placeholder": "",
+                    "optional": false,
+                    "editable": true,
+                    "advanced": false
+                  },
+                  "keyFile": {
+                    "metadata": {
+                      "label": "keyFile",
+                      "description": "A file containing the private key in PKCS8 format"
+                    },
+                    "valueType": "string",
+                    "valueTypeConstraint": "string",
+                    "value": "",
+                    "placeholder": "",
+                    "optional": false,
+                    "editable": true,
+                    "advanced": false
+                  },
+                  "keyPassword": {
+                    "metadata": {
+                      "label": "keyPassword",
+                      "description": "Password of the private key if it is encrypted"
+                    },
+                    "valueType": "string",
+                    "valueTypeConstraint": "string",
+                    "value": "",
+                    "placeholder": "",
+                    "optional": true,
+                    "editable": true,
+                    "advanced": false
+                  }
+                }
+              },
+              "protocol": {
+                "metadata": {
+                  "label": "protocol",
+                  "description": "SSL/TLS protocol related options"
+                },
+                "valueType": "EXPRESSION",
+                "valueTypeConstraint": "record",
+                "value": "",
+                "placeholder": "",
+                "optional": true,
+                "editable": true,
+                "advanced": true,
+                "fields": {
+                  "name": {
+                    "metadata": {
+                      "label": "name",
+                      "description": "The name of the protocol"
+                    },
+                    "valueType": "string",
+                    "valueTypeConstraint": "string",
+                    "value": "",
+                    "placeholder": "",
+                    "optional": false,
+                    "editable": true,
+                    "advanced": false,
+                    "enum": [
+                      "nats:SSL",
+                      "nats:TLS",
+                      "nats:DTLS"
+                    ]
+                  }
+                }
+              }
+            }
+          },
+          "validation": {
+            "metadata": {
+              "label": "validation",
+              "description": "Configuration related to constraint validation check"
+            },
+            "valueType": "boolean",
+            "valueTypeConstraint": "boolean",
+            "value": "",
+            "placeholder": "true",
+            "optional": true,
+            "editable": true,
+            "advanced": false
+          }
+        }
+      }
+    }
+  }
+}
