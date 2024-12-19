@@ -31,6 +31,7 @@ import io.ballerina.projects.PackageManifest;
 import io.ballerina.projects.environment.ModuleLoadRequest;
 import io.ballerina.projects.environment.PackageCache;
 import io.ballerina.projects.environment.ResolutionOptions;
+import io.ballerina.projects.environment.UpdatePolicy;
 import io.ballerina.projects.internal.BlendedManifest;
 import io.ballerina.projects.internal.ModuleResolver;
 import io.ballerina.projects.internal.ResolutionEngine.DependencyNode;
@@ -61,7 +62,9 @@ public final class PackageResolutionTestCaseBuilder {
     private PackageResolutionTestCaseBuilder() {
     }
 
-    public static PackageResolutionTestCase build(TestCaseFilePaths filePaths, boolean sticky) {
+    public static PackageResolutionTestCase build(TestCaseFilePaths filePaths,
+                                                  UpdatePolicy policy,
+                                                  boolean lessThan24HrsAfterBuild) {
         // Create PackageResolver
         DotGraphBasedPackageResolver packageResolver = buildPackageResolver(filePaths);
 
@@ -75,29 +78,38 @@ public final class PackageResolutionTestCaseBuilder {
         // Create dependencyManifest
         DependencyManifest dependencyManifest = getDependencyManifest(
                 filePaths.dependenciesTomlPath().orElse(null));
+        boolean hasDependencyManifest = filePaths.dependenciesTomlPath().isPresent();
 
         // Create packageManifest
         PackageManifest packageManifest = getPackageManifest(
                 filePaths.ballerinaTomlPath().orElse(null), rootPkgDes);
 
-        Index index = getPackageIndex(filePaths.indexPath().orElse(null));
+        Index index = getPackageIndex(filePaths.indexPath().orElse(null), filePaths.localIndexPath().orElse(null));
 
-        // Create expected dependency graph with sticky
-        DependencyGraph<DependencyNode> expectedGraphSticky = getPkgDescGraph(
-                filePaths.expectedGraphStickyPath().orElse(null));
+        // Create expected dependency graph with soft policy
+        DependencyGraph<DependencyNode> expectedGraphSoft = getPkgDescGraph(
+                filePaths.expectedGraphSoftPath().orElse(null));
 
-        // Create expected dependency graph with no sticky
-        DependencyGraph<DependencyNode> expectedGraphNoSticky = getPkgDescGraph(
-                filePaths.expectedGraphNoStickyPath().orElse(null));
+        // Create expected dependency graph with medium policy
+        DependencyGraph<DependencyNode> expectedGraphMedium = getPkgDescGraph(
+                filePaths.expectedGraphMediumPath().orElse(null));
+
+        // Create expected dependency graph with hard policy
+        DependencyGraph<DependencyNode> expectedGraphHard = getPkgDescGraph(
+                filePaths.expectedGraphHardPath().orElse(null));
+
+        // Create expected dependency graph with locked policy
+        DependencyGraph<DependencyNode> expectedGraphLocked = getPkgDescGraph(
+                filePaths.expectedGraphLockedPath().orElse(null));
 
         BlendedManifest blendedManifest = BlendedManifest.from(dependencyManifest,
                 packageManifest, packageResolver.localRepo(), new HashMap<>(), false);
         ModuleResolver moduleResolver = new ModuleResolver(rootPkgDes,
                 getModulesInRootPackage(rootPkgDescWrapper, rootPkgDes),
-                blendedManifest, packageResolver, ResolutionOptions.builder().setSticky(sticky).build());
+                blendedManifest, packageResolver, ResolutionOptions.builder().setUpdatePolicy(policy).build());
         return new PackageResolutionTestCase(rootPkgDes, blendedManifest,
-                packageResolver, moduleResolver, index, moduleLoadRequests,
-                expectedGraphSticky, expectedGraphNoSticky);
+                packageResolver, moduleResolver, index, hasDependencyManifest, false, lessThan24HrsAfterBuild,
+                moduleLoadRequests, expectedGraphSoft, expectedGraphMedium, expectedGraphHard, expectedGraphLocked);
     }
 
     private static List<ModuleName> getModulesInRootPackage(PackageDescWrapper rootPkgDescWrapper,
@@ -194,16 +206,25 @@ public final class PackageResolutionTestCaseBuilder {
         return PackageManifest.from(rootPkgDesc, null, null, Collections.emptyMap(), dependencies);
     }
 
-    private static Index getPackageIndex(Path indexPath) {
-        if (indexPath == null) {
-            return Index.EMPTY_INDEX;
-        }
-        MutableGraph repoDotGraph = DotGraphUtils.createGraph(indexPath);
+    private static Index getPackageIndex(Path indexPath, Path localIndexPath) {
         Index index = new Index();
-        for (MutableGraph packageGraph : repoDotGraph.graphs()) {
-            IndexPackage indexPackage = Utils.getIndexPkgFromNode(packageGraph.name(), packageGraph.graphAttrs(), packageGraph.nodes());
-            index.putVersion(indexPackage);
-            // TODO: Consider modules when introducing module constraint
+        if (indexPath != null) {
+            MutableGraph repoDotGraph = DotGraphUtils.createGraph(indexPath);
+            for (MutableGraph packageGraph : repoDotGraph.graphs()) {
+                IndexPackage indexPackage = Utils.getIndexPkgFromNode(packageGraph.name(), null,
+                        packageGraph.graphAttrs(), packageGraph.nodes());
+                index.putVersion(indexPackage);
+                // TODO: Consider modules when introducing module constraint
+            }
+        }
+        if (localIndexPath != null) {
+            MutableGraph repoDotGraph = DotGraphUtils.createGraph(localIndexPath);
+            for (MutableGraph packageGraph : repoDotGraph.graphs()) {
+                IndexPackage indexPackage = Utils.getIndexPkgFromNode(packageGraph.name(), "local",
+                        packageGraph.graphAttrs(), packageGraph.nodes());
+                index.putVersion(indexPackage);
+                // TODO: Consider modules when introducing module constraint
+            }
         }
         return index;
     }

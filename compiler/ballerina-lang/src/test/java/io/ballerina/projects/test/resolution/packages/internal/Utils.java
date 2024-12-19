@@ -89,8 +89,12 @@ public final class Utils {
         return new ModuleLoadRequest(PackageOrg.from(split[0]), split[1], scope, resolutionType);
     }
 
-    public static IndexPackage getIndexPkgFromNode(Label name, MutableAttributed<MutableGraph, ForGraph> attrs, Collection<MutableNode> nodes) {
-        PackageDescriptor descriptor = getPkgDescFromNode(name.toString());
+    public static IndexPackage getIndexPkgFromNode(Label name,
+                                                   String repository,
+                                                   MutableAttributed<MutableGraph, ForGraph> attrs,
+                                                   Collection<MutableNode> nodes) {
+        String[] split = name.toString().split("/");
+        String[] split1 = split[1].split(":");
         String balVersionStr = "2201.0.0";
         if (attrs.get("ballerinaVersion") != null) {
             balVersionStr = Objects.requireNonNull(attrs.get("ballerinaVersion")).toString();
@@ -104,7 +108,13 @@ public final class Utils {
                 dependencies.add(IndexDependency.from(getPkgDescFromNode(dependency)));
             }
         }
-        return IndexPackage.from(descriptor, ballerinaVersion, dependencies);
+        return IndexPackage.from(
+                PackageOrg.from(split[0]),
+                PackageName.from(split1[0]),
+                PackageVersion.from(split1[1]),
+                repository,
+                ballerinaVersion,
+                dependencies);
     }
 
     public static PackageDescriptor getPkgDescFromNode(String name, String repo) {

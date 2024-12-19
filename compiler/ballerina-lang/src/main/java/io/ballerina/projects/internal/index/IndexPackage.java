@@ -27,15 +27,25 @@ import io.ballerina.projects.SemanticVersion;
 import java.util.List;
 
 public class IndexPackage {
-    private final PackageDescriptor descriptor;
+    private final PackageOrg packageOrg;
+    private final PackageName packageName;
+    private final PackageVersion packageVersion;
+    private final String repository;
     private final SemanticVersion ballerinaVersion;
     private final List<IndexDependency> dependencies;
 
     // TODO: add other fields as necessary
-    private IndexPackage(PackageDescriptor descriptor,
-                         SemanticVersion ballerinaVersion,
-                         List<IndexDependency> dependencies) {
-        this.descriptor = descriptor;
+    private IndexPackage(
+            PackageOrg packageOrg,
+            PackageName packageName,
+            PackageVersion packageVersion,
+            String repository,
+            SemanticVersion ballerinaVersion,
+            List<IndexDependency> dependencies) {
+        this.packageOrg = packageOrg;
+        this.packageName = packageName;
+        this.packageVersion = packageVersion;
+        this.repository = repository;
         this.ballerinaVersion = ballerinaVersion;
         this.dependencies = dependencies;
     }
@@ -44,35 +54,26 @@ public class IndexPackage {
             PackageOrg packageOrg,
             PackageName packageName,
             PackageVersion packageVersion,
+            String repository,
             SemanticVersion ballerinaVersion,
             List<IndexDependency> dependencies) {
-        return new IndexPackage(
-                PackageDescriptor.from(packageOrg, packageName, packageVersion),
-                ballerinaVersion,
-                dependencies);
-    }
-
-    public static IndexPackage from(
-            PackageDescriptor descriptor,
-            SemanticVersion ballerinaVersion,
-            List<IndexDependency> dependencies) {
-        return new IndexPackage(descriptor, ballerinaVersion, dependencies);
+        return new IndexPackage(packageOrg, packageName, packageVersion, repository, ballerinaVersion, dependencies);
     }
 
     public PackageName name() {
-        return descriptor.name();
+        return packageName;
     }
 
     public PackageOrg org() {
-        return descriptor.org();
+        return packageOrg;
     }
 
     public PackageVersion version() {
-        return descriptor.version();
+        return packageVersion;
     }
 
-    public PackageDescriptor descriptor() {
-        return descriptor;
+    public String repository() {
+        return repository;
     }
 
     public List<IndexDependency> dependencies() {
