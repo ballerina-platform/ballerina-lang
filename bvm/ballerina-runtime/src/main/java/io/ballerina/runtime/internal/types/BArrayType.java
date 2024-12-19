@@ -227,8 +227,8 @@ public class BArrayType extends BType implements ArrayType, TypeWithShape {
     }
 
     @Override
-    public SemType createSemType() {
-        Env env = Env.getInstance();
+    public SemType createSemType(Context cx) {
+        Env env = cx.env;
         if (defn.isDefinitionReady()) {
             return defn.getSemType(env);
         }
@@ -239,7 +239,7 @@ public class BArrayType extends BType implements ArrayType, TypeWithShape {
         ListDefinition ld = result.definition();
         CellAtomicType.CellMutability mut = isReadOnly() ? CellAtomicType.CellMutability.CELL_MUT_NONE :
                 CellAtomicType.CellMutability.CELL_MUT_LIMITED;
-        return getSemTypePart(env, ld, size, tryInto(getElementType()), mut);
+        return getSemTypePart(env, ld, size, tryInto(cx, getElementType()), mut);
     }
 
     private SemType getSemTypePart(Env env, ListDefinition defn, int size, SemType elementType,
@@ -266,7 +266,7 @@ public class BArrayType extends BType implements ArrayType, TypeWithShape {
     @Override
     public Optional<SemType> inherentTypeOf(Context cx, ShapeSupplier shapeSupplier, Object object) {
         if (!couldInherentTypeBeDifferent()) {
-            return Optional.of(getSemType());
+            return Optional.of(getSemType(cx));
         }
         AbstractArrayValue value = (AbstractArrayValue) object;
         SemType cachedShape = value.shapeOf();

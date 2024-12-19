@@ -63,9 +63,7 @@ public class ObjectDefinition extends Definition {
         SemType mappingType = mappingDefinition.define(env, Stream.concat(memberStream, qualifierStream)
                 .map(field -> MappingDefinition.BCellField.from(env, field, mut))
                 .toArray(MappingDefinition.BCellField[]::new), restMemberType(env, mut, qualifiers.readonly()));
-        SemType semType = objectContaining(mappingType);
-        notifyContainer();
-        return semType;
+        return objectContaining(mappingType);
     }
 
     private SemType objectContaining(SemType mappingType) {

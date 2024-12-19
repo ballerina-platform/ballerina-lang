@@ -156,16 +156,16 @@ public class BXmlType extends BType implements XmlType, TypeWithShape {
     }
 
     @Override
-    public SemType createSemType() {
+    public SemType createSemType(Context cx) {
         SemType semType;
         if (constraint == null) {
             semType = pickTopType();
         } else {
             SemType contraintSemtype;
             if (constraint instanceof ParameterizedType parameterizedType) {
-                contraintSemtype = tryInto(parameterizedType.getParamValueType());
+                contraintSemtype = tryInto(cx, parameterizedType.getParamValueType());
             } else {
-                contraintSemtype = tryInto(constraint);
+                contraintSemtype = tryInto(cx, constraint);
             }
             semType = XmlUtils.xmlSequence(contraintSemtype);
         }
@@ -192,7 +192,7 @@ public class BXmlType extends BType implements XmlType, TypeWithShape {
     public Optional<SemType> inherentTypeOf(Context cx, ShapeSupplier shapeSupplier, Object object) {
         XmlValue xmlValue = (XmlValue) object;
         if (!isReadOnly(xmlValue)) {
-            return Optional.of(getSemType());
+            return Optional.of(getSemType(cx));
         }
         return readonlyShapeOf(object);
     }
@@ -209,7 +209,7 @@ public class BXmlType extends BType implements XmlType, TypeWithShape {
 
     @Override
     public Optional<SemType> acceptedTypeOf(Context cx) {
-        return Optional.of(getSemType());
+        return Optional.of(getSemType(cx));
     }
 
     private Optional<SemType> readonlyShapeOf(Object object) {

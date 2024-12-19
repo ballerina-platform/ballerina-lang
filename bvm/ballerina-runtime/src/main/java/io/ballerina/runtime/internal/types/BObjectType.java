@@ -40,7 +40,6 @@ import io.ballerina.runtime.api.types.semtype.ShapeAnalyzer;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.api.values.BString;
-import io.ballerina.runtime.internal.TypeChecker;
 import io.ballerina.runtime.internal.scheduling.Scheduler;
 import io.ballerina.runtime.internal.scheduling.Strand;
 import io.ballerina.runtime.internal.types.semtype.CellAtomicType;
@@ -64,7 +63,7 @@ import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Set;
 import java.util.StringJoiner;
-import java.util.function.Function;
+import java.util.function.BiFunction;
 
 import static io.ballerina.runtime.api.types.TypeTags.SERVICE_TAG;
 
@@ -89,6 +88,7 @@ public class BObjectType extends BStructureType implements ObjectType, TypeWithS
     private final DefinitionContainer<ObjectDefinition> defn = new DefinitionContainer<>();
     private final DefinitionContainer<ObjectDefinition> acceptedTypeDefn = new DefinitionContainer<>();
     private volatile DistinctIdSupplier distinctIdSupplier;
+    //private final Lock typeResolutionLock = new ReentrantLock();
 
     /**
      * Create a {@code BObjectType} which represents the user defined struct type.
@@ -281,25 +281,33 @@ public class BObjectType extends BStructureType implements ObjectType, TypeWithS
     }
 
     @Override
-    public final SemType createSemType() {
-        Env env = Env.getInstance();
-        initializeDistinctIdSupplierIfNeeded(env);
-        CellAtomicType.CellMutability mut =
-                SymbolFlags.isFlagOn(getFlags(), SymbolFlags.READONLY) ? CellAtomicType.CellMutability.CELL_MUT_NONE :
-                        CellAtomicType.CellMutability.CELL_MUT_LIMITED;
-        SemType innerType;
-        if (defn.isDefinitionReady()) {
-            innerType = defn.getSemType(env);
-        } else {
-            var result = defn.trySetDefinition(ObjectDefinition::new);
-            if (!result.updated()) {
+    public final SemType createSemType(Context cx) {
+        try {
+            // This is wrong (See {@code Env}). Instead this should be done similar to mapping and list definitions
+            // using rec atoms.
+            //typeResolutionLock.lock();
+            Env env = cx.env;
+            initializeDistinctIdSupplierIfNeeded(env);
+            CellAtomicType.CellMutability mut =
+                    SymbolFlags.isFlagOn(getFlags(), SymbolFlags.READONLY) ?
+                            CellAtomicType.CellMutability.CELL_MUT_NONE :
+                            CellAtomicType.CellMutability.CELL_MUT_LIMITED;
+            SemType innerType;
+            if (defn.isDefinitionReady()) {
                 innerType = defn.getSemType(env);
             } else {
-                ObjectDefinition od = result.definition();
-                innerType = semTypeInner(od, mut, SemType::tryInto);
+                var result = defn.trySetDefinition(ObjectDefinition::new);
+                if (!result.updated()) {
+                    innerType = defn.getSemType(env);
+                } else {
+                    ObjectDefinition od = result.definition();
+                    innerType = semTypeInner(cx, od, mut, SemType::tryInto);
+                }
             }
+            return distinctIdSupplier.get().stream().map(ObjectDefinition::distinct).reduce(innerType, Core::intersect);
+        } finally {
+            // typeResolutionLock.unlock();
         }
-        return distinctIdSupplier.get().stream().map(ObjectDefinition::distinct).reduce(innerType, Core::intersect);
     }
 
     private static boolean skipField(Set<String> seen, String name) {
@@ -309,9 +317,9 @@ public class BObjectType extends BStructureType implements ObjectType, TypeWithS
         return !seen.add(name);
     }
 
-    private SemType semTypeInner(ObjectDefinition od, CellAtomicType.CellMutability mut,
-                                 Function<Type, SemType> semTypeSupplier) {
-        Env env = Env.getInstance();
+    private SemType semTypeInner(Context cx, ObjectDefinition od, CellAtomicType.CellMutability mut,
+                                 BiFunction<Context, Type, SemType> semTypeSupplier) {
+        Env env = cx.env;
         ObjectQualifiers qualifiers = getObjectQualifiers();
         List<Member> members = new ArrayList<>();
         Set<String> seen = new HashSet<>();
@@ -323,10 +331,10 @@ public class BObjectType extends BStructureType implements ObjectType, TypeWithS
             Field field = entry.getValue();
             boolean isPublic = SymbolFlags.isFlagOn(field.getFlags(), SymbolFlags.PUBLIC);
             boolean isImmutable = qualifiers.readonly() | SymbolFlags.isFlagOn(field.getFlags(), SymbolFlags.READONLY);
-            members.add(new Member(name, semTypeSupplier.apply(field.getFieldType()), Member.Kind.Field,
+            members.add(new Member(name, semTypeSupplier.apply(cx, field.getFieldType()), Member.Kind.Field,
                     isPublic ? Member.Visibility.Public : Member.Visibility.Private, isImmutable));
         }
-        for (MethodData method : allMethods()) {
+        for (MethodData method : allMethods(cx)) {
             String name = method.name();
             if (skipField(seen, name)) {
                 continue;
@@ -355,7 +363,7 @@ public class BObjectType extends BStructureType implements ObjectType, TypeWithS
     @Override
     public Optional<SemType> inherentTypeOf(Context cx, ShapeSupplier shapeSupplier, Object object) {
         if (!couldInherentTypeBeDifferent()) {
-            return Optional.of(getSemType());
+            return Optional.of(getSemType(cx));
         }
         AbstractObjectValue abstractObjectValue = (AbstractObjectValue) object;
         SemType cachedShape = abstractObjectValue.shapeOf();
@@ -386,7 +394,7 @@ public class BObjectType extends BStructureType implements ObjectType, TypeWithS
 
     @Override
     public final Optional<SemType> acceptedTypeOf(Context cx) {
-        Env env = Env.getInstance();
+        Env env = cx.env;
         initializeDistinctIdSupplierIfNeeded(cx.env);
         CellAtomicType.CellMutability mut = CellAtomicType.CellMutability.CELL_MUT_UNLIMITED;
         SemType innerType;
@@ -398,7 +406,8 @@ public class BObjectType extends BStructureType implements ObjectType, TypeWithS
                 innerType = acceptedTypeDefn.getSemType(env);
             } else {
                 ObjectDefinition od = result.definition();
-                innerType = semTypeInner(od, mut, (type -> ShapeAnalyzer.acceptedTypeOf(cx, type).orElseThrow()));
+                innerType = semTypeInner(cx, od, mut,
+                        ((context, type) -> ShapeAnalyzer.acceptedTypeOf(context, type).orElseThrow()));
             }
         }
         return Optional.of(
@@ -437,7 +446,7 @@ public class BObjectType extends BStructureType implements ObjectType, TypeWithS
             members.add(new Member(name, fieldShape(cx, shapeSupplier, field, object, isImmutable), Member.Kind.Field,
                     isPublic ? Member.Visibility.Public : Member.Visibility.Private, isImmutable));
         }
-        for (MethodData method : allMethods()) {
+        for (MethodData method : allMethods(cx)) {
             String name = method.name();
             if (skipField(seen, name)) {
                 continue;
@@ -454,11 +463,11 @@ public class BObjectType extends BStructureType implements ObjectType, TypeWithS
     private static SemType fieldShape(Context cx, ShapeSupplier shapeSupplier, Field field,
                                       AbstractObjectValue objectValue, boolean isImmutable) {
         if (!isImmutable) {
-            return SemType.tryInto(field.getFieldType());
+            return SemType.tryInto(cx, field.getFieldType());
         }
         BString fieldName = StringUtils.fromString(field.getFieldName());
         Optional<SemType> shape = shapeSupplier.get(cx, objectValue.get(fieldName));
-        assert !shape.isEmpty();
+        assert shape.isPresent();
         return shape.get();
     }
 
@@ -468,29 +477,29 @@ public class BObjectType extends BStructureType implements ObjectType, TypeWithS
         super.resetSemType();
     }
 
-    protected Collection<MethodData> allMethods() {
+    protected Collection<MethodData> allMethods(Context cx) {
         if (methodTypes == null) {
             return List.of();
         }
         return Arrays.stream(methodTypes)
-                .map(MethodData::fromMethod).toList();
+                .map((type) -> MethodData.fromMethod(cx, type)).toList();
     }
 
     protected record MethodData(String name, long flags, SemType semType) {
 
-        static MethodData fromMethod(MethodType method) {
+        static MethodData fromMethod(Context cx, MethodType method) {
             return new MethodData(method.getName(), method.getFlags(),
-                    tryInto(method.getType()));
+                    tryInto(cx, method.getType()));
         }
 
-        static MethodData fromRemoteMethod(MethodType method) {
+        static MethodData fromRemoteMethod(Context cx, MethodType method) {
             // Remote methods need to be distinct with remote methods only there can be instance methods with the same
             // name
             return new MethodData("@remote_" + method.getName(), method.getFlags(),
-                    tryInto(method.getType()));
+                    tryInto(cx, method.getType()));
         }
 
-        static MethodData fromResourceMethod(BResourceMethodType method) {
+        static MethodData fromResourceMethod(Context cx, BResourceMethodType method) {
             StringBuilder sb = new StringBuilder();
             sb.append(method.getAccessor());
             for (var each : method.getResourcePath()) {
@@ -505,28 +514,28 @@ public class BObjectType extends BStructureType implements ObjectType, TypeWithS
                 if (part == null) {
                     paramTypes.add(Builder.getAnyType());
                 } else {
-                    paramTypes.add(tryInto(part));
+                    paramTypes.add(tryInto(cx, part));
                 }
             }
             for (Parameter paramType : innerFn.getParameters()) {
-                paramTypes.add(tryInto(paramType.type));
+                paramTypes.add(tryInto(cx, paramType.type));
             }
             SemType rest;
             Type restType = innerFn.getRestType();
             if (restType instanceof BArrayType arrayType) {
-                rest = tryInto(arrayType.getElementType());
+                rest = tryInto(cx, arrayType.getElementType());
             } else {
                 rest = Builder.getNeverType();
             }
 
             SemType returnType;
             if (innerFn.getReturnType() != null) {
-                returnType = tryInto(innerFn.getReturnType());
+                returnType = tryInto(cx, innerFn.getReturnType());
             } else {
                 returnType = Builder.getNilType();
             }
             ListDefinition paramListDefinition = new ListDefinition();
-            Env env = TypeChecker.context().env;
+            Env env = cx.env;
             SemType paramType = paramListDefinition.defineListTypeWrapped(env, paramTypes.toArray(SemType[]::new),
                     paramTypes.size(), rest, CellAtomicType.CellMutability.CELL_MUT_NONE);
             FunctionDefinition fd = new FunctionDefinition();

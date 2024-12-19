@@ -27,6 +27,9 @@ import io.ballerina.runtime.api.types.semtype.Env;
 import io.ballerina.runtime.api.types.semtype.RecAtom;
 import io.ballerina.runtime.api.types.semtype.SemType;
 
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
+
 import static io.ballerina.runtime.api.types.semtype.BddNode.bddAtom;
 import static io.ballerina.runtime.api.types.semtype.Builder.basicSubType;
 import static io.ballerina.runtime.api.types.semtype.Builder.getUndefType;
@@ -43,16 +46,23 @@ public class ListDefinition extends Definition {
 
     private volatile RecAtom rec = null;
     private volatile SemType semType = null;
+    private final Lock lock = new ReentrantLock();
 
     @Override
     public SemType getSemType(Env env) {
-        SemType s = this.semType;
-        if (s == null) {
-            RecAtom rec = env.recListAtom();
-            this.rec = rec;
-            return this.createSemType(env, rec);
+        try {
+            this.lock.lock();
+            SemType s = this.semType;
+            if (s == null) {
+                assert rec == null;
+                RecAtom rec = env.recListAtom();
+                this.rec = rec;
+                return this.createSemType(env, rec);
+            }
+            return s;
+        } finally {
+            this.lock.unlock();
         }
-        return s;
     }
 
     public SemType defineListTypeWrapped(Env env, SemType[] initial, int fixedLength, SemType rest,
@@ -63,23 +73,26 @@ public class ListDefinition extends Definition {
         }
         SemType restCell =
                 Builder.getCellContaining(env, union(rest, getUndefType()), isNever(rest) ? CELL_MUT_NONE : mut);
-        SemType semType = define(env, initialCells, fixedLength, restCell);
-        notifyContainer();
-        return semType;
+        return define(env, initialCells, fixedLength, restCell);
     }
 
     private SemType define(Env env, SemType[] initial, int fixedLength, SemType rest) {
         FixedLengthArray members = FixedLengthArray.normalized(initial, fixedLength);
         ListAtomicType atomicType = new ListAtomicType(members, rest);
         Atom atom;
-        RecAtom rec = this.rec;
-        if (rec != null) {
-            atom = rec;
-            env.setRecListAtomType(rec, atomicType);
-        } else {
-            atom = env.listAtom(atomicType);
+        try {
+            lock.lock();
+            RecAtom rec = this.rec;
+            if (rec != null) {
+                atom = rec;
+                env.setRecListAtomType(rec, atomicType);
+            } else {
+                atom = env.listAtom(atomicType);
+            }
+            return this.createSemType(env, atom);
+        } finally {
+            lock.unlock();
         }
-        return this.createSemType(env, atom);
     }
 
     private SemType createSemType(Env env, Atom atom) {
