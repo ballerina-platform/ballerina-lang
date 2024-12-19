@@ -14,7 +14,7 @@ Running Tests
 			callableName: call moduleName: ballerina.lang.function.0 fileName: function.bal lineNumber: 37
 			callableName: executeFunction moduleName: ballerina.test.0 fileName: serialExecuter.bal lineNumber: 142
 			callableName: executeFunctions moduleName: ballerina.test.0 fileName: serialExecuter.bal lineNumber: 96
-			callableName: executeBeforeSuiteFunctions moduleName: ballerina.test.0 fileName: execute.bal lineNumber: 94
+			callableName: executeBeforeSuiteFunctions moduleName: ballerina.test.0 fileName: execute.bal lineNumber: 109
 			callableName: startSuite moduleName: ballerina.test.0 fileName: execute.bal lineNumber: 52
 			callableName: __execute__  fileName: skip-when-beforeSuite-fails.bal lineNumber: 87
 		
