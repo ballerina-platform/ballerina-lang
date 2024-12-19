@@ -36,6 +36,7 @@ import io.ballerina.projects.internal.PackageDiagnostic;
 import io.ballerina.projects.internal.ProjectDiagnosticErrorCode;
 import io.ballerina.projects.internal.ResolutionEngine;
 import io.ballerina.projects.internal.ResolutionEngine.DependencyNode;
+import io.ballerina.projects.internal.index.Index;
 import io.ballerina.projects.internal.repositories.CustomPkgRepositoryContainer;
 import io.ballerina.projects.internal.repositories.LocalPackageRepository;
 import io.ballerina.projects.internal.repositories.MavenPackageRepository;
@@ -359,9 +360,17 @@ public class PackageResolution {
         // 1) Get PackageLoadRequests for all the direct dependencies of this package
         LinkedHashSet<ModuleLoadRequest> moduleLoadRequests = getModuleLoadRequestsOfDirectDependencies();
 
+        boolean hasDependencyManifest = rootPackageContext.dependenciesTomlContext().isPresent();
+        SemanticVersion prevDistributionVersion = rootPackageContext.dependencyManifest().distributionVersion();
+        boolean distributionChange = SemanticVersion.from(RepoUtils.getBallerinaShortVersion())
+                .equals(prevDistributionVersion);
+        boolean lessThan24HrsAfterBuild = ProjectUtils.isWithin24HoursOfLastBuild(rootPackageContext.project());
+
         // 2) Resolve imports to packages and create the complete dependency graph with package metadata
+        // TODO: find a better way to pass the new parameters.
         ResolutionEngine resolutionEngine = new ResolutionEngine(rootPackageContext.descriptor(),
-                blendedManifest, packageResolver, moduleResolver, resolutionOptions);
+                blendedManifest, packageResolver, moduleResolver, resolutionOptions, new Index(),
+                hasDependencyManifest, distributionChange, lessThan24HrsAfterBuild, false);
         DependencyGraph<DependencyNode> dependencyNodeGraph =
                 resolutionEngine.resolveDependencies(moduleLoadRequests);
         this.dependencyGraphDump = resolutionEngine.dumpGraphs();
@@ -372,6 +381,7 @@ public class PackageResolution {
         return buildPackageGraph(dependencyNodeGraph, rootPackageContext.project().currentPackage(),
                 packageResolver);
     }
+
 
     static Optional<ModuleContext> findModuleInPackage(PackageContext resolvedPackage, String moduleNameStr) {
         PackageName packageName = resolvedPackage.packageName();

@@ -24,6 +24,7 @@ import io.ballerina.projects.PackageManifest;
 import io.ballerina.projects.PackageName;
 import io.ballerina.projects.PackageOrg;
 import io.ballerina.projects.PackageVersion;
+import io.ballerina.projects.SemanticVersion;
 import io.ballerina.projects.SemanticVersion.VersionCompatibilityResult;
 import io.ballerina.projects.internal.repositories.AbstractPackageRepository;
 import io.ballerina.projects.internal.repositories.MavenPackageRepository;
@@ -51,13 +52,17 @@ import static io.ballerina.projects.PackageVersion.BUILTIN_PACKAGE_VERSION;
 public class BlendedManifest {
     private final PackageContainer<Dependency> depContainer;
     private final DiagnosticResult diagnosticResult;
+    private final SemanticVersion distributionVersion;
 
     private static final Repository REPOSITORY_LOCAL = new Repository("local");
     private static final Repository REPOSITORY_NOT_SPECIFIED = new Repository("not_specified");
 
-    private BlendedManifest(PackageContainer<Dependency> pkgContainer, DiagnosticResult diagnosticResult) {
+    private BlendedManifest(PackageContainer<Dependency> pkgContainer,
+                            DiagnosticResult diagnosticResult,
+                            SemanticVersion distributionVersion) {
         this.depContainer = pkgContainer;
         this.diagnosticResult = diagnosticResult;
+        this.distributionVersion = distributionVersion;
     }
 
     public static BlendedManifest from(DependencyManifest dependencyManifest,
@@ -177,7 +182,10 @@ public class BlendedManifest {
             }
         }
 
-        return new BlendedManifest(depContainer, new DefaultDiagnosticResult(diagnostics));
+        return new BlendedManifest(
+                depContainer,
+                new DefaultDiagnosticResult(diagnostics),
+                dependencyManifest.distributionVersion());
     }
 
     private static DependencyRelation getRelation(boolean isTransitive) {
@@ -198,6 +206,10 @@ public class BlendedManifest {
         return moduleDescriptors.stream()
                 .map(moduleDesc -> moduleDesc.name().toString())
                 .toList();
+    }
+
+    public SemanticVersion getDistributionVersion() {
+        return distributionVersion;
     }
 
     public Optional<Dependency> lockedDependency(PackageOrg org, PackageName name) {

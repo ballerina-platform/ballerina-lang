@@ -18,9 +18,11 @@
 package io.ballerina.projects.test.resolution.packages;
 
 import io.ballerina.projects.DependencyGraph;
+import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.internal.ResolutionEngine.DependencyNode;
 import io.ballerina.projects.test.resolution.packages.internal.GraphComparisonResult;
 import io.ballerina.projects.test.resolution.packages.internal.GraphUtils;
+import io.ballerina.projects.environment.UpdatePolicy;
 import io.ballerina.projects.test.resolution.packages.internal.PackageResolutionTestCase;
 import io.ballerina.projects.test.resolution.packages.internal.PackageResolutionTestCaseBuilder;
 import io.ballerina.projects.test.resolution.packages.internal.TestCaseFilePaths;
@@ -43,15 +45,27 @@ public abstract class AbstractPackageResolutionTest {
     private static final Path RESOURCE_DIRECTORY = Path.of("src", "test", "resources",
             "package-resolution");
 
-    public void runTestCase(String testSuiteDirName, String testCaseDirName, boolean sticky) {
+    public void runTestCase(String testSuiteDirName, String testCaseDirName, UpdatePolicy policy,
+                            boolean lessThan24HrsAfterBuild, String errMsg) {
         Path testSuitePath = RESOURCE_DIRECTORY.resolve(testSuiteDirName);
         TestCaseFilePaths filePaths = TestCaseFilePathsBuilder.build(testSuitePath,
                 testSuitePath.resolve(testCaseDirName));
-        PackageResolutionTestCase resolutionTestCase = PackageResolutionTestCaseBuilder.build(filePaths, sticky);
-        DependencyGraph<DependencyNode> actualGraph = resolutionTestCase.execute(sticky);
-        DependencyGraph<DependencyNode> expectedGraph = resolutionTestCase.getExpectedGraph(sticky);
-        GraphComparisonResult compResult = GraphUtils.compareGraph(actualGraph, expectedGraph);
-        Assert.assertTrue(compResult.isIdenticalGraphs(), getDiagnosticLine(compResult.diagnostics()));
+        PackageResolutionTestCase resolutionTestCase = PackageResolutionTestCaseBuilder
+                .build(filePaths, policy, lessThan24HrsAfterBuild);
+        try {
+            DependencyGraph<DependencyNode> actualGraph = resolutionTestCase.execute(policy);
+            if (errMsg != null) {
+                Assert.fail("Expected a ProjectException with message: " + errMsg);
+            }
+            DependencyGraph<DependencyNode> expectedGraph = resolutionTestCase.getExpectedGraph(policy);
+            GraphComparisonResult compResult = GraphUtils.compareGraph(actualGraph, expectedGraph);
+            Assert.assertTrue(compResult.isIdenticalGraphs(), getDiagnosticLine(compResult.diagnostics()));
+        } catch (ProjectException err) {
+            if (errMsg == null) {
+                Assert.fail("No ProjectException expected, but got: " + err.getMessage());
+            }
+            Assert.assertEquals(err.getMessage(), errMsg);
+        }
     }
 
     private String getDiagnosticLine(Collection<String> diagnostics) {

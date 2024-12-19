@@ -1,9 +1,11 @@
 digraph "example1" {
+    "ballerina/http:1.3.1" -> "ballerina/cache:1.2.1"
+    "ballerina/http:1.3.1" -> "ballerina/io:1.0.2"
+    "ballerinax/mysql:1.0.0" -> "ballerinai/transaction:0.0.0"
+    "samejs/app:0.1.0" -> "ballerinax/mysql:1.0.0"
     "samejs/app:0.1.0" -> "ballerina/http:1.3.1"
     "samejs/app:0.1.0" -> "samjs/foo:1.2.1"
     "samejs/app:0.1.0" -> "samtest/io:1.5.1"
-    "ballerina/http:1.3.1" -> "ballerina/cache:1.2.1"
-    "ballerina/http:1.3.1" -> "ballerina/io:1.0.1"
     "samjs/foo:1.2.1" -> "samjs/bar:1.3.4"
     "samjs/foo:1.2.1" -> "samjs/bazz:1.4.4"
     "samtest/io:1.5.1" -> "ballerina/http:1.3.1"
@@ -22,5 +24,4 @@ digraph "example1" {
     "samjs/b:1.3.4" [scope = "testOnly"]
     "samjs/p:1.3.4" [scope = "testOnly"]
     "samtest/io:1.5.1" [repo = "local"]
-    "ballerina/cache:1.2.1" [transitive = true]
 }
