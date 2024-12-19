@@ -55,6 +55,23 @@ public class IndexBasedDependencyGraphBuilder {
         depGraph.put(targetVertex, new HashSet<>());
     }
 
+    public void addVertex(DependencyNode node) {
+        PackageDescriptor pkgDesc = node.pkgDesc();
+        Vertex vertex = new Vertex(pkgDesc.org(), pkgDesc.name());
+        DependencyNode existingNode = vertices.get(vertex);
+        if (existingNode != null && existingNode.scope().equals(DEFAULT)) {
+            node = new DependencyNode(pkgDesc, DEFAULT, node.resolutionType());
+        }
+        vertices.put(vertex, node);
+
+        // if the source node is not in the vertices list, we need to add that to the graph, or
+        // if the source node version is getting updated, the list of dependencies should be reset and re-added,
+        // we reset the list of dependencies.
+        if (existingNode == null || !existingNode.equals(node)) {
+            depGraph.put(vertex, new HashSet<>());
+        }
+    }
+
     // TODO: streamline the below logic
     public void addDependency(DependencyNode sourceNode, DependencyNode targetNode) {
         PackageDescriptor source = sourceNode.pkgDesc();
@@ -62,28 +79,21 @@ public class IndexBasedDependencyGraphBuilder {
         Vertex sourceVertex = new Vertex(source.org(), source.name());
         Vertex targetVertex = new Vertex(target.org(), target.name());
 
-        DependencyNode existingSourceNode = vertices.get(sourceVertex);
-        if (existingSourceNode != null && existingSourceNode.scope().equals(DEFAULT)) {
-            sourceNode = new DependencyNode(source, DEFAULT, sourceNode.resolutionType());
-        }
         DependencyNode existingTargetNode = vertices.get(targetVertex);
         if (existingTargetNode != null && existingTargetNode.scope().equals(DEFAULT)) {
             targetNode = new DependencyNode(target, DEFAULT, targetNode.resolutionType());
         }
-
-        vertices.put(sourceVertex, sourceNode);
         vertices.put(targetVertex, targetNode);
-
-        // if the source node is not in the vertices list, we need to add that to the graph, or
-        // if the source node version is getting updated, the list of dependencies should be reset and re-added,
-        // we reset the list of dependencies.
-        if (existingSourceNode == null || !existingSourceNode.equals(sourceNode)) {
-            depGraph.put(sourceVertex, new HashSet<>());
-        }
         if (!depGraph.containsKey(targetVertex)) {
             depGraph.put(targetVertex, new HashSet<>());
         }
         depGraph.get(sourceVertex).add(targetVertex);
+    }
+
+    public PackageDescriptor getDependency(PackageOrg org, PackageName name) {
+        Vertex vertexToFetch = new Vertex(org, name);
+        DependencyNode node = vertices.get(vertexToFetch);
+        return node != null? node.pkgDesc() : null;
     }
 
     public DependencyGraph<DependencyNode> buildGraph() {

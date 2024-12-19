@@ -6,8 +6,12 @@
 
 ## Expected behavior
 
-### Sticky == true
-No changes to Dependency graph
-### Sticky == false
+### Update policy == SOFT
+Dependency graph should be updated to have `ballerina/http:1.4.0`, `ballerina/io:1.2.0`, `ballerina/cache:1.4.0`, 
+ and `samjs/foo:1.3.0`, 
+### Update policy == MEDIUM
 Dependency graph should be updated to have `ballerina/io:1.0.2`
-
+### Update policy == HARD
+No changes to Dependency graph
+### Update policy == LOCKED
+No changes to Dependency graph

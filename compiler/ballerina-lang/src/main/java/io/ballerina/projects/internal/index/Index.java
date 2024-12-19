@@ -27,6 +27,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 // TODO: index should merge the central index and the distribution index.
 public class Index {
@@ -38,11 +39,20 @@ public class Index {
     }
 
     public Optional<IndexPackage> getVersion(PackageOrg orgName, PackageName packageName, PackageVersion version) {
+        return getVersion(orgName, packageName, version, null);
+    }
+
+    public Optional<IndexPackage> getVersion(PackageOrg orgName, PackageName packageName, PackageVersion version,
+                                             String repository) {
         List<IndexPackage> packageMap = this.packageMap.get(orgName + "/" + packageName);
         if (packageMap == null) {
             return Optional.empty();
         }
-        return packageMap.stream().filter(pkg -> pkg.descriptor().version().equals(version)).findFirst();
+        Stream<IndexPackage> versions = packageMap.stream().filter(pkg -> pkg.version().equals(version));
+        if (repository != null) {
+            return versions.filter(pkg -> repository.equals(pkg.repository())).findFirst();
+        }
+        return versions.findFirst();
     }
 
     public void putVersion(IndexPackage pkg) {

@@ -1329,6 +1329,24 @@ public final class ProjectUtils {
         return false;
     }
 
+    public static boolean isWithin24HoursOfLastBuild(Project project) {
+        if (project.kind() == ProjectKind.BUILD_PROJECT) {
+            Path buildFilePath = project.targetDir().resolve(BUILD_FILE);
+            if (Files.exists(buildFilePath) && buildFilePath.toFile().length() > 0) {
+                try {
+                    BuildJson buildJson = readBuildJson(buildFilePath);
+                    // if distribution is not same, we anyway return sticky as false
+                    if (buildJson != null && !buildJson.isExpiredLastUpdateTime()) {
+                        return true;
+                    }
+                } catch (IOException | JsonSyntaxException e) {
+                    // ignore
+                }
+            }
+        }
+        return false;
+    }
+
     /**
      * From a list of versions, get the versions within the compatible range.
      *

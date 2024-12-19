@@ -21,9 +21,11 @@ digraph "example1" {
 
 ## Expected behavior
 
-### Sticky == true
-Dependency graph should be updated to have `ballerinai/transaction:0.0.0` and `ballerina/cache:1.3.2`
-
-### Sticky == false
-Same behavior as sticky ==true
-
+### Update policy == SOFT
+Dependency graph should be updated to have `ballerinai/foo:0.0.0` and `ballerina/cache:1.4.0`
+### Update policy == MEDIUM
+Dependency graph should be updated to have `ballerinai/foo:0.0.0` and `ballerina/cache:1.3.2`
+### Update policy == HARD
+Dependency graph should be updated to have `ballerinai/foo:0.0.0` and `ballerina/cache:1.3.1`
+### Update policy == LOCKED
+Build failure since import addition is not allowed in the LOCKED update policy.

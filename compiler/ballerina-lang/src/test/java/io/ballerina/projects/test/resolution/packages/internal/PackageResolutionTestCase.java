@@ -22,6 +22,7 @@ import io.ballerina.projects.PackageDescriptor;
 import io.ballerina.projects.environment.ModuleLoadRequest;
 import io.ballerina.projects.environment.PackageResolver;
 import io.ballerina.projects.environment.ResolutionOptions;
+import io.ballerina.projects.environment.UpdatePolicy;
 import io.ballerina.projects.internal.BlendedManifest;
 import io.ballerina.projects.internal.ModuleResolver;
 import io.ballerina.projects.internal.ResolutionEngine;
@@ -42,50 +43,62 @@ public class PackageResolutionTestCase {
     private final PackageResolver packageResolver;
     private final ModuleResolver moduleResolver;
     private final Index index;
+    private final boolean hasDependencyManifest;
+    private final boolean distributionChange;
+    private final boolean lessThan24HrsAfterBuild;
     private final Collection<ModuleLoadRequest> moduleLoadRequests;
-    private final DependencyGraph<DependencyNode> expectedGraphSticky;
-    private final DependencyGraph<DependencyNode> expectedGraphNoSticky;
+    private final DependencyGraph<DependencyNode> expectedGraphSoft;
+    private final DependencyGraph<DependencyNode> expectedGraphMedium;
+    private final DependencyGraph<DependencyNode> expectedGraphHard;
+    private final DependencyGraph<DependencyNode> expectedGraphLocked;
 
     public PackageResolutionTestCase(PackageDescriptor rootPkgDesc,
                                      BlendedManifest blendedManifest,
                                      PackageResolver packageResolver,
                                      ModuleResolver moduleResolver,
                                      Index index,
+                                     boolean hasDependencyManifest,
+                                     boolean distributionChange,
+                                     boolean lessThan24HrsAfterBuild,
                                      Collection<ModuleLoadRequest> moduleLoadRequests,
-                                     DependencyGraph<DependencyNode> expectedGraphSticky,
-                                     DependencyGraph<DependencyNode> expectedGraphNoSticky) {
+                                     DependencyGraph<DependencyNode> expectedGraphSoft,
+                                     DependencyGraph<DependencyNode> expectedGraphMedium,
+                                     DependencyGraph<DependencyNode> expectedGraphHard,
+                                     DependencyGraph<DependencyNode> expectedGraphLocked) {
         this.rootPkgDesc = rootPkgDesc;
         this.blendedManifest = blendedManifest;
         this.packageResolver = packageResolver;
         this.moduleResolver = moduleResolver;
         this.index = index;
+        this.hasDependencyManifest = hasDependencyManifest;
+        this.distributionChange = distributionChange;
+        this.lessThan24HrsAfterBuild = lessThan24HrsAfterBuild;
         this.moduleLoadRequests = moduleLoadRequests;
-        this.expectedGraphSticky = expectedGraphSticky;
-        this.expectedGraphNoSticky = expectedGraphNoSticky;
+        this.expectedGraphSoft = expectedGraphSoft;
+        this.expectedGraphMedium = expectedGraphMedium;
+        this.expectedGraphHard = expectedGraphHard;
+        this.expectedGraphLocked = expectedGraphLocked;
     }
 
-    public DependencyGraph<DependencyNode> execute(boolean sticky) {
-        ResolutionOptions options = ResolutionOptions.builder().setOffline(true).setSticky(sticky).build();
+    public DependencyGraph<DependencyNode> execute(UpdatePolicy policy) {
+        ResolutionOptions options = ResolutionOptions.builder().setOffline(true).setUpdatePolicy(policy).build();
         ResolutionEngine resolutionEngine = new ResolutionEngine(rootPkgDesc, blendedManifest,
-                packageResolver, moduleResolver, options, index, true);
+                packageResolver, moduleResolver, options, index, hasDependencyManifest, distributionChange,
+                lessThan24HrsAfterBuild, true);
         return resolutionEngine.resolveDependencies(moduleLoadRequests);
     }
 
-    public DependencyGraph<DependencyNode> getExpectedGraph(boolean sticky) {
-        if (sticky) {
-            if (expectedGraphSticky == null) {
-                throw new IllegalStateException(Constants.EXP_GRAPH_STICKY_FILE_NAME +
-                        " file cannot be found in the test case");
-            } else {
-                return expectedGraphSticky;
-            }
-        } else {
-            if (expectedGraphNoSticky == null) {
-                throw new IllegalStateException(Constants.EXP_GRAPH_NO_STICKY_FILE_NAME +
-                        " file cannot be found in the test case");
-            } else {
-                return expectedGraphNoSticky;
-            }
+    public DependencyGraph<DependencyNode> getExpectedGraph(UpdatePolicy policy) {
+        DependencyGraph<DependencyNode> graph = switch (policy) {
+            case SOFT -> expectedGraphSoft;
+            case MEDIUM -> expectedGraphMedium;
+            case HARD -> expectedGraphHard;
+            case LOCKED -> expectedGraphLocked;
+        };
+        if (graph == null) {
+            throw new IllegalStateException(
+                    "Expected graph for " + policy + " policy cannot be found in the test case");
         }
+        return graph;
     }
 }

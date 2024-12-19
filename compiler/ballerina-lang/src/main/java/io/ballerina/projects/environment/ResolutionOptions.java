@@ -27,14 +27,16 @@ public class ResolutionOptions {
     private final boolean sticky;
     private final boolean dumpGraph;
     private final boolean dumpRawGraphs;
+    private final UpdatePolicy updatePolicy;
     private final PackageLockingMode packageLockingMode;
 
     private ResolutionOptions(boolean offline, boolean sticky, boolean dumpGraph, boolean dumpRawGraphs,
-                              PackageLockingMode packageLockingMode) {
+                              UpdatePolicy updatePolicy, PackageLockingMode packageLockingMode) {
         this.offline = offline;
         this.sticky = sticky;
         this.dumpGraph = dumpGraph;
         this.dumpRawGraphs = dumpRawGraphs;
+        this.updatePolicy = updatePolicy;
         this.packageLockingMode = packageLockingMode;
     }
 
@@ -63,6 +65,10 @@ public class ResolutionOptions {
         return sticky;
     }
 
+    public UpdatePolicy updatePolicy() {
+        return updatePolicy;
+    }
+
     public boolean dumpGraph() {
         return dumpGraph;
     }
@@ -89,6 +95,7 @@ public class ResolutionOptions {
         private boolean sticky = true;
         private boolean dumpGraph = false;
         private boolean dumpRawGraphs = false;
+        private UpdatePolicy updatePolicy = UpdatePolicy.SOFT;
         private PackageLockingMode packageLockingMode = PackageLockingMode.MEDIUM;
 
         public ResolutionOptionBuilder setOffline(boolean value) {
@@ -98,6 +105,11 @@ public class ResolutionOptions {
 
         public ResolutionOptionBuilder setSticky(boolean value) {
             sticky = value;
+            return this;
+        }
+
+        public ResolutionOptionBuilder setUpdatePolicy(UpdatePolicy value) {
+            updatePolicy = value;
             return this;
         }
 
@@ -117,7 +129,7 @@ public class ResolutionOptions {
         }
 
         public ResolutionOptions build() {
-            return new ResolutionOptions(offline, sticky, dumpGraph, dumpRawGraphs, packageLockingMode);
+            return new ResolutionOptions(offline, sticky, dumpGraph, dumpRawGraphs, updatePolicy, packageLockingMode);
         }
     }
 }
