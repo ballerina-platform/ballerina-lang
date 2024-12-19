@@ -259,8 +259,8 @@ public final class TypeChecker {
      * @return true if the value belongs to the given type, false otherwise
      */
     public static boolean checkIsType(Object sourceVal, Type targetType) {
-        Context cx = context();
         Type sourceType = getType(sourceVal);
+        Context cx = context();
         if (isSubType(cx, sourceType, targetType)) {
             return true;
         }
@@ -605,6 +605,9 @@ public final class TypeChecker {
     }
 
     private static boolean isSubType(Context cx, Type source, Type target) {
+        if (source == target || (source.getTag() == target.getTag() && source.equals(target))) {
+            return true;
+        }
         if (source instanceof CacheableTypeDescriptor sourceCacheableType &&
                 target instanceof CacheableTypeDescriptor targetCacheableType) {
             return isSubTypeWithCache(cx, sourceCacheableType, targetCacheableType);
