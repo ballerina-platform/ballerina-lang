@@ -50,9 +50,7 @@ public class StreamDefinition extends Definition {
         }
         SemType tuple = listDefinition.defineListTypeWrapped(env, new SemType[]{valueType, completionType}, 2,
                 Builder.getNeverType(), CellAtomicType.CellMutability.CELL_MUT_LIMITED);
-        SemType semType = streamContaining(tuple);
-        notifyContainer();
-        return semType;
+        return streamContaining(tuple);
     }
 
     private SemType streamContaining(SemType tupleType) {
