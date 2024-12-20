@@ -381,7 +381,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
      */
     private void updateProvidersForLambdaInvocations() {
         for (Map.Entry<BSymbol, BSymbol> entry : dependsOnLambda.entrySet()) {
-            BSymbol dependent= entry.getKey();
+            BSymbol dependent = entry.getKey();
             BSymbol lambda = entry.getValue();
             if (invocationToDependent.containsKey(dependent) && globalNodeDependsOn.containsKey(dependent)) {
                 globalNodeDependsOn.get(dependent).add(lambda);
