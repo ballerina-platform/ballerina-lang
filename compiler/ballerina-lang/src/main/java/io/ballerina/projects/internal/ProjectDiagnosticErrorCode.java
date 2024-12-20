@@ -68,6 +68,9 @@ public enum ProjectDiagnosticErrorCode implements DiagnosticCode {
     // Error codes used in resources resolution
     CONFLICTING_RESOURCE_FILE("BCE5601", "conflicting.resources.type"),
     DEPRECATED_RESOURCES_STRUCTURE("BCE5602", "deprecated.resources.structure"),
+
+    // Error codes for invalid flag combinations.
+    INVALID_VERBOSE_FLAG_USAGE("BCE5701", "invalid.verbose.flag.usage")
     ;
 
     private final String diagnosticId;

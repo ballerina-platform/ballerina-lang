@@ -1,0 +1,17 @@
+Compiling source
+	test_org/optimized_test_run_test:0.1.0
+Running Tests
+
+	optimized_test_run_test
+		[pass] importUsageTest
+		[pass] simpleTest
+		[pass] testFPCallToBuildPkgFromTestablePkg
+		[pass] testFn
+		[pass] unusedFunctionInvoker
+
+
+		5 passing
+		0 failing
+		0 skipped
+
+		Test execution time :*****s

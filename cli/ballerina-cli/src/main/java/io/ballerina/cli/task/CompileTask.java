@@ -19,6 +19,7 @@
 package io.ballerina.cli.task;
 
 import io.ballerina.cli.utils.BuildTime;
+import io.ballerina.projects.BuildOptions;
 import io.ballerina.projects.CodeGeneratorResult;
 import io.ballerina.projects.CodeModifierResult;
 import io.ballerina.projects.JBallerinaBackend;
@@ -65,23 +66,26 @@ public class CompileTask implements Task {
     private final transient PrintStream err;
     private final boolean compileForBalPack;
     private final boolean compileForBalBuild;
+    private final boolean compileForBalTest;
     private final boolean isPackageModified;
     private final boolean cachesEnabled;
 
     public CompileTask(PrintStream out, PrintStream err) {
-        this(out, err, false, false, true, false);
+        this(out, err, false, false, false, true, false);
     }
 
     public CompileTask(PrintStream out,
                        PrintStream err,
                        boolean compileForBalPack,
                        boolean compileForBalBuild,
+                       boolean compileForBalTest,
                        boolean isPackageModified,
                        boolean cachesEnabled) {
         this.out = out;
         this.err = err;
         this.compileForBalPack = compileForBalPack;
         this.compileForBalBuild = compileForBalBuild;
+        this.compileForBalTest = compileForBalTest;
         this.isPackageModified = isPackageModified;
         this.cachesEnabled = cachesEnabled;
     }
@@ -113,6 +117,10 @@ public class CompileTask implements Task {
             if (this.compileForBalBuild) {
                 addDiagnosticForProvidedPlatformLibs(project, diagnostics);
             }
+            if (this.compileForBalBuild || this.compileForBalTest) {
+                addDiagnosticForInvalidDeadCodeEliminationReportFlagUsage(project, diagnostics);
+            }
+
             long start = 0;
 
             if (project.currentPackage().compilationOptions().dumpGraph()
@@ -333,6 +341,19 @@ public class CompileTask implements Task {
                     return;
                 }
             }
+        }
+    }
+
+    private void addDiagnosticForInvalidDeadCodeEliminationReportFlagUsage(Project project,
+                                                                           List<Diagnostic> diagnostics) {
+        BuildOptions buildOptions = project.buildOptions();
+        if (buildOptions.deadCodeEliminationReport() && !buildOptions.eliminateDeadCode()) {
+            DiagnosticInfo diagnosticInfo = new DiagnosticInfo(
+                    ProjectDiagnosticErrorCode.INVALID_VERBOSE_FLAG_USAGE.diagnosticId(),
+                    "--dead-code-elimination-report flag can only be used with --eliminate-dead-code flag",
+                    DiagnosticSeverity.ERROR);
+            diagnostics.add(new PackageDiagnostic(diagnosticInfo,
+                    project.currentPackage().descriptor().name().toString()));
         }
     }
 

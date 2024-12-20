@@ -209,6 +209,14 @@ public class BuildCommand implements BLauncherCmd {
     @CommandLine.Option(names = "--optimize-dependency-compilation", hidden = true,
             description = "experimental memory optimization for large projects")
     private Boolean optimizeDependencyCompilation;
+    @CommandLine.Option(names = "--eliminate-dead-code", description = "eliminate dead code in generated executable",
+            defaultValue = "false")
+    private Boolean deadCodeElimination;
+
+    @CommandLine.Option(names = "--dead-code-elimination-report",
+            description = "generate a report containing which sections were removed as part of dead code elimination",
+            defaultValue = "false")
+    private Boolean deadCodeEliminationReport;
 
     @Override
     public void execute() {
@@ -291,8 +299,8 @@ public class BuildCommand implements BLauncherCmd {
                 // resolve maven dependencies in Ballerina.toml
                 .addTask(new ResolveMavenDependenciesTask(outStream))
                 // compile the modules
-                .addTask(new CompileTask(outStream, errStream, false, true,
-                        isPackageModified, buildOptions.enableCache()))
+                .addTask(new CompileTask(outStream, errStream, false, true, false, isPackageModified,
+                        buildOptions.enableCache()))
                 .addTask(new CreateExecutableTask(outStream, this.output, null, false))
                 .addTask(new DumpBuildTimeTask(outStream), !project.buildOptions().dumpBuildTime())
                 .build();
@@ -326,7 +334,10 @@ public class BuildCommand implements BLauncherCmd {
                 .disableSyntaxTreeCaching(disableSyntaxTreeCaching)
                 .setGraalVMBuildOptions(graalVMBuildOptions)
                 .setShowDependencyDiagnostics(showDependencyDiagnostics)
-                .setOptimizeDependencyCompilation(optimizeDependencyCompilation);
+                .setOptimizeDependencyCompilation(optimizeDependencyCompilation)
+                .setShowDependencyDiagnostics(showDependencyDiagnostics)
+                .setEliminateDeadCode(deadCodeElimination)
+                .setDeadCodeEliminationReport(deadCodeEliminationReport);
 
         if (targetDir != null) {
             buildOptionsBuilder.targetDir(targetDir.toString());

@@ -67,6 +67,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.StringJoiner;
+import java.util.function.Predicate;
 
 import static io.ballerina.cli.launcher.LauncherUtils.createLauncherException;
 import static org.ballerinalang.test.runtime.util.TesterinaConstants.COVERAGE_DIR;
@@ -483,8 +484,10 @@ public final class TestUtils {
         JarResolver jarResolver = jBallerinaBackend.jarResolver();
         Set<Path> jars = new HashSet<>(getModuleJarPaths(jBallerinaBackend, currentPackage));
 
-        List<Path> dependencies = getTestDependencyPaths(currentPackage, jarResolver)
-                .stream().filter(dependency -> !jars.contains(dependency)).toList();
+        List<Path> dependencies = getTestDependencyPaths(currentPackage, jarResolver).stream()
+                .filter(Predicate.not(jars::contains))
+                .filter(Predicate.not(jarResolver.getOptimizedJarLibraryPaths()::contains))
+                .toList();
 
         StringJoiner classPath = joinClassPaths(dependencies);
         return classPath.toString();

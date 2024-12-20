@@ -15,6 +15,8 @@ on:
       - native-build
       - revert-client-decl-master
       - query-grouping-aggregation
+      - feature-codegen-optimizer
+
 jobs:
   windows_build:
     name: Build with some tests on Windows

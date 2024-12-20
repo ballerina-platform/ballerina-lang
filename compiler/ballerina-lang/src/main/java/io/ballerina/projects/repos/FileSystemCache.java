@@ -24,6 +24,7 @@ import io.ballerina.projects.ModuleName;
 import io.ballerina.projects.Package;
 import io.ballerina.projects.PackageManifest;
 import io.ballerina.projects.Project;
+import io.ballerina.projects.internal.environment.DefaultEnvironment;
 import io.ballerina.projects.util.ProjectConstants;
 import org.apache.commons.io.FileUtils;
 
@@ -33,6 +34,8 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Optional;
+
+import static io.ballerina.projects.util.ProjectConstants.CACHES_DIR_NAME;
 
 /**
  * An implementation of the {@code PackageCompilationCache} that is aware of the file system structure.
@@ -92,19 +95,33 @@ public class FileSystemCache extends CompilationCache {
     }
 
     @Override
-    public Optional<Path> getPlatformSpecificLibrary(CompilerBackend compilerBackend, String libraryName) {
+    public Optional<Path> getPlatformSpecificLibrary(CompilerBackend compilerBackend, String libraryName,
+                                                     boolean isOptimizedLibrary) {
         String libraryFileName = libraryName + compilerBackend.libraryFileExtension();
-        Path targetPlatformCacheDirPath = getTargetPlatformCacheDirPath(compilerBackend);
-        Path jarFilePath = targetPlatformCacheDirPath.resolve(libraryFileName);
-        return Files.exists(jarFilePath) ? Optional.of(jarFilePath) : Optional.empty();
+        Path optimizedJarFilePath = getOptimizedTargetPlatformCacheDirPath(compilerBackend).resolve(libraryFileName);
+        if (isOptimizedLibrary) {
+            return Optional.of(optimizedJarFilePath);
+        }
+
+        Path jarFilePath = getTargetPlatformCacheDirPath(compilerBackend).resolve(libraryFileName);
+        // getPlatformSpecificLibrary gets invoked from TestUtils class and there is no proper way to check whether a
+        // given module is `optimized`, `unoptimized` or `duplicated optimized`. Maybe we can lift the logic to
+        // JarResolver somehow.
+        // TODO Find a cleaner way to handle JarPaths for bal test with dead code elimination.
+        if (Files.exists(jarFilePath)) {
+            return Optional.of(jarFilePath);
+        } else if (Files.exists(optimizedJarFilePath)) {
+            return Optional.of(optimizedJarFilePath);
+        }
+        return Optional.empty();
     }
 
     @Override
-    public void cachePlatformSpecificLibrary(CompilerBackend compilerBackend,
-                                             String libraryName,
-                                             ByteArrayOutputStream libraryContent) {
+    public void cachePlatformSpecificLibrary(CompilerBackend compilerBackend, String libraryName,
+                                             ByteArrayOutputStream libraryContent, boolean isOptimizedLibrary) {
         String libraryFileName = libraryName + compilerBackend.libraryFileExtension();
-        Path targetPlatformCacheDirPath = getTargetPlatformCacheDirPath(compilerBackend);
+        Path targetPlatformCacheDirPath = isOptimizedLibrary ? getOptimizedTargetPlatformCacheDirPath(compilerBackend) :
+                getTargetPlatformCacheDirPath(compilerBackend);
         // Create directories
         createDirectories(targetPlatformCacheDirPath);
         Path jarFilePath = targetPlatformCacheDirPath.resolve(libraryFileName);
@@ -121,6 +138,11 @@ public class FileSystemCache extends CompilationCache {
     private Path getTargetPlatformCacheDirPath(CompilerBackend compilerBackend) {
         String targetPlatformCode = compilerBackend.targetPlatform().code();
         return packageCacheDirPath().resolve(targetPlatformCode);
+    }
+
+    private Path getOptimizedTargetPlatformCacheDirPath(CompilerBackend compilerBackend) {
+        String targetPlatformCode = compilerBackend.targetPlatform().code();
+        return optimizedPackageCacheDirPath().resolve(targetPlatformCode);
     }
 
     private void createDirectories(Path dirPath) {
@@ -157,6 +179,17 @@ public class FileSystemCache extends CompilationCache {
                 .resolve(pkgDescriptor.name().value())
                 .resolve(pkgDescriptor.version().toString());
         return packageCacheDirPath;
+    }
+
+    private Path optimizedPackageCacheDirPath() {
+        Package currentPkg = project.currentPackage();
+        PackageManifest pkgDescriptor = currentPkg.manifest();
+        DefaultEnvironment defaultEnv = (DefaultEnvironment) this.project.projectEnvironmentContext().environment();
+        if (defaultEnv.buildProjectTargetDir == null) {
+            return packageCacheDirPath();
+        }
+        return defaultEnv.buildProjectTargetDir.resolve(CACHES_DIR_NAME).resolve(pkgDescriptor.org().value())
+                .resolve(pkgDescriptor.name().value()).resolve(pkgDescriptor.version().toString());
     }
 
     /**

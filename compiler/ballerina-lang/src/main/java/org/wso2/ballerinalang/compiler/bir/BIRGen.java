@@ -279,18 +279,42 @@ public class BIRGen extends BLangNodeVisitor {
     }
 
     public BLangPackage genBIR(BLangPackage astPkg) {
+        genBIR(astPkg, false);
+
+        if (astPkg.symbol.shouldGenerateDuplicateBIR) {
+            genBIR(astPkg, true);
+            // If we don't flip the BIRs the global var references between pkgs will use the new BIRNodes as references.
+            // This breaks the usedBIRNodeAnalyzer
+            flipBIRs(astPkg);
+        }
+        return astPkg;
+    }
+
+    private void flipBIRs(BLangPackage astPkg) {
+        BIRPackage originalBIR = astPkg.symbol.bir;
+        astPkg.symbol.bir = astPkg.symbol.duplicateBir;
+        astPkg.symbol.duplicateBir = originalBIR;
+    }
+
+    public void genBIR(BLangPackage astPkg, Boolean isDuplicateGeneration) {
         boolean skipTest = astPkg.moduleContextDataHolder.skipTests();
         String sourceRoot = astPkg.moduleContextDataHolder.sourceRoot().toString();
         BIRPackage birPkg = new BIRPackage(astPkg.pos, astPkg.packageID.orgName, astPkg.packageID.pkgName,
                 astPkg.packageID.name, astPkg.packageID.version, astPkg.packageID.sourceFileName,
                 sourceRoot, skipTest);
 
-        astPkg.symbol.bir = birPkg; //TODO try to remove this
+        if (!isDuplicateGeneration) {
+            astPkg.symbol.bir = birPkg;
+        } else {
+            astPkg.symbol.duplicateBir = birPkg;
+        }
 
         this.env = new BIRGenEnv(birPkg);
         astPkg.accept(this);
 
         this.birOptimizer.optimizePackage(birPkg);
+
+        //TODO stop duplicate birgen for testable pkgs. It is not needed
         if (!astPkg.moduleContextDataHolder.skipTests() && astPkg.hasTestablePackage()) {
             astPkg.getTestablePkgs().forEach(testPkg -> {
                 BIRPackage testBirPkg = new BIRPackage(testPkg.pos, testPkg.packageID.orgName,
@@ -299,15 +323,19 @@ public class BIRGen extends BLangNodeVisitor {
                 this.env = new BIRGenEnv(testBirPkg);
                 testPkg.accept(this);
                 this.birOptimizer.optimizePackage(testBirPkg);
-                testPkg.symbol.bir = testBirPkg;
+                if (!isDuplicateGeneration) {
+                    testPkg.symbol.bir = testBirPkg;
+                } else {
+                    // Technically this should never hit
+                    //TODO find a way to restrict duplicate generation for tests
+                    testPkg.symbol.duplicateBir = testBirPkg;
+                }
                 testBirPkg.importModules.add(new BIRNode.BIRImportModule(null, testPkg.packageID.orgName,
                         testPkg.packageID.name, testPkg.packageID.version));
             });
         }
-
-        setEntryPoints(astPkg);
-        return astPkg;
     }
+
 
     private void setEntryPoints(BLangPackage pkgNode) {
         BLangFunction mainFunc = getMainFunction(pkgNode);
@@ -896,6 +924,10 @@ public class BIRGen extends BLangNodeVisitor {
         return Names.fromString(attachedFuncName.substring(offset));
     }
 
+    private Name getFuncOriginalName(BInvokableSymbol symbol) {
+        return symbol.name;
+    }
+
     private void addParam(BIRFunction birFunc, BLangVariable functionParam) {
         addParam(birFunc, functionParam.symbol, functionParam.expr, functionParam.pos,
                  functionParam.symbol.getAnnotations());
@@ -1440,7 +1472,8 @@ public class BIRGen extends BLangNodeVisitor {
             List<BIRAnnotationAttachment> calleeAnnots = getBIRAnnotAttachments(bInvokableSymbol.getAnnotations());
 
             this.env.enclBB.terminator = new BIRTerminator.Call(invocationExpr.pos, InstructionKind.CALL, isVirtual,
-                    invocationExpr.symbol.pkgID, getFuncName((BInvokableSymbol) invocationExpr.symbol), args, lhsOp,
+                    invocationExpr.symbol.pkgID, getFuncName((BInvokableSymbol) invocationExpr.symbol),
+                    getFuncOriginalName((BInvokableSymbol) invocationExpr.symbol), args, lhsOp,
                     thenBB, calleeAnnots, bInvokableSymbol.getFlags(), this.currentScope);
         }
         this.env.enclBB = thenBB;
