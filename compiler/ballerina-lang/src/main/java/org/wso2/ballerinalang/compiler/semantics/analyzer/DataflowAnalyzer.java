@@ -273,6 +273,8 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     private Map<BSymbol, Location> unusedErrorVarsDeclaredWithVar;
     private Map<BSymbol, Location> unusedLocalVariables;
     private final Map<BSymbol, BSymbol> symbolOwner;
+    private final Map<BSymbol, BSymbol> dependsOnLambda;
+    private final Map<BSymbol, BSymbol> invocationToDependent;
     private Map<BSymbol, Set<BSymbol>> globalNodeDependsOn;
     private Map<BSymbol, Set<BSymbol>> functionToDependency;
     private Map<BLangOnFailClause, Map<BSymbol, InitStatus>> possibleFailureUnInitVars;
@@ -296,6 +298,8 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         this.globalVariableRefAnalyzer = GlobalVariableRefAnalyzer.getInstance(context);
         this.unusedLocalVariables = new HashMap<>();
         this.symbolOwner = new HashMap<>();
+        this.dependsOnLambda = new HashMap<>();
+        this.invocationToDependent = new HashMap<>();
     }
 
     public static DataflowAnalyzer getInstance(CompilerContext context) {
@@ -355,6 +359,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         }
         checkForUninitializedGlobalVars(pkgNode.globalVars);
         pkgNode.getTestablePkgs().forEach(testablePackage -> visit((BLangPackage) testablePackage));
+        updateProvidersForLambdaInvocations();
         this.globalVariableRefAnalyzer.analyzeAndReOrder(pkgNode, this.globalNodeDependsOn, this.symbolOwner);
         this.globalVariableRefAnalyzer.populateFunctionDependencies(this.functionToDependency, pkgNode.globalVars);
         pkgNode.globalVariableDependencies = globalVariableRefAnalyzer.getGlobalVariablesDependsOn();
@@ -367,6 +372,21 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         this.unusedErrorVarsDeclaredWithVar = prevUnusedErrorVarsDeclaredWithVar;
 
         pkgNode.completedPhases.add(CompilerPhase.DATAFLOW_ANALYZE);
+    }
+
+    /**
+     * When seeing a lambda function expression, we do not add it as a provider to current dependent symbol.
+     * Instead, we need to add it as a provider when it is invoked. This method is used to update the providers
+     * for those invocations.
+     */
+    private void updateProvidersForLambdaInvocations() {
+        for (Map.Entry<BSymbol, BSymbol> entry : dependsOnLambda.entrySet()) {
+            BSymbol dependent= entry.getKey();
+            BSymbol lambda = entry.getValue();
+            if (invocationToDependent.containsKey(dependent) && globalNodeDependsOn.containsKey(dependent)) {
+                globalNodeDependsOn.get(dependent).add(lambda);
+            }
+        }
     }
 
     private void addModuleInitToSortedNodeList(BLangPackage pkgNode, List<TopLevelNode> sortedListOfNodes) {
@@ -1690,6 +1710,8 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         BSymbol symbol = invocationExpr.symbol;
         this.unusedLocalVariables.remove(symbol);
 
+        invocationToDependent.put(symbol, this.currDependentSymbolDeque.peek());
+
         if (isFunctionOrMethodDefinedInCurrentModule(symbol.owner, env) &&
                 !isGlobalVarsInitialized(invocationExpr.pos, invocationExpr)) {
             checkVarRef(symbol, invocationExpr.pos);
@@ -2131,7 +2153,9 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         BLangFunction funcNode = bLangLambdaFunction.function;
         SymbolEnv funcEnv = SymbolEnv.createFunctionEnv(funcNode, funcNode.symbol.scope, env);
         visitFunctionBodyWithDynamicEnv(funcNode, funcEnv);
-        recordGlobalVariableReferenceRelationship(funcNode.symbol);
+        if (isGlobalVarSymbol(funcNode.symbol)) {
+            dependsOnLambda.put(this.currDependentSymbolDeque.peek(), funcNode.symbol);
+        }
     }
 
     @Override
