@@ -11,9 +11,9 @@
 
 [Ballerina](https://ballerina.io/) is an open-source cloud-native programming language optimized for integration. It is developed and supported by [WSO2](https://wso2.com/).
 
-With Ballerina, you could easily develop microservices, API endpoints and integrations,
+With Ballerina, you can easily develop microservices, API endpoints and integrations,
 and any other application for the cloud. Additionally, Ballerina has all the general-purpose
-functionalities you could expect from a modern programming language.
+functionalities you can expect from a modern programming language.
 
 With Ballerina's compiler-level built-in support for widely used data types such
 as JSON and XML, your focus on handling structured data, network service interactions,
@@ -23,13 +23,13 @@ and dealing with concurrency is made much more effective.
 It has inherently concurrent first-class language constructs for providing and consuming services.
 
 #### Sequence diagrams
-Sequence diagram based graphical view shows the most fundamental aspect of the semantics of a network distributed application.
+Sequence diagram-based graphical view shows the most fundamental aspect of the semantics of a network-distributed application.
 
 #### Structural typing
 It allows for looser coupling between distributed components and eliminates the friction of data binding.
 
 #### Metadata
-Extensible metadata enables easy integration of Ballerina programs with cloud platforms.
+Extensible metadata enables the easy integration of Ballerina programs with cloud platforms.
 You could directly generate Docker and Kubernetes artifacts straight away from
 the source code.
 
@@ -54,7 +54,7 @@ You can use the following resources to learn Ballerina.
 
 ## Report issues and security flaws
 
->**Tip:** If you are unsure whether you have found a bug, search the existing issues in the GitHub repo and raise it in the [Ballerina Discord](https://discord.com/invite/wAJYFbMrG2) or [Stack Overflow](https://stackoverflow.com/questions/tagged/ballerina).
+>**Tip:** If you are unsure whether you have found a bug, search the existing issues in the GitHub repo and raise them in the [Ballerina Discord](https://discord.com/invite/wAJYFbMrG2) or [Stack Overflow](https://stackoverflow.com/questions/tagged/ballerina).
 
   - Language, Tooling, Website: <a href="https://github.com/ballerina-platform/ballerina-lang/issues">ballerina-lang</a> repo
   - Ballerina library: <a href="https://github.com/ballerina-platform/ballerina-standard-library/issues">ballerina-library</a> repo
