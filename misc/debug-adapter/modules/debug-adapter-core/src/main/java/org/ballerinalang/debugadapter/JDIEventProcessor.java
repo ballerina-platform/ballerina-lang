@@ -33,10 +33,13 @@ import com.sun.jdi.event.VMDisconnectEvent;
 import com.sun.jdi.request.EventRequest;
 import com.sun.jdi.request.StepRequest;
 import org.ballerinalang.debugadapter.breakpoint.BalBreakpoint;
+import org.ballerinalang.debugadapter.config.ClientConfigHolder;
+import org.ballerinalang.debugadapter.jdi.JdiProxyException;
 import org.ballerinalang.debugadapter.jdi.StackFrameProxyImpl;
 import org.ballerinalang.debugadapter.jdi.ThreadReferenceProxyImpl;
 import org.ballerinalang.debugadapter.utils.ServerUtils;
 import org.eclipse.lsp4j.debug.ContinuedEventArguments;
+import org.eclipse.lsp4j.debug.StackFrame;
 import org.eclipse.lsp4j.debug.StoppedEventArguments;
 import org.eclipse.lsp4j.debug.StoppedEventArgumentsReason;
 import org.slf4j.Logger;
@@ -46,10 +49,12 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import static org.ballerinalang.debugadapter.utils.PackageUtils.BAL_FILE_EXT;
+import static org.ballerinalang.debugadapter.utils.PackageUtils.URI_SCHEME_BALA;
 import static org.ballerinalang.debugadapter.utils.ServerUtils.isBalStackFrame;
 
 /**
@@ -141,8 +146,16 @@ public class JDIEventProcessor {
         } else if (event instanceof BreakpointEvent bpEvent) {
             breakpointProcessor.processBreakpointEvent(bpEvent);
         } else if (event instanceof StepEvent stepEvent) {
+            ClientConfigHolder clientConfigs = context.getAdapter().getClientConfigHolder();
             int threadId = (int) stepEvent.thread().uniqueID();
-            if (isBallerinaSource(stepEvent.location())) {
+            // If the debug client is in low-code mode and stepping into external sources, need to step out again
+            // to reach the ballerina source.
+            // TODO: Revert once the low-code mode supports rendering external sources.
+            if (clientConfigs.isLowCodeMode() && hasSteppedIntoExternalSource(stepEvent)) {
+                context.getAdapter().getOutputLogger().sendDebugServerOutput("Debugging external sources is not " +
+                        "supported in low-code mode. Stepping-out to reach the ballerina source.");
+                sendStepRequest(threadId, StepRequest.STEP_OUT);
+            } else if (isBallerinaSource(stepEvent.location())) {
                 notifyStopEvent(event);
             } else {
                 int stepType = ((StepRequest) event.request()).depth();
@@ -164,6 +177,43 @@ public class JDIEventProcessor {
             eventSet.resume();
         } else {
             eventSet.resume();
+        }
+    }
+
+    private boolean hasSteppedIntoExternalSource(StepEvent event) {
+        int stepType = ((StepRequest) event.request()).depth();
+        if (stepType != StepRequest.STEP_INTO) {
+            return false;
+        }
+        try {
+            ThreadReferenceProxyImpl thread = context.getAdapter().getAllThreads().get((int) event.thread().uniqueID());
+            Optional<StackFrame> topFrame = thread.frames().stream()
+                    .map(this::toDapStackFrame)
+                    .filter(ServerUtils::isValidFrame).findFirst();
+            // If the source path of the top frame contains the URI scheme of a bala file, it can be considered as an
+            // external source.
+            if (topFrame.isPresent()) {
+                String path = topFrame.get().getSource().getPath();
+                return path.startsWith(URI_SCHEME_BALA);
+            }
+            return false;
+        } catch (JdiProxyException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    /**
+     * Coverts a JDI stack frame instance to a DAP stack frame instance.
+     */
+    private StackFrame toDapStackFrame(StackFrameProxyImpl stackFrameProxy) {
+        try {
+            if (!isBalStackFrame(stackFrameProxy.getStackFrame())) {
+                return null;
+            }
+            BallerinaStackFrame balStackFrame = new BallerinaStackFrame(context, 0, stackFrameProxy);
+            return balStackFrame.getAsDAPStackFrame().orElse(null);
+        } catch (JdiProxyException e) {
+            return null;
         }
     }
 
