@@ -4,7 +4,7 @@ import io.ballerina.runtime.api.types.semtype.Definition;
 import io.ballerina.runtime.api.types.semtype.Env;
 import io.ballerina.runtime.api.types.semtype.SemType;
 
-import java.util.concurrent.locks.ReentrantLock;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Supplier;
 
 /**
@@ -15,17 +15,10 @@ import java.util.function.Supplier;
  */
 public class DefinitionContainer<E extends Definition> {
 
-    private volatile E definition;
-
-    private final ReentrantLock lock = new ReentrantLock();
+    private final AtomicReference<E> definition = new AtomicReference<>();
 
     public boolean isDefinitionReady() {
-        try {
-            lock.lock();
-            return definition != null;
-        } finally {
-            lock.unlock();
-        }
+        return definition.get() != null;
     }
 
     /**
@@ -35,35 +28,25 @@ public class DefinitionContainer<E extends Definition> {
      * @return recursive semtype representing the type
      */
     public SemType getSemType(Env env) {
-        return definition.getSemType(env);
+        return definition.get().getSemType(env);
     }
 
+    /**
+     * Try to set the definition. If the definition is already set, this will not update the definition.
+     *
+     * @param supplier supplier to get the definition. Calling this should not have side effects
+     * @return result of the update
+     */
     public DefinitionUpdateResult<E> trySetDefinition(Supplier<E> supplier) {
-        try {
-            lock.lock();
-            boolean updated;
-            E newDefinition;
-            if (this.definition != null) {
-                updated = false;
-                newDefinition = null;
-            } else {
-                updated = true;
-                newDefinition = supplier.get();
-                this.definition = newDefinition;
-            }
-            return new DefinitionUpdateResult<>(newDefinition, updated);
-        } finally {
-            lock.unlock();
+        if (isDefinitionReady()) {
+            return new DefinitionUpdateResult<>(definition.get(), false);
         }
+        boolean updated = definition.compareAndSet(null, supplier.get());
+        return new DefinitionUpdateResult<>(definition.get(), updated);
     }
 
     public void clear() {
-        try {
-            lock.lock();
-            this.definition = null;
-        } finally {
-            lock.unlock();
-        }
+        this.definition.set(null);
     }
 
     /**

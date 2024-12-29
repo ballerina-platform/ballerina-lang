@@ -26,6 +26,7 @@ import io.ballerina.runtime.internal.types.semtype.MutableSemType;
 
 import java.lang.ref.Reference;
 import java.lang.ref.WeakReference;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -34,6 +35,7 @@ import java.util.Optional;
 import java.util.WeakHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.locks.LockSupport;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.function.Supplier;
@@ -128,9 +130,10 @@ public final class Env {
         if (ty.some() != 0) {
             return semTypeCreator.get();
         }
+        CellSemTypeCacheKey key = new CellSemTypeCacheKey(ty, mut);
         try {
             cellTypeCacheLock.readLock().lock();
-            SemType cached = this.cellTypeCache.get(new CellSemTypeCacheKey(ty, mut));
+            SemType cached = this.cellTypeCache.get(key);
             if (cached != null) {
                 return cached;
             }
@@ -139,12 +142,12 @@ public final class Env {
         }
         try {
             cellTypeCacheLock.writeLock().lock();
-            SemType cached = this.cellTypeCache.get(new CellSemTypeCacheKey(ty, mut));
+            SemType cached = this.cellTypeCache.get(key);
             if (cached != null) {
                 return cached;
             }
             var result = semTypeCreator.get();
-            this.cellTypeCache.put(new CellSemTypeCacheKey(ty, mut), result);
+            this.cellTypeCache.put(key, result);
             return result;
         } finally {
             cellTypeCacheLock.writeLock().unlock();
@@ -347,10 +350,7 @@ public final class Env {
     void enterTypeCheckingPhase(Context cx, SemType t1, SemType t2) {
         assert pendingTypeResolutions.get() >= 0;
         while (pendingTypeResolutions.get() != 0) {
-            try {
-                Thread.sleep(10);
-            } catch (InterruptedException ignored) {
-            }
+            LockSupport.parkNanos(Duration.ofNanos(10).toNanos());
         }
         this.selfDiagnosticsRunner.registerTypeCheckStart(cx, t1, t2);
     }
@@ -363,6 +363,7 @@ public final class Env {
         this.selfDiagnosticsRunner.registerAbruptTypeCheckEnd(context, ex);
     }
 
+    // These are helper methods for diagnostics that needs access to internal state of the environment
     List<ListAtomicType> getRecListAtomsCopy() {
         recListLock.readLock().lock();
         try {

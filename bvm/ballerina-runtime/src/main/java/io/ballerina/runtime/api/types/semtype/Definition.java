@@ -18,16 +18,12 @@
 
 package io.ballerina.runtime.api.types.semtype;
 
-import io.ballerina.runtime.internal.types.semtype.DefinitionContainer;
-
 /**
  * Represent a type definition which will act as a layer of indirection between {@code Env} and the type descriptor.
  *
  * @since 2201.11.0
  */
 public abstract class Definition {
-
-    private DefinitionContainer<? extends Definition> container;
 
     /**
      * Get the {@code SemType} of this definition in the given environment.
