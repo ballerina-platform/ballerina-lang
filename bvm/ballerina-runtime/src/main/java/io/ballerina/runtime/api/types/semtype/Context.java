@@ -50,16 +50,12 @@ public final class Context {
     private static final int MAX_CACHE_SIZE = 100;
     private final Map<CacheableTypeDescriptor, TypeCheckCache<CacheableTypeDescriptor>> typeCheckCacheMemo;
     private Phase phase = Phase.INIT;
-    List<PhaseData> typeResolutionPhases = new ArrayList<>();
-    List<PhaseData> typeCheckPhases = new ArrayList<>();
-    private final boolean collectDiagnostic;
     private int typeCheckDepth = 0;
     private int typeResolutionDepth = 0;
 
     private Context(Env env) {
         this.env = env;
         this.typeCheckCacheMemo = createTypeCheckCacheMemo();
-        this.collectDiagnostic = "true".equalsIgnoreCase(System.getenv("BAL_TYPE_CHECK_DIAGNOSTIC_ENABLE"));
     }
 
     private static Map<CacheableTypeDescriptor, TypeCheckCache<CacheableTypeDescriptor>> createTypeCheckCacheMemo() {
@@ -104,21 +100,10 @@ public final class Context {
                 typeResolutionDepth++;
                 env.enterTypeResolutionPhase(this, type);
                 phase = Phase.TYPE_RESOLUTION;
-                if (collectDiagnostic) {
-                    typeResolutionPhases.add(new PhaseData());
-                }
             }
-            case TYPE_RESOLUTION -> {
-                typeResolutionDepth++;
-            }
-            case TYPE_CHECKING -> {
-                StringBuilder sb = new StringBuilder();
-                sb.append("Cannot enter type resolution phase while in type checking phase\n");
-                if (collectDiagnostic) {
-                    appendPhaseDataToError(sb);
-                }
-                throw new IllegalStateException(sb.toString());
-            }
+            case TYPE_RESOLUTION -> typeResolutionDepth++;
+            case TYPE_CHECKING -> throw new IllegalStateException(
+                    "Cannot enter type resolution phase while in type checking phase\n");
         }
     }
 
@@ -131,19 +116,10 @@ public final class Context {
         switch (phase) {
             case INIT -> {
                 env.enterTypeCheckingPhase(this, t1, t2);
-                if (collectDiagnostic) {
-                    typeCheckPhases.add(new PhaseData());
-                }
                 phase = Phase.TYPE_CHECKING;
             }
-            case TYPE_RESOLUTION -> {
-                StringBuilder sb = new StringBuilder();
-                sb.append("Cannot enter type checking phase while in type resolution phase\n");
-                if (collectDiagnostic) {
-                    appendPhaseDataToError(sb);
-                }
-                throw new IllegalStateException(sb.toString());
-            }
+            case TYPE_RESOLUTION -> throw new IllegalStateException(
+                    "Cannot enter type checking phase while in type resolution phase\n");
             case TYPE_CHECKING -> {
             }
         }
@@ -155,9 +131,6 @@ public final class Context {
             if (typeResolutionDepth == 0) {
                 env.exitTypeResolutionPhase(this);
                 phase = Phase.INIT;
-                if (collectDiagnostic) {
-                    typeResolutionPhases.removeLast();
-                }
             }
         } else {
             throw new IllegalStateException("Cannot exit type resolution phase without entering it");
@@ -166,22 +139,9 @@ public final class Context {
 
     public void exitTypeCheckingPhase() {
         switch (phase) {
-            case INIT -> {
-                StringBuilder sb = new StringBuilder();
-                sb.append("Cannot exit type checking phase without entering it");
-                if (collectDiagnostic) {
-                    appendPhaseDataToError(sb);
-                }
-                throw new IllegalStateException(sb.toString());
-            }
-            case TYPE_RESOLUTION -> {
-                StringBuilder sb = new StringBuilder();
-                sb.append("Cannot exit type checking phase while in type resolution phase\n");
-                if (collectDiagnostic) {
-                    appendPhaseDataToError(sb);
-                }
-                throw new IllegalStateException(sb.toString());
-            }
+            case INIT -> throw new IllegalStateException("Cannot exit type checking phase without entering it");
+            case TYPE_RESOLUTION ->
+                    throw new IllegalStateException("Cannot exit type checking phase while in type resolution phase\n");
             case TYPE_CHECKING -> {
                 env.exitTypeCheckingPhase(this);
                 typeCheckDepth--;
@@ -189,17 +149,6 @@ public final class Context {
                     phase = Phase.INIT;
                 }
             }
-        }
-    }
-
-    private void appendPhaseDataToError(StringBuilder sb) {
-        sb.append("Type resolution phases:\n");
-        for (PhaseData phaseData : typeResolutionPhases) {
-            sb.append(phaseData).append("\n");
-        }
-        sb.append("Type checking phases:\n");
-        for (PhaseData phaseData : typeCheckPhases) {
-            sb.append(phaseData).append("\n");
         }
     }
 
@@ -279,21 +228,5 @@ public final class Context {
 
     enum Phase {
         INIT, TYPE_RESOLUTION, TYPE_CHECKING
-    }
-
-    record PhaseData(StackTraceElement[] stackTrace) {
-
-        PhaseData() {
-            this(Thread.currentThread().getStackTrace());
-        }
-
-        @Override
-        public String toString() {
-            StringBuilder builder = new StringBuilder();
-            for (StackTraceElement element : stackTrace) {
-                builder.append("\tat ").append(element).append("\n");
-            }
-            return builder.toString();
-        }
     }
 }

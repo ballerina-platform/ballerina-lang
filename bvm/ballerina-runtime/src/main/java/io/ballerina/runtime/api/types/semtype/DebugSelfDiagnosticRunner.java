@@ -13,29 +13,36 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.util.ArrayDeque;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentLinkedDeque;
 
 public class DebugSelfDiagnosticRunner implements TypeCheckSelfDiagnosticsRunner {
 
     private static final int MAX_TIMEOUT = 1000;
-    private static final String LOG_FILE_PATH = "/tmp/type_check_diagnostics.log";
+    private final String LOG_FILE_PATH;
     private final Queue<TypeResolutionData> pendingTypeResolutions = new ArrayDeque<>();
     private final Queue<TypeCheckData> pendingTypeChecks = new ArrayDeque<>();
     private final Map<Thread, String> uncaughtExceptions = new ConcurrentHashMap<>();
     private final Env env;
+    private final HouseKeeper houseKeeper;
 
     DebugSelfDiagnosticRunner(Env env) {
+        LOG_FILE_PATH = Objects.requireNonNullElse(System.getenv("BAL_TYPE_CHECK_DIAGNOSTIC_PATH"),
+                "/tmp/type_check_diagnostics.log");
         try {
-            Files.write(Paths.get(LOG_FILE_PATH), "Type Check Diagnostics \n\n".getBytes(), StandardOpenOption.APPEND);
-        } catch (IOException ignored) {
+            Files.write(Paths.get(LOG_FILE_PATH), "Type Check Diagnostics \n=============================\n".getBytes(),
+                    StandardOpenOption.APPEND);
+        } catch (IOException err) {
+            throw new RuntimeException("Error occurred while creating the log file for type check diagnostics", err);
         }
         this.env = env;
-        Thread houseKeeperThread = new Thread(new HouseKeeper());
+        this.houseKeeper = new HouseKeeper();
+        Thread houseKeeperThread = new Thread(houseKeeper);
         houseKeeperThread.setDaemon(true);
         houseKeeperThread.start();
     }
@@ -49,13 +56,13 @@ public class DebugSelfDiagnosticRunner implements TypeCheckSelfDiagnosticsRunner
         t.setUncaughtExceptionHandler((thread, throwable) -> uncaughtExceptions.put(thread, throwable.getMessage()));
     }
 
+    // This so validation will not block the main thread
     private void validateRecAtomState() {
-
         List<MappingAtomicType> recMappingAtomsCopy = env.getRecMappingAtomsCopy();
         List<FunctionAtomicType> recFunctionAtomsCopy = env.getRecFunctionAtomsCopy();
         List<ListAtomicType> recListAtomsCopy = env.getRecListAtomsCopy();
         Thread validateThread = new Thread(() -> {
-            StringBuilder logBuilder = new StringBuilder();
+            LogBuilder logBuilder = new LogBuilder(this.houseKeeper);
             for (int i = 0; i < recMappingAtomsCopy.size(); i++) {
                 if (recMappingAtomsCopy.get(i) == null) {
                     logBuilder.append("Rec mapping atoms contain null values at ").append(i).append("\n");
@@ -71,11 +78,7 @@ public class DebugSelfDiagnosticRunner implements TypeCheckSelfDiagnosticsRunner
                     logBuilder.append("Rec list atoms contain null values at ").append(i).append("\n");
                 }
             }
-            try {
-                Files.write(Paths.get(LOG_FILE_PATH), logBuilder.toString().getBytes(), StandardOpenOption.CREATE,
-                        StandardOpenOption.APPEND);
-            } catch (IOException ignored) {
-            }
+            logBuilder.flush();
         });
         validateThread.setDaemon(true);
         validateThread.start();
@@ -103,49 +106,32 @@ public class DebugSelfDiagnosticRunner implements TypeCheckSelfDiagnosticsRunner
 
     @Override
     public void registerAbruptTypeResolutionEnd(Context cx, Exception ex) {
-        StringBuilder logBuilder = new StringBuilder();
+        LogBuilder logBuilder = new LogBuilder(cx, this.houseKeeper);
         logBuilder.append("Abrupt type resolution end:\n");
-        logBuilder.append("Context: ").append(cx).append("\n");
         logBuilder.append("Exception: ").append(ex.getMessage()).append("\n");
-        for (StackTraceElement element : ex.getStackTrace()) {
-            logBuilder.append("\tat ").append(element).append("\n");
-        }
+        logBuilder.append(ex.getStackTrace());
         synchronized (pendingTypeChecks) {
             logBuilder.append(pendingTypeChecksToString(pendingTypeChecks));
         }
         synchronized (pendingTypeResolutions) {
             logBuilder.append(pendingTypeResolutionsToString(pendingTypeResolutions));
         }
-        logBuilder.append("\n\n");
-        try {
-            Files.write(Paths.get(LOG_FILE_PATH), logBuilder.toString().getBytes(), StandardOpenOption.CREATE,
-                    StandardOpenOption.APPEND);
-        } catch (IOException ignored) {
-        }
+        logBuilder.flush();
     }
 
     @Override
     public void registerAbruptTypeCheckEnd(Context cx, Exception ex) {
-        StringBuilder logBuilder = new StringBuilder();
+        LogBuilder logBuilder = new LogBuilder(cx, houseKeeper);
         logBuilder.append("Abrupt type check end:\n");
-        logBuilder.append("Context: ").append(cx).append("\n");
         logBuilder.append("Exception: ").append(ex.getMessage()).append("\n");
-        for (StackTraceElement element : ex.getStackTrace()) {
-            logBuilder.append("\tat ").append(element).append("\n");
-        }
+        logBuilder.append(ex.getStackTrace());
         synchronized (pendingTypeChecks) {
             logBuilder.append(pendingTypeChecksToString(pendingTypeChecks));
         }
         synchronized (pendingTypeResolutions) {
             logBuilder.append(pendingTypeResolutionsToString(pendingTypeResolutions));
         }
-
-        logBuilder.append("\n\n");
-        try {
-            Files.write(Paths.get(LOG_FILE_PATH), logBuilder.toString().getBytes(), StandardOpenOption.CREATE,
-                    StandardOpenOption.APPEND);
-        } catch (IOException ignored) {
-        }
+        logBuilder.flush();
     }
 
     @Override
@@ -170,8 +156,6 @@ public class DebugSelfDiagnosticRunner implements TypeCheckSelfDiagnosticsRunner
                 logBuilder.append("\tat ").append(element).append("\n");
             }
             logBuilder.append("Entry point\n");
-            var typeCheckPhases = new ArrayList<>(data.cx.typeCheckPhases);
-            typeCheckPhases.forEach(each -> logBuilder.append(each.toString()).append("\n"));
         });
         return logBuilder.toString();
     }
@@ -186,27 +170,45 @@ public class DebugSelfDiagnosticRunner implements TypeCheckSelfDiagnosticsRunner
                 logBuilder.append("\tat ").append(element).append("\n");
             }
             logBuilder.append("Entry point\n");
-            List<Context.PhaseData> typeResolutionPhases = new ArrayList<>(data.cx.typeResolutionPhases);
-            typeResolutionPhases.forEach(each -> logBuilder.append(each.toString()).append("\n"));
         });
         return logBuilder.toString();
     }
 
-    private record TypeResolutionData(Context cx, Thread t, MutableSemType type, long startTime) {
+    private record EntryPointData(StackTraceElement[] stackTrace) {
 
-        TypeResolutionData(Context cx, MutableSemType type) {
-            this(cx, Thread.currentThread(), type, System.nanoTime());
+        EntryPointData() {
+            this(Thread.currentThread().getStackTrace());
+        }
+
+        @Override
+        public String toString() {
+            StringBuilder builder = new StringBuilder();
+            for (StackTraceElement element : stackTrace) {
+                builder.append("\tat ").append(element).append("\n");
+            }
+            return builder.toString();
         }
     }
 
-    private record TypeCheckData(Context cx, Thread t, SemType t1, SemType t2, long startTime) {
+    private record TypeResolutionData(Context cx, Thread t, MutableSemType type, long startTime,
+                                      EntryPointData entryPoint) {
+
+        TypeResolutionData(Context cx, MutableSemType type) {
+            this(cx, Thread.currentThread(), type, System.nanoTime(), new EntryPointData());
+        }
+    }
+
+    private record TypeCheckData(Context cx, Thread t, SemType t1, SemType t2, long startTime,
+                                 EntryPointData entryPointData) {
 
         TypeCheckData(Context cx, SemType t1, SemType t2) {
-            this(cx, Thread.currentThread(), t1, t2, System.nanoTime());
+            this(cx, Thread.currentThread(), t1, t2, System.nanoTime(), new EntryPointData());
         }
     }
 
     private class HouseKeeper implements Runnable {
+
+        private Queue<String> pendingLogs = new ConcurrentLinkedDeque<>();
 
         @Override
         public void run() {
@@ -225,18 +227,18 @@ public class DebugSelfDiagnosticRunner implements TypeCheckSelfDiagnosticsRunner
                         return elapsedTime > MAX_TIMEOUT;
                     }).toList();
                 }
-                StringBuilder logBuilder = new StringBuilder();
+                StringBuilder stringBuilder = new StringBuilder();
                 if (!hangedTypeResolutions.isEmpty()) {
-                    logBuilder.append(pendingTypeResolutionsToString(hangedTypeResolutions));
+                    stringBuilder.append(pendingTypeResolutionsToString(hangedTypeResolutions));
                 }
                 if (!hangedTypeChecks.isEmpty()) {
-                    logBuilder.append(pendingTypeChecksToString(hangedTypeChecks));
+                    stringBuilder.append(pendingTypeChecksToString(hangedTypeChecks));
                 }
                 uncaughtExceptions.forEach((thread, message) -> {
-                    logBuilder.append("Uncaught exception in thread: ").append(thread).append("\n");
-                    logBuilder.append("Exception message: ").append(message).append("\n");
+                    stringBuilder.append("Uncaught exception in thread: ").append(thread).append("\n");
+                    stringBuilder.append("Exception message: ").append(message).append("\n");
                     for (StackTraceElement element : thread.getStackTrace()) {
-                        logBuilder.append("\tat ").append(element).append("\n");
+                        stringBuilder.append("\tat ").append(element).append("\n");
                     }
                 });
                 uncaughtExceptions.clear();
@@ -244,15 +246,18 @@ public class DebugSelfDiagnosticRunner implements TypeCheckSelfDiagnosticsRunner
                 long[] ids = tmx.findDeadlockedThreads();
                 if (ids != null) {
                     ThreadInfo[] infos = tmx.getThreadInfo(ids, true, true);
-                    logBuilder.append("The following threads are deadlocked:");
+                    stringBuilder.append("The following threads are deadlocked:");
                     for (ThreadInfo ti : infos) {
-                        logBuilder.append(ti);
+                        stringBuilder.append(ti);
                     }
                 }
 
-                logBuilder.append("\n\n");
+                while (!pendingLogs.isEmpty()) {
+                    stringBuilder.append(pendingLogs.poll());
+                }
+                stringBuilder.append("\n\n");
                 try {
-                    Files.write(Paths.get(LOG_FILE_PATH), logBuilder.toString().getBytes(),
+                    Files.write(Paths.get(LOG_FILE_PATH), stringBuilder.toString().getBytes(),
                             StandardOpenOption.CREATE, StandardOpenOption.APPEND);
                 } catch (IOException ignored) {
                 }
@@ -263,6 +268,55 @@ public class DebugSelfDiagnosticRunner implements TypeCheckSelfDiagnosticsRunner
                     break;
                 }
             }
+        }
+
+        void addLog(String log) {
+            pendingLogs.add(log);
+        }
+    }
+
+    private class LogBuilder {
+
+        private final StringBuilder stringBuilder = new StringBuilder();
+        private final HouseKeeper houseKeeper;
+        private final Context cx;
+
+        LogBuilder(Context cx, HouseKeeper houseKeeper) {
+            this.cx = cx;
+            stringBuilder.append("[").append(System.identityHashCode(cx)).append("] ");
+            this.houseKeeper = houseKeeper;
+        }
+
+        LogBuilder(HouseKeeper houseKeeper) {
+            this.cx = null;
+            stringBuilder.append("[null] ");
+            this.houseKeeper = houseKeeper;
+        }
+
+        public LogBuilder append(String str) {
+            stringBuilder.append(str);
+            return this;
+        }
+
+        public LogBuilder append(Object obj) {
+            stringBuilder.append(obj);
+            return this;
+        }
+
+        public LogBuilder append(StackTraceElement[] stackTrace) {
+            for (StackTraceElement element : stackTrace) {
+                stringBuilder.append("\tat ").append(element).append("\n");
+            }
+            return this;
+        }
+
+        public void flush() {
+            stringBuilder.append("\n\n");
+            houseKeeper.addLog(stringBuilder.toString());
+        }
+
+        public String toString() {
+            return stringBuilder.toString();
         }
     }
 }
