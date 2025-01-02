@@ -1,0 +1,393 @@
+{
+  "id": 8,
+  "name": "Salesforce Service",
+  "type": "inbuilt",
+  "displayName": "Salesforce",
+  "documentation": "This Salesforce service can be attached to a Salesforce listener which listens to Salesforce events and triggers the service when an event occurs.",
+  "listenerProtocol": "salesforce",
+  "displayAnnotation": {
+    "label": "Salesforce",
+    "iconPath": "docs/icon.png"
+  },
+  "package": {
+    "id": 15892,
+    "organization": "ballerinax",
+    "name": "salesforce",
+    "version": "8.1.0",
+    "platform": "java17",
+    "languageSpecificationVersion": "2024R1",
+    "isDeprecated": false,
+    "deprecateMessage": "",
+    "URL": "/ballerinax/salesforce/8.1.0",
+    "balaVersion": "2.0.0",
+    "balaURL": "https://fileserver.central.ballerina.io/2.0/ballerinax/salesforce/8.1.0/ballerinax-salesforce-java17-8.1.0.bala?Expires=1730886498&Signature=SNtxnwUSeYzR6odZVf-z~jtLoIEC27UQXvC9FX65P58jJdte0vMkPHp7GMRCrJCvvZXbid4bXtFhNiEtd~j5mBq-8qSaNeY2KnqH~rrIBG4gEf2IYzcndXWx3aJJi4G6rUQBzvph8XA-4Q1HTi6r8XaK-kY3ngT0msa9LOExdCfrYqMFerTJlYyRvRltGziVTH9yG8gI6Ukfh2OCmmVE9q-5lIf48yKqQuTQiWUpWhfBcyecPSxQ0XvTGtcxbGpsIpBj2346jTrvIVkc7G3q-nOubYJiUd4CwqcHZrfbJNWsNYnWU3UEhCjWrfvnUtbznETnP1ziWoE2ezkPIEmXqQ__&Key-Pair-Id=K27IQ7NPTKLKDU",
+    "digest": "sha-256=48743d8381d2edee978813d70d0dc603709916d6c718e4519f26feb7789f0065",
+    "summary": "Salesforce Sales Cloud is one of the leading Customer Relationship Management(CRM) software, provided by Salesforce.Inc. Salesforce enable users to efficiently manage sales and customer relationships through its APIs, robust and secure databases, and analytics services. Sales cloud provides serveral API packages to make operations on sObjects and metadata, execute queries and searches, and listen to change events through API calls using REST, SOAP, and CometD protocols. ",
+    "readme": "## Overview\n\nSalesforce Sales Cloud is one of the leading Customer Relationship Management(CRM) software, provided by Salesforce.Inc. Salesforce enable users to efficiently manage sales and customer relationships through its APIs, robust and secure databases, and analytics services. Sales cloud provides serveral API packages to make operations on sObjects and metadata, execute queries and searches, and listen to change events through API calls using REST, SOAP, and CometD protocols. \n\nBallerina Salesforce connector supports [Salesforce v59.0 REST API](https:\/\/developer.salesforce.com\/docs\/atlas.en-us.224.0.api_rest.meta\/api_rest\/intro_what_is_rest_api.htm), [Salesforce v59.0 SOAP API](https:\/\/developer.salesforce.com\/docs\/atlas.en-us.api.meta\/api\/sforce_api_quickstart_intro.htm), [Salesforce v59.0 APEX REST API](https:\/\/developer.salesforce.com\/docs\/atlas.en-us.apexcode.meta\/apexcode\/apex_rest_intro.htm), [Salesforce v59.0 BULK API](https:\/\/developer.salesforce.com\/docs\/atlas.en-us.api_asynch.meta\/api_asynch\/api_asynch_introduction_bulk_api.htm), and [Salesforce v59.0 BULK V2 API](https:\/\/developer.salesforce.com\/docs\/atlas.en-us.api_asynch.meta\/api_asynch\/bulk_api_2_0.htm).\n\n## Setup guide\n\n1. Create a Salesforce account with the REST capability.\n\n2. Go to Setup --> Apps --> App Manager \n\n   <img src=https:\/\/raw.githubusercontent.com\/ballerina-platform\/module-ballerinax-salesforce\/master\/docs\/setup\/resources\/side-panel.png alt=\"Setup Side Panel\" width=\"40%\" style=\"border:1px solid #000000\">\n\n3. Create a New Connected App.\n\n   <img src=https:\/\/raw.githubusercontent.com\/ballerina-platform\/module-ballerinax-salesforce\/master\/docs\/setup\/resources\/create-connected-apps.png alt=\"Create Connected Apps\" width=\"50%\" style=\"border:1px solid #000000\">\n\n    - Here we will be using https:\/\/test.salesforce.com as we are using sandbox environment. Users can use https:\/\/login.salesforce.com for normal usage.\n\n    <img src=https:\/\/raw.githubusercontent.com\/ballerina-platform\/module-ballerinax-salesforce\/master\/docs\/setup\/resources\/create_connected%20_app.png alt=\"Create Connected Apps\" width=\"100%\" style=\"border:1px solid #000000\">\n\n4. After the creation user can get consumer key and secret through clicking on the `Manage Consumer Details` button.\n\n   <img src=https:\/\/raw.githubusercontent.com\/ballerina-platform\/module-ballerinax-salesforce\/master\/docs\/setup\/resources\/crdentials.png alt=\"Consumer Secrets\" width=\"100%\" style=\"border:1px solid #000000\">\n\n5. Next step would be to get the token.\n    - Log in to salesforce in your preferred browser and enter the following url.\n  ```https:\/\/<YOUR_INSTANCE>.salesforce.com\/services\/oauth2\/authorize?response_type=code&client_id=<CONSUMER_KEY>&redirect_uri=<REDIRECT_URL>```\n   - Allow access if an alert pops up and the browser will be redirected to a Url like follows.\n  \n      `https:\/\/login.salesforce.com\/?code=<ENCODED_CODE>`\n  \n   - The code can be obtained after decoding the encoded code\n\n6. Get Access and Refresh tokens\n   - Following request can be sent to obtain the tokens.\n   \n      ```curl -X POST https:\/\/<YOUR_INSTANCE>.salesforce.com\/services\/oauth2\/token?code=<CODE>&grant_type=authorization_code&client_id=<CONSUMER_KEY>&client_secret=<CONSUMER_SECRET>&redirect_uri=https:\/\/test.salesforce.com\/``` \n   - Tokens can be obtained from the response.\n\n## Quickstart\n\nTo use the Salesforce connector in your Ballerina application, modify the .bal file as follows:\n\n#### Step 1: Import connector\n\nImport the `ballerinax\/salesforce` package into the Ballerina project.\n\n```ballerina\nimport ballerinax\/salesforce;\n```\n\n#### Step 2: Create a new connector instance\n\nCreate a `salesforce:ConnectionConfig` with the obtained OAuth2 tokens and initialize the connector with it.\n```ballerina\nsalesforce:ConnectionConfig config = {\n    baseUrl: baseUrl,\n    auth: {\n        clientId: clientId,\n        clientSecret: clientSecret,\n        refreshToken: refreshToken,\n        refreshUrl: refreshUrl\n    }\n};\n\nsalesforce:Client salesforce = check new (config);\n```\n\n#### Step 3: Invoke connector operation\n\n1. Now you can utilize the available operations. Note that they are in the form of remote operations.  \n\nFollowing is an example on how to create a record using the connector.\n\n  ```ballerina\n  salesforce:CreationResponse response = check \n      baseClient->create(\"Account\", {\n                          \"Name\": \"IT World\",\n                          \"BillingCity\": \"New York\"\n                          });\n\n  ```\n\n2. To integrate the Salesforce listener into your Ballerina application, update the .bal file as follows:\n\nCreate an instance of `salesforce:Listener` using your Salesforce username, password, security token, and subscribe channel name.\n\n```ballerina\nimport ballerinax\/salesforce;\n\nsalesforce:ListenerConfig listenerConfig = {\n    auth: {\n        username: \"username\",\n        password: \"password\" + \"security token\"\n    }\n};\nlistener salesforce:Listener eventListener = new (listenerConfig);\n```\n\nImplement the listener?s remote functions and specify the channel name to be subscribed to as the service name.\n\n```ballerina\nimport ballerina\/io;\nimport ballerinax\/salesforce;\n\nsalesforce:ListenerConfig listenerConfig = {\n    auth: {\n        username: \"username\",\n        password: \"password\" + \"security token\"\n    }\n};\nlistener salesforce:Listener eventListener = new (listenerConfig);\n\nservice \"\/data\/ChangeEvents\" on eventListener {\n    remote function onCreate(salesforce:EventData payload) {\n        io:println(\"Created \" + payload.toString());\n    }\n\n    remote isolated function onUpdate(salesforce:EventData payload) {\n        io:println(\"Updated \" + payload.toString());\n    }\n\n    remote function onDelete(salesforce:EventData payload) {\n        io:println(\"Deleted \" + payload.toString());\n    }\n\n    remote function onRestore(salesforce:EventData payload) {\n        io:println(\"Restored \" + payload.toString());\n    }\n}\n```\n\n3. Integrate custom SObject types\n\nTo seamlessly integrate custom SObject types into your Ballerina project, you have the option to either generate a package using the Ballerina Open API tool or utilize the `ballerinax\/salesforce.types` module. Follow the steps given [here](https:\/\/github.com\/ballerina-platform\/module-ballerinax-salesforce\/blob\/master\/ballerina\/modules\/types\/Module.md) based on your preferred approach.\n\n```ballerina\nimport ballerinax\/salesforce.types;\n\npublic function main() returns error? {\n    types:AccountSObject accountRecord = {\n        Name: \"IT World\",\n        BillingCity: \"New York\"\n    };\n\n    salesforce:CreationResponse res = check salesforce->create(\"Account\", accountRecord);\n}\n```\n\n4. Use following command to compile and run the Ballerina program.\n\n```\nbal run\n````\n\n## Examples\n\nThe `salesforce` integration samples illustrate its usage in various integration scenarios. Explore these examples below, covering the use of salesforce APIs in integrations.\n\n## Examples\n\nThe `salesforce` connector provides practical examples illustrating usage in various scenarios. Explore these examples below, covering use cases like creating sObjects, retrieving records, and executing bulk operations.\n\n1. [Salesforce REST API use cases](https:\/\/github.com\/ballerina-platform\/module-ballerinax-salesforce\/tree\/master\/examples\/rest_api_usecases) - How to employ REST API of Salesforce to carryout various tasks.\n\n2. [Salesforce Bulk API use cases](https:\/\/github.com\/ballerina-platform\/module-ballerinax-salesforce\/tree\/master\/examples\/bulk_api_usecases) - How to employ Bulk API of Salesforce to execute Bulk jobs.\n\n3. [Salesforce Bulk v2 API use cases](https:\/\/github.com\/ballerina-platform\/module-ballerinax-salesforce\/tree\/master\/examples\/bulkv2_api_usecases) - How to employ Bulk v2 API to execute an ingest job.\n\n4. [Salesforce APEX REST API use cases](https:\/\/github.com\/ballerina-platform\/module-ballerinax-salesforce\/tree\/master\/examples\/apex_rest_api_usecases) - How to employ APEX REST API to create a case in Salesforce.",
+    "template": false,
+    "licenses": [
+      "Apache-2.0"
+    ],
+    "authors": [
+      "Ballerina"
+    ],
+    "sourceCodeLocation": "https://github.com/ballerina-platform/module-ballerinax-salesforce",
+    "keywords": [
+      "Sales & CRM/Customer Relationship Management",
+      "Cost/Freemium"
+    ],
+    "ballerinaVersion": "2201.10.0",
+    "icon": "https://bcentral-packageicons.azureedge.net/images/ballerinax_salesforce_8.1.0.png",
+    "ownerUUID": "b5a9e54d-8ade-47a1-8abc-6bc46e89069d",
+    "createdDate": 1724472595000,
+    "pullCount": 166,
+    "visibility": "public",
+    "modules": [
+      {
+        "packageURL": "/ballerinax/salesforce/8.1.0",
+        "apiDocURL": "https://lib.ballerina.io/ballerinax/salesforce/8.1.0",
+        "name": "salesforce",
+        "summary": "Salesforce Sales Cloud is one of the leading Customer Relationship Management(CRM) software, provided by Salesforce.Inc. Salesforce enable users to efficiently manage sales and customer relationships through its APIs, robust and secure databases, and analytics services. Sales cloud provides serveral API packages to make operations on sObjects and metadata, execute queries and searches, and listen to change events through API calls using REST, SOAP, and CometD protocols. ",
+        "readme": "## Overview\n\nSalesforce Sales Cloud is one of the leading Customer Relationship Management(CRM) software, provided by Salesforce.Inc. Salesforce enable users to efficiently manage sales and customer relationships through its APIs, robust and secure databases, and analytics services. Sales cloud provides serveral API packages to make operations on sObjects and metadata, execute queries and searches, and listen to change events through API calls using REST, SOAP, and CometD protocols. \n\nBallerina Salesforce connector supports [Salesforce v59.0 REST API](https:\/\/developer.salesforce.com\/docs\/atlas.en-us.224.0.api_rest.meta\/api_rest\/intro_what_is_rest_api.htm), [Salesforce v59.0 SOAP API](https:\/\/developer.salesforce.com\/docs\/atlas.en-us.api.meta\/api\/sforce_api_quickstart_intro.htm), [Salesforce v59.0 APEX REST API](https:\/\/developer.salesforce.com\/docs\/atlas.en-us.apexcode.meta\/apexcode\/apex_rest_intro.htm), [Salesforce v59.0 BULK API](https:\/\/developer.salesforce.com\/docs\/atlas.en-us.api_asynch.meta\/api_asynch\/api_asynch_introduction_bulk_api.htm), and [Salesforce v59.0 BULK V2 API](https:\/\/developer.salesforce.com\/docs\/atlas.en-us.api_asynch.meta\/api_asynch\/bulk_api_2_0.htm).\n\n## Setup guide\n\n1. Create a Salesforce account with the REST capability.\n\n2. Go to Setup --> Apps --> App Manager \n\n   <img src=https:\/\/raw.githubusercontent.com\/ballerina-platform\/module-ballerinax-salesforce\/master\/docs\/setup\/resources\/side-panel.png alt=\"Setup Side Panel\" style=\"border:1px solid #000000; width:40%\">\n\n3. Create a New Connected App.\n\n   <img src=https:\/\/raw.githubusercontent.com\/ballerina-platform\/module-ballerinax-salesforce\/master\/docs\/setup\/resources\/create-connected-apps.png alt=\"Create Connected Apps\" style=\"border:1px solid #000000; width:50%\">\n\n    - Here we will be using https:\/\/test.salesforce.com as we are using sandbox environment. Users can use https:\/\/login.salesforce.com for normal usage.\n\n    <img src=https:\/\/raw.githubusercontent.com\/ballerina-platform\/module-ballerinax-salesforce\/master\/docs\/setup\/resources\/create_connected%20_app.png alt=\"Create Connected Apps\" style=\"border:1px solid #000000; width:100%\">\n\n4. After the creation user can get consumer key and secret through clicking on the `Manage Consumer Details` button.\n\n   <img src=https:\/\/raw.githubusercontent.com\/ballerina-platform\/module-ballerinax-salesforce\/master\/docs\/setup\/resources\/crdentials.png alt=\"Consumer Secrets\" style=\"border:1px solid #000000; width:100%\">\n\n5. Next step would be to get the token.\n    - Log in to salesforce in your preferred browser and enter the following url.\n  ```\n  https:\/\/<YOUR_INSTANCE>.salesforce.com\/services\/oauth2\/authorize?response_type=code&client_id=<CONSUMER_KEY>&redirect_uri=<REDIRECT_URL>\n  ```\n   - Allow access if an alert pops up and the browser will be redirected to a Url like follows.\n  \n      ```\n      https:\/\/login.salesforce.com\/?code=<ENCODED_CODE>\n      ```\n  \n   - The code can be obtained after decoding the encoded code\n\n6. Get Access and Refresh tokens\n   - Following request can be sent to obtain the tokens.\n   \n      ```\n      curl -X POST https:\/\/<YOUR_INSTANCE>.salesforce.com\/services\/oauth2\/token?code=<CODE>&grant_type=authorization_code&client_id=<CONSUMER_KEY>&client_secret=<CONSUMER_SECRET>&redirect_uri=https:\/\/test.salesforce.com\/\n      ``` \n   - Tokens can be obtained from the response.\n\n## Quickstart\n\nTo use the Salesforce connector in your Ballerina application, modify the .bal file as follows:\n\n#### Step 1: Import connector\n\nImport the `ballerinax\/salesforce` package into the Ballerina project.\n\n```ballerina\nimport ballerinax\/salesforce;\n```\n\n#### Step 2: Create a new connector instance\n\nCreate a `salesforce:ConnectionConfig` with the obtained OAuth2 tokens and initialize the connector with it.\n```ballerina\nsalesforce:ConnectionConfig config = {\n    baseUrl: baseUrl,\n    auth: {\n        clientId: clientId,\n        clientSecret: clientSecret,\n        refreshToken: refreshToken,\n        refreshUrl: refreshUrl\n    }\n};\n\nsalesforce:Client salesforce = check new (config);\n```\n\n#### Step 3: Invoke connector operation\n\n1. Now you can utilize the available operations. Note that they are in the form of remote operations.  \n\nFollowing is an example on how to create a record using the connector.\n\n  ```ballerina\n  salesforce:CreationResponse response = check \n      salesforce->create(\"Account\", {\n                          \"Name\": \"IT World\",\n                          \"BillingCity\": \"New York\"\n                          });\n\n  ```\n\n2. To integrate the Salesforce listener into your Ballerina application, update the .bal file as follows:\n\nCreate an instance of `salesforce:Listener` using your Salesforce username, password, security token, and subscribe channel name.\n\n```ballerina\nimport ballerinax\/salesforce;\n\nsalesforce:ListenerConfig listenerConfig = {\n    auth: {\n        username: \"username\",\n        password: \"password\" + \"security token\"\n    }\n};\nlistener salesforce:Listener eventListener = new (listenerConfig);\n```\n\nImplement the listener?s remote functions and specify the channel name to be subscribed to as the service name.\n\n```ballerina\nimport ballerina\/io;\nimport ballerinax\/salesforce;\n\nsalesforce:ListenerConfig listenerConfig = {\n    auth: {\n        username: \"username\",\n        password: \"password\" + \"security token\"\n    }\n};\nlistener salesforce:Listener eventListener = new (listenerConfig);\n\nservice \"\/data\/ChangeEvents\" on eventListener {\n    remote function onCreate(salesforce:EventData payload) {\n        io:println(\"Created \" + payload.toString());\n    }\n\n    remote isolated function onUpdate(salesforce:EventData payload) {\n        io:println(\"Updated \" + payload.toString());\n    }\n\n    remote function onDelete(salesforce:EventData payload) {\n        io:println(\"Deleted \" + payload.toString());\n    }\n\n    remote function onRestore(salesforce:EventData payload) {\n        io:println(\"Restored \" + payload.toString());\n    }\n}\n```\n\n3. Integrate custom SObject types\n\nTo seamlessly integrate custom SObject types into your Ballerina project, you have the option to either generate a package using the Ballerina Open API tool or utilize the `ballerinax\/salesforce.types` module. Follow the steps given [here](https:\/\/github.com\/ballerina-platform\/module-ballerinax-salesforce\/blob\/master\/ballerina\/modules\/types\/Module.md) based on your preferred approach.\n\n```ballerina\nimport ballerinax\/salesforce.types;\n\npublic function main() returns error? {\n    types:AccountSObject accountRecord = {\n        Name: \"IT World\",\n        BillingCity: \"New York\"\n    };\n\n    salesforce:CreationResponse res = check salesforce->create(\"Account\", accountRecord);\n}\n```\n\n4. Use following command to compile and run the Ballerina program.\n\n```\nbal run\n````\n\n## Examples\n\nThe `salesforce` connector provides practical examples illustrating usage in various scenarios. Explore these examples below, covering use cases like creating sObjects, retrieving records, and executing bulk operations.\n\n1. [Salesforce REST API use cases](https:\/\/github.com\/ballerina-platform\/module-ballerinax-salesforce\/tree\/master\/examples\/rest_api_usecases) - How to employ REST API of Salesforce to carryout various tasks.\n\n2. [Salesforce Bulk API use cases](https:\/\/github.com\/ballerina-platform\/module-ballerinax-salesforce\/tree\/master\/examples\/bulk_api_usecases) - How to employ Bulk API of Salesforce to execute Bulk jobs.\n\n3. [Salesforce Bulk v2 API use cases](https:\/\/github.com\/ballerina-platform\/module-ballerinax-salesforce\/tree\/master\/examples\/bulkv2_api_usecases) - How to employ Bulk v2 API to execute an ingest job.\n\n4. [Salesforce APEX REST API use cases](https:\/\/github.com\/ballerina-platform\/module-ballerinax-salesforce\/tree\/master\/examples\/apex_rest_api_usecases) - How to employ APEX REST API to create a case in Salesforce."
+      },
+      {
+        "packageURL": "/ballerinax/salesforce/8.1.0",
+        "apiDocURL": "https://lib.ballerina.io/ballerinax/salesforce.apex/8.1.0",
+        "name": "salesforce.apex",
+        "summary": "Salesforce Apex REST API enables you to expose your Apex classes and methods as RESTful web services. This module provides operations for executing custom Apex REST endpoints, allowing you to perform various HTTP operations on these endpoints and handle responses accordingly.",
+        "readme": "## Overview\n\nSalesforce Apex REST API enables you to expose your Apex classes and methods as RESTful web services. This module provides operations for executing custom Apex REST endpoints, allowing you to perform various HTTP operations on these endpoints and handle responses accordingly.\n\nBallerina Salesforce Apex REST API client supports the [Salesforce v59.0 APEX REST API](https:\/\/developer.salesforce.com\/docs\/atlas.en-us.apexcode.meta\/apexcode\/apex_rest_intro.htm).\n\n## Setup guide\n\n1. Create a Salesforce account with the REST capability.\n\n2. Go to Setup --> Apps --> App Manager \n\n   <img src=https:\/\/raw.githubusercontent.com\/ballerina-platform\/module-ballerinax-salesforce\/master\/docs\/setup\/resources\/side-panel.png alt=\"Setup Side Panel\" width=\"40%\" style=\"border:1px solid #000000\">\n\n3. Create a New Connected App.\n\n   <img src=https:\/\/raw.githubusercontent.com\/ballerina-platform\/module-ballerinax-salesforce\/master\/docs\/setup\/resources\/create-connected-apps.png alt=\"Create Connected Apps\" width=\"50%\" style=\"border:1px solid #000000\">\n\n    - Here we will be using https:\/\/test.salesforce.com as we are using sandbox environment. Users can use https:\/\/login.salesforce.com for normal usage.\n\n    <img src=https:\/\/raw.githubusercontent.com\/ballerina-platform\/module-ballerinax-salesforce\/master\/docs\/setup\/resources\/create_connected%20_app.png alt=\"Create Connected Apps\" width=\"100%\" style=\"border:1px solid #000000\">\n\n4. After the creation user can get consumer key and secret through clicking on the `Manage Consumer Details` button.\n\n   <img src=https:\/\/raw.githubusercontent.com\/ballerina-platform\/module-ballerinax-salesforce\/master\/docs\/setup\/resources\/crdentials.png alt=\"Consumer Secrets\" width=\"100%\" style=\"border:1px solid #000000\">\n\n5. The next step is to get the token.\n\n    - Log in to Salesforce in your preferred browser and enter the following URL:\n  `https:\/\/<YOUR_INSTANCE>.salesforce.com\/services\/oauth2\/authorize?response_type=code&client_id=<CONSUMER_KEY>&redirect_uri=<REDIRECT_URL>`\n   - Allow access if an alert pops up, and the browser will be redirected to a URL like the following:\n  `https:\/\/login.salesforce.com\/?code=<ENCODED_CODE>`\n  \n   - The code can be obtained after decoding the encoded code\n\n6. Get Access and Refresh tokens\n\n   - The following request can be sent to obtain the tokens.\n ```curl -X POST https:\/\/<YOUR_INSTANCE>.salesforce.com\/services\/oauth2\/token?code=<CODE>&grant_type=authorization_code&client_id=<CONSUMER_KEY>&client_secret=<CONSUMER_SECRET>&redirect_uri=https:\/\/test.salesforce.com\/``` \n   - Tokens can be obtained from the response.\n\n## Quickstart\n\nTo use the Salesforce Apex client in your Ballerina application, update the .bal file as follows:\n\n### Step 1: Import connector\n\nImport the `ballerinax\/salesforce.apex` module into the Ballerina project.\n\n```ballerina\nimport ballerinax\/salesforce.apex;\n```\n\n### Step 2: Create a new connector instance\n\nCreate a `ConnectionConfig` with the OAuth2 tokens obtained, and initialize the connector with it.\n```ballerina\napex:ConnectionConfig sfConfig = {\n    baseUrl: baseUrl,\n    auth: {\n        clientId: clientId,\n        clientSecret: clientSecret,\n        refreshToken: refreshToken,\n        refreshUrl: refreshUrl\n    }\n};\n\napex:Client apexClient = check new (sfConfig);\n```\n\n### Step 3: Invoke connector operation\n\n1. Now you can use the operations available within the connector. Note that they are in the form of remote operations.\nFollowing is an example of how to execute a custom Apex REST endpoint using the connector.\n\n```ballerina\npublic function main() returns error? {\n    string caseId = check apexClient->apexRestExecute(\"Cases\", \"POST\",\n        {\n        \"subject\": \"Item Fault!\",\n        \"status\": \"New\",\n        \"priority\": \"High\"\n    });\n    return;\n}\n```\n\n2. Use `bal run` command to compile and run the Ballerina program. \n\n## Examples\n\n1. [Salesforce APEX REST API use cases](https:\/\/github.com\/ballerina-platform\/module-ballerinax-salesforce\/tree\/master\/examples\/apex_rest_api_usecases) - How to employ APEX REST API to create a case in Salesforce."
+      },
+      {
+        "packageURL": "/ballerinax/salesforce/8.1.0",
+        "apiDocURL": "https://lib.ballerina.io/ballerinax/salesforce.bulk/8.1.0",
+        "name": "salesforce.bulk",
+        "summary": "Salesforce Bulk API is a specialized asynchronous RESTful API for loading and querying bulk of data at once. This module provides bulk data operations for CSV, JSON, and XML data types.",
+        "readme": "## Overview\nSalesforce Bulk API is a specialized asynchronous RESTful API for loading and querying bulk of data at once. This module provides bulk data operations for CSV, JSON, and XML data types.\n\nThis module supports [Salesforce Bulk API v1](https:\/\/developer.salesforce.com\/docs\/atlas.en-us.224.0.api_asynch.meta\/api_asynch\/asynch_api_reference.htm).\n \n## Setup guide\n\n1. Create a Salesforce account with the REST capability.\n\n2. Go to Setup --> Apps --> App Manager \n\n   <img src=https:\/\/raw.githubusercontent.com\/ballerina-platform\/module-ballerinax-salesforce\/master\/docs\/setup\/resources\/side-panel.png alt=\"Setup Side Panel\" width=\"40%\" style=\"border:1px solid #000000\">\n\n3. Create a New Connected App.\n\n   <img src=https:\/\/raw.githubusercontent.com\/ballerina-platform\/module-ballerinax-salesforce\/master\/docs\/setup\/resources\/create-connected-apps.png alt=\"Create Connected Apps\" width=\"50%\" style=\"border:1px solid #000000\">\n\n    - Here we will be using https:\/\/test.salesforce.com as we are using sandbox environment. Users can use https:\/\/login.salesforce.com for normal usage.\n\n    <img src=https:\/\/raw.githubusercontent.com\/ballerina-platform\/module-ballerinax-salesforce\/master\/docs\/setup\/resources\/create_connected%20_app.png alt=\"Create Connected Apps\" width=\"100%\" style=\"border:1px solid #000000\">\n\n4. After the creation user can get consumer key and secret through clicking on the `Manage Consumer Details` button.\n\n   <img src=https:\/\/raw.githubusercontent.com\/ballerina-platform\/module-ballerinax-salesforce\/master\/docs\/setup\/resources\/crdentials.png alt=\"Consumer Secrets\" width=\"100%\" style=\"border:1px solid #000000\">\n\n5. Next step would be to get the token.\n    - Log in to salesforce in your preferred browser and enter the following url.\n  `https:\/\/<YOUR_INSTANCE>.salesforce.com\/services\/oauth2\/authorize?response_type=code&client_id=<CONSUMER_KEY>&redirect_uri=<REDIRECT_URL>`\n   - Allow access if an alert pops up and the browser will be redirected to a Url like follows.\n  `https:\/\/login.salesforce.com\/?code=<ENCODED_CODE>`\n  \n   - The code can be obtained after decoding the encoded code\n\n6. Get Access and Refresh tokens\n   - Following request can be sent to obtain the tokens\n ```curl -X POST https:\/\/<YOUR_INSTANCE>.salesforce.com\/services\/oauth2\/token?code=<CODE>&grant_type=authorization_code&client_id=<CONSUMER_KEY>&client_secret=<CONSUMER_SECRET>&redirect_uri=https:\/\/test.salesforce.com\/``` \n   - Tokens can be obtained from the response.\n\n## Quickstart\nTo use the Salesforce connector in your Ballerina application, update the .bal file as follows:\n### Step 1: Import connector\nImport the `ballerinax\/salesforce.bulk` module into the Ballerina project.\n\n```ballerina\nimport ballerinax\/salesforce.bulk;\n```\n\n### Step 2: Create a new connector instance\nCreate a `ConnectionConfig` with the OAuth2 tokens obtained, and initialize the connector with it.\n```ballerina\nconfigurable string clientId = ?;\nconfigurable string clientSecret = ?;\nconfigurable string refreshToken = ?;\nconfigurable string refreshUrl = ?;\nconfigurable string baseUrl = ?;\n\nbulk:ConnectionConfig sfConfig = {\n    baseUrl: baseUrl,\n    auth: {\n        clientId: clientId,\n        clientSecret: clientSecret,\n        refreshToken: refreshToken,\n        refreshUrl: refreshUrl\n    }\n};\n\nbulk:Client bulkClient = check new (sfConfig);\n```\n\n### Step 3: Invoke  connector operation\n\n1. Now you can use the operations available within the connector. Note that they are in the form of remote operations.  \nFollowing is an example on how to insert bulk contacts using the connector.\n\n```ballerina\njson contacts = [\n    {\n        description: \"Created_from_Ballerina_Sf_Bulk_API\",\n        FirstName: \"Morne\",\n        LastName: \"Morkel\",\n        Title: \"Professor Grade 03\",\n        Phone: \"0442226670\",\n        Email: \"morne89@gmail.com\"\n    }\n];\n\npublic function main() returns error? {\n    bulk:BulkJob insertJob = check bulkClient->createJob(\"insert\", \"Contact\", \"JSON\");\n\n    bulk:BatchInfo batch = check bulkClient->addBatch(insertJob, contacts);\n}\n```\n\n2. Use `bal run` command to compile and run the Ballerina program. \n\n**[You can find a list of samples here](https:\/\/github.com\/ballerina-platform\/module-ballerinax-salesforce\/tree\/master\/examples\/bulk_api_usecases)**"
+      },
+      {
+        "packageURL": "/ballerinax/salesforce/8.1.0",
+        "apiDocURL": "https://lib.ballerina.io/ballerinax/salesforce.bulkv2/8.1.0",
+        "name": "salesforce.bulkv2",
+        "summary": "Salesforce Bulk API 2.0 enables you to handle large data sets asynchronously, optimizing performance for high-volume data operations. This module provides operations for executing bulk jobs and batches, allowing you to perform various data operations efficiently.",
+        "readme": "## Overview\n\nSalesforce Bulk API 2.0 enables you to handle large data sets asynchronously, optimizing performance for high-volume data operations. This module provides operations for executing bulk jobs and batches, allowing you to perform various data operations efficiently.\n\n## Setup guide\n\n1. Create a Salesforce Account with the Bulk API 2.0 Capability.\n\n2. Go to Setup --> Apps --> App Manager\n\n   <img src=https:\/\/raw.githubusercontent.com\/ballerina-platform\/module-ballerinax-salesforce\/master\/docs\/setup\/resources\/side-panel.png alt=\"Setup Side Panel\" width=\"40%\" style=\"border:1px solid #000000\">\n\n3. Create a New Connected App.\n\n   <img src=https:\/\/raw.githubusercontent.com\/ballerina-platform\/module-ballerinax-salesforce\/master\/docs\/setup\/resources\/create-connected-apps.png alt=\"Create Connected Apps\" width=\"50%\" style=\"border:1px solid #000000\">\n\n    - Here we will be using https:\/\/test.salesforce.com as we are using sandbox environment. Users can use https:\/\/login.salesforce.com for normal usage.\n\n    <img src=https:\/\/raw.githubusercontent.com\/ballerina-platform\/module-ballerinax-salesforce\/master\/docs\/setup\/resources\/create_connected%20_app.png alt=\"Create Connected Apps\" width=\"100%\" style=\"border:1px solid #000000\">\n\n4. After the creation user can get consumer key and secret through clicking on the `Manage Consumer Details` button.\n\n   <img src=https:\/\/raw.githubusercontent.com\/ballerina-platform\/module-ballerinax-salesforce\/master\/docs\/setup\/resources\/crdentials.png alt=\"Consumer Secrets\" width=\"100%\" style=\"border:1px solid #000000\">\n\n5. The next step is to get the token.\n\n    - Log in to Salesforce in your preferred browser and enter the following URL:\n      `https:\/\/<YOUR_INSTANCE>.salesforce.com\/services\/oauth2\/authorize?response_type=code&client_id=<CONSUMER_KEY>&redirect_uri=<REDIRECT_URL>`\n    - Allow access if an alert pops up, and the browser will be redirected to a URL like the following:\n      `https:\/\/login.salesforce.com\/?code=<ENCODED_CODE>`\n\n    - The code can be obtained after decoding the encoded code\n\n6. Get Access and Refresh tokens\n\n    - The following request can be sent to obtain the tokens.\n      ```curl -X POST https:\/\/<YOUR_INSTANCE>.salesforce.com\/services\/oauth2\/token?code=<CODE>&grant_type=authorization_code&client_id=<CONSUMER_KEY>&client_secret=<CONSUMER_SECRET>&redirect_uri=https:\/\/test.salesforce.com\/```\n    - Tokens can be obtained from the response.\n\n## Quickstart\n\nTo use the Salesforce Bulk API client in your Ballerina application, update the .bal file as follows:\n\n#### Step 1: Import connector\n\nImport the `ballerinax\/salesforce.bulkv2` package into the Ballerina project.\n\n```ballerina\nimport ballerinax\/salesforce.bulkv2;\n```\n\n#### Step 2: Create a new connector instance\n\nCreate a `salesforce:ConnectionConfig` with the obtained OAuth2 tokens and initialize the connector with it.\n```ballerina\nbulkv2:ConnectionConfig config = {\n    baseUrl: baseUrl,\n    auth: {\n        clientId: clientId,\n        clientSecret: clientSecret,\n        refreshToken: refreshToken,\n        refreshUrl: refreshUrl\n    }\n};\n\nbulkv2:Client bulkv2Client = check new (config);\n```\n\n#### Step 3: Invoke connector operation\n\n1. Now you can use the operations available within the connector. Note that they are in the form of remote operations.\n\nFollowing is an example of how to create a bulk job using the connector.\n\n```ballerina\nbulkv2:BulkCreatePayload payload = {\n    'object: \"Contact\",\n    contentType: \"CSV\",\n    operation: \"insert\",\n    lineEnding: \"LF\"\n};\nbulkv2:BulkJob insertJob = check baseClient->createIngestJob(payload);\n```\n\n2. Use following command to compile and run the Ballerina program.\n\n```\nbal run\n````\n\n## Examples\n\n1. [Salesforce Bulk v2 API use cases](https:\/\/github.com\/ballerina-platform\/module-ballerinax-salesforce\/tree\/master\/examples\/bulkv2_api_usecases) - How to employ Bulk v2 API to execute an ingest job."
+      },
+      {
+        "packageURL": "/ballerinax/salesforce/8.1.0",
+        "apiDocURL": "https://lib.ballerina.io/ballerinax/salesforce.soap/8.1.0",
+        "name": "salesforce.soap",
+        "summary": "Salesforce SOAP API provides CRUD operations for SObjects and allows you to maintain passwords, perform searches, and much more.",
+        "readme": "## Overview\nSalesforce SOAP API provides CRUD operations for SObjects and allows you to maintain passwords, perform searches, and much more.\n\nThis module supports [Salesforce v48.0 SOAP API Enterprise WDSL](https:\/\/developer.salesforce.com\/docs\/atlas.en-us.224.0.api.meta\/api\/sforce_api_quickstart_intro.htm).\n \n## Setup guide\n\n1. Create a Salesforce account with the REST capability.\n\n2. Go to Setup --> Apps --> App Manager \n\n   <img src=https:\/\/raw.githubusercontent.com\/ballerina-platform\/module-ballerinax-salesforce\/master\/docs\/setup\/resources\/side-panel.png alt=\"Setup Side Panel\" width=\"40%\" style=\"border:1px solid #000000\">\n\n3. Create a New Connected App.\n\n   <img src=https:\/\/raw.githubusercontent.com\/ballerina-platform\/module-ballerinax-salesforce\/master\/docs\/setup\/resources\/create-connected-apps.png alt=\"Create Connected Apps\" width=\"50%\" style=\"border:1px solid #000000\">\n\n    - Here we will be using https:\/\/test.salesforce.com as we are using sandbox environment. Users can use https:\/\/login.salesforce.com for normal usage.\n\n    <img src=https:\/\/raw.githubusercontent.com\/ballerina-platform\/module-ballerinax-salesforce\/master\/docs\/setup\/resources\/create_connected%20_app.png alt=\"Create Connected Apps\" width=\"100%\" style=\"border:1px solid #000000\">\n\n4. After the creation user can get consumer key and secret through clicking on the `Manage Consumer Details` button.\n\n   <img src=https:\/\/raw.githubusercontent.com\/ballerina-platform\/module-ballerinax-salesforce\/master\/docs\/setup\/resources\/crdentials.png alt=\"Consumer Secrets\" width=\"100%\" style=\"border:1px solid #000000\">\n\n5. Next step would be to get the token.\n    - Log in to salesforce in your preferred browser and enter the following url.\n  `https:\/\/<YOUR_INSTANCE>.salesforce.com\/services\/oauth2\/authorize?response_type=code&client_id=<CONSUMER_KEY>&redirect_uri=<REDIRECT_URL>`\n   - Allow access if an alert pops up and the browser will be redirected to a Url like follows.\n  `https:\/\/login.salesforce.com\/?code=<ENCODED_CODE>`\n  \n   - The code can be obtained after decoding the encoded code\n\n6. Get Access and Refresh tokens\n   - Following request can be sent to obtain the tokens\n ```curl -X POST https:\/\/<YOUR_INSTANCE>.salesforce.com\/services\/oauth2\/token?code=<CODE>&grant_type=authorization_code&client_id=<CONSUMER_KEY>&client_secret=<CONSUMER_SECRET>&redirect_uri=https:\/\/test.salesforce.com\/``` \n   - Tokens can be obtained from the response.\n\n## Quickstart\nTo use the Salesforce connector in your Ballerina application, update the .bal file as follows:\n\n### Step 1: Import connector\nImport the `ballerinax\/salesforce.soap` module into the Ballerina project.\n\n```ballerina\nimport ballerinax\/salesforce.soap;\n```\n\n### Step 2: Create a new connector instance\nCreate a `soap:ConnectionConfig` with the OAuth2 tokens obtained, and initialize the connector with it.\n\n```ballerina\n\nsoap:ConnectionConfig config = {\n    baseUrl: baseUrl,\n    auth: {\n        clientId: clientId,\n        clientSecret: clientSecret,\n        refreshToken: refreshToken,\n        refreshUrl: refreshUrl\n    }\n};\n\nsoap:Client salesforce = check new (config);\n```\n\n### Step 3: Invoke connector operation\n1. Now you can use the operations available within the connector. Note that they are in the form of remote operations.  \nFollowing is an example on how to convert lead using the connector.\n  ```ballerina\n  public function main() returns error? {\n    soap:ConvertedLead response = check soapClient->convertLead({leadId = \"xxx\", convertedStatus: \"Closed - Converted\"});\n  }\n  ```\n2. Use `bal run` command to compile and run the Ballerina program. \n\n**[You can find a sample here](https:\/\/github.com\/ballerina-platform\/module-ballerinax-salesforce\/tree\/master\/examples\/soap_api_usecases)**"
+      },
+      {
+        "packageURL": "/ballerinax/salesforce/8.1.0",
+        "apiDocURL": "https://lib.ballerina.io/ballerinax/salesforce.types/8.1.0",
+        "name": "salesforce.types",
+        "summary": "",
+        "readme": "## Overview\n\nSalesforce is a leading customer relationship management (CRM) platform that helps businesses manage and streamline their sales, service, and marketing operations. The [Ballerina Salesforce Connector](https:\/\/central.ballerina.io\/ballerinax\/salesforce\/latest) is a project designed to enhance integration capabilities with Salesforce by providing a seamless connection for Ballerina. Notably, this Ballerina project incorporates record type definitions for the base types of Salesforce objects, offering a comprehensive and adaptable solution for developers working on Salesforce integration projects.\n\n## Setup Guide\n\nTo customize this project for your Salesforce account and include your custom SObjects, follow the steps below:\n\n### Step 1: Login to Your Salesforce Developer Account\n\nBegin by logging into your [Salesforce Developer Account](https:\/\/developer.salesforce.com\/).\n\n### Step 2: Generate Open API Specification for Your SObjects\n\n#### Step 2.1: Initiate OpenAPI Document Generation\n\nUse the following command to send a POST request to start the OpenAPI document generation process.\n\n```bash\ncurl -X POST -H \"Content-Type: application\/json\" -H \"Authorization: Bearer YOUR_ACCESS_TOKEN\" \\\nhttps:\/\/MyDomainName.my.salesforce.com\/services\/data\/vXX.X\/async\/specifications\/oas3 \\\n-d '{\"resources\": [\"*\"]}'\n```\nReplace YOUR_ACCESS_TOKEN and MyDomainName with your actual access token and Salesforce domain. If successful, you'll receive a response with a URI. Extract the locator ID from the URI.\n\n#### Step 2.2: Retrieve the OpenAPI Document\n\nSend a GET request to fetch the generated OpenAPI document using the following command.\n\n```bash\ncurl -X GET -H \"Content-Type: application\/json\" -H \"Authorization: Bearer YOUR_ACCESS_TOKEN\" \\\nhttps:\/\/MyDomainName.my.salesforce.com\/services\/data\/vXX.X\/async\/specifications\/oas3\/LOCATOR_ID -o oas.json\n```\nReplace YOUR_ACCESS_TOKEN, MyDomainName, and LOCATOR_ID with your actual values.\n\n### Step 3: Configure Cluster Settings\n\nTo prevent Out-of-Memory (OOM) issues, execute the following command:\n\n```bash\nexport JAVA_OPTS=\"$JAVA_OPTS -DmaxYamlCodePoints=99999999\"\n```\n\nGenerate the Ballerina project for the OpenAPI spec using the Ballerina Open API tool with the following commands.\n\n1. Create a new Ballerina project, naming the project as desired (e.g., custom_types, salesforce_types, etc.).\n\n```bash\nbal new custom_types\n```\n\n2. Customize the package details by editing the `Ballerina.toml` file. For instance, you can modify the [package] section as follows:\n\n```toml\n[package]\norg = \"example\"\nname = \"salesforce.types\"\nversion = \"0.1.0\"\n```\n\nFeel free to replace \"salesforce.types\" with one of the suitable desired names like \"custom.types\" or \"integration.types,\" or come up with your own unique package name.\n\n4. Move the OpenAPI spec into the newly created project directory and execute the following command:\n\n```bash\nbal openapi -i oas.json --mode client --client-methods resource\n```\n\nThis will generate the Ballerina project structure, record types that correspond to the SObject definitions, and client methods based on the provided OpenAPI specification.\n\n### Step 4: Edit the Generated Client and Push it to Local Repository\n\n#### Step 4.1 Delete the utils.bal and clients.bal files.\n\n#### Step 4.2 Use the following commands to build, pack, and push the package:\n\n````bash\nbal pack\n\nbal push --repository=local\n````\n\nBy following these steps, you can set up and customize the Ballerina Salesforce Connector for your Salesforce account with ease.\n\n## Quickstart\n\nTo use the `salesforce.types` module in your Ballerina application, modify the `.bal` file as follows:\n\n### Step 1: Import the package\n\nImport `ballerinax\/salesforce.types` module.\n\n```ballerina\nimport ballerinax\/salesforce;\nimport ballerinax\/salesforce.types;\n```\n\n### Step 2: Instantiate a new client\n\nObtain the tokens using the following the [`ballerinax\/salesforce` connector set up guide](https:\/\/central.ballerina.io\/ballerinax\/salesforce\/latest). Create a salesforce:ConnectionConfig with the obtained OAuth2 tokens and initialize the connector with it.\n\n```ballerina\nsalesforce:ConnectionConfig config = {\n    baseUrl: baseUrl,\n    auth: {\n        clientId: clientId,\n        clientSecret: clientSecret,\n        refreshToken: refreshToken,\n        refreshUrl: refreshUrl\n    }\n};\n\nsalesforce:Client salesforce = new(config);\n```\n\n### Step 3: Invoke the connector operation\n\nNow you can utilize the available operations. Note that they are in the form of remote operations. Following is an example on how to create a record using the connector.\n\n```ballerina\nsalesforce:Client salesforce = check new (config);\nstypes:AccountSObject response = {\n   Name: \"IT World\",\n   BillingCity: \"New York\"\n};\n\nsalesforce:CreationResponse response = check salesforce->create(\"Account\", response);\n```\n\nUse following command to compile and run the Ballerina program.\n\n```bash\nbal run\n```"
+      }
+    ],
+    "balToolId": "",
+    "graalvmCompatible": "Yes"
+  },
+  "serviceTypes": [
+    {
+      "name": "Salesforce",
+      "description": "Salesforce Service",
+      "enabled": true,
+      "basePath": {
+        "optional": false,
+        "typeName": "string",
+        "type": [
+          "string"
+        ],
+        "defaultable": false,
+        "documentation": "The Salesforce channel name.",
+        "enabled": true,
+        "value": "",
+        "placeholder": "/events"
+      },
+      "functions": [
+        {
+          "name": "onCreate",
+          "documentation": "The `onCreate` method is triggered when a new record create event is received from Salesforce.",
+          "optional": false,
+          "qualifiers": [
+            "remote"
+          ],
+          "enabled": true,
+          "parameters": [
+            {
+              "name": "payload",
+              "typeName": "salesforce:EventData",
+              "optional": false,
+              "type": [
+                "salesforce:EventData"
+              ],
+              "typeInfo": {
+                "name": "EventData",
+                "orgName": "ballerinax",
+                "moduleName": "salesforce",
+                "version": "8.1.0"
+              },
+              "documentation": "The information about the triggered event.",
+              "enabled": true,
+              "value": "saleforce:EventData"
+            }
+          ],
+          "returnType": {
+            "typeName": "error?",
+            "type": [
+              "error?"
+            ],
+            "optional": true,
+            "documentation": "Error object.",
+            "defaultTypeName": "error?",
+            "enabled": true,
+            "value": "error?"
+          }
+        },
+        {
+          "name": "onUpdate",
+          "documentation": "The `onUpdate` method is triggered when a new record update event is received from Salesforce.",
+          "optional": false,
+          "qualifiers": [
+            "remote"
+          ],
+          "enabled": true,
+          "parameters": [
+            {
+              "name": "payload",
+              "typeName": "salesforce:EventData",
+              "optional": false,
+              "type": [
+                "salesforce:EventData"
+              ],
+              "typeInfo": {
+                "name": "EventData",
+                "orgName": "ballerinax",
+                "moduleName": "salesforce",
+                "version": "8.1.0"
+              },
+              "documentation": "The information about the triggered event.",
+              "enabled": true,
+              "value": "saleforce:EventData"
+            }
+          ],
+          "returnType": {
+            "typeName": "error?",
+            "type": [
+              "error?"
+            ],
+            "optional": true,
+            "documentation": "Error object.",
+            "defaultTypeName": "error?",
+            "enabled": true,
+            "value": "error?"
+          }
+        },
+        {
+          "name": "onDelete",
+          "documentation": "The `onDelete` method is triggered when a new record delete event is received from Salesforce.",
+          "optional": false,
+          "qualifiers": [
+            "remote"
+          ],
+          "enabled": true,
+          "parameters": [
+            {
+              "name": "payload",
+              "typeName": "salesforce:EventData",
+              "optional": false,
+              "type": [
+                "salesforce:EventData"
+              ],
+              "typeInfo": {
+                "name": "EventData",
+                "orgName": "ballerinax",
+                "moduleName": "salesforce",
+                "version": "8.1.0"
+              },
+              "documentation": "The information about the triggered event.",
+              "enabled": true,
+              "value": "saleforce:EventData"
+            }
+          ],
+          "returnType": {
+            "typeName": "error?",
+            "type": [
+              "error?"
+            ],
+            "optional": true,
+            "documentation": "Error object.",
+            "defaultTypeName": "error?",
+            "enabled": true,
+            "value": "error?"
+          }
+        },
+        {
+          "name": "onRestore",
+          "documentation": "The `onRestore` method is triggered when a new record restore event is received from Salesforce.",
+          "optional": false,
+          "qualifiers": [
+            "remote"
+          ],
+          "enabled": true,
+          "parameters": [
+            {
+              "name": "payload",
+              "typeName": "salesforce:EventData",
+              "optional": false,
+              "type": [
+                "salesforce:EventData"
+              ],
+              "typeInfo": {
+                "name": "EventData",
+                "orgName": "ballerinax",
+                "moduleName": "salesforce",
+                "version": "8.1.0"
+              },
+              "documentation": "The information about the triggered event.",
+              "enabled": true,
+              "value": "saleforce:EventData"
+            }
+          ],
+          "returnType": {
+            "typeName": "error?",
+            "type": [
+              "error?"
+            ],
+            "optional": true,
+            "documentation": "Error object.",
+            "defaultTypeName": "error?",
+            "enabled": true,
+            "value": "error?"
+          }
+        }
+      ]
+    }
+  ],
+  "listener": {
+    "metadata": {
+      "label": "Salesforce Listener",
+      "description": "The Salesforce listener to which the Salesforce service should be attached."
+    },
+    "valueType": "OBJECT",
+    "valueTypeConstraint": "salesforce:Listener",
+    "value": "",
+    "enabled": true,
+    "optional": false,
+    "editable": true,
+    "properties": {
+      "listenerConfig": {
+        "metadata": {
+          "label": "Salesforce Listener Configuration",
+          "description": "The configuration of Salesforce ASB listener."
+        },
+        "valueType": "EXPRESSION",
+        "valueTypeConstraint": "salesforce:ListenerConfig",
+        "placeholder": "",
+        "editable": true,
+        "enabled": true,
+        "optional": false,
+        "advanced": true,
+        "fields": {
+          "auth": {
+            "metadata": {
+              "label": "Authentication Configuration",
+              "description": "Configurations related to username/password authentication."
+            },
+            "valueType": "EXPRESSION",
+            "valueTypeConstraint": "salesforce:CredentialsConfig",
+            "value": "",
+            "placeholder": "",
+            "editable": true,
+            "enabled": true,
+            "optional": false,
+            "advanced": true,
+            "fields": {
+              "username": {
+                "metadata": {
+                  "label": "Username",
+                  "description": "Salesforce login username."
+                },
+                "valueType": "STRING",
+                "editable": true,
+                "enabled": true,
+                "optional": false,
+                "advanced": false
+              },
+              "password": {
+                "metadata": {
+                  "label": "Password",
+                  "description": "Salesforce login password appended with the security token (<password><security token>)."
+                },
+                "valueType": "STRING",
+                "editable": true,
+                "enabled": true,
+                "optional": false,
+                "advanced": false
+              }
+            }
+          },
+          "replayFrom": {
+            "metadata": {
+              "label": "Replay From",
+              "description": "The replay ID to change the point in time when events are read."
+            },
+            "valueType": "UNION",
+            "value": "",
+            "placeholder": "salesforce:REPLAY_FROM_TIP",
+            "editable": true,
+            "enabled": true,
+            "optional": true,
+            "advanced": false,
+            "unionTypes": [
+              {
+                "metadata": {
+                  "label": "Replay ID",
+                  "description": "The integer value of the replay ID."
+                },
+                "valueType": "INT",
+                "editable": true,
+                "enabled": true,
+                "optional": false,
+                "value": "",
+                "advanced": false,
+                "placeholder": ""
+              },
+              {
+                "metadata": {
+                  "label": "Replay Options",
+                  "description": "The options to specify the replay ID."
+                },
+                "valueType": "ENUM",
+                "editable": true,
+                "enabled": true,
+                "optional": false,
+                "value": "",
+                "advanced": false,
+                "placeholder": "",
+                "enum": [
+                  "salesforce:REPLAY_FROM_TIP",
+                  "salesforce:REPLAY_FROM_EARLIEST"
+                ]
+              }
+            ]
+          },
+          "isSandBox": {
+            "metadata": {
+              "label": "Is Sandbox",
+              "description": "The type of salesforce environment, if sandbox environment or not."
+            },
+            "valueType": "BOOLEAN",
+            "value": "false",
+            "editable": true,
+            "enabled": true,
+            "optional": true,
+            "advanced": false
+          }
+        }
+      }
+    }
+  }
+}
