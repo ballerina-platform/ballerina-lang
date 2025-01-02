@@ -44,4 +44,4 @@ Running Tests with Coverage
 Generating Test Report
 	data-providers\target\report\test_results.json
 
-error: there are test failures
+error: there are test failures
