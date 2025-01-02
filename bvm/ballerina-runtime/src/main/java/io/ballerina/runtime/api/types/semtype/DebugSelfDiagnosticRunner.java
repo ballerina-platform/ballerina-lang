@@ -24,7 +24,7 @@ import java.util.concurrent.ConcurrentLinkedDeque;
 public class DebugSelfDiagnosticRunner implements TypeCheckSelfDiagnosticsRunner {
 
     private static final int MAX_TIMEOUT = 1000;
-    private final String LOG_FILE_PATH;
+    private final String logFilePath;
     private final Queue<TypeResolutionData> pendingTypeResolutions = new ArrayDeque<>();
     private final Queue<TypeCheckData> pendingTypeChecks = new ArrayDeque<>();
     private final Map<Thread, String> uncaughtExceptions = new ConcurrentHashMap<>();
@@ -32,10 +32,10 @@ public class DebugSelfDiagnosticRunner implements TypeCheckSelfDiagnosticsRunner
     private final HouseKeeper houseKeeper;
 
     DebugSelfDiagnosticRunner(Env env) {
-        LOG_FILE_PATH = Objects.requireNonNullElse(System.getenv("BAL_TYPE_CHECK_DIAGNOSTIC_PATH"),
+        logFilePath = Objects.requireNonNullElse(System.getenv("BAL_TYPE_CHECK_DIAGNOSTIC_PATH"),
                 "/tmp/type_check_diagnostics.log");
         try {
-            Files.write(Paths.get(LOG_FILE_PATH), "Type Check Diagnostics \n=============================\n".getBytes(),
+            Files.write(Paths.get(logFilePath), "Type Check Diagnostics \n=============================\n".getBytes(),
                     StandardOpenOption.APPEND);
         } catch (IOException err) {
             throw new RuntimeException("Error occurred while creating the log file for type check diagnostics", err);
@@ -257,7 +257,7 @@ public class DebugSelfDiagnosticRunner implements TypeCheckSelfDiagnosticsRunner
                 }
                 stringBuilder.append("\n\n");
                 try {
-                    Files.write(Paths.get(LOG_FILE_PATH), stringBuilder.toString().getBytes(),
+                    Files.write(Paths.get(logFilePath), stringBuilder.toString().getBytes(),
                             StandardOpenOption.CREATE, StandardOpenOption.APPEND);
                 } catch (IOException ignored) {
                 }
