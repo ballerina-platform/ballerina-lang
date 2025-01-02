@@ -186,8 +186,8 @@ public class BMapType extends BType implements MapType, TypeWithShape, Cloneable
     }
 
     @Override
-    public SemType createSemType() {
-        Env env = Env.getInstance();
+    public SemType createSemType(Context cx) {
+        Env env = cx.env;
         if (defn.isDefinitionReady()) {
             return defn.getSemType(env);
         }
@@ -198,7 +198,7 @@ public class BMapType extends BType implements MapType, TypeWithShape, Cloneable
         MappingDefinition md = result.definition();
         CellAtomicType.CellMutability mut = isReadOnly() ? CELL_MUT_NONE :
                 CellAtomicType.CellMutability.CELL_MUT_LIMITED;
-        return createSemTypeInner(env, md, tryInto(getConstrainedType()), mut);
+        return createSemTypeInner(env, md, tryInto(cx, getConstrainedType()), mut);
     }
 
     @Override
@@ -210,7 +210,7 @@ public class BMapType extends BType implements MapType, TypeWithShape, Cloneable
     @Override
     public Optional<SemType> inherentTypeOf(Context cx, ShapeSupplier shapeSupplier, Object object) {
         if (!couldInherentTypeBeDifferent()) {
-            return Optional.of(getSemType());
+            return Optional.of(getSemType(cx));
         }
         MapValueImpl<?, ?> value = (MapValueImpl<?, ?>) object;
         SemType cachedShape = value.shapeOf();

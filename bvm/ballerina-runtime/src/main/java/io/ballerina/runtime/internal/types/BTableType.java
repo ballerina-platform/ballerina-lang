@@ -28,7 +28,6 @@ import io.ballerina.runtime.api.types.semtype.Core;
 import io.ballerina.runtime.api.types.semtype.SemType;
 import io.ballerina.runtime.api.types.semtype.ShapeAnalyzer;
 import io.ballerina.runtime.api.values.BTable;
-import io.ballerina.runtime.internal.TypeChecker;
 import io.ballerina.runtime.internal.types.semtype.TableUtils;
 import io.ballerina.runtime.internal.values.ReadOnlyUtils;
 import io.ballerina.runtime.internal.values.TableValue;
@@ -173,17 +172,16 @@ public class BTableType extends BType implements TableType, TypeWithShape {
     }
 
     @Override
-    public SemType createSemType() {
-        return createSemTypeWithConstraint(tryInto(constraint));
+    public SemType createSemType(Context cx) {
+        return createSemTypeWithConstraint(cx, tryInto(cx, constraint));
     }
 
-    private SemType createSemTypeWithConstraint(SemType constraintType) {
+    private SemType createSemTypeWithConstraint(Context cx, SemType constraintType) {
         SemType semType;
-        Context cx = TypeChecker.context();
         if (fieldNames.length > 0) {
             semType = TableUtils.tableContainingKeySpecifier(cx, constraintType, fieldNames);
         } else if (keyType != null) {
-            semType = TableUtils.tableContainingKeyConstraint(cx, constraintType, tryInto(keyType));
+            semType = TableUtils.tableContainingKeyConstraint(cx, constraintType, tryInto(cx, keyType));
         } else {
             semType = TableUtils.tableContaining(cx.env, constraintType);
         }
@@ -197,7 +195,7 @@ public class BTableType extends BType implements TableType, TypeWithShape {
     @Override
     public Optional<SemType> inherentTypeOf(Context cx, ShapeSupplier shapeSupplier, Object object) {
         if (!couldInherentTypeBeDifferent()) {
-            return Optional.of(getSemType());
+            return Optional.of(getSemType(cx));
         }
         BTable<?, ?> table = (BTable<?, ?>) object;
         SemType cachedShape = table.shapeOf();
@@ -236,10 +234,10 @@ public class BTableType extends BType implements TableType, TypeWithShape {
     private SemType valueShape(Context cx, ShapeSupplier shapeSupplier, BTable<?, ?> table) {
         SemType constraintType = Builder.getNeverType();
         for (var value : table.values()) {
-            SemType valueShape = shapeSupplier.get(cx, value).orElse(SemType.tryInto(constraint));
+            SemType valueShape = shapeSupplier.get(cx, value).orElse(SemType.tryInto(cx, constraint));
             constraintType = Core.union(constraintType, valueShape);
         }
-        return createSemTypeWithConstraint(constraintType);
+        return createSemTypeWithConstraint(cx, constraintType);
     }
 
     @Override

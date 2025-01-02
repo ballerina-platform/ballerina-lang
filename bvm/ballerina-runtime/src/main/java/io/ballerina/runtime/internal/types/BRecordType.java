@@ -243,8 +243,8 @@ public class BRecordType extends BStructureType implements RecordType, TypeWithS
     }
 
     @Override
-    public SemType createSemType() {
-        Env env = Env.getInstance();
+    public SemType createSemType(Context cx) {
+        Env env = cx.env;
         if (defn.isDefinitionReady()) {
             return defn.getSemType(env);
         }
@@ -253,7 +253,7 @@ public class BRecordType extends BStructureType implements RecordType, TypeWithS
             return defn.getSemType(env);
         }
         MappingDefinition md = result.definition();
-        return createSemTypeInner(md, env, mut(), SemType::tryInto);
+        return createSemTypeInner(md, env, mut(), (type) -> SemType.tryInto(cx, type));
     }
 
     private CellMutability mut() {
@@ -296,7 +296,7 @@ public class BRecordType extends BStructureType implements RecordType, TypeWithS
     @Override
     public Optional<SemType> inherentTypeOf(Context cx, ShapeSupplier shapeSupplier, Object object) {
         if (!couldInherentTypeBeDifferent()) {
-            return Optional.of(getSemType());
+            return Optional.of(getSemType(cx));
         }
         MapValueImpl<?, ?> value = (MapValueImpl<?, ?>) object;
         SemType cachedSemType = value.shapeOf();
@@ -336,7 +336,7 @@ public class BRecordType extends BStructureType implements RecordType, TypeWithS
         if (!takeFieldShape) {
             getFields().values().stream()
                     .filter(field -> !handledFields.contains(field.getFieldName()))
-                    .map(field -> fieldShapeWithoutValue(field, field.getFieldName()))
+                    .map(field -> fieldShapeWithoutValue(cx, field, field.getFieldName()))
                     .forEach(fields::add);
         }
         MappingDefinition.Field[] fieldsArray = fields.toArray(MappingDefinition.Field[]::new);
@@ -344,23 +344,22 @@ public class BRecordType extends BStructureType implements RecordType, TypeWithS
         if (takeFieldShape) {
             rest = Builder.getNeverType();
         } else {
-            rest = restFieldType != null ? SemType.tryInto(restFieldType) : getNeverType();
+            rest = restFieldType != null ? SemType.tryInto(cx, restFieldType) : getNeverType();
         }
         SemType shape = md.defineMappingTypeWrapped(env, fieldsArray, rest, mut());
         value.resetReadonlyShapeDefinition();
         return shape;
     }
 
-    private MappingDefinition.Field fieldShapeWithoutValue(Field field, String fieldName) {
+    private MappingDefinition.Field fieldShapeWithoutValue(Context cx, Field field, String fieldName) {
         boolean isOptional = fieldIsOptional(fieldName);
         boolean isReadonly = fieldIsReadonly(fieldName);
-        SemType fieldType = SemType.tryInto(field.getFieldType());
+        SemType fieldType = SemType.tryInto(cx, field.getFieldType());
         if (isReadonly && isOptional) {
             fieldType = Builder.getUndefType();
         }
-        MappingDefinition.Field field1 = new MappingDefinition.Field(field.getFieldName(), fieldType,
+        return new MappingDefinition.Field(field.getFieldName(), fieldType,
                 isReadonly, isOptional);
-        return field1;
     }
 
     @Override
@@ -424,7 +423,7 @@ public class BRecordType extends BStructureType implements RecordType, TypeWithS
             optionalField = false;
             fieldType = shapeSupplier.get(cx, fieldValue).orElseThrow();
         } else {
-            fieldType = SemType.tryInto(fieldType(fieldName));
+            fieldType = SemType.tryInto(cx, fieldType(fieldName));
         }
         return new MappingDefinition.Field(fieldName, fieldType, readonlyField, optionalField);
     }

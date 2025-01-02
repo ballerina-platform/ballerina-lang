@@ -30,6 +30,8 @@ import io.ballerina.runtime.api.types.semtype.SemType;
 
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 import static io.ballerina.runtime.api.types.semtype.BddNode.bddAtom;
 import static io.ballerina.runtime.api.types.semtype.Builder.basicSubType;
@@ -46,16 +48,21 @@ public class MappingDefinition extends Definition {
 
     private volatile RecAtom rec = null;
     private volatile SemType semType = null;
+    private final Lock lock = new ReentrantLock();
 
     @Override
     public SemType getSemType(Env env) {
-        SemType s = this.semType;
-        if (s == null) {
+        try {
+            lock.lock();
+            if (this.semType != null) {
+                return this.semType;
+            }
+            assert this.rec == null;
             RecAtom rec = env.recMappingAtom();
             this.rec = rec;
             return this.createSemType(env, rec);
-        } else {
-            return s;
+        } finally {
+            lock.unlock();
         }
     }
 
@@ -75,9 +82,7 @@ public class MappingDefinition extends Definition {
         }
         SemType restCell = Builder.getCellContaining(env, union(rest, getUndefType()),
                 isNever(rest) ? CellAtomicType.CellMutability.CELL_MUT_NONE : mut);
-        SemType semType = define(env, cellFields, restCell);
-        notifyContainer();
-        return semType;
+        return define(env, cellFields, restCell);
     }
 
     SemType define(Env env, BCellField[] cellFields, SemType rest) {
@@ -86,14 +91,19 @@ public class MappingDefinition extends Definition {
         sortAndSplitFields(cellFields, names, types);
         MappingAtomicType atomicType = new MappingAtomicType(names, types, rest);
         Atom atom;
-        RecAtom rec = this.rec;
-        if (rec != null) {
-            atom = rec;
-            env.setRecMappingAtomType(rec, atomicType);
-        } else {
-            atom = env.mappingAtom(atomicType);
+        try {
+            lock.lock();
+            RecAtom rec = this.rec;
+            if (rec != null) {
+                atom = rec;
+                env.setRecMappingAtomType(rec, atomicType);
+            } else {
+                atom = env.mappingAtom(atomicType);
+            }
+            return this.createSemType(env, atom);
+        } finally {
+            lock.unlock();
         }
-        return this.createSemType(env, atom);
     }
 
     private void sortAndSplitFields(BCellField[] fields, String[] names, SemType[] types) {

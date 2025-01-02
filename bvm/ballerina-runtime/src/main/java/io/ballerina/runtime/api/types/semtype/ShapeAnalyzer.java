@@ -23,7 +23,7 @@ public class ShapeAnalyzer {
         if (typeDesc instanceof TypeWithAcceptedType typeWithAcceptedType) {
             return typeWithAcceptedType.acceptedTypeOf(cx);
         }
-        return Optional.of(SemType.tryInto(typeDesc));
+        return Optional.of(SemType.tryInto(cx, typeDesc));
     }
 
     public static Optional<SemType> shapeOf(Context cx, Object object) {
