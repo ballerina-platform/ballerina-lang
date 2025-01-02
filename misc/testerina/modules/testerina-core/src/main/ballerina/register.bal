@@ -207,25 +207,37 @@ isolated class ExecutionManager {
     }
 
     isolated function populateExecutionQueues() {
+        int i = 0;
+        TestCompletionStatus executionCompletionStatus = YET_TO_COMPLETE;
+        int testCount = 0;
         lock {
-            int i = 0;
-            TestCompletionStatus executionCompletionStatus = YET_TO_COMPLETE;
-            while i < self.testsInExecution.length() {
+            testCount = self.testsInExecution.length();
+        }
+        while i < testCount {
+            TestFunctionMetaData? inProgressTestMetaData = ();
+            lock {
                 TestFunction testInProgress = self.testsInExecution[i];
-                TestFunctionMetaData? inProgressTestMetaData = self.testMetaData[testInProgress.name];
-                if inProgressTestMetaData == () {
-                    continue;
-                }
-                executionCompletionStatus = inProgressTestMetaData.executionCompletionStatus;
-                if executionCompletionStatus == COMPLETED {
-                    inProgressTestMetaData.dependents.reverse().forEach(
+                inProgressTestMetaData = self.testMetaData[testInProgress.name].cloneReadOnly();
+            }
+            if inProgressTestMetaData == () {
+                i += 1;
+                continue;
+            }
+            executionCompletionStatus = inProgressTestMetaData.executionCompletionStatus;
+            if executionCompletionStatus == COMPLETED {
+                inProgressTestMetaData.dependents.reverse().forEach(
                         dependent => self.checkExecutionReadiness(dependent));
+                lock {
                     _ = self.testsInExecution.remove(i);
-                } else if executionCompletionStatus == SUSPENDED {
-                    _ = self.testsInExecution.remove(i);
-                } else {
-                    i += 1;
+                    testCount = self.testsInExecution.length();
                 }
+            } else if executionCompletionStatus == SUSPENDED {
+                lock {
+                    _ = self.testsInExecution.remove(i);
+                    testCount = self.testsInExecution.length();
+                }
+            } else {
+                i += 1;
             }
         }
     }
@@ -241,9 +253,13 @@ isolated class ExecutionManager {
                 return;
             }
             testFunctionMetaData.isReadyToExecute = true;
-            if !testFunction.serialExecution {
+        }
+        if !testFunction.serialExecution {
+            lock {
                 self.parallelTestExecutionList.push(testFunction);
-            } else {
+            }
+        } else {
+            lock {
                 self.serialTestExecutionList.push(testFunction);
             }
         }

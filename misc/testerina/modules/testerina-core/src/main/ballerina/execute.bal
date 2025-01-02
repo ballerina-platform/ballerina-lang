@@ -74,6 +74,7 @@ function executeTests() returns error? {
             executionManager.addInitialParallelTest(testFunction);
         }
     }
+    map<future> futures = {};
     while !executionManager.isExecutionDone() {
         if executionManager.getSerialQueueLength() != 0 && executionManager.countTestInExecution() == 0 {
             TestFunction testFunction = executionManager.getSerialTest();
@@ -83,9 +84,23 @@ function executeTests() returns error? {
             TestFunction testFunction = executionManager.getParallelTest();
             executionManager.addTestInExecution(testFunction);
             DataProviderReturnType? testFunctionArgs = dataDrivenTestParams[testFunction.name];
-            _ = start executeTestIsolated(testFunction, testFunctionArgs);
+            future<()> futureEntity = start executeTestIsolated(testFunction, testFunctionArgs);
+            futures[testFunction.name] = futureEntity;
+        } else {
+            foreach [string, future<any|error>] futureResult in futures.entries() {
+                string functionName = futureResult[0];
+                any|error parallelResult = wait futureResult[1];
+                if parallelResult is error {
+                    reportData.onFailed(name = functionName, message =
+                    string `[parallel execution for the function ` +
+                    string `${functionName}]${"\n"} ${getErrorMessage(parallelResult)}`, testType = GENERAL_TEST);
+                    println(string `${"\n\t"}${functionName} has failed.${"\n"}`);
+                    enableExit();
+                }
+            }
+            futures = {};
+            executionManager.populateExecutionQueues();
         }
-        executionManager.populateExecutionQueues();
     }
     executionTime = currentTimeInMillis() - startTime;
 }
@@ -326,7 +341,7 @@ isolated function handleTestFuncOutput(any|error output, TestFunction testFuncti
     return error(getErrorMessage(output), functionName = testFunction.name);
 }
 
-isolated function prepareDataSet(DataProviderReturnType? testFunctionArgs, string[] keys, AnyOrError[][] values) 
+isolated function prepareDataSet(DataProviderReturnType? testFunctionArgs, string[] keys, AnyOrError[][] values)
         returns TestType {
     TestType testType = DATA_DRIVEN_MAP_OF_TUPLE;
     if testFunctionArgs is map<AnyOrError[]> {
@@ -381,7 +396,7 @@ isolated function skipDataDrivenTest(TestFunction testFunction, string suffix, T
         string[] subTests = testOptions.getFilterSubTest(functionKey);
         foreach string subFilter in subTests {
             string updatedSubFilter = subFilter;
-            if testType == DATA_DRIVEN_MAP_OF_TUPLE && subFilter.startsWith(SINGLE_QUOTE) 
+            if testType == DATA_DRIVEN_MAP_OF_TUPLE && subFilter.startsWith(SINGLE_QUOTE)
                     && subFilter.endsWith(SINGLE_QUOTE) {
                 updatedSubFilter = subFilter.substring(1, subFilter.length() - 1);
             }
