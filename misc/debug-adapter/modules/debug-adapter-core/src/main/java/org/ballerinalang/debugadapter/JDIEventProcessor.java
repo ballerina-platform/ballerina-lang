@@ -152,8 +152,8 @@ public class JDIEventProcessor {
             // to reach the ballerina source.
             // TODO: Revert once the low-code mode supports rendering external sources.
             if (clientConfigs.isLowCodeMode() && hasSteppedIntoExternalSource(stepEvent)) {
-                context.getAdapter().getOutputLogger().sendDebugServerOutput("Debugging external sources is not " +
-                        "supported in low-code mode. Stepping-out to reach the ballerina source.");
+                DebugOutputLogger logger = context.getAdapter().getOutputLogger();
+                logger.sendDebugServerOutput("Stepping into external sources is not supported in low-code mode.");
                 sendStepRequest(threadId, StepRequest.STEP_OUT);
             } else if (isBallerinaSource(stepEvent.location())) {
                 notifyStopEvent(event);
