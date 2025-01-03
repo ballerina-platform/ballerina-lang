@@ -16,22 +16,31 @@
 package org.ballerinalang.langserver.command.executors;
 
 import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.commons.ExecuteCommandContext;
 import org.ballerinalang.langserver.commons.client.ExtendedLanguageClient;
+import org.ballerinalang.langserver.commons.command.CommandArgument;
 import org.ballerinalang.langserver.commons.command.LSCommandExecutorException;
 import org.ballerinalang.langserver.commons.command.spi.LSCommandExecutor;
+import org.ballerinalang.langserver.commons.workspace.RunContext;
 import org.eclipse.lsp4j.LogTraceParams;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
-import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.function.Supplier;
+import java.util.stream.StreamSupport;
 
 /**
  * Command executor for running a Ballerina file. Each project at most has a single instance running at a time.
@@ -42,36 +51,108 @@ import java.util.function.Supplier;
 @JavaSPIService("org.ballerinalang.langserver.commons.command.spi.LSCommandExecutor")
 public class RunExecutor implements LSCommandExecutor {
 
+    private static final String RUN_COMMAND = "RUN";
+
+    // commands arg names
+    private static final String ARG_PATH = "path";
+    private static final String ARG_PROGRAM_ARGS = "programArgs";
+    private static final String ARG_ENV = "env";
+    private static final String ARG_DEBUG_PORT = "debugPort";
+
+    // output channels
+    private static final String ERROR_CHANNEL = "err";
+    private static final String OUT_CHANNEL = "out";
+
     @Override
     public Boolean execute(ExecuteCommandContext context) throws LSCommandExecutorException {
         try {
-            Optional<Process> processOpt = context.workspace().run(extractPath(context),
-                    extractMainFunctionArgs(context));
+            RunContext workspaceRunContext = getWorkspaceRunContext(context);
+            Optional<Process> processOpt = context.workspace().run(workspaceRunContext);
             if (processOpt.isEmpty()) {
                 return false;
             }
             Process process = processOpt.get();
-            listenOutputAsync(context.getLanguageClient(), process::getInputStream, "out");
-            listenOutputAsync(context.getLanguageClient(), process::getErrorStream, "err");
+            listenOutputAsync(context.getLanguageClient(), process::getInputStream, OUT_CHANNEL);
+            listenOutputAsync(context.getLanguageClient(), process::getErrorStream, ERROR_CHANNEL);
             return true;
         } catch (IOException e) {
+            LogTraceParams error = new LogTraceParams("Error while running the program in fast-run mode: " +
+                    e.getMessage(), ERROR_CHANNEL);
+            context.getLanguageClient().logTrace(error);
+            throw new LSCommandExecutorException(e);
+        } catch (Exception e) {
+            LogTraceParams error = new LogTraceParams("Unexpected error while executing the fast-run: " +
+                    e.getMessage(), ERROR_CHANNEL);
+            context.getLanguageClient().logTrace(error);
             throw new LSCommandExecutorException(e);
         }
     }
 
-    private static Path extractPath(ExecuteCommandContext context) {
-        return Path.of(context.getArguments().get(0).<JsonPrimitive>value().getAsString());
+    private RunContext getWorkspaceRunContext(ExecuteCommandContext context) {
+        RunContext.Builder builder = new RunContext.Builder(extractPath(context));
+        builder.withProgramArgs(extractProgramArgs(context));
+        builder.withEnv(extractEnvVariables(context));
+        builder.withDebugPort(extractDebugArgs(context));
+
+        return builder.build();
     }
 
-    private static List<String> extractMainFunctionArgs(ExecuteCommandContext context) {
-        List<String> args = new ArrayList<>();
-        if (context.getArguments().size() == 1) {
-            return args;
-        }
-        context.getArguments().get(1).<JsonArray>value().getAsJsonArray().iterator().forEachRemaining(arg -> {
-            args.add(arg.getAsString());
-        });
-        return args;
+    private Path extractPath(ExecuteCommandContext context) {
+        return getCommandArgWithName(context, ARG_PATH)
+                .map(CommandArgument::<JsonPrimitive>value)
+                .map(JsonPrimitive::getAsString)
+                .map(pathStr -> {
+                    try {
+                        Path path = Path.of(pathStr);
+                        if (!Files.exists(path)) {
+                            throw new IllegalArgumentException("Specified path does not exist: " + pathStr);
+                        }
+                        return path;
+                    } catch (InvalidPathException e) {
+                        throw new IllegalArgumentException("Invalid path: " + pathStr, e);
+                    }
+                })
+                .orElseThrow(() -> new IllegalArgumentException("Path argument is required"));
+    }
+
+    private int extractDebugArgs(ExecuteCommandContext context) {
+        return getCommandArgWithName(context, ARG_DEBUG_PORT)
+                .map(CommandArgument::<JsonPrimitive>value)
+                .map(JsonPrimitive::getAsInt)
+                .orElse(-1);
+    }
+
+    private List<String> extractProgramArgs(ExecuteCommandContext context) {
+        return getCommandArgWithName(context, ARG_PROGRAM_ARGS)
+                .map(arg -> arg.<JsonArray>value().getAsJsonArray())
+                .map(jsonArray -> StreamSupport.stream(jsonArray.spliterator(), false)
+                        .filter(JsonElement::isJsonPrimitive)
+                        .map(JsonElement::getAsJsonPrimitive)
+                        .filter(JsonPrimitive::isString)
+                        .map(JsonPrimitive::getAsString)
+                        .toList())
+                .orElse(Collections.emptyList());
+    }
+
+    private Map<String, String> extractEnvVariables(ExecuteCommandContext context) {
+        return getCommandArgWithName(context, ARG_ENV)
+                .map(CommandArgument::<JsonObject>value)
+                .map(jsonObject -> {
+                    Map<String, String> envMap = new HashMap<>();
+                    for (Map.Entry<String, JsonElement> entry : jsonObject.entrySet()) {
+                        if (entry.getValue().isJsonPrimitive() && entry.getValue().getAsJsonPrimitive().isString()) {
+                            envMap.put(entry.getKey(), entry.getValue().getAsString());
+                        }
+                    }
+                    return Collections.unmodifiableMap(envMap);
+                })
+                .orElse(Map.of());
+    }
+
+    private static Optional<CommandArgument> getCommandArgWithName(ExecuteCommandContext context, String name) {
+        return context.getArguments().stream()
+                .filter(commandArg -> commandArg.key().equals(name))
+                .findAny();
     }
 
     public void listenOutputAsync(ExtendedLanguageClient client, Supplier<InputStream> getInputStream, String channel) {
@@ -94,6 +175,6 @@ public class RunExecutor implements LSCommandExecutor {
 
     @Override
     public String getCommand() {
-        return "RUN";
+        return RUN_COMMAND;
     }
 }

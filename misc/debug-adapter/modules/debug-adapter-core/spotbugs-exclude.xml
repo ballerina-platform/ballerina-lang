@@ -61,7 +61,16 @@
             </And>
             <And>
                 <Bug pattern="BC_UNCONFIRMED_CAST"/>
-                <Class name="org.ballerinalang.debugadapter.completion.CompletionGenerator"/>
+                <Or>
+                    <Class name="org.ballerinalang.debugadapter.completion.CompletionGenerator"/>
+                    <Class name="org.ballerinalang.debugadapter.JBallerinaDebugServer"/>
+                </Or>
+            </And>
+            <And>
+                <Bug pattern="BC_UNCONFIRMED_CAST_OF_RETURN_VALUE"/>
+                <Or>
+                    <Class name="org.ballerinalang.debugadapter.utils.ServerUtils"/>
+                </Or>
             </And>
         </Or>
     </Match>

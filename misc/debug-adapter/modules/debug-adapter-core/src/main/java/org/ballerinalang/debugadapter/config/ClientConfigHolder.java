@@ -41,6 +41,7 @@ public class ClientConfigHolder {
     private static final String ARG_CAPABILITIES = "capabilities";
     private static final String ARG_SUPPORT_READONLY_EDITOR = "supportsReadOnlyEditors";
     private static final String ARG_SUPPORT_BP_VERIFICATION = "supportsBreakpointVerification";
+    private static final String ARG_SUPPORT_FAST_RUN = "supportsFastRun";
     private static final String ARG_TERMINAL_KIND = "terminal";
     private static final String INTEGRATED_TERMINAL_KIND = "INTEGRATED";
     private static final String EXTERNAL_TERMINAL_KIND = "EXTERNAL";
@@ -98,6 +99,15 @@ public class ClientConfigHolder {
             extendedClientCapabilities.setSupportsBreakpointVerification(false);
         }
 
+        Object fastRunConfig = capabilities.get(ARG_SUPPORT_FAST_RUN);
+        if (fastRunConfig instanceof Boolean b) {
+            extendedClientCapabilities.setSupportsFastRun(b);
+        } else if (fastRunConfig instanceof String s) {
+            extendedClientCapabilities.setSupportsFastRun(Boolean.parseBoolean(s));
+        } else {
+            extendedClientCapabilities.setSupportsFastRun(false);
+        }
+
         return Optional.ofNullable(extendedClientCapabilities);
     }
 
@@ -133,6 +143,7 @@ public class ClientConfigHolder {
 
         private boolean supportsReadOnlyEditors = false;
         private boolean supportsBreakpointVerification = false;
+        private boolean supportsFastRun = false;
 
         public boolean supportsReadOnlyEditors() {
             return supportsReadOnlyEditors;
@@ -148,6 +159,14 @@ public class ClientConfigHolder {
 
         public void setSupportsBreakpointVerification(boolean supportsBreakpointVerification) {
             this.supportsBreakpointVerification = supportsBreakpointVerification;
+        }
+
+        public boolean supportsFastRun() {
+            return supportsFastRun;
+        }
+
+        public void setSupportsFastRun(boolean supportsFastRun) {
+            this.supportsFastRun = supportsFastRun;
         }
     }
 }
