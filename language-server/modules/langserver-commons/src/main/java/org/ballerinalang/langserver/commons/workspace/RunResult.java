@@ -23,8 +23,10 @@ import io.ballerina.tools.diagnostics.Diagnostic;
 import java.util.Collection;
 
 /**
- * Represents the result of a run operation.
+ * Represents the result of {@link WorkspaceManager#run(RunContext)} operation.
  *
+ * @param process     {@link Process} instance representing the run operation
+ * @param diagnostics diagnostics generated during the compilation
  * @since 2201.12.0
  */
 public record RunResult(Process process, Collection<Diagnostic> diagnostics) {

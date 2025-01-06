@@ -104,6 +104,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
+
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
@@ -622,7 +623,7 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
         // Add tool resolution diagnostics to diagnostics
         diagnostics.addAll(project.currentPackage().getBuildToolResolution().getDiagnosticList());
 
-        if (diagnostics.stream().anyMatch(diagnostic -> diagnostic.diagnosticInfo().severity() == DiagnosticSeverity.ERROR)) {
+        if (diagnostics.stream().anyMatch(d -> d.diagnosticInfo().severity() == DiagnosticSeverity.ERROR)) {
             return new RunResult(null, diagnostics);
         }
 

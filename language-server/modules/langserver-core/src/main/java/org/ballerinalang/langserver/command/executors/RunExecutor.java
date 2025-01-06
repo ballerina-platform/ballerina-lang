@@ -79,7 +79,7 @@ public class RunExecutor implements LSCommandExecutor {
                 LogTraceParams diagnosticMessage = new LogTraceParams(diagnostic.toString(), ERROR_CHANNEL);
                 context.getLanguageClient().logTrace(diagnosticMessage);
             }
-            if (diagnostics.stream().anyMatch(diagnostic -> diagnostic.diagnosticInfo().severity() == DiagnosticSeverity.ERROR)) {
+            if (diagnostics.stream().anyMatch(d -> d.diagnosticInfo().severity() == DiagnosticSeverity.ERROR)) {
                 LogTraceParams error = new LogTraceParams("error: compilation contains errors", ERROR_CHANNEL);
                 context.getLanguageClient().logTrace(error);
                 return false;
