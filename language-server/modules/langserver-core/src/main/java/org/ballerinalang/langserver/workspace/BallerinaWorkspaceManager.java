@@ -61,6 +61,7 @@ import org.ballerinalang.langserver.commons.client.ExtendedLanguageClient;
 import org.ballerinalang.langserver.commons.eventsync.EventKind;
 import org.ballerinalang.langserver.commons.eventsync.exceptions.EventSyncException;
 import org.ballerinalang.langserver.commons.workspace.RunContext;
+import org.ballerinalang.langserver.commons.workspace.RunResult;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentException;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceManager;
@@ -92,6 +93,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -102,7 +104,6 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
-
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
@@ -595,18 +596,39 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
     }
 
     @Override
-    public Optional<Process> run(RunContext executionContext) throws IOException {
+    public RunResult run(RunContext executionContext) throws IOException {
         Path projectRoot = projectRoot(executionContext.balSourcePath());
         Optional<ProjectContext> projectContext = validateProjectContext(projectRoot);
         if (projectContext.isEmpty()) {
-            return Optional.empty();
+            return new RunResult(null, Collections.emptyList());
         }
 
-        if (!prepareProjectForExecution(projectContext.get())) {
-            return Optional.empty();
+        if (!stopProject(projectContext.get())) {
+            logError("Run command execution aborted because couldn't stop the previous run");
+            return new RunResult(null, Collections.emptyList());
         }
 
-        return executeProject(projectContext.get(), executionContext);
+        Project project = projectContext.get().project();
+        Optional<PackageCompilation> packageCompilation = waitAndGetPackageCompilation(project.sourceRoot(), true);
+        if (packageCompilation.isEmpty()) {
+            logError("Run command execution aborted because package compilation failed");
+            return new RunResult(null, Collections.emptyList());
+        }
+
+        JBallerinaBackend jBallerinaBackend = execBackend(projectContext.get(), packageCompilation.get());
+        Collection<Diagnostic> diagnostics = new LinkedList<>();
+        // check for compilation errors
+        diagnostics.addAll(jBallerinaBackend.diagnosticResult().diagnostics(false));
+        // Add tool resolution diagnostics to diagnostics
+        diagnostics.addAll(project.currentPackage().getBuildToolResolution().getDiagnosticList());
+
+        if (diagnostics.stream().anyMatch(diagnostic -> diagnostic.diagnosticInfo().severity() == DiagnosticSeverity.ERROR)) {
+            return new RunResult(null, diagnostics);
+        }
+
+        Optional<Process> process = executeProject(projectContext.get(), executionContext);
+        return process.map(value -> new RunResult(value, diagnostics))
+                .orElseGet(() -> new RunResult(null, diagnostics));
     }
 
     private Optional<ProjectContext> validateProjectContext(Path projectRoot) {
@@ -617,31 +639,6 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
         }
 
         return projectContextOpt;
-    }
-
-    private boolean prepareProjectForExecution(ProjectContext projectContext) {
-        // stop previous project run
-        if (!stopProject(projectContext)) {
-            logError("Run command execution aborted because couldn't stop the previous run");
-            return false;
-        }
-
-        Project project = projectContext.project();
-        Optional<PackageCompilation> packageCompilation = waitAndGetPackageCompilation(project.sourceRoot(), true);
-        if (packageCompilation.isEmpty()) {
-            logError("Run command execution aborted because package compilation failed");
-            return false;
-        }
-
-        // check for compilation errors
-        JBallerinaBackend jBallerinaBackend = execBackend(projectContext, packageCompilation.get());
-        Collection<Diagnostic> diagnostics = jBallerinaBackend.diagnosticResult().diagnostics(false);
-        if (diagnostics.stream().anyMatch(BallerinaWorkspaceManager::isError)) {
-            logError("Run command execution aborted due to compilation errors: " + diagnostics);
-            return false;
-        }
-
-        return true;
     }
 
     private Optional<Process> executeProject(ProjectContext projectContext, RunContext context) throws IOException {

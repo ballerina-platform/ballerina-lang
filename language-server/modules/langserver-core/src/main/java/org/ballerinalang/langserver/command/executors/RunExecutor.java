@@ -19,6 +19,8 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
+import io.ballerina.tools.diagnostics.Diagnostic;
+import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.commons.ExecuteCommandContext;
 import org.ballerinalang.langserver.commons.client.ExtendedLanguageClient;
@@ -26,6 +28,7 @@ import org.ballerinalang.langserver.commons.command.CommandArgument;
 import org.ballerinalang.langserver.commons.command.LSCommandExecutorException;
 import org.ballerinalang.langserver.commons.command.spi.LSCommandExecutor;
 import org.ballerinalang.langserver.commons.workspace.RunContext;
+import org.ballerinalang.langserver.commons.workspace.RunResult;
 import org.eclipse.lsp4j.LogTraceParams;
 
 import java.io.IOException;
@@ -34,10 +37,12 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Supplier;
 import java.util.stream.StreamSupport;
@@ -67,11 +72,24 @@ public class RunExecutor implements LSCommandExecutor {
     public Boolean execute(ExecuteCommandContext context) throws LSCommandExecutorException {
         try {
             RunContext workspaceRunContext = getWorkspaceRunContext(context);
-            Optional<Process> processOpt = context.workspace().run(workspaceRunContext);
-            if (processOpt.isEmpty()) {
+            RunResult runResult = context.workspace().run(workspaceRunContext);
+
+            Collection<Diagnostic> diagnostics = runResult.diagnostics();
+            for (Diagnostic diagnostic : diagnostics) {
+                LogTraceParams diagnosticMessage = new LogTraceParams(diagnostic.toString(), ERROR_CHANNEL);
+                context.getLanguageClient().logTrace(diagnosticMessage);
+            }
+            if (diagnostics.stream().anyMatch(diagnostic -> diagnostic.diagnosticInfo().severity() == DiagnosticSeverity.ERROR)) {
+                LogTraceParams error = new LogTraceParams("error: compilation contains errors", ERROR_CHANNEL);
+                context.getLanguageClient().logTrace(error);
                 return false;
             }
-            Process process = processOpt.get();
+
+            Process process = runResult.process();
+            if (Objects.isNull(process)) {
+                return false;
+            }
+
             listenOutputAsync(context.getLanguageClient(), process::getInputStream, OUT_CHANNEL);
             listenOutputAsync(context.getLanguageClient(), process::getErrorStream, ERROR_CHANNEL);
             return true;
