@@ -1,0 +1,6 @@
+digraph "example1" {
+    "samejs/app:0.1.0" -> "ballerina/auth:2.0.1"
+    "ballerina/auth:2.0.1" -> "ballerina/io:1.2.0"
+    "ballerina/auth:2.0.1" -> "ballerina/cache:1.4.0"
+    "ballerina/io:1.2.0" -> "ballerina/cache:1.4.0"
+}

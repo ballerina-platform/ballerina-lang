@@ -53,15 +53,21 @@ public class ExistingProjectTests extends AbstractPackageResolutionTest {
                 testCase("case-0005", UpdatePolicy.MEDIUM),
                 testCase("case-0005", UpdatePolicy.HARD),
                 testCase("case-0005", UpdatePolicy.LOCKED, "Cannot have new dependencies with the LOCKED update policy"),
-//                // 6. Remove existing import which also is a dependency of a newer patch version of another import
-//                {"suite-existing_project", "case-0006", true},
-//                {"suite-existing_project", "case-0006", false},
-//                // 7. Package contains hierarchical imports
-//                {"suite-existing_project", "case-0007", true},
-//                {"suite-existing_project", "case-0007", false},
-//                // 8. Add a new hierarchical import which has a possible package name in the Dependencies.toml
-//                {"suite-existing_project", "case-0008", true},
-//                {"suite-existing_project", "case-0008", false},
+                // 6. Remove existing import which also is a dependency of a newer patch version of another import
+                testCase("case-0006", UpdatePolicy.SOFT),
+                testCase("case-0006", UpdatePolicy.MEDIUM),
+                testCase("case-0006", UpdatePolicy.HARD),
+                testCase("case-0006", UpdatePolicy.LOCKED),
+                // 7. Package contains hierarchical imports
+                testCase("case-0007", UpdatePolicy.SOFT),
+                testCase("case-0007", UpdatePolicy.MEDIUM),
+                testCase("case-0007", UpdatePolicy.HARD),
+                testCase("case-0007", UpdatePolicy.LOCKED),
+                // 8. Add a new hierarchical import which has a possible package name in the Dependencies.toml
+                testCase("case-0008", UpdatePolicy.SOFT),
+                testCase("case-0008", UpdatePolicy.MEDIUM),
+                testCase("case-0008", UpdatePolicy.HARD),
+                testCase("case-0008", UpdatePolicy.LOCKED, "Invalid state"),
 //                // 9. Package uses a module available in the newer minor version of an existing dependency
 //                {"suite-existing_project", "case-0009", true},
 //                {"suite-existing_project", "case-0009", false},
