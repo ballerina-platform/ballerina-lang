@@ -17,15 +17,15 @@
  */
 package org.ballerinalang.test.javainterop;
 
-import io.ballerina.runtime.api.PredefinedTypes;
+import io.ballerina.runtime.api.Environment;
 import io.ballerina.runtime.api.types.ObjectType;
+import io.ballerina.runtime.api.types.PredefinedTypes;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BTypedesc;
 import io.ballerina.runtime.api.values.BXml;
-import io.ballerina.runtime.internal.scheduling.Scheduler;
 import io.ballerina.runtime.internal.values.ErrorValue;
 import io.ballerina.runtime.internal.values.FPValue;
 import io.ballerina.runtime.internal.values.FutureValue;
@@ -392,12 +392,12 @@ public class RefTypeTests {
         return x;
     }
 
-    public static int useFunctionPointer(FPValue<Object[], Long> fp) {
-        return ((Long) fp.call(new Object[]{Scheduler.getStrand(), 3, 4})).intValue();
+    public static int useFunctionPointer(Environment env, FPValue fp) {
+        return ((Long) fp.call(env.getRuntime(), new Object[]{3, 4})).intValue();
     }
 
-    public static FPValue<?, ?> getFunctionPointer(Object fp) {
-        return (FPValue<?, ?>) fp;
+    public static FPValue getFunctionPointer(Object fp) {
+        return (FPValue) fp;
     }
 
     public static BString useTypeDesc(TypedescValue type) {
@@ -409,7 +409,7 @@ public class RefTypeTests {
     }
 
     public static Object useFuture(FutureValue future) {
-        return future.getResult();
+        return future.get();
     }
 
     public static FutureValue getFuture(Object a) {

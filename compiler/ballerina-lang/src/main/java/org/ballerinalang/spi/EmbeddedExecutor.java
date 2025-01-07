@@ -17,7 +17,7 @@
 */
 package org.ballerinalang.spi;
 
-import io.ballerina.runtime.api.async.StrandMetadata;
+import io.ballerina.runtime.api.concurrent.StrandMetadata;
 
 import java.util.Optional;
 

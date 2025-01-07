@@ -1,8 +1,7 @@
 package org.ballerinalang.testerina.natives.mock;
 
-import io.ballerina.runtime.api.PredefinedTypes;
-import io.ballerina.runtime.api.async.StrandMetadata;
 import io.ballerina.runtime.api.creators.ErrorCreator;
+import io.ballerina.runtime.api.types.PredefinedTypes;
 import io.ballerina.runtime.api.types.RecordType;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BArray;
@@ -24,7 +23,6 @@ import java.util.regex.Pattern;
 
 import static org.ballerinalang.test.runtime.BTestMain.getClassLoader;
 import static org.ballerinalang.test.runtime.util.TesterinaUtils.getQualifiedClassName;
-import static org.ballerinalang.testerina.natives.mock.MockConstants.MOCK_STRAND_NAME;
 import static org.ballerinalang.testerina.natives.mock.MockConstants.ORIGINAL_FUNC_NAME_PREFIX;
 
 /**
@@ -89,16 +87,9 @@ public final class FunctionMock {
     private static Object callOriginalFunction(String originalFunction, String originalClassName, Object... args) {
 
         Strand strand = Scheduler.getStrand();
-        String[] packageValues = originalClassName.split("\\.");
-
-        String orgName = packageValues[0];
-        String packageName = packageValues[1];
-        String version = packageValues[2];
-
         List<Object> argsList = Arrays.asList(args);
-        StrandMetadata metadata = new StrandMetadata(orgName, packageName, version, originalFunction);
-        return Executor.executeFunction(strand.scheduler, MOCK_STRAND_NAME, metadata, getClassLoader(),
-                originalClassName, originalFunction, argsList.toArray());
+        return Executor.executeFunction(strand, getClassLoader(), originalClassName, originalFunction,
+                argsList.toArray());
     }
 
     private static Object callMockFunction(String originalFunction, String originalClassName,
@@ -134,13 +125,8 @@ public final class FunctionMock {
                         null,
                         new MapValueImpl<>(PredefinedTypes.TYPE_ERROR_DETAIL));
             }
-
             List<Object> argsList = Arrays.asList(args);
-            StrandMetadata metadata = new StrandMetadata(orgName, packageName, version, mockFunctionName);
-
-            return Executor.executeFunction(
-                    strand.scheduler, MOCK_STRAND_NAME, metadata, getClassLoader(), className, mockFunctionName,
-                    argsList.toArray());
+            return Executor.executeFunction(strand, getClassLoader(), className, mockFunctionName, argsList.toArray());
         } else {
             return null;
         }

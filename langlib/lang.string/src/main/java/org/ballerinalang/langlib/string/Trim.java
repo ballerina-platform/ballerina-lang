@@ -28,13 +28,6 @@ import static org.ballerinalang.langlib.string.utils.StringUtils.createNullRefer
  *
  * @since 0.8.0
  */
-//@BallerinaFunction(
-//        orgName = "ballerina", packageName = "lang.string",
-//        functionName = "trim",
-//        args = {@Argument(name = "s", type = TypeKind.STRING)},
-//        returnType = {@ReturnType(type = TypeKind.STRING)},
-//        isPublic = true
-//)
 public final class Trim {
 
     private Trim() {

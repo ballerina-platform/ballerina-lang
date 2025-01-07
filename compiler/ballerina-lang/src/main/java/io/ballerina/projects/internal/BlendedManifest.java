@@ -35,6 +35,7 @@ import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -132,11 +133,12 @@ public class BlendedManifest {
                     }
                 }
             } else {
+                Collection<String> moduleNames = existingDepOptional.isPresent() ?
+                        existingDepOptional.get().modules : Collections.emptyList();
                 depContainer.add(depInPkgManifest.org(), depInPkgManifest.name(), new Dependency(
                         depInPkgManifest.org(), depInPkgManifest.name(), depInPkgManifest.version(),
                         DependencyRelation.UNKNOWN, REPOSITORY_NOT_SPECIFIED,
-                        moduleNames(new DependencyManifest.Package(depInPkgManifest.name(), depInPkgManifest.org(),
-                                depInPkgManifest.version())), DependencyOrigin.USER_SPECIFIED));
+                        moduleNames, DependencyOrigin.USER_SPECIFIED));
                 continue;
             }
 

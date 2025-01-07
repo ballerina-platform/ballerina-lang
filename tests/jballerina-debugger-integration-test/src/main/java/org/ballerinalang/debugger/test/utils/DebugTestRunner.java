@@ -35,6 +35,7 @@ import org.eclipse.lsp4j.debug.NextArguments;
 import org.eclipse.lsp4j.debug.OutputEventArguments;
 import org.eclipse.lsp4j.debug.OutputEventArgumentsCategory;
 import org.eclipse.lsp4j.debug.PauseArguments;
+import org.eclipse.lsp4j.debug.RestartArguments;
 import org.eclipse.lsp4j.debug.ScopesArguments;
 import org.eclipse.lsp4j.debug.ScopesResponse;
 import org.eclipse.lsp4j.debug.SetBreakpointsArguments;
@@ -153,7 +154,7 @@ public class DebugTestRunner {
      *
      * @param executionKind Defines ballerina command type to be used to launch the debuggee.(If set to null, adapter
      *                      will try to attach to the debuggee, instead of launching)
-     * @param terminalKind The terminal type, if the debug session should be launched in a separate terminal
+     * @param terminalKind  The terminal type, if the debug session should be launched in a separate terminal
      * @throws BallerinaTestException if any exception is occurred during initialization.
      */
     public boolean initDebugSession(DebugUtils.DebuggeeExecutionKind executionKind, String terminalKind)
@@ -385,6 +386,21 @@ public class DebugTestRunner {
     }
 
     /**
+     * Restarts the execution of the debuggee program.
+     *
+     * @throws BallerinaTestException if an error occurs when resuming program.
+     */
+    public void restartProgram() throws BallerinaTestException {
+        try {
+            RestartArguments restartArgs = new RestartArguments();
+            debugClientConnector.getRequestManager().restart(restartArgs);
+        } catch (Exception e) {
+            LOGGER.warn("Restart request failed", e);
+            throw new BallerinaTestException("Restart request failed", e);
+        }
+    }
+
+    /**
      * Waits for a debug hit within a given time.
      *
      * @param timeoutMillis timeout.
@@ -520,25 +536,26 @@ public class DebugTestRunner {
      */
     public Map<String, Variable> fetchVariables(StoppedEventArguments args, VariableScope scope)
             throws BallerinaTestException {
-        Map<String, Variable> variables = new HashMap<>();
         if (!hitListener.getConnector().isConnected()) {
-            return variables;
+            throw new BallerinaTestException("Debug server is not connected.");
         }
-        StackTraceArguments stackTraceArgs = new StackTraceArguments();
+        StackTraceArguments traceArgs = new StackTraceArguments();
         VariablesArguments variableArgs = new VariablesArguments();
         ScopesArguments scopeArgs = new ScopesArguments();
-        stackTraceArgs.setThreadId(args.getThreadId());
+        traceArgs.setThreadId(args.getThreadId());
 
         try {
-            StackTraceResponse stackResp = hitListener.getConnector().getRequestManager().stackTrace(stackTraceArgs);
+            StackTraceResponse stackResp = hitListener.getConnector().getRequestManager().stackTrace(traceArgs);
             StackFrame[] stackFrames = stackResp.getStackFrames();
             if (stackFrames.length == 0) {
-                return variables;
+                throw new BallerinaTestException("Stack frame response does not contain any frames");
             }
             scopeArgs.setFrameId(scope == VariableScope.LOCAL ? stackFrames[0].getId() : -stackFrames[0].getId());
             ScopesResponse scopesResp = hitListener.getConnector().getRequestManager().scopes(scopeArgs);
             variableArgs.setVariablesReference(scopesResp.getScopes()[0].getVariablesReference());
             VariablesResponse variableResp = hitListener.getConnector().getRequestManager().variables(variableArgs);
+
+            Map<String, Variable> variables = new HashMap<>();
             Arrays.stream(variableResp.getVariables()).forEach(variable -> variables.put(variable.getName(), variable));
             return variables;
         } catch (Exception e) {

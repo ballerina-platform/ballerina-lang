@@ -21,8 +21,8 @@ package io.ballerina.runtime.api.utils;
 import io.ballerina.runtime.api.types.AnydataType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.values.BError;
-import io.ballerina.runtime.internal.JsonParser;
-import io.ballerina.runtime.internal.ValueConverter;
+import io.ballerina.runtime.internal.json.JsonParser;
+import io.ballerina.runtime.internal.utils.ValueConverter;
 
 import java.io.InputStream;
 

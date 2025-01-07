@@ -292,7 +292,7 @@ public class InteropValidator {
                 throw new JInteropException(DiagnosticErrorCode.INVALID_NUMBER_OF_PARAMETERS,
                         "Two parameters are required to set the value to the instance field '" + fieldName +
                                 "' in class '" + className + "'");
-            } else if (bFuncParamTypes.get(0).tag != TypeTags.HANDLE) {
+            } else if (bFuncParamTypes.getFirst().tag != TypeTags.HANDLE) {
                 throw new JInteropException(DiagnosticErrorCode.INVALID_PARAMETER_TYPE, "First parameter needs "
                         + "to be of the handle type to set the value to the instance field '" + fieldName +
                         "' in class '" + className + "'");
@@ -302,7 +302,7 @@ public class InteropValidator {
                 throw new JInteropException(DiagnosticErrorCode.INVALID_NUMBER_OF_PARAMETERS,
                         "One parameter is required to get the value of the instance field '" + fieldName +
                                 "' in class '" + className + "'");
-            } else if (bFuncParamTypes.get(0).tag != TypeTags.HANDLE) {
+            } else if (bFuncParamTypes.getFirst().tag != TypeTags.HANDLE) {
                 throw new JInteropException(DiagnosticErrorCode.INVALID_PARAMETER_TYPE, "The parameter needs "
                         + "to be of the handle type to get the value of the instance field '" + fieldName +
                         "' in class '" + className + "'");

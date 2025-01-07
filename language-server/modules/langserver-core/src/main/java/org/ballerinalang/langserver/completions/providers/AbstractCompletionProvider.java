@@ -373,8 +373,8 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
         List<LSPackageLoader.ModuleInfo> modules =
                 LSPackageLoader.getInstance(ctx.languageServercontext()).getAllVisiblePackages(ctx);
         modules.forEach(pkg -> {
-            String name = pkg.packageName().value();
-            String orgName = ModuleUtil.escapeModuleName(pkg.packageOrg().value());
+            String name = pkg.packageName();
+            String orgName = ModuleUtil.escapeModuleName(pkg.packageOrg());
             if (ModuleUtil.matchingImportedModule(ctx, pkg).isEmpty()
                     && !processedList.contains(orgName + CommonKeys.SLASH_KEYWORD_KEY + name)
                     && !CommonUtil.PRE_DECLARED_LANG_LIBS.contains(name)) {
@@ -382,7 +382,7 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
                         .map(ModuleUtil::escapeModuleName)
                         .map(CommonUtil::escapeReservedKeyword)
                         .toList();
-                String label = pkg.packageOrg().value().isEmpty() ? String.join(".", pkgNameComps)
+                String label = pkg.packageOrg().isEmpty() ? String.join(".", pkgNameComps)
                         : CommonUtil.getPackageLabel(pkg);
                 String aliasComponent = pkgNameComps.get(pkgNameComps.size() - 1);
                 // TODO: 2021-04-23 This has to be revamped with completion/resolve request for faster responses 

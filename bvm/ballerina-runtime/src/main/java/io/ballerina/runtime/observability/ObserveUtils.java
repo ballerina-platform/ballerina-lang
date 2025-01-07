@@ -19,8 +19,8 @@ package io.ballerina.runtime.observability;
 
 import io.ballerina.runtime.api.Environment;
 import io.ballerina.runtime.api.Module;
-import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.types.ObjectType;
+import io.ballerina.runtime.api.types.PredefinedTypes;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BObject;
@@ -72,6 +72,7 @@ public final class ObserveUtils {
     private static final BString metricsReporter;
     private static final boolean tracingEnabled;
     private static final BString tracingProvider;
+    private static final boolean metricsLogsEnabled;
 
     static {
         // TODO: Move config initialization to ballerina level once checking config key is possible at ballerina level
@@ -88,13 +89,16 @@ public final class ObserveUtils {
                 , false);
         VariableKey tracingProviderKey = new VariableKey(observeModule, "tracingProvider",
                 PredefinedTypes.TYPE_STRING, false);
+        VariableKey metricsLogsEnabledKey = new VariableKey(observeModule, "metricsLogsEnabled",
+                PredefinedTypes.TYPE_BOOLEAN, false);
 
         metricsEnabled = readConfig(metricsEnabledKey, enabledKey, false);
         metricsProvider = readConfig(metricsProviderKey, null, StringUtils.fromString("default"));
         metricsReporter = readConfig(metricsReporterKey, providerKey, StringUtils.fromString("choreo"));
         tracingEnabled = readConfig(tracingEnabledKey, enabledKey, false);
         tracingProvider = readConfig(tracingProviderKey, providerKey, StringUtils.fromString("choreo"));
-        enabled = metricsEnabled || tracingEnabled;
+        metricsLogsEnabled = readConfig(metricsLogsEnabledKey, metricsLogsEnabledKey, false);
+        enabled = metricsEnabled || tracingEnabled || metricsLogsEnabled;
     }
 
     private ObserveUtils() {
@@ -134,6 +138,10 @@ public final class ObserveUtils {
 
     public static BString getTracingProvider() {
         return tracingProvider;
+    }
+
+    public static boolean isMetricsLogsEnabled() {
+        return metricsLogsEnabled;
     }
 
     /**

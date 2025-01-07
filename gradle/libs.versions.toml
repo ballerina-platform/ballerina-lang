@@ -50,7 +50,7 @@ eclipseLsp4jVersion="0.15.0"
 fasterxmlWoodstoxCoreVersion="6.5.0"
 findbugsJsr305Version="3.0.2"
 githubJohnrengelmanShadowVersion="8.1.1"
-githubSpotbugsVersion="5.0.14"
+githubSpotbugsVersion="6.0.18"
 gsonVersion="2.10.1"
 guavaVersion="32.0.1-jre"
 guruNidiGraphvizVersion="0.18.1"
@@ -115,6 +115,7 @@ slf4jJdk14Version="2.0.7"
 slf4jSimpleVersion="2.0.7"
 snakeyamlVersion="2.0"
 sonarqubeGradlePluginVersion="4.0.0.2929"
+sqliteJdbcVersion="3.47.0.0"
 squareupOkioVersion="3.4.0"
 swaggerModelsVersion="2.2.22"
 swaggerParserV2Version="2.1.22"
@@ -239,6 +240,7 @@ slf4j-api = { module = "org.slf4j:slf4j-api", version.ref = "slf4jApiVersion"}
 slf4j-jdk14 = { module = "org.slf4j:slf4j-jdk14", version.ref = "slf4jJdk14Version"}
 slf4j-simple = { module = "org.slf4j:slf4j-simple", version.ref = "slf4jSimpleVersion"}
 snakeyaml = { module = "org.yaml:snakeyaml", version.ref = "snakeyamlVersion"}
+sqlite-jdbc = { module = "org.xerial:sqlite-jdbc", version.ref = "sqliteJdbcVersion"}
 squareup-okhttp = { module = "com.squareup.okhttp3:okhttp", version.ref = "okhttpVersion"}
 squareup-mock-webserver = { module = "com.squareup.okhttp3:mockwebserver", version.ref = "okhttpVersion"}
 squareup-okio = { module = "com.squareup.okio:okio", version.ref = "squareupOkioVersion"}

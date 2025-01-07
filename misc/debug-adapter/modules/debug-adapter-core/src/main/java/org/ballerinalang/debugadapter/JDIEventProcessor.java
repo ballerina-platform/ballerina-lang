@@ -18,6 +18,7 @@ package org.ballerinalang.debugadapter;
 
 import com.sun.jdi.AbsentInformationException;
 import com.sun.jdi.Location;
+import com.sun.jdi.ThreadReference;
 import com.sun.jdi.VMDisconnectedException;
 import com.sun.jdi.event.BreakpointEvent;
 import com.sun.jdi.event.ClassPrepareEvent;
@@ -25,6 +26,8 @@ import com.sun.jdi.event.Event;
 import com.sun.jdi.event.EventIterator;
 import com.sun.jdi.event.EventSet;
 import com.sun.jdi.event.StepEvent;
+import com.sun.jdi.event.ThreadDeathEvent;
+import com.sun.jdi.event.ThreadStartEvent;
 import com.sun.jdi.event.VMDeathEvent;
 import com.sun.jdi.event.VMDisconnectEvent;
 import com.sun.jdi.request.EventRequest;
@@ -32,6 +35,7 @@ import com.sun.jdi.request.StepRequest;
 import org.ballerinalang.debugadapter.breakpoint.BalBreakpoint;
 import org.ballerinalang.debugadapter.jdi.StackFrameProxyImpl;
 import org.ballerinalang.debugadapter.jdi.ThreadReferenceProxyImpl;
+import org.ballerinalang.debugadapter.utils.ServerUtils;
 import org.eclipse.lsp4j.debug.ContinuedEventArguments;
 import org.eclipse.lsp4j.debug.StoppedEventArguments;
 import org.eclipse.lsp4j.debug.StoppedEventArgumentsReason;
@@ -41,12 +45,12 @@ import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-import static org.ballerinalang.debugadapter.BreakpointProcessor.DynamicBreakpointMode;
-import static org.ballerinalang.debugadapter.JBallerinaDebugServer.isBalStackFrame;
 import static org.ballerinalang.debugadapter.utils.PackageUtils.BAL_FILE_EXT;
+import static org.ballerinalang.debugadapter.utils.ServerUtils.isBalStackFrame;
 
 /**
  * JDI Event processor implementation.
@@ -55,53 +59,82 @@ public class JDIEventProcessor {
 
     private final ExecutionContext context;
     private final BreakpointProcessor breakpointProcessor;
-    private boolean isRemoteVmAttached = false;
+    private volatile boolean isRemoteVmAttached;
+    private volatile boolean interruptFlag;
     private final List<EventRequest> stepRequests = new CopyOnWriteArrayList<>();
+    private static final List<ThreadReference> virtualThreads = new CopyOnWriteArrayList<>();
     private static final Logger LOGGER = LoggerFactory.getLogger(JDIEventProcessor.class);
+
+    private CompletableFuture<Void> listeningTask;
 
     JDIEventProcessor(ExecutionContext context) {
         this.context = context;
-        breakpointProcessor = new BreakpointProcessor(context, this);
+        this.breakpointProcessor = new BreakpointProcessor(context, this);
+        this.isRemoteVmAttached = true;
+        this.interruptFlag = false;
+        this.listeningTask = null;
     }
 
     BreakpointProcessor getBreakpointProcessor() {
         return breakpointProcessor;
     }
 
-    List<EventRequest> getStepRequests() {
-        return stepRequests;
+    List<ThreadReference> getVirtualThreads() {
+        return virtualThreads;
     }
 
     /**
      * Asynchronously listens and processes the incoming JDI events.
      */
-    void startListening() {
-        CompletableFuture.runAsync(() -> {
-            isRemoteVmAttached = true;
-            while (isRemoteVmAttached) {
+    void startListenAsync() {
+        // Store the future for potential cancellation
+        listeningTask = CompletableFuture.runAsync(() -> {
+            while (isRemoteVmAttached && !interruptFlag) {
                 try {
                     EventSet eventSet = context.getDebuggeeVM().eventQueue().remove();
                     EventIterator eventIterator = eventSet.eventIterator();
-                    while (eventIterator.hasNext() && isRemoteVmAttached) {
+                    while (eventIterator.hasNext() && isRemoteVmAttached && !interruptFlag) {
                         processEvent(eventSet, eventIterator.next());
                     }
                 } catch (Exception e) {
-                    LOGGER.error(e.getMessage(), e);
+                    LOGGER.error("Error occurred while processing JDI events.", e);
                 }
             }
-            // Tries terminating the debug server, only if there is no any termination requests received from the
-            // debug client.
-            if (!context.isTerminateRequestReceived()) {
-                // It is not required to terminate the debuggee (remote VM) in here, since it must be disconnected or
-                // dead by now.
-                context.getAdapter().terminateDebugServer(false, true);
-            }
+
+            cleanupAfterListening();
         });
+    }
+
+    /**
+     * Stops the async listening process.
+     *
+     * @param force if true, immediately stops listening;
+     *              if false, allows current event processing to complete
+     */
+    private void stopListening(boolean force) {
+        interruptFlag = true;
+        if (Objects.nonNull(listeningTask) && !listeningTask.isDone() && force) {
+            // Attempt to interrupt the task if possible
+            listeningTask.cancel(true);
+        }
+    }
+
+    /**
+     * Performs cleanup after listening stops.
+     */
+    private void cleanupAfterListening() {
+        if (!context.isTerminateRequestReceived() && !interruptFlag) {
+            // It is not required to terminate the debuggee (remote VM) at this point, since it must be disconnected or
+            // dead by now.
+            context.getAdapter().terminateDebugSession(false, true);
+        }
+        isRemoteVmAttached = true;
+        interruptFlag = false;
     }
 
     private void processEvent(EventSet eventSet, Event event) {
         if (event instanceof ClassPrepareEvent evt) {
-            if (context.getLastInstruction() != DebugInstruction.STEP_OVER) {
+            if (context.getPrevInstruction() != DebugInstruction.STEP_OVER) {
                 breakpointProcessor.activateUserBreakPoints(evt.referenceType(), true);
             }
             eventSet.resume();
@@ -119,26 +152,35 @@ public class JDIEventProcessor {
                 || event instanceof VMDeathEvent
                 || event instanceof VMDisconnectedException) {
             isRemoteVmAttached = false;
+        } else if (event instanceof ThreadStartEvent threadStartEvent) {
+            ThreadReference thread = threadStartEvent.thread();
+            if (thread.isVirtual()) {
+                virtualThreads.add(thread);
+            }
+            eventSet.resume();
+        } else if (event instanceof ThreadDeathEvent threadDeathEvent) {
+            ThreadReference thread = threadDeathEvent.thread();
+            virtualThreads.remove(thread);
+            eventSet.resume();
         } else {
             eventSet.resume();
         }
     }
 
-    void enableBreakpoints(String qualifiedClassName, LinkedHashMap<Integer, BalBreakpoint> breakpoints) {
-        breakpointProcessor.addSourceBreakpoints(qualifiedClassName, breakpoints);
-
-        if (context.getDebuggeeVM() != null) {
-            // Setting breakpoints to a already running debug session.
-            context.getEventManager().deleteAllBreakpoints();
-            context.getDebuggeeVM().allClasses().forEach(referenceType ->
-                    breakpointProcessor.activateUserBreakPoints(referenceType, false));
+    void enableBreakpoints(String qClassName, LinkedHashMap<Integer, BalBreakpoint> breakpoints) {
+        breakpointProcessor.addSourceBreakpoints(qClassName, breakpoints);
+        if (context.getDebuggeeVM() == null) {
+            return;
         }
+
+        // Setting breakpoints to an already running debug session.
+        context.getEventManager().deleteAllBreakpoints();
+        context.getDebuggeeVM().classesByName(qClassName)
+                .forEach(ref -> breakpointProcessor.activateUserBreakPoints(ref, false));
     }
 
     void sendStepRequest(int threadId, int stepType) {
-        if (stepType == StepRequest.STEP_OVER) {
-            breakpointProcessor.activateDynamicBreakPoints(threadId, DynamicBreakpointMode.CURRENT);
-        } else if (stepType == StepRequest.STEP_INTO || stepType == StepRequest.STEP_OUT) {
+        if (stepType == StepRequest.STEP_INTO || stepType == StepRequest.STEP_OUT) {
             createStepRequest(threadId, stepType);
         }
         context.getDebuggeeVM().resume();
@@ -185,7 +227,7 @@ public class JDIEventProcessor {
                 if (balStackFrame.getAsDAPStackFrame().isEmpty()) {
                     continue;
                 }
-                if (JBallerinaDebugServer.isValidFrame(balStackFrame.getAsDAPStackFrame().get())) {
+                if (ServerUtils.isValidFrame(balStackFrame.getAsDAPStackFrame().get())) {
                     validFrames.add(balStackFrame);
                 }
             } catch (Exception ignored) {
@@ -236,5 +278,11 @@ public class JDIEventProcessor {
         stoppedEventArguments.setThreadId((int) threadId);
         stoppedEventArguments.setAllThreadsStopped(true);
         context.getClient().stopped(stoppedEventArguments);
+    }
+
+    public void reset() {
+        stopListening(true);
+        stepRequests.clear();
+        virtualThreads.clear();
     }
 }

@@ -1,0 +1,446 @@
+{
+  "id": 4,
+  "name": "MQTT Service",
+  "type": "inbuilt",
+  "displayName": "MQTT",
+  "documentation": "This MQTT service can be attached to a MQTT listener which subscribes to MQTT topic(s) and triggers the service when a message is received for MQTT topic(s). The service should have the `onMessage` remote method to process the received message(s). Additionally, the service can have the `onError` remote method to handle errors that occur during the message processing.",
+  "moduleName": "mqtt",
+  "listenerProtocol": "mqtt",
+  "displayAnnotation": {
+    "label": "MQTT",
+    "iconPath": "docs/icon.png"
+  },
+  "package": {
+    "id": 15474,
+    "organization": "ballerina",
+    "name": "mqtt",
+    "version": "1.2.0",
+    "platform": "java17",
+    "languageSpecificationVersion": "2024R1",
+    "isDeprecated": false,
+    "deprecateMessage": "",
+    "URL": "/ballerina/mqtt/1.2.0",
+    "balaVersion": "2.0.0",
+    "balaURL": "https://fileserver.central.ballerina.io/2.0/ballerina/mqtt/1.2.0/ballerina-mqtt-java17-1.2.0.bala?Expires=1729736003&Signature=u0gRsw-prRH8Cp4RpeXli0h46~80JeTWeloZI2i7BeM9VANXNDRaHVvK496K-mYjnitBCzM-jUX2UuhYNPTPWLywk0qFJAWYK1-ZpZ89Hoe6Nfm34CQQjmm55esvZOB1MjtJKxTeE-4FenhtcLPMO839IDQbrT3RywG-2zdo8UfAC1Xhm2WUNHSSsA53Pt6SbAi1RV7~wwM6hVjfgLrDIdBJpKa5uFPlIP-9kGSWm761LLRrfWd1ITf-CFmuET-FWAngAdOd1aOo1SD06m53nv4uo1ilQ-bPHRUUUNuNHZe5RUrElZLyQrm61Si048TE88POz5QIk9vt7-B7gE6eEA__&Key-Pair-Id=K27IQ7NPTKLKDU",
+    "digest": "sha-256=fd072ae39af5a1928aab6b10ce920efd483024d2fa032f129e8d409fbfc50a0f",
+    "summary": "This package provides an implementation to interact with MQTT servers via MQTT client and listener.",
+    "readme": "## Overview\nThis package provides an implementation to interact with MQTT servers via MQTT client and listener.\n\nMQTT is a lightweight, publish-subscribe, machine to machine network protocol for message queue\/message queuing service.\n\n### Publisher and subscriber\n#### MQTT publisher\nA MQTT publisher is a MQTT client that publishes messages to the MQTT server. When working with a MQTT client, the first thing to do is to initialize the client.\nFor the publisher to work successfully, an active MQTT server should be available.\n\nThe code snippet given below initializes a publisher client with the basic configuration.\n```ballerina\nimport ballerina\/mqtt;\nimport ballerina\/uuid;\n \nmqtt:ClientConfiguration clientConfiguration = {\n    connectionConfig: {\n        username: \"ballerina\",\n        password: \"ballerinamqtt\"\n    }\n};\n\nmqtt:Client mqttClient = check new (mqtt:DEFAULT_URL, uuid:createType1AsString(), clientConfiguration); \/\/ A unique id needs to be provided as the client id\n```\nUsing the `publish` api of this client, messages can be sent to the MQTT server.\n```ballerina\ncheck mqttClient->publish(\"mqtt\/test\", {payload: \"This is Ballerina MQTT client!!!\".toBytes()});\n```\n#### MQTT subscriber\nA MQTT subscriber is a client responsible for reading messages from one or more topics in the server. When working with a MQTT subscriber, the first thing to do is initialize the subscriber.\nFor the subscriber to work successfully, an active MQTT server should be available.\n\nThe code snippet given below initializes a subscriber with the basic configuration.\n```ballerina\nmqtt:ListenerConfiguration listenerConfiguration = {\n    connectionConfig: {\n        username: \"ballerina\",\n        password: \"ballerinamqtt\"\n    },\n    manualAcks: false   \/\/ When set to false, the MQTT acknowledgements are not sent automatically by the subscriber\n};\n\nmqtt:Listener mqttSubscriber = check new (mqtt:DEFAULT_URL, uuid:createType1AsString(), \"mqtt\/test\", listenerConfiguration);\n```\nThis subscriber can be used in the `mqtt:Service` to listen to messages in `mqtt\/test` topic.\n```ballerina\nservice on mqttSubscriber {\n    remote function onMessage(mqtt:Message message, mqtt:Caller caller) returns error? {\n        log:printInfo(check string:fromBytes(message.payload));\n        check caller->complete();\n    }\n\n    remote function onError(mqtt:Error err) returns error? {\n        log:printError(\"Error occured \", err);\n    }\n}\n```\nThe `mqtt:Caller` can be used to indicate that the application has completed processing the message by using `complete()` api.",
+    "template": false,
+    "licenses": [],
+    "authors": [
+      "ballerina"
+    ],
+    "sourceCodeLocation": "https://github.com/ballerina-platform/module-ballerina-mqtt",
+    "keywords": [
+      "mqtt",
+      "client",
+      "messaging",
+      "network",
+      "pubsub",
+      "iot"
+    ],
+    "ballerinaVersion": "2201.10.0",
+    "icon": "",
+    "ownerUUID": "b5a9e54d-8ade-47a1-8abc-6bc46e89069d",
+    "createdDate": 1724140280000,
+    "pullCount": 44,
+    "visibility": "public",
+    "modules": [
+      {
+        "packageURL": "/ballerina/mqtt/1.2.0",
+        "apiDocURL": "https://lib.ballerina.io/ballerina/mqtt/1.2.0",
+        "name": "mqtt",
+        "summary": "This module provides an implementation to interact with MQTT servers via MQTT client and listener.",
+        "readme": "## Overview\nThis module provides an implementation to interact with MQTT servers via MQTT client and listener.\n\nMQTT is a lightweight, publish-subscribe, machine to machine network protocol for message queue\/message queuing service.\n\n### Publisher and subscriber\n#### MQTT publisher\nA MQTT publisher is a MQTT client that publishes messages to the MQTT server. When working with a MQTT client, the first thing to do is to initialize the client.\nFor the publisher to work successfully, an active MQTT server should be available.\n\nThe code snippet given below initializes a publisher client with the basic configuration.\n```ballerina\nimport ballerina\/mqtt;\nimport ballerina\/uuid;\n \nmqtt:ClientConfiguration clientConfiguration = {\n    connectionConfig: {\n        username: \"ballerina\",\n        password: \"ballerinamqtt\"\n    }\n};\n\nmqtt:Client mqttClient = check new (mqtt:DEFAULT_URL, uuid:createType1AsString(), clientConfiguration); \/\/ A unique id needs to be provided as the client id\n```\nUsing the `publish` api of this client, messages can be sent to the MQTT server.\n```ballerina\ncheck mqttClient->publish(\"mqtt\/test\", {payload: \"This is Ballerina MQTT client!!!\".toBytes()});\n```\n#### MQTT subscriber\nA MQTT subscriber is a client responsible for reading messages from one or more topics in the server. When working with a MQTT subscriber, the first thing to do is initialize the subscriber.\nFor the subscriber to work successfully, an active MQTT server should be available.\n\nThe code snippet given below initializes a subscriber with the basic configuration.\n```ballerina\nmqtt:ListenerConfiguration listenerConfiguration = {\n    connectionConfig: {\n        username: \"ballerina\",\n        password: \"ballerinamqtt\"\n    },\n    manualAcks: false   \/\/ When set to false, the MQTT acknowledgements are not sent automatically by the subscriber\n};\n\nmqtt:Listener mqttSubscriber = check new (mqtt:DEFAULT_URL, uuid:createType1AsString(), \"mqtt\/test\", listenerConfiguration);\n```\nThis subscriber can be used in the `mqtt:Service` to listen to messages in `mqtt\/test` topic.\n```ballerina\nservice on mqttSubscriber {\n    remote function onMessage(mqtt:Message message, mqtt:Caller caller) returns error? {\n        log:printInfo(check string:fromBytes(message.payload));\n        check caller->complete();\n    }\n\n    remote function onError(mqtt:Error err) returns error? {\n        log:printError(\"Error occured \", err);\n    }\n}\n```\nThe `mqtt:Caller` can be used to indicate that the application has completed processing the message by using `complete()` api."
+      }
+    ],
+    "balToolId": "",
+    "graalvmCompatible": "Yes"
+  },
+  "serviceTypes": [
+    {
+      "name": "MQTT",
+      "description": "MQTT Service",
+      "enabled": true,
+      "functions": [
+        {
+          "name": "onMessage",
+          "documentation": "The `onMessage` remote method will be triggered when a message is received for MQTT topic(s).",
+          "optional": false,
+          "qualifiers": [
+            "remote"
+          ],
+          "enabled": true,
+          "parameters": [
+            {
+              "name": "message",
+              "typeName": "mqtt:Message",
+              "optional": false,
+              "type": [
+                "mqtt:Message"
+              ],
+              "typeInfo": {
+                "name": "Message",
+                "orgName": "ballerina",
+                "moduleName": "mqtt",
+                "version": "1.2.0"
+              },
+              "documentation": "The message received for MQTT topic(s).",
+              "enabled": true,
+              "value": "mqtt:Message"
+            },
+            {
+              "name": "caller",
+              "typeName": "mqtt:Caller",
+              "type": [
+                "mqtt:Caller"
+              ],
+              "typeInfo": {
+                "name": "Caller",
+                "orgName": "ballerina",
+                "moduleName": "mqtt",
+                "version": "1.2.0"
+              },
+              "optional": true,
+              "documentation": "The MQTT caller object to indicate the completion of the message processing or to send a response.",
+              "enabled": false,
+              "value": "mqtt:Caller"
+            }
+          ],
+          "returnType": {
+            "typeName": "error?",
+            "type": [
+              "error?"
+            ],
+            "optional": true,
+            "documentation": "Error object.",
+            "defaultTypeName": "error?",
+            "enabled": true,
+            "value": "error?"
+          }
+        },
+        {
+          "name": "onError",
+          "documentation": "The `onError` remote method will be triggered when an error occurs during the message processing.",
+          "optional": true,
+          "enabled": false,
+          "qualifiers": [
+            "remote"
+          ],
+          "parameters": [
+            {
+              "name": "err",
+              "typeName": "mqtt:Error",
+              "type": [
+                "mqtt:Error"
+              ],
+              "optional": false,
+              "typeInfo": {
+                "name": "Error",
+                "orgName": "ballerina",
+                "moduleName": "mqtt",
+                "version": "1.2.0"
+              },
+              "documentation": "The error occurred during the message processing.",
+              "enabled": true,
+              "value": "mqtt:Error"
+            }
+          ],
+          "returnType": {
+            "typeName": "error?",
+            "type": [
+              "error?"
+            ],
+            "optional": true,
+            "documentation": "Error object.",
+            "defaultTypeName": "error?",
+            "enabled": true,
+            "value": "error?"
+          }
+        }
+      ]
+    }
+  ],
+  "listener": {
+    "metadata": {
+      "label": "MQTT Listener",
+      "description": "The MQTT listener to which the MQTT service should be attached."
+    },
+    "valueType": "mqtt:Listener",
+    "valueTypeConstraint": "mqtt:Listener",
+    "value": "",
+    "enabled": true,
+    "optional": false,
+    "editable": true,
+    "properties": {
+      "serviceUri": {
+        "metadata": {
+          "label": "url",
+          "description": "The URI of the remote MQTT server."
+        },
+        "valueType": "string",
+        "valueTypeConstraint": "string",
+        "placeholder": "",
+        "editable": true,
+        "optional": false,
+        "advanced": false
+      },
+      "clientId": {
+        "metadata": {
+          "label": "client ID",
+          "description": "The unique client ID to identify the listener."
+        },
+        "valueType": "string",
+        "valueTypeConstraint": "string",
+        "placeholder": "",
+        "editable": true,
+        "optional": false,
+        "advanced": false
+      },
+      "subscriptions": {
+        "metadata": {
+          "label": "subscriptions",
+          "description": "The MQTT topics to be subscribed to."
+        },
+        "valueType": "string",
+        "valueTypeConstraint": "string|string[]",
+        "placeholder": "",
+        "editable": true,
+        "optional": false,
+        "advanced": false
+      },
+      "config": {
+        "metadata": {
+          "label": "config",
+          "description": "The listener configurations."
+        },
+        "valueType": "mqtt:ListenerConfiguration",
+        "valueTypeConstraint": "mqtt:ListenerConfiguration",
+        "placeholder": "",
+        "editable": true,
+        "optional": true,
+        "advanced": true,
+        "fields": {
+          "connectionConfig": {
+            "metadata": {
+              "label": "connectionConfig",
+              "description": "The related connection configuration"
+            },
+            "valueType": "EXPRESSION",
+            "valueTypeConstraint": "ConnectionConfiguration",
+            "value": "",
+            "placeholder": "",
+            "optional": true,
+            "editable": true,
+            "advanced": true,
+            "fields": {
+              "username": {
+                "metadata": {
+                  "label": "username",
+                  "description": "The username to use for the connection"
+                },
+                "valueType": "string",
+                "valueTypeConstraint": "string",
+                "value": "",
+                "placeholder": "",
+                "optional": true,
+                "editable": true,
+                "advanced": false
+              },
+              "password": {
+                "metadata": {
+                  "label": "password",
+                  "description": "The password to use for the connection"
+                },
+                "valueType": "string",
+                "valueTypeConstraint": "string",
+                "value": "",
+                "placeholder": "",
+                "optional": true,
+                "editable": true,
+                "advanced": false
+              },
+              "secureSocket": {
+                "metadata": {
+                  "label": "secureSocket",
+                  "description": "The configurations related to secure communication with the MQTT server"
+                },
+                "valueType": "EXPRESSION",
+                "valueTypeConstraint": "SecureSocket",
+                "value": "",
+                "placeholder": "",
+                "optional": true,
+                "editable": true,
+                "advanced": true,
+                "fields": {
+                  "cert": {
+                    "metadata": {
+                      "label": "cert",
+                      "description": "Certificate file that the client trusts or a `crypto:TrustStore`"
+                    },
+                    "valueType": "string",
+                    "valueTypeConstraint": "string",
+                    "value": "",
+                    "placeholder": "",
+                    "optional": true,
+                    "editable": true,
+                    "advanced": false
+                  },
+                  "key": {
+                    "metadata": {
+                      "label": "key",
+                      "description": "Combination of certificate and private key of the client or a `crypto:KeyStore`"
+                    },
+                    "valueType": "string",
+                    "valueTypeConstraint": "string",
+                    "value": "",
+                    "placeholder": "",
+                    "optional": true,
+                    "editable": true,
+                    "advanced": false
+                  },
+                  "protocol": {
+                    "metadata": {
+                      "label": "protocol",
+                      "description": "Related protocol"
+                    },
+                    "valueType": "EXPRESSION",
+                    "valueTypeConstraint": "record",
+                    "value": "",
+                    "placeholder": "",
+                    "optional": true,
+                    "editable": true,
+                    "advanced": true,
+                    "fields": {
+                      "name": {
+                        "metadata": {
+                          "label": "name",
+                          "description": "The name of the protocol"
+                        },
+                        "valueType": "string",
+                        "valueTypeConstraint": "string",
+                        "value": "",
+                        "placeholder": "",
+                        "optional": true,
+                        "editable": true,
+                        "advanced": false,
+                        "enum": [
+                          "mqtt:SSL",
+                          "mqtt:TLS"
+                        ]
+                      },
+                      "version": {
+                        "metadata": {
+                          "label": "version",
+                          "description": "The version of the protocol"
+                        },
+                        "valueType": "string",
+                        "valueTypeConstraint": "string",
+                        "value": "",
+                        "placeholder": "",
+                        "optional": true,
+                        "editable": true,
+                        "advanced": false
+                      }
+                    }
+                  }
+                }
+              },
+              "maxReconnectDelay": {
+                "metadata": {
+                  "label": "maxReconnectDelay",
+                  "description": "The maximum delay between reconnects in milliseconds"
+                },
+                "valueType": "int",
+                "valueTypeConstraint": "int",
+                "value": "",
+                "placeholder": "",
+                "optional": true,
+                "editable": true,
+                "advanced": false
+              },
+              "keepAliveInterval": {
+                "metadata": {
+                  "label": "keepAliveInterval",
+                  "description": "The maximum time interval between messages sent or received in seconds"
+                },
+                "valueType": "int",
+                "valueTypeConstraint": "int",
+                "value": "",
+                "placeholder": "",
+                "optional": true,
+                "editable": true,
+                "advanced": false
+              },
+              "connectionTimeout": {
+                "metadata": {
+                  "label": "connectionTimeout",
+                  "description": "Maximum time interval in seconds the client will wait for the network connection to the MQTT server to be established"
+                },
+                "valueType": "int",
+                "valueTypeConstraint": "int",
+                "value": "",
+                "placeholder": "",
+                "optional": true,
+                "editable": true,
+                "advanced": false
+              },
+              "cleanStart": {
+                "metadata": {
+                  "label": "cleanStart",
+                  "description": "Whether the client and server should remember state for the client across reconnects"
+                },
+                "valueType": "boolean",
+                "valueTypeConstraint": "boolean",
+                "value": "",
+                "placeholder": "",
+                "optional": true,
+                "editable": true,
+                "advanced": false
+              },
+              "serverUris": {
+                "metadata": {
+                  "label": "serverUris",
+                  "description": "List of serverURIs the client may connect to"
+                },
+                "valueType": "string[]",
+                "valueTypeConstraint": "string[]",
+                "value": "",
+                "placeholder": "",
+                "optional": true,
+                "editable": true,
+                "advanced": false
+              },
+              "automaticReconnect": {
+                "metadata": {
+                  "label": "automaticReconnect",
+                  "description": "Whether the client will automatically attempt to reconnect to the server if the connection is lost"
+                },
+                "valueType": "boolean",
+                "valueTypeConstraint": "boolean",
+                "value": "",
+                "placeholder": "",
+                "optional": true,
+                "editable": true,
+                "advanced": false
+              }
+            }
+          },
+          "manualAcks": {
+            "metadata": {
+              "label": "manualAcks",
+              "description": "Indicates whether or not the client should automatically ack messages"
+            },
+            "valueType": "boolean",
+            "valueTypeConstraint": "boolean",
+            "value": "",
+            "placeholder": "false",
+            "optional": true,
+            "editable": true,
+            "advanced": false
+          }
+        }
+      }
+    }
+  }
+}

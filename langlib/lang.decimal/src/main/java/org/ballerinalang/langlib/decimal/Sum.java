@@ -26,13 +26,8 @@ import java.math.BigDecimal;
 /**
  * Native implementation of lang.decimal:sum(decimal...).
  */
-//@BallerinaFunction(
-//        orgName = "ballerina", packageName = "lang.decimal", functionName = "sum",
-//        args = {@Argument(name = "ns", type = TypeKind.ARRAY)},
-//        returnType = {@ReturnType(type = TypeKind.DECIMAL)},
-//        isPublic = true
-//)
-public final class Sum {
+public class Sum {
+
 
     private Sum() {
     }

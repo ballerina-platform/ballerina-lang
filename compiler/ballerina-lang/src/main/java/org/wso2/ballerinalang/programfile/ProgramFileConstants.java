@@ -25,12 +25,12 @@ public final class ProgramFileConstants {
 
     public static final int MAGIC_NUMBER = 0xBA1DA4CE;
     public static final short VERSION_NUMBER = 50;
-    public static final int BIR_VERSION_NUMBER = 72;
-    public static final short MIN_SUPPORTED_VERSION = 72;
-    public static final short MAX_SUPPORTED_VERSION = 72;
+    public static final int BIR_VERSION_NUMBER = 73;
+    public static final short MIN_SUPPORTED_VERSION = 73;
+    public static final short MAX_SUPPORTED_VERSION = 73;
 
     // todo move this to a proper place
-    public static final String[] SUPPORTED_PLATFORMS = {"java17", "java11"};
+    public static final String[] SUPPORTED_PLATFORMS = {"java21", "java17", "java11"};
     public static final String ANY_PLATFORM = "any";
 
     private ProgramFileConstants() {

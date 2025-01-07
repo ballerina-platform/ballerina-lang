@@ -1,6 +1,7 @@
 name: Ballerina daily build
 
 on:
+  workflow_dispatch:
   schedule:
     - cron:  '30 18 * * *'    # 00:00 in LK time (GMT+5:30)
     - cron:  '30 6 * * *'     # 12:00 in LK time (GMT+5:30)
@@ -15,11 +16,11 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Set up JDK 17
+      - name: Set up JDK 21
         uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
-          java-version: '17.0.7'
+          java-version: '21.0.3'
 
       - name: Initialize sub-modules
         run: git submodule update --init
@@ -34,7 +35,7 @@ jobs:
       - name: Setup GraalVM
         uses: graalvm/setup-graalvm@v1
         with:
-          java-version: '17.0.7'
+          java-version: '21.0.3'
           distribution: 'graalvm'
           components: 'native-image'
           github-token: ${{ secrets.GITHUB_TOKEN }}
@@ -69,11 +70,11 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Set up JDK 17
+      - name: Set up JDK 21
         uses: actions/setup-java@v4
         with:
           distribution: 'temurin' 
-          java-version: '17.0.7'
+          java-version: '21.0.3'
 
       - name: Initialize sub-modules
         run: git submodule update --init
