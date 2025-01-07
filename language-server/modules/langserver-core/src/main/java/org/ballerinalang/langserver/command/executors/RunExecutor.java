@@ -22,6 +22,7 @@ import com.google.gson.JsonPrimitive;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 import org.ballerinalang.annotation.JavaSPIService;
+import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.langserver.commons.ExecuteCommandContext;
 import org.ballerinalang.langserver.commons.client.ExtendedLanguageClient;
 import org.ballerinalang.langserver.commons.command.CommandArgument;
@@ -93,17 +94,19 @@ public class RunExecutor implements LSCommandExecutor {
             listenOutputAsync(context.getLanguageClient(), process::getInputStream, OUT_CHANNEL);
             listenOutputAsync(context.getLanguageClient(), process::getErrorStream, ERROR_CHANNEL);
             return true;
+        } catch (BLangCompilerException e) {
+            LogTraceParams error = new LogTraceParams(e.getMessage(), ERROR_CHANNEL);
+            context.getLanguageClient().logTrace(error);
         } catch (IOException e) {
             LogTraceParams error = new LogTraceParams("Error while running the program in fast-run mode: " +
                     e.getMessage(), ERROR_CHANNEL);
             context.getLanguageClient().logTrace(error);
-            throw new LSCommandExecutorException(e);
         } catch (Exception e) {
             LogTraceParams error = new LogTraceParams("Unexpected error while executing the fast-run: " +
                     e.getMessage(), ERROR_CHANNEL);
             context.getLanguageClient().logTrace(error);
-            throw new LSCommandExecutorException(e);
         }
+        return false;
     }
 
     private RunContext getWorkspaceRunContext(ExecuteCommandContext context) {
