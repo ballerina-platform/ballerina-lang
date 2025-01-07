@@ -19,6 +19,7 @@ package io.ballerina.runtime.internal.values;
 
 import io.ballerina.runtime.api.constants.RuntimeConstants;
 import io.ballerina.runtime.api.creators.ErrorCreator;
+import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.types.ArrayType;
 import io.ballerina.runtime.api.types.ArrayType.ArrayState;
 import io.ballerina.runtime.api.types.PredefinedTypes;
@@ -38,6 +39,9 @@ import io.ballerina.runtime.internal.TypeChecker;
 import io.ballerina.runtime.internal.errors.ErrorCodes;
 import io.ballerina.runtime.internal.errors.ErrorHelper;
 import io.ballerina.runtime.internal.errors.ErrorReasons;
+import io.ballerina.runtime.internal.query.pipeline.FrameContext;
+import io.ballerina.runtime.internal.query.pipeline.StreamPipeline;
+import io.ballerina.runtime.internal.query.utils.StreamPipelineUtils;
 import io.ballerina.runtime.internal.types.BArrayType;
 import io.ballerina.runtime.internal.utils.CycleUtils;
 import io.ballerina.runtime.internal.utils.ValueConverter;
@@ -185,6 +189,16 @@ public class ArrayValueImpl extends AbstractArrayValue {
 
     @Override
     public Object reverse() {
+
+        long[] a = {1, 2, 3, 4, 5};
+        BArray bArray = ValueCreator.createArrayValue(a);
+        StreamPipeline<BArray> pipeline =  StreamPipelineUtils.initializePipeline(BArray.class , bArray);
+        StreamPipelineUtils.addFromClause(pipeline , Map.of("i" , "value"));
+        StreamPipelineUtils.addSelectClause(pipeline, Map.of("i", "i"));
+        pipeline.execute(bArray);
+//        BArray arr = StreamPipelineUtils.toBArray(pipeline);
+//        System.out.println(arr);
+
         return switch (elementType.getTag()) {
             case TypeTags.INT_TAG,
                  TypeTags.SIGNED32_INT_TAG,
@@ -466,6 +480,17 @@ public class ArrayValueImpl extends AbstractArrayValue {
      */
     @Override
     public void add(long index, Object value) {
+        long[] a = {1, 2, 3, 4, 5};
+        BArray bArray = ValueCreator.createArrayValue(a);
+        StreamPipeline<BArray> pipeline =  StreamPipelineUtils.initializePipeline(BArray.class , bArray);
+        StreamPipelineUtils.addFromClause(pipeline , Map.of("i" , "value"));
+        StreamPipelineUtils.addWhereClause(pipeline, frame -> (long) frame.getVariable("i") > 2);
+        StreamPipelineUtils.addSelectClause(pipeline, Map.of("i", "i"));
+        pipeline.execute(bArray);
+//        BArray arr = StreamPipelineUtils.toBArray(pipeline);
+        Object[] b = pipeline.getStream().toArray();
+        System.out.println(Arrays.toString(b));
+
         handleImmutableArrayValue();
         addRefValue(index, value);
     }
@@ -539,6 +564,14 @@ public class ArrayValueImpl extends AbstractArrayValue {
      */
     @Override
     public void add(long index, BString value) {
+        long[] a = {1, 2, 3, 4, 5};
+        BArray bArray = ValueCreator.createArrayValue(a);
+        StreamPipeline<BArray> pipeline =  StreamPipelineUtils.initializePipeline(BArray.class , bArray);
+        StreamPipelineUtils.addFromClause(pipeline , Map.of("i" , "value"));
+        StreamPipelineUtils.addSelectClause(pipeline, Map.of("i", "i"));
+        pipeline.execute(bArray);
+//        BArray arr = StreamPipelineUtils.toBArray(pipeline);
+//        System.out.println(arr);
         handleImmutableArrayValue();
         addBString(index, value);
     }
