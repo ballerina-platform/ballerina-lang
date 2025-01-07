@@ -16,4 +16,4 @@ Running Tests with Coverage
 
 Generating Test Report
 	legacy-function-mocking-tests\target\report\test_results.json
-
+
