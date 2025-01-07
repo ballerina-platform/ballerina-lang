@@ -20,6 +20,8 @@ package io.ballerina.runtime.internal.types;
 import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.types.ReadonlyType;
 import io.ballerina.runtime.api.types.TypeTags;
+import io.ballerina.runtime.api.types.semtype.Builder;
+import io.ballerina.runtime.api.types.semtype.ConcurrentLazySupplier;
 import io.ballerina.runtime.internal.values.RefValue;
 
 /**
@@ -27,34 +29,41 @@ import io.ballerina.runtime.internal.values.RefValue;
  *
  * @since 1.3.0
  */
-public class BReadonlyType extends BType implements ReadonlyType {
+public final class BReadonlyType extends BSemTypeWrapper<BReadonlyType.BReadonlyTypeImpl> implements ReadonlyType {
 
     public BReadonlyType(String typeName, Module pkg) {
-        super(typeName, pkg, RefValue.class);
+        super(new ConcurrentLazySupplier<>(() -> new BReadonlyTypeImpl(typeName, pkg)), typeName, pkg,
+                TypeTags.READONLY_TAG, Builder.getReadonlyType());
     }
 
-    @Override
-    public <V extends Object> V getZeroValue() {
-        return null;
-    }
+    protected static final class BReadonlyTypeImpl extends BType implements ReadonlyType {
 
-    @Override
-    public <V extends Object> V getEmptyValue() {
-        return null;
-    }
+        private BReadonlyTypeImpl(String typeName, Module pkg) {
+            super(typeName, pkg, RefValue.class);
+        }
 
-    @Override
-    public int getTag() {
-        return TypeTags.READONLY_TAG;
-    }
+        @Override
+        public <V extends Object> V getZeroValue() {
+            return null;
+        }
 
-    @Override
-    public boolean isNilable() {
-        return true;
-    }
+        @Override
+        public <V extends Object> V getEmptyValue() {
+            return null;
+        }
 
-    @Override
-    public boolean isReadOnly() {
-        return true;
+        @Override
+        public int getTag() {
+            return TypeTags.READONLY_TAG;
+        }
+
+        public boolean isNilable() {
+            return true;
+        }
+
+        @Override
+        public boolean isReadOnly() {
+            return true;
+        }
     }
 }

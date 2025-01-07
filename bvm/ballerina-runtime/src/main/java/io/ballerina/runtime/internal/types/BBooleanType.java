@@ -18,15 +18,29 @@
 package io.ballerina.runtime.internal.types;
 
 import io.ballerina.runtime.api.Module;
+import io.ballerina.runtime.api.constants.TypeConstants;
 import io.ballerina.runtime.api.types.BooleanType;
+import io.ballerina.runtime.api.types.PredefinedTypes;
 import io.ballerina.runtime.api.types.TypeTags;
+import io.ballerina.runtime.api.types.semtype.Builder;
+import io.ballerina.runtime.api.types.semtype.ConcurrentLazySupplier;
+import io.ballerina.runtime.api.types.semtype.SemType;
+
+import java.util.function.Supplier;
 
 /**
  * {@code BBooleanType} represents boolean type in Ballerina.
  *
  * @since 0.995.0
  */
-public class BBooleanType extends BType implements BooleanType {
+public final class BBooleanType extends BSemTypeWrapper<BBooleanType.BBooleanTypeImpl> implements BooleanType {
+
+    private static final BBooleanType TRUE =
+            new BBooleanType(() -> new BBooleanTypeImpl(TypeConstants.BOOLEAN_TNAME, PredefinedTypes.EMPTY_MODULE),
+                    TypeConstants.BOOLEAN_TNAME, PredefinedTypes.EMPTY_MODULE, Builder.getBooleanConst(true));
+    private static final BBooleanType FALSE =
+            new BBooleanType(() -> new BBooleanTypeImpl(TypeConstants.BOOLEAN_TNAME, PredefinedTypes.EMPTY_MODULE),
+                    TypeConstants.BOOLEAN_TNAME, PredefinedTypes.EMPTY_MODULE, Builder.getBooleanConst(false));
 
     /**
      * Create a {@code BBooleanType} which represents the boolean type.
@@ -34,28 +48,43 @@ public class BBooleanType extends BType implements BooleanType {
      * @param typeName string name of the type
      */
     public BBooleanType(String typeName, Module pkg) {
-        super(typeName, pkg, Boolean.class);
+        this(() -> new BBooleanTypeImpl(typeName, pkg), typeName, pkg, Builder.getBooleanType());
     }
 
-    @Override
-    @SuppressWarnings("unchecked")
-    public <V extends Object> V getZeroValue() {
-        return (V) Boolean.FALSE;
+    public static BBooleanType singletonType(boolean value) {
+        return value ? TRUE : FALSE;
     }
 
-    @SuppressWarnings("unchecked")
-    @Override
-    public <V extends Object> V getEmptyValue() {
-        return (V) Boolean.FALSE;
+    private BBooleanType(Supplier<BBooleanTypeImpl> bTypeSupplier, String typeName, Module pkg, SemType semType) {
+        super(new ConcurrentLazySupplier<>(bTypeSupplier), typeName, pkg, TypeTags.BOOLEAN_TAG, semType);
     }
 
-    @Override
-    public int getTag() {
-        return TypeTags.BOOLEAN_TAG;
-    }
+    protected static final class BBooleanTypeImpl extends BType implements BooleanType {
 
-    @Override
-    public boolean isReadOnly() {
-        return true;
+        private BBooleanTypeImpl(String typeName, Module pkg) {
+            super(typeName, pkg, Boolean.class);
+        }
+
+        @Override
+        @SuppressWarnings("unchecked")
+        public <V extends Object> V getZeroValue() {
+            return (V) Boolean.FALSE;
+        }
+
+        @SuppressWarnings("unchecked")
+        @Override
+        public <V extends Object> V getEmptyValue() {
+            return (V) Boolean.FALSE;
+        }
+
+        @Override
+        public int getTag() {
+            return TypeTags.BOOLEAN_TAG;
+        }
+
+        @Override
+        public boolean isReadOnly() {
+            return true;
+        }
     }
 }

@@ -7,6 +7,9 @@ dependencies {
 }
 
 test {
+    // Add additional system property to distinguish tests requiring all basic types
+    systemProperty "ballerina.semtype.all.types.test", "true"
+
     useTestNG() {
         suites 'src/test/resources/testng.xml'
     }

@@ -17,23 +17,24 @@
 import ballerina/jballerina.java;
 
 type ItemType xml:Element|xml:Comment|xml:ProcessingInstruction|xml:Text;
+
 type XmlElement xml:Element;
 
-type Person record {
+type PersonDTFT record {
     readonly string name;
     int age;
 };
 
-type Employee record {
-    *Person;
+type EmployeeDTFT record {
+    *PersonDTFT;
     string designation;
 };
 
-Person expPerson = {name: "John Doe", age: 20};
+PersonDTFT expPerson = {name: "John Doe", age: 20};
 
-type Foo int|float;
+type FooDTFT int|float;
 
-type Foo2 Foo;
+type Foo2DTFT FooDTFT;
 
 type AnnotationRecord record {|
     int minValue;
@@ -52,7 +53,7 @@ type Foo3 int|float;
     minValue: 12,
     maxValue: 24
 }
-type Foo4 Foo;
+type Foo4 FooDTFT;
 
 // Test functions
 
@@ -74,31 +75,31 @@ function testSimpleTypes() {
 }
 
 function testReferredTypes() {
-    map<any> annotationMapValue = getAnnotationValue(Foo);
-    AnnotationRecord? 'annotation = <AnnotationRecord?> annotationMapValue["BarAnnotation"];
+    map<any> annotationMapValue = getAnnotationValue(FooDTFT);
+    AnnotationRecord? 'annotation = <AnnotationRecord?>annotationMapValue["BarAnnotation"];
     assert('annotation, ());
 
-    map<any> annotationMapValue2 = getAnnotationValue(Foo2);
-    AnnotationRecord? annotation2 = <AnnotationRecord?> annotationMapValue2["BarAnnotation"];
+    map<any> annotationMapValue2 = getAnnotationValue(Foo2DTFT);
+    AnnotationRecord? annotation2 = <AnnotationRecord?>annotationMapValue2["BarAnnotation"];
     assert(annotation2, ());
 
     map<any> annotationMapValue3 = getAnnotationValue(Foo3);
-    AnnotationRecord annotation3 = <AnnotationRecord> annotationMapValue3["BarAnnotation"];
+    AnnotationRecord annotation3 = <AnnotationRecord>annotationMapValue3["BarAnnotation"];
     assert(annotation3, {minValue: 18, maxValue: 36});
     assertTrue(getAnnotationValue2(1, Foo3, "BarAnnotation", 18, 36) is anydata);
 
     map<any> annotationMapValue4 = getAnnotationValue(Foo4);
-    AnnotationRecord annotation4 = <AnnotationRecord> annotationMapValue4["BarAnnotation"];
-    assert(annotation4, <AnnotationRecord> {minValue: 12, maxValue: 24});
+    AnnotationRecord annotation4 = <AnnotationRecord>annotationMapValue4["BarAnnotation"];
+    assert(annotation4, <AnnotationRecord>{minValue: 12, maxValue: 24});
     assertTrue(getAnnotationValue2(1, Foo4, "BarAnnotation", 12, 24) is anydata);
 }
 
 function testRecordVarRef() {
-    Person p = getRecord();
+    PersonDTFT p = getRecord();
     assert(expPerson, p);
 
-    Employee e = getRecord(td = Employee);
-    assert(<Employee>{name: "Jane Doe", age: 25, designation: "Software Engineer"}, e);
+    EmployeeDTFT e = getRecord(td = EmployeeDTFT);
+    assert(<EmployeeDTFT>{name: "Jane Doe", age: 25, designation: "Software Engineer"}, e);
 }
 
 function testVarRefInMapConstraint() {
@@ -114,12 +115,12 @@ function testRuntimeCastError() {
 }
 
 function testVarRefUseInMultiplePlaces() {
-    [int, Person, float] tup1 = getTuple(int, Person);
-    assert(<[int, Person, float]>[150, expPerson, 12.34], tup1);
+    [int, PersonDTFT, float] tup1 = getTuple(int, PersonDTFT);
+    assert(<[int, PersonDTFT, float]>[150, expPerson, 12.34], tup1);
 }
 
 function testUnionTypes() {
-    int|Person u = getVariedUnion(1, int, Person);
+    int|PersonDTFT u = getVariedUnion(1, int, PersonDTFT);
     assert(expPerson, u);
 }
 
@@ -129,7 +130,7 @@ function testArrayTypes() {
 }
 
 function testCastingForInvalidValues() {
-    int x = getInvalidValue(int, Person);
+    int x = getInvalidValue(int, PersonDTFT);
 }
 
 function testXML() {
@@ -144,19 +145,21 @@ function testStream() {
     stream<string> newSt = getStream(st, string);
     string s = "";
 
-    error? err = newSt.forEach(function (string x) { s += x; });
+    error? err = newSt.forEach(function(string x) {
+        s += x;
+    });
     assert("helloworldfromballerina", s);
 }
 
 function testTable() {
-    table<Employee> key(name) tab = table [
-        { name: "Chiran", age: 33, designation: "SE" },
-        { name: "Mohan", age: 37, designation: "SE" },
-        { name: "Gima", age: 38, designation: "SE" },
-        { name: "Granier", age: 34, designation: "SE" }
+    table<EmployeeDTFT> key(name) tab = table [
+        {name: "Chiran", age: 33, designation: "SE"},
+        {name: "Mohan", age: 37, designation: "SE"},
+        {name: "Gima", age: 38, designation: "SE"},
+        {name: "Granier", age: 34, designation: "SE"}
     ];
 
-    table<Person> newTab = getTable(tab, Person);
+    table<PersonDTFT> newTab = getTable(tab, PersonDTFT);
     assert(tab, newTab);
 }
 
@@ -168,12 +171,12 @@ function testFunctionPointers() {
 }
 
 function testTypedesc() {
-    typedesc<Person> tP = getTypedesc(Person);
-    assert(Person.toString(), tP.toString());
+    typedesc<PersonDTFT> tP = getTypedesc(PersonDTFT);
+    assert(PersonDTFT.toString(), tP.toString());
 }
 
 function testFuture() {
-    var fn = function (string name) returns string => "Hello " + name;
+    var fn = function(string name) returns string => "Hello " + name;
     future<string> f = start fn("Pubudu");
     future<string> fNew = getFuture(f, string);
     string res = checkpanic wait fNew;
@@ -211,7 +214,7 @@ class PersonObj {
 
 type IntStream stream<int>;
 
-type PersonTable table<Person>;
+type PersonTable table<PersonDTFT>;
 
 type IntArray int[];
 
@@ -227,7 +230,7 @@ function testComplexTypes() {
     int[] ar = echo(<IntArray>[20, 30, 40], IntArray);
     assert(<IntArray>[20, 30, 40], ar);
 
-    PersonObj pObj = new("John", "Doe");
+    PersonObj pObj = new ("John", "Doe");
     PersonObj nObj = echo(pObj, PersonObj);
     assertSame(pObj, nObj);
 
@@ -236,22 +239,24 @@ function testComplexTypes() {
     stream<int> newSt = echo(st, IntStream);
     int tot = 0;
 
-    error? err = newSt.forEach(function (int x1) { tot+= x1; });
+    error? err = newSt.forEach(function(int x1) {
+        tot += x1;
+    });
     assert(150, tot);
 
-    table<Person> key(name) tab = table [
-        { name: "Chiran", age: 33},
-        { name: "Mohan", age: 37},
-        { name: "Gima", age: 38},
-        { name: "Granier", age: 34}
+    table<PersonDTFT> key(name) tab = table [
+        {name: "Chiran", age: 33},
+        {name: "Mohan", age: 37},
+        {name: "Gima", age: 38},
+        {name: "Granier", age: 34}
     ];
 
-    table<Person> newTab = echo(tab, PersonTable);
+    table<PersonDTFT> newTab = echo(tab, PersonTable);
     assert(tab, newTab);
 }
 
 function testObjectExternFunctions() {
-    PersonObj pObj = new("John", "Doe");
+    PersonObj pObj = new ("John", "Doe");
     string s = pObj.getObjectValue(string);
     assert("John Doe", s);
     s = pObj.getObjectValueWithTypeDescParam(string);
@@ -275,7 +280,6 @@ function testFunctionAssignment() {
     x = <int>fn(string);
 }
 
-
 // Interop functions
 function getValue(typedesc<int|float|decimal|string|boolean> td) returns td = @java:Method {
     'class: "org.ballerinalang.nativeimpl.jvm.tests.VariableReturnType",
@@ -283,20 +287,20 @@ function getValue(typedesc<int|float|decimal|string|boolean> td) returns td = @j
     paramTypes: ["io.ballerina.runtime.api.values.BTypedesc"]
 } external;
 
-function getAnnotationValue(typedesc<Foo|Foo2> y) returns map<any> =
+function getAnnotationValue(typedesc<FooDTFT|Foo2DTFT> y) returns map<any> =
     @java:Method {
-        'class: "org.ballerinalang.nativeimpl.jvm.tests.VariableReturnType",
-        name: "getAnnotationValue"
-    } external;
+    'class: "org.ballerinalang.nativeimpl.jvm.tests.VariableReturnType",
+    name: "getAnnotationValue"
+} external;
 
 function getAnnotationValue2(anydata value, typedesc<anydata> td = <>, string annotationName = "",
-         int min = 0, int max = 0) returns td|error =
+        int min = 0, int max = 0) returns td|error =
     @java:Method {
-        'class: "org.ballerinalang.nativeimpl.jvm.tests.VariableReturnType",
-        name: "getAnnotationValue2"
-    } external;
+    'class: "org.ballerinalang.nativeimpl.jvm.tests.VariableReturnType",
+    name: "getAnnotationValue2"
+} external;
 
-function getRecord(typedesc<anydata> td = Person) returns td = @java:Method {
+function getRecord(typedesc<anydata> td = PersonDTFT) returns td = @java:Method {
     'class: "org.ballerinalang.nativeimpl.jvm.tests.VariableReturnType",
     name: "getRecord",
     paramTypes: ["io.ballerina.runtime.api.values.BTypedesc"]
@@ -314,7 +318,7 @@ function getTuple(typedesc<int|string> td1, typedesc<record {}> td2, typedesc<fl
     paramTypes: ["io.ballerina.runtime.api.values.BTypedesc", "io.ballerina.runtime.api.values.BTypedesc", "io.ballerina.runtime.api.values.BTypedesc"]
 } external;
 
-function getVariedUnion(int x, typedesc<int|string> td1, typedesc<record{ string name; }> td2) returns (td1|td2) = @java:Method {
+function getVariedUnion(int x, typedesc<int|string> td1, typedesc<record {string name;}> td2) returns (td1|td2) = @java:Method {
     'class: "org.ballerinalang.nativeimpl.jvm.tests.VariableReturnType",
     name: "getVariedUnion",
     paramTypes: ["long", "io.ballerina.runtime.api.values.BTypedesc", "io.ballerina.runtime.api.values.BTypedesc"]
@@ -332,7 +336,7 @@ function getArrayInferred(typedesc<anydata> td = <>) returns td[] = @java:Method
     paramTypes: ["io.ballerina.runtime.api.values.BTypedesc"]
 } external;
 
-function getInvalidValue(typedesc<int|Person> td1, typedesc<Person> td2) returns td1 = @java:Method {
+function getInvalidValue(typedesc<int|PersonDTFT> td1, typedesc<PersonDTFT> td2) returns td1 = @java:Method {
     'class: "org.ballerinalang.nativeimpl.jvm.tests.VariableReturnType",
     name: "getInvalidValue",
     paramTypes: ["io.ballerina.runtime.api.values.BTypedesc", "io.ballerina.runtime.api.values.BTypedesc"]
@@ -360,8 +364,11 @@ function getFunction(function (string|int) returns anydata fn, typedesc<anydata>
                                                                 returns function (param) returns ret = @java:Method {
     'class: "org.ballerinalang.nativeimpl.jvm.tests.VariableReturnType",
     name: "getFunction",
-    paramTypes: ["io.ballerina.runtime.api.values.BFunctionPointer", "io.ballerina.runtime.api.values.BTypedesc",
-                    "io.ballerina.runtime.api.values.BTypedesc"]
+    paramTypes: [
+        "io.ballerina.runtime.api.values.BFunctionPointer",
+        "io.ballerina.runtime.api.values.BTypedesc",
+        "io.ballerina.runtime.api.values.BTypedesc"
+    ]
 } external;
 
 function getTypedesc(typedesc<anydata> td) returns typedesc<td> = @java:Method {
@@ -425,13 +432,13 @@ var outParameterObject = object OutParameter {
 function testDependentlyTypedMethodsWithObjectTypeInclusion() {
     OutParameterClass c1 = new;
     int|error v1 = c1.get(int);
-    assert(1234, <int> checkpanic v1);
+    assert(1234, <int>checkpanic v1);
     assertSame(c1.c, c1.get(float));
-    assert("hello world", <string> checkpanic c1.get(string));
+    assert("hello world", <string>checkpanic c1.get(string));
 
-    assert(321, <int> checkpanic outParameterObject.get(int));
+    assert(321, <int>checkpanic outParameterObject.get(int));
     decimal|error v2 = outParameterObject.get(decimal);
-    assert(23.45d, <decimal> checkpanic v2);
+    assert(23.45d, <decimal>checkpanic v2);
 }
 
 public class Bar {
@@ -509,49 +516,49 @@ public function testSubtypingWithDependentlyTypedMethods() {
     Baz baz = new;
     Qux qux = new;
 
-    assert(1, <int> checkpanic bar.get(int));
-    assert(2, <int> checkpanic baz.get(int));
-    assert(3, <int> checkpanic qux.get(int));
+    assert(1, <int>checkpanic bar.get(int));
+    assert(2, <int>checkpanic baz.get(int));
+    assert(3, <int>checkpanic qux.get(int));
     decimal|error v2 = bar.get(decimal);
-    assert(23.45d, <decimal> checkpanic v2);
+    assert(23.45d, <decimal>checkpanic v2);
     anydata|error v3 = baz.get(decimal);
-    assert(23.45d, <decimal> checkpanic v3);
+    assert(23.45d, <decimal>checkpanic v3);
     v2 = qux.get(decimal);
-    assert(23.45d, <decimal> checkpanic v2);
+    assert(23.45d, <decimal>checkpanic v2);
 
     Baz baz1 = bar;
     Bar bar1 = qux;
-    assert(1, <int> checkpanic baz1.get(int));
-    assert(3, <int> checkpanic bar1.get(int));
+    assert(1, <int>checkpanic baz1.get(int));
+    assert(3, <int>checkpanic bar1.get(int));
 
-    assert(true, <any> bar is Baz);
-    assert(true, <any> qux is Bar);
-    assert(true, <any> bar is Qux);
-    assert(false, <any> baz is Bar);
-    assert(false, <any> new Quux() is Qux);
-    assert(false, <any> qux is Quux);
+    assert(true, <any>bar is Baz);
+    assert(true, <any>qux is Bar);
+    assert(true, <any>bar is Qux);
+    assert(false, <any>baz is Bar);
+    assert(false, <any>new Quux() is Qux);
+    assert(false, <any>qux is Quux);
 
     Corge corge = new Grault();
-    assert(200, <int> checkpanic corge.get(int, string));
-    assert("Hello World!", <string> checkpanic corge.get(string, int));
+    assert(200, <int>checkpanic corge.get(int, string));
+    assert("Hello World!", <string>checkpanic corge.get(string, int));
 
     Grault grault = new Corge();
-    assert(100, <int> checkpanic grault.get(int, string));
-    assert("Hello World!", <string> checkpanic grault.get(string, float));
+    assert(100, <int>checkpanic grault.get(int, string));
+    assert("Hello World!", <string>checkpanic grault.get(string, float));
 
-    assert(true, <any> new Corge() is Grault);
-    assert(true, <any> new Grault() is Corge);
-    assert(false, <any> new Corge() is Garply);
-    assert(false, <any> new Garply() is Corge);
-    assert(false, <any> new Grault() is Garply);
-    assert(false, <any> new Garply() is Grault);
+    assert(true, <any>new Corge() is Grault);
+    assert(true, <any>new Grault() is Corge);
+    assert(true, <any>new Corge() is Garply);
+    assert(true, <any>new Garply() is Corge);
+    assert(true, <any>new Grault() is Garply);
+    assert(true, <any>new Garply() is Grault);
 }
 
 function getWithDefaultableParams(int|string x, int|string y = 1, typedesc<int|string> z = int) returns z =
     @java:Method {
-        'class: "org.ballerinalang.nativeimpl.jvm.tests.VariableReturnType",
-        name: "getWithDefaultableParams"
-    } external;
+    'class: "org.ballerinalang.nativeimpl.jvm.tests.VariableReturnType",
+    name: "getWithDefaultableParams"
+} external;
 
 function testDependentlyTypedFunctionWithDefaultableParams() {
     int a = getWithDefaultableParams(1);
@@ -584,12 +591,12 @@ type IntOrString int|string;
 public function testStartActionWithDependentlyTypedFunctions() {
     Client cl = new;
 
-    var assert1 = function (future<int|string|error> f) {
+    var assert1 = function(future<int|string|error> f) {
         int|string|error r = wait f;
         assert(true, r is error);
-        error e = <error> r;
+        error e = <error>r;
         assert("Error!", e.message());
-        assert("Union typedesc", <string> <any> checkpanic e.detail()["message"]);
+        assert("Union typedesc", <string><any>checkpanic e.detail()["message"]);
     };
     future<int|string|error> a = start getWithUnion("", IntOrString);
     assert1(a);
@@ -598,7 +605,7 @@ public function testStartActionWithDependentlyTypedFunctions() {
     future<int|string|error> c = start cl->remoteGet("", IntOrString);
     assert1(c);
 
-    var assert2 = function (future<int|error> f, int expected) {
+    var assert2 = function(future<int|error> f, int expected) {
         int|error r = wait f;
         assert(true, r is int);
         assert(expected, checkpanic r);
@@ -612,7 +619,7 @@ public function testStartActionWithDependentlyTypedFunctions() {
     future<int|error> g = start cl->remoteGet("hi", int);
     assert2(g, 2);
 
-    var assert3 = function (future<string|error> f, string expected) {
+    var assert3 = function(future<string|error> f, string expected) {
         string|error r = wait f;
         assert(true, r is string);
         assert(expected, checkpanic r);
@@ -627,9 +634,9 @@ public function testStartActionWithDependentlyTypedFunctions() {
 
 function getWithUnion(int|string x, typedesc<int|string> y) returns y|error =
     @java:Method {
-        'class: "org.ballerinalang.nativeimpl.jvm.tests.VariableReturnType",
-        name: "getWithUnion"
-    } external;
+    'class: "org.ballerinalang.nativeimpl.jvm.tests.VariableReturnType",
+    name: "getWithUnion"
+} external;
 
 client class Client {
     function get(int|string x, typedesc<int|string> y = int) returns y|error = @java:Method {
@@ -644,12 +651,12 @@ client class Client {
 }
 
 function getWithRestParam(int i, typedesc<int|string> j, int... k) returns j|boolean =
-     @java:Method {
-         'class: "org.ballerinalang.nativeimpl.jvm.tests.VariableReturnType"
-     } external;
+    @java:Method {
+    'class: "org.ballerinalang.nativeimpl.jvm.tests.VariableReturnType"
+} external;
 
 function getWithMultipleTypedescs(int i, typedesc<int|string> j, typedesc<int> k, typedesc<int>... l)
-    returns j|k|boolean = @java:Method { 'class: "org.ballerinalang.nativeimpl.jvm.tests.VariableReturnType" } external;
+    returns j|k|boolean = @java:Method {'class: "org.ballerinalang.nativeimpl.jvm.tests.VariableReturnType"} external;
 
 function testArgsForDependentlyTypedFunctionViaTupleRestArg() {
     [typedesc<string>] a = [string];
@@ -728,7 +735,7 @@ type IJK record {|
 |};
 
 function testArgsForDependentlyTypedFunctionViaRecordRestArg() {
-    record {| typedesc<string> y; |} a = {y: string};
+    record {|typedesc<string> y;|} a = {y: string};
     string|error b = getWithUnion(123, ...a);
     assert("123", checkpanic b);
 
@@ -740,7 +747,7 @@ function testArgsForDependentlyTypedFunctionViaRecordRestArg() {
     string|boolean f = getWithRestParam(...e);
     assert(true, f);
 
-    record {| typedesc<string> j = string; |} g = {};
+    record {|typedesc<string> j = string;|} g = {};
     string|boolean h = getWithRestParam(1, ...g);
     assert(false, h);
 
@@ -748,11 +755,11 @@ function testArgsForDependentlyTypedFunctionViaRecordRestArg() {
     int|string|boolean n = getWithMultipleTypedescs(...m);
     assert(true, n);
 
-    record {| typedesc<string> j = string; typedesc<int> k; |} o = {k: int};
+    record {|typedesc<string> j = string; typedesc<int> k;|} o = {k: int};
     int|string|boolean p = getWithMultipleTypedescs(1, ...o);
     assert(true, p);
 
-    record {| int i; typedesc<byte> j = byte; typedesc<byte> k; |} q = {i: 1, k: byte};
+    record {|int i; typedesc<byte> j = byte; typedesc<byte> k;|} q = {i: 1, k: byte};
     byte|boolean r = getWithMultipleTypedescs(...q);
     assert(true, r);
 }
@@ -767,29 +774,29 @@ public type TargetType typedesc<int|string>;
 public client class ClientWithMethodWithIncludedRecordParamAndDefaultableParams {
     remote function post(TargetType targetType = int, *ClientActionOptions options)
         returns @tainted targetType = @java:Method {
-                                          'class: "org.ballerinalang.nativeimpl.jvm.tests.VariableReturnType",
-                                          name: "clientPost"
-                                      } external;
-                                      
+        'class: "org.ballerinalang.nativeimpl.jvm.tests.VariableReturnType",
+        name: "clientPost"
+    } external;
+
     function calculate(int i, TargetType targetType = int, *ClientActionOptions options)
         returns @tainted targetType = @java:Method {
-                                          'class: "org.ballerinalang.nativeimpl.jvm.tests.VariableReturnType",
-                                          name: "calculate"
-                                      } external;
+        'class: "org.ballerinalang.nativeimpl.jvm.tests.VariableReturnType",
+        name: "calculate"
+    } external;
 }
 
 public client class ClientWithMethodWithIncludedRecordParamAndRequiredParams {
     remote function post(TargetType targetType, *ClientActionOptions options)
         returns @tainted targetType = @java:Method {
-                                          'class: "org.ballerinalang.nativeimpl.jvm.tests.VariableReturnType",
-                                          name: "clientPost"
-                                      } external;
+        'class: "org.ballerinalang.nativeimpl.jvm.tests.VariableReturnType",
+        name: "clientPost"
+    } external;
 
     function calculate(int i, TargetType targetType, *ClientActionOptions options)
         returns @tainted targetType|error = @java:Method {
-                                                 'class: "org.ballerinalang.nativeimpl.jvm.tests.VariableReturnType",
-                                                 name: "calculate"
-                                             } external;
+        'class: "org.ballerinalang.nativeimpl.jvm.tests.VariableReturnType",
+        name: "calculate"
+    } external;
 }
 
 function testDependentlyTypedFunctionWithIncludedRecordParam() {
@@ -885,57 +892,58 @@ function testDependentlyTypedFunctionWithIncludedRecordParam() {
 
 client class ClientObjImpl {
     *ClientObject;
-    remote isolated function query(stream<record {}> strm, typedesc<record {}> rowType = <>) returns stream <rowType> =
+
+    remote isolated function query(stream<record {}> strm, typedesc<record {}> rowType = <>) returns stream<rowType> =
     @java:Method {
-                'class: "org.ballerinalang.nativeimpl.jvm.tests.VariableReturnType",
-                name: "getStreamOfRecords",
-                paramTypes: ["io.ballerina.runtime.api.values.BStream", "io.ballerina.runtime.api.values.BTypedesc"]
-                } external;
+        'class: "org.ballerinalang.nativeimpl.jvm.tests.VariableReturnType",
+        name: "getStreamOfRecords",
+        paramTypes: ["io.ballerina.runtime.api.values.BStream", "io.ballerina.runtime.api.values.BTypedesc"]
+    } external;
 }
 
 public type ClientObject client object {
-    remote isolated function query(stream<record {}> strm, typedesc<record {}> rowType = <>) returns stream <rowType>;
+    remote isolated function query(stream<record {}> strm, typedesc<record {}> rowType = <>) returns stream<rowType>;
 };
 
 function testDependentlyTypedMethodCallOnObjectType() {
     ClientObject cl = new ClientObjImpl();
-    Person p1 = getRecord();
-    Person p2 = getRecord();
-    Person[] personList = [p1, p2];
-    stream<Person> personStream = personList.toStream();
-    stream<Person> y = cl->query(personStream, Person);
+    PersonDTFT p1 = getRecord();
+    PersonDTFT p2 = getRecord();
+    PersonDTFT[] personList = [p1, p2];
+    stream<PersonDTFT> personStream = personList.toStream();
+    stream<PersonDTFT> y = cl->query(personStream, PersonDTFT);
     var rec = y.next();
-    if (rec is record {| Person value; |}) {
-        Person person = rec.value;
+    if (rec is record {|PersonDTFT value;|}) {
+        PersonDTFT person = rec.value;
         assert(20, person.age);
         assert("John Doe", person.name);
     }
     rec = y.next();
-    assert(true, rec is record {| Person value; |});
+    assert(true, rec is record {|PersonDTFT value;|});
 }
 
 function testDependentlyTypedMethodCallOnObjectTypeWithInferredArgument() {
     ClientObject cl = new ClientObjImpl();
-    Person p1 = getRecord();
-    Person p2 = getRecord();
-    Person[] personList = [p1, p2];
-    stream<Person> personStream = personList.toStream();
-    stream<Person> y = cl->query(personStream);
+    PersonDTFT p1 = getRecord();
+    PersonDTFT p2 = getRecord();
+    PersonDTFT[] personList = [p1, p2];
+    stream<PersonDTFT> personStream = personList.toStream();
+    stream<PersonDTFT> y = cl->query(personStream);
     var rec = y.next();
-    if (rec is record {| Person value; |}) {
-        Person person = rec.value;
+    if (rec is record {|PersonDTFT value;|}) {
+        PersonDTFT person = rec.value;
         assert(20, person.age);
         assert("John Doe", person.name);
     }
     rec = y.next();
-    assert(true, rec is record {| Person value; |});
+    assert(true, rec is record {|PersonDTFT value;|});
 }
 
 function functionWithInferredArgForParamOfTypeReferenceType(TargetType t = <>) returns t =
     @java:Method {
-        'class: "org.ballerinalang.nativeimpl.jvm.tests.VariableReturnType",
-        name: "functionWithInferredArgForParamOfTypeReferenceType"
-    } external;
+    'class: "org.ballerinalang.nativeimpl.jvm.tests.VariableReturnType",
+    name: "functionWithInferredArgForParamOfTypeReferenceType"
+} external;
 
 function testDependentlyTypedFunctionWithInferredArgForParamOfTypeReferenceType() {
     int a = functionWithInferredArgForParamOfTypeReferenceType();
@@ -963,18 +971,18 @@ function testDependentlyTypedResourceMethods() {
     ClientWithExternalResourceBody cl = new ClientWithExternalResourceBody();
     string|error a = cl->/games/carrom(targetType = string);
     assert("[\"games\",\"carrom\"]", checkpanic a);
-    
+
     var cl2 = client object {
         resource function get [string... path](TargetType targetType = <>) returns targetType|error =
         @java:Method {
-                'class: "org.ballerinalang.nativeimpl.jvm.tests.VariableReturnType",
-                name: "getResource"
-            } external;
+            'class: "org.ballerinalang.nativeimpl.jvm.tests.VariableReturnType",
+            name: "getResource"
+        } external;
     };
 
     string|error b = cl2->/games/football(targetType = string);
     assert("[\"games\",\"football\"]", checkpanic b);
-    
+
     int|error c = cl2->/games/football();
     assert(0, checkpanic c);
 }

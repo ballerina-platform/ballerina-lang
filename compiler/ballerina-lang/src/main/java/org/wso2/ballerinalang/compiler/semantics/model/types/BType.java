@@ -17,6 +17,8 @@
  */
 package org.wso2.ballerinalang.compiler.semantics.model.types;
 
+import io.ballerina.types.Core;
+import io.ballerina.types.SemType;
 import org.ballerinalang.model.Name;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.types.ValueType;
@@ -51,27 +53,52 @@ public class BType implements ValueType {
     // sometimes we loose type param information down the line. which is a problem.
     // TODO: Refactor this after JBallerina 1.0.
     public Name name;
-    public long flags;
+    private long flags;
+
+    protected SemType semType;
 
     public BType(int tag, BTypeSymbol tsymbol) {
-        this.tag = tag;
-        this.tsymbol = tsymbol;
-        this.name = Names.EMPTY;
-        this.flags = 0;
+        this(tag, tsymbol, Names.EMPTY, 0, null);
+    }
+
+    public BType(int tag, BTypeSymbol tsymbol, SemType semType) {
+        this(tag, tsymbol, Names.EMPTY, 0, semType);
     }
 
     public BType(int tag, BTypeSymbol tsymbol, long flags) {
-        this.tag = tag;
-        this.tsymbol = tsymbol;
-        this.name = Names.EMPTY;
-        this.flags = flags;
+        this(tag, tsymbol, Names.EMPTY, flags, null);
     }
 
     public BType(int tag, BTypeSymbol tsymbol, Name name, long flags) {
+        this(tag, tsymbol, name, flags, null);
+    }
+
+    public BType(int tag, BTypeSymbol tsymbol, long flags, SemType semType) {
+        this(tag, tsymbol, Names.EMPTY, flags, semType);
+    }
+
+    public BType(int tag, BTypeSymbol tsymbol, Name name, long flags, SemType semType) {
         this.tag = tag;
         this.tsymbol = tsymbol;
         this.name = name;
         this.flags = flags;
+        this.semType = semType;
+    }
+
+    public static BType createNilType() {
+        return new BNilType();
+    }
+
+    public static BType createNeverType() {
+        return new BNeverType();
+    }
+
+    public SemType semType() {
+        return semType;
+    }
+
+    public void semType(SemType semtype) {
+        this.semType = semtype;
     }
 
     public BType getReturnType() {
@@ -79,7 +106,7 @@ public class BType implements ValueType {
     }
 
     public boolean isNullable() {
-        return false;
+        return Core.containsNil(semType());
     }
 
     public <T, R> R accept(BTypeVisitor<T, R> visitor, T t) {
@@ -117,6 +144,25 @@ public class BType implements ValueType {
 
     public String getQualifiedTypeName() {
         return tsymbol.pkgID.toString() + ":" + tsymbol.name;
+    }
+
+    public final long getFlags() {
+        return flags;
+    }
+
+    public void setFlags(long flags) {
+        this.flags = flags;
+    }
+
+    public void addFlags(long flags) {
+        this.flags |= flags;
+        this.resetSemType();
+    }
+
+    /**
+     * When the type is mutated we need to reset resolved semType.
+     */
+    public void resetSemType() {
     }
 
     /**

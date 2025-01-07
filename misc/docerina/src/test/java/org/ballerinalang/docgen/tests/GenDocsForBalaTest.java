@@ -48,7 +48,7 @@ public class GenDocsForBalaTest {
     }
 
     @Test
-    public void generatingDocsForBalaTest() throws IOException {
+    public void generatingDocsForBalaV2Test() throws IOException {
         Path balaPath = this.resourceDir.resolve("balas/foo-fb-any-1.3.5.bala");
 
         ProjectEnvironmentBuilder defaultBuilder = ProjectEnvironmentBuilder.getDefaultBuilder();
@@ -59,8 +59,34 @@ public class GenDocsForBalaTest {
 
         String sfModuleApiDocsJsonAsString = Files.readString(
                 this.docsPath.resolve("foo/fb/1.3.5").resolve(BallerinaDocGenerator.API_DOCS_JSON));
+        Assert.assertTrue(sfModuleApiDocsJsonAsString.contains("\"id\":\"fb\",\"summary\":\"This module " +
+                        "provides an implementation to interact with fb Brokers via fb Consumer and " +
+                        "fb [Ballerina](https://ballerina.io) Producer clients.\\n\""),
+                "Default module summary is missing");
+        Assert.assertTrue(sfModuleApiDocsJsonAsString.contains("\"id\":\"fb.world\",\"summary\":" +
+                        "\"Connects the twilio communication services.\\n\""),
+                "fb.world module summary is missing");
+        Assert.assertTrue(sfModuleApiDocsJsonAsString.contains("Block"), "Block type is missing");
+
+        String sfWorldModuleApiDocsJsonAsString = Files.readString(
+                this.docsPath.resolve("foo/fb.world/1.3.5").resolve(BallerinaDocGenerator.API_DOCS_JSON));
+        Assert.assertTrue(sfWorldModuleApiDocsJsonAsString.contains("PersonZ"), "PersonZ class is missing");
+    }
+
+    @Test
+    public void generatingDocsForBalaV3Test() throws IOException {
+        Path balaPath = this.resourceDir.resolve("balas/fooV3-fb-any-1.3.5.bala");
+
+        ProjectEnvironmentBuilder defaultBuilder = ProjectEnvironmentBuilder.getDefaultBuilder();
+        defaultBuilder.addCompilationCacheFactory(TempDirCompilationCache::from);
+        BalaProject balaProject = BalaProject.loadProject(defaultBuilder, balaPath);
+
+        BallerinaDocGenerator.generateAPIDocs(balaProject, this.docsPath.toString(), true);
+
+        String sfModuleApiDocsJsonAsString = Files.readString(
+                this.docsPath.resolve("foo/fb/1.3.5").resolve(BallerinaDocGenerator.API_DOCS_JSON));
         Assert.assertTrue(sfModuleApiDocsJsonAsString.contains("\"id\":\"fb\",\"summary\":\"Package md content with " +
-                        "character length bigger than 50 characters, in one line in the Package MD file.\\n\""));
+                "character length bigger than 50 characters, in one line in the Package MD file.\\n\""));
         Assert.assertTrue(sfModuleApiDocsJsonAsString.contains("\"id\":\"fb.world\",\"summary\":" +
                         "\"Connects the twilio communication services.\\n\""),
                 "fb.world module summary is missing");

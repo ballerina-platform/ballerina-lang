@@ -723,8 +723,9 @@ public class Desugar extends BLangNodeVisitor {
         BType returnType = bLangFunction.returnTypeNode.getBType() == null ?
                 symResolver.resolveTypeNode(bLangFunction.returnTypeNode, env) :
                 bLangFunction.returnTypeNode.getBType();
-        BInvokableType invokableType = new BInvokableType(new ArrayList<>(), getRestType(bLangFunction),
-                                                          returnType, null);
+        BInvokableType invokableType =
+                new BInvokableType(symTable.typeEnv(), List.of(), getRestType(bLangFunction),
+                        returnType, null);
         BInvokableSymbol functionSymbol = Symbols.createFunctionSymbol(Flags.asMask(bLangFunction.flagSet),
                                                                        new Name(bLangFunction.name.value),
                                                                        new Name(bLangFunction.name.originalValue),
@@ -964,7 +965,7 @@ public class Desugar extends BLangNodeVisitor {
         BLangLiteral configNameLiteral =
                 ASTBuilderUtil.createLiteral(configurableVar.pos, symTable.stringType, configVarName);
         BType type = configurableVar.getBType();
-        BType typedescType = new BTypedescType(type, symTable.typeDesc.tsymbol);
+        BType typedescType = new BTypedescType(symTable.typeEnv(), type, symTable.typeDesc.tsymbol);
 
         BLangTypedescExpr typedescExpr = new BLangTypedescExpr();
         typedescExpr.resolvedType = type;
@@ -1379,7 +1380,7 @@ public class Desugar extends BLangNodeVisitor {
 
         // Duplicate the invokable symbol and the invokable type.
         funcNode.originalFuncSymbol = funcNode.symbol;
-        funcNode.symbol = ASTBuilderUtil.duplicateInvokableSymbol(funcNode.symbol);
+        funcNode.symbol = ASTBuilderUtil.duplicateInvokableSymbol(types.typeEnv(), funcNode.symbol);
         funcNode.requiredParams = rewrite(funcNode.requiredParams, funcEnv);
         funcNode.restParam = rewrite(funcNode.restParam, funcEnv);
 
@@ -1715,7 +1716,7 @@ public class Desugar extends BLangNodeVisitor {
             if (variable.getKind() == NodeKind.TUPLE_VARIABLE) { // Else recursively create the var def statements.
                 BLangTupleVariable tupleVariable = (BLangTupleVariable) variable;
                 BLangIndexBasedAccess arrayAccessExpr = ASTBuilderUtil.createIndexBasesAccessExpr(tupleVariable.pos,
-                        new BArrayType(symTable.anyType), tupleVarSymbol, indexExpr);
+                        new BArrayType(symTable.typeEnv(), symTable.anyType), tupleVarSymbol, indexExpr);
                 if (parentIndexAccessExpr != null) {
                     arrayAccessExpr.expr = parentIndexAccessExpr;
                 }
@@ -1791,7 +1792,7 @@ public class Desugar extends BLangNodeVisitor {
             if (recordFieldKeyValue.valueBindingPattern.getKind() == NodeKind.TUPLE_VARIABLE) {
                 BLangTupleVariable tupleVariable = (BLangTupleVariable) recordFieldKeyValue.valueBindingPattern;
                 BLangIndexBasedAccess arrayAccessExpr = ASTBuilderUtil.createIndexBasesAccessExpr(tupleVariable.pos,
-                        new BArrayType(symTable.anyType), recordVarSymbol, indexExpr);
+                        new BArrayType(symTable.typeEnv(), symTable.anyType), recordVarSymbol, indexExpr);
                 if (parentIndexAccessExpr != null) {
                     arrayAccessExpr.expr = parentIndexAccessExpr;
                 }
@@ -2024,12 +2025,12 @@ public class Desugar extends BLangNodeVisitor {
                 ASTBuilderUtil.createVariableRef(pos, mapVariable.symbol), typeCastExpr.getBType());
         String entriesVarName = "$map$ref$entries$" + UNDERSCORE + restNum;
         BType constraintType = getRestFilterConstraintType(targetType);
-        BVarSymbol varSymbol = new BVarSymbol(constraintType.flags, null, null, constraintType, null,
+        BVarSymbol varSymbol = new BVarSymbol(constraintType.getFlags(), null, null, constraintType, null,
                 null, null);
         BVarSymbol stringVarSymbol = new BVarSymbol(0, null, null,
                 symTable.stringType, null, symTable.builtinPos, SymbolOrigin.VIRTUAL);
-        BType entriesType = new BMapType(TypeTags.MAP,
-                new BTupleType(Arrays.asList(new BTupleMember(symTable.stringType, stringVarSymbol),
+        BType entriesType = new BMapType(symTable.typeEnv(), TypeTags.MAP,
+                new BTupleType(symTable.typeEnv(), Arrays.asList(new BTupleMember(symTable.stringType, stringVarSymbol),
                         new BTupleMember(constraintType, varSymbol))), null);
         BLangSimpleVariable entriesInvocationVar = defVariable(pos, entriesType, parentBlockStmt,
                 types.addConversionExprIfRequired(entriesInvocation, entriesType),
@@ -2131,7 +2132,9 @@ public class Desugar extends BLangNodeVisitor {
                 .map(param -> param.symbol)
                 .toList();
         functionSymbol.scope = env.scope;
-        functionSymbol.type = new BInvokableType(Collections.singletonList(getStringAnyTupleType()), constraint, null);
+        functionSymbol.type =
+                new BInvokableType(symTable.typeEnv(), Collections.singletonList(getStringAnyTupleType()), constraint,
+                        null);
         function.symbol = functionSymbol;
         rewrite(function, env);
         env.enclPkg.addFunction(function);
@@ -2282,7 +2285,7 @@ public class Desugar extends BLangNodeVisitor {
     private BLangInvocation generateCreateRecordValueInvocation(Location pos,
                                                                 BType targetType,
                                                                 BVarSymbol source) {
-        BType typedescType = new BTypedescType(targetType, symTable.typeDesc.tsymbol);
+        BType typedescType = new BTypedescType(symTable.typeEnv(), targetType, symTable.typeDesc.tsymbol);
         BLangInvocation invocationNode = createInvocationNode(CREATE_RECORD_VALUE, new ArrayList<>(), typedescType);
 
         BLangTypedescExpr typedescExpr = new BLangTypedescExpr();
@@ -2293,14 +2296,14 @@ public class Desugar extends BLangNodeVisitor {
         invocationNode.symbol = symResolver.lookupLangLibMethod(typedescType,
                 Names.fromString(CREATE_RECORD_VALUE), env);
         invocationNode.requiredArgs = Lists.of(ASTBuilderUtil.createVariableRef(pos, source), typedescExpr);
-        invocationNode.setBType(BUnionType.create(null, targetType, symTable.errorType));
+        invocationNode.setBType(BUnionType.create(symTable.typeEnv(), null, targetType, symTable.errorType));
         return invocationNode;
     }
 
     private BLangInvocation generateCloneWithTypeInvocation(Location pos,
                                                             BType targetType,
                                                             BVarSymbol source) {
-        BType typedescType = new BTypedescType(targetType, symTable.typeDesc.tsymbol);
+        BType typedescType = new BTypedescType(symTable.typeEnv(), targetType, symTable.typeDesc.tsymbol);
         BLangInvocation invocationNode = createInvocationNode(CLONE_WITH_TYPE, new ArrayList<>(), typedescType);
 
         BLangTypedescExpr typedescExpr = new BLangTypedescExpr();
@@ -2310,7 +2313,7 @@ public class Desugar extends BLangNodeVisitor {
         invocationNode.expr = typedescExpr;
         invocationNode.symbol = symResolver.lookupLangLibMethod(typedescType, Names.fromString(CLONE_WITH_TYPE), env);
         invocationNode.requiredArgs = Lists.of(ASTBuilderUtil.createVariableRef(pos, source), typedescExpr);
-        invocationNode.setBType(BUnionType.create(null, targetType, symTable.errorType));
+        invocationNode.setBType(BUnionType.create(symTable.typeEnv(), null, targetType, symTable.errorType));
         return invocationNode;
     }
 
@@ -2417,7 +2420,7 @@ public class Desugar extends BLangNodeVisitor {
                 .map(param -> param.symbol)
                 .toList();
         functionSymbol.scope = env.scope;
-        functionSymbol.type = new BInvokableType(Collections.singletonList(getStringAnyTupleType()),
+        functionSymbol.type = new BInvokableType(symTable.typeEnv(), Collections.singletonList(getStringAnyTupleType()),
                                                  getRestType(functionSymbol), symTable.booleanType, null);
         function.symbol = functionSymbol;
         rewrite(function, env);
@@ -2449,7 +2452,7 @@ public class Desugar extends BLangNodeVisitor {
             add(new BTupleMember(symTable.stringType, stringVarSymbol));
             add(new BTupleMember(symTable.anyType, anyVarSymbol));
         }};
-        return new BTupleType(typeList);
+        return new BTupleType(symTable.typeEnv(), typeList);
     }
 
     /**
@@ -2538,7 +2541,7 @@ public class Desugar extends BLangNodeVisitor {
         final BLangBlockStmt blockStmt = ASTBuilderUtil.createBlockStmt(tupleDestructure.pos);
 
         //create a array of any-type based on the dimension
-        BType runTimeType = new BArrayType(symTable.anyType);
+        BType runTimeType = new BArrayType(symTable.typeEnv(), symTable.anyType);
 
         //create a simple var for the array 'any[] x = (tuple)' based on the dimension for x
         String name = "tuple";
@@ -2687,7 +2690,7 @@ public class Desugar extends BLangNodeVisitor {
                 BLangTupleVarRef tupleVarRef = (BLangTupleVarRef) expression;
                 BLangLiteral indexExpr = ASTBuilderUtil.createLiteral(tupleVarRef.pos, symTable.intType, (long) index);
                 BLangIndexBasedAccess arrayAccessExpr = ASTBuilderUtil.createIndexBasesAccessExpr(tupleVarRef.pos,
-                        new BArrayType(symTable.anyType), tupleVarSymbol, indexExpr);
+                        new BArrayType(symTable.typeEnv(), symTable.anyType), tupleVarSymbol, indexExpr);
                 if (parentIndexAccessExpr != null) {
                     arrayAccessExpr.expr = parentIndexAccessExpr;
                 }
@@ -2793,7 +2796,7 @@ public class Desugar extends BLangNodeVisitor {
 
         final BLangBlockStmt blockStmt = ASTBuilderUtil.createBlockStmt(recordDestructure.pos);
 
-        BType runTimeType = new BMapType(TypeTags.MAP, symTable.anyType, null);
+        BType runTimeType = new BMapType(symTable.typeEnv(), TypeTags.MAP, symTable.anyType, null);
 
         String name = "$map$_0";
         final BLangSimpleVariable mapVariable =
@@ -4161,9 +4164,9 @@ public class Desugar extends BLangNodeVisitor {
                         symTable.stringType, null, symTable.builtinPos, VIRTUAL);
                 BVarSymbol anydataVarSymbol = new BVarSymbol(0, null, null,
                         symTable.anydataType, null, symTable.builtinPos, VIRTUAL);
-                BMapType entriesType = new BMapType(TypeTags.MAP, new BTupleType(Arrays.asList(
-                        new BTupleMember(symTable.stringType, stringVarSymbol),
-                        new BTupleMember(symTable.anydataType, anydataVarSymbol))), null);
+                BMapType entriesType = new BMapType(symTable.typeEnv(), TypeTags.MAP, new BTupleType(symTable.typeEnv(),
+                        Arrays.asList(new BTupleMember(symTable.stringType, stringVarSymbol),
+                                      new BTupleMember(symTable.anydataType, anydataVarSymbol))), null);
                 BLangInvocation entriesInvocation = generateMapEntriesInvocation(errorDetailVarRef, entriesType);
                 BLangSimpleVariableDef entriesVarDef = createVarDef("$entries$", entriesType, entriesInvocation,
                         restPatternPos);
@@ -4336,12 +4339,13 @@ public class Desugar extends BLangNodeVisitor {
                                    BType targetType, BLangBlockStmt blockStmt,
                                    BLangSimpleVarRef restMatchPatternVarRef) {
         BType constraintType = getRestFilterConstraintType(targetType);
-        BVarSymbol varSymbol = new BVarSymbol(constraintType.flags,  null, null, constraintType, null,
+        BVarSymbol varSymbol = new BVarSymbol(constraintType.getFlags(),  null, null, constraintType, null,
                 null, null);
         BVarSymbol stringVarSymbol = new BVarSymbol(0, null, null,
                 symTable.stringType, null, symTable.builtinPos, VIRTUAL);
-        BMapType entriesType = new BMapType(TypeTags.MAP, new BTupleType(Arrays.asList(new BTupleMember(
-                symTable.stringType, stringVarSymbol), new BTupleMember(constraintType, varSymbol))), null);
+        BMapType entriesType = new BMapType(symTable.typeEnv(), TypeTags.MAP, new BTupleType(symTable.typeEnv(),
+                Arrays.asList(new BTupleMember(symTable.stringType, stringVarSymbol),
+                              new BTupleMember(constraintType, varSymbol))), null);
         BLangInvocation entriesInvocation = generateMapEntriesInvocation(matchExprVarRef, entriesType);
         BLangSimpleVariableDef entriesVarDef = createVarDef("$entries$", entriesType, entriesInvocation, pos);
         blockStmt.addStatement(entriesVarDef);
@@ -4531,9 +4535,9 @@ public class Desugar extends BLangNodeVisitor {
         BVarSymbol varSymbol = Symbols.createVarSymbolForTupleMember(restType);
         BVarSymbol stringVarSymbol = new BVarSymbol(0, null, null,
                 symTable.stringType, null, symTable.builtinPos, VIRTUAL);
-        BMapType entriesType = new BMapType(TypeTags.MAP, new BTupleType(Arrays.asList(
-                new BTupleMember(symTable.stringType, stringVarSymbol),
-                new BTupleMember(restType, varSymbol))), null);
+        BMapType entriesType = new BMapType(symTable.typeEnv(), TypeTags.MAP, new BTupleType(symTable.typeEnv(),
+                Arrays.asList(new BTupleMember(symTable.stringType, stringVarSymbol),
+                              new BTupleMember(restType, varSymbol))), null);
         BLangInvocation entriesInvocation = generateMapEntriesInvocation(varRef, entriesType);
         BLangSimpleVariableDef entriesVarDef = createVarDef("$entries$", entriesType, entriesInvocation,
                 restPatternPos);
@@ -4649,12 +4653,12 @@ public class Desugar extends BLangNodeVisitor {
             Location restPatternPos = restMatchPattern.pos;
             List<String> keysToRemove = getKeysToRemove(mappingMatchPattern);
             BType restType = ((BRecordType) restMatchPattern.getBType()).restFieldType;
-            BVarSymbol varSymbol = new BVarSymbol(restType.flags, null, null, restType, null, null, null);
+            BVarSymbol varSymbol = new BVarSymbol(restType.getFlags(), null, null, restType, null, null, null);
             BVarSymbol stringVarSymbol = new BVarSymbol(0, null, null,
                     symTable.stringType, null, symTable.builtinPos, VIRTUAL);
-            BMapType entriesType = new BMapType(TypeTags.MAP, new BTupleType(Arrays.asList(
-                    new BTupleMember(symTable.stringType, stringVarSymbol),
-                    new BTupleMember(restType, varSymbol))), null);
+            BMapType entriesType = new BMapType(symTable.typeEnv(), TypeTags.MAP, new BTupleType(symTable.typeEnv(),
+                    Arrays.asList(new BTupleMember(symTable.stringType, stringVarSymbol),
+                                  new BTupleMember(restType, varSymbol))), null);
             BLangInvocation entriesInvocation = generateMapEntriesInvocation(tempCastVarRef, entriesType);
             BLangSimpleVariableDef entriesVarDef = createVarDef("$entries$", entriesType, entriesInvocation,
                     restPatternPos);
@@ -4827,9 +4831,9 @@ public class Desugar extends BLangNodeVisitor {
                         symTable.stringType, null, symTable.builtinPos, VIRTUAL);
                 BVarSymbol anydataVarSymbol = new BVarSymbol(0, null, null,
                         symTable.anydataType, null, symTable.builtinPos, VIRTUAL);
-                BMapType entriesType = new BMapType(TypeTags.MAP, new BTupleType(Arrays.asList(
-                        new BTupleMember(symTable.stringType, stringVarSymbol),
-                        new BTupleMember(symTable.anydataType, anydataVarSymbol))), null);
+                BMapType entriesType = new BMapType(symTable.typeEnv(), TypeTags.MAP, new BTupleType(symTable.typeEnv(),
+                        Arrays.asList(new BTupleMember(symTable.stringType, stringVarSymbol),
+                                      new BTupleMember(symTable.anydataType, anydataVarSymbol))), null);
                 BLangInvocation entriesInvocation = generateMapEntriesInvocation(errorDetailVarRef, entriesType);
                 BLangSimpleVariableDef entriesVarDef = createVarDef("$entries$", entriesType, entriesInvocation,
                         restPatternPos);
@@ -5336,7 +5340,7 @@ public class Desugar extends BLangNodeVisitor {
             }
         }
 
-        BLangLiteral nilLiteral = ASTBuilderUtil.createLiteral(fail.pos, symTable.nilType, Names.NIL_VALUE);
+        BLangLiteral nilLiteral = ASTBuilderUtil.createLiteral(fail.pos, symTable.nilType, Names.NIL_VALUE.value);
         BLangStatementExpression statementExpression =
                 createStatementExpression(onFailBody, nilLiteral);
         statementExpression.setBType(symTable.nilType);
@@ -5597,8 +5601,8 @@ public class Desugar extends BLangNodeVisitor {
 
         enclLocks.push(lockStmt);
 
-        BLangLiteral nilLiteral = ASTBuilderUtil.createLiteral(lockNode.pos, symTable.nilType, Names.NIL_VALUE);
-        BType nillableError = BUnionType.create(null, symTable.errorType, symTable.nilType);
+        BLangLiteral nilLiteral = ASTBuilderUtil.createLiteral(lockNode.pos, symTable.nilType, Names.NIL_VALUE.value);
+        BType nillableError = BUnionType.create(symTable.typeEnv(), null, symTable.errorType, symTable.nilType);
         BLangStatementExpression statementExpression = createStatementExpression(lockNode.body, nilLiteral);
         statementExpression.setBType(symTable.nilType);
 
@@ -5906,7 +5910,7 @@ public class Desugar extends BLangNodeVisitor {
     BLangUnaryExpr createNotBinaryExpression(Location pos, BLangExpression expression) {
         List<BType> paramTypes = new ArrayList<>();
         paramTypes.add(symTable.booleanType);
-        BInvokableType type = new BInvokableType(paramTypes, symTable.booleanType,
+        BInvokableType type = new BInvokableType(symTable.typeEnv(), paramTypes, symTable.booleanType,
                 null);
         BOperatorSymbol notOperatorSymbol = new BOperatorSymbol(
                 Names.fromString(OperatorKind.NOT.value()), symTable.rootPkgSymbol.pkgID, type, symTable.rootPkgSymbol,
@@ -5933,7 +5937,7 @@ public class Desugar extends BLangNodeVisitor {
         lambdaFunction.pos = pos;
         List<BType> paramTypes = new ArrayList<>();
         lambdaFunctionVariable.forEach(variable -> paramTypes.add(variable.symbol.type));
-        lambdaFunction.setBType(new BInvokableType(paramTypes, func.symbol.type.getReturnType(),
+        lambdaFunction.setBType(new BInvokableType(symTable.typeEnv(), paramTypes, func.symbol.type.getReturnType(),
                                                    null));
         return lambdaFunction;
     }
@@ -5991,7 +5995,8 @@ public class Desugar extends BLangNodeVisitor {
             expr = new BLangTupleLiteral(listConstructor.pos, listConstructor.exprs, listConstructor.getBType());
             result = rewriteExpr(expr);
         } else if (listConstructorType.tag == TypeTags.JSON) {
-            expr = new BLangJSONArrayLiteral(listConstructor.exprs, new BArrayType(listConstructor.getBType()));
+            expr = new BLangJSONArrayLiteral(listConstructor.exprs,
+                    new BArrayType(symTable.typeEnv(), listConstructor.getBType()));
             result = rewriteExpr(expr);
         } else if (getElementType(listConstructorType).tag == TypeTags.JSON) {
             expr = new BLangJSONArrayLiteral(listConstructor.exprs, listConstructor.getBType());
@@ -6018,7 +6023,8 @@ public class Desugar extends BLangNodeVisitor {
         arrayLiteral.exprs = rewriteExprs(arrayLiteral.exprs);
         BType arrayLiteralType = Types.getImpliedType(arrayLiteral.getBType());
         if (arrayLiteralType.tag == TypeTags.JSON) {
-            result = new BLangJSONArrayLiteral(arrayLiteral.exprs, new BArrayType(arrayLiteral.getBType()));
+            result = new BLangJSONArrayLiteral(arrayLiteral.exprs,
+                    new BArrayType(symTable.typeEnv(), arrayLiteral.getBType()));
             return;
         } else if (getElementType(arrayLiteralType).tag == TypeTags.JSON) {
             result = new BLangJSONArrayLiteral(arrayLiteral.exprs, arrayLiteral.getBType());
@@ -6050,8 +6056,8 @@ public class Desugar extends BLangNodeVisitor {
                 spreadOpType = Types.getImpliedType(spreadOpType);
                 if (spreadOpType.tag == TypeTags.ARRAY) {
                     BArrayType spreadOpBArray = (BArrayType) spreadOpType;
-                    if (spreadOpBArray.size >= 0) {
-                        i += spreadOpBArray.size;
+                    if (spreadOpBArray.getSize() >= 0) {
+                        i += spreadOpBArray.getSize();
                         continue;
                     }
                 } else {
@@ -6166,7 +6172,7 @@ public class Desugar extends BLangNodeVisitor {
             BInvokableSymbol invokableSymbol = entry.getValue();
             BLangExpression expression = getFunctionPointerInvocation(invokableSymbol);
 
-            if (isReadonly && !Symbols.isFlagOn(invokableSymbol.retType.flags, Flags.READONLY)) {
+            if (isReadonly && !Symbols.isFlagOn(invokableSymbol.retType.getFlags(), Flags.READONLY)) {
                 expression = visitCloneReadonly(expression, invokableSymbol.retType);
             }
             if (env.enclInvokable != null) {
@@ -6205,7 +6211,7 @@ public class Desugar extends BLangNodeVisitor {
         List<String> fieldNames = getNamesOfUserSpecifiedRecordFields(userSpecifiedFields);
         Location pos = recordLiteral.pos;
         BRecordType recordType = (BRecordType) type;
-        boolean isReadonly = Symbols.isFlagOn(recordType.flags, Flags.READONLY);
+        boolean isReadonly = Symbols.isFlagOn(recordType.getFlags(), Flags.READONLY);
         generateFieldsForUserUnspecifiedRecordFields(recordType, userSpecifiedFields, fieldNames, pos, isReadonly);
     }
 
@@ -6563,7 +6569,8 @@ public class Desugar extends BLangNodeVisitor {
         BLangStatementExpression statementExpression = new BLangStatementExpression();
         BLangBlockStmt block = new BLangBlockStmt();
         statementExpression.stmt = block;
-        BUnionType fieldAccessType = BUnionType.create(null, fieldAccessExpr.getBType(), symTable.errorType);
+        BUnionType fieldAccessType =
+                BUnionType.create(symTable.typeEnv(), null, fieldAccessExpr.getBType(), symTable.errorType);
         Location pos = fieldAccessExpr.pos;
         BLangSimpleVariableDef result = createVarDef("$mapAccessResult$", fieldAccessType, null, pos);
         block.addStatement(result);
@@ -6577,7 +6584,7 @@ public class Desugar extends BLangNodeVisitor {
         BLangLiteral mapIndex = ASTBuilderUtil.createLiteral(
                         fieldAccessExpr.field.pos, symTable.stringType, fieldAccessExpr.field.value);
         BLangMapAccessExpr mapAccessExpr = new BLangMapAccessExpr(pos, fieldAccessExpr.expr, mapIndex);
-        BUnionType xmlOrNil = BUnionType.create(null, fieldAccessExpr.getBType(), symTable.nilType);
+        BUnionType xmlOrNil = BUnionType.create(symTable.typeEnv(), null, fieldAccessExpr.getBType(), symTable.nilType);
         mapAccessExpr.setBType(xmlOrNil);
         BLangSimpleVariableDef mapResult = createVarDef("$mapAccess", xmlOrNil, mapAccessExpr, pos);
         BLangSimpleVarRef mapResultRef = ASTBuilderUtil.createVariableRef(pos, mapResult.var.symbol);
@@ -6688,7 +6695,7 @@ public class Desugar extends BLangNodeVisitor {
         if (varRefType.tag == TypeTags.MAP) {
             targetVarRef = new BLangMapAccessExpr(indexAccessExpr.pos, indexAccessExpr.expr,
                                                   indexAccessExpr.indexExpr, indexAccessExpr.isStoreOnCreation);
-        } else if (types.isSubTypeOfMapping(types.getSafeType(varRefType, true, false))) {
+        } else if (types.isSubTypeOfMapping(types.getNilLiftType(varRefType.semType()))) {
             targetVarRef = new BLangStructFieldAccessExpr(indexAccessExpr.pos, indexAccessExpr.expr,
                                                           indexAccessExpr.indexExpr,
                                                           (BVarSymbol) indexAccessExpr.symbol, false);
@@ -6867,7 +6874,7 @@ public class Desugar extends BLangNodeVisitor {
         }
 
         // Add `@strand {thread: "any"}` annotation to an isolated start-action.
-        if (actionInvocation.async && Symbols.isFlagOn(actionInvocation.symbol.type.flags, Flags.ISOLATED)) {
+        if (actionInvocation.async && Symbols.isFlagOn(actionInvocation.symbol.type.getFlags(), Flags.ISOLATED)) {
             addStrandAnnotationWithThreadAny(actionInvocation.pos);
             actionInvocation.addAnnotationAttachment(this.strandAnnotAttachement);
             ((BInvokableSymbol) actionInvocation.symbol)
@@ -7042,7 +7049,8 @@ public class Desugar extends BLangNodeVisitor {
         BResourcePathSegmentSymbol lastPathSegmentSym = pathSegmentSymbols.get(pathSegmentSymbols.size() - 1);
         if (lastPathSegmentSym.kind == SymbolKind.RESOURCE_PATH_REST_PARAM_SEGMENT) {
             invokableSymbol.restParam = new BVarSymbol(0, Names.EMPTY, this.env.scope.owner.pkgID,
-                    new BArrayType(lastPathSegmentSym.type), this.env.scope.owner, lastPathSegmentSym.pos, VIRTUAL);
+                    new BArrayType(symTable.typeEnv(), lastPathSegmentSym.type), this.env.scope.owner,
+                    lastPathSegmentSym.pos, VIRTUAL);
             pathSegmentCount--;
         }
 
@@ -7099,9 +7107,10 @@ public class Desugar extends BLangNodeVisitor {
         result = invRef;
 
         BInvokableSymbol invSym = (BInvokableSymbol) invocation.symbol;
-        if (Symbols.isFlagOn(invSym.retType.flags, Flags.PARAMETERIZED)) {
-            BType retType = unifier.build(invSym.retType);
-            invocation.setBType(invocation.async ? new BFutureType(TypeTags.FUTURE, retType, null) : retType);
+        if (Symbols.isFlagOn(invSym.retType.getFlags(), Flags.PARAMETERIZED)) {
+            BType retType = unifier.build(symTable.typeEnv(), invSym.retType);
+            invocation.setBType(invocation.async ?
+                    new BFutureType(symTable.typeEnv(), retType, null) : retType);
         }
 
         if (invocation.expr == null) {
@@ -7136,7 +7145,7 @@ public class Desugar extends BLangNodeVisitor {
 
     private void populateOCEInvocation(BLangInvocation invocation,
                                        BLangInvocation invRef) {
-        if (invocation.objectInitMethod && Symbols.isFlagOn(invocation.expr.getBType().flags, Flags.OBJECT_CTOR)) {
+        if (invocation.objectInitMethod && Symbols.isFlagOn(invocation.expr.getBType().getFlags(), Flags.OBJECT_CTOR)) {
             BObjectType initializingObject = (BObjectType) invocation.expr.getBType();
             BLangClassDefinition classDef = initializingObject.classDef;
             if (classDef.hasClosureVars) {
@@ -7305,13 +7314,13 @@ public class Desugar extends BLangNodeVisitor {
 
         BStreamType referredStreamType = (BStreamType) Types.getImpliedType(typeInitExpr.getBType());
         BType constraintType = referredStreamType.constraint;
-        BType constraintTdType = new BTypedescType(constraintType, symTable.typeDesc.tsymbol);
+        BType constraintTdType = new BTypedescType(symTable.typeEnv(), constraintType, symTable.typeDesc.tsymbol);
         BLangTypedescExpr constraintTdExpr = new BLangTypedescExpr();
         constraintTdExpr.resolvedType = constraintType;
         constraintTdExpr.setBType(constraintTdType);
 
         BType completionType = referredStreamType.completionType;
-        BType completionTdType = new BTypedescType(completionType, symTable.typeDesc.tsymbol);
+        BType completionTdType = new BTypedescType(symTable.typeEnv(), completionType, symTable.typeDesc.tsymbol);
         BLangTypedescExpr completionTdExpr = new BLangTypedescExpr();
         completionTdExpr.resolvedType = completionType;
         completionTdExpr.setBType(completionTdType);
@@ -7322,7 +7331,8 @@ public class Desugar extends BLangNodeVisitor {
         }
         BLangInvocation streamConstructInvocation = ASTBuilderUtil.createInvocationExprForMethod(
                 typeInitExpr.pos, symbol, args, symResolver);
-        streamConstructInvocation.setBType(new BStreamType(TypeTags.STREAM, constraintType, completionType, null));
+        streamConstructInvocation.setBType(new BStreamType(symTable.typeEnv(), TypeTags.STREAM, constraintType,
+                completionType, null));
         return streamConstructInvocation;
     }
 
@@ -7715,7 +7725,7 @@ public class Desugar extends BLangNodeVisitor {
             return;
         }
         if (TypeTags.isXMLTypeTag(lhsExprTypeTag) && !TypeTags.isXMLTypeTag(rhsExprTypeTag)) {
-            if (types.checkTypeContainString(binaryExpr.rhsExpr.getBType())) {
+            if (types.isStringSubType(binaryExpr.rhsExpr.getBType())) {
                 binaryExpr.rhsExpr = ASTBuilderUtil.createXMLTextLiteralNode(binaryExpr, binaryExpr.rhsExpr,
                         binaryExpr.rhsExpr.pos, symTable.xmlType);
                 return;
@@ -7724,7 +7734,7 @@ public class Desugar extends BLangNodeVisitor {
             return;
         }
         if (TypeTags.isXMLTypeTag(rhsExprTypeTag) && !TypeTags.isXMLTypeTag(lhsExprTypeTag)) {
-            if (types.checkTypeContainString(binaryExpr.lhsExpr.getBType())) {
+            if (types.isStringSubType(binaryExpr.lhsExpr.getBType())) {
                 binaryExpr.lhsExpr = ASTBuilderUtil.createXMLTextLiteralNode(binaryExpr, binaryExpr.lhsExpr,
                         binaryExpr.rhsExpr.pos, symTable.xmlType);
                 return;
@@ -7848,7 +7858,7 @@ public class Desugar extends BLangNodeVisitor {
         LinkedHashSet<BType> members = new LinkedHashSet<>(2);
         members.add(exprType);
         members.add(symTable.nilType);
-        BUnionType unionType = new BUnionType(null, members, true, false);
+        BUnionType unionType = new BUnionType(types.typeEnv(), null, members, false);
         return createTypeCastExpr(expr, unionType);
     }
 
@@ -8111,8 +8121,8 @@ public class Desugar extends BLangNodeVisitor {
         bLangLambdaFunction.function = rewrite(bLangLambdaFunction.function, bLangLambdaFunction.capturedClosureEnv);
         BLangFunction function = bLangLambdaFunction.function;
         // Add `@strand {thread: "any"}` annotation to an isolated named worker declaration in an isolated function.
-        if (function.flagSet.contains(Flag.WORKER) && Symbols.isFlagOn(function.symbol.type.flags, Flags.ISOLATED) &&
-                Symbols.isFlagOn(env.enclInvokable.symbol.flags, Flags.ISOLATED)) {
+        if (function.flagSet.contains(Flag.WORKER) && Symbols.isFlagOn(function.symbol.type.getFlags(), Flags.ISOLATED)
+                && Symbols.isFlagOn(env.enclInvokable.symbol.flags, Flags.ISOLATED)) {
             addStrandAnnotationWithThreadAny(function.pos);
             function.addAnnotationAttachment(this.strandAnnotAttachement);
             BInvokableSymbol funcSymbol = function.symbol;
@@ -8170,8 +8180,8 @@ public class Desugar extends BLangNodeVisitor {
         funcSymbol.retType = funcNode.returnTypeNode.getBType();
         // Create function type.
         List<BType> paramTypes = new ArrayList<>(paramSymbols.stream().map(paramSym -> paramSym.type).toList());
-        funcNode.setBType(new BInvokableType(paramTypes, getRestType(funcSymbol), funcNode.returnTypeNode.getBType(),
-                          funcSymbol.type.tsymbol));
+        funcNode.setBType(new BInvokableType(symTable.typeEnv(), paramTypes, getRestType(funcSymbol),
+                funcNode.returnTypeNode.getBType(), funcSymbol.type.tsymbol));
 
         lambdaFunction.function.pos = bLangArrowFunction.pos;
         lambdaFunction.function.body.pos = bLangArrowFunction.pos;
@@ -8357,7 +8367,7 @@ public class Desugar extends BLangNodeVisitor {
         classTSymbol.flags |= Flags.CLASS;
 
         // Create a new concrete, class type for the provided abstract object type
-        BObjectType objectClassType = new BObjectType(classTSymbol, classTSymbol.flags);
+        BObjectType objectClassType = new BObjectType(symTable.typeEnv(), classTSymbol, classTSymbol.flags);
         objectClassType.fields = objectType.fields;
         classTSymbol.type = objectClassType;
         objectClassType.typeIdSet.add(objectType.typeIdSet);
@@ -8428,7 +8438,7 @@ public class Desugar extends BLangNodeVisitor {
             param.flagSet.add(Flag.FINAL);
             initFunction.symbol.scope.define(paramSym.name, paramSym);
             initFunction.symbol.params.add(paramSym);
-            initFnType.paramTypes.add(param.getBType());
+            initFnType.addParamType(param.getBType());
             initFunction.requiredParams.add(param);
 
             BLangSimpleVarRef paramRef = ASTBuilderUtil.createVariableRef(initFunction.pos, paramSym);
@@ -8777,9 +8787,8 @@ public class Desugar extends BLangNodeVisitor {
                 annotAccessExpr.annotationSymbol.bvmAlias());
         binaryExpr.setBType(annotAccessExpr.getBType());
         binaryExpr.opSymbol = new BOperatorSymbol(Names.fromString(OperatorKind.ANNOT_ACCESS.value()), null,
-                new BInvokableType(Lists.of(binaryExpr.lhsExpr.getBType(),
-                        binaryExpr.rhsExpr.getBType()),
-                        annotAccessExpr.getBType(), null), null,
+                new BInvokableType(symTable.typeEnv(), Lists.of(binaryExpr.lhsExpr.getBType(),
+                        binaryExpr.rhsExpr.getBType()), annotAccessExpr.getBType(), null), null,
                 symTable.builtinPos, VIRTUAL);
         result = rewriteExpr(binaryExpr);
     }
@@ -9188,7 +9197,7 @@ public class Desugar extends BLangNodeVisitor {
     private BLangArrayLiteral createArrayLiteralExprNode() {
         BLangArrayLiteral expr = (BLangArrayLiteral) TreeBuilder.createArrayLiteralExpressionNode();
         expr.exprs = new ArrayList<>();
-        expr.setBType(new BArrayType(symTable.anyType));
+        expr.setBType(new BArrayType(symTable.typeEnv(), symTable.anyType));
         return expr;
     }
 
@@ -9334,7 +9343,7 @@ public class Desugar extends BLangNodeVisitor {
     }
 
     private BLangExpression createTypeCastExpr(BLangExpression expr, BType targetType) {
-        if (types.isSameType(expr.getBType(), targetType)) {
+        if (types.isSameTypeIncludingTags(expr.getBType(), targetType)) {
             return expr;
         }
 
@@ -9542,7 +9551,7 @@ public class Desugar extends BLangNodeVisitor {
             if (refType.tag == TypeTags.ARRAY) {
                 BArrayType arrayType = (BArrayType) refType;
                 if (arrayType.state == BArrayState.CLOSED &&
-                        arrayType.size == (iExpr.requiredArgs.size() - originalRequiredArgCount)) {
+                        arrayType.getSize() == (iExpr.requiredArgs.size() - originalRequiredArgCount)) {
                     // If the array was a closed array that provided only for the non rest params, set the rest param
                     // type as the element type to satisfy code gen. The foreach will not be executed at runtime.
                     valueExpr.setBType(restParamType.eType);
@@ -9806,7 +9815,7 @@ public class Desugar extends BLangNodeVisitor {
                 memberTypes.add(
                         new BTupleMember(member, varSymbol));
             }
-            BTupleType tupleType = new BTupleType(memberTypes);
+            BTupleType tupleType = new BTupleType(symTable.typeEnv(), memberTypes);
             if (tupleVariable.restVariable != null) {
                 BArrayType restArrayType = (BArrayType) getStructuredBindingPatternType(tupleVariable.restVariable);
                 tupleType.restType = restArrayType.eType;
@@ -9840,7 +9849,7 @@ public class Desugar extends BLangNodeVisitor {
                 recordSymbol.scope.define(fieldName, fieldSymbol);
             }
 
-            BRecordType recordVarType = new BRecordType(recordSymbol);
+            BRecordType recordVarType = new BRecordType(symTable.typeEnv(), recordSymbol);
             recordVarType.fields = fields;
 
             // if rest param is null we treat it as an open record with anydata rest param
@@ -9877,7 +9886,7 @@ public class Desugar extends BLangNodeVisitor {
                 TypeDefBuilderHelper.createTypeDefinitionForTSymbol(detailType, detailType.tsymbol,
                         recordTypeNode, env);
             }
-            BErrorType errorType = new BErrorType(errorTypeSymbol, detailType);
+            BErrorType errorType = new BErrorType(symTable.typeEnv(), errorTypeSymbol, detailType);
             errorTypeSymbol.type = errorType;
 
             TypeDefBuilderHelper.createTypeDefinitionForTSymbol(errorType, errorTypeSymbol,
@@ -9936,7 +9945,7 @@ public class Desugar extends BLangNodeVisitor {
                 env.enclPkg.symbol.pkgID, null, null, pos, VIRTUAL);
         detailRecordTypeSymbol.scope = new Scope(detailRecordTypeSymbol);
 
-        BRecordType detailRecordType = new BRecordType(detailRecordTypeSymbol);
+        BRecordType detailRecordType = new BRecordType(symTable.typeEnv(), detailRecordTypeSymbol);
         detailRecordType.restFieldType = symTable.anydataType;
         return detailRecordType;
     }
@@ -10094,7 +10103,7 @@ public class Desugar extends BLangNodeVisitor {
         if (!(accessExpr.errorSafeNavigation || accessExpr.nilSafeNavigation)) {
             BType originalType = Types.getImpliedType(accessExpr.originalType);
             if (isMapJson(originalType, false)) {
-                accessExpr.setBType(BUnionType.create(null, originalType, symTable.errorType));
+                accessExpr.setBType(BUnionType.create(symTable.typeEnv(), null, originalType, symTable.errorType));
             } else {
                 accessExpr.setBType(originalType);
             }
@@ -10269,7 +10278,7 @@ public class Desugar extends BLangNodeVisitor {
         BLangVariableReference tempResultVarRef = ASTBuilderUtil.createVariableRef(pos, tempResultVar.symbol);
         BLangAssignment assignmentStmt =
                 ASTBuilderUtil.createAssignmentStmt(pos, tempResultVarRef, createLiteral(pos, symTable.nilType,
-                        Names.NIL_VALUE));
+                        Names.NIL_VALUE.value));
         BLangBlockStmt clauseBody = ASTBuilderUtil.createBlockStmt(pos, this.env.scope, Lists.of(assignmentStmt));
 
         BLangWildCardMatchPattern wildCardMatchPattern = ASTBuilderUtil.createWildCardMatchPattern(matchExpr);
@@ -10322,7 +10331,8 @@ public class Desugar extends BLangNodeVisitor {
         // and may not reflect the actual type of the child/field expr.
         if (TypeTags.isXMLTypeTag(Types.getImpliedType(tempAccessExpr.expr.getBType()).tag)) {
             // todo: add discription why this is special here
-            tempAccessExpr.setBType(BUnionType.create(null, accessExpr.originalType, symTable.errorType,
+            tempAccessExpr.setBType(
+                    BUnionType.create(symTable.typeEnv(), null, accessExpr.originalType, symTable.errorType,
                     symTable.nilType));
         } else {
             tempAccessExpr.setBType(accessExpr.originalType);
@@ -10436,8 +10446,8 @@ public class Desugar extends BLangNodeVisitor {
         }
 
         BLangFunction initFunction =
-                TypeDefBuilderHelper.createInitFunctionForStructureType(classDefinition.symbol, env, names,
-                        GENERATED_INIT_SUFFIX, classDefinition.getBType(), returnType);
+                TypeDefBuilderHelper.createInitFunctionForStructureType(symTable.typeEnv(), classDefinition.symbol, env,
+                        names, GENERATED_INIT_SUFFIX, classDefinition.getBType(), returnType);
         BObjectTypeSymbol typeSymbol = ((BObjectTypeSymbol) classDefinition.getBType().tsymbol);
         typeSymbol.generatedInitializerFunc = new BAttachedFunction(GENERATED_INIT_SUFFIX, initFunction.symbol,
                 (BInvokableType) initFunction.getBType(), null);
@@ -10649,7 +10659,8 @@ public class Desugar extends BLangNodeVisitor {
 
         BInvokableTypeSymbol invokableTypeSymbol = Symbols.createInvokableTypeSymbol(SymTag.FUNCTION_TYPE, Flags.PUBLIC,
                 pkgID, xmlType, enclPkg.symbol.owner, pos, VIRTUAL);
-        arrowFunction.funcType = new BInvokableType(List.of(xmlElementType), xmlType, invokableTypeSymbol);
+        arrowFunction.funcType = new BInvokableType(symTable.typeEnv(), List.of(xmlElementType), xmlType,
+                invokableTypeSymbol);
 
         BSymbol owner = env.scope.owner;
         String parameterName = "$element$";

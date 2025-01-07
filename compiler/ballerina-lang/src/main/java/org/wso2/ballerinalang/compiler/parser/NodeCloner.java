@@ -399,6 +399,7 @@ public class NodeCloner extends BLangNodeVisitor {
         clone.nullable = source.nullable;
         clone.grouped = source.grouped;
         clone.flagSet = cloneSet(source.flagSet, Flag.class);
+        clone.defn = source.defn;
     }
 
     private <T extends Enum<T>> EnumSet<T> cloneSet(Set<T> source, Class<T> elementType) {

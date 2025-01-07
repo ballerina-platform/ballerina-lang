@@ -422,12 +422,12 @@ function testUnreachabilityWithIfStmtWithEqualityExpr14() {
 
 function testUnreachabilityWithIfStmtWithEqualityExpr15() {
     True t = true;
-    False f = false;
+    True f = true;
 
     if f == t {
-        return; // unreachable code 
+        return;
     } else if t == t {
-        string _ = "Ballerina";
+        string _ = "Ballerina"; // unreachable code
     } else {
         string _ = "Ballerina"; // unreachable code 
     }

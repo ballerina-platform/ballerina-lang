@@ -26,6 +26,7 @@ import io.ballerina.runtime.api.flags.TypeFlags;
 import io.ballerina.runtime.api.types.Field;
 import io.ballerina.runtime.api.types.IntersectableReferenceType;
 import io.ballerina.runtime.api.types.IntersectionType;
+import io.ballerina.runtime.api.types.MapType;
 import io.ballerina.runtime.api.types.PredefinedTypes;
 import io.ballerina.runtime.api.types.ReferenceType;
 import io.ballerina.runtime.api.types.SelectivelyImmutableReferenceType;
@@ -184,9 +185,9 @@ public final class ReadOnlyUtils {
                 return createAndSetImmutableIntersectionType(type, readonlyPI);
             case TypeTags.XML_TAG:
                 BXmlType origXmlType = (BXmlType) type;
-                BXmlType immutableXmlType = new BXmlType(READONLY_XML_TNAME, origXmlType.getPackage(),
-                                                         origXmlType.getTag(), true);
-                immutableXmlType.constraint = getImmutableType(origXmlType.constraint, unresolvedTypes);
+                BXmlType immutableXmlType =
+                        new BXmlType(READONLY_XML_TNAME, getImmutableType(origXmlType.constraint, unresolvedTypes),
+                                origXmlType.getPackage(), origXmlType.getTag(), true);
                 return createAndSetImmutableIntersectionType(origXmlType, immutableXmlType);
             case TypeTags.ARRAY_TAG:
                 BArrayType origArrayType = (BArrayType) type;
@@ -212,7 +213,7 @@ public final class ReadOnlyUtils {
                                 origTupleType.isCyclic, true);
                 return createAndSetImmutableIntersectionType(origTupleType, immutableTupleType);
             case TypeTags.MAP_TAG:
-                BMapType origMapType = (BMapType) type;
+                MapType origMapType = (MapType) type;
                 BMapType immutableMapType = new BMapType(getImmutableType(origMapType.getConstrainedType(),
                                                                           unresolvedTypes), true);
                 return createAndSetImmutableIntersectionType(origMapType, immutableMapType);

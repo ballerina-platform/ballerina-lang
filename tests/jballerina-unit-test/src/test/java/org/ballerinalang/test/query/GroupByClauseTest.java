@@ -229,8 +229,6 @@ public class GroupByClauseTest {
                 "constructor or function invocation", 32, 28);
         BAssertUtil.validateError(negativeResult, i++, "sequence variable can be used in a single element list " +
                 "constructor or function invocation", 35, 25);
-        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'seq int', found 'seq int'",
-                36, 20);
         BAssertUtil.validateError(negativeResult, i++, "operator '+' not defined for 'seq int' and 'int'", 39, 20);
         BAssertUtil.validateError(negativeResult, i++, "sequence variable can be used in a single element list " +
                 "constructor or function invocation", 39, 20);

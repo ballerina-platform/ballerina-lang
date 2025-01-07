@@ -17,10 +17,12 @@
  */
 package org.wso2.ballerinalang.compiler.semantics.model.types;
 
+import io.ballerina.types.SemType;
+import io.ballerina.types.SemTypes;
 import org.ballerinalang.model.Name;
 import org.ballerinalang.model.types.TypeKind;
-import org.wso2.ballerinalang.compiler.semantics.model.TypeVisitor;
 import org.wso2.ballerinalang.compiler.util.Names;
+import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.util.Flags;
 
 /**
@@ -30,55 +32,44 @@ import org.wso2.ballerinalang.util.Flags;
  */
 public class BIntSubType extends BType {
 
-    public BIntSubType(int tag, Name name) {
+    public static final BIntSubType SIGNED32 = new BIntSubType(TypeTags.SIGNED32_INT, Names.SIGNED32, SemTypes.SINT32);
+    public static final BIntSubType SIGNED16 = new BIntSubType(TypeTags.SIGNED16_INT, Names.SIGNED16, SemTypes.SINT16);
+    public static final BIntSubType SIGNED8 = new BIntSubType(TypeTags.SIGNED8_INT, Names.SIGNED8, SemTypes.SINT8);
 
-        super(tag, null, name, Flags.READONLY);
+    public static final BIntSubType UNSIGNED32 = new BIntSubType(TypeTags.UNSIGNED32_INT, Names.UNSIGNED32,
+                                                                SemTypes.UINT32);
+    public static final BIntSubType UNSIGNED16 = new BIntSubType(TypeTags.UNSIGNED16_INT, Names.UNSIGNED16,
+                                                                SemTypes.UINT16);
+    public static final BIntSubType UNSIGNED8 = new BIntSubType(TypeTags.UNSIGNED8_INT, Names.UNSIGNED8,
+                                                                SemTypes.UINT8);
+
+    private BIntSubType(int tag, Name name, SemType semType) {
+        super(tag, null, name, Flags.READONLY, semType);
     }
 
     @Override
     public boolean isNullable() {
-
         return false;
     }
 
     @Override
     public <T, R> R accept(BTypeVisitor<T, R> visitor, T t) {
-
         return visitor.visit(this, t);
     }
 
     @Override
     public TypeKind getKind() {
-
         return TypeKind.INT;
     }
 
     @Override
-    public void accept(TypeVisitor visitor) {
-
-        visitor.visit(this);
-    }
-
-    @Override
     public String toString() {
-
         return Names.INT.value + Names.ALIAS_SEPARATOR + name;
     }
 
     @Override
     public String getQualifiedTypeName() {
-
         return Names.BALLERINA_ORG.value + Names.ORG_NAME_SEPARATOR.value
                 + Names.LANG.value + Names.DOT.value + Names.INT.value + Names.ALIAS_SEPARATOR + name;
-    }
-
-    public boolean isAnydata() {
-
-        return true;
-    }
-
-    public boolean isPureType() {
-
-        return true;
     }
 }

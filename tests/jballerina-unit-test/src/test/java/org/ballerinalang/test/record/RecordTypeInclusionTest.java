@@ -54,14 +54,12 @@ public class RecordTypeInclusionTest {
                 "test-src/record/test_record_cyclic_inclusion_via_field_negative.bal");
         int index = 0;
         validateError(compileResult, index++, "missing non-defaultable required record field 'x'", 26, 13);
-        validateError(compileResult, index++, "incompatible types: expected 'Bar', found 'int'", 27, 11);
+        validateError(compileResult, index++, "cannot update 'readonly' value of type 'Foo'", 27, 5);
         validateError(compileResult, index++, "incompatible types: expected 'Bar', found 'int'", 29, 17);
         validateError(compileResult, index++, "incompatible types: expected 'Bar', found 'int'", 31, 21);
         validateError(compileResult, index++, "missing non-defaultable required record field 'innerError'", 42, 21);
         validateError(compileResult, index++, "incompatible types: expected 'record {| string code?; ... innerError; " +
                 "anydata...; |}', found 'int'", 43, 20);
-        validateError(compileResult, index++, "incompatible types: expected 'int', found 'record {| string code?; ..." +
-                " innerError; anydata...; |}'", 46, 13);
         Assert.assertEquals(compileResult.getErrorCount(), index);
     }
 }

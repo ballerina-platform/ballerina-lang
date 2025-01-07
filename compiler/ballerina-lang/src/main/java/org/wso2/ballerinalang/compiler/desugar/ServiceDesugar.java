@@ -241,7 +241,7 @@ public class ServiceDesugar {
                 }
                 members.add(memberType);
             }
-            return BUnionType.create(null, members);
+            return BUnionType.create(symTable.typeEnv(), null, members);
         }
         return type;
     }
@@ -268,7 +268,7 @@ public class ServiceDesugar {
         // call is generated in BIRGen. Casting to the first listener type should be fine as actual method invocation
         // is based on the value rather than the type.
         BType listenerType = getListenerType(varRef.getBType());
-        if (!types.isSameType(listenerType, varRef.getBType())) {
+        if (!types.isSameTypeIncludingTags(listenerType, varRef.getBType())) {
             BLangTypeConversionExpr castExpr = (BLangTypeConversionExpr) TreeBuilder.createTypeConversionNode();
             castExpr.expr = varRef;
             castExpr.setBType(listenerType);

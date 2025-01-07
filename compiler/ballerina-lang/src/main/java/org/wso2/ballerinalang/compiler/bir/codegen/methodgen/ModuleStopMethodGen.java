@@ -28,7 +28,7 @@ import org.wso2.ballerinalang.compiler.bir.codegen.JvmTypeGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.AsyncDataCollector;
 import org.wso2.ballerinalang.compiler.bir.codegen.split.JvmConstantsGen;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BNilType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 
 import java.util.Set;
 
@@ -120,7 +120,7 @@ public class ModuleStopMethodGen {
         JvmCodeGenUtil.createFunctionPointer(mv, initClass, stopFuncName);
         // no parent strand
         mv.visitInsn(ACONST_NULL);
-        jvmTypeGen.loadType(mv, new BNilType());
+        jvmTypeGen.loadType(mv, BType.createNilType());
         mv.visitLdcInsn("stop");
         mv.visitInsn(ACONST_NULL);
         mv.visitIntInsn(BIPUSH, 1);

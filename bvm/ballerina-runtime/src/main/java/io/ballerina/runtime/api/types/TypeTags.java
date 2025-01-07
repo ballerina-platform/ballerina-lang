@@ -92,10 +92,9 @@ public final class TypeTags {
     }
 
     public static boolean isIntegerTypeTag(int tag) {
-
-        // TODO : Fix byte type. Ideally, byte belongs to here. But we have modeled it differently.
         return switch (tag) {
-            case INT_TAG,
+            case BYTE_TAG,
+                 INT_TAG,
                  SIGNED32_INT_TAG,
                  SIGNED16_INT_TAG,
                  SIGNED8_INT_TAG,

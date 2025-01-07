@@ -911,7 +911,6 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
             BLangUnaryExpr unaryExpr = createBLangUnaryExpr(unaryConstant.pos, unaryConstant.operator,
                     unaryConstant.expr);
             unaryExpr.setBType(unaryConstant.expr.getBType());
-            unaryExpr.isConstant = true;
             finiteTypeNode.valueSpace.add(unaryExpr);
         }
         finiteTypeNode.pos = identifierPos;
@@ -2794,7 +2793,7 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
         } else {
             BLangLiteral nilLiteral = (BLangLiteral) TreeBuilder.createLiteralExpression();
             nilLiteral.pos = getPosition(returnStmtNode);
-            nilLiteral.value = Names.NIL_VALUE;
+            nilLiteral.value = Names.NIL_VALUE.value;
             nilLiteral.setBType(symTable.nilType);
             bLReturn.expr = nilLiteral;
         }
@@ -6115,6 +6114,7 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
                 typeTag = TypeTags.INT;
                 value = getIntegerLiteral(literal, textValue);
                 originalValue = textValue;
+                // TODO: can we fix below?
                 if (literalTokenKind == SyntaxKind.HEX_INTEGER_LITERAL_TOKEN && withinByteRange(value)) {
                     typeTag = TypeTags.BYTE;
                 }
@@ -6184,9 +6184,9 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
             originalValue = textValue;
             bLiteral = (BLangLiteral) TreeBuilder.createLiteralExpression();
         } else if (type == SyntaxKind.NIL_LITERAL) {
-            originalValue = "()";
+            originalValue = Names.NIL_VALUE.value;
             typeTag = TypeTags.NIL;
-            value = "()";
+            value = Names.NIL_VALUE.value;
             bLiteral = (BLangLiteral) TreeBuilder.createLiteralExpression();
         }  else if (type == SyntaxKind.NULL_LITERAL) {
             originalValue = "null";

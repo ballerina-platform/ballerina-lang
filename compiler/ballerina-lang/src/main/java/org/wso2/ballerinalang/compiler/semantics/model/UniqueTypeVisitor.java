@@ -22,7 +22,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BAnnotationType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BAnyType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BAnydataType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BBuiltInRefType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BErrorType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFiniteType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFutureType;
@@ -33,11 +32,11 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BJSONType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BNeverType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BNilType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BNoType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BPackageType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BParameterizedType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BReadonlyType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStructureType;
@@ -56,75 +55,75 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BXMLType;
  * @param <R> return type of visit methods
  * @since Swan Lake
  */
-public interface UniqueTypeVisitor<R> {
+public abstract class UniqueTypeVisitor<R> {
 
-    default R visit(UniqueTypeVisitor<R> visitor) {
+    R visit(UniqueTypeVisitor<R> visitor) {
         return visitor.visit(this);
     }
 
-    boolean isVisited(BType type);
+    public abstract boolean isVisited(BType type);
 
-    void reset();
+    public abstract void reset();
 
-    R visit(BAnnotationType bAnnotationType);
+    public abstract R visit(BAnnotationType bAnnotationType);
 
-    R visit(BArrayType bArrayType);
+    public abstract R visit(BArrayType bArrayType);
 
-    R visit(BBuiltInRefType bBuiltInRefType);
+    public abstract R visit(BReadonlyType bReadonlyType);
 
-    R visit(BAnyType bAnyType);
+    public abstract R visit(BAnyType bAnyType);
 
-    R visit(BAnydataType bAnydataType);
+    public abstract R visit(BAnydataType bAnydataType);
 
-    R visit(BErrorType bErrorType);
+    public abstract R visit(BErrorType bErrorType);
 
-    R visit(BFiniteType bFiniteType);
+    public abstract R visit(BFiniteType bFiniteType);
 
-    R visit(BInvokableType bInvokableType);
+    public abstract R visit(BInvokableType bInvokableType);
 
-    R visit(BJSONType bjsonType);
+    public abstract R visit(BJSONType bjsonType);
 
-    R visit(BMapType bMapType);
+    public abstract R visit(BMapType bMapType);
 
-    R visit(BStreamType bStreamType);
+    public abstract R visit(BStreamType bStreamType);
 
-    R visit(BTypedescType bTypedescType);
+    public abstract R visit(BTypedescType bTypedescType);
 
-    R visit(BParameterizedType bTypedescType);
+    public abstract R visit(BParameterizedType bTypedescType);
 
-    R visit(BNeverType bNeverType);
+    public abstract R visit(BNeverType bNeverType);
 
-    R visit(BNilType bNilType);
+    public abstract R visitNilType(BType bType);
 
-    R visit(BNoType bNoType);
+    public abstract R visit(BNoType bNoType);
 
-    R visit(BPackageType bPackageType);
+    public abstract R visit(BPackageType bPackageType);
 
-    R visit(BStructureType bStructureType);
+    public abstract R visit(BStructureType bStructureType);
 
-    R visit(BTupleType bTupleType);
+    public abstract R visit(BTupleType bTupleType);
 
-    R visit(BUnionType bUnionType);
+    public abstract R visit(BUnionType bUnionType);
 
-    R visit(BIntersectionType bIntersectionType);
+    public abstract R visit(BIntersectionType bIntersectionType);
 
-    R visit(BTypeReferenceType bTypeReferenceType);
+    public abstract R visit(BTypeReferenceType bTypeReferenceType);
 
-    R visit(BXMLType bxmlType);
+    public abstract R visit(BXMLType bxmlType);
 
-    R visit(BTableType bTableType);
+    public abstract R visit(BTableType bTableType);
 
-    R visit(BRecordType bRecordType);
+    public abstract R visit(BRecordType bRecordType);
 
-    R visit(BObjectType bObjectType);
+    public abstract R visit(BObjectType bObjectType);
 
-    R visit(BType bType);
+    public abstract R visit(BType bType);
 
-    R visit(BFutureType bFutureType);
+    public abstract R visit(BFutureType bFutureType);
 
-    R visit(BHandleType bHandleType);
+    public abstract R visit(BHandleType bHandleType);
 
-    R visit(BIntSubType intSubType);
+    public abstract R visit(BIntSubType intSubType);
 
-    R visit(BXMLSubType bxmlSubType);
+    public abstract R visit(BXMLSubType bxmlSubType);
 }

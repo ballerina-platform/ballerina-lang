@@ -19,6 +19,7 @@ package org.wso2.ballerinalang.compiler.bir.codegen;
 
 import io.ballerina.identifier.Utils;
 import io.ballerina.tools.diagnostics.Location;
+import io.ballerina.types.PredefinedType;
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.PackageID;
@@ -53,6 +54,7 @@ import org.wso2.ballerinalang.compiler.bir.model.InstructionKind;
 import org.wso2.ballerinalang.compiler.bir.model.VarKind;
 import org.wso2.ballerinalang.compiler.bir.model.VarScope;
 import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLocation;
+import org.wso2.ballerinalang.compiler.semantics.analyzer.SemTypeHelper;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
@@ -63,11 +65,9 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BResourcePathSegm
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BErrorType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFutureType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
@@ -181,7 +181,7 @@ class JvmObservabilityGen {
             if ((typeDef.flags & Flags.CLASS) != Flags.CLASS && bType.tag == TypeTags.OBJECT) {
                 continue;
             }
-            boolean isService = (bType.flags & Flags.SERVICE) == Flags.SERVICE;
+            boolean isService = (bType.getFlags() & Flags.SERVICE) == Flags.SERVICE;
             String serviceName = null;
             if (isService) {
                 for (BIRNode.BIRAnnotationAttachment annotationAttachment : typeDef.annotAttachments) {
@@ -360,7 +360,7 @@ class JvmObservabilityGen {
             }
             Name lambdaName = new Name(LAMBDA_PREFIX + "observability" + lambdaIndex++ + "$" +
                     asyncCallIns.name.getValue().replace(".", "_"));
-            BInvokableType bInvokableType = new BInvokableType(argTypes, null,
+            BInvokableType bInvokableType = new BInvokableType(symbolTable.typeEnv(), argTypes, null,
                     returnType, null);
             BIRFunction desugaredFunc = new BIRFunction(asyncCallIns.pos, lambdaName, 0, bInvokableType,
                     func.workerName, 0, VIRTUAL);
@@ -986,20 +986,7 @@ class JvmObservabilityGen {
      * @return True if an error can be assigned and false otherwise
      */
     private boolean isErrorAssignable(BIRVariableDcl variableDcl) {
-        boolean isErrorAssignable = false;
-        if (variableDcl.type instanceof BUnionType returnUnionType) {
-            boolean b = false;
-            for (BType type : returnUnionType.getMemberTypes()) {
-                if (type instanceof BErrorType) {
-                    b = true;
-                    break;
-                }
-            }
-            isErrorAssignable = b;
-        } else if (variableDcl.type instanceof BErrorType) {
-            isErrorAssignable = true;
-        }
-        return isErrorAssignable;
+        return SemTypeHelper.containsBasicType(variableDcl.type, PredefinedType.ERROR);
     }
 
     /**

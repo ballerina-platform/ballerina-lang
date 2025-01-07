@@ -205,7 +205,7 @@ public class TransactionDesugar extends BLangNodeVisitor {
         BType transactionReturnType = symTable.errorOrNilType;
 
         // wraps content within transaction body inside a statement expression
-        BLangLiteral nilLiteral = ASTBuilderUtil.createLiteral(pos, symTable.nilType, Names.NIL_VALUE);
+        BLangLiteral nilLiteral = ASTBuilderUtil.createLiteral(pos, symTable.nilType, Names.NIL_VALUE.value);
         BLangStatementExpression statementExpression =
                 createStatementExpression(transactionNode.transactionBody, nilLiteral);
         statementExpression.setBType(symTable.nilType);
@@ -373,7 +373,7 @@ public class TransactionDesugar extends BLangNodeVisitor {
     }
 
     BLangSimpleVariableDef createPrevAttemptInfoVarDef(SymbolEnv env, Location pos) {
-        BLangLiteral nilLiteral = ASTBuilderUtil.createLiteral(pos, symTable.nilType, Names.NIL_VALUE);
+        BLangLiteral nilLiteral = ASTBuilderUtil.createLiteral(pos, symTable.nilType, Names.NIL_VALUE.value);
         BLangSimpleVariable prevAttemptVariable = createPrevAttemptVariable(env, pos);
         prevAttemptVariable.expr = nilLiteral;
         return ASTBuilderUtil.createVariableDef(pos, prevAttemptVariable);
@@ -384,7 +384,7 @@ public class TransactionDesugar extends BLangNodeVisitor {
         BSymbol infoRecordSymbol = symResolver.
                 lookupSymbolInMainSpace(symTable.pkgEnvMap.get(symTable.langTransactionModuleSymbol),
                 TRANSACTION_INFO_RECORD);
-        BType infoRecordType = BUnionType.create(null, infoRecordSymbol.type, symTable.nilType);
+        BType infoRecordType = BUnionType.create(symTable.typeEnv(), null, infoRecordSymbol.type, symTable.nilType);
         BVarSymbol prevAttemptVarSymbol = new BVarSymbol(0, new Name("prevAttempt" + uniqueId),
                 env.scope.owner.pkgID, infoRecordType, env.scope.owner, pos, VIRTUAL);
         prevAttemptVarSymbol.closure = true;
@@ -515,7 +515,7 @@ public class TransactionDesugar extends BLangNodeVisitor {
         BLangExpressionStmt cleanUpTrx = ASTBuilderUtil.createExpressionStmt(pos, rollbackBlockStmt);
         cleanUpTrx.expr = createCleanupTrxStmt(pos, trxBlockId);
         BLangStatementExpression rollbackStmtExpr = createStatementExpression(rollbackBlockStmt,
-                ASTBuilderUtil.createLiteral(pos, symTable.nilType, Names.NIL_VALUE));
+                ASTBuilderUtil.createLiteral(pos, symTable.nilType, Names.NIL_VALUE.value));
         rollbackStmtExpr.setBType(symTable.nilType);
 
         //at this point,
@@ -564,7 +564,7 @@ public class TransactionDesugar extends BLangNodeVisitor {
                 createInvocationExprForMethod(pos, commitTransactionInvokableSymbol, args, symResolver);
         commitTransactionInvocation.argExprs = args;
 
-        BType commitReturnType = BUnionType.create(null, symTable.stringType, symTable.errorType);
+        BType commitReturnType = BUnionType.create(symTable.typeEnv(), null, symTable.stringType, symTable.errorType);
 
         BVarSymbol commitTransactionVarSymbol = new BVarSymbol(0, new Name("commitResult"),
                 env.scope.owner.pkgID, commitReturnType, env.scope.owner, pos, VIRTUAL);
@@ -611,8 +611,7 @@ public class TransactionDesugar extends BLangNodeVisitor {
                 isTransactionFailedVariable.symbol);
         List<BType> paramTypes = new ArrayList<>();
         paramTypes.add(symTable.booleanType);
-        BInvokableType type = new BInvokableType(paramTypes, symTable.booleanType,
-                                                 null);
+        BInvokableType type = new BInvokableType(symTable.typeEnv(), paramTypes, symTable.booleanType, null);
         BOperatorSymbol notOperatorSymbol = new BOperatorSymbol(
                 Names.fromString(OperatorKind.NOT.value()), symTable.rootPkgSymbol.pkgID, type, symTable.rootPkgSymbol,
                 symTable.builtinPos, VIRTUAL);
@@ -640,7 +639,7 @@ public class TransactionDesugar extends BLangNodeVisitor {
     }
 
     private BLangSimpleVariableDef createCommitResultVarDef(SymbolEnv env, Location pos) {
-        BLangExpression nilLiteral = ASTBuilderUtil.createLiteral(pos, symTable.nilType, Names.NIL_VALUE);
+        BLangExpression nilLiteral = ASTBuilderUtil.createLiteral(pos, symTable.nilType, Names.NIL_VALUE.value);
         BVarSymbol outputVarSymbol = new BVarSymbol(0, new Name("$outputVar$"),
                 env.scope.owner.pkgID, symTable.errorOrNilType, env.scope.owner, pos, VIRTUAL);
         BLangSimpleVariable outputVariable =

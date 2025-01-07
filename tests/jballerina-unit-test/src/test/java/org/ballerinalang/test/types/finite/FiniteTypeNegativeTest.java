@@ -163,7 +163,7 @@ public class FiniteTypeNegativeTest {
                 183, 12);
         validateError(resultNegativeTwo, i++, "incompatible types: expected '2d', found 'string'",
                 187, 12);
-        validateError(resultNegativeTwo, i++, "incompatible types: 'int' cannot be cast to '2f'",
+        validateError(resultNegativeTwo, i++, "incompatible types: expected '2d', found '2f'",
                 191, 12);
         validateError(resultNegativeTwo, i++, "incompatible types: expected '3d', found '4f'",
                 192, 12);
@@ -233,14 +233,14 @@ public class FiniteTypeNegativeTest {
                 "found 'float'", 276, 34);
         validateError(resultNegativeTwo, i++, "incompatible types: expected '1.7976931348623157E309d', " +
                 "found 'decimal'", 277, 34);
-        validateError(resultNegativeTwo, i++, "'-9.223372036854776E18' is out of range for 'int'",
-                280, 20);
+        validateError(resultNegativeTwo, i++, "'9223372036854775808' is out of range for 'int'",
+                280, 21);
         validateError(resultNegativeTwo, i++, "unknown type 'testType'", 282, 5);
         validateError(resultNegativeTwo, i++, "'9223372036854775808' is out of range for 'int'",
                 285, 30);
         validateError(resultNegativeTwo, i++, "unknown type 'testType'", 286, 5);
-        validateError(resultNegativeTwo, i++, "'-9.223372036854776E18' is out of range for 'int'",
-                290, 19);
+        validateError(resultNegativeTwo, i++, "'9223372036854775808' is out of range for 'int'",
+                290, 20);
         validateError(resultNegativeTwo, i++, "unknown type 'InvalidTest1'", 292, 5);
         validateError(resultNegativeTwo, i++, "incompatible types: expected '1f', found 'float'",
                 296, 12);

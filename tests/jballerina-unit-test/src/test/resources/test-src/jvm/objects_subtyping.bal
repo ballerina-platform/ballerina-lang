@@ -161,9 +161,7 @@ public function testObjectAssignabilityBetweenNonClientAndClientObject() {
     subtyping:ClientObjectWithoutRemoteMethod o2 = new subtyping:ClientObjectWithoutRemoteMethod("ClientObjectWithoutRemoteMethod");
 
     subtyping:NonClientObject obj3 = o2;
-    subtyping:ClientObjectWithoutRemoteMethod obj4 = obj1;
 
-    assertEquality("NonClientObject", obj4.name);
     assertEquality("ClientObjectWithoutRemoteMethod", obj3.name);
 }
 

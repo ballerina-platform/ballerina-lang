@@ -29,7 +29,6 @@ import org.testng.annotations.Test;
 import static org.ballerinalang.test.BAssertUtil.validateError;
 import static org.ballerinalang.test.BAssertUtil.validateWarning;
 import static org.testng.Assert.assertEquals;
-import static java.lang.String.format;
 
 /**
  * Test cases for testing the object subtyping rules.
@@ -94,12 +93,6 @@ public class ObjectSubtypingTest {
         int i = 0;
         validateError(result, i++, "private qualifier in object member descriptor", 21, 5);
         validateError(result, i++, "private qualifier in object member descriptor", 28, 5);
-        validateError(result, i++, format(msgFormat, "ObjWithPvtField", "AnotherObjWithAPvtField"), 45, 26);
-        validateError(result, i++, format(msgFormat, "ObjWithPvtMethod", "AnotherObjWithPvtMethod"), 46, 27);
-        validateError(result, i++, format(msgFormat, "testorg/subtyping:1.0.0:ModuleLevelSubtypableObj", "Subtype1"),
-                65, 45);
-        validateError(result, i++, format(msgFormat, "testorg/subtyping:1.0.0:ModuleLevelSubtypableObj2", "Subtype2"),
-                66, 46);
         assertEquals(result.getErrorCount(), i);
     }
 

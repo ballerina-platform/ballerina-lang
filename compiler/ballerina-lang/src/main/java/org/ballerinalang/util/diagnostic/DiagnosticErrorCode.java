@@ -778,7 +778,7 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     UNDEFINED_RESOURCE("BCE4028", "undefined.resource"),
     UNDEFINED_RESOURCE_METHOD("BCE4029", "undefined.resource.method"),
     AMBIGUOUS_RESOURCE_ACCESS_NOT_YET_SUPPORTED("BCE4030", "ambiguous.resource.access.not.yet.supported"),
-    UNSUPPORTED_COMPUTED_RESOURCE_ACCESS_PATH_SEGMENT_TYPE("BCE4031", 
+    UNSUPPORTED_COMPUTED_RESOURCE_ACCESS_PATH_SEGMENT_TYPE("BCE4031",
             "unsupported.computed.resource.access.path.segment.type"),
     UNSUPPORTED_RESOURCE_ACCESS_REST_SEGMENT_TYPE("BCE4032", "unsupported.resource.access.rest.segment.type"),
     INVALID_RESOURCE_METHOD_RETURN_TYPE("BCE4033", "invalid.resource.method.return.type"),

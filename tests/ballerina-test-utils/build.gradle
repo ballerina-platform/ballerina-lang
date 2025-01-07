@@ -22,6 +22,7 @@ plugins {
 
 dependencies {
     implementation project(':ballerina-tools-api')
+    implementation project(':ballerina-parser')
     implementation project(':ballerina-lang')
     implementation project(':ballerina-runtime')
     implementation project(':ballerina-cli')

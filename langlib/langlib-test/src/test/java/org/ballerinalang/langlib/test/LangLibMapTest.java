@@ -20,12 +20,12 @@ package org.ballerinalang.langlib.test;
 
 import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.types.ArrayType;
+import io.ballerina.runtime.api.types.MapType;
 import io.ballerina.runtime.api.types.TypeTags;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
-import io.ballerina.runtime.internal.types.BMapType;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
@@ -86,7 +86,7 @@ public class LangLibMapTest {
         assertEquals(getType(returns).getTag(), TypeTags.MAP_TAG);
 
         BMap<?, ?> map = (BMap<?, ?>) returns;
-        assertEquals(((BMapType) map.getType()).getConstrainedType().getTag(), TypeTags.TUPLE_TAG);
+        assertEquals(((MapType) map.getType()).getConstrainedType().getTag(), TypeTags.TUPLE_TAG);
         assertEquals(map.size(), 3);
         assertEquals(map.get(StringUtils.fromString("lk")).toString(), "[\"lk\",\"Sri Lanka\"]");
         assertEquals(map.get(StringUtils.fromString("us")).toString(), "[\"us\",\"USA\"]");
@@ -148,7 +148,7 @@ public class LangLibMapTest {
         assertEquals(getType(returns).getTag(), TypeTags.MAP_TAG);
 
         BMap<?, ?> map = (BMap<?, ?>) returns;
-        assertEquals(((BMapType) map.getType()).getConstrainedType().getTag(), TypeTags.FLOAT_TAG);
+        assertEquals(((MapType) map.getType()).getConstrainedType().getTag(), TypeTags.FLOAT_TAG);
         assertEquals(map.size(), 3);
         assertEquals(map.get(StringUtils.fromString("1")), 5.5d);
         assertEquals(map.get(StringUtils.fromString("2")), 11.0d);
@@ -167,7 +167,7 @@ public class LangLibMapTest {
         assertEquals(getType(returns).getTag(), TypeTags.MAP_TAG);
 
         BMap<?, ?> map = (BMap<?, ?>) returns;
-        assertEquals(((BMapType) map.getType()).getConstrainedType().getTag(), TypeTags.DECIMAL_TAG);
+        assertEquals(((MapType) map.getType()).getConstrainedType().getTag(), TypeTags.DECIMAL_TAG);
         assertEquals(map.size(), 2);
         assertEquals(map.get(StringUtils.fromString("1")), ValueCreator.createDecimalValue("12.34"));
         assertEquals(map.get(StringUtils.fromString("4")), ValueCreator.createDecimalValue("21.2"));

@@ -358,12 +358,14 @@ public class ManifestBuilder {
                         || !moduleName.contains(DOT)) { // The invalid module name is already handled
                     continue;
                 }
+                String moduleNamepart = moduleName.substring(packageName.toString().length() + 1);
 
                 boolean export = Boolean.TRUE.equals(getBooleanValueFromTomlTableNode(modulesNode, EXPORT));
                 String description = getStringValueFromTomlTableNode(modulesNode, DESCRIPTION, null);
                 String modReadme = getStringValueFromTomlTableNode(modulesNode, README, null);
                 if (modReadme == null) {
-                    Path defaultReadme = modulesRoot.resolve(moduleName).resolve(ProjectConstants.README_MD_FILE_NAME);
+                    Path defaultReadme = modulesRoot.resolve(moduleNamepart)
+                            .resolve(ProjectConstants.README_MD_FILE_NAME);
                     if (Files.exists(defaultReadme)) {
                         modReadme = defaultReadme.toString();
                     }
@@ -375,7 +377,7 @@ public class ManifestBuilder {
                 PackageManifest.Module module = new PackageManifest.Module(moduleName, export,
                         description, modReadme);
                 moduleList.add(module);
-                moduleDirs.remove(moduleName.split("[.]")[1]);
+                moduleDirs.remove(moduleNamepart);
             }
             // If there are README.mds in other modules, add them
             for (Map.Entry<String, Path> pathEntry : moduleDirs.entrySet()) {

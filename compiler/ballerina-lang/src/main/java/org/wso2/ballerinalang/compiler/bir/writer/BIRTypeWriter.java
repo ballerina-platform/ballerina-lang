@@ -17,17 +17,43 @@
  */
 package org.wso2.ballerinalang.compiler.bir.writer;
 
+import io.ballerina.types.Atom;
+import io.ballerina.types.AtomicType;
+import io.ballerina.types.BasicTypeBitSet;
+import io.ballerina.types.Bdd;
+import io.ballerina.types.CellAtomicType;
+import io.ballerina.types.CellSemType;
+import io.ballerina.types.ComplexSemType;
+import io.ballerina.types.EnumerableCharString;
+import io.ballerina.types.EnumerableDecimal;
+import io.ballerina.types.EnumerableFloat;
+import io.ballerina.types.EnumerableString;
+import io.ballerina.types.Env;
+import io.ballerina.types.FixedLengthArray;
+import io.ballerina.types.FunctionAtomicType;
+import io.ballerina.types.ListAtomicType;
+import io.ballerina.types.MappingAtomicType;
+import io.ballerina.types.PredefinedTypeEnv;
+import io.ballerina.types.ProperSubtypeData;
+import io.ballerina.types.RecAtom;
+import io.ballerina.types.SemType;
+import io.ballerina.types.TypeAtom;
+import io.ballerina.types.subtypedata.BddAllOrNothing;
+import io.ballerina.types.subtypedata.BddNode;
+import io.ballerina.types.subtypedata.BooleanSubtype;
+import io.ballerina.types.subtypedata.CharStringSubtype;
+import io.ballerina.types.subtypedata.DecimalSubtype;
+import io.ballerina.types.subtypedata.FloatSubtype;
+import io.ballerina.types.subtypedata.IntSubtype;
+import io.ballerina.types.subtypedata.NonCharStringSubtype;
+import io.ballerina.types.subtypedata.Range;
+import io.ballerina.types.subtypedata.StringSubtype;
+import io.ballerina.types.subtypedata.XmlSubtype;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import org.ballerinalang.model.elements.MarkdownDocAttachment;
 import org.ballerinalang.model.symbols.SymbolKind;
-import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.ByteCPEntry;
-import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.FloatCPEntry;
-import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.IntegerCPEntry;
 import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.StringCPEntry;
-import org.wso2.ballerinalang.compiler.semantics.analyzer.IsAnydataUniqueVisitor;
-import org.wso2.ballerinalang.compiler.semantics.analyzer.IsPureTypeUniqueVisitor;
-import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
 import org.wso2.ballerinalang.compiler.semantics.model.TypeVisitor;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConstantSymbol;
@@ -45,7 +71,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BAnnotationType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BAnyType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BAnydataType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BBuiltInRefType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BErrorType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFiniteType;
@@ -56,7 +81,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BJSONType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BNeverType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BNilType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BNoType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BPackageType;
@@ -73,13 +97,12 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeReferenceType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypedescType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BXMLType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.TypeFlags;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
-import org.wso2.ballerinalang.compiler.util.TypeTags;
+import org.wso2.ballerinalang.compiler.semantics.model.types.SemNamedType;
 import org.wso2.ballerinalang.util.Flags;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
@@ -89,29 +112,27 @@ import static org.wso2.ballerinalang.compiler.bir.writer.BIRWriterUtils.getBIRAn
 /**
  * Writes bType to a Byte Buffer in binary format.
  * A ConstPool is used to store string typed information.
- * 
+ *
  * @since 0.995.0
  */
-public class BIRTypeWriter implements TypeVisitor {
+public class BIRTypeWriter extends TypeVisitor {
     private final ByteBuf buff;
 
     private final ConstantPool cp;
-    private static final IsPureTypeUniqueVisitor isPureTypeUniqueVisitor = new IsPureTypeUniqueVisitor();
-    private static final IsAnydataUniqueVisitor isAnydataUniqueVisitor = new IsAnydataUniqueVisitor();
+    private final Set<Atom.AtomIdentifier> visitedAtoms = new HashSet<>();
+    private final Env typeEnv;
+    private final PredefinedTypeEnv predefinedTypeEnv = PredefinedTypeEnv.getInstance();
 
-    public BIRTypeWriter(ByteBuf buff, ConstantPool cp) {
+    public BIRTypeWriter(ByteBuf buff, ConstantPool cp, Env typeEnv) {
         this.buff = buff;
         this.cp = cp;
+        this.typeEnv = typeEnv;
     }
 
     public void visitType(BType type) {
         buff.writeByte(type.tag);
         buff.writeInt(addStringCPEntry(type.name.getValue()));
-        buff.writeLong(type.flags);
-        isPureTypeUniqueVisitor.reset();
-        isAnydataUniqueVisitor.reset();
-        buff.writeInt(TypeFlags.asMask(type.isNullable(), isAnydataUniqueVisitor.visit(type),
-                isPureTypeUniqueVisitor.visit(type)));
+        buff.writeLong(type.getFlags());
         type.accept(this);
     }
 
@@ -127,13 +148,8 @@ public class BIRTypeWriter implements TypeVisitor {
     @Override
     public void visit(BArrayType bArrayType) {
         buff.writeByte(bArrayType.state.getValue());
-        buff.writeInt(bArrayType.size);
+        buff.writeInt(bArrayType.getSize());
         writeTypeCpIndex(bArrayType.getElementType());
-    }
-
-    @Override
-    public void visit(BBuiltInRefType bBuiltInRefType) {
-        throwUnimplementedError(bBuiltInRefType);
     }
 
     @Override
@@ -174,20 +190,15 @@ public class BIRTypeWriter implements TypeVisitor {
         BTypeSymbol tsymbol = bFiniteType.tsymbol;
         buff.writeInt(addStringCPEntry(tsymbol.name.value));
         buff.writeLong(tsymbol.flags);
-        buff.writeInt(bFiniteType.getValueSpace().size());
-        for (BLangExpression valueLiteral : bFiniteType.getValueSpace()) {
-            if (!(valueLiteral instanceof BLangLiteral bLangLiteral)) {
-                throw new AssertionError(
-                        "Type serialization is not implemented for finite type with value: " + valueLiteral.getKind());
-            }
-            writeTypeCpIndex(valueLiteral.getBType());
-            writeValue(bLangLiteral.value, valueLiteral.getBType());
+        buff.writeInt(bFiniteType.valueSpace.length);
+        for (SemNamedType semNamedType:bFiniteType.valueSpace) {
+            writeSemNamedType(semNamedType);
         }
     }
 
     @Override
     public void visit(BInvokableType bInvokableType) {
-        boolean isAnyFunction = Symbols.isFlagOn(bInvokableType.flags, Flags.ANY_FUNCTION);
+        boolean isAnyFunction = Symbols.isFlagOn(bInvokableType.getFlags(), Flags.ANY_FUNCTION);
         buff.writeBoolean(isAnyFunction); // write 1 if it’s an any function if not write 0
 
         if (isAnyFunction) {
@@ -305,7 +316,7 @@ public class BIRTypeWriter implements TypeVisitor {
     }
 
     @Override
-    public void visit(BNilType bNilType) {
+    public void visitNilType(BType bType) {
         // Nothing to do
     }
 
@@ -495,11 +506,6 @@ public class BIRTypeWriter implements TypeVisitor {
     }
 
     @Override
-    public void visit(BType bType) {
-        // Nothing to do
-    }
-
-    @Override
     public void visit(BXMLType bxmlType) {
         writeTypeCpIndex(bxmlType.constraint);
     }
@@ -562,63 +568,251 @@ public class BIRTypeWriter implements TypeVisitor {
         return cp.addCPEntry(new StringCPEntry(value));
     }
 
-    private int addIntCPEntry(long value) {
-        return cp.addCPEntry(new IntegerCPEntry(value));
-    }
-
-    private int addFloatCPEntry(double value) {
-        return cp.addCPEntry(new FloatCPEntry(value));
-    }
-
-    private int addByteCPEntry(int value) {
-        return cp.addCPEntry(new ByteCPEntry(value));
-    }
-
-    private void writeValue(Object value, BType typeOfValue) {
-        ByteBuf byteBuf = Unpooled.buffer();
-        switch (Types.getImpliedType(typeOfValue).tag) {
-            case TypeTags.INT:
-            case TypeTags.SIGNED32_INT:
-            case TypeTags.SIGNED16_INT:
-            case TypeTags.SIGNED8_INT:
-            case TypeTags.UNSIGNED32_INT:
-            case TypeTags.UNSIGNED16_INT:
-            case TypeTags.UNSIGNED8_INT:
-                byteBuf.writeInt(addIntCPEntry((Long) value));
-                break;
-            case TypeTags.BYTE:
-                int byteValue = ((Number) value).intValue();
-                byteBuf.writeInt(addByteCPEntry(byteValue));
-                break;
-            case TypeTags.FLOAT:
-                // TODO:Remove the instanceof check by converting the float literal instance in Semantic analysis phase
-                double doubleVal =
-                        value instanceof String ? Double.parseDouble((String) value) : ((Number) value).doubleValue();
-                byteBuf.writeInt(addFloatCPEntry(doubleVal));
-                break;
-            case TypeTags.STRING:
-            case TypeTags.CHAR_STRING:
-            case TypeTags.DECIMAL:
-                byteBuf.writeInt(addStringCPEntry(String.valueOf(value)));
-                break;
-            case TypeTags.BOOLEAN:
-                byteBuf.writeBoolean((Boolean) value);
-                break;
-            case TypeTags.NIL:
-                break;
-            default:
-                throw new UnsupportedOperationException("finite type value is not supported for type: " + typeOfValue);
-        }
-
-        int length = byteBuf.nioBuffer().limit();
-        buff.writeInt(length);
-        buff.writeBytes(byteBuf.nioBuffer().array(), 0, length);
-    }
-
     private void writeTypeInclusions(List<BType> inclusions) {
         buff.writeInt(inclusions.size());
         for (BType inclusion : inclusions) {
             writeTypeCpIndex(inclusion);
         }
     }
+
+    private void writeNullableString(String nullableString) {
+        boolean hasNonNullString = nullableString != null;
+        buff.writeBoolean(hasNonNullString);
+        if (hasNonNullString) {
+            buff.writeInt(addStringCPEntry(nullableString));
+        }
+    }
+
+    private void writeSemNamedType(SemNamedType semNamedType) {
+        writeSemType(semNamedType.semType());
+        writeNullableString(semNamedType.optName().orElse(null));
+    }
+
+    // --------------------------------------- Writing SemType ----------------------------------------------
+
+    private void writeSemType(SemType semType) {
+        boolean hasSemType = semType != null;
+        buff.writeBoolean(hasSemType);
+        if (!hasSemType) {
+            return;
+        }
+
+        boolean isUniformTypeBitSet = semType instanceof BasicTypeBitSet;
+        buff.writeBoolean(isUniformTypeBitSet);
+
+        buff.writeInt(semType.all());
+        if (isUniformTypeBitSet) {
+            return;
+        }
+
+        ComplexSemType complexSemType = (ComplexSemType) semType;
+        buff.writeInt(complexSemType.some());
+
+        ProperSubtypeData[] subtypeDataList = complexSemType.subtypeDataList();
+        buff.writeByte(subtypeDataList.length);
+        for (ProperSubtypeData psd : subtypeDataList) {
+            writeProperSubtypeData(psd);
+        }
+    }
+
+    private void writeProperSubtypeData(ProperSubtypeData psd) {
+        if (psd instanceof Bdd bdd) {
+            buff.writeByte(1);
+            writeBdd(bdd);
+        } else if (psd instanceof IntSubtype intSubtype) {
+            buff.writeByte(2);
+            writeIntSubtype(intSubtype);
+        } else if (psd instanceof BooleanSubtype booleanSubtype) {
+            buff.writeByte(3);
+            buff.writeBoolean(booleanSubtype.value);
+        } else if (psd instanceof FloatSubtype floatSubtype) {
+            buff.writeByte(4);
+            writeFloatSubtype(floatSubtype);
+        } else if (psd instanceof DecimalSubtype decimalSubtype) {
+            buff.writeByte(5);
+            writeDecimalSubtype(decimalSubtype);
+        } else if (psd instanceof StringSubtype stringSubtype) {
+            buff.writeByte(6);
+            writeStringSubtype(stringSubtype);
+        } else if (psd instanceof XmlSubtype xmlSubtype) {
+            buff.writeByte(7);
+            buff.writeInt(xmlSubtype.primitives);
+            writeBdd(xmlSubtype.sequence);
+        } else {
+            throw new IllegalStateException("Unknown ProperSubtypeData");
+        }
+    }
+
+    private void writeBdd(Bdd bdd) {
+        buff.writeBoolean(bdd instanceof BddNode);
+        if (bdd instanceof BddNode bddNode) {
+            writeBddNode(bddNode);
+        } else {
+            BddAllOrNothing bddAllOrNothing = (BddAllOrNothing) bdd;
+            buff.writeBoolean(bddAllOrNothing.isAll());
+        }
+    }
+
+    private static final byte REC_ATOM_KIND = 0;
+    private static final byte INLINED_ATOM_KIND = 1;
+    private static final byte TYPE_ATOM_KIND = 2;
+
+    private void writeBddNode(BddNode bddNode) {
+        Atom atom = bddNode.atom();
+        if (atom instanceof RecAtom recAtom) {
+            writeRecAtom(recAtom);
+        } else {
+            buff.writeByte(TYPE_ATOM_KIND);
+            TypeAtom typeAtom = (TypeAtom) atom;
+            visitedAtoms.add(typeAtom.getIdentifier());
+            writeTypeAtom(typeAtom);
+        }
+        writeBdd(bddNode.left());
+        writeBdd(bddNode.middle());
+        writeBdd(bddNode.right());
+    }
+
+    private void writeRecAtom(RecAtom recAtom) {
+        if (shouldInline(recAtom)) {
+            writeInlinedRecAtom(recAtom);
+        } else {
+            buff.writeByte(REC_ATOM_KIND);
+            int index = typeEnv.compactRecIndex(recAtom);
+            buff.writeInt(index);
+            if (!predefinedTypeEnv.isPredefinedRecAtom(index)) {
+                buff.writeInt(recAtom.kind().ordinal());
+            }
+        }
+    }
+
+    private void writeInlinedRecAtom(RecAtom recAtom) {
+        visitedAtoms.add(recAtom.getIdentifier());
+        buff.writeByte(INLINED_ATOM_KIND);
+        buff.writeInt(typeEnv.compactRecIndex(recAtom));
+        TypeAtom typeAtom = switch (recAtom.kind()) {
+            case LIST_ATOM -> typeEnv.listAtom(typeEnv.listAtomType(recAtom));
+            case FUNCTION_ATOM -> typeEnv.functionAtom(typeEnv.functionAtomType(recAtom));
+            case MAPPING_ATOM -> typeEnv.mappingAtom(typeEnv.mappingAtomType(recAtom));
+            case XML_ATOM, DISTINCT_ATOM ->
+                    throw new IllegalStateException("Should not happen. Handled before reaching here");
+            case CELL_ATOM -> throw new IllegalStateException("Cell atom cannot be recursive");
+        };
+        writeTypeAtom(typeAtom);
+    }
+
+    private boolean shouldInline(RecAtom recAtom) {
+        // We can have cases where none of the BDDs have the actual BDD node in them just reference to it using
+        // RecAtoms. But when we deserialize the nodes we need to get the actual BDD node somehow. Currently, we
+        // "inline" the actual node first time we see it in the tree. Exceptions to this rule are predefined rec atoms
+        // which are unique and every environment has the same atoms and XML atoms
+        if (predefinedTypeEnv.isPredefinedRecAtom(recAtom.index) || recAtom.kind() == Atom.Kind.XML_ATOM ||
+                recAtom.kind() == Atom.Kind.DISTINCT_ATOM) {
+            return false;
+        }
+        return !visitedAtoms.contains(recAtom.getIdentifier());
+    }
+
+    private void writeTypeAtom(TypeAtom typeAtom) {
+        buff.writeInt(typeAtom.index());
+        writeAtomicType(typeAtom.atomicType());
+    }
+
+    private void writeAtomicType(AtomicType atomicType) {
+        if (atomicType instanceof MappingAtomicType mappingAtomicType) {
+            buff.writeByte(1);
+            writeMappingAtomicType(mappingAtomicType);
+        } else if (atomicType instanceof ListAtomicType listAtomicType) {
+            buff.writeByte(2);
+            writeListAtomicType(listAtomicType);
+        } else if (atomicType instanceof FunctionAtomicType functionAtomicType) {
+            buff.writeByte(3);
+            writeFunctionAtomicType(functionAtomicType);
+        } else if (atomicType instanceof CellAtomicType cellAtomicType) {
+            buff.writeByte(4);
+            writeSemType(cellAtomicType.ty());
+            buff.writeByte(cellAtomicType.mut().ordinal());
+        } else {
+            throw new UnsupportedOperationException("Unexpected atomic type " + atomicType);
+        }
+    }
+
+    private void writeFunctionAtomicType(FunctionAtomicType functionAtomicType) {
+        writeSemType(functionAtomicType.paramType());
+        writeSemType(functionAtomicType.retType());
+        writeSemType(functionAtomicType.qualifiers());
+        buff.writeBoolean(functionAtomicType.isGeneric());
+    }
+
+    private void writeMappingAtomicType(MappingAtomicType mat) {
+        String[] names = mat.names();
+        buff.writeInt(names.length);
+        for (String name : names) {
+            buff.writeInt(addStringCPEntry(name));
+        }
+        CellSemType[] types = mat.types();
+        buff.writeInt(types.length);
+        for (CellSemType type : types) {
+            writeSemType(type);
+        }
+        writeSemType(mat.rest());
+    }
+
+    private void writeListAtomicType(ListAtomicType lat) {
+        FixedLengthArray fla = lat.members();
+        List<CellSemType> initial = fla.initial();
+        buff.writeInt(initial.size());
+        for (SemType type : initial) {
+            writeSemType(type);
+        }
+        buff.writeInt(fla.fixedLength());
+        writeSemType(lat.rest());
+    }
+
+    private void writeIntSubtype(IntSubtype intSubtype) {
+        Range[] ranges = intSubtype.ranges;
+        buff.writeInt(ranges.length);
+        for (Range range : ranges) {
+            buff.writeLong(range.min);
+            buff.writeLong(range.max);
+        }
+    }
+
+    private void writeFloatSubtype(FloatSubtype floatSubtype) {
+        buff.writeBoolean(floatSubtype.allowed);
+        buff.writeInt(floatSubtype.values.length);
+        for (EnumerableFloat ef : floatSubtype.values) {
+            buff.writeDouble(ef.value);
+        }
+    }
+
+    private void writeDecimalSubtype(DecimalSubtype decimalSubtype) {
+        buff.writeBoolean(decimalSubtype.allowed);
+        buff.writeInt(decimalSubtype.values.length);
+        for (EnumerableDecimal ed : decimalSubtype.values) {
+            BigDecimal bigDecimal = ed.value;
+            buff.writeInt(bigDecimal.scale());
+            byte[] unscaledValueBytes = bigDecimal.unscaledValue().toByteArray();
+            buff.writeInt(unscaledValueBytes.length);
+            buff.writeBytes(unscaledValueBytes);
+        }
+    }
+
+    private void writeStringSubtype(StringSubtype stringSubtype) {
+        CharStringSubtype charData = stringSubtype.getChar();
+        buff.writeBoolean(charData.allowed);
+        EnumerableCharString[] charValues = charData.values;
+        buff.writeInt(charValues.length);
+        for (EnumerableCharString ecs : charValues) {
+            buff.writeInt(addStringCPEntry(ecs.value));
+        }
+        NonCharStringSubtype nonCharData = stringSubtype.getNonChar();
+        buff.writeBoolean(nonCharData.allowed);
+        EnumerableString[] nonCharValues = nonCharData.values;
+        buff.writeInt(nonCharValues.length);
+        for (EnumerableString ecs : nonCharValues) {
+            buff.writeInt(addStringCPEntry(ecs.value));
+        }
+    }
+
+    // --------------------------------------- End of SemType -----------------------------------------------
 }

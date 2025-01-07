@@ -319,11 +319,11 @@
     {
       "label": "iterator()",
       "kind": "Function",
-      "detail": "object {public isolated function next() returns record {|MyType value; MyType...;|}?;}",
+      "detail": "object {public isolated function next() returns record {|MyType value;|}?;}",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.map:0.0.0_  \n  \nReturns an iterator over a map.\n\nThe iterator will iterate over the members of the map not the keys.\nThe function `entries` can be used to iterate over the keys and members together.\nThe function `keys` can be used to iterator over just the keys.\n\n```ballerina\nobject {\n    public isolated function next() returns record {|int value;|}?;\n} iterator = {\"Carl\": 85, \"Bob\": 50, \"Max\": 60}.iterator();\niterator.next() ⇒ {\"value\":85}\n```\n  \n  \n  \n**Return** `object {public isolated function next() returns record {|MyType value; MyType...;|}?;}`   \n- a new iterator object that will iterate over the members of parameter `m`  \n  \n"
+          "value": "**Package:** _ballerina/lang.map:0.0.0_  \n  \nReturns an iterator over a map.\n\nThe iterator will iterate over the members of the map not the keys.\nThe function `entries` can be used to iterate over the keys and members together.\nThe function `keys` can be used to iterator over just the keys.\n\n```ballerina\nobject {\n    public isolated function next() returns record {|int value;|}?;\n} iterator = {\"Carl\": 85, \"Bob\": 50, \"Max\": 60}.iterator();\niterator.next() ⇒ {\"value\":85}\n```\n  \n  \n  \n**Return** `object {public isolated function next() returns record {|MyType value;|}?;}`   \n- a new iterator object that will iterate over the members of parameter `m`  \n  \n"
         }
       },
       "sortText": "CD",

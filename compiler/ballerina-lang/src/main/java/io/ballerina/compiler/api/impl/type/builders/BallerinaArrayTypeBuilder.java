@@ -86,7 +86,7 @@ public class BallerinaArrayTypeBuilder implements TypeBuilder.ARRAY {
         BTypeSymbol arrayTSymbol = Symbols.createTypeSymbol(SymTag.ARRAY_TYPE, Flags.PUBLIC, Names.EMPTY,
                 symTable.rootPkgSymbol.pkgID, null, symTable.rootPkgSymbol, symTable.builtinPos, COMPILED_SOURCE);
 
-        BArrayType arrayType = new BArrayType(getBType(type), arrayTSymbol, size, state);
+        BArrayType arrayType = new BArrayType(symTable.typeEnv(), getBType(type), arrayTSymbol, size, state);
         arrayTSymbol.type = arrayType;
         ArrayTypeSymbol arrayTypeSymbol = (ArrayTypeSymbol) typesFactory.getTypeDescriptor(arrayType);
         this.size = -1;

@@ -80,6 +80,7 @@ dependencies {
     dist project(':ballerina-lang:regexp')
     dist project(':ballerina-lang:jballerina.java')
     dist project(':ballerina-shell:shell-rt')
+    dist project(':semtypes')
 
     // Third party jars
     // config

@@ -20,6 +20,7 @@ package org.wso2.ballerinalang.compiler.bir.codegen;
 
 import io.ballerina.identifier.Utils;
 import io.ballerina.tools.diagnostics.Location;
+import io.ballerina.types.Env;
 import org.apache.commons.lang3.StringUtils;
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.model.elements.PackageID;
@@ -230,8 +231,7 @@ public final class JvmCodeGenUtil {
                 case TypeTags.DECIMAL -> GET_BDECIMAL;
                 case TypeTags.BOOLEAN -> "Z";
                 case TypeTags.NIL, TypeTags.NEVER, TypeTags.ANY, TypeTags.ANYDATA, TypeTags.UNION, TypeTags.JSON,
-                        TypeTags.FINITE, TypeTags.READONLY ->
-                        GET_OBJECT;
+                     TypeTags.FINITE, TypeTags.READONLY -> GET_OBJECT;
                 case TypeTags.MAP, TypeTags.RECORD -> GET_MAP_VALUE;
                 case TypeTags.STREAM -> GET_STREAM_VALUE;
                 case TypeTags.TABLE -> GET_TABLE_VALUE;
@@ -334,18 +334,19 @@ public final class JvmCodeGenUtil {
         return name.replace(".", FILE_NAME_PERIOD_SEPERATOR);
     }
 
-    public static String getMethodDesc(List<BType> paramTypes, BType retType) {
-        return INITIAL_METHOD_DESC + getMethodDescParams(paramTypes) + generateReturnType(retType);
+    public static String getMethodDesc(Env typeEnv, List<BType> paramTypes, BType retType) {
+        return INITIAL_METHOD_DESC + getMethodDescParams(paramTypes) + generateReturnType(retType, typeEnv);
     }
 
-    public static String getMethodDesc(List<BType> paramTypes, BType retType, BType attachedType) {
+    public static String getMethodDesc(Env typeEnv, List<BType> paramTypes, BType retType, BType attachedType) {
         return INITIAL_METHOD_DESC + getArgTypeSignature(attachedType) + getMethodDescParams(paramTypes) +
-                generateReturnType(retType);
+                generateReturnType(retType, typeEnv);
     }
 
-    public static String getMethodDesc(List<BType> paramTypes, BType retType, String attachedTypeClassName) {
+    public static String getMethodDesc(Env typeEnv, List<BType> paramTypes, BType retType,
+                                       String attachedTypeClassName) {
         return INITIAL_METHOD_DESC + "L" + attachedTypeClassName + ";" + getMethodDescParams(paramTypes) +
-                generateReturnType(retType);
+                generateReturnType(retType, typeEnv);
     }
 
     public static String getMethodDescParams(List<BType> paramTypes) {
@@ -372,8 +373,7 @@ public final class JvmCodeGenUtil {
             case TypeTags.DECIMAL -> GET_BDECIMAL;
             case TypeTags.BOOLEAN -> "Z";
             case TypeTags.NIL, TypeTags.NEVER, TypeTags.ANYDATA, TypeTags.UNION, TypeTags.JSON, TypeTags.FINITE,
-                    TypeTags.ANY, TypeTags.READONLY ->
-                    GET_OBJECT;
+                 TypeTags.ANY, TypeTags.READONLY -> GET_OBJECT;
             case TypeTags.ARRAY, TypeTags.TUPLE -> GET_ARRAY_VALUE;
             case TypeTags.ERROR -> GET_ERROR_VALUE;
             case TypeTags.MAP, TypeTags.RECORD -> GET_MAP_VALUE;
@@ -389,13 +389,13 @@ public final class JvmCodeGenUtil {
         };
     }
 
-    public static String generateReturnType(BType bType) {
+    public static String generateReturnType(BType bType, Env typeEnv) {
         bType = JvmCodeGenUtil.getImpliedType(bType);
         if (bType == null) {
             return RETURN_JOBJECT;
         }
 
-        bType = JvmCodeGenUtil.UNIFIER.build(bType);
+        bType = JvmCodeGenUtil.UNIFIER.build(typeEnv, bType);
         if (bType == null || bType.tag == TypeTags.NIL || bType.tag == TypeTags.NEVER) {
             return RETURN_JOBJECT;
         } else if (TypeTags.isIntegerTypeTag(bType.tag)) {
@@ -419,8 +419,7 @@ public final class JvmCodeGenUtil {
             case TypeTags.FUTURE -> RETURN_FUTURE_VALUE;
             case TypeTags.TYPEDESC -> RETURN_TYPEDESC_VALUE;
             case TypeTags.ANY, TypeTags.ANYDATA, TypeTags.UNION, TypeTags.INTERSECTION, TypeTags.JSON,
-                    TypeTags.FINITE, TypeTags.READONLY ->
-                    RETURN_JOBJECT;
+                 TypeTags.FINITE, TypeTags.READONLY -> RETURN_JOBJECT;
             case TypeTags.OBJECT -> RETURN_B_OBJECT;
             case TypeTags.INVOKABLE -> RETURN_FUNCTION_POINTER;
             case TypeTags.HANDLE -> RETURN_HANDLE_VALUE;
@@ -629,12 +628,12 @@ public final class JvmCodeGenUtil {
         }
     }
 
-    private static String getStringConstantsClass(int varIndex, JvmConstantsGen jvmConstantsGen) {
+    static String getStringConstantsClass(int varIndex, JvmConstantsGen jvmConstantsGen) {
         int classIndex = varIndex / MAX_STRINGS_PER_METHOD;
         return jvmConstantsGen.getStringConstantsClass() + UNDERSCORE + classIndex;
     }
 
-    private static String removeDecimalDiscriminator(String value) {
+    static String removeDecimalDiscriminator(String value) {
         int length = value.length();
         if (length < 2) {
             return value;

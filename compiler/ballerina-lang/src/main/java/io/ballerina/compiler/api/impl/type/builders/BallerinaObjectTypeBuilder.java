@@ -132,7 +132,7 @@ public class BallerinaObjectTypeBuilder implements TypeBuilder.OBJECT {
         BObjectTypeSymbol objectSymbol = Symbols.createObjectSymbol(Flags.asMask(flags), Names.EMPTY,
                 symTable.rootPkgSymbol.pkgID, null, symTable.rootPkgSymbol.owner, symTable.builtinPos, COMPILED_SOURCE);
 
-        BObjectType objectType = new BObjectType(objectSymbol, typeFlags);
+        BObjectType objectType = new BObjectType(symTable.typeEnv(), objectSymbol, typeFlags);
         objectType.fields = getObjectFields(objectFieldList, objectSymbol);
         objectType.typeInclusions.addAll(getTypeInclusions(typeInclusions));
         objectSymbol.type = objectType;

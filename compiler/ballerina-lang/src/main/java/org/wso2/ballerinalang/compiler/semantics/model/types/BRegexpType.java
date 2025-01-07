@@ -17,10 +17,11 @@
  */
 package org.wso2.ballerinalang.compiler.semantics.model.types;
 
-import org.ballerinalang.model.Name;
+import io.ballerina.types.PredefinedType;
 import org.ballerinalang.model.types.TypeKind;
 import org.wso2.ballerinalang.compiler.semantics.model.TypeVisitor;
 import org.wso2.ballerinalang.compiler.util.Names;
+import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.util.Flags;
 
 /**
@@ -30,13 +31,8 @@ import org.wso2.ballerinalang.util.Flags;
  */
 public class BRegexpType extends BType {
 
-    public BRegexpType(int tag, Name name) {
-        super(tag, null, name, Flags.READONLY);
-    }
-
-    @Override
-    public boolean isNullable() {
-        return false;
+    public BRegexpType() {
+        super(TypeTags.REGEXP, null, Names.REGEXP_TYPE, Flags.READONLY, PredefinedType.REGEXP);
     }
 
     @Override
@@ -63,13 +59,5 @@ public class BRegexpType extends BType {
     public String getQualifiedTypeName() {
         return Names.BALLERINA_ORG.value + Names.ORG_NAME_SEPARATOR.value
                 + Names.LANG.value + Names.DOT.value + Names.REGEXP.value + Names.ALIAS_SEPARATOR + name;
-    }
-
-    public boolean isAnydata() {
-        return true;
-    }
-
-    public boolean isPureType() {
-        return true;
     }
 }
