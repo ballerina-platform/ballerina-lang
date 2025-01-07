@@ -716,7 +716,7 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
 
     @Override
     public boolean stop(Path filePath) {
-        Optional<ProjectContext> projectPairOpt = projectContext(projectRoot(filePath));
+        Optional<ProjectContext> projectPairOpt = projectContext(projectRoot(filePath).toAbsolutePath());
         if (projectPairOpt.isEmpty()) {
             clientLogger.logWarning("Failed to stop process: Project not found");
             return false;

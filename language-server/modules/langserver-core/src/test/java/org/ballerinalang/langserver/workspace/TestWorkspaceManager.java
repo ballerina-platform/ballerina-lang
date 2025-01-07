@@ -83,6 +83,7 @@ import static org.awaitility.Awaitility.await;
  * @since 2.0.0
  */
 public class TestWorkspaceManager {
+
     private static final Path RESOURCE_DIRECTORY = Path.of("src/test/resources/project");
     private final String dummyContent = "function foo() {" + CommonUtil.LINE_SEPARATOR + "}";
     private final String dummyDidChangeContent = "function foo1() {" + CommonUtil.LINE_SEPARATOR + "}";
@@ -558,8 +559,23 @@ public class TestWorkspaceManager {
             throws WorkspaceDocumentException, EventSyncException, LSCommandExecutorException {
         Path projectPath = RESOURCE_DIRECTORY.resolve("long_running");
         Path filePath = projectPath.resolve("main.bal");
-        ExecuteCommandContext execContext = runViaLs(filePath);
-        stopViaLs(execContext, projectPath);
+        RunResult runResult = executeRunCommand(filePath);
+        Assert.assertTrue(runResult.success());
+        Assert.assertEquals(runResult.programOutput[0], "Hello, World!\n");
+        executeStopCommand(projectPath);
+    }
+
+    @Test
+    public void testWSRunProjectWithCompilationErrors()
+            throws WorkspaceDocumentException, EventSyncException, LSCommandExecutorException {
+        Path projectPath = RESOURCE_DIRECTORY.resolve("pkg_with_compilation_errors");
+        Path filePath = projectPath.resolve("main.bal");
+        RunResult runResult = executeRunCommand(filePath);
+        Assert.assertFalse(runResult.success());
+        Assert.assertTrue(runResult.errorOutput().length > 0);
+        Assert.assertEquals(runResult.errorOutput()[0], "ERROR [main.bal:(5:1,5:1)] missing semicolon token");
+        Assert.assertEquals(runResult.errorOutput()[1], "error: compilation contains errors");
+        executeStopCommand(projectPath);
     }
 
     @Test
@@ -567,7 +583,8 @@ public class TestWorkspaceManager {
             throws WorkspaceDocumentException, EventSyncException, LSCommandExecutorException {
         Path projectPath = RESOURCE_DIRECTORY.resolve("hello_service");
         Path filePath = projectPath.resolve("main.bal");
-        ExecuteCommandContext execContext = runViaLs(filePath);
+        RunResult runResult = executeRunCommand(filePath);
+        Assert.assertTrue(runResult.success());
 
         // Test syntax tree api
         JsonElement syntaxTreeJSON = DiagramUtil.getSyntaxTreeJSON(workspaceManager.document(filePath).orElseThrow(),
@@ -581,7 +598,7 @@ public class TestWorkspaceManager {
         Assert.assertEquals(execPositions.getAsJsonArray().get(0).getAsJsonObject().get("name").getAsString(),
                 "hello");
 
-        stopViaLs(execContext, projectPath);
+        executeStopCommand(projectPath);
     }
 
     @Test
@@ -602,7 +619,8 @@ public class TestWorkspaceManager {
                 workspaceManager.document(filePath).orElseThrow(),
                 semanticModelPreExec);
 
-        ExecuteCommandContext execContext = runViaLs(filePath);
+        RunResult runResult = executeRunCommand(filePath);
+        Assert.assertTrue(runResult.success());
 
         SemanticModel semanticModelPostExec = workspaceManager.semanticModel(filePath).orElseThrow();
         JsonElement syntaxTreeJSONPostExec = DiagramUtil.getSyntaxTreeJSON(
@@ -612,33 +630,30 @@ public class TestWorkspaceManager {
         Gson gson = new GsonBuilder().setPrettyPrinting().create();
         Assert.assertEquals(gson.toJson(syntaxTreeJSONPreExec), gson.toJson(syntaxTreeJSONPostExec));
 
-        stopViaLs(execContext, projectPath);
+        executeStopCommand(projectPath);
     }
 
-
-    private ExecuteCommandContext runViaLs(Path filePath)
+    private RunResult executeRunCommand(Path filePath)
             throws WorkspaceDocumentException, EventSyncException, LSCommandExecutorException {
         System.setProperty("java.command", guessJavaPath());
         System.setProperty(BALLERINA_HOME, "./build");
         workspaceManager.loadProject(filePath);
         RunExecutor runExecutor = new RunExecutor();
         MockSettings mockSettings = Mockito.withSettings().stubOnly();
-        ExecuteCommandContext execContext = Mockito.mock(ExecuteCommandContext.class, mockSettings);
-        CommandArgument arg = CommandArgument.from("path", new JsonPrimitive(filePath.toString()));
-        Mockito.when(execContext.getArguments()).thenReturn(Collections.singletonList(arg));
-        Mockito.when(execContext.workspace()).thenReturn(workspaceManager);
+
+        ExecuteCommandContext execContext = createExecutionContextMock(filePath);
         ExtendedLanguageClient languageClient = Mockito.mock(ExtendedLanguageClient.class, mockSettings);
         ArgumentCaptor<LogTraceParams> logCaptor = ArgumentCaptor.forClass(LogTraceParams.class);
         Mockito.doNothing().when(languageClient).logTrace(logCaptor.capture());
         Mockito.when(execContext.getLanguageClient()).thenReturn(languageClient);
         Boolean didRan = runExecutor.execute(execContext);
-        Assert.assertTrue(didRan);
-        Assert.assertEquals(reduceToOutString(logCaptor), "Hello, World!" + System.lineSeparator());
-        return execContext;
+
+        return new RunResult(didRan, extractLogs(logCaptor, "out"), extractLogs(logCaptor, "err"));
     }
 
-    private static void stopViaLs(ExecuteCommandContext execContext, Path projectPath) {
+    private void executeStopCommand(Path projectPath) {
         StopExecutor stopExecutor = new StopExecutor();
+        ExecuteCommandContext execContext = createExecutionContextMock(projectPath);
         Boolean didStop = stopExecutor.execute(execContext);
         Assert.assertTrue(didStop);
 
@@ -646,14 +661,22 @@ public class TestWorkspaceManager {
         FileUtils.deleteQuietly(target.toFile());
     }
 
-    private static String reduceToOutString(ArgumentCaptor<LogTraceParams> logCaptor) {
+    private ExecuteCommandContext createExecutionContextMock(Path filePath) {
+        MockSettings mockSettings = Mockito.withSettings().stubOnly();
+        ExecuteCommandContext execContext = Mockito.mock(ExecuteCommandContext.class, mockSettings);
+
+        CommandArgument arg = CommandArgument.from("path", new JsonPrimitive(filePath.toString()));
+        Mockito.when(execContext.getArguments()).thenReturn(Collections.singletonList(arg));
+        Mockito.when(execContext.workspace()).thenReturn(workspaceManager);
+        return execContext;
+    }
+
+    private static String[] extractLogs(ArgumentCaptor<LogTraceParams> logCaptor, String channel) {
         List<LogTraceParams> params = waitGetAllValues(logCaptor);
-        StringBuilder sb = new StringBuilder();
-        for (LogTraceParams param : params) {
-            sb.append(param.getMessage());
-            Assert.assertEquals(param.getVerbose(), "out"); // not "err"
-        }
-        return sb.toString();
+        return params.stream()
+                .filter(param -> param.getVerbose().equals(channel))
+                .map(LogTraceParams::getMessage)
+                .toArray(String[]::new);
     }
 
     private static List<LogTraceParams> waitGetAllValues(ArgumentCaptor<LogTraceParams> logCaptor) {
@@ -741,5 +764,9 @@ public class TestWorkspaceManager {
                 RESOURCE_DIRECTORY.resolve("single-file").resolve("main.bal").toAbsolutePath(),
                 RESOURCE_DIRECTORY.resolve("myproject").resolve("main.bal").toAbsolutePath()
         };
+    }
+
+    private record RunResult(boolean success, String[] programOutput, String[] errorOutput) {
+
     }
 }
