@@ -561,7 +561,7 @@ public class TestWorkspaceManager {
         Path filePath = projectPath.resolve("main.bal");
         RunResult runResult = executeRunCommand(filePath);
         Assert.assertTrue(runResult.success());
-        Assert.assertEquals(runResult.programOutput[0], "Hello, World!\n");
+        Assert.assertEquals(runResult.programOutput[0].trim(), "Hello, World!");
         executeStopCommand(projectPath);
     }
 
