@@ -225,8 +225,7 @@ public class JDIEventProcessor {
 
         // Setting breakpoints to an already running debug session.
         context.getEventManager().deleteAllBreakpoints();
-        context.getDebuggeeVM().classesByName(qClassName)
-                .forEach(ref -> breakpointProcessor.activateUserBreakPoints(ref, false));
+        context.getDebuggeeVM().allClasses().forEach(ref -> breakpointProcessor.activateUserBreakPoints(ref, false));
     }
 
     void sendStepRequest(int threadId, int stepType) {
