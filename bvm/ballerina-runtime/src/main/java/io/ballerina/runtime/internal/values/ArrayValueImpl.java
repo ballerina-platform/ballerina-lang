@@ -40,7 +40,6 @@ import io.ballerina.runtime.internal.TypeChecker;
 import io.ballerina.runtime.internal.errors.ErrorCodes;
 import io.ballerina.runtime.internal.errors.ErrorHelper;
 import io.ballerina.runtime.internal.errors.ErrorReasons;
-import io.ballerina.runtime.internal.query.pipeline.FrameContext;
 import io.ballerina.runtime.internal.query.pipeline.StreamPipeline;
 import io.ballerina.runtime.internal.query.utils.StreamPipelineUtils;
 import io.ballerina.runtime.internal.types.BArrayType;
@@ -193,12 +192,12 @@ public class ArrayValueImpl extends AbstractArrayValue {
     @Override
     public Object reverse() {
 
-        long[] a = {1, 2, 3, 4, 5};
-        BArray bArray = ValueCreator.createArrayValue(a);
-        StreamPipeline<BArray> pipeline =  StreamPipelineUtils.initializePipeline(BArray.class , bArray);
-        StreamPipelineUtils.addFromClause(pipeline , Map.of("i" , "value"));
-        StreamPipelineUtils.addSelectClause(pipeline, Map.of("i", "i"));
-        pipeline.execute(bArray);
+//        long[] a = {1, 2, 3, 4, 5};
+//        BArray bArray = ValueCreator.createArrayValue(a);
+//        StreamPipeline<BArray> pipeline =  StreamPipelineUtils.initializePipeline(BArray.class , bArray);
+//        StreamPipelineUtils.addFromClause(pipeline , Map.of("i" , "value"));
+//        StreamPipelineUtils.addSelectClause(pipeline, Map.of("i", "i"));
+//        pipeline.execute(bArray);
 //        BArray arr = StreamPipelineUtils.toBArray(pipeline);
 //        System.out.println(arr);
 
@@ -306,7 +305,8 @@ public class ArrayValueImpl extends AbstractArrayValue {
 
         int index = 0;
         for (BListInitialValueEntry listEntry : initialValues) {
-            if (listEntry instanceof ListInitialValueEntry.ExpressionEntry) {
+            if
+            (listEntry instanceof ListInitialValueEntry.ExpressionEntry) {
                 addRefValue(index++, ((ListInitialValueEntry.ExpressionEntry) listEntry).value);
             } else {
                 BArray values = ((ListInitialValueEntry.SpreadEntry) listEntry).values;
@@ -487,8 +487,9 @@ public class ArrayValueImpl extends AbstractArrayValue {
         BArray bArray = ValueCreator.createArrayValue(a);
         StreamPipeline<BArray> pipeline =  StreamPipelineUtils.initializePipeline(BArray.class , bArray);
         StreamPipelineUtils.addFromClause(pipeline , Map.of("i" , "value"));
-        StreamPipelineUtils.addWhereClause(pipeline, frame -> (long) frame.getVariable("i") > 2);
-        StreamPipelineUtils.addSelectClause(pipeline, Map.of("i", "i"));
+        StreamPipelineUtils.addWhereClause(pipeline, frame -> (long) frame.getVariable("i") > 1);
+        StreamPipelineUtils.addLimitClause(pipeline, 3);
+        StreamPipelineUtils.addSelectClause(pipeline, frame -> frame.getVariable("i").toString());
         pipeline.execute(bArray);
 //        BArray arr = StreamPipelineUtils.toBArray(pipeline);
         Object[] b = pipeline.getStream().toArray();
@@ -567,12 +568,12 @@ public class ArrayValueImpl extends AbstractArrayValue {
      */
     @Override
     public void add(long index, BString value) {
-        long[] a = {1, 2, 3, 4, 5};
-        BArray bArray = ValueCreator.createArrayValue(a);
-        StreamPipeline<BArray> pipeline =  StreamPipelineUtils.initializePipeline(BArray.class , bArray);
-        StreamPipelineUtils.addFromClause(pipeline , Map.of("i" , "value"));
-        StreamPipelineUtils.addSelectClause(pipeline, Map.of("i", "i"));
-        pipeline.execute(bArray);
+//        long[] a = {1, 2, 3, 4, 5};
+//        BArray bArray = ValueCreator.createArrayValue(a);
+//        StreamPipeline<BArray> pipeline =  StreamPipelineUtils.initializePipeline(BArray.class , bArray);
+//        StreamPipelineUtils.addFromClause(pipeline , Map.of("i" , "value"));
+//        StreamPipelineUtils.addSelectClause(pipeline, Map.of("i", "i"));
+//        pipeline.execute(bArray);
 //        BArray arr = StreamPipelineUtils.toBArray(pipeline);
 //        System.out.println(arr);
         handleImmutableArrayValue();
