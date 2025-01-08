@@ -274,7 +274,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     private Map<BSymbol, Location> unusedLocalVariables;
     private final Map<BSymbol, BSymbol> symbolOwner;
     private final Map<BSymbol, BSymbol> dependsOnLambda;
-    private final Map<BSymbol, BSymbol> invocationToDependent;
+    private final Map<BSymbol, Set<BSymbol>> invocationToDependent;
     private Map<BSymbol, Set<BSymbol>> globalNodeDependsOn;
     private Map<BSymbol, Set<BSymbol>> functionToDependency;
     private Map<BLangOnFailClause, Map<BSymbol, InitStatus>> possibleFailureUnInitVars;
@@ -380,11 +380,26 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
      * for those invocations.
      */
     private void updateProvidersForLambdaInvocations() {
+        // eg:
+        // function() returns int a = function() returns int { return 1; };
+        // int b = a();
+        // int c = a();
+        // `a` is already a provider for `b` and `c`. But the lambda function is not added as a provider for `a`. Hence,
+        // lambda function will not be a provider of `b` and `c` at this point.
+        // This function will add the lambda as a provider for `b` and `c`
+        //
+        // dependsOnLambda will contain a -> lambda
+        // invocationToDependent will contain a -> {b, c}
+        // now the lambda should be a provider for `b` and `c`
         for (Map.Entry<BSymbol, BSymbol> entry : dependsOnLambda.entrySet()) {
             BSymbol dependent = entry.getKey();
             BSymbol lambda = entry.getValue();
-            if (invocationToDependent.containsKey(dependent) && globalNodeDependsOn.containsKey(dependent)) {
-                globalNodeDependsOn.get(dependent).add(lambda);
+            if (invocationToDependent.containsKey(dependent)) {
+                Set<BSymbol> dependents = invocationToDependent.get(dependent);
+                dependents.forEach(d -> {
+                    Set<BSymbol> providers = globalNodeDependsOn.computeIfAbsent(d, s -> new LinkedHashSet<>());
+                    providers.add(lambda);
+                });
             }
         }
     }
@@ -1646,8 +1661,10 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         if (isNotVariableReferenceLVExpr(varRefExpr)) {
             this.unusedLocalVariables.remove(varRefExpr.symbol);
         }
-
-        checkVarRef(varRefExpr.symbol, varRefExpr.pos);
+        BSymbol varRefSymbol = varRefExpr.symbol;
+        if (varRefSymbol != null && varRefSymbol.kind != SymbolKind.FUNCTION) {
+            checkVarRef(varRefSymbol, varRefExpr.pos);
+        }
     }
 
     @Override
@@ -1710,7 +1727,8 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         BSymbol symbol = invocationExpr.symbol;
         this.unusedLocalVariables.remove(symbol);
 
-        invocationToDependent.put(symbol, this.currDependentSymbolDeque.peek());
+        Set<BSymbol> dependents = invocationToDependent.computeIfAbsent(symbol, s -> new LinkedHashSet<>());
+        dependents.add(this.currDependentSymbolDeque.peek());
 
         if (isFunctionOrMethodDefinedInCurrentModule(symbol.owner, env) &&
                 !isGlobalVarsInitialized(invocationExpr.pos, invocationExpr)) {
@@ -2152,6 +2170,9 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     public void visit(BLangLambdaFunction bLangLambdaFunction) {
         BLangFunction funcNode = bLangLambdaFunction.function;
         SymbolEnv funcEnv = SymbolEnv.createFunctionEnv(funcNode, funcNode.symbol.scope, env);
+        funcNode.requiredParams.forEach(param -> analyzeNode(param, funcEnv));
+        analyzeNode(funcNode.restParam, funcEnv);
+        analyzeNode(funcNode.returnTypeNode, env);
         visitFunctionBodyWithDynamicEnv(funcNode, funcEnv);
         if (isGlobalVarSymbol(funcNode.symbol)) {
             dependsOnLambda.put(this.currDependentSymbolDeque.peek(), funcNode.symbol);

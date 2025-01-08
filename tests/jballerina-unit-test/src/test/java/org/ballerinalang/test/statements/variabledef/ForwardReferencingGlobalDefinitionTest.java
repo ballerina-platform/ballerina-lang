@@ -44,7 +44,7 @@ public class ForwardReferencingGlobalDefinitionTest {
         BAssertUtil.validateError(resultNegativeCycleFound, 0, "illegal cyclic reference '[person, employee]'", 17, 1);
         BAssertUtil.validateError(resultNegativeCycleFound, 1, "illegal cyclic reference '[dep2, dep1]'", 24, 1);
         BAssertUtil.validateError(resultNegativeCycleFound, 2,
-                "illegal cyclic reference '[lambdaFoo, $lambda$_0, myBool]'", 26, 1);
+                "illegal cyclic reference '[myBool, $lambda$_0]'", 30, 1);
     }
 
     @Test(description = "Test re-ordering global variable initializations to satisfy dependency order")

@@ -49,6 +49,22 @@ function testCyclicRecordResolution() {
     assertValueEquality("Token@2", cl.clientConfig?.auth?.tokenUrl);
 }
 
+final readonly & map<function> func1 = {
+    "f1": f2
+};
+
+public isolated function f2() returns boolean {
+    function? res = func1["f1"];
+    if res is function {
+        return true;
+    }
+    return false;
+}
+
+function testFunctionPointerNotCyclicViaRecordField() {
+    assertValueEquality(true, f2());
+}
+
 type AssertionError distinct error;
 const ASSERTION_ERROR_REASON = "AssertionError";
 
