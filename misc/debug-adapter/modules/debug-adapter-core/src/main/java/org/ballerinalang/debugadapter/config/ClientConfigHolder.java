@@ -33,6 +33,7 @@ public class ClientConfigHolder {
     private final ClientConfigKind kind;
     private String sourcePath;
     private Integer debuggePort;
+    private Boolean isLowCodeMode;
     private ExtendedClientCapabilities extendedClientCapabilities;
 
     protected static final String ARG_FILE_PATH = "script";
@@ -43,6 +44,7 @@ public class ClientConfigHolder {
     private static final String ARG_SUPPORT_BP_VERIFICATION = "supportsBreakpointVerification";
     private static final String ARG_SUPPORT_FAST_RUN = "supportsFastRun";
     private static final String ARG_TERMINAL_KIND = "terminal";
+    private static final String ARG_LOW_CODE_MODE = "lowCodeMode";
     private static final String INTEGRATED_TERMINAL_KIND = "INTEGRATED";
     private static final String EXTERNAL_TERMINAL_KIND = "EXTERNAL";
 
@@ -120,6 +122,21 @@ public class ClientConfigHolder {
             }
         }
         return null;
+    }
+
+    public boolean isLowCodeMode() {
+        if (this.isLowCodeMode == null) {
+            Object isLowCodeMode = clientRequestArgs.get(ARG_LOW_CODE_MODE);
+            if (isLowCodeMode instanceof Boolean b) {
+                this.isLowCodeMode = b;
+            } else if (isLowCodeMode instanceof String s) {
+                this.isLowCodeMode = Boolean.parseBoolean(s);
+            } else {
+                this.isLowCodeMode = false;
+            }
+        }
+
+        return isLowCodeMode;
     }
 
     protected void failIfConfigMissing(String configName) throws ClientConfigurationException {

@@ -328,7 +328,7 @@ public class JBallerinaDebugServer implements BallerinaExtendedDebugServer {
         // Checks if the program VM is a read-only VM. If a method which modified the state of the VM is called
         // on a read-only VM, a `VMCannotBeModifiedException` will be thrown.
         if (!debuggeeVM.canBeModified()) {
-            getOutputLogger().sendConsoleOutput("Failed to suspend the remote VM due to: pause requests are not " +
+            getOutputLogger().sendDebugServerOutput("Failed to suspend the remote VM due to: pause requests are not " +
                     "supported on read-only VMs");
             return CompletableFuture.completedFuture(null);
         }
@@ -679,7 +679,7 @@ public class JBallerinaDebugServer implements BallerinaExtendedDebugServer {
         programRunner.getBallerinaCommand(sourceProjectRoot).toArray(command);
         runInTerminalRequestArguments.setArgs(command);
 
-        outputLogger.sendConsoleOutput("Launching debugger in terminal");
+        outputLogger.sendDebugServerOutput("Launching debugger in terminal");
         context.getAdapter().runInTerminal(runInTerminalRequestArguments);
     }
 
