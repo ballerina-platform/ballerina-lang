@@ -30,7 +30,6 @@ import org.testng.annotations.Test;
  * Test class to test the runInTerminal feature for single files.
  */
 public class SingleFileRunInTerminalTest extends BaseTestCase {
-
     DebugTestRunner debugTestRunner;
     boolean didRunInIntegratedTerminal;
 

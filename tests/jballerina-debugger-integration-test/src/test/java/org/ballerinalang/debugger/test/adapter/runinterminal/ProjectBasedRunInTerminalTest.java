@@ -29,7 +29,6 @@ import org.testng.annotations.Test;
  * Test class to test the runInTerminal feature for project based sources.
  */
 public class ProjectBasedRunInTerminalTest {
-
     DebugTestRunner debugTestRunner;
     boolean didRunInIntegratedTerminal;
 
