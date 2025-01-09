@@ -450,19 +450,20 @@ public class JBallerinaDebugServer implements BallerinaExtendedDebugServer {
     @Override
     public CompletableFuture<Void> restart(RestartArguments args) {
         if (context.getDebugMode() == ExecutionContext.DebugMode.ATTACH) {
-            outputLogger.sendErrorOutput("Restart is not supported in remote debug mode.");
+            outputLogger.sendErrorOutput("Restart operation is not supported in remote debug mode.");
             return CompletableFuture.completedFuture(null);
         }
 
         try {
             resetServer();
             launchDebuggeeProgram();
-            return CompletableFuture.completedFuture(null);
         } catch (Exception e) {
-            LOGGER.error("Failed to restart the ballerina program due to: " + e.getMessage(), e);
-            outputLogger.sendErrorOutput("Failed to restart the ballerina program");
-            return CompletableFuture.completedFuture(null);
+            LOGGER.error("Failed to restart the Ballerina program due to: {}", e.getMessage(), e);
+            outputLogger.sendErrorOutput("Failed to restart the Ballerina program");
+            terminateDebugSession(context.getDebuggeeVM() != null, true);
         }
+
+        return CompletableFuture.completedFuture(null);
     }
 
     private void launchDebuggeeProgram() throws Exception {

@@ -219,7 +219,7 @@ public interface WorkspaceManager {
      * @throws WorkspaceDocumentException when project or document not found
      */
     void didChangeWatched(Path filePath, FileEvent fileEvent) throws WorkspaceDocumentException;
-    
+
     /**
      * The file change notification is sent from the client to the server to signal changes to watched files.
      *
@@ -245,7 +245,7 @@ public interface WorkspaceManager {
      * @throws IOException If failed to start the process.
      * @since 2201.6.0
      */
-    Optional<Process> run(RunContext runContext) throws IOException;
+    RunResult run(RunContext runContext) throws IOException;
 
     /**
      * Stop a running process started with {@link #run}.
