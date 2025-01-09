@@ -31,10 +31,6 @@ import io.ballerina.runtime.api.types.TupleType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.TypeTags;
 import io.ballerina.runtime.api.types.TypedescType;
-import io.ballerina.runtime.api.types.semtype.Builder;
-import io.ballerina.runtime.api.types.semtype.Context;
-import io.ballerina.runtime.api.types.semtype.Core;
-import io.ballerina.runtime.api.types.semtype.SemType;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BArray;
@@ -61,7 +57,6 @@ import io.ballerina.runtime.internal.values.MapValueImpl;
 import io.ballerina.runtime.internal.values.ReadOnlyUtils;
 import io.ballerina.runtime.internal.values.TableValueImpl;
 import io.ballerina.runtime.internal.values.TupleValueImpl;
-import io.ballerina.runtime.internal.values.XmlSequence;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -151,7 +146,6 @@ public final class ValueConverter {
                     if (matchingType.isReadOnly()) {
                         newValue = CloneUtils.cloneReadOnly(newValue);
                     }
-                    newValue = xmlSequenceHack(newValue, matchingType);
                     break;
                 }
 
@@ -175,27 +169,6 @@ public final class ValueConverter {
 
         unresolvedValues.remove(typeValuePair);
         return newValue;
-    }
-
-    // This is a hack to workaround #43231
-    private static Object xmlSequenceHack(Object value, Type targetType) {
-        if (!(value instanceof XmlSequence xmlSequence)) {
-            return value;
-        }
-        Context cx = TypeChecker.context();
-        List<BXml> list = new ArrayList<>();
-        SemType targetSemType = SemType.tryInto(targetType);
-        for (BXml child : xmlSequence.getChildrenList()) {
-            SemType childType = SemType.tryInto(child.getType());
-            boolean isReadonly =
-                    Core.isSubType(cx, Core.intersect(childType, targetSemType), Builder.getReadonlyType());
-            if (isReadonly) {
-                list.add((BXml) CloneUtils.cloneReadOnly(child));
-            } else {
-                list.add(child);
-            }
-        }
-        return new XmlSequence(list);
     }
 
     private static Type getTargetFromTypeDesc(Type targetType) {

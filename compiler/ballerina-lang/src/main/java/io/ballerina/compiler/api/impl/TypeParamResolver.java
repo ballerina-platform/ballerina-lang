@@ -18,7 +18,6 @@
 
 package io.ballerina.compiler.api.impl;
 
-import io.ballerina.types.Env;
 import org.ballerinalang.model.symbols.AnnotationAttachmentSymbol;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
@@ -31,6 +30,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BAnyType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BAnydataType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BBuiltInRefType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BErrorType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFiniteType;
@@ -74,12 +74,9 @@ public class TypeParamResolver implements BTypeVisitor<BType, BType> {
     private final Map<BType, BType> boundTypes = new HashMap<>();
     private final BType typeParam;
     private final Types types;
-    private final Env typeEnv;
-
     public TypeParamResolver(BType typeParam, CompilerContext context) {
         this.typeParam = typeParam;
         types = Types.getInstance(context);
-        this.typeEnv = types.typeEnv();
     }
 
     /**
@@ -109,11 +106,16 @@ public class TypeParamResolver implements BTypeVisitor<BType, BType> {
 
     @Override
     public BType visit(BType typeInSymbol, BType boundType) {
-        if (Symbols.isFlagOn(Flags.TYPE_PARAM, typeInSymbol.getFlags())
+        if (Symbols.isFlagOn(Flags.TYPE_PARAM, typeInSymbol.flags)
                 && types.isAssignable(typeInSymbol, this.typeParam)) {
             return boundType;
         }
 
+        return typeInSymbol;
+    }
+
+    @Override
+    public BType visit(BBuiltInRefType typeInSymbol, BType boundType) {
         return typeInSymbol;
     }
 
@@ -135,8 +137,7 @@ public class TypeParamResolver implements BTypeVisitor<BType, BType> {
             return typeInSymbol;
         }
 
-        return new BMapType(typeEnv, typeInSymbol.tag, boundConstraintType, typeInSymbol.tsymbol,
-                typeInSymbol.getFlags());
+        return new BMapType(typeInSymbol.tag, boundConstraintType, typeInSymbol.tsymbol, typeInSymbol.flags);
     }
 
     @Override
@@ -147,7 +148,7 @@ public class TypeParamResolver implements BTypeVisitor<BType, BType> {
             return typeInSymbol;
         }
 
-        return new BXMLType(boundConstraintType, typeInSymbol.tsymbol, typeInSymbol.getFlags());
+        return new BXMLType(boundConstraintType, typeInSymbol.tsymbol, typeInSymbol.flags);
     }
 
     @Override
@@ -163,9 +164,8 @@ public class TypeParamResolver implements BTypeVisitor<BType, BType> {
             return typeInSymbol;
         }
 
-        return new BArrayType(typeEnv, boundElemType, typeInSymbol.tsymbol,
-                typeInSymbol.getSize(),
-                typeInSymbol.state, typeInSymbol.getFlags());
+        return new BArrayType(boundElemType, typeInSymbol.tsymbol, typeInSymbol.size, typeInSymbol.state,
+                              typeInSymbol.flags);
     }
 
     @Override
@@ -197,7 +197,7 @@ public class TypeParamResolver implements BTypeVisitor<BType, BType> {
         BObjectTypeSymbol newTypeSymbol = new BObjectTypeSymbol(objectTypeSymbol.tag, objectTypeSymbol.flags,
                 objectTypeSymbol.name, objectTypeSymbol.pkgID, objectTypeSymbol.getType(), objectTypeSymbol.owner,
                 objectTypeSymbol.pos, objectTypeSymbol.origin);
-        BObjectType newObjectType = new BObjectType(typeEnv, newTypeSymbol, typeInSymbol.getFlags());
+        BObjectType newObjectType = new BObjectType(newTypeSymbol, typeInSymbol.flags);
 
         newObjectType.fields = newObjectFields;
         newTypeSymbol.attachedFuncs = newAttachedFuncs;
@@ -217,7 +217,7 @@ public class TypeParamResolver implements BTypeVisitor<BType, BType> {
         }
 
         BType newRestType = resolve(typeInSymbol.restFieldType, boundType);
-        BRecordType newRecordType = new BRecordType(typeEnv, typeInSymbol.tsymbol, typeInSymbol.getFlags());
+        BRecordType newRecordType = new BRecordType(typeInSymbol.tsymbol, typeInSymbol.flags);
 
         newRecordType.fields = newRecordFields;
         newRecordType.restFieldType = newRestType;
@@ -244,8 +244,8 @@ public class TypeParamResolver implements BTypeVisitor<BType, BType> {
             return typeInSymbol;
         }
 
-        return new BTupleType(typeEnv, typeInSymbol.tsymbol, newTupleMembers, newRestType,
-                typeInSymbol.getFlags(), typeInSymbol.isCyclic);
+        return new BTupleType(typeInSymbol.tsymbol, newTupleMembers, newRestType, typeInSymbol.flags,
+                              typeInSymbol.isCyclic);
     }
 
     @Override
@@ -257,7 +257,7 @@ public class TypeParamResolver implements BTypeVisitor<BType, BType> {
             return typeInSymbol;
         }
 
-        return new BStreamType(typeEnv, typeInSymbol.tag, boundConstraintType, typeInSymbol.completionType,
+        return new BStreamType(typeInSymbol.tag, boundConstraintType, typeInSymbol.completionType,
                                typeInSymbol.tsymbol);
     }
 
@@ -270,9 +270,8 @@ public class TypeParamResolver implements BTypeVisitor<BType, BType> {
             return typeInSymbol;
         }
 
-        BTableType bTableType = new BTableType(typeEnv, boundConstraintType,
-                typeInSymbol.tsymbol,
-                typeInSymbol.getFlags());
+        BTableType bTableType = new BTableType(typeInSymbol.tag, boundConstraintType, typeInSymbol.tsymbol,
+                                               typeInSymbol.flags);
         bTableType.keyTypeConstraint = typeInSymbol.keyTypeConstraint;
         return bTableType;
     }
@@ -312,8 +311,7 @@ public class TypeParamResolver implements BTypeVisitor<BType, BType> {
         }
 
         invokableTypeSymbol.returnType = newReturnType;
-        BInvokableType type = new BInvokableType(typeEnv, newParamTypes, newRestParamType, newReturnType,
-                invokableTypeSymbol);
+        BInvokableType type = new BInvokableType(newParamTypes, newRestParamType, newReturnType, invokableTypeSymbol);
         invokableTypeSymbol.type = type;
 
         return type;
@@ -338,7 +336,7 @@ public class TypeParamResolver implements BTypeVisitor<BType, BType> {
             return typeInSymbol;
         }
 
-        return BUnionType.create(typeEnv, typeInSymbol.tsymbol, newMembers);
+        return BUnionType.create(typeInSymbol.tsymbol, newMembers);
     }
 
     @Override

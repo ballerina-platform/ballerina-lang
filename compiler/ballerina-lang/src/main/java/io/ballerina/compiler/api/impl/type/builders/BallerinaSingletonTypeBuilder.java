@@ -23,7 +23,6 @@ import io.ballerina.compiler.api.impl.symbols.AbstractTypeSymbol;
 import io.ballerina.compiler.api.impl.symbols.TypesFactory;
 import io.ballerina.compiler.api.symbols.SingletonTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
-import org.wso2.ballerinalang.compiler.semantics.analyzer.SemTypeHelper;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
@@ -34,6 +33,8 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.util.Flags;
+
+import java.util.Set;
 
 import static org.ballerinalang.model.symbols.SymbolOrigin.COMPILED_SOURCE;
 
@@ -76,8 +77,7 @@ public class BallerinaSingletonTypeBuilder implements TypeBuilder.SINGLETON {
                 Names.fromString(value.toString()), symTable.rootPkgSymbol.pkgID, null, symTable.rootPkgSymbol,
                 symTable.builtinPos, COMPILED_SOURCE);
 
-        BFiniteType finiteType = BFiniteType.newSingletonBFiniteType(finiteTypeSymbol,
-                SemTypeHelper.resolveSingletonType(valueLiteral));
+        BFiniteType finiteType = new BFiniteType(finiteTypeSymbol, Set.of(valueLiteral));
         finiteTypeSymbol.type = finiteType;
         SingletonTypeSymbol singletonTypeSymbol = (SingletonTypeSymbol) typesFactory.getTypeDescriptor(finiteType,
                 finiteTypeSymbol, true);

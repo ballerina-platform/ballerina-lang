@@ -19,6 +19,11 @@
      any x = y;
  }
 
+  function cannotDeepEqualReadonly() returns boolean {
+      readonly arr = [1, 2 , 3];
+      return arr == [1, 2 , 3];
+  }
+
   function testReadOnlyAssignabilityToUnions() {
        readonly readonlyVal = 1;
        error? errOrNil = readonlyVal;

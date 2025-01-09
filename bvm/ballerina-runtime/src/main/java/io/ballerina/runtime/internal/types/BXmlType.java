@@ -20,21 +20,11 @@ package io.ballerina.runtime.internal.types;
 import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.constants.TypeConstants;
 import io.ballerina.runtime.api.types.IntersectionType;
-import io.ballerina.runtime.api.types.ParameterizedType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.TypeTags;
 import io.ballerina.runtime.api.types.XmlType;
-import io.ballerina.runtime.api.types.semtype.Builder;
-import io.ballerina.runtime.api.types.semtype.Context;
-import io.ballerina.runtime.api.types.semtype.Core;
-import io.ballerina.runtime.api.types.semtype.SemType;
-import io.ballerina.runtime.internal.types.semtype.XmlUtils;
 import io.ballerina.runtime.internal.values.ReadOnlyUtils;
-import io.ballerina.runtime.internal.values.XmlComment;
-import io.ballerina.runtime.internal.values.XmlItem;
-import io.ballerina.runtime.internal.values.XmlPi;
 import io.ballerina.runtime.internal.values.XmlSequence;
-import io.ballerina.runtime.internal.values.XmlText;
 import io.ballerina.runtime.internal.values.XmlValue;
 
 import java.util.Optional;
@@ -45,10 +35,10 @@ import java.util.Optional;
  * @since 0.995.0
  */
 @SuppressWarnings("unchecked")
-public class BXmlType extends BType implements XmlType, TypeWithShape {
+public class BXmlType extends BType implements XmlType {
 
     private final int tag;
-    public final Type constraint;
+    public Type constraint;
     private final boolean readonly;
     private IntersectionType immutableType;
     private IntersectionType intersectionType = null;
@@ -71,13 +61,6 @@ public class BXmlType extends BType implements XmlType, TypeWithShape {
         this.tag = tag;
         this.readonly = readonly;
         this.constraint = null;
-    }
-
-    public BXmlType(String typeName, Type constraint, Module pkg, int tag, boolean readonly) {
-        super(typeName, pkg, XmlValue.class);
-        this.tag = tag;
-        this.readonly = readonly;
-        this.constraint = constraint;
     }
 
     public BXmlType(String typeName, Type constraint, Module pkg, boolean readonly) {
@@ -156,102 +139,7 @@ public class BXmlType extends BType implements XmlType, TypeWithShape {
     }
 
     @Override
-    public SemType createSemType() {
-        SemType semType;
-        if (constraint == null) {
-            semType = pickTopType();
-        } else {
-            SemType contraintSemtype;
-            if (constraint instanceof ParameterizedType parameterizedType) {
-                contraintSemtype = tryInto(parameterizedType.getParamValueType());
-            } else {
-                contraintSemtype = tryInto(constraint);
-            }
-            semType = XmlUtils.xmlSequence(contraintSemtype);
-        }
-        return isReadOnly() ? Core.intersect(Builder.getReadonlyType(), semType) : semType;
-    }
-
-    private SemType pickTopType() {
-        return switch (tag) {
-            case TypeTags.XML_TAG -> Builder.getXmlType();
-            case TypeTags.XML_ELEMENT_TAG -> Builder.getXmlElementType();
-            case TypeTags.XML_COMMENT_TAG -> Builder.getXmlCommentType();
-            case TypeTags.XML_PI_TAG -> Builder.getXmlPIType();
-            case TypeTags.XML_TEXT_TAG -> Builder.getXmlTextType();
-            default -> throw new IllegalStateException("Unexpected value: " + tag);
-        };
-    }
-
-    @Override
     public void setIntersectionType(IntersectionType intersectionType) {
         this.intersectionType = intersectionType;
-    }
-
-    @Override
-    public Optional<SemType> inherentTypeOf(Context cx, ShapeSupplier shapeSupplier, Object object) {
-        XmlValue xmlValue = (XmlValue) object;
-        if (!isReadOnly(xmlValue)) {
-            return Optional.of(getSemType());
-        }
-        return readonlyShapeOf(object);
-    }
-
-    @Override
-    public boolean couldInherentTypeBeDifferent() {
-        return true;
-    }
-
-    @Override
-    public Optional<SemType> shapeOf(Context cx, ShapeSupplier shapeSupplierFn, Object object) {
-        return readonlyShapeOf(object).map(semType -> Core.intersect(semType, Builder.getReadonlyType()));
-    }
-
-    @Override
-    public Optional<SemType> acceptedTypeOf(Context cx) {
-        return Optional.of(getSemType());
-    }
-
-    private Optional<SemType> readonlyShapeOf(Object object) {
-        if (object instanceof XmlSequence xmlSequence) {
-            // We represent xml<never> as an empty sequence
-            var children = xmlSequence.getChildrenList();
-            if (children.isEmpty()) {
-                return Optional.of(XmlUtils.xmlSingleton(XmlUtils.XML_PRIMITIVE_NEVER));
-            } else if (children.size() == 1) {
-                // Not entirely sure if this is correct, but needed for passing tests
-                return readonlyShapeOf(children.get(0));
-            }
-            return children.stream()
-                    .map(this::readonlyShapeOf)
-                    .filter(Optional::isPresent)
-                    .map(Optional::get)
-                    .reduce(Core::union)
-                    .map(XmlUtils::xmlSequence);
-        } else if (object instanceof XmlText) {
-            // Text is inherently readonly
-            return Optional.of(Builder.getXmlTextType());
-        } else if (object instanceof XmlItem xml) {
-            return getSemType(xml, Builder.getXmlElementType());
-        } else if (object instanceof XmlComment xml) {
-            return getSemType(xml, Builder.getXmlCommentType());
-        } else if (object instanceof XmlPi xml) {
-            return getSemType(xml, Builder.getXmlPIType());
-        }
-        throw new IllegalArgumentException("Unexpected xml value: " + object);
-    }
-
-    private static Optional<SemType> getSemType(XmlValue xml, SemType baseType) {
-        if (isReadOnly(xml)) {
-            return Optional.of(Core.intersect(baseType, Builder.getReadonlyType()));
-        }
-        return Optional.of(baseType);
-    }
-
-    private static boolean isReadOnly(XmlValue xmlValue) {
-        if (xmlValue instanceof XmlSequence || xmlValue instanceof XmlText) {
-            return true;
-        }
-        return xmlValue.getType().isReadOnly();
     }
 }

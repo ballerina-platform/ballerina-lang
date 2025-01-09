@@ -18,11 +18,8 @@
 package io.ballerina.runtime.api.values;
 
 import io.ballerina.runtime.api.types.Type;
-import io.ballerina.runtime.api.types.semtype.Context;
-import io.ballerina.runtime.api.types.semtype.SemType;
 
 import java.util.Map;
-import java.util.Optional;
 
 /**
  * <p>
@@ -61,20 +58,4 @@ public interface BValue {
     String expressionStringValue(BLink parent);
 
     Type getType();
-
-    /**
-     * Basic type of the value.
-     *
-     * @return {@code SemType} representing the value's basic type
-     */
-    default SemType widenedType() {
-        // This is wrong since we are actually returning the actual (narrowed) type of the value. But since this is
-        // used only as an optimization (to avoid recalculating singleton type) in the type checker this is better
-        // than caching the widened types as well.
-        return SemType.tryInto(getType());
-    }
-
-    default Optional<SemType> inherentTypeOf(Context cx) {
-        return Optional.empty();
-    }
 }

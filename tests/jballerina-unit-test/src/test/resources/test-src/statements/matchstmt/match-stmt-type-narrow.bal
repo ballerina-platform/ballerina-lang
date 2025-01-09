@@ -226,19 +226,19 @@ function testMatchClauseWithTypeGuard6() {
     assertEquals("Int or String", matched);
 }
 
-type PersonMtStmt record {|
+type Person record {|
     string name;
     int age;
-    AddressMtStmt address;
+    Address address;
 |};
 
-type AddressMtStmt record {
+type Address record {
     string street;
     int houseNo;
     string city;
 };
 
-type AddressWithProvinceMtStmt record {
+type AddressWithProvince record {
     string street;
     int houseNo;
     string city;
@@ -248,20 +248,20 @@ type AddressWithProvinceMtStmt record {
 type E 100|200;
 
 function testMatchClauseWithTypeGuard7() {
-    PersonMtStmt person = {name: "John", age: 12, address: {street: "Main Street", houseNo:10, city: "Colombo",
+    Person person = {name: "John", age: 12, address: {street: "Main Street", houseNo:10, city: "Colombo",
                     "country": "Sri Lanka"}};
     string matched = "Not Matched";
     int age = 0;
     string street = "";
-    PersonMtStmt newPerson = person;
+    Person newPerson = person;
 
     match person {
-        {name: var a, ...var b} if a is string && b is record {|int age; AddressWithProvinceMtStmt address;|} => {
+        {name: var a, ...var b} if a is string && b is record {|int age; AddressWithProvince address;|} => {
             matched = "Pattern1";
             age = b.age;
             street = b.address.street;
         }
-        {name: var a, ...var b} if a is string && b is record {|int age; AddressMtStmt address;|} => {
+        {name: var a, ...var b} if a is string && b is record {|int age; Address address;|} => {
             matched = "Pattern2";
             age = b.age;
             street = b.address.street;

@@ -17,12 +17,9 @@
  */
 package org.ballerinalang.test;
 
-import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import io.ballerina.projects.BuildOptions;
-import io.ballerina.projects.DocumentId;
 import io.ballerina.projects.JBallerinaBackend;
 import io.ballerina.projects.JvmTarget;
-import io.ballerina.projects.Module;
 import io.ballerina.projects.NullBackend;
 import io.ballerina.projects.Package;
 import io.ballerina.projects.PackageCompilation;
@@ -39,7 +36,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
-import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.programfile.CompiledBinaryFile;
 
 import java.io.IOException;
@@ -120,15 +116,6 @@ public final class BCompileUtil {
         CompileResult compileResult = new CompileResult(currentPackage, jBallerinaBackend);
         invokeModuleInit(compileResult);
         return compileResult;
-    }
-
-    public static PackageSyntaxTreePair compileSemType(String sourceFilePath) {
-        Project project = loadProject(sourceFilePath);
-        Package currentPackage = project.currentPackage();
-        Module module = currentPackage.getDefaultModule();
-        DocumentId docId = module.documentIds().iterator().next();
-        return new PackageSyntaxTreePair(currentPackage.getCompilation().defaultModuleBLangPackage(),
-                module.document(docId).syntaxTree());
     }
 
     public static BIRCompileResult generateBIR(String sourceFilePath) {
@@ -335,21 +322,5 @@ public final class BCompileUtil {
 
     public static String getPlatformFromBala(String balaName, String packageName, String version) {
         return balaName.split(packageName + "-")[1].split("-" + version)[0];
-    }
-
-    /**
-     * Contain compiled {@code BLangPackage} and Syntax tree.
-     * This result is used to test sem-type relationships.
-     *
-     * @since 3.0.0
-     */
-    public static class PackageSyntaxTreePair {
-        public final BLangPackage bLangPackage;
-        public final SyntaxTree syntaxTree;
-
-        public PackageSyntaxTreePair(BLangPackage bLangPackage, SyntaxTree syntaxTree) {
-            this.bLangPackage = bLangPackage;
-            this.syntaxTree = syntaxTree;
-        }
     }
 }

@@ -29,7 +29,6 @@ import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BTypedesc;
 
 import java.util.HashMap;
-import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * Native implementation of lang.internal:setNarrowType(typedesc, (any|error)[]).
@@ -38,19 +37,13 @@ import java.util.concurrent.atomic.AtomicLong;
  */
 public final class SetNarrowType {
 
-    private static final AtomicLong nextNarrowTypeId = new AtomicLong(0);
-
     private SetNarrowType() {
-    }
-
-    private static String getTypeName() {
-        return "narrowType" + nextNarrowTypeId.getAndIncrement();
     }
 
     public static BMap<?, ?> setNarrowType(BTypedesc td, BMap<?, ?> value) {
         RecordType recordType = (RecordType) TypeUtils.getImpliedType(value.getType());
         RecordType newRecordType =
-                TypeCreator.createRecordType(getTypeName(), recordType.getPackage(), recordType.getTypeFlags(),
+                TypeCreator.createRecordType("narrowType", recordType.getPackage(), recordType.getTypeFlags(),
                                              recordType.isSealed(), recordType.getTypeFlags());
         newRecordType.setFields(new HashMap<>() {{
             put("value", TypeCreator.createField(td.getDescribingType(), "value",

@@ -16,17 +16,18 @@
 
 import testorg/foo.dependently_typed as rt;
 
-type PersonDTBT record {
+type Person record {
     readonly string name;
     int age;
 };
 
-type EmployeeDTBT record {
-    *PersonDTBT;
+type Employee record {
+    *Person;
     string designation;
 };
 
-PersonDTBT expPerson = {name: "John Doe", age: 20};
+Person expPerson = {name: "John Doe", age: 20};
+
 
 // Test functions
 
@@ -48,11 +49,11 @@ function testSimpleTypes() {
 }
 
 function testRecordVarRef() {
-    PersonDTBT p = rt:getRecord();
+    Person p = rt:getRecord();
     assert(expPerson, p);
 
-    EmployeeDTBT e = rt:getRecord(td = EmployeeDTBT);
-    assert(<EmployeeDTBT>{name: "Jane Doe", age: 25, designation: "Software Engineer"}, e);
+    Employee e = rt:getRecord(td = Employee);
+    assert(<Employee>{name: "Jane Doe", age: 25, designation: "Software Engineer"}, e);
 }
 
 function testVarRefInMapConstraint() {
@@ -68,12 +69,12 @@ function testRuntimeCastError() {
 }
 
 function testVarRefUseInMultiplePlaces() {
-    [int, PersonDTBT, float] tup1 = rt:getTuple(int, PersonDTBT);
-    assert(<[int, PersonDTBT, float]>[150, expPerson, 12.34], tup1);
+    [int, Person, float] tup1 = rt:getTuple(int, Person);
+    assert(<[int, Person, float]>[150, expPerson, 12.34], tup1);
 }
 
 function testUnionTypes() {
-    int|PersonDTBT u = rt:getVariedUnion(1, int, PersonDTBT);
+    int|Person u = rt:getVariedUnion(1, int, Person);
     assert(expPerson, u);
 }
 
@@ -83,7 +84,7 @@ function testArrayTypes() {
 }
 
 function testCastingForInvalidValues() {
-    int _ = rt:getInvalidValue(int, PersonDTBT);
+    int _ = rt:getInvalidValue(int, Person);
 }
 
 type XmlElement xml:Element;
@@ -100,21 +101,19 @@ function testStream() {
     stream<string> newSt = rt:getStream(st, string);
     string s = "";
 
-    newSt.forEach(function(string x) {
-        s += x;
-    });
+    newSt.forEach(function (string x) { s += x; });
     assert("helloworldfromballerina", s);
 }
 
 function testTable() {
-    table<EmployeeDTBT> key(name) tab = table [
-        {name: "Chiran", age: 33, designation: "SE"},
-        {name: "Mohan", age: 37, designation: "SE"},
-        {name: "Gima", age: 38, designation: "SE"},
-        {name: "Granier", age: 34, designation: "SE"}
+    table<Employee> key(name) tab = table [
+        { name: "Chiran", age: 33, designation: "SE" },
+        { name: "Mohan", age: 37, designation: "SE" },
+        { name: "Gima", age: 38, designation: "SE" },
+        { name: "Granier", age: 34, designation: "SE" }
     ];
 
-    table<PersonDTBT> newTab = rt:getTable(tab, PersonDTBT);
+    table<Person> newTab = rt:getTable(tab, Person);
     assert(tab, newTab);
 }
 
@@ -126,12 +125,12 @@ function testFunctionPointers() {
 }
 
 function testTypedesc() {
-    typedesc<PersonDTBT> tP = rt:getTypedesc(PersonDTBT);
-    assert(PersonDTBT.toString(), tP.toString());
+    typedesc<Person> tP = rt:getTypedesc(Person);
+    assert(Person.toString(), tP.toString());
 }
 
 function testFuture() {
-    var fn = function(string name) returns string => "Hello " + name;
+    var fn = function (string name) returns string => "Hello " + name;
     future<string> f = start fn("Pubudu");
     future<string> fNew = rt:getFuture(f, string);
     string res = checkpanic wait fNew;
@@ -151,12 +150,9 @@ class PersonObj {
     function name() returns string => self.fname + " " + self.lname;
 }
 
-type PersonTable table<PersonDTBT>;
-
+type PersonTable table<Person>;
 type IntStream stream<int>;
-
 type IntArray int[];
-
 type XmlType xml;
 
 function testComplexTypes() {
@@ -169,7 +165,7 @@ function testComplexTypes() {
     int[] ar = rt:echo(<int[]>[20, 30, 40], IntArray);
     assert(<int[]>[20, 30, 40], ar);
 
-    PersonObj pObj = new ("John", "Doe");
+    PersonObj pObj = new("John", "Doe");
     PersonObj nObj = rt:echo(pObj, PersonObj);
     assertSame(pObj, nObj);
 
@@ -178,19 +174,17 @@ function testComplexTypes() {
     stream<int> newSt = rt:echo(st, IntStream);
     int tot = 0;
 
-    newSt.forEach(function(int x1) {
-        tot += x1;
-    });
+    newSt.forEach(function (int x1) { tot+= x1; });
     assert(150, tot);
 
-    table<PersonDTBT> key(name) tab = table [
-        {name: "Chiran", age: 33},
-        {name: "Mohan", age: 37},
-        {name: "Gima", age: 38},
-        {name: "Granier", age: 34}
+    table<Person> key(name) tab = table [
+        { name: "Chiran", age: 33},
+        { name: "Mohan", age: 37},
+        { name: "Gima", age: 38},
+        { name: "Granier", age: 34}
     ];
 
-    table<PersonDTBT> newTab = rt:echo(tab, PersonTable);
+    table<Person> newTab = rt:echo(tab, PersonTable);
     assert(tab, newTab);
 }
 

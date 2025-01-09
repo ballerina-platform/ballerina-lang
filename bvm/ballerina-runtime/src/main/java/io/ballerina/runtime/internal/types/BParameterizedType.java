@@ -21,9 +21,6 @@ package io.ballerina.runtime.internal.types;
 import io.ballerina.runtime.api.types.ParameterizedType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.TypeTags;
-import io.ballerina.runtime.api.types.semtype.SemType;
-
-import java.util.Set;
 
 /**
  * {@code ParameterizedType} represents the parameterized type in dependently-typed functions.
@@ -82,15 +79,5 @@ public class BParameterizedType extends BType implements ParameterizedType {
     @Override
     public int getParamIndex() {
         return this.paramIndex;
-    }
-
-    @Override
-    public SemType createSemType() {
-        return SemType.tryInto(this.paramValueType);
-    }
-
-    @Override
-    protected boolean isDependentlyTypedInner(Set<MayBeDependentType> visited) {
-        return true;
     }
 }

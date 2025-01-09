@@ -63,7 +63,7 @@ public class BallerinaMapTypeBuilder implements TypeBuilder.MAP {
                 symTable.rootPkgSymbol.pkgID, null, symTable.rootPkgSymbol, symTable.builtinPos,
                 symTable.rootPkgSymbol.origin);
 
-        BMapType mapType = new BMapType(symTable.typeEnv(), TypeTags.MAP, getBType(typeParam), mapTSymbol);
+        BMapType mapType = new BMapType(TypeTags.MAP, getBType(typeParam), mapTSymbol);
         mapTSymbol.type = mapType;
         MapTypeSymbol mapTypeSymbol = (MapTypeSymbol) typesFactory.getTypeDescriptor(mapType);
         this.typeParam = null;

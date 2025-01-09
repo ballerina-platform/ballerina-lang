@@ -1,4 +1,4 @@
 [package]
 org = "testorg"
-name = "closedrecordproject"
+name = "recordproject"
 version = "1.0.0"

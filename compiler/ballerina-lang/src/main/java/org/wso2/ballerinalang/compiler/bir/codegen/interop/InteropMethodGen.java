@@ -18,7 +18,6 @@
 
 package org.wso2.ballerinalang.compiler.bir.codegen.interop;
 
-import io.ballerina.types.Env;
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.model.elements.PackageID;
 import org.objectweb.asm.ClassWriter;
@@ -142,11 +141,11 @@ public final class InteropMethodGen {
         // Generate method desc
         BType retType = birFunc.type.retType;
 
-        if (Symbols.isFlagOn(retType.getFlags(), Flags.PARAMETERIZED)) {
-            retType = JvmCodeGenUtil.UNIFIER.build(types.typeEnv(), birFunc.type.retType);
+        if (Symbols.isFlagOn(retType.flags, Flags.PARAMETERIZED)) {
+            retType = JvmCodeGenUtil.UNIFIER.build(birFunc.type.retType);
         }
 
-        String desc = JvmCodeGenUtil.getMethodDesc(types.typeEnv(), birFunc.type.paramTypes, retType);
+        String desc = JvmCodeGenUtil.getMethodDesc(birFunc.type.paramTypes, retType);
         int access = birFunc.receiver != null ? ACC_PUBLIC : ACC_PUBLIC + ACC_STATIC;
         MethodVisitor mv = classWriter.visitMethod(access, birFunc.name.value, desc, null, null);
         JvmInstructionGen instGen = new JvmInstructionGen(mv, indexMap, birModule, jvmPackageGen, jvmTypeGen,
@@ -258,11 +257,11 @@ public final class InteropMethodGen {
         mv.visitEnd();
     }
 
-    public static void desugarInteropFuncs(Env typeEnv, JMethodBIRFunction birFunc, InitMethodGen initMethodGen) {
+    public static void desugarInteropFuncs(JMethodBIRFunction birFunc, InitMethodGen initMethodGen) {
         // resetting the variable generation index
         BType retType = birFunc.type.retType;
-        if (Symbols.isFlagOn(retType.getFlags(), Flags.PARAMETERIZED)) {
-            retType = JvmCodeGenUtil.UNIFIER.build(typeEnv, birFunc.type.retType);
+        if (Symbols.isFlagOn(retType.flags, Flags.PARAMETERIZED)) {
+            retType = JvmCodeGenUtil.UNIFIER.build(birFunc.type.retType);
         }
         JMethod jMethod = birFunc.jMethod;
         Class<?>[] jMethodParamTypes = jMethod.getParamTypes();

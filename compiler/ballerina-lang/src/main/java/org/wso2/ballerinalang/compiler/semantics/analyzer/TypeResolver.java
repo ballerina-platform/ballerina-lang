@@ -18,7 +18,6 @@
 package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
 import io.ballerina.tools.diagnostics.Location;
-import io.ballerina.types.SemType;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.SymbolKind;
@@ -69,7 +68,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeReferenceType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypedescType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BXMLType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.SemNamedType;
 import org.wso2.ballerinalang.compiler.tree.BLangClassDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangConstantValue;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
@@ -131,7 +129,6 @@ import java.util.Optional;
 import static org.ballerinalang.model.symbols.SymbolOrigin.BUILTIN;
 import static org.ballerinalang.model.symbols.SymbolOrigin.SOURCE;
 import static org.ballerinalang.model.symbols.SymbolOrigin.VIRTUAL;
-import static org.wso2.ballerinalang.compiler.semantics.analyzer.SemTypeHelper.singleShapeBroadType;
 import static org.wso2.ballerinalang.compiler.util.Constants.INFERRED_ARRAY_INDICATOR;
 import static org.wso2.ballerinalang.compiler.util.Constants.OPEN_ARRAY_INDICATOR;
 
@@ -380,7 +377,7 @@ public class TypeResolver {
             typeFlags |= Flags.OBJECT_CTOR;
         }
 
-        BObjectType objectType = new BObjectType(symTable.typeEnv(), tSymbol, typeFlags);
+        BObjectType objectType = new BObjectType(tSymbol, typeFlags);
         resolvingStructureTypes.add(objectType);
         if (classDefinition.isObjectContructorDecl || flags.contains(Flag.OBJECT_CTOR)) {
             classDefinition.oceEnvData.objectType = objectType;
@@ -392,7 +389,7 @@ public class TypeResolver {
         }
 
         if (flags.contains(Flag.CLIENT)) {
-            objectType.addFlags(Flags.CLIENT);
+            objectType.flags |= Flags.CLIENT;
         }
 
         tSymbol.type = objectType;
@@ -495,7 +492,7 @@ public class TypeResolver {
             }
 
             if (!effectiveType.typeIdSet.isEmpty()) {
-                definedType.addFlags(Flags.DISTINCT);
+                definedType.flags |= Flags.DISTINCT;
             }
         }
     }
@@ -577,7 +574,7 @@ public class TypeResolver {
                 ((BUnionType) type).isCyclic = true;
                 break;
             case INTERSECTION:
-                updateIsCyclicFlag(((BIntersectionType) type).effectiveType);
+                updateIsCyclicFlag(((BIntersectionType) type).getEffectiveType());
                 break;
         }
     }
@@ -649,8 +646,8 @@ public class TypeResolver {
             td.symbol = symbol;
             if (symbol.kind == SymbolKind.TYPE_DEF && !Symbols.isFlagOn(symbol.flags, Flags.ANONYMOUS)) {
                 BType referenceType = ((BTypeDefinitionSymbol) symbol).referenceType;
-                referenceType.addFlags(symbol.type.getFlags());
-                referenceType.tsymbol.flags |= symbol.type.getFlags();
+                referenceType.flags |= symbol.type.flags;
+                referenceType.tsymbol.flags |= symbol.type.flags;
                 return referenceType;
             }
             return resolvedType;
@@ -764,7 +761,7 @@ public class TypeResolver {
 
         SymbolEnv symEnv = data.env;
         BType type = resolveTypeDesc(symEnv, data.typeDefinition, data.depth + 1, td.type, data);
-        BTypedescType constrainedType = new BTypedescType(symTable.typeEnv(), symTable.empty, null);
+        BTypedescType constrainedType = new BTypedescType(symTable.empty, null);
         BTypeSymbol typeSymbol = type.tsymbol;
         constrainedType.tsymbol = Symbols.createTypeSymbol(typeSymbol.tag, typeSymbol.flags, typeSymbol.name,
                 typeSymbol.originalName, symEnv.enclPkg.symbol.pkgID, constrainedType, typeSymbol.owner,
@@ -783,7 +780,7 @@ public class TypeResolver {
 
         SymbolEnv symEnv = data.env;
         BType type = resolveTypeDesc(symEnv, data.typeDefinition, data.depth + 1, td.type, data);
-        BFutureType constrainedType = new BFutureType(symTable.typeEnv(), symTable.empty, null);
+        BFutureType constrainedType = new BFutureType(TypeTags.FUTURE, symTable.empty, null);
         BTypeSymbol typeSymbol = type.tsymbol;
         constrainedType.tsymbol = Symbols.createTypeSymbol(typeSymbol.tag, typeSymbol.flags, typeSymbol.name,
                 typeSymbol.originalName, symEnv.enclPkg.symbol.pkgID, constrainedType, typeSymbol.owner,
@@ -838,7 +835,7 @@ public class TypeResolver {
         BTypeSymbol tSymbol = Symbols.createTypeSymbol(SymTag.TYPE, typeSymbol.flags, Names.EMPTY,
                 typeSymbol.originalName, symEnv.enclPkg.symbol.pkgID, null, symEnv.scope.owner,
                 td.pos, BUILTIN);
-        BMapType constrainedType = new BMapType(symTable.typeEnv(), TypeTags.MAP, symTable.empty, tSymbol);
+        BMapType constrainedType = new BMapType(TypeTags.MAP, symTable.empty, tSymbol);
         td.setBType(constrainedType);
         tSymbol.type = type;
         resolvingTypes.push(constrainedType);
@@ -867,7 +864,7 @@ public class TypeResolver {
                     symEnv.enclPkg.symbol.pkgID, null, symEnv.scope.owner, td.pos, BUILTIN);
             BArrayType arrType;
             if (td.sizes.isEmpty()) {
-                arrType = new BArrayType(symTable.typeEnv(), resultType, arrayTypeSymbol);
+                arrType = new BArrayType(resultType, arrayTypeSymbol);
             } else {
                 BLangExpression size = td.sizes.get(i);
                 if (size.getKind() == NodeKind.LITERAL || size.getKind() == NodeKind.NUMERIC_LITERAL) {
@@ -880,8 +877,7 @@ public class TypeResolver {
                     } else {
                         arrayState = BArrayState.CLOSED;
                     }
-                    arrType =
-                            new BArrayType(symTable.typeEnv(), resultType, arrayTypeSymbol, sizeIndicator, arrayState);
+                    arrType = new BArrayType(resultType, arrayTypeSymbol, sizeIndicator, arrayState);
                 } else {
                     if (size.getKind() != NodeKind.SIMPLE_VARIABLE_REF) {
                         dlog.error(size.pos, DiagnosticErrorCode.INCOMPATIBLE_TYPES, symTable.intType,
@@ -932,8 +928,7 @@ public class TypeResolver {
                     } else {
                         length = (int) lengthCheck;
                     }
-                    arrType =
-                            new BArrayType(symTable.typeEnv(), resultType, arrayTypeSymbol, length, BArrayState.CLOSED);
+                    arrType = new BArrayType(resultType, arrayTypeSymbol, length, BArrayState.CLOSED);
                 }
             }
             arrayTypeSymbol.type = arrType;
@@ -970,7 +965,7 @@ public class TypeResolver {
                 Names.EMPTY, symEnv.enclPkg.symbol.pkgID, null,
                 symEnv.scope.owner, td.pos, BUILTIN);
         List<BTupleMember> memberTypes = new ArrayList<>();
-        BTupleType tupleType = new BTupleType(symTable.typeEnv(), tupleTypeSymbol, memberTypes);
+        BTupleType tupleType = new BTupleType(tupleTypeSymbol, memberTypes);
         tupleTypeSymbol.type = tupleType;
         td.setBType(tupleType);
         resolvingTypes.push(tupleType);
@@ -979,7 +974,7 @@ public class TypeResolver {
             BType type = resolveTypeDesc(symEnv, data.typeDefinition, data.depth + 1, memberNode.typeNode, data);
             SymbolEnv tupleEnv = SymbolEnv.createTypeEnv(td, new Scope(tupleTypeSymbol), symEnv);
             symEnter.defineNode(memberNode, tupleEnv);
-            BVarSymbol varSymbol = new BVarSymbol(memberNode.getBType().getFlags(), memberNode.symbol.name,
+            BVarSymbol varSymbol = new BVarSymbol(memberNode.getBType().flags, memberNode.symbol.name,
                     memberNode.symbol.pkgID, memberNode.getBType(), memberNode.symbol.owner, memberNode.pos, SOURCE);
             memberTypes.add(new BTupleMember(type, varSymbol));
         }
@@ -1014,7 +1009,7 @@ public class TypeResolver {
                 symEnv.enclPkg.symbol.pkgID, null,
                 symEnv.scope.owner, td.pos,
                 td.isAnonymous ? VIRTUAL : BUILTIN);
-        BRecordType recordType = new BRecordType(symTable.typeEnv(), recordSymbol);
+        BRecordType recordType = new BRecordType(recordSymbol);
         resolvingStructureTypes.add(recordType);
         recordSymbol.type = recordType;
         td.symbol = recordSymbol;
@@ -1081,7 +1076,7 @@ public class TypeResolver {
         BTypeSymbol objectSymbol = Symbols.createObjectSymbol(Flags.asMask(flags), Names.EMPTY,
                 symEnv.enclPkg.symbol.pkgID, null, symEnv.scope.owner, td.pos, BUILTIN);
 
-        BObjectType objectType = new BObjectType(symTable.typeEnv(), objectSymbol, typeFlags);
+        BObjectType objectType = new BObjectType(objectSymbol, typeFlags);
         resolvingStructureTypes.add(objectType);
         objectSymbol.type = objectType;
         td.symbol = objectSymbol;
@@ -1118,7 +1113,7 @@ public class TypeResolver {
 
         SymbolEnv symEnv = data.env;
         Location pos = td.pos;
-        BInvokableType bInvokableType = new BInvokableType(symTable.typeEnv(), List.of(), null, null, null);
+        BInvokableType bInvokableType = new BInvokableType(null, null, null, null);
         BInvokableTypeSymbol tsymbol = Symbols.createInvokableTypeSymbol(SymTag.FUNCTION_TYPE,
                 Flags.asMask(td.flagSet), symEnv.enclPkg.symbol.pkgID, bInvokableType,
                 symEnv.scope.owner, pos, BUILTIN);
@@ -1151,7 +1146,7 @@ public class TypeResolver {
         List<String> paramNames = new ArrayList<>();
         BInvokableTypeSymbol tsymbol = (BInvokableTypeSymbol) bInvokableType.tsymbol;
         if (Symbols.isFlagOn(flags, Flags.ANY_FUNCTION)) {
-            bInvokableType.setFlags(flags);
+            bInvokableType.flags = flags;
             tsymbol.params = null;
             tsymbol.restParam = null;
             tsymbol.returnType = null;
@@ -1207,7 +1202,7 @@ public class TypeResolver {
         bInvokableType.paramTypes = paramTypes;
         bInvokableType.restType = restType;
         bInvokableType.retType = retType;
-        bInvokableType.addFlags(flags);
+        bInvokableType.flags |= flags;
         tsymbol.params = params;
         tsymbol.restParam = restParam;
         tsymbol.returnType = retType;
@@ -1227,7 +1222,7 @@ public class TypeResolver {
         }
 
         if (td.detailType == null) {
-            BType errorType = new BErrorType(symTable.typeEnv(), null, symTable.detailType);
+            BType errorType = new BErrorType(null, symTable.detailType);
             errorType.tsymbol = new BErrorTypeSymbol(SymTag.ERROR, Flags.PUBLIC, Names.ERROR,
                     symTable.rootPkgSymbol.pkgID, errorType, symTable.rootPkgSymbol, symTable.builtinPos, BUILTIN);
             return errorType;
@@ -1236,7 +1231,7 @@ public class TypeResolver {
         // Define user define error type.
         BErrorTypeSymbol errorTypeSymbol = Symbols.createErrorSymbol(Flags.asMask(td.flagSet),
                 Names.EMPTY, data.env.enclPkg.packageID, null, data.env.scope.owner, td.pos, BUILTIN);
-        BErrorType errorType = new BErrorType(symTable.typeEnv(), errorTypeSymbol, symTable.empty);
+        BErrorType errorType = new BErrorType(errorTypeSymbol, symTable.empty);
         td.setBType(errorType);
         resolvingTypes.push(errorType);
 
@@ -1267,7 +1262,7 @@ public class TypeResolver {
             symEnter.defineSymbol(td.pos, errorTypeSymbol, data.env);
         }
 
-        errorType.addFlags(errorTypeSymbol.flags);
+        errorType.flags |= errorTypeSymbol.flags;
         errorTypeSymbol.type = errorType;
 
         symResolver.markParameterizedType(errorType, detailType);
@@ -1291,7 +1286,7 @@ public class TypeResolver {
         BTypeSymbol unionTypeSymbol = Symbols.createTypeSymbol(SymTag.UNION_TYPE, Flags.asMask(EnumSet.of(Flag.PUBLIC)),
                 Names.EMPTY, symEnv.enclPkg.symbol.pkgID, null,
                 symEnv.scope.owner, td.pos, BUILTIN);
-        BUnionType unionType = new BUnionType(types.typeEnv(), unionTypeSymbol, memberTypes, false);
+        BUnionType unionType = new BUnionType(unionTypeSymbol, memberTypes, false, false);
         unionTypeSymbol.type = unionType;
         td.setBType(unionType);
         resolvingTypes.push(unionType);
@@ -1303,37 +1298,63 @@ public class TypeResolver {
                 continue;
             }
 
+            if (resolvedType.isNullable()) {
+                unionType.setNullable(true);
+            }
             memberTypes.add(resolvedType);
         }
 
-        updateReadOnlyFlag(unionType);
+        updateReadOnlyAndNullableFlag(unionType);
         symResolver.markParameterizedType(unionType, memberTypes);
         resolvingTypes.pop();
         return unionType;
     }
 
-    private void updateReadOnlyFlag(BUnionType type) {
+    private void updateReadOnlyAndNullableFlag(BUnionType type) {
         LinkedHashSet<BType> memberTypes = type.getMemberTypes();
         LinkedHashSet<BType> flattenMemberTypes = new LinkedHashSet<>(memberTypes.size());
         boolean isImmutable = true;
+        boolean hasNilableType = false;
 
         for (BType memBType : BUnionType.toFlatTypeSet(memberTypes)) {
             if (Types.getImpliedType(memBType).tag != TypeTags.NEVER) {
                 flattenMemberTypes.add(memBType);
             }
 
-            if (isImmutable && !Symbols.isFlagOn(memBType.getFlags(), Flags.READONLY)) {
+            if (isImmutable && !Symbols.isFlagOn(memBType.flags, Flags.READONLY)) {
                 isImmutable = false;
             }
         }
 
         if (isImmutable) {
-            type.addFlags(Flags.READONLY);
+            type.flags |= Flags.READONLY;
             if (type.tsymbol != null) {
                 type.tsymbol.flags |= Flags.READONLY;
             }
         }
 
+        for (BType memberType : flattenMemberTypes) {
+            if (memberType.isNullable() && memberType.tag != TypeTags.NIL) {
+                hasNilableType = true;
+                break;
+            }
+        }
+
+        if (hasNilableType) {
+            LinkedHashSet<BType> bTypes = new LinkedHashSet<>(flattenMemberTypes.size());
+            for (BType t : flattenMemberTypes) {
+                if (t.tag != TypeTags.NIL) {
+                    bTypes.add(t);
+                }
+            }
+            flattenMemberTypes = bTypes;
+        }
+
+        for (BType memberType : flattenMemberTypes) {
+            if (memberType.isNullable()) {
+                type.setNullable(true);
+            }
+        }
         type.setOriginalMemberTypes(memberTypes);
         memberTypes.clear();
         memberTypes.addAll(flattenMemberTypes);
@@ -1375,7 +1396,7 @@ public class TypeResolver {
         intersectionType.setConstituentTypes(constituentTypes);
 
         if (hasReadonly) {
-            intersectionType.addFlags(Flags.READONLY);
+            intersectionType.flags |= Flags.READONLY;
         }
 
         // Differ cyclic intersection between more than 2 non-readonly types.
@@ -1406,7 +1427,7 @@ public class TypeResolver {
         while (iterator.hasNext()) {
             BType bLangEffectiveImpliedType = Types.getImpliedType(effectiveType);
             if (bLangEffectiveImpliedType.tag == TypeTags.READONLY) {
-                intersectionType.addFlags(TypeTags.READONLY);
+                intersectionType.flags = intersectionType.flags | TypeTags.READONLY;
                 effectiveType = iterator.next();
                 bLangEffectiveType = bLangTypeItr.next();
                 continue;
@@ -1415,7 +1436,7 @@ public class TypeResolver {
             BLangType bLangType = bLangTypeItr.next();
             BType typeReferenceType = Types.getImpliedType(type);
             if (typeReferenceType.tag == TypeTags.READONLY) {
-                intersectionType.addFlags(TypeTags.READONLY);
+                intersectionType.flags = intersectionType.flags | TypeTags.READONLY;
                 continue;
             }
             effectiveType = calculateEffectiveType(td, bLangEffectiveType, bLangType, effectiveType, type,
@@ -1426,9 +1447,9 @@ public class TypeResolver {
             }
         }
         intersectionType.effectiveType = effectiveType;
-        intersectionType.addFlags(effectiveType.getFlags());
+        intersectionType.flags |= effectiveType.flags;
 
-        if ((intersectionType.getFlags() & Flags.READONLY) == Flags.READONLY) {
+        if ((intersectionType.flags & Flags.READONLY) == Flags.READONLY) {
             if (types.isInherentlyImmutableType(effectiveType)) {
                 return;
             }
@@ -1523,7 +1544,7 @@ public class TypeResolver {
                             null, func.symbol, tempSymbol.pos, VIRTUAL);
                     tSymbol.type = new BParameterizedType(paramValType, (BVarSymbol) tempSymbol,
                             tSymbol, tempSymbol.name, parameterizedTypeInfo.index);
-                    tSymbol.type.addFlags(Flags.PARAMETERIZED);
+                    tSymbol.type.flags |= Flags.PARAMETERIZED;
 
                     td.symbol = tSymbol;
                     return tSymbol.type;
@@ -1549,8 +1570,8 @@ public class TypeResolver {
 
         if (symbol.kind == SymbolKind.TYPE_DEF && !Symbols.isFlagOn(symbol.flags, Flags.ANONYMOUS)) {
             BType referenceType = ((BTypeDefinitionSymbol) symbol).referenceType;
-            referenceType.addFlags(symbol.type.getFlags());
-            referenceType.tsymbol.flags |= symbol.type.getFlags();
+            referenceType.flags |= symbol.type.flags;
+            referenceType.tsymbol.flags |= symbol.type.flags;
             return referenceType;
         }
 
@@ -1584,8 +1605,8 @@ public class TypeResolver {
             td.symbol = symbol;
             if (symbol.kind == SymbolKind.TYPE_DEF && !Symbols.isFlagOn(symbol.flags, Flags.ANONYMOUS)) {
                 BType referenceType = ((BTypeDefinitionSymbol) symbol).referenceType;
-                referenceType.addFlags(symbol.type.getFlags());
-                referenceType.tsymbol.flags |= symbol.type.getFlags();
+                referenceType.flags |= symbol.type.flags;
+                referenceType.tsymbol.flags |= symbol.type.flags;
                 return referenceType;
             }
             return resolvedType;
@@ -1603,41 +1624,48 @@ public class TypeResolver {
         return visitBuiltInTypeNode(td, data, td.typeKind);
     }
 
-    protected BType resolveSingletonType(BLangFiniteTypeNode td, SymbolEnv symEnv) {
+    private BType resolveSingletonType(BLangFiniteTypeNode td, SymbolEnv symEnv) {
         BTypeSymbol finiteTypeSymbol = Symbols.createTypeSymbol(SymTag.FINITE_TYPE,
                 (Flags.asMask(EnumSet.of(Flag.PUBLIC))), Names.EMPTY, symEnv.enclPkg.symbol.pkgID, null,
                 symEnv.scope.owner, td.pos, BUILTIN);
 
-        List<BLangExpression> vs = td.valueSpace;
-        SemNamedType[] valueSpace = new SemNamedType[vs.size()];
-        for (int i = 0; i < vs.size(); i++) {
-            BLangExpression exprOrLiteral = vs.get(i);
-            BType type = blangTypeUpdate(exprOrLiteral);
+        // In case we encounter unary expressions in finite type, we will be replacing them with numeric literals.
+         replaceUnaryExprWithNumericLiteral(td);
+
+        BFiniteType finiteType = new BFiniteType(finiteTypeSymbol);
+        for (BLangExpression literal : td.valueSpace) {
+            BType type = blangTypeUpdate(literal);
             if (type != null && type.tag == TypeTags.SEMANTIC_ERROR) {
                 return type;
             }
             if (type != null) {
-                exprOrLiteral.setBType(symTable.getTypeFromTag(type.tag));
+                literal.setBType(symTable.getTypeFromTag(type.tag));
             }
-
-            if (SemTypeHelper.isSimpleOrString(exprOrLiteral.getBType().getKind())) {
-                if (exprOrLiteral.getKind() == NodeKind.UNARY_EXPR) {
-                    exprOrLiteral = Types.constructNumericLiteralFromUnaryExpr((BLangUnaryExpr) exprOrLiteral);
-                    // Replacing here as Semantic Analyzer BLangFiniteTypeNode visit may not invoke for all finite nodes
-                    td.valueSpace.set(i, exprOrLiteral);
-                }
-
-                SemType s = SemTypeHelper.resolveSingletonType((BLangLiteral) exprOrLiteral);
-                valueSpace[i] = new SemNamedType(s, Optional.ofNullable(exprOrLiteral.toString()));
-            } else {
-                throw new IllegalStateException("non-sem value found in BLangFiniteType!");
-            }
+            finiteType.addValue(literal);
         }
-
-        BFiniteType finiteType = new BFiniteType(finiteTypeSymbol, valueSpace);
         finiteTypeSymbol.type = finiteType;
         td.setBType(finiteType);
         return finiteType;
+    }
+
+    private void replaceUnaryExprWithNumericLiteral(BLangFiniteTypeNode finiteTypeNode) {
+        List<BLangExpression> valueSpace = finiteTypeNode.valueSpace;
+        for (int i = 0; i < valueSpace.size(); i++) {
+            BLangExpression value;
+            NodeKind valueKind;
+            value = valueSpace.get(i);
+            valueKind = value.getKind();
+
+            if (valueKind == NodeKind.UNARY_EXPR) {
+                BLangUnaryExpr unaryExpr = (BLangUnaryExpr) value;
+                if (unaryExpr.expr.getKind() == NodeKind.NUMERIC_LITERAL) {
+                    // Replacing unary expression with numeric literal type for + and - numeric values.
+                    BLangNumericLiteral newNumericLiteral =
+                            Types.constructNumericLiteralFromUnaryExpr(unaryExpr);
+                    valueSpace.set(i, newNumericLiteral);
+                }
+            }
+        }
     }
 
     private BType blangTypeUpdate(BLangExpression expression) {
@@ -1679,7 +1707,7 @@ public class TypeResolver {
         SymbolEnv symEnv = data.env;
         BType type = resolveTypeDesc(symEnv, data.typeDefinition, data.depth + 1, td.type, data);
 
-        BTableType tableType = new BTableType(symTable.typeEnv(), symTable.empty, null);
+        BTableType tableType = new BTableType(TypeTags.TABLE, symTable.empty, null);
         BTypeSymbol typeSymbol = type.tsymbol;
         tableType.tsymbol = Symbols.createTypeSymbol(SymTag.TYPE, Flags.asMask(EnumSet.noneOf(Flag.class)),
                 typeSymbol.name, typeSymbol.originalName, symEnv.enclPkg.symbol.pkgID,
@@ -1735,7 +1763,7 @@ public class TypeResolver {
         BType error = td.error != null ?
                 resolveTypeDesc(symEnv, data.typeDefinition, data.depth + 1, td.error, data) : symTable.nilType;
 
-        BStreamType streamType = new BStreamType(symTable.typeEnv(), TypeTags.STREAM, symTable.empty, error, null);
+        BStreamType streamType = new BStreamType(TypeTags.STREAM, symTable.empty, error, null);
         BTypeSymbol typeSymbol = type.tsymbol;
         streamType.tsymbol = Symbols.createTypeSymbol(typeSymbol.tag, typeSymbol.flags, typeSymbol.name,
                 typeSymbol.originalName, symEnv.enclPkg.symbol.pkgID, streamType,
@@ -1794,7 +1822,7 @@ public class TypeResolver {
                 typeDefSymbol.pkgID, typeDefSymbol.type, typeDefSymbol.owner, typeDefSymbol.pos, typeDefSymbol.origin);
         typeSymbol.markdownDocumentation = typeDefSymbol.markdownDocumentation;
         ((BTypeDefinitionSymbol) typeDefSymbol).referenceType = new BTypeReferenceType(resolvedType, typeSymbol,
-                typeDefSymbol.type.getFlags());
+                typeDefSymbol.type.flags);
 
         if (resolvedType == symTable.semanticError && resolvedType.tsymbol == null) {
             typeDefinition.symbol = typeDefSymbol;
@@ -1866,7 +1894,7 @@ public class TypeResolver {
                 dlog.error(typeDefinition.pos, DiagnosticErrorCode.TYPE_PARAM_OUTSIDE_LANG_MODULE);
             }
         }
-        resolvedType.addFlags(typeDefSymbol.flags);
+        resolvedType.flags |= typeDefSymbol.flags;
 
         typeDefinition.symbol = typeDefSymbol;
 
@@ -1983,6 +2011,12 @@ public class TypeResolver {
         BConstantSymbol constantSymbol = symEnter.getConstantSymbol(constant);
         constant.symbol = constantSymbol;
         BLangTypeDefinition typeDef = constant.associatedTypeDefinition;
+        NodeKind nodeKind = constant.expr.getKind();
+        boolean isLiteral = nodeKind == NodeKind.LITERAL || nodeKind == NodeKind.NUMERIC_LITERAL
+                || nodeKind == NodeKind.UNARY_EXPR;
+        if (typeDef != null && isLiteral) {
+            resolveTypeDefinition(symEnv, modTable, typeDef, 0);
+        }
         if (constant.typeNode != null) {
             // Type node is available.
             ResolverData data = new ResolverData();
@@ -2001,17 +2035,6 @@ public class TypeResolver {
         // Type check and resolve the constant expression.
         BType resolvedType = constantTypeChecker.checkConstExpr(constant.expr, staticType, data);
         data.anonTypeNameSuffixes.pop();
-
-        NodeKind nodeKind = constant.expr.getKind();
-        boolean isLiteral = nodeKind == NodeKind.LITERAL || nodeKind == NodeKind.NUMERIC_LITERAL
-                || nodeKind == NodeKind.UNARY_EXPR;
-        if (typeDef != null && isLiteral) {
-            typeDef.typeNode.setBType(resolvedType);
-            // Define the typeDefinition. Add symbol, flags etc.
-            resolvedType = defineTypeDefinition(typeDef, resolvedType, symEnv);
-            typeDef.setBType(resolvedType);
-            typeDef.cycleDepth = -1;
-        }
 
         if (resolvedType == symTable.semanticError) {
             // Constant expression contains errors.
@@ -2036,7 +2059,7 @@ public class TypeResolver {
         // Update the final type in necessary fields.
         constantSymbol.type = intersectionType;
         if (intersectionType.tag == TypeTags.FINITE) {
-            constantSymbol.literalType = singleShapeBroadType(intersectionType.semType(), symTable).get();
+            constantSymbol.literalType = ((BFiniteType) intersectionType).getValueSpace().iterator().next().getBType();
         } else {
             constantSymbol.literalType = intersectionType;
         }

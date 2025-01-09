@@ -17,54 +17,40 @@
 */
 package org.wso2.ballerinalang.compiler.semantics.model.types;
 
-import io.ballerina.types.Core;
-import io.ballerina.types.PredefinedType;
-import io.ballerina.types.SemType;
 import org.ballerinalang.model.Name;
 import org.ballerinalang.model.types.SelectivelyImmutableReferenceType;
 import org.ballerinalang.model.types.TypeKind;
-import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
 import org.wso2.ballerinalang.compiler.semantics.model.TypeVisitor;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
-import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.util.Flags;
-
-import static io.ballerina.types.PredefinedType.ANY;
-import static io.ballerina.types.PredefinedType.VAL_READONLY;
 
 /**
  * @since 0.94
  */
-public class BAnyType extends BType implements SelectivelyImmutableReferenceType {
-
+public class BAnyType extends BBuiltInRefType implements SelectivelyImmutableReferenceType {
     private boolean nullable = true;
 
-    public BAnyType() {
-        this(ANY);
+    public BAnyType(int tag, BTypeSymbol tsymbol) {
+        super(tag, tsymbol);
     }
 
-    public BAnyType(Name name, long flag) {
-        this(name, flag, Symbols.isFlagOn(flag, Flags.READONLY) ? Core.intersect(ANY, VAL_READONLY) : ANY);
-    }
-
-    private BAnyType(Name name, long flags, SemType semType) {
-        super(TypeTags.ANY, null, semType);
+    public BAnyType(int tag, BTypeSymbol tsymbol, Name name, long flag) {
+        super(tag, tsymbol);
         this.name = name;
-        this.setFlags(flags);
+        this.flags = flag;
     }
 
-    private BAnyType(SemType semType) {
-        super(TypeTags.ANY, null, semType);
+    public BAnyType(int tag, BTypeSymbol tsymbol, boolean nullable) {
+        super(tag, tsymbol);
+        this.nullable = nullable;
     }
 
-    public static BAnyType newNilLiftedBAnyType() {
-        BAnyType result = new BAnyType(Core.diff(ANY, PredefinedType.NIL));
-        result.nullable = false;
-        return result;
-    }
-
-    public static BAnyType newImmutableBAnyType() {
-        return new BAnyType(Types.getImmutableTypeName(TypeKind.ANY.typeName()), Flags.READONLY);
+    public BAnyType(int tag, BTypeSymbol tsymbol, Name name, long flags, boolean nullable) {
+        super(tag, tsymbol);
+        this.name = name;
+        this.flags = flags;
+        this.nullable = nullable;
     }
 
     @Override
@@ -89,7 +75,7 @@ public class BAnyType extends BType implements SelectivelyImmutableReferenceType
 
     @Override
     public String toString() {
-        return !Symbols.isFlagOn(getFlags(), Flags.READONLY) ? getKind().typeName() :
+        return !Symbols.isFlagOn(flags, Flags.READONLY) ? getKind().typeName() :
                 getKind().typeName().concat(" & readonly");
     }
 }

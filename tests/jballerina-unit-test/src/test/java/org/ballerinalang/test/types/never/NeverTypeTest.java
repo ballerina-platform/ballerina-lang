@@ -338,6 +338,8 @@ public class NeverTypeTest {
                 "testNeverRuntime7",
                 "testNeverRuntime8",
                 "testNeverRuntime9",
+                "testNeverRuntime10",
+                "testNeverRuntime11",
                 "testNeverRuntime12",
                 "testNeverWithAnyAndAnydataRuntime",
                 "testNeverFieldTypeCheck",
@@ -398,25 +400,6 @@ public class NeverTypeTest {
                 "'never' cannot implicitly return 'nil' by falling off the end of the function body", 112, 34);
         Assert.assertEquals(compileResult.getErrorCount(), i - 1);
         Assert.assertEquals(compileResult.getWarnCount(), 1);
-    }
-
-    @Test
-    public void testNeverTypeIsExprNegative() {
-        CompileResult res = BCompileUtil.compile("test-src/types/never/never_type_is_expr_negative.bal");
-        int i = 0;
-        BAssertUtil.validateError(res, i++, "incompatible types: 'int' will not be matched to 'never'", 19, 17);
-        BAssertUtil.validateError(res, i++, "incompatible types: 'Record' will not be matched to 'never'", 29, 17);
-        BAssertUtil.validateError(res, i++, "incompatible types: 'record {| int x; anydata...; |}' " +
-                "will not be matched to 'record {| never x?; anydata...; |}'", 34, 17);
-        BAssertUtil.validateError(res, i++, "incompatible types: 'record {| never? x; anydata...; |}' " +
-                "will not be matched to 'record {| never x?; anydata...; |}'", 37, 17);
-        BAssertUtil.validateError(res, i++, "incompatible types: 'record {| int? x; anydata...; |}' " +
-                "will not be matched to 'record {| never x?; anydata...; |}'", 40, 17);
-        BAssertUtil.validateError(res, i++, "incompatible types: '(record {| int x; anydata...; |} & readonly)' " +
-                "will not be matched to 'record {| never x?; anydata...; |}'", 43, 17);
-        BAssertUtil.validateError(res, i++, "incompatible types: '(record {| never? x; anydata...; |} & readonly)' " +
-                "will not be matched to 'record {| never x?; anydata...; |}'", 46, 17);
-        Assert.assertEquals(res.getErrorCount(), i);
     }
 
     @AfterClass

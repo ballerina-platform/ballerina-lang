@@ -24,7 +24,6 @@ import io.ballerina.runtime.api.types.ArrayType.ArrayState;
 import io.ballerina.runtime.api.types.PredefinedTypes;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.TypeTags;
-import io.ballerina.runtime.api.types.semtype.SemType;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BArray;
@@ -87,8 +86,6 @@ public class ArrayValueImpl extends AbstractArrayValue {
     private double[] floatValues;
     private BString[] bStringValues;
     private BTypedesc typedesc;
-
-    private SemType shape;
     // ------------------------ Constructors -------------------------------------------------------------------
 
     public ArrayValueImpl(Object[] values, ArrayType type) {
@@ -616,15 +613,15 @@ public class ArrayValueImpl extends AbstractArrayValue {
     public void addRefValue(long index, Object value) {
         switch (this.elementReferredType.getTag()) {
             case TypeTags.BOOLEAN_TAG:
-                prepareForAdd(index, value, booleanValues.length);
+                prepareForAdd(index, value, type, booleanValues.length);
                 this.booleanValues[(int) index] = (Boolean) value;
                 return;
             case TypeTags.FLOAT_TAG:
-                prepareForAdd(index, value, floatValues.length);
+                prepareForAdd(index, value, type, floatValues.length);
                 this.floatValues[(int) index] = (Double) value;
                 return;
             case TypeTags.BYTE_TAG:
-                prepareForAdd(index, value, byteValues.length);
+                prepareForAdd(index, value, type, byteValues.length);
                 this.byteValues[(int) index] = ((Number) value).byteValue();
                 return;
             case TypeTags.INT_TAG:
@@ -634,16 +631,16 @@ public class ArrayValueImpl extends AbstractArrayValue {
             case TypeTags.UNSIGNED32_INT_TAG:
             case TypeTags.UNSIGNED16_INT_TAG:
             case TypeTags.UNSIGNED8_INT_TAG:
-                prepareForAdd(index, value, intValues.length);
+                prepareForAdd(index, value, type, intValues.length);
                 this.intValues[(int) index] = (Long) value;
                 return;
             case TypeTags.STRING_TAG:
             case TypeTags.CHAR_STRING_TAG:
-                prepareForAdd(index, value, bStringValues.length);
+                prepareForAdd(index, value, type, bStringValues.length);
                 this.bStringValues[(int) index] = (BString) value;
                 return;
             default:
-                prepareForAdd(index, value, refValues.length);
+                prepareForAdd(index, value, type, refValues.length);
                 this.refValues[(int) index] = value;
         }
     }
@@ -662,34 +659,27 @@ public class ArrayValueImpl extends AbstractArrayValue {
     public void addInt(long index, long value) {
         Type sourceType = TypeChecker.getType(value);
         if (intValues != null) {
-            if (sourceType == this.elementType) {
-                prepareForAddWithoutTypeCheck(index, intValues.length);
-            } else {
-                prepareForAdd(index, value, intValues.length);
-            }
+            prepareForAdd(index, value, PredefinedTypes.TYPE_INT, intValues.length);
             intValues[(int) index] = value;
             return;
         }
-        if (sourceType == this.elementType) {
-            prepareForAddWithoutTypeCheck(index, byteValues.length);
-        } else {
-            prepareForAdd(index, value, byteValues.length);
-        }
+
+        prepareForAdd(index, value, TypeChecker.getType(value), byteValues.length);
         byteValues[(int) index] = (byte) ((Long) value).intValue();
     }
 
     private void addBoolean(long index, boolean value) {
-        prepareForAddWithoutTypeCheck(index, booleanValues.length);
+        prepareForAdd(index, value, PredefinedTypes.TYPE_BOOLEAN, booleanValues.length);
         booleanValues[(int) index] = value;
     }
 
     private void addByte(long index, byte value) {
-        prepareForAddWithoutTypeCheck(index, byteValues.length);
+        prepareForAdd(index, value, PredefinedTypes.TYPE_BYTE, byteValues.length);
         byteValues[(int) index] = value;
     }
 
     private void addFloat(long index, double value) {
-        prepareForAddWithoutTypeCheck(index, floatValues.length);
+        prepareForAdd(index, value, PredefinedTypes.TYPE_FLOAT, floatValues.length);
         floatValues[(int) index] = value;
     }
 
@@ -699,12 +689,7 @@ public class ArrayValueImpl extends AbstractArrayValue {
     }
 
     private void addBString(long index, BString value) {
-        Type sourceType = TypeChecker.getType(value);
-        if (sourceType == this.elementType) {
-            prepareForAddWithoutTypeCheck(index, bStringValues.length);
-        } else {
-            prepareForAdd(index, value, bStringValues.length);
-        }
+        prepareForAdd(index, value, PredefinedTypes.TYPE_STRING, bStringValues.length);
         bStringValues[(int) index] = value;
     }
 
@@ -1272,12 +1257,12 @@ public class ArrayValueImpl extends AbstractArrayValue {
 
     // Private methods
 
-    private void prepareForAdd(long index, Object value, int currentArraySize) {
+    private void prepareForAdd(long index, Object value, Type sourceType, int currentArraySize) {
         // check types
-        if (!TypeChecker.checkIsType(value, this.elementType)) {
+        if (!TypeChecker.checkIsType(null, value, sourceType, this.elementType)) {
             throw ErrorCreator.createError(getModulePrefixedReason(ARRAY_LANG_LIB,
                     INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER), ErrorHelper.getErrorDetails(
-                    ErrorCodes.INCOMPATIBLE_TYPE, this.elementType, TypeChecker.getType(value)));
+                            ErrorCodes.INCOMPATIBLE_TYPE, this.elementType, sourceType));
         }
         prepareForAddWithoutTypeCheck(index, currentArraySize);
     }
@@ -1420,15 +1405,5 @@ public class ArrayValueImpl extends AbstractArrayValue {
             }
         }
         return result;
-    }
-
-    @Override
-    public void cacheShape(SemType semType) {
-        shape = semType;
-    }
-
-    @Override
-    public SemType shapeOf() {
-        return shape;
     }
 }

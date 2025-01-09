@@ -19,13 +19,9 @@ package io.ballerina.runtime.internal.values;
 
 import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.types.Field;
-import io.ballerina.runtime.api.types.MapType;
 import io.ballerina.runtime.api.types.PredefinedTypes;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.TypeTags;
-import io.ballerina.runtime.api.types.semtype.Context;
-import io.ballerina.runtime.api.types.semtype.SemType;
-import io.ballerina.runtime.api.types.semtype.ShapeAnalyzer;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BError;
@@ -45,11 +41,10 @@ import io.ballerina.runtime.internal.json.JsonGenerator;
 import io.ballerina.runtime.internal.json.JsonInternalUtils;
 import io.ballerina.runtime.internal.scheduling.Scheduler;
 import io.ballerina.runtime.internal.types.BField;
+import io.ballerina.runtime.internal.types.BMapType;
 import io.ballerina.runtime.internal.types.BRecordType;
 import io.ballerina.runtime.internal.types.BTupleType;
 import io.ballerina.runtime.internal.types.BUnionType;
-import io.ballerina.runtime.internal.types.TypeWithShape;
-import io.ballerina.runtime.internal.types.semtype.MappingDefinition;
 import io.ballerina.runtime.internal.utils.CycleUtils;
 import io.ballerina.runtime.internal.utils.IteratorUtils;
 import io.ballerina.runtime.internal.utils.MapUtils;
@@ -65,7 +60,6 @@ import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import java.util.StringJoiner;
 import java.util.stream.Collectors;
@@ -99,15 +93,13 @@ import static io.ballerina.runtime.internal.values.ReadOnlyUtils.handleInvalidUp
  * @since 0.995.0
  */
 public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue, CollectionValue, MapValue<K, V>,
-        BMap<K, V>, RecursiveValue<MappingDefinition> {
+        BMap<K, V> {
 
     private BTypedesc typedesc;
     private Type type;
     private Type referredType;
     private final Map<String, Object> nativeData = new HashMap<>();
     private Type iteratorNextReturnType;
-    private SemType shape;
-    private final ThreadLocal<MappingDefinition> readonlyAttachedDefinition = new ThreadLocal<>();
 
     public MapValueImpl(TypedescValue typedesc) {
         this(typedesc.getDescribingType());
@@ -241,7 +233,7 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
                 expectedType = recordType.restFieldType;
             }
         } else {
-            expectedType = ((MapType) this.referredType).getConstrainedType();
+            expectedType = ((BMapType) this.referredType).getConstrainedType();
         }
 
         if (!TypeChecker.hasFillerValue(expectedType)) {
@@ -355,7 +347,7 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
     @Override
     public void populateInitialValue(K key, V value) {
         if (referredType.getTag() == TypeTags.MAP_TAG) {
-            MapUtils.handleInherentTypeViolatingMapUpdate(value, (MapType) referredType);
+            MapUtils.handleInherentTypeViolatingMapUpdate(value, (BMapType) referredType);
             putValue(key, value);
         } else {
             BString fieldName = (BString) key;
@@ -617,21 +609,6 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
         return new MapIterator<>(new LinkedHashSet<>(this.entrySet()).iterator());
     }
 
-    @Override
-    public synchronized MappingDefinition getReadonlyShapeDefinition() {
-        return readonlyAttachedDefinition.get();
-    }
-
-    @Override
-    public synchronized void setReadonlyShapeDefinition(MappingDefinition definition) {
-        readonlyAttachedDefinition.set(definition);
-    }
-
-    @Override
-    public synchronized void resetReadonlyShapeDefinition() {
-        readonlyAttachedDefinition.remove();
-    }
-
     /**
      * {@link MapIterator} iteration provider for ballerina maps.
      *
@@ -711,7 +688,7 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
     private void initializeIteratorNextReturnType() {
         Type type;
         if (this.referredType.getTag() == PredefinedTypes.TYPE_MAP.getTag()) {
-            MapType mapType = (MapType) this.referredType;
+            BMapType mapType = (BMapType) this.referredType;
             type = mapType.getConstrainedType();
         } else {
             BRecordType recordType = (BRecordType) this.referredType;
@@ -744,21 +721,5 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
      */
     protected V putValue(K key, V value) {
         return super.put(key, value);
-    }
-
-    @Override
-    public void cacheShape(SemType semType) {
-        shape = semType;
-    }
-
-    @Override
-    public SemType shapeOf() {
-        return shape;
-    }
-
-    @Override
-    public Optional<SemType> inherentTypeOf(Context cx) {
-        TypeWithShape typeWithShape = (TypeWithShape) type;
-        return typeWithShape.inherentTypeOf(cx, ShapeAnalyzer::inherentTypeOf, this);
     }
 }

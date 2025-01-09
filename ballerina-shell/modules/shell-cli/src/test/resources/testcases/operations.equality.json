@@ -1,15 +1,15 @@
 [
   {
     "description": "Define types.",
-    "code": "type EmployeeEQ record { string name; int id; }; type PersonEQ record { string name; };"
+    "code": "type Employee record { string name; int id; }; type Person record { string name; };"
   },
   {
     "description": "Define employee.",
-    "code": "final EmployeeEQ moduleEmployee = {name: \"John\", id: 2102};"
+    "code": "final Employee moduleEmployee = {name: \"John\", id: 2102};"
   },
   {
     "description": "Define module ref getter.",
-    "code": "function getModuleEmployee() returns EmployeeEQ { return moduleEmployee; }"
+    "code": "function getModuleEmployee() returns Employee { return moduleEmployee; }"
   },
   {
     "description": "Equality ==.",
@@ -49,7 +49,7 @@
   },
   {
     "description": "Deep inequality in records.",
-    "code": "EmployeeEQ e1 = {name: \"Jane\", id: 1100}; EmployeeEQ e2 = {name: \"Jane\", id: 1100};"
+    "code": "Employee e1 = {name: \"Jane\", id: 1100}; Employee e2 = {name: \"Jane\", id: 1100};"
   },
   {
     "description": "Deep inequality in records. - get value",
@@ -58,7 +58,7 @@
   },
   {
     "description": "Deep equality in records.",
-    "code": "EmployeeEQ e3 = {name: \"Anne\", id: 1100};"
+    "code": "Employee e3 = {name: \"Anne\", id: 1100};"
   },
   {
     "description": "Deep equality in records. - get value",
@@ -67,7 +67,7 @@
   },
   {
     "description": "Reference equality ===.",
-    "code": "EmployeeEQ e4 = getModuleEmployee(); PersonEQ e5 = getModuleEmployee();"
+    "code": "Employee e4 = getModuleEmployee(); Person e5 = getModuleEmployee();"
   },
   {
     "description": "Reference equality ===. - get value",

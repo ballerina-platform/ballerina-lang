@@ -17,8 +17,6 @@
  */
 package io.ballerina.runtime.api.values;
 
-import io.ballerina.runtime.api.types.semtype.SemType;
-
 /**
  * <p>
  * {@link BCollection} represents a collection in Ballerina.
@@ -34,12 +32,4 @@ public interface BCollection {
      * @return iterator created.
      */
     BIterator<?> getIterator();
-
-    default SemType shapeOf() {
-        return null;
-    }
-
-    default void cacheShape(SemType semType) {
-
-    }
 }

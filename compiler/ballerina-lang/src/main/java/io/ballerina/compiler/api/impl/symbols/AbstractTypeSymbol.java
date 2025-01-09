@@ -134,7 +134,7 @@ public abstract class AbstractTypeSymbol implements TypeSymbol {
         }
 
         Types types = Types.getInstance(this.context);
-        return types.isSameTypeIncludingTags(this.bType, ((AbstractTypeSymbol) obj).getBType());
+        return types.isSameType(this.bType, ((AbstractTypeSymbol) obj).getBType());
     }
 
     @Override

@@ -36,11 +36,14 @@ import static org.ballerinalang.test.BAssertUtil.validateError;
  */
 public class QueryExprWithQueryConstructTypeTest {
 
-    private CompileResult result;
+    private CompileResult result, negativeResult, semanticsNegativeResult;
 
     @BeforeClass
     public void setup() {
         result = BCompileUtil.compile("test-src/query/query-expr-with-query-construct-type.bal");
+        negativeResult = BCompileUtil.compile("test-src/query/query-expr-query-construct-type-negative.bal");
+        semanticsNegativeResult = BCompileUtil.compile("test-src/query/query-expr-query-construct-type-semantics" +
+                "-negative.bal");
     }
 
     @Test(description = "Test query expr returning a stream ")
@@ -158,12 +161,10 @@ public class QueryExprWithQueryConstructTypeTest {
         BRunUtil.invoke(result, "testMapConstructQueryWithConflictingKeys");
     }
 
-    @Test(enabled = false, description = "Test negative scenarios for query expr with query construct type")
+    @Test(description = "Test negative scenarios for query expr with query construct type")
     public void testNegativeScenarios() {
-        CompileResult negativeResult =
-                BCompileUtil.compile("test-src/query/query-expr-query-construct-type-negative.bal");
-
         int index = 0;
+
         validateError(negativeResult, index++, "incompatible types: expected 'Person[]', found 'stream<Person>'",
                 54, 35);
         validateError(negativeResult, index++, "incompatible types: expected 'Customer[]', " +
@@ -334,9 +335,6 @@ public class QueryExprWithQueryConstructTypeTest {
 
     @Test(description = "Test semantic negative scenarios for query expr with query construct type")
     public void testSemanticNegativeScenarios() {
-        CompileResult semanticsNegativeResult =
-                BCompileUtil.compile("test-src/query/query-expr-query-construct-type-semantics-negative.bal");
-
         int index = 0;
         validateError(semanticsNegativeResult, index++, "on conflict can only be used with queries which produce " +
                         "maps or tables with key specifiers", 39, 13);
@@ -362,7 +360,7 @@ public class QueryExprWithQueryConstructTypeTest {
     @Test(expectedExceptions = BLangTestException.class,
             expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.map\\}InherentTypeViolation " +
                     "\\{\"message\":\"cannot update 'readonly' field 'id' in record of type 'record " +
-                    "\\{\\| readonly int id; readonly string name; UserX user; \\|\\}'\".*")
+                    "\\{\\| readonly int id; readonly string name; User user; \\|\\}'\".*")
     public void testQueryConstructingTableUpdateKeyPanic1() {
         BRunUtil.invoke(result, "testQueryConstructingTableUpdateKeyPanic1");
     }
@@ -370,7 +368,7 @@ public class QueryExprWithQueryConstructTypeTest {
     @Test(expectedExceptions = BLangTestException.class,
             expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.map\\}InherentTypeViolation " +
                     "\\{\"message\":\"cannot update 'readonly' field 'id' in record of type 'record " +
-                    "\\{\\| readonly int id; readonly string name; UserX user; \\|\\}'\".*")
+                    "\\{\\| readonly int id; readonly string name; User user; \\|\\}'\".*")
     public void testQueryConstructingTableUpdateKeyPanic2() {
         BRunUtil.invoke(result, "testQueryConstructingTableUpdateKeyPanic2");
     }
@@ -536,5 +534,7 @@ public class QueryExprWithQueryConstructTypeTest {
     @AfterClass
     public void tearDown() {
         result = null;
+        negativeResult = null;
+        semanticsNegativeResult = null;
     }
 }

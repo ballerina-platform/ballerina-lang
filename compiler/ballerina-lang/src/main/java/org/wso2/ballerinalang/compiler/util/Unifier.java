@@ -17,7 +17,6 @@
 
 package org.wso2.ballerinalang.compiler.util;
 
-import io.ballerina.types.Env;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.types.TypeKind;
@@ -32,6 +31,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BAnyType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BAnydataType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BBuiltInRefType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BErrorType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFiniteType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFutureType;
@@ -89,16 +89,14 @@ public class Unifier implements BTypeVisitor<BType, BType> {
     private SymbolEnv env;
     private Types types;
     private BLangDiagnosticLog dlog;
-    private Env typeEnv;
 
-    public BType build(Env typeEnv, BType originalType, BType expType, BLangInvocation invocation, Types types,
+    public BType build(BType originalType, BType expType, BLangInvocation invocation, Types types,
                        SymbolTable symbolTable, BLangDiagnosticLog dlog) {
         this.isInvocation = invocation != null;
         if (this.isInvocation) {
             this.invocation = invocation;
             createParamMap(invocation);
         }
-        this.typeEnv = typeEnv;
         this.types = types;
         this.symbolTable = symbolTable;
         this.dlog = dlog;
@@ -107,13 +105,12 @@ public class Unifier implements BTypeVisitor<BType, BType> {
         return newType;
     }
 
-    public BType build(Env typeEnv, BType originalType) {
-        return build(typeEnv, originalType, null, null, null, null, null);
+    public BType build(BType originalType) {
+        return build(originalType, null, null, null, null, null);
     }
 
-    public void validate(Env typeEnv, BType returnType, BLangFunction function, SymbolTable symbolTable, SymbolEnv env,
-                         Types types, BLangDiagnosticLog dlog) {
-        this.typeEnv = typeEnv;
+    public void validate(BType returnType, BLangFunction function, SymbolTable symbolTable, SymbolEnv env, Types types,
+                         BLangDiagnosticLog dlog) {
         this.function = function;
         this.symbolTable = symbolTable;
         this.env = env;
@@ -125,6 +122,11 @@ public class Unifier implements BTypeVisitor<BType, BType> {
 
     @Override
     public BType visit(BType originalType, BType expType) {
+        return originalType;
+    }
+
+    @Override
+    public BType visit(BBuiltInRefType originalType, BType expType) {
         return originalType;
     }
 
@@ -152,8 +154,8 @@ public class Unifier implements BTypeVisitor<BType, BType> {
             return symbolTable.semanticError;
         }
 
-        BMapType newMType = new BMapType(typeEnv, originalType.tag, newConstraint, null);
-        setFlags(newMType, originalType.getFlags());
+        BMapType newMType = new BMapType(originalType.tag, newConstraint, null);
+        setFlags(newMType, originalType.flags);
         return newMType;
     }
 
@@ -172,7 +174,7 @@ public class Unifier implements BTypeVisitor<BType, BType> {
         }
 
         BXMLType newXMLType = new BXMLType(newConstraint, null);
-        setFlags(newXMLType, originalType.getFlags());
+        setFlags(newXMLType, originalType.flags);
         return newXMLType;
     }
 
@@ -195,9 +197,8 @@ public class Unifier implements BTypeVisitor<BType, BType> {
             return symbolTable.semanticError;
         }
 
-        BArrayType newArrayType = new BArrayType(typeEnv, newElemType, null, originalType.getSize(),
-                                                originalType.state);
-        setFlags(newArrayType, originalType.getFlags());
+        BArrayType newArrayType = new BArrayType(newElemType, null, originalType.size, originalType.state);
+        setFlags(newArrayType, originalType.flags);
         return newArrayType;
     }
 
@@ -252,7 +253,7 @@ public class Unifier implements BTypeVisitor<BType, BType> {
             BType member = tupleTypes.get(i);
             BType expMember = expTupleTypes.get(j);
             BType newMem = member.accept(this, expMember);
-            BVarSymbol varSymbol = new BVarSymbol(newMem.getFlags(), null, null, newMem, null, null, null);
+            BVarSymbol varSymbol = new BVarSymbol(newMem.flags, null, null, newMem, null, null, null);
             members.add(new BTupleMember(newMem, varSymbol));
 
             if (isSemanticErrorInInvocation(newMem)) {
@@ -283,9 +284,9 @@ public class Unifier implements BTypeVisitor<BType, BType> {
             return expType != null ? expType : originalType;
         }
 
-        BTupleType type = new BTupleType(typeEnv, members);
+        BTupleType type = new BTupleType(null, members);
         type.restType = newRestType;
-        setFlags(type, originalType.getFlags());
+        setFlags(type, originalType.flags);
         return type;
     }
 
@@ -312,8 +313,8 @@ public class Unifier implements BTypeVisitor<BType, BType> {
             return symbolTable.semanticError;
         }
 
-        BStreamType type = new BStreamType(typeEnv, originalType.tag, newConstraint, newError, null);
-        setFlags(type, originalType.getFlags());
+        BStreamType type = new BStreamType(originalType.tag, newConstraint, newError, null);
+        setFlags(type, originalType.flags);
         return type;
     }
 
@@ -339,19 +340,19 @@ public class Unifier implements BTypeVisitor<BType, BType> {
             return symbolTable.semanticError;
         }
 
-        BTableType newTableType = new BTableType(typeEnv, newConstraint, null);
+        BTableType newTableType = new BTableType(TypeTags.TABLE, newConstraint, null);
         newTableType.keyTypeConstraint = null;
         newTableType.fieldNameList = originalType.fieldNameList;
         newTableType.constraintPos = originalType.constraintPos;
         newTableType.isTypeInlineDefined = originalType.isTypeInlineDefined;
         newTableType.keyPos = originalType.keyPos;
-        setFlags(newTableType, originalType.getFlags());
+        setFlags(newTableType, originalType.flags);
         return newTableType;
     }
 
     @Override
     public BType visit(BInvokableType originalType, BType expType) {
-        if (Symbols.isFlagOn(originalType.getFlags(), Flags.ANY_FUNCTION)) {
+        if (Symbols.isFlagOn(originalType.flags, Flags.ANY_FUNCTION)) {
             return originalType;
         }
 
@@ -411,8 +412,8 @@ public class Unifier implements BTypeVisitor<BType, BType> {
             }
         }
 
-        BType type = new BInvokableType(typeEnv, paramTypes, newRestType, retType, null);
-        setFlags(type, originalType.getFlags());
+        BType type = new BInvokableType(paramTypes, newRestType, retType, null);
+        setFlags(type, originalType.flags);
         return type;
     }
 
@@ -449,7 +450,7 @@ public class Unifier implements BTypeVisitor<BType, BType> {
                     return symbolTable.semanticError;
                 }
 
-                if (newMember == member && Symbols.isFlagOn(member.getFlags(), Flags.PARAMETERIZED)) {
+                if (newMember == member && Symbols.isFlagOn(member.flags, Flags.PARAMETERIZED)) {
                     return expType;
                 }
             }
@@ -465,8 +466,8 @@ public class Unifier implements BTypeVisitor<BType, BType> {
             return originalType;
         }
 
-        BUnionType type = BUnionType.create(originalType.env, null, newMemberTypes);
-        setFlags(type, originalType.getFlags());
+        BUnionType type = BUnionType.create(null, newMemberTypes);
+        setFlags(type, originalType.flags);
         return type;
     }
 
@@ -487,7 +488,7 @@ public class Unifier implements BTypeVisitor<BType, BType> {
 
         BIntersectionType type = new BIntersectionType(null, (LinkedHashSet<BType>) originalType.getConstituentTypes(),
                                                        newEffectiveType);
-        setFlags(type, originalType.getFlags());
+        setFlags(type, originalType.flags);
         return originalType;
     }
 
@@ -510,8 +511,9 @@ public class Unifier implements BTypeVisitor<BType, BType> {
             return symbolTable.semanticError;
         }
 
-        BFutureType newFutureType = new BFutureType(typeEnv, newConstraint, null, originalType.workerDerivative);
-        setFlags(newFutureType, originalType.getFlags());
+        BFutureType newFutureType = new BFutureType(originalType.tag, newConstraint, null,
+                                                    originalType.workerDerivative);
+        setFlags(newFutureType, originalType.flags);
         return newFutureType;
     }
 
@@ -535,8 +537,8 @@ public class Unifier implements BTypeVisitor<BType, BType> {
             return symbolTable.semanticError;
         }
 
-        BTypedescType newTypedescType = new BTypedescType(typeEnv, newConstraint, null);
-        setFlags(newTypedescType, originalType.getFlags());
+        BTypedescType newTypedescType = new BTypedescType(newConstraint, null);
+        setFlags(newTypedescType, originalType.flags);
         return newTypedescType;
     }
 
@@ -567,7 +569,7 @@ public class Unifier implements BTypeVisitor<BType, BType> {
                         // Log an error only if the user has not explicitly passed an argument. If the passed
                         // argument is invalid, the type checker will log the error.
                         dlog.error(invocation.pos, DiagnosticErrorCode.INCOMPATIBLE_TYPE_FOR_INFERRED_TYPEDESC_VALUE,
-                                   paramVarName, paramSymbolTypedescType, new BTypedescType(typeEnv, expType, null));
+                                   paramVarName, paramSymbolTypedescType, new BTypedescType(expType, null));
                         return symbolTable.semanticError;
                     }
                     BType type = paramValueTypes.get(paramVarName);
@@ -696,7 +698,7 @@ public class Unifier implements BTypeVisitor<BType, BType> {
         BLangTypedescExpr typedescExpr = (BLangTypedescExpr) TreeBuilder.createTypeAccessNode();
         typedescExpr.pos = this.symbolTable.builtinPos;
         typedescExpr.resolvedType = expType;
-        typedescExpr.setBType(new BTypedescType(typeEnv, expType, null));
+        typedescExpr.setBType(new BTypedescType(expType, null));
 
         BLangNamedArgsExpression namedArgsExpression = (BLangNamedArgsExpression) TreeBuilder.createNamedArgNode();
         BLangIdentifier identifierNode = (BLangIdentifier) TreeBuilder.createIdentifierNode();
@@ -827,7 +829,7 @@ public class Unifier implements BTypeVisitor<BType, BType> {
     }
 
     private void setFlags(BType type, long originalFlags) {
-        type.setFlags(originalFlags & (~Flags.PARAMETERIZED));
+        type.flags = originalFlags & (~Flags.PARAMETERIZED);
     }
 
     private int getParamPosition(BVarSymbol sym) {
@@ -958,7 +960,7 @@ public class Unifier implements BTypeVisitor<BType, BType> {
         BType referredOriginalType = Types.getImpliedType(originalType);
         if (referredOriginalType.tag == TypeTags.UNION) {
             for (BType memberType : ((BUnionType) referredOriginalType).getMemberTypes()) {
-                if (!Symbols.isFlagOn(memberType.getFlags(), Flags.PARAMETERIZED)) {
+                if (!Symbols.isFlagOn(memberType.flags, Flags.PARAMETERIZED)) {
                     continue;
                 }
 
@@ -1049,7 +1051,7 @@ public class Unifier implements BTypeVisitor<BType, BType> {
                 }
                 return refersInferableParamName(paramsWithInferredTypedescDefault, completionType, unresolvedTypes);
             case TypeTags.INVOKABLE:
-                if (Symbols.isFlagOn(type.getFlags(), Flags.ANY_FUNCTION)) {
+                if (Symbols.isFlagOn(type.flags, Flags.ANY_FUNCTION)) {
                     return false;
                 }
                 BInvokableType invokableType = (BInvokableType) type;
@@ -1134,7 +1136,7 @@ public class Unifier implements BTypeVisitor<BType, BType> {
     // If the `expType` is `int|string|boolean` and the original type is `t|string` then the expected type for `t`
     // is `int|boolean`.
     private BType getExpectedTypeForInferredTypedescMember(BUnionType originalType, BType expType, BType member) {
-        if (expType == null || !this.isInvocation || !Symbols.isFlagOn(member.getFlags(), Flags.PARAMETERIZED)) {
+        if (expType == null || !this.isInvocation || !Symbols.isFlagOn(member.flags, Flags.PARAMETERIZED)) {
             return null;
         }
 
@@ -1183,7 +1185,7 @@ public class Unifier implements BTypeVisitor<BType, BType> {
             return expectedTypesSet.iterator().next();
         }
 
-        return BUnionType.create(typeEnv, null, expectedTypesSet);
+        return BUnionType.create(null, expectedTypesSet);
     }
 
     private boolean isSameTypeOrError(BType newType, BType originalType) {

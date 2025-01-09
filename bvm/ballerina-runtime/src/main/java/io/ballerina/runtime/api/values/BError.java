@@ -17,14 +17,8 @@
  */
 package io.ballerina.runtime.api.values;
 
-import io.ballerina.runtime.api.types.semtype.Context;
-import io.ballerina.runtime.api.types.semtype.SemType;
-import io.ballerina.runtime.api.types.semtype.ShapeAnalyzer;
-import io.ballerina.runtime.internal.types.TypeWithShape;
-
 import java.io.PrintWriter;
 import java.util.List;
-import java.util.Optional;
 
 /**
  * <p>
@@ -89,9 +83,4 @@ public abstract class BError extends RuntimeException implements BValue {
      */
     public abstract List<StackTraceElement> getCallStack();
 
-    @Override
-    public Optional<SemType> inherentTypeOf(Context cx) {
-        TypeWithShape type = (TypeWithShape) getType();
-        return type.inherentTypeOf(cx, ShapeAnalyzer::inherentTypeOf, this);
-    }
 }
