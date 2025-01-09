@@ -27,8 +27,14 @@ function createPipeline(
 
 function createInputFunction(function(_Frame _frame) returns _Frame|error? inputFunc)
         returns _StreamFunction {
+        parseLambda();
     return new _InputFunction(inputFunc);
 }
+
+function parseLambda() = @java:Method {
+    'class: "io.ballerina.runtime.internal.query.pipeline.LambdaParser",
+    name: "parseLambda"
+} external;
 
 function createNestedFromFunction(function(_Frame _frame) returns _Frame|error? collectionFunc)
         returns _StreamFunction {

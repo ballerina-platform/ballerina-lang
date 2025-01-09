@@ -571,7 +571,10 @@ public class ArrayValueImpl extends AbstractArrayValue {
 //        long[] a = {1, 2, 3, 4, 5};
 //        BArray bArray = ValueCreator.createArrayValue(a);
 //        StreamPipeline<BArray> pipeline =  StreamPipelineUtils.initializePipeline(BArray.class , bArray);
-//        StreamPipelineUtils.addFromClause(pipeline , Map.of("i" , "value"));
+
+//        fromclause f1 = StreamPipelineUtils.addFromClause(pipeline , Map.of("i" , "value"));
+//        addfromclauseTopipeline();
+//        addInputF(f1, f);
 //        StreamPipelineUtils.addSelectClause(pipeline, Map.of("i", "i"));
 //        pipeline.execute(bArray);
 //        BArray arr = StreamPipelineUtils.toBArray(pipeline);
