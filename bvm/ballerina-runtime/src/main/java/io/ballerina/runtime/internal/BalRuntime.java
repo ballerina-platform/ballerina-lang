@@ -30,10 +30,8 @@ import io.ballerina.runtime.internal.configurable.providers.ConfigDetails;
 import io.ballerina.runtime.internal.errors.ErrorCodes;
 import io.ballerina.runtime.internal.errors.ErrorHelper;
 import io.ballerina.runtime.internal.launch.LaunchUtils;
-import io.ballerina.runtime.internal.scheduling.AsyncUtils;
 import io.ballerina.runtime.internal.scheduling.RuntimeRegistry;
 import io.ballerina.runtime.internal.scheduling.Scheduler;
-import io.ballerina.runtime.internal.values.FutureValue;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -74,9 +72,7 @@ public class BalRuntime extends Runtime {
         handleAlreadyCalled(moduleInitialized, "init");
         try {
             this.invokeConfigInit();
-            FutureValue future = scheduler.startIsolatedFunction(rootModule, "$moduleInit",
-                    new StrandMetadata(true, null));
-            Object result = AsyncUtils.getFutureResult(future.completableFuture);
+            Object result = scheduler.callFunction(rootModule, "$moduleInit", new StrandMetadata(true, null));
             this.moduleInitialized = true;
             return result;
         } catch (ClassNotFoundException e) {
@@ -212,11 +208,11 @@ public class BalRuntime extends Runtime {
         }
     }
 
-    Object invokeModuleStop() throws ClassNotFoundException, NoSuchMethodException, InvocationTargetException,
+    void invokeModuleStop() throws ClassNotFoundException, NoSuchMethodException, InvocationTargetException,
             IllegalAccessException {
         Class<?> configClass = loadClass(MODULE_INIT_CLASS_NAME);
         Method method = configClass.getDeclaredMethod("$currentModuleStop", BalRuntime.class);
-        return method.invoke(null, this);
+        method.invoke(null, this);
     }
 
     protected Class<?> loadClass(String className) throws ClassNotFoundException {
