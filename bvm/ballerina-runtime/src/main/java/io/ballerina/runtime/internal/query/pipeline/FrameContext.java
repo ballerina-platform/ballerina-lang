@@ -6,6 +6,8 @@ import java.util.Map;
 /**
  * FrameContext class to encapsulate a frame in the query pipeline.
  * Supports augmentation with variables derived from from/let clauses.
+ *
+ * @param <T> the type of data stored in the frame context
  */
 public class FrameContext<T> {
     private final Map<String, Object> variables; // Variables bound to this frame

@@ -27,7 +27,7 @@ public class StreamPipeline<T> {
         }
     }
 
-    public Object getCollection(){
+    public Object getCollection() {
         return collection;
     }
 

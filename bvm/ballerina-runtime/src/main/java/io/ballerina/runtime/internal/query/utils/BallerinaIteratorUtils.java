@@ -30,7 +30,7 @@ public class BallerinaIteratorUtils {
                     return (T) iterator.next();
                 }
             };
-        }else{
+        } else {
             throw new UnsupportedOperationException("Unsupported collection type: " + collection.getClass().getName());
         }
     }

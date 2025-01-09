@@ -199,7 +199,6 @@ public class ArrayValueImpl extends AbstractArrayValue {
 //        StreamPipelineUtils.addSelectClause(pipeline, Map.of("i", "i"));
 //        pipeline.execute(bArray);
 //        BArray arr = StreamPipelineUtils.toBArray(pipeline);
-//        System.out.println(arr);
 
         return switch (elementType.getTag()) {
             case TypeTags.INT_TAG,
@@ -493,8 +492,6 @@ public class ArrayValueImpl extends AbstractArrayValue {
         pipeline.execute(bArray);
 //        BArray arr = StreamPipelineUtils.toBArray(pipeline);
         Object[] b = pipeline.getStream().toArray();
-        System.out.println(Arrays.toString(b));
-
         handleImmutableArrayValue();
         addRefValue(index, value);
     }
@@ -578,7 +575,6 @@ public class ArrayValueImpl extends AbstractArrayValue {
 //        StreamPipelineUtils.addSelectClause(pipeline, Map.of("i", "i"));
 //        pipeline.execute(bArray);
 //        BArray arr = StreamPipelineUtils.toBArray(pipeline);
-//        System.out.println(arr);
         handleImmutableArrayValue();
         addBString(index, value);
     }
