@@ -22,18 +22,28 @@ function createPipeline(
         Type[]|map<Type>|record{}|string|xml|table<map<Type>>|stream<Type, CompletionType>|_Iterable collection,
         typedesc<Type> constraintTd, typedesc<CompletionType> completionTd, boolean isLazyLoading)
             returns _StreamPipeline {
+
+            createStreamPipeline(collection, constraintTd, completionTd, isLazyLoading);
     return new _StreamPipeline(collection, constraintTd, completionTd, isLazyLoading);
+}
+
+function createStreamPipeline(
+        Type[]|map<Type>|record{}|string|xml|table<map<Type>>|stream<Type, CompletionType>|_Iterable collection,
+        typedesc<Type> constraintTd, typedesc<CompletionType> completionTd, boolean isLazyLoading) returns handle = @java:Constructor {
+            'class: "io.ballerina.runtime.internal.query.pipeline.StreamPipeline",
+            paramTypes: ["io.ballerina.runtime.api.values.BCollection","io.ballerina.runtime.api.values.BTypedesc","io.ballerina.runtime.api.values.BTypedesc","boolean"]
 }
 
 function createInputFunction(function(_Frame _frame) returns _Frame|error? inputFunc)
         returns _StreamFunction {
-        parseLambda();
+        parseLambda(inputFunc);
     return new _InputFunction(inputFunc);
 }
 
-function parseLambda() = @java:Method {
+function parseLambda(function(_Frame _frame) returns _Frame|error? inputFunc) = @java:Method {
     'class: "io.ballerina.runtime.internal.query.pipeline.LambdaParser",
-    name: "parseLambda"
+    name: "parseLambda",
+    paramTypes: ["io.ballerina.runtime.api.values.BFunctionPointer"]
 } external;
 
 function createNestedFromFunction(function(_Frame _frame) returns _Frame|error? collectionFunc)
