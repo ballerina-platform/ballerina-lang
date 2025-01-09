@@ -611,6 +611,7 @@ public class ArrayValueImpl extends AbstractArrayValue {
     }
 
     public void addRefValue(long index, Object value) {
+        Type type = TypeChecker.getType(value);
         switch (this.elementReferredType.getTag()) {
             case TypeTags.BOOLEAN_TAG:
                 prepareForAdd(index, value, type, booleanValues.length);
@@ -657,7 +658,6 @@ public class ArrayValueImpl extends AbstractArrayValue {
     }
 
     public void addInt(long index, long value) {
-        Type sourceType = TypeChecker.getType(value);
         if (intValues != null) {
             prepareForAdd(index, value, PredefinedTypes.TYPE_INT, intValues.length);
             intValues[(int) index] = value;
