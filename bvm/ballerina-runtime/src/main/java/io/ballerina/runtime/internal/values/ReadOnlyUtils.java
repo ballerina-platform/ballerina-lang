@@ -288,11 +288,8 @@ public final class ReadOnlyUtils {
                 }
                 return objectIntersectionType;
             case TypeTags.TYPE_REFERENCED_TYPE_TAG:
-                BTypeReferenceType bType = (BTypeReferenceType) type;
-                BTypeReferenceType refType = new BTypeReferenceType(bType.getName(), bType.getPkg(),
-                        bType.getTypeFlags(), true);
-                refType.setReferredType(getImmutableType(bType.getReferredType(), unresolvedTypes));
-                return createAndSetImmutableIntersectionType(bType, refType);
+                return createAndSetImmutableIntersectionType(type,
+                        getImmutableType(((BTypeReferenceType) type).getReferredType(), unresolvedTypes));
             case TypeTags.ANY_TAG:
             case TypeTags.ANYDATA_TAG:
             case TypeTags.JSON_TAG:

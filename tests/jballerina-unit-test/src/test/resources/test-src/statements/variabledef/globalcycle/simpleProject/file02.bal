@@ -22,3 +22,9 @@ Person person = {
 [Employee, Person] pp2 = [employee, person];
 
 int dep2 = dep1;
+
+function() returns boolean lambdaFoo = function() returns boolean {
+    return myBool;
+};
+
+boolean myBool = lambdaFoo();
