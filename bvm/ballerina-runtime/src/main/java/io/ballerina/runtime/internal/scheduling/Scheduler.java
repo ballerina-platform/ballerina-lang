@@ -67,106 +67,74 @@ public class Scheduler {
         return strandHolder.get().strand;
     }
     public Object callFunction(Module module, String functionName, StrandMetadata metadata, Object... args) {
-        Strand parentStrand = Scheduler.getStrand();
-        if (parentStrand != null) {
-            boolean runnable = parentStrand.isRunnable();
-            if (!runnable) {
-                parentStrand.resume();
-            }
-            try {
-                return callFunction(module, functionName, args, parentStrand);
-            } finally {
-                if (!runnable) {
-                    parentStrand.yield();
-                }
-            }
-        }
+        Strand strand = Scheduler.getStrand();
         Map<String, Object> properties = null;
         boolean isIsolated = false;
         if (metadata != null) {
             properties = metadata.properties();
             isIsolated = metadata.isConcurrentSafe();
         }
-        parentStrand = createStrand(null, functionName, isIsolated, properties, null);
-        strandHolder.get().strand = parentStrand;
-        if (isIsolated) {
-            return callFunction(module, functionName, args, parentStrand);
+        if (strand == null) {
+            strand = createStrand(null, functionName, isIsolated, properties, null);
+            strandHolder.get().strand = strand;
+        }
+        if (strand.isRunnable()) {
+            return callFunction(module, functionName, args, strand);
         }
         try {
-            parentStrand.resume();
-            return callFunction(module, functionName, args, parentStrand);
+            strand.resume();
+            return callFunction(module, functionName, args, strand);
         }  finally {
-            parentStrand.done();
+            strand.done();
         }
     }
 
     public Object callMethod(BObject object, String methodName, StrandMetadata metadata, Object... args) {
-        Strand parentStrand = Scheduler.getStrand();
-        if (parentStrand != null) {
-            boolean runnable = parentStrand.isRunnable();
-            if (!runnable) {
-                parentStrand.resume();
-            }
-            try {
-                return callMethod(object, methodName, args, parentStrand);
-            } finally {
-                if (!runnable) {
-                    parentStrand.yield();
-                }
-            }
-        }
+        Strand strand = Scheduler.getStrand();
         Map<String, Object> properties = null;
         boolean isIsolated = false;
         if (metadata != null) {
             properties = metadata.properties();
             isIsolated = metadata.isConcurrentSafe();
         }
-        String strandName = getStrandName(object, methodName);
-        parentStrand = createStrand(null, strandName, isIsolated, properties, null);
-        strandHolder.get().strand = parentStrand;
-        if (isIsolated) {
-            return callMethod(object, methodName, args, parentStrand);
+        if (strand == null) {
+            String strandName = getStrandName(object, methodName);
+            strand = createStrand(null, strandName, isIsolated, properties, null);
+            strandHolder.get().strand = strand;
+        }
+
+        if (strand.isRunnable()) {
+            return callMethod(object, methodName, args, strand);
         }
         try {
-            parentStrand.resume();
-            return callMethod(object, methodName, args, parentStrand);
+            strand.resume();
+            return callMethod(object, methodName, args, strand);
         }  finally {
-            parentStrand.done();
+            strand.done();
         }
     }
 
     public Object callFP(FPValue fp, StrandMetadata metadata, Object... args) {
-        Strand parentStrand = Scheduler.getStrand();
-        if (parentStrand != null) {
-            boolean runnable = parentStrand.isRunnable();
-            if (!runnable) {
-                parentStrand.resume();
-            }
-            try {
-                return callFp(fp, args, parentStrand);
-            } finally {
-                if (!runnable) {
-                    parentStrand.yield();
-                }
-            }
-        }
+        Strand strand = Scheduler.getStrand();
         Map<String, Object> properties = null;
         boolean isIsolated = false;
         if (metadata != null) {
             properties = metadata.properties();
             isIsolated = metadata.isConcurrentSafe();
         }
-        String strandName = getStrandName(fp.getName());
-        parentStrand = createStrand(null, strandName, isIsolated, properties, null);
-        strandHolder.get().strand = parentStrand;
-        if (isIsolated) {
-            return callFp(fp, args, parentStrand);
+        if (strand == null) {
+            String strandName = getStrandName(fp.getName());
+            strand = createStrand(null, strandName, isIsolated, properties, null);
+            strandHolder.get().strand = strand;
+        }
+        if (strand.isRunnable()) {
+            return callFp(fp, args, strand);
         }
         try {
-            parentStrand.resume();
-            return callFp(fp, args, parentStrand);
+            strand.resume();
+            return callFp(fp, args, strand);
         }  finally {
-            parentStrand.done();
+            strand.done();
         }
     }
 
