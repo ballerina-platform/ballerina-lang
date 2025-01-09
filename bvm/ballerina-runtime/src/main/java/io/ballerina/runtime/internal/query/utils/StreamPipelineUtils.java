@@ -7,9 +7,11 @@ import io.ballerina.runtime.internal.query.clauses.SelectClause;
 import io.ballerina.runtime.internal.query.clauses.WhereClause;
 import io.ballerina.runtime.internal.query.pipeline.FrameContext;
 import io.ballerina.runtime.internal.query.pipeline.StreamPipeline;
+
 import java.util.Map;
 import java.util.function.Function;
 import java.util.function.Predicate;
+
 
 public class StreamPipelineUtils {
     public static <T> StreamPipeline<T> initializePipeline(Class<T> completionType, Object collection) {
@@ -32,15 +34,8 @@ public class StreamPipelineUtils {
         pipeline.addStage(whereClause);
     }
 
-    public static <T> void addLimitClause(StreamPipeline<T> pipeline, long limit){
+    public static <T> void addLimitClause(StreamPipeline<T> pipeline, long limit) {
         LimitClause<T> limitClause = new LimitClause<>(limit);
         pipeline.addStage(limitClause);
     }
-
-//    public static <T> BArray toBArray(StreamPipeline<T> pipeline) {
-//        Stream<FrameContext<T>> stream = pipeline.getStream();
-//        System.out.println(stream);
-//        BArray result = ValueCreator.createArrayValue(stream.toArray(), pipeline.getCompletionType().)
-//        return ValueCreator.createArrayValue(stream.toArray());
-//    }
 }
