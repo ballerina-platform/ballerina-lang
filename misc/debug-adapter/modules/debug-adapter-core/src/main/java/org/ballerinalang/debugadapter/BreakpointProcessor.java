@@ -175,10 +175,7 @@ public class BreakpointProcessor {
         }
 
         context.getEventManager().deleteAllBreakpoints();
-        for (Map.Entry<String, LinkedHashMap<Integer, BalBreakpoint>> entry : userBreakpoints.entrySet()) {
-            String qClassName = entry.getKey();
-            context.getDebuggeeVM().classesByName(qClassName).forEach(ref -> activateUserBreakPoints(ref, false));
-        }
+        context.getDebuggeeVM().allClasses().forEach(ref -> activateUserBreakPoints(ref, false));
     }
 
     /**

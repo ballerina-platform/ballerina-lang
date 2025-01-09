@@ -65,7 +65,7 @@ public final class PackageUtils {
     static final String PERSIST_DIR = "persist";
     static final String TEST_PKG_POSTFIX = "$test";
     private static final String URI_SCHEME_FILE = "file";
-    private static final String URI_SCHEME_BALA = "bala";
+    public static final String URI_SCHEME_BALA = "bala";
 
     private static final String FILE_SEPARATOR_REGEX = File.separatorChar == '\\' ? "\\\\" : File.separator;
 
