@@ -386,7 +386,6 @@ class _InnerJoinFunction {
             _Frame|error? lhsFrame = pf.process();
             _Frame[] joinedFrames = [];
             error? failureAtJoin = self.failureAtJoin;
-
             if (failureAtJoin is error) {
                 fail failureAtJoin;
             }
