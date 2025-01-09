@@ -100,21 +100,21 @@ function testTypeCheckInTernary() returns string {
 
 // ========================== Records ==========================
 
-type A1TN record {
+type A1 record {
     int x = 0;
 };
 
-type B1TN record {
+type B1 record {
     int x = 0;
     string y = "";
 };
 
 function testSimpleRecordTypes_1() returns string {
-    A1TN a1 = {};
+    A1 a1 = {};
     any a = a1;
-     if (a is A1TN) {
+     if (a is A1) {
         return "a is A1";
-    } else if (a is B1TN) {
+    } else if (a is B1) {
         return "a is B1";
     }
 
@@ -122,49 +122,49 @@ function testSimpleRecordTypes_1() returns string {
 }
 
 function testSimpleRecordTypes_2() returns [boolean, boolean] {
-    B1TN b = {};
+    B1 b = {};
     any a = b;
-    return [a is A1TN, a is B1TN];
+    return [a is A1, a is B1];
 }
 
-type A2TN record {
+type A2 record {
     int x = 0;
 };
 
-type B2TN record {
+type B2 record {
     int x = 0;
 };
 
 function testSimpleRecordTypes_3() returns [boolean, boolean] {
-    B2TN b = {};
+    B2 b = {};
     any a = b;
-    return [a is A2TN, a is B2TN];
+    return [a is A2, a is B2];
 }
 
-type HumanTN record {
+type Human record {
     string name;
     (function (int, string) returns string) | () foo = ();
 };
 
-type ManTN record {
+type Man record {
     string name;
     (function (int, string) returns string) | () foo = ();
     int age = 0;
 };
 
 function testRecordsWithFunctionType_1() returns [string, string] {
-    HumanTN m = {name:"Piyal"};
+    Human m = {name:"Piyal"};
     any a = m;
     string s1;
     string s2;
     
-    if (a is ManTN) {
+    if (a is Man) {
         s1 = "Man: " + m.name;
     } else {
         s1 = "a is not a man";
     }
 
-    if (a is HumanTN) {
+    if (a is Human) {
         s2 = "Human: " + m.name;
     } else {
         s2 = "a is not a human";
@@ -174,18 +174,18 @@ function testRecordsWithFunctionType_1() returns [string, string] {
 }
 
 function testRecordsWithFunctionType_2() returns [string, string] {
-    ManTN m = {name:"Piyal"};
+    Man m = {name:"Piyal"};
     any a = m;
     string s1;
     string s2;
     
-    if (a is ManTN) {
+    if (a is Man) {
         s1 = "Man: " + m.name;
     } else {
         s1 = "a is not a man";
     }
 
-    if (a is HumanTN) {
+    if (a is Human) {
         s2 = "Human: " + m.name;
     } else {
         s2 = "a is not a human";
@@ -194,39 +194,39 @@ function testRecordsWithFunctionType_2() returns [string, string] {
     return [s1, s2];
 }
 
-type XTTE record {
+type X record {
     int p = 0;
     string q = "";
-    A1TN r = {};
+    A1 r = {};
 };
 
-type YTTE record {
+type Y record {
     int p = 0;
     string q = "";
-    B1TN r = {};   // Assignable to A1. Hence Y is assignable to X.
+    B1 r = {};   // Assignable to A1. Hence Y is assignable to X.
 };
 
 function testNestedRecordTypes() returns [boolean, boolean] {
-    YTTE y = {};
+    Y y = {};
     any x = y;
-    return [x is XTTE, x is YTTE];
+    return [x is X, x is Y];
 }
 
-type A3TN record {
+type A3 record {
     int x = 0;
 };
 
-type B3TN record {|
+type B3 record {|
     int x = 0;
 |};
 
 function testSealedRecordTypes() returns [boolean, boolean] {
-    A3TN a3 = {};
+    A3 a3 = {};
     any a = a3;
-    return [a is A3TN, a is B3TN];
+    return [a is A3, a is B3];
 }
 
-type CountryTN record {|
+type Country record {|
     readonly string code?;
     string name?;
     record {|
@@ -236,7 +236,7 @@ type CountryTN record {|
     |} continent?;
 |};
 
-type MyCountryTN record {|
+type MyCountry record {|
     readonly string code?;
     record {|
         string code?;
@@ -245,9 +245,9 @@ type MyCountryTN record {|
 |};
 
 function testRecordsWithOptionalFields() {
-    MyCountryTN x = {};
-    CountryTN y = x;
-    test:assertTrue(x is CountryTN);
+    MyCountry x = {};
+    Country y = x;
+    test:assertTrue(x is Country);
 }
 
 // ========================== Objects ==========================
@@ -409,18 +409,18 @@ function testObjectWithUnorderedFields() returns [string, string, string, string
     return [s1, s2, s3, s4];
 }
 
-public type A4TN object {
+public type A4 object {
     public int p;
     public string q;
 };
 
-public type B4TN object {
+public type B4 object {
     public float r;
-    *A4TN;
+    *A4;
 };
 
-public class C4TN {
-    *B4TN;
+public class C4 {
+    *B4;
     public boolean s;
 
     public function init(int p, string q, float r, boolean s) {
@@ -432,16 +432,16 @@ public class C4TN {
 }
 
 function testPublicObjectEquivalency() returns [string, string, string] {
-    any x = new C4TN(5, "foo", 6.7, true);
+    any x = new C4(5, "foo", 6.7, true);
     string s1 = "n/a";
     string s2 = "n/a";
     string s3 = "n/a";
 
-    if(x is A4TN) {
+    if(x is A4) {
         s1 = "values: " + x.p.toString() + ", " + x.q;
     }
 
-    if (x is B4TN) {
+    if (x is B4) {
         s2 = "values: " + x.p.toString() + ", " + x.q + ", " + x.r.toString();
     }
 
@@ -452,18 +452,18 @@ function testPublicObjectEquivalency() returns [string, string, string] {
     return [s1, s2, s3];
 }
 
-type A5TN object {
+type A5 object {
     int p;
     string q;
 };
 
-type B5TN object {
+type B5 object {
     float r;
-    *A5TN;
+    *A5;
 };
 
 class C5 {
-    *B5TN;
+    *B5;
     boolean s;
 
     public function init(int p, string q, float r, boolean s) {
@@ -480,11 +480,11 @@ function testPrivateObjectEquivalency() returns [string, string, string] {
     string s2 = "n/a";
     string s3 = "n/a";
 
-    if(x is A5TN) {
+    if(x is A5) {
         s1 = "values: " + x.p.toString() + ", " + x.q;
     }
 
-    if (x is B5TN) {
+    if (x is B5) {
         s2 = "values: " + x.p.toString() + ", " + x.q + ", " + x.r.toString();
     }
 
@@ -496,12 +496,12 @@ function testPrivateObjectEquivalency() returns [string, string, string] {
 }
 
 function testAnonymousObjectEquivalency() returns [string, string, string] {
-    any x = new C4TN(5, "foo", 6.7, true);
+    any x = new C4(5, "foo", 6.7, true);
     string s1 = "n/a";
     string s2 = "n/a";
     string s3 = "n/a";
 
-    if(x is object { public float r; *A4TN; }) {
+    if(x is object { public float r; *A4; }) {
         s1 = "values: " + x.p.toString() + ", " + x.q + ", " + x.r.toString();
     }
 
@@ -516,50 +516,50 @@ function testAnonymousObjectEquivalency() returns [string, string, string] {
     return [s1, s2, s3];
 }
 
-class QuxFoo {
-    QuxFoo? fn;
+class Qux {
+    Qux? fn;
 
-    public function init(QuxFoo? fn = ()) {
+    public function init(Qux? fn = ()) {
         self.fn = fn;
     }
 }
 
-class QuuxFoo {
-    QuuxFoo? fn = ();
+class Quux {
+    Quux? fn = ();
 }
 
-class QuuzFoo {
-    QuuzFoo? fn = ();
+class Quuz {
+    Quuz? fn = ();
     int i = 1;
 }
 
-class ABCFoo {
-    QuxFoo f;
+class ABC {
+    Qux f;
     string s;
 
-    function init(QuxFoo f, string s) {
+    function init(Qux f, string s) {
         self.f = f;
         self.s = s;
     }
 }
 
 function testObjectIsCheckWithCycles() {
-    QuxFoo f1 = new;
-    QuxFoo f2 = new (f1);
+    Qux f1 = new;
+    Qux f2 = new (f1);
 
-    any a1 = <any>f1;
-    test:assertTrue(a1 is QuuxFoo);
-    test:assertFalse(a1 is QuuzFoo);
+    any a1 = <any> f1;
+    test:assertTrue(a1 is Quux);
+    test:assertFalse(a1 is Quuz);
 
-    any a2 = <any>f2;
-    test:assertTrue(a2 is QuuxFoo);
-    test:assertFalse(a2 is QuuzFoo);
+    any a2 = <any> f2;
+    test:assertTrue(a2 is Quux);
+    test:assertFalse(a2 is Quuz);
 
-    ABCFoo ob = new (f2, "ballerina");
+    ABC ob = new (f2, "ballerina");
 
     any a3 = ob;
-    test:assertTrue(a3 is object {QuxFoo f;});
-    test:assertFalse(a3 is object {QuuzFoo f;});
+    test:assertTrue(a3 is object { Qux f; });
+    test:assertFalse(a3 is object { Quuz f; });
 }
 
 service class ServiceClassA {
@@ -625,11 +625,11 @@ function testSimpleArrays() returns [boolean, boolean, boolean, boolean, boolean
 }
 
 function testRecordArrays() returns [boolean, boolean, boolean, boolean] {
-    XTTE[] a = [{}, {}];
-    XTTE[][] b = [[{}, {}], [{}, {}]];
+    X[] a = [{}, {}];
+    X[][] b = [[{}, {}], [{}, {}]];
     any c = a;
     any d = b;
-    return [c is XTTE[], d is XTTE[][], c is YTTE[], d is YTTE[][]];
+    return [c is X[], d is X[][], c is Y[], d is Y[][]];
 }
 
 public function testUnionType() {
@@ -742,20 +742,20 @@ function testSimpleTuples() returns [boolean, boolean, boolean, boolean, boolean
 }
 
 function testTupleWithAssignableTypes_1() returns [boolean, boolean, boolean, boolean] {
-    [XTTE, YTTE] p = [{}, {}];
+    [X, Y] p = [{}, {}];
     any q = p;
-    boolean b0 = q is [XTTE, XTTE];
-    boolean b1 = q is [XTTE, YTTE];
-    boolean b2 = q is [YTTE, XTTE];
-    boolean b3 = q is [YTTE, YTTE];
+    boolean b0 = q is [X, X];
+    boolean b1 = q is [X, Y];
+    boolean b2 = q is [Y, X];
+    boolean b3 = q is [Y, Y];
     return [b0, b1, b2, b3];
 }
 
 function testTupleWithAssignableTypes_2() returns boolean {
-    [YTTE, YTTE] p = [{}, {}];
-    [XTTE, YTTE] q = p;
-    boolean b1 = q is [YTTE, YTTE];
-    return q is [YTTE, YTTE];
+    [Y, Y] p = [{}, {}];
+    [X, Y] q = p;
+    boolean b1 = q is [Y, Y];
+    return q is [Y, Y];
 }
 
 public function testRestType() {
@@ -852,35 +852,35 @@ function testJsonArrays() returns [boolean, boolean, boolean] {
 
 // ========================== Finite type ==========================
 
-type StateTN "on"|"off";
+type State "on"|"off";
 
 function testFiniteType() returns [boolean, boolean, boolean] {
-    StateTN a = "on";
+    State a = "on";
     any b = a;
     any c = "off";
     any d = "hello";
 
-    return [b is StateTN, c is StateTN, d is StateTN];
+    return [b is State, c is State, d is State];
 }
 
 function testFiniteTypeInTuple() returns [boolean, boolean, boolean, boolean] {
-    [StateTN, string] x = ["on", "off"];
+    [State, string] x = ["on", "off"];
     any y = x;
     
-    boolean b0 = y is [StateTN, StateTN];
-    boolean b1 = y is [StateTN, string];
-    boolean b2 = y is [string, StateTN];
+    boolean b0 = y is [State, State];
+    boolean b1 = y is [State, string];
+    boolean b2 = y is [string, State];
     boolean b3 = y is [string, string];
 
     return [b0, b1, b2, b3];
 }
 
-function testFiniteTypeInTuplePoisoning() returns [StateTN, StateTN] {
-    [StateTN, string] x = ["on", "off"];
+function testFiniteTypeInTuplePoisoning() returns [State, State] {
+    [State, string] x = ["on", "off"];
     any y = x;
-    [StateTN, StateTN] z = ["on", "on"];
+    [State, State] z = ["on", "on"];
     
-    if (y is [StateTN, StateTN]) {
+    if (y is [State, State]) {
         z = y;
     }
 
@@ -892,11 +892,11 @@ public const APPLE = "apple";
 public const ORANGE = "orange";
 public const GRAPE = "grape";
 
-type FruitTN APPLE | ORANGE | GRAPE;
+type Fruit APPLE | ORANGE | GRAPE;
 
 function testFiniteType_1() returns string {
     any a = APPLE;
-    if (a is FruitTN) {
+    if (a is Fruit) {
         return "a is a fruit";
     }
 
@@ -1001,13 +1001,13 @@ function testIntersectingUnionFalse() returns [boolean, boolean] {
 function testValueTypeAsFiniteTypeTrue() returns [boolean, boolean] {
     string s = "orange";
     float f = 2.0;
-    return [s is FruitTN, f is IntTwo];
+    return [s is Fruit, f is IntTwo];
 }
 
 function testValueTypeAsFiniteTypeFalse() returns [boolean, boolean] {
     string s = "mango";
     float f = 12.0;
-    return [s is FruitTN, f is IntTwo];
+    return [s is Fruit, f is IntTwo];
 }
 
 const ERR_REASON = "error reason";
@@ -1213,12 +1213,12 @@ public function testXMLNeverType() {
 
     xml e = xml ``;
     test:assertEquals(<any> e is byte, false);
-    test:assertEquals(<any> e is xml<'xml:Element>, true);
+    test:assertEquals(<any> e is xml<'xml:Element>, false);
     test:assertEquals(<any> e is xml<'xml:Text>, true);
     test:assertEquals(<any> e is xml, true);
     test:assertEquals(<any> e is 'xml:Text, true);
     test:assertEquals(<any> e is 'xml:Element, false);
-    test:assertEquals(<any> e is xml<'xml:Element|'xml:Comment>, true);
+    test:assertEquals(<any> e is xml<'xml:Element|'xml:Comment>, false);
 }
 
 function testXMLTextType(){
@@ -1428,7 +1428,7 @@ type MyClientObjectType client object {
 };
 
 function testResourceMethodTyping() {
-    object {} objectVar = client object {
+    client object {} objectVar = client object {
         resource function post .() {
         }
     };

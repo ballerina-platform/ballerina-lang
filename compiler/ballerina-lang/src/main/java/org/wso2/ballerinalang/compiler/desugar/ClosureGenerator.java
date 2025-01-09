@@ -655,10 +655,9 @@ public class ClosureGenerator extends BLangNodeVisitor {
                                                   VIRTUAL);
             funcSymbol.scope.define(symbolName, varSymbol);
             funcSymbol.params.add(varSymbol);
-            BInvokableType funcType = (BInvokableType) funcSymbol.type;
-            funcType.addParamType(varSymbol.type);
+            ((BInvokableType) funcSymbol.type).paramTypes.add(type);
             funcNode.requiredParams.add(ASTBuilderUtil.createVariable(pos, symbolName.value, type, null,
-                    varSymbol));
+                                                                      varSymbol));
         }
     }
 
@@ -729,7 +728,7 @@ public class ClosureGenerator extends BLangNodeVisitor {
         function.flagSet.add(Flag.PUBLIC);
         BInvokableTypeSymbol invokableTypeSymbol = Symbols.createInvokableTypeSymbol(SymTag.FUNCTION_TYPE, Flags.PUBLIC,
                                                                                      pkgID, bType, owner, pos, VIRTUAL);
-        function.setBType(new BInvokableType(symTable.typeEnv(), List.of(), bType, invokableTypeSymbol));
+        function.setBType(new BInvokableType(new ArrayList<>(), bType, invokableTypeSymbol));
 
         BLangBuiltInRefTypeNode typeNode = (BLangBuiltInRefTypeNode) TreeBuilder.createBuiltInReferenceTypeNode();
         typeNode.setBType(bType);

@@ -17,8 +17,6 @@
  */
 package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
-import io.ballerina.types.Core;
-import io.ballerina.types.Value;
 import org.ballerinalang.model.tree.OperatorKind;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
@@ -31,9 +29,8 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeTestExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangUnaryExpr;
-import org.wso2.ballerinalang.compiler.util.TypeTags;
 
-import java.util.Optional;
+import java.util.HashSet;
 
 /**
  * This analyzes the condition in if statement and while statement.
@@ -54,11 +51,9 @@ public final class ConditionResolver {
                 if (value instanceof Boolean) {
                     return value == Boolean.TRUE ? symTable.trueType : symTable.falseType;
                 }
-                return BFiniteType.newSingletonBFiniteType(null,
-                        SemTypeHelper.resolveSingletonType((BLangLiteral) condition));
+                return new BFiniteType(null, new HashSet<>() { { add(condition); } });
             case NUMERIC_LITERAL:
-                return BFiniteType.newSingletonBFiniteType(null,
-                        SemTypeHelper.resolveSingletonType((BLangLiteral) condition));
+                return new BFiniteType(null, new HashSet<>() { { add(condition); } });
             case TYPE_TEST_EXPR:
                 BLangTypeTestExpr typeTestExpr = (BLangTypeTestExpr) condition;
                 BType exprType = typeTestExpr.expr.getBType();
@@ -124,21 +119,11 @@ public final class ConditionResolver {
                 BLangSimpleVarRef simpleVarRef = (BLangSimpleVarRef) condition;
                 BType type = (simpleVarRef.symbol.tag & SymTag.CONSTANT) == SymTag.CONSTANT ?
                         simpleVarRef.symbol.type : condition.getBType();
-                BType baseType = Types.getImpliedType(type);
-
-                if (baseType.tag != TypeTags.FINITE) {
+                if (!types.isSingletonType(type)) {
                     return symTable.semanticError;
                 }
-
-                Optional<Value> val = Core.singleShape(baseType.semType());
-                if (val.isEmpty()) {
-                    return symTable.semanticError;
-                }
-
-                if (val.get().value instanceof Boolean) {
-                    return val.get().value == Boolean.TRUE ? symTable.trueType : symTable.falseType;
-                }
-                return baseType;
+                return checkConstCondition(types, symTable, ((BFiniteType) Types.getImpliedType(type))
+                        .getValueSpace().iterator().next());
             default:
                 return symTable.semanticError;
         }

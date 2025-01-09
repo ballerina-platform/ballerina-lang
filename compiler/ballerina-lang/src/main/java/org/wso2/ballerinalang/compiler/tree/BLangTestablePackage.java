@@ -17,8 +17,6 @@
  */
 package org.wso2.ballerinalang.compiler.tree;
 
-import io.ballerina.types.Env;
-
 import java.util.HashMap;
 import java.util.Map;
 
@@ -33,11 +31,6 @@ public class BLangTestablePackage extends BLangPackage {
     private final Map<String, String> mockFunctionNamesMap = new HashMap<>();
 
     private final Map<String, Boolean> isLegacyMockingMap = new HashMap<>();
-
-    public BLangTestablePackage(Env env) {
-        super(env);
-    }
-
     public Map<String, String> getMockFunctionNamesMap() {
         return mockFunctionNamesMap;
     }

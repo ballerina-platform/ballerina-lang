@@ -50,6 +50,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BAnnotationType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BAnyType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BAnydataType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BBuiltInRefType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BErrorType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFiniteType;
@@ -60,6 +61,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BJSONType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BNeverType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BNilType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BNoType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BPackageType;
@@ -357,7 +359,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
         }
 
         for (BLangClassDefinition classDefinition : pkgNode.classDefinitions) {
-            if (classDefinition.flagSet.contains(Flag.ANONYMOUS) && isIsolated(classDefinition.getBType().getFlags())) {
+            if (classDefinition.flagSet.contains(Flag.ANONYMOUS) && isIsolated(classDefinition.getBType().flags)) {
                 // If this is a class definition for an object constructor expression, and the type is `isolated`,
                 // that is due to the expected type being an `isolated` object. We now mark the class definition also
                 // as `isolated`, to enforce the isolation validation.
@@ -1514,7 +1516,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
 
     private boolean isValidIsolatedAsyncInvocation(BLangInvocation.BLangActionInvocation actionInvocation) {
         boolean isIsolatedStartAction = true;
-        if (!isIsolated(actionInvocation.symbol.type.getFlags())) {
+        if (!isIsolated(actionInvocation.symbol.type.flags)) {
             dlog.error(actionInvocation.name.pos,
                     DiagnosticErrorCode.INVALID_ASYNC_INVOCATION_OF_NON_ISOLATED_FUNCTION_IN_ISOLATED_FUNCTION);
             isIsolatedStartAction = false;
@@ -2112,7 +2114,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
         boolean expectsIsolation =
                 inIsolatedFunction || recordFieldDefaultValue || objectFieldDefaultValueRequiringIsolation;
 
-        boolean isolatedFunctionCall = isIsolated(symbol.type.getFlags());
+        boolean isolatedFunctionCall = isIsolated(symbol.type.flags);
 
         boolean inStartAction = invocationExpr.async && !invocationExpr.functionPointerInvocation;
 
@@ -2166,7 +2168,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
 
     private void markFunctionDependentlyIsolatedOnStartAction(BInvokableSymbol enclInvokableSymbol,
                                                               Set<BLangExpression> argsList, BInvokableSymbol symbol) {
-        boolean isIsolatedFunction = isIsolated(symbol.type.getFlags());
+        boolean isIsolatedFunction = isIsolated(symbol.type.flags);
         if (!isIsolatedFunction && Symbols.isFlagOn(symbol.flags, Flags.PUBLIC)) {
             markDependsOnIsolationNonInferableConstructs();
             return;
@@ -2247,10 +2249,9 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
                                                                                    tsymbol.pkgID, null, tsymbol.owner,
                                                                                    tsymbol.pos, tsymbol.origin);
             dupInvokableTypeSymbol.params = tsymbol.params == null ? null : new ArrayList<>(tsymbol.params);
-            BInvokableType dupInvokableType =
-                    new BInvokableType(symTable.typeEnv(), invokableType.paramTypes, invokableType.restType,
-                            invokableType.retType, dupInvokableTypeSymbol);
-            dupInvokableType.addFlags(Flags.ISOLATED);
+            BInvokableType dupInvokableType = new BInvokableType(invokableType.paramTypes, invokableType.restType,
+                                                                 invokableType.retType, dupInvokableTypeSymbol);
+            dupInvokableType.flags |= Flags.ISOLATED;
             dupInvokableTypeSymbol.type = dupInvokableType;
             argExpr.setBType(dupInvokableType);
 
@@ -2471,16 +2472,16 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
             members.add(new BTupleMember(eType, Symbols.createVarSymbolForTupleMember(eType)));
         }
 
-        if (arrayType.getSize() > remReqArgCount) {
-            return new BTupleType(symTable.typeEnv(), null, members, eType, 0);
+        if (arrayType.size > remReqArgCount) {
+            return new BTupleType(null, members, eType, 0);
         }
 
-        return new BTupleType(symTable.typeEnv(), members);
+        return new BTupleType(members);
     }
 
     private void analyzeRestArgsForRestParam(BLangInvocation invocationExpr, List<BLangExpression> restArgs,
                                              BInvokableSymbol symbol, boolean expectsIsolation) {
-        if (Symbols.isFlagOn(((BArrayType) symbol.restParam.type).eType.getFlags(), Flags.ISOLATED)) {
+        if (Symbols.isFlagOn(((BArrayType) symbol.restParam.type).eType.flags, Flags.ISOLATED)) {
             for (BLangExpression restArg : restArgs) {
                 analyzeNode(restArg, env);
             }
@@ -2542,7 +2543,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
 
     private void handleNonExplicitlyIsolatedArgForIsolatedParam(BLangInvocation invocationExpr, BLangExpression expr,
                                                                 boolean expectsIsolation, BType type, Location pos) {
-        if (Symbols.isFlagOn(type.getFlags(), Flags.ISOLATED)) {
+        if (Symbols.isFlagOn(type.flags, Flags.ISOLATED)) {
             return;
         }
 
@@ -2578,7 +2579,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
             if (isNotInArrowFunctionBody(env)) {
                 return false;
             }
-            return isIsolated(((BLangArrowFunction) env.enclEnv.node).funcType.getFlags());
+            return isIsolated(((BLangArrowFunction) env.enclEnv.node).funcType.flags);
         }
 
         return isIsolated(enclInvokable.symbol.flags);
@@ -3015,7 +3016,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
                 return isIsolatedExpression(argExprs.get(0), logErrors, visitRestOnError, nonIsolatedExpressions,
                                             inferring, publiclyExposedObjectTypes, classDefinitions,
                                             moduleLevelVariables, unresolvedSymbols);
-            } else if (isIsolated(invocationSymbol.type.getFlags()) ||
+            } else if (isIsolated(invocationSymbol.type.flags) ||
                     (inferring && this.isolationInferenceInfoMap.containsKey(invocationSymbol) &&
                             inferFunctionIsolation(invocationSymbol,
                                     this.isolationInferenceInfoMap.get(invocationSymbol), publiclyExposedObjectTypes,
@@ -3257,7 +3258,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
     }
 
     private boolean isSelfOfIsolatedObject(BLangSimpleVarRef varRefExpr) {
-        return isSelfOfObject(varRefExpr) && isIsolated(varRefExpr.symbol.type.getFlags());
+        return isSelfOfObject(varRefExpr) && isIsolated(varRefExpr.symbol.type.flags);
     }
 
     private boolean hasRefDefinedOutsideLock(BLangExpression variableReference) {
@@ -3350,7 +3351,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
 
         BType ownerType = Types.getImpliedType(enclFunction.symbol.owner.type);
 
-        return ownerType.tag == TypeTags.OBJECT && isIsolated(ownerType.getFlags());
+        return ownerType.tag == TypeTags.OBJECT && isIsolated(ownerType.flags);
     }
 
     private BLangFunction getEnclNonAnonymousFunction(BLangFunction enclFunction) {
@@ -3683,7 +3684,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
         }
 
         BType type = moduleLevelVarSymbol.type;
-        return !types.isInherentlyImmutableType(type) && !Symbols.isFlagOn(type.getFlags(), Flags.READONLY);
+        return !types.isInherentlyImmutableType(type) && !Symbols.isFlagOn(type.flags, Flags.READONLY);
     }
 
     private void populateInferableClass(BLangClassDefinition classDefinition) {
@@ -3693,7 +3694,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
         }
 
         BType type = classDefinition.getBType();
-        if (Symbols.isFlagOn(type.getFlags(), Flags.ISOLATED)) {
+        if (Symbols.isFlagOn(type.flags, Flags.ISOLATED)) {
             return;
         }
 
@@ -3849,7 +3850,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
                     symbol.flags |= Flags.ISOLATED;
 
                     if (!moduleLevelVarSymbols.contains(symbol)) {
-                        symbol.type.addFlags(Flags.ISOLATED);
+                        symbol.type.flags |= Flags.ISOLATED;
                     }
                 }
                 continue;
@@ -3872,7 +3873,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
                 symbol.flags |= Flags.ISOLATED;
 
                 if (isObjectType) {
-                    symbol.type.addFlags(Flags.ISOLATED);
+                    symbol.type.flags |= Flags.ISOLATED;
                 }
             }
         }
@@ -4183,7 +4184,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
     }
 
     private void logServiceIsolationHints(BLangClassDefinition classDefinition) {
-        boolean isolatedService = isIsolated(classDefinition.getBType().getFlags());
+        boolean isolatedService = isIsolated(classDefinition.getBType().flags);
 
         for (BLangFunction function : classDefinition.functions) {
             Set<Flag> flagSet = function.flagSet;
@@ -4192,7 +4193,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
                 continue;
             }
 
-            boolean isolatedMethod = isIsolated(function.getBType().getFlags());
+            boolean isolatedMethod = isIsolated(function.getBType().flags);
 
             if (isolatedService && isolatedMethod) {
                 continue;
@@ -4306,7 +4307,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
         }
     }
 
-    private static class BPubliclyExposedInferableTypeCollector extends TypeVisitor {
+    private static class BPubliclyExposedInferableTypeCollector implements TypeVisitor {
 
         Set<BType> unresolvedTypes;
         Set<BType> exposedTypes;
@@ -4338,6 +4339,10 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
         }
 
         @Override
+        public void visit(BBuiltInRefType bBuiltInRefType) {
+        }
+
+        @Override
         public void visit(BAnyType bAnyType) {
         }
 
@@ -4356,7 +4361,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
 
         @Override
         public void visit(BInvokableType bInvokableType) {
-            if (Symbols.isFlagOn(bInvokableType.getFlags(), Flags.ANY_FUNCTION)) {
+            if (Symbols.isFlagOn(bInvokableType.flags, Flags.ANY_FUNCTION)) {
                 return;
             }
 
@@ -4401,7 +4406,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
         }
 
         @Override
-        public void visitNilType(BType bType) {
+        public void visit(BNilType bNilType) {
         }
 
         @Override
@@ -4472,6 +4477,10 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
             for (BAttachedFunction attachedFunc : ((BObjectTypeSymbol) bObjectType.tsymbol).attachedFuncs) {
                 visitType(attachedFunc.type);
             }
+        }
+
+        @Override
+        public void visit(BType bType) {
         }
 
         @Override

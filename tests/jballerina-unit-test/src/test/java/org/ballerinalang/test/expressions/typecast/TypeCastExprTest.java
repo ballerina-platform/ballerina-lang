@@ -274,7 +274,7 @@ public class TypeCastExprTest {
 
     @Test(description = "Test casting nil to a record",
             expectedExceptions = {BLangTestException.class},
-            expectedExceptionsMessageRegExp = ".*incompatible types: '\\(\\)' cannot be cast to 'StudentTC'.*")
+            expectedExceptionsMessageRegExp = ".*incompatible types: '\\(\\)' cannot be cast to 'Student'.*")
     public void testNullStructToStruct() {
         BRunUtil.invoke(result, "testNullStructToStruct");
     }
@@ -317,7 +317,7 @@ public class TypeCastExprTest {
 
     @Test(description = "Test casting a struct as any type to json",
             expectedExceptions = {BLangTestException.class},
-            expectedExceptionsMessageRegExp = ".*incompatible types: 'AddressTC' cannot be cast to 'json'.*")
+            expectedExceptionsMessageRegExp = ".*incompatible types: 'Address' cannot be cast to 'json'.*")
     public void testAnyStructToJson() {
         BRunUtil.invoke(result, "testAnyStructToJson");
     }
@@ -368,14 +368,14 @@ public class TypeCastExprTest {
 
     @Test(description = "Test casting any to struct",
             expectedExceptions = {BLangTestException.class},
-            expectedExceptionsMessageRegExp = ".*incompatible types: 'map' cannot be cast to 'PersonTC'.*")
+            expectedExceptionsMessageRegExp = ".*incompatible types: 'map' cannot be cast to 'Person'.*")
     public void testAnyToStruct() {
         BRunUtil.invoke(result, "testAnyToStruct");
     }
 
     @Test(description = "Test casting a null stored as any to struct",
             expectedExceptions = {BLangTestException.class},
-            expectedExceptionsMessageRegExp = ".*incompatible types: '\\(\\)' cannot be cast to 'PersonTC'.*")
+            expectedExceptionsMessageRegExp = ".*incompatible types: '\\(\\)' cannot be cast to 'Person'.*")
     public void testAnyNullToStruct() {
         Object returns = BRunUtil.invoke(result, "testAnyNullToStruct");
         Assert.assertNull(returns);

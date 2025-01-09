@@ -14,10 +14,10 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import closedrecordproject.eq;
-import closedrecordproject.eq2;
-import closedrecordproject.req;
-import closedrecordproject.req2;
+import recordproject.eq;
+import recordproject.eq2;
+import recordproject.req;
+import recordproject.req2;
 
 public type person1 record {|
     int age = 0;

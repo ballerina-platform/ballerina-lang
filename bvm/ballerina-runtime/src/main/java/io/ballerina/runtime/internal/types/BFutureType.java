@@ -22,13 +22,7 @@ import io.ballerina.runtime.api.constants.TypeConstants;
 import io.ballerina.runtime.api.types.FutureType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.TypeTags;
-import io.ballerina.runtime.api.types.semtype.Builder;
-import io.ballerina.runtime.api.types.semtype.Context;
-import io.ballerina.runtime.api.types.semtype.SemType;
-import io.ballerina.runtime.internal.types.semtype.FutureUtils;
-
-import java.util.Objects;
-import java.util.Set;
+import io.ballerina.runtime.internal.TypeChecker;
 
 /**
  * {@code BFutureType} represents a future value in Ballerina.
@@ -37,7 +31,7 @@ import java.util.Set;
  */
 public class BFutureType extends BType implements FutureType {
 
-    private final Type constraint;
+    private Type constraint;
 
     /**
      * Create a {@code {@link BFutureType}} which represents the future value.
@@ -47,7 +41,6 @@ public class BFutureType extends BType implements FutureType {
      */
     public BFutureType(String typeName, Module pkg) {
         super(typeName, pkg, Object.class);
-        constraint = null;
     }
 
     public BFutureType(Type constraint) {
@@ -88,7 +81,8 @@ public class BFutureType extends BType implements FutureType {
         if (constraint == other.constraint) {
             return true;
         }
-        return Objects.equals(constraint, other.constraint);
+
+        return TypeChecker.checkIsType(constraint, other.constraint);
     }
 
     @Override
@@ -98,18 +92,5 @@ public class BFutureType extends BType implements FutureType {
 
     private String getConstraintString() {
         return constraint != null ? "<" + constraint + ">" : "";
-    }
-
-    @Override
-    public SemType createSemType(Context cx) {
-        if (constraint == null) {
-            return Builder.getFutureType();
-        }
-        return FutureUtils.futureContaining(cx.env, tryInto(cx, constraint));
-    }
-
-    @Override
-    protected boolean isDependentlyTypedInner(Set<MayBeDependentType> visited) {
-        return constraint instanceof MayBeDependentType constraintType && constraintType.isDependentlyTyped(visited);
     }
 }

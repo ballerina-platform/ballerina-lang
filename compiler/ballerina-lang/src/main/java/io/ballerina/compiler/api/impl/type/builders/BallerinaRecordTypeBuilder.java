@@ -95,7 +95,7 @@ public class BallerinaRecordTypeBuilder implements TypeBuilder.RECORD {
                 symTable.rootPkgSymbol.pkgID, null, symTable.rootPkgSymbol, symTable.builtinPos,
                 symTable.rootPkgSymbol.origin);
 
-        BRecordType recordType = new BRecordType(symTable.typeEnv(), recordSymbol);
+        BRecordType recordType = new BRecordType(recordSymbol);
         recordSymbol.type = recordType;
         recordType.typeInclusions = getTypeInclusions(typeInclusions);
         if (restField == null) {

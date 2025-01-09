@@ -297,7 +297,7 @@ public class JvmTerminatorGen {
 
     public void genReturnTerm(int returnVarRefIndex, BIRNode.BIRFunction func, int channelMapVarIndex,
                               int sendWorkerChannelNamesVar, int receiveWorkerChannelNamesVar, int localVarOffset) {
-        BType bType = unifier.build(symbolTable.typeEnv(), func.type.retType);
+        BType bType = unifier.build(func.type.retType);
         generateReturnTermFromType(bType, func, returnVarRefIndex, channelMapVarIndex, sendWorkerChannelNamesVar,
                 receiveWorkerChannelNamesVar, localVarOffset);
     }
@@ -606,8 +606,8 @@ public class JvmTerminatorGen {
             jvmClass = JvmCodeGenUtil.getModuleLevelClassName(packageID,
                     JvmCodeGenUtil.cleanupPathSeparators(balFileName));
             //TODO: add receiver:  BType attachedType = type.r != null ? receiver.type : null;
-            BType retType = unifier.build(symbolTable.typeEnv(), type.retType);
-            methodDesc = JvmCodeGenUtil.getMethodDesc(symbolTable.typeEnv(), params, retType);
+            BType retType = unifier.build(type.retType);
+            methodDesc = JvmCodeGenUtil.getMethodDesc(params, retType);
         }
         this.mv.visitMethodInsn(INVOKESTATIC, jvmClass, encodedMethodName, methodDesc, false);
     }

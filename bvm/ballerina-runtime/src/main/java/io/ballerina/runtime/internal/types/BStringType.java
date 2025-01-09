@@ -19,14 +19,8 @@ package io.ballerina.runtime.internal.types;
 
 import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.constants.RuntimeConstants;
-import io.ballerina.runtime.api.constants.TypeConstants;
 import io.ballerina.runtime.api.types.StringType;
 import io.ballerina.runtime.api.types.TypeTags;
-import io.ballerina.runtime.api.types.semtype.Builder;
-import io.ballerina.runtime.api.types.semtype.ConcurrentLazySupplier;
-import io.ballerina.runtime.api.types.semtype.SemType;
-
-import java.util.function.Supplier;
 
 /**
  * {@code BStringType} represents a String type in ballerina.
@@ -34,13 +28,9 @@ import java.util.function.Supplier;
  * @since 0.995.0
  */
 @SuppressWarnings("unchecked")
-public final class BStringType extends BSemTypeWrapper<BStringType.BStringTypeImpl> implements StringType {
+public class BStringType extends BType implements StringType {
 
-    // We are creating separate empty module instead of reusing PredefinedTypes.EMPTY_MODULE to avoid cyclic
-    // dependencies.
-    private static final Module DEFAULT_MODULE = new Module(null, null, null);
-    private static final BStringTypeImpl DEFAULT_B_TYPE =
-            new BStringTypeImpl(TypeConstants.STRING_TNAME, DEFAULT_MODULE, TypeTags.STRING_TAG);
+    private final int tag;
 
     /**
      * Create a {@code BStringType} which represents the boolean type.
@@ -48,64 +38,32 @@ public final class BStringType extends BSemTypeWrapper<BStringType.BStringTypeIm
      * @param typeName string name of the type
      */
     public BStringType(String typeName, Module pkg) {
-        this(() -> new BStringTypeImpl(typeName, pkg, TypeTags.STRING_TAG), typeName, pkg, TypeTags.STRING_TAG,
-                Builder.getStringType());
+        super(typeName, pkg, String.class);
+        tag = TypeTags.STRING_TAG;
     }
 
     public BStringType(String typeName, Module pkg, int tag) {
-        this(() -> new BStringTypeImpl(typeName, pkg, tag), typeName, pkg, tag, pickSemtype(tag));
+        super(typeName, pkg, String.class);
+        this.tag = tag;
     }
 
-    private BStringType(Supplier<BStringTypeImpl> bTypeSupplier, String typeName, Module pkg, int tag,
-                        SemType semType) {
-        super(new ConcurrentLazySupplier<>(bTypeSupplier), typeName, pkg, tag, semType);
+    @Override
+    public <V extends Object> V getZeroValue() {
+        return (V) RuntimeConstants.STRING_EMPTY_VALUE;
     }
 
-    public static BStringType singletonType(String value) {
-        return new BStringType(() -> (BStringTypeImpl) DEFAULT_B_TYPE.clone(), TypeConstants.STRING_TNAME,
-                DEFAULT_MODULE, TypeTags.STRING_TAG, Builder.getStringConst(value));
+    @Override
+    public <V extends Object> V getEmptyValue() {
+        return (V) RuntimeConstants.STRING_EMPTY_VALUE;
     }
 
-    private static SemType pickSemtype(int tag) {
-        return switch (tag) {
-            case TypeTags.STRING_TAG -> Builder.getStringType();
-            case TypeTags.CHAR_STRING_TAG -> Builder.getCharType();
-            default -> throw new IllegalStateException("Unexpected string type tag: " + tag);
-        };
+    @Override
+    public int getTag() {
+        return tag;
     }
 
-    protected static final class BStringTypeImpl extends BType implements StringType, Cloneable {
-
-        private final int tag;
-
-        private BStringTypeImpl(String typeName, Module pkg, int tag) {
-            super(typeName, pkg, String.class);
-            this.tag = tag;
-        }
-
-        @Override
-        public <V extends Object> V getZeroValue() {
-            return (V) RuntimeConstants.STRING_EMPTY_VALUE;
-        }
-
-        @Override
-        public <V extends Object> V getEmptyValue() {
-            return (V) RuntimeConstants.STRING_EMPTY_VALUE;
-        }
-
-        @Override
-        public int getTag() {
-            return tag;
-        }
-
-        @Override
-        public boolean isReadOnly() {
-            return true;
-        }
-
-        @Override
-        public BType clone() {
-            return super.clone();
-        }
+    @Override
+    public boolean isReadOnly() {
+        return true;
     }
 }

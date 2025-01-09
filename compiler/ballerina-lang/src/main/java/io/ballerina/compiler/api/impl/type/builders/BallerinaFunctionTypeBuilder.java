@@ -107,8 +107,7 @@ public class BallerinaFunctionTypeBuilder implements TypeBuilder.FUNCTION {
         tSymbol.returnType = returnType;
         tSymbol.params = getParamSymbols(parameterSymbols);
         tSymbol.restParam = getRestParamSymbol(restParam, restType);
-        BInvokableType bInvokableType =
-                new BInvokableType(symTable.typeEnv(), paramTypes, restType, returnType, tSymbol);
+        BInvokableType bInvokableType = new BInvokableType(paramTypes, restType, returnType, tSymbol);
         FunctionTypeSymbol functionTypeSymbol = (FunctionTypeSymbol) typesFactory.getTypeDescriptor(bInvokableType);
         parameterSymbols.clear();
         restParam = null;
@@ -140,7 +139,7 @@ public class BallerinaFunctionTypeBuilder implements TypeBuilder.FUNCTION {
         BTypeSymbol restArraySymbol = Symbols.createTypeSymbol(SymTag.ARRAY_TYPE, Flags.PUBLIC, Names.EMPTY,
                 symTable.rootPkgSymbol.pkgID, null, symTable.rootPkgSymbol, symTable.builtinPos, COMPILED_SOURCE);
 
-        BArrayType restArrayType = new BArrayType(symTable.typeEnv(), bType, restArraySymbol, -1, BArrayState.OPEN);
+        BArrayType restArrayType = new BArrayType(bType, restArraySymbol, -1, BArrayState.OPEN);
         restArraySymbol.type = restArrayType;
 
         return restArrayType;

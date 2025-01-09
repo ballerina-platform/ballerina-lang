@@ -21,83 +21,32 @@
         <Package name="org.ballerina.semtype"/>
     </Match>
     <Match>
-        <Or>
-            <Class name="io.ballerina.types.Core"/>
-            <Class name="io.ballerina.types.EnumerableType"/>
-            <Class name="io.ballerina.types.EnumerableSubtype"/>
-            <Class name="io.ballerina.types.Env"/>
-            <Class name="io.ballerina.types.subtypedata.BooleanSubtype"/>
-            <Class name="io.ballerina.types.subtypedata.IntSubtype"/>
-            <Class name="io.ballerina.types.subtypedata.FloatSubtype"/>
-            <Class name="io.ballerina.types.subtypedata.StringSubtype"/>
-            <Class name="io.ballerina.types.subtypedata.DecimalSubtype"/>
-            <Class name="io.ballerina.types.subtypedata.XmlSubtype"/>
-            <Class name="io.ballerina.types.typeops.BddCommonOps"/>
-            <Class name="io.ballerina.types.typeops.CommonOps"/>
-            <Class name="io.ballerina.types.typeops.ErrorOps"/>
-            <Class name="io.ballerina.types.typeops.FloatOps"/>
-            <Class name="io.ballerina.types.typeops.IntOps"/>
-            <Class name="io.ballerina.types.typeops.FunctionOps"/>
-            <Class name="io.ballerina.types.typeops.MappingOps"/>
-            <Class name="io.ballerina.types.typeops.MappingRoOps"/>
-            <Class name="io.ballerina.types.typeops.ListTypeRoOps"/>
-            <Class name="io.ballerina.types.typeops.StringOps"/>
-            <Class name="io.ballerina.types.typeops.ListOps"/>
-            <Class name="io.ballerina.types.typeops.ListProj"/>
-            <Class name="io.ballerina.types.typeops.ListTypeRoOps"/>
-            <Class name="io.ballerina.types.typeops.BooleanOps"/>
-            <Class name="io.ballerina.types.Context"/>
-            <Class name="io.ballerina.types.typeops.DecimalOps"/>
-            <Class name="io.ballerina.types.typeops.XmlOps"/>
-            <Class name="io.ballerina.types.typeops.TableOps"/>
-            <Class name="io.ballerina.types.Common"/>
-            <Class name="io.ballerina.types.BddPath"/>
-            <Class name="io.ballerina.types.MappingAlternative"/>
-        </Or>
+        <Class name="io.ballerina.semtype.subtypedata.IntSubtype"/>
         <Bug pattern="BC_UNCONFIRMED_CAST"/>
+    </Match>
+    <!-- should be able to remove below exclusion after adding methods -->
+    <Match>
+        <Class name="io.ballerina.semtype.ComplexSemType"/>
+        <Bug pattern="URF_UNREAD_PUBLIC_OR_PROTECTED_FIELD"/>
     </Match>
     <Match>
         <Or>
-            <Class name="io.ballerina.types.Value"/>
-            <Class name="io.ballerina.types.IntSubtypeConstraints"/>
-            <Class name="io.ballerina.types.typeops.FieldPair"/>
-            <Class name="io.ballerina.types.MappingAlternative"/>
+            <Class name="io.ballerina.semtype.Env"/>
+            <Class name="io.ballerina.semtype.ListAtomicType"/>
+            <Class name="io.ballerina.semtype.RecAtom"/>
+            <Class name="io.ballerina.semtype.TypeAtom"/>
+            <Class name="io.ballerina.semtype.TypeCheckContext"/>
+            <Class name="io.ballerina.semtype.UniformTypeBitSet"/>
+            <Class name="io.ballerina.semtype.BddMemo"/>
+            <Class name="io.ballerina.semtype.ComplexSemType"/>
+            <Class name="io.ballerina.semtype.ComplexSemTypeMock"/>
+            <Class name="io.ballerina.semtype.FunctionAtomicType"/>
+            <Class name="io.ballerina.semtype.subtypedata.BddNode"/>
         </Or>
         <Or>
             <Bug pattern="URF_UNREAD_FIELD"/>
-            <Bug pattern="URF_UNREAD_PUBLIC_OR_PROTECTED_FIELD"/>
+            <Bug pattern="UUF_UNUSED_FIELD"/>
+            <Bug pattern="EI_EXPOSE_REP2"/>
         </Or>
-    </Match>
-    <Match>
-        <Or>
-            <Class name="io.ballerina.types.EnumerableSubtype"/>
-        </Or>
-        <Bug pattern="SF_SWITCH_NO_DEFAULT"/>
-    </Match>
-    <Match>
-        <Or>
-            <Class name="io.ballerina.types.definition.FunctionDefinition"/>
-            <Class name="io.ballerina.types.typeops.FunctionOps"/>
-        </Or>
-        <Bug pattern="DLS_DEAD_LOCAL_STORE"/>
-    </Match>
-    <Match>
-        <Class name="io.ballerina.types.Core">
-            <Method name="nextBoundary">
-                <Bug pattern="NP_LOAD_OF_KNOWN_NULL_VALUE"/>
-            </Method>
-        </Class>
-    </Match>
-    <Match>
-        <Or>
-            <Package name="io.ballerina.types"/>
-            <Package name="io.ballerina.types.definition"/>
-            <Package name="io.ballerina.types.subtypedata"/>
-        </Or>
-        <Bug pattern="AA_ASSERTION_OF_ARGUMENTS"/>
-    </Match>
-    <Match>
-        <Class name="io.ballerina.types.CellSemType"/>
-        <Bug pattern="CT_CONSTRUCTOR_THROW"/>
     </Match>
 </FindBugsFilter>

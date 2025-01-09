@@ -25,6 +25,8 @@ package org.wso2.ballerinalang.compiler.semantics.model.types;
 public interface BTypeVisitor<T, R> {
     R visit(BType t, T s);
 
+    R visit(BBuiltInRefType t, T s);
+
     R visit(BAnyType t, T s);
 
     R visit(BAnydataType t, T s);

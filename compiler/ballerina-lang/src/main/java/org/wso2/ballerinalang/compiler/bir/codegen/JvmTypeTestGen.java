@@ -18,15 +18,13 @@
 
 package org.wso2.ballerinalang.compiler.bir.codegen;
 
-import io.ballerina.types.Core;
-import io.ballerina.types.PredefinedType;
-import io.ballerina.types.SemType;
-import io.ballerina.types.SemTypes;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
+import org.wso2.ballerinalang.compiler.util.TypeTags;
 
 import static org.objectweb.asm.Opcodes.GOTO;
 import static org.objectweb.asm.Opcodes.ICONST_0;
@@ -88,92 +86,106 @@ public class JvmTypeTestGen {
     }
 
     /**
-     * Checks if we have <code>x is ()</code>.
-     * <br>
-     * In that case we can simplify <code>is</code>-check to a <code>x instanceof null</code> check.
+     * Checks if the type tested for is nil. That is the target type is nil. Example instructions include 'a is ()'
+     * where 'a' is a variable of type say any or a union with nil.
      *
      * @param sourceType the declared variable type
      * @param targetType the RHS type in the type check instruction. Type to be tested for
      * @return whether instruction could be optimized using 'instanceof` check
      */
     private boolean canOptimizeNilCheck(BType sourceType, BType targetType) {
-        return PredefinedType.NIL.equals(targetType.semType()) &&
-                SemTypes.containsBasicType(sourceType.semType(), PredefinedType.NIL);
+        return JvmCodeGenUtil.getImpliedType(targetType).tag == TypeTags.NIL &&
+                types.isAssignable(targetType, sourceType);
     }
 
     /**
-     * Checks if we have <code>x is T</code> in which <code>x</code>'s static type is <code>T'=T|()</code>.
-     * <br>
-     * In that case we can simplify <code>is</code>-check to a <code>!(x instanceof null)</code> check.
+     * This checks for any variable declaration containing a nil in a union of two types. Examples include string? or
+     * error? or int?.
      *
      * @param sourceType the declared variable type
      * @param targetType the RHS type in the type check instruction. Type to be tested for
      * @return whether instruction could be optimized using 'instanceof` check for null
      */
     private boolean canOptimizeNilUnionCheck(BType sourceType, BType targetType) {
-        SemType sourceTy = sourceType.semType();
-        if (!SemTypes.containsBasicType(sourceTy, PredefinedType.NIL)) {
+        sourceType = JvmCodeGenUtil.getImpliedType(sourceType);
+        if (isInValidUnionType(sourceType)) {
             return false;
         }
-
-        SemType tyButNil = Core.diff(sourceTy, PredefinedType.NIL);
-        if (Core.isNever(tyButNil)) {
-            return false;
+        boolean foundNil = false;
+        BType otherType = null;
+        for (BType bType : ((BUnionType) sourceType).getMemberTypes()) {
+            if (JvmCodeGenUtil.getImpliedType(bType).tag == TypeTags.NIL) {
+                foundNil = true;
+            } else {
+                otherType = bType;
+            }
         }
-        return SemTypes.isSameType(types.typeCtx(), tyButNil, targetType.semType());
+        return foundNil && targetType.equals(otherType);
     }
 
     /**
-     * Checks if we have <code>x is E</code> where <code>E</code> is a subtype of <code>error</code> and error part
-     * of <code>x</code> is a subtype of <code>E</code>.
-     * <br>
-     * In that case we can simplify <code>is</code>-check to a <code>x instanceof BError</code> check.
+     * Checks if the type tested for is error. That is the target type is error. Example instructions include 'a is
+     * error' where 'a' is a variable of type say any or a union with nil.
      *
      * @param sourceType the declared variable type
      * @param targetType the RHS type in the type check instruction. Type to be tested for
      * @return whether instruction could be optimized using 'instanceof` check for BError
      */
     private boolean canOptimizeErrorCheck(BType sourceType, BType targetType) {
-        SemType targetTy = targetType.semType();
-        if (!Core.isSubtypeSimple(targetTy, PredefinedType.ERROR)) {
+        sourceType = JvmCodeGenUtil.getImpliedType(sourceType);
+        targetType = JvmCodeGenUtil.getImpliedType(targetType);
+        if (targetType.tag != TypeTags.ERROR || sourceType.tag != TypeTags.UNION) {
             return false;
         }
-
-        SemType errIntersect = SemTypes.intersect(sourceType.semType(), PredefinedType.ERROR);
-        if (Core.isNever(errIntersect)) {
-            return false;
+        BType errorType = null;
+        int foundError = 0;
+        for (BType bType : ((BUnionType) sourceType).getMemberTypes()) {
+            if (bType.tag == TypeTags.ERROR) {
+                foundError++;
+                errorType = bType;
+            }
         }
-        return SemTypes.isSubtype(types.typeCtx(), errIntersect, targetTy);
+        return (foundError == 1 && types.isAssignable(errorType, targetType)) || (foundError > 0 && "error".equals(
+                targetType.tsymbol.name.value));
     }
 
     /**
-     * Checks if we have <code>x is T</code> in which <code>x</code>'s static type is <code>T'=T|E</code> where
-     * <code>E</code> is a non-empty error type.
-     * <br>
-     * In that case we can simplify <code>is</code>-check to a <code>!(x instanceof BError)</code> check.
+     * This checks for any variable declaration containing a error in a union of two types. Examples include
+     * string|error or error|error or int|error.
      *
      * @param sourceType the declared variable type
      * @param targetType the RHS type in the type check instruction. Type to be tested for
      * @return whether instruction could be optimized using 'instanceof` check for BError
      */
     private boolean canOptimizeErrorUnionCheck(BType sourceType, BType targetType) {
-        SemType sourceTy = sourceType.semType();
-        if (!SemTypes.containsBasicType(sourceTy, PredefinedType.ERROR)) {
+        sourceType = JvmCodeGenUtil.getImpliedType(sourceType);
+        if (isInValidUnionType(sourceType)) {
             return false;
         }
+        BType otherType = null;
+        int foundError = 0;
+        for (BType bType : ((BUnionType) sourceType).getMemberTypes()) {
+            if (JvmCodeGenUtil.getImpliedType(bType).tag == TypeTags.ERROR) {
+                foundError++;
+            } else {
+                otherType = bType;
+            }
+        }
+        return foundError == 1 && targetType.equals(otherType);
+    }
 
-        SemType tyButError = Core.diff(sourceTy, PredefinedType.ERROR);
-        if (Core.isNever(tyButError)) {
-            return false;
+    private boolean isInValidUnionType(BType rhsType) {
+        if (rhsType.tag != TypeTags.UNION) {
+            return true;
         }
-        return SemTypes.isSameType(types.typeCtx(), tyButError, targetType.semType());
+        return ((BUnionType) rhsType).getMemberTypes().size() != 2;
     }
 
     private void handleNilUnionType(BIRNonTerminator.TypeTest typeTestIns) {
         jvmInstructionGen.loadVar(typeTestIns.rhsOp.variableDcl);
         jvmCastGen.addBoxInsn(this.mv, typeTestIns.rhsOp.variableDcl.type);
         Label ifLabel = new Label();
-        if (PredefinedType.NIL.equals(typeTestIns.type.semType())) {
+        if (JvmCodeGenUtil.getImpliedType(typeTestIns.type).tag == TypeTags.NIL) {
             mv.visitJumpInsn(IFNONNULL, ifLabel);
         } else {
             mv.visitJumpInsn(IFNULL, ifLabel);
@@ -194,7 +206,7 @@ public class JvmTypeTestGen {
     private void handleErrorUnionType(BIRNonTerminator.TypeTest typeTestIns) {
         jvmInstructionGen.loadVar(typeTestIns.rhsOp.variableDcl);
         mv.visitTypeInsn(INSTANCEOF, BERROR);
-        if (!Core.isSubtypeSimple(typeTestIns.type.semType(), PredefinedType.ERROR)) {
+        if (JvmCodeGenUtil.getImpliedType(typeTestIns.type).tag != TypeTags.ERROR) {
             generateNegateBoolean();
         }
         jvmInstructionGen.storeToVar(typeTestIns.lhsOp.variableDcl);

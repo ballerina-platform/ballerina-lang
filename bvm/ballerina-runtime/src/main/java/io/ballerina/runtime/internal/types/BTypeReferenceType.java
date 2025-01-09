@@ -25,20 +25,16 @@ import io.ballerina.runtime.api.types.IntersectableReferenceType;
 import io.ballerina.runtime.api.types.IntersectionType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.TypeTags;
-import io.ballerina.runtime.api.types.semtype.Context;
-import io.ballerina.runtime.api.types.semtype.SemType;
-import io.ballerina.runtime.api.types.semtype.ShapeAnalyzer;
 
 import java.util.Objects;
 import java.util.Optional;
-import java.util.Set;
 
 /**
  * {@code TypeReferencedType} represents a type description which refers to another type.
  *
  * @since 2201.2.0
  */
-public class BTypeReferenceType extends BAnnotatableType implements IntersectableReferenceType, TypeWithShape {
+public class BTypeReferenceType extends BAnnotatableType implements IntersectableReferenceType {
 
     private final int typeFlags;
     private final boolean readOnly;
@@ -129,51 +125,5 @@ public class BTypeReferenceType extends BAnnotatableType implements Intersectabl
     @Override
     public void setIntersectionType(IntersectionType intersectionType) {
         this.intersectionType = intersectionType;
-    }
-
-    @Override
-    public SemType createSemType(Context cx) {
-        Type referredType = getReferredType();
-        return tryInto(cx, referredType);
-    }
-
-    @Override
-    protected boolean isDependentlyTypedInner(Set<MayBeDependentType> visited) {
-        return getReferredType() instanceof MayBeDependentType refType && refType.isDependentlyTyped(visited);
-    }
-
-    @Override
-    public Optional<SemType> inherentTypeOf(Context cx, ShapeSupplier shapeSupplier, Object object) {
-        if (!couldInherentTypeBeDifferent()) {
-            return Optional.of(getSemType(cx));
-        }
-        Type referredType = getReferredType();
-        if (referredType instanceof TypeWithShape typeWithShape) {
-            return typeWithShape.inherentTypeOf(cx, shapeSupplier, object);
-        }
-        return Optional.empty();
-    }
-
-    @Override
-    public boolean couldInherentTypeBeDifferent() {
-        return referredType instanceof TypeWithShape typeWithShape && typeWithShape.couldInherentTypeBeDifferent();
-    }
-
-    @Override
-    public Optional<SemType> shapeOf(Context cx, ShapeSupplier shapeSupplierFn, Object object) {
-        Type referredType = getReferredType();
-        if (referredType instanceof TypeWithShape typeWithShape) {
-            return typeWithShape.shapeOf(cx, shapeSupplierFn, object);
-        }
-        return ShapeAnalyzer.shapeOf(cx, referredType);
-    }
-
-    @Override
-    public Optional<SemType> acceptedTypeOf(Context cx) {
-        Type referredType = getReferredType();
-        if (referredType instanceof TypeWithShape typeWithShape) {
-            return typeWithShape.acceptedTypeOf(cx);
-        }
-        return ShapeAnalyzer.acceptedTypeOf(cx, referredType);
     }
 }

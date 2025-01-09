@@ -19,18 +19,11 @@
 package io.ballerina.runtime.internal.types;
 
 import io.ballerina.runtime.api.Module;
-import io.ballerina.runtime.api.constants.TypeConstants;
 import io.ballerina.runtime.api.types.DecimalType;
 import io.ballerina.runtime.api.types.TypeTags;
-import io.ballerina.runtime.api.types.semtype.Builder;
-import io.ballerina.runtime.api.types.semtype.ConcurrentLazySupplier;
-import io.ballerina.runtime.api.types.semtype.SemType;
 import io.ballerina.runtime.internal.values.DecimalValue;
 
 import java.math.BigDecimal;
-import java.util.function.Supplier;
-
-import static io.ballerina.runtime.api.types.PredefinedTypes.EMPTY_MODULE;
 
 /**
  * {@code BDecimalType} represents decimal type in Ballerina.
@@ -38,10 +31,7 @@ import static io.ballerina.runtime.api.types.PredefinedTypes.EMPTY_MODULE;
  *
  * @since 0.995.0
  */
-public final class BDecimalType extends BSemTypeWrapper<BDecimalType.BDecimalTypeImpl> implements DecimalType {
-
-    private static final BDecimalTypeImpl DEFAULT_B_TYPE =
-            new BDecimalTypeImpl(TypeConstants.DECIMAL_TNAME, EMPTY_MODULE);
+public class BDecimalType extends BType implements DecimalType {
 
     /**
      * Create a {@code BDecimalType} which represents the decimal type.
@@ -49,49 +39,28 @@ public final class BDecimalType extends BSemTypeWrapper<BDecimalType.BDecimalTyp
      * @param typeName string name of the type
      */
     public BDecimalType(String typeName, Module pkg) {
-        this(() -> new BDecimalTypeImpl(typeName, pkg), typeName, pkg, Builder.getDecimalType());
+        super(typeName, pkg, DecimalValue.class);
     }
 
-    public static BDecimalType singletonType(BigDecimal value) {
-        return new BDecimalType(() -> (BDecimalTypeImpl) DEFAULT_B_TYPE.clone(), TypeConstants.DECIMAL_TNAME,
-                EMPTY_MODULE, Builder.getDecimalConst(value));
+    @Override
+    @SuppressWarnings("unchecked")
+    public <V extends Object> V getZeroValue() {
+        return (V) new DecimalValue(BigDecimal.ZERO);
     }
 
-    private BDecimalType(Supplier<BDecimalTypeImpl> bType, String typeName, Module pkg, SemType semType) {
-        super(new ConcurrentLazySupplier<>(bType), typeName, pkg, TypeTags.DECIMAL_TAG, semType);
+    @Override
+    @SuppressWarnings("unchecked")
+    public <V extends Object> V getEmptyValue() {
+        return (V) new DecimalValue(BigDecimal.ZERO);
     }
 
-    protected static final class BDecimalTypeImpl extends BType implements DecimalType, Cloneable {
+    @Override
+    public int getTag() {
+        return TypeTags.DECIMAL_TAG;
+    }
 
-        private BDecimalTypeImpl(String typeName, Module pkg) {
-            super(typeName, pkg, DecimalValue.class);
-        }
-
-        @Override
-        @SuppressWarnings("unchecked")
-        public <V extends Object> V getZeroValue() {
-            return (V) new DecimalValue(BigDecimal.ZERO);
-        }
-
-        @Override
-        @SuppressWarnings("unchecked")
-        public <V extends Object> V getEmptyValue() {
-            return (V) new DecimalValue(BigDecimal.ZERO);
-        }
-
-        @Override
-        public int getTag() {
-            return TypeTags.DECIMAL_TAG;
-        }
-
-        @Override
-        public boolean isReadOnly() {
-            return true;
-        }
-
-        @Override
-        public BType clone() {
-            return super.clone();
-        }
+    @Override
+    public boolean isReadOnly() {
+        return true;
     }
 }

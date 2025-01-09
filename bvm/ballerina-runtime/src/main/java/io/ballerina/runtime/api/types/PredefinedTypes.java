@@ -64,7 +64,7 @@ import static io.ballerina.runtime.api.constants.RuntimeConstants.XML_LANG_LIB;
  */
 public final class PredefinedTypes {
 
-    public static final Module EMPTY_MODULE = new Module(null, null, null);
+    private static final Module EMPTY_MODULE = new Module(null, null, null);
 
     public static final IntegerType TYPE_INT = new BIntegerType(TypeConstants.INT_TNAME, EMPTY_MODULE);
     public static final IntegerType TYPE_INT_SIGNED_8 =

@@ -203,8 +203,6 @@ public class InferredDependentlyTypeFunctionTest {
                 "an argument for the parameter or a contextually-expected type to infer the argument", 185, 44);
         validateError(negativeResult, index++, "cannot infer the 'typedesc' argument for parameter 'td': expected " +
                 "an argument for the parameter or a contextually-expected type to infer the argument", 186, 52);
-        validateError(negativeResult, index++, "invalid return type: members of a dependently-typed union type with " +
-                "an inferred typedesc parameter should have disjoint basic types", 193, 64);
         validateError(negativeResult, index++, "cannot infer the 'typedesc' argument for parameter 'td': expected " +
                         "an argument for the parameter or a contextually-expected type to infer the argument", 196, 5);
         validateError(negativeResult, index++, "cannot infer the 'typedesc' argument for parameter 'td2': expected " +

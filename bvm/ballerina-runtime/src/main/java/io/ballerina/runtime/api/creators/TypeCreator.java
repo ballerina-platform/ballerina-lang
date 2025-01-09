@@ -50,7 +50,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Class @{@link TypeCreator} provides APIs to create ballerina type instances.
@@ -59,7 +58,6 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public final class TypeCreator {
 
-    private static final RecordTypeCache registeredRecordTypes = new RecordTypeCache();
     /**
      * Creates a new array type with given element type.
      *
@@ -149,7 +147,7 @@ public final class TypeCreator {
      * @return the new tuple type
      */
     public static TupleType createTupleType(List<Type> typeList, Type restType,
-                                            int typeFlags, boolean isCyclic, boolean readonly) {
+                  int typeFlags, boolean isCyclic, boolean readonly) {
         return new BTupleType(typeList, restType, typeFlags, isCyclic, readonly);
     }
 
@@ -164,16 +162,16 @@ public final class TypeCreator {
      * @return the new tuple type
      */
     public static TupleType createTupleType(String name, Module pkg,
-                                            int typeFlags, boolean isCyclic, boolean readonly) {
+                  int typeFlags, boolean isCyclic, boolean readonly) {
         return new BTupleType(name, pkg, typeFlags, isCyclic, readonly);
     }
 
     /**
-     * Create a {@code MapType} which represents the map type.
-     *
-     * @param constraint constraint type which particular map is bound to.
-     * @return the new map type
-     */
+    * Create a {@code MapType} which represents the map type.
+    *
+    * @param constraint constraint type which particular map is bound to.
+    * @return the new map type
+    */
     public static MapType createMapType(Type constraint) {
         return new BMapType(constraint);
     }
@@ -226,10 +224,6 @@ public final class TypeCreator {
      */
     public static RecordType createRecordType(String typeName, Module module, long flags, boolean sealed,
                                               int typeFlags) {
-        BRecordType memo = registeredRecordType(typeName, module);
-        if (memo != null) {
-            return memo;
-        }
         return new BRecordType(typeName, typeName, module, flags, sealed, typeFlags);
     }
 
@@ -246,11 +240,8 @@ public final class TypeCreator {
      * @return the new record type
      */
     public static RecordType createRecordType(String typeName, Module module, long flags, Map<String, Field> fields,
-                                              Type restFieldType, boolean sealed, int typeFlags) {
-        BRecordType memo = registeredRecordType(typeName, module);
-        if (memo != null) {
-            return memo;
-        }
+                                              Type restFieldType,
+                                              boolean sealed, int typeFlags) {
         return new BRecordType(typeName, module, flags, fields, restFieldType, sealed, typeFlags);
     }
 
@@ -528,46 +519,5 @@ public final class TypeCreator {
     }
 
     private TypeCreator() {
-    }
-
-    private static BRecordType registeredRecordType(String typeName, Module pkg) {
-        if (typeName == null || pkg == null) {
-            return null;
-        }
-        return registeredRecordTypes.get(new TypeIdentifier(typeName, pkg));
-    }
-
-    public static void registerRecordType(BRecordType recordType) {
-        String name = recordType.getName();
-        Module pkg = recordType.getPackage();
-        if (name == null || pkg == null) {
-            return;
-        }
-        if (name.contains("$anon")) {
-            return;
-        }
-        TypeIdentifier typeIdentifier = new TypeIdentifier(name, pkg);
-        registeredRecordTypes.put(typeIdentifier, recordType);
-    }
-
-    private static final class RecordTypeCache {
-
-        private static final Map<TypeIdentifier, BRecordType> cache = new ConcurrentHashMap<>();
-
-        BRecordType get(TypeIdentifier key) {
-            return cache.get(key);
-        }
-
-        void put(TypeIdentifier identifier, BRecordType value) {
-            cache.put(identifier, value);
-        }
-    }
-
-    public record TypeIdentifier(String typeName, Module pkg) {
-
-        public TypeIdentifier {
-            assert typeName != null;
-            assert pkg != null;
-        }
     }
 }

@@ -17,10 +17,7 @@
  */
 package io.ballerina.runtime.api.values;
 
-import io.ballerina.runtime.api.types.semtype.SemType;
 import io.ballerina.runtime.internal.values.RegExpDisjunction;
-
-import java.util.Optional;
 
 /**
  * <p>
@@ -36,6 +33,4 @@ public interface BRegexpValue extends BValue {
     public RegExpDisjunction getRegExpDisjunction();
 
     BTypedesc getTypedesc();
-
-    Optional<SemType> shapeOf();
 }

@@ -71,7 +71,7 @@ public class BallerinaErrorTypeBuilder implements TypeBuilder.ERROR {
                 symTable.rootPkgSymbol.pkgID, symTable.errorType, symTable.rootPkgSymbol, symTable.builtinPos,
                 COMPILED_SOURCE);
 
-        BErrorType errorType = new BErrorType(symTable.typeEnv(), errorTSymbol, getBType(typeParam));
+        BErrorType errorType = new BErrorType(errorTSymbol, getBType(typeParam));
         errorTSymbol.type = errorType;
         ErrorTypeSymbol errorTypeSymbol = (ErrorTypeSymbol) typesFactory.getTypeDescriptor(errorType);
         this.typeParam = null;

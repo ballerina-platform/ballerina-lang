@@ -18,7 +18,6 @@
 package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
 import io.ballerina.tools.diagnostics.Location;
-import io.ballerina.types.SemType;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.tree.NodeKind;
@@ -40,7 +39,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangGroupExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeTestExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangUnaryExpr;
@@ -393,7 +391,7 @@ public class TypeNarrower extends BLangNodeVisitor {
         } else if (union.size() == 1) {
             return union.toArray(new BType[1])[0];
         }
-        return BUnionType.create(symTable.typeEnv(), null, union);
+        return BUnionType.create(null, union);
     }
 
     BVarSymbol getOriginalVarSymbol(BVarSymbol varSymbol) {
@@ -421,17 +419,15 @@ public class TypeNarrower extends BLangNodeVisitor {
                 Flags.asMask(EnumSet.noneOf(Flag.class)), Names.EMPTY, env.enclPkg.symbol.pkgID, null,
                 env.scope.owner, expr.pos, SOURCE);
 
-        SemType semType;
+        BFiniteType finiteType = new BFiniteType(finiteTypeSymbol);
         if (expr.getKind() == NodeKind.UNARY_EXPR) {
-            semType = SemTypeHelper.resolveSingletonType(Types.constructNumericLiteralFromUnaryExpr(
-                    (BLangUnaryExpr) expr));
+            finiteType.addValue(Types.constructNumericLiteralFromUnaryExpr((BLangUnaryExpr) expr));
         } else {
             expr.setBType(symTable.getTypeFromTag(expr.getBType().tag));
-            semType = SemTypeHelper.resolveSingletonType((BLangLiteral) expr);
+            finiteType.addValue(expr);
         }
-
-        BFiniteType finiteType = BFiniteType.newSingletonBFiniteType(finiteTypeSymbol, semType);
         finiteTypeSymbol.type = finiteType;
+
         return finiteType;
     }
 

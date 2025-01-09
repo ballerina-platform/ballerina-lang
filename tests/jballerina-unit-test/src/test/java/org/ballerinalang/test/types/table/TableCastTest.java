@@ -72,14 +72,15 @@ public class TableCastTest {
 
     @Test
     public void testNegativeCases() {
-        int index = 0;
-        BAssertUtil.validateError(negativeResult, index++, "incompatible types: 'PersonTable1' " +
+        Assert.assertEquals(negativeResult.getErrorCount(), 5);
+        BAssertUtil.validateError(negativeResult, 0, "incompatible types: 'PersonTable1' " +
                 "cannot be cast to 'table<Person> key<int>'", 49, 34);
-        BAssertUtil.validateError(negativeResult, index++, "incompatible types: expected 'int', found 'string'", 50,
-                16);
-        BAssertUtil.validateError(negativeResult, index++, "incompatible types: expected 'string', found 'int'", 60,
-                16);
-        Assert.assertEquals(negativeResult.getErrorCount(), index);
+        BAssertUtil.validateError(negativeResult, 1, "incompatible types: expected 'int', found 'string'", 50, 16);
+        BAssertUtil.validateError(negativeResult, 2, "incompatible types: expected 'string', found 'int'", 60, 16);
+        BAssertUtil.validateError(negativeResult, 3, "incompatible types: 'CustomerTable' cannot be" +
+                " cast to 'CustomerEmptyKeyedTbl'", 77, 34);
+        BAssertUtil.validateError(negativeResult, 4, "incompatible types: 'CustomerTable' cannot be cast to " +
+                "'table<record {| int id; string name; string lname; anydata...; |}>'", 83, 20);
     }
 
     @AfterClass

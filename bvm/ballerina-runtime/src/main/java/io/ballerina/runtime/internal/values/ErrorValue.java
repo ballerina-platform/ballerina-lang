@@ -86,7 +86,7 @@ public class ErrorValue extends BError implements RefValue {
     private static final String STOP_FUNCTION_SUFFIX = ".<stop>";
 
     public ErrorValue(BString message) {
-        this(new BErrorType(TypeConstants.ERROR, PredefinedTypes.TYPE_ERROR.getPackage(), PredefinedTypes.TYPE_DETAIL),
+        this(new BErrorType(TypeConstants.ERROR, PredefinedTypes.TYPE_ERROR.getPackage(), TYPE_MAP),
              message, null,  new MapValueImpl<>(PredefinedTypes.TYPE_ERROR_DETAIL));
     }
 
@@ -469,9 +469,7 @@ public class ErrorValue extends BError implements RefValue {
      */
     @Override
     public boolean equals(Object o, Set<ValuePair> visitedValues) {
-        if (!(o instanceof ErrorValue errorValue)) {
-            return false;
-        }
+        ErrorValue errorValue = (ErrorValue) o;
         return isEqual(this.getMessage(), errorValue.getMessage(), visitedValues) &&
                 ((MapValueImpl<?, ?>) this.getDetails()).equals(errorValue.getDetails(), visitedValues) &&
                 isEqual(this.getCause(), errorValue.getCause(), visitedValues);

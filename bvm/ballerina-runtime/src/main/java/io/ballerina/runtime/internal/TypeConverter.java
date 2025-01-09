@@ -23,16 +23,11 @@ import io.ballerina.runtime.api.types.ArrayType;
 import io.ballerina.runtime.api.types.Field;
 import io.ballerina.runtime.api.types.FiniteType;
 import io.ballerina.runtime.api.types.IntersectionType;
-import io.ballerina.runtime.api.types.MapType;
 import io.ballerina.runtime.api.types.PredefinedTypes;
 import io.ballerina.runtime.api.types.ReferenceType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.TypeTags;
 import io.ballerina.runtime.api.types.UnionType;
-import io.ballerina.runtime.api.types.semtype.Builder;
-import io.ballerina.runtime.api.types.semtype.Context;
-import io.ballerina.runtime.api.types.semtype.Core;
-import io.ballerina.runtime.api.types.semtype.SemType;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.utils.XmlUtils;
@@ -48,7 +43,6 @@ import io.ballerina.runtime.internal.errors.ErrorHelper;
 import io.ballerina.runtime.internal.errors.ErrorReasons;
 import io.ballerina.runtime.internal.regexp.RegExpFactory;
 import io.ballerina.runtime.internal.types.BArrayType;
-import io.ballerina.runtime.internal.types.BByteType;
 import io.ballerina.runtime.internal.types.BFiniteType;
 import io.ballerina.runtime.internal.types.BIntersectionType;
 import io.ballerina.runtime.internal.types.BMapType;
@@ -72,7 +66,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
-import java.util.function.Predicate;
 import java.util.function.Supplier;
 
 import static io.ballerina.runtime.api.constants.RuntimeConstants.BINT_MAX_VALUE_DOUBLE_RANGE_MAX;
@@ -84,7 +77,6 @@ import static io.ballerina.runtime.internal.TypeChecker.anyToSigned8;
 import static io.ballerina.runtime.internal.TypeChecker.anyToUnsigned16;
 import static io.ballerina.runtime.internal.TypeChecker.anyToUnsigned32;
 import static io.ballerina.runtime.internal.TypeChecker.anyToUnsigned8;
-import static io.ballerina.runtime.internal.TypeChecker.belongToSingleBasicTypeOrString;
 import static io.ballerina.runtime.internal.TypeChecker.checkIsLikeType;
 import static io.ballerina.runtime.internal.TypeChecker.getType;
 import static io.ballerina.runtime.internal.TypeChecker.isCharLiteralValue;
@@ -92,6 +84,7 @@ import static io.ballerina.runtime.internal.TypeChecker.isNumericType;
 import static io.ballerina.runtime.internal.TypeChecker.isSigned16LiteralValue;
 import static io.ballerina.runtime.internal.TypeChecker.isSigned32LiteralValue;
 import static io.ballerina.runtime.internal.TypeChecker.isSigned8LiteralValue;
+import static io.ballerina.runtime.internal.TypeChecker.isSimpleBasicType;
 import static io.ballerina.runtime.internal.TypeChecker.isUnsigned16LiteralValue;
 import static io.ballerina.runtime.internal.TypeChecker.isUnsigned32LiteralValue;
 import static io.ballerina.runtime.internal.TypeChecker.isUnsigned8LiteralValue;
@@ -140,62 +133,28 @@ public final class TypeConverter {
         };
     }
 
-    private static Object castValueToInt(Context cx, SemType targetType, Object inputValue) {
-        assert Core.isSubType(cx, targetType, Builder.getIntType());
-        if (targetType instanceof BByteType) {
-            return anyToByteCast(inputValue, () ->
-                    ErrorUtils.createTypeCastError(inputValue, PredefinedTypes.TYPE_BYTE));
-        }
-        Predicate<Type> isIntSubType = (subType) -> Core.isSameType(cx, targetType, SemType.tryInto(cx, subType));
-        if (isIntSubType.test(PredefinedTypes.TYPE_INT_SIGNED_32)) {
-            return anyToSigned32(inputValue);
-        }
-        if (isIntSubType.test(PredefinedTypes.TYPE_INT_SIGNED_16)) {
-            return anyToSigned16(inputValue);
-        }
-        if (isIntSubType.test(PredefinedTypes.TYPE_INT_SIGNED_8)) {
-            return anyToSigned8(inputValue);
-        }
-        if (isIntSubType.test(PredefinedTypes.TYPE_INT_UNSIGNED_32)) {
-            return anyToUnsigned32(inputValue);
-        }
-        if (isIntSubType.test(PredefinedTypes.TYPE_INT_UNSIGNED_16)) {
-            return anyToUnsigned16(inputValue);
-        }
-        if (isIntSubType.test(PredefinedTypes.TYPE_INT_UNSIGNED_8)) {
-            return anyToUnsigned8(inputValue);
-        }
-        return anyToIntCast(inputValue, () ->
-                ErrorUtils.createTypeCastError(inputValue, PredefinedTypes.TYPE_INT));
-    }
-
     public static Object castValues(Type targetType, Object inputValue) {
-        Context cx = TypeChecker.context();
-        return castValuesInner(cx, SemType.tryInto(cx, targetType), inputValue,
-                () -> ErrorUtils.createTypeCastError(inputValue, targetType));
-    }
-
-    static Object castValuesInner(Context cx, SemType targetType, Object inputValue, Supplier<BError> errorSupplier) {
-        if (Core.isSubType(cx, targetType, Builder.getIntType())) {
-            return castValueToInt(cx, targetType, inputValue);
-        }
-        if (Core.isSubType(cx, targetType, Builder.getDecimalType())) {
-            return anyToDecimalCast(inputValue, () ->
+        return switch (targetType.getTag()) {
+            case TypeTags.SIGNED32_INT_TAG -> anyToSigned32(inputValue);
+            case TypeTags.SIGNED16_INT_TAG -> anyToSigned16(inputValue);
+            case TypeTags.SIGNED8_INT_TAG -> anyToSigned8(inputValue);
+            case TypeTags.UNSIGNED32_INT_TAG -> anyToUnsigned32(inputValue);
+            case TypeTags.UNSIGNED16_INT_TAG -> anyToUnsigned16(inputValue);
+            case TypeTags.UNSIGNED8_INT_TAG -> anyToUnsigned8(inputValue);
+            case TypeTags.INT_TAG -> anyToIntCast(inputValue, () ->
+                    ErrorUtils.createTypeCastError(inputValue, PredefinedTypes.TYPE_INT));
+            case TypeTags.DECIMAL_TAG -> anyToDecimalCast(inputValue, () ->
                     ErrorUtils.createTypeCastError(inputValue, PredefinedTypes.TYPE_DECIMAL));
-        }
-        if (Core.isSubType(cx, targetType, Builder.getFloatType())) {
-            return anyToFloatCast(inputValue, () ->
+            case TypeTags.FLOAT_TAG -> anyToFloatCast(inputValue, () ->
                     ErrorUtils.createTypeCastError(inputValue, PredefinedTypes.TYPE_FLOAT));
-        }
-        if (Core.isSubType(cx, targetType, Builder.getStringType())) {
-            return anyToStringCast(inputValue, () ->
+            case TypeTags.STRING_TAG -> anyToStringCast(inputValue, () ->
                     ErrorUtils.createTypeCastError(inputValue, PredefinedTypes.TYPE_STRING));
-        }
-        if (Core.isSubType(cx, targetType, Builder.getBooleanType())) {
-            return anyToBooleanCast(inputValue, () ->
+            case TypeTags.BOOLEAN_TAG -> anyToBooleanCast(inputValue, () ->
                     ErrorUtils.createTypeCastError(inputValue, PredefinedTypes.TYPE_BOOLEAN));
-        }
-        throw errorSupplier.get();
+            case TypeTags.BYTE_TAG -> anyToByteCast(inputValue, () ->
+                    ErrorUtils.createTypeCastError(inputValue, PredefinedTypes.TYPE_BYTE));
+            default -> throw ErrorUtils.createTypeCastError(inputValue, targetType);
+        };
     }
 
     static boolean isConvertibleToByte(Object value) {
@@ -307,7 +266,7 @@ public final class TypeConverter {
                 }
                 break;
             case TypeTags.MAP_TAG:
-                if (isConvertibleToMapType(inputValue, (MapType) targetType, unresolvedValues, varName, errors,
+                if (isConvertibleToMapType(inputValue, (BMapType) targetType, unresolvedValues, varName, errors,
                         allowNumericConversion)) {
                     return targetType;
                 }
@@ -423,11 +382,10 @@ public final class TypeConverter {
     public static Type getConvertibleFiniteType(Object inputValue, BFiniteType targetFiniteType,
                                                 String varName, List<String> errors,
                                                 Set<TypeValuePair> unresolvedValues, boolean allowNumericConversion) {
-        Context cx = TypeChecker.context();
         // only the first matching type is returned.
         if (targetFiniteType.valueSpace.size() == 1) {
             Type valueType = getType(targetFiniteType.valueSpace.iterator().next());
-            if (!belongToSingleBasicTypeOrString(cx, valueType) && valueType.getTag() != TypeTags.NULL_TAG) {
+            if (!isSimpleBasicType(valueType) && valueType.getTag() != TypeTags.NULL_TAG) {
                 return getConvertibleType(inputValue, valueType, varName, unresolvedValues,
                         errors, allowNumericConversion);
             }
@@ -541,7 +499,7 @@ public final class TypeConverter {
             return "()";
         }
         String sourceValueName = sourceValue.toString();
-        if (TypeChecker.checkIsType(sourceValue, TYPE_STRING)) {
+        if (TypeChecker.getType(sourceValue) == TYPE_STRING) {
             sourceValueName = "\"" + sourceValueName + "\"";
         }
         if (sourceValueName.length() > MAX_DISPLAYED_SOURCE_VALUE_LENGTH) {
@@ -619,7 +577,7 @@ public final class TypeConverter {
         }
     }
 
-    private static boolean isConvertibleToMapType(Object sourceValue, MapType targetType,
+    private static boolean isConvertibleToMapType(Object sourceValue, BMapType targetType,
                                                   Set<TypeValuePair> unresolvedValues, String varName,
                                                   List<String> errors, boolean allowNumericConversion) {
         if (!(sourceValue instanceof MapValueImpl)) {

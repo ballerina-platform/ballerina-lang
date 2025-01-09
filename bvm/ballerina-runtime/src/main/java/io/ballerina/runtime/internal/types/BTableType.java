@@ -22,26 +22,18 @@ import io.ballerina.runtime.api.types.IntersectionType;
 import io.ballerina.runtime.api.types.TableType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.TypeTags;
-import io.ballerina.runtime.api.types.semtype.Builder;
-import io.ballerina.runtime.api.types.semtype.Context;
-import io.ballerina.runtime.api.types.semtype.Core;
-import io.ballerina.runtime.api.types.semtype.SemType;
-import io.ballerina.runtime.api.types.semtype.ShapeAnalyzer;
-import io.ballerina.runtime.api.values.BTable;
-import io.ballerina.runtime.internal.types.semtype.TableUtils;
 import io.ballerina.runtime.internal.values.ReadOnlyUtils;
 import io.ballerina.runtime.internal.values.TableValue;
 import io.ballerina.runtime.internal.values.TableValueImpl;
 
 import java.util.Optional;
-import java.util.Set;
 
 /**
  * {@code BTableType} represents tabular data in Ballerina.
  *
  * @since 1.3.0
  */
-public class BTableType extends BType implements TableType, TypeWithShape {
+public class BTableType extends BType implements TableType {
 
     private final Type constraint;
     private Type keyType;
@@ -169,85 +161,5 @@ public class BTableType extends BType implements TableType, TypeWithShape {
     @Override
     public boolean isAnydata() {
         return this.constraint.isAnydata();
-    }
-
-    @Override
-    public SemType createSemType(Context cx) {
-        return createSemTypeWithConstraint(cx, tryInto(cx, constraint));
-    }
-
-    private SemType createSemTypeWithConstraint(Context cx, SemType constraintType) {
-        SemType semType;
-        if (fieldNames.length > 0) {
-            semType = TableUtils.tableContainingKeySpecifier(cx, constraintType, fieldNames);
-        } else if (keyType != null) {
-            semType = TableUtils.tableContainingKeyConstraint(cx, constraintType, tryInto(cx, keyType));
-        } else {
-            semType = TableUtils.tableContaining(cx.env, constraintType);
-        }
-
-        if (isReadOnly()) {
-            semType = Core.intersect(semType, Builder.getReadonlyType());
-        }
-        return semType;
-    }
-
-    @Override
-    public Optional<SemType> inherentTypeOf(Context cx, ShapeSupplier shapeSupplier, Object object) {
-        if (!couldInherentTypeBeDifferent()) {
-            return Optional.of(getSemType(cx));
-        }
-        BTable<?, ?> table = (BTable<?, ?>) object;
-        SemType cachedShape = table.shapeOf();
-        if (cachedShape != null) {
-            return Optional.of(cachedShape);
-        }
-        SemType semtype = valueShape(cx, shapeSupplier, table);
-        return Optional.of(semtype);
-    }
-
-    @Override
-    public boolean couldInherentTypeBeDifferent() {
-        return isReadOnly();
-    }
-
-    @Override
-    public Optional<SemType> shapeOf(Context cx, ShapeSupplier shapeSupplierFn, Object object) {
-        return Optional.of(valueShape(cx, shapeSupplierFn, (BTable<?, ?>) object));
-    }
-
-    @Override
-    public Optional<SemType> acceptedTypeOf(Context cx) {
-        SemType constraintType = ShapeAnalyzer.acceptedTypeOf(cx, this.constraint).orElseThrow();
-        SemType semType;
-        if (fieldNames.length > 0) {
-            semType = TableUtils.acceptedTypeContainingKeySpecifier(cx, constraintType, fieldNames);
-        } else if (keyType != null) {
-            SemType keyAcceptedType = ShapeAnalyzer.acceptedTypeOf(cx, keyType).orElseThrow();
-            semType = TableUtils.acceptedTypeContainingKeyConstraint(cx, constraintType, keyAcceptedType);
-        } else {
-            semType = TableUtils.acceptedType(cx.env, constraintType);
-        }
-        return Optional.of(semType);
-    }
-
-    private SemType valueShape(Context cx, ShapeSupplier shapeSupplier, BTable<?, ?> table) {
-        SemType constraintType = Builder.getNeverType();
-        for (var value : table.values()) {
-            SemType valueShape = shapeSupplier.get(cx, value).orElse(SemType.tryInto(cx, constraint));
-            constraintType = Core.union(constraintType, valueShape);
-        }
-        return createSemTypeWithConstraint(cx, constraintType);
-    }
-
-    @Override
-    public boolean shouldCache() {
-        // TODO: remove this once we have fixed equals
-        return false;
-    }
-
-    @Override
-    protected boolean isDependentlyTypedInner(Set<MayBeDependentType> visited) {
-        return constraint instanceof MayBeDependentType constraintType && constraintType.isDependentlyTyped(visited);
     }
 }

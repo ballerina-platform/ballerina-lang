@@ -17,8 +17,6 @@
 */
 package io.ballerina.runtime.api.values;
 
-import io.ballerina.runtime.api.types.Type;
-
 /**
  * Interface representing ballerina strings.
  *
@@ -42,5 +40,4 @@ public interface BString {
 
     BIterator<String> getIterator();
 
-    Type getType();
 }

@@ -38,7 +38,6 @@ import io.ballerina.tools.text.LinePosition;
 import io.ballerina.tools.text.LineRange;
 import io.ballerina.tools.text.TextDocument;
 import io.ballerina.tools.text.TextRange;
-import io.ballerina.types.Core;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.tree.NodeKind;
@@ -54,6 +53,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeDefinitionSy
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BFiniteType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFutureType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangClassDefinition;
@@ -537,12 +537,12 @@ public class BallerinaSemanticModel implements SemanticModel {
         // !(symbol.kind == SymbolKind.TYPE_DEF) is checked to exclude type defs
         BType type = org.wso2.ballerinalang.compiler.semantics.analyzer.Types.getImpliedType(symbol.type);
         return !(symbol.kind == SymbolKind.TYPE_DEF) && type.tag == TypeTags.FINITE &&
-                Core.singleShape((symbol.type).semType()).isPresent();
+                ((BFiniteType) type).getValueSpace().size() == 1;
     }
 
     private boolean isInlineErrorType(BSymbol symbol) {
         return getImpliedType(symbol.type).tag == TypeTags.ERROR &&
-                Symbols.isFlagOn(symbol.type.getFlags(), Flags.ANONYMOUS);
+                Symbols.isFlagOn(symbol.type.flags, Flags.ANONYMOUS);
     }
 
     private boolean isTypeSymbol(BSymbol tSymbol) {

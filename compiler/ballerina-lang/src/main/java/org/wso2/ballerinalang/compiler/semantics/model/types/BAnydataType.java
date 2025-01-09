@@ -17,10 +17,6 @@
  */
 package org.wso2.ballerinalang.compiler.semantics.model.types;
 
-import io.ballerina.types.Context;
-import io.ballerina.types.Core;
-import io.ballerina.types.PredefinedType;
-import io.ballerina.types.SemType;
 import org.ballerinalang.model.Name;
 import org.ballerinalang.model.types.TypeKind;
 import org.wso2.ballerinalang.compiler.semantics.model.TypeVisitor;
@@ -37,52 +33,50 @@ import java.util.LinkedHashSet;
  * @since 0.985.0
  */
 public class BAnydataType extends BUnionType {
-    private boolean nullable;
-    private static final int INITIAL_CAPACITY = 10;
-    private final Context typeCtx;
 
-    private BAnydataType(Context typeCtx, BTypeSymbol tsymbol, Name name, long flags, boolean nullable) {
-        super(typeCtx.env, tsymbol, new LinkedHashSet<>(INITIAL_CAPACITY), false);
-        this.tag = TypeTags.ANYDATA;
-        this.setFlags(flags);
-        this.name = name;
-        this.isCyclic = true;
-        this.nullable = nullable;
-        this.typeCtx = typeCtx;
+    private static final int INITIAL_CAPACITY = 10;
+
+    public BAnydataType(BTypeSymbol tsymbol, Name name, long flags) {
+        this(tsymbol, name, flags, true);
     }
 
-    public BAnydataType(Context typeCtx, BUnionType type) {
-        super(type.env, type.tsymbol, new LinkedHashSet<>(type.memberTypes.size()),
-                Symbols.isFlagOn(type.getFlags(), Flags.READONLY));
+    public BAnydataType(BTypeSymbol tsymbol, boolean nullable) {
+        super(tsymbol, new LinkedHashSet<>(INITIAL_CAPACITY), nullable, false);
+        this.tag = TypeTags.ANYDATA;
+        this.isCyclic = true;
+    }
+
+    public BAnydataType(BTypeSymbol tsymbol, Name name, long flags, boolean nullable) {
+        super(tsymbol, new LinkedHashSet<>(INITIAL_CAPACITY), nullable, false);
+        this.tag = TypeTags.ANYDATA;
+        this.flags = flags;
+        this.name = name;
+        this.isCyclic = true;
+    }
+
+    public BAnydataType(BUnionType type) {
+        super(type.tsymbol, new LinkedHashSet<>(type.memberTypes.size()), type.isNullable(),
+                Symbols.isFlagOn(type.flags, Flags.READONLY));
         this.tag = TypeTags.ANYDATA;
         this.isCyclic = true;
         this.name = type.name;
-        this.setFlags(type.getFlags());
-        this.nullable = type.isNullable();
+        this.flags = type.flags;
         mergeUnionType(type);
-        this.typeCtx = typeCtx;
     }
 
-    public static BAnydataType newNilLiftedBAnydataType(BAnydataType type) {
-        BAnydataType result = new BAnydataType(type.typeCtx, type);
-        result.nullable = false;
-        return result;
-    }
-
-    public static BAnydataType newImmutableBAnydataType(BAnydataType type, BTypeSymbol typeSymbol,  Name name,
-                                                     boolean nullable) {
-        return new BAnydataType(type.typeCtx, typeSymbol, name, type.getFlags() | Flags.READONLY, nullable);
+    public BAnydataType(BAnydataType type, boolean nullable) {
+        super(type.tsymbol, new LinkedHashSet<>(INITIAL_CAPACITY), nullable,
+                Symbols.isFlagOn(type.flags, Flags.READONLY));
+        this.flags = type.flags;
+        this.tag = TypeTags.ANYDATA;
+        this.isCyclic = true;
+        mergeUnionType(type);
     }
 
     @Override
     public String toString() {
-        return !Symbols.isFlagOn(getFlags(), Flags.READONLY) ? getKind().typeName() :
+        return !Symbols.isFlagOn(flags, Flags.READONLY) ? getKind().typeName() :
                 getKind().typeName().concat(" & readonly");
-    }
-
-    @Override
-    public boolean isNullable() {
-        return nullable;
     }
 
     @Override
@@ -100,15 +94,4 @@ public class BAnydataType extends BUnionType {
         return visitor.visit(this, t);
     }
 
-    @Override
-    public SemType semType() {
-        SemType anydata = Core.createAnydata(typeCtx);
-        if (!nullable) {
-            anydata = Core.diff(anydata, PredefinedType.NIL);
-        }
-        if (Symbols.isFlagOn(getFlags(), Flags.READONLY)) {
-            anydata = Core.intersect(anydata, PredefinedType.VAL_READONLY);
-        }
-        return anydata;
-    }
 }

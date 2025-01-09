@@ -1620,7 +1620,7 @@ public class JvmInstructionGen {
     }
 
     private void reloadObjectCtorAnnots(BType type, int strandIndex) {
-        if ((type.getFlags() & Flags.OBJECT_CTOR) == Flags.OBJECT_CTOR) {
+        if ((type.flags & Flags.OBJECT_CTOR) == Flags.OBJECT_CTOR) {
             this.mv.visitTypeInsn(CHECKCAST, OBJECT_TYPE_IMPL);
             mv.visitMethodInsn(INVOKEVIRTUAL, OBJECT_TYPE_IMPL, "duplicate", OBJECT_TYPE_DUPLICATE, false);
             this.mv.visitInsn(DUP);

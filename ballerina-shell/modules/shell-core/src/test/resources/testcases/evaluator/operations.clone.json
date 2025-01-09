@@ -1,19 +1,19 @@
 [
   {
     "description": "Define types.",
-    "code": "type AddressCloneTest record { string country; string state; string city; string street; }; type PersonCloneTest record { string name; int age; boolean married; float salary; AddressCloneTest address; };"
+    "code": "type Address record { string country; string state; string city; string street; }; type Person record { string name; int age; boolean married; float salary; Address address; };"
   },
   {
     "description": "Define address.",
-    "code": "AddressCloneTest address = { country: \"USA\", state: \"NC\", city: \"Raleigh\", street: \"Daniels St\" };"
+    "code": "Address address = { country: \"USA\", state: \"NC\", city: \"Raleigh\", street: \"Daniels St\" };"
   },
   {
     "description": "Define person.",
-    "code": "PersonCloneTest person = { name: \"Alex\", age: 24, married: false, salary: 8000.0, address: address };"
+    "code": "Person person = { name: \"Alex\", age: 24, married: false, salary: 8000.0, address: address };"
   },
   {
     "description": "Clone operation.",
-    "code": "PersonCloneTest result = person.clone();"
+    "code": "Person result = person.clone();"
   },
   {
     "description": "Check reference equality.",

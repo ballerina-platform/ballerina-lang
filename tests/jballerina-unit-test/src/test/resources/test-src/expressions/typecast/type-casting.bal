@@ -481,27 +481,27 @@ function testStringToJson(string s) returns (json) {
     return s;
 }
 
-type PersonTC record {
+type Person record {
     string name;
     int age;
     map<anydata> address = {};
     int[] marks = [];
-    PersonTC | () parent = ();
+    Person | () parent = ();
     json info = {};
     anydata a = 0;
     float score = 0.0;
     boolean alive = true;
 };
 
-type StudentTC record {
+type Student record {
     string name;
     int age;
     map<any> address = {};
     int[] marks = [];
 };
 
-function testStructToStruct() returns (StudentTC) {
-    PersonTC p = { name:"Supun",
+function testStructToStruct() returns (Student) {
+    Person p = { name:"Supun",
                    age:25,
                    parent:{name:"Parent", age:50},
                    address:{"city":"Kandy", "country":"SriLanka"},
@@ -512,13 +512,13 @@ function testStructToStruct() returns (StudentTC) {
     return p2;
 }
 
-function testNullStructToStruct() returns StudentTC {
-    PersonTC? p = ();
-    return <StudentTC> p;
+function testNullStructToStruct() returns Student {
+    Person? p = ();
+    return <Student> p;
 }
 
-function testStructAsAnyToStruct() returns PersonTC|error {
-    PersonTC p1 = { name:"Supun",
+function testStructAsAnyToStruct() returns Person|error {
+    Person p1 = { name:"Supun",
                     age:25,
                     parent:{name:"Parent", age:50},
                     address:{"city":"Kandy", "country":"SriLanka"},
@@ -526,11 +526,11 @@ function testStructAsAnyToStruct() returns PersonTC|error {
                     marks:[24, 81]
                 };
     any a = p1;
-    var p2 = check trap <PersonTC> a;
+    var p2 = check trap <Person> a;
     return p2;
 }
 
-function testAnyToStruct() returns PersonTC {
+function testAnyToStruct() returns Person {
     json address = {"city":"Kandy", "country":"SriLanka"};
     map<any> parent = {name:"Parent", age:50};
     map<any> info = {status:"single"};
@@ -543,18 +543,18 @@ function testAnyToStruct() returns PersonTC {
                 marks:marks
             };
     any b = a;
-    var p2 = <PersonTC> b;
+    var p2 = <Person> b;
     return p2;
 }
 
-function testAnyNullToStruct() returns PersonTC {
+function testAnyNullToStruct() returns Person {
     any a = ();
-    var p = <PersonTC> a;
+    var p = <Person> a;
     return p;
 }
 
 function testRecordToAny() returns (any) {
-    PersonTC p = { name:"Supun",
+    Person p = { name:"Supun",
                    age:25,
                    parent:{name:"Parent", age:50},
                    address:{"city":"Kandy", "country":"SriLanka"},
@@ -601,7 +601,7 @@ function testBooleanInJsonToInt() {
     }
 }
 
-type AddressTC record {
+type Address record {
     string city;
     string country = "";
 };
@@ -671,7 +671,7 @@ function testAnyMapToJson() returns json {
 }
 
 function testAnyStructToJson() returns json {
-    AddressTC adrs = {city:"CA"};
+    Address adrs = {city:"CA"};
     any a = adrs;
     json value;
     value = <json> a;
@@ -917,18 +917,18 @@ function testJSONValueCasting() returns [string|error, int|error, float|error, b
 }
 
 function testAnyToTable() {
-    table<EmployeeTC> tb = table [
+    table<Employee> tb = table [
                     {id:1, name:"Jane"},
                     {id:2, name:"Anne"}
         ];
 
     any anyValue = tb;
-    var casted = <table<EmployeeTC>> anyValue;
-    table<EmployeeTC>  castedValue = casted;
+    var casted = <table<Employee>> anyValue;
+    table<Employee>  castedValue = casted;
     assertEquality("[{\"id\":1,\"name\":\"Jane\"},{\"id\":2,\"name\":\"Anne\"}]", castedValue.toString());
 }
 
-type EmployeeTC record {
+type Employee record {
     int id;
     string name;
 };
@@ -998,31 +998,32 @@ function testCastOfReadonlyUnionArrayToByteArray() {
     assertEquality("[1,2,3]", f.toString());
 }
 
-type FooTC record {|
+type Foo record {|
     string s;
     int[] arr;
 |};
 
-type BarTC record {|
+type Bar record {|
     string s;
     byte[] arr;
 |};
 
 function testCastOfReadonlyRecord() {
-    (FooTC & readonly) f = {s: "a", arr: [1,2,3]};
+    (Foo & readonly) f = {s: "a", arr: [1,2,3]};
     any a = f;
-    BarTC b = <BarTC> a;
+    Bar b = <Bar> a;
     assertEquality(true, b === a);
     assertEquality("{\"s\":\"a\",\"arr\":[1,2,3]}", b.toString());
 }
 
 function testCastOfReadonlyRecordNegative() {
-    (FooTC & readonly) f = {s: "a", arr: [1,2,300]};
+    (Foo & readonly) f = {s: "a", arr: [1,2,300]};
     any a = f;
-    BarTC|error b = trap <BarTC> a;
+    Bar|error b = trap <Bar> a;
     assertEquality(true, b is error);
     error err = <error> b;
-    string errMsg = "incompatible types: '(FooTC & readonly)' cannot be cast to 'BarTC'";
+    string errMsg = "incompatible types: '(Foo & readonly)' cannot be cast to 'Bar': " +
+    "\n\t\tfield 'arr' in record 'Bar' should be of type 'byte[]', found '[1,2,300]'";
     assertEquality("{ballerina}TypeCastError", err.message());
     assertEquality(errMsg, <string> checkpanic err.detail()["message"]);
 }

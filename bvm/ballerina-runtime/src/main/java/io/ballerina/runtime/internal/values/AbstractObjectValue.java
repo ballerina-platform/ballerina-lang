@@ -23,9 +23,6 @@ import io.ballerina.runtime.api.types.Field;
 import io.ballerina.runtime.api.types.ObjectType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.TypeId;
-import io.ballerina.runtime.api.types.semtype.Context;
-import io.ballerina.runtime.api.types.semtype.SemType;
-import io.ballerina.runtime.api.types.semtype.ShapeAnalyzer;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BArray;
@@ -38,13 +35,10 @@ import io.ballerina.runtime.internal.TypeChecker;
 import io.ballerina.runtime.internal.errors.ErrorCodes;
 import io.ballerina.runtime.internal.errors.ErrorHelper;
 import io.ballerina.runtime.internal.types.BObjectType;
-import io.ballerina.runtime.internal.types.TypeWithShape;
-import io.ballerina.runtime.internal.types.semtype.ObjectDefinition;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.StringJoiner;
 
 import static io.ballerina.runtime.api.constants.RuntimeConstants.DOT;
@@ -63,12 +57,10 @@ import static io.ballerina.runtime.internal.errors.ErrorReasons.getModulePrefixe
  * 
  * @since 0.995.0
  */
-public abstract class AbstractObjectValue implements ObjectValue, RecursiveValue<ObjectDefinition> {
+public abstract class AbstractObjectValue implements ObjectValue {
     private BTypedesc typedesc;
     private final BObjectType objectType;
     private final Type type;
-    private SemType shape;
-    private final ThreadLocal<ObjectDefinition> readonlyAttachedDefinition = new ThreadLocal<>();
 
     private final HashMap<String, Object> nativeData = new HashMap<>();
 
@@ -240,34 +232,5 @@ public abstract class AbstractObjectValue implements ObjectValue, RecursiveValue
                         INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER),
                 ErrorHelper.getErrorDetails(ErrorCodes.INVALID_OBJECT_FIELD_VALUE_ERROR,
                         fieldName, fieldType, TypeChecker.getType(value)));
-    }
-
-    public final SemType shapeOf() {
-        return shape;
-    }
-
-    public final void cacheShape(SemType semType) {
-        this.shape = semType;
-    }
-
-    @Override
-    public Optional<SemType> inherentTypeOf(Context cx) {
-        TypeWithShape typeWithShape = (TypeWithShape) getType();
-        return typeWithShape.inherentTypeOf(cx, ShapeAnalyzer::inherentTypeOf, this);
-    }
-
-    @Override
-    public ObjectDefinition getReadonlyShapeDefinition() {
-        return readonlyAttachedDefinition.get();
-    }
-
-    @Override
-    public void setReadonlyShapeDefinition(ObjectDefinition definition) {
-        readonlyAttachedDefinition.set(definition);
-    }
-
-    @Override
-    public void resetReadonlyShapeDefinition() {
-        readonlyAttachedDefinition.remove();
     }
 }

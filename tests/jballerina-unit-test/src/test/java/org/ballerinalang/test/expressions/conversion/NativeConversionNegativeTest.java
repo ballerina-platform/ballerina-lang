@@ -142,6 +142,10 @@ public class NativeConversionNegativeTest {
         Object results = BRunUtil.invoke(negativeResult, "testConvertRecordToMapWithCyclicValueReferences");
         Object error = results;
         Assert.assertEquals(getType(error).getClass(), BErrorType.class);
+        Assert.assertEquals(
+                ((BMap<String, BString>) ((BError) results).getDetails()).get(StringUtils.fromString("message"))
+                        .toString(),
+                "'Manager' value has cyclic reference");
     }
 
     @Test(description = "Test converting record to json having cyclic reference.")
@@ -149,6 +153,10 @@ public class NativeConversionNegativeTest {
         Object results = BRunUtil.invoke(negativeResult, "testConvertRecordToJsonWithCyclicValueReferences");
         Object error = results;
         Assert.assertEquals(getType(error).getClass(), BErrorType.class);
+        Assert.assertEquals(
+                ((BMap<String, BString>) ((BError) results).getDetails()).get(StringUtils.fromString("message"))
+                        .toString(),
+                "'Manager' value has cyclic reference");
     }
 
     @Test(dataProvider = "testConversionFunctionList")

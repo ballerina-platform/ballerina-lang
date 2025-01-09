@@ -16,51 +16,35 @@
  */
 package io.ballerina.compiler.api.impl.symbols;
 
+import io.ballerina.compiler.api.ModuleID;
 import io.ballerina.compiler.api.SymbolTransformer;
 import io.ballerina.compiler.api.SymbolVisitor;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.api.symbols.UnionTypeSymbol;
 import io.ballerina.tools.diagnostics.Location;
-import io.ballerina.types.ComplexSemType;
-import io.ballerina.types.Core;
-import io.ballerina.types.PredefinedType;
-import io.ballerina.types.SemType;
-import io.ballerina.types.subtypedata.BooleanSubtype;
-import io.ballerina.types.subtypedata.DecimalSubtype;
-import io.ballerina.types.subtypedata.FloatSubtype;
-import io.ballerina.types.subtypedata.IntSubtype;
-import io.ballerina.types.subtypedata.StringSubtype;
 import org.ballerinalang.model.types.TypeKind;
-import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFiniteType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.SemNamedType;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
-import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.util.Flags;
 
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.StringJoiner;
 import java.util.regex.Pattern;
 
 import static io.ballerina.compiler.api.symbols.TypeDescKind.FUNCTION;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.INTERSECTION;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.NIL;
-import static io.ballerina.types.BasicTypeCode.BT_BOOLEAN;
-import static io.ballerina.types.BasicTypeCode.BT_DECIMAL;
-import static io.ballerina.types.BasicTypeCode.BT_FLOAT;
-import static io.ballerina.types.BasicTypeCode.BT_INT;
-import static io.ballerina.types.BasicTypeCode.BT_STRING;
-import static io.ballerina.types.Core.getComplexSubtypeData;
-import static io.ballerina.types.SemTypes.isSubtypeSimple;
 
 /**
  * Represents an union type descriptor.
@@ -76,16 +60,13 @@ public class BallerinaUnionTypeSymbol extends AbstractTypeSymbol implements Unio
     private List<TypeSymbol> memberTypes;
     private List<TypeSymbol> originalMemberTypes;
     private String signature;
-    private SymbolTable symTable;
 
     public BallerinaUnionTypeSymbol(CompilerContext context, BUnionType unionType) {
         super(context, TypeDescKind.UNION, unionType);
-        this.symTable = SymbolTable.getInstance(context);
     }
 
     public BallerinaUnionTypeSymbol(CompilerContext context, BFiniteType finiteType) {
         super(context, TypeDescKind.UNION, finiteType);
-        this.symTable = SymbolTable.getInstance(context);
     }
 
     @Override
@@ -101,56 +82,28 @@ public class BallerinaUnionTypeSymbol extends AbstractTypeSymbol implements Unio
                         members.add(typesFactory.getTypeDescriptor(memberType));
                         continue;
                     }
-                    updateMembersForBFiniteType(members, (BFiniteType) memberType);
+
+                    BFiniteType finiteType = (BFiniteType) memberType;
+                    for (BLangExpression value : finiteType.getValueSpace()) {
+                        ModuleID moduleID = getModule().isPresent() ? getModule().get().id() : null;
+                        BFiniteType bFiniteType = new BFiniteType(value.getBType().tsymbol, Set.of(value));
+                        members.add(new BallerinaSingletonTypeSymbol(this.context, (BLangLiteral) value,
+                                                                     bFiniteType));
+                    }
                 }
             } else {
-                updateMembersForBFiniteType(members, (BFiniteType) this.getBType());
+                for (BLangExpression value : ((BFiniteType) this.getBType()).getValueSpace()) {
+                    ModuleID moduleID = getModule().isPresent() ? getModule().get().id() : null;
+                    BFiniteType bFiniteType = new BFiniteType(value.getBType().tsymbol, Set.of(value));
+                    members.add(new BallerinaSingletonTypeSymbol(this.context, (BLangLiteral) value,
+                                                                 bFiniteType));
+                }
             }
 
             this.memberTypes = Collections.unmodifiableList(members);
         }
 
         return this.memberTypes;
-    }
-
-    @SuppressWarnings("OptionalGetWithoutIsPresent") // xxxSubtypeSingleValue() are guaranteed to have a value
-    private void updateMembersForBFiniteType(List<TypeSymbol> members, BFiniteType bFiniteType) {
-        for (SemNamedType semNamedType : bFiniteType.valueSpace) {
-            SemType s = semNamedType.semType();
-            BFiniteType ft = BFiniteType.newSingletonBFiniteType(null, s);
-            if (PredefinedType.NIL.equals(s)) {
-                members.add(new BallerinaSingletonTypeSymbol(context, symTable.nilType, Names.NIL_VALUE.value, ft));
-                continue;
-            }
-
-            ComplexSemType cs = (ComplexSemType) s;
-            BType broadType;
-            String value;
-            if (isSubtypeSimple(s, PredefinedType.BOOLEAN)) {
-                broadType = symTable.booleanType;
-                boolean boolVal = BooleanSubtype.booleanSubtypeSingleValue(getComplexSubtypeData(cs, BT_BOOLEAN)).get();
-                value = boolVal ? Names.TRUE.value : Names.FALSE.value;
-            } else if (isSubtypeSimple(s, PredefinedType.INT)) {
-                broadType = symTable.intType;
-                long longVal = IntSubtype.intSubtypeSingleValue(getComplexSubtypeData(cs, BT_INT)).get();
-                value = Long.toString(longVal);
-            } else if (isSubtypeSimple(s, PredefinedType.FLOAT)) {
-                broadType = symTable.floatType;
-                double doubleVal = FloatSubtype.floatSubtypeSingleValue(getComplexSubtypeData(cs, BT_FLOAT)).get();
-                value = Double.toString(doubleVal);
-            } else if (isSubtypeSimple(s, PredefinedType.DECIMAL)) {
-                broadType = symTable.decimalType;
-                BigDecimal bVal = DecimalSubtype.decimalSubtypeSingleValue(getComplexSubtypeData(cs, BT_DECIMAL)).get();
-                value = bVal.toPlainString();
-            } else if (isSubtypeSimple(s, PredefinedType.STRING)) {
-                broadType = symTable.stringType;
-                value = StringSubtype.stringSubtypeSingleValue(getComplexSubtypeData(cs, BT_STRING)).get();
-            } else {
-                throw new IllegalStateException("Unexpected value space type: " + s);
-            }
-
-            members.add(new BallerinaSingletonTypeSymbol(context, broadType, value, ft));
-        }
     }
 
     @Override
@@ -165,7 +118,11 @@ public class BallerinaUnionTypeSymbol extends AbstractTypeSymbol implements Unio
                     members.add(typesFactory.getTypeDescriptor(memberType));
                 }
             } else {
-                updateMembersForBFiniteType(members, (BFiniteType) this.getBType());
+                for (BLangExpression value : ((BFiniteType) this.getBType()).getValueSpace()) {
+                    ModuleID moduleID = getModule().isPresent() ? getModule().get().id() : null;
+                    members.add(new BallerinaSingletonTypeSymbol(this.context, (BLangLiteral) value,
+                                                                 value.getBType()));
+                }
             }
 
             this.originalMemberTypes = Collections.unmodifiableList(members);
@@ -207,7 +164,7 @@ public class BallerinaUnionTypeSymbol extends AbstractTypeSymbol implements Unio
         if (unionType.isCyclic && (unionType.tsymbol != null) && !unionType.tsymbol.getName().getValue().isEmpty()) {
             String typeStr;
             typeStr = unionType.tsymbol.getName().getValue();
-            if (Symbols.isFlagOn(unionType.getFlags(), Flags.TYPE_PARAM) && pCloneableType.matcher(typeStr).matches()) {
+            if (Symbols.isFlagOn(unionType.flags, Flags.TYPE_PARAM) && pCloneableType.matcher(typeStr).matches()) {
                 typeStr = CLONEABLE;
             }
             return typeStr;
@@ -268,7 +225,7 @@ public class BallerinaUnionTypeSymbol extends AbstractTypeSymbol implements Unio
         if (types.size() == 2) {
             for (TypeSymbol type : types) {
                 BType internalType = ((AbstractTypeSymbol) type).getBType();
-                if (internalType.tag == TypeTags.FINITE && Core.singleShape(internalType.semType()).isEmpty()) {
+                if (internalType.tag == TypeTags.FINITE && ((BFiniteType) internalType).getValueSpace().size() > 1) {
                     return false;
                 }
             }

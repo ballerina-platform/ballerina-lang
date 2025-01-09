@@ -219,6 +219,14 @@ public final class ValueComparisonUtils {
             return codePointCompare(lhsValue.toString(), rhsValue.toString());
         }
 
+        if (TypeTags.isIntegerTypeTag(lhsTypeTag) && TypeTags.isIntegerTypeTag(rhsTypeTag)) {
+            return Long.compare((long) lhsValue, (long) rhsValue);
+        } else if (TypeTags.isIntegerTypeTag(lhsTypeTag) && TypeTags.BYTE_TAG == rhsTypeTag) {
+            return Long.compare((long) lhsValue, (int) rhsValue);
+        } else if (TypeTags.BYTE_TAG == lhsTypeTag && TypeTags.isIntegerTypeTag(rhsTypeTag)) {
+            return Long.compare((int) lhsValue, (long) rhsValue);
+        }
+
         if (lhsTypeTag == rhsTypeTag) {
             switch (lhsTypeTag) {
                 case TypeTags.BOOLEAN_TAG:
@@ -236,14 +244,6 @@ public final class ValueComparisonUtils {
                     }
                     return -1;
             }
-        }
-
-        if (TypeTags.BYTE_TAG == lhsTypeTag && TypeTags.isIntegerTypeTag(rhsTypeTag)) {
-            return Long.compare((int) lhsValue, (long) rhsValue);
-        } else if (TypeTags.isIntegerTypeTag(lhsTypeTag) && TypeTags.BYTE_TAG == rhsTypeTag) {
-            return Long.compare((long) lhsValue, (int) rhsValue);
-        } else if (TypeTags.isIntegerTypeTag(lhsTypeTag) && TypeTags.isIntegerTypeTag(rhsTypeTag)) {
-            return Long.compare((long) lhsValue, (long) rhsValue);
         }
 
         if ((lhsTypeTag == TypeTags.ARRAY_TAG || lhsTypeTag == TypeTags.TUPLE_TAG) &&
