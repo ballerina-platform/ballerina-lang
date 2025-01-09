@@ -21,7 +21,6 @@ import org.ballerinalang.debugger.test.utils.DebugTestRunner;
 import org.ballerinalang.debugger.test.utils.DebugUtils;
 import org.ballerinalang.test.context.BallerinaTestException;
 import org.testng.Assert;
-import org.testng.SkipException;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
@@ -43,12 +42,6 @@ public class ProjectBasedRunInTerminalTest {
 
     @Test(description = "Debug launch test in integrated terminal for project based source")
     public void testRunInIntegratedTerminal() throws BallerinaTestException {
-        // Skipping the test on Windows
-        // TODO: enable after fixing intermittent failures
-        if (System.getProperty("os.name").toLowerCase().contains("win")) {
-            throw new SkipException("Skipping test on Windows OS");
-        }
-
         String integratedTerminal = "integrated";
         debugTestRunner.setClientSupportsRunInTerminal(true);
         didRunInIntegratedTerminal = debugTestRunner.initDebugSession(DebugUtils.DebuggeeExecutionKind.RUN,
@@ -58,12 +51,6 @@ public class ProjectBasedRunInTerminalTest {
 
     @Test(description = "Debug launch test in external terminal for project based source")
     public void testRunInExternalTerminal() throws BallerinaTestException {
-        // Skipping the test on Windows
-        // TODO: enable after fixing intermittent failures
-        if (System.getProperty("os.name").toLowerCase().contains("win")) {
-            throw new SkipException("Skipping test on Windows OS");
-        }
-
         String externalTerminal = "external";
         debugTestRunner.setClientSupportsRunInTerminal(true);
         didRunInIntegratedTerminal = debugTestRunner.initDebugSession(DebugUtils.DebuggeeExecutionKind.RUN,
