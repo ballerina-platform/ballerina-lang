@@ -39,8 +39,6 @@ import io.ballerina.runtime.internal.TypeChecker;
 import io.ballerina.runtime.internal.errors.ErrorCodes;
 import io.ballerina.runtime.internal.errors.ErrorHelper;
 import io.ballerina.runtime.internal.errors.ErrorReasons;
-import io.ballerina.runtime.internal.query.pipeline.StreamPipeline;
-import io.ballerina.runtime.internal.query.utils.StreamPipelineUtils;
 import io.ballerina.runtime.internal.types.BArrayType;
 import io.ballerina.runtime.internal.utils.CycleUtils;
 import io.ballerina.runtime.internal.utils.ValueConverter;
@@ -479,16 +477,16 @@ public class ArrayValueImpl extends AbstractArrayValue {
      */
     @Override
     public void add(long index, Object value) {
-        long[] a = {1, 2, 3, 4, 5};
-        BArray bArray = ValueCreator.createArrayValue(a);
-        StreamPipeline<BArray> pipeline =  StreamPipelineUtils.initializePipeline(BArray.class , bArray);
-        StreamPipelineUtils.addFromClause(pipeline , Map.of("i" , "value"));
-        StreamPipelineUtils.addWhereClause(pipeline, frame -> (long) frame.getVariable("i") > 1);
-        StreamPipelineUtils.addLimitClause(pipeline, 3);
-        StreamPipelineUtils.addSelectClause(pipeline, frame -> frame.getVariable("i").toString());
-        pipeline.execute(bArray);
-//        BArray arr = StreamPipelineUtils.toBArray(pipeline);
-        Object[] b = pipeline.getStream().toArray();
+//        long[] a = {1, 2, 3, 4, 5};
+//        BArray bArray = ValueCreator.createArrayValue(a);
+//        StreamPipeline<BArray> pipeline =  StreamPipelineUtils.initializePipeline(BArray.class , bArray);
+//        StreamPipelineUtils.addFromClause(pipeline , Map.of("i" , "value"));
+//        StreamPipelineUtils.addWhereClause(pipeline, frame -> (long) frame.getVariable("i") > 1);
+//        StreamPipelineUtils.addLimitClause(pipeline, 3);
+//        StreamPipelineUtils.addSelectClause(pipeline, frame -> frame.getVariable("i").toString());
+//        pipeline.execute(bArray);
+////        BArray arr = StreamPipelineUtils.toBArray(pipeline);
+//        Object[] b = pipeline.getStream().toArray();
         handleImmutableArrayValue();
         addRefValue(index, value);
     }
