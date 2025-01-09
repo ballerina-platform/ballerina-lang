@@ -1,6 +1,7 @@
 package io.ballerina.runtime.internal.query.clauses;
 
 import io.ballerina.runtime.internal.query.pipeline.FrameContext;
+
 import java.util.stream.Stream;
 
 /**
