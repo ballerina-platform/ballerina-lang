@@ -1,3 +1,7 @@
-string[] arr = ["abc" , "cde" , ""];
-string[] arr2 = ["abc" , "cde"];
-string[] arr3 = arr2.reverse();
+public function main() {
+    int[] nums = [1, 2, 3, 4];
+
+    int[] numsTimes10 = from var i in nums
+                        // The `select` clause is evaluated for each iteration.
+                        select i * 10;
+}

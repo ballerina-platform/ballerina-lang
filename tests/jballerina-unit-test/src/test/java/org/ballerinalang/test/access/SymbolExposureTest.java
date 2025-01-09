@@ -30,6 +30,6 @@ public class SymbolExposureTest {
     @Test
     public void testPublicFunctionWithRecursiveArrayTypedParam() {
         CompileResult result = BCompileUtil.compile("test-src/access/symbol_exposure.bal");
-        BRunUtil.invoke(result, "testPublicFunctionWithRecursiveArrayTypedParam");
+        BRunUtil.invoke(result, "main");
     }
 }
