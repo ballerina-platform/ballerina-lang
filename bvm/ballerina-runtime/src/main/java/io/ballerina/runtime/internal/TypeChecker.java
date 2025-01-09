@@ -1672,14 +1672,14 @@ public final class TypeChecker {
         return checkObjectSubTypeForMethods(unresolvedTypes, targetFuncs, sourceFuncs, targetTypeModule,
                                             sourceTypeModule, sourceObjectType, targetType);
     }
-
+    
     private static List<MethodType> getAllFunctionsList(BObjectType objectType) {
         List<MethodType> functionList = new ArrayList<>(Arrays.asList(objectType.getMethods()));
         if (objectType.getTag() == TypeTags.SERVICE_TAG ||
                 (objectType.flags & SymbolFlags.CLIENT) == SymbolFlags.CLIENT) {
             Collections.addAll(functionList, ((BNetworkObjectType) objectType).getResourceMethods());
         }
-
+        
         return functionList;
     }
 
@@ -1793,16 +1793,16 @@ public final class TypeChecker {
         if (matchingFunction.isEmpty()) {
             return matchingFunction;
         }
-        // For resource function match, we need to check whether lhs function resource path type belongs to
+        // For resource function match, we need to check whether lhs function resource path type belongs to 
         // rhs function resource path type
         MethodType matchingFunc = matchingFunction.get();
         boolean lhsFuncIsResource = SymbolFlags.isFlagOn(lhsFunc.getFlags(), SymbolFlags.RESOURCE);
         boolean matchingFuncIsResource = SymbolFlags.isFlagOn(matchingFunc.getFlags(), SymbolFlags.RESOURCE);
-
+        
         if (!lhsFuncIsResource && !matchingFuncIsResource) {
             return matchingFunction;
         }
-
+        
         if (!lhsFuncIsResource || !matchingFuncIsResource) {
             return Optional.empty();
         }
@@ -1900,7 +1900,7 @@ public final class TypeChecker {
 
         return false;
     }
-
+    
     public static boolean isInherentlyImmutableType(Type sourceType) {
         sourceType = getImpliedType(sourceType);
         if (isSimpleBasicType(sourceType)) {
