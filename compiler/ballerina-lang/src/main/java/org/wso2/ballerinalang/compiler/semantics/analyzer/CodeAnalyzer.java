@@ -2804,7 +2804,8 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         analyzeExprs(cIExpr.argsExpr, data);
         analyzeExpr(cIExpr.initInvocation, data);
         BType type = cIExpr.getBType();
-        if (cIExpr.userDefinedType != null && Symbols.isFlagOn(type.tsymbol.flags, Flags.DEPRECATED)) {
+        if (cIExpr.userDefinedType != null && type.tsymbol != null &&
+                Symbols.isFlagOn(type.tsymbol.flags, Flags.DEPRECATED)) {
             logDeprecatedWaring(((BLangUserDefinedType) cIExpr.userDefinedType).typeName.toString(), type.tsymbol,
                     cIExpr.pos);
         }
