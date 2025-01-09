@@ -248,28 +248,23 @@ public abstract non-sealed class BType extends SemType
     }
 
     @Override
-    public SemType createSemType(Context cx) {
+    public SemType createSemType() {
         throw new IllegalStateException("Child that are used for type checking must implement this method");
     }
 
     @Override
-    public void updateInnerSemTypeIfNeeded(Context cx) {
-        if (cachedSemType == null) {
-            try {
-                cx.enterTypeResolutionPhase(this);
-                cachedSemType = createSemType(cx);
+    public void updateInnerSemTypeIfNeeded() {
+        synchronized (this) {
+            if (cachedSemType == null) {
+                cachedSemType = createSemType();
                 setAll(cachedSemType.all());
                 setSome(cachedSemType.some(), cachedSemType.subTypeData());
-                cx.exitTypeResolutionPhase();
-            } catch (InterruptedException e) {
-                cx.exitTypeResolutionPhaseAbruptly(e);
-                throw new RuntimeException(e);
             }
         }
     }
 
-    protected SemType getSemType(Context cx) {
-        updateInnerSemTypeIfNeeded(cx);
+    protected SemType getSemType() {
+        updateInnerSemTypeIfNeeded();
         return cachedSemType;
     }
 
@@ -307,7 +302,7 @@ public abstract non-sealed class BType extends SemType
         }
     }
 
-    private void initializeCacheIfNeeded(Context cx) {
+    private synchronized void initializeCacheIfNeeded(Context cx) {
         typeCacheLock.readLock().lock();
         boolean shouldInitialize = typeCheckCache == null;
         typeCacheLock.readLock().unlock();

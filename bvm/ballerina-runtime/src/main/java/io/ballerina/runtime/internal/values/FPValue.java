@@ -107,6 +107,6 @@ public class FPValue implements BFunctionPointer, RefValue {
 
     @Override
     public Optional<SemType> inherentTypeOf(Context cx) {
-        return Optional.of(SemType.tryInto(cx, getType()));
+        return Optional.of(SemType.tryInto(getType()));
     }
 }

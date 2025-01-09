@@ -18,7 +18,6 @@
 
 package io.ballerina.runtime.internal.types.semtype;
 
-import io.ballerina.runtime.api.types.semtype.Context;
 import io.ballerina.runtime.api.types.semtype.SemType;
 import io.ballerina.runtime.internal.types.BType;
 
@@ -30,9 +29,9 @@ import io.ballerina.runtime.internal.types.BType;
  */
 public sealed interface MutableSemType permits BType {
 
-    SemType createSemType(Context cx);
+    SemType createSemType();
 
     void resetSemType();
 
-    void updateInnerSemTypeIfNeeded(Context cx);
+    void updateInnerSemTypeIfNeeded();
 }

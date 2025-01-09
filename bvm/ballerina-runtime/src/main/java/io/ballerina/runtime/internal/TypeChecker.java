@@ -124,10 +124,8 @@ public final class TypeChecker {
             return sourceVal;
         }
         Type sourceType = getType(sourceVal);
-        Context cx = context();
-        if (Core.containsBasicType(SemType.tryInto(cx, sourceType), ConvertibleCastMaskHolder.CONVERTIBLE_CAST_MASK) &&
-                Core.containsBasicType(SemType.tryInto(cx, targetType),
-                        ConvertibleCastMaskHolder.CONVERTIBLE_CAST_MASK)) {
+        if (Core.containsBasicType(SemType.tryInto(sourceType), ConvertibleCastMaskHolder.CONVERTIBLE_CAST_MASK) &&
+                Core.containsBasicType(SemType.tryInto(targetType), ConvertibleCastMaskHolder.CONVERTIBLE_CAST_MASK)) {
             // We need to maintain order for these?
             if (targetType instanceof BUnionType unionType) {
                 for (Type memberType : unionType.getMemberTypes()) {
@@ -260,13 +258,12 @@ public final class TypeChecker {
      */
     public static boolean checkIsType(Object sourceVal, Type targetType) {
         Type sourceType = getType(sourceVal);
-        Context cx = context();
-        if (isSubType(cx, sourceType, targetType)) {
+        if (isSubType(sourceType, targetType)) {
             return true;
         }
-        SemType sourceSemType = SemType.tryInto(cx, sourceType);
+        SemType sourceSemType = SemType.tryInto(sourceType);
         return couldInherentTypeBeDifferent(sourceSemType) &&
-                isSubTypeWithInherentType(cx, sourceVal, SemType.tryInto(cx, targetType));
+                isSubTypeWithInherentType(cx, sourceVal, SemType.tryInto(targetType));
     }
 
     /**
@@ -341,8 +338,7 @@ public final class TypeChecker {
      * @return true if the two types are same; false otherwise
      */
     public static boolean isSameType(Type sourceType, Type targetType) {
-        Context cx = context();
-        return Core.isSameType(cx, SemType.tryInto(cx, sourceType), SemType.tryInto(cx, targetType));
+        return Core.isSameType(context(), SemType.tryInto(sourceType), SemType.tryInto(targetType));
     }
 
     public static Type getType(Object value) {
@@ -428,8 +424,8 @@ public final class TypeChecker {
         Context cx = context();
         SemType lhsType = widenedType(cx, lhsValue);
         SemType rhsType = widenedType(cx, rhsValue);
-        if (isSimpleBasicSemType(cx, lhsType)) {
-            return isSimpleBasicValuesEqual(cx, lhsValue, rhsValue);
+        if (isSimpleBasicSemType(lhsType)) {
+            return isSimpleBasicValuesEqual(lhsValue, rhsValue);
         }
         Predicate<SemType> basicTypePredicate =
                 (basicType) -> Core.isSubType(cx, lhsType, basicType) && Core.isSubType(cx, rhsType, basicType);
@@ -497,14 +493,15 @@ public final class TypeChecker {
                 lhsType.getName().equals(rhsType.getName()) && rhsType.equals(lhsType);
     }
 
-    private static boolean isSimpleBasicValuesEqual(Context cx, Object v1, Object v2) {
+    private static boolean isSimpleBasicValuesEqual(Object v1, Object v2) {
+        Context cx = context();
         SemType v1Ty = widenedType(cx, v1);
-        if (!isSimpleBasicSemType(cx, v1Ty)) {
+        if (!isSimpleBasicSemType(v1Ty)) {
             return false;
         }
 
         SemType v2Ty = widenedType(cx, v2);
-        if (!isSimpleBasicSemType(cx, v2Ty)) {
+        if (!isSimpleBasicSemType(v2Ty)) {
             return false;
         }
 
@@ -534,8 +531,7 @@ public final class TypeChecker {
         if (type == null) {
             return null;
         }
-        Context cx = context();
-        if (belongToSingleBasicTypeOrString(cx, type)) {
+        if (belongToSingleBasicTypeOrString(type)) {
             return new TypedescValueImpl(new BFiniteType(value.toString(), Set.of(value), 0));
         }
         if (value instanceof BRefValue bRefValue) {
@@ -567,12 +563,12 @@ public final class TypeChecker {
      * @return flag indicating the equivalence of the two types
      */
     public static boolean checkIsType(Type sourceType, Type targetType) {
-        return isSubType(context(), sourceType, targetType);
+        return isSubType(sourceType, targetType);
     }
 
     @Deprecated
     public static boolean checkIsType(Type sourceType, Type targetType, List<TypePair> unresolvedTypes) {
-        return isSubType(context(), sourceType, targetType);
+        return isSubType(sourceType, targetType);
     }
 
     /**
@@ -588,8 +584,7 @@ public final class TypeChecker {
     }
 
     public static boolean isNumericType(Type type) {
-        Context cx = context();
-        return Core.isSubType(cx, SemType.tryInto(cx, type), NumericTypeHolder.NUMERIC_TYPE);
+        return Core.isSubType(context(), SemType.tryInto(type), NumericTypeHolder.NUMERIC_TYPE);
     }
 
     public static boolean isByteLiteral(long longValue) {
@@ -601,28 +596,28 @@ public final class TypeChecker {
     private static boolean isSubTypeWithInherentType(Context cx, Object sourceValue, SemType target) {
         return ShapeAnalyzer.inherentTypeOf(cx, sourceValue)
                 .map(source -> !Core.isEmpty(cx, source) && Core.isSubType(cx, source, target))
+                // OR else do the normal type check by taking the shape of
                 .orElse(false);
     }
 
-    private static boolean isSubType(Context cx, Type source, Type target) {
-        if (source == target || (source.getTag() == target.getTag() && source.equals(target))) {
-            return true;
-        }
+    private static boolean isSubType(Type source, Type target) {
         if (source instanceof CacheableTypeDescriptor sourceCacheableType &&
                 target instanceof CacheableTypeDescriptor targetCacheableType) {
-            return isSubTypeWithCache(cx, sourceCacheableType, targetCacheableType);
+            return isSubTypeWithCache(sourceCacheableType, targetCacheableType);
         }
-        return isSubTypeInner(cx, source, target);
+        // This is really a workaround for Standard libraries that create record types that are not the "same". But
+        // with the same name and expect them to be same.
+        return isSubTypeInner(context(), source, target);
     }
 
     private static boolean isSubTypeInner(Context cx, Type source, Type target) {
-        SemType sourceSemType = SemType.tryInto(cx, source);
-        SemType targetSemType = SemType.tryInto(cx, target);
+        SemType sourceSemType = SemType.tryInto(source);
+        SemType targetSemType = SemType.tryInto(target);
         return Core.isSubType(cx, sourceSemType, targetSemType);
     }
 
-    private static boolean isSubTypeWithCache(Context cx, CacheableTypeDescriptor source,
-                                              CacheableTypeDescriptor target) {
+    private static boolean isSubTypeWithCache(CacheableTypeDescriptor source, CacheableTypeDescriptor target) {
+        Context cx = context();
         if (!source.shouldCache() || !target.shouldCache()) {
             return isSubTypeInner(cx, source, target);
         }
@@ -638,7 +633,7 @@ public final class TypeChecker {
 
     private static SemType widenedType(Context cx, Object value) {
         if (value instanceof BValue bValue) {
-            return bValue.widenedType(cx);
+            return bValue.widenedType();
         }
         if (value == null) {
             return Builder.getNilType();
@@ -656,9 +651,8 @@ public final class TypeChecker {
 
     public static boolean isInherentlyImmutableType(Type sourceType) {
         // readonly part is there to match to old API
-        Context cx = context();
         return
-                Core.isSubType(cx, SemType.tryInto(cx, sourceType),
+                Core.isSubType(context(), SemType.tryInto(sourceType),
                         InherentlyImmutableTypeHolder.INHERENTLY_IMMUTABLE_TYPE) ||
                         sourceType instanceof ReadonlyType;
     }
@@ -818,10 +812,11 @@ public final class TypeChecker {
             return false;
         }
 
-        return checkValueEqual(context(), lhsValue, rhsValue, new HashSet<>(checkedValues));
+        return checkValueEqual(lhsValue, rhsValue, new HashSet<>(checkedValues));
     }
 
-    private static boolean checkValueEqual(Context cx, Object lhsValue, Object rhsValue, Set<ValuePair> checkedValues) {
+    private static boolean checkValueEqual(Object lhsValue, Object rhsValue, Set<ValuePair> checkedValues) {
+        Context cx = context();
         SemType lhsShape = ShapeAnalyzer.inherentTypeOf(cx, lhsValue).orElseThrow();
         SemType rhsShape = ShapeAnalyzer.inherentTypeOf(cx, rhsValue).orElseThrow();
         Predicate<SemType> belongToSameBasicType = (basicType) -> Core.containsBasicType(lhsShape, basicType) &&
@@ -981,7 +976,7 @@ public final class TypeChecker {
      * @return whether there's an implicit initial value or not.
      */
     public static boolean hasFillerValue(Type type) {
-        return hasFillerValue(context(), type, new ArrayList<>());
+        return hasFillerValue(type, new ArrayList<>());
     }
 
     private enum FillerValueResult {
@@ -1003,12 +998,12 @@ public final class TypeChecker {
                 FillerValueResult.FALSE;
     }
 
-    private static boolean hasFillerValue(Context cx, Type type, List<Type> unanalyzedTypes) {
+    private static boolean hasFillerValue(Type type, List<Type> unanalyzedTypes) {
         if (type == null) {
             return true;
         }
 
-        FillerValueResult fastResult = hasFillerValueSemType(cx, SemType.tryInto(cx, type));
+        FillerValueResult fastResult = hasFillerValueSemType(context(), SemType.tryInto(type));
         if (fastResult != FillerValueResult.MAYBE) {
             return fastResult == FillerValueResult.TRUE;
         }
@@ -1026,29 +1021,29 @@ public final class TypeChecker {
             case TypeTags.STREAM_TAG,
                  TypeTags.MAP_TAG,
                  TypeTags.ANY_TAG -> true;
-            case TypeTags.ARRAY_TAG -> checkFillerValue(cx, (BArrayType) type, unanalyzedTypes);
+            case TypeTags.ARRAY_TAG -> checkFillerValue((BArrayType) type, unanalyzedTypes);
             case TypeTags.FINITE_TYPE_TAG -> checkFillerValue((BFiniteType) type);
             case TypeTags.OBJECT_TYPE_TAG,
-                 TypeTags.SERVICE_TAG -> checkFillerValue(cx, (BObjectType) type);
-            case TypeTags.RECORD_TYPE_TAG -> checkFillerValue(cx, (BRecordType) type, unanalyzedTypes);
-            case TypeTags.TUPLE_TAG -> checkFillerValue(cx, (BTupleType) type, unanalyzedTypes);
+                 TypeTags.SERVICE_TAG -> checkFillerValue((BObjectType) type);
+            case TypeTags.RECORD_TYPE_TAG -> checkFillerValue((BRecordType) type, unanalyzedTypes);
+            case TypeTags.TUPLE_TAG -> checkFillerValue((BTupleType) type, unanalyzedTypes);
             case TypeTags.UNION_TAG -> checkFillerValue((BUnionType) type, unanalyzedTypes);
             case TypeTags.TYPE_REFERENCED_TYPE_TAG ->
-                    hasFillerValue(cx, ((BTypeReferenceType) type).getReferredType(), unanalyzedTypes);
+                    hasFillerValue(((BTypeReferenceType) type).getReferredType(), unanalyzedTypes);
             case TypeTags.INTERSECTION_TAG ->
-                    hasFillerValue(cx, ((BIntersectionType) type).getEffectiveType(), unanalyzedTypes);
+                    hasFillerValue(((BIntersectionType) type).getEffectiveType(), unanalyzedTypes);
             default -> false;
         };
     }
 
-    private static boolean checkFillerValue(Context cx, BTupleType tupleType, List<Type> unAnalyzedTypes) {
+    private static boolean checkFillerValue(BTupleType tupleType, List<Type> unAnalyzedTypes) {
         if (unAnalyzedTypes.contains(tupleType)) {
             return true;
         }
         unAnalyzedTypes.add(tupleType);
 
         for (Type member : tupleType.getTupleTypes()) {
-            if (!hasFillerValue(cx, member, unAnalyzedTypes)) {
+            if (!hasFillerValue(member, unAnalyzedTypes)) {
                 return false;
             }
         }
@@ -1157,7 +1152,7 @@ public final class TypeChecker {
         return true;
     }
 
-    private static boolean checkFillerValue(Context cx, BRecordType type, List<Type> unAnalyzedTypes) {
+    private static boolean checkFillerValue(BRecordType type, List<Type> unAnalyzedTypes) {
         if (unAnalyzedTypes.contains(type)) {
             return true;
         }
@@ -1174,11 +1169,11 @@ public final class TypeChecker {
         return true;
     }
 
-    private static boolean checkFillerValue(Context cx, BArrayType type, List<Type> unAnalyzedTypes) {
-        return type.getState() == ArrayState.OPEN || hasFillerValue(cx, type.getElementType(), unAnalyzedTypes);
+    private static boolean checkFillerValue(BArrayType type, List<Type> unAnalyzedTypes) {
+        return type.getState() == ArrayState.OPEN || hasFillerValue(type.getElementType(), unAnalyzedTypes);
     }
 
-    private static boolean checkFillerValue(Context cx, BObjectType type) {
+    private static boolean checkFillerValue(BObjectType type) {
         MethodType generatedInitMethod = type.getGeneratedInitMethod();
         if (generatedInitMethod == null) {
             // abstract objects doesn't have a filler value.
@@ -1254,12 +1249,14 @@ public final class TypeChecker {
         }
     }
 
-    static boolean isSimpleBasicSemType(Context cx, SemType semType) {
+    static boolean isSimpleBasicSemType(SemType semType) {
+        Context cx = context();
         return Core.isSubType(cx, semType, SimpleBasicTypeHolder.SIMPLE_BASIC_TYPE);
     }
 
-    static boolean belongToSingleBasicTypeOrString(Context cx, Type type) {
-        SemType semType = SemType.tryInto(cx, type);
+    static boolean belongToSingleBasicTypeOrString(Type type) {
+        Context cx = context();
+        SemType semType = SemType.tryInto(type);
         return isSingleBasicType(semType) && Core.isSubType(cx, semType, Builder.getSimpleOrStringType()) &&
                 !Core.isSubType(cx, semType, Builder.getNilType());
     }

@@ -21,7 +21,6 @@ package io.ballerina.runtime.internal.types;
 import io.ballerina.runtime.api.types.ParameterizedType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.TypeTags;
-import io.ballerina.runtime.api.types.semtype.Context;
 import io.ballerina.runtime.api.types.semtype.SemType;
 
 import java.util.Set;
@@ -86,8 +85,8 @@ public class BParameterizedType extends BType implements ParameterizedType {
     }
 
     @Override
-    public SemType createSemType(Context cx) {
-        return SemType.tryInto(cx, this.paramValueType);
+    public SemType createSemType() {
+        return SemType.tryInto(this.paramValueType);
     }
 
     @Override

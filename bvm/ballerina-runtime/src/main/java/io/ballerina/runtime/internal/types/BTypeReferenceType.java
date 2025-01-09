@@ -132,9 +132,9 @@ public class BTypeReferenceType extends BAnnotatableType implements Intersectabl
     }
 
     @Override
-    public SemType createSemType(Context cx) {
+    public SemType createSemType() {
         Type referredType = getReferredType();
-        return tryInto(cx, referredType);
+        return tryInto(referredType);
     }
 
     @Override
@@ -145,7 +145,7 @@ public class BTypeReferenceType extends BAnnotatableType implements Intersectabl
     @Override
     public Optional<SemType> inherentTypeOf(Context cx, ShapeSupplier shapeSupplier, Object object) {
         if (!couldInherentTypeBeDifferent()) {
-            return Optional.of(getSemType(cx));
+            return Optional.of(getSemType());
         }
         Type referredType = getReferredType();
         if (referredType instanceof TypeWithShape typeWithShape) {

@@ -36,4 +36,19 @@ public abstract class Definition {
      */
     public abstract SemType getSemType(Env env);
 
+    /**
+     * Register the container as the holder of this definition. Used to maintain concurrency invariants.
+     *
+     * @param container holder of the definition
+     * @see io.ballerina.runtime.internal.types.semtype.DefinitionContainer
+     */
+    public void registerContainer(DefinitionContainer<? extends Definition> container) {
+        this.container = container;
+    }
+
+    protected void notifyContainer() {
+        if (container != null) {
+            container.definitionUpdated();
+        }
+    }
 }

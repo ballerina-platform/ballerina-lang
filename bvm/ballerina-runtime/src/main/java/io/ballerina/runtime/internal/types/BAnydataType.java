@@ -25,7 +25,6 @@ import io.ballerina.runtime.api.types.PredefinedTypes;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.TypeTags;
 import io.ballerina.runtime.api.types.semtype.Builder;
-import io.ballerina.runtime.api.types.semtype.Context;
 import io.ballerina.runtime.api.types.semtype.Core;
 import io.ballerina.runtime.api.types.semtype.SemType;
 import io.ballerina.runtime.internal.values.RefValue;
@@ -95,7 +94,7 @@ public class BAnydataType extends BUnionType implements AnydataType {
     // semtype. But some things could depend on this being a union type descriptor
     // as well (which has to be mutable)
     @Override
-    public SemType createSemType(Context cx) {
+    public SemType createSemType() {
         SemType semType = Builder.getAnyDataType();
         if (isReadOnly()) {
             semType = Core.intersect(semType, Builder.getReadonlyType());

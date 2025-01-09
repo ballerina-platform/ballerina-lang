@@ -29,6 +29,7 @@ import io.ballerina.runtime.api.types.semtype.Context;
 import io.ballerina.runtime.api.types.semtype.Core;
 import io.ballerina.runtime.api.types.semtype.SemType;
 import io.ballerina.runtime.api.types.semtype.ShapeAnalyzer;
+import io.ballerina.runtime.internal.TypeChecker;
 import io.ballerina.runtime.internal.types.semtype.ErrorUtils;
 import io.ballerina.runtime.internal.types.semtype.ObjectDefinition;
 
@@ -228,8 +229,8 @@ public class BIntersectionType extends BType implements IntersectionType, TypeWi
     }
 
     @Override
-    public SemType createSemType(Context cx) {
-        return createSemTypeInner(cx, type -> SemType.tryInto(cx, type));
+    public SemType createSemType() {
+        return createSemTypeInner(SemType::tryInto);
     }
 
     @Override
@@ -238,28 +239,28 @@ public class BIntersectionType extends BType implements IntersectionType, TypeWi
                 .anyMatch(type -> ((MayBeDependentType) type).isDependentlyTyped(visited));
     }
 
-    private SemType createSemTypeInner(Context cx, Function<Type, SemType> semTypeFunction) {
+    private SemType createSemTypeInner(Function<Type, SemType> semTypeFunction) {
         if (constituentTypes.isEmpty()) {
             return Builder.getNeverType();
         }
         SemType result = constituentTypes.stream().map(semTypeFunction).reduce(Core::intersect).orElseThrow();
-        Optional<SemType> distinctPart = distinctTypePart(cx, result);
+        Optional<SemType> distinctPart = distinctTypePart(result);
         if (distinctPart.isPresent()) {
             result = Core.intersect(result, distinctPart.get());
         }
         return result;
     }
 
-    private Optional<SemType> distinctTypePart(Context cx, SemType result) {
+    private Optional<SemType> distinctTypePart(SemType result) {
         if (Core.isSubtypeSimple(result, Builder.getErrorType())) {
             BErrorType effectiveErrorType = (BErrorType) getImpliedType(effectiveType);
             DistinctIdSupplier distinctIdSupplier =
-                    new DistinctIdSupplier(cx.env, effectiveErrorType.getTypeIdSet());
+                    new DistinctIdSupplier(TypeChecker.context().env, effectiveErrorType.getTypeIdSet());
             return distinctIdSupplier.get().stream().map(ErrorUtils::errorDistinct).reduce(Core::intersect);
         } else if (Core.isSubtypeSimple(result, Builder.getObjectType())) {
             BObjectType effectiveObjectType = (BObjectType) getImpliedType(effectiveType);
             DistinctIdSupplier distinctIdSupplier =
-                    new DistinctIdSupplier(cx.env, effectiveObjectType.getTypeIdSet());
+                    new DistinctIdSupplier(TypeChecker.context().env, effectiveObjectType.getTypeIdSet());
             return distinctIdSupplier.get().stream().map(ObjectDefinition::distinct).reduce(Core::intersect);
         }
         return Optional.empty();
@@ -276,7 +277,7 @@ public class BIntersectionType extends BType implements IntersectionType, TypeWi
 
     @Override
     public Optional<SemType> acceptedTypeOf(Context cx) {
-        return Optional.of(createSemTypeInner(cx, type -> ShapeAnalyzer.acceptedTypeOf(cx, type).orElseThrow()));
+        return Optional.of(createSemTypeInner(type -> ShapeAnalyzer.acceptedTypeOf(cx, type).orElseThrow()));
     }
 
     @Override

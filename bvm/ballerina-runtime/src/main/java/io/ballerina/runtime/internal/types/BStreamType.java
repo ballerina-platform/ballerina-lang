@@ -25,9 +25,9 @@ import io.ballerina.runtime.api.types.StreamType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.TypeTags;
 import io.ballerina.runtime.api.types.semtype.Builder;
-import io.ballerina.runtime.api.types.semtype.Context;
 import io.ballerina.runtime.api.types.semtype.Env;
 import io.ballerina.runtime.api.types.semtype.SemType;
+import io.ballerina.runtime.internal.TypeChecker;
 import io.ballerina.runtime.internal.types.semtype.DefinitionContainer;
 import io.ballerina.runtime.internal.types.semtype.StreamDefinition;
 import io.ballerina.runtime.internal.values.StreamValue;
@@ -145,11 +145,11 @@ public class BStreamType extends BType implements StreamType {
     }
 
     @Override
-    public SemType createSemType(Context cx) {
+    public SemType createSemType() {
         if (constraint == null) {
             return Builder.getStreamType();
         }
-        Env env = cx.env;
+        Env env = TypeChecker.context().env;
         if (definition.isDefinitionReady()) {
             return definition.getSemType(env);
         }
@@ -158,7 +158,7 @@ public class BStreamType extends BType implements StreamType {
             return definition.getSemType(env);
         }
         StreamDefinition sd = result.definition();
-        return sd.define(env, tryInto(cx, constraint), tryInto(cx, completionType));
+        return sd.define(env, tryInto(constraint), tryInto(completionType));
     }
 
     @Override

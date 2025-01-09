@@ -295,15 +295,7 @@ public final class Core {
     }
 
     public static boolean isSubType(Context cx, SemType t1, SemType t2) {
-        try {
-            cx.enterTypeCheckingPhase(t1, t2);
-            boolean res = isEmpty(cx, diff(t1, t2));
-            cx.exitTypeCheckingPhase();
-            return res;
-        } catch (Exception e) {
-            cx.registerAbruptTypeCheckEnd(e);
-            throw e;
-        }
+        return isEmpty(cx, diff(t1, t2));
     }
 
     public static boolean isSubtypeSimple(SemType t1, SemType t2) {

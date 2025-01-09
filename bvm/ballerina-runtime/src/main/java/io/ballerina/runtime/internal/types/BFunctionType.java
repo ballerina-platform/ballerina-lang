@@ -26,7 +26,6 @@ import io.ballerina.runtime.api.types.PredefinedTypes;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.TypeTags;
 import io.ballerina.runtime.api.types.semtype.Builder;
-import io.ballerina.runtime.api.types.semtype.Context;
 import io.ballerina.runtime.api.types.semtype.Env;
 import io.ballerina.runtime.api.types.semtype.SemType;
 import io.ballerina.runtime.internal.types.semtype.CellAtomicType;
@@ -50,6 +49,8 @@ public class BFunctionType extends BAnnotatableType implements FunctionType {
     public Type retType;
     public long flags;
     public Parameter[] parameters;
+    private static final Env env = Env.getInstance();
+    private static final SemType ISOLATED_TOP = createIsolatedTop(env);
 
     private final DefinitionContainer<FunctionDefinition> defn = new DefinitionContainer<>();
 
@@ -222,11 +223,10 @@ public class BFunctionType extends BAnnotatableType implements FunctionType {
     }
 
     @Override
-    public SemType createSemType(Context cx) {
+    public SemType createSemType() {
         if (isFunctionTop()) {
-            return getTopType(cx);
+            return getTopType();
         }
-        Env env = cx.env;
         if (defn.isDefinitionReady()) {
             return defn.getSemType(env);
         }
@@ -237,25 +237,25 @@ public class BFunctionType extends BAnnotatableType implements FunctionType {
         FunctionDefinition fd = result.definition();
         SemType[] params = new SemType[parameters.length];
         for (int i = 0; i < parameters.length; i++) {
-            params[i] = getSemType(cx, parameters[i].type);
+            params[i] = getSemType(parameters[i].type);
         }
         SemType rest;
         if (restType instanceof BArrayType arrayType) {
-            rest = getSemType(cx, arrayType.getElementType());
+            rest = getSemType(arrayType.getElementType());
         } else {
             rest = Builder.getNeverType();
         }
 
-        SemType returnType = resolveReturnType(cx);
+        SemType returnType = resolveReturnType();
         ListDefinition paramListDefinition = new ListDefinition();
         SemType paramType = paramListDefinition.defineListTypeWrapped(env, params, params.length, rest,
                 CellAtomicType.CellMutability.CELL_MUT_NONE);
         return fd.define(env, paramType, returnType, getQualifiers());
     }
 
-    private SemType getTopType(Context cx) {
+    private SemType getTopType() {
         if (SymbolFlags.isFlagOn(flags, SymbolFlags.ISOLATED)) {
-            return createIsolatedTop(cx.env);
+            return ISOLATED_TOP;
         }
         return Builder.getFunctionType();
     }
@@ -265,8 +265,8 @@ public class BFunctionType extends BAnnotatableType implements FunctionType {
                 SymbolFlags.isFlagOn(flags, SymbolFlags.TRANSACTIONAL));
     }
 
-    private SemType getSemType(Context cx, Type type) {
-        return tryInto(cx, type);
+    private SemType getSemType(Type type) {
+        return tryInto(type);
     }
 
     private boolean isFunctionTop() {
@@ -294,17 +294,17 @@ public class BFunctionType extends BAnnotatableType implements FunctionType {
                 .anyMatch(each -> ((MayBeDependentType) each).isDependentlyTyped(visited));
     }
 
-    private SemType resolveReturnType(Context cx) {
+    private SemType resolveReturnType() {
         if (retType == null) {
             return Builder.getNilType();
         }
         MayBeDependentType retBType = (MayBeDependentType) retType;
-        SemType returnType = getSemType(cx, retType);
+        SemType returnType = getSemType(retType);
         ListDefinition ld = new ListDefinition();
         SemType dependentlyTypedBit =
                 retBType.isDependentlyTyped() ? Builder.getBooleanConst(true) : Builder.getBooleanType();
         SemType[] innerType = new SemType[]{dependentlyTypedBit, returnType};
-        return ld.defineListTypeWrapped(cx.env, innerType, 2, Builder.getNeverType(),
+        return ld.defineListTypeWrapped(env, innerType, 2, Builder.getNeverType(),
                 CellAtomicType.CellMutability.CELL_MUT_NONE);
     }
 }

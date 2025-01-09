@@ -210,7 +210,8 @@ public class BFiniteType extends BType implements FiniteType {
     }
 
     @Override
-    public SemType createSemType(Context cx) {
+    public SemType createSemType() {
+        Context cx = TypeChecker.context();
         return this.valueSpace.stream().map(each -> ShapeAnalyzer.inherentTypeOf(cx, each))
                 .map(Optional::orElseThrow)
                 .reduce(Builder.getNeverType(), Core::union);

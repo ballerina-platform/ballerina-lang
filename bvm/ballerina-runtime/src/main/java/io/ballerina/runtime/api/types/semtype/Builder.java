@@ -52,7 +52,6 @@ import static io.ballerina.runtime.api.types.semtype.BasicTypeCode.BT_REGEXP;
 import static io.ballerina.runtime.api.types.semtype.BasicTypeCode.BT_TYPEDESC;
 import static io.ballerina.runtime.api.types.semtype.BasicTypeCode.BT_XML;
 import static io.ballerina.runtime.api.types.semtype.BasicTypeCode.CODE_UNDEF;
-import static io.ballerina.runtime.api.types.semtype.BasicTypeCode.VT_INHERENTLY_IMMUTABLE;
 import static io.ballerina.runtime.api.types.semtype.BasicTypeCode.VT_MASK;
 import static io.ballerina.runtime.api.types.semtype.BddNode.bddAtom;
 import static io.ballerina.runtime.api.types.semtype.Core.union;
@@ -69,7 +68,6 @@ public final class Builder {
     private static final String[] EMPTY_STRING_ARR = new String[0];
     private static final SemType VAL = SemType.from(VT_MASK);
     private static final SemType OBJECT = from(BT_OBJECT);
-    private static final SemType INHERENTLY_IMMUTABLE = SemType.from(VT_INHERENTLY_IMMUTABLE);
 
     private static final SemType INNER = getBasicTypeUnion(VAL.all() | from(BasicTypeCode.BT_UNDEF).all());
     private static final SemType ANY = getBasicTypeUnion(BasicTypeCode.VT_MASK & ~(1 << BasicTypeCode.BT_ERROR.code()));
@@ -357,10 +355,6 @@ public final class Builder {
 
     public static SemType getObjectType() {
         return OBJECT;
-    }
-
-    public static SemType getInherentlyImmutable() {
-        return INHERENTLY_IMMUTABLE;
     }
 
     static SemType mappingRO() {

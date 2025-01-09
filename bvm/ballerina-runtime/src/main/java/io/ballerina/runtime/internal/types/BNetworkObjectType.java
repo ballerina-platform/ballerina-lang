@@ -22,7 +22,6 @@ import io.ballerina.runtime.api.types.MethodType;
 import io.ballerina.runtime.api.types.NetworkObjectType;
 import io.ballerina.runtime.api.types.RemoteMethodType;
 import io.ballerina.runtime.api.types.ResourceMethodType;
-import io.ballerina.runtime.api.types.semtype.Context;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -85,16 +84,18 @@ public class BNetworkObjectType extends BObjectType implements NetworkObjectType
     }
 
     @Override
-    protected Collection<MethodData> allMethods(Context cx) {
+    protected Collection<MethodData> allMethods() {
         Stream<MethodData> methodStream = Arrays.stream(getMethods())
                 .filter(methodType -> !(SymbolFlags.isFlagOn(methodType.getFlags(), SymbolFlags.REMOTE) ||
                         SymbolFlags.isFlagOn(methodType.getFlags(), SymbolFlags.RESOURCE)))
-                .map(type -> MethodData.fromMethod(cx, type));
+                .map(MethodData::fromMethod);
         Stream<MethodData> remoteMethodStream =
                 Arrays.stream(getRemoteMethods())
-                        .map(type -> MethodData.fromRemoteMethod(cx, type));
-        Stream<MethodData> resourceMethodStream = Arrays.stream(getResourceMethods())
-                .map(method -> MethodData.fromResourceMethod(cx, (BResourceMethodType) method));
+                        .map(MethodData::fromRemoteMethod);
+        Stream<MethodData> resourceMethodStream =
+                Arrays.stream(getResourceMethods())
+                        .map(method -> MethodData.fromResourceMethod(
+                                (BResourceMethodType) method));
         return Stream.concat(methodStream, Stream.concat(remoteMethodStream, resourceMethodStream)).toList();
     }
 }

@@ -41,7 +41,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
-import java.util.function.BiFunction;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static io.ballerina.runtime.api.types.semtype.Builder.getNeverType;
@@ -331,8 +331,8 @@ public class BTupleType extends BAnnotatableType implements TupleType, TypeWithS
     }
 
     @Override
-    public SemType createSemType(Context cx) {
-        Env env = cx.env;
+    public SemType createSemType() {
+        Env env = Env.getInstance();
         if (defn.isDefinitionReady()) {
             return defn.getSemType(env);
         }
@@ -341,26 +341,24 @@ public class BTupleType extends BAnnotatableType implements TupleType, TypeWithS
             return defn.getSemType(env);
         }
         ListDefinition ld = result.definition();
-        return createSemTypeInner(cx, ld, SemType::tryInto, mut());
+        return createSemTypeInner(env, ld, SemType::tryInto, mut());
     }
 
     private CellAtomicType.CellMutability mut() {
         return isReadOnly() ? CELL_MUT_NONE : CellAtomicType.CellMutability.CELL_MUT_LIMITED;
     }
 
-    private SemType createSemTypeInner(Context cx, ListDefinition ld,
-                                       BiFunction<Context, Type, SemType> semTypeFunction,
+    private SemType createSemTypeInner(Env env, ListDefinition ld, Function<Type, SemType> semTypeFunction,
                                        CellAtomicType.CellMutability mut) {
-        Env env = cx.env;
         SemType[] memberTypes = new SemType[tupleTypes.size()];
         for (int i = 0; i < tupleTypes.size(); i++) {
-            SemType memberType = semTypeFunction.apply(cx, tupleTypes.get(i));
+            SemType memberType = semTypeFunction.apply(tupleTypes.get(i));
             if (Core.isNever(memberType)) {
                 return getNeverType();
             }
             memberTypes[i] = memberType;
         }
-        SemType rest = restType != null ? semTypeFunction.apply(cx, restType) : getNeverType();
+        SemType rest = restType != null ? semTypeFunction.apply(restType) : getNeverType();
         return ld.defineListTypeWrapped(env, memberTypes, memberTypes.length, rest, mut);
     }
 
@@ -379,7 +377,7 @@ public class BTupleType extends BAnnotatableType implements TupleType, TypeWithS
     @Override
     public Optional<SemType> inherentTypeOf(Context cx, ShapeSupplier shapeSupplier, Object object) {
         if (!couldInherentTypeBeDifferent()) {
-            return Optional.of(getSemType(cx));
+            return Optional.of(getSemType());
         }
         AbstractArrayValue value = (AbstractArrayValue) object;
         SemType cachedShape = value.shapeOf();
@@ -412,8 +410,7 @@ public class BTupleType extends BAnnotatableType implements TupleType, TypeWithS
             return Optional.of(acceptedTypeDefn.getSemType(env));
         }
         ListDefinition ld = result.definition();
-        return Optional.of(createSemTypeInner(cx, ld,
-                (context, type) -> ShapeAnalyzer.acceptedTypeOf(context, type).orElseThrow(),
+        return Optional.of(createSemTypeInner(env, ld, (type) -> ShapeAnalyzer.acceptedTypeOf(cx, type).orElseThrow(),
                 CELL_MUT_UNLIMITED));
     }
 
