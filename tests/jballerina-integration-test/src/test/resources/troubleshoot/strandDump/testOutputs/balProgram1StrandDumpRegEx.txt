@@ -3,13 +3,13 @@ Ballerina Strand Dump \[\d*/\d*/\d* \d*:\d*:\d*\]
 
 Total Strand count       \t\t\t:\t9
 
-Total Isolated Strand count       \t\t:\t2
+Total Isolated Worker count       \t\t:\t2
 
-Total Non Isolated Strand count       \t\t:\t7
+Total Non Isolated Worker count       \t\t:\t7
 
 ================================================================
 
-Isolated Strands:
+Isolated Workers:
 
 \tStrand #\d* \"\w*\" :
 \t\tat       balProgram1.\$lambda\$_0\(balProgram1.bal:\d*\)
@@ -19,7 +19,7 @@ Isolated Strands:
 \t\tat       balProgram1.\$lambda\$_1\(balProgram1.bal:\d*\)
 \t\t         lambdas.\$_generated1balProgram1.\$lambda\$_1\$lambda1\$\(balProgram1.bal:\d*\)
 
-Non Isolated Strands:
+Non Isolated Workers:
 
 \tStrand #\d* \"\w*\" :
 \t\tat       balProgram1.\$lambda\$_2\(balProgram1.bal:\d*\)

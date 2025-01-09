@@ -28,9 +28,7 @@ import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
 
@@ -47,10 +45,10 @@ public final class StrandDump {
     private static final String WORKING_DIR = System.getProperty("user.dir") + "/";
     private static final String FILENAME = "threadDump" + LocalDateTime.now();
     private static final String VIRTUAL_THREAD_IDENTIFIER = "virtual";
-    private static final String ISOLATED_IDENTIFIER = "io.ballerina.runtime.internal.scheduling." +
-            "Scheduler.lambda$startIsolated";
-    private static final String NON_ISOLATED_IDENTIFIER = "io.ballerina.runtime.internal.scheduling." +
-            "Scheduler.lambda$startNonIsolated";
+    private static final String ISOLATED_WORKER_IDENTIFIER = "io.ballerina.runtime.internal.scheduling." +
+            "Scheduler.lambda$startIsolatedWorker";
+    private static final String NON_ISOLATED_WORKER_IDENTIFIER = "io.ballerina.runtime.internal.scheduling." +
+            "Scheduler.lambda$startNonIsolatedWorker";
     private static final String JAVA_TRACE_PATTERN = "java\\.|\\.java(?::\\d+)?";    // .java, java., .java:(any number)
     private static final String BAL_TRACE_PATTERN = "\\.bal:\\d+";                  // .bal:(any number)
     private static volatile HotSpotDiagnosticMXBean hotSpotDiagnosticMXBean;
@@ -71,16 +69,16 @@ public final class StrandDump {
     private static String generateOutput(String dump) {
         String[] dumpItems = dump.split("\\n\\n");
         int id = 0;
-        Set<Integer> isolatedStrandList = new HashSet<>();
-        Set<Integer> nonIsolatedStrandList = new HashSet<>();
-        Map<Integer, ArrayList<String>> balTraces = new HashMap<>();
+        Set<Integer> isolatedWorkerList = new HashSet<>();
+        Set<Integer> nonIsolatedWorkerList = new HashSet<>();
+        ArrayList<ArrayList<String>> balTraces = new ArrayList<>();
         Pattern javaPattern = Pattern.compile(JAVA_TRACE_PATTERN);
         Pattern balPattern = Pattern.compile(BAL_TRACE_PATTERN);
         for (String item : dumpItems) {
             String[] lines = item.split("\\n");
             String[] subitems = lines[0].split("\" ");
             ArrayList<String> balTraceItems = new ArrayList<>();
-            boolean isBalStrand = false;
+            boolean balStrand = false;
             if (subitems.length > 1 && subitems[1].equals(VIRTUAL_THREAD_IDENTIFIER)) {
                 balTraceItems.add("\tStrand " + lines[0].replace(VIRTUAL_THREAD_IDENTIFIER, ":") + "\n\t\tat");
                 String prefix = " ";
@@ -89,21 +87,21 @@ public final class StrandDump {
                         balTraceItems.add(prefix + line + "\n");
                         prefix = "\t\t   ";
                         if (balPattern.matcher(line).find()) {
-                            isBalStrand = true;
+                            balStrand = true;
                         }
                     } else {
-                        if (line.contains(ISOLATED_IDENTIFIER)) {
-                            isolatedStrandList.add(id);
-                        } else if (line.contains(NON_ISOLATED_IDENTIFIER)) {
-                            nonIsolatedStrandList.add(id);
+                        if (line.contains(ISOLATED_WORKER_IDENTIFIER)) {
+                            isolatedWorkerList.add(id);
+                        } else if (line.contains(NON_ISOLATED_WORKER_IDENTIFIER)) {
+                            nonIsolatedWorkerList.add(id);
                         }
                     }
                 }
-                if (isBalStrand) {
-                    balTraces.put(id, balTraceItems);
+                if (balStrand) {
+                    balTraces.add(balTraceItems);
                 } else {
-                    isolatedStrandList.remove(id);
-                    nonIsolatedStrandList.remove(id);
+                    isolatedWorkerList.remove(id);
+                    nonIsolatedWorkerList.remove(id);
                 }
                 id++;
             }
@@ -114,23 +112,19 @@ public final class StrandDump {
         outputStr.append(dateTimeFormatter.format(localDateTime));
         outputStr.append("]\n===============================================================\n\n");
         outputStr.append("Total Strand count       \t\t\t:\t").append(balTraces.size()).append("\n\n");
-        outputStr.append("Total Isolated Strand count       \t\t:\t").append(isolatedStrandList.size()).append("\n\n");
-        outputStr.append("Total Non Isolated Strand count       \t\t:\t").append(nonIsolatedStrandList.size()).
+        outputStr.append("Total Isolated Worker count       \t\t:\t").append(isolatedWorkerList.size()).append("\n\n");
+        outputStr.append("Total Non Isolated Worker count       \t\t:\t").append(nonIsolatedWorkerList.size()).
                 append("\n\n");
         outputStr.append("================================================================\n");
-        outputStr.append("\nIsolated Strands:\n\n");
-        for (int strandId: isolatedStrandList) {
-            if (balTraces.containsKey(strandId)) {
-                balTraces.get(strandId).forEach(outputStr::append);
-                outputStr.append("\n");
-            }
+        outputStr.append("\nIsolated Workers:\n\n");
+        for (int strandId: isolatedWorkerList) {
+            balTraces.get(strandId).forEach(outputStr::append);
+            outputStr.append("\n");
         }
-        outputStr.append("Non Isolated Strands:\n\n");
-        for (int strandId: nonIsolatedStrandList) {
-            if (balTraces.containsKey(strandId)) {
-                balTraces.get(strandId).forEach(outputStr::append);
-                outputStr.append("\n");
-            }
+        outputStr.append("Non Isolated Workers:\n\n");
+        for (int strandId: nonIsolatedWorkerList) {
+            balTraces.get(strandId).forEach(outputStr::append);
+            outputStr.append("\n");
         }
         return outputStr.toString();
     }
@@ -146,4 +140,4 @@ public final class StrandDump {
         MBeanServer mBeanServer = ManagementFactory.getPlatformMBeanServer();
         return ManagementFactory.newPlatformMXBeanProxy(mBeanServer, HOT_SPOT_BEAN_NAME, HotSpotDiagnosticMXBean.class);
     }
-}
+ }
