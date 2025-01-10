@@ -18,11 +18,14 @@ import ballerina/lang.'xml;
 import ballerina/jballerina.java;
 import ballerina/lang.'error;
 
+handle JStreamPipeline = handle?;
+handle JClause = handle?;
+
 function createPipeline(
         Type[]|map<Type>|record{}|string|xml|table<map<Type>>|stream<Type, CompletionType>|_Iterable collection,
         typedesc<Type> constraintTd, typedesc<CompletionType> completionTd, boolean isLazyLoading)
             returns _StreamPipeline {
-                handle p = createStreamPipeline(collection, constraintTd, completionTd, isLazyLoading);
+                JStreamPipeline = createStreamPipeline(collection, constraintTd, completionTd, isLazyLoading);
     return new _StreamPipeline(collection, constraintTd, completionTd, isLazyLoading);
 }
 
@@ -35,9 +38,15 @@ function createStreamPipeline(
 
 function createInputFunction(function(_Frame _frame) returns _Frame|error? inputFunc)
         returns _StreamFunction {
-        parseLambda(inputFunc);
+        JClause = createInputFunctionJava(inputFunc);
     return new _InputFunction(inputFunc);
 }
+
+function createInputFunctionJava(function(_Frame _frame) returns _Frame|error? inputFunc) returns handle = @java:Method {
+    'class: "io.ballerina.runtime.internal.query.clauses.FromClause",
+    name: "initFromClause",
+    paramTypes: ["io.ballerina.runtime.api.values.BFunctionPointer"]
+} external;
 
 function parseLambda(function(_Frame _frame) returns _Frame|error? inputFunc) = @java:Method {
     'class: "io.ballerina.runtime.internal.query.pipeline.LambdaParser",
@@ -104,8 +113,16 @@ function createLimitFunction(function (_Frame _frame) returns int limitFunction)
 }
 
 function addStreamFunction(@tainted _StreamPipeline pipeline, @tainted _StreamFunction streamFunction) {
+    addStreamFunctionJava(JStreamPipeline, JClause);
     pipeline.addStreamFunction(streamFunction);
 }
+
+function addStreamFunctionJava(handle pipeline, handle JClause) = @java:Method {
+    'class: "io.ballerina.runtime.internal.query.pipeline.StreamPipeline",
+    name: "addStreamFunction",
+    paramTypes: ["java.lang.Object","java.lang.Object"]
+} external;
+
 
 function getStreamFromPipeline(_StreamPipeline pipeline) returns stream<Type, CompletionType> {
     return pipeline.getStream();
