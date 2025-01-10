@@ -24,10 +24,7 @@
 //        pipeline.addStage(fromClause);
 //    }
 //
-//    public static <T> void addSelectClause(StreamPipeline<T> pipeline, Function<FrameContext<T>, Object> selectMapper) {
-//        SelectClause<T> selectClause = new SelectClause<>(selectMapper);
-//        pipeline.addStage(selectClause);
-//    }
+
 //
 //    public static <T> void addWhereClause(StreamPipeline<T> pipeline, Predicate<FrameContext<T>> condition) {
 //        WhereClause<T> whereClause = new WhereClause<>(condition);

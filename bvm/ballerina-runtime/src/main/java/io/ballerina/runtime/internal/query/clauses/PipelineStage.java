@@ -1,21 +1,20 @@
 package io.ballerina.runtime.internal.query.clauses;
 
-import io.ballerina.runtime.internal.query.pipeline.FrameContext;
+import io.ballerina.runtime.internal.query.pipeline.Frame;
 
 import java.util.stream.Stream;
 
 /**
- * Interface representing a stage in the pipeline.
- * Each stage processes a stream of FrameContext objects and produces a transformed stream.
- *
- * @param <T> The type of the data within the FrameContext.
+ * Interface representing a stage in the StreamPipeline.
  */
-public interface PipelineStage<T> {
+@FunctionalInterface
+public interface PipelineStage {
+
     /**
-     * Applies the operation defined by this pipeline stage.
+     * Processes a stream of frames and returns a transformed stream of frames.
      *
-     * @param input The input stream of FrameContext objects.
-     * @return The transformed stream of FrameContext objects.
+     * @param inputStream The input stream of frames.
+     * @return The transformed stream of frames.
      */
-    Stream<FrameContext<T>> apply(Stream<FrameContext<T>> input);
+    Stream<Frame> process(Stream<Frame> inputStream) throws Exception;
 }

@@ -1,22 +1,51 @@
 package io.ballerina.runtime.internal.query.clauses;
 
-import io.ballerina.runtime.internal.query.pipeline.FrameContext;
+import io.ballerina.runtime.api.Environment;
+import io.ballerina.runtime.api.values.BFunctionPointer;
+import io.ballerina.runtime.internal.query.pipeline.Frame;
 
-import java.util.function.Function;
 import java.util.stream.Stream;
 
-public class SelectClause<T> implements PipelineStage<T> {
-    private final Function<FrameContext<T>, Object> transform;
+/**
+ * Represents a `select` clause in the query pipeline that processes a stream of frames.
+ */
+public class SelectClause implements PipelineStage {
+    private final BFunctionPointer selector;
+    private final Environment env;
 
-    public SelectClause(Function<FrameContext<T>, Object> transform) {
-        this.transform = transform;
+    /**
+     * Constructor for the SelectClause.
+     *
+     * @param env         The runtime environment.
+     * @param selector The function to select from each frame.
+     */
+    public SelectClause(Environment env, BFunctionPointer selector) {
+        this.selector = selector;
+        this.env = env;
     }
 
+    /**
+     * Static initializer for SelectClause.
+     *
+     * @param env         The runtime environment.
+     * @param selector The selector function.
+     * @return A new instance of SelectClause.
+     */
+    public static SelectClause initSelectClause(Environment env, BFunctionPointer selector) {
+        return new SelectClause(env, selector);
+    }
+
+    /**
+     * Processes a stream of frames by applying the transformation function to each frame.
+     *
+     * @param inputStream The input stream of frames.
+     * @return A transformed stream of frames.
+     * @throws Exception If an error occurs during transformation.
+     */
     @Override
-    public Stream<FrameContext<T>> apply(Stream<FrameContext<T>> input) {
-        return input.map(frame -> {
-            frame.addVariable("result", transform.apply(frame));
-            return frame;
-        });
+    public Stream<Frame> process(Stream<Frame> inputStream) throws Exception {
+        return inputStream.map(
+                frame -> (Frame) selector.call(env.getRuntime(), frame)
+        );
     }
 }
