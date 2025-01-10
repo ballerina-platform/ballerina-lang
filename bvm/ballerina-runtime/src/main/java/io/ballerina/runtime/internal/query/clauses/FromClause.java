@@ -1,46 +1,46 @@
 package io.ballerina.runtime.internal.query.clauses;
 
-import io.ballerina.runtime.api.values.BCollection;
-import io.ballerina.runtime.internal.query.pipeline.FrameContext;
-import io.ballerina.runtime.internal.query.utils.BallerinaIteratorUtils;
+import io.ballerina.runtime.api.Environment;
+import io.ballerina.runtime.api.values.BFunctionPointer;
+import io.ballerina.runtime.internal.query.pipeline.Frame;
 
-import java.util.Map;
 import java.util.stream.Stream;
 
-public class FromClause<T> implements PipelineStage<T> {
-    private final Object collection;
-    private final Map<String, String> variableMappings;
+/**
+ * Represents a `from` clause in the query pipeline that processes a stream of frames.
+ */
+public class FromClause implements PipelineStage {
+//    private final Function<Frame, Frame> transformer;
+    private final BFunctionPointer transformer;
+    private final Environment env;
 
-    public FromClause(Object collection, Map<String, String> variableMappings) {
-        this.collection = collection;
-        this.variableMappings = variableMappings;
+    /**
+     * Constructor for the FromClause.
+     *
+     * @param transformer The function to transform each frame.
+     */
+    public FromClause(Environment env , BFunctionPointer transformer) {
+        int a = 2;
+        int c = 3;
+        this.transformer = transformer;
+        this.env = env;
     }
 
+    public static FromClause initFromClause(Environment env , BFunctionPointer transformer) {
+        return new FromClause(env , transformer);
+    }
+
+    /**
+     * Processes a stream of frames by applying the transformation function to each frame.
+     *
+     * @param inputStream The input stream of frames.
+     * @return A transformed stream of frames.
+     * @throws Exception If an error occurs during transformation.
+     */
     @Override
-    public Stream<FrameContext<T>> apply(Stream<FrameContext<T>> input) {
-        Stream<T> dataStream = BallerinaIteratorUtils.toStream((BCollection) collection);
-
-        return dataStream.map(data -> {
-            FrameContext<T> frameContext = new FrameContext<>();
-
-            for (Map.Entry<String, String> entry : variableMappings.entrySet()) {
-                String variableName = entry.getKey();
-                String variableExpression = entry.getValue();
-                Object variableValue = extractValueFromData(variableExpression, data);
-                frameContext.addVariable(variableName, variableValue);
-            }
-
-            return frameContext;
-        });
-    }
-
-    private Object extractValueFromData(String variableExpression, T data) {
-        // Logic to extract value from the data object based on the expression
-        // This can be dynamic and involve reflection or other mechanisms based on the expression format.
-        // For simplicity, let's assume a direct extraction for now.
-        if (data instanceof Map) {
-            return ((Map<?, ?>) data).get(variableExpression); // For map-based data
-        }
-        return data;  // Placeholder logic, implement actual extraction based on the expression
+    public Stream<Frame> process(Stream<Frame> inputStream) throws Exception {
+        return inputStream.map(
+                frame -> (Frame) transformer.call(env.getRuntime(), frame.getRecord().get("value"))
+        );
     }
 }
