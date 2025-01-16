@@ -40,8 +40,12 @@ public class StreamPipeline {
         this.completionType = completionType;
     }
 
-    public void addStreamFunction(Object jStreamPipeline, Object pipelineStage) {
+    public static void addStreamFunction(Object jStreamPipeline, Object pipelineStage) {
         ((StreamPipeline) jStreamPipeline).addStage((PipelineStage) pipelineStage);
+    }
+
+    public static Stream<Frame> getStreamFromPipeline(Object pipeline) {
+        return ((StreamPipeline) pipeline).getStream();
     }
     /**
      * Adds a stage (function) to the pipeline.
@@ -93,4 +97,10 @@ public class StreamPipeline {
     public BTypedesc getCompletionType() {
         return completionType;
     }
+
+    public Stream<Frame> getStream() {
+        return stream;
+    }
+
+
 }
