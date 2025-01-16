@@ -68,15 +68,21 @@ public class ExistingProjectTests extends AbstractPackageResolutionTest {
                 testCase("case-0008", UpdatePolicy.MEDIUM),
                 testCase("case-0008", UpdatePolicy.HARD),
                 testCase("case-0008", UpdatePolicy.LOCKED, "Invalid state"),
-//                // 9. Package uses a module available in the newer minor version of an existing dependency
-//                {"suite-existing_project", "case-0009", true},
-//                {"suite-existing_project", "case-0009", false},
-//                // 10. package contains dependencies with pre-release versions
-//                {"suite-existing_project", "case-0010", true},
-//                {"suite-existing_project", "case-0010", false},
-//                // 11. package contains dependencies with pre-release versions specified from local repo
-//                {"suite-existing_project", "case-0011", true},
-//                {"suite-existing_project", "case-0011", false},
+                // 9. Package uses a module available in the newer minor version of an existing dependency
+                testCase("case-0009", UpdatePolicy.SOFT),
+                testCase("case-0009", UpdatePolicy.MEDIUM),
+                testCase("case-0009", UpdatePolicy.HARD),
+                testCase("case-0009", UpdatePolicy.LOCKED, "Invalid state"),
+                // 10. package contains dependencies with pre-release versions
+                testCase("case-0010", UpdatePolicy.SOFT),
+                testCase("case-0010", UpdatePolicy.MEDIUM),
+                testCase("case-0010", UpdatePolicy.HARD),
+                testCase("case-0010", UpdatePolicy.LOCKED, "Invalid state"),
+                // 11. package contains dependencies with pre-release versions specified from local repo
+                testCase("case-0011", UpdatePolicy.SOFT),
+                testCase("case-0011", UpdatePolicy.MEDIUM),
+                testCase("case-0011", UpdatePolicy.HARD),
+                testCase("case-0011", UpdatePolicy.LOCKED)
 //                // 12. package contains dependencies which only has pre-release versions published
 //                {"suite-existing_project", "case-0012", true},
 //                {"suite-existing_project", "case-0012", false},
