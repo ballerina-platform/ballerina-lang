@@ -289,6 +289,7 @@ public class JsonGenerator implements Closeable {
 
         switch (TypeUtils.getImpliedType(TypeChecker.getType(json)).getTag()) {
             case TypeTags.ARRAY_TAG:
+            case TypeTags.TUPLE_TAG:
                 if (json instanceof StreamingJsonValue streamingJsonValue) {
                     streamingJsonValue.serialize(this);
                     break;
@@ -317,6 +318,7 @@ public class JsonGenerator implements Closeable {
                 break;
             case TypeTags.MAP_TAG:
             case TypeTags.JSON_TAG:
+            case TypeTags.RECORD_TYPE_TAG:
                 this.startObject();
                 for (Entry<BString, RefValue> entry : ((MapValueImpl<BString, RefValue>) json).entrySet()) {
                     this.writeFieldName(entry.getKey().getValue());

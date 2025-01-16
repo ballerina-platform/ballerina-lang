@@ -44,7 +44,32 @@ public function main() {
 
     result =  testStringParsingWithProcessingMode(jsonStr);
     test:assertTrue(result is json, "Invalid json");
+
+    testJsonSerialize();
 }
+
+const string[] CONST_ROLES = ["Admin"];
+
+type Profile record {|
+    string name;
+    int age;
+|};
+
+function testJsonSerialize() {
+    Profile profile = {name: "John", age: 30};
+    json j = {
+         roles: CONST_ROLES,
+         ID: "User1",
+          profile: profile
+    };
+    string expected = "{\"roles\":[\"Admin\"], \"ID\":\"User1\", \"profile\":{\"name\":\"John\", \"age\":30}}";
+    string result = checkpanic testJsonSerializeExtern(j);
+    test:assertEquals(result, expected, "Invalid json serialization");
+}
+
+public isolated function testJsonSerializeExtern(json j) returns string|error = @java:Method {
+    'class: "org.ballerinalang.nativeimpl.jvm.runtime.api.tests.JsonValues"
+} external;
 
 public isolated function testParsingWrongCharset(string str) returns json|error = @java:Method {
     'class: "org.ballerinalang.nativeimpl.jvm.runtime.api.tests.JsonValues"
