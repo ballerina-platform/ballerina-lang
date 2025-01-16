@@ -8,10 +8,11 @@
 
 ## Expected behavior
 
-### Sticky == true
-No changes to the graph. 
-The latest version of `ballerina/cache` `1.4.0 ` is already locked in Dependencies.toml, no changes to `ballerina/io:1.0.1`
-
-### Sticky == false
-Dependency graph should be updated to have `ballerina/io:1.0.2`
-
+### Update policy == SOFT
+Dependency graph should be updated to have `ballerina/http:1.4.0`, `ballerina/io:1.2.0`, `samjs/foo:1.3.0`.
+### Update policy == MEDIUM
+Dependency graph should be updated to have `ballerina/io:1.0.2`.
+### Update policy == HARD
+No changes to the dependency graph.
+### Update policy == LOCKED
+No changes to the dependency graph.
