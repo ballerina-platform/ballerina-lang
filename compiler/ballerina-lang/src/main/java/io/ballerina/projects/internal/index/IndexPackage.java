@@ -31,8 +31,10 @@ public class IndexPackage {
     private final PackageName packageName;
     private final PackageVersion packageVersion;
     private final String repository;
+    private final String supportedPlatform;
     private final SemanticVersion ballerinaVersion;
     private final List<IndexDependency> dependencies;
+    private final List<Module> modules;
 
     // TODO: add other fields as necessary
     private IndexPackage(
@@ -40,24 +42,31 @@ public class IndexPackage {
             PackageName packageName,
             PackageVersion packageVersion,
             String repository,
+            String supportedPlatform,
             SemanticVersion ballerinaVersion,
-            List<IndexDependency> dependencies) {
+            List<IndexDependency> dependencies,
+            List<Module> modules) {
         this.packageOrg = packageOrg;
         this.packageName = packageName;
         this.packageVersion = packageVersion;
         this.repository = repository;
+        this.supportedPlatform = supportedPlatform;
         this.ballerinaVersion = ballerinaVersion;
         this.dependencies = dependencies;
+        this.modules = modules;
     }
 
+    // TODO: If we pass all data as-it-is, we don't need this from method
     public static IndexPackage from(
             PackageOrg packageOrg,
             PackageName packageName,
             PackageVersion packageVersion,
             String repository,
+            String supportedPlatform,
             SemanticVersion ballerinaVersion,
-            List<IndexDependency> dependencies) {
-        return new IndexPackage(packageOrg, packageName, packageVersion, repository, ballerinaVersion, dependencies);
+            List<IndexDependency> dependencies,
+            List<Module> modules) {
+        return new IndexPackage(packageOrg, packageName, packageVersion, repository, supportedPlatform, ballerinaVersion, dependencies, modules);
     }
 
     public PackageName name() {
@@ -82,5 +91,25 @@ public class IndexPackage {
 
     public SemanticVersion ballerinaVersion() {
         return ballerinaVersion;
+    }
+
+    public String supportedPlatform() {
+        return supportedPlatform;
+    }
+
+    public List<Module> modules() {
+        return modules;
+    }
+
+    public static class Module {
+        String name;
+
+        public Module(String name) {
+            this.name = name;
+        }
+
+        public String name() {
+            return name;
+        }
     }
 }
