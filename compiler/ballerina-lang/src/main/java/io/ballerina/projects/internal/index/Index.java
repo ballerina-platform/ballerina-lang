@@ -18,9 +18,8 @@
 
 package io.ballerina.projects.internal.index;
 
-import io.ballerina.projects.PackageName;
-import io.ballerina.projects.PackageOrg;
 import io.ballerina.projects.PackageVersion;
+import io.ballerina.projects.SemanticVersion;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -30,21 +29,25 @@ import java.util.Optional;
 import java.util.stream.Stream;
 
 // TODO: index should merge the central index and the distribution index.
+// TODO: define a set of proper APIs in the index
 public class Index {
-    private final Map<String, List<IndexPackage>> packageMap;
+    private final Map<String, Map<String, List<IndexPackage>>> packageMap;
     public static final Index EMPTY_INDEX = new Index();
 
     public Index() {
         this.packageMap = new HashMap<>();
     }
 
-    public Optional<IndexPackage> getVersion(PackageOrg orgName, PackageName packageName, PackageVersion version) {
+    public Optional<IndexPackage> getVersion(String orgName, String packageName, PackageVersion version) {
         return getVersion(orgName, packageName, version, null);
     }
 
-    public Optional<IndexPackage> getVersion(PackageOrg orgName, PackageName packageName, PackageVersion version,
+    public Optional<IndexPackage> getVersion(String orgName, String packageName, PackageVersion version,
                                              String repository) {
-        List<IndexPackage> packageMap = this.packageMap.get(orgName + "/" + packageName);
+        if (this.packageMap.get(orgName) == null) {
+            return Optional.empty();
+        }
+        List<IndexPackage> packageMap = this.packageMap.get(orgName).get(packageName);
         if (packageMap == null) {
             return Optional.empty();
         }
@@ -57,12 +60,38 @@ public class Index {
 
     public void putVersion(IndexPackage pkg) {
         List<IndexPackage> packageMap = this.packageMap.computeIfAbsent(
-                pkg.org().toString() + "/" + pkg.name().toString(), k -> new ArrayList<>());
+                pkg.org().toString(), k -> new HashMap<>()).computeIfAbsent(pkg.name().toString(), k -> new ArrayList<>());
         packageMap.add(pkg);
     }
 
-    public List<IndexPackage> getPackage(PackageOrg orgName, PackageName packageName) {
-        return packageMap.get(orgName + "/" + packageName);
+    public List<IndexPackage> getPackage(String orgName, String packageName) {
+        if (this.packageMap.get(orgName) == null) {
+            return new ArrayList<>();
+        }
+        return packageMap.get(orgName).get(packageName);
+    }
+
+    public List<IndexPackage> getPackage(String orgName,
+                                         String packageName,
+                                         String supportedPlatform,
+                                         SemanticVersion ballerinaVersion) {
+        if (this.packageMap.get(orgName) == null) {
+            return new ArrayList<>();
+        }
+        return packageMap.get(orgName).get(packageName).stream().filter(pkg ->
+                pkg.supportedPlatform().equals(supportedPlatform) && pkg.ballerinaVersion().equals(ballerinaVersion)
+        ).toList();
+    }
+
+    public List<IndexPackage> getPackageMatchingModule(String orgName, String moduleName, String ballerinaVersionStr) {
+        SemanticVersion ballerinaVersion = SemanticVersion.from(ballerinaVersionStr);
+        if (this.packageMap.get(orgName) == null) {
+            return new ArrayList<>();
+        }
+        return packageMap.get(orgName).values().stream().flatMap(List::stream)
+                .filter(pkg -> pkg.modules().stream().anyMatch(module -> module.name().equals(moduleName)) &&
+                        ballerinaVersion.greaterThanOrEqualTo(pkg.ballerinaVersion()))
+                .toList();
     }
 
     public void putPackages(List<IndexPackage> pkgs) {

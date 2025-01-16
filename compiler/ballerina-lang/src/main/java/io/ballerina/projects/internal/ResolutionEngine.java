@@ -183,7 +183,7 @@ public class ResolutionEngine {
             DependencyNode pkgNode = unresolvedNode.dependencyNode();
             LockingMode lockingMode = unresolvedNode.lockingMode();
             PackageDescriptor pkg = pkgNode.pkgDesc();
-            List<IndexPackage> indexPackageVersions = index.getPackage(pkg.org(), pkg.name());
+            List<IndexPackage> indexPackageVersions = index.getPackage(pkg.org().value(), pkg.name().value());
             if (indexPackageVersions == null || indexPackageVersions.isEmpty()) {
                 throw new ProjectException("Package not found in the index: " + pkg);
             }
@@ -222,7 +222,7 @@ public class ResolutionEngine {
     // TODO: refactor and make this method pretty
     //  Consider the repositories, scope etc here.
     //  Filter by deprecated status and the platform as well.
-    private IndexPackage getLatestCompatibleIndexVersion(List<IndexPackage> indexPackageVersions,
+    private IndexPackage getLatestCompatibleIndexVersion(List<IndexPackage> indexPackages,
                                                          PackageDescriptor indexRecordedPkg,
                                                          BlendedManifest.Dependency manifestRecordedPkg,
                                                          IndexBasedDependencyGraphBuilder graph,
@@ -235,8 +235,8 @@ public class ResolutionEngine {
         // If the package is from the local repository, we should pick the exact version.
         if (manifestRecordedPkg != null && manifestRecordedPkg.isFromLocalRepository()) {
             // TODO: look at how we should handle the local repos with index. Do we merge the local ones into in memory?
-            return index.getVersion(manifestRecordedPkg.org(), manifestRecordedPkg.name(), manifestRecordedPkg.version(), "local")
-                    .orElseThrow(() -> new ProjectException("Package not found in the index: " + indexRecordedPkg));
+            return index.getVersion(manifestRecordedPkg.org().value(), manifestRecordedPkg.name().value(), manifestRecordedPkg.version(), "local")
+                    .orElseThrow(() -> new ProjectException("Package not found in the local index: " + indexRecordedPkg));
         }
 
         // if the locking mode is LOCKED, we return the version recorded in the manifest.
@@ -244,7 +244,7 @@ public class ResolutionEngine {
             if (manifestRecordedPkg == null) {
                 throw new ProjectException("Cannot have new dependencies with the LOCKED update policy");
             }
-            return index.getVersion(manifestRecordedPkg.org(), manifestRecordedPkg.name(), manifestRecordedPkg.version())
+            return index.getVersion(manifestRecordedPkg.org().value(), manifestRecordedPkg.name().value(), manifestRecordedPkg.version())
                     .orElseThrow(() -> new ProjectException("Package not found in the index: " + indexRecordedPkg));
         }
 
@@ -254,7 +254,7 @@ public class ResolutionEngine {
 
         // compare with the previously fetched value from the index
         if (indexRecordedPkg.version() != null) {
-            Optional<IndexPackage> indexPkg = index.getVersion(indexRecordedPkg.org(), indexRecordedPkg.name(), indexRecordedPkg.version());
+            Optional<IndexPackage> indexPkg = index.getVersion(indexRecordedPkg.org().value(), indexRecordedPkg.name().value(), indexRecordedPkg.version());
             if (indexPkg.isEmpty()) {
                 throw new ProjectException("Package not found in the index: " + indexRecordedPkg);
             }
@@ -263,7 +263,7 @@ public class ResolutionEngine {
 
         // compare with the version recorded in the blended manifest
         if (manifestRecordedPkg != null) {
-            Optional<IndexPackage> manifestIndexPkg = index.getVersion(manifestRecordedPkg.org(), manifestRecordedPkg.name(), manifestRecordedPkg.version());
+            Optional<IndexPackage> manifestIndexPkg = index.getVersion(manifestRecordedPkg.org().value(), manifestRecordedPkg.name().value(), manifestRecordedPkg.version());
             if (manifestIndexPkg.isEmpty()) {
                 throw new ProjectException("Package not found in the index: " + manifestRecordedPkg.org() + "/" + manifestRecordedPkg.name() + ":" + manifestRecordedPkg.version());
             }
@@ -282,7 +282,7 @@ public class ResolutionEngine {
 
         PackageDescriptor graphRecordedPkg = graph.getDependency(indexRecordedPkg.org(), indexRecordedPkg.name());
         if (graphRecordedPkg != null) {
-            Optional<IndexPackage> graphIndexPkg = index.getVersion(graphRecordedPkg.org(), graphRecordedPkg.name(), graphRecordedPkg.version());
+            Optional<IndexPackage> graphIndexPkg = index.getVersion(graphRecordedPkg.org().value(), graphRecordedPkg.name().value(), graphRecordedPkg.version());
             if (graphIndexPkg.isEmpty()) {
                 throw new ProjectException("Package not found in the index: " + graphRecordedPkg.org() + "/" + graphRecordedPkg.name() + ":" + graphRecordedPkg.version());
             }
@@ -297,8 +297,8 @@ public class ResolutionEngine {
                 candidatePkg = graphIndexPkg;
             }
         }
-
-        for (IndexPackage indexPackage : indexPackageVersions) {
+        List<IndexPackage> stableIndexPackages = indexPackages.stream().filter(pkg -> !pkg.version().value().isPreReleaseVersion()).toList();
+        for (IndexPackage indexPackage : stableIndexPackages) { // TODO: move the loop to another method
             // Distribution version check
             if (currentBallerinaVersion.major() != indexPackage.ballerinaVersion().major()
                     || currentBallerinaVersion.minor() < indexPackage.ballerinaVersion().minor()) {
@@ -309,10 +309,26 @@ public class ResolutionEngine {
                 candidatePkg = Optional.of(indexPackage);
             }
         }
-        if (candidatePkg.isEmpty()) {
-            throw new ProjectException("No compatible version found in the index for package: " + indexRecordedPkg);
+        if (candidatePkg.isPresent()) {
+            return candidatePkg.get();
         }
-        return candidatePkg.get();
+        // If no matching version found, we rely on pre-release versions
+        List<IndexPackage> preReleaseIndexPackages = indexPackages.stream().filter(pkg -> pkg.version().value().isPreReleaseVersion()).toList();
+        for (IndexPackage indexPackage : preReleaseIndexPackages) {
+            // Distribution version check
+            if (currentBallerinaVersion.major() != indexPackage.ballerinaVersion().major()
+                    || currentBallerinaVersion.minor() < indexPackage.ballerinaVersion().minor()) {
+                continue;
+            }
+            if (candidatePkg.isEmpty()
+                    || isAllowedVersionBump(candidatePkg.get().version(), indexPackage.version(), lockingMode)) {
+                candidatePkg = Optional.of(indexPackage);
+            }
+        }
+        if (candidatePkg.isPresent()) {
+            return candidatePkg.get();
+        }
+        throw new ProjectException("No compatible version found in the index for package: " + indexRecordedPkg);
     }
 
     private boolean areNewDirectDependenciesAdded(Collection<DependencyNode> directDependencies) {
@@ -338,7 +354,8 @@ public class ResolutionEngine {
         }
         BlendedManifest.Dependency manifestDep = blendedManifest.dependency(
                 directDependency.pkgDesc().org(), directDependency.pkgDesc().name()).orElseThrow();
-        return manifestDep.relation().equals(BlendedManifest.DependencyRelation.TRANSITIVE);
+        return manifestDep.relation().equals(BlendedManifest.DependencyRelation.TRANSITIVE) ||
+                !manifestDep.version().equals(directDependency.pkgDesc().version());
     }
 
     private boolean isNewDependency(DependencyNode dependency) {
@@ -348,14 +365,11 @@ public class ResolutionEngine {
     }
 
     private boolean isAllowedVersionBump(
-            PackageVersion currentPackageVersion,
+            PackageVersion currentPackageVersion, // this can be null
             PackageVersion newPackageVersion,
             LockingMode lockingMode) {
         SemanticVersion currentVersion = currentPackageVersion.value();
         SemanticVersion newVersion = newPackageVersion.value();
-        if (newVersion.isPreReleaseVersion()) {
-            return false;
-        }
         VersionCompatibilityResult compatibility = currentVersion.compareTo(newVersion);
         return switch (lockingMode) {
             case LATEST -> compatibility == VersionCompatibilityResult.LESS_THAN
@@ -876,5 +890,11 @@ public class ResolutionEngine {
         public int compareTo(DependencyNode other) {
             return this.pkgDesc.toString().compareTo(other.pkgDesc.toString());
         }
+    }
+
+    enum VersionOrigin {
+        DIRECT,
+        MANIFEST,
+        INDEX
     }
 }
