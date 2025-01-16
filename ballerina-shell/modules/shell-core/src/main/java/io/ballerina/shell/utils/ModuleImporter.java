@@ -30,6 +30,7 @@ import io.ballerina.projects.environment.ResolutionRequest;
 import io.ballerina.projects.internal.environment.BallerinaDistribution;
 import io.ballerina.projects.internal.environment.DefaultEnvironment;
 import io.ballerina.shell.Diagnostic;
+import org.jetbrains.annotations.Nullable;
 import org.wso2.ballerinalang.compiler.util.Names;
 
 import java.util.ArrayList;
@@ -79,6 +80,7 @@ public class ModuleImporter {
      * @param module input module.
      * @return import statement.
      */
+    @Nullable
     public String getImportStatement(String module) {
         String importStatement = "import ";
         String langModule = LANG + "." + module;

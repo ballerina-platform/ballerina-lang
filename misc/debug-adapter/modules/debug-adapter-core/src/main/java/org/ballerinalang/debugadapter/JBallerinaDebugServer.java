@@ -105,6 +105,7 @@ import org.eclipse.lsp4j.debug.services.IDebugProtocolClient;
 import org.eclipse.lsp4j.jsonrpc.Endpoint;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.eclipse.lsp4j.jsonrpc.services.GenericEndpoint;
+import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -153,6 +154,7 @@ public class JBallerinaDebugServer implements BallerinaExtendedDebugServer {
     private DebugExecutionManager executionManager;
     private JDIEventProcessor eventProcessor;
     private final ExecutionContext context;
+    @Nullable
     private SuspendedContext suspendedContext;
     private DebugOutputLogger outputLogger;
     private DebugExpressionEvaluator evaluator;
@@ -164,7 +166,7 @@ public class JBallerinaDebugServer implements BallerinaExtendedDebugServer {
     private final Map<Integer, Integer> scopeIdToFrameIds = new HashMap<>();
     private final Map<Integer, Integer> variableToStackFrames = new ConcurrentHashMap<>();
     private final Map<Integer, BCompoundVariable> loadedCompoundVariables = new ConcurrentHashMap<>();
-    // Multi-threading is avoided here due to observed intermittent VM crashes, likely related to JDI limitations.
+    // Multi-threading is aved here due to observed intermittent VM crashes, likely related to JDI limitations.
     private final ExecutorService variableExecutor = Executors.newSingleThreadExecutor();
 
     private static final Logger LOGGER = LoggerFactory.getLogger(JBallerinaDebugServer.class);
@@ -312,8 +314,11 @@ public class JBallerinaDebugServer implements BallerinaExtendedDebugServer {
         if (eventProcessor == null) {
             return CompletableFuture.completedFuture(threadsResponse);
         }
-        Map<Integer, ThreadReferenceProxyImpl> threadsMap = getActiveStrandThreads();
-        if (threadsMap == null) {
+        Map<Integer, ThreadReferenceProxyImpl> threadsMap;
+        try {
+             threadsMap = getActiveStrandThreads();
+        } catch (IllegalStateException e) {
+            LOGGER.error(e.getMessage());
             return CompletableFuture.completedFuture(threadsResponse);
         }
         Thread[] threads = new Thread[threadsMap.size()];
@@ -342,7 +347,7 @@ public class JBallerinaDebugServer implements BallerinaExtendedDebugServer {
     public CompletableFuture<StackTraceResponse> stackTrace(StackTraceArguments args) {
         StackTraceResponse stackTraceResponse = new StackTraceResponse();
         try {
-            activeThread = getAllThreads().get(args.getThreadId());
+            ThreadReferenceProxyImpl activeThread = getAllThreads().get(args.getThreadId());
             if (threadStackTraces.containsKey(activeThread.uniqueID())) {
                 stackTraceResponse.setStackFrames(threadStackTraces.get(activeThread.uniqueID()));
             } else {
@@ -353,6 +358,7 @@ public class JBallerinaDebugServer implements BallerinaExtendedDebugServer {
                 stackTraceResponse.setStackFrames(validFrames);
                 threadStackTraces.put(activeThread.uniqueID(), validFrames);
             }
+            this.activeThread = activeThread;
             return CompletableFuture.completedFuture(stackTraceResponse);
         } catch (Exception e) {
             LOGGER.error(e.getMessage(), e);
@@ -796,6 +802,7 @@ public class JBallerinaDebugServer implements BallerinaExtendedDebugServer {
     /**
      * Coverts a JDI stack frame instance to a DAP stack frame instance.
      */
+    @Nullable
     private StackFrame toDapStackFrame(StackFrameProxyImpl stackFrameProxy) {
         try {
             if (!isBalStackFrame(stackFrameProxy.getStackFrame())) {
@@ -819,7 +826,7 @@ public class JBallerinaDebugServer implements BallerinaExtendedDebugServer {
      */
     Map<Integer, ThreadReferenceProxyImpl> getAllThreads() {
         if (context.getDebuggeeVM() == null) {
-            return null;
+            throw new IllegalStateException("Debuggee VM is not available");
         }
         Collection<ThreadReference> threadReferences = context.getDebuggeeVM().getVirtualMachine().allThreads();
         Map<Integer, ThreadReferenceProxyImpl> threadsMap = new HashMap<>();
@@ -842,9 +849,6 @@ public class JBallerinaDebugServer implements BallerinaExtendedDebugServer {
      */
     Map<Integer, ThreadReferenceProxyImpl> getActiveStrandThreads() {
         Map<Integer, ThreadReferenceProxyImpl> allThreads = getAllThreads();
-        if (allThreads == null) {
-            return null;
-        }
 
         Map<Integer, ThreadReferenceProxyImpl> balStrandThreads = new HashMap<>();
         // Filter thread references which are suspended, whose thread status is running, and which represents an active
@@ -958,13 +962,14 @@ public class JBallerinaDebugServer implements BallerinaExtendedDebugServer {
 
     private Variable[] computeGlobalScopeVariables(VariablesArguments requestArgs) {
         int stackFrameReference = requestArgs.getVariablesReference();
-        String classQName = PackageUtils.getQualifiedClassName(suspendedContext, INIT_CLASS_NAME);
-        List<ReferenceType> cls = suspendedContext.getAttachedVm().classesByName(classQName);
+        String classQName = PackageUtils.getQualifiedClassName(
+                Objects.requireNonNull(suspendedContext), INIT_CLASS_NAME);
+        List<ReferenceType> cls = Objects.requireNonNull(suspendedContext).getAttachedVm().classesByName(classQName);
         if (cls.size() != 1) {
             return new Variable[0];
         }
         List<CompletableFuture<Variable>> scheduledVariables = new ArrayList<>();
-        ReferenceType initClassReference = cls.get(0);
+        ReferenceType initClassReference = cls.getFirst();
         for (Field field : initClassReference.allFields()) {
             String fieldName = Utils.decodeIdentifier(field.name());
             if (!field.isPublic() || !field.isStatic() || fieldName.startsWith(GENERATED_VAR_PREFIX)) {
@@ -989,7 +994,7 @@ public class JBallerinaDebugServer implements BallerinaExtendedDebugServer {
     }
 
     private Variable[] computeLocalScopeVariables(VariablesArguments args) throws Exception {
-        StackFrameProxyImpl stackFrame = suspendedContext.getFrame();
+        StackFrameProxyImpl stackFrame = Objects.requireNonNull(suspendedContext).getFrame();
         List<CompletableFuture<Variable>> scheduledVariables = new ArrayList<>();
         List<CompletableFuture<Variable[]>> scheduledLambdaMapVariables = new ArrayList<>();
         List<LocalVariableProxyImpl> localVariableProxies = stackFrame.visibleVariables();
@@ -1071,16 +1076,19 @@ public class JBallerinaDebugServer implements BallerinaExtendedDebugServer {
     private CompletableFuture<Variable> computeVariableAsync(String name, Value value, Integer stackFrameRef) {
         return CompletableFuture.supplyAsync(() -> {
             BVariable variable = VariableFactory.getVariable(suspendedContext, name, value);
-            if (variable == null) {
-                return null;
-            }
-            if (variable instanceof BSimpleVariable) {
-                variable.getDapVariable().setVariablesReference(0);
-            } else if (variable instanceof BCompoundVariable) {
-                int variableReference = nextVarReference.getAndIncrement();
-                variable.getDapVariable().setVariablesReference(variableReference);
-                loadedCompoundVariables.put(variableReference, (BCompoundVariable) variable);
-                updateVariableToStackFrameMap(stackFrameRef, variableReference);
+            switch (variable) {
+                case null -> {
+                    return null;
+                }
+                case BSimpleVariable bSimpleVariable -> bSimpleVariable.getDapVariable().setVariablesReference(0);
+                case BCompoundVariable bCompoundVariable -> {
+                    int variableReference = nextVarReference.getAndIncrement();
+                    variable.getDapVariable().setVariablesReference(variableReference);
+                    loadedCompoundVariables.put(variableReference, bCompoundVariable);
+                    updateVariableToStackFrameMap(stackFrameRef, variableReference);
+                }
+                default -> {
+                }
             }
             return variable.getDapVariable();
         }, variableExecutor);
@@ -1126,15 +1134,19 @@ public class JBallerinaDebugServer implements BallerinaExtendedDebugServer {
             String name = entry.getKey();
             Value value = entry.getValue();
             BVariable variable = VariableFactory.getVariable(suspendedContext, name, value);
-            if (variable == null) {
-                return null;
-            } else if (variable instanceof BSimpleVariable) {
-                variable.getDapVariable().setVariablesReference(0);
-            } else if (variable instanceof BCompoundVariable) {
-                int variableReference = nextVarReference.getAndIncrement();
-                variable.getDapVariable().setVariablesReference(variableReference);
-                loadedCompoundVariables.put(variableReference, (BCompoundVariable) variable);
-                updateVariableToStackFrameMap(args.getVariablesReference(), variableReference);
+            switch (variable) {
+                case null -> {
+                    return null;
+                }
+                case BSimpleVariable bSimpleVariable -> bSimpleVariable.getDapVariable().setVariablesReference(0);
+                case BCompoundVariable bCompoundVariable -> {
+                    int variableReference = nextVarReference.getAndIncrement();
+                    variable.getDapVariable().setVariablesReference(variableReference);
+                    loadedCompoundVariables.put(variableReference, bCompoundVariable);
+                    updateVariableToStackFrameMap(args.getVariablesReference(), variableReference);
+                }
+                default -> {
+                }
             }
             return variable.getDapVariable();
         }).filter(Objects::nonNull).toArray(Variable[]::new);
@@ -1147,15 +1159,19 @@ public class JBallerinaDebugServer implements BallerinaExtendedDebugServer {
         return varMap.stream().map(value -> {
             String name = String.format("[%d]", index.getAndIncrement());
             BVariable variable = VariableFactory.getVariable(suspendedContext, name, value);
-            if (variable == null) {
-                return null;
-            } else if (variable instanceof BSimpleVariable) {
-                variable.getDapVariable().setVariablesReference(0);
-            } else if (variable instanceof BCompoundVariable) {
-                int variableReference = nextVarReference.getAndIncrement();
-                variable.getDapVariable().setVariablesReference(variableReference);
-                loadedCompoundVariables.put(variableReference, (BCompoundVariable) variable);
-                updateVariableToStackFrameMap(args.getVariablesReference(), variableReference);
+            switch (variable) {
+                case null -> {
+                    return null;
+                }
+                case BSimpleVariable bSimpleVariable -> bSimpleVariable.getDapVariable().setVariablesReference(0);
+                case BCompoundVariable bCompoundVariable -> {
+                    int variableReference = nextVarReference.getAndIncrement();
+                    variable.getDapVariable().setVariablesReference(variableReference);
+                    loadedCompoundVariables.put(variableReference, bCompoundVariable);
+                    updateVariableToStackFrameMap(args.getVariablesReference(), variableReference);
+                }
+                default -> {
+                }
             }
             return variable.getDapVariable();
         }).filter(Objects::nonNull).toArray(Variable[]::new);
@@ -1169,15 +1185,19 @@ public class JBallerinaDebugServer implements BallerinaExtendedDebugServer {
      */
     private EvaluateResponse constructEvaluateResponse(EvaluateArguments args, BVariable evaluationResult) {
         EvaluateResponse response = new EvaluateResponse();
-        if (evaluationResult == null) {
-            return response;
-        } else if (evaluationResult instanceof BSimpleVariable) {
-            evaluationResult.getDapVariable().setVariablesReference(0);
-        } else if (evaluationResult instanceof BCompoundVariable) {
-            int variableReference = nextVarReference.getAndIncrement();
-            evaluationResult.getDapVariable().setVariablesReference(variableReference);
-            loadedCompoundVariables.put(variableReference, (BCompoundVariable) evaluationResult);
-            updateVariableToStackFrameMap(args.getFrameId(), variableReference);
+        switch (evaluationResult) {
+            case null -> {
+                return response;
+            }
+            case BSimpleVariable bSimpleVariable -> bSimpleVariable.getDapVariable().setVariablesReference(0);
+            case BCompoundVariable bCompoundVariable -> {
+                int variableReference = nextVarReference.getAndIncrement();
+                evaluationResult.getDapVariable().setVariablesReference(variableReference);
+                loadedCompoundVariables.put(variableReference, bCompoundVariable);
+                updateVariableToStackFrameMap(args.getFrameId(), variableReference);
+            }
+            default -> {
+            }
         }
 
         Variable dapVariable = evaluationResult.getDapVariable();

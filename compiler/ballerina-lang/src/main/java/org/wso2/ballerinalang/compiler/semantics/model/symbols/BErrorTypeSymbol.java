@@ -21,6 +21,7 @@ import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.symbols.SymbolOrigin;
+import org.jetbrains.annotations.Nullable;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.util.Name;
 
@@ -31,8 +32,8 @@ import org.wso2.ballerinalang.compiler.util.Name;
  */
 public class BErrorTypeSymbol extends BTypeSymbol {
 
-    public BErrorTypeSymbol(long symTag, long flags, Name name, PackageID pkgID, BType type, BSymbol owner,
-                            Location pos, SymbolOrigin origin) {
+    public BErrorTypeSymbol(long symTag, long flags, Name name, PackageID pkgID, @Nullable BType type,
+                            @Nullable BSymbol owner, Location pos, SymbolOrigin origin) {
         super(symTag, flags, name, pkgID, type, owner, pos, origin);
         this.kind = SymbolKind.ERROR;
     }

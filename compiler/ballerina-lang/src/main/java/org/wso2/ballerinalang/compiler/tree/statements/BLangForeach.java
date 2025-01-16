@@ -23,6 +23,7 @@ import org.ballerinalang.model.tree.expressions.ExpressionNode;
 import org.ballerinalang.model.tree.statements.BlockStatementNode;
 import org.ballerinalang.model.tree.statements.ForeachNode;
 import org.ballerinalang.model.tree.statements.VariableDefinitionNode;
+import org.jetbrains.annotations.Nullable;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeAnalyzer;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeTransformer;
@@ -41,13 +42,16 @@ public class BLangForeach extends BLangStatement implements ForeachNode {
     public VariableDefinitionNode variableDefinitionNode;
     public BLangBlockStmt body;
     public BLangExpression collection;
+    @Nullable
     public BLangOnFailClause onFailClause;
 
     // Parser Flags and Data
     public boolean isDeclaredWithVar;
 
     // Semantic Data
+    @Nullable
     public BType varType; // T
+    @Nullable
     public BType resultType; // map<T>
     public BType nillableResultType; // map<T>?
 

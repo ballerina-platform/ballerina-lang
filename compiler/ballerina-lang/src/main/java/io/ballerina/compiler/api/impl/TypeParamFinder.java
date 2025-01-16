@@ -18,6 +18,7 @@
 
 package io.ballerina.compiler.api.impl;
 
+import org.jetbrains.annotations.Nullable;
 import org.wso2.ballerinalang.compiler.semantics.model.TypeVisitor;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
@@ -73,6 +74,7 @@ public class TypeParamFinder implements TypeVisitor {
      * @param type The type to look for the type param in
      * @return Returns the type param if there is one, else returns null
      */
+    @Nullable
     public BType find(BType type) {
         if (type == null || this.visited.contains(type)) {
             return null;

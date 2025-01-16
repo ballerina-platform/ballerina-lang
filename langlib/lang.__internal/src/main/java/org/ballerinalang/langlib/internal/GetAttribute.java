@@ -24,6 +24,7 @@ import io.ballerina.runtime.api.values.BXml;
 import io.ballerina.runtime.api.values.BXmlQName;
 import io.ballerina.runtime.internal.errors.ErrorCodes;
 import io.ballerina.runtime.internal.errors.ErrorHelper;
+import org.jetbrains.annotations.Nullable;
 
 import static io.ballerina.runtime.api.creators.ErrorCreator.createError;
 import static io.ballerina.runtime.internal.errors.ErrorReasons.XML_OPERATION_ERROR;
@@ -38,6 +39,7 @@ public final class GetAttribute {
     private GetAttribute() {
     }
 
+    @Nullable
     public static Object getAttribute(BXml xmlVal, BString attrName, boolean optionalFiledAccess) {
         if (xmlVal.getNodeType() == XmlNodeType.SEQUENCE && xmlVal.isEmpty()) {
             if (!optionalFiledAccess) {

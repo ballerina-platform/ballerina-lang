@@ -81,6 +81,6 @@ public class BLangLetExpression extends BLangExpression implements LetExpression
         for (BLangLetVariable letVarDeclaration : letVarDeclarations) {
             declarations.add(String.valueOf(letVarDeclaration));
         }
-        return "let " + declarations.toString() + " in " + String.valueOf(this.expr);
+        return "let " + declarations + " in " + this.expr;
     }
 }

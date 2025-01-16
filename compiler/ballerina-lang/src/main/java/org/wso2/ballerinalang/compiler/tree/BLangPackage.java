@@ -47,6 +47,7 @@ import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Queue;
 import java.util.Set;
 import java.util.TreeSet;
@@ -246,8 +247,8 @@ public class BLangPackage extends BLangNode implements PackageNode {
      *
      * @return testable package
      */
-    public BLangTestablePackage getTestablePkg() {
-        return testablePkgs.stream().findAny().orElse(null);
+    public Optional<BLangTestablePackage> getTestablePkg() {
+        return testablePkgs.stream().findAny();
     }
 
     /**
@@ -271,10 +272,6 @@ public class BLangPackage extends BLangNode implements PackageNode {
      */
     public Set<Flag> getFlags() {
         return flagSet;
-    }
-
-    public boolean hasTestablePackage() {
-        return !this.testablePkgs.isEmpty();
     }
 
     public void addClassDefinition(BLangClassDefinition classDefNode) {

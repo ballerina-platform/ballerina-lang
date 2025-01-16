@@ -20,6 +20,7 @@ package org.wso2.ballerinalang.compiler.tree;
 
 import org.ballerinalang.model.tree.MarkdownDocumentationNode;
 import org.ballerinalang.model.tree.NodeKind;
+import org.jetbrains.annotations.Nullable;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkDownDeprecatedParametersDocumentation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkDownDeprecationDocumentation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkdownDocumentationLine;
@@ -43,7 +44,9 @@ public class BLangMarkdownDocumentation extends BLangNode implements MarkdownDoc
     public LinkedList<BLangMarkdownParameterDocumentation> parameters;
     public LinkedList<BLangMarkdownReferenceDocumentation> references;
     public BLangMarkdownReturnParameterDocumentation returnParameter;
+    @Nullable
     public BLangMarkDownDeprecationDocumentation deprecationDocumentation;
+    @Nullable
     public BLangMarkDownDeprecatedParametersDocumentation deprecatedParametersDocumentation;
 
     public BLangMarkdownDocumentation() {
@@ -117,6 +120,7 @@ public class BLangMarkdownDocumentation extends BLangNode implements MarkdownDoc
         return parameterDocumentations;
     }
 
+    @Nullable
     @Override
     public String getReturnParameterDocumentation() {
         return returnParameter == null ? null : returnParameter.getReturnParameterDocumentation();

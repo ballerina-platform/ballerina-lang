@@ -25,6 +25,7 @@ import org.ballerinalang.debugadapter.SuspendedContext;
 import org.ballerinalang.debugadapter.variable.BVariableType;
 import org.ballerinalang.debugadapter.variable.NamedCompoundVariable;
 import org.ballerinalang.debugadapter.variable.VariableUtils;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Collections;
 import java.util.LinkedHashMap;
@@ -44,6 +45,7 @@ public class BRecord extends NamedCompoundVariable {
     private static final String METHOD_GET_KEYS = "getKeys";
     private static final String METHOD_GET = "get";
 
+    @Nullable
     private ArrayReference loadedKeys = null;
 
     public BRecord(SuspendedContext context, String name, Value value) {
@@ -68,6 +70,9 @@ public class BRecord extends NamedCompoundVariable {
 
             Map<String, Value> childVarMap = new LinkedHashMap<>();
             Map<Value, Value> recordFields = getRecordFields();
+            if (recordFields == null) {
+                return childVarMap;
+            }
 
             for (Map.Entry<Value, Value> mapEntry : recordFields.entrySet()) {
                 childVarMap.put(Utils.encodeNonFunctionIdentifier(
@@ -80,10 +85,14 @@ public class BRecord extends NamedCompoundVariable {
         }
     }
 
+    @Nullable
     private Map<Value, Value> getRecordFields() {
         try {
-            loadAllKeys();
+            ArrayReference loadedKeys = loadAllKeys();
             Map<Value, Value> recordFields = new LinkedHashMap<>();
+            if (loadedKeys == null) {
+                return null;
+            }
             List<Value> keysRange = loadedKeys.getValues(0, loadedKeys.length());
 
             for (int i = 0; i < loadedKeys.length(); i++) {
@@ -96,21 +105,25 @@ public class BRecord extends NamedCompoundVariable {
         }
     }
 
-    private void loadAllKeys() {
-        if (loadedKeys == null) {
-            try {
-                Optional<Method> getKeysMethod = VariableUtils.getMethod(jvmValue, METHOD_GET_KEYS,
-                        GETKEYS_METHOD_SIGNATURE_PATTERN);
-                Value keyArray = ((ObjectReference) jvmValue).invokeMethod(
-                        context.getOwningThread().getThreadReference(), getKeysMethod.get(), Collections.emptyList(),
-                        ObjectReference.INVOKE_SINGLE_THREADED);
-                loadedKeys = (ArrayReference) keyArray;
-            } catch (Exception ignored) {
-                loadedKeys = null;
-            }
+    @Nullable
+    private ArrayReference loadAllKeys() {
+        if (loadedKeys != null) {
+            return loadedKeys;
         }
+        try {
+            Optional<Method> getKeysMethod = VariableUtils.getMethod(jvmValue, METHOD_GET_KEYS,
+                    GETKEYS_METHOD_SIGNATURE_PATTERN);
+            Value keyArray = ((ObjectReference) jvmValue).invokeMethod(
+                    context.getOwningThread().getThreadReference(), getKeysMethod.get(), Collections.emptyList(),
+                    ObjectReference.INVOKE_SINGLE_THREADED);
+            loadedKeys = (ArrayReference) keyArray;
+        } catch (Exception ignored) {
+            loadedKeys = null;
+        }
+        return loadedKeys;
     }
 
+    @Nullable
     private Value getValueFor(Value key) {
         try {
             Optional<Method> getMethod = VariableUtils.getMethod(jvmValue, METHOD_GET, GET_METHOD_SIGNATURE_PATTERN);
@@ -130,7 +143,7 @@ public class BRecord extends NamedCompoundVariable {
             if (!(jvmValue instanceof ObjectReference)) {
                 return 0;
             }
-            loadAllKeys();
+            ArrayReference loadedKeys = loadAllKeys();
             return loadedKeys == null ? 0 : loadedKeys.length();
         } catch (Exception ignored) {
             return 0;

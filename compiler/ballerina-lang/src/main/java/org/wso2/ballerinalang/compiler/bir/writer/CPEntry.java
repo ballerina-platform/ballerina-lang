@@ -17,6 +17,7 @@
  */
 package org.wso2.ballerinalang.compiler.bir.writer;
 
+import org.jetbrains.annotations.Nullable;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 
 import java.util.Objects;
@@ -141,7 +142,7 @@ public class CPEntry {
     public static class StringCPEntry extends CPEntry {
         public String value;
 
-        public StringCPEntry(String value) {
+        public StringCPEntry(@Nullable String value) {
             super(Type.CP_ENTRY_STRING);
             this.value = value;
         }

@@ -23,6 +23,7 @@ import org.ballerinalang.model.tree.MarkdownDocumentationNode;
 import org.ballerinalang.model.tree.VariableNode;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
 import org.ballerinalang.model.tree.types.TypeNode;
+import org.jetbrains.annotations.Nullable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.types.BLangType;
@@ -41,6 +42,7 @@ public abstract class BLangVariable extends BLangNode implements VariableNode {
     public BLangType typeNode;
     public List<BLangAnnotationAttachment> annAttachments;
     public BLangMarkdownDocumentation markdownDocumentationAttachment;
+    @Nullable
     public BLangExpression expr;
 
     // Parser Flags
@@ -101,7 +103,7 @@ public abstract class BLangVariable extends BLangNode implements VariableNode {
     }
 
     @Override
-    public void setInitialExpression(ExpressionNode expr) {
+    public void setInitialExpression(@Nullable ExpressionNode expr) {
         this.expr = (BLangExpression) expr;
     }
 

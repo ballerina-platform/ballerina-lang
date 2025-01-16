@@ -27,6 +27,7 @@ import io.ballerina.runtime.api.types.TypeTags;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.internal.values.MapValueImpl;
 import io.ballerina.runtime.internal.values.ReadOnlyUtils;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Optional;
 
@@ -67,7 +68,7 @@ public class BMapType extends BType implements MapType {
         this(typeName, constraint, pkg, false);
     }
 
-    public BMapType(String typeName, Type constraint, Module pkg, boolean readonly) {
+    public BMapType(String typeName, Type constraint, @Nullable Module pkg, boolean readonly) {
         super(typeName, pkg, MapValueImpl.class);
         this.constraint = readonly ? ReadOnlyUtils.getReadOnlyType(constraint) : constraint;
         this.readonly = readonly;

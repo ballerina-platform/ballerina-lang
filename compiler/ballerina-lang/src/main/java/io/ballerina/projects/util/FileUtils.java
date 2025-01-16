@@ -79,7 +79,7 @@ public final class FileUtils {
             return index == -1 ? fileName.toString() :
                     fileName.toString().substring(0, index);
         } else {
-            return null;
+            return "";
         }
     }
 

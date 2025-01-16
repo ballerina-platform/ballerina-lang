@@ -37,6 +37,7 @@ import io.opentelemetry.context.Context;
 import io.opentelemetry.context.propagation.TextMapGetter;
 import io.opentelemetry.context.propagation.TextMapPropagator;
 import io.opentelemetry.context.propagation.TextMapSetter;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -81,7 +82,7 @@ public class BSpan {
         this.span = span;
     }
 
-    private static BSpan start(Tracer tracer, Context parentContext, String operationName, boolean isClient) {
+    private static BSpan start(Tracer tracer, @Nullable Context parentContext, String operationName, boolean isClient) {
         SpanBuilder builder = tracer.spanBuilder(operationName);
         if (parentContext != null) {
             builder.setParent(parentContext);

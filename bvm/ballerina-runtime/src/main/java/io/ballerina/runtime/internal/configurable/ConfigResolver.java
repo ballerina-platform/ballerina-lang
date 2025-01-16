@@ -27,6 +27,7 @@ import io.ballerina.runtime.api.types.TypeTags;
 import io.ballerina.runtime.internal.configurable.exceptions.ConfigException;
 import io.ballerina.runtime.internal.diagnostics.RuntimeDiagnosticLog;
 import io.ballerina.runtime.internal.errors.ErrorCodes;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -98,6 +99,7 @@ public class ConfigResolver {
         return Optional.empty();
     }
 
+    @Nullable
     private Function<ConfigProvider, Optional<?>> getValueFunction(Module module, VariableKey key, Type type) {
         switch (type.getTag()) {
             case TypeTags.NULL_TAG:

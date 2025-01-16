@@ -32,6 +32,8 @@ import io.ballerina.runtime.internal.values.ArrayValueImpl;
 import io.ballerina.runtime.internal.values.BmpStringValue;
 import io.ballerina.runtime.internal.values.MapValueImpl;
 import io.ballerina.runtime.internal.values.NonBmpStringValue;
+import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.BufferedInputStream;
 import java.io.ByteArrayOutputStream;
@@ -104,6 +106,8 @@ public final class StringUtils {
         return StringUtils.fromString(String.valueOf(Character.toChars(s.getCodePoint((int) index))));
     }
 
+    @Nullable
+    @Contract("null -> null; !null -> new")
     public static BString fromString(String s) {
         if (s == null) {
             return null;
@@ -204,6 +208,7 @@ public final class StringUtils {
      * @return      Ballerina value represented by Ballerina expression syntax
      * @throws      BError for any parsing error
      */
+    @Nullable
     public static Object parseExpressionStringValue(String value) throws BError {
         try {
             return parseExpressionStringVal(value, null);
@@ -222,6 +227,7 @@ public final class StringUtils {
      * @throws      BError for any parsing error
      * @deprecated  use {@link #parseExpressionStringValue(String)} instead.
      */
+    @Nullable
     @Deprecated(since = "2201.6.0", forRemoval = true)
     public static Object parseExpressionStringValue(String value, BLink parent) throws BError {
         return parseExpressionStringVal(value, parent);

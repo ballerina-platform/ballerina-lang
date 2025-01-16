@@ -36,6 +36,7 @@ import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.diagnostics.DiagnosticInfo;
 import io.ballerina.tools.diagnostics.DiagnosticSeverity;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -351,8 +352,9 @@ public class ResolutionEngine {
      * @param blendedDep     the dependency recorded in either Dependencies.toml or Ballerina.toml
      * @return ResolutionRequest resolution request for the unresolved node
      */
+    @Nullable
     private ResolutionRequest getRequestForUnresolvedNode(DependencyNode unresolvedNode,
-                                                          BlendedManifest.Dependency blendedDep) {
+                                                          @Nullable BlendedManifest.Dependency blendedDep) {
         if (blendedDep == null) {
             return ResolutionRequest.from(unresolvedNode.pkgDesc(), unresolvedNode.scope(),
                     unresolvedNode.resolutionType(), resolutionOptions.packageLockingMode());

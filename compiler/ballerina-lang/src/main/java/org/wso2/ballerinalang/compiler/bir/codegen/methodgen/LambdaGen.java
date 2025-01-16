@@ -21,6 +21,7 @@ package org.wso2.ballerinalang.compiler.bir.codegen.methodgen;
 import io.ballerina.identifier.Utils;
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.model.elements.PackageID;
+import org.jetbrains.annotations.Nullable;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
@@ -441,7 +442,7 @@ public class LambdaGen {
     }
 
     private static class LambdaDetails {
-        BType lhsType;
+        @Nullable BType lhsType;
         PackageID packageID;
         String funcName;
         boolean isExternFunction;

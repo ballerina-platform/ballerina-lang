@@ -17,6 +17,8 @@
  */
 package io.ballerina.runtime.observability.metrics;
 
+import org.jetbrains.annotations.Nullable;
+
 import java.time.Duration;
 import java.util.Arrays;
 
@@ -36,7 +38,7 @@ public class Snapshot {
     private final PercentileValue[] percentileValues;
 
     public Snapshot(Duration timeWindow, double min, double mean, double stdDev, double max,
-                    PercentileValue[] percentileValues) {
+                    @Nullable PercentileValue[] percentileValues) {
         this.timeWindow = timeWindow;
         this.min = min;
         this.mean = mean;

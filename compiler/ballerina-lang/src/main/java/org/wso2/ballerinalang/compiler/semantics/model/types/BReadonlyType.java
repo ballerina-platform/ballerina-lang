@@ -19,6 +19,7 @@ package org.wso2.ballerinalang.compiler.semantics.model.types;
 
 import org.ballerinalang.model.Name;
 import org.ballerinalang.model.types.TypeKind;
+import org.jetbrains.annotations.Nullable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.util.Flags;
 
@@ -31,12 +32,12 @@ public class BReadonlyType extends BBuiltInRefType {
 
     private boolean nullable = true;
 
-    public BReadonlyType(int tag, BTypeSymbol tsymbol) {
+    public BReadonlyType(int tag, @Nullable BTypeSymbol tsymbol) {
         super(tag, tsymbol);
         this.flags |= Flags.READONLY;
     }
 
-    public BReadonlyType(int tag, BTypeSymbol tsymbol, Name name, long flag) {
+    public BReadonlyType(int tag, @Nullable BTypeSymbol tsymbol, Name name, long flag) {
         super(tag, tsymbol);
         this.name = name;
         this.flags = flag;

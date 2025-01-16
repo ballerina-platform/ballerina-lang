@@ -45,6 +45,7 @@ import io.ballerina.runtime.internal.types.BTableType;
 import io.ballerina.runtime.internal.types.BTupleType;
 import io.ballerina.runtime.internal.types.BUnionType;
 import io.ballerina.runtime.internal.types.BXmlType;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
 import java.util.List;
@@ -132,7 +133,8 @@ public final class TypeCreator {
      * @param readonly  whether immutable
      * @return the new tuple type
      */
-    public static TupleType createTupleType(List<Type> typeList, Type restType, int typeFlags, boolean readonly) {
+    public static TupleType createTupleType(
+            List<Type> typeList, @Nullable Type restType, int typeFlags, boolean readonly) {
         return new BTupleType(typeList, restType, typeFlags, readonly);
     }
 
@@ -239,9 +241,9 @@ public final class TypeCreator {
      * @param typeFlags     flags associated with the type
      * @return the new record type
      */
-    public static RecordType createRecordType(String typeName, Module module, long flags, Map<String, Field> fields,
-                                              Type restFieldType,
-                                              boolean sealed, int typeFlags) {
+    public static RecordType createRecordType(
+            String typeName, @Nullable Module module, long flags, Map<String, Field> fields,
+            @Nullable Type restFieldType, boolean sealed, int typeFlags) {
         return new BRecordType(typeName, module, flags, fields, restFieldType, sealed, typeFlags);
     }
 
@@ -409,7 +411,7 @@ public final class TypeCreator {
      * @param flags     flags
      * @return new field
      */
-    public static Field createField(Type fieldType, String fieldName, long flags) {
+    public static Field createField(@Nullable Type fieldType, @Nullable String fieldName, long flags) {
         return new BField(fieldType, fieldName, flags);
     }
 
@@ -421,7 +423,7 @@ public final class TypeCreator {
      * @param readonly   whether immutable
      * @return new table type
      */
-    public static TableType createTableType(Type constraint, String[] fieldNames, boolean readonly) {
+    public static TableType createTableType(Type constraint, @Nullable String[] fieldNames, boolean readonly) {
         return new BTableType(constraint, fieldNames, readonly);
     }
 
@@ -514,7 +516,7 @@ public final class TypeCreator {
      * @param typeFlags type flags
      * @return new finite type
      */
-    public static FiniteType createFiniteType(String typeName, Set<Object> values, int typeFlags) {
+    public static FiniteType createFiniteType(@Nullable String typeName, Set<Object> values, int typeFlags) {
         return new BFiniteType(typeName, values, typeFlags);
     }
 

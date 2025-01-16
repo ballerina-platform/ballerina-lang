@@ -26,6 +26,7 @@ import io.ballerina.runtime.api.types.PredefinedTypes;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.TypeTags;
 import io.ballerina.runtime.internal.values.RefValue;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Optional;
 
@@ -56,11 +57,13 @@ public class BAnyType extends BType implements AnyType {
         }
     }
 
+    @Nullable
     @Override
     public <V extends Object> V getZeroValue() {
         return null;
     }
 
+    @Nullable
     @Override
     public <V extends Object> V getEmptyValue() {
         return null;

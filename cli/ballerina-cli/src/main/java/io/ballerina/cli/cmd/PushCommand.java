@@ -42,6 +42,7 @@ import org.ballerinalang.central.client.exceptions.CentralClientException;
 import org.ballerinalang.central.client.exceptions.NoPackageException;
 import org.ballerinalang.maven.bala.client.MavenResolverClient;
 import org.ballerinalang.maven.bala.client.MavenResolverClientException;
+import org.jetbrains.annotations.Nullable;
 import org.wso2.ballerinalang.util.RepoUtils;
 import picocli.CommandLine;
 
@@ -117,7 +118,7 @@ public class PushCommand implements BLauncherCmd {
         this.exitWhenFinish = exitWhenFinish;
     }
 
-    public PushCommand(Path userDir, PrintStream outStream, PrintStream errStream, boolean exitWhenFinish,
+    public PushCommand(@Nullable Path userDir, PrintStream outStream, PrintStream errStream, boolean exitWhenFinish,
                        Path balaPath) {
         this.userDir = userDir;
         this.outStream = outStream;
@@ -573,6 +574,7 @@ public class PushCommand implements BLauncherCmd {
      * @param balaOutputDir bala output directory
      * @return matching bala file path
      */
+    @Nullable
     private static Path findBalaFile(PackageName pkgName, PackageOrg orgName, Path balaOutputDir) {
         Path balaFilePath = null;
         File[] balaFiles = new File(balaOutputDir.toString()).listFiles();

@@ -161,7 +161,7 @@ public final class Utils {
      * @throws IOException            if an i/o exception occurs when extracting the file
      * @throws BallerinaTestException if ballerina test exception occurs when extracting the file
      */
-    public static void extractFile(String sourceFilePath, String extractedDir) throws IOException,
+    public static void extractFile(File sourceFilePath, File extractedDir) throws IOException,
             BallerinaTestException {
         FileOutputStream fileoutputstream = null;
 
@@ -182,7 +182,7 @@ public final class Utils {
                 int n;
 
                 File newFile = new File(entryName);
-                if (!newFile.getCanonicalPath().startsWith(new File(extractedDir).getCanonicalPath())) {
+                if (!newFile.getCanonicalPath().startsWith(extractedDir.getCanonicalPath())) {
                     throw new BallerinaTestException("Arbitrary File Write attack attempted via an archive file. " +
                                                              "File name: " + newFile.getName());
                 }

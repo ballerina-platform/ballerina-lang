@@ -36,6 +36,7 @@ import io.ballerina.toml.semantic.ast.TopLevelNode;
 import io.ballerina.toml.validator.TomlValidator;
 import io.ballerina.toml.validator.schema.Schema;
 import io.ballerina.tools.diagnostics.Diagnostic;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -207,6 +208,7 @@ public class SettingsBuilder {
         return value;
     }
 
+    @Nullable
     private String getStringFromTomlTableNode(TopLevelNode topLevelNode) {
         if (topLevelNode.kind() == TomlType.KEY_VALUE) {
             TomlKeyValueNode keyValueNode = (TomlKeyValueNode) topLevelNode;

@@ -25,6 +25,8 @@ import org.ballerinalang.testerina.test.BaseTestCase;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
+import java.nio.file.Path;
+
 import static org.ballerinalang.test.context.LogLeecher.LeecherType.ERROR;
 
 /**
@@ -35,12 +37,12 @@ import static org.ballerinalang.test.context.LogLeecher.LeecherType.ERROR;
 
 public class InvalidConfigurableCliArgsTestCase extends BaseTestCase {
     private BMainInstance bMainInstance;
-    private String testFileLocation;
+    private Path testFileLocation;
 
     @BeforeClass
     public void setup() {
         bMainInstance = new BMainInstance(balServer);
-        testFileLocation = projectBasedTestsPath.resolve("configurable-cli-args-test").toString();
+        testFileLocation = projectBasedTestsPath.resolve("configurable-cli-args-test");
     }
 
     @Test

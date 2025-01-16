@@ -42,6 +42,7 @@ import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.types.TypeKind;
+import org.jetbrains.annotations.Nullable;
 import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLocation;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolResolver;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
@@ -301,6 +302,7 @@ public class BallerinaSemanticModel implements SemanticModel {
         return getReferences(symbolAtCursor, node, withDefinition);
     }
 
+    @Nullable
     private BSymbol findSymbolAtCursorPosition(Document sourceDocument, LinePosition linePosition) {
         Optional<BLangCompilationUnit> sourceCompilationUnit = getCompilationUnit(sourceDocument);
         if (sourceCompilationUnit.isEmpty()) {
@@ -568,7 +570,7 @@ public class BallerinaSemanticModel implements SemanticModel {
 
     private BPackageSymbol getModuleSymbol(BLangCompilationUnit compilationUnit) {
         return compilationUnit.getSourceKind() == REGULAR_SOURCE ? bLangPackage.symbol :
-                bLangPackage.getTestablePkg().symbol;
+                bLangPackage.getTestablePkg().orElseThrow().symbol;
     }
 
     private void addToCompiledSymbols(Set<Symbol> compiledSymbols, Scope.ScopeEntry scopeEntry, Location cursorPos,

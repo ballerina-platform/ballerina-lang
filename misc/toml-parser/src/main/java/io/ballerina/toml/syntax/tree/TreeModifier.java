@@ -19,6 +19,7 @@ package io.ballerina.toml.syntax.tree;
 
 import io.ballerina.toml.internal.parser.tree.STNode;
 import io.ballerina.toml.internal.parser.tree.STNodeFactory;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
 import java.util.function.Function;
@@ -287,7 +288,8 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
         return nodeListCreator.apply(stNodeList.createUnlinkedFacade());
     }
 
-    protected <T extends Token> T modifyToken(T token) {
+    @Nullable
+    protected <T extends Token> T modifyToken(@Nullable T token) {
         if (token == null) {
             return null;
         }
@@ -295,6 +297,7 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
         return (T) token.apply(this);
     }
 
+    @Nullable
     protected <T extends Node> T modifyNode(T node) {
         if (node == null) {
             return null;

@@ -50,6 +50,7 @@ import io.ballerina.runtime.internal.values.TypedescValue;
 import org.ballerinalang.langlib.internal.GetElements;
 import org.ballerinalang.langlib.internal.GetFilteredChildrenFlat;
 import org.ballerinalang.langlib.internal.SelectDescendants;
+import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -206,6 +207,7 @@ public final class DebuggerRuntime {
      * @param annotationName name of the annotation
      * @return annotation value with the given name
      */
+    @Nullable
     public static Object getAnnotationValue(Object typedescValue, String annotationName) {
         if (!(typedescValue instanceof TypedescValue)) {
             return ErrorCreator.createError(StringUtils.fromString("Incompatible types: expected 'typedesc`, "
@@ -288,6 +290,7 @@ public final class DebuggerRuntime {
      * @param xmlStepPattern step expression pattern
      * @return the result of XML step expression
      */
+    @Nullable
     public static Object getXMLStepResult(BXml xmlVal, String xmlStepPattern) {
         try {
             if (xmlStepPattern.startsWith(XML_STEP_SEPARATOR)) {

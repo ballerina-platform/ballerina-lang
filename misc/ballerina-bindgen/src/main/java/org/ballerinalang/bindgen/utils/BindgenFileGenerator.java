@@ -83,7 +83,11 @@ public class BindgenFileGenerator {
     }
 
     private SyntaxTree generateFromTemplate(Path filePath) throws BindgenException {
-        return generateFromTemplate(filePath, env.getAlias(currentClass.getName()));
+        String alias = env.getAlias(currentClass.getName());
+        if (alias == null) {
+            throw new BindgenException("error: unable to generate the binding class '" + currentClass.getName() + "'");
+        }
+        return generateFromTemplate(filePath, alias);
     }
 
     private SyntaxTree generateFromTemplate(Path filePath, String alias) throws BindgenException {

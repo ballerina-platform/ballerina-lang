@@ -24,6 +24,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.ballerinalang.langserver.codeaction.CodeActionModuleId;
 import org.ballerinalang.langserver.common.ImportsAcceptor;
 import org.ballerinalang.langserver.commons.DocumentServiceContext;
+import org.jetbrains.annotations.Nullable;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 
 import java.util.List;
@@ -277,7 +278,7 @@ public final class FunctionGenerator {
      * @param typeSymbol Type symbol to be converted to a string
      * @return Type as a string
      */
-    public static String getParameterTypeAsString(DocumentServiceContext context, TypeSymbol typeSymbol) {
+    public static String getParameterTypeAsString(DocumentServiceContext context, @Nullable TypeSymbol typeSymbol) {
         // Unknown types are considered as 'any' when generating parameters of a function
         if (typeSymbol == null || typeSymbol.typeKind() == TypeDescKind.COMPILATION_ERROR) {
             return TypeDescKind.ANY.getName();

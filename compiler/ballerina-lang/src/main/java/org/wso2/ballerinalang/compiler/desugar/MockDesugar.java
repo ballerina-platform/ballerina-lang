@@ -20,6 +20,7 @@ package org.wso2.ballerinalang.compiler.desugar;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.tree.TopLevelNode;
+import org.jetbrains.annotations.Nullable;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolResolver;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
@@ -74,7 +75,9 @@ public class MockDesugar {
     private final SymbolTable symTable;
     private final SymbolResolver symResolver;
     private BLangPackage bLangPackage;
+    @Nullable
     private BLangFunction originalFunction;
+    @Nullable
     private BInvokableSymbol importFunction;
     private String mockFnObjectName;
     private final String testPackageSymbol = "ballerina/test";
@@ -113,16 +116,16 @@ public class MockDesugar {
         this.bLangPackage = pkgNode;
 
         // Get the Mock Function map from the pkgNode
-        Map<String, String> mockFunctionMap = pkgNode.getTestablePkg().getMockFunctionNamesMap();
+        Map<String, String> mockFunctionMap = pkgNode.getTestablePkg().orElseThrow().getMockFunctionNamesMap();
 
         // Get the mock function type map from the pkgNode
-        Map<String, Boolean> isLegacyMockingMap = pkgNode.getTestablePkg().getIsLegacyMockingMap();
+        Map<String, Boolean> isLegacyMockingMap = pkgNode.getTestablePkg().orElseThrow().getIsLegacyMockingMap();
 
         // Get the set of functions to generate
         Set<String> mockFunctionSet = mockFunctionMap.keySet();
         for (String function : mockFunctionSet) {
             if (!isLegacyMockingMap.get(function)) {
-                pkgNode.getTestablePkg().functions.add(generateMockFunction(function));
+                pkgNode.getTestablePkg().orElseThrow().functions.add(generateMockFunction(function));
             }
         }
     }
@@ -135,7 +138,8 @@ public class MockDesugar {
      */
     private BLangFunction generateMockFunction(String functionName) {
         // Set the current mock object
-        this.mockFnObjectName = this.bLangPackage.getTestablePkg().getMockFunctionNamesMap().get(functionName);
+        this.mockFnObjectName = this.bLangPackage.getTestablePkg().orElseThrow()
+                .getMockFunctionNamesMap().get(functionName);
 
         // Reset both import and original functions
         this.importFunction = null;
@@ -175,6 +179,7 @@ public class MockDesugar {
         return generatedMock;
     }
 
+    @Nullable
     private BLangFunction getOriginalFunction(String functionName) {
         List<BLangFunction> functionList = bLangPackage.getFunctions();
         for (BLangFunction function : functionList) {
@@ -185,18 +190,20 @@ public class MockDesugar {
         return null;
     }
 
+    @Nullable
     private BInvokableSymbol getImportFunction(String functionName, String packageName) {
         BInvokableSymbol bInvokableSymbol =
                 getInvokableSymbol(functionName, packageName, this.bLangPackage.getImports());
 
         if (bInvokableSymbol == null) {
-            bInvokableSymbol =
-                    getInvokableSymbol(functionName, packageName, this.bLangPackage.getTestablePkg().getImports());
+            bInvokableSymbol = getInvokableSymbol(functionName, packageName,
+                    this.bLangPackage.getTestablePkg().orElseThrow().getImports());
         }
 
         return bInvokableSymbol;
     }
 
+    @Nullable
     private BInvokableSymbol getInvokableSymbol(String functionName, String packageName,
                                                 List<BLangImportPackage> importList) {
         // Loop through each BLangImportPackage
@@ -238,6 +245,7 @@ public class MockDesugar {
         return bLangSimpleVariables;
     }
 
+    @Nullable
     private BLangSimpleVariable generateRestParam() {
         BLangSimpleVariable bLangSimpleVariable = null;
 
@@ -382,7 +390,8 @@ public class MockDesugar {
 
     // This function synthesizes the Ballerina equivalent of : `= [(class1), (class2)]`
     private BLangListConstructorExpr generateClassListConstructorExpr() {
-        List<BLangCompilationUnit> compUnitList = this.bLangPackage.getTestablePkg().getCompilationUnits();
+        List<BLangCompilationUnit> compUnitList = this.bLangPackage.getTestablePkg().orElseThrow()
+                .getCompilationUnits();
         BArrayType bArrayType = new BArrayType(symTable.stringType, null, -1, BArrayState.OPEN);
 
         List<BLangCompilationUnit> modifiedcompUnitList = new ArrayList<>();
@@ -444,8 +453,9 @@ public class MockDesugar {
     }
 
     // This function synthesizes the Ballerina equivalent of : `MockHandler()`
+    @Nullable
     private BInvokableSymbol getMockHandlerInvokableSymbol() {
-        List<BLangImportPackage> packageList = bLangPackage.getTestablePkg().getImports();
+        List<BLangImportPackage> packageList = bLangPackage.getTestablePkg().orElseThrow().getImports();
         for (BLangImportPackage importPackage : packageList) {
             if (importPackage.alias.getValue().equals("test")) {
                 BInvokableSymbol mockHandlerSymbol =
@@ -493,8 +503,8 @@ public class MockDesugar {
 
     // This function synthesizes the Ballerina equivalent of : `(<mockFnObj>`
     private BLangSimpleVarRef getMockFunctionReference() {
-        BVarSymbol mockObjectSymbol =
-                (BVarSymbol) bLangPackage.getTestablePkg().symbol.scope.lookup(new Name(this.mockFnObjectName)).symbol;
+        BVarSymbol mockObjectSymbol = (BVarSymbol) bLangPackage.getTestablePkg().orElseThrow()
+                .symbol.scope.lookup(new Name(this.mockFnObjectName)).symbol;
         BLangSimpleVarRef bLangSimpleVarRef = ASTBuilderUtil.createVariableRef(bLangPackage.pos, mockObjectSymbol);
         return bLangSimpleVarRef;
     }

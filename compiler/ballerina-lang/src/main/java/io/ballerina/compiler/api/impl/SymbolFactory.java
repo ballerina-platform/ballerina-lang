@@ -60,6 +60,7 @@ import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.AnnotationAttachmentSymbol;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.symbols.SymbolOrigin;
+import org.jetbrains.annotations.Nullable;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolResolver;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
@@ -145,6 +146,7 @@ public class SymbolFactory {
      * @param name   symbol name
      * @return generated compiled symbol
      */
+    @Nullable
     public Symbol getBCompiledSymbol(BSymbol symbol, String name) {
 
         if (symbol == null) {
@@ -413,16 +415,19 @@ public class SymbolFactory {
         return false;
     }
 
+    @Nullable
     public BallerinaRecordFieldSymbol createRecordFieldSymbol(BVarSymbol symbol) {
         BField bField = getBField(symbol);
         return bField != null ? new BallerinaRecordFieldSymbol(this.context, bField) : null;
     }
 
+    @Nullable
     public BallerinaObjectFieldSymbol createObjectFieldSymbol(BVarSymbol symbol) {
         BField bField = getBField(symbol);
         return bField != null ? new BallerinaObjectFieldSymbol(this.context, bField) : null;
     }
 
+    @Nullable
     public BallerinaClassFieldSymbol createClassFieldSymbol(BVarSymbol symbol) {
         BField bField = getBField(symbol);
         return bField != null ? new BallerinaClassFieldSymbol(this.context, bField) : null;
@@ -449,6 +454,7 @@ public class SymbolFactory {
      * @param kind   The kind of the parameter
      * @return {@link ParameterSymbol} generated parameter
      */
+    @Nullable
     public ParameterSymbol createBallerinaParameter(BVarSymbol symbol, ParameterKind kind) {
         if (symbol == null) {
             return null;
@@ -630,6 +636,7 @@ public class SymbolFactory {
         return symbolBuilder.build();
     }
 
+    @Nullable
     private BallerinaConstantValue createConstantValue(BLangConstantValue constantValue) {
         if (constantValue == null) {
             return null;

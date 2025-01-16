@@ -67,6 +67,6 @@ public class BLangElvisExpr extends BLangExpression implements ElvisExpressionNo
 
     @Override
     public String toString() {
-        return String.valueOf(lhsExpr) + "?:" + String.valueOf(rhsExpr);
+        return lhsExpr + "?:" + rhsExpr;
     }
 }

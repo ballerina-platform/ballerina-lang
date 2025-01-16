@@ -45,6 +45,7 @@ import io.ballerina.tools.diagnostics.DiagnosticFactory;
 import io.ballerina.tools.diagnostics.DiagnosticInfo;
 import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 import io.ballerina.tools.diagnostics.Location;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -99,7 +100,7 @@ public class DependencyManifestBuilder {
         }
     }
 
-    public static DependencyManifestBuilder from(TomlDocument dependenciesToml,
+    public static DependencyManifestBuilder from(@Nullable TomlDocument dependenciesToml,
                                                  PackageDescriptor packageDescriptor) {
         return new DependencyManifestBuilder(dependenciesToml, packageDescriptor);
     }
@@ -181,6 +182,7 @@ public class DependencyManifestBuilder {
         }
     }
 
+    @Nullable
     private String getDependenciesTomlVersion() {
         if (dependenciesToml.isEmpty()) {
             // When Dependencies.toml does not exists, we consider it is in the latest toml version
@@ -204,6 +206,7 @@ public class DependencyManifestBuilder {
         return null;
     }
 
+    @Nullable
     private SemanticVersion getDistributionVersion() {
         if (dependenciesToml.isEmpty()) {
             return null;
@@ -395,6 +398,7 @@ public class DependencyManifestBuilder {
         return packages;
     }
 
+    @Nullable
     private String getStringValueFromDependencyNode(TomlTableNode pkgNode, String key) {
         TopLevelNode topLevelNode = pkgNode.entries().get(key);
         if (topLevelNode == null) {

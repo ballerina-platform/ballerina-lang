@@ -22,6 +22,7 @@ import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.symbols.SymbolOrigin;
+import org.jetbrains.annotations.Nullable;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.util.Names;
 
@@ -37,18 +38,17 @@ import java.util.Map;
  */
 public class BInvokableTypeSymbol extends BTypeSymbol {
 
-    public List<BVarSymbol> params;
+    public List<BVarSymbol> params = new ArrayList<>();
+    @Nullable
     public BVarSymbol restParam;
+    @Nullable
     public BType returnType;
-    public List<BAnnotationAttachmentSymbol> returnTypeAnnots;
-    public Map<String, BInvokableSymbol> defaultValues;
-    public BInvokableTypeSymbol(long symTag, long flags, PackageID pkgID, BType type, BSymbol owner,
+    public final List<BAnnotationAttachmentSymbol> returnTypeAnnots = new ArrayList<>();
+    public final Map<String, BInvokableSymbol> defaultValues = new HashMap<>();
+    public BInvokableTypeSymbol(long symTag, long flags, PackageID pkgID, @Nullable BType type, BSymbol owner,
                                 Location location,
                                 SymbolOrigin origin) {
         super(symTag, flags, Names.EMPTY, Names.EMPTY, pkgID, type, owner, location, origin);
-        this.params = new ArrayList<>();
-        this.returnTypeAnnots = new ArrayList<>();
-        this.defaultValues = new HashMap<>();
     }
 
     @Override

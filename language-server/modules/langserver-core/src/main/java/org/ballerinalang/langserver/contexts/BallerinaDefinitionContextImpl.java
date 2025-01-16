@@ -26,6 +26,7 @@ import org.ballerinalang.langserver.commons.LanguageServerContext;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceManager;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.jsonrpc.CancelChecker;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Optional;
 
@@ -37,6 +38,7 @@ import java.util.Optional;
 public class BallerinaDefinitionContextImpl 
         extends PositionedOperationContextImpl implements BallerinaDefinitionContext {
     private boolean capturedEnclosingNode = false;
+    @Nullable
     private ModuleMemberDeclarationNode enclosingNode = null;
 
     BallerinaDefinitionContextImpl(LSOperation operation,

@@ -18,6 +18,8 @@
 
 package io.ballerina.component;
 
+import org.jetbrains.annotations.Nullable;
+
 /**
  * models if statement nodes.
  *
@@ -27,7 +29,8 @@ public class ReturningActionInvocationNode extends ActionInvocationNode {
 
     private boolean hasReturn;
 
-    public ReturningActionInvocationNode(String endPointRef, String name, String path, String pos, boolean hasReturn) {
+    public ReturningActionInvocationNode(
+            String endPointRef, String name, @Nullable String path, String pos, boolean hasReturn) {
 
         super(endPointRef, name, path, pos);
         this.hasReturn = hasReturn;

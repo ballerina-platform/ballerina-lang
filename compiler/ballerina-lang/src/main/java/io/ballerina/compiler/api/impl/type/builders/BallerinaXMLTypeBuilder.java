@@ -26,6 +26,7 @@ import io.ballerina.compiler.api.symbols.TypeReferenceTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.api.symbols.UnionTypeSymbol;
 import io.ballerina.compiler.api.symbols.XMLTypeSymbol;
+import org.jetbrains.annotations.Nullable;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
@@ -52,6 +53,7 @@ public class BallerinaXMLTypeBuilder implements TypeBuilder.XML {
 
     private final TypesFactory typesFactory;
     private final SymbolTable symTable;
+    @Nullable
     private TypeSymbol typeParam;
 
     private final Map<String, Boolean> checkedTypeRefs = new HashMap<>();
@@ -90,6 +92,7 @@ public class BallerinaXMLTypeBuilder implements TypeBuilder.XML {
         return xmlTypeSymbol;
     }
 
+    @Nullable
     private BType getBType(TypeSymbol typeSymbol) {
         if (typeSymbol != null) {
             if (isValidTypeParam(typeSymbol)) {

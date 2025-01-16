@@ -68,9 +68,7 @@ public final class PackerinaTestUtils {
      */
     public static Map<String, String> getEnvVariables() {
         Map<String, String> envVarMap = System.getenv();
-        Map<String, String> retMap = new HashMap<>();
-        envVarMap.forEach(retMap::put);
-        return retMap;
+        return new HashMap<>(envVarMap);
     }
 
     /**

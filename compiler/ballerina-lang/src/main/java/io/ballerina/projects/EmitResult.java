@@ -17,6 +17,8 @@
  */
 package io.ballerina.projects;
 
+import org.jetbrains.annotations.Nullable;
+
 import java.nio.file.Path;
 
 /**
@@ -30,7 +32,7 @@ public class EmitResult {
     private final DiagnosticResult diagnostics;
     private final Path generatedArtifact;
 
-    EmitResult(boolean success, DiagnosticResult diagnostics, Path generatedArtifact) {
+    EmitResult(boolean success, DiagnosticResult diagnostics, @Nullable Path generatedArtifact) {
         this.success = success;
         this.diagnostics = diagnostics;
         this.generatedArtifact = generatedArtifact;

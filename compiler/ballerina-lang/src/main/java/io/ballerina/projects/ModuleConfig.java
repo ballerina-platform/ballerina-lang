@@ -17,6 +17,8 @@
  */
 package io.ballerina.projects;
 
+import org.jetbrains.annotations.Nullable;
+
 import java.util.List;
 import java.util.Optional;
 
@@ -52,7 +54,7 @@ public class ModuleConfig {
                                     ModuleDescriptor moduleDescriptor,
                                     List<DocumentConfig> srcDocs,
                                     List<DocumentConfig> testSrcDocs,
-                                    DocumentConfig moduleMd,
+                                    @Nullable DocumentConfig moduleMd,
                                     List<ModuleDescriptor> dependencies) {
         return new ModuleConfig(moduleId, moduleDescriptor, srcDocs, testSrcDocs, moduleMd, dependencies);
     }
@@ -102,11 +104,13 @@ public class ModuleConfig {
         return Optional.ofNullable(this.readmeMd);
     }
 
+    @Nullable
     @Deprecated(since = "2201.10.0", forRemoval = true)
     public List<ResourceConfig> resources() {
         return null;
     }
 
+    @Nullable
     @Deprecated(since = "2201.10.0", forRemoval = true)
     public List<ResourceConfig> testResources() {
         return null;

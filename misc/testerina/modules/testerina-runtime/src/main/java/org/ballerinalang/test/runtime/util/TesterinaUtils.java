@@ -22,6 +22,7 @@ import io.ballerina.runtime.internal.utils.RuntimeUtils;
 import org.ballerinalang.test.runtime.entity.Test;
 import org.ballerinalang.test.runtime.entity.TestSuite;
 import org.ballerinalang.test.runtime.exceptions.BallerinaTestException;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 import java.io.IOException;
@@ -243,6 +244,7 @@ public final class TesterinaUtils {
      * @param tests    the tests available in current test suite
      * @return
      */
+    @Nullable
     private static Test getTest(String testName, List<Test> tests) {
         for (Test test : tests) {
             if (testName.equals(test.getTestName())) {
@@ -259,7 +261,7 @@ public final class TesterinaUtils {
      * @param currentTests the tests available in current test suite
      * @return list of dependent functions
      */
-    private static List<String> getAllDependentFunctions(Test test, List<Test> currentTests) {
+    private static List<String> getAllDependentFunctions(@Nullable Test test, List<Test> currentTests) {
         List<String> completeDependentTestList = new ArrayList<>();
         if (test != null) {
             List<String> dependentTests = test.getDependsOnTestFunctions();
@@ -389,6 +391,7 @@ public final class TesterinaUtils {
         return className.replace(GENERATE_OBJECT_CLASS_PREFIX, ".");
     }
 
+    @Nullable
     public static String decodeIdentifier(String encodedIdentifier) {
         if (encodedIdentifier == null) {
             return null;

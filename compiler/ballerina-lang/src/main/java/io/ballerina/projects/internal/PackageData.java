@@ -20,6 +20,7 @@ package io.ballerina.projects.internal;
 import io.ballerina.projects.DependencyGraph;
 import io.ballerina.projects.ModuleDescriptor;
 import io.ballerina.projects.PackageDescriptor;
+import org.jetbrains.annotations.Nullable;
 
 import java.nio.file.Path;
 import java.util.List;
@@ -77,12 +78,12 @@ public class PackageData {
     public static PackageData from(Path packagePath,
                                    ModuleData defaultModule,
                                    List<ModuleData> otherModules,
-                                   DocumentData ballerinaToml,
-                                   DocumentData dependenciesToml,
-                                   DocumentData cloudToml,
-                                   DocumentData compilerPluginToml,
-                                   DocumentData balToolToml,
-                                   DocumentData readmeMd,
+                                   @Nullable DocumentData ballerinaToml,
+                                   @Nullable DocumentData dependenciesToml,
+                                   @Nullable DocumentData cloudToml,
+                                   @Nullable DocumentData compilerPluginToml,
+                                   @Nullable DocumentData balToolToml,
+                                   @Nullable DocumentData readmeMd,
                                    List<Path> resources,
                                    List<Path> testResources) {
         return new PackageData(packagePath, defaultModule, otherModules, DependencyGraph.emptyGraph(),

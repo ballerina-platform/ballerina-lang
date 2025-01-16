@@ -36,8 +36,7 @@ import java.nio.file.Path;
  */
 public class IsolatedInferenceWithTestsTest extends BaseTest {
 
-    private static final String testFileLocation =
-            Path.of("src/test/resources/isolated-inference-projects").toAbsolutePath().toString();
+    private static final Path testFileLocation = Path.of("src/test/resources/isolated-inference-projects");
     private BMainInstance bMainInstance;
 
     @BeforeClass
@@ -65,7 +64,7 @@ public class IsolatedInferenceWithTestsTest extends BaseTest {
         LogLeecher failedLeecher = new LogLeecher("0 failing");
         bMainInstance.runMain("test", new String[0], null, null,
                               new LogLeecher[]{passedLeecher, failedLeecher},
-                              Path.of(testFileLocation, pkg).toString());
+                testFileLocation.resolve(pkg));
         passedLeecher.waitForText(5000);
         failedLeecher.waitForText(5000);
     }

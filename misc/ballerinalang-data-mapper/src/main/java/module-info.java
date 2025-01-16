@@ -9,4 +9,5 @@ module io.ballerina.datamapper {
     requires org.slf4j;
     requires com.google.gson;
     requires com.google.common;
+    requires static org.jetbrains.annotations;
 }

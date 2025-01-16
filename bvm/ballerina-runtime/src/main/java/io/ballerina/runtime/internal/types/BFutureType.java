@@ -23,6 +23,7 @@ import io.ballerina.runtime.api.types.FutureType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.TypeTags;
 import io.ballerina.runtime.internal.TypeChecker;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * {@code BFutureType} represents a future value in Ballerina.
@@ -52,11 +53,13 @@ public class BFutureType extends BType implements FutureType {
         return constraint;
     }
 
+    @Nullable
     @Override
     public <V extends Object> V getZeroValue() {
         return null;
     }
 
+    @Nullable
     @Override
     public <V extends Object> V getEmptyValue() {
         return null;

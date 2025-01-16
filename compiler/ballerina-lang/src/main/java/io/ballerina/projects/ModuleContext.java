@@ -30,6 +30,7 @@ import org.ballerinalang.compiler.CompilerOptionName;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.PackageID;
+import org.jetbrains.annotations.Nullable;
 import org.wso2.ballerinalang.compiler.BIRPackageSymbolEnter;
 import org.wso2.ballerinalang.compiler.PackageCache;
 import org.wso2.ballerinalang.compiler.bir.writer.BIRBinaryWriter;
@@ -82,6 +83,7 @@ class ModuleContext {
     private final List<ModuleDescriptor> moduleDescDependencies;
 
     private Set<ModuleDependency> moduleDependencies;
+    @Nullable
     private BLangPackage bLangPackage;
     private BPackageSymbol bPackageSymbol;
     private byte[] birBytes = new byte[0];
@@ -96,7 +98,7 @@ class ModuleContext {
                   boolean isDefaultModule,
                   Map<DocumentId, DocumentContext> srcDocContextMap,
                   Map<DocumentId, DocumentContext> testDocContextMap,
-                  MdDocumentContext readmeMd,
+                  @Nullable MdDocumentContext readmeMd,
                   List<ModuleDescriptor> moduleDescDependencies) {
         this.project = project;
         this.moduleId = moduleId;
@@ -276,7 +278,7 @@ class ModuleContext {
         return moduleCompState;
     }
 
-    void setCompilationState(ModuleCompilationState moduleCompState) {
+    void setCompilationState(@Nullable ModuleCompilationState moduleCompState) {
         this.moduleCompState = moduleCompState;
     }
 
@@ -484,6 +486,7 @@ class ModuleContext {
                 && moduleContext.project().buildOptions().enableCache();
     }
 
+    @Nullable
     private static ByteArrayOutputStream generateBIR(ModuleContext moduleContext, CompilerContext compilerContext) {
         if (!shouldGenerateBir(moduleContext, compilerContext)) {
             return null;
@@ -491,11 +494,15 @@ class ModuleContext {
         // Can we improve this logic
         ByteArrayOutputStream birContent = new ByteArrayOutputStream();
         try {
-            CompiledBinaryFile.BIRPackageFile birPackageFile = moduleContext.bLangPackage.symbol.birPackageFile;
+            BLangPackage bLangPackage = moduleContext.bLangPackage;
+            if (bLangPackage == null) {
+                throw new IllegalStateException("BLangPackage is null");
+            }
+            CompiledBinaryFile.BIRPackageFile birPackageFile = bLangPackage.symbol.birPackageFile;
             if (birPackageFile == null) {
                 birPackageFile = new CompiledBinaryFile
-                        .BIRPackageFile(new BIRBinaryWriter(moduleContext.bLangPackage.symbol.bir).serialize());
-                moduleContext.bLangPackage.symbol.birPackageFile = birPackageFile;
+                        .BIRPackageFile(new BIRBinaryWriter(bLangPackage.symbol.bir).serialize());
+                bLangPackage.symbol.birPackageFile = birPackageFile;
             }
             byte[] pkgBirBinaryContent = PackageFileWriter.writePackage(birPackageFile);
             birContent.writeBytes(pkgBirBinaryContent);

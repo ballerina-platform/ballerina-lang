@@ -25,6 +25,7 @@ import io.ballerina.semver.checker.diff.NodeDiffBuilder;
 import io.ballerina.semver.checker.diff.NodeDiffImpl;
 import io.ballerina.semver.checker.diff.SemverImpact;
 import io.ballerina.semver.checker.util.SyntaxTreeUtils;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Optional;
 
@@ -41,11 +42,11 @@ public class DumbNodeComparator<T extends Node> implements Comparator {
     private final T oldNode;
     private final DiffKind nodeKind;
 
-    DumbNodeComparator(T newNode, T oldNode) {
+    DumbNodeComparator(@Nullable T newNode, @Nullable T oldNode) {
         this(newNode, oldNode, null);
     }
 
-    DumbNodeComparator(T newNode, T oldNode, DiffKind nodeKind) {
+    DumbNodeComparator(@Nullable T newNode, @Nullable T oldNode, @Nullable DiffKind nodeKind) {
         this.newNode = newNode;
         this.oldNode = oldNode;
         this.nodeKind = nodeKind;

@@ -3,6 +3,7 @@ module io.ballerina.toml {
     requires com.google.gson;
     requires org.apache.commons.text;
     requires io.ballerina.identifier;
+    requires static org.jetbrains.annotations;
 
     exports io.ballerina.toml.syntax.tree;
     exports io.ballerina.toml.semantic;

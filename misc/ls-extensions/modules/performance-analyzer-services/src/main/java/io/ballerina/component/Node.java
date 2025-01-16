@@ -18,6 +18,8 @@
 
 package io.ballerina.component;
 
+import org.jetbrains.annotations.Nullable;
+
 /**
  * base class to handle essential AST nodes.
  *
@@ -32,7 +34,7 @@ public class Node {
         return nextNode;
     }
 
-    public void setNextNode(Node nextNode) {
+    public void setNextNode(@Nullable Node nextNode) {
 
         this.nextNode = nextNode;
     }

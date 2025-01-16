@@ -35,26 +35,25 @@ import java.nio.file.Path;
  */
 public class ReadOnlyIntersectionViaMultipleModulesTest2 extends BaseTest {
 
-    private static final String testFileLocation = Path.of("src/test/resources/packaging/readonly/two")
-            .toAbsolutePath().toString();
+    private static final Path testFileLocation = Path.of("src/test/resources/packaging/readonly/two");
     private BMainInstance bMainInstance;
 
     @BeforeClass
     public void setup() throws BallerinaTestException {
         bMainInstance = new BMainInstance(balServer);
         // Build and push down stream packages.
-        compilePackageAndPushToLocal(Path.of(testFileLocation, "test_project_immutable_foo").toString(),
+        compilePackageAndPushToLocal(testFileLocation.resolve("test_project_immutable_foo"),
                                      "testorg-selectively_immutable_foo2-any-1.0.0");
-        compilePackageAndPushToLocal(Path.of(testFileLocation, "test_project_immutable_bar").toString(),
+        compilePackageAndPushToLocal(testFileLocation.resolve("test_project_immutable_bar"),
                                      "testorg-selectively_immutable_bar2-any-1.0.0");
-        compilePackageAndPushToLocal(Path.of(testFileLocation, "test_project_immutable_baz").toString(),
+        compilePackageAndPushToLocal(testFileLocation.resolve("test_project_immutable_baz"),
                                      "testorg-selectively_immutable_baz2-any-1.0.0");
     }
 
-    private void compilePackageAndPushToLocal(String packagePath, String balaFileName) throws BallerinaTestException {
-        LogLeecher buildLeecher = new LogLeecher("target/bala/" + balaFileName + ".bala");
-        LogLeecher pushLeecher = new LogLeecher("Successfully pushed target/bala/" + balaFileName + ".bala to " +
-                                                        "'local' repository.");
+    private void compilePackageAndPushToLocal(Path packagePath, String balaFileName) throws BallerinaTestException {
+        String targetBala = Path.of("target/bala/" + balaFileName + ".bala").toString();
+        LogLeecher buildLeecher = new LogLeecher(targetBala);
+        LogLeecher pushLeecher = new LogLeecher("Successfully pushed " + targetBala + " to 'local' repository.");
         bMainInstance.runMain("pack", new String[]{}, null, null, new LogLeecher[]{buildLeecher},
                               packagePath);
         buildLeecher.waitForText(5000);
@@ -71,9 +70,10 @@ public class ReadOnlyIntersectionViaMultipleModulesTest2 extends BaseTest {
     }
 
     private void buildQux() throws BallerinaTestException {
-        LogLeecher buildLeecher = new LogLeecher("target/bala/testorg-selectively_immutable_qux2-any-1.0.0.bala");
+        LogLeecher buildLeecher = new LogLeecher(
+                Path.of("target/bala/testorg-selectively_immutable_qux2-any-1.0.0.bala").toString());
         bMainInstance.runMain("pack", new String[]{}, null, null, new LogLeecher[]{buildLeecher},
-                              Path.of(testFileLocation, "test_project_immutable_qux").toString());
+                testFileLocation.resolve("test_project_immutable_qux"));
         buildLeecher.waitForText(5000);
     }
 }

@@ -18,6 +18,7 @@
 package io.ballerinalang.compiler.internal.treegen.targets.nodevisitor;
 
 import io.ballerinalang.compiler.internal.treegen.TreeGenConfig;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Collections;
 import java.util.List;
@@ -52,6 +53,7 @@ public class NodeTransformerTarget extends AbstractNodeVisitorTarget {
         return NODE_TRANSFORMER_CN;
     }
 
+    @Nullable
     @Override
     protected String getSuperClassName() {
         return null;

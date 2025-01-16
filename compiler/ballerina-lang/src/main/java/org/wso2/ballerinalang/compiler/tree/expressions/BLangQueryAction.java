@@ -19,6 +19,7 @@ package org.wso2.ballerinalang.compiler.tree.expressions;
 
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.statements.QueryActionNode;
+import org.jetbrains.annotations.Nullable;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeAnalyzer;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeTransformer;
@@ -72,6 +73,7 @@ public class BLangQueryAction extends BLangExpression implements QueryActionNode
         this.queryClauseList.add(queryClause);
     }
 
+    @Nullable
     @Override
     public BLangDoClause getDoClause() {
         for (BLangNode clause : queryClauseList) {

@@ -27,6 +27,7 @@ import io.ballerina.runtime.internal.scheduling.Scheduler;
 import io.ballerina.runtime.internal.scheduling.Strand;
 import io.ballerina.runtime.internal.types.BFutureType;
 import io.ballerina.runtime.internal.utils.StringUtils;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Map;
 import java.util.StringJoiner;
@@ -51,7 +52,7 @@ public class FutureValue implements BFuture, RefValue {
      private final BTypedesc typedesc;
      private final AtomicBoolean waited;
 
-     public FutureValue(Strand strand, Type constraint) {
+     public FutureValue(@Nullable Strand strand, @Nullable Type constraint) {
          this.strand = strand;
          this.type = new BFutureType(constraint);
          this.typedesc = new TypedescValueImpl(this.type);
@@ -60,7 +61,7 @@ public class FutureValue implements BFuture, RefValue {
      }
 
      @Override
-     public String stringValue(BLink parent) {
+     public String stringValue(@Nullable BLink parent) {
          StringJoiner sj = new StringJoiner(",", "{", "}");
          boolean isDone =  completableFuture.isDone();
          sj.add("isDone:" + completableFuture.isDone());

@@ -24,6 +24,7 @@ import org.ballerinalang.model.tree.OperatorKind;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
 import org.ballerinalang.model.tree.expressions.VariableReferenceNode;
 import org.ballerinalang.model.tree.statements.CompoundAssignmentNode;
+import org.jetbrains.annotations.Nullable;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeAnalyzer;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeTransformer;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
@@ -41,6 +42,7 @@ public class BLangCompoundAssignment extends BLangStatement implements CompoundA
     public BLangExpression expr;
 
     // Parser Flags and Data
+    @Nullable
     public OperatorKind opKind;
 
     // Semantic Data

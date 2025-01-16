@@ -21,6 +21,7 @@ import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.types.IteratorType;
 import io.ballerina.runtime.api.types.TypeTags;
 import io.ballerina.runtime.internal.values.IteratorValue;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * {@code BIteratorType} represents the type of iterator in ballerina.
@@ -33,11 +34,13 @@ public class BIteratorType extends BType implements IteratorType {
         super(typeName, pkg, IteratorValue.class);
     }
 
+    @Nullable
     @Override
     public <V extends Object> V getZeroValue() {
         return null;
     }
 
+    @Nullable
     @Override
     public <V extends Object> V getEmptyValue() {
         return null;

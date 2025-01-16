@@ -19,6 +19,7 @@ package io.ballerina.projects;
 import io.ballerina.projects.environment.ProjectEnvironment;
 import io.ballerina.projects.internal.DefaultDiagnosticResult;
 import io.ballerina.tools.diagnostics.Diagnostic;
+import org.jetbrains.annotations.Nullable;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
 import java.util.ArrayList;
@@ -57,36 +58,43 @@ public class NullBackend extends CompilerBackend {
     }
 
 
+    @Nullable
     @Override
     public Collection<PlatformLibrary> platformLibraryDependencies(PackageId packageId) {
         return null;
     }
 
+    @Nullable
     @Override
     public Collection<PlatformLibrary> platformLibraryDependencies(PackageId packageId, PlatformLibraryScope scope) {
         return null;
     }
 
+    @Nullable
     @Override
     public PlatformLibrary codeGeneratedLibrary(PackageId packageId, ModuleName moduleName) {
         return null;
     }
 
+    @Nullable
     @Override
     public PlatformLibrary codeGeneratedTestLibrary(PackageId packageId, ModuleName moduleName) {
         return null;
     }
 
+    @Nullable
     @Override
     public PlatformLibrary codeGeneratedResourcesLibrary(PackageId packageId) {
         return null;
     }
 
+    @Nullable
     @Override
     public PlatformLibrary runtimeLibrary() {
         return null;
     }
 
+    @Nullable
     @Override
     public TargetPlatform targetPlatform() {
         return null;
@@ -96,6 +104,7 @@ public class NullBackend extends CompilerBackend {
     public void performCodeGen(ModuleContext moduleContext, CompilationCache compilationCache) {
     }
 
+    @Nullable
     @Override
     public String libraryFileExtension() {
         return null;

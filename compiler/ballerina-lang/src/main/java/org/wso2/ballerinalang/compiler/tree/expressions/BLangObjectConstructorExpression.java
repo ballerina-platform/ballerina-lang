@@ -78,7 +78,7 @@ public class BLangObjectConstructorExpression extends BLangExpression {
 
     @Override
     public String toString() {
-        StringBuilder sb = new StringBuilder("");
+        StringBuilder sb = new StringBuilder();
         if (isClient) {
             sb.append("client ");
         }

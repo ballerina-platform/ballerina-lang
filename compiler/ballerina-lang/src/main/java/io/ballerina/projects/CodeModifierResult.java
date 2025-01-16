@@ -19,6 +19,7 @@ package io.ballerina.projects;
 
 import io.ballerina.projects.internal.DefaultDiagnosticResult;
 import io.ballerina.tools.diagnostics.Diagnostic;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
 import java.util.Optional;
@@ -33,7 +34,7 @@ public class CodeModifierResult {
     private final Package updatedPkg;
     private final DiagnosticResult diagnostics;
 
-    CodeModifierResult(Package updatedPkg, Collection<Diagnostic> diagnostics) {
+    CodeModifierResult(@Nullable Package updatedPkg, Collection<Diagnostic> diagnostics) {
         this.updatedPkg = updatedPkg;
         this.diagnostics = new DefaultDiagnosticResult(diagnostics);
     }

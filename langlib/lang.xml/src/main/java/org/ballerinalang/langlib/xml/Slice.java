@@ -20,6 +20,7 @@ package org.ballerinalang.langlib.xml;
 
 import io.ballerina.runtime.api.values.BXml;
 import io.ballerina.runtime.internal.errors.ErrorHelper;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Slice and return a subsequence of the an XML sequence.
@@ -32,6 +33,7 @@ public final class Slice {
     private Slice() {
     }
 
+    @Nullable
     public static BXml slice(BXml xml, long startIndex, long endIndex) {
         try {
             return xml.slice(startIndex, endIndex);

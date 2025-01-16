@@ -23,6 +23,7 @@ import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.types.SelectivelyImmutableReferenceType;
 import org.ballerinalang.model.types.TypeKind;
+import org.jetbrains.annotations.Nullable;
 import org.wso2.ballerinalang.compiler.desugar.ASTBuilderUtil;
 import org.wso2.ballerinalang.compiler.parser.BLangAnonymousModelHelper;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
@@ -93,7 +94,7 @@ public final class ImmutableTypeCloner {
     private ImmutableTypeCloner() {
     }
 
-    public static BType getEffectiveImmutableType(Location pos, Types types,
+    public static BType getEffectiveImmutableType(@Nullable Location pos, Types types,
                                                   BType type, SymbolEnv env,
                                                   SymbolTable symTable, BLangAnonymousModelHelper anonymousModelHelper,
                                                   Names names) {
@@ -102,20 +103,17 @@ public final class ImmutableTypeCloner {
                                             new HashSet<>()).effectiveType;
     }
 
-    public static BType getEffectiveImmutableType(Location pos, Types types,
-                                                  BType type, PackageID pkgId,
-                                                  BSymbol owner, SymbolTable symTable,
-                                                  BLangAnonymousModelHelper anonymousModelHelper, Names names) {
+    public static BType getEffectiveImmutableType(
+            @Nullable Location pos, Types types, BType type, PackageID pkgId, BSymbol owner, SymbolTable symTable,
+            @Nullable BLangAnonymousModelHelper anonymousModelHelper, Names names) {
         return getImmutableIntersectionType(pos, types, type, null, pkgId, owner,
                                             symTable, anonymousModelHelper, names, new HashSet<>(),
                                             new HashSet<>()).effectiveType;
     }
 
-    public static BIntersectionType getImmutableIntersectionType(Location pos, Types types,
-                                                                 BType type,
-                                                                 SymbolEnv env, SymbolTable symTable,
-                                                                 BLangAnonymousModelHelper anonymousModelHelper,
-                                                                 Names names, Set<Flag> origObjFlagSet) {
+    public static BIntersectionType getImmutableIntersectionType(
+            @Nullable Location pos, Types types, BType type, SymbolEnv env, SymbolTable symTable,
+            BLangAnonymousModelHelper anonymousModelHelper, Names names, @Nullable Set<Flag> origObjFlagSet) {
         return getImmutableIntersectionType(pos, types, type, env, env.enclPkg.packageID, env.scope.owner,
                                             symTable, anonymousModelHelper, names, origObjFlagSet, new HashSet<>());
     }
@@ -182,14 +180,10 @@ public final class ImmutableTypeCloner {
                                             unresolvedTypes);
     }
 
-    private static BIntersectionType getImmutableIntersectionType(Location pos,
-                                                                  Types types, BType bType,
-                                                                  SymbolEnv env, PackageID pkgId,
-                                                                  BSymbol owner, SymbolTable symTable,
-                                                                  BLangAnonymousModelHelper anonymousModelHelper,
-                                                                  Names names,
-                                                                  Set<Flag> origObjFlagSet,
-                                                                  Set<BType> unresolvedTypes) {
+    private static BIntersectionType getImmutableIntersectionType(
+            @Nullable Location pos, Types types, BType bType, @Nullable SymbolEnv env, PackageID pkgId,
+            @Nullable BSymbol owner, SymbolTable symTable, @Nullable BLangAnonymousModelHelper anonymousModelHelper,
+            Names names, @Nullable Set<Flag> origObjFlagSet, Set<BType> unresolvedTypes) {
         BType refType = Types.getReferredType(bType);
         SelectivelyImmutableReferenceType type = (SelectivelyImmutableReferenceType) refType;
         if (refType.tag == TypeTags.INTERSECTION && Symbols.isFlagOn(refType.flags, Flags.READONLY)) {
@@ -841,6 +835,7 @@ public final class ImmutableTypeCloner {
         return immutableType;
     }
 
+    @Nullable
     private static BTypeSymbol getReadonlyTSymbol(Names names, BTypeSymbol originalTSymbol, SymbolEnv env,
                                                   PackageID pkgId, BSymbol owner) {
         if (originalTSymbol == null) {
@@ -850,6 +845,7 @@ public final class ImmutableTypeCloner {
         return getReadonlyTSymbol(originalTSymbol, env, pkgId, owner, getImmutableTypeName(names, originalTSymbol));
     }
 
+    @Nullable
     private static BTypeSymbol getReadonlyTSymbol(BTypeSymbol originalTSymbol, SymbolEnv env, PackageID pkgId,
                                                   BSymbol owner, Name immutableTypeName) {
         if (originalTSymbol == null) {

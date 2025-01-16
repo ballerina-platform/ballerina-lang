@@ -24,6 +24,7 @@ import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.tools.diagnostics.Location;
+import org.jetbrains.annotations.Nullable;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
@@ -48,7 +49,7 @@ public abstract class AbstractTypeSymbol implements TypeSymbol {
     private final TypeDescKind typeDescKind;
     private final BType bType;
 
-    public AbstractTypeSymbol(CompilerContext context, TypeDescKind typeDescKind, BType bType) {
+    public AbstractTypeSymbol(CompilerContext context, @Nullable TypeDescKind typeDescKind, BType bType) {
         this.context = context;
         this.typeDescKind = typeDescKind;
         this.bType = bType;
@@ -77,6 +78,7 @@ public abstract class AbstractTypeSymbol implements TypeSymbol {
         return SymbolKind.TYPE;
     }
 
+    @Nullable
     @Override
     public Location location() {
         return null;

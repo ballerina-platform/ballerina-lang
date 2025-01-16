@@ -17,6 +17,8 @@
  */
 package io.ballerina.projects;
 
+import org.jetbrains.annotations.Nullable;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -45,7 +47,8 @@ public class BalToolsManifest {
         return tools;
     }
 
-    public void addTool(String id, String org, String name, String version, Boolean active, String repository) {
+    public void addTool(String id, String org, String name, String version, Boolean active,
+                        @Nullable String repository) {
         if (!tools.containsKey(id)) {
             tools.put(id, new HashMap<>());
         }
@@ -59,7 +62,7 @@ public class BalToolsManifest {
         tools.get(id).get(version).put(repository, new Tool(id, org, name, version, active, repository));
     }
 
-    public Optional<Tool> getTool(String id, String version, String repository) {
+    public Optional<Tool> getTool(String id, String version, @Nullable String repository) {
         if (tools.containsKey(id) && tools.get(id).containsKey(version)) {
             return Optional.ofNullable(tools.get(id).get(version).get(repository));
         }
@@ -110,7 +113,7 @@ public class BalToolsManifest {
         private Boolean active;
         private final String repository;
 
-        public Tool(String id, String org, String name, String version, Boolean active, String repository) {
+        public Tool(String id, String org, String name, String version, Boolean active, @Nullable String repository) {
             this.id = id;
             this.org = org;
             this.name = name;

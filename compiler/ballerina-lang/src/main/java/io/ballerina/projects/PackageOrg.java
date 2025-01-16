@@ -18,6 +18,7 @@
 package io.ballerina.projects;
 
 import io.ballerina.projects.util.ProjectConstants;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
 
@@ -37,7 +38,7 @@ public class PackageOrg {
         this.packageOrgStr = packageOrgStr;
     }
 
-    public static PackageOrg from(String packageNameStr) {
+    public static PackageOrg from(@Nullable String packageNameStr) {
         if (BALLERINA_ORG_NAME.equals(packageNameStr)) {
             return BALLERINA_ORG;
         }

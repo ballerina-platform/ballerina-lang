@@ -20,6 +20,7 @@ package org.wso2.ballerinalang.compiler.tree.statements;
 import org.ballerinalang.model.clauses.OnFailClauseNode;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.statements.RetryNode;
+import org.jetbrains.annotations.Nullable;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeAnalyzer;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeTransformer;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
@@ -36,6 +37,7 @@ public class BLangRetry extends BLangStatement implements RetryNode {
     // BLangNodes
     public BLangRetrySpec retrySpec;
     public BLangBlockStmt retryBody;
+    @Nullable
     public BLangOnFailClause onFailClause;
 
     // Semantic Data
