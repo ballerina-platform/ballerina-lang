@@ -1,10 +1,12 @@
 package io.ballerina.runtime.internal.query.pipeline;
 
+import io.ballerina.runtime.api.creators.TypeCreator;
 import io.ballerina.runtime.api.creators.ValueCreator;
+import io.ballerina.runtime.api.types.RecordType;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
 
-import java.util.Optional;
+import static io.ballerina.runtime.api.constants.RuntimeConstants.BALLERINA_QUERY_PKG_ID;
 
 /**
  * Represents a frame that wraps elements as Ballerina records (BMap).
@@ -30,7 +32,8 @@ public class Frame {
      * @return A `_Frame` wrapping the BMap.
      */
     public static Frame add(BString key, Object value) {
-        BMap<BString, Object> record = ValueCreator.createRecordValue(null, Optional.empty());
+        RecordType recordType = TypeCreator.createRecordType("_Frame", BALLERINA_QUERY_PKG_ID, 1, true, 0);
+        BMap<BString, Object> record = ValueCreator.createRecordValue(recordType);
         record.put(key, value);
         return new Frame(record);
     }
