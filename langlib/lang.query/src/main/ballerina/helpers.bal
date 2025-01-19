@@ -28,8 +28,9 @@ function createPipeline(
 
 function createStreamPipeline(
         Type[]|map<Type>|record{}|string|xml|table<map<Type>>|stream<Type, CompletionType>|_Iterable collection,
-        typedesc<Type> constraintTd, typedesc<CompletionType> completionTd, boolean isLazyLoading) returns handle = @java:Constructor {
+        typedesc<Type> constraintTd, typedesc<CompletionType> completionTd, boolean isLazyLoading) returns handle = @java:Method {
             'class: "io.ballerina.runtime.internal.query.pipeline.StreamPipeline",
+            name: "initStreamPipeline",
             paramTypes: ["java.lang.Object","io.ballerina.runtime.api.values.BTypedesc","io.ballerina.runtime.api.values.BTypedesc","boolean"]
 } external;
 
@@ -49,6 +50,103 @@ function parseLambda(function(_Frame _frame) returns _Frame|error? inputFunc) = 
     'class: "io.ballerina.runtime.internal.query.pipeline.LambdaParser",
     name: "parseLambda",
     paramTypes: ["io.ballerina.runtime.api.values.BFunctionPointer"]
+} external;
+
+function createSelectFunction(function(_Frame _frame) returns _Frame|error? selectFunc)
+        returns handle {
+        handle selectClause = createSelectFunctionJava(selectFunc);
+        return selectClause;
+}
+
+function createSelectFunctionJava(function(_Frame _frame) returns _Frame|error? selectFunc) returns handle = @java:Method {
+    'class: "io.ballerina.runtime.internal.query.clauses.SelectClause",
+    name: "initSelectClause",
+    paramTypes: ["io.ballerina.runtime.api.values.BFunctionPointer"]
+} external;
+
+function addStreamFunction(handle pipeline, handle streamFunction) {
+    addStreamFunctionJava(pipeline, streamFunction);
+    // pipeline.addStreamFunction(streamFunction);
+}
+
+function addStreamFunctionJava(handle pipeline, handle jClause) = @java:Method {
+    'class: "io.ballerina.runtime.internal.query.pipeline.StreamPipeline",
+    name: "addStreamFunction",
+    paramTypes: ["java.lang.Object","java.lang.Object"]
+} external;
+
+
+function getStreamFromPipelineOld(_StreamPipeline pipeline) returns stream<Type, CompletionType> {
+    return pipeline.getStream();
+}
+
+function getStreamFromPipeline(handle pipeline) returns handle = @java:Method {
+    'class: "io.ballerina.runtime.internal.query.pipeline.StreamPipeline",
+    name: "getStreamFromPipeline",
+    paramTypes: ["java.lang.Object"]
+} external;
+
+function createFilterFunctionOld(function(_Frame _frame) returns boolean|error filterFunc)
+        returns _StreamFunction {
+    return new _FilterFunction(filterFunc);
+}
+
+function createFilterFunction(function(_Frame _frame) returns boolean|error filterFunc) returns handle = @java:Method {
+    'class: "io.ballerina.runtime.internal.query.clauses.WhereClause",
+    name: "initWhereClause",
+    paramTypes: ["io.ballerina.runtime.api.values.BFunctionPointer"]
+} external;
+
+function toArray(handle strm, Type[] arr, boolean isReadOnly) returns Type[]|error {
+    if isReadOnly {
+        // In this case arr will be an immutable array. Therefore, we will create a new mutable array and pass it to the
+        // createArray() (because we can't update immutable array). Then it will populate the elements into it and the
+        // resultant array will be passed into createImmutableValue() to make it immutable.
+        Type[] tempArr = [];
+        createImmutableValue(check createArray(strm, tempArr));
+        return tempArr;
+    }
+    return createArray(strm, arr);
+}
+
+function createArrayOld(handle strm, Type[] arr) returns Type[]|error {
+    record {|(any|error|())...;|}|error? v = consumeStream(strm);
+    // record {| Type value; |}|error? v = < record {| Type value; |}>consumeStream(strm);
+    while (v is record {| Type value; |}) {
+        int[] arr1 = [1,2,3,4];
+        arr1 = arr1.reverse();
+        arr.push(v.value); 
+        v = consumeStream(strm);
+    }
+    if (v is error) {
+        return v;
+    }
+    return arr;
+}
+
+function createArray(handle strm, Type[] arr) returns Type[]|error = @java:Method {
+    'class: "io.ballerina.runtime.internal.query.utils.CollectionUtil",
+    name: "createArray",
+    paramTypes: ["java.util.stream.Stream","io.ballerina.runtime.api.values.BArray"]
+} external;
+
+function consumeStreamOld(stream<Type, CompletionType> strm) returns any|error {
+    any|error? v = strm.next();
+    while (!(v is () || v is error)) {
+        if (v is _Frame && v.hasKey("value") && v.get("value") != ()) {
+            return v.get("value");
+        }
+        v = strm.next();
+    }
+    if (v is error) {
+        return v;
+    }
+}
+
+function consumeStream(handle strm) returns record {|(any|error|())...;|} = @java:Method {
+    'class: "io.ballerina.runtime.internal.query.pipeline.StreamConsumer",
+    name: "consumeStream",
+    paramTypes: ["java.lang.Object"]
 } external;
 
 function createNestedFromFunction(function(_Frame _frame) returns _Frame|error? collectionFunc)
@@ -75,11 +173,6 @@ function createOuterJoinFunction(
     return new _OuterJoinFunction(joinedPipeline, lhsKeyFunction, rhsKeyFunction, nilFrame);
 }
 
-function createFilterFunction(function(_Frame _frame) returns boolean|error filterFunc)
-        returns _StreamFunction {
-    return new _FilterFunction(filterFunc);
-}
-
 function createOrderByFunction(function(_Frame _frame) returns error? orderFunc)
         returns _StreamFunction {
     return new _OrderByFunction(orderFunc);
@@ -88,18 +181,6 @@ function createOrderByFunction(function(_Frame _frame) returns error? orderFunc)
 function createGroupByFunction(string[] keys, string[] nonGroupingKeys) returns _StreamFunction {
     return new _GroupByFunction(keys, nonGroupingKeys);
 }
-
-function createSelectFunction(function(_Frame _frame) returns _Frame|error? selectFunc)
-        returns handle {
-        handle selectClause = createSelectFunctionJava(selectFunc);
-        return selectClause;
-}
-
-function createSelectFunctionJava(function(_Frame _frame) returns _Frame|error? selectFunc) returns handle = @java:Method {
-    'class: "io.ballerina.runtime.internal.query.clauses.SelectClause",
-    name: "initSelectClause",
-    paramTypes: ["io.ballerina.runtime.api.values.BFunctionPointer"]
-} external;
 
 function createOnConflictFunction(function(_Frame _frame) returns _Frame|error? onConflictFunc)
         returns _StreamFunction => new _OnConflictFunction(onConflictFunc);
@@ -116,56 +197,10 @@ function createLimitFunction(function (_Frame _frame) returns int limitFunction)
     return new _LimitFunction(limitFunction);
 }
 
-function addStreamFunction(handle pipeline, handle streamFunction) {
-    addStreamFunctionJava(pipeline, streamFunction);
-    // pipeline.addStreamFunction(streamFunction);
-}
-
-function addStreamFunctionJava(handle pipeline, handle jClause) = @java:Method {
-    'class: "io.ballerina.runtime.internal.query.pipeline.StreamPipeline",
-    name: "addStreamFunction",
-    paramTypes: ["java.lang.Object","java.lang.Object"]
-} external;
-
-
-function getStreamFromPipelineOld(_StreamPipeline pipeline) returns stream<Type, CompletionType> {
-    return pipeline.getStream();
-}
-
-function getStreamFromPipeline(handle pipeline) returns handle = @java:Method {
-    'class: "io.ballerina.runtime.internal.query.pipeline.StreamPipeline",
-    name: "getStreamFromPipeline",
-    paramTypes: ["java.lang.Object"]
-} external;
-
 
 function getStreamForOnConflictFromPipeline(_StreamPipeline pipeline) returns stream<Type, CompletionType>
     => pipeline.getStreamForOnConflict();
 
-function toArray(handle strm, Type[] arr, boolean isReadOnly) returns Type[]|error {
-    if isReadOnly {
-        // In this case arr will be an immutable array. Therefore, we will create a new mutable array and pass it to the
-        // createArray() (because we can't update immutable array). Then it will populate the elements into it and the
-        // resultant array will be passed into createImmutableValue() to make it immutable.
-        Type[] tempArr = [];
-        createImmutableValue(check createArray(strm, tempArr));
-        return tempArr;
-    }
-    return createArray(strm, arr);
-}
-
-function createArray(handle strm, Type[] arr) returns Type[]|error {
-    record {| Type value; |}|error? v = <record {| Type value; |}|error?> consumeStream(strm);
-    // record {| Type value; |}|error? v = consumeStream(strm);
-    while (v is record {| Type value; |}) {
-        arr.push(v.value);
-        v = <record {| Type value; |}|error?> consumeStream(strm);
-    }
-    if (v is error) {
-        return v;
-    }
-    return arr;
-}
 
 function collectQuery(stream<Type, CompletionType> strm) returns Type|error {
     record {| Type value; |}|error? v = strm.next();
@@ -344,24 +379,6 @@ function createMapForOnConflict(stream<Type, CompletionType> strm, map<Type> mp)
     return v is error ? v : mp;
 }
 
-function consumeStreamOld(stream<Type, CompletionType> strm) returns any|error {
-    any|error? v = strm.next();
-    while (!(v is () || v is error)) {
-        if (v is _Frame && v.hasKey("value") && v.get("value") != ()) {
-            return v.get("value");
-        }
-        v = strm.next();
-    }
-    if (v is error) {
-        return v;
-    }
-}
-
-function consumeStream(handle strm) returns record {| Type value; |}|error? = @java:Method {
-    'class: "io.ballerina.runtime.internal.query.pipeline.StreamConsumer",
-    name: "consumeStream",
-    paramTypes: ["java.lang.Object"]
-} external;
 
 function createImmutableTable(table<map<Type>> tbl, Type[] arr) returns table<map<Type>> & readonly = @java:Method {
     'class: "org.ballerinalang.langlib.query.CreateImmutableType",

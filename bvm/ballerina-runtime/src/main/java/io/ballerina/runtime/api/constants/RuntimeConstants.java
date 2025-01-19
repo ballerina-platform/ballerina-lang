@@ -61,6 +61,8 @@ public final class RuntimeConstants {
     public static final String BALLERINA_MAX_POOL_SIZE_ENV_VAR = "BALLERINA_MAX_POOL_SIZE";
     public static final Module BALLERINA_LANG_ERROR_PKG_ID = new Module(BALLERINA_BUILTIN_PKG_PREFIX,
                                                                         "lang.error", "0");
+    public static final Module BALLERINA_QUERY_PKG_ID = new Module(BALLERINA_BUILTIN_PKG_PREFIX,
+            "lang.query", "0");
 
     // Lang libs
     public static final String STRING_LANG_LIB = "lang.string";
@@ -77,7 +79,7 @@ public final class RuntimeConstants {
     public static final String FLOAT_LANG_LIB = "lang.float";
     public static final String DECIMAL_LANG_LIB = "lang.decimal";
     public static final String BOOLEAN_LANG_LIB = "lang.boolean";
-    public static final String TRANSACTION_LANG_LIB = "lang.transaction";
+public static final String TRANSACTION_LANG_LIB = "lang.transaction";
     public static final String REGEXP_LANG_LIB = "lang.regexp";
 
     // Workers
