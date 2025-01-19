@@ -86,16 +86,16 @@ function getStreamFromPipeline(handle pipeline) returns handle = @java:Method {
     paramTypes: ["java.lang.Object"]
 } external;
 
-function createFilterFunctionOld(function(_Frame _frame) returns boolean|error filterFunc)
+function createFilterFunction(function(_Frame _frame) returns boolean|error filterFunc)
         returns _StreamFunction {
     return new _FilterFunction(filterFunc);
 }
 
-function createFilterFunction(function(_Frame _frame) returns boolean|error filterFunc) returns handle = @java:Method {
-    'class: "io.ballerina.runtime.internal.query.clauses.WhereClause",
-    name: "initWhereClause",
-    paramTypes: ["io.ballerina.runtime.api.values.BFunctionPointer"]
-} external;
+// function createFilterFunction(function(_Frame _frame) returns boolean|error filterFunc) returns handle = @java:Method {
+//     'class: "io.ballerina.runtime.internal.query.clauses.WhereClause",
+//     name: "initWhereClause",
+//     paramTypes: ["io.ballerina.runtime.api.values.BFunctionPointer"]
+// } external;
 
 function toArray(handle strm, Type[] arr, boolean isReadOnly) returns Type[]|error {
     if isReadOnly {

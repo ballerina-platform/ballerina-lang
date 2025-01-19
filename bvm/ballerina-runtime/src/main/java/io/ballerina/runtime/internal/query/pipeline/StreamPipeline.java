@@ -51,7 +51,12 @@ public class StreamPipeline {
         ((StreamPipeline) jStreamPipeline).addStage((PipelineStage) pipelineStage);
     }
 
-    public static Stream<Frame> getStreamFromPipeline(Object pipeline) {
+    public static Stream<Frame> getStreamFromPipeline(Object pipeline){
+        try {
+            ((StreamPipeline)pipeline).execute();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
         return ((StreamPipeline) pipeline).getStream();
     }
     /**
@@ -65,18 +70,11 @@ public class StreamPipeline {
 
     /**
      * Processes the stream through all the pipeline stages.
-     *
-     * @return A processed stream of `Frame` objects.
      */
-    public Stream<Frame> execute() throws Exception {
-        Stream<Frame> currentStream = this.stream;
-//        for (Function<Frame, Frame> stage : pipelineStages) {
-//            currentStream = currentStream.map(stage);
-//        }
+    public void execute() throws Exception {
         for (PipelineStage stage : pipelineStages) {
             stream = stage.process(stream);
         }
-        return currentStream;
     }
 
     /**
