@@ -38,9 +38,15 @@ public class FromClause implements PipelineStage {
      * @throws Exception If an error occurs during transformation.
      */
     @Override
-    public Stream<Frame> process(Stream<Frame> inputStream) throws Exception {
-        return inputStream.map(
-                frame -> (Frame) transformer.call(env.getRuntime(), frame.getRecord().get("value"))
-        );
+    public Stream<Frame> process(Stream<Frame> inputStream) {
+//        Stream<Frame> peek = inputStream.peek(System.out::println);
+//        Object[] objects = peek.toArray();
+        try {
+            return inputStream.map(
+                    frame -> (Frame) transformer.call(env.getRuntime(), frame.getRecord())
+            );
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 }

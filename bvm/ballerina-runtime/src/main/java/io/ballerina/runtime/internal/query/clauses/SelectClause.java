@@ -43,9 +43,15 @@ public class SelectClause implements PipelineStage {
      * @throws Exception If an error occurs during transformation.
      */
     @Override
-    public Stream<Frame> process(Stream<Frame> inputStream) throws Exception {
-        return inputStream.map(
-                frame -> (Frame) selector.call(env.getRuntime(), frame)
-        );
+    public Stream<Frame> process(Stream<Frame> inputStream) {
+//        Stream<Frame> peek = inputStream.peek(System.out::println);
+//        Object[] objects = peek.toArray();
+        try {
+            return inputStream.map(
+                    frame -> (Frame) selector.call(env.getRuntime(), frame)
+            );
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 }
