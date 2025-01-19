@@ -627,7 +627,6 @@ public class QueryDesugar extends BLangNodeVisitor {
     }
 
     /**
-     * Desugar inputClause to below and return a reference to created from _StreamFunction.
      * _StreamFunction xsFrom = createFromFunction(function(_Frame frame) returns _Frame|error? {
      * int x = <int> frame["value"];
      * frame["x"] = x;

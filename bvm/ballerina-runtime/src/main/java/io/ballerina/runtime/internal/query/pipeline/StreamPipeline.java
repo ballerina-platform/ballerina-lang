@@ -40,6 +40,13 @@ public class StreamPipeline {
         this.completionType = completionType;
     }
 
+    public static StreamPipeline initStreamPipeline(Object collection,
+                                          BTypedesc constraintType,
+                                          BTypedesc completionType,
+                                          boolean isLazyLoading) {
+        return new StreamPipeline(collection, constraintType, completionType, isLazyLoading);
+    }
+
     public static void addStreamFunction(Object jStreamPipeline, Object pipelineStage) {
         ((StreamPipeline) jStreamPipeline).addStage((PipelineStage) pipelineStage);
     }
