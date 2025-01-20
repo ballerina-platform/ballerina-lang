@@ -48,7 +48,7 @@ public class SelectClause implements PipelineStage {
 //        Object[] objects = peek.toArray();
         try {
             return inputStream.map(
-                    frame -> (Frame) selector.call(env.getRuntime(), frame)
+                    frame -> (Frame) selector.call(env.getRuntime(), frame.getRecord())
             );
         } catch (Exception e) {
             throw new RuntimeException(e);

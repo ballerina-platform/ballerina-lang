@@ -13,7 +13,7 @@ import static io.ballerina.runtime.api.constants.RuntimeConstants.BALLERINA_QUER
  */
 public class Frame {
 
-    private final BMap<BString, Object> record;
+    private BMap<BString, Object> $frame$;
 
     /**
      * Constructor to create a frame from a Ballerina record (BMap).
@@ -21,7 +21,11 @@ public class Frame {
      * @param record The Ballerina record to wrap.
      */
     public Frame(BMap<BString, Object> record) {
-        this.record = record;
+        this.$frame$ = record;
+    }
+
+    public void updateRecord(BMap<BString, Object> newRecord) {
+        this.$frame$ = newRecord;
     }
 
     /**
@@ -32,8 +36,8 @@ public class Frame {
      * @return A `_Frame` wrapping the BMap.
      */
     public static Frame add(BString key, Object value) {
-        RecordType recordType = TypeCreator.createRecordType("_Frame", BALLERINA_QUERY_PKG_ID, 1, true, 0);
-        BMap<BString, Object> record = ValueCreator.createRecordValue(recordType);
+//        RecordType recordType = TypeCreator.createRecordType("_Frame", BALLERINA_QUERY_PKG_ID);
+        BMap<BString, Object> record = ValueCreator.createRecordValue(BALLERINA_QUERY_PKG_ID, "_Frame");
         record.put(key, value);
         return new Frame(record);
     }
@@ -44,13 +48,23 @@ public class Frame {
      * @return The Ballerina record.
      */
     public BMap<BString, Object> getRecord() {
-        return record;
+        return $frame$;
     }
+
+//    /**
+//     * Updates the underlying record with a new key-value pair.
+//     *
+//     * @param key   The key to update.
+//     * @param value The value to set.
+//     */
+//    public void updateRecord(BString key, Object value) {
+//        this.record.put(key, value);
+//    }
 
     @Override
     public String toString() {
         return "Frame{" +
-                "record=" + record +
+                "record=" + $frame$ +
                 '}';
     }
 }
