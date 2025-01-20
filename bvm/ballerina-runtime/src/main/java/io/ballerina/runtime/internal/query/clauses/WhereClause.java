@@ -2,6 +2,7 @@ package io.ballerina.runtime.internal.query.clauses;
 
 import io.ballerina.runtime.api.Environment;
 import io.ballerina.runtime.api.values.BFunctionPointer;
+import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.internal.query.pipeline.Frame;
 
 import java.util.stream.Stream;
@@ -16,6 +17,7 @@ public class WhereClause implements PipelineStage {
     /**
      * Constructor for the WhereClause.
      *
+     * @param env        The runtime environment.
      * @param filterFunc The function to filter frames.
      */
     public WhereClause(Environment env, BFunctionPointer filterFunc) {
@@ -23,6 +25,13 @@ public class WhereClause implements PipelineStage {
         this.env = env;
     }
 
+    /**
+     * Static initializer for WhereClause.
+     *
+     * @param env        The runtime environment.
+     * @param filterFunc The filter function.
+     * @return A new instance of WhereClause.
+     */
     public static WhereClause initWhereClause(Environment env, BFunctionPointer filterFunc) {
         return new WhereClause(env, filterFunc);
     }
@@ -32,20 +41,20 @@ public class WhereClause implements PipelineStage {
      *
      * @param inputStream The input stream of frames.
      * @return A filtered stream of frames.
-     * @throws Exception If an error occurs during filtering.
      */
     @Override
-    public Stream<Frame> process(Stream<Frame> inputStream) throws Exception {
+    public Stream<Frame> process(Stream<Frame> inputStream) {
         return inputStream.filter(frame -> {
             try {
-                // Apply the filter function to the current frame and evaluate the result.
-                Object result = filterFunc.call(env.getRuntime(), frame.getRecord().get("value"));
+                // Call the filter function on the current frame.
+                Object result = filterFunc.call(env.getRuntime(), frame.getRecord());
                 if (result instanceof Boolean) {
                     return (Boolean) result; // Include frame if predicate is true.
+                } else {
+                    throw new RuntimeException("Filter function must return a boolean.");
                 }
-                throw new IllegalStateException("Filter function must return a boolean.");
             } catch (Exception e) {
-                throw new RuntimeException("Error applying filter function.", e);
+                throw new RuntimeException("Error applying filter function in where clause", e);
             }
         });
     }
