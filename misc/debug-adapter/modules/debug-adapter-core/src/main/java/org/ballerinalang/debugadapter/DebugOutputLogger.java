@@ -36,6 +36,7 @@ public class DebugOutputLogger {
 
     public DebugOutputLogger(IDebugProtocolClient client) {
         this.client = client;
+        this.isCompilationDone = false;
     }
 
     /**
@@ -128,5 +129,9 @@ public class DebugOutputLogger {
                 || output.startsWith("Please start the remote debugging client to continue")
                 || output.startsWith("JAVACMD")
                 || output.startsWith("Stream closed");
+    }
+
+    public void reset() {
+        isCompilationDone = false;
     }
 }

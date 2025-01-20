@@ -35,6 +35,7 @@ import org.eclipse.lsp4j.debug.NextArguments;
 import org.eclipse.lsp4j.debug.OutputEventArguments;
 import org.eclipse.lsp4j.debug.OutputEventArgumentsCategory;
 import org.eclipse.lsp4j.debug.PauseArguments;
+import org.eclipse.lsp4j.debug.RestartArguments;
 import org.eclipse.lsp4j.debug.ScopesArguments;
 import org.eclipse.lsp4j.debug.ScopesResponse;
 import org.eclipse.lsp4j.debug.SetBreakpointsArguments;
@@ -153,7 +154,7 @@ public class DebugTestRunner {
      *
      * @param executionKind Defines ballerina command type to be used to launch the debuggee.(If set to null, adapter
      *                      will try to attach to the debuggee, instead of launching)
-     * @param terminalKind The terminal type, if the debug session should be launched in a separate terminal
+     * @param terminalKind  The terminal type, if the debug session should be launched in a separate terminal
      * @throws BallerinaTestException if any exception is occurred during initialization.
      */
     public boolean initDebugSession(DebugUtils.DebuggeeExecutionKind executionKind, String terminalKind)
@@ -381,6 +382,21 @@ public class DebugTestRunner {
         } catch (Exception e) {
             LOGGER.warn("Pause request failed", e);
             throw new BallerinaTestException("Pause request failed", e);
+        }
+    }
+
+    /**
+     * Restarts the execution of the debuggee program.
+     *
+     * @throws BallerinaTestException if an error occurs when resuming program.
+     */
+    public void restartProgram() throws BallerinaTestException {
+        try {
+            RestartArguments restartArgs = new RestartArguments();
+            debugClientConnector.getRequestManager().restart(restartArgs);
+        } catch (Exception e) {
+            LOGGER.warn("Restart request failed", e);
+            throw new BallerinaTestException("Restart request failed", e);
         }
     }
 
