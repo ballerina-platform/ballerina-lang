@@ -52,7 +52,6 @@ public class SelectClause implements PipelineStage {
                 if (result instanceof Frame) {
                     return (Frame) result;
                 } else if (result instanceof BMap) {
-                    // If the result is a BMap, update the frame's record
                     frame.updateRecord((BMap) result);
                     return frame;
                 } else {
