@@ -22,7 +22,7 @@ plugins {
 
 description = 'Ballerina - Debugger Test'
 
-def extractedDist = "$buildDir/extractedDistribution/jballerina-tools-${project.version}"
+def extractedDist = "${getLayout().getBuildDirectory().get()}/extractedDistribution/jballerina-tools-${project.version}"
 
 configurations {
     jballerinaTools
@@ -41,7 +41,7 @@ dependencies {
 tasks.register('extractDistribution', Copy) {
     dependsOn ':jballerina-tools:build'
     from zipTree(configurations.jballerinaTools.asPath)
-    into "$buildDir/extractedDistribution"
+    into "${getLayout().getBuildDirectory().get()}/extractedDistribution"
 
 }
 
@@ -51,11 +51,11 @@ test {
     dependsOn extractDistribution
 
     maxParallelForks = 1
-    systemProperty 'basedir', "$buildDir"
-    systemProperty 'libdir', "$buildDir"
+    systemProperty 'basedir', "${getLayout().getBuildDirectory().get()}".toString()
+    systemProperty 'libdir', "${getLayout().getBuildDirectory().get()}".toString()
     systemProperty 'server.zip', configurations.jballerinaTools.asPath
     systemProperty 'jballerina.server.zip', configurations.jballerinaTools.asPath
-    systemProperty 'java.util.logging.config.file', "$buildDir/src/test/resources/logging.properties"
+    systemProperty 'java.util.logging.config.file', "${getLayout().getBuildDirectory().get()}/src/test/resources/logging.properties".toString()
 
     useTestNG() {
         suites 'src/test/resources/testng.xml'
