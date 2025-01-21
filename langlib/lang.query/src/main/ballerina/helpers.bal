@@ -97,6 +97,16 @@ function createFilterFunction(function(_Frame _frame) returns boolean|error filt
     paramTypes: ["io.ballerina.runtime.api.values.BFunctionPointer"]
 } external;
 
+function createLimitFunctionOld(function (_Frame _frame) returns int limitFunction) returns _StreamFunction {
+    return new _LimitFunction(limitFunction);
+}
+
+function createLimitFunction(function (_Frame _frame) returns int limitFunction) returns handle = @java:Method {
+    'class: "io.ballerina.runtime.internal.query.clauses.LimitClause",
+    name: "initLimitClause",
+    paramTypes: ["io.ballerina.runtime.api.values.BFunctionPointer"]
+} external;
+
 function toArray(handle strm, Type[] arr, boolean isReadOnly) returns Type[]|error {
     if isReadOnly {
         // In this case arr will be an immutable array. Therefore, we will create a new mutable array and pass it to the
@@ -191,10 +201,6 @@ function createCollectFunction(string[] nonGroupingKeys, function(_Frame _frame)
 
 function createDoFunction(function(_Frame _frame) returns any|error doFunc) returns _StreamFunction {
     return new _DoFunction(doFunc);
-}
-
-function createLimitFunction(function (_Frame _frame) returns int limitFunction) returns _StreamFunction {
-    return new _LimitFunction(limitFunction);
 }
 
 
