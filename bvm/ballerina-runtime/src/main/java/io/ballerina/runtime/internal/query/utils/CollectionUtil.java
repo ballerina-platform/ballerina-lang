@@ -12,7 +12,7 @@ import java.util.stream.Stream;
 public class CollectionUtil {
     public static BArray createArray(Stream<Frame> strm, BArray arr) {
         Object[] tmpArr = strm
-                .map(frame -> frame.getRecord())
+                .map(frame -> frame.getRecord().get(StringUtils.fromString("$value$")))
                 .toArray();
 
         arr = ValueCreator.createArrayValue(tmpArr, TypeCreator.createArrayType(PredefinedTypes.TYPE_ANY));
