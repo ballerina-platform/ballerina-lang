@@ -15,6 +15,8 @@ public class Frame {
 
     private BMap<BString, Object> $frame$;
 
+    public Frame() { }
+
     /**
      * Constructor to create a frame from a Ballerina record (BMap).
      *
