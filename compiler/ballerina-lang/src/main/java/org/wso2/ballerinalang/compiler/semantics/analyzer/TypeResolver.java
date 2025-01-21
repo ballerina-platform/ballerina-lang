@@ -164,7 +164,7 @@ public class TypeResolver {
     private final HashSet<BLangClassDefinition> resolvedClassDef = new HashSet<>();
     private final Map<String, BLangNode> modTable = new LinkedHashMap<>();
     private final Map<String, BLangConstantValue> constantMap = new HashMap<>();
-    private final HashSet<LocationData> unknownTypeRefs;
+    public HashSet<LocationData> unknownTypeRefs;
     private SymbolEnv pkgEnv;
     private int currentDepth;
     private Deque<BType> resolvingTypes;
@@ -188,7 +188,7 @@ public class TypeResolver {
         this.unknownTypeRefs = new HashSet<>();
     }
 
-    public void clearUnknowTypeRefs() {
+    public void clearUnknownTypeRefs() {
         unknownTypeRefs.clear();
     }
 
@@ -2133,7 +2133,7 @@ public class TypeResolver {
      *
      * @since 2201.7.0
      */
-    private static class LocationData {
+    protected static class LocationData {
         private final String name;
         private final int row;
         private final int column;
