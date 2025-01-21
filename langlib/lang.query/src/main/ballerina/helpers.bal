@@ -107,6 +107,18 @@ function createLimitFunction(function (_Frame _frame) returns int limitFunction)
     paramTypes: ["io.ballerina.runtime.api.values.BFunctionPointer"]
 } external;
 
+function createLetFunctionOld(function(_Frame _frame) returns _Frame|error? letFunc)
+        returns _StreamFunction {
+    return new _LetFunction(letFunc);
+}
+
+function createLetFunction(function(_Frame _frame) returns _Frame|error? letFunc) returns handle = @java:Method {
+    'class: "io.ballerina.runtime.internal.query.clauses.LetClause",
+    name: "initLetClause",
+    paramTypes: ["io.ballerina.runtime.api.values.BFunctionPointer"]
+} external;
+
+
 function toArray(handle strm, Type[] arr, boolean isReadOnly) returns Type[]|error {
     if isReadOnly {
         // In this case arr will be an immutable array. Therefore, we will create a new mutable array and pass it to the
@@ -162,11 +174,6 @@ function consumeStream(handle strm) returns record {|(any|error|())...;|} = @jav
 function createNestedFromFunction(function(_Frame _frame) returns _Frame|error? collectionFunc)
         returns _StreamFunction {
     return new _NestedFromFunction(collectionFunc);
-}
-
-function createLetFunction(function(_Frame _frame) returns _Frame|error? letFunc)
-        returns _StreamFunction {
-    return new _LetFunction(letFunc);
 }
 
 function createInnerJoinFunction(
