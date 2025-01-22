@@ -49,7 +49,6 @@ public class LetClause implements PipelineStage {
             try {
                 // Apply the modifier function to the frame.
                 Object result = frameModifier.call(env.getRuntime(), frame.getRecord());
-
                 if (result instanceof Frame) {
                     return (Frame) result;
                 }  else if (result instanceof BMap) {
