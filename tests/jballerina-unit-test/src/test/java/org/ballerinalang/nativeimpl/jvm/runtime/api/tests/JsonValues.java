@@ -26,7 +26,7 @@ import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BTypedesc;
-import io.ballerina.runtime.internal.JsonGenerator;
+import io.ballerina.runtime.internal.json.JsonGenerator;
 import io.ballerina.runtime.internal.values.ErrorValue;
 
 import java.io.ByteArrayInputStream;
@@ -112,7 +112,7 @@ public final class JsonValues {
             gen.flush();
             out.close();
         } catch (IOException e) {
-            throw new ErrorValue(StringUtils.fromString(e.getMessage()), e);
+            throw new ErrorValue(StringUtils.fromString(e.getMessage()));
         }
         return StringUtils.fromString(out.toString());
     }
