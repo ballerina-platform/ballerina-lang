@@ -31,10 +31,11 @@ import io.ballerina.runtime.internal.values.ErrorValue;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringReader;
 import java.nio.charset.StandardCharsets;
-import java.io.IOException;
+
 import static io.ballerina.runtime.api.utils.JsonUtils.convertJSON;
 import static io.ballerina.runtime.api.utils.JsonUtils.convertJSONToRecord;
 
