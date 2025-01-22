@@ -50,12 +50,11 @@ public class LetClause implements PipelineStage {
                 // Apply the modifier function to the frame.
                 Object result = frameModifier.call(env.getRuntime(), frame.getRecord());
 
-                // Check if the result is a valid frame or null (indicating no changes).
                 if (result instanceof Frame) {
                     return (Frame) result;
                 }  else if (result instanceof BMap) {
                     frame.updateRecord((BMap<BString, Object>) result);
-                    return frame; // Return the original frame if null.
+                    return frame;
                 } else {
                     throw new IllegalStateException("Let function must return a Frame or null.");
                 }
