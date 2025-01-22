@@ -118,6 +118,16 @@ function createLetFunction(function(_Frame _frame) returns _Frame|error? letFunc
     paramTypes: ["io.ballerina.runtime.api.values.BFunctionPointer"]
 } external;
 
+function createOrderByFunctionOld(function(_Frame _frame) returns error? orderFunc)
+        returns _StreamFunction {
+    return new _OrderByFunction(orderFunc);
+}
+
+function createOrderByFunction(function(_Frame _frame) returns error? orderFunc) returns handle = @java:Method {
+    'class: "io.ballerina.runtime.internal.query.clauses.OrderByClause",
+    name: "initOrderByClause",
+    paramTypes: ["io.ballerina.runtime.api.values.BFunctionPointer"]
+} external;
 
 function toArray(handle strm, Type[] arr, boolean isReadOnly) returns Type[]|error {
     if isReadOnly {
@@ -188,11 +198,6 @@ function createOuterJoinFunction(
         function (_Frame _frame) returns any lhsKeyFunction,
         function (_Frame _frame) returns any rhsKeyFunction, _Frame nilFrame) returns _StreamFunction {
     return new _OuterJoinFunction(joinedPipeline, lhsKeyFunction, rhsKeyFunction, nilFrame);
-}
-
-function createOrderByFunction(function(_Frame _frame) returns error? orderFunc)
-        returns _StreamFunction {
-    return new _OrderByFunction(orderFunc);
 }
 
 function createGroupByFunction(string[] keys, string[] nonGroupingKeys) returns _StreamFunction {

@@ -2,9 +2,12 @@ package io.ballerina.runtime.internal.query.clauses;
 
 import io.ballerina.runtime.api.Environment;
 import io.ballerina.runtime.api.utils.StringUtils;
-import io.ballerina.runtime.api.values.*;
+import io.ballerina.runtime.api.values.BArray;
+import io.ballerina.runtime.api.values.BFunctionPointer;
+import io.ballerina.runtime.api.values.BMap;
+import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.api.values.BDecimal;
 import io.ballerina.runtime.internal.query.pipeline.Frame;
-import io.ballerina.runtime.internal.values.DecimalValue;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -77,7 +80,7 @@ public class OrderByClause implements PipelineStage {
                 throw new IllegalStateException("$orderKey$ and $orderDirection$ must not be null.");
             }
 
-            int size = (int) orderKey1Array.size();
+            int size = orderKey1Array.size();
 
             for (int i = 0; i < size; i++) {
                 Object key1 = orderKey1Array.getRefValue(i);
@@ -119,6 +122,4 @@ public class OrderByClause implements PipelineStage {
 
         return null;
     }
-
-
 }
