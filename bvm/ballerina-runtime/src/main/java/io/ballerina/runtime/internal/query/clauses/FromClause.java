@@ -1,7 +1,6 @@
 package io.ballerina.runtime.internal.query.clauses;
 
 import io.ballerina.runtime.api.Environment;
-import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BFunctionPointer;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
@@ -39,15 +38,14 @@ public class FromClause implements PipelineStage {
      */
     @Override
     public Stream<Frame> process(Stream<Frame> inputStream) {
-        return inputStream.map($frame$ -> {
+        return inputStream.map(frame -> {
             try {
-                BMap<BString, Object> rec = $frame$.getRecord();
-                Object result = transformer.call(env.getRuntime(), $frame$.getRecord());
+                Object result = transformer.call(env.getRuntime(), frame.getRecord());
                 if (result instanceof Frame) {
                     return (Frame) result;
                 } else if (result instanceof BMap) {
-                    $frame$.updateRecord((BMap<BString, Object>) result);
-                    return $frame$;
+                    frame.updateRecord((BMap<BString, Object>) result);
+                    return frame;
                 } else {
                     throw new RuntimeException("Invalid transformation result: " + result);
                 }
