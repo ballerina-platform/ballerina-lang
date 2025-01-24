@@ -1,6 +1,7 @@
 package io.ballerina.runtime.internal.query.clauses;
 
 import io.ballerina.runtime.api.Environment;
+import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BFunctionPointer;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
@@ -40,7 +41,13 @@ public class FromClause implements PipelineStage {
     public Stream<Frame> process(Stream<Frame> inputStream) {
         return inputStream.map(frame -> {
             try {
-                Object result = transformer.call(env.getRuntime(), frame.getRecord());
+//                System.out.println(frame.getRecord());
+                Object record = frame.getRecord();
+                if(record instanceof BArray tuple) {
+                    record = tuple.getRefValue(1);
+                }
+                Object result = transformer.call(env.getRuntime(), record);
+
                 if (result instanceof Frame) {
                     return (Frame) result;
                 } else if (result instanceof BMap) {

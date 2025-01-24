@@ -30,6 +30,13 @@ public class Frame {
         this.$frame$ = newRecord;
     }
 
+    public Frame updateRecord(BString key, Object value) {
+        System.out.println("Before update: " + this.$frame$);
+        this.$frame$.put(key, value);
+        System.out.println("After update: " + this.$frame$);
+        return this;
+    }
+
     /**
      * Static method to create a `_Frame` from an element.
      *
