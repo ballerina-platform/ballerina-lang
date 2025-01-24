@@ -1,10 +1,13 @@
 package io.ballerina.runtime.internal.query.clauses;
 
 import io.ballerina.runtime.api.Environment;
+import io.ballerina.runtime.api.utils.StringUtils;
+import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BFunctionPointer;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.internal.query.pipeline.Frame;
+import io.ballerina.runtime.internal.values.TupleValueImpl;
 
 import java.util.stream.Stream;
 
@@ -40,7 +43,17 @@ public class FromClause implements PipelineStage {
     public Stream<Frame> process(Stream<Frame> inputStream) {
         return inputStream.map(frame -> {
             try {
-                Object result = transformer.call(env.getRuntime(), frame.getRecord());
+                Object record = frame.getRecord();
+                Object value = ((BMap<BString, Object>) record).get(StringUtils.fromString("value"));
+
+                if (value instanceof BArray) {
+                    BArray tuple = (BArray) value;
+                    if (tuple.size() > 1) {
+                        ((BMap<BString, Object>) record).put(StringUtils.fromString("value"), tuple.getRefValue(1));
+                    }
+                }
+                Object result = transformer.call(env.getRuntime(), record);
+
                 if (result instanceof Frame) {
                     return (Frame) result;
                 } else if (result instanceof BMap) {
