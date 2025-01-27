@@ -113,6 +113,7 @@ public final class ProjectConstants {
     public static final String REPO_BALA_DIR_NAME = TARGET_BALA_DIR_NAME;
     public static final String REPO_CACHE_DIR_NAME = "cache";
     public static final String REPO_BIR_CACHE_NAME = "bir";
+    public static final String INDEX_DIR_NAME = "index";
 
     // Test framework related constants
     public static final String TEST_RUNTIME_JAR_PREFIX = "testerina-runtime-";
@@ -153,4 +154,7 @@ public final class ProjectConstants {
     public static final String OFFLINE_FLAG = "--offline";
     public static final String REPOSITORY_FLAG = "--repository";
     public static final String WILD_CARD = "*";
+
+    public static final String SL_ALPHA = "slalpha";
+    public static final String SL_BETA = "slbeta";
 }

@@ -5,8 +5,10 @@ module io.ballerina.lang {
     uses org.ballerinalang.compiler.plugins.CompilerPlugin;
     uses org.ballerinalang.spi.EmbeddedExecutor;
     requires java.compiler;
+    requires com.google.common;
     requires com.google.gson;
     requires java.xml;
+    requires org.eclipse.jgit;
     requires org.objectweb.asm;
     requires io.ballerina.runtime;
     requires io.netty.buffer;

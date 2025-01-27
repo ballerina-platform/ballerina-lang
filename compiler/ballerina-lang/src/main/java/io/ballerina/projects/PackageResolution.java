@@ -36,7 +36,6 @@ import io.ballerina.projects.internal.PackageDiagnostic;
 import io.ballerina.projects.internal.ProjectDiagnosticErrorCode;
 import io.ballerina.projects.internal.ResolutionEngine;
 import io.ballerina.projects.internal.ResolutionEngine.DependencyNode;
-import io.ballerina.projects.internal.index.Index;
 import io.ballerina.projects.internal.repositories.CustomPkgRepositoryContainer;
 import io.ballerina.projects.internal.repositories.LocalPackageRepository;
 import io.ballerina.projects.internal.repositories.MavenPackageRepository;
@@ -369,8 +368,8 @@ public class PackageResolution {
         // 2) Resolve imports to packages and create the complete dependency graph with package metadata
         // TODO: find a better way to pass the new parameters.
         ResolutionEngine resolutionEngine = new ResolutionEngine(rootPackageContext.descriptor(),
-                blendedManifest, packageResolver, moduleResolver, resolutionOptions, new Index(),
-                hasDependencyManifest, distributionChange, lessThan24HrsAfterBuild, false);
+                blendedManifest, packageResolver, moduleResolver, resolutionOptions,
+                hasDependencyManifest, distributionChange, lessThan24HrsAfterBuild);
         DependencyGraph<DependencyNode> dependencyNodeGraph =
                 resolutionEngine.resolveDependencies(moduleLoadRequests);
         this.dependencyGraphDump = resolutionEngine.dumpGraphs();

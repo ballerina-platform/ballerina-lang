@@ -19,7 +19,6 @@ package io.ballerina.projects.internal.repositories;
 
 import com.github.zafarkhaja.semver.UnexpectedCharacterException;
 import com.github.zafarkhaja.semver.Version;
-import io.ballerina.projects.DependencyGraph;
 import io.ballerina.projects.JvmTarget;
 import io.ballerina.projects.ModuleDescriptor;
 import io.ballerina.projects.Package;
@@ -287,12 +286,13 @@ public class FileSystemRepository extends AbstractPackageRepository {
     }
 
     @Override
-    protected DependencyGraph<PackageDescriptor> getDependencyGraph(PackageOrg org,
+    protected Collection<PackageDescriptor> getDirectDependencies(PackageOrg org,
                                                                     PackageName name,
                                                                     PackageVersion version) {
         Path balaPath = getPackagePath(org.toString(), name.toString(), version.toString());
         BalaFiles.DependencyGraphResult dependencyGraphResult = BalaFiles.createPackageDependencyGraph(balaPath);
-        return dependencyGraphResult.packageDependencyGraph();
+        return dependencyGraphResult.packageDependencyGraph()
+                .getDirectDependencies(PackageDescriptor.from(org, name, version));
     }
 
     @Override

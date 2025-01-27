@@ -22,74 +22,83 @@ import io.ballerina.projects.PackageDescriptor;
 import io.ballerina.projects.PackageName;
 import io.ballerina.projects.PackageOrg;
 import io.ballerina.projects.PackageVersion;
-import io.ballerina.projects.SemanticVersion;
 
 import java.util.List;
 
+/**
+ * Represents a package in the index.
+ *
+ * @since 2201.12.0
+ */
 public class IndexPackage {
-    private final PackageOrg packageOrg;
-    private final PackageName packageName;
-    private final PackageVersion packageVersion;
-    private final String repository;
+    private final PackageDescriptor packageDescriptor;
     private final String supportedPlatform;
-    private final SemanticVersion ballerinaVersion;
-    private final List<IndexDependency> dependencies;
+    private final String ballerinaVersion;
+    private final List<PackageDescriptor> dependencies;
     private final List<Module> modules;
+    private final boolean isDeprecated;
+    private final String deprecationMsg;
 
-    // TODO: add other fields as necessary
     private IndexPackage(
-            PackageOrg packageOrg,
-            PackageName packageName,
-            PackageVersion packageVersion,
-            String repository,
+            PackageDescriptor packageDescriptor,
             String supportedPlatform,
-            SemanticVersion ballerinaVersion,
-            List<IndexDependency> dependencies,
-            List<Module> modules) {
-        this.packageOrg = packageOrg;
-        this.packageName = packageName;
-        this.packageVersion = packageVersion;
-        this.repository = repository;
+            String ballerinaVersion,
+            List<PackageDescriptor> dependencies,
+            List<Module> modules,
+            boolean isDeprecated,
+            String deprecationMsg) {
+        this.packageDescriptor = packageDescriptor;
         this.supportedPlatform = supportedPlatform;
         this.ballerinaVersion = ballerinaVersion;
         this.dependencies = dependencies;
         this.modules = modules;
+        this.isDeprecated = isDeprecated;
+        this.deprecationMsg = deprecationMsg;
     }
 
-    // TODO: If we pass all data as-it-is, we don't need this from method
-    public static IndexPackage from(
+    static IndexPackage from(
+            PackageDescriptor packageDescriptor,
+            String supportedPlatform,
+            String ballerinaVersion,
+            List<PackageDescriptor> dependencies,
+            List<Module> modules,
+            boolean isDeprecated,
+            String deprecationMsg) {
+        return new IndexPackage(packageDescriptor, supportedPlatform, ballerinaVersion, dependencies, modules,
+                isDeprecated, deprecationMsg);
+    }
+
+    static IndexPackage from(
             PackageOrg packageOrg,
             PackageName packageName,
             PackageVersion packageVersion,
-            String repository,
             String supportedPlatform,
-            SemanticVersion ballerinaVersion,
-            List<IndexDependency> dependencies,
-            List<Module> modules) {
-        return new IndexPackage(packageOrg, packageName, packageVersion, repository, supportedPlatform, ballerinaVersion, dependencies, modules);
+            String ballerinaVersion,
+            List<PackageDescriptor> dependencies,
+            List<Module> modules,
+            boolean isDeprecated,
+            String deprecationMsg) {
+        return from(PackageDescriptor.from(packageOrg, packageName, packageVersion),
+                supportedPlatform, ballerinaVersion, dependencies, modules, isDeprecated, deprecationMsg);
     }
 
     public PackageName name() {
-        return packageName;
+        return packageDescriptor.name();
     }
 
     public PackageOrg org() {
-        return packageOrg;
+        return packageDescriptor.org();
     }
 
     public PackageVersion version() {
-        return packageVersion;
+        return packageDescriptor.version();
     }
 
-    public String repository() {
-        return repository;
-    }
-
-    public List<IndexDependency> dependencies() {
+    public List<PackageDescriptor> dependencies() {
         return dependencies;
     }
 
-    public SemanticVersion ballerinaVersion() {
+    public String ballerinaVersion() {
         return ballerinaVersion;
     }
 
@@ -111,5 +120,13 @@ public class IndexPackage {
         public String name() {
             return name;
         }
+    }
+
+    public boolean isDeprecated() {
+        return isDeprecated;
+    }
+
+    public String deprecationMsg() {
+        return deprecationMsg;
     }
 }

@@ -24,30 +24,28 @@ package io.ballerina.projects.environment;
  */
 public enum PackageLockingMode {
     /**
+     * Chooses the latest available version of dependencies.
+     */
+    LATEST,
+    /**
      * Locks to major versions of dependencies.
      */
     SOFT,
     /**
-     * Summary:
-     * major never
-     * minor as needed
-     * patch always
-     *
-     * Locks to major versions of dependencies.
-     *
-     * For every dependency we always update to latest patch version
-     * (not conservative about patch versions)
-     *
-     * When different dependencies require different minor versions
-     * of a library, we take the least minor version needed to satisfy
-     * all requirements
-     *
-     * Flag allows upgrade to latest minor version available overriding
-     * the need question
+     * Locks to major.minor versions of dependencies.
      */
     MEDIUM,
     /**
      * Locks to exact major.minor.patch versions of dependencies.
+     * However, if there is a compatible higher patch, minor version available in the graphs, use the higher version.
      */
-    HARD
+    HARD,
+    /**
+     * Locks exactly to the previous version of dependencies.
+     */
+    LOCKED,
+    /**
+     * The resolution request is invalid.
+     */
+    INVALID
 }

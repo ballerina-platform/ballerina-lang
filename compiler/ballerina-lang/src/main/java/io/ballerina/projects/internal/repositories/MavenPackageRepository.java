@@ -18,7 +18,6 @@ package io.ballerina.projects.internal.repositories;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
-import io.ballerina.projects.DependencyGraph;
 import io.ballerina.projects.ModuleDescriptor;
 import io.ballerina.projects.Package;
 import io.ballerina.projects.PackageDescriptor;
@@ -153,9 +152,9 @@ public class MavenPackageRepository extends AbstractPackageRepository {
     }
 
     @Override
-    protected DependencyGraph<PackageDescriptor> getDependencyGraph(PackageOrg org, PackageName name,
-                                                                    PackageVersion version) {
-        return this.fileSystemCache.getDependencyGraph(org, name, version);
+    protected Collection<PackageDescriptor> getDirectDependencies(PackageOrg org, PackageName name,
+                                                                  PackageVersion version) {
+        return this.fileSystemCache.getDirectDependencies(org, name, version);
     }
 
     @Override
