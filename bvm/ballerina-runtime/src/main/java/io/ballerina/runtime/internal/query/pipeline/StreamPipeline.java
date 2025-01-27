@@ -1,7 +1,6 @@
 package io.ballerina.runtime.internal.query.pipeline;
 
 import io.ballerina.runtime.api.utils.StringUtils;
-import io.ballerina.runtime.api.values.BCollection;
 import io.ballerina.runtime.api.values.BTypedesc;
 import io.ballerina.runtime.internal.query.clauses.PipelineStage;
 import io.ballerina.runtime.internal.query.utils.BallerinaIteratorUtils;
@@ -23,7 +22,7 @@ public class StreamPipeline {
     /**
      * Constructor for creating a StreamPipeline.
      *
-     * @param collection      The collection to process (Ballerina `BCollection`).
+     * @param collection      The collection to process.
      * @param constraintType  The type descriptor for the constraint type.
      * @param completionType  The type descriptor for the completion type.
      * @param isLazyLoading   Flag to indicate if lazy loading is enabled.
@@ -33,8 +32,7 @@ public class StreamPipeline {
                           BTypedesc completionType,
                           boolean isLazyLoading) {
         int a = 2;
-        this.stream = initializeFrameStream((BCollection) collection);
-        String s = stream.toString();
+        this.stream = initializeFrameStream(collection);
         this.pipelineStages = new ArrayList<>();
         this.constraintType = constraintType;
         this.completionType = completionType;
@@ -83,7 +81,7 @@ public class StreamPipeline {
      * @param collection The Ballerina collection.
      * @return A Java stream of `Frame` objects.
      */
-    private Stream<Frame> initializeFrameStream(BCollection collection) {
+    private Stream<Frame> initializeFrameStream(Object collection) {
         return BallerinaIteratorUtils.toStream(collection)
                 .map(element -> Frame.add(StringUtils.fromString("value"), element));
     }
