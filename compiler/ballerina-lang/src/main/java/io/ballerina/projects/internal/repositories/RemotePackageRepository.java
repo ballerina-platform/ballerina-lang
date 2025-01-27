@@ -1,6 +1,5 @@
 package io.ballerina.projects.internal.repositories;
 
-import io.ballerina.projects.DependencyGraph;
 import io.ballerina.projects.JvmTarget;
 import io.ballerina.projects.Package;
 import io.ballerina.projects.PackageDescriptor;
@@ -8,6 +7,7 @@ import io.ballerina.projects.PackageName;
 import io.ballerina.projects.PackageOrg;
 import io.ballerina.projects.PackageVersion;
 import io.ballerina.projects.ProjectException;
+import io.ballerina.projects.SemanticVersion;
 import io.ballerina.projects.Settings;
 import io.ballerina.projects.environment.Environment;
 import io.ballerina.projects.environment.PackageLockingMode;
@@ -18,6 +18,10 @@ import io.ballerina.projects.environment.ResolutionRequest;
 import io.ballerina.projects.environment.ResolutionResponse;
 import io.ballerina.projects.internal.ImportModuleRequest;
 import io.ballerina.projects.internal.ImportModuleResponse;
+import io.ballerina.projects.internal.index.IndexPackage;
+import io.ballerina.projects.internal.index.PackageIndex;
+import io.ballerina.projects.internal.index.PackageIndexBuilder;
+import io.ballerina.projects.util.ProjectUtils;
 import org.ballerinalang.central.client.CentralAPIClient;
 import org.ballerinalang.central.client.CentralClientConstants;
 import org.ballerinalang.central.client.exceptions.CentralClientException;
@@ -45,7 +49,6 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static io.ballerina.projects.DependencyGraph.DependencyGraphBuilder.getBuilder;
 import static io.ballerina.projects.util.ProjectUtils.getAccessTokenOfCLI;
 import static io.ballerina.projects.util.ProjectUtils.getLatest;
 import static io.ballerina.projects.util.ProjectUtils.initializeProxy;
@@ -59,10 +62,15 @@ public class RemotePackageRepository implements PackageRepository {
 
     private final FileSystemRepository fileSystemRepo;
     private final CentralAPIClient client;
+    private final PackageIndex packageIndex;
 
-    public RemotePackageRepository(FileSystemRepository fileSystemRepo, CentralAPIClient client) {
+    private static final String ANY = "any";
+
+    public RemotePackageRepository(FileSystemRepository fileSystemRepo, CentralAPIClient client,
+                                   PackageIndex packageIndex) {
         this.fileSystemRepo = fileSystemRepo;
         this.client = client;
+        this.packageIndex = packageIndex;
     }
 
     public static RemotePackageRepository from(Environment environment, Path cacheDirectory, String repoUrl,
@@ -79,7 +87,8 @@ public class RemotePackageRepository implements PackageRepository {
                 settings.getCentral().getConnectTimeout(),
                 settings.getCentral().getReadTimeout(), settings.getCentral().getWriteTimeout(),
                 settings.getCentral().getCallTimeout(), settings.getCentral().getMaxRetries());
-        return new RemotePackageRepository(fileSystemRepository, client);
+        PackageIndex packageIndex = new PackageIndexBuilder().build();
+        return new RemotePackageRepository(fileSystemRepository, client, packageIndex);
     }
 
     public static RemotePackageRepository from(Environment environment, Path cacheDirectory, Settings settings) {
@@ -108,7 +117,7 @@ public class RemotePackageRepository implements PackageRepository {
         // If environment is online pull from central
         if (!options.offline()) {
             String supportedPlatform = Arrays.stream(JvmTarget.values())
-                    .map(target -> target.code())
+                    .map(JvmTarget::code)
                     .collect(Collectors.joining(","));
             try {
                 this.client.pullPackage(orgName, packageName, version, packagePathInBalaCache, supportedPlatform,
@@ -134,9 +143,7 @@ public class RemotePackageRepository implements PackageRepository {
         if (langRepoBuild != null) {
             return Collections.emptyList();
         }
-        String orgName = request.orgName().value();
-        String packageName = request.packageName().value();
-
+        // TODO: Can use the index instead. If offline, set offline flag in the index and find.
         // First, Get local versions
         Set<PackageVersion> packageVersions = new HashSet<>(fileSystemRepo.getPackageVersions(request, options));
 
@@ -145,22 +152,38 @@ public class RemotePackageRepository implements PackageRepository {
             return new ArrayList<>(packageVersions);
         }
 
+        List<IndexPackage> packagesFromIndex = this.packageIndex.getPackage(request.orgName(), request.packageName());
+        if (packagesFromIndex != null) {
+            List<IndexPackage> distCompatiblePackages = filterDistributionCompatiblePackages(packagesFromIndex);
+            List<IndexPackage> platformCompatiblePackages = filterPackagesByPlatform(distCompatiblePackages);
+            List<PackageVersion> versionsFromIndex = platformCompatiblePackages.stream().map(IndexPackage::version)
+                    .toList();
+            packageVersions.addAll(versionsFromIndex);
+            return new ArrayList<>(packageVersions);
+        }
+
+        // if the package is not in the index, we try to get the versions from the ballerina central,
+        // assuming it's a private package.
+        getPackageVersionsFromRemote(request, packageVersions);
+        return new ArrayList<>(packageVersions);
+    }
+
+    private void getPackageVersionsFromRemote(ResolutionRequest request, Set<PackageVersion> packageVersions) {
+        String orgName = request.orgName().value();
+        String packageName = request.packageName().value();
         try {
             String supportedPlatform = Arrays.stream(JvmTarget.values())
-                    .map(target -> target.code())
+                    .map(JvmTarget::code)
                     .collect(Collectors.joining(","));
             for (String version : this.client.getPackageVersions(orgName, packageName, supportedPlatform,
                     RepoUtils.getBallerinaVersion())) {
                 packageVersions.add(PackageVersion.from(version));
             }
-
         } catch (ConnectionErrorException e) {
             // ignore connect to remote repo failure
-            return new ArrayList<>(packageVersions);
         } catch (CentralClientException e) {
             throw new ProjectException(e.getMessage());
         }
-        return new ArrayList<>(packageVersions);
     }
 
     @Override
@@ -177,44 +200,110 @@ public class RemotePackageRepository implements PackageRepository {
             return filesystem;
         }
 
+        Collection<ImportModuleResponse> index = getPackageNamesFromIndex(requests);
+        List<ImportModuleRequest> unresolved = index.stream()
+                .filter(r -> r.resolutionStatus().equals(ResolutionResponse.ResolutionStatus.UNRESOLVED))
+                .map(ImportModuleResponse::importModuleRequest)
+                .toList();
+        Collection<ImportModuleResponse> remote = Collections.emptyList();
+        if (!unresolved.isEmpty()) {
+            // Unresolved modules might be from the private packages. Let's try to resolve with the central API.
+            remote = getPackageNamesFromRemote(unresolved);
+        }
+        return mergeNameResolution(filesystem, index, remote);
+    }
+
+    private List<ImportModuleResponse> getPackageNamesFromIndex(Collection<ImportModuleRequest> requests) {
+        List<ImportModuleResponse> responses = new ArrayList<>();
+        for (ImportModuleRequest request: requests) {
+            List<IndexPackage> indexPackages = packageIndex.getPackageContainingModule(
+                    request.packageOrg(), request.moduleName());
+            List<IndexPackage> distributionCompatiblePackages = filterDistributionCompatiblePackages(indexPackages);
+            if (distributionCompatiblePackages.isEmpty()) {
+                responses.add(ImportModuleResponse.createUnresolvedResponse(request));
+                continue;
+            }
+
+            // Try to find a match from the list of possible packages
+            Optional<IndexPackage> resolved = resolveModuleFromPossiblePackages(
+                    request.possiblePackages(), distributionCompatiblePackages);
+            if (resolved.isPresent()) {
+                responses.add(new ImportModuleResponse(PackageDescriptor.from(resolved.get().org(),
+                        resolved.get().name(), resolved.get().version()), request));
+                continue;
+            }
+
+            // If not found, find the latest version from the indexPackages.
+            resolved = findLatestInRange(distributionCompatiblePackages);
+            if (resolved.isPresent()) {
+                responses.add(new ImportModuleResponse(PackageDescriptor.from(resolved.get().org(),
+                        resolved.get().name(), resolved.get().version()), request));
+                continue;
+            }
+
+            // If there is still no matching version, return unresolved response.
+            responses.add(ImportModuleResponse.createUnresolvedResponse(request));
+        }
+        return responses;
+    }
+
+    private Collection<ImportModuleResponse> getPackageNamesFromRemote(Collection<ImportModuleRequest> requests) {
         try {
-            List<ImportModuleResponse> remote = new ArrayList<>();
             PackageNameResolutionRequest resolutionRequest = toPackageNameResolutionRequest(requests);
             String supportedPlatform = Arrays.stream(JvmTarget.values())
-                    .map(target -> target.code())
+                    .map(JvmTarget::code)
                     .collect(Collectors.joining(","));
             PackageNameResolutionResponse response = this.client.resolvePackageNames(resolutionRequest,
                     supportedPlatform, RepoUtils.getBallerinaVersion());
-            remote.addAll(toImportModuleResponses(requests, response));
-
-            return mergeNameResolution(filesystem, remote);
-        } catch (ConnectionErrorException e) {
-            // ignore connect to remote repo failure
-            // TODO we need to add diagnostics for resolution errors
+            return new ArrayList<>(toImportModuleResponses(requests, response));
+        } catch (ConnectionErrorException ignored) {
+            return new ArrayList<>();
         } catch (CentralClientException e) {
             throw new ProjectException(e.getMessage());
         }
-        return filesystem;
     }
 
-    private List<ImportModuleResponse> mergeNameResolution(Collection<ImportModuleResponse> filesystem,
-                                                           Collection<ImportModuleResponse> remote) {
-        return new ArrayList<>(
-            Stream.of(filesystem, remote)
-                .flatMap(Collection::stream).collect(Collectors.toMap(
-                    ImportModuleResponse::importModuleRequest, Function.identity(),
-                    (ImportModuleResponse x, ImportModuleResponse y) -> {
-                        if (y.resolutionStatus().equals(ResolutionResponse.ResolutionStatus.UNRESOLVED)) {
-                            return x;
-                        } else if (x.resolutionStatus().equals(ResolutionResponse.ResolutionStatus.UNRESOLVED)) {
-                            return y;
-                        } else if (getLatest(x.packageDescriptor().version(),
-                                y.packageDescriptor().version()).equals(
-                                y.packageDescriptor().version())) {
-                            return y;
-                        }
-                        return x;
-                    })).values());
+    private Optional<IndexPackage> resolveModuleFromPossiblePackages(List<PackageDescriptor> possiblePackages,
+                                                             List<IndexPackage> indexPackages) {
+        PackageVersion resolvedVersion;
+        for (PackageDescriptor possiblePkg : possiblePackages) {
+            for (IndexPackage indexPkg: indexPackages) {
+                if (!possiblePkg.org().equals(indexPkg.org()) || !possiblePkg.name().equals(indexPkg.name())) {
+                    continue;
+                }
+                resolvedVersion = possiblePkg.version() != null ? possiblePkg.version() : indexPkg.version();
+                List<IndexPackage> pkgsInRange = filterPackagesInRange(
+                        indexPackages,
+                        Optional.ofNullable(resolvedVersion),
+                        PackageLockingMode.MEDIUM);
+                Optional<IndexPackage> pkg = findLatestInRange(pkgsInRange);
+                if (pkg.isPresent()) {
+                    return pkg;
+                }
+            }
+        }
+        return Optional.empty();
+    }
+
+    private PackageNameResolutionRequest toPackageNameResolutionRequest(Collection<ImportModuleRequest> unresolved) {
+        PackageNameResolutionRequest request = new PackageNameResolutionRequest();
+        for (ImportModuleRequest module : unresolved) {
+            if (module.possiblePackages().isEmpty()) {
+                request.addModule(module.packageOrg().value(),
+                        module.moduleName());
+                continue;
+            }
+            List<PackageNameResolutionRequest.Module.PossiblePackage> possiblePackages = new ArrayList<>();
+            for (PackageDescriptor possiblePackage : module.possiblePackages()) {
+                possiblePackages.add(new PackageNameResolutionRequest.Module.PossiblePackage(
+                        possiblePackage.org().toString(),
+                        possiblePackage.name().toString(),
+                        possiblePackage.version().toString()));
+            }
+            request.addModule(module.packageOrg().value(),
+                    module.moduleName(), possiblePackages, PackageResolutionRequest.Mode.MEDIUM);
+        }
+        return request;
     }
 
     private List<ImportModuleResponse> toImportModuleResponses(Collection<ImportModuleRequest> requests,
@@ -239,194 +328,191 @@ public class RemotePackageRepository implements PackageRepository {
         return result;
     }
 
-    private PackageNameResolutionRequest toPackageNameResolutionRequest(Collection<ImportModuleRequest> unresolved) {
-        PackageNameResolutionRequest request = new PackageNameResolutionRequest();
-        for (ImportModuleRequest module : unresolved) {
-            if (module.possiblePackages().isEmpty()) {
-                request.addModule(module.packageOrg().value(),
-                        module.moduleName());
-                continue;
-            }
-            List<PackageNameResolutionRequest.Module.PossiblePackage> possiblePackages = new ArrayList<>();
-            for (PackageDescriptor possiblePackage : module.possiblePackages()) {
-                possiblePackages.add(new PackageNameResolutionRequest.Module.PossiblePackage(
-                        possiblePackage.org().toString(),
-                        possiblePackage.name().toString(),
-                        possiblePackage.version().toString()));
-            }
-            request.addModule(module.packageOrg().value(),
-                    module.moduleName(), possiblePackages, PackageResolutionRequest.Mode.MEDIUM);
-        }
-        return request;
+    private List<ImportModuleResponse> mergeNameResolution(Collection<ImportModuleResponse> filesystem,
+                                                           Collection<ImportModuleResponse> index,
+                                                           Collection<ImportModuleResponse> remote) {
+        return new ArrayList<>(
+            Stream.of(filesystem, index, remote)
+                .flatMap(Collection::stream).collect(Collectors.toMap(
+                    ImportModuleResponse::importModuleRequest, Function.identity(),
+                    (ImportModuleResponse x, ImportModuleResponse y) -> {
+                        if (y.resolutionStatus().equals(ResolutionResponse.ResolutionStatus.UNRESOLVED)) {
+                            return x;
+                        } else if (x.resolutionStatus().equals(ResolutionResponse.ResolutionStatus.UNRESOLVED)) {
+                            return y;
+                        } else if (getLatest(x.packageDescriptor().version(),
+                                y.packageDescriptor().version()).equals(
+                                y.packageDescriptor().version())) {
+                            return y;
+                        }
+                        return x;
+                    })).values());
     }
 
     @Override
-    public Collection<PackageMetadataResponse> getPackageMetadata(Collection<ResolutionRequest> requests,
+    public PackageMetadataResponse getPackageMetadata(ResolutionRequest request,
                                                                   ResolutionOptions options) {
-        if (requests.isEmpty()) {
-            return Collections.emptyList();
+        // Is this wanted?
+        if (request == null) {
+            return null;
         }
 
-        // Resolve all the requests locally
-        Collection<PackageMetadataResponse> cachedPackages = fileSystemRepo.getPackageMetadata(requests, options);
-        List<PackageMetadataResponse> deprecatedPackages = new ArrayList<>();
-        if (options.offline()) {
-            return cachedPackages;
-        }
-        List<ResolutionRequest> updatedRequests = new ArrayList<>(requests);
-        // Remove the already resolved requests when the locking mode is hard
-        for (PackageMetadataResponse response : cachedPackages) {
-            if (response.packageLoadRequest().packageLockingMode().equals(PackageLockingMode.HARD)
-                    && response.resolutionStatus().equals(ResolutionResponse.ResolutionStatus.RESOLVED)) {
-                updatedRequests.remove(response.packageLoadRequest());
-            }
-            if (response.resolutionStatus().equals(ResolutionResponse.ResolutionStatus.RESOLVED)) {
-                Optional<Package> pkg = fileSystemRepo.getPackage(response.packageLoadRequest(), options);
-                if (pkg.isPresent() && pkg.get().descriptor().getDeprecated()) {
-                    deprecatedPackages.add(response);
-                }
-            }
-        }
-        // Resolve the requests from remote repository if there are unresolved requests
-        if (!updatedRequests.isEmpty()) {
-            try {
-                PackageResolutionRequest packageResolutionRequest = toPackageResolutionRequest(updatedRequests);
-                Collection<PackageMetadataResponse> remotePackages =
-                        fromPackageResolutionResponse(updatedRequests, packageResolutionRequest);
-                // Merge central requests and local requests
-                // Here we will pick the latest package from remote or local
-                return mergeResolution(remotePackages, cachedPackages, deprecatedPackages);
+        packageIndex.setOffline(options.offline());
 
-            } catch (ConnectionErrorException e) {
-                // ignore connect to remote repo failure
-                // TODO we need to add diagnostics for resolution errors
-            } catch (CentralClientException e) {
-                throw new ProjectException(e.getMessage());
+        // If the locking mode is LOCKED or HARD, we should return the resolved package from the index.
+        if (request.packageLockingMode().equals(PackageLockingMode.LOCKED)
+                || request.packageLockingMode().equals(PackageLockingMode.HARD)) {
+            IndexPackage resolvedPackage = packageIndex.getVersion(
+                    request.orgName(),
+                    request.packageName(),
+                    request.version().orElse(null));
+            return createResolutionResponse(request, resolvedPackage);
+        }
+
+        // If the locking mode is MEDIUM or SOFT, we should return the latest compatible package from the index.
+        List<IndexPackage> indexPackages = packageIndex.getPackage(request.orgName(), request.packageName());
+        if (indexPackages != null) {
+            indexPackages = filterDistributionCompatiblePackages(indexPackages);
+            indexPackages = filterDeprecatedPackages(indexPackages);
+            indexPackages = filterPackagesByPlatform(indexPackages);
+            indexPackages = filterStablePackages(indexPackages);
+            indexPackages = filterPackagesInRange(indexPackages, request.version(), request.packageLockingMode());
+            Optional<IndexPackage> latest = findLatestInRange(indexPackages);
+            if (latest.isPresent()) {
+                return createResolutionResponse(request, latest.get());
             }
         }
-        // Return cachedPackages when central requests are not performed
-        return cachedPackages;
+
+        // If not resolved, might be a private package. Let's try to resolve with the central API.
+        PackageResolutionRequest packageResolutionRequest = toPackageResolutionRequest(request);
+        try {
+            return fromPackageResolutionResponse(request, packageResolutionRequest);
+        } catch (CentralClientException e) {
+            throw new ProjectException(e.getMessage());
+        }
     }
 
-    private Collection<PackageMetadataResponse> mergeResolution(
-            Collection<PackageMetadataResponse> remoteResolution, Collection<PackageMetadataResponse> filesystem,
-            List<PackageMetadataResponse> deprecatedPackages) {
-        List<PackageMetadataResponse> mergedResults = new ArrayList<>(
-                Stream.of(filesystem, remoteResolution)
-                        .flatMap(Collection::stream).collect(Collectors.toMap(
-                        PackageMetadataResponse::packageLoadRequest, Function.identity(),
-                        (PackageMetadataResponse x, PackageMetadataResponse y) -> {
-                            if (y.resolutionStatus().equals(ResolutionResponse.ResolutionStatus.UNRESOLVED)) {
-                                // filesystem response is resolved &  remote response is unresolved
-                                return x;
-                            } else if (x.resolutionStatus().equals(ResolutionResponse.ResolutionStatus.UNRESOLVED)) {
-                                // filesystem response is unresolved &  remote response is resolved
-                                return y;
-                            } else if (x.resolvedDescriptor().version().equals(y.resolvedDescriptor().version())) {
-                                // Both responses have the same version and there is a mismatch in deprecated status,
-                                // we need to update the deprecated status in the file system repo
-                                // to match the remote repo as it is the most up to date.
-                                if (deprecatedPackages != null && y.resolvedDescriptor() != null &&
-                                        deprecatedPackages.contains(x) ^ y.resolvedDescriptor().getDeprecated()) {
-                                    fileSystemRepo.updateDeprecatedStatusForPackage(y.resolvedDescriptor());
-                                }
-                                return x;
-                            }
-                            // x not deprecate & y not deprecate
-                            //      - x is the latest : return x (this will not happen in real)
-                            //      - y is the latest : return y
-                            // x not deprecated & y deprecated
-                            //      - x is the latest : outdated. return y
-                            //      - y is the latest : return y
-                            // x deprecated & y not deprecated
-                            //      - x is the latest : outdated. return y
-                            //      - y is the latest : return y
-                            // x deprecated & y deprecated
-                            //      - x is the latest : not possible
-                            //      - y is the latest : return y
-
-                            // If the equivalent package is available in the file system repo,
-                            // try to update the deprecated status.
-                            // Because if available in cache, it won't be pulled.
-                            fileSystemRepo.updateDeprecatedStatusForPackage(y.resolvedDescriptor());
-                            return y;
-                        })).values());
-        return mergedResults;
+    private PackageMetadataResponse createResolutionResponse(ResolutionRequest request, IndexPackage resolvedPackage) {
+        if (resolvedPackage == null) {
+            return PackageMetadataResponse.createUnresolvedResponse(request);
+        }
+        if (ProjectUtils.isDistributionSupported(resolvedPackage.ballerinaVersion())) {
+            return PackageMetadataResponse.createUnresolvedResponse(request);
+        }
+        return PackageMetadataResponse.from(request, request.packageDescriptor(), resolvedPackage.dependencies());
     }
 
-    private Collection<PackageMetadataResponse> fromPackageResolutionResponse(
-            Collection<ResolutionRequest> packageLoadRequests, PackageResolutionRequest packageResolutionRequest)
+    private List<IndexPackage> filterDistributionCompatiblePackages(List<IndexPackage> indexPackages) {
+        return indexPackages.stream().filter(pkg -> ProjectUtils.isDistributionSupported(pkg.ballerinaVersion()))
+                .toList();
+    }
+
+    private List<IndexPackage> filterDeprecatedPackages(List<IndexPackage> indexPackages) {
+        List<IndexPackage> nonDepPkgs =  indexPackages.stream().filter(pkg -> !pkg.isDeprecated()).toList();
+        return nonDepPkgs.isEmpty() ? indexPackages : nonDepPkgs;
+    }
+
+    private List<IndexPackage> filterPackagesByPlatform(List<IndexPackage> indexPackages) {
+        List<String> supportedPlatforms = Arrays.stream(JvmTarget.values()).map(JvmTarget::code).toList();
+        return indexPackages.stream().filter(pkg ->
+                ANY.equals(pkg.supportedPlatform()) || supportedPlatforms.contains(pkg.supportedPlatform())).toList();
+    }
+
+    private List<IndexPackage> filterStablePackages(List<IndexPackage> indexPackages) {
+        List<IndexPackage> stableVersions = indexPackages.stream().filter(
+                pkg -> !pkg.version().value().isPreReleaseVersion()).toList();
+        return stableVersions.isEmpty() ? indexPackages : stableVersions;
+    }
+
+    private List<IndexPackage> filterPackagesInRange(List<IndexPackage> indexPackages,
+                                                         Optional<PackageVersion> refVersionOpt,
+                                                     PackageLockingMode packageLockingMode) {
+        if (refVersionOpt.isEmpty()) {
+            return indexPackages;
+        }
+        SemanticVersion refVersion = refVersionOpt.get().value();
+        return indexPackages.stream().filter(pkg -> {
+            SemanticVersion pkgVersion = pkg.version().value();
+            return switch (packageLockingMode) {
+                case LATEST -> true;
+                case SOFT -> pkgVersion.major() == refVersion.major();
+                case MEDIUM -> pkgVersion.major() == refVersion.major() && pkgVersion.minor() == refVersion.minor();
+                case HARD, LOCKED, INVALID -> // We should not reach here because we handled locked and hard before.
+                        throw new IllegalStateException("Unexpected value: " + packageLockingMode);
+            };
+        }).toList();
+    }
+
+    private Optional<IndexPackage> findLatestInRange(List<IndexPackage> indexPackages) {
+        if (indexPackages.isEmpty()) {
+            return Optional.empty();
+        }
+        IndexPackage latest = indexPackages.get(0);
+        for (IndexPackage indexPackage : indexPackages) {
+            if (indexPackage.version().value().greaterThan(latest.version().value())) {
+                latest = indexPackage;
+            }
+        }
+        return Optional.of(latest);
+    }
+
+
+
+    // Each dependency will contain only the direct dependencies of the package after the indexing implementation.
+    private PackageMetadataResponse fromPackageResolutionResponse(
+            ResolutionRequest resolutionRequest, PackageResolutionRequest packageResolutionRequest)
             throws CentralClientException {
-        List<PackageMetadataResponse> response = new ArrayList<>();
-        Set<ResolutionRequest> resolvedRequests = new HashSet<>();
         String supportedPlatform = Arrays.stream(JvmTarget.values())
-                .map(target -> target.code())
+                .map(JvmTarget::code)
                 .collect(Collectors.joining(","));
-        PackageResolutionResponse packageResolutionResponse = client.resolveDependencies(
+        PackageResolutionResponse packageResolutionResponse = this.client.resolveDependencies(
                 packageResolutionRequest, supportedPlatform, RepoUtils.getBallerinaVersion());
-        for (ResolutionRequest resolutionRequest : packageLoadRequests) {
-            if (resolvedRequests.contains(resolutionRequest)) {
+        // find response from server
+        // checked in resolved group
+        Optional<PackageResolutionResponse.Package> match = packageResolutionResponse.resolved().stream()
+                .filter(p -> p.name().equals(resolutionRequest.packageName().value()) &&
+                        p.org().equals(resolutionRequest.orgName().value())).findFirst();
+        // If we found a match we will add it to response
+        if (match.isPresent()) {
+            PackageVersion version = PackageVersion.from(match.get().version());
+            Collection<PackageDescriptor> dependencies = getDirectDependencies(match.get());
+            PackageDescriptor packageDescriptor = PackageDescriptor.from(resolutionRequest.orgName(),
+                    resolutionRequest.packageName(),
+                    version, match.get().getDeprecated(), match.get().getDeprecateMessage());
+            return PackageMetadataResponse.from(resolutionRequest,
+                    packageDescriptor,
+                    dependencies);
+        }
+        // If the package is not in resolved for all jvm platforms we assume the package is unresolved
+        return PackageMetadataResponse.createUnresolvedResponse(resolutionRequest);
+    }
+
+    private static Collection<PackageDescriptor> getDirectDependencies(PackageResolutionResponse.Package aPackage) {
+        List<PackageDescriptor> dependencies = new ArrayList<>();
+        for (PackageResolutionResponse.Dependency dependency : aPackage.dependencyGraph()) {
+            if (aPackage.org().equals(dependency.org()) && aPackage.name().equals(dependency.name())) {
                 continue;
             }
-            // find response from server
-            // checked in resolved group
-            Optional<PackageResolutionResponse.Package> match = packageResolutionResponse.resolved().stream()
-                    .filter(p -> p.name().equals(resolutionRequest.packageName().value()) &&
-                            p.org().equals(resolutionRequest.orgName().value())).findFirst();
-            // If we found a match we will add it to response
-            if (match.isPresent()) {
-                PackageVersion version = PackageVersion.from(match.get().version());
-                DependencyGraph<PackageDescriptor> dependencies = createPackageDependencyGraph(match.get());
-                PackageDescriptor packageDescriptor = PackageDescriptor.from(resolutionRequest.orgName(),
-                        resolutionRequest.packageName(),
-                        version, match.get().getDeprecated(), match.get().getDeprecateMessage());
-                PackageMetadataResponse responseDescriptor = PackageMetadataResponse.from(resolutionRequest,
-                        packageDescriptor,
-                        dependencies);
-                response.add(responseDescriptor);
-                resolvedRequests.add(resolutionRequest);
-            } else {
-                // If the package is not in resolved for all jvm platforms we assume the package is unresolved
-                response.add(PackageMetadataResponse.createUnresolvedResponse(resolutionRequest));
-            }
-        }
-
-        return response;
-    }
-
-    private static DependencyGraph<PackageDescriptor> createPackageDependencyGraph(
-            PackageResolutionResponse.Package aPackage) {
-        DependencyGraph.DependencyGraphBuilder<PackageDescriptor> graphBuilder = getBuilder();
-
-        for (PackageResolutionResponse.Dependency dependency : aPackage.dependencyGraph()) {
             PackageDescriptor pkg = PackageDescriptor.from(PackageOrg.from(dependency.org()),
                     PackageName.from(dependency.name()), PackageVersion.from(dependency.version()));
-            Set<PackageDescriptor> dependentPackages = new HashSet<>();
-            for (PackageResolutionResponse.Dependency dependencyPkg : dependency.dependencies()) {
-                dependentPackages.add(PackageDescriptor.from(PackageOrg.from(dependencyPkg.org()),
-                        PackageName.from(dependencyPkg.name()),
-                        PackageVersion.from(dependencyPkg.version())));
-            }
-            graphBuilder.addDependencies(pkg, dependentPackages);
+            dependencies.add(pkg);
         }
-
-        return graphBuilder.build();
+        return dependencies;
     }
 
-    private PackageResolutionRequest toPackageResolutionRequest(Collection<ResolutionRequest> resolutionRequests) {
+    private PackageResolutionRequest toPackageResolutionRequest(ResolutionRequest resolutionRequest) {
         PackageResolutionRequest packageResolutionRequest = new PackageResolutionRequest();
-        for (ResolutionRequest resolutionRequest : resolutionRequests) {
-            PackageResolutionRequest.Mode mode = switch (resolutionRequest.packageLockingMode()) {
-                case HARD -> PackageResolutionRequest.Mode.HARD;
-                case MEDIUM -> PackageResolutionRequest.Mode.MEDIUM;
-                case SOFT -> PackageResolutionRequest.Mode.SOFT;
-            };
-            String version = resolutionRequest.version().map(v -> v.value().toString()).orElse("");
-            packageResolutionRequest.addPackage(resolutionRequest.orgName().value(),
-                    resolutionRequest.packageName().value(),
-                    version,
-                    mode);
-        }
+        PackageResolutionRequest.Mode mode = switch (resolutionRequest.packageLockingMode()) {
+            case HARD, LOCKED -> PackageResolutionRequest.Mode.HARD;
+            case MEDIUM -> PackageResolutionRequest.Mode.MEDIUM;
+            case SOFT, LATEST -> PackageResolutionRequest.Mode.SOFT;
+            default -> throw new IllegalStateException("Unexpected value: " + resolutionRequest.packageLockingMode());
+        };
+        String version = resolutionRequest.version().map(v -> v.value().toString()).orElse("");
+        packageResolutionRequest.addPackage(resolutionRequest.orgName().value(),
+                resolutionRequest.packageName().value(),
+                version,
+                mode);
         return packageResolutionRequest;
     }
 }

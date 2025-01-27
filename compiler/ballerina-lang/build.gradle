@@ -36,6 +36,10 @@ dependencies {
     implementation libs.ow2.asm
     implementation libs.commons.io
     implementation libs.zafarkhaja.jsemver
+    implementation libs.jgit
+    implementation (libs.guava) {
+        exclude group: 'com.google.code.findbugs', module: 'jsr305'
+    }
     testImplementation(libs.guru.nidi.graphviz) {
         because("We use this library to execute package resolution tests")
     }

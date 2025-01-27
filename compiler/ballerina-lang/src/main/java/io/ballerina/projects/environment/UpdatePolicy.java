@@ -24,8 +24,28 @@ package io.ballerina.projects.environment;
  * @since 2201.12.0
  */
 public enum UpdatePolicy {
+    /**
+     * LATEST update policy allows updating the package to the latest version within the given major version range.
+     */
     SOFT,
+
+    /**
+     * MEDIUM update policy allows updating the package to the latest version within the given major.minor version range.
+     */
     MEDIUM,
+
+    /**
+     * HARD update policy sticks to the given major.minor.patch version of the package. However, if there is a
+     * compatible higher minor/ patch version available in the graphs, use the higher version.
+     */
     HARD,
+
+    /**
+     * LOCKED update policy sticks to the exact version of the package. This will be not allowed if at least one of the
+     * following conditions are not met.
+     * 1. Dependency conflicts are present.
+     * 2. Dependencies.toml is not available.
+     * 3. Not all dependencies are locked in the Dependencies.toml.
+     */
     LOCKED
 }

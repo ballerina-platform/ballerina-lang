@@ -209,13 +209,15 @@ public class BuildToolResolution {
         return resolutionRequests;
     }
 
+    // TODO: we should move tool resolution to the index
     private ToolResolutionCentralRequest createToolResolutionRequests(Set<ToolResolutionRequest> resolutionRequests) {
         ToolResolutionCentralRequest toolResolutionRequest = new ToolResolutionCentralRequest();
         for (ToolResolutionRequest resolutionRequest : resolutionRequests) {
             ToolResolutionCentralRequest.Mode mode = switch (resolutionRequest.packageLockingMode()) {
-                case HARD -> ToolResolutionCentralRequest.Mode.HARD;
+                case HARD, LOCKED -> ToolResolutionCentralRequest.Mode.HARD;
                 case MEDIUM -> ToolResolutionCentralRequest.Mode.MEDIUM;
-                case SOFT -> ToolResolutionCentralRequest.Mode.SOFT;
+                case SOFT, LATEST -> ToolResolutionCentralRequest.Mode.SOFT;
+                case INVALID -> throw new IllegalStateException("Invalid package locking mode");
             };
             String version = resolutionRequest.version().map(v -> v.value().toString()).orElse("");
             toolResolutionRequest.addTool(resolutionRequest.id().toString(), version, mode);

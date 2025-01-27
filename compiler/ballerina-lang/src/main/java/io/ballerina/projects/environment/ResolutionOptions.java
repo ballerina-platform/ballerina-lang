@@ -96,7 +96,7 @@ public class ResolutionOptions {
         private boolean dumpGraph = false;
         private boolean dumpRawGraphs = false;
         private UpdatePolicy updatePolicy = UpdatePolicy.SOFT;
-        private PackageLockingMode packageLockingMode = PackageLockingMode.MEDIUM;
+        private PackageLockingMode packageLockingMode = PackageLockingMode.MEDIUM; // TODO: Remove. this isn't a user passed value anymore. Synthesized from the update policy.
 
         public ResolutionOptionBuilder setOffline(boolean value) {
             offline = value;

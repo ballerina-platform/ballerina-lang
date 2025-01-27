@@ -39,8 +39,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -123,62 +123,32 @@ public class DefaultPackageResolver implements PackageResolver {
     }
 
     @Override
-    public Collection<PackageMetadataResponse> resolvePackageMetadata(Collection<ResolutionRequest> requests,
-                                                                      ResolutionOptions options) {
-        Collection<ResolutionRequest> localRepoRequests = new ArrayList<>();
-        Map<PackageRepository, ArrayList<ResolutionRequest>> customRepoRequestMap = new HashMap<>();
-        for (ResolutionRequest request : requests) {
-            Optional<String> repository = request.packageDescriptor().repository();
-            if (repository.isPresent() && repository.get().equals(ProjectConstants.LOCAL_REPOSITORY_NAME)) {
-                localRepoRequests.add(request);
-            } else if (repository.isPresent() && customRepos.containsKey(repository.get())) {
-                PackageRepository customRepository = customRepos.get(repository.get());
-
-                if (customRepoRequestMap.containsKey(customRepository)) {
-                    customRepoRequestMap.get(customRepository).add(request);
-                } else {
-                    ArrayList<ResolutionRequest> requestList = new ArrayList<>();
-                    requestList.add(request);
-                    customRepoRequestMap.put(customRepository, requestList);
-                }
-            }
-        }
-
-        Collection<PackageMetadataResponse> localRepoPackages = localRepoRequests.isEmpty() ?
-                Collections.emptyList() :
-                localRepo.getPackageMetadata(localRepoRequests, options);
-
-        Collection<PackageMetadataResponse> allCustomRepoPackages = new ArrayList<>();
-        for (Map.Entry<PackageRepository, ArrayList<ResolutionRequest>> customRepoRequestEntry :
-                customRepoRequestMap.entrySet()) {
-            PackageRepository customRepository = customRepoRequestEntry.getKey();
-            ArrayList<ResolutionRequest> customRepoRequests = customRepoRequestEntry.getValue();
-            Collection<PackageMetadataResponse> customRepoPackages = customRepoRequests.isEmpty() ?
-                    Collections.emptyList() : customRepository.getPackageMetadata(customRepoRequests, options);
-            allCustomRepoPackages.addAll(customRepoPackages);
+    public PackageMetadataResponse resolvePackageMetadata(ResolutionRequest request, ResolutionOptions options) {
+        PackageMetadataResponse localRepoPackage = null;
+        PackageMetadataResponse customRepoPackage = null;
+        PackageMetadataResponse centralRepoPackage = null;
+        Optional<String> repository = request.packageDescriptor().repository();
+        if (repository.isPresent() && repository.get().equals(ProjectConstants.LOCAL_REPOSITORY_NAME)) {
+            localRepoPackage = localRepo.getPackageMetadata(request, options);
+        } else if (repository.isPresent() && customRepos.containsKey(repository.get())) {
+            PackageRepository customRepository = customRepos.get(repository.get());
+            customRepoPackage = customRepository.getPackageMetadata(request, options);
         }
 
         // TODO Send ballerina* org names to dist repo
-        Collection<PackageMetadataResponse> latestVersionsInDist =
-                distributionRepo.getPackageMetadata(requests, options);
+        PackageMetadataResponse distRepoPackage = distributionRepo.getPackageMetadata(request, options);
 
-        // Send non built in packages to central
-        Collection<ResolutionRequest> centralLoadRequests = requests.stream()
-                .filter(r -> !r.packageDescriptor().isBuiltInPackage())
-                .toList();
-        Collection<PackageMetadataResponse> latestVersionsInCentral =
-                centralRepo.getPackageMetadata(centralLoadRequests, options);
+        // Send non builtin package to central
+        if (!request.packageDescriptor().isBuiltInPackage()) {
+            centralRepoPackage = centralRepo.getPackageMetadata(request, options);
+        }
 
         // TODO Unit test following merge
-        List<PackageMetadataResponse> responseDescriptors = new ArrayList<>(
-                // Since packages can be resolved from multiple repos
-                // the repos should be provided to the stream in the order of priority.
-                Stream.of(localRepoPackages, allCustomRepoPackages, latestVersionsInDist, latestVersionsInCentral)
-                        .flatMap(Collection::stream).collect(Collectors.toMap(
-                        PackageMetadataResponse::packageLoadRequest, Function.identity(),
-                        (PackageMetadataResponse x, PackageMetadataResponse y) -> {
-                            // There will be 2 iterations (number of repos-1) and the returned
-                            // value of the first iteration will be the 'x' for the next iteration.
+        // Since packages can be resolved from multiple repos
+        // the repos should be provided to the stream in the order of priority.
+        return Stream.of(localRepoPackage, customRepoPackage, distRepoPackage, centralRepoPackage)
+                        .filter(Objects::nonNull)
+                        .reduce((x, y) -> {
                             if (y.resolutionStatus().equals(ResolutionStatus.UNRESOLVED)) {
                                 return x;
                             }
@@ -193,9 +163,7 @@ public class DefaultPackageResolver implements PackageResolver {
                                 return y;
                             }
                             return x;
-                        })).values());
-
-        return responseDescriptors;
+                        }).orElse(PackageMetadataResponse.createUnresolvedResponse(request));
     }
 
     @Override

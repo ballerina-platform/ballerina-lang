@@ -17,7 +17,6 @@
  */
 package io.ballerina.projects.internal.repositories;
 
-import io.ballerina.projects.DependencyGraph;
 import io.ballerina.projects.ModuleDescriptor;
 import io.ballerina.projects.PackageDescriptor;
 import io.ballerina.projects.PackageName;
@@ -49,20 +48,14 @@ import static io.ballerina.projects.util.ProjectUtils.getLatest;
 public abstract class AbstractPackageRepository implements PackageRepository {
 
     @Override
-    public Collection<PackageMetadataResponse> getPackageMetadata(Collection<ResolutionRequest> requests,
-                                                                  ResolutionOptions options) {
-        List<PackageMetadataResponse> descriptorSet = new ArrayList<>();
-        for (ResolutionRequest request : requests) {
-            List<PackageVersion> versions = getCompatiblePackageVersions(
-                    request.packageDescriptor(), request.packageLockingMode());
-            PackageVersion latest = findLatest(versions);
-            if (latest != null) {
-                descriptorSet.add(createMetadataResponse(request, latest));
-            } else {
-                descriptorSet.add(PackageMetadataResponse.createUnresolvedResponse(request));
-            }
+    public PackageMetadataResponse getPackageMetadata(ResolutionRequest request, ResolutionOptions options) {
+        List<PackageVersion> versions = getCompatiblePackageVersions(
+                request.packageDescriptor(), request.packageLockingMode());
+        PackageVersion latest = findLatest(versions);
+        if (latest != null) {
+            return createMetadataResponse(request, latest);
         }
-        return descriptorSet;
+        return PackageMetadataResponse.createUnresolvedResponse(request);
     }
 
     @Override
@@ -80,9 +73,9 @@ public abstract class AbstractPackageRepository implements PackageRepository {
                                                                PackageName name,
                                                                PackageVersion version);
 
-    protected abstract DependencyGraph<PackageDescriptor> getDependencyGraph(PackageOrg org,
-                                                                             PackageName name,
-                                                                             PackageVersion version);
+    protected abstract Collection<PackageDescriptor> getDirectDependencies(PackageOrg org,
+                                                                        PackageName name,
+                                                                        PackageVersion version);
 
     public abstract boolean isPackageExists(PackageOrg org,
                                                PackageName name,
@@ -178,9 +171,9 @@ public abstract class AbstractPackageRepository implements PackageRepository {
         PackageDescriptor resolvedDescriptor = PackageDescriptor.from(
                 resolutionRequest.orgName(), resolutionRequest.packageName(), latest,
                 resolutionRequest.repositoryName().orElse(null));
-        DependencyGraph<PackageDescriptor> dependencyGraph = getDependencyGraph(resolutionRequest.orgName(),
+        Collection<PackageDescriptor> directDependencies = getDirectDependencies(resolutionRequest.orgName(),
                 resolutionRequest.packageName(), latest);
-        return PackageMetadataResponse.from(resolutionRequest, resolvedDescriptor, dependencyGraph);
+        return PackageMetadataResponse.from(resolutionRequest, resolvedDescriptor, directDependencies);
     }
 
     protected PackageVersion findLatest(List<PackageVersion> packageVersions) {

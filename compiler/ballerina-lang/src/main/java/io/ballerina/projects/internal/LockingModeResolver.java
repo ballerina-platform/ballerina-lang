@@ -18,92 +18,89 @@
 
 package io.ballerina.projects.internal;
 
-import io.ballerina.projects.environment.LockingMode;
-import io.ballerina.projects.environment.UpdatePolicy;
+import io.ballerina.projects.environment.PackageLockingMode;
 
+/**
+ * This class resolves the locking modes for the packages based on the update policy and the package status.
+ *
+ * @since 2201.12.0
+ */
 public class LockingModeResolver {
-    // TODO: may be we can encapsulate these fields in a new class LockingModeResolutionOptions
-    private final UpdatePolicy updatePolicy;
-    private boolean hasDependencyManifest;
-    private final boolean distributionChange;
-    private final boolean importAddition;
-    private final boolean lessThan24HrsAfterBuild;
+    private final LockingModeResolutionOptions options;
 
-    public LockingModeResolver(
-            UpdatePolicy updatePolicy,
-            boolean hasDependencyManifest,
-            boolean distributionChange,
-            boolean importAddition,
-            boolean lessThan24HrsAfterBuild
-    ) {
-        this.updatePolicy = updatePolicy;
-        this.hasDependencyManifest = hasDependencyManifest;
-        this.distributionChange = distributionChange;
-        this.importAddition = importAddition;
-        this.lessThan24HrsAfterBuild = lessThan24HrsAfterBuild;
+    public LockingModeResolver(LockingModeResolutionOptions options) {
+        this.options = options;
     }
 
+    /**
+     * Resolves the locking modes for the package based on the update policy and the package status.
+     *
+     * @return the resolved locking modes
+     */
     public LockingModes resolveLockingModes() {
-        if (!hasDependencyManifest) {
+        if (!options.hasDependencyManifest()) {
             return resolveNoManifestLockingMode();
         }
-        if (distributionChange) {
+        if (options.distributionChange()) {
             return resolveDistributionChangeLockingMode();
         }
-        if (importAddition) {
+        if (options.importAddition()) {
             return resolveImportAdditionLockingMode();
         }
-        if (lessThan24HrsAfterBuild) {
-            return new LockingModes(LockingMode.LOCKED);
+        if (options.lessThan24HrsAfterBuild()) {
+            return new LockingModes(PackageLockingMode.LOCKED);
         }
         return resolveDefaultLockingMode();
     }
 
     public record LockingModes(
-            LockingMode existingDirectDepMode,
-            LockingMode existingTransitiveDepMode,
-            LockingMode newDirectDepMode,
-            LockingMode newTransitiveDepMode) {
-        public LockingModes(LockingMode existingDirectDepMode, LockingMode existingTransDepMode) {
+            PackageLockingMode existingDirectDepMode,
+            PackageLockingMode existingTransitiveDepMode,
+            PackageLockingMode newDirectDepMode,
+            PackageLockingMode newTransitiveDepMode) {
+        public LockingModes(PackageLockingMode existingDirectDepMode, PackageLockingMode existingTransDepMode) {
             this(existingDirectDepMode, existingTransDepMode, existingDirectDepMode, existingTransDepMode);
         }
-        public LockingModes(LockingMode mode) {
+        public LockingModes(PackageLockingMode mode) {
             this(mode, mode, mode, mode);
         }
     }
 
     private LockingModes resolveNoManifestLockingMode() {
-        return switch (updatePolicy) {
-            case SOFT -> new LockingModes(LockingMode.LATEST, LockingMode.SOFT);
-            case MEDIUM -> new LockingModes(LockingMode.LATEST, LockingMode.MEDIUM);
-            case HARD -> new LockingModes(LockingMode.LATEST, LockingMode.HARD);
-            default -> new LockingModes(LockingMode.INVALID);
+        return switch (options.updatePolicy()) {
+            case SOFT -> new LockingModes(PackageLockingMode.LATEST, PackageLockingMode.SOFT);
+            case MEDIUM -> new LockingModes(PackageLockingMode.LATEST, PackageLockingMode.MEDIUM);
+            case HARD -> new LockingModes(PackageLockingMode.LATEST, PackageLockingMode.HARD);
+            case LOCKED -> new LockingModes(PackageLockingMode.INVALID);
         };
     }
 
     private LockingModes resolveDistributionChangeLockingMode() {
-        return switch (updatePolicy) {
-            case SOFT -> new LockingModes(LockingMode.SOFT);
-            case MEDIUM, HARD -> new LockingModes(LockingMode.MEDIUM);
-            case LOCKED -> new LockingModes(LockingMode.LOCKED);
+        return switch (options.updatePolicy()) {
+            case SOFT -> new LockingModes(PackageLockingMode.SOFT);
+            case MEDIUM, HARD -> new LockingModes(PackageLockingMode.MEDIUM);
+            case LOCKED -> new LockingModes(PackageLockingMode.LOCKED);
         };
     }
 
     private LockingModes resolveImportAdditionLockingMode() {
-        return switch (updatePolicy) {
-            case SOFT -> new LockingModes(LockingMode.SOFT, LockingMode.SOFT, LockingMode.LATEST, LockingMode.SOFT);
-            case MEDIUM -> new LockingModes(LockingMode.MEDIUM, LockingMode.MEDIUM, LockingMode.LATEST, LockingMode.MEDIUM);
-            case HARD -> new LockingModes(LockingMode.HARD, LockingMode.HARD, LockingMode.LATEST, LockingMode.HARD);
-            case LOCKED -> new LockingModes(LockingMode.INVALID);
+        return switch (options.updatePolicy()) {
+            case SOFT -> new LockingModes(PackageLockingMode.SOFT, PackageLockingMode.SOFT,
+                    PackageLockingMode.LATEST, PackageLockingMode.SOFT);
+            case MEDIUM -> new LockingModes(PackageLockingMode.MEDIUM, PackageLockingMode.MEDIUM,
+                    PackageLockingMode.LATEST, PackageLockingMode.MEDIUM);
+            case HARD -> new LockingModes(PackageLockingMode.HARD, PackageLockingMode.HARD,
+                    PackageLockingMode.LATEST, PackageLockingMode.HARD);
+            case LOCKED -> new LockingModes(PackageLockingMode.INVALID);
         };
     }
 
     private LockingModes resolveDefaultLockingMode() {
-        return switch (updatePolicy) {
-            case SOFT -> new LockingModes(LockingMode.SOFT);
-            case MEDIUM -> new LockingModes(LockingMode.MEDIUM);
-            case HARD -> new LockingModes(LockingMode.HARD);
-            default -> new LockingModes(LockingMode.LOCKED);
+        return switch (options.updatePolicy()) {
+            case SOFT -> new LockingModes(PackageLockingMode.SOFT);
+            case MEDIUM -> new LockingModes(PackageLockingMode.MEDIUM);
+            case HARD -> new LockingModes(PackageLockingMode.HARD);
+            case LOCKED -> new LockingModes(PackageLockingMode.LOCKED);
         };
     }
 }

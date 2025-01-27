@@ -17,10 +17,10 @@
  */
 package io.ballerina.projects.environment;
 
-import io.ballerina.projects.DependencyGraph;
 import io.ballerina.projects.PackageDescriptor;
 
-import java.util.Optional;
+import java.util.Collection;
+import java.util.Collections;
 
 /**
  * {@code PackageMetadataResponse} is used to return a response descriptor to a given {@code ResolutionRequest}.
@@ -30,29 +30,32 @@ import java.util.Optional;
 public class PackageMetadataResponse {
     private final ResolutionRequest packageLoadRequest;
     private final PackageDescriptor packageDescriptor;
-    private final DependencyGraph<PackageDescriptor> dependencyGraph;
+    private final Collection<PackageDescriptor> directDependencies;
     private final ResolutionResponse.ResolutionStatus resolutionStatus;
 
     private PackageMetadataResponse(ResolutionRequest packageLoadRequest,
                                     PackageDescriptor resolvedDescriptor,
-                                    DependencyGraph<PackageDescriptor> dependencyGraph,
+                                    Collection<PackageDescriptor> directDependencies,
                                     ResolutionResponse.ResolutionStatus resolutionStatus) {
         this.packageLoadRequest = packageLoadRequest;
         this.packageDescriptor = resolvedDescriptor;
-        this.dependencyGraph = dependencyGraph;
+        this.directDependencies = directDependencies;
         this.resolutionStatus = resolutionStatus;
     }
 
     public static PackageMetadataResponse from(ResolutionRequest packageLoadRequest,
                                                PackageDescriptor resolvedDescriptor,
-                                               DependencyGraph<PackageDescriptor> dependencyGraph) {
+                                               Collection<PackageDescriptor> directDependencies) {
         return new PackageMetadataResponse(
-                packageLoadRequest, resolvedDescriptor, dependencyGraph, ResolutionResponse.ResolutionStatus.RESOLVED);
+                packageLoadRequest,
+                resolvedDescriptor,
+                directDependencies,
+                ResolutionResponse.ResolutionStatus.RESOLVED);
     }
 
     public static PackageMetadataResponse createUnresolvedResponse(ResolutionRequest packageLoadRequest) {
         return new PackageMetadataResponse(
-                packageLoadRequest, null, null, ResolutionResponse.ResolutionStatus.UNRESOLVED);
+                packageLoadRequest, null, Collections.emptyList(), ResolutionResponse.ResolutionStatus.UNRESOLVED);
     }
 
     public PackageDescriptor resolvedDescriptor() {
@@ -63,8 +66,8 @@ public class PackageMetadataResponse {
         return packageLoadRequest;
     }
 
-    public Optional<DependencyGraph<PackageDescriptor>> dependencyGraph() {
-        return Optional.ofNullable(dependencyGraph);
+    public Collection<PackageDescriptor> directDependencies() {
+        return directDependencies;
     }
 
     public ResolutionResponse.ResolutionStatus resolutionStatus() {

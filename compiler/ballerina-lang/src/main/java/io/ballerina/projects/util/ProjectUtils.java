@@ -114,6 +114,8 @@ import static io.ballerina.projects.util.ProjectConstants.JACOCO_CORE_JAR;
 import static io.ballerina.projects.util.ProjectConstants.JACOCO_REPORT_JAR;
 import static io.ballerina.projects.util.ProjectConstants.LIB_DIR;
 import static io.ballerina.projects.util.ProjectConstants.RESOURCE_DIR_NAME;
+import static io.ballerina.projects.util.ProjectConstants.SL_ALPHA;
+import static io.ballerina.projects.util.ProjectConstants.SL_BETA;
 import static io.ballerina.projects.util.ProjectConstants.TARGET_DIR_NAME;
 import static io.ballerina.projects.util.ProjectConstants.TEST_CORE_JAR_PREFIX;
 import static io.ballerina.projects.util.ProjectConstants.TEST_RUNTIME_JAR_PREFIX;
@@ -1490,5 +1492,35 @@ public final class ProjectUtils {
                 }
             }
         return false;
+    }
+
+    /**
+     * Check whether the package is supported by the currently installed distribution.
+     *
+     * @param packageBallerinaVersionStr The ballerina version of the package
+     * @return True if the package is supported by the distribution, False otherwise
+     */
+    public static boolean isDistributionSupported(String packageBallerinaVersionStr) {
+        SemanticVersion distributionVersion = SemanticVersion.from(RepoUtils.getBallerinaShortVersion());
+        if (isValidSwanLakeGAVersion(packageBallerinaVersionStr)) {
+            SemanticVersion packageBallerinaVersion = SemanticVersion.from(packageBallerinaVersionStr);
+            return packageBallerinaVersion.lessThanOrEqualTo(distributionVersion);
+        }
+        return packageBallerinaVersionStr.startsWith(SL_ALPHA) || packageBallerinaVersionStr.startsWith(SL_BETA);
+    }
+
+    /**
+     * Check if the given version addheres to Ballerina SwanLake distribution versioning.
+     *
+     * @param ballerinaVersion Ballerina version
+     * @return True if the version is a valid SwanLake GA version, False otherwise
+     */
+    public static boolean isValidSwanLakeGAVersion(String ballerinaVersion) {
+        try {
+            SemanticVersion.from(ballerinaVersion);
+            return ballerinaVersion.indexOf(".") == 4;
+        } catch (ProjectException ignored) {
+            return false;
+        }
     }
 }

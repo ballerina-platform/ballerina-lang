@@ -89,6 +89,7 @@ dependencies {
     dist libs.ow2.asm.tree
     dist libs.ow2.asm.util
     dist libs.jackson.datatype.jsr310
+    dist libs.jgit
 
     // Following dependencies are required for lang-server
     dist libs.sqlite.jdbc;

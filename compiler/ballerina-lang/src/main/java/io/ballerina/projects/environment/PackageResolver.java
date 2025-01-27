@@ -41,7 +41,7 @@ public interface PackageResolver {
                                                          ResolutionOptions options);
 
     /**
-     * Loads requested packages metadata such as the availability, dependency graph.
+     * Loads requested package metadata such as the availability, dependency graph.
      * <p>
      * Metadata requests provide an efficient way to complete the dependency graph without
      * downloading physical packages from Ballerina central.
@@ -49,12 +49,11 @@ public interface PackageResolver {
      * An implementation of the {@code PackageResolver} should issue separate requests
      * to local, dist and central repositories and aggregate their responses.
      *
-     * @param requests requested package collection
+     * @param request requested package
      * @param options  resolution options
-     * @return a collection of {@code PackageMetadataResponse} instances
+     * @return a {@code PackageMetadataResponse} instance
      */
-    Collection<PackageMetadataResponse> resolvePackageMetadata(Collection<ResolutionRequest> requests,
-                                                               ResolutionOptions options);
+    PackageMetadataResponse resolvePackageMetadata(ResolutionRequest request, ResolutionOptions options);
 
     /**
      * Loads the packages specified in {@code ResolutionRequest} collection.
