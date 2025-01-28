@@ -9916,9 +9916,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
 
     public GlobalStateData getGlobalStateSnapshotAndResetGlobalState() {
         // Preserve global state
-        GlobalStateData globalStateData = new GlobalStateData();
-        globalStateData.unknownTypeRefs = typeResolver.unknownTypeRefs;
-        globalStateData.errorCount = this.dlog.errorCount();
+        GlobalStateData globalStateData = new GlobalStateData(typeResolver.unknownTypeRefs, this.dlog.errorCount());
 
         // Reset global state
         typeResolver.unknownTypeRefs = new HashSet<>();
@@ -9951,8 +9949,6 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
     /**
      * @since 2201.12.0
      */
-    public static class GlobalStateData {
-        HashSet<TypeResolver.LocationData> unknownTypeRefs;
-        int errorCount;
+    public record GlobalStateData(HashSet<TypeResolver.LocationData> unknownTypeRefs, int errorCount) {
     }
 }
