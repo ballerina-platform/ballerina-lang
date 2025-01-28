@@ -1,6 +1,8 @@
 package io.ballerina.runtime.internal.query.clauses;
 
 import io.ballerina.runtime.api.Environment;
+import io.ballerina.runtime.api.creators.TypeCreator;
+import io.ballerina.runtime.api.types.PredefinedTypes;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
@@ -43,17 +45,15 @@ public class GroupByClause implements PipelineStage {
      */
     @Override
     public Stream<Frame> process(Stream<Frame> inputStream) {
-        // Group the frames by the grouping keys
         Map<Map<BString, Object>, List<Frame>> groupedData = inputStream
                 .collect(Collectors.groupingBy(frame -> extractGroupingKey(frame, groupingKeys)));
 
-        // Transform grouped data into a new stream of frames
         return groupedData.entrySet().stream().map(entry -> {
             Map<BString, Object> key = entry.getKey();
             List<Frame> frames = entry.getValue();
 
             // Create a new grouped frame
-            Frame groupedFrame = frames.get(0);  // Get the first element of the list
+            Frame groupedFrame = frames.get(0);
             BMap<BString, Object> groupedRecord = groupedFrame.getRecord();
 
             // Add the grouping key values to the new frame
@@ -63,15 +63,13 @@ public class GroupByClause implements PipelineStage {
             for (int i = 0; i < nonGroupingKeys.size(); i++) {
                 BString nonGroupingKey = (BString) nonGroupingKeys.get(i);
 
-                List<Object> values = frames.stream()
+                Object[] values = frames.stream()
                         .map(f -> f.getRecord().get(nonGroupingKey))
                         .filter(Objects::nonNull)
-                        .collect(Collectors.toList());
+                        .toArray();
 
-                // Convert to BArray
-                BString[] valuesArray = values.toArray(new BString[0]);  // Convert List<BString> to BString[]
-                BArray bArray = new ArrayValueImpl(valuesArray, true);
-                groupedRecord.put(nonGroupingKey, bArray);
+                BArray valuesArray = new ArrayValueImpl(values, TypeCreator.createArrayType(PredefinedTypes.TYPE_ANY)); // Convert List<BString> to BString[]
+                groupedRecord.put(nonGroupingKey, valuesArray);
             }
 
             groupedFrame.updateRecord(groupedRecord);

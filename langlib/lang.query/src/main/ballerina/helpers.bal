@@ -22,8 +22,7 @@ function createPipeline(
         Type[]|map<Type>|record{}|string|xml|table<map<Type>>|stream<Type, CompletionType>|_Iterable collection,
         typedesc<Type> constraintTd, typedesc<CompletionType> completionTd, boolean isLazyLoading)
             returns handle {
-                handle JStreamPipeline = createStreamPipeline(collection, constraintTd, completionTd, isLazyLoading);
-    return JStreamPipeline;
+                return createStreamPipeline(collection, constraintTd, completionTd, isLazyLoading);
 }
 
 function createStreamPipeline(
@@ -34,13 +33,12 @@ function createStreamPipeline(
             paramTypes: ["java.lang.Object","io.ballerina.runtime.api.values.BTypedesc","io.ballerina.runtime.api.values.BTypedesc","boolean"]
 } external;
 
-function createInputFunction(function(_Frame _frame) returns _Frame|error? inputFunc)
-        returns handle {
-        handle JClause = createInputFunctionJava(inputFunc);
-    return JClause;
+function createInputFunctionOld(function(_Frame _frame) returns _Frame|error? inputFunc)
+        returns _StreamFunction {
+    return new _InputFunction(inputFunc);
 }
 
-function createInputFunctionJava(function(_Frame _frame) returns _Frame|error? inputFunc) returns handle = @java:Method {
+function createInputFunction(function(_Frame _frame) returns _Frame|error? inputFunc) returns handle = @java:Method {
     'class: "io.ballerina.runtime.internal.query.clauses.FromClause",
     name: "initFromClause",
     paramTypes: ["io.ballerina.runtime.api.values.BFunctionPointer"]
@@ -129,6 +127,16 @@ function createOrderByFunction(function(_Frame _frame) returns error? orderFunc)
     paramTypes: ["io.ballerina.runtime.api.values.BFunctionPointer"]
 } external;
 
+function createGroupByFunctionOld(string[] keys, string[] nonGroupingKeys) returns _StreamFunction {
+    return new _GroupByFunction(keys, nonGroupingKeys);
+}
+
+function createGroupByFunction(string[] keys, string[] nonGroupingKeys) returns handle = @java:Method {
+    'class: "io.ballerina.runtime.internal.query.clauses.GroupByClause",
+    name: "initGroupByClause",
+    paramTypes: ["io.ballerina.runtime.api.values.BArray","io.ballerina.runtime.api.values.BArray"]
+} external;
+
 function toArray(handle strm, Type[] arr, boolean isReadOnly) returns Type[]|error {
     if isReadOnly {
         // In this case arr will be an immutable array. Therefore, we will create a new mutable array and pass it to the
@@ -198,10 +206,6 @@ function createOuterJoinFunction(
         function (_Frame _frame) returns any lhsKeyFunction,
         function (_Frame _frame) returns any rhsKeyFunction, _Frame nilFrame) returns _StreamFunction {
     return new _OuterJoinFunction(joinedPipeline, lhsKeyFunction, rhsKeyFunction, nilFrame);
-}
-
-function createGroupByFunction(string[] keys, string[] nonGroupingKeys) returns _StreamFunction {
-    return new _GroupByFunction(keys, nonGroupingKeys);
 }
 
 function createOnConflictFunction(function(_Frame _frame) returns _Frame|error? onConflictFunc)
