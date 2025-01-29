@@ -137,6 +137,16 @@ function createGroupByFunction(string[] keys, string[] nonGroupingKeys) returns 
     paramTypes: ["io.ballerina.runtime.api.values.BArray","io.ballerina.runtime.api.values.BArray"]
 } external;
 
+function createCollectFunctionOld(string[] nonGroupingKeys, function(_Frame _frame) returns _Frame|error? collectFunc) returns _StreamFunction {
+    return new _CollectFunction(nonGroupingKeys, collectFunc);
+}
+
+function createCollectFunction(string[] nonGroupingKeys, function(_Frame _frame) returns _Frame|error? collectFunc) returns handle = @java:Method {
+    'class: "io.ballerina.runtime.internal.query.clauses.CollectClause",
+    name: "initCollectClause",
+    paramTypes: ["io.ballerina.runtime.api.values.BArray","io.ballerina.runtime.api.values.BFunctionPointer"]
+} external;
+
 function toArray(handle strm, Type[] arr, boolean isReadOnly) returns Type[]|error {
     if isReadOnly {
         // In this case arr will be an immutable array. Therefore, we will create a new mutable array and pass it to the
@@ -168,6 +178,17 @@ function createArray(handle strm, Type[] arr) returns Type[]|error = @java:Metho
     'class: "io.ballerina.runtime.internal.query.utils.CollectionUtil",
     name: "createArray",
     paramTypes: ["java.util.stream.Stream","io.ballerina.runtime.api.values.BArray"]
+} external;
+
+function collectQueryOld(stream<Type, CompletionType> strm) returns Type|error {
+    record {| Type value; |}|error? v = strm.next();
+    return v is record {| Type value; |} ? v.value : v;
+}
+
+function collectQuery(handle strm) returns Type|error = @java:Method {
+    'class: "io.ballerina.runtime.internal.query.utils.CollectionUtil",
+    name: "collectQuery",
+    paramTypes: ["java.util.stream.Stream"]
 } external;
 
 function consumeStreamOld(stream<Type, CompletionType> strm) returns any|error {
@@ -211,9 +232,6 @@ function createOuterJoinFunction(
 function createOnConflictFunction(function(_Frame _frame) returns _Frame|error? onConflictFunc)
         returns _StreamFunction => new _OnConflictFunction(onConflictFunc);
 
-function createCollectFunction(string[] nonGroupingKeys, function(_Frame _frame) returns _Frame|error? collectFunc) returns _StreamFunction {
-    return new _CollectFunction(nonGroupingKeys, collectFunc);
-}
 
 function createDoFunction(function(_Frame _frame) returns any|error doFunc) returns _StreamFunction {
     return new _DoFunction(doFunc);
@@ -222,12 +240,6 @@ function createDoFunction(function(_Frame _frame) returns any|error doFunc) retu
 
 function getStreamForOnConflictFromPipeline(_StreamPipeline pipeline) returns stream<Type, CompletionType>
     => pipeline.getStreamForOnConflict();
-
-
-function collectQuery(stream<Type, CompletionType> strm) returns Type|error {
-    record {| Type value; |}|error? v = strm.next();
-    return v is record {| Type value; |} ? v.value : v;
-}
 
 function toXML(stream<Type, CompletionType> strm, boolean isReadOnly) returns xml|error {
     xml result = 'xml:concat();
