@@ -46,7 +46,11 @@ public class GroupByClause implements PipelineStage {
     @Override
     public Stream<Frame> process(Stream<Frame> inputStream) {
         Map<Map<BString, Object>, List<Frame>> groupedData = inputStream
-                .collect(Collectors.groupingBy(frame -> extractGroupingKey(frame, groupingKeys)));
+                .collect(Collectors.groupingBy(
+                        frame -> extractGroupingKey(frame, groupingKeys),
+                        LinkedHashMap::new,
+                        Collectors.toList()
+                ));
 
         return groupedData.entrySet().stream().map(entry -> {
             Map<BString, Object> key = entry.getKey();
