@@ -88,7 +88,7 @@ jobs:
       - name: Build
         run: |
           python -u .github/scripts/full_build_pipeline.py ./ --lang-version ${{ needs.build-lang.outputs.lang-version }} \
-          --build-released-versions --patch-level $PATCH_LEVEL --build-level ${{ matrix.level }} --skip-build-distribution \
+          --build-released-versions --patch-level 2201.10.x --build-level ${{ matrix.level }} --skip-build-distribution \
           --continue-on-error --remove-after-build
         env:
           packageUser: ${{ secrets.BALLERINA_BOT_USERNAME }}
@@ -136,7 +136,7 @@ jobs:
       - name: Build
         run: |
           python -u .github/scripts/full_build_pipeline.py ./ --lang-version ${{ needs.build-lang.outputs.lang-version }} \
-          --patch-level $PATCH_LEVEL --only-build-distribution --continue-on-error
+          --patch-level 2201.10.x --only-build-distribution --continue-on-error
         env:
           packageUser: ${{ secrets.BALLERINA_BOT_USERNAME }}
           packagePAT: ${{ secrets.BALLERINA_BOT_TOKEN }}
