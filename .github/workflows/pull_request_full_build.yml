@@ -92,7 +92,7 @@ jobs:
           --continue-on-error --remove-after-build
         env:
           packageUser: ${{ secrets.BALLERINA_BOT_USERNAME }}
-          packagePAT: ${{ secrets.BALLERINA_BOT_TOKEN }}
+          packagePAT: ${{ secrets.GITHUB_TOKEN }}
           devCentralToken: ${{ secrets.BALLERINA_DEV_CENTRAL_ACCESS_TOKEN }}
           CLIENT_ID: ${{ secrets.CLIENT_ID }}
           CLIENT_SECRET: ${{ secrets.CLIENT_SECRET }}
@@ -139,6 +139,6 @@ jobs:
           --patch-level 2201.10.x --only-build-distribution --continue-on-error
         env:
           packageUser: ${{ secrets.BALLERINA_BOT_USERNAME }}
-          packagePAT: ${{ secrets.BALLERINA_BOT_TOKEN }}
+          packagePAT: ${{ secrets.GITHUB_TOKEN }}
           devCentralToken: ${{ secrets.BALLERINA_DEV_CENTRAL_ACCESS_TOKEN }}
           TEST_MODE_ACTIVE: true
