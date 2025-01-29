@@ -26,9 +26,12 @@ import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BTypedesc;
+import io.ballerina.runtime.internal.JsonGenerator;
 import io.ballerina.runtime.internal.values.ErrorValue;
 
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringReader;
 import java.nio.charset.StandardCharsets;
@@ -98,5 +101,17 @@ public class JsonValues {
 
     public static Object testBStringParsingWithProcessingMode(BString str) {
         return JsonUtils.parse(str, JsonUtils.NonStringValueProcessingMode.FROM_JSON_STRING);
+    }
+
+    public static Object testJsonSerializeExtern(Object jsonObject) {
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        try (JsonGenerator gen = new JsonGenerator(out)) {
+            gen.serialize(jsonObject);
+            gen.flush();
+            out.close();
+        } catch (IOException e) {
+            throw new ErrorValue(StringUtils.fromString(e.getMessage()), e);
+        }
+        return StringUtils.fromString(out.toString());
     }
 }
