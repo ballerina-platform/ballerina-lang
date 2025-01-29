@@ -2,6 +2,7 @@ package io.ballerina.runtime.internal.query.pipeline;
 
 import io.ballerina.runtime.api.creators.TypeCreator;
 import io.ballerina.runtime.api.creators.ValueCreator;
+import io.ballerina.runtime.api.types.PredefinedTypes;
 import io.ballerina.runtime.api.types.RecordType;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
@@ -15,7 +16,9 @@ public class Frame {
 
     private BMap<BString, Object> $frame$;
 
-    public Frame() { }
+    public Frame() {
+        this.$frame$ = ValueCreator.createMapValue(PredefinedTypes.TYPE_MAP);
+    }
 
     /**
      * Constructor to create a frame from a Ballerina record (BMap).
