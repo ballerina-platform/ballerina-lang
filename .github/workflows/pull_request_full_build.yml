@@ -41,7 +41,7 @@ jobs:
           path: ~/.m2/
           include-hidden-files: true
     outputs:
-      lang_version: ${{ steps.lang-version.outputs.version }}
+      lang-version: ${{ steps.lang-version.outputs.version }}
 
   build-stdlib-level:
     needs: build-lang
