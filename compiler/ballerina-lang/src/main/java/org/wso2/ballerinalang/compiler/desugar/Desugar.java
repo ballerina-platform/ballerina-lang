@@ -6344,7 +6344,7 @@ public class Desugar extends BLangNodeVisitor {
 
     private void rewriteFieldBasedAccess(BLangFieldBasedAccess fieldAccessExpr, boolean prefixedFieldBased) {
         if (safeNavigate(fieldAccessExpr)) {
-            result = prefixedFieldBased? rewriteExpr(rewriteSafeNavigationExpr(fieldAccessExpr)) :
+            result = prefixedFieldBased ? rewriteExpr(rewriteSafeNavigationExpr(fieldAccessExpr)) :
                     rewriteExpr(rewriteSafeFieldBasedAccessExpr(fieldAccessExpr));
             return;
         }
