@@ -31,9 +31,7 @@ import io.ballerina.projects.PackageDescriptor;
 import io.ballerina.projects.PackageName;
 import io.ballerina.projects.PackageOrg;
 import io.ballerina.projects.PackageVersion;
-import io.ballerina.projects.SemanticVersion;
 import io.ballerina.projects.environment.ModuleLoadRequest;
-import io.ballerina.projects.internal.index.IndexDependency;
 import io.ballerina.projects.internal.index.IndexPackage;
 
 import java.util.ArrayList;
@@ -95,26 +93,35 @@ public final class Utils {
                                                    Collection<MutableNode> nodes) {
         String[] split = name.toString().split("/");
         String[] split1 = split[1].split(":");
-        String balVersionStr = "2201.0.0";
+        String ballerinaVersion = "2201.0.0";
         if (attrs.get("ballerinaVersion") != null) {
-            balVersionStr = Objects.requireNonNull(attrs.get("ballerinaVersion")).toString();
+            ballerinaVersion = Objects.requireNonNull(attrs.get("ballerinaVersion")).toString();
         }
-        SemanticVersion ballerinaVersion = SemanticVersion.from(balVersionStr);
-        List<IndexDependency> dependencies = new ArrayList<>();
-
+        List<PackageDescriptor> dependencies = new ArrayList<>();
+        List<IndexPackage.Module> modules = new ArrayList<>();
+        modules.add(new IndexPackage.Module(split1[0])); // add the default module
         for (MutableNode node: nodes) {
+            if (node.attrs().get("other_modules") != null) {
+                String[] otherModuleNames = Objects.requireNonNull(node.attrs().get("other_modules")).toString().split(",");
+                for (String otherModuleName : otherModuleNames) {
+                    modules.add(new IndexPackage.Module(otherModuleName));
+                }
+            }
             for (Link link : node.links()) {
                 String dependency = link.to().name().toString();
-                dependencies.add(IndexDependency.from(getPkgDescFromNode(dependency)));
+                dependencies.add(getPkgDescFromNode(dependency));
             }
         }
         return IndexPackage.from(
                 PackageOrg.from(split[0]),
                 PackageName.from(split1[0]),
                 PackageVersion.from(split1[1]),
-                repository,
+                "any",
                 ballerinaVersion,
-                dependencies);
+                dependencies,
+                modules,
+                false,
+                "");
     }
 
     public static PackageDescriptor getPkgDescFromNode(String name, String repo) {

@@ -30,6 +30,7 @@ import io.ballerina.projects.PlatformLibraryScope;
 import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.SemanticVersion;
 import io.ballerina.projects.TomlDocument;
+import io.ballerina.projects.environment.UpdatePolicy;
 import io.ballerina.projects.internal.model.BalToolDescriptor;
 import io.ballerina.projects.internal.model.CompilerPluginDescriptor;
 import io.ballerina.projects.util.FileUtils;
@@ -87,7 +88,7 @@ import static io.ballerina.projects.util.ProjectUtils.defaultVersion;
  *
  * @since 2.0.0
  */
-public class ManifestBuilder {
+public class ManifestBuilder { //TODO: add the update policy here and to the Dependencies.toml
 
     private final TomlDocument ballerinaToml;
     private final TomlDocument compilerPluginToml;
@@ -341,7 +342,7 @@ public class ManifestBuilder {
                 String modReadme = "";
                 if (Files.exists(modReadmePath)) {
                     modReadme = Paths.get(ProjectConstants.MODULES_ROOT).resolve(pathEntry.getKey())
-                            .resolve(ProjectConstants.README_MD_FILE_NAME).toString();;
+                            .resolve(ProjectConstants.README_MD_FILE_NAME).toString();
                 }
                 PackageManifest.Module module = new PackageManifest.Module(
                         packageName + DOT + Optional.of(pathEntry.getValue().getFileName()).get(), false,
@@ -894,8 +895,14 @@ public class ManifestBuilder {
         final TopLevelNode topLevelNode = tableNode.entries().get(CompilerOptionName.CLOUD.toString());
         Boolean dumpBuildTime =
                 getBooleanFromBuildOptionsTableNode(tableNode, BuildOptions.OptionName.DUMP_BUILD_TIME.toString());
-        Boolean sticky =
-                getTrueFromBuildOptionsTableNode(tableNode, CompilerOptionName.STICKY.toString());
+        UpdatePolicy updatePolicy = UpdatePolicy.HARD;
+        try {
+            String updatePolicyStr = getStringFromBuildOptionsTableNode(tableNode,
+                    CompilerOptionName.UPDATE_POLICY.toString());
+            if (updatePolicyStr != null) {
+                updatePolicy = UpdatePolicy.valueOf(updatePolicyStr);
+            }
+        } catch (IllegalArgumentException ignore) {}
         String cloud = "";
         if (topLevelNode != null) {
             cloud = getStringFromTomlTableNode(topLevelNode);
@@ -927,7 +934,7 @@ public class ManifestBuilder {
                 .setCloud(cloud)
                 .setListConflictedClasses(listConflictedClasses)
                 .setDumpBuildTime(dumpBuildTime)
-                .setSticky(sticky)
+                .setUpdatePolicy(updatePolicy)
                 .setEnableCache(enableCache)
                 .setNativeImage(nativeImage)
                 .setExportComponentModel(exportComponentModel)

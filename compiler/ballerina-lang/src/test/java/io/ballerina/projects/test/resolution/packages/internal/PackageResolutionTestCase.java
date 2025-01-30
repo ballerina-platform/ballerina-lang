@@ -24,10 +24,11 @@ import io.ballerina.projects.environment.PackageResolver;
 import io.ballerina.projects.environment.ResolutionOptions;
 import io.ballerina.projects.environment.UpdatePolicy;
 import io.ballerina.projects.internal.BlendedManifest;
+import io.ballerina.projects.internal.PackageLockingModeResolutionOptions;
 import io.ballerina.projects.internal.ModuleResolver;
 import io.ballerina.projects.internal.ResolutionEngine;
 import io.ballerina.projects.internal.ResolutionEngine.DependencyNode;
-import io.ballerina.projects.internal.index.Index;
+import io.ballerina.projects.internal.index.PackageIndex;
 
 import java.util.Collection;
 
@@ -42,7 +43,7 @@ public class PackageResolutionTestCase {
     private final BlendedManifest blendedManifest;
     private final PackageResolver packageResolver;
     private final ModuleResolver moduleResolver;
-    private final Index index;
+    private final PackageIndex packageIndex;
     private final boolean hasDependencyManifest;
     private final boolean distributionChange;
     private final boolean lessThan24HrsAfterBuild;
@@ -56,7 +57,7 @@ public class PackageResolutionTestCase {
                                      BlendedManifest blendedManifest,
                                      PackageResolver packageResolver,
                                      ModuleResolver moduleResolver,
-                                     Index index,
+                                     PackageIndex packageIndex,
                                      boolean hasDependencyManifest,
                                      boolean distributionChange,
                                      boolean lessThan24HrsAfterBuild,
@@ -69,7 +70,7 @@ public class PackageResolutionTestCase {
         this.blendedManifest = blendedManifest;
         this.packageResolver = packageResolver;
         this.moduleResolver = moduleResolver;
-        this.index = index;
+        this.packageIndex = packageIndex;
         this.hasDependencyManifest = hasDependencyManifest;
         this.distributionChange = distributionChange;
         this.lessThan24HrsAfterBuild = lessThan24HrsAfterBuild;
@@ -81,10 +82,16 @@ public class PackageResolutionTestCase {
     }
 
     public DependencyGraph<DependencyNode> execute(UpdatePolicy policy) {
-        ResolutionOptions options = ResolutionOptions.builder().setOffline(true).setUpdatePolicy(policy).build();
+        PackageLockingModeResolutionOptions packageLockingModeResolutionOptions
+                = new PackageLockingModeResolutionOptions(policy,
+                hasDependencyManifest, distributionChange, lessThan24HrsAfterBuild);
+        ResolutionOptions options = ResolutionOptions.builder()
+                .setOffline(true)
+                .setUpdatePolicy(policy)
+                .setLockingModeResolutionOptions(packageLockingModeResolutionOptions)
+                .build();
         ResolutionEngine resolutionEngine = new ResolutionEngine(rootPkgDesc, blendedManifest,
-                packageResolver, moduleResolver, options, index, hasDependencyManifest, distributionChange,
-                lessThan24HrsAfterBuild, true);
+                packageResolver, moduleResolver, options);
         return resolutionEngine.resolveDependencies(moduleLoadRequests);
     }
 

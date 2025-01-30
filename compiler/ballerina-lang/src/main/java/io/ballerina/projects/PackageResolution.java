@@ -20,7 +20,6 @@ package io.ballerina.projects;
 import io.ballerina.projects.DependencyGraph.DependencyGraphBuilder;
 import io.ballerina.projects.environment.ModuleLoadRequest;
 import io.ballerina.projects.environment.PackageCache;
-import io.ballerina.projects.environment.PackageLockingMode;
 import io.ballerina.projects.environment.PackageResolver;
 import io.ballerina.projects.environment.ProjectEnvironment;
 import io.ballerina.projects.environment.ResolutionOptions;
@@ -30,6 +29,7 @@ import io.ballerina.projects.internal.BlendedManifest;
 import io.ballerina.projects.internal.DefaultDiagnosticResult;
 import io.ballerina.projects.internal.ImportModuleRequest;
 import io.ballerina.projects.internal.ImportModuleResponse;
+import io.ballerina.projects.internal.PackageLockingModeResolutionOptions;
 import io.ballerina.projects.internal.ModuleResolver;
 import io.ballerina.projects.internal.PackageContainer;
 import io.ballerina.projects.internal.PackageDiagnostic;
@@ -65,7 +65,7 @@ import static io.ballerina.projects.util.ProjectConstants.DOT;
 import static io.ballerina.projects.util.ProjectConstants.EQUAL;
 import static io.ballerina.projects.util.ProjectConstants.OFFLINE_FLAG;
 import static io.ballerina.projects.util.ProjectConstants.REPOSITORY_FLAG;
-import static io.ballerina.projects.util.ProjectConstants.STICKY_FLAG;
+import static io.ballerina.projects.util.ProjectConstants.UPDATE_POLICY_FLAG;
 
 /**
  * Resolves dependencies and handles version conflicts in the dependency graph.
@@ -135,7 +135,7 @@ public class PackageResolution {
             List<String> cmdArgs = new ArrayList<>();
             cmdArgs.add(System.getProperty(BALLERINA_HOME) + "/bin/bal");
             cmdArgs.add("pull");
-            cmdArgs.add(STICKY_FLAG + EQUAL + resolutionOptions.sticky());
+            cmdArgs.add(UPDATE_POLICY_FLAG + EQUAL + resolutionOptions.updatePolicy());
             cmdArgs.add(OFFLINE_FLAG + EQUAL + resolutionOptions.offline());
 
             // Specify which repository to resolve the dependency from
@@ -303,7 +303,7 @@ public class PackageResolution {
      */
     private DependencyGraph<ResolvedPackageDependency> buildDependencyGraph() {
         // TODO We should get diagnostics as well. Need to design that contract
-        if (rootPackageContext.project().kind() == ProjectKind.BALA_PROJECT && this.resolutionOptions.sticky()) {
+        if (rootPackageContext.project().kind() == ProjectKind.BALA_PROJECT) {
             return resolveBALADependencies();
         } else {
             return resolveSourceDependencies();
@@ -359,17 +359,9 @@ public class PackageResolution {
         // 1) Get PackageLoadRequests for all the direct dependencies of this package
         LinkedHashSet<ModuleLoadRequest> moduleLoadRequests = getModuleLoadRequestsOfDirectDependencies();
 
-        boolean hasDependencyManifest = rootPackageContext.dependenciesTomlContext().isPresent();
-        SemanticVersion prevDistributionVersion = rootPackageContext.dependencyManifest().distributionVersion();
-        boolean distributionChange = SemanticVersion.from(RepoUtils.getBallerinaShortVersion())
-                .equals(prevDistributionVersion);
-        boolean lessThan24HrsAfterBuild = ProjectUtils.isWithin24HoursOfLastBuild(rootPackageContext.project());
-
         // 2) Resolve imports to packages and create the complete dependency graph with package metadata
-        // TODO: find a better way to pass the new parameters.
         ResolutionEngine resolutionEngine = new ResolutionEngine(rootPackageContext.descriptor(),
-                blendedManifest, packageResolver, moduleResolver, resolutionOptions,
-                hasDependencyManifest, distributionChange, lessThan24HrsAfterBuild);
+                blendedManifest, packageResolver, moduleResolver, resolutionOptions);
         DependencyGraph<DependencyNode> dependencyNodeGraph =
                 resolutionEngine.resolveDependencies(moduleLoadRequests);
         this.dependencyGraphDump = resolutionEngine.dumpGraphs();
@@ -474,8 +466,7 @@ public class PackageResolution {
     }
 
     private ResolutionRequest createFromDepNode(DependencyNode depNode) {
-        return ResolutionRequest.from(depNode.pkgDesc(), depNode.scope(), depNode.resolutionType(),
-                resolutionOptions.packageLockingMode());
+        return ResolutionRequest.from(depNode.pkgDesc(), depNode.scope(), depNode.resolutionType());
     }
 
     private DependencyGraph<DependencyNode> createDependencyNodeGraph(
@@ -577,62 +568,51 @@ public class PackageResolution {
 
     private ResolutionOptions getResolutionOptions(PackageContext rootPackageContext,
                                                    CompilationOptions compilationOptions) {
-        boolean sticky = ProjectUtils.getSticky(rootPackageContext.project());
-        this.autoUpdate = !sticky;
-        PackageLockingMode packageLockingMode;
-        SemanticVersion prevDistributionVersion = rootPackageContext.dependencyManifest().distributionVersion();
-        SemanticVersion currentDistributionVersion = SemanticVersion.from(RepoUtils.getBallerinaShortVersion());
-
-        // For new projects, the locking mode will be SOFT unless sticky == true.
-        // For existing projects, if the package was built with a previous distribution, the locking mode
-        // will be SOFT unless sticky == true. A warning is issued to notify the detection of the new distribution.
-        if (rootPackageContext.dependenciesTomlContext().isPresent()) {
-            // existing project
-            if (prevDistributionVersion == null) {
-                // Built with Update 4 or less. Therefore, we issue a warning
-                addOlderSLUpdateDistributionDiagnostic(null, currentDistributionVersion);
-                if (!sticky) {
-                    packageLockingMode = PackageLockingMode.SOFT;
-                } else {
-                    packageLockingMode = PackageLockingMode.MEDIUM;
-                }
-            } else {
-                // Built with Update 5 or above
-                boolean newUpdateDistribution =
-                        isNewUpdateDistribution(prevDistributionVersion, currentDistributionVersion);
-                if (newUpdateDistribution) {
-                    addOlderSLUpdateDistributionDiagnostic(prevDistributionVersion, currentDistributionVersion);
-                    packageLockingMode = PackageLockingMode.SOFT;
-                } else {
-                    packageLockingMode = PackageLockingMode.MEDIUM;
-                }
-            }
-        } else {
-            // new project
-            if (!sticky) {
-                packageLockingMode = PackageLockingMode.SOFT;
-            } else {
-                packageLockingMode = PackageLockingMode.MEDIUM;
-            }
+        // add a warning if the package was built with an older distribution
+        SemanticVersion previousDistributionVersion = rootPackageContext.dependencyManifest().distributionVersion();
+        if (isDistributionNewMinorChange(previousDistributionVersion)) {
+            addOlderSLUpdateDistributionDiagnostic(previousDistributionVersion);
         }
 
+        boolean hasDependencyManifest = rootPackageContext.dependenciesTomlContext().isPresent();
+        boolean distributionChange = isDistributionMinorChange(previousDistributionVersion);
+        boolean lessThan24HrsAfterBuild = ProjectUtils.isWithin24HoursOfLastBuild(rootPackageContext.project());
+        PackageLockingModeResolutionOptions packageLockingModeResolutionOptions = new PackageLockingModeResolutionOptions(
+                compilationOptions.updatePolicy(),
+                hasDependencyManifest,
+                distributionChange,
+                lessThan24HrsAfterBuild);
+        // TODO: autoUpdate should be true iff Direct & Transitive locking modes are LOCKED. But we can't decide it here yet.
+        //  We can decide in resolution engine though.
         return ResolutionOptions.builder()
                 .setOffline(compilationOptions.offlineBuild())
-                .setSticky(sticky)
+                .setUpdatePolicy(compilationOptions.updatePolicy())
                 .setDumpGraph(compilationOptions.dumpGraph())
                 .setDumpRawGraphs(compilationOptions.dumpRawGraphs())
-                .setPackageLockingMode(packageLockingMode)
+                .setLockingModeResolutionOptions(packageLockingModeResolutionOptions)
                 .build();
     }
 
-    private boolean isNewUpdateDistribution(SemanticVersion prevDistributionVersion,
-                                                  SemanticVersion currentDistributionVersion) {
-        return currentDistributionVersion.major() == prevDistributionVersion.major()
-                && currentDistributionVersion.minor() > prevDistributionVersion.minor();
+    private boolean isDistributionNewMinorChange(SemanticVersion prevDistributionVersion) {
+        SemanticVersion currentDistributionVersion = SemanticVersion.from(RepoUtils.getBallerinaShortVersion());
+        if (prevDistributionVersion == null) {
+            return true;
+        }
+        assert currentDistributionVersion.major() == prevDistributionVersion.major();
+        return currentDistributionVersion.minor() > prevDistributionVersion.minor();
     }
 
-    private void addOlderSLUpdateDistributionDiagnostic(SemanticVersion prevDistributionVersion,
-                                                        SemanticVersion currentDistributionVersion) {
+    private boolean isDistributionMinorChange(SemanticVersion prevDistributionVersion) {
+        SemanticVersion currentDistributionVersion = SemanticVersion.from(RepoUtils.getBallerinaShortVersion());
+        if (prevDistributionVersion == null) {
+            return true;
+        }
+        assert currentDistributionVersion.major() == prevDistributionVersion.major();
+        return currentDistributionVersion.minor() != prevDistributionVersion.minor();
+    }
+
+    private void addOlderSLUpdateDistributionDiagnostic(SemanticVersion prevDistributionVersion) {
+        SemanticVersion currentDistributionVersion = SemanticVersion.from(RepoUtils.getBallerinaShortVersion());
         String currentVersionForDiagnostic = String.valueOf(currentDistributionVersion.minor());
         if (currentDistributionVersion.patch() != 0) {
             currentVersionForDiagnostic += DOT + currentDistributionVersion.patch();

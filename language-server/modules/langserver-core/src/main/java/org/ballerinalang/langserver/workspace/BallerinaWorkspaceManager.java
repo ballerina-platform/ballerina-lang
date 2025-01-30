@@ -44,6 +44,7 @@ import io.ballerina.projects.ProjectKind;
 import io.ballerina.projects.directory.BuildProject;
 import io.ballerina.projects.directory.ProjectLoader;
 import io.ballerina.projects.directory.SingleFileProject;
+import io.ballerina.projects.environment.UpdatePolicy;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectPaths;
 import io.ballerina.tools.diagnostics.Diagnostic;
@@ -1425,7 +1426,7 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
             Project project;
             BuildOptions options = BuildOptions.builder()
                     .setOffline(CommonUtil.COMPILE_OFFLINE)
-                    .setSticky(true)
+                    .setUpdatePolicy(UpdatePolicy.HARD)
                     .build();
             if (projectKind == ProjectKind.BUILD_PROJECT) {
                 project = BuildProject.load(projectRoot, options);

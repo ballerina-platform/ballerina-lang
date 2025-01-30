@@ -70,12 +70,13 @@ public class  DefaultPackageRepository extends AbstractPackageRepository {
     }
 
     @Override
-    protected DependencyGraph<PackageDescriptor> getDependencyGraph(PackageOrg org,
-                                                                    PackageName name,
-                                                                    PackageVersion version) {
+    protected Collection<PackageDescriptor> getDirectDependencies(PackageOrg org, PackageName name, PackageVersion version) {
         return pkgContainer.get(org, name, version)
                 .map(PackageDescWrapper::pkgDesc)
-                .map(graphMap::get)
+                .map(pkgDesc -> {
+                    DependencyGraph<PackageDescriptor> graph = graphMap.get(pkgDesc);
+                    return graph.getDirectDependencies(pkgDesc);
+                })
                 .orElseThrow(() -> new IllegalStateException("Package cannot be found in dot graph files " +
                         "org: " + org + ", name: " + name + ", version: " + version));
     }

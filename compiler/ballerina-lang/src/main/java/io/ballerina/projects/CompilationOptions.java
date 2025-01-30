@@ -17,6 +17,10 @@
  */
 package io.ballerina.projects;
 
+import io.ballerina.projects.environment.UpdatePolicy;
+
+import java.util.Objects;
+
 /**
  * The class {@code CompilationOptions} holds various Ballerina compilation options.
  *
@@ -29,7 +33,7 @@ public class CompilationOptions {
     Boolean dumpBirFile;
     String cloud;
     Boolean listConflictedClasses;
-    Boolean sticky;
+    UpdatePolicy updatePolicy;
     Boolean dumpGraph;
     Boolean dumpRawGraphs;
     Boolean withCodeGenerators;
@@ -43,7 +47,7 @@ public class CompilationOptions {
     Boolean optimizeDependencyCompilation;
 
     CompilationOptions(Boolean offlineBuild, Boolean observabilityIncluded, Boolean dumpBir,
-                       Boolean dumpBirFile, String cloud, Boolean listConflictedClasses, Boolean sticky,
+                       Boolean dumpBirFile, String cloud, Boolean listConflictedClasses, UpdatePolicy updatePolicy,
                        Boolean dumpGraph, Boolean dumpRawGraphs, Boolean withCodeGenerators,
                        Boolean withCodeModifiers, Boolean configSchemaGen, Boolean exportOpenAPI,
                        Boolean exportComponentModel, Boolean enableCache, Boolean disableSyntaxTree,
@@ -54,7 +58,7 @@ public class CompilationOptions {
         this.dumpBirFile = dumpBirFile;
         this.cloud = cloud;
         this.listConflictedClasses = listConflictedClasses;
-        this.sticky = sticky;
+        this.updatePolicy = updatePolicy;
         this.dumpGraph = dumpGraph;
         this.dumpRawGraphs = dumpRawGraphs;
         this.withCodeGenerators = withCodeGenerators;
@@ -72,8 +76,8 @@ public class CompilationOptions {
         return toBooleanDefaultIfNull(this.offlineBuild);
     }
 
-    boolean sticky() {
-        return toBooleanTrueIfNull(this.sticky);
+    public UpdatePolicy updatePolicy() {
+        return Objects.requireNonNullElse(this.updatePolicy, UpdatePolicy.HARD);
     }
 
     boolean observabilityIncluded() {
@@ -184,10 +188,10 @@ public class CompilationOptions {
         } else {
             compilationOptionsBuilder.setListConflictedClasses(this.listConflictedClasses);
         }
-        if (theirOptions.sticky != null) {
-            compilationOptionsBuilder.setSticky(theirOptions.sticky);
+        if (theirOptions.updatePolicy != null) {
+            compilationOptionsBuilder.setUpdatePolicy(theirOptions.updatePolicy);
         } else {
-            compilationOptionsBuilder.setSticky(this.sticky);
+            compilationOptionsBuilder.setUpdatePolicy(this.updatePolicy);
         }
         if (theirOptions.withCodeGenerators != null) {
             compilationOptionsBuilder.withCodeGenerators(theirOptions.withCodeGenerators);
@@ -273,7 +277,7 @@ public class CompilationOptions {
         private Boolean dumpBirFile;
         private String cloud;
         private Boolean listConflictedClasses;
-        private Boolean sticky;
+        private UpdatePolicy updatePolicy;
         private Boolean dumpGraph;
         private Boolean dumpRawGraph;
         private Boolean withCodeGenerators;
@@ -291,8 +295,8 @@ public class CompilationOptions {
             return this;
         }
 
-        public CompilationOptionsBuilder setSticky(Boolean value) {
-            sticky = value;
+        public CompilationOptionsBuilder setUpdatePolicy(UpdatePolicy value) {
+            updatePolicy = value;
             return this;
         }
 
@@ -378,7 +382,7 @@ public class CompilationOptions {
 
         public CompilationOptions build() {
             return new CompilationOptions(offline, observabilityIncluded, dumpBir,
-                    dumpBirFile, cloud, listConflictedClasses, sticky, dumpGraph, dumpRawGraph,
+                    dumpBirFile, cloud, listConflictedClasses, updatePolicy, dumpGraph, dumpRawGraph,
                     withCodeGenerators, withCodeModifiers, configSchemaGen, exportOpenAPI,
                     exportComponentModel, enableCache, disableSyntaxTree, remoteManagement,
                     optimizeDependencyCompilation);

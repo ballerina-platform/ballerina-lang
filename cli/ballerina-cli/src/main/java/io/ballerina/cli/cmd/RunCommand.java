@@ -36,6 +36,7 @@ import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.ProjectKind;
 import io.ballerina.projects.directory.BuildProject;
 import io.ballerina.projects.directory.SingleFileProject;
+import io.ballerina.projects.environment.UpdatePolicy;
 import io.ballerina.projects.internal.model.Target;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectUtils;
@@ -52,6 +53,7 @@ import java.util.List;
 
 import static io.ballerina.cli.cmd.Constants.RUN_COMMAND;
 import static io.ballerina.cli.launcher.LauncherUtils.createLauncherException;
+import static io.ballerina.projects.environment.UpdatePolicy.SOFT;
 import static io.ballerina.projects.util.ProjectUtils.isProjectUpdated;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.SYSTEM_PROP_BAL_DEBUG;
 
@@ -100,8 +102,11 @@ public class RunCommand implements BLauncherCmd {
             "executable when run is used with a source file or a module.")
     private Boolean remoteManagement;
 
-    @CommandLine.Option(names = "--sticky", description = "stick to exact versions locked (if exists)")
-    private Boolean sticky;
+    @CommandLine.Option(
+            names = "--update-policy",
+            description = "update policy for dependency resolution. Options: ${COMPLETION-CANDIDATES}",
+            defaultValue = "SOFT")
+    private UpdatePolicy updatePolicy;
 
     @CommandLine.Option(names = "--dump-graph", description = "Print the dependency graph.", hidden = true)
     private boolean dumpGraph;
@@ -213,8 +218,8 @@ public class RunCommand implements BLauncherCmd {
             }
         }
 
-        if (sticky == null) {
-            sticky = false;
+        if (updatePolicy == null) {
+            updatePolicy = SOFT;
         }
 
         if (this.watch) {
@@ -346,7 +351,7 @@ public class RunCommand implements BLauncherCmd {
                 .setTestReport(false)
                 .setObservabilityIncluded(observabilityIncluded)
                 .setRemoteManagement(remoteManagement)
-                .setSticky(sticky)
+                .setUpdatePolicy(updatePolicy)
                 .setDumpGraph(dumpGraph)
                 .setDumpRawGraphs(dumpRawGraphs)
                 .setConfigSchemaGen(configSchemaGen)

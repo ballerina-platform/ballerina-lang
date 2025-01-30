@@ -386,7 +386,7 @@ public class RemotePackageRepository implements PackageRepository {
         // If not resolved, might be a private package. Let's try to resolve with the central API.
         PackageResolutionRequest packageResolutionRequest = toPackageResolutionRequest(request);
         try {
-            return fromPackageResolutionResponse(request, packageResolutionRequest);
+            return fromPackageResolutionResponse(request, packageResolutionRequest); // TODO: check why the error
         } catch (CentralClientException e) {
             throw new ProjectException(e.getMessage());
         }
@@ -396,10 +396,11 @@ public class RemotePackageRepository implements PackageRepository {
         if (resolvedPackage == null) {
             return PackageMetadataResponse.createUnresolvedResponse(request);
         }
-        if (ProjectUtils.isDistributionSupported(resolvedPackage.ballerinaVersion())) {
+        if (!ProjectUtils.isDistributionSupported(resolvedPackage.ballerinaVersion())) {
             return PackageMetadataResponse.createUnresolvedResponse(request);
         }
-        return PackageMetadataResponse.from(request, request.packageDescriptor(), resolvedPackage.dependencies());
+        return PackageMetadataResponse.from(request, resolvedPackage.packageDescriptor(),
+                resolvedPackage.dependencies());
     }
 
     private List<IndexPackage> filterDistributionCompatiblePackages(List<IndexPackage> indexPackages) {

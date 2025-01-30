@@ -1300,37 +1300,11 @@ public final class ProjectUtils {
     }
 
     /**
-     * Get the sticky status of a project.
+     * Checks if the last build of the project is within 24 hours.
      *
      * @param project project instance
-     * @return true if the project is sticky, false otherwise
+     * @return true if the last build is within 24 hours, false otherwise
      */
-    public static boolean getSticky(Project project) {
-        boolean sticky = project.buildOptions().sticky();
-        if (sticky) {
-            return true;
-        }
-
-        // set sticky only if `build` file exists and `last_update_time` not passed 24 hours
-        if (project.kind() == ProjectKind.BUILD_PROJECT) {
-            Path buildFilePath = project.targetDir().resolve(BUILD_FILE);
-            if (Files.exists(buildFilePath) && buildFilePath.toFile().length() > 0) {
-                try {
-                    BuildJson buildJson = readBuildJson(buildFilePath);
-                    // if distribution is not same, we anyway return sticky as false
-                    if (buildJson != null && buildJson.distributionVersion() != null &&
-                            buildJson.distributionVersion().equals(RepoUtils.getBallerinaShortVersion()) &&
-                            !buildJson.isExpiredLastUpdateTime()) {
-                        return true;
-                    }
-                } catch (IOException | JsonSyntaxException e) {
-                    // ignore
-                }
-            }
-        }
-        return false;
-    }
-
     public static boolean isWithin24HoursOfLastBuild(Project project) {
         if (project.kind() == ProjectKind.BUILD_PROJECT) {
             Path buildFilePath = project.targetDir().resolve(BUILD_FILE);
