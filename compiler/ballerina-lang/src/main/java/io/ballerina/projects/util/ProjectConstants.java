@@ -114,6 +114,7 @@ public final class ProjectConstants {
     public static final String REPO_CACHE_DIR_NAME = "cache";
     public static final String REPO_BIR_CACHE_NAME = "bir";
     public static final String INDEX_DIR_NAME = "index";
+    public static final String INDEX_JSON_FILE_NAME = "index.json";
 
     // Test framework related constants
     public static final String TEST_RUNTIME_JAR_PREFIX = "testerina-runtime-";
@@ -150,7 +151,7 @@ public final class ProjectConstants {
     public static final String ORG = "org";
     public static final String PACKAGE_NAME = "name";
     public static final String LOCAL_TOOLS_JSON = "local-tools.json";
-    public static final String STICKY_FLAG = "--sticky";
+    public static final String UPDATE_POLICY_FLAG = "--update-policy";
     public static final String OFFLINE_FLAG = "--offline";
     public static final String REPOSITORY_FLAG = "--repository";
     public static final String WILD_CARD = "*";

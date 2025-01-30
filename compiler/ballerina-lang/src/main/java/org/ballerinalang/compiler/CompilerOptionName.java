@@ -60,7 +60,7 @@ public enum CompilerOptionName {
 
     LIST_CONFLICTED_CLASSES("listConflictedClasses"),
 
-    STICKY("sticky"),
+    UPDATE_POLICY("updatePolicy"),
 
     ENABLE_CACHE("enableCache"),
     REMOTE_MANAGEMENT("remoteManagement"),

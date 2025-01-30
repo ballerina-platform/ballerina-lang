@@ -82,6 +82,10 @@ public class IndexPackage {
                 supportedPlatform, ballerinaVersion, dependencies, modules, isDeprecated, deprecationMsg);
     }
 
+    public PackageDescriptor packageDescriptor() {
+        return packageDescriptor;
+    }
+
     public PackageName name() {
         return packageDescriptor.name();
     }

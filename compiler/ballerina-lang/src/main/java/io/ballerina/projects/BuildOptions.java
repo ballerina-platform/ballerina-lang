@@ -17,6 +17,8 @@
  */
 package io.ballerina.projects;
 
+import io.ballerina.projects.environment.UpdatePolicy;
+
 import java.util.Objects;
 
 /**
@@ -75,8 +77,8 @@ public class BuildOptions {
         return this.compilationOptions.offlineBuild();
     }
 
-    public boolean sticky() {
-        return this.compilationOptions.sticky();
+    public UpdatePolicy updatePolicy() {
+        return this.compilationOptions.updatePolicy();
     }
 
     public boolean disableSyntaxTree() {
@@ -206,7 +208,7 @@ public class BuildOptions {
         buildOptionsBuilder.setDumpRawGraphs(compilationOptions.dumpRawGraphs);
         buildOptionsBuilder.setCloud(compilationOptions.cloud);
         buildOptionsBuilder.setListConflictedClasses(compilationOptions.listConflictedClasses);
-        buildOptionsBuilder.setSticky(compilationOptions.sticky);
+        buildOptionsBuilder.setUpdatePolicy(compilationOptions.updatePolicy);
         buildOptionsBuilder.setConfigSchemaGen(compilationOptions.configSchemaGen);
         buildOptionsBuilder.setExportOpenAPI(compilationOptions.exportOpenAPI);
         buildOptionsBuilder.setExportComponentModel(compilationOptions.exportComponentModel);
@@ -314,8 +316,8 @@ public class BuildOptions {
             return this;
         }
 
-        public BuildOptionsBuilder setSticky(Boolean value) {
-            compilationOptionsBuilder.setSticky(value);
+        public BuildOptionsBuilder setUpdatePolicy(UpdatePolicy updatePolicy) {
+            compilationOptionsBuilder.setUpdatePolicy(updatePolicy);
             return this;
         }
 

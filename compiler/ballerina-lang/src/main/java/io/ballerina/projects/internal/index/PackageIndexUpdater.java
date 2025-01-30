@@ -26,12 +26,15 @@ import io.ballerina.projects.ProjectException;
 import org.eclipse.jgit.api.CreateBranchCommand;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
+import org.eclipse.jgit.lib.TextProgressMonitor;
+import org.eclipse.jgit.merge.ContentMergeStrategy;
 import org.eclipse.jgit.transport.CredentialsProvider;
 import org.wso2.ballerinalang.util.RepoUtils;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
+import java.io.PrintWriter;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -39,6 +42,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Stream;
 
+import static io.ballerina.projects.util.ProjectConstants.INDEX_JSON_FILE_NAME;
 import static org.wso2.ballerinalang.util.RepoUtils.SET_BALLERINA_DEV_CENTRAL;
 
 /**
@@ -111,8 +115,8 @@ class PackageIndexUpdater {
     public void loadPackage(PackageOrg packageOrg, PackageName packageName) {
         updateIndexRepoCache();
         Path orgDir = indexDirectory.resolve(indexGitRepoName).resolve(packageOrg.value());
-        Path packageFile = orgDir.resolve(packageName.value() + ".json");
-        if (!Files.exists(packageFile)) {
+        Path packageFile = orgDir.resolve(packageName.value()).resolve(INDEX_JSON_FILE_NAME);
+        if (!Files.isRegularFile(packageFile)) {
             return;
         }
         try {
@@ -126,7 +130,7 @@ class PackageIndexUpdater {
             }
             packageIndex.addPackage(packagesOfOrg);
         } catch (IOException e) {
-            throw new ProjectException("Error reading index file: " + e.getMessage(), e);
+            throw new ProjectException("Error reading index file: " + packageFile + ": " + e.getMessage(), e);
         }
     }
 
@@ -179,7 +183,10 @@ class PackageIndexUpdater {
     private void fetchIndexHead() {
         // TODO: add a progress bar
         try (Git git = Git.open(indexDirectory.resolve(indexGitRepoName).toFile())) {
-            git.pull().setCredentialsProvider(credentialsProvider).call();
+            git.pull()
+                    .setContentMergeStrategy(ContentMergeStrategy.THEIRS)
+                    .setProgressMonitor(new TextProgressMonitor(new PrintWriter(System.out))) // TODO: customize
+                    .setCredentialsProvider(credentialsProvider).call();
         } catch (IOException | GitAPIException e) {
             throw new ProjectException("Error while pulling the latest changes from the upstream: "
                     + e.getMessage(), e);

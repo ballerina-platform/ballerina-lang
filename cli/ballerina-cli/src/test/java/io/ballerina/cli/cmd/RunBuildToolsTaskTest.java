@@ -23,6 +23,7 @@ import io.ballerina.cli.task.RunBuildToolsTask;
 import io.ballerina.projects.BuildOptions;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.directory.BuildProject;
+import io.ballerina.projects.environment.UpdatePolicy;
 import io.ballerina.projects.util.BuildToolUtils;
 import org.ballerinalang.test.BCompileUtil;
 import org.mockito.MockedStatic;
@@ -100,7 +101,7 @@ public class RunBuildToolsTaskTest extends BaseCommandTest {
             throws IOException {
         Path projectPath = buildToolResources.resolve(projectName);
         Project project = BuildProject.load(projectPath,
-                BuildOptions.builder().setOffline(true).setSticky(sticky).build());
+                BuildOptions.builder().setOffline(true).setUpdatePolicy(UpdatePolicy.HARD).build()); // TODO
         RunBuildToolsTask runBuildToolsTask = new RunBuildToolsTask(printStream);
         try (MockedStatic<BuildToolUtils> repoUtils = Mockito.mockStatic(
                 BuildToolUtils.class, Mockito.CALLS_REAL_METHODS)) {

@@ -19,6 +19,7 @@ package io.ballerina.projects.util;
 
 import io.ballerina.projects.CompilationOptions;
 import io.ballerina.projects.Project;
+import io.ballerina.projects.environment.UpdatePolicy;
 
 /**
  * Project dependencies related util methods.
@@ -38,7 +39,7 @@ public final class DependencyUtils {
      */
     public static void pullMissingDependencies(Project project) {
         CompilationOptions.CompilationOptionsBuilder compilationOptionsBuilder = CompilationOptions.builder();
-        compilationOptionsBuilder.setOffline(false).setSticky(false);
+        compilationOptionsBuilder.setOffline(false).setUpdatePolicy(UpdatePolicy.SOFT);
         project.currentPackage().getResolution(compilationOptionsBuilder.build());
     }
 

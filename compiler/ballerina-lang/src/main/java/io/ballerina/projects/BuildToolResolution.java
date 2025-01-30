@@ -22,8 +22,8 @@ import io.ballerina.projects.buildtools.CodeGeneratorTool;
 import io.ballerina.projects.buildtools.ToolContext;
 import io.ballerina.projects.environment.PackageLockingMode;
 import io.ballerina.projects.environment.ToolResolutionRequest;
+import io.ballerina.projects.environment.UpdatePolicy;
 import io.ballerina.projects.util.BuildToolUtils;
-import io.ballerina.projects.util.ProjectUtils;
 import io.ballerina.toml.semantic.diagnostics.TomlDiagnostic;
 import io.ballerina.toml.semantic.diagnostics.TomlNodeLocation;
 import io.ballerina.tools.diagnostics.Diagnostic;
@@ -144,8 +144,9 @@ public class BuildToolResolution {
         return getToolResolutionResponse(toolResolutionRequest);
     }
 
-    private PackageLockingMode getPackageLockingMode(Project project) {
-        boolean sticky = ProjectUtils.getSticky(project);
+    private PackageLockingMode getPackageLockingMode(Project project) { // TODO: redo this
+        boolean sticky = project.buildOptions().updatePolicy().equals(UpdatePolicy.HARD)
+                || project.buildOptions().updatePolicy().equals(UpdatePolicy.LOCKED); // TODO: temp fix to avoid error. Fix this
 
         // new project
         if (project.currentPackage().dependenciesToml().isEmpty()) {

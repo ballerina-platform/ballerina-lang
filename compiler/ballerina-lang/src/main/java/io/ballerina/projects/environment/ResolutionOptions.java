@@ -17,6 +17,8 @@
  */
 package io.ballerina.projects.environment;
 
+import io.ballerina.projects.internal.PackageLockingModeResolutionOptions;
+
 /**
  * Holds the options used by the package resolution components.
  *
@@ -24,20 +26,22 @@ package io.ballerina.projects.environment;
  */
 public class ResolutionOptions {
     private final boolean offline;
-    private final boolean sticky;
+//    private final boolean sticky;
+    private final UpdatePolicy updatePolicy;
     private final boolean dumpGraph;
     private final boolean dumpRawGraphs;
-    private final UpdatePolicy updatePolicy;
-    private final PackageLockingMode packageLockingMode;
+//    private final PackageLockingMode packageLockingMode;
+    private final PackageLockingModeResolutionOptions packageLockingModeResolutionOptions;
 
-    private ResolutionOptions(boolean offline, boolean sticky, boolean dumpGraph, boolean dumpRawGraphs,
-                              UpdatePolicy updatePolicy, PackageLockingMode packageLockingMode) {
+    private ResolutionOptions(boolean offline, UpdatePolicy updatePolicy, boolean dumpGraph, boolean dumpRawGraphs,
+                              PackageLockingModeResolutionOptions packageLockingModeResolutionOptions) {
         this.offline = offline;
-        this.sticky = sticky;
+//        this.sticky = sticky;
         this.dumpGraph = dumpGraph;
         this.dumpRawGraphs = dumpRawGraphs;
         this.updatePolicy = updatePolicy;
-        this.packageLockingMode = packageLockingMode;
+//        this.packageLockingMode = packageLockingMode;
+        this.packageLockingModeResolutionOptions = packageLockingModeResolutionOptions;
     }
 
     /**
@@ -53,18 +57,22 @@ public class ResolutionOptions {
         return offline;
     }
 
-    /**
-     * If the sticky mode is enabled, the resolution system attempts use the dependency versions
-     * recorded in Ballerina.toml as much as possible.
-     * <p>
-     * The default value is 'true'.
-     *
-     * @return true if sticky model is enabled, otherwise false
-     */
-    public boolean sticky() {
-        return sticky;
-    }
+//    /**
+//     * If the sticky mode is enabled, the resolution system attempts use the dependency versions
+//     * recorded in Ballerina.toml as much as possible.
+//     * <p>
+//     * The default value is 'true'.
+//     *
+//     * @return true if sticky model is enabled, otherwise false
+//     */
+//    public boolean sticky() {
+//        return sticky;
+//    }
 
+    /**
+     * The update policy to be used by the resolution system.
+     * @return the update policy
+     */
     public UpdatePolicy updatePolicy() {
         return updatePolicy;
     }
@@ -77,8 +85,12 @@ public class ResolutionOptions {
         return dumpRawGraphs;
     }
 
-    public PackageLockingMode packageLockingMode() {
-        return packageLockingMode;
+//    public PackageLockingMode packageLockingMode() {
+//        return packageLockingMode;
+//    }
+
+    public PackageLockingModeResolutionOptions lockingModeResolutionOptions() {
+        return packageLockingModeResolutionOptions;
     }
 
     public static ResolutionOptionBuilder builder() {
@@ -92,21 +104,22 @@ public class ResolutionOptions {
      */
     public static class ResolutionOptionBuilder {
         private boolean offline = false;
-        private boolean sticky = true;
+//        private boolean sticky = true;
         private boolean dumpGraph = false;
         private boolean dumpRawGraphs = false;
         private UpdatePolicy updatePolicy = UpdatePolicy.SOFT;
-        private PackageLockingMode packageLockingMode = PackageLockingMode.MEDIUM; // TODO: Remove. this isn't a user passed value anymore. Synthesized from the update policy.
+        private PackageLockingModeResolutionOptions packageLockingModeResolutionOptions;
+//        private PackageLockingMode packageLockingMode = PackageLockingMode.MEDIUM; // TODO: Remove. this isn't a user passed value anymore. Synthesized from the update policy.
 
         public ResolutionOptionBuilder setOffline(boolean value) {
             offline = value;
             return this;
         }
 
-        public ResolutionOptionBuilder setSticky(boolean value) {
-            sticky = value;
-            return this;
-        }
+//        public ResolutionOptionBuilder setSticky(boolean value) {
+//            sticky = value;
+//            return this;
+//        }
 
         public ResolutionOptionBuilder setUpdatePolicy(UpdatePolicy value) {
             updatePolicy = value;
@@ -123,13 +136,18 @@ public class ResolutionOptions {
             return this;
         }
 
-        public ResolutionOptionBuilder setPackageLockingMode(PackageLockingMode value) {
-            packageLockingMode = value;
+//        public ResolutionOptionBuilder setPackageLockingMode(PackageLockingMode value) {
+//            packageLockingMode = value;
+//            return this;
+//        }
+
+        public ResolutionOptionBuilder setLockingModeResolutionOptions(PackageLockingModeResolutionOptions value) {
+            packageLockingModeResolutionOptions = value;
             return this;
         }
 
         public ResolutionOptions build() {
-            return new ResolutionOptions(offline, sticky, dumpGraph, dumpRawGraphs, updatePolicy, packageLockingMode);
+            return new ResolutionOptions(offline, updatePolicy, dumpGraph, dumpRawGraphs, packageLockingModeResolutionOptions);
         }
     }
 }

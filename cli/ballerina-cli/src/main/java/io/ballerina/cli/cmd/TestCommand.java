@@ -36,6 +36,7 @@ import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.directory.BuildProject;
 import io.ballerina.projects.directory.SingleFileProject;
+import io.ballerina.projects.environment.UpdatePolicy;
 import io.ballerina.projects.util.ProjectConstants;
 import picocli.CommandLine;
 
@@ -182,8 +183,11 @@ public class TestCommand implements BLauncherCmd {
     @CommandLine.Option(names = "--dump-build-time", description = "calculate and dump build time", hidden = true)
     private Boolean dumpBuildTime;
 
-    @CommandLine.Option(names = "--sticky", description = "stick to exact versions locked (if exists)")
-    private Boolean sticky;
+    @CommandLine.Option(
+            names = "--update-policy",
+            description = "update policy for dependency resolution. Options: ${COMPLETION-CANDIDATES}",
+            defaultValue = "SOFT")
+    private UpdatePolicy updatePolicy;
 
     @CommandLine.Option(names = "--target-dir", description = "target directory path")
     private Path targetDir;
@@ -247,8 +251,8 @@ public class TestCommand implements BLauncherCmd {
             }
         }
 
-        if (sticky == null) {
-            sticky = false;
+        if (updatePolicy == null) {
+            updatePolicy = UpdatePolicy.SOFT;
         }
         if (isParallelExecution) {
             this.outStream.println("WARNING: Running tests in parallel is an experimental feature");
@@ -420,7 +424,7 @@ public class TestCommand implements BLauncherCmd {
                 .setTestReport(testReport)
                 .setObservabilityIncluded(observabilityIncluded)
                 .setDumpBuildTime(dumpBuildTime)
-                .setSticky(sticky)
+                .setUpdatePolicy(updatePolicy)
                 .setCloud(cloud)
                 .setDumpGraph(dumpGraph)
                 .setDumpRawGraphs(dumpRawGraphs)

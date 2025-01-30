@@ -1200,7 +1200,7 @@ public final class CommandUtil {
      * @param orgName org name of the dependent package
      * @param packageName name of the dependent package
      * @param version version of the dependent package
-     * @param buildOptions build options {sticky, offline}
+     * @param buildOptions build options
      * @return true if the dependent package compilation has errors
      */
     static boolean pullDependencyPackages(String orgName, String packageName, String version,

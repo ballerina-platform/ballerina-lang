@@ -30,6 +30,7 @@ import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.directory.BuildProject;
 import io.ballerina.projects.directory.SingleFileProject;
+import io.ballerina.projects.environment.UpdatePolicy;
 import io.ballerina.projects.util.ProjectConstants;
 import org.wso2.ballerinalang.util.RepoUtils;
 import picocli.CommandLine;
@@ -65,9 +66,9 @@ public class GraphCommand implements BLauncherCmd {
             "dependencies.")
     private boolean offline;
 
-    @CommandLine.Option(names = "--sticky", description = "stick to exact versions locked (if exists)",
-            defaultValue = "false")
-    private boolean sticky;
+    @CommandLine.Option(names = "--update-policy", description = "update policy for dependency resolution",
+            defaultValue = "SOFT")
+    private UpdatePolicy updatePolicy;
 
     public GraphCommand() {
         this.projectPath = Path.of(System.getProperty(ProjectConstants.USER_DIR));
@@ -89,6 +90,10 @@ public class GraphCommand implements BLauncherCmd {
         if (this.helpFlag) {
             printHelpCommandInfo();
             return;
+        }
+
+        if (updatePolicy == null) {
+            updatePolicy = UpdatePolicy.SOFT;
         }
 
         try {
@@ -152,7 +157,7 @@ public class GraphCommand implements BLauncherCmd {
                 .setDumpGraph(dumpGraph)
                 .setDumpRawGraphs(this.dumpRawGraphs)
                 .setOffline(this.offline)
-                .setSticky(this.sticky);
+                .setUpdatePolicy(this.updatePolicy);
 
         return buildOptionsBuilder.build();
     }
@@ -173,7 +178,7 @@ public class GraphCommand implements BLauncherCmd {
 
     @Override
     public void printUsage(StringBuilder out) {
-        out.append("  bal graph [--dump-raw-graph] [--offline] [--sticky] \\n\" +\n" +
+        out.append("  bal graph [--dump-raw-graph] [--offline] [--update-policy] \\n\" +\n" +
                 "            \"                    [<ballerina-file | package-path>]");
     }
 

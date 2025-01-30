@@ -26,6 +26,7 @@ import io.ballerina.projects.ProjectKind;
 import io.ballerina.projects.directory.BuildProject;
 import io.ballerina.projects.directory.ProjectLoader;
 import io.ballerina.projects.directory.SingleFileProject;
+import io.ballerina.projects.environment.UpdatePolicy;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectPaths;
 import io.ballerina.semver.checker.exception.SemverToolException;
@@ -114,7 +115,7 @@ public final class PackageUtils {
                 .setSkipTests(true)
                 .setTestReport(false)
                 .setObservabilityIncluded(false)
-                .setSticky(false)
+                .setUpdatePolicy(UpdatePolicy.SOFT)
                 .setDumpGraph(false)
                 .setDumpRawGraphs(false)
                 .setConfigSchemaGen(false)

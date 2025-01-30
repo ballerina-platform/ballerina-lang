@@ -26,11 +26,11 @@ import io.ballerina.projects.JvmTarget;
 import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.SemanticVersion;
 import io.ballerina.projects.Settings;
+import io.ballerina.projects.environment.UpdatePolicy;
 import io.ballerina.projects.internal.model.Proxy;
 import io.ballerina.projects.internal.model.Repository;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectUtils;
-import org.apache.commons.io.FileUtils;
 import org.ballerinalang.central.client.CentralAPIClient;
 import org.ballerinalang.central.client.CentralClientConstants;
 import org.ballerinalang.central.client.exceptions.CentralClientException;
@@ -90,8 +90,11 @@ public class PullCommand implements BLauncherCmd {
     @CommandLine.Option(names = "--repository")
     private String repositoryName;
 
-    @CommandLine.Option(names = "--sticky", hidden = true, defaultValue = "true")
-    private boolean sticky;
+    @CommandLine.Option(
+            names = "--update-policy",
+            description = "update policy for dependency resolution. Options: ${COMPLETION-CANDIDATES}",
+            defaultValue = "SOFT")
+    private UpdatePolicy updatePolicy;
 
     @CommandLine.Option(names = "--offline", hidden = true)
     private boolean offline;
@@ -135,6 +138,10 @@ public class PullCommand implements BLauncherCmd {
         }
 
         System.setProperty(CentralClientConstants.ENABLE_OUTPUT_STREAM, "true");
+
+        if (updatePolicy == null) {
+            updatePolicy = UpdatePolicy.SOFT;
+        }
 
         String resourceName = argList.get(0);
         String orgName;
@@ -324,7 +331,10 @@ public class PullCommand implements BLauncherCmd {
     private boolean resolveDependencies(String orgName, String packageName, String version) {
         CommandUtil.setPrintStream(errStream);
         try {
-            BuildOptions buildOptions = BuildOptions.builder().setSticky(sticky).setOffline(offline).build();
+            BuildOptions buildOptions = BuildOptions.builder()
+                    .setUpdatePolicy(updatePolicy)
+                    .setOffline(offline)
+                    .build();
             boolean hasCompilationErrors = CommandUtil.pullDependencyPackages(
                     orgName, packageName, version, buildOptions, repositoryName);
             if (hasCompilationErrors) {

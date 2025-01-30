@@ -25,9 +25,8 @@ import io.ballerina.projects.environment.UpdatePolicy;
  *
  * @since 2201.12.0
  */
-public record LockingModeResolutionOptions(UpdatePolicy updatePolicy, boolean hasDependencyManifest,
-                                           boolean distributionChange, boolean importAddition,
-                                           boolean lessThan24HrsAfterBuild) {
+public record PackageLockingModeResolutionOptions(UpdatePolicy updatePolicy, boolean hasDependencyManifest,
+                                                  boolean distributionChange, boolean lessThan24HrsAfterBuild) {
 
     /**
      * The update policy of the package as passed by the user.
@@ -57,16 +56,6 @@ public record LockingModeResolutionOptions(UpdatePolicy updatePolicy, boolean ha
     @Override
     public boolean distributionChange() {
         return distributionChange;
-    }
-
-    /**
-     * Whether the package has new imports added.
-     *
-     * @return true if the package has new imports added, false otherwise
-     */
-    @Override
-    public boolean importAddition() {
-        return importAddition;
     }
 
     /**

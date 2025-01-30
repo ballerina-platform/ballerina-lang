@@ -7,6 +7,7 @@ import io.ballerina.projects.environment.ResolutionRequest;
 import io.ballerina.projects.environment.ResolutionResponse;
 import io.ballerina.projects.internal.ImportModuleRequest;
 import io.ballerina.projects.internal.ImportModuleResponse;
+import io.ballerina.projects.internal.index.PackageIndex;
 import io.ballerina.projects.internal.repositories.FileSystemRepository;
 import io.ballerina.projects.internal.repositories.RemotePackageRepository;
 import org.ballerinalang.central.client.CentralAPIClient;
@@ -74,14 +75,14 @@ public class RemotePackageRepositoryTests {
     Package smtp = new Package("ballerinax", "smtp", "1.0.0", Arrays.asList());
     // File system responses
     PackageMetadataResponse fileHttp120 = PackageMetadataResponse
-            .from(resHttp120, http121, DependencyGraph.emptyGraph());
+            .from(resHttp120, http121, Collections.emptyList());
     PackageMetadataResponse fileCovid159 = PackageMetadataResponse
-            .from(resCovid156, covid159, DependencyGraph.emptyGraph());
+            .from(resCovid156, covid159, Collections.emptyList());
     PackageMetadataResponse fileSmtp130 = PackageMetadataResponse.createUnresolvedResponse(resSmtp130);
 
     @BeforeSuite
     public void setup() {
-        remotePackageRepository = new RemotePackageRepository(fileSystemRepository, centralAPIClient);
+        remotePackageRepository = new RemotePackageRepository(fileSystemRepository, centralAPIClient, PackageIndex.EMPTY_PACKAGE_INDEX); // TODO: pass a proper index
     }
 
 
