@@ -5,11 +5,14 @@ import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.types.PredefinedTypes;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BArray;
+import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BValue;
 import io.ballerina.runtime.internal.query.pipeline.Frame;
+import io.ballerina.runtime.internal.values.ErrorValue;
 
 import java.util.List;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class CollectionUtil {
@@ -24,19 +27,19 @@ public class CollectionUtil {
         return arr;
     }
 
-    public static BValue collectQuery(Stream<Frame> strm) {
+    public static Object collectQuery(Stream<Frame> strm) {
         try {
-            List<Object> collectedResult = strm
+            Object result = strm
                     .map(frame -> frame.getRecord().get(VALUE_FIELD))
-                    .toList();
+                    .findFirst().get();
 
-            // Convert the List to a Ballerina Array
-            return ValueCreator.createArrayValue(
-                    collectedResult.toArray(),
-                    TypeCreator.createArrayType(PredefinedTypes.TYPE_ANY)
-            );
+            if (result instanceof BValue) {
+                return (BValue) result;
+            } else {
+                return result;
+            }
         } catch (Exception e) {
-            return (BValue) e; // Consider wrapping this in an error type
+            return new ErrorValue(StringUtils.fromString(e.getMessage()));
         }
     }
 }
