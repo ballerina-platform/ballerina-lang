@@ -31,7 +31,6 @@ public class StreamPipeline {
                           BTypedesc constraintType,
                           BTypedesc completionType,
                           boolean isLazyLoading) {
-        int a = 2;
         this.stream = initializeFrameStream(collection);
         this.pipelineStages = new ArrayList<>();
         this.constraintType = constraintType;

@@ -56,14 +56,11 @@ public class GroupByClause implements PipelineStage {
             Map<BString, Object> key = entry.getKey();
             List<Frame> frames = entry.getValue();
 
-            // Create a new grouped frame
-            Frame groupedFrame = frames.get(0);
+            Frame groupedFrame = new Frame();
             BMap<BString, Object> groupedRecord = groupedFrame.getRecord();
 
-            // Add the grouping key values to the new frame
             key.forEach(groupedRecord::put);
 
-            // Add non-grouping key values as lists
             for (int i = 0; i < nonGroupingKeys.size(); i++) {
                 BString nonGroupingKey = (BString) nonGroupingKeys.get(i);
 
