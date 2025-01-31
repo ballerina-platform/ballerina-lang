@@ -215,12 +215,21 @@ function createNestedFromFunction(function(_Frame _frame) returns _Frame|error? 
     return new _NestedFromFunction(collectionFunc);
 }
 
-function createInnerJoinFunction(
+function createInnerJoinFunctionOld(
         _StreamPipeline joinedPipeline,
         function (_Frame _frame) returns any lhsKeyFunction,
         function (_Frame _frame) returns any rhsKeyFunction) returns _StreamFunction {
     return new _InnerJoinFunction(joinedPipeline, lhsKeyFunction, rhsKeyFunction);
 }
+
+function createInnerJoinFunction(
+        handle joinedPipeline,
+        function (_Frame _frame) returns any lhsKeyFunction,
+        function (_Frame _frame) returns any rhsKeyFunction) returns handle = @java:Method {
+    'class: "io.ballerina.runtime.internal.query.clauses.InnerJoinClause",
+    name: "initInnerJoinClause",
+    paramTypes: ["java.lang.Object","io.ballerina.runtime.api.values.BFunctionPointer","io.ballerina.runtime.api.values.BFunctionPointer"]
+} external;
 
 function createOuterJoinFunction(
         _StreamPipeline joinedPipeline,
