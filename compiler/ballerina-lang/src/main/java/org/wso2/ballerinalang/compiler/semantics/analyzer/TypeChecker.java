@@ -603,7 +603,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                                      AnalyzerData data) {
         boolean prevNonErrorLoggingCheck = data.commonAnalyzerData.nonErrorLoggingCheck;
         data.commonAnalyzerData.nonErrorLoggingCheck = true;
-        GlobalStateData previousGlobalState = getGlobalStateSnapshotAndResetGlobalState();
+        GlobalStateSnapshot previousGlobalState = getGlobalStateSnapshotAndResetGlobalState();
         this.dlog.mute();
 
         BType exprCompatibleType = getIntegerLiteralType(nodeCloner.cloneNode(literalExpr), literalValue, expType,
@@ -1226,7 +1226,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
 
             boolean prevNonErrorLoggingCheck = data.commonAnalyzerData.nonErrorLoggingCheck;
             data.commonAnalyzerData.nonErrorLoggingCheck = true;
-            GlobalStateData previousGlobalState = getGlobalStateSnapshotAndResetGlobalState();
+            GlobalStateSnapshot previousGlobalState = getGlobalStateSnapshotAndResetGlobalState();
             this.dlog.mute();
 
             List<BType> matchingTypes = new ArrayList<>();
@@ -1805,7 +1805,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         int tag = referredType.tag;
         if (tag == TypeTags.UNION) {
             boolean prevNonErrorLoggingCheck = data.commonAnalyzerData.nonErrorLoggingCheck;
-            GlobalStateData previousGlobalState = getGlobalStateSnapshotAndResetGlobalState();
+            GlobalStateSnapshot previousGlobalState = getGlobalStateSnapshotAndResetGlobalState();
             data.commonAnalyzerData.nonErrorLoggingCheck = true;
             this.dlog.mute();
 
@@ -2547,7 +2547,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         if (tag == TypeTags.UNION) {
             boolean prevNonErrorLoggingCheck = data.commonAnalyzerData.nonErrorLoggingCheck;
             data.commonAnalyzerData.nonErrorLoggingCheck = true;
-            GlobalStateData previousGlobalState = getGlobalStateSnapshotAndResetGlobalState();
+            GlobalStateSnapshot previousGlobalState = getGlobalStateSnapshotAndResetGlobalState();
             this.dlog.mute();
 
             List<BType> compatibleTypes = new ArrayList<>();
@@ -3931,7 +3931,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         boolean prevNonErrorLoggingCheck = data.commonAnalyzerData.nonErrorLoggingCheck;
         data.commonAnalyzerData.nonErrorLoggingCheck = true;
         this.dlog.mute();
-        GlobalStateData previousGlobalState = getGlobalStateSnapshotAndResetGlobalState();
+        GlobalStateSnapshot previousGlobalState = getGlobalStateSnapshotAndResetGlobalState();
 
         BType type = checkExpr(expr, expType, data);
 
@@ -5471,7 +5471,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
     private BType checkAndGetType(BLangExpression expr, SymbolEnv env, BLangBinaryExpr binaryExpr, AnalyzerData data) {
         boolean prevNonErrorLoggingCheck = data.commonAnalyzerData.nonErrorLoggingCheck;
         data.commonAnalyzerData.nonErrorLoggingCheck = true;
-        GlobalStateData previousGlobalState = getGlobalStateSnapshotAndResetGlobalState();
+        GlobalStateSnapshot previousGlobalState = getGlobalStateSnapshotAndResetGlobalState();
         this.dlog.mute();
 
         expr.cloneAttempt++;
@@ -5732,7 +5732,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                                                               AnalyzerData data) {
         boolean prevNonErrorLoggingCheck = data.commonAnalyzerData.nonErrorLoggingCheck;
         data.commonAnalyzerData.nonErrorLoggingCheck = true;
-        GlobalStateData previousGlobalState = getGlobalStateSnapshotAndResetGlobalState();
+        GlobalStateSnapshot previousGlobalState = getGlobalStateSnapshotAndResetGlobalState();
         this.dlog.mute();
 
         BType compatibleTypeOfUnaryExpression;
@@ -5748,7 +5748,8 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         return false;
     }
 
-    private void unmuteDlog(AnalyzerData data, boolean prevNonErrorLoggingCheck, GlobalStateData previousGlobalState) {
+    private void unmuteDlog(AnalyzerData data, boolean prevNonErrorLoggingCheck,
+                            GlobalStateSnapshot previousGlobalState) {
         data.commonAnalyzerData.nonErrorLoggingCheck = prevNonErrorLoggingCheck;
         restoreGlobalState(previousGlobalState);
         if (!prevNonErrorLoggingCheck) {
@@ -5759,7 +5760,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
     public BType silentTypeCheckExpr(BLangExpression expr, BType referredType, AnalyzerData data) {
         boolean prevNonErrorLoggingCheck = data.commonAnalyzerData.nonErrorLoggingCheck;
         data.commonAnalyzerData.nonErrorLoggingCheck = true;
-        GlobalStateData previousGlobalState = getGlobalStateSnapshotAndResetGlobalState();
+        GlobalStateSnapshot previousGlobalState = getGlobalStateSnapshotAndResetGlobalState();
         this.dlog.mute();
 
         BType exprCompatibleType = checkExpr(nodeCloner.cloneNode(expr), referredType, data);
@@ -5822,7 +5823,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
 
         boolean prevNonErrorLoggingCheck = data.commonAnalyzerData.nonErrorLoggingCheck;
         data.commonAnalyzerData.nonErrorLoggingCheck = true;
-        GlobalStateData previousGlobalState = getGlobalStateSnapshotAndResetGlobalState();
+        GlobalStateSnapshot previousGlobalState = getGlobalStateSnapshotAndResetGlobalState();
         this.dlog.mute();
 
         BType exprCompatibleType = checkExpr(nodeCloner.cloneNode(expr), targetType, data);
@@ -6608,7 +6609,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         boolean prevNonErrorLoggingCheck = data.commonAnalyzerData.nonErrorLoggingCheck;
         data.commonAnalyzerData.nonErrorLoggingCheck = true;
         this.dlog.mute();
-        GlobalStateData previousGlobalState = getGlobalStateSnapshotAndResetGlobalState();
+        GlobalStateSnapshot previousGlobalState = getGlobalStateSnapshotAndResetGlobalState();
 
         checkedExpr.expr.cloneAttempt++;
         BLangExpression clone = nodeCloner.cloneNode(checkedExpr.expr);
@@ -8240,7 +8241,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         for (BLangExpression expr : exprs) {
             boolean prevNonErrorLoggingCheck = data.commonAnalyzerData.nonErrorLoggingCheck;
             data.commonAnalyzerData.nonErrorLoggingCheck = true;
-            GlobalStateData previousGlobalState = getGlobalStateSnapshotAndResetGlobalState();
+            GlobalStateSnapshot previousGlobalState = getGlobalStateSnapshotAndResetGlobalState();
             this.dlog.mute();
 
             BType exprType = checkExpr(nodeCloner.cloneNode(expr), xmlElementEnv, symTable.xmlType, data);
@@ -9914,20 +9915,21 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         }
     }
 
-    public GlobalStateData getGlobalStateSnapshotAndResetGlobalState() {
+    public GlobalStateSnapshot getGlobalStateSnapshotAndResetGlobalState() {
         // Preserve global state
-        GlobalStateData globalStateData = new GlobalStateData(typeResolver.unknownTypeRefs, this.dlog.errorCount());
+        GlobalStateSnapshot globalStateSnapshot = new GlobalStateSnapshot(typeResolver.getUnknownTypeRefs(),
+                this.dlog.errorCount());
 
         // Reset global state
-        typeResolver.unknownTypeRefs = new HashSet<>();
+        typeResolver.setUnknownTypeRefs(new HashSet<>());
         this.dlog.resetErrorCount();
 
-        return globalStateData;
+        return globalStateSnapshot;
     }
 
-    public void restoreGlobalState(GlobalStateData globalStateData) {
-        typeResolver.unknownTypeRefs = globalStateData.unknownTypeRefs;
-        this.dlog.setErrorCount(globalStateData.errorCount);
+    public void restoreGlobalState(GlobalStateSnapshot globalStateSnapshot) {
+        typeResolver.setUnknownTypeRefs(globalStateSnapshot.unknownTypeRefs);
+        this.dlog.setErrorCount(globalStateSnapshot.errorCount);
     }
 
     /**
@@ -9947,8 +9949,11 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
     }
 
     /**
+     * This record is used to hold a snapshot of the global fields of multiple class objects.
+     * @param unknownTypeRefs current unknownTypeRefs set
+     * @param errorCount current errorCount
      * @since 2201.12.0
      */
-    public record GlobalStateData(HashSet<TypeResolver.LocationData> unknownTypeRefs, int errorCount) {
+    public record GlobalStateSnapshot(HashSet<TypeResolver.LocationData> unknownTypeRefs, int errorCount) {
     }
 }
