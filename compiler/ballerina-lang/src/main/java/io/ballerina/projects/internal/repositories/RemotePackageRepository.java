@@ -352,11 +352,6 @@ public class RemotePackageRepository implements PackageRepository {
     @Override
     public PackageMetadataResponse getPackageMetadata(ResolutionRequest request,
                                                                   ResolutionOptions options) {
-        // Is this wanted?
-        if (request == null) {
-            return null;
-        }
-
         packageIndex.setOffline(options.offline());
 
         // If the locking mode is LOCKED or HARD, we should return the resolved package from the index.
@@ -386,7 +381,7 @@ public class RemotePackageRepository implements PackageRepository {
         // If not resolved, might be a private package. Let's try to resolve with the central API.
         PackageResolutionRequest packageResolutionRequest = toPackageResolutionRequest(request);
         try {
-            return fromPackageResolutionResponse(request, packageResolutionRequest); // TODO: check why the error
+            return fromPackageResolutionResponse(request, packageResolutionRequest);
         } catch (CentralClientException e) {
             throw new ProjectException(e.getMessage());
         }

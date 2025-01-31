@@ -37,13 +37,11 @@ import io.ballerina.tools.diagnostics.Diagnostic;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Queue;
-import java.util.Set;
 
 /**
  * Responsible for creating the dependency graph with automatic version updates.
@@ -60,7 +58,6 @@ public class ResolutionEngine {
     private final List<Diagnostic> diagnostics;
     private String dependencyGraphDump;
     private DiagnosticResult diagnosticResult;
-    private final Set<DependencyNode> unresolvedDeps;
     private Collection<DependencyNode> directDependencies;
 
     public ResolutionEngine(PackageDescriptor rootPkgDesc,
@@ -76,7 +73,6 @@ public class ResolutionEngine {
         this.graphBuilder = new PackageDependencyGraphBuilder(rootPkgDesc);
         this.diagnostics = new ArrayList<>();
         this.dependencyGraphDump = "";
-        this.unresolvedDeps = new HashSet<>();
         this.directDependencies = new ArrayList<>();
     }
 
@@ -95,8 +91,7 @@ public class ResolutionEngine {
         Queue<UnresolvedNode> unresolvedNodes = new LinkedList<>();
         initializeDirectDependencies(directDependencies, lockingModes, unresolvedNodes);
         processUnresolvedNodes(lockingModes, unresolvedNodes);
-        return graphBuilder.buildGraph();
-//        return buildFinalDependencyGraph();
+        return buildFinalDependencyGraph();
     }
 
     private PackageLockingModeMatrix getLockingModes(Collection<DependencyNode> directDependencies) {
@@ -118,11 +113,12 @@ public class ResolutionEngine {
         }
     }
 
+    // TODO: this method is ugly :/
     private void processUnresolvedNodes(
             PackageLockingModeMatrix lockingModeMap,
             Queue<UnresolvedNode> unresolvedNodes) {
         while (!unresolvedNodes.isEmpty()) {
-            // TODO: improvement: built-in packages go through the queue quite unnecessarily.
+            // TODO: improvement: built-in packages go through the queue unnecessarily.
             //  Make a cache of them when gone through the queue once and use it.
             UnresolvedNode unresolvedNode = unresolvedNodes.remove();
             DependencyNode pkgNode = unresolvedNode.dependencyNode();
@@ -158,7 +154,12 @@ public class ResolutionEngine {
                     resolutionRequest, resolutionOptions);
             if (response.resolutionStatus() == ResolutionResponse.ResolutionStatus.UNRESOLVED) {
                 // TODO add diagnostic
-                unresolvedDeps.add(pkgNode);
+                DependencyNode errorNode = new DependencyNode(
+                        pkgNode.pkgDesc(),
+                        pkgNode.scope(),
+                        pkgNode.resolutionType(),
+                        true);
+                graphBuilder.addVertex(errorNode);
                 continue;
             }
             DependencyNode updatedPkgNode = new DependencyNode(
@@ -338,18 +339,20 @@ public class ResolutionEngine {
         if (!resolutionOptions.dumpGraph() && !resolutionOptions.dumpRawGraphs()) {
             return;
         }
-        List<DependencyNode> unresolvedDirectDeps = new ArrayList<>();
-        for (DependencyNode directDep : directDependencies) {
-            if (unresolvedDeps.contains(directDep)) {
-                unresolvedDirectDeps.add(directDep);
-            }
-        }
-        Collection<DependencyNode> resolvedDirectDeps =
-                dependencyGraph.getDirectDependencies(dependencyGraph.getRoot());
-        unresolvedDirectDeps.removeAll(resolvedDirectDeps); // TODO: incorrect
+        // get all unresolved dependencies
+       Collection<DependencyNode> unresolvedDeps = dependencyGraph
+               .getAllDependencies(dependencyGraph.getRoot())
+               .stream().filter(DependencyNode::errorNode)
+               .toList();
+
+        // get unresolved direct dependencies
+        Collection<DependencyNode> unresolvedDirectDeps = dependencyGraph
+                .getDirectDependencies(dependencyGraph.getRoot())
+                .stream().filter(DependencyNode::errorNode)
+                .toList();
 
         String serializedGraph = DotGraphs.serializeDependencyNodeGraph(
-                dependencyGraph, this.unresolvedDeps, unresolvedDirectDeps);
+                dependencyGraph, unresolvedDeps, unresolvedDirectDeps);
         dependencyGraphDump += "\n";
         dependencyGraphDump += (serializedGraph + "\n");
     }

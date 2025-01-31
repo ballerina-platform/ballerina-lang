@@ -69,7 +69,7 @@ public class PackageDependencyGraphBuilder {
         Vertex vertex = new Vertex(pkgDesc.org(), pkgDesc.name());
         DependencyNode existingNode = vertices.get(vertex);
         if (existingNode != null && existingNode.scope().equals(DEFAULT)) {
-            node = new DependencyNode(pkgDesc, DEFAULT, node.resolutionType());
+            node = new DependencyNode(pkgDesc, DEFAULT, node.resolutionType(), node.errorNode());
         }
         vertices.put(vertex, node);
 
@@ -134,7 +134,6 @@ public class PackageDependencyGraphBuilder {
         for (Vertex danglingVertex : danglingVertices) {
             vertices.remove(danglingVertex);
             depGraph.remove(danglingVertex);
-            vertices.remove(danglingVertex);
         }
     }
 
