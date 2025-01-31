@@ -26,7 +26,6 @@ import io.ballerina.projects.ProjectException;
 import org.eclipse.jgit.api.CreateBranchCommand;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
-import org.eclipse.jgit.lib.TextProgressMonitor;
 import org.eclipse.jgit.merge.ContentMergeStrategy;
 import org.eclipse.jgit.transport.CredentialsProvider;
 import org.wso2.ballerinalang.util.RepoUtils;
@@ -34,7 +33,6 @@ import org.wso2.ballerinalang.util.RepoUtils;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
-import java.io.PrintWriter;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -73,17 +71,22 @@ class PackageIndexUpdater {
             return;
         }
         if (!isIndexFetched()) {
+            // Index git repo is not fetched yet. We pull it now
             if (offline) {
                 outStream.println("Index repository is not available. " +
                         "Try again without the 'offline' flag set to false");
                 return;
             }
             fetchIndex();
+            checkoutToBranch();
+        } else {
+            // Index git repo is already fetched. We pull the latest changes
+            checkoutToBranch();
+            if (!offline && isRemoteIndexUpdated()) {
+                fetchIndexHead();
+            }
         }
-        checkoutToBranch();
-        if (!offline) {
-            fetchIndexHead();
-        }
+
         isIndexRepoUpdated = true;
     }
 
@@ -143,7 +146,7 @@ class PackageIndexUpdater {
     }
 
     private void fetchIndex() {
-        // TODO: add a progress bar
+        outStream.print("Fetching the Ballerina package index... ");
         try {
             Files.createDirectories(indexDirectory);
         } catch (IOException e) {
@@ -164,6 +167,7 @@ class PackageIndexUpdater {
         } catch (GitAPIException e) {
             throw new ProjectException("Error while cloning the package index repository: " + e.getMessage(), e);
         }
+        outStream.println("done.");
     }
 
     private void checkoutToBranch() {
@@ -181,14 +185,23 @@ class PackageIndexUpdater {
     }
 
     private void fetchIndexHead() {
-        // TODO: add a progress bar
+        outStream.print("Updating Ballerina package index... ");
         try (Git git = Git.open(indexDirectory.resolve(indexGitRepoName).toFile())) {
             git.pull()
                     .setContentMergeStrategy(ContentMergeStrategy.THEIRS)
-                    .setProgressMonitor(new TextProgressMonitor(new PrintWriter(System.out))) // TODO: customize
                     .setCredentialsProvider(credentialsProvider).call();
         } catch (IOException | GitAPIException e) {
             throw new ProjectException("Error while pulling the latest changes from the upstream: "
+                    + e.getMessage(), e);
+        }
+        outStream.println("done.");
+    }
+
+    private boolean isRemoteIndexUpdated() {
+        try (Git git = Git.open(indexDirectory.resolve(indexGitRepoName).toFile())) {
+            return !git.fetch().setCredentialsProvider(credentialsProvider).call().getTrackingRefUpdates().isEmpty();
+        } catch (IOException | GitAPIException e) {
+            throw new ProjectException("Error while fetching the latest changes from the upstream: "
                     + e.getMessage(), e);
         }
     }
