@@ -7,6 +7,11 @@ import io.ballerina.runtime.api.values.*;
 import io.ballerina.runtime.internal.query.pipeline.Frame;
 import io.ballerina.runtime.internal.values.ArrayValueImpl;
 
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
@@ -45,37 +50,50 @@ public class CollectClause implements PipelineStage {
      */
     @Override
     public Stream<Frame> process(Stream<Frame> inputStream) {
-        try {
-            return inputStream.map(frame -> {
-                Frame groupedFrame = new Frame();
-                BMap<BString, Object> groupedRecord = groupedFrame.getRecord();
+        // Initialize the aggregated frame
+        Frame groupedFrame = new Frame();
+        BMap<BString, Object> groupedRecord = groupedFrame.getRecord();
 
-                for (int i = 0; i < nonGroupingKeys.size(); i++) {
-                    BString key = (BString) nonGroupingKeys.get(i);
-                    groupedRecord.put(key, new ArrayValueImpl(TypeCreator.createArrayType(PredefinedTypes.TYPE_ANY)));
+        // Ensure groupedRecord is not null
+        if (groupedRecord == null) {
+            throw new RuntimeException("Frame record is null. Ensure Frame initializes a BMap.");
+        }
+
+        // Initialize empty arrays for each nonGroupingKey
+        for (int i = 0; i < nonGroupingKeys.size(); i++) {
+            BString key = (BString) nonGroupingKeys.get(i);
+            groupedRecord.put(key, new ArrayValueImpl(TypeCreator.createArrayType(PredefinedTypes.TYPE_ANY)));
+        }
+
+        // Process the stream and aggregate values
+        inputStream.forEach(frame -> {
+            BMap<BString, Object> record = frame.getRecord();
+            for (int i = 0; i < nonGroupingKeys.size(); i++) {
+                BString key = (BString) nonGroupingKeys.get(i);
+                if (record.containsKey(key)) {
+                    BArray existingValues = (BArray) groupedRecord.get(key);
+                    existingValues.append(record.get(key));
                 }
+            }
+        });
 
-                BMap<BString, Object> record = frame.getRecord();
-                for (int i = 0; i < nonGroupingKeys.size(); i++) {
-                    BString key = (BString) nonGroupingKeys.get(i);
-                    if (record.containsKey(key)) {
-                        BArray existingValues = (BArray) groupedRecord.get(key);
-                        existingValues.append(record.get(key));
-                    }
-                }
-
+        // Apply the collect function and return the transformed stream
+        return Stream.of(groupedFrame).map(frame -> {
+            try {
                 Object result = collectFunc.call(env.getRuntime(), groupedRecord);
-                if (result instanceof BMap) {
-                    groupedFrame.updateRecord((BMap<BString, Object>) result);
-                    return groupedFrame;
-                } else if (result instanceof Frame) {
-                    return (Frame) result;
+                if (result instanceof BError) {
+                    throw (BError) result;
+                } else if (result instanceof BMap) {
+                    Frame collectedFrame = new Frame();
+                    collectedFrame.updateRecord((BMap<BString, Object>) result);
+                    return collectedFrame;
                 } else {
                     throw new RuntimeException("Collect function returned an unexpected type: " + result.getClass().getName());
                 }
-            });
-        } catch (Exception e) {
-            throw new RuntimeException("Error applying collect function: " + e.getMessage(), e);
-        }
+            } catch (Exception e) {
+                throw new RuntimeException("Error applying collect function: " + e.getMessage(), e);
+            }
+        });
     }
+
 }
