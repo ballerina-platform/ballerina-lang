@@ -73,7 +73,6 @@ public final class Env {
     private final Map<CellSemTypeCacheKey, SemType> cellTypeCache = new HashMap<>();
 
     private final AtomicInteger distinctAtomCount = new AtomicInteger(0);
-    private final TypeCheckSelfDiagnosticsRunner selfDiagnosticsRunner;
 
     private final AtomicLong pendingTypeResolutions = new AtomicLong(0);
 
@@ -84,12 +83,6 @@ public final class Env {
         this.recFunctionAtoms = new ArrayList<>();
 
         PredefinedTypeEnv.getInstance().initializeEnv(this);
-        String diagnosticEnable = System.getenv("BAL_TYPE_CHECK_DIAGNOSTIC_ENABLE");
-        if ("true".equalsIgnoreCase(diagnosticEnable)) {
-            this.selfDiagnosticsRunner = new DebugSelfDiagnosticRunner(this);
-        } else {
-            this.selfDiagnosticsRunner = new NonOpSelfDiagnosticRunner();
-        }
     }
 
     public static Env getInstance() {
@@ -316,7 +309,6 @@ public final class Env {
 
     void enterTypeResolutionPhase(Context cx, MutableSemType t) throws InterruptedException {
         pendingTypeResolutions.incrementAndGet();
-        this.selfDiagnosticsRunner.registerTypeResolutionStart(cx, t);
     }
 
     void exitTypeResolutionPhaseAbruptly(Context cx, Exception ex) {
@@ -327,9 +319,8 @@ public final class Env {
             releaseLock((ReentrantReadWriteLock) recMapLock);
             releaseLock((ReentrantReadWriteLock) recFunctionLock);
         } catch (Exception ignored) {
-
+            throw new RuntimeException("Failed to release locks", ex);
         }
-        this.selfDiagnosticsRunner.registerAbruptTypeResolutionEnd(cx, ex);
     }
 
     private void releaseLock(ReentrantReadWriteLock lock) {
@@ -344,7 +335,6 @@ public final class Env {
     void exitTypeResolutionPhase(Context cx) {
         long res = pendingTypeResolutions.decrementAndGet();
         assert res >= 0;
-        this.selfDiagnosticsRunner.registerTypeResolutionExit(cx);
     }
 
     void enterTypeCheckingPhase(Context cx, SemType t1, SemType t2) {
@@ -352,15 +342,13 @@ public final class Env {
         while (pendingTypeResolutions.get() != 0) {
             LockSupport.parkNanos(Duration.ofNanos(10).toNanos());
         }
-        this.selfDiagnosticsRunner.registerTypeCheckStart(cx, t1, t2);
     }
 
     void exitTypeCheckingPhase(Context cx) {
-        this.selfDiagnosticsRunner.registerTypeCheckEnd(cx);
+
     }
 
     void registerAbruptTypeCheckEnd(Context context, Exception ex) {
-        this.selfDiagnosticsRunner.registerAbruptTypeCheckEnd(context, ex);
     }
 
     // These are helper methods for diagnostics that needs access to internal state of the environment

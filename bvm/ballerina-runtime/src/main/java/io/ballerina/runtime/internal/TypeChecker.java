@@ -112,6 +112,7 @@ import static io.ballerina.runtime.internal.utils.CloneUtils.getErrorMessage;
 @SuppressWarnings({"rawtypes"})
 public final class TypeChecker {
 
+    private static final TypeCheckLogger logger = TypeCheckLogger.getInstance();
     private static final byte MAX_TYPECAST_ERROR_COUNT = 20;
     private static final String REG_EXP_TYPENAME = "RegExp";
     private static final ThreadLocal<Context> threadContext =
@@ -261,6 +262,13 @@ public final class TypeChecker {
     public static boolean checkIsType(Object sourceVal, Type targetType) {
         Context cx = context();
         Type sourceType = getType(sourceVal);
+        logger.typeCheckStarted(cx, sourceType, targetType);
+        boolean result = checkIsTypeInner(sourceVal, targetType, cx, sourceType);
+        logger.typeCheckDone(cx, sourceType, targetType, result);
+        return result;
+    }
+
+    private static boolean checkIsTypeInner(Object sourceVal, Type targetType, Context cx, Type sourceType) {
         if (isSubType(cx, sourceType, targetType)) {
             return true;
         }
@@ -311,12 +319,15 @@ public final class TypeChecker {
      */
     public static boolean checkIsLikeType(Object sourceValue, Type targetType, boolean allowNumericConversion) {
         Context cx = context();
+        logger.shapeCheckStarted(cx, sourceValue, targetType);
         SemType shape = ShapeAnalyzer.shapeOf(cx, sourceValue).orElseThrow();
         SemType targetSemType = ShapeAnalyzer.acceptedTypeOf(cx, targetType).orElseThrow();
         if (Core.isSubType(cx, shape, NumericTypeHolder.NUMERIC_TYPE) && allowNumericConversion) {
             targetSemType = appendNumericConversionTypes(targetSemType);
         }
-        return Core.isSubType(cx, shape, targetSemType);
+        boolean result = Core.isSubType(cx, shape, targetSemType);
+        logger.shapeCheckDone(cx, sourceValue, targetType, result);
+        return result;
     }
 
     private static SemType appendNumericConversionTypes(SemType semType) {
@@ -567,12 +578,20 @@ public final class TypeChecker {
      * @return flag indicating the equivalence of the two types
      */
     public static boolean checkIsType(Type sourceType, Type targetType) {
-        return isSubType(context(), sourceType, targetType);
+        Context cx = context();
+        logger.typeCheckStarted(cx, sourceType, targetType);
+        boolean result = isSubType(cx, sourceType, targetType);
+        logger.typeCheckDone(cx, sourceType, targetType, result);
+        return result;
     }
 
     @Deprecated
     public static boolean checkIsType(Type sourceType, Type targetType, List<TypePair> unresolvedTypes) {
-        return isSubType(context(), sourceType, targetType);
+        Context cx = context();
+        logger.typeCheckStarted(cx, sourceType, targetType);
+        boolean result = isSubType(cx, sourceType, targetType);
+        logger.typeCheckDone(cx, sourceType, targetType, result);
+        return result;
     }
 
     /**
@@ -624,6 +643,7 @@ public final class TypeChecker {
             return isSubTypeInner(cx, source, target);
         }
         Optional<Boolean> cachedResult = source.cachedTypeCheckResult(cx, target);
+        logger.typeCheckCachedResult(cx, source, target, cachedResult);
         if (cachedResult.isPresent()) {
             assert cachedResult.get() == isSubTypeInner(cx, source, target);
             return cachedResult.get();

@@ -27,6 +27,7 @@ import io.ballerina.runtime.api.types.semtype.Context;
 import io.ballerina.runtime.api.types.semtype.SemType;
 import io.ballerina.runtime.api.types.semtype.TypeCheckCache;
 import io.ballerina.runtime.api.utils.StringUtils;
+import io.ballerina.runtime.internal.TypeCheckLogger;
 import io.ballerina.runtime.internal.TypeChecker;
 import io.ballerina.runtime.internal.types.semtype.MutableSemType;
 
@@ -257,9 +258,12 @@ public abstract non-sealed class BType extends SemType
         if (cachedSemType == null) {
             try {
                 cx.enterTypeResolutionPhase(this);
+                TypeCheckLogger logger = TypeCheckLogger.getInstance();
+                logger.typeResolutionStarted(this);
                 cachedSemType = createSemType(cx);
                 setAll(cachedSemType.all());
                 setSome(cachedSemType.some(), cachedSemType.subTypeData());
+                logger.typeResolutionDone(this);
                 cx.exitTypeResolutionPhase();
             } catch (InterruptedException e) {
                 cx.exitTypeResolutionPhaseAbruptly(e);
