@@ -45,6 +45,7 @@ import java.util.Optional;
  */
 public class BalaProject extends Project {
     private final String platform;
+    private final String balaVersion;
 
     /**
      * Loads a BalaProject from the provided bala path.
@@ -70,6 +71,7 @@ public class BalaProject extends Project {
     private BalaProject(ProjectEnvironmentBuilder environmentBuilder, Path balaPath, BuildOptions buildOptions) {
         super(ProjectKind.BALA_PROJECT, balaPath, environmentBuilder, buildOptions);
         this.platform = BalaFiles.readPackageJson(balaPath).getPlatform();
+        this.balaVersion = BalaFiles.readBalaJson(balaPath).getBala_version();
     }
 
     @Override
@@ -134,6 +136,10 @@ public class BalaProject extends Project {
 
     public String platform() {
         return platform;
+    }
+
+    public String balaVersion() {
+        return balaVersion;
     }
 
     private boolean isFilePathInProject(Path filepath) {
