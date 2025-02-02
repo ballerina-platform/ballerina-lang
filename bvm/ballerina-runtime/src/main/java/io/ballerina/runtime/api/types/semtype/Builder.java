@@ -376,7 +376,7 @@ public final class Builder {
     }
 
     public static BddNode getBddSubtypeRo() {
-        return bddAtom(RecAtom.createRecAtom(0));
+        return bddAtom(RecAtom.createUnBlockedRecAtom(0));
     }
 
     public static ListAtomicType getListAtomicInner() {

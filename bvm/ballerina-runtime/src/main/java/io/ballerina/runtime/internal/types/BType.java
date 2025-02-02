@@ -256,19 +256,12 @@ public abstract non-sealed class BType extends SemType
     @Override
     public void updateInnerSemTypeIfNeeded(Context cx) {
         if (cachedSemType == null) {
-            try {
-                cx.enterTypeResolutionPhase(this);
-                TypeCheckLogger logger = TypeCheckLogger.getInstance();
-                logger.typeResolutionStarted(this);
-                cachedSemType = createSemType(cx);
-                setAll(cachedSemType.all());
-                setSome(cachedSemType.some(), cachedSemType.subTypeData());
-                logger.typeResolutionDone(this);
-                cx.exitTypeResolutionPhase();
-            } catch (InterruptedException e) {
-                cx.exitTypeResolutionPhaseAbruptly(e);
-                throw new RuntimeException(e);
-            }
+            TypeCheckLogger logger = TypeCheckLogger.getInstance();
+            logger.typeResolutionStarted(this);
+            cachedSemType = createSemType(cx);
+            setAll(cachedSemType.all());
+            setSome(cachedSemType.some(), cachedSemType.subTypeData());
+            logger.typeResolutionDone(this);
         }
     }
 
