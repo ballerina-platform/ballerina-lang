@@ -22,6 +22,7 @@ import io.ballerina.runtime.api.constants.TypeConstants;
 import io.ballerina.runtime.api.types.FutureType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.TypeTags;
+import io.ballerina.runtime.api.types.semtype.BasicTypeBitSet;
 import io.ballerina.runtime.api.types.semtype.Builder;
 import io.ballerina.runtime.api.types.semtype.Context;
 import io.ballerina.runtime.api.types.semtype.SemType;
@@ -37,6 +38,7 @@ import java.util.Set;
  */
 public class BFutureType extends BType implements FutureType {
 
+    private static final BasicTypeBitSet BASIC_TYPE = Builder.getFutureType();
     private final Type constraint;
 
     /**
@@ -89,6 +91,11 @@ public class BFutureType extends BType implements FutureType {
             return true;
         }
         return Objects.equals(constraint, other.constraint);
+    }
+
+    @Override
+    public BasicTypeBitSet getBasicType() {
+        return BASIC_TYPE;
     }
 
     @Override

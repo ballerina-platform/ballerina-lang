@@ -18,6 +18,8 @@
 package io.ballerina.runtime.internal.values;
 
 import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.types.semtype.BasicTypeBitSet;
+import io.ballerina.runtime.api.types.semtype.Builder;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BFuture;
 import io.ballerina.runtime.api.values.BLink;
@@ -44,6 +46,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * @since 0.995.0
  */
 public class FutureValue implements BFuture, RefValue {
+
+    private static final BasicTypeBitSet BASIC_TYPE = Builder.getFutureType();
 
      public Strand strand;
      Type type;
@@ -84,6 +88,11 @@ public class FutureValue implements BFuture, RefValue {
     @Override
     public Type getType() {
         return this.type;
+    }
+
+    @Override
+    public BasicTypeBitSet getBasicType() {
+        return BASIC_TYPE;
     }
 
     @Override

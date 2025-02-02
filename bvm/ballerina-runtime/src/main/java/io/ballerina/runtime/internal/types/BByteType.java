@@ -22,6 +22,7 @@ import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.constants.TypeConstants;
 import io.ballerina.runtime.api.types.ByteType;
 import io.ballerina.runtime.api.types.TypeTags;
+import io.ballerina.runtime.api.types.semtype.BasicTypeBitSet;
 import io.ballerina.runtime.api.types.semtype.Builder;
 import io.ballerina.runtime.api.types.semtype.ConcurrentLazySupplier;
 import io.ballerina.runtime.api.types.semtype.SemType;
@@ -39,6 +40,7 @@ import static io.ballerina.runtime.api.types.PredefinedTypes.EMPTY_MODULE;
 public final class BByteType extends BSemTypeWrapper<BByteType.BByteTypeImpl> implements ByteType {
 
     private static final BByteTypeImpl DEFAULT_B_TYPE = new BByteTypeImpl(TypeConstants.BYTE_TNAME, EMPTY_MODULE);
+    private static final BasicTypeBitSet BASIC_TYPE_BIT_SET = Builder.getIntType();
 
     /**
      * Create a {@code BByteType} which represents the byte type.
@@ -57,6 +59,11 @@ public final class BByteType extends BSemTypeWrapper<BByteType.BByteTypeImpl> im
     public static BByteType singletonType(long value) {
         return new BByteType(() -> (BByteTypeImpl) DEFAULT_B_TYPE.clone(), TypeConstants.BYTE_TNAME, EMPTY_MODULE,
                 Builder.getIntConst(value));
+    }
+
+    @Override
+    public BasicTypeBitSet getBasicType() {
+        return BASIC_TYPE_BIT_SET;
     }
 
     protected static final class BByteTypeImpl extends BType implements ByteType, Cloneable {
@@ -85,6 +92,11 @@ public final class BByteType extends BSemTypeWrapper<BByteType.BByteTypeImpl> im
         @Override
         public boolean isReadOnly() {
             return true;
+        }
+
+        @Override
+        public BasicTypeBitSet getBasicType() {
+            return BASIC_TYPE_BIT_SET;
         }
 
         @Override

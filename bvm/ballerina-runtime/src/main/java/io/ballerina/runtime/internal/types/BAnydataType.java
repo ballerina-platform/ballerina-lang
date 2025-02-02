@@ -24,6 +24,7 @@ import io.ballerina.runtime.api.types.AnydataType;
 import io.ballerina.runtime.api.types.PredefinedTypes;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.TypeTags;
+import io.ballerina.runtime.api.types.semtype.BasicTypeBitSet;
 import io.ballerina.runtime.api.types.semtype.Builder;
 import io.ballerina.runtime.api.types.semtype.Context;
 import io.ballerina.runtime.api.types.semtype.Core;
@@ -37,6 +38,11 @@ import io.ballerina.runtime.internal.values.RefValue;
  */
 public class BAnydataType extends BUnionType implements AnydataType {
 
+    private static final BasicTypeBitSet BASIC_TYPE;
+    static {
+        SemType anydata = Builder.getAnyDataType();
+        BASIC_TYPE = new BasicTypeBitSet(anydata.all() | anydata.some());
+    }
     /**
      * Create a {@code BAnydataType} which represents the anydata type.
      *
@@ -101,5 +107,10 @@ public class BAnydataType extends BUnionType implements AnydataType {
             semType = Core.intersect(semType, Builder.getReadonlyType());
         }
         return semType;
+    }
+
+    @Override
+    public BasicTypeBitSet getBasicType() {
+        return BASIC_TYPE;
     }
 }

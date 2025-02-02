@@ -27,6 +27,8 @@ import io.ballerina.runtime.api.types.ObjectType;
 import io.ballerina.runtime.api.types.PredefinedTypes;
 import io.ballerina.runtime.api.types.RecordType;
 import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.types.semtype.BasicTypeBitSet;
+import io.ballerina.runtime.api.types.semtype.Builder;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BArray;
@@ -129,6 +131,8 @@ public final class StackTrace {
      */
     public static class CallStack implements BObject {
 
+        private static final BasicTypeBitSet BASIC_TYPE = Builder.getObjectType();
+
         BArray callStack;
 
         private final ObjectType type;
@@ -164,6 +168,11 @@ public final class StackTrace {
         @Override
         public ObjectType getType() {
             return (ObjectType) TypeUtils.getImpliedType(type);
+        }
+
+        @Override
+        public BasicTypeBitSet getBasicType() {
+            return BASIC_TYPE;
         }
 
         @Override

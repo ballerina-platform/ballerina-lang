@@ -53,7 +53,7 @@ public class ArrayMutabilityTest {
     @Test(description = "Check if correct type is saved in covariant array with record type",
             expectedExceptions = {BLangTestException.class},
             expectedExceptionsMessageRegExp =
-                    ".*error:.*incompatible types: 'Employee' cannot be cast to 'Intern'.*")
+                    ".*error:.*incompatible types: 'EmployeeAM' cannot be cast to 'InternAM'.*")
     public void testInvalidCast() {
         BRunUtil.invoke(compileResult, "testInvalidCast");
     }
@@ -62,7 +62,7 @@ public class ArrayMutabilityTest {
             expectedExceptions = {BLangTestException.class},
             expectedExceptionsMessageRegExp =
                     ".*error: \\{ballerina/lang.array\\}InherentTypeViolation " +
-                            "\\{\"message\":\"incompatible types: expected 'Employee', found 'Person'.*")
+                            "\\{\"message\":\"incompatible types: expected 'EmployeeAM', found 'PersonAM'.*")
     public void testAssignmentOfSuperTypeMember() {
         BRunUtil.invoke(compileResult, "testAssignmentOfSuperTypeMember");
     }
@@ -70,7 +70,7 @@ public class ArrayMutabilityTest {
     @Test(description = "Test mutation of record type by assigning invalid record type",
             expectedExceptions = {BLangTestException.class},
             expectedExceptionsMessageRegExp =
-                    ".*error:.*incompatible types: expected 'Employee', found 'Student'.*")
+                    ".*error:.*incompatible types: expected 'EmployeeAM', found 'StudentAM'.*")
     public void testInvalidAssignment() {
         BRunUtil.invoke(compileResult, "testInvalidAssignment");
     }
@@ -88,7 +88,7 @@ public class ArrayMutabilityTest {
             expectedExceptionsMessageRegExp =
                     "error: \\{ballerina/lang.array\\}InherentTypeViolation " +
                             "\\{\"message\":\"incompatible types: expected " +
-                            "'\\(boolean\\|float\\)\\?', found 'Person'.*?")
+                            "'\\(boolean\\|float\\)\\?', found 'PersonAM'.*?")
     public void testCovarianceBooleanOrFloatOrRecordArray() {
         BRunUtil.invoke(compileResult, "testCovarianceBooleanOrFloatOrRecordArray");
     }

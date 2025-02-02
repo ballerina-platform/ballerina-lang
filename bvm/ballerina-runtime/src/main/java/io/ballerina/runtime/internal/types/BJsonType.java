@@ -24,7 +24,12 @@ import io.ballerina.runtime.api.types.JsonType;
 import io.ballerina.runtime.api.types.PredefinedTypes;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.TypeTags;
+import io.ballerina.runtime.api.types.semtype.BasicTypeBitSet;
+import io.ballerina.runtime.api.types.semtype.Builder;
+import io.ballerina.runtime.api.types.semtype.SemType;
 import io.ballerina.runtime.internal.values.MapValueImpl;
+
+import java.util.stream.Stream;
 
 /**
  * {@code BJSONType} represents a JSON value.
@@ -34,6 +39,20 @@ import io.ballerina.runtime.internal.values.MapValueImpl;
 @SuppressWarnings("unchecked")
 public class BJsonType extends BUnionType implements JsonType {
 
+    private static final BasicTypeBitSet BASIC_TYPE = createBasicType();
+
+    private static BasicTypeBitSet createBasicType() {
+        int bitset =
+                Stream.of(Builder.getNilType(), Builder.getBooleanType(), Builder.getIntType(), Builder.getFloatType(),
+                        Builder.getDecimalType(), Builder.getStringType(), Builder.getListType(),
+                        Builder.getMappingType()).map(
+                        SemType::all).reduce(0, (accum, bits) -> accum | bits);
+        return new BasicTypeBitSet(bitset);
+    }
+
+    private static final int readonlyTypeId = TypeIdSupplier.getAnonId();
+    private static final int mutalbeTypeId = TypeIdSupplier.getAnonId();
+    private final int typeId;
     /**
      * Create a {@code BJSONType} which represents the JSON type.
      *
@@ -50,6 +69,7 @@ public class BJsonType extends BUnionType implements JsonType {
                                                        TypeFlags.asMask(TypeFlags.NILABLE, TypeFlags.ANYDATA,
                                                                         TypeFlags.PURETYPE), true);
         }
+        typeId = readonly ? readonlyTypeId : mutalbeTypeId;
     }
 
     public BJsonType() {
@@ -59,6 +79,7 @@ public class BJsonType extends BUnionType implements JsonType {
                                                    immutableJsonType,
                                                    TypeFlags.asMask(TypeFlags.NILABLE, TypeFlags.ANYDATA,
                                                                     TypeFlags.PURETYPE), true);
+        typeId = mutalbeTypeId;
     }
 
     public BJsonType(BUnionType unionType, String typeName, boolean readonly) {
@@ -71,6 +92,7 @@ public class BJsonType extends BUnionType implements JsonType {
                             TypeFlags.PURETYPE), true);
         }
 
+        typeId = readonly ? readonlyTypeId : mutalbeTypeId;
     }
 
     @Override
@@ -94,10 +116,20 @@ public class BJsonType extends BUnionType implements JsonType {
     }
 
     @Override
+    public int typeId() {
+        return typeId;
+    }
+
+    @Override
     public String toString() {
         if (this.typeName != null) {
             return this.typeName;
         }
         return super.toString();
+    }
+
+    @Override
+    public BasicTypeBitSet getBasicType() {
+        return BASIC_TYPE;
     }
 }

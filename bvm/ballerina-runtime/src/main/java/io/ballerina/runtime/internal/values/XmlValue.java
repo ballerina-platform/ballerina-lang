@@ -20,6 +20,8 @@ import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.types.PredefinedTypes;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.XmlNodeType;
+import io.ballerina.runtime.api.types.semtype.BasicTypeBitSet;
+import io.ballerina.runtime.api.types.semtype.Builder;
 import io.ballerina.runtime.api.types.semtype.Context;
 import io.ballerina.runtime.api.types.semtype.SemType;
 import io.ballerina.runtime.api.types.semtype.ShapeAnalyzer;
@@ -62,6 +64,7 @@ public abstract class XmlValue implements RefValue, BXml, CollectionValue {
 
     Type type = PredefinedTypes.TYPE_XML;
     protected BTypedesc typedesc;
+    private static final BasicTypeBitSet BASIC_TYPE = Builder.getXmlType();
 
     protected Type iteratorNextReturnType;
 
@@ -287,5 +290,10 @@ public abstract class XmlValue implements RefValue, BXml, CollectionValue {
     public Optional<SemType> inherentTypeOf(Context cx) {
         TypeWithShape typeWithShape = (TypeWithShape) type;
         return typeWithShape.inherentTypeOf(cx, ShapeAnalyzer::inherentTypeOf, this);
+    }
+
+    @Override
+    public BasicTypeBitSet getBasicType() {
+        return BASIC_TYPE;
     }
 }

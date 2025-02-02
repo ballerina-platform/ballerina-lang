@@ -38,6 +38,8 @@ dependencies {
     implementation project(':ballerina-tools-api')
     implementation project(':identifier-util')
 
+    implementation libs.caffeine
+
     testImplementation libs.testng
 }
 

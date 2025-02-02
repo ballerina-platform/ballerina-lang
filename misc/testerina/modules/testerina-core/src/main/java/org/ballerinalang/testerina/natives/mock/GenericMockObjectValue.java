@@ -22,6 +22,8 @@ import io.ballerina.runtime.api.types.ObjectType;
 import io.ballerina.runtime.api.types.RecordType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.TypeTags;
+import io.ballerina.runtime.api.types.semtype.BasicTypeBitSet;
+import io.ballerina.runtime.api.types.semtype.Builder;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BArray;
@@ -47,6 +49,7 @@ import java.util.Map;
  */
 public class GenericMockObjectValue implements ObjectValue {
 
+    private static final BasicTypeBitSet BASIC_TYPE = Builder.getObjectType();
     private final ObjectValue mockObj;
 
     private final ObjectType type;
@@ -171,6 +174,11 @@ public class GenericMockObjectValue implements ObjectValue {
     @Override
     public ObjectType getType() {
         return type;
+    }
+
+    @Override
+    public BasicTypeBitSet getBasicType() {
+        return BASIC_TYPE;
     }
 
     @Override

@@ -24,6 +24,7 @@ import io.ballerina.runtime.api.types.IntersectableReferenceType;
 import io.ballerina.runtime.api.types.IntersectionType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.TypeTags;
+import io.ballerina.runtime.api.types.semtype.BasicTypeBitSet;
 import io.ballerina.runtime.api.types.semtype.Builder;
 import io.ballerina.runtime.api.types.semtype.Context;
 import io.ballerina.runtime.api.types.semtype.Core;
@@ -64,6 +65,9 @@ public class BIntersectionType extends BType implements IntersectionType, TypeWi
 
     private String cachedToString;
     private boolean resolving;
+    private Boolean shouldCache = null;
+
+    private BasicTypeBitSet basicType;
 
     public BIntersectionType(Module pkg, Type[] constituentTypes, Type effectiveType,
                              int typeFlags, boolean readonly) {
@@ -213,6 +217,15 @@ public class BIntersectionType extends BType implements IntersectionType, TypeWi
     }
 
     @Override
+    public BasicTypeBitSet getBasicType() {
+        if (basicType == null) {
+            basicType = constituentTypes.stream().map(Type::getBasicType).reduce(BasicTypeBitSet::intersection)
+                    .orElseThrow();
+        }
+        return basicType;
+    }
+
+    @Override
     public Type getEffectiveType() {
         return this.effectiveType;
     }
@@ -275,8 +288,8 @@ public class BIntersectionType extends BType implements IntersectionType, TypeWi
     }
 
     @Override
-    public Optional<SemType> acceptedTypeOf(Context cx) {
-        return Optional.of(createSemTypeInner(cx, type -> ShapeAnalyzer.acceptedTypeOf(cx, type).orElseThrow()));
+    public SemType acceptedTypeOf(Context cx) {
+        return createSemTypeInner(cx, type -> ShapeAnalyzer.acceptedTypeOf(cx, type));
     }
 
     @Override

@@ -29,6 +29,7 @@ import io.ballerina.runtime.api.types.IntersectionType;
 import io.ballerina.runtime.api.types.RecordType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.TypeTags;
+import io.ballerina.runtime.api.types.semtype.BasicTypeBitSet;
 import io.ballerina.runtime.api.types.semtype.Builder;
 import io.ballerina.runtime.api.types.semtype.Context;
 import io.ballerina.runtime.api.types.semtype.Core;
@@ -67,6 +68,8 @@ import static io.ballerina.runtime.internal.types.semtype.CellAtomicType.CellMut
  * @since 0.995.0
  */
 public class BRecordType extends BStructureType implements RecordType, TypeWithShape {
+
+    private static final BasicTypeBitSet BASIC_TYPE_BIT_SET = Builder.getMappingType();
     private final String internalName;
     public boolean sealed;
     public Type restFieldType;
@@ -207,6 +210,11 @@ public class BRecordType extends BStructureType implements RecordType, TypeWithS
     @Override
     public void setImmutableType(IntersectionType immutableType) {
         this.immutableType = immutableType;
+    }
+
+    @Override
+    public BasicTypeBitSet getBasicType() {
+        return BASIC_TYPE_BIT_SET;
     }
 
     @Override
@@ -385,18 +393,18 @@ public class BRecordType extends BStructureType implements RecordType, TypeWithS
     }
 
     @Override
-    public Optional<SemType> acceptedTypeOf(Context cx) {
+    public SemType acceptedTypeOf(Context cx) {
         Env env = cx.env;
         if (acceptedTypeDefn.isDefinitionReady()) {
-            return Optional.of(acceptedTypeDefn.getSemType(env));
+            return acceptedTypeDefn.getSemType(env);
         }
         var result = acceptedTypeDefn.trySetDefinition(MappingDefinition::new);
         if (!result.updated()) {
-            return Optional.of(acceptedTypeDefn.getSemType(env));
+            return acceptedTypeDefn.getSemType(env);
         }
         MappingDefinition md = result.definition();
-        return Optional.of(createSemTypeInner(md, env, CELL_MUT_UNLIMITED,
-                (type) -> ShapeAnalyzer.acceptedTypeOf(cx, type).orElseThrow()));
+        return createSemTypeInner(md, env, CELL_MUT_UNLIMITED,
+                (type) -> ShapeAnalyzer.acceptedTypeOf(cx, type));
     }
 
     private Type fieldType(String fieldName) {

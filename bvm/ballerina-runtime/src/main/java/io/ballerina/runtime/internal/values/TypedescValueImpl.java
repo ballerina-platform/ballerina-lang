@@ -20,6 +20,8 @@ package io.ballerina.runtime.internal.values;
 import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.TypeTags;
+import io.ballerina.runtime.api.types.semtype.BasicTypeBitSet;
+import io.ballerina.runtime.api.types.semtype.Builder;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BInitialValueEntry;
 import io.ballerina.runtime.api.values.BLink;
@@ -52,6 +54,7 @@ import static io.ballerina.runtime.api.utils.TypeUtils.getImpliedType;
  */
 public class TypedescValueImpl implements TypedescValue {
 
+    private static final BasicTypeBitSet BASIC_TYPE = Builder.getTypeDescType();
     final Type type;
     final Type describingType; // Type of the value describe by this typedesc.
     public MapValue<?, ?>[] closures;
@@ -125,6 +128,11 @@ public class TypedescValueImpl implements TypedescValue {
     @Override
     public Type getType() {
         return type;
+    }
+
+    @Override
+    public BasicTypeBitSet getBasicType() {
+        return BASIC_TYPE;
     }
 
     @Override

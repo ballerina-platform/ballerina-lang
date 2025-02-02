@@ -18,6 +18,7 @@
 package io.ballerina.runtime.api.values;
 
 import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.types.semtype.BasicTypeBitSet;
 import io.ballerina.runtime.api.types.semtype.Context;
 import io.ballerina.runtime.api.types.semtype.SemType;
 
@@ -76,5 +77,9 @@ public interface BValue {
 
     default Optional<SemType> inherentTypeOf(Context cx) {
         return Optional.empty();
+    }
+
+    default BasicTypeBitSet getBasicType() {
+        return getType().getBasicType();
     }
 }
