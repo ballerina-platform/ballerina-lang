@@ -10133,13 +10133,12 @@ public class Desugar extends BLangNodeVisitor {
         }
 
         // If body
-        BLangAccessExpression tempAccessExpr = nodeCloner.cloneNode(accessExpr);
         BType type = types.getSafeType(accessExpr.expr.getBType(), true, true);
-        tempAccessExpr.expr = types.addConversionExprIfRequired(tempResultVarRef, type);
-        tempAccessExpr.errorSafeNavigation = false;
-        tempAccessExpr.nilSafeNavigation = false;
+        accessExpr.expr = types.addConversionExprIfRequired(tempResultVarRef, type);
+        accessExpr.errorSafeNavigation = false;
+        accessExpr.nilSafeNavigation = false;
         BLangAssignment assignmentStmt =
-                ASTBuilderUtil.createAssignmentStmt(symTable.builtinPos, tempResultVarRef, tempAccessExpr);
+                ASTBuilderUtil.createAssignmentStmt(symTable.builtinPos, tempResultVarRef, accessExpr);
         BLangBlockStmt ifBody = ASTBuilderUtil.createBlockStmt(symTable.builtinPos);
         ifBody.addStatement(assignmentStmt);
 
