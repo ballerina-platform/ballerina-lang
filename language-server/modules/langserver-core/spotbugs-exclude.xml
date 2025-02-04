@@ -17,10 +17,10 @@
   -->
 <FindBugsFilter>
     <Match>
-        <Package name="org.ballerinalang.langserver.workspace.repository" />
+        <Package name="org.ballerinalang.langserver.workspace.repository"/>
     </Match>
     <Match>
-        <Package name="org.ballerinalang.langserver.common.utils" />
+        <Package name="org.ballerinalang.langserver.common.utils"/>
         <OR>
             <Bug pattern="DE_MIGHT_IGNORE"/>
         </OR>
@@ -35,82 +35,82 @@
         </OR>
     </Match>
     <Match>
-        <Class name="org.ballerinalang.langserver.LSContextManager" />
+        <Class name="org.ballerinalang.langserver.LSContextManager"/>
         <OR>
-            <Bug pattern="NP_NULL_PARAM_DEREF" />
+            <Bug pattern="NP_NULL_PARAM_DEREF"/>
         </OR>
     </Match>
     <Match>
-        <Class name="org.ballerinalang.langserver.BallerinaTextDocumentService" />
+        <Class name="org.ballerinalang.langserver.BallerinaTextDocumentService"/>
         <OR>
-            <Bug pattern="REC_CATCH_EXCEPTION" />
+            <Bug pattern="REC_CATCH_EXCEPTION"/>
         </OR>
     </Match>
     <Match>
-        <Package name="org.ballerinalang.langserver.completions.resolvers" />
+        <Package name="org.ballerinalang.langserver.completions.resolvers"/>
         <OR>
-            <Bug pattern="BC_UNCONFIRMED_CAST" />
+            <Bug pattern="BC_UNCONFIRMED_CAST"/>
         </OR>
     </Match>
     <Match>
-        <Package name="org.ballerinalang.langserver.completions.providers.context" />
+        <Package name="org.ballerinalang.langserver.completions.providers.context"/>
         <OR>
-            <Bug pattern="BC_UNCONFIRMED_CAST" />
+            <Bug pattern="BC_UNCONFIRMED_CAST"/>
         </OR>
     </Match>
     <Match>
-        <Class name="org.ballerinalang.langserver.completions.util.SortingUtil" />
+        <Class name="org.ballerinalang.langserver.completions.util.SortingUtil"/>
         <OR>
-            <Bug pattern="BC_UNCONFIRMED_CAST" />
+            <Bug pattern="BC_UNCONFIRMED_CAST"/>
         </OR>
     </Match>
     <Match>
-        <Class name="org.ballerinalang.langserver.completions.util.QNameRefCompletionUtil" />
+        <Class name="org.ballerinalang.langserver.completions.util.QNameRefCompletionUtil"/>
         <OR>
-            <Bug pattern="BC_UNCONFIRMED_CAST" />
+            <Bug pattern="BC_UNCONFIRMED_CAST"/>
         </OR>
     </Match>
     <Match>
-        <Class name="org.ballerinalang.langserver.signature.SignatureHelpUtil" />
+        <Class name="org.ballerinalang.langserver.signature.SignatureHelpUtil"/>
         <OR>
-            <Bug pattern="BC_UNCONFIRMED_CAST" />
+            <Bug pattern="BC_UNCONFIRMED_CAST"/>
         </OR>
     </Match>
     <Match>
-        <Class name="org.ballerinalang.langserver.command.docs.DocumentationGenerator" />
+        <Class name="org.ballerinalang.langserver.command.docs.DocumentationGenerator"/>
         <OR>
-            <Bug pattern="BC_UNCONFIRMED_CAST" />
+            <Bug pattern="BC_UNCONFIRMED_CAST"/>
         </OR>
     </Match>
     <Match>
-        <Class name="org.ballerinalang.langserver.completions.builder.FunctionCompletionItemBuilder" />
+        <Class name="org.ballerinalang.langserver.completions.builder.FunctionCompletionItemBuilder"/>
         <OR>
-            <Bug pattern="BC_UNCONFIRMED_CAST" />
+            <Bug pattern="BC_UNCONFIRMED_CAST"/>
         </OR>
     </Match>
     <Match>
-        <Class name="org.ballerinalang.langserver.codeaction.providers.CreateFunctionCodeAction" />
+        <Class name="org.ballerinalang.langserver.codeaction.providers.CreateFunctionCodeAction"/>
         <OR>
-            <Bug pattern="BC_UNCONFIRMED_CAST" />
+            <Bug pattern="BC_UNCONFIRMED_CAST"/>
         </OR>
     </Match>
     <Match>
-        <Class name="org.ballerinalang.langserver.command.executors.PullModuleExecutor" />
+        <Class name="org.ballerinalang.langserver.command.executors.PullModuleExecutor"/>
         <OR>
-            <Bug pattern="RV_RETURN_VALUE_IGNORED_BAD_PRACTICE" />
+            <Bug pattern="RV_RETURN_VALUE_IGNORED_BAD_PRACTICE"/>
         </OR>
     </Match>
     <Match>
-        <Class name="org.ballerinalang.langserver.extensions.ballerina.connector.BallerinaConnectorService" />
+        <Class name="org.ballerinalang.langserver.extensions.ballerina.connector.BallerinaConnectorService"/>
     </Match>
     <Match>
-        <Class name="org.ballerinalang.langserver.extensions.ballerina.document.BallerinaTreeModifyUtil" />
+        <Class name="org.ballerinalang.langserver.extensions.ballerina.document.BallerinaTreeModifyUtil"/>
     </Match>
     <Match>
-        <Class name="org.ballerinalang.langserver.extensions.ballerina.document.BallerinaTriggerModifyUtil" />
+        <Class name="org.ballerinalang.langserver.extensions.ballerina.document.BallerinaTriggerModifyUtil"/>
     </Match>
     <Match>
-        <Class name="org.ballerinalang.langserver.extensions.ballerina.document.BallerinaServiceListResponse" />
+        <Class name="org.ballerinalang.langserver.extensions.ballerina.document.BallerinaServiceListResponse"/>
     </Match>
     <Match>
         <Class name="org.ballerinalang.langserver.extensions.ballerina.runner.BallerinaRunnerUtil"/>
@@ -119,27 +119,27 @@
         </OR>
     </Match>
     <Match>
-        <Class name="org.ballerinalang.langserver.hover.HoverUtil" />
+        <Class name="org.ballerinalang.langserver.hover.HoverUtil"/>
         <OR>
-            <Bug pattern="BC_UNCONFIRMED_CAST" />
+            <Bug pattern="BC_UNCONFIRMED_CAST"/>
         </OR>
     </Match>
     <Match>
-        <Class name="org.ballerinalang.langserver.definition.DefinitionUtil" />
+        <Class name="org.ballerinalang.langserver.definition.DefinitionUtil"/>
         <OR>
-            <Bug pattern="BC_UNCONFIRMED_CAST" />
+            <Bug pattern="BC_UNCONFIRMED_CAST"/>
         </OR>
     </Match>
     <Match>
-        <Class name="org.ballerinalang.langserver.codeaction.CodeActionUtil" />
+        <Class name="org.ballerinalang.langserver.codeaction.CodeActionUtil"/>
         <OR>
-            <Bug pattern="BC_UNCONFIRMED_CAST" />
+            <Bug pattern="BC_UNCONFIRMED_CAST"/>
         </OR>
     </Match>
     <Match>
-        <Class name="org.ballerinalang.langserver.completions.providers.context.util.ClassDefinitionNodeContextUtil" />
+        <Class name="org.ballerinalang.langserver.completions.providers.context.util.ClassDefinitionNodeContextUtil"/>
         <OR>
-            <Bug pattern="BC_UNCONFIRMED_CAST" />
+            <Bug pattern="BC_UNCONFIRMED_CAST"/>
         </OR>
     </Match>
     <Match>
@@ -164,36 +164,52 @@
         <Class name="org.ballerinalang.langserver.workspace.BallerinaWorkspaceManager"/>
     </Match>
     <Match>
-        <Class name="org.ballerinalang.langserver.completions.util.Snippet" />
+        <Class name="org.ballerinalang.langserver.completions.util.Snippet"/>
         <OR>
-            <Bug pattern="BC_UNCONFIRMED_CAST" />
+            <Bug pattern="BC_UNCONFIRMED_CAST"/>
         </OR>
     </Match>
     <Match>
-        <Class name="org.ballerinalang.langserver.documentsymbol.DocumentSymbolUtil" />
+        <Class name="org.ballerinalang.langserver.documentsymbol.DocumentSymbolUtil"/>
         <OR>
-            <Bug pattern="BC_UNCONFIRMED_CAST" />
+            <Bug pattern="BC_UNCONFIRMED_CAST"/>
         </OR>
     </Match>
     <Match>
         <Class name="org.ballerinalang.langserver.completions.builder.XMLNSCompletionItemBuilder"/>
         <OR>
-            <Bug pattern="DM_CONVERT_CASE" />
+            <Bug pattern="DM_CONVERT_CASE"/>
         </OR>
     </Match>
     <Match>
-        <Class name="org.ballerinalang.langserver.util.TestUtil" />
+        <Class name="org.ballerinalang.langserver.util.TestUtil"/>
         <OR>
-            <Bug pattern="DM_DEFAULT_ENCODING" />
+            <Bug pattern="DM_DEFAULT_ENCODING"/>
         </OR>
     </Match>
     <Match>
-        <Class name="org.ballerinalang.langserver.completions.providers.context.util.RegexpCompletionProvider" />
+        <Class name="org.ballerinalang.langserver.completions.providers.context.util.RegexpCompletionProvider"/>
         <OR>
-            <Bug pattern="BC_UNCONFIRMED_CAST" />
+            <Bug pattern="BC_UNCONFIRMED_CAST"/>
         </OR>
     </Match>
     <Match>
         <Bug pattern="EI_EXPOSE_REP,EI_EXPOSE_REP2,MC_OVERRIDABLE_METHOD_CALL_IN_CONSTRUCTOR,CT_CONSTRUCTOR_THROW"/>
+    </Match>
+    <Match>
+        <Class name="org.ballerinalang.langserver.apispec.TypeSchema"/>
+        <Bug pattern="URF_UNREAD_FIELD"/>
+    </Match>
+    <Match>
+        <Class name="org.ballerinalang.langserver.apispec.TypeSchema$CollectionTypeSchema"/>
+        <Bug pattern="URF_UNREAD_FIELD"/>
+    </Match>
+    <Match>
+        <Class name="org.ballerinalang.langserver.apispec.TypeSchema$EnumTypeSchema"/>
+        <Bug pattern="URF_UNREAD_FIELD"/>
+    </Match>
+    <Match>
+        <Class name="org.ballerinalang.langserver.apispec.TypeSchema$ObjectTypeSchema"/>
+        <Bug pattern="URF_UNREAD_FIELD"/>
     </Match>
 </FindBugsFilter>

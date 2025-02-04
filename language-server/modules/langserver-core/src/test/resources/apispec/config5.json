@@ -1,0 +1,848 @@
+{
+  "method": "ballerinaConnector/connectors",
+  "parameters": [
+    {
+      "name": "param0",
+      "schema": {
+        "properties": {
+          "template": {
+            "type": "string",
+            "className": "java.lang.String"
+          },
+          "userPackages": {
+            "type": "boolean",
+            "className": "boolean"
+          },
+          "offset": {
+            "type": "integer",
+            "className": "int"
+          },
+          "query": {
+            "type": "string",
+            "className": "java.lang.String"
+          },
+          "description": {
+            "type": "string",
+            "className": "java.lang.String"
+          },
+          "sort": {
+            "type": "string",
+            "className": "java.lang.String"
+          },
+          "ballerinaVersion": {
+            "type": "string",
+            "className": "java.lang.String"
+          },
+          "platform": {
+            "type": "boolean",
+            "className": "boolean"
+          },
+          "connector": {
+            "type": "string",
+            "className": "java.lang.String"
+          },
+          "targetFile": {
+            "type": "string",
+            "className": "java.lang.String"
+          },
+          "organization": {
+            "type": "string",
+            "className": "java.lang.String"
+          },
+          "limit": {
+            "type": "integer",
+            "className": "int"
+          },
+          "packageName": {
+            "type": "string",
+            "className": "java.lang.String"
+          },
+          "keyword": {
+            "type": "string",
+            "className": "java.lang.String"
+          }
+        },
+        "type": "object",
+        "className": "org.ballerinalang.langserver.extensions.ballerina.connector.BallerinaConnectorListRequest"
+      }
+    }
+  ],
+  "returnType": {
+    "properties": {
+      "central": {
+        "item": {
+          "properties": {
+            "orgName": {
+              "type": "string",
+              "className": "java.lang.String"
+            },
+            "functions": {
+              "item": {
+                "properties": {
+                  "pathParams": {
+                    "item": {
+                      "properties": {
+                        "isRestType": {
+                          "type": "boolean",
+                          "className": "boolean"
+                        },
+                        "name": {
+                          "type": "string",
+                          "className": "java.lang.String"
+                        },
+                        "typeName": {
+                          "type": "string",
+                          "className": "java.lang.String"
+                        }
+                      },
+                      "type": "object",
+                      "className": "org.ballerinalang.diagramutil.connector.models.connector.types.PathParamType"
+                    },
+                    "type": "array",
+                    "className": "java.util.List<org.ballerinalang.diagramutil.connector.models.connector.types.PathParamType>"
+                  },
+                  "documentation": {
+                    "type": "string",
+                    "className": "java.lang.String"
+                  },
+                  "name": {
+                    "type": "string",
+                    "className": "java.lang.String"
+                  },
+                  "qualifiers": {
+                    "item": {
+                      "type": "string",
+                      "className": "java.lang.String"
+                    },
+                    "type": "array",
+                    "className": "java.lang.String[]"
+                  },
+                  "displayAnnotation": {
+                    "item": {
+                      "type": "string",
+                      "className": "java.lang.String"
+                    },
+                    "type": "map",
+                    "className": "java.util.Map<java.lang.String, java.lang.String>"
+                  },
+                  "parameters": {
+                    "item": {
+                      "properties": {
+                        "defaultable": {
+                          "type": "boolean",
+                          "className": "boolean"
+                        },
+                        "isRestType": {
+                          "type": "boolean",
+                          "className": "boolean"
+                        },
+                        "typeInfo": {
+                          "properties": {
+                            "orgName": {
+                              "type": "string",
+                              "className": "java.lang.String"
+                            },
+                            "name": {
+                              "type": "string",
+                              "className": "java.lang.String"
+                            },
+                            "moduleName": {
+                              "type": "string",
+                              "className": "java.lang.String"
+                            },
+                            "packageName": {
+                              "type": "string",
+                              "className": "java.lang.String"
+                            },
+                            "version": {
+                              "type": "string",
+                              "className": "java.lang.String"
+                            }
+                          },
+                          "type": "object",
+                          "className": "org.ballerinalang.diagramutil.connector.models.connector.TypeInfo"
+                        },
+                        "defaultValue": {
+                          "type": "string",
+                          "className": "java.lang.String"
+                        },
+                        "documentation": {
+                          "type": "string",
+                          "className": "java.lang.String"
+                        },
+                        "name": {
+                          "type": "string",
+                          "className": "java.lang.String"
+                        },
+                        "typeName": {
+                          "type": "string",
+                          "className": "java.lang.String"
+                        },
+                        "displayAnnotation": {
+                          "item": {
+                            "type": "string",
+                            "className": "java.lang.String"
+                          },
+                          "type": "map",
+                          "className": "java.util.Map<java.lang.String, java.lang.String>"
+                        },
+                        "optional": {
+                          "type": "boolean",
+                          "className": "boolean"
+                        }
+                      },
+                      "type": "object",
+                      "className": "org.ballerinalang.diagramutil.connector.models.connector.Type"
+                    },
+                    "type": "array",
+                    "className": "java.util.List<org.ballerinalang.diagramutil.connector.models.connector.Type>"
+                  },
+                  "returnType": {
+                    "properties": {
+                      "defaultable": {
+                        "type": "boolean",
+                        "className": "boolean"
+                      },
+                      "isRestType": {
+                        "type": "boolean",
+                        "className": "boolean"
+                      },
+                      "typeInfo": {
+                        "properties": {
+                          "orgName": {
+                            "type": "string",
+                            "className": "java.lang.String"
+                          },
+                          "name": {
+                            "type": "string",
+                            "className": "java.lang.String"
+                          },
+                          "moduleName": {
+                            "type": "string",
+                            "className": "java.lang.String"
+                          },
+                          "packageName": {
+                            "type": "string",
+                            "className": "java.lang.String"
+                          },
+                          "version": {
+                            "type": "string",
+                            "className": "java.lang.String"
+                          }
+                        },
+                        "type": "object",
+                        "className": "org.ballerinalang.diagramutil.connector.models.connector.TypeInfo"
+                      },
+                      "defaultValue": {
+                        "type": "string",
+                        "className": "java.lang.String"
+                      },
+                      "documentation": {
+                        "type": "string",
+                        "className": "java.lang.String"
+                      },
+                      "name": {
+                        "type": "string",
+                        "className": "java.lang.String"
+                      },
+                      "typeName": {
+                        "type": "string",
+                        "className": "java.lang.String"
+                      },
+                      "displayAnnotation": {
+                        "item": {
+                          "type": "string",
+                          "className": "java.lang.String"
+                        },
+                        "type": "map",
+                        "className": "java.util.Map<java.lang.String, java.lang.String>"
+                      },
+                      "optional": {
+                        "type": "boolean",
+                        "className": "boolean"
+                      }
+                    },
+                    "type": "object",
+                    "className": "org.ballerinalang.diagramutil.connector.models.connector.Type"
+                  }
+                },
+                "type": "object",
+                "className": "org.ballerinalang.diagramutil.connector.models.connector.Function"
+              },
+              "type": "array",
+              "className": "java.util.List<org.ballerinalang.diagramutil.connector.models.connector.Function>"
+            },
+            "documentation": {
+              "type": "string",
+              "className": "java.lang.String"
+            },
+            "moduleName": {
+              "type": "string",
+              "className": "java.lang.String"
+            },
+            "icon": {
+              "type": "string",
+              "className": "java.lang.String"
+            },
+            "displayAnnotation": {
+              "item": {
+                "type": "string",
+                "className": "java.lang.String"
+              },
+              "type": "map",
+              "className": "java.util.Map<java.lang.String, java.lang.String>"
+            },
+            "version": {
+              "type": "string",
+              "className": "java.lang.String"
+            },
+            "platform": {
+              "type": "string",
+              "className": "java.lang.String"
+            },
+            "ballerinaVersion": {
+              "type": "string",
+              "className": "java.lang.String"
+            },
+            "name": {
+              "type": "string",
+              "className": "java.lang.String"
+            },
+            "id": {
+              "type": "string",
+              "className": "java.lang.String"
+            },
+            "packageName": {
+              "type": "string",
+              "className": "java.lang.String"
+            },
+            "packageInfo": {
+              "properties": {
+                "template": {
+                  "type": "boolean",
+                  "className": "java.lang.Boolean"
+                },
+                "summary": {
+                  "type": "string",
+                  "className": "java.lang.String"
+                },
+                "isDeprecated": {
+                  "type": "boolean",
+                  "className": "java.lang.Boolean"
+                },
+                "keywords": {
+                  "item": {
+                    "type": "string",
+                    "className": "java.lang.String"
+                  },
+                  "type": "array",
+                  "className": "java.util.List<java.lang.String>"
+                },
+                "icon": {
+                  "type": "string",
+                  "className": "java.lang.String"
+                },
+                "readme": {
+                  "type": "string",
+                  "className": "java.lang.String"
+                },
+                "version": {
+                  "type": "string",
+                  "className": "java.lang.String"
+                },
+                "platform": {
+                  "type": "string",
+                  "className": "java.lang.String"
+                },
+                "url": {
+                  "type": "string",
+                  "className": "java.lang.String"
+                },
+                "ballerinaVersion": {
+                  "type": "string",
+                  "className": "java.lang.String"
+                },
+                "modules": {
+                  "item": {
+                    "properties": {
+                      "summary": {
+                        "type": "string",
+                        "className": "java.lang.String"
+                      },
+                      "apiDocURL": {
+                        "type": "string",
+                        "className": "java.lang.String"
+                      },
+                      "packageUrl": {
+                        "type": "string",
+                        "className": "java.lang.String"
+                      },
+                      "name": {
+                        "type": "string",
+                        "className": "java.lang.String"
+                      },
+                      "readme": {
+                        "type": "string",
+                        "className": "java.lang.String"
+                      },
+                      "executable": {
+                        "type": "boolean",
+                        "className": "java.lang.Boolean"
+                      }
+                    },
+                    "type": "object",
+                    "className": "org.ballerinalang.central.client.model.Module"
+                  },
+                  "type": "array",
+                  "className": "java.util.List<org.ballerinalang.central.client.model.Module>"
+                },
+                "deprecateMessage": {
+                  "type": "boolean",
+                  "className": "java.lang.Boolean"
+                },
+                "licenses": {
+                  "item": {
+                    "type": "string",
+                    "className": "java.lang.String"
+                  },
+                  "type": "array",
+                  "className": "java.util.List<java.lang.String>"
+                },
+                "balaURL": {
+                  "type": "string",
+                  "className": "java.lang.String"
+                },
+                "createdDate": {
+                  "type": "number",
+                  "className": "java.lang.Long"
+                },
+                "organization": {
+                  "type": "string",
+                  "className": "java.lang.String"
+                },
+                "name": {
+                  "type": "string",
+                  "className": "java.lang.String"
+                },
+                "balaVersion": {
+                  "type": "string",
+                  "className": "java.lang.String"
+                },
+                "sourceCodeLocation": {
+                  "type": "string",
+                  "className": "java.lang.String"
+                },
+                "languageSpecificationVersion": {
+                  "type": "string",
+                  "className": "java.lang.String"
+                },
+                "authors": {
+                  "item": {
+                    "type": "string",
+                    "className": "java.lang.String"
+                  },
+                  "type": "array",
+                  "className": "java.util.List<java.lang.String>"
+                }
+              },
+              "type": "object",
+              "className": "org.ballerinalang.central.client.model.Package"
+            }
+          },
+          "type": "object",
+          "className": "org.ballerinalang.diagramutil.connector.models.connector.Connector"
+        },
+        "type": "array",
+        "className": "java.util.List<org.ballerinalang.diagramutil.connector.models.connector.Connector>"
+      },
+      "local": {
+        "item": {
+          "properties": {
+            "orgName": {
+              "type": "string",
+              "className": "java.lang.String"
+            },
+            "functions": {
+              "item": {
+                "properties": {
+                  "pathParams": {
+                    "item": {
+                      "properties": {
+                        "isRestType": {
+                          "type": "boolean",
+                          "className": "boolean"
+                        },
+                        "name": {
+                          "type": "string",
+                          "className": "java.lang.String"
+                        },
+                        "typeName": {
+                          "type": "string",
+                          "className": "java.lang.String"
+                        }
+                      },
+                      "type": "object",
+                      "className": "org.ballerinalang.diagramutil.connector.models.connector.types.PathParamType"
+                    },
+                    "type": "array",
+                    "className": "java.util.List<org.ballerinalang.diagramutil.connector.models.connector.types.PathParamType>"
+                  },
+                  "documentation": {
+                    "type": "string",
+                    "className": "java.lang.String"
+                  },
+                  "name": {
+                    "type": "string",
+                    "className": "java.lang.String"
+                  },
+                  "qualifiers": {
+                    "item": {
+                      "type": "string",
+                      "className": "java.lang.String"
+                    },
+                    "type": "array",
+                    "className": "java.lang.String[]"
+                  },
+                  "displayAnnotation": {
+                    "item": {
+                      "type": "string",
+                      "className": "java.lang.String"
+                    },
+                    "type": "map",
+                    "className": "java.util.Map<java.lang.String, java.lang.String>"
+                  },
+                  "parameters": {
+                    "item": {
+                      "properties": {
+                        "defaultable": {
+                          "type": "boolean",
+                          "className": "boolean"
+                        },
+                        "isRestType": {
+                          "type": "boolean",
+                          "className": "boolean"
+                        },
+                        "typeInfo": {
+                          "properties": {
+                            "orgName": {
+                              "type": "string",
+                              "className": "java.lang.String"
+                            },
+                            "name": {
+                              "type": "string",
+                              "className": "java.lang.String"
+                            },
+                            "moduleName": {
+                              "type": "string",
+                              "className": "java.lang.String"
+                            },
+                            "packageName": {
+                              "type": "string",
+                              "className": "java.lang.String"
+                            },
+                            "version": {
+                              "type": "string",
+                              "className": "java.lang.String"
+                            }
+                          },
+                          "type": "object",
+                          "className": "org.ballerinalang.diagramutil.connector.models.connector.TypeInfo"
+                        },
+                        "defaultValue": {
+                          "type": "string",
+                          "className": "java.lang.String"
+                        },
+                        "documentation": {
+                          "type": "string",
+                          "className": "java.lang.String"
+                        },
+                        "name": {
+                          "type": "string",
+                          "className": "java.lang.String"
+                        },
+                        "typeName": {
+                          "type": "string",
+                          "className": "java.lang.String"
+                        },
+                        "displayAnnotation": {
+                          "item": {
+                            "type": "string",
+                            "className": "java.lang.String"
+                          },
+                          "type": "map",
+                          "className": "java.util.Map<java.lang.String, java.lang.String>"
+                        },
+                        "optional": {
+                          "type": "boolean",
+                          "className": "boolean"
+                        }
+                      },
+                      "type": "object",
+                      "className": "org.ballerinalang.diagramutil.connector.models.connector.Type"
+                    },
+                    "type": "array",
+                    "className": "java.util.List<org.ballerinalang.diagramutil.connector.models.connector.Type>"
+                  },
+                  "returnType": {
+                    "properties": {
+                      "defaultable": {
+                        "type": "boolean",
+                        "className": "boolean"
+                      },
+                      "isRestType": {
+                        "type": "boolean",
+                        "className": "boolean"
+                      },
+                      "typeInfo": {
+                        "properties": {
+                          "orgName": {
+                            "type": "string",
+                            "className": "java.lang.String"
+                          },
+                          "name": {
+                            "type": "string",
+                            "className": "java.lang.String"
+                          },
+                          "moduleName": {
+                            "type": "string",
+                            "className": "java.lang.String"
+                          },
+                          "packageName": {
+                            "type": "string",
+                            "className": "java.lang.String"
+                          },
+                          "version": {
+                            "type": "string",
+                            "className": "java.lang.String"
+                          }
+                        },
+                        "type": "object",
+                        "className": "org.ballerinalang.diagramutil.connector.models.connector.TypeInfo"
+                      },
+                      "defaultValue": {
+                        "type": "string",
+                        "className": "java.lang.String"
+                      },
+                      "documentation": {
+                        "type": "string",
+                        "className": "java.lang.String"
+                      },
+                      "name": {
+                        "type": "string",
+                        "className": "java.lang.String"
+                      },
+                      "typeName": {
+                        "type": "string",
+                        "className": "java.lang.String"
+                      },
+                      "displayAnnotation": {
+                        "item": {
+                          "type": "string",
+                          "className": "java.lang.String"
+                        },
+                        "type": "map",
+                        "className": "java.util.Map<java.lang.String, java.lang.String>"
+                      },
+                      "optional": {
+                        "type": "boolean",
+                        "className": "boolean"
+                      }
+                    },
+                    "type": "object",
+                    "className": "org.ballerinalang.diagramutil.connector.models.connector.Type"
+                  }
+                },
+                "type": "object",
+                "className": "org.ballerinalang.diagramutil.connector.models.connector.Function"
+              },
+              "type": "array",
+              "className": "java.util.List<org.ballerinalang.diagramutil.connector.models.connector.Function>"
+            },
+            "documentation": {
+              "type": "string",
+              "className": "java.lang.String"
+            },
+            "moduleName": {
+              "type": "string",
+              "className": "java.lang.String"
+            },
+            "icon": {
+              "type": "string",
+              "className": "java.lang.String"
+            },
+            "displayAnnotation": {
+              "item": {
+                "type": "string",
+                "className": "java.lang.String"
+              },
+              "type": "map",
+              "className": "java.util.Map<java.lang.String, java.lang.String>"
+            },
+            "version": {
+              "type": "string",
+              "className": "java.lang.String"
+            },
+            "platform": {
+              "type": "string",
+              "className": "java.lang.String"
+            },
+            "ballerinaVersion": {
+              "type": "string",
+              "className": "java.lang.String"
+            },
+            "name": {
+              "type": "string",
+              "className": "java.lang.String"
+            },
+            "id": {
+              "type": "string",
+              "className": "java.lang.String"
+            },
+            "packageName": {
+              "type": "string",
+              "className": "java.lang.String"
+            },
+            "packageInfo": {
+              "properties": {
+                "template": {
+                  "type": "boolean",
+                  "className": "java.lang.Boolean"
+                },
+                "summary": {
+                  "type": "string",
+                  "className": "java.lang.String"
+                },
+                "isDeprecated": {
+                  "type": "boolean",
+                  "className": "java.lang.Boolean"
+                },
+                "keywords": {
+                  "item": {
+                    "type": "string",
+                    "className": "java.lang.String"
+                  },
+                  "type": "array",
+                  "className": "java.util.List<java.lang.String>"
+                },
+                "icon": {
+                  "type": "string",
+                  "className": "java.lang.String"
+                },
+                "readme": {
+                  "type": "string",
+                  "className": "java.lang.String"
+                },
+                "version": {
+                  "type": "string",
+                  "className": "java.lang.String"
+                },
+                "platform": {
+                  "type": "string",
+                  "className": "java.lang.String"
+                },
+                "url": {
+                  "type": "string",
+                  "className": "java.lang.String"
+                },
+                "ballerinaVersion": {
+                  "type": "string",
+                  "className": "java.lang.String"
+                },
+                "modules": {
+                  "item": {
+                    "properties": {
+                      "summary": {
+                        "type": "string",
+                        "className": "java.lang.String"
+                      },
+                      "apiDocURL": {
+                        "type": "string",
+                        "className": "java.lang.String"
+                      },
+                      "packageUrl": {
+                        "type": "string",
+                        "className": "java.lang.String"
+                      },
+                      "name": {
+                        "type": "string",
+                        "className": "java.lang.String"
+                      },
+                      "readme": {
+                        "type": "string",
+                        "className": "java.lang.String"
+                      },
+                      "executable": {
+                        "type": "boolean",
+                        "className": "java.lang.Boolean"
+                      }
+                    },
+                    "type": "object",
+                    "className": "org.ballerinalang.central.client.model.Module"
+                  },
+                  "type": "array",
+                  "className": "java.util.List<org.ballerinalang.central.client.model.Module>"
+                },
+                "deprecateMessage": {
+                  "type": "boolean",
+                  "className": "java.lang.Boolean"
+                },
+                "licenses": {
+                  "item": {
+                    "type": "string",
+                    "className": "java.lang.String"
+                  },
+                  "type": "array",
+                  "className": "java.util.List<java.lang.String>"
+                },
+                "balaURL": {
+                  "type": "string",
+                  "className": "java.lang.String"
+                },
+                "createdDate": {
+                  "type": "number",
+                  "className": "java.lang.Long"
+                },
+                "organization": {
+                  "type": "string",
+                  "className": "java.lang.String"
+                },
+                "name": {
+                  "type": "string",
+                  "className": "java.lang.String"
+                },
+                "balaVersion": {
+                  "type": "string",
+                  "className": "java.lang.String"
+                },
+                "sourceCodeLocation": {
+                  "type": "string",
+                  "className": "java.lang.String"
+                },
+                "languageSpecificationVersion": {
+                  "type": "string",
+                  "className": "java.lang.String"
+                },
+                "authors": {
+                  "item": {
+                    "type": "string",
+                    "className": "java.lang.String"
+                  },
+                  "type": "array",
+                  "className": "java.util.List<java.lang.String>"
+                }
+              },
+              "type": "object",
+              "className": "org.ballerinalang.central.client.model.Package"
+            }
+          },
+          "type": "object",
+          "className": "org.ballerinalang.diagramutil.connector.models.connector.Connector"
+        },
+        "type": "array",
+        "className": "java.util.List<org.ballerinalang.diagramutil.connector.models.connector.Connector>"
+      }
+    },
+    "type": "object",
+    "className": "org.ballerinalang.langserver.extensions.ballerina.connector.BallerinaConnectorListResponse"
+  }
+}
