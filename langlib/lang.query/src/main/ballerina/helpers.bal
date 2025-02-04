@@ -223,7 +223,7 @@ function createInnerJoinFunctionOld(
 }
 
 function createInnerJoinFunction(
-        _StreamPipeline joinedPipeline,
+        handle joinedPipeline,
         function (_Frame _frame) returns any lhsKeyFunction,
         function (_Frame _frame) returns any rhsKeyFunction) returns handle = @java:Method {
     'class: "io.ballerina.runtime.internal.query.clauses.InnerJoinClause",
