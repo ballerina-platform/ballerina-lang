@@ -20,6 +20,7 @@ package org.wso2.ballerinalang.compiler.bir.codegen.optimizer;
 
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.SymbolOrigin;
+import org.jetbrains.annotations.Nullable;
 import org.wso2.ballerinalang.compiler.bir.BIRGenUtils;
 import org.wso2.ballerinalang.compiler.bir.codegen.model.JInstruction;
 import org.wso2.ballerinalang.compiler.bir.codegen.model.JLargeArrayInstruction;
@@ -1896,9 +1897,12 @@ public class LargeMethodOptimizer {
             birFunc.returnVariable = new BIRVariableDcl(currentIns.pos, retType, new Name("%0"),
                     VarScope.FUNCTION, VarKind.RETURN, null);
         }
-        birFunc.localVars.add(0, birFunc.returnVariable);
-        birFunc.localVars.addAll(functionParams);
-        birFunc.localVars.addAll(lhsOperandList);
+        List<BIRVariableDcl> localVars = birFunc.localVars;
+        if (localVars != null) {
+            localVars.add(0, birFunc.returnVariable);
+            localVars.addAll(functionParams);
+            localVars.addAll(lhsOperandList);
+        }
 
         // creates 2 bbs
         BIRBasicBlock entryBB = new BIRBasicBlock(0);
@@ -1908,13 +1912,16 @@ public class LargeMethodOptimizer {
         BIRBasicBlock exitBB = new BIRBasicBlock(1);
         exitBB.terminator = new BIRTerminator.Return(null);
         entryBB.terminator = new BIRTerminator.GOTO(null, exitBB, currentIns.scope);
-        birFunc.basicBlocks.add(entryBB);
-        birFunc.basicBlocks.add(exitBB);
+        List<BIRBasicBlock> basicBlocks = birFunc.basicBlocks;
+        if (basicBlocks != null) {
+            basicBlocks.add(entryBB);
+            basicBlocks.add(exitBB);
+        }
         rectifyVarKindsAndTerminators(birFunc, selfVarDcl, exitBB);
         return birFunc;
     }
 
-    private void rectifyVarKindsAndTerminators(BIRFunction birFunction, BIRVariableDcl selfVarDcl,
+    private void rectifyVarKindsAndTerminators(BIRFunction birFunction, @Nullable BIRVariableDcl selfVarDcl,
                                                BIRBasicBlock returnBB) {
         Map<Name, BIRVariableDcl> funcArgsWithName = new HashMap<>();
         for (BIRFunctionParameter parameter : birFunction.parameters) {
@@ -1964,7 +1971,7 @@ public class LargeMethodOptimizer {
         }
     }
 
-    private static void populateNewRHSOperands(BIRVariableDcl variableDcl, List<BIROperand> operandList,
+    private static void populateNewRHSOperands(@Nullable BIRVariableDcl variableDcl, List<BIROperand> operandList,
                                                Map<BIRVariableDcl, BIROperand> newRhsOperands, BIROperand rhsOperand) {
         if (!newRhsOperands.containsKey(rhsOperand.variableDcl)) {
             BIROperand newOperand = new BIROperand(variableDcl);

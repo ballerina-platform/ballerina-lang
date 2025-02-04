@@ -19,6 +19,7 @@ package org.wso2.ballerinalang.compiler.semantics.model.types;
 
 import org.ballerinalang.model.Name;
 import org.ballerinalang.model.types.TypeKind;
+import org.jetbrains.annotations.Nullable;
 import org.wso2.ballerinalang.compiler.semantics.model.TypeVisitor;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
@@ -46,7 +47,7 @@ public class BAnydataType extends BUnionType {
         this.isCyclic = true;
     }
 
-    public BAnydataType(BTypeSymbol tsymbol, Name name, long flags, boolean nullable) {
+    public BAnydataType(@Nullable BTypeSymbol tsymbol, Name name, long flags, boolean nullable) {
         super(tsymbol, new LinkedHashSet<>(INITIAL_CAPACITY), nullable, false);
         this.tag = TypeTags.ANYDATA;
         this.flags = flags;

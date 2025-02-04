@@ -25,6 +25,7 @@ import org.ballerinalang.project.Project;
 import org.ballerinalang.toml.exceptions.TomlException;
 import org.ballerinalang.toml.model.Manifest;
 import org.ballerinalang.toml.parser.ManifestProcessor;
+import org.jetbrains.annotations.Nullable;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 import org.wso2.ballerinalang.compiler.util.Name;
@@ -110,6 +111,7 @@ public class SourceDirectoryManager implements Project {
         return manifest;
     }
 
+    @Nullable
     public PackageID getPackageID(String sourcePackage) {
         List<String> sourceFileNames = this.sourceDirectory.getSourceFileNames();
         Name orgName = getOrgName(this.manifest);
@@ -140,6 +142,7 @@ public class SourceDirectoryManager implements Project {
 
     // private methods
 
+    @Nullable
     private SourceDirectory initializeAndGetSourceDirectory(CompilerContext context) {
         try {
             SourceDirectory srcDirectory = context.get(SourceDirectory.class);

@@ -19,6 +19,7 @@ package org.wso2.ballerinalang.compiler.semantics.model.types;
 
 import org.ballerinalang.model.types.ReferenceType;
 import org.ballerinalang.model.types.TypeKind;
+import org.jetbrains.annotations.Nullable;
 import org.wso2.ballerinalang.compiler.semantics.model.TypeVisitor;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 
@@ -39,7 +40,7 @@ public class BTypeReferenceType extends BType implements ReferenceType {
         this.definitionName = tsymbol.getName().getValue();
     }
 
-    public BTypeReferenceType(BType referredType, BTypeSymbol tsymbol, long flags, boolean nilable) {
+    public BTypeReferenceType(@Nullable BType referredType, BTypeSymbol tsymbol, long flags, boolean nilable) {
         this(referredType, tsymbol, flags);
         this.nilable = nilable;
     }

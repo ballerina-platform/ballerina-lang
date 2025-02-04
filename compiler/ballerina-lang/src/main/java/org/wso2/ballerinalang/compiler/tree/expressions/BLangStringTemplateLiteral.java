@@ -33,11 +33,7 @@ import java.util.List;
 public class BLangStringTemplateLiteral extends BLangExpression implements StringTemplateLiteralNode {
 
     // BLangNodes
-    public List<BLangExpression> exprs;
-
-    public BLangStringTemplateLiteral() {
-        exprs = new ArrayList<BLangExpression>();
-    }
+    public List<BLangExpression> exprs = new ArrayList<>();
 
     @Override
     public List<BLangExpression> getExpressions() {

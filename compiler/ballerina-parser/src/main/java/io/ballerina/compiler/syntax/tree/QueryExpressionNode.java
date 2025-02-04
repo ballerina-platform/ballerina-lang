@@ -18,6 +18,7 @@
 package io.ballerina.compiler.syntax.tree;
 
 import io.ballerina.compiler.internal.parser.tree.STNode;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
 import java.util.Optional;
@@ -111,9 +112,11 @@ public class QueryExpressionNode extends ExpressionNode {
      */
     public static class QueryExpressionNodeModifier {
         private final QueryExpressionNode oldNode;
+        @Nullable
         private QueryConstructTypeNode queryConstructType;
         private QueryPipelineNode queryPipeline;
         private ClauseNode resultClause;
+        @Nullable
         private OnConflictClauseNode onConflictClause;
 
         public QueryExpressionNodeModifier(QueryExpressionNode oldNode) {

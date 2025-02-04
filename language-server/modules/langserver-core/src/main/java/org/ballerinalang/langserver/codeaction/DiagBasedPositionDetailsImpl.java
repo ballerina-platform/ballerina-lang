@@ -20,6 +20,7 @@ import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.diagnostics.DiagnosticProperty;
 import org.ballerinalang.langserver.commons.codeaction.spi.DiagBasedPositionDetails;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.Optional;
@@ -45,7 +46,7 @@ public class DiagBasedPositionDetailsImpl implements DiagBasedPositionDetails {
     }
 
     public static DiagBasedPositionDetailsImpl from(NonTerminalNode matchedNode,
-                                                    Symbol matchedSymbol,
+                                                    @Nullable Symbol matchedSymbol,
                                                     Diagnostic diagnostic) {
         return new DiagBasedPositionDetailsImpl(matchedNode, matchedSymbol, diagnostic);
     }

@@ -18,8 +18,7 @@
 package org.ballerinalang.test.context;
 
 import org.apache.commons.lang3.ArrayUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -46,10 +45,9 @@ import java.util.stream.Stream;
  * @since 0.982.0
  */
 public class BMainInstance implements BMain {
-    private static final Logger LOG = LoggerFactory.getLogger(BMainInstance.class);
     private static final String JAVA_OPTS = "JAVA_OPTS";
     private String agentArgs = "";
-    private BalServer balServer;
+    private final BalServer balServer;
     public static final int TIMEOUT = 10000;
 
     private static class StreamGobbler extends Thread {
@@ -64,7 +62,7 @@ public class BMainInstance implements BMain {
         @Override
         public void run() {
             BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
-            String lineContent = null;
+            String lineContent;
             while (true) {
                 try {
                     lineContent = bufferedReader.readLine();
@@ -95,42 +93,42 @@ public class BMainInstance implements BMain {
 
     private void configureAgentArgs() {
         // add jacoco agent
-        String jacocoArgLine = "-javaagent:" + Path.of(balServer.getServerHome(), "bre/lib/jacocoagent.jar")
+        String jacocoArgLine = "-javaagent:" + balServer.getServerHome().resolve("bre/lib/jacocoagent.jar")
                 + "=destfile=" + Path.of(System.getProperty("user.dir"), "build/jacoco/test.exec");
         agentArgs = jacocoArgLine + " ";
     }
 
     @Override
-    public void runMain(String balFile) throws BallerinaTestException {
+    public void runMain(Path balFile) throws BallerinaTestException {
         runMain(balFile, new String[]{}, new String[]{});
     }
 
     @Override
-    public void runMain(String balFile, LogLeecher[] leechers) throws BallerinaTestException {
+    public void runMain(Path balFile, LogLeecher[] leechers) throws BallerinaTestException {
         runMain(balFile, new String[]{}, new String[]{}, leechers);
     }
 
     @Override
-    public void runMain(String balFile, String[] flags, String[] args) throws BallerinaTestException {
+    public void runMain(Path balFile, String[] flags, String[] args) throws BallerinaTestException {
         runMain(balFile, flags, args, null, null);
     }
 
     @Override
-    public void runMain(String balFile, String[] flags,
+    public void runMain(Path balFile, @Nullable String[] flags,
                         String[] args, LogLeecher[] leechers) throws BallerinaTestException {
         runMain(balFile, flags, args, new HashMap<>(), new String[]{}, leechers);
     }
 
     @Override
-    public void runMain(String balFile, String[] flags, String[] args, Map<String, String> envProperties,
-                        String[] clientArgs) throws BallerinaTestException {
+    public void runMain(Path balFile, String[] flags, String[] args, @Nullable Map<String, String> envProperties,
+                        @Nullable String[] clientArgs) throws BallerinaTestException {
         runMain(balFile, flags, args, envProperties, clientArgs, null);
     }
 
     @Override
-    public void runMain(String balFile, String[] flags, String[] args, Map<String, String> envProperties,
-                        String[] clientArgs, LogLeecher[] leechers) throws BallerinaTestException {
-        if (balFile == null || balFile.isEmpty()) {
+    public void runMain(Path balFile, String[] flags, String[] args, Map<String, String> envProperties,
+                        String[] clientArgs, @Nullable LogLeecher[] leechers) throws BallerinaTestException {
+        if (balFile == null) {
             throw new IllegalArgumentException("Invalid ballerina program file name provided, name - " + balFile);
         }
 
@@ -146,43 +144,45 @@ public class BMainInstance implements BMain {
             envProperties = new HashMap<>();
         }
 
-        runMain("build", new String[]{balFile}, envProperties, null, leechers, balServer.getServerHome());
+        runMain("build", new String[]{
+                balFile.toAbsolutePath().toString()}, envProperties, null, leechers, balServer.getServerHome());
         runJar(balFile, ArrayUtils.addAll(flags, args), envProperties, clientArgs, leechers, balServer.getServerHome());
     }
 
     @Override
-    public void runMain(String sourceRoot, String packagePath) throws BallerinaTestException {
+    public void runMain(Path sourceRoot, String packagePath) throws BallerinaTestException {
         runMain(sourceRoot, packagePath, new String[]{}, new String[]{});
     }
 
     @Override
-    public void runMain(String sourceRoot, String packagePath, LogLeecher[] leechers) throws BallerinaTestException {
+    public void runMain(Path sourceRoot, String packagePath, LogLeecher[] leechers) throws BallerinaTestException {
         runMain(sourceRoot, packagePath, new String[]{}, new String[]{}, leechers);
     }
 
     @Override
-    public void runMain(String sourceRoot, String packagePath,
+    public void runMain(Path sourceRoot, String packagePath,
                         String[] flags, String[] args) throws BallerinaTestException {
         runMain(sourceRoot, packagePath, flags, args, null, null);
     }
 
     @Override
-    public void runMain(String sourceRoot, String packagePath, String[] flags, String[] args,
+    public void runMain(Path sourceRoot, String packagePath, String[] flags, String[] args,
                         LogLeecher[] leechers) throws BallerinaTestException {
         runMain(sourceRoot, packagePath, flags, args, null, new String[]{}, leechers);
     }
 
     @Override
-    public void runMain(String sourceRoot, String packagePath, String[] flags, String[] args,
-                        Map<String, String> envProperties, String[] clientArgs) throws BallerinaTestException {
+    public void runMain(Path sourceRoot, String packagePath, String[] flags, String[] args,
+                        @Nullable Map<String, String> envProperties, @Nullable String[] clientArgs
+    ) throws BallerinaTestException {
         runMain(sourceRoot, packagePath, flags, args, envProperties, clientArgs, null);
     }
 
     @Override
-    public void runMain(String sourceRoot, String packagePath,
-                        String[] flags, String[] args, Map<String, String> envProperties,
-                        String[] clientArgs, LogLeecher[] leechers) throws BallerinaTestException {
-        if (sourceRoot == null || sourceRoot.isEmpty() || packagePath == null || packagePath.isEmpty()) {
+    public void runMain(Path sourceRoot, String packagePath,
+                        @Nullable String[] flags, String[] args, @Nullable Map<String, String> envProperties,
+                        @Nullable String[] clientArgs, @Nullable LogLeecher[] leechers) throws BallerinaTestException {
+        if (sourceRoot == null || packagePath == null) {
             throw new IllegalArgumentException("Invalid ballerina program file provided, sourceRoot - "
                     + sourceRoot + " packagePath - " + packagePath);
         }
@@ -199,7 +199,7 @@ public class BMainInstance implements BMain {
             envProperties = new HashMap<>();
         }
         runMain("build", new String[]{packagePath}, envProperties, null, leechers, sourceRoot);
-        runJar(Path.of(sourceRoot, packagePath).toString(), packagePath, ArrayUtils.addAll(flags, args),
+        runJar(sourceRoot.resolve(packagePath), packagePath, ArrayUtils.addAll(flags, args),
                 envProperties, clientArgs, leechers, sourceRoot);
     }
 
@@ -219,7 +219,7 @@ public class BMainInstance implements BMain {
     }
 
     public String getBalServerHome() {
-        return Path.of(balServer.getServerHome()).toString();
+        return balServer.getServerHome().toString();
     }
 
     /**
@@ -233,8 +233,9 @@ public class BMainInstance implements BMain {
      * @param commandDir    where to execute the command
      * @throws BallerinaTestException if starting services failed
      */
-    public void runMain(String command, String[] args, Map<String, String> envProperties, String[] clientArgs,
-                        LogLeecher[] leechers, String commandDir) throws BallerinaTestException {
+    public void runMain(String command, String[] args, @Nullable Map<String, String> envProperties,
+                        @Nullable String[] clientArgs,
+                        @Nullable LogLeecher[] leechers, Path commandDir) throws BallerinaTestException {
         String scriptName = Constant.BALLERINA_SERVER_SCRIPT_NAME;
         String[] cmdArray;
         try {
@@ -248,12 +249,10 @@ public class BMainInstance implements BMain {
             }
 
             String[] cmdArgs = Stream.concat(Arrays.stream(cmdArray), Arrays.stream(args)).toArray(String[]::new);
-            ProcessBuilder processBuilder = new ProcessBuilder(cmdArgs).directory(new File(commandDir));
+            ProcessBuilder processBuilder = new ProcessBuilder(cmdArgs).directory(commandDir.toAbsolutePath().toFile());
             if (envProperties != null) {
                 Map<String, String> env = processBuilder.environment();
-                for (Map.Entry<String, String> entry : envProperties.entrySet()) {
-                    env.put(entry.getKey(), entry.getValue());
-                }
+                env.putAll(envProperties);
             }
             addJavaAgents(processBuilder.environment());
 
@@ -304,24 +303,22 @@ public class BMainInstance implements BMain {
      * @throws BallerinaTestException if starting services failed
      */
     public Process runCommandAndGetProcess(String command, String[] args, Map<String, String> envProperties,
-                                           String commandDir) throws BallerinaTestException {
+                                           Path commandDir) throws BallerinaTestException {
         String scriptName = Constant.BALLERINA_SERVER_SCRIPT_NAME;
         String[] cmdArray;
         try {
             if (Utils.isWindowsOS()) {
-                cmdArray = new String[]{"cmd.exe", "/c", balServer.getServerHome() +
-                        File.separator + "bin" + File.separator + scriptName + ".bat", command};
+                cmdArray = new String[]{"cmd.exe", "/c",
+                        balServer.getServerHome().resolve("bin/" + scriptName + ".bat").toString(), command};
             } else {
-                cmdArray = new String[]{"bash", balServer.getServerHome() +
-                        File.separator + "bin/" + scriptName, command};
+                cmdArray = new String[]{"bash",
+                        balServer.getServerHome().resolve("bin/" + scriptName).toString(), command};
             }
             String[] cmdArgs = Stream.concat(Arrays.stream(cmdArray), Arrays.stream(args)).toArray(String[]::new);
-            ProcessBuilder processBuilder = new ProcessBuilder(cmdArgs).directory(new File(commandDir));
+            ProcessBuilder processBuilder = new ProcessBuilder(cmdArgs).directory(commandDir.toAbsolutePath().toFile());
             if (envProperties != null) {
                 Map<String, String> env = processBuilder.environment();
-                for (Map.Entry<String, String> entry : envProperties.entrySet()) {
-                    env.put(entry.getKey(), entry.getValue());
-                }
+                env.putAll(envProperties);
             }
             return processBuilder.start();
         } catch (IOException e) {
@@ -349,12 +346,13 @@ public class BMainInstance implements BMain {
      * @return parent instance process
      * @throws BallerinaTestException if starting services failed
      */
-    public Process debugMain(String command, String[] args, Map<String, String> envProperties, String[] clientArgs,
-                             LogLeecher[] leechers, String commandDir, int timeout, boolean isAttachMode)
+    public Process debugMain(String command, String[] args, @Nullable Map<String, String> envProperties,
+                             String[] clientArgs,
+                             LogLeecher[] leechers, Path commandDir, int timeout, boolean isAttachMode)
             throws BallerinaTestException {
         String scriptName = Constant.BALLERINA_SERVER_SCRIPT_NAME;
         String[] cmdArray;
-        String[] cmdArgs = new String[0];
+        String[] cmdArgs;
         Process process = null;
 
         if (envProperties != null) {
@@ -371,12 +369,10 @@ public class BMainInstance implements BMain {
             }
 
             cmdArgs = Stream.concat(Arrays.stream(cmdArray), Arrays.stream(args)).toArray(String[]::new);
-            ProcessBuilder processBuilder = new ProcessBuilder(cmdArgs).directory(new File(commandDir));
+            ProcessBuilder processBuilder = new ProcessBuilder(cmdArgs).directory(commandDir.toAbsolutePath().toFile());
             if (envProperties != null) {
                 Map<String, String> env = processBuilder.environment();
-                for (Map.Entry<String, String> entry : envProperties.entrySet()) {
-                    env.put(entry.getKey(), entry.getValue());
-                }
+                env.putAll(envProperties);
             }
             process = processBuilder.start();
 
@@ -464,8 +460,9 @@ public class BMainInstance implements BMain {
      * @param timeout       timeout for the process waiting time, in seconds.
      * @throws BallerinaTestException if starting services failed
      */
-    public void debugMain(String command, String[] args, Map<String, String> envProperties, String[] clientArgs,
-                          LogLeecher[] leechers, String commandDir, int timeout) throws BallerinaTestException {
+    public void debugMain(String command, String[] args, @Nullable Map<String, String> envProperties,
+                          @Nullable String[] clientArgs,
+                          LogLeecher[] leechers, Path commandDir, int timeout) throws BallerinaTestException {
         boolean isAttachMode = false;
         debugMain(command, args, envProperties, clientArgs, leechers, commandDir, timeout, isAttachMode);
     }
@@ -496,7 +493,7 @@ public class BMainInstance implements BMain {
      *
      * @param process parent process instance.
      */
-    public void terminateProcessWithDescendants(Process process) {
+    public void terminateProcessWithDescendants(@Nullable Process process) {
         try {
             // Kills the descendants of the process. The descendants of a process are the children
             // of the process and the descendants of those children, recursively.
@@ -527,9 +524,9 @@ public class BMainInstance implements BMain {
      * @param commandDir    where to execute the command
      * @throws BallerinaTestException if starting services failed
      */
-    private void runJar(String sourceRoot, String packageName, String[] args, Map<String, String> envProperties,
-                        String[] clientArgs, LogLeecher[] leechers, String commandDir) throws BallerinaTestException {
-        executeJarFile(Path.of(sourceRoot, "target", "bin", packageName + ".jar").toFile().getPath(),
+    private void runJar(Path sourceRoot, String packageName, String[] args, Map<String, String> envProperties,
+                        String[] clientArgs, LogLeecher[] leechers, Path commandDir) throws BallerinaTestException {
+        executeJarFile(sourceRoot.resolve("target/bin/" + packageName + ".jar"),
                 args, envProperties, clientArgs, leechers, commandDir);
     }
 
@@ -544,11 +541,10 @@ public class BMainInstance implements BMain {
      * @param commandDir    where to execute the command
      * @throws BallerinaTestException if starting services failed
      */
-    private void runJar(String balFile, String[] args, Map<String, String> envProperties, String[] clientArgs,
-                        LogLeecher[] leechers, String commandDir) throws BallerinaTestException {
-        String balFileName = Path.of(balFile).getFileName().toString();
-        String jarPath = Path.of(Path.of(commandDir).toString(), balFileName.substring(0, balFileName.length() -
-                4) + ".jar").toString();
+    private void runJar(Path balFile, String[] args, Map<String, String> envProperties, String[] clientArgs,
+                        LogLeecher[] leechers, Path commandDir) throws BallerinaTestException {
+        String balFileName = balFile.getFileName().toString();
+        Path jarPath = commandDir.resolve(balFileName.substring(0, balFileName.length() - 4) + ".jar");
         executeJarFile(jarPath, args, envProperties, clientArgs, leechers, commandDir);
     }
 
@@ -563,8 +559,8 @@ public class BMainInstance implements BMain {
      * @param commandDir    where to execute the command
      * @throws BallerinaTestException if starting services failed
      */
-    private void executeJarFile(String jarPath, String[] args, Map<String, String> envProperties, String[] clientArgs,
-                                LogLeecher[] leechers, String commandDir) throws BallerinaTestException {
+    private void executeJarFile(Path jarPath, String[] args, Map<String, String> envProperties, String[] clientArgs,
+                                LogLeecher[] leechers, Path commandDir) throws BallerinaTestException {
         try {
             List<String> runCmdSet = new ArrayList<>();
             runCmdSet.add("java");
@@ -572,13 +568,13 @@ public class BMainInstance implements BMain {
             if (envProperties.containsKey(JAVA_OPTS)) {
                 runCmdSet.add(envProperties.get(JAVA_OPTS).trim());
             }
-            String tempBalHome = new File("src" + File.separator + "test" + File.separator +
-                    "resources" + File.separator + "ballerina.home").getAbsolutePath();
+            String tempBalHome = Path.of("src/test/resources/ballerina.home").toString();
             runCmdSet.add("-Dballerina.home=" + tempBalHome);
-            runCmdSet.addAll(Arrays.asList("-jar", jarPath));
+            runCmdSet.addAll(Arrays.asList("-jar", jarPath.toAbsolutePath().toString()));
             runCmdSet.addAll(Arrays.asList(args));
 
-            ProcessBuilder processBuilder = new ProcessBuilder(runCmdSet).directory(new File(commandDir));
+            ProcessBuilder processBuilder = new ProcessBuilder(runCmdSet).directory(
+                    commandDir.toAbsolutePath().toFile());
             Map<String, String> env = processBuilder.environment();
             env.putAll(envProperties);
             Process process = processBuilder.start();
@@ -624,7 +620,7 @@ public class BMainInstance implements BMain {
      * @return logs printed to std out
      * @throws BallerinaTestException if starting services failed or if an error occurs when reading the stdout
      */
-    public String runMainAndReadStdOut(String command, String[] args, String commandDir) throws BallerinaTestException {
+    public String runMainAndReadStdOut(String command, String[] args, Path commandDir) throws BallerinaTestException {
         return runMainAndReadStdOut(command, args, new HashMap<>(), commandDir, false);
     }
 
@@ -640,7 +636,7 @@ public class BMainInstance implements BMain {
      * @throws BallerinaTestException if starting services failed or if an error occurs when reading the stdout
      */
     public String runMainAndReadStdOut(String command, String[] args, Map<String, String> envProperties,
-                                       String commandDir, boolean readErrStream) throws BallerinaTestException {
+                                       Path commandDir, boolean readErrStream) throws BallerinaTestException {
 
         String scriptName = Constant.BALLERINA_SERVER_SCRIPT_NAME;
         String[] cmdArray;
@@ -655,8 +651,8 @@ public class BMainInstance implements BMain {
             }
 
             String[] cmdArgs = Stream.concat(Arrays.stream(cmdArray), Arrays.stream(args)).toArray(String[]::new);
-            ProcessBuilder processBuilder =
-                    new ProcessBuilder(cmdArgs).directory(new File(commandDir)).redirectErrorStream(true);
+            ProcessBuilder processBuilder = new ProcessBuilder(cmdArgs).directory(
+                    commandDir.toAbsolutePath().toFile()).redirectErrorStream(true);
             addJavaAgents(envProperties);
             Map<String, String> env = processBuilder.environment();
             env.putAll(envProperties);
@@ -705,10 +701,10 @@ public class BMainInstance implements BMain {
         writer.close();
     }
 
-    public void compilePackageAndPushToLocal(String packagPath, String balaFileName) throws BallerinaTestException {
-        LogLeecher buildLeecher = new LogLeecher("target/bala/" + balaFileName + ".bala");
-        LogLeecher pushLeecher = new LogLeecher("Successfully pushed target/bala/" + balaFileName + ".bala to " +
-                                                "'local' repository.");
+    public void compilePackageAndPushToLocal(Path packagPath, String balaFileName) throws BallerinaTestException {
+        Path targetBala = Path.of("target/bala/" + balaFileName + ".bala");
+        LogLeecher buildLeecher = new LogLeecher(targetBala.toString());
+        LogLeecher pushLeecher = new LogLeecher("Successfully pushed " + targetBala + " to 'local' repository.");
         this.runMain("pack", new String[]{}, null, null, new LogLeecher[]{buildLeecher}, packagPath);
         buildLeecher.waitForText(5000);
         this.runMain("push", new String[]{"--repository=local"}, null, null, new LogLeecher[]{pushLeecher},

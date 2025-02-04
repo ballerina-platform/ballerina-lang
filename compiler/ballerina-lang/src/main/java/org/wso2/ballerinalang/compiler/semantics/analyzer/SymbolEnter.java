@@ -37,6 +37,7 @@ import org.ballerinalang.model.tree.statements.StatementNode;
 import org.ballerinalang.model.tree.types.TypeNode;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.util.diagnostic.DiagnosticErrorCode;
+import org.jetbrains.annotations.Nullable;
 import org.wso2.ballerinalang.compiler.PackageCache;
 import org.wso2.ballerinalang.compiler.SourceDirectory;
 import org.wso2.ballerinalang.compiler.desugar.ASTBuilderUtil;
@@ -2429,8 +2430,8 @@ public class SymbolEnter extends BLangNodeVisitor {
         return checkTypeAndVarCountConsistency(var, null, env);
     }
 
-    boolean checkTypeAndVarCountConsistency(BLangTupleVariable varNode, BTupleType tupleTypeNode,
-                                                    SymbolEnv env) {
+    boolean checkTypeAndVarCountConsistency(BLangTupleVariable varNode, @Nullable BTupleType tupleTypeNode,
+                                            SymbolEnv env) {
         if (tupleTypeNode == null) {
         /*
           This switch block will resolve the tuple type of the tuple variable.
@@ -2608,6 +2609,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         return true;
     }
 
+    @Nullable
     private BType getPossibleRestTypeForUnion(BLangTupleVariable varNode, List<BType> possibleTypes) {
         if (varNode.restVariable == null) {
             return null;
@@ -3110,7 +3112,7 @@ public class SymbolEnter extends BLangNodeVisitor {
 
     void setRestRecordFields(Location pos, SymbolEnv env,
                              LinkedHashMap<String, BField> unMappedFields,
-                             List<String> variableList, BType restConstraint,
+                             List<String> variableList, @Nullable BType restConstraint,
                              BRecordType targetRestRecType) {
         LinkedHashMap<String, BField> fields = new LinkedHashMap<>();
         LinkedHashMap<String, BField> markAsOptional = new LinkedHashMap<>();
@@ -3478,7 +3480,7 @@ public class SymbolEnter extends BLangNodeVisitor {
                 null, env.scope.owner, symTable.builtinPos, VIRTUAL);
     }
 
-    private void defineMemberNode(BLangVariable memberVar, SymbolEnv env, BType type) {
+    private void defineMemberNode(BLangVariable memberVar, SymbolEnv env, @Nullable BType type) {
         memberVar.setBType(type);
         // Module level variables declared with `var` already defined
         if ((env.scope.owner.tag & SymTag.PACKAGE) == SymTag.PACKAGE && memberVar.isDeclaredWithVar) {
@@ -5231,6 +5233,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         ((BObjectTypeSymbol) typeDefSymbol).referencedFunctions.add(attachedFunc);
     }
 
+    @Nullable
     private BLangFunction findFunctionBySymbol(List<BLangFunction> declaredFunctions, BSymbol symbol) {
         for (BLangFunction fn : declaredFunctions) {
             if (fn.symbol == symbol) {

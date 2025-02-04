@@ -25,6 +25,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.HashMap;
 
 /**
@@ -33,12 +34,12 @@ import java.util.HashMap;
 public class SkipTestsTestCase extends BaseTestCase {
 
     private BMainInstance balClient;
-    private String projectPath;
+    private Path projectPath;
 
     @BeforeClass
     public void setup() {
         balClient = new BMainInstance(balServer);
-        projectPath = singleFileTestsPath.resolve("skip-tests").toString();
+        projectPath = singleFileTestsPath.resolve("skip-tests");
     }
 
     @Test

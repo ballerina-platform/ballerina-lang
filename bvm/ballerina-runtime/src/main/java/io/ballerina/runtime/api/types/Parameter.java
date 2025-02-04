@@ -18,6 +18,8 @@
 
 package io.ballerina.runtime.api.types;
 
+import org.jetbrains.annotations.Nullable;
+
 /**
  * {@code Parameter} represents the parameter of a function in ballerina.
  *
@@ -29,7 +31,7 @@ public class Parameter {
     public final String defaultFunctionName;
     public Type type;
 
-    public Parameter(String name, boolean isDefault, String defaultFunctionName, Type type) {
+    public Parameter(String name, boolean isDefault, @Nullable String defaultFunctionName, Type type) {
         this.name = name;
         this.isDefault = isDefault;
         this.defaultFunctionName = defaultFunctionName;

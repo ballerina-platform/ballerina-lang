@@ -45,6 +45,7 @@ import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import org.ballerinalang.diagramutil.connector.models.connector.Type;
 import org.ballerinalang.diagramutil.connector.models.connector.types.InclusionType;
 import org.ballerinalang.diagramutil.connector.models.connector.types.PathParamType;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -105,6 +106,7 @@ public final class GeneratorUtils {
      * @param semanticModel            Project semantic model
      * @return Type
      */
+    @Nullable
     public static Type getReturnParameter(ReturnTypeDescriptorNode returnTypeDescriptorNode,
                                           Optional<MetadataNode> optionalMetadataNode,
                                           SemanticModel semanticModel) {
@@ -119,6 +121,7 @@ public final class GeneratorUtils {
         return null;
     }
 
+    @Nullable
     public static String getDocLineString(NodeList<Node> documentElements) {
         if (documentElements.isEmpty()) {
             return null;
@@ -131,6 +134,7 @@ public final class GeneratorUtils {
         return doc.toString();
     }
 
+    @Nullable
     public static String getParameterDocFromMetadataList(String parameterName,
                                                          Optional<MetadataNode> optionalMetadataNode) {
         if (optionalMetadataNode.isEmpty()) {

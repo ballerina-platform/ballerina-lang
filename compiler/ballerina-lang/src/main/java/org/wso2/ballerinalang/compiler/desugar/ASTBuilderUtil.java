@@ -27,6 +27,7 @@ import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.OperatorKind;
 import org.ballerinalang.model.tree.statements.StatementNode;
 import org.ballerinalang.model.types.TypeKind;
+import org.jetbrains.annotations.Nullable;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolResolver;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
@@ -212,11 +213,13 @@ public final class ASTBuilderUtil {
             public <T> void accept(BLangNodeAnalyzer<T> analyzer, T props) {
             }
 
+            @Nullable
             @Override
             public <T, R> R apply(BLangNodeTransformer<T, R> modifier, T props) {
                 return null;
             }
 
+            @Nullable
             @Override
             public NodeKind getKind() {
                 return null;
@@ -243,9 +246,9 @@ public final class ASTBuilderUtil {
     }
 
     static BLangIf createIfElseStmt(Location pos,
-                                    BLangExpression conditionExpr,
+                                    @Nullable BLangExpression conditionExpr,
                                     BLangBlockStmt thenBody,
-                                    BLangStatement elseStmt) {
+                                    @Nullable BLangStatement elseStmt) {
         final BLangIf ifNode = (BLangIf) TreeBuilder.createIfElseStatementNode();
         ifNode.pos = pos;
         ifNode.expr = conditionExpr;
@@ -326,7 +329,7 @@ public final class ASTBuilderUtil {
         return returnStmt;
     }
 
-    public static BLangReturn createNilReturnStmt(Location pos, BType nilType) {
+    public static BLangReturn createNilReturnStmt(@Nullable Location pos, BType nilType) {
         final BLangReturn returnStmt = (BLangReturn) TreeBuilder.createReturnNode();
         returnStmt.pos = pos;
         returnStmt.expr = createLiteral(pos, nilType, Names.NIL_VALUE);
@@ -366,7 +369,7 @@ public final class ASTBuilderUtil {
         return blockNode;
     }
 
-    static BLangBlockStmt createBlockStmt(Location pos) {
+    static BLangBlockStmt createBlockStmt(@Nullable Location pos) {
         final BLangBlockStmt blockNode = (BLangBlockStmt) TreeBuilder.createBlockNode();
         blockNode.pos = pos;
         return blockNode;
@@ -393,10 +396,10 @@ public final class ASTBuilderUtil {
     }
 
     static BLangUnaryExpr createUnaryExpr(Location pos,
-                                          BLangExpression expr,
-                                          BType type,
-                                          OperatorKind kind,
-                                          BOperatorSymbol symbol) {
+                                          @Nullable BLangExpression expr,
+                                          @Nullable BType type,
+                                          @Nullable OperatorKind kind,
+                                          @Nullable BOperatorSymbol symbol) {
         final BLangUnaryExpr unaryExpr = (BLangUnaryExpr) TreeBuilder.createUnaryExpressionNode();
         unaryExpr.pos = pos;
         unaryExpr.expr = expr;
@@ -415,7 +418,7 @@ public final class ASTBuilderUtil {
     }
 
     static BLangIndexBasedAccess createIndexBasesAccessExpr(Location location, BType type,
-                                                            BVarSymbol varSymbol,
+                                                            @Nullable BVarSymbol varSymbol,
                                                             BLangExpression indexExpr) {
         final BLangIndexBasedAccess arrayAccess = (BLangIndexBasedAccess) TreeBuilder.createIndexBasedAccessNode();
         arrayAccess.pos = location;
@@ -489,12 +492,13 @@ public final class ASTBuilderUtil {
         return invocationNode;
     }
 
-    static BLangInvocation createInvocationExprForMethod(Location pos, BInvokableSymbol invokableSymbol,
-                                                List<BLangExpression> requiredArgs, SymbolResolver symResolver) {
+    static BLangInvocation createInvocationExprForMethod(Location pos, @Nullable BInvokableSymbol invokableSymbol,
+                                                         List<BLangExpression> requiredArgs,
+                                                         SymbolResolver symResolver) {
         return createInvocationExprMethod(pos, invokableSymbol, requiredArgs, new ArrayList<>(), symResolver);
     }
 
-    static BLangInvocation createInvocationExprMethod(Location pos, BInvokableSymbol invokableSymbol,
+    static BLangInvocation createInvocationExprMethod(@Nullable Location pos, BInvokableSymbol invokableSymbol,
                                                       List<BLangExpression> requiredArgs,
                                                       List<BLangSimpleVariable> restArgs, SymbolResolver symResolver) {
         final BLangInvocation invokeLambda = (BLangInvocation) TreeBuilder.createInvocationNode();
@@ -524,11 +528,11 @@ public final class ASTBuilderUtil {
         return varRef;
     }
 
-    public static BLangSimpleVariable createVariable(Location pos,
-                                                     String name,
+    public static BLangSimpleVariable createVariable(@Nullable Location pos,
+                                                     @Nullable String name,
                                                      BType type,
-                                                     BLangExpression expr,
-                                                     BVarSymbol varSymbol) {
+                                                     @Nullable BLangExpression expr,
+                                                     @Nullable BVarSymbol varSymbol) {
         final BLangSimpleVariable varNode = (BLangSimpleVariable) TreeBuilder.createSimpleVariableNode();
         varNode.pos = pos;
         varNode.name = createIdentifier(pos, name);
@@ -613,7 +617,7 @@ public final class ASTBuilderUtil {
                                             BLangExpression rhsExpr,
                                             BType type,
                                             OperatorKind opKind,
-                                            BOperatorSymbol symbol) {
+                                            @Nullable BOperatorSymbol symbol) {
         final BLangBinaryExpr binaryExpr = (BLangBinaryExpr) TreeBuilder.createBinaryExpressionNode();
         binaryExpr.pos = pos;
         binaryExpr.lhsExpr = lhsExpr;
@@ -650,7 +654,7 @@ public final class ASTBuilderUtil {
         return isLikeExpr;
     }
 
-    static BLangLiteral createLiteral(Location pos, BType type, Object value) {
+    static BLangLiteral createLiteral(Location pos, BType type, @Nullable Object value) {
         final BLangLiteral literal = (BLangLiteral) TreeBuilder.createLiteralExpression();
         literal.pos = pos;
         literal.value = value;
@@ -733,7 +737,7 @@ public final class ASTBuilderUtil {
         return objectInitNode;
     }
 
-    public static BLangIdentifier createIdentifier(Location pos, String value) {
+    public static BLangIdentifier createIdentifier(@Nullable Location pos, String value) {
         final BLangIdentifier node = (BLangIdentifier) TreeBuilder.createIdentifierNode();
         node.pos = pos;
         if (value != null) {
@@ -771,7 +775,7 @@ public final class ASTBuilderUtil {
         return fieldAccessExpr;
     }
 
-    public static BLangFunction createInitFunctionWithNilReturn(Location pos, String name, Name suffix) {
+    public static BLangFunction createInitFunctionWithNilReturn(@Nullable Location pos, String name, Name suffix) {
         BLangValueType typeNode = (BLangValueType) TreeBuilder.createValueTypeNode();
         typeNode.pos = pos;
         typeNode.typeKind = TypeKind.NIL;
@@ -818,7 +822,7 @@ public final class ASTBuilderUtil {
         return constExpr;
     }
 
-    public static BLangSimpleVariable createReceiver(Location pos, BType type) {
+    public static BLangSimpleVariable createReceiver(@Nullable Location pos, BType type) {
         BLangSimpleVariable receiver = (BLangSimpleVariable) TreeBuilder.createSimpleVariableNode();
         receiver.pos = pos;
         IdentifierNode identifier = createIdentifier(pos, Names.SELF.getValue());
@@ -1002,7 +1006,7 @@ public final class ASTBuilderUtil {
     }
 
     static BLangMatchClause createMatchClause(BLangExpression matchExpr, BLangBlockStmt blockStmt,
-                                              BLangExpression matchGuardExpr, BLangMatchPattern... patterns) {
+                                              @Nullable BLangExpression matchGuardExpr, BLangMatchPattern... patterns) {
         BLangMatchClause matchClause = (BLangMatchClause) TreeBuilder.createMatchClause();
         matchClause.expr = matchExpr;
         matchClause.blockStmt = blockStmt;
@@ -1014,6 +1018,7 @@ public final class ASTBuilderUtil {
         return matchClause;
     }
 
+    @Nullable
     static BLangMatchGuard createMatchGuard(BLangExpression expr) {
         if (expr == null) {
             return null;

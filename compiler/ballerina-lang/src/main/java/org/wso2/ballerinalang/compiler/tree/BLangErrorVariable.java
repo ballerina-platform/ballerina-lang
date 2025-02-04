@@ -21,6 +21,7 @@ package org.wso2.ballerinalang.compiler.tree;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.tree.ErrorVariableNode;
 import org.ballerinalang.model.tree.NodeKind;
+import org.jetbrains.annotations.Nullable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
@@ -41,6 +42,7 @@ import java.util.StringJoiner;
 public class BLangErrorVariable extends BLangVariable implements ErrorVariableNode {
 
     // BLangNodes
+    @Nullable
     public BLangSimpleVariable message;
     public BLangVariable cause;
     public BLangSimpleVariable restDetail;

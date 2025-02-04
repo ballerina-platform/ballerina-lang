@@ -18,6 +18,7 @@
 package io.ballerina.runtime.api.values;
 
 import io.ballerina.runtime.api.types.Type;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Map;
 
@@ -49,7 +50,7 @@ public interface BValue {
      */
     Object frozenCopy(Map<Object, Object> refs);
 
-    String stringValue(BLink parent);
+    String stringValue(@Nullable BLink parent);
 
     default String informalStringValue(BLink parent) {
         return toString();

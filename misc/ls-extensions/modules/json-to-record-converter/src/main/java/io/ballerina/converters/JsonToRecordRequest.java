@@ -17,6 +17,8 @@
  */
 package io.ballerina.converters;
 
+import org.jetbrains.annotations.Nullable;
+
 /**
  * Request format for JsonToBalRecord endpoint.
  *
@@ -33,8 +35,9 @@ public class JsonToRecordRequest {
 
     private final boolean isNullAsOptional;
 
-    public JsonToRecordRequest(String jsonString, String recordName, boolean isRecordTypeDesc, boolean isClosed,
-                               boolean forceFormatRecordFields, String filePathUri, boolean isNullAsOptional) {
+    public JsonToRecordRequest(
+            String jsonString, @Nullable String recordName, boolean isRecordTypeDesc, boolean isClosed,
+            boolean forceFormatRecordFields, @Nullable String filePathUri, boolean isNullAsOptional) {
         this.jsonString = jsonString;
         this.recordName = recordName;
         this.isRecordTypeDesc = isRecordTypeDesc;

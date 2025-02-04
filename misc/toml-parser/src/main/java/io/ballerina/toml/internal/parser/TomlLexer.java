@@ -24,9 +24,11 @@ import io.ballerina.toml.internal.parser.tree.STNodeFactory;
 import io.ballerina.toml.internal.parser.tree.STToken;
 import io.ballerina.toml.syntax.tree.SyntaxKind;
 import io.ballerina.tools.text.CharReader;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * A LL(k) lexer for TOML.
@@ -47,7 +49,7 @@ public class TomlLexer extends AbstractLexer {
     @Override
     public STToken nextToken() {
         STToken token;
-        switch (this.mode) {
+        switch (Objects.requireNonNull(this.mode, "Lexer mode was null, an underflow occurred")) {
             case STRING:
                 token = readStringToken();
                 break;
@@ -227,6 +229,7 @@ public class TomlLexer extends AbstractLexer {
         return token;
     }
 
+    @Nullable
     private STToken readNewlineToken() {
         reader.mark();
         if (reader.isEOF()) {

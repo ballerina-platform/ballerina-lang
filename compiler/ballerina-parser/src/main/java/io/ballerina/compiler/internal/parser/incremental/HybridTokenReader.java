@@ -21,6 +21,7 @@ import io.ballerina.compiler.internal.parser.AbstractTokenReader;
 import io.ballerina.compiler.internal.parser.KeywordMode;
 import io.ballerina.compiler.internal.parser.ParserMode;
 import io.ballerina.compiler.internal.parser.tree.STToken;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * This class supplies {@code STToken}s on-demand from
@@ -83,6 +84,7 @@ public class HybridTokenReader extends AbstractTokenReader {
     public void endKeywordMode() {
     }
 
+    @Nullable
     @Override
     public ParserMode getCurrentMode() {
         return null;

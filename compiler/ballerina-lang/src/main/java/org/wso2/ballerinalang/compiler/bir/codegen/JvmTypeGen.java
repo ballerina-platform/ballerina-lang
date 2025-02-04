@@ -22,6 +22,7 @@ import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.types.SelectivelyImmutableReferenceType;
+import org.jetbrains.annotations.Nullable;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.MethodVisitor;
@@ -499,7 +500,7 @@ public class JvmTypeGen {
         mv.visitFieldInsn(GETSTATIC, PREDEFINED_TYPES, typeFieldName, loadTypeClass(bType));
     }
 
-    private String loadTypeClass(BType bType) {
+    private String loadTypeClass(@Nullable BType bType) {
         bType = JvmCodeGenUtil.getImpliedType(bType);
         if (bType == null || bType.tag == TypeTags.NIL) {
             return LOAD_NULL_TYPE;
@@ -915,7 +916,7 @@ public class JvmTypeGen {
         populateFunctionParameters(mv, invokableSymbol, params);
     }
 
-    private void populateFunctionParameters(MethodVisitor mv, BInvokableTypeSymbol invokableSymbol,
+    private void populateFunctionParameters(MethodVisitor mv, @Nullable BInvokableTypeSymbol invokableSymbol,
                                             List<BVarSymbol> params) {
         mv.visitLdcInsn((long) params.size());
         mv.visitInsn(L2I);

@@ -22,6 +22,7 @@ import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BXml;
 import io.ballerina.runtime.internal.errors.ErrorCodes;
 import io.ballerina.runtime.internal.errors.ErrorHelper;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Returns the string giving the expanded name of provided xml element.
@@ -35,6 +36,7 @@ public final class GetName {
     private GetName() {
     }
 
+    @Nullable
     public static BString getName(BXml xmlVal) {
         if (!IsElement.isElement(xmlVal)) {
             throw ErrorHelper.getRuntimeException(ErrorCodes.XML_FUNC_TYPE_ERROR, "getName", "element");

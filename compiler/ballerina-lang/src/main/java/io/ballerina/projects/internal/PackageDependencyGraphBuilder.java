@@ -32,6 +32,7 @@ import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.diagnostics.DiagnosticInfo;
 import io.ballerina.tools.diagnostics.DiagnosticSeverity;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -384,6 +385,7 @@ public class PackageDependencyGraphBuilder {
         }
     }
 
+    @Nullable
     private PackageDescriptor handleDependencyConflict(DependencyNode newPkgDep,
                                                        DependencyNode existingPkgDep) {
         PackageDescriptor newPkgDesc = newPkgDep.pkgDesc();

@@ -19,6 +19,7 @@
 package io.ballerina.jsonmapper.diagnostic;
 
 import io.ballerina.tools.diagnostics.DiagnosticSeverity;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
 import java.util.Objects;
@@ -35,7 +36,7 @@ public final class DiagnosticMessage {
     private final DiagnosticSeverity severity;
     private final Object[] args;
 
-    private DiagnosticMessage(String code, String description, DiagnosticSeverity severity, Object[] args) {
+    private DiagnosticMessage(String code, String description, DiagnosticSeverity severity, @Nullable Object[] args) {
         this.code = code;
         this.description = description;
         this.severity = severity;
@@ -58,7 +59,7 @@ public final class DiagnosticMessage {
         return Objects.requireNonNullElse(this.args, new Object[0]).clone();
     }
 
-    public static DiagnosticMessage jsonToRecordConverter100(Object[] args) {
+    public static DiagnosticMessage jsonToRecordConverter100(@Nullable Object[] args) {
         if (args != null) {
             return new DiagnosticMessage("JSON_TO_RECORD_CONVERTER_100",
                     String.format("Provided JSON is invalid : %s", DiagnosticUtils.
@@ -69,12 +70,12 @@ public final class DiagnosticMessage {
                  "Provided JSON is invalid.", DiagnosticSeverity.ERROR, null);
     }
 
-    public static DiagnosticMessage jsonToRecordConverter101(Object[] args) {
+    public static DiagnosticMessage jsonToRecordConverter101(@Nullable Object[] args) {
         return new DiagnosticMessage("JSON_TO_RECORD_CONVERTER_101",
                 "Provided JSON is unsupported. It may be null or have missing types.", DiagnosticSeverity.ERROR, args);
     }
 
-    public static DiagnosticMessage jsonToRecordConverter102(Object[] args) {
+    public static DiagnosticMessage jsonToRecordConverter102(@Nullable Object[] args) {
         return new DiagnosticMessage("JSON_TO_RECORD_CONVERTER_102",
                 "Error occurred while formatting the Ballerina syntax tree.", DiagnosticSeverity.ERROR, args);
     }

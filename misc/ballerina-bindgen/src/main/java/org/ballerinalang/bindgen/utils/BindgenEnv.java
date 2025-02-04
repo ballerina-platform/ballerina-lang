@@ -21,6 +21,7 @@ import io.ballerina.projects.Package;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.TomlDocument;
 import org.ballerinalang.bindgen.model.JError;
+import org.jetbrains.annotations.Nullable;
 
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -158,7 +159,7 @@ public class BindgenEnv {
         this.aliases.put(alias, className);
     }
 
-    String getAlias(String className) {
+    @Nullable String getAlias(String className) {
         for (Map.Entry<String, String> entry : aliases.entrySet()) {
             if (className.equals(entry.getValue())) {
                 return entry.getKey();

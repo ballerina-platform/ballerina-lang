@@ -208,9 +208,9 @@ public class RemotePackageRepository implements PackageRepository {
                             return x;
                         } else if (x.resolutionStatus().equals(ResolutionResponse.ResolutionStatus.UNRESOLVED)) {
                             return y;
-                        } else if (getLatest(x.packageDescriptor().version(),
-                                y.packageDescriptor().version()).equals(
-                                y.packageDescriptor().version())) {
+                        } else if (getLatest(x.packageDescriptor().orElseThrow().version(),
+                                y.packageDescriptor().orElseThrow().version()).equals(
+                                y.packageDescriptor().orElseThrow().version())) {
                             return y;
                         }
                         return x;

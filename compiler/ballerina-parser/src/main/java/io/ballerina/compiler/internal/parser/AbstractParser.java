@@ -26,6 +26,7 @@ import io.ballerina.compiler.internal.parser.tree.STToken;
 import io.ballerina.compiler.internal.syntax.NodeListUtils;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.tools.diagnostics.DiagnosticCode;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayDeque;
 import java.util.Deque;
@@ -39,6 +40,7 @@ public abstract class AbstractParser {
     protected final AbstractParserErrorHandler errorHandler;
     protected final AbstractTokenReader tokenReader;
     private final Deque<InvalidNodeInfo> invalidNodeInfoStack = new ArrayDeque<>(5);
+    @Nullable
     protected STToken insertedToken = null;
 
     public AbstractParser(AbstractTokenReader tokenReader, AbstractParserErrorHandler errorHandler) {
@@ -202,7 +204,7 @@ public abstract class AbstractParser {
      */
     protected void updateLastNodeInListWithInvalidNode(List<STNode> nodeList,
                                                        STNode invalidParam,
-                                                       DiagnosticCode diagnosticCode,
+                                                       @Nullable DiagnosticCode diagnosticCode,
                                                        Object... args) {
         int lastIndex = nodeList.size() - 1;
         STNode prevNode = nodeList.remove(lastIndex);
@@ -289,7 +291,8 @@ public abstract class AbstractParser {
      * @param diagnosticCode the {@code DiagnosticCode} to be added
      * @param args           additional arguments required to format the diagnostic message
      */
-    protected void addInvalidNodeToNextToken(STNode invalidNode, DiagnosticCode diagnosticCode, Object... args) {
+    protected void addInvalidNodeToNextToken(STNode invalidNode, @Nullable DiagnosticCode diagnosticCode,
+                                             Object... args) {
         invalidNodeInfoStack.push(new InvalidNodeInfo(invalidNode, diagnosticCode, args));
     }
 

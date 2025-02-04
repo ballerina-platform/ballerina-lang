@@ -86,21 +86,21 @@ public class ExecutionContext {
 
     public EventRequestManager getEventManager() {
         if (debuggeeVM == null) {
-            return null;
+            throw new IllegalStateException("Debuggee VM is not initialized.");
         }
         return debuggeeVM.eventRequestManager();
     }
 
     public BufferedReader getInputStream() {
         if (launchedProcess == null) {
-            return null;
+            throw new IllegalStateException("Launched process is not initialized.");
         }
         return new BufferedReader(new InputStreamReader(launchedProcess.getInputStream(), StandardCharsets.UTF_8));
     }
 
     public BufferedReader getErrorStream() {
         if (launchedProcess == null) {
-            return null;
+            throw new IllegalStateException("Launched process is not initialized.");
         }
         return new BufferedReader(new InputStreamReader(launchedProcess.getErrorStream(), StandardCharsets.UTF_8));
     }

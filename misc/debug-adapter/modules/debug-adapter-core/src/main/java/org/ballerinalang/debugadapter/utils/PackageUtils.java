@@ -30,6 +30,7 @@ import io.ballerina.projects.util.ProjectPaths;
 import org.ballerinalang.debugadapter.DebugSourceType;
 import org.ballerinalang.debugadapter.ExecutionContext;
 import org.ballerinalang.debugadapter.SuspendedContext;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 import java.net.URI;
@@ -193,6 +194,7 @@ public final class PackageUtils {
         return "";
     }
 
+    @Nullable
     public static String getFileNameFrom(Path filePath) {
         try {
             String[] split = filePath.toString().split(FILE_SEPARATOR_REGEX);

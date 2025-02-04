@@ -36,6 +36,7 @@ import io.ballerina.runtime.internal.scheduling.Scheduler;
 import io.ballerina.runtime.internal.values.MapValue;
 import io.ballerina.runtime.internal.values.MapValueImpl;
 import io.ballerina.runtime.internal.values.ReadOnlyUtils;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -86,8 +87,8 @@ public class BRecordType extends BStructureType implements RecordType {
      * @param sealed flag to indicate whether the record is sealed
      * @param typeFlags flags associated with the type
      */
-    public BRecordType(String typeName, Module pkg, long flags, Map<String, Field> fields, Type restFieldType,
-                       boolean sealed, int typeFlags) {
+    public BRecordType(String typeName, @Nullable Module pkg, long flags, Map<String, Field> fields,
+                       @Nullable Type restFieldType, boolean sealed, int typeFlags) {
         super(typeName, pkg, flags, MapValueImpl.class);
         this.sealed = sealed;
         this.typeFlags = typeFlags;

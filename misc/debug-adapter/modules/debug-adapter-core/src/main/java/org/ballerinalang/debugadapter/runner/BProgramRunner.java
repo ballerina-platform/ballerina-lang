@@ -19,6 +19,7 @@ package org.ballerinalang.debugadapter.runner;
 import org.ballerinalang.debugadapter.config.ClientConfigurationException;
 import org.ballerinalang.debugadapter.config.ClientLaunchConfigHolder;
 import org.ballerinalang.debugadapter.utils.OSUtils;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -55,7 +56,7 @@ public abstract class BProgramRunner {
      */
     public abstract Process start() throws Exception;
 
-    public ArrayList<String> getBallerinaCommand(String balFile) throws ClientConfigurationException {
+    public ArrayList<String> getBallerinaCommand(@Nullable String balFile) throws ClientConfigurationException {
 
         List<String> ballerinaExec = new ArrayList<>();
         if (OSUtils.isWindows()) {

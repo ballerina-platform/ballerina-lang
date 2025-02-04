@@ -15,6 +15,7 @@
  */
 package org.ballerinalang.datamapper.utils;
 
+import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -90,10 +91,12 @@ public final class HttpClientRequest {
         conn.setRequestMethod(method);
     }
 
+    @Nullable
     private static HttpResponse buildResponse(HttpURLConnection conn) throws IOException {
         return buildResponse(conn, DEFAULT_RESPONSE_BUILDER);
     }
 
+    @Nullable
     private static HttpResponse buildResponse(HttpURLConnection conn,
                                               CheckedFunction<BufferedReader, String> responseBuilder)
             throws IOException {

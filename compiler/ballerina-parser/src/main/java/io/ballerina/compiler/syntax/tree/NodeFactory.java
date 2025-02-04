@@ -19,6 +19,7 @@ package io.ballerina.compiler.syntax.tree;
 
 import io.ballerina.compiler.internal.parser.tree.STNode;
 import io.ballerina.compiler.internal.parser.tree.STNodeFactory;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
 
@@ -50,8 +51,8 @@ public abstract class NodeFactory extends AbstractNodeFactory {
     }
 
     public static FunctionDefinitionNode createFunctionDefinitionNode(
-            SyntaxKind kind,
-            MetadataNode metadata,
+            @Nullable SyntaxKind kind,
+            @Nullable MetadataNode metadata,
             NodeList<Token> qualifierList,
             Token functionKeyword,
             IdentifierToken functionName,
@@ -79,9 +80,9 @@ public abstract class NodeFactory extends AbstractNodeFactory {
 
     public static ImportDeclarationNode createImportDeclarationNode(
             Token importKeyword,
-            ImportOrgNameNode orgName,
+            @Nullable ImportOrgNameNode orgName,
             SeparatedNodeList<IdentifierToken> moduleName,
-            ImportPrefixNode prefix,
+            @Nullable ImportPrefixNode prefix,
             Token semicolon) {
         Objects.requireNonNull(importKeyword, "importKeyword must not be null");
         Objects.requireNonNull(moduleName, "moduleName must not be null");
@@ -124,8 +125,8 @@ public abstract class NodeFactory extends AbstractNodeFactory {
     }
 
     public static TypeDefinitionNode createTypeDefinitionNode(
-            MetadataNode metadata,
-            Token visibilityQualifier,
+            @Nullable MetadataNode metadata,
+            @Nullable Token visibilityQualifier,
             Token typeKeyword,
             Token typeName,
             Node typeDescriptor,
@@ -222,10 +223,10 @@ public abstract class NodeFactory extends AbstractNodeFactory {
 
     public static VariableDeclarationNode createVariableDeclarationNode(
             NodeList<AnnotationNode> annotations,
-            Token finalKeyword,
+            @Nullable Token finalKeyword,
             TypedBindingPatternNode typedBindingPattern,
-            Token equalsToken,
-            ExpressionNode initializer,
+            @Nullable Token equalsToken,
+            @Nullable ExpressionNode initializer,
             Token semicolonToken) {
         Objects.requireNonNull(annotations, "annotations must not be null");
         Objects.requireNonNull(typedBindingPattern, "typedBindingPattern must not be null");
@@ -284,7 +285,7 @@ public abstract class NodeFactory extends AbstractNodeFactory {
     }
 
     public static ExpressionStatementNode createExpressionStatementNode(
-            SyntaxKind kind,
+            @Nullable SyntaxKind kind,
             ExpressionNode expression,
             Token semicolonToken) {
         Objects.requireNonNull(expression, "expression must not be null");
@@ -331,7 +332,7 @@ public abstract class NodeFactory extends AbstractNodeFactory {
             Token ifKeyword,
             ExpressionNode condition,
             BlockStatementNode ifBody,
-            Node elseBody) {
+            @Nullable Node elseBody) {
         Objects.requireNonNull(ifKeyword, "ifKeyword must not be null");
         Objects.requireNonNull(condition, "condition must not be null");
         Objects.requireNonNull(ifBody, "ifBody must not be null");
@@ -461,7 +462,7 @@ public abstract class NodeFactory extends AbstractNodeFactory {
             Token inKeyword,
             Node actionOrExpressionNode,
             BlockStatementNode blockStatement,
-            OnFailClauseNode onFailClause) {
+            @Nullable OnFailClauseNode onFailClause) {
         Objects.requireNonNull(forEachKeyword, "forEachKeyword must not be null");
         Objects.requireNonNull(typedBindingPattern, "typedBindingPattern must not be null");
         Objects.requireNonNull(inKeyword, "inKeyword must not be null");
@@ -479,7 +480,7 @@ public abstract class NodeFactory extends AbstractNodeFactory {
     }
 
     public static BinaryExpressionNode createBinaryExpressionNode(
-            SyntaxKind kind,
+            @Nullable SyntaxKind kind,
             Node lhsExpr,
             Token operator,
             Node rhsExpr) {
@@ -496,7 +497,7 @@ public abstract class NodeFactory extends AbstractNodeFactory {
     }
 
     public static BracedExpressionNode createBracedExpressionNode(
-            SyntaxKind kind,
+            @Nullable SyntaxKind kind,
             Token openParen,
             ExpressionNode expression,
             Token closeParen) {
@@ -513,7 +514,7 @@ public abstract class NodeFactory extends AbstractNodeFactory {
     }
 
     public static CheckExpressionNode createCheckExpressionNode(
-            SyntaxKind kind,
+            @Nullable SyntaxKind kind,
             Token checkKeyword,
             ExpressionNode expression) {
         Objects.requireNonNull(checkKeyword, "checkKeyword must not be null");
@@ -781,10 +782,10 @@ public abstract class NodeFactory extends AbstractNodeFactory {
     }
 
     public static SpecificFieldNode createSpecificFieldNode(
-            Token readonlyKeyword,
+            @Nullable Token readonlyKeyword,
             Node fieldName,
             Token colon,
-            ExpressionNode valueExpr) {
+            @Nullable ExpressionNode valueExpr) {
         Objects.requireNonNull(fieldName, "fieldName must not be null");
 
         STNode stSpecificFieldNode = STNodeFactory.createSpecificFieldNode(
@@ -906,7 +907,7 @@ public abstract class NodeFactory extends AbstractNodeFactory {
             Token recordKeyword,
             Token bodyStartDelimiter,
             NodeList<Node> fields,
-            RecordRestDescriptorNode recordRestDescriptor,
+            @Nullable RecordRestDescriptorNode recordRestDescriptor,
             Token bodyEndDelimiter) {
         Objects.requireNonNull(recordKeyword, "recordKeyword must not be null");
         Objects.requireNonNull(bodyStartDelimiter, "bodyStartDelimiter must not be null");
@@ -988,11 +989,11 @@ public abstract class NodeFactory extends AbstractNodeFactory {
     }
 
     public static RecordFieldNode createRecordFieldNode(
-            MetadataNode metadata,
-            Token readonlyKeyword,
+            @Nullable MetadataNode metadata,
+            @Nullable Token readonlyKeyword,
             Node typeName,
             Token fieldName,
-            Token questionMarkToken,
+            @Nullable Token questionMarkToken,
             Token semicolonToken) {
         Objects.requireNonNull(typeName, "typeName must not be null");
         Objects.requireNonNull(fieldName, "fieldName must not be null");
@@ -1010,7 +1011,7 @@ public abstract class NodeFactory extends AbstractNodeFactory {
 
     public static RecordFieldWithDefaultValueNode createRecordFieldWithDefaultValueNode(
             MetadataNode metadata,
-            Token readonlyKeyword,
+            @Nullable Token readonlyKeyword,
             Node typeName,
             Token fieldName,
             Token equalsToken,
@@ -1066,7 +1067,7 @@ public abstract class NodeFactory extends AbstractNodeFactory {
     public static AnnotationNode createAnnotationNode(
             Token atToken,
             Node annotReference,
-            MappingConstructorExpressionNode annotValue) {
+            @Nullable MappingConstructorExpressionNode annotValue) {
         Objects.requireNonNull(atToken, "atToken must not be null");
         Objects.requireNonNull(annotReference, "annotReference must not be null");
 
@@ -1078,7 +1079,7 @@ public abstract class NodeFactory extends AbstractNodeFactory {
     }
 
     public static MetadataNode createMetadataNode(
-            Node documentationString,
+            @Nullable Node documentationString,
             NodeList<AnnotationNode> annotations) {
         Objects.requireNonNull(annotations, "annotations must not be null");
 
@@ -1090,11 +1091,11 @@ public abstract class NodeFactory extends AbstractNodeFactory {
 
     public static ModuleVariableDeclarationNode createModuleVariableDeclarationNode(
             MetadataNode metadata,
-            Token visibilityQualifier,
+            @Nullable Token visibilityQualifier,
             NodeList<Token> qualifiers,
             TypedBindingPatternNode typedBindingPattern,
-            Token equalsToken,
-            ExpressionNode initializer,
+            @Nullable Token equalsToken,
+            @Nullable ExpressionNode initializer,
             Token semicolonToken) {
         Objects.requireNonNull(qualifiers, "qualifiers must not be null");
         Objects.requireNonNull(typedBindingPattern, "typedBindingPattern must not be null");
@@ -1253,10 +1254,10 @@ public abstract class NodeFactory extends AbstractNodeFactory {
 
     public static FunctionBodyBlockNode createFunctionBodyBlockNode(
             Token openBraceToken,
-            NamedWorkerDeclarator namedWorkerDeclarator,
+            @Nullable NamedWorkerDeclarator namedWorkerDeclarator,
             NodeList<StatementNode> statements,
             Token closeBraceToken,
-            Token semicolonToken) {
+            @Nullable Token semicolonToken) {
         Objects.requireNonNull(openBraceToken, "openBraceToken must not be null");
         Objects.requireNonNull(statements, "statements must not be null");
         Objects.requireNonNull(closeBraceToken, "closeBraceToken must not be null");
@@ -1299,7 +1300,7 @@ public abstract class NodeFactory extends AbstractNodeFactory {
             IdentifierToken workerName,
             Node returnTypeDesc,
             BlockStatementNode workerBody,
-            OnFailClauseNode onFailClause) {
+            @Nullable OnFailClauseNode onFailClause) {
         Objects.requireNonNull(annotations, "annotations must not be null");
         Objects.requireNonNull(workerKeyword, "workerKeyword must not be null");
         Objects.requireNonNull(workerName, "workerName must not be null");
@@ -1364,7 +1365,7 @@ public abstract class NodeFactory extends AbstractNodeFactory {
     }
 
     public static BuiltinSimpleNameReferenceNode createBuiltinSimpleNameReferenceNode(
-            SyntaxKind kind,
+            @Nullable SyntaxKind kind,
             Token name) {
         Objects.requireNonNull(name, "name must not be null");
 
@@ -1827,7 +1828,7 @@ public abstract class NodeFactory extends AbstractNodeFactory {
             Token openParenToken,
             SeparatedNodeList<ParameterNode> parameters,
             Token closeParenToken,
-            ReturnTypeDescriptorNode returnTypeDesc) {
+            @Nullable ReturnTypeDescriptorNode returnTypeDesc) {
         Objects.requireNonNull(openParenToken, "openParenToken must not be null");
         Objects.requireNonNull(parameters, "parameters must not be null");
         Objects.requireNonNull(closeParenToken, "closeParenToken must not be null");
@@ -2627,7 +2628,7 @@ public abstract class NodeFactory extends AbstractNodeFactory {
 
     public static ArrayDimensionNode createArrayDimensionNode(
             Token openBracket,
-            Node arrayLength,
+            @Nullable Node arrayLength,
             Token closeBracket) {
         Objects.requireNonNull(openBracket, "openBracket must not be null");
         Objects.requireNonNull(closeBracket, "closeBracket must not be null");
@@ -2985,7 +2986,7 @@ public abstract class NodeFactory extends AbstractNodeFactory {
     }
 
     public static MarkdownDocumentationLineNode createMarkdownDocumentationLineNode(
-            SyntaxKind kind,
+            @Nullable SyntaxKind kind,
             Token hashToken,
             NodeList<Node> documentElements) {
         Objects.requireNonNull(hashToken, "hashToken must not be null");
@@ -2999,7 +3000,7 @@ public abstract class NodeFactory extends AbstractNodeFactory {
     }
 
     public static MarkdownParameterDocumentationLineNode createMarkdownParameterDocumentationLineNode(
-            SyntaxKind kind,
+            @Nullable SyntaxKind kind,
             Token hashToken,
             Token plusToken,
             Token parameterName,
@@ -3281,7 +3282,7 @@ public abstract class NodeFactory extends AbstractNodeFactory {
     public static ParameterizedTypeDescriptorNode createParameterizedTypeDescriptorNode(
             SyntaxKind kind,
             Token keywordToken,
-            TypeParameterNode typeParamNode) {
+            @Nullable TypeParameterNode typeParamNode) {
         Objects.requireNonNull(keywordToken, "keywordToken must not be null");
 
         STNode stParameterizedTypeDescriptorNode = STNodeFactory.createParameterizedTypeDescriptorNode(

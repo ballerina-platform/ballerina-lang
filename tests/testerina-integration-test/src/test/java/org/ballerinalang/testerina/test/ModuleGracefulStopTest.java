@@ -38,12 +38,12 @@ import java.util.HashMap;
 public class ModuleGracefulStopTest extends BaseTestCase {
 
     private BMainInstance balClient;
-    private String projectPath;
+    private Path projectPath;
 
     @BeforeClass
     public void setup() {
         balClient = new BMainInstance(balServer);
-        projectPath = projectBasedTestsPath.resolve("module-graceful-stop-tests").toString();
+        projectPath = projectBasedTestsPath.resolve("module-graceful-stop-tests");
     }
 
     @Test()
@@ -60,7 +60,7 @@ public class ModuleGracefulStopTest extends BaseTestCase {
     @AfterMethod
     public void copyExec() {
         try {
-            FileUtils.copyBallerinaExec(Path.of(projectPath), String.valueOf(System.currentTimeMillis()));
+            FileUtils.copyBallerinaExec(projectPath, String.valueOf(System.currentTimeMillis()));
         } catch (IOException e) {
             // ignore exception
         }

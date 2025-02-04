@@ -19,6 +19,7 @@
 package io.ballerina.runtime.internal.configurable.providers.toml;
 
 import io.ballerina.runtime.api.Module;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Collections;
 import java.util.HashSet;
@@ -64,7 +65,7 @@ public class ModuleInfo {
         return moduleNames.contains(nodeName);
     }
 
-    Module getModuleFromName(String nodeName) {
+    @Nullable Module getModuleFromName(String nodeName) {
         for (Module entry : moduleSet) {
             if (entry.getName().equals(nodeName)) {
                 return entry;

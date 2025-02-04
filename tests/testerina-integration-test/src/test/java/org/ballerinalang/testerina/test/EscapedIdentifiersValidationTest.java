@@ -31,19 +31,17 @@ import java.util.HashMap;
 public class EscapedIdentifiersValidationTest extends BaseTestCase {
 
     private BMainInstance balClient;
-    private String projectPath;
 
     @BeforeClass
     public void setup() {
         balClient = new BMainInstance(balServer);
-        projectPath = projectBasedTestsPath.toString();
     }
 
     @Test
     public void validateEscapedIdentifiersTest() throws BallerinaTestException, IOException {
         String[] args = mergeCoverageArgs(new String[]{"validate-escaped-identifiers"});
         String output = balClient.runMainAndReadStdOut("test", args,
-                new HashMap<>(), projectPath, true);
+                new HashMap<>(), projectBasedTestsPath, true);
         AssertionUtils.assertOutput("EscapedIdentifiersValidationTest-validateEscapedIdentifiersTest.txt",
                 output);
     }

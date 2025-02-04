@@ -28,6 +28,7 @@ import io.ballerina.runtime.api.types.UnionType;
 import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.internal.TypeChecker;
 import io.ballerina.runtime.internal.values.ReadOnlyUtils;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -130,7 +131,7 @@ public class BUnionType extends BType implements UnionType, SelectivelyImmutable
         this(new ArrayList<>(0), name, pkg, typeFlags, isCyclic, flags);
     }
 
-    protected BUnionType(String typeName, Module pkg, boolean readonly, Class<? extends Object> valueClass) {
+    protected BUnionType(String typeName, @Nullable Module pkg, boolean readonly, Class<? extends Object> valueClass) {
         super(typeName, pkg, valueClass);
         this.readonly = readonly;
     }
@@ -299,6 +300,7 @@ public class BUnionType extends BType implements UnionType, SelectivelyImmutable
         return readOnlyTypes;
     }
 
+    @Nullable
     @Override
     public <V extends Object> V getZeroValue() {
         if (isNilable() || memberTypes.stream().anyMatch(Type::isNilable)) {
@@ -314,6 +316,7 @@ public class BUnionType extends BType implements UnionType, SelectivelyImmutable
         }
     }
 
+    @Nullable
     @Override
     public <V extends Object> V getEmptyValue() {
         if (isNilable() || memberTypes.stream().anyMatch(Type::isNilable)) {

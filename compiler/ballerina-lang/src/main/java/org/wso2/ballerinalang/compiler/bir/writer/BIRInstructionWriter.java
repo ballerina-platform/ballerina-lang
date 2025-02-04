@@ -21,6 +21,7 @@ import io.ballerina.tools.diagnostics.Location;
 import io.netty.buffer.ByteBuf;
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.model.elements.PackageID;
+import org.jetbrains.annotations.Nullable;
 import org.wso2.ballerinalang.compiler.bir.codegen.model.JLargeArrayInstruction;
 import org.wso2.ballerinalang.compiler.bir.codegen.model.JLargeMapInstruction;
 import org.wso2.ballerinalang.compiler.bir.codegen.model.JMethodCallInstruction;
@@ -738,7 +739,7 @@ public class BIRInstructionWriter extends BIRVisitor {
         buf.writeInt(addStringCPEntry(string));
     }
 
-    private int addStringCPEntry(String value) {
+    private int addStringCPEntry(@Nullable String value) {
         return BIRWriterUtils.addStringCPEntry(value, this.cp);
     }
 

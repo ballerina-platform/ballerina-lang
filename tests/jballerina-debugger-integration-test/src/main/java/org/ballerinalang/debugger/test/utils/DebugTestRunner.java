@@ -52,6 +52,7 @@ import org.eclipse.lsp4j.debug.ThreadsResponse;
 import org.eclipse.lsp4j.debug.Variable;
 import org.eclipse.lsp4j.debug.VariablesArguments;
 import org.eclipse.lsp4j.debug.VariablesResponse;
+import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.Assert;
@@ -65,6 +66,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Timer;
 
@@ -81,9 +83,11 @@ public class DebugTestRunner {
     private static Path testProjectBaseDir;
     private static Path testSingleFileBaseDir;
     private static BalServer balServer;
+    @Nullable
     private DAPClientConnector debugClientConnector;
     private boolean isConnected = false;
     private int port;
+    @Nullable
     private BMainInstance balClient = null;
     private Process debuggeeProcess;
     private DebugHitListener hitListener;
@@ -129,7 +133,7 @@ public class DebugTestRunner {
         return assertionMode == AssertionMode.SOFT_ASSERT;
     }
 
-    public void runDebuggeeProgram(String projectPath, int port) throws BallerinaTestException {
+    public void runDebuggeeProgram(Path projectPath, int port) throws BallerinaTestException {
         String msg = "Listening for transport dt_socket at address: " + port;
         LogLeecher clientLeecher = new LogLeecher(msg);
         balClient = new BMainInstance(balServer);
@@ -167,7 +171,8 @@ public class DebugTestRunner {
             launchConfigs.put("terminal", terminalKind);
         }
         initDebugSession(executionKind, launchConfigs);
-        return debugClientConnector.getRequestManager().getDidRunInIntegratedTerminal();
+
+        return Objects.requireNonNull(debugClientConnector).getRequestManager().getDidRunInIntegratedTerminal();
     }
 
     /**
@@ -209,8 +214,10 @@ public class DebugTestRunner {
     public void initDebugSession(DebugUtils.DebuggeeExecutionKind executionKind,
                                  int port, Map<String, Object> launchArgs) throws BallerinaTestException {
 
-        debugClientConnector = new DAPClientConnector(balServer.getServerHome(), testProjectPath, testEntryFilePath,
-                port, clientSupportsRunInTerminal);
+        DAPClientConnector debugClientConnector =
+                new DAPClientConnector(balServer.getServerHome(), testProjectPath, testEntryFilePath, port,
+                        clientSupportsRunInTerminal);
+        this.debugClientConnector = debugClientConnector;
         debugClientConnector.createConnection();
         if (debugClientConnector.isConnected()) {
             isConnected = true;
@@ -275,6 +282,7 @@ public class DebugTestRunner {
         return Optional.empty();
     }
 
+    @Nullable
     private SetBreakpointsResponse setBreakpoints(List<BallerinaTestDebugPoint> breakPoints)
             throws BallerinaTestException {
 

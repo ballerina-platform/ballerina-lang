@@ -9,6 +9,8 @@ module ballerina.debug.adapter.core {
     requires org.eclipse.lsp4j.jsonrpc;
     requires io.ballerina.identifier;
     requires org.apache.commons.lang3;
+    requires static org.jetbrains.annotations;
+    requires com.google.errorprone.annotations;
 
     exports org.ballerinalang.debugadapter.launcher;
 }

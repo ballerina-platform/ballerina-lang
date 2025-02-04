@@ -24,6 +24,7 @@ import org.ballerinalang.model.tree.MarkdownDocumentationNode;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.ServiceNode;
 import org.ballerinalang.model.tree.expressions.LiteralNode;
+import org.jetbrains.annotations.Nullable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
@@ -45,6 +46,7 @@ public class BLangService extends BLangNode implements ServiceNode {
     public List<BLangExpression> attachedExprs;
     public BLangClassDefinition serviceClass;
     public List<IdentifierNode> absoluteResourcePath;
+    @Nullable
     public BLangLiteral serviceNameLiteral;
     public BLangIdentifier name;
     public List<BLangAnnotationAttachment> annAttachments;
@@ -107,6 +109,7 @@ public class BLangService extends BLangNode implements ServiceNode {
         return serviceNameLiteral;
     }
 
+    @Nullable
     @Override
     public Set<Flag> getFlags() {
         return null;

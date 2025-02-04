@@ -57,6 +57,7 @@ import io.ballerina.runtime.internal.values.MapValueImpl;
 import io.ballerina.runtime.internal.values.ReadOnlyUtils;
 import io.ballerina.runtime.internal.values.TableValueImpl;
 import io.ballerina.runtime.internal.values.TupleValueImpl;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -82,10 +83,12 @@ public final class ValueConverter {
         return convert(value, t.getDescribingType());
     }
 
+    @Nullable
     public static Object convert(Object value, Type targetType) {
         return convert(value, targetType, new HashSet<>());
     }
 
+    @Nullable
     private static Object convert(Object value, Type targetType, Set<TypeValuePair> unresolvedValues) {
 
         if (value == null) {
@@ -226,6 +229,7 @@ public final class ValueConverter {
         return ValueCreator.createRecordValue(recordRefType.getPackage(), recordRefType.getName(), valueMap);
     }
 
+    @Nullable
     private static Object convertRecordEntry(Set<TypeValuePair> unresolvedValues,
                                              Type restFieldType, Map<String, Type> targetTypeField,
                                              Map.Entry<?, ?> entry) {

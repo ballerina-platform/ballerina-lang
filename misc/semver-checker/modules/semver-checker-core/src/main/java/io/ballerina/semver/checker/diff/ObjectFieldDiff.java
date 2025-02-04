@@ -20,6 +20,7 @@ package io.ballerina.semver.checker.diff;
 
 import io.ballerina.compiler.syntax.tree.ObjectFieldNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
 import java.util.Optional;
@@ -71,7 +72,7 @@ public class ObjectFieldDiff extends NodeDiffImpl<ObjectFieldNode> {
 
         private final ObjectFieldDiff fieldDiff;
 
-        public Builder(ObjectFieldNode newNode, ObjectFieldNode oldNode) {
+        public Builder(@Nullable ObjectFieldNode newNode, @Nullable ObjectFieldNode oldNode) {
             super(newNode, oldNode);
             fieldDiff = new ObjectFieldDiff(newNode, oldNode);
         }

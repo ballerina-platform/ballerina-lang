@@ -17,6 +17,7 @@
  */
 package org.wso2.ballerinalang.compiler.semantics.model.types;
 
+import org.jetbrains.annotations.Nullable;
 import org.wso2.ballerinalang.compiler.semantics.model.TypeVisitor;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
@@ -37,7 +38,8 @@ public class BParameterizedType extends BType {
     public BType paramValueType;
     public int paramIndex;
 
-    public BParameterizedType(BType valueType, BVarSymbol paramSymbol, BTypeSymbol tSymbol, Name name, int paramIndex) {
+    public BParameterizedType(@Nullable BType valueType, @Nullable BVarSymbol paramSymbol,
+                              @Nullable BTypeSymbol tSymbol, Name name, int paramIndex) {
         super(TypeTags.PARAMETERIZED_TYPE, tSymbol);
         this.paramSymbol = paramSymbol;
         this.paramValueType = valueType;

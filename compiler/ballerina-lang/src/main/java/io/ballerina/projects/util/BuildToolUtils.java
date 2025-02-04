@@ -34,6 +34,7 @@ import io.ballerina.toml.semantic.diagnostics.TomlNodeLocation;
 import io.ballerina.tools.diagnostics.DiagnosticCode;
 import io.ballerina.tools.diagnostics.DiagnosticInfo;
 import io.ballerina.tools.diagnostics.DiagnosticSeverity;
+import org.jetbrains.annotations.Nullable;
 import org.wso2.ballerinalang.util.RepoUtils;
 
 import java.io.IOException;
@@ -82,7 +83,8 @@ public final class BuildToolUtils {
      * @param toolId tool id of the build tool
      * @return diagnostic
      */
-    public static TomlDiagnostic getCannotResolveBuildToolDiagnostic(String toolId, TomlNodeLocation location) {
+    public static TomlDiagnostic getCannotResolveBuildToolDiagnostic(String toolId,
+                                                                     @Nullable TomlNodeLocation location) {
         String message = "Build tool '" + toolId + "' cannot be resolved";
         DiagnosticInfo diagnosticInfo = new DiagnosticInfo(
                 ProjectDiagnosticErrorCode.BUILD_TOOL_NOT_FOUND.diagnosticId(),
@@ -258,6 +260,7 @@ public final class BuildToolUtils {
      * @param toolEntries tool entries in Ballerina.toml
      * @return location of the first tool entry
      */
+    @Nullable
     public static TomlNodeLocation getFirstToolEntryLocation(String toolId, List<PackageManifest.Tool> toolEntries) {
         for (PackageManifest.Tool toolEntry : toolEntries) {
             if (toolEntry.type().value().equals(toolId)) {

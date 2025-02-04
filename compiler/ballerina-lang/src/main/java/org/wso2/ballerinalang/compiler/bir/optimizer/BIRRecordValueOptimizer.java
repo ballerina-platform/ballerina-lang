@@ -18,6 +18,7 @@
 
 package org.wso2.ballerinalang.compiler.bir.optimizer;
 
+import org.jetbrains.annotations.Nullable;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator;
 import org.wso2.ballerinalang.compiler.bir.model.BIROperand;
@@ -212,6 +213,7 @@ public class BIRRecordValueOptimizer extends BIRVisitor {
         fpRemoved = false;
     }
 
+    @Nullable
     private BIRNode.BIRFunction getDefaultBIRFunction(String funcName) {
         for (BIRNode.BIRFunction func : moduleFunctions) {
             if (func.name.value.equals(funcName)) {

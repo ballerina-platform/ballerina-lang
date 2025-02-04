@@ -101,11 +101,13 @@ public class DefaultPackageResolver implements PackageResolver {
                             if (x.resolutionStatus().equals(ResolutionStatus.UNRESOLVED)) {
                                 return y;
                             }
-                            if (!x.packageDescriptor().name().equals(y.packageDescriptor().name())) {
-                                ResolutionRequest resolutionRequest = ResolutionRequest
-                                        .from(y.packageDescriptor(), PackageDependencyScope.DEFAULT,
-                                                DependencyResolutionType.SOURCE,
-                                                options.packageLockingMode());
+                            if (!x.packageDescriptor().orElseThrow().name().equals(
+                                    y.packageDescriptor().orElseThrow().name())) {
+                                ResolutionRequest resolutionRequest = ResolutionRequest.from(
+                                        y.packageDescriptor().orElseThrow(),
+                                        PackageDependencyScope.DEFAULT,
+                                        DependencyResolutionType.SOURCE,
+                                        options.packageLockingMode());
                                 Collection<PackageVersion> packageVersions =
                                         distributionRepo.getPackageVersions(resolutionRequest, options);
                                 // If module exists in both repos, then we check if a newer version of

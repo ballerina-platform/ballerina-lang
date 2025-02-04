@@ -20,6 +20,7 @@ package org.ballerinalang.langlib.xml;
 
 import io.ballerina.runtime.api.values.BXml;
 import io.ballerina.runtime.internal.errors.ErrorHelper;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Strips the insignificant parts of the an xml value.
@@ -36,6 +37,7 @@ public class Strip {
     private Strip() {
     }
 
+    @Nullable
     public static BXml strip(BXml xml) {
         try {
             return xml.strip();

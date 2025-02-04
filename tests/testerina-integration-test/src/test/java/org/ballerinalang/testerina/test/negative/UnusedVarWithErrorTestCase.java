@@ -23,6 +23,7 @@ import org.ballerinalang.testerina.test.BaseTestCase;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
+import java.nio.file.Path;
 import java.util.HashMap;
 
 import static org.testng.Assert.assertEquals;
@@ -35,12 +36,12 @@ import static org.testng.Assert.assertEquals;
 public class UnusedVarWithErrorTestCase extends BaseTestCase {
 
     private BMainInstance balClient;
-    private String projectPath;
+    private Path projectPath;
 
     @BeforeClass
     public void setup() {
         balClient = new BMainInstance(balServer);
-        projectPath = projectBasedTestsPath.resolve("unused-var-with-error-test").toString();
+        projectPath = projectBasedTestsPath.resolve("unused-var-with-error-test");
     }
 
     @Test

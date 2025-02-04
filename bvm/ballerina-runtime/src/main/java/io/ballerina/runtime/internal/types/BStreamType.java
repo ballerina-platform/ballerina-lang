@@ -25,6 +25,7 @@ import io.ballerina.runtime.api.types.StreamType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.TypeTags;
 import io.ballerina.runtime.internal.values.StreamValue;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
 
@@ -46,7 +47,7 @@ public class BStreamType extends BType implements StreamType {
      * @param completionType the type which indicates the completion of the stream
      * @param pkgPath    package path
      */
-    public BStreamType(String typeName, Type constraint, Type completionType, Module pkgPath) {
+    public BStreamType(String typeName, Type constraint, Type completionType, @Nullable Module pkgPath) {
         super(typeName, pkgPath, StreamValue.class);
         this.constraint = constraint;
         this.completionType = completionType;
@@ -71,7 +72,7 @@ public class BStreamType extends BType implements StreamType {
      * @deprecated use {@link #BStreamType(String, Type, Type, Module)} instead.
      */
     @Deprecated
-    public BStreamType(String typeName, Type constraint, Module pkgPath) {
+    public BStreamType(String typeName, Type constraint, @Nullable Module pkgPath) {
         this(typeName, constraint, PredefinedTypes.TYPE_NULL, pkgPath);
     }
 
@@ -101,6 +102,7 @@ public class BStreamType extends BType implements StreamType {
         return (V) new StreamValue(this);
     }
 
+    @Nullable
     @Override
     public <V> V getEmptyValue() {
         return null;

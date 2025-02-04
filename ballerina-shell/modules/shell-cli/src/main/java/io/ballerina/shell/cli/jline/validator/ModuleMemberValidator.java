@@ -26,6 +26,7 @@ import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import io.ballerina.shell.cli.utils.IncompleteInputFinder;
 import io.ballerina.tools.text.TextDocument;
 import io.ballerina.tools.text.TextDocuments;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Validates user input as a complete module member.
@@ -34,6 +35,7 @@ import io.ballerina.tools.text.TextDocuments;
  */
 public class ModuleMemberValidator implements Validator {
 
+    @Nullable
     private Validator nextInValidator;
 
     public ModuleMemberValidator() {
@@ -59,11 +61,11 @@ public class ModuleMemberValidator implements Validator {
             // Sample testcase : if (x == y) { x = x + 1; x = x + 1;
             if (lastNode.kind() == SyntaxKind.FUNCTION_DEFINITION) {
                 return !lastNode.hasDiagnostics() || !lastNode.apply(incompleteInputFinder)
-                        || nextInValidator.evaluate(lastNode.toSourceCode());
+                        || (nextInValidator != null && nextInValidator.evaluate(lastNode.toSourceCode()));
             }
         }
 
         return !node.imports().isEmpty() || !parsedNode.hasDiagnostics() || !parsedNode.apply(incompleteInputFinder)
-                || nextInValidator.evaluate(source);
+                || (nextInValidator != null && nextInValidator.evaluate(source));
     }
 }

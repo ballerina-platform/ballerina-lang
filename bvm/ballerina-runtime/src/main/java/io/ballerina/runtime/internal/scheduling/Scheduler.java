@@ -41,6 +41,7 @@ import io.ballerina.runtime.internal.values.FPValue;
 import io.ballerina.runtime.internal.values.FutureValue;
 import io.ballerina.runtime.internal.values.ObjectValue;
 import io.ballerina.runtime.internal.values.ValueCreator;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -181,7 +182,7 @@ public class Scheduler {
         return future;
     }
 
-    public FutureValue startIsolatedFunction(Module module, String functionName, StrandMetadata metadata,
+    public FutureValue startIsolatedFunction(Module module, String functionName, @Nullable StrandMetadata metadata,
                                              Object... args) {
         ValueCreator valueCreator = ValueCreator.getValueCreator(ValueCreator.getLookupKey(module.getOrg(),
                 module.getName(), module.getMajorVersion(), module.isTestPkg()));

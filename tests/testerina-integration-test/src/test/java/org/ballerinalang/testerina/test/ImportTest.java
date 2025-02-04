@@ -33,19 +33,17 @@ import java.util.HashMap;
  */
 public class ImportTest extends BaseTestCase {
     private BMainInstance balClient;
-    private String projectPath;
 
     @BeforeClass()
     public void setup() {
         balClient = new BMainInstance(balServer);
-        projectPath = projectBasedTestsPath.toString();
     }
 
     @Test()
     public void testImportTest() throws BallerinaTestException, IOException {
         String[] args = mergeCoverageArgs(new String[]{"predeclared-import-tests"});
         String output = balClient.runMainAndReadStdOut("test", args,
-                new HashMap<>(), projectPath, true);
+                new HashMap<>(), projectBasedTestsPath, true);
         AssertionUtils.assertOutput("ImportTest-testImportTest.txt", output);
     }
 }

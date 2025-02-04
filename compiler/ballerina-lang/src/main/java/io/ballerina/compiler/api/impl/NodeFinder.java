@@ -27,6 +27,7 @@ import org.ballerinalang.model.tree.AnnotationAttachmentNode;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.TopLevelNode;
 import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
+import org.jetbrains.annotations.Nullable;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangBlockFunctionBody;
@@ -45,7 +46,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTableKeySpecifier;
 import org.wso2.ballerinalang.compiler.tree.BLangTableKeyTypeConstraint;
-import org.wso2.ballerinalang.compiler.tree.BLangTestablePackage;
 import org.wso2.ballerinalang.compiler.tree.BLangTupleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
@@ -218,6 +218,7 @@ import java.util.List;
 class NodeFinder extends BaseVisitor {
 
     private LineRange range;
+    @Nullable
     private BLangNode enclosingNode;
     private BLangNode enclosingContainer;
     private final boolean allowExprStmts;
@@ -228,11 +229,7 @@ class NodeFinder extends BaseVisitor {
 
     BLangNode lookup(BLangPackage module, LineRange range) {
         List<TopLevelNode> topLevelNodes = new ArrayList<>(module.topLevelNodes);
-        BLangTestablePackage tests = module.getTestablePkg();
-
-        if (tests != null) {
-            topLevelNodes.addAll(tests.topLevelNodes);
-        }
+        module.getTestablePkg().ifPresent(tests -> topLevelNodes.addAll(tests.topLevelNodes));
 
         return lookupTopLevelNodes(topLevelNodes, range);
     }
@@ -253,6 +250,7 @@ class NodeFinder extends BaseVisitor {
         return this.enclosingContainer;
     }
 
+    @Nullable
     private BLangNode lookupTopLevelNodes(List<TopLevelNode> nodes, LineRange range) {
         this.range = range;
         this.enclosingNode = null;
@@ -286,7 +284,7 @@ class NodeFinder extends BaseVisitor {
         }
     }
 
-    private void lookupNode(BLangNode node) {
+    private void lookupNode(@Nullable BLangNode node) {
         if (node == null) {
             return;
         }

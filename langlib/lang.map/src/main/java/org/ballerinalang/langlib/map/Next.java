@@ -25,6 +25,7 @@ import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BIterator;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BObject;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Native implementation of lang.map.MapIterator:next().
@@ -36,6 +37,7 @@ public final class Next {
     private Next() {
     }
 
+    @Nullable
     public static Object next(BObject m) {
         BIterator<?> mapIterator = (BIterator<?>) m.getNativeData("&iterator&");
         BMap<?, ?> bMap = (BMap<?, ?>) m.get(StringUtils.fromString("m"));

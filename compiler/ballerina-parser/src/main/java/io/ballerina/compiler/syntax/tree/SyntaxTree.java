@@ -24,6 +24,7 @@ import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.text.TextDocument;
 import io.ballerina.tools.text.TextDocumentChange;
 import io.ballerina.tools.text.TextDocuments;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * The {@code SyntaxTree} represents a parsed Ballerina source file.
@@ -36,7 +37,7 @@ public class SyntaxTree {
 
     private TextDocument textDocument;
 
-    SyntaxTree(Node rootNode, TextDocument textDocument, String filePath, boolean clone) {
+    SyntaxTree(Node rootNode, @Nullable TextDocument textDocument, @Nullable String filePath, boolean clone) {
         this.rootNode = modifyWithMe(rootNode, clone);
         this.textDocument = textDocument;
         this.filePath = filePath;
@@ -50,7 +51,7 @@ public class SyntaxTree {
         return from(textDocument, null);
     }
 
-    public static SyntaxTree from(TextDocument textDocument, String filePath) {
+    public static SyntaxTree from(TextDocument textDocument, @Nullable String filePath) {
         BallerinaParser parser = ParserFactory.getParser(textDocument);
         return new SyntaxTree(parser.parse().createUnlinkedFacade(),
                 textDocument, filePath, false);

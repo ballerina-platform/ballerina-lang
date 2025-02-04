@@ -66,7 +66,7 @@ public class PathBalaRepo implements Repo<Path> {
                 this.manifest.getDependencies().stream()
                         .filter(dep -> dep.getOrgName().equals(moduleID.orgName.value) &&
                                        dep.getModuleName().equals(moduleID.name.value) &&
-                                       null != dep.getMetadata().getPath())
+                                dep.metadata().getPath().isPresent())
                         .findFirst();
         
         // if dependency is not found in toml
@@ -75,25 +75,25 @@ public class PathBalaRepo implements Repo<Path> {
         }
         
         Dependency dep = tomlDependency.get();
-        Path balaPath = dep.getMetadata().getPath();
+        Path balaPath = dep.metadata().getPath().orElseThrow();
         
         // if bala file does not exists
         if (Files.notExists(balaPath)) {
-            throw new BLangCompilerException("bala file for dependency [" + dep.getModuleID() + "] does not exists: " +
-                                             dep.getMetadata().getPath().toAbsolutePath().normalize());
+            throw new BLangCompilerException("bala file for dependency [" + dep.moduleID() + "] does not exists: " +
+                                             dep.metadata().getPath().orElseThrow().toAbsolutePath().normalize());
         }
     
         // if bala file is not a file
         if (!Files.isRegularFile(balaPath)) {
-            throw new BLangCompilerException("bala file for dependency [" + dep.getModuleID() + "] is not a file: " +
-                                             dep.getMetadata().getPath().toAbsolutePath().normalize());
+            throw new BLangCompilerException("bala file for dependency [" + dep.moduleID() + "] is not a file: " +
+                                             dep.metadata().getPath().orElseThrow().toAbsolutePath().normalize());
         }
         
         // update version of the dependency from the current(root) project
-        if (moduleID.version.value.isEmpty() && null != dep.getMetadata().getVersion()) {
-            Matcher semverMatcher = SEM_VER_PATTERN.matcher(dep.getMetadata().getVersion());
+        if (moduleID.version.value.isEmpty() && null != dep.metadata().getVersion()) {
+            Matcher semverMatcher = SEM_VER_PATTERN.matcher(dep.metadata().getVersion());
             if (semverMatcher.matches()) {
-                moduleID.version = new Name(dep.getMetadata().getVersion());
+                moduleID.version = new Name(dep.metadata().getVersion());
             }
         }
 

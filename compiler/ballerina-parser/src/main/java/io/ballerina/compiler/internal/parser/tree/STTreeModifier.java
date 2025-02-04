@@ -18,6 +18,8 @@
 package io.ballerina.compiler.internal.parser.tree;
 
 
+import org.jetbrains.annotations.Nullable;
+
 /**
  * Produces a new tree by doing a depth-first traversal of the internal tree.
  * <p>
@@ -3021,6 +3023,7 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
         return node;
     }
 
+    @Nullable
     protected <T extends STNode> T modifyNode(T node) {
         if (node == null) {
             return null;

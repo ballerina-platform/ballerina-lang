@@ -18,6 +18,7 @@
 package io.ballerina.compiler.syntax.tree;
 
 import io.ballerina.compiler.internal.parser.tree.STNode;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
 import java.util.Optional;
@@ -102,6 +103,7 @@ public class FunctionSignatureNode extends NonTerminalNode {
         private Token openParenToken;
         private SeparatedNodeList<ParameterNode> parameters;
         private Token closeParenToken;
+        @Nullable
         private ReturnTypeDescriptorNode returnTypeDesc;
 
         public FunctionSignatureNodeModifier(FunctionSignatureNode oldNode) {
@@ -134,7 +136,7 @@ public class FunctionSignatureNode extends NonTerminalNode {
         }
 
         public FunctionSignatureNodeModifier withReturnTypeDesc(
-                ReturnTypeDescriptorNode returnTypeDesc) {
+                @Nullable ReturnTypeDescriptorNode returnTypeDesc) {
             this.returnTypeDesc = returnTypeDesc;
             return this;
         }

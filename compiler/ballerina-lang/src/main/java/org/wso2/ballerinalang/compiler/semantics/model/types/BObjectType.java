@@ -19,6 +19,7 @@ package org.wso2.ballerinalang.compiler.semantics.model.types;
 
 import org.ballerinalang.model.types.ObjectType;
 import org.ballerinalang.model.types.TypeKind;
+import org.jetbrains.annotations.Nullable;
 import org.wso2.ballerinalang.compiler.semantics.model.TypeVisitor;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
@@ -44,6 +45,7 @@ public class BObjectType extends BStructureType implements ObjectType {
     private static final String READONLY = "readonly";
     public boolean markedIsolatedness;
 
+    @Nullable
     public BObjectType mutableType = null;
     public BLangClassDefinition classDef = null;
 

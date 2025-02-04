@@ -19,6 +19,7 @@ package org.ballerinalang.debugadapter.variable;
 import com.sun.jdi.Value;
 import org.ballerinalang.debugadapter.SuspendedContext;
 import org.eclipse.lsp4j.debug.Variable;
+import org.jetbrains.annotations.Nullable;
 
 import static io.ballerina.identifier.Utils.decodeIdentifier;
 
@@ -31,7 +32,8 @@ public abstract class BCompoundVariable implements BVariable {
     protected final String name;
     protected final BVariableType type;
     protected Value jvmValue;
-    protected Variable dapVariable;
+    @Nullable
+    protected Variable dapVariable = null;
 
     public BCompoundVariable(SuspendedContext context, String varName, BVariableType bVariableType, Value jvmValue) {
         this.context = context;
@@ -39,7 +41,6 @@ public abstract class BCompoundVariable implements BVariable {
         this.name = decodeIdentifier(varName);
         this.type = bVariableType;
         this.jvmValue = jvmValue;
-        this.dapVariable = null;
     }
 
     /**

@@ -20,6 +20,7 @@ package io.ballerina.runtime.internal.types;
 import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.types.TypeTags;
 import io.ballerina.runtime.api.types.XmlAttributesType;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * {@code BXMLAttributesType} represents the type of an xml-attribute-map in ballerina.
@@ -38,11 +39,13 @@ public class BXmlAttributesType extends BType implements XmlAttributesType {
         super(typeName, pkg, null);
     }
 
+    @Nullable
     @Override
     public <V extends Object> V getZeroValue() {
         return null;
     }
 
+    @Nullable
     @Override
     public <V extends Object> V getEmptyValue() {
         return null;

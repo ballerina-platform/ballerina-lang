@@ -50,6 +50,7 @@ import org.ballerinalang.debugadapter.variable.types.BXmlItemAttributeMap;
 import org.ballerinalang.debugadapter.variable.types.BXmlPi;
 import org.ballerinalang.debugadapter.variable.types.BXmlSequence;
 import org.ballerinalang.debugadapter.variable.types.BXmlText;
+import org.jetbrains.annotations.Nullable;
 
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.STRAND_VAR_NAME;
 import static org.ballerinalang.debugadapter.variable.VariableUtils.isClientObject;
@@ -122,6 +123,7 @@ public final class VariableFactory {
      * @param value   jdi value instance of the java variable
      * @return Ballerina type variable instance which corresponds to the given java variable
      */
+    @Nullable
     public static BVariable getVariable(SuspendedContext context, String varName, Value value) {
 
         if (varName == null || varName.isEmpty() || varName.startsWith("$") || varName.equals(STRAND_VAR_NAME)) {

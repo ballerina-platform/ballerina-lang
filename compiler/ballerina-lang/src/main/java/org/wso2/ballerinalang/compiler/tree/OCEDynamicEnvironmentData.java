@@ -1,5 +1,6 @@
 package org.wso2.ballerinalang.compiler.tree;
 
+import org.jetbrains.annotations.Nullable;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
@@ -22,7 +23,9 @@ import java.util.Set;
 public class OCEDynamicEnvironmentData {
 
     public SymbolEnv capturedClosureEnv;
+    @Nullable
     public BVarSymbol mapBlockMapSymbol;
+    @Nullable
     public BVarSymbol mapFunctionMapSymbol;
     public BLangTypeInit typeInit;
     public BObjectType objectType;

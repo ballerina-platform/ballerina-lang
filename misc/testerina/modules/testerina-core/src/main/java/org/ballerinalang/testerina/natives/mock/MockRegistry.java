@@ -20,6 +20,7 @@ package org.ballerinalang.testerina.natives.mock;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BIterator;
 import io.ballerina.runtime.api.values.BObject;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -47,7 +48,7 @@ public class MockRegistry {
      * @param returnVal value to return when the function is called
      * @param hittingCount count to check the return value from the sequence of return values provided
      */
-    public void registerCase(BObject mockObject, String functionName, BArray argsList, Object returnVal,
+    public void registerCase(BObject mockObject, String functionName, @Nullable BArray argsList, Object returnVal,
                              int hittingCount) {
         String caseId = constructCaseId(mockObject, functionName, argsList);
         if (!hasHitCount(caseId)) {
@@ -65,7 +66,8 @@ public class MockRegistry {
      * @param argsList arguments list passed to the function
      * @param returnVal value to return when the function is called
      */
-    public void registerCase(BObject mockObject, String functionName, BArray argsList, Object returnVal) {
+    public void registerCase(BObject mockObject, @Nullable String functionName, @Nullable BArray argsList,
+                             Object returnVal) {
         String caseId = constructCaseId(mockObject, functionName, argsList);
         casesMap.put(caseId, returnVal);
     }

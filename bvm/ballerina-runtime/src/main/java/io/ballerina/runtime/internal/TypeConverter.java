@@ -57,6 +57,7 @@ import io.ballerina.runtime.internal.values.ArrayValue;
 import io.ballerina.runtime.internal.values.DecimalValue;
 import io.ballerina.runtime.internal.values.MapValueImpl;
 import io.ballerina.runtime.internal.values.RegExpValue;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -238,7 +239,8 @@ public final class TypeConverter {
         };
     }
 
-    public static Type getConvertibleType(Object inputValue, Type targetType, String varName,
+    @Nullable
+    public static Type getConvertibleType(@Nullable Object inputValue, Type targetType, @Nullable String varName,
                                           Set<TypeValuePair> unresolvedValues, List<String> errors,
                                           boolean allowNumericConversion) {
 
@@ -306,6 +308,7 @@ public final class TypeConverter {
         return null;
     }
 
+    @Nullable
     private static Type getConvertibleTypeForJsonType(Object inputValue, Type targetJsonType,
                                                       boolean allowNumericConversion) {
         if (!TypeChecker.checkIsLikeType(inputValue, targetJsonType, allowNumericConversion)) {
@@ -327,8 +330,9 @@ public final class TypeConverter {
         return TypeChecker.checkIsLikeType(xmlValue, targetType);
     }
 
+    @Nullable
     public static Type getConvertibleTypeInTargetUnionType(Object inputValue, BUnionType targetUnionType,
-                                                           String varName, List<String> errors,
+                                                           @Nullable String varName, List<String> errors,
                                                            Set<TypeValuePair> unresolvedValues,
                                                            boolean allowNumericConversion) {
         List<Type> memberTypes = targetUnionType.getMemberTypes();
@@ -352,6 +356,7 @@ public final class TypeConverter {
         return null;
     }
 
+    @Nullable
     private static Type getConvertibleStructuredTypeInUnion(Object inputValue, String varName, List<String> errors,
                                                             Set<TypeValuePair> unresolvedValues,
                                                             boolean allowNumericConversion, List<Type> memberTypes) {
@@ -379,8 +384,9 @@ public final class TypeConverter {
         return null;
     }
 
+    @Nullable
     public static Type getConvertibleFiniteType(Object inputValue, BFiniteType targetFiniteType,
-                                                String varName, List<String> errors,
+                                                @Nullable String varName, List<String> errors,
                                                 Set<TypeValuePair> unresolvedValues, boolean allowNumericConversion) {
         // only the first matching type is returned.
         if (targetFiniteType.valueSpace.size() == 1) {
@@ -1184,6 +1190,7 @@ public final class TypeConverter {
         return doubleValue < BINT_MAX_VALUE_DOUBLE_RANGE_MAX && doubleValue > BINT_MIN_VALUE_DOUBLE_RANGE_MIN;
     }
 
+    @Nullable
     public static Type resolveMatchingTypeForUnion(Object value, Type targetUnionType) {
         if (value == null && targetUnionType.isNilable()) {
             return PredefinedTypes.TYPE_NULL;

@@ -30,6 +30,7 @@ import io.ballerina.runtime.api.values.BTypedesc;
 import io.ballerina.runtime.internal.scheduling.Strand;
 import io.ballerina.runtime.internal.types.BAnnotatableType;
 import io.ballerina.runtime.internal.types.BTypedescType;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Map;
 
@@ -108,7 +109,7 @@ public class TypedescValueImpl implements TypedescValue {
     }
 
     @Override
-    public String stringValue(BLink parent) {
+    public String stringValue(@Nullable BLink parent) {
         return "typedesc " + describingType.toString();
     }
 

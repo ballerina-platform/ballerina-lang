@@ -32,6 +32,7 @@ import io.ballerina.runtime.internal.values.ErrorValue;
 import io.ballerina.runtime.internal.values.MapValueImpl;
 import io.ballerina.runtime.internal.values.MappingInitialValueEntry;
 import io.ballerina.runtime.internal.values.ValueCreator;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Class @{@link ErrorCreator} provides APIs to create ballerina error instances.
@@ -62,7 +63,7 @@ public final class ErrorCreator {
      * @param details error details
      * @return new error
      */
-    public static BError createError(BString message, BMap<BString, Object> details) {
+    public static BError createError(BString message, @Nullable BMap<BString, Object> details) {
         details = RuntimeUtils.validateErrorDetails(details);
         return new ErrorValue(message, details);
     }
@@ -108,7 +109,8 @@ public final class ErrorCreator {
      * @param details error details
      * @return new error
      */
-    public static BError createError(Type type, BString message, BError cause, BMap<BString, Object> details) {
+    public static BError createError(Type type, BString message, @Nullable BError cause,
+                                     @Nullable BMap<BString, Object> details) {
         details = RuntimeUtils.validateErrorDetails(details);
         ((BErrorType) type).setDetailType(TypeChecker.getType(details));
         return new ErrorValue(type, message, cause, details);
@@ -160,8 +162,8 @@ public final class ErrorCreator {
      * @return error value
      * @throws BError if given error type is not defined in the ballerina module.
      */
-    public static BError createError(Module module, String errorTypeName,
-                                     BString message, BError cause, BMap<BString, Object> details) throws BError {
+    public static BError createError(Module module, String errorTypeName, BString message, @Nullable BError cause,
+                                     @Nullable BMap<BString, Object> details) throws BError {
         details = RuntimeUtils.validateErrorDetails(details);
         ValueCreator valueCreator = ValueCreator.getValueCreator(ValueCreator.getLookupKey(module, false));
         try {
@@ -204,7 +206,7 @@ public final class ErrorCreator {
      */
     @Deprecated
     public static BError createDistinctError(String typeIdName, Module typeIdPkg, BString message,
-                                             BMap<BString, Object> details) {
+                                             @Nullable BMap<BString, Object> details) {
         details = RuntimeUtils.validateErrorDetails(details);
         return new ErrorValue(new BErrorType(TypeConstants.ERROR, PredefinedTypes.TYPE_ERROR.getPackage(), TypeChecker
                 .getType(details)), message, null, details, typeIdName, typeIdPkg);

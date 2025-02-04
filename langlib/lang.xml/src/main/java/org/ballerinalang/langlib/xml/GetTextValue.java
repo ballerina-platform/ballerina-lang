@@ -21,6 +21,7 @@ package org.ballerinalang.langlib.xml;
 import io.ballerina.runtime.api.values.BXml;
 import io.ballerina.runtime.internal.errors.ErrorHelper;
 import io.ballerina.runtime.internal.scheduling.Strand;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Get the text value of a XML.
@@ -34,6 +35,7 @@ public class GetTextValue {
     private GetTextValue() {
     }
 
+    @Nullable
     public static String getTextValue(Strand strand, BXml xml) {
         try {
             return xml.getTextValue();

@@ -21,6 +21,7 @@ package org.ballerinalang.langlib.xml;
 import io.ballerina.runtime.api.values.BXml;
 import io.ballerina.runtime.internal.errors.ErrorHelper;
 import io.ballerina.runtime.internal.scheduling.Strand;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Get the fully qualified name of the element as a string.
@@ -34,6 +35,7 @@ public class GetElementName {
     private GetElementName() {
     }
 
+    @Nullable
     public static String getElementName(Strand strand, BXml xml) {
         try {
             return xml.getElementName();

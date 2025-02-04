@@ -20,6 +20,7 @@ package io.ballerina.runtime.internal.values;
 
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BListInitialValueEntry;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Represents an initial value entry in a list constructor expression.
@@ -37,7 +38,7 @@ public abstract class ListInitialValueEntry implements BListInitialValueEntry {
 
         public Object value;
 
-        public ExpressionEntry(Object value) {
+        public ExpressionEntry(@Nullable Object value) {
             this.value = value;
         }
     }

@@ -22,6 +22,7 @@ import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.internal.TypeChecker;
 import org.ballerinalang.langlib.array.utils.GetFunction;
+import org.jetbrains.annotations.Nullable;
 
 import static org.ballerinalang.langlib.array.utils.ArrayUtils.getElementAccessFunction;
 
@@ -35,6 +36,7 @@ public final class LastIndexOf {
     private LastIndexOf() {
     }
 
+    @Nullable
     public static Object lastIndexOf(BArray arr, Object val, long startIndex) {
         Type arrType = arr.getType();
         int size = arr.size();

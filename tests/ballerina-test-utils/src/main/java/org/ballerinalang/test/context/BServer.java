@@ -18,6 +18,7 @@
 
 package org.ballerinalang.test.context;
 
+import java.nio.file.Path;
 import java.util.Map;
 
 /**
@@ -33,7 +34,7 @@ public interface BServer {
      * @param balFile   bal file path
      * @throws BallerinaTestException if services start fails
      */
-    void startServer(String balFile) throws BallerinaTestException;
+    void startServer(Path balFile) throws BallerinaTestException;
 
     /**
      * Start ballerina server passing provided .bal files.
@@ -42,7 +43,7 @@ public interface BServer {
      * @param useBallerinaRunCommand   flag to use ballerina run to execute program.
      * @throws BallerinaTestException if services start fails
      */
-    void startServer(String balFile, boolean useBallerinaRunCommand) throws BallerinaTestException;
+    void startServer(Path balFile, boolean useBallerinaRunCommand) throws BallerinaTestException;
 
     /**
      * Start ballerina server passing provided .bal files.
@@ -51,7 +52,7 @@ public interface BServer {
      * @param requiredPorts ports required for the server instance
      * @throws BallerinaTestException if services start fails
      */
-    void startServer(String balFile, int[] requiredPorts) throws BallerinaTestException;
+    void startServer(Path balFile, int[] requiredPorts) throws BallerinaTestException;
 
     /**
      * Start ballerina server passing provided .bal files.
@@ -62,7 +63,7 @@ public interface BServer {
      * @param requiredPorts ports required for the server instance
      * @throws BallerinaTestException if services start fails
      */
-    void startServer(String balFile, String[] buildArgs, String[] runtimeArgs, int[] requiredPorts)
+    void startServer(Path balFile, String[] buildArgs, String[] runtimeArgs, int[] requiredPorts)
             throws BallerinaTestException;
 
     /**
@@ -75,7 +76,7 @@ public interface BServer {
      * @param requiredPorts ports required for the server instance
      * @throws BallerinaTestException if services start fails
      */
-    void startServer(String balFile, String[] buildArgs, String[] runtimeArgs, Map<String, String> envProperties,
+    void startServer(Path balFile, String[] buildArgs, String[] runtimeArgs, Map<String, String> envProperties,
                      int[] requiredPorts) throws BallerinaTestException;
 
     /**
@@ -89,7 +90,7 @@ public interface BServer {
      * @param useBallerinaRunCommand   flag to use ballerina run to execute program.
      * @throws BallerinaTestException if services start fails
      */
-    void startServer(String balFile, String[] buildArgs, String[] runtimeArgs, Map<String, String> envProperties,
+    void startServer(Path balFile, String[] buildArgs, String[] runtimeArgs, Map<String, String> envProperties,
                      int[] requiredPorts, boolean useBallerinaRunCommand) throws BallerinaTestException;
 
     /**
@@ -99,7 +100,7 @@ public interface BServer {
      * @param packagePath   package path
      * @throws BallerinaTestException if starting fails
      */
-    void startServer(String sourceRoot, String packagePath) throws BallerinaTestException;
+    void startServer(Path sourceRoot, String packagePath) throws BallerinaTestException;
 
     /**
      * Start ballerina server passing provided bal package.
@@ -109,7 +110,7 @@ public interface BServer {
      * @param requiredPorts ports required for the server instance
      * @throws BallerinaTestException if starting fails
      */
-    void startServer(String sourceRoot, String packagePath, int[] requiredPorts) throws BallerinaTestException;
+    void startServer(Path sourceRoot, String packagePath, int[] requiredPorts) throws BallerinaTestException;
 
     /**
      * Start ballerina server passing provided bal package.
@@ -121,7 +122,7 @@ public interface BServer {
      * @param requiredPorts ports required for the server instance
      * @throws BallerinaTestException if starting fails
      */
-    void startServer(String sourceRoot, String packagePath, String[] buildArgs, String[] runtimeArgs,
+    void startServer(Path sourceRoot, String packagePath, String[] buildArgs, String[] runtimeArgs,
                      int[] requiredPorts) throws BallerinaTestException;
 
     /**
@@ -136,7 +137,7 @@ public interface BServer {
      * @param useBallerinaRunCommand   flag to use ballerina run to execute program.
      * @throws BallerinaTestException if starting fails
      */
-    void startServer(String sourceRoot, String packagePath, String[] buildArgs, String[] runtimeArgs,
+    void startServer(Path sourceRoot, String packagePath, String[] buildArgs, String[] runtimeArgs,
                      Map<String, String> envProperties, int[] requiredPorts, boolean useBallerinaRunCommand)
             throws BallerinaTestException;
 
@@ -151,7 +152,7 @@ public interface BServer {
      * @param requiredPorts ports required for the server instance
      * @throws BallerinaTestException if starting fails
      */
-    void startServer(String sourceRoot, String packagePath, String[] buildArgs, String[] runtimeArgs,
+    void startServer(Path sourceRoot, String packagePath, String[] buildArgs, String[] runtimeArgs,
                      Map<String, String> envProperties, int[] requiredPorts) throws BallerinaTestException;
 
     /**

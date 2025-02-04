@@ -19,6 +19,7 @@
 package io.ballerina.component;
 
 import org.apache.commons.lang3.StringUtils;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * model obj to store action invocations.
@@ -32,7 +33,7 @@ public class ActionInvocationNode extends Node {
     private final String path;
     private final String pos;
 
-    public ActionInvocationNode(String endPointRef, String name, String path, String pos) {
+    public ActionInvocationNode(String endPointRef, String name, @Nullable String path, String pos) {
 
         this.endPointRef = endPointRef;
         this.name = name;

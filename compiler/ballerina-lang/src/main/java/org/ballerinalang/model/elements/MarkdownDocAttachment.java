@@ -18,6 +18,8 @@
 
 package org.ballerinalang.model.elements;
 
+import org.jetbrains.annotations.Nullable;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -28,9 +30,12 @@ import java.util.List;
  */
 public class MarkdownDocAttachment {
 
+    @Nullable
     public String description;
     public List<Parameter> parameters;
+    @Nullable
     public String returnValueDescription;
+    @Nullable
     public String deprecatedDocumentation;
     public List<Parameter> deprecatedParams;
 
@@ -47,7 +52,7 @@ public class MarkdownDocAttachment {
         public String name;
         public String description;
 
-        public Parameter(String name, String description) {
+        public Parameter(@Nullable String name, @Nullable String description) {
             this.name = name;
             this.description = description;
         }

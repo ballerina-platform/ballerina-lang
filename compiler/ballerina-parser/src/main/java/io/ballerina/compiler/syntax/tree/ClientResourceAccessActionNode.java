@@ -18,6 +18,7 @@
 package io.ballerina.compiler.syntax.tree;
 
 import io.ballerina.compiler.internal.parser.tree.STNode;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
 import java.util.Optional;
@@ -127,8 +128,11 @@ public class ClientResourceAccessActionNode extends ActionNode {
         private Token rightArrowToken;
         private Token slashToken;
         private SeparatedNodeList<Node> resourceAccessPath;
+        @Nullable
         private Token dotToken;
+        @Nullable
         private SimpleNameReferenceNode methodName;
+        @Nullable
         private ParenthesizedArgList arguments;
 
         public ClientResourceAccessActionNodeModifier(ClientResourceAccessActionNode oldNode) {
