@@ -1,9 +1,7 @@
 package io.ballerina.runtime.internal.query.pipeline;
 
-import io.ballerina.runtime.api.creators.TypeCreator;
 import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.types.PredefinedTypes;
-import io.ballerina.runtime.api.types.RecordType;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
 
@@ -29,17 +27,6 @@ public class Frame {
         this.$frame$ = record;
     }
 
-    public void updateRecord(BMap<BString, Object> newRecord) {
-        this.$frame$ = newRecord;
-    }
-
-    public Frame updateRecord(BString key, Object value) {
-        System.out.println("Before update: " + this.$frame$);
-        this.$frame$.put(key, value);
-        System.out.println("After update: " + this.$frame$);
-        return this;
-    }
-
     /**
      * Static method to create a `_Frame` from an element.
      *
@@ -48,10 +35,31 @@ public class Frame {
      * @return A `_Frame` wrapping the BMap.
      */
     public static Frame add(BString key, Object value) {
-//        RecordType recordType = TypeCreator.createRecordType("_Frame", BALLERINA_QUERY_PKG_ID);
         BMap<BString, Object> record = ValueCreator.createRecordValue(BALLERINA_QUERY_PKG_ID, "_Frame");
         record.put(key, value);
         return new Frame(record);
+    }
+
+
+    /**
+     * Updates the underlying record with a new record.
+     * @param newRecord
+     */
+    public void updateRecord(BMap<BString, Object> newRecord) {
+        this.$frame$ = newRecord;
+    }
+
+    /**
+     * Updates the underlying record with a new key-value pair.
+     *
+     * @param key   The key to update.
+     * @param value The value to set.
+     */
+    public Frame updateRecord(BString key, Object value) {
+        System.out.println("Before update: " + this.$frame$);
+        this.$frame$.put(key, value);
+        System.out.println("After update: " + this.$frame$);
+        return this;
     }
 
     /**
@@ -62,16 +70,6 @@ public class Frame {
     public BMap<BString, Object> getRecord() {
         return $frame$;
     }
-
-//    /**
-//     * Updates the underlying record with a new key-value pair.
-//     *
-//     * @param key   The key to update.
-//     * @param value The value to set.
-//     */
-//    public void updateRecord(BString key, Object value) {
-//        this.record.put(key, value);
-//    }
 
     @Override
     public String toString() {

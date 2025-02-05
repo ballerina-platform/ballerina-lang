@@ -18,6 +18,7 @@ public class StreamPipeline {
     private final List<PipelineStage> pipelineStages;
     private final BTypedesc constraintType;
     private final BTypedesc completionType;
+    private final boolean isLazyLoading;
 
     /**
      * Constructor for creating a StreamPipeline.
@@ -35,6 +36,7 @@ public class StreamPipeline {
         this.pipelineStages = new ArrayList<>();
         this.constraintType = constraintType;
         this.completionType = completionType;
+        this.isLazyLoading = isLazyLoading;
     }
 
     public static StreamPipeline initStreamPipeline(Object collection,
@@ -56,6 +58,7 @@ public class StreamPipeline {
         }
         return ((StreamPipeline) pipeline).getStream();
     }
+
     /**
      * Adds a stage (function) to the pipeline.
      *
@@ -89,7 +92,7 @@ public class StreamPipeline {
      * Resets the pipeline for reuse.
      */
     public void reset() {
-        // Logic to reset the pipeline, if applicable
+
     }
 
     public BTypedesc getConstraintType() {
@@ -103,6 +106,4 @@ public class StreamPipeline {
     public Stream<Frame> getStream() {
         return stream;
     }
-
-
 }
