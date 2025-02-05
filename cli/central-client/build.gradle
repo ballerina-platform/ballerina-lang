@@ -50,7 +50,7 @@ dependencies {
 tasks.register('createTestDistributionCache', Copy) {
     dependsOn configurations.distributionBala
     from configurations.distributionBala
-    into "$buildDir/repo"
+    into "${getLayout().getBuildDirectory().get()}/repo"
 }
 
 tasks.register('createBirCache') {
@@ -60,13 +60,13 @@ tasks.register('createBirCache') {
         configurations.bir.each { artifact ->
             copy {
                 from artifact
-                into "$buildDir/bir-cache/"
+                into "${getLayout().getBuildDirectory().get()}/bir-cache/"
             }
         }
     }
 
     inputs.files configurations.bir
-    outputs.dir "$buildDir/bir-cache"
+    outputs.dir "${getLayout().getBuildDirectory().get()}/bir-cache"
     outputs.cacheIf { false }
 }
 
@@ -76,7 +76,7 @@ test {
     dependsOn configurations.birJar
     dependsOn configurations.birJarCompile
 
-    systemProperty "ballerina.home", "$buildDir"
+    systemProperty "ballerina.home", "${getLayout().getBuildDirectory().get()}".toString()
     useTestNG() {
         suites 'src/test/resources/testng.xml'
     }

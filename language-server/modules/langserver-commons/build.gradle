@@ -33,7 +33,7 @@ dependencies {
 description = 'Ballerina - Language server - Commons'
 
 test {
-    systemProperty "ballerina.home", "$buildDir/"
+    systemProperty "ballerina.home", "${getLayout().getBuildDirectory().get()}/".toString()
     systemProperty "ballerina.version", project.version
     useTestNG() {
         suites 'src/test/resources/testng.xml'

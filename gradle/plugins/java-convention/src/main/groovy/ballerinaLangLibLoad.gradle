@@ -108,7 +108,7 @@ tasks.register('loadDistributionCache') {
         configurations.distributionBala.each { artifact ->
             copy {
                 from zipTree( artifact.getPath() )
-                into "$buildDir/repo"
+                into "${getLayout().getBuildDirectory().get()}/repo"
             }
         }
     }
@@ -117,7 +117,7 @@ tasks.register('loadDistributionCache') {
 test {
     dependsOn loadDistributionCache
     systemProperty "java.util.logging.config.file", "src/test/resources/logging.properties"
-    systemProperty "ballerina.home", "$buildDir"
+    systemProperty "ballerina.home", "${getLayout().getBuildDirectory().get()}".toString()
 
     afterSuite { suite, result ->
         result.exception?.printStackTrace()
