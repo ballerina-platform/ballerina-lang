@@ -1076,7 +1076,11 @@ public final class Generator {
         markdownCodeBlockNode.langAttribute().ifPresent(langAttribute -> doc.append(langAttribute));
 
         for (MarkdownCodeLineNode codeLineNode : markdownCodeBlockNode.codeLines()) {
-            doc.append(codeLineNode.codeDescription().toString());
+            if (codeLineNode.codeDescription().toString().isEmpty()) {
+                doc.append("\n");
+            } else {
+                doc.append(codeLineNode.codeDescription().toString());
+            }
         }
 
         doc.append(markdownCodeBlockNode.endBacktick().toString());
