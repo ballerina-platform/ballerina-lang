@@ -38,8 +38,6 @@ import io.ballerina.runtime.internal.types.semtype.StructuredLookupKey;
 import io.ballerina.runtime.internal.values.MapValueImpl;
 import io.ballerina.runtime.internal.values.ReadOnlyUtils;
 
-import java.lang.ref.Reference;
-import java.lang.ref.WeakReference;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -67,7 +65,7 @@ public class BMapType extends BType implements MapType, TypeWithShape, Cloneable
     private IntersectionType intersectionType = null;
     private final DefinitionContainer<MappingDefinition> defn = new DefinitionContainer<>();
     private final DefinitionContainer<MappingDefinition> acceptedTypeDefn = new DefinitionContainer<>();
-    private Reference<StructuredLookupKey> lookupKey;
+    private StructuredLookupKey lookupKey;
 
     public BMapType(Type constraint) {
         this(constraint, false);
@@ -298,11 +296,11 @@ public class BMapType extends BType implements MapType, TypeWithShape, Cloneable
 
     @Override
     public StructuredLookupKey getStructuredLookupKey() {
-        if (lookupKey != null && lookupKey.get() != null) {
-            return lookupKey.get();
+        if (lookupKey != null) {
+            return lookupKey;
         }
         StructuredLookupKey structuredLookupKey = new StructuredLookupKey(StructuredLookupKey.Kind.MAP);
-        lookupKey = new WeakReference<>(structuredLookupKey);
+        lookupKey = structuredLookupKey;
         structuredLookupKey.setChildren(new TypeCheckCacheKey[]{StructuredLookupKey.from(constraint)});
         return structuredLookupKey;
     }

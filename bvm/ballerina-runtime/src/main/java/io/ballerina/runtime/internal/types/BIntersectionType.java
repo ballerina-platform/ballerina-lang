@@ -34,8 +34,6 @@ import io.ballerina.runtime.internal.types.semtype.ErrorUtils;
 import io.ballerina.runtime.internal.types.semtype.ObjectDefinition;
 import io.ballerina.runtime.internal.types.semtype.StructuredLookupKey;
 
-import java.lang.ref.Reference;
-import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -68,7 +66,7 @@ public class BIntersectionType extends BType implements IntersectionType, TypeWi
 
     private String cachedToString;
     private boolean resolving;
-    private Reference<StructuredLookupKey> lookupKey;
+    private StructuredLookupKey lookupKey;
     private SemType basicType;
 
     public BIntersectionType(Module pkg, Type[] constituentTypes, Type effectiveType,
@@ -260,11 +258,11 @@ public class BIntersectionType extends BType implements IntersectionType, TypeWi
 
     @Override
     public StructuredLookupKey getStructuredLookupKey() {
-        if (lookupKey != null && lookupKey.get() != null) {
-            return lookupKey.get();
+        if (lookupKey != null) {
+            return lookupKey;
         }
         StructuredLookupKey structuredLookupKey = new StructuredLookupKey(StructuredLookupKey.Kind.INTERSECTION);
-        lookupKey = new WeakReference<>(structuredLookupKey);
+        lookupKey = structuredLookupKey;
         structuredLookupKey.setChildren(constituentTypes.stream().map(StructuredLookupKey::from).toArray(
                 TypeCheckCacheKey[]::new));
         return structuredLookupKey;

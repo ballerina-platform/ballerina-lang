@@ -53,7 +53,12 @@ public class StructuredLookupKey implements TypeCheckCacheKey {
     }
 
     private static boolean anyUnique(TypeCheckCacheKey[] children) {
-        return Arrays.stream(children).anyMatch(StructuredLookupKey::isUnique);
+        for (TypeCheckCacheKey child : children) {
+            if (isUnique(child)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private static boolean isUnique(TypeCheckCacheKey key) {
