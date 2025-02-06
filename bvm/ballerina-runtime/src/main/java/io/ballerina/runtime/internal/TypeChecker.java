@@ -261,16 +261,18 @@ public final class TypeChecker {
      * @return true if the value belongs to the given type, false otherwise
      */
     public static boolean checkIsType(Object sourceVal, Type targetType) {
-        Context cx = context();
         Type sourceType = getType(sourceVal);
-        logger.typeCheckStarted(cx, sourceType, targetType);
+        logger.typeCheckStarted(sourceType, targetType);
         boolean result;
-        if (couldBeSubType(sourceType, targetType)) {
+        if (sourceType == targetType) {
+            result = true;
+        } else if (couldBeSubType(sourceType, targetType)) {
+            Context cx = context();
             result = checkIsTypeInner(cx, sourceVal, targetType, sourceType);
         } else {
             result = false;
         }
-        logger.typeCheckDone(cx, sourceType, targetType, result);
+        logger.typeCheckDone(sourceType, targetType, result);
         return result;
     }
 
@@ -593,24 +595,26 @@ public final class TypeChecker {
      * @return flag indicating the equivalence of the two types
      */
     public static boolean checkIsType(Type sourceType, Type targetType) {
-        Context cx = context();
         boolean result;
-        logger.typeCheckStarted(cx, sourceType, targetType);
-        if (couldBeSubType(sourceType, targetType)) {
+        logger.typeCheckStarted(sourceType, targetType);
+        if (sourceType == targetType) {
+            result = true;
+        } else if (couldBeSubType(sourceType, targetType)) {
+            Context cx = context();
             result = isSubType(cx, sourceType, targetType);
         } else {
             result = false;
         }
-        logger.typeCheckDone(cx, sourceType, targetType, result);
+        logger.typeCheckDone(sourceType, targetType, result);
         return result;
     }
 
     @Deprecated
     public static boolean checkIsType(Type sourceType, Type targetType, List<TypePair> unresolvedTypes) {
+        logger.typeCheckStarted(sourceType, targetType);
         Context cx = context();
-        logger.typeCheckStarted(cx, sourceType, targetType);
         boolean result = isSubType(cx, sourceType, targetType);
-        logger.typeCheckDone(cx, sourceType, targetType, result);
+        logger.typeCheckDone(sourceType, targetType, result);
         return result;
     }
 
@@ -660,7 +664,7 @@ public final class TypeChecker {
     private static boolean isSubTypeWithCache(Context cx, CacheableTypeDescriptor source,
                                               CacheableTypeDescriptor target) {
         Optional<Boolean> cachedResult = source.cachedTypeCheckResult(cx, target);
-        logger.typeCheckCachedResult(cx, source, target, cachedResult);
+        logger.typeCheckCachedResult(source, target, cachedResult);
         if (cachedResult.isPresent()) {
             return cachedResult.get();
         }
@@ -1024,7 +1028,7 @@ public final class TypeChecker {
         TRUE, FALSE, MAYBE
     }
 
-    private static FillerValueResult hasFillerValueSemType(Context cx, SemType type) {
+    private static FillerValueResult hasFillerValueSemType(SemType type) {
         if (Core.containsBasicType(type, Builder.getNilType())) {
             return FillerValueResult.TRUE;
         }
@@ -1044,7 +1048,7 @@ public final class TypeChecker {
             return true;
         }
 
-        FillerValueResult fastResult = hasFillerValueSemType(cx, SemType.tryInto(cx, type));
+        FillerValueResult fastResult = hasFillerValueSemType(SemType.tryInto(cx, type));
         if (fastResult != FillerValueResult.MAYBE) {
             return fastResult == FillerValueResult.TRUE;
         }

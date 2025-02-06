@@ -8,6 +8,7 @@ import io.ballerina.runtime.internal.types.semtype.MutableSemType;
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -63,14 +64,18 @@ public class TypeCheckLogger {
         }
     }
 
-    public void typeCheckStarted(Context cx, Type t1, Type t2) {
+    public void typeCheckStarted(Type t1, Type t2) {
         if (enabled) {
-            logger.info("Type check started: " + cx + ", t1: " + t1 + ", t2: " + t2);
+            Context cx = TypeChecker.context();
+            logger.info(
+                    "Type check started: " + cx + ", t1: " + t1 + "@" + Objects.toIdentityString(t1) + ", t2: " + t2 +
+                            "@" + Objects.toIdentityString(t2));
         }
     }
 
-    public void typeCheckCachedResult(Context cx, Type t1, Type t2, Optional<Boolean> result) {
+    public void typeCheckCachedResult(Type t1, Type t2, Optional<Boolean> result) {
         if (enabled) {
+            Context cx = TypeChecker.context();
             logger.info("Type check cached result: " + cx + ", t1: " + t1 + ", t2: " + t2 + ", result: " + result);
         }
     }
@@ -87,9 +92,12 @@ public class TypeCheckLogger {
         }
     }
 
-    public void typeCheckDone(Context cx, Type t1, Type t2, boolean result) {
+    public void typeCheckDone(Type t1, Type t2, boolean result) {
         if (enabled) {
-            logger.info("Type check done: " + cx + ", t1: " + t1 + ", t2: " + t2 + ", result: " + result);
+            Context cx = TypeChecker.context();
+            logger.info(
+                    "Type check done: " + cx + ", t1: " + t1 + "@" + Objects.toIdentityString(t1) + ", t2: " + t2 +
+                            "@" + Objects.toIdentityString(t2));
         }
     }
 

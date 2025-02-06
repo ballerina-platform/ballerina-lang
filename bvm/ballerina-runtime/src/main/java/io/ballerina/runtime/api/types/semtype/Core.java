@@ -66,6 +66,8 @@ import static io.ballerina.runtime.internal.types.semtype.CellAtomicType.interse
  */
 public final class Core {
 
+    private static final TypeCheckLogger logger = TypeCheckLogger.getInstance();
+
     private Core() {
     }
 
@@ -296,7 +298,6 @@ public final class Core {
     }
 
     public static boolean isSubType(Context cx, SemType t1, SemType t2) {
-        TypeCheckLogger logger = TypeCheckLogger.getInstance();
         logger.semTypeCheckStarted(cx, t1, t2);
         boolean res = isEmpty(cx, diff(t1, t2));
         logger.semTypeCheckDone(cx, t1, t2, res);
