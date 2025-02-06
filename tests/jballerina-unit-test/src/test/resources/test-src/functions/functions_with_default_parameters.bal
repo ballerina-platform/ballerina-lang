@@ -375,6 +375,25 @@ function testValidCheckUsageViaDefaults() {
     assertEquality("test", rec.y);
 }
 
+public type Employee record {|
+    string firstName;
+    string lastName;
+|};
+
+public type RT object {
+    *object:RawTemplate;
+    public string[] & readonly strings;
+    public [Employee] insertions;
+};
+
+function funcWithDefaultRawTemplateValue(Employee e, RT fullName = `${e}`) returns string {
+    return fullName.insertions[0].firstName + " " + fullName.insertions[0].lastName;
+}
+
+function testFuncWithDefaultRawTemplateValue() {
+    assertEquality("Chiran Sachintha", funcWithDefaultRawTemplateValue({firstName: "Chiran", lastName: "Sachintha"}));
+}
+
 const ASSERTION_ERROR_REASON = "AssertionError";
 
 function assertEquality(any|error expected, any|error actual) {
