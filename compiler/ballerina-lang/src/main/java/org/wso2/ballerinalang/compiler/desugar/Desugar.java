@@ -6335,12 +6335,13 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangFieldBasedAccess.BLangNSPrefixedFieldBasedAccess nsPrefixedFieldBasedAccess) {
-        rewriteFieldBasedAccess(nsPrefixedFieldBasedAccess);
+        rewriteFieldBasedAccess(nsPrefixedFieldBasedAccess, true);
     }
 
-    private void rewriteFieldBasedAccess(BLangFieldBasedAccess fieldAccessExpr) {
+    private void rewriteFieldBasedAccess(BLangFieldBasedAccess fieldAccessExpr, boolean prefixedFieldBased) {
         if (safeNavigate(fieldAccessExpr)) {
-            result = rewriteExpr(rewriteSafeNavigationExpr(fieldAccessExpr));
+            result = prefixedFieldBased ? rewriteExpr(rewriteSafeNavigationExpr(fieldAccessExpr)) :
+                    rewriteExpr(rewriteSafeFieldBasedAccessExpr(fieldAccessExpr));
             return;
         }
 
@@ -6434,7 +6435,7 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangFieldBasedAccess fieldAccessExpr) {
-        rewriteFieldBasedAccess(fieldAccessExpr);
+        rewriteFieldBasedAccess(fieldAccessExpr, false);
     }
 
     private BLangNode rewriteObjectMemberAccessAsField(BLangFieldBasedAccess fieldAccessExpr) {
@@ -10054,6 +10055,97 @@ public class Desugar extends BLangNodeVisitor {
         }
 
         return false;
+    }
+
+    private BLangExpression rewriteSafeFieldBasedAccessExpr(BLangAccessExpression accessExpr) {
+        /*
+         * Following is the structure of the safe navigation desugar.
+         * Before :
+         * type A {
+         *    B b;
+         * }
+         * type B {
+         *   int c;
+         * }
+         * int? res = a?.b?.c
+         *
+         * After desugar :
+         * any|error temp_result;
+         * temp_result = a;
+         * if temp_result !is error? {
+         *      temp_result = (<A> temp_result).b;
+         *      if temp_result !is error? {
+         *          temp_result = (<B> temp_result).c;
+         *      }
+         * }
+         * int? res = <int> temp_result;
+         */
+        Location pos = accessExpr.pos;
+        // Create block statement to hold desugared statements.
+        BLangBlockStmt blockStmt = ASTBuilderUtil.createBlockStmt(pos);
+
+        // Create a temp variable to hold the intermediate result of the access expression.
+        String matchTempResultVarName = GEN_VAR_PREFIX.value + "temp_result";
+        BLangSimpleVariableDef tempResultVarDef = createVarDef(matchTempResultVarName, symTable.anyOrErrorType,
+                null, pos);
+        blockStmt.addStatement(tempResultVarDef);
+        BLangSimpleVarRef tempResultVarRef = ASTBuilderUtil.createVariableRef(pos, tempResultVarDef.var.symbol);
+
+        createNestedIfForAccessExpression(blockStmt, accessExpr, tempResultVarRef, pos);
+
+        BLangStatementExpression stmtExpr = createStatementExpression(blockStmt,
+                types.addConversionExprIfRequired(tempResultVarRef, accessExpr.getBType()));
+        stmtExpr.setBType(accessExpr.getBType());
+        return stmtExpr;
+    }
+
+    private BLangIf createNestedIfForAccessExpression(BLangBlockStmt blockStmt, BLangAccessExpression accessExpr,
+                                                      BLangSimpleVarRef tempResultVarRef, Location pos) {
+        NodeKind kind = accessExpr.expr.getKind();
+        if (kind == NodeKind.FIELD_BASED_ACCESS_EXPR) {
+            BLangIf ifStmt = createNestedIfForAccessExpression(blockStmt, (BLangAccessExpression) accessExpr.expr,
+                    tempResultVarRef, pos);
+            blockStmt = ifStmt.body;
+        } else {
+            // this else block only reach one time in the recursive execution
+            // this will assign the initial value for the `tempResultVarRef` eg: `temp_result = a;` in the sample
+            blockStmt.addStatement(ASTBuilderUtil.createAssignmentStmt(pos, tempResultVarRef, accessExpr.expr));
+        }
+
+        // Condition
+        BLangType testTypeNode = null;
+        if (accessExpr.errorSafeNavigation && accessExpr.nilSafeNavigation) {
+            testTypeNode = getErrorOrNillTypeNode();
+        } else if (accessExpr.errorSafeNavigation) {
+            testTypeNode = getErrorTypeNode();
+        } else if (accessExpr.nilSafeNavigation) {
+            testTypeNode = getNillTypeNode();
+        }
+
+        BLangExpression conditionExpr;
+        if (testTypeNode == null) {
+            conditionExpr = getBooleanLiteral(true);
+        } else {
+            BLangTypeTestExpr isNilOrErrorTest = createTypeCheckExpr(pos, tempResultVarRef, testTypeNode);
+            isNilOrErrorTest.isNegation = true;
+            isNilOrErrorTest.setBType(symTable.booleanType);
+            conditionExpr = isNilOrErrorTest;
+        }
+
+        // If body
+        BType type = types.getSafeType(accessExpr.expr.getBType(), true, true);
+        accessExpr.expr = types.addConversionExprIfRequired(tempResultVarRef, type);
+        accessExpr.errorSafeNavigation = false;
+        accessExpr.nilSafeNavigation = false;
+        BLangAssignment assignmentStmt =
+                ASTBuilderUtil.createAssignmentStmt(symTable.builtinPos, tempResultVarRef, accessExpr);
+        BLangBlockStmt ifBody = ASTBuilderUtil.createBlockStmt(symTable.builtinPos);
+        ifBody.addStatement(assignmentStmt);
+
+        BLangIf ifStmt = ASTBuilderUtil.createIfStmt(pos, blockStmt);
+        ifStmt.setCondition(conditionExpr);
+        ifStmt.body = ifBody;
+        return ifStmt;
     }
 
     private BLangExpression rewriteSafeNavigationExpr(BLangAccessExpression accessExpr) {
