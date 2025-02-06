@@ -127,8 +127,8 @@ public final class TypeChecker {
         }
         Type sourceType = getType(sourceVal);
         Context cx = context();
-        if (Core.containsBasicType(SemType.tryInto(cx, sourceType), ConvertibleCastMaskHolder.CONVERTIBLE_CAST_MASK) &&
-                Core.containsBasicType(SemType.tryInto(cx, targetType),
+        if (Core.containsBasicType(SemType.basicType(sourceType), ConvertibleCastMaskHolder.CONVERTIBLE_CAST_MASK) &&
+                Core.containsBasicType(SemType.basicType(targetType),
                         ConvertibleCastMaskHolder.CONVERTIBLE_CAST_MASK)) {
             // We need to maintain order for these?
             if (targetType instanceof BUnionType unionType) {
@@ -689,11 +689,15 @@ public final class TypeChecker {
 
     public static boolean isInherentlyImmutableType(Type sourceType) {
         // readonly part is there to match to old API
+        if (sourceType instanceof ReadonlyType) {
+            return true;
+        }
         Context cx = context();
-        return
-                Core.isSubType(cx, SemType.tryInto(cx, sourceType),
-                        InherentlyImmutableTypeHolder.INHERENTLY_IMMUTABLE_TYPE) ||
-                        sourceType instanceof ReadonlyType;
+        SemType inherentlyImmutableType = InherentlyImmutableTypeHolder.INHERENTLY_IMMUTABLE_TYPE;
+        if (Core.isSubtypeSimple(Core.widenToBasicType(SemType.basicType(sourceType)), inherentlyImmutableType)) {
+            return Core.isSubType(cx, SemType.tryInto(cx, sourceType), inherentlyImmutableType);
+        }
+        return false;
     }
 
     // NOTE: this is not the same as selectively immutable as it stated in the spec
