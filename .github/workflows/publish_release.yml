@@ -14,6 +14,14 @@ jobs:
         with:
           distribution: 'temurin'
           java-version: '21.0.3'
+      - name: Setup GraalVM
+        uses: graalvm/setup-graalvm@v1
+        with:
+          java-version: '21.0.3'
+          distribution: 'graalvm'
+          components: 'native-image'
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          set-java-home: 'false'
       - name: Set version env variable
         run: |
           echo "VERSION=$(./gradlew properties | grep ^version: | cut -d\  -f2 | sed 's@-SNAPSHOT@@')" >> $GITHUB_ENV
