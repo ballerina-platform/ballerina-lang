@@ -269,6 +269,11 @@ public class FunctionsWithDefaultableParametersTest {
     }
 
     @Test
+    public void testFuncWithDefaultRawTemplateValue() {
+        BRunUtil.invoke(result, "testFuncWithDefaultRawTemplateValue");
+    }
+
+    @Test
     public void testUsingParamInAnonFuncDefaultValueOfSubsequentParam() {
         BRunUtil.invoke(result, "testUsingParamInAnonFuncDefaultValueOfSubsequentParam");
     }
