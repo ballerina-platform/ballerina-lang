@@ -1291,9 +1291,14 @@ public final class TypeChecker {
     }
 
     static boolean belongToSingleBasicTypeOrString(Context cx, Type type) {
-        SemType semType = SemType.tryInto(cx, type);
-        return isSingleBasicType(semType) && Core.isSubType(cx, semType, Builder.getSimpleOrStringType()) &&
-                !Core.isSubType(cx, semType, Builder.getNilType());
+        SemType simpleOrStringType = Builder.getSimpleOrStringType();
+        SemType targetBasicType = widenToBasicType(SemType.basicType(type));
+        if (isSingleBasicType(targetBasicType) && !Core.isSubtypeSimple(targetBasicType, Builder.getNilType()) &&
+                Core.isSubtypeSimple(targetBasicType, simpleOrStringType)) {
+            SemType semType = SemType.tryInto(cx, type);
+            return Core.isSubType(cx, semType, simpleOrStringType);
+        }
+        return false;
     }
 
     private static boolean isSingleBasicType(SemType semType) {
