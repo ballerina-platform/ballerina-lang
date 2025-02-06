@@ -28,52 +28,56 @@ public class BallerinaIteratorUtils {
      * @return A Java Iterator for the collection.
      */
     public static <T> Iterator<T> getIterator(Object collection) {
-        if (collection instanceof BCollection) {
-            BIterator<?> iterator = ((BCollection) collection).getIterator();
+        switch (collection) {
+            case BCollection bCollection -> {
+                BIterator<?> iterator = bCollection.getIterator();
 
-            return new Iterator<T>() {
-                @Override
-                public boolean hasNext() {
-                    return iterator.hasNext();
-                }
+                return new Iterator<T>() {
+                    @Override
+                    public boolean hasNext() {
+                        return iterator.hasNext();
+                    }
 
-                @Override
-                @SuppressWarnings("unchecked")
-                public T next() {
-                    return (T) iterator.next();
-                }
-            };
-        } else if(collection instanceof BString){
-            BIterator<?> iterator = ((BString) collection).getIterator();
+                    @Override
+                    @SuppressWarnings("unchecked")
+                    public T next() {
+                        return (T) iterator.next();
+                    }
+                };
+            }
+            case BString bString -> {
+                BIterator<?> iterator = bString.getIterator();
 
-            return new Iterator<T>() {
-                @Override
-                public boolean hasNext() {
-                    return iterator.hasNext();
-                }
+                return new Iterator<T>() {
+                    @Override
+                    public boolean hasNext() {
+                        return iterator.hasNext();
+                    }
 
-                @Override
-                public T next() {
-                    return (T) iterator.next();
-                }
-            };
-        } else if (collection instanceof BStream) {
-            BObject iteratorObj = ((BStream) collection).getIteratorObj();
-            BIterator<?> iterator = (BIterator<?>) iteratorObj;
+                    @Override
+                    public T next() {
+                        return (T) iterator.next();
+                    }
+                };
+            }
+            case BStream bStream -> {
+                BObject iteratorObj = bStream.getIteratorObj();
+                BIterator<?> iterator = (BIterator<?>) iteratorObj;
 
-            return new Iterator<T>() {
-                @Override
-                public boolean hasNext() {
-                    return iterator.hasNext();
-                }
+                return new Iterator<T>() {
+                    @Override
+                    public boolean hasNext() {
+                        return iterator.hasNext();
+                    }
 
-                @Override
-                public T next() {
-                    return (T) iterator.next();
-                }
-            };
-        } else {
-            throw new UnsupportedOperationException("Unsupported collection type: " + collection.getClass().getName());
+                    @Override
+                    public T next() {
+                        return (T) iterator.next();
+                    }
+                };
+            }
+            case null, default ->
+                    throw new UnsupportedOperationException("Unsupported collection type: " + collection.getClass().getName());
         }
     }
 }

@@ -43,7 +43,7 @@ public class Frame {
 
     /**
      * Updates the underlying record with a new record.
-     * @param newRecord
+     * @param newRecord The new record to update.
      */
     public void updateRecord(BMap<BString, Object> newRecord) {
         this.$frame$ = newRecord;
@@ -56,9 +56,7 @@ public class Frame {
      * @param value The value to set.
      */
     public Frame updateRecord(BString key, Object value) {
-        System.out.println("Before update: " + this.$frame$);
         this.$frame$.put(key, value);
-        System.out.println("After update: " + this.$frame$);
         return this;
     }
 

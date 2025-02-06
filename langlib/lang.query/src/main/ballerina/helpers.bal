@@ -210,10 +210,17 @@ function consumeStream(handle strm) returns record {|(any|error|())...;|} = @jav
     paramTypes: ["java.lang.Object"]
 } external;
 
-function createNestedFromFunction(function(_Frame _frame) returns _Frame|error? collectionFunc)
+function createNestedFromFunctionOld(function(_Frame _frame) returns _Frame|error? collectionFunc)
         returns _StreamFunction {
     return new _NestedFromFunction(collectionFunc);
 }
+
+function createNestedFromFunction(function(_Frame _frame) returns _Frame|error? collectionFunc)
+        returns handle = @java:Method {
+    'class: "io.ballerina.runtime.internal.query.clauses.NestedFromClause",
+    name: "initNestedFromClause",
+    paramTypes: ["io.ballerina.runtime.api.values.BFunctionPointer"]
+} external;
 
 function createInnerJoinFunctionOld(
         _StreamPipeline joinedPipeline,
@@ -231,12 +238,21 @@ function createInnerJoinFunction(
     paramTypes: ["java.lang.Object","io.ballerina.runtime.api.values.BFunctionPointer","io.ballerina.runtime.api.values.BFunctionPointer"]
 } external;
 
-function createOuterJoinFunction(
+function createOuterJoinFunctionOld(
         _StreamPipeline joinedPipeline,
         function (_Frame _frame) returns any lhsKeyFunction,
         function (_Frame _frame) returns any rhsKeyFunction, _Frame nilFrame) returns _StreamFunction {
     return new _OuterJoinFunction(joinedPipeline, lhsKeyFunction, rhsKeyFunction, nilFrame);
 }
+
+function createOuterJoinFunction(
+        handle joinedPipeline,
+        function (_Frame _frame) returns any lhsKeyFunction,
+        function (_Frame _frame) returns any rhsKeyFunction) returns handle = @java:Method {
+    'class: "io.ballerina.runtime.internal.query.clauses.OuterJoinClause",
+    name: "initOuterJoinClause",
+    paramTypes: ["java.lang.Object","io.ballerina.runtime.api.values.BFunctionPointer","io.ballerina.runtime.api.values.BFunctionPointer"]
+} external;
 
 function createOnConflictFunction(function(_Frame _frame) returns _Frame|error? onConflictFunc)
         returns _StreamFunction => new _OnConflictFunction(onConflictFunc);

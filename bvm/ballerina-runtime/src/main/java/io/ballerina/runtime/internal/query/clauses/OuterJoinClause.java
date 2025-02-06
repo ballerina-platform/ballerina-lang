@@ -13,45 +13,47 @@ import java.util.Map;
 import java.util.stream.Stream;
 
 /**
- * Represents an Inner Join Clause in the query pipeline.
+ * Represents an Outer Join Clause in the query pipeline.
  */
-public class InnerJoinClause implements PipelineStage {
+public class OuterJoinClause implements PipelineStage {
     private final StreamPipeline pipelineToJoin;
     private final BFunctionPointer lhsKeyFunction;
     private final BFunctionPointer rhsKeyFunction;
     private final Map<String, List<Frame>> rhsFramesMap = new HashMap<>();
+    private final Frame nilFrame;
     private Exception failureAtJoin = null;
     private final Environment env;
 
     /**
-     * Constructor for the InnerJoinClause.
+     * Constructor for the OuterJoinClause.
      *
      * @param env The runtime environment.
      * @param pipelineToJoin The pipeline representing the right-hand side of the join.
      * @param lhsKeyFunction The function to extract the join key from the left-hand side.
      * @param rhsKeyFunction The function to extract the join key from the right-hand side.
      */
-    public InnerJoinClause(Environment env, Object pipelineToJoin,
+    public OuterJoinClause(Environment env, Object pipelineToJoin,
                            BFunctionPointer lhsKeyFunction, BFunctionPointer rhsKeyFunction) {
         this.pipelineToJoin = (StreamPipeline) pipelineToJoin;
         this.lhsKeyFunction = lhsKeyFunction;
         this.rhsKeyFunction = rhsKeyFunction;
+        this.nilFrame = new Frame();
         this.env = env;
         initializeRhsFrames();
     }
 
     /**
-     * Initializes the inner join clause.
+     * Initializes the outer join clause.
      *
      * @param env The runtime environment.
      * @param pipelineToJoin The pipeline representing the right-hand side of the join.
      * @param lhsKeyFunction The function to extract the join key from the left-hand side.
      * @param rhsKeyFunction The function to extract the join key from the right-hand side.
-     * @return The initialized InnerJoinClause.
+     * @return The initialized OuterJoinClause.
      */
-    public static InnerJoinClause initInnerJoinClause(Environment env, Object pipelineToJoin,
-                                                        BFunctionPointer lhsKeyFunction, BFunctionPointer rhsKeyFunction) {
-        return new InnerJoinClause(env, pipelineToJoin, lhsKeyFunction, rhsKeyFunction);
+    public static OuterJoinClause initOuterJoinClause(Environment env, Object pipelineToJoin,
+                                                      BFunctionPointer lhsKeyFunction, BFunctionPointer rhsKeyFunction) {
+        return new OuterJoinClause(env, pipelineToJoin, lhsKeyFunction, rhsKeyFunction);
     }
 
     /**
@@ -74,7 +76,7 @@ public class InnerJoinClause implements PipelineStage {
     }
 
     /**
-     * Executes the inner join by processing the left-hand side (LHS) frames.
+     * Executes the outer join by processing the left-hand side (LHS) frames.
      *
      * @param inputStream The input stream of frames (LHS).
      * @return A joined stream of frames.
@@ -90,9 +92,20 @@ public class InnerJoinClause implements PipelineStage {
                 Object lhsKey = lhsKeyFunction.call(env.getRuntime(), lhsFrame.getRecord());
                 List<Frame> rhsCandidates = rhsFramesMap.getOrDefault(lhsKey.toString(), Collections.emptyList());
 
-                return rhsCandidates.stream()
-                        .map(rhsFrame -> mergeFrames(lhsFrame, rhsFrame));
-
+                if (rhsCandidates.isEmpty()) {
+                    // No matching RHS frames, join with nilFrame
+                    Frame joinedFrame = new Frame();
+                    lhsFrame.getRecord().entrySet().forEach(entry ->
+                            joinedFrame.getRecord().put(entry.getKey(), entry.getValue())
+                    );
+                    nilFrame.getRecord().entrySet().forEach(entry ->
+                            joinedFrame.getRecord().put(entry.getKey(), entry.getValue())
+                    );
+                    return Stream.of(joinedFrame);
+                } else {
+                    // Join with each matching RHS frame
+                    return rhsCandidates.stream().map(rhsFrame -> mergeFrames(lhsFrame, rhsFrame));
+                }
             } catch (Exception e) {
                 throw new RuntimeException("Error applying key functions in join clause", e);
             }
