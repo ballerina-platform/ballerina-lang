@@ -18,8 +18,6 @@ public class OuterJoinClause implements PipelineStage {
     private final Map<String, List<Frame>> rhsFramesMap = new HashMap<>();
     private final Frame nilFrame;
     private Exception failureAtJoin = null;
-    private Frame lhsFrame = null;
-    private List<Frame> rhsCandidates = null;
     private final Environment env;
 
     /**
@@ -29,7 +27,6 @@ public class OuterJoinClause implements PipelineStage {
      * @param pipelineToJoin The pipeline representing the right-hand side of the join.
      * @param lhsKeyFunction The function to extract the join key from the left-hand side.
      * @param rhsKeyFunction The function to extract the join key from the right-hand side.
-     * @param nilFrame A frame representing a nil value for the join.
      */
     public OuterJoinClause(Environment env, Object pipelineToJoin,
                            BFunctionPointer lhsKeyFunction, BFunctionPointer rhsKeyFunction) {
@@ -48,7 +45,6 @@ public class OuterJoinClause implements PipelineStage {
      * @param pipelineToJoin The pipeline representing the right-hand side of the join.
      * @param lhsKeyFunction The function to extract the join key from the left-hand side.
      * @param rhsKeyFunction The function to extract the join key from the right-hand side.
-     * @param nilFrame A frame representing a nil value for the join.
      * @return The initialized OuterJoinClause.
      */
     public static OuterJoinClause initOuterJoinClause(Environment env, Object pipelineToJoin,
@@ -64,7 +60,7 @@ public class OuterJoinClause implements PipelineStage {
             StreamPipeline.getStreamFromPipeline(pipelineToJoin)
                     .forEach(frame -> {
                         try {
-                            Object key = rhsKeyFunction.call(env.getRuntime(), new Object[]{frame.getRecord()});
+                            Object key = rhsKeyFunction.call(env.getRuntime(), frame.getRecord());
                             rhsFramesMap.computeIfAbsent(key.toString(), k -> new ArrayList<>()).add(frame);
                         } catch (Exception e) {
                             failureAtJoin = e;
@@ -89,7 +85,7 @@ public class OuterJoinClause implements PipelineStage {
 
         return inputStream.flatMap(lhsFrame -> {
             try {
-                Object lhsKey = lhsKeyFunction.call(env.getRuntime(), new Object[]{lhsFrame.getRecord()});
+                Object lhsKey = lhsKeyFunction.call(env.getRuntime(), lhsFrame.getRecord());
                 List<Frame> rhsCandidates = rhsFramesMap.getOrDefault(lhsKey.toString(), Collections.emptyList());
 
                 if (rhsCandidates.isEmpty()) {
