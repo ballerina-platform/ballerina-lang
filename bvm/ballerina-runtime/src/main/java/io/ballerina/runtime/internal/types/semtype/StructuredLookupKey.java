@@ -82,6 +82,9 @@ public class StructuredLookupKey implements TypeCheckCacheKey {
 
     @Override
     public boolean equals(Object obj) {
+        if (obj == this) {
+            return true;
+        }
         if (!(obj instanceof StructuredLookupKey other)) {
             return false;
         }
