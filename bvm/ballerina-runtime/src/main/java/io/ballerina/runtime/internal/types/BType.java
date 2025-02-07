@@ -64,6 +64,8 @@ public abstract non-sealed class BType extends SemType
     private volatile SemType cachedSemType = null;
     private volatile TypeCheckCache typeCheckCache;
     private final ReadWriteLock typeCacheLock = new ReentrantReadWriteLock();
+    private final ReadWriteLock lookupKeyLock = new ReentrantReadWriteLock();
+    private volatile TypeCheckCacheKey lookupKey;
 
     protected BType(String typeName, Module pkg, Class<? extends Object> valueClass) {
         this.typeName = typeName;
@@ -298,6 +300,26 @@ public abstract non-sealed class BType extends SemType
 
     @Override
     public TypeCheckCacheKey getLookupKey() {
+        lookupKeyLock.readLock().lock();
+        try {
+            if (lookupKey != null) {
+                return lookupKey;
+            }
+        } finally {
+            lookupKeyLock.readLock().unlock();
+        }
+        lookupKeyLock.writeLock().lock();
+        try {
+            if (lookupKey == null) {
+                lookupKey = createLookupKey();
+            }
+            return lookupKey;
+        } finally {
+            lookupKeyLock.writeLock().unlock();
+        }
+    }
+
+    private TypeCheckCacheKey createLookupKey() {
         if (isAnonType()) {
             return StructuredLookupKey.from(this);
         }
