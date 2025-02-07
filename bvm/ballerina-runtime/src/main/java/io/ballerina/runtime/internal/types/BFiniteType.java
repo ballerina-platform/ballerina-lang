@@ -32,8 +32,10 @@ import io.ballerina.runtime.internal.types.semtype.StructuredLookupKey;
 import io.ballerina.runtime.internal.types.semtype.UniqueLookupKey;
 import io.ballerina.runtime.internal.values.RefValue;
 
+import java.util.IdentityHashMap;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.StringJoiner;
@@ -52,6 +54,7 @@ public class BFiniteType extends BType implements FiniteType {
     private String originalName;
     private final StructuredLookupKey lookupKey = new StructuredLookupKey(StructuredLookupKey.Kind.FINITE,
             new TypeCheckCacheKey[]{new UniqueLookupKey()});
+    private final Object val;
 
     public BFiniteType(String typeName) {
         this(typeName, new LinkedHashSet<>(), 0);
@@ -66,6 +69,11 @@ public class BFiniteType extends BType implements FiniteType {
         this.valueSpace = values;
         this.typeFlags = typeFlags;
         this.originalName = originalName;
+        if (values.size() == 1) {
+            val = values.iterator().next();
+        } else {
+            val = null;
+        }
     }
 
     @Override
@@ -217,7 +225,13 @@ public class BFiniteType extends BType implements FiniteType {
     @Override
     public SemType createSemType(Context cx) {
         if (this.valueSpace.size() == 1) {
-            return ShapeAnalyzer.inherentTypeOf(cx, this.valueSpace.iterator().next()).orElseThrow();
+            SemType cached = SemTypeCache.semTypeCache.get(val);
+            if (cached != null) {
+                return cached;
+            }
+            SemType semtype = ShapeAnalyzer.inherentTypeOf(cx, val).orElseThrow();
+            SemTypeCache.semTypeCache.put(val, semtype);
+            return semtype;
         }
         return this.valueSpace.stream().map(each -> ShapeAnalyzer.inherentTypeOf(cx, each))
                 .map(Optional::orElseThrow)
@@ -226,6 +240,15 @@ public class BFiniteType extends BType implements FiniteType {
 
     @Override
     public SemType basicType() {
+        if (this.valueSpace.size() == 1) {
+            SemType cached = SemTypeCache.basicTypeCache.get(val);
+            if (cached != null) {
+                return cached;
+            }
+            SemType semtype = SemType.basicType(TypeChecker.getType(val));
+            SemTypeCache.basicTypeCache.put(val, semtype);
+            return semtype;
+        }
         return this.valueSpace.stream().map(TypeChecker::getType).map(SemType::basicType).reduce(Builder.getNeverType(),
                 Core::union);
     }
@@ -233,5 +256,11 @@ public class BFiniteType extends BType implements FiniteType {
     @Override
     public StructuredLookupKey getStructuredLookupKey() {
         return lookupKey;
+    }
+
+    private static class SemTypeCache {
+
+        private static Map<Object, SemType> basicTypeCache = new IdentityHashMap<>();
+        private static Map<Object, SemType> semTypeCache = new IdentityHashMap<>();
     }
 }
