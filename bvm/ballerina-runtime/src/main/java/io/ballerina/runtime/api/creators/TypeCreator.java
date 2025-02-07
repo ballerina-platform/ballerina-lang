@@ -178,7 +178,7 @@ public final class TypeCreator {
     * @return the new map type
     */
     public static MapType createMapType(Type constraint) {
-        return logAndReturn(new BMapType(constraint));
+        return logAndReturn(MapTypeCache.get(constraint));
     }
 
     /**
@@ -576,6 +576,21 @@ public final class TypeCreator {
         public TypeIdentifier {
             assert typeName != null;
             assert pkg != null;
+        }
+    }
+
+    private static final class MapTypeCache {
+
+        private static final Map<Type, MapType> cache = new ConcurrentHashMap<>();
+
+        static MapType get(Type constraint) {
+            MapType cached = cache.get(constraint);
+            if (cached != null) {
+                return cached;
+            }
+            MapType type = new BMapType(constraint);
+            cache.put(constraint, type);
+            return type;
         }
     }
 }
