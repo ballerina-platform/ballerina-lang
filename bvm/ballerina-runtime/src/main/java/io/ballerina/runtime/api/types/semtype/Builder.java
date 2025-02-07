@@ -38,6 +38,8 @@ import io.ballerina.runtime.internal.types.semtype.XmlUtils;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Stream;
 
 import static io.ballerina.runtime.api.types.semtype.BasicTypeCode.BT_CELL;
@@ -251,17 +253,8 @@ public final class Builder {
         return basicSubType(BasicTypeCode.BT_FLOAT, BFloatSubType.createFloatSubType(true, values));
     }
 
-    // TODO: consider caching small strings
     public static SemType getStringConst(String value) {
-        BStringSubType subType;
-        String[] values = {value};
-        String[] empty = EMPTY_STRING_ARR;
-        if (value.length() == 1 || value.codePointCount(0, value.length()) == 1) {
-            subType = BStringSubType.createStringSubType(true, values, true, empty);
-        } else {
-            subType = BStringSubType.createStringSubType(true, empty, true, values);
-        }
-        return basicSubType(BasicTypeCode.BT_STRING, subType);
+        return StringTypeCache.get(value);
     }
 
     static SubType[] initializeSubtypeArray(int some) {
@@ -437,6 +430,32 @@ public final class Builder {
             BStringSubType subTypeData = BStringSubType.createStringSubType(false, Builder.EMPTY_STRING_ARR, true,
                     Builder.EMPTY_STRING_ARR);
             charType = basicSubType(BasicTypeCode.BT_STRING, subTypeData);
+        }
+
+        private static final Map<String, SemType> cache = new ConcurrentHashMap<>();
+        private static final int MAX_SIZE = 50;
+
+        private static boolean couldBeCached(String value) {
+            return value.length() < MAX_SIZE;
+        }
+
+        private static SemType get(String value) {
+            if (couldBeCached(value)) {
+                return cache.computeIfAbsent(value, StringTypeCache::createSemType);
+            }
+            return createSemType(value);
+        }
+
+        private static SemType createSemType(String value) {
+            BStringSubType subType;
+            String[] values = {value};
+            String[] empty = EMPTY_STRING_ARR;
+            if (value.length() == 1 || value.codePointCount(0, value.length()) == 1) {
+                subType = BStringSubType.createStringSubType(true, values, true, empty);
+            } else {
+                subType = BStringSubType.createStringSubType(true, empty, true, values);
+            }
+            return basicSubType(BasicTypeCode.BT_STRING, subType);
         }
     }
 
