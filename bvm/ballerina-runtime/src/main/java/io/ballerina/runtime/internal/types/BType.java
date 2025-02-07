@@ -231,4 +231,104 @@ public abstract class BType implements Type {
     public Type getCachedImpliedType() {
         return this.cachedImpliedType;
     }
+
+    @Override
+    public SemType createSemType(Context cx) {
+        throw new IllegalStateException("Child that are used for type checking must implement this method");
+    }
+
+    @Override
+    public void updateInnerSemTypeIfNeeded(Context cx) {
+        if (cachedSemType == null) {
+            try {
+                cx.enterTypeResolutionPhase(this);
+                cachedSemType = createSemType(cx);
+                setAll(cachedSemType.all());
+                setSome(cachedSemType.some(), cachedSemType.subTypeData());
+                cx.exitTypeResolutionPhase();
+            } catch (InterruptedException e) {
+                cx.exitTypeResolutionPhaseAbruptly(e);
+                throw new RuntimeException(e);
+            }
+        }
+    }
+
+    protected SemType getSemType(Context cx) {
+        updateInnerSemTypeIfNeeded(cx);
+        return cachedSemType;
+    }
+
+    @Override
+    public void resetSemType() {
+        cachedSemType = null;
+    }
+
+    @Override
+    public BType clone() {
+        try {
+            BType clone = (BType) super.clone();
+            clone.cachedSemType = null;
+            clone.setCachedImpliedType(null);
+            clone.setCachedReferredType(null);
+            return clone;
+        } catch (CloneNotSupportedException e) {
+            throw new AssertionError();
+        }
+    }
+
+    @Override
+    public boolean shouldCache() {
+        return this.pkg != null && this.typeName != null && !this.typeName.contains("$anon");
+    }
+
+    @Override
+    public final Optional<Boolean> cachedTypeCheckResult(Context cx, CacheableTypeDescriptor other) {
+        initializeCacheIfNeeded(cx);
+        typeCacheLock.readLock().lock();
+        try {
+            return typeCheckCache.cachedTypeCheckResult(other);
+        } finally {
+            typeCacheLock.readLock().unlock();
+        }
+    }
+
+    private void initializeCacheIfNeeded(Context cx) {
+        typeCacheLock.readLock().lock();
+        boolean shouldInitialize = typeCheckCache == null;
+        typeCacheLock.readLock().unlock();
+        if (!shouldInitialize) {
+            return;
+        }
+        try {
+            typeCacheLock.writeLock().lock();
+            if (typeCheckCache == null) {
+                typeCheckCache = cx.getTypeCheckCache(this);
+            }
+        } finally {
+            typeCacheLock.writeLock().unlock();
+        }
+    }
+
+    @Override
+    public final void cacheTypeCheckResult(CacheableTypeDescriptor other, boolean result) {
+        // This happening after checking the cache so it must be initialized by now
+        typeCheckCache.cacheTypeCheckResult(other, result);
+    }
+
+    @Override
+    public final boolean isDependentlyTyped() {
+        return isDependentlyTyped(new HashSet<>());
+    }
+
+    @Override
+    public final boolean isDependentlyTyped(Set<MayBeDependentType> visited) {
+        if (!visited.add(this)) {
+            return false;
+        }
+        return isDependentlyTypedInner(visited);
+    }
+
+    protected boolean isDependentlyTypedInner(Set<MayBeDependentType> visited) {
+        return false;
+    }
 }

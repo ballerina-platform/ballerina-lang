@@ -218,4 +218,189 @@ public class BRecordType extends BStructureType implements RecordType {
         return defaultValues;
     }
 
+    @Override
+    public SemType createSemType(Context cx) {
+        Env env = cx.env;
+        if (defn.isDefinitionReady()) {
+            return defn.getSemType(env);
+        }
+        var result = defn.trySetDefinition(MappingDefinition::new);
+        if (!result.updated()) {
+            return defn.getSemType(env);
+        }
+        MappingDefinition md = result.definition();
+        return createSemTypeInner(md, env, mut(), (type) -> SemType.tryInto(cx, type));
+    }
+
+    private CellMutability mut() {
+        return isReadOnly() ? CELL_MUT_NONE : CellMutability.CELL_MUT_LIMITED;
+    }
+
+    private SemType createSemTypeInner(MappingDefinition md, Env env, CellMutability mut,
+                                       Function<Type, SemType> semTypeFunction) {
+        Field[] fields = getFields().values().toArray(Field[]::new);
+        MappingDefinition.Field[] mappingFields = new MappingDefinition.Field[fields.length];
+        for (int i = 0; i < fields.length; i++) {
+            Field field = fields[i];
+            boolean isOptional = SymbolFlags.isFlagOn(field.getFlags(), SymbolFlags.OPTIONAL);
+            SemType fieldType = semTypeFunction.apply(field.getFieldType());
+            if (!isOptional && Core.isNever(fieldType)) {
+                return getNeverType();
+            }
+            boolean isReadonly =
+                    SymbolFlags.isFlagOn(field.getFlags(), SymbolFlags.READONLY) || Core.isNever(fieldType);
+            mappingFields[i] = new MappingDefinition.Field(field.getFieldName(), fieldType,
+                    isReadonly, isOptional);
+        }
+        SemType rest;
+        rest = restFieldType != null ? semTypeFunction.apply(restFieldType) : getNeverType();
+        return md.defineMappingTypeWrapped(env, mappingFields, rest, mut);
+    }
+
+    @Override
+    public void resetSemType() {
+        defn.clear();
+        super.resetSemType();
+    }
+
+    @Override
+    public boolean isDependentlyTypedInner(Set<MayBeDependentType> visited) {
+        return fields.values().stream().map(Field::getFieldType).filter(each -> each instanceof MayBeDependentType)
+                .anyMatch(each -> ((MayBeDependentType) each).isDependentlyTyped(visited));
+    }
+
+    @Override
+    public Optional<SemType> inherentTypeOf(Context cx, ShapeSupplier shapeSupplier, Object object) {
+        if (!couldInherentTypeBeDifferent()) {
+            return Optional.of(getSemType(cx));
+        }
+        MapValueImpl<?, ?> value = (MapValueImpl<?, ?>) object;
+        SemType cachedSemType = value.shapeOf();
+        if (cachedSemType != null) {
+            return Optional.of(cachedSemType);
+        }
+        SemType semTypePart = shapeOfInner(cx, shapeSupplier, value, isReadOnly());
+        value.cacheShape(semTypePart);
+        return Optional.of(semTypePart);
+    }
+
+    private SemType shapeOfInner(Context cx, ShapeSupplier shapeSupplier, MapValueImpl<?, ?> value,
+                                 boolean takeFieldShape) {
+        Env env = cx.env;
+        int nFields = value.size();
+        Map.Entry<?, ?>[] entries = value.entrySet().toArray(Map.Entry[]::new);
+        Set<String> handledFields = new HashSet<>(nFields);
+        MappingDefinition md;
+        if (takeFieldShape) {
+            MappingDefinition readonlyShapeDefinition = value.getReadonlyShapeDefinition();
+            if (readonlyShapeDefinition != null) {
+                return readonlyShapeDefinition.getSemType(env);
+            } else {
+                md = new MappingDefinition();
+                value.setReadonlyShapeDefinition(md);
+            }
+        } else {
+            md = new MappingDefinition();
+        }
+        List<MappingDefinition.Field> fields = new ArrayList<>(nFields);
+        for (int i = 0; i < nFields; i++) {
+            String fieldName = entries[i].getKey().toString();
+            Object fieldValue = entries[i].getValue();
+            handledFields.add(fieldName);
+            fields.add(fieldShape(cx, shapeSupplier, fieldName, fieldValue, takeFieldShape));
+        }
+        if (!takeFieldShape) {
+            getFields().values().stream()
+                    .filter(field -> !handledFields.contains(field.getFieldName()))
+                    .map(field -> fieldShapeWithoutValue(cx, field, field.getFieldName()))
+                    .forEach(fields::add);
+        }
+        MappingDefinition.Field[] fieldsArray = fields.toArray(MappingDefinition.Field[]::new);
+        SemType rest;
+        if (takeFieldShape) {
+            rest = Builder.getNeverType();
+        } else {
+            rest = restFieldType != null ? SemType.tryInto(cx, restFieldType) : getNeverType();
+        }
+        SemType shape = md.defineMappingTypeWrapped(env, fieldsArray, rest, mut());
+        value.resetReadonlyShapeDefinition();
+        return shape;
+    }
+
+    private MappingDefinition.Field fieldShapeWithoutValue(Context cx, Field field, String fieldName) {
+        boolean isOptional = fieldIsOptional(fieldName);
+        boolean isReadonly = fieldIsReadonly(fieldName);
+        SemType fieldType = SemType.tryInto(cx, field.getFieldType());
+        if (isReadonly && isOptional) {
+            fieldType = Builder.getUndefType();
+        }
+        return new MappingDefinition.Field(field.getFieldName(), fieldType,
+                isReadonly, isOptional);
+    }
+
+    @Override
+    public boolean couldInherentTypeBeDifferent() {
+        if (couldInhereTypeBeDifferentCache != 0) {
+            return couldInhereTypeBeDifferentCache == 1;
+        }
+        boolean result = couldShapeBeDifferentInner();
+        couldInhereTypeBeDifferentCache = (byte) (result ? 1 : 2);
+        return result;
+    }
+
+    private boolean couldShapeBeDifferentInner() {
+        if (isReadOnly()) {
+            return true;
+        }
+        return fields.values().stream().anyMatch(field -> SymbolFlags.isFlagOn(field.getFlags(), SymbolFlags.READONLY));
+    }
+
+    @Override
+    public Optional<SemType> shapeOf(Context cx, ShapeSupplier shapeSupplier, Object object) {
+        return Optional.of(shapeOfInner(cx, shapeSupplier, (MapValueImpl<?, ?>) object, true));
+    }
+
+    @Override
+    public Optional<SemType> acceptedTypeOf(Context cx) {
+        Env env = cx.env;
+        if (acceptedTypeDefn.isDefinitionReady()) {
+            return Optional.of(acceptedTypeDefn.getSemType(env));
+        }
+        var result = acceptedTypeDefn.trySetDefinition(MappingDefinition::new);
+        if (!result.updated()) {
+            return Optional.of(acceptedTypeDefn.getSemType(env));
+        }
+        MappingDefinition md = result.definition();
+        return Optional.of(createSemTypeInner(md, env, CELL_MUT_UNLIMITED,
+                (type) -> ShapeAnalyzer.acceptedTypeOf(cx, type).orElseThrow()));
+    }
+
+    private Type fieldType(String fieldName) {
+        Field field = fields.get(fieldName);
+        return field == null ? restFieldType : field.getFieldType();
+    }
+
+    private boolean fieldIsReadonly(String fieldName) {
+        Field field = fields.get(fieldName);
+        return field != null && SymbolFlags.isFlagOn(field.getFlags(), SymbolFlags.READONLY);
+    }
+
+    private boolean fieldIsOptional(String fieldName) {
+        Field field = fields.get(fieldName);
+        return field != null && SymbolFlags.isFlagOn(field.getFlags(), SymbolFlags.OPTIONAL);
+    }
+
+    private MappingDefinition.Field fieldShape(Context cx, ShapeSupplier shapeSupplier, String fieldName,
+                                               Object fieldValue, boolean alwaysTakeValueShape) {
+        boolean readonlyField = fieldIsReadonly(fieldName);
+        boolean optionalField = fieldIsOptional(fieldName);
+        SemType fieldType;
+        if (alwaysTakeValueShape || readonlyField) {
+            optionalField = false;
+            fieldType = shapeSupplier.get(cx, fieldValue).orElseThrow();
+        } else {
+            fieldType = SemType.tryInto(cx, fieldType(fieldName));
+        }
+        return new MappingDefinition.Field(fieldName, fieldType, readonlyField, optionalField);
+    }
 }

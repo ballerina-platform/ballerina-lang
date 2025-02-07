@@ -126,4 +126,50 @@ public class BTypeReferenceType extends BAnnotatableType implements Intersectabl
     public void setIntersectionType(IntersectionType intersectionType) {
         this.intersectionType = intersectionType;
     }
+
+    @Override
+    public SemType createSemType(Context cx) {
+        Type referredType = getReferredType();
+        return tryInto(cx, referredType);
+    }
+
+    @Override
+    protected boolean isDependentlyTypedInner(Set<MayBeDependentType> visited) {
+        return getReferredType() instanceof MayBeDependentType refType && refType.isDependentlyTyped(visited);
+    }
+
+    @Override
+    public Optional<SemType> inherentTypeOf(Context cx, ShapeSupplier shapeSupplier, Object object) {
+        if (!couldInherentTypeBeDifferent()) {
+            return Optional.of(getSemType(cx));
+        }
+        Type referredType = getReferredType();
+        if (referredType instanceof TypeWithShape typeWithShape) {
+            return typeWithShape.inherentTypeOf(cx, shapeSupplier, object);
+        }
+        return Optional.empty();
+    }
+
+    @Override
+    public boolean couldInherentTypeBeDifferent() {
+        return referredType instanceof TypeWithShape typeWithShape && typeWithShape.couldInherentTypeBeDifferent();
+    }
+
+    @Override
+    public Optional<SemType> shapeOf(Context cx, ShapeSupplier shapeSupplierFn, Object object) {
+        Type referredType = getReferredType();
+        if (referredType instanceof TypeWithShape typeWithShape) {
+            return typeWithShape.shapeOf(cx, shapeSupplierFn, object);
+        }
+        return ShapeAnalyzer.shapeOf(cx, referredType);
+    }
+
+    @Override
+    public Optional<SemType> acceptedTypeOf(Context cx) {
+        Type referredType = getReferredType();
+        if (referredType instanceof TypeWithShape typeWithShape) {
+            return typeWithShape.acceptedTypeOf(cx);
+        }
+        return ShapeAnalyzer.acceptedTypeOf(cx, referredType);
+    }
 }

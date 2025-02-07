@@ -24,6 +24,10 @@ import io.ballerina.runtime.api.types.PredefinedTypes;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.TypeTags;
 import io.ballerina.runtime.api.types.TypedescType;
+import io.ballerina.runtime.api.types.semtype.Builder;
+import io.ballerina.runtime.api.types.semtype.Context;
+import io.ballerina.runtime.api.types.semtype.SemType;
+import io.ballerina.runtime.internal.types.semtype.TypedescUtils;
 import io.ballerina.runtime.internal.values.TypedescValue;
 import io.ballerina.runtime.internal.values.TypedescValueImpl;
 
@@ -83,5 +87,20 @@ public class BTypedescType extends BType implements TypedescType {
     @Override
     public String toString() {
         return "typedesc" + "<" + constraint.toString() + ">";
+    }
+
+    @Override
+    public SemType createSemType(Context cx) {
+        if (constraint == null) {
+            return Builder.getTypeDescType();
+        }
+        SemType constraint = tryInto(cx, getConstraint());
+        return TypedescUtils.typedescContaining(cx.env, constraint);
+    }
+
+    @Override
+    protected boolean isDependentlyTypedInner(Set<MayBeDependentType> visited) {
+        return constraint instanceof MayBeDependentType constraintType &&
+                constraintType.isDependentlyTyped(visited);
     }
 }

@@ -22,6 +22,13 @@ import io.ballerina.runtime.api.constants.TypeConstants;
 import io.ballerina.runtime.api.types.FutureType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.TypeTags;
+import io.ballerina.runtime.api.types.semtype.Builder;
+import io.ballerina.runtime.api.types.semtype.Context;
+import io.ballerina.runtime.api.types.semtype.SemType;
+import io.ballerina.runtime.internal.types.semtype.FutureUtils;
+
+import java.util.Objects;
+import java.util.Set;
 import io.ballerina.runtime.internal.TypeChecker;
 
 /**
@@ -92,5 +99,18 @@ public class BFutureType extends BType implements FutureType {
 
     private String getConstraintString() {
         return constraint != null ? "<" + constraint + ">" : "";
+    }
+
+    @Override
+    public SemType createSemType(Context cx) {
+        if (constraint == null) {
+            return Builder.getFutureType();
+        }
+        return FutureUtils.futureContaining(cx.env, tryInto(cx, constraint));
+    }
+
+    @Override
+    protected boolean isDependentlyTypedInner(Set<MayBeDependentType> visited) {
+        return constraint instanceof MayBeDependentType constraintType && constraintType.isDependentlyTyped(visited);
     }
 }

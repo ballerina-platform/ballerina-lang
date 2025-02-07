@@ -204,4 +204,101 @@ public class BArrayType extends BType implements ArrayType {
     public void setIntersectionType(IntersectionType intersectionType) {
         this.intersectionType = intersectionType;
     }
+
+    @Override
+    public SemType createSemType(Context cx) {
+        Env env = cx.env;
+        if (defn.isDefinitionReady()) {
+            return defn.getSemType(env);
+        }
+        var result = defn.trySetDefinition(ListDefinition::new);
+        if (!result.updated()) {
+            return defn.getSemType(env);
+        }
+        ListDefinition ld = result.definition();
+        CellAtomicType.CellMutability mut = isReadOnly() ? CellAtomicType.CellMutability.CELL_MUT_NONE :
+                CellAtomicType.CellMutability.CELL_MUT_LIMITED;
+        return getSemTypePart(env, ld, size, tryInto(cx, getElementType()), mut);
+    }
+
+    private SemType getSemTypePart(Env env, ListDefinition defn, int size, SemType elementType,
+                                   CellAtomicType.CellMutability mut) {
+        if (size == -1) {
+            return defn.defineListTypeWrapped(env, EMPTY_SEMTYPE_ARR, 0, elementType, mut);
+        } else {
+            SemType[] initial = {elementType};
+            return defn.defineListTypeWrapped(env, initial, size, getNeverType(), mut);
+        }
+    }
+
+    @Override
+    public void resetSemType() {
+        defn.clear();
+        super.resetSemType();
+    }
+
+    @Override
+    protected boolean isDependentlyTypedInner(Set<MayBeDependentType> visited) {
+        return elementType instanceof MayBeDependentType eType && eType.isDependentlyTyped(visited);
+    }
+
+    @Override
+    public Optional<SemType> inherentTypeOf(Context cx, ShapeSupplier shapeSupplier, Object object) {
+        if (!couldInherentTypeBeDifferent()) {
+            return Optional.of(getSemType(cx));
+        }
+        AbstractArrayValue value = (AbstractArrayValue) object;
+        SemType cachedShape = value.shapeOf();
+        if (cachedShape != null) {
+            return Optional.of(cachedShape);
+        }
+        SemType semType = shapeOfInner(cx, shapeSupplier, value);
+        value.cacheShape(semType);
+        return Optional.of(semType);
+    }
+
+    @Override
+    public boolean couldInherentTypeBeDifferent() {
+        return isReadOnly();
+    }
+
+    @Override
+    public Optional<SemType> shapeOf(Context cx, ShapeSupplier shapeSupplier, Object object) {
+        return Optional.of(shapeOfInner(cx, shapeSupplier, (AbstractArrayValue) object));
+    }
+
+    @Override
+    public Optional<SemType> acceptedTypeOf(Context cx) {
+        Env env = cx.env;
+        if (acceptedTypeDefn.isDefinitionReady()) {
+            return Optional.of(acceptedTypeDefn.getSemType(cx.env));
+        }
+        var result = acceptedTypeDefn.trySetDefinition(ListDefinition::new);
+        if (!result.updated()) {
+            return Optional.of(acceptedTypeDefn.getSemType(env));
+        }
+        ListDefinition ld = result.definition();
+        SemType elementType = ShapeAnalyzer.acceptedTypeOf(cx, getElementType()).orElseThrow();
+        return Optional.of(getSemTypePart(env, ld, size, elementType, CELL_MUT_UNLIMITED));
+    }
+
+    private SemType shapeOfInner(Context cx, ShapeSupplier shapeSupplier, AbstractArrayValue value) {
+        ListDefinition readonlyShapeDefinition = value.getReadonlyShapeDefinition();
+        if (readonlyShapeDefinition != null) {
+            return readonlyShapeDefinition.getSemType(cx.env);
+        }
+        int size = value.size();
+        SemType[] memberTypes = new SemType[size];
+        ListDefinition ld = new ListDefinition();
+        value.setReadonlyShapeDefinition(ld);
+        for (int i = 0; i < size; i++) {
+            Optional<SemType> memberType = shapeSupplier.get(cx, value.get(i));
+            assert memberType.isPresent();
+            memberTypes[i] = memberType.get();
+        }
+        CellAtomicType.CellMutability mut = isReadOnly() ? CELL_MUT_NONE : CELL_MUT_LIMITED;
+        SemType semType = ld.defineListTypeWrapped(cx.env, memberTypes, memberTypes.length, getNeverType(), mut);
+        value.resetReadonlyShapeDefinition();
+        return semType;
+    }
 }

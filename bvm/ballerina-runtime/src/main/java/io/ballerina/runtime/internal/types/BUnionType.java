@@ -540,4 +540,22 @@ public class BUnionType extends BType implements UnionType, SelectivelyImmutable
     public void setIntersectionType(IntersectionType intersectionType) {
         this.intersectionType = intersectionType;
     }
+
+    @Override
+    public SemType createSemType(Context cx) {
+        return memberTypes.stream().map(type -> SemType.tryInto(cx, type)).reduce(Builder.getNeverType(), Core::union);
+    }
+
+    @Override
+    protected boolean isDependentlyTypedInner(Set<MayBeDependentType> visited) {
+        return memberTypes.stream()
+                .filter(each -> each instanceof MayBeDependentType)
+                .anyMatch(type -> ((MayBeDependentType) type).isDependentlyTyped(visited));
+    }
+
+    @Override
+    public Optional<SemType> acceptedTypeOf(Context cx) {
+        return Optional.of(memberTypes.stream().map(each -> ShapeAnalyzer.acceptedTypeOf(cx, each).orElseThrow())
+                .reduce(Builder.getNeverType(), Core::union));
+    }
 }

@@ -133,17 +133,47 @@ public final class TypeConverter {
         };
     }
 
+    private static Object castValueToInt(Context cx, SemType targetType, Object inputValue) {
+        assert Core.isSubType(cx, targetType, Builder.getIntType());
+        if (targetType instanceof BByteType) {
+            return anyToByteCast(inputValue, () ->
+                    ErrorUtils.createTypeCastError(inputValue, PredefinedTypes.TYPE_BYTE));
+        }
+        Predicate<Type> isIntSubType = (subType) -> Core.isSameType(cx, targetType, SemType.tryInto(cx, subType));
+        if (isIntSubType.test(PredefinedTypes.TYPE_INT_SIGNED_32)) {
+            return anyToSigned32(inputValue);
+        }
+        if (isIntSubType.test(PredefinedTypes.TYPE_INT_SIGNED_16)) {
+            return anyToSigned16(inputValue);
+        }
+        if (isIntSubType.test(PredefinedTypes.TYPE_INT_SIGNED_8)) {
+            return anyToSigned8(inputValue);
+        }
+        if (isIntSubType.test(PredefinedTypes.TYPE_INT_UNSIGNED_32)) {
+            return anyToUnsigned32(inputValue);
+        }
+        if (isIntSubType.test(PredefinedTypes.TYPE_INT_UNSIGNED_16)) {
+            return anyToUnsigned16(inputValue);
+        }
+        if (isIntSubType.test(PredefinedTypes.TYPE_INT_UNSIGNED_8)) {
+            return anyToUnsigned8(inputValue);
+        }
+        return anyToIntCast(inputValue, () ->
+                ErrorUtils.createTypeCastError(inputValue, PredefinedTypes.TYPE_INT));
+    }
+
     public static Object castValues(Type targetType, Object inputValue) {
-        return switch (targetType.getTag()) {
-            case TypeTags.SIGNED32_INT_TAG -> anyToSigned32(inputValue);
-            case TypeTags.SIGNED16_INT_TAG -> anyToSigned16(inputValue);
-            case TypeTags.SIGNED8_INT_TAG -> anyToSigned8(inputValue);
-            case TypeTags.UNSIGNED32_INT_TAG -> anyToUnsigned32(inputValue);
-            case TypeTags.UNSIGNED16_INT_TAG -> anyToUnsigned16(inputValue);
-            case TypeTags.UNSIGNED8_INT_TAG -> anyToUnsigned8(inputValue);
-            case TypeTags.INT_TAG -> anyToIntCast(inputValue, () ->
-                    ErrorUtils.createTypeCastError(inputValue, PredefinedTypes.TYPE_INT));
-            case TypeTags.DECIMAL_TAG -> anyToDecimalCast(inputValue, () ->
+        Context cx = TypeChecker.context();
+        return castValuesInner(cx, SemType.tryInto(cx, targetType), inputValue,
+                () -> ErrorUtils.createTypeCastError(inputValue, targetType));
+    }
+
+    static Object castValuesInner(Context cx, SemType targetType, Object inputValue, Supplier<BError> errorSupplier) {
+        if (Core.isSubType(cx, targetType, Builder.getIntType())) {
+            return castValueToInt(cx, targetType, inputValue);
+        }
+        if (Core.isSubType(cx, targetType, Builder.getDecimalType())) {
+            return anyToDecimalCast(inputValue, () ->
                     ErrorUtils.createTypeCastError(inputValue, PredefinedTypes.TYPE_DECIMAL));
             case TypeTags.FLOAT_TAG -> anyToFloatCast(inputValue, () ->
                     ErrorUtils.createTypeCastError(inputValue, PredefinedTypes.TYPE_FLOAT));
@@ -382,10 +412,11 @@ public final class TypeConverter {
     public static Type getConvertibleFiniteType(Object inputValue, BFiniteType targetFiniteType,
                                                 String varName, List<String> errors,
                                                 Set<TypeValuePair> unresolvedValues, boolean allowNumericConversion) {
+        Context cx = TypeChecker.context();
         // only the first matching type is returned.
         if (targetFiniteType.valueSpace.size() == 1) {
             Type valueType = getType(targetFiniteType.valueSpace.iterator().next());
-            if (!isSimpleBasicType(valueType) && valueType.getTag() != TypeTags.NULL_TAG) {
+            if (!belongToSingleBasicTypeOrString(cx, valueType) && valueType.getTag() != TypeTags.NULL_TAG) {
                 return getConvertibleType(inputValue, valueType, varName, unresolvedValues,
                         errors, allowNumericConversion);
             }

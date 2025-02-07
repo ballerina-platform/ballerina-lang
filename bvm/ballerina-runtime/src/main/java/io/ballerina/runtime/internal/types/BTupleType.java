@@ -31,6 +31,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
+import java.util.function.BiFunction;
 import java.util.stream.Collectors;
 
 /**
@@ -298,5 +300,112 @@ public class BTupleType extends BAnnotatableType implements TupleType {
     @Override
     public String getAnnotationKey() {
         return Utils.decodeIdentifier(this.typeName);
+    }
+
+    @Override
+    public SemType createSemType(Context cx) {
+        Env env = cx.env;
+        if (defn.isDefinitionReady()) {
+            return defn.getSemType(env);
+        }
+        var result = defn.trySetDefinition(ListDefinition::new);
+        if (!result.updated()) {
+            return defn.getSemType(env);
+        }
+        ListDefinition ld = result.definition();
+        return createSemTypeInner(cx, ld, SemType::tryInto, mut());
+    }
+
+    private CellAtomicType.CellMutability mut() {
+        return isReadOnly() ? CELL_MUT_NONE : CellAtomicType.CellMutability.CELL_MUT_LIMITED;
+    }
+
+    private SemType createSemTypeInner(Context cx, ListDefinition ld,
+                                       BiFunction<Context, Type, SemType> semTypeFunction,
+                                       CellAtomicType.CellMutability mut) {
+        Env env = cx.env;
+        SemType[] memberTypes = new SemType[tupleTypes.size()];
+        for (int i = 0; i < tupleTypes.size(); i++) {
+            SemType memberType = semTypeFunction.apply(cx, tupleTypes.get(i));
+            if (Core.isNever(memberType)) {
+                return getNeverType();
+            }
+            memberTypes[i] = memberType;
+        }
+        SemType rest = restType != null ? semTypeFunction.apply(cx, restType) : getNeverType();
+        return ld.defineListTypeWrapped(env, memberTypes, memberTypes.length, rest, mut);
+    }
+
+    @Override
+    public void resetSemType() {
+        defn.clear();
+        super.resetSemType();
+    }
+
+    @Override
+    protected boolean isDependentlyTypedInner(Set<MayBeDependentType> visited) {
+        return tupleTypes.stream().filter(each -> each instanceof MayBeDependentType)
+                .anyMatch(each -> ((MayBeDependentType) each).isDependentlyTyped(visited));
+    }
+
+    @Override
+    public Optional<SemType> inherentTypeOf(Context cx, ShapeSupplier shapeSupplier, Object object) {
+        if (!couldInherentTypeBeDifferent()) {
+            return Optional.of(getSemType(cx));
+        }
+        AbstractArrayValue value = (AbstractArrayValue) object;
+        SemType cachedShape = value.shapeOf();
+        if (cachedShape != null) {
+            return Optional.of(cachedShape);
+        }
+        SemType semType = shapeOfInner(cx, shapeSupplier, value);
+        value.cacheShape(semType);
+        return Optional.of(semType);
+    }
+
+    @Override
+    public boolean couldInherentTypeBeDifferent() {
+        return isReadOnly();
+    }
+
+    @Override
+    public Optional<SemType> shapeOf(Context cx, ShapeSupplier shapeSupplier, Object object) {
+        return Optional.of(shapeOfInner(cx, shapeSupplier, (AbstractArrayValue) object));
+    }
+
+    @Override
+    public Optional<SemType> acceptedTypeOf(Context cx) {
+        Env env = cx.env;
+        if (acceptedTypeDefn.isDefinitionReady()) {
+            return Optional.of(acceptedTypeDefn.getSemType(env));
+        }
+        var result = acceptedTypeDefn.trySetDefinition(ListDefinition::new);
+        if (!result.updated()) {
+            return Optional.of(acceptedTypeDefn.getSemType(env));
+        }
+        ListDefinition ld = result.definition();
+        return Optional.of(createSemTypeInner(cx, ld,
+                (context, type) -> ShapeAnalyzer.acceptedTypeOf(context, type).orElseThrow(),
+                CELL_MUT_UNLIMITED));
+    }
+
+    private SemType shapeOfInner(Context cx, ShapeSupplier shapeSupplier, AbstractArrayValue value) {
+        Env env = cx.env;
+        ListDefinition defn = value.getReadonlyShapeDefinition();
+        if (defn != null) {
+            return defn.getSemType(env);
+        }
+        int size = value.size();
+        SemType[] memberTypes = new SemType[size];
+        ListDefinition ld = new ListDefinition();
+        value.setReadonlyShapeDefinition(ld);
+        for (int i = 0; i < size; i++) {
+            Optional<SemType> memberType = shapeSupplier.get(cx, value.get(i));
+            assert memberType.isPresent();
+            memberTypes[i] = memberType.get();
+        }
+        SemType semType = ld.defineListTypeWrapped(env, memberTypes, memberTypes.length, getNeverType(), mut());
+        value.resetReadonlyShapeDefinition();
+        return semType;
     }
 }

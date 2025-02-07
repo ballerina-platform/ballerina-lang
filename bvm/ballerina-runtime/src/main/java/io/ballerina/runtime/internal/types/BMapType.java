@@ -169,4 +169,104 @@ public class BMapType extends BType implements MapType {
         this.intersectionType = intersectionType;
     }
 
+    @Override
+    public SemType createSemType(Context cx) {
+        Env env = cx.env;
+        if (defn.isDefinitionReady()) {
+            return defn.getSemType(env);
+        }
+        var result = defn.trySetDefinition(MappingDefinition::new);
+        if (!result.updated()) {
+            return defn.getSemType(env);
+        }
+        MappingDefinition md = result.definition();
+        CellAtomicType.CellMutability mut = isReadOnly() ? CELL_MUT_NONE :
+                CellAtomicType.CellMutability.CELL_MUT_LIMITED;
+        return createSemTypeInner(env, md, tryInto(cx, getConstrainedType()), mut);
+    }
+
+    @Override
+    public void resetSemType() {
+        defn.clear();
+        super.resetSemType();
+    }
+
+    @Override
+    public Optional<SemType> inherentTypeOf(Context cx, ShapeSupplier shapeSupplier, Object object) {
+        if (!couldInherentTypeBeDifferent()) {
+            return Optional.of(getSemType(cx));
+        }
+        MapValueImpl<?, ?> value = (MapValueImpl<?, ?>) object;
+        SemType cachedShape = value.shapeOf();
+        if (cachedShape != null) {
+            return Optional.of(cachedShape);
+        }
+
+        return shapeOfInner(cx, shapeSupplier, value);
+    }
+
+    @Override
+    public boolean couldInherentTypeBeDifferent() {
+        return isReadOnly();
+    }
+
+    @Override
+    public Optional<SemType> shapeOf(Context cx, ShapeSupplier shapeSupplierFn, Object object) {
+        return shapeOfInner(cx, shapeSupplierFn, (MapValueImpl<?, ?>) object);
+    }
+
+    @Override
+    public synchronized Optional<SemType> acceptedTypeOf(Context cx) {
+        Env env = cx.env;
+        if (acceptedTypeDefn.isDefinitionReady()) {
+            return Optional.of(acceptedTypeDefn.getSemType(env));
+        }
+        var result = acceptedTypeDefn.trySetDefinition(MappingDefinition::new);
+        if (!result.updated()) {
+            return Optional.of(acceptedTypeDefn.getSemType(env));
+        }
+        MappingDefinition md = result.definition();
+        SemType elementType = ShapeAnalyzer.acceptedTypeOf(cx, getConstrainedType()).orElseThrow();
+        return Optional.of(createSemTypeInner(env, md, elementType, CELL_MUT_UNLIMITED));
+    }
+
+    static Optional<SemType> shapeOfInner(Context cx, ShapeSupplier shapeSupplier, MapValueImpl<?, ?> value) {
+        MappingDefinition readonlyShapeDefinition = value.getReadonlyShapeDefinition();
+        if (readonlyShapeDefinition != null) {
+            return Optional.of(readonlyShapeDefinition.getSemType(cx.env));
+        }
+        int nFields = value.size();
+        MappingDefinition md = new MappingDefinition();
+        value.setReadonlyShapeDefinition(md);
+        MappingDefinition.Field[] fields = new MappingDefinition.Field[nFields];
+        Map.Entry<?, ?>[] entries = value.entrySet().toArray(Map.Entry[]::new);
+        for (int i = 0; i < nFields; i++) {
+            Optional<SemType> valueType = shapeSupplier.get(cx, entries[i].getValue());
+            SemType fieldType = valueType.orElseThrow();
+            fields[i] = new MappingDefinition.Field(entries[i].getKey().toString(), fieldType, true, false);
+        }
+        CellAtomicType.CellMutability mut = value.getType().isReadOnly() ? CELL_MUT_NONE :
+                CellAtomicType.CellMutability.CELL_MUT_LIMITED;
+        SemType semType = md.defineMappingTypeWrapped(cx.env, fields, Builder.getNeverType(), mut);
+        value.cacheShape(semType);
+        value.resetReadonlyShapeDefinition();
+        return Optional.of(semType);
+    }
+
+    private SemType createSemTypeInner(Env env, MappingDefinition defn, SemType restType,
+                                       CellAtomicType.CellMutability mut) {
+        return defn.defineMappingTypeWrapped(env, EMPTY_FIELD_ARR, restType, mut);
+    }
+
+    @Override
+    public BMapType clone() {
+        BMapType clone = (BMapType) super.clone();
+        clone.defn.clear();
+        return clone;
+    }
+
+    @Override
+    protected boolean isDependentlyTypedInner(Set<MayBeDependentType> visited) {
+        return constraint instanceof MayBeDependentType constraintType && constraintType.isDependentlyTyped(visited);
+    }
 }

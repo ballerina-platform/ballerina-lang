@@ -171,6 +171,27 @@ public final class ValueConverter {
         return newValue;
     }
 
+    // This is a hack to workaround #43231
+    private static Object xmlSequenceHack(Object value, Type targetType) {
+        if (!(value instanceof XmlSequence xmlSequence)) {
+            return value;
+        }
+        Context cx = TypeChecker.context();
+        List<BXml> list = new ArrayList<>();
+        SemType targetSemType = SemType.tryInto(cx, targetType);
+        for (BXml child : xmlSequence.getChildrenList()) {
+            SemType childType = SemType.tryInto(cx, child.getType());
+            boolean isReadonly =
+                    Core.isSubType(cx, Core.intersect(childType, targetSemType), Builder.getReadonlyType());
+            if (isReadonly) {
+                list.add((BXml) CloneUtils.cloneReadOnly(child));
+            } else {
+                list.add(child);
+            }
+        }
+        return new XmlSequence(list);
+    }
+
     private static Type getTargetFromTypeDesc(Type targetType) {
         Type referredType = TypeUtils.getImpliedType(targetType);
         if (referredType.getTag() == TypeTags.TYPEDESC_TAG) {

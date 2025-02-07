@@ -118,17 +118,7 @@ public final class MapUtils {
     }
 
     private static boolean containsNilType(Type type) {
-        type = TypeUtils.getImpliedType(type);
-        int tag = type.getTag();
-        if (tag == TypeTags.UNION_TAG) {
-            List<Type> memTypes = ((BUnionType) type).getMemberTypes();
-            for (Type memType : memTypes) {
-                if (containsNilType(memType)) {
-                    return true;
-                }
-            }
-        }
-        return tag == TypeTags.NULL_TAG;
+        return Core.containsBasicType(SemType.tryInto(TypeChecker.context(), type), Builder.getNilType());
     }
 
     public static BError createOpNotSupportedError(Type type, String op) {

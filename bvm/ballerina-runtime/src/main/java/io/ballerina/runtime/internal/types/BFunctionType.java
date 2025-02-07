@@ -25,6 +25,15 @@ import io.ballerina.runtime.api.types.Parameter;
 import io.ballerina.runtime.api.types.PredefinedTypes;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.TypeTags;
+import io.ballerina.runtime.api.types.semtype.Builder;
+import io.ballerina.runtime.api.types.semtype.Context;
+import io.ballerina.runtime.api.types.semtype.Env;
+import io.ballerina.runtime.api.types.semtype.SemType;
+import io.ballerina.runtime.internal.types.semtype.CellAtomicType;
+import io.ballerina.runtime.internal.types.semtype.DefinitionContainer;
+import io.ballerina.runtime.internal.types.semtype.FunctionDefinition;
+import io.ballerina.runtime.internal.types.semtype.FunctionQualifiers;
+import io.ballerina.runtime.internal.types.semtype.ListDefinition;
 
 import java.util.Arrays;
 
@@ -39,6 +48,8 @@ public class BFunctionType extends BAnnotatableType implements FunctionType {
     public Type retType;
     public long flags;
     public Parameter[] parameters;
+
+    private final DefinitionContainer<FunctionDefinition> defn = new DefinitionContainer<>();
 
     public BFunctionType(Module pkg) {
         super("function ()", pkg, Object.class);
@@ -217,5 +228,98 @@ public class BFunctionType extends BAnnotatableType implements FunctionType {
     @Override
     public long getFlags() {
         return flags;
+    }
+
+    private static SemType createIsolatedTop(Env env) {
+        FunctionDefinition fd = new FunctionDefinition();
+        SemType ret = Builder.getValType();
+        return fd.define(env, Builder.getNeverType(), ret, FunctionQualifiers.create(true, false));
+    }
+
+    @Override
+    public SemType createSemType(Context cx) {
+        if (isFunctionTop()) {
+            return getTopType(cx);
+        }
+        Env env = cx.env;
+        if (defn.isDefinitionReady()) {
+            return defn.getSemType(env);
+        }
+        var result = defn.trySetDefinition(FunctionDefinition::new);
+        if (!result.updated()) {
+            return defn.getSemType(env);
+        }
+        FunctionDefinition fd = result.definition();
+        SemType[] params = new SemType[parameters.length];
+        for (int i = 0; i < parameters.length; i++) {
+            params[i] = getSemType(cx, parameters[i].type);
+        }
+        SemType rest;
+        if (restType instanceof BArrayType arrayType) {
+            rest = getSemType(cx, arrayType.getElementType());
+        } else {
+            rest = Builder.getNeverType();
+        }
+
+        SemType returnType = resolveReturnType(cx);
+        ListDefinition paramListDefinition = new ListDefinition();
+        SemType paramType = paramListDefinition.defineListTypeWrapped(env, params, params.length, rest,
+                CellAtomicType.CellMutability.CELL_MUT_NONE);
+        return fd.define(env, paramType, returnType, getQualifiers());
+    }
+
+    private SemType getTopType(Context cx) {
+        if (SymbolFlags.isFlagOn(flags, SymbolFlags.ISOLATED)) {
+            return createIsolatedTop(cx.env);
+        }
+        return Builder.getFunctionType();
+    }
+
+    FunctionQualifiers getQualifiers() {
+        return FunctionQualifiers.create(SymbolFlags.isFlagOn(flags, SymbolFlags.ISOLATED),
+                SymbolFlags.isFlagOn(flags, SymbolFlags.TRANSACTIONAL));
+    }
+
+    private SemType getSemType(Context cx, Type type) {
+        return tryInto(cx, type);
+    }
+
+    private boolean isFunctionTop() {
+        return parameters == null && restType == null && retType == null;
+    }
+
+    @Override
+    public synchronized void resetSemType() {
+        defn.clear();
+        super.resetSemType();
+    }
+
+    @Override
+    protected boolean isDependentlyTypedInner(Set<MayBeDependentType> visited) {
+        return (restType instanceof BType rest && rest.isDependentlyTyped(visited)) ||
+                (retType instanceof BType ret && ret.isDependentlyTyped(visited)) ||
+                isDependentlyTypeParameters(visited);
+    }
+
+    private boolean isDependentlyTypeParameters(Set<MayBeDependentType> visited) {
+        if (parameters == null) {
+            return false;
+        }
+        return Arrays.stream(parameters).map(each -> each.type).filter(each -> each instanceof MayBeDependentType)
+                .anyMatch(each -> ((MayBeDependentType) each).isDependentlyTyped(visited));
+    }
+
+    private SemType resolveReturnType(Context cx) {
+        if (retType == null) {
+            return Builder.getNilType();
+        }
+        MayBeDependentType retBType = (MayBeDependentType) retType;
+        SemType returnType = getSemType(cx, retType);
+        ListDefinition ld = new ListDefinition();
+        SemType dependentlyTypedBit =
+                retBType.isDependentlyTyped() ? Builder.getBooleanConst(true) : Builder.getBooleanType();
+        SemType[] innerType = new SemType[]{dependentlyTypedBit, returnType};
+        return ld.defineListTypeWrapped(cx.env, innerType, 2, Builder.getNeverType(),
+                CellAtomicType.CellMutability.CELL_MUT_NONE);
     }
 }

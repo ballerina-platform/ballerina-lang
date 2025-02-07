@@ -123,4 +123,19 @@ public class RegExpValue implements BRegexpValue, RefValue {
         }
         return this.stringValue(null).equals(rhsRegExpValue.stringValue(null));
     }
+
+    @Override
+    public SemType widenedType(Context cx) {
+        return Builder.getRegexType();
+    }
+
+    @Override
+    public Optional<SemType> shapeOf() {
+        return Optional.of(this.shape);
+    }
+
+    @Override
+    public Optional<SemType> inherentTypeOf(Context cx) {
+        return shapeOf();
+    }
 }

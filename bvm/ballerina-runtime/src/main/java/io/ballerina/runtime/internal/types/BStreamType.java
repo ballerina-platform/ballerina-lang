@@ -24,6 +24,12 @@ import io.ballerina.runtime.api.types.PredefinedTypes;
 import io.ballerina.runtime.api.types.StreamType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.TypeTags;
+import io.ballerina.runtime.api.types.semtype.Builder;
+import io.ballerina.runtime.api.types.semtype.Context;
+import io.ballerina.runtime.api.types.semtype.Env;
+import io.ballerina.runtime.api.types.semtype.SemType;
+import io.ballerina.runtime.internal.types.semtype.DefinitionContainer;
+import io.ballerina.runtime.internal.types.semtype.StreamDefinition;
 import io.ballerina.runtime.internal.values.StreamValue;
 
 import java.util.Objects;
@@ -134,5 +140,30 @@ public class BStreamType extends BType implements StreamType {
 
         return Objects.equals(constraint, other.constraint)
                 && Objects.equals(completionType, other.completionType);
+    }
+
+    @Override
+    public SemType createSemType(Context cx) {
+        if (constraint == null) {
+            return Builder.getStreamType();
+        }
+        Env env = cx.env;
+        if (definition.isDefinitionReady()) {
+            return definition.getSemType(env);
+        }
+        var result = definition.trySetDefinition(StreamDefinition::new);
+        if (!result.updated()) {
+            return definition.getSemType(env);
+        }
+        StreamDefinition sd = result.definition();
+        return sd.define(env, tryInto(cx, constraint), tryInto(cx, completionType));
+    }
+
+    @Override
+    protected boolean isDependentlyTypedInner(Set<MayBeDependentType> visited) {
+        return (constraint instanceof MayBeDependentType constrainedType &&
+                constrainedType.isDependentlyTyped(visited)) ||
+                (completionType instanceof MayBeDependentType completionType &&
+                        completionType.isDependentlyTyped(visited));
     }
 }

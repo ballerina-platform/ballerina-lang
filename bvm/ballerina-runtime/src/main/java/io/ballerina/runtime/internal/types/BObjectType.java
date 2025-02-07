@@ -31,6 +31,7 @@ import io.ballerina.runtime.api.types.TypeIdSet;
 import io.ballerina.runtime.api.types.TypeTags;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BObject;
+import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.internal.scheduling.Scheduler;
 import io.ballerina.runtime.internal.scheduling.Strand;
 import io.ballerina.runtime.internal.utils.ValueUtils;
@@ -41,6 +42,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.StringJoiner;
+import java.util.function.BiFunction;
 
 import static io.ballerina.runtime.api.types.TypeTags.SERVICE_TAG;
 
@@ -244,5 +246,268 @@ public class BObjectType extends BStructureType implements ObjectType {
     @Override
     public TypeIdSet getTypeIdSet() {
         return new BTypeIdSet(new ArrayList<>(typeIdSet.ids));
+    }
+
+    @Override
+    public final SemType createSemType(Context cx) {
+        Env env = cx.env;
+        initializeDistinctIdSupplierIfNeeded(env);
+        CellAtomicType.CellMutability mut =
+                SymbolFlags.isFlagOn(getFlags(), SymbolFlags.READONLY) ?
+                        CellAtomicType.CellMutability.CELL_MUT_NONE :
+                        CellAtomicType.CellMutability.CELL_MUT_LIMITED;
+        SemType innerType;
+        if (defn.isDefinitionReady()) {
+            innerType = defn.getSemType(env);
+        } else {
+            var result = defn.trySetDefinition(ObjectDefinition::new);
+            if (!result.updated()) {
+                innerType = defn.getSemType(env);
+            } else {
+                ObjectDefinition od = result.definition();
+                innerType = semTypeInner(cx, od, mut, SemType::tryInto);
+            }
+        }
+        return distinctIdSupplier.get().stream().map(ObjectDefinition::distinct).reduce(innerType, Core::intersect);
+    }
+
+    private static boolean skipField(Set<String> seen, String name) {
+        if (name.startsWith("$")) {
+            return true;
+        }
+        return !seen.add(name);
+    }
+
+    private SemType semTypeInner(Context cx, ObjectDefinition od, CellAtomicType.CellMutability mut,
+                                 BiFunction<Context, Type, SemType> semTypeSupplier) {
+        Env env = cx.env;
+        ObjectQualifiers qualifiers = getObjectQualifiers();
+        List<Member> members = new ArrayList<>();
+        Set<String> seen = new HashSet<>();
+        for (Entry<String, Field> entry : fields.entrySet()) {
+            String name = entry.getKey();
+            if (skipField(seen, name)) {
+                continue;
+            }
+            Field field = entry.getValue();
+            boolean isPublic = SymbolFlags.isFlagOn(field.getFlags(), SymbolFlags.PUBLIC);
+            boolean isImmutable = qualifiers.readonly() | SymbolFlags.isFlagOn(field.getFlags(), SymbolFlags.READONLY);
+            members.add(new Member(name, semTypeSupplier.apply(cx, field.getFieldType()), Member.Kind.Field,
+                    isPublic ? Member.Visibility.Public : Member.Visibility.Private, isImmutable));
+        }
+        for (MethodData method : allMethods(cx)) {
+            String name = method.name();
+            if (skipField(seen, name)) {
+                continue;
+            }
+            boolean isPublic = SymbolFlags.isFlagOn(method.flags(), SymbolFlags.PUBLIC);
+            members.add(new Member(name, method.semType(), Member.Kind.Method,
+                    isPublic ? Member.Visibility.Public : Member.Visibility.Private, true));
+        }
+        return od.define(env, qualifiers, members, mut);
+    }
+
+    private ObjectQualifiers getObjectQualifiers() {
+        boolean isolated = SymbolFlags.isFlagOn(getFlags(), SymbolFlags.ISOLATED);
+        boolean readonly = SymbolFlags.isFlagOn(getFlags(), SymbolFlags.READONLY);
+        ObjectQualifiers.NetworkQualifier networkQualifier;
+        if (SymbolFlags.isFlagOn(getFlags(), SymbolFlags.SERVICE)) {
+            networkQualifier = ObjectQualifiers.NetworkQualifier.Service;
+        } else if (SymbolFlags.isFlagOn(getFlags(), SymbolFlags.CLIENT)) {
+            networkQualifier = ObjectQualifiers.NetworkQualifier.Client;
+        } else {
+            networkQualifier = ObjectQualifiers.NetworkQualifier.None;
+        }
+        return new ObjectQualifiers(isolated, readonly, networkQualifier);
+    }
+
+    @Override
+    public Optional<SemType> inherentTypeOf(Context cx, ShapeSupplier shapeSupplier, Object object) {
+        if (!couldInherentTypeBeDifferent()) {
+            return Optional.of(getSemType(cx));
+        }
+        AbstractObjectValue abstractObjectValue = (AbstractObjectValue) object;
+        SemType cachedShape = abstractObjectValue.shapeOf();
+        if (cachedShape != null) {
+            return Optional.of(cachedShape);
+        }
+        initializeDistinctIdSupplierIfNeeded(cx.env);
+        SemType shape = distinctIdSupplier.get().stream().map(ObjectDefinition::distinct)
+                .reduce(valueShape(cx, shapeSupplier, abstractObjectValue), Core::intersect);
+        abstractObjectValue.cacheShape(shape);
+        return Optional.of(shape);
+    }
+
+    private void initializeDistinctIdSupplierIfNeeded(Env env) {
+        if (distinctIdSupplier == null) {
+            synchronized (this) {
+                if (distinctIdSupplier == null) {
+                    distinctIdSupplier = new DistinctIdSupplier(env, typeIdSet);
+                }
+            }
+        }
+    }
+
+    @Override
+    public Optional<SemType> shapeOf(Context cx, ShapeSupplier shapeSupplierFn, Object object) {
+        return Optional.of(valueShape(cx, shapeSupplierFn, (AbstractObjectValue) object));
+    }
+
+    @Override
+    public final Optional<SemType> acceptedTypeOf(Context cx) {
+        Env env = cx.env;
+        initializeDistinctIdSupplierIfNeeded(cx.env);
+        CellAtomicType.CellMutability mut = CellAtomicType.CellMutability.CELL_MUT_UNLIMITED;
+        SemType innerType;
+        if (acceptedTypeDefn.isDefinitionReady()) {
+            innerType = acceptedTypeDefn.getSemType(env);
+        } else {
+            var result = acceptedTypeDefn.trySetDefinition(ObjectDefinition::new);
+            if (!result.updated()) {
+                innerType = acceptedTypeDefn.getSemType(env);
+            } else {
+                ObjectDefinition od = result.definition();
+                innerType = semTypeInner(cx, od, mut,
+                        ((context, type) -> ShapeAnalyzer.acceptedTypeOf(context, type).orElseThrow()));
+            }
+        }
+        return Optional.of(
+                distinctIdSupplier.get().stream().map(ObjectDefinition::distinct).reduce(innerType, Core::intersect));
+    }
+
+    @Override
+    public boolean couldInherentTypeBeDifferent() {
+        if (SymbolFlags.isFlagOn(getFlags(), SymbolFlags.READONLY)) {
+            return true;
+        }
+        return fields.values().stream().anyMatch(
+                field -> SymbolFlags.isFlagOn(field.getFlags(), SymbolFlags.READONLY) ||
+                        SymbolFlags.isFlagOn(field.getFlags(), SymbolFlags.FINAL));
+    }
+
+    private SemType valueShape(Context cx, ShapeSupplier shapeSupplier, AbstractObjectValue object) {
+        ObjectDefinition readonlyShapeDefinition = object.getReadonlyShapeDefinition();
+        if (readonlyShapeDefinition != null) {
+            return readonlyShapeDefinition.getSemType(cx.env);
+        }
+        ObjectDefinition od = new ObjectDefinition();
+        object.setReadonlyShapeDefinition(od);
+        List<Member> members = new ArrayList<>();
+        Set<String> seen = new HashSet<>(fields.size() + methodTypes.length);
+        ObjectQualifiers qualifiers = getObjectQualifiers();
+        for (Entry<String, Field> entry : fields.entrySet()) {
+            String name = entry.getKey();
+            if (skipField(seen, name)) {
+                continue;
+            }
+            Field field = entry.getValue();
+            boolean isPublic = SymbolFlags.isFlagOn(field.getFlags(), SymbolFlags.PUBLIC);
+            boolean isImmutable = qualifiers.readonly() | SymbolFlags.isFlagOn(field.getFlags(), SymbolFlags.READONLY) |
+                    SymbolFlags.isFlagOn(field.getFlags(), SymbolFlags.FINAL);
+            members.add(new Member(name, fieldShape(cx, shapeSupplier, field, object, isImmutable), Member.Kind.Field,
+                    isPublic ? Member.Visibility.Public : Member.Visibility.Private, isImmutable));
+        }
+        for (MethodData method : allMethods(cx)) {
+            String name = method.name();
+            if (skipField(seen, name)) {
+                continue;
+            }
+            boolean isPublic = SymbolFlags.isFlagOn(method.flags(), SymbolFlags.PUBLIC);
+            members.add(new Member(name, method.semType(), Member.Kind.Method,
+                    isPublic ? Member.Visibility.Public : Member.Visibility.Private, true));
+        }
+        return od.define(cx.env, qualifiers, members,
+                qualifiers.readonly() ? CellAtomicType.CellMutability.CELL_MUT_NONE :
+                        CellAtomicType.CellMutability.CELL_MUT_LIMITED);
+    }
+
+    private static SemType fieldShape(Context cx, ShapeSupplier shapeSupplier, Field field,
+                                      AbstractObjectValue objectValue, boolean isImmutable) {
+        if (!isImmutable) {
+            return SemType.tryInto(cx, field.getFieldType());
+        }
+        BString fieldName = StringUtils.fromString(field.getFieldName());
+        Optional<SemType> shape = shapeSupplier.get(cx, objectValue.get(fieldName));
+        assert shape.isPresent();
+        return shape.get();
+    }
+
+    @Override
+    public void resetSemType() {
+        defn.clear();
+        super.resetSemType();
+    }
+
+    protected Collection<MethodData> allMethods(Context cx) {
+        if (methodTypes == null) {
+            return List.of();
+        }
+        return Arrays.stream(methodTypes)
+                .map((type) -> MethodData.fromMethod(cx, type)).toList();
+    }
+
+    protected record MethodData(String name, long flags, SemType semType) {
+
+        static MethodData fromMethod(Context cx, MethodType method) {
+            return new MethodData(method.getName(), method.getFlags(),
+                    tryInto(cx, method.getType()));
+        }
+
+        static MethodData fromRemoteMethod(Context cx, MethodType method) {
+            // Remote methods need to be distinct with remote methods only there can be instance methods with the same
+            // name
+            return new MethodData("@remote_" + method.getName(), method.getFlags(),
+                    tryInto(cx, method.getType()));
+        }
+
+        static MethodData fromResourceMethod(Context cx, BResourceMethodType method) {
+            StringBuilder sb = new StringBuilder();
+            sb.append(method.getAccessor());
+            for (var each : method.getResourcePath()) {
+                sb.append(each);
+            }
+            String methodName = sb.toString();
+
+            Type[] pathSegmentTypes = method.pathSegmentTypes;
+            FunctionType innerFn = method.getType();
+            List<SemType> paramTypes = new ArrayList<>();
+            for (Type part : pathSegmentTypes) {
+                if (part == null) {
+                    paramTypes.add(Builder.getAnyType());
+                } else {
+                    paramTypes.add(tryInto(cx, part));
+                }
+            }
+            for (Parameter paramType : innerFn.getParameters()) {
+                paramTypes.add(tryInto(cx, paramType.type));
+            }
+            SemType rest;
+            Type restType = innerFn.getRestType();
+            if (restType instanceof BArrayType arrayType) {
+                rest = tryInto(cx, arrayType.getElementType());
+            } else {
+                rest = Builder.getNeverType();
+            }
+
+            SemType returnType;
+            if (innerFn.getReturnType() != null) {
+                returnType = tryInto(cx, innerFn.getReturnType());
+            } else {
+                returnType = Builder.getNilType();
+            }
+            ListDefinition paramListDefinition = new ListDefinition();
+            Env env = cx.env;
+            SemType paramType = paramListDefinition.defineListTypeWrapped(env, paramTypes.toArray(SemType[]::new),
+                    paramTypes.size(), rest, CellAtomicType.CellMutability.CELL_MUT_NONE);
+            FunctionDefinition fd = new FunctionDefinition();
+            SemType semType = fd.define(env, paramType, returnType, ((BFunctionType) innerFn).getQualifiers());
+            return new MethodData(methodName, method.getFlags(), semType);
+        }
+    }
+
+    @Override
+    protected boolean isDependentlyTypedInner(Set<MayBeDependentType> visited) {
+        return fields.values().stream().map(Field::getFieldType).filter(each -> each instanceof MayBeDependentType)
+                .anyMatch(each -> ((MayBeDependentType) each).isDependentlyTyped(visited));
     }
 }
