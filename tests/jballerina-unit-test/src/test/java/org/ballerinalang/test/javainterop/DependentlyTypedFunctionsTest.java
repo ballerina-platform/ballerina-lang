@@ -82,13 +82,13 @@ public class DependentlyTypedFunctionsTest {
         validateError(errors, indx++, "mismatched function signatures: expected 'public function get" +
                 "(typedesc<anydata>) returns (td|error)', found 'public function get(typedesc<anydata>) returns" +
                 " (other|error)'", 140, 5);
-        validateError(errors, indx++, "a function with a non-'external' function body cannot be a dependently-typed " +
-                "function", 140, 64);
+        validateError(errors, indx++,
+                "a function with a non-'external' function body cannot be a dependently-typed function", 140, 64);
         validateError(errors, indx++, "mismatched function signatures: expected 'public function get" +
                 "(typedesc<anydata>) returns (td|error)', found 'public function get(typedesc<anydata>) returns" +
                 " (other|error)'", 144, 5);
-        validateError(errors, indx++, "a function with a non-'external' function body cannot be a dependently-typed " +
-                "function", 144, 64);
+        validateError(errors, indx++,
+                "a function with a non-'external' function body cannot be a dependently-typed function", 144, 64);
         validateError(errors, indx++, "incompatible types: expected 'Bar', found 'Baz'", 176, 15);
         validateError(errors, indx++, "incompatible types: expected 'Quux', found 'Qux'", 180, 17);
         validateError(errors, indx++, "incompatible types: expected 'Qux', found 'Quux'", 181, 15);
@@ -193,7 +193,7 @@ public class DependentlyTypedFunctionsTest {
 
     @Test(expectedExceptions = BLangTestException.class,
           expectedExceptionsMessageRegExp = "error: \\{ballerina\\}TypeCastError \\{\"message\":\"incompatible types:" +
-                  " 'Person' cannot be cast to 'int'.*")
+                  " 'PersonDTFT' cannot be cast to 'int'.*")
     public void testCastingForInvalidValues() {
         BRunUtil.invoke(result, "testCastingForInvalidValues");
     }

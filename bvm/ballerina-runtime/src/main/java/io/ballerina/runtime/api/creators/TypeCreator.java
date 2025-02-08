@@ -50,6 +50,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Class @{@link TypeCreator} provides APIs to create ballerina type instances.
@@ -57,6 +58,8 @@ import java.util.Set;
  * @since 2.0.0
  */
 public final class TypeCreator {
+
+    private static final RecordTypeCache registeredRecordTypes = new RecordTypeCache();
 
     /**
      * Creates a new array type with given element type.
@@ -519,5 +522,46 @@ public final class TypeCreator {
     }
 
     private TypeCreator() {
+    }
+
+    private static BRecordType registeredRecordType(String typeName, Module pkg) {
+        if (typeName == null || pkg == null) {
+            return null;
+        }
+        return registeredRecordTypes.get(new TypeIdentifier(typeName, pkg));
+    }
+
+    public static void registerRecordType(BRecordType recordType) {
+        String name = recordType.getName();
+        Module pkg = recordType.getPackage();
+        if (name == null || pkg == null) {
+            return;
+        }
+        if (name.contains("$anon")) {
+            return;
+        }
+        TypeIdentifier typeIdentifier = new TypeIdentifier(name, pkg);
+        registeredRecordTypes.put(typeIdentifier, recordType);
+    }
+
+    private static final class RecordTypeCache {
+
+        private static final Map<TypeIdentifier, BRecordType> cache = new ConcurrentHashMap<>();
+
+        BRecordType get(TypeIdentifier key) {
+            return cache.get(key);
+        }
+
+        void put(TypeIdentifier identifier, BRecordType value) {
+            cache.put(identifier, value);
+        }
+    }
+
+    public record TypeIdentifier(String typeName, Module pkg) {
+
+        public TypeIdentifier {
+            assert typeName != null;
+            assert pkg != null;
+        }
     }
 }

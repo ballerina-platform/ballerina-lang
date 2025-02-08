@@ -22,25 +22,46 @@ import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.flags.SymbolFlags;
 import io.ballerina.runtime.api.types.Field;
+import io.ballerina.runtime.api.types.FunctionType;
 import io.ballerina.runtime.api.types.IntersectionType;
 import io.ballerina.runtime.api.types.MethodType;
 import io.ballerina.runtime.api.types.ObjectType;
+import io.ballerina.runtime.api.types.Parameter;
 import io.ballerina.runtime.api.types.ResourceMethodType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.TypeIdSet;
 import io.ballerina.runtime.api.types.TypeTags;
+import io.ballerina.runtime.api.types.semtype.Builder;
+import io.ballerina.runtime.api.types.semtype.Context;
+import io.ballerina.runtime.api.types.semtype.Core;
+import io.ballerina.runtime.api.types.semtype.Env;
+import io.ballerina.runtime.api.types.semtype.SemType;
+import io.ballerina.runtime.api.types.semtype.ShapeAnalyzer;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.internal.scheduling.Scheduler;
 import io.ballerina.runtime.internal.scheduling.Strand;
+import io.ballerina.runtime.internal.types.semtype.CellAtomicType;
+import io.ballerina.runtime.internal.types.semtype.DefinitionContainer;
+import io.ballerina.runtime.internal.types.semtype.FunctionDefinition;
+import io.ballerina.runtime.internal.types.semtype.ListDefinition;
+import io.ballerina.runtime.internal.types.semtype.Member;
+import io.ballerina.runtime.internal.types.semtype.ObjectDefinition;
+import io.ballerina.runtime.internal.types.semtype.ObjectQualifiers;
 import io.ballerina.runtime.internal.utils.ValueUtils;
+import io.ballerina.runtime.internal.values.AbstractObjectValue;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
+import java.util.Set;
 import java.util.StringJoiner;
 import java.util.function.BiFunction;
 
@@ -51,7 +72,7 @@ import static io.ballerina.runtime.api.types.TypeTags.SERVICE_TAG;
  *
  * @since 0.995.0
  */
-public class BObjectType extends BStructureType implements ObjectType {
+public class BObjectType extends BStructureType implements ObjectType, TypeWithShape {
 
     private MethodType[] methodTypes;
     private MethodType initMethod;
@@ -64,6 +85,9 @@ public class BObjectType extends BStructureType implements ObjectType {
 
     private String cachedToString;
     private boolean resolving;
+    private final DefinitionContainer<ObjectDefinition> defn = new DefinitionContainer<>();
+    private final DefinitionContainer<ObjectDefinition> acceptedTypeDefn = new DefinitionContainer<>();
+    private volatile DistinctIdSupplier distinctIdSupplier;
 
     /**
      * Create a {@code BObjectType} which represents the user defined struct type.
@@ -217,6 +241,10 @@ public class BObjectType extends BStructureType implements ObjectType {
 
     public void setTypeIdSet(BTypeIdSet typeIdSet) {
         this.typeIdSet = typeIdSet;
+        synchronized (this) {
+            this.distinctIdSupplier = null;
+        }
+        resetSemType();
     }
 
     public BObjectType duplicate() {
@@ -245,6 +273,9 @@ public class BObjectType extends BStructureType implements ObjectType {
 
     @Override
     public TypeIdSet getTypeIdSet() {
+        if (typeIdSet == null) {
+            return new BTypeIdSet();
+        }
         return new BTypeIdSet(new ArrayList<>(typeIdSet.ids));
     }
 

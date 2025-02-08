@@ -22,12 +22,26 @@ import io.ballerina.runtime.api.types.ArrayType;
 import io.ballerina.runtime.api.types.IntersectionType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.TypeTags;
+import io.ballerina.runtime.api.types.semtype.Context;
+import io.ballerina.runtime.api.types.semtype.Env;
+import io.ballerina.runtime.api.types.semtype.SemType;
+import io.ballerina.runtime.api.types.semtype.ShapeAnalyzer;
 import io.ballerina.runtime.internal.TypeChecker;
+import io.ballerina.runtime.internal.types.semtype.CellAtomicType;
+import io.ballerina.runtime.internal.types.semtype.DefinitionContainer;
+import io.ballerina.runtime.internal.types.semtype.ListDefinition;
+import io.ballerina.runtime.internal.values.AbstractArrayValue;
 import io.ballerina.runtime.internal.values.ArrayValue;
 import io.ballerina.runtime.internal.values.ArrayValueImpl;
 import io.ballerina.runtime.internal.values.ReadOnlyUtils;
 
 import java.util.Optional;
+import java.util.Set;
+
+import static io.ballerina.runtime.api.types.semtype.Builder.getNeverType;
+import static io.ballerina.runtime.internal.types.semtype.CellAtomicType.CellMutability.CELL_MUT_LIMITED;
+import static io.ballerina.runtime.internal.types.semtype.CellAtomicType.CellMutability.CELL_MUT_NONE;
+import static io.ballerina.runtime.internal.types.semtype.CellAtomicType.CellMutability.CELL_MUT_UNLIMITED;
 
 /**
  * {@code BArrayType} represents a type of an arrays in Ballerina.
@@ -40,7 +54,9 @@ import java.util.Optional;
  * @since 0.995.0
  */
 @SuppressWarnings("unchecked")
-public class BArrayType extends BType implements ArrayType {
+public class BArrayType extends BType implements ArrayType, TypeWithShape {
+
+    private static final SemType[] EMPTY_SEMTYPE_ARR = new SemType[0];
     private Type elementType;
     private int dimensions = 1;
     private int size = -1;
@@ -51,6 +67,8 @@ public class BArrayType extends BType implements ArrayType {
     private IntersectionType immutableType;
     private IntersectionType intersectionType = null;
     private int typeFlags;
+    private final DefinitionContainer<ListDefinition> defn = new DefinitionContainer<>();
+    private final DefinitionContainer<ListDefinition> acceptedTypeDefn = new DefinitionContainer<>();
     public BArrayType(Type elementType) {
         this(elementType, false);
     }
@@ -85,6 +103,9 @@ public class BArrayType extends BType implements ArrayType {
     }
 
     public void setElementType(Type elementType, int dimensions, boolean elementRO) {
+        if (this.elementType != null) {
+            resetSemType();
+        }
         this.elementType = readonly && !elementRO ? ReadOnlyUtils.getReadOnlyType(elementType) : elementType;
         this.dimensions = dimensions;
     }
@@ -129,7 +150,7 @@ public class BArrayType extends BType implements ArrayType {
     @Override
     public boolean equals(Object obj) {
         if (obj instanceof BArrayType other) {
-            if (other.state == ArrayState.CLOSED && this.size != other.size) {
+            if ((other.state == ArrayState.CLOSED || this.state == ArrayState.CLOSED) && this.size != other.size) {
                 return false;
             }
             return this.elementType.equals(other.elementType) && this.readonly == other.readonly;

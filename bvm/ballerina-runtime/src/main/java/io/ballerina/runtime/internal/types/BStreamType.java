@@ -33,6 +33,7 @@ import io.ballerina.runtime.internal.types.semtype.StreamDefinition;
 import io.ballerina.runtime.internal.values.StreamValue;
 
 import java.util.Objects;
+import java.util.Set;
 
 /**
  * {@link BStreamType} represents streaming data in Ballerina.
@@ -43,6 +44,7 @@ public class BStreamType extends BType implements StreamType {
 
     private final Type constraint;
     private final Type completionType;
+    private final DefinitionContainer<StreamDefinition> definition = new DefinitionContainer<>();
 
     /**
      * Creates a {@link BStreamType} which represents the stream type.

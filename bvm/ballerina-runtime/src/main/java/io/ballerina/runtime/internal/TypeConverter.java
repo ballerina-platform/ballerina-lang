@@ -23,11 +23,16 @@ import io.ballerina.runtime.api.types.ArrayType;
 import io.ballerina.runtime.api.types.Field;
 import io.ballerina.runtime.api.types.FiniteType;
 import io.ballerina.runtime.api.types.IntersectionType;
+import io.ballerina.runtime.api.types.MapType;
 import io.ballerina.runtime.api.types.PredefinedTypes;
 import io.ballerina.runtime.api.types.ReferenceType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.TypeTags;
 import io.ballerina.runtime.api.types.UnionType;
+import io.ballerina.runtime.api.types.semtype.Builder;
+import io.ballerina.runtime.api.types.semtype.Context;
+import io.ballerina.runtime.api.types.semtype.Core;
+import io.ballerina.runtime.api.types.semtype.SemType;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.utils.XmlUtils;
@@ -43,6 +48,7 @@ import io.ballerina.runtime.internal.errors.ErrorHelper;
 import io.ballerina.runtime.internal.errors.ErrorReasons;
 import io.ballerina.runtime.internal.regexp.RegExpFactory;
 import io.ballerina.runtime.internal.types.BArrayType;
+import io.ballerina.runtime.internal.types.BByteType;
 import io.ballerina.runtime.internal.types.BFiniteType;
 import io.ballerina.runtime.internal.types.BIntersectionType;
 import io.ballerina.runtime.internal.types.BMapType;
@@ -66,6 +72,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.function.Predicate;
 import java.util.function.Supplier;
 
 import static io.ballerina.runtime.api.constants.RuntimeConstants.BINT_MAX_VALUE_DOUBLE_RANGE_MAX;
@@ -77,6 +84,7 @@ import static io.ballerina.runtime.internal.TypeChecker.anyToSigned8;
 import static io.ballerina.runtime.internal.TypeChecker.anyToUnsigned16;
 import static io.ballerina.runtime.internal.TypeChecker.anyToUnsigned32;
 import static io.ballerina.runtime.internal.TypeChecker.anyToUnsigned8;
+import static io.ballerina.runtime.internal.TypeChecker.belongToSingleBasicTypeOrString;
 import static io.ballerina.runtime.internal.TypeChecker.checkIsLikeType;
 import static io.ballerina.runtime.internal.TypeChecker.getType;
 import static io.ballerina.runtime.internal.TypeChecker.isCharLiteralValue;
@@ -84,7 +92,6 @@ import static io.ballerina.runtime.internal.TypeChecker.isNumericType;
 import static io.ballerina.runtime.internal.TypeChecker.isSigned16LiteralValue;
 import static io.ballerina.runtime.internal.TypeChecker.isSigned32LiteralValue;
 import static io.ballerina.runtime.internal.TypeChecker.isSigned8LiteralValue;
-import static io.ballerina.runtime.internal.TypeChecker.isSimpleBasicType;
 import static io.ballerina.runtime.internal.TypeChecker.isUnsigned16LiteralValue;
 import static io.ballerina.runtime.internal.TypeChecker.isUnsigned32LiteralValue;
 import static io.ballerina.runtime.internal.TypeChecker.isUnsigned8LiteralValue;
@@ -175,16 +182,20 @@ public final class TypeConverter {
         if (Core.isSubType(cx, targetType, Builder.getDecimalType())) {
             return anyToDecimalCast(inputValue, () ->
                     ErrorUtils.createTypeCastError(inputValue, PredefinedTypes.TYPE_DECIMAL));
-            case TypeTags.FLOAT_TAG -> anyToFloatCast(inputValue, () ->
+        }
+        if (Core.isSubType(cx, targetType, Builder.getFloatType())) {
+            return anyToFloatCast(inputValue, () ->
                     ErrorUtils.createTypeCastError(inputValue, PredefinedTypes.TYPE_FLOAT));
-            case TypeTags.STRING_TAG -> anyToStringCast(inputValue, () ->
+        }
+        if (Core.isSubType(cx, targetType, Builder.getStringType())) {
+            return anyToStringCast(inputValue, () ->
                     ErrorUtils.createTypeCastError(inputValue, PredefinedTypes.TYPE_STRING));
-            case TypeTags.BOOLEAN_TAG -> anyToBooleanCast(inputValue, () ->
+        }
+        if (Core.isSubType(cx, targetType, Builder.getBooleanType())) {
+            return anyToBooleanCast(inputValue, () ->
                     ErrorUtils.createTypeCastError(inputValue, PredefinedTypes.TYPE_BOOLEAN));
-            case TypeTags.BYTE_TAG -> anyToByteCast(inputValue, () ->
-                    ErrorUtils.createTypeCastError(inputValue, PredefinedTypes.TYPE_BYTE));
-            default -> throw ErrorUtils.createTypeCastError(inputValue, targetType);
-        };
+        }
+        throw errorSupplier.get();
     }
 
     static boolean isConvertibleToByte(Object value) {
@@ -296,7 +307,7 @@ public final class TypeConverter {
                 }
                 break;
             case TypeTags.MAP_TAG:
-                if (isConvertibleToMapType(inputValue, (BMapType) targetType, unresolvedValues, varName, errors,
+                if (isConvertibleToMapType(inputValue, (MapType) targetType, unresolvedValues, varName, errors,
                         allowNumericConversion)) {
                     return targetType;
                 }
@@ -329,7 +340,7 @@ public final class TypeConverter {
             default:
                 if (TypeChecker.checkIsLikeType(inputValue, targetType, allowNumericConversion)
                         || (TypeTags.isXMLTypeTag(targetTypeTag) && isStringConvertibleToTargetXmlType(
-                                inputValue, targetType))) {
+                        inputValue, targetType))) {
                     return targetType;
                 }
         }
@@ -530,7 +541,7 @@ public final class TypeConverter {
             return "()";
         }
         String sourceValueName = sourceValue.toString();
-        if (TypeChecker.getType(sourceValue) == TYPE_STRING) {
+        if (TypeChecker.checkIsType(sourceValue, TYPE_STRING)) {
             sourceValueName = "\"" + sourceValueName + "\"";
         }
         if (sourceValueName.length() > MAX_DISPLAYED_SOURCE_VALUE_LENGTH) {
@@ -608,7 +619,7 @@ public final class TypeConverter {
         }
     }
 
-    private static boolean isConvertibleToMapType(Object sourceValue, BMapType targetType,
+    private static boolean isConvertibleToMapType(Object sourceValue, MapType targetType,
                                                   Set<TypeValuePair> unresolvedValues, String varName,
                                                   List<String> errors, boolean allowNumericConversion) {
         if (!(sourceValue instanceof MapValueImpl)) {
@@ -1272,7 +1283,7 @@ public final class TypeConverter {
         List<Type> xmlTargetTypes = new ArrayList<>();
         return switch (targetType.getTag()) {
             case TypeTags.XML_TAG, TypeTags.XML_PI_TAG, TypeTags.XML_COMMENT_TAG, TypeTags.XML_ELEMENT_TAG,
-                    TypeTags.XML_TEXT_TAG -> {
+                 TypeTags.XML_TEXT_TAG -> {
                 xmlTargetTypes.add(targetType);
                 yield xmlTargetTypes;
             }

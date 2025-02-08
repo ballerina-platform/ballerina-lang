@@ -16,18 +16,17 @@
 
 import ballerina/jballerina.java;
 
-type Person record {
+type PersonIDTF record {
     readonly string name;
     int age;
 };
 
-type Employee record {
-    *Person;
+type EmployeeIDTF record {
+    *PersonIDTF;
     string designation;
 };
 
-Person expPerson = {name: "John Doe", age: 20};
-
+PersonIDTF expPerson = {name: "John Doe", age: 20};
 
 // Test functions
 
@@ -49,11 +48,11 @@ function testSimpleTypes() {
 }
 
 function testRecordVarRef() {
-    Person p = getRecord();
+    PersonIDTF p = getRecord();
     assert(expPerson, p);
 
-    Employee e = getRecord(td = Employee);
-    assert(<Employee>{name: "Jane Doe", age: 25, designation: "Software Engineer"}, e);
+    EmployeeIDTF e = getRecord(td = EmployeeIDTF);
+    assert(<EmployeeIDTF>{name: "Jane Doe", age: 25, designation: "Software Engineer"}, e);
 }
 
 function testVarRefInMapConstraint() {
@@ -69,15 +68,15 @@ function testRuntimeCastError() {
 
     error err = <error>m1;
     assert("{ballerina}TypeCastError", err.message());
-    assert("incompatible types: 'map' cannot be cast to 'map<anydata>'", <string> checkpanic err.detail()["message"]);
+    assert("incompatible types: 'map' cannot be cast to 'map<anydata>'", <string>checkpanic err.detail()["message"]);
 }
 
 function testTupleTypes() {
-    [int, Person, float] tup1 = getTuple(int, Person);
-    assert(<[int, Person, float]>[150, expPerson, 12.34], tup1);
+    [int, PersonIDTF, float] tup1 = getTuple(int, PersonIDTF);
+    assert(<[int, PersonIDTF, float]>[150, expPerson, 12.34], tup1);
 
-    [int, Person, boolean...] tup2 = getTupleWithRestDesc(int, Person);
-    assert(<[int, Person, boolean...]>[150, expPerson, true, true], tup2);
+    [int, PersonIDTF, boolean...] tup2 = getTupleWithRestDesc(int, PersonIDTF);
+    assert(<[int, PersonIDTF, boolean...]>[150, expPerson, true, true], tup2);
     tup2[4] = false;
     assert(5, tup2.length());
 }
@@ -88,11 +87,12 @@ function testArrayTypes() {
 }
 
 type XmlComment xml:Comment;
+
 type XmlElement xml:Element;
 
 function testXml() {
     xml:Comment x1 = xml `<!--Comment 1-->`;
-    xml<xml:Comment> x2 = <xml<xml:Comment>> x1.concat(xml `<!--Comment 2-->`);
+    xml<xml:Comment> x2 = <xml<xml:Comment>>x1.concat(xml `<!--Comment 2-->`);
     xml<xml:Comment> a = getXml(val = x2);
     assert(x2, a);
     assert(2, a.length());
@@ -128,14 +128,14 @@ function testXml() {
 
 function testCastingForInvalidValues() {
     var fn = function() {
-        int x = getInvalidValue(td2 = Person);
+        int x = getInvalidValue(td2 = PersonIDTF);
     };
 
     error? y = trap fn();
     assert(true, y is error);
-    error err = <error> y;
+    error err = <error>y;
     assert("{ballerina}TypeCastError", err.message());
-    assert("incompatible types: 'Person' cannot be cast to 'int'", <string> checkpanic err.detail()["message"]);
+    assert("incompatible types: 'PersonIDTF' cannot be cast to 'int'", <string>checkpanic err.detail()["message"]);
 }
 
 function testStream() {
@@ -144,19 +144,21 @@ function testStream() {
     stream<string> newSt = getStream(st);
     string s = "";
 
-    error? err = newSt.forEach(function (string x) { s += x; });
+    error? err = newSt.forEach(function(string x) {
+        s += x;
+    });
     assert("helloworldfromballerina", s);
 }
 
 function testTable() {
-    table<Employee> key(name) tab = table [
-        { name: "Chiran", age: 33, designation: "SE" },
-        { name: "Mohan", age: 37, designation: "SE" },
-        { name: "Gima", age: 38, designation: "SE" },
-        { name: "Granier", age: 34, designation: "SE" }
+    table<EmployeeIDTF> key(name) tab = table [
+        {name: "Chiran", age: 33, designation: "SE"},
+        {name: "Mohan", age: 37, designation: "SE"},
+        {name: "Gima", age: 38, designation: "SE"},
+        {name: "Granier", age: 34, designation: "SE"}
     ];
 
-    table<Person> newTab = getTable(tab);
+    table<PersonIDTF> newTab = getTable(tab);
     assert(tab, newTab);
 }
 
@@ -168,12 +170,12 @@ function testFunctionPointers() {
 }
 
 function testTypedesc() {
-    typedesc<Person> tP = getTypedesc();
-    assert(Person.toString(), tP.toString());
+    typedesc<PersonIDTF> tP = getTypedesc();
+    assert(PersonIDTF.toString(), tP.toString());
 }
 
 function testFuture() {
-    var fn = function (string name) returns string => "Hello " + name;
+    var fn = function(string name) returns string => "Hello " + name;
     future<string> f = start fn("Pubudu");
     future<string> fNew = getFuture(f, string);
     string res = checkpanic wait fNew;
@@ -195,7 +197,7 @@ class PersonObj {
 
 type IntStream stream<int>;
 
-type PersonTable table<Person>;
+type PersonTable table<PersonIDTF>;
 
 type IntArray int[];
 
@@ -209,7 +211,7 @@ function testComplexTypes() {
     int[] ar = echo(<IntArray>[20, 30, 40]);
     assert(<IntArray>[20, 30, 40], ar);
 
-    PersonObj pObj = new("John", "Doe");
+    PersonObj pObj = new ("John", "Doe");
     PersonObj nObj = echo(pObj);
     assertSame(pObj, nObj);
 
@@ -218,17 +220,19 @@ function testComplexTypes() {
     stream<int> newSt = echo(st);
     int tot = 0;
 
-    error? err = newSt.forEach(function (int x1) { tot+= x1; });
+    error? err = newSt.forEach(function(int x1) {
+        tot += x1;
+    });
     assert(150, tot);
 
-    table<Person> key(name) tab = table [
-        { name: "Chiran", age: 33},
-        { name: "Mohan", age: 37},
-        { name: "Gima", age: 38},
-        { name: "Granier", age: 34}
+    table<PersonIDTF> key(name) tab = table [
+        {name: "Chiran", age: 33},
+        {name: "Mohan", age: 37},
+        {name: "Gima", age: 38},
+        {name: "Granier", age: 34}
     ];
 
-    table<Person> newTab = echo(tab);
+    table<PersonIDTF> newTab = echo(tab);
     assert(tab, newTab);
 }
 
@@ -244,7 +248,7 @@ function testFunctionAssignment() {
 
     error err = <error>v;
     assert("{ballerina}TypeCastError", err.message());
-    assert("incompatible types: 'string' cannot be cast to 'int'", <string> checkpanic err.detail()["message"]);
+    assert("incompatible types: 'string' cannot be cast to 'int'", <string>checkpanic err.detail()["message"]);
 }
 
 function testUnionTypes() {
@@ -261,10 +265,10 @@ function testUnionTypes() {
     assert("hello", d);
 
     int[]|map<int[]>? e = getComplexUnion();
-    assert(<int[]> [1, 2], e);
+    assert(<int[]>[1, 2], e);
 
     map<[int, string][]>|()|[int, string][] f = getComplexUnion();
-    assert(<map<[int, string][]>> {entry: [[100, "Hello World"]]}, f);
+    assert(<map<[int, string][]>>{entry: [[100, "Hello World"]]}, f);
 
     int|boolean? g = getSimpleUnion(1, int);
     assert(1, g);
@@ -279,47 +283,47 @@ function testUnionTypes() {
     assert("hello", j);
 
     int[]|map<int[]>? k = getComplexUnion(int);
-    assert(<int[]> [1, 2], k);
+    assert(<int[]>[1, 2], k);
 
     map<[int, string][]>|()|[int, string][] l = getComplexUnion(td = [int, string]);
-    assert(<map<[int, string][]>> {entry: [[100, "Hello World"]]}, l);
+    assert(<map<[int, string][]>>{entry: [[100, "Hello World"]]}, l);
 }
 
 function testArgCombinations() {
     int[] a = funcWithMultipleArgs(1, int, ["hello", "world"]);
-    assert(<int[]> [2, 1], a);
+    assert(<int[]>[2, 1], a);
 
     string[] b = funcWithMultipleArgs(td = string, arr = ["hello", "world"], i = 3);
-    assert(<string[]> ["hello", "world", "3"], b);
+    assert(<string[]>["hello", "world", "3"], b);
 
-    record {| string[] arr = ["hello", "world", "Ballerina"]; int i = 123; typedesc<int> td; |} rec1 = {td: int};
+    record {|string[] arr = ["hello", "world", "Ballerina"]; int i = 123; typedesc<int> td;|} rec1 = {td: int};
     int[] c = funcWithMultipleArgs(...rec1);
-    assert(<int[]> [3, 123], c);
+    assert(<int[]>[3, 123], c);
 
-    record {| string[] arr = ["hello", "world"]; |} rec2 = {};
+    record {|string[] arr = ["hello", "world"];|} rec2 = {};
     int[] d = funcWithMultipleArgs(1234, int, ...rec2);
-    assert(<int[]> [2, 1234], d);
+    assert(<int[]>[2, 1234], d);
 
     [int, typedesc<string>, string[]] tup1 = [21, string, ["hello"]];
     string[] e = funcWithMultipleArgs(...tup1);
-    assert(<string[]> ["hello", "21"], e);
+    assert(<string[]>["hello", "21"], e);
 
     [string[]] tup2 = [["hello"]];
     string[] f = funcWithMultipleArgs(34, string, ...tup2);
-    assert(<string[]> ["hello", "34"], f);
+    assert(<string[]>["hello", "34"], f);
 
     int[] g = funcWithMultipleArgs(1);
-    assert(<int[]> [0, 1], g);
+    assert(<int[]>[0, 1], g);
 
     string[] h = funcWithMultipleArgs(101, arr = ["hello", "world"]);
-    assert(<string[]> ["hello", "world", "101"], h);
+    assert(<string[]>["hello", "world", "101"], h);
 
     int[] i = funcWithMultipleArgs(arr = ["hello", "world"], i = 202);
-    assert(<int[]> [2, 202], i);
+    assert(<int[]>[2, 202], i);
 }
 
 function testBuiltInRefType() {
-    stream<int> strm = (<int[]> [1, 2, 3]).toStream();
+    stream<int> strm = (<int[]>[1, 2, 3]).toStream();
 
     readonly|handle|stream<int> a = funcReturningUnionWithBuiltInRefType(strm);
     assertSame(strm, a);
@@ -331,65 +335,65 @@ function testBuiltInRefType() {
     assertSame(strm, d);
     stream<byte>|readonly e = funcReturningUnionWithBuiltInRefType(strm);
     assert(true, e is handle);
-    string? str = java:toString(<handle> checkpanic e);
+    string? str = java:toString(<handle>checkpanic e);
     assert("hello world", str);
 }
 
 function testParameterizedTypeInUnionWithNonParameterizedTypes() {
-    record {| stream<int> x; |} rec = {x: (<int[]> [1, 2, 3]).toStream()};
-    object {}|record {| stream<int> x; |}|int|error a = getValueWithUnionReturnType(rec);
-    assert(101, <int> checkpanic a);
+    record {|stream<int> x;|} rec = {x: (<int[]>[1, 2, 3]).toStream()};
+    object {}|record {|stream<int> x;|}|int|error a = getValueWithUnionReturnType(rec);
+    assert(101, <int>checkpanic a);
 
     PersonObj pObj = new ("John", "Doe");
-    object {}|record {| stream<int> x; |}|string[]|error b = getValueWithUnionReturnType(pObj);
+    object {}|record {|stream<int> x;|}|string[]|error b = getValueWithUnionReturnType(pObj);
     assertSame(pObj, b);
 
-    error|object {}|record {| stream<int> x; |}|boolean c = getValueWithUnionReturnType(true, boolean);
-    assert(false, <boolean> checkpanic c);
+    error|object {}|record {|stream<int> x;|}|boolean c = getValueWithUnionReturnType(true, boolean);
+    assert(false, <boolean>checkpanic c);
 
-    error|object {}|record {| stream<int> x; |}|boolean d = getValueWithUnionReturnType(td = boolean, val = false);
-    assert(true, <boolean> checkpanic d);
+    error|object {}|record {|stream<int> x;|}|boolean d = getValueWithUnionReturnType(td = boolean, val = false);
+    assert(true, <boolean>checkpanic d);
 }
 
 function testUsageWithVarWithUserSpecifiedArg() {
-    stream<int> strm = (<int[]> [1, 2, 3]).toStream();
+    stream<int> strm = (<int[]>[1, 2, 3]).toStream();
     var x = funcReturningUnionWithBuiltInRefType(strm, IntStream);
     assertSame(strm, x);
 }
 
- function testFunctionWithAnyFunctionParamType() {
-    var fn = function (function x, int y) {
+function testFunctionWithAnyFunctionParamType() {
+    var fn = function(function x, int y) {
     };
 
     function (function, int) z = getFunctionWithAnyFunctionParamType(fn);
     assertSame(fn, z);
- }
+}
 
 function testUsageWithCasts() {
-    int a = <int> getValue();
+    int a = <int>getValue();
     assert(150, a);
 
-    var b = <float> getValue();
+    var b = <float>getValue();
     assert(12.34, b);
 
-    any c = <decimal> getValue();
-    assert(23.45d, <anydata> c);
+    any c = <decimal>getValue();
+    assert(23.45d, <anydata>c);
 
-    string|xml|float d = <string> getValue();
+    string|xml|float d = <string>getValue();
     assert("Hello World!", d);
 
-    anydata e = <boolean> getValue();
+    anydata e = <boolean>getValue();
     assert(true, e);
 
-    anydata f = <[int, Person, boolean...]> getTupleWithRestDesc(int, Person);
-    assert(<[int, Person, boolean...]>[150, expPerson, true, true], f);
+    anydata f = <[int, PersonIDTF, boolean...]>getTupleWithRestDesc(int, PersonIDTF);
+    assert(<[int, PersonIDTF, boolean...]>[150, expPerson, true, true], f);
 
-    record {| stream<int> x; |} g = {x: (<int[]> [1, 2, 3]).toStream()};
-    var h = <object {}|record {| stream<int> x; |}|int> checkpanic getValueWithUnionReturnType(g);
-    assert(101, <int> h);
+    record {|stream<int> x;|} g = {x: (<int[]>[1, 2, 3]).toStream()};
+    var h = <object {}|record {|stream<int> x;|}|int>checkpanic getValueWithUnionReturnType(g);
+    assert(101, <int>h);
 
     PersonObj i = new ("John", "Doe");
-    any|error j = <object {}|record {| stream<int> x; |}|string[]|error> getValueWithUnionReturnType(i);
+    any|error j = <object {}|record {|stream<int> x;|}|string[]|error>getValueWithUnionReturnType(i);
     assertSame(i, j);
 }
 
@@ -420,7 +424,7 @@ function getTuple(typedesc<int|string> td1, typedesc<record {}> td2, typedesc<fl
 
 function getTupleWithRestDesc(typedesc<int|string> td1, typedesc<record {}> td2, typedesc<float|boolean> td3 = <>)
         returns [td1, td2, td3...] =
-            @java:Method { 'class: "org.ballerinalang.nativeimpl.jvm.tests.VariableReturnType" } external;
+            @java:Method {'class: "org.ballerinalang.nativeimpl.jvm.tests.VariableReturnType"} external;
 
 function getArray(typedesc<anydata> td = <>) returns td[] = @java:Method {
     'class: "org.ballerinalang.nativeimpl.jvm.tests.VariableReturnType",
@@ -430,10 +434,10 @@ function getArray(typedesc<anydata> td = <>) returns td[] = @java:Method {
 
 function getXml(typedesc<xml:Element|xml:Comment> td = <>, xml<xml:Element|xml:Comment> val = xml `<foo/>`)
     returns xml<td> = @java:Method {
-                          'class: "org.ballerinalang.nativeimpl.jvm.tests.VariableReturnType"
-                      } external;
+    'class: "org.ballerinalang.nativeimpl.jvm.tests.VariableReturnType"
+} external;
 
-function getInvalidValue(typedesc<int|Person> td1 = <>, typedesc<Person> td2 = Person) returns td1 =
+function getInvalidValue(typedesc<int|PersonIDTF> td1 = <>, typedesc<PersonIDTF> td2 = PersonIDTF) returns td1 =
     @java:Method {
         'class: "org.ballerinalang.nativeimpl.jvm.tests.VariableReturnType",
         name: "getInvalidValue",

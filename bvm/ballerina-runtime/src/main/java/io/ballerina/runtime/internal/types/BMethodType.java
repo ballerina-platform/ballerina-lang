@@ -84,4 +84,8 @@ public class BMethodType extends BFunctionType implements MethodType {
     public boolean isIsolated() {
         return SymbolFlags.isFlagOn(flags, SymbolFlags.ISOLATED);
     }
+
+    public String name() {
+        return funcName;
+    }
 }

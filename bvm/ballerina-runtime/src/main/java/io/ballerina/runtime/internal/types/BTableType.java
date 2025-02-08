@@ -34,13 +34,14 @@ import io.ballerina.runtime.internal.values.TableValue;
 import io.ballerina.runtime.internal.values.TableValueImpl;
 
 import java.util.Optional;
+import java.util.Set;
 
 /**
  * {@code BTableType} represents tabular data in Ballerina.
  *
  * @since 1.3.0
  */
-public class BTableType extends BType implements TableType {
+public class BTableType extends BType implements TableType, TypeWithShape {
 
     private final Type constraint;
     private Type keyType;

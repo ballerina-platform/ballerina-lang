@@ -25,16 +25,20 @@ import io.ballerina.runtime.api.types.IntersectableReferenceType;
 import io.ballerina.runtime.api.types.IntersectionType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.TypeTags;
+import io.ballerina.runtime.api.types.semtype.Context;
+import io.ballerina.runtime.api.types.semtype.SemType;
+import io.ballerina.runtime.api.types.semtype.ShapeAnalyzer;
 
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 
 /**
  * {@code TypeReferencedType} represents a type description which refers to another type.
  *
  * @since 2201.2.0
  */
-public class BTypeReferenceType extends BAnnotatableType implements IntersectableReferenceType {
+public class BTypeReferenceType extends BAnnotatableType implements IntersectableReferenceType, TypeWithShape {
 
     private final int typeFlags;
     private final boolean readOnly;

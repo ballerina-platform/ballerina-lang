@@ -29,7 +29,6 @@ import io.ballerina.runtime.internal.types.semtype.FutureUtils;
 
 import java.util.Objects;
 import java.util.Set;
-import io.ballerina.runtime.internal.TypeChecker;
 
 /**
  * {@code BFutureType} represents a future value in Ballerina.
@@ -38,7 +37,7 @@ import io.ballerina.runtime.internal.TypeChecker;
  */
 public class BFutureType extends BType implements FutureType {
 
-    private Type constraint;
+    private final Type constraint;
 
     /**
      * Create a {@code {@link BFutureType}} which represents the future value.
@@ -48,6 +47,7 @@ public class BFutureType extends BType implements FutureType {
      */
     public BFutureType(String typeName, Module pkg) {
         super(typeName, pkg, Object.class);
+        constraint = null;
     }
 
     public BFutureType(Type constraint) {
@@ -88,8 +88,7 @@ public class BFutureType extends BType implements FutureType {
         if (constraint == other.constraint) {
             return true;
         }
-
-        return TypeChecker.checkIsType(constraint, other.constraint);
+        return Objects.equals(constraint, other.constraint);
     }
 
     @Override

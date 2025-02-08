@@ -22,10 +22,20 @@ import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.types.IntersectionType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.TypeTags;
+import io.ballerina.runtime.api.types.semtype.CacheableTypeDescriptor;
+import io.ballerina.runtime.api.types.semtype.Context;
+import io.ballerina.runtime.api.types.semtype.SemType;
+import io.ballerina.runtime.api.types.semtype.TypeCheckCache;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.internal.TypeChecker;
+import io.ballerina.runtime.internal.types.semtype.MutableSemType;
 
+import java.util.HashSet;
 import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 /**
  * {@code BType} represents a type in Ballerina.
@@ -37,13 +47,18 @@ import java.util.Objects;
  *
  * @since 0.995.0
  */
-public abstract class BType implements Type {
+public abstract non-sealed class BType extends SemType
+        implements Type, MutableSemType, Cloneable, CacheableTypeDescriptor, MayBeDependentType {
+
     protected String typeName;
     protected Module pkg;
     protected Class<? extends Object> valueClass;
     private int hashCode;
     private Type cachedReferredType = null;
     private Type cachedImpliedType = null;
+    private volatile SemType cachedSemType = null;
+    private volatile TypeCheckCache<CacheableTypeDescriptor> typeCheckCache;
+    private final ReadWriteLock typeCacheLock = new ReentrantReadWriteLock();
 
     protected BType(String typeName, Module pkg, Class<? extends Object> valueClass) {
         this.typeName = typeName;

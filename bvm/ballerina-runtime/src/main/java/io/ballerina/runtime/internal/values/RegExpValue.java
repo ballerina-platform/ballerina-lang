@@ -17,12 +17,17 @@ package io.ballerina.runtime.internal.values;
 
 import io.ballerina.runtime.api.types.PredefinedTypes;
 import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.types.semtype.Builder;
+import io.ballerina.runtime.api.types.semtype.Context;
+import io.ballerina.runtime.api.types.semtype.SemType;
 import io.ballerina.runtime.api.values.BLink;
 import io.ballerina.runtime.api.values.BRegexpValue;
 import io.ballerina.runtime.api.values.BTypedesc;
+import io.ballerina.runtime.internal.types.semtype.RegexUtils;
 
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 
 import static io.ballerina.runtime.internal.utils.ValueUtils.getTypedescValue;
@@ -41,9 +46,11 @@ public class RegExpValue implements BRegexpValue, RefValue {
     private final RegExpDisjunction regExpDisjunction;
     private BTypedesc typedesc;
     private static final Type type = PredefinedTypes.TYPE_READONLY_ANYDATA;
+    private final SemType shape;
 
     public RegExpValue(RegExpDisjunction regExpDisjunction) {
         this.regExpDisjunction = regExpDisjunction;
+        this.shape = RegexUtils.regexShape(regExpDisjunction.stringValue(null));
     }
 
     @Override

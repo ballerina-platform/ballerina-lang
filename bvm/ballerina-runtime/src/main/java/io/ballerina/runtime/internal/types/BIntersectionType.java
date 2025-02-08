@@ -37,14 +37,18 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.StringJoiner;
+import java.util.function.Function;
+
+import static io.ballerina.runtime.api.utils.TypeUtils.getImpliedType;
 
 /**
  * {@code BIntersectionType} represents an intersection type in Ballerina.
  *
  * @since 2.0.0
  */
-public class BIntersectionType extends BType implements IntersectionType {
+public class BIntersectionType extends BType implements IntersectionType, TypeWithShape {
 
     private static final String PADDED_AMPERSAND = " & ";
     private static final String OPENING_PARENTHESIS = "(";

@@ -21,11 +21,17 @@ package io.ballerina.runtime.internal.types;
 import io.ballerina.runtime.api.flags.TypeFlags;
 import io.ballerina.runtime.api.types.FiniteType;
 import io.ballerina.runtime.api.types.TypeTags;
+import io.ballerina.runtime.api.types.semtype.Builder;
+import io.ballerina.runtime.api.types.semtype.Context;
+import io.ballerina.runtime.api.types.semtype.Core;
+import io.ballerina.runtime.api.types.semtype.SemType;
+import io.ballerina.runtime.api.types.semtype.ShapeAnalyzer;
 import io.ballerina.runtime.internal.TypeChecker;
 import io.ballerina.runtime.internal.values.RefValue;
 
 import java.util.Iterator;
 import java.util.LinkedHashSet;
+import java.util.Optional;
 import java.util.Set;
 import java.util.StringJoiner;
 
@@ -39,8 +45,8 @@ import static io.ballerina.runtime.api.utils.TypeUtils.getType;
 public class BFiniteType extends BType implements FiniteType {
 
     public Set<Object> valueSpace;
-    private final int typeFlags;
-    private final String originalName;
+    private int typeFlags;
+    private String originalName;
 
     public BFiniteType(String typeName) {
         this(typeName, new LinkedHashSet<>(), 0);

@@ -20,6 +20,9 @@ import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.types.PredefinedTypes;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.XmlNodeType;
+import io.ballerina.runtime.api.types.semtype.Context;
+import io.ballerina.runtime.api.types.semtype.SemType;
+import io.ballerina.runtime.api.types.semtype.ShapeAnalyzer;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BLink;
 import io.ballerina.runtime.api.values.BMap;
@@ -27,13 +30,14 @@ import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BTypedesc;
 import io.ballerina.runtime.api.values.BXml;
 import io.ballerina.runtime.api.values.BXmlQName;
+import io.ballerina.runtime.internal.types.TypeWithShape;
 import io.ballerina.runtime.internal.utils.IteratorUtils;
 import io.ballerina.runtime.internal.xml.BallerinaXmlSerializer;
 
 import java.io.OutputStream;
 import java.util.List;
 import java.util.Map;
-
+import java.util.Optional;
 import javax.xml.namespace.QName;
 
 import static io.ballerina.runtime.internal.utils.ValueUtils.getTypedescValue;
@@ -273,4 +277,9 @@ public abstract class XmlValue implements RefValue, BXml, CollectionValue {
         return iteratorNextReturnType;
     }
 
+    @Override
+    public Optional<SemType> inherentTypeOf(Context cx) {
+        TypeWithShape typeWithShape = (TypeWithShape) type;
+        return typeWithShape.inherentTypeOf(cx, ShapeAnalyzer::inherentTypeOf, this);
+    }
 }

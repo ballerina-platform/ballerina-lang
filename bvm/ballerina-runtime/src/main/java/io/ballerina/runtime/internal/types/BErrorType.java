@@ -31,19 +31,22 @@ import io.ballerina.runtime.api.types.semtype.SemType;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.internal.types.semtype.ErrorUtils;
 import io.ballerina.runtime.internal.values.ErrorValue;
+import io.ballerina.runtime.internal.values.MapValueImpl;
 
 import java.util.Optional;
+import java.util.Set;
 
 /**
  * {@code BErrorType} represents error type in Ballerina.
  *
  * @since 0.995.0
  */
-public class BErrorType extends BAnnotatableType implements ErrorType {
+public class BErrorType extends BAnnotatableType implements ErrorType, TypeWithShape {
 
-    public Type detailType = PredefinedTypes.TYPE_ERROR_DETAIL;
+    public Type detailType = PredefinedTypes.TYPE_DETAIL;
     public BTypeIdSet typeIdSet;
     private IntersectionType intersectionType = null;
+    private volatile DistinctIdSupplier distinctIdSupplier;
 
     public BErrorType(String typeName, Module pkg, Type detailType) {
         super(typeName, pkg, ErrorValue.class);
@@ -56,6 +59,9 @@ public class BErrorType extends BAnnotatableType implements ErrorType {
 
     public void setTypeIdSet(BTypeIdSet typeIdSet) {
         this.typeIdSet = typeIdSet;
+        synchronized (this) {
+            this.distinctIdSupplier = null;
+        }
     }
 
     @Override

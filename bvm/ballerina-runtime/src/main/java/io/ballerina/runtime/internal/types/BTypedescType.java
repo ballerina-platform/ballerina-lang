@@ -31,16 +31,20 @@ import io.ballerina.runtime.internal.types.semtype.TypedescUtils;
 import io.ballerina.runtime.internal.values.TypedescValue;
 import io.ballerina.runtime.internal.values.TypedescValueImpl;
 
+import java.util.Set;
+
 /**
  * {@code BTypedescType} represents a type of a type in the Ballerina type system.
  *
  * @since 0.995.0
  */
 public class BTypedescType extends BType implements TypedescType {
-    private Type constraint;
+
+    private final Type constraint;
 
     public BTypedescType(String typeName, Module pkg) {
         super(typeName, pkg, Object.class);
+        constraint = null;
     }
 
     public BTypedescType(Type constraint) {

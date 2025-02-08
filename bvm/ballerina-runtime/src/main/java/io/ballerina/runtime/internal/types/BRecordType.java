@@ -20,6 +20,7 @@ package io.ballerina.runtime.internal.types;
 
 import io.ballerina.identifier.Utils;
 import io.ballerina.runtime.api.Module;
+import io.ballerina.runtime.api.creators.TypeCreator;
 import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.flags.SymbolFlags;
 import io.ballerina.runtime.api.flags.TypeFlags;
@@ -28,26 +29,44 @@ import io.ballerina.runtime.api.types.IntersectionType;
 import io.ballerina.runtime.api.types.RecordType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.TypeTags;
+import io.ballerina.runtime.api.types.semtype.Builder;
+import io.ballerina.runtime.api.types.semtype.Context;
+import io.ballerina.runtime.api.types.semtype.Core;
+import io.ballerina.runtime.api.types.semtype.Env;
+import io.ballerina.runtime.api.types.semtype.SemType;
+import io.ballerina.runtime.api.types.semtype.ShapeAnalyzer;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BFunctionPointer;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.internal.scheduling.Scheduler;
+import io.ballerina.runtime.internal.types.semtype.CellAtomicType.CellMutability;
+import io.ballerina.runtime.internal.types.semtype.DefinitionContainer;
+import io.ballerina.runtime.internal.types.semtype.MappingDefinition;
 import io.ballerina.runtime.internal.values.MapValue;
 import io.ballerina.runtime.internal.values.MapValueImpl;
 import io.ballerina.runtime.internal.values.ReadOnlyUtils;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
+import java.util.function.Function;
+
+import static io.ballerina.runtime.api.types.semtype.Builder.getNeverType;
+import static io.ballerina.runtime.internal.types.semtype.CellAtomicType.CellMutability.CELL_MUT_NONE;
+import static io.ballerina.runtime.internal.types.semtype.CellAtomicType.CellMutability.CELL_MUT_UNLIMITED;
 
 /**
  * {@code BRecordType} represents a user defined record type in Ballerina.
  *
  * @since 0.995.0
  */
-public class BRecordType extends BStructureType implements RecordType {
+public class BRecordType extends BStructureType implements RecordType, TypeWithShape {
     private final String internalName;
     public boolean sealed;
     public Type restFieldType;
@@ -55,6 +74,9 @@ public class BRecordType extends BStructureType implements RecordType {
     private final boolean readonly;
     private IntersectionType immutableType;
     private IntersectionType intersectionType = null;
+    private final DefinitionContainer<MappingDefinition> defn = new DefinitionContainer<>();
+    private final DefinitionContainer<MappingDefinition> acceptedTypeDefn = new DefinitionContainer<>();
+    private byte couldInhereTypeBeDifferentCache = 0;
 
     private final Map<String, BFunctionPointer> defaultValues = new LinkedHashMap<>();
 
@@ -73,6 +95,7 @@ public class BRecordType extends BStructureType implements RecordType {
         this.sealed = sealed;
         this.typeFlags = typeFlags;
         this.readonly = SymbolFlags.isFlagOn(flags, SymbolFlags.READONLY);
+        TypeCreator.registerRecordType(this);
     }
 
     /**
@@ -102,6 +125,7 @@ public class BRecordType extends BStructureType implements RecordType {
             this.fields = fields;
         }
         this.internalName = typeName;
+        TypeCreator.registerRecordType(this);
     }
 
     private Map<String, Field> getReadOnlyFields(Map<String, Field> fields) {

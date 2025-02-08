@@ -20,11 +20,21 @@ package io.ballerina.runtime.internal.types;
 import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.constants.TypeConstants;
 import io.ballerina.runtime.api.types.IntersectionType;
+import io.ballerina.runtime.api.types.ParameterizedType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.TypeTags;
 import io.ballerina.runtime.api.types.XmlType;
+import io.ballerina.runtime.api.types.semtype.Builder;
+import io.ballerina.runtime.api.types.semtype.Context;
+import io.ballerina.runtime.api.types.semtype.Core;
+import io.ballerina.runtime.api.types.semtype.SemType;
+import io.ballerina.runtime.internal.types.semtype.XmlUtils;
 import io.ballerina.runtime.internal.values.ReadOnlyUtils;
+import io.ballerina.runtime.internal.values.XmlComment;
+import io.ballerina.runtime.internal.values.XmlItem;
+import io.ballerina.runtime.internal.values.XmlPi;
 import io.ballerina.runtime.internal.values.XmlSequence;
+import io.ballerina.runtime.internal.values.XmlText;
 import io.ballerina.runtime.internal.values.XmlValue;
 
 import java.util.Optional;
@@ -35,10 +45,10 @@ import java.util.Optional;
  * @since 0.995.0
  */
 @SuppressWarnings("unchecked")
-public class BXmlType extends BType implements XmlType {
+public class BXmlType extends BType implements XmlType, TypeWithShape {
 
     private final int tag;
-    public Type constraint;
+    public final Type constraint;
     private final boolean readonly;
     private IntersectionType immutableType;
     private IntersectionType intersectionType = null;
@@ -61,6 +71,13 @@ public class BXmlType extends BType implements XmlType {
         this.tag = tag;
         this.readonly = readonly;
         this.constraint = null;
+    }
+
+    public BXmlType(String typeName, Type constraint, Module pkg, int tag, boolean readonly) {
+        super(typeName, pkg, XmlValue.class);
+        this.tag = tag;
+        this.readonly = readonly;
+        this.constraint = constraint;
     }
 
     public BXmlType(String typeName, Type constraint, Module pkg, boolean readonly) {
