@@ -18,9 +18,13 @@
 
 package io.ballerina.runtime.internal.types.semtype;
 
+import io.ballerina.runtime.api.types.semtype.CacheableTypeDescriptor;
+import io.ballerina.runtime.api.types.semtype.Context;
 import io.ballerina.runtime.api.types.semtype.SemType;
 import io.ballerina.runtime.api.types.semtype.SubType;
+import io.ballerina.runtime.api.types.semtype.TypeCheckCache;
 import io.ballerina.runtime.internal.types.BSemTypeWrapper;
+import io.ballerina.runtime.internal.types.TypeIdSupplier;
 
 import java.util.Arrays;
 import java.util.Objects;
@@ -30,14 +34,20 @@ import java.util.Objects;
  *
  * @since 2201.11.0
  */
-public abstract sealed class ImmutableSemType extends SemType permits BSemTypeWrapper {
+public abstract sealed class ImmutableSemType extends SemType implements CacheableTypeDescriptor
+        permits BSemTypeWrapper {
 
     private static final SubType[] EMPTY_SUBTYPE_DATA = new SubType[0];
 
     private Integer hashCode;
 
+    private final TypeCheckCache typeCheckCache;
+    private final int typeId;
+
     ImmutableSemType(int all, int some, SubType[] subTypeData) {
         super(all, some, subTypeData);
+        this.typeCheckCache = TypeCheckCache.TypeCheckCacheFactory.create();
+        this.typeId = TypeIdSupplier.getAnonId();
     }
 
     ImmutableSemType(int all) {
@@ -86,5 +96,24 @@ public abstract sealed class ImmutableSemType extends SemType permits BSemTypeWr
     @Override
     protected void setSome(int some, SubType[] subTypeData) {
         throw new UnsupportedOperationException("Immutable semtypes cannot be modified");
+    }
+
+    @Override
+    public boolean shouldCache() {
+        return true;
+    }
+
+    public TypeCheckCache.Result cachedTypeCheckResult(Context cx, CacheableTypeDescriptor other) {
+        return typeCheckCache.cachedTypeCheckResult(other);
+    }
+
+    public void cacheTypeCheckResult(CacheableTypeDescriptor other, boolean result,
+                                     TypeCheckCache.ReplacementData replacementData) {
+
+        typeCheckCache.cacheTypeCheckResult(other, result, replacementData);
+    }
+
+    public int typeId() {
+        return typeId;
     }
 }

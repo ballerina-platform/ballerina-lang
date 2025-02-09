@@ -1,5 +1,7 @@
 package io.ballerina.runtime.api.types.semtype;
 
+import io.ballerina.runtime.api.Module;
+import io.ballerina.runtime.api.types.IntersectionType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.internal.types.semtype.ImmutableSemType;
 import io.ballerina.runtime.internal.types.semtype.MutableSemType;
@@ -10,7 +12,7 @@ import io.ballerina.runtime.internal.types.semtype.SemTypeHelper;
  *
  * @since 2201.11.0
  */
-public sealed class SemType extends BasicTypeBitSet
+public sealed class SemType extends BasicTypeBitSet implements CacheableTypeDescriptor
         permits io.ballerina.runtime.internal.types.BType, ImmutableSemType {
 
     private int some;
@@ -66,7 +68,88 @@ public sealed class SemType extends BasicTypeBitSet
     }
 
     @Override
+    public <V> V getZeroValue() {
+        return null;
+    }
+
+    @Override
+    public <V> V getEmptyValue() {
+        return null;
+    }
+
+    @Override
+    public int getTag() {
+        return 0;
+    }
+
+    @Override
     public String toString() {
         return SemTypeHelper.stringRepr(this);
     }
+
+    @Override
+    public boolean isNilable() {
+        return false;
+    }
+
+    @Override
+    public String getName() {
+        return "";
+    }
+
+    @Override
+    public String getQualifiedName() {
+        return "";
+    }
+
+    @Override
+    public Module getPackage() {
+        return null;
+    }
+
+    @Override
+    public boolean isPublic() {
+        return false;
+    }
+
+    @Override
+    public boolean isNative() {
+        return false;
+    }
+
+    @Override
+    public boolean isAnydata() {
+        return false;
+    }
+
+    @Override
+    public boolean isPureType() {
+        return false;
+    }
+
+    @Override
+    public boolean isReadOnly() {
+        return false;
+    }
+
+    @Override
+    public long getFlags() {
+        return 0;
+    }
+
+    @Override
+    public Type getImmutableType() {
+        return null;
+    }
+
+    @Override
+    public void setImmutableType(IntersectionType immutableType) {
+
+    }
+
+    @Override
+    public Module getPkg() {
+        return null;
+    }
+
 }
