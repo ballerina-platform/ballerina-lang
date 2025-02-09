@@ -644,6 +644,7 @@ public final class TypeChecker {
         var cachedResult = source.cachedTypeCheckResult(cx, target);
         logger.typeCheckCachedResult(cx, source, target, cachedResult);
         if (cachedResult.hit()) {
+            assert cachedResult.replacementData() == null;
             assert cachedResult.result() == isSubTypeInner(cx, source, target);
             return cachedResult.result();
         }

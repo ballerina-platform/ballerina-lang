@@ -26,14 +26,17 @@ import io.ballerina.runtime.api.types.semtype.Context;
 import io.ballerina.runtime.api.types.semtype.Core;
 import io.ballerina.runtime.api.types.semtype.SemType;
 import io.ballerina.runtime.api.types.semtype.ShapeAnalyzer;
+import io.ballerina.runtime.api.types.semtype.TypeCheckCache;
 import io.ballerina.runtime.internal.TypeChecker;
 import io.ballerina.runtime.internal.values.RefValue;
 
 import java.util.Iterator;
 import java.util.LinkedHashSet;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.StringJoiner;
+import java.util.concurrent.ConcurrentHashMap;
 
 import static io.ballerina.runtime.api.utils.TypeUtils.getType;
 
@@ -61,6 +64,13 @@ public class BFiniteType extends BType implements FiniteType {
         this.valueSpace = values;
         this.typeFlags = typeFlags;
         this.originalName = originalName;
+        if (this.originalName != null && !originalName.isEmpty()) {
+            var data = TypeCheckCacheData.cache.computeIfAbsent(originalName,
+                    ignored -> new TypeCheckCacheData.TypeCheckCacheRecord(
+                            TypeIdSupplier.getAnonId(), TypeCheckCache.TypeCheckCacheFactory.create()));
+            this.typeId = data.typeId;
+            this.typeCheckCache = data.typeCheckCache;
+        }
     }
 
     @Override
@@ -210,9 +220,24 @@ public class BFiniteType extends BType implements FiniteType {
     }
 
     @Override
+    public boolean shouldCache() {
+        return originalName != null && !originalName.isEmpty();
+    }
+
+    @Override
     public SemType createSemType(Context cx) {
         return this.valueSpace.stream().map(each -> ShapeAnalyzer.inherentTypeOf(cx, each))
                 .map(Optional::orElseThrow)
                 .reduce(Builder.getNeverType(), Core::union);
     }
+
+    private static class TypeCheckCacheData {
+
+        private static final Map<String, TypeCheckCacheRecord> cache = new ConcurrentHashMap<>();
+
+        private record TypeCheckCacheRecord(int typeId, TypeCheckCache typeCheckCache) {
+
+        }
+    }
+
 }

@@ -56,8 +56,8 @@ public abstract non-sealed class BType extends SemType
     private Type cachedReferredType = null;
     private Type cachedImpliedType = null;
     private volatile SemType cachedSemType = null;
-    private final TypeCheckCache typeCheckCache;
-    private final int typeId;
+    protected TypeCheckCache typeCheckCache;
+    protected int typeId;
 
     protected BType(String typeName, Module pkg, Class<? extends Object> valueClass) {
         this.typeName = typeName;

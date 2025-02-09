@@ -26,7 +26,6 @@ import io.ballerina.runtime.api.types.JsonType;
 import io.ballerina.runtime.api.types.MapType;
 import io.ballerina.runtime.api.types.ObjectType;
 import io.ballerina.runtime.api.types.RecordType;
-import io.ballerina.runtime.api.types.ReferenceType;
 import io.ballerina.runtime.api.types.StreamType;
 import io.ballerina.runtime.api.types.TableType;
 import io.ballerina.runtime.api.types.TupleType;
@@ -46,6 +45,7 @@ import io.ballerina.runtime.internal.types.BRecordType;
 import io.ballerina.runtime.internal.types.BStreamType;
 import io.ballerina.runtime.internal.types.BTableType;
 import io.ballerina.runtime.internal.types.BTupleType;
+import io.ballerina.runtime.internal.types.BTypeReferenceType;
 import io.ballerina.runtime.internal.types.BUnionType;
 import io.ballerina.runtime.internal.types.BXmlType;
 
@@ -578,7 +578,7 @@ public final class TypeCreator {
         private static final Map<Type, MapType> cache = new ConcurrentHashMap<>();
 
         static MapType get(Type constraint) {
-            if (constraint instanceof ReferenceType referenceType) {
+            if (constraint instanceof BTypeReferenceType referenceType) {
                 assert referenceType.getReferredType() != null;
                 return get(referenceType.getReferredType());
             }

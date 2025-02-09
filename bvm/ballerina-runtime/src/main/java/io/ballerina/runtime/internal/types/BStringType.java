@@ -26,6 +26,8 @@ import io.ballerina.runtime.api.types.semtype.Builder;
 import io.ballerina.runtime.api.types.semtype.ConcurrentLazySupplier;
 import io.ballerina.runtime.api.types.semtype.SemType;
 
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Supplier;
 
 /**
@@ -62,6 +64,10 @@ public final class BStringType extends BSemTypeWrapper<BStringType.BStringTypeIm
     }
 
     public static BStringType singletonType(String value) {
+        return BStringTypeCache.get(value);
+    }
+
+    private static BStringType createSingletonType(String value) {
         return new BStringType(() -> (BStringTypeImpl) DEFAULT_B_TYPE.clone(), TypeConstants.STRING_TNAME,
                 DEFAULT_MODULE, TypeTags.STRING_TAG, Builder.getStringConst(value));
     }
@@ -106,6 +112,18 @@ public final class BStringType extends BSemTypeWrapper<BStringType.BStringTypeIm
         @Override
         public BType clone() {
             return super.clone();
+        }
+    }
+
+    private static final class BStringTypeCache {
+
+        private static final Map<String, BStringType> cache = new ConcurrentHashMap<>();
+
+        public static BStringType get(String value) {
+            if (value.length() < 20) {
+                return cache.computeIfAbsent(value, BStringType::createSingletonType);
+            }
+            return BStringType.createSingletonType(value);
         }
     }
 }

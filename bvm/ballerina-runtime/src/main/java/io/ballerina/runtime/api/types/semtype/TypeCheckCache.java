@@ -23,12 +23,14 @@ public class TypeCheckCache {
     private static final int SIZE = 10;
     private final AtomicReference<CachedResult>[] cachedResults;
     private final AtomicInteger[] hitCounts;
+    private final static AtomicInteger nextId = new AtomicInteger(0);
+    private final int id = nextId.getAndIncrement();
 
     private TypeCheckCache() {
         cachedResults = new AtomicReference[SIZE];
-        Arrays.fill(cachedResults, new AtomicReference<>(CachedResult.INIT));
         hitCounts = new AtomicInteger[SIZE];
-        Arrays.fill(hitCounts, new AtomicInteger(0));
+        Arrays.setAll(cachedResults, i -> new AtomicReference<>(CachedResult.INIT));
+        Arrays.setAll(hitCounts, i -> new AtomicInteger(0));
     }
 
     public Result cachedTypeCheckResult(CacheableTypeDescriptor other) {
