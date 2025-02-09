@@ -29,7 +29,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.WeakHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.ReadWriteLock;
@@ -53,8 +52,7 @@ public final class Env {
     // Each atom is created once but will be accessed multiple times during type checking. Also in perfect world we
     // will create atoms at the beginning of the execution and will eventually reach
     // a steady state.
-    private final ReadWriteLock atomLock = new ReentrantReadWriteLock();
-    private final Map<AtomicType, Reference<TypeAtom>> atomTable;
+    private final AtomTable atomTable;
 
     private final ReadWriteLock recListLock = new ReentrantReadWriteLock();
     final List<ListAtomicType> recListAtoms;
@@ -71,7 +69,7 @@ public final class Env {
     private final AtomicInteger distinctAtomCount = new AtomicInteger(0);
 
     private Env() {
-        this.atomTable = new WeakHashMap<>();
+        this.atomTable = new AtomTable();
         this.recListAtoms = new ArrayList<>();
         this.recMappingAtoms = new ArrayList<>();
         this.recFunctionAtoms = new ArrayList<>();
@@ -88,26 +86,7 @@ public final class Env {
     }
 
     private TypeAtom typeAtom(AtomicType atomicType) {
-        atomLock.readLock().lock();
-        try {
-            Reference<TypeAtom> ref = this.atomTable.get(atomicType);
-            if (ref != null) {
-                TypeAtom atom = ref.get();
-                if (atom != null) {
-                    return atom;
-                }
-            }
-        } finally {
-            atomLock.readLock().unlock();
-        }
-        atomLock.writeLock().lock();
-        try {
-            TypeAtom result = TypeAtom.createTypeAtom(this.atomTable.size(), atomicType);
-            this.atomTable.put(result.atomicType(), new WeakReference<>(result));
-            return result;
-        } finally {
-            atomLock.writeLock().unlock();
-        }
+        return atomTable.getOrCreate(atomicType);
     }
 
     // Ideally this cache should be in the builder as well. But technically we can't cache cells across environments.
@@ -256,22 +235,67 @@ public final class Env {
         return this.distinctAtomCount.getAndIncrement();
     }
 
-    // This is for debug purposes
-    public Optional<AtomicType> atomicTypeByIndex(int index) {
-        atomLock.readLock().lock();
-        try {
-            for (Map.Entry<AtomicType, Reference<TypeAtom>> entry : this.atomTable.entrySet()) {
-                TypeAtom typeAtom = entry.getValue().get();
-                if (typeAtom == null) {
-                    continue;
+    private final static class AtomTable {
+
+        private final ReadWriteLock cellLock = new ReentrantReadWriteLock();
+        private final ReadWriteLock functionLock = new ReentrantReadWriteLock();
+        private final ReadWriteLock listLock = new ReentrantReadWriteLock();
+        private final ReadWriteLock mappingLock = new ReentrantReadWriteLock();
+        private final Map<AtomicType, Reference<TypeAtom>> cellTable = new WeakHashMap<>();
+        private final Map<AtomicType, Reference<TypeAtom>> listTable = new WeakHashMap<>();
+        private final Map<AtomicType, Reference<TypeAtom>> functionTable = new WeakHashMap<>();
+        private final Map<AtomicType, Reference<TypeAtom>> mappingTable = new WeakHashMap<>();
+        private AtomicInteger nextCellIndex = new AtomicInteger(0);
+        private AtomicInteger nextListIndex = new AtomicInteger(0);
+        private AtomicInteger nextFunctionIndex = new AtomicInteger(0);
+        private AtomicInteger nextMappingIndex = new AtomicInteger(0);
+
+        public AtomTable() {
+
+        }
+
+        public TypeAtom getOrCreate(AtomicType atomicType) {
+            switch (atomicType) {
+                case CellAtomicType cellAtomicType -> {
+                    return getOrCreateInner(cellLock, cellTable, nextCellIndex, cellAtomicType);
                 }
-                if (typeAtom.index() == index) {
-                    return Optional.of(entry.getKey());
+                case FunctionAtomicType functionAtomicType -> {
+                    return getOrCreateInner(functionLock, functionTable, nextFunctionIndex, functionAtomicType);
+                }
+                case ListAtomicType listAtomicType -> {
+                    return getOrCreateInner(listLock, listTable, nextListIndex, listAtomicType);
+                }
+                case MappingAtomicType mappingAtomicType -> {
+                    return getOrCreateInner(mappingLock, mappingTable, nextMappingIndex, mappingAtomicType);
                 }
             }
-            return Optional.empty();
-        } finally {
-            atomLock.readLock().unlock();
+        }
+
+        private static TypeAtom getOrCreateInner(ReadWriteLock rwLock, Map<AtomicType, Reference<TypeAtom>> table,
+                                                 AtomicInteger nextIndex, AtomicType atomicType) {
+            rwLock.readLock().lock();
+            try {
+                Reference<TypeAtom> ref = table.get(atomicType);
+                if (ref != null) {
+                    TypeAtom atom = ref.get();
+                    if (atom != null) {
+                        return atom;
+                    }
+                }
+            } finally {
+                rwLock.readLock().unlock();
+            }
+            int index = nextIndex.getAndIncrement();
+            TypeAtom result = TypeAtom.createTypeAtom(index, atomicType);
+            AtomicType key = result.atomicType();
+            WeakReference<TypeAtom> value = new WeakReference<>(result);
+            rwLock.writeLock().lock();
+            try {
+                table.put(key, value);
+                return result;
+            } finally {
+                rwLock.writeLock().unlock();
+            }
         }
     }
 
