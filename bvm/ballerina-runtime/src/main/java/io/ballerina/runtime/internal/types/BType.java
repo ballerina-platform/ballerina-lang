@@ -21,6 +21,7 @@ import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.types.IntersectionType;
 import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.types.TypeIdentifier;
 import io.ballerina.runtime.api.types.TypeTags;
 import io.ballerina.runtime.api.types.semtype.CacheableTypeDescriptor;
 import io.ballerina.runtime.api.types.semtype.Context;
@@ -33,10 +34,7 @@ import io.ballerina.runtime.internal.types.semtype.MutableSemType;
 
 import java.util.HashSet;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.Set;
-import java.util.concurrent.locks.ReadWriteLock;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 /**
  * {@code BType} represents a type in Ballerina.
@@ -58,8 +56,8 @@ public abstract non-sealed class BType extends SemType
     private Type cachedReferredType = null;
     private Type cachedImpliedType = null;
     private volatile SemType cachedSemType = null;
-    private volatile TypeCheckCache<CacheableTypeDescriptor> typeCheckCache;
-    private final ReadWriteLock typeCacheLock = new ReentrantReadWriteLock();
+    private final TypeCheckCache typeCheckCache;
+    private final int typeId;
 
     protected BType(String typeName, Module pkg, Class<? extends Object> valueClass) {
         this.typeName = typeName;
@@ -67,6 +65,14 @@ public abstract non-sealed class BType extends SemType
         this.valueClass = valueClass;
         if (pkg != null && typeName != null) {
             this.hashCode = Objects.hash(pkg, typeName);
+        }
+        if (isNamedType()) {
+            TypeIdentifier identifier = new TypeIdentifier(this.pkg, this.typeName);
+            typeCheckCache = TypeCheckCache.TypeCheckCacheFactory.get(identifier);
+            typeId = TypeIdSupplier.namedId(identifier);
+        } else {
+            typeCheckCache = TypeCheckCache.TypeCheckCacheFactory.create();
+            typeId = TypeIdSupplier.getAnonId();
         }
     }
 
@@ -290,41 +296,23 @@ public abstract non-sealed class BType extends SemType
 
     @Override
     public boolean shouldCache() {
-        return this.pkg != null && this.typeName != null && !this.typeName.contains("$anon");
+        return isNamedType();
+    }
+
+    protected boolean isNamedType() {
+        return this.pkg != null && this.typeName != null && !this.typeName.isEmpty() &&
+                !this.typeName.contains("$anon");
     }
 
     @Override
-    public final Optional<Boolean> cachedTypeCheckResult(Context cx, CacheableTypeDescriptor other) {
-        initializeCacheIfNeeded(cx);
-        typeCacheLock.readLock().lock();
-        try {
-            return typeCheckCache.cachedTypeCheckResult(other);
-        } finally {
-            typeCacheLock.readLock().unlock();
-        }
-    }
-
-    private void initializeCacheIfNeeded(Context cx) {
-        typeCacheLock.readLock().lock();
-        boolean shouldInitialize = typeCheckCache == null;
-        typeCacheLock.readLock().unlock();
-        if (!shouldInitialize) {
-            return;
-        }
-        try {
-            typeCacheLock.writeLock().lock();
-            if (typeCheckCache == null) {
-                typeCheckCache = cx.getTypeCheckCache(this);
-            }
-        } finally {
-            typeCacheLock.writeLock().unlock();
-        }
+    public final TypeCheckCache.Result cachedTypeCheckResult(Context cx, CacheableTypeDescriptor other) {
+        return typeCheckCache.cachedTypeCheckResult(other);
     }
 
     @Override
-    public final void cacheTypeCheckResult(CacheableTypeDescriptor other, boolean result) {
-        // This happening after checking the cache so it must be initialized by now
-        typeCheckCache.cacheTypeCheckResult(other, result);
+    public final void cacheTypeCheckResult(CacheableTypeDescriptor other, boolean result,
+                                           TypeCheckCache.ReplacementData replacementData) {
+        typeCheckCache.cacheTypeCheckResult(other, result, replacementData);
     }
 
     @Override
@@ -342,5 +330,10 @@ public abstract non-sealed class BType extends SemType
 
     protected boolean isDependentlyTypedInner(Set<MayBeDependentType> visited) {
         return false;
+    }
+
+    @Override
+    public int typeId() {
+        return this.typeId;
     }
 }

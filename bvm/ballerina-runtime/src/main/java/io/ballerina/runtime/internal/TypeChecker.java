@@ -71,7 +71,6 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
@@ -642,14 +641,14 @@ public final class TypeChecker {
         if (!source.shouldCache() || !target.shouldCache()) {
             return isSubTypeInner(cx, source, target);
         }
-        Optional<Boolean> cachedResult = source.cachedTypeCheckResult(cx, target);
+        var cachedResult = source.cachedTypeCheckResult(cx, target);
         logger.typeCheckCachedResult(cx, source, target, cachedResult);
-        if (cachedResult.isPresent()) {
-            assert cachedResult.get() == isSubTypeInner(cx, source, target);
-            return cachedResult.get();
+        if (cachedResult.hit()) {
+            assert cachedResult.result() == isSubTypeInner(cx, source, target);
+            return cachedResult.result();
         }
         boolean result = isSubTypeInner(cx, source, target);
-        source.cacheTypeCheckResult(target, result);
+        source.cacheTypeCheckResult(target, result, cachedResult.replacementData());
         return result;
     }
 

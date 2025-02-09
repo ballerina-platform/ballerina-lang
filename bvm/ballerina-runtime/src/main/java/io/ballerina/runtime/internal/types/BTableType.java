@@ -241,8 +241,7 @@ public class BTableType extends BType implements TableType, TypeWithShape {
     }
 
     @Override
-    public boolean shouldCache() {
-        // TODO: remove this once we have fixed equals
+    protected boolean isNamedType() {
         return false;
     }
 

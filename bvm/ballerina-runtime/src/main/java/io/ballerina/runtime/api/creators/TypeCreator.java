@@ -30,6 +30,7 @@ import io.ballerina.runtime.api.types.StreamType;
 import io.ballerina.runtime.api.types.TableType;
 import io.ballerina.runtime.api.types.TupleType;
 import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.types.TypeIdentifier;
 import io.ballerina.runtime.api.types.UnionType;
 import io.ballerina.runtime.api.types.XmlType;
 import io.ballerina.runtime.internal.TypeCheckLogger;
@@ -542,7 +543,7 @@ public final class TypeCreator {
         if (typeName == null || pkg == null) {
             return null;
         }
-        return registeredRecordTypes.get(new TypeIdentifier(typeName, pkg));
+        return registeredRecordTypes.get(new TypeIdentifier(pkg, typeName));
     }
 
     public static void registerRecordType(BRecordType recordType) {
@@ -554,7 +555,7 @@ public final class TypeCreator {
         if (name.contains("$anon")) {
             return;
         }
-        TypeIdentifier typeIdentifier = new TypeIdentifier(name, pkg);
+        TypeIdentifier typeIdentifier = new TypeIdentifier(pkg, name);
         registeredRecordTypes.put(typeIdentifier, recordType);
     }
 
@@ -568,14 +569,6 @@ public final class TypeCreator {
 
         void put(TypeIdentifier identifier, BRecordType value) {
             cache.put(identifier, value);
-        }
-    }
-
-    public record TypeIdentifier(String typeName, Module pkg) {
-
-        public TypeIdentifier {
-            assert typeName != null;
-            assert pkg != null;
         }
     }
 
