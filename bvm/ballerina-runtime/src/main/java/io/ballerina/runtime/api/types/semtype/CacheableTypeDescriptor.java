@@ -16,6 +16,7 @@ public interface CacheableTypeDescriptor extends Type {
      *
      * @return true if the type check result should be cached, false otherwise
      */
+    @Deprecated
     boolean shouldCache();
 
     // FIXME: comment
