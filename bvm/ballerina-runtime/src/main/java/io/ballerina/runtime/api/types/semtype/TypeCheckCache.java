@@ -7,7 +7,7 @@ import java.util.Arrays;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicReference;
+import java.util.concurrent.atomic.AtomicReferenceArray;
 
 /**
  * Generalized implementation of type check result cache. It is okay to access
@@ -21,16 +21,15 @@ import java.util.concurrent.atomic.AtomicReference;
 public class TypeCheckCache {
 
     private static final int SIZE = 10;
-    private final AtomicReference<CachedResult>[] cachedResults;
+    private final AtomicReferenceArray<CachedResult> cachedResults;
     private final AtomicInteger[] hitCounts;
     private final static AtomicInteger nextId = new AtomicInteger(0);
     private final int id = nextId.getAndIncrement();
 
     private TypeCheckCache() {
-        cachedResults = new AtomicReference[SIZE];
+        cachedResults = new AtomicReferenceArray<>(SIZE);
         hitCounts = new AtomicInteger[SIZE];
-        Arrays.setAll(cachedResults, i -> new AtomicReference<>(CachedResult.INIT));
-        Arrays.setAll(hitCounts, i -> new AtomicInteger(0));
+        Arrays.setAll(hitCounts, i -> new AtomicInteger(-1));
     }
 
     public Result cachedTypeCheckResult(CacheableTypeDescriptor other) {
@@ -39,16 +38,20 @@ public class TypeCheckCache {
         int minHitCount = Integer.MAX_VALUE;
         int targetTypeId = other.typeId();
         for (int i = 0; i < SIZE; i++) {
-            var each = cachedResults[i].get();
-            if (each.typeId == targetTypeId) {
-                hitCounts[i].incrementAndGet();
-                return new Result(true, each.result, null);
-            }
             int hitCount = hitCounts[i].get();
-            if (minHitCount > hitCount) {
-                minHitCount = hitCount;
+            if (hitCount != -1) {
+                var each = cachedResults.get(i);
+                if (each.typeId == targetTypeId) {
+                    hitCounts[i].incrementAndGet();
+                    return new Result(true, each.result, null);
+                } else if (minHitCount > hitCount) {
+                    minHitCount = hitCount;
+                    replacementCandidateId = i;
+                    replacement = each;
+                }
+            } else {
                 replacementCandidateId = i;
-                replacement = each;
+                replacement = null;
             }
         }
         return new Result(false, false, new ReplacementData(replacementCandidateId, replacement));
@@ -56,9 +59,9 @@ public class TypeCheckCache {
 
     public void cacheTypeCheckResult(CacheableTypeDescriptor other, boolean result, ReplacementData replacementData) {
         int index = replacementData.index;
-        AtomicReference<CachedResult> candidate = cachedResults[index];
         CachedResult newValue = new CachedResult(other.typeId(), result);
-        if (candidate.compareAndSet(replacementData.candidate, newValue)) {
+        // Probably this has an effect only on ARM not X86
+        if (cachedResults.weakCompareAndSetPlain(index, replacementData.candidate, newValue)) {
             hitCounts[index].set(0);
         }
     }
