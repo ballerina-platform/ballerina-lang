@@ -38,6 +38,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNumericLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangStringTemplateLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangUnaryExpr;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Names;
@@ -172,10 +173,16 @@ public class ConstantAnalyzer extends BLangNodeVisitor {
         analyzeExpr(spreadOpExpr.expr);
     }
 
+    @Override
+    public void visit(BLangStringTemplateLiteral stringTemplateLiteral) {
+        stringTemplateLiteral.exprs.forEach(this::analyzeExpr);
+    }
+
     void analyzeExpr(BLangExpression expr) {
         switch (expr.getKind()) {
             case LITERAL:
             case NUMERIC_LITERAL:
+            case STRING_TEMPLATE_LITERAL:
             case RECORD_LITERAL_EXPR:
             case LIST_CONSTRUCTOR_EXPR:
             case LIST_CONSTRUCTOR_SPREAD_OP:
