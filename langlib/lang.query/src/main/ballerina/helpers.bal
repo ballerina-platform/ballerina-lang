@@ -210,10 +210,17 @@ function consumeStream(handle strm) returns record {|(any|error|())...;|} = @jav
     paramTypes: ["java.lang.Object"]
 } external;
 
-function createNestedFromFunction(function(_Frame _frame) returns _Frame|error? collectionFunc)
+function createNestedFromFunctionOld(function(_Frame _frame) returns _Frame|error? collectionFunc)
         returns _StreamFunction {
     return new _NestedFromFunction(collectionFunc);
 }
+
+function createNestedFromFunction(function(_Frame _frame) returns _Frame|error? collectionFunc)
+        returns handle = @java:Method {
+    'class: "io.ballerina.runtime.internal.query.clauses.NestedFromClause",
+    name: "initNestedFromClause",
+    paramTypes: ["io.ballerina.runtime.api.values.BFunctionPointer"]
+} external;
 
 function createInnerJoinFunctionOld(
         _StreamPipeline joinedPipeline,
