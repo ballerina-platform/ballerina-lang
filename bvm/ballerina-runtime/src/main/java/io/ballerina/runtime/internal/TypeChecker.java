@@ -351,8 +351,7 @@ public final class TypeChecker {
      * @return true if the two types are same; false otherwise
      */
     public static boolean isSameType(Type sourceType, Type targetType) {
-        Context cx = context();
-        return Core.isSameType(cx, SemType.tryInto(cx, sourceType), SemType.tryInto(cx, targetType));
+        return sourceType == targetType || (checkIsType(sourceType, targetType) && checkIsType(targetType, sourceType));
     }
 
     public static Type getType(Object value) {

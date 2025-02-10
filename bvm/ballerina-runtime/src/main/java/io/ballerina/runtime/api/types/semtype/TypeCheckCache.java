@@ -6,8 +6,6 @@ import io.ballerina.runtime.internal.types.TypeIdSupplier;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicIntegerArray;
-import java.util.concurrent.atomic.AtomicReferenceArray;
 
 /**
  * Generalized implementation of type check result cache. It is okay to access
@@ -21,14 +19,12 @@ import java.util.concurrent.atomic.AtomicReferenceArray;
 public class TypeCheckCache {
 
     private static final int SIZE = 10;
-    private final AtomicReferenceArray<CachedResult> cachedResults;
-    private final AtomicIntegerArray hitCounts;
+    private final CachedResult[] cachedResults = new CachedResult[SIZE];
+    private final int[] hitCounts = new int[SIZE];
     private final static AtomicInteger nextId = new AtomicInteger(0);
     private final int id = nextId.getAndIncrement();
 
     private TypeCheckCache() {
-        cachedResults = new AtomicReferenceArray<>(SIZE);
-        hitCounts = new AtomicIntegerArray(SIZE);
     }
 
     public Result cachedTypeCheckResult(CacheableTypeDescriptor other) {
@@ -37,14 +33,14 @@ public class TypeCheckCache {
         int minHitCount = Integer.MAX_VALUE;
         int targetTypeId = other.typeId();
         for (int i = 0; i < SIZE; i++) {
-            var each = cachedResults.get(i);
+            var each = cachedResults[i];
             if (each != null) {
                 if (each.typeId == targetTypeId) {
-                    hitCounts.incrementAndGet(i);
+                    hitCounts[i]++;
                     return new Result(true, each.result, null);
                 }
             }
-            int hitCount = hitCounts.get(i);
+            int hitCount = hitCounts[i];
             if (minHitCount > hitCount) {
                 minHitCount = hitCount;
                 replacementCandidateId = i;
@@ -57,10 +53,8 @@ public class TypeCheckCache {
     public void cacheTypeCheckResult(CacheableTypeDescriptor other, boolean result, ReplacementData replacementData) {
         int index = replacementData.index;
         CachedResult newValue = new CachedResult(other.typeId(), result);
-        // Probably this has an effect only on ARM (and other RISC) not X86
-        if (cachedResults.weakCompareAndSetPlain(index, replacementData.candidate, newValue)) {
-            hitCounts.setPlain(index, 0);
-        }
+        cachedResults[index] = newValue;
+        hitCounts[index] = 0;
     }
 
     public record Result(boolean hit, boolean result, ReplacementData replacementData) {
