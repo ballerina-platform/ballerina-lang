@@ -27,6 +27,7 @@ import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.TypeTags;
 import io.ballerina.runtime.api.types.UnionType;
 import io.ballerina.runtime.api.types.semtype.Builder;
+import io.ballerina.runtime.api.types.semtype.CacheableTypeDescriptor;
 import io.ballerina.runtime.api.types.semtype.Context;
 import io.ballerina.runtime.api.types.semtype.Core;
 import io.ballerina.runtime.api.types.semtype.SemType;
@@ -65,6 +66,7 @@ public class BUnionType extends BType implements UnionType, SelectivelyImmutable
     private String cachedToString;
     private boolean resolving;
     public boolean resolvingReadonly;
+    private Boolean shouldCache = null;
 
     private static final String INT_CLONEABLE = "__Cloneable";
     private static final String CLONEABLE = "Cloneable";
@@ -562,6 +564,16 @@ public class BUnionType extends BType implements UnionType, SelectivelyImmutable
         return memberTypes.stream()
                 .filter(each -> each instanceof MayBeDependentType)
                 .anyMatch(type -> ((MayBeDependentType) type).isDependentlyTyped(visited));
+    }
+
+    @Override
+    public boolean shouldCache() {
+        if (shouldCache == null) {
+            this.shouldCache = memberTypes.stream().allMatch(
+                    each -> each instanceof CacheableTypeDescriptor cacheableTypeDescriptor &&
+                            cacheableTypeDescriptor.shouldCache());
+        }
+        return shouldCache;
     }
 
     @Override

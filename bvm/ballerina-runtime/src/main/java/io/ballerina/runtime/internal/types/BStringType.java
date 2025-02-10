@@ -120,10 +120,7 @@ public final class BStringType extends BSemTypeWrapper<BStringType.BStringTypeIm
         private static final Map<String, BStringType> cache = new ConcurrentHashMap<>();
 
         public static BStringType get(String value) {
-            if (value.length() < 20) {
-                return cache.computeIfAbsent(value, BStringType::createSingletonType);
-            }
-            return BStringType.createSingletonType(value);
+            return cache.computeIfAbsent(value, BStringType::createSingletonType);
         }
     }
 }
