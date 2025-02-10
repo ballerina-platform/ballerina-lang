@@ -41,7 +41,6 @@ public class SelectClause implements PipelineStage {
      *
      * @param inputStream The input stream of frames.
      * @return A transformed stream of frames.
-     * @throws Exception If an error occurs during transformation.
      */
     @Override
     public Stream<Frame> process(Stream<Frame> inputStream) {

@@ -43,7 +43,7 @@ public class Frame {
 
     /**
      * Updates the underlying record with a new record.
-     * @param newRecord
+     * @param newRecord The new record to update.
      */
     public void updateRecord(BMap<BString, Object> newRecord) {
         this.$frame$ = newRecord;

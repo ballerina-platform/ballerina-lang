@@ -51,6 +51,7 @@ public class FromClause implements PipelineStage {
 //                        ((BMap<BString, Object>) record).put(StringUtils.fromString("value"), tuple.getRefValue(1));
 //                    }
 //                }
+
                 Object result = transformer.call(env.getRuntime(), record);
 
                 if (result instanceof BMap) {
