@@ -72,7 +72,7 @@ public final class TypeCreator {
      * @return the new array type
      */
     public static ArrayType createArrayType(Type elementType) {
-        return logAndReturn(new BArrayType(elementType));
+        return logAndReturn(ArrayTypeCache.get(elementType));
     }
 
     /**
@@ -570,6 +570,25 @@ public final class TypeCreator {
 
         void put(TypeIdentifier identifier, BRecordType value) {
             cache.put(identifier, value);
+        }
+    }
+
+    private static final class ArrayTypeCache {
+
+        private static final Map<Type, ArrayType> cache = new ConcurrentHashMap<>();
+
+        static ArrayType get(Type constraint) {
+            if (constraint instanceof BTypeReferenceType referenceType) {
+                assert referenceType.getReferredType() != null;
+                return get(referenceType.getReferredType());
+            }
+            ArrayType cached = cache.get(constraint);
+            if (cached != null) {
+                return cached;
+            }
+            BArrayType type = new BArrayType(constraint);
+            cache.put(constraint, type);
+            return type;
         }
     }
 

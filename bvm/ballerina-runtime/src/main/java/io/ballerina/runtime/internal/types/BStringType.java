@@ -120,6 +120,9 @@ public final class BStringType extends BSemTypeWrapper<BStringType.BStringTypeIm
         private static final Map<String, BStringType> cache = new ConcurrentHashMap<>();
 
         public static BStringType get(String value) {
+            // FIXME: this needs to have an upper bound on the size, otherwise we will have a memory leak in typical
+            //   applications
+            //  - May be we can have a cache that forgets so most common once will get cached.
             return cache.computeIfAbsent(value, BStringType::createSingletonType);
         }
     }

@@ -34,6 +34,9 @@ import io.ballerina.runtime.internal.values.MapValueImpl;
 @SuppressWarnings("unchecked")
 public class BJsonType extends BUnionType implements JsonType {
 
+    private static final int readonlyTypeId = TypeIdSupplier.getAnonId();
+    private static final int mutalbeTypeId = TypeIdSupplier.getAnonId();
+    private final int typeId;
     /**
      * Create a {@code BJSONType} which represents the JSON type.
      *
@@ -50,6 +53,7 @@ public class BJsonType extends BUnionType implements JsonType {
                                                        TypeFlags.asMask(TypeFlags.NILABLE, TypeFlags.ANYDATA,
                                                                         TypeFlags.PURETYPE), true);
         }
+        typeId = readonly ? readonlyTypeId : mutalbeTypeId;
     }
 
     public BJsonType() {
@@ -59,6 +63,7 @@ public class BJsonType extends BUnionType implements JsonType {
                                                    immutableJsonType,
                                                    TypeFlags.asMask(TypeFlags.NILABLE, TypeFlags.ANYDATA,
                                                                     TypeFlags.PURETYPE), true);
+        typeId = mutalbeTypeId;
     }
 
     public BJsonType(BUnionType unionType, String typeName, boolean readonly) {
@@ -71,6 +76,7 @@ public class BJsonType extends BUnionType implements JsonType {
                             TypeFlags.PURETYPE), true);
         }
 
+        typeId = readonly ? readonlyTypeId : mutalbeTypeId;
     }
 
     @Override
@@ -91,6 +97,16 @@ public class BJsonType extends BUnionType implements JsonType {
     @Override
     public boolean isNilable() {
         return true;
+    }
+
+    @Override
+    public boolean shouldCache() {
+        return true;
+    }
+
+    @Override
+    public int typeId() {
+        return typeId;
     }
 
     @Override
