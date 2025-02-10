@@ -318,14 +318,14 @@ public final class TypeChecker {
      */
     public static boolean checkIsLikeType(Object sourceValue, Type targetType, boolean allowNumericConversion) {
         Context cx = context();
-        logger.shapeCheckStarted(cx, sourceValue, targetType);
+        logger.shapeCheckStarted(sourceValue, targetType);
         SemType shape = ShapeAnalyzer.shapeOf(cx, sourceValue).orElseThrow();
         SemType targetSemType = ShapeAnalyzer.acceptedTypeOf(cx, targetType).orElseThrow();
-        if (Core.isSubType(cx, shape, NumericTypeHolder.NUMERIC_TYPE) && allowNumericConversion) {
+        if (Core.isSubtypeSimple(shape, NumericTypeHolder.NUMERIC_TYPE) && allowNumericConversion) {
             targetSemType = appendNumericConversionTypes(targetSemType);
         }
         boolean result = Core.isSubType(cx, shape, targetSemType);
-        logger.shapeCheckDone(cx, sourceValue, targetType, result);
+        logger.shapeCheckDone(sourceValue, targetType, result);
         return result;
     }
 
@@ -437,11 +437,11 @@ public final class TypeChecker {
         Context cx = context();
         SemType lhsType = widenedType(cx, lhsValue);
         SemType rhsType = widenedType(cx, rhsValue);
-        if (isSimpleBasicSemType(cx, lhsType)) {
+        if (isSimpleBasicSemType(lhsType)) {
             return isSimpleBasicValuesEqual(cx, lhsValue, rhsValue);
         }
         Predicate<SemType> basicTypePredicate =
-                (basicType) -> Core.isSubType(cx, lhsType, basicType) && Core.isSubType(cx, rhsType, basicType);
+                (basicType) -> Core.isSubtypeSimple(lhsType, basicType) && Core.isSubtypeSimple(rhsType, basicType);
         if (basicTypePredicate.test(Builder.getStringType())) {
             return isEqual(lhsValue, rhsValue);
         }
@@ -508,12 +508,12 @@ public final class TypeChecker {
 
     private static boolean isSimpleBasicValuesEqual(Context cx, Object v1, Object v2) {
         SemType v1Ty = widenedType(cx, v1);
-        if (!isSimpleBasicSemType(cx, v1Ty)) {
+        if (!isSimpleBasicSemType(v1Ty)) {
             return false;
         }
 
         SemType v2Ty = widenedType(cx, v2);
-        if (!isSimpleBasicSemType(cx, v2Ty)) {
+        if (!isSimpleBasicSemType(v2Ty)) {
             return false;
         }
 
@@ -521,10 +521,10 @@ public final class TypeChecker {
             return false;
         }
 
-        if (Core.isSubType(cx, v1Ty, Builder.getDecimalType())) {
+        if (Core.isSubtypeSimple(v1Ty, Builder.getDecimalType())) {
             return checkDecimalExactEqual((DecimalValue) v1, (DecimalValue) v2);
         }
-        if (Core.isSubType(cx, v1Ty, Builder.getIntType())) {
+        if (Core.isSubtypeSimple(v1Ty, Builder.getIntType())) {
             Number n1 = (Number) v1;
             Number n2 = (Number) v2;
             return n1.longValue() == n2.longValue();
@@ -606,7 +606,7 @@ public final class TypeChecker {
 
     public static boolean isNumericType(Type type) {
         Context cx = context();
-        return Core.isSubType(cx, SemType.tryInto(cx, type), NumericTypeHolder.NUMERIC_TYPE);
+        return Core.isSubtypeSimple(SemType.tryInto(cx, type), NumericTypeHolder.NUMERIC_TYPE);
     }
 
     public static boolean isByteLiteral(long longValue) {
@@ -669,11 +669,12 @@ public final class TypeChecker {
 
     public static boolean isInherentlyImmutableType(Type sourceType) {
         // readonly part is there to match to old API
+        if (sourceType instanceof ReadonlyType) {
+            return true;
+        }
         Context cx = context();
-        return
-                Core.isSubType(cx, SemType.tryInto(cx, sourceType),
-                        InherentlyImmutableTypeHolder.INHERENTLY_IMMUTABLE_TYPE) ||
-                        sourceType instanceof ReadonlyType;
+        return Core.isSubtypeSimple(SemType.tryInto(cx, sourceType),
+                InherentlyImmutableTypeHolder.INHERENTLY_IMMUTABLE_TYPE);
     }
 
     // NOTE: this is not the same as selectively immutable as it stated in the spec
@@ -1267,21 +1268,32 @@ public final class TypeChecker {
         }
     }
 
-    static boolean isSimpleBasicSemType(Context cx, SemType semType) {
-        return Core.isSubType(cx, semType, SimpleBasicTypeHolder.SIMPLE_BASIC_TYPE);
+    static boolean isSimpleBasicSemType(SemType semType) {
+        return Core.isSubtypeSimple(semType, SimpleBasicTypeHolder.SIMPLE_BASIC_TYPE);
     }
 
     static boolean belongToSingleBasicTypeOrString(Context cx, Type type) {
         SemType semType = SemType.tryInto(cx, type);
-        return isSingleBasicType(semType) && Core.isSubType(cx, semType, Builder.getSimpleOrStringType()) &&
-                !Core.isSubType(cx, semType, Builder.getNilType());
+        return isSingleBasicType(semType) &&
+                Core.isSubtypeSimple(semType, SimpleBasicOrStringTypeHolder.SIMPLE_BASIC_TYPE_OR_STRING);
     }
 
     private static boolean isSingleBasicType(SemType semType) {
-        return Integer.bitCount(semType.all()) + Integer.bitCount(semType.some()) == 1;
+        return Integer.bitCount(semType.all() | semType.some()) == 1;
     }
 
     private TypeChecker() {
+    }
+
+    private static final class SimpleBasicOrStringTypeHolder {
+
+        static final SemType SIMPLE_BASIC_TYPE_OR_STRING = createSimpleBasicOrStringType();
+
+        private static SemType createSimpleBasicOrStringType() {
+            return Stream.of(Builder.getBooleanType(), Builder.getIntType(),
+                            Builder.getFloatType(), Builder.getDecimalType(), Builder.getRegexType(), Builder.getStringType())
+                    .reduce(Builder.getNeverType(), Core::union);
+        }
     }
 
     private static final class SimpleBasicTypeHolder {

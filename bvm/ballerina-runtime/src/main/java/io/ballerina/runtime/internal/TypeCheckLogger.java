@@ -52,14 +52,16 @@ public class TypeCheckLogger {
         }
     }
 
-    public void shapeCheckStarted(Context cx, Object value, Type type) {
+    public void shapeCheckStarted(Object value, Type type) {
         if (enabled) {
+            Context cx = TypeChecker.context();
             logger.info("Shape check started: " + cx + ", value: " + value + ", type: " + type);
         }
     }
 
-    public void shapeCheckDone(Context cx, Object value, Type type, boolean result) {
+    public void shapeCheckDone(Object value, Type type, boolean result) {
         if (enabled) {
+            Context cx = TypeChecker.context();
             logger.info("Shape check done: " + cx + ", value: " + value + ", type: " + type + ", result: " + result);
         }
     }
