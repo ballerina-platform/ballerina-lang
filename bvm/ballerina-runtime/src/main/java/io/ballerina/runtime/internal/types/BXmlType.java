@@ -28,6 +28,7 @@ import io.ballerina.runtime.api.types.semtype.Builder;
 import io.ballerina.runtime.api.types.semtype.Context;
 import io.ballerina.runtime.api.types.semtype.Core;
 import io.ballerina.runtime.api.types.semtype.SemType;
+import io.ballerina.runtime.api.types.semtype.TypeCheckCache;
 import io.ballerina.runtime.internal.types.semtype.XmlUtils;
 import io.ballerina.runtime.internal.values.ReadOnlyUtils;
 import io.ballerina.runtime.internal.values.XmlComment;
@@ -37,7 +38,9 @@ import io.ballerina.runtime.internal.values.XmlSequence;
 import io.ballerina.runtime.internal.values.XmlText;
 import io.ballerina.runtime.internal.values.XmlValue;
 
+import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * {@code BXMLType} represents an XML Element.
@@ -64,6 +67,9 @@ public class BXmlType extends BType implements XmlType, TypeWithShape {
         this.constraint = constraint;
         this.tag = TypeTags.XML_TAG;
         this.readonly = false;
+        var init = initCachedValues(this);
+        typeCheckCache = init.typeCheckCache;
+        typeId = init.typeId;
     }
 
     public BXmlType(String typeName, Module pkg, int tag, boolean readonly) {
@@ -71,6 +77,9 @@ public class BXmlType extends BType implements XmlType, TypeWithShape {
         this.tag = tag;
         this.readonly = readonly;
         this.constraint = null;
+        var init = initCachedValues(this);
+        typeCheckCache = init.typeCheckCache;
+        typeId = init.typeId;
     }
 
     public BXmlType(String typeName, Type constraint, Module pkg, int tag, boolean readonly) {
@@ -78,6 +87,9 @@ public class BXmlType extends BType implements XmlType, TypeWithShape {
         this.tag = tag;
         this.readonly = readonly;
         this.constraint = constraint;
+        var init = initCachedValues(this);
+        typeCheckCache = init.typeCheckCache;
+        typeId = init.typeId;
     }
 
     public BXmlType(String typeName, Type constraint, Module pkg, boolean readonly) {
@@ -85,6 +97,9 @@ public class BXmlType extends BType implements XmlType, TypeWithShape {
         this.tag = TypeTags.XML_TAG;
         this.readonly = readonly;
         this.constraint = constraint;
+        var init = initCachedValues(this);
+        typeCheckCache = init.typeCheckCache;
+        typeId = init.typeId;
     }
 
     public BXmlType(Type constraint, boolean readonly) {
@@ -92,6 +107,30 @@ public class BXmlType extends BType implements XmlType, TypeWithShape {
         this.tag = TypeTags.XML_TAG;
         this.constraint = readonly ? ReadOnlyUtils.getReadOnlyType(constraint) : constraint;
         this.readonly = readonly;
+        var init = initCachedValues(this);
+        typeCheckCache = init.typeCheckCache;
+        typeId = init.typeId;
+    }
+
+    private static TypeCheckCacheData.TypeCheckCacheRecord initCachedValues(BXmlType xmlType) {
+        if (xmlType.constraint != null) {
+            if (xmlType.readonly) {
+                return TypeCheckCacheData.constraintTypeCacheRO.computeIfAbsent(xmlType.constraint,
+                        ignored -> TypeCheckCacheData.init());
+            } else {
+                return TypeCheckCacheData.constraintTypeCacheRW.computeIfAbsent(xmlType.constraint,
+                        ignored -> TypeCheckCacheData.init());
+            }
+        } else {
+            return switch (xmlType.tag) {
+                case TypeTags.XML_TAG -> TypeCheckCacheData.XML;
+                case TypeTags.XML_ELEMENT_TAG -> TypeCheckCacheData.XML_ELEMENT;
+                case TypeTags.XML_COMMENT_TAG -> TypeCheckCacheData.XML_COMMENT;
+                case TypeTags.XML_PI_TAG -> TypeCheckCacheData.XML_PI;
+                case TypeTags.XML_TEXT_TAG -> TypeCheckCacheData.XML_TEXT;
+                default -> throw new IllegalStateException("Unexpected value: " + xmlType.tag);
+            };
+        }
     }
 
     @Override
@@ -253,5 +292,25 @@ public class BXmlType extends BType implements XmlType, TypeWithShape {
             return true;
         }
         return xmlValue.getType().isReadOnly();
+    }
+
+    private static class TypeCheckCacheData {
+
+        private static final Map<Type, TypeCheckCacheRecord> constraintTypeCacheRO = new ConcurrentHashMap<>();
+        private static final Map<Type, TypeCheckCacheRecord> constraintTypeCacheRW = new ConcurrentHashMap<>();
+        private static final TypeCheckCacheRecord XML = init();
+
+        private static final TypeCheckCacheRecord XML_ELEMENT = init();
+        private static final TypeCheckCacheRecord XML_COMMENT = init();
+        private static final TypeCheckCacheRecord XML_PI = init();
+        private static final TypeCheckCacheRecord XML_TEXT = init();
+
+        private static TypeCheckCacheRecord init() {
+            return new TypeCheckCacheRecord(TypeIdSupplier.getAnonId(), TypeCheckCache.TypeCheckCacheFactory.create());
+        }
+
+        private record TypeCheckCacheRecord(int typeId, TypeCheckCache typeCheckCache) {
+
+        }
     }
 }
