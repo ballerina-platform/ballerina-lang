@@ -159,14 +159,11 @@ function toArray(handle strm, Type[] arr, boolean isReadOnly) returns Type[]|err
     return createArray(strm, arr);
 }
 
-function createArrayOld(handle strm, Type[] arr) returns Type[]|error {
-    record {|(any|error|())...;|}|error? v = consumeStream(strm);
-    // record {| Type value; |}|error? v = < record {| Type value; |}>consumeStream(strm);
+function createArrayOld(stream<Type, CompletionType> strm, Type[] arr) returns Type[]|error {
+    record {| Type value; |}|error? v = strm.next();
     while (v is record {| Type value; |}) {
-        int[] arr1 = [1,2,3,4];
-        arr1 = arr1.reverse();
-        arr.push(v.value); 
-        v = consumeStream(strm);
+        arr.push(v.value);
+        v = strm.next();
     }
     if (v is error) {
         return v;
@@ -204,7 +201,20 @@ function consumeStreamOld(stream<Type, CompletionType> strm) returns any|error {
     }
 }
 
-function consumeStream(handle strm) returns record {|(any|error|())...;|} = @java:Method {
+function consumeStream(handle strm) returns any|error {
+    any|error? v = consumeStreamJava(strm);
+    while (!(v is () || v is error)) {
+        if (v is _Frame && v.hasKey("value") && v.get("value") != ()) {
+            return v.get("value");
+        }
+        v = consumeStreamJava(strm);
+    }
+    if (v is error) {
+        return v;
+    }
+}
+
+function consumeStreamJava(handle strm) returns record {|(any|error|())...;|} = @java:Method {
     'class: "io.ballerina.runtime.internal.query.pipeline.StreamConsumer",
     name: "consumeStream",
     paramTypes: ["java.lang.Object"]
@@ -258,9 +268,15 @@ function createOnConflictFunction(function(_Frame _frame) returns _Frame|error? 
         returns _StreamFunction => new _OnConflictFunction(onConflictFunc);
 
 
-function createDoFunction(function(_Frame _frame) returns any|error doFunc) returns _StreamFunction {
+function createDoFunctionOld(function(_Frame _frame) returns any|error doFunc) returns _StreamFunction {
     return new _DoFunction(doFunc);
 }
+
+function createDoFunction(function(_Frame _frame) returns any|error doFunc) returns handle = @java:Method {
+    'class: "io.ballerina.runtime.internal.query.clauses.DoClause",
+    name: "initDoClause",
+    paramTypes: ["io.ballerina.runtime.api.values.BFunctionPointer"]
+} external;
 
 
 function getStreamForOnConflictFromPipeline(_StreamPipeline pipeline) returns stream<Type, CompletionType>
