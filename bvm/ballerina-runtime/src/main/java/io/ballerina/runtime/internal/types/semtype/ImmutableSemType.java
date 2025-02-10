@@ -107,10 +107,9 @@ public abstract sealed class ImmutableSemType extends SemType implements Cacheab
         return typeCheckCache.cachedTypeCheckResult(other);
     }
 
-    public void cacheTypeCheckResult(CacheableTypeDescriptor other, boolean result,
-                                     TypeCheckCache.ReplacementData replacementData) {
+    public void cacheTypeCheckResult(CacheableTypeDescriptor other, boolean result) {
 
-        typeCheckCache.cacheTypeCheckResult(other, result, replacementData);
+        typeCheckCache.cacheTypeCheckResult(other, result);
     }
 
     public int typeId() {

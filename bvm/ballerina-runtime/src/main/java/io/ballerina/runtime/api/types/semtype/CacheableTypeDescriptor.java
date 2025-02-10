@@ -37,8 +37,7 @@ public interface CacheableTypeDescriptor extends Type {
      * @param other  Type descriptor to cache the result for
      * @param result Result of the type check
      */
-    void cacheTypeCheckResult(CacheableTypeDescriptor other, boolean result,
-                              TypeCheckCache.ReplacementData replacementData);
+    void cacheTypeCheckResult(CacheableTypeDescriptor other, boolean result);
 
     int typeId();
 }

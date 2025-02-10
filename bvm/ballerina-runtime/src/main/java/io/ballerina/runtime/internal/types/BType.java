@@ -310,9 +310,8 @@ public abstract non-sealed class BType extends SemType
     }
 
     @Override
-    public final void cacheTypeCheckResult(CacheableTypeDescriptor other, boolean result,
-                                           TypeCheckCache.ReplacementData replacementData) {
-        typeCheckCache.cacheTypeCheckResult(other, result, replacementData);
+    public final void cacheTypeCheckResult(CacheableTypeDescriptor other, boolean result) {
+        typeCheckCache.cacheTypeCheckResult(other, result);
     }
 
     @Override
