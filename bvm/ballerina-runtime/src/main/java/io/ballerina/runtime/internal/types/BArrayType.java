@@ -27,6 +27,7 @@ import io.ballerina.runtime.api.types.semtype.Context;
 import io.ballerina.runtime.api.types.semtype.Env;
 import io.ballerina.runtime.api.types.semtype.SemType;
 import io.ballerina.runtime.api.types.semtype.ShapeAnalyzer;
+import io.ballerina.runtime.api.types.semtype.TypeCheckCache;
 import io.ballerina.runtime.internal.TypeChecker;
 import io.ballerina.runtime.internal.types.semtype.CellAtomicType;
 import io.ballerina.runtime.internal.types.semtype.DefinitionContainer;
@@ -36,6 +37,8 @@ import io.ballerina.runtime.internal.values.ArrayValue;
 import io.ballerina.runtime.internal.values.ArrayValueImpl;
 import io.ballerina.runtime.internal.values.ReadOnlyUtils;
 
+import java.util.IdentityHashMap;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
@@ -70,6 +73,7 @@ public class BArrayType extends BType implements ArrayType, TypeWithShape {
     private int typeFlags;
     private final DefinitionContainer<ListDefinition> defn = new DefinitionContainer<>();
     private final DefinitionContainer<ListDefinition> acceptedTypeDefn = new DefinitionContainer<>();
+    private boolean shouldCache;
     public BArrayType(Type elementType) {
         this(elementType, false);
     }
@@ -109,6 +113,12 @@ public class BArrayType extends BType implements ArrayType, TypeWithShape {
         }
         this.elementType = readonly && !elementRO ? ReadOnlyUtils.getReadOnlyType(elementType) : elementType;
         this.dimensions = dimensions;
+
+        var data = TypeCheckCacheData.get(elementType);
+        this.typeId = data.typeId;
+        this.typeCheckCache = data.typeCheckCache;
+        this.shouldCache = elementType instanceof CacheableTypeDescriptor cacheableTypeDescriptor &&
+                cacheableTypeDescriptor.shouldCache();
     }
 
     private void setFlagsBasedOnElementType() {
@@ -326,7 +336,24 @@ public class BArrayType extends BType implements ArrayType, TypeWithShape {
 
     @Override
     public boolean shouldCache() {
-        return elementType instanceof CacheableTypeDescriptor cacheableTypeDescriptor &&
-                cacheableTypeDescriptor.shouldCache();
+        return this.shouldCache;
+    }
+
+    private static class TypeCheckCacheData {
+
+        private static final Map<Type, TypeCheckCacheRecord> cache = new IdentityHashMap<>();
+
+        private record TypeCheckCacheRecord(int typeId, TypeCheckCache typeCheckCache) {
+
+        }
+
+        public static TypeCheckCacheData.TypeCheckCacheRecord get(Type constraint) {
+            if (constraint instanceof BTypeReferenceType referenceType) {
+                assert referenceType.getReferredType() != null;
+                return get(referenceType.getReferredType());
+            }
+            return cache.computeIfAbsent(constraint, ignored -> new TypeCheckCacheRecord(TypeIdSupplier.getAnonId(),
+                    TypeCheckCache.TypeCheckCacheFactory.create()));
+        }
     }
 }

@@ -45,7 +45,6 @@ import io.ballerina.runtime.internal.types.BRecordType;
 import io.ballerina.runtime.internal.types.BStreamType;
 import io.ballerina.runtime.internal.types.BTableType;
 import io.ballerina.runtime.internal.types.BTupleType;
-import io.ballerina.runtime.internal.types.BTypeReferenceType;
 import io.ballerina.runtime.internal.types.BUnionType;
 import io.ballerina.runtime.internal.types.BXmlType;
 
@@ -72,7 +71,7 @@ public final class TypeCreator {
      * @return the new array type
      */
     public static ArrayType createArrayType(Type elementType) {
-        return logAndReturn(ArrayTypeCache.get(elementType));
+        return logAndReturn(new BArrayType(elementType));
     }
 
     /**
@@ -180,7 +179,7 @@ public final class TypeCreator {
     * @return the new map type
     */
     public static MapType createMapType(Type constraint) {
-        return logAndReturn(MapTypeCache.get(constraint));
+        return logAndReturn(new BMapType(constraint));
     }
 
     /**
@@ -570,44 +569,6 @@ public final class TypeCreator {
 
         void put(TypeIdentifier identifier, BRecordType value) {
             cache.put(identifier, value);
-        }
-    }
-
-    private static final class ArrayTypeCache {
-
-        private static final Map<Type, ArrayType> cache = new ConcurrentHashMap<>();
-
-        static ArrayType get(Type constraint) {
-            if (constraint instanceof BTypeReferenceType referenceType) {
-                assert referenceType.getReferredType() != null;
-                return get(referenceType.getReferredType());
-            }
-            ArrayType cached = cache.get(constraint);
-            if (cached != null) {
-                return cached;
-            }
-            BArrayType type = new BArrayType(constraint);
-            cache.put(constraint, type);
-            return type;
-        }
-    }
-
-    private static final class MapTypeCache {
-
-        private static final Map<Type, MapType> cache = new ConcurrentHashMap<>();
-
-        static MapType get(Type constraint) {
-            if (constraint instanceof BTypeReferenceType referenceType) {
-                assert referenceType.getReferredType() != null;
-                return get(referenceType.getReferredType());
-            }
-            MapType cached = cache.get(constraint);
-            if (cached != null) {
-                return cached;
-            }
-            MapType type = new BMapType(constraint);
-            cache.put(constraint, type);
-            return type;
         }
     }
 }

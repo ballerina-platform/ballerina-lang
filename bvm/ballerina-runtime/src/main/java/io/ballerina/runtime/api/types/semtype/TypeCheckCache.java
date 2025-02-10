@@ -3,10 +3,10 @@ package io.ballerina.runtime.api.types.semtype;
 import io.ballerina.runtime.api.types.TypeIdentifier;
 import io.ballerina.runtime.internal.types.TypeIdSupplier;
 
-import java.util.Arrays;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicIntegerArray;
 import java.util.concurrent.atomic.AtomicReferenceArray;
 
 /**
@@ -22,14 +22,13 @@ public class TypeCheckCache {
 
     private static final int SIZE = 10;
     private final AtomicReferenceArray<CachedResult> cachedResults;
-    private final AtomicInteger[] hitCounts;
+    private final AtomicIntegerArray hitCounts;
     private final static AtomicInteger nextId = new AtomicInteger(0);
     private final int id = nextId.getAndIncrement();
 
     private TypeCheckCache() {
         cachedResults = new AtomicReferenceArray<>(SIZE);
-        hitCounts = new AtomicInteger[SIZE];
-        Arrays.setAll(hitCounts, i -> new AtomicInteger(-1));
+        hitCounts = new AtomicIntegerArray(SIZE);
     }
 
     public Result cachedTypeCheckResult(CacheableTypeDescriptor other) {
@@ -38,20 +37,18 @@ public class TypeCheckCache {
         int minHitCount = Integer.MAX_VALUE;
         int targetTypeId = other.typeId();
         for (int i = 0; i < SIZE; i++) {
-            int hitCount = hitCounts[i].get();
-            if (hitCount != -1) {
-                var each = cachedResults.get(i);
+            var each = cachedResults.get(i);
+            if (each != null) {
                 if (each.typeId == targetTypeId) {
-                    hitCounts[i].incrementAndGet();
+                    hitCounts.incrementAndGet(i);
                     return new Result(true, each.result, null);
-                } else if (minHitCount > hitCount) {
-                    minHitCount = hitCount;
-                    replacementCandidateId = i;
-                    replacement = each;
                 }
-            } else {
+            }
+            int hitCount = hitCounts.get(i);
+            if (minHitCount > hitCount) {
+                minHitCount = hitCount;
                 replacementCandidateId = i;
-                replacement = null;
+                replacement = each;
             }
         }
         return new Result(false, false, new ReplacementData(replacementCandidateId, replacement));
@@ -60,9 +57,9 @@ public class TypeCheckCache {
     public void cacheTypeCheckResult(CacheableTypeDescriptor other, boolean result, ReplacementData replacementData) {
         int index = replacementData.index;
         CachedResult newValue = new CachedResult(other.typeId(), result);
-        // Probably this has an effect only on ARM not X86
+        // Probably this has an effect only on ARM (and other RISC) not X86
         if (cachedResults.weakCompareAndSetPlain(index, replacementData.candidate, newValue)) {
-            hitCounts[index].set(0);
+            hitCounts.setPlain(index, 0);
         }
     }
 

@@ -30,6 +30,7 @@ import io.ballerina.runtime.api.types.semtype.Context;
 import io.ballerina.runtime.api.types.semtype.Env;
 import io.ballerina.runtime.api.types.semtype.SemType;
 import io.ballerina.runtime.api.types.semtype.ShapeAnalyzer;
+import io.ballerina.runtime.api.types.semtype.TypeCheckCache;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.internal.types.semtype.CellAtomicType;
 import io.ballerina.runtime.internal.types.semtype.DefinitionContainer;
@@ -37,6 +38,7 @@ import io.ballerina.runtime.internal.types.semtype.MappingDefinition;
 import io.ballerina.runtime.internal.values.MapValueImpl;
 import io.ballerina.runtime.internal.values.ReadOnlyUtils;
 
+import java.util.IdentityHashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -91,6 +93,9 @@ public class BMapType extends BType implements MapType, TypeWithShape, Cloneable
         this.readonly = readonly;
         this.shouldCache = constraint instanceof CacheableTypeDescriptor cacheableTypeDescriptor &&
                 cacheableTypeDescriptor.shouldCache();
+        var data = TypeCheckCacheData.get(constraint);
+        this.typeId = data.typeId;
+        this.typeCheckCache = data.typeCheckCache;
     }
 
     /**
@@ -287,11 +292,30 @@ public class BMapType extends BType implements MapType, TypeWithShape, Cloneable
 
     @Override
     public boolean shouldCache() {
-        return constraint instanceof CacheableTypeDescriptor && ((CacheableTypeDescriptor) constraint).shouldCache();
+        return shouldCache;
     }
 
     @Override
     protected boolean isDependentlyTypedInner(Set<MayBeDependentType> visited) {
         return constraint instanceof MayBeDependentType constraintType && constraintType.isDependentlyTyped(visited);
+    }
+
+    private static class TypeCheckCacheData {
+
+        private static final Map<Type, TypeCheckCacheRecord> cache = new IdentityHashMap<>();
+
+        private record TypeCheckCacheRecord(int typeId, TypeCheckCache typeCheckCache) {
+
+        }
+
+        public static TypeCheckCacheRecord get(Type constraint) {
+            if (constraint instanceof BTypeReferenceType referenceType) {
+                assert referenceType.getReferredType() != null;
+                return get(referenceType.getReferredType());
+            }
+            return cache.computeIfAbsent(constraint, ignored -> new TypeCheckCacheRecord(TypeIdSupplier.getAnonId(),
+                    TypeCheckCache.TypeCheckCacheFactory.create()));
+
+        }
     }
 }
