@@ -201,21 +201,21 @@ function consumeStreamOld(stream<Type, CompletionType> strm) returns any|error {
     }
 }
 
-function consumeStream(handle strm) returns any|error {
-    any|error? v = consumeStreamJava(strm);
-    while (!(v is () || v is error)) {
-        if (v is _Frame && v.hasKey("value") && v.get("value") != ()) {
-            return v.get("value");
-        }
-        v = consumeStreamJava(strm);
-    }
-    if (v is error) {
-        return v;
-    }
-}
+// function consumeStreamV1(handle strm) returns any|error {
+//     any|error? v = consumeStreamJava(strm);
+//     while (!(v is () || v is error)) {
+//         if (v is _Frame && v.hasKey("value") && v.get("value") != ()) {
+//             return v.get("value");
+//         }
+//         v = consumeStreamJava(strm);
+//     }
+//     if (v is error) {
+//         return v;
+//     }
+// }
 
-function consumeStreamJava(handle strm) returns record {|(any|error|())...;|} = @java:Method {
-    'class: "io.ballerina.runtime.internal.query.pipeline.StreamConsumer",
+function consumeStream(handle strm) = @java:Method {
+    'class: "io.ballerina.runtime.internal.query.utils.CollectionUtil",
     name: "consumeStream",
     paramTypes: ["java.lang.Object"]
 } external;
