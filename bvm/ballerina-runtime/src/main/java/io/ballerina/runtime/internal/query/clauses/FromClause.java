@@ -43,14 +43,16 @@ public class FromClause implements PipelineStage {
         return inputStream.map(frame -> {
             try {
                 Object record = frame.getRecord();
-//                Object value = ((BMap<BString, Object>) record).get(StringUtils.fromString("value"));
-//
-//                if (value instanceof BArray) {
-//                    BArray tuple = (BArray) value;
-//                    if (tuple.size() > 1) {
-//                        ((BMap<BString, Object>) record).put(StringUtils.fromString("value"), tuple.getRefValue(1));
-//                    }
-//                }
+                Object value = ((BMap<BString, Object>) record).get(StringUtils.fromString("value"));
+
+                if (value instanceof BArray) {
+                    BArray tuple = (BArray) value;
+                    if (tuple.size() > 1) {
+                        ((BMap<BString, Object>) record).put(StringUtils.fromString("value"), tuple.getRefValue(1));
+                    }
+                } else if (value instanceof String) {
+                    ((BMap<BString, Object>) record).put(StringUtils.fromString("value"), StringUtils.fromString(value.toString()));
+                }
 
                 Object result = transformer.call(env.getRuntime(), record);
 
