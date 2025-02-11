@@ -42,6 +42,7 @@ import java.util.IdentityHashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 import static io.ballerina.runtime.internal.types.semtype.CellAtomicType.CellMutability.CELL_MUT_NONE;
 import static io.ballerina.runtime.internal.types.semtype.CellAtomicType.CellMutability.CELL_MUT_UNLIMITED;
@@ -93,7 +94,7 @@ public class BMapType extends BType implements MapType, TypeWithShape, Cloneable
         this.readonly = readonly;
         this.shouldCache = constraint instanceof CacheableTypeDescriptor cacheableTypeDescriptor &&
                 cacheableTypeDescriptor.shouldCache();
-        var data = TypeCheckCacheData.get(constraint);
+        var data = readonly ? TypeCheckCacheData.getRO(constraint) : TypeCheckCacheData.getRW(constraint);
         this.typeId = data.typeId;
         this.typeCheckCache = data.typeCheckCache;
     }
@@ -200,6 +201,10 @@ public class BMapType extends BType implements MapType, TypeWithShape, Cloneable
         if (defn.isDefinitionReady()) {
             return defn.getSemType(env);
         }
+        SemType cachedSemtype = TypeCheckCacheData.cachedSemTypes.get(typeId);
+        if (cachedSemtype != null) {
+            return cachedSemtype;
+        }
         var result = defn.trySetDefinition(MappingDefinition::new);
         if (!result.updated()) {
             return defn.getSemType(env);
@@ -207,7 +212,9 @@ public class BMapType extends BType implements MapType, TypeWithShape, Cloneable
         MappingDefinition md = result.definition();
         CellAtomicType.CellMutability mut = isReadOnly() ? CELL_MUT_NONE :
                 CellAtomicType.CellMutability.CELL_MUT_LIMITED;
-        return createSemTypeInner(env, md, tryInto(cx, getConstrainedType()), mut);
+        SemType semType = createSemTypeInner(env, md, tryInto(cx, getConstrainedType()), mut);
+        TypeCheckCacheData.cachedSemTypes.put(typeId, semType);
+        return semType;
     }
 
     @Override
@@ -302,18 +309,31 @@ public class BMapType extends BType implements MapType, TypeWithShape, Cloneable
 
     private static class TypeCheckCacheData {
 
-        private static final Map<Type, TypeCheckCacheRecord> cache = new IdentityHashMap<>();
+        private static final Map<Integer, SemType> cachedSemTypes = new ConcurrentHashMap<>();
+
+        private static final Map<Type, TypeCheckCacheRecord> cacheRO = new IdentityHashMap<>();
+        private static final Map<Type, TypeCheckCacheRecord> cacheRW = new IdentityHashMap<>();
+
+        public static TypeCheckCacheRecord getRO(Type constraint) {
+            if (constraint instanceof BTypeReferenceType referenceType) {
+                assert referenceType.getReferredType() != null;
+                return getRO(referenceType.getReferredType());
+            }
+            return cacheRO.computeIfAbsent(constraint, ignored -> new TypeCheckCacheRecord(TypeIdSupplier.getAnonId(),
+                    TypeCheckCache.TypeCheckCacheFactory.create()));
+
+        }
 
         private record TypeCheckCacheRecord(int typeId, TypeCheckCache typeCheckCache) {
 
         }
 
-        public static TypeCheckCacheRecord get(Type constraint) {
+        public static TypeCheckCacheRecord getRW(Type constraint) {
             if (constraint instanceof BTypeReferenceType referenceType) {
                 assert referenceType.getReferredType() != null;
-                return get(referenceType.getReferredType());
+                return getRW(referenceType.getReferredType());
             }
-            return cache.computeIfAbsent(constraint, ignored -> new TypeCheckCacheRecord(TypeIdSupplier.getAnonId(),
+            return cacheRW.computeIfAbsent(constraint, ignored -> new TypeCheckCacheRecord(TypeIdSupplier.getAnonId(),
                     TypeCheckCache.TypeCheckCacheFactory.create()));
 
         }

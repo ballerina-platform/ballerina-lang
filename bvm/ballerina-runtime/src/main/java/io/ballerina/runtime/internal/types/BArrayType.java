@@ -41,6 +41,7 @@ import java.util.IdentityHashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 import static io.ballerina.runtime.api.types.semtype.Builder.getNeverType;
 import static io.ballerina.runtime.internal.types.semtype.CellAtomicType.CellMutability.CELL_MUT_LIMITED;
@@ -249,6 +250,10 @@ public class BArrayType extends BType implements ArrayType, TypeWithShape {
         if (defn.isDefinitionReady()) {
             return defn.getSemType(env);
         }
+        SemType cachedSemtype = TypeCheckCacheData.cachedSemTypes.get(typeId);
+        if (cachedSemtype != null) {
+            return cachedSemtype;
+        }
         var result = defn.trySetDefinition(ListDefinition::new);
         if (!result.updated()) {
             return defn.getSemType(env);
@@ -256,7 +261,9 @@ public class BArrayType extends BType implements ArrayType, TypeWithShape {
         ListDefinition ld = result.definition();
         CellAtomicType.CellMutability mut = isReadOnly() ? CellAtomicType.CellMutability.CELL_MUT_NONE :
                 CellAtomicType.CellMutability.CELL_MUT_LIMITED;
-        return getSemTypePart(env, ld, size, tryInto(cx, getElementType()), mut);
+        SemType semType = getSemTypePart(env, ld, size, tryInto(cx, getElementType()), mut);
+        TypeCheckCacheData.cachedSemTypes.put(typeId, semType);
+        return semType;
     }
 
     private SemType getSemTypePart(Env env, ListDefinition defn, int size, SemType elementType,
@@ -346,6 +353,7 @@ public class BArrayType extends BType implements ArrayType, TypeWithShape {
 
     private static class TypeCheckCacheData {
 
+        private static final Map<Integer, SemType> cachedSemTypes = new ConcurrentHashMap<>();
         private static final Map<Type, TypeCheckCacheRecord> cacheRW = new IdentityHashMap<>();
         private static final Map<Type, TypeCheckCacheRecord> cacheRO = new IdentityHashMap<>();
 
