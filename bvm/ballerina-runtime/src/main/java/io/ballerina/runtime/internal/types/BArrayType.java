@@ -113,10 +113,16 @@ public class BArrayType extends BType implements ArrayType, TypeWithShape {
         }
         this.elementType = readonly && !elementRO ? ReadOnlyUtils.getReadOnlyType(elementType) : elementType;
         this.dimensions = dimensions;
-
-        var data = TypeCheckCacheData.get(elementType);
-        this.typeId = data.typeId;
-        this.typeCheckCache = data.typeCheckCache;
+        if (size == -1) {
+            TypeCheckCacheData.TypeCheckCacheRecord data;
+            if (isReadOnly()) {
+                data = TypeCheckCacheData.getRO(elementType);
+            } else {
+                data = TypeCheckCacheData.getRW(elementType);
+            }
+            this.typeId = data.typeId;
+            this.typeCheckCache = data.typeCheckCache;
+        }
         this.shouldCache = elementType instanceof CacheableTypeDescriptor cacheableTypeDescriptor &&
                 cacheableTypeDescriptor.shouldCache();
     }
@@ -341,18 +347,28 @@ public class BArrayType extends BType implements ArrayType, TypeWithShape {
 
     private static class TypeCheckCacheData {
 
-        private static final Map<Type, TypeCheckCacheRecord> cache = new IdentityHashMap<>();
+        private static final Map<Type, TypeCheckCacheRecord> cacheRW = new IdentityHashMap<>();
+        private static final Map<Type, TypeCheckCacheRecord> cacheRO = new IdentityHashMap<>();
 
         private record TypeCheckCacheRecord(int typeId, TypeCheckCache typeCheckCache) {
 
         }
 
-        public static TypeCheckCacheData.TypeCheckCacheRecord get(Type constraint) {
+        public static TypeCheckCacheData.TypeCheckCacheRecord getRW(Type constraint) {
             if (constraint instanceof BTypeReferenceType referenceType) {
                 assert referenceType.getReferredType() != null;
-                return get(referenceType.getReferredType());
+                return getRW(referenceType.getReferredType());
             }
-            return cache.computeIfAbsent(constraint, ignored -> new TypeCheckCacheRecord(TypeIdSupplier.getAnonId(),
+            return cacheRW.computeIfAbsent(constraint, ignored -> new TypeCheckCacheRecord(TypeIdSupplier.getAnonId(),
+                    TypeCheckCache.TypeCheckCacheFactory.create()));
+        }
+
+        public static TypeCheckCacheData.TypeCheckCacheRecord getRO(Type constraint) {
+            if (constraint instanceof BTypeReferenceType referenceType) {
+                assert referenceType.getReferredType() != null;
+                return getRO(referenceType.getReferredType());
+            }
+            return cacheRO.computeIfAbsent(constraint, ignored -> new TypeCheckCacheRecord(TypeIdSupplier.getAnonId(),
                     TypeCheckCache.TypeCheckCacheFactory.create()));
         }
     }
