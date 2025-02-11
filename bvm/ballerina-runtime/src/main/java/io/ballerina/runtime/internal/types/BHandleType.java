@@ -22,6 +22,7 @@ import io.ballerina.runtime.api.constants.TypeConstants;
 import io.ballerina.runtime.api.types.HandleType;
 import io.ballerina.runtime.api.types.PredefinedTypes;
 import io.ballerina.runtime.api.types.TypeTags;
+import io.ballerina.runtime.api.types.semtype.BasicTypeBitSet;
 import io.ballerina.runtime.api.types.semtype.Builder;
 import io.ballerina.runtime.api.types.semtype.ConcurrentLazySupplier;
 import io.ballerina.runtime.internal.values.RefValue;
@@ -34,6 +35,8 @@ import io.ballerina.runtime.internal.values.RefValue;
  */
 public final class BHandleType extends BSemTypeWrapper<BHandleType.BHandleTypeImpl> implements HandleType {
 
+    private static final BasicTypeBitSet BASIC_TYPE = Builder.getHandleType();
+
     /**
      * Create a {@code BHandleType} which represents the handle type.
      *
@@ -43,6 +46,11 @@ public final class BHandleType extends BSemTypeWrapper<BHandleType.BHandleTypeIm
         super(new ConcurrentLazySupplier<>
                         (() -> BHandleTypeImpl.create(typeName, pkg)), typeName, pkg, TypeTags.HANDLE_TAG,
                 Builder.getHandleType());
+    }
+
+    @Override
+    public BasicTypeBitSet getBasicType() {
+        return BASIC_TYPE;
     }
 
     protected static final class BHandleTypeImpl extends BType implements HandleType {
@@ -79,6 +87,11 @@ public final class BHandleType extends BSemTypeWrapper<BHandleType.BHandleTypeIm
         @Override
         public boolean isReadOnly() {
             return true;
+        }
+
+        @Override
+        public BasicTypeBitSet getBasicType() {
+            return BASIC_TYPE;
         }
 
     }

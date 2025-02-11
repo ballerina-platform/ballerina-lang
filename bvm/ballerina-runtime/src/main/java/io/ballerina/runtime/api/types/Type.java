@@ -18,6 +18,7 @@
 package io.ballerina.runtime.api.types;
 
 import io.ballerina.runtime.api.Module;
+import io.ballerina.runtime.api.types.semtype.BasicTypeBitSet;
 
 /**
  * {@code Type} represents a type in Ballerina.
@@ -139,4 +140,6 @@ public interface Type {
     // TODO: https://github.com/ballerina-platform/ballerina-lang/issues/42113
     @Deprecated
     Module getPkg();
+
+    BasicTypeBitSet getBasicType();
 }

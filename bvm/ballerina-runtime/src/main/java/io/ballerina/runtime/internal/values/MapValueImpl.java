@@ -22,6 +22,8 @@ import io.ballerina.runtime.api.types.Field;
 import io.ballerina.runtime.api.types.PredefinedTypes;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.TypeTags;
+import io.ballerina.runtime.api.types.semtype.BasicTypeBitSet;
+import io.ballerina.runtime.api.types.semtype.Builder;
 import io.ballerina.runtime.api.types.semtype.Context;
 import io.ballerina.runtime.api.types.semtype.SemType;
 import io.ballerina.runtime.api.types.semtype.ShapeAnalyzer;
@@ -101,6 +103,7 @@ import static io.ballerina.runtime.internal.values.ReadOnlyUtils.handleInvalidUp
 public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue, CollectionValue, MapValue<K, V>,
         BMap<K, V>, RecursiveValue<MappingDefinition> {
 
+    private static final BasicTypeBitSet BASIC_TYPE = Builder.getMappingType();
     private BTypedesc typedesc;
     private Type type;
     private Type referredType;
@@ -745,6 +748,11 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
     public Optional<SemType> inherentTypeOf(Context cx) {
         TypeWithShape typeWithShape = (TypeWithShape) type;
         return typeWithShape.inherentTypeOf(cx, ShapeAnalyzer::inherentTypeOf, this);
+    }
+
+    @Override
+    public BasicTypeBitSet getBasicType() {
+        return BASIC_TYPE;
     }
 
     @Override

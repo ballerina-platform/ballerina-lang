@@ -25,6 +25,7 @@ import io.ballerina.runtime.api.types.IntersectableReferenceType;
 import io.ballerina.runtime.api.types.IntersectionType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.TypeTags;
+import io.ballerina.runtime.api.types.semtype.BasicTypeBitSet;
 import io.ballerina.runtime.api.types.semtype.Context;
 import io.ballerina.runtime.api.types.semtype.SemType;
 import io.ballerina.runtime.api.types.semtype.ShapeAnalyzer;
@@ -119,6 +120,11 @@ public class BTypeReferenceType extends BAnnotatableType implements Intersectabl
     @Override
     public boolean isReadOnly() {
         return this.readOnly;
+    }
+
+    @Override
+    public BasicTypeBitSet getBasicType() {
+        return this.referredType.getBasicType();
     }
 
     @Override

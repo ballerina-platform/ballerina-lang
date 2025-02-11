@@ -24,6 +24,7 @@ import io.ballerina.runtime.api.types.PredefinedTypes;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.TypeTags;
 import io.ballerina.runtime.api.types.TypedescType;
+import io.ballerina.runtime.api.types.semtype.BasicTypeBitSet;
 import io.ballerina.runtime.api.types.semtype.Builder;
 import io.ballerina.runtime.api.types.semtype.Context;
 import io.ballerina.runtime.api.types.semtype.SemType;
@@ -39,6 +40,8 @@ import java.util.Set;
  * @since 0.995.0
  */
 public class BTypedescType extends BType implements TypedescType {
+
+    private static final BasicTypeBitSet BASIC_TYPE = Builder.getTypeDescType();
 
     private final Type constraint;
 
@@ -86,6 +89,11 @@ public class BTypedescType extends BType implements TypedescType {
     @Override
     public boolean isReadOnly() {
         return true;
+    }
+
+    @Override
+    public BasicTypeBitSet getBasicType() {
+        return BASIC_TYPE;
     }
 
     @Override

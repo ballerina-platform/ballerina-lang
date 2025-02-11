@@ -26,6 +26,7 @@ import io.ballerina.runtime.api.types.SelectivelyImmutableReferenceType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.TypeTags;
 import io.ballerina.runtime.api.types.UnionType;
+import io.ballerina.runtime.api.types.semtype.BasicTypeBitSet;
 import io.ballerina.runtime.api.types.semtype.Builder;
 import io.ballerina.runtime.api.types.semtype.CacheableTypeDescriptor;
 import io.ballerina.runtime.api.types.semtype.Context;
@@ -71,6 +72,7 @@ public class BUnionType extends BType implements UnionType, SelectivelyImmutable
     private static final String INT_CLONEABLE = "__Cloneable";
     private static final String CLONEABLE = "Cloneable";
     private static final Pattern pCloneable = Pattern.compile(INT_CLONEABLE);
+    private BasicTypeBitSet basicType;
 
     public BUnionType(List<Type> memberTypes, int typeFlags, boolean readonly,  boolean isCyclic) {
         this(memberTypes, memberTypes, typeFlags, isCyclic, (readonly ? SymbolFlags.READONLY : 0));
@@ -439,6 +441,15 @@ public class BUnionType extends BType implements UnionType, SelectivelyImmutable
     @Override
     public void setImmutableType(IntersectionType immutableType) {
         this.immutableType = immutableType;
+    }
+
+    @Override
+    public BasicTypeBitSet getBasicType() {
+        if (basicType == null) {
+            basicType =
+                    memberTypes.stream().map(Type::getBasicType).reduce(Builder.getNeverType(), BasicTypeBitSet::union);
+        }
+        return basicType;
     }
 
     @Override

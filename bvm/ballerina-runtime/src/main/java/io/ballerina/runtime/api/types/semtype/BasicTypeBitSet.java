@@ -1,10 +1,10 @@
 package io.ballerina.runtime.api.types.semtype;
 
-abstract sealed class BasicTypeBitSet permits SemType {
+public sealed class BasicTypeBitSet permits SemType {
 
     private int all;
 
-    protected BasicTypeBitSet(int all) {
+    public BasicTypeBitSet(int all) {
         this.all = all;
     }
 
@@ -15,5 +15,13 @@ abstract sealed class BasicTypeBitSet permits SemType {
     public final int all() {
         assert all != -1 : "SemType created by no arg constructor must be initialized with setAll";
         return all;
+    }
+
+    public BasicTypeBitSet union(BasicTypeBitSet basicTypeBitSet) {
+        return new BasicTypeBitSet(all() | basicTypeBitSet.all());
+    }
+
+    public BasicTypeBitSet intersection(BasicTypeBitSet basicTypeBitSet) {
+        return new BasicTypeBitSet(all() & basicTypeBitSet.all());
     }
 }

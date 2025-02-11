@@ -17,6 +17,7 @@ package io.ballerina.runtime.internal.values;
 
 import io.ballerina.runtime.api.types.PredefinedTypes;
 import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.types.semtype.BasicTypeBitSet;
 import io.ballerina.runtime.api.types.semtype.Builder;
 import io.ballerina.runtime.api.types.semtype.Context;
 import io.ballerina.runtime.api.types.semtype.SemType;
@@ -43,6 +44,8 @@ import static io.ballerina.runtime.internal.utils.ValueUtils.getTypedescValue;
  * @since 2201.3.0
  */
 public class RegExpValue implements BRegexpValue, RefValue {
+
+    private static final BasicTypeBitSet BASIC_TYPE = Builder.getRegexType();
     private final RegExpDisjunction regExpDisjunction;
     private BTypedesc typedesc;
     private static final Type type = PredefinedTypes.TYPE_READONLY_ANYDATA;
@@ -144,5 +147,10 @@ public class RegExpValue implements BRegexpValue, RefValue {
     @Override
     public Optional<SemType> inherentTypeOf(Context cx) {
         return shapeOf();
+    }
+
+    @Override
+    public BasicTypeBitSet getBasicType() {
+        return BASIC_TYPE;
     }
 }

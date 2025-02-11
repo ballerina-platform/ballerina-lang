@@ -22,6 +22,8 @@ import io.ballerina.runtime.api.types.ArrayType;
 import io.ballerina.runtime.api.types.IntersectionType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.TypeTags;
+import io.ballerina.runtime.api.types.semtype.BasicTypeBitSet;
+import io.ballerina.runtime.api.types.semtype.Builder;
 import io.ballerina.runtime.api.types.semtype.CacheableTypeDescriptor;
 import io.ballerina.runtime.api.types.semtype.Context;
 import io.ballerina.runtime.api.types.semtype.Env;
@@ -60,6 +62,8 @@ import static io.ballerina.runtime.internal.types.semtype.CellAtomicType.CellMut
  */
 @SuppressWarnings("unchecked")
 public class BArrayType extends BType implements ArrayType, TypeWithShape {
+
+    private static final BasicTypeBitSet BASIC_TYPE = Builder.getListType();
 
     private static final SemType[] EMPTY_SEMTYPE_ARR = new SemType[0];
     private Type elementType;
@@ -232,6 +236,11 @@ public class BArrayType extends BType implements ArrayType, TypeWithShape {
     @Override
     public void setImmutableType(IntersectionType immutableType) {
         this.immutableType = immutableType;
+    }
+
+    @Override
+    public BasicTypeBitSet getBasicType() {
+        return BASIC_TYPE;
     }
 
     @Override

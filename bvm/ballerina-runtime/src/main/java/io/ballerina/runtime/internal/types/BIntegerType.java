@@ -21,6 +21,7 @@ import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.constants.TypeConstants;
 import io.ballerina.runtime.api.types.IntegerType;
 import io.ballerina.runtime.api.types.TypeTags;
+import io.ballerina.runtime.api.types.semtype.BasicTypeBitSet;
 import io.ballerina.runtime.api.types.semtype.Builder;
 import io.ballerina.runtime.api.types.semtype.ConcurrentLazySupplier;
 import io.ballerina.runtime.api.types.semtype.SemType;
@@ -45,6 +46,8 @@ import static io.ballerina.runtime.api.types.PredefinedTypes.EMPTY_MODULE;
  */
 @SuppressWarnings("unchecked")
 public final class BIntegerType extends BSemTypeWrapper<BIntegerType.BIntegerTypeImpl> implements IntegerType {
+
+    private static final BasicTypeBitSet BASIC_TYPE_BIT_SET = Builder.getIntType();
 
     private static final BIntegerTypeImpl DEFAULT_B_TYPE =
             new BIntegerTypeImpl(TypeConstants.INT_TNAME, EMPTY_MODULE, TypeTags.INT_TAG);
@@ -93,6 +96,11 @@ public final class BIntegerType extends BSemTypeWrapper<BIntegerType.BIntegerTyp
                 TypeTags.INT_TAG, Builder.getIntConst(value));
     }
 
+    @Override
+    public BasicTypeBitSet getBasicType() {
+        return BASIC_TYPE_BIT_SET;
+    }
+
     protected static final class BIntegerTypeImpl extends BType implements IntegerType, Cloneable {
 
         private final int tag;
@@ -120,6 +128,11 @@ public final class BIntegerType extends BSemTypeWrapper<BIntegerType.BIntegerTyp
         @Override
         public boolean isReadOnly() {
             return true;
+        }
+
+        @Override
+        public BasicTypeBitSet getBasicType() {
+            return BASIC_TYPE_BIT_SET;
         }
 
         @Override

@@ -22,6 +22,7 @@ import io.ballerina.runtime.api.constants.RuntimeConstants;
 import io.ballerina.runtime.api.constants.TypeConstants;
 import io.ballerina.runtime.api.types.StringType;
 import io.ballerina.runtime.api.types.TypeTags;
+import io.ballerina.runtime.api.types.semtype.BasicTypeBitSet;
 import io.ballerina.runtime.api.types.semtype.Builder;
 import io.ballerina.runtime.api.types.semtype.ConcurrentLazySupplier;
 import io.ballerina.runtime.api.types.semtype.SemType;
@@ -38,6 +39,7 @@ import java.util.function.Supplier;
 @SuppressWarnings("unchecked")
 public final class BStringType extends BSemTypeWrapper<BStringType.BStringTypeImpl> implements StringType {
 
+    private static final BasicTypeBitSet BASIC_TYPE_BIT_SET = Builder.getStringType();
     // We are creating separate empty module instead of reusing PredefinedTypes.EMPTY_MODULE to avoid cyclic
     // dependencies.
     private static final Module DEFAULT_MODULE = new Module(null, null, null);
@@ -80,6 +82,11 @@ public final class BStringType extends BSemTypeWrapper<BStringType.BStringTypeIm
         };
     }
 
+    @Override
+    public BasicTypeBitSet getBasicType() {
+        return BASIC_TYPE_BIT_SET;
+    }
+
     protected static final class BStringTypeImpl extends BType implements StringType, Cloneable {
 
         private final int tag;
@@ -107,6 +114,11 @@ public final class BStringType extends BSemTypeWrapper<BStringType.BStringTypeIm
         @Override
         public boolean isReadOnly() {
             return true;
+        }
+
+        @Override
+        public BasicTypeBitSet getBasicType() {
+            return BASIC_TYPE_BIT_SET;
         }
 
         @Override

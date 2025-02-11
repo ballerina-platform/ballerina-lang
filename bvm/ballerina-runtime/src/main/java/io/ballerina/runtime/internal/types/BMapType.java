@@ -24,6 +24,7 @@ import io.ballerina.runtime.api.types.MapType;
 import io.ballerina.runtime.api.types.PredefinedTypes;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.TypeTags;
+import io.ballerina.runtime.api.types.semtype.BasicTypeBitSet;
 import io.ballerina.runtime.api.types.semtype.Builder;
 import io.ballerina.runtime.api.types.semtype.CacheableTypeDescriptor;
 import io.ballerina.runtime.api.types.semtype.Context;
@@ -60,6 +61,7 @@ import static io.ballerina.runtime.internal.types.semtype.CellAtomicType.CellMut
 @SuppressWarnings("unchecked")
 public class BMapType extends BType implements MapType, TypeWithShape, Cloneable {
 
+    private static final BasicTypeBitSet BASIC_TYPE = Builder.getMappingType();
     public static final MappingDefinition.Field[] EMPTY_FIELD_ARR = new MappingDefinition.Field[0];
     private final Type constraint;
     private final boolean readonly;
@@ -183,6 +185,11 @@ public class BMapType extends BType implements MapType, TypeWithShape, Cloneable
     @Override
     public void setImmutableType(IntersectionType immutableType) {
         this.immutableType = immutableType;
+    }
+
+    @Override
+    public BasicTypeBitSet getBasicType() {
+        return BASIC_TYPE;
     }
 
     @Override

@@ -24,7 +24,12 @@ import io.ballerina.runtime.api.types.JsonType;
 import io.ballerina.runtime.api.types.PredefinedTypes;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.TypeTags;
+import io.ballerina.runtime.api.types.semtype.BasicTypeBitSet;
+import io.ballerina.runtime.api.types.semtype.Builder;
+import io.ballerina.runtime.api.types.semtype.SemType;
 import io.ballerina.runtime.internal.values.MapValueImpl;
+
+import java.util.stream.Stream;
 
 /**
  * {@code BJSONType} represents a JSON value.
@@ -33,6 +38,17 @@ import io.ballerina.runtime.internal.values.MapValueImpl;
  */
 @SuppressWarnings("unchecked")
 public class BJsonType extends BUnionType implements JsonType {
+
+    private static final BasicTypeBitSet BASIC_TYPE = createBasicType();
+
+    private static BasicTypeBitSet createBasicType() {
+        int bitset =
+                Stream.of(Builder.getNilType(), Builder.getBooleanType(), Builder.getIntType(), Builder.getFloatType(),
+                        Builder.getDecimalType(), Builder.getStringType(), Builder.getListType(),
+                        Builder.getMappingType()).map(
+                        SemType::all).reduce(0, (accum, bits) -> accum | bits);
+        return new BasicTypeBitSet(bitset);
+    }
 
     private static final int readonlyTypeId = TypeIdSupplier.getAnonId();
     private static final int mutalbeTypeId = TypeIdSupplier.getAnonId();
@@ -115,5 +131,10 @@ public class BJsonType extends BUnionType implements JsonType {
             return this.typeName;
         }
         return super.toString();
+    }
+
+    @Override
+    public BasicTypeBitSet getBasicType() {
+        return BASIC_TYPE;
     }
 }

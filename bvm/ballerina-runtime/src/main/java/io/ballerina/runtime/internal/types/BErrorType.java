@@ -24,6 +24,7 @@ import io.ballerina.runtime.api.types.IntersectionType;
 import io.ballerina.runtime.api.types.PredefinedTypes;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.TypeTags;
+import io.ballerina.runtime.api.types.semtype.BasicTypeBitSet;
 import io.ballerina.runtime.api.types.semtype.Builder;
 import io.ballerina.runtime.api.types.semtype.Context;
 import io.ballerina.runtime.api.types.semtype.Core;
@@ -42,6 +43,8 @@ import java.util.Set;
  * @since 0.995.0
  */
 public class BErrorType extends BAnnotatableType implements ErrorType, TypeWithShape {
+
+    private static final BasicTypeBitSet BASIC_TYPE = Builder.getErrorType();
 
     public Type detailType = PredefinedTypes.TYPE_DETAIL;
     public BTypeIdSet typeIdSet;
@@ -109,6 +112,11 @@ public class BErrorType extends BAnnotatableType implements ErrorType, TypeWithS
     @Override
     public boolean isReadOnly() {
         return true;
+    }
+
+    @Override
+    public BasicTypeBitSet getBasicType() {
+        return BASIC_TYPE;
     }
 
     @Override

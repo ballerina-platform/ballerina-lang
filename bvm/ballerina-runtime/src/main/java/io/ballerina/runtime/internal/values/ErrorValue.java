@@ -24,6 +24,8 @@ import io.ballerina.runtime.api.types.PredefinedTypes;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.TypeId;
 import io.ballerina.runtime.api.types.TypeTags;
+import io.ballerina.runtime.api.types.semtype.BasicTypeBitSet;
+import io.ballerina.runtime.api.types.semtype.Builder;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BError;
@@ -69,6 +71,7 @@ import static io.ballerina.runtime.internal.utils.StringUtils.getStringVal;
  */
 public class ErrorValue extends BError implements RefValue {
 
+    private static final BasicTypeBitSet BASIC_TYPE = Builder.getErrorType();
     private static final PrintStream outStream = System.err;
 
     private final Type type;
@@ -219,6 +222,11 @@ public class ErrorValue extends BError implements RefValue {
     @Override
     public Type getType() {
         return type;
+    }
+
+    @Override
+    public BasicTypeBitSet getBasicType() {
+        return BASIC_TYPE;
     }
 
     @Override

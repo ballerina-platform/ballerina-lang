@@ -28,6 +28,7 @@ import io.ballerina.runtime.api.types.ReadonlyType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.TypeTags;
 import io.ballerina.runtime.api.types.XmlNodeType;
+import io.ballerina.runtime.api.types.semtype.BasicTypeBitSet;
 import io.ballerina.runtime.api.types.semtype.Builder;
 import io.ballerina.runtime.api.types.semtype.CacheableTypeDescriptor;
 import io.ballerina.runtime.api.types.semtype.Context;
@@ -260,12 +261,44 @@ public final class TypeChecker {
      * @return true if the value belongs to the given type, false otherwise
      */
     public static boolean checkIsType(Object sourceVal, Type targetType) {
+        if (!couldBelongToType(sourceVal, targetType)) {
+            return false;
+        }
         Context cx = context();
         Type sourceType = getType(sourceVal);
         logger.typeCheckStarted(cx, sourceType, targetType);
         boolean result = checkIsTypeInner(sourceVal, targetType, cx, sourceType);
         logger.typeCheckDone(cx, sourceType, targetType, result);
         return result;
+    }
+
+    private static boolean couldBelongToType(Type sourceType, Type targetType) {
+        BasicTypeBitSet sourceBasicType = sourceType.getBasicType();
+        BasicTypeBitSet targetBasicType = targetType.getBasicType();
+        return (sourceBasicType.all() & targetBasicType.all()) != 0;
+    }
+
+    private static boolean couldBelongToType(Object sourceVal, Type targetType) {
+        BasicTypeBitSet valueBasicType = getBasicType(sourceVal);
+        BasicTypeBitSet targetBasicType = targetType.getBasicType();
+        return (valueBasicType.all() & targetBasicType.all()) != 0;
+    }
+
+    public static BasicTypeBitSet getBasicType(Object sourceVal) {
+        if (sourceVal == null) {
+            return Builder.getNilType();
+        }
+        return switch (sourceVal) {
+            case BValue bValue -> bValue.getBasicType();
+            case Double ignored -> Builder.getFloatType();
+            case Integer ignored -> Builder.getIntType();
+            case Long ignored -> Builder.getIntType();
+            case Byte ignored -> Builder.getIntType();
+            case Boolean ignored -> Builder.getBooleanType();
+            default -> {
+                throw new IllegalArgumentException("unexpected value type");
+            }
+        };
     }
 
     private static boolean checkIsTypeInner(Object sourceVal, Type targetType, Context cx, Type sourceType) {
@@ -318,6 +351,10 @@ public final class TypeChecker {
      * @return true if the value has the same shape as the given type; false otherwise
      */
     public static boolean checkIsLikeType(Object sourceValue, Type targetType, boolean allowNumericConversion) {
+        // TODO: handle numeric converion by adding them to target type bitset
+        if (!allowNumericConversion && !couldBelongToType(sourceValue, targetType)) {
+            return false;
+        }
         Context cx = context();
         logger.shapeCheckStarted(sourceValue, targetType);
         // this is an optimization to avoid shape analysis (most likely we are going to use the cache)
@@ -581,6 +618,9 @@ public final class TypeChecker {
      * @return flag indicating the equivalence of the two types
      */
     public static boolean checkIsType(Type sourceType, Type targetType) {
+        if (!couldBelongToType(sourceType, targetType)) {
+            return false;
+        }
         Context cx = context();
         logger.typeCheckStarted(cx, sourceType, targetType);
         boolean result = isSubType(cx, sourceType, targetType);
@@ -590,6 +630,9 @@ public final class TypeChecker {
 
     @Deprecated
     public static boolean checkIsType(Type sourceType, Type targetType, List<TypePair> unresolvedTypes) {
+        if (!couldBelongToType(sourceType, targetType)) {
+            return false;
+        }
         Context cx = context();
         logger.typeCheckStarted(cx, sourceType, targetType);
         boolean result = isSubType(cx, sourceType, targetType);

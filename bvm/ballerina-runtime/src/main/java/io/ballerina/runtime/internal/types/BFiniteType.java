@@ -21,6 +21,7 @@ package io.ballerina.runtime.internal.types;
 import io.ballerina.runtime.api.flags.TypeFlags;
 import io.ballerina.runtime.api.types.FiniteType;
 import io.ballerina.runtime.api.types.TypeTags;
+import io.ballerina.runtime.api.types.semtype.BasicTypeBitSet;
 import io.ballerina.runtime.api.types.semtype.Builder;
 import io.ballerina.runtime.api.types.semtype.Context;
 import io.ballerina.runtime.api.types.semtype.Core;
@@ -155,6 +156,12 @@ public class BFiniteType extends BType implements FiniteType {
     @Override
     public boolean isReadOnly() {
         return true;
+    }
+
+    @Override
+    public BasicTypeBitSet getBasicType() {
+        return this.valueSpace.stream().map(TypeChecker::getBasicType)
+                .reduce(Builder.getNeverType(), BasicTypeBitSet::union);
     }
 
     @Override

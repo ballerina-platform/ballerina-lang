@@ -24,6 +24,8 @@ import io.ballerina.runtime.api.types.IntersectionType;
 import io.ballerina.runtime.api.types.TupleType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.TypeTags;
+import io.ballerina.runtime.api.types.semtype.BasicTypeBitSet;
+import io.ballerina.runtime.api.types.semtype.Builder;
 import io.ballerina.runtime.api.types.semtype.Context;
 import io.ballerina.runtime.api.types.semtype.Core;
 import io.ballerina.runtime.api.types.semtype.Env;
@@ -55,6 +57,7 @@ import static io.ballerina.runtime.internal.types.semtype.CellAtomicType.CellMut
  */
 public class BTupleType extends BAnnotatableType implements TupleType, TypeWithShape {
 
+    private static final BasicTypeBitSet BASIC_TYPE = Builder.getListType();
     private List<Type> tupleTypes;
     private Type restType;
     private int typeFlags;
@@ -313,6 +316,11 @@ public class BTupleType extends BAnnotatableType implements TupleType, TypeWithS
     @Override
     public void setImmutableType(IntersectionType immutableType) {
         this.immutableType = immutableType;
+    }
+
+    @Override
+    public BasicTypeBitSet getBasicType() {
+        return BASIC_TYPE;
     }
 
     @Override

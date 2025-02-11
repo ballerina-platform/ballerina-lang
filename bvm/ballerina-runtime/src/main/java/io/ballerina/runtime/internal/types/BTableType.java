@@ -22,6 +22,7 @@ import io.ballerina.runtime.api.types.IntersectionType;
 import io.ballerina.runtime.api.types.TableType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.TypeTags;
+import io.ballerina.runtime.api.types.semtype.BasicTypeBitSet;
 import io.ballerina.runtime.api.types.semtype.Builder;
 import io.ballerina.runtime.api.types.semtype.Context;
 import io.ballerina.runtime.api.types.semtype.Core;
@@ -42,6 +43,8 @@ import java.util.Set;
  * @since 1.3.0
  */
 public class BTableType extends BType implements TableType, TypeWithShape {
+
+    private static final BasicTypeBitSet BASIC_TYPE = Builder.getTableType();
 
     private final Type constraint;
     private Type keyType;
@@ -154,6 +157,11 @@ public class BTableType extends BType implements TableType, TypeWithShape {
     @Override
     public void setImmutableType(IntersectionType immutableType) {
         this.immutableType = immutableType;
+    }
+
+    @Override
+    public BasicTypeBitSet getBasicType() {
+        return BASIC_TYPE;
     }
 
     @Override

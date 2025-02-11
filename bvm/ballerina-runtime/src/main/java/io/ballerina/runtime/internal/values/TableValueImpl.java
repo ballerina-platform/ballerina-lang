@@ -23,6 +23,8 @@ import io.ballerina.runtime.api.types.Field;
 import io.ballerina.runtime.api.types.TableType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.TypeTags;
+import io.ballerina.runtime.api.types.semtype.BasicTypeBitSet;
+import io.ballerina.runtime.api.types.semtype.Builder;
 import io.ballerina.runtime.api.types.semtype.Context;
 import io.ballerina.runtime.api.types.semtype.SemType;
 import io.ballerina.runtime.api.types.semtype.ShapeAnalyzer;
@@ -90,6 +92,8 @@ import static io.ballerina.runtime.internal.utils.ValueUtils.getTypedescValue;
  * @since 1.3.0
  */
 public class TableValueImpl<K, V> implements TableValue<K, V> {
+
+    private static final BasicTypeBitSet BASIC_TYPE = Builder.getTableType();
 
     private Type type;
     private TableType tableType;
@@ -914,5 +918,10 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
     public Optional<SemType> inherentTypeOf(Context cx) {
         TypeWithShape typeWithShape = (TypeWithShape) type;
         return typeWithShape.inherentTypeOf(cx, ShapeAnalyzer::inherentTypeOf, this);
+    }
+
+    @Override
+    public BasicTypeBitSet getBasicType() {
+        return BASIC_TYPE;
     }
 }

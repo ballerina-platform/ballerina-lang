@@ -20,8 +20,10 @@ package io.ballerina.runtime.internal.types;
 import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.types.ReadonlyType;
 import io.ballerina.runtime.api.types.TypeTags;
+import io.ballerina.runtime.api.types.semtype.BasicTypeBitSet;
 import io.ballerina.runtime.api.types.semtype.Builder;
 import io.ballerina.runtime.api.types.semtype.ConcurrentLazySupplier;
+import io.ballerina.runtime.api.types.semtype.SemType;
 import io.ballerina.runtime.internal.values.RefValue;
 
 /**
@@ -31,9 +33,20 @@ import io.ballerina.runtime.internal.values.RefValue;
  */
 public final class BReadonlyType extends BSemTypeWrapper<BReadonlyType.BReadonlyTypeImpl> implements ReadonlyType {
 
+    private static BasicTypeBitSet BASIC_TYPE;
+    static {
+        SemType RO = Builder.getReadonlyType();
+        BASIC_TYPE = new BasicTypeBitSet(RO.all() | RO.some());
+    }
+
     public BReadonlyType(String typeName, Module pkg) {
         super(new ConcurrentLazySupplier<>(() -> new BReadonlyTypeImpl(typeName, pkg)), typeName, pkg,
                 TypeTags.READONLY_TAG, Builder.getReadonlyType());
+    }
+
+    @Override
+    public BasicTypeBitSet getBasicType() {
+        return BASIC_TYPE;
     }
 
     protected static final class BReadonlyTypeImpl extends BType implements ReadonlyType {
@@ -64,6 +77,11 @@ public final class BReadonlyType extends BSemTypeWrapper<BReadonlyType.BReadonly
         @Override
         public boolean isReadOnly() {
             return true;
+        }
+
+        @Override
+        public BasicTypeBitSet getBasicType() {
+            return BASIC_TYPE;
         }
     }
 }

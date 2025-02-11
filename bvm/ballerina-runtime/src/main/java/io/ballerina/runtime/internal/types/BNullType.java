@@ -20,6 +20,7 @@ package io.ballerina.runtime.internal.types;
 import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.types.NullType;
 import io.ballerina.runtime.api.types.TypeTags;
+import io.ballerina.runtime.api.types.semtype.BasicTypeBitSet;
 import io.ballerina.runtime.api.types.semtype.Builder;
 import io.ballerina.runtime.api.types.semtype.ConcurrentLazySupplier;
 import io.ballerina.runtime.api.types.semtype.SemType;
@@ -33,6 +34,7 @@ import java.util.function.Supplier;
  */
 public sealed class BNullType extends BSemTypeWrapper<BNullType.BNullTypeImpl> implements NullType permits BNeverType {
 
+    private static final BasicTypeBitSet BASIC_TYPE = Builder.getNilType();
     /**
      * Create a {@code BNullType} represents the type of a {@code NullLiteral}.
      *
@@ -50,6 +52,11 @@ public sealed class BNullType extends BSemTypeWrapper<BNullType.BNullTypeImpl> i
     private BNullType(Supplier<BNullTypeImpl> bNullTypeSupplier, String typeName, Module pkg, int tag,
                       SemType semType) {
         super(new ConcurrentLazySupplier<>(bNullTypeSupplier), typeName, pkg, tag, semType);
+    }
+
+    @Override
+    public BasicTypeBitSet getBasicType() {
+        return BASIC_TYPE;
     }
 
     protected static final class BNullTypeImpl extends BType implements NullType {
@@ -81,6 +88,11 @@ public sealed class BNullType extends BSemTypeWrapper<BNullType.BNullTypeImpl> i
         @Override
         public boolean isReadOnly() {
             return true;
+        }
+
+        @Override
+        public BasicTypeBitSet getBasicType() {
+            return BASIC_TYPE;
         }
     }
 }
