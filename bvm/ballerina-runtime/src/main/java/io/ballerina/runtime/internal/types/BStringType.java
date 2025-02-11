@@ -17,6 +17,8 @@
 */
 package io.ballerina.runtime.internal.types;
 
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Caffeine;
 import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.constants.RuntimeConstants;
 import io.ballerina.runtime.api.constants.TypeConstants;
@@ -27,8 +29,7 @@ import io.ballerina.runtime.api.types.semtype.Builder;
 import io.ballerina.runtime.api.types.semtype.ConcurrentLazySupplier;
 import io.ballerina.runtime.api.types.semtype.SemType;
 
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
 
 /**
@@ -129,13 +130,13 @@ public final class BStringType extends BSemTypeWrapper<BStringType.BStringTypeIm
 
     private static final class BStringTypeCache {
 
-        private static final Map<String, BStringType> cache = new ConcurrentHashMap<>();
+        private static final Cache<String, BStringType> cache = Caffeine.newBuilder()
+                .maximumSize(1000) // Set the maximum size of the cache
+                .expireAfterAccess(10, TimeUnit.MINUTES) // Optional: Set expiration time
+                .build();
 
         public static BStringType get(String value) {
-            // FIXME: this needs to have an upper bound on the size, otherwise we will have a memory leak in typical
-            //   applications
-            //  - May be we can have a cache that forgets so most common once will get cached.
-            return cache.computeIfAbsent(value, BStringType::createSingletonType);
+            return cache.get(value, BStringType::createSingletonType);
         }
     }
 }

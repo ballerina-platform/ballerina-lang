@@ -18,6 +18,8 @@
 
 package io.ballerina.runtime.internal.types;
 
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Caffeine;
 import io.ballerina.runtime.api.flags.TypeFlags;
 import io.ballerina.runtime.api.types.FiniteType;
 import io.ballerina.runtime.api.types.TypeTags;
@@ -33,11 +35,10 @@ import io.ballerina.runtime.internal.values.RefValue;
 
 import java.util.Iterator;
 import java.util.LinkedHashSet;
-import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.StringJoiner;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
 
 import static io.ballerina.runtime.api.utils.TypeUtils.getType;
 
@@ -66,11 +67,9 @@ public class BFiniteType extends BType implements FiniteType {
         this.typeFlags = typeFlags;
         this.originalName = originalName;
         if (this.originalName != null && !originalName.isEmpty()) {
-            var data = TypeCheckCacheData.cache.computeIfAbsent(originalName,
-                    ignored -> new TypeCheckCacheData.TypeCheckCacheRecord(
-                            TypeIdSupplier.getAnonId(), TypeCheckCache.TypeCheckCacheFactory.create()));
-            this.typeId = data.typeId;
-            this.typeCheckCache = data.typeCheckCache;
+            var flyweight = TypeCheckCacheData.get(originalName);
+            this.typeId = flyweight.typeId;
+            this.typeCheckCache = flyweight.typeCheckCache;
         }
     }
 
@@ -240,10 +239,22 @@ public class BFiniteType extends BType implements FiniteType {
 
     private static class TypeCheckCacheData {
 
-        private static final Map<String, TypeCheckCacheRecord> cache = new ConcurrentHashMap<>();
+        private static final Cache<String, TypeCheckFlyweight> cache = Caffeine.newBuilder()
+                .maximumSize(1000) // Set the maximum size of the cache
+                .expireAfterAccess(10, TimeUnit.MINUTES) // Optional: Set expiration time
+                .build();
 
-        private record TypeCheckCacheRecord(int typeId, TypeCheckCache typeCheckCache) {
+        private record TypeCheckFlyweight(int typeId, TypeCheckCache typeCheckCache) {
 
+        }
+
+        private static TypeCheckFlyweight get(String originalName) {
+            return cache.get(originalName, TypeCheckCacheData::create);
+        }
+
+        private static TypeCheckFlyweight create(String originalName) {
+            return new TypeCheckCacheData.TypeCheckFlyweight(TypeIdSupplier.getAnonId(),
+                    TypeCheckCache.TypeCheckCacheFactory.create());
         }
     }
 

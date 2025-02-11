@@ -357,10 +357,6 @@ public final class TypeChecker {
         }
         Context cx = context();
         logger.shapeCheckStarted(sourceValue, targetType);
-        // this is an optimization to avoid shape analysis (most likely we are going to use the cache)
-        if (checkIsType(getType(sourceValue), targetType)) {
-            return true;
-        }
         SemType shape = ShapeAnalyzer.shapeOf(cx, sourceValue).orElseThrow();
         SemType targetSemType = ShapeAnalyzer.acceptedTypeOf(cx, targetType);
         if (Core.isSubtypeSimple(shape, NumericTypeHolder.NUMERIC_TYPE) && allowNumericConversion) {
