@@ -385,18 +385,18 @@ public class BRecordType extends BStructureType implements RecordType, TypeWithS
     }
 
     @Override
-    public Optional<SemType> acceptedTypeOf(Context cx) {
+    public SemType acceptedTypeOf(Context cx) {
         Env env = cx.env;
         if (acceptedTypeDefn.isDefinitionReady()) {
-            return Optional.of(acceptedTypeDefn.getSemType(env));
+            return acceptedTypeDefn.getSemType(env);
         }
         var result = acceptedTypeDefn.trySetDefinition(MappingDefinition::new);
         if (!result.updated()) {
-            return Optional.of(acceptedTypeDefn.getSemType(env));
+            return acceptedTypeDefn.getSemType(env);
         }
         MappingDefinition md = result.definition();
-        return Optional.of(createSemTypeInner(md, env, CELL_MUT_UNLIMITED,
-                (type) -> ShapeAnalyzer.acceptedTypeOf(cx, type).orElseThrow()));
+        return createSemTypeInner(md, env, CELL_MUT_UNLIMITED,
+                (type) -> ShapeAnalyzer.acceptedTypeOf(cx, type));
     }
 
     private Type fieldType(String fieldName) {

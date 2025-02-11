@@ -402,19 +402,16 @@ public class BTupleType extends BAnnotatableType implements TupleType, TypeWithS
     }
 
     @Override
-    public Optional<SemType> acceptedTypeOf(Context cx) {
+    public SemType acceptedTypeOf(Context cx) {
         Env env = cx.env;
         if (acceptedTypeDefn.isDefinitionReady()) {
-            return Optional.of(acceptedTypeDefn.getSemType(env));
+            return acceptedTypeDefn.getSemType(env);
         }
         var result = acceptedTypeDefn.trySetDefinition(ListDefinition::new);
         if (!result.updated()) {
-            return Optional.of(acceptedTypeDefn.getSemType(env));
+            return acceptedTypeDefn.getSemType(env);
         }
-        ListDefinition ld = result.definition();
-        return Optional.of(createSemTypeInner(cx, ld,
-                (context, type) -> ShapeAnalyzer.acceptedTypeOf(context, type).orElseThrow(),
-                CELL_MUT_UNLIMITED));
+        return createSemTypeInner(cx, result.definition(), ShapeAnalyzer::acceptedTypeOf, CELL_MUT_UNLIMITED);
     }
 
     private SemType shapeOfInner(Context cx, ShapeSupplier shapeSupplier, AbstractArrayValue value) {

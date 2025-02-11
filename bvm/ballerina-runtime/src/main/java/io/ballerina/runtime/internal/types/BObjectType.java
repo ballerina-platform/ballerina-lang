@@ -385,7 +385,7 @@ public class BObjectType extends BStructureType implements ObjectType, TypeWithS
     }
 
     @Override
-    public final Optional<SemType> acceptedTypeOf(Context cx) {
+    public final SemType acceptedTypeOf(Context cx) {
         Env env = cx.env;
         initializeDistinctIdSupplierIfNeeded(cx.env);
         CellAtomicType.CellMutability mut = CellAtomicType.CellMutability.CELL_MUT_UNLIMITED;
@@ -399,11 +399,10 @@ public class BObjectType extends BStructureType implements ObjectType, TypeWithS
             } else {
                 ObjectDefinition od = result.definition();
                 innerType = semTypeInner(cx, od, mut,
-                        ((context, type) -> ShapeAnalyzer.acceptedTypeOf(context, type).orElseThrow()));
+                        (ShapeAnalyzer::acceptedTypeOf));
             }
         }
-        return Optional.of(
-                distinctIdSupplier.get().stream().map(ObjectDefinition::distinct).reduce(innerType, Core::intersect));
+        return distinctIdSupplier.get().stream().map(ObjectDefinition::distinct).reduce(innerType, Core::intersect);
     }
 
     @Override

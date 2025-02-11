@@ -188,8 +188,8 @@ public class BErrorType extends BAnnotatableType implements ErrorType, TypeWithS
     }
 
     @Override
-    public Optional<SemType> acceptedTypeOf(Context cx) {
-        return Optional.of(getSemType(cx));
+    public SemType acceptedTypeOf(Context cx) {
+        return getSemType(cx);
     }
 
     @Override

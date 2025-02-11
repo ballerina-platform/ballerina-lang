@@ -241,18 +241,18 @@ public class BMapType extends BType implements MapType, TypeWithShape, Cloneable
     }
 
     @Override
-    public synchronized Optional<SemType> acceptedTypeOf(Context cx) {
+    public synchronized SemType acceptedTypeOf(Context cx) {
         Env env = cx.env;
         if (acceptedTypeDefn.isDefinitionReady()) {
-            return Optional.of(acceptedTypeDefn.getSemType(env));
+            return acceptedTypeDefn.getSemType(env);
         }
         var result = acceptedTypeDefn.trySetDefinition(MappingDefinition::new);
         if (!result.updated()) {
-            return Optional.of(acceptedTypeDefn.getSemType(env));
+            return acceptedTypeDefn.getSemType(env);
         }
         MappingDefinition md = result.definition();
-        SemType elementType = ShapeAnalyzer.acceptedTypeOf(cx, getConstrainedType()).orElseThrow();
-        return Optional.of(createSemTypeInner(env, md, elementType, CELL_MUT_UNLIMITED));
+        SemType elementType = ShapeAnalyzer.acceptedTypeOf(cx, getConstrainedType());
+        return createSemTypeInner(env, md, elementType, CELL_MUT_UNLIMITED);
     }
 
     static Optional<SemType> shapeOfInner(Context cx, ShapeSupplier shapeSupplier, MapValueImpl<?, ?> value) {

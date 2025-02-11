@@ -19,11 +19,12 @@ public class ShapeAnalyzer {
     private ShapeAnalyzer() {
     }
 
-    public static Optional<SemType> acceptedTypeOf(Context cx, Type typeDesc) {
+    // FIXME: these don't need to optional
+    public static SemType acceptedTypeOf(Context cx, Type typeDesc) {
         if (typeDesc instanceof TypeWithAcceptedType typeWithAcceptedType) {
             return typeWithAcceptedType.acceptedTypeOf(cx);
         }
-        return Optional.of(SemType.tryInto(cx, typeDesc));
+        return SemType.tryInto(cx, typeDesc);
     }
 
     public static Optional<SemType> shapeOf(Context cx, Object object) {

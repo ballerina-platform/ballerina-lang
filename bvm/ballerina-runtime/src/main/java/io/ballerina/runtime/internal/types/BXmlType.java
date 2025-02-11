@@ -247,8 +247,8 @@ public class BXmlType extends BType implements XmlType, TypeWithShape {
     }
 
     @Override
-    public Optional<SemType> acceptedTypeOf(Context cx) {
-        return Optional.of(getSemType(cx));
+    public SemType acceptedTypeOf(Context cx) {
+        return getSemType(cx);
     }
 
     private Optional<SemType> readonlyShapeOf(Object object) {

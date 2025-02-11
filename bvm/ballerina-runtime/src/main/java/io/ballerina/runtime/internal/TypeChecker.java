@@ -325,7 +325,7 @@ public final class TypeChecker {
             return true;
         }
         SemType shape = ShapeAnalyzer.shapeOf(cx, sourceValue).orElseThrow();
-        SemType targetSemType = ShapeAnalyzer.acceptedTypeOf(cx, targetType).orElseThrow();
+        SemType targetSemType = ShapeAnalyzer.acceptedTypeOf(cx, targetType);
         if (Core.isSubtypeSimple(shape, NumericTypeHolder.NUMERIC_TYPE) && allowNumericConversion) {
             targetSemType = appendNumericConversionTypes(targetSemType);
         }

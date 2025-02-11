@@ -169,7 +169,7 @@ public class BTypeReferenceType extends BAnnotatableType implements Intersectabl
     }
 
     @Override
-    public Optional<SemType> acceptedTypeOf(Context cx) {
+    public SemType acceptedTypeOf(Context cx) {
         Type referredType = getReferredType();
         if (referredType instanceof TypeWithShape typeWithShape) {
             return typeWithShape.acceptedTypeOf(cx);

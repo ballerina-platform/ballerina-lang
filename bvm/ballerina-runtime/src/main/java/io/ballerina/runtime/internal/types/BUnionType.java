@@ -577,8 +577,8 @@ public class BUnionType extends BType implements UnionType, SelectivelyImmutable
     }
 
     @Override
-    public Optional<SemType> acceptedTypeOf(Context cx) {
-        return Optional.of(memberTypes.stream().map(each -> ShapeAnalyzer.acceptedTypeOf(cx, each).orElseThrow())
-                .reduce(Builder.getNeverType(), Core::union));
+    public SemType acceptedTypeOf(Context cx) {
+        return memberTypes.stream().map(each -> ShapeAnalyzer.acceptedTypeOf(cx, each))
+                .reduce(Builder.getNeverType(), Core::union);
     }
 }

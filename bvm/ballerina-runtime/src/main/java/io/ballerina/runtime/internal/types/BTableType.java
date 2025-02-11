@@ -217,18 +217,16 @@ public class BTableType extends BType implements TableType, TypeWithShape {
     }
 
     @Override
-    public Optional<SemType> acceptedTypeOf(Context cx) {
-        SemType constraintType = ShapeAnalyzer.acceptedTypeOf(cx, this.constraint).orElseThrow();
-        SemType semType;
+    public SemType acceptedTypeOf(Context cx) {
+        SemType constraintType = ShapeAnalyzer.acceptedTypeOf(cx, this.constraint);
         if (fieldNames.length > 0) {
-            semType = TableUtils.acceptedTypeContainingKeySpecifier(cx, constraintType, fieldNames);
+            return TableUtils.acceptedTypeContainingKeySpecifier(cx, constraintType, fieldNames);
         } else if (keyType != null) {
-            SemType keyAcceptedType = ShapeAnalyzer.acceptedTypeOf(cx, keyType).orElseThrow();
-            semType = TableUtils.acceptedTypeContainingKeyConstraint(cx, constraintType, keyAcceptedType);
+            SemType keyAcceptedType = ShapeAnalyzer.acceptedTypeOf(cx, keyType);
+            return TableUtils.acceptedTypeContainingKeyConstraint(cx, constraintType, keyAcceptedType);
         } else {
-            semType = TableUtils.acceptedType(cx.env, constraintType);
+            return TableUtils.acceptedType(cx.env, constraintType);
         }
-        return Optional.of(semType);
     }
 
     private SemType valueShape(Context cx, ShapeSupplier shapeSupplier, BTable<?, ?> table) {

@@ -306,18 +306,17 @@ public class BArrayType extends BType implements ArrayType, TypeWithShape {
     }
 
     @Override
-    public Optional<SemType> acceptedTypeOf(Context cx) {
+    public SemType acceptedTypeOf(Context cx) {
         Env env = cx.env;
         if (acceptedTypeDefn.isDefinitionReady()) {
-            return Optional.of(acceptedTypeDefn.getSemType(cx.env));
+            return acceptedTypeDefn.getSemType(cx.env);
         }
         var result = acceptedTypeDefn.trySetDefinition(ListDefinition::new);
         if (!result.updated()) {
-            return Optional.of(acceptedTypeDefn.getSemType(env));
+            return acceptedTypeDefn.getSemType(env);
         }
-        ListDefinition ld = result.definition();
-        SemType elementType = ShapeAnalyzer.acceptedTypeOf(cx, getElementType()).orElseThrow();
-        return Optional.of(getSemTypePart(env, ld, size, elementType, CELL_MUT_UNLIMITED));
+        return getSemTypePart(env, result.definition(), size, ShapeAnalyzer.acceptedTypeOf(cx, getElementType()),
+                CELL_MUT_UNLIMITED);
     }
 
     private SemType shapeOfInner(Context cx, ShapeSupplier shapeSupplier, AbstractArrayValue value) {

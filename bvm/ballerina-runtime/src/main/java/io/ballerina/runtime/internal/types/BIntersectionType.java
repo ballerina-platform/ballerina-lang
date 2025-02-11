@@ -277,8 +277,8 @@ public class BIntersectionType extends BType implements IntersectionType, TypeWi
     }
 
     @Override
-    public Optional<SemType> acceptedTypeOf(Context cx) {
-        return Optional.of(createSemTypeInner(cx, type -> ShapeAnalyzer.acceptedTypeOf(cx, type).orElseThrow()));
+    public SemType acceptedTypeOf(Context cx) {
+        return createSemTypeInner(cx, type -> ShapeAnalyzer.acceptedTypeOf(cx, type));
     }
 
     @Override
