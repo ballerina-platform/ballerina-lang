@@ -1093,44 +1093,44 @@ function testXMLTextType(){
 }
 
 function testRecordIntersections() {
-    Baz|int val = 11;
-    assertTrue(val !is Bar);
+    BazNTTE|int val = 11;
+    assertTrue(val !is BarNTTE);
 
-    Baz|int val2 = {};
-    assertTrue(val2 !is Bar);
+    BazNTTE|int val2 = {};
+    assertTrue(val2 !is BarNTTE);
 
-    Baz|int val3 = <Bar> {code: new};
-    assertFalse(val3 !is Bar);
+    BazNTTE|int val3 = <BarNTTE> {code: new};
+    assertFalse(val3 !is BarNTTE);
 
-    Bar val4 = {code: new};
-    assertTrue(val4 !is Foo);
+    BarNTTE val4 = {code: new};
+    assertTrue(val4 !is FooNTTE);
 
-    Bar val5 = <Foo> {code: new, index: 0};
-    assertFalse(val5 !is Foo);
+    BarNTTE val5 = <FooNTTE> {code: new, index: 0};
+    assertFalse(val5 !is FooNTTE);
 
-    OpenRecordWithIntField val6 = {i: 1, "s": "hello"};
+    OpenRecordWithIntFieldNTTE val6 = {i: 1, "s": "hello"};
     assertTrue(val6 !is record {| int i; string s; |});
 
     record {| int i; string s; |} v = {i: 2, s: "world"};
-    OpenRecordWithIntField val7 = v;
+    OpenRecordWithIntFieldNTTE val7 = v;
     assertFalse(val7 !is record {| int i; string s; |});
 
-    ClosedRecordWithIntField val8 = {i: 10};
+    ClosedRecordWithIntFieldNTTE val8 = {i: 10};
     assertFalse(val8 is record {| byte i; |});
     assertFalse(<any> val8 !is record {});
     assertFalse(<any> val8 !is record {| int...; |});
 
-    int|ClosedRecordWithIntField val9 = <record {| byte i; |}> {i: 10};
+    int|ClosedRecordWithIntFieldNTTE val9 = <record {| byte i; |}> {i: 10};
     assertFalse(val9 !is record {| byte i; |});
     assertFalse(val9 !is record {});
     assertFalse(val9 !is record {| int...; |});
 }
 
-type Baz record {|
+type BazNTTE record {|
     anydata|object {}...;
 |};
 
-type Bar record {
+type BarNTTE record {
     readonly Class code = new;
 };
 
@@ -1138,16 +1138,16 @@ readonly class Class {
 
 }
 
-type Foo record {|
+type FooNTTE record {|
     readonly Class code;
     int index;
 |};
 
-type OpenRecordWithIntField record {
+type OpenRecordWithIntFieldNTTE record {
     int i;
 };
 
-type ClosedRecordWithIntField record {|
+type ClosedRecordWithIntFieldNTTE record {|
     int i;
 |};
 
@@ -1168,11 +1168,11 @@ type OpenRecordWithIntFieldAndEffectivelyNeverRestField record {|
 
 function testRecordIntersectionWithEffectivelyNeverFields() {
     RecordWithIntFieldAndNeverField rec = {i: 1};
-    assertFalse(rec !is ClosedRecordWithIntField);
+    assertFalse(rec !is ClosedRecordWithIntFieldNTTE);
     assertFalse(rec !is OpenRecordWithIntFieldAndEffectivelyNeverRestField);
 
     RecordWithIntFieldAndEffectivelyNeverField rec2 = {i: 1};
-    assertFalse(rec2 !is ClosedRecordWithIntField);
+    assertFalse(rec2 !is ClosedRecordWithIntFieldNTTE);
     assertFalse(rec2 !is OpenRecordWithIntFieldAndEffectivelyNeverRestField);
 
     OpenRecordWithIntFieldAndEffectivelyNeverRestField rec3 = {i: 1};
@@ -1180,7 +1180,7 @@ function testRecordIntersectionWithEffectivelyNeverFields() {
 
     record {| int...; |} rec4 = {"i": 1};
     assertTrue(rec4 !is OpenRecordWithIntFieldAndEffectivelyNeverRestField);
-    assertTrue(rec4 !is ClosedRecordWithIntField);
+    assertTrue(rec4 !is ClosedRecordWithIntFieldNTTE);
 }
 
 type Foo2 record {|
