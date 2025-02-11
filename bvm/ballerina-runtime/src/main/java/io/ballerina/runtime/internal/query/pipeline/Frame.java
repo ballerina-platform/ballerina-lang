@@ -68,11 +68,4 @@ public class Frame {
     public BMap<BString, Object> getRecord() {
         return $frame$;
     }
-
-    @Override
-    public String toString() {
-        return "Frame{" +
-                "record=" + $frame$ +
-                '}';
-    }
 }
