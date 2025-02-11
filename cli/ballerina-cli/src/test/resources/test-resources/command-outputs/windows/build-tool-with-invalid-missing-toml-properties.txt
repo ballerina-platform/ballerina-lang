@@ -1,5 +1,4 @@
 ERROR [Ballerina.toml:(6:1,10:24)] empty string found for key '[filePath]' in table '[tool.openapi]'.
-ERROR [Ballerina.toml:(12:1,14:24)] missing key '[filePath]' in table '[tool.openapi]'.
 
 Executing Build Tools
 WARNING: Execution of 'openapi:generate-delivery-client' is skipped due to errors
