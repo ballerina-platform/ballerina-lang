@@ -7,10 +7,11 @@ import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
-import io.ballerina.runtime.api.values.BValue;
 import io.ballerina.runtime.internal.query.pipeline.Frame;
-import io.ballerina.runtime.internal.values.ErrorValue;
 
+import java.util.Objects;
+import java.util.Optional;
+import java.util.function.Function;
 import java.util.stream.Stream;
 
 public class CollectionUtil {
@@ -33,18 +34,11 @@ public class CollectionUtil {
     }
 
     public static Object collectQuery(Stream<Frame> strm) {
-        try {
-            Object result = strm
-                    .map(frame -> frame.getRecord().get(VALUE_FIELD))
-                    .findFirst().get();
+        Optional<Object> result = strm
+                .map(frame -> frame.getRecord().get(VALUE_FIELD))
+                .filter(Objects::nonNull)
+                .findFirst();
 
-            if (result instanceof BValue) {
-                return (BValue) result;
-            } else {
-                return result;
-            }
-        } catch (Exception e) {
-            return new ErrorValue(StringUtils.fromString(e.getMessage()));
-        }
+        return result.orElse(null);
     }
 }
