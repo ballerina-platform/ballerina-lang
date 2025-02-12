@@ -51,6 +51,7 @@ public class BFiniteType extends BType implements FiniteType {
     public Set<Object> valueSpace;
     private int typeFlags;
     private String originalName;
+    private BasicTypeBitSet basicType;
 
     public BFiniteType(String typeName) {
         this(typeName, new LinkedHashSet<>(), 0);
@@ -158,8 +159,11 @@ public class BFiniteType extends BType implements FiniteType {
 
     @Override
     public BasicTypeBitSet getBasicType() {
-        return this.valueSpace.stream().map(TypeChecker::getBasicType)
-                .reduce(Builder.getNeverType(), BasicTypeBitSet::union);
+        if (basicType == null) {
+            basicType = this.valueSpace.stream().map(TypeChecker::getBasicType)
+                    .reduce(Builder.getNeverType(), BasicTypeBitSet::union);
+        }
+        return basicType;
     }
 
     @Override

@@ -446,8 +446,8 @@ public class BUnionType extends BType implements UnionType, SelectivelyImmutable
     @Override
     public BasicTypeBitSet getBasicType() {
         if (basicType == null) {
-            basicType =
-                    memberTypes.stream().map(Type::getBasicType).reduce(Builder.getNeverType(), BasicTypeBitSet::union);
+            basicType = memberTypes.stream().map(Type::getBasicType)
+                    .reduce(Builder.getNeverType(), BasicTypeBitSet::union);
         }
         return basicType;
     }

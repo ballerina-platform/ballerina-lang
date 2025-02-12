@@ -17,6 +17,8 @@
  */
 package io.ballerina.runtime.api.creators;
 
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Caffeine;
 import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.types.ArrayType;
 import io.ballerina.runtime.api.types.ErrorType;
@@ -52,7 +54,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Class @{@link TypeCreator} provides APIs to create ballerina type instances.
@@ -561,10 +562,12 @@ public final class TypeCreator {
 
     private static final class RecordTypeCache {
 
-        private static final Map<TypeIdentifier, BRecordType> cache = new ConcurrentHashMap<>();
+        private static final Cache<TypeIdentifier, BRecordType> cache = Caffeine.newBuilder()
+                .maximumSize(10_000_000)
+                .build();
 
         BRecordType get(TypeIdentifier key) {
-            return cache.get(key);
+            return cache.getIfPresent(key);
         }
 
         void put(TypeIdentifier identifier, BRecordType value) {

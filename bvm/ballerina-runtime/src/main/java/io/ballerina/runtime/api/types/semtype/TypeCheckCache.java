@@ -1,9 +1,8 @@
 package io.ballerina.runtime.api.types.semtype;
 
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Caffeine;
 import io.ballerina.runtime.api.types.TypeIdentifier;
-
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Generalized implementation of type check result cache. It is okay to access
@@ -16,41 +15,25 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class TypeCheckCache {
 
-    private static final int SIZE = 10;
-    private final CachedResult[] cachedResults = new CachedResult[SIZE];
-    private final int[] hitCounts = new int[SIZE];
+    private static final int SIZE = 100;
+    private static final Cache<Integer, Boolean> cache = Caffeine.newBuilder()
+            .maximumSize(SIZE)
+            .build();
 
     private TypeCheckCache() {
     }
 
     public Result cachedTypeCheckResult(CacheableTypeDescriptor other) {
         int targetTypeId = other.typeId();
-        for (int i = 0; i < SIZE; i++) {
-            var each = cachedResults[i];
-            if (each != null && each.typeId == targetTypeId) {
-                hitCounts[i]++;
-                return each.result ? Result.TRUE : Result.FALSE;
-            }
+        Boolean cachedResult = cache.getIfPresent(targetTypeId);
+        if (cachedResult != null) {
+            return cachedResult ? Result.TRUE : Result.FALSE;
         }
         return Result.MISS;
     }
 
     public void cacheTypeCheckResult(CacheableTypeDescriptor other, boolean result) {
-        int index = -1;
-        int minHitCount = Integer.MAX_VALUE;
-        for (int i = 0; i < SIZE; i++) {
-            if (cachedResults[i] == null) {
-                index = i;
-                break;
-            }
-            if (hitCounts[i] < minHitCount) {
-                minHitCount = hitCounts[i];
-                index = i;
-            }
-        }
-        CachedResult newValue = new CachedResult(other.typeId(), result);
-        cachedResults[index] = newValue;
-        hitCounts[index] = 0;
+        cache.put(other.typeId(), result);
     }
 
     public enum Result {
@@ -59,19 +42,21 @@ public class TypeCheckCache {
         MISS
     }
 
-    private record CachedResult(int typeId, boolean result) {
-
-    }
-
     public static class TypeCheckCacheFactory {
 
-        private static final Map<TypeIdentifier, TypeCheckCache> namedCaches = new ConcurrentHashMap<>();
+        private static final Cache<TypeIdentifier, TypeCheckCache> cache = Caffeine.newBuilder()
+                .maximumSize(10_000_000)
+                .build();
 
         private TypeCheckCacheFactory() {
         }
 
         public static TypeCheckCache get(TypeIdentifier identifier) {
-            return namedCaches.computeIfAbsent(identifier, ignored -> new TypeCheckCache());
+            return cache.get(identifier, TypeCheckCacheFactory::create);
+        }
+
+        private static TypeCheckCache create(TypeIdentifier identifier) {
+            return new TypeCheckCache();
         }
 
         public static TypeCheckCache create() {
