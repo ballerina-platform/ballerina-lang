@@ -38,7 +38,6 @@ import java.util.LinkedHashSet;
 import java.util.Optional;
 import java.util.Set;
 import java.util.StringJoiner;
-import java.util.concurrent.TimeUnit;
 
 import static io.ballerina.runtime.api.utils.TypeUtils.getType;
 
@@ -240,8 +239,7 @@ public class BFiniteType extends BType implements FiniteType {
     private static class TypeCheckCacheData {
 
         private static final Cache<String, TypeCheckFlyweight> cache = Caffeine.newBuilder()
-                .maximumSize(1000) // Set the maximum size of the cache
-                .expireAfterAccess(10, TimeUnit.MINUTES) // Optional: Set expiration time
+                .maximumSize(10_000_000)
                 .build();
 
         private record TypeCheckFlyweight(int typeId, TypeCheckCache typeCheckCache) {

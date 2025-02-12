@@ -29,7 +29,6 @@ import io.ballerina.runtime.api.types.semtype.Builder;
 import io.ballerina.runtime.api.types.semtype.ConcurrentLazySupplier;
 import io.ballerina.runtime.api.types.semtype.SemType;
 
-import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
 
 /**
@@ -131,8 +130,7 @@ public final class BStringType extends BSemTypeWrapper<BStringType.BStringTypeIm
     private static final class BStringTypeCache {
 
         private static final Cache<String, BStringType> cache = Caffeine.newBuilder()
-                .maximumSize(1000) // Set the maximum size of the cache
-                .expireAfterAccess(10, TimeUnit.MINUTES) // Optional: Set expiration time
+                .maximumSize(10_000_000)
                 .build();
 
         public static BStringType get(String value) {
