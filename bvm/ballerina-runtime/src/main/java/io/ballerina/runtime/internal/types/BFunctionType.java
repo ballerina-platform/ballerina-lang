@@ -47,7 +47,7 @@ import java.util.Set;
  */
 public class BFunctionType extends BAnnotatableType implements FunctionType {
 
-    private final static BasicTypeBitSet BASIC_TYPE = Builder.getFunctionType();
+    private static final BasicTypeBitSet BASIC_TYPE = Builder.getFunctionType();
 
     public Type restType;
     public Type retType;

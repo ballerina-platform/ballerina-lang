@@ -24,7 +24,6 @@ import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.TypeTags;
 import io.ballerina.runtime.api.types.semtype.BasicTypeBitSet;
 import io.ballerina.runtime.api.types.semtype.Builder;
-import io.ballerina.runtime.api.types.semtype.CacheableTypeDescriptor;
 import io.ballerina.runtime.api.types.semtype.Context;
 import io.ballerina.runtime.api.types.semtype.Env;
 import io.ballerina.runtime.api.types.semtype.SemType;
@@ -78,7 +77,6 @@ public class BArrayType extends BType implements ArrayType, TypeWithShape {
     private int typeFlags;
     private final DefinitionContainer<ListDefinition> defn = new DefinitionContainer<>();
     private final DefinitionContainer<ListDefinition> acceptedTypeDefn = new DefinitionContainer<>();
-    private boolean shouldCache;
     public BArrayType(Type elementType) {
         this(elementType, false);
     }
@@ -128,8 +126,6 @@ public class BArrayType extends BType implements ArrayType, TypeWithShape {
             this.typeId = data.typeId;
             this.typeCheckCache = data.typeCheckCache;
         }
-        this.shouldCache = elementType instanceof CacheableTypeDescriptor cacheableTypeDescriptor &&
-                cacheableTypeDescriptor.shouldCache();
     }
 
     private void setFlagsBasedOnElementType() {
@@ -353,11 +349,6 @@ public class BArrayType extends BType implements ArrayType, TypeWithShape {
         SemType semType = ld.defineListTypeWrapped(cx.env, memberTypes, memberTypes.length, getNeverType(), mut);
         value.resetReadonlyShapeDefinition();
         return semType;
-    }
-
-    @Override
-    public boolean shouldCache() {
-        return this.shouldCache;
     }
 
     private static class TypeCheckCacheData {

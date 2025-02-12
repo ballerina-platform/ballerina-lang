@@ -668,6 +668,9 @@ public final class TypeChecker {
     private static boolean isSubType(Context cx, Type source, Type target) {
         if (source instanceof CacheableTypeDescriptor sourceCacheableType &&
                 target instanceof CacheableTypeDescriptor targetCacheableType) {
+            if (sourceCacheableType.typeId() == targetCacheableType.typeId()) {
+                return true;
+            }
             return isSubTypeWithCache(cx, sourceCacheableType, targetCacheableType);
         }
         return isSubTypeInner(cx, source, target);
@@ -1334,8 +1337,8 @@ public final class TypeChecker {
         static final SemType SIMPLE_BASIC_TYPE_OR_STRING = createSimpleBasicOrStringType();
 
         private static SemType createSimpleBasicOrStringType() {
-            return Stream.of(Builder.getBooleanType(), Builder.getIntType(),
-                            Builder.getFloatType(), Builder.getDecimalType(), Builder.getRegexType(), Builder.getStringType())
+            return Stream.of(Builder.getBooleanType(), Builder.getIntType(), Builder.getFloatType(),
+                            Builder.getDecimalType(), Builder.getRegexType(), Builder.getStringType())
                     .reduce(Builder.getNeverType(), Core::union);
         }
     }

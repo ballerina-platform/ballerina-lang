@@ -98,11 +98,6 @@ public abstract sealed class ImmutableSemType extends SemType implements Cacheab
         throw new UnsupportedOperationException("Immutable semtypes cannot be modified");
     }
 
-    @Override
-    public boolean shouldCache() {
-        return true;
-    }
-
     public TypeCheckCache.Result cachedTypeCheckResult(Context cx, CacheableTypeDescriptor other) {
         return typeCheckCache.cachedTypeCheckResult(other);
     }

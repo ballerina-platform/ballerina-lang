@@ -235,7 +235,7 @@ public final class Env {
         return this.distinctAtomCount.getAndIncrement();
     }
 
-    private final static class AtomTable {
+    private static final class AtomTable {
 
         private final ReadWriteLock cellLock = new ReentrantReadWriteLock();
         private final ReadWriteLock functionLock = new ReentrantReadWriteLock();

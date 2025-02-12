@@ -9,6 +9,7 @@ import io.ballerina.runtime.internal.types.semtype.MutableSemType;
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.PrintStream;
 import java.util.Optional;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -117,7 +118,7 @@ public class TypeCheckLogger {
     private final class Logger {
 
         private final FileWritter fileWritter;
-        private final ConsoleWritter consoleWritter;
+        private final ConsoleWriter consoleWriter;
 
         private Logger(LogConfig config) {
             if (config.filePath().isPresent()) {
@@ -126,16 +127,16 @@ public class TypeCheckLogger {
                 fileWritter = null;
             }
             if (!config.isSilent) {
-                consoleWritter = new ConsoleWritter();
+                consoleWriter = new ConsoleWriter();
             } else {
-                consoleWritter = null;
+                consoleWriter = null;
             }
         }
 
         public void info(String message) {
             String formattedMessage = String.format("[INFO] [%d] %s", System.nanoTime(), message);
             writeIfAvailable(fileWritter, formattedMessage);
-            writeIfAvailable(consoleWritter, formattedMessage);
+            writeIfAvailable(consoleWriter, formattedMessage);
         }
 
         private static void writeIfAvailable(Writer writer, String message) {
@@ -182,10 +183,12 @@ public class TypeCheckLogger {
             }
         }
 
-        private final class ConsoleWritter implements Writer {
+        private static final class ConsoleWriter implements Writer {
+
+            private static final PrintStream outputStream = System.out;
 
             public void write(String message) {
-                System.out.println(message);
+                outputStream.println(message);
             }
         }
     }

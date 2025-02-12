@@ -17,6 +17,8 @@
 */
 package io.ballerina.runtime.internal.types;
 
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Caffeine;
 import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.constants.TypeConstants;
 import io.ballerina.runtime.api.types.IntersectionType;
@@ -39,9 +41,7 @@ import io.ballerina.runtime.internal.values.XmlSequence;
 import io.ballerina.runtime.internal.values.XmlText;
 import io.ballerina.runtime.internal.values.XmlValue;
 
-import java.util.Map;
 import java.util.Optional;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * {@code BXMLType} represents an XML Element.
@@ -115,24 +115,33 @@ public class BXmlType extends BType implements XmlType, TypeWithShape {
         typeId = init.typeId;
     }
 
-    private static TypeCheckCacheData.TypeCheckCacheRecord initCachedValues(BXmlType xmlType) {
+    private static TypeCheckFlyweightCache.TypeCheckFlyweight initCachedValues(BXmlType xmlType) {
         if (xmlType.constraint != null) {
             if (xmlType.readonly) {
-                return TypeCheckCacheData.constraintTypeCacheRO.computeIfAbsent(xmlType.constraint,
-                        ignored -> TypeCheckCacheData.init());
+                return TypeCheckFlyweightCache.getRO(xmlType.constraint);
             } else {
-                return TypeCheckCacheData.constraintTypeCacheRW.computeIfAbsent(xmlType.constraint,
-                        ignored -> TypeCheckCacheData.init());
+                return TypeCheckFlyweightCache.getRW(xmlType.constraint);
             }
         } else {
-            return switch (xmlType.tag) {
-                case TypeTags.XML_TAG -> TypeCheckCacheData.XML;
-                case TypeTags.XML_ELEMENT_TAG -> TypeCheckCacheData.XML_ELEMENT;
-                case TypeTags.XML_COMMENT_TAG -> TypeCheckCacheData.XML_COMMENT;
-                case TypeTags.XML_PI_TAG -> TypeCheckCacheData.XML_PI;
-                case TypeTags.XML_TEXT_TAG -> TypeCheckCacheData.XML_TEXT;
-                default -> throw new IllegalStateException("Unexpected value: " + xmlType.tag);
-            };
+            if (xmlType.readonly) {
+                return switch (xmlType.tag) {
+                    case TypeTags.XML_TAG -> TypeCheckFlyweightCache.XML;
+                    case TypeTags.XML_ELEMENT_TAG -> TypeCheckFlyweightCache.XML_ELEMENT_RO;
+                    case TypeTags.XML_COMMENT_TAG -> TypeCheckFlyweightCache.XML_COMMENT_RO;
+                    case TypeTags.XML_PI_TAG -> TypeCheckFlyweightCache.XML_PI_RO;
+                    case TypeTags.XML_TEXT_TAG -> TypeCheckFlyweightCache.XML_TEXT_RO;
+                    default -> throw new IllegalStateException("Unexpected value: " + xmlType.tag);
+                };
+            } else {
+                return switch (xmlType.tag) {
+                    case TypeTags.XML_TAG -> TypeCheckFlyweightCache.XML;
+                    case TypeTags.XML_ELEMENT_TAG -> TypeCheckFlyweightCache.XML_ELEMENT_RW;
+                    case TypeTags.XML_COMMENT_TAG -> TypeCheckFlyweightCache.XML_COMMENT_RW;
+                    case TypeTags.XML_PI_TAG -> TypeCheckFlyweightCache.XML_PI_RW;
+                    case TypeTags.XML_TEXT_TAG -> TypeCheckFlyweightCache.XML_TEXT_RW;
+                    default -> throw new IllegalStateException("Unexpected value: " + xmlType.tag);
+                };
+            }
         }
     }
 
@@ -302,22 +311,41 @@ public class BXmlType extends BType implements XmlType, TypeWithShape {
         return xmlValue.getType().isReadOnly();
     }
 
-    private static class TypeCheckCacheData {
+    private static class TypeCheckFlyweightCache {
 
-        private static final Map<Type, TypeCheckCacheRecord> constraintTypeCacheRO = new ConcurrentHashMap<>();
-        private static final Map<Type, TypeCheckCacheRecord> constraintTypeCacheRW = new ConcurrentHashMap<>();
-        private static final TypeCheckCacheRecord XML = init();
+        private static final Cache<Type, TypeCheckFlyweight> cacheRO = Caffeine.newBuilder()
+                .weakKeys()
+                .maximumSize(10_000_000)
+                .build();
+        private static final Cache<Type, TypeCheckFlyweight> cacheRW = Caffeine.newBuilder()
+                .weakKeys()
+                .maximumSize(10_000_000)
+                .build();
+        private static final TypeCheckFlyweight XML = init();
 
-        private static final TypeCheckCacheRecord XML_ELEMENT = init();
-        private static final TypeCheckCacheRecord XML_COMMENT = init();
-        private static final TypeCheckCacheRecord XML_PI = init();
-        private static final TypeCheckCacheRecord XML_TEXT = init();
+        private static final TypeCheckFlyweight XML_ELEMENT_RW = init();
+        private static final TypeCheckFlyweight XML_COMMENT_RW = init();
+        private static final TypeCheckFlyweight XML_PI_RW = init();
+        private static final TypeCheckFlyweight XML_TEXT_RW = init();
 
-        private static TypeCheckCacheRecord init() {
-            return new TypeCheckCacheRecord(TypeIdSupplier.getAnonId(), TypeCheckCache.TypeCheckCacheFactory.create());
+        private static final TypeCheckFlyweight XML_ELEMENT_RO = init();
+        private static final TypeCheckFlyweight XML_COMMENT_RO = init();
+        private static final TypeCheckFlyweight XML_PI_RO = init();
+        private static final TypeCheckFlyweight XML_TEXT_RO = init();
+
+        private static TypeCheckFlyweight init() {
+            return new TypeCheckFlyweight(TypeIdSupplier.getAnonId(), TypeCheckCache.TypeCheckCacheFactory.create());
         }
 
-        private record TypeCheckCacheRecord(int typeId, TypeCheckCache typeCheckCache) {
+        private static TypeCheckFlyweight getRO(Type constraint) {
+            return cacheRO.get(constraint, ignored -> TypeCheckFlyweightCache.init());
+        }
+
+        private static TypeCheckFlyweight getRW(Type constraint) {
+            return cacheRW.get(constraint, ignored -> TypeCheckFlyweightCache.init());
+        }
+
+        private record TypeCheckFlyweight(int typeId, TypeCheckCache typeCheckCache) {
 
         }
     }

@@ -47,7 +47,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  */
 public class FutureValue implements BFuture, RefValue {
 
-    private static BasicTypeBitSet BASIC_TYPE = Builder.getFutureType();
+    private static final BasicTypeBitSet BASIC_TYPE = Builder.getFutureType();
 
      public Strand strand;
      Type type;

@@ -23,10 +23,12 @@ public final class TypeIdSupplier {
     }
 
     public static int getNamedId(TypeIdentifier id) {
+        assert nextNamedId.get() < Integer.MAX_VALUE - 1;
         return nextNamedId.getAndIncrement();
     }
 
     public static int getAnonId() {
+        assert nextAnonId.get() > Integer.MIN_VALUE + 1;
         return nextAnonId.getAndDecrement();
     }
 }

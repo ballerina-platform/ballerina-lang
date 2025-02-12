@@ -4,6 +4,8 @@ import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import io.ballerina.runtime.api.types.TypeIdentifier;
 
+import java.util.concurrent.atomic.AtomicLong;
+
 /**
  * Generalized implementation of type check result cache. It is okay to access
  * this from multiple threads but makes no
@@ -16,9 +18,11 @@ import io.ballerina.runtime.api.types.TypeIdentifier;
 public class TypeCheckCache {
 
     private static final int SIZE = 100;
-    private static final Cache<Integer, Boolean> cache = Caffeine.newBuilder()
+    private final Cache<Integer, Boolean> cache = Caffeine.newBuilder()
             .maximumSize(SIZE)
             .build();
+    private static final AtomicLong nextId = new AtomicLong(0);
+    private final long id = nextId.getAndIncrement();
 
     private TypeCheckCache() {
     }
@@ -61,6 +65,10 @@ public class TypeCheckCache {
 
         public static TypeCheckCache create() {
             return new TypeCheckCache();
+        }
+
+        public static void reset() {
+            cache.invalidateAll();
         }
     }
 }

@@ -32,6 +32,7 @@ import io.ballerina.projects.environment.EnvironmentBuilder;
 import io.ballerina.projects.repos.FileSystemCache;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectUtils;
+import io.ballerina.runtime.api.types.semtype.TypeCheckCache;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
@@ -89,6 +90,7 @@ public final class BCompileUtil {
     }
 
     public static CompileResult compile(String sourceFilePath) {
+        TypeCheckCache.TypeCheckCacheFactory.reset();
         Project project = loadProject(sourceFilePath);
 
         Package currentPackage = project.currentPackage();

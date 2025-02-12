@@ -33,10 +33,10 @@ import io.ballerina.runtime.internal.values.RefValue;
  */
 public final class BReadonlyType extends BSemTypeWrapper<BReadonlyType.BReadonlyTypeImpl> implements ReadonlyType {
 
-    private static BasicTypeBitSet BASIC_TYPE;
+    private static final BasicTypeBitSet BASIC_TYPE;
     static {
-        SemType RO = Builder.getReadonlyType();
-        BASIC_TYPE = new BasicTypeBitSet(RO.all() | RO.some());
+        SemType roType = Builder.getReadonlyType();
+        BASIC_TYPE = new BasicTypeBitSet(roType.all() | roType.some());
     }
 
     public BReadonlyType(String typeName, Module pkg) {

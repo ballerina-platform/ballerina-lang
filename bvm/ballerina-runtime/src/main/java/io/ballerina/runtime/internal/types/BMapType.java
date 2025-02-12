@@ -28,7 +28,6 @@ import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.TypeTags;
 import io.ballerina.runtime.api.types.semtype.BasicTypeBitSet;
 import io.ballerina.runtime.api.types.semtype.Builder;
-import io.ballerina.runtime.api.types.semtype.CacheableTypeDescriptor;
 import io.ballerina.runtime.api.types.semtype.Context;
 import io.ballerina.runtime.api.types.semtype.Env;
 import io.ballerina.runtime.api.types.semtype.SemType;
@@ -70,7 +69,6 @@ public class BMapType extends BType implements MapType, TypeWithShape, Cloneable
     private IntersectionType intersectionType = null;
     private final DefinitionContainer<MappingDefinition> defn = new DefinitionContainer<>();
     private final DefinitionContainer<MappingDefinition> acceptedTypeDefn = new DefinitionContainer<>();
-    private final boolean shouldCache;
 
     public BMapType(Type constraint) {
         this(constraint, false);
@@ -95,8 +93,6 @@ public class BMapType extends BType implements MapType, TypeWithShape, Cloneable
         super(typeName, pkg, MapValueImpl.class);
         this.constraint = readonly ? ReadOnlyUtils.getReadOnlyType(constraint) : constraint;
         this.readonly = readonly;
-        this.shouldCache = constraint instanceof CacheableTypeDescriptor cacheableTypeDescriptor &&
-                cacheableTypeDescriptor.shouldCache();
         var data = readonly ? TypeCheckFlyweightStore.getRO(constraint) : TypeCheckFlyweightStore.getRW(constraint);
         this.typeId = data.typeId;
         this.typeCheckCache = data.typeCheckCache;
@@ -303,11 +299,6 @@ public class BMapType extends BType implements MapType, TypeWithShape, Cloneable
         BMapType clone = (BMapType) super.clone();
         clone.defn.clear();
         return clone;
-    }
-
-    @Override
-    public boolean shouldCache() {
-        return shouldCache;
     }
 
     @Override

@@ -26,7 +26,6 @@ import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.TypeTags;
 import io.ballerina.runtime.api.types.semtype.BasicTypeBitSet;
 import io.ballerina.runtime.api.types.semtype.Builder;
-import io.ballerina.runtime.api.types.semtype.CacheableTypeDescriptor;
 import io.ballerina.runtime.api.types.semtype.Context;
 import io.ballerina.runtime.api.types.semtype.Core;
 import io.ballerina.runtime.api.types.semtype.SemType;
@@ -307,13 +306,4 @@ public class BIntersectionType extends BType implements IntersectionType, TypeWi
         return true;
     }
 
-    @Override
-    public boolean shouldCache() {
-        if (shouldCache == null) {
-            this.shouldCache = constituentTypes.stream().allMatch(
-                    each -> each instanceof CacheableTypeDescriptor cacheableTypeDescriptor &&
-                            cacheableTypeDescriptor.shouldCache());
-        }
-        return shouldCache;
-    }
 }

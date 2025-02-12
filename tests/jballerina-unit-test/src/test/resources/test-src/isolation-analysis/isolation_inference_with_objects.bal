@@ -46,12 +46,12 @@ class IsolatedClassWithPrivateMutableFieldsIIO {
 
 final readonly & string[] immutableStringArray = ["hello", "world"];
 
-type ObjectType object {
+type ObjectTypeIIO object {
     int a;
 };
 
 class IsolatedClassOverridingMutableFieldsInIncludedObjectIIO {
-    *ObjectType;
+    *ObjectTypeIIO;
 
     final byte a = 100;
     private string[] b;
@@ -71,7 +71,7 @@ class IsolatedClassOverridingMutableFieldsInIncludedObjectIIO {
 }
 
 function testIsolatedObjectOverridingMutableFieldsInIncludedObject() {
-    object {} isolatedObjectOverridingMutableFieldsInIncludedObject = object ObjectType {
+    object {} isolatedObjectOverridingMutableFieldsInIncludedObject = object ObjectTypeIIO {
 
         final byte a = 100;
         private string[] b = [];
@@ -425,14 +425,14 @@ class IsolatedClassWithValidVarRefsIIO {
     }
 }
 
-type IsolatedObjectType isolated object {
+type IsolatedObjectTypeIIO isolated object {
     int a;
 };
 
 function testObjectConstrExprImplicitIsolatedness() {
     var ob = object {
         final int[] & readonly x = [];
-        final IsolatedObjectType y = object {
+        final IsolatedObjectTypeIIO y = object {
             final int a = 1;
             final readonly & string[] b = [];
         };
@@ -455,7 +455,7 @@ function testObjectConstrExprImplicitIsolatedness() {
 
     var ob3 = object {
         final int[] & readonly x = [];
-        final IsolatedObjectType y = object {
+        final IsolatedObjectTypeIIO y = object {
             final int a = 1;
             final readonly & string[] b = [];
         };
@@ -783,15 +783,15 @@ NonIsolatedClientIIO cl = new;
 
 service "serviceUsingClient" on new Listener() {
     resource function post foo() returns error? {
-        Response resp;
+        ResponseIIO resp;
         lock {
-            Response val = check cl->sendMessage(fromMobile, toMobile, "Hi!");
+            ResponseIIO val = check cl->sendMessage(fromMobile, toMobile, "Hi!");
             resp = val.clone();
         }
     }
 }
 
-type Response record {|
+type ResponseIIO record {|
    string message;
    int id;
 |};
@@ -800,7 +800,7 @@ client class NonIsolatedClientIIO {
     int i = 1;
 
     remote function sendMessage(string x, string y, string z)
-      returns Response|error => {message: "Hello", id: 0};
+      returns ResponseIIO|error => {message: "Hello", id: 0};
 }
 
 class IsolatedClassWithRawTemplateTransferIIO {
@@ -826,16 +826,16 @@ class IsolatedClassWithRawTemplateTransferIIO {
     }
 }
 
-class IsolatedObjectWithIsolatedFunctionCallAccessingModuleVarOfSameTypeAsDefaultValueExpr {
+class IsolatedObjectWithIsolatedFunctionCallAccessingModuleVarOfSameTypeAsDefaultValueExprIIO {
     private int z = 1;
 
     function init() {
     }
 }
 
-final IsolatedObjectWithIsolatedFunctionCallAccessingModuleVarOfSameTypeAsDefaultValueExpr f = new;
+final IsolatedObjectWithIsolatedFunctionCallAccessingModuleVarOfSameTypeAsDefaultValueExprIIO f = new;
 
-function f3() returns IsolatedObjectWithIsolatedFunctionCallAccessingModuleVarOfSameTypeAsDefaultValueExpr {
+function f3() returns IsolatedObjectWithIsolatedFunctionCallAccessingModuleVarOfSameTypeAsDefaultValueExprIIO {
     lock {
         return f;
     }
@@ -847,7 +847,7 @@ function f4() {
     }
 }
 
-type Obj object {
+type ObjIIO object {
     int i;
     int[] j;
 };
@@ -858,7 +858,7 @@ class Class {
 }
 
 class IsolatedClassIncludingObjectAndClassIIO {
-    *Obj;
+    *ObjIIO;
     *Class;
 
     final int i = 1;

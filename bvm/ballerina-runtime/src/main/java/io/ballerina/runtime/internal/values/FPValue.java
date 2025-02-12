@@ -43,7 +43,7 @@ import java.util.function.Function;
  */
 public class FPValue implements BFunctionPointer, RefValue {
 
-    private final BasicTypeBitSet BASIC_TYPE = Builder.getFunctionType();
+    private static final BasicTypeBitSet BASIC_TYPE = Builder.getFunctionType();
 
     final Type type;
     private BTypedesc typedesc;

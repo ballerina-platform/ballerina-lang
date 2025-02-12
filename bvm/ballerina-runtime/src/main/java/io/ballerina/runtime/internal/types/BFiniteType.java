@@ -229,11 +229,6 @@ public class BFiniteType extends BType implements FiniteType {
     }
 
     @Override
-    public boolean shouldCache() {
-        return originalName != null && !originalName.isEmpty();
-    }
-
-    @Override
     public SemType createSemType(Context cx) {
         return this.valueSpace.stream().map(each -> ShapeAnalyzer.inherentTypeOf(cx, each))
                 .map(Optional::orElseThrow)

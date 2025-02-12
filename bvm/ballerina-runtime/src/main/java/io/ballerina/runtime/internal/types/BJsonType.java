@@ -116,11 +116,6 @@ public class BJsonType extends BUnionType implements JsonType {
     }
 
     @Override
-    public boolean shouldCache() {
-        return true;
-    }
-
-    @Override
     public int typeId() {
         return typeId;
     }

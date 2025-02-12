@@ -40,7 +40,7 @@ import java.util.function.Supplier;
  * @param <E> The type of the {@code BType} that is being wrapped.
  * @since 2201.11.0
  */
-public sealed abstract class BSemTypeWrapper<E extends BType> extends ImmutableSemType
+public abstract sealed class BSemTypeWrapper<E extends BType> extends ImmutableSemType
         implements Type, MayBeDependentType
         permits BAnyType, BBooleanType, BByteType, BDecimalType, BFloatType, BHandleType, BIntegerType, BNullType,
         BReadonlyType, BStringType {
