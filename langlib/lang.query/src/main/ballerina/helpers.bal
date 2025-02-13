@@ -293,7 +293,7 @@ function createDoFunction(function(_Frame _frame) returns any|error doFunc) retu
 function getStreamForOnConflictFromPipeline(_StreamPipeline pipeline) returns stream<Type, CompletionType>
     => pipeline.getStreamForOnConflict();
 
-function toXML(stream<Type, CompletionType> strm, boolean isReadOnly) returns xml|error {
+function toXMLOld(stream<Type, CompletionType> strm, boolean isReadOnly) returns xml|error {
     xml result = 'xml:concat();
     record {| Type value; |}|CompletionType v = strm.next();
     while (v is record {| Type value; |}) {
@@ -314,7 +314,7 @@ function toXML(stream<Type, CompletionType> strm, boolean isReadOnly) returns xm
     return result;
 }
 
-function toString(stream<Type, CompletionType> strm) returns string|error {
+function toStringOld(stream<Type, CompletionType> strm) returns string|error {
     string result = "";
     record {| Type value; |}|CompletionType v = strm.next();
     while (v is record {| Type value; |}) {
@@ -330,7 +330,14 @@ function toString(stream<Type, CompletionType> strm) returns string|error {
     return result;
 }
 
-function addToTable(stream<Type, CompletionType> strm, table<map<Type>> tbl, boolean isReadOnly) 
+function toString(handle strm) returns string|error = @java:Method {
+    'class: "io.ballerina.runtime.internal.query.utils.CollectionUtil",
+    name: "toString",
+    paramTypes: ["java.util.stream.Stream"]
+} external;
+
+
+function addToTable(handle strm, table<map<Type>> tbl, boolean isReadOnly) 
     returns table<map<Type>>|error {
     if isReadOnly {
         // TODO: Properly fix readonly scenario - Issue lang/#36721
@@ -346,7 +353,7 @@ function addToTable(stream<Type, CompletionType> strm, table<map<Type>> tbl, boo
     return createTable(strm, tbl);
 }
 
-function createTable(stream<Type, CompletionType> strm, table<map<Type>> tbl) returns table<map<Type>>|error {
+function createTableOld(stream<Type, CompletionType> strm, table<map<Type>> tbl) returns table<map<Type>>|error {
     record {| Type value; |}|CompletionType v = strm.next();
     while (v is record {| Type value; |}) {
         error? e = trap tbl.add(<map<Type>> checkpanic v.value);
@@ -360,6 +367,12 @@ function createTable(stream<Type, CompletionType> strm, table<map<Type>> tbl) re
     }
     return tbl;
 }
+
+function createTable(handle strm, table<map<Type>> tbl) returns table<map<Type>>|error = @java:Method {
+    'class: "io.ballerina.runtime.internal.query.utils.CollectionUtil",
+    name: "createTable",
+    paramTypes: ["java.util.stream.Stream","io.ballerina.runtime.api.values.BTable"]
+} external;
 
 function addToTableForOnConflict(stream<Type, CompletionType> strm, table<map<Type>> tbl, boolean isReadOnly) 
     returns table<map<Type>>|error {
@@ -399,7 +412,7 @@ function createTableForOnConflict(stream<Type, CompletionType> strm, table<map<T
     return v is error ? v : tbl;
 }
 
-function addToMap(stream<Type, CompletionType> strm, map<Type> mp, boolean isReadOnly) returns map<Type>|error {
+function addToMap(handle strm, map<Type> mp, boolean isReadOnly) returns map<Type>|error {
     if isReadOnly {
         // In this case mp will be an immutable map. Therefore, we will create a new mutable map and pass it to the
         // createMap() (because we can't update immutable map). Then it will populate the members into it and the
@@ -411,7 +424,7 @@ function addToMap(stream<Type, CompletionType> strm, map<Type> mp, boolean isRea
     return createMap(strm, mp);
 }
 
-function createMap(stream<Type, CompletionType> strm, map<Type> mp) returns map<Type>|error {
+function createMapOld(stream<Type, CompletionType> strm, map<Type> mp) returns map<Type>|error {
     record {| Type value; |}|CompletionType v = strm.next();
     while v is record {| Type value; |} {
         [string, Type]|error value = trap (<[string, Type]> checkpanic v.value);
@@ -429,6 +442,12 @@ function createMap(stream<Type, CompletionType> strm, map<Type> mp) returns map<
     }
     return mp;
 }
+
+function createMap(handle strm, map<Type> mp) returns map<Type>|error = @java:Method {
+    'class: "io.ballerina.runtime.internal.query.utils.CollectionUtil",
+    name: "createMap",
+    paramTypes: ["java.util.stream.Stream","io.ballerina.runtime.api.values.BMap"]
+} external;
 
 function addToMapForOnConflict(stream<Type, CompletionType> strm, map<Type> mp, boolean isReadOnly) 
     returns map<Type>|error {

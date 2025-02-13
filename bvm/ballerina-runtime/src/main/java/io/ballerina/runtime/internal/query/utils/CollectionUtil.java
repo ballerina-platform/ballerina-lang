@@ -7,6 +7,7 @@ import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.api.values.BTable;
 import io.ballerina.runtime.internal.query.pipeline.Frame;
 
 import java.util.Objects;
@@ -40,5 +41,30 @@ public class CollectionUtil {
                 .findFirst();
 
         return result.orElse(null);
+    }
+
+    public static BString toString(Stream<Frame> strm) {
+        return strm
+                .map(frame -> frame.getRecord().get($VALUE$_FIELD))
+                .map(string -> (BString) string)
+                .reduce(StringUtils.fromString(""), BString::concat);
+    }
+
+    public static BTable createTable(Stream<Frame> strm, BTable table) {
+        strm.forEach(frame -> {
+            BMap<BString, Object> record = (BMap<BString, Object>) frame.getRecord().get($VALUE$_FIELD);
+            table.add(record);
+        });
+        return table;
+    }
+
+    public static BMap createMap(Stream<Frame> strm, BMap map) {
+        strm.forEach(frame -> {
+            BArray record = (BArray) frame.getRecord().get($VALUE$_FIELD);
+            BString key = (BString) record.get(0);
+            Object value = record.get(1);
+            map.put(key, value);
+        });
+        return map;
     }
 }
