@@ -1,12 +1,15 @@
 package io.ballerina.runtime.internal.query.utils;
 
+import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.*;
+import io.ballerina.runtime.internal.query.pipeline.Frame;
 
 import java.util.Iterator;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
 public class BallerinaIteratorUtils {
+    private static final BString VALUE_FIELD = StringUtils.fromString("value");
 
     /**
      * Converts a Ballerina collection to a Java stream.
@@ -15,9 +18,10 @@ public class BallerinaIteratorUtils {
      * @param <T>        The type of elements in the collection.
      * @return A Java Stream of elements.
      */
-    public static <T> Stream<T> toStream(Object collection) {
+    public static <T> Stream<Frame> toStream(Object collection) {
         Iterator<T> javaIterator = getIterator(collection);
-        return StreamSupport.stream(((Iterable<T>) () -> javaIterator).spliterator(), false);
+        return StreamSupport.stream(((Iterable<T>) () -> javaIterator).spliterator(), false)
+                .map(element -> Frame.create(VALUE_FIELD, element));
     }
 
     /**

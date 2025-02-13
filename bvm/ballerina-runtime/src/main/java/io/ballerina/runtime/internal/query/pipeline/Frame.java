@@ -1,7 +1,8 @@
 package io.ballerina.runtime.internal.query.pipeline;
 
 import io.ballerina.runtime.api.creators.ValueCreator;
-import io.ballerina.runtime.api.types.PredefinedTypes;
+import io.ballerina.runtime.api.utils.StringUtils;
+import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
 
@@ -15,7 +16,7 @@ public class Frame {
     private BMap<BString, Object> $frame$;
 
     public Frame() {
-        this.$frame$ = ValueCreator.createMapValue(PredefinedTypes.TYPE_MAP);
+        this.$frame$ = ValueCreator.createRecordValue(BALLERINA_QUERY_PKG_ID, "_Frame");
     }
 
     /**
@@ -34,9 +35,18 @@ public class Frame {
      * @param value The value for the record.
      * @return A `_Frame` wrapping the BMap.
      */
-    public static Frame add(BString key, Object value) {
+    public static Frame create(BString key, Object value) {
         BMap<BString, Object> record = ValueCreator.createRecordValue(BALLERINA_QUERY_PKG_ID, "_Frame");
-        record.put(key, value);
+        if (value instanceof BArray) {
+            BArray tuple = (BArray) value;
+            if (tuple.size() > 1) {
+                record.put(key, tuple.getRefValue(1));
+            }
+        } else if (value instanceof String) {
+            record.put(key, StringUtils.fromString(value.toString()));
+        } else {
+            record.put(key, value);
+        }
         return new Frame(record);
     }
 
