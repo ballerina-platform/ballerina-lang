@@ -130,11 +130,15 @@ public final class BStringType extends BSemTypeWrapper<BStringType.BStringTypeIm
 
     private static final class BStringTypeCache {
 
+        private static final int MAX_LENGTH = 20;
         private static final Cache<String, BStringType> cache = CacheFactory.createIdentityCache();
 
         private static final Interner<String> interner = Builder.getStringInterner();
 
         public static BStringType get(String value) {
+            if (value.length() > MAX_LENGTH) {
+                return BStringType.createSingletonType(value);
+            }
             String canonicalValue = interner.intern(value);
             return cache.get(canonicalValue, BStringType::createSingletonType);
         }

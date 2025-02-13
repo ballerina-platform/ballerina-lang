@@ -7,7 +7,7 @@ import io.ballerina.runtime.api.types.semtype.TypeCheckCacheResult;
 
 public class TypeCheckCacheImpl implements TypeCheckCache {
 
-    private final Cache<Integer, Boolean> cache = CacheFactory.createLightCache();
+    private final Cache<Integer, Boolean> cache = CacheFactory.createPerInstanceCache();
 
     public TypeCheckCacheImpl() {
     }

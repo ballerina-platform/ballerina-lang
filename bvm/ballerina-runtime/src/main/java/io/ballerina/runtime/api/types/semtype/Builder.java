@@ -442,7 +442,8 @@ public final class Builder {
 
     private static final class StringTypeCache {
 
-        private static final Interner<String> interner = Interner.newStrongInterner();
+        private static final int MAX_LENGTH = 20;
+        private static final Interner<String> interner = Interner.newWeakInterner();
         private static final SemType charType;
         static {
             BStringSubType subTypeData = BStringSubType.createStringSubType(false, Builder.EMPTY_STRING_ARR, true,
@@ -453,6 +454,9 @@ public final class Builder {
         private static final Cache<String, SemType> cache = CacheFactory.createIdentityCache();
 
         public static SemType get(String value) {
+            if (value.length() > MAX_LENGTH) {
+                return createStringSingleton(value);
+            }
             return cache.get(value, Builder::createStringSingleton);
         }
     }

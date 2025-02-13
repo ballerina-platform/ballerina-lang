@@ -11,7 +11,7 @@ public class CacheFactory {
     private final static int LIGHT_CACHE_SIZE = 100;
     private final static int DEFAULT_CACHE_SIZE = 100_000;
 
-    public static <K, V> Cache<K, V> createLightCache() {
+    public static <K, V> Cache<K, V> createPerInstanceCache() {
         return Caffeine.newBuilder().maximumSize(LIGHT_CACHE_SIZE).build();
     }
 
