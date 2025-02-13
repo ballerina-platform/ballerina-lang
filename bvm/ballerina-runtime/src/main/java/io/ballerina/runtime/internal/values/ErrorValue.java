@@ -477,7 +477,9 @@ public class ErrorValue extends BError implements RefValue {
      */
     @Override
     public boolean equals(Object o, Set<ValuePair> visitedValues) {
-        ErrorValue errorValue = (ErrorValue) o;
+        if (!(o instanceof ErrorValue errorValue)) {
+            return false;
+        }
         return isEqual(this.getMessage(), errorValue.getMessage(), visitedValues) &&
                 ((MapValueImpl<?, ?>) this.getDetails()).equals(errorValue.getDetails(), visitedValues) &&
                 isEqual(this.getCause(), errorValue.getCause(), visitedValues);
