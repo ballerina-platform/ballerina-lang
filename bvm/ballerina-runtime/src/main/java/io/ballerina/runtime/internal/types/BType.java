@@ -27,6 +27,8 @@ import io.ballerina.runtime.api.types.semtype.CacheableTypeDescriptor;
 import io.ballerina.runtime.api.types.semtype.Context;
 import io.ballerina.runtime.api.types.semtype.SemType;
 import io.ballerina.runtime.api.types.semtype.TypeCheckCache;
+import io.ballerina.runtime.api.types.semtype.TypeCheckCacheFactory;
+import io.ballerina.runtime.api.types.semtype.TypeCheckCacheResult;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.internal.TypeCheckLogger;
 import io.ballerina.runtime.internal.TypeChecker;
@@ -68,10 +70,10 @@ public abstract non-sealed class BType extends SemType
         }
         if (isNamedType()) {
             TypeIdentifier identifier = new TypeIdentifier(this.pkg, this.typeName);
-            typeCheckCache = TypeCheckCache.TypeCheckCacheFactory.get(identifier);
+            typeCheckCache = TypeCheckCacheFactory.get(identifier);
             typeId = TypeIdSupplier.namedId(identifier);
         } else {
-            typeCheckCache = TypeCheckCache.TypeCheckCacheFactory.create();
+            typeCheckCache = TypeCheckCacheFactory.create();
             typeId = TypeIdSupplier.getAnonId();
         }
     }
@@ -300,7 +302,7 @@ public abstract non-sealed class BType extends SemType
     }
 
     @Override
-    public final TypeCheckCache.Result cachedTypeCheckResult(Context cx, CacheableTypeDescriptor other) {
+    public final TypeCheckCacheResult cachedTypeCheckResult(Context cx, CacheableTypeDescriptor other) {
         return typeCheckCache.cachedTypeCheckResult(other);
     }
 

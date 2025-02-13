@@ -18,7 +18,6 @@
 package io.ballerina.runtime.internal.types;
 
 import com.github.benmanes.caffeine.cache.Cache;
-import com.github.benmanes.caffeine.cache.Caffeine;
 import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.constants.TypeConstants;
 import io.ballerina.runtime.api.types.IntersectionType;
@@ -33,7 +32,9 @@ import io.ballerina.runtime.api.types.semtype.Env;
 import io.ballerina.runtime.api.types.semtype.SemType;
 import io.ballerina.runtime.api.types.semtype.ShapeAnalyzer;
 import io.ballerina.runtime.api.types.semtype.TypeCheckCache;
+import io.ballerina.runtime.api.types.semtype.TypeCheckCacheFactory;
 import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.internal.types.semtype.CacheFactory;
 import io.ballerina.runtime.internal.types.semtype.CellAtomicType;
 import io.ballerina.runtime.internal.types.semtype.DefinitionContainer;
 import io.ballerina.runtime.internal.types.semtype.MappingDefinition;
@@ -43,7 +44,6 @@ import io.ballerina.runtime.internal.values.ReadOnlyUtils;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 
 import static io.ballerina.runtime.internal.types.semtype.CellAtomicType.CellMutability.CELL_MUT_NONE;
 import static io.ballerina.runtime.internal.types.semtype.CellAtomicType.CellMutability.CELL_MUT_UNLIMITED;
@@ -205,7 +205,7 @@ public class BMapType extends BType implements MapType, TypeWithShape, Cloneable
         if (defn.isDefinitionReady()) {
             return defn.getSemType(env);
         }
-        SemType cachedSemtype = TypeCheckFlyweightStore.cachedSemTypes.get(typeId);
+        SemType cachedSemtype = TypeCheckFlyweightStore.cachedSemTypes.getIfPresent(typeId);
         if (cachedSemtype != null) {
             return cachedSemtype;
         }
@@ -308,17 +308,11 @@ public class BMapType extends BType implements MapType, TypeWithShape, Cloneable
 
     private static class TypeCheckFlyweightStore {
 
-        private static final Map<Integer, SemType> cachedSemTypes = new ConcurrentHashMap<>();
+        private static final Cache<Integer, SemType> cachedSemTypes = CacheFactory.createCache();
 
-        private static final Cache<Type, TypeCheckFlyweight> cacheRO = Caffeine.newBuilder()
-                .weakKeys()
-                .maximumSize(10_000_000)
-                .build();
+        private static final Cache<Type, TypeCheckFlyweight> cacheRO = CacheFactory.createIdentityCache();
 
-        private static final Cache<Type, TypeCheckFlyweight> cacheRW = Caffeine.newBuilder()
-                .weakKeys()
-                .maximumSize(10_000_000)
-                .build();
+        private static final Cache<Type, TypeCheckFlyweight> cacheRW = CacheFactory.createIdentityCache();
 
         public static TypeCheckFlyweight getRO(Type constraint) {
             return get(cacheRO, constraint);
@@ -342,7 +336,7 @@ public class BMapType extends BType implements MapType, TypeWithShape, Cloneable
 
         private static TypeCheckFlyweight create(Type constraint) {
             return new TypeCheckFlyweight(TypeIdSupplier.getAnonId(),
-                    TypeCheckCache.TypeCheckCacheFactory.create());
+                    TypeCheckCacheFactory.create());
         }
 
     }

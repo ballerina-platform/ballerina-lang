@@ -18,7 +18,6 @@
 package io.ballerina.runtime.internal.types;
 
 import com.github.benmanes.caffeine.cache.Cache;
-import com.github.benmanes.caffeine.cache.Caffeine;
 import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.constants.TypeConstants;
 import io.ballerina.runtime.api.types.IntersectionType;
@@ -32,6 +31,8 @@ import io.ballerina.runtime.api.types.semtype.Context;
 import io.ballerina.runtime.api.types.semtype.Core;
 import io.ballerina.runtime.api.types.semtype.SemType;
 import io.ballerina.runtime.api.types.semtype.TypeCheckCache;
+import io.ballerina.runtime.api.types.semtype.TypeCheckCacheFactory;
+import io.ballerina.runtime.internal.types.semtype.CacheFactory;
 import io.ballerina.runtime.internal.types.semtype.XmlUtils;
 import io.ballerina.runtime.internal.values.ReadOnlyUtils;
 import io.ballerina.runtime.internal.values.XmlComment;
@@ -313,14 +314,9 @@ public class BXmlType extends BType implements XmlType, TypeWithShape {
 
     private static class TypeCheckFlyweightCache {
 
-        private static final Cache<Type, TypeCheckFlyweight> cacheRO = Caffeine.newBuilder()
-                .weakKeys()
-                .maximumSize(10_000_000)
-                .build();
-        private static final Cache<Type, TypeCheckFlyweight> cacheRW = Caffeine.newBuilder()
-                .weakKeys()
-                .maximumSize(10_000_000)
-                .build();
+        private static final Cache<Type, TypeCheckFlyweight> cacheRO = CacheFactory.createIdentityCache();
+        private static final Cache<Type, TypeCheckFlyweight> cacheRW = CacheFactory.createIdentityCache();
+
         private static final TypeCheckFlyweight XML = init();
 
         private static final TypeCheckFlyweight XML_ELEMENT_RW = init();
@@ -334,7 +330,8 @@ public class BXmlType extends BType implements XmlType, TypeWithShape {
         private static final TypeCheckFlyweight XML_TEXT_RO = init();
 
         private static TypeCheckFlyweight init() {
-            return new TypeCheckFlyweight(TypeIdSupplier.getAnonId(), TypeCheckCache.TypeCheckCacheFactory.create());
+            return new TypeCheckFlyweight(TypeIdSupplier.getAnonId(),
+                    TypeCheckCacheFactory.create());
         }
 
         private static TypeCheckFlyweight getRO(Type constraint) {

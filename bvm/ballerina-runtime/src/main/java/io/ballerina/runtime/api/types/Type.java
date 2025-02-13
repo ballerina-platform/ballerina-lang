@@ -141,5 +141,7 @@ public interface Type {
     @Deprecated
     Module getPkg();
 
-    BasicTypeBitSet getBasicType();
+    default BasicTypeBitSet getBasicType() {
+        throw new IllegalArgumentException("Basic type not supported for " + this.getClass().getName());
+    }
 }

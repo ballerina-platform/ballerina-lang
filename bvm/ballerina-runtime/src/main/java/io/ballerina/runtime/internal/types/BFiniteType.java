@@ -19,7 +19,6 @@
 package io.ballerina.runtime.internal.types;
 
 import com.github.benmanes.caffeine.cache.Cache;
-import com.github.benmanes.caffeine.cache.Caffeine;
 import io.ballerina.runtime.api.flags.TypeFlags;
 import io.ballerina.runtime.api.types.FiniteType;
 import io.ballerina.runtime.api.types.TypeTags;
@@ -30,7 +29,9 @@ import io.ballerina.runtime.api.types.semtype.Core;
 import io.ballerina.runtime.api.types.semtype.SemType;
 import io.ballerina.runtime.api.types.semtype.ShapeAnalyzer;
 import io.ballerina.runtime.api.types.semtype.TypeCheckCache;
+import io.ballerina.runtime.api.types.semtype.TypeCheckCacheFactory;
 import io.ballerina.runtime.internal.TypeChecker;
+import io.ballerina.runtime.internal.types.semtype.CacheFactory;
 import io.ballerina.runtime.internal.values.RefValue;
 
 import java.util.Iterator;
@@ -237,9 +238,7 @@ public class BFiniteType extends BType implements FiniteType {
 
     private static class TypeCheckCacheData {
 
-        private static final Cache<String, TypeCheckFlyweight> cache = Caffeine.newBuilder()
-                .maximumSize(10_000_000)
-                .build();
+        private static final Cache<String, TypeCheckFlyweight> cache = CacheFactory.createCache();
 
         private record TypeCheckFlyweight(int typeId, TypeCheckCache typeCheckCache) {
 
@@ -251,7 +250,7 @@ public class BFiniteType extends BType implements FiniteType {
 
         private static TypeCheckFlyweight create(String originalName) {
             return new TypeCheckCacheData.TypeCheckFlyweight(TypeIdSupplier.getAnonId(),
-                    TypeCheckCache.TypeCheckCacheFactory.create());
+                    TypeCheckCacheFactory.create());
         }
     }
 

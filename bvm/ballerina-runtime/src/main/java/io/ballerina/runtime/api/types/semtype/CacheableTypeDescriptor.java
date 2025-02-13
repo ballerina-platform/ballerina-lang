@@ -16,7 +16,7 @@ public interface CacheableTypeDescriptor extends Type {
      * @param other Type descriptor to check the cached result for
      * @return Result of the type check if it is cached, {@code MISS}  otherwise
      */
-    TypeCheckCache.Result cachedTypeCheckResult(Context cx, CacheableTypeDescriptor other);
+    TypeCheckCacheResult cachedTypeCheckResult(Context cx, CacheableTypeDescriptor other);
 
     /**
      * Cache the type check result of this type descriptor for the given type descriptor. Note that implementations of

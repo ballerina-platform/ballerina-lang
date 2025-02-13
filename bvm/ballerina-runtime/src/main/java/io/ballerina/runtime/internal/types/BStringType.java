@@ -18,7 +18,6 @@
 package io.ballerina.runtime.internal.types;
 
 import com.github.benmanes.caffeine.cache.Cache;
-import com.github.benmanes.caffeine.cache.Caffeine;
 import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.constants.RuntimeConstants;
 import io.ballerina.runtime.api.constants.TypeConstants;
@@ -28,6 +27,7 @@ import io.ballerina.runtime.api.types.semtype.BasicTypeBitSet;
 import io.ballerina.runtime.api.types.semtype.Builder;
 import io.ballerina.runtime.api.types.semtype.ConcurrentLazySupplier;
 import io.ballerina.runtime.api.types.semtype.SemType;
+import io.ballerina.runtime.internal.types.semtype.CacheFactory;
 
 import java.util.function.Supplier;
 
@@ -129,9 +129,7 @@ public final class BStringType extends BSemTypeWrapper<BStringType.BStringTypeIm
 
     private static final class BStringTypeCache {
 
-        private static final Cache<String, BStringType> cache = Caffeine.newBuilder()
-                .maximumSize(10_000_000)
-                .build();
+        private static final Cache<String, BStringType> cache = CacheFactory.createCache();
 
         public static BStringType get(String value) {
             return cache.get(value, BStringType::createSingletonType);

@@ -18,7 +18,6 @@
 package io.ballerina.runtime.api.creators;
 
 import com.github.benmanes.caffeine.cache.Cache;
-import com.github.benmanes.caffeine.cache.Caffeine;
 import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.types.ArrayType;
 import io.ballerina.runtime.api.types.ErrorType;
@@ -49,6 +48,7 @@ import io.ballerina.runtime.internal.types.BTableType;
 import io.ballerina.runtime.internal.types.BTupleType;
 import io.ballerina.runtime.internal.types.BUnionType;
 import io.ballerina.runtime.internal.types.BXmlType;
+import io.ballerina.runtime.internal.types.semtype.CacheFactory;
 
 import java.util.Arrays;
 import java.util.List;
@@ -562,9 +562,7 @@ public final class TypeCreator {
 
     private static final class RecordTypeCache {
 
-        private static final Cache<TypeIdentifier, BRecordType> cache = Caffeine.newBuilder()
-                .maximumSize(10_000_000)
-                .build();
+        private static final Cache<TypeIdentifier, BRecordType> cache = CacheFactory.createCache();
 
         BRecordType get(TypeIdentifier key) {
             return cache.getIfPresent(key);

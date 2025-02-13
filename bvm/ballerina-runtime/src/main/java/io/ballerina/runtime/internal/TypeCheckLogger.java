@@ -3,7 +3,7 @@ package io.ballerina.runtime.internal;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.semtype.Context;
 import io.ballerina.runtime.api.types.semtype.SemType;
-import io.ballerina.runtime.api.types.semtype.TypeCheckCache;
+import io.ballerina.runtime.api.types.semtype.TypeCheckCacheResult;
 import io.ballerina.runtime.internal.types.semtype.MutableSemType;
 
 import java.io.BufferedWriter;
@@ -73,7 +73,7 @@ public class TypeCheckLogger {
         }
     }
 
-    public void typeCheckCachedResult(Context cx, Type t1, Type t2, TypeCheckCache.Result result) {
+    public void typeCheckCachedResult(Context cx, Type t1, Type t2, TypeCheckCacheResult result) {
         if (enabled) {
             logger.info("Type check cached result: " + cx + ", t1: " + t1 + ", t2: " + t2 + ", result: " + result);
         }

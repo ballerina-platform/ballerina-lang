@@ -29,6 +29,7 @@ import io.ballerina.runtime.api.types.semtype.Env;
 import io.ballerina.runtime.api.types.semtype.SemType;
 import io.ballerina.runtime.api.types.semtype.ShapeAnalyzer;
 import io.ballerina.runtime.api.types.semtype.TypeCheckCache;
+import io.ballerina.runtime.api.types.semtype.TypeCheckCacheFactory;
 import io.ballerina.runtime.internal.TypeChecker;
 import io.ballerina.runtime.internal.types.semtype.CellAtomicType;
 import io.ballerina.runtime.internal.types.semtype.DefinitionContainer;
@@ -367,7 +368,7 @@ public class BArrayType extends BType implements ArrayType, TypeWithShape {
                 return getRW(referenceType.getReferredType());
             }
             return cacheRW.computeIfAbsent(constraint, ignored -> new TypeCheckCacheRecord(TypeIdSupplier.getAnonId(),
-                    TypeCheckCache.TypeCheckCacheFactory.create()));
+                    TypeCheckCacheFactory.create()));
         }
 
         public static TypeCheckCacheData.TypeCheckCacheRecord getRO(Type constraint) {
@@ -376,7 +377,7 @@ public class BArrayType extends BType implements ArrayType, TypeWithShape {
                 return getRO(referenceType.getReferredType());
             }
             return cacheRO.computeIfAbsent(constraint, ignored -> new TypeCheckCacheRecord(TypeIdSupplier.getAnonId(),
-                    TypeCheckCache.TypeCheckCacheFactory.create()));
+                    TypeCheckCacheFactory.create()));
         }
     }
 }

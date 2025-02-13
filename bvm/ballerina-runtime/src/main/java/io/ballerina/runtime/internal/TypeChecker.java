@@ -36,7 +36,7 @@ import io.ballerina.runtime.api.types.semtype.Core;
 import io.ballerina.runtime.api.types.semtype.Env;
 import io.ballerina.runtime.api.types.semtype.SemType;
 import io.ballerina.runtime.api.types.semtype.ShapeAnalyzer;
-import io.ballerina.runtime.api.types.semtype.TypeCheckCache;
+import io.ballerina.runtime.api.types.semtype.TypeCheckCacheResult;
 import io.ballerina.runtime.api.values.BDecimal;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BObject;
@@ -684,10 +684,10 @@ public final class TypeChecker {
 
     private static boolean isSubTypeWithCache(Context cx, CacheableTypeDescriptor source,
                                               CacheableTypeDescriptor target) {
-        var cachedResult = source.cachedTypeCheckResult(cx, target);
+        TypeCheckCacheResult cachedResult = source.cachedTypeCheckResult(cx, target);
         logger.typeCheckCachedResult(cx, source, target, cachedResult);
-        if (cachedResult != TypeCheckCache.Result.MISS) {
-            boolean result = cachedResult == TypeCheckCache.Result.TRUE;
+        if (cachedResult != TypeCheckCacheResult.MISS) {
+            boolean result = cachedResult == TypeCheckCacheResult.TRUE;
             assert result == isSubTypeInner(cx, source, target);
             return result;
         }
