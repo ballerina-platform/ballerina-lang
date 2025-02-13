@@ -18,6 +18,8 @@
 
 package io.ballerina.runtime.api.types.semtype;
 
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Interner;
 import io.ballerina.runtime.internal.types.semtype.BBooleanSubType;
 import io.ballerina.runtime.internal.types.semtype.BCellSubType;
 import io.ballerina.runtime.internal.types.semtype.BDecimalSubType;
@@ -26,6 +28,7 @@ import io.ballerina.runtime.internal.types.semtype.BIntSubType;
 import io.ballerina.runtime.internal.types.semtype.BListSubType;
 import io.ballerina.runtime.internal.types.semtype.BMappingSubType;
 import io.ballerina.runtime.internal.types.semtype.BStringSubType;
+import io.ballerina.runtime.internal.types.semtype.CacheFactory;
 import io.ballerina.runtime.internal.types.semtype.CellAtomicType;
 import io.ballerina.runtime.internal.types.semtype.FixedLengthArray;
 import io.ballerina.runtime.internal.types.semtype.ListAtomicType;
@@ -251,8 +254,11 @@ public final class Builder {
         return basicSubType(BasicTypeCode.BT_FLOAT, BFloatSubType.createFloatSubType(true, values));
     }
 
-    // TODO: consider caching small strings
     public static SemType getStringConst(String value) {
+        return StringTypeCache.get(value);
+    }
+
+    private static SemType createStringSingleton(String value) {
         BStringSubType subType;
         String[] values = {value};
         String[] empty = EMPTY_STRING_ARR;
@@ -262,6 +268,10 @@ public final class Builder {
             subType = BStringSubType.createStringSubType(true, empty, true, values);
         }
         return basicSubType(BasicTypeCode.BT_STRING, subType);
+    }
+
+    public static Interner<String> getStringInterner() {
+        return StringTypeCache.interner;
     }
 
     static SubType[] initializeSubtypeArray(int some) {
@@ -432,11 +442,18 @@ public final class Builder {
 
     private static final class StringTypeCache {
 
+        private static final Interner<String> interner = Interner.newStrongInterner();
         private static final SemType charType;
         static {
             BStringSubType subTypeData = BStringSubType.createStringSubType(false, Builder.EMPTY_STRING_ARR, true,
                     Builder.EMPTY_STRING_ARR);
             charType = basicSubType(BasicTypeCode.BT_STRING, subTypeData);
+        }
+
+        private static final Cache<String, SemType> cache = CacheFactory.createIdentityCache();
+
+        public static SemType get(String value) {
+            return cache.get(value, Builder::createStringSingleton);
         }
     }
 

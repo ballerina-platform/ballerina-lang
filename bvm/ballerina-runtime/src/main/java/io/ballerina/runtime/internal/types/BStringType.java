@@ -132,7 +132,7 @@ public final class BStringType extends BSemTypeWrapper<BStringType.BStringTypeIm
 
         private static final Cache<String, BStringType> cache = CacheFactory.createIdentityCache();
 
-        private static final Interner<String> interner = Interner.newStrongInterner();
+        private static final Interner<String> interner = Builder.getStringInterner();
 
         public static BStringType get(String value) {
             String canonicalValue = interner.intern(value);
