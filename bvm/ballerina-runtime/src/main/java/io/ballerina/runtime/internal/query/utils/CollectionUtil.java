@@ -15,7 +15,7 @@ import java.util.function.Function;
 import java.util.stream.Stream;
 
 public class CollectionUtil {
-    private static final BString VALUE_FIELD = StringUtils.fromString("$value$");
+    private static final BString $VALUE$_FIELD = StringUtils.fromString("$value$");
 
     public static void consumeStream(Object frameStream) {
         Stream<Frame> strm = (Stream<Frame>) frameStream;
@@ -26,7 +26,7 @@ public class CollectionUtil {
 
     public static BArray createArray(Stream<Frame> strm, BArray arr) {
         Object[] tmpArr = strm
-                .map(frame -> frame.getRecord().get(VALUE_FIELD))
+                .map(frame -> frame.getRecord().get($VALUE$_FIELD))
                 .toArray();
 
         arr = ValueCreator.createArrayValue(tmpArr, TypeCreator.createArrayType(PredefinedTypes.TYPE_ANY));
@@ -35,7 +35,7 @@ public class CollectionUtil {
 
     public static Object collectQuery(Stream<Frame> strm) {
         Optional<Object> result = strm
-                .map(frame -> frame.getRecord().get(VALUE_FIELD))
+                .map(frame -> frame.getRecord().get($VALUE$_FIELD))
                 .filter(Objects::nonNull)
                 .findFirst();
 

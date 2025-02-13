@@ -84,8 +84,7 @@ public class StreamPipeline {
      * @return A Java stream of `Frame` objects.
      */
     private Stream<Frame> initializeFrameStream(Object collection) {
-        return BallerinaIteratorUtils.toStream(collection)
-                .map(element -> Frame.add(StringUtils.fromString("value"), element));
+        return BallerinaIteratorUtils.toStream(collection);
     }
 
     /**
