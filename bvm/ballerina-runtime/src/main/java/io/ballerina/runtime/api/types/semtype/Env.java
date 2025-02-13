@@ -245,12 +245,12 @@ public final class Env {
         private final Map<AtomicType, Reference<TypeAtom>> listTable = new WeakHashMap<>();
         private final Map<AtomicType, Reference<TypeAtom>> functionTable = new WeakHashMap<>();
         private final Map<AtomicType, Reference<TypeAtom>> mappingTable = new WeakHashMap<>();
-        private AtomicInteger nextCellIndex = new AtomicInteger(0);
-        private AtomicInteger nextListIndex = new AtomicInteger(0);
-        private AtomicInteger nextFunctionIndex = new AtomicInteger(0);
-        private AtomicInteger nextMappingIndex = new AtomicInteger(0);
+        private final AtomicInteger nextCellIndex = new AtomicInteger(0);
+        private final AtomicInteger nextListIndex = new AtomicInteger(0);
+        private final AtomicInteger nextFunctionIndex = new AtomicInteger(0);
+        private final AtomicInteger nextMappingIndex = new AtomicInteger(0);
 
-        public AtomTable() {
+        private AtomTable() {
 
         }
 
