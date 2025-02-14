@@ -1,24 +1,49 @@
 package io.ballerina.runtime.internal.types.semtype;
 
-import com.github.benmanes.caffeine.cache.Cache;
 import io.ballerina.runtime.api.types.semtype.CacheableTypeDescriptor;
 import io.ballerina.runtime.api.types.semtype.TypeCheckCache;
 
 public class TypeCheckCacheImpl implements TypeCheckCache {
 
-    private final Cache<Integer, Boolean> cache = CacheFactory.createTypeCheckCache();
+    private static final int SIZE = 10;
+    private final CachedResult[] cachedResults = new CachedResult[SIZE];
+    private final int[] hitCounts = new int[SIZE];
 
     public TypeCheckCacheImpl() {
     }
 
     @Override
     public Boolean cachedTypeCheckResult(CacheableTypeDescriptor other) {
-        return cache.getIfPresent(other.typeId());
+        int targetTypeId = other.typeId();
+        for (int i = 0; i < SIZE; i++) {
+            var each = cachedResults[i];
+            if (each != null && each.typeId == targetTypeId) {
+                hitCounts[i]++;
+                return each.result;
+            }
+        }
+        return null;
     }
 
-    @Override
     public void cacheTypeCheckResult(CacheableTypeDescriptor other, boolean result) {
-        cache.put(other.typeId(), result);
+        int index = -1;
+        int minHitCount = Integer.MAX_VALUE;
+        for (int i = 0; i < SIZE; i++) {
+            if (cachedResults[i] == null) {
+                index = i;
+                break;
+            }
+            if (hitCounts[i] < minHitCount) {
+                minHitCount = hitCounts[i];
+                index = i;
+            }
+        }
+        CachedResult newValue = new CachedResult(other.typeId(), result);
+        cachedResults[index] = newValue;
+        hitCounts[index] = 0;
     }
 
+    private record CachedResult(int typeId, boolean result) {
+
+    }
 }
