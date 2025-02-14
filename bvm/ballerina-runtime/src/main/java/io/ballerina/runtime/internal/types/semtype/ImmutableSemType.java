@@ -24,7 +24,6 @@ import io.ballerina.runtime.api.types.semtype.SemType;
 import io.ballerina.runtime.api.types.semtype.SubType;
 import io.ballerina.runtime.api.types.semtype.TypeCheckCache;
 import io.ballerina.runtime.api.types.semtype.TypeCheckCacheFactory;
-import io.ballerina.runtime.api.types.semtype.TypeCheckCacheResult;
 import io.ballerina.runtime.internal.types.BSemTypeWrapper;
 import io.ballerina.runtime.internal.types.TypeIdSupplier;
 
@@ -100,7 +99,8 @@ public abstract sealed class ImmutableSemType extends SemType implements Cacheab
         throw new UnsupportedOperationException("Immutable semtypes cannot be modified");
     }
 
-    public TypeCheckCacheResult cachedTypeCheckResult(Context cx, CacheableTypeDescriptor other) {
+    @Override
+    public Boolean cachedTypeCheckResult(Context cx, CacheableTypeDescriptor other) {
         return typeCheckCache.cachedTypeCheckResult(other);
     }
 

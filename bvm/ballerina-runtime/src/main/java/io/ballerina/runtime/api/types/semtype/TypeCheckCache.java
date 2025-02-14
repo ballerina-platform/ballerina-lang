@@ -9,7 +9,7 @@ package io.ballerina.runtime.api.types.semtype;
  */
 public interface TypeCheckCache {
 
-    TypeCheckCacheResult cachedTypeCheckResult(CacheableTypeDescriptor other);
+    Boolean cachedTypeCheckResult(CacheableTypeDescriptor other);
 
     void cacheTypeCheckResult(CacheableTypeDescriptor other, boolean result);
 
