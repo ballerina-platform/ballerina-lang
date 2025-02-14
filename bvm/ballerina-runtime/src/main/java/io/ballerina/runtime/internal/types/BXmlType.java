@@ -17,7 +17,6 @@
 */
 package io.ballerina.runtime.internal.types;
 
-import com.github.benmanes.caffeine.cache.Cache;
 import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.constants.TypeConstants;
 import io.ballerina.runtime.api.types.IntersectionType;
@@ -32,7 +31,6 @@ import io.ballerina.runtime.api.types.semtype.Core;
 import io.ballerina.runtime.api.types.semtype.SemType;
 import io.ballerina.runtime.api.types.semtype.TypeCheckCache;
 import io.ballerina.runtime.api.types.semtype.TypeCheckCacheFactory;
-import io.ballerina.runtime.internal.types.semtype.CacheFactory;
 import io.ballerina.runtime.internal.types.semtype.XmlUtils;
 import io.ballerina.runtime.internal.values.ReadOnlyUtils;
 import io.ballerina.runtime.internal.values.XmlComment;
@@ -42,6 +40,8 @@ import io.ballerina.runtime.internal.values.XmlSequence;
 import io.ballerina.runtime.internal.values.XmlText;
 import io.ballerina.runtime.internal.values.XmlValue;
 
+import java.util.IdentityHashMap;
+import java.util.Map;
 import java.util.Optional;
 
 /**
@@ -314,8 +314,8 @@ public class BXmlType extends BType implements XmlType, TypeWithShape {
 
     private static class TypeCheckFlyweightCache {
 
-        private static final Cache<Type, TypeCheckFlyweight> cacheRO = CacheFactory.createIdentityCache();
-        private static final Cache<Type, TypeCheckFlyweight> cacheRW = CacheFactory.createIdentityCache();
+        private static final Map<Type, TypeCheckFlyweight> cacheRO = new IdentityHashMap<>();
+        private static final Map<Type, TypeCheckFlyweight> cacheRW = new IdentityHashMap<>();
 
         private static final TypeCheckFlyweight XML = init();
 
@@ -335,11 +335,11 @@ public class BXmlType extends BType implements XmlType, TypeWithShape {
         }
 
         private static TypeCheckFlyweight getRO(Type constraint) {
-            return cacheRO.get(constraint, ignored -> TypeCheckFlyweightCache.init());
+            return cacheRO.computeIfAbsent(constraint, ignored -> TypeCheckFlyweightCache.init());
         }
 
         private static TypeCheckFlyweight getRW(Type constraint) {
-            return cacheRW.get(constraint, ignored -> TypeCheckFlyweightCache.init());
+            return cacheRW.computeIfAbsent(constraint, ignored -> TypeCheckFlyweightCache.init());
         }
 
         private record TypeCheckFlyweight(int typeId, TypeCheckCache typeCheckCache) {
