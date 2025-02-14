@@ -45,8 +45,9 @@ public abstract class StringValue implements BString, SimpleValue {
     protected StringValue(String value, boolean isNonBmp) {
         this.value = value;
         this.isNonBmp = isNonBmp;
-        this.type = BStringType.singletonType(value);
-        this.shape = Builder.getStringConst(value);
+        BStringType stringType = BStringType.singletonType(value);
+        this.type = stringType;
+        this.shape = stringType.shape();
     }
 
     @Override

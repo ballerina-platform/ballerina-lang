@@ -46,6 +46,7 @@ public final class BStringType extends BSemTypeWrapper<BStringType.BStringTypeIm
     private static final Module DEFAULT_MODULE = new Module(null, null, null);
     private static final BStringTypeImpl DEFAULT_B_TYPE =
             new BStringTypeImpl(TypeConstants.STRING_TNAME, DEFAULT_MODULE, TypeTags.STRING_TAG);
+    private final SemType shape;
 
     /**
      * Create a {@code BStringType} which represents the boolean type.
@@ -64,10 +65,15 @@ public final class BStringType extends BSemTypeWrapper<BStringType.BStringTypeIm
     private BStringType(Supplier<BStringTypeImpl> bTypeSupplier, String typeName, Module pkg, int tag,
                         SemType semType) {
         super(new ConcurrentLazySupplier<>(bTypeSupplier), typeName, pkg, tag, semType);
+        shape = semType;
     }
 
     public static BStringType singletonType(String value) {
         return BStringTypeCache.get(value);
+    }
+
+    public SemType shape() {
+        return shape;
     }
 
     private static BStringType createSingletonType(String value) {

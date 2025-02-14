@@ -18,7 +18,6 @@
 
 package io.ballerina.runtime.api.types.semtype;
 
-import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Interner;
 import io.ballerina.runtime.internal.types.semtype.BBooleanSubType;
 import io.ballerina.runtime.internal.types.semtype.BCellSubType;
@@ -28,7 +27,6 @@ import io.ballerina.runtime.internal.types.semtype.BIntSubType;
 import io.ballerina.runtime.internal.types.semtype.BListSubType;
 import io.ballerina.runtime.internal.types.semtype.BMappingSubType;
 import io.ballerina.runtime.internal.types.semtype.BStringSubType;
-import io.ballerina.runtime.internal.types.semtype.CacheFactory;
 import io.ballerina.runtime.internal.types.semtype.CellAtomicType;
 import io.ballerina.runtime.internal.types.semtype.FixedLengthArray;
 import io.ballerina.runtime.internal.types.semtype.ListAtomicType;
@@ -255,10 +253,6 @@ public final class Builder {
     }
 
     public static SemType getStringConst(String value) {
-        return StringTypeCache.get(value);
-    }
-
-    private static SemType createStringSingleton(String value) {
         BStringSubType subType;
         String[] values = {value};
         String[] empty = EMPTY_STRING_ARR;
@@ -442,23 +436,12 @@ public final class Builder {
 
     private static final class StringTypeCache {
 
-        private static final int MAX_LENGTH = 20;
         private static final Interner<String> interner = Interner.newWeakInterner();
         private static final SemType charType;
         static {
             BStringSubType subTypeData = BStringSubType.createStringSubType(false, Builder.EMPTY_STRING_ARR, true,
                     Builder.EMPTY_STRING_ARR);
             charType = basicSubType(BasicTypeCode.BT_STRING, subTypeData);
-        }
-
-        private static final Cache<String, SemType> cache = CacheFactory.createIdentityCache();
-
-        public static SemType get(String value) {
-            if (value.length() > MAX_LENGTH) {
-                return createStringSingleton(value);
-            }
-            String canonicalValue = interner.intern(value);
-            return cache.get(canonicalValue, Builder::createStringSingleton);
         }
     }
 
