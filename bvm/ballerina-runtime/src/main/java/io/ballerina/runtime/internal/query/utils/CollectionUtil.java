@@ -4,10 +4,7 @@ import io.ballerina.runtime.api.creators.TypeCreator;
 import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.types.PredefinedTypes;
 import io.ballerina.runtime.api.utils.StringUtils;
-import io.ballerina.runtime.api.values.BArray;
-import io.ballerina.runtime.api.values.BMap;
-import io.ballerina.runtime.api.values.BString;
-import io.ballerina.runtime.api.values.BTable;
+import io.ballerina.runtime.api.values.*;
 import io.ballerina.runtime.internal.query.pipeline.Frame;
 
 import java.util.Objects;
@@ -66,5 +63,12 @@ public class CollectionUtil {
             map.put(key, value);
         });
         return map;
+    }
+
+    public static BXml createXML(Stream<Frame> strm, BXml xml) {
+        String xmlStr = strm
+                .map(frame -> frame.getRecord().get($VALUE$_FIELD).toString())
+                .reduce("", String::concat);
+        return ValueCreator.createXmlValue(xmlStr);
     }
 }
