@@ -17,7 +17,7 @@
 */
 package io.ballerina.runtime.internal.types;
 
-import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.LoadingCache;
 import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.constants.TypeConstants;
 import io.ballerina.runtime.api.types.IntersectionType;
@@ -314,8 +314,10 @@ public class BXmlType extends BType implements XmlType, TypeWithShape {
 
     private static class TypeCheckFlyweightCache {
 
-        private static final Cache<Type, TypeCheckFlyweight> cacheRO = CacheFactory.createIdentityCache();
-        private static final Cache<Type, TypeCheckFlyweight> cacheRW = CacheFactory.createIdentityCache();
+        private static final LoadingCache<Type, TypeCheckFlyweight> cacheRO =
+                CacheFactory.createIdentityCache(ignored -> TypeCheckFlyweightCache.init());
+        private static final LoadingCache<Type, TypeCheckFlyweight> cacheRW =
+                CacheFactory.createIdentityCache(ignored -> TypeCheckFlyweightCache.init());
 
         private static final TypeCheckFlyweight XML = init();
 
@@ -335,11 +337,11 @@ public class BXmlType extends BType implements XmlType, TypeWithShape {
         }
 
         private static TypeCheckFlyweight getRO(Type constraint) {
-            return cacheRO.get(constraint, ignored -> TypeCheckFlyweightCache.init());
+            return cacheRO.get(constraint);
         }
 
         private static TypeCheckFlyweight getRW(Type constraint) {
-            return cacheRW.get(constraint, ignored -> TypeCheckFlyweightCache.init());
+            return cacheRW.get(constraint);
         }
 
         private record TypeCheckFlyweight(int typeId, TypeCheckCache typeCheckCache) {
