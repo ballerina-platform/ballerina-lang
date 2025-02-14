@@ -21,6 +21,7 @@ package io.ballerina.runtime.internal.types;
 import io.ballerina.runtime.api.types.ParameterizedType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.TypeTags;
+import io.ballerina.runtime.api.types.semtype.BasicTypeBitSet;
 import io.ballerina.runtime.api.types.semtype.Context;
 import io.ballerina.runtime.api.types.semtype.SemType;
 
@@ -73,6 +74,11 @@ public class BParameterizedType extends BType implements ParameterizedType {
     @Override
     public boolean isReadOnly() {
         return paramValueType.isReadOnly();
+    }
+
+    @Override
+    public BasicTypeBitSet getBasicType() {
+        return paramValueType.getBasicType();
     }
 
     @Override

@@ -22,6 +22,7 @@ import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.constants.TypeConstants;
 import io.ballerina.runtime.api.types.DecimalType;
 import io.ballerina.runtime.api.types.TypeTags;
+import io.ballerina.runtime.api.types.semtype.BasicTypeBitSet;
 import io.ballerina.runtime.api.types.semtype.Builder;
 import io.ballerina.runtime.api.types.semtype.ConcurrentLazySupplier;
 import io.ballerina.runtime.api.types.semtype.SemType;
@@ -39,6 +40,8 @@ import static io.ballerina.runtime.api.types.PredefinedTypes.EMPTY_MODULE;
  * @since 0.995.0
  */
 public final class BDecimalType extends BSemTypeWrapper<BDecimalType.BDecimalTypeImpl> implements DecimalType {
+
+    private static final BasicTypeBitSet BASIC_TYPE = Builder.getDecimalType();
 
     private static final BDecimalTypeImpl DEFAULT_B_TYPE =
             new BDecimalTypeImpl(TypeConstants.DECIMAL_TNAME, EMPTY_MODULE);
@@ -59,6 +62,11 @@ public final class BDecimalType extends BSemTypeWrapper<BDecimalType.BDecimalTyp
 
     private BDecimalType(Supplier<BDecimalTypeImpl> bType, String typeName, Module pkg, SemType semType) {
         super(new ConcurrentLazySupplier<>(bType), typeName, pkg, TypeTags.DECIMAL_TAG, semType);
+    }
+
+    @Override
+    public BasicTypeBitSet getBasicType() {
+        return BASIC_TYPE;
     }
 
     protected static final class BDecimalTypeImpl extends BType implements DecimalType, Cloneable {
@@ -87,6 +95,11 @@ public final class BDecimalType extends BSemTypeWrapper<BDecimalType.BDecimalTyp
         @Override
         public boolean isReadOnly() {
             return true;
+        }
+
+        @Override
+        public BasicTypeBitSet getBasicType() {
+            return BASIC_TYPE;
         }
 
         @Override

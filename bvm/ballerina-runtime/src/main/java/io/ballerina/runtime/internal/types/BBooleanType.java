@@ -22,6 +22,7 @@ import io.ballerina.runtime.api.constants.TypeConstants;
 import io.ballerina.runtime.api.types.BooleanType;
 import io.ballerina.runtime.api.types.PredefinedTypes;
 import io.ballerina.runtime.api.types.TypeTags;
+import io.ballerina.runtime.api.types.semtype.BasicTypeBitSet;
 import io.ballerina.runtime.api.types.semtype.Builder;
 import io.ballerina.runtime.api.types.semtype.ConcurrentLazySupplier;
 import io.ballerina.runtime.api.types.semtype.SemType;
@@ -34,6 +35,8 @@ import java.util.function.Supplier;
  * @since 0.995.0
  */
 public final class BBooleanType extends BSemTypeWrapper<BBooleanType.BBooleanTypeImpl> implements BooleanType {
+
+    private static final BasicTypeBitSet BASIC_TYPE = Builder.getBooleanType();
 
     private static final BBooleanType TRUE =
             new BBooleanType(() -> new BBooleanTypeImpl(TypeConstants.BOOLEAN_TNAME, PredefinedTypes.EMPTY_MODULE),
@@ -57,6 +60,11 @@ public final class BBooleanType extends BSemTypeWrapper<BBooleanType.BBooleanTyp
 
     private BBooleanType(Supplier<BBooleanTypeImpl> bTypeSupplier, String typeName, Module pkg, SemType semType) {
         super(new ConcurrentLazySupplier<>(bTypeSupplier), typeName, pkg, TypeTags.BOOLEAN_TAG, semType);
+    }
+
+    @Override
+    public BasicTypeBitSet getBasicType() {
+        return BASIC_TYPE;
     }
 
     protected static final class BBooleanTypeImpl extends BType implements BooleanType {
@@ -85,6 +93,11 @@ public final class BBooleanType extends BSemTypeWrapper<BBooleanType.BBooleanTyp
         @Override
         public boolean isReadOnly() {
             return true;
+        }
+
+        @Override
+        public BasicTypeBitSet getBasicType() {
+            return BASIC_TYPE;
         }
     }
 }

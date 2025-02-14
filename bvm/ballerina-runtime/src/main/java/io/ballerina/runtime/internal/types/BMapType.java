@@ -24,11 +24,15 @@ import io.ballerina.runtime.api.types.MapType;
 import io.ballerina.runtime.api.types.PredefinedTypes;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.TypeTags;
+import io.ballerina.runtime.api.types.semtype.BasicTypeBitSet;
 import io.ballerina.runtime.api.types.semtype.Builder;
+import io.ballerina.runtime.api.types.semtype.CacheableTypeDescriptor;
 import io.ballerina.runtime.api.types.semtype.Context;
 import io.ballerina.runtime.api.types.semtype.Env;
 import io.ballerina.runtime.api.types.semtype.SemType;
 import io.ballerina.runtime.api.types.semtype.ShapeAnalyzer;
+import io.ballerina.runtime.api.types.semtype.TypeCheckCache;
+import io.ballerina.runtime.api.types.semtype.TypeCheckCacheFactory;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.internal.types.semtype.CellAtomicType;
 import io.ballerina.runtime.internal.types.semtype.DefinitionContainer;
@@ -39,6 +43,7 @@ import io.ballerina.runtime.internal.values.ReadOnlyUtils;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 import static io.ballerina.runtime.internal.types.semtype.CellAtomicType.CellMutability.CELL_MUT_NONE;
 import static io.ballerina.runtime.internal.types.semtype.CellAtomicType.CellMutability.CELL_MUT_UNLIMITED;
@@ -56,6 +61,7 @@ import static io.ballerina.runtime.internal.types.semtype.CellAtomicType.CellMut
 @SuppressWarnings("unchecked")
 public class BMapType extends BType implements MapType, TypeWithShape, Cloneable {
 
+    private static final BasicTypeBitSet BASIC_TYPE = Builder.getMappingType();
     public static final MappingDefinition.Field[] EMPTY_FIELD_ARR = new MappingDefinition.Field[0];
     private final Type constraint;
     private final boolean readonly;
@@ -87,6 +93,9 @@ public class BMapType extends BType implements MapType, TypeWithShape, Cloneable
         super(typeName, pkg, MapValueImpl.class);
         this.constraint = readonly ? ReadOnlyUtils.getReadOnlyType(constraint) : constraint;
         this.readonly = readonly;
+        var data = readonly ? TypeCheckFlyweightStore.getRO(constraint) : TypeCheckFlyweightStore.getRW(constraint);
+        this.typeId = data.typeId;
+        this.typeCheckCache = data.typeCheckCache;
     }
 
     /**
@@ -176,6 +185,11 @@ public class BMapType extends BType implements MapType, TypeWithShape, Cloneable
     }
 
     @Override
+    public BasicTypeBitSet getBasicType() {
+        return BASIC_TYPE;
+    }
+
+    @Override
     public Optional<IntersectionType> getIntersectionType() {
         return this.intersectionType ==  null ? Optional.empty() : Optional.of(this.intersectionType);
     }
@@ -191,14 +205,20 @@ public class BMapType extends BType implements MapType, TypeWithShape, Cloneable
         if (defn.isDefinitionReady()) {
             return defn.getSemType(env);
         }
+        SemType cachedSemtype = TypeCheckFlyweightStore.cachedSemTypes.get(typeId);
+        if (cachedSemtype != null) {
+            return cachedSemtype;
+        }
         var result = defn.trySetDefinition(MappingDefinition::new);
         if (!result.updated()) {
             return defn.getSemType(env);
         }
         MappingDefinition md = result.definition();
-        CellAtomicType.CellMutability mut = isReadOnly() ? CELL_MUT_NONE :
-                CellAtomicType.CellMutability.CELL_MUT_LIMITED;
-        return createSemTypeInner(env, md, tryInto(cx, getConstrainedType()), mut);
+        CellAtomicType.CellMutability mut =
+                isReadOnly() ? CELL_MUT_NONE : CellAtomicType.CellMutability.CELL_MUT_LIMITED;
+        SemType semType = createSemTypeInner(env, md, tryInto(cx, getConstrainedType()), mut);
+        TypeCheckFlyweightStore.cachedSemTypes.put(typeId, semType);
+        return semType;
     }
 
     @Override
@@ -232,18 +252,18 @@ public class BMapType extends BType implements MapType, TypeWithShape, Cloneable
     }
 
     @Override
-    public synchronized Optional<SemType> acceptedTypeOf(Context cx) {
+    public synchronized SemType acceptedTypeOf(Context cx) {
         Env env = cx.env;
         if (acceptedTypeDefn.isDefinitionReady()) {
-            return Optional.of(acceptedTypeDefn.getSemType(env));
+            return acceptedTypeDefn.getSemType(env);
         }
         var result = acceptedTypeDefn.trySetDefinition(MappingDefinition::new);
         if (!result.updated()) {
-            return Optional.of(acceptedTypeDefn.getSemType(env));
+            return acceptedTypeDefn.getSemType(env);
         }
         MappingDefinition md = result.definition();
-        SemType elementType = ShapeAnalyzer.acceptedTypeOf(cx, getConstrainedType()).orElseThrow();
-        return Optional.of(createSemTypeInner(env, md, elementType, CELL_MUT_UNLIMITED));
+        SemType elementType = ShapeAnalyzer.acceptedTypeOf(cx, getConstrainedType());
+        return createSemTypeInner(env, md, elementType, CELL_MUT_UNLIMITED);
     }
 
     static Optional<SemType> shapeOfInner(Context cx, ShapeSupplier shapeSupplier, MapValueImpl<?, ?> value) {
@@ -284,5 +304,40 @@ public class BMapType extends BType implements MapType, TypeWithShape, Cloneable
     @Override
     protected boolean isDependentlyTypedInner(Set<MayBeDependentType> visited) {
         return constraint instanceof MayBeDependentType constraintType && constraintType.isDependentlyTyped(visited);
+    }
+
+    private static class TypeCheckFlyweightStore {
+
+        private static final Map<Integer, SemType> cachedSemTypes = new ConcurrentHashMap<>();
+
+        private static final Map<Integer, TypeCheckFlyweight> cacheRO = new ConcurrentHashMap<>();
+
+        private static final Map<Integer, TypeCheckFlyweight> cacheRW = new ConcurrentHashMap<>();
+
+        public static TypeCheckFlyweight getRO(Type constraint) {
+            return get(cacheRO, constraint);
+        }
+
+        public static TypeCheckFlyweight getRW(Type constraint) {
+            return get(cacheRW, constraint);
+        }
+
+        private static TypeCheckFlyweight get(Map<Integer, TypeCheckFlyweight> cache, Type constraint) {
+            if (constraint instanceof CacheableTypeDescriptor cacheableTypeDescriptor) {
+                return cache.computeIfAbsent(cacheableTypeDescriptor.typeId(),
+                        ignored -> create());
+            }
+            return create();
+        }
+
+        private record TypeCheckFlyweight(int typeId, TypeCheckCache typeCheckCache) {
+
+        }
+
+        private static TypeCheckFlyweight create() {
+            return new TypeCheckFlyweight(TypeIdSupplier.getAnonId(),
+                    TypeCheckCacheFactory.create());
+        }
+
     }
 }

@@ -26,18 +26,18 @@ function testConstrainedMapValueTypeIndexBasedNegative () returns (string|()) {
 }
 
 function testConstrainedMapStructTypePositive () returns ([string, int]) {
-    map<Person> testMap = {};
-    Person jack = {name:"Jack", age:25};
+    map<PersonCM> testMap = {};
+    PersonCM jack = {name:"Jack", age:25};
     testMap["item"] = jack;
-    Person val = <Person> testMap["item"];
+    PersonCM val = <PersonCM> testMap["item"];
     return [val.name, val.age];
 }
 
-function testConstrainedMapStructTypeNegative () returns (Person) {
-    map<Person> testMap = {};
-    Person jack = {name:"Jack", age:25};
+function testConstrainedMapStructTypeNegative () returns (PersonCM) {
+    map<PersonCM> testMap = {};
+    PersonCM jack = {name:"Jack", age:25};
     testMap["item"] = jack;
-    Person val = testMap.get("item-not");
+    PersonCM val = testMap.get("item-not");
     return val;
 }
 
@@ -188,19 +188,19 @@ function getGenericMap (map<any> m) returns (map<any>) {
 }
 
 function testConstrainedMapRefTypeCast () returns ([string, int]) {
-    map<Person> testMap = {};
-    Person jack = {name:"Jack", age:25};
+    map<PersonCM> testMap = {};
+    PersonCM jack = {name:"Jack", age:25};
     testMap["item"] = jack;
     map<any> m = getGenericMap(testMap);
-    map<Person> castMap;
-    castMap = < map<Person> > m;
-    Person p = <Person> castMap["item"];
+    map<PersonCM> castMap;
+    castMap = < map<PersonCM> > m;
+    PersonCM p = <PersonCM> castMap["item"];
     return [p.name, p.age];
 }
 
 function testConstrainedMapRefTypeCastNegative () returns (map<int>|error) {
-    map<Person> testMap = {};
-    Person jack = {name:"Jack", age:25};
+    map<PersonCM> testMap = {};
+    PersonCM jack = {name:"Jack", age:25};
     testMap["item"] = jack;
     map<any> m = getGenericMap(testMap);
 
@@ -246,88 +246,88 @@ function updateGenericMapWithNullValue (map<any> m) returns (map<any>) {
     return m;
 }
 
-type Person record {|
+type PersonCM record {|
     string name;
     int age;
     string address = "";
 |};
 
-type Employee record {
+type EmployeeCM record {
     string name;
     int age;
 };
 
 function testStructConstrainedMapRuntimeCast () returns ([string, int]) {
-    map<Person> testMap = {};
-    Person jack = {name:"Jack", age:25, address:"Usa"};
+    map<PersonCM> testMap = {};
+    PersonCM jack = {name:"Jack", age:25, address:"Usa"};
     testMap["item"] = jack;
     map<any> m = getGenericMap(testMap);
-    map<Employee> castMap = m is map<Employee> ? m : {};
-    Employee p = <Employee> castMap["item"];
+    map<EmployeeCM> castMap = m is map<EmployeeCM> ? m : {};
+    EmployeeCM p = <EmployeeCM> castMap["item"];
     return [p.name, p.age];
 }
 
 function testStructConstrainedMapStaticCast () returns ([string, int]) {
-    map<Person> testMap = {};
-    Person jack = {name:"Jack", age:25, address:"Usa"};
+    map<PersonCM> testMap = {};
+    PersonCM jack = {name:"Jack", age:25, address:"Usa"};
     testMap["item"] = jack;
-    map<Employee> castMap = testMap;
-    Employee p = <Employee> castMap["item"];
+    map<EmployeeCM> castMap = testMap;
+    EmployeeCM p = <EmployeeCM> castMap["item"];
     return [p.name, p.age];
 }
 
 
 function testStructEquivalentMapUpdate () returns ([string, int]) {
-    map<Person> testMap = {};
-    Person jack = {name:"Jack", age:25, address:"Usa"};
+    map<PersonCM> testMap = {};
+    PersonCM jack = {name:"Jack", age:25, address:"Usa"};
     testMap["item"] = jack;
-    map<Employee> m =  testMap;
-    map<Employee> castMap = m;
-    Employee p = <Employee> castMap["item"];
+    map<EmployeeCM> m =  testMap;
+    map<EmployeeCM> castMap = m;
+    EmployeeCM p = <EmployeeCM> castMap["item"];
     return [p.name, p.age];
 }
 
-function updateEquivalentMap (map<Employee> m) returns (map<Employee>) {
-    Employee b = {name:"Kevin", age:75};
+function updateEquivalentMap (map<EmployeeCM> m) returns (map<EmployeeCM>) {
+    EmployeeCM b = {name:"Kevin", age:75};
     m["update"] = b;
     return m;
 }
 
 function testStructEquivalentMapAccess () returns ([string, int]) {
-    map<Person> testMap = {};
-    Person jack = {name:"Mervin", age:25, address:"Usa"};
+    map<PersonCM> testMap = {};
+    PersonCM jack = {name:"Mervin", age:25, address:"Usa"};
     testMap["item"] = jack;
     return equivalentMapAccess(testMap);
 }
 
-function equivalentMapAccess (map<Employee> m) returns ([string, int]) {
-    Employee b = <Employee> m["item"];
+function equivalentMapAccess (map<EmployeeCM> m) returns ([string, int]) {
+    EmployeeCM b = <EmployeeCM> m["item"];
     return [b.name, b.age];
 }
 
 function testStructMapUpdate () returns ([string, int]) {
-    map<Person> testMap = {};
-    Person jack = {name:"Jack", age:25, address:"Usa"};
+    map<PersonCM> testMap = {};
+    PersonCM jack = {name:"Jack", age:25, address:"Usa"};
     testMap["item"] = jack;
     map<any> m = updateStructMap(testMap);
-    map<Employee> castMap = m is map<Employee> ? m : {};
-    Employee p = <Employee> castMap["update"];
+    map<EmployeeCM> castMap = m is map<EmployeeCM> ? m : {};
+    EmployeeCM p = <EmployeeCM> castMap["update"];
     return [p.name, p.age];
 }
 
 function updateStructMap (map<any> m) returns (map<any>) {
-    Person k = {name:"Arnold", age:45, address:"UK"};
+    PersonCM k = {name:"Arnold", age:45, address:"UK"};
     m["update"] = k;
     return m;
 }
 
-function testStructNotEquivalentRuntimeCast () returns (map<Person>|error) {
-    map<Employee> testMap = {};
-    Employee jack = {name:"Jack", age:25};
+function testStructNotEquivalentRuntimeCast () returns (map<PersonCM>|error) {
+    map<EmployeeCM> testMap = {};
+    EmployeeCM jack = {name:"Jack", age:25};
     testMap["item"] = jack;
     map<any> m = getGenericMap(testMap);
 
-    return check trap <map<Person>>m;
+    return check trap <map<PersonCM>>m;
 }
 
 function testAnyMapToValueTypeRuntimeCast () returns (map<int>|error) {
@@ -336,11 +336,11 @@ function testAnyMapToValueTypeRuntimeCast () returns (map<int>|error) {
     return check trap <map<int>>testMap;
 }
 
-function testAnyMapToRefTypeRuntimeCast () returns (map<Employee>|error) {
+function testAnyMapToRefTypeRuntimeCast () returns (map<EmployeeCM>|error) {
     map<any> testMap = {};
-    Employee jack = {name:"Jack", age:25};
+    EmployeeCM jack = {name:"Jack", age:25};
     testMap["item"] = jack;
-    return check trap <map<Employee>>testMap;
+    return check trap <map<EmployeeCM>>testMap;
 }
 
 type Student record {|
@@ -387,13 +387,13 @@ function testMapOfElementTypeArray () returns ([string, string]) {
 }
 
 function testMapOfElementTypeRefArray () returns ([string, int]) {
-    map<Employee[]> testMap = {};
-    Employee jack = {name:"Jack", age:25};
-    Employee[] e1 = [];
+    map<EmployeeCM[]> testMap = {};
+    EmployeeCM jack = {name:"Jack", age:25};
+    EmployeeCM[] e1 = [];
     e1[0] = jack;
     testMap["e1"] = e1;
-    Employee[] r2 = <Employee[]> testMap["e1"];
-    Employee jackR = r2[0];
+    EmployeeCM[] r2 = <EmployeeCM[]> testMap["e1"];
+    EmployeeCM jackR = r2[0];
     return [jackR.name, jackR.age];
 }
 
@@ -489,8 +489,8 @@ function testConstrainedUnionRetrieveInt () returns (int) {
 }
 
 function testMapConstrainedEquivalentMapInsert () returns [string?, int?] {
-    map<Employee> emp = {};
-    Person jack = {name:"Jack", age:25, address:"Usa"};
+    map<EmployeeCM> emp = {};
+    PersonCM jack = {name:"Jack", age:25, address:"Usa"};
     emp["jack"] = jack;
     return [emp["jack"]["name"], emp["jack"]["age"]];
 }
@@ -579,7 +579,7 @@ function insertNilToMap(map<any> m) {
 }
 
 function testMapAnyDataClosedRecordAssignment() returns (anydata) {
-    Person p = {name:"Jack", age:25, address:"Usa"};
+    PersonCM p = {name:"Jack", age:25, address:"Usa"};
     map<anydata> m = p;
     return m["name"];
 }

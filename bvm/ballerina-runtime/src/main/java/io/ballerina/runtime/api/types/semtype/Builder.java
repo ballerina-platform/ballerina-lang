@@ -18,6 +18,7 @@
 
 package io.ballerina.runtime.api.types.semtype;
 
+import com.github.benmanes.caffeine.cache.Interner;
 import io.ballerina.runtime.internal.types.semtype.BBooleanSubType;
 import io.ballerina.runtime.internal.types.semtype.BCellSubType;
 import io.ballerina.runtime.internal.types.semtype.BDecimalSubType;
@@ -251,7 +252,6 @@ public final class Builder {
         return basicSubType(BasicTypeCode.BT_FLOAT, BFloatSubType.createFloatSubType(true, values));
     }
 
-    // TODO: consider caching small strings
     public static SemType getStringConst(String value) {
         BStringSubType subType;
         String[] values = {value};
@@ -262,6 +262,10 @@ public final class Builder {
             subType = BStringSubType.createStringSubType(true, empty, true, values);
         }
         return basicSubType(BasicTypeCode.BT_STRING, subType);
+    }
+
+    public static Interner<String> getStringInterner() {
+        return StringTypeCache.interner;
     }
 
     static SubType[] initializeSubtypeArray(int some) {
@@ -376,7 +380,7 @@ public final class Builder {
     }
 
     public static BddNode getBddSubtypeRo() {
-        return bddAtom(RecAtom.createRecAtom(0));
+        return bddAtom(RecAtom.createUnBlockedRecAtom(0));
     }
 
     public static ListAtomicType getListAtomicInner() {
@@ -432,6 +436,7 @@ public final class Builder {
 
     private static final class StringTypeCache {
 
+        private static final Interner<String> interner = Interner.newWeakInterner();
         private static final SemType charType;
         static {
             BStringSubType subTypeData = BStringSubType.createStringSubType(false, Builder.EMPTY_STRING_ARR, true,

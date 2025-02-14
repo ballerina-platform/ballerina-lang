@@ -22,10 +22,8 @@ import io.ballerina.runtime.internal.types.semtype.BddMemo;
 import io.ballerina.runtime.internal.types.semtype.FunctionAtomicType;
 import io.ballerina.runtime.internal.types.semtype.ListAtomicType;
 import io.ballerina.runtime.internal.types.semtype.MappingAtomicType;
-import io.ballerina.runtime.internal.types.semtype.MutableSemType;
 
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -47,27 +45,9 @@ public final class Context {
     public final Map<Bdd, BddMemo> listMemo = new WeakHashMap<>();
     public final Map<Bdd, BddMemo> mappingMemo = new WeakHashMap<>();
     public final Map<Bdd, BddMemo> functionMemo = new WeakHashMap<>();
-    private static final int MAX_CACHE_SIZE = 100;
-    private final Map<CacheableTypeDescriptor, TypeCheckCache<CacheableTypeDescriptor>> typeCheckCacheMemo;
-    private Phase phase = Phase.INIT;
-    private int typeCheckDepth = 0;
-    private int typeResolutionDepth = 0;
 
     private Context(Env env) {
         this.env = env;
-        this.typeCheckCacheMemo = createTypeCheckCacheMemo();
-    }
-
-    private static Map<CacheableTypeDescriptor, TypeCheckCache<CacheableTypeDescriptor>> createTypeCheckCacheMemo() {
-        // This is fine since this map is not going to get leaked out of the context and
-        // context is unique to a thread. So there will be no concurrent modifications
-        return new LinkedHashMap<>(MAX_CACHE_SIZE, 1f, true) {
-            @Override
-            protected boolean removeEldestEntry(
-                    Map.Entry<CacheableTypeDescriptor, TypeCheckCache<CacheableTypeDescriptor>> eldest) {
-                return size() > MAX_CACHE_SIZE;
-            }
-        };
     }
 
     public static Context from(Env env) {
@@ -92,64 +72,6 @@ public final class Context {
     public boolean memoSubtypeIsEmpty(Map<Bdd, BddMemo> memoTable, BddIsEmptyPredicate isEmptyPredicate, Bdd bdd) {
         BddMemo m = memoTable.computeIfAbsent(bdd, ignored -> new BddMemo());
         return m.isEmpty().orElseGet(() -> memoSubTypeIsEmptyInner(isEmptyPredicate, bdd, m));
-    }
-
-    public void enterTypeResolutionPhase(MutableSemType type) throws InterruptedException {
-        switch (phase) {
-            case INIT -> {
-                typeResolutionDepth++;
-                env.enterTypeResolutionPhase(this, type);
-                phase = Phase.TYPE_RESOLUTION;
-            }
-            case TYPE_RESOLUTION -> typeResolutionDepth++;
-            case TYPE_CHECKING -> throw new IllegalStateException(
-                    "Cannot enter type resolution phase while in type checking phase\n");
-        }
-    }
-
-    public void exitTypeResolutionPhaseAbruptly(Exception ex) {
-        env.exitTypeResolutionPhaseAbruptly(this, ex);
-    }
-
-    public void enterTypeCheckingPhase(SemType t1, SemType t2) {
-        typeCheckDepth++;
-        switch (phase) {
-            case INIT -> {
-                env.enterTypeCheckingPhase(this, t1, t2);
-                phase = Phase.TYPE_CHECKING;
-            }
-            case TYPE_RESOLUTION -> throw new IllegalStateException(
-                    "Cannot enter type checking phase while in type resolution phase\n");
-            case TYPE_CHECKING -> {
-            }
-        }
-    }
-
-    public void exitTypeResolutionPhase() {
-        if (phase == Phase.TYPE_RESOLUTION) {
-            typeResolutionDepth--;
-            if (typeResolutionDepth == 0) {
-                env.exitTypeResolutionPhase(this);
-                phase = Phase.INIT;
-            }
-        } else {
-            throw new IllegalStateException("Cannot exit type resolution phase without entering it");
-        }
-    }
-
-    public void exitTypeCheckingPhase() {
-        switch (phase) {
-            case INIT -> throw new IllegalStateException("Cannot exit type checking phase without entering it");
-            case TYPE_RESOLUTION ->
-                    throw new IllegalStateException("Cannot exit type checking phase while in type resolution phase\n");
-            case TYPE_CHECKING -> {
-                env.exitTypeCheckingPhase(this);
-                typeCheckDepth--;
-                if (typeCheckDepth == 0) {
-                    phase = Phase.INIT;
-                }
-            }
-        }
     }
 
     private boolean memoSubTypeIsEmptyInner(BddIsEmptyPredicate isEmptyPredicate, Bdd bdd, BddMemo m) {
@@ -192,41 +114,15 @@ public final class Context {
     }
 
     public ListAtomicType listAtomType(Atom atom) {
-        if (atom instanceof RecAtom recAtom) {
-            assert this.env.getRecListAtomType(recAtom) != null;
-            return this.env.getRecListAtomType(recAtom);
-        } else {
-            return (ListAtomicType) ((TypeAtom) atom).atomicType();
-        }
+        return env.listAtomType(atom);
     }
 
     public MappingAtomicType mappingAtomType(Atom atom) {
-        if (atom instanceof RecAtom recAtom) {
-            assert this.env.getRecMappingAtomType(recAtom) != null;
-            return this.env.getRecMappingAtomType(recAtom);
-        } else {
-            return (MappingAtomicType) ((TypeAtom) atom).atomicType();
-        }
+        return env.mappingAtomType(atom);
     }
 
     public FunctionAtomicType functionAtomicType(Atom atom) {
-        if (atom instanceof RecAtom recAtom) {
-            assert this.env.getRecFunctionAtomType(recAtom) != null;
-            return this.env.getRecFunctionAtomType(recAtom);
-        } else {
-            return (FunctionAtomicType) ((TypeAtom) atom).atomicType();
-        }
+        return env.functionAtomType(atom);
     }
 
-    public TypeCheckCache<CacheableTypeDescriptor> getTypeCheckCache(CacheableTypeDescriptor typeDescriptor) {
-        return typeCheckCacheMemo.computeIfAbsent(typeDescriptor, TypeCheckCache::new);
-    }
-
-    public void registerAbruptTypeCheckEnd(Exception ex) {
-        env.registerAbruptTypeCheckEnd(this, ex);
-    }
-
-    enum Phase {
-        INIT, TYPE_RESOLUTION, TYPE_CHECKING
-    }
 }

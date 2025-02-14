@@ -20,6 +20,8 @@ package io.ballerina.runtime.internal.values;
 import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.TypeTags;
+import io.ballerina.runtime.api.types.semtype.BasicTypeBitSet;
+import io.ballerina.runtime.api.types.semtype.Builder;
 import io.ballerina.runtime.api.types.semtype.Context;
 import io.ballerina.runtime.api.types.semtype.SemType;
 import io.ballerina.runtime.api.types.semtype.ShapeAnalyzer;
@@ -59,6 +61,7 @@ import static io.ballerina.runtime.internal.errors.ErrorReasons.getModulePrefixe
  */
 public abstract class AbstractArrayValue implements ArrayValue, RecursiveValue<ListDefinition> {
 
+    private static final BasicTypeBitSet BASIC_TYPE = Builder.getListType();
     static final int SYSTEM_ARRAY_MAX = Integer.MAX_VALUE - 8;
     private final ThreadLocal<ListDefinition> readonlyAttachedDefinition = new ThreadLocal<>();
 
@@ -333,4 +336,10 @@ public abstract class AbstractArrayValue implements ArrayValue, RecursiveValue<L
         TypeWithShape typeWithShape = (TypeWithShape) getType();
         return typeWithShape.inherentTypeOf(cx, ShapeAnalyzer::inherentTypeOf, this);
     }
+
+    @Override
+    public BasicTypeBitSet getBasicType() {
+        return BASIC_TYPE;
+    }
+
 }

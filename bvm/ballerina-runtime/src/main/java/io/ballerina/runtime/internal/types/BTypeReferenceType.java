@@ -25,6 +25,8 @@ import io.ballerina.runtime.api.types.IntersectableReferenceType;
 import io.ballerina.runtime.api.types.IntersectionType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.TypeTags;
+import io.ballerina.runtime.api.types.semtype.BasicTypeBitSet;
+import io.ballerina.runtime.api.types.semtype.CacheableTypeDescriptor;
 import io.ballerina.runtime.api.types.semtype.Context;
 import io.ballerina.runtime.api.types.semtype.SemType;
 import io.ballerina.runtime.api.types.semtype.ShapeAnalyzer;
@@ -122,6 +124,19 @@ public class BTypeReferenceType extends BAnnotatableType implements Intersectabl
     }
 
     @Override
+    public BasicTypeBitSet getBasicType() {
+        return this.referredType.getBasicType();
+    }
+
+    @Override
+    public int typeId() {
+        if (referredType instanceof CacheableTypeDescriptor cacheableTypeDescriptor) {
+            return cacheableTypeDescriptor.typeId();
+        }
+        return super.typeId();
+    }
+
+    @Override
     public Optional<IntersectionType> getIntersectionType() {
         return this.intersectionType == null ? Optional.empty() : Optional.of(this.intersectionType);
     }
@@ -169,7 +184,7 @@ public class BTypeReferenceType extends BAnnotatableType implements Intersectabl
     }
 
     @Override
-    public Optional<SemType> acceptedTypeOf(Context cx) {
+    public SemType acceptedTypeOf(Context cx) {
         Type referredType = getReferredType();
         if (referredType instanceof TypeWithShape typeWithShape) {
             return typeWithShape.acceptedTypeOf(cx);

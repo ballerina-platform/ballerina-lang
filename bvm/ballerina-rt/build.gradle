@@ -91,6 +91,7 @@ dependencies {
     dist libs.toml4j
     dist libs.fasterxml.woodstox.core
     dist libs.codehaus.woodstox.stax2.api
+    dist libs.caffeine
 
     // runtime
     dist libs.apache.commons.axiom.c14n

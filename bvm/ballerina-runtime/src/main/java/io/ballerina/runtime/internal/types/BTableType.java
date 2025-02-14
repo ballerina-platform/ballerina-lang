@@ -22,6 +22,7 @@ import io.ballerina.runtime.api.types.IntersectionType;
 import io.ballerina.runtime.api.types.TableType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.TypeTags;
+import io.ballerina.runtime.api.types.semtype.BasicTypeBitSet;
 import io.ballerina.runtime.api.types.semtype.Builder;
 import io.ballerina.runtime.api.types.semtype.Context;
 import io.ballerina.runtime.api.types.semtype.Core;
@@ -42,6 +43,8 @@ import java.util.Set;
  * @since 1.3.0
  */
 public class BTableType extends BType implements TableType, TypeWithShape {
+
+    private static final BasicTypeBitSet BASIC_TYPE = Builder.getTableType();
 
     private final Type constraint;
     private Type keyType;
@@ -157,6 +160,11 @@ public class BTableType extends BType implements TableType, TypeWithShape {
     }
 
     @Override
+    public BasicTypeBitSet getBasicType() {
+        return BASIC_TYPE;
+    }
+
+    @Override
     public Optional<IntersectionType> getIntersectionType() {
         return this.intersectionType ==  null ? Optional.empty() : Optional.of(this.intersectionType);
     }
@@ -217,18 +225,16 @@ public class BTableType extends BType implements TableType, TypeWithShape {
     }
 
     @Override
-    public Optional<SemType> acceptedTypeOf(Context cx) {
-        SemType constraintType = ShapeAnalyzer.acceptedTypeOf(cx, this.constraint).orElseThrow();
-        SemType semType;
+    public SemType acceptedTypeOf(Context cx) {
+        SemType constraintType = ShapeAnalyzer.acceptedTypeOf(cx, this.constraint);
         if (fieldNames.length > 0) {
-            semType = TableUtils.acceptedTypeContainingKeySpecifier(cx, constraintType, fieldNames);
+            return TableUtils.acceptedTypeContainingKeySpecifier(cx, constraintType, fieldNames);
         } else if (keyType != null) {
-            SemType keyAcceptedType = ShapeAnalyzer.acceptedTypeOf(cx, keyType).orElseThrow();
-            semType = TableUtils.acceptedTypeContainingKeyConstraint(cx, constraintType, keyAcceptedType);
+            SemType keyAcceptedType = ShapeAnalyzer.acceptedTypeOf(cx, keyType);
+            return TableUtils.acceptedTypeContainingKeyConstraint(cx, constraintType, keyAcceptedType);
         } else {
-            semType = TableUtils.acceptedType(cx.env, constraintType);
+            return TableUtils.acceptedType(cx.env, constraintType);
         }
-        return Optional.of(semType);
     }
 
     private SemType valueShape(Context cx, ShapeSupplier shapeSupplier, BTable<?, ?> table) {
@@ -241,8 +247,7 @@ public class BTableType extends BType implements TableType, TypeWithShape {
     }
 
     @Override
-    public boolean shouldCache() {
-        // TODO: remove this once we have fixed equals
+    protected boolean isNamedType() {
         return false;
     }
 

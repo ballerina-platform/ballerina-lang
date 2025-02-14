@@ -21,6 +21,7 @@ import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.constants.TypeConstants;
 import io.ballerina.runtime.api.types.FloatType;
 import io.ballerina.runtime.api.types.TypeTags;
+import io.ballerina.runtime.api.types.semtype.BasicTypeBitSet;
 import io.ballerina.runtime.api.types.semtype.Builder;
 import io.ballerina.runtime.api.types.semtype.ConcurrentLazySupplier;
 import io.ballerina.runtime.api.types.semtype.SemType;
@@ -38,6 +39,8 @@ import static io.ballerina.runtime.api.types.PredefinedTypes.EMPTY_MODULE;
 @SuppressWarnings("unchecked")
 public final class BFloatType extends BSemTypeWrapper<BFloatType.BFloatTypeImpl> implements FloatType {
 
+    private static final BasicTypeBitSet BASIC_TYPE = Builder.getFloatType();
+
     /**
      * Create a {@code BFloatType} which represents the boolean type.
      *
@@ -54,6 +57,11 @@ public final class BFloatType extends BSemTypeWrapper<BFloatType.BFloatTypeImpl>
     public static BFloatType singletonType(Double value) {
         return new BFloatType(() -> new BFloatTypeImpl(TypeConstants.FLOAT_TNAME, EMPTY_MODULE),
                 TypeConstants.FLOAT_TNAME, EMPTY_MODULE, Builder.getFloatConst(value));
+    }
+
+    @Override
+    public BasicTypeBitSet getBasicType() {
+        return BASIC_TYPE;
     }
 
     protected static final class BFloatTypeImpl extends BType implements FloatType {
@@ -80,6 +88,11 @@ public final class BFloatType extends BSemTypeWrapper<BFloatType.BFloatTypeImpl>
         @Override
         public boolean isReadOnly() {
             return true;
+        }
+
+        @Override
+        public BasicTypeBitSet getBasicType() {
+            return BASIC_TYPE;
         }
     }
 }
