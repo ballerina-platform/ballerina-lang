@@ -128,6 +128,20 @@
         ]
     },
     {
+        "name": "com.github.benmanes.caffeine.cache.FSA",
+        "fields": [
+            {
+                "name": "accessTime"
+            }
+        ],
+        "methods": [
+            {
+                "name": "<init>",
+                "parameterTypes": []
+            }
+        ]
+    },
+    {
         "name": "com.github.benmanes.caffeine.cache.FSMS",
         "methods": [
             {
@@ -144,6 +158,28 @@
             },
             {
                 "name": "value"
+            }
+        ]
+    },
+    {
+        "name": "com.github.benmanes.caffeine.cache.PSA",
+        "fields": [
+            {
+                "name": "accessTime"
+            }
+        ],
+        "methods": [
+            {
+                "name": "<init>",
+                "parameterTypes": []
+            }
+        ]
+    },
+    {
+        "name": "com.github.benmanes.caffeine.cache.SSA",
+        "fields": [
+            {
+                "name": "FACTORY"
             }
         ]
     },
@@ -174,6 +210,14 @@
     },
     {
         "name": "com.github.benmanes.caffeine.cache.WS",
+        "fields": [
+            {
+                "name": "FACTORY"
+            }
+        ]
+    },
+    {
+        "name": "com.github.benmanes.caffeine.cache.WSA",
         "fields": [
             {
                 "name": "FACTORY"
