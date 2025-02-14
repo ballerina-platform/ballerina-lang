@@ -63,7 +63,7 @@ public class CollectionUtil {
             try {
                 table.add(record);
             } catch (Exception e) {
-                if (table.containsKey(record) && frame.getRecord().get($ERROR$_FIELD) instanceof BError) {
+                if (frame.getRecord().get($ERROR$_FIELD) instanceof BError) {
                     return (BError) frame.getRecord().get($ERROR$_FIELD);
                 }
             }
