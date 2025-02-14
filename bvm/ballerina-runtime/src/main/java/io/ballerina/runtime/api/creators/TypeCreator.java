@@ -560,6 +560,10 @@ public final class TypeCreator {
         registeredRecordTypes.put(typeIdentifier, recordType);
     }
 
+    public static void restAllCaches() {
+        RecordTypeCache.cache.invalidateAll();
+    }
+
     private static final class RecordTypeCache {
 
         private static final Cache<TypeIdentifier, BRecordType> cache = CacheFactory.createCache();

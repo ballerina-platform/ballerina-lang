@@ -278,6 +278,7 @@ public class TomlProviderNegativeTest {
 
     @Test(dataProvider = "table-negative-tests")
     public void testTableNegativeConfig(String tomlFileName, String[] errorMessages) {
+        TypeCreator.restAllCaches();
         Field name = TypeCreator.createField(PredefinedTypes.TYPE_STRING, "name", SymbolFlags.REQUIRED);
         Field id = TypeCreator.createField(PredefinedTypes.TYPE_INT, "id", SymbolFlags.REQUIRED);
         Field age = TypeCreator.createField(PredefinedTypes.TYPE_INT, "age", SymbolFlags.OPTIONAL);
@@ -520,6 +521,7 @@ public class TomlProviderNegativeTest {
 
     @Test
     public void testUnusedTomlParts() {
+        TypeCreator.restAllCaches();
         VariableKey intVar = new VariableKey(ROOT_MODULE, "intVar", PredefinedTypes.TYPE_INT, true);
         VariableKey stringVar = new VariableKey(ROOT_MODULE, "stringVar", PredefinedTypes.TYPE_STRING, true);
 
@@ -634,7 +636,7 @@ public class TomlProviderNegativeTest {
 
     @Test
     public void testRestFieldInvalidType() {
-        RecordType recordType = TypeCreator.createRecordType("Person", ROOT_MODULE, SymbolFlags.READONLY,
+        RecordType recordType = TypeCreator.createRecordType("PersonTRFIT", ROOT_MODULE, SymbolFlags.READONLY,
                 new HashMap<>(), PredefinedTypes.TYPE_INT, false, 6);
         VariableKey recordVar = new VariableKey(ROOT_MODULE, "person", recordType, true);
         String error = "[RestFieldNegative.toml:(3:8,3:14)] configurable variable 'person.name' is expected to be of " +
