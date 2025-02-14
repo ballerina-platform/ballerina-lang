@@ -56,6 +56,22 @@ public class CollectionUtil {
         return table;
     }
 
+    public static Object createTableForOnConflict(Stream<Frame> strm, BTable table) {
+        Optional<BError> error = strm.map(frame -> {
+            BMap<BString, Object> record = (BMap<BString, Object>) frame.getRecord().get($VALUE$_FIELD);
+
+            try {
+                table.add(record);
+            } catch (Exception e) {
+                if (table.containsKey(record) && frame.getRecord().get($ERROR$_FIELD) instanceof BError) {
+                    return (BError) frame.getRecord().get($ERROR$_FIELD);
+                }
+            }
+            return null;
+        }).filter(Objects::nonNull).findFirst();
+        return error.isPresent() ? error.get() : table;
+    }
+
     public static BMap createMap(Stream<Frame> strm, BMap map) {
         strm.forEach(frame -> {
             BArray record = (BArray) frame.getRecord().get($VALUE$_FIELD);
