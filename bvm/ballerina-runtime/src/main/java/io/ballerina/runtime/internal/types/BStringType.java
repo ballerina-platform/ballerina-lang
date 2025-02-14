@@ -17,8 +17,7 @@
 */
 package io.ballerina.runtime.internal.types;
 
-import com.github.benmanes.caffeine.cache.Cache;
-import com.github.benmanes.caffeine.cache.Interner;
+import com.github.benmanes.caffeine.cache.LoadingCache;
 import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.constants.RuntimeConstants;
 import io.ballerina.runtime.api.constants.TypeConstants;
@@ -137,15 +136,14 @@ public final class BStringType extends BSemTypeWrapper<BStringType.BStringTypeIm
     private static final class BStringTypeCache {
 
         private static final int MAX_LENGTH = 50;
-        private static final Cache<String, BStringType> cache = CacheFactory.createCache();
-        private static final Interner<String> interner = Builder.getStringInterner();
+        private static final LoadingCache<String, BStringType> cache =
+                CacheFactory.createCache(BStringType::createSingletonType);
 
         public static BStringType get(String value) {
             if (value.length() > MAX_LENGTH) {
                 return BStringType.createSingletonType(value);
             }
-            String canonicalValue = interner.intern(value);
-            return cache.get(canonicalValue, BStringType::createSingletonType);
+            return cache.get(value);
         }
     }
 }

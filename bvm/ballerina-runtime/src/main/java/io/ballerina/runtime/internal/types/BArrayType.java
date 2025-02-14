@@ -17,6 +17,7 @@
  */
 package io.ballerina.runtime.internal.types;
 
+import com.github.benmanes.caffeine.cache.LoadingCache;
 import io.ballerina.runtime.api.flags.TypeFlags;
 import io.ballerina.runtime.api.types.ArrayType;
 import io.ballerina.runtime.api.types.IntersectionType;
@@ -31,6 +32,7 @@ import io.ballerina.runtime.api.types.semtype.ShapeAnalyzer;
 import io.ballerina.runtime.api.types.semtype.TypeCheckCache;
 import io.ballerina.runtime.api.types.semtype.TypeCheckCacheFactory;
 import io.ballerina.runtime.internal.TypeChecker;
+import io.ballerina.runtime.internal.types.semtype.CacheFactory;
 import io.ballerina.runtime.internal.types.semtype.CellAtomicType;
 import io.ballerina.runtime.internal.types.semtype.DefinitionContainer;
 import io.ballerina.runtime.internal.types.semtype.ListDefinition;
@@ -39,7 +41,6 @@ import io.ballerina.runtime.internal.values.ArrayValue;
 import io.ballerina.runtime.internal.values.ArrayValueImpl;
 import io.ballerina.runtime.internal.values.ReadOnlyUtils;
 
-import java.util.IdentityHashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -355,8 +356,10 @@ public class BArrayType extends BType implements ArrayType, TypeWithShape {
     private static class TypeCheckCacheData {
 
         private static final Map<Integer, SemType> cachedSemTypes = new ConcurrentHashMap<>();
-        private static final Map<Type, TypeCheckCacheRecord> cacheRW = new IdentityHashMap<>();
-        private static final Map<Type, TypeCheckCacheRecord> cacheRO = new IdentityHashMap<>();
+        private static final LoadingCache<Type, TypeCheckCacheRecord> cacheRW = CacheFactory.createIdentityCache(
+                ignored -> new TypeCheckCacheRecord(TypeIdSupplier.getAnonId(), TypeCheckCacheFactory.create()));
+        private static final LoadingCache<Type, TypeCheckCacheRecord> cacheRO = CacheFactory.createIdentityCache(
+                ignored -> new TypeCheckCacheRecord(TypeIdSupplier.getAnonId(), TypeCheckCacheFactory.create()));
 
         private record TypeCheckCacheRecord(int typeId, TypeCheckCache typeCheckCache) {
 
@@ -367,8 +370,7 @@ public class BArrayType extends BType implements ArrayType, TypeWithShape {
                 assert referenceType.getReferredType() != null;
                 return getRW(referenceType.getReferredType());
             }
-            return cacheRW.computeIfAbsent(constraint, ignored -> new TypeCheckCacheRecord(TypeIdSupplier.getAnonId(),
-                    TypeCheckCacheFactory.create()));
+            return cacheRW.get(constraint);
         }
 
         public static TypeCheckCacheData.TypeCheckCacheRecord getRO(Type constraint) {
@@ -376,8 +378,7 @@ public class BArrayType extends BType implements ArrayType, TypeWithShape {
                 assert referenceType.getReferredType() != null;
                 return getRO(referenceType.getReferredType());
             }
-            return cacheRO.computeIfAbsent(constraint, ignored -> new TypeCheckCacheRecord(TypeIdSupplier.getAnonId(),
-                    TypeCheckCacheFactory.create()));
+            return cacheRO.get(constraint);
         }
     }
 }
