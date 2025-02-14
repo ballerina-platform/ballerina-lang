@@ -314,6 +314,22 @@ function toXMLOld(stream<Type, CompletionType> strm, boolean isReadOnly) returns
     return result;
 }
 
+function toXML(handle strm, boolean isReadOnly) returns xml|error {
+    xml result = 'xml:concat();
+    result = check createXML(strm, result);
+    if isReadOnly {
+        createImmutableValue(result);
+    }
+
+    return result;
+}
+
+function createXML(handle strm, xml newXml) returns xml|error = @java:Method {
+    'class: "io.ballerina.runtime.internal.query.utils.CollectionUtil",
+    name: "createXML",
+    paramTypes: ["java.util.stream.Stream", "io.ballerina.runtime.api.values.BXml"]
+} external;
+
 function toStringOld(stream<Type, CompletionType> strm) returns string|error {
     string result = "";
     record {| Type value; |}|CompletionType v = strm.next();
