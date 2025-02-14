@@ -474,30 +474,7 @@ function createMapForOnConflictOld(stream<Type, CompletionType> strm, map<Type> 
     return v is error ? v : mp;
 }
 
-function createMapForOnConflict(handle strm, map<Type> mp) returns map<Type>|error {
-    // record {| Type value; |}|CompletionType v = strm.next();
-    // while v is record {| Type value; |} {
-    //     record {|Type v; error? err;|}|error value = v.value.ensureType();
-    //     if value is error {
-    //         return value;
-    //     }
-    //     [string, Type]|error keyValue = value.v.ensureType();
-    //     if keyValue is error {
-    //         return keyValue;
-    //     }
-    //     string key = keyValue[0];
-    //     error? err = value.err;
-    //     if mp.hasKey(key) && err is error {
-    //         return err;
-    //     }
-    //     mp[key] = keyValue[1];
-    //     v = strm.next();
-    // }
-    map<Type>|error v = createMapForOnConflictJava(strm, mp);
-    return v;
-}
-
-function createMapForOnConflictJava(handle strm, map<Type> mp) returns map<Type>|error = @java:Method {
+function createMapForOnConflict(handle strm, map<Type> mp) returns map<Type>|error = @java:Method {
     'class: "io.ballerina.runtime.internal.query.utils.CollectionUtil",
     name: "createMapForOnConflict",
     paramTypes: ["java.util.stream.Stream","io.ballerina.runtime.api.values.BMap"]

@@ -73,7 +73,7 @@ public class CollectionUtil {
                     BArray recordArray = (BArray) record.get($VALUE$_FIELD);
 
                     BString key = (BString) recordArray.get(0);
-                    if(map.containsKey(key)) {
+                    if(map.containsKey(key) && record.get($ERROR$_FIELD) instanceof BError) {
                         return (BError) record.get($ERROR$_FIELD);
                     }
                     Object value = recordArray.get(1);
