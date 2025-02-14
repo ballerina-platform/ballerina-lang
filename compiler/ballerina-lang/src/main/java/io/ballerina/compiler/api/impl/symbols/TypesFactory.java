@@ -22,13 +22,9 @@ import io.ballerina.compiler.api.symbols.ObjectTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.api.symbols.XMLTypeSymbol;
-import io.ballerina.types.Core;
-import io.ballerina.types.Value;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.types.TypeKind;
 import org.wso2.ballerinalang.compiler.parser.BLangAnonymousModelHelper;
-import org.wso2.ballerinalang.compiler.semantics.analyzer.SemTypeHelper;
-import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BClassSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
@@ -48,6 +44,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BIntersectionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BJSONType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BNeverType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BNilType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BNoType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BReadonlyType;
@@ -62,12 +59,13 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BTypedescType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BXMLSubType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BXMLType;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.util.Flags;
 
-import java.util.Objects;
-import java.util.Optional;
+import java.util.Set;
 
 import static org.ballerinalang.model.types.TypeKind.PARAMETERIZED;
 import static org.wso2.ballerinalang.compiler.util.TypeTags.ANY;
@@ -114,7 +112,6 @@ public class TypesFactory {
     private final CompilerContext context;
     private final SymbolFactory symbolFactory;
     private final BLangAnonymousModelHelper anonymousModelHelper;
-    private SymbolTable symTable;
 
     private TypesFactory(CompilerContext context) {
         context.put(TYPES_FACTORY_KEY, this);
@@ -122,7 +119,6 @@ public class TypesFactory {
         this.context = context;
         this.symbolFactory = SymbolFactory.getInstance(context);
         this.anonymousModelHelper = BLangAnonymousModelHelper.getInstance(context);
-        this.symTable = SymbolTable.getInstance(context);
     }
 
     public static TypesFactory getInstance(CompilerContext context) {
@@ -235,16 +231,16 @@ public class TypesFactory {
             case TYPEDESC:
                 return new BallerinaTypeDescTypeSymbol(this.context, (BTypedescType) bType);
             case NIL:
-                return new BallerinaNilTypeSymbol(this.context, bType);
+                return new BallerinaNilTypeSymbol(this.context, (BNilType) bType);
             case FINITE:
                 BFiniteType finiteType = (BFiniteType) bType;
-                Optional<Value> value = Core.singleShape(finiteType.semType());
-                if (value.isPresent()) {
-                    BType broadType = SemTypeHelper.broadTypes(finiteType, symTable).iterator()
-                            .next();
-                    String valueString = Objects.toString(value.get().value, "()");
-                    return new BallerinaSingletonTypeSymbol(this.context, broadType, valueString, bType);
+                Set<BLangExpression> valueSpace = finiteType.getValueSpace();
+
+                if (valueSpace.size() == 1) {
+                    BLangExpression shape = valueSpace.iterator().next();
+                    return new BallerinaSingletonTypeSymbol(this.context, (BLangLiteral) shape, bType);
                 }
+
                 return new BallerinaUnionTypeSymbol(this.context, finiteType);
             case FUNCTION:
                 return new BallerinaFunctionTypeSymbol(this.context, (BInvokableTypeSymbol) tSymbol, bType);

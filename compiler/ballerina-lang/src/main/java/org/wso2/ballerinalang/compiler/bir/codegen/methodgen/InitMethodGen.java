@@ -131,8 +131,7 @@ public class InitMethodGen {
 
     public InitMethodGen(SymbolTable symbolTable) {
         this.symbolTable = symbolTable;
-        this.errorOrNilType =
-                BUnionType.create(symbolTable.typeEnv(), null, symbolTable.errorType, symbolTable.nilType);
+        this.errorOrNilType = BUnionType.create(null, symbolTable.errorType, symbolTable.nilType);
     }
 
     /**
@@ -186,7 +185,7 @@ public class InitMethodGen {
                 jvmCastGen.addUnboxInsn(mv, paramType);
                 paramIndex += 1;
             }
-            methodDesc = JvmCodeGenUtil.getMethodDesc(symbolTable.typeEnv(), paramTypes, returnType);
+            methodDesc = JvmCodeGenUtil.getMethodDesc(paramTypes, returnType);
         }
 
         mv.visitMethodInsn(INVOKESTATIC, initClass, MODULE_EXECUTE_METHOD, methodDesc, false);
@@ -332,21 +331,21 @@ public class InitMethodGen {
         javaClass.functions.add(initFunc);
         pkg.functions.add(initFunc);
         birFunctionMap.put(JvmCodeGenUtil.getPackageName(pkg.packageID) + MODULE_INIT_METHOD,
-                JvmPackageGen.getFunctionWrapper(symbolTable.typeEnv(), initFunc, pkg.packageID, typeOwnerClass));
+                JvmPackageGen.getFunctionWrapper(initFunc, pkg.packageID, typeOwnerClass));
 
         BIRNode.BIRFunction startFunc = generateDefaultFunction(moduleImports, pkg, MODULE_START_METHOD,
                                                                 MethodGenUtils.START_FUNCTION_SUFFIX);
         javaClass.functions.add(startFunc);
         pkg.functions.add(startFunc);
         birFunctionMap.put(JvmCodeGenUtil.getPackageName(pkg.packageID) + MODULE_START_METHOD,
-                JvmPackageGen.getFunctionWrapper(symbolTable.typeEnv(), startFunc, pkg.packageID, typeOwnerClass));
+                JvmPackageGen.getFunctionWrapper(startFunc, pkg.packageID, typeOwnerClass));
 
         BIRNode.BIRFunction execFunc = generateExecuteFunction(pkg, mainFunc, testExecuteFunc
                                                               );
         javaClass.functions.add(execFunc);
         pkg.functions.add(execFunc);
         birFunctionMap.put(JvmCodeGenUtil.getPackageName(pkg.packageID) + MODULE_EXECUTE_METHOD,
-                JvmPackageGen.getFunctionWrapper(symbolTable.typeEnv(), execFunc, pkg.packageID, typeOwnerClass));
+                JvmPackageGen.getFunctionWrapper(execFunc, pkg.packageID, typeOwnerClass));
     }
 
     private BIRNode.BIRFunction generateExecuteFunction(BIRNode.BIRPackage pkg,
@@ -356,8 +355,7 @@ public class InitMethodGen {
                 new Name("%ret"), VarScope.FUNCTION, VarKind.RETURN, null);
         BIROperand retVarRef = new BIROperand(retVar);
         List<BIROperand> functionArgs = new ArrayList<>();
-        BInvokableType funcType =
-                new BInvokableType(symbolTable.typeEnv(), Collections.emptyList(), null, errorOrNilType, null);
+        BInvokableType funcType = new BInvokableType(Collections.emptyList(), null, errorOrNilType, null);
         BIRNode.BIRFunction modExecFunc = new BIRNode.BIRFunction(null, new Name(MODULE_EXECUTE_METHOD),
                 0, funcType, null, 0, VIRTUAL);
         List<BType> paramTypes = new ArrayList<>();
@@ -513,8 +511,7 @@ public class InitMethodGen {
                                                                    VarScope.FUNCTION, VarKind.RETURN, null);
         BIROperand retVarRef = new BIROperand(retVar);
 
-        BInvokableType funcType =
-                new BInvokableType(symbolTable.typeEnv(), Collections.emptyList(), null, errorOrNilType, null);
+        BInvokableType funcType = new BInvokableType(Collections.emptyList(), null, errorOrNilType, null);
         BIRNode.BIRFunction modInitFunc = new BIRNode.BIRFunction(symbolTable.builtinPos, new Name(funcName), 0,
                 funcType, null, 0, VIRTUAL);
         modInitFunc.localVars.add(retVar);

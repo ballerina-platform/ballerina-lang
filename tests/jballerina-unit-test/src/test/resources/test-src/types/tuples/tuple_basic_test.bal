@@ -26,8 +26,8 @@ function basicTupleTest () returns (string) {
     endTest();
 
     // Test 5
-    FooStruct foo5 = {x:"foo test5"};
-    [string, FooStruct] i = ["test5",foo5];
+    FooStructTBT foo5 = {x:"foo test5"};
+    [string, FooStructTBT] i = ["test5",foo5];
     var [j, k] = i;
     addValue(j);
     addValue(k.x);
@@ -35,7 +35,7 @@ function basicTupleTest () returns (string) {
     return exFlow;
 }
 
-type FooStruct record {
+type FooStructTBT record {
     string x;
 };
 
@@ -116,28 +116,28 @@ function testIndexBasedAccess () returns [string, int, boolean] {
     return [x[2], x[1], x[0]];
 }
 
-type Person record {|
+type PersonTBT record {|
     string name;
 |};
 
-type Employee record {
+type EmployeeTBT record {
     string name;
     boolean intern;
 };
 
 function testIndexBasedAccessOfRecords () returns [string, boolean, string, string, float] {
-    Person p1 = { name: "Foo" };
-    Person p2 = { name: "Bar" };
-    Employee e1 = { name: "FooBar", intern: false };
+    PersonTBT p1 = { name: "Foo" };
+    PersonTBT p2 = { name: "Bar" };
+    EmployeeTBT e1 = { name: "FooBar", intern: false };
 
-    [Person, Employee, Person, float] x = [p1, e1, p2, 12.0];
-    Person p3 = x[0];
-    Employee e2 = x[1];
-    Person p4 = x[2];
+    [PersonTBT, EmployeeTBT, PersonTBT, float] x = [p1, e1, p2, 12.0];
+    PersonTBT p3 = x[0];
+    EmployeeTBT e2 = x[1];
+    PersonTBT p4 = x[2];
 
-    Person p5 = { name: "NewFoo" };
-    Person p6 = { name: "NewBar" };
-    Employee e3 = { name: "NewFooBar", intern: true };
+    PersonTBT p5 = { name: "NewFoo" };
+    PersonTBT p6 = { name: "NewBar" };
+    EmployeeTBT e3 = { name: "NewFooBar", intern: true };
     x[0] = p5;
     x[1] = e3;
     x[2] = p6;
@@ -189,26 +189,26 @@ function testArrayToTupleAssignment4() returns [string, string, string] {
 const x = "x";
 const y = "y";
 
-type someType [x, int];
-type anotherType [y, string, NoFillerObject];
-type oneMoreType [y, string];
+type someTypeTBT [x, int];
+type anotherTypeTBT [y, string, NoFillerObject];
+type oneMoreTypeTBT [y, string];
 
-type someOtherType someType | anotherType | oneMoreType;
+type someOtherTypeTBT someTypeTBT | anotherTypeTBT | oneMoreTypeTBT;
 
 function testTupleUnionExpectedType() {
-    someOtherType st = [y, "a", new(1)];
-    someOtherType st1 = ["y", "str"];
+    someOtherTypeTBT st = [y, "a", new(1)];
+    someOtherTypeTBT st1 = ["y", "str"];
 
-    assertEquality(true, st is anotherType);
+    assertEquality(true, st is anotherTypeTBT);
 
-    anotherType val = <anotherType> st;
+    anotherTypeTBT val = <anotherTypeTBT> st;
     assertEquality(y, val[0]);
     assertEquality("a", val[1]);
     assertEquality(1, val[2].a);
 
-    assertEquality(true, st1 is oneMoreType);
+    assertEquality(true, st1 is oneMoreTypeTBT);
 
-    oneMoreType val2 = <oneMoreType> st1;
+    oneMoreTypeTBT val2 = <oneMoreTypeTBT> st1;
     assertEquality(y, val2[0]);
     assertEquality("str", val2[1]);
 }
@@ -388,12 +388,12 @@ function testTupleDeclaredWithVar4() {
     assertEquality(56, b2[1][1]);
 }
 
-type Foo record {
+type FooTBT record {
     string name;
     int age;
 };
 
-type Bar record {
+type BarTBT record {
     int id;
     boolean flag;
 };
@@ -418,14 +418,14 @@ class BarObj {
     }
 }
 
-Foo foo = {name: "Test", age: 23};
-Bar bar = {id: 34, flag: true};
+FooTBT foo = {name: "Test", age: 23};
+BarTBT bar = {id: 34, flag: true};
 FooObj fooObj = new ("Fooo", 3.7, 23);
 BarObj barObj = new (true, 56);
 
 function getComplexTuple1() returns [[int], record {int a;}, error, int...] => [[5], {a: 6}, error("error msg"), 12, 13];
 
-function getComplexTuple2() returns [string, [Foo, [BarObj, FooObj]], [Bar, int]] =>
+function getComplexTuple2() returns [string, [FooTBT, [BarObj, FooObj]], [BarTBT, int]] =>
                                        [foo.name, [foo, [barObj, fooObj]], [bar, barObj.i]];
 
 function testTupleAsTupleFirstMember() {
@@ -442,14 +442,14 @@ function getError(string expectedVal, string actualVal) returns error {
     return error("expected " + expectedVal + " found " + actualVal);
 }
 
-type MyTupleType int|[MyTupleType...];
+type MyTupleTypeTBT int|[MyTupleTypeTBT...];
 
 function testTupleToJSONAssignment() {
      [json, json...] A = [];
      json jsonTest = A;
      assertEquality(true, A is json);
 
-     MyTupleType C = [1, 2, 3];
+     MyTupleTypeTBT C = [1, 2, 3];
      jsonTest = C;
      assertEquality(true, C is json);
 
@@ -490,18 +490,18 @@ function testTupleToJSONAssignment() {
 public const annotation tup on type;
 public const annotation member on field;
 
-type T1 [int, @member int, string...];
-type T2 [int, @member int, string];
-type T3 [@member int, string];
+type T1TBT [int, @member int, string...];
+type T2TBT [int, @member int, string];
+type T3TBT [@member int, string];
 
 @tup
-type T4 [@member int, string];
+type T4TBT [@member int, string];
 
-function testTupleMemberAnnotations2() returns [T1, T2, T3, T4] {
-    T1 x1 =  [1, 2, "hello", "world"];
-    T2 x2 =  [1, 2, "a"];
-    T3 x3 =  [1, "hello"];
-    T4 x4 =  [1, "a"];
+function testTupleMemberAnnotations2() returns [T1TBT, T2TBT, T3TBT, T4TBT] {
+    T1TBT x1 =  [1, 2, "hello", "world"];
+    T2TBT x2 =  [1, 2, "a"];
+    T3TBT x3 =  [1, "hello"];
+    T4TBT x4 =  [1, "a"];
     return [x1, x2, x3, x4];
 }
 

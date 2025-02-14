@@ -130,6 +130,7 @@ wso2StaxonCoreVersion="1.2.0.wso2v2"
 wso2TransportHttpVersion="6.3.11"
 wso2TransportLocalFileSystemVersion="6.0.55"
 zafarkhajaJsemverVersion="0.9.0"
+caffeineVersion = "3.2.0"
 
 [libraries]
 apache-commons-axiom-api = { module = "org.apache.ws.commons.axiom:axiom-api", version.ref = "apacheCommonsAxiomApiVersion" }
@@ -258,6 +259,7 @@ wso2-staxon-core = { module = "org.wso2.staxon:staxon-core", version.ref = "wso2
 wso2-transport-http = { module = "org.wso2.transport.http:org.wso2.transport.http.netty", version.ref = "wso2TransportHttpVersion"}
 wso2-transport-local-file-system = { module = "org.wso2.transport.file:org.wso2.transport.local-file-system", version.ref = "wso2TransportLocalFileSystemVersion"}
 zafarkhaja-jsemver = { module = "com.github.zafarkhaja:java-semver", version.ref = "zafarkhajaJsemverVersion"}
+caffeine = { module = "com.github.ben-manes.caffeine:caffeine", version.ref = "caffeineVersion" }
 
 [plugins]
 spotbugs = { id = "com.github.spotbugs", version.ref = "githubSpotbugsVersion"}

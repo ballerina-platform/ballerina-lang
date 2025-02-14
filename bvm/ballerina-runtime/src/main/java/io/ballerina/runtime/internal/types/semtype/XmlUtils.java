@@ -59,7 +59,7 @@ public final class XmlUtils {
     public static final SubTypeData XML_SUBTYPE_TOP = from(XML_PRIMITIVE_ALL_MASK, BddAllOrNothing.ALL);
     public static final SubType XML_SUBTYPE_RO =
             BXmlSubType.createDelegate(XML_PRIMITIVE_RO_MASK,
-                    bddAtom(RecAtom.createRecAtom(XML_PRIMITIVE_RO_SINGLETON)));
+                    bddAtom(RecAtom.createUnBlockedRecAtom(XML_PRIMITIVE_RO_SINGLETON)));
 
     private XmlUtils() {
     }

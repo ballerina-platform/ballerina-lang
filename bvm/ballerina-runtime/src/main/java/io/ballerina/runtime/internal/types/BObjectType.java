@@ -31,6 +31,7 @@ import io.ballerina.runtime.api.types.ResourceMethodType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.TypeIdSet;
 import io.ballerina.runtime.api.types.TypeTags;
+import io.ballerina.runtime.api.types.semtype.BasicTypeBitSet;
 import io.ballerina.runtime.api.types.semtype.Builder;
 import io.ballerina.runtime.api.types.semtype.Context;
 import io.ballerina.runtime.api.types.semtype.Core;
@@ -73,6 +74,8 @@ import static io.ballerina.runtime.api.types.TypeTags.SERVICE_TAG;
  * @since 0.995.0
  */
 public class BObjectType extends BStructureType implements ObjectType, TypeWithShape {
+
+    private static final BasicTypeBitSet BASIC_TYPE = Builder.getObjectType();
 
     private MethodType[] methodTypes;
     private MethodType initMethod;
@@ -227,6 +230,11 @@ public class BObjectType extends BStructureType implements ObjectType, TypeWithS
     @Override
     public void setImmutableType(IntersectionType immutableType) {
         this.immutableType = immutableType;
+    }
+
+    @Override
+    public BasicTypeBitSet getBasicType() {
+        return BASIC_TYPE;
     }
 
     @Override
@@ -385,7 +393,7 @@ public class BObjectType extends BStructureType implements ObjectType, TypeWithS
     }
 
     @Override
-    public final Optional<SemType> acceptedTypeOf(Context cx) {
+    public final SemType acceptedTypeOf(Context cx) {
         Env env = cx.env;
         initializeDistinctIdSupplierIfNeeded(cx.env);
         CellAtomicType.CellMutability mut = CellAtomicType.CellMutability.CELL_MUT_UNLIMITED;
@@ -399,11 +407,10 @@ public class BObjectType extends BStructureType implements ObjectType, TypeWithS
             } else {
                 ObjectDefinition od = result.definition();
                 innerType = semTypeInner(cx, od, mut,
-                        ((context, type) -> ShapeAnalyzer.acceptedTypeOf(context, type).orElseThrow()));
+                        (ShapeAnalyzer::acceptedTypeOf));
             }
         }
-        return Optional.of(
-                distinctIdSupplier.get().stream().map(ObjectDefinition::distinct).reduce(innerType, Core::intersect));
+        return distinctIdSupplier.get().stream().map(ObjectDefinition::distinct).reduce(innerType, Core::intersect);
     }
 
     @Override

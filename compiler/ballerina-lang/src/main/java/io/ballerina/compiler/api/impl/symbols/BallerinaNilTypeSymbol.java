@@ -20,7 +20,7 @@ import io.ballerina.compiler.api.SymbolTransformer;
 import io.ballerina.compiler.api.SymbolVisitor;
 import io.ballerina.compiler.api.symbols.NilTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BNilType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
 /**
@@ -30,7 +30,7 @@ import org.wso2.ballerinalang.compiler.util.CompilerContext;
  */
 public class BallerinaNilTypeSymbol extends AbstractTypeSymbol implements NilTypeSymbol {
 
-    public BallerinaNilTypeSymbol(CompilerContext context, BType nilType) {
+    public BallerinaNilTypeSymbol(CompilerContext context, BNilType nilType) {
         super(context, TypeDescKind.NIL, nilType);
     }
 

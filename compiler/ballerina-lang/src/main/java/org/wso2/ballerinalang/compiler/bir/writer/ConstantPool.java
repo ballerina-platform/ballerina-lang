@@ -17,7 +17,7 @@
  */
 package org.wso2.ballerinalang.compiler.bir.writer;
 
-import io.ballerina.types.Env;
+
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import org.ballerinalang.compiler.BLangCompilerException;
@@ -45,11 +45,6 @@ public class ConstantPool {
 
     private final Map<CPEntry, Integer> cpEntriesMap = new HashMap<>();
     private final List<CPEntry> cpEntries = new ArrayList<>();
-    private final Env typeEnv;
-
-    public ConstantPool(Env typeEnv) {
-        this.typeEnv = typeEnv;
-    }
 
     public int addCPEntry(CPEntry cpEntry) {
         int size = cpEntries.size();
@@ -123,7 +118,7 @@ public class ConstantPool {
                 case CP_ENTRY_SHAPE -> {
                     CPEntry.ShapeCPEntry shapeCPEntry = (CPEntry.ShapeCPEntry) cpEntry;
                     ByteBuf typeBuf = Unpooled.buffer();
-                    BIRTypeWriter birTypeWriter = new BIRTypeWriter(typeBuf, this, typeEnv);
+                    BIRTypeWriter birTypeWriter = new BIRTypeWriter(typeBuf, this);
                     birTypeWriter.visitType(shapeCPEntry.shape);
                     byte[] bytes = Arrays.copyOfRange(typeBuf.array(), 0, typeBuf.writerIndex());
                     stream.writeInt(bytes.length);

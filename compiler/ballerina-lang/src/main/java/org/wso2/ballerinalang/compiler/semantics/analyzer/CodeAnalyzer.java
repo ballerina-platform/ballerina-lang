@@ -19,10 +19,6 @@ package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
 import io.ballerina.identifier.Utils;
 import io.ballerina.tools.diagnostics.Location;
-import io.ballerina.types.Core;
-import io.ballerina.types.PredefinedType;
-import io.ballerina.types.SemType;
-import io.ballerina.types.Value;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.PackageID;
@@ -271,7 +267,6 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
@@ -1091,8 +1086,16 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
     }
 
     private Object getConstValueFromFiniteType(BFiniteType type) {
-        Optional<Value> value = Core.singleShape(type.semType());
-        return value.map(v -> v.value).orElse(null);
+        if (type.getValueSpace().size() == 1) {
+            BLangExpression expr = type.getValueSpace().iterator().next();
+            switch (expr.getKind()) {
+                case NUMERIC_LITERAL:
+                    return ((BLangNumericLiteral) expr).value;
+                case LITERAL:
+                    return ((BLangLiteral) expr).value;
+            }
+        }
+        return null;
     }
 
     private boolean checkSimilarListMatchPattern(BLangListMatchPattern firstListMatchPattern,
@@ -1399,8 +1402,10 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
                 if (varBindingPattern.matchExpr == null) {
                     return;
                 }
-                varBindingPattern.isLastPattern = types.isAssignable(varBindingPattern.matchExpr.getBType(),
-                                                                     varBindingPattern.getBType());
+                varBindingPattern.isLastPattern = types.isSameType(varBindingPattern.matchExpr.getBType(),
+                                                                   varBindingPattern.getBType()) || types.isAssignable(
+                        varBindingPattern.matchExpr.getBType(),
+                        varBindingPattern.getBType());
         }
     }
 
@@ -1529,8 +1534,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         if (!data.failureHandled) {
             BType exprType = data.env.enclInvokable.getReturnTypeNode().getBType();
             data.returnTypes.peek().add(exprType);
-            BType type = failNode.expr.getBType();
-            if (!types.isSubtype(types.getErrorIntersection(type.semType()), exprType.semType())) {
+            if (!types.isAssignable(types.getErrorTypes(failNode.expr.getBType()), exprType)) {
                 dlog.error(failNode.pos, DiagnosticErrorCode.FAIL_EXPR_NO_MATCHING_ERROR_RETURN_IN_ENCL_INVOKABLE);
             }
         }
@@ -1649,7 +1653,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
                 return;
             case TypeTags.INVOKABLE:
                 BInvokableType invokableType = (BInvokableType) type;
-                if (Symbols.isFlagOn(invokableType.getFlags(), Flags.ANY_FUNCTION)) {
+                if (Symbols.isFlagOn(invokableType.flags, Flags.ANY_FUNCTION)) {
                     return;
                 }
                 if (invokableType.paramTypes != null) {
@@ -2081,7 +2085,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
 
         BType sendTypeWithNoMsgIgnored;
         if (returnTypeAndSendType.size() > 1) {
-            sendTypeWithNoMsgIgnored = BUnionType.create(symTable.typeEnv(), null, returnTypeAndSendType);
+            sendTypeWithNoMsgIgnored = BUnionType.create(null, returnTypeAndSendType);
         } else {
             sendTypeWithNoMsgIgnored = exprType;
         }
@@ -2094,7 +2098,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
                     lookup(Names.fromString(NO_MESSAGE_ERROR_TYPE)).symbol;
             returnTypeAndSendType.add(noMsgErrSymbol.getType());
             if (returnTypeAndSendType.size() > 1) {
-                sendType = BUnionType.create(symTable.typeEnv(), null, returnTypeAndSendType);
+                sendType = BUnionType.create(null, returnTypeAndSendType);
             } else {
                 sendType = exprType;
             }
@@ -2139,7 +2143,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
             was.hasErrors = true;
         }
 
-        syncSendExpr.setBType(BUnionType.create(symTable.typeEnv(), null, symTable.nilType, symTable.errorType));
+        syncSendExpr.setBType(BUnionType.create(null, symTable.nilType, symTable.errorType));
         boolean withinIfOrOnFail = !invalidSendPos && withinIfOrOnFail(data.env.enclInvokable.body, data.env.node);
         setWorkerSendSendTypeDetails(syncSendExpr, syncSendExpr.expr.getBType(), withinIfOrOnFail, data);
         was.addWorkerAction(syncSendExpr);
@@ -2250,7 +2254,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
 
         returnTypeAndSendType.add(symTable.nilType);
         if (returnTypeAndSendType.size() > 1) {
-            return BUnionType.create(symTable.typeEnv(), null, returnTypeAndSendType);
+            return BUnionType.create(null, returnTypeAndSendType);
         } else {
             return symTable.nilType;
         }
@@ -2275,7 +2279,25 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
     }
 
     private boolean hasNonErrorType(BType returnType) {
-        return !Core.isSubtypeSimple(returnType.semType(), PredefinedType.ERROR);
+        if (returnType == null) {
+            return false;
+        }
+
+        BType effType = Types.getImpliedType(types.getTypeWithEffectiveIntersectionTypes(returnType));
+        if (effType.tag == TypeTags.ERROR) {
+            return false;
+        }
+
+        if (effType.tag == TypeTags.UNION) {
+            for (BType memberType : ((BUnionType) returnType).getMemberTypes()) {
+                if (hasNonErrorType(memberType)) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        return true;
     }
 
     @Override
@@ -3318,14 +3340,14 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
 
         BType exprType = Types.getImpliedType(enclInvokable.getReturnTypeNode().getBType());
         BType checkedExprType = checkedExpr.expr.getBType();
-        SemType errorType = types.getErrorIntersection(checkedExprType.semType());
+        BType errorType = types.getErrorTypes(checkedExprType);
 
-        if (Core.isNever(errorType)) {
+        if (errorType == symTable.semanticError) {
             return;
         }
 
         boolean ignoreErrForCheckExpr = data.withinQuery && data.queryConstructType == Types.QueryConstructType.STREAM;
-        if (!data.failureHandled && !ignoreErrForCheckExpr && !types.isSubtype(errorType, exprType.semType())
+        if (!data.failureHandled && !ignoreErrForCheckExpr && !types.isAssignable(errorType, exprType)
                 && !types.isNeverTypeOrStructureTypeWithARequiredNeverMember(checkedExprType)) {
             dlog.error(checkedExpr.pos,
                     DiagnosticErrorCode.CHECKED_EXPR_NO_MATCHING_ERROR_RETURN_IN_ENCL_INVOKABLE);
@@ -3524,7 +3546,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         // It'll be only possible iff, the target type has been assigned to the source
         // variable at some point. To do that, a value of target type should be assignable
         // to the type of the source variable.
-        if (!types.intersectionExists(expr.getBType().semType(), typeNodeType.semType())) {
+        if (!intersectionExists(expr, typeNodeType, data, typeTestExpr.pos)) {
             dlog.error(typeTestExpr.pos, DiagnosticErrorCode.INCOMPATIBLE_TYPE_CHECK, exprType, typeNodeType);
         }
     }
@@ -3551,6 +3573,20 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         }
 
         dlog.warning(pos, DiagnosticWarningCode.USAGE_OF_DEPRECATED_CONSTRUCT, deprecatedConstruct);
+    }
+
+    private boolean intersectionExists(BLangExpression expression, BType testType, AnalyzerData data,
+                                       Location intersectionPos) {
+        BType expressionType = expression.getBType();
+
+        BType intersectionType = types.getTypeIntersection(
+                Types.IntersectionContext.typeTestIntersectionExistenceContext(intersectionPos),
+                expressionType, testType, data.env);
+
+        // any and readonly has an intersection
+        return (intersectionType != symTable.semanticError) ||
+                (Types.getImpliedType(expressionType).tag == TypeTags.ANY &&
+                        Types.getImpliedType(testType).tag == TypeTags.READONLY);
     }
 
     @Override
@@ -3781,7 +3817,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
 
         BType actualType;
         if (altTypes.size() > 1) {
-            actualType = BUnionType.create(symTable.typeEnv(), null, altTypes);
+            actualType = BUnionType.create(null, altTypes);
         } else {
             actualType = altTypes.iterator().next();
         }
@@ -4259,7 +4295,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         BType matchedExprType = matchedExpr.getBType();
 
         if (types.isInherentlyImmutableType(matchedExprType) ||
-                Symbols.isFlagOn(matchedExprType.getFlags(), Flags.READONLY)) {
+                Symbols.isFlagOn(matchedExprType.flags, Flags.READONLY)) {
             return;
         }
 
@@ -4283,7 +4319,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
 
             BLangExpression streamImplementorExpr = argsExpr.get(0);
             BType type = streamImplementorExpr.getBType();
-            if (!types.isInherentlyImmutableType(type) && !Symbols.isFlagOn(type.getFlags(), Flags.READONLY)) {
+            if (!types.isInherentlyImmutableType(type) && !Symbols.isFlagOn(type.flags, Flags.READONLY)) {
                 dlog.error(streamImplementorExpr.pos,
                         DiagnosticErrorCode.INVALID_CALL_WITH_MUTABLE_ARGS_IN_MATCH_GUARD);
             }
@@ -4308,7 +4344,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
 
             if (type != symTable.semanticError &&
                     !types.isInherentlyImmutableType(type) &&
-                    !Symbols.isFlagOn(type.getFlags(), Flags.READONLY)) {
+                    !Symbols.isFlagOn(type.flags, Flags.READONLY)) {
                 dlog.error(arg.pos, DiagnosticErrorCode.INVALID_CALL_WITH_MUTABLE_ARGS_IN_MATCH_GUARD);
             }
         }

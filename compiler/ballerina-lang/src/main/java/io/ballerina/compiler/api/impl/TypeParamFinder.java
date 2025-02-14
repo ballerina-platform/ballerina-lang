@@ -26,6 +26,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BAnnotationType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BAnyType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BAnydataType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BBuiltInRefType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BErrorType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFiniteType;
@@ -36,6 +37,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BJSONType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BNeverType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BNilType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BNoType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BPackageType;
@@ -60,7 +62,7 @@ import java.util.Set;
  *
  * @since 2.0.0
  */
-public class TypeParamFinder extends TypeVisitor {
+public class TypeParamFinder implements TypeVisitor {
 
     private final Set<BType> visited = new HashSet<>();
     private BType typeParam;
@@ -95,6 +97,10 @@ public class TypeParamFinder extends TypeVisitor {
     @Override
     public void visit(BArrayType bArrayType) {
         find(bArrayType.eType);
+    }
+
+    @Override
+    public void visit(BBuiltInRefType bBuiltInRefType) {
     }
 
     @Override
@@ -158,7 +164,7 @@ public class TypeParamFinder extends TypeVisitor {
     }
 
     @Override
-    public void visitNilType(BType btype) {
+    public void visit(BNilType bNilType) {
     }
 
     @Override
@@ -230,6 +236,10 @@ public class TypeParamFinder extends TypeVisitor {
     }
 
     @Override
+    public void visit(BType bType) {
+    }
+
+    @Override
     public void visit(BFutureType bFutureType) {
         find(bFutureType.constraint);
     }
@@ -239,7 +249,7 @@ public class TypeParamFinder extends TypeVisitor {
     }
 
     private void setContainsTypeParam(BType type) {
-        if (Symbols.isFlagOn(type.getFlags(), Flags.TYPE_PARAM)) {
+        if (Symbols.isFlagOn(type.flags, Flags.TYPE_PARAM)) {
             this.typeParam = type;
         }
     }

@@ -214,6 +214,9 @@ public class LangLibTableTest {
         validateError(negativeResult, index++, "missing ellipsis token", 181, 38);
         validateError(negativeResult, index++, "missing open brace token", 181, 38);
         validateError(negativeResult, index++, "missing close brace token", 181, 39);
+        validateError(negativeResult, index++, "incompatible types: expected " +
+                "'table<ballerina/lang.table:0.0.0:MapType> key<ballerina/lang.table:0.0.0:KeyType>', " +
+                "found 'table<int> key(age)'", 182, 9);
         validateError(negativeResult, index++, "incompatible types: expected '[]', found 'int'", 182, 20);
         validateError(negativeResult, index++, "table with constraint of type map cannot have key specifier " +
                 "or key type constraint", 188, 30);

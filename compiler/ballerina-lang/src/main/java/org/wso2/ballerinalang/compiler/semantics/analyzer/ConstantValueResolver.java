@@ -698,11 +698,13 @@ public class ConstantValueResolver extends BLangNodeVisitor {
         };
     }
 
-    private BFiniteType createFiniteType(BConstantSymbol constantSymbol, BLangLiteral literal) {
+    private BFiniteType createFiniteType(BConstantSymbol constantSymbol, BLangExpression expr) {
         BTypeSymbol finiteTypeSymbol = Symbols.createTypeSymbol(SymTag.FINITE_TYPE, constantSymbol.flags, Names.EMPTY,
                                                                 constantSymbol.pkgID, null, constantSymbol.owner,
                                                                 constantSymbol.pos, VIRTUAL);
-        return BFiniteType.newSingletonBFiniteType(finiteTypeSymbol, SemTypeHelper.resolveSingletonType(literal));
+        BFiniteType finiteType = new BFiniteType(finiteTypeSymbol);
+        finiteType.addValue(expr);
+        return finiteType;
     }
 
     private BType checkType(BLangExpression expr, BConstantSymbol constantSymbol, Object value, BType type,
@@ -843,7 +845,7 @@ public class ConstantValueResolver extends BLangNodeVisitor {
                                                                    constantSymbol.pkgID,
                                                                    null, constantSymbol.owner, pos, VIRTUAL);
         recordTypeSymbol.scope = constantSymbol.scope;
-        BRecordType recordType = new BRecordType(symTable.typeEnv(), recordTypeSymbol);
+        BRecordType recordType = new BRecordType(recordTypeSymbol);
         recordType.tsymbol.name = genName;
         recordType.sealed = true;
         recordType.restFieldType = new BNoType(TypeTags.NONE);
@@ -858,7 +860,7 @@ public class ConstantValueResolver extends BLangNodeVisitor {
         createTypeDefinition(recordType, pos, env);
         updateRecordFields(recordType, pos, env);
         recordType.tsymbol.flags |= Flags.READONLY;
-        recordType.addFlags(Flags.READONLY);
+        recordType.flags |= Flags.READONLY;
         return recordType;
     }
 
@@ -1024,8 +1026,8 @@ public class ConstantValueResolver extends BLangNodeVisitor {
                                                                Names.EMPTY, env.enclPkg.symbol.pkgID, null,
                                                                env.scope.owner, pos, VIRTUAL);
 
-        return ImmutableTypeCloner.getImmutableIntersectionType(pos, types,
-                new BTupleType(symTable.typeEnv(), tupleTypeSymbol, tupleTypes), env, symTable, anonymousModelHelper,
-                names, new HashSet<>());
+        return ImmutableTypeCloner.getImmutableIntersectionType(pos, types, new BTupleType(tupleTypeSymbol, tupleTypes),
+                                                                env, symTable, anonymousModelHelper, names,
+                                                                new HashSet<>());
     }
 }

@@ -37,7 +37,6 @@ import org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil;
 import org.wso2.ballerinalang.compiler.bir.codegen.exceptions.JInteropException;
 import org.wso2.ballerinalang.compiler.bir.codegen.model.JMethod;
 import org.wso2.ballerinalang.compiler.bir.codegen.model.JMethodKind;
-import org.wso2.ballerinalang.compiler.semantics.analyzer.SemTypeHelper;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
@@ -46,6 +45,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BFiniteType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeReferenceType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.util.Flags;
 
@@ -253,7 +253,7 @@ class JMethodResolver {
         //  https://github.com/ballerina-platform/ballerina-lang/issues/42456.
         if (jMethodRequest.receiverType == null || functionParamCount < 1
                 || count < reducedParamCount || count > reducedParamCount + 2
-                || Symbols.isFlagOn(jMethodRequest.bParamTypes[0].getFlags(), Flags.SERVICE)) {
+                || Symbols.isFlagOn(jMethodRequest.bParamTypes[0].flags, Flags.SERVICE)) {
             return false;
         }
         if (!isParamAssignableToBArray(paramTypes[count - 1])
@@ -387,6 +387,18 @@ class JMethodResolver {
                     "Incompatible ballerina return type for Java method '" + jMethodRequest.methodName + "' which " +
                             "throws checked exception found in class '" + jMethodRequest.declaringClass.getName() +
                             "': expected '" + expectedRetTypeName + "', found '" + returnType + "'");
+        } else if (jMethodRequest.returnsBErrorType && !throwsCheckedException && !returnsErrorValue) {
+            String errorMsgPart;
+            if (returnType instanceof BUnionType bUnionReturnType) {
+                BType modifiedRetType = BUnionType.create(null, getNonErrorMembers(bUnionReturnType));
+                errorMsgPart = "expected '" + modifiedRetType + "', found '" + returnType + "'";
+            } else {
+                errorMsgPart = "no return type expected but found '" + returnType + "'";
+            }
+            throw new JInteropException(DiagnosticErrorCode.METHOD_SIGNATURE_DOES_NOT_MATCH,
+                    "Incompatible ballerina return type for Java method '" + jMethodRequest.methodName + "' which " +
+                            "throws 'java.lang.RuntimeException' found in class '" +
+                            jMethodRequest.declaringClass.getName() + "': " + errorMsgPart);
         }
     }
 
@@ -395,8 +407,7 @@ class JMethodResolver {
                 ((BTypeReferenceType) retType).referredType.tag == TypeTags.ERROR)) {
             return "error";
         } else if (retType instanceof BUnionType bUnionReturnType) {
-            BType modifiedRetType =
-                    BUnionType.create(symbolTable.typeEnv(), null, getNonErrorMembers(bUnionReturnType));
+            BType modifiedRetType = BUnionType.create(null, getNonErrorMembers(bUnionReturnType));
             return modifiedRetType + "|error";
         } else {
             return retType + "|error";
@@ -499,7 +510,7 @@ class JMethodResolver {
         for (BVarSymbol param : pathParamSymbols) {
             paramTypes.remove(param.type);
         }
-        paramTypes.add(initialPathParamIndex, new BArrayType(symbolTable.typeEnv(), symbolTable.anydataType));
+        paramTypes.add(initialPathParamIndex, new BArrayType(symbolTable.anydataType));
         jMethodRequest.bParamTypes = paramTypes.toArray(new BType[0]);
         jMethodRequest.bFuncParamCount = jMethodRequest.bFuncParamCount - pathParamSymbols.size() + 1;
         jMethodRequest.pathParamCount = 1;
@@ -511,7 +522,7 @@ class JMethodResolver {
         if (jMethodRequest.bFuncParamCount > jMethodRequest.pathParamCount) {
             paramTypes.subList(jMethodRequest.pathParamCount, jMethodRequest.bFuncParamCount).clear();
         }
-        paramTypes.add(new BArrayType(symbolTable.typeEnv(), symbolTable.anyType));
+        paramTypes.add(new BArrayType(symbolTable.anyType));
         jMethodRequest.bParamTypes = paramTypes.toArray(new BType[0]);
         jMethodRequest.bFuncParamCount = jMethodRequest.pathParamCount + 1;
         jMethod.hasBundledFunctionParams = true;
@@ -519,8 +530,8 @@ class JMethodResolver {
 
     private void bundleBothPathAndFunctionParameter(JMethodRequest jMethodRequest, JMethod jMethod) {
         List<BType> paramTypes = new ArrayList<>();
-        paramTypes.add(new BArrayType(symbolTable.typeEnv(), symbolTable.anydataType));
-        paramTypes.add(new BArrayType(symbolTable.typeEnv(), symbolTable.anyType));
+        paramTypes.add(new BArrayType(symbolTable.anydataType));
+        paramTypes.add(new BArrayType(symbolTable.anyType));
         jMethodRequest.bParamTypes = paramTypes.toArray(new BType[0]);
         jMethodRequest.bFuncParamCount = 2;
         jMethodRequest.pathParamCount = 1;
@@ -629,8 +640,9 @@ class JMethodResolver {
                     if (jTypeName.equals(J_OBJECT_TNAME)) {
                         return false;
                     }
-                    for (BType t : SemTypeHelper.broadTypes((BFiniteType) bType, symbolTable)) {
-                        if (isInvalidParamBType(jType, t, isLastParam, restParamExist)) {
+                    Set<BLangExpression> valueSpace = ((BFiniteType) bType).getValueSpace();
+                    for (BLangExpression value : valueSpace) {
+                        if (isInvalidParamBType(jType, value.getBType(), isLastParam, restParamExist)) {
                             return true;
                         }
                     }
@@ -783,8 +795,9 @@ class JMethodResolver {
                     if (jTypeName.equals(J_OBJECT_TNAME)) {
                         return true;
                     }
-                    for (BType t : SemTypeHelper.broadTypes((BFiniteType) bType, symbolTable)) {
-                        if (isValidReturnBType(jType, t, jMethodRequest, visitedSet)) {
+                    Set<BLangExpression> valueSpace = ((BFiniteType) bType).getValueSpace();
+                    for (BLangExpression value : valueSpace) {
+                        if (isValidReturnBType(jType, value.getBType(), jMethodRequest, visitedSet)) {
                             return true;
                         }
                     }

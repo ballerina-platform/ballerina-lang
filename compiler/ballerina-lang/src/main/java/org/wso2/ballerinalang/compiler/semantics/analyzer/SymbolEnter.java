@@ -20,10 +20,6 @@ package org.wso2.ballerinalang.compiler.semantics.analyzer;
 import io.ballerina.compiler.api.symbols.DiagnosticState;
 import io.ballerina.tools.diagnostics.Location;
 import io.ballerina.tools.text.LineRange;
-import io.ballerina.types.Core;
-import io.ballerina.types.PredefinedType;
-import io.ballerina.types.SemType;
-import io.ballerina.types.SemTypes;
 import org.ballerinalang.compiler.CompilerOptionName;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.model.TreeBuilder;
@@ -37,6 +33,7 @@ import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.OrderedNode;
 import org.ballerinalang.model.tree.TopLevelNode;
 import org.ballerinalang.model.tree.TypeDefinition;
+import org.ballerinalang.model.tree.statements.StatementNode;
 import org.ballerinalang.model.tree.types.TypeNode;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.util.diagnostic.DiagnosticErrorCode;
@@ -130,6 +127,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangUnaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLAttribute;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQName;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangXMLNSStatement;
 import org.wso2.ballerinalang.compiler.tree.types.BLangArrayType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangBuiltInRefTypeNode;
@@ -158,6 +156,7 @@ import org.wso2.ballerinalang.compiler.util.TypeDefBuilderHelper;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.util.Flags;
 
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -230,10 +229,10 @@ public class SymbolEnter extends BLangNodeVisitor {
     private final Types types;
     private final SourceDirectory sourceDirectory;
     private final TypeResolver typeResolver;
-    private final ConstantValueResolver constResolver;
     private List<BLangNode> unresolvedTypes;
     private Set<BLangNode> unresolvedRecordDueToFields;
     private boolean resolveRecordsUnresolvedDueToFields;
+    private List<BLangClassDefinition> unresolvedClasses;
     private final HashSet<LocationData> unknownTypeRefs;
     private final List<PackageID> importedPackages;
     private int typePrecedence;
@@ -242,6 +241,7 @@ public class SymbolEnter extends BLangNodeVisitor {
     private final BLangMissingNodesHelper missingNodesHelper;
     private final PackageCache packageCache;
     private final List<BLangNode> intersectionTypes;
+    private Map<BType, BLangTypeDefinition> typeToTypeDef;
 
     private SymbolEnv env;
     private final boolean projectAPIInitiatedCompilation;
@@ -274,7 +274,6 @@ public class SymbolEnter extends BLangNodeVisitor {
         this.unknownTypeRefs = new HashSet<>();
         this.missingNodesHelper = BLangMissingNodesHelper.getInstance(context);
         this.packageCache = PackageCache.getInstance(context);
-        this.constResolver = ConstantValueResolver.getInstance(context);
         this.intersectionTypes = new ArrayList<>();
 
         CompilerOptions options = CompilerOptions.getInstance(context);
@@ -492,12 +491,33 @@ public class SymbolEnter extends BLangNodeVisitor {
         typeResolver.clearUnknowTypeRefs();
     }
 
+    private void defineDependentFields(List<BLangNode> typeDefNodes, SymbolEnv pkgEnv) {
+        for (BLangNode typeDef : typeDefNodes) {
+            if (typeDef.getKind() == NodeKind.CLASS_DEFN) {
+                BLangClassDefinition classDefinition = (BLangClassDefinition) typeDef;
+                if (isObjectCtor(classDefinition)) {
+                    continue;
+                }
+                defineReferencedFieldsOfClassDef(classDefinition, pkgEnv);
+            } else if (typeDef.getKind() == NodeKind.TYPE_DEFINITION) {
+                defineReferencedFieldsOfRecordTypeDef((BLangTypeDefinition) typeDef);
+            }
+        }
+    }
+
     public void defineReferencedFieldsOfClassDef(BLangClassDefinition classDefinition, SymbolEnv pkgEnv) {
         SymbolEnv typeDefEnv = classDefinition.typeDefEnv;
         BObjectTypeSymbol tSymbol = (BObjectTypeSymbol) classDefinition.symbol;
         BObjectType objType = (BObjectType) tSymbol.type;
 
         defineReferencedClassFields(classDefinition, typeDefEnv, objType, false);
+    }
+
+    private void defineIntersectionTypes(SymbolEnv env) {
+        for (BLangNode typeDescriptor : this.intersectionTypes) {
+            defineNode(typeDescriptor, env);
+        }
+        this.intersectionTypes.clear();
     }
 
     private void defineErrorType(Location pos, BErrorType errorType, SymbolEnv env) {
@@ -508,6 +528,18 @@ public class SymbolEnter extends BLangNodeVisitor {
         if (symResolver.checkForUniqueSymbol(pos, pkgEnv, errorTSymbol)) {
             pkgEnv.scope.define(errorTSymbol.name, errorTSymbol);
         }
+
+        SymbolEnv prevEnv = this.env;
+        this.env = pkgEnv;
+        this.env = prevEnv;
+    }
+
+    private boolean isObjectCtor(BLangNode node) {
+        if (node.getKind() == NodeKind.CLASS_DEFN) {
+            BLangClassDefinition classDefinition = (BLangClassDefinition) node;
+            return isObjectCtor(classDefinition);
+        }
+        return false;
     }
 
     public boolean isObjectCtor(BLangClassDefinition classDefinition) {
@@ -861,7 +893,7 @@ public class SymbolEnter extends BLangNodeVisitor {
             typeFlags |= Flags.OBJECT_CTOR;
         }
 
-        BObjectType objectType = new BObjectType(symTable.typeEnv(), tSymbol, typeFlags);
+        BObjectType objectType = new BObjectType(tSymbol, typeFlags);
         if (classDefinition.isObjectContructorDecl || flags.contains(Flag.OBJECT_CTOR)) {
             classDefinition.oceEnvData.objectType = objectType;
             objectType.classDef = classDefinition;
@@ -872,7 +904,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         }
 
         if (flags.contains(Flag.CLIENT)) {
-            objectType.addFlags(Flags.CLIENT);
+            objectType.flags |= Flags.CLIENT;
         }
 
         tSymbol.type = objectType;
@@ -1201,6 +1233,83 @@ public class SymbolEnter extends BLangNodeVisitor {
         defineNode(xmlnsStmtNode.xmlnsDecl, env);
     }
 
+    private void defineTypeNodes(List<BLangNode> typeDefs, SymbolEnv env) {
+        if (typeDefs.isEmpty()) {
+            return;
+        }
+
+        this.unresolvedTypes = new ArrayList<>(typeDefs.size());
+        this.unresolvedRecordDueToFields = new HashSet<>(typeDefs.size());
+        this.resolveRecordsUnresolvedDueToFields = false;
+        for (BLangNode typeDef : typeDefs) {
+            if (isErrorIntersectionTypeCreatingNewType(typeDef, env)) {
+                populateUndefinedErrorIntersection((BLangTypeDefinition) typeDef, env);
+                continue;
+            }
+//            if (isObjectCtor(typeDef)) {
+//                continue;
+//            }
+
+            defineNode(typeDef, env);
+        }
+
+        if (typeDefs.size() <= unresolvedTypes.size()) {
+
+            this.resolveRecordsUnresolvedDueToFields = true;
+            unresolvedTypes.removeAll(unresolvedRecordDueToFields);
+            for (BLangNode unresolvedType : unresolvedRecordDueToFields) {
+                defineNode(unresolvedType, env);
+            }
+            this.resolveRecordsUnresolvedDueToFields = false;
+
+            // This situation can occur due to either a cyclic dependency or at least one of member types in type
+            // definition node cannot be resolved. So we iterate through each node recursively looking for cyclic
+            // dependencies or undefined types in type node.
+
+            for (BLangNode unresolvedType : unresolvedTypes) {
+                Deque<String> references = new ArrayDeque<>();
+                NodeKind unresolvedKind = unresolvedType.getKind();
+                if (unresolvedKind == NodeKind.TYPE_DEFINITION || unresolvedKind == NodeKind.CONSTANT) {
+                    TypeDefinition def = (TypeDefinition) unresolvedType;
+                    // We need to keep track of all visited types to print cyclic dependency.
+                    references.push(def.getName().getValue());
+                    checkErrors(env, unresolvedType, (BLangNode) def.getTypeNode(), references, false);
+                } else if (unresolvedType.getKind() == NodeKind.CLASS_DEFN) {
+                    BLangClassDefinition classDefinition = (BLangClassDefinition) unresolvedType;
+                    references.push(classDefinition.getName().getValue());
+                    checkErrors(env, unresolvedType, classDefinition, references, true);
+                }
+            }
+            defineAllUnresolvedCyclicTypesInScope(env);
+
+            Set<String> alreadyDefinedTypeDefNames = new HashSet<>();
+            int unresolvedTypeCount = unresolvedTypes.size();
+            for (int i = 0; i < unresolvedTypeCount; i++) {
+                for (BLangNode node : this.unresolvedTypes) {
+                    String name = getTypeOrClassName(node);
+                    boolean symbolNotFound = false;
+                    boolean isTypeOrClassDefinition =
+                            node.getKind() == NodeKind.TYPE_DEFINITION || node.getKind() == NodeKind.CLASS_DEFN;
+                    // Skip the type resolving in the first iteration (i == 0)
+                    // as we want to define the type before trying to resolve it.
+                    if (isTypeOrClassDefinition && i != 0) { // Do not skip the first iteration
+                        BSymbol bSymbol = symResolver.lookupSymbolInMainSpace(env, Names.fromString(name));
+                        symbolNotFound = (bSymbol == symTable.notFoundSymbol);
+                    }
+
+                    boolean notFoundInList = alreadyDefinedTypeDefNames.add(name);
+
+                    // Prevent defining already defined type names.
+                    if (notFoundInList || symbolNotFound) {
+                        defineNode(node, env);
+                    }
+                }
+            }
+            return;
+        }
+        defineTypeNodes(unresolvedTypes, env);
+    }
+
     private void populateUndefinedErrorIntersection(BLangTypeDefinition typeDef, SymbolEnv env) {
         long flags = 0;
         if (typeDef.flagSet.contains(Flag.PUBLIC)) {
@@ -1448,7 +1557,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         }
     }
 
-    public static String getTypeOrClassName(BLangNode node) {
+    public String getTypeOrClassName(BLangNode node) {
         if (node.getKind() == NodeKind.TYPE_DEFINITION || node.getKind() == NodeKind.CONSTANT) {
             return ((TypeDefinition) node).getName().getValue();
         } else {
@@ -1548,7 +1657,7 @@ public class SymbolEnter extends BLangNodeVisitor {
                 typeDefSymbol.pkgID, typeDefSymbol.type, typeDefSymbol.owner, typeDefSymbol.pos, typeDefSymbol.origin);
         typeSymbol.markdownDocumentation = typeDefSymbol.markdownDocumentation;
         ((BTypeDefinitionSymbol) typeDefSymbol).referenceType = new BTypeReferenceType(definedType, typeSymbol,
-                typeDefSymbol.type.getFlags());
+                typeDefSymbol.type.flags);
 
         boolean isLabel = true;
         //todo remove after type ref introduced to runtime
@@ -1609,7 +1718,7 @@ public class SymbolEnter extends BLangNodeVisitor {
                 dlog.error(typeDefinition.pos, DiagnosticErrorCode.TYPE_PARAM_OUTSIDE_LANG_MODULE);
             }
         }
-        definedType.addFlags(typeDefSymbol.flags);
+        definedType.flags |= typeDefSymbol.flags;
         typeDefinition.symbol = typeDefSymbol;
 
         if (typeDefinition.hasCyclicReference) {
@@ -1646,7 +1755,7 @@ public class SymbolEnter extends BLangNodeVisitor {
             if (((BTypeDefinitionSymbol) typeDefSymbol).referenceType != null) {
                 ((BTypeDefinitionSymbol) typeDefSymbol).referenceType.referredType = distinctType;
             }
-            definedType.addFlags(Flags.DISTINCT);
+            definedType.flags |= Flags.DISTINCT;
         }
     }
 
@@ -1709,12 +1818,12 @@ public class SymbolEnter extends BLangNodeVisitor {
 
         alreadyDefinedErrorType.typeIdSet = errorType.typeIdSet;
         alreadyDefinedErrorType.detailType = errorType.detailType;
-        alreadyDefinedErrorType.setFlags(errorType.getFlags());
+        alreadyDefinedErrorType.flags = errorType.flags;
         alreadyDefinedErrorType.name = errorType.name;
         intersectionType.effectiveType = alreadyDefinedErrorType;
 
         if (!errorType.typeIdSet.isEmpty()) {
-            definedType.addFlags(Flags.DISTINCT);
+            definedType.flags |= Flags.DISTINCT;
         }
     }
 
@@ -1752,7 +1861,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         // `typeDefSymbol` is different to `definedObjType.tsymbol` in a type definition statement that use
         // already defined type as the base type.
         if (definedObjType.tsymbol != tSymbol) {
-            BObjectType objType = new BObjectType(symTable.typeEnv(), tSymbol);
+            BObjectType objType = new BObjectType(tSymbol);
             tSymbol.type = objType;
             definedObjType = objType;
         }
@@ -1777,13 +1886,13 @@ public class SymbolEnter extends BLangNodeVisitor {
 
         typeDefSymbol = switch (typeDef.typeNode.getKind()) {
             case TUPLE_TYPE_NODE -> {
-                newTypeNode = new BTupleType(symTable.typeEnv(), null, new ArrayList<>(), true);
+                newTypeNode = new BTupleType(null, new ArrayList<>(), true);
                 yield Symbols.createTypeSymbol(SymTag.TUPLE_TYPE, Flags.asMask(typeDef.flagSet),
                         newTypeDefName, env.enclPkg.symbol.pkgID, newTypeNode, env.scope.owner,
                         typeDef.name.pos, SOURCE);
             }
             default -> {
-                newTypeNode = BUnionType.create(symTable.typeEnv(), null, new LinkedHashSet<>(), true);
+                newTypeNode = BUnionType.create(null, new LinkedHashSet<>(), true);
                 yield Symbols.createTypeSymbol(SymTag.UNION_TYPE, Flags.asMask(typeDef.flagSet),
                         newTypeDefName, env.enclPkg.symbol.pkgID, newTypeNode, env.scope.owner,
                         typeDef.name.pos, SOURCE);
@@ -1792,7 +1901,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         typeDef.symbol = typeDefSymbol;
         defineTypeInMainScope(typeDefSymbol, typeDef, env);
         newTypeNode.tsymbol = typeDefSymbol;
-        newTypeNode.addFlags(typeDefSymbol.flags);
+        newTypeNode.flags |= typeDefSymbol.flags;
         return newTypeNode;
     }
 
@@ -1867,7 +1976,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         if (definedErrorType.tsymbol != typeDefSymbol) {
             BTypeSymbol typeSymbol = new BTypeSymbol(SymTag.TYPE_DEF, typeDefSymbol.flags, typeDefSymbol.name,
                     typeDefSymbol.pkgID, null, typeDefSymbol.owner, typeDefSymbol.pos, typeDefSymbol.origin);
-            BErrorType bErrorType = new BErrorType(symTable.typeEnv(), typeSymbol);
+            BErrorType bErrorType = new BErrorType(typeSymbol);
             typeSymbol.type = bErrorType;
             bErrorType.detailType = definedErrorType.detailType;
             typeDefSymbol.type = bErrorType;
@@ -2375,8 +2484,8 @@ public class SymbolEnter extends BLangNodeVisitor {
                             }
 
                             if (memberTypes.size() > 1) {
-                                BType type = BUnionType.create(symTable.typeEnv(), null, memberTypes);
-                                BVarSymbol varSymbol = new BVarSymbol(type.getFlags(), null, null, type, null,
+                                BType type = BUnionType.create(null, memberTypes);
+                                BVarSymbol varSymbol = new BVarSymbol(type.flags, null, null, type, null,
                                         null, null);
                                 members.add(new BTupleMember(type, varSymbol));
                             } else {
@@ -2385,7 +2494,7 @@ public class SymbolEnter extends BLangNodeVisitor {
                                                 Symbols.createVarSymbolForTupleMember(m))));
                             }
                         }
-                        tupleTypeNode = new BTupleType(symTable.typeEnv(), members);
+                        tupleTypeNode = new BTupleType(members);
                         tupleTypeNode.restType = getPossibleRestTypeForUnion(varNode, possibleTypes);
                         break;
                     }
@@ -2403,7 +2512,7 @@ public class SymbolEnter extends BLangNodeVisitor {
                         BVarSymbol varSymbol = Symbols.createVarSymbolForTupleMember(type);
                         members.add(new BTupleMember(type, varSymbol));
                     }
-                    tupleTypeNode = new BTupleType(symTable.typeEnv(), members);
+                    tupleTypeNode = new BTupleType(members);
                     tupleTypeNode.restType = getPossibleRestTypeForUnion(varNode, possibleTypes);
                     break;
                 case TypeTags.ANY:
@@ -2413,7 +2522,7 @@ public class SymbolEnter extends BLangNodeVisitor {
                         BVarSymbol varSymbol = Symbols.createVarSymbolForTupleMember(referredType);
                         memberTupleTypes.add(new BTupleMember(referredType, varSymbol));
                     }
-                    tupleTypeNode = new BTupleType(symTable.typeEnv(), memberTupleTypes);
+                    tupleTypeNode = new BTupleType(memberTupleTypes);
                     if (varNode.restVariable != null) {
                         tupleTypeNode.restType = referredType;
                     }
@@ -2424,9 +2533,9 @@ public class SymbolEnter extends BLangNodeVisitor {
                 case TypeTags.ARRAY:
                     List<BTupleMember> tupleTypes = new ArrayList<>();
                     BArrayType arrayType = (BArrayType) referredType;
-                    tupleTypeNode = new BTupleType(symTable.typeEnv(), tupleTypes);
+                    tupleTypeNode = new BTupleType(tupleTypes);
                     BType eType = arrayType.eType;
-                    for (int i = 0; i < arrayType.getSize(); i++) {
+                    for (int i = 0; i < arrayType.size; i++) {
                         BType type = arrayType.eType;
                         BVarSymbol varSymbol = Symbols.createVarSymbolForTupleMember(type);
                         tupleTypes.add(new BTupleMember(type, varSymbol));
@@ -2482,11 +2591,11 @@ public class SymbolEnter extends BLangNodeVisitor {
                 }
             }
             if (!members.isEmpty()) {
-                BTupleType restTupleType = new BTupleType(symTable.typeEnv(), members);
+                BTupleType restTupleType = new BTupleType(members);
                 restTupleType.restType = restType;
                 type = restTupleType;
             } else {
-                type = restType != null ? new BArrayType(symTable.typeEnv(), restType) : null;
+                type = restType != null ? new BArrayType(restType) : null;
             }
             defineMemberNode(varNode.restVariable, env, type);
         }
@@ -2523,7 +2632,7 @@ public class SymbolEnter extends BLangNodeVisitor {
             }
         }
         if (!memberRestTypes.isEmpty()) {
-            return memberRestTypes.size() > 1 ? BUnionType.create(symTable.typeEnv(), null, memberRestTypes) :
+            return memberRestTypes.size() > 1 ? BUnionType.create(null, memberRestTypes) :
                     memberRestTypes.iterator().next();
         } else {
             return varNode.getBType();
@@ -2688,7 +2797,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         }
 
         BType restFieldType = restFieldMemberTypes.size() > 1 ?
-                BUnionType.create(symTable.typeEnv(), null, restFieldMemberTypes) :
+                BUnionType.create(null, restFieldMemberTypes) :
                 restFieldMemberTypes.iterator().next();
 
         if (!possibleRecordFieldMapList.isEmpty()) {
@@ -2708,7 +2817,7 @@ public class SymbolEnter extends BLangNodeVisitor {
             }
             unmappedMembers.putAll(optionalFields);
 
-            BRecordType restRecord = new BRecordType(symTable.typeEnv(), null);
+            BRecordType restRecord = new BRecordType(null);
             restRecord.fields = unmappedMembers;
             restRecord.restFieldType = restFieldType;
             restFieldType = restRecord;
@@ -2776,7 +2885,7 @@ public class SymbolEnter extends BLangNodeVisitor {
             }
 
             BType fieldType = memberTypes.size() > 1 ?
-                    BUnionType.create(symTable.typeEnv(), null, memberTypes) : memberTypes.iterator().next();
+                    BUnionType.create(null, memberTypes) : memberTypes.iterator().next();
             BField field = new BField(Names.fromString(fieldName), pos,
                     new BVarSymbol(0, Names.fromString(fieldName), env.enclPkg.symbol.pkgID,
                             fieldType, recordSymbol, pos, SOURCE));
@@ -2791,7 +2900,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         if (fieldTypes.isNullable()) {
             fieldType = fieldTypes;
         } else {
-            fieldType = BUnionType.create(symTable.typeEnv(), null, fieldTypes, symTable.nilType);
+            fieldType = BUnionType.create(null, fieldTypes, symTable.nilType);
         }
 
         BRecordTypeSymbol recordSymbol = Symbols.createRecordSymbol(Flags.ANONYMOUS,
@@ -2928,31 +3037,21 @@ public class SymbolEnter extends BLangNodeVisitor {
         return recordSymbol;
     }
 
-    BType getRestParamType(BRecordType recordType) {
+    BType getRestParamType(BRecordType recordType)  {
         BType memberType;
         if (recordType.restFieldType != null) {
             memberType = recordType.restFieldType;
-            BType referredMemberType = Types.getImpliedType(memberType);
-            if (referredMemberType.tag == TypeTags.RECORD) {
-                return getRestParamType((BRecordType) referredMemberType);
-            } else {
-                return memberType;
-            }
-        }
-
-        SemType s = recordType.semType();
-        SemType anydata = types.anydata();
-        if (SemTypes.containsBasicType(s, PredefinedType.ERROR)) {
-            if (types.isSubtype(s, Core.union(anydata, PredefinedType.ERROR))) {
-                return symTable.pureType;
-            } else {
-                return BUnionType.create(symTable.typeEnv(), null, symTable.anyType, symTable.errorType);
-            }
-        } else if (types.isSubtype(s, anydata)) {
-            return symTable.anydataType;
+        } else if (hasErrorTypedField(recordType)) {
+            memberType = hasOnlyPureTypedFields(recordType) ? symTable.pureType :
+                    BUnionType.create(null, symTable.anyType, symTable.errorType);
         } else {
-            return symTable.anyType;
+            memberType = hasOnlyAnyDataTypedFields(recordType) ? symTable.anydataType : symTable.anyType;
         }
+        BType referredMemberType = Types.getImpliedType(memberType);
+        if (referredMemberType.tag == TypeTags.RECORD) {
+            memberType = getRestParamType((BRecordType) referredMemberType);
+        }
+        return memberType;
     }
 
     public BType getRestMatchPatternConstraintType(BRecordType recordType,
@@ -2976,7 +3075,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         } else if (constraintTypes.size() == 1) {
             restConstraintType = constraintTypes.iterator().next();
         } else {
-            restConstraintType = BUnionType.create(symTable.typeEnv(), null, constraintTypes);
+            restConstraintType = BUnionType.create(null, constraintTypes);
         }
         return restVarSymbolMapType.tag == TypeTags.NONE ?
                 restConstraintType : this.types.mergeTypes(restVarSymbolMapType, restConstraintType);
@@ -2986,7 +3085,7 @@ public class SymbolEnter extends BLangNodeVisitor {
                                        List<String> variableList,
                                        BType restConstraint) {
         BRecordTypeSymbol recordSymbol = createAnonRecordSymbol(env, pos);
-        BRecordType recordVarType = new BRecordType(symTable.typeEnv(), recordSymbol);
+        BRecordType recordVarType = new BRecordType(recordSymbol);
         recordSymbol.type = recordVarType;
         LinkedHashMap<String, BField> unMappedFields = new LinkedHashMap<>() {{
             putAll(recordType.fields);
@@ -3068,6 +3167,43 @@ public class SymbolEnter extends BLangNodeVisitor {
         return Flags.asMask(unmaskedFlags);
     }
 
+    private boolean hasOnlyAnyDataTypedFields(BRecordType recordType) {
+        IsAnydataUniqueVisitor isAnydataUniqueVisitor = new IsAnydataUniqueVisitor();
+        return isAnydataUniqueVisitor.visit(recordType);
+    }
+
+    private boolean hasOnlyPureTypedFields(BRecordType recordType) {
+        IsPureTypeUniqueVisitor isPureTypeUniqueVisitor = new IsPureTypeUniqueVisitor();
+        for (BField field : recordType.fields.values()) {
+            BType fieldType = field.type;
+            if (!isPureTypeUniqueVisitor.visit(fieldType)) {
+                return false;
+            }
+            isPureTypeUniqueVisitor.reset();
+        }
+        return recordType.sealed || isPureTypeUniqueVisitor.visit(recordType);
+    }
+
+    private boolean hasErrorTypedField(BRecordType recordType) {
+        for (BField field : recordType.fields.values()) {
+            BType type = field.type;
+            if (hasErrorType(type)) {
+                return true;
+            }
+        }
+        return hasErrorType(recordType.restFieldType);
+    }
+
+    private boolean hasErrorType(BType type) {
+        BType referredType = Types.getImpliedType(type);
+        int tag = referredType.tag;
+        if (tag != TypeTags.UNION) {
+            return tag == TypeTags.ERROR;
+        }
+
+        return ((BUnionType) referredType).getMemberTypes().stream().anyMatch(this::hasErrorType);
+    }
+
     @Override
     public void visit(BLangErrorVariable errorVar) {
         if (errorVar.isDeclaredWithVar) {
@@ -3146,9 +3282,9 @@ public class SymbolEnter extends BLangNodeVisitor {
                         detailType.add(possibleErrType.detailType);
                     }
                     BType errorDetailType = detailType.size() > 1
-                            ? BUnionType.create(symTable.typeEnv(), null, detailType)
+                            ? BUnionType.create(null, detailType)
                             : detailType.iterator().next();
-                    errorType = new BErrorType(symTable.typeEnv(), null, errorDetailType);
+                    errorType = new BErrorType(null, errorDetailType);
                 } else {
                     errorType = possibleTypes.get(0);
                 }
@@ -3197,7 +3333,7 @@ public class SymbolEnter extends BLangNodeVisitor {
                     env.enclPkg.packageID, symTable.errorType,
                     env.scope.owner, errorVariable.pos, SOURCE);
             // TODO: detail type need to be a union representing all details of members of `errorType`
-            errorVariable.setBType(new BErrorType(symTable.typeEnv(), errorTypeSymbol, symTable.detailType));
+            errorVariable.setBType(new BErrorType(errorTypeSymbol, symTable.detailType));
             return validateErrorVariable(errorVariable, env);
         }
 
@@ -3224,7 +3360,7 @@ public class SymbolEnter extends BLangNodeVisitor {
             BLangVariable boundVar = errorDetailEntry.valueBindingPattern;
             if (entryField != null) {
                 if ((entryField.symbol.flags & Flags.OPTIONAL) == Flags.OPTIONAL) {
-                    boundVar.setBType(BUnionType.create(symTable.typeEnv(), null, entryField.type, symTable.nilType));
+                    boundVar.setBType(BUnionType.create(null, entryField.type, symTable.nilType));
                 } else {
                     boundVar.setBType(entryField.type);
                 }
@@ -3236,8 +3372,7 @@ public class SymbolEnter extends BLangNodeVisitor {
                     boundVar.setBType(symTable.semanticError);
                     return false;
                 } else {
-                    boundVar.setBType(
-                            BUnionType.create(symTable.typeEnv(), null, recordType.restFieldType, symTable.nilType));
+                    boundVar.setBType(BUnionType.create(null, recordType.restFieldType, symTable.nilType));
                 }
             }
 
@@ -3253,7 +3388,7 @@ public class SymbolEnter extends BLangNodeVisitor {
             // union of keys whose values are not matched in error binding/match pattern.
             BTypeSymbol typeSymbol = createTypeSymbol(SymTag.TYPE, env);
             BType constraint = getRestMapConstraintType(detailFields, matchedDetailFields, recordType);
-            BMapType restType = new BMapType(symTable.typeEnv(), TypeTags.MAP, constraint, typeSymbol);
+            BMapType restType = new BMapType(TypeTags.MAP, constraint, typeSymbol);
             typeSymbol.type = restType;
             errorVariable.restDetail.setBType(restType);
             defineMemberNode(errorVariable.restDetail, env, restType);
@@ -3266,7 +3401,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         if (detailType.getKind() == TypeKind.RECORD) {
             return (BRecordType) detailType;
         }
-        BRecordType detailRecord = new BRecordType(symTable.typeEnv(), null);
+        BRecordType detailRecord = new BRecordType(null);
         BMapType detailMap = (BMapType) detailType;
         detailRecord.sealed = false;
         detailRecord.restFieldType = detailMap.constraint;
@@ -3275,7 +3410,7 @@ public class SymbolEnter extends BLangNodeVisitor {
 
     private BType getRestMapConstraintType(Map<String, BField> errorDetailFields, Set<String> matchedDetailFields,
                                            BRecordType recordType) {
-        BUnionType restUnionType = BUnionType.create(symTable.typeEnv(), null);
+        BUnionType restUnionType = BUnionType.create(null);
         if (!recordType.sealed) {
             BType referredRestFieldType = Types.getImpliedType(recordType.restFieldType);
             if (referredRestFieldType.tag == TypeTags.UNION) {
@@ -3559,39 +3694,38 @@ public class SymbolEnter extends BLangNodeVisitor {
         }
     }
 
-    /**
-     * Checks if annotation type descriptor is valid.
-     * <p>
-     * The type must be a subtype of one of the following three types:
-     * <ul>
-     *   <li>true</li>
-     *   <li>map&lt;value:Cloneable&gt;</li>
-     *   <li>map&lt;value:Cloneable&gt;[]</li>
-     * </ul>
-     *
-     * @param type type to be checked
-     * @return boolean
-     */
     public boolean isValidAnnotationType(BType type) {
-        SemType t = type.semType();
-        if (SemTypes.isSubtype(types.semTypeCtx, t, symTable.trueType.semType())) {
-            return true;
+        type = Types.getImpliedType(type);
+        if (type == symTable.semanticError) {
+            return false;
         }
 
-        SemType cloneable = Core.createCloneable(types.semTypeCtx);
-        if (SemTypes.isSubtypeSimple(t, PredefinedType.MAPPING)) {
-            return SemTypes.isSubtype(types.semTypeCtx, t, cloneable);
+        switch (type.tag) {
+            case TypeTags.MAP:
+                return types.isAssignable(((BMapType) type).constraint, symTable.cloneableType);
+            case TypeTags.RECORD:
+                BRecordType recordType = (BRecordType) type;
+                for (BField field : recordType.fields.values()) {
+                    if (!types.isAssignable(field.type, symTable.cloneableType)) {
+                        return false;
+                    }
+                }
+
+                BType recordRestType = recordType.restFieldType;
+                if (recordRestType == null || recordRestType == symTable.noType) {
+                    return true;
+                }
+
+                return types.isAssignable(recordRestType, symTable.cloneableType);
+            case TypeTags.ARRAY:
+                BType elementType = Types.getImpliedType(((BArrayType) type).eType);
+                if ((elementType.tag == TypeTags.MAP) || (elementType.tag == TypeTags.RECORD)) {
+                    return isValidAnnotationType(elementType);
+                }
+                return false;
         }
 
-        if (SemTypes.isSubtypeSimple(t, PredefinedType.LIST)) {
-            // Using projection to get T from T[]
-            SemType memberTy = Core.listMemberTypeInnerVal(types.semTypeCtx, t, PredefinedType.INT);
-            if (SemTypes.isSubtypeSimple(memberTy, PredefinedType.MAPPING)) {
-                return SemTypes.isSubtype(types.semTypeCtx, memberTy, cloneable);
-            }
-        }
-
-        return false;
+        return types.isAssignable(type, symTable.trueType);
     }
 
     /**
@@ -3704,6 +3838,20 @@ public class SymbolEnter extends BLangNodeVisitor {
         return Optional.ofNullable(errorTypeNode.detailType)
                 .map(bLangType -> symResolver.resolveTypeNode(bLangType, typeDefEnv))
                 .orElse(symTable.detailType);
+    }
+
+    public void defineFields(List<BLangNode> typeDefNodes, SymbolEnv pkgEnv) {
+        for (BLangNode typeDef : typeDefNodes) {
+            if (typeDef.getKind() == NodeKind.CLASS_DEFN) {
+                BLangClassDefinition classDefinition = (BLangClassDefinition) typeDef;
+                if (isObjectCtor(classDefinition)) {
+                    continue;
+                }
+                defineFieldsOfClassDef(classDefinition, pkgEnv);
+            } else if (typeDef.getKind() == NodeKind.TYPE_DEFINITION) {
+                defineFields((BLangTypeDefinition) typeDef, pkgEnv);
+            }
+        }
     }
 
     public void defineFieldsOfClassDef(BLangClassDefinition classDefinition, SymbolEnv env) {
@@ -4120,7 +4268,7 @@ public class SymbolEnter extends BLangNodeVisitor {
             BSymbol symbol = typeDef.symbol;
             BStructureType structureType = (BStructureType) Types.getImpliedType(symbol.type);
 
-            if (Symbols.isFlagOn(structureType.getFlags(), Flags.READONLY)) {
+            if (Symbols.isFlagOn(structureType.flags, Flags.READONLY)) {
                 if (structureType.tag != TypeTags.OBJECT) {
                     continue;
                 }
@@ -4188,7 +4336,7 @@ public class SymbolEnter extends BLangNodeVisitor {
 
             if (allImmutableFields) {
                 structureType.tsymbol.flags |= Flags.READONLY;
-                structureType.addFlags(Flags.READONLY);
+                structureType.flags |= Flags.READONLY;
             }
         }
     }
@@ -4222,7 +4370,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         BObjectType objectType = (BObjectType) classDef.getBType();
         Location pos = classDef.pos;
 
-        if (Symbols.isFlagOn(classDef.getBType().getFlags(), Flags.READONLY)) {
+        if (Symbols.isFlagOn(classDef.getBType().flags, Flags.READONLY)) {
             if (!types.isSelectivelyImmutableType(objectType, new HashSet<>(), pkgEnv.enclPkg.packageID)) {
                 dlog.error(pos, DiagnosticErrorCode.INVALID_READONLY_OBJECT_TYPE, objectType);
                 return;
@@ -4238,13 +4386,13 @@ public class SymbolEnter extends BLangNodeVisitor {
 
             for (BField field : fields) {
                 if (!Symbols.isFlagOn(field.symbol.flags, Flags.FINAL) ||
-                        !Symbols.isFlagOn(field.type.getFlags(), Flags.READONLY)) {
+                        !Symbols.isFlagOn(field.type.flags, Flags.READONLY)) {
                     return;
                 }
             }
 
             classDef.getBType().tsymbol.flags |= Flags.READONLY;
-            classDef.getBType().addFlags(Flags.READONLY);
+            classDef.getBType().flags |= Flags.READONLY;
         }
     }
 
@@ -4256,11 +4404,11 @@ public class SymbolEnter extends BLangNodeVisitor {
         defineInvokableSymbolParams(invokableNode, funcSymbol, invokableEnv);
 
         if (Symbols.isFlagOn(funcSymbol.type.tsymbol.flags, Flags.ISOLATED)) {
-            funcSymbol.type.addFlags(Flags.ISOLATED);
+            funcSymbol.type.flags |= Flags.ISOLATED;
         }
 
         if (Symbols.isFlagOn(funcSymbol.type.tsymbol.flags, Flags.TRANSACTIONAL)) {
-            funcSymbol.type.addFlags(Flags.TRANSACTIONAL);
+            funcSymbol.type.flags |= Flags.TRANSACTIONAL;
         }
     }
 
@@ -4433,7 +4581,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         bInvokableType.paramTypes = paramTypes;
         bInvokableType.retType = retType;
         bInvokableType.restType = restType;
-        bInvokableType.addFlags(flags);
+        bInvokableType.flags |= flags;
         functionTypeNode.setBType(bInvokableType);
 
         List<BType> allConstituentTypes = new ArrayList<>(paramTypes);
@@ -4476,7 +4624,7 @@ public class SymbolEnter extends BLangNodeVisitor {
             functionTypeSymbol.restParam = invokableSymbol.restParam;
             restType = invokableSymbol.restParam.type;
         }
-        invokableSymbol.type = new BInvokableType(symTable.typeEnv(), paramTypes, restType, retType, null);
+        invokableSymbol.type = new BInvokableType(paramTypes, restType, retType, null);
         invokableSymbol.type.tsymbol = functionTypeSymbol;
         invokableSymbol.type.tsymbol.type = invokableSymbol.type;
     }
@@ -4530,6 +4678,13 @@ public class SymbolEnter extends BLangNodeVisitor {
         varSymbol.owner = symbol.owner;
         varSymbol.originalSymbol = symbol;
         defineShadowedSymbol(location, varSymbol, targetEnv);
+    }
+
+    private void defineSymbolWithCurrentEnvOwner(Location pos, BSymbol symbol) {
+        symbol.scope = new Scope(env.scope.owner);
+        if (symResolver.checkForUniqueSymbol(pos, env, symbol)) {
+            env.scope.define(symbol.name, symbol);
+        }
     }
 
     public BVarSymbol defineVarSymbol(Location pos, Set<Flag> flagSet, BType varType, Name varName,
@@ -4775,6 +4930,39 @@ public class SymbolEnter extends BLangNodeVisitor {
         }
     }
 
+    private StatementNode createAssignmentStmt(BLangSimpleVariable variable, BVarSymbol varSym, BSymbol fieldVar) {
+        //Create LHS reference variable
+        BLangSimpleVarRef varRef = (BLangSimpleVarRef) TreeBuilder.createSimpleVariableReferenceNode();
+        varRef.pos = variable.pos;
+        varRef.variableName = (BLangIdentifier) createIdentifier(fieldVar.name.getValue());
+        varRef.pkgAlias = (BLangIdentifier) TreeBuilder.createIdentifierNode();
+        varRef.symbol = fieldVar;
+        varRef.setBType(fieldVar.type);
+
+        //Create RHS variable reference
+        BLangSimpleVarRef exprVar = (BLangSimpleVarRef) TreeBuilder.createSimpleVariableReferenceNode();
+        exprVar.pos = variable.pos;
+        exprVar.variableName = (BLangIdentifier) createIdentifier(varSym.name.getValue());
+        exprVar.pkgAlias = (BLangIdentifier) TreeBuilder.createIdentifierNode();
+        exprVar.symbol = varSym;
+        exprVar.setBType(varSym.type);
+
+        //Create assignment statement
+        BLangAssignment assignmentStmt = (BLangAssignment) TreeBuilder.createAssignmentNode();
+        assignmentStmt.expr = exprVar;
+        assignmentStmt.pos = variable.pos;
+        assignmentStmt.setVariable(varRef);
+        return assignmentStmt;
+    }
+
+    private IdentifierNode createIdentifier(String value) {
+        IdentifierNode node = TreeBuilder.createIdentifierNode();
+        if (value != null) {
+            node.setValue(value);
+        }
+        return node;
+    }
+
     private boolean validateFuncReceiver(BLangFunction funcNode) {
         if (funcNode.receiver == null) {
             return true;
@@ -4809,6 +4997,11 @@ public class SymbolEnter extends BLangNodeVisitor {
 
     private Name getFuncSymbolOriginalName(BLangFunction funcNode) {
         return names.originalNameFromIdNode(funcNode.name);
+    }
+
+    private Name getFieldSymbolName(BLangSimpleVariable receiver, BLangSimpleVariable variable) {
+        return Names.fromString(Symbols.getAttachedFuncSymbolName(
+                receiver.getBType().tsymbol.name.value, variable.name.value));
     }
 
     public MarkdownDocAttachment getMarkdownDocAttachment(BLangMarkdownDocumentation docNode) {
@@ -5008,8 +5201,8 @@ public class SymbolEnter extends BLangNodeVisitor {
 
         // If not, define the function symbol within the object.
         // Take a copy of the symbol, with the new name, and the package ID same as the object type.
-        BInvokableSymbol funcSymbol = ASTBuilderUtil.duplicateFunctionDeclarationSymbol(symTable.typeEnv(),
-                referencedFuncSymbol, typeDefSymbol, funcName, typeDefSymbol.pkgID, typeRef.pos, getOrigin(funcName));
+        BInvokableSymbol funcSymbol = ASTBuilderUtil.duplicateFunctionDeclarationSymbol(referencedFuncSymbol,
+                typeDefSymbol, funcName, typeDefSymbol.pkgID, typeRef.pos, getOrigin(funcName));
         defineSymbol(typeRef.pos, funcSymbol, objEnv);
 
         // Create and define the parameters and receiver. This should be done after defining the function symbol.
@@ -5123,12 +5316,12 @@ public class SymbolEnter extends BLangNodeVisitor {
         BLangFunction function = ((BLangLambdaFunction) variable.expr).function;
         BInvokableType invokableType = (BInvokableType) function.symbol.type;
         if (function.flagSet.contains(Flag.ISOLATED)) {
-            invokableType.addFlags(Flags.ISOLATED);
+            invokableType.flags |= Flags.ISOLATED;
             invokableType.tsymbol.flags |= Flags.ISOLATED;
         }
 
         if (function.flagSet.contains(Flag.TRANSACTIONAL)) {
-            invokableType.addFlags(Flags.TRANSACTIONAL);
+            invokableType.flags |= Flags.TRANSACTIONAL;
             invokableType.tsymbol.flags |= Flags.TRANSACTIONAL;
         }
 
@@ -5177,7 +5370,7 @@ public class SymbolEnter extends BLangNodeVisitor {
     }
 
     private boolean isImmutable(BObjectType objectType) {
-        if (Symbols.isFlagOn(objectType.getFlags(), Flags.READONLY)) {
+        if (Symbols.isFlagOn(objectType.flags, Flags.READONLY)) {
             return true;
         }
 
@@ -5188,7 +5381,7 @@ public class SymbolEnter extends BLangNodeVisitor {
 
         for (BField field : fields) {
             if (!Symbols.isFlagOn(field.symbol.flags, Flags.FINAL) ||
-                    !Symbols.isFlagOn(field.type.getFlags(), Flags.READONLY)) {
+                    !Symbols.isFlagOn(field.type.flags, Flags.READONLY)) {
                 return false;
             }
         }
@@ -5200,7 +5393,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         BType effectiveType = referredType.effectiveType;
 
         if (Types.getImpliedType(effectiveType).tag != TypeTags.OBJECT ||
-                !Symbols.isFlagOn(effectiveType.getFlags(), Flags.READONLY)) {
+                !Symbols.isFlagOn(effectiveType.flags, Flags.READONLY)) {
             return false;
         }
 

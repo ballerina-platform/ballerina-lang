@@ -22,20 +22,15 @@ import io.ballerina.runtime.internal.types.semtype.CellAtomicType;
 import io.ballerina.runtime.internal.types.semtype.FunctionAtomicType;
 import io.ballerina.runtime.internal.types.semtype.ListAtomicType;
 import io.ballerina.runtime.internal.types.semtype.MappingAtomicType;
-import io.ballerina.runtime.internal.types.semtype.MutableSemType;
 
 import java.lang.ref.Reference;
 import java.lang.ref.WeakReference;
-import java.time.Duration;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.WeakHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicLong;
-import java.util.concurrent.locks.LockSupport;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.function.Supplier;
@@ -57,8 +52,7 @@ public final class Env {
     // Each atom is created once but will be accessed multiple times during type checking. Also in perfect world we
     // will create atoms at the beginning of the execution and will eventually reach
     // a steady state.
-    private final ReadWriteLock atomLock = new ReentrantReadWriteLock();
-    private final Map<AtomicType, Reference<TypeAtom>> atomTable;
+    private final AtomTable atomTable;
 
     private final ReadWriteLock recListLock = new ReentrantReadWriteLock();
     final List<ListAtomicType> recListAtoms;
@@ -73,23 +67,14 @@ public final class Env {
     private final Map<CellSemTypeCacheKey, SemType> cellTypeCache = new HashMap<>();
 
     private final AtomicInteger distinctAtomCount = new AtomicInteger(0);
-    private final TypeCheckSelfDiagnosticsRunner selfDiagnosticsRunner;
-
-    private final AtomicLong pendingTypeResolutions = new AtomicLong(0);
 
     private Env() {
-        this.atomTable = new WeakHashMap<>();
+        this.atomTable = new AtomTable();
         this.recListAtoms = new ArrayList<>();
         this.recMappingAtoms = new ArrayList<>();
         this.recFunctionAtoms = new ArrayList<>();
 
         PredefinedTypeEnv.getInstance().initializeEnv(this);
-        String diagnosticEnable = System.getenv("BAL_TYPE_CHECK_DIAGNOSTIC_ENABLE");
-        if ("true".equalsIgnoreCase(diagnosticEnable)) {
-            this.selfDiagnosticsRunner = new DebugSelfDiagnosticRunner(this);
-        } else {
-            this.selfDiagnosticsRunner = new NonOpSelfDiagnosticRunner();
-        }
     }
 
     public static Env getInstance() {
@@ -101,26 +86,7 @@ public final class Env {
     }
 
     private TypeAtom typeAtom(AtomicType atomicType) {
-        atomLock.readLock().lock();
-        try {
-            Reference<TypeAtom> ref = this.atomTable.get(atomicType);
-            if (ref != null) {
-                TypeAtom atom = ref.get();
-                if (atom != null) {
-                    return atom;
-                }
-            }
-        } finally {
-            atomLock.readLock().unlock();
-        }
-        atomLock.writeLock().lock();
-        try {
-            TypeAtom result = TypeAtom.createTypeAtom(this.atomTable.size(), atomicType);
-            this.atomTable.put(result.atomicType(), new WeakReference<>(result));
-            return result;
-        } finally {
-            atomLock.writeLock().unlock();
-        }
+        return atomTable.getOrCreate(atomicType);
     }
 
     // Ideally this cache should be in the builder as well. But technically we can't cache cells across environments.
@@ -155,39 +121,19 @@ public final class Env {
     }
 
     public RecAtom recListAtom() {
-        recListLock.writeLock().lock();
-        try {
-            int result = this.recListAtoms.size();
-            // represents adding () in nballerina
-            this.recListAtoms.add(null);
-            return RecAtom.createRecAtom(result);
-        } finally {
-            recListLock.writeLock().unlock();
-        }
+        return allocateRecAtom(recListLock, recListAtoms);
     }
 
     public void setRecListAtomType(RecAtom rec, ListAtomicType atomicType) {
-        // NOTE: this is fine since we are not actually changing the recList
-        recListLock.readLock().lock();
-        try {
-            this.recListAtoms.set(rec.index(), atomicType);
-        } finally {
-            recListLock.readLock().unlock();
-        }
-
+        setRecAtomType(recListLock, recListAtoms, rec, atomicType);
     }
 
     public Atom listAtom(ListAtomicType atomicType) {
         return this.typeAtom(atomicType);
     }
 
-    public ListAtomicType getRecListAtomType(RecAtom ra) {
-        recListLock.readLock().lock();
-        try {
-            return this.recListAtoms.get(ra.index());
-        } finally {
-            recListLock.readLock().unlock();
-        }
+    private ListAtomicType getRecListAtomType(RecAtom ra) {
+        return getRecAtomType(recListLock, recListAtoms, ra);
     }
 
     public ListAtomicType listAtomType(Atom atom) {
@@ -199,66 +145,81 @@ public final class Env {
     }
 
     public RecAtom recMappingAtom() {
-        recMapLock.writeLock().lock();
-        try {
-            int result = this.recMappingAtoms.size();
-            // represents adding () in nballerina
-            this.recMappingAtoms.add(null);
-            return RecAtom.createRecAtom(result);
-        } finally {
-            recMapLock.writeLock().unlock();
-        }
+        return allocateRecAtom(recMapLock, recMappingAtoms);
     }
 
     public void setRecMappingAtomType(RecAtom rec, MappingAtomicType atomicType) {
-        recMapLock.readLock().lock();
-        try {
-            this.recMappingAtoms.set(rec.index(), atomicType);
-        } finally {
-            recMapLock.readLock().unlock();
-        }
+        setRecAtomType(recMapLock, recMappingAtoms, rec, atomicType);
     }
 
     public TypeAtom mappingAtom(MappingAtomicType atomicType) {
         return this.typeAtom(atomicType);
     }
 
-    public MappingAtomicType getRecMappingAtomType(RecAtom recAtom) {
-        recMapLock.readLock().lock();
-        try {
-            return this.recMappingAtoms.get(recAtom.index());
-        } finally {
-            recMapLock.readLock().unlock();
+    private MappingAtomicType getRecMappingAtomType(RecAtom recAtom) {
+        return getRecAtomType(recMapLock, recMappingAtoms, recAtom);
+    }
+
+    public MappingAtomicType mappingAtomType(Atom atom) {
+        if (atom instanceof RecAtom recAtom) {
+            return this.getRecMappingAtomType(recAtom);
+        } else {
+            return (MappingAtomicType) ((TypeAtom) atom).atomicType();
         }
     }
 
     public RecAtom recFunctionAtom() {
-        recFunctionLock.writeLock().lock();
-        try {
-            int result = this.recFunctionAtoms.size();
-            // represents adding () in nballerina
-            this.recFunctionAtoms.add(null);
-            return RecAtom.createRecAtom(result);
-        } finally {
-            recFunctionLock.writeLock().unlock();
-        }
+        return allocateRecAtom(recFunctionLock, recFunctionAtoms);
     }
 
     public void setRecFunctionAtomType(RecAtom rec, FunctionAtomicType atomicType) {
-        recFunctionLock.readLock().lock();
-        try {
-            this.recFunctionAtoms.set(rec.index(), atomicType);
-        } finally {
-            recFunctionLock.readLock().unlock();
+        setRecAtomType(recFunctionLock, recFunctionAtoms, rec, atomicType);
+    }
+
+    private FunctionAtomicType getRecFunctionAtomType(RecAtom recAtom) {
+        return getRecAtomType(recFunctionLock, recFunctionAtoms, recAtom);
+    }
+
+    public FunctionAtomicType functionAtomType(Atom atom) {
+        if (atom instanceof RecAtom recAtom) {
+            return this.getRecFunctionAtomType(recAtom);
+        } else {
+            return (FunctionAtomicType) ((TypeAtom) atom).atomicType();
         }
     }
 
-    public FunctionAtomicType getRecFunctionAtomType(RecAtom recAtom) {
-        recFunctionLock.readLock().lock();
+    private static <E extends AtomicType> void setRecAtomType(ReadWriteLock lock, List<E> recAtomList, RecAtom rec,
+                                                              E atomicType) {
+        // NOTE: this is fine since we are not actually changing the recList
+        lock.readLock().lock();
         try {
-            return this.recFunctionAtoms.get(recAtom.index());
+            recAtomList.set(rec.index(), atomicType);
+            rec.ready();
         } finally {
-            recFunctionLock.readLock().unlock();
+            lock.readLock().unlock();
+        }
+    }
+
+    private static <E extends AtomicType> E getRecAtomType(ReadWriteLock lock, List<E> recAtomList, RecAtom rec) {
+        lock.readLock().lock();
+        try {
+            rec.waitUntilReady();
+            assert recAtomList.get(rec.index()) != null;
+            return recAtomList.get(rec.index());
+        } finally {
+            lock.readLock().unlock();
+        }
+    }
+
+    private static <E extends AtomicType> RecAtom allocateRecAtom(ReadWriteLock lock, List<E> recAtomList) {
+        lock.writeLock().lock();
+        try {
+            int result = recAtomList.size();
+            // represents adding () in nballerina
+            recAtomList.add(null);
+            return RecAtom.createRecAtom(result);
+        } finally {
+            lock.writeLock().unlock();
         }
     }
 
@@ -274,120 +235,68 @@ public final class Env {
         return this.distinctAtomCount.getAndIncrement();
     }
 
-    // This is for debug purposes
-    public Optional<AtomicType> atomicTypeByIndex(int index) {
-        atomLock.readLock().lock();
-        try {
-            for (Map.Entry<AtomicType, Reference<TypeAtom>> entry : this.atomTable.entrySet()) {
-                TypeAtom typeAtom = entry.getValue().get();
-                if (typeAtom == null) {
-                    continue;
+    private static final class AtomTable {
+
+        private final ReadWriteLock cellLock = new ReentrantReadWriteLock();
+        private final ReadWriteLock functionLock = new ReentrantReadWriteLock();
+        private final ReadWriteLock listLock = new ReentrantReadWriteLock();
+        private final ReadWriteLock mappingLock = new ReentrantReadWriteLock();
+        private final Map<AtomicType, Reference<TypeAtom>> cellTable = new WeakHashMap<>();
+        private final Map<AtomicType, Reference<TypeAtom>> listTable = new WeakHashMap<>();
+        private final Map<AtomicType, Reference<TypeAtom>> functionTable = new WeakHashMap<>();
+        private final Map<AtomicType, Reference<TypeAtom>> mappingTable = new WeakHashMap<>();
+        private final AtomicInteger nextCellIndex = new AtomicInteger(0);
+        private final AtomicInteger nextListIndex = new AtomicInteger(0);
+        private final AtomicInteger nextFunctionIndex = new AtomicInteger(0);
+        private final AtomicInteger nextMappingIndex = new AtomicInteger(0);
+
+        private AtomTable() {
+
+        }
+
+        public TypeAtom getOrCreate(AtomicType atomicType) {
+            switch (atomicType) {
+                case CellAtomicType cellAtomicType -> {
+                    return getOrCreateInner(cellLock, cellTable, nextCellIndex, cellAtomicType);
                 }
-                if (typeAtom.index() == index) {
-                    return Optional.of(entry.getKey());
+                case FunctionAtomicType functionAtomicType -> {
+                    return getOrCreateInner(functionLock, functionTable, nextFunctionIndex, functionAtomicType);
+                }
+                case ListAtomicType listAtomicType -> {
+                    return getOrCreateInner(listLock, listTable, nextListIndex, listAtomicType);
+                }
+                case MappingAtomicType mappingAtomicType -> {
+                    return getOrCreateInner(mappingLock, mappingTable, nextMappingIndex, mappingAtomicType);
                 }
             }
-            return Optional.empty();
-        } finally {
-            atomLock.readLock().unlock();
+        }
+
+        private static TypeAtom getOrCreateInner(ReadWriteLock rwLock, Map<AtomicType, Reference<TypeAtom>> table,
+                                                 AtomicInteger nextIndex, AtomicType atomicType) {
+            rwLock.readLock().lock();
+            try {
+                Reference<TypeAtom> ref = table.get(atomicType);
+                if (ref != null) {
+                    TypeAtom atom = ref.get();
+                    if (atom != null) {
+                        return atom;
+                    }
+                }
+            } finally {
+                rwLock.readLock().unlock();
+            }
+            int index = nextIndex.getAndIncrement();
+            TypeAtom result = TypeAtom.createTypeAtom(index, atomicType);
+            AtomicType key = result.atomicType();
+            WeakReference<TypeAtom> value = new WeakReference<>(result);
+            rwLock.writeLock().lock();
+            try {
+                table.put(key, value);
+                return result;
+            } finally {
+                rwLock.writeLock().unlock();
+            }
         }
     }
 
-    // When it comes to types there are 2 distinct stages, first we need to resolve types (ie turn type
-    // descriptor in to a semtype) and then do the type checking. In the compiler there is a clear temporal separation
-    // between these stages, but in runtime since we allow creating type dynamically we must allow them to interleave.
-    // As result, we have to treat both these stages of the type check. When a type is being used for type checking
-    // it is resolved (modifying the type after this point is undefined behaviour). To understand concurrency model for
-    // type checking we can break up type checking to 2 phases as type resolution and type checking. To allow
-    // concurrent type checking we need ensure fallowing invariants.
-    // 1. Phase 1 should be able to run in a non-blocking manner. Assume we are checking T1 < T2 and T3 < T4
-    //    concurrently with T1 depending on T3 and T4 depending on T2. If they are blocking we can have a deadlock.
-    // 2. Before starting phase 2 all the types involved in the type check must be resolved. In above example T3 which
-    //    is needed for first type check is being resolved as a part of the second type check.
-    // Furthermore, ideally we shouldn't resolve the same type multiple times and both type checks should be able to
-    // run parallel as much as possible.
-    // Given each (strand) thread has its own context, it is easier to reason about concurrency using Context. First
-    // we require all phase changes to go via the context which will synchronize with other contexts via the shared Env.
-    // First we allow any number of context to enter phase 1 and run without blocking(property 1). When context
-    // need to move to phase 2 it must wait for all contexts in phase 1 to finish. To prevent starvation when a
-    // context has indicated that it needs to move to phase 2 we stop any new context from entering phase 1. When all
-    // the contexts have reached phase 2 again they all can continue in parallel. At the same time we can allow new
-    // context to enter phase 1.
-
-    void enterTypeResolutionPhase(Context cx, MutableSemType t) throws InterruptedException {
-        pendingTypeResolutions.incrementAndGet();
-        this.selfDiagnosticsRunner.registerTypeResolutionStart(cx, t);
-    }
-
-    void exitTypeResolutionPhaseAbruptly(Context cx, Exception ex) {
-        try {
-            pendingTypeResolutions.decrementAndGet();
-            releaseLock((ReentrantReadWriteLock) atomLock);
-            releaseLock((ReentrantReadWriteLock) recListLock);
-            releaseLock((ReentrantReadWriteLock) recMapLock);
-            releaseLock((ReentrantReadWriteLock) recFunctionLock);
-        } catch (Exception ignored) {
-
-        }
-        this.selfDiagnosticsRunner.registerAbruptTypeResolutionEnd(cx, ex);
-    }
-
-    private void releaseLock(ReentrantReadWriteLock lock) {
-        if (lock.writeLock().isHeldByCurrentThread()) {
-            lock.writeLock().unlock();
-        }
-        if (lock.getReadHoldCount() > 0) {
-            lock.readLock().unlock();
-        }
-    }
-
-    void exitTypeResolutionPhase(Context cx) {
-        long res = pendingTypeResolutions.decrementAndGet();
-        assert res >= 0;
-        this.selfDiagnosticsRunner.registerTypeResolutionExit(cx);
-    }
-
-    void enterTypeCheckingPhase(Context cx, SemType t1, SemType t2) {
-        assert pendingTypeResolutions.get() >= 0;
-        while (pendingTypeResolutions.get() != 0) {
-            LockSupport.parkNanos(Duration.ofNanos(10).toNanos());
-        }
-        this.selfDiagnosticsRunner.registerTypeCheckStart(cx, t1, t2);
-    }
-
-    void exitTypeCheckingPhase(Context cx) {
-        this.selfDiagnosticsRunner.registerTypeCheckEnd(cx);
-    }
-
-    void registerAbruptTypeCheckEnd(Context context, Exception ex) {
-        this.selfDiagnosticsRunner.registerAbruptTypeCheckEnd(context, ex);
-    }
-
-    // These are helper methods for diagnostics that needs access to internal state of the environment
-    List<ListAtomicType> getRecListAtomsCopy() {
-        recListLock.readLock().lock();
-        try {
-            return new ArrayList<>(this.recListAtoms);
-        } finally {
-            recListLock.readLock().unlock();
-        }
-    }
-
-    List<MappingAtomicType> getRecMappingAtomsCopy() {
-        recMapLock.readLock().lock();
-        try {
-            return new ArrayList<>(this.recMappingAtoms);
-        } finally {
-            recMapLock.readLock().unlock();
-        }
-    }
-
-    List<FunctionAtomicType> getRecFunctionAtomsCopy() {
-        recFunctionLock.readLock().lock();
-        try {
-            return new ArrayList<>(this.recFunctionAtoms);
-        } finally {
-            recFunctionLock.readLock().unlock();
-        }
-    }
 }

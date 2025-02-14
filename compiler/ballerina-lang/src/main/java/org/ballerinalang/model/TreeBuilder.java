@@ -17,7 +17,6 @@
  */
 package org.ballerinalang.model;
 
-import io.ballerina.types.Env;
 import org.ballerinalang.model.clauses.CollectClauseNode;
 import org.ballerinalang.model.clauses.DoClauseNode;
 import org.ballerinalang.model.clauses.GroupByClauseNode;
@@ -396,12 +395,12 @@ public final class TreeBuilder {
         return new BLangCompilationUnit();
     }
 
-    public static PackageNode createPackageNode(Env typeEnv) {
-        return new BLangPackage(typeEnv);
+    public static PackageNode createPackageNode() {
+        return new BLangPackage();
     }
 
-    public static BLangTestablePackage createTestablePackageNode(Env typeEnv) {
-        return new BLangTestablePackage(typeEnv);
+    public static BLangTestablePackage createTestablePackageNode() {
+        return new BLangTestablePackage();
     }
 
     public static IdentifierNode createIdentifierNode() {

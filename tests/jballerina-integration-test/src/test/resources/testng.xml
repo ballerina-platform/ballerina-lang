@@ -20,7 +20,7 @@
 <suite name="jBallerina-Test-Suite" time-out="120000">
     <test name="ballerina-packerina-tests">
         <classes>
-<!--            <class name="org.ballerinalang.test.packaging.ModuleExecutionFlowTests"/>-->
+            <class name="org.ballerinalang.test.packaging.ModuleExecutionFlowTests"/>
             <class name="org.ballerinalang.test.packaging.MultipleModuleVersionTests"/>
             <class name="org.ballerinalang.test.packaging.MavenTestCase"/>
         </classes>

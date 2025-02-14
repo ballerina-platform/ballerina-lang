@@ -302,6 +302,7 @@ public class ReachabilityAnalysisTest {
         validateError(result, i++, ERROR_TYPE_NEVER_EXPRESSION_NOT_ALLOWED, 818, 19);
         validateError(result, i++, ERROR_UNREACHABLE_CODE, 829, 9);
         validateError(result, i++, ERROR_TYPE_NEVER_EXPRESSION_NOT_ALLOWED, 829, 19);
+        validateError(result, i++, ERROR_TYPE_NEVER_EXPRESSION_NOT_ALLOWED, 839, 15);
         validateError(result, i++, ERROR_UNREACHABLE_CODE, 840, 9);
         validateError(result, i++, ERROR_TYPE_NEVER_EXPRESSION_NOT_ALLOWED, 840, 19);
         validateHint(result, i++, HINT_UNNECESSARY_CONDITION, 850, 8);
@@ -555,7 +556,7 @@ public class ReachabilityAnalysisTest {
         validateError(result, i++, ERROR_UNREACHABLE_CODE, 401, 9);
         validateError(result, i++, ERROR_UNREACHABLE_CODE, 408, 9);
         validateError(result, i++, ERROR_UNREACHABLE_CODE, 419, 9);
-        validateError(result, i++, ERROR_UNREACHABLE_CODE, 430, 9);
+        validateError(result, i++, ERROR_UNREACHABLE_CODE, 428, 9);
         validateError(result, i++, ERROR_UNREACHABLE_CODE, 432, 9);
         validateError(result, i++, ERROR_UNREACHABLE_CODE, 438, 9);
         validateError(result, i++, ERROR_UNREACHABLE_CODE, 446, 9);

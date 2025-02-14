@@ -38,8 +38,7 @@ public class QueryExpressionsTests extends AbstractGetResultTest {
         runGetResultTest("query.tables.json");
     }
 
-    // We no longer has fixed names for internal narrowed types so we can't hardcode them
-    @Test(description = "Test for querying with streams", enabled = false)
+    @Test(description = "Test for querying with streams")
     public void testQueryExpressionsWithStreams() throws ExecutionException, IOException, InterruptedException {
         runGetResultTest("query.streams.json");
     }

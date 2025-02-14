@@ -32,6 +32,18 @@ function checkEqualityOfArraysOfDifferentTypes() returns boolean {
     return bool1 && bool2;
 }
 
+function checkEqualityOfMapsOfIncompatibleConstraintTypes() returns boolean {
+    map<int> a = {};
+    map<float> b = {};
+    boolean bool1 = a == b && !(a != b);
+
+    map<string|int> c = {};
+    map<float> d = {};
+    boolean bool2 = c == d && !(c != d);
+
+    return bool1 && bool2;
+}
+
 function checkEqualityOfTuplesOfDifferentTypes() returns boolean {
     [string, int] a = ["", 0];
     [boolean, float] b = [false, 0.0];
@@ -48,6 +60,10 @@ function checkEqualityOfRecordsOfIncompatibleTypes() returns boolean {
     Employee e = { name: "Maryam" };
     Person p = { name: "Maryam" };
     boolean b = e == p && !(e != p);
+
+    EmployeeWithOptionalId e1 = { name: "Maryam" };
+    PersonWithOptionalId p1 = { name: "Maryam" };
+    return b && e1 == p1 && !(e1 != p1);
 }
 
 function checkEqualityWithJsonRecordMapForIncompatibleType() returns boolean {
@@ -107,6 +123,11 @@ type EmployeeWithOptionalId record {|
     float id?;
 |};
 
+type PersonWithOptionalId record {|
+    string name;
+    string id?;
+|};
+
 class Foo {
     string s = "";
 }
@@ -131,6 +152,22 @@ function refAndNilEqualityCheck() {
     }
 }
 
+function readonlyEquality() returns boolean {
+    map<int> & readonly immutableMarks = {
+        math: 80,
+        physics: 85,
+        chemistry: 75
+    };
+    readonly readonlyMarks = immutableMarks;
+
+    map<int> marks = {
+        math: 80,
+        physics: 85,
+        chemistry: 75
+    };
+    return readonlyMarks != marks;
+}
+
 type MyObject object {
     int i;
 };
@@ -145,28 +182,4 @@ function testEqualityWithNonAnydataType() returns boolean {
     'equals = obj == () && !(obj != ());
     MyObject obj2 = object {int i = 10;};
     'equals = obj == obj2 && !(obj != obj2);
-}
-
-type IntOne 1;
-type FloatOne 1.0;
-type IntTwo 2;
-type FloatTwo 2f;
-
-function checkFiniteTypeEqualityNegative() {
-    IntOne intOne_1 = 1;
-    IntTwo intTwo = 2;
-    FloatOne floatOne = 1f;
-    FloatTwo floatTwo = 2.0;
-
-    boolean _ = (floatOne != floatTwo) && !(floatOne == floatTwo);
-    boolean _ = ((intOne_1 == intTwo) && !(intOne_1 != intTwo));
-}
-
-type Array ["array", 1];
-type Mapping ["mapping", 2];
-
-function checkTupleEqualityNegative() {
-    Array a = ["array", 1];
-    Mapping b = ["mapping", 2];
-    boolean _ = a == b;
 }

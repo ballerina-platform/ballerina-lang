@@ -19,6 +19,8 @@ package io.ballerina.runtime.internal.values;
 
 import io.ballerina.runtime.api.types.PredefinedTypes;
 import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.types.semtype.BasicTypeBitSet;
+import io.ballerina.runtime.api.types.semtype.Builder;
 import io.ballerina.runtime.api.values.BHandle;
 import io.ballerina.runtime.api.values.BLink;
 import io.ballerina.runtime.api.values.BTypedesc;
@@ -36,6 +38,8 @@ import java.util.Map;
  * @since 1.0
  */
 public class HandleValue implements BHandle, RefValue {
+
+    private static final BasicTypeBitSet BASIC_TYPE = Builder.getHandleType();
 
     private final Object value;
     private BTypedesc typedesc;
@@ -71,6 +75,11 @@ public class HandleValue implements BHandle, RefValue {
     @Override
     public Type getType() {
         return PredefinedTypes.TYPE_HANDLE;
+    }
+
+    @Override
+    public BasicTypeBitSet getBasicType() {
+        return BASIC_TYPE;
     }
 
     @Override

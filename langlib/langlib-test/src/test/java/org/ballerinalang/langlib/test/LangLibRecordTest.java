@@ -18,7 +18,6 @@
 
 package org.ballerinalang.langlib.test;
 
-import io.ballerina.runtime.api.types.MapType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.TypeTags;
 import io.ballerina.runtime.api.utils.StringUtils;
@@ -26,6 +25,7 @@ import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.internal.types.BArrayType;
+import io.ballerina.runtime.internal.types.BMapType;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
@@ -88,7 +88,7 @@ public class LangLibRecordTest {
         assertEquals(getType(returns).getTag(), TypeTags.MAP_TAG);
 
         BMap<?, ?> map = (BMap<?, ?>) returns;
-        assertEquals(((MapType) map.getType()).getConstrainedType().getTag(), TypeTags.TUPLE_TAG);
+        assertEquals(((BMapType) map.getType()).getConstrainedType().getTag(), TypeTags.TUPLE_TAG);
         assertEquals(map.size(), 2);
         assertEquals(map.get(StringUtils.fromString("name")).toString(), "[\"name\",\"John Doe\"]");
         assertEquals(map.get(StringUtils.fromString("age")).toString(), "[\"age\",25]");
@@ -143,7 +143,7 @@ public class LangLibRecordTest {
         assertEquals(getType(returns).getTag(), TypeTags.MAP_TAG);
 
         BMap<?, ?> map = (BMap<?, ?>) returns;
-        assertEquals(((MapType) map.getType()).getConstrainedType().getTag(), TypeTags.INT_TAG);
+        assertEquals(((BMapType) map.getType()).getConstrainedType().getTag(), TypeTags.INT_TAG);
         assertEquals(map.size(), 2);
         assertEquals(map.get(StringUtils.fromString("name")), 8L);
         assertEquals(map.get(StringUtils.fromString("age")), 25L);
@@ -161,7 +161,7 @@ public class LangLibRecordTest {
         assertEquals(getType(returns).getTag(), TypeTags.MAP_TAG);
 
         BMap<?, ?> map = (BMap<?, ?>) returns;
-        assertEquals(((MapType) map.getType()).getConstrainedType().getTag(), TypeTags.INT_TAG);
+        assertEquals(((BMapType) map.getType()).getConstrainedType().getTag(), TypeTags.INT_TAG);
         assertEquals(map.size(), 2);
         assertEquals(map.get(StringUtils.fromString("physics")), 75L);
         assertEquals(map.get(StringUtils.fromString("ict")), 85L);

@@ -35,8 +35,6 @@ import org.wso2.ballerinalang.compiler.PackageCache;
 import org.wso2.ballerinalang.compiler.bir.writer.BIRBinaryWriter;
 import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLocation;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolEnter;
-import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
-import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangTestablePackage;
@@ -246,8 +244,7 @@ class ModuleContext {
     }
 
     private void parseTestSources(BLangPackage pkgNode, PackageID pkgId, CompilerContext compilerContext) {
-        Types types = Types.getInstance(compilerContext);
-        BLangTestablePackage testablePkg = TreeBuilder.createTestablePackageNode(types.typeEnv());
+        BLangTestablePackage testablePkg = TreeBuilder.createTestablePackageNode();
         // TODO Not sure why we need to do this. It is there in the current implementation
         testablePkg.packageID = pkgId;
         testablePkg.flagSet.add(Flag.TESTABLE);
@@ -378,8 +375,7 @@ class ModuleContext {
         SymbolEnter symbolEnter = SymbolEnter.getInstance(compilerContext);
         CompilerPhaseRunner compilerPhaseRunner = CompilerPhaseRunner.getInstance(compilerContext);
 
-        Types types = Types.getInstance(compilerContext);
-        BLangPackage pkgNode = (BLangPackage) TreeBuilder.createPackageNode(types.typeEnv());
+        BLangPackage pkgNode = (BLangPackage) TreeBuilder.createPackageNode();
         pkgNode.moduleContextDataHolder = new ModuleContextDataHolder(
                 moduleContext.isExported(),
                 moduleContext.descriptor(),
@@ -494,13 +490,11 @@ class ModuleContext {
         }
         // Can we improve this logic
         ByteArrayOutputStream birContent = new ByteArrayOutputStream();
-        SymbolTable symTable = SymbolTable.getInstance(compilerContext);
         try {
             CompiledBinaryFile.BIRPackageFile birPackageFile = moduleContext.bLangPackage.symbol.birPackageFile;
             if (birPackageFile == null) {
                 birPackageFile = new CompiledBinaryFile
-                        .BIRPackageFile(
-                        new BIRBinaryWriter(moduleContext.bLangPackage.symbol.bir, symTable.typeEnv()).serialize());
+                        .BIRPackageFile(new BIRBinaryWriter(moduleContext.bLangPackage.symbol.bir).serialize());
                 moduleContext.bLangPackage.symbol.birPackageFile = birPackageFile;
             }
             byte[] pkgBirBinaryContent = PackageFileWriter.writePackage(birPackageFile);

@@ -18,10 +18,6 @@
 package org.wso2.ballerinalang.compiler.semantics.model.symbols;
 
 import io.ballerina.tools.diagnostics.Location;
-import io.ballerina.types.PredefinedType;
-import io.ballerina.types.SemType;
-import io.ballerina.types.SemTypes;
-import io.ballerina.types.definition.FunctionDefinition;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
@@ -29,7 +25,6 @@ import org.wso2.ballerinalang.compiler.util.Name;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 /**
  * {@code BResourceFunction} represents a resource function in Ballerina.
@@ -81,18 +76,5 @@ public class BResourceFunction extends BAttachedFunction {
 
         type.paramTypes = originalParamTypes;
         return sb.toString();
-    }
-
-    @Override
-    public SemType semType() {
-        List<SemType> params = new ArrayList<>();
-        params.add(SemTypes.stringConst(accessor.value));
-        for (var each : pathSegmentSymbols) {
-            params.add(Objects.requireNonNullElse(each.type.semType(), PredefinedType.NEVER));
-        }
-        for (var param : this.type.paramTypes) {
-            params.add(Objects.requireNonNullElse(param.semType(), PredefinedType.NEVER));
-        }
-        return this.type.getSemTypeWithParams(params, new FunctionDefinition());
     }
 }

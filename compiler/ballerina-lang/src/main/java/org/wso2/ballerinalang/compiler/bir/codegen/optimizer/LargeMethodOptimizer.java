@@ -800,7 +800,7 @@ public class LargeMethodOptimizer {
             paramTypes.add(funcArg.type);
         }
         BType funcRetType = splitFuncEnv.returnValAssigned ? symbolTable.errorOrNilType : symbolTable.nilType;
-        BInvokableType type = new BInvokableType(symbolTable.typeEnv(), paramTypes, funcRetType, null);
+        BInvokableType type =  new BInvokableType(paramTypes, funcRetType, null);
         splitFuncNum += 1;
         String splitFuncName = SPLIT_METHOD + splitFuncNum;
         Name newFuncName = new Name(splitFuncName);
@@ -1515,7 +1515,7 @@ public class LargeMethodOptimizer {
         LinkedHashSet<BType> memberTypes = new LinkedHashSet<>(2);
         memberTypes.add(newFuncReturnType);
         memberTypes.add(symbolTable.errorType);
-        return new BUnionType(symbolTable.typeEnv(), null, memberTypes, false);
+        return new BUnionType(null, memberTypes, false, false);
     }
 
     private BIRBasicBlock handleNewFuncReturnVal(BIRFunction function, BIROperand splitFuncCallResultOp,
@@ -1666,7 +1666,7 @@ public class LargeMethodOptimizer {
         for (BIRVariableDcl funcArg : currSplit.funcArgs) {
             paramTypes.add(funcArg.type);
         }
-        BInvokableType type = new BInvokableType(symbolTable.typeEnv(), paramTypes, retType, null);
+        BInvokableType type = new BInvokableType(paramTypes, retType, null);
         BIRFunction birFunc = new BIRFunction(null, funcName, funcName, 0, type, DEFAULT_WORKER_NAME, 0,
                 SymbolOrigin.VIRTUAL);
 
@@ -1869,7 +1869,7 @@ public class LargeMethodOptimizer {
         for (BIRVariableDcl funcArg : funcArgs) {
             paramTypes.add(funcArg.type);
         }
-        BInvokableType type = new BInvokableType(symbolTable.typeEnv(), paramTypes, retType, null);
+        BInvokableType type = new BInvokableType(paramTypes, retType, null);
         BIRFunction birFunc = new BIRFunction(null, funcName, funcName, 0, type, DEFAULT_WORKER_NAME, 0,
                 SymbolOrigin.VIRTUAL);
 

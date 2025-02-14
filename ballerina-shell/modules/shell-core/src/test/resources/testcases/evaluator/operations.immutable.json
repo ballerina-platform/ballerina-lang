@@ -1,11 +1,11 @@
 [
   {
     "description": "Define Details.",
-    "code": "type DetailsImmutableTest record {| string name; int id; |};"
+    "code": "type Details record {| string name; int id; |};"
   },
   {
     "description": "Define Student.",
-    "code": "type StudentImmutableTest record {| int 'class; DetailsImmutableTest details; map<int> marks; |};"
+    "code": "type Student record {| int 'class; Details details; map<int> marks; |};"
   },
   {
     "description": "Define addEntryToMap.",
@@ -13,11 +13,11 @@
   },
   {
     "description": "Define immutable Details",
-    "code": "DetailsImmutableTest & readonly immutableDetails = { name: \"May\", id: 112233 };"
+    "code": "Details & readonly immutableDetails = { name: \"May\", id: 112233 };"
   },
   {
     "description": "Define immutable Student &",
-    "code": "StudentImmutableTest & readonly student = { 'class: 12, details: immutableDetails, marks: { math: 80, physics: 85, chemistry: 75 } };"
+    "code": "Student & readonly student = { 'class: 12, details: immutableDetails, marks: { math: 80, physics: 85, chemistry: 75 } };"
   },
   {
     "description": "Readonly status of student.",

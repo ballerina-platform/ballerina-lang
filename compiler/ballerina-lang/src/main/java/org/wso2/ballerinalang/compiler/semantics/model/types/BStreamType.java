@@ -18,13 +18,8 @@
 
 package org.wso2.ballerinalang.compiler.semantics.model.types;
 
-import io.ballerina.types.Env;
-import io.ballerina.types.PredefinedType;
-import io.ballerina.types.SemType;
-import io.ballerina.types.definition.StreamDefinition;
 import org.ballerinalang.model.types.StreamType;
 import org.ballerinalang.model.types.Type;
-import org.ballerinalang.model.types.TypeKind;
 import org.wso2.ballerinalang.compiler.semantics.model.TypeVisitor;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
@@ -34,19 +29,15 @@ import org.wso2.ballerinalang.compiler.util.TypeTags;
  *
  * @since 1.2.0
  */
-public class BStreamType extends BType implements StreamType {
+public class BStreamType extends BBuiltInRefType implements StreamType {
 
     public BType constraint;
     public BType completionType;
 
-    private final Env env;
-    private StreamDefinition d = null;
-
-    public BStreamType(Env env, int tag, BType constraint, BType completionType, BTypeSymbol tsymbol) {
+    public BStreamType(int tag, BType constraint, BType completionType, BTypeSymbol tsymbol) {
         super(tag, tsymbol);
         this.constraint = constraint;
-        this.completionType = completionType != null ? completionType : BType.createNilType();
-        this.env = env;
+        this.completionType = completionType != null ? completionType : new BNilType();
     }
 
     @Override
@@ -65,11 +56,6 @@ public class BStreamType extends BType implements StreamType {
     }
 
     @Override
-    public TypeKind getKind() {
-        return TypeKind.STREAM;
-    }
-
-    @Override
     public String toString() {
         if (constraint.tag == TypeTags.ANY) {
             return super.toString();
@@ -82,27 +68,5 @@ public class BStreamType extends BType implements StreamType {
     @Override
     public void accept(TypeVisitor visitor) {
         visitor.visit(this);
-    }
-
-    /**
-     * When the type is mutated we need to reset the definition used for the semType.
-     */
-    @Override
-    public void resetSemType() {
-        d = null;
-    }
-
-    @Override
-    public SemType semType() {
-        if (constraint == null || constraint instanceof BNoType) {
-            return PredefinedType.STREAM;
-        }
-
-        if (d != null) {
-            return d.getSemType(env);
-        }
-
-        d = new StreamDefinition();
-        return d.define(env, constraint.semType(), completionType.semType());
     }
 }

@@ -425,38 +425,38 @@ type Details record {|
     boolean fatal?;
 |};
 
-type E1 error<Details>;
+type E1TR error<Details>;
 
-type E2 error<record {|string reason;|}>;
+type E2TR error<record {|string reason;|}>;
 
-type E1Ref E1;
+type E1RefTR E1TR;
 
-type E2Ref E2;
+type E2RefTR E2TR;
 
 function errorTypeReferenceTypeTest() {
-    E1 err1 = error("invalid username", reason = "contains spaces");
-    test:assertEquals(err1 is E2, true);
+    E1TR err1 = error("invalid username", reason = "contains spaces");
+    test:assertEquals(err1 is E2TR, true);
 
-    E1Ref err2 = error("invalid username", reason = "contains spaces");
-    test:assertEquals(err2 is E2, true);
+    E1RefTR err2 = error("invalid username", reason = "contains spaces");
+    test:assertEquals(err2 is E2TR, true);
 
-    E2 err3 = error("invalid username", reason = "contains spaces");
-    test:assertEquals(err3 is E1, true);
+    E2TR err3 = error("invalid username", reason = "contains spaces");
+    test:assertEquals(err3 is E1TR, true);
 
-    E2Ref err4 = error("invalid username", reason = "contains spaces");
-    test:assertEquals(err4 is E1Ref, true);
+    E2RefTR err4 = error("invalid username", reason = "contains spaces");
+    test:assertEquals(err4 is E1RefTR, true);
 
     error err5 = <error<Details>>error("invalid username", reason = "contains spaces");
-    test:assertEquals(err5 is E1, true);
-    test:assertEquals(err5 is E1Ref, true);
-    test:assertEquals(err5 is E2, true);
-    test:assertEquals(err5 is E2Ref, true);
+    test:assertEquals(err5 is E1TR, true);
+    test:assertEquals(err5 is E1RefTR, true);
+    test:assertEquals(err5 is E2TR, true);
+    test:assertEquals(err5 is E2RefTR, true);
 
     error err6 = <error<Details>>error("invalid username", reason = "contains spaces", fatal = true);
-    test:assertEquals(err6 is E1, true);
-    test:assertEquals(err6 is E1Ref, true);
-    test:assertEquals(err6 is E2, false);
-    test:assertEquals(err6 is E2Ref, false);
+    test:assertEquals(err6 is E1TR, true);
+    test:assertEquals(err6 is E1RefTR, true);
+    test:assertEquals(err6 is E2TR, false);
+    test:assertEquals(err6 is E2RefTR, false);
 }
 
 function assertTrue(anydata actual) {

@@ -57,7 +57,7 @@ final class PredefinedTypeEnv {
     private static PredefinedTypeEnv instance;
     private final AtomicBoolean initialized = new AtomicBoolean(false);
     private static final int BDD_REC_ATOM_OBJECT_READONLY = 1;
-    private static final RecAtom OBJECT_RO_REC_ATOM = RecAtom.createRecAtom(BDD_REC_ATOM_OBJECT_READONLY);
+    private static final RecAtom OBJECT_RO_REC_ATOM = RecAtom.createUnBlockedRecAtom(BDD_REC_ATOM_OBJECT_READONLY);
     private static final BddNode MAPPING_SUBTYPE_OBJECT_RO = bddAtom(OBJECT_RO_REC_ATOM);
 
     private final List<InitializedTypeAtom<CellAtomicType>> initializedCellAtoms = new ArrayList<>();

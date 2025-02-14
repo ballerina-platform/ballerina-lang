@@ -23,7 +23,9 @@ import io.ballerina.compiler.api.symbols.FunctionSymbol;
 import io.ballerina.compiler.api.symbols.SingletonTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BFiniteType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 
@@ -37,26 +39,35 @@ import java.util.List;
 public class BallerinaSingletonTypeSymbol extends AbstractTypeSymbol implements SingletonTypeSymbol {
 
     private final String typeName;
-    private final BType broadType;
+    private final BLangLiteral shape;
     private TypeSymbol originalType;
 
-    public BallerinaSingletonTypeSymbol(CompilerContext context, BType broadType, String value, BType bFiniteType) {
-        super(context, TypeDescKind.SINGLETON, bFiniteType);
-        if (TypeTags.STRING == broadType.tag) {
-            this.typeName = "\"" + value + "\"";
+    public BallerinaSingletonTypeSymbol(CompilerContext context, BLangLiteral shape, BType bType) {
+        super(context, TypeDescKind.SINGLETON, bType);
+
+        if (shape.value == null && shape.originalValue == null) {
+            this.typeName = "";
+        // Special case handling for `()` since in BLangLiteral, `null` is used to represent nil.
+        } else if (shape.getBType().tag == TypeTags.NIL) {
+            this.typeName = "()";
+        // Special case handling for string type.
+        } else if (shape.getBType().tag == TypeTags.STRING) {
+            this.typeName = "\"" + shape + "\"";
         } else {
-            this.typeName = value;
+            this.typeName = shape.toString();
         }
 
-        this.broadType = broadType;
+        this.shape = shape;
     }
 
     @Override
     public List<FunctionSymbol> langLibMethods() {
         if (this.langLibFunctions == null) {
             LangLibrary langLibrary = LangLibrary.getInstance(this.context);
-            List<FunctionSymbol> functions = langLibrary.getMethods(broadType);
-            this.langLibFunctions = filterLangLibMethods(functions, broadType);
+            BFiniteType internalType = (BFiniteType) this.getBType();
+            BType valueType = internalType.getValueSpace().iterator().next().getBType();
+            List<FunctionSymbol> functions = langLibrary.getMethods(valueType);
+            this.langLibFunctions = filterLangLibMethods(functions, valueType);
         }
 
         return this.langLibFunctions;
@@ -84,7 +95,8 @@ public class BallerinaSingletonTypeSymbol extends AbstractTypeSymbol implements 
         }
 
         TypesFactory typesFactory = TypesFactory.getInstance(this.context);
-        originalType = typesFactory.getTypeDescriptor(broadType);
+        originalType = typesFactory.getTypeDescriptor(shape.getBType());
+
         return originalType;
     }
 }

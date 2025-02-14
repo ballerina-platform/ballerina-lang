@@ -19,6 +19,8 @@ package io.ballerina.runtime.internal.values;
 
 import io.ballerina.runtime.api.types.PredefinedTypes;
 import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.types.semtype.BasicTypeBitSet;
+import io.ballerina.runtime.api.types.semtype.Builder;
 import io.ballerina.runtime.api.values.BLink;
 import io.ballerina.runtime.api.values.BTypedesc;
 
@@ -36,6 +38,7 @@ import java.util.Map;
  */
 public abstract class RegExpCommonValue implements RefValue {
 
+    private static final BasicTypeBitSet BASIC_TYPE = Builder.getRegexType();
     @Override
     public String expressionStringValue(BLink parent) {
         return stringValue(parent);
@@ -64,5 +67,10 @@ public abstract class RegExpCommonValue implements RefValue {
     @Override
     public BTypedesc getTypedesc() {
         throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public BasicTypeBitSet getBasicType() {
+        return BASIC_TYPE;
     }
 }

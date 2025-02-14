@@ -21,6 +21,7 @@ import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.constants.TypeConstants;
 import io.ballerina.runtime.api.types.NeverType;
 import io.ballerina.runtime.api.types.TypeTags;
+import io.ballerina.runtime.api.types.semtype.BasicTypeBitSet;
 import io.ballerina.runtime.api.types.semtype.Builder;
 
 /**
@@ -29,6 +30,8 @@ import io.ballerina.runtime.api.types.semtype.Builder;
  * @since 2.0.0-preview1
  */
 public final class BNeverType extends BNullType implements NeverType {
+
+    private static final BasicTypeBitSet BASIC_TYPE = Builder.getNeverType();
     /**
      * Create a {@code BNeverType} represents the type of a {@code Never}.
      *
@@ -41,5 +44,10 @@ public final class BNeverType extends BNullType implements NeverType {
     @Override
     public boolean isAnydata() {
         return true;
+    }
+
+    @Override
+    public BasicTypeBitSet getBasicType() {
+        return BASIC_TYPE;
     }
 }

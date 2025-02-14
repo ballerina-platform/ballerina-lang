@@ -36,6 +36,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BRecordTypeSymbol
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.SchedulerPolicy;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
@@ -655,10 +656,9 @@ public class ClosureGenerator extends BLangNodeVisitor {
                                                   VIRTUAL);
             funcSymbol.scope.define(symbolName, varSymbol);
             funcSymbol.params.add(varSymbol);
-            BInvokableType funcType = (BInvokableType) funcSymbol.type;
-            funcType.addParamType(varSymbol.type);
+            ((BInvokableType) funcSymbol.type).paramTypes.add(type);
             funcNode.requiredParams.add(ASTBuilderUtil.createVariable(pos, symbolName.value, type, null,
-                    varSymbol));
+                                                                      varSymbol));
         }
     }
 
@@ -729,7 +729,7 @@ public class ClosureGenerator extends BLangNodeVisitor {
         function.flagSet.add(Flag.PUBLIC);
         BInvokableTypeSymbol invokableTypeSymbol = Symbols.createInvokableTypeSymbol(SymTag.FUNCTION_TYPE, Flags.PUBLIC,
                                                                                      pkgID, bType, owner, pos, VIRTUAL);
-        function.setBType(new BInvokableType(symTable.typeEnv(), List.of(), bType, invokableTypeSymbol));
+        function.setBType(new BInvokableType(new ArrayList<>(), bType, invokableTypeSymbol));
 
         BLangBuiltInRefTypeNode typeNode = (BLangBuiltInRefTypeNode) TreeBuilder.createBuiltInReferenceTypeNode();
         typeNode.setBType(bType);
@@ -743,6 +743,7 @@ public class ClosureGenerator extends BLangNodeVisitor {
         functionSymbol.kind = SymbolKind.FUNCTION;
         functionSymbol.retType = function.returnTypeNode.getBType();
         functionSymbol.scope = new Scope(functionSymbol);
+        functionSymbol.schedulerPolicy = SchedulerPolicy.ANY;
         function.symbol = functionSymbol;
 
         return function;

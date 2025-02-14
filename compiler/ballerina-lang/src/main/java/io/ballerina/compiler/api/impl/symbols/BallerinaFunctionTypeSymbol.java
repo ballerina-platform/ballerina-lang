@@ -179,7 +179,7 @@ public class BallerinaFunctionTypeSymbol extends AbstractTypeSymbol implements F
             return this.signature;
         }
 
-        if (Symbols.isFlagOn(getBType().getFlags(), Flags.ANY_FUNCTION)) {
+        if (Symbols.isFlagOn(getBType().flags, Flags.ANY_FUNCTION)) {
             this.signature = "function";
             return this.signature;
         }

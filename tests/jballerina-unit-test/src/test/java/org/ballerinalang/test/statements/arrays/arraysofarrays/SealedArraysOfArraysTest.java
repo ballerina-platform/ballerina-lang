@@ -114,6 +114,7 @@ public class SealedArraysOfArraysTest {
 
     @Test()
     public void testNegativeSealedArraysOfArrays() {
+        Assert.assertEquals(resultNegative.getErrorCount(), 34);
         int i = 0;
         BAssertUtil.validateError(
                 resultNegative, i++, "size mismatch in closed array. expected '2', but found '3'", 19, 23);
@@ -152,7 +153,10 @@ public class SealedArraysOfArraysTest {
         BAssertUtil.validateError(
                 resultNegative, i++, "size mismatch in closed array. expected '3', but found '4'", 72, 66);
         BAssertUtil.validateError(
-                resultNegative, i++, "invalid usage of closed type: array not initialized", 73, 5);;
+                resultNegative, i++, "invalid usage of closed type: array not initialized", 73, 5);
+        BAssertUtil.validateError(
+                resultNegative, i++, "incompatible types: expected '((float[*][]|string) & readonly)', " +
+                        "found '(float[2][2] & readonly)'", 76, 40);
         BAssertUtil.validateError(
                 resultNegative, i++, "list index out of range: index: '4'", 83, 11);
         BAssertUtil.validateError(
@@ -179,9 +183,8 @@ public class SealedArraysOfArraysTest {
                 resultNegative, i++, "incompatible types: expected 'map<int[*][]>', found 'map<(float|int[1][1])>'",
                 118, 19);
         BAssertUtil.validateError(
-                resultNegative, i++, "incompatible types: expected '[(int[*][] & readonly),float]', " +
+                resultNegative, i, "incompatible types: expected '[(int[*][] & readonly),float]', " +
                         "found '[(string|int[1][]),float]'", 121, 34);
-        Assert.assertEquals(resultNegative.getErrorCount(), i);
     }
 
     @Test

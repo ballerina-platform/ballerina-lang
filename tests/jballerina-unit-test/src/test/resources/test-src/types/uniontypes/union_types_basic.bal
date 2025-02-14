@@ -112,12 +112,12 @@ function testRecordLiteralAssignment() returns string {
     }
 }
 
-type Foo record {|
+type FooUTB record {|
     string s;
     int i = 0;
 |};
 
-type Bar record {|
+type BarUTB record {|
     string x;
     int y = 0;
 |};
@@ -126,16 +126,16 @@ function testUnionTypeWithMultipleRecordTypes() returns string[] {
 
     string[] returnValues = [];
 
-    Foo|Bar var1 = {s : "dummy string"};
-    Foo|Bar var2 = {x : "dummy string"};
+    FooUTB|BarUTB var1 = {s : "dummy string"};
+    FooUTB|BarUTB var2 = {x : "dummy string"};
 
-    if (var1 is Foo) {
+    if (var1 is FooUTB) {
         returnValues[0] = "FOO";
     } else {
         returnValues[0] = "BAR";
     }
 
-    if (var2 is Foo) {
+    if (var2 is FooUTB) {
         returnValues[1] = "FOO";
     } else {
         returnValues[1] = "BAR";
@@ -148,14 +148,14 @@ const ASSERTION_ERR_REASON = "AssertionError";
 
 function testUnionTypeWithMultipleRecordTypesWithLiteralKeysInLiteral() {
 
-    Foo|Bar v1 = {s: "dummy string", "i": 1};
-    Foo|Bar v2 = {"x": "dummy string", y: 2};
+    FooUTB|BarUTB v1 = {s: "dummy string", "i": 1};
+    FooUTB|BarUTB v2 = {"x": "dummy string", y: 2};
 
-    if !(v1 is Foo) {
+    if !(v1 is FooUTB) {
         panic error(ASSERTION_ERR_REASON, message = "expected v1 to be of type Foo");
     }
 
-    if !(v2 is Bar) {
+    if !(v2 is BarUTB) {
         panic error(ASSERTION_ERR_REASON, message = "expected v2 to be of type Bar");
     }
 }

@@ -89,6 +89,8 @@ public class TypeTestExprTest {
                 "unnecessary condition: expression will always evaluate to 'true'", 131, 17);
         BAssertUtil.validateHint(negativeResult, i++,
                 "unnecessary condition: expression will always evaluate to 'true'", 131, 31);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: 'int[]' will not be matched to 'float[]'",
+                132, 17);
         BAssertUtil.validateHint(negativeResult, i++,
                 "unnecessary condition: expression will always evaluate to 'true'", 133, 17);
         BAssertUtil.validateHint(negativeResult, i++,
@@ -173,12 +175,15 @@ public class TypeTestExprTest {
         BAssertUtil.validateError(negativeResult, i++,
                 "incompatible types: 'ClosedRecordWithIntField' will not be matched to " +
                         "'record {| int i; string s; |}'", 297, 17);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: 'object { }[]' will not be matched to " +
+                "'anydata'", 330, 8);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: 'anydata' will not be matched to 'object " +
+                "{ }[]'", 336, 8);
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: 'Record' will not be matched to " +
                 "'RecordWithIntFieldAndNeverRestField'", 358, 17);
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: 'Record' will not be matched to " +
                 "'RecordWithIntFieldAndEffectivelyNeverRestField'", 359, 17);
-        Assert.assertEquals(negativeResult.getErrorCount(), 32);
-        Assert.assertEquals(negativeResult.getDiagnostics().length, i);
+        Assert.assertEquals(negativeResult.getErrorCount(), 35);
     }
 
     @Test

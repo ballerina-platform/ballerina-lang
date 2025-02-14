@@ -25,6 +25,7 @@ import io.ballerina.runtime.api.types.IntersectionType;
 import io.ballerina.runtime.api.types.PredefinedTypes;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.TypeTags;
+import io.ballerina.runtime.api.types.semtype.BasicTypeBitSet;
 import io.ballerina.runtime.api.types.semtype.Builder;
 import io.ballerina.runtime.api.types.semtype.ConcurrentLazySupplier;
 import io.ballerina.runtime.api.types.semtype.Core;
@@ -40,6 +41,7 @@ import java.util.Optional;
  */
 public final class BAnyType extends BSemTypeWrapper<BAnyType.BAnyTypeImpl> implements AnyType {
 
+    private static final BasicTypeBitSet BASIC_TYPE = Builder.getAnyType();
     /**
      * Create a {@code BAnyType} which represents the any type.
      *
@@ -68,6 +70,11 @@ public final class BAnyType extends BSemTypeWrapper<BAnyType.BAnyTypeImpl> imple
     @Override
     public IntersectionType getImmutableType() {
         return this.getbType().getImmutableType();
+    }
+
+    @Override
+    public BasicTypeBitSet getBasicType() {
+        return BASIC_TYPE;
     }
 
     protected static final class BAnyTypeImpl extends BType implements AnyType {
@@ -119,6 +126,11 @@ public final class BAnyType extends BSemTypeWrapper<BAnyType.BAnyTypeImpl> imple
         @Override
         public void setImmutableType(IntersectionType immutableType) {
             this.immutableType = immutableType;
+        }
+
+        @Override
+        public BasicTypeBitSet getBasicType() {
+            return BASIC_TYPE;
         }
 
         @Override

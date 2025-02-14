@@ -17,7 +17,7 @@
 import ballerina/lang.array;
 import ballerina/jballerina.java;
 
-class IsolatedClassWithNoMutableFields {
+class IsolatedClassWithNoMutableFieldsIIO {
     public final int[] & readonly a;
     final readonly & record {record {int i;} val;} b;
 
@@ -31,7 +31,7 @@ class IsolatedClassWithNoMutableFields {
     }
 }
 
-class IsolatedClassWithPrivateMutableFields {
+class IsolatedClassWithPrivateMutableFieldsIIO {
     public final int[] & readonly a = [10, 20, 30];
     final readonly & record {int i;} b;
 
@@ -46,12 +46,12 @@ class IsolatedClassWithPrivateMutableFields {
 
 final readonly & string[] immutableStringArray = ["hello", "world"];
 
-type ObjectType object {
+type ObjectTypeIIO object {
     int a;
 };
 
-class IsolatedClassOverridingMutableFieldsInIncludedObject {
-    *ObjectType;
+class IsolatedClassOverridingMutableFieldsInIncludedObjectIIO {
+    *ObjectTypeIIO;
 
     final byte a = 100;
     private string[] b;
@@ -71,7 +71,7 @@ class IsolatedClassOverridingMutableFieldsInIncludedObject {
 }
 
 function testIsolatedObjectOverridingMutableFieldsInIncludedObject() {
-    object {} isolatedObjectOverridingMutableFieldsInIncludedObject = object ObjectType {
+    object {} isolatedObjectOverridingMutableFieldsInIncludedObject = object ObjectTypeIIO {
 
         final byte a = 100;
         private string[] b = [];
@@ -91,7 +91,7 @@ function testIsolatedObjectOverridingMutableFieldsInIncludedObject() {
     assertTrue(isMethodIsolated(isolatedObjectOverridingMutableFieldsInIncludedObject, "accessMutableField"));
 }
 
-class IsolatedClassWithMethodsAccessingPrivateMutableFieldsWithinLockStatements {
+class IsolatedClassWithMethodsAccessingPrivateMutableFieldsWithinLockStatementsIIO {
     public final int[] & readonly a = [10, 20, 30];
     final readonly & record {int i;} b;
 
@@ -217,13 +217,13 @@ object {} isolatedObjectWithMethodsAccessingPrivateMutableFieldsWithinLockStatem
     }
 };
 
-class IsolatedClassWithNonPrivateIsolatedObjectFields {
+class IsolatedClassWithNonPrivateIsolatedObjectFieldsIIO {
     final isolated object {} a = isolated object {
         final int i = 1;
         private map<int> j = {};
     };
-    final IsolatedClassWithMethodsAccessingPrivateMutableFieldsWithinLockStatements b;
-    private final IsolatedClassWithMethodsAccessingPrivateMutableFieldsWithinLockStatements c = new ({i: 1}, 102, {});
+    final IsolatedClassWithMethodsAccessingPrivateMutableFieldsWithinLockStatementsIIO b;
+    private final IsolatedClassWithMethodsAccessingPrivateMutableFieldsWithinLockStatementsIIO c = new ({i: 1}, 102, {});
     private int[] d = [1, 2];
 
     function init() {
@@ -246,8 +246,8 @@ object {} isolatedObjectWithNonPrivateIsolatedObjectFields = object {
             }
         }
     };
-    final int|IsolatedClassWithMethodsAccessingPrivateMutableFieldsWithinLockStatements b = new ({i: 1}, 102, {});
-    private final IsolatedClassWithMethodsAccessingPrivateMutableFieldsWithinLockStatements c = new ({i: 1}, 102, {});
+    final int|IsolatedClassWithMethodsAccessingPrivateMutableFieldsWithinLockStatementsIIO b = new ({i: 1}, 102, {});
+    private final IsolatedClassWithMethodsAccessingPrivateMutableFieldsWithinLockStatementsIIO c = new ({i: 1}, 102, {});
     private int[] d = [1, 2];
     final isolated object { isolated function foo() returns int; } e = isolated object {
         final int i = 1;
@@ -274,7 +274,7 @@ object {} isolatedObjectWithNonPrivateIsolatedObjectFields = object {
 
 const INT = 100;
 
-class IsolatedClassWithUniqueInitializerExprs {
+class IsolatedClassWithUniqueInitializerExprsIIO {
     private map<int> a = <map<int>> {};
     final int[] & readonly b = [1, INT];
     private table<record {readonly int i; string name;}> c;
@@ -297,7 +297,7 @@ object {} isolatedObjectWithUniqueInitializerExprs = object {
     }
 };
 
-class IsolatedClassWithValidCopyInInsideBlock {
+class IsolatedClassWithValidCopyInInsideBlockIIO {
     private string[] uniqueGreetings = [];
 
     function add(string[] greetings) {
@@ -309,7 +309,7 @@ class IsolatedClassWithValidCopyInInsideBlock {
     }
 }
 
-class IsolatedClassWithValidCopyyingWithClone {
+class IsolatedClassWithValidCopyyingWithCloneIIO {
     private anydata[] arr = [];
     private anydata[] arr2 = [];
 
@@ -331,7 +331,7 @@ class IsolatedClassWithValidCopyyingWithClone {
     }
 }
 
-class IsolatedClassPassingCopiedInVarsToIsolatedFunctions {
+class IsolatedClassPassingCopiedInVarsToIsolatedFunctionsIIO {
 
     private anydata[] arr = [];
 
@@ -369,19 +369,19 @@ function outerAdd(anydata val) {
 
 }
 
-class ArrayGen {
+class ArrayGenIIO {
     function getArray() returns int[] => [];
 }
 
-ArrayGen|(int[] & readonly) unionVal = [1, 2, 3];
+ArrayGenIIO|(int[] & readonly) unionVal = [1, 2, 3];
 
-class IsolatedClassAccessingSubTypeOfReadOnlyOrIsolatedObjectUnion {
+class IsolatedClassAccessingSubTypeOfReadOnlyOrIsolatedObjectUnionIIO {
     private int[] a;
 
     function testAccessingSubTypeOfReadOnlyOrIsolatedObjectUnionInIsolatedClass() {
         lock {
             var val = unionVal;
-            self.a = val is ArrayGen ? val.getArray() : val;
+            self.a = val is ArrayGenIIO ? val.getArray() : val;
         }
     }
 }
@@ -390,7 +390,7 @@ int[] a = [];
 readonly & int[] b = [];
 final readonly & int[] c = [];
 
-class IsolatedClassWithValidVarRefs {
+class IsolatedClassWithValidVarRefsIIO {
     private any[] w = [];
     private int[][] x = [];
     private int[] y;
@@ -425,18 +425,18 @@ class IsolatedClassWithValidVarRefs {
     }
 }
 
-type IsolatedObjectType isolated object {
+type IsolatedObjectTypeIIO isolated object {
     int a;
 };
 
 function testObjectConstrExprImplicitIsolatedness() {
     var ob = object {
         final int[] & readonly x = [];
-        final IsolatedObjectType y = object {
+        final IsolatedObjectTypeIIO y = object {
             final int a = 1;
             final readonly & string[] b = [];
         };
-        final (readonly & string[])|IsolatedClassWithPrivateMutableFields z = new IsolatedClassWithPrivateMutableFields({i: 2}, 3);
+        final (readonly & string[])|IsolatedClassWithPrivateMutableFieldsIIO z = new IsolatedClassWithPrivateMutableFieldsIIO({i: 2}, 3);
     };
 
     object {} isolatedOb = ob;
@@ -448,32 +448,32 @@ function testObjectConstrExprImplicitIsolatedness() {
             final int a = 1;
             final string[] b = [];
         };
-        final IsolatedClassWithPrivateMutableFields z = new ({i: 2}, 3);
+        final IsolatedClassWithPrivateMutableFieldsIIO z = new ({i: 2}, 3);
     };
 
     assertFalse(<any> ob2 is isolated object {});
 
     var ob3 = object {
         final int[] & readonly x = [];
-        final IsolatedObjectType y = object {
+        final IsolatedObjectTypeIIO y = object {
             final int a = 1;
             final readonly & string[] b = [];
         };
-        final string[]|IsolatedClassWithPrivateMutableFields z = new IsolatedClassWithPrivateMutableFields({i: 2}, 3);
+        final string[]|IsolatedClassWithPrivateMutableFieldsIIO z = new IsolatedClassWithPrivateMutableFieldsIIO({i: 2}, 3);
     };
 
     assertFalse(<any> ob3 is isolated object {});
 }
 
-class NonIsolatedClass {
+class NonIsolatedClassIIO {
     int i = 1;
 }
 
 function testRuntimeIsolatedFlag() {
-    IsolatedClassWithPrivateMutableFields x = new ({i: 2}, 3);
+    IsolatedClassWithPrivateMutableFieldsIIO x = new ({i: 2}, 3);
     assertTrue(<any> x is isolated object {});
 
-    NonIsolatedClass y = new;
+    NonIsolatedClassIIO y = new;
     assertFalse(<any> y is isolated object {});
 
     testObjectConstrExprImplicitIsolatedness();
@@ -499,7 +499,7 @@ function testRuntimeIsolatedFlag() {
     assertFalse(<any> ob2 is isolated object {});
 }
 
-service class IsolatedServiceClassWithNoMutableFields {
+service class IsolatedServiceClassWithNoMutableFieldsIIO {
     public final int[] & readonly a;
     final readonly & record {int i;} b;
 
@@ -509,7 +509,7 @@ service class IsolatedServiceClassWithNoMutableFields {
     }
 }
 
-client class IsolatedClientClassWithPrivateMutableFields {
+client class IsolatedClientClassWithPrivateMutableFieldsIIO {
     public final int[] & readonly a = [10, 20, 30];
     final readonly & record {int i;} b;
 
@@ -580,7 +580,7 @@ service object {} ser = service object {
     }
 };
 
-service class ServiceClass {
+service class ServiceClassIIO {
     private int[] x = [];
 
     remote function foo() {
@@ -640,7 +640,7 @@ class Listener {
     }
 }
 
-class IsolatedClassUsingSelf {
+class IsolatedClassUsingSelfIIO {
     private int[][] arr = [[], []];
 
     function getMember(boolean bool) returns int[] {
@@ -660,11 +660,11 @@ class IsolatedClassUsingSelf {
     }
 }
 
-function getMember(IsolatedClassUsingSelf foo) returns int[] {
+function getMember(IsolatedClassUsingSelfIIO foo) returns int[] {
     return foo.getMember(false);
 }
 
-class IsolatedClassWithBoundMethodAccess {
+class IsolatedClassWithBoundMethodAccessIIO {
     public function bar() {
         lock {
             function () fn = self.baz;
@@ -676,7 +676,7 @@ class IsolatedClassWithBoundMethodAccess {
     }
 }
 
-class IsolatedClassReferringSelfOutsideLock {
+class IsolatedClassReferringSelfOutsideLockIIO {
     final int a = 1;
     private int[] b = [];
 
@@ -690,15 +690,15 @@ class IsolatedClassReferringSelfOutsideLock {
     }
 }
 
-function f1(IsolatedClassReferringSelfOutsideLock x) {
+function f1(IsolatedClassReferringSelfOutsideLockIIO x) {
 
 }
 
-isolated function f2(int i, IsolatedClassReferringSelfOutsideLock x) {
+isolated function f2(int i, IsolatedClassReferringSelfOutsideLockIIO x) {
 
 }
 
-class IsolatedClassWithBoundMethodAccessOutsideLock {
+class IsolatedClassWithBoundMethodAccessOutsideLockIIO {
 
     public function bar() {
         function () fn = self.baz;
@@ -709,7 +709,7 @@ class IsolatedClassWithBoundMethodAccessOutsideLock {
     }
 }
 
-class IsolatedClassWithInvalidCopyInInMethodCall {
+class IsolatedClassWithInvalidCopyInInMethodCallIIO {
     private map<int> m = {};
 
     function baz() returns map<int>[] {
@@ -755,7 +755,7 @@ var isolatedObjectWithInvalidCopyInInMethodCall = object {
     }
 };
 
-class IsolatedClassAssigningProtectedFieldsToLocalVars {
+class IsolatedClassAssigningProtectedFieldsToLocalVarsIIO {
     private map<int> m = {};
 
     function baz() returns map<int>[] {
@@ -779,31 +779,31 @@ class IsolatedClassAssigningProtectedFieldsToLocalVars {
 const fromMobile = "";
 configurable string toMobile = "";
 
-NonIsolatedClient cl = new;
+NonIsolatedClientIIO cl = new;
 
 service "serviceUsingClient" on new Listener() {
     resource function post foo() returns error? {
-        Response resp;
+        ResponseIIO resp;
         lock {
-            Response val = check cl->sendMessage(fromMobile, toMobile, "Hi!");
+            ResponseIIO val = check cl->sendMessage(fromMobile, toMobile, "Hi!");
             resp = val.clone();
         }
     }
 }
 
-type Response record {|
+type ResponseIIO record {|
    string message;
    int id;
 |};
 
-client class NonIsolatedClient {
+client class NonIsolatedClientIIO {
     int i = 1;
 
     remote function sendMessage(string x, string y, string z)
-      returns Response|error => {message: "Hello", id: 0};
+      returns ResponseIIO|error => {message: "Hello", id: 0};
 }
 
-class IsolatedClassWithRawTemplateTransfer {
+class IsolatedClassWithRawTemplateTransferIIO {
     private int[] arr = [];
     private isolated object {}[] arr2 = [];
 
@@ -826,16 +826,16 @@ class IsolatedClassWithRawTemplateTransfer {
     }
 }
 
-class IsolatedObjectWithIsolatedFunctionCallAccessingModuleVarOfSameTypeAsDefaultValueExpr {
+class IsolatedObjectWithIsolatedFunctionCallAccessingModuleVarOfSameTypeAsDefaultValueExprIIO {
     private int z = 1;
 
     function init() {
     }
 }
 
-final IsolatedObjectWithIsolatedFunctionCallAccessingModuleVarOfSameTypeAsDefaultValueExpr f = new;
+final IsolatedObjectWithIsolatedFunctionCallAccessingModuleVarOfSameTypeAsDefaultValueExprIIO f = new;
 
-function f3() returns IsolatedObjectWithIsolatedFunctionCallAccessingModuleVarOfSameTypeAsDefaultValueExpr {
+function f3() returns IsolatedObjectWithIsolatedFunctionCallAccessingModuleVarOfSameTypeAsDefaultValueExprIIO {
     lock {
         return f;
     }
@@ -847,7 +847,7 @@ function f4() {
     }
 }
 
-type Obj object {
+type ObjIIO object {
     int i;
     int[] j;
 };
@@ -857,8 +857,8 @@ class Class {
     final string[] & readonly l = [];
 }
 
-class IsolatedClassIncludingObjectAndClass {
-    *Obj;
+class IsolatedClassIncludingObjectAndClassIIO {
+    *ObjIIO;
     *Class;
 
     final int i = 1;
@@ -877,7 +877,7 @@ class IsolatedClassIncludingObjectAndClass {
     }
 }
 
-readonly class ReadOnlyClass {
+readonly class ReadOnlyClassIIO {
     int i = 1;
     int[] j = [];
 
@@ -888,7 +888,7 @@ readonly class ReadOnlyClass {
     function f2() returns int[] => self.j;
 }
 
-class IsolatedClassWithMultipleLocks {
+class IsolatedClassWithMultipleLocksIIO {
     private int[] x = [];
     final readonly & int[] y = [];
 
@@ -927,15 +927,15 @@ function testAccessingListenerOfIsolatedObjectType() {
 }
 
 public function testIsolatedInference() {
-    IsolatedClassWithNoMutableFields a = new ([], {val: {i: 1}});
+    IsolatedClassWithNoMutableFieldsIIO a = new ([], {val: {i: 1}});
     assertTrue(<any> a is isolated object {});
     assertTrue(isMethodIsolated(a, "init"));
 
-    IsolatedClassWithPrivateMutableFields b = new ({i: 1}, 2);
+    IsolatedClassWithPrivateMutableFieldsIIO b = new ({i: 1}, 2);
     assertTrue(<any> b is isolated object {});
     assertTrue(isMethodIsolated(b, "init"));
 
-    IsolatedClassOverridingMutableFieldsInIncludedObject c = new;
+    IsolatedClassOverridingMutableFieldsInIncludedObjectIIO c = new;
     assertTrue(<any> c is isolated object {});
     assertTrue(isMethodIsolated(c, "init"));
     assertTrue(isMethodIsolated(c, "accessImmutableField"));
@@ -943,7 +943,7 @@ public function testIsolatedInference() {
 
     testIsolatedObjectOverridingMutableFieldsInIncludedObject();
 
-    IsolatedClassWithMethodsAccessingPrivateMutableFieldsWithinLockStatements d = new ({i: 1}, 2, {});
+    IsolatedClassWithMethodsAccessingPrivateMutableFieldsWithinLockStatementsIIO d = new ({i: 1}, 2, {});
     assertTrue(<any> d is isolated object {});
     assertTrue(isMethodIsolated(d, "init"));
     assertTrue(isMethodIsolated(d, "accessMutableFieldInLockOne"));
@@ -955,7 +955,7 @@ public function testIsolatedInference() {
     assertTrue(isMethodIsolated(isolatedObjectWithMethodsAccessingPrivateMutableFieldsWithinLockStatements, "accessMutableFieldInLockTwo"));
     assertTrue(isMethodIsolated(isolatedObjectWithMethodsAccessingPrivateMutableFieldsWithinLockStatements, "accessImmutableFieldOutsideLock"));
 
-    IsolatedClassWithNonPrivateIsolatedObjectFields e = new;
+    IsolatedClassWithNonPrivateIsolatedObjectFieldsIIO e = new;
     assertTrue(<any> e is isolated object {});
     assertTrue(isMethodIsolated(e, "init"));
     assertTrue(isMethodIsolated(e, "accessNonPrivateIsolatedObjectFieldOutsideLock"));
@@ -966,7 +966,7 @@ public function testIsolatedInference() {
     assertFalse(isMethodIsolated(isolatedObjectWithNonPrivateIsolatedObjectFields, "accessNonPrivateIsolatedObjectFieldOutsideLock"));
     assertTrue(isMethodIsolated(isolatedObjectWithNonPrivateIsolatedObjectFields, "accessNonPrivateIsolatedObjectFieldOutsideLockTwo"));
 
-    IsolatedClassWithUniqueInitializerExprs f = new (table []);
+    IsolatedClassWithUniqueInitializerExprsIIO f = new (table []);
     assertTrue(<any> f is isolated object {});
     assertTrue(isMethodIsolated(f, "init"));
 
@@ -978,32 +978,32 @@ public function testIsolatedInference() {
     // The `init` method of object constructor expressions isn't available atm.
     // assertTrue(isMethodIsolated(isolatedObjectWithUniqueInitializerExprs, "init"));
 
-    IsolatedClassWithValidCopyInInsideBlock g = new;
+    IsolatedClassWithValidCopyInInsideBlockIIO g = new;
     assertTrue(<any> g is isolated object {});
     assertTrue(isMethodIsolated(g, "add"));
 
-    IsolatedClassWithValidCopyyingWithClone h = new;
+    IsolatedClassWithValidCopyyingWithCloneIIO h = new;
     assertTrue(<any> h is isolated object {});
     assertTrue(isMethodIsolated(h, "add"));
     assertTrue(isMethodIsolated(h, "addAgain"));
 
-    IsolatedClassPassingCopiedInVarsToIsolatedFunctions i = new;
+    IsolatedClassPassingCopiedInVarsToIsolatedFunctionsIIO i = new;
     assertTrue(<any> i is isolated object {});
     assertTrue(isMethodIsolated(i, "add"));
     assertTrue(isMethodIsolated(i, "addAgain"));
 
     assertTrue(outerAdd is isolated function (anydata val));
 
-    ArrayGen k = new;
+    ArrayGenIIO k = new;
     assertTrue(<any> k is isolated object {});
     assertTrue(isMethodIsolated(k, "getArray"));
 
-    IsolatedClassAccessingSubTypeOfReadOnlyOrIsolatedObjectUnion l = new;
+    IsolatedClassAccessingSubTypeOfReadOnlyOrIsolatedObjectUnionIIO l = new;
     // TODO: fallback to one isolated constrcut with two potentially protected vars
     // assertTrue(<any> l is isolated object {});
     assertFalse(isMethodIsolated(l, "testAccessingSubTypeOfReadOnlyOrIsolatedObjectUnionInIsolatedClass"));
 
-    IsolatedClassWithValidVarRefs m = new;
+    IsolatedClassWithValidVarRefsIIO m = new;
     // TODO: fallback to one isolated constrcut with two potentially protected vars
     // assertTrue(<any> m is isolated object {});
     assertFalse(isMethodIsolated(m, "init"));
@@ -1013,16 +1013,16 @@ public function testIsolatedInference() {
 
     testObjectConstrExprImplicitIsolatedness();
 
-    NonIsolatedClass n = new;
+    NonIsolatedClassIIO n = new;
     assertFalse(<any> n is isolated object {});
 
     testRuntimeIsolatedFlag();
 
-    IsolatedServiceClassWithNoMutableFields o = new ([], {i: 1});
+    IsolatedServiceClassWithNoMutableFieldsIIO o = new ([], {i: 1});
     assertTrue(<any> o is isolated object {});
     assertTrue(isMethodIsolated(o, "init"));
 
-    IsolatedClientClassWithPrivateMutableFields p = new ({i: 1}, 2);
+    IsolatedClientClassWithPrivateMutableFieldsIIO p = new ({i: 1}, 2);
     assertTrue(<any> p is isolated object {});
     assertTrue(isMethodIsolated(p, "init"));
 
@@ -1032,7 +1032,7 @@ public function testIsolatedInference() {
     assertTrue(isMethodIsolated(ser, "baz"));
     assertTrue(isResourceIsolated(ser, "get", "corge"));
 
-    ServiceClass q = new;
+    ServiceClassIIO q = new;
     assertTrue(<any> q is isolated service object {});
     assertTrue(isRemoteMethodIsolated(q, "foo"));
     assertTrue(isResourceIsolated(q, "get", "bar"));
@@ -1040,32 +1040,32 @@ public function testIsolatedInference() {
     assertTrue(isResourceIsolated(q, "get", "corge"));
     assertTrue(isMethodIsolated(q, "quuz"));
 
-    IsolatedClassUsingSelf r = new;
+    IsolatedClassUsingSelfIIO r = new;
     assertTrue(<any> r is isolated object {});
     assertTrue(isMethodIsolated(r, "getMember"));
     assertTrue(isMethodIsolated(r, "getMemberInternal"));
 
     assertTrue(<function> getMember is isolated function);
 
-    IsolatedClassWithBoundMethodAccess s = new;
+    IsolatedClassWithBoundMethodAccessIIO s = new;
     assertTrue(<any> s is isolated object {});
     assertTrue(isMethodIsolated(s, "bar"));
     assertTrue(isMethodIsolated(s, "baz"));
     s.bar();
 
-    IsolatedClassReferringSelfOutsideLock t = new;
+    IsolatedClassReferringSelfOutsideLockIIO t = new;
     assertTrue(<any> t is isolated object {});
     assertTrue(isMethodIsolated(t, "foo"));
     assertTrue(isMethodIsolated(t, "baz"));
 
     assertTrue(<function> f1 is isolated function);
 
-    IsolatedClassWithBoundMethodAccessOutsideLock u = new;
+    IsolatedClassWithBoundMethodAccessOutsideLockIIO u = new;
     assertTrue(<any> u is isolated object {});
     assertTrue(isMethodIsolated(u, "bar"));
     assertTrue(isMethodIsolated(u, "baz"));
 
-    IsolatedClassWithInvalidCopyInInMethodCall v = new;
+    IsolatedClassWithInvalidCopyInInMethodCallIIO v = new;
     assertTrue(<any> v is isolated object {});
     assertTrue(isMethodIsolated(v, "baz"));
     assertTrue(isMethodIsolated(v, "qux"));
@@ -1074,29 +1074,29 @@ public function testIsolatedInference() {
     assertTrue(isMethodIsolated(v, "baz"));
     assertTrue(isMethodIsolated(v, "qux"));
 
-    IsolatedClassAssigningProtectedFieldsToLocalVars w = new;
+    IsolatedClassAssigningProtectedFieldsToLocalVarsIIO w = new;
     assertTrue(isMethodIsolated(w, "baz"));
 
-    NonIsolatedClient x = new;
+    NonIsolatedClientIIO x = new;
     assertFalse(<any> x is isolated object {});
     assertTrue(isRemoteMethodIsolated(x, "sendMessage"));
 
-    IsolatedClassWithRawTemplateTransfer y = new;
+    IsolatedClassWithRawTemplateTransferIIO y = new;
     assertTrue(<any> y is isolated object {});
     assertTrue(isMethodIsolated(y, "getArrOne"));
     assertTrue(isMethodIsolated(y, "getArrTwo"));
     assertTrue(isMethodIsolated(y, "getArrs"));
 
-    IsolatedClassIncludingObjectAndClass a2 = new ([]);
+    IsolatedClassIncludingObjectAndClassIIO a2 = new ([]);
     assertTrue(isMethodIsolated(a2, "init"));
     assertTrue(isMethodIsolated(a2, "access"));
 
-    ReadOnlyClass b2 = new;
+    ReadOnlyClassIIO b2 = new;
     assertTrue(<any> b2 is isolated object {});
     assertTrue(isMethodIsolated(b2, "f1"));
     assertTrue(isMethodIsolated(b2, "f2"));
 
-    IsolatedClassWithMultipleLocks c2 = new;
+    IsolatedClassWithMultipleLocksIIO c2 = new;
     assertTrue(<any> c2 is isolated object {});
     assertTrue(isMethodIsolated(c2, "fn"));
     assertFalse(isMethodIsolated(c2, "fn2"));

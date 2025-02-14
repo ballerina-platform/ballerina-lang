@@ -340,7 +340,7 @@ public final class TypeConverter {
             default:
                 if (TypeChecker.checkIsLikeType(inputValue, targetType, allowNumericConversion)
                         || (TypeTags.isXMLTypeTag(targetTypeTag) && isStringConvertibleToTargetXmlType(
-                                inputValue, targetType))) {
+                        inputValue, targetType))) {
                     return targetType;
                 }
         }
@@ -1283,7 +1283,7 @@ public final class TypeConverter {
         List<Type> xmlTargetTypes = new ArrayList<>();
         return switch (targetType.getTag()) {
             case TypeTags.XML_TAG, TypeTags.XML_PI_TAG, TypeTags.XML_COMMENT_TAG, TypeTags.XML_ELEMENT_TAG,
-                    TypeTags.XML_TEXT_TAG -> {
+                 TypeTags.XML_TEXT_TAG -> {
                 xmlTargetTypes.add(targetType);
                 yield xmlTargetTypes;
             }

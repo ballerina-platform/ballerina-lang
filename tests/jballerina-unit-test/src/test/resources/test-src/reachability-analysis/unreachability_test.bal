@@ -836,7 +836,7 @@ function testUnreachabilityWithIfElseStmts6() {
         int _ = 10;
     } else if e == 20 {
         int _ = 20;
-    } else {
+    } else if e == 10 {
         never _ = e; // unreachable code
     }
 }

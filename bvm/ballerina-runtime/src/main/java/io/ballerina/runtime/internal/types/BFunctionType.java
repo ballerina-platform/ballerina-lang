@@ -25,6 +25,7 @@ import io.ballerina.runtime.api.types.Parameter;
 import io.ballerina.runtime.api.types.PredefinedTypes;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.TypeTags;
+import io.ballerina.runtime.api.types.semtype.BasicTypeBitSet;
 import io.ballerina.runtime.api.types.semtype.Builder;
 import io.ballerina.runtime.api.types.semtype.Context;
 import io.ballerina.runtime.api.types.semtype.Env;
@@ -45,6 +46,8 @@ import java.util.Set;
  * @since 0.995.0
  */
 public class BFunctionType extends BAnnotatableType implements FunctionType {
+
+    private static final BasicTypeBitSet BASIC_TYPE = Builder.getFunctionType();
 
     public Type restType;
     public Type retType;
@@ -213,6 +216,11 @@ public class BFunctionType extends BAnnotatableType implements FunctionType {
     @Override
     public long getFlags() {
         return flags;
+    }
+
+    @Override
+    public BasicTypeBitSet getBasicType() {
+        return BASIC_TYPE;
     }
 
     private static SemType createIsolatedTop(Env env) {

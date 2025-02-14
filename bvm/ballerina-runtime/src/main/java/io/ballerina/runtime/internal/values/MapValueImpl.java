@@ -19,10 +19,11 @@ package io.ballerina.runtime.internal.values;
 
 import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.types.Field;
-import io.ballerina.runtime.api.types.MapType;
 import io.ballerina.runtime.api.types.PredefinedTypes;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.TypeTags;
+import io.ballerina.runtime.api.types.semtype.BasicTypeBitSet;
+import io.ballerina.runtime.api.types.semtype.Builder;
 import io.ballerina.runtime.api.types.semtype.Context;
 import io.ballerina.runtime.api.types.semtype.SemType;
 import io.ballerina.runtime.api.types.semtype.ShapeAnalyzer;
@@ -45,6 +46,7 @@ import io.ballerina.runtime.internal.json.JsonGenerator;
 import io.ballerina.runtime.internal.json.JsonInternalUtils;
 import io.ballerina.runtime.internal.scheduling.Scheduler;
 import io.ballerina.runtime.internal.types.BField;
+import io.ballerina.runtime.internal.types.BMapType;
 import io.ballerina.runtime.internal.types.BRecordType;
 import io.ballerina.runtime.internal.types.BTupleType;
 import io.ballerina.runtime.internal.types.BUnionType;
@@ -101,6 +103,7 @@ import static io.ballerina.runtime.internal.values.ReadOnlyUtils.handleInvalidUp
 public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue, CollectionValue, MapValue<K, V>,
         BMap<K, V>, RecursiveValue<MappingDefinition> {
 
+    private static final BasicTypeBitSet BASIC_TYPE = Builder.getMappingType();
     private BTypedesc typedesc;
     private Type type;
     private Type referredType;
@@ -241,7 +244,7 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
                 expectedType = recordType.restFieldType;
             }
         } else {
-            expectedType = ((MapType) this.referredType).getConstrainedType();
+            expectedType = ((BMapType) this.referredType).getConstrainedType();
         }
 
         if (!TypeChecker.hasFillerValue(expectedType)) {
@@ -355,7 +358,7 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
     @Override
     public void populateInitialValue(K key, V value) {
         if (referredType.getTag() == TypeTags.MAP_TAG) {
-            MapUtils.handleInherentTypeViolatingMapUpdate(value, (MapType) referredType);
+            MapUtils.handleInherentTypeViolatingMapUpdate(value, (BMapType) referredType);
             putValue(key, value);
         } else {
             BString fieldName = (BString) key;
@@ -617,21 +620,6 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
         return new MapIterator<>(new LinkedHashSet<>(this.entrySet()).iterator());
     }
 
-    @Override
-    public synchronized MappingDefinition getReadonlyShapeDefinition() {
-        return readonlyAttachedDefinition.get();
-    }
-
-    @Override
-    public synchronized void setReadonlyShapeDefinition(MappingDefinition definition) {
-        readonlyAttachedDefinition.set(definition);
-    }
-
-    @Override
-    public synchronized void resetReadonlyShapeDefinition() {
-        readonlyAttachedDefinition.remove();
-    }
-
     /**
      * {@link MapIterator} iteration provider for ballerina maps.
      *
@@ -711,7 +699,7 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
     private void initializeIteratorNextReturnType() {
         Type type;
         if (this.referredType.getTag() == PredefinedTypes.TYPE_MAP.getTag()) {
-            MapType mapType = (MapType) this.referredType;
+            BMapType mapType = (BMapType) this.referredType;
             type = mapType.getConstrainedType();
         } else {
             BRecordType recordType = (BRecordType) this.referredType;
@@ -760,5 +748,25 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
     public Optional<SemType> inherentTypeOf(Context cx) {
         TypeWithShape typeWithShape = (TypeWithShape) type;
         return typeWithShape.inherentTypeOf(cx, ShapeAnalyzer::inherentTypeOf, this);
+    }
+
+    @Override
+    public BasicTypeBitSet getBasicType() {
+        return BASIC_TYPE;
+    }
+
+    @Override
+    public synchronized MappingDefinition getReadonlyShapeDefinition() {
+        return readonlyAttachedDefinition.get();
+    }
+
+    @Override
+    public synchronized void setReadonlyShapeDefinition(MappingDefinition definition) {
+        readonlyAttachedDefinition.set(definition);
+    }
+
+    @Override
+    public synchronized void resetReadonlyShapeDefinition() {
+        readonlyAttachedDefinition.remove();
     }
 }

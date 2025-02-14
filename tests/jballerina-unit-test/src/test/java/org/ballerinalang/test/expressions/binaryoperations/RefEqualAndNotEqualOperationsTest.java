@@ -376,6 +376,16 @@ public class RefEqualAndNotEqualOperationsTest {
         validateError(resultNegative, i++, "operator '!==' not defined for 'int' and 'string'", 20, 25);
         validateError(resultNegative, i++, "operator '===' not defined for 'int[2]' and 'string[2]'", 26, 21);
         validateError(resultNegative, i++, "operator '!==' not defined for 'int[2]' and 'string[2]'", 26, 34);
+        validateError(resultNegative, i++, "operator '===' not defined for '(float|int)?[]' and '(boolean|xml)?[]'", 30,
+                      21);
+        validateError(resultNegative, i++, "operator '!==' not defined for '(float|int)?[]' and '(boolean|xml)?[]'", 30,
+                      34);
+        validateError(resultNegative, i++, "operator '===' not defined for 'map<int>' and 'map<float>'", 38, 21);
+        validateError(resultNegative, i++, "operator '!==' not defined for 'map<int>' and 'map<float>'", 38, 34);
+        validateError(resultNegative, i++, "operator '===' not defined for 'map<(string|int)>' and 'map<float>'", 42,
+                      21);
+        validateError(resultNegative, i++, "operator '!==' not defined for 'map<(string|int)>' and 'map<float>'", 42,
+                      34);
         validateError(resultNegative, i++, "operator '===' not defined for '[string,int]' and '[boolean,float]'", 50,
                       21);
         validateError(resultNegative, i++, "operator '!==' not defined for '[string,int]' and '[boolean,float]'", 50,
@@ -390,6 +400,8 @@ public class RefEqualAndNotEqualOperationsTest {
                         "xml])' and 'json'", 68, 21);
         validateError(resultNegative, i++, "operator '!==' not defined for '(record {| xml x; anydata...; |}|[string," +
                         "xml])' and 'json'", 68, 34);
+        validateError(resultNegative, i++, "operator '===' not defined for 'Abc' and 'Def'", 76, 12);
+        validateError(resultNegative, i++, "operator '!==' not defined for 'Def' and 'Abc'", 76, 25);
         Assert.assertEquals(resultNegative.getErrorCount(), i);
     }
 

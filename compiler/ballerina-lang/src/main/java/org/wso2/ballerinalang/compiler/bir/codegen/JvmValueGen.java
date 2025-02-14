@@ -17,7 +17,6 @@
  */
 package org.wso2.ballerinalang.compiler.bir.codegen;
 
-import io.ballerina.types.Env;
 import org.ballerinalang.model.elements.PackageID;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.FieldVisitor;
@@ -138,29 +137,28 @@ public class JvmValueGen {
         this.types = types;
     }
 
-    static void injectDefaultParamInitsToAttachedFuncs(Env env, BIRNode.BIRPackage module,
-                                                       InitMethodGen initMethodGen) {
+    static void injectDefaultParamInitsToAttachedFuncs(BIRNode.BIRPackage module, InitMethodGen initMethodGen) {
         List<BIRNode.BIRTypeDefinition> typeDefs = module.typeDefs;
         for (BIRNode.BIRTypeDefinition optionalTypeDef : typeDefs) {
             BType bType = JvmCodeGenUtil.getImpliedType(optionalTypeDef.type);
             if ((bType.tag == TypeTags.OBJECT && Symbols.isFlagOn(
                     bType.tsymbol.flags, Flags.CLASS)) || bType.tag == TypeTags.RECORD) {
-                desugarObjectMethods(env, optionalTypeDef.attachedFuncs, initMethodGen);
+                desugarObjectMethods(optionalTypeDef.attachedFuncs, initMethodGen);
             }
         }
     }
 
-    private static void desugarObjectMethods(Env env, List<BIRFunction> attachedFuncs, InitMethodGen initMethodGen) {
+    private static void desugarObjectMethods(List<BIRFunction> attachedFuncs, InitMethodGen initMethodGen) {
         for (BIRNode.BIRFunction birFunc : attachedFuncs) {
             if (JvmCodeGenUtil.isExternFunc(birFunc)) {
                 if (birFunc instanceof JMethodBIRFunction jMethodBIRFunction) {
-                    desugarInteropFuncs(env, jMethodBIRFunction, initMethodGen);
+                    desugarInteropFuncs(jMethodBIRFunction, initMethodGen);
                     initMethodGen.resetIds();
                 } else if (!(birFunc instanceof JFieldBIRFunction)) {
                     initMethodGen.resetIds();
                 }
             } else {
-                addDefaultableBooleanVarsToSignature(env, birFunc);
+                addDefaultableBooleanVarsToSignature(birFunc);
                 initMethodGen.resetIds();
             }
         }

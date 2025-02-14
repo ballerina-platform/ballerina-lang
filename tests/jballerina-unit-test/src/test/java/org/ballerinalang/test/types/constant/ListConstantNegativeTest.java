@@ -46,6 +46,7 @@ public class ListConstantNegativeTest {
                 " does not have a filler value", 30, 41);
         validateError(compileResult, i++, "invalid usage of list constructor: type '1|2' does not have a filler value",
                 31, 26);
+        validateError(compileResult, i++, "ambiguous type '(int[2]|[int,int])'", 32, 38);
         validateError(compileResult, i++, "incompatible types: expected '1', found '3'", 33, 27);
         validateError(compileResult, i++, "incompatible types: expected 'byte', found '300'", 34, 24);
         validateError(compileResult, i++, "size mismatch in closed array. expected '2', but found '3'", 35, 23);

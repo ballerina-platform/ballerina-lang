@@ -24,6 +24,7 @@ import io.ballerina.runtime.api.types.PredefinedTypes;
 import io.ballerina.runtime.api.types.StreamType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.TypeTags;
+import io.ballerina.runtime.api.types.semtype.BasicTypeBitSet;
 import io.ballerina.runtime.api.types.semtype.Builder;
 import io.ballerina.runtime.api.types.semtype.Context;
 import io.ballerina.runtime.api.types.semtype.Env;
@@ -42,6 +43,7 @@ import java.util.Set;
  */
 public class BStreamType extends BType implements StreamType {
 
+    private static final BasicTypeBitSet BASIC_TYPE = Builder.getStreamType();
     private final Type constraint;
     private final Type completionType;
     private final DefinitionContainer<StreamDefinition> definition = new DefinitionContainer<>();
@@ -142,6 +144,11 @@ public class BStreamType extends BType implements StreamType {
 
         return Objects.equals(constraint, other.constraint)
                 && Objects.equals(completionType, other.completionType);
+    }
+
+    @Override
+    public BasicTypeBitSet getBasicType() {
+        return BASIC_TYPE;
     }
 
     @Override

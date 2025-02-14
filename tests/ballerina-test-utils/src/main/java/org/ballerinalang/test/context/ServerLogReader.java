@@ -55,8 +55,7 @@ public class ServerLogReader implements Runnable {
      * Start reading the stream.
      */
     public void start() {
-        Thread thread = new Thread(this);
-        thread.start();
+        Thread.startVirtualThread(this);
     }
 
     /**
@@ -125,7 +124,7 @@ public class ServerLogReader implements Runnable {
                     }
                     feedAndPrint(s);
                 } else {
-                    TimeUnit.MICROSECONDS.sleep(1);
+                    TimeUnit.MILLISECONDS.sleep(1);
                 }
             }
             String s = bufferedReader.readLine();

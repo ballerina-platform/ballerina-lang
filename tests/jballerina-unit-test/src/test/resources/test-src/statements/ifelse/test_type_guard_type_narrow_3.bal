@@ -260,7 +260,7 @@ function test20(int|string x) {
     }
 
     if x is int && !(x !is int) {
-        int _ = x; // OK
+        int _ = x; // Type not narrowed. issue #34965
     } else {
         string _ = x; // Type not narrowed. issue #34965
     }

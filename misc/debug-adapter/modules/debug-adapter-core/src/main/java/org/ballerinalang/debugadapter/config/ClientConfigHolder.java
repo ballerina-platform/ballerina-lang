@@ -40,6 +40,7 @@ public class ClientConfigHolder {
     protected static final String ARG_DEBUGGEE_PORT = "debuggeePort";
     private static final String ARG_CAPABILITIES = "capabilities";
     private static final String ARG_SUPPORT_READONLY_EDITOR = "supportsReadOnlyEditors";
+    private static final String ARG_SUPPORT_BP_VERIFICATION = "supportsBreakpointVerification";
     private static final String ARG_TERMINAL_KIND = "terminal";
     private static final String INTEGRATED_TERMINAL_KIND = "INTEGRATED";
     private static final String EXTERNAL_TERMINAL_KIND = "EXTERNAL";
@@ -88,6 +89,15 @@ public class ClientConfigHolder {
             extendedClientCapabilities.setSupportsReadOnlyEditors(false);
         }
 
+        Object bpVerificationConfig = capabilities.get(ARG_SUPPORT_BP_VERIFICATION);
+        if (bpVerificationConfig instanceof Boolean b) {
+            extendedClientCapabilities.setSupportsBreakpointVerification(b);
+        } else if (bpVerificationConfig instanceof String s) {
+            extendedClientCapabilities.setSupportsBreakpointVerification(Boolean.parseBoolean(s));
+        } else {
+            extendedClientCapabilities.setSupportsBreakpointVerification(false);
+        }
+
         return Optional.ofNullable(extendedClientCapabilities);
     }
 
@@ -122,6 +132,7 @@ public class ClientConfigHolder {
     public static class ExtendedClientCapabilities {
 
         private boolean supportsReadOnlyEditors = false;
+        private boolean supportsBreakpointVerification = false;
 
         public boolean supportsReadOnlyEditors() {
             return supportsReadOnlyEditors;
@@ -129,6 +140,14 @@ public class ClientConfigHolder {
 
         public void setSupportsReadOnlyEditors(boolean supportsReadOnlyEditors) {
             this.supportsReadOnlyEditors = supportsReadOnlyEditors;
+        }
+
+        public boolean supportsBreakpointVerification() {
+            return supportsBreakpointVerification;
+        }
+
+        public void setSupportsBreakpointVerification(boolean supportsBreakpointVerification) {
+            this.supportsBreakpointVerification = supportsBreakpointVerification;
         }
     }
 }

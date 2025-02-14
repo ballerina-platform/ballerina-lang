@@ -16,10 +16,6 @@
  */
 package org.wso2.ballerinalang.compiler.semantics.model.types;
 
-import io.ballerina.types.CellAtomicType;
-import io.ballerina.types.Env;
-import io.ballerina.types.SemType;
-import io.ballerina.types.definition.ListDefinition;
 import org.ballerinalang.model.types.TupleType;
 import org.ballerinalang.model.types.TypeKind;
 import org.wso2.ballerinalang.compiler.semantics.model.TypeVisitor;
@@ -30,13 +26,7 @@ import org.wso2.ballerinalang.util.Flags;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import java.util.stream.Collectors;
-
-import static io.ballerina.types.CellAtomicType.CellMutability.CELL_MUT_LIMITED;
-import static io.ballerina.types.CellAtomicType.CellMutability.CELL_MUT_NONE;
-import static io.ballerina.types.PredefinedType.NEVER;
-import static io.ballerina.types.PredefinedType.VAL;
 
 /**
  * {@code {@link BTupleType }} represents the tuple type.
@@ -47,71 +37,56 @@ public class BTupleType extends BType implements TupleType {
     private List<BTupleMember> members;
     private List<BType> memberTypes;
     public BType restType;
+    public Boolean isAnyData = null;
     public boolean resolvingToString = false;
     public boolean isCyclic = false;
 
     public BTupleType mutableType;
-    private final Env env;
-    private ListDefinition ld = null;
 
-    public BTupleType(Env env, List<BTupleMember> members) {
+    public BTupleType(List<BTupleMember> members) {
         super(TypeTags.TUPLE, null);
         this.members = members;
-        this.env = env;
     }
 
-    public BTupleType(Env env, BTypeSymbol tsymbol, List<BTupleMember> members) {
+    public BTupleType(BTypeSymbol tsymbol, List<BTupleMember> members) {
         super(TypeTags.TUPLE, tsymbol);
         this.members = members;
-        this.env = env;
     }
 
-    public BTupleType(Env env, BTypeSymbol tsymbol, List<BTupleMember> members, boolean isCyclic) {
+    public BTupleType(BTypeSymbol tsymbol, List<BTupleMember> members, boolean isCyclic) {
         super(TypeTags.TUPLE, tsymbol);
         this.members = members;
         this.isCyclic = isCyclic;
-        this.env = env;
     }
 
-    public BTupleType(Env env, BTypeSymbol tsymbol, List<BTupleMember> members, BType restType, long flags) {
+    public BTupleType(BTypeSymbol tsymbol, List<BTupleMember> members, BType restType, long flags) {
         super(TypeTags.TUPLE, tsymbol, flags);
         this.members = members;
         this.restType = restType;
-        this.env = env;
     }
 
-    public BTupleType(Env env, BTypeSymbol tsymbol, List<BTupleMember> members, BType restType, long flags,
+    public BTupleType(BTypeSymbol tsymbol, List<BTupleMember> members, BType restType, long flags,
                       boolean isCyclic) {
         super(TypeTags.TUPLE, tsymbol, flags);
         this.members = members;
         this.restType = restType;
         this.isCyclic = isCyclic;
-        this.env = env;
     }
 
-    public BTupleType(Env env, BTypeSymbol tsymbol) {
-        this(env, tsymbol, true);
+    public BTupleType(BTypeSymbol tsymbol) {
+        this(tsymbol, true);
     }
 
-    private BTupleType(Env env, BTypeSymbol tsymbol, boolean readonly) {
+    private BTupleType(BTypeSymbol tsymbol, boolean readonly) {
         super(TypeTags.TUPLE, tsymbol);
 
         if (readonly) {
-            this.addFlags(Flags.READONLY);
+            this.flags |= Flags.READONLY;
 
             if (tsymbol != null) {
                 this.tsymbol.flags |= Flags.READONLY;
             }
         }
-        this.env = env;
-    }
-
-    /**
-     * It is required to reset {@link #ld} when the type gets mutated.
-     * This method is used for that. e.g. When changing Flags.READONLY
-     */
-    protected void restLd() {
-        ld = null;
     }
 
     @Override
@@ -157,13 +132,12 @@ public class BTupleType extends BType implements TupleType {
                 + ((restType != null) ? (!members.isEmpty() ? "," : "") + restType.toString() + "...]" : "]");
 
         this.resolvingToString = false;
-        return !Symbols.isFlagOn(getFlags(), Flags.READONLY) ? stringRep : stringRep.concat(" & readonly");
+        return !Symbols.isFlagOn(flags, Flags.READONLY) ? stringRep : stringRep.concat(" & readonly");
     }
 
     // In the case of a cyclic tuple, this aids in
     //adding resolved members to a previously defined empty tuple shell in main scope
     public boolean addMembers(BTupleMember member) {
-        ld = null;
         // Prevent cyclic types of same type ex: type Foo [int, Foo];
         if (member.type instanceof BTupleType && ((BTupleType) member.type).isCyclic &&
                 member.type.getQualifiedTypeName().equals(this.getQualifiedTypeName())) {
@@ -173,9 +147,8 @@ public class BTupleType extends BType implements TupleType {
         if (this.memberTypes != null) {
             this.memberTypes.add(member.type);
         }
-        if (Symbols.isFlagOn(this.getFlags(), Flags.READONLY) &&
-                !Symbols.isFlagOn(member.type.getFlags(), Flags.READONLY)) {
-            this.setFlags(this.getFlags() ^ Flags.READONLY);
+        if (Symbols.isFlagOn(this.flags, Flags.READONLY) && !Symbols.isFlagOn(member.type.flags, Flags.READONLY)) {
+            this.flags ^= Flags.READONLY;
         }
         setCyclicFlag(member.type);
         return true;
@@ -185,15 +158,13 @@ public class BTupleType extends BType implements TupleType {
     // adding rest type of resolved node to a previously defined
     // empty tuple shell in main scope
     public boolean addRestType(BType restType) {
-        ld = null;
         if (restType != null && restType instanceof BTupleType && ((BTupleType) restType).isCyclic &&
                 restType.getQualifiedTypeName().equals(this.getQualifiedTypeName()) && this.members.isEmpty()) {
             return false;
         }
         this.restType = restType;
-        if (Symbols.isFlagOn(this.getFlags(), Flags.READONLY) &&
-                !Symbols.isFlagOn(restType.getFlags(), Flags.READONLY)) {
-            this.setFlags(this.getFlags() ^ Flags.READONLY);
+        if (Symbols.isFlagOn(this.flags, Flags.READONLY) && !Symbols.isFlagOn(restType.flags, Flags.READONLY)) {
+            this.flags ^= Flags.READONLY;
         }
         setCyclicFlag(restType);
         return true;
@@ -203,7 +174,6 @@ public class BTupleType extends BType implements TupleType {
         assert members.isEmpty();
         this.memberTypes = null;
         this.members = members;
-        ld = null;
     }
 
     private void setCyclicFlag(BType type) {
@@ -234,83 +204,5 @@ public class BTupleType extends BType implements TupleType {
                 }
             }
         }
-    }
-
-    // This is to ensure call to isNullable won't call semType. In case this is a member of a recursive union otherwise
-    // this will have an invalid list type since parent union type call this while it is filling its members
-    @Override
-    public boolean isNullable() {
-        return false;
-    }
-
-    private boolean hasTypeHoles() {
-        if (members != null) {
-            for (BTupleMember member : members) {
-                if (member.type instanceof BNoType) {
-                    return true;
-                }
-            }
-        }
-        if (restType != null) {
-            return restType instanceof BNoType;
-        }
-        return false;
-    }
-
-    /**
-     * When the type is mutated we need to reset the definition used for the semType.
-     */
-    @Override
-    public void resetSemType() {
-        ld = null;
-    }
-
-    // If the member has a semtype component then it will be represented by that component otherwise with never. This
-    // means we depend on properly partitioning types to semtype components. Also, we need to ensure member types are
-    // "ready" when we call this
-    @Override
-    public SemType semType() {
-        if (ld != null) {
-            return ld.getSemType(env);
-        }
-        ld = new ListDefinition();
-        if (hasTypeHoles()) {
-            return ld.defineListTypeWrapped(env, VAL);
-        }
-        boolean isReadonly = Symbols.isFlagOn(getFlags(), Flags.READONLY);
-        CellAtomicType.CellMutability mut = isReadonly ? CELL_MUT_NONE : CELL_MUT_LIMITED;
-        if (members == null) {
-            if (restType == null) {
-                throw new IllegalStateException("Both members and rest type can't be null");
-            }
-            SemType restSemType = restType.semType();
-            return ld.defineListTypeWrapped(env, List.of(), 0, Objects.requireNonNullElse(restSemType, NEVER), mut);
-        }
-        List<SemType> memberSemTypes = new ArrayList<>(members.size());
-        for (BTupleMember member : members) {
-            BType memberType = member.type;
-            SemType semType = memberType.semType();
-            if (semType == null) {
-                semType = NEVER;
-            }
-            memberSemTypes.add(semType);
-        }
-        SemType restSemType = restType != null ? restType.semType() : NEVER;
-        if (restSemType == null) {
-            restSemType = NEVER;
-        }
-        return ld.defineListTypeWrapped(env, memberSemTypes, memberSemTypes.size(), restSemType, mut);
-    }
-
-    @Override
-    public void setFlags(long flags) {
-        super.setFlags(flags);
-        restLd();
-    }
-
-    @Override
-    public void addFlags(long flags) {
-        super.addFlags(flags);
-        restLd();
     }
 }

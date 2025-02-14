@@ -24,6 +24,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BAnnotationType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BAnyType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BAnydataType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BBuiltInRefType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BErrorType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFiniteType;
@@ -35,6 +36,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BJSONType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BNeverType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BNilType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BNoType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BPackageType;
@@ -51,6 +53,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BTypedescType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BXMLSubType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BXMLType;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 
@@ -70,7 +73,7 @@ import static java.util.Objects.hash;
  *
  * @since 2.0.0
  */
-public class TypeHashVisitor extends UniqueTypeVisitor<Integer> {
+public class TypeHashVisitor implements UniqueTypeVisitor<Integer> {
     private final Map<BType, Integer> visited;
     private final Set<BType> unresolvedTypes;
     private final Map<BType, Integer> cache;
@@ -103,7 +106,7 @@ public class TypeHashVisitor extends UniqueTypeVisitor<Integer> {
     }
 
     @Override
-    public Integer visit(BType type) { // TODO: can move to the abstract class?
+    public Integer visit(BType type) {
         if (type == null) {
             return 0;
         }
@@ -112,7 +115,7 @@ public class TypeHashVisitor extends UniqueTypeVisitor<Integer> {
             case TypeTags.ANY:
                 return visit((BAnyType) type);
             case TypeTags.NIL:
-                return visitNilType(type);
+                return visit((BNilType) type);
             case TypeTags.NEVER:
                 return visit((BNeverType) type);
             case TypeTags.ANYDATA:
@@ -199,12 +202,12 @@ public class TypeHashVisitor extends UniqueTypeVisitor<Integer> {
         if (isCyclic(type)) {
             return 0;
         }
-        Integer hash = hash(baseHash(type), type.getSize(), type.state.getValue(), visit(type.eType));
+        Integer hash = hash(baseHash(type), type.size, type.state.getValue(), visit(type.eType));
         return addToVisited(type, hash);
     }
 
     @Override
-    public Integer visit(BReadonlyType type) {
+    public Integer visit(BBuiltInRefType type) {
         if (isVisited(type)) {
             return visited.get(type);
         }
@@ -366,7 +369,7 @@ public class TypeHashVisitor extends UniqueTypeVisitor<Integer> {
     }
 
     @Override
-    public Integer visitNilType(BType type) {
+    public Integer visit(BNilType type) {
         if (isVisited(type)) {
             return visited.get(type);
         }
@@ -403,7 +406,7 @@ public class TypeHashVisitor extends UniqueTypeVisitor<Integer> {
             return 0;
         }
         List<Integer> tupleTypesHashes = getOrderedTypesHashes(type.getTupleTypes());
-        Integer hash = hash(baseHash(type), tupleTypesHashes, visit(type.restType), type.getFlags(), type.tsymbol);
+        Integer hash = hash(baseHash(type), tupleTypesHashes, visit(type.restType), type.flags, type.tsymbol);
         return addToVisited(type, hash);
     }
 
@@ -452,8 +455,18 @@ public class TypeHashVisitor extends UniqueTypeVisitor<Integer> {
         if (isCyclic(type)) {
             return 0;
         }
-
-        Integer hash = hash(baseHash(type), type.toString().hashCode());
+        List<String> toSort = new ArrayList<>();
+        for (BLangExpression bLangExpression : type.getValueSpace()) {
+            String toString = bLangExpression.toString();
+            toSort.add(toString);
+        }
+        toSort.sort(null);
+        List<Integer> valueSpaceHashes = new ArrayList<>();
+        for (String toString : toSort) {
+            Integer hashCode = toString.hashCode();
+            valueSpaceHashes.add(hashCode);
+        }
+        Integer hash = hash(baseHash(type), valueSpaceHashes);
         return addToVisited(type, hash);
     }
 
@@ -467,7 +480,7 @@ public class TypeHashVisitor extends UniqueTypeVisitor<Integer> {
         }
         List<Integer> fieldsHashes = getFieldsHashes(type.fields);
         List<Integer> typeInclHashes = getTypesHashes(type.typeInclusions);
-        Integer hash = hash(baseHash(type), type.getFlags(), fieldsHashes, typeInclHashes);
+        Integer hash = hash(baseHash(type), type.flags, fieldsHashes, typeInclHashes);
         return addToVisited(type, hash);
     }
 
@@ -482,7 +495,7 @@ public class TypeHashVisitor extends UniqueTypeVisitor<Integer> {
         List<Integer> fieldsHashes = getFieldsHashes(type.fields);
         List<Integer> typeInclHashes = getTypesHashes(type.typeInclusions);
         List<Integer> attachedFunctionsHashes = getFunctionsHashes(((BObjectTypeSymbol) type.tsymbol).attachedFuncs);
-        Integer hash = hash(baseHash(type), type.getFlags(), fieldsHashes, typeInclHashes,
+        Integer hash = hash(baseHash(type), type.flags, fieldsHashes, typeInclHashes,
                 attachedFunctionsHashes, type.typeIdSet);
         return addToVisited(type, hash);
     }
@@ -497,7 +510,7 @@ public class TypeHashVisitor extends UniqueTypeVisitor<Integer> {
         }
         List<Integer> fieldsHashes = getFieldsHashes(type.fields);
         List<Integer> typeInclHashes = getTypesHashes(type.typeInclusions);
-        Integer hash = hash(baseHash(type), type.getFlags(), type.sealed, fieldsHashes, typeInclHashes,
+        Integer hash = hash(baseHash(type), type.flags, type.sealed, fieldsHashes, typeInclHashes,
                 visit(type.restFieldType));
         return addToVisited(type, hash);
     }
@@ -510,7 +523,7 @@ public class TypeHashVisitor extends UniqueTypeVisitor<Integer> {
         if (isCyclic(type)) {
             return 0;
         }
-        Integer hash = hash(baseHash(type), type.isCyclic, getTypesHashes(type.getMemberTypes()), type.getFlags());
+        Integer hash = hash(baseHash(type), type.isCyclic, getTypesHashes(type.getMemberTypes()), type.flags);
         return addToVisited(type, hash);
     }
 

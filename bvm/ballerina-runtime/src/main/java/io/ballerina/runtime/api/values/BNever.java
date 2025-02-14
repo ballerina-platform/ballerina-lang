@@ -18,6 +18,8 @@ package io.ballerina.runtime.api.values;
 
 import io.ballerina.runtime.api.types.PredefinedTypes;
 import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.types.semtype.BasicTypeBitSet;
+import io.ballerina.runtime.api.types.semtype.Builder;
 
 import java.util.Map;
 
@@ -27,6 +29,7 @@ import java.util.Map;
  */
 public class BNever implements BValue {
 
+    private static final BasicTypeBitSet BASIC_TYPE = Builder.getNeverType();
     private static final BNever NEVER = new BNever();
 
     private BNever() {
@@ -64,5 +67,10 @@ public class BNever implements BValue {
     @Override
     public Type getType() {
         return PredefinedTypes.TYPE_NEVER;
+    }
+
+    @Override
+    public BasicTypeBitSet getBasicType() {
+        return BASIC_TYPE;
     }
 }

@@ -43,6 +43,7 @@ public class DebugExecutionManager {
     private static final String SOCKET_CONNECTOR_NAME = "com.sun.jdi.SocketAttach";
     private static final String CONNECTOR_ARGS_HOST = "hostname";
     private static final String CONNECTOR_ARGS_PORT = "port";
+    private static final String VALUE_UNKNOWN = "unknown";
     private static final Logger LOGGER = LoggerFactory.getLogger(DebugExecutionManager.class);
 
     DebugExecutionManager(JBallerinaDebugServer server) {
@@ -59,6 +60,12 @@ public class DebugExecutionManager {
 
     public Optional<Integer> getPort() {
         return Optional.ofNullable(port);
+    }
+
+    public String getRemoteVMAddress() {
+        String host = getHost().orElse(VALUE_UNKNOWN);
+        String port = getPort().map(String::valueOf).orElse(VALUE_UNKNOWN);
+        return String.format("%s:%s", host, port);
     }
 
     /**

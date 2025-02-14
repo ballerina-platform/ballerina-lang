@@ -204,8 +204,7 @@ public class InteropValidator {
     JMethod validateAndGetJMethod(InteropValidationRequest.MethodValidationRequest methodValidationRequest,
                                   ClassLoader classLoader) {
         // Populate JMethodRequest from the BValue
-        JMethodRequest jMethodRequest = JMethodRequest.build(symbolTable.typeEnv(), methodValidationRequest,
-                                                            classLoader);
+        JMethodRequest jMethodRequest = JMethodRequest.build(methodValidationRequest, classLoader);
 
         // Find the most specific Java method or constructor for the given request
         JMethodResolver methodResolver = new JMethodResolver(classLoader, symbolTable);

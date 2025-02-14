@@ -55,7 +55,7 @@ import static io.ballerina.test.utils.Constants.SUBTYPE_SYMBOL;
  */
 public class SemTypeTest {
 
-    private Types types;
+    private final Types types = Types.getInstance(new CompilerContext());
 
     @DataProvider(name = "filePathProvider")
     public Object[] filePathProvider() {
@@ -63,7 +63,7 @@ public class SemTypeTest {
         List<String> files = new ArrayList<>();
         for (File file : Objects.requireNonNull(dir.listFiles())) {
             String fileName = file.getName();
-            if (!fileName.endsWith(".bal") || fileName.endsWith(FAILING_FILE) || fileName.endsWith(DISABLED_FILE)) {
+            if (fileName.endsWith(FAILING_FILE) || fileName.endsWith(DISABLED_FILE)) {
                 continue;
             }
             files.add(file.getAbsolutePath());
@@ -83,9 +83,6 @@ public class SemTypeTest {
     private Set<String> actualSubTypeRelations(String filePath) {
         CompileResult compileResult = BCompileUtil.compile(filePath);
         BLangPackage bLangPackage = (BLangPackage) compileResult.getAST();
-        // Need to use the same semtypeEnv used in the compiler as we keep cache for some BTypes.
-        types = new Types(new CompilerContext(), bLangPackage.semtypeEnv);
-
         List<BTypeDefinitionSymbol> bTypeDefinitionSymbols = new ArrayList<>();
         for (Scope.ScopeEntry value : bLangPackage.symbol.scope.entries.values()) {
             BSymbol bSymbol = value.symbol;

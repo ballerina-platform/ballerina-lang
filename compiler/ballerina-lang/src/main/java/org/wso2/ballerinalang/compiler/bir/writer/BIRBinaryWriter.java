@@ -18,7 +18,6 @@
 package org.wso2.ballerinalang.compiler.bir.writer;
 
 import io.ballerina.tools.diagnostics.Location;
-import io.ballerina.types.Env;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import org.ballerinalang.compiler.BLangCompilerException;
@@ -50,19 +49,16 @@ import static org.wso2.ballerinalang.compiler.bir.writer.BIRWriterUtils.writeCon
  */
 public class BIRBinaryWriter {
 
-    private final ConstantPool cp;
+    private final ConstantPool cp = new ConstantPool();
     private final BIRNode.BIRPackage birPackage;
-    private final Env typeEnv;
 
-    public BIRBinaryWriter(BIRNode.BIRPackage birPackage, Env typeEnv) {
+    public BIRBinaryWriter(BIRNode.BIRPackage birPackage) {
         this.birPackage = birPackage;
-        this.typeEnv = typeEnv;
-        cp = new ConstantPool(typeEnv);
     }
 
     public byte[] serialize() {
         ByteBuf birbuf = Unpooled.buffer();
-        BIRTypeWriter typeWriter = new BIRTypeWriter(birbuf, cp, typeEnv);
+        BIRTypeWriter typeWriter = new BIRTypeWriter(birbuf, cp);
 
 
         // Write the package details in the form of constant pool entry
@@ -395,7 +391,7 @@ public class BIRBinaryWriter {
     }
 
     private void writeConstants(ByteBuf buf, List<BIRNode.BIRConstant> birConstList) {
-        BIRTypeWriter constTypeWriter = new BIRTypeWriter(buf, cp, typeEnv);
+        BIRTypeWriter constTypeWriter = new BIRTypeWriter(buf, cp);
         buf.writeInt(birConstList.size());
         birConstList.forEach(constant -> writeConstant(buf, constTypeWriter, constant));
     }
