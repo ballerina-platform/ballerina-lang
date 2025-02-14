@@ -136,7 +136,7 @@ public final class BStringType extends BSemTypeWrapper<BStringType.BStringTypeIm
 
     private static final class BStringTypeCache {
 
-        private static final int MAX_LENGTH = 20;
+        private static final int MAX_LENGTH = 50;
         private static final Cache<String, BStringType> cache = CacheFactory.createIdentityCache();
 
         private static final Interner<String> interner = Builder.getStringInterner();
