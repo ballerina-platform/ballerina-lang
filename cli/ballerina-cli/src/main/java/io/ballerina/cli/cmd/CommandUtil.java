@@ -535,7 +535,7 @@ public final class CommandUtil {
                 stringJoiner.add("name = \"" + newModuleName.replaceFirst(packageJson.getName(), packageName) + "\"");
                 stringJoiner.add("export = true");
             }
-        } else {
+        } else if (packageJson.getModules() != null) {
             for (PackageManifest.Module module : packageJson.getModules()) {
                 stringJoiner.add("\n[[package.modules]]");
                 stringJoiner.add("name = \"" + module.name().replaceFirst(packageJson.getName(), packageName) + "\"");

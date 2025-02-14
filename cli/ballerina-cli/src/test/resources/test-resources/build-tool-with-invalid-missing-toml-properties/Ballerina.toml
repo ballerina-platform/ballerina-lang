@@ -11,4 +11,5 @@ options.mode = "client"
 
 [[tool.openapi]]
 id = "generate-client"
+targetModule = "delivery"
 options.mode = "client"
