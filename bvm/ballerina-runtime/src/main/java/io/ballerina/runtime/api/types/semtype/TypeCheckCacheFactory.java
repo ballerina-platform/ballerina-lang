@@ -1,9 +1,10 @@
 package io.ballerina.runtime.api.types.semtype;
 
-import com.github.benmanes.caffeine.cache.Cache;
 import io.ballerina.runtime.api.types.TypeIdentifier;
-import io.ballerina.runtime.internal.types.semtype.CacheFactory;
 import io.ballerina.runtime.internal.types.semtype.TypeCheckCacheImpl;
+
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Factory for creating {@link TypeCheckCache} instances.
@@ -12,13 +13,13 @@ import io.ballerina.runtime.internal.types.semtype.TypeCheckCacheImpl;
  */
 public class TypeCheckCacheFactory {
 
-    private static final Cache<TypeIdentifier, TypeCheckCache> cache = CacheFactory.createCache();
+    private static final Map<TypeIdentifier, TypeCheckCache> cache = new ConcurrentHashMap<>();
 
     private TypeCheckCacheFactory() {
     }
 
     public static TypeCheckCache get(TypeIdentifier identifier) {
-        return cache.get(identifier, TypeCheckCacheFactory::create);
+        return cache.computeIfAbsent(identifier, TypeCheckCacheFactory::create);
     }
 
     private static TypeCheckCache create(TypeIdentifier identifier) {
@@ -30,6 +31,6 @@ public class TypeCheckCacheFactory {
     }
 
     public static void reset() {
-        cache.invalidateAll();
+        cache.clear();
     }
 }

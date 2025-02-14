@@ -1,14 +1,14 @@
 package io.ballerina.runtime.internal.types;
 
-import com.github.benmanes.caffeine.cache.Cache;
 import io.ballerina.runtime.api.types.TypeIdentifier;
-import io.ballerina.runtime.internal.types.semtype.CacheFactory;
 
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public final class TypeIdSupplier {
 
-    private static final Cache<TypeIdentifier, Integer> cache = CacheFactory.createCache();
+    private static final Map<TypeIdentifier, Integer> cache = new ConcurrentHashMap<>();
     private static final AtomicInteger nextNamedId = new AtomicInteger(0);
     private static final AtomicInteger nextAnonId = new AtomicInteger(-2);
 
@@ -17,7 +17,7 @@ public final class TypeIdSupplier {
     }
 
     public static int namedId(TypeIdentifier id) {
-        return cache.get(id, TypeIdSupplier::getNamedId);
+        return cache.computeIfAbsent(id, TypeIdSupplier::getNamedId);
     }
 
     public static int getNamedId(TypeIdentifier id) {

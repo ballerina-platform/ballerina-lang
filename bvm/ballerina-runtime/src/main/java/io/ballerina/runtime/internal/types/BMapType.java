@@ -17,7 +17,6 @@
  */
 package io.ballerina.runtime.internal.types;
 
-import com.github.benmanes.caffeine.cache.Cache;
 import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.constants.TypeConstants;
 import io.ballerina.runtime.api.types.IntersectionType;
@@ -27,6 +26,7 @@ import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.TypeTags;
 import io.ballerina.runtime.api.types.semtype.BasicTypeBitSet;
 import io.ballerina.runtime.api.types.semtype.Builder;
+import io.ballerina.runtime.api.types.semtype.CacheableTypeDescriptor;
 import io.ballerina.runtime.api.types.semtype.Context;
 import io.ballerina.runtime.api.types.semtype.Env;
 import io.ballerina.runtime.api.types.semtype.SemType;
@@ -34,7 +34,6 @@ import io.ballerina.runtime.api.types.semtype.ShapeAnalyzer;
 import io.ballerina.runtime.api.types.semtype.TypeCheckCache;
 import io.ballerina.runtime.api.types.semtype.TypeCheckCacheFactory;
 import io.ballerina.runtime.api.values.BString;
-import io.ballerina.runtime.internal.types.semtype.CacheFactory;
 import io.ballerina.runtime.internal.types.semtype.CellAtomicType;
 import io.ballerina.runtime.internal.types.semtype.DefinitionContainer;
 import io.ballerina.runtime.internal.types.semtype.MappingDefinition;
@@ -44,6 +43,7 @@ import io.ballerina.runtime.internal.values.ReadOnlyUtils;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 import static io.ballerina.runtime.internal.types.semtype.CellAtomicType.CellMutability.CELL_MUT_NONE;
 import static io.ballerina.runtime.internal.types.semtype.CellAtomicType.CellMutability.CELL_MUT_UNLIMITED;
@@ -205,7 +205,7 @@ public class BMapType extends BType implements MapType, TypeWithShape, Cloneable
         if (defn.isDefinitionReady()) {
             return defn.getSemType(env);
         }
-        SemType cachedSemtype = TypeCheckFlyweightStore.cachedSemTypes.getIfPresent(typeId);
+        SemType cachedSemtype = TypeCheckFlyweightStore.cachedSemTypes.get(typeId);
         if (cachedSemtype != null) {
             return cachedSemtype;
         }
@@ -308,11 +308,11 @@ public class BMapType extends BType implements MapType, TypeWithShape, Cloneable
 
     private static class TypeCheckFlyweightStore {
 
-        private static final Cache<Integer, SemType> cachedSemTypes = CacheFactory.createCache();
+        private static final Map<Integer, SemType> cachedSemTypes = new ConcurrentHashMap<>();
 
-        private static final Cache<Type, TypeCheckFlyweight> cacheRO = CacheFactory.createIdentityCache();
+        private static final Map<Integer, TypeCheckFlyweight> cacheRO = new ConcurrentHashMap<>();
 
-        private static final Cache<Type, TypeCheckFlyweight> cacheRW = CacheFactory.createIdentityCache();
+        private static final Map<Integer, TypeCheckFlyweight> cacheRW = new ConcurrentHashMap<>();
 
         public static TypeCheckFlyweight getRO(Type constraint) {
             return get(cacheRO, constraint);
@@ -322,19 +322,19 @@ public class BMapType extends BType implements MapType, TypeWithShape, Cloneable
             return get(cacheRW, constraint);
         }
 
-        private static TypeCheckFlyweight get(Cache<Type, TypeCheckFlyweight> cache, Type constraint) {
-            if (constraint instanceof BTypeReferenceType referenceType) {
-                assert referenceType.getReferredType() != null;
-                return get(cache, referenceType.getReferredType());
+        private static TypeCheckFlyweight get(Map<Integer, TypeCheckFlyweight> cache, Type constraint) {
+            if (constraint instanceof CacheableTypeDescriptor cacheableTypeDescriptor) {
+                return cache.computeIfAbsent(cacheableTypeDescriptor.typeId(),
+                        ignored -> create());
             }
-            return cache.get(constraint, TypeCheckFlyweightStore::create);
+            return create();
         }
 
         private record TypeCheckFlyweight(int typeId, TypeCheckCache typeCheckCache) {
 
         }
 
-        private static TypeCheckFlyweight create(Type constraint) {
+        private static TypeCheckFlyweight create() {
             return new TypeCheckFlyweight(TypeIdSupplier.getAnonId(),
                     TypeCheckCacheFactory.create());
         }
