@@ -120,11 +120,7 @@ public class TypeCheckLogger {
         private final ConsoleWriter consoleWriter;
 
         private Logger(LogConfig config) {
-            if (config.filePath().isPresent()) {
-                fileWritter = new FileWritter(config.filePath().get());
-            } else {
-                fileWritter = null;
-            }
+            fileWritter = config.filePath().map(FileWritter::new).orElse(null);
             if (!config.isSilent) {
                 consoleWriter = new ConsoleWriter();
             } else {
@@ -157,23 +153,27 @@ public class TypeCheckLogger {
                 Thread thread = new Thread(() -> {
                     // Open file
                     try (BufferedWriter writer = new BufferedWriter(new FileWriter(filePath, true))) {
-                        while (true) {
-                            try {
-                                String message = queue.take();
-                                writer.write(message);
-                                writer.newLine();
-                                writer.flush();
-                            } catch (InterruptedException e) {
-                                Thread.currentThread().interrupt();
-                                break;
-                            }
-                        }
+                        flushToBuffer(writer);
                     } catch (IOException e) {
-                        throw new RuntimeException(e);
+                        throw new RuntimeException("Log write failed due to: ", e);
                     }
                 });
                 thread.setDaemon(true);
                 thread.start();
+            }
+
+            private void flushToBuffer(BufferedWriter writer) throws IOException {
+                while (true) {
+                    try {
+                        String message = queue.take();
+                        writer.write(message);
+                        writer.newLine();
+                        writer.flush();
+                    } catch (InterruptedException e) {
+                        Thread.currentThread().interrupt();
+                        break;
+                    }
+                }
             }
 
             @Override
