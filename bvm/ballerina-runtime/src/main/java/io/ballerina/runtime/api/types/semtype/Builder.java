@@ -457,7 +457,8 @@ public final class Builder {
             if (value.length() > MAX_LENGTH) {
                 return createStringSingleton(value);
             }
-            return cache.get(value, Builder::createStringSingleton);
+            String canonicalValue = interner.intern(value);
+            return cache.get(canonicalValue, Builder::createStringSingleton);
         }
     }
 
