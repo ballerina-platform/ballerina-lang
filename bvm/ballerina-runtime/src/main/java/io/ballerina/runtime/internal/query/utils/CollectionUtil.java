@@ -14,6 +14,7 @@ import java.util.stream.Stream;
 
 public class CollectionUtil {
     private static final BString $VALUE$_FIELD = StringUtils.fromString("$value$");
+    private static final BString $ERROR$_FIELD = StringUtils.fromString("$error$");
 
     public static void consumeStream(Object frameStream) {
         Stream<Frame> strm = (Stream<Frame>) frameStream;
@@ -65,7 +66,29 @@ public class CollectionUtil {
         return map;
     }
 
-    public static BXml createXML(Stream<Frame> strm, BXml xml) {
+    public static Object createMapForOnConflict(Stream<Frame> strm, BMap<BString, Object> map) {
+        Optional<BError> error = strm
+                .map(frame -> {
+                    BMap<BString, Object> record = frame.getRecord();
+                    BArray recordArray = (BArray) record.get($VALUE$_FIELD);
+
+                    BString key = (BString) recordArray.get(0);
+                    if(map.containsKey(key)) {
+                        return (BError) record.get($ERROR$_FIELD);
+                    }
+                    Object value = recordArray.get(1);
+
+                    map.put(key, value);
+                    return null;
+                })
+                .filter(Objects::nonNull)
+                .findFirst();
+
+        return error.isPresent() ? error.get() : map;
+    }
+
+
+    public static BXml createXML(Stream<Frame> strm) {
         String xmlStr = strm
                 .map(frame -> frame.getRecord().get($VALUE$_FIELD).toString())
                 .reduce("", String::concat);
