@@ -364,7 +364,7 @@ function createTable(handle strm, table<map<Type>> tbl) returns table<map<Type>>
     paramTypes: ["java.util.stream.Stream","io.ballerina.runtime.api.values.BTable"]
 } external;
 
-function addToTableForOnConflict(stream<Type, CompletionType> strm, table<map<Type>> tbl, boolean isReadOnly) 
+function addToTableForOnConflict(handle strm, table<map<Type>> tbl, boolean isReadOnly) 
     returns table<map<Type>>|error {
     if isReadOnly {
         // TODO: Properly fix readonly scenario - Issue lang/#36721
@@ -380,7 +380,7 @@ function addToTableForOnConflict(stream<Type, CompletionType> strm, table<map<Ty
     return createTableForOnConflict(strm, tbl);
 }
 
-function createTableForOnConflict(stream<Type, CompletionType> strm, table<map<Type>> tbl) 
+function createTableForOnConflictOld(stream<Type, CompletionType> strm, table<map<Type>> tbl) 
     returns table<map<Type>>|error {
     record {| Type value; |}|CompletionType v = strm.next();
     while v is record {| Type value; |} {
@@ -401,6 +401,12 @@ function createTableForOnConflict(stream<Type, CompletionType> strm, table<map<T
     }
     return v is error ? v : tbl;
 }
+
+function createTableForOnConflict(handle strm, table<map<Type>> tbl) returns table<map<Type>>|error = @java:Method {
+    'class: "io.ballerina.runtime.internal.query.utils.CollectionUtil",
+    name: "createTableForOnConflict",
+    paramTypes: ["java.util.stream.Stream","io.ballerina.runtime.api.values.BTable"]
+} external;
 
 function addToMap(handle strm, map<Type> mp, boolean isReadOnly) returns map<Type>|error {
     if isReadOnly {
