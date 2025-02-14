@@ -278,6 +278,7 @@ public class TomlProviderNegativeTest {
 
     @Test(dataProvider = "table-negative-tests")
     public void testTableNegativeConfig(String tomlFileName, String[] errorMessages) {
+        TypeCreator.restAllCaches();
         Field name = TypeCreator.createField(PredefinedTypes.TYPE_STRING, "name", SymbolFlags.REQUIRED);
         Field id = TypeCreator.createField(PredefinedTypes.TYPE_INT, "id", SymbolFlags.REQUIRED);
         Field age = TypeCreator.createField(PredefinedTypes.TYPE_INT, "age", SymbolFlags.OPTIONAL);
@@ -518,6 +519,7 @@ public class TomlProviderNegativeTest {
 
     @Test
     public void testUnusedTomlParts() {
+        TypeCreator.restAllCaches();
         VariableKey intVar = new VariableKey(ROOT_MODULE, "intVar", PredefinedTypes.TYPE_INT, true);
         VariableKey stringVar = new VariableKey(ROOT_MODULE, "stringVar", PredefinedTypes.TYPE_STRING, true);
 
