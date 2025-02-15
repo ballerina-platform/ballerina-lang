@@ -117,6 +117,17 @@
         ]
     },
     {
+        "name": "com.github.benmanes.caffeine.cache.CacheLoader",
+        "methods": [
+            {
+                "name": "loadAll",
+                "parameterTypes": [
+                    "java.util.Set"
+                ]
+            }
+        ]
+    },
+    {
         "name": "com.github.benmanes.caffeine.cache.FS",
         "fields": [
             {
