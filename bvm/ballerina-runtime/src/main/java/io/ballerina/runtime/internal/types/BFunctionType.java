@@ -30,6 +30,7 @@ import io.ballerina.runtime.api.types.semtype.Builder;
 import io.ballerina.runtime.api.types.semtype.Context;
 import io.ballerina.runtime.api.types.semtype.Env;
 import io.ballerina.runtime.api.types.semtype.SemType;
+import io.ballerina.runtime.api.types.semtype.TypeCheckCacheFactory;
 import io.ballerina.runtime.internal.types.semtype.CellAtomicType;
 import io.ballerina.runtime.internal.types.semtype.DefinitionContainer;
 import io.ballerina.runtime.internal.types.semtype.FunctionDefinition;
@@ -68,6 +69,9 @@ public class BFunctionType extends BAnnotatableType implements FunctionType {
         this.parameters = null;
         this.retType = null;
         this.flags = flags;
+        if (isFunctionTop()) {
+            resetTypeCheckCaches();
+        }
     }
 
     @Deprecated
@@ -76,6 +80,9 @@ public class BFunctionType extends BAnnotatableType implements FunctionType {
         this.restType = restType;
         this.retType = retType;
         this.flags = flags;
+        if (isFunctionTop()) {
+            resetTypeCheckCaches();
+        }
     }
 
 
@@ -85,6 +92,14 @@ public class BFunctionType extends BAnnotatableType implements FunctionType {
         this.restType = restType;
         this.retType = retType;
         this.flags = flags;
+        if (isFunctionTop()) {
+            resetTypeCheckCaches();
+        }
+    }
+
+    protected void resetTypeCheckCaches() {
+        typeCheckCache = TypeCheckCacheFactory.create();
+        typeId = TypeIdSupplier.getAnonId();
     }
 
     public Type[] getParameterTypes() {
@@ -277,7 +292,7 @@ public class BFunctionType extends BAnnotatableType implements FunctionType {
         return tryInto(cx, type);
     }
 
-    private boolean isFunctionTop() {
+    protected boolean isFunctionTop() {
         return parameters == null && restType == null && retType == null;
     }
 
