@@ -13,10 +13,13 @@ public class CacheFactory {
     }
 
     private static final int DEFAULT_EXPIRE_TIME = 10;
+    private static final int INITIAL_CAPACITY = 10_000;
     private static final Caffeine<Object, Object> identityCacheBuilder =
-            Caffeine.newBuilder().weakKeys().expireAfterAccess(DEFAULT_EXPIRE_TIME, TimeUnit.MINUTES);
+            Caffeine.newBuilder().weakKeys().expireAfterAccess(DEFAULT_EXPIRE_TIME, TimeUnit.MINUTES)
+                    .initialCapacity(INITIAL_CAPACITY);
     private static final Caffeine<Object, Object> cacheBuilder =
-            Caffeine.newBuilder().expireAfterAccess(DEFAULT_EXPIRE_TIME, TimeUnit.MINUTES);
+            Caffeine.newBuilder().expireAfterAccess(DEFAULT_EXPIRE_TIME, TimeUnit.MINUTES)
+                    .initialCapacity(INITIAL_CAPACITY);
 
     public static <K, V> LoadingCache<K, V> createCache(CacheLoader<K, V> loader) {
         return cacheBuilder.build(loader);
