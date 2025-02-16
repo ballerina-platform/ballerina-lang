@@ -17,7 +17,7 @@
 */
 package io.ballerina.runtime.internal.types;
 
-import com.github.benmanes.caffeine.cache.LoadingCache;
+import com.github.benmanes.caffeine.cache.Cache;
 import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.constants.RuntimeConstants;
 import io.ballerina.runtime.api.constants.TypeConstants;
@@ -29,6 +29,8 @@ import io.ballerina.runtime.api.types.semtype.ConcurrentLazySupplier;
 import io.ballerina.runtime.api.types.semtype.SemType;
 import io.ballerina.runtime.internal.types.semtype.CacheFactory;
 
+import java.util.Map;
+import java.util.WeakHashMap;
 import java.util.function.Supplier;
 
 /**
@@ -135,15 +137,31 @@ public final class BStringType extends BSemTypeWrapper<BStringType.BStringTypeIm
 
     private static final class BStringTypeCache {
 
-        private static final int MAX_LENGTH = 50;
-        private static final LoadingCache<String, BStringType> cache =
-                CacheFactory.createCache(BStringType::createSingletonType);
+        private static final Cache<String, BStringType> mediumCache = CacheFactory.createCache();
+        private static final Map<String, BStringType> smallCache = new WeakHashMap<>();
 
         public static BStringType get(String value) {
-            if (value.length() > MAX_LENGTH) {
-                return BStringType.createSingletonType(value);
+            return switch (Kind.getKind(value)) {
+                case SMALL -> smallCache.computeIfAbsent(value, BStringType::createSingletonType);
+                case MEDIUM -> mediumCache.get(value, BStringType::createSingletonType);
+                case LARGE -> BStringType.createSingletonType(value);
+            };
+        }
+
+        enum Kind {
+            SMALL,
+            MEDIUM,
+            LARGE;
+
+            public static Kind getKind(String value) {
+                if (value.length() < 10) {
+                    return SMALL;
+                } else if (value.length() < 50) {
+                    return MEDIUM;
+                } else {
+                    return LARGE;
+                }
             }
-            return cache.get(value);
         }
     }
 }

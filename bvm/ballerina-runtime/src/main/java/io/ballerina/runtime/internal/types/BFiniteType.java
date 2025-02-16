@@ -18,7 +18,6 @@
 
 package io.ballerina.runtime.internal.types;
 
-import com.github.benmanes.caffeine.cache.LoadingCache;
 import io.ballerina.runtime.api.flags.TypeFlags;
 import io.ballerina.runtime.api.types.FiniteType;
 import io.ballerina.runtime.api.types.TypeTags;
@@ -36,6 +35,7 @@ import io.ballerina.runtime.internal.values.RefValue;
 
 import java.util.Iterator;
 import java.util.LinkedHashSet;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.StringJoiner;
@@ -238,15 +238,14 @@ public class BFiniteType extends BType implements FiniteType {
 
     private static class TypeCheckCacheData {
 
-        private static final LoadingCache<String, TypeCheckFlyweight> cache =
-                CacheFactory.createCache(TypeCheckCacheData::create);
+        private static final Map<String, TypeCheckFlyweight> cache = CacheFactory.createCachingHashMap();
 
         private record TypeCheckFlyweight(int typeId, TypeCheckCache typeCheckCache) {
 
         }
 
         private static TypeCheckFlyweight get(String originalName) {
-            return cache.get(originalName);
+            return cache.computeIfAbsent(originalName, TypeCheckCacheData::create);
         }
 
         private static TypeCheckFlyweight create(String originalName) {
