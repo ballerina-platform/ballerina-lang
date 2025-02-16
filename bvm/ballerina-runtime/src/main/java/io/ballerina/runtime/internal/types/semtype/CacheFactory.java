@@ -5,8 +5,8 @@ import com.github.benmanes.caffeine.cache.CacheLoader;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import com.github.benmanes.caffeine.cache.LoadingCache;
 
+import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 
 public class CacheFactory {
@@ -36,6 +36,6 @@ public class CacheFactory {
     }
 
     public static <K, V> Map<K, V> createCachingHashMap() {
-        return new ConcurrentHashMap<>(INITIAL_CAPACITY);
+        return new HashMap<>(INITIAL_CAPACITY);
     }
 }
