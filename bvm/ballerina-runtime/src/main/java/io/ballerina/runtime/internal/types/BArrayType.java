@@ -17,7 +17,6 @@
  */
 package io.ballerina.runtime.internal.types;
 
-import com.github.benmanes.caffeine.cache.LoadingCache;
 import io.ballerina.runtime.api.flags.TypeFlags;
 import io.ballerina.runtime.api.types.ArrayType;
 import io.ballerina.runtime.api.types.IntersectionType;
@@ -25,6 +24,7 @@ import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.TypeTags;
 import io.ballerina.runtime.api.types.semtype.BasicTypeBitSet;
 import io.ballerina.runtime.api.types.semtype.Builder;
+import io.ballerina.runtime.api.types.semtype.CacheableTypeDescriptor;
 import io.ballerina.runtime.api.types.semtype.Context;
 import io.ballerina.runtime.api.types.semtype.Env;
 import io.ballerina.runtime.api.types.semtype.SemType;
@@ -119,7 +119,7 @@ public class BArrayType extends BType implements ArrayType, TypeWithShape {
         this.elementType = readonly && !elementRO ? ReadOnlyUtils.getReadOnlyType(elementType) : elementType;
         this.dimensions = dimensions;
         if (size == -1) {
-            TypeCheckCacheData.TypeCheckCacheRecord data;
+            TypeCheckCacheData.TypeCheckCacheFlyweight data;
             if (isReadOnly()) {
                 data = TypeCheckCacheData.getRO(elementType);
             } else {
@@ -356,29 +356,32 @@ public class BArrayType extends BType implements ArrayType, TypeWithShape {
     private static class TypeCheckCacheData {
 
         private static final Map<Integer, SemType> cachedSemTypes = new ConcurrentHashMap<>();
-        private static final LoadingCache<Type, TypeCheckCacheRecord> cacheRW = CacheFactory.createIdentityCache(
-                ignored -> new TypeCheckCacheRecord(TypeIdSupplier.getAnonId(), TypeCheckCacheFactory.create()));
-        private static final LoadingCache<Type, TypeCheckCacheRecord> cacheRO = CacheFactory.createIdentityCache(
-                ignored -> new TypeCheckCacheRecord(TypeIdSupplier.getAnonId(), TypeCheckCacheFactory.create()));
+        private static final Map<Integer, TypeCheckCacheFlyweight> cacheRW = CacheFactory.createCachingHashMap();
+        private static final Map<Integer, TypeCheckCacheFlyweight> cacheRO = CacheFactory.createCachingHashMap();
 
-        private record TypeCheckCacheRecord(int typeId, TypeCheckCache typeCheckCache) {
+        private record TypeCheckCacheFlyweight(int typeId, TypeCheckCache typeCheckCache) {
 
+            public static TypeCheckCacheFlyweight create(Integer typeId) {
+                return new TypeCheckCacheFlyweight(TypeIdSupplier.getAnonId(), TypeCheckCacheFactory.create());
+            }
+
+            public static TypeCheckCacheFlyweight create() {
+                return new TypeCheckCacheFlyweight(TypeIdSupplier.getAnonId(), TypeCheckCacheFactory.create());
+            }
         }
 
-        public static TypeCheckCacheData.TypeCheckCacheRecord getRW(Type constraint) {
-            if (constraint instanceof BTypeReferenceType referenceType) {
-                assert referenceType.getReferredType() != null;
-                return getRW(referenceType.getReferredType());
+        public static TypeCheckCacheFlyweight getRW(Type constraint) {
+            if (constraint instanceof CacheableTypeDescriptor cacheableTypeDescriptor) {
+                return cacheRW.computeIfAbsent(cacheableTypeDescriptor.typeId(), TypeCheckCacheFlyweight::create);
             }
-            return cacheRW.get(constraint);
+            return TypeCheckCacheFlyweight.create();
         }
 
-        public static TypeCheckCacheData.TypeCheckCacheRecord getRO(Type constraint) {
-            if (constraint instanceof BTypeReferenceType referenceType) {
-                assert referenceType.getReferredType() != null;
-                return getRO(referenceType.getReferredType());
+        public static TypeCheckCacheFlyweight getRO(Type constraint) {
+            if (constraint instanceof CacheableTypeDescriptor cacheableTypeDescriptor) {
+                return cacheRO.computeIfAbsent(cacheableTypeDescriptor.typeId(), TypeCheckCacheFlyweight::create);
             }
-            return cacheRO.get(constraint);
+            return TypeCheckCacheFlyweight.create();
         }
     }
 }

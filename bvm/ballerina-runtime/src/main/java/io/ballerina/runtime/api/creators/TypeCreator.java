@@ -17,7 +17,6 @@
  */
 package io.ballerina.runtime.api.creators;
 
-import com.github.benmanes.caffeine.cache.Cache;
 import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.types.ArrayType;
 import io.ballerina.runtime.api.types.ErrorType;
@@ -560,15 +559,15 @@ public final class TypeCreator {
     }
 
     public static void resetAllCaches() {
-        RecordTypeCache.cache.invalidateAll();
+        RecordTypeCache.cache.clear();
     }
 
     private static final class RecordTypeCache {
 
-        private static final Cache<TypeIdentifier, BRecordType> cache = CacheFactory.createCache();
+        private static final Map<TypeIdentifier, BRecordType> cache = CacheFactory.createCachingHashMap();
 
         BRecordType get(TypeIdentifier key) {
-            return cache.getIfPresent(key);
+            return cache.get(key);
         }
 
         void put(TypeIdentifier identifier, BRecordType value) {
