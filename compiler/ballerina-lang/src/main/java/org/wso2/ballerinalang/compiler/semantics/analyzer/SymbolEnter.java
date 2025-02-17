@@ -489,7 +489,7 @@ public class SymbolEnter extends BLangNodeVisitor {
                 }
             }
         }
-        typeResolver.clearUnknowTypeRefs();
+        typeResolver.clearUnknownTypeRefs();
     }
 
     public void defineReferencedFieldsOfClassDef(BLangClassDefinition classDefinition, SymbolEnv pkgEnv) {

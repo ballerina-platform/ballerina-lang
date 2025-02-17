@@ -60,6 +60,8 @@ import org.ballerinalang.langserver.commons.LanguageServerContext;
 import org.ballerinalang.langserver.commons.client.ExtendedLanguageClient;
 import org.ballerinalang.langserver.commons.eventsync.EventKind;
 import org.ballerinalang.langserver.commons.eventsync.exceptions.EventSyncException;
+import org.ballerinalang.langserver.commons.workspace.RunContext;
+import org.ballerinalang.langserver.commons.workspace.RunResult;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentException;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceManager;
@@ -91,6 +93,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -106,7 +109,6 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import static io.ballerina.projects.util.ProjectConstants.BALLERINA_TOML;
-import static io.ballerina.projects.util.ProjectConstants.USER_DIR;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.MODULE_INIT_CLASS_NAME;
 
 /**
@@ -115,6 +117,13 @@ import static io.ballerina.runtime.api.constants.RuntimeConstants.MODULE_INIT_CL
  * @since 2.0.0
  */
 public class BallerinaWorkspaceManager implements WorkspaceManager {
+
+    // workspace run related constants
+    private static final String JAVA_COMMAND = "java.command";
+    private static final String USER_DIR = System.getProperty("user.dir");
+    private static final String HEAP_DUMP_FLAG = "-XX:+HeapDumpOnOutOfMemoryError";
+    private static final String HEAP_DUMP_PATH_FLAG = "-XX:HeapDumpPath=";
+    private static final String DEBUG_ARGS = "-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=*:";
 
     /**
      * Cache mapping of document path to source root.
@@ -588,69 +597,99 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
     }
 
     @Override
-    public Optional<Process> run(Path filePath, List<String> mainFuncArgs) throws IOException {
-        Optional<ProjectContext> projectPairOpt = projectContext(projectRoot(filePath));
-        if (projectPairOpt.isEmpty()) {
-            String msg = "Run command execution aborted because project is not loaded";
-            UserErrorException e = new UserErrorException(msg);
-            clientLogger.logError(LSContextOperation.WS_EXEC_CMD, msg, e, null, (Position) null);
-            return Optional.empty();
+    public RunResult run(RunContext executionContext) throws IOException {
+        Path projectRoot = projectRoot(executionContext.balSourcePath());
+        Optional<ProjectContext> projectContext = validateProjectContext(projectRoot);
+        if (projectContext.isEmpty()) {
+            return new RunResult(null, Collections.emptyList());
         }
-        ProjectContext projectContext = projectPairOpt.get();
-        if (!stopProject(projectContext)) {
-            String msg = "Run command execution aborted because couldn't stop the previous run";
-            UserErrorException e = new UserErrorException(msg);
-            clientLogger.logError(LSContextOperation.WS_EXEC_CMD, msg, e, null, (Position) null);
+
+        if (!stopProject(projectContext.get())) {
+            logError("Run command execution aborted because couldn't stop the previous run");
+            return new RunResult(null, Collections.emptyList());
+        }
+
+        Project project = projectContext.get().project();
+        Optional<PackageCompilation> packageCompilation = waitAndGetPackageCompilation(project.sourceRoot(), true);
+        if (packageCompilation.isEmpty()) {
+            logError("Run command execution aborted because package compilation failed");
+            return new RunResult(null, Collections.emptyList());
+        }
+
+        JBallerinaBackend jBallerinaBackend = execBackend(projectContext.get(), packageCompilation.get());
+        Collection<Diagnostic> diagnostics = new LinkedList<>();
+        // check for compilation errors
+        diagnostics.addAll(jBallerinaBackend.diagnosticResult().diagnostics(false));
+        // Add tool resolution diagnostics to diagnostics
+        diagnostics.addAll(project.currentPackage().getBuildToolResolution().getDiagnosticList());
+
+        if (diagnostics.stream().anyMatch(d -> d.diagnosticInfo().severity() == DiagnosticSeverity.ERROR)) {
+            return new RunResult(null, diagnostics);
+        }
+
+        Optional<Process> process = executeProject(projectContext.get(), executionContext);
+        return process.map(value -> new RunResult(value, diagnostics))
+                .orElseGet(() -> new RunResult(null, diagnostics));
+    }
+
+    private Optional<ProjectContext> validateProjectContext(Path projectRoot) {
+        Optional<ProjectContext> projectContextOpt = projectContext(projectRoot);
+        if (projectContextOpt.isEmpty()) {
+            logError("Run command execution aborted because project is not loaded");
             return Optional.empty();
         }
 
+        return projectContextOpt;
+    }
+
+    private Optional<Process> executeProject(ProjectContext projectContext, RunContext context) throws IOException {
         Project project = projectContext.project();
         Package pkg = project.currentPackage();
         Module executableModule = pkg.getDefaultModule();
-        Optional<PackageCompilation> packageCompilation = waitAndGetPackageCompilation(project.sourceRoot(), true);
-        if (packageCompilation.isEmpty()) {
-            return Optional.empty();
-        }
-        JBallerinaBackend jBallerinaBackend = execBackend(projectContext, packageCompilation.get());
-        Collection<Diagnostic> diagnostics = jBallerinaBackend.diagnosticResult().diagnostics(false);
-        if (diagnostics.stream().anyMatch(BallerinaWorkspaceManager::isError)) {
-            String msg = "Run command execution aborted due to compilation errors: " + diagnostics;
-            UserErrorException e = new UserErrorException(msg);
-            clientLogger.logError(LSContextOperation.WS_EXEC_CMD, msg, e, null, (Position) null);
-            return Optional.empty();
-        }
+        JBallerinaBackend jBallerinaBackend = execBackend(projectContext, pkg.getCompilation());
         JarResolver jarResolver = jBallerinaBackend.jarResolver();
-        String initClassName = JarResolver.getQualifiedClassName(
-                executableModule.packageInstance().packageOrg().toString(),
-                executableModule.packageInstance().packageName().toString(),
-                executableModule.packageInstance().packageVersion().toString(),
-                MODULE_INIT_CLASS_NAME);
-        List<String> commands = new ArrayList<>();
-        commands.add(System.getProperty("java.command"));
-        commands.add("-XX:+HeapDumpOnOutOfMemoryError");
-        commands.add("-XX:HeapDumpPath=" + System.getProperty(USER_DIR));
-        commands.add("-cp");
-        commands.add(getAllClassPaths(jarResolver));
-        commands.add(initClassName);
-        commands.addAll(mainFuncArgs);
+
+        List<String> commands = prepareExecutionCommands(context, executableModule, jarResolver);
         ProcessBuilder pb = new ProcessBuilder(commands);
+        pb.environment().putAll(context.env());
 
         Lock lock = projectContext.lockAndGet();
         try {
             Optional<Process> existing = projectContext.process();
             if (existing.isPresent()) {
-                // We just removed this in above `stopProject`. This means there is a parallel command running.
-                String msg = "Run command execution aborted because another run is in progress";
-                UserErrorException e = new UserErrorException(msg);
-                clientLogger.logError(LSContextOperation.WS_EXEC_CMD, msg, e, null, (Position) null);
+                logError("Run command execution aborted because another run is in progress");
                 return Optional.empty();
             }
+
             Process ps = pb.start();
             projectContext.setProcess(ps);
             return Optional.of(ps);
         } finally {
             lock.unlock();
         }
+    }
+
+    private List<String> prepareExecutionCommands(RunContext context, Module module, JarResolver jarResolver) {
+        List<String> commands = new ArrayList<>();
+        commands.add(System.getProperty(JAVA_COMMAND));
+        commands.add(HEAP_DUMP_FLAG);
+        commands.add(HEAP_DUMP_PATH_FLAG + USER_DIR);
+        if (context.debugPort() > 0) {
+            commands.add(DEBUG_ARGS + context.debugPort());
+        }
+
+        commands.add("-cp");
+        commands.add(getAllClassPaths(jarResolver));
+
+        String initClassName = JarResolver.getQualifiedClassName(
+                module.packageInstance().packageOrg().toString(),
+                module.packageInstance().packageName().toString(),
+                module.packageInstance().packageVersion().toString(),
+                MODULE_INIT_CLASS_NAME
+        );
+        commands.add(initClassName);
+        commands.addAll(context.programArgs());
+        return commands;
     }
 
     private static JBallerinaBackend execBackend(ProjectContext projectContext,
@@ -670,10 +709,14 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
         }
     }
 
+    private void logError(String message) {
+        UserErrorException e = new UserErrorException(message);
+        clientLogger.logError(LSContextOperation.WS_EXEC_CMD, message, e, null, (Position) null);
+    }
 
     @Override
     public boolean stop(Path filePath) {
-        Optional<ProjectContext> projectPairOpt = projectContext(projectRoot(filePath));
+        Optional<ProjectContext> projectPairOpt = projectContext(projectRoot(filePath).toAbsolutePath());
         if (projectPairOpt.isEmpty()) {
             clientLogger.logWarning("Failed to stop process: Project not found");
             return false;
@@ -1344,7 +1387,7 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
         }
     }
 
-    // ============================================================================================================== //
+// ============================================================================================================== //
 
     private Path computeProjectRoot(Path path) {
         return computeProjectKindAndProjectRoot(path).getRight();

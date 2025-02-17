@@ -6,7 +6,6 @@ on:
       - master
       - 2201.[0-9]+.x
       - 2201.[0-9]+.[0-9]+-stage
-      - nutcracker
 
 jobs:
   build-lang:
@@ -73,7 +72,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        level: [ 1, 2, 3, 4, 5, 6, 7, 8, 9 ]
+        level: [ 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 ]
 
     steps:
       - name: Checkout Repository
@@ -100,16 +99,40 @@ jobs:
           wget https://raw.githubusercontent.com/ballerina-platform/ballerina-release/master/dependabot/resources/extensions.json
           wget https://raw.githubusercontent.com/ballerina-platform/ballerina-distribution/2201.0.x/gradle.properties
 
+#      - name: Clone Modules
+#        run: |
+#          for module_name in $(jq -r '.standard_library| .[] | select(.level==${{ matrix.level }}) | .name' extensions.json); \
+#          do git clone https://github.com/ballerina-platform/${module_name}.git; \
+#          done
       - name: Clone Modules
         run: |
-          for module_name in $(jq -r '.standard_library| .[] | select(.level==${{ matrix.level }}) | .name' extensions.json); \
-          do git clone https://github.com/ballerina-platform/${module_name}.git; \
+          for module_name in $(jq -r '.standard_library| .[] | select(.level==${{ matrix.level }}) | .name' extensions.json); do
+            echo "Cloning module: ${module_name}"
+            repo_url=https://github.com/ballerina-platform/${module_name}.git
+            branch=metrics-logs
+            if git ls-remote --heads "$repo_url" "$branch" | grep -q "$branch"; then
+              echo "Branch '$branch' found."
+              git clone -b "$branch" --single-branch "$repo_url"
+            else
+              echo "Branch '$branch' not found. Cloning default branch '$default_branch' instead."
+              git clone $repo_url
+            fi
           done
+        shell: bash
 
       - name: Update Lang Version in Module
         run: |
           for module_name in $(jq -r '.standard_library| .[] | select(.level==${{ matrix.level }}) | .name' extensions.json); do \
           perl -pi -e "s/^\s*ballerinaLangVersion=.*/ballerinaLangVersion=${{ needs.build-lang.outputs.lang_version }}/" ${module_name}/gradle.properties; \
+          done
+
+      - name: Update Observe Module Version
+        run: |
+          OBSERVE_VERSION=1.4.0-20241220-100300-6b4cf7a
+          OBSERVE_INTERNAL_VERSION=1.4.0-20250103-120100-3c54658
+          for module_name in $(jq -r '.standard_library| .[] | select(.level==${{ matrix.level }}) | .name' extensions.json); do \
+          perl -pi -e "s/^\s*observeVersion=.*/observeVersion=${OBSERVE_VERSION}/" ${module_name}/gradle.properties && \
+          perl -pi -e "s/^\s*observeInternalVersion=.*/observeInternalVersion=${OBSERVE_INTERNAL_VERSION}/" ${module_name}/gradle.properties; \
           done
 
       - name: Build Module
@@ -166,6 +189,13 @@ jobs:
       - name: Update Lang Version in Module
         run: |
           perl -pi -e "s/^\s*ballerinaLangVersion=.*/ballerinaLangVersion=${{ needs.build-lang.outputs.lang_version }}/" gradle.properties
+
+      - name: Update Observe Module Version
+        run: |
+          OBSERVE_VERSION=1.4.0-20241220-100300-6b4cf7a
+          OBSERVE_INTERNAL_VERSION=1.4.0-20250103-120100-3c54658
+          perl -pi -e "s/^\s*observeVersion=.*/observeVersion=${OBSERVE_VERSION}/" gradle.properties
+          perl -pi -e "s/^\s*observeInternalVersion=.*/observeInternalVersion=${OBSERVE_INTERNAL_VERSION}/" gradle.properties
 
       - name: Build Module
         run: ./gradlew clean build --stacktrace --scan --console=plain --no-daemon --continue -x :project-api-tests:test

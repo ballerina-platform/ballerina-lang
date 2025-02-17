@@ -33,6 +33,7 @@ public class ClientConfigHolder {
     private final ClientConfigKind kind;
     private String sourcePath;
     private Integer debuggePort;
+    private Boolean isLowCodeMode;
     private ExtendedClientCapabilities extendedClientCapabilities;
 
     protected static final String ARG_FILE_PATH = "script";
@@ -40,7 +41,10 @@ public class ClientConfigHolder {
     protected static final String ARG_DEBUGGEE_PORT = "debuggeePort";
     private static final String ARG_CAPABILITIES = "capabilities";
     private static final String ARG_SUPPORT_READONLY_EDITOR = "supportsReadOnlyEditors";
+    private static final String ARG_SUPPORT_BP_VERIFICATION = "supportsBreakpointVerification";
+    private static final String ARG_SUPPORT_FAST_RUN = "supportsFastRun";
     private static final String ARG_TERMINAL_KIND = "terminal";
+    private static final String ARG_LOW_CODE_MODE = "lowCodeMode";
     private static final String INTEGRATED_TERMINAL_KIND = "INTEGRATED";
     private static final String EXTERNAL_TERMINAL_KIND = "EXTERNAL";
 
@@ -88,6 +92,24 @@ public class ClientConfigHolder {
             extendedClientCapabilities.setSupportsReadOnlyEditors(false);
         }
 
+        Object bpVerificationConfig = capabilities.get(ARG_SUPPORT_BP_VERIFICATION);
+        if (bpVerificationConfig instanceof Boolean b) {
+            extendedClientCapabilities.setSupportsBreakpointVerification(b);
+        } else if (bpVerificationConfig instanceof String s) {
+            extendedClientCapabilities.setSupportsBreakpointVerification(Boolean.parseBoolean(s));
+        } else {
+            extendedClientCapabilities.setSupportsBreakpointVerification(false);
+        }
+
+        Object fastRunConfig = capabilities.get(ARG_SUPPORT_FAST_RUN);
+        if (fastRunConfig instanceof Boolean b) {
+            extendedClientCapabilities.setSupportsFastRun(b);
+        } else if (fastRunConfig instanceof String s) {
+            extendedClientCapabilities.setSupportsFastRun(Boolean.parseBoolean(s));
+        } else {
+            extendedClientCapabilities.setSupportsFastRun(false);
+        }
+
         return Optional.ofNullable(extendedClientCapabilities);
     }
 
@@ -100,6 +122,21 @@ public class ClientConfigHolder {
             }
         }
         return null;
+    }
+
+    public boolean isLowCodeMode() {
+        if (this.isLowCodeMode == null) {
+            Object isLowCodeMode = clientRequestArgs.get(ARG_LOW_CODE_MODE);
+            if (isLowCodeMode instanceof Boolean b) {
+                this.isLowCodeMode = b;
+            } else if (isLowCodeMode instanceof String s) {
+                this.isLowCodeMode = Boolean.parseBoolean(s);
+            } else {
+                this.isLowCodeMode = false;
+            }
+        }
+
+        return isLowCodeMode;
     }
 
     protected void failIfConfigMissing(String configName) throws ClientConfigurationException {
@@ -122,6 +159,8 @@ public class ClientConfigHolder {
     public static class ExtendedClientCapabilities {
 
         private boolean supportsReadOnlyEditors = false;
+        private boolean supportsBreakpointVerification = false;
+        private boolean supportsFastRun = false;
 
         public boolean supportsReadOnlyEditors() {
             return supportsReadOnlyEditors;
@@ -129,6 +168,22 @@ public class ClientConfigHolder {
 
         public void setSupportsReadOnlyEditors(boolean supportsReadOnlyEditors) {
             this.supportsReadOnlyEditors = supportsReadOnlyEditors;
+        }
+
+        public boolean supportsBreakpointVerification() {
+            return supportsBreakpointVerification;
+        }
+
+        public void setSupportsBreakpointVerification(boolean supportsBreakpointVerification) {
+            this.supportsBreakpointVerification = supportsBreakpointVerification;
+        }
+
+        public boolean supportsFastRun() {
+            return supportsFastRun;
+        }
+
+        public void setSupportsFastRun(boolean supportsFastRun) {
+            this.supportsFastRun = supportsFastRun;
         }
     }
 }
