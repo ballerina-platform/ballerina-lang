@@ -325,17 +325,20 @@ public class BMapType extends BType implements MapType, TypeWithShape, Cloneable
 
         private static TypeCheckFlyweight get(Map<Integer, TypeCheckFlyweight> cache, Type constraint) {
             if (constraint instanceof CacheableTypeDescriptor cacheableTypeDescriptor) {
-                return cache.computeIfAbsent(cacheableTypeDescriptor.typeId(), TypeCheckFlyweightStore::create);
+                int typeId = cacheableTypeDescriptor.typeId();
+                var cached = cache.get(typeId);
+                if (cached != null) {
+                    return cached;
+                }
+                var flyWeight = TypeCheckFlyweightStore.create();
+                cache.put(typeId, flyWeight);
+                return flyWeight;
             }
             return create();
         }
 
         private record TypeCheckFlyweight(int typeId, TypeCheckCache typeCheckCache) {
 
-        }
-
-        private static TypeCheckFlyweight create(Integer typeId) {
-            return create();
         }
 
         private static TypeCheckFlyweight create() {

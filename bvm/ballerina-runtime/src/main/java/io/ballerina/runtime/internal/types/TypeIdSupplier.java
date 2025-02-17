@@ -17,10 +17,16 @@ public final class TypeIdSupplier {
     }
 
     public static int namedId(TypeIdentifier id) {
-        return cache.computeIfAbsent(id, TypeIdSupplier::getNamedId);
+        var cachedId = cache.get(id);
+        if (cachedId != null) {
+            return cachedId;
+        }
+        var newId = getNamedId();
+        cache.put(id, newId);
+        return newId;
     }
 
-    public static int getNamedId(TypeIdentifier id) {
+    public static int getNamedId() {
         assert nextNamedId.get() < Integer.MAX_VALUE - 1;
         return nextNamedId.getAndIncrement();
     }

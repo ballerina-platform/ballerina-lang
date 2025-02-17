@@ -361,10 +361,6 @@ public class BArrayType extends BType implements ArrayType, TypeWithShape {
 
         private record TypeCheckCacheFlyweight(int typeId, TypeCheckCache typeCheckCache) {
 
-            public static TypeCheckCacheFlyweight create(Integer typeId) {
-                return new TypeCheckCacheFlyweight(TypeIdSupplier.getAnonId(), TypeCheckCacheFactory.create());
-            }
-
             public static TypeCheckCacheFlyweight create() {
                 return new TypeCheckCacheFlyweight(TypeIdSupplier.getAnonId(), TypeCheckCacheFactory.create());
             }
@@ -372,16 +368,28 @@ public class BArrayType extends BType implements ArrayType, TypeWithShape {
 
         public static TypeCheckCacheFlyweight getRW(Type constraint) {
             if (constraint instanceof CacheableTypeDescriptor cacheableTypeDescriptor) {
-                return cacheRW.computeIfAbsent(cacheableTypeDescriptor.typeId(), TypeCheckCacheFlyweight::create);
+                return get(cacheableTypeDescriptor, cacheRW);
             }
             return TypeCheckCacheFlyweight.create();
         }
 
         public static TypeCheckCacheFlyweight getRO(Type constraint) {
             if (constraint instanceof CacheableTypeDescriptor cacheableTypeDescriptor) {
-                return cacheRO.computeIfAbsent(cacheableTypeDescriptor.typeId(), TypeCheckCacheFlyweight::create);
+                return get(cacheableTypeDescriptor, cacheRO);
             }
             return TypeCheckCacheFlyweight.create();
+        }
+
+        private static TypeCheckCacheFlyweight get(CacheableTypeDescriptor type,
+                                                   Map<Integer, TypeCheckCacheFlyweight> cache) {
+            int typeId = type.typeId();
+            var cached = cache.get(typeId);
+            if (cached != null) {
+                return cached;
+            }
+            var flyWeight = TypeCheckCacheFlyweight.create();
+            cache.put(typeId, flyWeight);
+            return flyWeight;
         }
     }
 }

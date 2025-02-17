@@ -20,11 +20,13 @@ public class TypeCheckCacheFactory {
     }
 
     public static TypeCheckCache get(TypeIdentifier identifier) {
-        return cache.computeIfAbsent(identifier, TypeCheckCacheFactory::create);
-    }
-
-    private static TypeCheckCache create(TypeIdentifier identifier) {
-        return new TypeCheckCacheImpl();
+        var cached = cache.get(identifier);
+        if (cached != null) {
+            return cached;
+        }
+        var newCache = create();
+        cache.put(identifier, newCache);
+        return newCache;
     }
 
     public static TypeCheckCache create() {
