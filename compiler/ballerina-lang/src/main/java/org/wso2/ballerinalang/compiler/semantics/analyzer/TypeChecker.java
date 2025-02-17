@@ -8218,10 +8218,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
             }
 
             if (!types.isNonNilSimpleBasicTypeOrString(type)) {
-                dlog.error(expr.pos, DiagnosticErrorCode.INCOMPATIBLE_TYPES,
-                        BUnionType.create(null, symTable.intType, symTable.floatType,
-                                symTable.decimalType, symTable.stringType,
-                                symTable.booleanType), type);
+                dlog.error(expr.pos, DiagnosticErrorCode.INCOMPATIBLE_TYPES, symTable.interpolationAllowedType, type);
             }
         }
     }
