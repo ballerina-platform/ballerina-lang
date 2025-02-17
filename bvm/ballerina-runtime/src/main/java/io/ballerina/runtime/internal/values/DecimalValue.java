@@ -22,6 +22,7 @@ import io.ballerina.runtime.api.constants.RuntimeConstants;
 import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.types.PredefinedTypes;
 import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.types.semtype.BasicTypeBitSet;
 import io.ballerina.runtime.api.types.semtype.Builder;
 import io.ballerina.runtime.api.types.semtype.Context;
 import io.ballerina.runtime.api.types.semtype.SemType;
@@ -50,6 +51,7 @@ import java.util.Optional;
  */
 public class DecimalValue implements SimpleValue, BDecimal {
 
+    private static final BasicTypeBitSet BASIC_TYPE = Builder.getDecimalType();
     private static final String INF_STRING = "Infinity";
     private static final String NEG_INF_STRING = "-" + INF_STRING;
     private static final String NAN = "NaN";
@@ -491,5 +493,10 @@ public class DecimalValue implements SimpleValue, BDecimal {
     @Override
     public Optional<SemType> inherentTypeOf(Context cx) {
         return Optional.of(Builder.getDecimalConst(value));
+    }
+
+    @Override
+    public BasicTypeBitSet getBasicType() {
+        return BASIC_TYPE;
     }
 }

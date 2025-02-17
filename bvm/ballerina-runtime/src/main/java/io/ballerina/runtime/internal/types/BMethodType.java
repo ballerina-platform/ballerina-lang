@@ -45,6 +45,9 @@ public class BMethodType extends BFunctionType implements MethodType {
         this.parentObjectType = parent;
         this.flags = flags;
         this.parameters = type.parameters;
+        if (isFunctionTop()) {
+            resetTypeCheckCaches();
+        }
     }
 
     @Override

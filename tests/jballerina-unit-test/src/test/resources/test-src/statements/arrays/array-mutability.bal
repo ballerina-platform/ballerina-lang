@@ -15,44 +15,44 @@
 // under the License.
 
 // Super Type
-type Person record {
+type PersonAM record {
     string name = "";
 };
 
 // Assignable to Person type
-type Employee record {
+type EmployeeAM record {
     string name = "";
     boolean intern = false;
 };
 
 // Assignable to Employee type and Person Type
-type Intern record {|
+type InternAM record {|
     string name = "";
     boolean intern = false;
     int salary = 0;
 |};
 
 // Assignable to Person type
-type Student record {|
+type StudentAM record {|
     string name = "";
     int studentId = 0;
 |};
 
-Person[] personArray = [];
-Employee[] employeeArray = [];
+PersonAM[] personArray = [];
+EmployeeAM[] employeeArray = [];
 
-Person person1 = { name: "John" };
-Employee employee1 = { name: "John", intern: true };
-Intern intern1 = { name: "John", intern: true, salary: 100 };
-Student student1 = { name: "John", studentId: 1 };
+PersonAM person1 = { name: "John" };
+EmployeeAM employee1 = { name: "John", intern: true };
+InternAM intern1 = { name: "John", intern: true, salary: 100 };
+StudentAM student1 = { name: "John", studentId: 1 };
 
 function testValidArrayAssignment() returns [boolean, int]|error {
     personArray = employeeArray;
     personArray[0] = employee1;
     personArray[1] = intern1;
 
-    Employee e =  <Employee> personArray[0];
-    Intern i =  <Intern> personArray[1];
+    EmployeeAM e =  <EmployeeAM> personArray[0];
+    InternAM i =  <InternAM> personArray[1];
     return [e.intern, i.salary];
 }
 
@@ -60,7 +60,7 @@ function testInvalidCast() returns error? {
     personArray = employeeArray;
     personArray[0] = employee1;
 
-    var e = trap <Intern> personArray[0]; // Runtime Exception
+    var e = trap <InternAM> personArray[0]; // Runtime Exception
     if e is error {
         panic e;
     }
@@ -86,7 +86,7 @@ function testCovarianceIntOrNilArray() {
 
 function testCovarianceBooleanOrFloatOrRecordArray() {
     (boolean|float)?[] x = [true, 2.0, true, 15.0];
-    (boolean|float|Person)?[] y = x;
+    (boolean|float|PersonAM)?[] y = x;
     y[0] = 1.0;
     y[1] = person1;  // Runtime Exception
 }
@@ -181,7 +181,7 @@ function testChainingAssignment() {
     (int|string)?[] first = [];
     (int|string?)[] second = first;
     (int|string|boolean?)[] thrid = second;
-    (int|string|boolean|Person?)[] fourth = thrid;
+    (int|string|boolean|PersonAM?)[] fourth = thrid;
 
     fourth[0] = 1;
     fourth[1] = "string";

@@ -433,20 +433,20 @@ function testRuntimeIsTypeNegativeForSelectivelyImmutableTypes() {
     assertFalse(an9 is readonly);
     assertFalse(a9.isReadOnly());
 
-    MyMutableController mmc = new (new MyOwner(), new MyMutablePrinter());
-    Controller k = mmc;
+    MyMutableController mmc = new (new MyOwnerTSI(), new MyMutablePrinter());
+    ControllerTSI k = mmc;
     any an10 = k;
-    assertTrue(an10 is Controller);
-    assertFalse(an10 is Controller & readonly);
-    assertTrue(k.owner is Owner & readonly);
-    assertFalse(k.printer is Printer & readonly);
+    assertTrue(an10 is ControllerTSI);
+    assertFalse(an10 is ControllerTSI & readonly);
+    assertTrue(k.owner is OwnerTSI & readonly);
+    assertFalse(k.printer is PrinterTSI & readonly);
 }
 
 class MyMutableController {
-    Owner owner;
-    Printer printer;
+    OwnerTSI owner;
+    PrinterTSI printer;
 
-    function init(Owner & readonly owner, Printer printer) {
+    function init(OwnerTSI & readonly owner, PrinterTSI printer) {
         self.owner = owner;
         self.printer = printer;
     }
@@ -673,7 +673,7 @@ function testImmutableRecordWithDefaultValues() {
     assertEquality(q2.id, 2);
 }
 
-readonly class MyOwner {
+readonly class MyOwnerTSI {
     final int id = 238475;
 
     function getId() returns int {
@@ -681,30 +681,30 @@ readonly class MyOwner {
     }
 }
 
-readonly class MyController {
-    final Owner & readonly owner;
-    final readonly & Printer printer;
+readonly class MyControllerTSI {
+    final OwnerTSI & readonly owner;
+    final readonly & PrinterTSI printer;
 
-    function init(Owner & readonly ow, Printer pr) {
+    function init(OwnerTSI & readonly ow, PrinterTSI pr) {
         self.owner = ow;
-        self.printer = <Printer & readonly> pr;
+        self.printer = <PrinterTSI & readonly> pr;
     }
 }
 
-type Printer object {
+type PrinterTSI object {
     function getPrintString(string s) returns string;
 };
 
-type Controller object {
-    Owner owner;
-    Printer printer;
+type ControllerTSI object {
+    OwnerTSI owner;
+    PrinterTSI printer;
 };
 
-type Owner object {
+type OwnerTSI object {
     function getId() returns int;
 };
 
-readonly class MyPrinter {
+readonly class MyPrinterTSI {
     final int id;
 
     function init(int id) {
@@ -717,18 +717,18 @@ readonly class MyPrinter {
 }
 
 function testImmutableObjects() {
-    Controller & readonly cr = new MyController(new MyOwner(), new MyPrinter(1234));
+    ControllerTSI & readonly cr = new MyControllerTSI(new MyOwnerTSI(), new MyPrinterTSI(1234));
 
     any x = cr;
-    assertTrue(x is Controller);
-    assertTrue(x is MyController);
-    assertTrue(x is Controller & readonly);
+    assertTrue(x is ControllerTSI);
+    assertTrue(x is MyControllerTSI);
+    assertTrue(x is ControllerTSI & readonly);
 
-    Controller cr2 = cr;
-    assertTrue(cr2.owner is Owner & readonly);
-    assertTrue(cr2.owner is MyOwner);
-    assertTrue(cr2.printer is Printer & readonly);
-    assertTrue(cr2.printer is MyPrinter);
+    ControllerTSI cr2 = cr;
+    assertTrue(cr2.owner is OwnerTSI & readonly);
+    assertTrue(cr2.owner is MyOwnerTSI);
+    assertTrue(cr2.printer is PrinterTSI & readonly);
+    assertTrue(cr2.printer is MyPrinterTSI);
     assertEquality(238475, cr.owner.getId());
     assertEquality("ID[1234]: str to print", cr.printer.getPrintString("str to print"));
 }

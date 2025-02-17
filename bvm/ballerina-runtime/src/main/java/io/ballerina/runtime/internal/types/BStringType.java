@@ -17,15 +17,20 @@
 */
 package io.ballerina.runtime.internal.types;
 
+import com.github.benmanes.caffeine.cache.Cache;
 import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.constants.RuntimeConstants;
 import io.ballerina.runtime.api.constants.TypeConstants;
 import io.ballerina.runtime.api.types.StringType;
 import io.ballerina.runtime.api.types.TypeTags;
+import io.ballerina.runtime.api.types.semtype.BasicTypeBitSet;
 import io.ballerina.runtime.api.types.semtype.Builder;
 import io.ballerina.runtime.api.types.semtype.ConcurrentLazySupplier;
 import io.ballerina.runtime.api.types.semtype.SemType;
+import io.ballerina.runtime.internal.types.semtype.CacheFactory;
 
+import java.util.Map;
+import java.util.WeakHashMap;
 import java.util.function.Supplier;
 
 /**
@@ -36,11 +41,13 @@ import java.util.function.Supplier;
 @SuppressWarnings("unchecked")
 public final class BStringType extends BSemTypeWrapper<BStringType.BStringTypeImpl> implements StringType {
 
+    private static final BasicTypeBitSet BASIC_TYPE_BIT_SET = Builder.getStringType();
     // We are creating separate empty module instead of reusing PredefinedTypes.EMPTY_MODULE to avoid cyclic
     // dependencies.
     private static final Module DEFAULT_MODULE = new Module(null, null, null);
     private static final BStringTypeImpl DEFAULT_B_TYPE =
             new BStringTypeImpl(TypeConstants.STRING_TNAME, DEFAULT_MODULE, TypeTags.STRING_TAG);
+    private final SemType shape;
 
     /**
      * Create a {@code BStringType} which represents the boolean type.
@@ -59,9 +66,18 @@ public final class BStringType extends BSemTypeWrapper<BStringType.BStringTypeIm
     private BStringType(Supplier<BStringTypeImpl> bTypeSupplier, String typeName, Module pkg, int tag,
                         SemType semType) {
         super(new ConcurrentLazySupplier<>(bTypeSupplier), typeName, pkg, tag, semType);
+        shape = semType;
     }
 
     public static BStringType singletonType(String value) {
+        return BStringTypeCache.get(value);
+    }
+
+    public SemType shape() {
+        return shape;
+    }
+
+    private static BStringType createSingletonType(String value) {
         return new BStringType(() -> (BStringTypeImpl) DEFAULT_B_TYPE.clone(), TypeConstants.STRING_TNAME,
                 DEFAULT_MODULE, TypeTags.STRING_TAG, Builder.getStringConst(value));
     }
@@ -72,6 +88,11 @@ public final class BStringType extends BSemTypeWrapper<BStringType.BStringTypeIm
             case TypeTags.CHAR_STRING_TAG -> Builder.getCharType();
             default -> throw new IllegalStateException("Unexpected string type tag: " + tag);
         };
+    }
+
+    @Override
+    public BasicTypeBitSet getBasicType() {
+        return BASIC_TYPE_BIT_SET;
     }
 
     protected static final class BStringTypeImpl extends BType implements StringType, Cloneable {
@@ -104,8 +125,43 @@ public final class BStringType extends BSemTypeWrapper<BStringType.BStringTypeIm
         }
 
         @Override
+        public BasicTypeBitSet getBasicType() {
+            return BASIC_TYPE_BIT_SET;
+        }
+
+        @Override
         public BType clone() {
             return super.clone();
+        }
+    }
+
+    private static final class BStringTypeCache {
+
+        private static final Cache<String, BStringType> mediumCache = CacheFactory.createCache();
+        private static final Map<String, BStringType> smallCache = new WeakHashMap<>();
+
+        public static BStringType get(String value) {
+            return switch (Kind.getKind(value)) {
+                case SMALL -> smallCache.computeIfAbsent(value, BStringType::createSingletonType);
+                case MEDIUM -> mediumCache.get(value, BStringType::createSingletonType);
+                case LARGE -> BStringType.createSingletonType(value);
+            };
+        }
+
+        enum Kind {
+            SMALL,
+            MEDIUM,
+            LARGE;
+
+            public static Kind getKind(String value) {
+                if (value.length() < 10) {
+                    return SMALL;
+                } else if (value.length() < 50) {
+                    return MEDIUM;
+                } else {
+                    return LARGE;
+                }
+            }
         }
     }
 }

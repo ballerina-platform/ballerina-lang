@@ -24,6 +24,8 @@ import io.ballerina.runtime.api.types.IntersectionType;
 import io.ballerina.runtime.api.types.TupleType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.TypeTags;
+import io.ballerina.runtime.api.types.semtype.BasicTypeBitSet;
+import io.ballerina.runtime.api.types.semtype.Builder;
 import io.ballerina.runtime.api.types.semtype.Context;
 import io.ballerina.runtime.api.types.semtype.Core;
 import io.ballerina.runtime.api.types.semtype.Env;
@@ -55,6 +57,7 @@ import static io.ballerina.runtime.internal.types.semtype.CellAtomicType.CellMut
  */
 public class BTupleType extends BAnnotatableType implements TupleType, TypeWithShape {
 
+    private static final BasicTypeBitSet BASIC_TYPE = Builder.getListType();
     private List<Type> tupleTypes;
     private Type restType;
     private int typeFlags;
@@ -316,6 +319,11 @@ public class BTupleType extends BAnnotatableType implements TupleType, TypeWithS
     }
 
     @Override
+    public BasicTypeBitSet getBasicType() {
+        return BASIC_TYPE;
+    }
+
+    @Override
     public Optional<IntersectionType> getIntersectionType() {
         return this.intersectionType ==  null ? Optional.empty() : Optional.of(this.intersectionType);
     }
@@ -402,19 +410,16 @@ public class BTupleType extends BAnnotatableType implements TupleType, TypeWithS
     }
 
     @Override
-    public Optional<SemType> acceptedTypeOf(Context cx) {
+    public SemType acceptedTypeOf(Context cx) {
         Env env = cx.env;
         if (acceptedTypeDefn.isDefinitionReady()) {
-            return Optional.of(acceptedTypeDefn.getSemType(env));
+            return acceptedTypeDefn.getSemType(env);
         }
         var result = acceptedTypeDefn.trySetDefinition(ListDefinition::new);
         if (!result.updated()) {
-            return Optional.of(acceptedTypeDefn.getSemType(env));
+            return acceptedTypeDefn.getSemType(env);
         }
-        ListDefinition ld = result.definition();
-        return Optional.of(createSemTypeInner(cx, ld,
-                (context, type) -> ShapeAnalyzer.acceptedTypeOf(context, type).orElseThrow(),
-                CELL_MUT_UNLIMITED));
+        return createSemTypeInner(cx, result.definition(), ShapeAnalyzer::acceptedTypeOf, CELL_MUT_UNLIMITED);
     }
 
     private SemType shapeOfInner(Context cx, ShapeSupplier shapeSupplier, AbstractArrayValue value) {

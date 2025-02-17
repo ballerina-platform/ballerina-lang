@@ -25,10 +25,12 @@ import io.ballerina.runtime.api.types.Parameter;
 import io.ballerina.runtime.api.types.PredefinedTypes;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.TypeTags;
+import io.ballerina.runtime.api.types.semtype.BasicTypeBitSet;
 import io.ballerina.runtime.api.types.semtype.Builder;
 import io.ballerina.runtime.api.types.semtype.Context;
 import io.ballerina.runtime.api.types.semtype.Env;
 import io.ballerina.runtime.api.types.semtype.SemType;
+import io.ballerina.runtime.api.types.semtype.TypeCheckCacheFactory;
 import io.ballerina.runtime.internal.types.semtype.CellAtomicType;
 import io.ballerina.runtime.internal.types.semtype.DefinitionContainer;
 import io.ballerina.runtime.internal.types.semtype.FunctionDefinition;
@@ -45,6 +47,8 @@ import java.util.Set;
  * @since 0.995.0
  */
 public class BFunctionType extends BAnnotatableType implements FunctionType {
+
+    private static final BasicTypeBitSet BASIC_TYPE = Builder.getFunctionType();
 
     public Type restType;
     public Type retType;
@@ -65,6 +69,9 @@ public class BFunctionType extends BAnnotatableType implements FunctionType {
         this.parameters = null;
         this.retType = null;
         this.flags = flags;
+        if (isFunctionTop()) {
+            resetTypeCheckCaches();
+        }
     }
 
     @Deprecated
@@ -73,6 +80,9 @@ public class BFunctionType extends BAnnotatableType implements FunctionType {
         this.restType = restType;
         this.retType = retType;
         this.flags = flags;
+        if (isFunctionTop()) {
+            resetTypeCheckCaches();
+        }
     }
 
 
@@ -82,6 +92,14 @@ public class BFunctionType extends BAnnotatableType implements FunctionType {
         this.restType = restType;
         this.retType = retType;
         this.flags = flags;
+        if (isFunctionTop()) {
+            resetTypeCheckCaches();
+        }
+    }
+
+    protected void resetTypeCheckCaches() {
+        typeCheckCache = TypeCheckCacheFactory.create();
+        typeId = TypeIdSupplier.getAnonId();
     }
 
     public Type[] getParameterTypes() {
@@ -215,6 +233,11 @@ public class BFunctionType extends BAnnotatableType implements FunctionType {
         return flags;
     }
 
+    @Override
+    public BasicTypeBitSet getBasicType() {
+        return BASIC_TYPE;
+    }
+
     private static SemType createIsolatedTop(Env env) {
         FunctionDefinition fd = new FunctionDefinition();
         SemType ret = Builder.getValType();
@@ -269,7 +292,7 @@ public class BFunctionType extends BAnnotatableType implements FunctionType {
         return tryInto(cx, type);
     }
 
-    private boolean isFunctionTop() {
+    protected boolean isFunctionTop() {
         return parameters == null && restType == null && retType == null;
     }
 
