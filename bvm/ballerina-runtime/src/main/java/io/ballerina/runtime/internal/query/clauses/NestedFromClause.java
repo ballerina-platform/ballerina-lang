@@ -49,7 +49,7 @@ public class NestedFromClause implements PipelineStage {
                     return Stream.empty();
                 }
 
-                Iterator<Object> itr = BallerinaIteratorUtils.getIterator(collection);
+                Iterator<Object> itr = BallerinaIteratorUtils.getIterator(env, collection);
                 List<Frame> results = new ArrayList<>();
 
                 while (itr.hasNext()) {

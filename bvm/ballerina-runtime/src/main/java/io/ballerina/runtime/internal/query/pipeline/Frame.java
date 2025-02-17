@@ -4,7 +4,9 @@ import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BMap;
+import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.internal.types.BRecordType;
 
 import static io.ballerina.runtime.api.constants.RuntimeConstants.BALLERINA_QUERY_PKG_ID;
 
@@ -44,6 +46,12 @@ public class Frame {
             }
         } else if (value instanceof String) {
             record.put(key, StringUtils.fromString(value.toString()));
+        } else if (value instanceof BRecordType) {
+            record.put(key, value);
+        }
+        else if (value instanceof BMap<?, ?> valueMap) {
+            Object extractedValue = valueMap.get(StringUtils.fromString("value"));
+            record.put(key, extractedValue != null ? extractedValue : value);
         } else {
             record.put(key, value);
         }
