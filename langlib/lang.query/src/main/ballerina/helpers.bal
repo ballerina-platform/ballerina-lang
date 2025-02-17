@@ -20,11 +20,23 @@ import ballerina/lang.'error;
 
 function createPipeline(
         Type[]|map<Type>|record{}|string|xml|table<map<Type>>|stream<Type, CompletionType>|_Iterable collection,
+        typedesc<Type> constraintTd, typedesc<CompletionType> completionTd, boolean isLazyLoading) returns handle {
+    return createStreamPipeline(collection, constraintTd, completionTd, isLazyLoading);
+}
+
+function createStreamPipeline(
+        Type[]|map<Type>|record{}|string|xml|table<map<Type>>|stream<Type, CompletionType>|_Iterable collection,
         typedesc<Type> constraintTd, typedesc<CompletionType> completionTd, boolean isLazyLoading) returns handle = @java:Method {
             'class: "io.ballerina.runtime.internal.query.pipeline.StreamPipeline",
             name: "initStreamPipeline",
             paramTypes: ["java.lang.Object","io.ballerina.runtime.api.values.BTypedesc","io.ballerina.runtime.api.values.BTypedesc","boolean"]
 } external;
+
+// function createStreamPipelineFromStream(stream<Type, CompletionType> strm, typedesc<Type> constraintTd, typedesc<CompletionType> completionTd, boolean isLazyLoading) returns handle = @java:Method {
+//     'class: "io.ballerina.runtime.internal.query.pipeline.StreamPipeline",
+//     name: "initStreamPipelineFromBStream",
+//     paramTypes: ["java.lang.Object","io.ballerina.runtime.api.values.BTypedesc","io.ballerina.runtime.api.values.BTypedesc","boolean"]
+// } external;
 
 function createInputFunction(function(_Frame _frame) returns _Frame|error? inputFunc) returns handle = @java:Method {
     'class: "io.ballerina.runtime.internal.query.clauses.FromClause",

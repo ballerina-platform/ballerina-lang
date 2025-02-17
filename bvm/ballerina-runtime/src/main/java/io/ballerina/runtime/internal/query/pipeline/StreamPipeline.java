@@ -1,9 +1,11 @@
 package io.ballerina.runtime.internal.query.pipeline;
 
+import io.ballerina.runtime.api.Environment;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BTypedesc;
 import io.ballerina.runtime.internal.query.clauses.PipelineStage;
 import io.ballerina.runtime.internal.query.utils.BallerinaIteratorUtils;
+import io.ballerina.runtime.internal.scheduling.Strand;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,6 +21,7 @@ public class StreamPipeline {
     private final BTypedesc constraintType;
     private final BTypedesc completionType;
     private final boolean isLazyLoading;
+    private final Environment env;
 
     /**
      * Constructor for creating a StreamPipeline.
@@ -28,23 +31,27 @@ public class StreamPipeline {
      * @param completionType  The type descriptor for the completion type.
      * @param isLazyLoading   Flag to indicate if lazy loading is enabled.
      */
-    public StreamPipeline(Object collection,
+    public StreamPipeline(Environment env,
+                          Object collection,
                           BTypedesc constraintType,
                           BTypedesc completionType,
                           boolean isLazyLoading) {
-        this.stream = initializeFrameStream(collection);
+        this.env = env;
+        this.stream = initializeFrameStream(env, collection);
         this.pipelineStages = new ArrayList<>();
         this.constraintType = constraintType;
         this.completionType = completionType;
         this.isLazyLoading = isLazyLoading;
     }
 
-    public static StreamPipeline initStreamPipeline(Object collection,
-                                          BTypedesc constraintType,
-                                          BTypedesc completionType,
-                                          boolean isLazyLoading) {
-        return new StreamPipeline(collection, constraintType, completionType, isLazyLoading);
+    public static StreamPipeline initStreamPipeline(Environment env, Object collection,
+                                                    BTypedesc constraintType,
+                                                    BTypedesc completionType,
+                                                    boolean isLazyLoading) {
+        return new StreamPipeline(env, collection, constraintType, completionType, isLazyLoading);
     }
+
+
 
     public static void addStreamFunction(Object jStreamPipeline, Object pipelineStage) {
         ((StreamPipeline) jStreamPipeline).addStage((PipelineStage) pipelineStage);
@@ -83,8 +90,8 @@ public class StreamPipeline {
      * @param collection The Ballerina collection.
      * @return A Java stream of `Frame` objects.
      */
-    private Stream<Frame> initializeFrameStream(Object collection) {
-        return BallerinaIteratorUtils.toStream(collection);
+    private Stream<Frame> initializeFrameStream(Environment env, Object collection) {
+        return BallerinaIteratorUtils.toStream(env, collection);
     }
 
     /**

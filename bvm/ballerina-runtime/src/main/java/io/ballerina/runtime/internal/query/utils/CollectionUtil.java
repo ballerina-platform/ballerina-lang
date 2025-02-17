@@ -28,7 +28,11 @@ public class CollectionUtil {
                 .map(frame -> frame.getRecord().get($VALUE$_FIELD))
                 .toArray();
 
-        arr = ValueCreator.createArrayValue(tmpArr, TypeCreator.createArrayType(PredefinedTypes.TYPE_ANY));
+        if (tmpArr.length > 0 && tmpArr[0] instanceof Long) {
+            arr = ValueCreator.createArrayValue(tmpArr, TypeCreator.createArrayType(PredefinedTypes.TYPE_INT));
+        } else {
+            arr = ValueCreator.createArrayValue(tmpArr, TypeCreator.createArrayType(PredefinedTypes.TYPE_ANY));
+        }
         return arr;
     }
 
