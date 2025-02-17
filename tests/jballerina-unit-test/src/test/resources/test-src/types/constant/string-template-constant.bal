@@ -37,7 +37,7 @@ public function testStringTemplateConstantExpr() {
    assertEquality("This is false", v4);
    assertEquality("444 is greater than 100.", v5);
    assertEquality("this is a float value 5.009. hello world. Have a nice day.", v6);
-   assertEquality("hello 11.5776. This is 0.0000.", v7);
+   assertEquality("hello 11.5776. This is 0.", v7);
 
    // define a new non constant variables for the above v1 to v7 locally
    string v11 = string `hello ${"world"}`;

@@ -49,8 +49,8 @@ public class StringTemplateConstantTest {
         CompileResult negativeResult = BCompileUtil.compile(
                 "test-src/types/constant/string-template-constant-negative.bal");
         int index = 0;
-        BAssertUtil.validateError(negativeResult, index++, "incompatible types: expected '(int|string|" +
-                        "float|boolean|decimal)', found '(record {| 4 a; |} & readonly)'", 17, 27);
+        BAssertUtil.validateError(negativeResult, index++, "incompatible types: expected '(int|float|" +
+                        "decimal|string|boolean)', found '(record {| 4 a; |} & readonly)'", 17, 27);
         BAssertUtil.validateError(negativeResult, index++, "expression is not a constant expression",
                 20, 30);
         BAssertUtil.validateError(negativeResult, index++, "expression is not a constant expression",

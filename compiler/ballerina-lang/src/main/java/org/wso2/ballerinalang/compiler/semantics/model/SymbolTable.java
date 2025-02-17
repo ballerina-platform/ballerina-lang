@@ -141,8 +141,8 @@ public class SymbolTable {
     public final BType readonlyType = new BReadonlyType(TypeTags.READONLY, null);
     public final BType pathParamAllowedType = BUnionType.create(null,
             intType, stringType, floatType, booleanType, decimalType);
-    public final BType interpolationAllowedType = BUnionType.create(null,
-            intType, stringType, floatType, booleanType, decimalType);
+    public final BType interpolationAllowedType = BUnionType.create(null, intType, floatType, decimalType,
+            stringType, booleanType);
     public final BIntersectionType anyAndReadonly;
     public BUnionType anyAndReadonlyOrError;
 

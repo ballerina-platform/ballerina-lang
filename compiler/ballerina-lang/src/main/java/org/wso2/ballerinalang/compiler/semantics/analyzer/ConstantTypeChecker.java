@@ -1609,7 +1609,8 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
             case TypeTags.DECIMAL:
                 BigDecimal lhsDecimal = new BigDecimal(String.valueOf(lhs), MathContext.DECIMAL128);
                 BigDecimal rhsDecimal = new BigDecimal(String.valueOf(rhs), MathContext.DECIMAL128);
-                BigDecimal resultDecimal = lhsDecimal.subtract(rhsDecimal, MathContext.DECIMAL128);
+                BigDecimal resultDecimal = lhsDecimal.compareTo(rhsDecimal) == 0 ? BigDecimal.ZERO :
+                        lhsDecimal.subtract(rhsDecimal, MathContext.DECIMAL128);
                 resultDecimal = types.getValidDecimalNumber(data.pos, resultDecimal);
                 return resultDecimal != null ? resultDecimal.toPlainString() : null;
             default:
