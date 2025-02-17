@@ -131,10 +131,8 @@ public final class Builder {
     }
 
     public static SemType from(BasicTypeCode typeCode) {
-        if (BasicTypeCache.isCached(typeCode)) {
-            return BasicTypeCache.cache[typeCode.code()];
-        }
-        return SemType.from(1 << typeCode.code());
+        assert typeCode.code() >= 0 && typeCode.code() <= CODE_UNDEF;
+        return BasicTypeCache.cache[typeCode.code()];
     }
 
     public static SemType getNeverType() {
@@ -197,9 +195,8 @@ public final class Builder {
                 if (Integer.bitCount(bitset) == 1) {
                     int code = Integer.numberOfTrailingZeros(bitset);
                     // TODO: what are the others?
-                    if (BasicTypeCache.isCached(code)) {
-                        yield BasicTypeCache.cache[code];
-                    }
+                    assert code >= 0 && code <= CODE_UNDEF;
+                    yield BasicTypeCache.cache[code];
                 }
                 yield SemType.from(bitset);
             }
@@ -453,15 +450,6 @@ public final class Builder {
             for (int i = 0; i < CODE_UNDEF + 1; i++) {
                 cache[i] = SemType.from(1 << i);
             }
-        }
-
-        private static boolean isCached(BasicTypeCode code) {
-            int i = code.code();
-            return 0 < i && i <= CODE_UNDEF;
-        }
-
-        private static boolean isCached(int code) {
-            return 0 < code && code <= CODE_UNDEF;
         }
     }
 }

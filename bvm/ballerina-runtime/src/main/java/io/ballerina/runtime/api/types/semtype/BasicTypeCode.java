@@ -89,10 +89,8 @@ public final class BasicTypeCode {
     }
 
     public static BasicTypeCode get(int code) {
-        if (BasicTypeCodeCache.isCached(code)) {
-            return BasicTypeCodeCache.cache[code];
-        }
-        return new BasicTypeCode(code);
+        assert code >= 0 && code <= CODE_UNDEF;
+        return BasicTypeCodeCache.cache[code];
     }
 
     public int code() {
@@ -124,10 +122,5 @@ public final class BasicTypeCode {
                 cache[i] = new BasicTypeCode(i);
             }
         }
-
-        private static boolean isCached(int code) {
-            return 0 < code && code < VT_COUNT;
-        }
-
     }
 }
