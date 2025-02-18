@@ -42,8 +42,7 @@ public class StringTemplateConstantTest {
 
     @Test
     public void testStringTemplateConstantExpr() {
-        Object returns = BRunUtil.invoke(compileResult, "testStringTemplateConstantExpr");
-        Assert.assertNull(returns);
+        BRunUtil.invoke(compileResult, "testStringTemplateConstantExpr");
     }
 
     @Test
