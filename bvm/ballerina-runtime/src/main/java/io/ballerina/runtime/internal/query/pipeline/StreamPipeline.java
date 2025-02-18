@@ -1,11 +1,14 @@
 package io.ballerina.runtime.internal.query.pipeline;
 
 import io.ballerina.runtime.api.Environment;
+import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.utils.StringUtils;
+import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BTypedesc;
 import io.ballerina.runtime.internal.query.clauses.PipelineStage;
 import io.ballerina.runtime.internal.query.utils.BallerinaIteratorUtils;
 import io.ballerina.runtime.internal.scheduling.Strand;
+import io.ballerina.runtime.internal.values.ErrorValue;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -44,11 +47,15 @@ public class StreamPipeline {
         this.isLazyLoading = isLazyLoading;
     }
 
-    public static StreamPipeline initStreamPipeline(Environment env, Object collection,
+    public static Object initStreamPipeline(Environment env, Object collection,
                                                     BTypedesc constraintType,
                                                     BTypedesc completionType,
                                                     boolean isLazyLoading) {
-        return new StreamPipeline(env, collection, constraintType, completionType, isLazyLoading);
+        try {
+            return new StreamPipeline(env, collection, constraintType, completionType, isLazyLoading);
+        } catch (ErrorValue e) {
+            return e;
+        }
     }
 
 
@@ -90,7 +97,7 @@ public class StreamPipeline {
      * @param collection The Ballerina collection.
      * @return A Java stream of `Frame` objects.
      */
-    private Stream<Frame> initializeFrameStream(Environment env, Object collection) {
+    private Stream<Frame> initializeFrameStream(Environment env, Object collection) throws ErrorValue {
         return BallerinaIteratorUtils.toStream(env, collection);
     }
 
