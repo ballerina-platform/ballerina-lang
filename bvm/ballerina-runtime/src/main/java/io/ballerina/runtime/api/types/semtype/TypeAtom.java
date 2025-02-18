@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2024, WSO2 LLC. (http://www.wso2.com).
+ *  Copyright (c) 2025, WSO2 LLC. (http://www.wso2.com).
  *
  *  WSO2 LLC. licenses this file to you under the Apache License,
  *  Version 2.0 (the "License"); you may not use this file except
@@ -25,7 +25,7 @@ package io.ballerina.runtime.api.types.semtype;
  * @param index      unique index within the {@code Env}
  * @param atomicType atomic type representing the actual type represented by
  *                   this atom.
- * @since 2201.11.0
+ * @since 2201.12.0
  */
 public record TypeAtom(int index, AtomicType atomicType) implements Atom {
 

@@ -620,6 +620,21 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
         return new MapIterator<>(new LinkedHashSet<>(this.entrySet()).iterator());
     }
 
+    @Override
+    public MappingDefinition getReadonlyShapeDefinition() {
+        return readonlyAttachedDefinition.get();
+    }
+
+    @Override
+    public void setReadonlyShapeDefinition(MappingDefinition definition) {
+        readonlyAttachedDefinition.set(definition);
+    }
+
+    @Override
+    public void resetReadonlyShapeDefinition() {
+        readonlyAttachedDefinition.remove();
+    }
+
     /**
      * {@link MapIterator} iteration provider for ballerina maps.
      *
@@ -753,20 +768,5 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
     @Override
     public BasicTypeBitSet getBasicType() {
         return BASIC_TYPE;
-    }
-
-    @Override
-    public synchronized MappingDefinition getReadonlyShapeDefinition() {
-        return readonlyAttachedDefinition.get();
-    }
-
-    @Override
-    public synchronized void setReadonlyShapeDefinition(MappingDefinition definition) {
-        readonlyAttachedDefinition.set(definition);
-    }
-
-    @Override
-    public synchronized void resetReadonlyShapeDefinition() {
-        readonlyAttachedDefinition.remove();
     }
 }

@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2024, WSO2 LLC. (http://www.wso2.com).
+ *  Copyright (c) 2025, WSO2 LLC. (http://www.wso2.com).
  *
  *  WSO2 LLC. licenses this file to you under the Apache License,
  *  Version 2.0 (the "License"); you may not use this file except
@@ -31,7 +31,7 @@ import static io.ballerina.types.SemTypes.union;
  * @param kind       is member a field or a method
  * @param visibility is member private or public
  * @param immutable  is member readonly. If this is set valueTy must be a subtype of readonly
- * @since 2201.10.0
+ * @since 2201.12.0
  */
 public record Member(String name, SemType valueTy, Kind kind, Visibility visibility, boolean immutable) {
 

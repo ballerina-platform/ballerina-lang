@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2024, WSO2 LLC. (http://www.wso2.com).
+ *  Copyright (c) 2025, WSO2 LLC. (http://www.wso2.com).
  *
  *  WSO2 LLC. licenses this file to you under the Apache License,
  *  Version 2.0 (the "License"); you may not use this file except
@@ -38,7 +38,7 @@ import java.util.function.Supplier;
  * {@code SemType} should extend this class.
  *
  * @param <E> The type of the {@code BType} that is being wrapped.
- * @since 2201.11.0
+ * @since 2201.12.0
  */
 public abstract sealed class BSemTypeWrapper<E extends BType> extends ImmutableSemType
         implements Type, MayBeDependentType

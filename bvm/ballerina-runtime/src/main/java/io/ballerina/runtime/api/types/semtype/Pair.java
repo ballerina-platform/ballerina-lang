@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2024, WSO2 LLC. (http://www.wso2.com).
+ *  Copyright (c) 2025, WSO2 LLC. (http://www.wso2.com).
  *
  *  WSO2 LLC. licenses this file to you under the Apache License,
  *  Version 2.0 (the "License"); you may not use this file except
@@ -25,7 +25,7 @@ package io.ballerina.runtime.api.types.semtype;
  * @param <E2>   type of second value
  * @param first  first values
  * @param second second value
- * @since 2201.11.0
+ * @since 2201.12.0
  */
 public record Pair<E1, E2>(E1 first, E2 second) {
 

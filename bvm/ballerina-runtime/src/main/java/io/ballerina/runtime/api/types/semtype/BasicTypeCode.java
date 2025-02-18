@@ -21,7 +21,7 @@ package io.ballerina.runtime.api.types.semtype;
 /**
  * Represent bit field that indicate which basic type a semType belongs to.
  *
- * @since 2201.11.0
+ * @since 2201.12.0
  */
 public final class BasicTypeCode {
 
