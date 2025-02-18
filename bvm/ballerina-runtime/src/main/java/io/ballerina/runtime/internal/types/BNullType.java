@@ -62,7 +62,7 @@ public sealed class BNullType extends BSemTypeWrapper<BNullType.BNullTypeImpl> i
     protected static final class BNullTypeImpl extends BType implements NullType {
 
         private BNullTypeImpl(String typeName, Module pkg) {
-            super(typeName, pkg, null);
+            super(typeName, pkg, null, false);
         }
 
         @Override

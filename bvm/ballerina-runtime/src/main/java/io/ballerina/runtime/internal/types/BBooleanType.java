@@ -70,7 +70,7 @@ public final class BBooleanType extends BSemTypeWrapper<BBooleanType.BBooleanTyp
     protected static final class BBooleanTypeImpl extends BType implements BooleanType {
 
         private BBooleanTypeImpl(String typeName, Module pkg) {
-            super(typeName, pkg, Boolean.class);
+            super(typeName, pkg, Boolean.class, false);
         }
 
         @Override

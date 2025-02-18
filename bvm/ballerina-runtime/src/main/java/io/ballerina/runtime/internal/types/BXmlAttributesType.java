@@ -38,7 +38,7 @@ public class BXmlAttributesType extends BType implements XmlAttributesType {
      * @param pkg package path
      */
     public BXmlAttributesType(String typeName, Module pkg) {
-        super(typeName, pkg, null);
+        super(typeName, pkg, null, true);
     }
 
     @Override

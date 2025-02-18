@@ -69,7 +69,7 @@ public final class BByteType extends BSemTypeWrapper<BByteType.BByteTypeImpl> im
     protected static final class BByteTypeImpl extends BType implements ByteType, Cloneable {
 
         private BByteTypeImpl(String typeName, Module pkg) {
-            super(typeName, pkg, Integer.class);
+            super(typeName, pkg, Integer.class, false);
         }
 
         @Override

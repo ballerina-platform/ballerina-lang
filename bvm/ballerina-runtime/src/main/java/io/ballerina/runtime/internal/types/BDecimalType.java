@@ -72,7 +72,7 @@ public final class BDecimalType extends BSemTypeWrapper<BDecimalType.BDecimalTyp
     protected static final class BDecimalTypeImpl extends BType implements DecimalType, Cloneable {
 
         private BDecimalTypeImpl(String typeName, Module pkg) {
-            super(typeName, pkg, DecimalValue.class);
+            super(typeName, pkg, DecimalValue.class, false);
         }
 
         @Override

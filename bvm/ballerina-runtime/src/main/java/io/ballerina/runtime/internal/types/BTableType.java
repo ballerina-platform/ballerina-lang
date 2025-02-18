@@ -65,7 +65,7 @@ public class BTableType extends BType implements TableType, TypeWithShape {
     }
 
     public BTableType(Type constraint, boolean readonly) {
-        super(TypeConstants.TABLE_TNAME, null, TableValue.class);
+        super(TypeConstants.TABLE_TNAME, null, TableValue.class, true);
         this.constraint = readonly ? ReadOnlyUtils.getReadOnlyType(constraint) : constraint;
         this.readonly = readonly;
     }

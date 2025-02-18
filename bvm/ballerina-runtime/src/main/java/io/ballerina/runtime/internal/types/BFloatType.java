@@ -67,7 +67,7 @@ public final class BFloatType extends BSemTypeWrapper<BFloatType.BFloatTypeImpl>
     protected static final class BFloatTypeImpl extends BType implements FloatType {
 
         private BFloatTypeImpl(String typeName, Module pkg) {
-            super(typeName, pkg, Double.class);
+            super(typeName, pkg, Double.class, false);
         }
 
         @Override

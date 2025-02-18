@@ -63,14 +63,21 @@ public class BFiniteType extends BType implements FiniteType {
     }
 
     public BFiniteType(String typeName, String originalName, Set<Object> values, int typeFlags) {
-        super(typeName, null, RefValue.class);
+        super(typeName, null, RefValue.class, false);
         this.valueSpace = values;
         this.typeFlags = typeFlags;
         this.originalName = originalName;
+        initializeFlyweight();
+    }
+
+    @Override
+    protected void initializeFlyweight() {
         if (this.originalName != null && !originalName.isEmpty()) {
             var flyweight = TypeCheckCacheData.get(originalName);
             this.typeId = flyweight.typeId;
             this.typeCheckCache = flyweight.typeCheckCache;
+        } else {
+            super.initializeFlyweight();
         }
     }
 

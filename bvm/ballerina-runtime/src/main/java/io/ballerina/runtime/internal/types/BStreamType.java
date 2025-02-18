@@ -57,7 +57,7 @@ public class BStreamType extends BType implements StreamType {
      * @param pkgPath    package path
      */
     public BStreamType(String typeName, Type constraint, Type completionType, Module pkgPath) {
-        super(typeName, pkgPath, StreamValue.class);
+        super(typeName, pkgPath, StreamValue.class, true);
         this.constraint = constraint;
         this.completionType = completionType;
     }
