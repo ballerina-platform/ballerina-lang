@@ -516,7 +516,7 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
     @Override
     public void visit(BLangStringTemplateLiteral stringTemplateLiteral, AnalyzerData data) {
         StringBuilder resultString = new StringBuilder();
-        stringTemplateLiteral.exprs.forEach(expr -> {
+        for (BLangExpression expr : stringTemplateLiteral.exprs) {
             BType exprType = checkConstExpr(expr, data);
             if (exprType == symTable.semanticError) {
                 data.resultType = symTable.semanticError;
@@ -529,10 +529,9 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
                 return;
             }
 
-
             BLangLiteral exprLiteral = (BLangLiteral) ((BFiniteType) exprType).getValueSpace().iterator().next();
             resultString.append(getValue(exprLiteral));
-        });
+        }
 
         Location pos = stringTemplateLiteral.pos;
         BType finiteType = getFiniteType(resultString.toString(), data.constantSymbol, pos, symTable.stringType);

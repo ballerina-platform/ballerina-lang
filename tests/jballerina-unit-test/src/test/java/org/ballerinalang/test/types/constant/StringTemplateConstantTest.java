@@ -27,6 +27,8 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 /**
+ * @since 2201.12.0
+ *
  * This class contains a set of test cases to test the string template expression as a constant expression.
  */
 public class StringTemplateConstantTest {
@@ -35,7 +37,7 @@ public class StringTemplateConstantTest {
 
     @BeforeClass
     public void setup() {
-        compileResult = BCompileUtil.compile("test-src/types/constant/string-template-constant.bal");
+        compileResult = BCompileUtil.compile("test-src/types/constant/string_template_constant.bal");
     }
 
     @Test
@@ -47,7 +49,7 @@ public class StringTemplateConstantTest {
     @Test
     public void testStringTemplateConstantExprNegative() {
         CompileResult negativeResult = BCompileUtil.compile(
-                "test-src/types/constant/string-template-constant-negative.bal");
+                "test-src/types/constant/string_template_constant_negative.bal");
         int index = 0;
         BAssertUtil.validateError(negativeResult, index++, "incompatible types: expected '(int|float|" +
                         "decimal|string|boolean)', found '(record {| 4 a; |} & readonly)'", 17, 27);

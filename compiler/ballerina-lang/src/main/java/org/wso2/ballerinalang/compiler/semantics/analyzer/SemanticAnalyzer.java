@@ -143,6 +143,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordVarRef.BLangRecordVarRefKeyValue;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRegExpTemplateLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangStringTemplateLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTupleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeInit;
@@ -4429,6 +4430,10 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
             case UNARY_EXPR:
                 checkAnnotConstantExpression(((BLangUnaryExpr) expression).expr);
                 break;
+            case BINARY_EXPR:
+                checkAnnotConstantExpression(((BLangBinaryExpr)expression).lhsExpr);
+                checkAnnotConstantExpression(((BLangBinaryExpr)expression).rhsExpr);
+                break;
             case SIMPLE_VARIABLE_REF:
                 BSymbol symbol = ((BLangSimpleVarRef) expression).symbol;
                 // Symbol can be null in some invalid scenarios. Eg - const string m = { name: "Ballerina" };
@@ -4450,6 +4455,9 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
                 break;
             case LIST_CONSTRUCTOR_EXPR:
                 ((BLangListConstructorExpr) expression).exprs.forEach(this::checkAnnotConstantExpression);
+                break;
+            case STRING_TEMPLATE_LITERAL:
+                ((BLangStringTemplateLiteral) expression).exprs.forEach(this::checkAnnotConstantExpression);
                 break;
             default:
                 dlog.error(expression.pos, DiagnosticErrorCode.EXPRESSION_IS_NOT_A_CONSTANT_EXPRESSION);
