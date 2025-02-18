@@ -6,6 +6,7 @@ import io.ballerina.runtime.api.types.PredefinedTypes;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.*;
 import io.ballerina.runtime.internal.query.pipeline.Frame;
+import io.ballerina.runtime.internal.values.ErrorValue;
 
 import java.util.Objects;
 import java.util.Optional;
@@ -23,41 +24,52 @@ public class CollectionUtil {
         });
     }
 
-    public static BArray createArray(Stream<Frame> strm, BArray arr) {
-        Object[] tmpArr = strm
-                .map(frame -> frame.getRecord().get($VALUE$_FIELD))
-                .toArray();
-
-//        if (tmpArr.length > 0 && tmpArr[0] instanceof Long) {
-//            arr = ValueCreator.createArrayValue(tmpArr, TypeCreator.createArrayType(PredefinedTypes.TYPE_INT));
-//        } else {
+    public static Object createArray(Stream<Frame> strm, BArray arr) {
+        try {
+            Object[] tmpArr = strm
+                    .map(frame -> frame.getRecord().get($VALUE$_FIELD))
+                    .toArray();
             arr = ValueCreator.createArrayValue(tmpArr, TypeCreator.createArrayType(PredefinedTypes.TYPE_ANY));
-//        }
-        return arr;
+            return arr;
+        } catch (ErrorValue e) {
+            return e;
+        }
     }
 
     public static Object collectQuery(Stream<Frame> strm) {
-        Optional<Object> result = strm
-                .map(frame -> frame.getRecord().get($VALUE$_FIELD))
-                .filter(Objects::nonNull)
-                .findFirst();
+        try {
+            Optional<Object> result = strm
+                    .map(frame -> frame.getRecord().get($VALUE$_FIELD))
+                    .filter(Objects::nonNull)
+                    .findFirst();
 
-        return result.orElse(null);
+            return result.orElse(null);
+        } catch (ErrorValue e) {
+            return e;
+        }
     }
 
-    public static BString toString(Stream<Frame> strm) {
-        return strm
-                .map(frame -> frame.getRecord().get($VALUE$_FIELD))
-                .map(string -> (BString) string)
-                .reduce(StringUtils.fromString(""), BString::concat);
+    public static Object toString(Stream<Frame> strm) {
+        try {
+            return strm
+                    .map(frame -> frame.getRecord().get($VALUE$_FIELD))
+                    .map(string -> (BString) string)
+                    .reduce(StringUtils.fromString(""), BString::concat);
+        } catch (ErrorValue e) {
+            return e;
+        }
     }
 
-    public static BTable createTable(Stream<Frame> strm, BTable table) {
-        strm.forEach(frame -> {
-            BMap<BString, Object> record = (BMap<BString, Object>) frame.getRecord().get($VALUE$_FIELD);
-            table.add(record);
-        });
-        return table;
+    public static Object createTable(Stream<Frame> strm, BTable table) {
+        try {
+            strm.forEach(frame -> {
+                BMap<BString, Object> record = (BMap<BString, Object>) frame.getRecord().get($VALUE$_FIELD);
+                table.add(record);
+            });
+            return table;
+        } catch (ErrorValue e) {
+            return e;
+        }
     }
 
     public static Object createTableForOnConflict(Stream<Frame> strm, BTable table) {
@@ -79,14 +91,18 @@ public class CollectionUtil {
         return error.isPresent() ? error.get() : table;
     }
 
-    public static BMap createMap(Stream<Frame> strm, BMap map) {
-        strm.forEach(frame -> {
-            BArray record = (BArray) frame.getRecord().get($VALUE$_FIELD);
-            BString key = (BString) record.get(0);
-            Object value = record.get(1);
-            map.put(key, value);
-        });
-        return map;
+    public static Object createMap(Stream<Frame> strm, BMap map) {
+        try {
+            strm.forEach(frame -> {
+                BArray record = (BArray) frame.getRecord().get($VALUE$_FIELD);
+                BString key = (BString) record.get(0);
+                Object value = record.get(1);
+                map.put(key, value);
+            });
+            return map;
+        } catch (ErrorValue e) {
+            return e;
+        }
     }
 
     public static Object createMapForOnConflict(Stream<Frame> strm, BMap<BString, Object> map) {
@@ -111,10 +127,14 @@ public class CollectionUtil {
     }
 
 
-    public static BXml createXML(Stream<Frame> strm) {
-        String xmlStr = strm
-                .map(frame -> frame.getRecord().get($VALUE$_FIELD).toString())
-                .reduce("", String::concat);
-        return ValueCreator.createXmlValue(xmlStr);
+    public static Object createXML(Stream<Frame> strm) {
+        try {
+            String xmlStr = strm
+                    .map(frame -> frame.getRecord().get($VALUE$_FIELD).toString())
+                    .reduce("", String::concat);
+            return ValueCreator.createXmlValue(xmlStr);
+        } catch (ErrorValue e) {
+            return e;
+        }
     }
 }
