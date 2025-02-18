@@ -269,8 +269,8 @@ public class FunctionsWithDefaultableParametersTest {
     }
 
     @Test
-    public void testFuncWithDefaultRawTemplateValue() {
-        BRunUtil.invoke(result, "testFuncWithDefaultRawTemplateValue");
+    public void testFuncWithRawTemplate() {
+        BRunUtil.invoke(result, "testFuncWithRawTemplate");
     }
 
     @Test

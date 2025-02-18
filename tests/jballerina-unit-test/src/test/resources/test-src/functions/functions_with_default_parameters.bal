@@ -386,12 +386,12 @@ public type RT object {
     public [Employee] insertions;
 };
 
-function funcWithDefaultRawTemplateValue(Employee e, RT fullName = `${e}`) returns string {
+function funcWithRawTemplate(Employee e, RT fullName = `${e}`) returns string {
     return fullName.insertions[0].firstName + " " + fullName.insertions[0].lastName;
 }
 
-function testFuncWithDefaultRawTemplateValue() {
-    assertEquality("Chiran Sachintha", funcWithDefaultRawTemplateValue({firstName: "Chiran", lastName: "Sachintha"}));
+function testFuncWithRawTemplate() {
+    assertEquality("Chiran Sachintha", funcWithRawTemplate({firstName: "Chiran", lastName: "Sachintha"}));
 }
 
 const ASSERTION_ERROR_REASON = "AssertionError";
