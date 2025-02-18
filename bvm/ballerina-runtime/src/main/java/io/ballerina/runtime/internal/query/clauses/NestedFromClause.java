@@ -2,6 +2,7 @@ package io.ballerina.runtime.internal.query.clauses;
 
 import io.ballerina.runtime.api.Environment;
 import io.ballerina.runtime.api.utils.StringUtils;
+import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BFunctionPointer;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
@@ -58,12 +59,17 @@ public class NestedFromClause implements PipelineStage {
                     Map<Object, Object> refs = new HashMap<>();
                     BMap<BString, Object> newRecord = (BMap<BString, Object>) frame.getRecord().copy(refs);
 
-                    if (item instanceof BMap) {
+                    if (item instanceof BArray) {
                         newRecord.put(StringUtils.fromString("value"), item);
-                        results.add(new Frame(newRecord));
+                    } else if (item instanceof String) {
+                        newRecord.put(StringUtils.fromString("value"), StringUtils.fromString((String) item));
+                    } else if (item instanceof BMap<?, ?> valueMap) {
+                        Object extractedValue = valueMap.get(StringUtils.fromString("value"));
+                        newRecord.put(StringUtils.fromString("value"), extractedValue != null ? extractedValue : item);
                     } else {
-                        throw new RuntimeException("Unsupported item type: " + item.getClass());
+                        newRecord.put(StringUtils.fromString("value"), item);
                     }
+                    results.add(new Frame(newRecord));
                 }
 
                 return results.stream();
