@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2024, WSO2 LLC. (http://www.wso2.org).
+ *  Copyright (c) 2025, WSO2 LLC. (http://www.wso2.com).
  *
  *  WSO2 LLC. licenses this file to you under the Apache License,
  *  Version 2.0 (the "License"); you may not use this file except
@@ -14,7 +14,6 @@
  *  KIND, either express or implied.  See the License for the
  *  specific language governing permissions and limitations
  *  under the License.
- *
  */
 
 package io.ballerina.runtime.internal.types.semtype;
@@ -30,7 +29,7 @@ import java.util.List;
 /**
  * Runtime representation of DecimalSubType.
  *
- * @since 2201.11.0
+ * @since 2201.12.0
  */
 public final class BDecimalSubType extends SubType {
 

@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2024, WSO2 LLC. (http://www.wso2.com).
+ *  Copyright (c) 2025, WSO2 LLC. (http://www.wso2.com).
  *
  *  WSO2 LLC. licenses this file to you under the Apache License,
  *  Version 2.0 (the "License"); you may not use this file except
@@ -21,7 +21,7 @@ package io.ballerina.runtime.api.types.semtype;
 /**
  * Represent a type definition which will act as a layer of indirection between {@code Env} and the type descriptor.
  *
- * @since 2201.11.0
+ * @since 2201.12.0
  */
 public abstract class Definition {
 

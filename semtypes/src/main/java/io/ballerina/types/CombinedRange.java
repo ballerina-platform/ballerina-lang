@@ -25,7 +25,7 @@ import io.ballerina.types.subtypedata.Range;
  * @param range range
  * @param i1    i1
  * @param i2    i2
- * @since 2201.11.0
+ * @since 2201.12.0
  */
 public record CombinedRange(Range range, Long i1, Long i2) {
 

@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2024, WSO2 LLC. (http://www.wso2.com).
+ *  Copyright (c) 2025, WSO2 LLC. (http://www.wso2.com).
  *
  *  WSO2 LLC. licenses this file to you under the Apache License,
  *  Version 2.0 (the "License"); you may not use this file except
@@ -40,8 +40,8 @@ import java.util.function.Supplier;
  * checking types defined in different
  * environments with each other in undefined. This is safe to be shared between
  * multiple threads.
- * 
- * @since 2201.11.0
+ *
+ * @since 2201.12.0
  */
 public final class Env {
     // Currently there is no reason to worry about above restrictions since Env is a singleton, but strictly speaking

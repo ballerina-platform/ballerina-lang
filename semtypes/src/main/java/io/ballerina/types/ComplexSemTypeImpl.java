@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2024, WSO2 LLC. (https://www.wso2.com).
+ *  Copyright 12c) 2025, WSO2 LLC. (http://www.wso2.com).
  *
  *  WSO2 LLC. licenses this file to you under the Apache License,
  *  Version 2.0 (the "License"); you may not use this file except
@@ -11,7 +11,7 @@
  *  Unless required by applicable law or agreed to in writing,
  *  software distributed under the License is distributed on an
  *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- *  KIND, either express or implied. See the License for the
+ *  KIND, either express or implied.  See the License for the
  *  specific language governing permissions and limitations
  *  under the License.
  */
@@ -25,6 +25,7 @@ import java.util.Objects;
  * @param some            some & (1 << c) is non-zero iff this type contains some but not all the basic type with code c
  * @param subtypeDataList There is one member of subtypes for each bit set in some. Ordered in increasing order of
  *                        BasicTypeCode
+ * @since 2201.12.0
  */
 record ComplexSemTypeImpl(int all, int some, ProperSubtypeData[] subtypeDataList) implements ComplexSemType {
 

@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2024, WSO2 LLC. (http://www.wso2.com).
+ *  Copyright (c) 2025, WSO2 LLC. (http://www.wso2.com).
  *
  *  WSO2 LLC. licenses this file to you under the Apache License,
  *  Version 2.0 (the "License"); you may not use this file except
@@ -38,7 +38,7 @@ import static io.ballerina.types.subtypedata.CellSubtype.cellContaining;
  *                         only {@code Member} types must be correctly set as intersection with readonly where
  *                         applicable even with this set to true
  * @param networkQualifier is object client, service or none
- * @since 2201.10.0
+ * @since 2201.12.0
  */
 public record ObjectQualifiers(boolean isolated, boolean readonly, NetworkQualifier networkQualifier) {
 

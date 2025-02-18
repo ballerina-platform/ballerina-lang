@@ -51,32 +51,18 @@ import org.ballerinalang.central.client.model.ToolResolutionCentralRequest;
 import org.ballerinalang.central.client.model.ToolResolutionCentralResponse;
 import org.ballerinalang.central.client.model.ToolSearchResult;
 
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.PrintStream;
 import java.net.Proxy;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
-import java.security.KeyManagementException;
-import java.security.KeyStore;
-import java.security.KeyStoreException;
-import java.security.NoSuchAlgorithmException;
-import java.security.SecureRandom;
-import java.security.cert.Certificate;
-import java.security.cert.CertificateException;
-import java.security.cert.CertificateFactory;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
-
 import javax.net.ssl.HttpsURLConnection;
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.TrustManagerFactory;
-import javax.net.ssl.X509TrustManager;
 
 import static java.net.HttpURLConnection.HTTP_BAD_GATEWAY;
 import static java.net.HttpURLConnection.HTTP_BAD_REQUEST;
@@ -156,16 +142,14 @@ public class CentralAPIClient {
     private static final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
     private static final MediaType JSON_CONTENT_TYPE = MediaType.parse("application/json");
 
+    // System property name for enabling central verbose
+    public static final String SYS_PROP_CENTRAL_VERBOSE_ENABLED = "CENTRAL_VERBOSE_ENABLED";
     private static final int DEFAULT_CONNECT_TIMEOUT = 60;
     private static final int DEFAULT_READ_TIMEOUT = 60;
     private static final int DEFAULT_WRITE_TIMEOUT = 60;
     private static final int DEFAULT_CALL_TIMEOUT = 0;
     private static final int MAX_RETRY = 1;
     public static final String CONNECTION_RESET = "Connection reset";
-    private static final String ENV_CENTRAL_VERBOSE_ENABLED = "CENTRAL_VERBOSE_ENABLED";
-    private static final String ENV_TRUSTSTORE_PATH = "BALLERINA_CA_BUNDLE";
-    private static final String ENV_TRUSTSTORE_PASSWORD = "BALLERINA_CA_PASSWORD";
-    private static final String ENV_CERT_PATH = "BALLERINA_CA_CERT";
 
     private final String baseUrl;
     private final Proxy proxy;
@@ -179,16 +163,13 @@ public class CentralAPIClient {
     private final int writeTimeout;
     private final int callTimeout;
     private final int maxRetries;
-    private final String trustStorePath;
-    private final String trustStorePassword;
-    private final String singleCertPath;
 
     public CentralAPIClient(String baseUrl, Proxy proxy, String accessToken) {
         this.outStream = System.out;
         this.baseUrl = baseUrl;
         this.proxy = proxy;
         this.accessToken = accessToken;
-        this.verboseEnabled = Boolean.parseBoolean(System.getenv(ENV_CENTRAL_VERBOSE_ENABLED));
+        this.verboseEnabled = Boolean.parseBoolean(System.getenv(SYS_PROP_CENTRAL_VERBOSE_ENABLED));
         this.proxyUsername = "";
         this.proxyPassword = "";
         this.connectTimeout = DEFAULT_CONNECT_TIMEOUT;
@@ -196,9 +177,6 @@ public class CentralAPIClient {
         this.writeTimeout = DEFAULT_WRITE_TIMEOUT;
         this.callTimeout = DEFAULT_CALL_TIMEOUT;
         this.maxRetries = MAX_RETRY;
-        this.trustStorePath = System.getenv(ENV_TRUSTSTORE_PATH);
-        this.trustStorePassword = System.getenv(ENV_TRUSTSTORE_PASSWORD);
-        this.singleCertPath = System.getenv(ENV_CERT_PATH);
     }
 
     public CentralAPIClient(String baseUrl, Proxy proxy, String accessToken, boolean verboseEnabled, int maxRetries,
@@ -215,19 +193,16 @@ public class CentralAPIClient {
         this.writeTimeout = DEFAULT_WRITE_TIMEOUT;
         this.callTimeout = DEFAULT_CALL_TIMEOUT;
         this.maxRetries = maxRetries;
-        this.trustStorePath = System.getenv(ENV_TRUSTSTORE_PATH);
-        this.trustStorePassword = System.getenv(ENV_TRUSTSTORE_PASSWORD);
-        this.singleCertPath = System.getenv(ENV_CERT_PATH);
     }
 
     public CentralAPIClient(String baseUrl, Proxy proxy, String proxyUsername, String proxyPassword,
-            String accessToken, int connectionTimeout, int readTimeout, int writeTimeout,
-            int callTimeout, int maxRetries) {
+                            String accessToken, int connectionTimeout, int readTimeout, int writeTimeout,
+                            int callTimeout, int maxRetries) {
         this.outStream = System.out;
         this.baseUrl = baseUrl;
         this.proxy = proxy;
         this.accessToken = accessToken;
-        this.verboseEnabled = Boolean.parseBoolean(System.getenv(ENV_CENTRAL_VERBOSE_ENABLED));
+        this.verboseEnabled = Boolean.parseBoolean(System.getenv(SYS_PROP_CENTRAL_VERBOSE_ENABLED));
         this.proxyUsername = proxyUsername;
         this.proxyPassword = proxyPassword;
         this.connectTimeout = connectionTimeout;
@@ -235,9 +210,6 @@ public class CentralAPIClient {
         this.writeTimeout = writeTimeout;
         this.callTimeout = callTimeout;
         this.maxRetries = maxRetries;
-        this.trustStorePath = System.getenv(ENV_TRUSTSTORE_PATH);
-        this.trustStorePassword = System.getenv(ENV_TRUSTSTORE_PASSWORD);
-        this.singleCertPath = System.getenv(ENV_CERT_PATH);
     }
 
     /**
@@ -252,7 +224,7 @@ public class CentralAPIClient {
      * @return PackageJsonSchema
      */
     public Package getPackage(String orgNamePath, String packageNamePath, String version, String supportedPlatform,
-            String ballerinaVersion) throws CentralClientException {
+                              String ballerinaVersion) throws CentralClientException {
         String packageSignature = orgNamePath + SEPARATOR + packageNamePath + ":" + version;
         Optional<ResponseBody> body = Optional.empty();
         OkHttpClient client = this.getClient();
@@ -338,7 +310,7 @@ public class CentralAPIClient {
      * @return PackageJsonSchema
      */
     public List<String> getPackageVersions(String orgNamePath, String packageNamePath, String supportedPlatform,
-            String ballerinaVersion) throws CentralClientException {
+                                           String ballerinaVersion) throws CentralClientException {
         String packageSignature = orgNamePath + SEPARATOR + packageNamePath;
         Optional<ResponseBody> body = Optional.empty();
         OkHttpClient client = this.getClient();
@@ -422,7 +394,7 @@ public class CentralAPIClient {
      * @param ballerinaVersion  The ballerina version.
      */
     public void pushPackage(Path balaPath, String org, String name, String version, String supportedPlatform,
-            String ballerinaVersion) throws CentralClientException {
+                            String ballerinaVersion) throws CentralClientException {
         boolean enableOutputStream = Boolean
                 .parseBoolean(System.getProperty(CentralClientConstants.ENABLE_OUTPUT_STREAM));
         String packageSignature = org + SEPARATOR + name + ":" + version;
@@ -563,7 +535,7 @@ public class CentralAPIClient {
     }
 
     private void pullPackageInternal(String org, String name, String version, Path packagePathInBalaCache,
-            String supportedPlatform, String ballerinaVersion, boolean isBuild)
+                                     String supportedPlatform, String ballerinaVersion, boolean isBuild)
             throws CentralClientException {
         String resourceUrl = PACKAGE_PATH_PREFIX + org + SEPARATOR + name;
         boolean enableOutputStream = Boolean
@@ -740,7 +712,7 @@ public class CentralAPIClient {
     }
 
     private String[] pullToolInternal(String toolId, String version, Path balaCacheDirPath, String supportedPlatform,
-            String ballerinaVersion, boolean isBuild) throws CentralClientException {
+                                      String ballerinaVersion, boolean isBuild) throws CentralClientException {
         String resourceUrl = TOOL_PATH_PREFIX + toolId;
         boolean enableOutputStream = Boolean
                 .parseBoolean(System.getProperty(CentralClientConstants.ENABLE_OUTPUT_STREAM));
@@ -895,7 +867,8 @@ public class CentralAPIClient {
      * @throws CentralClientException Central Client exception.
      */
     public PackageNameResolutionResponse resolvePackageNames(PackageNameResolutionRequest request,
-            String supportedPlatform, String ballerinaVersion) throws CentralClientException {
+                                                             String supportedPlatform, String ballerinaVersion)
+            throws CentralClientException {
 
         String url = this.baseUrl + PACKAGE_PATH_PREFIX + RESOLVE_MODULES;
 
@@ -972,7 +945,7 @@ public class CentralAPIClient {
      * @throws CentralClientException Central Client exception.
      */
     public PackageResolutionResponse resolveDependencies(PackageResolutionRequest request, String supportedPlatform,
-            String ballerinaVersion)
+                                                         String ballerinaVersion)
             throws CentralClientException {
 
         String url = this.baseUrl + PACKAGE_PATH_PREFIX + RESOLVE_DEPENDENCIES;
@@ -1261,7 +1234,7 @@ public class CentralAPIClient {
      * Deprecate a package in registry.
      */
     public void deprecatePackage(String packageInfo, String deprecationMsg, String supportedPlatform,
-            String ballerinaVersion, Boolean isUndo) throws CentralClientException {
+                                 String ballerinaVersion, Boolean isUndo) throws CentralClientException {
         // Get existing package details
         // PackageInfo is already validated to support the format
         // org-name/package-name:version
@@ -1606,8 +1579,8 @@ public class CentralAPIClient {
      *
      * @return the client
      */
-    protected OkHttpClient getClient() throws CentralClientException {
-        OkHttpClient.Builder builder = new OkHttpClient.Builder()
+    protected OkHttpClient getClient() {
+        OkHttpClient okHttpClient = new OkHttpClient.Builder()
                 .connectTimeout(connectTimeout, TimeUnit.SECONDS)
                 .readTimeout(readTimeout, TimeUnit.SECONDS)
                 .writeTimeout(writeTimeout, TimeUnit.SECONDS)
@@ -1615,49 +1588,8 @@ public class CentralAPIClient {
                 .followRedirects(false)
                 .retryOnConnectionFailure(true)
                 .proxy(this.proxy)
-                .addInterceptor(new CustomRetryInterceptor(this.maxRetries));
-
-        // Load custom truststore if provided, otherwise use the default truststore
-        try {
-            KeyStore truststore;
-            if (this.trustStorePath != null && this.trustStorePassword != null) {
-                truststore = KeyStore.getInstance(KeyStore.getDefaultType());
-                try (InputStream keys = new FileInputStream(trustStorePath)) {
-                    truststore.load(keys, trustStorePassword.toCharArray());
-                }
-            } else {
-                truststore = KeyStore.getInstance(KeyStore.getDefaultType());
-                try (InputStream defaultKeys = new FileInputStream(System.getProperty("java.home") +
-                        "/lib/security/cacerts")) {
-                    truststore.load(defaultKeys, "changeit".toCharArray()); // Default password for cacerts
-                }
-            }
-
-            // If there's a single certificate to add
-            if (this.singleCertPath != null) {
-                CertificateFactory certificateFactory = CertificateFactory.getInstance("X.509");
-                try (InputStream certInputStream = new FileInputStream(singleCertPath)) {
-                    Certificate certificate = certificateFactory.generateCertificate(certInputStream);
-                    truststore.setCertificateEntry("bal-cert", certificate);
-                }
-            }
-
-            TrustManagerFactory trustManagerFactory = TrustManagerFactory.getInstance(
-                    TrustManagerFactory.getDefaultAlgorithm());
-            trustManagerFactory.init(truststore);
-
-            SSLContext sslContext = SSLContext.getInstance("TLS");
-            sslContext.init(null, trustManagerFactory.getTrustManagers(), new SecureRandom());
-            SSLContext.setDefault(sslContext);
-
-            builder.sslSocketFactory(sslContext.getSocketFactory(),
-                    (X509TrustManager) trustManagerFactory.getTrustManagers()[0]);
-        } catch (CertificateException | KeyStoreException | IOException | NoSuchAlgorithmException |
-                 KeyManagementException e) {
-            throw new CentralClientException(e.getMessage());
-        }
-
-        OkHttpClient okHttpClient = builder.build();
+                .addInterceptor(new CustomRetryInterceptor(this.maxRetries))
+                .build();
 
         if ((!(this.proxyUsername).isEmpty() && !(this.proxyPassword).isEmpty())) {
             Authenticator proxyAuthenticator = (route, response) -> {
@@ -1931,7 +1863,7 @@ public class CentralAPIClient {
             throws CentralClientException {
         Optional<MediaType> contentType = Optional.ofNullable(mediaType);
         StringBuilder message = new StringBuilder("unauthorized access token. " +
-                    "check access token set in 'Settings.toml' file.");
+                "check access token set in 'Settings.toml' file.");
         if (contentType.isPresent() && isApplicationJsonContentType(contentType.get().toString())) {
             Error error = new Gson().fromJson(responseBody, Error.class);
             message.append("reason: ").append(error.getMessage());
@@ -1980,7 +1912,7 @@ public class CentralAPIClient {
         }
     }
 
-     class CustomRetryInterceptor implements Interceptor {
+    class CustomRetryInterceptor implements Interceptor {
         private final int maxRetries;
         CustomRetryInterceptor(int maxRetry) {
             this.maxRetries = maxRetry;
@@ -2008,23 +1940,23 @@ public class CentralAPIClient {
             return response;
         }
 
-         private void logRetryVerbose(Response response, String bodyContent, Request request, int retryCount) {
-             if (verboseEnabled) {
-                 Optional<ResponseBody> body = Optional.ofNullable(response.body());
-                 outStream.println("< HTTP " + response.code() + " " + response.message());
-                 if (body.isPresent()) {
-                     for (String headerName : response.headers().names()) {
-                         outStream.println("> " + headerName + ": " + response.header(headerName));
-                     }
-                     outStream.println("< ");
-                     if (bodyContent != null && !bodyContent.isEmpty()) {
-                         outStream.println(bodyContent);
-                     }
-                     outStream.println("* Connection to host " + baseUrl + " left intact \n");
-                 }
-                 outStream.println("* Retrying request to " + request.url() + " due to " + response.code() +
-                         " response code. Retry attempt: " + retryCount);
-             }
-         }
+        private void logRetryVerbose(Response response, String bodyContent, Request request, int retryCount) {
+            if (verboseEnabled) {
+                Optional<ResponseBody> body = Optional.ofNullable(response.body());
+                outStream.println("< HTTP " + response.code() + " " + response.message());
+                if (body.isPresent()) {
+                    for (String headerName : response.headers().names()) {
+                        outStream.println("> " + headerName + ": " + response.header(headerName));
+                    }
+                    outStream.println("< ");
+                    if (bodyContent != null && !bodyContent.isEmpty()) {
+                        outStream.println(bodyContent);
+                    }
+                    outStream.println("* Connection to host " + baseUrl + " left intact \n");
+                }
+                outStream.println("* Retrying request to " + request.url() + " due to " + response.code() +
+                        " response code. Retry attempt: " + retryCount);
+            }
+        }
     }
 }

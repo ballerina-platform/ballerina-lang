@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2024, WSO2 LLC. (http://www.wso2.org).
+ *  Copyright (c) 2025, WSO2 LLC. (http://www.wso2.com).
  *
  *  WSO2 LLC. licenses this file to you under the Apache License,
  *  Version 2.0 (the "License"); you may not use this file except
@@ -14,7 +14,6 @@
  *  KIND, either express or implied.  See the License for the
  *  specific language governing permissions and limitations
  *  under the License.
- *
  */
 
 package io.ballerina.runtime.internal.types.semtype;
@@ -25,7 +24,7 @@ package io.ballerina.runtime.internal.types.semtype;
  * is actually String basic type and nothing means it doesn't have any string
  * subtype
  *
- * @since 2201.11.0
+ * @since 2201.12.0
  */
 public enum AllOrNothing implements SubTypeData {
     ALL,

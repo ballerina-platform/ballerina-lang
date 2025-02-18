@@ -317,17 +317,17 @@ public abstract class AbstractArrayValue implements ArrayValue, RecursiveValue<L
     }
 
     @Override
-    public synchronized ListDefinition getReadonlyShapeDefinition() {
+    public ListDefinition getReadonlyShapeDefinition() {
         return readonlyAttachedDefinition.get();
     }
 
     @Override
-    public synchronized void setReadonlyShapeDefinition(ListDefinition definition) {
+    public void setReadonlyShapeDefinition(ListDefinition definition) {
         readonlyAttachedDefinition.set(definition);
     }
 
     @Override
-    public synchronized void resetReadonlyShapeDefinition() {
+    public void resetReadonlyShapeDefinition() {
         readonlyAttachedDefinition.remove();
     }
 

@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2024, WSO2 LLC. (http://www.wso2.com).
+ *  Copyright (c) 2025, WSO2 LLC. (http://www.wso2.com).
  *
  *  WSO2 LLC. licenses this file to you under the Apache License,
  *  Version 2.0 (the "License"); you may not use this file except
@@ -26,7 +26,7 @@ import io.ballerina.runtime.api.types.semtype.SemType;
  *
  * @param members required member types of the list
  * @param rest    rest of member type of the list
- * @since 2201.11.0
+ * @since 2201.12.0
  */
 public record ListAtomicType(FixedLengthArray members, SemType rest) implements AtomicType {
 

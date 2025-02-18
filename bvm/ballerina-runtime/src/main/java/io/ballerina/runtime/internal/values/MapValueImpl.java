@@ -621,17 +621,17 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
     }
 
     @Override
-    public synchronized MappingDefinition getReadonlyShapeDefinition() {
+    public MappingDefinition getReadonlyShapeDefinition() {
         return readonlyAttachedDefinition.get();
     }
 
     @Override
-    public synchronized void setReadonlyShapeDefinition(MappingDefinition definition) {
+    public void setReadonlyShapeDefinition(MappingDefinition definition) {
         readonlyAttachedDefinition.set(definition);
     }
 
     @Override
-    public synchronized void resetReadonlyShapeDefinition() {
+    public void resetReadonlyShapeDefinition() {
         readonlyAttachedDefinition.remove();
     }
 

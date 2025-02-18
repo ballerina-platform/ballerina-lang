@@ -121,7 +121,7 @@ public class BServerInstance implements BServer {
     }
 
     @Override
-    public void startServer(String balFile,  String[] buildArgs, String[] runtimeArgs, int[] requiredPorts) 
+    public void startServer(String balFile, String[] buildArgs, String[] runtimeArgs, int[] requiredPorts)
             throws BallerinaTestException {
         startServer(balFile, buildArgs, runtimeArgs, null, requiredPorts);
     }
@@ -375,7 +375,7 @@ public class BServerInstance implements BServer {
         try {
             if (Utils.isWindowsOS()) {
                 cmdArray = new String[]{"cmd.exe", "/c", "bin\\" + Constant.BALLERINA_SERVER_SCRIPT_NAME + ".bat",
-                                        command};
+                        command};
             } else {
                 cmdArray = new String[]{"bash", "bin/" + Constant.BALLERINA_SERVER_SCRIPT_NAME, command};
             }
@@ -387,7 +387,7 @@ public class BServerInstance implements BServer {
                     env.put(entry.getKey(), entry.getValue());
                 }
             }
-            Process process = processBuilder.start();
+            process = processBuilder.start();
 
             serverInfoLogReader = new ServerLogReader("inputStream", process.getInputStream());
             tmpInfoLeechers.forEach(leecher -> serverInfoLogReader.addLeecher(leecher));
@@ -439,7 +439,7 @@ public class BServerInstance implements BServer {
             throws BallerinaTestException {
         File commandDir = new File(balServer.getServerHome());
         executeJarFile(Path.of(sourceRoot, "target", "bin", packageName + ".jar").toFile().getPath(),
-                       args, envProperties, commandDir, requiredPorts);
+                args, envProperties, commandDir, requiredPorts);
     }
 
     /**
@@ -493,7 +493,7 @@ public class BServerInstance implements BServer {
                 }
             }
             String tempBalHome = new File("src" + File.separator + "test" + File.separator +
-                                                  "resources" + File.separator + "ballerina.home").getAbsolutePath();
+                    "resources" + File.separator + "ballerina.home").getAbsolutePath();
             runCmdSet.add("-Dballerina.home=" + tempBalHome);
             runCmdSet.addAll(Arrays.asList("-jar", jarPath));
             runCmdSet.addAll(Arrays.asList(args));
@@ -503,7 +503,7 @@ public class BServerInstance implements BServer {
             for (Map.Entry<String, String> entry : envProperties.entrySet()) {
                 env.put(entry.getKey(), entry.getValue());
             }
-            Process process = processBuilder.start();
+            process = processBuilder.start();
 
             serverInfoLogReader = new ServerLogReader("inputStream", process.getInputStream());
             tmpInfoLeechers.forEach(leecher -> serverInfoLogReader.addLeecher(leecher));
