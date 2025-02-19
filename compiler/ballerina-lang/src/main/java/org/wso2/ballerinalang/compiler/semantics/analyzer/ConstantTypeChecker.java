@@ -528,7 +528,6 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
                 data.resultType = symTable.semanticError;
                 return;
             }
-
             BLangLiteral exprLiteral = (BLangLiteral) ((BFiniteType) exprType).getValueSpace().iterator().next();
             resultString.append(getValue(exprLiteral));
         }
