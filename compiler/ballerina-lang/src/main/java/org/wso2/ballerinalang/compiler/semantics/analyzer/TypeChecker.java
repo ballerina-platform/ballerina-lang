@@ -4087,17 +4087,28 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
             handleResourceAccessError(resourceAccessInvocation.resourceAccessPathSegments,
                     resourceAccessInvocation.name.pos, DiagnosticErrorCode.UNDEFINED_RESOURCE_METHOD, data,
                     resourceAccessInvocation.name, lhsExprType);
+            return;
         } else if (targetResourceFuncCount > 1) {
-            handleResourceAccessError(resourceAccessInvocation.resourceAccessPathSegments, resourceAccessInvocation.pos,
-                    DiagnosticErrorCode.AMBIGUOUS_RESOURCE_ACCESS_NOT_YET_SUPPORTED, data, lhsExprType);
-        } else {
-            BResourceFunction targetResourceFunc = resourceFunctions.get(0);
-            checkExpr(resourceAccessInvocation.resourceAccessPathSegments,
-                    getResourcePathType(targetResourceFunc.pathSegmentSymbols), data);
-            resourceAccessInvocation.symbol = targetResourceFunc.symbol;
-            resourceAccessInvocation.targetResourceFunc = targetResourceFunc;
-            checkResourceAccessParamAndReturnType(resourceAccessInvocation, targetResourceFunc, data);
+            //Filter the resource function with identifier segment
+            Optional<BResourceFunction> first = resourceFunctions
+                    .stream().filter(func -> func.pathSegmentSymbols.stream()
+                            .allMatch(segment -> segment.kind == SymbolKind.RESOURCE_PATH_IDENTIFIER_SEGMENT))
+                    .findFirst();
+            if (first.isPresent()) {
+                resourceFunctions = new ArrayList<>(List.of(first.get()));
+            } else {
+                handleResourceAccessError(resourceAccessInvocation.resourceAccessPathSegments,
+                        resourceAccessInvocation.pos, DiagnosticErrorCode.AMBIGUOUS_RESOURCE_ACCESS_NOT_YET_SUPPORTED,
+                        data, lhsExprType);
+                return;
+            }
         }
+        BResourceFunction targetResourceFunc = resourceFunctions.get(0);
+        checkExpr(resourceAccessInvocation.resourceAccessPathSegments,
+                getResourcePathType(targetResourceFunc.pathSegmentSymbols), data);
+        resourceAccessInvocation.symbol = targetResourceFunc.symbol;
+        resourceAccessInvocation.targetResourceFunc = targetResourceFunc;
+        checkResourceAccessParamAndReturnType(resourceAccessInvocation, targetResourceFunc, data);
     }
 
     private void handleResourceAccessError(BLangListConstructorExpr resourceAccessPathSegments,
