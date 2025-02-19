@@ -67,17 +67,7 @@ public class Scheduler {
         return strandHolder.get().strand;
     }
     public Object callFunction(Module module, String functionName, StrandMetadata metadata, Object... args) {
-        Strand strand = Scheduler.getStrand();
-        Map<String, Object> properties = null;
-        boolean isIsolated = false;
-        if (metadata != null) {
-            properties = metadata.properties();
-            isIsolated = metadata.isConcurrentSafe();
-        }
-        if (strand == null) {
-            strand = createStrand(null, functionName, isIsolated, properties, null);
-            strandHolder.get().strand = strand;
-        }
+        Strand strand = getStrand(functionName, metadata);
         if (strand.isRunnable()) {
             return callFunction(module, functionName, args, strand);
         }
@@ -90,19 +80,7 @@ public class Scheduler {
     }
 
     public Object callMethod(BObject object, String methodName, StrandMetadata metadata, Object... args) {
-        Strand strand = Scheduler.getStrand();
-        Map<String, Object> properties = null;
-        boolean isIsolated = false;
-        if (metadata != null) {
-            properties = metadata.properties();
-            isIsolated = metadata.isConcurrentSafe();
-        }
-        if (strand == null) {
-            String strandName = getStrandName(object, methodName);
-            strand = createStrand(null, strandName, isIsolated, properties, null);
-            strandHolder.get().strand = strand;
-        }
-
+        Strand strand = getStrand(getStrandName(object, methodName), metadata);
         if (strand.isRunnable()) {
             return callMethod(object, methodName, args, strand);
         }
@@ -115,18 +93,7 @@ public class Scheduler {
     }
 
     public Object callFP(FPValue fp, StrandMetadata metadata, Object... args) {
-        Strand strand = Scheduler.getStrand();
-        Map<String, Object> properties = null;
-        boolean isIsolated = false;
-        if (metadata != null) {
-            properties = metadata.properties();
-            isIsolated = metadata.isConcurrentSafe();
-        }
-        if (strand == null) {
-            String strandName = getStrandName(fp.getName());
-            strand = createStrand(null, strandName, isIsolated, properties, null);
-            strandHolder.get().strand = strand;
-        }
+        Strand strand = getStrand(getStrandName(fp.getName()), metadata);
         if (strand.isRunnable()) {
             return callFp(fp, args, strand);
         }
@@ -182,6 +149,20 @@ public class Scheduler {
         return future;
     }
 
+    private Strand getStrand(String strandName, StrandMetadata metadata) {
+        Strand strand = Scheduler.getStrand();
+        Map<String, Object> properties = null;
+        boolean isIsolated = false;
+        if (metadata != null) {
+            properties = metadata.properties();
+            isIsolated = metadata.isConcurrentSafe();
+        }
+        if (strand == null) {
+            strand = createStrand(null, strandName, isIsolated, properties, null);
+            strandHolder.get().strand = strand;
+        }
+        return strand;
+    }
 
     private Object callFunction(Module module, String functionName, Object[] args, Strand parentStrand) {
         ValueCreatorAndFunctionType functionType = getGetValueCreatorAndFunctionType(module, functionName);
