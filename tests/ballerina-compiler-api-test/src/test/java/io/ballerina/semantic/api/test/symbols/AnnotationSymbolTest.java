@@ -124,7 +124,7 @@ public class AnnotationSymbolTest {
         assertEquals(symbol.get().kind(), kind);
         List<AnnotationAttachmentSymbol> annotSymbols = ((ExternalFunctionSymbol) symbol.get()).annotAttachmentsOnExternal();
         Assert.assertFalse(annotSymbols.isEmpty());
-        Assert.assertNotNull(annotSymbols.get(0));
+        Assert.assertNotNull(annotSymbols.get(0)); //TODO: Need to pass the annotation name here
     }
 
     @DataProvider(name = "ExternalPosProvider")
