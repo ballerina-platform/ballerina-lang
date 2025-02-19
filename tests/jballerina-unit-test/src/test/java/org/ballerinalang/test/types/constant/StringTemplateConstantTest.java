@@ -56,6 +56,8 @@ public class StringTemplateConstantTest {
                 20, 30);
         BAssertUtil.validateError(negativeResult, index++, "expression is not a constant expression",
                 21, 30);
+        BAssertUtil.validateError(negativeResult, index++, "expression is not a constant expression",
+                29, 21);
 
         Assert.assertEquals(negativeResult.getErrorCount(), index);
     }

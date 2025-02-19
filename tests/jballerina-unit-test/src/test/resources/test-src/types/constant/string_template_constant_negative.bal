@@ -23,3 +23,7 @@ const v4 = string `This is ${foo()}`;
 function foo() returns boolean {
     return false;
 }
+
+final string baz = "FOO";
+string gim = "BAR";
+const A = string `${baz}:${gim}`;
