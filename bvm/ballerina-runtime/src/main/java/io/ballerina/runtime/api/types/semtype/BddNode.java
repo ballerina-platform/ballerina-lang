@@ -48,7 +48,7 @@ public abstract sealed class BddNode extends Bdd permits BddNodeImpl, BddNodeSim
     public abstract Bdd right();
 
     @Override
-    public boolean equals(Object obj) {
+    public final boolean equals(Object obj) {
         if (this == obj) {
             return true;
         }
@@ -60,7 +60,7 @@ public abstract sealed class BddNode extends Bdd permits BddNodeImpl, BddNodeSim
     }
 
     @Override
-    public int hashCode() {
+    public final int hashCode() {
         Integer result = hashCode;
         if (result == null) {
             // No need to synchronize this since {@code computeHashCode} is idempotent

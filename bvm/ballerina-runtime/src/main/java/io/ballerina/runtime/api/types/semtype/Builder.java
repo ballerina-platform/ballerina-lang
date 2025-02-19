@@ -196,10 +196,8 @@ public final class Builder {
             default -> {
                 if (Integer.bitCount(bitset) == 1) {
                     int code = Integer.numberOfTrailingZeros(bitset);
-                    // TODO: what are the others?
-                    if (BasicTypeCache.isCached(code)) {
-                        yield BasicTypeCache.cache[code];
-                    }
+                    assert code >= 0 && code <= CODE_UNDEF;
+                    yield BasicTypeCache.cache[code];
                 }
                 yield SemType.from(bitset);
             }
