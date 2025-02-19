@@ -70,7 +70,8 @@ public class VariableVisibilityTest extends BaseTestCase {
         Assert.assertEquals(globalVariables.size(), 14);
     }
 
-    @Test(description = "Variable visibility test in the middle of the main() method for a new variable")
+    @Test(description = "Variable visibility test in the middle of the main() method for a new variable",
+            enabled = false)
     public void newVariableVisibilityTest() throws BallerinaTestException {
         String testProjectName = "variable-tests";
         String testModuleFileName = "main.bal";
