@@ -201,9 +201,9 @@ public final class Env {
     }
 
     private static <E extends AtomicType> E getRecAtomType(ReadWriteLock lock, List<E> recAtomList, RecAtom rec) {
+        rec.waitUntilReady();
         lock.readLock().lock();
         try {
-            rec.waitUntilReady();
             assert recAtomList.get(rec.index()) != null;
             return recAtomList.get(rec.index());
         } finally {
