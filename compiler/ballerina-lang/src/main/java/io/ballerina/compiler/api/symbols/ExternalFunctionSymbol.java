@@ -20,7 +20,7 @@ package io.ballerina.compiler.api.symbols;
 import java.util.List;
 
 /**
- * Represents external function
+ * Represents external function.
  *
  * @since 2201.12.0
  */

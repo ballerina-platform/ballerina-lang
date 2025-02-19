@@ -120,7 +120,8 @@ public class BallerinaFunctionSymbol extends BallerinaSymbol implements Function
             extends BallerinaFunctionSymbol implements ExternalFunctionSymbol {
         private final List<AnnotationAttachmentSymbol> annotAttachmentsOnExternal;
 
-        protected BallerinaExternalFunctionSymbol(String name, List<Qualifier> qualifiers, List<AnnotationSymbol> annots,
+        protected BallerinaExternalFunctionSymbol(String name,
+                                                  List<Qualifier> qualifiers, List<AnnotationSymbol> annots,
                                                   List<AnnotationAttachmentSymbol> annotAttachments,
                                                   FunctionTypeSymbol typeDescriptor, BInvokableSymbol invokableSymbol,
                                                   CompilerContext context,
