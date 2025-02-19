@@ -21,8 +21,7 @@ package io.ballerina.runtime.api.types.semtype;
 import io.ballerina.runtime.api.types.TypeIdentifier;
 import io.ballerina.runtime.internal.types.semtype.CacheFactory;
 import io.ballerina.runtime.internal.types.semtype.TypeCheckCacheImpl;
-
-import java.util.Map;
+import io.ballerina.runtime.internal.types.semtype.TypeIdentityMap;
 
 /**
  * Factory for creating {@link TypeCheckCache} instances.
@@ -31,8 +30,8 @@ import java.util.Map;
  */
 public class TypeCheckCacheFactory {
 
-    private static final Map<TypeIdentifier, TypeCheckCache> cache =
-            CacheFactory.createCachingHashMap();
+    private static final TypeIdentityMap<TypeCheckCache> cache =
+            CacheFactory.createTypeIdentityMap();
 
     private TypeCheckCacheFactory() {
     }

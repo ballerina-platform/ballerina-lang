@@ -61,4 +61,9 @@ public class CacheFactory {
     public static <K, V> Map<K, V> createCachingHashMap() {
         return new HashMap<>(INITIAL_CAPACITY);
     }
+
+    public static <E> TypeIdentityMap<E> createTypeIdentityMap() {
+        return new TypeIdentityMapImpl<>(INITIAL_CAPACITY);
+    }
+
 }
