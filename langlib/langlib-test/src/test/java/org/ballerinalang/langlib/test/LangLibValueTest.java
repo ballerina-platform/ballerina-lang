@@ -458,7 +458,8 @@ public class LangLibValueTest {
                 { "testFromJsonWithTypeOnRegExp" },
                 { "testFromJsonWithTypeOnRegExpNegative" },
                 {"testFromJsonWithTypeToUnionOfTypeReference"},
-                {"testFromJsonStringWithUnexpectedChars"}
+                {"testFromJsonStringWithUnexpectedChars"},
+                {"testFromJsonWithTypeWithRecordOptionalReadOnlyField"}
         };
     }
 

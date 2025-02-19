@@ -28,6 +28,7 @@ import org.wso2.ballerinalang.compiler.bir.codegen.internal.FieldNameHashCompara
 import org.wso2.ballerinalang.compiler.bir.codegen.split.JvmCreateTypeGen;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BIntersectionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeReferenceType;
 
@@ -892,6 +893,7 @@ public class JvmRecordGen {
         return switch (bType.getKind()) {
             case INT, BOOLEAN, FLOAT, BYTE -> false;
             case TYPEREFDESC -> checkIfValueIsJReferenceType(((BTypeReferenceType) bType).referredType);
+            case INTERSECTION -> checkIfValueIsJReferenceType(((BIntersectionType) bType).effectiveType);
             default -> true;
         };
     }
