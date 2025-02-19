@@ -1081,9 +1081,9 @@ public class ManifestBuilder {
     private PackageManifest.Tool.Field getValueFromPreBuildToolNode(TomlTableNode toolNode, String key,
                                                                     String toolCode) {
         TopLevelNode topLevelNode = toolNode.entries().get(key);
-        String errorMessage = "missing key '[" + key + "]' in table '[tool." + toolCode + "]'.";
         if (topLevelNode == null) {
-            if (!key.equals(TARGETMODULE)) {
+            String errorMessage = "missing key '[" + key + "]' in table '[tool." + toolCode + "]'.";
+            if (key.equals(ID)) {
                 reportDiagnostic(toolNode, errorMessage,
                         ProjectDiagnosticErrorCode.MISSING_TOOL_PROPERTIES_IN_BALLERINA_TOML,
                         DiagnosticSeverity.ERROR);
