@@ -125,17 +125,9 @@ public class ClientResourceAccessActionNegativeTest {
         validateError(clientResourceAccessNegative, index++,
                 "too many arguments in call to 'post()'", 91, 13);
         validateError(clientResourceAccessNegative, index++, "client resource access action is not yet " +
-                "supported when the corresponding resource method is ambiguous", 145, 13);
-        validateError(clientResourceAccessNegative, index++, "client resource access action is not yet " +
-                "supported when the corresponding resource method is ambiguous", 146, 13);
-        validateError(clientResourceAccessNegative, index++, "client resource access action is not yet " +
-                "supported when the corresponding resource method is ambiguous", 147, 13);
-        validateError(clientResourceAccessNegative, index++, "client resource access action is not yet " +
                 "supported when the corresponding resource method is ambiguous", 148, 13);
         validateError(clientResourceAccessNegative, index++, "client resource access action is not yet " +
                 "supported when the corresponding resource method is ambiguous", 149, 13);
-        validateError(clientResourceAccessNegative, index++, "client resource access action is not yet " +
-                "supported when the corresponding resource method is ambiguous", 150, 13);
         validateError(clientResourceAccessNegative, index++, "client resource access action is not yet " +
                 "supported when the corresponding resource method is ambiguous", 151, 13);
         validateError(clientResourceAccessNegative, index++, "client resource access action is not yet " +
