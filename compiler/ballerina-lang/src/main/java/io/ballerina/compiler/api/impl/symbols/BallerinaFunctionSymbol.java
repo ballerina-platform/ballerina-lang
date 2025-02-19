@@ -22,6 +22,7 @@ import io.ballerina.compiler.api.SymbolVisitor;
 import io.ballerina.compiler.api.symbols.AnnotationAttachmentSymbol;
 import io.ballerina.compiler.api.symbols.AnnotationSymbol;
 import io.ballerina.compiler.api.symbols.Documentation;
+import io.ballerina.compiler.api.symbols.ExternalFunctionSymbol;
 import io.ballerina.compiler.api.symbols.FunctionSymbol;
 import io.ballerina.compiler.api.symbols.FunctionTypeSymbol;
 import io.ballerina.compiler.api.symbols.Qualifier;
@@ -115,6 +116,24 @@ public class BallerinaFunctionSymbol extends BallerinaSymbol implements Function
         return transformer.transform(this);
     }
 
+    public static class BallerinaExternalFunctionSymbol
+            extends BallerinaFunctionSymbol implements ExternalFunctionSymbol {
+        private final List<AnnotationAttachmentSymbol> annotAttachmentsOnExternal;
+
+        protected BallerinaExternalFunctionSymbol(String name, List<Qualifier> qualifiers, List<AnnotationSymbol> annots,
+                                                  List<AnnotationAttachmentSymbol> annotAttachments,
+                                                  FunctionTypeSymbol typeDescriptor, BInvokableSymbol invokableSymbol,
+                                                  CompilerContext context,
+                                                  List<AnnotationAttachmentSymbol> annotAttachmentsOnExternal) {
+            super(name, qualifiers, annots, annotAttachments, typeDescriptor, invokableSymbol, context);
+            this.annotAttachmentsOnExternal = annotAttachmentsOnExternal;
+        }
+
+        public List<AnnotationAttachmentSymbol> annotAttachmentsOnExternal() {
+            return this.annotAttachmentsOnExternal;
+        }
+    }
+
     /**
      * Represents Ballerina XML Namespace Symbol Builder.
      */
@@ -123,6 +142,7 @@ public class BallerinaFunctionSymbol extends BallerinaSymbol implements Function
         protected List<Qualifier> qualifiers = new ArrayList<>();
         protected List<AnnotationSymbol> annots = new ArrayList<>();
         protected List<AnnotationAttachmentSymbol> annotAttachments = new ArrayList<>();
+        protected List<AnnotationAttachmentSymbol> annotAttachmentsOnExternal = new ArrayList<>();
         protected FunctionTypeSymbol typeDescriptor;
 
         public FunctionSymbolBuilder(String name, BInvokableSymbol bSymbol, CompilerContext context) {
@@ -158,10 +178,23 @@ public class BallerinaFunctionSymbol extends BallerinaSymbol implements Function
             return this;
         }
 
+        public FunctionSymbolBuilder withAnnotationAttachmentOnExternal
+                (AnnotationAttachmentSymbol annotationAttachment) {
+            this.annotAttachmentsOnExternal.add(annotationAttachment);
+            return this;
+        }
+
         @Override
         public BallerinaFunctionSymbol build() {
+            BInvokableSymbol invokableSymbol = (BInvokableSymbol) this.bSymbol;
+            if (Symbols.isNative(invokableSymbol)) {
+                return new BallerinaExternalFunctionSymbol(this.name, this.qualifiers, this.annots,
+                        this.annotAttachments, this.typeDescriptor, invokableSymbol, this.context,
+                        this.annotAttachmentsOnExternal);
+            }
+
             return new BallerinaFunctionSymbol(this.name, this.qualifiers, this.annots, this.annotAttachments,
-                    this.typeDescriptor, (BInvokableSymbol) this.bSymbol, this.context);
+                    this.typeDescriptor, invokableSymbol, this.context);
         }
     }
 }

@@ -331,6 +331,8 @@ public class ClosureGenerator extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangRawTemplateLiteral rawTemplateLiteral) {
+        rewriteExprs(rawTemplateLiteral.strings);
+        rewriteExprs(rawTemplateLiteral.insertions);
         result = rawTemplateLiteral;
     }
 

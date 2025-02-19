@@ -79,6 +79,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangErrorVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangExprFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangExternalFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
+import org.wso2.ballerinalang.compiler.tree.BLangFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
@@ -571,7 +572,12 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
         if (funcNode.hasBody()) {
             data.env = funcEnv;
             this.anonTypeNameSuffixes.push(funcNode.name.value);
-            analyzeNode(funcNode.body, returnTypeNode.getBType(), data);
+            BLangFunctionBody body = funcNode.body;
+            analyzeNode(body, returnTypeNode.getBType(), data);
+            if (body instanceof BLangExternalFunctionBody externalFunctionBody) {
+                funcNode.symbol.setAnnotationAttachmentsOnExternal(
+                        getAnnotationAttachmentSymbols(externalFunctionBody.annAttachments));
+            }
             this.anonTypeNameSuffixes.pop();
         }
 

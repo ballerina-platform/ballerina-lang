@@ -13,6 +13,7 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
+import ballerina/jballerina.java;
 
 type Annot record {
     string foo;
@@ -135,3 +136,16 @@ public class Listener {
     public function attach(service object {} s, string[]? name = ()) returns error? {
     }
 }
+
+function sout1() returns handle = @java:FieldGet {
+    name: "out",
+    'class: "java.lang.System"
+} external;
+
+const annotation Annot v6 on source external;
+
+function sout2() returns handle = @v6 {
+    foo: "out",
+    bar: 5
+} external;
+

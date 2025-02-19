@@ -21,6 +21,7 @@ package io.ballerina.compiler.api.impl;
 import org.ballerinalang.model.symbols.AnnotationAttachmentSymbol;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationAttachmentSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableTypeSymbol;
@@ -448,6 +449,14 @@ public class TypeParamResolver implements BTypeVisitor<BType, BType> {
                 original.originalName, original.pkgID, original.type,
                 original.owner, original.pos, original.origin);
         ((List<AnnotationAttachmentSymbol>) duplicate.getAnnotations()).addAll(original.getAnnotations());
+
+        List<? extends AnnotationAttachmentSymbol> annotationAttachmentsOnExternal =
+                original.getAnnotationAttachmentsOnExternal();
+        if (annotationAttachmentsOnExternal != null) {
+            duplicate.setAnnotationAttachmentsOnExternal(
+                    (List<BAnnotationAttachmentSymbol>) annotationAttachmentsOnExternal);
+        }
+
         duplicate.bodyExist = original.bodyExist;
         duplicate.markdownDocumentation = original.markdownDocumentation;
         duplicate.receiverSymbol = original.receiverSymbol;
