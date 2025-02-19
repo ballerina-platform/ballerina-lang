@@ -19,7 +19,6 @@
 package io.ballerina.semantic.api.test.symbols;
 
 import io.ballerina.compiler.api.SemanticModel;
-import io.ballerina.compiler.api.impl.symbols.BallerinaFunctionSymbol;
 import io.ballerina.compiler.api.symbols.Annotatable;
 import io.ballerina.compiler.api.symbols.AnnotationAttachmentSymbol;
 import io.ballerina.compiler.api.symbols.AnnotationSymbol;
@@ -122,7 +121,8 @@ public class AnnotationSymbolTest {
     public void testAnnotationsOnExternal(int line, int col, SymbolKind kind) {
         Optional<Symbol> symbol = model.symbol(srcFile, from(line, col));
         assertEquals(symbol.get().kind(), kind);
-        List<AnnotationAttachmentSymbol> annotSymbols = ((ExternalFunctionSymbol) symbol.get()).annotAttachmentsOnExternal();
+        List<AnnotationAttachmentSymbol> annotSymbols =
+                ((ExternalFunctionSymbol) symbol.get()).annotAttachmentsOnExternal();
         Assert.assertFalse(annotSymbols.isEmpty());
         Assert.assertNotNull(annotSymbols.get(0)); //TODO: Need to pass the annotation name here
     }
