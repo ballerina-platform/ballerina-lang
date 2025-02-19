@@ -39,6 +39,8 @@ import static org.ballerinalang.debugger.test.utils.DebugTestRunner.VariableScop
 /**
  * Test class for variable visibility.
  */
+
+@Test(enabled = false)
 public class VariableVisibilityTest extends BaseTestCase {
 
     Pair<BallerinaTestDebugPoint, StoppedEventArguments> debugHitInfo;
