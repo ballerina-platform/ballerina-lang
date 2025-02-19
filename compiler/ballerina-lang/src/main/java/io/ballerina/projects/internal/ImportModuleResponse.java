@@ -19,6 +19,9 @@ package io.ballerina.projects.internal;
 
 import io.ballerina.projects.PackageDescriptor;
 import io.ballerina.projects.environment.ResolutionResponse;
+import org.jetbrains.annotations.Nullable;
+
+import java.util.Optional;
 
 /**
  * Represents a resolved imported module.
@@ -31,7 +34,7 @@ public class ImportModuleResponse {
     private final ImportModuleRequest importModuleRequest;
     private final ResolutionResponse.ResolutionStatus resolutionStatus;
 
-    private ImportModuleResponse(PackageDescriptor packageDescriptor,
+    private ImportModuleResponse(@Nullable PackageDescriptor packageDescriptor,
                                  ImportModuleRequest importModuleRequest,
                                  ResolutionResponse.ResolutionStatus status) {
         this.packageDescriptor = packageDescriptor;
@@ -59,8 +62,8 @@ public class ImportModuleResponse {
         return importModuleRequest;
     }
 
-    public PackageDescriptor packageDescriptor() {
-        return packageDescriptor;
+    public Optional<PackageDescriptor> packageDescriptor() {
+        return Optional.ofNullable(packageDescriptor);
     }
 
     public ResolutionResponse.ResolutionStatus resolutionStatus() {

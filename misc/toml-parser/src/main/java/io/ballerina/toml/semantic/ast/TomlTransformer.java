@@ -47,6 +47,7 @@ import io.ballerina.toml.syntax.tree.Token;
 import io.ballerina.toml.syntax.tree.ValueNode;
 import io.ballerina.tools.text.LineRange;
 import io.ballerina.tools.text.TextRange;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -273,6 +274,7 @@ public class TomlTransformer extends NodeTransformer<TomlNode> {
         }
     }
 
+    @Nullable
     private TomlTableNode generateNewTable(TomlTableNode child, TomlKeyEntryNode lastKeyEntry,
                                            List<TomlKeyEntryNode> entries) {
         if (child.externalTreeNode().kind() == SyntaxKind.TABLE) {
@@ -453,6 +455,7 @@ public class TomlTransformer extends NodeTransformer<TomlNode> {
         return new TomlArrayValueNode(array, elements, getPosition(array));
     }
 
+    @Nullable
     @Override
     protected TomlNode transformSyntaxNode(Node node) {
         return null;
@@ -614,6 +617,7 @@ public class TomlTransformer extends NodeTransformer<TomlNode> {
      * @param tomlNodes AST TomlNode key list
      * @return TomlNodeLocation
      */
+    @Nullable
     private TomlNodeLocation getTomlNodeListLocation(List<? extends TomlNode> tomlNodes) {
         if (tomlNodes.isEmpty()) {
             return null;

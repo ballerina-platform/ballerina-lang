@@ -19,6 +19,7 @@ package org.ballerinalang.test.util;
 
 import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpHeaderValues;
+import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,6 +32,7 @@ import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.net.HttpURLConnection;
 import java.net.ProtocolException;
+import java.net.URI;
 import java.net.URL;
 import java.net.URLConnection;
 import java.nio.charset.Charset;
@@ -200,8 +202,9 @@ public final class HttpClientRequest {
                 PRESERVE_NEW_LINE_RESPONSE_BUILDER);
     }
 
-    private static HttpResponse executeRequestWithoutRequestBody(String method, String requestUrl,
-            Map<String, String> headers, int readTimeout,
+    @Nullable
+    private static HttpResponse executeRequestWithoutRequestBody(
+            String method, String requestUrl, Map<String, String> headers, int readTimeout,
             CheckedFunction<BufferedReader, String> responseBuilder) throws IOException {
         HttpURLConnection conn = null;
         try {
@@ -216,10 +219,10 @@ public final class HttpClientRequest {
         }
     }
 
-    private static HttpResponse executeRequestWithoutRequestBody(String method, String requestUrl,
-            Map<String, String> headers, int readTimeout,
-            CheckedFunction<BufferedReader, String> responseBuilder, boolean throwError)
-            throws IOException {
+    @Nullable
+    private static HttpResponse executeRequestWithoutRequestBody(
+            String method, String requestUrl, Map<String, String> headers, int readTimeout,
+            CheckedFunction<BufferedReader, String> responseBuilder, boolean throwError) throws IOException {
         HttpURLConnection conn = null;
         try {
             conn = getURLConnection(requestUrl, readTimeout);
@@ -238,7 +241,7 @@ public final class HttpClientRequest {
     }
 
     private static HttpURLConnection getURLConnection(String requestUrl, int readTimeout) throws IOException {
-        URL url = new URL(requestUrl);
+        URL url = URI.create(requestUrl).toURL();
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
         conn.setDoOutput(true);
         conn.setReadTimeout(readTimeout);
@@ -269,10 +272,12 @@ public final class HttpClientRequest {
         conn.setRequestMethod(method);
     }
 
+    @Nullable
     private static HttpResponse buildResponse(HttpURLConnection conn) throws IOException {
         return buildResponse(conn, DEFAULT_RESPONSE_BUILDER, false);
     }
 
+    @Nullable
     private static HttpResponse buildResponse(HttpURLConnection conn,
                                               CheckedFunction<BufferedReader, String> responseBuilder,
                                               boolean throwError) throws IOException {

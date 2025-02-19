@@ -37,6 +37,7 @@ import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.directory.BuildProject;
 import io.ballerina.projects.directory.SingleFileProject;
 import io.ballerina.projects.util.ProjectConstants;
+import org.jetbrains.annotations.Nullable;
 import picocli.CommandLine;
 
 import java.io.PrintStream;
@@ -97,7 +98,7 @@ public class TestCommand implements BLauncherCmd {
     }
 
     TestCommand(Path projectPath, PrintStream outStream, PrintStream errStream, boolean exitWhenFinish,
-                Boolean testReport, Boolean coverage, String coverageFormat,
+                Boolean testReport, Boolean coverage, @Nullable String coverageFormat,
                 Boolean optimizeDependencyCompilation) {
         this.projectPath = projectPath;
         this.outStream = outStream;

@@ -18,6 +18,7 @@
 package io.ballerina.compiler.syntax.tree;
 
 import io.ballerina.compiler.internal.parser.tree.STNode;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
 import java.util.Optional;
@@ -112,9 +113,11 @@ public class FunctionBodyBlockNode extends FunctionBodyNode {
     public static class FunctionBodyBlockNodeModifier {
         private final FunctionBodyBlockNode oldNode;
         private Token openBraceToken;
+        @Nullable
         private NamedWorkerDeclarator namedWorkerDeclarator;
         private NodeList<StatementNode> statements;
         private Token closeBraceToken;
+        @Nullable
         private Token semicolonToken;
 
         public FunctionBodyBlockNodeModifier(FunctionBodyBlockNode oldNode) {

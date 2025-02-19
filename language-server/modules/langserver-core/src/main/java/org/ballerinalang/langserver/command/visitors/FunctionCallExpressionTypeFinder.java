@@ -83,6 +83,7 @@ import io.ballerina.compiler.syntax.tree.WhileStatementNode;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.PositionUtil;
 import org.ballerinalang.langserver.common.utils.SymbolUtil;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.Optional;
@@ -98,6 +99,7 @@ public class FunctionCallExpressionTypeFinder extends NodeVisitor {
 
     private final SemanticModel semanticModel;
     private final FunctionCallExpressionNode functionCallExpr;
+    @Nullable
     private TypeSymbol returnTypeSymbol;
     private boolean resultFound = false;
 
@@ -200,6 +202,9 @@ public class FunctionCallExpressionTypeFinder extends NodeVisitor {
     @Override
     public void visit(StartActionNode startActionNode) {
         startActionNode.parent().accept(this);
+        if (returnTypeSymbol == null) {
+            throw new IllegalStateException("Return type symbol cannot be null");
+        }
         if (resultFound && returnTypeSymbol.typeKind() == TypeDescKind.FUTURE) {
             FutureTypeSymbol futureTypeSymbol = (FutureTypeSymbol) returnTypeSymbol;
             TypeSymbol typeSymbol = futureTypeSymbol.typeParameter().orElse(null);
@@ -266,6 +271,9 @@ public class FunctionCallExpressionTypeFinder extends NodeVisitor {
         if (!resultFound) {
             return;
         }
+        if (returnTypeSymbol == null) {
+            throw new IllegalStateException("Return type symbol cannot be null");
+        }
 
         // This is the message parameter of an error constructor.
         if (returnTypeSymbol.typeKind() == TypeDescKind.ERROR) {
@@ -324,6 +332,9 @@ public class FunctionCallExpressionTypeFinder extends NodeVisitor {
         if (!resultFound) {
             return;
         }
+        if (returnTypeSymbol == null) {
+            throw new IllegalStateException("Return type symbol cannot be null");
+        }
 
         if (returnTypeSymbol.typeKind() == TypeDescKind.ERROR) {
             ErrorTypeSymbol errorTypeSymbol = (ErrorTypeSymbol) returnTypeSymbol;
@@ -362,6 +373,10 @@ public class FunctionCallExpressionTypeFinder extends NodeVisitor {
      */
     private Optional<List<ParameterSymbol>> getParameterSymbols() {
         FunctionTypeSymbol functionTypeSymbol;
+        if (returnTypeSymbol == null) {
+            throw new IllegalStateException("Return type symbol cannot be null");
+        }
+
         if (returnTypeSymbol.typeKind() == TypeDescKind.FUNCTION) {
             functionTypeSymbol = (FunctionTypeSymbol) returnTypeSymbol;
         } else if (returnTypeSymbol.kind() == SymbolKind.CLASS) {
@@ -431,6 +446,9 @@ public class FunctionCallExpressionTypeFinder extends NodeVisitor {
         if (!resultFound) {
             resetResult();
             return;
+        }
+        if (returnTypeSymbol == null) {
+            throw new IllegalStateException("Return type symbol cannot be null");
         }
         if (returnTypeSymbol.typeKind() == TypeDescKind.FUNCTION) {
             FunctionTypeSymbol functionTypeSymbol = (FunctionTypeSymbol) returnTypeSymbol;
@@ -510,6 +528,9 @@ public class FunctionCallExpressionTypeFinder extends NodeVisitor {
     @Override
     public void visit(SelectClauseNode selectClauseNode) {
         selectClauseNode.parent().parent().accept(this);
+        if (returnTypeSymbol == null) {
+            throw new IllegalStateException("Return type symbol cannot be null");
+        }
         if (resultFound) {
             TypeDescKind kind = this.returnTypeSymbol.typeKind();
             if (kind == TypeDescKind.ARRAY) {
@@ -546,7 +567,7 @@ public class FunctionCallExpressionTypeFinder extends NodeVisitor {
         // Do nothing
     }
 
-    private void checkAndSetTypeResult(TypeSymbol typeSymbol) {
+    private void checkAndSetTypeResult(@Nullable TypeSymbol typeSymbol) {
         if (typeSymbol == null) {
             return;
         }

@@ -21,6 +21,7 @@ package io.ballerina.runtime.internal.utils;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BRefValue;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
 import java.util.List;
@@ -49,6 +50,7 @@ public final class CloneUtils {
      * @param value The value on which the function is invoked
      * @return String value of the value
      */
+    @Nullable
     public static Object cloneValue(Object value) {
         if (value == null) {
             return null;
@@ -68,6 +70,7 @@ public final class CloneUtils {
      * @param value The value on which the function is invoked
      * @return String value of the value
      */
+    @Nullable
     public static Object cloneReadOnly(Object value) {
         if (value == null) {
             return null;

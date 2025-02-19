@@ -26,6 +26,7 @@ import org.ballerinalang.model.tree.InvokableNode;
 import org.ballerinalang.model.tree.MarkdownDocumentationNode;
 import org.ballerinalang.model.tree.SimpleVariableNode;
 import org.ballerinalang.model.tree.types.TypeNode;
+import org.jetbrains.annotations.Nullable;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.tree.types.BLangType;
@@ -50,6 +51,7 @@ public abstract class BLangInvokableNode extends BLangNode implements InvokableN
     public BLangSimpleVariable restParam;
     public BLangType returnTypeNode;
     public List<BLangAnnotationAttachment> returnTypeAnnAttachments;
+    @Nullable
     public BLangFunctionBody body;
     public BLangIdentifier defaultWorkerName;
 

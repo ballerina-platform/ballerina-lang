@@ -21,6 +21,7 @@ package org.ballerinalang.langlib.xml;
 import io.ballerina.runtime.api.values.BXml;
 import io.ballerina.runtime.internal.errors.ErrorHelper;
 import io.ballerina.runtime.internal.scheduling.Strand;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Get all the elements-type items in the given sequence, that matches a given qualified name.
@@ -34,6 +35,7 @@ public final class Select {
     private Select() {
     }
 
+    @Nullable
     public static BXml select(Strand strand, BXml xml, String qname) {
         try {
             return xml.elements(qname);

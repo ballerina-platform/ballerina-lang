@@ -39,6 +39,7 @@ import org.ballerinalang.debugadapter.evaluation.DebugExpressionCompiler;
 import org.eclipse.lsp4j.debug.CompletionItem;
 import org.eclipse.lsp4j.debug.CompletionItemType;
 import org.eclipse.lsp4j.debug.CompletionsArguments;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -208,6 +209,7 @@ public final class CompletionUtil {
         return completionItems;
     }
 
+    @Nullable
     private static CompletionItemType getCompletionItemType(Symbol symbol) {
         return switch (symbol.kind()) {
             case MODULE -> CompletionItemType.MODULE;
@@ -247,9 +249,9 @@ public final class CompletionUtil {
      * @param column          debug expression column number
      * @return non terminal node at breakpoint
      */
-    public static NonTerminalNode getNonTerminalNode(CompletionContext completionContext,
-                                                     String source, String sourcePath, NonTerminalNode nonTerminalNode,
-                                                     int lineNumber, int column) {
+    public static NonTerminalNode getNonTerminalNode(
+            CompletionContext completionContext, String source, String sourcePath,
+            @Nullable NonTerminalNode nonTerminalNode, int lineNumber, int column) {
         TextDocument document = TextDocuments.from(source);
         SyntaxTree syntaxTree = SyntaxTree.from(document, sourcePath);
 

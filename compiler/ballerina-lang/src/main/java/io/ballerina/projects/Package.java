@@ -8,6 +8,7 @@ import io.ballerina.projects.internal.model.CompilerPluginDescriptor;
 import io.ballerina.projects.util.ProjectUtils;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import org.ballerinalang.model.elements.PackageID;
+import org.jetbrains.annotations.Nullable;
 import org.wso2.ballerinalang.compiler.PackageCache;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
@@ -123,7 +124,7 @@ public class Package {
         return new ModuleIterable(moduleList);
     }
 
-    public Module module(ModuleId moduleId) {
+    public Module module(@Nullable ModuleId moduleId) {
         // TODO Should we throw an error if the moduleId is not present
         return this.moduleMap.computeIfAbsent(moduleId, this.populateModuleFunc);
     }
@@ -135,12 +136,9 @@ public class Package {
             }
         }
 
-        ModuleContext moduleContext = this.packageContext.moduleContext(moduleName);
-        if (moduleContext != null) {
-            return module(moduleContext.moduleId());
-        }
-
-        return null;
+        return this.packageContext.moduleContext(moduleName)
+                .map(moduleContext -> module(moduleContext.moduleId()))
+                .orElseThrow(() -> new IllegalArgumentException("Module not found: " + moduleName));
     }
 
     public boolean containsModule(ModuleId moduleId) {
@@ -461,11 +459,17 @@ public class Package {
         private final Project project;
         private final DependencyGraph<ResolvedPackageDependency> dependencyGraph;
         private final CompilationOptions compilationOptions;
+        @Nullable
         private TomlDocumentContext ballerinaTomlContext;
+        @Nullable
         private TomlDocumentContext dependenciesTomlContext;
+        @Nullable
         private TomlDocumentContext cloudTomlContext;
+        @Nullable
         private TomlDocumentContext compilerPluginTomlContext;
+        @Nullable
         private TomlDocumentContext balToolTomlContext;
+        @Nullable
         private MdDocumentContext readmeMdContext;
         private final Map<DocumentId, ResourceContext> resourceContextMap;
         private final Map<DocumentId, ResourceContext> testResourceContextMap;
@@ -761,7 +765,9 @@ public class Package {
         }
 
         private void updatePackageManifest() {
-            ManifestBuilder manifestBuilder = ManifestBuilder.from(this.ballerinaTomlContext.tomlDocument(),
+            ManifestBuilder manifestBuilder = ManifestBuilder.from(
+                    Optional.ofNullable(this.ballerinaTomlContext)
+                            .map(TomlDocumentContext::tomlDocument).orElse(null),
                     Optional.ofNullable(this.compilerPluginTomlContext)
                             .map(TomlDocumentContext::tomlDocument).orElse(null),
                     Optional.ofNullable(this.balToolTomlContext)

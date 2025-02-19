@@ -25,6 +25,7 @@ import io.ballerina.runtime.internal.values.XmlItem;
 import io.ballerina.runtime.internal.values.XmlPi;
 import io.ballerina.runtime.internal.values.XmlSequence;
 import io.ballerina.runtime.internal.values.XmlText;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.CharArrayWriter;
 import java.io.OutputStream;
@@ -213,6 +214,7 @@ public class BallerinaXmlSerializer extends OutputStream {
         this.parentNSSet.pop();
     }
 
+    @Nullable
     private String setDefaultNamespace(Map<String, String> nsPrefixMap, QName qName, HashSet<String> currentNSLevel)
             throws XMLStreamException {
         boolean elementNSUsageFoundInAttribute = false;
@@ -276,6 +278,7 @@ public class BallerinaXmlSerializer extends OutputStream {
         }
     }
 
+    @Nullable
     private String getXmlNsUriPrefix(Map<String, String> nsPrefixMap, String uri) {
         for (Map.Entry<String, String> entry : nsPrefixMap.entrySet()) {
             if (entry.getValue().equals(uri)) {

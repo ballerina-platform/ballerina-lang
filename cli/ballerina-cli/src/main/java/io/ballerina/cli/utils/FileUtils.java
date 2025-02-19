@@ -21,6 +21,7 @@ package io.ballerina.cli.utils;
 import io.ballerina.toml.api.Toml;
 import io.ballerina.toml.validator.TomlValidator;
 import io.ballerina.toml.validator.schema.Schema;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
@@ -47,6 +48,7 @@ public final class FileUtils {
      * @param filePath Path of the file.
      * @return File name without extension.
      */
+    @Nullable
     public static String getFileNameWithoutExtension(Path filePath) {
         Path fileName = filePath.getFileName();
         if (null != fileName) {

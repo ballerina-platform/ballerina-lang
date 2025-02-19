@@ -21,6 +21,7 @@ import io.ballerina.compiler.internal.parser.AbstractTokenReader;
 import io.ballerina.compiler.internal.parser.BallerinaParser;
 import io.ballerina.compiler.internal.parser.tree.STNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.function.Predicate;
 
@@ -57,6 +58,7 @@ public class IncrementalParser extends BallerinaParser {
         return stmtNode != null ? stmtNode : super.parseStatement();
     }
 
+    @Nullable
     private STNode getIfReusable(STNode node, Predicate<SyntaxKind> predicate) {
         if (node != null && predicate.test(node.kind)) {
             this.subtreeSupplier.consume();

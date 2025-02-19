@@ -85,6 +85,7 @@ import org.ballerinalang.langserver.completions.util.SortingUtil;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.CompletionItemKind;
 import org.eclipse.lsp4j.TextEdit;
+import org.jetbrains.annotations.Nullable;
 import org.wso2.ballerinalang.compiler.util.Names;
 
 import java.util.ArrayList;
@@ -167,7 +168,7 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
      */
     @Override
     public void sort(BallerinaCompletionContext context, T node, List<LSCompletionItem> completionItems,
-                     Object... metaData) {
+                     @Nullable Object... metaData) {
         this.sort(context, node, completionItems);
     }
 

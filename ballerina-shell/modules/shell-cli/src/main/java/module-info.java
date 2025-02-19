@@ -5,6 +5,7 @@ module io.ballerina.shell.cli {
     requires org.jline;
     requires com.google.gson;
     requires io.ballerina.tools.api;
+    requires static org.jetbrains.annotations;
 
     exports io.ballerina.shell.cli;
     exports io.ballerina.shell.cli.handlers.help;

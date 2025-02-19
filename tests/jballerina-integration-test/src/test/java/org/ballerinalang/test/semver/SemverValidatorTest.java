@@ -40,7 +40,7 @@ public class SemverValidatorTest extends SemverValidatorBaseTest {
     private void setup() throws IOException {
         tempProjectsDir = Files.createTempDirectory("bal-test-integration-semver-");
         customRepoDir = tempProjectsDir.resolve("ballerina-home");
-        Path testProject = Path.of("src", "test", "resources", "semver").toAbsolutePath();
+        Path testProject = Path.of("src/test/resources/semver").toAbsolutePath();
         FileUtils.copyFolder(testProject, tempProjectsDir);
         balClient = new BMainInstance(balServer);
     }

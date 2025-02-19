@@ -239,7 +239,7 @@ public class ManifestProcessor {
         }
 
         for (Dependency dep : deps) {
-            dependencies.put(dep.getOrgName() + "/" + dep.getModuleName(), dep.getMetadata().getVersion());
+            dependencies.put(dep.getOrgName() + "/" + dep.getModuleName(), dep.metadata().getVersion());
         }
         toml.put("dependencies", dependencies);
         TomlWriter writer = new TomlWriter();

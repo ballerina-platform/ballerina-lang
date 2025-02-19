@@ -19,6 +19,7 @@ package org.wso2.ballerinalang.compiler.tree.expressions;
 
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.expressions.CollectContextInvocationNode;
+import org.jetbrains.annotations.Nullable;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeAnalyzer;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeTransformer;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
@@ -48,6 +49,7 @@ public class BLangCollectContextInvocation extends BLangExpression implements Co
         analyzer.visit(this, props);
     }
 
+    @Nullable
     @Override
     public <T, R> R apply(BLangNodeTransformer<T, R> modifier, T props) {
         return null;

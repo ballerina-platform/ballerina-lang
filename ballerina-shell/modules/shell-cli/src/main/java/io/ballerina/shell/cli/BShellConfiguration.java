@@ -21,6 +21,7 @@ package io.ballerina.shell.cli;
 import io.ballerina.shell.Evaluator;
 import io.ballerina.shell.EvaluatorBuilder;
 import io.ballerina.shell.parser.TrialTreeParser;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -109,6 +110,7 @@ public class BShellConfiguration {
         private InputStream inputStream;
         private OutputStream outputStream;
         private long treeParsingTimeoutMs;
+        @Nullable
         private String startFile;
         private boolean isDebug;
         private boolean isDumb;

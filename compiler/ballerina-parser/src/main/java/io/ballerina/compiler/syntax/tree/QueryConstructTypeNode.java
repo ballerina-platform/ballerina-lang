@@ -18,6 +18,7 @@
 package io.ballerina.compiler.syntax.tree;
 
 import io.ballerina.compiler.internal.parser.tree.STNode;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
 import java.util.Optional;
@@ -84,6 +85,7 @@ public class QueryConstructTypeNode extends NonTerminalNode {
     public static class QueryConstructTypeNodeModifier {
         private final QueryConstructTypeNode oldNode;
         private Token keyword;
+        @Nullable
         private KeySpecifierNode keySpecifier;
 
         public QueryConstructTypeNodeModifier(QueryConstructTypeNode oldNode) {

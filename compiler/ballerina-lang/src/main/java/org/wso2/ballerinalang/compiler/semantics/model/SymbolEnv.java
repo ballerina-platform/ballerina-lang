@@ -17,6 +17,7 @@
 */
 package org.wso2.ballerinalang.compiler.semantics.model;
 
+import org.jetbrains.annotations.Nullable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
@@ -55,20 +56,27 @@ public class SymbolEnv {
 
     public BLangNode node;
 
+    @Nullable
     public BLangPackage enclPkg;
 
     public BLangType enclType;
 
+    @Nullable
     public BLangAnnotation enclAnnotation;
 
+    @Nullable
     public BLangService enclService;
 
+    @Nullable
     public BLangInvokableNode enclInvokable;
 
+    @Nullable
     public BVarSymbol enclVarSym;
 
+    @Nullable
     public SymbolEnv enclEnv;
 
+    @Nullable
     public List<TypeParamEntry> typeParamsEntries;
 
     public boolean logErrors;
@@ -79,7 +87,7 @@ public class SymbolEnv {
 
     public boolean isModuleInit;
 
-    public SymbolEnv(BLangNode node, Scope scope) {
+    public SymbolEnv(BLangNode node, @Nullable Scope scope) {
         this.scope = scope;
         this.node = node;
         this.enclPkg = null;
@@ -114,7 +122,7 @@ public class SymbolEnv {
         target.envCount = this.envCount;
     }
 
-    public static SymbolEnv createPkgEnv(BLangPackage node, Scope scope, SymbolEnv builtinEnv) {
+    public static SymbolEnv createPkgEnv(@Nullable BLangPackage node, Scope scope, @Nullable SymbolEnv builtinEnv) {
         SymbolEnv env = new SymbolEnv(node, scope);
         env.envCount = 0;
         env.enclPkg = node;
@@ -131,7 +139,7 @@ public class SymbolEnv {
         return symbolEnv;
     }
 
-    public static SymbolEnv createFunctionEnv(BLangFunction node, Scope scope, SymbolEnv env) {
+    public static SymbolEnv createFunctionEnv(@Nullable BLangFunction node, Scope scope, SymbolEnv env) {
         SymbolEnv funcEnv = createPkgLevelSymbolEnv(node, scope, env);
         funcEnv.envCount = env.envCount + 1;
         funcEnv.relativeEnvCount = 0;

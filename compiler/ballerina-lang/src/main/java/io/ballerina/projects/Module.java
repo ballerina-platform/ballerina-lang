@@ -17,6 +17,8 @@
  */
 package io.ballerina.projects;
 
+import org.jetbrains.annotations.Nullable;
+
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashSet;
@@ -194,6 +196,7 @@ public class Module {
         private final List<ModuleDescriptor> dependencies;
         private final Package packageInstance;
         private final Project project;
+        @Nullable
         private MdDocumentContext moduleMdContext;
 
         private Modifier(Module oldModule) {

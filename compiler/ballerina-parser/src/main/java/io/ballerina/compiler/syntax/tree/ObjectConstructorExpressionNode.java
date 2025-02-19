@@ -18,6 +18,7 @@
 package io.ballerina.compiler.syntax.tree;
 
 import io.ballerina.compiler.internal.parser.tree.STNode;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
 import java.util.Optional;
@@ -126,6 +127,7 @@ public class ObjectConstructorExpressionNode extends ExpressionNode {
         private NodeList<AnnotationNode> annotations;
         private NodeList<Token> objectTypeQualifiers;
         private Token objectKeyword;
+        @Nullable
         private TypeDescriptorNode typeReference;
         private Token openBraceToken;
         private NodeList<Node> members;

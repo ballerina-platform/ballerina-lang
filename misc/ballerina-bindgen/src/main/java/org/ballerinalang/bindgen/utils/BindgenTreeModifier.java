@@ -17,6 +17,7 @@ import org.ballerinalang.bindgen.model.JClass;
 import org.ballerinalang.bindgen.model.JConstructor;
 import org.ballerinalang.bindgen.model.JField;
 import org.ballerinalang.bindgen.model.JMethod;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.AbstractMap;
 import java.util.Arrays;
@@ -292,6 +293,7 @@ public class BindgenTreeModifier {
         return memberList;
     }
 
+    @Nullable
     private AbstractMap.SimpleEntry<Integer, ClassDefinitionNode> retrieveClassDefinition(
             NodeList<ModuleMemberDeclarationNode> members) {
         AbstractMap.SimpleEntry<Integer, ClassDefinitionNode> entry = null;
@@ -307,6 +309,7 @@ public class BindgenTreeModifier {
         return entry;
     }
 
+    @Nullable
     private FunctionDefinitionNode generateBalFunction(BFunction bFunction, boolean isExternal) {
         try {
             return createFunctionDefinitionNode(bFunction, isExternal);

@@ -21,6 +21,7 @@ import io.ballerina.runtime.api.concurrent.StrandMetadata;
 import io.ballerina.runtime.api.values.BFunctionPointer;
 import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.internal.BalRuntime;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * External API to be used by the interop users to control Ballerina runtime behavior.
@@ -75,7 +76,7 @@ public abstract class Runtime {
      * @param metadata Meta data of new strand.
      * @param args           Arguments of the Ballerina function.
      */
-    public abstract Object callMethod(BObject object, String methodName, StrandMetadata metadata,
+    public abstract Object callMethod(BObject object, String methodName, @Nullable StrandMetadata metadata,
                                       Object... args);
 
     /**

@@ -18,6 +18,8 @@
 
 package io.ballerina.component;
 
+import org.jetbrains.annotations.Nullable;
+
 /**
  * models if statement nodes.
  *
@@ -25,7 +27,9 @@ package io.ballerina.component;
  */
 public class IfStatementNode extends Node {
 
+    @Nullable
     private Node ifBody;
+    @Nullable
     private Node elseBody;
 
     public IfStatementNode() {

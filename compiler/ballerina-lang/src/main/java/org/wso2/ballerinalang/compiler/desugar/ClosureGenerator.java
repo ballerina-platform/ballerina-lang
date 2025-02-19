@@ -25,6 +25,7 @@ import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
+import org.jetbrains.annotations.Nullable;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolResolver;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
@@ -230,6 +231,7 @@ public class ClosureGenerator extends BLangNodeVisitor {
     private Queue<BLangSimpleVariableDef> annotationClosureReferences;
     private final SymbolTable symTable;
     private SymbolEnv env;
+    @Nullable
     private BLangNode result;
     private final SymbolResolver symResolver;
     private final AnnotationDesugar annotationDesugar;
@@ -1789,8 +1791,9 @@ public class ClosureGenerator extends BLangNodeVisitor {
 
     // Rewrite methods
 
+    @Nullable
     @SuppressWarnings("unchecked")
-    private <E extends BLangNode> E rewrite(E node, SymbolEnv env) {
+    private <E extends BLangNode> E rewrite(@Nullable E node, SymbolEnv env) {
         if (node == null) {
             return null;
         }
@@ -1822,6 +1825,7 @@ public class ClosureGenerator extends BLangNodeVisitor {
         return nodeList;
     }
 
+    @Nullable
     @SuppressWarnings("unchecked")
     private <E extends BLangExpression> E rewriteExpr(E node) {
         if (node == null) {

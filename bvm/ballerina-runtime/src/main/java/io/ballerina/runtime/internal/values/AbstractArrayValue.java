@@ -27,6 +27,7 @@ import io.ballerina.runtime.internal.json.JsonGenerator;
 import io.ballerina.runtime.internal.types.BTupleType;
 import io.ballerina.runtime.internal.types.BUnionType;
 import io.ballerina.runtime.internal.utils.IteratorUtils;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -289,6 +290,7 @@ public abstract class AbstractArrayValue implements ArrayValue {
             this.length = value.size();
         }
 
+        @Nullable
         @Override
         public Object next() {
             long cursor = this.cursor++;

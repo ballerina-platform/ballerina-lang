@@ -19,6 +19,7 @@ package org.ballerinalang.langlib.internal;
 
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.internal.scheduling.Strand;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Native implementation of lang.internal:WorkerChannels.
@@ -39,6 +40,7 @@ public final class WorkerChannels {
 
     }
 
+    @Nullable
     private static String getMatchingChannelName(String channelId, Strand currentStrand) {
         return null;
     }

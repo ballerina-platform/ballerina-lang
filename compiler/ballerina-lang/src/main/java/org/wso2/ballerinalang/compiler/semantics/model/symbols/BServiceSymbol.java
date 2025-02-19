@@ -20,6 +20,7 @@ import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.symbols.SymbolOrigin;
+import org.jetbrains.annotations.Nullable;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.util.Name;
 
@@ -39,7 +40,7 @@ public class BServiceSymbol extends BSymbol {
     private List<String> absResourcePath;
     private String attachPointStringLiteral;
 
-    public BServiceSymbol(BClassSymbol associatedClass, long flags, Name name, PackageID pkgID, BType type,
+    public BServiceSymbol(BClassSymbol associatedClass, long flags, Name name, PackageID pkgID, @Nullable BType type,
                           BSymbol owner, Location pos, SymbolOrigin origin) {
         super(SymTag.SERVICE, flags, name, pkgID, type, owner, pos, origin);
         this.associatedClass = associatedClass;
@@ -63,11 +64,11 @@ public class BServiceSymbol extends BSymbol {
         return this.listenerTypes;
     }
 
-    public void setAbsResourcePath(List<String> absResourcePath) {
+    public void setAbsResourcePath(@Nullable List<String> absResourcePath) {
         this.absResourcePath = absResourcePath;
     }
 
-    public void setAttachPointStringLiteral(String attachPointStringLiteral) {
+    public void setAttachPointStringLiteral(@Nullable String attachPointStringLiteral) {
         this.attachPointStringLiteral = attachPointStringLiteral;
     }
 

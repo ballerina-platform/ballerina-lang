@@ -25,6 +25,7 @@ import org.ballerinalang.model.symbols.AnnotationAttachmentSymbol;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.symbols.SymbolOrigin;
 import org.ballerinalang.model.symbols.VariableSymbol;
+import org.jetbrains.annotations.Nullable;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.util.Name;
 
@@ -44,17 +45,18 @@ public class BVarSymbol extends BSymbol implements VariableSymbol, Annotatable {
     public DiagnosticState state = DiagnosticState.VALID;
 
     // Only used for type-narrowing. Cache of the original symbol.
+    @Nullable
     public BVarSymbol originalSymbol;
 
-    public BVarSymbol(long flags, Name name, Name originalName, PackageID pkgID, BType type, BSymbol owner,
-                      Location pos, SymbolOrigin origin) {
+    public BVarSymbol(long flags, Name name, Name originalName, @Nullable PackageID pkgID, BType type,
+                      @Nullable BSymbol owner, @Nullable Location pos, SymbolOrigin origin) {
         super(VARIABLE, flags, name, originalName, pkgID, type, owner, pos, origin);
         this.annotationAttachments = new ArrayList<>();
         this.kind = SymbolKind.VARIABLE;
     }
 
-    public BVarSymbol(long flags, Name name, PackageID pkgID, BType type, BSymbol owner, Location pos,
-                      SymbolOrigin origin) {
+    public BVarSymbol(long flags, @Nullable Name name, @Nullable PackageID pkgID, @Nullable BType type,
+                      @Nullable BSymbol owner, @Nullable Location pos, @Nullable SymbolOrigin origin) {
         this(flags, name, name, pkgID, type, owner, pos, origin);
     }
 
@@ -77,6 +79,7 @@ public class BVarSymbol extends BSymbol implements VariableSymbol, Annotatable {
         return this.annotationAttachments;
     }
 
+    @Nullable
     @Override
     public Object getConstValue() {
         return null;

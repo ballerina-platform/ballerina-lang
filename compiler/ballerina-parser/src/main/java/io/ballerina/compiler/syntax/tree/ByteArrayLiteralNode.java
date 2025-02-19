@@ -18,6 +18,7 @@
 package io.ballerina.compiler.syntax.tree;
 
 import io.ballerina.compiler.internal.parser.tree.STNode;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
 import java.util.Optional;
@@ -101,6 +102,7 @@ public class ByteArrayLiteralNode extends ExpressionNode {
         private final ByteArrayLiteralNode oldNode;
         private Token type;
         private Token startBacktick;
+        @Nullable
         private Token content;
         private Token endBacktick;
 

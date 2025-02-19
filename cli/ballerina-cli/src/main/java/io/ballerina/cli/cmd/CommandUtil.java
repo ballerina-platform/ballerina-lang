@@ -50,6 +50,7 @@ import org.ballerinalang.central.client.CentralAPIClient;
 import org.ballerinalang.central.client.CentralClientConstants;
 import org.ballerinalang.central.client.exceptions.CentralClientException;
 import org.ballerinalang.central.client.exceptions.PackageAlreadyExistsException;
+import org.jetbrains.annotations.Nullable;
 import org.wso2.ballerinalang.util.RepoUtils;
 
 import java.io.FileInputStream;
@@ -158,7 +159,7 @@ public final class CommandUtil {
      * @param usage usage if any
      * @param help if the help message should be printed
      */
-    public static void printError(PrintStream stream, String error, String usage, boolean help) {
+    public static void printError(PrintStream stream, String error, @Nullable String usage, boolean help) {
         stream.println("ballerina: " + error);
 
         if (null != usage) {
@@ -424,6 +425,7 @@ public final class CommandUtil {
      *
      * @param template template name
      */
+    @Nullable
     static Path findBalaTemplate(String template, Path balaCache) {
         String packageName = findPkgName(template);
         String orgName = findOrg(template);
@@ -453,35 +455,31 @@ public final class CommandUtil {
         } catch (PackageAlreadyExistsException e) {
             if (version == null) {
                 List<PackageVersion> packageVersions = getPackageVersions(pkgCacheParent);
-                PackageVersion latest = findLatest(packageVersions);
-                if (latest == null) {
-                    // This is not supposed to execute
-                    throw createLauncherException("unable to find package in the filesystem cache." +
-                            " This is an unexpected error : " + e.getMessage());
-                }
+                PackageVersion latest = findLatest(packageVersions).orElseThrow(
+                        // This is not supposed to execute
+                        () -> createLauncherException("unable to find package in the filesystem cache." +
+                                " This is an unexpected error : " + e.getMessage()));
                 version = latest.toString();
             }
         } catch (CentralClientException e) {
             errStream.println("Warning: Unable to pull the package from Ballerina Central: " + e.getMessage());
             if (findBalaTemplate(template, balaCache) == null) {
                 List<PackageVersion> packageVersions = getPackageVersions(pkgCacheParent);
-                PackageVersion latest = findLatest(packageVersions);
-                if (latest == null) {
-                    throw createLauncherException("template not found in filesystem cache.");
-                }
+                PackageVersion latest = findLatest(packageVersions).orElseThrow(
+                                        () -> createLauncherException("template not found in filesystem cache."));
                 version = latest.toString();
             }
         }
         if (version == null) {
             List<PackageVersion> packageVersions = getPackageVersions(pkgCacheParent);
-            PackageVersion latest = findLatest(packageVersions);
-            version = Objects.requireNonNull(latest).toString();
+            PackageVersion latest = findLatest(packageVersions).orElseThrow();
+            version = latest.toString();
         }
         applyTemplate(orgName, templatePackageName, version, packageName, projectPath, balaCache, filesInDir);
     }
 
-    private static void pullPackageFromRemote(String orgName, String packageName, String version, Path destination)
-            throws CentralClientException {
+    private static void pullPackageFromRemote(String orgName, String packageName, @Nullable String version,
+                                              Path destination) throws CentralClientException {
         String supportedPlatform = Arrays.stream(JvmTarget.values())
                 .map(JvmTarget::code)
                 .collect(Collectors.joining(","));
@@ -840,6 +838,7 @@ public final class CommandUtil {
      * @param template template name
      * @return version - version of the module
      */
+    @Nullable
     public static String findPkgVersion(String template) {
         String[] orgSplit = template.split("/");
         String packagePart = (orgSplit.length > 1) ? orgSplit[1] : "";
@@ -1046,15 +1045,15 @@ public final class CommandUtil {
         Files.writeString(balToolToml, balToolManifest);
     }
 
-    private static PackageVersion findLatest(List<PackageVersion> packageVersions) {
+    private static Optional<PackageVersion> findLatest(List<PackageVersion> packageVersions) {
         if (packageVersions.isEmpty()) {
-            return null;
+            return Optional.empty();
         }
         PackageVersion latestVersion = packageVersions.get(0);
         for (PackageVersion pkgVersion : packageVersions) {
             latestVersion = getLatest(latestVersion, pkgVersion);
         }
-        return latestVersion;
+        return Optional.of(latestVersion);
     }
 
     private static PackageVersion getLatest(PackageVersion v1, PackageVersion v2) {

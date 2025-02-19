@@ -42,7 +42,7 @@ public class BLangAnnotAccessExpr extends BLangExpression implements AnnotAccess
 
     @Override
     public String toString() {
-        return String.valueOf(expr) + ".@" + annotationSymbol.bvmAlias();
+        return expr + ".@" + annotationSymbol.bvmAlias();
     }
 
     @Override

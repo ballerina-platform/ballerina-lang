@@ -22,6 +22,7 @@ import org.ballerinalang.debugadapter.SuspendedContext;
 import org.ballerinalang.debugadapter.evaluation.EvaluationException;
 import org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils;
 import org.ballerinalang.debugadapter.jdi.JDIUtils;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.Optional;
@@ -38,6 +39,7 @@ public abstract class JvmMethod {
 
     protected final SuspendedContext context;
     protected final Method methodRef;
+    @Nullable
     protected List<Value> argValues;
 
     JvmMethod(SuspendedContext context, Method methodRef) {

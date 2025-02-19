@@ -26,6 +26,7 @@ import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.types.SelectivelyImmutableReferenceType;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.util.diagnostic.DiagnosticErrorCode;
+import org.jetbrains.annotations.Nullable;
 import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.compiler.parser.BLangAnonymousModelHelper;
 import org.wso2.ballerinalang.compiler.parser.BLangMissingNodesHelper;
@@ -684,13 +685,14 @@ public class TypeResolver {
         }
     }
 
+    @Nullable
     public BLangTypeDefinition getTypeDefinition(String name) {
         BLangNode moduleLevelDef = modTable.get(name);
         return moduleLevelDef != null && moduleLevelDef.getKind() == NodeKind.TYPE_DEFINITION ?
                 (BLangTypeDefinition) moduleLevelDef : null;
     }
 
-    private BType resolveTypeDesc(SymbolEnv symEnv, BLangTypeDefinition defn, int depth,
+    private BType resolveTypeDesc(SymbolEnv symEnv, @Nullable BLangTypeDefinition defn, int depth,
                                   BLangType td, ResolverData data) {
         return resolveTypeDesc(symEnv, defn, depth, td, data, true);
     }
@@ -1676,6 +1678,7 @@ public class TypeResolver {
         }
     }
 
+    @Nullable
     private BType blangTypeUpdate(BLangExpression expression) {
         BType type;
         switch (expression.getKind()) {
@@ -1802,6 +1805,7 @@ public class TypeResolver {
         return typeSymbol.type;
     }
 
+    @Nullable
     public BType defineTypeDefinition(BLangTypeDefinition typeDefinition, BType resolvedType, SymbolEnv env) {
 
         if (resolvedType == null || resolvedType == symTable.noType || typeDefinition.symbol != null) {
@@ -2102,6 +2106,7 @@ public class TypeResolver {
         symEnv.scope.define(constantSymbol.name, constantSymbol);
     }
 
+    @Nullable
     public BLangTypeDefinition findTypeDefinition(List<BLangTypeDefinition> typeDefinitionArrayList, String name) {
         for (int i = typeDefinitionArrayList.size() - 1; i >= 0; i--) {
             BLangTypeDefinition typeDefinition = typeDefinitionArrayList.get(i);

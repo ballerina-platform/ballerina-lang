@@ -18,6 +18,7 @@
 package org.wso2.ballerinalang.compiler;
 
 import org.ballerinalang.model.elements.PackageID;
+import org.jetbrains.annotations.Nullable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
@@ -105,6 +106,7 @@ public class PackageCache {
         return getSymbol(packageID.toString());
     }
 
+    @Nullable
     public BPackageSymbol getSymbol(String bvmAlias) {
         String[] packageElements = bvmAlias.split(Names.VERSION_SEPARATOR.value);
         Map<String, BPackageSymbol> versionMap = packageSymbolMap.get(packageElements[0]);

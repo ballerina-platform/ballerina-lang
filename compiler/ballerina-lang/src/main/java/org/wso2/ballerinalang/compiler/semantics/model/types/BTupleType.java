@@ -18,13 +18,13 @@ package org.wso2.ballerinalang.compiler.semantics.model.types;
 
 import org.ballerinalang.model.types.TupleType;
 import org.ballerinalang.model.types.TypeKind;
+import org.jetbrains.annotations.Nullable;
 import org.wso2.ballerinalang.compiler.semantics.model.TypeVisitor;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.util.Flags;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -35,12 +35,15 @@ import java.util.stream.Collectors;
  */
 public class BTupleType extends BType implements TupleType {
     private List<BTupleMember> members;
+    @Nullable
     private List<BType> memberTypes;
+    @Nullable
     public BType restType;
     public Boolean isAnyData = null;
     public boolean resolvingToString = false;
     public boolean isCyclic = false;
 
+    @Nullable
     public BTupleType mutableType;
 
     public BTupleType(List<BTupleMember> members) {
@@ -48,24 +51,24 @@ public class BTupleType extends BType implements TupleType {
         this.members = members;
     }
 
-    public BTupleType(BTypeSymbol tsymbol, List<BTupleMember> members) {
+    public BTupleType(@Nullable BTypeSymbol tsymbol, List<BTupleMember> members) {
         super(TypeTags.TUPLE, tsymbol);
         this.members = members;
     }
 
-    public BTupleType(BTypeSymbol tsymbol, List<BTupleMember> members, boolean isCyclic) {
+    public BTupleType(@Nullable BTypeSymbol tsymbol, List<BTupleMember> members, boolean isCyclic) {
         super(TypeTags.TUPLE, tsymbol);
         this.members = members;
         this.isCyclic = isCyclic;
     }
 
-    public BTupleType(BTypeSymbol tsymbol, List<BTupleMember> members, BType restType, long flags) {
+    public BTupleType(@Nullable BTypeSymbol tsymbol, List<BTupleMember> members, BType restType, long flags) {
         super(TypeTags.TUPLE, tsymbol, flags);
         this.members = members;
         this.restType = restType;
     }
 
-    public BTupleType(BTypeSymbol tsymbol, List<BTupleMember> members, BType restType, long flags,
+    public BTupleType(BTypeSymbol tsymbol, List<BTupleMember> members, @Nullable BType restType, long flags,
                       boolean isCyclic) {
         super(TypeTags.TUPLE, tsymbol, flags);
         this.members = members;
@@ -92,8 +95,7 @@ public class BTupleType extends BType implements TupleType {
     @Override
     public List<BType> getTupleTypes() {
         if (memberTypes == null) {
-            memberTypes = new ArrayList<>(members.size());
-            members.forEach(member -> memberTypes.add(member.type));
+            this.memberTypes = members.stream().map(member -> member.type).collect(Collectors.toList());
         }
         return memberTypes;
     }
@@ -176,7 +178,7 @@ public class BTupleType extends BType implements TupleType {
         this.members = members;
     }
 
-    private void setCyclicFlag(BType type) {
+    private void setCyclicFlag(@Nullable BType type) {
         if (isCyclic) {
             return;
         }

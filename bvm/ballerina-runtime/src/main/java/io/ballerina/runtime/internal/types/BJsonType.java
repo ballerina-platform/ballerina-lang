@@ -25,6 +25,7 @@ import io.ballerina.runtime.api.types.PredefinedTypes;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.TypeTags;
 import io.ballerina.runtime.internal.values.MapValueImpl;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * {@code BJSONType} represents a JSON value.
@@ -73,6 +74,7 @@ public class BJsonType extends BUnionType implements JsonType {
 
     }
 
+    @Nullable
     @Override
     public <V extends Object> V getZeroValue() {
         return null;

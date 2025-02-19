@@ -22,6 +22,7 @@ import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.ConstantSymbol;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.symbols.SymbolOrigin;
+import org.jetbrains.annotations.Nullable;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangConstantValue;
 import org.wso2.ballerinalang.compiler.util.Name;
@@ -36,13 +37,13 @@ public class BConstantSymbol extends BVarSymbol implements ConstantSymbol {
     public BLangConstantValue value;
     public BType literalType;
 
-    public BConstantSymbol(long flags, Name name, PackageID pkgID, BType literalType, BType type, BSymbol owner,
-                           Location pos, SymbolOrigin origin) {
+    public BConstantSymbol(long flags, Name name, PackageID pkgID, @Nullable BType literalType, BType type,
+                           BSymbol owner, Location pos, SymbolOrigin origin) {
         this(flags, name, name, pkgID, literalType, type, owner, pos, origin);
     }
 
-    public BConstantSymbol(long flags, Name name, Name originalName, PackageID pkgID, BType literalType, BType type,
-                           BSymbol owner, Location pos, SymbolOrigin origin) {
+    public BConstantSymbol(long flags, Name name, Name originalName, PackageID pkgID, @Nullable BType literalType,
+                           BType type, BSymbol owner, Location pos, SymbolOrigin origin) {
         super(flags, name, originalName, pkgID, type, owner, pos, origin);
         this.tag = CONSTANT;
         this.literalType = literalType;

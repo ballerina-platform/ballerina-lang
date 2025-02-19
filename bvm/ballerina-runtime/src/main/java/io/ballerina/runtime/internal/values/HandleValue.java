@@ -22,6 +22,7 @@ import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.values.BHandle;
 import io.ballerina.runtime.api.values.BLink;
 import io.ballerina.runtime.api.values.BTypedesc;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Map;
 
@@ -40,7 +41,7 @@ public class HandleValue implements BHandle, RefValue {
     private final Object value;
     private BTypedesc typedesc;
 
-    public HandleValue(Object value) {
+    public HandleValue(@Nullable Object value) {
         this.value = value;
     }
 
@@ -63,6 +64,7 @@ public class HandleValue implements BHandle, RefValue {
         return stringValue(parent);
     }
 
+    @Nullable
     @Override
     public String toString() {
         return value != null ? value.toString() : null;

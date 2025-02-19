@@ -17,6 +17,8 @@
 */
 package org.ballerinalang.model.tree;
 
+import org.jetbrains.annotations.Nullable;
+
 /**
  * Binary and Unary Operator Kind.
  *
@@ -77,6 +79,7 @@ public enum OperatorKind {
         return opValue;
     }
 
+    @Nullable
     public static OperatorKind valueFrom(String opValue) {
         for (OperatorKind operatorKind : OperatorKind.values()) {
             if (operatorKind.opValue.equals(opValue)) {

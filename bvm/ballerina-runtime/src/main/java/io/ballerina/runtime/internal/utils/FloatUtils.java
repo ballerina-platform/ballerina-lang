@@ -20,6 +20,7 @@ package io.ballerina.runtime.internal.utils;
 
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BString;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Common utility methods used for float operations.
@@ -31,6 +32,7 @@ public final class FloatUtils {
     private FloatUtils() {
     }
 
+    @Nullable
     public static BString getBStringIfInfiniteOrNaN(double x) {
         if (Double.isInfinite(x) || Double.isNaN(x)) {
             return StringUtils.fromString(StringUtils.getStringValue(x));

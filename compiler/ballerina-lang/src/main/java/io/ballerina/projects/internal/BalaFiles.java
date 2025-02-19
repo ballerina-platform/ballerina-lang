@@ -41,6 +41,7 @@ import io.ballerina.projects.internal.model.CompilerPluginDescriptor;
 import io.ballerina.projects.internal.model.PackageJson;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectUtils;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
@@ -162,6 +163,7 @@ public final class BalaFiles {
         }
     }
 
+    @Nullable
     public static DocumentData loadDocument(Path documentFilePath) {
         if (Files.notExists(documentFilePath)) {
             return null;
@@ -343,6 +345,7 @@ public final class BalaFiles {
         return getPackageManifest(packageJson, compilerPluginJson, balToolJson, getDeprecationMsg(balrPath));
     }
 
+    @Nullable
     private static String getDeprecationMsg(Path balaPath) {
         Path deprecateFilePath = balaPath.resolve(DEPRECATED_META_FILE_NAME);
         if (Files.exists(deprecateFilePath)) {
@@ -485,9 +488,9 @@ public final class BalaFiles {
         balToolJson.setDependencyPaths(dependencyLibPaths);
     }
 
-    private static PackageManifest getPackageManifest(PackageJson packageJson,
-                                                      Optional<CompilerPluginJson> compilerPluginJson,
-                                                      Optional<BalToolJson> balToolJson, String deprecationMsg) {
+    private static PackageManifest getPackageManifest(
+            PackageJson packageJson, Optional<CompilerPluginJson> compilerPluginJson, Optional<BalToolJson> balToolJson,
+            @Nullable String deprecationMsg) {
         PackageDescriptor pkgDesc;
         if (deprecationMsg != null) {
             pkgDesc = PackageDescriptor.from(PackageOrg.from(packageJson.getOrganization()),

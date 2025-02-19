@@ -18,6 +18,7 @@
 package io.ballerina.compiler.syntax.tree;
 
 import io.ballerina.compiler.internal.parser.tree.STNode;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
 import java.util.Optional;
@@ -101,6 +102,7 @@ public class TemplateExpressionNode extends ExpressionNode {
      */
     public static class TemplateExpressionNodeModifier {
         private final TemplateExpressionNode oldNode;
+        @Nullable
         private Token type;
         private Token startBacktick;
         private NodeList<Node> content;

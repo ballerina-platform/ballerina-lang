@@ -13,6 +13,7 @@ module io.ballerina.LSExtensions.BalShellService {
     requires io.ballerina.shell;
     requires io.ballerina.shell.cli;
     requires com.fasterxml.jackson.databind;
+    requires static org.jetbrains.annotations;
 
     exports io.ballerina.shell.service;
 }

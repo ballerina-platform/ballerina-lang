@@ -27,6 +27,7 @@ import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectUtils;
 import io.ballerina.tools.diagnostics.DiagnosticInfo;
 import io.ballerina.tools.diagnostics.DiagnosticSeverity;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 import java.io.IOException;
@@ -303,6 +304,7 @@ public final class ProjectFiles {
         }
     }
 
+    @Nullable
     public static DocumentData loadDocument(Path documentFilePath) {
         if (Files.notExists(documentFilePath)) {
             return null;

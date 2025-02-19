@@ -17,6 +17,8 @@
  */
 package io.ballerina.runtime.observability.metrics;
 
+import org.jetbrains.annotations.Nullable;
+
 import java.time.Duration;
 import java.util.Arrays;
 import java.util.Objects;
@@ -61,6 +63,7 @@ public class StatisticConfig {
      * @return Percentiles to compute and publish.
      * @see Builder#percentiles(double...)
      */
+    @Nullable
     public double[] getPercentiles() {
         return percentiles != null ? Arrays.copyOf(percentiles, percentiles.length) : null;
     }
@@ -114,7 +117,7 @@ public class StatisticConfig {
          * @param percentiles Percentiles to compute and publish.
          * @return This builder.
          */
-        public Builder percentiles(double... percentiles) {
+        public Builder percentiles(@Nullable double... percentiles) {
             percentiles = Objects.requireNonNull(percentiles, "percentiles array should not be null.");
             if (percentiles.length == 0) {
                 throw new IllegalArgumentException("percentiles array should not be empty.");

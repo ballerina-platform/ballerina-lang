@@ -17,6 +17,8 @@
  */
 package io.ballerina.projects.internal;
 
+import org.jetbrains.annotations.Nullable;
+
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Optional;
@@ -52,7 +54,7 @@ public class ModuleData {
                                   String moduleName,
                                   List<DocumentData> srcDocuments,
                                   List<DocumentData> testSrcDocuments,
-                                  DocumentData readmeMd) {
+                                  @Nullable DocumentData readmeMd) {
         return new ModuleData(path, moduleName, srcDocuments, testSrcDocuments, readmeMd);
     }
 

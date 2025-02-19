@@ -24,6 +24,7 @@ import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.internal.json.JsonParser;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.StringReader;
 
@@ -37,6 +38,7 @@ public final class FromJsonDecimalString {
     private FromJsonDecimalString() {
     }
 
+    @Nullable
     public static Object fromJsonDecimalString(BString value) {
 
         String str = value.getValue();

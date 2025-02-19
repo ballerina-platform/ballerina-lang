@@ -37,6 +37,7 @@ import io.ballerina.runtime.internal.errors.ErrorHelper;
 import io.ballerina.runtime.internal.errors.ErrorReasons;
 import io.ballerina.runtime.internal.utils.CycleUtils;
 import io.ballerina.runtime.internal.utils.ValueConverter;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -73,6 +74,7 @@ public class TupleValueImpl extends AbstractArrayValue {
     Object[] refValues;
     private final int minSize;
     private final boolean hasRestElement; // cached value for ease of access
+    @Nullable
     private BTypedesc typedesc;
     private TypedescValueImpl inherentType;
     // ------------------------ Constructors -------------------------------------------------------------------
@@ -512,6 +514,7 @@ public class TupleValueImpl extends AbstractArrayValue {
         return this.size == 0;
     }
 
+    @Nullable
     @Override
     public BArray slice(long startIndex, long endIndex) {
         return null;

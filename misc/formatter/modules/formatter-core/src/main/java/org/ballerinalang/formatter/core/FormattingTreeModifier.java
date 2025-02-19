@@ -256,6 +256,7 @@ import org.ballerinalang.formatter.core.options.FormattingOptions;
 import org.ballerinalang.formatter.core.options.FunctionCallFormattingOptions;
 import org.ballerinalang.formatter.core.options.FunctionDefFormattingOptions;
 import org.ballerinalang.formatter.core.options.WrappingMethod;
+import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -291,7 +292,7 @@ public class FormattingTreeModifier extends TreeModifier {
     // Range of the file to be formatted.
     private final LineRange lineRange;
 
-    public FormattingTreeModifier(FormattingOptions options, LineRange lineRange) {
+    public FormattingTreeModifier(FormattingOptions options, @Nullable LineRange lineRange) {
         this.options = options;
         this.lineRange = lineRange;
         this.env = new FormattingEnv();
@@ -3830,8 +3831,10 @@ public class FormattingTreeModifier extends TreeModifier {
      * @param preserveIndentation Preserve user-defined indentation
      * @return Formatted node
      */
+    @Nullable
     @SuppressWarnings("unchecked")
-    private <T extends Node> T formatNode(T node, int trailingWS, int trailingNL, Boolean preserveIndentation) {
+    private <T extends Node> T formatNode(T node, int trailingWS, int trailingNL,
+                                          @Nullable Boolean preserveIndentation) {
         try {
             if (node == null) {
                 return null;
@@ -3883,7 +3886,7 @@ public class FormattingTreeModifier extends TreeModifier {
      * @return Formatted node
      */
     @SuppressWarnings("unchecked")
-    private <T extends Node> T formatNode(T node, int trailingWS, int trailingNL) {
+    private <T extends Node> T formatNode(@Nullable T node, int trailingWS, int trailingNL) {
         return formatNode(node, trailingWS, trailingNL, null);
     }
 
@@ -3897,7 +3900,9 @@ public class FormattingTreeModifier extends TreeModifier {
      * @param preserveIndentation Preserve user-defined indentation
      * @return Formatted token
      */
-    private <T extends Token> T formatToken(T token, int trailingWS, int trailingNL, Boolean preserveIndentation) {
+    @Nullable
+    private <T extends Token> T formatToken(T token, int trailingWS, int trailingNL,
+                                            @Nullable Boolean preserveIndentation) {
         try {
             if (token == null) {
                 return null;
@@ -3948,7 +3953,7 @@ public class FormattingTreeModifier extends TreeModifier {
      * @param trailingNL Number of newlines to be added after the token
      * @return Formatted token
      */
-    private <T extends Token> T formatToken(T token, int trailingWS, int trailingNL) {
+    private <T extends Token> T formatToken(@Nullable T token, int trailingWS, int trailingNL) {
         return formatToken(token, trailingWS, trailingNL, null);
     }
 
@@ -4476,7 +4481,7 @@ public class FormattingTreeModifier extends TreeModifier {
      * @param prevMinutiae Minutiae that precedes the current token
      * @return <code>true</code> if a whitespace needs to be added. <code>false</code> otherwise
      */
-    private boolean shouldAddWS(Minutiae prevMinutiae) {
+    private boolean shouldAddWS(@Nullable Minutiae prevMinutiae) {
         if (prevMinutiae == null) {
             return false;
         }
@@ -4898,7 +4903,7 @@ public class FormattingTreeModifier extends TreeModifier {
         return false;
     }
 
-    private boolean matchesMinutiaeKind(Minutiae minutiae, SyntaxKind kind) {
+    private boolean matchesMinutiaeKind(@Nullable Minutiae minutiae, SyntaxKind kind) {
         return minutiae != null && minutiae.kind() == kind;
     }
 

@@ -20,6 +20,7 @@ package org.wso2.ballerinalang.compiler.tree.expressions;
 import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.expressions.XMLNavigationAccess;
+import org.jetbrains.annotations.Nullable;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeAnalyzer;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeTransformer;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
@@ -83,18 +84,15 @@ public class BLangXMLNavigationAccess extends BLangExpression implements XMLNavi
         return this.expr;
     }
 
+    @Nullable
     @Override
     public String toString() {
         StringJoiner filters = new StringJoiner(" |");
         this.filters.forEach(f -> filters.add(f.toString()));
-        switch (navAccessType) {
-            case CHILDREN:
-                return String.valueOf(expr) + "/*";
-            case CHILD_ELEMS:
-                return String.valueOf(expr) + "/<" + filters.toString() + ">";
-            case DESCENDANTS:
-                return String.valueOf(expr) + "/**/<" + filters.toString() + ">";
-        }
-        return null;
+        return switch (navAccessType) {
+            case CHILDREN -> expr + "/*";
+            case CHILD_ELEMS -> expr + "/<" + filters + ">";
+            case DESCENDANTS -> expr + "/**/<" + filters + ">";
+        };
     }
 }

@@ -23,6 +23,7 @@ import io.ballerina.projects.PackageDependencyScope;
 import io.ballerina.projects.PackageManifest;
 import io.ballerina.projects.ResolvedPackageDependency;
 import io.ballerina.projects.util.ProjectUtils;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -61,12 +62,14 @@ public final class GraalVMCompatibilityUtils {
         return "";
     }
 
+    @Nullable
     private static Boolean isAllPlatformDepsGraalvmCompatible(Map<String, PackageManifest.Platform> platforms) {
         Boolean isAllDepsGraalvmCompatible = true;
         for (PackageManifest.Platform platform: platforms.values()) {
-            if (platform.isPlatfromDepsGraalvmCompatible() == null) {
+            Boolean graalvmCompatible = platform.isPlatfromDepsGraalvmCompatible();
+            if (graalvmCompatible == null) {
                 isAllDepsGraalvmCompatible = null;
-            } else if (!platform.isPlatfromDepsGraalvmCompatible()) {
+            } else if (!graalvmCompatible) {
                 return false;
             }
         }
@@ -80,6 +83,7 @@ public final class GraalVMCompatibilityUtils {
      * @param targetPlatform Target platform
      * @return Warning message
      */
+    @Nullable
     public static String getWarningForPackage(io.ballerina.projects.Package pkg, String targetPlatform) {
         // Verify that Java dependencies (if exist) of this package are GraalVM compatible
         if (hasExternalPlatformDependencies(pkg)) {
@@ -137,6 +141,7 @@ public final class GraalVMCompatibilityUtils {
         return null;
     }
 
+    @Nullable
     private static String getWarningForDependencies(io.ballerina.projects.Package pkg,
                                                     boolean isTestExec) {
 
@@ -192,6 +197,7 @@ public final class GraalVMCompatibilityUtils {
     }
 
 
+    @Nullable
     private static String getDependenciesWarningMessage(String nonGraalVMCompatibleDependencies,
                                                         String nonVerifiedDependencies) {
         // If there are no non-GraalVM compatible dependencies, return null

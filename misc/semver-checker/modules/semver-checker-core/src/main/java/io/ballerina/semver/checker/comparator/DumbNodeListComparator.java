@@ -24,6 +24,7 @@ import io.ballerina.semver.checker.diff.DiffKind;
 import io.ballerina.semver.checker.diff.DiffType;
 import io.ballerina.semver.checker.diff.NodeListDiffImpl;
 import io.ballerina.semver.checker.diff.SemverImpact;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.Optional;
@@ -48,17 +49,18 @@ public class DumbNodeListComparator<T extends Node> implements Comparator {
         this(newNodes, oldNodes, null);
     }
 
-    DumbNodeListComparator(NodeList<T> newNodes, NodeList<T> oldNodes) {
+    DumbNodeListComparator(@Nullable NodeList<T> newNodes, @Nullable NodeList<T> oldNodes) {
         this(newNodes, oldNodes, null);
     }
 
-    DumbNodeListComparator(List<T> newNodes, List<T> oldNodes, DiffKind nodeKind) {
+    DumbNodeListComparator(List<T> newNodes, List<T> oldNodes, @Nullable DiffKind nodeKind) {
         this.newNodes = newNodes;
         this.oldNodes = oldNodes;
         this.nodeKind = nodeKind;
     }
 
-    DumbNodeListComparator(NodeList<T> newNodes, NodeList<T> oldNodes, DiffKind nodeKind) {
+    DumbNodeListComparator(@Nullable NodeList<T> newNodes, @Nullable NodeList<T> oldNodes,
+                           @Nullable DiffKind nodeKind) {
         this.newNodes = newNodes != null ? newNodes.stream().toList() : null;
         this.oldNodes = oldNodes != null ? oldNodes.stream().toList() : null;
         this.nodeKind = nodeKind;

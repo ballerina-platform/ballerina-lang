@@ -9,4 +9,5 @@ module io.ballerina.docerina {
     requires io.ballerina.parser;
     requires io.ballerina.tools.api;
     requires okhttp3;
+    requires static org.jetbrains.annotations;
 }

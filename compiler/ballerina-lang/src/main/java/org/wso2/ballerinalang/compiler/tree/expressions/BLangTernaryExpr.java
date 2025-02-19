@@ -71,6 +71,6 @@ public class BLangTernaryExpr extends BLangExpression implements TernaryExpressi
 
     @Override
     public String toString() {
-        return String.valueOf(expr) + "?" + String.valueOf(thenExpr) + ":" + String.valueOf(elseExpr);
+        return expr + "?" + thenExpr + ":" + elseExpr;
     }
 }

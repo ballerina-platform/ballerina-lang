@@ -46,8 +46,8 @@ public abstract class BaseTestCase {
 
     @BeforeSuite(alwaysRun = true)
     public void initialize() throws BallerinaTestException, IOException {
-        Path projectResourcePath = Path.of("src", "test", "resources", "project-based-tests").toAbsolutePath();
-        Path singleFileResourcePath = Path.of("src", "test", "resources", "single-file-tests").toAbsolutePath();
+        Path projectResourcePath = Path.of("src/test/resources/project-based-tests").toAbsolutePath();
+        Path singleFileResourcePath = Path.of("src/test/resources/single-file-tests").toAbsolutePath();
         DebugTestRunner.initialize(projectResourcePath, singleFileResourcePath);
     }
 

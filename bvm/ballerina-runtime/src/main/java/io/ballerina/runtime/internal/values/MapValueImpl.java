@@ -48,6 +48,7 @@ import io.ballerina.runtime.internal.types.BUnionType;
 import io.ballerina.runtime.internal.utils.CycleUtils;
 import io.ballerina.runtime.internal.utils.IteratorUtils;
 import io.ballerina.runtime.internal.utils.MapUtils;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -95,6 +96,7 @@ import static io.ballerina.runtime.internal.values.ReadOnlyUtils.handleInvalidUp
 public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue, CollectionValue, MapValue<K, V>,
         BMap<K, V> {
 
+    @Nullable
     private BTypedesc typedesc;
     private Type type;
     private Type referredType;
@@ -288,7 +290,7 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
      *         previously associated {@code null} with {@code key}.)
      */
     @Override
-    public V put(K key, V value) {
+    public V put(K key, @Nullable V value) {
         if (!type.isReadOnly()) {
             return putValue(key, value);
         }
@@ -524,7 +526,7 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
     }
 
     @Override
-    public String stringValue(BLink parent) {
+    public String stringValue(@Nullable BLink parent) {
         StringJoiner sj = new StringJoiner(",");
         for (Map.Entry<K, V> kvEntry : this.entrySet()) {
             K key = kvEntry.getKey();
@@ -719,6 +721,7 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
      * This makes it easier to extend the operations without affecting the
      * common behaviors such as error handling.
      */
+    @Nullable
     protected V putValue(K key, V value) {
         return super.put(key, value);
     }

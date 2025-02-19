@@ -63,6 +63,7 @@ import org.ballerinalang.diagramutil.connector.models.connector.types.RecordType
 import org.ballerinalang.diagramutil.connector.models.connector.types.StreamType;
 import org.ballerinalang.diagramutil.connector.models.connector.types.TableType;
 import org.ballerinalang.diagramutil.connector.models.connector.types.UnionType;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -77,6 +78,7 @@ public class Type {
 
     private static final Map<String, VisitedType> visitedTypeMap = new HashMap<>();
 
+    @Nullable
     @Expose
     public String name;
     @Expose
@@ -91,6 +93,7 @@ public class Type {
     public String defaultValue;
     @Expose
     public Map<String, String> displayAnnotation;
+    @Nullable
     @Expose
     public String documentation;
     @Expose
@@ -99,8 +102,8 @@ public class Type {
     public Type() {
     }
 
-    public Type(String name, String typeName, boolean optional, TypeInfo typeInfo, boolean defaultable,
-                String defaultValue, Map<String, String> displayAnnotation, String documentation) {
+    public Type(String name, String typeName, boolean optional, @Nullable TypeInfo typeInfo, boolean defaultable,
+                String defaultValue, @Nullable Map<String, String> displayAnnotation, @Nullable String documentation) {
         this.name = name;
         this.typeName = typeName;
         this.optional = optional;
@@ -260,6 +263,7 @@ public class Type {
         optionalType.ifPresent(fields::add);
     }
 
+    @Nullable
     public static VisitedType getVisitedType(String typeName) {
         if (visitedTypeMap.containsKey(typeName)) {
             return visitedTypeMap.get(typeName);
@@ -273,7 +277,8 @@ public class Type {
         visitedType.setTypeNode(typeNode);
     }
 
-    public static Type fromSemanticSymbol(Symbol symbol) {
+    @Nullable
+    public static Type fromSemanticSymbol(@Nullable Symbol symbol) {
         Type type = null;
         if (symbol instanceof TypeReferenceTypeSymbol typeReferenceTypeSymbol) {
             type = getEnumType(typeReferenceTypeSymbol, symbol);
@@ -471,7 +476,7 @@ public class Type {
         clearVisitedTypeMap();
     }
 
-    private static void setTypeInfo(String typeName, Symbol symbol, Type type) {
+    private static void setTypeInfo(@Nullable String typeName, Symbol symbol, Type type) {
         if (type != null && symbol.getName().isPresent() && symbol.getModule().isPresent()) {
             ModuleID moduleID = symbol.getModule().get().id();
             type.typeInfo = new TypeInfo(symbol.getName().get(), moduleID.orgName(), moduleID.moduleName(),

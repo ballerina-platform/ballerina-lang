@@ -20,6 +20,7 @@ package io.ballerina.runtime.internal.scheduling;
 
 import io.ballerina.runtime.internal.utils.ErrorUtils;
 import io.ballerina.runtime.transactions.TransactionLocalContext;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -44,6 +45,7 @@ public class Strand {
     public final boolean isIsolated;
     public boolean cancelled;
     public Scheduler scheduler;
+    @Nullable
     public TransactionLocalContext currentTrxContext;
     public Stack<TransactionLocalContext> trxContexts;
     public WorkerChannelMap workerChannelMap;
@@ -68,7 +70,7 @@ public class Strand {
 
     public Strand(Scheduler scheduler, String strandName, Strand parent, boolean isIsolated,
                   Map<String, Object> properties, WorkerChannelMap workerChannelMap,
-                  TransactionLocalContext currentTrxContext) {
+                  @Nullable TransactionLocalContext currentTrxContext) {
         this(scheduler, strandName, parent, isIsolated, properties, workerChannelMap);
         if (currentTrxContext != null) {
             this.trxContexts = parent.trxContexts;

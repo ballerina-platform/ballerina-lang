@@ -30,6 +30,7 @@ import org.ballerinalang.model.tree.statements.VariableDefinitionNode;
 import org.ballerinalang.model.tree.types.TypeNode;
 import org.ballerinalang.util.diagnostic.DiagnosticErrorCode;
 import org.ballerinalang.util.diagnostic.DiagnosticWarningCode;
+import org.jetbrains.annotations.Nullable;
 import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.cyclefind.GlobalVariableRefAnalyzer;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
@@ -936,14 +937,14 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         }
     }
 
-    private void createUninitializedVarsForOnFailClause(BLangOnFailClause onFailClause) {
+    private void createUninitializedVarsForOnFailClause(@Nullable BLangOnFailClause onFailClause) {
         if (onFailClause != null) {
             this.enclosingOnFailClause.push(onFailClause);
             this.possibleFailureUnInitVars.put(onFailClause, copyUninitializedVars());
         }
     }
 
-    private void updateUnInitVarsForOnFailClause(Map<BSymbol, InitStatus> uninitializedVars) {
+    private void updateUnInitVarsForOnFailClause(@Nullable Map<BSymbol, InitStatus> uninitializedVars) {
         if (isOnFailEnclosed()) {
             this.possibleFailureUnInitVars.put(this.enclosingOnFailClause.peek(), uninitializedVars);
         }
@@ -960,7 +961,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         analyzeStmtWithOnFail(doNode.body, doNode.onFailClause);
     }
 
-    private void analyzeStmtWithOnFail(BLangBlockStmt blockStmt, BLangOnFailClause onFailClause) {
+    private void analyzeStmtWithOnFail(BLangBlockStmt blockStmt, @Nullable BLangOnFailClause onFailClause) {
         createUninitializedVarsForOnFailClause(onFailClause);
         BranchResult doResult = analyzeBranch(blockStmt, env);
         this.uninitializedVars = doResult.uninitializedVars;
@@ -1977,7 +1978,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
      * @param dependent dependent.
      * @param provider object which provides a value.
      */
-    private void addDependency(BSymbol dependent, BSymbol provider) {
+    private void addDependency(@Nullable BSymbol dependent, BSymbol provider) {
         if (provider == null || dependent == null || dependent.pkgID != provider.pkgID) {
             return;
         }
@@ -2557,6 +2558,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         return new LinkedHashMap<>(this.possibleFailureUnInitVars.get(onFailClause));
     }
 
+    @Nullable
     private Map<BSymbol, InitStatus> getPossibleFailureUnInitVars() {
         if (isOnFailEnclosed()) {
             return this.possibleFailureUnInitVars.get(this.enclosingOnFailClause.peek());
@@ -2564,7 +2566,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         return null;
     }
 
-    private void analyzeNode(BLangNode node, SymbolEnv env) {
+    private void analyzeNode(@Nullable BLangNode node, SymbolEnv env) {
         SymbolEnv prevEnv = this.env;
         this.env = env;
         if (node != null) {
@@ -2951,6 +2953,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         return owner == getEnclPkgSymbol(env);
     }
 
+    @Nullable
     private BPackageSymbol getEnclPkgSymbol(SymbolEnv env) {
         BLangPackage enclPkg = env.enclPkg;
 
@@ -2979,7 +2982,8 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         boolean possibleFailureReached;
 
 
-        BranchResult(Map<BSymbol, InitStatus> uninitializedVars, Map<BSymbol, InitStatus> possibleFailureUnInitVars,
+        BranchResult(Map<BSymbol, InitStatus> uninitializedVars,
+                     @Nullable Map<BSymbol, InitStatus> possibleFailureUnInitVars,
                      boolean flowTerminated, boolean possibleFailureReached, boolean definiteFailureReached) {
             this.uninitializedVars = uninitializedVars;
             this.possibleFailureUnInitVars = possibleFailureUnInitVars;

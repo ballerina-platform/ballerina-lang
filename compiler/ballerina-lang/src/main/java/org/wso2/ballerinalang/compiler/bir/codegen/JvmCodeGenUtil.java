@@ -24,6 +24,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.SymbolKind;
+import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.Nullable;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Handle;
 import org.objectweb.asm.Label;
@@ -446,7 +448,7 @@ public final class JvmCodeGenUtil {
     public static BirScope getLastScopeFromBBInsGen(MethodVisitor mv, LabelGenerator labelGen,
                                                     JvmInstructionGen instGen, int localVarOffset,
                                                     String funcName, BIRNode.BIRBasicBlock bb,
-                                                    Set<BirScope> visitedScopesSet, BirScope lastScope) {
+                                                    Set<BirScope> visitedScopesSet, @Nullable BirScope lastScope) {
 
         int insCount = bb.instructions.size();
         for (int i = 0; i < insCount; i++) {
@@ -570,6 +572,7 @@ public final class JvmCodeGenUtil {
      * @return the implied type if provided with a type reference type or an intersection type,
      * else returns the original type
      */
+    @Contract("null -> null")
     public static BType getImpliedType(BType type) {
         if (type == null) {
             return null;

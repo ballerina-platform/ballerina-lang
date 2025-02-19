@@ -20,6 +20,7 @@ package org.wso2.ballerinalang.compiler.tree.expressions;
 import org.ballerinalang.model.tree.FunctionNode;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.expressions.LambdaFunctionNode;
+import org.jetbrains.annotations.Nullable;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
@@ -40,6 +41,7 @@ public class BLangLambdaFunction extends BLangExpression implements LambdaFuncti
     public BLangFunction function;
 
     // Semantic Data
+    @Nullable
     public SymbolEnv capturedClosureEnv;
     public TreeMap<Integer, BVarSymbol> paramMapSymbolsOfEnclInvokable = new TreeMap<>();
     public TreeMap<Integer, BVarSymbol>  enclMapSymbols = new TreeMap<>();

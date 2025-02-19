@@ -47,10 +47,10 @@ public class SemverValidatorBaseTest extends BaseTest {
         customRepoEnv.put(HOME_REPO_ENV_KEY, customRepoDir.toAbsolutePath().toString());
 
         balClient.runMain("pack", new String[]{}, customRepoEnv, new String[]{}, new LogLeecher[0],
-                tempProjectsDir.resolve(packageName).toAbsolutePath().toString());
+                tempProjectsDir.resolve(packageName));
 
         balClient.runMain("push", new String[]{"--repository=local"}, customRepoEnv, new String[]{},
-                new LogLeecher[0], tempProjectsDir.resolve(packageName).toAbsolutePath().toString());
+                new LogLeecher[0], tempProjectsDir.resolve(packageName));
     }
 
     protected void executeSemverCommand(String packageName, String[] commandArgs, List<String> expectedLogs)
@@ -77,7 +77,7 @@ public class SemverValidatorBaseTest extends BaseTest {
 
         Path commandDir = packageName != null ? tempProjectsDir.resolve(packageName) : tempProjectsDir;
         balClient.runMain("semver", commandArgs, customRepoEnv, new String[]{}, leechers,
-                commandDir.toAbsolutePath().toString());
+                commandDir);
 
         for (LogLeecher leecher : leechers) {
             leecher.waitForText(10000);

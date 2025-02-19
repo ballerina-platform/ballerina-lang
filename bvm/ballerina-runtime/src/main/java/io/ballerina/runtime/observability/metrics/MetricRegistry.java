@@ -18,6 +18,7 @@
 package io.ballerina.runtime.observability.metrics;
 
 import io.ballerina.runtime.observability.metrics.spi.MetricProvider;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
@@ -141,6 +142,7 @@ public class MetricRegistry {
         }
     }
 
+    @Nullable
     private <M extends Metric> M readMetric(MetricId metricId, Class<M> metricClass) {
         Metric existingMetrics = lookup(metricId);
         if (existingMetrics != null) {

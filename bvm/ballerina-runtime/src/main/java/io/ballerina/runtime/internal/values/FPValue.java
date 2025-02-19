@@ -24,6 +24,7 @@ import io.ballerina.runtime.api.values.BFunctionPointer;
 import io.ballerina.runtime.api.values.BLink;
 import io.ballerina.runtime.api.values.BTypedesc;
 import io.ballerina.runtime.internal.BalRuntime;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Map;
 import java.util.function.Function;
@@ -43,7 +44,7 @@ public class FPValue implements BFunctionPointer, RefValue {
     public boolean isIsolated;
     public String name;
 
-    public FPValue(Function<Object[], Object> function, Type type, String name, boolean isIsolated) {
+    public FPValue(Function<Object[], Object> function, Type type, @Nullable String name, boolean isIsolated) {
         this.function = function;
         this.type = type;
         this.name = name;

@@ -58,7 +58,7 @@ public class BallerinaRunRemoteDebugTest extends BaseTestCase {
         String msg = REMOTE_DEBUG_LISTENING + port;
         LogLeecher clientLeecher = new LogLeecher(msg);
         balClient.debugMain("run", new String[]{"--debug", String.valueOf(port)}, null, null,
-                new LogLeecher[]{clientLeecher}, debugTestRunner.testProjectPath.toString(), 15);
+                new LogLeecher[]{clientLeecher}, debugTestRunner.testProjectPath, 15);
         clientLeecher.waitForText(20000);
     }
 
@@ -69,7 +69,7 @@ public class BallerinaRunRemoteDebugTest extends BaseTestCase {
         LogLeecher clientLeecher = new LogLeecher(msg);
         balClient.debugMain("run", new String[]{"--debug", String.valueOf(port), debugTestRunner.testEntryFilePath
                         .toString()}, null, null, new LogLeecher[]{clientLeecher},
-                debugTestRunner.testProjectPath.toString(), 15);
+                debugTestRunner.testProjectPath, 15);
         clientLeecher.waitForText(20000);
     }
 
@@ -90,7 +90,7 @@ public class BallerinaRunRemoteDebugTest extends BaseTestCase {
                 .toFile().getPath();
         LogLeecher clientLeecher = new LogLeecher(executablePath);
         balClient.runMain("build", new String[0], null, null, new LogLeecher[]{clientLeecher},
-                debugTestRunner.testProjectPath.toString());
+                debugTestRunner.testProjectPath);
         clientLeecher.waitForText(20000);
 
         String port = debugOptions[0].contains("=") ? debugOptions[0].split("=")[1] : debugOptions[1];
@@ -99,7 +99,7 @@ public class BallerinaRunRemoteDebugTest extends BaseTestCase {
         List<String> debugOptionsList = new ArrayList<>(Arrays.asList(debugOptions));
         debugOptionsList.add(executablePath);
         balClient.debugMain("run", debugOptionsList.toArray(new String[0]), null, null, new LogLeecher[]{clientLeecher},
-                debugTestRunner.testProjectPath.toString(), 15);
+                debugTestRunner.testProjectPath, 15);
         clientLeecher.waitForText(20000);
     }
 

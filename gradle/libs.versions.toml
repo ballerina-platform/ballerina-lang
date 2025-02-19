@@ -70,6 +70,7 @@ javassistVersion="3.24.1-GA"
 javaxMailVersion="1.6.2"
 javaxTransactionApiVersion="1.3"
 javaxWsRsApiVersion="2.1.1"
+jetbrainsAnnotationsVersion="24.1.0"
 jetbrainsKotlinStdlibCommonVersion="1.6.0"
 jetbrainsKotlinStdlibVersion="1.6.0"
 jknackHandlebarsVersion="4.0.6"
@@ -201,6 +202,7 @@ javassist = { module = "org.javassist:javassist", version.ref = "javassistVersio
 javax-mail = { module = "com.sun.mail:javax.mail", version.ref = "javaxMailVersion"}
 javax-transaction-api = { module = "javax.transaction:javax.transaction-api", version.ref = "javaxTransactionApiVersion"}
 javax-ws-rs-api = { module = "javax.ws.rs:javax.ws.rs-api", version.ref = "javaxWsRsApiVersion"}
+jetbrains-annotations = { module = "org.jetbrains:annotations", version.ref = "jetbrainsAnnotationsVersion"}
 jetbrains-kotlin-stdlib = { module = "org.jetbrains.kotlin:kotlin-stdlib", version.ref = "jetbrainsKotlinStdlibVersion"}
 jetbrains-kotlin-stdlib-common = { module = "org.jetbrains.kotlin:kotlin-stdlib-common", version.ref = "jetbrainsKotlinStdlibCommonVersion"}
 jknack-handlebars = { module = "com.github.jknack:handlebars", version.ref = "jknackHandlebarsVersion"}

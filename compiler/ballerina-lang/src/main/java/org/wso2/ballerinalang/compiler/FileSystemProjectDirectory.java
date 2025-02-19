@@ -20,6 +20,7 @@ package org.wso2.ballerinalang.compiler;
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.repository.CompiledPackage;
 import org.ballerinalang.repository.CompilerOutputEntry;
+import org.jetbrains.annotations.Nullable;
 import org.wso2.ballerinalang.compiler.util.FileUtils;
 import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
 import org.wso2.ballerinalang.compiler.util.ProjectDirs;
@@ -206,6 +207,7 @@ public class FileSystemProjectDirectory extends FileSystemProgramDirectory {
         Files.copy(outputEntry.getInputStream(), destPath, StandardCopyOption.REPLACE_EXISTING);
     }
 
+    @Nullable
     private String getTopLevelDirNameInPackage(Kind kind, FileSystem fs) {
         return switch (kind) {
             case SRC, BIR, OBJ -> kind.getValue();

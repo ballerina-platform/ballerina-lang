@@ -23,6 +23,7 @@ import io.ballerina.compiler.internal.parser.tree.STNode;
 import io.ballerina.compiler.internal.parser.tree.STNodeFactory;
 import io.ballerina.compiler.internal.parser.tree.STToken;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -126,6 +127,7 @@ public class RegExpParser extends AbstractParser {
         return STNodeFactory.createReAtomQuantifierNode(reAtom, null);
     }
 
+    @Nullable
     private STNode parseOptionalQuantifier(SyntaxKind tokenKind) {
         return switch (tokenKind) {
             case PLUS_TOKEN, ASTERISK_TOKEN, QUESTION_MARK_TOKEN, OPEN_BRACE_TOKEN -> parseReQuantifier();
@@ -322,6 +324,7 @@ public class RegExpParser extends AbstractParser {
      *
      * @return ^ token
      */
+    @Nullable
     private STNode parseNegation() {
         STToken nextToken = peek();
         if (nextToken.kind == SyntaxKind.BITWISE_XOR_TOKEN) {
@@ -335,7 +338,8 @@ public class RegExpParser extends AbstractParser {
      *
      * @return ReCharSet node
      */
-    private STNode parseReCharSet(STNode prevNode) {
+    @Nullable
+    private STNode parseReCharSet(@Nullable STNode prevNode) {
         STToken nextToken = peek();
         if (isCharacterClassEnd(nextToken.kind)) {
             return null;
@@ -546,6 +550,7 @@ public class RegExpParser extends AbstractParser {
      *
      * @return ? token
      */
+    @Nullable
     private STNode parseNonGreedyChar() {
         STToken nextToken = peek();
         if (nextToken.kind == SyntaxKind.QUESTION_MARK_TOKEN) {

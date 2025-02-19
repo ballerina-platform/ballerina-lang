@@ -28,6 +28,7 @@ import io.ballerina.compiler.api.symbols.TypeReferenceTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.model.symbols.SymbolOrigin;
+import org.jetbrains.annotations.Contract;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BParameterizedType;
@@ -198,6 +199,7 @@ public class BallerinaTypeReferenceTypeSymbol extends AbstractTypeSymbol impleme
         return ANON_ORG.equals(moduleID.orgName());
     }
 
+    @Contract("null -> null")
     private BType getReferredType(BType type) {
         if (type == null) {
             return null;

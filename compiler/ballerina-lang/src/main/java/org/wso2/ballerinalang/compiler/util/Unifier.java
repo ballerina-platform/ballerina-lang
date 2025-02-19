@@ -21,6 +21,7 @@ import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.util.diagnostic.DiagnosticErrorCode;
+import org.jetbrains.annotations.Nullable;
 import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
@@ -80,18 +81,22 @@ import static org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType.t
  */
 public class Unifier implements BTypeVisitor<BType, BType> {
 
+    @Nullable
     private Map<String, BType> paramValueTypes;
     private Set<BType> visitedTypes = new HashSet<>();
     private boolean isInvocation;
     private BLangInvocation invocation;
+    @Nullable
     private BLangFunction function;
     private SymbolTable symbolTable;
+    @Nullable
     private SymbolEnv env;
     private Types types;
     private BLangDiagnosticLog dlog;
 
-    public BType build(BType originalType, BType expType, BLangInvocation invocation, Types types,
-                       SymbolTable symbolTable, BLangDiagnosticLog dlog) {
+    public BType build(BType originalType, @Nullable BType expType,
+                       @Nullable BLangInvocation invocation, @Nullable Types types,
+                       @Nullable SymbolTable symbolTable, @Nullable BLangDiagnosticLog dlog) {
         this.isInvocation = invocation != null;
         if (this.isInvocation) {
             this.invocation = invocation;
@@ -944,6 +949,7 @@ public class Unifier implements BTypeVisitor<BType, BType> {
         return tag == TypeTags.ARRAY || tag == TypeTags.TUPLE;
     }
 
+    @Nullable
     private BType getMatchingTypeForInferrableType(BType originalType, BType expType) {
         if (expType == null || !this.isInvocation) {
             return null;
@@ -1135,6 +1141,7 @@ public class Unifier implements BTypeVisitor<BType, BType> {
 
     // If the `expType` is `int|string|boolean` and the original type is `t|string` then the expected type for `t`
     // is `int|boolean`.
+    @Nullable
     private BType getExpectedTypeForInferredTypedescMember(BUnionType originalType, BType expType, BType member) {
         if (expType == null || !this.isInvocation || !Symbols.isFlagOn(member.flags, Flags.PARAMETERIZED)) {
             return null;
@@ -1192,11 +1199,11 @@ public class Unifier implements BTypeVisitor<BType, BType> {
         return isSameType(newType, originalType) || isSemanticErrorInInvocation(newType);
     }
 
-    private boolean isSameType(BType newType, BType originalType) {
+    private boolean isSameType(@Nullable BType newType, @Nullable BType originalType) {
         return newType == originalType;
     }
 
-    private boolean isSemanticErrorInInvocation(BType newType) {
+    private boolean isSemanticErrorInInvocation(@Nullable BType newType) {
         return this.isInvocation && newType == symbolTable.semanticError;
     }
 
