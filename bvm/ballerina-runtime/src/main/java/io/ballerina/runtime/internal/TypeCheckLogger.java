@@ -32,7 +32,7 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
 /**
- * Debug logger for type related operation in the runtime
+ * Debug logger for type related operation in the runtime.
  *
  * @since 2201.12.0
  */

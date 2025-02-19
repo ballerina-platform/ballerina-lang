@@ -18,7 +18,7 @@
 package io.ballerina.runtime.api.types.semtype;
 
 /**
- * Abstraction on top of bit set used to represent union of "all" of a given basic type
+ * Abstraction on top of bit set used to represent union of "all" of a given basic type.
  *
  * @since 2201.12.0
  */
