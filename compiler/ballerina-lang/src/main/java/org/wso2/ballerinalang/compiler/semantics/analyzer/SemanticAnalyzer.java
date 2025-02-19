@@ -4430,10 +4430,6 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
             case UNARY_EXPR:
                 checkAnnotConstantExpression(((BLangUnaryExpr) expression).expr);
                 break;
-            case BINARY_EXPR:
-                checkAnnotConstantExpression(((BLangBinaryExpr)expression).lhsExpr);
-                checkAnnotConstantExpression(((BLangBinaryExpr)expression).rhsExpr);
-                break;
             case SIMPLE_VARIABLE_REF:
                 BSymbol symbol = ((BLangSimpleVarRef) expression).symbol;
                 // Symbol can be null in some invalid scenarios. Eg - const string m = { name: "Ballerina" };
