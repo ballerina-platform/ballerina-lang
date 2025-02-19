@@ -97,7 +97,7 @@ public class DisplayAnnotationTest {
 
     @Test
     public void testDisplayAnnotOnRecord() {
-        TypeDefinition typeDefinition = result.getAST().getTypeDefinitions().get(15);
+        TypeDefinition typeDefinition = result.getAST().getTypeDefinitions().get(3);
         List<? extends AnnotationAttachmentNode> annot = typeDefinition.getAnnotationAttachments();
         Assert.assertEquals(annot.size(), 1);
         Assert.assertEquals(annot.get(0).getExpression().toString(),

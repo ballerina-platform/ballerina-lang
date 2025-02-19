@@ -278,7 +278,7 @@ function testCastingToImmutableCyclicTuple() {
     error err = <error> b;
     assert(err.message(), "{ballerina}TypeCastError");
     assert(<string> checkpanic err.detail()["message"], "incompatible types: 'MyCyclicTuple' cannot be " +
-    "cast to '[int,(MyCyclicTuple[] & readonly)] & readonly'");
+    "cast to '(MyCyclicTuple & readonly)'");
     MyCyclicTuple c = <[int, MyCyclicTuple[]] & readonly> [1, []];
     MyCyclicTuple & readonly d = <MyCyclicTuple & readonly> c;
     assert(d is [int, MyCyclicTuple[]] & readonly, true);

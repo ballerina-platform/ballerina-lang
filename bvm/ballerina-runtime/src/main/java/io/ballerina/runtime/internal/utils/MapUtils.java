@@ -53,7 +53,7 @@ public final class MapUtils {
     }
 
     public static void handleMapStore(MapValue<BString, Object> mapValue, BString fieldName, Object value) {
-        updateMapValue(TypeUtils.getImpliedType(mapValue.getType()), mapValue, fieldName, value);
+        updateMapValue(mapValue.getType(), mapValue, fieldName, value);
     }
 
     public static void handleInherentTypeViolatingMapUpdate(Object value, BMapType mapType) {
@@ -149,7 +149,7 @@ public final class MapUtils {
 
     private static void updateMapValue(Type mapType, MapValue<BString, Object> mapValue, BString fieldName,
                                        Object value) {
-
+        mapType = TypeUtils.getImpliedType(mapType);
         switch (mapType.getTag()) {
             case TypeTags.MAP_TAG:
                 handleInherentTypeViolatingMapUpdate(value, (BMapType) mapType);

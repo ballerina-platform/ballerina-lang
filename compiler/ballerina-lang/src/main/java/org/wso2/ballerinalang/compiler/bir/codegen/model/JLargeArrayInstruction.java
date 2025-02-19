@@ -31,6 +31,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 public class JLargeArrayInstruction extends JInstruction {
 
     public BIROperand typedescOp;
+    public BIROperand elementTypedescOp;
     public BIROperand sizeOp;
     public BType type;
     public BIROperand values;
@@ -46,9 +47,10 @@ public class JLargeArrayInstruction extends JInstruction {
     }
 
     public JLargeArrayInstruction(Location location, BType type, BIROperand lhsOp, BIROperand typedescOp,
-                                  BIROperand sizeOp, BIROperand values) {
+                                  BIROperand elementTypedescOp, BIROperand sizeOp, BIROperand values) {
         this(location, type, lhsOp, sizeOp, values);
         this.typedescOp = typedescOp;
+        this.elementTypedescOp = elementTypedescOp;
     }
 
     @Override
