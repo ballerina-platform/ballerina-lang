@@ -615,6 +615,10 @@ public class BIRGen extends BLangNodeVisitor {
         }
         // Populate annotation attachments on function in BIRFunction node
         birFunc.annotAttachments.addAll(getBIRAnnotAttachments(astFunc.symbol.getAnnotations()));
+        if (Symbols.isFlagOn(astFunc.symbol.flags, Flags.NATIVE)) {
+            birFunc.annotAttachmentsOnExternal =
+                    getBIRAnnotAttachments(astFunc.symbol.getAnnotationAttachmentsOnExternal());
+        }
 
         // Populate annotation attachments on return type
         BTypeSymbol tsymbol = astFunc.symbol.type.tsymbol;

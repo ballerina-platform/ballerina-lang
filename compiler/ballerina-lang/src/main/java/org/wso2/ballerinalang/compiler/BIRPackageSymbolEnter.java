@@ -492,6 +492,7 @@ public class BIRPackageSymbolEnter {
 
         // Read annotation attachments
         defineAnnotAttachmentSymbols(dataInStream, invokableSymbol);
+        defineAnnotAttachmentSymbolsOnExternal(dataInStream, invokableSymbol);
 
         BTypeSymbol tsymbol = invokableSymbol.type.tsymbol;
         if (tsymbol == null) {
@@ -959,6 +960,13 @@ public class BIRPackageSymbolEnter {
     private void defineAnnotAttachmentSymbols(DataInputStream dataInStream, Annotatable owner) throws IOException {
         ((List<BAnnotationAttachmentSymbol>) owner.getAnnotations()).addAll(readAnnotAttachmentSymbols(dataInStream,
                                                                                                      (BSymbol) owner));
+    }
+
+    private void defineAnnotAttachmentSymbolsOnExternal(DataInputStream dataInStream,
+                                                        BInvokableSymbol owner) throws IOException {
+        if (Symbols.isFlagOn(owner.flags, Flags.NATIVE)) {
+            owner.setAnnotationAttachmentsOnExternal(readAnnotAttachmentSymbols(dataInStream, owner));
+        }
     }
 
     private List<BAnnotationAttachmentSymbol> readAnnotAttachmentSymbols(DataInputStream dataInStream, BSymbol owner)
