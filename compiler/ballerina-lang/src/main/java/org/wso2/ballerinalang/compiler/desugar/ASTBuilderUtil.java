@@ -20,6 +20,7 @@ import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.PackageID;
+import org.ballerinalang.model.symbols.AnnotationAttachmentSymbol;
 import org.ballerinalang.model.symbols.SymbolOrigin;
 import org.ballerinalang.model.tree.BlockNode;
 import org.ballerinalang.model.tree.IdentifierNode;
@@ -862,6 +863,13 @@ public final class ASTBuilderUtil {
         dupFuncSymbol.strandName = invokableSymbol.strandName;
         dupFuncSymbol.setAnnotationAttachments(
                 new ArrayList<>((List<BAnnotationAttachmentSymbol>) invokableSymbol.getAnnotations()));
+
+        List<? extends AnnotationAttachmentSymbol> annotationAttachmentsOnExternal =
+                invokableSymbol.getAnnotationAttachmentsOnExternal();
+        if (annotationAttachmentsOnExternal != null) {
+            dupFuncSymbol.setAnnotationAttachmentsOnExternal(
+                    new ArrayList<>((List<BAnnotationAttachmentSymbol>) annotationAttachmentsOnExternal));
+        }
 
         BInvokableType prevFuncType = (BInvokableType) invokableSymbol.type;
         BInvokableType dupInvokableType = new BInvokableType(new ArrayList<>(prevFuncType.paramTypes),

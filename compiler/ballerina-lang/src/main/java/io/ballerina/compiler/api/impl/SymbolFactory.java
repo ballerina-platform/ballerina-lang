@@ -289,6 +289,15 @@ public class SymbolFactory {
             builder.withAnnotation(annotAttachment.typeDescriptor());
         }
 
+        List<? extends AnnotationAttachmentSymbol> annotationAttachmentsOnExternal =
+                invokableSymbol.getAnnotationAttachmentsOnExternal();
+        if (annotationAttachmentsOnExternal != null) {
+            for (AnnotationAttachmentSymbol annAttachment : annotationAttachmentsOnExternal) {
+                builder.withAnnotationAttachmentOnExternal(
+                        createAnnotAttachment((BAnnotationAttachmentSymbol) annAttachment));
+            }
+        }
+
         return builder.withTypeDescriptor((FunctionTypeSymbol) typesFactory
                 .getTypeDescriptor(invokableSymbol.type, invokableSymbol.type.tsymbol, true))
                 .build();

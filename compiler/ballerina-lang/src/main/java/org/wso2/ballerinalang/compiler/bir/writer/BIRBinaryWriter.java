@@ -214,6 +214,11 @@ public class BIRBinaryWriter {
         // Store annotations here...
         BIRWriterUtils.writeAnnotAttachments(cp, buf, birFunction.annotAttachments);
 
+        List<BIRNode.BIRAnnotationAttachment> annotAttachmentsOnExternal = birFunction.annotAttachmentsOnExternal;
+        if (annotAttachmentsOnExternal != null) {
+            BIRWriterUtils.writeAnnotAttachments(cp, buf, annotAttachmentsOnExternal);
+        }
+
         // Store return type annotations
         BIRWriterUtils.writeAnnotAttachments(cp, buf, birFunction.returnTypeAnnots);
 
