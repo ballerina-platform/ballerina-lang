@@ -68,6 +68,7 @@ import org.eclipse.lsp4j.debug.CompletionsResponse;
 import org.eclipse.lsp4j.debug.ConfigurationDoneArguments;
 import org.eclipse.lsp4j.debug.ContinueArguments;
 import org.eclipse.lsp4j.debug.ContinueResponse;
+import org.eclipse.lsp4j.debug.ContinuedEventArguments;
 import org.eclipse.lsp4j.debug.DisconnectArguments;
 import org.eclipse.lsp4j.debug.EvaluateArguments;
 import org.eclipse.lsp4j.debug.EvaluateResponse;
@@ -1220,11 +1221,22 @@ public class JBallerinaDebugServer implements BallerinaExtendedDebugServer {
      * Clears all state information.
      */
     private void resetServer() {
+        clearDebugHits();
         Optional.ofNullable(eventProcessor).ifPresent(JDIEventProcessor::reset);
         Optional.ofNullable(outputLogger).ifPresent(DebugOutputLogger::reset);
         Optional.ofNullable(executionManager).ifPresent(DebugExecutionManager::reset);
         terminateDebuggee();
         clearSuspendedState();
         context.reset();
+    }
+
+    /**
+     * Clears any debug hits in the client side before restarting the debug session.
+     */
+    private void clearDebugHits() {
+        // Notifies the debug client that the execution is resumed.
+        ContinuedEventArguments continuedEventArguments = new ContinuedEventArguments();
+        continuedEventArguments.setAllThreadsContinued(true);
+        context.getClient().continued(continuedEventArguments);
     }
 }

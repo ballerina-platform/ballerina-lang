@@ -86,6 +86,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNumericLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangStringTemplateLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangUnaryExpr;
 import org.wso2.ballerinalang.compiler.util.BArrayState;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
@@ -193,6 +194,7 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
         switch (expr.getKind()) {
             case LITERAL:
             case NUMERIC_LITERAL:
+            case STRING_TEMPLATE_LITERAL:
             case RECORD_LITERAL_EXPR:
             case LIST_CONSTRUCTOR_EXPR:
             case SIMPLE_VARIABLE_REF:
@@ -505,6 +507,34 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
 
         BType finiteType = getFiniteType(resolvedValue, constantSymbol, unaryExpr.pos, resultType);
         if (data.compoundExprCount == 0 && types.typeIncompatible(unaryExpr.pos, finiteType, data.expType)) {
+            data.resultType = symTable.semanticError;
+            return;
+        }
+        data.resultType = finiteType;
+    }
+
+    @Override
+    public void visit(BLangStringTemplateLiteral stringTemplateLiteral, AnalyzerData data) {
+        StringBuilder resultString = new StringBuilder();
+        for (BLangExpression expr : stringTemplateLiteral.exprs) {
+            BType exprType = checkConstExpr(expr, data);
+            if (exprType == symTable.semanticError) {
+                data.resultType = symTable.semanticError;
+                return;
+            }
+            if (!types.isNonNilSimpleBasicTypeOrString(exprType)) {
+                dlog.error(expr.pos, DiagnosticErrorCode.INCOMPATIBLE_TYPES, symTable.interpolationAllowedType,
+                        exprType);
+                data.resultType = symTable.semanticError;
+                return;
+            }
+            BLangLiteral exprLiteral = (BLangLiteral) ((BFiniteType) exprType).getValueSpace().iterator().next();
+            resultString.append(getValue(exprLiteral));
+        }
+
+        Location pos = stringTemplateLiteral.pos;
+        BType finiteType = getFiniteType(resultString.toString(), data.constantSymbol, pos, symTable.stringType);
+        if (data.compoundExprCount == 0 && types.typeIncompatible(pos, finiteType, data.expType)) {
             data.resultType = symTable.semanticError;
             return;
         }
@@ -1577,7 +1607,8 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
             case TypeTags.DECIMAL:
                 BigDecimal lhsDecimal = new BigDecimal(String.valueOf(lhs), MathContext.DECIMAL128);
                 BigDecimal rhsDecimal = new BigDecimal(String.valueOf(rhs), MathContext.DECIMAL128);
-                BigDecimal resultDecimal = lhsDecimal.subtract(rhsDecimal, MathContext.DECIMAL128);
+                BigDecimal resultDecimal = lhsDecimal.compareTo(rhsDecimal) == 0 ? BigDecimal.ZERO :
+                        lhsDecimal.subtract(rhsDecimal, MathContext.DECIMAL128);
                 resultDecimal = types.getValidDecimalNumber(data.pos, resultDecimal);
                 return resultDecimal != null ? resultDecimal.toPlainString() : null;
             default:

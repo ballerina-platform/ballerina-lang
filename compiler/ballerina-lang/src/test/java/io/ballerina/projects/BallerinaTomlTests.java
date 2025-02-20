@@ -233,33 +233,27 @@ public class BallerinaTomlTests {
         Assert.assertEquals(buildOptions.graalVMBuildOptions(), "--static");
     }
 
-    @DataProvider(name = "ballerinaTomlWithInvalidEntries")
-    public Object[][] provideBallerinaTomlWithInvalidEntries() {
-        return new Object[][] {
-                {
-                    "missing-tool-entries.toml",
-                    "missing key '[filePath]' in table '[tool.openapi]'.",
-                    "missing key '[id]' in table '[tool.openapi]'."
-                },
-                {
-                    "invalid-tool-entries.toml",
-                    "empty string found for key '[filePath]' in table '[tool.openapi]'.",
-                    "incompatible type found for key '[targetModule]': expected 'STRING'"
-                }
-        };
+    @Test(description = "Test Ballerina.toml file with invalid or missing tool properties")
+    public void testBallerinaTomlWithMissingToolEntries() throws IOException {
+        PackageManifest packageManifest = getPackageManifest(BAL_TOML_REPO.resolve("missing-tool-entries.toml"));
+        Assert.assertTrue(packageManifest.diagnostics().hasErrors());
+        Assert.assertEquals(packageManifest.diagnostics().errors().size(), 1);
+
+        Iterator<Diagnostic> iterator = packageManifest.diagnostics().errors().iterator();
+        Assert.assertEquals(iterator.next().message(), "missing key '[id]' in table '[tool.openapi]'.");
     }
 
-    @Test(description = "Test Ballerina.toml file with invalid or missing tool properties",
-            dataProvider = "ballerinaTomlWithInvalidEntries")
-    public void testBallerinaTomlWithMissingToolEntries(String tomlFileName, String assertMessage1,
-        String assertMessage2) throws IOException {
-        PackageManifest packageManifest = getPackageManifest(BAL_TOML_REPO.resolve(tomlFileName));
+    @Test(description = "Test Ballerina.toml file with invalid or missing tool properties")
+    public void testBallerinaTomlWithInvalidToolEntries() throws IOException {
+        PackageManifest packageManifest = getPackageManifest(BAL_TOML_REPO.resolve("invalid-tool-entries.toml"));
         Assert.assertTrue(packageManifest.diagnostics().hasErrors());
         Assert.assertEquals(packageManifest.diagnostics().errors().size(), 2);
 
         Iterator<Diagnostic> iterator = packageManifest.diagnostics().errors().iterator();
-        Assert.assertEquals(iterator.next().message(), assertMessage1);
-        Assert.assertEquals(iterator.next().message(), assertMessage2);
+        Assert.assertEquals(iterator.next().message(),
+                "empty string found for key '[filePath]' in table '[tool.openapi]'.");
+        Assert.assertEquals(iterator.next().message(),
+                "incompatible type found for key '[targetModule]': expected 'STRING'");
     }
 
     @Test(description = "Platform libs should be given as [[platform.java21.dependency]], " +
