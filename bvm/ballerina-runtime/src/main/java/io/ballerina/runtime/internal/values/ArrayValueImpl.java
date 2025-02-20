@@ -666,7 +666,7 @@ public class ArrayValueImpl extends AbstractArrayValue {
             if (sourceType == this.elementType) {
                 prepareForAddWithoutTypeCheck(index, intValues.length);
             } else {
-                prepareForAdd(index, value, sourceType, intValues.length);
+                prepareForAdd(index, value, intValues.length);
             }
             intValues[(int) index] = value;
             return;
@@ -674,7 +674,7 @@ public class ArrayValueImpl extends AbstractArrayValue {
         if (sourceType == this.elementType) {
             prepareForAddWithoutTypeCheck(index, byteValues.length);
         } else {
-            prepareForAdd(index, value, sourceType, byteValues.length);
+            prepareForAdd(index, value, byteValues.length);
         }
         byteValues[(int) index] = (byte) ((Long) value).intValue();
     }
@@ -704,7 +704,7 @@ public class ArrayValueImpl extends AbstractArrayValue {
         if (sourceType == this.elementType) {
             prepareForAddWithoutTypeCheck(index, bStringValues.length);
         } else {
-            prepareForAdd(index, value, sourceType, bStringValues.length);
+            prepareForAdd(index, value, bStringValues.length);
         }
         bStringValues[(int) index] = value;
     }
