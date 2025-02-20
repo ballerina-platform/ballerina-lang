@@ -63,6 +63,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNumericLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangStringTemplateLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangUnaryExpr;
 import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
@@ -296,6 +297,15 @@ public class ConstantValueResolver extends BLangNodeVisitor {
         BLangConstantValue lhs = constructBLangConstantValue(binaryExpr.lhsExpr);
         BLangConstantValue rhs = constructBLangConstantValue(binaryExpr.rhsExpr);
         this.result = calculateConstValue(lhs, rhs, binaryExpr.opKind);
+    }
+
+    public void visit(BLangStringTemplateLiteral stringTemplateLiteral) {
+        StringBuilder resultString = new StringBuilder();
+        stringTemplateLiteral.exprs.forEach(expr -> {
+            expr.accept(this);
+            resultString.append(this.result);
+        });
+        this.result = new BLangConstantValue(resultString.toString(), symTable.stringType);
     }
 
     @Override
@@ -610,6 +620,7 @@ public class ConstantValueResolver extends BLangNodeVisitor {
             case BINARY_EXPR:
             case GROUP_EXPR:
             case UNARY_EXPR:
+            case STRING_TEMPLATE_LITERAL:
                 BLangConstantValue prevResult = this.result;
                 Location prevPos = this.currentPos;
                 this.currentPos = node.pos;

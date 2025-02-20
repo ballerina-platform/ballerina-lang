@@ -139,6 +139,7 @@ public class SymbolTable {
     public final BTypedescType typeDesc;
     public final BType readonlyType = new BReadonlyType();
     public final BType pathParamAllowedType;
+    public final BType interpolationAllowedType;
     public final BIntersectionType anyAndReadonly;
     public BUnionType anyAndReadonlyOrError;
 
@@ -301,6 +302,9 @@ public class SymbolTable {
 
         pathParamAllowedType = BUnionType.create(types.typeEnv(), null,
                 intType, stringType, floatType, booleanType, decimalType);
+
+        interpolationAllowedType = BUnionType.create(types.typeEnv(), null, intType, floatType, decimalType,
+                stringType, booleanType);
         tupleType = new BTupleType(types.typeEnv(), Lists.of(new BTupleMember(noType, varSymbol)));
         recordType = new BRecordType(typeEnv(), null);
         invokableType = new BInvokableType(types.typeEnv(), List.of(), null, null, null);
