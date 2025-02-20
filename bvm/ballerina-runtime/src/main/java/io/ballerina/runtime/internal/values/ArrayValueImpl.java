@@ -308,7 +308,7 @@ public class ArrayValueImpl extends AbstractArrayValue {
 
     /**
      * Get value in the given array index.
-     * 
+     *
      * @param index array index
      * @return array value
      */
@@ -661,28 +661,36 @@ public class ArrayValueImpl extends AbstractArrayValue {
     }
 
     public void addInt(long index, long value) {
+        Type sourceType = TypeChecker.getType(value);
         if (intValues != null) {
-            prepareForAdd(index, value, intValues.length);
+            if (sourceType == this.elementType) {
+                prepareForAddWithoutTypeCheck(index, intValues.length);
+            } else {
+                prepareForAdd(index, value, sourceType, intValues.length);
+            }
             intValues[(int) index] = value;
             return;
         }
-
-        prepareForAdd(index, value, byteValues.length);
+        if (sourceType == this.elementType) {
+            prepareForAddWithoutTypeCheck(index, byteValues.length);
+        } else {
+            prepareForAdd(index, value, sourceType, byteValues.length);
+        }
         byteValues[(int) index] = (byte) ((Long) value).intValue();
     }
 
     private void addBoolean(long index, boolean value) {
-        prepareForAdd(index, value, booleanValues.length);
+        prepareForAddWithoutTypeCheck(index, booleanValues.length);
         booleanValues[(int) index] = value;
     }
 
     private void addByte(long index, byte value) {
-        prepareForAdd(index, value, byteValues.length);
+        prepareForAddWithoutTypeCheck(index, byteValues.length);
         byteValues[(int) index] = value;
     }
 
     private void addFloat(long index, double value) {
-        prepareForAdd(index, value, floatValues.length);
+        prepareForAddWithoutTypeCheck(index, floatValues.length);
         floatValues[(int) index] = value;
     }
 
@@ -692,7 +700,12 @@ public class ArrayValueImpl extends AbstractArrayValue {
     }
 
     private void addBString(long index, BString value) {
-        prepareForAdd(index, value, bStringValues.length);
+        Type sourceType = TypeChecker.getType(value);
+        if (sourceType == this.elementType) {
+            prepareForAddWithoutTypeCheck(index, bStringValues.length);
+        } else {
+            prepareForAdd(index, value, sourceType, bStringValues.length);
+        }
         bStringValues[(int) index] = value;
     }
 
