@@ -20,14 +20,23 @@ package org.wso2.ballerinalang.compiler.semantics.analyzer;
 import io.ballerina.types.BasicTypeBitSet;
 import io.ballerina.types.ComplexSemType;
 import io.ballerina.types.Context;
+import io.ballerina.types.Core;
+import io.ballerina.types.EnumerableCharString;
+import io.ballerina.types.EnumerableDecimal;
+import io.ballerina.types.EnumerableFloat;
+import io.ballerina.types.EnumerableString;
 import io.ballerina.types.PredefinedType;
 import io.ballerina.types.SemType;
 import io.ballerina.types.SemTypes;
 import io.ballerina.types.SubtypeData;
+import io.ballerina.types.subtypedata.AllOrNothingSubtype;
 import io.ballerina.types.subtypedata.BooleanSubtype;
+import io.ballerina.types.subtypedata.CharStringSubtype;
 import io.ballerina.types.subtypedata.DecimalSubtype;
 import io.ballerina.types.subtypedata.FloatSubtype;
 import io.ballerina.types.subtypedata.IntSubtype;
+import io.ballerina.types.subtypedata.NonCharStringSubtype;
+import io.ballerina.types.subtypedata.Range;
 import io.ballerina.types.subtypedata.StringSubtype;
 import org.ballerinalang.model.types.TypeKind;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
@@ -259,5 +268,114 @@ public final class SemTypeHelper {
             n += 1;
         }
         return n;
+    }
+
+    /**
+     * Get the string value representing the value defined by the value space.
+     *
+     * @param type type representing the value space
+     * @return the string value if the value space is a singleton value belonging to simple basic type, empty otherwise
+     */
+    public static Optional<String> getStringValue(BType type) {
+        SemType semType = type.semType();
+        if (Core.isSubtypeSimple(semType, PredefinedType.NIL)) {
+            return Optional.of("");
+        }
+        if (Core.isSubtypeSimple(semType, PredefinedType.BOOLEAN)) {
+            return getSingletonBooleanValue(semType).map(String::valueOf);
+        }
+        if (Core.isSubtypeSimple(semType, PredefinedType.INT)) {
+            return getSingletonIntegerValue(semType).map(String::valueOf);
+        }
+        if (Core.isSubtypeSimple(semType, PredefinedType.FLOAT)) {
+            return getSingletonFloatValue(semType).map(String::valueOf);
+        }
+        if (Core.isSubtypeSimple(semType, PredefinedType.DECIMAL)) {
+            return getSingletonDecimalValue(semType).map(String::valueOf);
+        }
+        if (Core.isSubtypeSimple(semType, PredefinedType.STRING)) {
+            return getSingletonStringValue(semType);
+        }
+        return Optional.empty();
+    }
+
+    private static Optional<Boolean> getSingletonBooleanValue(SemType semType) {
+        SubtypeData subtypeData = Core.subtypeData(semType, BT_BOOLEAN);
+        if (!(subtypeData instanceof BooleanSubtype booleanSubtype)) {
+            assert subtypeData instanceof AllOrNothingSubtype;
+            return Optional.empty();
+        }
+        return Optional.of(booleanSubtype.value);
+    }
+
+    private static Optional<Long> getSingletonIntegerValue(SemType semType) {
+        SubtypeData subtypeData = Core.subtypeData(semType, BT_INT);
+        if (!(subtypeData instanceof IntSubtype intSubtype)) {
+            assert subtypeData instanceof AllOrNothingSubtype;
+            return Optional.empty();
+        }
+        Range[] ranges = intSubtype.ranges;
+        if (ranges.length != 1) {
+            return Optional.empty();
+        }
+        Range range = ranges[0];
+        if (range.min != range.max) {
+            return Optional.empty();
+        }
+        return Optional.of(range.min);
+    }
+
+    private static Optional<Double> getSingletonFloatValue(SemType semType) {
+        SubtypeData subtypeData = Core.subtypeData(semType, BT_FLOAT);
+        if (!(subtypeData instanceof FloatSubtype floatSubtypeData)) {
+            assert subtypeData instanceof AllOrNothingSubtype;
+            return Optional.empty();
+        }
+        if (!floatSubtypeData.allowed) {
+            return Optional.empty();
+        }
+        EnumerableFloat[] values = (EnumerableFloat[]) floatSubtypeData.values();
+        if (values.length != 1) {
+            return Optional.empty();
+        }
+        return Optional.of(values[0].value);
+    }
+
+    private static Optional<BigDecimal> getSingletonDecimalValue(SemType semType) {
+        SubtypeData subtypeData = Core.subtypeData(semType, BT_DECIMAL);
+        if (!(subtypeData instanceof DecimalSubtype decimalSubtype)) {
+            assert subtypeData instanceof AllOrNothingSubtype;
+            return Optional.empty();
+        }
+        if (!decimalSubtype.allowed) {
+            return Optional.empty();
+        }
+        EnumerableDecimal[] values = (EnumerableDecimal[]) decimalSubtype.values();
+        if (values.length != 1) {
+            return Optional.empty();
+        }
+        return Optional.of(values[0].value);
+    }
+
+    private static Optional<String> getSingletonStringValue(SemType semType) {
+        SubtypeData subtypeData = Core.subtypeData(semType, BT_STRING);
+        if (!(subtypeData instanceof StringSubtype stringSubtypeData)) {
+            assert subtypeData instanceof AllOrNothingSubtype;
+            return Optional.empty();
+        }
+        CharStringSubtype charData = stringSubtypeData.getChar();
+        NonCharStringSubtype nonCharData = stringSubtypeData.getNonChar();
+        if (!charData.allowed || !nonCharData.allowed) {
+            return Optional.empty();
+        }
+        if (charData.values().length == 1) {
+            EnumerableCharString charValue = (EnumerableCharString) charData.values()[0];
+            return Optional.of(charValue.value);
+        }
+        if (nonCharData.values().length == 1) {
+            EnumerableString nonCharValue = (EnumerableString) nonCharData.values()[0];
+            return Optional.of(nonCharValue.value);
+        }
+        return Optional.empty();
     }
 }

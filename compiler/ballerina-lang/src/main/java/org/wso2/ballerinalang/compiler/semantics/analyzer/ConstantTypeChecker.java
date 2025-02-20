@@ -533,12 +533,11 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
                 data.resultType = symTable.semanticError;
                 return;
             }
-            BLangLiteral exprLiteral = (BLangLiteral) ((BFiniteType) exprType).getValueSpace().iterator().next();
-            resultString.append(getValue(exprLiteral));
+            resultString.append(SemTypeHelper.getStringValue(exprType).orElseThrow());
         }
 
         Location pos = stringTemplateLiteral.pos;
-        BType finiteType = getFiniteType(resultString.toString(), data.constantSymbol, pos, symTable.stringType);
+        BType finiteType = getFiniteType(resultString.toString(), data.constantSymbol, symTable.stringType);
         if (data.compoundExprCount == 0 && types.typeIncompatible(pos, finiteType, data.expType)) {
             data.resultType = symTable.semanticError;
             return;
