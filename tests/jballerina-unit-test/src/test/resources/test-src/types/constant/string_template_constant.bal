@@ -55,7 +55,7 @@ public function testStringTemplateConstantExpr() {
    assertEquality(v4, v14);
    assertEquality(v5, v15);
    assertEquality(v6, v16);
-   assertEquality(v7, v17); // Todo: This needs to be fixed
+   assertEquality(v7, v17);
 }
 
 function assertEquality(anydata expected, anydata actual) {
