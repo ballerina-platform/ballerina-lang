@@ -46,12 +46,12 @@ public class BTypedescType extends BType implements TypedescType {
     private final Type constraint;
 
     public BTypedescType(String typeName, Module pkg) {
-        super(typeName, pkg, Object.class);
+        super(typeName, pkg, Object.class, true);
         constraint = null;
     }
 
     public BTypedescType(Type constraint) {
-        super(TypeConstants.TYPEDESC_TNAME, null, TypedescValue.class);
+        super(TypeConstants.TYPEDESC_TNAME, null, TypedescValue.class, true);
         this.constraint = constraint;
     }
 

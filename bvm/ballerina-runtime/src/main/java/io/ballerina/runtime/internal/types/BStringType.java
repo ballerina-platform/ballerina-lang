@@ -100,7 +100,7 @@ public final class BStringType extends BSemTypeWrapper<BStringType.BStringTypeIm
         private final int tag;
 
         private BStringTypeImpl(String typeName, Module pkg, int tag) {
-            super(typeName, pkg, String.class);
+            super(typeName, pkg, String.class, false);
             this.tag = tag;
         }
 

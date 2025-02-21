@@ -103,7 +103,7 @@ public class BArrayType extends BType implements ArrayType, TypeWithShape {
     }
 
     public BArrayType(int typeFlags, int size, boolean readonly, boolean hasFillerValue) {
-        super(null, null, ArrayValue.class);
+        super(null, null, ArrayValue.class, false);
         this.typeFlags = typeFlags;
         if (size != -1) {
             state = ArrayState.CLOSED;
@@ -128,6 +128,8 @@ public class BArrayType extends BType implements ArrayType, TypeWithShape {
             }
             this.typeId = data.typeId;
             this.typeCheckCache = data.typeCheckCache;
+        } else {
+            initializeCache();
         }
     }
 

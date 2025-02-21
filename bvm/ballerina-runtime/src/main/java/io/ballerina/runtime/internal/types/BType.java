@@ -60,13 +60,19 @@ public abstract non-sealed class BType extends SemType
     protected TypeCheckCache typeCheckCache;
     protected int typeId;
 
-    protected BType(String typeName, Module pkg, Class<? extends Object> valueClass) {
+    protected BType(String typeName, Module pkg, Class<? extends Object> valueClass, boolean initializeCache) {
         this.typeName = typeName;
         this.pkg = pkg;
         this.valueClass = valueClass;
         if (pkg != null && typeName != null) {
             this.hashCode = Objects.hash(pkg, typeName);
         }
+        if (initializeCache) {
+            initializeCache();
+        }
+    }
+
+    protected void initializeCache() {
         if (isNamedType()) {
             TypeIdentifier identifier = new TypeIdentifier(this.pkg, this.typeName);
             typeCheckCache = TypeCheckCacheFactory.get(identifier);

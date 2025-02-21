@@ -68,50 +68,47 @@ public class BXmlType extends BType implements XmlType, TypeWithShape {
      * @param constraint constraint of the xml sequence
      */
     public BXmlType(String typeName, Type constraint, Module pkg) {
-        super(typeName, pkg, XmlValue.class);
+        super(typeName, pkg, XmlValue.class, false);
         this.constraint = constraint;
         this.tag = TypeTags.XML_TAG;
         this.readonly = false;
-        var init = initCachedValues(this);
-        typeCheckCache = init.typeCheckCache;
-        typeId = init.typeId;
+        initializeCache();
     }
 
     public BXmlType(String typeName, Module pkg, int tag, boolean readonly) {
-        super(typeName, pkg, XmlValue.class);
+        super(typeName, pkg, XmlValue.class, false);
         this.tag = tag;
         this.readonly = readonly;
         this.constraint = null;
-        var init = initCachedValues(this);
-        typeCheckCache = init.typeCheckCache;
-        typeId = init.typeId;
+        initializeCache();
     }
 
     public BXmlType(String typeName, Type constraint, Module pkg, int tag, boolean readonly) {
-        super(typeName, pkg, XmlValue.class);
+        super(typeName, pkg, XmlValue.class, false);
         this.tag = tag;
         this.readonly = readonly;
         this.constraint = constraint;
-        var init = initCachedValues(this);
-        typeCheckCache = init.typeCheckCache;
-        typeId = init.typeId;
+        initializeCache();
     }
 
     public BXmlType(String typeName, Type constraint, Module pkg, boolean readonly) {
-        super(typeName, pkg, XmlValue.class);
+        super(typeName, pkg, XmlValue.class, false);
         this.tag = TypeTags.XML_TAG;
         this.readonly = readonly;
         this.constraint = constraint;
-        var init = initCachedValues(this);
-        typeCheckCache = init.typeCheckCache;
-        typeId = init.typeId;
+        initializeCache();
     }
 
     public BXmlType(Type constraint, boolean readonly) {
-        super(TypeConstants.XML_TNAME, null, XmlValue.class);
+        super(TypeConstants.XML_TNAME, null, XmlValue.class, false);
         this.tag = TypeTags.XML_TAG;
         this.constraint = readonly ? ReadOnlyUtils.getReadOnlyType(constraint) : constraint;
         this.readonly = readonly;
+        initializeCache();
+    }
+
+    @Override
+    protected void initializeCache() {
         var init = initCachedValues(this);
         typeCheckCache = init.typeCheckCache;
         typeId = init.typeId;

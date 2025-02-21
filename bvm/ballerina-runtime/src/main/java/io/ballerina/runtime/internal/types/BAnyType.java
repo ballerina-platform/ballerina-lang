@@ -84,7 +84,7 @@ public final class BAnyType extends BSemTypeWrapper<BAnyType.BAnyTypeImpl> imple
         private IntersectionType intersectionType = null;
 
         private BAnyTypeImpl(String typeName, Module pkg, boolean readonly) {
-            super(typeName, pkg, RefValue.class);
+            super(typeName, pkg, RefValue.class, false);
             this.readonly = readonly;
 
             if (!readonly) {
