@@ -17,6 +17,7 @@
  */
 package io.ballerina.runtime.internal.types;
 
+import com.github.benmanes.caffeine.cache.LoadingCache;
 import io.ballerina.runtime.api.flags.TypeFlags;
 import io.ballerina.runtime.api.types.ArrayType;
 import io.ballerina.runtime.api.types.IntersectionType;
@@ -356,13 +357,19 @@ public class BArrayType extends BType implements ArrayType, TypeWithShape {
     private static class TypeCheckCacheData {
 
         private static final Map<Integer, SemType> cachedSemTypes = new ConcurrentHashMap<>();
-        private static final Map<Integer, TypeCheckCacheFlyweight> cacheRW = CacheFactory.createCachingHashMap();
-        private static final Map<Integer, TypeCheckCacheFlyweight> cacheRO = CacheFactory.createCachingHashMap();
+        private static final LoadingCache<Integer, TypeCheckCacheFlyweight> cacheRW =
+                CacheFactory.createCache(TypeCheckCacheFlyweight::create);
+        private static final LoadingCache<Integer, TypeCheckCacheFlyweight> cacheRO =
+                CacheFactory.createCache(TypeCheckCacheFlyweight::create);
 
         private record TypeCheckCacheFlyweight(int typeId, TypeCheckCache typeCheckCache) {
 
             public static TypeCheckCacheFlyweight create() {
                 return new TypeCheckCacheFlyweight(TypeIdSupplier.getAnonId(), TypeCheckCacheFactory.create());
+            }
+
+            public static TypeCheckCacheFlyweight create(Integer integer) {
+                return create();
             }
         }
 
@@ -381,15 +388,9 @@ public class BArrayType extends BType implements ArrayType, TypeWithShape {
         }
 
         private static TypeCheckCacheFlyweight get(CacheableTypeDescriptor type,
-                                                   Map<Integer, TypeCheckCacheFlyweight> cache) {
+                                                   LoadingCache<Integer, TypeCheckCacheFlyweight> cache) {
             int typeId = type.typeId();
-            var cached = cache.get(typeId);
-            if (cached != null) {
-                return cached;
-            }
-            var flyWeight = TypeCheckCacheFlyweight.create();
-            cache.put(typeId, flyWeight);
-            return flyWeight;
+            return cache.get(typeId);
         }
     }
 }

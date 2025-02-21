@@ -17,6 +17,7 @@
  */
 package io.ballerina.runtime.internal.types;
 
+import com.github.benmanes.caffeine.cache.LoadingCache;
 import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.constants.TypeConstants;
 import io.ballerina.runtime.api.types.IntersectionType;
@@ -311,9 +312,11 @@ public class BMapType extends BType implements MapType, TypeWithShape, Cloneable
 
         private static final Map<Integer, SemType> cachedSemTypes = new ConcurrentHashMap<>();
 
-        private static final Map<Integer, TypeCheckFlyweight> cacheRO = CacheFactory.createCachingHashMap();
+        private static final LoadingCache<Integer, TypeCheckFlyweight> cacheRO =
+                CacheFactory.createCache(TypeCheckFlyweight::create);
 
-        private static final Map<Integer, TypeCheckFlyweight> cacheRW = CacheFactory.createCachingHashMap();
+        private static final LoadingCache<Integer, TypeCheckFlyweight> cacheRW =
+                CacheFactory.createCache(TypeCheckFlyweight::create);
 
         public static TypeCheckFlyweight getRO(Type constraint) {
             return get(cacheRO, constraint);
@@ -323,27 +326,25 @@ public class BMapType extends BType implements MapType, TypeWithShape, Cloneable
             return get(cacheRW, constraint);
         }
 
-        private static TypeCheckFlyweight get(Map<Integer, TypeCheckFlyweight> cache, Type constraint) {
+        private static TypeCheckFlyweight get(LoadingCache<Integer, TypeCheckFlyweight> cache, Type constraint) {
             if (constraint instanceof CacheableTypeDescriptor cacheableTypeDescriptor) {
                 int typeId = cacheableTypeDescriptor.typeId();
-                var cached = cache.get(typeId);
-                if (cached != null) {
-                    return cached;
-                }
-                var flyWeight = TypeCheckFlyweightStore.create();
-                cache.put(typeId, flyWeight);
-                return flyWeight;
+                return cache.get(typeId);
             }
-            return create();
+            return TypeCheckFlyweight.create();
         }
 
         private record TypeCheckFlyweight(int typeId, TypeCheckCache typeCheckCache) {
 
+            public static TypeCheckFlyweight create(Integer integer) {
+                return create();
+            }
+
+            private static TypeCheckFlyweight create() {
+                return new TypeCheckFlyweight(TypeIdSupplier.getAnonId(),
+                        TypeCheckCacheFactory.create());
+            }
         }
 
-        private static TypeCheckFlyweight create() {
-            return new TypeCheckFlyweight(TypeIdSupplier.getAnonId(),
-                    TypeCheckCacheFactory.create());
-        }
     }
 }

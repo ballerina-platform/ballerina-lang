@@ -21,6 +21,7 @@ package io.ballerina.runtime.internal.types.semtype;
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.CacheLoader;
 import com.github.benmanes.caffeine.cache.Caffeine;
+import com.github.benmanes.caffeine.cache.Interner;
 import com.github.benmanes.caffeine.cache.LoadingCache;
 
 import java.util.HashMap;
@@ -60,5 +61,9 @@ public class CacheFactory {
 
     public static <K, V> Map<K, V> createCachingHashMap() {
         return new HashMap<>(INITIAL_CAPACITY);
+    }
+
+    public static <E> Interner<E> createInterner() {
+        return Interner.newStrongInterner();
     }
 }

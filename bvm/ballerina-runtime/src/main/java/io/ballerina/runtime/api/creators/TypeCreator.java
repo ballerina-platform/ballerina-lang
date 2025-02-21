@@ -17,6 +17,9 @@
  */
 package io.ballerina.runtime.api.creators;
 
+import com.github.benmanes.caffeine.cache.CacheLoader;
+import com.github.benmanes.caffeine.cache.Interner;
+import com.github.benmanes.caffeine.cache.LoadingCache;
 import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.types.ArrayType;
 import io.ballerina.runtime.api.types.ErrorType;
@@ -70,7 +73,7 @@ public final class TypeCreator {
      * @return the new array type
      */
     public static ArrayType createArrayType(Type elementType) {
-        return logAndReturn(new BArrayType(elementType));
+        return logAndReturn(ARRAY_TYPE_CACHE.get(elementType));
     }
 
     /**
@@ -114,7 +117,10 @@ public final class TypeCreator {
      * @return the new tuple type
      */
     public static TupleType createTupleType(List<Type> typeList) {
-        return logAndReturn(new BTupleType(typeList));
+        if (typeList.size() > 20) {
+            return logAndReturn(new BTupleType(typeList));
+        }
+        return TUPLE_TYPE_CACHE.get(typeList);
     }
 
     /**
@@ -178,7 +184,7 @@ public final class TypeCreator {
      * @return the new map type
      */
     public static MapType createMapType(Type constraint) {
-        return logAndReturn(new BMapType(constraint));
+        return MAP_TYPE_CACHE.get(constraint);
     }
 
     /**
@@ -327,7 +333,7 @@ public final class TypeCreator {
      * @return the new union type
      */
     public static UnionType createUnionType(Type... memberTypes) {
-        return logAndReturn(new BUnionType(Arrays.asList(memberTypes)));
+        return createUnionType(Arrays.asList(memberTypes));
     }
 
     /**
@@ -337,7 +343,10 @@ public final class TypeCreator {
      * @return the new union type
      */
     public static UnionType createUnionType(List<Type> memberTypes) {
-        return logAndReturn(new BUnionType(memberTypes));
+        if (memberTypes.size() > 20) {
+            return logAndReturn(new BUnionType(memberTypes));
+        }
+        return UNION_TYPE_CACHE.get(memberTypes);
     }
 
     /**
@@ -515,7 +524,7 @@ public final class TypeCreator {
      * @return new finite type
      */
     public static FiniteType createFiniteType(String typeName) {
-        return logAndReturn(new BFiniteType(typeName));
+        return FINITE_TYPE_CACHE.get(typeName);
     }
 
     /**
@@ -572,6 +581,34 @@ public final class TypeCreator {
 
         void put(TypeIdentifier identifier, BRecordType value) {
             cache.put(identifier, value);
+        }
+    }
+
+    private static final ConstraintTypeCache<List<Type>, TupleType> TUPLE_TYPE_CACHE =
+            new ConstraintTypeCache<>(BTupleType::new);
+
+    private static final ConstraintTypeCache<Type, ArrayType> ARRAY_TYPE_CACHE =
+            new ConstraintTypeCache<>(BArrayType::new);
+
+    private static final ConstraintTypeCache<Type, MapType> MAP_TYPE_CACHE = new ConstraintTypeCache<>(BMapType::new);
+
+    private static final ConstraintTypeCache<List<Type>, UnionType> UNION_TYPE_CACHE =
+            new ConstraintTypeCache<>(BUnionType::new);
+
+    private static final LoadingCache<String, FiniteType> FINITE_TYPE_CACHE =
+            CacheFactory.createCache(BFiniteType::new);
+
+    public static class ConstraintTypeCache<C, T> {
+
+        private final Interner<C> constraintInterner = CacheFactory.createInterner();
+        private final LoadingCache<C, T> cache;
+
+        protected ConstraintTypeCache(CacheLoader<C, T> cacheLoader) {
+            cache = CacheFactory.createIdentityCache(cacheLoader);
+        }
+
+        T get(C constraint) {
+            return cache.get(constraintInterner.intern(constraint));
         }
     }
 }
