@@ -40,6 +40,17 @@ jobs:
         run: |
           ./gradlew clean build -x check publishToMavenLocal --stacktrace --scan
 
+      - name: Upload debug files
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ballerina-lang-hprof
+          path: |
+            **/*.hprof
+            **/hs_err_pid*.log
+            **/reports/**/*.html
+          if-no-files-found: ignore
+
       - name: Archive Lang Artifacts
         uses: actions/upload-artifact@v4
         with:
@@ -137,6 +148,17 @@ jobs:
           CLIENT_SECRET: ${{ secrets.CLIENT_SECRET }}
           REFRESH_TOKEN: ${{ secrets.REFRESH_TOKEN }}
 
+      - name: Upload debug files
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: stdlib-level-${{ matrix.level }}-hprof
+          path: |
+            **/*.hprof
+            **/hs_err_pid*.log
+            **/reports/**/*.html
+          if-no-files-found: ignore
+
   build-distribution:
     needs: build-lang
     name: Build Ballerina Distribution
@@ -181,3 +203,15 @@ jobs:
           packageUser: ${{ secrets.BALLERINA_BOT_USERNAME }}
           packagePAT: ${{ secrets.GITHUB_TOKEN }}
           devCentralToken: ${{ secrets.BALLERINA_DEV_CENTRAL_ACCESS_TOKEN }}
+
+      - name: Upload debug files
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: distribution-hprof
+          path: |
+            **/*.hprof
+            **/hs_err_pid*.log
+            **/reports/**/*.html
+          if-no-files-found: ignore
+

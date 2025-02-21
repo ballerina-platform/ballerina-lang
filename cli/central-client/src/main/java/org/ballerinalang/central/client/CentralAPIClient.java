@@ -197,8 +197,8 @@ public class CentralAPIClient {
     }
 
     public CentralAPIClient(String baseUrl, Proxy proxy, String proxyUsername, String proxyPassword,
-            String accessToken, int connectionTimeout, int readTimeout, int writeTimeout,
-            int callTimeout, int maxRetries) {
+                            String accessToken, int connectionTimeout, int readTimeout, int writeTimeout,
+                            int callTimeout, int maxRetries) {
         this.outStream = System.out;
         this.baseUrl = baseUrl;
         this.proxy = proxy;
@@ -225,7 +225,7 @@ public class CentralAPIClient {
      * @return PackageJsonSchema
      */
     public Package getPackage(String orgNamePath, String packageNamePath, String version, String supportedPlatform,
-            String ballerinaVersion) throws CentralClientException {
+                              String ballerinaVersion) throws CentralClientException {
         String packageSignature = orgNamePath + SEPARATOR + packageNamePath + ":" + version;
         Optional<ResponseBody> body = Optional.empty();
         OkHttpClient client = this.getClient();
@@ -311,7 +311,7 @@ public class CentralAPIClient {
      * @return PackageJsonSchema
      */
     public List<String> getPackageVersions(String orgNamePath, String packageNamePath, String supportedPlatform,
-            String ballerinaVersion) throws CentralClientException {
+                                           String ballerinaVersion) throws CentralClientException {
         String packageSignature = orgNamePath + SEPARATOR + packageNamePath;
         Optional<ResponseBody> body = Optional.empty();
         OkHttpClient client = this.getClient();
@@ -395,7 +395,7 @@ public class CentralAPIClient {
      * @param ballerinaVersion  The ballerina version.
      */
     public void pushPackage(Path balaPath, String org, String name, String version, String supportedPlatform,
-            String ballerinaVersion) throws CentralClientException {
+                            String ballerinaVersion) throws CentralClientException {
         boolean enableOutputStream = Boolean
                 .parseBoolean(System.getProperty(CentralClientConstants.ENABLE_OUTPUT_STREAM));
         String packageSignature = org + SEPARATOR + name + ":" + version;
@@ -536,7 +536,7 @@ public class CentralAPIClient {
     }
 
     private void pullPackageInternal(String org, String name, String version, Path packagePathInBalaCache,
-            String supportedPlatform, String ballerinaVersion, boolean isBuild)
+                                     String supportedPlatform, String ballerinaVersion, boolean isBuild)
             throws CentralClientException {
         String resourceUrl = PACKAGE_PATH_PREFIX + org + SEPARATOR + name;
         boolean enableOutputStream = Boolean
@@ -713,7 +713,7 @@ public class CentralAPIClient {
     }
 
     private String[] pullToolInternal(String toolId, String version, Path balaCacheDirPath, String supportedPlatform,
-            String ballerinaVersion, boolean isBuild) throws CentralClientException {
+                                      String ballerinaVersion, boolean isBuild) throws CentralClientException {
         String resourceUrl = TOOL_PATH_PREFIX + toolId;
         boolean enableOutputStream = Boolean
                 .parseBoolean(System.getProperty(CentralClientConstants.ENABLE_OUTPUT_STREAM));
@@ -868,7 +868,8 @@ public class CentralAPIClient {
      * @throws CentralClientException Central Client exception.
      */
     public PackageNameResolutionResponse resolvePackageNames(PackageNameResolutionRequest request,
-            String supportedPlatform, String ballerinaVersion) throws CentralClientException {
+                                                             String supportedPlatform, String ballerinaVersion)
+            throws CentralClientException {
 
         String url = this.baseUrl + PACKAGE_PATH_PREFIX + RESOLVE_MODULES;
 
@@ -945,7 +946,7 @@ public class CentralAPIClient {
      * @throws CentralClientException Central Client exception.
      */
     public PackageResolutionResponse resolveDependencies(PackageResolutionRequest request, String supportedPlatform,
-            String ballerinaVersion)
+                                                         String ballerinaVersion)
             throws CentralClientException {
 
         String url = this.baseUrl + PACKAGE_PATH_PREFIX + RESOLVE_DEPENDENCIES;
@@ -1234,7 +1235,7 @@ public class CentralAPIClient {
      * Deprecate a package in registry.
      */
     public void deprecatePackage(String packageInfo, String deprecationMsg, String supportedPlatform,
-            String ballerinaVersion, Boolean isUndo) throws CentralClientException {
+                                 String ballerinaVersion, Boolean isUndo) throws CentralClientException {
         // Get existing package details
         // PackageInfo is already validated to support the format
         // org-name/package-name:version
@@ -1863,7 +1864,7 @@ public class CentralAPIClient {
             throws CentralClientException {
         Optional<MediaType> contentType = Optional.ofNullable(mediaType);
         StringBuilder message = new StringBuilder("unauthorized access token. " +
-                    "check access token set in 'Settings.toml' file.");
+                "check access token set in 'Settings.toml' file.");
         if (contentType.isPresent() && isApplicationJsonContentType(contentType.get().toString())) {
             Error error = new Gson().fromJson(responseBody, Error.class);
             message.append("reason: ").append(error.getMessage());
@@ -1912,7 +1913,7 @@ public class CentralAPIClient {
         }
     }
 
-     class CustomRetryInterceptor implements Interceptor {
+    class CustomRetryInterceptor implements Interceptor {
         private final int maxRetries;
         CustomRetryInterceptor(int maxRetry) {
             this.maxRetries = maxRetry;
@@ -1940,23 +1941,23 @@ public class CentralAPIClient {
             return response;
         }
 
-         private void logRetryVerbose(Response response, String bodyContent, Request request, int retryCount) {
-             if (verboseEnabled) {
-                 Optional<ResponseBody> body = Optional.ofNullable(response.body());
-                 outStream.println("< HTTP " + response.code() + " " + response.message());
-                 if (body.isPresent()) {
-                     for (String headerName : response.headers().names()) {
-                         outStream.println("> " + headerName + ": " + response.header(headerName));
-                     }
-                     outStream.println("< ");
-                     if (bodyContent != null && !bodyContent.isEmpty()) {
-                         outStream.println(bodyContent);
-                     }
-                     outStream.println("* Connection to host " + baseUrl + " left intact \n");
-                 }
-                 outStream.println("* Retrying request to " + request.url() + " due to " + response.code() +
-                         " response code. Retry attempt: " + retryCount);
-             }
-         }
+        private void logRetryVerbose(Response response, String bodyContent, Request request, int retryCount) {
+            if (verboseEnabled) {
+                Optional<ResponseBody> body = Optional.ofNullable(response.body());
+                outStream.println("< HTTP " + response.code() + " " + response.message());
+                if (body.isPresent()) {
+                    for (String headerName : response.headers().names()) {
+                        outStream.println("> " + headerName + ": " + response.header(headerName));
+                    }
+                    outStream.println("< ");
+                    if (bodyContent != null && !bodyContent.isEmpty()) {
+                        outStream.println(bodyContent);
+                    }
+                    outStream.println("* Connection to host " + baseUrl + " left intact \n");
+                }
+                outStream.println("* Retrying request to " + request.url() + " due to " + response.code() +
+                        " response code. Retry attempt: " + retryCount);
+            }
+        }
     }
 }

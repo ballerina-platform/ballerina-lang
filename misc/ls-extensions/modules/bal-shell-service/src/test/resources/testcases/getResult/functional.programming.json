@@ -39,9 +39,9 @@
     "source": "f",
     "result": {
       "shellValue": {
-        "value": "function IntFilter",
+        "value": "function isolated function (int) returns (boolean)",
         "mimeType":"plain/text",
-        "type":"IntFilter"
+        "type":"isolated function (int) returns (boolean)"
       },
       "errors":[],
       "diagnostics":[],

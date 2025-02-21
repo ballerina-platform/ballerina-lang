@@ -24,6 +24,11 @@ import io.ballerina.runtime.api.types.AnydataType;
 import io.ballerina.runtime.api.types.PredefinedTypes;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.TypeTags;
+import io.ballerina.runtime.api.types.semtype.BasicTypeBitSet;
+import io.ballerina.runtime.api.types.semtype.Builder;
+import io.ballerina.runtime.api.types.semtype.Context;
+import io.ballerina.runtime.api.types.semtype.Core;
+import io.ballerina.runtime.api.types.semtype.SemType;
 import io.ballerina.runtime.internal.values.RefValue;
 
 /**
@@ -33,6 +38,11 @@ import io.ballerina.runtime.internal.values.RefValue;
  */
 public class BAnydataType extends BUnionType implements AnydataType {
 
+    private static final BasicTypeBitSet BASIC_TYPE;
+    static {
+        SemType anydata = Builder.getAnyDataType();
+        BASIC_TYPE = new BasicTypeBitSet(anydata.all() | anydata.some());
+    }
     /**
      * Create a {@code BAnydataType} which represents the anydata type.
      *
@@ -85,5 +95,22 @@ public class BAnydataType extends BUnionType implements AnydataType {
             return this.typeName;
         }
         return super.toString();
+    }
+
+    // TODO: this type don't have mutable parts so this should be a immutable
+    // semtype. But some things could depend on this being a union type descriptor
+    // as well (which has to be mutable)
+    @Override
+    public SemType createSemType(Context cx) {
+        SemType semType = Builder.getAnyDataType();
+        if (isReadOnly()) {
+            semType = Core.intersect(semType, Builder.getReadonlyType());
+        }
+        return semType;
+    }
+
+    @Override
+    public BasicTypeBitSet getBasicType() {
+        return BASIC_TYPE;
     }
 }

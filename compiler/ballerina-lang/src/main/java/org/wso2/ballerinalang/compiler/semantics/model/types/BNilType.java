@@ -17,8 +17,7 @@
  */
 package org.wso2.ballerinalang.compiler.semantics.model.types;
 
-import org.ballerinalang.model.types.NullType;
-import org.wso2.ballerinalang.compiler.semantics.model.TypeVisitor;
+import io.ballerina.types.PredefinedType;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.util.Flags;
@@ -29,24 +28,14 @@ import org.wso2.ballerinalang.util.Flags;
  *
  * @since 0.970.0
  */
-public class BNilType extends BType implements NullType {
+public class BNilType extends BType {
 
-    public BNilType() {
-        super(TypeTags.NIL, null, Flags.READONLY);
-    }
-
-    @Override
-    public boolean isNullable() {
-        return true;
+    BNilType() {
+        super(TypeTags.NIL, null, Flags.READONLY, PredefinedType.NIL);
     }
 
     @Override
     public String toString() {
         return Names.NIL_VALUE.value;
-    }
-
-    @Override
-    public void accept(TypeVisitor visitor) {
-        visitor.visit(this);
     }
 }

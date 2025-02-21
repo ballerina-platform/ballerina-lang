@@ -22,17 +22,23 @@ import io.ballerina.runtime.api.constants.RuntimeConstants;
 import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.types.PredefinedTypes;
 import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.types.semtype.BasicTypeBitSet;
+import io.ballerina.runtime.api.types.semtype.Builder;
+import io.ballerina.runtime.api.types.semtype.Context;
+import io.ballerina.runtime.api.types.semtype.SemType;
 import io.ballerina.runtime.api.values.BDecimal;
 import io.ballerina.runtime.api.values.BLink;
 import io.ballerina.runtime.internal.errors.ErrorCodes;
 import io.ballerina.runtime.internal.errors.ErrorHelper;
 import io.ballerina.runtime.internal.errors.ErrorReasons;
+import io.ballerina.runtime.internal.types.BDecimalType;
 import io.ballerina.runtime.internal.utils.ErrorUtils;
 
 import java.math.BigDecimal;
 import java.math.MathContext;
 import java.math.RoundingMode;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * <p>
@@ -45,6 +51,7 @@ import java.util.Map;
  */
 public class DecimalValue implements SimpleValue, BDecimal {
 
+    private static final BasicTypeBitSet BASIC_TYPE = Builder.getDecimalType();
     private static final String INF_STRING = "Infinity";
     private static final String NEG_INF_STRING = "-" + INF_STRING;
     private static final String NAN = "NaN";
@@ -60,8 +67,10 @@ public class DecimalValue implements SimpleValue, BDecimal {
     public DecimalValueKind valueKind = DecimalValueKind.OTHER;
 
     private final BigDecimal value;
+    private final Type singletonType;
 
     public DecimalValue(BigDecimal value) {
+        this.singletonType = BDecimalType.singletonType(value);
         this.value = getValidDecimalValue(value);
         if (!this.booleanValue()) {
             this.valueKind = DecimalValueKind.ZERO;
@@ -83,7 +92,7 @@ public class DecimalValue implements SimpleValue, BDecimal {
             throw exception;
         }
         this.value = getValidDecimalValue(bd);
-
+        this.singletonType = BDecimalType.singletonType(this.value);
         if (!this.booleanValue()) {
             this.valueKind = DecimalValueKind.ZERO;
         }
@@ -229,7 +238,7 @@ public class DecimalValue implements SimpleValue, BDecimal {
      */
     @Override
     public Type getType() {
-        return PredefinedTypes.TYPE_DECIMAL;
+        return singletonType;
     }
 
     //========================= Mathematical operations supported ===============================
@@ -479,5 +488,15 @@ public class DecimalValue implements SimpleValue, BDecimal {
         // TODO check whether we need to create a new BigDecimal again(or use the same value)
         return new DecimalValue(new BigDecimal(value.toString(), MathContext.DECIMAL128)
                 .setScale(1, BigDecimal.ROUND_HALF_EVEN));
+    }
+
+    @Override
+    public Optional<SemType> inherentTypeOf(Context cx) {
+        return Optional.of(Builder.getDecimalConst(value));
+    }
+
+    @Override
+    public BasicTypeBitSet getBasicType() {
+        return BASIC_TYPE;
     }
 }

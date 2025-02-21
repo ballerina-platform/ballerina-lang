@@ -16,14 +16,14 @@
 
 import ballerina/test;
 
-type A [int, A[]];
+type A_TTDC [int, A_TTDC[]];
 public function testCycleTypeArray() {
-    A a = [1];
-    A b = [1, [a]];
+    A_TTDC a = [1];
+    A_TTDC b = [1, [a]];
 
     assert(a[0] is int, true);
     assert(a[0], 1);
-    assert(b[1] is [int,A[]][], true);
+    assert(b[1] is [int,A_TTDC[]][], true);
 }
 
 type B [int, map<B>];

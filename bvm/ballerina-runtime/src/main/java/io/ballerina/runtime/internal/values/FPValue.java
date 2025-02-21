@@ -21,12 +21,17 @@ import io.ballerina.runtime.api.Runtime;
 import io.ballerina.runtime.api.concurrent.StrandMetadata;
 import io.ballerina.runtime.api.constants.RuntimeConstants;
 import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.types.semtype.BasicTypeBitSet;
+import io.ballerina.runtime.api.types.semtype.Builder;
+import io.ballerina.runtime.api.types.semtype.Context;
+import io.ballerina.runtime.api.types.semtype.SemType;
 import io.ballerina.runtime.api.values.BFunctionPointer;
 import io.ballerina.runtime.api.values.BLink;
 import io.ballerina.runtime.api.values.BTypedesc;
 import io.ballerina.runtime.internal.BalRuntime;
 
 import java.util.Map;
+import java.util.Optional;
 import java.util.function.Function;
 
 /**
@@ -37,6 +42,8 @@ import java.util.function.Function;
  * @since 0.995.0
  */
 public class FPValue implements BFunctionPointer, RefValue {
+
+    private static final BasicTypeBitSet BASIC_TYPE = Builder.getFunctionType();
 
     final Type type;
     private BTypedesc typedesc;
@@ -101,5 +108,15 @@ public class FPValue implements BFunctionPointer, RefValue {
     @Override
     public String toString() {
         return RuntimeConstants.EMPTY;
+    }
+
+    @Override
+    public Optional<SemType> inherentTypeOf(Context cx) {
+        return Optional.of(SemType.tryInto(cx, getType()));
+    }
+
+    @Override
+    public BasicTypeBitSet getBasicType() {
+        return BASIC_TYPE;
     }
 }

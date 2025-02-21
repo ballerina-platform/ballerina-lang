@@ -64,6 +64,8 @@ public class TypeGuardTest {
         BAssertUtil.validateError(negativeResult, i++,
                 "incompatible types: '(boolean|float)' will not be matched to 'int'", 99, 30);
         BAssertUtil.validateError(negativeResult, i++,
+                "incompatible types: '(int|string)' will not be matched to 'boolean'", 99, 44);
+        BAssertUtil.validateError(negativeResult, i++,
                 "incompatible types: 'string' will not be matched to 'int'", 108, 25);
         BAssertUtil.validateError(negativeResult, i++,
                 "incompatible types: 'string' will not be matched to 'float'", 108, 37);
@@ -93,14 +95,10 @@ public class TypeGuardTest {
         BAssertUtil.validateError(negativeResult, i++,
                 "incompatible types: 'map<(int|string)>' will not be matched to 'record {| int i; float f; |}'", 214,
                 8);
-        BAssertUtil.validateError(negativeResult, i++, "incompatible types: 'map<(int|string)>' will not be matched " +
-                "to 'map<boolean>'", 221, 8);
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: 'CyclicComplexUnion' will not" +
                 " be matched to 'float'", 232, 8);
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: 'CyclicComplexUnion' will not" +
                 " be matched to 'floatUnion'", 239, 8);
-        BAssertUtil.validateError(negativeResult, i++, "incompatible types: 'CyclicComplexUnion' will not" +
-                " be matched to 'float[]'", 245, 8);
 
         Assert.assertEquals(negativeResult.getDiagnostics().length, i);
     }
@@ -134,12 +132,12 @@ public class TypeGuardTest {
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'int', found '(int|boolean)'",
                 181, 17);
         // TODO : Fix me : #21609
-//        BAssertUtil.validateError(negativeResult, i++,
-//                                  "incompatible types: expected 'string', found '(float|string|int|boolean)'", 183,
-//                                  20);
+        BAssertUtil.validateError(negativeResult, i++,
+                                  "incompatible types: expected 'string', found '(float|string)'", 183,
+                                  20);
         // TODO : Fix me : #21609
-//        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'int', found '(boolean|float)'",
-//                190, 17);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'int', found '(int|string|float)'",
+                190, 17);
 //        BAssertUtil.validateError(negativeResult, i++,
 //                "incompatible types: expected 'string', found '(boolean|int|string)'", 192, 20);
                 BAssertUtil.validateError(negativeResult, i++,
@@ -149,16 +147,18 @@ public class TypeGuardTest {
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'string', found '(float|string)'",
                 201, 20);
         // TODO : Fix me : #21609
-//        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'int', found '(string|boolean)'",
-//                208, 17);
-//        BAssertUtil.validateError(negativeResult, i++,
-//                "incompatible types: expected 'string', found '(int|float|string)'", 210, 20);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'int', found '(string|boolean)'",
+                208, 17);
+        // TODO : Fix me : #21609
+        BAssertUtil.validateError(negativeResult, i++,
+                "incompatible types: expected 'string', found '(int|float)'", 210, 20);
         BAssertUtil.validateError(negativeResult, i++, "unknown type 'T'", 216, 30);
         // TODO : Fix me : #21609
-//        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'int', found '(string|boolean)'",
-//                217, 17);
-//        BAssertUtil.validateError(negativeResult, i++,
-//                "incompatible types: expected 'string', found '(int|float|string)'", 219, 20);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'int', found '(string|boolean)'",
+                217, 17);
+        // TODO : Fix me : #21609
+        BAssertUtil.validateError(negativeResult, i++,
+                "incompatible types: expected 'string', found '(int|float)'", 219, 20);
 //        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'int', found '(Person|boolean)'",
 //                238, 17);
         BAssertUtil.validateError(negativeResult, i++,
@@ -1081,8 +1081,6 @@ public class TypeGuardTest {
         BAssertUtil.validateError(result, index++,
                 "incompatible types: expected 'string', found '(string|int)'", 252, 20);
         BAssertUtil.validateError(result, index++,
-                "incompatible types: expected 'int', found 'other'", 263, 17); // issue #34965
-        BAssertUtil.validateError(result, index++,
                 "incompatible types: expected 'string', found '(string|int)'", 265, 20); // issue #34965
         BAssertUtil.validateError(result, index++,
                 "incompatible types: expected 'string', found '(string|int)'", 271, 20);
@@ -1124,14 +1122,7 @@ public class TypeGuardTest {
     @Test
     public void testTypeGuardTypeNarrowing4() {
         CompileResult result = BCompileUtil.compile("test-src/statements/ifelse/test_type_guard_type_narrow_4.bal");
-        int index = 0;
-        BAssertUtil.validateError(result, index++,
-                "expression of type 'never' or equivalent to type 'never' not allowed here", 21, 19); // issue #34965
-        BAssertUtil.validateError(result, index++,
-                "expression of type 'never' or equivalent to type 'never' not allowed here", 27, 19); // issue #34965
-        BAssertUtil.validateError(result, index++,
-                "expression of type 'never' or equivalent to type 'never' not allowed here", 33, 19); // issue #34965
-        Assert.assertEquals(result.getDiagnostics().length, index);
+        Assert.assertEquals(result.getDiagnostics().length, 0);
     }
 
     @Test(description = "Test type guard type narrowing with no errors")

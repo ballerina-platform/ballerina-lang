@@ -412,7 +412,7 @@ public class SymbolFactory {
         type = Types.getReferredType(type);
         if (type.tag == TypeTags.INTERSECTION
                 && type.tsymbol != null && type.tsymbol.getOrigin() == SymbolOrigin.VIRTUAL &&
-                (type.flags & Flags.READONLY) ==  Flags.READONLY) {
+                Symbols.isFlagOn(type.getFlags(), Flags.READONLY)) {
             return true;
         }
         if (type.tag == TypeTags.ARRAY) {

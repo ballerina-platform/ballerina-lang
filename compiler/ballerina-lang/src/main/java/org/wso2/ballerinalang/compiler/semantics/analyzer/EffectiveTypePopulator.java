@@ -33,7 +33,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BAnnotationType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BAnyType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BAnydataType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BBuiltInRefType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BErrorType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFiniteType;
@@ -44,7 +43,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BJSONType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BNeverType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BNilType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BNoType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BPackageType;
@@ -83,7 +81,7 @@ import static org.ballerinalang.model.symbols.SymbolOrigin.SOURCE;
  *
  * @since 2201.7.0
  */
-public class EffectiveTypePopulator implements TypeVisitor {
+public class EffectiveTypePopulator extends TypeVisitor {
 
     private static final CompilerContext.Key<EffectiveTypePopulator> UPDATE_IMMUTABLE_TYPE_KEY =
                 new CompilerContext.Key<>();
@@ -149,11 +147,6 @@ public class EffectiveTypePopulator implements TypeVisitor {
             updateType(bArrayType.eType, loc, pkgID, typeNode, env);
             bArrayType.mutableType = null;
         }
-    }
-
-    @Override
-    public void visit(BBuiltInRefType bBuiltInRefType) {
-
     }
 
     @Override
@@ -226,7 +219,7 @@ public class EffectiveTypePopulator implements TypeVisitor {
     }
 
     @Override
-    public void visit(BNilType bNilType) {
+    public void visitNilType(BType bNilType) {
 
     }
 
@@ -271,7 +264,7 @@ public class EffectiveTypePopulator implements TypeVisitor {
 
             BTypeSymbol tsymbol = bTupleType.tsymbol;
             if (tsymbol != null && tsymbol.name != null && !tsymbol.name.value.isEmpty()
-                    && !Symbols.isFlagOn(bTupleType.flags, Flags.EFFECTIVE_TYPE_DEF)) {
+                    && !Symbols.isFlagOn(bTupleType.getFlags(), Flags.EFFECTIVE_TYPE_DEF)) {
                 BLangTupleTypeNode tupleTypeNode = (BLangTupleTypeNode) TreeBuilder.createTupleTypeNode();
                 tupleTypeNode.setBType(bTupleType);
                 BLangTypeDefinition typeDefinition = TypeDefBuilderHelper.addTypeDefinition(bTupleType,
@@ -440,11 +433,6 @@ public class EffectiveTypePopulator implements TypeVisitor {
             }
             bObjectType.mutableType = null;
         }
-    }
-
-    @Override
-    public void visit(BType bType) {
-
     }
 
     @Override

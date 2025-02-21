@@ -19,6 +19,14 @@ package io.ballerina.projects.internal.configschema;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import io.ballerina.types.ComplexSemType;
+import io.ballerina.types.PredefinedType;
+import io.ballerina.types.SemType;
+import io.ballerina.types.subtypedata.BooleanSubtype;
+import io.ballerina.types.subtypedata.DecimalSubtype;
+import io.ballerina.types.subtypedata.FloatSubtype;
+import io.ballerina.types.subtypedata.IntSubtype;
+import io.ballerina.types.subtypedata.StringSubtype;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
@@ -32,16 +40,23 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeReferenceType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangNumericLiteral;
+import org.wso2.ballerinalang.compiler.semantics.model.types.SemNamedType;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 
+import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
 
+import static io.ballerina.types.Core.getComplexSubtypeData;
+import static io.ballerina.types.SemTypes.isSubtypeSimple;
+import static io.ballerina.types.BasicTypeCode.BT_BOOLEAN;
+import static io.ballerina.types.BasicTypeCode.BT_DECIMAL;
+import static io.ballerina.types.BasicTypeCode.BT_FLOAT;
+import static io.ballerina.types.BasicTypeCode.BT_INT;
+import static io.ballerina.types.BasicTypeCode.BT_STRING;
 import static org.wso2.ballerinalang.compiler.util.TypeTags.BOOLEAN;
 import static org.wso2.ballerinalang.compiler.util.TypeTags.BYTE;
 import static org.wso2.ballerinalang.compiler.util.TypeTags.DECIMAL;
@@ -97,7 +112,7 @@ public class TypeConverter {
                     typeNode.addProperty(TYPE, typeVal);
                     return typeNode;
                 }
-                
+
                 VisitedType visitedType = getVisitedType(effectiveType.toString());
                 if (visitedType != null) {
                     if (visitedType.isCompleted()) {
@@ -267,24 +282,33 @@ public class TypeConverter {
      * @param enumArray JSON array to add the enum values
      * @param finiteType BFiniteType to retrieve enum values from
      */
+    @SuppressWarnings("OptionalGetWithoutIsPresent") // xxxSubtypeSingleValue() are guaranteed to have a value
     private static void getEnumArray(JsonArray enumArray, BFiniteType finiteType) {
-        Object[] values = finiteType.getValueSpace().toArray();
-        for (Object finiteValue : values) {
-            if (finiteValue instanceof BLangNumericLiteral numericLiteral) {
-                BType bType = numericLiteral.getBType();
-                // In the BLangNumericLiteral the integer typed values are represented as numeric values
-                // while the decimal values are represented as String
-                Object value = numericLiteral.getValue();
-                if (TypeTags.isIntegerTypeTag(bType.tag)) {
-                    // Any integer can be considered as a long and added as a numeric value to the enum array
-                    if (value instanceof Long l) {
-                        enumArray.add(l);
-                    }
-                } else {
-                    enumArray.add(Double.parseDouble(value.toString()));
-                }
-            } else if (finiteValue instanceof BLangLiteral bLangLiteral) {
-                enumArray.add(bLangLiteral.getValue().toString());
+        for (SemNamedType semNamedType : finiteType.valueSpace) {
+            SemType s = semNamedType.semType();
+            if (PredefinedType.NIL.equals(s)) {
+                enumArray.add(Names.NIL_VALUE.value);
+                continue;
+            }
+
+            ComplexSemType cs = (ComplexSemType) s;
+            if (isSubtypeSimple(s, PredefinedType.BOOLEAN)) {
+                boolean boolVal = BooleanSubtype.booleanSubtypeSingleValue(getComplexSubtypeData(cs, BT_BOOLEAN)).get();
+                enumArray.add(boolVal ? Names.TRUE.value : Names.FALSE.value);
+            } else if (isSubtypeSimple(s, PredefinedType.INT)) {
+                long longVal = IntSubtype.intSubtypeSingleValue(getComplexSubtypeData(cs, BT_INT)).get();
+                enumArray.add(longVal);
+            } else if (isSubtypeSimple(s, PredefinedType.FLOAT)) {
+                double doubleVal = FloatSubtype.floatSubtypeSingleValue(getComplexSubtypeData(cs, BT_FLOAT)).get();
+                enumArray.add(doubleVal);
+            } else if (isSubtypeSimple(s, PredefinedType.DECIMAL)) {
+                BigDecimal bVal = DecimalSubtype.decimalSubtypeSingleValue(getComplexSubtypeData(cs, BT_DECIMAL)).get();
+                enumArray.add(bVal.toString());
+            } else if (isSubtypeSimple(s, PredefinedType.STRING)) {
+                String stringVal = StringSubtype.stringSubtypeSingleValue(getComplexSubtypeData(cs, BT_STRING)).get();
+                enumArray.add(stringVal);
+            } else {
+                throw new IllegalStateException("Unexpected value space type: " + s);
             }
         }
     }

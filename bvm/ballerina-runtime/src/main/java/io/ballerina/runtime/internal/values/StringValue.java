@@ -17,12 +17,17 @@
  */
 package io.ballerina.runtime.internal.values;
 
-import io.ballerina.runtime.api.types.PredefinedTypes;
 import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.types.semtype.BasicTypeBitSet;
+import io.ballerina.runtime.api.types.semtype.Builder;
+import io.ballerina.runtime.api.types.semtype.Context;
+import io.ballerina.runtime.api.types.semtype.SemType;
 import io.ballerina.runtime.api.values.BLink;
 import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.internal.types.BStringType;
 
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * Class representing ballerina strings.
@@ -31,17 +36,23 @@ import java.util.Map;
  */
 public abstract class StringValue implements BString, SimpleValue {
 
+    private static final BasicTypeBitSet BASIC_TYPE = Builder.getStringType();
     final String value;
     final boolean isNonBmp;
+    private final Type type;
+    private final SemType shape;
 
     protected StringValue(String value, boolean isNonBmp) {
         this.value = value;
         this.isNonBmp = isNonBmp;
+        BStringType stringType = BStringType.singletonType(value);
+        this.type = stringType;
+        this.shape = stringType.shape();
     }
 
     @Override
     public Type getType() {
-        return PredefinedTypes.TYPE_STRING;
+        return type;
     }
 
     @Override
@@ -100,4 +111,13 @@ public abstract class StringValue implements BString, SimpleValue {
         return false;
     }
 
+    @Override
+    public Optional<SemType> inherentTypeOf(Context cx) {
+        return Optional.of(shape);
+    }
+
+    @Override
+    public BasicTypeBitSet getBasicType() {
+        return BASIC_TYPE;
+    }
 }

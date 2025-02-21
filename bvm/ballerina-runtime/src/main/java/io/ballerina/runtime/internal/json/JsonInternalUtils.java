@@ -43,7 +43,6 @@ import io.ballerina.runtime.internal.errors.ErrorReasons;
 import io.ballerina.runtime.internal.types.BArrayType;
 import io.ballerina.runtime.internal.types.BFiniteType;
 import io.ballerina.runtime.internal.types.BJsonType;
-import io.ballerina.runtime.internal.types.BMapType;
 import io.ballerina.runtime.internal.types.BStructureType;
 import io.ballerina.runtime.internal.types.BUnionType;
 import io.ballerina.runtime.internal.values.ArrayValue;
@@ -62,6 +61,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import static io.ballerina.runtime.api.constants.RuntimeConstants.MAP_LANG_LIB;
+import static io.ballerina.runtime.internal.TypeChecker.isByteLiteral;
 import static io.ballerina.runtime.internal.errors.ErrorReasons.INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER;
 import static io.ballerina.runtime.internal.errors.ErrorReasons.JSON_OPERATION_ERROR;
 import static io.ballerina.runtime.internal.errors.ErrorReasons.MAP_KEY_NOT_FOUND_ERROR;
@@ -317,6 +317,8 @@ public final class JsonInternalUtils {
         targetType = TypeUtils.getImpliedType(targetType);
         Type matchingType;
         switch (targetType.getTag()) {
+            case TypeTags.BYTE_TAG:
+                return jsonNodeToByte(jsonValue);
             case TypeTags.INT_TAG:
                 return jsonNodeToInt(jsonValue);
             case TypeTags.FLOAT_TAG:
@@ -360,7 +362,7 @@ public final class JsonInternalUtils {
             case TypeTags.ARRAY_TAG:
                 return convertJSONToBArray(jsonValue, (BArrayType) targetType);
             case TypeTags.MAP_TAG:
-                return jsonToMap(jsonValue, (BMapType) targetType);
+                return jsonToMap(jsonValue, (MapType) targetType);
             case TypeTags.NULL_TAG:
                 if (jsonValue == null) {
                     return null;
@@ -563,12 +565,30 @@ public final class JsonInternalUtils {
      * @return BInteger value of the JSON, if its a integer or a long JSON node. Error, otherwise.
      */
     private static long jsonNodeToInt(Object json) {
-        if (!(json instanceof Long l)) {
+        if (!(json instanceof Long || json instanceof Integer)) {
             throw ErrorHelper.getRuntimeException(ErrorCodes.INCOMPATIBLE_TYPE_FOR_CASTING_JSON,
                                                            PredefinedTypes.TYPE_INT, getTypeName(json));
         }
 
-        return l;
+        return ((Number) json).longValue();
+    }
+
+    /**
+     * Convert to byte.
+     *
+     * @param json node to be converted
+     * @return JSON value as a long, if the value is within byte range. Error, otherwise.
+     */
+    private static long jsonNodeToByte(Object json) {
+        if (json instanceof Long || json instanceof Integer) {
+            long x = ((Number) json).longValue();
+            if (isByteLiteral(x)) {
+                return x;
+            }
+        }
+
+        throw ErrorHelper.getRuntimeException(ErrorCodes.INCOMPATIBLE_TYPE_FOR_CASTING_JSON,
+                PredefinedTypes.TYPE_BYTE, getTypeName(json));
     }
 
     /**

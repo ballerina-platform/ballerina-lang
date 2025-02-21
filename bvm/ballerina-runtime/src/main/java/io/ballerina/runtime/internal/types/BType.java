@@ -21,11 +21,21 @@ import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.types.IntersectionType;
 import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.types.TypeIdentifier;
 import io.ballerina.runtime.api.types.TypeTags;
+import io.ballerina.runtime.api.types.semtype.CacheableTypeDescriptor;
+import io.ballerina.runtime.api.types.semtype.Context;
+import io.ballerina.runtime.api.types.semtype.SemType;
+import io.ballerina.runtime.api.types.semtype.TypeCheckCache;
+import io.ballerina.runtime.api.types.semtype.TypeCheckCacheFactory;
 import io.ballerina.runtime.api.utils.StringUtils;
+import io.ballerina.runtime.internal.TypeCheckLogger;
 import io.ballerina.runtime.internal.TypeChecker;
+import io.ballerina.runtime.internal.types.semtype.MutableSemType;
 
+import java.util.HashSet;
 import java.util.Objects;
+import java.util.Set;
 
 /**
  * {@code BType} represents a type in Ballerina.
@@ -37,13 +47,18 @@ import java.util.Objects;
  *
  * @since 0.995.0
  */
-public abstract class BType implements Type {
+public abstract non-sealed class BType extends SemType
+        implements Type, MutableSemType, Cloneable, CacheableTypeDescriptor, MayBeDependentType {
+
     protected String typeName;
     protected Module pkg;
     protected Class<? extends Object> valueClass;
     private int hashCode;
     private Type cachedReferredType = null;
     private Type cachedImpliedType = null;
+    private volatile SemType cachedSemType = null;
+    protected TypeCheckCache typeCheckCache;
+    protected int typeId;
 
     protected BType(String typeName, Module pkg, Class<? extends Object> valueClass) {
         this.typeName = typeName;
@@ -51,6 +66,14 @@ public abstract class BType implements Type {
         this.valueClass = valueClass;
         if (pkg != null && typeName != null) {
             this.hashCode = Objects.hash(pkg, typeName);
+        }
+        if (isNamedType()) {
+            TypeIdentifier identifier = new TypeIdentifier(this.pkg, this.typeName);
+            typeCheckCache = TypeCheckCacheFactory.get(identifier);
+            typeId = TypeIdSupplier.namedId(identifier);
+        } else {
+            typeCheckCache = TypeCheckCacheFactory.create();
+            typeId = TypeIdSupplier.getAnonId();
         }
     }
 
@@ -230,5 +253,82 @@ public abstract class BType implements Type {
     @Override
     public Type getCachedImpliedType() {
         return this.cachedImpliedType;
+    }
+
+    @Override
+    public SemType createSemType(Context cx) {
+        throw new IllegalStateException("Child that are used for type checking must implement this method");
+    }
+
+    @Override
+    public void updateInnerSemTypeIfNeeded(Context cx) {
+        if (cachedSemType == null) {
+            TypeCheckLogger logger = TypeCheckLogger.getInstance();
+            logger.typeResolutionStarted(this);
+            cachedSemType = createSemType(cx);
+            setAll(cachedSemType.all());
+            setSome(cachedSemType.some(), cachedSemType.subTypeData());
+            logger.typeResolutionDone(this);
+        }
+    }
+
+    protected SemType getSemType(Context cx) {
+        updateInnerSemTypeIfNeeded(cx);
+        return cachedSemType;
+    }
+
+    @Override
+    public void resetSemType() {
+        cachedSemType = null;
+    }
+
+    @Override
+    public BType clone() {
+        try {
+            BType clone = (BType) super.clone();
+            clone.cachedSemType = null;
+            clone.setCachedImpliedType(null);
+            clone.setCachedReferredType(null);
+            return clone;
+        } catch (CloneNotSupportedException e) {
+            throw new AssertionError();
+        }
+    }
+
+    protected boolean isNamedType() {
+        return this.pkg != null && this.typeName != null && !this.typeName.isEmpty() &&
+                !this.typeName.contains("$anon");
+    }
+
+    @Override
+    public final Boolean cachedTypeCheckResult(Context cx, CacheableTypeDescriptor other) {
+        return typeCheckCache.cachedTypeCheckResult(other);
+    }
+
+    @Override
+    public final void cacheTypeCheckResult(CacheableTypeDescriptor other, boolean result) {
+        typeCheckCache.cacheTypeCheckResult(other, result);
+    }
+
+    @Override
+    public final boolean isDependentlyTyped() {
+        return isDependentlyTyped(new HashSet<>());
+    }
+
+    @Override
+    public final boolean isDependentlyTyped(Set<MayBeDependentType> visited) {
+        if (!visited.add(this)) {
+            return false;
+        }
+        return isDependentlyTypedInner(visited);
+    }
+
+    protected boolean isDependentlyTypedInner(Set<MayBeDependentType> visited) {
+        return false;
+    }
+
+    @Override
+    public int typeId() {
+        return this.typeId;
     }
 }
