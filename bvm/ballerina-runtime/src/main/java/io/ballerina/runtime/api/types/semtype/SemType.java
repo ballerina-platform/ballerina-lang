@@ -32,6 +32,7 @@ public sealed class SemType extends BasicTypeBitSet
 
     private int some;
     private SubType[] subTypeData;
+    private static final SemType NEVER = new SemType(0, 0, null);
 
     protected SemType(int all, int some, SubType[] subTypeData) {
         super(all);
@@ -44,6 +45,9 @@ public sealed class SemType extends BasicTypeBitSet
     }
 
     public static SemType from(int all) {
+        if (all == 0) {
+            return NEVER;
+        }
         return new SemType(all, 0, null);
     }
 

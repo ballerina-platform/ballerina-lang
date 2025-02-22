@@ -68,8 +68,8 @@ public class BMapType extends BType implements MapType, TypeWithShape, Cloneable
     private final boolean readonly;
     private IntersectionType immutableType;
     private IntersectionType intersectionType = null;
-    private DefinitionContainer<MappingDefinition> defn = new DefinitionContainer<>();
-    private final DefinitionContainer<MappingDefinition> acceptedTypeDefn = new DefinitionContainer<>();
+    private final DefinitionContainer<MappingDefinition> defn;
+    private final DefinitionContainer<MappingDefinition> acceptedTypeDefn;
 
     public BMapType(Type constraint) {
         this(constraint, false);
@@ -94,15 +94,12 @@ public class BMapType extends BType implements MapType, TypeWithShape, Cloneable
         super(typeName, pkg, MapValueImpl.class, false);
         this.constraint = readonly ? ReadOnlyUtils.getReadOnlyType(constraint) : constraint;
         this.readonly = readonly;
-        initializeCache(constraint, readonly);
-    }
-
-    private void initializeCache(Type constraint, boolean readonly) {
         TypeCheckFlyweightStore.TypeCheckFlyweight flyweight =
                 readonly ? TypeCheckFlyweightStore.getRO(constraint) : TypeCheckFlyweightStore.getRW(constraint);
         this.typeId = flyweight.typeId;
         this.typeCheckCache = flyweight.typeCheckCache;
         this.defn = flyweight.defn;
+        this.acceptedTypeDefn = flyweight.acceptedTypeDefn;
     }
 
     /**
@@ -332,7 +329,8 @@ public class BMapType extends BType implements MapType, TypeWithShape, Cloneable
         }
 
         private record TypeCheckFlyweight(int typeId, TypeCheckCache typeCheckCache,
-                                          DefinitionContainer<MappingDefinition> defn) {
+                                          DefinitionContainer<MappingDefinition> defn,
+                                          DefinitionContainer<MappingDefinition> acceptedTypeDefn) {
 
             public static TypeCheckFlyweight create(Integer integer) {
                 return create();
@@ -340,7 +338,7 @@ public class BMapType extends BType implements MapType, TypeWithShape, Cloneable
 
             private static TypeCheckFlyweight create() {
                 return new TypeCheckFlyweight(TypeIdSupplier.getAnonId(),
-                        TypeCheckCacheFactory.create(), new DefinitionContainer<>());
+                        TypeCheckCacheFactory.create(), new DefinitionContainer<>(), new DefinitionContainer<>());
             }
         }
 
