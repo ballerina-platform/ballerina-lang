@@ -48,6 +48,7 @@ import io.ballerina.runtime.internal.types.BArrayType;
 import io.ballerina.runtime.internal.types.BBooleanType;
 import io.ballerina.runtime.internal.types.BFiniteType;
 import io.ballerina.runtime.internal.types.BIntersectionType;
+import io.ballerina.runtime.internal.types.BMapType;
 import io.ballerina.runtime.internal.types.BObjectType;
 import io.ballerina.runtime.internal.types.BRecordType;
 import io.ballerina.runtime.internal.types.BTableType;
@@ -354,9 +355,28 @@ public final class TypeChecker {
     public static boolean checkIsLikeType(Object sourceValue, Type targetType, boolean allowNumericConversion) {
         // TODO: handle numeric converion by adding them to target type bitset
         if (!allowNumericConversion && !couldBelongToType(sourceValue, targetType)) {
+            assert !shapeBelongToType(context(), sourceValue, targetType, false);
             return false;
         }
         Context cx = context();
+        // This is to avoid an expensive shape calculation using a cacheable type check
+        if (canOptimizeShapeCheck(targetType) && isSubType(cx, getType(sourceValue), targetType)) {
+            assert shapeBelongToType(cx, sourceValue, targetType, allowNumericConversion);
+            return true;
+        }
+        return shapeBelongToType(cx, sourceValue, targetType, allowNumericConversion);
+    }
+
+    private static boolean canOptimizeShapeCheck(Type type) {
+        return switch (type) {
+            case BMapType ignored -> true;
+            case BArrayType arrayType -> arrayType.getDimensions() == -1;
+            default -> !(type instanceof TypeWithShape);
+        };
+    }
+
+    private static boolean shapeBelongToType(Context cx, Object sourceValue, Type targetType,
+                                             boolean allowNumericConversion) {
         logger.shapeCheckStarted(sourceValue, targetType);
         SemType shape = ShapeAnalyzer.shapeOf(cx, sourceValue).orElseThrow();
         SemType targetSemType = ShapeAnalyzer.acceptedTypeOf(cx, targetType);
