@@ -18,6 +18,7 @@
 
 package io.ballerina.runtime.internal.utils;
 
+import com.github.benmanes.caffeine.cache.LoadingCache;
 import io.ballerina.runtime.api.constants.TypeConstants;
 import io.ballerina.runtime.api.flags.SymbolFlags;
 import io.ballerina.runtime.api.flags.TypeFlags;
@@ -25,8 +26,8 @@ import io.ballerina.runtime.api.types.Field;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.internal.types.BField;
 import io.ballerina.runtime.internal.types.BRecordType;
+import io.ballerina.runtime.internal.types.semtype.CacheFactory;
 
-import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -36,6 +37,8 @@ import java.util.Map;
  */
 public final class IteratorUtils {
 
+    private static final LoadingCache<Type, BRecordType> iteratorNextReturnTypeCache =
+            CacheFactory.createCache(IteratorUtils::createIteratorNextReturnTypeInner);
     private IteratorUtils() {
     }
 
@@ -57,8 +60,12 @@ public final class IteratorUtils {
     }
 
     public static BRecordType createIteratorNextReturnType(Type type) {
-        Map<String, Field> fields = new HashMap<>();
-        fields.put("value", new BField(type, "value", SymbolFlags.PUBLIC + SymbolFlags.REQUIRED));
+        return iteratorNextReturnTypeCache.get(type);
+    }
+
+    private static BRecordType createIteratorNextReturnTypeInner(Type type) {
+        Map<String, Field> fields =
+                Map.of("value", new BField(type, "value", SymbolFlags.PUBLIC + SymbolFlags.REQUIRED));
         return new BRecordType(TypeConstants.ITERATOR_NEXT_RETURN_TYPE, null, 0, fields, null, true,
                 getTypeFlags(type));
     }
