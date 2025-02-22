@@ -125,10 +125,8 @@ public final class TypeChecker {
             return sourceVal;
         }
         Type sourceType = getType(sourceVal);
-        Context cx = context();
-        if (Core.containsBasicType(SemType.tryInto(cx, sourceType), ConvertibleCastMaskHolder.CONVERTIBLE_CAST_MASK) &&
-                Core.containsBasicType(SemType.tryInto(cx, targetType),
-                        ConvertibleCastMaskHolder.CONVERTIBLE_CAST_MASK)) {
+        if (couldBelongToBasicType(sourceType.getBasicType(), ConvertibleCastMaskHolder.CONVERTIBLE_CAST_MASK) &&
+                couldBelongToBasicType(targetType.getBasicType(), ConvertibleCastMaskHolder.CONVERTIBLE_CAST_MASK)) {
             // We need to maintain order for these?
             if (targetType instanceof BUnionType unionType) {
                 for (Type memberType : unionType.getMemberTypes()) {
@@ -274,12 +272,16 @@ public final class TypeChecker {
     private static boolean couldBelongToType(Type sourceType, Type targetType) {
         BasicTypeBitSet sourceBasicType = sourceType.getBasicType();
         BasicTypeBitSet targetBasicType = targetType.getBasicType();
-        return (sourceBasicType.all() & targetBasicType.all()) != 0;
+        return couldBelongToBasicType(sourceBasicType, targetBasicType);
     }
 
     private static boolean couldBelongToType(Object sourceVal, Type targetType) {
         BasicTypeBitSet valueBasicType = getBasicType(sourceVal);
         BasicTypeBitSet targetBasicType = targetType.getBasicType();
+        return couldBelongToBasicType(valueBasicType, targetBasicType);
+    }
+
+    private static boolean couldBelongToBasicType(BasicTypeBitSet valueBasicType, BasicTypeBitSet targetBasicType) {
         return (valueBasicType.all() & targetBasicType.all()) != 0;
     }
 
@@ -648,8 +650,7 @@ public final class TypeChecker {
     }
 
     public static boolean isNumericType(Type type) {
-        Context cx = context();
-        return Core.isSubtypeSimple(SemType.tryInto(cx, type), NumericTypeHolder.NUMERIC_TYPE);
+        return couldBelongToBasicType(type.getBasicType(), NumericTypeHolder.NUMERIC_TYPE);
     }
 
     public static boolean isByteLiteral(long longValue) {
@@ -1391,7 +1392,7 @@ public final class TypeChecker {
 
     private static final class ConvertibleCastMaskHolder {
 
-        private static final SemType CONVERTIBLE_CAST_MASK = createConvertibleCastMask();
+        private static final BasicTypeBitSet CONVERTIBLE_CAST_MASK = createConvertibleCastMask();
 
         private static SemType createConvertibleCastMask() {
             return Stream.of(Builder.getIntType(), Builder.getFloatType(), Builder.getDecimalType(),
