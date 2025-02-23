@@ -17,7 +17,6 @@
  */
 package io.ballerina.runtime.internal.types;
 
-import com.github.benmanes.caffeine.cache.LoadingCache;
 import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.constants.TypeConstants;
 import io.ballerina.runtime.api.types.IntersectionType;
@@ -27,18 +26,15 @@ import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.TypeTags;
 import io.ballerina.runtime.api.types.semtype.BasicTypeBitSet;
 import io.ballerina.runtime.api.types.semtype.Builder;
-import io.ballerina.runtime.api.types.semtype.CacheableTypeDescriptor;
 import io.ballerina.runtime.api.types.semtype.Context;
 import io.ballerina.runtime.api.types.semtype.Env;
 import io.ballerina.runtime.api.types.semtype.SemType;
 import io.ballerina.runtime.api.types.semtype.ShapeAnalyzer;
-import io.ballerina.runtime.api.types.semtype.TypeCheckCache;
-import io.ballerina.runtime.api.types.semtype.TypeCheckCacheFactory;
 import io.ballerina.runtime.api.values.BString;
-import io.ballerina.runtime.internal.types.semtype.CacheFactory;
 import io.ballerina.runtime.internal.types.semtype.CellAtomicType;
 import io.ballerina.runtime.internal.types.semtype.DefinitionContainer;
 import io.ballerina.runtime.internal.types.semtype.MappingDefinition;
+import io.ballerina.runtime.internal.types.semtype.TypeCheckCacheFlyweight;
 import io.ballerina.runtime.internal.values.MapValueImpl;
 import io.ballerina.runtime.internal.values.ReadOnlyUtils;
 
@@ -63,6 +59,7 @@ import static io.ballerina.runtime.internal.types.semtype.CellAtomicType.CellMut
 public class BMapType extends BType implements MapType, TypeWithShape, Cloneable {
 
     private static final BasicTypeBitSet BASIC_TYPE = Builder.getMappingType();
+    private static final TypeCheckFlyweightStore<MappingDefinition> FLYWEIGHT_STORE = new TypeCheckFlyweightStore<>();
     public static final MappingDefinition.Field[] EMPTY_FIELD_ARR = new MappingDefinition.Field[0];
     private final Type constraint;
     private final boolean readonly;
@@ -94,12 +91,12 @@ public class BMapType extends BType implements MapType, TypeWithShape, Cloneable
         super(typeName, pkg, MapValueImpl.class, false);
         this.constraint = readonly ? ReadOnlyUtils.getReadOnlyType(constraint) : constraint;
         this.readonly = readonly;
-        TypeCheckFlyweightStore.TypeCheckFlyweight flyweight =
-                readonly ? TypeCheckFlyweightStore.getRO(constraint) : TypeCheckFlyweightStore.getRW(constraint);
-        this.typeId = flyweight.typeId;
-        this.typeCheckCache = flyweight.typeCheckCache;
-        this.defn = flyweight.defn;
-        this.acceptedTypeDefn = flyweight.acceptedTypeDefn;
+        TypeCheckCacheFlyweight<MappingDefinition> flyweight =
+                readonly ? FLYWEIGHT_STORE.getRO(constraint) : FLYWEIGHT_STORE.getRW(constraint);
+        this.typeId = flyweight.typeId();
+        this.typeCheckCache = flyweight.typeCheckCache();
+        this.defn = flyweight.defn();
+        this.acceptedTypeDefn = flyweight.acceptedTypeDefn();
     }
 
     /**
@@ -304,57 +301,4 @@ public class BMapType extends BType implements MapType, TypeWithShape, Cloneable
         return constraint instanceof MayBeDependentType constraintType && constraintType.isDependentlyTyped(visited);
     }
 
-    private static class TypeCheckFlyweightStore {
-
-        private static final LoadingCache<Integer, TypeCheckFlyweight> cacheRO =
-                CacheFactory.createCache(TypeCheckFlyweight::create);
-
-        private static final LoadingCache<Integer, TypeCheckFlyweight> cacheRW =
-                CacheFactory.createCache(TypeCheckFlyweight::create);
-
-        private static final Map<Integer, TypeCheckFlyweight> namedFlyweightTableRO =
-                CacheFactory.createCachingHashMap();
-        private static final Map<Integer, TypeCheckFlyweight> namedFlyweightTableRW =
-                CacheFactory.createCachingHashMap();
-
-        public static TypeCheckFlyweight getRO(Type constraint) {
-            return get(cacheRO, namedFlyweightTableRO, constraint);
-        }
-
-        public static TypeCheckFlyweight getRW(Type constraint) {
-            return get(cacheRW, namedFlyweightTableRW, constraint);
-        }
-
-        private static TypeCheckFlyweight get(LoadingCache<Integer, TypeCheckFlyweight> cache,
-                                              Map<Integer, TypeCheckFlyweight> namedFlyweightTable, Type constraint) {
-            if (constraint instanceof CacheableTypeDescriptor cacheableTypeDescriptor) {
-                int typeId = cacheableTypeDescriptor.typeId();
-                if (typeId > 0) {
-                    return namedFlyweightTable.computeIfAbsent(typeId, TypeCheckFlyweight::createNamed);
-                }
-                return cache.get(typeId);
-            }
-            return TypeCheckFlyweight.create();
-        }
-
-        private record TypeCheckFlyweight(int typeId, TypeCheckCache typeCheckCache,
-                                          DefinitionContainer<MappingDefinition> defn,
-                                          DefinitionContainer<MappingDefinition> acceptedTypeDefn) {
-
-            public static TypeCheckFlyweight createNamed(Integer integer) {
-                return new TypeCheckFlyweight(TypeIdSupplier.reserveNamedId(),
-                        TypeCheckCacheFactory.create(), new DefinitionContainer<>(), new DefinitionContainer<>());
-            }
-
-            public static TypeCheckFlyweight create(Integer integer) {
-                return create();
-            }
-
-            private static TypeCheckFlyweight create() {
-                return new TypeCheckFlyweight(TypeIdSupplier.getAnonId(),
-                        TypeCheckCacheFactory.create(), new DefinitionContainer<>(), new DefinitionContainer<>());
-            }
-        }
-
-    }
 }

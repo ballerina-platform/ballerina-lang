@@ -123,7 +123,7 @@ public abstract sealed class ImmutableSemType extends SemType implements Cacheab
             if (some != 0) {
                 return TypeIdSupplier.getAnonId();
             }
-            return TYPE_ID_CACHE.computeIfAbsent(all, k -> TypeIdSupplier.getNamedId());
+            return TYPE_ID_CACHE.computeIfAbsent(all, k -> TypeIdSupplier.getReservedId());
         }
     }
 }

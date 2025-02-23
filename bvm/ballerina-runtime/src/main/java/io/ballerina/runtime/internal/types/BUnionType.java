@@ -139,8 +139,9 @@ public class BUnionType extends BType implements UnionType, SelectivelyImmutable
         this(new ArrayList<>(0), name, pkg, typeFlags, isCyclic, flags);
     }
 
-    protected BUnionType(String typeName, Module pkg, boolean readonly, Class<? extends Object> valueClass) {
-        super(typeName, pkg, valueClass, true);
+    protected BUnionType(String typeName, Module pkg, boolean readonly, Class<? extends Object> valueClass,
+                         boolean initializeCache) {
+        super(typeName, pkg, valueClass, initializeCache);
         this.readonly = readonly;
     }
 
@@ -150,8 +151,8 @@ public class BUnionType extends BType implements UnionType, SelectivelyImmutable
      * @param unionType flags associated with the type
      * @param typeName typename associated with the type
      */
-    protected BUnionType(BUnionType unionType, String typeName, boolean readonly) {
-        super(typeName, unionType.pkg, unionType.valueClass, true);
+    protected BUnionType(BUnionType unionType, String typeName, boolean readonly, boolean initializeCache) {
+        super(typeName, unionType.pkg, unionType.valueClass, initializeCache);
         this.typeFlags = unionType.typeFlags;
         this.memberTypes = new ArrayList<>(unionType.memberTypes.size());
         this.originalMemberTypes = new ArrayList<>(unionType.memberTypes.size());

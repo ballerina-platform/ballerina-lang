@@ -20,7 +20,6 @@ package io.ballerina.runtime.api.types.semtype;
 
 import io.ballerina.runtime.api.types.TypeIdentifier;
 import io.ballerina.runtime.internal.types.semtype.CacheFactory;
-import io.ballerina.runtime.internal.types.semtype.TypeCheckCacheImpl;
 
 import java.util.Map;
 
@@ -48,7 +47,7 @@ public class TypeCheckCacheFactory {
     }
 
     public static TypeCheckCache create() {
-        return new TypeCheckCacheImpl();
+        return new TypeCheckCache();
     }
 
     public static void reset() {

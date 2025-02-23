@@ -17,7 +17,6 @@
  */
 package io.ballerina.runtime.internal.types;
 
-import com.github.benmanes.caffeine.cache.LoadingCache;
 import io.ballerina.runtime.api.flags.TypeFlags;
 import io.ballerina.runtime.api.types.ArrayType;
 import io.ballerina.runtime.api.types.IntersectionType;
@@ -25,27 +24,22 @@ import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.TypeTags;
 import io.ballerina.runtime.api.types.semtype.BasicTypeBitSet;
 import io.ballerina.runtime.api.types.semtype.Builder;
-import io.ballerina.runtime.api.types.semtype.CacheableTypeDescriptor;
 import io.ballerina.runtime.api.types.semtype.Context;
 import io.ballerina.runtime.api.types.semtype.Env;
 import io.ballerina.runtime.api.types.semtype.SemType;
 import io.ballerina.runtime.api.types.semtype.ShapeAnalyzer;
-import io.ballerina.runtime.api.types.semtype.TypeCheckCache;
-import io.ballerina.runtime.api.types.semtype.TypeCheckCacheFactory;
 import io.ballerina.runtime.internal.TypeChecker;
-import io.ballerina.runtime.internal.types.semtype.CacheFactory;
 import io.ballerina.runtime.internal.types.semtype.CellAtomicType;
 import io.ballerina.runtime.internal.types.semtype.DefinitionContainer;
 import io.ballerina.runtime.internal.types.semtype.ListDefinition;
+import io.ballerina.runtime.internal.types.semtype.TypeCheckCacheFlyweight;
 import io.ballerina.runtime.internal.values.AbstractArrayValue;
 import io.ballerina.runtime.internal.values.ArrayValue;
 import io.ballerina.runtime.internal.values.ArrayValueImpl;
 import io.ballerina.runtime.internal.values.ReadOnlyUtils;
 
-import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 
 import static io.ballerina.runtime.api.types.semtype.Builder.getNeverType;
 import static io.ballerina.runtime.internal.types.semtype.CellAtomicType.CellMutability.CELL_MUT_LIMITED;
@@ -66,6 +60,7 @@ import static io.ballerina.runtime.internal.types.semtype.CellAtomicType.CellMut
 public class BArrayType extends BType implements ArrayType, TypeWithShape {
 
     private static final BasicTypeBitSet BASIC_TYPE = Builder.getListType();
+    private static final TypeCheckFlyweightStore<ListDefinition> FLYWEIGHT_STORE = new TypeCheckFlyweightStore<>();
 
     private static final SemType[] EMPTY_SEMTYPE_ARR = new SemType[0];
     private Type elementType;
@@ -78,8 +73,8 @@ public class BArrayType extends BType implements ArrayType, TypeWithShape {
     private IntersectionType immutableType;
     private IntersectionType intersectionType = null;
     private int typeFlags;
-    private final DefinitionContainer<ListDefinition> defn = new DefinitionContainer<>();
-    private final DefinitionContainer<ListDefinition> acceptedTypeDefn = new DefinitionContainer<>();
+    private DefinitionContainer<ListDefinition> defn;
+    private DefinitionContainer<ListDefinition> acceptedTypeDefn;
     public BArrayType(Type elementType) {
         this(elementType, false);
     }
@@ -120,17 +115,22 @@ public class BArrayType extends BType implements ArrayType, TypeWithShape {
         this.elementType = readonly && !elementRO ? ReadOnlyUtils.getReadOnlyType(elementType) : elementType;
         this.dimensions = dimensions;
         if (size == -1) {
-            TypeCheckCacheData.TypeCheckCacheFlyweight data;
-            if (isReadOnly()) {
-                data = TypeCheckCacheData.getRO(elementType);
-            } else {
-                data = TypeCheckCacheData.getRW(elementType);
-            }
-            this.typeId = data.typeId;
-            this.typeCheckCache = data.typeCheckCache;
+            TypeCheckCacheFlyweight<ListDefinition>
+                    flyweight = isReadOnly() ? FLYWEIGHT_STORE.getRO(elementType) : FLYWEIGHT_STORE.getRW(elementType);
+            this.typeId = flyweight.typeId();
+            this.typeCheckCache = flyweight.typeCheckCache();
+            defn = flyweight.defn();
+            acceptedTypeDefn = flyweight.acceptedTypeDefn();
         } else {
             initializeCache();
         }
+    }
+
+    @Override
+    protected void initializeCache() {
+        super.initializeCache();
+        defn = new DefinitionContainer<>();
+        acceptedTypeDefn = new DefinitionContainer<>();
     }
 
     private void setFlagsBasedOnElementType() {
@@ -260,10 +260,6 @@ public class BArrayType extends BType implements ArrayType, TypeWithShape {
         if (defn.isDefinitionReady()) {
             return defn.getSemType(env);
         }
-        SemType cachedSemtype = TypeCheckCacheData.cachedSemTypes.get(typeId);
-        if (cachedSemtype != null) {
-            return cachedSemtype;
-        }
         var result = defn.trySetDefinition(ListDefinition::new);
         if (!result.updated()) {
             return defn.getSemType(env);
@@ -271,9 +267,7 @@ public class BArrayType extends BType implements ArrayType, TypeWithShape {
         ListDefinition ld = result.definition();
         CellAtomicType.CellMutability mut = isReadOnly() ? CellAtomicType.CellMutability.CELL_MUT_NONE :
                 CellAtomicType.CellMutability.CELL_MUT_LIMITED;
-        SemType semType = getSemTypePart(env, ld, size, tryInto(cx, getElementType()), mut);
-        TypeCheckCacheData.cachedSemTypes.put(typeId, semType);
-        return semType;
+        return getSemTypePart(env, ld, size, tryInto(cx, getElementType()), mut);
     }
 
     private SemType getSemTypePart(Env env, ListDefinition defn, int size, SemType elementType,
@@ -356,50 +350,4 @@ public class BArrayType extends BType implements ArrayType, TypeWithShape {
         return semType;
     }
 
-    private static class TypeCheckCacheData {
-
-        private static final Map<Integer, SemType> cachedSemTypes = new ConcurrentHashMap<>();
-        private static final LoadingCache<Integer, TypeCheckCacheFlyweight> cacheRW =
-                CacheFactory.createCache(TypeCheckCacheFlyweight::create);
-        private static final LoadingCache<Integer, TypeCheckCacheFlyweight> cacheRO =
-                CacheFactory.createCache(TypeCheckCacheFlyweight::create);
-        private static final Map<Integer, TypeCheckCacheFlyweight> lookupTableRW = CacheFactory.createCachingHashMap();
-        private static final Map<Integer, TypeCheckCacheFlyweight> lookupTableRO = CacheFactory.createCachingHashMap();
-
-        private record TypeCheckCacheFlyweight(int typeId, TypeCheckCache typeCheckCache) {
-
-            public static TypeCheckCacheFlyweight create() {
-                return new TypeCheckCacheFlyweight(TypeIdSupplier.getAnonId(), TypeCheckCacheFactory.create());
-            }
-
-
-            public static TypeCheckCacheFlyweight create(Integer integer) {
-                if (integer > 0) {
-                    new TypeCheckCacheFlyweight(TypeIdSupplier.reserveNamedId(), TypeCheckCacheFactory.create());
-                }
-                return new TypeCheckCacheFlyweight(TypeIdSupplier.getAnonId(), TypeCheckCacheFactory.create());
-            }
-        }
-
-        public static TypeCheckCacheFlyweight getRW(Type constraint) {
-            return get(constraint, lookupTableRW, cacheRW);
-
-        }
-
-        public static TypeCheckCacheFlyweight getRO(Type constraint) {
-            return get(constraint, lookupTableRO, cacheRO);
-        }
-
-        private static TypeCheckCacheFlyweight get(Type constraint, Map<Integer, TypeCheckCacheFlyweight> lookupTable,
-                                                   LoadingCache<Integer, TypeCheckCacheFlyweight> cache) {
-            if (constraint instanceof CacheableTypeDescriptor cacheableTypeDescriptor) {
-                int typeId = cacheableTypeDescriptor.typeId();
-                if (typeId > 0) {
-                    lookupTable.computeIfAbsent(typeId, TypeCheckCacheFlyweight::create);
-                }
-                return cache.get(typeId);
-            }
-            return TypeCheckCacheFlyweight.create();
-        }
-    }
 }

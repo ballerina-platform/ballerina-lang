@@ -315,20 +315,24 @@ public class BXmlType extends BType implements XmlType, TypeWithShape {
         private static final Map<Type, TypeCheckFlyweight> cacheRO = new IdentityHashMap<>();
         private static final Map<Type, TypeCheckFlyweight> cacheRW = new IdentityHashMap<>();
 
-        private static final TypeCheckFlyweight XML = init();
+        private static final TypeCheckFlyweight XML = initReserved();
 
-        private static final TypeCheckFlyweight XML_ELEMENT_RW = init();
-        private static final TypeCheckFlyweight XML_COMMENT_RW = init();
-        private static final TypeCheckFlyweight XML_PI_RW = init();
-        private static final TypeCheckFlyweight XML_TEXT_RW = init();
+        private static final TypeCheckFlyweight XML_ELEMENT_RW = initReserved();
+        private static final TypeCheckFlyweight XML_COMMENT_RW = initReserved();
+        private static final TypeCheckFlyweight XML_PI_RW = initReserved();
+        private static final TypeCheckFlyweight XML_TEXT_RW = initReserved();
 
-        private static final TypeCheckFlyweight XML_ELEMENT_RO = init();
-        private static final TypeCheckFlyweight XML_COMMENT_RO = init();
-        private static final TypeCheckFlyweight XML_PI_RO = init();
-        private static final TypeCheckFlyweight XML_TEXT_RO = init();
+        private static final TypeCheckFlyweight XML_ELEMENT_RO = initReserved();
+        private static final TypeCheckFlyweight XML_COMMENT_RO = initReserved();
+        private static final TypeCheckFlyweight XML_PI_RO = initReserved();
+        private static final TypeCheckFlyweight XML_TEXT_RO = initReserved();
+
+        private static TypeCheckFlyweight initReserved() {
+            return new TypeCheckFlyweight(TypeIdSupplier.getReservedId(), TypeCheckCacheFactory.create());
+        }
 
         private static TypeCheckFlyweight init() {
-            return new TypeCheckFlyweight(TypeIdSupplier.reserveNamedId(), TypeCheckCacheFactory.create());
+            return new TypeCheckFlyweight(TypeIdSupplier.getNamedId(), TypeCheckCacheFactory.create());
         }
 
         private static TypeCheckFlyweight getRO(Type constraint) {

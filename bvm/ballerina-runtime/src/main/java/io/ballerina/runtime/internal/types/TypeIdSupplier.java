@@ -33,8 +33,16 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public final class TypeIdSupplier {
 
+    // Anydata         : 2
+    // JSON            : 2
+    // XML             : 9
+    // Immutable types : 10
+    // Reserved Base   = 23 (total above)
+    // Total Reserved  = 23 * (1 + 2 + 2) = 115 (2 for map and arrays per each)
+    public static final int MAX_RESERVED_ID = 128;
     private static final Map<TypeIdentifier, Integer> cache = CacheFactory.createCachingHashMap();
-    private static final AtomicInteger nextNamedId = new AtomicInteger(0);
+    private static final AtomicInteger nextNamedId = new AtomicInteger(MAX_RESERVED_ID);
+    private static final AtomicInteger nextReservedId = new AtomicInteger(0);
     private static final AtomicInteger nextAnonId = new AtomicInteger(-2);
 
     private TypeIdSupplier() {
@@ -51,8 +59,9 @@ public final class TypeIdSupplier {
         return newId;
     }
 
-    public static int reserveNamedId() {
-        return getNamedId();
+    public static int getReservedId() {
+        assert nextReservedId.get() < MAX_RESERVED_ID;
+        return nextReservedId.getAndIncrement();
     }
 
     public static int getNamedId() {
@@ -63,5 +72,21 @@ public final class TypeIdSupplier {
     public static int getAnonId() {
         assert nextAnonId.get() > Integer.MIN_VALUE + 1;
         return nextAnonId.getAndDecrement();
+    }
+
+    public static ID_KIND kind(int id) {
+        if (id < 0) {
+            return ID_KIND.UNNAMED;
+        }
+        if (id < MAX_RESERVED_ID) {
+            return ID_KIND.RESERVED;
+        }
+        return ID_KIND.NAMED;
+    }
+
+    public enum ID_KIND {
+        RESERVED,
+        NAMED,
+        UNNAMED
     }
 }
