@@ -416,30 +416,23 @@ public final class TypeChecker {
     }
 
     public static Type getType(Object value) {
-        if (value instanceof BValue bValue) {
-            if (!(value instanceof BObject bObject)) {
-                return bValue.getType();
-            }
-            return bObject.getOriginalType();
-        }
-        if (value == null) {
-            return TYPE_NULL;
-        } else if (value instanceof Number number) {
-            return getNumberType(number);
-        } else if (value instanceof Boolean booleanValue) {
-            return BBooleanType.singletonType(booleanValue);
-        }
-        throw new IllegalArgumentException("unexpected value type");
+        return switch (value) {
+            case BObject bObject -> bObject.getOriginalType();
+            case BValue bValue -> bValue.getType();
+            case null -> TYPE_NULL;
+            case Number number -> getNumberType(number);
+            case Boolean booleanValue -> BBooleanType.singletonType(booleanValue);
+            default -> throw new IllegalArgumentException("unexpected value type");
+        };
     }
 
     private static Type getNumberType(Number number) {
-        if (number instanceof Double) {
-            return TYPE_FLOAT;
-        }
-        if (number instanceof Integer || number instanceof Byte) {
-            return TYPE_BYTE;
-        }
-        return TYPE_INT;
+        return switch (number) {
+            case Double ignored -> TYPE_FLOAT;
+            case Integer ignored -> TYPE_BYTE;
+            case Byte ignored -> TYPE_BYTE;
+            default -> TYPE_INT;
+        };
     }
 
     /**
