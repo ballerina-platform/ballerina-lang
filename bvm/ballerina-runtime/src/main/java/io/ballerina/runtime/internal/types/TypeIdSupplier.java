@@ -44,6 +44,7 @@ public final class TypeIdSupplier {
     private static final AtomicInteger nextNamedId = new AtomicInteger(MAX_RESERVED_ID);
     private static final AtomicInteger nextReservedId = new AtomicInteger(0);
     private static final AtomicInteger nextAnonId = new AtomicInteger(-2);
+    private static boolean reservedIdsExhausted = false;
 
     private TypeIdSupplier() {
 
@@ -60,7 +61,12 @@ public final class TypeIdSupplier {
     }
 
     public static int getReservedId() {
-        assert nextReservedId.get() < MAX_RESERVED_ID;
+        // This can happen if there are a lot of maps and arrays with reserved ids (T[][][][]). In that case we will
+        // gracefully overflow to named ids.
+        if (reservedIdsExhausted || nextReservedId.get() >= MAX_RESERVED_ID) {
+            reservedIdsExhausted = true;
+            return getNamedId();
+        }
         return nextReservedId.getAndIncrement();
     }
 

@@ -665,7 +665,12 @@ public final class TypeChecker {
     }
 
     public static boolean isNumericType(Type type) {
-        return couldBelongToBasicType(type.getBasicType(), NumericTypeHolder.NUMERIC_TYPE);
+        return couldBelongToBasicType(type.getBasicType(), NumericTypeHolder.NUMERIC_TYPE) && isNumericInner(type);
+    }
+
+    private static boolean isNumericInner(Type type) {
+        Context cx = context();
+        return Core.isSubtypeSimple(SemType.tryInto(cx, type), NumericTypeHolder.NUMERIC_TYPE);
     }
 
     public static boolean isByteLiteral(long longValue) {

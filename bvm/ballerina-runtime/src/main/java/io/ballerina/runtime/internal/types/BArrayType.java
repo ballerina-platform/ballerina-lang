@@ -73,8 +73,8 @@ public class BArrayType extends BType implements ArrayType, TypeWithShape {
     private IntersectionType immutableType;
     private IntersectionType intersectionType = null;
     private int typeFlags;
-    private DefinitionContainer<ListDefinition> defn;
-    private DefinitionContainer<ListDefinition> acceptedTypeDefn;
+    private DefinitionContainer<ListDefinition> defn = new DefinitionContainer<>();
+    private DefinitionContainer<ListDefinition> acceptedTypeDefn = new DefinitionContainer<>();
     public BArrayType(Type elementType) {
         this(elementType, false);
     }
@@ -119,18 +119,9 @@ public class BArrayType extends BType implements ArrayType, TypeWithShape {
                     flyweight = isReadOnly() ? FLYWEIGHT_STORE.getRO(elementType) : FLYWEIGHT_STORE.getRW(elementType);
             this.typeId = flyweight.typeId();
             this.typeCheckCache = flyweight.typeCheckCache();
-            defn = flyweight.defn();
-            acceptedTypeDefn = flyweight.acceptedTypeDefn();
         } else {
             initializeCache();
         }
-    }
-
-    @Override
-    protected void initializeCache() {
-        super.initializeCache();
-        defn = new DefinitionContainer<>();
-        acceptedTypeDefn = new DefinitionContainer<>();
     }
 
     private void setFlagsBasedOnElementType() {
