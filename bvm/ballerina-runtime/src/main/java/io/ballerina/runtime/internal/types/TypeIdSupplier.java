@@ -74,17 +74,17 @@ public final class TypeIdSupplier {
         return nextAnonId.getAndDecrement();
     }
 
-    public static ID_KIND kind(int id) {
+    public static IdKind kind(int id) {
         if (id < 0) {
-            return ID_KIND.UNNAMED;
+            return IdKind.UNNAMED;
         }
         if (id < MAX_RESERVED_ID) {
-            return ID_KIND.RESERVED;
+            return IdKind.RESERVED;
         }
-        return ID_KIND.NAMED;
+        return IdKind.NAMED;
     }
 
-    public enum ID_KIND {
+    public enum IdKind {
         RESERVED,
         NAMED,
         UNNAMED
