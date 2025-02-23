@@ -49,6 +49,11 @@ public final class BReadonlyType extends BSemTypeWrapper<BReadonlyType.BReadonly
         return BASIC_TYPE;
     }
 
+    @Override
+    public boolean isAnydata() {
+        return false;
+    }
+
     protected static final class BReadonlyTypeImpl extends BType implements ReadonlyType {
 
         private BReadonlyTypeImpl(String typeName, Module pkg) {

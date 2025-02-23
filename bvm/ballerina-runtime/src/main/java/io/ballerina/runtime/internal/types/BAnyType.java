@@ -77,6 +77,11 @@ public final class BAnyType extends BSemTypeWrapper<BAnyType.BAnyTypeImpl> imple
         return BASIC_TYPE;
     }
 
+    @Override
+    public boolean isAnydata() {
+        return false;
+    }
+
     protected static final class BAnyTypeImpl extends BType implements AnyType {
 
         private final boolean readonly;
