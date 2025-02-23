@@ -56,7 +56,6 @@ public sealed class SemType extends BasicTypeBitSet
     }
 
     public final int some() {
-        assert some != -1 : "SemType created by no arg constructor must be initialized with setSome";
         return some;
     }
 

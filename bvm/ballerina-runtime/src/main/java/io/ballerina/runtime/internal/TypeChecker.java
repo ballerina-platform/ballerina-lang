@@ -120,11 +120,13 @@ public final class TypeChecker {
             ThreadLocal.withInitial(() -> Context.from(Env.getInstance()));
 
     public static Object checkCast(Object sourceVal, Type targetType) {
-
-        List<String> errors = new ArrayList<>();
         if (checkIsType(sourceVal, targetType)) {
             return sourceVal;
         }
+        return tryConvertibleCast(sourceVal, targetType);
+    }
+
+    private static Object tryConvertibleCast(Object sourceVal, Type targetType) {
         Type sourceType = getType(sourceVal);
         if (couldBelongToBasicType(sourceType.getBasicType(), ConvertibleCastMaskHolder.CONVERTIBLE_CAST_MASK) &&
                 couldBelongToBasicType(targetType.getBasicType(), ConvertibleCastMaskHolder.CONVERTIBLE_CAST_MASK)) {
@@ -141,7 +143,7 @@ public final class TypeChecker {
                 return TypeConverter.castValues(targetType, sourceVal);
             }
         }
-        throw createTypeCastError(sourceVal, targetType, errors);
+        throw createTypeCastError(sourceVal, targetType, List.of());
     }
 
     public static Context context() {
@@ -1068,31 +1070,29 @@ public final class TypeChecker {
         TRUE, FALSE, MAYBE
     }
 
-    private static FillerValueResult hasFillerValueSemType(Context cx, SemType type) {
+    private static FillerValueResult hasFillerValueSemType(BasicTypeBitSet type) {
         if (Core.containsBasicType(type, Builder.getNilType())) {
             return FillerValueResult.TRUE;
         }
-        if (Integer.bitCount(type.all() | type.some()) > 1) {
+        if (Integer.bitCount(type.all()) > 1) {
             return FillerValueResult.FALSE;
         }
-        if (type.some() != 0) {
-            return FillerValueResult.MAYBE;
-        }
-        return Core.containsBasicType(type, TopTypesWithFillValueMaskHolder.TOP_TYPES_WITH_ALWAYS_FILLING) ?
-                FillerValueResult.TRUE :
-                FillerValueResult.FALSE;
+        return FillerValueResult.MAYBE;
     }
 
     private static boolean hasFillerValue(Context cx, Type type, List<Type> unanalyzedTypes) {
         if (type == null) {
             return true;
         }
-
-        FillerValueResult fastResult = hasFillerValueSemType(cx, SemType.tryInto(cx, type));
+        FillerValueResult fastResult = hasFillerValueSemType(type.getBasicType());
         if (fastResult != FillerValueResult.MAYBE) {
             return fastResult == FillerValueResult.TRUE;
         }
 
+        return hasFillerValueWithDefaultValues(cx, type, unanalyzedTypes);
+    }
+
+    private static boolean hasFillerValueWithDefaultValues(Context cx, Type type, List<Type> unanalyzedTypes) {
         int typeTag = type.getTag();
         if (TypeTags.isXMLTypeTag(typeTag)) {
             return typeTag == TypeTags.XML_TAG || typeTag == TypeTags.XML_TEXT_TAG;
@@ -1127,6 +1127,10 @@ public final class TypeChecker {
         }
         unAnalyzedTypes.add(tupleType);
 
+        return checkMemberFillerValue(cx, tupleType, unAnalyzedTypes);
+    }
+
+    private static boolean checkMemberFillerValue(Context cx, BTupleType tupleType, List<Type> unAnalyzedTypes) {
         for (Type member : tupleType.getTupleTypes()) {
             if (!hasFillerValue(cx, member, unAnalyzedTypes)) {
                 return false;

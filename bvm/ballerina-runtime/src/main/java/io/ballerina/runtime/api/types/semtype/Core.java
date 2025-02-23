@@ -333,6 +333,10 @@ public final class Core {
         return subType.data();
     }
 
+    public static boolean containsBasicType(BasicTypeBitSet t1, SemType t2) {
+        int bits = t1.all();
+        return (bits & t2.all()) != 0;
+    }
     public static boolean containsBasicType(SemType t1, SemType t2) {
         int bits = t1.all() | t1.some();
         return (bits & t2.all()) != 0;
