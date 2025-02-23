@@ -154,9 +154,9 @@ public final class BStringType extends BSemTypeWrapper<BStringType.BStringTypeIm
             LARGE;
 
             public static Kind getKind(String value) {
-                if (value.length() < 10) {
+                if (value.length() < 16) {
                     return SMALL;
-                } else if (value.length() < 50) {
+                } else if (value.length() < 64) {
                     return MEDIUM;
                 } else {
                     return LARGE;

@@ -17,6 +17,8 @@
  */
 package io.ballerina.runtime.internal.values;
 
+import io.ballerina.runtime.api.Module;
+import io.ballerina.runtime.api.constants.TypeConstants;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.semtype.BasicTypeBitSet;
 import io.ballerina.runtime.api.types.semtype.Builder;
@@ -37,17 +39,17 @@ import java.util.Optional;
 public abstract class StringValue implements BString, SimpleValue {
 
     private static final BasicTypeBitSet BASIC_TYPE = Builder.getStringType();
+    private static final BStringType STRING_TYPE =
+            new BStringType(TypeConstants.STRING_TNAME, new Module(null, null, null));
     final String value;
     final boolean isNonBmp;
-    private final Type type;
-    private final SemType shape;
+    private BStringType type;
+    private boolean shapeCalculated = false;
 
     protected StringValue(String value, boolean isNonBmp) {
         this.value = value;
         this.isNonBmp = isNonBmp;
-        BStringType stringType = BStringType.singletonType(value);
-        this.type = stringType;
-        this.shape = stringType.shape();
+        this.type = STRING_TYPE;
     }
 
     @Override
@@ -113,7 +115,10 @@ public abstract class StringValue implements BString, SimpleValue {
 
     @Override
     public Optional<SemType> inherentTypeOf(Context cx) {
-        return Optional.of(shape);
+        if (!shapeCalculated) {
+            this.type = BStringType.singletonType(value);
+        }
+        return Optional.of(this.type.shape());
     }
 
     @Override
