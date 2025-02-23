@@ -312,17 +312,26 @@ public class BMapType extends BType implements MapType, TypeWithShape, Cloneable
         private static final LoadingCache<Integer, TypeCheckFlyweight> cacheRW =
                 CacheFactory.createCache(TypeCheckFlyweight::create);
 
+        private static final Map<Integer, TypeCheckFlyweight> namedFlyweightTableRO =
+                CacheFactory.createCachingHashMap();
+        private static final Map<Integer, TypeCheckFlyweight> namedFlyweightTableRW =
+                CacheFactory.createCachingHashMap();
+
         public static TypeCheckFlyweight getRO(Type constraint) {
-            return get(cacheRO, constraint);
+            return get(cacheRO, namedFlyweightTableRO, constraint);
         }
 
         public static TypeCheckFlyweight getRW(Type constraint) {
-            return get(cacheRW, constraint);
+            return get(cacheRW, namedFlyweightTableRW, constraint);
         }
 
-        private static TypeCheckFlyweight get(LoadingCache<Integer, TypeCheckFlyweight> cache, Type constraint) {
+        private static TypeCheckFlyweight get(LoadingCache<Integer, TypeCheckFlyweight> cache,
+                                              Map<Integer, TypeCheckFlyweight> namedFlyweightTable, Type constraint) {
             if (constraint instanceof CacheableTypeDescriptor cacheableTypeDescriptor) {
                 int typeId = cacheableTypeDescriptor.typeId();
+                if (typeId > 0) {
+                    return namedFlyweightTable.computeIfAbsent(typeId, TypeCheckFlyweight::createNamed);
+                }
                 return cache.get(typeId);
             }
             return TypeCheckFlyweight.create();
@@ -331,6 +340,11 @@ public class BMapType extends BType implements MapType, TypeWithShape, Cloneable
         private record TypeCheckFlyweight(int typeId, TypeCheckCache typeCheckCache,
                                           DefinitionContainer<MappingDefinition> defn,
                                           DefinitionContainer<MappingDefinition> acceptedTypeDefn) {
+
+            public static TypeCheckFlyweight createNamed(Integer integer) {
+                return new TypeCheckFlyweight(TypeIdSupplier.reserveNamedId(),
+                        TypeCheckCacheFactory.create(), new DefinitionContainer<>(), new DefinitionContainer<>());
+            }
 
             public static TypeCheckFlyweight create(Integer integer) {
                 return create();

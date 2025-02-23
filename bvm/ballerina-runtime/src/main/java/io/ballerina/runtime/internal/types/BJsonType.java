@@ -50,8 +50,8 @@ public class BJsonType extends BUnionType implements JsonType {
         return new BasicTypeBitSet(bitset);
     }
 
-    private static final int readonlyTypeId = TypeIdSupplier.getAnonId();
-    private static final int mutalbeTypeId = TypeIdSupplier.getAnonId();
+    private static final int readonlyTypeId = TypeIdSupplier.reserveNamedId();
+    private static final int mutalbeTypeId = TypeIdSupplier.reserveNamedId();
     private final int typeId;
     /**
      * Create a {@code BJSONType} which represents the JSON type.

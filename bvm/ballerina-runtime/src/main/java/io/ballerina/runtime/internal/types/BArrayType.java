@@ -363,6 +363,8 @@ public class BArrayType extends BType implements ArrayType, TypeWithShape {
                 CacheFactory.createCache(TypeCheckCacheFlyweight::create);
         private static final LoadingCache<Integer, TypeCheckCacheFlyweight> cacheRO =
                 CacheFactory.createCache(TypeCheckCacheFlyweight::create);
+        private static final Map<Integer, TypeCheckCacheFlyweight> lookupTableRW = CacheFactory.createCachingHashMap();
+        private static final Map<Integer, TypeCheckCacheFlyweight> lookupTableRO = CacheFactory.createCachingHashMap();
 
         private record TypeCheckCacheFlyweight(int typeId, TypeCheckCache typeCheckCache) {
 
@@ -370,29 +372,34 @@ public class BArrayType extends BType implements ArrayType, TypeWithShape {
                 return new TypeCheckCacheFlyweight(TypeIdSupplier.getAnonId(), TypeCheckCacheFactory.create());
             }
 
+
             public static TypeCheckCacheFlyweight create(Integer integer) {
-                return create();
+                if (integer > 0) {
+                    new TypeCheckCacheFlyweight(TypeIdSupplier.reserveNamedId(), TypeCheckCacheFactory.create());
+                }
+                return new TypeCheckCacheFlyweight(TypeIdSupplier.getAnonId(), TypeCheckCacheFactory.create());
             }
         }
 
         public static TypeCheckCacheFlyweight getRW(Type constraint) {
-            if (constraint instanceof CacheableTypeDescriptor cacheableTypeDescriptor) {
-                return get(cacheableTypeDescriptor, cacheRW);
-            }
-            return TypeCheckCacheFlyweight.create();
+            return get(constraint, lookupTableRW, cacheRW);
+
         }
 
         public static TypeCheckCacheFlyweight getRO(Type constraint) {
-            if (constraint instanceof CacheableTypeDescriptor cacheableTypeDescriptor) {
-                return get(cacheableTypeDescriptor, cacheRO);
-            }
-            return TypeCheckCacheFlyweight.create();
+            return get(constraint, lookupTableRO, cacheRO);
         }
 
-        private static TypeCheckCacheFlyweight get(CacheableTypeDescriptor type,
+        private static TypeCheckCacheFlyweight get(Type constraint, Map<Integer, TypeCheckCacheFlyweight> lookupTable,
                                                    LoadingCache<Integer, TypeCheckCacheFlyweight> cache) {
-            int typeId = type.typeId();
-            return cache.get(typeId);
+            if (constraint instanceof CacheableTypeDescriptor cacheableTypeDescriptor) {
+                int typeId = cacheableTypeDescriptor.typeId();
+                if (typeId > 0) {
+                    lookupTable.computeIfAbsent(typeId, TypeCheckCacheFlyweight::create);
+                }
+                return cache.get(typeId);
+            }
+            return TypeCheckCacheFlyweight.create();
         }
     }
 }

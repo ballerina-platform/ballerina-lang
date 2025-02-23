@@ -51,6 +51,10 @@ public final class TypeIdSupplier {
         return newId;
     }
 
+    public static int reserveNamedId() {
+        return getNamedId();
+    }
+
     public static int getNamedId() {
         assert nextNamedId.get() < Integer.MAX_VALUE - 1;
         return nextNamedId.getAndIncrement();

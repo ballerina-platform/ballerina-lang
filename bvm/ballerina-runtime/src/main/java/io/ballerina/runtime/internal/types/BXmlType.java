@@ -328,8 +328,7 @@ public class BXmlType extends BType implements XmlType, TypeWithShape {
         private static final TypeCheckFlyweight XML_TEXT_RO = init();
 
         private static TypeCheckFlyweight init() {
-            return new TypeCheckFlyweight(TypeIdSupplier.getAnonId(),
-                    TypeCheckCacheFactory.create());
+            return new TypeCheckFlyweight(TypeIdSupplier.reserveNamedId(), TypeCheckCacheFactory.create());
         }
 
         private static TypeCheckFlyweight getRO(Type constraint) {

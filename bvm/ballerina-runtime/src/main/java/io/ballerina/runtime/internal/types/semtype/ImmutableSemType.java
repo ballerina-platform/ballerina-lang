@@ -28,7 +28,9 @@ import io.ballerina.runtime.internal.types.BSemTypeWrapper;
 import io.ballerina.runtime.internal.types.TypeIdSupplier;
 
 import java.util.Arrays;
+import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Runtime representation of an immutable semtype.
@@ -48,7 +50,7 @@ public abstract sealed class ImmutableSemType extends SemType implements Cacheab
     ImmutableSemType(int all, int some, SubType[] subTypeData) {
         super(all, some, subTypeData);
         this.typeCheckCache = TypeCheckCacheFactory.create();
-        this.typeId = TypeIdSupplier.getAnonId();
+        this.typeId = TypeIdCache.getTypeId(all, some);
     }
 
     ImmutableSemType(int all) {
@@ -111,5 +113,17 @@ public abstract sealed class ImmutableSemType extends SemType implements Cacheab
 
     public int typeId() {
         return typeId;
+    }
+
+    private static class TypeIdCache {
+
+        private static final Map<Integer, Integer> TYPE_ID_CACHE = new ConcurrentHashMap<>();
+
+        public static int getTypeId(int all, int some) {
+            if (some != 0) {
+                return TypeIdSupplier.getAnonId();
+            }
+            return TYPE_ID_CACHE.computeIfAbsent(all, k -> TypeIdSupplier.getNamedId());
+        }
     }
 }
