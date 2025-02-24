@@ -208,4 +208,9 @@ public class FunctionDefinitionTest extends AbstractDeclarationTest {
     public void testReKeywordAsFuncNameAndParamName() {
         testFile("func-definition/func_def_source_36.bal", "func-definition/func_def_assert_36.json");
     }
+
+    @Test
+    public void testInvalidResourceQualifierWithStringTemplate() {
+        testFile("func-definition/func_def_source_37.bal", "func-definition/func_def_assert_37.json");
+    }
 }
