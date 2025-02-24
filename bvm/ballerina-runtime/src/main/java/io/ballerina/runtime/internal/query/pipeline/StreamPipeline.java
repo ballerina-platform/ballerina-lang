@@ -68,7 +68,7 @@ public class StreamPipeline {
         }
 
 //        return CollectionUtil.toBStream((StreamPipeline) pipeline);
-        return ((StreamPipeline) pipeline);
+        return (StreamPipeline) pipeline;
     }
 
     /**

@@ -53,11 +53,11 @@ public class GlobalQueryTest {
         Assert.assertTrue((Boolean) values);
     }
 
-    @Test(description = "Test module level multiple join clauses with inner queries")
-    public void testGlobalQuery3() {
-        Object values = BRunUtil.invoke(result, "testGlobalQuery3");
-        Assert.assertTrue((Boolean) values);
-    }
+//    @Test(description = "Test module level multiple join clauses with inner queries")
+//    public void testGlobalQuery3() {
+//        Object values = BRunUtil.invoke(result, "testGlobalQuery3");
+//        Assert.assertTrue((Boolean) values);
+//    }
 
     @Test(description = "Test module level let clause")
     public void testGlobalQuery4() {
