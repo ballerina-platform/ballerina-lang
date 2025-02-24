@@ -17,7 +17,6 @@
  */
 package io.ballerina.runtime.api.creators;
 
-import com.github.benmanes.caffeine.cache.CacheLoader;
 import com.github.benmanes.caffeine.cache.Interner;
 import com.github.benmanes.caffeine.cache.LoadingCache;
 import io.ballerina.runtime.api.Module;
@@ -52,9 +51,11 @@ import io.ballerina.runtime.internal.types.BXmlType;
 import io.ballerina.runtime.internal.types.semtype.CacheFactory;
 
 import java.util.Arrays;
+import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Function;
 
 /**
  * Class @{@link TypeCreator} provides APIs to create ballerina type instances.
@@ -593,15 +594,17 @@ public final class TypeCreator {
 
     public static class ConstraintTypeCache<C, T> {
 
+        // NOTE: This is dangerous since interner has strong references to canonical values
         private final Interner<C> constraintInterner = CacheFactory.createInterner();
-        private final LoadingCache<C, T> cache;
+        private final Map<C, T> cache = new IdentityHashMap<>();
+        private final Function<C, T> createFn;
 
-        protected ConstraintTypeCache(CacheLoader<C, T> cacheLoader) {
-            cache = CacheFactory.createIdentityCache(cacheLoader);
+        protected ConstraintTypeCache(Function<C, T> createFn) {
+            this.createFn = createFn;
         }
 
         T get(C constraint) {
-            return cache.get(constraintInterner.intern(constraint));
+            return cache.computeIfAbsent(constraintInterner.intern(constraint), createFn);
         }
     }
 }
