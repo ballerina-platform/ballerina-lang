@@ -1,10 +1,11 @@
-package io.ballerina.runtime.internal.query.pipeline;
+package io.ballerina.runtime.internal.query.old;
 
 import io.ballerina.runtime.api.creators.TypeCreator;
 import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.types.RecordType;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.internal.query.pipeline.Frame;
 
 import java.util.stream.Stream;
 

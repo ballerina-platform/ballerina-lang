@@ -18,12 +18,12 @@ public class BallerinaIteratorUtils {
      * Converts a Ballerina collection to a Java stream.
      *
      * @param env        The Ballerina runtime environment.
-     * @param collection The Ballerina collection.
+     * @param javaIterator The Java iterator.
      * @param <T>        The type of elements in the collection.
      * @return A Java Stream of elements.
      */
-    public static <T> Stream<Frame> toStream(Environment env, Object collection) throws ErrorValue {
-        Iterator<T> javaIterator = getIterator(env, collection);
+    public static <T> Stream<Frame> toStream(Environment env, Iterator<T> javaIterator) throws ErrorValue {
+//        Iterator<T> javaIterator = getIterator(env, collection);
         return StreamSupport.stream(((Iterable<T>) () -> javaIterator).spliterator(), false)
                 .map(element -> Frame.create(VALUE_FIELD, element));
     }

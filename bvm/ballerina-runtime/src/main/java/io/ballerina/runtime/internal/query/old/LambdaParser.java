@@ -1,4 +1,4 @@
-package io.ballerina.runtime.internal.query.pipeline;
+package io.ballerina.runtime.internal.query.old;
 
 import io.ballerina.runtime.api.values.BFunctionPointer;
 

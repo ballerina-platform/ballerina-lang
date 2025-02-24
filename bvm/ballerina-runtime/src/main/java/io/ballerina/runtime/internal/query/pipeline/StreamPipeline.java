@@ -1,17 +1,15 @@
 package io.ballerina.runtime.internal.query.pipeline;
 
 import io.ballerina.runtime.api.Environment;
-import io.ballerina.runtime.api.creators.ErrorCreator;
-import io.ballerina.runtime.api.utils.StringUtils;
-import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BTypedesc;
 import io.ballerina.runtime.internal.query.clauses.PipelineStage;
 import io.ballerina.runtime.internal.query.utils.BallerinaIteratorUtils;
-import io.ballerina.runtime.internal.scheduling.Strand;
 import io.ballerina.runtime.internal.values.ErrorValue;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
+import java.util.function.Supplier;
 import java.util.stream.Stream;
 
 /**
@@ -20,11 +18,13 @@ import java.util.stream.Stream;
 public class StreamPipeline {
 
     private Stream<Frame> stream;
+    private Supplier<Stream<Frame>> streamSupplier;
     private final List<PipelineStage> pipelineStages;
     private final BTypedesc constraintType;
     private final BTypedesc completionType;
     private final boolean isLazyLoading;
     private final Environment env;
+    private final Iterator<?> itr;
 
     /**
      * Constructor for creating a StreamPipeline.
@@ -40,11 +40,18 @@ public class StreamPipeline {
                           BTypedesc completionType,
                           boolean isLazyLoading) {
         this.env = env;
-        this.stream = initializeFrameStream(env, collection);
+//        this.stream = initializeFrameStream(env, collection);
         this.pipelineStages = new ArrayList<>();
         this.constraintType = constraintType;
         this.completionType = completionType;
         this.isLazyLoading = isLazyLoading;
+        this.itr = BallerinaIteratorUtils.getIterator(env, collection);
+        if(isLazyLoading) {
+            this.stream = initializeFrameStream(env, itr);
+            this.streamSupplier = () -> initializeFrameStream(env, itr);
+        } else {
+            this.stream = initializeFrameStream(env, itr);
+        }
     }
 
     public static Object initStreamPipeline(Environment env, Object collection,
@@ -58,19 +65,19 @@ public class StreamPipeline {
         }
     }
 
-
-
     public static void addStreamFunction(Object jStreamPipeline, Object pipelineStage) {
         ((StreamPipeline) jStreamPipeline).addStage((PipelineStage) pipelineStage);
     }
 
-    public static Stream<Frame> getStreamFromPipeline(Object pipeline){
+    public static StreamPipeline getStreamFromPipeline(Object pipeline){
         try {
             ((StreamPipeline)pipeline).execute();
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
-        return ((StreamPipeline) pipeline).getStream();
+
+//        return CollectionUtil.toBStream((StreamPipeline) pipeline);
+        return (StreamPipeline) pipeline;
     }
 
     /**
@@ -94,11 +101,11 @@ public class StreamPipeline {
     /**
      * Initializes a stream of `Frame` objects from the provided Ballerina collection.
      *
-     * @param collection The Ballerina collection.
+     * @param itr The iterator for the Ballerina collection.
      * @return A Java stream of `Frame` objects.
      */
-    private Stream<Frame> initializeFrameStream(Environment env, Object collection) throws ErrorValue {
-        return BallerinaIteratorUtils.toStream(env, collection);
+    private Stream<Frame> initializeFrameStream(Environment env, Iterator<?> itr) throws ErrorValue {
+        return BallerinaIteratorUtils.toStream(env, itr);
     }
 
     /**
@@ -116,7 +123,20 @@ public class StreamPipeline {
         return completionType;
     }
 
-    public Stream<Frame> getStream() {
+    public Stream<Frame> getStream(){
+        if (isLazyLoading) {
+            try {
+                stream.iterator();
+            } catch (Exception e) {
+                System.out.println("Error in getStream: " + e);
+                stream = streamSupplier.get();
+                try {
+                    execute();
+                } catch (Exception ex) {
+                    throw new RuntimeException(ex);
+                }
+            }
+        }
         return stream;
     }
 }

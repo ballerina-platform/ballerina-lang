@@ -18,6 +18,31 @@ import ballerina/lang.'xml;
 import ballerina/jballerina.java;
 import ballerina/lang.'error;
 
+class _IteratorObject {
+    handle javaStrm;
+
+    function init(handle javaItr) {
+        self.javaStrm = javaItr;
+    }
+    public isolated function next() returns record {|Type value;|}|CompletionType {
+        return nextJava(self.javaStrm);
+    }
+}
+
+type nextRecord record {|Type value;|};
+
+public isolated function nextJava(handle javaStrm) returns record {|Type value;|}|CompletionType = @java:Method {
+        'class: "io.ballerina.runtime.internal.query.pipeline.IteratorObject",
+        name: "next",
+        paramTypes: ["io.ballerina.runtime.internal.query.pipeline.StreamPipeline"]
+} external;
+
+function toStream(handle strm) returns stream<Type, CompletionType> = @java:Method {
+    'class: "io.ballerina.runtime.internal.query.utils.CollectionUtil",
+    name: "toStream",
+    paramTypes: ["io.ballerina.runtime.internal.query.pipeline.StreamPipeline"]
+} external;
+
 function createPipeline(
         Type[]|map<Type>|record{}|string|xml|table<map<Type>>|stream<Type, CompletionType>|_Iterable collection,
         typedesc<Type> constraintTd, typedesc<CompletionType> completionTd, boolean isLazyLoading) returns handle {
@@ -41,12 +66,6 @@ function createStreamPipeline(
 function createInputFunction(function(_Frame _frame) returns _Frame|error? inputFunc) returns handle = @java:Method {
     'class: "io.ballerina.runtime.internal.query.clauses.FromClause",
     name: "initFromClause",
-    paramTypes: ["io.ballerina.runtime.api.values.BFunctionPointer"]
-} external;
-
-function parseLambda(function(_Frame _frame) returns _Frame|error? inputFunc) = @java:Method {
-    'class: "io.ballerina.runtime.internal.query.pipeline.LambdaParser",
-    name: "parseLambda",
     paramTypes: ["io.ballerina.runtime.api.values.BFunctionPointer"]
 } external;
 
@@ -152,7 +171,7 @@ function createArrayOld(stream<Type, CompletionType> strm, Type[] arr) returns T
 function createArray(handle strm, Type[] arr) returns Type[]|error = @java:Method {
     'class: "io.ballerina.runtime.internal.query.utils.CollectionUtil",
     name: "createArray",
-    paramTypes: ["java.util.stream.Stream","io.ballerina.runtime.api.values.BArray"]
+    paramTypes: ["io.ballerina.runtime.internal.query.pipeline.StreamPipeline","io.ballerina.runtime.api.values.BArray"]
 } external;
 
 function collectQueryOld(stream<Type, CompletionType> strm) returns Type|error {
@@ -168,7 +187,7 @@ function collectQuery(handle strm) returns Type|error {
 function collectQueryJava(handle strm) returns Type|error = @java:Method {
     'class: "io.ballerina.runtime.internal.query.utils.CollectionUtil",
     name: "collectQuery",
-    paramTypes: ["java.util.stream.Stream"]
+    paramTypes: ["io.ballerina.runtime.internal.query.pipeline.StreamPipeline"]
 } external;
 
 // function collectQuery(handle strm) returns Type|error = @java:Method {
@@ -193,7 +212,7 @@ function consumeStreamOld(stream<Type, CompletionType> strm) returns any|error {
 function consumeStream(handle strm) = @java:Method {
     'class: "io.ballerina.runtime.internal.query.utils.CollectionUtil",
     name: "consumeStream",
-    paramTypes: ["java.lang.Object"]
+    paramTypes: ["io.ballerina.runtime.internal.query.pipeline.StreamPipeline"]
 } external;
 
 function createNestedFromFunctionOld(function(_Frame _frame) returns _Frame|error? collectionFunc)
@@ -313,7 +332,7 @@ function toXML(handle strm, boolean isReadOnly) returns xml|error {
 function createXML(handle strm) returns xml|error = @java:Method {
     'class: "io.ballerina.runtime.internal.query.utils.CollectionUtil",
     name: "createXML",
-    paramTypes: ["java.util.stream.Stream"]
+    paramTypes: ["io.ballerina.runtime.internal.query.pipeline.StreamPipeline"]
 } external;
 
 function toStringOld(stream<Type, CompletionType> strm) returns string|error {
@@ -335,7 +354,7 @@ function toStringOld(stream<Type, CompletionType> strm) returns string|error {
 function toString(handle strm) returns string|error = @java:Method {
     'class: "io.ballerina.runtime.internal.query.utils.CollectionUtil",
     name: "toString",
-    paramTypes: ["java.util.stream.Stream"]
+    paramTypes: ["io.ballerina.runtime.internal.query.pipeline.StreamPipeline"]
 } external;
 
 
@@ -373,7 +392,7 @@ function createTableOld(stream<Type, CompletionType> strm, table<map<Type>> tbl)
 function createTable(handle strm, table<map<Type>> tbl) returns table<map<Type>>|error = @java:Method {
     'class: "io.ballerina.runtime.internal.query.utils.CollectionUtil",
     name: "createTable",
-    paramTypes: ["java.util.stream.Stream","io.ballerina.runtime.api.values.BTable"]
+    paramTypes: ["io.ballerina.runtime.internal.query.pipeline.StreamPipeline","io.ballerina.runtime.api.values.BTable"]
 } external;
 
 function addToTableForOnConflict(handle strm, table<map<Type>> tbl, boolean isReadOnly) 
@@ -417,7 +436,7 @@ function createTableForOnConflictOld(stream<Type, CompletionType> strm, table<ma
 function createTableForOnConflict(handle strm, table<map<Type>> tbl) returns table<map<Type>>|error = @java:Method {
     'class: "io.ballerina.runtime.internal.query.utils.CollectionUtil",
     name: "createTableForOnConflict",
-    paramTypes: ["java.util.stream.Stream","io.ballerina.runtime.api.values.BTable"]
+    paramTypes: ["io.ballerina.runtime.internal.query.pipeline.StreamPipeline","io.ballerina.runtime.api.values.BTable"]
 } external;
 
 function addToMap(handle strm, map<Type> mp, boolean isReadOnly) returns map<Type>|error {
@@ -454,7 +473,7 @@ function createMapOld(stream<Type, CompletionType> strm, map<Type> mp) returns m
 function createMap(handle strm, map<Type> mp) returns map<Type>|error = @java:Method {
     'class: "io.ballerina.runtime.internal.query.utils.CollectionUtil",
     name: "createMap",
-    paramTypes: ["java.util.stream.Stream","io.ballerina.runtime.api.values.BMap"]
+    paramTypes: ["io.ballerina.runtime.internal.query.pipeline.StreamPipeline","io.ballerina.runtime.api.values.BMap"]
 } external;
 
 function addToMapForOnConflict(handle strm, map<Type> mp, boolean isReadOnly) 
@@ -495,7 +514,7 @@ function createMapForOnConflictOld(stream<Type, CompletionType> strm, map<Type> 
 function createMapForOnConflict(handle strm, map<Type> mp) returns map<Type>|error = @java:Method {
     'class: "io.ballerina.runtime.internal.query.utils.CollectionUtil",
     name: "createMapForOnConflict",
-    paramTypes: ["java.util.stream.Stream","io.ballerina.runtime.api.values.BMap"]
+    paramTypes: ["io.ballerina.runtime.internal.query.pipeline.StreamPipeline","io.ballerina.runtime.api.values.BMap"]
 } external;
 
 
