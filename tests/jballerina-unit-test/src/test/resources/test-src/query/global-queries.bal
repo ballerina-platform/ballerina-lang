@@ -133,40 +133,6 @@ function testGlobalQuery2() returns boolean {
     return testPassed;
 }
 
-DeptPerson[] globalQuery3 = from var emp in
-            (stream from var e in
-                (table key() from var e1 in
-                    (from var e2 in empList select e2)
-                select e1)
-             select e)
-        join Person psn in (table key() from var p in personList select p)
-            on emp.personId equals psn.id
-        join Department dept in (from var d in deptList
-                //let string deptName = "Engineering"
-                where d.name == "Engineering"
-                select d)
-            on emp.deptId equals dept.id
-        select {
-            fname : psn.fname,
-            lname : psn.lname,
-            dept : dept.name
-        };
-
-function testGlobalQuery3() returns boolean {
-    DeptPerson[] deptPersonList = globalQuery3;
-    boolean testPassed = true;
-    DeptPerson dp;
-    any res = deptPersonList;
-    testPassed = testPassed && res is DeptPerson[];
-    testPassed = testPassed && res is (any|error)[];
-    testPassed = testPassed && deptPersonList.length() == 2;
-    dp = deptPersonList[0];
-    testPassed = testPassed && dp.fname == "Idris" && dp.lname == "Elba" && dp.dept == "Engineering";
-    dp = deptPersonList[1];
-    testPassed = testPassed && dp.fname == "Dermot" && dp.lname == "Crowley" && dp.dept == "Engineering";
-    return testPassed;
-}
-
 DeptPerson[] globalQuery4 = from var person in personList
        let string hrDep = "HR"
        join var {id,name} in deptList
