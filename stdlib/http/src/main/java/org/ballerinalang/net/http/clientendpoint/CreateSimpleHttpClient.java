@@ -110,8 +110,12 @@ public class CreateSimpleHttpClient {
             poolManager = getConnectionManager(userDefinedPoolConfig);
         }
 
-        HttpClientConnector httpClientConnector = HttpUtil.createHttpWsConnectionFactory()
-                .createHttpClientConnector(properties, senderConfiguration, poolManager);
-        httpClient.addNativeData(HttpConstants.CLIENT, httpClientConnector);
+        try {
+            HttpClientConnector httpClientConnector = HttpUtil.createHttpWsConnectionFactory()
+                    .createHttpsClientConnector(properties, senderConfiguration, poolManager);
+            httpClient.addNativeData(HttpConstants.CLIENT, httpClientConnector);
+        } catch (Exception e) {
+            throw HttpUtil.createHttpError(e.getMessage(), HttpErrorType.GENERIC_CLIENT_ERROR);
+        }
     }
 }
