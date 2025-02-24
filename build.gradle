@@ -55,16 +55,10 @@ subprojects {
         buildTasks = ['build']
         git {
             // To release from any branch
-            requireBranch = null
+            requireBranch.set('')
         }
     }
 
-}
-
-dependencies {
-    constraints {
-        //implementation 'org.springframework:spring-web:5.0.2.RELEASE'
-    }
 }
 
 def classFilesArray = []
@@ -80,7 +74,7 @@ def skipDirectories = [
 
 tasks.register('copyExecFilesAndJavaClassFiles') {
     subprojects.forEach { subproject ->
-        fileTree("${subproject.buildDir}/jacoco").matching {
+        fileTree("${subproject.getLayout().getBuildDirectory().get()}/jacoco").matching {
             include "**/*.exec"
         }.each {
             execFilesArray.push(it)
@@ -98,7 +92,7 @@ tasks.register('copyExecFilesAndJavaClassFiles') {
         if (skipProject) {
             return
         }
-        fileTree("${subproject.buildDir}/classes").matching {
+        fileTree("${subproject.getLayout().getBuildDirectory().get()}/classes").matching {
             exclude '**/java/test/**'
             exclude '**/default/**'
             exclude '**/module-info.class'
@@ -110,9 +104,9 @@ tasks.register('copyExecFilesAndJavaClassFiles') {
 
 tasks.register('copyBallerinaClassFiles') {
     subprojects.forEach { subproject ->
-        def ballerinaSourceDirectory = new File("${subproject.buildDir}/ballerina-src")
+        def ballerinaSourceDirectory = new File("${subproject.getLayout().getBuildDirectory().get()}/ballerina-src")
         if (ballerinaSourceDirectory.exists() && subproject.projectDir.getParentFile().getName() == "langlib") {
-            fileTree("${subproject.buildDir}/ballerina-src/target").include("**/*.zip").forEach { zip ->
+            fileTree("${subproject.getLayout().getBuildDirectory().get()}/ballerina-src/target").include("**/*.zip").forEach { zip ->
                 def jarFiles = zipTree(zip).matching { include '**/*.jar' }
                 jarFiles.forEach { jar ->
                     zipTree(jar).matching {
@@ -130,8 +124,8 @@ tasks.register('createCodeCoverageReport', JacocoReport) {
     reports {
         xml.required = true
         html.required = true
-        xml.destination new File("${rootDir}/.jacoco/reports/jacoco/report.xml")
-        html.destination new File("${rootDir}/.jacoco/reports/jacoco/report.html")
+        xml.outputLocation = new File("${rootDir}/.jacoco/reports/jacoco/report.xml")
+        html.outputLocation = new File("${rootDir}/.jacoco/reports/jacoco/report.html")
     }
     onlyIf = {
         true
