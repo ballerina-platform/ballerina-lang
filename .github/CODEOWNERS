@@ -27,7 +27,19 @@
 /misc/xml-to-record-converter/ @NipunaRanasinghe
 /project-api/ @azinneera @sameerajayasoma
 /performance/ @anuruddhal
-/tests/ @gimantha @MaryamZi @KavinduZoysa @warunalakshitha @azinneera
+/tests/ballerina-compiler-api-test/ @MaryamZi @gimantha
+/tests/ballerina-compiler-plugin-test/ @MaryamZi @gimantha
+/tests/ballerina-spec-conformance-tests/ @MaryamZi @gimantha
+/tests/ballerina-test-utils/ @MaryamZi @gimantha @azinneera @KavinduZoysa @warunalakshitha
+/tests/ballerina-tools-integration-test/ @KavinduZoysa
+/tests/jballerina-benchmark-test/ @MaryamZi @gimantha
+/tests/jballerina-debugger-integration-test/ @NipunaRanasinghe
+/tests/jballerina-integration-test/ @warunalakshitha
+/tests/jballerina-semtype-test/ @MaryamZi @gimantha
+/tests/jballerina-unit-test/ @MaryamZi @gimantha
+/tests/language-server-integration-tests/ @KavinduZoysa
+/tests/launch-listener-test-util-libs/ @MaryamZi @gimantha @azinneera @KavinduZoysa @warunalakshitha
+/tests/testerina-integration-test/ @azinneera
 
 # CODEOWNERS file
 /.github/CODEOWNERS @sameerajayasoma @gimantha @MaryamZi @hasithaa
