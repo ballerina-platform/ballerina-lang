@@ -18,7 +18,6 @@
 
 package io.ballerina.runtime.api.types.semtype;
 
-import io.ballerina.runtime.internal.TypeCheckLogger;
 import io.ballerina.runtime.internal.types.semtype.AllOrNothing;
 import io.ballerina.runtime.internal.types.semtype.BFutureSubType;
 import io.ballerina.runtime.internal.types.semtype.BIntSubType;
@@ -296,10 +295,7 @@ public final class Core {
     }
 
     public static boolean isSubType(Context cx, SemType t1, SemType t2) {
-        TypeCheckLogger logger = TypeCheckLogger.getInstance();
-        logger.semTypeCheckStarted(cx, t1, t2);
         boolean res = isEmpty(cx, diff(t1, t2));
-        logger.semTypeCheckDone(cx, t1, t2, res);
         return res;
     }
 
