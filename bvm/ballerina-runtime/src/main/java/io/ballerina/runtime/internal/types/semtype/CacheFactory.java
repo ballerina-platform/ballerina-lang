@@ -26,7 +26,6 @@ import com.github.benmanes.caffeine.cache.LoadingCache;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.TimeUnit;
 
 /**
  * A factory class to create caches.
@@ -44,8 +43,7 @@ public class CacheFactory {
     private static final Caffeine<Object, Object> identityCacheBuilder =
             Caffeine.newBuilder().weakKeys().initialCapacity(INITIAL_CAPACITY);
     private static final Caffeine<Object, Object> cacheBuilder =
-            Caffeine.newBuilder().expireAfterAccess(DEFAULT_EXPIRE_TIME, TimeUnit.MINUTES)
-                    .initialCapacity(INITIAL_CAPACITY);
+            Caffeine.newBuilder().maximumSize(INITIAL_CAPACITY).initialCapacity(INITIAL_CAPACITY);
 
     public static <K, V> LoadingCache<K, V> createCache(CacheLoader<K, V> loader) {
         return cacheBuilder.build(loader);
