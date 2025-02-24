@@ -226,6 +226,7 @@ public class QueryDesugar extends BLangNodeVisitor {
     private static final Name QUERY_CREATE_LIMIT_FUNCTION = new Name("createLimitFunction");
     private static final Name QUERY_ADD_STREAM_FUNCTION = new Name("addStreamFunction");
     private static final Name QUERY_CONSUME_STREAM_FUNCTION = new Name("consumeStream");
+    private static final Name QUERY_TO_STREAM_FUNCTION = new Name("toStream");
     private static final Name QUERY_TO_ARRAY_FUNCTION = new Name("toArray");
     private static final Name COLLECT_QUERY_FUNCTION = new Name("collectQuery");
     private static final Name QUERY_TO_STRING_FUNCTION = new Name("toString");
@@ -303,6 +304,7 @@ public class QueryDesugar extends BLangNodeVisitor {
         BType resultType = queryExpr.getBType();
         if (queryExpr.isStream) {
             resultType = streamRef.getBType();
+            result = getStreamFunctionVariableRef(queryBlock, QUERY_TO_STREAM_FUNCTION, Lists.of(streamRef), pos);
         } else if (queryExpr.isTable) {
             BLangVariableReference tableRef = addTableConstructor(queryExpr, queryBlock);
             Name internalFuncName = onConflictExpr == null ? QUERY_ADD_TO_TABLE_FUNCTION
