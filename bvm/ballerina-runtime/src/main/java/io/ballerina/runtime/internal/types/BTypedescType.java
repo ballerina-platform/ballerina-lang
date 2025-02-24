@@ -37,6 +37,7 @@ import io.ballerina.runtime.internal.types.semtype.TypedescUtils;
 import io.ballerina.runtime.internal.values.TypedescValue;
 import io.ballerina.runtime.internal.values.TypedescValueImpl;
 
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -126,14 +127,44 @@ public class BTypedescType extends BType implements TypedescType {
 
     private static class TypeCheckFlyweightStore {
 
-        private static final LoadingCache<Integer, TypeCheckFlyweight> cache =
+        private static final LoadingCache<Integer, TypeCheckFlyweight> unnamedTypeCache =
                 CacheFactory.createCache(TypeCheckFlyweight::new);
+
+        private static final TypeCheckFlyweight[] reservedLAT =
+                new TypeCheckFlyweight[TypeIdSupplier.MAX_RESERVED_ID];
+
+        private static final Map<Integer, TypeCheckFlyweight> namedTypeCache = CacheFactory.createCachingHashMap();
 
         public static TypeCheckFlyweight get(Type constraint) {
             if (constraint instanceof CacheableTypeDescriptor cacheableTypeDescriptor) {
-                return cache.get(cacheableTypeDescriptor.typeId());
+                return getInner(cacheableTypeDescriptor.typeId());
             }
             return new TypeCheckFlyweight(TypeIdSupplier.getAnonId(), TypeCheckCacheFactory.create());
+        }
+
+        private static TypeCheckFlyweight getInner(int typeId) {
+            return switch (TypeIdSupplier.kind(typeId)) {
+                case RESERVED -> getReserved(typeId);
+                case NAMED -> getNamed(typeId);
+                case UNNAMED -> getUnnamed(typeId);
+            };
+        }
+
+        private static TypeCheckFlyweight getUnnamed(int typeId) {
+            return unnamedTypeCache.get(typeId);
+        }
+
+        private static TypeCheckFlyweight getNamed(int typeId) {
+            return namedTypeCache.computeIfAbsent(typeId, TypeCheckFlyweight::new);
+        }
+
+        private static TypeCheckFlyweight getReserved(int typeId) {
+            TypeCheckFlyweight o = reservedLAT[typeId];
+            if (o == null) {
+                o = new TypeCheckFlyweight(typeId);
+                reservedLAT[typeId] = o;
+            }
+            return o;
         }
 
         private record TypeCheckFlyweight(int typeId, TypeCheckCache typeCheckCache) {
