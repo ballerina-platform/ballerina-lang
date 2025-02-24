@@ -1,13 +1,11 @@
 package io.ballerina.runtime.internal.query.pipeline;
 
 import io.ballerina.runtime.api.Environment;
-import io.ballerina.runtime.api.creators.ErrorCreator;
-import io.ballerina.runtime.api.utils.StringUtils;
-import io.ballerina.runtime.api.values.BError;
+import io.ballerina.runtime.api.values.BStream;
 import io.ballerina.runtime.api.values.BTypedesc;
 import io.ballerina.runtime.internal.query.clauses.PipelineStage;
 import io.ballerina.runtime.internal.query.utils.BallerinaIteratorUtils;
-import io.ballerina.runtime.internal.scheduling.Strand;
+import io.ballerina.runtime.internal.query.utils.CollectionUtil;
 import io.ballerina.runtime.internal.values.ErrorValue;
 
 import java.util.ArrayList;
@@ -58,19 +56,19 @@ public class StreamPipeline {
         }
     }
 
-
-
     public static void addStreamFunction(Object jStreamPipeline, Object pipelineStage) {
         ((StreamPipeline) jStreamPipeline).addStage((PipelineStage) pipelineStage);
     }
 
-    public static Stream<Frame> getStreamFromPipeline(Object pipeline){
+    public static StreamPipeline getStreamFromPipeline(Object pipeline){
         try {
             ((StreamPipeline)pipeline).execute();
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
-        return ((StreamPipeline) pipeline).getStream();
+
+//        return CollectionUtil.toBStream((StreamPipeline) pipeline);
+        return ((StreamPipeline) pipeline);
     }
 
     /**

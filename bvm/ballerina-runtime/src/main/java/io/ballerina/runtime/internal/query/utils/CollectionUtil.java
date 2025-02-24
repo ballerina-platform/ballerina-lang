@@ -1,78 +1,86 @@
 package io.ballerina.runtime.internal.query.utils;
 
+import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.creators.TypeCreator;
 import io.ballerina.runtime.api.creators.ValueCreator;
-import io.ballerina.runtime.api.types.PredefinedTypes;
+import io.ballerina.runtime.api.types.*;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.*;
 import io.ballerina.runtime.internal.query.pipeline.Frame;
+import io.ballerina.runtime.internal.query.pipeline.StreamPipeline;
+import io.ballerina.runtime.internal.scheduling.Scheduler;
+import io.ballerina.runtime.internal.scheduling.Strand;
+import io.ballerina.runtime.internal.types.BObjectType;
+import io.ballerina.runtime.internal.types.BType;
+import io.ballerina.runtime.internal.utils.ValueUtils;
 import io.ballerina.runtime.internal.values.ErrorValue;
+import io.ballerina.runtime.internal.values.HandleValue;
 
 import java.util.Objects;
 import java.util.Optional;
-import java.util.function.Function;
 import java.util.stream.Stream;
+
+import static io.ballerina.runtime.api.constants.RuntimeConstants.BALLERINA_QUERY_PKG_ID;
 
 public class CollectionUtil {
     private static final BString $VALUE$_FIELD = StringUtils.fromString("$value$");
     private static final BString $ERROR$_FIELD = StringUtils.fromString("$error$");
 
-    public static void consumeStream(Object frameStream) {
-        Stream<Frame> strm = (Stream<Frame>) frameStream;
-        strm.forEach(frame -> {
+    public static void consumeStream(StreamPipeline pipeline) {
+        pipeline.getStream().forEach(frame -> {
             BMap<BString, Object> result = frame.getRecord();
         });
     }
 
-    public static Object createArray(Stream<Frame> strm, BArray arr) {
-        try {
-            Object[] tmpArr = strm
-                    .map(frame -> frame.getRecord().get($VALUE$_FIELD))
-                    .toArray();
-            arr = ValueCreator.createArrayValue(tmpArr, TypeCreator.createArrayType(PredefinedTypes.TYPE_ANY));
-            return arr;
-        } catch (ErrorValue e) {
-            return e;
-        }
+    public static BArray createArray(StreamPipeline pipeline, BArray array) {
+        Stream<Frame> strm = pipeline.getStream();
+        BType elementType = (BType) pipeline.getConstraintType().getType();
+
+        Object[] tmpArr = strm
+                .map(frame -> frame.getRecord().get($VALUE$_FIELD))
+                .toArray();
+
+        return ValueCreator.createArrayValue(tmpArr, TypeCreator.createArrayType(elementType));
     }
 
-    public static Object collectQuery(Stream<Frame> strm) {
-        try {
-            Optional<Object> result = strm
-                    .map(frame -> frame.getRecord().get($VALUE$_FIELD))
-                    .filter(Objects::nonNull)
-                    .findFirst();
+    public static Object collectQuery(StreamPipeline pipeline) {
+        Stream<Frame> strm = pipeline.getStream();
 
-            return result.orElse(null);
-        } catch (ErrorValue e) {
-            return e;
-        }
+        Optional<Object> result = strm
+                .map(frame -> frame.getRecord().get($VALUE$_FIELD))
+                .filter(Objects::nonNull)
+                .findFirst();
+
+        return result.orElse(null);
     }
 
-    public static Object toString(Stream<Frame> strm) {
-        try {
-            return strm
-                    .map(frame -> frame.getRecord().get($VALUE$_FIELD))
-                    .map(string -> (BString) string)
-                    .reduce(StringUtils.fromString(""), BString::concat);
-        } catch (ErrorValue e) {
-            return e;
-        }
+    public static BString toString(StreamPipeline pipeline) {
+        Stream<Frame> strm = pipeline.getStream();
+
+        return strm
+                .map(frame -> frame.getRecord().get($VALUE$_FIELD))
+                .map(string -> (BString) string)
+                .reduce(StringUtils.fromString(""), BString::concat);
     }
 
-    public static Object createTable(Stream<Frame> strm, BTable table) {
-        try {
-            strm.forEach(frame -> {
-                BMap<BString, Object> record = (BMap<BString, Object>) frame.getRecord().get($VALUE$_FIELD);
-                table.add(record);
-            });
-            return table;
-        } catch (ErrorValue e) {
-            return e;
-        }
+    public static BTable createTable(StreamPipeline pipeline, BTable table) {
+        Stream<Frame> strm = pipeline.getStream();
+//        TableType tableType = (TableType) pipeline.getConstraintType();
+//        BTable table = ValueCreator.createTableValue(tableType);
+
+        strm.forEach(frame -> {
+            BMap<BString, Object> record = (BMap<BString, Object>) frame.getRecord().get($VALUE$_FIELD);
+            table.add(record);
+        });
+
+        return table;
     }
 
-    public static Object createTableForOnConflict(Stream<Frame> strm, BTable table) {
+    public static Object createTableForOnConflict(StreamPipeline pipeline, BTable table) {
+        Stream<Frame> strm = pipeline.getStream();
+//        TableType tableType = (TableType) pipeline.getConstraintType();
+//        BTable table = ValueCreator.createTableValue(tableType);
+
         Optional<BError> error = strm
                 .map(frame -> {
                     BMap<BString, Object> record = (BMap<BString, Object>) frame.getRecord().get($VALUE$_FIELD);
@@ -88,31 +96,36 @@ public class CollectionUtil {
                 .filter(Objects::nonNull)
                 .findFirst();
 
-        return error.isPresent() ? error.get() : table;
+        return error.orElse(null) != null ? error.get() : table;
     }
 
-    public static Object createMap(Stream<Frame> strm, BMap map) {
-        try {
-            strm.forEach(frame -> {
-                BArray record = (BArray) frame.getRecord().get($VALUE$_FIELD);
-                BString key = (BString) record.get(0);
-                Object value = record.get(1);
-                map.put(key, value);
-            });
-            return map;
-        } catch (ErrorValue e) {
-            return e;
-        }
+    public static BMap<BString, Object> createMap(StreamPipeline pipeline, BMap<BString, Object> map) {
+        Stream<Frame> strm = pipeline.getStream();
+//        MapType mapType = (MapType) pipeline.getConstraintType();
+//        BMap<BString, Object> map = ValueCreator.createMapValue(mapType);
+
+        strm.forEach(frame -> {
+            BArray record = (BArray) frame.getRecord().get($VALUE$_FIELD);
+            BString key = (BString) record.get(0);
+            Object value = record.get(1);
+            map.put(key, value);
+        });
+
+        return map;
     }
 
-    public static Object createMapForOnConflict(Stream<Frame> strm, BMap<BString, Object> map) {
+    public static Object createMapForOnConflict(StreamPipeline pipeline, BMap<BString, Object> map) {
+        Stream<Frame> strm = pipeline.getStream();
+//        MapType mapType = (MapType) pipeline.getConstraintType();
+//        BMap<BString, Object> map = ValueCreator.createMapValue(mapType);
+
         Optional<BError> error = strm
                 .map(frame -> {
                     BMap<BString, Object> record = frame.getRecord();
                     BArray recordArray = (BArray) record.get($VALUE$_FIELD);
 
                     BString key = (BString) recordArray.get(0);
-                    if(map.containsKey(key) && record.get($ERROR$_FIELD) instanceof BError) {
+                    if (map.containsKey(key) && record.get($ERROR$_FIELD) instanceof BError) {
                         return (BError) record.get($ERROR$_FIELD);
                     }
                     Object value = recordArray.get(1);
@@ -123,18 +136,26 @@ public class CollectionUtil {
                 .filter(Objects::nonNull)
                 .findFirst();
 
-        return error.isPresent() ? error.get() : map;
+        return error.orElse(null) != null ? error.get() : map;
     }
 
+    public static BXml createXML(StreamPipeline pipeline) {
+        Stream<Frame> strm = pipeline.getStream();
 
-    public static Object createXML(Stream<Frame> strm) {
-        try {
-            String xmlStr = strm
-                    .map(frame -> frame.getRecord().get($VALUE$_FIELD).toString())
-                    .reduce("", String::concat);
-            return ValueCreator.createXmlValue(xmlStr);
-        } catch (ErrorValue e) {
-            return e;
-        }
+        String xmlStr = strm
+                .map(frame -> frame.getRecord().get($VALUE$_FIELD).toString())
+                .reduce("", String::concat);
+
+        return ValueCreator.createXmlValue(xmlStr);
+    }
+
+    public static BStream toStream(StreamPipeline pipeline) {
+        Stream<Frame> strm = pipeline.getStream();
+        StreamType streamType = TypeCreator.createStreamType(pipeline.getConstraintType().getDescribingType(), pipeline.getCompletionType().getDescribingType());
+        Object pipeelineObj = pipeline;
+        HandleValue handleValue = new HandleValue(pipeelineObj);
+        BObject iteratorObj = ValueCreator.createObjectValue(BALLERINA_QUERY_PKG_ID, "_IteratorObject", handleValue);
+
+        return ValueCreator.createStreamValue(streamType, iteratorObj);
     }
 }
