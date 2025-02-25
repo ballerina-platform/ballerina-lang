@@ -73,8 +73,8 @@ public class BArrayType extends BType implements ArrayType, TypeWithShape {
     private IntersectionType immutableType;
     private IntersectionType intersectionType = null;
     private int typeFlags;
-    private DefinitionContainer<ListDefinition> defn = new DefinitionContainer<>();
-    private DefinitionContainer<ListDefinition> acceptedTypeDefn = new DefinitionContainer<>();
+    private final DefinitionContainer<ListDefinition> defn = new DefinitionContainer<>();
+    private final DefinitionContainer<ListDefinition> acceptedTypeDefn = new DefinitionContainer<>();
     public BArrayType(Type elementType) {
         this(elementType, false);
     }

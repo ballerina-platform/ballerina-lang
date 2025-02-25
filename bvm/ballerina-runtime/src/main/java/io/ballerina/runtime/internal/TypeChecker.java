@@ -265,8 +265,7 @@ public final class TypeChecker {
         }
         Context cx = context();
         Type sourceType = getType(sourceVal);
-        boolean result = checkIsTypeInner(sourceVal, targetType, cx, sourceType);
-        return result;
+        return checkIsTypeInner(sourceVal, targetType, cx, sourceType);
     }
 
     private static boolean couldBelongToType(Type sourceType, Type targetType) {
@@ -296,9 +295,7 @@ public final class TypeChecker {
             case Long ignored -> Builder.getIntType();
             case Byte ignored -> Builder.getIntType();
             case Boolean ignored -> Builder.getBooleanType();
-            default -> {
-                throw new IllegalArgumentException("unexpected value type");
-            }
+            default -> throw new IllegalArgumentException("unexpected value type");
         };
     }
 
@@ -381,8 +378,7 @@ public final class TypeChecker {
         if (Core.isSubtypeSimple(shape, NumericTypeHolder.NUMERIC_TYPE) && allowNumericConversion) {
             targetSemType = appendNumericConversionTypes(targetSemType);
         }
-        boolean result = Core.isSubType(cx, shape, targetSemType);
-        return result;
+        return Core.isSubType(cx, shape, targetSemType);
     }
 
     private static SemType appendNumericConversionTypes(SemType semType) {
@@ -629,8 +625,7 @@ public final class TypeChecker {
             return false;
         }
         Context cx = context();
-        boolean result = isSubType(cx, sourceType, targetType);
-        return result;
+        return isSubType(cx, sourceType, targetType);
     }
 
     @Deprecated
@@ -639,8 +634,7 @@ public final class TypeChecker {
             return false;
         }
         Context cx = context();
-        boolean result = isSubType(cx, sourceType, targetType);
-        return result;
+        return isSubType(cx, sourceType, targetType);
     }
 
     /**
@@ -1411,19 +1405,6 @@ public final class TypeChecker {
                             Builder.getStringType(),
                             Builder.getBooleanType())
                     .reduce(Builder.getNeverType(), Core::union);
-        }
-
-    }
-
-    private static final class TopTypesWithFillValueMaskHolder {
-
-        static final SemType TOP_TYPES_WITH_ALWAYS_FILLING = createTopTypesWithFillerValues();
-
-        private static SemType createTopTypesWithFillerValues() {
-            return Stream.of(Builder.getIntType(), Builder.getFloatType(), Builder.getDecimalType(),
-                    Builder.getStringType(),
-                    Builder.getBooleanType(), Builder.getNilType(), Builder.getTableType(), Builder.getMappingType(),
-                    Builder.getListType()).reduce(Builder.getNeverType(), Core::union);
         }
 
     }

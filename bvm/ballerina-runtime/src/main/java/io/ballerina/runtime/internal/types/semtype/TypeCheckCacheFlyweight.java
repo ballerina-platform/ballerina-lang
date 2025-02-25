@@ -21,8 +21,14 @@ package io.ballerina.runtime.internal.types.semtype;
 import io.ballerina.runtime.api.types.semtype.Definition;
 import io.ballerina.runtime.api.types.semtype.TypeCheckCache;
 
-public record TypeCheckCacheFlyweight<E extends Definition>(int typeId, TypeCheckCache typeCheckCache,
-                                                            DefinitionContainer<E> defn,
-                                                            DefinitionContainer<E> acceptedTypeDefn) {
+/**
+ * Internal record type for {@code TypeCheckFlyweightStore}.
+ *
+ * @param typeId         type id
+ * @param typeCheckCache type check cache
+ * @param <E>            Definition type that is cached
+ * @since 2201.12.0
+ */
+public record TypeCheckCacheFlyweight<E extends Definition>(int typeId, TypeCheckCache typeCheckCache) {
 
 }

@@ -65,8 +65,8 @@ public class BMapType extends BType implements MapType, TypeWithShape, Cloneable
     private final boolean readonly;
     private IntersectionType immutableType;
     private IntersectionType intersectionType = null;
-    private final DefinitionContainer<MappingDefinition> defn;
-    private final DefinitionContainer<MappingDefinition> acceptedTypeDefn;
+    private final DefinitionContainer<MappingDefinition> defn = new DefinitionContainer<>();
+    private final DefinitionContainer<MappingDefinition> acceptedTypeDefn = new DefinitionContainer<>();
 
     public BMapType(Type constraint) {
         this(constraint, false);
@@ -95,8 +95,6 @@ public class BMapType extends BType implements MapType, TypeWithShape, Cloneable
                 readonly ? FLYWEIGHT_STORE.getRO(constraint) : FLYWEIGHT_STORE.getRW(constraint);
         this.typeId = flyweight.typeId();
         this.typeCheckCache = flyweight.typeCheckCache();
-        this.defn = flyweight.defn();
-        this.acceptedTypeDefn = flyweight.acceptedTypeDefn();
     }
 
     /**

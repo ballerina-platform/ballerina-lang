@@ -23,12 +23,19 @@ import io.ballerina.runtime.api.types.semtype.CacheableTypeDescriptor;
 import io.ballerina.runtime.api.types.semtype.Definition;
 import io.ballerina.runtime.api.types.semtype.TypeCheckCache;
 import io.ballerina.runtime.api.types.semtype.TypeCheckCacheFactory;
-import io.ballerina.runtime.internal.types.semtype.DefinitionContainer;
 import io.ballerina.runtime.internal.types.semtype.FlyweightLookupTable;
 import io.ballerina.runtime.internal.types.semtype.TypeCheckCacheFlyweight;
 
+/**
+ * Cache implementation that used type ID to cache {@code TypeCheckCache}. Has non-uniform cache implementation.
+ *
+ * @param <E> Definition type that is cached
+ * @since 2201.12.0
+ */
 class TypeCheckFlyweightStore<E extends Definition> {
 
+    // TODO: consider how we can also cache the definitions such that in the future we can also avoid createSemType
+    //  call as well
     private final FlyweightLookupTable<E> cacheRO = new FlyweightLookupTable<>(this::create);
 
     private final FlyweightLookupTable<E> cacheRW = new FlyweightLookupTable<>(this::create);
@@ -40,17 +47,13 @@ class TypeCheckFlyweightStore<E extends Definition> {
             case UNNAMED -> TypeIdSupplier.getAnonId();
         };
         TypeCheckCache typeCheckCache = TypeCheckCacheFactory.create();
-        DefinitionContainer<E> defn = new DefinitionContainer<>();
-        DefinitionContainer<E> acceptedTypeDefn = new DefinitionContainer<>();
-        return new TypeCheckCacheFlyweight<>(typeId, typeCheckCache, defn, acceptedTypeDefn);
+        return new TypeCheckCacheFlyweight<>(typeId, typeCheckCache);
     }
 
     private TypeCheckCacheFlyweight<E> create() {
         int typeId = TypeIdSupplier.getAnonId();
         TypeCheckCache typeCheckCache = TypeCheckCacheFactory.create();
-        DefinitionContainer<E> defn = new DefinitionContainer<>();
-        DefinitionContainer<E> acceptedTypeDefn = new DefinitionContainer<>();
-        return new TypeCheckCacheFlyweight<>(typeId, typeCheckCache, defn, acceptedTypeDefn);
+        return new TypeCheckCacheFlyweight<>(typeId, typeCheckCache);
     }
 
     public TypeCheckCacheFlyweight<E> getRO(Type constraint) {

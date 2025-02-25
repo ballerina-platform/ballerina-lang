@@ -25,6 +25,12 @@ import io.ballerina.runtime.internal.types.TypeIdSupplier;
 import java.util.Map;
 import java.util.function.IntFunction;
 
+/**
+ * Non uniform lookup table for {@code TypeCheckFlyweightStore}.
+ *
+ * @param <E>
+ * @since 2201.12.0
+ */
 @SuppressWarnings("rawtypes")
 public class FlyweightLookupTable<E extends Definition> {
 
