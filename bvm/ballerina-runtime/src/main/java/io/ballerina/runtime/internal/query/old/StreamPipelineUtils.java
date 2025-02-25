@@ -5,7 +5,7 @@
 //import io.ballerina.runtime.internal.query.clauses.LimitClause;
 //import io.ballerina.runtime.internal.query.clauses.SelectClause;
 //import io.ballerina.runtime.internal.query.clauses.WhereClause;
-//import io.ballerina.runtime.internal.query.pipeline.FrameContext;
+//import io.ballerina.runtime.internal.query.old.FrameContext;
 //import io.ballerina.runtime.internal.query.pipeline.StreamPipeline;
 //
 //import java.util.Map;
