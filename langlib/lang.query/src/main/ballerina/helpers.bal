@@ -69,12 +69,6 @@ function createInputFunction(function(_Frame _frame) returns _Frame|error? input
     paramTypes: ["io.ballerina.runtime.api.values.BFunctionPointer"]
 } external;
 
-function parseLambda(function(_Frame _frame) returns _Frame|error? inputFunc) = @java:Method {
-    'class: "io.ballerina.runtime.internal.query.pipeline.LambdaParser",
-    name: "parseLambda",
-    paramTypes: ["io.ballerina.runtime.api.values.BFunctionPointer"]
-} external;
-
 function createSelectFunction(function(_Frame _frame) returns _Frame|error? selectFunc) returns handle = @java:Method {
     'class: "io.ballerina.runtime.internal.query.clauses.SelectClause",
     name: "initSelectClause",
