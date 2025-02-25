@@ -24,27 +24,22 @@ import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.TypeTags;
 import io.ballerina.runtime.api.types.semtype.BasicTypeBitSet;
 import io.ballerina.runtime.api.types.semtype.Builder;
-import io.ballerina.runtime.api.types.semtype.CacheableTypeDescriptor;
 import io.ballerina.runtime.api.types.semtype.Context;
 import io.ballerina.runtime.api.types.semtype.Env;
 import io.ballerina.runtime.api.types.semtype.SemType;
 import io.ballerina.runtime.api.types.semtype.ShapeAnalyzer;
-import io.ballerina.runtime.api.types.semtype.TypeCheckCache;
-import io.ballerina.runtime.api.types.semtype.TypeCheckCacheFactory;
 import io.ballerina.runtime.internal.TypeChecker;
-import io.ballerina.runtime.internal.types.semtype.CacheFactory;
 import io.ballerina.runtime.internal.types.semtype.CellAtomicType;
 import io.ballerina.runtime.internal.types.semtype.DefinitionContainer;
 import io.ballerina.runtime.internal.types.semtype.ListDefinition;
+import io.ballerina.runtime.internal.types.semtype.TypeCheckCacheFlyweight;
 import io.ballerina.runtime.internal.values.AbstractArrayValue;
 import io.ballerina.runtime.internal.values.ArrayValue;
 import io.ballerina.runtime.internal.values.ArrayValueImpl;
 import io.ballerina.runtime.internal.values.ReadOnlyUtils;
 
-import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 
 import static io.ballerina.runtime.api.types.semtype.Builder.getNeverType;
 import static io.ballerina.runtime.internal.types.semtype.CellAtomicType.CellMutability.CELL_MUT_LIMITED;
@@ -65,6 +60,7 @@ import static io.ballerina.runtime.internal.types.semtype.CellAtomicType.CellMut
 public class BArrayType extends BType implements ArrayType, TypeWithShape {
 
     private static final BasicTypeBitSet BASIC_TYPE = Builder.getListType();
+    private static final TypeCheckFlyweightStore<ListDefinition> FLYWEIGHT_STORE = new TypeCheckFlyweightStore<>();
 
     private static final SemType[] EMPTY_SEMTYPE_ARR = new SemType[0];
     private Type elementType;
@@ -102,7 +98,7 @@ public class BArrayType extends BType implements ArrayType, TypeWithShape {
     }
 
     public BArrayType(int typeFlags, int size, boolean readonly, boolean hasFillerValue) {
-        super(null, null, ArrayValue.class);
+        super(null, null, ArrayValue.class, false);
         this.typeFlags = typeFlags;
         if (size != -1) {
             state = ArrayState.CLOSED;
@@ -119,14 +115,12 @@ public class BArrayType extends BType implements ArrayType, TypeWithShape {
         this.elementType = readonly && !elementRO ? ReadOnlyUtils.getReadOnlyType(elementType) : elementType;
         this.dimensions = dimensions;
         if (size == -1) {
-            TypeCheckCacheData.TypeCheckCacheFlyweight data;
-            if (isReadOnly()) {
-                data = TypeCheckCacheData.getRO(elementType);
-            } else {
-                data = TypeCheckCacheData.getRW(elementType);
-            }
-            this.typeId = data.typeId;
-            this.typeCheckCache = data.typeCheckCache;
+            TypeCheckCacheFlyweight<ListDefinition>
+                    flyweight = isReadOnly() ? FLYWEIGHT_STORE.getRO(elementType) : FLYWEIGHT_STORE.getRW(elementType);
+            this.typeId = flyweight.typeId();
+            this.typeCheckCache = flyweight.typeCheckCache();
+        } else {
+            initializeCache();
         }
     }
 
@@ -257,10 +251,6 @@ public class BArrayType extends BType implements ArrayType, TypeWithShape {
         if (defn.isDefinitionReady()) {
             return defn.getSemType(env);
         }
-        SemType cachedSemtype = TypeCheckCacheData.cachedSemTypes.get(typeId);
-        if (cachedSemtype != null) {
-            return cachedSemtype;
-        }
         var result = defn.trySetDefinition(ListDefinition::new);
         if (!result.updated()) {
             return defn.getSemType(env);
@@ -268,9 +258,7 @@ public class BArrayType extends BType implements ArrayType, TypeWithShape {
         ListDefinition ld = result.definition();
         CellAtomicType.CellMutability mut = isReadOnly() ? CellAtomicType.CellMutability.CELL_MUT_NONE :
                 CellAtomicType.CellMutability.CELL_MUT_LIMITED;
-        SemType semType = getSemTypePart(env, ld, size, tryInto(cx, getElementType()), mut);
-        TypeCheckCacheData.cachedSemTypes.put(typeId, semType);
-        return semType;
+        return getSemTypePart(env, ld, size, tryInto(cx, getElementType()), mut);
     }
 
     private SemType getSemTypePart(Env env, ListDefinition defn, int size, SemType elementType,
@@ -353,43 +341,4 @@ public class BArrayType extends BType implements ArrayType, TypeWithShape {
         return semType;
     }
 
-    private static class TypeCheckCacheData {
-
-        private static final Map<Integer, SemType> cachedSemTypes = new ConcurrentHashMap<>();
-        private static final Map<Integer, TypeCheckCacheFlyweight> cacheRW = CacheFactory.createCachingHashMap();
-        private static final Map<Integer, TypeCheckCacheFlyweight> cacheRO = CacheFactory.createCachingHashMap();
-
-        private record TypeCheckCacheFlyweight(int typeId, TypeCheckCache typeCheckCache) {
-
-            public static TypeCheckCacheFlyweight create() {
-                return new TypeCheckCacheFlyweight(TypeIdSupplier.getAnonId(), TypeCheckCacheFactory.create());
-            }
-        }
-
-        public static TypeCheckCacheFlyweight getRW(Type constraint) {
-            if (constraint instanceof CacheableTypeDescriptor cacheableTypeDescriptor) {
-                return get(cacheableTypeDescriptor, cacheRW);
-            }
-            return TypeCheckCacheFlyweight.create();
-        }
-
-        public static TypeCheckCacheFlyweight getRO(Type constraint) {
-            if (constraint instanceof CacheableTypeDescriptor cacheableTypeDescriptor) {
-                return get(cacheableTypeDescriptor, cacheRO);
-            }
-            return TypeCheckCacheFlyweight.create();
-        }
-
-        private static TypeCheckCacheFlyweight get(CacheableTypeDescriptor type,
-                                                   Map<Integer, TypeCheckCacheFlyweight> cache) {
-            int typeId = type.typeId();
-            var cached = cache.get(typeId);
-            if (cached != null) {
-                return cached;
-            }
-            var flyWeight = TypeCheckCacheFlyweight.create();
-            cache.put(typeId, flyWeight);
-            return flyWeight;
-        }
-    }
 }

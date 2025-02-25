@@ -18,7 +18,9 @@
 
 package io.ballerina.runtime.internal.values;
 
+import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.constants.RuntimeConstants;
+import io.ballerina.runtime.api.constants.TypeConstants;
 import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.types.PredefinedTypes;
 import io.ballerina.runtime.api.types.Type;
@@ -52,6 +54,8 @@ import java.util.Optional;
 public class DecimalValue implements SimpleValue, BDecimal {
 
     private static final BasicTypeBitSet BASIC_TYPE = Builder.getDecimalType();
+    private static final BDecimalType DECIMAL_TYPE =
+            new BDecimalType(TypeConstants.DECIMAL_TNAME, new Module(null, null, null));
     private static final String INF_STRING = "Infinity";
     private static final String NEG_INF_STRING = "-" + INF_STRING;
     private static final String NAN = "NaN";
@@ -67,10 +71,11 @@ public class DecimalValue implements SimpleValue, BDecimal {
     public DecimalValueKind valueKind = DecimalValueKind.OTHER;
 
     private final BigDecimal value;
-    private final Type singletonType;
+    private BDecimalType type;
+    private final boolean shapeCalculated = false;
 
     public DecimalValue(BigDecimal value) {
-        this.singletonType = BDecimalType.singletonType(value);
+        this.type = DECIMAL_TYPE;
         this.value = getValidDecimalValue(value);
         if (!this.booleanValue()) {
             this.valueKind = DecimalValueKind.ZERO;
@@ -92,7 +97,7 @@ public class DecimalValue implements SimpleValue, BDecimal {
             throw exception;
         }
         this.value = getValidDecimalValue(bd);
-        this.singletonType = BDecimalType.singletonType(this.value);
+        this.type = DECIMAL_TYPE;
         if (!this.booleanValue()) {
             this.valueKind = DecimalValueKind.ZERO;
         }
@@ -238,7 +243,7 @@ public class DecimalValue implements SimpleValue, BDecimal {
      */
     @Override
     public Type getType() {
-        return singletonType;
+        return type;
     }
 
     //========================= Mathematical operations supported ===============================
@@ -492,7 +497,10 @@ public class DecimalValue implements SimpleValue, BDecimal {
 
     @Override
     public Optional<SemType> inherentTypeOf(Context cx) {
-        return Optional.of(Builder.getDecimalConst(value));
+        if (!shapeCalculated) {
+            this.type = BDecimalType.singletonType(value);
+        }
+        return Optional.of(this.type.shape());
     }
 
     @Override

@@ -48,12 +48,12 @@ public class BFutureType extends BType implements FutureType {
      * @param pkg of the type
      */
     public BFutureType(String typeName, Module pkg) {
-        super(typeName, pkg, Object.class);
+        super(typeName, pkg, Object.class, true);
         constraint = null;
     }
 
     public BFutureType(Type constraint) {
-        super(TypeConstants.FUTURE_TNAME, null, Object.class);
+        super(TypeConstants.FUTURE_TNAME, null, Object.class, true);
         this.constraint = constraint;
     }
 

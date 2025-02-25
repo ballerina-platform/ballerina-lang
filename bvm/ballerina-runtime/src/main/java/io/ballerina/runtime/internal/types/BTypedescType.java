@@ -18,6 +18,7 @@
 
 package io.ballerina.runtime.internal.types;
 
+import com.github.benmanes.caffeine.cache.LoadingCache;
 import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.constants.TypeConstants;
 import io.ballerina.runtime.api.types.PredefinedTypes;
@@ -26,12 +27,17 @@ import io.ballerina.runtime.api.types.TypeTags;
 import io.ballerina.runtime.api.types.TypedescType;
 import io.ballerina.runtime.api.types.semtype.BasicTypeBitSet;
 import io.ballerina.runtime.api.types.semtype.Builder;
+import io.ballerina.runtime.api.types.semtype.CacheableTypeDescriptor;
 import io.ballerina.runtime.api.types.semtype.Context;
 import io.ballerina.runtime.api.types.semtype.SemType;
+import io.ballerina.runtime.api.types.semtype.TypeCheckCache;
+import io.ballerina.runtime.api.types.semtype.TypeCheckCacheFactory;
+import io.ballerina.runtime.internal.types.semtype.CacheFactory;
 import io.ballerina.runtime.internal.types.semtype.TypedescUtils;
 import io.ballerina.runtime.internal.values.TypedescValue;
 import io.ballerina.runtime.internal.values.TypedescValueImpl;
 
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -46,13 +52,16 @@ public class BTypedescType extends BType implements TypedescType {
     private final Type constraint;
 
     public BTypedescType(String typeName, Module pkg) {
-        super(typeName, pkg, Object.class);
+        super(typeName, pkg, Object.class, true);
         constraint = null;
     }
 
     public BTypedescType(Type constraint) {
-        super(TypeConstants.TYPEDESC_TNAME, null, TypedescValue.class);
+        super(TypeConstants.TYPEDESC_TNAME, null, TypedescValue.class, false);
         this.constraint = constraint;
+        var flyweight = TypeCheckFlyweightStore.get(constraint);
+        this.typeCheckCache = flyweight.typeCheckCache();
+        this.typeId = flyweight.typeId();
     }
 
     @Override
@@ -114,5 +123,61 @@ public class BTypedescType extends BType implements TypedescType {
     protected boolean isDependentlyTypedInner(Set<MayBeDependentType> visited) {
         return constraint instanceof MayBeDependentType constraintType &&
                 constraintType.isDependentlyTyped(visited);
+    }
+
+    private static class TypeCheckFlyweightStore {
+
+        private static final LoadingCache<Integer, TypeCheckFlyweight> unnamedTypeCache =
+                CacheFactory.createCache(TypeCheckFlyweight::new);
+
+        private static final TypeCheckFlyweight[] reservedLAT =
+                new TypeCheckFlyweight[TypeIdSupplier.MAX_RESERVED_ID];
+
+        private static final Map<Integer, TypeCheckFlyweight> namedTypeCache = CacheFactory.createCachingHashMap();
+
+        public static TypeCheckFlyweight get(Type constraint) {
+            if (constraint instanceof CacheableTypeDescriptor cacheableTypeDescriptor) {
+                return getInner(cacheableTypeDescriptor.typeId());
+            }
+            return new TypeCheckFlyweight(TypeIdSupplier.getAnonId(), TypeCheckCacheFactory.create());
+        }
+
+        private static TypeCheckFlyweight getInner(int typeId) {
+            return switch (TypeIdSupplier.kind(typeId)) {
+                case RESERVED -> getReserved(typeId);
+                case NAMED -> getNamed(typeId);
+                case UNNAMED -> getUnnamed(typeId);
+            };
+        }
+
+        private static TypeCheckFlyweight getUnnamed(int typeId) {
+            return unnamedTypeCache.get(typeId);
+        }
+
+        private static TypeCheckFlyweight getNamed(int typeId) {
+            var cached = namedTypeCache.get(typeId);
+            if (cached != null) {
+                return cached;
+            }
+            cached = new TypeCheckFlyweight(typeId);
+            namedTypeCache.put(typeId, cached);
+            return cached;
+        }
+
+        private static TypeCheckFlyweight getReserved(int typeId) {
+            TypeCheckFlyweight o = reservedLAT[typeId];
+            if (o == null) {
+                o = new TypeCheckFlyweight(typeId);
+                reservedLAT[typeId] = o;
+            }
+            return o;
+        }
+
+        private record TypeCheckFlyweight(int typeId, TypeCheckCache typeCheckCache) {
+
+            public TypeCheckFlyweight(Integer constraintId) {
+                this(TypeIdSupplier.getAnonId(), TypeCheckCacheFactory.create());
+            }
+        }
     }
 }

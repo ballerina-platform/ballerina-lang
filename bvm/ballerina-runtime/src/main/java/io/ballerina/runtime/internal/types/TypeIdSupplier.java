@@ -33,9 +33,18 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public final class TypeIdSupplier {
 
+    // Anydata         : 2
+    // JSON            : 2
+    // XML             : 9
+    // Immutable types : 10
+    // Reserved Base   = 23 (total above)
+    // Total Reserved  = 23 * (1 + 2 + 2) = 115 (2 for map and arrays per each)
+    public static final int MAX_RESERVED_ID = 128;
     private static final Map<TypeIdentifier, Integer> cache = CacheFactory.createCachingHashMap();
-    private static final AtomicInteger nextNamedId = new AtomicInteger(0);
+    private static final AtomicInteger nextNamedId = new AtomicInteger(MAX_RESERVED_ID);
+    private static final AtomicInteger nextReservedId = new AtomicInteger(0);
     private static final AtomicInteger nextAnonId = new AtomicInteger(-2);
+    private static boolean reservedIdsExhausted = false;
 
     private TypeIdSupplier() {
 
@@ -51,6 +60,16 @@ public final class TypeIdSupplier {
         return newId;
     }
 
+    public static int getReservedId() {
+        // This can happen if there are a lot of maps and arrays with reserved ids (T[][][][]). In that case we will
+        // gracefully overflow to named ids.
+        if (reservedIdsExhausted || nextReservedId.get() >= MAX_RESERVED_ID) {
+            reservedIdsExhausted = true;
+            return getNamedId();
+        }
+        return nextReservedId.getAndIncrement();
+    }
+
     public static int getNamedId() {
         assert nextNamedId.get() < Integer.MAX_VALUE - 1;
         return nextNamedId.getAndIncrement();
@@ -59,5 +78,21 @@ public final class TypeIdSupplier {
     public static int getAnonId() {
         assert nextAnonId.get() > Integer.MIN_VALUE + 1;
         return nextAnonId.getAndDecrement();
+    }
+
+    public static IdKind kind(int id) {
+        if (id < 0) {
+            return IdKind.UNNAMED;
+        }
+        if (id < MAX_RESERVED_ID) {
+            return IdKind.RESERVED;
+        }
+        return IdKind.NAMED;
+    }
+
+    public enum IdKind {
+        RESERVED,
+        NAMED,
+        UNNAMED
     }
 }

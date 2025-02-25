@@ -66,7 +66,7 @@ public final class BHandleType extends BSemTypeWrapper<BHandleType.BHandleTypeIm
         }
 
         private BHandleTypeImpl(String typeName, Module pkg) {
-            super(typeName, pkg, RefValue.class);
+            super(typeName, pkg, RefValue.class, false);
         }
 
         @Override

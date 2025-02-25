@@ -18,6 +18,9 @@
 
 package io.ballerina.runtime.api.types.semtype;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * Generalized implementation of type check result cache. It is okay to access this from multiple threads but makes no
  * guarantee about the consistency of the cache under parallel access. Given result don't change due to race conditions
@@ -25,10 +28,18 @@ package io.ballerina.runtime.api.types.semtype;
  *
  * @since 2201.12.0
  */
-public interface TypeCheckCache {
+public class TypeCheckCache {
 
-    Boolean cachedTypeCheckResult(CacheableTypeDescriptor other);
+    private final Map<Integer, Boolean> cache = new HashMap<>();
 
-    void cacheTypeCheckResult(CacheableTypeDescriptor other, boolean result);
+    public Boolean cachedTypeCheckResult(CacheableTypeDescriptor other) {
+        int targetTypeId = other.typeId();
+        return cache.get(targetTypeId);
+    }
+
+    public void cacheTypeCheckResult(CacheableTypeDescriptor other, boolean result) {
+        int targetTypeId = other.typeId();
+        cache.put(targetTypeId, result);
+    }
 
 }
