@@ -322,9 +322,16 @@ public class WebSocketUtil {
         if (currentIndex != failoverContext.getInitialIndex()) {
             failoverContext.setCurrentIndex(currentIndex);
             createDelay(failoverContext.getFailoverInterval());
-            establishWebSocketConnection(createWebSocketClientConnector(targets.get(currentIndex).toString(),
-                       webSocketClient), webSocketClient, wsService);
-            return true;
+            try {
+                establishWebSocketConnection(createWebSocketClientConnector(targets.get(currentIndex).toString(),
+                        webSocketClient), webSocketClient, wsService);
+                return true;
+            } catch (Exception e) {
+                if (logger.isDebugEnabled()) {
+                    logger.debug(LOG_MESSAGE, "Couldn't create the WebSocket client connector for the target: "
+                            + targets.get(currentIndex).toString(), e.getMessage());
+                }
+            }
         }
         if (logger.isDebugEnabled()) {
             logger.debug(LOG_MESSAGE, "Couldn't connect to one of the server in the targets: ", targets);
@@ -522,7 +529,8 @@ public class WebSocketUtil {
     }
 
     private static WebSocketClientConnector createWebSocketClientConnector(String remoteUrl,
-                                                                           ObjectValue webSocketClient) {
+                                                                           ObjectValue webSocketClient)
+            throws Exception {
         @SuppressWarnings(WebSocketConstants.UNCHECKED)
         MapValue<String, Object> clientEndpointConfig = (MapValue<String, Object>) webSocketClient.getMapValue(
                 HttpConstants.CLIENT_ENDPOINT_CONFIG);
@@ -532,7 +540,7 @@ public class WebSocketUtil {
         HttpWsConnectorFactory connectorFactory = ((HttpWsConnectorFactory) webSocketClient.
                 getNativeData(WebSocketConstants.CONNECTOR_FACTORY));
         // Creates the client connector
-        return connectorFactory.createWsClientConnector(clientConnectorConfig);
+        return connectorFactory.createWsClientConnectorWithSSL(clientConnectorConfig);
     }
 
     /**

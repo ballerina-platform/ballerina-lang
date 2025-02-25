@@ -14,78 +14,78 @@ target = "java8"
 
     [[platform.libraries]]
     artifactId = "org.wso2.transport.http.netty"
-    version = "6.3.51"
-    path = "./lib/org.wso2.transport.http.netty-6.3.51.jar"
+    version = "6.3.54"
+    path = "./lib/org.wso2.transport.http.netty-6.3.54.jar"
     groupId = "org.wso2.transport.http"
     modules = ["web-sub"]
 
     [[platform.libraries]]
     artifactId = "netty-transport-native-unix-common"
-    version = "4.1.115.Final"
-    path = "./lib/netty-transport-native-unix-common-4.1.115.Final.jar"
+    version = "4.1.118.Final"
+    path = "./lib/netty-transport-native-unix-common-4.1.118.Final.jar"
     groupId = "io.netty"
     modules = ["web-sub"]
 
     [[platform.libraries]]
     artifactId = "netty-common"
-    version = "4.1.115.Final"
-    path = "./lib/netty-common-4.1.115.Final.jar"
+    version = "4.1.118.Final"
+    path = "./lib/netty-common-4.1.118.Final.jar"
     groupId = "io.netty"
     modules = ["web-sub"]
 
     [[platform.libraries]]
     artifactId = "netty-buffer"
-    version = "4.1.115.Final"
-    path = "./lib/netty-buffer-4.1.115.Final.jar"
+    version = "4.1.118.Final"
+    path = "./lib/netty-buffer-4.1.118.Final.jar"
     groupId = "io.netty"
     modules = ["web-sub"]
 
     [[platform.libraries]]
     artifactId = "netty-transport"
-    version = "4.1.115.Final"
-    path = "./lib/netty-transport-4.1.115.Final.jar"
+    version = "4.1.118.Final"
+    path = "./lib/netty-transport-4.1.118.Final.jar"
     groupId = "io.netty"
     modules = ["web-sub"]
 
     [[platform.libraries]]
     artifactId = "netty-resolver"
-    version = "4.1.115.Final"
-    path = "./lib/netty-resolver-4.1.115.Final.jar"
+    version = "4.1.118.Final"
+    path = "./lib/netty-resolver-4.1.118.Final.jar"
     groupId = "io.netty"
     modules = ["web-sub"]
 
     [[platform.libraries]]
     artifactId = "netty-handler"
-    version = "4.1.115.Final"
-    path = "./lib/netty-handler-4.1.115.Final.jar"
+    version = "4.1.118.Final"
+    path = "./lib/netty-handler-4.1.118.Final.jar"
     groupId = "io.netty"
     modules = ["web-sub"]
 
     [[platform.libraries]]
     artifactId = "netty-codec-http"
-    version = "4.1.115.Final"
-    path = "./lib/netty-codec-http-4.1.115.Final.jar"
+    version = "4.1.118.Final"
+    path = "./lib/netty-codec-http-4.1.118.Final.jar"
     groupId = "io.netty"
     modules = ["web-sub"]
 
     [[platform.libraries]]
     artifactId = "netty-codec"
-    version = "4.1.115.Final"
-    path = "./lib/netty-codec-4.1.115.Final.jar"
+    version = "4.1.118.Final"
+    path = "./lib/netty-codec-4.1.118.Final.jar"
     groupId = "io.netty"
     modules = ["web-sub"]
 
     [[platform.libraries]]
     artifactId = "netty-handler-proxy"
-    version = "4.1.115.Final"
-    path = "./lib/netty-handler-proxy-4.1.115.Final.jar"
+    version = "4.1.118.Final"
+    path = "./lib/netty-handler-proxy-4.1.118.Final.jar"
     groupId = "io.netty"
     modules = ["web-sub"]
 
     [[platform.libraries]]
     artifactId = "netty-codec-http2"
-    version = "4.1.115.Final"
-    path = "./lib/netty-codec-http2-4.1.115.Final.jar"
+    version = "4.1.118.Final"
+    path = "./lib/netty-codec-http2-4.1.118.Final.jar"
     groupId = "io.netty"
     modules = ["web-sub"]
 

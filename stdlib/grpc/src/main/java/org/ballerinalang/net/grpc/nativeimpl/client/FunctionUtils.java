@@ -135,13 +135,13 @@ public class FunctionUtils extends AbstractExecute {
             senderConfiguration.setHttpVersion(Constants.HTTP_2_0);
             senderConfiguration.setForceHttp2(true);
             HttpClientConnector clientConnector = HttpUtil.createHttpWsConnectionFactory()
-                    .createHttpClientConnector(properties, senderConfiguration, poolManager);
+                    .createHttpsClientConnector(properties, senderConfiguration, poolManager);
 
             clientEndpoint.addNativeData(CLIENT_CONNECTOR, clientConnector);
             clientEndpoint.addNativeData(ENDPOINT_URL, urlString);
         } catch (ErrorValue ex) {
             return ex;
-        } catch (RuntimeException ex) {
+        } catch (Exception ex) {
             return MessageUtils.getConnectorError(new StatusRuntimeException(Status
                     .fromCode(Status.Code.INTERNAL.toStatus().getCode()).withCause(ex)));
         }

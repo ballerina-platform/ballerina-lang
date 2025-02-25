@@ -52,20 +52,25 @@ public class InitEndpoint {
         WebSocketClientConnectorConfig clientConnectorConfig = new WebSocketClientConnectorConfig(remoteUrl);
         String scheme = URI.create(remoteUrl).getScheme();
         WebSocketUtil.populateClientConnectorConfig(clientEndpointConfig, clientConnectorConfig, scheme);
-        // Creates the client connector.
-        WebSocketClientConnector clientConnector = connectorFactory.createWsClientConnector(clientConnectorConfig);
-        webSocketClient.addNativeData(WebSocketConstants.CONNECTOR_FACTORY, connectorFactory);
-        // Add the client connector as a native data
-        // because there is no need to create the client connector again when using one URL.
-        webSocketClient.addNativeData(WebSocketConstants.CLIENT_CONNECTOR, clientConnector);
-        if (webSocketClient.getNativeData(WebSocketConstants.CLIENT_LISTENER) == null) {
-            webSocketClient.addNativeData(WebSocketConstants.CLIENT_LISTENER, new ClientConnectorListener());
+        try {
+            // Creates the client connector.
+            WebSocketClientConnector clientConnector = connectorFactory
+                    .createWsClientConnectorWithSSL(clientConnectorConfig);
+            webSocketClient.addNativeData(WebSocketConstants.CONNECTOR_FACTORY, connectorFactory);
+            // Add the client connector as a native data
+            // because there is no need to create the client connector again when using one URL.
+            webSocketClient.addNativeData(WebSocketConstants.CLIENT_CONNECTOR, clientConnector);
+            if (webSocketClient.getNativeData(WebSocketConstants.CLIENT_LISTENER) == null) {
+                webSocketClient.addNativeData(WebSocketConstants.CLIENT_LISTENER, new ClientConnectorListener());
+            }
+            CountDownLatch countDownLatch = new CountDownLatch(1);
+            webSocketClient.addNativeData(WebSocketConstants.COUNT_DOWN_LATCH, countDownLatch);
+            WebSocketUtil.establishWebSocketConnection(clientConnector, webSocketClient, wsService);
+            // Sets the count down latch for the initial connection.
+            WebSocketUtil.waitForHandshake(countDownLatch);
+        } catch (Exception e) {
+            throw WebSocketUtil.createErrorByType(e);
         }
-        CountDownLatch countDownLatch = new CountDownLatch(1);
-        webSocketClient.addNativeData(WebSocketConstants.COUNT_DOWN_LATCH, countDownLatch);
-        WebSocketUtil.establishWebSocketConnection(clientConnector, webSocketClient, wsService);
-        // Sets the count down latch for the initial connection.
-        WebSocketUtil.waitForHandshake(countDownLatch);
     }
 
     private InitEndpoint() {

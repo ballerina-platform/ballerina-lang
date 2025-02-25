@@ -147,8 +147,9 @@ public class HttpConnectionManager {
         return false;
     }
 
-    public WebSocketClientConnector getWebSocketClientConnector(WebSocketClientConnectorConfig configuration) {
-        return  httpConnectorFactory.createWsClientConnector(configuration);
+    public WebSocketClientConnector getWebSocketClientConnector(WebSocketClientConnectorConfig configuration)
+            throws Exception {
+        return  httpConnectorFactory.createWsClientConnectorWithSSL(configuration);
     }
 
     public TransportsConfiguration getTransportConfig() {
