@@ -68,6 +68,12 @@ public class FlyweightLookupTable<E extends Definition> {
     }
 
     private TypeCheckCacheFlyweight<E> getNamed(int typeId) {
-        return namedTypeCache.computeIfAbsent(typeId, createFn::apply);
+        var cached = namedTypeCache.get(typeId);
+        if (cached != null) {
+            return cached;
+        }
+        cached = createFn.apply(typeId);
+        namedTypeCache.put(typeId, cached);
+        return cached;
     }
 }

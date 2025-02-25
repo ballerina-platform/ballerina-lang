@@ -604,7 +604,13 @@ public final class TypeCreator {
         }
 
         T get(C constraint) {
-            return cache.computeIfAbsent(constraintInterner.intern(constraint), createFn);
+            var cached = cache.get(constraint);
+            if (cached != null) {
+                return cached;
+            }
+            cached = createFn.apply(constraint);
+            cache.put(constraint, cached);
+            return cached;
         }
     }
 }

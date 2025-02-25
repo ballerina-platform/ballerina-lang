@@ -155,7 +155,13 @@ public class BTypedescType extends BType implements TypedescType {
         }
 
         private static TypeCheckFlyweight getNamed(int typeId) {
-            return namedTypeCache.computeIfAbsent(typeId, TypeCheckFlyweight::new);
+            var cached = namedTypeCache.get(typeId);
+            if (cached != null) {
+                return cached;
+            }
+            cached = new TypeCheckFlyweight(typeId);
+            namedTypeCache.put(typeId, cached);
+            return cached;
         }
 
         private static TypeCheckFlyweight getReserved(int typeId) {
