@@ -117,6 +117,14 @@
                 "optional": {
                   "type": "boolean",
                   "className": "boolean"
+                },
+                "value": {
+                  "type": "string",
+                  "className": "java.lang.String"
+                },
+                "selected": {
+                  "type": "boolean",
+                  "className": "boolean"
                 }
               },
               "type": "object",

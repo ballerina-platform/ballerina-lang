@@ -189,6 +189,14 @@
                         "optional": {
                           "type": "boolean",
                           "className": "boolean"
+                        },
+                        "value": {
+                          "type": "string",
+                          "className": "java.lang.String"
+                        },
+                        "selected": {
+                          "type": "boolean",
+                          "className": "boolean"
                         }
                       },
                       "type": "object",
@@ -258,6 +266,14 @@
                         "className": "java.util.Map<java.lang.String, java.lang.String>"
                       },
                       "optional": {
+                        "type": "boolean",
+                        "className": "boolean"
+                      },
+                      "value": {
+                        "type": "string",
+                        "className": "java.lang.String"
+                      },
+                      "selected": {
                         "type": "boolean",
                         "className": "boolean"
                       }
@@ -575,6 +591,14 @@
                         "optional": {
                           "type": "boolean",
                           "className": "boolean"
+                        },
+                        "value": {
+                          "type": "string",
+                          "className": "java.lang.String"
+                        },
+                        "selected": {
+                          "type": "boolean",
+                          "className": "boolean"
                         }
                       },
                       "type": "object",
@@ -644,6 +668,14 @@
                         "className": "java.util.Map<java.lang.String, java.lang.String>"
                       },
                       "optional": {
+                        "type": "boolean",
+                        "className": "boolean"
+                      },
+                      "value": {
+                        "type": "string",
+                        "className": "java.lang.String"
+                      },
+                      "selected": {
                         "type": "boolean",
                         "className": "boolean"
                       }
