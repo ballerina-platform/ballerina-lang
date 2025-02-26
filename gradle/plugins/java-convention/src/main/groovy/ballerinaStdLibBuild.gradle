@@ -131,7 +131,7 @@ tasks.register('createDistributionCache') {
         configurations.distributionBala.each { artifact ->
             copy {
                 from zipTree( artifact.getPath() )
-                into "$buildDir/repo"
+                into "${getLayout().getBuildDirectory().get()}/repo"
             }
         }
     }
@@ -143,14 +143,14 @@ tasks.register('copyRuntime') {
         configurations.dist.each { artifact ->
             copy {
                 from artifact.getPath()
-                into "$buildDir/bre/lib"
+                into "${getLayout().getBuildDirectory().get()}/bre/lib"
             }
         }
     }
 }
 
 tasks.register('copyInteropImports', Copy) {
-    into "$buildDir/libs"
+    into "${getLayout().getBuildDirectory().get()}/libs"
     from configurations.interopImports
 }
 
@@ -179,7 +179,7 @@ def jarFileName = modOrg + "-" + modName + "-" + modVersion
 
 tasks.register('copyBallerinaProject', Copy) {
     from project.projectDir.toString() + "/src/main/ballerina/"
-    into project.buildDir.toString() + "/ballerina-src"
+    into project.getLayout().getBuildDirectory().get().toString() + "/ballerina-src"
 }
 
 tasks.register('ballerinaLangLibBuild', BallerinaLangStdLibBuildTask) {
@@ -196,13 +196,13 @@ tasks.register('ballerinaLangLibBuild', BallerinaLangStdLibBuildTask) {
 }
 
 artifacts {
-    distributionBala file("$buildDir/ballerina-src/target/" + modName + ".zip"), {
+    distributionBala file("${getLayout().getBuildDirectory().get()}/ballerina-src/target/" + modName + ".zip"), {
         builtBy(ballerinaLangLibBuild)
     }
-    distributionBirJar file("$buildDir/ballerina-src/target/${jarFileName}.jar"), {
+    distributionBirJar file("${getLayout().getBuildDirectory().get()}/ballerina-src/target/${jarFileName}.jar"), {
         builtBy(ballerinaLangLibBuild)
     }
-    balDoc file("$buildDir/ballerina-src/target/apidocs/"), {
+    balDoc file("${getLayout().getBuildDirectory().get()}/ballerina-src/target/apidocs/"), {
         builtBy(ballerinaLangLibBuild)
     }
 }

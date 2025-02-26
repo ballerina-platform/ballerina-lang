@@ -41,7 +41,7 @@ dependencies {
 
 test {
     dependsOn loadDistributionCache
-    systemProperty "ballerina.home", "$buildDir/"
+    systemProperty "ballerina.home", "${getLayout().getBuildDirectory().get()}/".toString()
     systemProperty "experimental", "true"
     systemProperty "ballerina.version", project.version
     useTestNG() {
