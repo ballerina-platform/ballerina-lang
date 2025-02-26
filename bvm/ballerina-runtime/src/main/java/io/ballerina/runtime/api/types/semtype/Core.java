@@ -290,6 +290,10 @@ public final class Core {
         return diff(Builder.getValType(), t);
     }
 
+    public static boolean isNever(BasicTypeBitSet t) {
+        return t.all() == 0;
+    }
+
     public static boolean isNever(SemType t) {
         return t.all() == 0 && t.some() == 0;
     }

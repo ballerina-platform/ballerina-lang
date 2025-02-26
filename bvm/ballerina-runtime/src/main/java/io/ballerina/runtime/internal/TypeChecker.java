@@ -722,9 +722,16 @@ public final class TypeChecker {
         if (sourceType instanceof ReadonlyType) {
             return true;
         }
+        BasicTypeBitSet sourceBitSet = sourceType.getBasicType();
+        if (!couldBelongToBasicType(sourceBitSet,
+                InherentlyImmutableTypeHolder.POTENTIALLY_INHERENTLY_IMMUTABLE_TYPE)) {
+            // couldBelongToBasicType don't handle never since bitset is anyway 0
+            return Core.isNever(sourceBitSet);
+        }
         Context cx = context();
         return Core.isSubtypeSimple(SemType.tryInto(cx, sourceType),
                 InherentlyImmutableTypeHolder.INHERENTLY_IMMUTABLE_TYPE);
+
     }
 
     // NOTE: this is not the same as selectively immutable as it stated in the spec
@@ -1373,6 +1380,8 @@ public final class TypeChecker {
     private static final class InherentlyImmutableTypeHolder {
 
         static final SemType INHERENTLY_IMMUTABLE_TYPE = createInherentlyImmutableType();
+        static final BasicTypeBitSet POTENTIALLY_INHERENTLY_IMMUTABLE_TYPE =
+                SemType.from(INHERENTLY_IMMUTABLE_TYPE.all() | INHERENTLY_IMMUTABLE_TYPE.some());
 
         private static SemType createInherentlyImmutableType() {
             return Stream.of(SimpleBasicTypeHolder.SIMPLE_BASIC_TYPE, Builder.getStringType(), Builder.getErrorType(),
