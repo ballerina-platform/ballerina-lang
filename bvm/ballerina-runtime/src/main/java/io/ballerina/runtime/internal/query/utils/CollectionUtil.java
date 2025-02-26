@@ -34,7 +34,7 @@ public class CollectionUtil {
 
     public static BArray createArray(StreamPipeline pipeline, BArray array) {
         Stream<Frame> strm = pipeline.getStream();
-        BType elementType = (BType) pipeline.getConstraintType().getType();
+        Type elementType = pipeline.getConstraintType().getType();
 
         Object[] tmpArr = strm
                 .map(frame -> frame.getRecord().get($VALUE$_FIELD))
