@@ -41,9 +41,10 @@ public class Frame {
         BMap<BString, Object> record = ValueCreator.createRecordValue(BALLERINA_QUERY_PKG_ID, "_Frame");
         if (value instanceof BArray) {
             BArray tuple = (BArray) value;
-            if (tuple.size() > 1) {
-                record.put(key, tuple.getRefValue(1));
-            }
+//            if (tuple.size() > 1) {
+//                record.put(key, tuple.getRefValue(1));
+//            }
+            record.put(key, tuple);
         } else if (value instanceof String) {
             record.put(key, StringUtils.fromString(value.toString()));
         } else if (value instanceof BRecordType) {

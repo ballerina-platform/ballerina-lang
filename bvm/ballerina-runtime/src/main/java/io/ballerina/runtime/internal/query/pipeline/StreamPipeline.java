@@ -1,15 +1,15 @@
 package io.ballerina.runtime.internal.query.pipeline;
 
 import io.ballerina.runtime.api.Environment;
-import io.ballerina.runtime.api.values.BStream;
 import io.ballerina.runtime.api.values.BTypedesc;
 import io.ballerina.runtime.internal.query.clauses.PipelineStage;
 import io.ballerina.runtime.internal.query.utils.BallerinaIteratorUtils;
-import io.ballerina.runtime.internal.query.utils.CollectionUtil;
 import io.ballerina.runtime.internal.values.ErrorValue;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
+import java.util.function.Supplier;
 import java.util.stream.Stream;
 
 /**
@@ -18,11 +18,13 @@ import java.util.stream.Stream;
 public class StreamPipeline {
 
     private Stream<Frame> stream;
+    private Supplier<Stream<Frame>> streamSupplier;
     private final List<PipelineStage> pipelineStages;
     private final BTypedesc constraintType;
     private final BTypedesc completionType;
     private final boolean isLazyLoading;
     private final Environment env;
+    private final Iterator<?> itr;
 
     /**
      * Constructor for creating a StreamPipeline.
@@ -38,11 +40,17 @@ public class StreamPipeline {
                           BTypedesc completionType,
                           boolean isLazyLoading) {
         this.env = env;
-        this.stream = initializeFrameStream(env, collection);
+//        this.stream = initializeFrameStream(env, collection);
         this.pipelineStages = new ArrayList<>();
         this.constraintType = constraintType;
         this.completionType = completionType;
         this.isLazyLoading = isLazyLoading;
+        this.itr = BallerinaIteratorUtils.getIterator(env, collection);
+        if(isLazyLoading) {
+            this.streamSupplier = () -> initializeFrameStream(env, itr);
+        } else {
+            this.stream = initializeFrameStream(env, itr);
+        }
     }
 
     public static Object initStreamPipeline(Environment env, Object collection,
@@ -84,6 +92,10 @@ public class StreamPipeline {
      * Processes the stream through all the pipeline stages.
      */
     public void execute() throws Exception {
+        if (isLazyLoading) {
+            stream = streamSupplier.get(); // Lazily initialize stream
+        }
+
         for (PipelineStage stage : pipelineStages) {
             stream = stage.process(stream);
         }
@@ -92,11 +104,11 @@ public class StreamPipeline {
     /**
      * Initializes a stream of `Frame` objects from the provided Ballerina collection.
      *
-     * @param collection The Ballerina collection.
+     * @param itr The iterator for the Ballerina collection.
      * @return A Java stream of `Frame` objects.
      */
-    private Stream<Frame> initializeFrameStream(Environment env, Object collection) throws ErrorValue {
-        return BallerinaIteratorUtils.toStream(env, collection);
+    private Stream<Frame> initializeFrameStream(Environment env, Iterator<?> itr) throws ErrorValue {
+        return BallerinaIteratorUtils.toStream(env, itr);
     }
 
     /**
@@ -115,6 +127,13 @@ public class StreamPipeline {
     }
 
     public Stream<Frame> getStream() {
+        if (isLazyLoading) {
+            try {
+                execute();
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        }
         return stream;
     }
 }

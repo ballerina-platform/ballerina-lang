@@ -6,8 +6,6 @@ import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.utils.StringUtils;
-import io.ballerina.runtime.internal.query.pipeline.StreamPipeline;
-import io.ballerina.runtime.internal.query.pipeline.Frame;
 
 import java.util.Iterator;
 
@@ -24,12 +22,18 @@ public class IteratorObject {
 
             if (iterator.hasNext()) {
                 Frame frame = iterator.next();
-                BMap<BString, Object> value = (BMap<BString, Object>) frame.getRecord().get(VALUE_FIELD);
+                BMap<BString, Object> recordMap = frame.getRecord();
+                if (recordMap.isEmpty()) {
+                    throw new RuntimeException("Error occurred while iterating over the stream: " +
+                            "record fields cannot be empty");
+                }
+                Object value = recordMap.get(VALUE_FIELD);
                 BMap<BString, Object> record = ValueCreator.createRecordValue(BALLERINA_QUERY_PKG_ID, "nextRecord");
                 record.put(StringUtils.fromString("value"), value);
                 return record;
             }
         } catch (Exception e) {
+//            throw new RuntimeException("Error occurred while iterating over the stream: " + e.getMessage());
             return null;
         }
 
