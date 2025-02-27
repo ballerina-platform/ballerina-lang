@@ -27,6 +27,11 @@ import io.ballerina.runtime.internal.types.semtype.CacheFactory;
 
 import java.util.Map;
 
+/**
+ * Simplified version of ${code TypeCheckFlyweightStore} for types that don't have to handle RO and RW types.
+ *
+ * @since 2201.12.0
+ */
 class SimpleTypeCheckFlyweightStore {
 
     private final LoadingCache<Integer, TypeCheckFlyweight> unnamedTypeCache =
