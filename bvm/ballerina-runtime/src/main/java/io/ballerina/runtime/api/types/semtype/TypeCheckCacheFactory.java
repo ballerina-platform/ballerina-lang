@@ -37,6 +37,9 @@ public class TypeCheckCacheFactory {
     }
 
     public static TypeCheckCache get(TypeIdentifier identifier) {
+        if (identifier.avoidCaching()) {
+            return create();
+        }
         var cached = cache.get(identifier);
         if (cached != null) {
             return cached;
