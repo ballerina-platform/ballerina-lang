@@ -96,9 +96,9 @@ public final class Env {
         if (ty.some() != 0) {
             return semTypeCreator.get();
         }
-        CellSemTypeCacheKey key = new CellSemTypeCacheKey(ty, mut);
+        CellSemTypeCacheKey key = new CellSemTypeCacheKey(ty.all(), mut);
+        cellTypeCacheLock.readLock().lock();
         try {
-            cellTypeCacheLock.readLock().lock();
             SemType cached = this.cellTypeCache.get(key);
             if (cached != null) {
                 return cached;
@@ -106,8 +106,8 @@ public final class Env {
         } finally {
             cellTypeCacheLock.readLock().unlock();
         }
+        cellTypeCacheLock.writeLock().lock();
         try {
-            cellTypeCacheLock.writeLock().lock();
             SemType cached = this.cellTypeCache.get(key);
             if (cached != null) {
                 return cached;
@@ -227,7 +227,7 @@ public final class Env {
         return this.typeAtom(atomicType);
     }
 
-    private record CellSemTypeCacheKey(SemType ty, CellAtomicType.CellMutability mut) {
+    private record CellSemTypeCacheKey(int all, CellAtomicType.CellMutability mut) {
 
     }
 
