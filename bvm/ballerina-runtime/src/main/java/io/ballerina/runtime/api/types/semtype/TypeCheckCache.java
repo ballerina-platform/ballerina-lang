@@ -18,6 +18,8 @@
 
 package io.ballerina.runtime.api.types.semtype;
 
+import io.ballerina.runtime.internal.types.TypeIdSupplier;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -30,16 +32,29 @@ import java.util.Map;
  */
 public class TypeCheckCache {
 
+    private static final int MAX_CAPACITY = 10_000;
     private final Map<Integer, Boolean> cache = new HashMap<>();
+    private final Map<Integer, Boolean> unnamedTypeCache = new HashMap<>();
 
     public Boolean cachedTypeCheckResult(CacheableTypeDescriptor other) {
         int targetTypeId = other.typeId();
-        return cache.get(targetTypeId);
+        if (TypeIdSupplier.isAnon(targetTypeId)) {
+            return unnamedTypeCache.get(targetTypeId);
+        } else {
+            return cache.get(targetTypeId);
+        }
     }
 
     public void cacheTypeCheckResult(CacheableTypeDescriptor other, boolean result) {
         int targetTypeId = other.typeId();
-        cache.put(targetTypeId, result);
+        if (TypeIdSupplier.isAnon(targetTypeId)) {
+            if (unnamedTypeCache.size() > MAX_CAPACITY) {
+                unnamedTypeCache.clear();
+            }
+            unnamedTypeCache.put(targetTypeId, result);
+        } else {
+            cache.put(targetTypeId, result);
+        }
     }
 
 }

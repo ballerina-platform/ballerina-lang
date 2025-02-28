@@ -98,4 +98,8 @@ public final class TypeIdSupplier {
         NAMED,
         UNNAMED
     }
+
+    public static boolean isAnon(int id) {
+        return id < 0;
+    }
 }
