@@ -47,6 +47,7 @@ public class StreamPipeline {
         this.isLazyLoading = isLazyLoading;
         this.itr = BallerinaIteratorUtils.getIterator(env, collection);
         if(isLazyLoading) {
+            this.stream = initializeFrameStream(env, itr);
             this.streamSupplier = () -> initializeFrameStream(env, itr);
         } else {
             this.stream = initializeFrameStream(env, itr);
@@ -92,10 +93,6 @@ public class StreamPipeline {
      * Processes the stream through all the pipeline stages.
      */
     public void execute() throws Exception {
-        if (isLazyLoading) {
-            stream = streamSupplier.get(); // Lazily initialize stream
-        }
-
         for (PipelineStage stage : pipelineStages) {
             stream = stage.process(stream);
         }
@@ -126,12 +123,14 @@ public class StreamPipeline {
         return completionType;
     }
 
-    public Stream<Frame> getStream() {
+    public Stream<Frame> getStream() throws Exception {
         if (isLazyLoading) {
             try {
-                execute();
+                stream.iterator();
             } catch (Exception e) {
-                throw new RuntimeException(e);
+                System.out.println("Error in getStream: " + e);
+                stream = streamSupplier.get();
+                execute();
             }
         }
         return stream;

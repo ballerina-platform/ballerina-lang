@@ -40,28 +40,16 @@ public class OrderByClause implements PipelineStage {
 
     @Override
     public Stream<Frame> process(Stream<Frame> inputStream) {
-        if (orderedFrames == null) {
-            List<Frame> frames = new ArrayList<>();
-
-            // Collect all frames and apply the order key function
-            inputStream.forEach(frame -> {
-                try {
-                    BMap<BString, Object> record = frame.getRecord();
-                    orderKeyFunction.call(env.getRuntime(), record);
-                    frames.add(frame);
-                } catch (Exception e) {
-                    throw new RuntimeException("Error in order by clause processing.", e);
-                }
-            });
-
-            // Sort the frames using the comparator
-            orderedFrames = frames.stream()
-                    .sorted(getComparator())
-                    .collect(Collectors.toList());
-        }
-
-        return orderedFrames.stream();
+        return inputStream.peek(frame -> {
+            try {
+                BMap<BString, Object> record = frame.getRecord();
+                orderKeyFunction.call(env.getRuntime(), record);
+            } catch (Exception e) {
+                throw new RuntimeException("Error in order by clause processing.", e);
+            }
+        }).sorted(getComparator());
     }
+
 
     /**
      * Returns a comparator based on the `$orderKey$` and `$orderDirection$`.
@@ -76,9 +64,9 @@ public class OrderByClause implements PipelineStage {
 
             BArray orderDirectionArray = (BArray) record1.get(StringUtils.fromString("$orderDirection$"));
 
-            if (orderKey1Array == null || orderKey2Array == null || orderDirectionArray == null) {
-                throw new IllegalStateException("$orderKey$ and $orderDirection$ must not be null.");
-            }
+//            if (orderKey1Array == null || orderKey2Array == null || orderDirectionArray == null) {
+//                throw new IllegalStateException("$orderKey$ and $orderDirection$ must not be null.");
+//            }
 
             int size = orderKey1Array.size();
 
@@ -88,16 +76,18 @@ public class OrderByClause implements PipelineStage {
 
                 boolean ascending = orderDirectionArray.getBoolean(i);
 
-                Comparable<Object> comparableKey1 = toComparable(key1);
-                Comparable<Object> comparableKey2 = toComparable(key2);
+                Comparable<?> comparableKey1 = toComparable(key1);
+                Comparable<?> comparableKey2 = toComparable(key2);
 
+                // Ensure that both keys are comparable
                 if (comparableKey1 == null || comparableKey2 == null) {
                     throw new IllegalStateException("Keys must be comparable: " + key1 + ", " + key2);
                 }
 
+                @SuppressWarnings("unchecked")
                 int comparison = ascending
-                        ? comparableKey1.compareTo(comparableKey2)
-                        : comparableKey2.compareTo(comparableKey1);
+                        ? ((Comparable<Object>) comparableKey1).compareTo(comparableKey2)
+                        : ((Comparable<Object>) comparableKey2).compareTo(comparableKey1);
 
                 if (comparison != 0) {
                     return comparison;
@@ -107,19 +97,27 @@ public class OrderByClause implements PipelineStage {
         };
     }
 
-    private Comparable<Object> toComparable(Object key) {
-        if (key instanceof Integer || key instanceof Long || key instanceof Double || key instanceof String) {
-            return (Comparable<Object>) key;
-        }
 
+    private Comparable<?> toComparable(Object key) {
+        if (key == null) {
+            return ""; // Ensure null values are comparable
+        }
+        if (key instanceof Integer || key instanceof Long || key instanceof Double) {
+            return (Comparable<?>) key;
+        }
         if (key instanceof BDecimal) {
-            return (Comparable<Object>) (Object)((BDecimal) key).intValue();
+            return ((BDecimal) key).decimalValue(); // Convert to BigDecimal
         }
-
         if (key instanceof BString) {
-            return (Comparable<Object>) (Object)key.toString();
+            return ((BString) key).getValue(); // Convert BString to Java String
         }
-
-        return null;
+        if (key instanceof String) {
+            return (String) key;
+        }
+        if (key instanceof Boolean) {
+            return (boolean) key;
+        }
+        throw new IllegalArgumentException("Unsupported type for comparison: " + key.getClass().getName());
     }
+
 }
