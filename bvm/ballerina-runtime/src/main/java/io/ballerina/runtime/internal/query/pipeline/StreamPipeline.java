@@ -123,14 +123,18 @@ public class StreamPipeline {
         return completionType;
     }
 
-    public Stream<Frame> getStream() throws Exception {
+    public Stream<Frame> getStream(){
         if (isLazyLoading) {
             try {
                 stream.iterator();
             } catch (Exception e) {
                 System.out.println("Error in getStream: " + e);
                 stream = streamSupplier.get();
-                execute();
+                try {
+                    execute();
+                } catch (Exception ex) {
+                    throw new RuntimeException(ex);
+                }
             }
         }
         return stream;
