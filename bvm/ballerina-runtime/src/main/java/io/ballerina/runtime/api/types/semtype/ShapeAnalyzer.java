@@ -30,6 +30,7 @@ import java.util.Optional;
 /**
  * Utility class for performing shape related operations.
  *
+ * FOOBAR
  * @since 2201.12.0
  */
 public class ShapeAnalyzer {
