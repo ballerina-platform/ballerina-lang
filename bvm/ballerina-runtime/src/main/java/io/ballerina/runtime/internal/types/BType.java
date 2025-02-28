@@ -268,9 +268,10 @@ public abstract non-sealed class BType extends SemType
     @Override
     public void updateInnerSemTypeIfNeeded(Context cx) {
         if (cachedSemType == null) {
-            cachedSemType = createSemType(cx);
-            setAll(cachedSemType.all());
-            setSome(cachedSemType.some(), cachedSemType.subTypeData());
+            SemType ty = createSemType(cx);
+            setAll(ty.all());
+            setSome(ty.some(), ty.subTypeData());
+            cachedSemType = ty;
         }
     }
 

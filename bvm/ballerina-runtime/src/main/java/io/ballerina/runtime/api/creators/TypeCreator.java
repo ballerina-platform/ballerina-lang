@@ -604,7 +604,8 @@ public final class TypeCreator {
         }
 
         T get(C constraint) {
-            var cached = cache.get(constraint);
+            C canonical = constraintInterner.intern(constraint);
+            var cached = cache.get(canonical);
             if (cached != null) {
                 return cached;
             }

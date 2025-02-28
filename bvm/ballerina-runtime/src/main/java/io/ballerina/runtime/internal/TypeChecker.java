@@ -102,6 +102,7 @@ import static io.ballerina.runtime.api.types.PredefinedTypes.TYPE_INT_UNSIGNED_1
 import static io.ballerina.runtime.api.types.PredefinedTypes.TYPE_INT_UNSIGNED_32;
 import static io.ballerina.runtime.api.types.PredefinedTypes.TYPE_INT_UNSIGNED_8;
 import static io.ballerina.runtime.api.types.PredefinedTypes.TYPE_NULL;
+import static io.ballerina.runtime.api.types.semtype.ShapeAnalyzer.canOptimizeInherentTypeCheck;
 import static io.ballerina.runtime.api.utils.TypeUtils.getImpliedType;
 import static io.ballerina.runtime.internal.utils.CloneUtils.getErrorMessage;
 
@@ -303,8 +304,7 @@ public final class TypeChecker {
         if (isSubType(cx, sourceType, targetType)) {
             return true;
         }
-        SemType sourceSemType = SemType.tryInto(cx, sourceType);
-        return couldInherentTypeBeDifferent(sourceSemType) &&
+        return !canOptimizeInherentTypeCheck(cx, sourceType, targetType) &&
                 isSubTypeWithInherentType(cx, sourceVal, SemType.tryInto(cx, targetType));
     }
 
@@ -319,14 +319,6 @@ public final class TypeChecker {
      */
     public static boolean checkIsType(List<String> errors, Object sourceVal, Type sourceType, Type targetType) {
         return checkIsType(sourceVal, targetType);
-    }
-
-    // This is just an optimization since shapes are not cached, when in doubt return false
-    private static boolean couldInherentTypeBeDifferent(SemType type) {
-        if (type instanceof TypeWithShape typeWithShape) {
-            return typeWithShape.couldInherentTypeBeDifferent();
-        }
-        return true;
     }
 
     /**
@@ -722,9 +714,16 @@ public final class TypeChecker {
         if (sourceType instanceof ReadonlyType) {
             return true;
         }
+        BasicTypeBitSet sourceBitSet = sourceType.getBasicType();
+        if (!couldBelongToBasicType(sourceBitSet,
+                InherentlyImmutableTypeHolder.POTENTIALLY_INHERENTLY_IMMUTABLE_TYPE)) {
+            // couldBelongToBasicType don't handle never since bitset is anyway 0
+            return Core.isNever(sourceBitSet);
+        }
         Context cx = context();
         return Core.isSubtypeSimple(SemType.tryInto(cx, sourceType),
                 InherentlyImmutableTypeHolder.INHERENTLY_IMMUTABLE_TYPE);
+
     }
 
     // NOTE: this is not the same as selectively immutable as it stated in the spec
@@ -1373,6 +1372,8 @@ public final class TypeChecker {
     private static final class InherentlyImmutableTypeHolder {
 
         static final SemType INHERENTLY_IMMUTABLE_TYPE = createInherentlyImmutableType();
+        static final BasicTypeBitSet POTENTIALLY_INHERENTLY_IMMUTABLE_TYPE =
+                SemType.from(INHERENTLY_IMMUTABLE_TYPE.all() | INHERENTLY_IMMUTABLE_TYPE.some());
 
         private static SemType createInherentlyImmutableType() {
             return Stream.of(SimpleBasicTypeHolder.SIMPLE_BASIC_TYPE, Builder.getStringType(), Builder.getErrorType(),
