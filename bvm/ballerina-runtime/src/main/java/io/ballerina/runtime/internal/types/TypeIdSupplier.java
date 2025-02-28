@@ -51,6 +51,9 @@ public final class TypeIdSupplier {
     }
 
     public static int namedId(TypeIdentifier id) {
+        if (id.avoidCaching()) {
+            return getAnonId();
+        }
         var cachedId = cache.get(id);
         if (cachedId != null) {
             return cachedId;
@@ -94,5 +97,9 @@ public final class TypeIdSupplier {
         RESERVED,
         NAMED,
         UNNAMED
+    }
+
+    public static boolean isAnon(int id) {
+        return id < 0;
     }
 }

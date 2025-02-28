@@ -554,10 +554,10 @@ public final class TypeCreator {
         if (name == null || pkg == null) {
             return;
         }
-        if (name.contains("$anon")) {
+        TypeIdentifier typeIdentifier = new TypeIdentifier(pkg, name);
+        if (typeIdentifier.avoidCaching()) {
             return;
         }
-        TypeIdentifier typeIdentifier = new TypeIdentifier(pkg, name);
         registeredRecordTypes.put(typeIdentifier, recordType);
     }
 

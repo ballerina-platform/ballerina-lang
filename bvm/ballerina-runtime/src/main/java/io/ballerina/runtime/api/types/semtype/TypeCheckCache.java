@@ -30,6 +30,7 @@ import java.util.Map;
  */
 public class TypeCheckCache {
 
+    private static final int MAX_CAPACITY = 1024;
     private final Map<Integer, Boolean> cache = new HashMap<>();
 
     public Boolean cachedTypeCheckResult(CacheableTypeDescriptor other) {
@@ -39,7 +40,9 @@ public class TypeCheckCache {
 
     public void cacheTypeCheckResult(CacheableTypeDescriptor other, boolean result) {
         int targetTypeId = other.typeId();
+        if (cache.size() > MAX_CAPACITY) {
+            cache.clear();
+        }
         cache.put(targetTypeId, result);
     }
-
 }
