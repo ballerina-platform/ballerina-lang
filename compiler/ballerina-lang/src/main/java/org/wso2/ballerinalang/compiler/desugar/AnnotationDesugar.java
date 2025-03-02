@@ -483,6 +483,12 @@ public class AnnotationDesugar {
     private void defineFunctionAnnotations(BLangPackage pkgNode, SymbolEnv env, BLangFunction initFunction) {
         BLangBlockFunctionBody initFnBody = (BLangBlockFunctionBody) initFunction.body;
         BLangFunction[] functions = pkgNode.functions.toArray(new BLangFunction[pkgNode.functions.size()]);
+        // TODO: Find a better way to get the annotation map init statement
+        Optional<BLangStatement> globalAnnotInitStmt = initFnBody.stmts.stream()
+                .filter(statement -> statement.getKind() == NodeKind.ASSIGNMENT && ((BLangAssignment) statement)
+                        .varRef.getKind() == NodeKind.SIMPLE_VARIABLE_REF)
+                .filter(statement -> ((BLangSimpleVarRef) ((BLangAssignment) statement).varRef).symbol.name.value.
+                        equals(ANNOTATION_DATA)).findFirst();
         for (BLangFunction function : functions) {
             PackageID pkgID = function.symbol.pkgID;
             BSymbol owner = function.symbol.owner;
@@ -508,6 +514,8 @@ public class AnnotationDesugar {
                     index = calculateIndex(initFnBody.stmts, function.receiver.getBType().tsymbol);
                 } else {
                     addInvocationToGlobalAnnotMap(identifier, lambdaFunction, target);
+                    globalAnnotInitStmt.ifPresent(statement -> updateInitOfAnnotGlobalMap(statement, identifier,
+                            lambdaFunction));
                     index = initFnBody.stmts.size();
                 }
 
@@ -517,6 +525,13 @@ public class AnnotationDesugar {
                 }
             }
         }
+    }
+
+    private void updateInitOfAnnotGlobalMap(BLangStatement globalAnnotInitStmt, String identifier,
+                                            BLangLambdaFunction expression) {
+        BLangAssignment annotMapInitStmt = (BLangAssignment) globalAnnotInitStmt;
+        BLangRecordLiteral mapLiteral = (BLangRecordLiteral) annotMapInitStmt.expr;
+        addInvocationToLiteral(mapLiteral, identifier, expression.pos, expression);
     }
 
     private void attachSchedulerPolicy(BLangFunction function) {
