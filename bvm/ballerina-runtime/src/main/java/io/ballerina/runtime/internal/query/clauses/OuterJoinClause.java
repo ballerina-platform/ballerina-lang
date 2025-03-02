@@ -61,7 +61,7 @@ public class OuterJoinClause implements PipelineStage {
      */
     private void initializeRhsFrames() {
         try {
-            StreamPipeline.getStreamFromPipeline(pipelineToJoin).getStream()
+            StreamPipeline.getStreamFromPipeline(pipelineToJoin).getStreamForJoin()
                     .forEach(frame -> {
                         try {
                             Object key = rhsKeyFunction.call(env.getRuntime(), frame.getRecord());
