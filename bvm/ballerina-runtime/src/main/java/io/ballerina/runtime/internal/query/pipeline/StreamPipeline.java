@@ -128,7 +128,7 @@ public class StreamPipeline {
             try {
                 stream.iterator();
             } catch (Exception e) {
-                System.out.println("Error in getStream: " + e);
+//                System.out.println("Error in getStream: " + e);
                 stream = streamSupplier.get();
                 try {
                     execute();
@@ -139,4 +139,9 @@ public class StreamPipeline {
         }
         return stream;
     }
+
+    public Stream<Frame> getStreamForJoin(){
+        return stream;
+    }
+
 }
