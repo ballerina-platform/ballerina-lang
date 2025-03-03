@@ -27,6 +27,9 @@ public class ArrayType extends Type {
     @Expose
     public Type memberType;
 
+    public ArrayType() {
+    }
+
     public ArrayType(Type memberType) {
         this.typeName = "array";
         this.memberType = memberType;
