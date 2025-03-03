@@ -38,7 +38,7 @@ dependencies {
 }
 
 compileJava {
-    def generatedSources = "$buildDir/generated-from-annot"
+    def generatedSources = "${getLayout().getBuildDirectory().get()}/generated-from-annot".toString()
     def generatedOutputDir = file("$generatedSources")
     def pkgName = project.name.replace("ballerina", "").replaceAll("-","")
     options.compilerArgs += ["-AnativeEntityProviderClass=StandardNativeElementProvider",
@@ -53,13 +53,13 @@ compileJava {
 tasks.register('createBalHome', Copy) {
     dependsOn configurations.balaImplementation
     from configurations.balaImplementation
-    into "$buildDir/ballerina-home/main/lib"
+    into "${getLayout().getBuildDirectory().get()}/ballerina-home/main/lib"
 }
 
 tasks.register('createTestBalHome', Copy) {
     dependsOn configurations.balaTestImplementation
     from configurations.balaTestImplementation
-    into "$buildDir/ballerina-home/test/lib/"
+    into "${getLayout().getBuildDirectory().get()}/ballerina-home/test/lib/"
 }
 
 test {
@@ -67,7 +67,7 @@ test {
 
     inputs.files(configurations.balaTestImplementation);
 
-    systemProperty "ballerina.home", "$buildDir/ballerina-home/test"
+    systemProperty "ballerina.home", "${getLayout().getBuildDirectory().get()}/ballerina-home/test".toString()
 
     systemProperty "java.util.logging.config.file", "src/test/resources/logging.properties"
     systemProperty "LANG_REPO_BUILD", "true"

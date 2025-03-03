@@ -93,17 +93,17 @@ dependencies {
 tasks.register('createTestDistributionCache', Copy) {
     dependsOn configurations.distributionBala
     from configurations.distributionBala
-    into "$buildDir/repo"
+    into "${getLayout().getBuildDirectory().get()}/repo"
 }
 
 tasks.register('copyCompilerPluginJars', Copy) {
     from configurations.compilerPluginJar
-    into "$buildDir/compiler-plugin-jars"
+    into "${getLayout().getBuildDirectory().get()}/compiler-plugin-jars"
 }
 
 tasks.register('copyProfilerResources', Copy) {
     from project(':jballerina-tools').file('resources/profiler')
-    into "$buildDir/resources/profiler"
+    into "${getLayout().getBuildDirectory().get()}/resources/profiler"
 }
 
 tasks.register('createTestBre', Copy) {
@@ -111,7 +111,7 @@ tasks.register('createTestBre', Copy) {
     from configurations.testRt
     from configurations.testCore
     from configurations.distributionBirJar
-    into "$buildDir/bre/lib"
+    into "${getLayout().getBuildDirectory().get()}/bre/lib"
 }
 
 test {
@@ -120,7 +120,7 @@ test {
     dependsOn copyCompilerPluginJars
     dependsOn copyProfilerResources
 
-    systemProperty "ballerina.home", "$buildDir"
+    systemProperty "ballerina.home", "${getLayout().getBuildDirectory().get()}".toString()
 
     useTestNG() {
         suites 'src/test/resources/testng.xml'
