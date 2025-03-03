@@ -14,11 +14,11 @@ import static io.ballerina.runtime.api.constants.RuntimeConstants.BALLERINA_QUER
 public class IteratorObject {
     private static final BString VALUE_FIELD = StringUtils.fromString("$value$");
 
-    public static Object next(Object pipeline) {
-        Type constraintType = ((StreamPipeline) pipeline).getConstraintType().getDescribingType();
-        Type completionType = ((StreamPipeline) pipeline).getCompletionType().getDescribingType();
+    public static Object next(Object itr) {
+//        Type constraintType = ((StreamPipeline) pipeline).getConstraintType().getDescribingType();
+//        Type completionType = ((StreamPipeline) pipeline).getCompletionType().getDescribingType();
         try {
-            Iterator<Frame> iterator = ((StreamPipeline) pipeline).getStream().iterator();
+            Iterator<Frame> iterator = (Iterator<Frame>) itr;
 
             if (iterator.hasNext()) {
                 Frame frame = iterator.next();
