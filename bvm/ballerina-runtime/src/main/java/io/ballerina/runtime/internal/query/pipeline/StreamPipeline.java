@@ -46,12 +46,12 @@ public class StreamPipeline {
         this.completionType = completionType;
         this.isLazyLoading = isLazyLoading;
         this.itr = BallerinaIteratorUtils.getIterator(env, collection);
-        if(isLazyLoading) {
+//        if(isLazyLoading) {
+//            this.stream = initializeFrameStream(env, itr);
+//            this.streamSupplier = () -> initializeFrameStream(env, itr);
+//        } else {
             this.stream = initializeFrameStream(env, itr);
-            this.streamSupplier = () -> initializeFrameStream(env, itr);
-        } else {
-            this.stream = initializeFrameStream(env, itr);
-        }
+//        }
     }
 
     public static Object initStreamPipeline(Environment env, Object collection,
@@ -123,25 +123,33 @@ public class StreamPipeline {
         return completionType;
     }
 
-    public Stream<Frame> getStream(){
-        if (isLazyLoading) {
-            try {
-                stream.iterator();
-            } catch (Exception e) {
-//                System.out.println("Error in getStream: " + e);
-                stream = streamSupplier.get();
-                try {
-                    execute();
-                } catch (Exception ex) {
-                    throw new RuntimeException(ex);
-                }
-            }
-        }
+    public Stream<Frame> getStream() {
+//        if (isLazyLoading) {
+//            try {
+//                stream.iterator();
+//            } catch (IllegalStateException e) {
+//                stream = streamSupplier.get();
+//                try {
+//                    execute();
+//                } catch (Exception ex) {
+//                    throw new RuntimeException(ex);
+//                }
+//            }
+//        }
         return stream;
     }
 
     public Stream<Frame> getStreamForJoin(){
         return stream;
+    }
+
+    public static boolean isConsumed(Stream<Frame> stream) {
+        try {
+            stream.iterator();
+            return false;
+        } catch (IllegalStateException e) {
+            return true;
+        }
     }
 
 }

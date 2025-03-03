@@ -152,7 +152,7 @@ public class CollectionUtil {
     public static BStream toStream(StreamPipeline pipeline) {
         Stream<Frame> strm = pipeline.getStream();
         StreamType streamType = TypeCreator.createStreamType(pipeline.getConstraintType().getDescribingType(), pipeline.getCompletionType().getDescribingType());
-        Object pipeelineObj = pipeline;
+        Object pipeelineObj = pipeline.getStream().iterator();
         HandleValue handleValue = new HandleValue(pipeelineObj);
         BObject iteratorObj = ValueCreator.createObjectValue(BALLERINA_QUERY_PKG_ID, "_IteratorObject", handleValue);
 
