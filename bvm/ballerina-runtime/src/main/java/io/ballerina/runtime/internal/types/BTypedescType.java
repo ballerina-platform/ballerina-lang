@@ -42,17 +42,21 @@ import java.util.Set;
 public class BTypedescType extends BType implements TypedescType {
 
     private static final BasicTypeBitSet BASIC_TYPE = Builder.getTypeDescType();
+    private static final SimpleTypeCheckFlyweightStore FLYWEIGHT_CACHE = new SimpleTypeCheckFlyweightStore();
 
     private final Type constraint;
 
     public BTypedescType(String typeName, Module pkg) {
-        super(typeName, pkg, Object.class);
+        super(typeName, pkg, Object.class, true);
         constraint = null;
     }
 
     public BTypedescType(Type constraint) {
-        super(TypeConstants.TYPEDESC_TNAME, null, TypedescValue.class);
+        super(TypeConstants.TYPEDESC_TNAME, null, TypedescValue.class, false);
         this.constraint = constraint;
+        var flyweight = FLYWEIGHT_CACHE.get(constraint);
+        this.typeCheckCache = flyweight.typeCheckCache();
+        this.typeId = flyweight.typeId();
     }
 
     @Override
@@ -115,4 +119,5 @@ public class BTypedescType extends BType implements TypedescType {
         return constraint instanceof MayBeDependentType constraintType &&
                 constraintType.isDependentlyTyped(visited);
     }
+
 }

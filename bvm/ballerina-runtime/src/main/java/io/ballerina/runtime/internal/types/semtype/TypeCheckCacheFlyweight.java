@@ -18,33 +18,17 @@
 
 package io.ballerina.runtime.internal.types.semtype;
 
-import io.ballerina.runtime.api.types.semtype.CacheableTypeDescriptor;
+import io.ballerina.runtime.api.types.semtype.Definition;
 import io.ballerina.runtime.api.types.semtype.TypeCheckCache;
 
-import java.util.HashMap;
-import java.util.Map;
-
 /**
- * Hashmap based implementation of {@code TypeCheckCache}. Will allow types to be garbage collected and is fully
- * non-blocking. However make no concurrency guarantees.
+ * Internal record type for {@code TypeCheckFlyweightStore}.
  *
+ * @param typeId         type id
+ * @param typeCheckCache type check cache
+ * @param <E>            Definition type that is cached
  * @since 2201.12.0
  */
-public class TypeCheckCacheImpl implements TypeCheckCache {
+public record TypeCheckCacheFlyweight<E extends Definition>(int typeId, TypeCheckCache typeCheckCache) {
 
-    private final Map<Integer, Boolean> cache = new HashMap<>();
-
-    public TypeCheckCacheImpl() {
-    }
-
-    @Override
-    public Boolean cachedTypeCheckResult(CacheableTypeDescriptor other) {
-        int targetTypeId = other.typeId();
-        return cache.get(targetTypeId);
-    }
-
-    public void cacheTypeCheckResult(CacheableTypeDescriptor other, boolean result) {
-        int targetTypeId = other.typeId();
-        cache.put(targetTypeId, result);
-    }
 }

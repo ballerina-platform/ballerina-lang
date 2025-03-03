@@ -96,7 +96,7 @@ public class BIntersectionType extends BType implements IntersectionType, TypeWi
     }
 
     private BIntersectionType(String typeName, Module pkg, Type[] constituentTypes, int typeFlags, boolean readonly) {
-        super(typeName, pkg, Object.class);
+        super(typeName, pkg, Object.class, true);
         this.constituentTypes = Arrays.asList(constituentTypes);
         this.typeFlags = typeFlags;
         this.readonly = readonly;

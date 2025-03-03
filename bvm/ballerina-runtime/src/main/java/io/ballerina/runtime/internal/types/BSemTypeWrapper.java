@@ -135,8 +135,7 @@ public abstract sealed class BSemTypeWrapper<E extends BType> extends ImmutableS
 
     @Override
     public boolean isAnydata() {
-        Context cx = TypeChecker.context();
-        return Core.isSubType(cx, this, Builder.getAnyDataType());
+        return Core.isSubtypeSimple(this, Builder.getAnyDataType());
     }
 
     @Override

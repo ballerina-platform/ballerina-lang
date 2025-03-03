@@ -39,6 +39,7 @@ import java.util.Set;
 public class BFutureType extends BType implements FutureType {
 
     private static final BasicTypeBitSet BASIC_TYPE = Builder.getFutureType();
+    private static final SimpleTypeCheckFlyweightStore FLYWEIGHT_CACHE = new SimpleTypeCheckFlyweightStore();
     private final Type constraint;
 
     /**
@@ -48,13 +49,16 @@ public class BFutureType extends BType implements FutureType {
      * @param pkg of the type
      */
     public BFutureType(String typeName, Module pkg) {
-        super(typeName, pkg, Object.class);
+        super(typeName, pkg, Object.class, true);
         constraint = null;
     }
 
     public BFutureType(Type constraint) {
-        super(TypeConstants.FUTURE_TNAME, null, Object.class);
+        super(TypeConstants.FUTURE_TNAME, null, Object.class, false);
         this.constraint = constraint;
+        var flyweight = FLYWEIGHT_CACHE.get(constraint);
+        this.typeCheckCache = flyweight.typeCheckCache();
+        this.typeId = flyweight.typeId();
     }
 
     public Type getConstrainedType() {
