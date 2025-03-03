@@ -29,6 +29,9 @@ public class EnumType extends Type {
     @Expose
     public List<Type> members;
 
+    public EnumType() {
+    }
+
     public EnumType(List<Type> members) {
         this.typeName = "enum";
         this.members = members;

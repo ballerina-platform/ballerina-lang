@@ -27,6 +27,9 @@ public class InclusionType extends Type {
     @Expose
     public Type inclusionType;
 
+    public InclusionType() {
+    }
+
     public InclusionType(Type inclusionType) {
         this.typeName = "inclusion";
         this.inclusionType = inclusionType;

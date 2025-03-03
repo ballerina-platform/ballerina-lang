@@ -36,6 +36,9 @@ public class TableType extends Type {
     @Expose
     public Type constraintType;
 
+    public TableType() {
+    }
+
     public TableType(Type rowType, List<String> keys, Type constraintType) {
         this.typeName = "table";
         this.keys = keys;

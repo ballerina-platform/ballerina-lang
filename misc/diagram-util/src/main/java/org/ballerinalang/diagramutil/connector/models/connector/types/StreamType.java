@@ -31,6 +31,9 @@ public class StreamType extends Type {
     @Expose
     public Type rightTypeParam;
 
+    public StreamType() {
+    }
+
     public StreamType(Optional<Type> leftTypeParam, Optional<Type> rightTypeParam) {
         this.typeName = "stream";
         if (leftTypeParam.isPresent()) {

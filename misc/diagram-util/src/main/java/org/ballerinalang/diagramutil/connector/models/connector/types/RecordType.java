@@ -34,6 +34,9 @@ public class RecordType extends Type {
     @Expose
     public Type restType;
 
+    public RecordType() {
+    }
+
     public RecordType(List<Type> fields, Optional<Type> restType) {
         this.typeName = "record";
         this.fields = fields;

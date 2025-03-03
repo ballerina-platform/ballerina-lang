@@ -28,6 +28,9 @@ public class MapType extends Type {
     @Expose
     public Type paramType;
 
+    public MapType() {
+    }
+
     public MapType(Type paramType) {
         this.typeName = "map";
         this.paramType = paramType;
