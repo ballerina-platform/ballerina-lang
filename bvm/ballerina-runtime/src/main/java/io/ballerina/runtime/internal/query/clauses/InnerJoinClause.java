@@ -1,6 +1,8 @@
 package io.ballerina.runtime.internal.query.clauses;
 
 import io.ballerina.runtime.api.Environment;
+import io.ballerina.runtime.api.creators.ErrorCreator;
+import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BFunctionPointer;
 import io.ballerina.runtime.internal.query.pipeline.Frame;
 import io.ballerina.runtime.internal.query.pipeline.StreamPipeline;
@@ -20,7 +22,7 @@ public class InnerJoinClause implements PipelineStage {
     private final BFunctionPointer lhsKeyFunction;
     private final BFunctionPointer rhsKeyFunction;
     private final Map<String, List<Frame>> rhsFramesMap = new HashMap<>();
-    private Exception failureAtJoin = null;
+    private BError failureAtJoin = null;
     private final Environment env;
 
     /**
@@ -64,11 +66,11 @@ public class InnerJoinClause implements PipelineStage {
                         try {
                             Object key = rhsKeyFunction.call(env.getRuntime(), frame.getRecord());
                             rhsFramesMap.computeIfAbsent(key.toString(), k -> new ArrayList<>()).add(frame);
-                        } catch (Exception e) {
+                        } catch (BError e) {
                             failureAtJoin = e;
                         }
                     });
-        } catch (Exception e) {
+        } catch (BError e) {
             failureAtJoin = e;
         }
     }
@@ -82,7 +84,8 @@ public class InnerJoinClause implements PipelineStage {
     @Override
     public Stream<Frame> process(Stream<Frame> inputStream) {
         if (failureAtJoin != null) {
-            throw new RuntimeException("Error in join clause: " + failureAtJoin.getMessage(), failureAtJoin);
+//            throw new RuntimeException("Error in join clause: " + failureAtJoin.getMessage(), failureAtJoin);
+            throw ErrorCreator.createError(failureAtJoin);
         }
 
         return inputStream.flatMap(lhsFrame -> {
