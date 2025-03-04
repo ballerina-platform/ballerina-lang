@@ -76,11 +76,11 @@ public class OrderByClause implements PipelineStage {
             return handleNullComparison(key1, key2, ascending);
         }
 
-        if (((Double)key1).isNaN() && ((Double)key2).isNaN()) {
+        if ((key1 instanceof Double && ((Double) key1).isNaN()) && (key2 instanceof Double && ((Double) key2).isNaN())) {
             return handleNaNComparison((Double) key1, (Double) key2, ascending);
         }
 
-        if (((Double)key1).isNaN()|| ((Double)key2).isNaN()) {
+        if ((key1 instanceof Double && ((Double) key1).isNaN()) || (key2 instanceof Double && ((Double) key2).isNaN())) {
             return handleMixedNaNNullComparison(key1, key2, ascending);
         }
 
