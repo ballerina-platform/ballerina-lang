@@ -1,6 +1,7 @@
 package io.ballerina.runtime.internal.query.pipeline;
 
 import io.ballerina.runtime.api.Environment;
+import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BTypedesc;
 import io.ballerina.runtime.internal.query.clauses.PipelineStage;
 import io.ballerina.runtime.internal.query.utils.BallerinaIteratorUtils;
@@ -72,7 +73,7 @@ public class StreamPipeline {
     public static Object getStreamFromPipeline(Object pipeline){
         try {
             ((StreamPipeline)pipeline).execute();
-        } catch (Exception e) {
+        } catch (BError e) {
             return e;
         }
 
@@ -92,7 +93,7 @@ public class StreamPipeline {
     /**
      * Processes the stream through all the pipeline stages.
      */
-    public void execute() throws Exception {
+    public void execute() throws BError {
         for (PipelineStage stage : pipelineStages) {
             stream = stage.process(stream);
         }

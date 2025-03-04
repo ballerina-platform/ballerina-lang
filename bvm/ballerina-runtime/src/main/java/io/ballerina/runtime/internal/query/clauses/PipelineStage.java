@@ -1,5 +1,6 @@
 package io.ballerina.runtime.internal.query.clauses;
 
+import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.internal.query.pipeline.Frame;
 
 import java.util.stream.Stream;
@@ -16,5 +17,5 @@ public interface PipelineStage {
      * @param inputStream The input stream of frames.
      * @return The transformed stream of frames.
      */
-    Stream<Frame> process(Stream<Frame> inputStream) throws Exception;
+    Stream<Frame> process(Stream<Frame> inputStream) throws BError;
 }
