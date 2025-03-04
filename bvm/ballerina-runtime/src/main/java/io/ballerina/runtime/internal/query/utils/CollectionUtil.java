@@ -43,15 +43,18 @@ public class CollectionUtil {
         return ValueCreator.createArrayValue(tmpArr, TypeCreator.createArrayType(elementType));
     }
 
-    public static Object collectQuery(StreamPipeline pipeline) {
-        Stream<Frame> strm = pipeline.getStream();
+    public static Object collectQuery(Object pipeline) {
+        if(pipeline instanceof StreamPipeline streamPipeline) {
+            Stream<Frame> strm = streamPipeline.getStream();
+            Optional<Object> result = strm
+                    .map(frame -> frame.getRecord().get($VALUE$_FIELD))
+                    .filter(Objects::nonNull)
+                    .findFirst();
 
-        Optional<Object> result = strm
-                .map(frame -> frame.getRecord().get($VALUE$_FIELD))
-                .filter(Objects::nonNull)
-                .findFirst();
+            return result.orElse(null);
+        }
 
-        return result.orElse(null);
+        return pipeline;
     }
 
     public static BString toString(StreamPipeline pipeline) {

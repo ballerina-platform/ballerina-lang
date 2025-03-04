@@ -1,6 +1,8 @@
 package io.ballerina.runtime.internal.query.clauses;
 
 import io.ballerina.runtime.api.Environment;
+import io.ballerina.runtime.api.creators.ErrorCreator;
+import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BFunctionPointer;
 import io.ballerina.runtime.internal.query.pipeline.Frame;
 import io.ballerina.runtime.internal.query.pipeline.StreamPipeline;
@@ -21,7 +23,7 @@ public class OuterJoinClause implements PipelineStage {
     private final BFunctionPointer rhsKeyFunction;
     private final Map<String, List<Frame>> rhsFramesMap = new HashMap<>();
     private final Frame nilFrame;
-    private Exception failureAtJoin = null;
+    private BError failureAtJoin = null;
     private final Environment env;
 
     /**
@@ -61,16 +63,16 @@ public class OuterJoinClause implements PipelineStage {
      */
     private void initializeRhsFrames() {
         try {
-            StreamPipeline.getStreamFromPipeline(pipelineToJoin).getStreamForJoin()
-                    .forEach(frame -> {
+            Stream<Frame> strm = ((StreamPipeline)StreamPipeline.getStreamFromPipeline(pipelineToJoin)).getStream();
+            strm.forEach(frame -> {
                         try {
                             Object key = rhsKeyFunction.call(env.getRuntime(), frame.getRecord());
                             rhsFramesMap.computeIfAbsent(key.toString(), k -> new ArrayList<>()).add(frame);
-                        } catch (Exception e) {
+                        } catch (BError e) {
                             failureAtJoin = e;
                         }
                     });
-        } catch (Exception e) {
+        } catch (BError e) {
             failureAtJoin = e;
         }
     }
@@ -84,8 +86,10 @@ public class OuterJoinClause implements PipelineStage {
     @Override
     public Stream<Frame> process(Stream<Frame> inputStream) {
         if (failureAtJoin != null) {
-            throw new RuntimeException("Error in join clause: " + failureAtJoin.getMessage(), failureAtJoin);
+//            throw new RuntimeException("Error in join clause: " + failureAtJoin.getMessage(), failureAtJoin);
+            throw ErrorCreator.createError(failureAtJoin);
         }
+
 
         return inputStream.flatMap(lhsFrame -> {
             try {
