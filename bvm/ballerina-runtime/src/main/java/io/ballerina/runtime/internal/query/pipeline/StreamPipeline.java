@@ -69,11 +69,11 @@ public class StreamPipeline {
         ((StreamPipeline) jStreamPipeline).addStage((PipelineStage) pipelineStage);
     }
 
-    public static StreamPipeline getStreamFromPipeline(Object pipeline){
+    public static Object getStreamFromPipeline(Object pipeline){
         try {
             ((StreamPipeline)pipeline).execute();
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            return e;
         }
 
 //        return CollectionUtil.toBStream((StreamPipeline) pipeline);
@@ -139,17 +139,17 @@ public class StreamPipeline {
         return stream;
     }
 
-    public Stream<Frame> getStreamForJoin(){
-        return stream;
-    }
-
-    public static boolean isConsumed(Stream<Frame> stream) {
-        try {
-            stream.iterator();
-            return false;
-        } catch (IllegalStateException e) {
-            return true;
-        }
-    }
+//    public Stream<Frame> getStreamForJoin(){
+//        return stream;
+//    }
+//
+//    public static boolean isConsumed(Stream<Frame> stream) {
+//        try {
+//            stream.iterator();
+//            return false;
+//        } catch (IllegalStateException e) {
+//            return true;
+//        }
+//    }
 
 }
