@@ -50,22 +50,18 @@ public class CollectClause implements PipelineStage {
      */
     @Override
     public Stream<Frame> process(Stream<Frame> inputStream) {
-        // Initialize the aggregated frame
         Frame groupedFrame = new Frame();
         BMap<BString, Object> groupedRecord = groupedFrame.getRecord();
 
-        // Ensure groupedRecord is not null
         if (groupedRecord == null) {
             throw new RuntimeException("Frame record is null. Ensure Frame initializes a BMap.");
         }
-
-        // Initialize empty arrays for each nonGroupingKey
         for (int i = 0; i < nonGroupingKeys.size(); i++) {
             BString key = (BString) nonGroupingKeys.get(i);
-            groupedRecord.put(key, new ArrayValueImpl(TypeCreator.createArrayType(PredefinedTypes.TYPE_ANY)));
+            groupedRecord.put(key, new ArrayValueImpl(TypeCreator.createArrayType(TypeCreator.createUnionType(
+                    List.of(PredefinedTypes.TYPE_ANY, PredefinedTypes.TYPE_ERROR)))));
         }
 
-        // Process the stream and aggregate values
         inputStream.forEach(frame -> {
             BMap<BString, Object> record = frame.getRecord();
             for (int i = 0; i < nonGroupingKeys.size(); i++) {
@@ -77,7 +73,6 @@ public class CollectClause implements PipelineStage {
             }
         });
 
-        // Apply the collect function and return the transformed stream
         return Stream.of(groupedFrame).map(frame -> {
             try {
                 Object result = collectFunc.call(env.getRuntime(), groupedRecord);
