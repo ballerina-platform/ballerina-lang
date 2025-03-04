@@ -187,7 +187,7 @@ function collectQuery(handle strm) returns Type|error {
 function collectQueryJava(handle strm) returns Type|error = @java:Method {
     'class: "io.ballerina.runtime.internal.query.utils.CollectionUtil",
     name: "collectQuery",
-    paramTypes: ["io.ballerina.runtime.internal.query.pipeline.StreamPipeline"]
+    paramTypes: ["java.lang.Object"]
 } external;
 
 // function collectQuery(handle strm) returns Type|error = @java:Method {
