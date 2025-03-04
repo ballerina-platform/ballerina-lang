@@ -150,7 +150,6 @@ public class CollectionUtil {
     }
 
     public static BStream toStream(StreamPipeline pipeline) {
-        Stream<Frame> strm = pipeline.getStream();
         StreamType streamType = TypeCreator.createStreamType(pipeline.getConstraintType().getDescribingType(), pipeline.getCompletionType().getDescribingType());
         Object pipeelineObj = pipeline.getStream().iterator();
         HandleValue handleValue = new HandleValue(pipeelineObj);
