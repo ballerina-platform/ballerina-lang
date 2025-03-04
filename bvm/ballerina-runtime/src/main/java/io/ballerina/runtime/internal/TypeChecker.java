@@ -673,6 +673,10 @@ public class TypeChecker {
         int sourceTypeTag = sourceType.getTag();
         int targetTypeTag = targetType.getTag();
 
+        if (sourceType == targetType || (sourceType.getTag() == targetType.getTag() && sourceType.equals(targetType))) {
+            return true;
+        }
+
         // If the source type is neither a record type nor an object type, check `is` type by looking only at the types.
         // Else, since records and objects may have `readonly` or `final` fields, need to use the value also.
         // e.g.,
@@ -689,10 +693,6 @@ public class TypeChecker {
         // where `Bar b = {i: 100};`, `b is Foo` should evaluate to true.
         if (sourceTypeTag != TypeTags.RECORD_TYPE_TAG && sourceTypeTag != TypeTags.OBJECT_TYPE_TAG) {
             return checkIsType(sourceType, targetType);
-        }
-
-        if (sourceType == targetType || (sourceType.getTag() == targetType.getTag() && sourceType.equals(targetType))) {
-            return true;
         }
 
         if (targetType.isReadOnly() && !sourceType.isReadOnly()) {
@@ -1277,6 +1277,10 @@ public class TypeChecker {
 
     private static boolean checkIsRecordType(MapValue sourceRecordValue, BRecordType sourceRecordType,
                                              BRecordType targetType, List<TypePair> unresolvedTypes) {
+        Optional<IntersectionType> intersectionType = sourceRecordType.getIntersectionType();
+        if (intersectionType.isPresent() && intersectionType.get() == targetType.getImmutableType()) {
+            return true;
+        }
         TypePair pair = new TypePair(sourceRecordType, targetType);
         if (unresolvedTypes.contains(pair)) {
             return true;

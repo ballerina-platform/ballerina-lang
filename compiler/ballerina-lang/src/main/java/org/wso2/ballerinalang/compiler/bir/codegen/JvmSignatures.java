@@ -358,6 +358,7 @@ public class JvmSignatures {
     public static final String LOAD_HANDLE_TYPE = "L" + HANDLE_TYPE + ";";
     public static final String LOAD_INTEGER_TYPE = "L" + INTEGER_TYPE + ";";
     public static final String LOAD_JSON_TYPE = "L" + JSON_TYPE + ";";
+    public static final String LOAD_LOCK = "L" + LOCK_VALUE + ";";
     public static final String LOAD_NEVER_TYPE = "L" + NEVER_TYPE + ";";
     public static final String LOAD_NULL_TYPE = "L" + NULL_TYPE + ";";
     public static final String LOAD_OBJECT_TYPE = "L" + OBJECT_TYPE + ";";
@@ -367,7 +368,7 @@ public class JvmSignatures {
     public static final String LOAD_TYPE = "L" + TYPE + ";";
     public static final String LOAD_UNION_TYPE = "L" + UNION_TYPE + ";";
     public static final String LOAD_XML_TYPE = "L" + XML_TYPE + ";";
-    public static final String LOCK = "(L" + STRAND_CLASS + ";)Z";
+    public static final String LOCK_METHOD = "(L" + STRAND_CLASS + ";)Z";
     public static final String LONG_STREAM_RANGE_CLOSED = "(JJ)L" + LONG_STREAM + ";";
     public static final String LONG_TO_STRING = "(J)L" + STRING_VALUE + ";";
     public static final String LONG_VALUE_OF = "(J)L" + LONG_VALUE + ";";
