@@ -84,6 +84,10 @@ public class OrderByClause implements PipelineStage {
             return handleMixedNaNNullComparison(key1, key2, ascending);
         }
 
+        if (key1 instanceof BArray && key2 instanceof BArray) {
+            return compareLists((BArray) key1, (BArray) key2, ascending);
+        }
+
         Comparable<?> comparableKey1 = toComparable(key1);
         Comparable<?> comparableKey2 = toComparable(key2);
 
