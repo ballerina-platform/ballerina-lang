@@ -7,6 +7,7 @@ import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.internal.types.BRecordType;
+import io.ballerina.runtime.internal.values.TupleValueImpl;
 
 import static io.ballerina.runtime.api.constants.RuntimeConstants.BALLERINA_QUERY_PKG_ID;
 
@@ -39,12 +40,11 @@ public class Frame {
      */
     public static Frame create(BString key, Object value) {
         BMap<BString, Object> record = ValueCreator.createRecordValue(BALLERINA_QUERY_PKG_ID, "_Frame");
-        if (value instanceof BArray) {
+        if (value instanceof TupleValueImpl) {
             BArray tuple = (BArray) value;
-//            if (tuple.size() > 1) {
-//                record.put(key, tuple.getRefValue(1));
-//            }
-            record.put(key, tuple);
+            if (tuple.size() > 1) {
+                record.put(key, tuple.getRefValue(1));
+            }
         } else if (value instanceof String) {
             record.put(key, StringUtils.fromString(value.toString()));
         } else if (value instanceof BRecordType) {
