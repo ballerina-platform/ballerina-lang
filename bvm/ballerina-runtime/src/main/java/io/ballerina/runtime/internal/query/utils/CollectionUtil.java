@@ -1,6 +1,5 @@
 package io.ballerina.runtime.internal.query.utils;
 
-import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.creators.TypeCreator;
 import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.types.*;
@@ -147,8 +146,8 @@ public class CollectionUtil {
 
     public static BStream toStream(StreamPipeline pipeline) {
         StreamType streamType = TypeCreator.createStreamType(pipeline.getConstraintType().getDescribingType(), pipeline.getCompletionType().getDescribingType());
-        Object pipeelineObj = pipeline.getStream().iterator();
-        HandleValue handleValue = new HandleValue(pipeelineObj);
+        Object pipelineObj = pipeline.getStream().iterator();
+        HandleValue handleValue = new HandleValue(pipelineObj);
         BObject iteratorObj = ValueCreator.createObjectValue(BALLERINA_QUERY_PKG_ID, "_IteratorObject", handleValue);
 
         return ValueCreator.createStreamValue(streamType, iteratorObj);
