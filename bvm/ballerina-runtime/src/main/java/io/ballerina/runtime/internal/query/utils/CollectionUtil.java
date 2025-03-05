@@ -1,6 +1,5 @@
 package io.ballerina.runtime.internal.query.utils;
 
-import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.creators.TypeCreator;
 import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.types.*;
@@ -8,12 +7,6 @@ import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.*;
 import io.ballerina.runtime.internal.query.pipeline.Frame;
 import io.ballerina.runtime.internal.query.pipeline.StreamPipeline;
-import io.ballerina.runtime.internal.scheduling.Scheduler;
-import io.ballerina.runtime.internal.scheduling.Strand;
-import io.ballerina.runtime.internal.types.BObjectType;
-import io.ballerina.runtime.internal.types.BType;
-import io.ballerina.runtime.internal.utils.ValueUtils;
-import io.ballerina.runtime.internal.values.ErrorValue;
 import io.ballerina.runtime.internal.values.HandleValue;
 
 import java.util.Objects;
@@ -34,13 +27,12 @@ public class CollectionUtil {
 
     public static BArray createArray(StreamPipeline pipeline, BArray array) {
         Stream<Frame> strm = pipeline.getStream();
-        Type elementType = pipeline.getConstraintType().getType();
-
         Object[] tmpArr = strm
                 .map(frame -> frame.getRecord().get($VALUE$_FIELD))
                 .toArray();
 
-        return ValueCreator.createArrayValue(tmpArr, TypeCreator.createArrayType(elementType));
+        array.unshift(tmpArr);
+        return array;
     }
 
     public static Object collectQuery(Object pipeline) {
@@ -68,7 +60,7 @@ public class CollectionUtil {
 
     public static BTable createTable(StreamPipeline pipeline, BTable table) {
         Stream<Frame> strm = pipeline.getStream();
-//        TableType tableType = (TableType) pipeline.getConstraintType();
+//        TableType tableType = (TableType) pipeline.getConstraintType().getDescribingType();
 //        BTable table = ValueCreator.createTableValue(tableType);
 
         strm.forEach(frame -> {
@@ -81,7 +73,7 @@ public class CollectionUtil {
 
     public static Object createTableForOnConflict(StreamPipeline pipeline, BTable table) {
         Stream<Frame> strm = pipeline.getStream();
-//        TableType tableType = (TableType) pipeline.getConstraintType();
+//        TableType tableType = (TableType) pipeline.getConstraintType().getDescribingType();
 //        BTable table = ValueCreator.createTableValue(tableType);
 
         Optional<BError> error = strm
@@ -104,7 +96,7 @@ public class CollectionUtil {
 
     public static BMap<BString, Object> createMap(StreamPipeline pipeline, BMap<BString, Object> map) {
         Stream<Frame> strm = pipeline.getStream();
-//        MapType mapType = (MapType) pipeline.getConstraintType();
+//        MapType mapType = (MapType) pipeline.getConstraintType().getDescribingType();
 //        BMap<BString, Object> map = ValueCreator.createMapValue(mapType);
 
         strm.forEach(frame -> {
@@ -119,7 +111,7 @@ public class CollectionUtil {
 
     public static Object createMapForOnConflict(StreamPipeline pipeline, BMap<BString, Object> map) {
         Stream<Frame> strm = pipeline.getStream();
-//        MapType mapType = (MapType) pipeline.getConstraintType();
+//        MapType mapType = (MapType) pipeline.getConstraintType().getDescribingType();
 //        BMap<BString, Object> map = ValueCreator.createMapValue(mapType);
 
         Optional<BError> error = strm
@@ -154,8 +146,8 @@ public class CollectionUtil {
 
     public static BStream toStream(StreamPipeline pipeline) {
         StreamType streamType = TypeCreator.createStreamType(pipeline.getConstraintType().getDescribingType(), pipeline.getCompletionType().getDescribingType());
-        Object pipeelineObj = pipeline.getStream().iterator();
-        HandleValue handleValue = new HandleValue(pipeelineObj);
+        Object pipelineObj = pipeline.getStream().iterator();
+        HandleValue handleValue = new HandleValue(pipelineObj);
         BObject iteratorObj = ValueCreator.createObjectValue(BALLERINA_QUERY_PKG_ID, "_IteratorObject", handleValue);
 
         return ValueCreator.createStreamValue(streamType, iteratorObj);
