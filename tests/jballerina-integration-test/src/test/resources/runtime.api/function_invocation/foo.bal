@@ -27,4 +27,12 @@ public class Person {
     public function getNameWithTitle(string title) returns string {
         return title + self.name;
     }
+
+    public function getInfo(string title, string vehicle = "car", string... other) returns string {
+        string otherInfo = "";
+        foreach string item in other {
+            otherInfo = otherInfo + item + ", ";
+        }
+        return title + self.name + " owns a " + vehicle + ". These are some other details: " + otherInfo;
+    }
 }
