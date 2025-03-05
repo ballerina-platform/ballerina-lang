@@ -51,13 +51,17 @@ public class CollectionUtil {
         return pipeline;
     }
 
-    public static BString toString(StreamPipeline pipeline) {
+    public static Object toString(StreamPipeline pipeline) {
         Stream<Frame> strm = pipeline.getStream();
 
-        return strm
-                .map(frame -> frame.getRecord().get($VALUE$_FIELD))
-                .map(string -> (BString) string)
-                .reduce(StringUtils.fromString(""), BString::concat);
+        try {
+            return strm
+                    .map(frame -> frame.getRecord().get($VALUE$_FIELD))
+                    .map(string -> (BString) string)
+                    .reduce(StringUtils.fromString(""), BString::concat);
+        } catch (BError e) {
+            return e;
+        }
     }
 
     public static BTable createTable(StreamPipeline pipeline, BTable table) {
