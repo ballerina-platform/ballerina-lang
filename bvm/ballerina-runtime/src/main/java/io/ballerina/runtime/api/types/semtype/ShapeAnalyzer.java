@@ -18,14 +18,21 @@
 
 package io.ballerina.runtime.api.types.semtype;
 
+import com.github.benmanes.caffeine.cache.Cache;
 import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BValue;
+import io.ballerina.runtime.internal.types.BObjectType;
 import io.ballerina.runtime.internal.types.TypeWithAcceptedType;
 import io.ballerina.runtime.internal.types.TypeWithShape;
+import io.ballerina.runtime.internal.types.semtype.CacheFactory;
 import io.ballerina.runtime.internal.values.DecimalValue;
 
+import java.util.Arrays;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Utility class for performing shape related operations.
@@ -104,4 +111,55 @@ public class ShapeAnalyzer {
             }
         }
     }
+
+    public static boolean canOptimizeInherentTypeCheck(Context cx, Type sourceType, Type targetType) {
+        if (sourceType instanceof CacheableTypeDescriptor cacheableSource &&
+                targetType instanceof CacheableTypeDescriptor cacheableTarget) {
+            InherentShapeTestKeys key = new InherentShapeTestKeys(cacheableSource.typeId(), cacheableTarget.typeId());
+            Boolean result = inherentShapeTestCache.getIfPresent(key);
+            if (result == null) {
+                result = canOptimizeInherentTypeCheckInner(cx, cacheableSource, cacheableTarget);
+                inherentShapeTestCache.put(key, result);
+            }
+            return result;
+        }
+        return canOptimizeInherentTypeCheckInner(cx, sourceType, targetType);
+    }
+
+    private static boolean canOptimizeInherentTypeCheckInner(Context cx, Type sourceType, Type targetType) {
+        sourceType = TypeUtils.getReferredType(sourceType);
+        targetType = TypeUtils.getReferredType(targetType);
+        if (sourceType instanceof TypeWithShape typeWithShape && !typeWithShape.couldInherentTypeBeDifferent()) {
+            return true;
+        }
+        if (sourceType instanceof BObjectType sourceObjectType && targetType instanceof BObjectType targetObjectType) {
+            return canOptimizeInherentTypeCheckForObjectTypes(sourceObjectType, targetObjectType);
+        }
+        return Core.isEmpty(cx, Core.intersect(SemType.tryInto(cx, sourceType), SemType.tryInto(cx, targetType)));
+    }
+
+    // Here we are using the fact that source type defines the upper bound of method and field names, even if not
+    // the types (whereas the actual type defines the lower bound).
+    private static boolean canOptimizeInherentTypeCheckForObjectTypes(BObjectType sourceType, BObjectType targetType) {
+        Set<String> sourceFieldNames = sourceType.getFields().keySet();
+        for (String each : targetType.getFields().keySet()) {
+            if (!sourceFieldNames.contains(each)) {
+                return true;
+            }
+        }
+        Set<String> sourceMethodNames = Arrays.stream(sourceType.getMethods()).map(Type::getName).collect(
+                Collectors.toSet());
+        for (Type each : targetType.getMethods()) {
+            if (!sourceMethodNames.contains(each.getName())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    record InherentShapeTestKeys(int sourceTypeId, int targetTypeId) {
+
+    }
+
+    private static final Cache<InherentShapeTestKeys, Boolean> inherentShapeTestCache = CacheFactory.createCache();
 }

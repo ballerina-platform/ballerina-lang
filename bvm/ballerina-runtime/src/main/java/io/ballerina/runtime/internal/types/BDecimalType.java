@@ -45,6 +45,7 @@ public final class BDecimalType extends BSemTypeWrapper<BDecimalType.BDecimalTyp
 
     private static final BDecimalTypeImpl DEFAULT_B_TYPE =
             new BDecimalTypeImpl(TypeConstants.DECIMAL_TNAME, EMPTY_MODULE);
+    private final SemType shape;
 
     /**
      * Create a {@code BDecimalType} which represents the decimal type.
@@ -62,6 +63,7 @@ public final class BDecimalType extends BSemTypeWrapper<BDecimalType.BDecimalTyp
 
     private BDecimalType(Supplier<BDecimalTypeImpl> bType, String typeName, Module pkg, SemType semType) {
         super(new ConcurrentLazySupplier<>(bType), typeName, pkg, TypeTags.DECIMAL_TAG, semType);
+        shape = semType;
     }
 
     @Override
@@ -69,10 +71,14 @@ public final class BDecimalType extends BSemTypeWrapper<BDecimalType.BDecimalTyp
         return BASIC_TYPE;
     }
 
+    public SemType shape() {
+        return shape;
+    }
+
     protected static final class BDecimalTypeImpl extends BType implements DecimalType, Cloneable {
 
         private BDecimalTypeImpl(String typeName, Module pkg) {
-            super(typeName, pkg, DecimalValue.class);
+            super(typeName, pkg, DecimalValue.class, false);
         }
 
         @Override

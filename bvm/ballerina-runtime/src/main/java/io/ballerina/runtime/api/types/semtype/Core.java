@@ -18,7 +18,6 @@
 
 package io.ballerina.runtime.api.types.semtype;
 
-import io.ballerina.runtime.internal.TypeCheckLogger;
 import io.ballerina.runtime.internal.types.semtype.AllOrNothing;
 import io.ballerina.runtime.internal.types.semtype.BFutureSubType;
 import io.ballerina.runtime.internal.types.semtype.BIntSubType;
@@ -291,16 +290,16 @@ public final class Core {
         return diff(Builder.getValType(), t);
     }
 
+    public static boolean isNever(BasicTypeBitSet t) {
+        return t.all() == 0;
+    }
+
     public static boolean isNever(SemType t) {
         return t.all() == 0 && t.some() == 0;
     }
 
     public static boolean isSubType(Context cx, SemType t1, SemType t2) {
-        TypeCheckLogger logger = TypeCheckLogger.getInstance();
-        logger.semTypeCheckStarted(cx, t1, t2);
-        boolean res = isEmpty(cx, diff(t1, t2));
-        logger.semTypeCheckDone(cx, t1, t2, res);
-        return res;
+        return isEmpty(cx, diff(t1, t2));
     }
 
     public static boolean isSubtypeSimple(SemType t1, SemType t2) {
@@ -333,6 +332,10 @@ public final class Core {
         return subType.data();
     }
 
+    public static boolean containsBasicType(BasicTypeBitSet t1, SemType t2) {
+        int bits = t1.all();
+        return (bits & t2.all()) != 0;
+    }
     public static boolean containsBasicType(SemType t1, SemType t2) {
         int bits = t1.all() | t1.some();
         return (bits & t2.all()) != 0;

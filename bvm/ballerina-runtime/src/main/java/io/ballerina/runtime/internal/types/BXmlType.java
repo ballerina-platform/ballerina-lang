@@ -68,50 +68,47 @@ public class BXmlType extends BType implements XmlType, TypeWithShape {
      * @param constraint constraint of the xml sequence
      */
     public BXmlType(String typeName, Type constraint, Module pkg) {
-        super(typeName, pkg, XmlValue.class);
+        super(typeName, pkg, XmlValue.class, false);
         this.constraint = constraint;
         this.tag = TypeTags.XML_TAG;
         this.readonly = false;
-        var init = initCachedValues(this);
-        typeCheckCache = init.typeCheckCache;
-        typeId = init.typeId;
+        initializeCache();
     }
 
     public BXmlType(String typeName, Module pkg, int tag, boolean readonly) {
-        super(typeName, pkg, XmlValue.class);
+        super(typeName, pkg, XmlValue.class, false);
         this.tag = tag;
         this.readonly = readonly;
         this.constraint = null;
-        var init = initCachedValues(this);
-        typeCheckCache = init.typeCheckCache;
-        typeId = init.typeId;
+        initializeCache();
     }
 
     public BXmlType(String typeName, Type constraint, Module pkg, int tag, boolean readonly) {
-        super(typeName, pkg, XmlValue.class);
+        super(typeName, pkg, XmlValue.class, false);
         this.tag = tag;
         this.readonly = readonly;
         this.constraint = constraint;
-        var init = initCachedValues(this);
-        typeCheckCache = init.typeCheckCache;
-        typeId = init.typeId;
+        initializeCache();
     }
 
     public BXmlType(String typeName, Type constraint, Module pkg, boolean readonly) {
-        super(typeName, pkg, XmlValue.class);
+        super(typeName, pkg, XmlValue.class, false);
         this.tag = TypeTags.XML_TAG;
         this.readonly = readonly;
         this.constraint = constraint;
-        var init = initCachedValues(this);
-        typeCheckCache = init.typeCheckCache;
-        typeId = init.typeId;
+        initializeCache();
     }
 
     public BXmlType(Type constraint, boolean readonly) {
-        super(TypeConstants.XML_TNAME, null, XmlValue.class);
+        super(TypeConstants.XML_TNAME, null, XmlValue.class, false);
         this.tag = TypeTags.XML_TAG;
         this.constraint = readonly ? ReadOnlyUtils.getReadOnlyType(constraint) : constraint;
         this.readonly = readonly;
+        initializeCache();
+    }
+
+    @Override
+    protected void initializeCache() {
         var init = initCachedValues(this);
         typeCheckCache = init.typeCheckCache;
         typeId = init.typeId;
@@ -318,21 +315,24 @@ public class BXmlType extends BType implements XmlType, TypeWithShape {
         private static final Map<Type, TypeCheckFlyweight> cacheRO = new IdentityHashMap<>();
         private static final Map<Type, TypeCheckFlyweight> cacheRW = new IdentityHashMap<>();
 
-        private static final TypeCheckFlyweight XML = init();
+        private static final TypeCheckFlyweight XML = initReserved();
 
-        private static final TypeCheckFlyweight XML_ELEMENT_RW = init();
-        private static final TypeCheckFlyweight XML_COMMENT_RW = init();
-        private static final TypeCheckFlyweight XML_PI_RW = init();
-        private static final TypeCheckFlyweight XML_TEXT_RW = init();
+        private static final TypeCheckFlyweight XML_ELEMENT_RW = initReserved();
+        private static final TypeCheckFlyweight XML_COMMENT_RW = initReserved();
+        private static final TypeCheckFlyweight XML_PI_RW = initReserved();
+        private static final TypeCheckFlyweight XML_TEXT_RW = initReserved();
 
-        private static final TypeCheckFlyweight XML_ELEMENT_RO = init();
-        private static final TypeCheckFlyweight XML_COMMENT_RO = init();
-        private static final TypeCheckFlyweight XML_PI_RO = init();
-        private static final TypeCheckFlyweight XML_TEXT_RO = init();
+        private static final TypeCheckFlyweight XML_ELEMENT_RO = initReserved();
+        private static final TypeCheckFlyweight XML_COMMENT_RO = initReserved();
+        private static final TypeCheckFlyweight XML_PI_RO = initReserved();
+        private static final TypeCheckFlyweight XML_TEXT_RO = initReserved();
+
+        private static TypeCheckFlyweight initReserved() {
+            return new TypeCheckFlyweight(TypeIdSupplier.getReservedId(), TypeCheckCacheFactory.create());
+        }
 
         private static TypeCheckFlyweight init() {
-            return new TypeCheckFlyweight(TypeIdSupplier.getAnonId(),
-                    TypeCheckCacheFactory.create());
+            return new TypeCheckFlyweight(TypeIdSupplier.getNamedId(), TypeCheckCacheFactory.create());
         }
 
         private static TypeCheckFlyweight getRO(Type constraint) {

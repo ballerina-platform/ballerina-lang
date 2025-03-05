@@ -77,6 +77,11 @@ public final class BAnyType extends BSemTypeWrapper<BAnyType.BAnyTypeImpl> imple
         return BASIC_TYPE;
     }
 
+    @Override
+    public boolean isAnydata() {
+        return false;
+    }
+
     protected static final class BAnyTypeImpl extends BType implements AnyType {
 
         private final boolean readonly;
@@ -84,7 +89,7 @@ public final class BAnyType extends BSemTypeWrapper<BAnyType.BAnyTypeImpl> imple
         private IntersectionType intersectionType = null;
 
         private BAnyTypeImpl(String typeName, Module pkg, boolean readonly) {
-            super(typeName, pkg, RefValue.class);
+            super(typeName, pkg, RefValue.class, false);
             this.readonly = readonly;
 
             if (!readonly) {

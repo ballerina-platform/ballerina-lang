@@ -34,7 +34,7 @@ public class BIteratorType extends BType implements IteratorType {
     private static final BasicTypeBitSet BASIC_TYPE = Builder.getObjectType();
 
     public BIteratorType(String typeName, Module pkg) {
-        super(typeName, pkg, IteratorValue.class);
+        super(typeName, pkg, IteratorValue.class, true);
     }
 
     @Override

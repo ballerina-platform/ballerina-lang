@@ -17,6 +17,8 @@
  */
 package io.ballerina.runtime.api.creators;
 
+import com.github.benmanes.caffeine.cache.Interner;
+import com.github.benmanes.caffeine.cache.LoadingCache;
 import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.types.ArrayType;
 import io.ballerina.runtime.api.types.ErrorType;
@@ -33,7 +35,6 @@ import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.TypeIdentifier;
 import io.ballerina.runtime.api.types.UnionType;
 import io.ballerina.runtime.api.types.XmlType;
-import io.ballerina.runtime.internal.TypeCheckLogger;
 import io.ballerina.runtime.internal.types.BArrayType;
 import io.ballerina.runtime.internal.types.BErrorType;
 import io.ballerina.runtime.internal.types.BField;
@@ -50,9 +51,11 @@ import io.ballerina.runtime.internal.types.BXmlType;
 import io.ballerina.runtime.internal.types.semtype.CacheFactory;
 
 import java.util.Arrays;
+import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Function;
 
 /**
  * Class @{@link TypeCreator} provides APIs to create ballerina type instances.
@@ -61,7 +64,6 @@ import java.util.Set;
  */
 public final class TypeCreator {
 
-    private static final TypeCheckLogger logger = TypeCheckLogger.getInstance();
     private static final RecordTypeCache registeredRecordTypes = new RecordTypeCache();
     /**
      * Creates a new array type with given element type.
@@ -70,7 +72,7 @@ public final class TypeCreator {
      * @return the new array type
      */
     public static ArrayType createArrayType(Type elementType) {
-        return logAndReturn(new BArrayType(elementType));
+        return ARRAY_TYPE_CACHE.get(elementType);
     }
 
     /**
@@ -81,7 +83,7 @@ public final class TypeCreator {
      * @return the new array type
      */
     public static ArrayType createArrayType(Type elementType, boolean readonly) {
-        return logAndReturn(new BArrayType(elementType, readonly));
+        return new BArrayType(elementType, readonly);
     }
 
     /**
@@ -92,7 +94,7 @@ public final class TypeCreator {
      * @return the new array type
      */
     public static ArrayType createArrayType(Type elementType, int size) {
-        return logAndReturn(new BArrayType(elementType, size, false));
+        return new BArrayType(elementType, size, false);
     }
 
     /**
@@ -104,7 +106,7 @@ public final class TypeCreator {
      * @return the new array type
      */
     public static ArrayType createArrayType(Type elementType, int size, boolean readonly) {
-        return logAndReturn(new BArrayType(elementType, size, readonly));
+        return new BArrayType(elementType, size, readonly);
     }
 
     /**
@@ -114,7 +116,10 @@ public final class TypeCreator {
      * @return the new tuple type
      */
     public static TupleType createTupleType(List<Type> typeList) {
-        return logAndReturn(new BTupleType(typeList));
+        if (typeList.size() > 20) {
+            return new BTupleType(typeList);
+        }
+        return TUPLE_TYPE_CACHE.get(typeList);
     }
 
     /**
@@ -125,7 +130,7 @@ public final class TypeCreator {
      * @return the new tuple type
      */
     public static TupleType createTupleType(List<Type> typeList, int typeFlags) {
-        return logAndReturn(new BTupleType(typeList, typeFlags));
+        return new BTupleType(typeList, typeFlags);
     }
 
     /**
@@ -138,7 +143,7 @@ public final class TypeCreator {
      * @return the new tuple type
      */
     public static TupleType createTupleType(List<Type> typeList, Type restType, int typeFlags, boolean readonly) {
-        return logAndReturn(new BTupleType(typeList, restType, typeFlags, readonly));
+        return new BTupleType(typeList, restType, typeFlags, readonly);
     }
 
     /**
@@ -153,7 +158,7 @@ public final class TypeCreator {
      */
     public static TupleType createTupleType(List<Type> typeList, Type restType,
                                             int typeFlags, boolean isCyclic, boolean readonly) {
-        return logAndReturn(new BTupleType(typeList, restType, typeFlags, isCyclic, readonly));
+        return new BTupleType(typeList, restType, typeFlags, isCyclic, readonly);
     }
 
     /**
@@ -168,7 +173,7 @@ public final class TypeCreator {
      */
     public static TupleType createTupleType(String name, Module pkg,
                                             int typeFlags, boolean isCyclic, boolean readonly) {
-        return logAndReturn(new BTupleType(name, pkg, typeFlags, isCyclic, readonly));
+        return new BTupleType(name, pkg, typeFlags, isCyclic, readonly);
     }
 
     /**
@@ -178,7 +183,7 @@ public final class TypeCreator {
      * @return the new map type
      */
     public static MapType createMapType(Type constraint) {
-        return logAndReturn(new BMapType(constraint));
+        return MAP_TYPE_CACHE.get(constraint);
     }
 
     /**
@@ -189,7 +194,7 @@ public final class TypeCreator {
      * @return the new map type
      */
     public static MapType createMapType(Type constraint, boolean readonly) {
-        return logAndReturn(new BMapType(constraint, readonly));
+        return new BMapType(constraint, readonly);
     }
 
     /**
@@ -201,7 +206,7 @@ public final class TypeCreator {
      * @return the new map type
      */
     public static MapType createMapType(String typeName, Type constraint, Module module) {
-        return logAndReturn(new BMapType(typeName, constraint, module));
+        return new BMapType(typeName, constraint, module);
     }
 
     /**
@@ -214,7 +219,7 @@ public final class TypeCreator {
      * @return the new map type
      */
     public static MapType createMapType(String typeName, Type constraint, Module module, boolean readonly) {
-        return logAndReturn(new BMapType(typeName, constraint, module, readonly));
+        return new BMapType(typeName, constraint, module, readonly);
     }
 
     /**
@@ -233,7 +238,7 @@ public final class TypeCreator {
         if (memo != null) {
             return memo;
         }
-        return logAndReturn(new BRecordType(typeName, typeName, module, flags, sealed, typeFlags));
+        return new BRecordType(typeName, typeName, module, flags, sealed, typeFlags);
     }
 
     /**
@@ -254,7 +259,7 @@ public final class TypeCreator {
         if (memo != null) {
             return memo;
         }
-        return logAndReturn(new BRecordType(typeName, module, flags, fields, restFieldType, sealed, typeFlags));
+        return new BRecordType(typeName, module, flags, fields, restFieldType, sealed, typeFlags);
     }
 
     /**
@@ -266,7 +271,7 @@ public final class TypeCreator {
      * @return the new object type
      */
     public static ObjectType createObjectType(String typeName, Module module, long flags) {
-        return logAndReturn(new BObjectType(typeName, module, flags));
+        return new BObjectType(typeName, module, flags);
     }
 
     /**
@@ -277,7 +282,7 @@ public final class TypeCreator {
      * @return the new stream type
      */
     public static StreamType createStreamType(Type constraint, Type completionType) {
-        return logAndReturn(new BStreamType(constraint, completionType));
+        return new BStreamType(constraint, completionType);
     }
 
     /**
@@ -291,7 +296,7 @@ public final class TypeCreator {
      */
     public static StreamType createStreamType(String typeName, Type constraint,
                                               Type completionType, Module modulePath) {
-        return logAndReturn(new BStreamType(typeName, constraint, completionType, modulePath));
+        return new BStreamType(typeName, constraint, completionType, modulePath);
     }
 
     /**
@@ -303,7 +308,7 @@ public final class TypeCreator {
      */
     @Deprecated
     public static StreamType createStreamType(Type constraint) {
-        return logAndReturn(new BStreamType(constraint));
+        return new BStreamType(constraint);
     }
 
     /**
@@ -317,7 +322,7 @@ public final class TypeCreator {
      */
     @Deprecated
     public static StreamType createStreamType(String typeName, Type completionType, Module modulePath) {
-        return logAndReturn(new BStreamType(typeName, completionType, modulePath));
+        return new BStreamType(typeName, completionType, modulePath);
     }
 
     /**
@@ -327,7 +332,7 @@ public final class TypeCreator {
      * @return the new union type
      */
     public static UnionType createUnionType(Type... memberTypes) {
-        return logAndReturn(new BUnionType(Arrays.asList(memberTypes)));
+        return createUnionType(Arrays.asList(memberTypes));
     }
 
     /**
@@ -337,7 +342,10 @@ public final class TypeCreator {
      * @return the new union type
      */
     public static UnionType createUnionType(List<Type> memberTypes) {
-        return logAndReturn(new BUnionType(memberTypes));
+        if (memberTypes.size() > 20) {
+            return new BUnionType(memberTypes);
+        }
+        return UNION_TYPE_CACHE.get(memberTypes);
     }
 
     /**
@@ -348,7 +356,7 @@ public final class TypeCreator {
      * @return the new union type
      */
     public static UnionType createUnionType(List<Type> memberTypes, int typeFlags) {
-        return logAndReturn(new BUnionType(memberTypes, typeFlags, false, false));
+        return new BUnionType(memberTypes, typeFlags, false, false);
     }
 
     /**
@@ -359,7 +367,7 @@ public final class TypeCreator {
      * @return the new union type
      */
     public static UnionType createUnionType(List<Type> memberTypes, boolean readonly) {
-        return logAndReturn(new BUnionType(memberTypes, readonly));
+        return new BUnionType(memberTypes, readonly);
     }
 
     /**
@@ -371,7 +379,7 @@ public final class TypeCreator {
      * @return the new union type
      */
     public static UnionType createUnionType(List<Type> memberTypes, int typeFlags, boolean readonly) {
-        return logAndReturn(new BUnionType(memberTypes, typeFlags, readonly, false));
+        return new BUnionType(memberTypes, typeFlags, readonly, false);
     }
 
     /**
@@ -387,7 +395,7 @@ public final class TypeCreator {
      */
     public static UnionType createUnionType(List<Type> memberTypes, String name, Module pkg, int typeFlags,
                                             boolean isCyclic, long flags) {
-        return logAndReturn(new BUnionType(memberTypes, name, pkg, typeFlags, isCyclic, flags));
+        return new BUnionType(memberTypes, name, pkg, typeFlags, isCyclic, flags);
     }
 
     /**
@@ -398,7 +406,7 @@ public final class TypeCreator {
      * @return the new error type
      */
     public static ErrorType createErrorType(String typeName, Module module) {
-        return logAndReturn(new BErrorType(typeName, module));
+        return new BErrorType(typeName, module);
     }
 
     /**
@@ -410,7 +418,7 @@ public final class TypeCreator {
      * @return the new error type
      */
     public static ErrorType createErrorType(String typeName, Module module, Type detailType) {
-        return logAndReturn(new BErrorType(typeName, module, detailType));
+        return new BErrorType(typeName, module, detailType);
     }
 
     /**
@@ -434,7 +442,7 @@ public final class TypeCreator {
      * @return new table type
      */
     public static TableType createTableType(Type constraint, String[] fieldNames, boolean readonly) {
-        return logAndReturn(new BTableType(constraint, fieldNames, readonly));
+        return new BTableType(constraint, fieldNames, readonly);
     }
 
     /**
@@ -446,7 +454,7 @@ public final class TypeCreator {
      * @return new table type
      */
     public static TableType createTableType(Type constraint, Type keyType, boolean readonly) {
-        return logAndReturn(new BTableType(constraint, keyType, readonly));
+        return new BTableType(constraint, keyType, readonly);
     }
 
     /**
@@ -457,7 +465,7 @@ public final class TypeCreator {
      * @return new table type
      */
     public static TableType createTableType(Type constraint, boolean readonly) {
-        return logAndReturn(new BTableType(constraint, readonly));
+        return new BTableType(constraint, readonly);
     }
 
     /**
@@ -469,7 +477,7 @@ public final class TypeCreator {
      * @return new xml type
      */
     public static XmlType createXMLType(String typeName, Type constraint, Module module) {
-        return logAndReturn(new BXmlType(typeName, constraint, module));
+        return new BXmlType(typeName, constraint, module);
     }
 
     /**
@@ -482,7 +490,7 @@ public final class TypeCreator {
      * @return new xml type
      */
     public static XmlType createXMLType(String typeName, Module module, int tag, boolean readonly) {
-        return logAndReturn(new BXmlType(typeName, module, tag, readonly));
+        return new BXmlType(typeName, module, tag, readonly);
     }
 
     /**
@@ -493,7 +501,7 @@ public final class TypeCreator {
      * @return new xml type
      */
     public static XmlType createXMLType(Type constraint, boolean readonly) {
-        return logAndReturn(new BXmlType(constraint, readonly));
+        return new BXmlType(constraint, readonly);
     }
 
     /**
@@ -505,7 +513,7 @@ public final class TypeCreator {
      * @return new xml type
      */
     public static JsonType createJSONType(String typeName, Module module, boolean readonly) {
-        return logAndReturn(new BJsonType(typeName, module, readonly));
+        return new BJsonType(typeName, module, readonly);
     }
 
     /**
@@ -515,7 +523,7 @@ public final class TypeCreator {
      * @return new finite type
      */
     public static FiniteType createFiniteType(String typeName) {
-        return logAndReturn(new BFiniteType(typeName));
+        return FINITE_TYPE_CACHE.get(typeName);
     }
 
     /**
@@ -527,15 +535,10 @@ public final class TypeCreator {
      * @return new finite type
      */
     public static FiniteType createFiniteType(String typeName, Set<Object> values, int typeFlags) {
-        return logAndReturn(new BFiniteType(typeName, values, typeFlags));
+        return new BFiniteType(typeName, values, typeFlags);
     }
 
     private TypeCreator() {
-    }
-
-    private static <T extends Type> T logAndReturn(T type) {
-        logger.typeCreatedDynamically(type);
-        return type;
     }
 
     private static BRecordType registeredRecordType(String typeName, Module pkg) {
@@ -551,10 +554,10 @@ public final class TypeCreator {
         if (name == null || pkg == null) {
             return;
         }
-        if (name.contains("$anon")) {
+        TypeIdentifier typeIdentifier = new TypeIdentifier(pkg, name);
+        if (typeIdentifier.avoidCaching()) {
             return;
         }
-        TypeIdentifier typeIdentifier = new TypeIdentifier(pkg, name);
         registeredRecordTypes.put(typeIdentifier, recordType);
     }
 
@@ -572,6 +575,43 @@ public final class TypeCreator {
 
         void put(TypeIdentifier identifier, BRecordType value) {
             cache.put(identifier, value);
+        }
+    }
+
+    private static final ConstraintTypeCache<List<Type>, TupleType> TUPLE_TYPE_CACHE =
+            new ConstraintTypeCache<>(BTupleType::new);
+
+    private static final ConstraintTypeCache<Type, ArrayType> ARRAY_TYPE_CACHE =
+            new ConstraintTypeCache<>(BArrayType::new);
+
+    private static final ConstraintTypeCache<Type, MapType> MAP_TYPE_CACHE = new ConstraintTypeCache<>(BMapType::new);
+
+    private static final ConstraintTypeCache<List<Type>, UnionType> UNION_TYPE_CACHE =
+            new ConstraintTypeCache<>(BUnionType::new);
+
+    private static final LoadingCache<String, FiniteType> FINITE_TYPE_CACHE =
+            CacheFactory.createCache(BFiniteType::new);
+
+    public static class ConstraintTypeCache<C, T> {
+
+        // NOTE: This is dangerous since interner has strong references to canonical values
+        private final Interner<C> constraintInterner = CacheFactory.createInterner();
+        private final Map<C, T> cache = new IdentityHashMap<>();
+        private final Function<C, T> createFn;
+
+        protected ConstraintTypeCache(Function<C, T> createFn) {
+            this.createFn = createFn;
+        }
+
+        T get(C constraint) {
+            C canonical = constraintInterner.intern(constraint);
+            var cached = cache.get(canonical);
+            if (cached != null) {
+                return cached;
+            }
+            cached = createFn.apply(constraint);
+            cache.put(constraint, cached);
+            return cached;
         }
     }
 }

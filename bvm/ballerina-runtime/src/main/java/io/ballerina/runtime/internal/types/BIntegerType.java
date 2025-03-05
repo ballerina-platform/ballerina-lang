@@ -106,7 +106,7 @@ public final class BIntegerType extends BSemTypeWrapper<BIntegerType.BIntegerTyp
         private final int tag;
 
         private BIntegerTypeImpl(String typeName, Module pkg, int tag) {
-            super(typeName, pkg, Long.class);
+            super(typeName, pkg, Long.class, false);
             this.tag = tag;
         }
 

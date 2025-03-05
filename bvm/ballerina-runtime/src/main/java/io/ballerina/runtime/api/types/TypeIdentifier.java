@@ -33,4 +33,9 @@ public record TypeIdentifier(Module pkg, String typeName) {
         assert typeName != null;
         assert pkg != null;
     }
+
+    public boolean avoidCaching() {
+        return typeName.contains("$anon") || typeName.contains("narrowType");
+    }
+
 }

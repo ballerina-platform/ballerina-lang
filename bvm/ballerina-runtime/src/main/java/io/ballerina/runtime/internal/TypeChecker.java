@@ -48,6 +48,7 @@ import io.ballerina.runtime.internal.types.BArrayType;
 import io.ballerina.runtime.internal.types.BBooleanType;
 import io.ballerina.runtime.internal.types.BFiniteType;
 import io.ballerina.runtime.internal.types.BIntersectionType;
+import io.ballerina.runtime.internal.types.BMapType;
 import io.ballerina.runtime.internal.types.BObjectType;
 import io.ballerina.runtime.internal.types.BRecordType;
 import io.ballerina.runtime.internal.types.BTableType;
@@ -101,6 +102,7 @@ import static io.ballerina.runtime.api.types.PredefinedTypes.TYPE_INT_UNSIGNED_1
 import static io.ballerina.runtime.api.types.PredefinedTypes.TYPE_INT_UNSIGNED_32;
 import static io.ballerina.runtime.api.types.PredefinedTypes.TYPE_INT_UNSIGNED_8;
 import static io.ballerina.runtime.api.types.PredefinedTypes.TYPE_NULL;
+import static io.ballerina.runtime.api.types.semtype.ShapeAnalyzer.canOptimizeInherentTypeCheck;
 import static io.ballerina.runtime.api.utils.TypeUtils.getImpliedType;
 import static io.ballerina.runtime.internal.utils.CloneUtils.getErrorMessage;
 
@@ -112,23 +114,22 @@ import static io.ballerina.runtime.internal.utils.CloneUtils.getErrorMessage;
 @SuppressWarnings({"rawtypes"})
 public final class TypeChecker {
 
-    private static final TypeCheckLogger logger = TypeCheckLogger.getInstance();
     private static final byte MAX_TYPECAST_ERROR_COUNT = 20;
     private static final String REG_EXP_TYPENAME = "RegExp";
     private static final ThreadLocal<Context> threadContext =
             ThreadLocal.withInitial(() -> Context.from(Env.getInstance()));
 
     public static Object checkCast(Object sourceVal, Type targetType) {
-
-        List<String> errors = new ArrayList<>();
         if (checkIsType(sourceVal, targetType)) {
             return sourceVal;
         }
+        return tryConvertibleCast(sourceVal, targetType);
+    }
+
+    private static Object tryConvertibleCast(Object sourceVal, Type targetType) {
         Type sourceType = getType(sourceVal);
-        Context cx = context();
-        if (Core.containsBasicType(SemType.tryInto(cx, sourceType), ConvertibleCastMaskHolder.CONVERTIBLE_CAST_MASK) &&
-                Core.containsBasicType(SemType.tryInto(cx, targetType),
-                        ConvertibleCastMaskHolder.CONVERTIBLE_CAST_MASK)) {
+        if (couldBelongToBasicType(sourceType.getBasicType(), ConvertibleCastMaskHolder.CONVERTIBLE_CAST_MASK) &&
+                couldBelongToBasicType(targetType.getBasicType(), ConvertibleCastMaskHolder.CONVERTIBLE_CAST_MASK)) {
             // We need to maintain order for these?
             if (targetType instanceof BUnionType unionType) {
                 for (Type memberType : unionType.getMemberTypes()) {
@@ -142,7 +143,7 @@ public final class TypeChecker {
                 return TypeConverter.castValues(targetType, sourceVal);
             }
         }
-        throw createTypeCastError(sourceVal, targetType, errors);
+        throw createTypeCastError(sourceVal, targetType, List.of());
     }
 
     public static Context context() {
@@ -265,21 +266,22 @@ public final class TypeChecker {
         }
         Context cx = context();
         Type sourceType = getType(sourceVal);
-        logger.typeCheckStarted(cx, sourceType, targetType);
-        boolean result = checkIsTypeInner(sourceVal, targetType, cx, sourceType);
-        logger.typeCheckDone(cx, sourceType, targetType, result);
-        return result;
+        return checkIsTypeInner(sourceVal, targetType, cx, sourceType);
     }
 
     private static boolean couldBelongToType(Type sourceType, Type targetType) {
         BasicTypeBitSet sourceBasicType = sourceType.getBasicType();
         BasicTypeBitSet targetBasicType = targetType.getBasicType();
-        return (sourceBasicType.all() & targetBasicType.all()) != 0;
+        return couldBelongToBasicType(sourceBasicType, targetBasicType);
     }
 
     private static boolean couldBelongToType(Object sourceVal, Type targetType) {
         BasicTypeBitSet valueBasicType = getBasicType(sourceVal);
         BasicTypeBitSet targetBasicType = targetType.getBasicType();
+        return couldBelongToBasicType(valueBasicType, targetBasicType);
+    }
+
+    private static boolean couldBelongToBasicType(BasicTypeBitSet valueBasicType, BasicTypeBitSet targetBasicType) {
         return (valueBasicType.all() & targetBasicType.all()) != 0;
     }
 
@@ -294,9 +296,7 @@ public final class TypeChecker {
             case Long ignored -> Builder.getIntType();
             case Byte ignored -> Builder.getIntType();
             case Boolean ignored -> Builder.getBooleanType();
-            default -> {
-                throw new IllegalArgumentException("unexpected value type");
-            }
+            default -> throw new IllegalArgumentException("unexpected value type");
         };
     }
 
@@ -304,8 +304,7 @@ public final class TypeChecker {
         if (isSubType(cx, sourceType, targetType)) {
             return true;
         }
-        SemType sourceSemType = SemType.tryInto(cx, sourceType);
-        return couldInherentTypeBeDifferent(sourceSemType) &&
+        return !canOptimizeInherentTypeCheck(cx, sourceType, targetType) &&
                 isSubTypeWithInherentType(cx, sourceVal, SemType.tryInto(cx, targetType));
     }
 
@@ -320,14 +319,6 @@ public final class TypeChecker {
      */
     public static boolean checkIsType(List<String> errors, Object sourceVal, Type sourceType, Type targetType) {
         return checkIsType(sourceVal, targetType);
-    }
-
-    // This is just an optimization since shapes are not cached, when in doubt return false
-    private static boolean couldInherentTypeBeDifferent(SemType type) {
-        if (type instanceof TypeWithShape typeWithShape) {
-            return typeWithShape.couldInherentTypeBeDifferent();
-        }
-        return true;
     }
 
     /**
@@ -352,18 +343,34 @@ public final class TypeChecker {
     public static boolean checkIsLikeType(Object sourceValue, Type targetType, boolean allowNumericConversion) {
         // TODO: handle numeric converion by adding them to target type bitset
         if (!allowNumericConversion && !couldBelongToType(sourceValue, targetType)) {
+            assert !shapeBelongToType(context(), sourceValue, targetType, false);
             return false;
         }
         Context cx = context();
-        logger.shapeCheckStarted(sourceValue, targetType);
+        // This is to avoid an expensive shape calculation using a cacheable type check
+        if (canOptimizeShapeCheck(targetType) && isSubType(cx, getType(sourceValue), targetType)) {
+            assert shapeBelongToType(cx, sourceValue, targetType, allowNumericConversion);
+            return true;
+        }
+        return shapeBelongToType(cx, sourceValue, targetType, allowNumericConversion);
+    }
+
+    private static boolean canOptimizeShapeCheck(Type type) {
+        return switch (type) {
+            case BMapType ignored -> true;
+            case BArrayType arrayType -> arrayType.getDimensions() == -1;
+            default -> !(type instanceof TypeWithShape);
+        };
+    }
+
+    private static boolean shapeBelongToType(Context cx, Object sourceValue, Type targetType,
+                                             boolean allowNumericConversion) {
         SemType shape = ShapeAnalyzer.shapeOf(cx, sourceValue).orElseThrow();
         SemType targetSemType = ShapeAnalyzer.acceptedTypeOf(cx, targetType);
         if (Core.isSubtypeSimple(shape, NumericTypeHolder.NUMERIC_TYPE) && allowNumericConversion) {
             targetSemType = appendNumericConversionTypes(targetSemType);
         }
-        boolean result = Core.isSubType(cx, shape, targetSemType);
-        logger.shapeCheckDone(sourceValue, targetType, result);
-        return result;
+        return Core.isSubType(cx, shape, targetSemType);
     }
 
     private static SemType appendNumericConversionTypes(SemType semType) {
@@ -392,30 +399,23 @@ public final class TypeChecker {
     }
 
     public static Type getType(Object value) {
-        if (value instanceof BValue bValue) {
-            if (!(value instanceof BObject bObject)) {
-                return bValue.getType();
-            }
-            return bObject.getOriginalType();
-        }
-        if (value == null) {
-            return TYPE_NULL;
-        } else if (value instanceof Number number) {
-            return getNumberType(number);
-        } else if (value instanceof Boolean booleanValue) {
-            return BBooleanType.singletonType(booleanValue);
-        }
-        throw new IllegalArgumentException("unexpected value type");
+        return switch (value) {
+            case BObject bObject -> bObject.getOriginalType();
+            case BValue bValue -> bValue.getType();
+            case null -> TYPE_NULL;
+            case Number number -> getNumberType(number);
+            case Boolean booleanValue -> BBooleanType.singletonType(booleanValue);
+            default -> throw new IllegalArgumentException("unexpected value type");
+        };
     }
 
     private static Type getNumberType(Number number) {
-        if (number instanceof Double) {
-            return TYPE_FLOAT;
-        }
-        if (number instanceof Integer || number instanceof Byte) {
-            return TYPE_BYTE;
-        }
-        return TYPE_INT;
+        return switch (number) {
+            case Double ignored -> TYPE_FLOAT;
+            case Integer ignored -> TYPE_BYTE;
+            case Byte ignored -> TYPE_BYTE;
+            default -> TYPE_INT;
+        };
     }
 
     /**
@@ -617,10 +617,7 @@ public final class TypeChecker {
             return false;
         }
         Context cx = context();
-        logger.typeCheckStarted(cx, sourceType, targetType);
-        boolean result = isSubType(cx, sourceType, targetType);
-        logger.typeCheckDone(cx, sourceType, targetType, result);
-        return result;
+        return isSubType(cx, sourceType, targetType);
     }
 
     @Deprecated
@@ -629,10 +626,7 @@ public final class TypeChecker {
             return false;
         }
         Context cx = context();
-        logger.typeCheckStarted(cx, sourceType, targetType);
-        boolean result = isSubType(cx, sourceType, targetType);
-        logger.typeCheckDone(cx, sourceType, targetType, result);
-        return result;
+        return isSubType(cx, sourceType, targetType);
     }
 
     /**
@@ -648,6 +642,10 @@ public final class TypeChecker {
     }
 
     public static boolean isNumericType(Type type) {
+        return couldBelongToBasicType(type.getBasicType(), NumericTypeHolder.NUMERIC_TYPE) && isNumericInner(type);
+    }
+
+    private static boolean isNumericInner(Type type) {
         Context cx = context();
         return Core.isSubtypeSimple(SemType.tryInto(cx, type), NumericTypeHolder.NUMERIC_TYPE);
     }
@@ -684,7 +682,6 @@ public final class TypeChecker {
     private static boolean isSubTypeWithCache(Context cx, CacheableTypeDescriptor source,
                                               CacheableTypeDescriptor target) {
         Boolean cachedResult = source.cachedTypeCheckResult(cx, target);
-        logger.typeCheckCachedResult(cx, source, target, cachedResult);
         if (cachedResult != null) {
             assert cachedResult == isSubTypeInner(cx, source, target);
             return cachedResult;
@@ -717,9 +714,16 @@ public final class TypeChecker {
         if (sourceType instanceof ReadonlyType) {
             return true;
         }
+        BasicTypeBitSet sourceBitSet = sourceType.getBasicType();
+        if (!couldBelongToBasicType(sourceBitSet,
+                InherentlyImmutableTypeHolder.POTENTIALLY_INHERENTLY_IMMUTABLE_TYPE)) {
+            // couldBelongToBasicType don't handle never since bitset is anyway 0
+            return Core.isNever(sourceBitSet);
+        }
         Context cx = context();
         return Core.isSubtypeSimple(SemType.tryInto(cx, sourceType),
                 InherentlyImmutableTypeHolder.INHERENTLY_IMMUTABLE_TYPE);
+
     }
 
     // NOTE: this is not the same as selectively immutable as it stated in the spec
@@ -1047,31 +1051,29 @@ public final class TypeChecker {
         TRUE, FALSE, MAYBE
     }
 
-    private static FillerValueResult hasFillerValueSemType(Context cx, SemType type) {
+    private static FillerValueResult hasFillerValueSemType(BasicTypeBitSet type) {
         if (Core.containsBasicType(type, Builder.getNilType())) {
             return FillerValueResult.TRUE;
         }
-        if (Integer.bitCount(type.all() | type.some()) > 1) {
+        if (Integer.bitCount(type.all()) > 1) {
             return FillerValueResult.FALSE;
         }
-        if (type.some() != 0) {
-            return FillerValueResult.MAYBE;
-        }
-        return Core.containsBasicType(type, TopTypesWithFillValueMaskHolder.TOP_TYPES_WITH_ALWAYS_FILLING) ?
-                FillerValueResult.TRUE :
-                FillerValueResult.FALSE;
+        return FillerValueResult.MAYBE;
     }
 
     private static boolean hasFillerValue(Context cx, Type type, List<Type> unanalyzedTypes) {
         if (type == null) {
             return true;
         }
-
-        FillerValueResult fastResult = hasFillerValueSemType(cx, SemType.tryInto(cx, type));
+        FillerValueResult fastResult = hasFillerValueSemType(type.getBasicType());
         if (fastResult != FillerValueResult.MAYBE) {
             return fastResult == FillerValueResult.TRUE;
         }
 
+        return hasFillerValueWithDefaultValues(cx, type, unanalyzedTypes);
+    }
+
+    private static boolean hasFillerValueWithDefaultValues(Context cx, Type type, List<Type> unanalyzedTypes) {
         int typeTag = type.getTag();
         if (TypeTags.isXMLTypeTag(typeTag)) {
             return typeTag == TypeTags.XML_TAG || typeTag == TypeTags.XML_TEXT_TAG;
@@ -1106,6 +1108,10 @@ public final class TypeChecker {
         }
         unAnalyzedTypes.add(tupleType);
 
+        return checkMemberFillerValue(cx, tupleType, unAnalyzedTypes);
+    }
+
+    private static boolean checkMemberFillerValue(Context cx, BTupleType tupleType, List<Type> unAnalyzedTypes) {
         for (Type member : tupleType.getTupleTypes()) {
             if (!hasFillerValue(cx, member, unAnalyzedTypes)) {
                 return false;
@@ -1366,6 +1372,8 @@ public final class TypeChecker {
     private static final class InherentlyImmutableTypeHolder {
 
         static final SemType INHERENTLY_IMMUTABLE_TYPE = createInherentlyImmutableType();
+        static final BasicTypeBitSet POTENTIALLY_INHERENTLY_IMMUTABLE_TYPE =
+                SemType.from(INHERENTLY_IMMUTABLE_TYPE.all() | INHERENTLY_IMMUTABLE_TYPE.some());
 
         private static SemType createInherentlyImmutableType() {
             return Stream.of(SimpleBasicTypeHolder.SIMPLE_BASIC_TYPE, Builder.getStringType(), Builder.getErrorType(),
@@ -1391,26 +1399,13 @@ public final class TypeChecker {
 
     private static final class ConvertibleCastMaskHolder {
 
-        private static final SemType CONVERTIBLE_CAST_MASK = createConvertibleCastMask();
+        private static final BasicTypeBitSet CONVERTIBLE_CAST_MASK = createConvertibleCastMask();
 
         private static SemType createConvertibleCastMask() {
             return Stream.of(Builder.getIntType(), Builder.getFloatType(), Builder.getDecimalType(),
                             Builder.getStringType(),
                             Builder.getBooleanType())
                     .reduce(Builder.getNeverType(), Core::union);
-        }
-
-    }
-
-    private static final class TopTypesWithFillValueMaskHolder {
-
-        static final SemType TOP_TYPES_WITH_ALWAYS_FILLING = createTopTypesWithFillerValues();
-
-        private static SemType createTopTypesWithFillerValues() {
-            return Stream.of(Builder.getIntType(), Builder.getFloatType(), Builder.getDecimalType(),
-                    Builder.getStringType(),
-                    Builder.getBooleanType(), Builder.getNilType(), Builder.getTableType(), Builder.getMappingType(),
-                    Builder.getListType()).reduce(Builder.getNeverType(), Core::union);
         }
 
     }

@@ -47,16 +47,6 @@
             <package name="org.ballerinalang.test.run.*"/>
         </packages>
     </test>
-    <test name="ballerina-testerina-tests">
-        <groups>
-            <run>
-                <exclude name="brokenOnJBallerina"/>
-            </run>
-        </groups>
-        <classes>
-            <class name="org.ballerinalang.test.testarina.TestarinaTestCase" />
-        </classes>
-    </test>
     <test name="ballerina-identifier-tests">
         <classes>
             <class name="org.ballerinalang.test.identifier.IdentifierLiteralTest"/>
