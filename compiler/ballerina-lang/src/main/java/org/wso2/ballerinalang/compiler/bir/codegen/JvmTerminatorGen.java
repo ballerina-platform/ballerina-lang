@@ -34,7 +34,6 @@ import org.wso2.ballerinalang.compiler.bir.codegen.model.JIMethodCLICall;
 import org.wso2.ballerinalang.compiler.bir.codegen.model.JIMethodCall;
 import org.wso2.ballerinalang.compiler.bir.codegen.model.JTerminator;
 import org.wso2.ballerinalang.compiler.bir.codegen.model.JavaMethodCall;
-import org.wso2.ballerinalang.compiler.bir.codegen.split.JvmConstantsGen;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.bir.model.BIROperand;
 import org.wso2.ballerinalang.compiler.bir.model.BIRTerminator;
@@ -50,6 +49,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.compiler.util.Unifier;
+import org.wso2.ballerinalang.util.Flags;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -93,6 +93,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ASYNC_UTI
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BAL_ENV_CLASS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BAL_EXTENSION;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_OBJECT;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CLASS_LOCK_VAR_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CURRENT_MODULE_VAR_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.DEFAULT_STRAND_DISPATCHER;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.DEFAULT_STRAND_NAME;
@@ -147,12 +148,14 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.HANDLE_W
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INIT_ANYDATA_ARRAY;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INIT_BAL_ENV;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.LOAD_ARRAY_TYPE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.LOAD_LOCK;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.MAP_PUT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.MODULE_INITIALIZER;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.MULTIPLE_RECEIVE_CALL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.PASS_OBJECT_RETURN_OBJECT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.PASS_STRAND;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.PASS_STRAND_AND_LOCK_NAME;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.PASS_STRAND_AND_REENTRANT_LOCK;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.RECEIVE_DATA;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.RETURN_OBJECT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.SCHEDULE_CALL;
@@ -186,8 +189,7 @@ public class JvmTerminatorGen {
     public JvmTerminatorGen(MethodVisitor mv, BIRVarToJVMIndexMap indexMap, LabelGenerator labelGen,
                             JvmErrorGen errorGen, PackageID packageID, JvmInstructionGen jvmInstructionGen,
                             JvmPackageGen jvmPackageGen, JvmTypeGen jvmTypeGen,
-                            JvmCastGen jvmCastGen, JvmConstantsGen jvmConstantsGen,
-                            AsyncDataCollector asyncDataCollector) {
+                            JvmCastGen jvmCastGen, AsyncDataCollector asyncDataCollector) {
 
         this.mv = mv;
         this.indexMap = indexMap;
@@ -205,10 +207,9 @@ public class JvmTerminatorGen {
         this.asyncDataCollector = asyncDataCollector;
     }
 
-    public void genTerminator(BIRTerminator terminator, BIRNode.BIRFunction func,
-                              String funcName, int localVarOffset, int returnVarRefIndex,
-                              BType attachedType, int channelMapVarIndex, int sendWorkerChannelNamesVar,
-                              int receiveWorkerChannelNamesVar) {
+    public void genTerminator(BIRTerminator terminator, String moduleClassName, BIRNode.BIRFunction func,
+                              String funcName, int localVarOffset, int returnVarRefIndex, BType attachedType,
+                              int channelMapVarIndex, int sendWorkerChannelNamesVar, int receiveWorkerChannelNamesVar) {
         switch (terminator.kind) {
             case GOTO -> {
                 this.genGoToTerm((BIRTerminator.GOTO) terminator, funcName);
@@ -254,11 +255,11 @@ public class JvmTerminatorGen {
                 return;
             }
             case LOCK -> {
-                this.genLockTerm((BIRTerminator.Lock) terminator, funcName, localVarOffset);
+                this.genLockTerm((BIRTerminator.Lock) terminator, moduleClassName, func, funcName, localVarOffset);
                 return;
             }
             case UNLOCK -> {
-                this.genUnlockTerm((BIRTerminator.Unlock) terminator, funcName, localVarOffset);
+                this.genUnlockTerm((BIRTerminator.Unlock) terminator, moduleClassName, func, funcName, localVarOffset);
                 return;
             }
             case WK_SEND -> {
@@ -327,25 +328,35 @@ public class JvmTerminatorGen {
         }
     }
 
-    private void genLockTerm(BIRTerminator.Lock lockIns, String funcName, int localVarOffset) {
+    private void genLockTerm(BIRTerminator.Lock lockIns, String moduleClassName, BIRNode.BIRFunction func,
+                             String funcName, int localVarOffset) {
         Label gotoLabel = this.labelGen.getLabel(funcName + lockIns.lockedBB.id.value);
-        String initClassName = jvmPackageGen.lookupGlobalVarClassName(this.currentPackageName, LOCK_STORE_VAR_NAME);
-        String lockName = GLOBAL_LOCK_NAME + lockIns.lockId;
-        this.mv.visitFieldInsn(GETSTATIC, initClassName, LOCK_STORE_VAR_NAME, GET_LOCK_STORE);
+        this.mv.visitFieldInsn(GETSTATIC, this.moduleInitClass, LOCK_STORE_VAR_NAME, GET_LOCK_STORE);
         this.mv.visitVarInsn(ALOAD, localVarOffset);
-        this.mv.visitLdcInsn(lockName);
-        this.mv.visitMethodInsn(INVOKEVIRTUAL, LOCK_STORE, "lock", PASS_STRAND_AND_LOCK_NAME, false);
+        if ((func.flags & Flags.ATTACHED) == Flags.ATTACHED && lockIns.lockVariables.isEmpty()) {
+            mv.visitVarInsn(ALOAD, 0);
+            this.mv.visitFieldInsn(GETFIELD, moduleClassName, CLASS_LOCK_VAR_NAME, LOAD_LOCK);
+            this.mv.visitMethodInsn(INVOKEVIRTUAL, LOCK_STORE, "lock", PASS_STRAND_AND_REENTRANT_LOCK, false);
+        } else {
+            this.mv.visitLdcInsn(GLOBAL_LOCK_NAME + lockIns.lockId);
+            this.mv.visitMethodInsn(INVOKEVIRTUAL, LOCK_STORE, "lock", PASS_STRAND_AND_LOCK_NAME, false);
+        }
         this.mv.visitJumpInsn(GOTO, gotoLabel);
     }
 
-    private void genUnlockTerm(BIRTerminator.Unlock unlockIns, String funcName, int localVarOffset) {
+    private void genUnlockTerm(BIRTerminator.Unlock unlockIns, String moduleClassName, BIRNode.BIRFunction func,
+                               String funcName, int localVarOffset) {
         Label gotoLabel = this.labelGen.getLabel(funcName + unlockIns.unlockBB.id.value);
-        String lockName = GLOBAL_LOCK_NAME + unlockIns.relatedLock.lockId;
-        String initClassName = jvmPackageGen.lookupGlobalVarClassName(this.currentPackageName, LOCK_STORE_VAR_NAME);
-        this.mv.visitFieldInsn(GETSTATIC, initClassName, LOCK_STORE_VAR_NAME, GET_LOCK_STORE);
+        this.mv.visitFieldInsn(GETSTATIC, this.moduleInitClass, LOCK_STORE_VAR_NAME, GET_LOCK_STORE);
         this.mv.visitVarInsn(ALOAD, localVarOffset);
-        this.mv.visitLdcInsn(lockName);
-        this.mv.visitMethodInsn(INVOKEVIRTUAL, LOCK_STORE, "unlock", PASS_STRAND_AND_LOCK_NAME, false);
+        if ((func.flags & Flags.ATTACHED) == Flags.ATTACHED && unlockIns.relatedLock.lockVariables.isEmpty()) {
+            mv.visitVarInsn(ALOAD, 0);
+            this.mv.visitFieldInsn(GETFIELD, moduleClassName, CLASS_LOCK_VAR_NAME, LOAD_LOCK);
+            this.mv.visitMethodInsn(INVOKEVIRTUAL, LOCK_STORE, "unlock", PASS_STRAND_AND_REENTRANT_LOCK, false);
+        } else {
+            this.mv.visitLdcInsn(GLOBAL_LOCK_NAME + unlockIns.relatedLock.lockId);
+            this.mv.visitMethodInsn(INVOKEVIRTUAL, LOCK_STORE, "unlock", PASS_STRAND_AND_LOCK_NAME, false);
+        }
         this.mv.visitJumpInsn(GOTO, gotoLabel);
     }
 
@@ -363,7 +374,7 @@ public class JvmTerminatorGen {
                                 BIRNode.BIRFunction func) {
         switch (terminator.jTermKind) {
             case J_METHOD_CALL -> this.genJCallTerm((JavaMethodCall) terminator, attachedType, localVarOffset);
-            case JI_METHOD_CALL -> this.genJICallTerm((JIMethodCall) terminator, localVarOffset, func, attachedType);
+            case JI_METHOD_CALL -> this.genJICallTerm((JIMethodCall) terminator, localVarOffset, func);
             case JI_CONSTRUCTOR_CALL -> this.genJIConstructorTerm((JIConstructorCall) terminator);
             case JI_METHOD_CLI_CALL -> this.genJICLICallTerm((JIMethodCLICall) terminator, localVarOffset);
             default -> throw new BLangCompilerException("JVM generation is not supported for terminator instruction " +
@@ -425,7 +436,7 @@ public class JvmTerminatorGen {
         }
     }
 
-    private void genJICallTerm(JIMethodCall callIns, int localVarOffset, BIRNode.BIRFunction func, BType attachedType) {
+    private void genJICallTerm(JIMethodCall callIns, int localVarOffset, BIRNode.BIRFunction func) {
         boolean isInterface = callIns.invocationType == INVOKEINTERFACE;
         int argIndex = 0;
         if (callIns.invocationType == INVOKEVIRTUAL || isInterface) {

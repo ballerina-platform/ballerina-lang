@@ -28,10 +28,11 @@ import java.util.concurrent.locks.ReentrantLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 /**
- * Class that keep Ballerina locks based on lock name.
+ * Class that keep Ballerina locks based on lock name. Used for codegen.
  *
  * @since 1.2.0
  */
+@SuppressWarnings("unused")
 public class BLockStore {
 
     /**
@@ -47,7 +48,7 @@ public class BLockStore {
     }
 
     /*
-        This is code generated method to get Ballerina lock and lock.
+        This is code generated method to get Ballerina global lock from lock name and lock.
     */
     @SuppressWarnings("unused")
     public void lock(Strand strand, String lockName) {
@@ -61,7 +62,21 @@ public class BLockStore {
     }
 
     /*
-        This is code generated method to get Ballerina lock and unlock.
+     This is code generated method to get Ballerina object lock and lock.
+ */
+    @SuppressWarnings("unused")
+    public void lock(Strand strand, ReentrantLock lock) {
+        try {
+            strand.yield();
+            lock.lock();
+            strand.acquiredLockCount++;
+        } finally {
+            strand.resume();
+        }
+    }
+
+    /*
+        This is code generated method to get Ballerina global lock from lock name and unlock.
     */
     @SuppressWarnings("unused")
     public void unlock(Strand strand, String lockName) {
@@ -74,6 +89,19 @@ public class BLockStore {
         }
     }
 
+    /*
+    This is code generated method to get Ballerina object lock and unlock.
+*/
+    @SuppressWarnings("unused")
+    public void unlock(Strand strand, ReentrantLock lock) {
+        try {
+            strand.yield();
+            lock.unlock();
+            strand.acquiredLockCount--;
+        } finally {
+            strand.resume();
+        }
+    }
 
     /*
         This is code generated method check and panic before async call if strand is in lock
