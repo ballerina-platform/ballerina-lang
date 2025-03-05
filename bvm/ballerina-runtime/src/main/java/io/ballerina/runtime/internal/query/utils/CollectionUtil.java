@@ -31,7 +31,9 @@ public class CollectionUtil {
                 .map(frame -> frame.getRecord().get($VALUE$_FIELD))
                 .toArray();
 
-        array.unshift(tmpArr);
+        if (tmpArr.length > 0) {
+            array.unshift(tmpArr);
+        }
         return array;
     }
 
