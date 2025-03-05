@@ -28,13 +28,12 @@ public class CollectionUtil {
 
     public static BArray createArray(StreamPipeline pipeline, BArray array) {
         Stream<Frame> strm = pipeline.getStream();
-        Type elementType = pipeline.getConstraintType().getDescribingType();
-
         Object[] tmpArr = strm
                 .map(frame -> frame.getRecord().get($VALUE$_FIELD))
                 .toArray();
 
-        return ValueCreator.createArrayValue(tmpArr, TypeCreator.createArrayType(elementType));
+        array.unshift(tmpArr);
+        return array;
     }
 
     public static Object collectQuery(Object pipeline) {
