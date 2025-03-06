@@ -15,6 +15,13 @@
  */
 package org.ballerinalang.langserver.extensions.ballerina.packages;
 
+import io.ballerina.compiler.api.ModuleID;
+import io.ballerina.compiler.api.SemanticModel;
+import io.ballerina.compiler.api.symbols.AnnotationAttachmentSymbol;
+import io.ballerina.compiler.api.symbols.ExternalFunctionSymbol;
+import io.ballerina.compiler.api.symbols.FunctionSymbol;
+import io.ballerina.compiler.api.symbols.ModuleSymbol;
+import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.syntax.tree.ClassDefinitionNode;
 import io.ballerina.compiler.syntax.tree.ConstantDeclarationNode;
 import io.ballerina.compiler.syntax.tree.EnumDeclarationNode;
@@ -30,6 +37,7 @@ import io.ballerina.compiler.syntax.tree.Token;
 import io.ballerina.compiler.syntax.tree.TypeDefinitionNode;
 import io.ballerina.tools.text.LineRange;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -39,9 +47,15 @@ import java.util.stream.Collectors;
 public class DocumentComponentTransformer extends NodeTransformer<Optional<MapperObject>> {
 
     private final ModuleObject module;
+    private final SemanticModel semanticModel;
 
-    DocumentComponentTransformer(ModuleObject moduleObject) {
+    private static final String BALLERINAX_ORG_NAME = "ballerinax";
+    private static final String NP_MODULE_NAME = "np";
+    private static final String LLM_CALL = "LlmCall";
+
+    DocumentComponentTransformer(ModuleObject moduleObject, SemanticModel semanticModel) {
         this.module = moduleObject;
+        this.semanticModel = semanticModel;
     }
 
     public ModuleObject getModuleObject(Node node) {
@@ -68,6 +82,11 @@ public class DocumentComponentTransformer extends NodeTransformer<Optional<Mappe
         if (functionDefinitionNode.functionName().text().equals(PackageServiceConstants.MAIN_FUNCTION)) {
             return Optional.of(new MapperObject(PackageServiceConstants.AUTOMATIONS,
                     createDataObject(PackageServiceConstants.MAIN_FUNCTION, functionDefinitionNode)));
+        }
+
+        if (isPromptAsCodeFunction(functionDefinitionNode)) {
+            return Optional.of(new MapperObject(PackageServiceConstants.PROMPT_AS_CODE,
+                    createDataObject(functionDefinitionNode.functionName().text(), functionDefinitionNode)));
         }
 
         return Optional.of(new MapperObject(PackageServiceConstants.FUNCTIONS,
@@ -170,5 +189,35 @@ public class DocumentComponentTransformer extends NodeTransformer<Optional<Mappe
         LineRange lineRange = node.lineRange();
         return new DataObject(name, lineRange.fileName(), lineRange.startLine().line(), lineRange.startLine().offset(),
                 lineRange.endLine().line(), lineRange.endLine().offset());
+    }
+
+    /**
+     * Check whether the given function is a prompt as code function.
+     *
+     * @param functionDefinitionNode Function definition node
+     * @return true if the function is a prompt as code function else false
+     */
+    private boolean isPromptAsCodeFunction(FunctionDefinitionNode functionDefinitionNode) {
+        Optional<Symbol> funcSymbol = this.semanticModel.symbol(functionDefinitionNode);
+        if (funcSymbol.isEmpty() || !((FunctionSymbol) funcSymbol.get()).external()) {
+            return false;
+        }
+
+        List<AnnotationAttachmentSymbol> annotAttachments =
+                ((ExternalFunctionSymbol) funcSymbol.get()).annotAttachmentsOnExternal();
+        return annotAttachments.stream().anyMatch(annot ->
+                isNpModule(annot.typeDescriptor())
+                        && annot.getName().isPresent()
+                        && annot.getName().get().equals(LLM_CALL));
+    }
+
+    private boolean isNpModule(Symbol symbol) {
+        Optional<ModuleSymbol> module = symbol.getModule();
+        if (module.isEmpty()) {
+            return false;
+        }
+
+        ModuleID moduleId = module.get().id();
+        return moduleId.orgName().equals(BALLERINAX_ORG_NAME) && moduleId.packageName().equals(NP_MODULE_NAME);
     }
 }
