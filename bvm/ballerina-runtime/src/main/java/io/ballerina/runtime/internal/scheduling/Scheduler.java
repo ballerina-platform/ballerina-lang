@@ -36,7 +36,6 @@ import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BNever;
 import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.internal.BalRuntime;
-import io.ballerina.runtime.internal.types.BFunctionType;
 import io.ballerina.runtime.internal.types.BServiceType;
 import io.ballerina.runtime.internal.utils.ErrorUtils;
 import io.ballerina.runtime.internal.values.FPValue;
@@ -253,11 +252,14 @@ public class Scheduler {
         validateArgCount(parameters, args, functionType);
         Type restType = functionType.getRestType();
         if (args.length == 0 && parameters.length == 0) {
-            return new Object[]{};
+            if (restType == null) {
+                return new Object[]{};
+            }
+            return new Object[]{io.ballerina.runtime.api.creators.ValueCreator.createArrayValue((ArrayType) restType)};
         }
         int length = restType == null ? parameters.length : parameters.length + 1;
         Object[] argsWithDefaultValues = new Object[length];
-        System.arraycopy(args, 0, argsWithDefaultValues, 0, parameters.length);
+        System.arraycopy(args, 0, argsWithDefaultValues, 0, Math.min(args.length, parameters.length));
         for (int i = 0; i < parameters.length; i++) {
             Parameter parameter = parameters[i];
             if (parameter.isDefault && (args.length <= i || args[i] == BNever.getValue())) {
