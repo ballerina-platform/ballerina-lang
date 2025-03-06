@@ -16,6 +16,8 @@
  */
 package org.ballerinalang.test.types.typedesc;
 
+import static org.ballerinalang.test.BAssertUtil.validateError;
+
 import io.ballerina.runtime.api.types.TypeTags;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BTypedesc;
@@ -26,8 +28,6 @@ import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-
-import static org.ballerinalang.test.BAssertUtil.validateError;
 
 /**
  * This class contains typedesc type related test cases.
@@ -80,6 +80,11 @@ public class TypedescTests {
         Assert.assertEquals(returns.get(2).toString(), "typedesc float");
         Assert.assertEquals(returns.get(3).toString(), "typedesc boolean");
         Assert.assertEquals(returns.get(4).toString(), "typedesc byte");
+    }
+
+    @Test(description = "Test type desc shapes")
+    public void testTypeDescShape() {
+        BRunUtil.invoke(result, "testRecordWithTypedescField");
     }
 
     @Test(description = "Test buildin ref types")
