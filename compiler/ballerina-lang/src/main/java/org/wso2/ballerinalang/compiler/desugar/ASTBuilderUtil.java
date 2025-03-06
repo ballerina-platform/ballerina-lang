@@ -266,12 +266,12 @@ public final class ASTBuilderUtil {
 
     static BLangForeach createForeach(Location pos,
                                       BLangBlockStmt target,
-                                      BLangSimpleVarRef collectionVarRef) {
+                                      BLangExpression collectionExpr) {
         final BLangForeach foreach = (BLangForeach) TreeBuilder.createForeachNode();
         foreach.pos = pos;
         target.addStatement(foreach);
         foreach.body = ASTBuilderUtil.createBlockStmt(pos);
-        foreach.collection = collectionVarRef;
+        foreach.collection = collectionExpr;
         return foreach;
     }
 
