@@ -300,6 +300,24 @@ function testTypeDefWithFunctionTypeDescAsTypedesc() {
     assertEquality("typedesc function () returns (string)", d.toString());
 }
 
+type TD1 record {
+    readonly int foo;
+    readonly typedesc<int> entity;
+};
+
+type TD2 record {
+    10 foo;
+    typedesc<10> entity;
+};
+
+function testRecordWithTypedescField() {
+    int foo = 10;
+    typedesc<int> typeOfFoo = typeof foo;
+    TD1 td1 = {foo, entity: typeOfFoo};
+    assertEquality(td1 is TD2, true);
+}
+
+
 const ASSERTION_ERROR_REASON = "AssertionError";
 
 function assertEquality(any|error expected, any|error actual) {

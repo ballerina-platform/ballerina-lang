@@ -17,11 +17,18 @@
  */
 package io.ballerina.runtime.internal.values;
 
+import java.util.Map;
+import java.util.Optional;
+
+import static io.ballerina.runtime.api.utils.TypeUtils.getImpliedType;
+
 import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.TypeTags;
 import io.ballerina.runtime.api.types.semtype.BasicTypeBitSet;
 import io.ballerina.runtime.api.types.semtype.Builder;
+import io.ballerina.runtime.api.types.semtype.Context;
+import io.ballerina.runtime.api.types.semtype.SemType;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BInitialValueEntry;
 import io.ballerina.runtime.api.values.BLink;
@@ -32,10 +39,6 @@ import io.ballerina.runtime.api.values.BTypedesc;
 import io.ballerina.runtime.internal.scheduling.Strand;
 import io.ballerina.runtime.internal.types.BAnnotatableType;
 import io.ballerina.runtime.internal.types.BTypedescType;
-
-import java.util.Map;
-
-import static io.ballerina.runtime.api.utils.TypeUtils.getImpliedType;
 
 /**
  * <p>
@@ -159,5 +162,10 @@ public class TypedescValueImpl implements TypedescValue {
     @Override
     public Object frozenCopy(Map<Object, Object> refs) {
         return this;
+    }
+
+    @Override
+    public Optional<SemType> inherentTypeOf(Context cx) {
+        return Optional.of(SemType.tryInto(cx, getType()));
     }
 }
