@@ -1,5 +1,6 @@
 package io.ballerina.runtime.internal.query.utils;
 
+import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.creators.TypeCreator;
 import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.types.*;
@@ -19,14 +20,23 @@ import java.util.stream.Stream;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.BALLERINA_QUERY_PKG_ID;
 
 public class CollectionUtil {
+    private static final BString VALUE_FIELD = StringUtils.fromString("value");
     private static final BString $VALUE$_FIELD = StringUtils.fromString("$value$");
     private static final BString $ERROR$_FIELD = StringUtils.fromString("$error$");
 
-    public static void consumeStream(StreamPipeline pipeline) {
-        pipeline.getStream().forEach(frame -> {
-            BMap<BString, Object> result = frame.getRecord();
-        });
-    }
+//    public static Object consumeStream(StreamPipeline pipeline) {
+//        Stream<Frame> stream = pipeline.getStream();
+//        var iterator = stream.iterator();
+//
+//        while (iterator.hasNext()) {
+//            BMap<BString, Object> record = iterator.next().getRecord();
+//            if (record.containsKey(VALUE_FIELD) && record.get(VALUE_FIELD) != null) {
+//                return record.get(VALUE_FIELD);
+//            }
+//        }
+//
+//        return null;
+//    }
 
     public static BArray createArray(StreamPipeline pipeline, BArray array) {
         Stream<Frame> strm = pipeline.getStream();

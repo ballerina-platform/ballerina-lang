@@ -69,7 +69,7 @@ public class GroupByClause implements PipelineStage {
                         .filter(Objects::nonNull)
                         .toArray();
 
-                BArray valuesArray = new ArrayValueImpl(values, TypeCreator.createArrayType(PredefinedTypes.TYPE_ANY)); // Convert List<BString> to BString[]
+                BArray valuesArray = new ArrayValueImpl(values, TypeCreator.createArrayType(PredefinedTypes.TYPE_ANY));
                 groupedRecord.put(nonGroupingKey, valuesArray);
             }
 
@@ -100,5 +100,4 @@ public class GroupByClause implements PipelineStage {
 
         return keyMap;
     }
-
 }

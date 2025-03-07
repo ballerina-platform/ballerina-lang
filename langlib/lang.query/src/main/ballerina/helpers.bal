@@ -209,11 +209,25 @@ function consumeStreamOld(stream<Type, CompletionType> strm) returns any|error {
     }
 }
 
-function consumeStream(handle strm) = @java:Method {
-    'class: "io.ballerina.runtime.internal.query.utils.CollectionUtil",
-    name: "consumeStream",
-    paramTypes: ["io.ballerina.runtime.internal.query.pipeline.StreamPipeline"]
-} external;
+function consumeStream(handle javaPipeline) returns any|error {
+    stream<Type, CompletionType> strm = toStream(javaPipeline);
+    any|error? v = strm.next();
+    while (!(v is () || v is error)) {
+        if (v is _Frame && v.hasKey("value") && v.get("value") != ()) {
+            return v.get("value");
+        }
+        v = strm.next();
+    }
+    if (v is error) {
+        return v;
+    }
+}
+
+// function consumeStreamJava(handle strm) returns any|error = @java:Method {
+//     'class: "io.ballerina.runtime.internal.query.utils.CollectionUtil",
+//     name: "consumeStream",
+//     paramTypes: ["io.ballerina.runtime.internal.query.pipeline.StreamPipeline"]
+// } external;
 
 function createNestedFromFunctionOld(function(_Frame _frame) returns _Frame|error? collectionFunc)
         returns _StreamFunction {
