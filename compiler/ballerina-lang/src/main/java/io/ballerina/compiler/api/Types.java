@@ -63,6 +63,7 @@ public abstract class Types {
     public final TypeSymbol BYTE;
     public final TypeSymbol COMPILATION_ERROR;
     public final TypeSymbol REGEX;
+    public final TypeSymbol RAW_TEMPLATE;
 
     protected Types(CompilerContext context) {
         this.context = context;
@@ -92,6 +93,7 @@ public abstract class Types {
         this.BYTE = typesFactory.getTypeDescriptor(symbolTable.byteType);
         this.COMPILATION_ERROR = typesFactory.getTypeDescriptor(symbolTable.semanticError);
         this.REGEX = typesFactory.getTypeDescriptor(symbolTable.regExpType);
+        this.RAW_TEMPLATE = typesFactory.getTypeDescriptor(symbolTable.rawTemplateType);
     }
 
     /**
