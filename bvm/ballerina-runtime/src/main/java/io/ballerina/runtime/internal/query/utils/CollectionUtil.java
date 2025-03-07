@@ -8,7 +8,10 @@ import io.ballerina.runtime.api.values.*;
 import io.ballerina.runtime.internal.query.pipeline.Frame;
 import io.ballerina.runtime.internal.query.pipeline.StreamPipeline;
 import io.ballerina.runtime.internal.values.HandleValue;
+import io.ballerina.runtime.internal.xml.XmlFactory;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Stream;
@@ -140,15 +143,6 @@ public class CollectionUtil {
         return error.orElse(null) != null ? error.get() : map;
     }
 
-    public static BXml createXML(StreamPipeline pipeline) {
-        Stream<Frame> strm = pipeline.getStream();
-
-        String xmlStr = strm
-                .map(frame -> frame.getRecord().get($VALUE$_FIELD).toString())
-                .reduce("", String::concat);
-
-        return ValueCreator.createXmlValue(xmlStr);
-    }
 
     public static BStream toStream(StreamPipeline pipeline) {
         StreamType streamType = TypeCreator.createStreamType(pipeline.getConstraintType().getDescribingType(), pipeline.getCompletionType().getDescribingType());
@@ -157,5 +151,43 @@ public class CollectionUtil {
         BObject iteratorObj = ValueCreator.createObjectValue(BALLERINA_QUERY_PKG_ID, "_IteratorObject", handleValue);
 
         return ValueCreator.createStreamValue(streamType, iteratorObj);
+    }
+
+    public static BXml createXML(StreamPipeline pipeline) {
+        Stream<Frame> strm = pipeline.getStream();
+
+        Object[] xmlArray = strm
+                .map(frame -> frame.getRecord().get($VALUE$_FIELD))
+                .filter(Objects::nonNull)
+                .toArray();
+
+        return concatXML(xmlArray);
+    }
+
+    public static BXml concatXML(Object... arrayValue) {
+        List<BXml> backingArray = new ArrayList<>();
+        BXml lastItem = null;
+        for (Object refValue : arrayValue) {
+            if (refValue instanceof BString bString) {
+                if (lastItem != null && lastItem.getNodeType() == XmlNodeType.TEXT) {
+                    // If last added item is a string, then concat prev values with this values and replace prev value.
+                    BString concat = StringUtils.fromString(lastItem.getTextValue()).concat(bString);
+                    BXml xmlText = XmlFactory.createXMLText(concat);
+                    backingArray.set(backingArray.size() - 1, xmlText);
+                    lastItem = xmlText;
+                    continue;
+                }
+                BXml xmlText = XmlFactory.createXMLText(bString);
+                backingArray.add(xmlText);
+                lastItem = xmlText;
+            } else if (refValue instanceof BXmlSequence bXmlSequence) {
+                backingArray.addAll(bXmlSequence.getChildrenList());
+                lastItem = (BXml) refValue;
+            } else {
+                backingArray.add((BXml) refValue);
+                lastItem = (BXml) refValue;
+            }
+        }
+        return ValueCreator.createXmlSequence(backingArray);
     }
 }
