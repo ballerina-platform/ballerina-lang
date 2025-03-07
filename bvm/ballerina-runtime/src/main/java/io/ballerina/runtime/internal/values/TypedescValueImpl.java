@@ -17,11 +17,6 @@
  */
 package io.ballerina.runtime.internal.values;
 
-import java.util.Map;
-import java.util.Optional;
-
-import static io.ballerina.runtime.api.utils.TypeUtils.getImpliedType;
-
 import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.TypeTags;
@@ -39,6 +34,11 @@ import io.ballerina.runtime.api.values.BTypedesc;
 import io.ballerina.runtime.internal.scheduling.Strand;
 import io.ballerina.runtime.internal.types.BAnnotatableType;
 import io.ballerina.runtime.internal.types.BTypedescType;
+
+import java.util.Map;
+import java.util.Optional;
+
+import static io.ballerina.runtime.api.utils.TypeUtils.getImpliedType;
 
 /**
  * <p>
