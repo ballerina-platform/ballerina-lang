@@ -22,6 +22,7 @@ import io.ballerina.compiler.api.symbols.ExternalFunctionSymbol;
 import io.ballerina.compiler.api.symbols.FunctionSymbol;
 import io.ballerina.compiler.api.symbols.ModuleSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
+import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.syntax.tree.ClassDefinitionNode;
 import io.ballerina.compiler.syntax.tree.ConstantDeclarationNode;
 import io.ballerina.compiler.syntax.tree.EnumDeclarationNode;
@@ -199,7 +200,8 @@ public class DocumentComponentTransformer extends NodeTransformer<Optional<Mappe
      */
     private boolean isPromptAsCodeFunction(FunctionDefinitionNode functionDefinitionNode) {
         Optional<Symbol> funcSymbol = this.semanticModel.symbol(functionDefinitionNode);
-        if (funcSymbol.isEmpty() || !((FunctionSymbol) funcSymbol.get()).external()) {
+        if (funcSymbol.isEmpty() || funcSymbol.get().kind() != SymbolKind.FUNCTION
+                || !((FunctionSymbol) funcSymbol.get()).external()) {
             return false;
         }
 
@@ -207,8 +209,8 @@ public class DocumentComponentTransformer extends NodeTransformer<Optional<Mappe
                 ((ExternalFunctionSymbol) funcSymbol.get()).annotAttachmentsOnExternal();
         return annotAttachments.stream().anyMatch(annot ->
                 isNpModule(annot.typeDescriptor())
-                        && annot.getName().isPresent()
-                        && annot.getName().get().equals(LLM_CALL));
+                        && annot.typeDescriptor().getName().isPresent()
+                        && annot.typeDescriptor().getName().get().equals(LLM_CALL));
     }
 
     private boolean isNpModule(Symbol symbol) {
