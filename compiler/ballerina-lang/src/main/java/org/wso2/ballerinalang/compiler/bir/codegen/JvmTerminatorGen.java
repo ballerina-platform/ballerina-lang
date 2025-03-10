@@ -112,6 +112,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BAL_EXTEN
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BIG_DECIMAL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BLOCKED_ON_EXTERN_FIELD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_OBJECT;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CLASS_LOCK_VAR_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CURRENT_MODULE_VAR_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.DECIMAL_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.DEFAULT_STRAND_DISPATCHER;
@@ -193,7 +194,8 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INT_VALU
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.IS_CONCURRENT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.LOAD_ARRAY_TYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.LOAD_JOBJECT_TYPE;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.LOCK;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.LOAD_LOCK;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.LOCK_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.MAP_PUT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.MULTIPLE_RECEIVE_CALL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.PANIC_IF_IN_LOCK;
@@ -356,11 +358,11 @@ public class JvmTerminatorGen {
 
         switch (terminator.kind) {
             case LOCK:
-                this.genLockTerm((BIRTerminator.Lock) terminator, funcName, localVarOffset, yieldLocationVarIndex,
-                        terminator.pos, fullyQualifiedFuncName, yieldStatusVarIndex);
+                this.genLockTerm((BIRTerminator.Lock) terminator, moduleClassName, func, funcName, localVarOffset,
+                        yieldLocationVarIndex, terminator.pos, fullyQualifiedFuncName, yieldStatusVarIndex);
                 return;
             case UNLOCK:
-                this.genUnlockTerm((BIRTerminator.Unlock) terminator, funcName);
+                this.genUnlockTerm((BIRTerminator.Unlock) terminator, moduleClassName, func, funcName);
                 return;
             case GOTO:
                 this.genGoToTerm((BIRTerminator.GOTO) terminator, funcName, currentBB, stateVarIndex, loopVarIndex,
@@ -434,37 +436,48 @@ public class JvmTerminatorGen {
         this.mv.visitJumpInsn(GOTO, loopLabel);
     }
 
-    private void genLockTerm(BIRTerminator.Lock lockIns, String funcName, int localVarOffset, int yieldLocationVarIndex,
-                             Location terminatorPos, String fullyQualifiedFuncName, int yieldStatusVarIndex) {
+    private void genLockTerm(BIRTerminator.Lock lockIns, String moduleClassName, BIRNode.BIRFunction func,
+                             String funcName, int localVarOffset, int yieldLocationVarIndex, Location terminatorPos,
+                             String fullyQualifiedFuncName,
+                             int yieldStatusVarIndex) {
 
         Label gotoLabel = this.labelGen.getLabel(funcName + lockIns.lockedBB.id.value);
-        String lockStore = "L" + LOCK_STORE + ";";
-        String initClassName = jvmPackageGen.lookupGlobalVarClassName(this.currentPackageName, LOCK_STORE_VAR_NAME);
-        String lockName = GLOBAL_LOCK_NAME + lockIns.lockId;
-        this.mv.visitFieldInsn(GETSTATIC, initClassName, LOCK_STORE_VAR_NAME, lockStore);
-        this.mv.visitLdcInsn(lockName);
-        this.mv.visitMethodInsn(INVOKEVIRTUAL, LOCK_STORE, "getLockFromMap", GET_LOCK_FROM_MAP, false);
+        if ((func.flags & Flags.ATTACHED) == Flags.ATTACHED && lockIns.lockVariables.isEmpty()) {
+            mv.visitVarInsn(ALOAD, 0);
+            this.mv.visitFieldInsn(GETFIELD, moduleClassName, CLASS_LOCK_VAR_NAME, LOAD_LOCK);
+        } else {
+            String lockStore = "L" + LOCK_STORE + ";";
+            String initClassName = jvmPackageGen.lookupGlobalVarClassName(this.currentPackageName, LOCK_STORE_VAR_NAME);
+            String lockName = GLOBAL_LOCK_NAME + lockIns.lockId;
+            this.mv.visitFieldInsn(GETSTATIC, initClassName, LOCK_STORE_VAR_NAME, lockStore);
+            this.mv.visitLdcInsn(lockName);
+            this.mv.visitMethodInsn(INVOKEVIRTUAL, LOCK_STORE, "getLockFromMap", GET_LOCK_FROM_MAP, false);
+        }
         this.mv.visitVarInsn(ALOAD, localVarOffset);
-        this.mv.visitMethodInsn(INVOKEVIRTUAL, LOCK_VALUE, "lock", LOCK, false);
+        this.mv.visitMethodInsn(INVOKEVIRTUAL, LOCK_VALUE, "lock", LOCK_METHOD, false);
         this.mv.visitInsn(POP);
         genYieldCheckForLock(this.mv, this.labelGen, funcName, localVarOffset, yieldLocationVarIndex,
                 yieldStatusVarIndex, fullyQualifiedFuncName, terminatorPos);
         this.mv.visitJumpInsn(GOTO, gotoLabel);
     }
 
-    private void genUnlockTerm(BIRTerminator.Unlock unlockIns, String funcName) {
+    private void genUnlockTerm(BIRTerminator.Unlock unlockIns, String moduleClassName, BIRNode.BIRFunction func,
+                               String funcName) {
 
         Label gotoLabel = this.labelGen.getLabel(funcName + unlockIns.unlockBB.id.value);
-
         // unlocked in the same order https://yarchive.net/comp/linux/lock_ordering.html
-        String lockStore = "L" + LOCK_STORE + ";";
-        String lockName = GLOBAL_LOCK_NAME + unlockIns.relatedLock.lockId;
-        String initClassName = jvmPackageGen.lookupGlobalVarClassName(this.currentPackageName, LOCK_STORE_VAR_NAME);
-        this.mv.visitFieldInsn(GETSTATIC, initClassName, LOCK_STORE_VAR_NAME, lockStore);
-        this.mv.visitLdcInsn(lockName);
-        this.mv.visitMethodInsn(INVOKEVIRTUAL, LOCK_STORE, "getLockFromMap", GET_LOCK_MAP, false);
+        if ((func.flags & Flags.ATTACHED) == Flags.ATTACHED && unlockIns.relatedLock.lockVariables.isEmpty()) {
+            mv.visitVarInsn(ALOAD, 0);
+            this.mv.visitFieldInsn(GETFIELD, moduleClassName, CLASS_LOCK_VAR_NAME, LOAD_LOCK);
+        } else {
+            String lockStore = "L" + LOCK_STORE + ";";
+            String lockName = GLOBAL_LOCK_NAME + unlockIns.relatedLock.lockId;
+            String initClassName = jvmPackageGen.lookupGlobalVarClassName(this.currentPackageName, LOCK_STORE_VAR_NAME);
+            this.mv.visitFieldInsn(GETSTATIC, initClassName, LOCK_STORE_VAR_NAME, lockStore);
+            this.mv.visitLdcInsn(lockName);
+            this.mv.visitMethodInsn(INVOKEVIRTUAL, LOCK_STORE, "getLockFromMap", GET_LOCK_MAP, false);
+        }
         this.mv.visitMethodInsn(INVOKEVIRTUAL, LOCK_VALUE, "unlock", VOID_METHOD_DESC, false);
-
         this.mv.visitJumpInsn(GOTO, gotoLabel);
     }
 

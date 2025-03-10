@@ -2386,7 +2386,6 @@ public class BIRGen extends BLangNodeVisitor {
         this.env.unlockVars.peek().addLock(lock);
         populateBirLockWithGlobalVars(lockStmt);
         this.env.enclBB = lockedBB;
-
     }
 
     private void populateBirLockWithGlobalVars(BLangLockStmt lockStmt) {
