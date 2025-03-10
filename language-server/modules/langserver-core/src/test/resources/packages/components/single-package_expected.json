@@ -36,6 +36,7 @@
           "moduleVariables": [],
           "configurableVariables": [],
           "automations": [],
+          "promptAsCode": [],
           "name": "services"
         },
         {
@@ -68,7 +69,8 @@
               "endLine": 6,
               "endColumn": 1
             }
-          ]
+          ],
+          "promptAsCode": []
         }
       ]
     }

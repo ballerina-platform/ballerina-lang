@@ -226,7 +226,7 @@ public final class BuildToolUtils {
         ValidationStatus status = ValidationStatus.VALID;
         if (cmdName == null || cmdName.isEmpty()) {
             status = ValidationStatus.EMPTY;
-        } else if (!cmdName.matches("^\\w+$")) {
+        } else if (!cmdName.matches("^[\\w-]+$")) {
             status = ValidationStatus.NON_ALPHANUMERIC;
         } else if (cmdName.startsWith("_")) {
             status = ValidationStatus.LEADING_UNDERSCORE;
