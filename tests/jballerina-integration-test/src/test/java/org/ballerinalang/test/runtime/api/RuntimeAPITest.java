@@ -87,7 +87,8 @@ public class RuntimeAPITest extends BaseTest {
             leechers.add(new LogLeecher("Dr.John Doe owns a car. These are some other details:"));
             leechers.add(new LogLeecher("Dr.John Doe owns a bus. These are some other details:"));
             leechers.add(new LogLeecher("Dr.John Doe owns a bus. These are some other details: Has a cat"));
-            leechers.add(new LogLeecher("Dr.John Doe owns a bus. These are some other details: Has a cat, Likes physics"));
+            leechers.add(new LogLeecher("Dr.John Doe owns a bus. These are some other details:" +
+                    " Has a cat, Likes physics"));
             leechers.add(new LogLeecher("Incorrect parameter count in 'getInfo' : Required '1', found '0'"));
             leechers.add(new LogLeecher("{\"id\":1001,\"name\":\"John\"," +
                     "\"sportsActivity\":{\"event\":\"100m\",\"year\":2020}}"));

@@ -275,7 +275,7 @@ public class Scheduler {
                     restParamArray.append(args[i]);
                 }
             }
-            argsWithDefaultValues[length -1] = restParamArray;
+            argsWithDefaultValues[length - 1] = restParamArray;
         }
         return argsWithDefaultValues;
     }
