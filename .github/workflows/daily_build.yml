@@ -49,7 +49,6 @@ jobs:
           export DISPLAY=':99.0'
           /usr/bin/Xvfb :99 -screen 0 1024x768x24 > /dev/null 2>&1 &
           ./gradlew build -Pnative.test --max-workers=2 --scan --no-daemon 
-          find ~/.gradle/caches/ -name "*.lock" -type f -delete
 
       - name: Notify failure
         if: ${{ failure() }}
@@ -120,7 +119,6 @@ jobs:
           export DISPLAY=':99.0'
           /usr/bin/Xvfb :99 -screen 0 1024x768x24 > /dev/null 2>&1 &
           ./gradlew build sonarqube --info -x test -x check --max-workers=2 --scan --no-daemon
-          find ~/.gradle/caches/ -name "*.lock" -type f -delete
           
       - name: Print log message  
         env: 
