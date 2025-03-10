@@ -34,11 +34,10 @@ public class OrderByClause implements PipelineStage {
     @Override
     public Stream<Frame> process(Stream<Frame> inputStream) {
         return inputStream.peek(frame -> {
-            try {
-                BMap<BString, Object> record = frame.getRecord();
-                orderKeyFunction.call(env.getRuntime(), record);
-            } catch (BError e) {
-                throw e;
+            BMap<BString, Object> record = frame.getRecord();
+            Object result = orderKeyFunction.call(env.getRuntime(), record);
+            if (result instanceof BError) {
+                throw (BError) result;
             }
         }).sorted(getComparator());
     }
@@ -50,6 +49,14 @@ public class OrderByClause implements PipelineStage {
         return (frame1, frame2) -> {
             BMap<BString, Object> record1 = frame1.getRecord();
             BMap<BString, Object> record2 = frame2.getRecord();
+
+            if(record1 instanceof BError) {
+                throw (BError) record1;
+            }
+
+            if(record2 instanceof BError) {
+                throw (BError) record2;
+            }
 
             BArray orderKey1Array = (BArray) record1.get(StringUtils.fromString("$orderKey$"));
             BArray orderKey2Array = (BArray) record2.get(StringUtils.fromString("$orderKey$"));
