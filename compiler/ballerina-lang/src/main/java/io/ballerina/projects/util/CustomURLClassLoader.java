@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package io.ballerina.cli.launcher;
+package io.ballerina.projects.util;
 
 import java.io.IOException;
 import java.net.URL;
@@ -33,10 +33,10 @@ import java.util.Objects;
  *
  * @since 2201.8.0
  */
-public class CustomToolClassLoader extends URLClassLoader {
+public class CustomURLClassLoader extends URLClassLoader {
     private final ClassLoader system;
 
-    public CustomToolClassLoader(URL[] urls, ClassLoader parent) {
+    public CustomURLClassLoader(URL[] urls, ClassLoader parent) {
         super(urls, parent);
         system = getSystemClassLoader();
     }
