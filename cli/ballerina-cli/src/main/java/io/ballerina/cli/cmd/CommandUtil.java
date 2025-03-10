@@ -95,7 +95,6 @@ import static io.ballerina.projects.util.ProjectUtils.getAccessTokenOfCLI;
 import static io.ballerina.projects.util.ProjectUtils.guessPkgName;
 import static io.ballerina.projects.util.ProjectUtils.initializeProxy;
 import static java.lang.Runtime.getRuntime;
-import static java.nio.file.Files.write;
 import static org.wso2.ballerinalang.programfile.ProgramFileConstants.ANY_PLATFORM;
 import static org.wso2.ballerinalang.util.RepoUtils.readSettings;
 
@@ -1014,9 +1013,8 @@ public final class CommandUtil {
         Files.writeString(ballerinaToml, defaultManifest);
 
         // Create README.md
-        String packageMd = FileUtils.readFileAsString(NEW_CMD_DEFAULTS + "/" +
-                ProjectConstants.README_MD_FILE_NAME);
-        write(path.resolve(ProjectConstants.README_MD_FILE_NAME), packageMd.getBytes(StandardCharsets.UTF_8));
+        String readmeMd = FileUtils.readFileAsString(NEW_CMD_DEFAULTS + "/" + "lib-readme.md");
+        Files.writeString(path.resolve(ProjectConstants.README_MD_FILE_NAME), readmeMd);
     }
 
     /**
@@ -1039,11 +1037,12 @@ public final class CommandUtil {
 
         Path balToolToml = path.resolve(BAL_TOOL_TOML);
         Files.createFile(balToolToml);
-
         String balToolManifest = FileUtils.readFileAsString(NEW_CMD_DEFAULTS + "/" + "manifest-tool.toml");
         balToolManifest = balToolManifest.replace(TOOL_ID, guessPkgName(packageName, TOOL_DIR));
-
         Files.writeString(balToolToml, balToolManifest);
+
+        String readmeMd = FileUtils.readFileAsString(NEW_CMD_DEFAULTS + "/" + "tool-readme.md");
+        Files.writeString(path.resolve(ProjectConstants.README_MD_FILE_NAME), readmeMd);
     }
 
     private static PackageVersion findLatest(List<PackageVersion> packageVersions) {
