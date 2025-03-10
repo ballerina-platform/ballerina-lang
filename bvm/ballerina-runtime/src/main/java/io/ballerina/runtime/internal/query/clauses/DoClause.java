@@ -38,10 +38,9 @@ public class DoClause implements PipelineStage {
     @Override
     public Stream<Frame> process(Stream<Frame> inputStream) throws BError {
         return inputStream.peek(frame -> {
-            try {
-                function.call(env.getRuntime(), frame.getRecord());
-            } catch (BError e) {
-                throw e;
+            Object result = function.call(env.getRuntime(), frame.getRecord());
+            if (result instanceof BError) {
+                throw (BError) result;
             }
         });
     }
