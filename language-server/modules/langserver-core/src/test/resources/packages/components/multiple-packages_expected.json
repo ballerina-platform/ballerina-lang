@@ -36,6 +36,7 @@
           "moduleVariables": [],
           "configurableVariables": [],
           "automations": [],
+          "promptAsCode": [],
           "name": "services"
         },
         {
@@ -68,7 +69,8 @@
               "endLine": 6,
               "endColumn": 1
             }
-          ]
+          ],
+          "promptAsCode": []
         }
       ]
     },
@@ -98,6 +100,7 @@
           "moduleVariables": [],
           "configurableVariables": [],
           "automations": [],
+          "promptAsCode": [],
           "name": "storage"
         },
         {
@@ -130,7 +133,8 @@
               "endLine": 6,
               "endColumn": 1
             }
-          ]
+          ],
+          "promptAsCode": []
         },
         {
           "functions": [
@@ -154,6 +158,7 @@
           "moduleVariables": [],
           "configurableVariables": [],
           "automations": [],
+          "promptAsCode": [],
           "name": "services"
         }
       ]
@@ -193,7 +198,8 @@
           "listeners": [],
           "moduleVariables": [],
           "configurableVariables": [],
-          "automations": []
+          "automations": [],
+          "promptAsCode": []
         },
         {
           "functions": [],
@@ -227,6 +233,7 @@
           "moduleVariables": [],
           "configurableVariables": [],
           "automations": [],
+          "promptAsCode": [],
           "name": "db_service"
         },
         {
@@ -270,6 +277,7 @@
           "moduleVariables": [],
           "configurableVariables": [],
           "automations": [],
+          "promptAsCode": [],
           "name": "hello_service"
         }
       ]
@@ -425,7 +433,8 @@
               "endLine": 46,
               "endColumn": 1
             }
-          ]
+          ],
+          "promptAsCode": []
         }
       ]
     }
