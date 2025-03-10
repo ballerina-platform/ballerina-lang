@@ -4,6 +4,7 @@ import io.ballerina.runtime.api.Environment;
 import io.ballerina.runtime.api.creators.TypeCreator;
 import io.ballerina.runtime.api.types.PredefinedTypes;
 import io.ballerina.runtime.api.values.BArray;
+import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.internal.query.pipeline.Frame;
@@ -44,7 +45,7 @@ public class GroupByClause implements PipelineStage {
      * @return A grouped stream of frames.
      */
     @Override
-    public Stream<Frame> process(Stream<Frame> inputStream) {
+    public Stream<Frame> process(Stream<Frame> inputStream) throws BError {
         Map<Map<BString, Object>, List<Frame>> groupedData = inputStream
                 .collect(Collectors.groupingBy(
                         frame -> extractGroupingKey(frame, groupingKeys),

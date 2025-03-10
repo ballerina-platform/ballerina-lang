@@ -82,10 +82,10 @@ public class InnerJoinClause implements PipelineStage {
      * @return A joined stream of frames.
      */
     @Override
-    public Stream<Frame> process(Stream<Frame> inputStream) {
+    public Stream<Frame> process(Stream<Frame> inputStream) throws BError {
         if (failureAtJoin != null) {
 //            throw new RuntimeException("Error in join clause: " + failureAtJoin.getMessage(), failureAtJoin);
-            throw ErrorCreator.createError(failureAtJoin);
+            throw failureAtJoin;
         }
 
         return inputStream.flatMap(lhsFrame -> {
@@ -96,8 +96,8 @@ public class InnerJoinClause implements PipelineStage {
                 return rhsCandidates.stream()
                         .map(rhsFrame -> mergeFrames(lhsFrame, rhsFrame));
 
-            } catch (Exception e) {
-                throw new RuntimeException("Error applying key functions in join clause", e);
+            } catch (BError e) {
+                throw e;
             }
         });
     }

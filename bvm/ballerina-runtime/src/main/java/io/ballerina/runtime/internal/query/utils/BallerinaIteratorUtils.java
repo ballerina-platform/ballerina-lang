@@ -64,8 +64,8 @@ public class BallerinaIteratorUtils {
                             "Unsupported collection type: " + collection.getClass().getName()));
                 }
             }
-        } catch (Exception e) {
-            throw prepareCompleteEarlyError(e);
+        } catch (BError e) {
+            throw DistinctQueryErrorCreator.createDistinctError(e);
         }
     }
 

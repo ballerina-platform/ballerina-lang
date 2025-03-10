@@ -87,7 +87,7 @@ public class OuterJoinClause implements PipelineStage {
     public Stream<Frame> process(Stream<Frame> inputStream) {
         if (failureAtJoin != null) {
 //            throw new RuntimeException("Error in join clause: " + failureAtJoin.getMessage(), failureAtJoin);
-            throw ErrorCreator.createError(failureAtJoin);
+            throw failureAtJoin;
         }
 
 

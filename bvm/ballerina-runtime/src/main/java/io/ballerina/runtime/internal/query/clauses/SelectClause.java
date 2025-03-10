@@ -1,6 +1,8 @@
 package io.ballerina.runtime.internal.query.clauses;
 
 import io.ballerina.runtime.api.Environment;
+import io.ballerina.runtime.api.creators.ErrorCreator;
+import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BFunctionPointer;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.internal.query.pipeline.Frame;
@@ -43,22 +45,18 @@ public class SelectClause implements PipelineStage {
      * @return A transformed stream of frames.
      */
     @Override
-    public Stream<Frame> process(Stream<Frame> inputStream) {
-        try {
-            return inputStream.map(frame -> {
-                // Call the selector function and process the result
-                Object result = selector.call(env.getRuntime(), frame.getRecord());
-                if (result instanceof Frame) {
-                    return (Frame) result;
-                } else if (result instanceof BMap) {
-                    frame.updateRecord((BMap) result);
-                    return frame;
-                } else {
-                    throw new RuntimeException("Invalid transformation result: " + result);
-                }
-            });
-        } catch (Exception e) {
-            throw new RuntimeException("Error during frame transformation in select clause", e);
-        }
+    public Stream<Frame> process(Stream<Frame> inputStream) throws BError {
+        return inputStream.map(frame -> {
+            // Call the selector function and process the result
+            Object result = selector.call(env.getRuntime(), frame.getRecord());
+            if (result instanceof Frame) {
+                return (Frame) result;
+            } else if (result instanceof BMap) {
+                frame.updateRecord((BMap) result);
+                return frame;
+            } else {
+                throw (BError) result;
+            }
+        });
     }
 }
