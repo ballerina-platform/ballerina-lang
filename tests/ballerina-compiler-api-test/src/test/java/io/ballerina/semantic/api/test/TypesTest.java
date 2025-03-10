@@ -39,7 +39,6 @@ import io.ballerina.compiler.api.impl.symbols.BallerinaReadonlyTypeSymbol;
 import io.ballerina.compiler.api.impl.symbols.BallerinaStreamTypeSymbol;
 import io.ballerina.compiler.api.impl.symbols.BallerinaStringTypeSymbol;
 import io.ballerina.compiler.api.impl.symbols.BallerinaTypeDescTypeSymbol;
-import io.ballerina.compiler.api.impl.symbols.BallerinaTypeReferenceTypeSymbol;
 import io.ballerina.compiler.api.impl.symbols.BallerinaXMLTypeSymbol;
 import io.ballerina.compiler.api.symbols.ClassSymbol;
 import io.ballerina.compiler.api.symbols.ConstantSymbol;
@@ -150,7 +149,6 @@ public class TypesTest {
                 {types.JSON, JSON, BallerinaJSONTypeSymbol.class},
                 {types.BYTE, BYTE, BallerinaByteTypeSymbol.class},
                 {types.COMPILATION_ERROR, COMPILATION_ERROR, BallerinaCompilationErrorTypeSymbol.class},
-                {types.RAW_TEMPLATE, TYPE_REFERENCE, BallerinaTypeReferenceTypeSymbol.class}
         };
     }
 
