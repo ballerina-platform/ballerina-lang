@@ -1072,9 +1072,9 @@ class _OrderTreeNode {
 }
 
 //Distinct error to identify errors thrown from query body
-public type Error distinct error;
+public type Error error;
 
 //Distinct error to identify errors thrown from query pipeline
-public type CompleteEarlyError distinct error;
+public type CompleteEarlyError error;
 
 public type QueryErrorTypes CompleteEarlyError|Error;

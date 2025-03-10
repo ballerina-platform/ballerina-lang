@@ -1,6 +1,7 @@
 package io.ballerina.runtime.internal.query.clauses;
 
 import io.ballerina.runtime.api.Environment;
+import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BFunctionPointer;
 import io.ballerina.runtime.internal.query.pipeline.Frame;
 
@@ -35,12 +36,12 @@ public class DoClause implements PipelineStage {
      * @return The same stream after applying the function.
      */
     @Override
-    public Stream<Frame> process(Stream<Frame> inputStream) {
+    public Stream<Frame> process(Stream<Frame> inputStream) throws BError {
         return inputStream.peek(frame -> {
             try {
                 function.call(env.getRuntime(), frame.getRecord());
-            } catch (Exception e) {
-                throw new RuntimeException("Error executing function in do clause", e);
+            } catch (BError e) {
+                throw e;
             }
         });
     }

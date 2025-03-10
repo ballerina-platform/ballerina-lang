@@ -1,6 +1,7 @@
 package io.ballerina.runtime.internal.query.clauses;
 
 import io.ballerina.runtime.api.Environment;
+import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BFunctionPointer;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
@@ -46,19 +47,14 @@ public class LetClause implements PipelineStage {
     @Override
     public Stream<Frame> process(Stream<Frame> inputStream) {
         return inputStream.map(frame -> {
-            try {
-                // Apply the modifier function to the frame.
-                Object result = frameModifier.call(env.getRuntime(), frame.getRecord());
-                if (result instanceof Frame) {
-                    return (Frame) result;
-                }  else if (result instanceof BMap) {
-                    frame.updateRecord((BMap<BString, Object>) result);
-                    return frame;
-                } else {
-                    throw new IllegalStateException("Let function must return a Frame or null.");
-                }
-            } catch (Exception e) {
-                throw new RuntimeException("Error applying let clause to frame.", e);
+            Object result = frameModifier.call(env.getRuntime(), frame.getRecord());
+            if (result instanceof Frame) {
+                return (Frame) result;
+            }  else if (result instanceof BMap) {
+                frame.updateRecord((BMap<BString, Object>) result);
+                return frame;
+            } else {
+                throw (BError) result;
             }
         });
     }

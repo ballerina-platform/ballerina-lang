@@ -37,8 +37,8 @@ public class OrderByClause implements PipelineStage {
             try {
                 BMap<BString, Object> record = frame.getRecord();
                 orderKeyFunction.call(env.getRuntime(), record);
-            } catch (Exception e) {
-                throw new RuntimeException("Error in order by clause processing.", e);
+            } catch (BError e) {
+                throw e;
             }
         }).sorted(getComparator());
     }

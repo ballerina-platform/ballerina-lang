@@ -38,16 +38,24 @@ public class CollectionUtil {
 //        return null;
 //    }
 
-    public static BArray createArray(StreamPipeline pipeline, BArray array) {
-        Stream<Frame> strm = pipeline.getStream();
-        Object[] tmpArr = strm
-                .map(frame -> frame.getRecord().get($VALUE$_FIELD))
-                .toArray();
+    public static Object createArray(StreamPipeline pipeline, BArray array) {
+        try {
+            Stream<Frame> strm = pipeline.getStream();
+            Object[] tmpArr = strm
+                    .map(frame -> frame.getRecord().get($VALUE$_FIELD))
+                    .toArray();
 
-        if (tmpArr.length > 0) {
-            array.unshift(tmpArr);
+            if (tmpArr.length > 0) {
+                array.unshift(tmpArr);
+            }
+            return array;
+        } catch (BError e) {
+//            return ErrorCreator.createError(BALLERINA_QUERY_PKG_ID, "CompleteEarlyError", e.getErrorMessage(), e, (BMap<BString, Object>) e.getDetails());
+//            return ErrorCreator.createDistinctError("Error", BALLERINA_QUERY_PKG_ID, e.getErrorMessage());
+//            return e;
+//            return ErrorCreator.createError(e.getErrorMessage(), e);
+            return e;
         }
-        return array;
     }
 
     public static Object collectQuery(Object pipeline) {
@@ -77,23 +85,23 @@ public class CollectionUtil {
         }
     }
 
-    public static BTable createTable(StreamPipeline pipeline, BTable table) {
+    public static Object createTable(StreamPipeline pipeline, BTable table) {
         Stream<Frame> strm = pipeline.getStream();
-//        TableType tableType = (TableType) pipeline.getConstraintType().getDescribingType();
-//        BTable table = ValueCreator.createTableValue(tableType);
 
-        strm.forEach(frame -> {
-            BMap<BString, Object> record = (BMap<BString, Object>) frame.getRecord().get($VALUE$_FIELD);
-            table.add(record);
-        });
+        try {
+            strm.forEach(frame -> {
+                BMap<BString, Object> record = (BMap<BString, Object>) frame.getRecord().get($VALUE$_FIELD);
+                table.add(record);
+            });
 
-        return table;
+            return table;
+        } catch (BError e) {
+            return e;
+        }
     }
 
     public static Object createTableForOnConflict(StreamPipeline pipeline, BTable table) {
         Stream<Frame> strm = pipeline.getStream();
-//        TableType tableType = (TableType) pipeline.getConstraintType().getDescribingType();
-//        BTable table = ValueCreator.createTableValue(tableType);
 
         Optional<BError> error = strm
                 .map(frame -> {
@@ -113,19 +121,21 @@ public class CollectionUtil {
         return error.orElse(null) != null ? error.get() : table;
     }
 
-    public static BMap<BString, Object> createMap(StreamPipeline pipeline, BMap<BString, Object> map) {
+    public static Object createMap(StreamPipeline pipeline, BMap<BString, Object> map) {
         Stream<Frame> strm = pipeline.getStream();
-//        MapType mapType = (MapType) pipeline.getConstraintType().getDescribingType();
-//        BMap<BString, Object> map = ValueCreator.createMapValue(mapType);
 
-        strm.forEach(frame -> {
-            BArray record = (BArray) frame.getRecord().get($VALUE$_FIELD);
-            BString key = (BString) record.get(0);
-            Object value = record.get(1);
-            map.put(key, value);
-        });
+        try {
+            strm.forEach(frame -> {
+                BArray record = (BArray) frame.getRecord().get($VALUE$_FIELD);
+                BString key = (BString) record.get(0);
+                Object value = record.get(1);
+                map.put(key, value);
+            });
 
-        return map;
+            return map;
+        } catch (BError e) {
+            return e;
+        }
     }
 
     public static Object createMapForOnConflict(StreamPipeline pipeline, BMap<BString, Object> map) {
@@ -163,15 +173,19 @@ public class CollectionUtil {
         return ValueCreator.createStreamValue(streamType, iteratorObj);
     }
 
-    public static BXml createXML(StreamPipeline pipeline) {
+    public static Object createXML(StreamPipeline pipeline) {
         Stream<Frame> strm = pipeline.getStream();
 
-        Object[] xmlArray = strm
-                .map(frame -> frame.getRecord().get($VALUE$_FIELD))
-                .filter(Objects::nonNull)
-                .toArray();
+        try {
+            Object[] xmlArray = strm
+                    .map(frame -> frame.getRecord().get($VALUE$_FIELD))
+                    .filter(Objects::nonNull)
+                    .toArray();
 
-        return concatXML(xmlArray);
+            return concatXML(xmlArray);
+        } catch (BError e) {
+            return e;
+        }
     }
 
     public static BXml concatXML(Object... arrayValue) {

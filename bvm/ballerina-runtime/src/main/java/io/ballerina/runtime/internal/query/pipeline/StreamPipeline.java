@@ -5,6 +5,7 @@ import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BTypedesc;
 import io.ballerina.runtime.internal.query.clauses.PipelineStage;
 import io.ballerina.runtime.internal.query.utils.BallerinaIteratorUtils;
+import io.ballerina.runtime.internal.query.utils.DistinctQueryErrorCreator;
 import io.ballerina.runtime.internal.values.ErrorValue;
 
 import java.util.ArrayList;
