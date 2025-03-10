@@ -23,18 +23,20 @@ public class IteratorObject {
             if (iterator.hasNext()) {
                 Frame frame = iterator.next();
                 BMap<BString, Object> recordMap = frame.getRecord();
-                if (recordMap.isEmpty()) {
-                    throw new RuntimeException("Error occurred while iterating over the stream: " +
-                            "record fields cannot be empty");
-                }
+//                if (recordMap.isEmpty()) {
+//                    throw new RuntimeException("Error occurred while iterating over the stream: " +
+//                            "record fields cannot be empty");
+//                }
                 Object value = recordMap.get(VALUE_FIELD);
+                if (value instanceof BError) {
+                    throw (BError) value;
+                }
                 BMap<BString, Object> record = ValueCreator.createRecordValue(BALLERINA_QUERY_PKG_ID, "nextRecord");
                 record.put(StringUtils.fromString("value"), value);
                 return record;
             }
-        } catch (Exception e) {
-//            throw new RuntimeException("Error occurred while iterating over the stream: " + e.getMessage());
-            return null;
+        } catch (BError e) {
+            return e;
         }
 
         return null;
