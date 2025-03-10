@@ -564,6 +564,42 @@ function testServiceObjectTypeAnnotations() {
     assertEquality("remote 2", kind.kind);
 }
 
+type ToolConfig record {|
+    string name?;
+|};
+
+annotation ToolConfig Tool on function;
+
+class Agent {
+    private (isolated function)[] tools = [];
+
+    isolated function init((isolated function)[] tools) {
+        self.tools = tools;
+    }
+
+    isolated function run() returns ToolConfig|error {
+        typedesc<isolated function> typedesVal = typeof self.tools.pop();
+        ToolConfig toolConfig = check typedesVal.@Tool.ensureType();
+        return toolConfig;
+    }
+}
+
+@Tool {name: n}
+isolated function sum(int a, int b) returns int {
+    return a + b;
+}
+
+Agent agent = new ([sum]);
+
+public function testFuncAnnotationAccessInClasMethod() returns error? {
+    ToolConfig toolConfig = check agent.run();
+    assertEquality(toolConfig.name, "name");
+}
+
+string n = "name";
+
+
+
 function getMethodAnnotations(typedesc<object {}> bTypedesc, string method, string annotName) returns anydata =
     @java:Method {
         'class: "org/ballerinalang/test/annotations/AnnotationRuntimeTest"

@@ -78,6 +78,19 @@ public class LSClientLogger {
     }
 
     /**
+     * Notifies the language client with a message of specified type.
+     *
+     * @param messageType The type of message to be shown
+     * @param message     The content of the message to be shown to the client
+     */
+    public void notifyClient(MessageType messageType, String message) {
+        if (!this.isInitializedOnce) {
+            return;
+        }
+        languageClient.showMessage(new MessageParams(messageType, message));
+    }
+
+    /**
      * Logs the error message through the LSP protocol.
      *
      * @param message    log message

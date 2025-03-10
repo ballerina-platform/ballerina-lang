@@ -82,6 +82,11 @@ public class TypedescTests {
         Assert.assertEquals(returns.get(4).toString(), "typedesc byte");
     }
 
+    @Test(description = "Test type desc shapes")
+    public void testTypeDescShape() {
+        BRunUtil.invoke(result, "testRecordWithTypedescField");
+    }
+
     @Test(description = "Test buildin ref types")
     public void testRefTypes() {
         BRunUtil.invoke(result, "testRefTypes");
