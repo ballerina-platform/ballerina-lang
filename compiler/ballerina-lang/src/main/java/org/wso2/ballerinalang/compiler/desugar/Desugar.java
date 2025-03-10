@@ -10761,6 +10761,7 @@ public class Desugar extends BLangNodeVisitor {
         param.setName(createIdentifier(pos, parameterName));
         BVarSymbol symbol =
                 new BVarSymbol(0, Names.fromString(parameterName), owner.pkgID, xmlElementType, owner, pos, SOURCE);
+        invokableTypeSymbol.params.add(symbol);
         param.symbol = symbol;
         param.typeNode = ASTBuilderUtil.createTypeNode(xmlElementType);
         param.setBType(xmlElementType);
