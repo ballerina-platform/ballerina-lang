@@ -63,13 +63,13 @@ public class InnerJoinClause implements PipelineStage {
         try {
             Stream<Frame> strm = ((StreamPipeline)StreamPipeline.getStreamFromPipeline(pipelineToJoin)).getStream();
             strm.forEach(frame -> {
-                        try {
-                            Object key = rhsKeyFunction.call(env.getRuntime(), frame.getRecord());
-                            rhsFramesMap.computeIfAbsent(key.toString(), k -> new ArrayList<>()).add(frame);
-                        } catch (BError e) {
-                            failureAtJoin = e;
-                        }
-                    });
+                Object key = rhsKeyFunction.call(env.getRuntime(), frame.getRecord());
+                if(key instanceof BError) {
+                    failureAtJoin = (BError) key;
+                    return;
+                }
+                rhsFramesMap.computeIfAbsent(key.toString(), k -> new ArrayList<>()).add(frame);
+            });
         } catch (BError e) {
             failureAtJoin = e;
         }
@@ -82,22 +82,23 @@ public class InnerJoinClause implements PipelineStage {
      * @return A joined stream of frames.
      */
     @Override
-    public Stream<Frame> process(Stream<Frame> inputStream) {
-        if (failureAtJoin != null) {
-//            throw new RuntimeException("Error in join clause: " + failureAtJoin.getMessage(), failureAtJoin);
-            throw ErrorCreator.createError(failureAtJoin);
-        }
-
+    public Stream<Frame> process(Stream<Frame> inputStream) throws BError {
         return inputStream.flatMap(lhsFrame -> {
             try {
+                if (failureAtJoin != null) {
+                    throw failureAtJoin;
+                }
                 Object lhsKey = lhsKeyFunction.call(env.getRuntime(), lhsFrame.getRecord());
+                if(lhsKey instanceof BError) {
+                    throw (BError) lhsKey;
+                }
                 List<Frame> rhsCandidates = rhsFramesMap.getOrDefault(lhsKey.toString(), Collections.emptyList());
 
                 return rhsCandidates.stream()
                         .map(rhsFrame -> mergeFrames(lhsFrame, rhsFrame));
 
-            } catch (Exception e) {
-                throw new RuntimeException("Error applying key functions in join clause", e);
+            } catch (BError e) {
+                throw e;
             }
         });
     }

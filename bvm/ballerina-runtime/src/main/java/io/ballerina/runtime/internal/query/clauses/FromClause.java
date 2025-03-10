@@ -1,11 +1,9 @@
 package io.ballerina.runtime.internal.query.clauses;
 
 import io.ballerina.runtime.api.Environment;
+import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.utils.StringUtils;
-import io.ballerina.runtime.api.values.BArray;
-import io.ballerina.runtime.api.values.BFunctionPointer;
-import io.ballerina.runtime.api.values.BMap;
-import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.api.values.*;
 import io.ballerina.runtime.internal.query.pipeline.Frame;
 
 import java.util.stream.Stream;
@@ -39,19 +37,15 @@ public class FromClause implements PipelineStage {
      * @return A transformed stream of frames.
      */
     @Override
-    public Stream<Frame> process(Stream<Frame> inputStream) {
+    public Stream<Frame> process(Stream<Frame> inputStream) throws BError {
         return inputStream.map(frame -> {
-            try {
-                Object result = transformer.call(env.getRuntime(), frame.getRecord());
+            Object result = transformer.call(env.getRuntime(), frame.getRecord());
 
-                if (result instanceof BMap) {
-                    frame.updateRecord((BMap<BString, Object>) result);
-                    return frame;
-                } else {
-                    throw new RuntimeException("Invalid transformation result: " + result);
-                }
-            } catch (Exception e) {
-                throw new RuntimeException("Error during frame transformation", e);
+            if (result instanceof BMap) {
+                frame.updateRecord((BMap<BString, Object>) result);
+                return frame;
+            } else {
+                throw (BError) result;
             }
         });
     }

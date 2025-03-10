@@ -2,12 +2,10 @@ package io.ballerina.runtime.internal.query.clauses;
 
 import io.ballerina.runtime.api.Environment;
 import io.ballerina.runtime.api.utils.StringUtils;
-import io.ballerina.runtime.api.values.BArray;
-import io.ballerina.runtime.api.values.BFunctionPointer;
-import io.ballerina.runtime.api.values.BMap;
-import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.api.values.*;
 import io.ballerina.runtime.internal.query.pipeline.Frame;
 import io.ballerina.runtime.internal.query.utils.BallerinaIteratorUtils;
+import io.ballerina.runtime.internal.query.utils.DistinctQueryErrorCreator;
 
 import java.util.*;
 import java.util.stream.Stream;
@@ -73,8 +71,8 @@ public class NestedFromClause implements PipelineStage {
                 }
 
                 return results.stream();
-            } catch (Exception e) {
-                throw new RuntimeException("Error applying collection function in nested from clause", e);
+            } catch (BError e) {
+                throw DistinctQueryErrorCreator.createDistinctError(e);
             }
         });
     }

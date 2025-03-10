@@ -1,6 +1,7 @@
 package io.ballerina.runtime.internal.query.clauses;
 
 import io.ballerina.runtime.api.Environment;
+import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BFunctionPointer;
 import io.ballerina.runtime.internal.query.pipeline.Frame;
 
@@ -44,16 +45,11 @@ public class WhereClause implements PipelineStage {
     @Override
     public Stream<Frame> process(Stream<Frame> inputStream) {
         return inputStream.filter(frame -> {
-            try {
-                // Call the filter function on the current frame.
-                Object result = filterFunc.call(env.getRuntime(), frame.getRecord());
-                if (result instanceof Boolean) {
-                    return (Boolean) result; // Include frame if predicate is true.
-                } else {
-                    throw new RuntimeException("Filter function must return a boolean.");
-                }
-            } catch (Exception e) {
-                throw new RuntimeException("Error applying filter function in where clause", e);
+            Object result = filterFunc.call(env.getRuntime(), frame.getRecord());
+            if (result instanceof Boolean) {
+                return (Boolean) result;
+            } else {
+                throw (BError) result;
             }
         });
     }
