@@ -34,7 +34,7 @@ public class ModuleObject {
     private final List<DataObject> moduleVariables = new ArrayList<>();
     private final List<DataObject> configurableVariables = new ArrayList<>();
     private final List<DataObject> automations = new ArrayList<>();
-    private final List<DataObject> promptAsCode = new ArrayList<>();
+    private final List<DataObject> naturalFunctions = new ArrayList<>();
 
     private String name;
 
@@ -79,9 +79,8 @@ public class ModuleObject {
         this.functions.add(dataObject); // The main function
     }
 
-    private void addPromptAsCode(DataObject dataObject) {
-        this.promptAsCode.add(dataObject);
-        this.functions.add(dataObject);
+    private void addNaturalFunction(DataObject dataObject) {
+        this.naturalFunctions.add(dataObject);
     }
 
     private void addModuleVariable(DataObject dataObject) {
@@ -117,7 +116,7 @@ public class ModuleObject {
             case PackageServiceConstants.CONFIGURABLE_VARIABLES ->
                     this.addConfigurableVariable(mapperObject.getDataObject());
             case PackageServiceConstants.AUTOMATIONS -> this.addAutomation(mapperObject.getDataObject());
-            case PackageServiceConstants.PROMPT_AS_CODE -> this.addPromptAsCode(mapperObject.getDataObject());
+            case PackageServiceConstants.NATURAL_FUNCTIONS -> this.addNaturalFunction(mapperObject.getDataObject());
             default -> {
             }
         }
