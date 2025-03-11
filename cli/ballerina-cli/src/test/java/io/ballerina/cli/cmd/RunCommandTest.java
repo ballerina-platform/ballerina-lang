@@ -5,12 +5,9 @@ import io.ballerina.cli.launcher.RuntimePanicException;
 import io.ballerina.projects.ProjectEnvironmentBuilder;
 import io.ballerina.projects.environment.Environment;
 import io.ballerina.projects.environment.EnvironmentBuilder;
-import io.ballerina.projects.util.BuildToolsUtil;
 import io.ballerina.projects.util.ProjectUtils;
 import org.apache.commons.io.filefilter.WildcardFileFilter;
 import org.ballerinalang.test.BCompileUtil;
-import org.mockito.MockedStatic;
-import org.mockito.Mockito;
 import org.testng.Assert;
 import org.testng.annotations.AfterSuite;
 import org.testng.annotations.BeforeClass;
@@ -415,18 +412,14 @@ public class RunCommandTest extends BaseCommandTest {
     public void testRunEmptyProjectWithBuildTools() throws IOException {
         BCompileUtil.compileAndCacheBala(
                 testResources.resolve("buildToolResources/tools/ballerina-generate-file").toString(),
-                testDistCacheDirectory, projectEnvironmentBuilder);
+                testCentralRepoCache, projectEnvironmentBuilder);
         Path projectPath = this.testResources.resolve("emptyProjectWithBuildTool");
         replaceDependenciesTomlContent(projectPath, "**INSERT_DISTRIBUTION_VERSION_HERE**",
                 RepoUtils.getBallerinaShortVersion());
         System.setProperty(USER_DIR_PROPERTY, projectPath.toString());
-        try (MockedStatic<BuildToolsUtil> repoUtils = Mockito.mockStatic(
-                BuildToolsUtil.class, Mockito.CALLS_REAL_METHODS)) {
-            repoUtils.when(BuildToolsUtil::getCentralBalaDirPath).thenReturn(testDistCacheDirectory.resolve("bala"));
-            RunCommand runCommand = new RunCommand(projectPath, printStream, false);
-            new CommandLine(runCommand).parseArgs();
-            runCommand.execute();
-        }
+        RunCommand runCommand = new RunCommand(projectPath, printStream, false);
+        new CommandLine(runCommand).parseArgs();
+        runCommand.execute();
         String buildLog = readOutput(true);
         Assert.assertEquals(buildLog.replaceAll("\r", ""), getOutput("run-empty-project-with-build-tools.txt"));
     }

@@ -35,6 +35,7 @@ import io.ballerina.projects.buildtools.ToolContext;
 import io.ballerina.projects.internal.PackageConfigCreator;
 import io.ballerina.projects.internal.PackageDiagnostic;
 import io.ballerina.projects.internal.ProjectDiagnosticErrorCode;
+import io.ballerina.projects.util.BalToolsUtil;
 import io.ballerina.projects.util.BuildToolsUtil;
 import io.ballerina.projects.util.CustomURLClassLoader;
 import io.ballerina.toml.api.Toml;
@@ -355,13 +356,12 @@ public class RunBuildToolsTask implements Task {
     }
 
     private static List<File> getToolCommandJarAndDependencyJars(List<BuildTool> resolvedTools) {
-        Path centralBalaDirPath = BuildToolsUtil.getCentralBalaDirPath();
         return resolvedTools.stream()
                 .map(tool -> findJarFiles(CommandUtil.getPlatformSpecificBalaPath(
                                 tool.org().value(),
                                 tool.name().value(),
                                 tool.version().toString(),
-                                centralBalaDirPath)
+                                BalToolsUtil.getRepoPath(tool.repository().orElse(null)))
                         .resolve(TOOL).resolve(LIBS)
                         .toFile()))
                 .flatMap(List::stream)
