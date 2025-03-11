@@ -23,7 +23,6 @@ import io.ballerina.cli.utils.TestUtils;
 import io.ballerina.projects.ProjectEnvironmentBuilder;
 import io.ballerina.projects.environment.Environment;
 import io.ballerina.projects.environment.EnvironmentBuilder;
-import io.ballerina.projects.util.BuildToolsUtil;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectUtils;
 import org.apache.commons.codec.digest.DigestUtils;
@@ -418,18 +417,14 @@ public class TestCommandTest extends BaseCommandTest {
     public void testTestEmptyProjectWithBuildTools() throws IOException {
         BCompileUtil.compileAndCacheBala(
                 testResources.resolve("buildToolResources/tools/ballerina-generate-file").toString(),
-                testDistCacheDirectory, projectEnvironmentBuilder);
+                testCentralRepoCache, projectEnvironmentBuilder);
         Path projectPath = this.testResources.resolve("emptyProjectWithBuildTool");
         replaceDependenciesTomlContent(projectPath, "**INSERT_DISTRIBUTION_VERSION_HERE**",
                 RepoUtils.getBallerinaShortVersion());
         System.setProperty("user.dir", projectPath.toString());
-        try (MockedStatic<BuildToolsUtil> repoUtils = Mockito.mockStatic(
-                BuildToolsUtil.class, Mockito.CALLS_REAL_METHODS)) {
-            repoUtils.when(BuildToolsUtil::getCentralBalaDirPath).thenReturn(testDistCacheDirectory.resolve("bala"));
-            TestCommand testCommand = new TestCommand(projectPath, printStream, printStream, false);
-            new CommandLine(testCommand).parseArgs();
-            testCommand.execute();
-        }
+        TestCommand testCommand = new TestCommand(projectPath, printStream, printStream, false);
+        new CommandLine(testCommand).parseArgs();
+        testCommand.execute();
         String buildLog = readOutput(true);
         Assert.assertEquals(buildLog.replace("\r", ""), getOutput("test-empty-project-with-build-tools.txt"));
     }
