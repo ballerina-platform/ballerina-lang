@@ -90,6 +90,7 @@ import static io.ballerina.projects.util.ProjectConstants.BAL_TOOLS_TOML;
 import static io.ballerina.projects.util.ProjectConstants.CENTRAL_REPOSITORY_CACHE_NAME;
 import static io.ballerina.projects.util.ProjectConstants.CONFIG_DIR;
 import static io.ballerina.projects.util.ProjectConstants.REPOSITORIES_DIR;
+import static io.ballerina.projects.util.ProjectUtils.balToolsTomlPath;
 
 /**
  * This class contains utility functions needed for Bal Tool tasks in the Main class.
@@ -117,8 +118,6 @@ public final class BalToolsUtil {
     // if a command is a built-in tool command, add it to this list
     private static final List<String> builtInToolCommands = List.of();
 
-    private static final Path balToolsTomlPath = RepoUtils.createAndGetHomeReposPath().resolve(
-            Path.of(CONFIG_DIR, BAL_TOOLS_TOML));
     private static final Path balaCacheDirPath = ProjectUtils.createAndGetHomeReposPath()
             .resolve(REPOSITORIES_DIR).resolve(CENTRAL_REPOSITORY_CACHE_NAME)
             .resolve(ProjectConstants.BALA_DIR_NAME);

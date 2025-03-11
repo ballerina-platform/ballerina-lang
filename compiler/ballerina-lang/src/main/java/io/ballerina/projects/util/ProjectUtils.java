@@ -103,10 +103,12 @@ import static io.ballerina.projects.util.ProjectConstants.ASM_TREE_JAR;
 import static io.ballerina.projects.util.ProjectConstants.BALLERINA_HOME;
 import static io.ballerina.projects.util.ProjectConstants.BALLERINA_HOME_BRE;
 import static io.ballerina.projects.util.ProjectConstants.BALLERINA_TOML;
+import static io.ballerina.projects.util.ProjectConstants.BAL_TOOLS_TOML;
 import static io.ballerina.projects.util.ProjectConstants.BLANG_COMPILED_JAR_EXT;
 import static io.ballerina.projects.util.ProjectConstants.BLANG_COMPILED_PKG_BINARY_EXT;
 import static io.ballerina.projects.util.ProjectConstants.BUILD_FILE;
 import static io.ballerina.projects.util.ProjectConstants.CACHES_DIR_NAME;
+import static io.ballerina.projects.util.ProjectConstants.CONFIG_DIR;
 import static io.ballerina.projects.util.ProjectConstants.DIFF_UTILS_JAR;
 import static io.ballerina.projects.util.ProjectConstants.DIR_PATH_SEPARATOR;
 import static io.ballerina.projects.util.ProjectConstants.DOT;
@@ -135,6 +137,9 @@ public final class ProjectUtils {
     private static final Pattern orgNamePattern = Pattern.compile("^[a-zA-Z0-9_]*$");
     private static final Pattern separatedIdentifierWithHyphenPattern = Pattern.compile("^[a-zA-Z0-9_.-]*$");
     private static final List<Diagnostic> projectLoadingDiagnostic = new ArrayList<>();
+
+    public static final Path balToolsTomlPath = RepoUtils.createAndGetHomeReposPath().resolve(
+            Path.of(CONFIG_DIR, BAL_TOOLS_TOML));
 
     private ProjectUtils() {
     }
