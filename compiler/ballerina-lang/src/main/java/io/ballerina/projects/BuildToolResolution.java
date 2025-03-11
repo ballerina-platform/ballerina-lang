@@ -43,6 +43,7 @@ import java.util.ServiceLoader;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static io.ballerina.projects.util.ProjectConstants.CENTRAL_REPOSITORY_CACHE_NAME;
 import static io.ballerina.projects.util.ProjectConstants.DEFAULT_VERSION;
 import static io.ballerina.projects.util.ProjectUtils.getAccessTokenOfCLI;
 import static io.ballerina.projects.util.ProjectUtils.initializeProxy;
@@ -173,29 +174,33 @@ public class BuildToolResolution {
                                                              PackageLockingMode packageLockingMode) {
         List<BuildTool> resolvedTools = new ArrayList<>();
         for (BuildTool tool: unresolvedTools) {
-            BuildToolId id = tool.id();
-            PackageOrg org = tool.org();
-            PackageName name = tool.name();
+            String id = tool.id().toString();
             PackageVersion version = tool.version();
-            if (tool.org() == null || tool.name() == null) {
-                TomlDiagnostic diagnostic = BuildToolUtils.getCannotResolveBuildToolDiagnostic(tool.id().value(),
-                        tool.location());
-                diagnosticList.add(diagnostic);
-                continue;
-            }
-            List<SemanticVersion> versions = BuildToolUtils.getCompatibleToolVersionsInLocalCache(org, name);
-            Optional<SemanticVersion> latestCompVersion =
-                    BuildToolUtils.getLatestCompatibleVersion(version.value(), versions, packageLockingMode);
-            if (latestCompVersion.isEmpty()) {
-                String toolIdAndVersionOpt = tool.id().value()
-                        + (tool.version() == null ? "" : ":" + tool.version().toString());
+
+            Optional<BalToolsManifest.Tool> latestCompatibleVersion = BuildToolUtils
+                    .getLatestCompatibleVersion(id, version, packageLockingMode);
+            if (latestCompatibleVersion.isEmpty()) {
+                String toolIdAndVersionOpt = id + (version == null ? "" : ":" + tool.version().toString());
                 TomlDiagnostic diagnostic = BuildToolUtils.getCannotResolveBuildToolDiagnostic(toolIdAndVersionOpt,
                         tool.location());
                 diagnosticList.add(diagnostic);
                 continue;
             }
-            resolvedTools.add(BuildTool.from(id, org, name,
-                    PackageVersion.from(latestCompVersion.get()), tool.location()));
+            BalToolsManifest.Tool latestTool = latestCompatibleVersion.get();
+            if (!BuildToolUtils.isToolAvailableLocally(latestTool.org(),
+                    latestTool.name(), latestTool.version(), CENTRAL_REPOSITORY_CACHE_NAME)) {
+                String toolIdAndVersionOpt = id + ":" + version.toString();
+                TomlDiagnostic diagnostic = BuildToolUtils.getCannotResolveBuildToolDiagnostic(toolIdAndVersionOpt,
+                        tool.location());
+                diagnosticList.add(diagnostic);
+                continue;
+            }
+            resolvedTools.add(BuildTool.from(
+                    tool.id(),
+                    PackageOrg.from(latestTool.org()),
+                    PackageName.from(latestTool.name()),
+                    PackageVersion.from(latestTool.version()),
+                    tool.location()));
         }
         return resolvedTools;
     }
@@ -263,13 +268,15 @@ public class BuildToolResolution {
                 diagnosticList.add(diagnostic);
                 continue;
             }
-            resolvedTools.add(BuildTool.from(
+            BuildTool buildTool = BuildTool.from(
                     BuildToolId.from(tool.id()),
                     PackageOrg.from(tool.org()),
                     PackageName.from(tool.name()),
                     PackageVersion.from(tool.version()),
                     location
-            ));
+            );
+            resolvedTools.add(buildTool);
+            BuildToolUtils.addToolToBalToolsToml(buildTool);
         }
         return resolvedTools;
     }
