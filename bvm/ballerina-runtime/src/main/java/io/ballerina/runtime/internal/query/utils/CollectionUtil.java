@@ -118,7 +118,12 @@ public class CollectionUtil {
                 .filter(Objects::nonNull)
                 .findFirst();
 
-        return error.orElse(null) != null ? error.get() : table;
+//        return error.orElse(null) != null ? error.get() : table;
+        if (error.isPresent()) {
+            return (BError) error.get();
+        } else {
+            return table;
+        }
     }
 
     public static Object createMap(StreamPipeline pipeline, BMap<BString, Object> map) {

@@ -48,14 +48,18 @@ public class SelectClause implements PipelineStage {
     public Stream<Frame> process(Stream<Frame> inputStream) throws BError {
         return inputStream.map(frame -> {
             // Call the selector function and process the result
-            Object result = selector.call(env.getRuntime(), frame.getRecord());
-            if (result instanceof Frame) {
-                return (Frame) result;
-            } else if (result instanceof BMap) {
-                frame.updateRecord((BMap) result);
-                return frame;
-            } else {
-                throw (BError) result;
+            try {
+                Object result = selector.call(env.getRuntime(), frame.getRecord());
+                if (result instanceof Frame) {
+                    return (Frame) result;
+                } else if (result instanceof BMap) {
+                    frame.updateRecord((BMap) result);
+                    return frame;
+                } else {
+                    throw (BError) result;
+                }
+            } catch (BError e) {
+                throw e;
             }
         });
     }
