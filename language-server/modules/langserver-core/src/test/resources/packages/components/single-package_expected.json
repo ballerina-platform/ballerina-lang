@@ -36,7 +36,7 @@
           "moduleVariables": [],
           "configurableVariables": [],
           "automations": [],
-          "promptAsCode": [],
+          "naturalFunctions": [],
           "name": "services"
         },
         {
@@ -70,7 +70,7 @@
               "endColumn": 1
             }
           ],
-          "promptAsCode": []
+          "naturalFunctions": []
         }
       ]
     }

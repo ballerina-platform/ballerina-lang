@@ -52,7 +52,7 @@ public class DocumentComponentTransformer extends NodeTransformer<Optional<Mappe
 
     private static final String BALLERINAX_ORG_NAME = "ballerinax";
     private static final String NP_MODULE_NAME = "np";
-    private static final String LLM_CALL = "LlmCall";
+    private static final String NATURAL_FUNCTION = "NaturalFunction";
 
     DocumentComponentTransformer(ModuleObject moduleObject, SemanticModel semanticModel) {
         this.module = moduleObject;
@@ -85,8 +85,8 @@ public class DocumentComponentTransformer extends NodeTransformer<Optional<Mappe
                     createDataObject(PackageServiceConstants.MAIN_FUNCTION, functionDefinitionNode)));
         }
 
-        if (isPromptAsCodeFunction(functionDefinitionNode)) {
-            return Optional.of(new MapperObject(PackageServiceConstants.PROMPT_AS_CODE,
+        if (isNaturalFunction(functionDefinitionNode)) {
+            return Optional.of(new MapperObject(PackageServiceConstants.NATURAL_FUNCTIONS,
                     createDataObject(functionDefinitionNode.functionName().text(), functionDefinitionNode)));
         }
 
@@ -193,12 +193,12 @@ public class DocumentComponentTransformer extends NodeTransformer<Optional<Mappe
     }
 
     /**
-     * Check whether the given function is a prompt as code function.
+     * Check whether the given function is a natural programming function.
      *
      * @param functionDefinitionNode Function definition node
-     * @return true if the function is a prompt as code function else false
+     * @return true if the function is a natural programming function else false
      */
-    private boolean isPromptAsCodeFunction(FunctionDefinitionNode functionDefinitionNode) {
+    private boolean isNaturalFunction(FunctionDefinitionNode functionDefinitionNode) {
         Optional<Symbol> funcSymbol = this.semanticModel.symbol(functionDefinitionNode);
         if (funcSymbol.isEmpty() || funcSymbol.get().kind() != SymbolKind.FUNCTION
                 || !((FunctionSymbol) funcSymbol.get()).external()) {
@@ -210,7 +210,7 @@ public class DocumentComponentTransformer extends NodeTransformer<Optional<Mappe
         return annotAttachments.stream().anyMatch(annot ->
                 isNpModule(annot.typeDescriptor())
                         && annot.typeDescriptor().getName().isPresent()
-                        && annot.typeDescriptor().getName().get().equals(LLM_CALL));
+                        && annot.typeDescriptor().getName().get().equals(NATURAL_FUNCTION));
     }
 
     private boolean isNpModule(Symbol symbol) {
