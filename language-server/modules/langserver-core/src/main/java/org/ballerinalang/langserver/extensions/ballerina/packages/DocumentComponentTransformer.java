@@ -193,7 +193,7 @@ public class DocumentComponentTransformer extends NodeTransformer<Optional<Mappe
     }
 
     /**
-     * Check whether the given function is a natural programming function.
+     * Check whether the given function is a natural function.
      *
      * @param functionDefinitionNode Function definition node
      * @return true if the function is a natural programming function else false
