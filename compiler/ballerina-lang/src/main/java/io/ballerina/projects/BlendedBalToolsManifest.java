@@ -27,6 +27,7 @@ import java.util.Map;
 import java.util.Optional;
 
 import static io.ballerina.projects.util.ProjectConstants.DISTRIBUTION_REPOSITORY_NAME;
+import static io.ballerina.projects.util.ProjectConstants.LOCAL_REPOSITORY_NAME;
 
 /**
  * This class is used to merge the local and distribution bal-tools.toml files.
@@ -55,14 +56,14 @@ public class BlendedBalToolsManifest {
     private static BlendedBalToolsManifest mergeBalToolManifests(BalToolsManifest localBalToolsManifest,
             BalToolsManifest distBalToolsManifest) {
 
-        if (localBalToolsManifest.tools().isEmpty()) {
-            // No tools installed, return the distribution bal-tools.toml
-            return new BlendedBalToolsManifest(distBalToolsManifest.tools());
-        }
-        if (distBalToolsManifest.tools().isEmpty()) {
-            // No distribution tools, return the local bal-tools.toml
-            return new BlendedBalToolsManifest(localBalToolsManifest.tools());
-        }
+//        if (distBalToolsManifest.tools().isEmpty()) {
+//            // No distribution tools, return the local bal-tools.toml
+//            return new BlendedBalToolsManifest(localBalToolsManifest.tools());
+//        }
+//        if (localBalToolsManifest.tools().isEmpty()) {
+//            // No tools installed, return the distribution bal-tools.toml
+//            return new BlendedBalToolsManifest(distBalToolsManifest.tools());
+//        }
         Map<String, Map<String, Map<String, BalToolsManifest.Tool>>> mergedTools =
                 new HashMap<>();
 
@@ -205,12 +206,31 @@ public class BlendedBalToolsManifest {
         Map<String, Map<String, Map<String, BalToolsManifest.Tool>>> compatibleTools = new HashMap<>(tools);
         for (String toolId : tools.keySet()) {
             Map<String, Map<String, BalToolsManifest.Tool>> versions = compatibleTools.get(toolId);
-            versions.keySet().removeIf(version -> !BalToolsUtil.checkPlatformCompatibility(
+            versions.keySet().removeIf(version -> !BalToolsUtil.isCompatibleWithPlatform(
                     versions.get(version).values().iterator().next().org(),
-                    versions.get(version).values().iterator().next().name(), version));
+                    versions.get(version).values().iterator().next().name(), version,
+                    versions.get(version).values().iterator().next().repository()));
         }
 
         return compatibleTools;
+    }
+
+    /*
+     * Returns the versions of the specified tool that are compatible with the current distribution.
+     *
+     * @param toolId tool id
+     * @return the list of compatible versions
+     */
+    public Map<String, Map<String, BalToolsManifest.Tool>> compatibleVersions(String toolId) {
+        Map<String, Map<String, Map<String, BalToolsManifest.Tool>>> compatibleTools = new HashMap<>(tools);
+        Map<String, Map<String, BalToolsManifest.Tool>> versions = compatibleTools.get(toolId);
+        versions.keySet().removeIf(version ->
+                LOCAL_REPOSITORY_NAME.equals(versions.get(version).values().iterator().next().repository())
+                        || !BalToolsUtil.isCompatibleWithPlatform(
+                                versions.get(version).values().iterator().next().org(),
+                                versions.get(version).values().iterator().next().name(), version,
+                                versions.get(version).values().iterator().next().repository()));
+        return versions;
     }
 
     /**

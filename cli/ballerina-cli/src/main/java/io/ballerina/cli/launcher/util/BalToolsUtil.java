@@ -88,9 +88,10 @@ import static io.ballerina.cli.cmd.Constants.UPDATE_COMMAND;
 import static io.ballerina.cli.cmd.Constants.VERSION_COMMAND;
 import static io.ballerina.cli.cmd.Constants.VERSION_OPTION;
 import static io.ballerina.cli.cmd.Constants.VERSION_SHORT_OPTION;
-import static io.ballerina.projects.util.ProjectConstants.BAL_TOOLS_TOML;
+import static io.ballerina.projects.util.BalToolsUtil.BAL_TOOLS_TOML_PATH;
+import static io.ballerina.projects.util.BalToolsUtil.DIST_BAL_TOOLS_TOML_PATH;
+import static io.ballerina.projects.util.BalToolsUtil.getRepoPath;
 import static io.ballerina.projects.util.ProjectConstants.CENTRAL_REPOSITORY_CACHE_NAME;
-import static io.ballerina.projects.util.ProjectConstants.CONFIG_DIR;
 import static io.ballerina.projects.util.ProjectConstants.DIST_CACHE_DIRECTORY;
 import static io.ballerina.projects.util.ProjectConstants.REPOSITORIES_DIR;
 
@@ -119,13 +120,10 @@ public final class BalToolsUtil {
             HOME_COMMAND, GENCACHE_COMMAND);
     // if a command is a built-in tool command, add it to this list
     private static final List<String> builtInToolCommands = List.of();
+
     private static final Path balaCacheDirPath = ProjectUtils.createAndGetHomeReposPath()
             .resolve(REPOSITORIES_DIR).resolve(CENTRAL_REPOSITORY_CACHE_NAME)
             .resolve(ProjectConstants.BALA_DIR_NAME);
-
-    public static final Path BAL_TOOLS_TOML_PATH = RepoUtils.createAndGetHomeReposPath().resolve(
-            Path.of(CONFIG_DIR, BAL_TOOLS_TOML));
-    public static final Path DIST_BAL_TOOLS_TOML_PATH = ProjectUtils.getBalHomePath().resolve(BAL_TOOLS_TOML);
 
     private BalToolsUtil() {
     }
@@ -176,9 +174,9 @@ public final class BalToolsUtil {
     }
 
     private static List<File> getToolCommandJarAndDependencyJars(String commandName) {
-        BalToolsToml balToolsToml = BalToolsToml.from(BalToolsUtil.BAL_TOOLS_TOML_PATH);
+        BalToolsToml balToolsToml = BalToolsToml.from(BAL_TOOLS_TOML_PATH);
         BalToolsManifest balToolsManifest = BalToolsManifestBuilder.from(balToolsToml).build();
-        BalToolsToml distBalToolsToml = BalToolsToml.from(BalToolsUtil.DIST_BAL_TOOLS_TOML_PATH);
+        BalToolsToml distBalToolsToml = BalToolsToml.from(DIST_BAL_TOOLS_TOML_PATH);
         BalToolsManifest distBalToolsManifest = BalToolsManifestBuilder.from(distBalToolsToml).build();
         BlendedBalToolsManifest blendedBalToolsManifest = BlendedBalToolsManifest.from(balToolsManifest,
                 distBalToolsManifest);
@@ -214,19 +212,6 @@ public final class BalToolsUtil {
             return findJarFiles(libsDir);
         }
         throw LauncherUtils.createUsageExceptionWithHelp("unknown command '" + commandName + "'");
-    }
-
-    private static Path getRepoPath(String repoName) {
-        if (ProjectConstants.LOCAL_REPOSITORY_NAME.equals(repoName)) {
-            return ProjectUtils.createAndGetHomeReposPath().resolve(
-                    Path.of(REPOSITORIES_DIR, ProjectConstants.LOCAL_REPOSITORY_NAME, ProjectConstants.BALA_DIR_NAME));
-        } else if (ProjectConstants.DISTRIBUTION_REPOSITORY_NAME.equals(repoName)) {
-            return ProjectUtils.getBalHomePath().resolve(
-                    Path.of(DIST_CACHE_DIRECTORY, ProjectConstants.BALA_DIR_NAME));
-        } else {
-            return ProjectUtils.createAndGetHomeReposPath().resolve(
-                    Path.of(REPOSITORIES_DIR, CENTRAL_REPOSITORY_CACHE_NAME, ProjectConstants.BALA_DIR_NAME));
-        }
     }
 
     private static boolean isToolDistCompatibilityWithCurrentDist(BalToolsManifest.Tool tool) {

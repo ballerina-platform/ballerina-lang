@@ -38,6 +38,8 @@ import java.util.List;
 import java.util.Map;
 
 import static io.ballerina.cli.launcher.BallerinaCliCommands.HELP;
+import static io.ballerina.projects.util.BalToolsUtil.BAL_TOOLS_TOML_PATH;
+import static io.ballerina.projects.util.BalToolsUtil.DIST_BAL_TOOLS_TOML_PATH;
 
 /**
  * Contains utility methods for executing a Ballerina program.
@@ -119,9 +121,9 @@ public final class LauncherUtils {
         StringBuilder helpBuilder = new StringBuilder();
         helpBuilder.append(BLauncherCmd.getCommandUsageInfo(HELP));
 
-        BalToolsToml balToolsToml = BalToolsToml.from(BalToolsUtil.BAL_TOOLS_TOML_PATH);
+        BalToolsToml balToolsToml = BalToolsToml.from(BAL_TOOLS_TOML_PATH);
         BalToolsManifest balToolsManifest = BalToolsManifestBuilder.from(balToolsToml).build();
-        BalToolsToml distBalToolsToml = BalToolsToml.from(BalToolsUtil.DIST_BAL_TOOLS_TOML_PATH);
+        BalToolsToml distBalToolsToml = BalToolsToml.from(DIST_BAL_TOOLS_TOML_PATH);
         BalToolsManifest distBalToolsManifest = BalToolsManifestBuilder.from(distBalToolsToml).build();
         BlendedBalToolsManifest blendedBalToolsManifest = BlendedBalToolsManifest
                 .from(balToolsManifest, distBalToolsManifest);
