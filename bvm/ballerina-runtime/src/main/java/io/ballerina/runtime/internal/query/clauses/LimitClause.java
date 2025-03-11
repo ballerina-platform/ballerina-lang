@@ -44,14 +44,12 @@ public class LimitClause implements PipelineStage {
      */
     @Override
     public Stream<Frame> process(Stream<Frame> inputStream) {
-        try {
-            // Evaluate the limit function only once.
-            Object limitResult = limitFunction.call(env.getRuntime(), new Frame().getRecord());
-            Long limit = (Long) limitResult;
-
-            return inputStream.limit(limit);
-        } catch (BError e) {
-            throw e;
+        // Evaluate the limit function only once.
+        Object limitResult = limitFunction.call(env.getRuntime(), new Frame().getRecord());
+        if (limitResult instanceof BError) {
+            throw (BError) limitResult;
         }
+        Long limit = (Long) limitResult;
+        return inputStream.limit(limit);
     }
 }
