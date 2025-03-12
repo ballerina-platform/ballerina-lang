@@ -1,8 +1,11 @@
 package io.ballerina.runtime.internal.query.clauses;
 
 import io.ballerina.runtime.api.Environment;
+import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BFunctionPointer;
+import io.ballerina.runtime.api.values.BMap;
+import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.internal.query.pipeline.Frame;
 
 import java.util.stream.Stream;
@@ -13,6 +16,8 @@ import java.util.stream.Stream;
 public class DoClause implements PipelineStage {
     private final Environment env;
     private final BFunctionPointer function;
+
+    private static final BString $VALUE$_FIELD = StringUtils.fromString("$value$");
 
     /**
      * Constructor for the DoClause.
@@ -37,11 +42,16 @@ public class DoClause implements PipelineStage {
      */
     @Override
     public Stream<Frame> process(Stream<Frame> inputStream) throws BError {
-        return inputStream.peek(frame -> {
+        return inputStream.map(frame -> {
             Object result = function.call(env.getRuntime(), frame.getRecord());
             if (result instanceof BError) {
                 throw (BError) result;
             }
+            if (result != null) {
+                frame.updateRecord($VALUE$_FIELD, result);
+                return frame;
+            }
+            return frame;
         });
     }
 }
