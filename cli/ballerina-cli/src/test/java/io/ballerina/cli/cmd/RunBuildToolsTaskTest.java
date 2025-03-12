@@ -21,12 +21,11 @@ package io.ballerina.cli.cmd;
 import io.ballerina.cli.launcher.BLauncherException;
 import io.ballerina.cli.task.RunBuildToolsTask;
 import io.ballerina.projects.BuildOptions;
+import io.ballerina.projects.JvmTarget;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.directory.BuildProject;
-import io.ballerina.projects.util.BuildToolUtils;
+import io.ballerina.projects.util.ProjectConstants;
 import org.ballerinalang.test.BCompileUtil;
-import org.mockito.MockedStatic;
-import org.mockito.Mockito;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -42,7 +41,6 @@ import java.util.Objects;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import static io.ballerina.cli.cmd.CommandOutputUtils.getOutput;
-import static io.ballerina.projects.util.ProjectConstants.DIST_CACHE_DIRECTORY;
 
 /**
  * Test cases for the RunBuildToolsTask.
@@ -51,9 +49,6 @@ import static io.ballerina.projects.util.ProjectConstants.DIST_CACHE_DIRECTORY;
  */
 public class RunBuildToolsTaskTest extends BaseCommandTest {
     private Path buildToolResources;
-    private static final Path testBuildDirectory = Path.of("build").toAbsolutePath();
-    private static final Path testDistCacheDirectory = testBuildDirectory.resolve(DIST_CACHE_DIRECTORY);
-    Path mockCentralBalaDirPath = testDistCacheDirectory.resolve("bala");
 
     private static final long TWO_DAYS = 2 * 24 * 60 * 60 * 1000;
     private static final long HALF_DAY = 12 * 60 * 60 * 1000;
@@ -67,6 +62,7 @@ public class RunBuildToolsTaskTest extends BaseCommandTest {
         super.setup();
         Files.createDirectories(LOG_FILE.getParent());
         Files.writeString(LOG_FILE, "");
+
         // copy all test resources
         try {
             Path testResources = super.tmpDir.resolve("build-tool-test-resources");
@@ -77,19 +73,27 @@ public class RunBuildToolsTaskTest extends BaseCommandTest {
         } catch (Exception e) {
             Assert.fail("error loading resources");
         }
+
         // compile and cache tools
         BCompileUtil.compileAndCacheBala(buildToolResources.resolve("tools")
-                .resolve("dummy-tool-pkg").toString(), testDistCacheDirectory);
+                .resolve("dummy-tool-pkg").toString(), testCentralRepoCache);
         BCompileUtil.compileAndCacheBala(buildToolResources.resolve("tools")
-                        .resolve("invalid-name-tool-pkg").toString(), testDistCacheDirectory);
+                        .resolve("invalid-name-tool-pkg").toString(), testCentralRepoCache);
         BCompileUtil.compileAndCacheBala(buildToolResources.resolve("tools")
-                        .resolve("ballerina-generate-file").toString(), testDistCacheDirectory);
+                        .resolve("ballerina-generate-file").toString(), testCentralRepoCache);
         BCompileUtil.compileAndCacheBala(buildToolResources.resolve("tools")
-                .resolve("hidden-cmd-tool-pkg").toString(), testDistCacheDirectory);
+                .resolve("hidden-cmd-tool-pkg").toString(), testCentralRepoCache);
         BCompileUtil.compileAndCacheBala(buildToolResources.resolve("tools")
-                .resolve("missing-interface-tool-pkg").toString(), testDistCacheDirectory);
+                .resolve("missing-interface-tool-pkg").toString(), testCentralRepoCache);
         BCompileUtil.compileAndCacheBala(buildToolResources.resolve("tools")
-                .resolve("no-options-tool-pkg").toString(), testDistCacheDirectory);
+                .resolve("no-options-tool-pkg").toString(), testCentralRepoCache);
+
+        BCompileUtil.compileAndCacheBala(buildToolResources.resolve("tools")
+                .resolve("dummy-tool-pkg-higher-dist").toString(), testCentralRepoCache);
+
+        Path balaPath = testCentralRepoCache.resolve("bala").resolve("foo")
+                .resolve("dummypkghigherdist").resolve("1.4.0").resolve(JvmTarget.JAVA_21.code());
+        replacePkgDistVersion(balaPath);
         // add build.json files
         addBuildJsonToProjects("project-lt-24h-with-build-tool", System.currentTimeMillis() - HALF_DAY);
         addBuildJsonToProjects("project-gt-24h-with-build-tool", System.currentTimeMillis() - TWO_DAYS);
@@ -98,26 +102,24 @@ public class RunBuildToolsTaskTest extends BaseCommandTest {
     @Test(description = "Resolve a tool offline", dataProvider = "buildToolOfflineProvider")
     public void testOfflineToolResolution(String projectName, String outputFileName, boolean sticky, boolean isError)
             throws IOException {
+
         Path projectPath = buildToolResources.resolve(projectName);
         Project project = BuildProject.load(projectPath,
                 BuildOptions.builder().setOffline(true).setSticky(sticky).build());
         RunBuildToolsTask runBuildToolsTask = new RunBuildToolsTask(printStream);
-        try (MockedStatic<BuildToolUtils> repoUtils = Mockito.mockStatic(
-                BuildToolUtils.class, Mockito.CALLS_REAL_METHODS)) {
-            repoUtils.when(BuildToolUtils::getCentralBalaDirPath).thenReturn(mockCentralBalaDirPath);
-            try {
-                runBuildToolsTask.execute(project);
-            } catch (BLauncherException e) {
-                if (!isError) {
-                    String errorMsg = "Error executing build tools task for project: " + projectName
-                            + (sticky ? "with sticky." : "without sticky. ") + e.getMessage();
-                    Assert.fail(errorMsg);
-                }
-                List<String> messages = e.getMessages();
-                Assert.assertEquals(messages.size(), 1);
-                Assert.assertEquals(messages.get(0), "error: build tool execution contains errors");
+        try {
+            runBuildToolsTask.execute(project);
+        } catch (BLauncherException e) {
+            if (!isError) {
+                String errorMsg = "Error executing build tools task for project: " + projectName
+                        + (sticky ? " with sticky." : " without sticky. ") + e.getMessage();
+                Assert.fail(errorMsg);
             }
+            List<String> messages = e.getMessages();
+            Assert.assertEquals(messages.size(), 1);
+            Assert.assertEquals(messages.get(0), "error: build tool execution contains errors");
         }
+
         String buildLog = readOutput(true);
         Assert.assertEquals(buildLog.replace("\r", ""), getOutput(outputFileName));
     }
@@ -127,11 +129,7 @@ public class RunBuildToolsTaskTest extends BaseCommandTest {
         Path projectPath = buildToolResources.resolve("project-with-generate-file-tool");
         Project project = BuildProject.load(projectPath, BuildOptions.builder().setOffline(true).build());
         RunBuildToolsTask runBuildToolsTask = new RunBuildToolsTask(printStream);
-        try (MockedStatic<BuildToolUtils> repoUtils = Mockito.mockStatic(
-                BuildToolUtils.class, Mockito.CALLS_REAL_METHODS)) {
-            repoUtils.when(BuildToolUtils::getCentralBalaDirPath).thenReturn(mockCentralBalaDirPath);
-            runBuildToolsTask.execute(project);
-        }
+        runBuildToolsTask.execute(project);
         String buildLog = readOutput(true);
         Assert.assertEquals(buildLog.replace("\r", ""), getOutput("build-tool-generate-file.txt"));
         AtomicBoolean fileFound = new AtomicBoolean(false);
@@ -241,6 +239,12 @@ public class RunBuildToolsTaskTest extends BaseCommandTest {
                 false,
                 false
             },
+            {
+                "project-with-higher-dist-build-tool",
+                "build-tool-higher-dist-resolve-failed.txt",
+                false,
+                true
+            }
         };
     }
 
@@ -267,5 +271,16 @@ public class RunBuildToolsTaskTest extends BaseCommandTest {
         Files.deleteIfExists(LOG_FILE);
         Files.deleteIfExists(LOG_FILE.getParent());
         Files.deleteIfExists(LOG_FILE.getParent().getParent());
+    }
+
+    private void replacePkgDistVersion(Path balaPath) {
+        Path packageJson = balaPath.resolve(ProjectConstants.PACKAGE_JSON);
+        try {
+            String content = Files.readString(packageJson);
+            content = content.replace(RepoUtils.getBallerinaShortVersion(), "2201.99.0");
+            Files.writeString(packageJson, content);
+        } catch (IOException e) {
+            Assert.fail("Error replacing distribution version in bala");
+        }
     }
 }
