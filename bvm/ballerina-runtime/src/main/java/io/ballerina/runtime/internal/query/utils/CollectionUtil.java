@@ -111,6 +111,8 @@ public class CollectionUtil {
                     } catch (Exception e) {
                         if (frame.getRecord().get($ERROR$_FIELD) instanceof BError) {
                             return (BError) frame.getRecord().get($ERROR$_FIELD);
+                        } else {
+                            table.put(record);
                         }
                     }
                     return null;
