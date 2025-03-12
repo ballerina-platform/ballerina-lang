@@ -178,7 +178,7 @@ public class BuildToolResolution {
             PackageVersion version = tool.version();
 
             Optional<BalToolsManifest.Tool> latestCompatibleVersion = BuildToolUtils
-                    .getLatestCompatibleVersion(id, version, packageLockingMode);
+                    .getCompatibleToolVersionsAvailableLocally(id, version, packageLockingMode);;
             if (latestCompatibleVersion.isEmpty()) {
                 String toolIdAndVersionOpt = id + (version == null ? "" : ":" + tool.version().toString());
                 TomlDiagnostic diagnostic = BuildToolUtils.getCannotResolveBuildToolDiagnostic(toolIdAndVersionOpt,
