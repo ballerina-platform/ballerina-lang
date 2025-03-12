@@ -44,7 +44,7 @@ public final class PackageServiceConstants {
     static final String MODULE_LEVEL_VARIABLE = "moduleVariables";
     static final String CONFIGURABLE_VARIABLES = "configurableVariables";
     static final String AUTOMATIONS = "automations";
-    static final String PROMPT_AS_CODE = "promptAsCode";
+    static final String NATURAL_FUNCTIONS = "naturalFunctions";
 
     private PackageServiceConstants() {
     }
