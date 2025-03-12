@@ -91,7 +91,7 @@ public class CollectionUtil {
         try {
             strm.forEach(frame -> {
                 BMap<BString, Object> record = (BMap<BString, Object>) frame.getRecord().get($VALUE$_FIELD);
-                table.add(record);
+                table.put(record);
             });
 
             return table;
