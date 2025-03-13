@@ -20,6 +20,7 @@ package io.ballerina.cli.launcher;
 
 import io.ballerina.cli.BLauncherCmd;
 import io.ballerina.cli.launcher.util.BalToolsUtil;
+import io.ballerina.projects.util.CustomURLClassLoader;
 import io.ballerina.runtime.internal.utils.RuntimeUtils;
 import org.ballerinalang.compiler.BLangCompilerException;
 import picocli.CommandLine;
@@ -169,14 +170,14 @@ public final class Main {
         if (null != args && args.length > 0 && BalToolsUtil.isToolCommand(args[0])) {
             String commandName = args[0];
             BalToolsUtil.addToolIfCommandIsABuiltInTool(commandName);
-            CustomToolClassLoader customToolClassLoader = BalToolsUtil.getCustomToolClassLoader(commandName);
-            Thread.currentThread().setContextClassLoader(customToolClassLoader);
-            return ServiceLoader.load(BLauncherCmd.class, customToolClassLoader);
+            CustomURLClassLoader customURLClassLoader = BalToolsUtil.getCustomToolClassLoader(commandName);
+            Thread.currentThread().setContextClassLoader(customURLClassLoader);
+            return ServiceLoader.load(BLauncherCmd.class, customURLClassLoader);
         } else if (null == args || args.length == 0
                 || Arrays.asList(HELP_COMMAND, HELP_OPTION, HELP_SHORT_OPTION).contains(args[0])) {
-            CustomToolClassLoader customToolClassLoader = BalToolsUtil.getCustomToolClassLoader(HELP_COMMAND);
-            Thread.currentThread().setContextClassLoader(customToolClassLoader);
-            return ServiceLoader.load(BLauncherCmd.class, customToolClassLoader);
+            CustomURLClassLoader customURLClassLoader = BalToolsUtil.getCustomToolClassLoader(HELP_COMMAND);
+            Thread.currentThread().setContextClassLoader(customURLClassLoader);
+            return ServiceLoader.load(BLauncherCmd.class, customURLClassLoader);
         }
         return ServiceLoader.load(BLauncherCmd.class);
     }
