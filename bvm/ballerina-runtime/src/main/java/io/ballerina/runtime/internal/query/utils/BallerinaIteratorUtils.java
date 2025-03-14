@@ -83,22 +83,14 @@ public class BallerinaIteratorUtils {
         return new Iterator<T>() {
             @Override
             public boolean hasNext() {
-                try {
-                    return iterator.hasNext();
-                } catch (ErrorValue e) {
-                    throw new RuntimeException(prepareCompleteEarlyError(e));
-                }
+                return iterator.hasNext();
             }
 
             @Override
             @SuppressWarnings("unchecked")
             public T next() {
-                try {
-                    BArray keyValueTuple = (BArray) iterator.next();
-                    return (T) keyValueTuple.get(1);
-                } catch (Exception e) {
-                    throw new RuntimeException(prepareCompleteEarlyError(e));
-                }
+                BArray keyValueTuple = (BArray) iterator.next();
+                return (T) keyValueTuple.get(1);
             }
         };
     }
@@ -114,21 +106,13 @@ public class BallerinaIteratorUtils {
         return new Iterator<T>() {
             @Override
             public boolean hasNext() {
-                try {
-                    return ballerinaIterator.hasNext();
-                } catch (ErrorValue e) {
-                    throw new RuntimeException(prepareCompleteEarlyError(e));
-                }
+                return ballerinaIterator.hasNext();
             }
 
             @Override
             @SuppressWarnings("unchecked")
             public T next() {
-                try {
-                    return (T) ballerinaIterator.next();
-                } catch (Exception e) {
-                    throw new RuntimeException(prepareCompleteEarlyError(e));
-                }
+                return (T) ballerinaIterator.next();
             }
         };
     }
@@ -189,15 +173,5 @@ public class BallerinaIteratorUtils {
      */
     public static BError prepareCompleteEarlyError(Exception err) {
         return ErrorCreator.createError(StringUtils.fromString("CompleteEarlyError"), err);
-    }
-
-    /**
-     * Converts an exception into a Ballerina `Error` for query body errors.
-     *
-     * @param err The exception.
-     * @return A `BError` representing `Error`.
-     */
-    public static BError prepareQueryBodyError(Exception err) {
-        return ErrorCreator.createError(StringUtils.fromString("Error"), err);
     }
 }
