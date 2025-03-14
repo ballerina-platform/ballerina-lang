@@ -45,20 +45,15 @@ public class Frame {
             if (tuple.size() > 1) {
                 record.put(key, tuple.getRefValue(1));
             }
-        } else if (value instanceof String) {
-            record.put(key, StringUtils.fromString(value.toString()));
-        } else if (value instanceof BRecordType) {
-            record.put(key, value);
-        }
-        else if (value instanceof BMap<?, ?> valueMap) {
-            Object extractedValue = valueMap.get(StringUtils.fromString("value"));
-            record.put(key, extractedValue != null ? extractedValue : value);
         } else {
             record.put(key, value);
         }
         return new Frame(record);
     }
 
+    public static Frame create(BMap<BString, Object> record) {
+        return new Frame(record);
+    }
 
     /**
      * Updates the underlying record with a new record.
