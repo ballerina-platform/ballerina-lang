@@ -37,7 +37,7 @@ public class BRemoteMethodType extends BMethodType implements RemoteMethodType {
 
     @Override
     public String toString() {
-        StringJoiner sj = new StringJoiner(",", "remote function (", ") returns (" + type.retType + ")");
+        StringJoiner sj = new StringJoiner(",", "remote function (", ") returns (" + this.retType + ")");
         for (Parameter parameter : parameters) {
             sj.add(parameter.type.getName());
         }
@@ -46,7 +46,7 @@ public class BRemoteMethodType extends BMethodType implements RemoteMethodType {
 
     @Override
     public <T extends MethodType> MethodType duplicate() {
-        return new BRemoteMethodType(funcName, pkg, parentObjectType, type, flags);
+        return new BRemoteMethodType(funcName, pkg, parentObjectType, this, flags);
     }
 
 }

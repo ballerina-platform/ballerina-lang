@@ -20,6 +20,7 @@ import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.Runtime;
 import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.utils.StringUtils;
+import io.ballerina.runtime.api.values.BNever;
 import io.ballerina.runtime.api.values.BObject;
 
 import java.io.PrintStream;
@@ -47,6 +48,24 @@ public final class RuntimeAPICall {
         BObject person = ValueCreator.createObjectValue(module, "Person", 1001, StringUtils.fromString("John Doe"));
         result = balRuntime.callMethod(person, "getNameWithTitle", null, StringUtils.fromString("Dr. "));
         out.println(result);
+        result = balRuntime.callMethod(person, "getInfo", null, StringUtils.fromString("Dr."), BNever.getValue());
+        out.println(result);
+        result = balRuntime.callMethod(person, "getInfo", null, StringUtils.fromString("Dr."),
+                StringUtils.fromString("bus"));
+        out.println(result);
+        result = balRuntime.callMethod(person, "getInfo", null, StringUtils.fromString("Dr."),
+                StringUtils.fromString("bus"), StringUtils.fromString("Has a cat"));
+        out.println(result);
+        result = balRuntime.callMethod(person, "getInfo", null, StringUtils.fromString("Dr."),
+                StringUtils.fromString("bus"), StringUtils.fromString("Has a cat"),
+                StringUtils.fromString("Likes physics"));
+        out.println(result);
+        try {
+            result = balRuntime.callMethod(person, "getInfo", null);
+            out.println(result);
+        } catch (Exception e) {
+            out.println(e.getMessage());
+        }
         balRuntime.stop();
 
         module = new Module("testorg", "function_invocation.moduleA", "1");
