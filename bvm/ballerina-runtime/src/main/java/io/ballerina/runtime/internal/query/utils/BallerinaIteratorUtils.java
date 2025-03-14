@@ -23,7 +23,6 @@ public class BallerinaIteratorUtils {
      * @return A Java Stream of elements.
      */
     public static <T> Stream<Frame> toStream(Environment env, Iterator<T> javaIterator) throws ErrorValue {
-//        Iterator<T> javaIterator = getIterator(env, collection);
         return StreamSupport.stream(((Iterable<T>) () -> javaIterator).spliterator(), false)
                 .map(element -> Frame.create(VALUE_FIELD, element));
     }
@@ -39,6 +38,10 @@ public class BallerinaIteratorUtils {
     public static <T> Iterator<T> getIterator(Environment env, Object collection) {
         try {
             switch (collection) {
+                case BTable table -> {
+                    BIterator<?> iterator = table.getIterator();
+                    return createJavaTableIterator(iterator);
+                }
                 case BCollection bCollection -> {
                     BIterator<?> iterator = bCollection.getIterator();
                     return createJavaIterator(iterator);
@@ -67,6 +70,37 @@ public class BallerinaIteratorUtils {
         } catch (BError e) {
             throw DistinctQueryErrorCreator.createDistinctError(e);
         }
+    }
+
+    /**
+     * Creates a Java `Iterator` from a Ballerina `BIterator` for table.
+     *
+     * @param iterator The Ballerina iterator.
+     * @param <T>      The type of elements.
+     * @return A Java `Iterator<T>`.
+     */
+    private static <T> Iterator<T> createJavaTableIterator(BIterator<?> iterator) {
+        return new Iterator<T>() {
+            @Override
+            public boolean hasNext() {
+                try {
+                    return iterator.hasNext();
+                } catch (ErrorValue e) {
+                    throw new RuntimeException(prepareCompleteEarlyError(e));
+                }
+            }
+
+            @Override
+            @SuppressWarnings("unchecked")
+            public T next() {
+                try {
+                    BArray keyValueTuple = (BArray) iterator.next();
+                    return (T) keyValueTuple.get(1);
+                } catch (Exception e) {
+                    throw new RuntimeException(prepareCompleteEarlyError(e));
+                }
+            }
+        };
     }
 
     /**

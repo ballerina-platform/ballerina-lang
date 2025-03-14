@@ -40,14 +40,7 @@ public class Frame {
      */
     public static Frame create(BString key, Object value) {
         BMap<BString, Object> record = ValueCreator.createRecordValue(BALLERINA_QUERY_PKG_ID, "_Frame");
-        if (value instanceof TupleValueImpl) {
-            BArray tuple = (BArray) value;
-            if (tuple.size() > 1) {
-                record.put(key, tuple.getRefValue(1));
-            }
-        } else {
-            record.put(key, value);
-        }
+        record.put(key, value);
         return new Frame(record);
     }
 
