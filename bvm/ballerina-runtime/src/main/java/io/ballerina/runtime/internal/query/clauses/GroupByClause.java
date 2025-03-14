@@ -10,24 +10,20 @@ import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.internal.query.pipeline.Frame;
 import io.ballerina.runtime.internal.values.ArrayValueImpl;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-/**
- * Represents a `group by` clause in the query pipeline that processes a stream of frames.
- */
 public class GroupByClause implements PipelineStage {
 
     private final BArray groupingKeys;
     private final BArray nonGroupingKeys;
     private final Environment env;
 
-    /**
-     * Constructor for the GroupByClause.
-     *
-     * @param groupingKeys The keys to group by.
-     */
     public GroupByClause(Environment env, BArray groupingKeys, BArray nonGroupingKeys) {
         this.groupingKeys = groupingKeys;
         this.nonGroupingKeys = nonGroupingKeys;
@@ -38,38 +34,30 @@ public class GroupByClause implements PipelineStage {
         return new GroupByClause(env, groupingKeys, nonGroupingKeys);
     }
 
-    /**
-     * Groups a stream of frames by the specified grouping keys.
-     *
-     * @param inputStream The input stream of frames.
-     * @return A grouped stream of frames.
-     */
     @Override
     public Stream<Frame> process(Stream<Frame> inputStream) throws BError {
         Map<Map<BString, Object>, List<Frame>> groupedData = inputStream
                 .collect(Collectors.groupingBy(
-                        frame -> extractGroupingKey(frame, groupingKeys),
+                        this::extractProcessedKey,
                         LinkedHashMap::new,
                         Collectors.toList()
                 ));
 
-        return groupedData.entrySet().stream().map(entry -> {
-            Map<BString, Object> key = entry.getKey();
-            List<Frame> frames = entry.getValue();
+        return groupedData.values().stream().map(frames -> {
+            Frame firstFrame = frames.get(0);
+            Map<BString, Object> originalKey = extractOriginalKey(firstFrame);
 
             Frame groupedFrame = new Frame();
             BMap<BString, Object> groupedRecord = groupedFrame.getRecord();
 
-            key.forEach(groupedRecord::put);
+            originalKey.forEach(groupedRecord::put);
 
             for (int i = 0; i < nonGroupingKeys.size(); i++) {
                 BString nonGroupingKey = (BString) nonGroupingKeys.get(i);
-
                 Object[] values = frames.stream()
                         .map(f -> f.getRecord().get(nonGroupingKey))
                         .filter(Objects::nonNull)
                         .toArray();
-
                 BArray valuesArray = new ArrayValueImpl(values, TypeCreator.createArrayType(PredefinedTypes.TYPE_ANY));
                 groupedRecord.put(nonGroupingKey, valuesArray);
             }
@@ -79,14 +67,7 @@ public class GroupByClause implements PipelineStage {
         });
     }
 
-    /**
-     * Extracts the grouping key values from a frame.
-     *
-     * @param frame The frame to extract the keys from.
-     * @param groupingKeys The keys to group by.
-     * @return A map representing the grouping key values.
-     */
-    private Map<BString, Object> extractGroupingKey(Frame frame, BArray groupingKeys) {
+    private Map<BString, Object> extractOriginalKey(Frame frame) {
         Map<BString, Object> keyMap = new LinkedHashMap<>();
         BMap<BString, Object> record = frame.getRecord();
 
@@ -98,7 +79,43 @@ public class GroupByClause implements PipelineStage {
                 throw new RuntimeException("Missing key in record: " + key);
             }
         }
-
         return keyMap;
+    }
+
+    private Map<BString, Object> extractProcessedKey(Frame frame) {
+        Map<BString, Object> keyMap = new LinkedHashMap<>();
+        BMap<BString, Object> record = frame.getRecord();
+
+        for (int i = 0; i < groupingKeys.size(); i++) {
+            BString key = (BString) groupingKeys.get(i);
+            if (record.containsKey(key)) {
+                Object value = record.get(key);
+                Object processedValue = processValue(value);
+                keyMap.put(key, processedValue);
+            } else {
+                throw new RuntimeException("Missing key in record: " + key);
+            }
+        }
+        return keyMap;
+    }
+
+    private Object processValue(Object value) {
+        if (value instanceof BArray) {
+            BArray array = (BArray) value;
+            List<Object> list = new ArrayList<>();
+            for (int i = 0; i < array.size(); i++) {
+                list.add(processValue(array.get(i)));
+            }
+            return list;
+        } else if (value instanceof BMap) {
+            BMap<BString, Object> bMap = (BMap<BString, Object>) value;
+            Map<BString, Object> map = new LinkedHashMap<>();
+            for (Map.Entry<BString, Object> entry : bMap.entrySet()) {
+                map.put(entry.getKey(), processValue(entry.getValue()));
+            }
+            return map;
+        } else {
+            return value;
+        }
     }
 }
