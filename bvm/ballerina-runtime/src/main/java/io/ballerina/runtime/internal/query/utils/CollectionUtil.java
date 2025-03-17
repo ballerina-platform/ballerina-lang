@@ -46,7 +46,9 @@ public class CollectionUtil {
                     .toArray();
 
             if (tmpArr.length > 0) {
-                array.unshift(tmpArr);
+                for (int i = 0; i < tmpArr.length; i++) {
+                    array.add(i, tmpArr[i]);
+                }
             }
             return array;
         } catch (BError e) {
