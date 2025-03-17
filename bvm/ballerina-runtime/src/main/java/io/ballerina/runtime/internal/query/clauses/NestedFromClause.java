@@ -42,7 +42,7 @@ public class NestedFromClause implements PipelineStage {
     public Stream<Frame> process(Stream<Frame> inputStream) {
         return inputStream.flatMap(frame -> {
             try {
-                Object collection = collectionFunc.call(env.getRuntime(), new Object[]{frame.getRecord()});
+                Object collection = collectionFunc.call(env.getRuntime(),frame.getRecord());
 
                 if (collection == null) {
                     return Stream.empty();
@@ -56,17 +56,7 @@ public class NestedFromClause implements PipelineStage {
 
                     Map<Object, Object> refs = new HashMap<>();
                     BMap<BString, Object> newRecord = (BMap<BString, Object>) frame.getRecord().copy(refs);
-
-                    if (item instanceof BArray) {
-                        newRecord.put(StringUtils.fromString("value"), item);
-                    } else if (item instanceof String) {
-                        newRecord.put(StringUtils.fromString("value"), StringUtils.fromString((String) item));
-                    } else if (item instanceof BMap<?, ?> valueMap) {
-                        Object extractedValue = valueMap.get(StringUtils.fromString("value"));
-                        newRecord.put(StringUtils.fromString("value"), extractedValue != null ? extractedValue : item);
-                    } else {
-                        newRecord.put(StringUtils.fromString("value"), item);
-                    }
+                    newRecord.put(StringUtils.fromString("value"), item);
                     results.add(new Frame(newRecord));
                 }
 
