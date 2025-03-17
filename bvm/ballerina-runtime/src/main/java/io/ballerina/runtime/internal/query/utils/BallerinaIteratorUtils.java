@@ -38,6 +38,10 @@ public class BallerinaIteratorUtils {
     public static <T> Iterator<T> getIterator(Environment env, Object collection) {
         try {
             switch (collection) {
+                case BMap<?, ?> bMap -> {
+                    BIterator<?> iterator = bMap.getIterator();
+                    return createJavaMapIterator(iterator);
+                }
                 case BTable table -> {
                     BIterator<?> iterator = table.getIterator();
                     return createJavaTableIterator(iterator);
@@ -70,6 +74,22 @@ public class BallerinaIteratorUtils {
         } catch (BError e) {
             throw DistinctQueryErrorCreator.createDistinctError(e);
         }
+    }
+
+    private static <T> Iterator<T> createJavaMapIterator(BIterator<?> iterator) {
+        return new Iterator<T>() {
+            @Override
+            public boolean hasNext() {
+                return iterator.hasNext();
+            }
+
+            @Override
+            @SuppressWarnings("unchecked")
+            public T next() {
+                BArray keyValueTuple = (BArray) iterator.next();
+                return (T) keyValueTuple.get(1);
+            }
+        };
     }
 
     /**
