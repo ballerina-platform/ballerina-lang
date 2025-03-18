@@ -3,6 +3,7 @@ package io.ballerina.runtime.internal.query.clauses;
 import io.ballerina.runtime.api.Environment;
 import io.ballerina.runtime.api.creators.TypeCreator;
 import io.ballerina.runtime.api.types.PredefinedTypes;
+import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BMap;
@@ -73,11 +74,14 @@ public class GroupByClause implements PipelineStage {
 
         for (int i = 0; i < groupingKeys.size(); i++) {
             BString key = (BString) groupingKeys.get(i);
+            Object value = null;
             if (record.containsKey(key)) {
-                keyMap.put(key, record.get(key));
+                value = record.get(key);
             } else {
-                throw new RuntimeException("Missing key in record: " + key);
+                BMap rec = (BMap) record.get(StringUtils.fromString("value"));
+                value = rec.get(key);
             }
+            keyMap.put(key, value);
         }
         return keyMap;
     }
@@ -88,13 +92,15 @@ public class GroupByClause implements PipelineStage {
 
         for (int i = 0; i < groupingKeys.size(); i++) {
             BString key = (BString) groupingKeys.get(i);
+            Object value = null;
             if (record.containsKey(key)) {
-                Object value = record.get(key);
-                Object processedValue = processValue(value);
-                keyMap.put(key, processedValue);
+                value = record.get(key);
             } else {
-                throw new RuntimeException("Missing key in record: " + key);
+                BMap rec = (BMap) record.get(StringUtils.fromString("value"));
+                value = rec.get(key);
             }
+            Object processedValue = processValue(value);
+            keyMap.put(key, processedValue);
         }
         return keyMap;
     }
