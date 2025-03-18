@@ -170,7 +170,7 @@
           ],
           "configurableVariables": [],
           "automations": [],
-          "promptAsCode": [],
+          "naturalFunctions": [],
           "name": "models"
         },
         {
@@ -195,7 +195,7 @@
           "moduleVariables": [],
           "configurableVariables": [],
           "automations": [],
-          "promptAsCode": []
+          "naturalFunctions": []
         }
       ]
     }

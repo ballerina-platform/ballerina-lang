@@ -165,7 +165,7 @@ public class BallerinaPackageService implements ExtendedLanguageServerService {
         currentPackage.moduleIds().forEach(moduleId -> {
             ModuleObject moduleObject = new ModuleObject();
             Module module = project.currentPackage().module(moduleId);
-            SemanticModel semanticModel = module.getCompilation().getSemanticModel();
+            SemanticModel semanticModel = currentPackage.getCompilation().getSemanticModel(moduleId);
             if (module.moduleName().moduleNamePart() != null) {
                 moduleObject.setName(module.moduleName().moduleNamePart());
             }
