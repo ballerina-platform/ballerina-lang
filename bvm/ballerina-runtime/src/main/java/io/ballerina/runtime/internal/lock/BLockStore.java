@@ -28,7 +28,7 @@ import java.util.concurrent.locks.ReentrantLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 /**
- * Class that keep Ballerina locks based on lock name. Used for codegen.
+ * Class used for generating code to manage Ballerina locks.
  *
  * @since 1.2.0
  */
@@ -63,7 +63,7 @@ public class BLockStore {
 
     /*
      This is code generated method to get Ballerina object lock and lock.
- */
+    */
     @SuppressWarnings("unused")
     public void lock(Strand strand, ReentrantLock lock) {
         try {
@@ -91,7 +91,7 @@ public class BLockStore {
 
     /*
     This is code generated method to get Ballerina object lock and unlock.
-*/
+    */
     @SuppressWarnings("unused")
     public void unlock(Strand strand, ReentrantLock lock) {
         try {
