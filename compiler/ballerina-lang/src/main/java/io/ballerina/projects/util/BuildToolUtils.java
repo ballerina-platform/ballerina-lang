@@ -41,6 +41,7 @@ import io.ballerina.tools.diagnostics.DiagnosticInfo;
 import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 import org.wso2.ballerinalang.util.RepoUtils;
 
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -50,12 +51,13 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.ServiceLoader;
 import java.util.Set;
+import java.util.stream.Stream;
 
 import static io.ballerina.projects.util.ProjectConstants.BALA_DIR_NAME;
 import static io.ballerina.projects.util.ProjectConstants.CENTRAL_REPOSITORY_CACHE_NAME;
 import static io.ballerina.projects.util.ProjectConstants.REPOSITORIES_DIR;
 import static io.ballerina.projects.util.ProjectUtils.CompatibleRange;
-import static io.ballerina.projects.util.ProjectUtils.balToolsTomlPath;
+import static io.ballerina.projects.util.ProjectUtils.BAL_TOOLS_TOML_PATH;
 
 /**
  * Utility methods required for build tools.
@@ -236,36 +238,44 @@ public final class BuildToolUtils {
      * Get the available tool versions from the bal-tools.toml and find the versions compatible
      * with the current distribution in the central cache.
      *
-     * @param toolId             id of the tool
+     * @param tool               build tool
      * @param minVersion         compatible range of the tool
      * @param packageLockingMode locking mode of the package
      * @return list of all compatible tool versions
      */
     public static Optional<BalToolsManifest.Tool> getCompatibleToolVersionsAvailableLocally(
-            String toolId, PackageVersion minVersion, PackageLockingMode packageLockingMode) {
-        BalToolsToml balToolsToml = BalToolsToml.from(balToolsTomlPath);
-        BalToolsManifest balToolsManifest = BalToolsManifestBuilder.from(balToolsToml).build();
-        Map<String, Map<String, BalToolsManifest.Tool>> toolVersions = balToolsManifest.tools().get(toolId);
-        if (toolVersions == null) {
-            return Optional.empty();
-        }
-        List<SemanticVersion> distCompatibleVersions = new ArrayList<>();
+            BuildTool tool, PackageVersion minVersion, PackageLockingMode packageLockingMode) {
+        PackageOrg org = tool.org();
+        PackageName name = tool.name();
+        Map<String, Map<String, BalToolsManifest.Tool>> toolVersions;
 
-        toolVersions.values().stream().findAny().ifPresent(map -> {
-            PackageOrg org = PackageOrg.from(map.values().stream().findAny().get().org());
-            PackageName name = PackageName.from(map.values().stream().findAny().get().name());
-            distCompatibleVersions.addAll(getCompatibleToolVersions(org, name, toolVersions.keySet()));
-        });
+        if (tool.org() == null || tool.name() == null) {
+            BalToolsToml balToolsToml = BalToolsToml.from(BAL_TOOLS_TOML_PATH);
+            BalToolsManifest balToolsManifest = BalToolsManifestBuilder.from(balToolsToml).build();
+            toolVersions = balToolsManifest.tools().get(tool.id().toString());
+            if (toolVersions == null) {
+                return Optional.empty();
+            }
+            if (toolVersions.values().stream().findAny().isPresent()) {
+                org = PackageOrg.from(
+                        toolVersions.values().stream().findAny().get().values().stream().findAny().get().org());
+                name = PackageName.from(
+                        toolVersions.values().stream().findAny().get().values().stream().findAny().get().name());
+            }
+        }
+
+        List<SemanticVersion> distCompatibleVersions = getCompatibleToolVersions(org, name);
         SemanticVersion minSemVer = (minVersion == null) ? null : minVersion.value();
         CompatibleRange compatibleRange = ProjectUtils.getCompatibleRange(minSemVer, packageLockingMode);
         List<SemanticVersion> versionsInCompatibleRange = ProjectUtils.getVersionsInCompatibleRange(
                 minSemVer, distCompatibleVersions, compatibleRange);
         Optional<SemanticVersion> latestVersion = getLatestVersion(versionsInCompatibleRange);
 
-        return latestVersion.flatMap(semVer -> toolVersions.values().stream()
-                .flatMap(map -> map.values().stream())
-                .filter(tool -> tool.version().equals(semVer.toString()))
-                .findAny());
+        if (latestVersion.isEmpty()) {
+            return Optional.empty();
+        }
+        return Optional.of(new BalToolsManifest.Tool(tool.id().toString(), org.value(), name.value(),
+                latestVersion.get().toString(), false, null));
     }
 
     /**
@@ -274,12 +284,21 @@ public final class BuildToolUtils {
      *
      * @param org     organization of the tool package
      * @param name    package name of the tool package
-     * @param versions
      * @return list of all compatible tool versions
      */
-    private static List<SemanticVersion> getCompatibleToolVersions(
-            PackageOrg org, PackageName name, Set<String> versions) {
-        List<SemanticVersion> versionList = new ArrayList<>();
+    private static List<SemanticVersion> getCompatibleToolVersions(PackageOrg org, PackageName name) {
+        List<String> versions = new ArrayList<>();
+        Path centralBalaDirPath = getCentralBalaDirPath();
+        Path balaParentPath = centralBalaDirPath.resolve(org.value()).resolve(name.value());
+        if (Files.exists(balaParentPath)) {
+            try (Stream<Path> versionFiles = Files.list(balaParentPath)) {
+                versions.addAll(versionFiles.map(path -> path.getFileName().toString())
+                        .toList());
+            } catch (IOException e) {
+                throw new ProjectException("Error while accessing the central cache: " + e.getMessage());
+            }
+        }
+        List<SemanticVersion> compatibleVersions = new ArrayList<>();
         for (String version : versions) {
             Path balaPackagePath = getPackagePath(org.value(), name.value(), version);
             if (Files.exists(balaPackagePath)) {
@@ -287,15 +306,15 @@ public final class BuildToolUtils {
                         .getBallerinaVersion();
                 String packVer = RepoUtils.getBallerinaShortVersion();
                 if (isCompatible(packageVer, packVer)) {
-                    versionList.add(SemanticVersion.from(version));
+                    compatibleVersions.add(SemanticVersion.from(version));
                 }
             }
         }
-        return versionList;
+        return compatibleVersions;
     }
 
     public static void addToolToBalToolsToml(BuildTool tool) {
-        BalToolsToml balToolsToml = BalToolsToml.from(balToolsTomlPath);
+        BalToolsToml balToolsToml = BalToolsToml.from(BAL_TOOLS_TOML_PATH);
         BalToolsManifest balToolsManifest = BalToolsManifestBuilder.from(balToolsToml).build();
 
         balToolsManifest.addTool(
