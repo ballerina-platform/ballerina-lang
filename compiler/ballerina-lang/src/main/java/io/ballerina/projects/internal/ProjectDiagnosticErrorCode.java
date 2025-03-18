@@ -68,6 +68,9 @@ public enum ProjectDiagnosticErrorCode implements DiagnosticCode {
     // Error codes used in resources resolution
     CONFLICTING_RESOURCE_FILE("BCE5601", "conflicting.resources.type"),
     DEPRECATED_RESOURCES_STRUCTURE("BCE5602", "deprecated.resources.structure"),
+
+    // Error code for central connection failures
+    CENTRAL_CONNECTION_ERROR("BCE5701", "central.connection.error");
     ;
 
     private final String diagnosticId;

@@ -90,7 +90,7 @@ import static io.ballerina.projects.util.ProjectConstants.BAL_TOOLS_TOML;
 import static io.ballerina.projects.util.ProjectConstants.CENTRAL_REPOSITORY_CACHE_NAME;
 import static io.ballerina.projects.util.ProjectConstants.CONFIG_DIR;
 import static io.ballerina.projects.util.ProjectConstants.REPOSITORIES_DIR;
-import static io.ballerina.projects.util.ProjectUtils.balToolsTomlPath;
+import static io.ballerina.projects.util.ProjectUtils.BAL_TOOLS_TOML_PATH;
 
 /**
  * This class contains utility functions needed for Bal Tool tasks in the Main class.
@@ -156,7 +156,7 @@ public final class BalToolsUtil {
         if (!builtInToolCommands.contains(commandName)) {
             return;
         }
-        BalToolsToml balToolsToml = BalToolsToml.from(balToolsTomlPath);
+        BalToolsToml balToolsToml = BalToolsToml.from(BAL_TOOLS_TOML_PATH);
         BalToolsManifest balToolsManifest = BalToolsManifestBuilder.from(balToolsToml).build();
         // if built in tool is already added, return
         if (balToolsManifest.getActiveTool(commandName).isPresent()) {
@@ -262,7 +262,7 @@ public final class BalToolsUtil {
      * bal-tools.toml file when the user moves from updates 6, 7 to update 8 and above.
      */
     public static void updateOldBalToolsToml() {
-        BalToolsToml balToolsToml = BalToolsToml.from(balToolsTomlPath);
+        BalToolsToml balToolsToml = BalToolsToml.from(BAL_TOOLS_TOML_PATH);
         BalToolsManifestBuilder balToolsManifestBuilder = BalToolsManifestBuilder.from(balToolsToml);
         BalToolsManifest balToolsManifest = balToolsManifestBuilder.build();
         Map<String, BalToolsManifestBuilder.OldTool> oldTools = balToolsManifestBuilder.getOldTools();
