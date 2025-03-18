@@ -50,7 +50,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.ServiceLoader;
-import java.util.Set;
 import java.util.stream.Stream;
 
 import static io.ballerina.projects.util.ProjectConstants.BALA_DIR_NAME;
@@ -292,7 +291,7 @@ public final class BuildToolUtils {
         Path balaParentPath = centralBalaDirPath.resolve(org.value()).resolve(name.value());
         if (Files.exists(balaParentPath)) {
             try (Stream<Path> versionFiles = Files.list(balaParentPath)) {
-                versions.addAll(versionFiles.map(path -> path.getFileName().toString())
+                versions.addAll(versionFiles.map(path -> Optional.of(path.getFileName()).get().toString())
                         .toList());
             } catch (IOException e) {
                 throw new ProjectException("Error while accessing the central cache: " + e.getMessage());
