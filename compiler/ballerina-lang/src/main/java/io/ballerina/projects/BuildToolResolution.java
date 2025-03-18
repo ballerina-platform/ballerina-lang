@@ -22,11 +22,16 @@ import io.ballerina.projects.buildtools.CodeGeneratorTool;
 import io.ballerina.projects.buildtools.ToolContext;
 import io.ballerina.projects.environment.PackageLockingMode;
 import io.ballerina.projects.environment.ToolResolutionRequest;
+import io.ballerina.projects.internal.PackageDiagnostic;
+import io.ballerina.projects.internal.ProjectDiagnosticErrorCode;
 import io.ballerina.projects.util.BuildToolUtils;
 import io.ballerina.projects.util.ProjectUtils;
 import io.ballerina.toml.semantic.diagnostics.TomlDiagnostic;
 import io.ballerina.toml.semantic.diagnostics.TomlNodeLocation;
 import io.ballerina.tools.diagnostics.Diagnostic;
+import io.ballerina.tools.diagnostics.DiagnosticFactory;
+import io.ballerina.tools.diagnostics.DiagnosticInfo;
+import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 import org.ballerinalang.central.client.CentralAPIClient;
 import org.ballerinalang.central.client.exceptions.CentralClientException;
 import org.ballerinalang.central.client.model.ToolResolutionCentralRequest;
@@ -126,18 +131,28 @@ public class BuildToolResolution {
         if (resolutionRequiredTools.isEmpty()) {
             return;
         }
+        PackageLockingMode packageLockingMode = getPackageLockingMode(currentProject);
+        updateLockedToolDependencyVersions(resolutionRequiredTools, currentProject);
         try {
-            resolvedTools.addAll(resolveToolVersions(currentProject, resolutionRequiredTools));
+            resolvedTools.addAll(resolveToolVersions(packageLockingMode, currentProject.buildOptions().offlineBuild(),
+                    resolutionRequiredTools));
         } catch (CentralClientException e) {
-            throw new ProjectException("Failed to resolve build tools: " + e.getMessage());
+            DiagnosticInfo diagnosticInfo = new DiagnosticInfo(
+                    ProjectDiagnosticErrorCode.CENTRAL_CONNECTION_ERROR.diagnosticId(),
+                    "connection to central failed. Continuing the tool resolution offline, reason: '"
+                            + e.getMessage() + "'",
+                    DiagnosticSeverity.WARNING);
+            PackageDiagnostic diagnostic = new PackageDiagnostic(diagnosticInfo,
+                    currentProject.currentPackage().descriptor().name().toString());
+            diagnosticList.add(diagnostic);
+            resolvedTools.addAll(getToolResolutionResponseOffline(resolutionRequiredTools, packageLockingMode));
         }
     }
 
-    private List<BuildTool> resolveToolVersions(Project project, List<BuildTool> unresolvedTools)
+    private List<BuildTool> resolveToolVersions(PackageLockingMode packageLockingMode, boolean offline,
+                                                List<BuildTool> unresolvedTools)
             throws CentralClientException {
-        PackageLockingMode packageLockingMode = getPackageLockingMode(project);
-        updateLockedToolDependencyVersions(unresolvedTools, project);
-        if (project.buildOptions().offlineBuild()) {
+        if (offline) {
             return getToolResolutionResponseOffline(unresolvedTools, packageLockingMode);
         }
         Set<ToolResolutionRequest> resolutionRequests = getToolResolutionRequests(unresolvedTools, packageLockingMode);
@@ -178,7 +193,7 @@ public class BuildToolResolution {
             PackageVersion version = tool.version();
 
             Optional<BalToolsManifest.Tool> latestCompatibleVersion = BuildToolUtils
-                    .getCompatibleToolVersionsAvailableLocally(id, version, packageLockingMode);;
+                    .getCompatibleToolVersionsAvailableLocally(tool, version, packageLockingMode);;
             if (latestCompatibleVersion.isEmpty()) {
                 String toolIdAndVersionOpt = id + (version == null ? "" : ":" + tool.version().toString());
                 TomlDiagnostic diagnostic = BuildToolUtils.getCannotResolveBuildToolDiagnostic(toolIdAndVersionOpt,

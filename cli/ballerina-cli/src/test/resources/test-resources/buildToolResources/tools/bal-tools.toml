@@ -34,6 +34,13 @@ version = "1.4.0"
 active = false
 
 [[tool]]
+id = "dummy_tool_higher_dist"
+org = "foo"
+name = "dummypkghigherdist"
+version = "1.4.0"
+active = false
+
+[[tool]]
 id = "generate_file"
 org = "foo"
 name = "ballerina_generate_file"

@@ -138,7 +138,7 @@ public final class ProjectUtils {
     private static final Pattern separatedIdentifierWithHyphenPattern = Pattern.compile("^[a-zA-Z0-9_.-]*$");
     private static final List<Diagnostic> projectLoadingDiagnostic = new ArrayList<>();
 
-    public static final Path balToolsTomlPath = RepoUtils.createAndGetHomeReposPath().resolve(
+    public static final Path BAL_TOOLS_TOML_PATH = RepoUtils.createAndGetHomeReposPath().resolve(
             Path.of(CONFIG_DIR, BAL_TOOLS_TOML));
 
     private ProjectUtils() {
