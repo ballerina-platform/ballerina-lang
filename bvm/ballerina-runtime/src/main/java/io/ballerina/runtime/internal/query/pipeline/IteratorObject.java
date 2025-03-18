@@ -1,6 +1,5 @@
 package io.ballerina.runtime.internal.query.pipeline;
 
-import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
@@ -15,18 +14,12 @@ public class IteratorObject {
     private static final BString VALUE_FIELD = StringUtils.fromString("$value$");
 
     public static Object next(Object itr) {
-//        Type constraintType = ((StreamPipeline) pipeline).getConstraintType().getDescribingType();
-//        Type completionType = ((StreamPipeline) pipeline).getCompletionType().getDescribingType();
         try {
             Iterator<Frame> iterator = (Iterator<Frame>) itr;
 
             if (iterator.hasNext()) {
                 Frame frame = iterator.next();
                 BMap<BString, Object> recordMap = frame.getRecord();
-//                if (recordMap.isEmpty()) {
-//                    throw new RuntimeException("Error occurred while iterating over the stream: " +
-//                            "record fields cannot be empty");
-//                }
                 Object value = recordMap.get(VALUE_FIELD);
                 if (value instanceof BError) {
                     throw (BError) value;
