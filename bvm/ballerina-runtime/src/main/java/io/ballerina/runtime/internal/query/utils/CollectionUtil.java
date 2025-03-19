@@ -37,16 +37,20 @@ public class CollectionUtil {
 
     public static Object createArray(StreamPipeline pipeline, BArray array) {
         Stream<Frame> strm = pipeline.getStream();
-        Iterator<Frame> it = strm.iterator();
-        while (it.hasNext()) {
-            switch (it.next()) {
-                case ErrorFrame errorFrame:
-                    return errorFrame.getError();
-                case Frame frame:
-                    array.append(frame.getRecord().get($VALUE$_FIELD));
+        try {
+            Iterator<Frame> it = strm.iterator();
+            while (it.hasNext()) {
+                switch (it.next()) {
+                    case ErrorFrame errorFrame:
+                        return errorFrame.getError();
+                    case Frame frame:
+                        array.append(frame.getRecord().get($VALUE$_FIELD));
+                }
             }
+            return array;
+        } catch (QueryErrorValue e) {
+            return e;
         }
-        return array;
     }
 
     public static Object collectQuery(Object pipeline) {
