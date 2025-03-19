@@ -6,15 +6,13 @@ import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.types.*;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.*;
+import io.ballerina.runtime.internal.query.pipeline.ErrorFrame;
 import io.ballerina.runtime.internal.query.pipeline.Frame;
 import io.ballerina.runtime.internal.query.pipeline.StreamPipeline;
 import io.ballerina.runtime.internal.values.HandleValue;
 import io.ballerina.runtime.internal.xml.XmlFactory;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Stream;
 
 import static io.ballerina.runtime.api.constants.RuntimeConstants.BALLERINA_QUERY_PKG_ID;
@@ -39,25 +37,34 @@ public class CollectionUtil {
 //    }
 
     public static Object createArray(StreamPipeline pipeline, BArray array) {
-        try {
+//        try {
             Stream<Frame> strm = pipeline.getStream();
-            Object[] tmpArr = strm
-                    .map(frame -> frame.getRecord().get($VALUE$_FIELD))
-                    .toArray();
-
-            if (tmpArr.length > 0) {
-                for (int i = 0; i < tmpArr.length; i++) {
-                    array.add(i, tmpArr[i]);
+            Iterator<Frame> it = strm.iterator();
+            while(it.hasNext()) {
+                switch (it.next()) {
+                    case ErrorFrame errorFrame:
+                        return errorFrame.getError();
+                    case Frame frame:
+                        array.append(frame.getRecord().get($VALUE$_FIELD));
                 }
             }
             return array;
-        } catch (BError e) {
+//            Object[] tmpArr = strm
+//                    .map(frame -> frame.getRecord().get($VALUE$_FIELD))
+//                    .toArray();
+//
+//            if (tmpArr.length > 0) {
+//                for (int i = 0; i < tmpArr.length; i++) {
+//                    array.add(i, tmpArr[i]);
+//                }
+//            }
+//            return array;
+//        } catch (BError e) {
 //            return ErrorCreator.createError(BALLERINA_QUERY_PKG_ID, "CompleteEarlyError", e.getErrorMessage(), e, (BMap<BString, Object>) e.getDetails());
 //            return ErrorCreator.createDistinctError("Error", BALLERINA_QUERY_PKG_ID, e.getErrorMessage());
 //            return e;
 //            return ErrorCreator.createError(e.getErrorMessage(), e);
-            return e;
-        }
+//            return e;
     }
 
     public static Object collectQuery(Object pipeline) {
