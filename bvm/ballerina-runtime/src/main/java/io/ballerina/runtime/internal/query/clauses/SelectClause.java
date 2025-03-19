@@ -5,6 +5,8 @@ import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BFunctionPointer;
 import io.ballerina.runtime.api.values.BMap;
+import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.internal.query.pipeline.ErrorFrame;
 import io.ballerina.runtime.internal.query.pipeline.Frame;
 
 import java.util.stream.Stream;
@@ -48,19 +50,15 @@ public class SelectClause implements PipelineStage {
     public Stream<Frame> process(Stream<Frame> inputStream) throws BError {
         return inputStream.map(frame -> {
             // Call the selector function and process the result
-            try {
-                Object result = selector.call(env.getRuntime(), frame.getRecord());
-                if (result instanceof Frame) {
-                    return (Frame) result;
-                } else if (result instanceof BMap) {
-                    frame.updateRecord((BMap) result);
-                    return frame;
-                } else {
-                    throw (BError) result;
-                }
-            } catch (BError e) {
-                throw e;
+            Object result = selector.call(env.getRuntime(), frame.getRecord());
+            if (result instanceof BMap mapVal) {
+                frame.updateRecord(mapVal);
+                return frame;
+            } else if (result instanceof BError error) {
+                return ErrorFrame.from(error);
             }
+            return (Frame) result;
+
         });
     }
 }
