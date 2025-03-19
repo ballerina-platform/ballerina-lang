@@ -4,6 +4,7 @@ import io.ballerina.runtime.api.Environment;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.*;
 import io.ballerina.runtime.internal.query.pipeline.Frame;
+import io.ballerina.runtime.internal.query.utils.QueryErrorValue;
 
 import java.math.BigDecimal;
 import java.util.Comparator;
@@ -37,7 +38,7 @@ public class OrderByClause implements PipelineStage {
             BMap<BString, Object> record = frame.getRecord();
             Object result = orderKeyFunction.call(env.getRuntime(), record);
             if (result instanceof BError) {
-                throw (BError) result;
+                throw new QueryErrorValue(((BError) result).getErrorMessage());
             }
         }).sorted(getComparator());
     }
