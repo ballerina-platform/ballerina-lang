@@ -49,7 +49,6 @@ public class SelectClause implements PipelineStage {
     @Override
     public Stream<Frame> process(Stream<Frame> inputStream) throws BError {
         return inputStream.map(frame -> {
-            // Call the selector function and process the result
             Object result = selector.call(env.getRuntime(), frame.getRecord());
             if (result instanceof BMap mapVal) {
                 frame.updateRecord(mapVal);
