@@ -291,6 +291,10 @@ public class Scheduler {
             throw ErrorCreator.createError(StringUtils.fromString("Incorrect parameter count in '" +
                     functionType.getName() + "' : Required '" +
                     (parameters.length - defaultParamCount) + "', found '" + args.length + "'"));
+        } else if (functionType.getRestType() == null && parameters.length < args.length) {
+            throw ErrorCreator.createError(StringUtils.fromString("Incorrect parameter count in '" +
+                    functionType.getName() + "' : Allowed '" +
+                    (parameters.length) + "', found '" + args.length + "'"));
         }
     }
 
