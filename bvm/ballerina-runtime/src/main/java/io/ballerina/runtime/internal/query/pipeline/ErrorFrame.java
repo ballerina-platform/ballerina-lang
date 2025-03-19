@@ -19,9 +19,4 @@ public class ErrorFrame extends Frame {
     public BError getError() {
         return error;
     }
-
-    @Override
-    public BMap<BString, Object> getRecord() {
-        return null;
-    }
 }
