@@ -552,7 +552,7 @@ public class NewCommandTest extends BaseCommandTest {
         // Check with spec
         // project_name/
         // - Ballerina.toml
-        // - Package.md
+        // - README.md
         // - Module.md
         // - lib.bal
         // - resources
@@ -594,7 +594,7 @@ public class NewCommandTest extends BaseCommandTest {
         // project_name/
         // - Ballerina.toml
         // - BalTool.toml
-        // - Package.md
+        // - README.md
         // - tool
         // - .gitignore       <- git ignore file
 
@@ -621,7 +621,7 @@ public class NewCommandTest extends BaseCommandTest {
                 "[[dependency]]\n";
         Assert.assertTrue(toolTomlContent.contains(expectedToolTomlContent));
 
-        Assert.assertTrue(Files.notExists(packageDir.resolve(ProjectConstants.README_MD_FILE_NAME)));
+        Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.README_MD_FILE_NAME)));
         Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.TOOL_DIR)));
 
         Assert.assertTrue(readOutput().contains("Created new package"));
