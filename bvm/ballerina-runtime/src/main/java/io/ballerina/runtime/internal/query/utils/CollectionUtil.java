@@ -1,6 +1,5 @@
 package io.ballerina.runtime.internal.query.utils;
 
-import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.creators.TypeCreator;
 import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.types.*;
@@ -37,34 +36,17 @@ public class CollectionUtil {
 //    }
 
     public static Object createArray(StreamPipeline pipeline, BArray array) {
-//        try {
-            Stream<Frame> strm = pipeline.getStream();
-            Iterator<Frame> it = strm.iterator();
-            while(it.hasNext()) {
-                switch (it.next()) {
-                    case ErrorFrame errorFrame:
-                        return errorFrame.getError();
-                    case Frame frame:
-                        array.append(frame.getRecord().get($VALUE$_FIELD));
-                }
+        Stream<Frame> strm = pipeline.getStream();
+        Iterator<Frame> it = strm.iterator();
+        while (it.hasNext()) {
+            switch (it.next()) {
+                case ErrorFrame errorFrame:
+                    return errorFrame.getError();
+                case Frame frame:
+                    array.append(frame.getRecord().get($VALUE$_FIELD));
             }
-            return array;
-//            Object[] tmpArr = strm
-//                    .map(frame -> frame.getRecord().get($VALUE$_FIELD))
-//                    .toArray();
-//
-//            if (tmpArr.length > 0) {
-//                for (int i = 0; i < tmpArr.length; i++) {
-//                    array.add(i, tmpArr[i]);
-//                }
-//            }
-//            return array;
-//        } catch (BError e) {
-//            return ErrorCreator.createError(BALLERINA_QUERY_PKG_ID, "CompleteEarlyError", e.getErrorMessage(), e, (BMap<BString, Object>) e.getDetails());
-//            return ErrorCreator.createDistinctError("Error", BALLERINA_QUERY_PKG_ID, e.getErrorMessage());
-//            return e;
-//            return ErrorCreator.createError(e.getErrorMessage(), e);
-//            return e;
+        }
+        return array;
     }
 
     public static Object collectQuery(Object pipeline) {
