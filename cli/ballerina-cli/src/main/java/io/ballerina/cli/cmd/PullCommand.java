@@ -90,7 +90,7 @@ public class PullCommand implements BLauncherCmd {
     @CommandLine.Option(names = "--repository")
     private String repositoryName;
 
-    @CommandLine.Option(names = "--sticky", hidden = true, defaultValue = "true")
+    @CommandLine.Option(names = "--sticky", hidden = true, defaultValue = "false")
     private boolean sticky;
 
     @CommandLine.Option(names = "--offline", hidden = true)
