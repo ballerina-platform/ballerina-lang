@@ -19,28 +19,8 @@
 package org.ballerinalang.langlib.function;
 
 import io.ballerina.runtime.api.Environment;
-import io.ballerina.runtime.api.creators.ErrorCreator;
-import io.ballerina.runtime.api.types.Parameter;
-import io.ballerina.runtime.api.types.Type;
-import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BFunctionPointer;
-import io.ballerina.runtime.api.values.BNever;
-import io.ballerina.runtime.internal.TypeChecker;
-import io.ballerina.runtime.internal.errors.ErrorCodes;
-import io.ballerina.runtime.internal.errors.ErrorHelper;
-import io.ballerina.runtime.internal.types.BArrayType;
-import io.ballerina.runtime.internal.types.BFunctionType;
 import io.ballerina.runtime.internal.types.BTupleType;
-import io.ballerina.runtime.internal.values.ArrayValueImpl;
-import io.ballerina.runtime.internal.values.ListInitialValueEntry;
-
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
-
-import static io.ballerina.runtime.api.constants.RuntimeConstants.FUNCTION_LANG_LIB;
-import static io.ballerina.runtime.internal.errors.ErrorReasons.INCOMPATIBLE_ARGUMENTS;
-import static io.ballerina.runtime.internal.errors.ErrorReasons.getModulePrefixedReason;
 
 /**
  * Native implementation of lang.function:call(function func, any|error... args).
