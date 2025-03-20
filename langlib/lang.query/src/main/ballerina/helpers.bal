@@ -37,7 +37,7 @@ public isolated function nextJava(handle javaStrm) returns record {|Type value;|
         paramTypes: ["io.ballerina.runtime.internal.query.pipeline.StreamPipeline"]
 } external;
 
-function toStream(handle strm) returns stream<Type, CompletionType> = @java:Method {
+function toStream(handle strm) returns stream<Type, CompletionType>|error = @java:Method {
     'class: "io.ballerina.runtime.internal.query.utils.CollectionUtil",
     name: "toStream",
     paramTypes: ["io.ballerina.runtime.internal.query.pipeline.StreamPipeline"]
@@ -210,7 +210,7 @@ function consumeStreamOld(stream<Type, CompletionType> strm) returns any|error {
 }
 
 function consumeStream(handle javaPipeline) returns any|error {
-    stream<Type, CompletionType> strm = toStream(javaPipeline);
+    stream<Type, CompletionType> strm = check toStream(javaPipeline);
     any|error? v = strm.next();
     while (!(v is () || v is error)) {
         if (v is _Frame && v.hasKey("value") && v.get("value") != ()) {

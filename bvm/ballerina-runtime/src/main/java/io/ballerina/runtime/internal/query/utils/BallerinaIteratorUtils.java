@@ -160,7 +160,7 @@ public class BallerinaIteratorUtils {
             Object result = env.getRuntime().callMethod(iteratorObj, "next", null);
             if (result instanceof BError) {
                 hasMore = false;
-                throw (BError) result;
+                throw new QueryErrorValue(((BError) result).getErrorMessage());
             }
             if (result instanceof BMap<?, ?> record) {
                 nextValue = record.get(StringUtils.fromString("value"));

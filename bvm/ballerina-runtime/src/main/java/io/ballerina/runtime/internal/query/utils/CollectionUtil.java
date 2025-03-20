@@ -75,7 +75,7 @@ public class CollectionUtil {
                     .map(frame -> frame.getRecord().get($VALUE$_FIELD))
                     .map(string -> (BString) string)
                     .reduce(StringUtils.fromString(""), BString::concat);
-        } catch (BError e) {
+        } catch (QueryErrorValue e) {
             return e;
         }
     }
@@ -166,9 +166,14 @@ public class CollectionUtil {
     }
 
 
-    public static BStream toStream(StreamPipeline pipeline) {
+    public static Object toStream(StreamPipeline pipeline) {
         StreamType streamType = TypeCreator.createStreamType(pipeline.getConstraintType().getDescribingType(), pipeline.getCompletionType().getDescribingType());
-        Object pipelineObj = pipeline.getStream().iterator();
+        Object pipelineObj = null;
+        try {
+            pipelineObj = pipeline.getStream().iterator();
+        } catch (QueryErrorValue e) {
+            return e;
+        }
         HandleValue handleValue = new HandleValue(pipelineObj);
         BObject iteratorObj = ValueCreator.createObjectValue(BALLERINA_QUERY_PKG_ID, "_IteratorObject", handleValue);
 
