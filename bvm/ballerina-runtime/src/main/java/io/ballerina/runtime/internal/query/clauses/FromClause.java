@@ -6,6 +6,7 @@ import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.*;
 import io.ballerina.runtime.internal.query.pipeline.Frame;
 import io.ballerina.runtime.internal.query.utils.QueryErrorValue;
+import io.ballerina.runtime.internal.query.utils.QueryException;
 
 import java.util.stream.Stream;
 
@@ -46,7 +47,7 @@ public class FromClause implements PipelineStage {
                 frame.updateRecord((BMap<BString, Object>) result);
                 return frame;
             } else {
-                throw new QueryErrorValue(((BError) result).getErrorMessage());
+                throw new QueryException((BError) result);
             }
         });
     }

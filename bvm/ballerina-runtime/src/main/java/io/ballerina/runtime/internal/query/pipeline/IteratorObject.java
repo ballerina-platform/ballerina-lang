@@ -6,6 +6,7 @@ import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.internal.query.utils.QueryErrorValue;
+import io.ballerina.runtime.internal.query.utils.QueryException;
 
 import java.util.Iterator;
 
@@ -33,8 +34,8 @@ public class IteratorObject {
                         return record;
                 }
             }
-        } catch (BError e) {
-            return e;
+        } catch (QueryException e) {
+            return e.getError();
         }
 
         return null;

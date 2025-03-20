@@ -66,7 +66,7 @@ public class BallerinaIteratorUtils {
                     throw prepareCompleteEarlyError(new UnsupportedOperationException(
                             "Unsupported iterable object: " + bObject.getType()));
                 }
-                case null, default -> {
+                default -> {
                     throw prepareCompleteEarlyError(new UnsupportedOperationException(
                             "Unsupported collection type: " + collection.getClass().getName()));
                 }
@@ -160,7 +160,7 @@ public class BallerinaIteratorUtils {
             Object result = env.getRuntime().callMethod(iteratorObj, "next", null);
             if (result instanceof BError) {
                 hasMore = false;
-                throw new QueryErrorValue(((BError) result).getErrorMessage());
+                throw new QueryException((BError) result);
             }
             if (result instanceof BMap<?, ?> record) {
                 nextValue = record.get(StringUtils.fromString("value"));

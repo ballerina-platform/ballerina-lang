@@ -5,6 +5,7 @@ import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BFunctionPointer;
 import io.ballerina.runtime.internal.query.pipeline.Frame;
 import io.ballerina.runtime.internal.query.utils.QueryErrorValue;
+import io.ballerina.runtime.internal.query.utils.QueryException;
 
 import java.util.stream.Stream;
 
@@ -50,7 +51,7 @@ public class WhereClause implements PipelineStage {
             if (result instanceof Boolean) {
                 return (Boolean) result;
             } else {
-                throw new QueryErrorValue(((BError) result).getErrorMessage());
+                throw new QueryException((BError) result);
             }
         });
     }

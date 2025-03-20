@@ -48,8 +48,8 @@ public class CollectionUtil {
                 }
             }
             return array;
-        } catch (QueryErrorValue e) {
-            return e;
+        } catch (QueryException e) {
+            return e.getError();
         }
     }
 
@@ -75,8 +75,8 @@ public class CollectionUtil {
                     .map(frame -> frame.getRecord().get($VALUE$_FIELD))
                     .map(string -> (BString) string)
                     .reduce(StringUtils.fromString(""), BString::concat);
-        } catch (QueryErrorValue e) {
-            return e;
+        } catch (QueryException e) {
+            return e.getError();
         }
     }
 
@@ -90,8 +90,8 @@ public class CollectionUtil {
             });
 
             return table;
-        } catch (BError e) {
-            return e;
+        } catch (QueryException e) {
+            return e.getError();
         }
     }
 
@@ -135,8 +135,8 @@ public class CollectionUtil {
             });
 
             return map;
-        } catch (BError e) {
-            return e;
+        } catch (QueryException e) {
+            return e.getError();
         }
     }
 
@@ -171,8 +171,8 @@ public class CollectionUtil {
         Object pipelineObj = null;
         try {
             pipelineObj = pipeline.getStream().iterator();
-        } catch (QueryErrorValue e) {
-            return e;
+        } catch (QueryException e) {
+            return e.getError();
         }
         HandleValue handleValue = new HandleValue(pipelineObj);
         BObject iteratorObj = ValueCreator.createObjectValue(BALLERINA_QUERY_PKG_ID, "_IteratorObject", handleValue);
@@ -190,8 +190,8 @@ public class CollectionUtil {
                     .toArray();
 
             return concatXML(xmlArray);
-        } catch (BError e) {
-            return e;
+        } catch (QueryException e) {
+            return e.getError();
         }
     }
 
