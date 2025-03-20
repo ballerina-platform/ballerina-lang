@@ -36,7 +36,7 @@ public class GroupByClause implements PipelineStage {
     }
 
     @Override
-    public Stream<Frame> process(Stream<Frame> inputStream) throws BError {
+    public Stream<Frame> process(Stream<Frame> inputStream) {
         Map<Map<BString, Object>, List<Frame>> groupedData = inputStream
                 .collect(Collectors.groupingBy(
                         this::extractProcessedKey,

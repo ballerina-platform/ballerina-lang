@@ -17,5 +17,5 @@ public interface PipelineStage {
      * @param inputStream The input stream of frames.
      * @return The transformed stream of frames.
      */
-    Stream<Frame> process(Stream<Frame> inputStream) throws BError;
+    Stream<Frame> process(Stream<Frame> inputStream);
 }

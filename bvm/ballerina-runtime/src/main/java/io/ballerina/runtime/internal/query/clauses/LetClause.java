@@ -7,6 +7,7 @@ import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.internal.query.pipeline.Frame;
 import io.ballerina.runtime.internal.query.utils.QueryErrorValue;
+import io.ballerina.runtime.internal.query.utils.QueryException;
 
 import java.util.stream.Stream;
 
@@ -55,7 +56,7 @@ public class LetClause implements PipelineStage {
                 frame.updateRecord((BMap<BString, Object>) result);
                 return frame;
             } else {
-                throw new QueryErrorValue(((BError) result).getErrorMessage());
+                throw new QueryException((BError) result);
             }
         });
     }

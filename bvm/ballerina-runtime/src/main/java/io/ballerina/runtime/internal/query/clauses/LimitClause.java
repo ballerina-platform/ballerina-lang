@@ -4,6 +4,7 @@ import io.ballerina.runtime.api.Environment;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BFunctionPointer;
 import io.ballerina.runtime.internal.query.pipeline.Frame;
+import io.ballerina.runtime.internal.query.utils.QueryException;
 
 import java.util.stream.Stream;
 
@@ -46,8 +47,8 @@ public class LimitClause implements PipelineStage {
     public Stream<Frame> process(Stream<Frame> inputStream) {
         // Evaluate the limit function only once.
         Object limitResult = limitFunction.call(env.getRuntime(), new Frame().getRecord());
-        if (limitResult instanceof BError) {
-            throw (BError) limitResult;
+        if (limitResult instanceof BError error) {
+            throw new QueryException(error);
         }
         Long limit = (Long) limitResult;
         return inputStream.limit(limit);

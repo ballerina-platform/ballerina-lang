@@ -5,6 +5,7 @@ import io.ballerina.runtime.api.creators.TypeCreator;
 import io.ballerina.runtime.api.types.PredefinedTypes;
 import io.ballerina.runtime.api.values.*;
 import io.ballerina.runtime.internal.query.pipeline.Frame;
+import io.ballerina.runtime.internal.query.utils.QueryException;
 import io.ballerina.runtime.internal.values.ArrayValueImpl;
 
 import java.util.LinkedHashMap;
@@ -53,9 +54,6 @@ public class CollectClause implements PipelineStage {
         Frame groupedFrame = new Frame();
         BMap<BString, Object> groupedRecord = groupedFrame.getRecord();
 
-        if (groupedRecord == null) {
-            throw new RuntimeException("Frame record is null. Ensure Frame initializes a BMap.");
-        }
         for (int i = 0; i < nonGroupingKeys.size(); i++) {
             BString key = (BString) nonGroupingKeys.get(i);
             groupedRecord.put(key, new ArrayValueImpl(TypeCreator.createArrayType(TypeCreator.createUnionType(
