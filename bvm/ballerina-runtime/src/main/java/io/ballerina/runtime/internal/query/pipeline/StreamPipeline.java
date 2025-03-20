@@ -6,6 +6,7 @@ import io.ballerina.runtime.api.values.BTypedesc;
 import io.ballerina.runtime.internal.query.clauses.PipelineStage;
 import io.ballerina.runtime.internal.query.utils.BallerinaIteratorUtils;
 import io.ballerina.runtime.internal.query.utils.DistinctQueryErrorCreator;
+import io.ballerina.runtime.internal.query.utils.QueryException;
 import io.ballerina.runtime.internal.values.ErrorValue;
 
 import java.util.ArrayList;
@@ -71,11 +72,11 @@ public class StreamPipeline {
         ((StreamPipeline) jStreamPipeline).addStage((PipelineStage) pipelineStage);
     }
 
-    public static Object getStreamFromPipeline(Object pipeline){
+    public static Object getStreamFromPipeline(Object pipeline) {
         try {
             ((StreamPipeline)pipeline).execute();
-        } catch (BError e) {
-            return e;
+        } catch (QueryException e) {
+            return e.getError();
         }
 
 //        return CollectionUtil.toBStream((StreamPipeline) pipeline);
@@ -94,7 +95,7 @@ public class StreamPipeline {
     /**
      * Processes the stream through all the pipeline stages.
      */
-    public void execute() throws BError {
+    public void execute() {
         for (PipelineStage stage : pipelineStages) {
             stream = stage.process(stream);
         }

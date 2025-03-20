@@ -7,6 +7,7 @@ import io.ballerina.runtime.api.values.BFunctionPointer;
 import io.ballerina.runtime.internal.query.pipeline.Frame;
 import io.ballerina.runtime.internal.query.pipeline.StreamPipeline;
 import io.ballerina.runtime.internal.query.utils.QueryErrorValue;
+import io.ballerina.runtime.internal.query.utils.QueryException;
 
 import java.util.Collections;
 import java.util.ArrayList;
@@ -87,11 +88,11 @@ public class InnerJoinClause implements PipelineStage {
         return inputStream.flatMap(lhsFrame -> {
             try {
                 if (failureAtJoin != null) {
-                    throw new QueryErrorValue(((BError) failureAtJoin).getErrorMessage());
+                    throw new QueryException(failureAtJoin);
                 }
                 Object lhsKey = lhsKeyFunction.call(env.getRuntime(), lhsFrame.getRecord());
-                if(lhsKey instanceof BError) {
-                    throw (BError) lhsKey;
+                if(lhsKey instanceof BError error) {
+                    throw new QueryException(error);
                 }
                 List<Frame> rhsCandidates = rhsFramesMap.getOrDefault(lhsKey.toString(), Collections.emptyList());
 
@@ -99,7 +100,7 @@ public class InnerJoinClause implements PipelineStage {
                         .map(rhsFrame -> mergeFrames(lhsFrame, rhsFrame));
 
             } catch (BError e) {
-                throw new QueryErrorValue(((BError) e).getErrorMessage());
+                throw new QueryException(e);
             }
         });
     }
