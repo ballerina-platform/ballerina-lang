@@ -20,7 +20,6 @@ package org.ballerinalang.langlib.function;
 
 import io.ballerina.runtime.api.Environment;
 import io.ballerina.runtime.api.values.BFunctionPointer;
-import io.ballerina.runtime.internal.types.BTupleType;
 
 /**
  * Native implementation of lang.function:call(function func, any|error... args).
@@ -34,10 +33,5 @@ public final class Call {
 
     public static Object call(Environment env, BFunctionPointer func, Object... args) {
         return func.call(env.getRuntime(), args);
-    }
-
-    private static String removeBracketsFromStringFormatOfTuple(BTupleType tupleType) {
-        String stringValue = tupleType.toString();
-        return "(" + stringValue.substring(1, stringValue.length() - 1) + ")";
     }
 }
