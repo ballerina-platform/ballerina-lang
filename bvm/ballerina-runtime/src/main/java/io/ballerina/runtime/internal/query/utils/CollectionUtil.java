@@ -98,28 +98,27 @@ public class CollectionUtil {
     public static Object createTableForOnConflict(StreamPipeline pipeline, BTable table) {
         Stream<Frame> strm = pipeline.getStream();
 
-        Optional<BError> error = strm
-                .map(frame -> {
-                    BMap<BString, Object> record = (BMap<BString, Object>) frame.getRecord().get($VALUE$_FIELD);
-                    try {
-                        table.add(record);
-                    } catch (Exception e) {
-                        if (frame.getRecord().get($ERROR$_FIELD) instanceof BError) {
-                            return (BError) frame.getRecord().get($ERROR$_FIELD);
-                        } else {
-                            table.put(record);
+        try {
+            Optional<BError> error = strm
+                    .map(frame -> {
+                        BMap<BString, Object> record = (BMap<BString, Object>) frame.getRecord().get($VALUE$_FIELD);
+                        try {
+                            table.add(record);
+                        } catch (Exception e) {
+                            if (frame.getRecord().get($ERROR$_FIELD) instanceof BError) {
+                                return (BError) frame.getRecord().get($ERROR$_FIELD);
+                            } else {
+                                table.put(record);
+                            }
                         }
-                    }
-                    return null;
-                })
-                .filter(Objects::nonNull)
-                .findFirst();
+                        return null;
+                    })
+                    .filter(Objects::nonNull)
+                    .findFirst();
 
-//        return error.orElse(null) != null ? error.get() : table;
-        if (error.isPresent()) {
-            return (BError) error.get();
-        } else {
-            return table;
+            return error.orElse(null) != null ? error.get() : table;
+        } catch (QueryException e) {
+            return e.getError();
         }
     }
 
@@ -142,27 +141,29 @@ public class CollectionUtil {
 
     public static Object createMapForOnConflict(StreamPipeline pipeline, BMap<BString, Object> map) {
         Stream<Frame> strm = pipeline.getStream();
-//        MapType mapType = (MapType) pipeline.getConstraintType().getDescribingType();
-//        BMap<BString, Object> map = ValueCreator.createMapValue(mapType);
 
-        Optional<BError> error = strm
-                .map(frame -> {
-                    BMap<BString, Object> record = frame.getRecord();
-                    BArray recordArray = (BArray) record.get($VALUE$_FIELD);
+        try {
+            Optional<BError> error = strm
+                    .map(frame -> {
+                        BMap<BString, Object> record = frame.getRecord();
+                        BArray recordArray = (BArray) record.get($VALUE$_FIELD);
 
-                    BString key = (BString) recordArray.get(0);
-                    if (map.containsKey(key) && record.get($ERROR$_FIELD) instanceof BError) {
-                        return (BError) record.get($ERROR$_FIELD);
-                    }
-                    Object value = recordArray.get(1);
+                        BString key = (BString) recordArray.get(0);
+                        if (map.containsKey(key) && record.get($ERROR$_FIELD) instanceof BError) {
+                            return (BError) record.get($ERROR$_FIELD);
+                        }
+                        Object value = recordArray.get(1);
 
-                    map.put(key, value);
-                    return null;
-                })
-                .filter(Objects::nonNull)
-                .findFirst();
+                        map.put(key, value);
+                        return null;
+                    })
+                    .filter(Objects::nonNull)
+                    .findFirst();
 
-        return error.orElse(null) != null ? error.get() : map;
+            return error.orElse(null) != null ? error.get() : map;
+        } catch (QueryException e) {
+            return e.getError();
+        }
     }
 
 
