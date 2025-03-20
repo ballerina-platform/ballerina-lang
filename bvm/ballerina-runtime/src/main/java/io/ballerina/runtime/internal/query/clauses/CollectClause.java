@@ -64,7 +64,7 @@ public class CollectClause implements PipelineStage {
             BMap<BString, Object> record = frame.getRecord();
             for (int i = 0; i < nonGroupingKeys.size(); i++) {
                 BString key = (BString) nonGroupingKeys.get(i);
-                if (record.containsKey(key)) {
+                if (record.containsKey(key) && record.get(key) != null) {
                     BArray existingValues = (BArray) groupedRecord.get(key);
                     existingValues.append(record.get(key));
                 }
