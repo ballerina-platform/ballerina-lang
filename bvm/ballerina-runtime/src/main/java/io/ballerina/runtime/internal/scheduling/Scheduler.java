@@ -20,6 +20,7 @@ package io.ballerina.runtime.internal.scheduling;
 import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.concurrent.StrandMetadata;
 import io.ballerina.runtime.api.creators.ErrorCreator;
+import io.ballerina.runtime.api.types.ArrayType;
 import io.ballerina.runtime.api.types.FunctionType;
 import io.ballerina.runtime.api.types.MethodType;
 import io.ballerina.runtime.api.types.ObjectType;
@@ -30,6 +31,7 @@ import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.TypeTags;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.utils.TypeUtils;
+import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BNever;
 import io.ballerina.runtime.api.values.BObject;
@@ -247,15 +249,17 @@ public class Scheduler {
     private Object[] getArgsWithDefaultValues(ValueCreator valueCreator, FunctionType functionType, Strand strand,
                                               Object... args) {
         Parameter[] parameters = functionType.getParameters();
+        validateArgCount(parameters, args, functionType);
+        Type restType = functionType.getRestType();
         if (args.length == 0 && parameters.length == 0) {
-            return new Object[]{};
+            if (restType == null) {
+                return new Object[]{};
+            }
+            return new Object[]{io.ballerina.runtime.api.creators.ValueCreator.createArrayValue((ArrayType) restType)};
         }
-        int length = functionType.getRestType() == null ? parameters.length : parameters.length + 1;
-        if (length < args.length) {
-            length = args.length;
-        }
+        int length = restType == null ? parameters.length : parameters.length + 1;
         Object[] argsWithDefaultValues = new Object[length];
-        System.arraycopy(args, 0, argsWithDefaultValues, 0, args.length);
+        System.arraycopy(args, 0, argsWithDefaultValues, 0, Math.min(args.length, parameters.length));
         for (int i = 0; i < parameters.length; i++) {
             Parameter parameter = parameters[i];
             if (parameter.isDefault && (args.length <= i || args[i] == BNever.getValue())) {
@@ -263,7 +267,35 @@ public class Scheduler {
                 argsWithDefaultValues[i] = defaultValue;
             }
         }
+        if (restType != null) {
+            BArray restParamArray = io.ballerina.runtime.api.creators.ValueCreator.createArrayValue(
+                    (ArrayType) restType);
+            if (args.length >= parameters.length + 1) {
+                for (int i = length - 1; i < args.length; i++) {
+                    restParamArray.append(args[i]);
+                }
+            }
+            argsWithDefaultValues[length - 1] = restParamArray;
+        }
         return argsWithDefaultValues;
+    }
+
+    private void validateArgCount(Parameter[] parameters, Object[] args, FunctionType functionType) {
+        int defaultParamCount = 0;
+        for (int i = 0; i < parameters.length; i++) {
+            if (parameters[i].isDefault) {
+                defaultParamCount++;
+            }
+        }
+        if (parameters.length - defaultParamCount > args.length) {
+            throw ErrorCreator.createError(StringUtils.fromString("Incorrect parameter count in '" +
+                    functionType.getName() + "' : Required '" +
+                    (parameters.length - defaultParamCount) + "', found '" + args.length + "'"));
+        } else if (functionType.getRestType() == null && parameters.length < args.length) {
+            throw ErrorCreator.createError(StringUtils.fromString("Incorrect parameter count in '" +
+                    functionType.getName() + "' : Allowed '" +
+                    (parameters.length) + "', found '" + args.length + "'"));
+        }
     }
 
     public MethodType getObjectMethodType(String methodName, ObjectType objectType) {

@@ -208,33 +208,28 @@ function testCallFunctionWithFunctionPointers() {
 function testCallFunctionWithInvalidArguments() {
     any|error a1 = trap function:call(value1, 10);
     assertEquality(true, a1 is error);
-    assertEquality("{ballerina/lang.function}IncompatibleArguments", (<error> a1).message());
-    assertEquality("arguments of incompatible types: argument list '(int)' cannot be passed to function expecting parameter list '(int,int,int)'", (<error> a1).detail()["message"]);
+    assertEquality("Incorrect parameter count in 'value1' : Required '2', found '1'", (<error> a1).message());
     
     a1 = trap function:call(value1);
     assertEquality(true, a1 is error);
-    assertEquality("{ballerina/lang.function}IncompatibleArguments", (<error> a1).message());
-    assertEquality("arguments of incompatible types: argument list '()' cannot be passed to function expecting parameter list '(int,int,int)'", (<error> a1).detail()["message"]);
+    assertEquality("Incorrect parameter count in 'value1' : Required '2', found '0'", (<error> a1).message());
 
     a1 = trap function:call(value1, 10, "10");
     assertEquality(true, a1 is error);
-    assertEquality("{ballerina/lang.function}IncompatibleArguments", (<error> a1).message());
-    assertEquality("arguments of incompatible types: argument list '(int,string)' cannot be passed to function expecting parameter list '(int,int,int)'", (<error> a1).detail()["message"]);
+    assertEquality("{ballerina}TypeCastError", (<error> a1).message());
+    assertEquality("incompatible types: 'string' cannot be cast to 'int'", (<error> a1).detail()["message"]);
 
     a1 = trap function:call(value2, 10, 10, 10, 10);
     assertEquality(true, a1 is error);
-    assertEquality("{ballerina/lang.function}IncompatibleArguments", (<error> a1).message());
-    assertEquality("arguments of incompatible types: argument list '(int,int,int,int)' cannot be passed to function expecting parameter list '(int,int,int)'", (<error> a1).detail()["message"]);
+    assertEquality("Incorrect parameter count in 'value2' : Allowed '3', found '4'", (<error> a1).message());
 
     a1 = trap function:call(value2, 10, 10);
     assertEquality(true, a1 is error);
-    assertEquality("{ballerina/lang.function}IncompatibleArguments", (<error> a1).message());
-    assertEquality("arguments of incompatible types: argument list '(int,int)' cannot be passed to function expecting parameter list '(int,int,int)'", (<error> a1).detail()["message"]);
+    assertEquality("Incorrect parameter count in 'value2' : Required '3', found '2'", (<error> a1).message());
 
     a1 = trap function:call(value2);
     assertEquality(true, a1 is error);
-    assertEquality("{ballerina/lang.function}IncompatibleArguments", (<error> a1).message());
-    assertEquality("arguments of incompatible types: argument list '()' cannot be passed to function expecting parameter list '(int,int,int)'", (<error> a1).detail()["message"]);
+    assertEquality("Incorrect parameter count in 'value2' : Required '3', found '0'", (<error> a1).message());
 
     a1 = trap function:call(value4, 10, 10);
     assertEquality(true, a1 is error);
@@ -258,49 +253,45 @@ function testCallFunctionWithInvalidArguments() {
 
     a1 = trap function:call(value8, "");
     assertEquality(true, a1 is error);
-    assertEquality("{ballerina/lang.function}IncompatibleArguments", (<error> a1).message());
-    assertEquality("arguments of incompatible types: argument list '(string)' cannot be passed to function expecting parameter list '(int...)'", (<error> a1).detail()["message"]);
+    assertEquality("{ballerina/lang.array}InherentTypeViolation", (<error> a1).message());
+    assertEquality("incompatible types: expected 'int', found 'string'", (<error> a1).detail()["message"]);
 
     a1 = trap function:call(value8, "", "");
     assertEquality(true, a1 is error);
-    assertEquality("{ballerina/lang.function}IncompatibleArguments", (<error> a1).message());
-    assertEquality("arguments of incompatible types: argument list '(string,string)' cannot be passed to function expecting parameter list '(int...)'", (<error> a1).detail()["message"]);
+    assertEquality("{ballerina/lang.array}InherentTypeViolation", (<error> a1).message());
+    assertEquality("incompatible types: expected 'int', found 'string'", (<error> a1).detail()["message"]);
 
     a1 = trap function:call(value1, 10);
     assertEquality(true, a1 is error);
-    assertEquality("{ballerina/lang.function}IncompatibleArguments", (<error> a1).message());
-    assertEquality("arguments of incompatible types: argument list '(int)' cannot be passed to function expecting parameter list '(int,int,int)'", (<error> a1).detail()["message"]);
+    assertEquality("Incorrect parameter count in 'value1' : Required '2', found '1'", (<error> a1).message());
 
     NewPerson person = {firstName: "chiran", secondName: "sachintha"};
     a1 = trap function:call(test10, person);
     assertEquality(true, a1 is error);
-    assertEquality("{ballerina/lang.function}IncompatibleArguments", (<error> a1).message());
-    assertEquality("arguments of incompatible types: argument list '(NewPerson)' cannot be passed to function expecting parameter list '(string,NewPerson)'", (<error> a1).detail()["message"]);
+    assertEquality("java.lang.ClassCastException", (<error> a1).message());
 
     a1 = trap function:call(test11, {});
     assertEquality(true, a1 is error);
-    assertEquality("{ballerina/lang.function}IncompatibleArguments", (<error> a1).message());
-    assertEquality("arguments of incompatible types: argument list '(map<(any|error)>)' cannot be passed to function expecting parameter list '(NewStudent)'", (<error> a1).detail()["message"]);
+    assertEquality("java.lang.NullPointerException", (<error> a1).message());
+    assertEquality("Cannot invoke \"io.ballerina.runtime.api.values.BString.concat(io.ballerina.runtime.api.values.BString)\" because \"<local4>\" is null", (<error> a1).detail()["message"]);
     
     a1 = trap function:call(test20, 10);
     assertEquality(true, a1 is error);
-    assertEquality("{ballerina/lang.function}IncompatibleArguments", (<error> a1).message());
-    assertEquality("arguments of incompatible types: argument list '(int)' cannot be passed to function expecting parameter list '(string...)'", (<error> a1).detail()["message"]);
+    assertEquality("{ballerina/lang.array}InherentTypeViolation", (<error> a1).message());
+    assertEquality("incompatible types: expected 'string', found 'int'", (<error> a1).detail()["message"]);
 
     a1 = trap function:call(test21, 10);
     assertEquality(true, a1 is error);
-    assertEquality("{ballerina/lang.function}IncompatibleArguments", (<error> a1).message());
-    assertEquality("arguments of incompatible types: argument list '(int)' cannot be passed to function expecting parameter list '()'", (<error> a1).detail()["message"]);
+    assertEquality("Incorrect parameter count in 'test21' : Allowed '0', found '1'", (<error> a1).message());
 
     a1 = trap function:call(test21, 10, 10);
     assertEquality(true, a1 is error);
-    assertEquality("{ballerina/lang.function}IncompatibleArguments", (<error> a1).message());
-    assertEquality("arguments of incompatible types: argument list '(int,int)' cannot be passed to function expecting parameter list '()'", (<error> a1).detail()["message"]);
+    assertEquality("Incorrect parameter count in 'test21' : Allowed '0', found '2'", (<error> a1).message());
 
     a1 = trap function:call(test22, "10");
     assertEquality(true, a1 is error);
-    assertEquality("{ballerina/lang.function}IncompatibleArguments", (<error> a1).message());
-    assertEquality("arguments of incompatible types: argument list '(string)' cannot be passed to function expecting parameter list '(int)'", (<error> a1).detail()["message"]);
+    assertEquality("{ballerina}TypeCastError", (<error> a1).message());
+    assertEquality("incompatible types: 'string' cannot be cast to 'int'", (<error> a1).detail()["message"]);
 }
 
 function assertEquality(any|error expected, any|error actual) {
