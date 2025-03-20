@@ -74,8 +74,8 @@ public class OuterJoinClause implements PipelineStage {
                 }
                 rhsFramesMap.computeIfAbsent(key.toString(), k -> new ArrayList<>()).add(frame);
             });
-        } catch (BError e) {
-            failureAtJoin = e;
+        } catch (QueryException e) {
+            failureAtJoin = e.getError();
         }
     }
 
