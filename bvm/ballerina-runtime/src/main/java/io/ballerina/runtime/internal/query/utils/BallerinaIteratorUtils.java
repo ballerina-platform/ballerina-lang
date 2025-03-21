@@ -2,7 +2,15 @@ package io.ballerina.runtime.internal.query.utils;
 
 import io.ballerina.runtime.api.Environment;
 import io.ballerina.runtime.api.utils.StringUtils;
-import io.ballerina.runtime.api.values.*;
+import io.ballerina.runtime.api.values.BArray;
+import io.ballerina.runtime.api.values.BCollection;
+import io.ballerina.runtime.api.values.BError;
+import io.ballerina.runtime.api.values.BIterator;
+import io.ballerina.runtime.api.values.BMap;
+import io.ballerina.runtime.api.values.BObject;
+import io.ballerina.runtime.api.values.BStream;
+import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.api.values.BTable;
 import io.ballerina.runtime.internal.query.pipeline.Frame;
 import io.ballerina.runtime.internal.values.ErrorValue;
 
@@ -18,7 +26,7 @@ public class BallerinaIteratorUtils {
      * Converts a Ballerina collection to a Java stream.
      *
      * @param javaIterator The Java iterator.
-     * @param <T>        The type of elements in the collection.
+     * @param <T>          The type of elements in the collection.
      * @return A Java Stream of elements.
      */
     public static <T> Stream<Frame> toStream(Iterator<T> javaIterator) throws ErrorValue {
@@ -41,7 +49,7 @@ public class BallerinaIteratorUtils {
                     BIterator<?> iterator = bMap.getIterator();
                     return createJavaMapIterator(iterator);
                 }
-                case BTable<?,?> table -> {
+                case BTable<?, ?> table -> {
                     BIterator<?> iterator = table.getIterator();
                     return createJavaTableIterator(iterator);
                 }
@@ -141,6 +149,7 @@ public class BallerinaIteratorUtils {
 
     /**
      * A custom iterator for handling Ballerina `stream` and `iterator()` objects.
+     * @param <T> Type of the iterator
      */
     private static class BStreamIterator<T> implements Iterator<T> {
         private final Environment env;

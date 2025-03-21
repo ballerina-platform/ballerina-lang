@@ -11,10 +11,10 @@ import static io.ballerina.runtime.api.constants.RuntimeConstants.BALLERINA_QUER
  */
 public class Frame {
 
-    private BMap<BString, Object> $frame$;
+    private BMap<BString, Object> frame;
 
     public Frame() {
-        this.$frame$ = ValueCreator.createRecordValue(BALLERINA_QUERY_PKG_ID, "_Frame");
+        this.frame = ValueCreator.createRecordValue(BALLERINA_QUERY_PKG_ID, "_Frame");
     }
 
     /**
@@ -23,7 +23,7 @@ public class Frame {
      * @param record The Ballerina record to wrap.
      */
     public Frame(BMap<BString, Object> record) {
-        this.$frame$ = record;
+        this.frame = record;
     }
 
     /**
@@ -54,7 +54,7 @@ public class Frame {
      * @param newRecord The new record to update.
      */
     public void updateRecord(BMap<BString, Object> newRecord) {
-        this.$frame$ = newRecord;
+        this.frame = newRecord;
     }
 
     /**
@@ -64,7 +64,7 @@ public class Frame {
      * @param value The value to set.
      */
     public Frame updateRecord(BString key, Object value) {
-        this.$frame$.put(key, value);
+        this.frame.put(key, value);
         return this;
     }
 
@@ -74,6 +74,6 @@ public class Frame {
      * @return The Ballerina record.
      */
     public BMap<BString, Object> getRecord() {
-        return $frame$;
+        return frame;
     }
 }

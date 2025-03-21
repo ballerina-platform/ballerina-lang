@@ -5,6 +5,6 @@ import io.ballerina.runtime.api.values.BString;
 
 public class QueryConstants {
     public static final BString VALUE_FIELD = StringUtils.fromString("value");
-    public static final BString $ERROR$_FIELD = StringUtils.fromString("$error$");
-    public static final BString $VALUE$_FIELD = StringUtils.fromString("$value$");
+    public static final BString ERROR_FIELD = StringUtils.fromString("$error$");
+    public static final BString VALUE_ACCESS_FIELD = StringUtils.fromString("$value$");
 }

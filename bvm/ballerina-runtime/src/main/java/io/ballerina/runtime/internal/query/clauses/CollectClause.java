@@ -4,10 +4,10 @@ import io.ballerina.runtime.api.Environment;
 import io.ballerina.runtime.api.creators.TypeCreator;
 import io.ballerina.runtime.api.types.PredefinedTypes;
 import io.ballerina.runtime.api.values.BArray;
+import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BFunctionPointer;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
-import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.internal.query.pipeline.Frame;
 import io.ballerina.runtime.internal.values.ArrayValueImpl;
 
@@ -37,7 +37,9 @@ public class CollectClause implements PipelineStage {
         this.env = env;
     }
 
-    public static CollectClause initCollectClause(Environment env, BArray nonGroupingKeys, BFunctionPointer collectFunc) {
+    public static CollectClause initCollectClause(Environment env,
+                                                  BArray nonGroupingKeys,
+                                                  BFunctionPointer collectFunc) {
         return new CollectClause(env, nonGroupingKeys, collectFunc);
     }
 
@@ -82,5 +84,4 @@ public class CollectClause implements PipelineStage {
             return frame;
         });
     }
-
 }
