@@ -1,11 +1,8 @@
 package io.ballerina.runtime.internal.query.clauses;
 
 import io.ballerina.runtime.api.Environment;
-import io.ballerina.runtime.api.creators.ErrorCreator;
-import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.*;
 import io.ballerina.runtime.internal.query.pipeline.Frame;
-import io.ballerina.runtime.internal.query.utils.QueryErrorValue;
 import io.ballerina.runtime.internal.query.utils.QueryException;
 
 import java.util.stream.Stream;

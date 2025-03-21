@@ -1,13 +1,8 @@
 package io.ballerina.runtime.internal.query.pipeline;
 
 import io.ballerina.runtime.api.creators.ValueCreator;
-import io.ballerina.runtime.api.utils.StringUtils;
-import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BMap;
-import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.api.values.BString;
-import io.ballerina.runtime.internal.types.BRecordType;
-import io.ballerina.runtime.internal.values.TupleValueImpl;
 
 import static io.ballerina.runtime.api.constants.RuntimeConstants.BALLERINA_QUERY_PKG_ID;
 
@@ -44,6 +39,12 @@ public class Frame {
         return new Frame(record);
     }
 
+    /**
+     * Static method to create a `_Frame` from a Ballerina record.
+     *
+     * @param record The Ballerina record to wrap.
+     * @return A `_Frame` wrapping the BMap.
+     */
     public static Frame create(BMap<BString, Object> record) {
         return new Frame(record);
     }

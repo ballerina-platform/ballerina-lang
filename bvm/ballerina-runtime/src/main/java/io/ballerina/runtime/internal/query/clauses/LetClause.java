@@ -6,7 +6,6 @@ import io.ballerina.runtime.api.values.BFunctionPointer;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.internal.query.pipeline.Frame;
-import io.ballerina.runtime.internal.query.utils.QueryErrorValue;
 import io.ballerina.runtime.internal.query.utils.QueryException;
 
 import java.util.stream.Stream;

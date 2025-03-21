@@ -2,6 +2,9 @@ package io.ballerina.runtime.internal.query.utils;
 
 import io.ballerina.runtime.api.values.BError;
 
+/*
+    * This class represents the Exception in query execution.
+ */
 public class QueryException extends RuntimeException {
     private BError error;
 
