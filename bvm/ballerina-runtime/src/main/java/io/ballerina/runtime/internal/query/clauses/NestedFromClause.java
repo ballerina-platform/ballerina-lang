@@ -5,8 +5,6 @@ import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.*;
 import io.ballerina.runtime.internal.query.pipeline.Frame;
 import io.ballerina.runtime.internal.query.utils.BallerinaIteratorUtils;
-import io.ballerina.runtime.internal.query.utils.DistinctQueryErrorCreator;
-import io.ballerina.runtime.internal.query.utils.QueryErrorValue;
 import io.ballerina.runtime.internal.query.utils.QueryException;
 
 import java.util.*;

@@ -1,9 +1,10 @@
 package io.ballerina.runtime.internal.query.pipeline;
 
 import io.ballerina.runtime.api.values.BError;
-import io.ballerina.runtime.api.values.BMap;
-import io.ballerina.runtime.api.values.BString;
 
+/**
+ * Represents an error frame in the query pipeline.
+ */
 public class ErrorFrame extends Frame {
 
     private final BError error;

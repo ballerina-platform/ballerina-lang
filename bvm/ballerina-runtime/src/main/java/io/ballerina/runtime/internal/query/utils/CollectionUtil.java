@@ -11,29 +11,19 @@ import io.ballerina.runtime.internal.query.pipeline.StreamPipeline;
 import io.ballerina.runtime.internal.values.HandleValue;
 import io.ballerina.runtime.internal.xml.XmlFactory;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Objects;
 import java.util.stream.Stream;
+import java.util.Optional;
 
 import static io.ballerina.runtime.api.constants.RuntimeConstants.BALLERINA_QUERY_PKG_ID;
 
-public class CollectionUtil {
-    private static final BString VALUE_FIELD = StringUtils.fromString("value");
-    private static final BString $VALUE$_FIELD = StringUtils.fromString("$value$");
-    private static final BString $ERROR$_FIELD = StringUtils.fromString("$error$");
+import static io.ballerina.runtime.internal.query.utils.QueryConstants.$ERROR$_FIELD;
+import static io.ballerina.runtime.internal.query.utils.QueryConstants.$VALUE$_FIELD;
 
-//    public static Object consumeStream(StreamPipeline pipeline) {
-//        Stream<Frame> stream = pipeline.getStream();
-//        var iterator = stream.iterator();
-//
-//        while (iterator.hasNext()) {
-//            BMap<BString, Object> record = iterator.next().getRecord();
-//            if (record.containsKey(VALUE_FIELD) && record.get(VALUE_FIELD) != null) {
-//                return record.get(VALUE_FIELD);
-//            }
-//        }
-//
-//        return null;
-//    }
+public class CollectionUtil {
 
     public static Object createArray(StreamPipeline pipeline, BArray array) {
         Stream<Frame> strm = pipeline.getStream();
@@ -169,7 +159,7 @@ public class CollectionUtil {
 
     public static Object toStream(StreamPipeline pipeline) {
         StreamType streamType = TypeCreator.createStreamType(pipeline.getConstraintType().getDescribingType(), pipeline.getCompletionType().getDescribingType());
-        Object pipelineObj = null;
+        Object pipelineObj;
         try {
             pipelineObj = pipeline.getStream().iterator();
         } catch (QueryException e) {
@@ -202,7 +192,6 @@ public class CollectionUtil {
         for (Object refValue : arrayValue) {
             if (refValue instanceof BString bString) {
                 if (lastItem != null && lastItem.getNodeType() == XmlNodeType.TEXT) {
-                    // If last added item is a string, then concat prev values with this values and replace prev value.
                     BString concat = StringUtils.fromString(lastItem.getTextValue()).concat(bString);
                     BXml xmlText = XmlFactory.createXMLText(concat);
                     backingArray.set(backingArray.size() - 1, xmlText);

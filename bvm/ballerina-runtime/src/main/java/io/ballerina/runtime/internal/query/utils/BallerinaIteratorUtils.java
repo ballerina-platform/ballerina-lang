@@ -11,18 +11,18 @@ import java.util.Iterator;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
+import static io.ballerina.runtime.internal.query.utils.QueryConstants.VALUE_FIELD;
+
 public class BallerinaIteratorUtils {
-    private static final BString VALUE_FIELD = StringUtils.fromString("value");
 
     /**
      * Converts a Ballerina collection to a Java stream.
      *
-     * @param env        The Ballerina runtime environment.
      * @param javaIterator The Java iterator.
      * @param <T>        The type of elements in the collection.
      * @return A Java Stream of elements.
      */
-    public static <T> Stream<Frame> toStream(Environment env, Iterator<T> javaIterator) throws ErrorValue {
+    public static <T> Stream<Frame> toStream(Iterator<T> javaIterator) throws ErrorValue {
         return StreamSupport.stream(((Iterable<T>) () -> javaIterator).spliterator(), false)
                 .map(element -> Frame.create(VALUE_FIELD, element));
     }
@@ -42,7 +42,7 @@ public class BallerinaIteratorUtils {
                     BIterator<?> iterator = bMap.getIterator();
                     return createJavaMapIterator(iterator);
                 }
-                case BTable table -> {
+                case BTable<?,?> table -> {
                     BIterator<?> iterator = table.getIterator();
                     return createJavaTableIterator(iterator);
                 }
@@ -63,21 +63,26 @@ public class BallerinaIteratorUtils {
                     if (iteratorObj instanceof BObject iteratorInstance) {
                         return new BStreamIterator<>(env, iteratorInstance);
                     }
-                    throw prepareCompleteEarlyError(new UnsupportedOperationException(
-                            "Unsupported iterable object: " + bObject.getType()));
+                    throw new QueryException(ErrorCreator.createError(StringUtils.fromString("Unsupported collection type"),
+                            StringUtils.fromString("Unsupported collection type")));
                 }
-                default -> {
-                    throw prepareCompleteEarlyError(new UnsupportedOperationException(
-                            "Unsupported collection type: " + collection.getClass().getName()));
-                }
+                default -> throw new QueryException(ErrorCreator.createError(StringUtils.fromString("Unsupported collection type"),
+                        StringUtils.fromString("Unsupported collection type")));
             }
         } catch (BError e) {
-            throw DistinctQueryErrorCreator.createDistinctError(e);
+            throw new QueryException(e);
         }
     }
 
+    /**
+     * Creates a Java `Iterator` from a Ballerina `BIterator` for map.
+     *
+     * @param iterator The Ballerina iterator.
+     * @param <T>      The type of elements.
+     * @return A Java `Iterator<T>`.
+     */
     private static <T> Iterator<T> createJavaMapIterator(BIterator<?> iterator) {
-        return new Iterator<T>() {
+        return new Iterator<>() {
             @Override
             public boolean hasNext() {
                 return iterator.hasNext();
@@ -100,7 +105,7 @@ public class BallerinaIteratorUtils {
      * @return A Java `Iterator<T>`.
      */
     private static <T> Iterator<T> createJavaTableIterator(BIterator<?> iterator) {
-        return new Iterator<T>() {
+        return new Iterator<>() {
             @Override
             public boolean hasNext() {
                 return iterator.hasNext();
@@ -123,7 +128,7 @@ public class BallerinaIteratorUtils {
      * @return A Java `Iterator<T>`.
      */
     private static <T> Iterator<T> createJavaIterator(BIterator<?> ballerinaIterator) throws ErrorValue {
-        return new Iterator<T>() {
+        return new Iterator<>() {
             @Override
             public boolean hasNext() {
                 return ballerinaIterator.hasNext();
@@ -183,15 +188,5 @@ public class BallerinaIteratorUtils {
             nextValue = null;
             return returnValue;
         }
-    }
-
-    /**
-     * Converts an exception into a Ballerina `CompleteEarlyError`.
-     *
-     * @param err The exception.
-     * @return A `BError` representing `CompleteEarlyError`.
-     */
-    public static BError prepareCompleteEarlyError(Exception err) {
-        return ErrorCreator.createError(StringUtils.fromString("CompleteEarlyError"), err);
     }
 }
