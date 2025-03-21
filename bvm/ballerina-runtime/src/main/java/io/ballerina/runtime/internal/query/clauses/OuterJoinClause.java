@@ -66,8 +66,8 @@ public class OuterJoinClause implements PipelineStage {
             Stream<Frame> strm = ((StreamPipeline)StreamPipeline.getStreamFromPipeline(pipelineToJoin)).getStream();
             strm.forEach(frame -> {
                 Object key = rhsKeyFunction.call(env.getRuntime(), frame.getRecord());
-                if (key instanceof BError) {
-                    failureAtJoin = (BError) key;
+                if (key instanceof BError error) {
+                    failureAtJoin = error;
                     return;
                 }
                 rhsFramesMap.computeIfAbsent(key.toString(), k -> new ArrayList<>()).add(frame);

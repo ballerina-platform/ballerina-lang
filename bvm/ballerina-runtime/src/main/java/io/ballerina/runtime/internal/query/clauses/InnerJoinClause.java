@@ -64,8 +64,8 @@ public class InnerJoinClause implements PipelineStage {
             Stream<Frame> strm = ((StreamPipeline)StreamPipeline.getStreamFromPipeline(pipelineToJoin)).getStream();
             strm.forEach(frame -> {
                 Object key = rhsKeyFunction.call(env.getRuntime(), frame.getRecord());
-                if(key instanceof BError) {
-                    failureAtJoin = (BError) key;
+                if(key instanceof BError error) {
+                    failureAtJoin = error;
                     return;
                 }
                 rhsFramesMap.computeIfAbsent(key.toString(), k -> new ArrayList<>()).add(frame);
@@ -82,7 +82,7 @@ public class InnerJoinClause implements PipelineStage {
      * @return A joined stream of frames.
      */
     @Override
-    public Stream<Frame> process(Stream<Frame> inputStream) throws BError {
+    public Stream<Frame> process(Stream<Frame> inputStream) {
         return inputStream.flatMap(lhsFrame -> {
             try {
                 if (failureAtJoin != null) {

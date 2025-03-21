@@ -2,7 +2,12 @@ package io.ballerina.runtime.internal.query.clauses;
 
 import io.ballerina.runtime.api.Environment;
 import io.ballerina.runtime.api.utils.StringUtils;
-import io.ballerina.runtime.api.values.*;
+import io.ballerina.runtime.api.values.BArray;
+import io.ballerina.runtime.api.values.BDecimal;
+import io.ballerina.runtime.api.values.BError;
+import io.ballerina.runtime.api.values.BFunctionPointer;
+import io.ballerina.runtime.api.values.BMap;
+import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.internal.query.pipeline.Frame;
 import io.ballerina.runtime.internal.query.utils.QueryException;
 
@@ -80,7 +85,7 @@ public class OrderByClause implements PipelineStage {
 
     private int compareValues(Object key1, Object key2, boolean ascending) {
         if (key1 == null || key2 == null) {
-            return handleNullComparison(key1, key2, ascending);
+            return handleNullComparison(key1, key2);
         }
 
         if ((key1 instanceof Double && ((Double) key1).isNaN()) && (key2 instanceof Double && ((Double) key2).isNaN())) {
@@ -111,12 +116,12 @@ public class OrderByClause implements PipelineStage {
     /**
      * Handles comparison when either or both keys are `null`.
      */
-    private int handleNullComparison(Object key1, Object key2, boolean ascending) {
+    private int handleNullComparison(Object key1, Object key2) {
         if (key1 == null && key2 == null) {
-            return 0; // Both null, consider equal
+            return 0;
         }
         if (key1 == null) {
-            return 1; // Null is always placed at the end
+            return 1;
         }
         return -1;
     }
@@ -171,22 +176,22 @@ public class OrderByClause implements PipelineStage {
         if (key instanceof Integer || key instanceof Long || key instanceof Double) {
             return (Comparable<?>) key;
         }
-        if (key instanceof BDecimal) {
-            return ((BDecimal) key).decimalValue();
+        if (key instanceof BDecimal bDecimal) {
+            return bDecimal.decimalValue();
         }
-        if (key instanceof BString) {
-            return ((BString) key).getValue();
+        if (key instanceof BString bString) {
+            return bString.getValue();
         }
-        if (key instanceof String) {
-            return (String) key;
+        if (key instanceof String stringValue) {
+            return stringValue;
         }
-        if (key instanceof Boolean) {
-            return (Boolean) key;
+        if (key instanceof Boolean booleanValue) {
+            return booleanValue;
         }
-        if (key instanceof Float) {
-            return handleFloatComparison((Float) key);
+        if (key instanceof Float floatValue) {
+            return handleFloatComparison(floatValue);
         }
-        throw new IllegalArgumentException("Unsupported type for comparison: " + key.getClass().getName());
+        throw new QueryException("Unsupported type for comparison: " + key.getClass().getName());
     }
 
     /**

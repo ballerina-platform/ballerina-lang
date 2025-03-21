@@ -1,6 +1,5 @@
 package io.ballerina.runtime.internal.query.clauses;
 
-import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.internal.query.pipeline.Frame;
 
 import java.util.stream.Stream;

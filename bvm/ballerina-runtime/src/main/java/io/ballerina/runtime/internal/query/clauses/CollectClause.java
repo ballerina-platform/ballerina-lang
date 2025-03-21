@@ -3,16 +3,15 @@ package io.ballerina.runtime.internal.query.clauses;
 import io.ballerina.runtime.api.Environment;
 import io.ballerina.runtime.api.creators.TypeCreator;
 import io.ballerina.runtime.api.types.PredefinedTypes;
-import io.ballerina.runtime.api.values.*;
+import io.ballerina.runtime.api.values.BArray;
+import io.ballerina.runtime.api.values.BFunctionPointer;
+import io.ballerina.runtime.api.values.BMap;
+import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.internal.query.pipeline.Frame;
-import io.ballerina.runtime.internal.query.utils.QueryException;
 import io.ballerina.runtime.internal.values.ArrayValueImpl;
 
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
@@ -50,7 +49,7 @@ public class CollectClause implements PipelineStage {
      * @return A transformed stream with the collected frame.
      */
     @Override
-    public Stream<Frame> process(Stream<Frame> inputStream) throws BError {
+    public Stream<Frame> process(Stream<Frame> inputStream) {
         Frame groupedFrame = new Frame();
         BMap<BString, Object> groupedRecord = groupedFrame.getRecord();
 
@@ -79,9 +78,8 @@ public class CollectClause implements PipelineStage {
                 Frame collectedFrame = new Frame();
                 collectedFrame.updateRecord((BMap<BString, Object>) result);
                 return collectedFrame;
-            } else {
-                throw (BError) result;
             }
+            return frame;
         });
     }
 

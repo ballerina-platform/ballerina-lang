@@ -1,14 +1,22 @@
 package io.ballerina.runtime.internal.query.clauses;
 
 import io.ballerina.runtime.api.Environment;
-import io.ballerina.runtime.api.utils.StringUtils;
-import io.ballerina.runtime.api.values.*;
+import io.ballerina.runtime.api.values.BError;
+import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.api.values.BMap;
+import io.ballerina.runtime.api.values.BFunctionPointer;
 import io.ballerina.runtime.internal.query.pipeline.Frame;
 import io.ballerina.runtime.internal.query.utils.BallerinaIteratorUtils;
 import io.ballerina.runtime.internal.query.utils.QueryException;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Stream;
+
+import static io.ballerina.runtime.internal.query.utils.QueryConstants.VALUE_FIELD;
 
 /**
  * Represents a nested `from` clause in the query pipeline that processes a stream of frames.
@@ -56,7 +64,7 @@ public class NestedFromClause implements PipelineStage {
 
                     Map<Object, Object> refs = new HashMap<>();
                     BMap<BString, Object> newRecord = (BMap<BString, Object>) frame.getRecord().copy(refs);
-                    newRecord.put(StringUtils.fromString("value"), item);
+                    newRecord.put(VALUE_FIELD, item);
                     results.add(new Frame(newRecord));
                 }
 

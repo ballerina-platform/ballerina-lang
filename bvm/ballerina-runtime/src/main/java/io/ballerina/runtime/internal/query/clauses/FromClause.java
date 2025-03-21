@@ -36,7 +36,7 @@ public class FromClause implements PipelineStage {
      * @return A transformed stream of frames.
      */
     @Override
-    public Stream<Frame> process(Stream<Frame> inputStream) throws BError {
+    public Stream<Frame> process(Stream<Frame> inputStream) {
         return inputStream.map(frame -> {
             Object result = transformer.call(env.getRuntime(), frame.getRecord());
 
