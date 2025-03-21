@@ -2,38 +2,35 @@ package io.ballerina.runtime.internal.query.utils;
 
 import io.ballerina.runtime.api.creators.TypeCreator;
 import io.ballerina.runtime.api.creators.ValueCreator;
-import io.ballerina.runtime.api.types.*;
+import io.ballerina.runtime.api.types.StreamType;
+import io.ballerina.runtime.api.types.XmlNodeType;
 import io.ballerina.runtime.api.utils.StringUtils;
-import io.ballerina.runtime.api.values.*;
+import io.ballerina.runtime.api.values.BArray;
+import io.ballerina.runtime.api.values.BError;
+import io.ballerina.runtime.api.values.BMap;
+import io.ballerina.runtime.api.values.BObject;
+import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.api.values.BTable;
+import io.ballerina.runtime.api.values.BXml;
+import io.ballerina.runtime.api.values.BXmlSequence;
 import io.ballerina.runtime.internal.query.pipeline.ErrorFrame;
 import io.ballerina.runtime.internal.query.pipeline.Frame;
 import io.ballerina.runtime.internal.query.pipeline.StreamPipeline;
 import io.ballerina.runtime.internal.values.HandleValue;
 import io.ballerina.runtime.internal.xml.XmlFactory;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Stream;
 
 import static io.ballerina.runtime.api.constants.RuntimeConstants.BALLERINA_QUERY_PKG_ID;
+import static io.ballerina.runtime.internal.query.utils.QueryConstants.ERROR_FIELD;
+import static io.ballerina.runtime.internal.query.utils.QueryConstants.VALUE_ACCESS_FIELD;
 
 public class CollectionUtil {
-    private static final BString VALUE_FIELD = StringUtils.fromString("value");
-    private static final BString $VALUE$_FIELD = StringUtils.fromString("$value$");
-    private static final BString $ERROR$_FIELD = StringUtils.fromString("$error$");
-
-//    public static Object consumeStream(StreamPipeline pipeline) {
-//        Stream<Frame> stream = pipeline.getStream();
-//        var iterator = stream.iterator();
-//
-//        while (iterator.hasNext()) {
-//            BMap<BString, Object> record = iterator.next().getRecord();
-//            if (record.containsKey(VALUE_FIELD) && record.get(VALUE_FIELD) != null) {
-//                return record.get(VALUE_FIELD);
-//            }
-//        }
-//
-//        return null;
-//    }
 
     public static Object createArray(StreamPipeline pipeline, BArray array) {
         Stream<Frame> strm = pipeline.getStream();
@@ -44,7 +41,7 @@ public class CollectionUtil {
                     case ErrorFrame errorFrame:
                         return errorFrame.getError();
                     case Frame frame:
-                        array.append(frame.getRecord().get($VALUE$_FIELD));
+                        array.append(frame.getRecord().get(VALUE_ACCESS_FIELD));
                 }
             }
             return array;
@@ -54,10 +51,10 @@ public class CollectionUtil {
     }
 
     public static Object collectQuery(Object pipeline) {
-        if(pipeline instanceof StreamPipeline streamPipeline) {
+        if (pipeline instanceof StreamPipeline streamPipeline) {
             Stream<Frame> strm = streamPipeline.getStream();
             Optional<Object> result = strm
-                    .map(frame -> frame.getRecord().get($VALUE$_FIELD))
+                    .map(frame -> frame.getRecord().get(VALUE_ACCESS_FIELD))
                     .filter(Objects::nonNull)
                     .findFirst();
 
@@ -72,7 +69,7 @@ public class CollectionUtil {
 
         try {
             return strm
-                    .map(frame -> frame.getRecord().get($VALUE$_FIELD))
+                    .map(frame -> frame.getRecord().get(VALUE_ACCESS_FIELD))
                     .map(string -> (BString) string)
                     .reduce(StringUtils.fromString(""), BString::concat);
         } catch (QueryException e) {
@@ -85,7 +82,7 @@ public class CollectionUtil {
 
         try {
             strm.forEach(frame -> {
-                BMap<BString, Object> record = (BMap<BString, Object>) frame.getRecord().get($VALUE$_FIELD);
+                BMap<BString, Object> record = (BMap<BString, Object>) frame.getRecord().get(VALUE_ACCESS_FIELD);
                 table.put(record);
             });
 
@@ -101,12 +98,14 @@ public class CollectionUtil {
         try {
             Optional<BError> error = strm
                     .map(frame -> {
-                        BMap<BString, Object> record = (BMap<BString, Object>) frame.getRecord().get($VALUE$_FIELD);
+                        BMap<BString, Object> record = (BMap<BString, Object>) frame
+                                .getRecord()
+                                .get(VALUE_ACCESS_FIELD);
                         try {
                             table.add(record);
                         } catch (Exception e) {
-                            if (frame.getRecord().get($ERROR$_FIELD) instanceof BError) {
-                                return (BError) frame.getRecord().get($ERROR$_FIELD);
+                            if (frame.getRecord().get(ERROR_FIELD) instanceof BError) {
+                                return (BError) frame.getRecord().get(ERROR_FIELD);
                             } else {
                                 table.put(record);
                             }
@@ -127,7 +126,7 @@ public class CollectionUtil {
 
         try {
             strm.forEach(frame -> {
-                BArray record = (BArray) frame.getRecord().get($VALUE$_FIELD);
+                BArray record = (BArray) frame.getRecord().get(VALUE_ACCESS_FIELD);
                 BString key = (BString) record.get(0);
                 Object value = record.get(1);
                 map.put(key, value);
@@ -146,11 +145,11 @@ public class CollectionUtil {
             Optional<BError> error = strm
                     .map(frame -> {
                         BMap<BString, Object> record = frame.getRecord();
-                        BArray recordArray = (BArray) record.get($VALUE$_FIELD);
+                        BArray recordArray = (BArray) record.get(VALUE_ACCESS_FIELD);
 
                         BString key = (BString) recordArray.get(0);
-                        if (map.containsKey(key) && record.get($ERROR$_FIELD) instanceof BError) {
-                            return (BError) record.get($ERROR$_FIELD);
+                        if (map.containsKey(key) && record.get(ERROR_FIELD) instanceof BError) {
+                            return (BError) record.get(ERROR_FIELD);
                         }
                         Object value = recordArray.get(1);
 
@@ -168,8 +167,10 @@ public class CollectionUtil {
 
 
     public static Object toStream(StreamPipeline pipeline) {
-        StreamType streamType = TypeCreator.createStreamType(pipeline.getConstraintType().getDescribingType(), pipeline.getCompletionType().getDescribingType());
-        Object pipelineObj = null;
+        StreamType streamType = TypeCreator.createStreamType(
+                pipeline.getConstraintType().getDescribingType(),
+                pipeline.getCompletionType().getDescribingType());
+        Object pipelineObj;
         try {
             pipelineObj = pipeline.getStream().iterator();
         } catch (QueryException e) {
@@ -186,7 +187,7 @@ public class CollectionUtil {
 
         try {
             Object[] xmlArray = strm
-                    .map(frame -> frame.getRecord().get($VALUE$_FIELD))
+                    .map(frame -> frame.getRecord().get(VALUE_ACCESS_FIELD))
                     .filter(Objects::nonNull)
                     .toArray();
 
@@ -202,7 +203,6 @@ public class CollectionUtil {
         for (Object refValue : arrayValue) {
             if (refValue instanceof BString bString) {
                 if (lastItem != null && lastItem.getNodeType() == XmlNodeType.TEXT) {
-                    // If last added item is a string, then concat prev values with this values and replace prev value.
                     BString concat = StringUtils.fromString(lastItem.getTextValue()).concat(bString);
                     BXml xmlText = XmlFactory.createXMLText(concat);
                     backingArray.set(backingArray.size() - 1, xmlText);

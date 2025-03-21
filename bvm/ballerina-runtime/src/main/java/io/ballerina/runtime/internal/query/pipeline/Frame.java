@@ -1,13 +1,8 @@
 package io.ballerina.runtime.internal.query.pipeline;
 
 import io.ballerina.runtime.api.creators.ValueCreator;
-import io.ballerina.runtime.api.utils.StringUtils;
-import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BMap;
-import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.api.values.BString;
-import io.ballerina.runtime.internal.types.BRecordType;
-import io.ballerina.runtime.internal.values.TupleValueImpl;
 
 import static io.ballerina.runtime.api.constants.RuntimeConstants.BALLERINA_QUERY_PKG_ID;
 
@@ -16,10 +11,10 @@ import static io.ballerina.runtime.api.constants.RuntimeConstants.BALLERINA_QUER
  */
 public class Frame {
 
-    private BMap<BString, Object> $frame$;
+    private BMap<BString, Object> frame;
 
     public Frame() {
-        this.$frame$ = ValueCreator.createRecordValue(BALLERINA_QUERY_PKG_ID, "_Frame");
+        this.frame = ValueCreator.createRecordValue(BALLERINA_QUERY_PKG_ID, "_Frame");
     }
 
     /**
@@ -28,7 +23,7 @@ public class Frame {
      * @param record The Ballerina record to wrap.
      */
     public Frame(BMap<BString, Object> record) {
-        this.$frame$ = record;
+        this.frame = record;
     }
 
     /**
@@ -44,6 +39,12 @@ public class Frame {
         return new Frame(record);
     }
 
+    /**
+     * Static method to create a `_Frame` from a Ballerina record.
+     *
+     * @param record The Ballerina record to wrap.
+     * @return A `_Frame` wrapping the BMap.
+     */
     public static Frame create(BMap<BString, Object> record) {
         return new Frame(record);
     }
@@ -53,7 +54,7 @@ public class Frame {
      * @param newRecord The new record to update.
      */
     public void updateRecord(BMap<BString, Object> newRecord) {
-        this.$frame$ = newRecord;
+        this.frame = newRecord;
     }
 
     /**
@@ -63,7 +64,7 @@ public class Frame {
      * @param value The value to set.
      */
     public Frame updateRecord(BString key, Object value) {
-        this.$frame$.put(key, value);
+        this.frame.put(key, value);
         return this;
     }
 
@@ -73,6 +74,6 @@ public class Frame {
      * @return The Ballerina record.
      */
     public BMap<BString, Object> getRecord() {
-        return $frame$;
+        return frame;
     }
 }

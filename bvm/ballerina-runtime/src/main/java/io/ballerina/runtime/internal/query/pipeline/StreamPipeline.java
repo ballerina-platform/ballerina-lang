@@ -1,11 +1,9 @@
 package io.ballerina.runtime.internal.query.pipeline;
 
 import io.ballerina.runtime.api.Environment;
-import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BTypedesc;
 import io.ballerina.runtime.internal.query.clauses.PipelineStage;
 import io.ballerina.runtime.internal.query.utils.BallerinaIteratorUtils;
-import io.ballerina.runtime.internal.query.utils.DistinctQueryErrorCreator;
 import io.ballerina.runtime.internal.query.utils.QueryException;
 import io.ballerina.runtime.internal.values.ErrorValue;
 
@@ -43,20 +41,24 @@ public class StreamPipeline {
                           BTypedesc completionType,
                           boolean isLazyLoading) {
         this.env = env;
-//        this.stream = initializeFrameStream(env, collection);
         this.pipelineStages = new ArrayList<>();
         this.constraintType = constraintType;
         this.completionType = completionType;
         this.isLazyLoading = isLazyLoading;
         this.itr = BallerinaIteratorUtils.getIterator(env, collection);
-//        if(isLazyLoading) {
-//            this.stream = initializeFrameStream(env, itr);
-//            this.streamSupplier = () -> initializeFrameStream(env, itr);
-//        } else {
-            this.stream = initializeFrameStream(env, itr);
-//        }
+        this.stream = initializeFrameStream(itr);
     }
 
+    /**
+     * Initializes a stream pipeline.
+     *
+     * @param env The environment.
+     * @param collection The collection to process.
+     * @param constraintType The type descriptor for the constraint type.
+     * @param completionType The type descriptor for the completion type.
+     * @param isLazyLoading Flag to indicate if lazy loading is enabled.
+     * @return The stream pipeline.
+     */
     public static Object initStreamPipeline(Environment env, Object collection,
                                                     BTypedesc constraintType,
                                                     BTypedesc completionType,
@@ -68,23 +70,34 @@ public class StreamPipeline {
         }
     }
 
+    /**
+     * Adds a stage (clause) to the pipeline.
+     *
+     * @param jStreamPipeline The stream pipeline.
+     * @param pipelineStage The pipeline stage.
+     */
     public static void addStreamFunction(Object jStreamPipeline, Object pipelineStage) {
         ((StreamPipeline) jStreamPipeline).addStage((PipelineStage) pipelineStage);
     }
 
+    /**
+     *  Add all pipeline process steps to the pipeline.
+     *
+     * @param pipeline The stream pipeline.
+     * @return The processed stream.
+     */
     public static Object getStreamFromPipeline(Object pipeline) {
         try {
-            ((StreamPipeline)pipeline).execute();
+            ((StreamPipeline) pipeline).execute();
         } catch (QueryException e) {
             return e.getError();
         }
 
-//        return CollectionUtil.toBStream((StreamPipeline) pipeline);
-        return (StreamPipeline) pipeline;
+        return pipeline;
     }
 
     /**
-     * Adds a stage (function) to the pipeline.
+     * Queue a stage (function) to the pipeline.
      *
      * @param stage A function to process each frame.
      */
@@ -107,8 +120,8 @@ public class StreamPipeline {
      * @param itr The iterator for the Ballerina collection.
      * @return A Java stream of `Frame` objects.
      */
-    private Stream<Frame> initializeFrameStream(Environment env, Iterator<?> itr) throws ErrorValue {
-        return BallerinaIteratorUtils.toStream(env, itr);
+    private Stream<Frame> initializeFrameStream(Iterator<?> itr) throws ErrorValue {
+        return BallerinaIteratorUtils.toStream(itr);
     }
 
     /**
@@ -127,32 +140,6 @@ public class StreamPipeline {
     }
 
     public Stream<Frame> getStream() {
-//        if (isLazyLoading) {
-//            try {
-//                stream.iterator();
-//            } catch (IllegalStateException e) {
-//                stream = streamSupplier.get();
-//                try {
-//                    execute();
-//                } catch (Exception ex) {
-//                    throw new RuntimeException(ex);
-//                }
-//            }
-//        }
         return stream;
     }
-
-//    public Stream<Frame> getStreamForJoin(){
-//        return stream;
-//    }
-//
-//    public static boolean isConsumed(Stream<Frame> stream) {
-//        try {
-//            stream.iterator();
-//            return false;
-//        } catch (IllegalStateException e) {
-//            return true;
-//        }
-//    }
-
 }

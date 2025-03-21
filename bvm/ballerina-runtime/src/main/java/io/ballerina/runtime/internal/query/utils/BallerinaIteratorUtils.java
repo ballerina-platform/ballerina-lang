@@ -1,9 +1,16 @@
 package io.ballerina.runtime.internal.query.utils;
 
 import io.ballerina.runtime.api.Environment;
-import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.utils.StringUtils;
-import io.ballerina.runtime.api.values.*;
+import io.ballerina.runtime.api.values.BArray;
+import io.ballerina.runtime.api.values.BCollection;
+import io.ballerina.runtime.api.values.BError;
+import io.ballerina.runtime.api.values.BIterator;
+import io.ballerina.runtime.api.values.BMap;
+import io.ballerina.runtime.api.values.BObject;
+import io.ballerina.runtime.api.values.BStream;
+import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.api.values.BTable;
 import io.ballerina.runtime.internal.query.pipeline.Frame;
 import io.ballerina.runtime.internal.values.ErrorValue;
 
@@ -11,18 +18,18 @@ import java.util.Iterator;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
+import static io.ballerina.runtime.internal.query.utils.QueryConstants.VALUE_FIELD;
+
 public class BallerinaIteratorUtils {
-    private static final BString VALUE_FIELD = StringUtils.fromString("value");
 
     /**
      * Converts a Ballerina collection to a Java stream.
      *
-     * @param env        The Ballerina runtime environment.
      * @param javaIterator The Java iterator.
-     * @param <T>        The type of elements in the collection.
+     * @param <T>          The type of elements in the collection.
      * @return A Java Stream of elements.
      */
-    public static <T> Stream<Frame> toStream(Environment env, Iterator<T> javaIterator) throws ErrorValue {
+    public static <T> Stream<Frame> toStream(Iterator<T> javaIterator) throws ErrorValue {
         return StreamSupport.stream(((Iterable<T>) () -> javaIterator).spliterator(), false)
                 .map(element -> Frame.create(VALUE_FIELD, element));
     }
@@ -42,7 +49,7 @@ public class BallerinaIteratorUtils {
                     BIterator<?> iterator = bMap.getIterator();
                     return createJavaMapIterator(iterator);
                 }
-                case BTable table -> {
+                case BTable<?, ?> table -> {
                     BIterator<?> iterator = table.getIterator();
                     return createJavaTableIterator(iterator);
                 }
@@ -63,21 +70,24 @@ public class BallerinaIteratorUtils {
                     if (iteratorObj instanceof BObject iteratorInstance) {
                         return new BStreamIterator<>(env, iteratorInstance);
                     }
-                    throw prepareCompleteEarlyError(new UnsupportedOperationException(
-                            "Unsupported iterable object: " + bObject.getType()));
+                    throw new QueryException("Unsupported collection type");
                 }
-                default -> {
-                    throw prepareCompleteEarlyError(new UnsupportedOperationException(
-                            "Unsupported collection type: " + collection.getClass().getName()));
-                }
+                default -> throw new QueryException("Unsupported collection type");
             }
         } catch (BError e) {
-            throw DistinctQueryErrorCreator.createDistinctError(e);
+            throw new QueryException(e);
         }
     }
 
+    /**
+     * Creates a Java `Iterator` from a Ballerina `BIterator` for map.
+     *
+     * @param iterator The Ballerina iterator.
+     * @param <T>      The type of elements.
+     * @return A Java `Iterator<T>`.
+     */
     private static <T> Iterator<T> createJavaMapIterator(BIterator<?> iterator) {
-        return new Iterator<T>() {
+        return new Iterator<>() {
             @Override
             public boolean hasNext() {
                 return iterator.hasNext();
@@ -100,7 +110,7 @@ public class BallerinaIteratorUtils {
      * @return A Java `Iterator<T>`.
      */
     private static <T> Iterator<T> createJavaTableIterator(BIterator<?> iterator) {
-        return new Iterator<T>() {
+        return new Iterator<>() {
             @Override
             public boolean hasNext() {
                 return iterator.hasNext();
@@ -123,7 +133,7 @@ public class BallerinaIteratorUtils {
      * @return A Java `Iterator<T>`.
      */
     private static <T> Iterator<T> createJavaIterator(BIterator<?> ballerinaIterator) throws ErrorValue {
-        return new Iterator<T>() {
+        return new Iterator<>() {
             @Override
             public boolean hasNext() {
                 return ballerinaIterator.hasNext();
@@ -139,6 +149,7 @@ public class BallerinaIteratorUtils {
 
     /**
      * A custom iterator for handling Ballerina `stream` and `iterator()` objects.
+     * @param <T> Type of the iterator
      */
     private static class BStreamIterator<T> implements Iterator<T> {
         private final Environment env;
@@ -177,21 +188,11 @@ public class BallerinaIteratorUtils {
         @Override
         public T next() {
             if (nextValue == null && !hasNext()) {
-                throw new RuntimeException("No more elements in BStream");
+                throw new QueryException("No more elements available");
             }
             T returnValue = (T) nextValue;
             nextValue = null;
             return returnValue;
         }
-    }
-
-    /**
-     * Converts an exception into a Ballerina `CompleteEarlyError`.
-     *
-     * @param err The exception.
-     * @return A `BError` representing `CompleteEarlyError`.
-     */
-    public static BError prepareCompleteEarlyError(Exception err) {
-        return ErrorCreator.createError(StringUtils.fromString("CompleteEarlyError"), err);
     }
 }
