@@ -2,9 +2,9 @@ package io.ballerina.runtime.internal.query.clauses;
 
 import io.ballerina.runtime.api.Environment;
 import io.ballerina.runtime.api.values.BError;
-import io.ballerina.runtime.api.values.BString;
-import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BFunctionPointer;
+import io.ballerina.runtime.api.values.BMap;
+import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.internal.query.pipeline.Frame;
 import io.ballerina.runtime.internal.query.utils.BallerinaIteratorUtils;
 import io.ballerina.runtime.internal.query.utils.QueryException;
@@ -50,7 +50,7 @@ public class NestedFromClause implements PipelineStage {
     public Stream<Frame> process(Stream<Frame> inputStream) {
         return inputStream.flatMap(frame -> {
             try {
-                Object collection = collectionFunc.call(env.getRuntime(),frame.getRecord());
+                Object collection = collectionFunc.call(env.getRuntime(), frame.getRecord());
 
                 if (collection == null) {
                     return Stream.empty();

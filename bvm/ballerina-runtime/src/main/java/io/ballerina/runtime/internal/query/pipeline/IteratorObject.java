@@ -1,15 +1,15 @@
 package io.ballerina.runtime.internal.query.pipeline;
 
+import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
-import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.internal.query.utils.QueryException;
 
 import java.util.Iterator;
 
 import static io.ballerina.runtime.api.constants.RuntimeConstants.BALLERINA_QUERY_PKG_ID;
-import static io.ballerina.runtime.internal.query.utils.QueryConstants.$VALUE$_FIELD;
+import static io.ballerina.runtime.internal.query.utils.QueryConstants.VALUE_ACCESS_FIELD;
 import static io.ballerina.runtime.internal.query.utils.QueryConstants.VALUE_FIELD;
 
 public class IteratorObject {
@@ -23,11 +23,12 @@ public class IteratorObject {
                         return errorFrame.getError();
                     case Frame frame:
                         BMap<BString, Object> recordMap = frame.getRecord();
-                        Object value = recordMap.get($VALUE$_FIELD);
+                        Object value = recordMap.get(VALUE_ACCESS_FIELD);
                         if (value instanceof BError error) {
                             return error;
                         }
-                        BMap<BString, Object> record = ValueCreator.createRecordValue(BALLERINA_QUERY_PKG_ID, "nextRecord");
+                        BMap<BString, Object> record = ValueCreator
+                                .createRecordValue(BALLERINA_QUERY_PKG_ID, "nextRecord");
                         record.put(VALUE_FIELD, value);
                         return record;
                 }

@@ -55,11 +55,11 @@ public class OrderByClause implements PipelineStage {
             BMap<BString, Object> record1 = frame1.getRecord();
             BMap<BString, Object> record2 = frame2.getRecord();
 
-            if(record1 instanceof BError) {
+            if (record1 instanceof BError) {
                 throw (BError) record1;
             }
 
-            if(record2 instanceof BError) {
+            if (record2 instanceof BError) {
                 throw (BError) record2;
             }
 
@@ -88,11 +88,13 @@ public class OrderByClause implements PipelineStage {
             return handleNullComparison(key1, key2);
         }
 
-        if ((key1 instanceof Double && ((Double) key1).isNaN()) && (key2 instanceof Double && ((Double) key2).isNaN())) {
+        if ((key1 instanceof Double && ((Double) key1).isNaN()) &&
+                (key2 instanceof Double && ((Double) key2).isNaN())) {
             return handleNaNComparison((Double) key1, (Double) key2, ascending);
         }
 
-        if ((key1 instanceof Double && ((Double) key1).isNaN()) || (key2 instanceof Double && ((Double) key2).isNaN())) {
+        if ((key1 instanceof Double && ((Double) key1).isNaN()) ||
+                (key2 instanceof Double && ((Double) key2).isNaN())) {
             return handleMixedNaNNullComparison(key1, key2, ascending);
         }
 

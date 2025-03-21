@@ -7,8 +7,8 @@ import io.ballerina.runtime.internal.query.pipeline.Frame;
 import io.ballerina.runtime.internal.query.pipeline.StreamPipeline;
 import io.ballerina.runtime.internal.query.utils.QueryException;
 
-import java.util.Collections;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -51,8 +51,10 @@ public class InnerJoinClause implements PipelineStage {
      * @param rhsKeyFunction The function to extract the join key from the right-hand side.
      * @return The initialized InnerJoinClause.
      */
-    public static InnerJoinClause initInnerJoinClause(Environment env, Object pipelineToJoin,
-                                                        BFunctionPointer lhsKeyFunction, BFunctionPointer rhsKeyFunction) {
+    public static InnerJoinClause initInnerJoinClause(Environment env,
+                                                      Object pipelineToJoin,
+                                                      BFunctionPointer lhsKeyFunction,
+                                                      BFunctionPointer rhsKeyFunction) {
         return new InnerJoinClause(env, pipelineToJoin, lhsKeyFunction, rhsKeyFunction);
     }
 
@@ -61,10 +63,10 @@ public class InnerJoinClause implements PipelineStage {
      */
     private void initializeRhsFrames() {
         try {
-            Stream<Frame> strm = ((StreamPipeline)StreamPipeline.getStreamFromPipeline(pipelineToJoin)).getStream();
+            Stream<Frame> strm = ((StreamPipeline) StreamPipeline.getStreamFromPipeline(pipelineToJoin)).getStream();
             strm.forEach(frame -> {
                 Object key = rhsKeyFunction.call(env.getRuntime(), frame.getRecord());
-                if(key instanceof BError error) {
+                if (key instanceof BError error) {
                     failureAtJoin = error;
                     return;
                 }
@@ -89,7 +91,7 @@ public class InnerJoinClause implements PipelineStage {
                     throw new QueryException(failureAtJoin);
                 }
                 Object lhsKey = lhsKeyFunction.call(env.getRuntime(), lhsFrame.getRecord());
-                if(lhsKey instanceof BError error) {
+                if (lhsKey instanceof BError error) {
                     throw new QueryException(error);
                 }
                 List<Frame> rhsCandidates = rhsFramesMap.getOrDefault(lhsKey.toString(), Collections.emptyList());

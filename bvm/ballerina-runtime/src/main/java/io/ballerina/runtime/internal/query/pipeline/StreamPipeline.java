@@ -88,7 +88,7 @@ public class StreamPipeline {
      */
     public static Object getStreamFromPipeline(Object pipeline) {
         try {
-            ((StreamPipeline)pipeline).execute();
+            ((StreamPipeline) pipeline).execute();
         } catch (QueryException e) {
             return e.getError();
         }
