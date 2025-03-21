@@ -3,9 +3,7 @@ package io.ballerina.runtime.internal.query.clauses;
 import io.ballerina.runtime.api.Environment;
 import io.ballerina.runtime.api.creators.TypeCreator;
 import io.ballerina.runtime.api.types.PredefinedTypes;
-import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BArray;
-import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.internal.query.pipeline.Frame;
@@ -19,7 +17,10 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static io.ballerina.runtime.internal.query.utils.QueryConstants.VALUE_FIELD;
+
 public class GroupByClause implements PipelineStage {
+
 
     private final BArray groupingKeys;
     private final BArray nonGroupingKeys;
@@ -45,7 +46,7 @@ public class GroupByClause implements PipelineStage {
                 ));
 
         return groupedData.values().stream().map(frames -> {
-            Frame firstFrame = frames.get(0);
+            Frame firstFrame = frames.getFirst();
             Map<BString, Object> originalKey = extractOriginalKey(firstFrame);
 
             Frame groupedFrame = new Frame();
@@ -74,11 +75,11 @@ public class GroupByClause implements PipelineStage {
 
         for (int i = 0; i < groupingKeys.size(); i++) {
             BString key = (BString) groupingKeys.get(i);
-            Object value = null;
+            Object value;
             if (record.containsKey(key)) {
                 value = record.get(key);
             } else {
-                BMap rec = (BMap) record.get(StringUtils.fromString("value"));
+                BMap rec = (BMap) record.get(VALUE_FIELD);
                 value = rec.get(key);
             }
             keyMap.put(key, value);
@@ -92,11 +93,11 @@ public class GroupByClause implements PipelineStage {
 
         for (int i = 0; i < groupingKeys.size(); i++) {
             BString key = (BString) groupingKeys.get(i);
-            Object value = null;
+            Object value;
             if (record.containsKey(key)) {
                 value = record.get(key);
             } else {
-                BMap rec = (BMap) record.get(StringUtils.fromString("value"));
+                BMap rec = (BMap) record.get(VALUE_FIELD);
                 value = rec.get(key);
             }
             Object processedValue = processValue(value);
@@ -106,8 +107,7 @@ public class GroupByClause implements PipelineStage {
     }
 
     private Object processValue(Object value) {
-        if (value instanceof BArray) {
-            BArray array = (BArray) value;
+        if (value instanceof BArray array) {
             List<Object> list = new ArrayList<>();
             for (int i = 0; i < array.size(); i++) {
                 list.add(processValue(array.get(i)));

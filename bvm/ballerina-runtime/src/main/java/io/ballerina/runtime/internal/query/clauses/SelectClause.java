@@ -1,11 +1,9 @@
 package io.ballerina.runtime.internal.query.clauses;
 
 import io.ballerina.runtime.api.Environment;
-import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BFunctionPointer;
 import io.ballerina.runtime.api.values.BMap;
-import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.internal.query.pipeline.ErrorFrame;
 import io.ballerina.runtime.internal.query.pipeline.Frame;
 
@@ -56,8 +54,7 @@ public class SelectClause implements PipelineStage {
             } else if (result instanceof BError error) {
                 return ErrorFrame.from(error);
             }
-            return (Frame) result;
-
+            return frame;
         });
     }
 }

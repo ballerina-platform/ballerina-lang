@@ -1,7 +1,6 @@
 package io.ballerina.runtime.internal.query.utils;
 
 import io.ballerina.runtime.api.Environment;
-import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.*;
 import io.ballerina.runtime.internal.query.pipeline.Frame;
@@ -63,11 +62,9 @@ public class BallerinaIteratorUtils {
                     if (iteratorObj instanceof BObject iteratorInstance) {
                         return new BStreamIterator<>(env, iteratorInstance);
                     }
-                    throw new QueryException(ErrorCreator.createError(StringUtils.fromString("Unsupported collection type"),
-                            StringUtils.fromString("Unsupported collection type")));
+                    throw new QueryException("Unsupported collection type");
                 }
-                default -> throw new QueryException(ErrorCreator.createError(StringUtils.fromString("Unsupported collection type"),
-                        StringUtils.fromString("Unsupported collection type")));
+                default -> throw new QueryException("Unsupported collection type");
             }
         } catch (BError e) {
             throw new QueryException(e);
@@ -182,7 +179,7 @@ public class BallerinaIteratorUtils {
         @Override
         public T next() {
             if (nextValue == null && !hasNext()) {
-                throw new RuntimeException("No more elements in BStream");
+                throw new QueryException("No more elements available");
             }
             T returnValue = (T) nextValue;
             nextValue = null;
