@@ -31,7 +31,7 @@ public enum NodeKind {
     MARKDOWN_DOCUMENTATION,
     ENDPOINT,
     FUNCTION,
-    RESOURCE_FUNC,
+    RESOURCE_FUNC("resource function"),
     BLOCK_FUNCTION_BODY,
     EXPR_FUNCTION_BODY,
     EXTERN_FUNCTION_BODY,
@@ -274,5 +274,20 @@ public enum NodeKind {
     RESOURCE_PATH_IDENTIFIER_SEGMENT,
     RESOURCE_PATH_PARAM_SEGMENT,
     RESOURCE_PATH_REST_PARAM_SEGMENT,
-    RESOURCE_ROOT_PATH_SEGMENT
+    RESOURCE_ROOT_PATH_SEGMENT;
+
+    private String name;
+
+    NodeKind() {
+        this.name = super.toString();
+    }
+
+    NodeKind(String name) {
+        this.name = name;
+    }
+
+    @Override
+    public String toString() {
+        return this.name;
+    }
 }
