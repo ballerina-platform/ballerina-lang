@@ -309,8 +309,6 @@ class _IteratorObject {
     }
 }
 
-type nextRecord record {|Type value;|};
-
 public isolated function nextJava(handle javaStrm) returns record {|Type value;|}|CompletionType = @java:Method {
         'class: "io.ballerina.runtime.internal.query.pipeline.IteratorObject",
         name: "next",
