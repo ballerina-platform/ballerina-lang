@@ -36,17 +36,30 @@ import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BNever;
 import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.internal.BalRuntime;
+import io.ballerina.runtime.internal.TypeChecker;
+import io.ballerina.runtime.internal.errors.ErrorCodes;
+import io.ballerina.runtime.internal.errors.ErrorHelper;
+import io.ballerina.runtime.internal.types.BArrayType;
+import io.ballerina.runtime.internal.types.BFunctionType;
 import io.ballerina.runtime.internal.types.BServiceType;
+import io.ballerina.runtime.internal.types.BTupleType;
 import io.ballerina.runtime.internal.utils.ErrorUtils;
 import io.ballerina.runtime.internal.values.FPValue;
 import io.ballerina.runtime.internal.values.FutureValue;
 import io.ballerina.runtime.internal.values.ObjectValue;
 import io.ballerina.runtime.internal.values.ValueCreator;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Function;
+
+import static io.ballerina.runtime.api.constants.RuntimeConstants.FUNCTION_LANG_LIB;
+import static io.ballerina.runtime.internal.errors.ErrorReasons.INCOMPATIBLE_ARGUMENTS;
+import static io.ballerina.runtime.internal.errors.ErrorReasons.getModulePrefixedReason;
 
 /**
  * Strand scheduler for JBallerina.
@@ -249,7 +262,7 @@ public class Scheduler {
     private Object[] getArgsWithDefaultValues(ValueCreator valueCreator, FunctionType functionType, Strand strand,
                                               Object... args) {
         Parameter[] parameters = functionType.getParameters();
-        validateArgCount(parameters, args, functionType);
+        validateArguments(parameters, args, (BFunctionType) functionType);
         Type restType = functionType.getRestType();
         if (args.length == 0 && parameters.length == 0) {
             if (restType == null) {
@@ -280,12 +293,16 @@ public class Scheduler {
         return argsWithDefaultValues;
     }
 
-    private void validateArgCount(Parameter[] parameters, Object[] args, FunctionType functionType) {
+    private void validateArguments(Parameter[] parameters, Object[] args, BFunctionType functionType) {
         int defaultParamCount = 0;
+        List<Type> paramTypes = new ArrayList<>();
+        List<Type> argTypes = Arrays.stream(args).map(TypeChecker::getType).toList();
+        Type elementType = functionType.restType != null ? ((BArrayType) functionType.restType).getElementType() : null;
         for (int i = 0; i < parameters.length; i++) {
             if (parameters[i].isDefault) {
                 defaultParamCount++;
             }
+            paramTypes.add(parameters[i].type);
         }
         if (parameters.length - defaultParamCount > args.length) {
             throw ErrorCreator.createError(StringUtils.fromString("Incorrect parameter count in '" +
@@ -296,6 +313,21 @@ public class Scheduler {
                     functionType.getName() + "' : Allowed '" +
                     (parameters.length) + "', found '" + args.length + "'"));
         }
+        for (int i = 0; i < args.length; i++) {
+            Type comparisionType = (i >= parameters.length) ? elementType : parameters[i].type;
+            if (!TypeChecker.checkIsType(null, args[i], TypeChecker.getType(args[i]), comparisionType)) {
+                throw ErrorCreator.createError(
+                        getModulePrefixedReason(FUNCTION_LANG_LIB, INCOMPATIBLE_ARGUMENTS),
+                        ErrorHelper.getErrorDetails(ErrorCodes.INCOMPATIBLE_ARGUMENTS,
+                                removeBracketsFromStringFormatOfTuple(new BTupleType(argTypes)),
+                                removeBracketsFromStringFormatOfTuple(new BTupleType(paramTypes, elementType, 0, false))));
+            }
+        }
+    }
+
+    private static String removeBracketsFromStringFormatOfTuple(BTupleType tupleType) {
+        String stringValue = tupleType.toString();
+        return "(" + stringValue.substring(1, stringValue.length() - 1) + ")";
     }
 
     public MethodType getObjectMethodType(String methodName, ObjectType objectType) {
