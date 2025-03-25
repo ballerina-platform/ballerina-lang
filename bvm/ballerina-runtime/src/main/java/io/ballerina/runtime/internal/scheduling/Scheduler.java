@@ -320,7 +320,8 @@ public class Scheduler {
                         getModulePrefixedReason(FUNCTION_LANG_LIB, INCOMPATIBLE_ARGUMENTS),
                         ErrorHelper.getErrorDetails(ErrorCodes.INCOMPATIBLE_ARGUMENTS,
                                 removeBracketsFromStringFormatOfTuple(new BTupleType(argTypes)),
-                                removeBracketsFromStringFormatOfTuple(new BTupleType(paramTypes, elementType, 0, false))));
+                                removeBracketsFromStringFormatOfTuple(new BTupleType(paramTypes, elementType,
+                                        0, false))));
             }
         }
     }
