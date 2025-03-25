@@ -285,10 +285,11 @@ public class MethodGen {
                 jvmCastGen, jvmConstantsGen, asyncDataCollector, types);
         JvmErrorGen errorGen = new JvmErrorGen(mv, indexMap, instGen);
         JvmTerminatorGen termGen = new JvmTerminatorGen(mv, indexMap, labelGen, errorGen, module.packageID, instGen,
-                jvmPackageGen, jvmTypeGen, jvmCastGen, jvmConstantsGen, asyncDataCollector);
+                jvmPackageGen, jvmTypeGen, jvmCastGen, asyncDataCollector);
 
-        generateBasicBlocks(mv, labelGen, errorGen, instGen, termGen, func, returnVarRefIndex, channelMapVarIndex,
-                localVarOffset, module, attachedType, sendWorkerChannelNamesVar, receiveWorkerChannelNamesVar);
+        generateBasicBlocks(mv, labelGen, errorGen, instGen, termGen, moduleClassName, func, returnVarRefIndex,
+                channelMapVarIndex, localVarOffset, module, attachedType, sendWorkerChannelNamesVar,
+                receiveWorkerChannelNamesVar);
         termGen.genReturnTerm(returnVarRefIndex, func, channelMapVarIndex, sendWorkerChannelNamesVar,
                 receiveWorkerChannelNamesVar, localVarOffset);
         handleWorkerPanic(func, mv, tryLabel, catchLabel, handleThrowableLabel, channelMapVarIndex,
@@ -518,7 +519,7 @@ public class MethodGen {
     }
 
     void generateBasicBlocks(MethodVisitor mv, LabelGenerator labelGen, JvmErrorGen errorGen, JvmInstructionGen instGen,
-                             JvmTerminatorGen termGen, BIRFunction func, int returnVarRefIndex,
+                             JvmTerminatorGen termGen, String moduleClassName, BIRFunction func, int returnVarRefIndex,
                              int channelMapVarIndex, int localVarOffset, BIRPackage module, BType attachedType,
                              int sendWorkerChannelNamesVar, int receiveWorkerChannelNamesVar) {
 
@@ -538,8 +539,8 @@ public class MethodGen {
             mv.visitLabel(bbEndLabel);
             BIRTerminator terminator = bb.terminator;
             processTerminator(mv, func, module, funcName, terminator);
-            termGen.genTerminator(terminator, func, funcName, localVarOffset, returnVarRefIndex, attachedType,
-                    channelMapVarIndex, sendWorkerChannelNamesVar, receiveWorkerChannelNamesVar);
+            termGen.genTerminator(terminator, moduleClassName, func, funcName, localVarOffset, returnVarRefIndex,
+                    attachedType, channelMapVarIndex, sendWorkerChannelNamesVar, receiveWorkerChannelNamesVar);
             lastScope = JvmCodeGenUtil.getLastScopeFromTerminator(mv, bb, funcName, labelGen, lastScope,
                     visitedScopesSet);
             errorGen.generateTryCatch(func, funcName, bb, termGen, labelGen, channelMapVarIndex,
