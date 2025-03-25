@@ -2963,6 +2963,36 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
                 peerWorker);
     }
 
+    @Override
+    public STNaturalExpressionNode transform(
+            STNaturalExpressionNode naturalExpressionNode) {
+        STNode naturalKeyword = modifyNode(naturalExpressionNode.naturalKeyword);
+        STNode naturalModel = modifyNode(naturalExpressionNode.naturalModel);
+        STNode openBraceToken = modifyNode(naturalExpressionNode.openBraceToken);
+        STNode prompt = modifyNode(naturalExpressionNode.prompt);
+        STNode closeBraceToken = modifyNode(naturalExpressionNode.closeBraceToken);
+        return naturalExpressionNode.modify(
+                naturalKeyword,
+                naturalModel,
+                openBraceToken,
+                prompt,
+                closeBraceToken);
+    }
+
+    @Override
+    public STNaturalModelNode transform(
+            STNaturalModelNode naturalModelNode) {
+        STNode modelKeyword = modifyNode(naturalModelNode.modelKeyword);
+        STNode openParenthesis = modifyNode(naturalModelNode.openParenthesis);
+        STNode expression = modifyNode(naturalModelNode.expression);
+        STNode closeParenthesis = modifyNode(naturalModelNode.closeParenthesis);
+        return naturalModelNode.modify(
+                modelKeyword,
+                openParenthesis,
+                expression,
+                closeParenthesis);
+    }
+
     // Tokens
 
     @Override

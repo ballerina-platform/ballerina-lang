@@ -3670,5 +3670,43 @@ public abstract class NodeFactory extends AbstractNodeFactory {
                 peerWorker.internalNode());
         return stReceiveFieldNode.createUnlinkedFacade();
     }
+
+    public static NaturalExpressionNode createNaturalExpressionNode(
+            Token naturalKeyword,
+            NaturalModelNode naturalModel,
+            Token openBraceToken,
+            NodeList<Node> prompt,
+            Token closeBraceToken) {
+        Objects.requireNonNull(naturalKeyword, "naturalKeyword must not be null");
+        Objects.requireNonNull(openBraceToken, "openBraceToken must not be null");
+        Objects.requireNonNull(prompt, "prompt must not be null");
+        Objects.requireNonNull(closeBraceToken, "closeBraceToken must not be null");
+
+        STNode stNaturalExpressionNode = STNodeFactory.createNaturalExpressionNode(
+                naturalKeyword.internalNode(),
+                getOptionalSTNode(naturalModel),
+                openBraceToken.internalNode(),
+                prompt.underlyingListNode().internalNode(),
+                closeBraceToken.internalNode());
+        return stNaturalExpressionNode.createUnlinkedFacade();
+    }
+
+    public static NaturalModelNode createNaturalModelNode(
+            Token modelKeyword,
+            Token openParenthesis,
+            ExpressionNode expression,
+            Token closeParenthesis) {
+        Objects.requireNonNull(modelKeyword, "modelKeyword must not be null");
+        Objects.requireNonNull(openParenthesis, "openParenthesis must not be null");
+        Objects.requireNonNull(expression, "expression must not be null");
+        Objects.requireNonNull(closeParenthesis, "closeParenthesis must not be null");
+
+        STNode stNaturalModelNode = STNodeFactory.createNaturalModelNode(
+                modelKeyword.internalNode(),
+                openParenthesis.internalNode(),
+                expression.internalNode(),
+                closeParenthesis.internalNode());
+        return stNaturalModelNode.createUnlinkedFacade();
+    }
 }
 

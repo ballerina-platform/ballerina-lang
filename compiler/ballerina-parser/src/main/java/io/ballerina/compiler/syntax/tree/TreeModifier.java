@@ -3736,6 +3736,45 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
                 peerWorker);
     }
 
+    @Override
+    public NaturalExpressionNode transform(
+            NaturalExpressionNode naturalExpressionNode) {
+        Token naturalKeyword =
+                modifyToken(naturalExpressionNode.naturalKeyword());
+        NaturalModelNode naturalModel =
+                modifyNode(naturalExpressionNode.naturalModel().orElse(null));
+        Token openBraceToken =
+                modifyToken(naturalExpressionNode.openBraceToken());
+        NodeList<Node> prompt =
+                modifyNodeList(naturalExpressionNode.prompt());
+        Token closeBraceToken =
+                modifyToken(naturalExpressionNode.closeBraceToken());
+        return naturalExpressionNode.modify(
+                naturalKeyword,
+                naturalModel,
+                openBraceToken,
+                prompt,
+                closeBraceToken);
+    }
+
+    @Override
+    public NaturalModelNode transform(
+            NaturalModelNode naturalModelNode) {
+        Token modelKeyword =
+                modifyToken(naturalModelNode.modelKeyword());
+        Token openParenthesis =
+                modifyToken(naturalModelNode.openParenthesis());
+        ExpressionNode expression =
+                modifyNode(naturalModelNode.expression());
+        Token closeParenthesis =
+                modifyToken(naturalModelNode.closeParenthesis());
+        return naturalModelNode.modify(
+                modelKeyword,
+                openParenthesis,
+                expression,
+                closeParenthesis);
+    }
+
     // Tokens
 
     @Override
