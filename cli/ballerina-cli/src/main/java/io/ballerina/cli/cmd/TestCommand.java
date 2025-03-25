@@ -361,6 +361,7 @@ public class TestCommand implements BLauncherCmd {
             this.outStream.println("WARNING: Test report generation is not supported with Ballerina cloud test");
         }
 
+        boolean isTestingDelegated = project.buildOptions().cloud().equals("docker");
 
         // Run pre-build tasks to have the project reloaded.
         // In code coverage generation, the module map is duplicated.
@@ -369,7 +370,7 @@ public class TestCommand implements BLauncherCmd {
         // Hence, below tasks are executed before extracting the module map from the project.
         TaskExecutor preBuildTaskExecutor = new TaskExecutor.TaskBuilder()
                 .addTask(new CleanTargetCacheDirTask(), isSingleFile) // clean the target cache dir(projects only)
-                .addTask(new CleanTargetBinTestsDirTask(), (isSingleFile || project.buildOptions().cloud().isEmpty()))
+                .addTask(new CleanTargetBinTestsDirTask(), (isSingleFile || !isTestingDelegated))
                 .addTask(new RunBuildToolsTask(outStream), isSingleFile) // run build tools
                 .build();
         preBuildTaskExecutor.executeTasks(project);
@@ -391,16 +392,14 @@ public class TestCommand implements BLauncherCmd {
                         isPackageModified, buildOptions.enableCache()))
 //                .addTask(new CopyResourcesTask(), listGroups) // merged with CreateJarTask
                 .addTask(new CreateTestExecutableTask(outStream, groupList, disableGroupList, testList, listGroups,
-                                cliArgs, isParallelExecution),
-                        project.buildOptions().cloud().isEmpty())
+                                cliArgs, isParallelExecution), !isTestingDelegated)
                 .addTask(new RunTestsTask(outStream, errStream, rerunTests, groupList, disableGroupList,
                                 testList, includes, coverageFormat, moduleMap, listGroups, excludes, cliArgs,
                                 isParallelExecution),
-                        (project.buildOptions().nativeImage() ||
-                        !project.buildOptions().cloud().isEmpty()))
+                        (project.buildOptions().nativeImage() || isTestingDelegated))
                 .addTask(new RunNativeImageTestTask(outStream, rerunTests, groupList, disableGroupList,
                                 testList, includes, coverageFormat, moduleMap, listGroups, isParallelExecution),
-                        (!project.buildOptions().nativeImage() || !project.buildOptions().cloud().isEmpty()))
+                        (!project.buildOptions().nativeImage() || isTestingDelegated))
                 .addTask(new DumpBuildTimeTask(outStream), !project.buildOptions().dumpBuildTime())
                 .build();
 
