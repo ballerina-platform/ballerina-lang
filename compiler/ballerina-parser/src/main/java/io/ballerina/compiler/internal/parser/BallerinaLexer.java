@@ -46,7 +46,8 @@ public class BallerinaLexer extends AbstractLexer {
     @Override
     public STToken nextToken() {
         STToken token = switch (this.mode) {
-            case TEMPLATE -> readTemplateToken();
+            case TEMPLATE -> readTemplateToken(LexerTerminals.BACKTICK, SyntaxKind.BACKTICK_TOKEN);
+            case PROMPT -> readTemplateToken(LexerTerminals.CLOSE_BRACE, SyntaxKind.CLOSE_BRACE_TOKEN);
             case REGEXP -> readRegExpTemplateToken();
             case INTERPOLATION -> {
                 processLeadingTrivia();
@@ -925,6 +926,7 @@ public class BallerinaLexer extends AbstractLexer {
             case LexerTerminals.ASCENDING -> getSyntaxToken(SyntaxKind.ASCENDING_KEYWORD);
             case LexerTerminals.DESCENDING -> getSyntaxToken(SyntaxKind.DESCENDING_KEYWORD);
             case LexerTerminals.JOIN -> getSyntaxToken(SyntaxKind.JOIN_KEYWORD);
+            case LexerTerminals.NATURAL -> getSyntaxToken(SyntaxKind.NATURAL_KEYWORD);
             case LexerTerminals.RE -> {
                 if (getNextNonWSOrNonCommentChar() == LexerTerminals.BACKTICK) {
                     yield getSyntaxToken(SyntaxKind.RE_KEYWORD);
@@ -1329,44 +1331,34 @@ public class BallerinaLexer extends AbstractLexer {
         return STNodeFactory.createToken(SyntaxKind.BACKTICK_TOKEN, leadingTrivia, trailingTrivia);
     }
 
-    private STToken readTemplateToken() {
+    private STToken readTemplateToken(char delimiter, SyntaxKind kind) {
         reader.mark();
         if (reader.isEOF()) {
             return getSyntaxToken(SyntaxKind.EOF_TOKEN);
         }
 
         char nextChar = this.reader.peek();
-        switch (nextChar) {
-            case LexerTerminals.BACKTICK:
-                reader.advance();
-                endMode();
-                return getSyntaxToken(SyntaxKind.BACKTICK_TOKEN);
-            case LexerTerminals.DOLLAR:
-                if (reader.peek(1) == LexerTerminals.OPEN_BRACE) {
-                    // Switch to interpolation mode. Then the next token will be read in that mode.
-                    startMode(ParserMode.INTERPOLATION);
-                    reader.advance(2);
+        if (nextChar == delimiter) {
+            reader.advance();
+            endMode();
+            return getSyntaxToken(kind);
+        }
 
-                    return getSyntaxToken(SyntaxKind.INTERPOLATION_START_TOKEN);
-                }
-                // fall through
-            default:
-                while (!reader.isEOF()) {
-                    reader.advance();
-                    nextChar = this.reader.peek();
-                    switch (nextChar) {
-                        case LexerTerminals.DOLLAR:
-                            if (this.reader.peek(1) == LexerTerminals.OPEN_BRACE) {
-                                break;
-                            }
-                            continue;
-                        case LexerTerminals.BACKTICK:
-                            break;
-                        default:
-                            continue;
-                    }
-                    break;
-                }
+        if (nextChar == LexerTerminals.DOLLAR && reader.peek(1) == LexerTerminals.OPEN_BRACE) {
+                // Switch to interpolation mode. Then the next token will be read in that mode.
+                startMode(ParserMode.INTERPOLATION);
+                reader.advance(2);
+
+                return getSyntaxToken(SyntaxKind.INTERPOLATION_START_TOKEN);
+        }
+
+        while (!reader.isEOF()) {
+            reader.advance();
+            nextChar = this.reader.peek();
+            if (nextChar == delimiter ||
+                    (nextChar == LexerTerminals.DOLLAR && reader.peek(1) == LexerTerminals.OPEN_BRACE)) {
+                break;
+            }
         }
 
         return getLiteral(SyntaxKind.TEMPLATE_STRING);

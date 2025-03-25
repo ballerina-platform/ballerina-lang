@@ -5066,6 +5066,8 @@ public class BallerinaParser extends AbstractParser {
                 return parseByteArrayLiteral();
             case TRANSACTION_KEYWORD:
                 return parseQualifiedIdentWithTransactionPrefix(ParserRuleContext.VARIABLE_REF);
+            case NATURAL_KEYWORD:
+                return parseNaturalExpression();
             default:
                 if (isSimpleTypeInExpression(nextToken.kind)) {
                     return parseSimpleTypeInTerminalExpr();
@@ -5074,6 +5076,42 @@ public class BallerinaParser extends AbstractParser {
                 recover(nextToken, ParserRuleContext.TERMINAL_EXPRESSION);
                 return parseTerminalExpression(annots, qualifiers, isRhsExpr, allowActions, isInConditionalExpr);
         }
+    }
+
+    /**
+     * <p>
+     * Parse a natural expression.
+     * </p>
+     * <code>
+     * natural-expr := natural [model(expr)] { prompt }
+     * </code>
+     *
+     * @return Parsed NaturalExpression node.
+     */
+    private STNode parseNaturalExpression() {
+        STToken naturalKeyword = consume();
+        STNode optionalNaturalModelNode = isKeywordMatch(SyntaxKind.MODEL_KEYWORD, peek())?
+                parseNaturalModel() : STNodeFactory.createEmptyNode();
+        STNode openBrace = parseOpenBrace();
+
+        this.tokenReader.startMode(ParserMode.PROMPT);
+        STNode promptExpr = parseTemplateContent();
+        STNode closeBrace = parseCloseBrace();
+        return STNodeFactory.createNaturalExpressionNode(naturalKeyword, optionalNaturalModelNode, openBrace,
+                promptExpr, closeBrace);
+    }
+
+    private STNode parseNaturalModel() {
+        STNode modelKeyword = getModelKeyword(consume());
+        STNode openParenToken = parseOpenParenthesis();
+        STNode expr = parseExpression();
+        STNode closeParenToken = parseCloseParenthesis();
+        return STNodeFactory.createNaturalModelNode(modelKeyword, openParenToken, expr, closeParenToken);
+    }
+
+    private STNode getModelKeyword(STToken token) {
+        return STNodeFactory.createToken(SyntaxKind.MODEL_KEYWORD, token.leadingMinutiae(), token.trailingMinutiae(),
+                token.diagnostics());
     }
 
     private STNode createMissingObjectConstructor(STNode annots, STNode qualifierNodeList) {
@@ -10778,7 +10816,7 @@ public class BallerinaParser extends AbstractParser {
 
     private boolean isEndOfBacktickContent(SyntaxKind kind) {
         return switch (kind) {
-            case EOF_TOKEN, BACKTICK_TOKEN -> true;
+            case EOF_TOKEN, BACKTICK_TOKEN, CLOSE_BRACE_TOKEN -> true;
             default -> false;
         };
     }

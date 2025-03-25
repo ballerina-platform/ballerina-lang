@@ -5019,6 +5019,58 @@
                     "type": "SimpleNameReferenceNode"
                 }
             ]
+        },
+        {
+            "name": "NaturalExpressionNode",
+            "base": "Node",
+            "kind": "NATURAL_EXPRESSION",
+            "attributes": [
+                {
+                    "name": "naturalKeyword",
+                    "type": "Token"
+                },
+                {
+                    "name": "naturalModel",
+                    "type": "NaturalModelNode",
+                    "isOptional": true
+                },
+                {
+                    "name": "openBraceToken",
+                    "type": "Token"
+                },
+                {
+                    "name": "prompt",
+                    "type": "Node",
+                    "occurrences": "MULTIPLE"
+                },
+                {
+                    "name": "closeBraceToken",
+                    "type": "Token"
+                }
+            ]
+        },
+        {
+            "name": "NaturalModelNode",
+            "base": "Node",
+            "kind": "NATURAL_MODEL",
+            "attributes": [
+                {
+                    "name": "modelKeyword",
+                    "type": "Token"
+                },
+                {
+                    "name": "openParenthesis",
+                    "type": "Token"
+                },
+                {
+                    "name": "expression",
+                    "type": "ExpressionNode"
+                },
+                {
+                    "name": "closeParenthesis",
+                    "type": "Token"
+                }
+            ]
         }
     ]
 }

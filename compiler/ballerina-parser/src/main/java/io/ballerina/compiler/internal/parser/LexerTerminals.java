@@ -106,6 +106,7 @@ public final class LexerTerminals {
     public static final String DESCENDING = "descending";
     public static final String CLASS = "class";
     public static final String CONFIGURABLE = "configurable";
+    public static final String NATURAL = "natural";
 
     // For BFM only
     public static final String VARIABLE = "variable";
