@@ -193,7 +193,7 @@ public class OrderByClause implements PipelineStage {
         if (key instanceof Float floatValue) {
             return handleFloatComparison(floatValue);
         }
-        throw new QueryException("Unsupported type for comparison: " + key.getClass().getName());
+        return (Comparable<?>) key;
     }
 
     /**
