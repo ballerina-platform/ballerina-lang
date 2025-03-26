@@ -121,6 +121,7 @@ test {
     dependsOn copyProfilerResources
 
     systemProperty "ballerina.home", "$buildDir"
+    environment "BALLERINA_HOME_DIR", "${buildDir}/user-home"
 
     useTestNG() {
         suites 'src/test/resources/testng.xml'
