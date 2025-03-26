@@ -443,8 +443,8 @@ public class JvmCastGen {
                     default -> {
                     }
                 }
-
-                checkCast(mv, targetType);
+                jvmTypeGen.loadType(mv, targetType);
+                mv.visitMethodInsn(INVOKESTATIC, TYPE_CHECKER, "checkCast", CHECK_CAST, false);
                 String targetTypeClass = getTargetClass(targetType);
                 if (targetTypeClass != null) {
                     mv.visitTypeInsn(CHECKCAST, targetTypeClass);
@@ -748,7 +748,7 @@ public class JvmCastGen {
                     return;
                 }
                 case TypeTags.NIL, TypeTags.NEVER -> {
-                    checkCast(mv, targetType);
+                    checkCast(mv, sourceType, targetType);
                     return;
                 }
                 case TypeTags.UNION -> {
@@ -777,7 +777,7 @@ public class JvmCastGen {
                 }
                 default ->
                     // do the ballerina checkcast
-                        checkCast(mv, targetType);
+                        checkCast(mv, sourceType, targetType);
             }
         }
 
@@ -1020,7 +1020,7 @@ public class JvmCastGen {
             switch (sourceType.tag) {
                 case TypeTags.ANY, TypeTags.ANYDATA, TypeTags.UNION, TypeTags.JSON,
                         TypeTags.READONLY, TypeTags.FINITE -> {
-                    checkCast(mv, symbolTable.stringType);
+                    checkCast(mv, sourceType, symbolTable.stringType);
                     mv.visitTypeInsn(CHECKCAST, B_STRING_VALUE);
                     return;
                 }
@@ -1123,7 +1123,7 @@ public class JvmCastGen {
         BType sourceType = JvmCodeGenUtil.getImpliedType(type);
         if (sourceType.tag == TypeTags.UNION || (types.isAssignable(sourceType, symbolTable.anyType) &&
                         !Symbols.isFlagOn(sourceType.getFlags(), Flags.READONLY))) {
-            checkCast(mv, symbolTable.anydataType);
+            checkCast(mv, sourceType, symbolTable.anydataType);
         } else {
             // if value types, then ad box instruction
             generateCastToAny(mv, sourceType);
@@ -1134,7 +1134,7 @@ public class JvmCastGen {
         BType sourceType = JvmCodeGenUtil.getImpliedType(type);
         switch (sourceType.tag) {
             case TypeTags.ANY, TypeTags.ANYDATA, TypeTags.UNION, TypeTags.READONLY, TypeTags.MAP ->
-                    checkCast(mv, symbolTable.jsonType);
+                    checkCast(mv, sourceType, symbolTable.jsonType);
             default ->
                 // for value types, then add box instruction
                     generateCastToAny(mv, sourceType);
@@ -1147,11 +1147,13 @@ public class JvmCastGen {
         if (targetType.getMemberTypes().contains(sourceType)) {
             return;
         }
-        checkCast(mv, targetType);
+        checkCast(mv, sourceType, targetType);
     }
 
-    private void checkCast(MethodVisitor mv, BType targetType) {
-
+    private void checkCast(MethodVisitor mv, BType sourceType, BType targetType) {
+        if (types.isAssignable(sourceType, targetType)) {
+            return;
+        }
         jvmTypeGen.loadType(mv, targetType);
         mv.visitMethodInsn(INVOKESTATIC, TYPE_CHECKER, "checkCast", CHECK_CAST, false);
     }
@@ -1188,13 +1190,13 @@ public class JvmCastGen {
     private void generateCheckCastToFiniteType(MethodVisitor mv, BType sourceType, BFiniteType targetType) {
 
         generateCastToAny(mv, sourceType);
-        checkCast(mv, targetType);
+        checkCast(mv, sourceType, targetType);
     }
 
     private void generateCheckCastToReadonlyType(MethodVisitor mv, BType sourceType, BType targetType) {
 
         generateCastToAny(mv, sourceType);
-        checkCast(mv, targetType);
+        checkCast(mv, sourceType, targetType);
     }
 
     public void addBoxInsn(MethodVisitor mv, BType bType) {
