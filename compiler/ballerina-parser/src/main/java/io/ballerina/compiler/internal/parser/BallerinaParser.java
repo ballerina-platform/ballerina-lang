@@ -10790,6 +10790,12 @@ public class BallerinaParser extends AbstractParser {
         }
 
         // Template string component
+        if (nextToken.kind != SyntaxKind.TEMPLATE_STRING) {
+            nextToken = consume();
+            return STNodeFactory.createLiteralValueToken(SyntaxKind.TEMPLATE_STRING,
+                    nextToken.text(), nextToken.leadingMinutiae(), nextToken.trailingMinutiae(),
+                    nextToken.diagnostics());
+        }
         return consume();
     }
 
