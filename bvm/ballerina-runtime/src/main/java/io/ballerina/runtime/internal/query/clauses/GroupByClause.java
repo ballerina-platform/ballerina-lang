@@ -11,7 +11,6 @@ import io.ballerina.runtime.internal.TypeChecker;
 import io.ballerina.runtime.internal.query.pipeline.Frame;
 import io.ballerina.runtime.internal.values.ArrayValueImpl;
 
-import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -48,14 +47,8 @@ public class GroupByClause implements PipelineStage {
                 ));
 
         return groupedData.values().stream().map(frames -> {
-            Frame firstFrame = frames.getFirst();
-            BMap<BString, Object> originalKey = extractOriginalKey(firstFrame);
-
-            Frame groupedFrame = new Frame();
+            Frame groupedFrame = frames.getFirst();
             BMap<BString, Object> groupedRecord = groupedFrame.getRecord();
-
-            // Copy original key fields to the grouped record
-            originalKey.entrySet().forEach(entry -> groupedRecord.put(entry.getKey(), entry.getValue()));
 
             // Aggregate non-grouping fields into arrays
             for (int i = 0; i < nonGroupingKeys.size(); i++) {
@@ -96,7 +89,7 @@ public class GroupByClause implements PipelineStage {
     // Custom key wrapper for deep equality grouping
     private record GroupKey(BMap<BString, Object> keyMap) {
 
-    @Override
+        @Override
         public boolean equals(Object o) {
             if (this == o) return true;
             if (!(o instanceof GroupKey)) return false;
