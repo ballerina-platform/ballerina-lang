@@ -94,14 +94,9 @@ public class GroupByClause implements PipelineStage {
     }
 
     // Custom key wrapper for deep equality grouping
-    private static class GroupKey {
-        private final BMap<BString, Object> keyMap;
+    private record GroupKey(BMap<BString, Object> keyMap) {
 
-        GroupKey(BMap<BString, Object> keyMap) {
-            this.keyMap = keyMap;
-        }
-
-        @Override
+    @Override
         public boolean equals(Object o) {
             if (this == o) return true;
             if (!(o instanceof GroupKey)) return false;
