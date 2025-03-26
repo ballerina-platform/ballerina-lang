@@ -44,13 +44,6 @@ public class OrderByClause implements PipelineStage {
             BMap<BString, Object> record1 = frame1.getRecord();
             BMap<BString, Object> record2 = frame2.getRecord();
 
-            if (record1 instanceof BError) {
-                throw (BError) record1;
-            }
-            if (record2 instanceof BError) {
-                throw (BError) record2;
-            }
-
             BArray orderKey1Array = (BArray) record1.get(StringUtils.fromString("$orderKey$"));
             BArray orderKey2Array = (BArray) record2.get(StringUtils.fromString("$orderKey$"));
             BArray orderDirectionArray = (BArray) record1.get(StringUtils.fromString("$orderDirection$"));
