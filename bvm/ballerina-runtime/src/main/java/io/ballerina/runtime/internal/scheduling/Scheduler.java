@@ -20,6 +20,7 @@ package io.ballerina.runtime.internal.scheduling;
 import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.concurrent.StrandMetadata;
 import io.ballerina.runtime.api.creators.ErrorCreator;
+import io.ballerina.runtime.api.types.ArrayType;
 import io.ballerina.runtime.api.types.FunctionType;
 import io.ballerina.runtime.api.types.MethodType;
 import io.ballerina.runtime.api.types.ObjectType;
@@ -30,21 +31,35 @@ import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.TypeTags;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.utils.TypeUtils;
+import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BNever;
 import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.internal.BalRuntime;
+import io.ballerina.runtime.internal.TypeChecker;
+import io.ballerina.runtime.internal.errors.ErrorCodes;
+import io.ballerina.runtime.internal.errors.ErrorHelper;
+import io.ballerina.runtime.internal.types.BArrayType;
+import io.ballerina.runtime.internal.types.BFunctionType;
 import io.ballerina.runtime.internal.types.BServiceType;
+import io.ballerina.runtime.internal.types.BTupleType;
 import io.ballerina.runtime.internal.utils.ErrorUtils;
 import io.ballerina.runtime.internal.values.FPValue;
 import io.ballerina.runtime.internal.values.FutureValue;
 import io.ballerina.runtime.internal.values.ObjectValue;
 import io.ballerina.runtime.internal.values.ValueCreator;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Function;
+
+import static io.ballerina.runtime.api.constants.RuntimeConstants.FUNCTION_LANG_LIB;
+import static io.ballerina.runtime.internal.errors.ErrorReasons.INCOMPATIBLE_ARGUMENTS;
+import static io.ballerina.runtime.internal.errors.ErrorReasons.getModulePrefixedReason;
 
 /**
  * Strand scheduler for JBallerina.
@@ -247,15 +262,17 @@ public class Scheduler {
     private Object[] getArgsWithDefaultValues(ValueCreator valueCreator, FunctionType functionType, Strand strand,
                                               Object... args) {
         Parameter[] parameters = functionType.getParameters();
+        validateArguments(parameters, args, (BFunctionType) functionType);
+        Type restType = functionType.getRestType();
         if (args.length == 0 && parameters.length == 0) {
-            return new Object[]{};
+            if (restType == null) {
+                return new Object[]{};
+            }
+            return new Object[]{io.ballerina.runtime.api.creators.ValueCreator.createArrayValue((ArrayType) restType)};
         }
-        int length = functionType.getRestType() == null ? parameters.length : parameters.length + 1;
-        if (length < args.length) {
-            length = args.length;
-        }
+        int length = restType == null ? parameters.length : parameters.length + 1;
         Object[] argsWithDefaultValues = new Object[length];
-        System.arraycopy(args, 0, argsWithDefaultValues, 0, args.length);
+        System.arraycopy(args, 0, argsWithDefaultValues, 0, Math.min(args.length, parameters.length));
         for (int i = 0; i < parameters.length; i++) {
             Parameter parameter = parameters[i];
             if (parameter.isDefault && (args.length <= i || args[i] == BNever.getValue())) {
@@ -263,7 +280,56 @@ public class Scheduler {
                 argsWithDefaultValues[i] = defaultValue;
             }
         }
+        if (restType != null) {
+            BArray restParamArray = io.ballerina.runtime.api.creators.ValueCreator.createArrayValue(
+                    (ArrayType) restType);
+            if (args.length >= parameters.length + 1) {
+                for (int i = length - 1; i < args.length; i++) {
+                    restParamArray.append(args[i]);
+                }
+            }
+            argsWithDefaultValues[length - 1] = restParamArray;
+        }
         return argsWithDefaultValues;
+    }
+
+    private void validateArguments(Parameter[] parameters, Object[] args, BFunctionType functionType) {
+        int defaultParamCount = 0;
+        List<Type> paramTypes = new ArrayList<>();
+        List<Type> argTypes = Arrays.stream(args).map(TypeChecker::getType).toList();
+        Type elementType = functionType.restType != null ? ((BArrayType) functionType.restType).getElementType() : null;
+        for (int i = 0; i < parameters.length; i++) {
+            if (parameters[i].isDefault) {
+                defaultParamCount++;
+            }
+            paramTypes.add(parameters[i].type);
+        }
+        if (parameters.length - defaultParamCount > args.length) {
+            throw ErrorCreator.createError(StringUtils.fromString("Incorrect parameter count in '" +
+                    functionType.getName() + "' : Required '" +
+                    (parameters.length - defaultParamCount) + "', found '" + args.length + "'"));
+        } else if (functionType.getRestType() == null && parameters.length < args.length) {
+            throw ErrorCreator.createError(StringUtils.fromString("Incorrect parameter count in '" +
+                    functionType.getName() + "' : Allowed '" +
+                    (parameters.length) + "', found '" + args.length + "'"));
+        }
+        for (int i = 0; i < args.length; i++) {
+            Type comparisionType = (i >= parameters.length) ? elementType : parameters[i].type;
+            if (args[i] != BNever.getValue() && !TypeChecker.checkIsType(null, args[i],
+                    TypeChecker.getType(args[i]), comparisionType)) {
+                throw ErrorCreator.createError(
+                        getModulePrefixedReason(FUNCTION_LANG_LIB, INCOMPATIBLE_ARGUMENTS),
+                        ErrorHelper.getErrorDetails(ErrorCodes.INCOMPATIBLE_ARGUMENTS,
+                                removeBracketsFromStringFormatOfTuple(new BTupleType(argTypes)),
+                                removeBracketsFromStringFormatOfTuple(new BTupleType(paramTypes, elementType,
+                                        0, false))));
+            }
+        }
+    }
+
+    private static String removeBracketsFromStringFormatOfTuple(BTupleType tupleType) {
+        String stringValue = tupleType.toString();
+        return "(" + stringValue.substring(1, stringValue.length() - 1) + ")";
     }
 
     public MethodType getObjectMethodType(String methodName, ObjectType objectType) {
