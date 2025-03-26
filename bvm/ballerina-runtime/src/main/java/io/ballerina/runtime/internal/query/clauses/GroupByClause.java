@@ -2,10 +2,12 @@ package io.ballerina.runtime.internal.query.clauses;
 
 import io.ballerina.runtime.api.Environment;
 import io.ballerina.runtime.api.creators.TypeCreator;
+import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.types.PredefinedTypes;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.internal.TypeChecker;
 import io.ballerina.runtime.internal.query.pipeline.Frame;
 import io.ballerina.runtime.internal.values.ArrayValueImpl;
 
@@ -38,22 +40,24 @@ public class GroupByClause implements PipelineStage {
 
     @Override
     public Stream<Frame> process(Stream<Frame> inputStream) {
-        Map<Map<BString, Object>, List<Frame>> groupedData = inputStream
+        Map<GroupKey, List<Frame>> groupedData = inputStream
                 .collect(Collectors.groupingBy(
-                        this::extractProcessedKey,
+                        frame -> new GroupKey(extractOriginalKey(frame)),
                         LinkedHashMap::new,
                         Collectors.toList()
                 ));
 
         return groupedData.values().stream().map(frames -> {
             Frame firstFrame = frames.getFirst();
-            Map<BString, Object> originalKey = extractOriginalKey(firstFrame);
+            BMap<BString, Object> originalKey = extractOriginalKey(firstFrame);
 
             Frame groupedFrame = new Frame();
             BMap<BString, Object> groupedRecord = groupedFrame.getRecord();
 
-            originalKey.forEach(groupedRecord::put);
+            // Copy original key fields to the grouped record
+            originalKey.entrySet().forEach(entry -> groupedRecord.put(entry.getKey(), entry.getValue()));
 
+            // Aggregate non-grouping fields into arrays
             for (int i = 0; i < nonGroupingKeys.size(); i++) {
                 BString nonGroupingKey = (BString) nonGroupingKeys.get(i);
                 Object[] values = frames.stream()
@@ -69,59 +73,45 @@ public class GroupByClause implements PipelineStage {
         });
     }
 
-    private Map<BString, Object> extractOriginalKey(Frame frame) {
-        Map<BString, Object> keyMap = new LinkedHashMap<>();
+    private BMap<BString, Object> extractOriginalKey(Frame frame) {
+        BMap<BString, Object> keyMap = ValueCreator.createMapValue(TypeCreator.createMapType(PredefinedTypes.TYPE_ANY));
         BMap<BString, Object> record = frame.getRecord();
 
         for (int i = 0; i < groupingKeys.size(); i++) {
             BString key = (BString) groupingKeys.get(i);
             Object value;
+
             if (record.containsKey(key)) {
                 value = record.get(key);
             } else {
-                BMap rec = (BMap) record.get(VALUE_FIELD);
-                value = rec.get(key);
+                BMap<BString, Object> nestedRec = (BMap<BString, Object>) record.get(VALUE_FIELD);
+                value = nestedRec.get(key);
             }
+
             keyMap.put(key, value);
         }
         return keyMap;
     }
 
-    private Map<BString, Object> extractProcessedKey(Frame frame) {
-        Map<BString, Object> keyMap = new LinkedHashMap<>();
-        BMap<BString, Object> record = frame.getRecord();
+    // Custom key wrapper for deep equality grouping
+    private static class GroupKey {
+        private final BMap<BString, Object> keyMap;
 
-        for (int i = 0; i < groupingKeys.size(); i++) {
-            BString key = (BString) groupingKeys.get(i);
-            Object value;
-            if (record.containsKey(key)) {
-                value = record.get(key);
-            } else {
-                BMap rec = (BMap) record.get(VALUE_FIELD);
-                value = rec.get(key);
-            }
-            Object processedValue = processValue(value);
-            keyMap.put(key, processedValue);
+        GroupKey(BMap<BString, Object> keyMap) {
+            this.keyMap = keyMap;
         }
-        return keyMap;
-    }
 
-    private Object processValue(Object value) {
-        if (value instanceof BArray array) {
-            List<Object> list = new ArrayList<>();
-            for (int i = 0; i < array.size(); i++) {
-                list.add(processValue(array.get(i)));
-            }
-            return list;
-        } else if (value instanceof BMap) {
-            BMap<BString, Object> bMap = (BMap<BString, Object>) value;
-            Map<BString, Object> map = new LinkedHashMap<>();
-            for (Map.Entry<BString, Object> entry : bMap.entrySet()) {
-                map.put(entry.getKey(), processValue(entry.getValue()));
-            }
-            return map;
-        } else {
-            return value;
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (!(o instanceof GroupKey)) return false;
+            GroupKey other = (GroupKey) o;
+            return TypeChecker.isEqual(this.keyMap, other.keyMap);
+        }
+
+        @Override
+        public int hashCode() {
+            return 36;
         }
     }
 }
