@@ -315,7 +315,8 @@ public class Scheduler {
         }
         for (int i = 0; i < args.length; i++) {
             Type comparisionType = (i >= parameters.length) ? elementType : parameters[i].type;
-            if (!TypeChecker.checkIsType(null, args[i], TypeChecker.getType(args[i]), comparisionType)) {
+            if (args[i] != BNever.getValue() && !TypeChecker.checkIsType(null, args[i],
+                    TypeChecker.getType(args[i]), comparisionType)) {
                 throw ErrorCreator.createError(
                         getModulePrefixedReason(FUNCTION_LANG_LIB, INCOMPATIBLE_ARGUMENTS),
                         ErrorHelper.getErrorDetails(ErrorCodes.INCOMPATIBLE_ARGUMENTS,
