@@ -17,6 +17,9 @@
 package org.wso2.ballerinalang.compiler.desugar;
 
 import io.ballerina.tools.diagnostics.Location;
+import io.ballerina.types.PredefinedType;
+import io.ballerina.types.SemType;
+import io.ballerina.types.SemTypes;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.clauses.OrderKeyNode;
 import org.ballerinalang.model.elements.Flag;
@@ -300,7 +303,7 @@ public class QueryDesugar extends BLangNodeVisitor {
                 queryBlock, stmtsToBePropagated);
         BLangExpression result = streamRef;
         BLangLiteral isReadonly = ASTBuilderUtil.createLiteral(pos, symTable.booleanType,
-                Symbols.isFlagOn(queryExpr.getBType().flags, Flags.READONLY));
+                Symbols.isFlagOn(queryExpr.getBType().getFlags(), Flags.READONLY));
         BType resultType = queryExpr.getBType();
         if (queryExpr.isStream) {
             resultType = streamRef.getBType();
@@ -326,14 +329,16 @@ public class QueryDesugar extends BLangNodeVisitor {
             result = getStreamFunctionVariableRef(queryBlock, COLLECT_QUERY_FUNCTION, Lists.of(streamRef), pos);
         } else {
             BType refType = Types.getImpliedType(queryExpr.getBType());
-            BType safeType = types.getSafeType(refType, true, true);
-            if (isXml(safeType)) {
-                if (types.isSubTypeOfReadOnly(refType, env)) {
+            SemType refSemType = refType.semType();
+            SemType safeType = types.getNilAndErrorLiftType(refSemType);
+            if (SemTypes.isSubtypeSimpleNotNever(safeType, PredefinedType.XML)) {
+                if (types.isSubTypeOfReadOnly(refSemType)) {
                     isReadonly.value = true;
                 }
                 result = getStreamFunctionVariableRef(queryBlock, QUERY_TO_XML_FUNCTION,
                         Lists.of(streamRef, isReadonly), pos);
-            } else if (TypeTags.isStringTypeTag(safeType.tag)) {
+            } else if (PredefinedType.STRING.equals(safeType) ||
+                    SemTypes.isSameType(types.typeCtx(), safeType, PredefinedType.STRING_CHAR)) {
                 result = getStreamFunctionVariableRef(queryBlock, QUERY_TO_STRING_FUNCTION, Lists.of(streamRef), pos);
             } else {
                 BType arrayType = refType;
@@ -610,11 +615,11 @@ public class QueryDesugar extends BLangNodeVisitor {
             constraintType = ((BStreamType) refType).constraint;
             completionType = ((BStreamType) refType).completionType;
         }
-        BType constraintTdType = new BTypedescType(constraintType, symTable.typeDesc.tsymbol);
+        BType constraintTdType = new BTypedescType(symTable.typeEnv(), constraintType, symTable.typeDesc.tsymbol);
         BLangTypedescExpr constraintTdExpr = new BLangTypedescExpr();
         constraintTdExpr.resolvedType = constraintType;
         constraintTdExpr.setBType(constraintTdType);
-        BType completionTdType = new BTypedescType(completionType, symTable.typeDesc.tsymbol);
+        BType completionTdType = new BTypedescType(symTable.typeEnv(), completionType, symTable.typeDesc.tsymbol);
         BLangTypedescExpr completionTdExpr = new BLangTypedescExpr();
         completionTdExpr.resolvedType = completionType;
         completionTdExpr.setBType(completionTdType);
@@ -812,11 +817,11 @@ public class QueryDesugar extends BLangNodeVisitor {
 
         BLangArrayLiteral sortFieldsArrayExpr = (BLangArrayLiteral) TreeBuilder.createArrayLiteralExpressionNode();
         sortFieldsArrayExpr.exprs = new ArrayList<>();
-        sortFieldsArrayExpr.setBType(new BArrayType(symTable.anydataType));
+        sortFieldsArrayExpr.setBType(new BArrayType(symTable.typeEnv(), symTable.anydataType));
 
         BLangArrayLiteral sortModesArrayExpr = (BLangArrayLiteral) TreeBuilder.createArrayLiteralExpressionNode();
         sortModesArrayExpr.exprs = new ArrayList<>();
-        sortModesArrayExpr.setBType(new BArrayType(symTable.booleanType));
+        sortModesArrayExpr.setBType(new BArrayType(symTable.typeEnv(), symTable.booleanType));
 
         // Each order-key expression is added to sortFieldsArrayExpr.
         // Corresponding order-direction is added to sortModesArrayExpr.
@@ -844,7 +849,7 @@ public class QueryDesugar extends BLangNodeVisitor {
         Location pos = groupByClause.pos;
         BLangArrayLiteral keys = (BLangArrayLiteral) TreeBuilder.createArrayLiteralExpressionNode();
         keys.exprs = new ArrayList<>();
-        keys.setBType(new BArrayType(symTable.stringType));
+        keys.setBType(new BArrayType(symTable.typeEnv(), symTable.stringType));
         for (BLangGroupingKey key :groupByClause.groupingKeyList) {
             if (key.variableDef == null) {
                 keys.exprs.add(createStringLiteral(key.pos, key.variableRef.variableName.value));
@@ -859,7 +864,7 @@ public class QueryDesugar extends BLangNodeVisitor {
 
         BLangArrayLiteral nonGroupingKeys = (BLangArrayLiteral) TreeBuilder.createArrayLiteralExpressionNode();
         nonGroupingKeys.exprs = new ArrayList<>();
-        nonGroupingKeys.setBType(new BArrayType(symTable.stringType));
+        nonGroupingKeys.setBType(new BArrayType(symTable.typeEnv(), symTable.stringType));
         for (String nonGroupingKey : groupByClause.nonGroupingKeys) {
             nonGroupingKeys.exprs.add(createStringLiteral(pos, nonGroupingKey));
         }
@@ -872,7 +877,7 @@ public class QueryDesugar extends BLangNodeVisitor {
         Location pos = collectClause.pos;
         BLangArrayLiteral nonGroupingKeys = (BLangArrayLiteral) TreeBuilder.createArrayLiteralExpressionNode();
         nonGroupingKeys.exprs = new ArrayList<>();
-        nonGroupingKeys.setBType(new BArrayType(symTable.stringType));
+        nonGroupingKeys.setBType(new BArrayType(symTable.typeEnv(), symTable.stringType));
         for (String nonGroupingKey : collectClause.nonGroupingKeys) {
             nonGroupingKeys.exprs.add(createStringLiteral(pos, nonGroupingKey));
         }
@@ -1445,7 +1450,7 @@ public class QueryDesugar extends BLangNodeVisitor {
     private void addNilValueToFrame(BLangSimpleVarRef frameToAddValueTo, String key,
                                     BLangBlockStmt blockStmt, Location pos) {
         BLangStatement addToFrameStmt = getAddToFrameStmt(pos, frameToAddValueTo, key,
-                ASTBuilderUtil.createLiteral(pos, symTable.nilType, Names.NIL_VALUE));
+                ASTBuilderUtil.createLiteral(pos, symTable.nilType, Names.NIL_VALUE.value));
         blockStmt.addStatement(addToFrameStmt);
     }
 
@@ -1550,7 +1555,8 @@ public class QueryDesugar extends BLangNodeVisitor {
      */
     private BLangUnionTypeNode getFrameErrorNilTypeNode() {
         BType frameType = getFrameTypeSymbol().type;
-        BUnionType unionType = BUnionType.create(null, frameType, symTable.errorType, symTable.nilType);
+        BUnionType unionType =
+                BUnionType.create(symTable.typeEnv(), null, frameType, symTable.errorType, symTable.nilType);
         BLangUnionTypeNode unionTypeNode = (BLangUnionTypeNode) TreeBuilder.createUnionTypeNode();
         unionTypeNode.setBType(unionType);
         unionTypeNode.memberTypeNodes.add(getFrameTypeNode());
@@ -1561,7 +1567,7 @@ public class QueryDesugar extends BLangNodeVisitor {
     }
 
     private BLangUnionTypeNode getBooleanErrorTypeNode() {
-        BUnionType unionType = BUnionType.create(null, symTable.errorType, symTable.booleanType);
+        BUnionType unionType = BUnionType.create(symTable.typeEnv(), null, symTable.errorType, symTable.booleanType);
         BLangUnionTypeNode unionTypeNode = (BLangUnionTypeNode) TreeBuilder.createUnionTypeNode();
         unionTypeNode.setBType(unionType);
         unionTypeNode.memberTypeNodes.add(getErrorTypeNode());
@@ -1571,7 +1577,7 @@ public class QueryDesugar extends BLangNodeVisitor {
     }
 
     private BLangUnionTypeNode getIntErrorTypeNode() {
-        BUnionType unionType = BUnionType.create(null, symTable.errorType, symTable.intType);
+        BUnionType unionType = BUnionType.create(symTable.typeEnv(), null, symTable.errorType, symTable.intType);
         BLangUnionTypeNode unionTypeNode = (BLangUnionTypeNode) TreeBuilder.createUnionTypeNode();
         unionTypeNode.setBType(unionType);
         unionTypeNode.memberTypeNodes.add(getErrorTypeNode());
@@ -1586,7 +1592,7 @@ public class QueryDesugar extends BLangNodeVisitor {
      * @return a any & error type node.
      */
     private BLangUnionTypeNode getAnyAndErrorTypeNode() {
-        BUnionType unionType = BUnionType.create(null, symTable.anyType, symTable.errorType);
+        BUnionType unionType = BUnionType.create(symTable.typeEnv(), null, symTable.anyType, symTable.errorType);
         BLangUnionTypeNode unionTypeNode = (BLangUnionTypeNode) TreeBuilder.createUnionTypeNode();
         unionTypeNode.memberTypeNodes.add(getAnyTypeNode());
         unionTypeNode.memberTypeNodes.add(getErrorTypeNode());
@@ -1739,7 +1745,7 @@ public class QueryDesugar extends BLangNodeVisitor {
         if (isNilReturnInvocationInCollectClause(invocation)) {
             Location pos = invocation.pos;
             BLangSimpleVarRef restArg = (BLangSimpleVarRef) invocation.argExprs.get(0);
-            BType invocationType = BUnionType.create(null, invocation.getBType(), symTable.nilType);
+            BType invocationType = BUnionType.create(symTable.typeEnv(), null, invocation.getBType(), symTable.nilType);
             BLangSimpleVariable tempResultVar = ASTBuilderUtil.createVariable(pos, "$invocationResult$",
                     invocationType, null, new BVarSymbol(0, Names.fromString("$invocationResult$"),
                             this.env.scope.owner.pkgID, invocationType, this.env.scope.owner, pos, VIRTUAL));
@@ -1813,7 +1819,7 @@ public class QueryDesugar extends BLangNodeVisitor {
             BType elementType = ((BSequenceType) symbol.type).elementType;
             List<BTupleMember> tupleMembers = new ArrayList<>(1);
             tupleMembers.add(new BTupleMember(elementType, Symbols.createVarSymbolForTupleMember(elementType)));
-            symbol.type = new BTupleType(null, tupleMembers, elementType, 0);
+            symbol.type = new BTupleType(symTable.typeEnv(), null, tupleMembers, elementType, 0);
         }
         return symbol.type;
     }

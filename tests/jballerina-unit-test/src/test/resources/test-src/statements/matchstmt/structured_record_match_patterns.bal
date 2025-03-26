@@ -14,14 +14,14 @@
 // specific language governing permissions and limitations
 // under the License.
 
-type Foo record {
+type FooSRMP record {
     string s;
     int i;
     float f;
 };
 
 function testStructuredMatchPatternsBasic1() returns string {
-    Foo foo = {s: "S", i: 23, f: 5.6};
+    FooSRMP foo = {s: "S", i: 23, f: 5.6};
 
     match foo {
         var {s, i: integer, f} => {
@@ -32,14 +32,14 @@ function testStructuredMatchPatternsBasic1() returns string {
     return "Default";
 }
 
-type Bar record {
+type BarSRMP record {
     byte b;
-    Foo f;
+    FooSRMP f;
 };
 
 function testStructuredMatchPatternsBasic2() returns string {
-    Foo foo = {s: "S", i: 23, f: 5.6};
-    Bar bar = {b: 12, f: foo};
+    FooSRMP foo = {s: "S", i: 23, f: 5.6};
+    BarSRMP bar = {b: 12, f: foo};
 
     match bar {
         var {b: byteValue, f: {s, i, f}} => {
@@ -52,8 +52,8 @@ function testStructuredMatchPatternsBasic2() returns string {
 }
 
 function testStructuredMatchPatternsBasic3() returns string {
-    Foo foo = {s: "S", i: 23, f: 5.6};
-    Bar bar = {b: 12, f: foo};
+    FooSRMP foo = {s: "S", i: 23, f: 5.6};
+    BarSRMP bar = {b: 12, f: foo};
 
     match bar {
         var {b, f} => {
@@ -65,8 +65,8 @@ function testStructuredMatchPatternsBasic3() returns string {
 }
 
 function testStructuredMatchPatternsBasic4() returns string {
-    Foo foo = {s: "S", i: 23, f: 5.6};
-    Bar bar = {b: 12, f: foo};
+    FooSRMP foo = {s: "S", i: 23, f: 5.6};
+    BarSRMP bar = {b: 12, f: foo};
 
     match bar {
         var {a} => {
@@ -105,17 +105,17 @@ function testStructuredMatchPatternsBasics5() returns string[] {
     ClosedFoo3 foo3 = {var1: "Hello", var2: 150, var3: true};
     ClosedFoo4 foo4 = {var1: "Hello"};
 
-    ClosedFoo1 | ClosedFoo2 | ClosedFoo3 | ClosedFoo4 a1 = foo1;
-    ClosedFoo1 | ClosedFoo2 | ClosedFoo3 | ClosedFoo4 a2 = foo2;
-    ClosedFoo1 | ClosedFoo2 | ClosedFoo3 | ClosedFoo4 a3 = foo3;
-    ClosedFoo1 | ClosedFoo2 | ClosedFoo3 | ClosedFoo4 a4 = foo4;
+    ClosedFoo1|ClosedFoo2|ClosedFoo3|ClosedFoo4 a1 = foo1;
+    ClosedFoo1|ClosedFoo2|ClosedFoo3|ClosedFoo4 a2 = foo2;
+    ClosedFoo1|ClosedFoo2|ClosedFoo3|ClosedFoo4 a3 = foo3;
+    ClosedFoo1|ClosedFoo2|ClosedFoo3|ClosedFoo4 a4 = foo4;
 
     string[] result = [basicMatch(a1), basicMatch(a2), basicMatch(a3), basicMatch(a4)];
 
     return result;
 }
 
-function basicMatch(ClosedFoo1 | ClosedFoo2 | ClosedFoo3 | ClosedFoo4 a) returns string {
+function basicMatch(ClosedFoo1|ClosedFoo2|ClosedFoo3|ClosedFoo4 a) returns string {
     match a {
         var {var1, var2, var3} => {
             return "Matched with three vars : " + var1.toString() + ", " +
@@ -146,16 +146,16 @@ function testStructuredMatchPatternComplex1() returns string[] {
     ClosedBar1 bar1 = {var1: "Ballerina", var2: 500};
     ClosedBar2 bar2 = {var1: "Language", var2: bar1};
 
-    ClosedBar1 | ClosedBar2 | string a1 = bar1;
-    ClosedBar1 | ClosedBar2 | string a2 = bar2;
-    ClosedBar1 | ClosedBar2 | string a3 = "bar2";
+    ClosedBar1|ClosedBar2|string a1 = bar1;
+    ClosedBar1|ClosedBar2|string a2 = bar2;
+    ClosedBar1|ClosedBar2|string a3 = "bar2";
 
     string[] result = [complexMatch(a1), complexMatch(a2), complexMatch(a3)];
 
     return result;
 }
 
-function complexMatch(ClosedBar1 | ClosedBar2 | string a) returns string {
+function complexMatch(ClosedBar1|ClosedBar2|string a) returns string {
     match a {
         var {var1, var2: {var1: v1, var2}} => {
             return "Matched with three vars : " + var1.toString() + ", " + v1.toString() +
@@ -172,16 +172,22 @@ function complexMatch(ClosedBar1 | ClosedBar2 | string a) returns string {
 
 function testRuntimeCheck() returns string[] {
     [int, boolean] tuple = [50, true];
-    Foo foo1 = {s: "S", i: 23, f: 5.6, "t": tuple};
-    Foo foo2 = {s: "S", i: 23, f: 5.6};
-    Foo foo3 = {s: "S", i: 23, f: 5.6, "t": 12};
+    FooSRMP foo1 = {s: "S", i: 23, f: 5.6, "t": tuple};
+    FooSRMP foo2 = {s: "S", i: 23, f: 5.6};
+    FooSRMP foo3 = {s: "S", i: 23, f: 5.6, "t": 12};
 
-    string[] values = [matchRuntimeCheck(foo1), matchRuntimeCheck(foo2), matchRuntimeCheck(foo3),
-    matchRuntimeCheckWithAny(foo1), matchRuntimeCheckWithAny(foo2), matchRuntimeCheckWithAny(foo3)];
+    string[] values = [
+        matchRuntimeCheck(foo1),
+        matchRuntimeCheck(foo2),
+        matchRuntimeCheck(foo3),
+        matchRuntimeCheckWithAny(foo1),
+        matchRuntimeCheckWithAny(foo2),
+        matchRuntimeCheckWithAny(foo3)
+    ];
     return values;
 }
 
-function matchRuntimeCheck(Foo foo) returns string {
+function matchRuntimeCheck(FooSRMP foo) returns string {
     match foo {
         var {s, i, f, t: [i2, b]} => {
             return "Matched with five vars : " + s.toString() + ", " + i.toString() +

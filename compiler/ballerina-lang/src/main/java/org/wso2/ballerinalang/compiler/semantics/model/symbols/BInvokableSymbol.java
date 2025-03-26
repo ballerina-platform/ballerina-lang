@@ -20,6 +20,7 @@ package org.wso2.ballerinalang.compiler.semantics.model.symbols;
 import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.model.elements.PackageID;
+import org.ballerinalang.model.symbols.AnnotationAttachmentSymbol;
 import org.ballerinalang.model.symbols.InvokableSymbol;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.symbols.SymbolOrigin;
@@ -46,7 +47,9 @@ public class BInvokableSymbol extends BVarSymbol implements InvokableSymbol {
 
     // This field is only applicable for functions at the moment.
     public BVarSymbol receiverSymbol;
+
     public boolean bodyExist;
+    protected List<BAnnotationAttachmentSymbol> annotationAttachmentsOnExternal;
 
     // Only applicable for workers within fork statements.
     public String enclForkName;
@@ -108,5 +111,13 @@ public class BInvokableSymbol extends BVarSymbol implements InvokableSymbol {
 
     public void setAnnotationAttachments(List<BAnnotationAttachmentSymbol> annotationAttachments) {
         this.annotationAttachments = annotationAttachments;
+    }
+
+    public void setAnnotationAttachmentsOnExternal(List<BAnnotationAttachmentSymbol> annotationAttachments) {
+        this.annotationAttachmentsOnExternal = annotationAttachments;
+    }
+
+    public List<? extends AnnotationAttachmentSymbol> getAnnotationAttachmentsOnExternal() {
+        return this.annotationAttachmentsOnExternal;
     }
 }

@@ -193,7 +193,7 @@ public class BasicTupleTest {
 
     @Test(description = "Test negative scenarios of assigning tuple literals")
     public void testNegativeTupleLiteralAssignments() {
-        Assert.assertEquals(resultNegative.getErrorCount(), 55);
+        Assert.assertEquals(resultNegative.getErrorCount(), 54);
         int i = 0;
         BAssertUtil.validateError(
                 resultNegative, i++,
@@ -310,21 +310,19 @@ public class BasicTupleTest {
         int i = 36;
         BAssertUtil.validateError(resultNegative, i++, "incompatible types: expected 'json', " +
                 "found '[string,int,xml...]'", 199, 21);
-        BAssertUtil.validateError(resultNegative, i++, "incompatible types: '[string,(int|xml),string...]' " +
-                "cannot be cast to 'json[]'", 202, 16);
         BAssertUtil.validateError(resultNegative, i, "incompatible types: expected 'json', " +
                 "found '[string,(int|xml),string...]'", 203, 16);
     }
 
     @Test(description = "Test ambiguous tuple assignment to unions of tuple types")
     public void testAmbiguousTupleTupeNegative() {
-        int i = 39;
+        int i = 38;
         BAssertUtil.validateError(resultNegative, i, "ambiguous type '([1,\"hello\"]|[1])'", 208, 10);
     }
 
     @Test(description = "Test the tuple argument when the variable is already declared")
     public void testTupleParamWithExistingArg() {
-        int i = 40;
+        int i = 39;
         BAssertUtil.validateError(resultNegative, i++, "redeclared symbol 'i'", 215, 34);
         BAssertUtil.validateError(resultNegative, i++, "redeclared symbol 'i'", 222, 41);
         BAssertUtil.validateError(resultNegative, i++, "operator '+' not defined for 'int' and 'string'", 230, 21);
@@ -338,7 +336,7 @@ public class BasicTupleTest {
 
     @Test(description = "Test the tuple annotations")
     public void testTupleAnnotations1() {
-        int i = 44;
+        int i = 43;
         BAssertUtil.validateError(resultNegative, i++,
                 "annotation 'ballerina/lang.annotations:0.0.0:typeParam' is not allowed on field",
                 239, 7);

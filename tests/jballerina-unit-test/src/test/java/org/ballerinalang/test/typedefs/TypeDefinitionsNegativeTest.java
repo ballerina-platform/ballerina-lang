@@ -74,6 +74,12 @@ public class TypeDefinitionsNegativeTest {
                 "'function () returns (int)', found 'function () returns (MyTuple)'", 37, 33);
         BAssertUtil.validateError(compileResult, index++, "incompatible types: expected 'Foo', found 'string'", 43, 13);
 
+        BAssertUtil.validateError(compileResult, index++, "unknown type 'I'", 48, 19);
+        BAssertUtil.validateError(compileResult, index++, "unknown type 'I'", 52, 35);
+        BAssertUtil.validateError(compileResult, index++, "unknown type 'J'", 54, 17);
+        BAssertUtil.validateError(compileResult, index++, "unknown type 'J'", 56, 22);
+        BAssertUtil.validateError(compileResult, index++, "unknown type 'J'", 58, 23);
+
         Assert.assertEquals(compileResult.getErrorCount(), index);
     }
 }

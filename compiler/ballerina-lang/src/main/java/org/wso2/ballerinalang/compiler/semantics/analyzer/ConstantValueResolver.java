@@ -63,6 +63,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNumericLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangStringTemplateLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangUnaryExpr;
 import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
@@ -296,6 +297,15 @@ public class ConstantValueResolver extends BLangNodeVisitor {
         BLangConstantValue lhs = constructBLangConstantValue(binaryExpr.lhsExpr);
         BLangConstantValue rhs = constructBLangConstantValue(binaryExpr.rhsExpr);
         this.result = calculateConstValue(lhs, rhs, binaryExpr.opKind);
+    }
+
+    public void visit(BLangStringTemplateLiteral stringTemplateLiteral) {
+        StringBuilder resultString = new StringBuilder();
+        stringTemplateLiteral.exprs.forEach(expr -> {
+            expr.accept(this);
+            resultString.append(this.result);
+        });
+        this.result = new BLangConstantValue(resultString.toString(), symTable.stringType);
     }
 
     @Override
@@ -610,6 +620,7 @@ public class ConstantValueResolver extends BLangNodeVisitor {
             case BINARY_EXPR:
             case GROUP_EXPR:
             case UNARY_EXPR:
+            case STRING_TEMPLATE_LITERAL:
                 BLangConstantValue prevResult = this.result;
                 Location prevPos = this.currentPos;
                 this.currentPos = node.pos;
@@ -698,13 +709,11 @@ public class ConstantValueResolver extends BLangNodeVisitor {
         };
     }
 
-    private BFiniteType createFiniteType(BConstantSymbol constantSymbol, BLangExpression expr) {
+    private BFiniteType createFiniteType(BConstantSymbol constantSymbol, BLangLiteral literal) {
         BTypeSymbol finiteTypeSymbol = Symbols.createTypeSymbol(SymTag.FINITE_TYPE, constantSymbol.flags, Names.EMPTY,
                                                                 constantSymbol.pkgID, null, constantSymbol.owner,
                                                                 constantSymbol.pos, VIRTUAL);
-        BFiniteType finiteType = new BFiniteType(finiteTypeSymbol);
-        finiteType.addValue(expr);
-        return finiteType;
+        return BFiniteType.newSingletonBFiniteType(finiteTypeSymbol, SemTypeHelper.resolveSingletonType(literal));
     }
 
     private BType checkType(BLangExpression expr, BConstantSymbol constantSymbol, Object value, BType type,
@@ -845,7 +854,7 @@ public class ConstantValueResolver extends BLangNodeVisitor {
                                                                    constantSymbol.pkgID,
                                                                    null, constantSymbol.owner, pos, VIRTUAL);
         recordTypeSymbol.scope = constantSymbol.scope;
-        BRecordType recordType = new BRecordType(recordTypeSymbol);
+        BRecordType recordType = new BRecordType(symTable.typeEnv(), recordTypeSymbol);
         recordType.tsymbol.name = genName;
         recordType.sealed = true;
         recordType.restFieldType = new BNoType(TypeTags.NONE);
@@ -860,7 +869,7 @@ public class ConstantValueResolver extends BLangNodeVisitor {
         createTypeDefinition(recordType, pos, env);
         updateRecordFields(recordType, pos, env);
         recordType.tsymbol.flags |= Flags.READONLY;
-        recordType.flags |= Flags.READONLY;
+        recordType.addFlags(Flags.READONLY);
         return recordType;
     }
 
@@ -1026,8 +1035,8 @@ public class ConstantValueResolver extends BLangNodeVisitor {
                                                                Names.EMPTY, env.enclPkg.symbol.pkgID, null,
                                                                env.scope.owner, pos, VIRTUAL);
 
-        return ImmutableTypeCloner.getImmutableIntersectionType(pos, types, new BTupleType(tupleTypeSymbol, tupleTypes),
-                                                                env, symTable, anonymousModelHelper, names,
-                                                                new HashSet<>());
+        return ImmutableTypeCloner.getImmutableIntersectionType(pos, types,
+                new BTupleType(symTable.typeEnv(), tupleTypeSymbol, tupleTypes), env, symTable, anonymousModelHelper,
+                names, new HashSet<>());
     }
 }

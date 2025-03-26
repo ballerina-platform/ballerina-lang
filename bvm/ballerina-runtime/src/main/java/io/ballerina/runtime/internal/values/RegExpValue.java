@@ -17,12 +17,18 @@ package io.ballerina.runtime.internal.values;
 
 import io.ballerina.runtime.api.types.PredefinedTypes;
 import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.types.semtype.BasicTypeBitSet;
+import io.ballerina.runtime.api.types.semtype.Builder;
+import io.ballerina.runtime.api.types.semtype.Context;
+import io.ballerina.runtime.api.types.semtype.SemType;
 import io.ballerina.runtime.api.values.BLink;
 import io.ballerina.runtime.api.values.BRegexpValue;
 import io.ballerina.runtime.api.values.BTypedesc;
+import io.ballerina.runtime.internal.types.semtype.RegexUtils;
 
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 
 import static io.ballerina.runtime.internal.utils.ValueUtils.getTypedescValue;
@@ -38,12 +44,16 @@ import static io.ballerina.runtime.internal.utils.ValueUtils.getTypedescValue;
  * @since 2201.3.0
  */
 public class RegExpValue implements BRegexpValue, RefValue {
+
+    private static final BasicTypeBitSet BASIC_TYPE = Builder.getRegexType();
     private final RegExpDisjunction regExpDisjunction;
     private BTypedesc typedesc;
     private static final Type type = PredefinedTypes.TYPE_READONLY_ANYDATA;
+    private final SemType shape;
 
     public RegExpValue(RegExpDisjunction regExpDisjunction) {
         this.regExpDisjunction = regExpDisjunction;
+        this.shape = RegexUtils.regexShape(regExpDisjunction.stringValue(null));
     }
 
     @Override
@@ -74,11 +84,6 @@ public class RegExpValue implements BRegexpValue, RefValue {
     @Override
     public int hashCode() {
         return Objects.hash(this.regExpDisjunction);
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        return this == obj;
     }
 
     @Override
@@ -122,5 +127,25 @@ public class RegExpValue implements BRegexpValue, RefValue {
             return false;
         }
         return this.stringValue(null).equals(rhsRegExpValue.stringValue(null));
+    }
+
+    @Override
+    public SemType widenedType(Context cx) {
+        return Builder.getRegexType();
+    }
+
+    @Override
+    public Optional<SemType> shapeOf() {
+        return Optional.of(this.shape);
+    }
+
+    @Override
+    public Optional<SemType> inherentTypeOf(Context cx) {
+        return shapeOf();
+    }
+
+    @Override
+    public BasicTypeBitSet getBasicType() {
+        return BASIC_TYPE;
     }
 }

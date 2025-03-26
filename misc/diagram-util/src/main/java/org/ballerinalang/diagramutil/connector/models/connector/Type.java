@@ -95,6 +95,10 @@ public class Type {
     public String documentation;
     @Expose
     public boolean isRestType;
+    @Expose
+    public String value;
+    @Expose
+    public boolean selected = false;
 
     public Type() {
     }

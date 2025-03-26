@@ -24,8 +24,15 @@ import io.ballerina.runtime.api.types.PredefinedTypes;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.TypeTags;
 import io.ballerina.runtime.api.types.TypedescType;
+import io.ballerina.runtime.api.types.semtype.BasicTypeBitSet;
+import io.ballerina.runtime.api.types.semtype.Builder;
+import io.ballerina.runtime.api.types.semtype.Context;
+import io.ballerina.runtime.api.types.semtype.SemType;
+import io.ballerina.runtime.internal.types.semtype.TypedescUtils;
 import io.ballerina.runtime.internal.values.TypedescValue;
 import io.ballerina.runtime.internal.values.TypedescValueImpl;
+
+import java.util.Set;
 
 /**
  * {@code BTypedescType} represents a type of a type in the Ballerina type system.
@@ -33,15 +40,23 @@ import io.ballerina.runtime.internal.values.TypedescValueImpl;
  * @since 0.995.0
  */
 public class BTypedescType extends BType implements TypedescType {
-    private Type constraint;
+
+    private static final BasicTypeBitSet BASIC_TYPE = Builder.getTypeDescType();
+    private static final SimpleTypeCheckFlyweightStore FLYWEIGHT_CACHE = new SimpleTypeCheckFlyweightStore();
+
+    private final Type constraint;
 
     public BTypedescType(String typeName, Module pkg) {
-        super(typeName, pkg, Object.class);
+        super(typeName, pkg, Object.class, true);
+        constraint = null;
     }
 
     public BTypedescType(Type constraint) {
-        super(TypeConstants.TYPEDESC_TNAME, null, TypedescValue.class);
+        super(TypeConstants.TYPEDESC_TNAME, null, TypedescValue.class, false);
         this.constraint = constraint;
+        var flyweight = FLYWEIGHT_CACHE.get(constraint);
+        this.typeCheckCache = flyweight.typeCheckCache();
+        this.typeId = flyweight.typeId();
     }
 
     @Override
@@ -81,7 +96,28 @@ public class BTypedescType extends BType implements TypedescType {
     }
 
     @Override
+    public BasicTypeBitSet getBasicType() {
+        return BASIC_TYPE;
+    }
+
+    @Override
     public String toString() {
         return "typedesc" + "<" + constraint.toString() + ">";
     }
+
+    @Override
+    public SemType createSemType(Context cx) {
+        if (constraint == null) {
+            return Builder.getTypeDescType();
+        }
+        SemType constraint = tryInto(cx, getConstraint());
+        return TypedescUtils.typedescContaining(cx.env, constraint);
+    }
+
+    @Override
+    protected boolean isDependentlyTypedInner(Set<MayBeDependentType> visited) {
+        return constraint instanceof MayBeDependentType constraintType &&
+                constraintType.isDependentlyTyped(visited);
+    }
+
 }

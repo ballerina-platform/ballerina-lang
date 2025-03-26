@@ -42,3 +42,17 @@ type Foo boolean|null;
 function testNullFiniteType() {
     Foo _ = "null"; // error
 }
+
+class H {};
+
+H res = check new I();
+
+int[] a = [1, 2, 3, 4, 5];
+
+int[] b = from var i in a select <I> i;
+
+float result = <J>1 + 2.0;
+
+int result2 = true? <J>1 : 2;
+
+var result3 = <H> new J();

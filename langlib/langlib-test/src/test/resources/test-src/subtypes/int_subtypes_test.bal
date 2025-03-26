@@ -104,10 +104,10 @@ function testUnsigned8Assignment() {
     test:assertValueEqual(255, f);
 }
 
-type NewInt ints:Signed32;
+type NewIntIST ints:Signed32;
 
 function testTypeAlias() {
-    NewInt value = 2147483647;
+    NewIntIST value = 2147483647;
     int a = value;
     ints:Signed32 b = value;
     test:assertValueEqual(2147483647, a);
@@ -1092,24 +1092,24 @@ function testBitwiseXor() {
     test:assertValueEqual(-1555, z);
 }
 
-type X 1|2;
-type Y -1|1|128;
-type Z -1|1|"foo";
+type XIST 1|2;
+type YIST -1|1|128;
+type ZIST -1|1|"foo";
 
 function testFiniteTypeAsIntSubType() {
-    X a = 1;
+    XIST a = 1;
     int:Signed32 b = a;
     test:assertValueEqual(1, b);
     test:assertValueEqual(true, a is int:Signed32);
 
-    X[] c = [1, 1, 2];
+    XIST[] c = [1, 1, 2];
     int:Signed8[] d = c;
     test:assertValueEqual(true, c is byte[]);
     test:assertValueEqual(true, c is int:Signed32[]);
     test:assertValueEqual(true, c is int:Unsigned32[]);
     test:assertValueEqual(true, <any> d is int:Unsigned32[]);
 
-    Y[] e = [1, 1, -1];
+    YIST[] e = [1, 1, -1];
     int:Signed16[] f = e;
     test:assertValueEqual(false, <any> e is byte[]);
     test:assertValueEqual(true, e is int:Signed32[]);
@@ -1117,28 +1117,28 @@ function testFiniteTypeAsIntSubType() {
     test:assertValueEqual(false, <any> f is int:Unsigned32[]);
     test:assertValueEqual(false, f is int:Signed8[]);
 
-    Z g = -1;
+    ZIST g = -1;
     string|int:Signed8 h = g;
     test:assertValueEqual(true, g is int:Signed32);
     test:assertValueEqual(true, h is int:Signed32);
     test:assertValueEqual(false, g is int:Unsigned32);
     test:assertValueEqual(false, <any> h is int:Unsigned32);
 
-    Z[] i = [];
+    ZIST[] i = [];
     (float|string|int:Signed8)[] j = i;
     test:assertValueEqual(true, i is (string|int:Signed8)[]);
     test:assertValueEqual(true, i is (float|string|int:Signed8)[]);
     test:assertValueEqual(true, j is (string|int:Signed8)[]);
 }
 
-type IntType1 ints:Signed16|ints:Signed32;
-type IntType2 ints:Unsigned16|ints:Unsigned32;
-type IntType3 byte|ints:Signed8;
-type IntFiniteType1 -1|-2|-3;
+type IntType1IST ints:Signed16|ints:Signed32;
+type IntType2IST ints:Unsigned16|ints:Unsigned32;
+type IntType3IST byte|ints:Signed8;
+type IntFiniteType1IST -1|-2|-3;
 
 public function testLanglibFunctionsForUnionIntSubtypes() {
-    IntType1 intVal1 = -4;
-    IntFiniteType1 intVal2 = -1;
+    IntType1IST intVal1 = -4;
+    IntFiniteType1IST intVal2 = -1;
     ints:Signed16|ints:Signed32 intVal3 = -4;
 
     test:assertValueEqual(4, ints:abs(intVal1));
@@ -1149,7 +1149,7 @@ public function testLanglibFunctionsForUnionIntSubtypes() {
     test:assertValueEqual(1, intVal2.abs());
     test:assertValueEqual(4, intVal3.abs());
 
-    IntType2 intVal4 = 2;
+    IntType2IST intVal4 = 2;
     ints:Unsigned16|ints:Unsigned32 intVal5 = 3;
 
     test:assertValueEqual("2", ints:toHexString(intVal4));
@@ -1158,7 +1158,7 @@ public function testLanglibFunctionsForUnionIntSubtypes() {
     test:assertValueEqual("2", intVal4.toHexString());
     test:assertValueEqual("3", intVal5.toHexString());
 
-    IntType3 intVal6 = 23;
+    IntType3IST intVal6 = 23;
     byte|ints:Signed8 intVal7 = 23;
 
     test:assertValueEqual("17", intVal6.toHexString());
@@ -1168,21 +1168,21 @@ public function testLanglibFunctionsForUnionIntSubtypes() {
     test:assertValueEqual("17", ints:toHexString(intVal7));
 }
 
-type IntUnionType1 int:Signed8|int:Unsigned32;
-type IntUnionType2 int:Signed16|int:Unsigned32;
-type IntUnionType3 int:Signed8|int:Unsigned16;
-type IntUnionType4 int:Signed8|int:Unsigned8;
-type IntUnionType5 int:Signed16|int:Unsigned16;
-type IntUnionType6 int:Signed32|int:Unsigned32;
+type IntUnionType1IST int:Signed8|int:Unsigned32;
+type IntUnionType2IST int:Signed16|int:Unsigned32;
+type IntUnionType3IST int:Signed8|int:Unsigned16;
+type IntUnionType4IST int:Signed8|int:Unsigned8;
+type IntUnionType5IST int:Signed16|int:Unsigned16;
+type IntUnionType6IST int:Signed32|int:Unsigned32;
 
 function testAssignmentToIntUnsignedAndSignedUnion() {
     int:Signed8|int:Unsigned32 a1 = 235262;
     int:Signed8 x1 = -127;
     int:Signed8|int:Unsigned32 a2 = x1;
     int:Signed8|int:Unsigned32 a3 = -127;
-    IntUnionType1 a4 = 235262;
-    IntUnionType1 a5 = x1;
-    IntUnionType1 a6 = -127;
+    IntUnionType1IST a4 = 235262;
+    IntUnionType1IST a5 = x1;
+    IntUnionType1IST a6 = -127;
     int:Unsigned32|int:Signed8 a7 = 235262;
     int:Unsigned32|int:Signed8 a8 = -127;
     test:assertValueEqual(235262, a1);
@@ -1198,9 +1198,9 @@ function testAssignmentToIntUnsignedAndSignedUnion() {
     int:Signed16 x2 = -32768;
     int:Signed16|int:Unsigned32 a10 = x2;
     int:Signed16|int:Unsigned32 a11 = -32768;
-    IntUnionType2 a12 = 4294967;
-    IntUnionType2 a13 = x2;
-    IntUnionType2 a14 = -32768;
+    IntUnionType2IST a12 = 4294967;
+    IntUnionType2IST a13 = x2;
+    IntUnionType2IST a14 = -32768;
     int:Unsigned32|int:Signed16 a15 = 4294967;
     int:Unsigned32|int:Signed16 a16 = -32768;
     test:assertValueEqual(4294967, a9);
@@ -1216,9 +1216,9 @@ function testAssignmentToIntUnsignedAndSignedUnion() {
     int:Signed8 x3 = -127;
     int:Signed8|int:Unsigned16 a18 = x3;
     int:Signed8|int:Unsigned16 a19 = -127;
-    IntUnionType3 a20 = 65500;
-    IntUnionType3 a21 = x3;
-    IntUnionType3 a22 = -127;
+    IntUnionType3IST a20 = 65500;
+    IntUnionType3IST a21 = x3;
+    IntUnionType3IST a22 = -127;
     int:Unsigned16|int:Signed8 a23 = 65500;
     int:Unsigned16|int:Signed8 a24 = -127;
     test:assertValueEqual(65500, a17);
@@ -1234,9 +1234,9 @@ function testAssignmentToIntUnsignedAndSignedUnion() {
     int:Signed8 x4 = -127;
     int:Signed8|int:Unsigned8 a26 = x4;
     int:Signed8|int:Unsigned8 a27 = -127;
-    IntUnionType4 a28 = 200;
-    IntUnionType4 a29 = x4;
-    IntUnionType4 a30 = -127;
+    IntUnionType4IST a28 = 200;
+    IntUnionType4IST a29 = x4;
+    IntUnionType4IST a30 = -127;
     int:Unsigned8|int:Signed8 a31 = 200;
     int:Unsigned8|int:Signed8 a32 = -127;
     test:assertValueEqual(200, a25);
@@ -1252,9 +1252,9 @@ function testAssignmentToIntUnsignedAndSignedUnion() {
     int:Signed16 x5 = -32768;
     int:Signed16|int:Unsigned16 a34 = x5;
     int:Signed16|int:Unsigned16 a35 = -32768;
-    IntUnionType5 a36 = 65500;
-    IntUnionType5 a37 = x5;
-    IntUnionType5 a38 = -32768;
+    IntUnionType5IST a36 = 65500;
+    IntUnionType5IST a37 = x5;
+    IntUnionType5IST a38 = -32768;
     int:Unsigned16|int:Signed16 a39 = 65500;
     int:Unsigned16|int:Signed16 a40 = -32768;
     test:assertValueEqual(65500, a33);
@@ -1270,9 +1270,9 @@ function testAssignmentToIntUnsignedAndSignedUnion() {
     int:Signed32 x6 = -2147;
     int:Signed32|int:Unsigned32 a42 = x6;
     int:Signed32|int:Unsigned32 a43 = -2147;
-    IntUnionType6 a44 = 4000967000;
-    IntUnionType6 a45 = x6;
-    IntUnionType6 a46 = -2147;
+    IntUnionType6IST a44 = 4000967000;
+    IntUnionType6IST a45 = x6;
+    IntUnionType6IST a46 = -2147;
     int:Unsigned32|int:Signed32 a47 = 4000967000;
     int:Unsigned32|int:Signed32 a48 = -2147;
     test:assertValueEqual(4000967000, a41);

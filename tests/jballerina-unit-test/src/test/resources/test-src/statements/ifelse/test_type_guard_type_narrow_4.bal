@@ -18,18 +18,18 @@ function test1(2|"foo" x) {
     if x is int && x == 2 {
         2 _ = x; // OK
     } else {
-        "foo" _ = x; // Type not narrowed. issue #34965
+        "foo" _ = x; // OK
     }
 
     if x is 2 && x == 2 {
         2 _ = x; // OK
     } else {
-        "foo" _ = x; // Type not narrowed. issue #34965
+        "foo" _ = x; // OK
     }
 
     if x == 2 && x == 2 {
         2 _ = x; // OK
     } else {
-        "foo" _ = x; // Type not narrowed. issue #34965
+        "foo" _ = x; // OK
     }
 }

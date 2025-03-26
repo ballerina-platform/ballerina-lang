@@ -19,6 +19,8 @@ package io.ballerina.runtime.internal.values;
 
 import io.ballerina.runtime.api.types.PredefinedTypes;
 import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.types.semtype.BasicTypeBitSet;
+import io.ballerina.runtime.api.types.semtype.Builder;
 import io.ballerina.runtime.api.values.BLink;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BTypedesc;
@@ -41,6 +43,7 @@ import static io.ballerina.runtime.internal.utils.ValueUtils.getTypedescValue;
  */
 public final class XmlQName implements RefValue, BXmlQName {
 
+    private static final BasicTypeBitSet BASIC_TYPE = Builder.getXmlType();
     private String localName;
     private String uri;
     private String prefix;
@@ -117,6 +120,11 @@ public final class XmlQName implements RefValue, BXmlQName {
     @Override
     public Type getType() {
         return PredefinedTypes.TYPE_XML_ATTRIBUTES;
+    }
+
+    @Override
+    public BasicTypeBitSet getBasicType() {
+        return BASIC_TYPE;
     }
 
     @Override

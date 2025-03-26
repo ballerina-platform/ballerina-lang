@@ -14,6 +14,14 @@ jobs:
         with:
           distribution: 'temurin'
           java-version: '21.0.3'
+      - name: Setup GraalVM
+        uses: graalvm/setup-graalvm@v1
+        with:
+          java-version: '21.0.3'
+          distribution: 'graalvm'
+          components: 'native-image'
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          set-java-home: 'false'
       - name: Set version env variable
         run: |
           echo "VERSION=$(./gradlew properties | grep ^version: | cut -d\  -f2 | sed 's@-SNAPSHOT@@')" >> $GITHUB_ENV
@@ -28,8 +36,16 @@ jobs:
           git config user.name ${{ secrets.BALLERINA_BOT_USERNAME }}
           git config user.email ${{ secrets.BALLERINA_BOT_EMAIL }}
           git checkout -b release-${VERSION}
-          ./gradlew release -Prelease.useAutomaticVersion=true
+          ./gradlew build -x :jballerina-debugger-integration-test:test -Pversion=${VERSION}
           ./gradlew -Pversion=${VERSION} publish -x test --continue
+      - name: Create Release Tag
+        run: |
+          git config --local user.name ${{ secrets.BALLERINA_BOT_USERNAME }}
+          git config --local user.email ${{ secrets.BALLERINA_BOT_EMAIL }}
+          git tag -a v${VERSION} -m "Release v${VERSION}"
+          git push origin v${VERSION}
+        env:
+          GITHUB_TOKEN: ${{ secrets.BALLERINA_BOT_TOKEN }}
       - name: Create Github release from the release tag
         run: |
           curl --request POST 'https://api.github.com/repos/ballerina-platform/ballerina-lang/releases' \
