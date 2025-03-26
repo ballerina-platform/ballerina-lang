@@ -25,6 +25,7 @@ version = '1.0.0'
 dependencies {
     implementation project(':ballerina-lang')
     implementation project(':ballerina-tools-api')
+    implementation project(':project-api-test-artifact:string-utils-lib')
 }
 
 ext.moduleName = 'compiler.plugin.test.logger.appender.file'

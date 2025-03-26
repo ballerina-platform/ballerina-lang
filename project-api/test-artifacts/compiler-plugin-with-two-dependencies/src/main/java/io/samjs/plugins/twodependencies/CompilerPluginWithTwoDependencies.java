@@ -95,12 +95,19 @@ public class CompilerPluginWithTwoDependencies extends CompilerPlugin {
                 }
             });
 
+            // When the same class is available in both classloaders, the package-provided one should be
+            // given priority.
+            analysisContext.addCompilationAnalysisTask(compilationAnalysisContext -> {
+                StringUtils.trim("test");
+            });
+
             analysisContext.addSyntaxNodeAnalysisTask(syntaxNodeAnalysisContext ->
                 syntaxNodeAnalysisContext.reportDiagnostic(
                         DiagnosticUtils.createDiagnostic("COMP_PLUGIN_2_SYNTAX_WARNING",
                                 "Local var decl test warning message",
                                 syntaxNodeAnalysisContext.node().location(), DiagnosticSeverity.WARNING)),
                     SyntaxKind.LOCAL_VAR_DECL);
+
         }
 
         SyntaxTree getSyntaxTree(Package currentPkg) {
