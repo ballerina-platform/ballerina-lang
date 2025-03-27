@@ -5095,7 +5095,7 @@ public class BallerinaParser extends AbstractParser {
         STNode openBrace = parseOpenBrace();
 
         this.tokenReader.startMode(ParserMode.PROMPT);
-        STNode promptExpr = parseTemplateContent();
+        STNode promptExpr = parsePromptContent();
         STNode closeBrace = parseCloseBrace();
         return STNodeFactory.createNaturalExpressionNode(naturalKeyword, optionalNaturalModelNode, openBrace,
                 promptExpr, closeBrace);
@@ -5112,6 +5112,28 @@ public class BallerinaParser extends AbstractParser {
     private STNode getModelKeyword(STToken token) {
         return STNodeFactory.createToken(SyntaxKind.MODEL_KEYWORD, token.leadingMinutiae(), token.trailingMinutiae(),
                 token.diagnostics());
+    }
+
+    private STNode parsePromptContent() {
+        List<STNode> items = new ArrayList<>();
+        STToken nextToken = peek();
+        while (!isEndOfPromptContent(nextToken.kind)) {
+            STNode contentItem = parsePromptItem();
+            items.add(contentItem);
+            nextToken = peek();
+        }
+        return STNodeFactory.createNodeList(items);
+    }
+
+    private boolean isEndOfPromptContent(SyntaxKind kind) {
+        return switch (kind) {
+            case EOF_TOKEN, CLOSE_BRACE_TOKEN -> true;
+            default -> false;
+        };
+    }
+
+    private STNode parsePromptItem() {
+        return parseTemplateItem();
     }
 
     private STNode createMissingObjectConstructor(STNode annots, STNode qualifierNodeList) {
@@ -10816,7 +10838,7 @@ public class BallerinaParser extends AbstractParser {
 
     private boolean isEndOfBacktickContent(SyntaxKind kind) {
         return switch (kind) {
-            case EOF_TOKEN, BACKTICK_TOKEN, CLOSE_BRACE_TOKEN -> true;
+            case EOF_TOKEN, BACKTICK_TOKEN -> true;
             default -> false;
         };
     }

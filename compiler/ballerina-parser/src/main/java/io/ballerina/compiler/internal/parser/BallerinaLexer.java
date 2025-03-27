@@ -1402,7 +1402,7 @@ public class BallerinaLexer extends AbstractLexer {
             }
         }
 
-        return getLiteral(SyntaxKind.TEMPLATE_STRING);
+        return getLiteral(SyntaxKind.PROMPT_CONTENT);
     }
 
     /**

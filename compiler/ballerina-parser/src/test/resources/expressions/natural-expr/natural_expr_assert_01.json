@@ -178,7 +178,7 @@
                       "kind": "LIST",
                       "children": [
                         {
-                          "kind": "TEMPLATE_STRING",
+                          "kind": "PROMPT_CONTENT",
                           "value": "        this is a test prompt and also support interpolation "
                         },
                         {
@@ -202,7 +202,7 @@
                           ]
                         },
                         {
-                          "kind": "TEMPLATE_STRING",
+                          "kind": "PROMPT_CONTENT",
                           "value": "\n    "
                         }
                       ]
@@ -304,7 +304,7 @@
                       "kind": "LIST",
                       "children": [
                         {
-                          "kind": "TEMPLATE_STRING",
+                          "kind": "PROMPT_CONTENT",
                           "value": "        this is a test prompt\n        in multiple lines\n        close braces can be escaped like this \\} if u want it inside a prompt\n        when using backslashes, you need to escape them like this \\\\. You can write any code inside the prompt\n              function getStringValue(int val) returns string {\n              \\}\n    "
                         }
                       ]

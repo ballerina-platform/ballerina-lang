@@ -30,7 +30,7 @@ import java.util.Collections;
  *
  * @since 2201.13.0
  */
-public class STNaturalExpressionNode extends STNode {
+public class STNaturalExpressionNode extends STExpressionNode {
     public final STNode naturalKeyword;
     public final STNode naturalModel;
     public final STNode openBraceToken;
