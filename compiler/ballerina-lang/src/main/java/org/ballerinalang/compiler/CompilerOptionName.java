@@ -58,7 +58,6 @@ public enum CompilerOptionName {
 
     LOCK_ENABLED("lockEnabled"),
 
-    @Deprecated
     EXPERIMENTAL("experimental"),
 
     LIST_CONFLICTED_CLASSES("listConflictedClasses"),

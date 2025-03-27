@@ -587,7 +587,6 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     INVALID_TYPE_FOR_RECEIVE("BCE3840", "invalid.type.for.receive"),
     INVALID_TYPE_FOR_SEND("BCE3841", "invalid.type.for.send"),
     RECEIVE_ACTION_NOT_SUPPORTED_WITH_VAR("BCE3842", "receive.action.not.supported.with.var.type"),
-    @Deprecated
     INVALID_USE_OF_EXPERIMENTAL_FEATURE("BCE3843", "invalid.use.of.experimental.feature"),
     MULTIPLE_RECEIVE_COMPATIBLE_TYPE_NOT_FOUND("BCE3844", "multiple.receive.compatible.type.not.found"),
     DUPLICATE_KEY_IN_MULTIPLE_RECEIVE("BCE3845", "duplicate.key.in.multiple.receive"),
