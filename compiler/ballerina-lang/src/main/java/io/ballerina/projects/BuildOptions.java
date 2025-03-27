@@ -94,7 +94,7 @@ public class BuildOptions {
      */
     @Deprecated(forRemoval = true)
     public boolean experimental() {
-        return false;
+        return this.compilationOptions.experimental();
     }
 
     public boolean observabilityIncluded() {
@@ -202,6 +202,7 @@ public class BuildOptions {
 
         CompilationOptions compilationOptions = this.compilationOptions.acceptTheirs(theirOptions.compilationOptions());
         buildOptionsBuilder.setOffline(compilationOptions.offlineBuild);
+        buildOptionsBuilder.setExperimental(compilationOptions.experimental);
         buildOptionsBuilder.setObservabilityIncluded(compilationOptions.observabilityIncluded);
         buildOptionsBuilder.setDumpBir(compilationOptions.dumpBir);
         buildOptionsBuilder.setDumpBirFile(compilationOptions.dumpBirFile);
@@ -346,6 +347,7 @@ public class BuildOptions {
          */
         @Deprecated(forRemoval = true)
         public BuildOptionsBuilder setExperimental(Boolean value) {
+            compilationOptionsBuilder.setExperimental(value);
             return this;
         }
 
