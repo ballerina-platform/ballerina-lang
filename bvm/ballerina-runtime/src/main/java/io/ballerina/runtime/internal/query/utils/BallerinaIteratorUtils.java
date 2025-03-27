@@ -53,12 +53,12 @@ public class BallerinaIteratorUtils {
                     BIterator<?> iterator = table.getIterator();
                     return createJavaTableIterator(iterator);
                 }
-                case BCollection bCollection -> {
-                    BIterator<?> iterator = bCollection.getIterator();
-                    return createJavaIterator(iterator);
-                }
                 case BString bString -> {
                     BIterator<?> iterator = bString.getIterator();
+                    return createJavaStringIterator(iterator);
+                }
+                case BCollection bCollection -> {
+                    BIterator<?> iterator = bCollection.getIterator();
                     return createJavaIterator(iterator);
                 }
                 case BStream bStream -> {
@@ -121,6 +121,29 @@ public class BallerinaIteratorUtils {
             public T next() {
                 BArray keyValueTuple = (BArray) iterator.next();
                 return (T) keyValueTuple.get(1);
+            }
+        };
+    }
+
+    /**
+     * Creates a Java `Iterator` from a Ballerina `BIterator` for string.
+     *
+     * @param ballerinaIterator The Ballerina iterator.
+     * @param <T>               The type of elements.
+     * @return A Java `Iterator<T>`.
+     */
+    private static <T> Iterator<T> createJavaStringIterator(BIterator<?> ballerinaIterator) throws ErrorValue {
+        BIterator<String> charIterator = (BIterator<String>) ballerinaIterator;
+        return new Iterator<>() {
+            @Override
+            public boolean hasNext() {
+                return charIterator.hasNext();
+            }
+
+            @Override
+            @SuppressWarnings("unchecked")
+            public T next() {
+                return (T) StringUtils.fromString(charIterator.next());
             }
         };
     }
