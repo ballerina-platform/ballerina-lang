@@ -335,13 +335,7 @@ public class BuildOptions {
             return this;
         }
 
-        /**
-         * Set experimental compilation option.
-         *
-         * @return Build options builder
-         * @deprecated Since language no longer supports experimental features
-         */
-        @Deprecated(forRemoval = true)
+        @Deprecated
         public BuildOptionsBuilder setExperimental(Boolean value) {
             compilationOptionsBuilder.setExperimental(value);
             return this;
@@ -418,11 +412,11 @@ public class BuildOptions {
             showDependencyDiagnostics = value;
             return this;
         }
-        
+
         /**
          * (Experimental) option to specify that the memory usage must be optimized.
-         * 
-         * @param value true or false (default)  
+         *
+         * @param value true or false (default)
          * @return BuildOptionsBuilder instance
          */
         public BuildOptionsBuilder setOptimizeDependencyCompilation(Boolean value) {
