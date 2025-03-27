@@ -22,7 +22,6 @@ import static io.ballerina.runtime.internal.query.utils.QueryConstants.VALUE_FIE
 
 public class GroupByClause implements PipelineStage {
 
-
     private final BArray groupingKeys;
     private final BArray nonGroupingKeys;
     private final Environment env;
@@ -91,9 +90,12 @@ public class GroupByClause implements PipelineStage {
 
         @Override
         public boolean equals(Object o) {
-            if (this == o) return true;
-            if (!(o instanceof GroupKey)) return false;
-            GroupKey other = (GroupKey) o;
+            if (this == o) {
+                return true;
+            }
+            if (!(o instanceof GroupKey other)) {
+                return false;
+            }
             return TypeChecker.isEqual(this.keyMap, other.keyMap);
         }
 
