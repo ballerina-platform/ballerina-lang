@@ -24,7 +24,6 @@ package io.ballerina.projects;
  */
 public class CompilationOptions {
     Boolean offlineBuild;
-    @Deprecated
     Boolean experimental;
     Boolean observabilityIncluded;
     Boolean dumpBir;
@@ -82,7 +81,6 @@ public class CompilationOptions {
         return toBooleanTrueIfNull(this.sticky);
     }
 
-    @Deprecated
     boolean experimental() {
         return toBooleanDefaultIfNull(this.experimental);
     }
@@ -324,7 +322,6 @@ public class CompilationOptions {
             return this;
         }
 
-        @Deprecated
         CompilationOptionsBuilder setExperimental(Boolean value) {
             experimental = value;
             return this;
