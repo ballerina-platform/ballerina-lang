@@ -90,7 +90,7 @@ public class BuildOptions {
      * Checks whether experimental compilation option is set.
      *
      * @return Is experimental compilation option is set
-     * @deprecated Since language no longer supports experimental features
+     * @deprecated Since language no longer has experimental features
      */
     @Deprecated(forRemoval = true)
     public boolean experimental() {
@@ -339,7 +339,13 @@ public class BuildOptions {
             return this;
         }
 
-        @Deprecated
+        /**
+         * Set experimental compilation option.
+         *
+         * @return Build options builder
+         * @deprecated Since language no longer has experimental features
+         */
+        @Deprecated(forRemoval = true)
         public BuildOptionsBuilder setExperimental(Boolean value) {
             compilationOptionsBuilder.setExperimental(value);
             return this;

@@ -31,7 +31,7 @@ import java.util.Arrays;
  */
 public class ExperimentalFeaturesTest {
 
-    //TODO Transaction
+    //TODO Add natural expression test for this
     @Test (enabled = false)
     public void testExperimentalFeaturesNegative() {
         CompileResult result = BCompileUtil.compile("test-src/parser/experimental-features-negative.bal");
