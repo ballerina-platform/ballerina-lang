@@ -5022,7 +5022,7 @@
         },
         {
             "name": "NaturalExpressionNode",
-            "base": "Node",
+            "base": "ExpressionNode",
             "kind": "NATURAL_EXPRESSION",
             "attributes": [
                 {

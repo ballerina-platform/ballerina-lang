@@ -27,7 +27,7 @@ import java.util.Optional;
  *
  * @since 2201.13.0
  */
-public class NaturalExpressionNode extends NonTerminalNode {
+public class NaturalExpressionNode extends ExpressionNode {
 
     public NaturalExpressionNode(STNode internalNode, int position, NonTerminalNode parent) {
         super(internalNode, position, parent);

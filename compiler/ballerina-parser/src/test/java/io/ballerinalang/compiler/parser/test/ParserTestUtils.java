@@ -377,6 +377,7 @@ public final class ParserTestUtils {
             case DOCUMENTATION_DESCRIPTION:
             case DOCUMENTATION_STRING:
             case CODE_CONTENT:
+            case PROMPT_CONTENT:
                 return cleanupText(token.text());
             default:
                 return token.kind.toString();
