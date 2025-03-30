@@ -380,10 +380,10 @@ public class Type {
             }
             type = new PrimitiveType(typeName);
         } else if (symbol instanceof TypeDefinitionSymbol typeDefinitionSymbol) {
-            type = fromSemanticSymbol(typeDefinitionSymbol.typeDescriptor(), documentationMap, semanticModel);
             typeDefinitionSymbol.documentation().ifPresent(doc -> {
                 documentationMap.putAll(doc.parameterMap());
             });
+            type = fromSemanticSymbol(typeDefinitionSymbol.typeDescriptor(), documentationMap, semanticModel);
         }
         return type;
     }
