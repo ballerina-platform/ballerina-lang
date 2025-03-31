@@ -90,9 +90,9 @@ public class QueryInputTypeTest {
         BArray returnValues = (BArray) BRunUtil.invoke(result, "testStringQuery");
         Assert.assertNotNull(returnValues);
         Assert.assertEquals(returnValues.size(), 9);
-        Assert.assertEquals(returnValues.getString(0), "B");
-        Assert.assertEquals(returnValues.getString(1), "a");
-        Assert.assertEquals(returnValues.getString(8), "a");
+        Assert.assertEquals((returnValues.get(0).toString()), "B");
+        Assert.assertEquals(returnValues.get(1).toString(), "a");
+        Assert.assertEquals(returnValues.get(8).toString(), "a");
     }
 
     @AfterClass
