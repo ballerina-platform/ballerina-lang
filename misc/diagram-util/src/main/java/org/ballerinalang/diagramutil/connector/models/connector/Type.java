@@ -71,6 +71,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * Type model.
@@ -380,10 +381,13 @@ public class Type {
             }
             type = new PrimitiveType(typeName);
         } else if (symbol instanceof TypeDefinitionSymbol typeDefinitionSymbol) {
+            AtomicReference<String> typeDocumentation = new AtomicReference<>();
             typeDefinitionSymbol.documentation().ifPresent(doc -> {
                 documentationMap.putAll(doc.parameterMap());
+                typeDocumentation.set(doc.description().orElse(null));
             });
             type = fromSemanticSymbol(typeDefinitionSymbol.typeDescriptor(), documentationMap, semanticModel);
+            type.documentation = typeDocumentation.get();
         }
         return type;
     }
