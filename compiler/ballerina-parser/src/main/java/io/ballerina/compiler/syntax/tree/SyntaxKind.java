@@ -491,7 +491,6 @@ public enum SyntaxKind {
     COLLECT_CLAUSE(3094),
     ALTERNATE_RECEIVE(3095),
     RECEIVE_FIELD(3096),
-    NATURAL_MODEL(3097),
 
     // XML
     XML_ELEMENT(4000),

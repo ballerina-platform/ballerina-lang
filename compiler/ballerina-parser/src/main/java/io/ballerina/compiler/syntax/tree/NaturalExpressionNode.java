@@ -33,24 +33,28 @@ public class NaturalExpressionNode extends ExpressionNode {
         super(internalNode, position, parent);
     }
 
-    public Token naturalKeyword() {
-        return childInBucket(0);
+    public Optional<Token> constKeyword() {
+        return optionalChildInBucket(0);
     }
 
-    public Optional<NaturalModelNode> naturalModel() {
-        return optionalChildInBucket(1);
+    public Token naturalKeyword() {
+        return childInBucket(1);
+    }
+
+    public Optional<ParenthesizedArgList> parenthesizedArgList() {
+        return optionalChildInBucket(2);
     }
 
     public Token openBraceToken() {
-        return childInBucket(2);
+        return childInBucket(3);
     }
 
     public NodeList<Node> prompt() {
-        return new NodeList<>(childInBucket(3));
+        return new NodeList<>(childInBucket(4));
     }
 
     public Token closeBraceToken() {
-        return childInBucket(4);
+        return childInBucket(5);
     }
 
     @Override
@@ -66,22 +70,25 @@ public class NaturalExpressionNode extends ExpressionNode {
     @Override
     protected String[] childNames() {
         return new String[]{
+                "constKeyword",
                 "naturalKeyword",
-                "naturalModel",
+                "parenthesizedArgList",
                 "openBraceToken",
                 "prompt",
                 "closeBraceToken"};
     }
 
     public NaturalExpressionNode modify(
+            Token constKeyword,
             Token naturalKeyword,
-            NaturalModelNode naturalModel,
+            ParenthesizedArgList parenthesizedArgList,
             Token openBraceToken,
             NodeList<Node> prompt,
             Token closeBraceToken) {
         if (checkForReferenceEquality(
+                constKeyword,
                 naturalKeyword,
-                naturalModel,
+                parenthesizedArgList,
                 openBraceToken,
                 prompt.underlyingListNode(),
                 closeBraceToken)) {
@@ -89,8 +96,9 @@ public class NaturalExpressionNode extends ExpressionNode {
         }
 
         return NodeFactory.createNaturalExpressionNode(
+                constKeyword,
                 naturalKeyword,
-                naturalModel,
+                parenthesizedArgList,
                 openBraceToken,
                 prompt,
                 closeBraceToken);
@@ -107,19 +115,27 @@ public class NaturalExpressionNode extends ExpressionNode {
      */
     public static class NaturalExpressionNodeModifier {
         private final NaturalExpressionNode oldNode;
+        private Token constKeyword;
         private Token naturalKeyword;
-        private NaturalModelNode naturalModel;
+        private ParenthesizedArgList parenthesizedArgList;
         private Token openBraceToken;
         private NodeList<Node> prompt;
         private Token closeBraceToken;
 
         public NaturalExpressionNodeModifier(NaturalExpressionNode oldNode) {
             this.oldNode = oldNode;
+            this.constKeyword = oldNode.constKeyword().orElse(null);
             this.naturalKeyword = oldNode.naturalKeyword();
-            this.naturalModel = oldNode.naturalModel().orElse(null);
+            this.parenthesizedArgList = oldNode.parenthesizedArgList().orElse(null);
             this.openBraceToken = oldNode.openBraceToken();
             this.prompt = oldNode.prompt();
             this.closeBraceToken = oldNode.closeBraceToken();
+        }
+
+        public NaturalExpressionNodeModifier withConstKeyword(
+                Token constKeyword) {
+            this.constKeyword = constKeyword;
+            return this;
         }
 
         public NaturalExpressionNodeModifier withNaturalKeyword(
@@ -129,9 +145,9 @@ public class NaturalExpressionNode extends ExpressionNode {
             return this;
         }
 
-        public NaturalExpressionNodeModifier withNaturalModel(
-                NaturalModelNode naturalModel) {
-            this.naturalModel = naturalModel;
+        public NaturalExpressionNodeModifier withParenthesizedArgList(
+                ParenthesizedArgList parenthesizedArgList) {
+            this.parenthesizedArgList = parenthesizedArgList;
             return this;
         }
 
@@ -158,8 +174,9 @@ public class NaturalExpressionNode extends ExpressionNode {
 
         public NaturalExpressionNode apply() {
             return oldNode.modify(
+                    constKeyword,
                     naturalKeyword,
-                    naturalModel,
+                    parenthesizedArgList,
                     openBraceToken,
                     prompt,
                     closeBraceToken);

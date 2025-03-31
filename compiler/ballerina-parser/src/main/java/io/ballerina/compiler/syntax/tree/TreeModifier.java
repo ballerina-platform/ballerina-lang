@@ -3739,10 +3739,12 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
     @Override
     public NaturalExpressionNode transform(
             NaturalExpressionNode naturalExpressionNode) {
+        Token constKeyword =
+                modifyToken(naturalExpressionNode.constKeyword().orElse(null));
         Token naturalKeyword =
                 modifyToken(naturalExpressionNode.naturalKeyword());
-        NaturalModelNode naturalModel =
-                modifyNode(naturalExpressionNode.naturalModel().orElse(null));
+        ParenthesizedArgList parenthesizedArgList =
+                modifyNode(naturalExpressionNode.parenthesizedArgList().orElse(null));
         Token openBraceToken =
                 modifyToken(naturalExpressionNode.openBraceToken());
         NodeList<Node> prompt =
@@ -3750,29 +3752,12 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
         Token closeBraceToken =
                 modifyToken(naturalExpressionNode.closeBraceToken());
         return naturalExpressionNode.modify(
+                constKeyword,
                 naturalKeyword,
-                naturalModel,
+                parenthesizedArgList,
                 openBraceToken,
                 prompt,
                 closeBraceToken);
-    }
-
-    @Override
-    public NaturalModelNode transform(
-            NaturalModelNode naturalModelNode) {
-        Token modelKeyword =
-                modifyToken(naturalModelNode.modelKeyword());
-        Token openParenthesis =
-                modifyToken(naturalModelNode.openParenthesis());
-        ExpressionNode expression =
-                modifyNode(naturalModelNode.expression());
-        Token closeParenthesis =
-                modifyToken(naturalModelNode.closeParenthesis());
-        return naturalModelNode.modify(
-                modelKeyword,
-                openParenthesis,
-                expression,
-                closeParenthesis);
     }
 
     // Tokens

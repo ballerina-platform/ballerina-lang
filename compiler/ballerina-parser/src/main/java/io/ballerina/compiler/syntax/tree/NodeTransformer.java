@@ -972,10 +972,6 @@ public abstract class NodeTransformer<T> {
         return transformSyntaxNode(naturalExpressionNode);
     }
 
-    public T transform(NaturalModelNode naturalModelNode) {
-        return transformSyntaxNode(naturalModelNode);
-    }
-
     // Tokens
 
     public T transform(Token token) {

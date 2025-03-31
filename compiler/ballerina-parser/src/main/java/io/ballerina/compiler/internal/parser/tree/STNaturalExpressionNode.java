@@ -31,21 +31,24 @@ import java.util.Collections;
  * @since 2201.13.0
  */
 public class STNaturalExpressionNode extends STExpressionNode {
+    public final STNode constKeyword;
     public final STNode naturalKeyword;
-    public final STNode naturalModel;
+    public final STNode parenthesizedArgList;
     public final STNode openBraceToken;
     public final STNode prompt;
     public final STNode closeBraceToken;
 
     STNaturalExpressionNode(
+            STNode constKeyword,
             STNode naturalKeyword,
-            STNode naturalModel,
+            STNode parenthesizedArgList,
             STNode openBraceToken,
             STNode prompt,
             STNode closeBraceToken) {
         this(
+                constKeyword,
                 naturalKeyword,
-                naturalModel,
+                parenthesizedArgList,
                 openBraceToken,
                 prompt,
                 closeBraceToken,
@@ -53,22 +56,25 @@ public class STNaturalExpressionNode extends STExpressionNode {
     }
 
     STNaturalExpressionNode(
+            STNode constKeyword,
             STNode naturalKeyword,
-            STNode naturalModel,
+            STNode parenthesizedArgList,
             STNode openBraceToken,
             STNode prompt,
             STNode closeBraceToken,
             Collection<STNodeDiagnostic> diagnostics) {
         super(SyntaxKind.NATURAL_EXPRESSION, diagnostics);
+        this.constKeyword = constKeyword;
         this.naturalKeyword = naturalKeyword;
-        this.naturalModel = naturalModel;
+        this.parenthesizedArgList = parenthesizedArgList;
         this.openBraceToken = openBraceToken;
         this.prompt = prompt;
         this.closeBraceToken = closeBraceToken;
 
         addChildren(
+                constKeyword,
                 naturalKeyword,
-                naturalModel,
+                parenthesizedArgList,
                 openBraceToken,
                 prompt,
                 closeBraceToken);
@@ -77,8 +83,9 @@ public class STNaturalExpressionNode extends STExpressionNode {
     @Override
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
         return new STNaturalExpressionNode(
+                this.constKeyword,
                 this.naturalKeyword,
-                this.naturalModel,
+                this.parenthesizedArgList,
                 this.openBraceToken,
                 this.prompt,
                 this.closeBraceToken,
@@ -86,14 +93,16 @@ public class STNaturalExpressionNode extends STExpressionNode {
     }
 
     public STNaturalExpressionNode modify(
+            STNode constKeyword,
             STNode naturalKeyword,
-            STNode naturalModel,
+            STNode parenthesizedArgList,
             STNode openBraceToken,
             STNode prompt,
             STNode closeBraceToken) {
         if (checkForReferenceEquality(
+                constKeyword,
                 naturalKeyword,
-                naturalModel,
+                parenthesizedArgList,
                 openBraceToken,
                 prompt,
                 closeBraceToken)) {
@@ -101,8 +110,9 @@ public class STNaturalExpressionNode extends STExpressionNode {
         }
 
         return new STNaturalExpressionNode(
+                constKeyword,
                 naturalKeyword,
-                naturalModel,
+                parenthesizedArgList,
                 openBraceToken,
                 prompt,
                 closeBraceToken,

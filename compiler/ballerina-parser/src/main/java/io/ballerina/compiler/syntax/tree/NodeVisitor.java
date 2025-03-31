@@ -970,10 +970,6 @@ public abstract class NodeVisitor {
         visitSyntaxNode(naturalExpressionNode);
     }
 
-    public void visit(NaturalModelNode naturalModelNode) {
-        visitSyntaxNode(naturalModelNode);
-    }
-
     // Tokens
 
     public void visit(Token token) {
