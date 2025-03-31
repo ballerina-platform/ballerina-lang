@@ -106,7 +106,6 @@ public enum SyntaxKind {
     UNDERSCORE_KEYWORD(252, "_"),
     NOT_IS_KEYWORD(253, "!is"),
     NATURAL_KEYWORD(254, "natural"),
-    MODEL_KEYWORD(255, "model"),
 
     // Type keywords
     INT_KEYWORD(300, "int"),
