@@ -281,7 +281,7 @@ public class Type {
     }
 
     public static Type fromSemanticSymbol(Symbol symbol) {
-        return fromSemanticSymbol(symbol, new HashMap<>(), null);
+        return fromSemanticSymbol(symbol, null);
     }
 
     public static Type fromSemanticSymbol(Symbol symbol, SemanticModel semanticModel) {
