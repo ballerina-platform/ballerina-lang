@@ -882,7 +882,6 @@ public final class ParserTestUtils {
             case "CONFIGURABLE_KEYWORD" -> SyntaxKind.CONFIGURABLE_KEYWORD;
             case "UNDERSCORE_KEYWORD" -> SyntaxKind.UNDERSCORE_KEYWORD;
             case "NATURAL_KEYWORD" -> SyntaxKind.NATURAL_KEYWORD;
-            case "MODEL_KEYWORD" -> SyntaxKind.MODEL_KEYWORD;
             default -> getXMLTemplateKind(kind);
         };
     }

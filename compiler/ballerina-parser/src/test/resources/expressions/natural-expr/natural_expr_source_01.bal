@@ -1,6 +1,6 @@
 public function main() {
-    int a = natural model(m) {
-        this is a test prompt and also support interpolation ${"hello"}
+    int a = const natural (m) {
+        this is a const prompt which evaluates at compile time with model parameters and support interpolation ${"hello"}
     };
     int a = natural {
         this is a test prompt
