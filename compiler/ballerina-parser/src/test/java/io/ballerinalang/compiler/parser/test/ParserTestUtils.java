@@ -536,6 +536,7 @@ public final class ParserTestUtils {
             case "RESOURCE_ACCESS_REST_SEGMENT" -> SyntaxKind.RESOURCE_ACCESS_REST_SEGMENT;
             case "ALTERNATE_RECEIVE" -> SyntaxKind.ALTERNATE_RECEIVE;
             case "RECEIVE_FIELD" -> SyntaxKind.RECEIVE_FIELD;
+            case "PROMPT_CONTENT" -> SyntaxKind.PROMPT_CONTENT;
 
             // Trivia
             case "EOF_TOKEN" -> SyntaxKind.EOF_TOKEN;
