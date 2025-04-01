@@ -131,6 +131,7 @@ import io.ballerina.compiler.syntax.tree.NamedArgMatchPatternNode;
 import io.ballerina.compiler.syntax.tree.NamedArgumentNode;
 import io.ballerina.compiler.syntax.tree.NamedWorkerDeclarationNode;
 import io.ballerina.compiler.syntax.tree.NamedWorkerDeclarator;
+import io.ballerina.compiler.syntax.tree.NaturalExpressionNode;
 import io.ballerina.compiler.syntax.tree.NewExpressionNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NodeFactory;
@@ -379,6 +380,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkdownReturnParam
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchGuard;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMultipleWorkerReceive;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNamedArgsExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangNaturalExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNumericLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangObjectConstructorExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangQueryAction;
@@ -3621,6 +3623,11 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
     @Override
     public BLangNode transform(XMLTextNode xmlTextNode) {
         return createExpression(xmlTextNode.content());
+    }
+
+    @Override
+    public BLangNode transform(NaturalExpressionNode naturalExpressionNode) {
+        return createNaturalExpression(naturalExpressionNode.prompt(), getPosition(naturalExpressionNode));
     }
 
     private BLangNode createXMLEmptyLiteral(Node expressionNode) {
@@ -7074,5 +7081,38 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
             extensions.add(curExpr);
         }
         return extensions;
+    }
+
+    private BLangNaturalExpression createNaturalExpression(NodeList<Node> members, Location location) {
+        BLangNaturalExpression literal = (BLangNaturalExpression) TreeBuilder.createNaturalExpressionNode();
+        literal.pos = location;
+
+        boolean prevNodeWasInterpolation = false;
+        Node firstMember = members.isEmpty() ? null : members.get(0); // will be empty for empty raw template
+
+        if (firstMember != null && firstMember.kind() == SyntaxKind.INTERPOLATION) {
+            literal.strings.add(createStringLiteral("", getPosition(firstMember)));
+        }
+
+        for (Node member : members) {
+            if (member.kind() == SyntaxKind.INTERPOLATION) {
+                literal.insertions.add((BLangExpression) member.apply(this));
+
+                if (prevNodeWasInterpolation) {
+                    literal.strings.add(createStringLiteral("", getPosition(member)));
+                }
+
+                prevNodeWasInterpolation = true;
+            } else {
+                literal.strings.add((BLangLiteral) member.apply(this));
+                prevNodeWasInterpolation = false;
+            }
+        }
+
+        if (prevNodeWasInterpolation) {
+            literal.strings.add(createStringLiteral("", getPosition(members.get(members.size() - 1))));
+        }
+
+        return literal;
     }
 }

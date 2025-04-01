@@ -89,6 +89,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMultipleWorkerReceive;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNamedArgsExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangNaturalExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNumericLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangObjectConstructorExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangQueryAction;
@@ -1272,6 +1273,13 @@ public class ConstantPropagation extends BLangNodeVisitor {
         rewrite(reFlagExpression.flagsOnOff);
         rewrite(reFlagExpression.colon);
         result = reFlagExpression;
+    }
+
+    @Override
+    public void visit(BLangNaturalExpression naturalExpression) {
+        rewrite(naturalExpression.strings);
+        rewrite(naturalExpression.insertions);
+        result = naturalExpression;
     }
 
     @SuppressWarnings("unchecked")

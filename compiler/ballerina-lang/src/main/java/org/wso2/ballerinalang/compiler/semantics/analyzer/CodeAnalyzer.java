@@ -147,6 +147,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchGuard;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMultipleWorkerReceive;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNamedArgsExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangNaturalExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNumericLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangObjectConstructorExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangQueryAction;
@@ -3556,6 +3557,12 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
     @Override
     public void visit(BLangInferredTypedescDefaultNode inferTypedescExpr, AnalyzerData data) {
         /* Ignore */
+    }
+
+    @Override
+    public void visit(BLangNaturalExpression naturalExpression, AnalyzerData data) {
+        analyzeExprs(naturalExpression.strings, data);
+        analyzeExprs(naturalExpression.insertions, data);
     }
 
     // private methods

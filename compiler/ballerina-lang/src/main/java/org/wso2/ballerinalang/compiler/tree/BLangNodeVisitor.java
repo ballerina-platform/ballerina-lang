@@ -95,6 +95,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkdownReturnParam
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchGuard;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMultipleWorkerReceive;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNamedArgsExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangNaturalExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNumericLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangObjectConstructorExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangQueryAction;
@@ -1163,6 +1164,10 @@ public abstract class BLangNodeVisitor {
     }
 
     public void visit(BLangExtendedXMLNavigationAccess extendedXMLNavigationAccess) {
+        throw new AssertionError();
+    }
+
+    public void visit(BLangNaturalExpression naturalExpression) {
         throw new AssertionError();
     }
 }

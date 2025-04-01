@@ -143,6 +143,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMultipleWorkerReceive;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNamedArgsExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangNaturalExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNumericLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangObjectConstructorExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangQueryAction;
@@ -6643,6 +6644,30 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         data.resultType = this.types.checkType(annotAccessExpr, actualType, data.expType);
     }
 
+    @Override
+    public void visit(BLangNaturalExpression naturalExpression, AnalyzerData data) {
+        BType type = data.expType;
+        SemType expTypeSemType = type.semType();
+
+        if (!types.isSubtype(symTable.errorType, expTypeSemType)) {
+            dlog.error(naturalExpression.pos, DiagnosticErrorCode.EXPECTED_TYPE_FOR_NATURAL_EXPR_MUST_CONTAIN_ERROR);
+            type = symTable.semanticError;
+        } else if (types.isSubtype(expTypeSemType, symTable.errorType.semType())) {
+            dlog.error(naturalExpression.pos,
+                    DiagnosticErrorCode.EXPECTED_TYPE_FOR_NATURAL_EXPR_MUST_CONTAIN_A_UNION_OF_NON_ERROR_AND_ERROR);
+            type = symTable.semanticError;
+        }
+
+        SemType errorLiftedType = types.getErrorLiftType(expTypeSemType);
+        if (!types.isSubtype(errorLiftedType, symTable.pureType.semType())) {
+            dlog.error(naturalExpression.pos,
+                    DiagnosticErrorCode.EXPECTED_TYPE_FOR_NATURAL_EXPR_MUST_BE_A_SUBTYPE_OF_ANYDATA_OR_ERROR);
+            type = symTable.semanticError;
+        }
+        checkNaturalExprInsertions(naturalExpression.insertions, data);
+        data.resultType = type;
+    }
+
     // Private methods
 
     private boolean isValidVariableReference(BLangExpression varRef) {
@@ -9932,6 +9957,12 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
     public void restoreGlobalState(GlobalStateSnapshot globalStateSnapshot) {
         typeResolver.setUnknownTypeRefs(globalStateSnapshot.unknownTypeRefs);
         this.dlog.setErrorCount(globalStateSnapshot.errorCount);
+    }
+
+    private void checkNaturalExprInsertions(List<BLangExpression> insertions, AnalyzerData data) {
+        for (BLangExpression expr : insertions) {
+            checkExpr(expr, symTable.anydataType, data);
+        }
     }
 
     /**

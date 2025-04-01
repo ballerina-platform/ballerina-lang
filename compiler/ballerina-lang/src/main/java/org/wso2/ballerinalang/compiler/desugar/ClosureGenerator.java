@@ -111,6 +111,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkdownParameterDo
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkdownReturnParameterDocumentation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMultipleWorkerReceive;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNamedArgsExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangNaturalExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNumericLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangObjectConstructorExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangQueryAction;
@@ -1790,6 +1791,13 @@ public class ClosureGenerator extends BLangNodeVisitor {
     @Override
     public void visit(BLangMarkdownDocumentation bLangMarkdownDocumentation) {
         /* Ignore */
+    }
+
+    @Override
+    public void visit(BLangNaturalExpression naturalExpression) {
+        rewriteExprs(naturalExpression.strings);
+        rewriteExprs(naturalExpression.insertions);
+        result = naturalExpression;
     }
 
     // Rewrite methods

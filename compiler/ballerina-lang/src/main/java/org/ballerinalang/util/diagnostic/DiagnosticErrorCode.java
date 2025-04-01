@@ -817,7 +817,13 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     EXPRESSION_OF_FUTURE_TYPE_EXPECTED("BCE4057", "future.expression.expected"),
     INSTANTIATION_ERROR("BCE4058", "instantiation.error"),
     INVALID_BINDING_PATTERN_IN_ON_FAIL("BCE4059", "invalid.binding.pattern.in.on.fail"),
-    INVALID_USAGE_OF_CHECK_IN_PARAMETER_DEFAULT("BCE4060", "invalid.usage.of.check.in.parameter.default")
+    INVALID_USAGE_OF_CHECK_IN_PARAMETER_DEFAULT("BCE4060", "invalid.usage.of.check.in.parameter.default"),
+
+    EXPECTED_TYPE_FOR_NATURAL_EXPR_MUST_CONTAIN_ERROR("BCE4070", "expected.type.for.natural.expr.must.contain.error"),
+    EXPECTED_TYPE_FOR_NATURAL_EXPR_MUST_CONTAIN_A_UNION_OF_NON_ERROR_AND_ERROR(
+            "BCE4071", "expected.type.for.natural.expr.must.contain.a.union.of.non.error.and.error"),
+    EXPECTED_TYPE_FOR_NATURAL_EXPR_MUST_BE_A_SUBTYPE_OF_ANYDATA_OR_ERROR(
+            "BCE4072", "expected.type.for.natural.expr.must.be.a.subtype.of.anydata.or.error")
     ;
 
     private final String diagnosticId;
