@@ -106,7 +106,6 @@ public enum SyntaxKind {
     UNDERSCORE_KEYWORD(252, "_"),
     NOT_IS_KEYWORD(253, "!is"),
     NATURAL_KEYWORD(254, "natural"),
-    MODEL_KEYWORD(255, "model"),
 
     // Type keywords
     INT_KEYWORD(300, "int"),
@@ -227,6 +226,7 @@ public enum SyntaxKind {
     HEX_FLOATING_POINT_LITERAL_TOKEN(1005),
     XML_TEXT_CONTENT(1006),
     TEMPLATE_STRING(1007),
+    PROMPT_CONTENT(1007),
 
     // Documentation
     DOCUMENTATION_DESCRIPTION(1100),
@@ -491,7 +491,6 @@ public enum SyntaxKind {
     COLLECT_CLAUSE(3094),
     ALTERNATE_RECEIVE(3095),
     RECEIVE_FIELD(3096),
-    NATURAL_MODEL(3097),
 
     // XML
     XML_ELEMENT(4000),

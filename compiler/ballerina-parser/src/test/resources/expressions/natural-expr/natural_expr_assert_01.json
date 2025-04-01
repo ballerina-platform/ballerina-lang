@@ -128,6 +128,15 @@
                   "kind": "NATURAL_EXPRESSION",
                   "children": [
                     {
+                      "kind": "CONST_KEYWORD",
+                      "trailingMinutiae": [
+                        {
+                          "kind": "WHITESPACE_MINUTIAE",
+                          "value": " "
+                        }
+                      ]
+                    },
+                    {
                       "kind": "NATURAL_KEYWORD",
                       "trailingMinutiae": [
                         {
@@ -137,20 +146,27 @@
                       ]
                     },
                     {
-                      "kind": "NATURAL_MODEL",
+                      "kind": "PARENTHESIZED_ARG_LIST",
                       "children": [
-                        {
-                          "kind": "MODEL_KEYWORD"
-                        },
                         {
                           "kind": "OPEN_PAREN_TOKEN"
                         },
                         {
-                          "kind": "SIMPLE_NAME_REFERENCE",
+                          "kind": "LIST",
                           "children": [
                             {
-                              "kind": "IDENTIFIER_TOKEN",
-                              "value": "m"
+                              "kind": "POSITIONAL_ARG",
+                              "children": [
+                                {
+                                  "kind": "SIMPLE_NAME_REFERENCE",
+                                  "children": [
+                                    {
+                                      "kind": "IDENTIFIER_TOKEN",
+                                      "value": "m"
+                                    }
+                                  ]
+                                }
+                              ]
                             }
                           ]
                         },
@@ -178,8 +194,8 @@
                       "kind": "LIST",
                       "children": [
                         {
-                          "kind": "TEMPLATE_STRING",
-                          "value": "        this is a test prompt and also support interpolation "
+                          "kind": "PROMPT_CONTENT",
+                          "value": "        this is a const prompt which evaluates at compile time with model parameters and support interpolation "
                         },
                         {
                           "kind": "INTERPOLATION",
@@ -202,7 +218,7 @@
                           ]
                         },
                         {
-                          "kind": "TEMPLATE_STRING",
+                          "kind": "PROMPT_CONTENT",
                           "value": "\n    "
                         }
                       ]
@@ -304,8 +320,8 @@
                       "kind": "LIST",
                       "children": [
                         {
-                          "kind": "TEMPLATE_STRING",
-                          "value": "        this is a test prompt\n        in multiple lines\n    "
+                          "kind": "PROMPT_CONTENT",
+                          "value": "        this is a test prompt\n        in multiple lines\n        close braces can be escaped like this \\} if u want it inside a prompt\n        when using backslashes, you need to escape them like this \\\\. You can write any code inside the prompt\n              function getStringValue(int val) returns string {\n              \\}\n    "
                         }
                       ]
                     },

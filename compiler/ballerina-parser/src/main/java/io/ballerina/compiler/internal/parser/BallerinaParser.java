@@ -5066,6 +5066,10 @@ public class BallerinaParser extends AbstractParser {
                 return parseByteArrayLiteral();
             case TRANSACTION_KEYWORD:
                 return parseQualifiedIdentWithTransactionPrefix(ParserRuleContext.VARIABLE_REF);
+            case CONST_KEYWORD:
+                if (getNextNextToken().kind == SyntaxKind.NATURAL_KEYWORD) {
+                    return parseNaturalExpression();
+                }
             case NATURAL_KEYWORD:
                 return parseNaturalExpression();
             default:
@@ -5083,35 +5087,56 @@ public class BallerinaParser extends AbstractParser {
      * Parse a natural expression.
      * </p>
      * <code>
-     * natural-expr := natural [model(expr)] { prompt }
+     * natural-expr := [const] natural [(arg-list)] { prompt }
      * </code>
      *
      * @return Parsed NaturalExpression node.
      */
     private STNode parseNaturalExpression() {
+        STNode optionalConstKeyword = peek().kind == SyntaxKind.CONST_KEYWORD?
+                consume() : STNodeFactory.createEmptyNode();
         STToken naturalKeyword = consume();
-        STNode optionalNaturalModelNode = isKeywordMatch(SyntaxKind.MODEL_KEYWORD, peek())?
-                parseNaturalModel() : STNodeFactory.createEmptyNode();
+        STNode optionalParenthesizedArgList = parseOptionalParenthesizedArgList();
         STNode openBrace = parseOpenBrace();
 
         this.tokenReader.startMode(ParserMode.PROMPT);
-        STNode promptExpr = parseTemplateContent();
+        STNode prompt = parsePromptContent();
         STNode closeBrace = parseCloseBrace();
-        return STNodeFactory.createNaturalExpressionNode(naturalKeyword, optionalNaturalModelNode, openBrace,
-                promptExpr, closeBrace);
+        return STNodeFactory.createNaturalExpressionNode(optionalConstKeyword, naturalKeyword,
+                optionalParenthesizedArgList, openBrace, prompt, closeBrace);
     }
 
-    private STNode parseNaturalModel() {
-        STNode modelKeyword = getModelKeyword(consume());
-        STNode openParenToken = parseOpenParenthesis();
-        STNode expr = parseExpression();
-        STNode closeParenToken = parseCloseParenthesis();
-        return STNodeFactory.createNaturalModelNode(modelKeyword, openParenToken, expr, closeParenToken);
+    private STNode parseOptionalParenthesizedArgList() {
+        return switch (peek().kind) {
+            case OPEN_PAREN_TOKEN -> parseParenthesizedArgList();
+            case OPEN_BRACE_TOKEN -> STNodeFactory.createEmptyNode();
+            default -> {
+                recover(peek(), ParserRuleContext.OPTIONAL_PARENTHESIZED_ARG_LIST);
+                yield parseOptionalParenthesizedArgList();
+            }
+        };
     }
 
-    private STNode getModelKeyword(STToken token) {
-        return STNodeFactory.createToken(SyntaxKind.MODEL_KEYWORD, token.leadingMinutiae(), token.trailingMinutiae(),
-                token.diagnostics());
+    private STNode parsePromptContent() {
+        List<STNode> items = new ArrayList<>();
+        STToken nextToken = peek();
+        while (!isEndOfPromptContent(nextToken.kind)) {
+            STNode contentItem = parsePromptItem();
+            items.add(contentItem);
+            nextToken = peek();
+        }
+        return STNodeFactory.createNodeList(items);
+    }
+
+    private boolean isEndOfPromptContent(SyntaxKind kind) {
+        return switch (kind) {
+            case EOF_TOKEN, CLOSE_BRACE_TOKEN -> true;
+            default -> false;
+        };
+    }
+
+    private STNode parsePromptItem() {
+        return parseTemplateItem();
     }
 
     private STNode createMissingObjectConstructor(STNode annots, STNode qualifierNodeList) {
@@ -10816,7 +10841,7 @@ public class BallerinaParser extends AbstractParser {
 
     private boolean isEndOfBacktickContent(SyntaxKind kind) {
         return switch (kind) {
-            case EOF_TOKEN, BACKTICK_TOKEN, CLOSE_BRACE_TOKEN -> true;
+            case EOF_TOKEN, BACKTICK_TOKEN -> true;
             default -> false;
         };
     }

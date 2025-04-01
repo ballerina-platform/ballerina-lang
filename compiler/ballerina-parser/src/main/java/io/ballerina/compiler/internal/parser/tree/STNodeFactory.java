@@ -2756,31 +2756,20 @@ public class STNodeFactory extends STAbstractNodeFactory {
     }
 
     public static STNode createNaturalExpressionNode(
+            STNode constKeyword,
             STNode naturalKeyword,
-            STNode naturalModel,
+            STNode parenthesizedArgList,
             STNode openBraceToken,
             STNode prompt,
             STNode closeBraceToken) {
 
         return new STNaturalExpressionNode(
+                constKeyword,
                 naturalKeyword,
-                naturalModel,
+                parenthesizedArgList,
                 openBraceToken,
                 prompt,
                 closeBraceToken);
-    }
-
-    public static STNode createNaturalModelNode(
-            STNode modelKeyword,
-            STNode openParenthesis,
-            STNode expression,
-            STNode closeParenthesis) {
-
-        return new STNaturalModelNode(
-                modelKeyword,
-                openParenthesis,
-                expression,
-                closeParenthesis);
     }
 }
 

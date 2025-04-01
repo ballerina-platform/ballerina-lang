@@ -377,6 +377,7 @@ public final class ParserTestUtils {
             case DOCUMENTATION_DESCRIPTION:
             case DOCUMENTATION_STRING:
             case CODE_CONTENT:
+            case PROMPT_CONTENT:
                 return cleanupText(token.text());
             default:
                 return token.kind.toString();
@@ -535,7 +536,6 @@ public final class ParserTestUtils {
             case "RESOURCE_ACCESS_REST_SEGMENT" -> SyntaxKind.RESOURCE_ACCESS_REST_SEGMENT;
             case "ALTERNATE_RECEIVE" -> SyntaxKind.ALTERNATE_RECEIVE;
             case "RECEIVE_FIELD" -> SyntaxKind.RECEIVE_FIELD;
-            case "NATURAL_MODEL" -> SyntaxKind.NATURAL_MODEL;
 
             // Trivia
             case "EOF_TOKEN" -> SyntaxKind.EOF_TOKEN;
@@ -882,7 +882,6 @@ public final class ParserTestUtils {
             case "CONFIGURABLE_KEYWORD" -> SyntaxKind.CONFIGURABLE_KEYWORD;
             case "UNDERSCORE_KEYWORD" -> SyntaxKind.UNDERSCORE_KEYWORD;
             case "NATURAL_KEYWORD" -> SyntaxKind.NATURAL_KEYWORD;
-            case "MODEL_KEYWORD" -> SyntaxKind.MODEL_KEYWORD;
             default -> getXMLTemplateKind(kind);
         };
     }
