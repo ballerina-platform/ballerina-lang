@@ -821,9 +821,7 @@ public final class ValueCreator {
      * with packageId and recordTypeName to create a {@link BMap}.
      *
      * @param recordType record type
-     * @return           record valuetype _Frame record {|
-     *     (any|error|())...;
-     * |};
+     * @return           record value
      */
     public static BMap<BString, Object> createRecordValue(RecordType recordType) {
         return new MapValueImpl<>(recordType);
