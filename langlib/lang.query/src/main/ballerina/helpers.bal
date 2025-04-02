@@ -109,7 +109,7 @@ function collectQueryJava(handle strm) returns Type|error = @java:Method {
     paramTypes: ["java.lang.Object"]
 } external;
 
-function consumeStream(handle javaPipeline) returns any|error {
+function consumeStreamOld(handle javaPipeline) returns any|error {
     stream<Type, CompletionType> strm = check toStream(javaPipeline);
     any|error? v = strm.next();
     while (!(v is () || v is error)) {
@@ -122,6 +122,13 @@ function consumeStream(handle javaPipeline) returns any|error {
         return v;
     }
 }
+
+function consumeStream(handle javaPipeline) returns any|error = @java:Method {
+    'class: "io.ballerina.runtime.internal.query.utils.CollectionUtil",
+    name: "consumeStream",
+    paramTypes: ["io.ballerina.runtime.internal.query.pipeline.StreamPipeline"]
+} external;
+
 
 function createNestedFromFunction(function(_Frame _frame) returns _Frame|error? collectionFunc)
         returns handle = @java:Method {
