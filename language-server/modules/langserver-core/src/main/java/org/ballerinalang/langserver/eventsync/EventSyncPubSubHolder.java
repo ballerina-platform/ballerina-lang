@@ -35,6 +35,7 @@ import java.util.ServiceLoader;
  * @since 2201.1.1
  */
 public class EventSyncPubSubHolder {
+
     private static final LanguageServerContext.Key<EventSyncPubSubHolder> SUBSCRIBERS_HOLDER_KEY =
             new LanguageServerContext.Key<>();
     private static final Map<EventKind, EventPublisher> publisherMap = new HashMap<>();
@@ -56,8 +57,8 @@ public class EventSyncPubSubHolder {
 
         ServiceLoader<EventPublisher> publishers = ServiceLoader.load(EventPublisher.class);
         publishers.forEach(eventPublisher -> {
-            for (EventSubscriber eventSubscriber: eventSubscribersMap.get(eventPublisher.getKind())) {
-                publisherMap.put(eventPublisher.getKind(), eventPublisher);
+            publisherMap.put(eventPublisher.getKind(), eventPublisher);
+            for (EventSubscriber eventSubscriber : eventSubscribersMap.get(eventPublisher.getKind())) {
                 eventPublisher.subscribe(eventSubscriber);
                 lsClientLogger.logTrace(String.format("%s subscribed to %s", eventSubscriber.getName(),
                         eventPublisher.getName()));
@@ -73,9 +74,13 @@ public class EventSyncPubSubHolder {
     public static EventSyncPubSubHolder getInstance(LanguageServerContext serverContext) {
         EventSyncPubSubHolder subscribersHolder = serverContext.get(SUBSCRIBERS_HOLDER_KEY);
         if (subscribersHolder == null) {
-            subscribersHolder = new EventSyncPubSubHolder(serverContext);
+            synchronized (SUBSCRIBERS_HOLDER_KEY) {
+                subscribersHolder = serverContext.get(SUBSCRIBERS_HOLDER_KEY);
+                if (subscribersHolder == null) {
+                    subscribersHolder = new EventSyncPubSubHolder(serverContext);
+                }
+            }
         }
-
         return subscribersHolder;
     }
     
