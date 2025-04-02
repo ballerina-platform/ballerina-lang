@@ -222,4 +222,20 @@ public class CollectionUtil {
         }
         return ValueCreator.createXmlSequence(backingArray);
     }
+
+    public static Object consumeStream(StreamPipeline pipeline) {
+        Stream<Frame> strm = pipeline.getStream();
+        try {
+            Iterator<Frame> it = strm.iterator();
+            while (it.hasNext()) {
+                Frame frame = it.next();
+                if (frame.getRecord().containsKey(VALUE_ACCESS_FIELD) && frame.getRecord().get(VALUE_ACCESS_FIELD) != null) {
+                    return frame.getRecord().get(VALUE_ACCESS_FIELD);
+                }
+            }
+        } catch (QueryException e) {
+            return e.getError();
+        }
+        return null;
+    }
 }
