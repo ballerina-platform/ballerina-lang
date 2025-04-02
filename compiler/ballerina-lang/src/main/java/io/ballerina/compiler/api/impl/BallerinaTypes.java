@@ -71,7 +71,7 @@ public class BallerinaTypes extends Types {
     public Optional<TypeSymbol> getType(String text) {
         // Obtain the ST node
         TypeDescriptorNode typeDescriptorNode = NodeParser.parseTypeDescriptor(text);
-        if (typeDescriptorNode == null) {
+        if (typeDescriptorNode == null || typeDescriptorNode.hasDiagnostics()) {
             return Optional.empty();
         }
 
