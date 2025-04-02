@@ -24,6 +24,7 @@ import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import org.wso2.ballerinalang.compiler.PackageCache;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
+import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
 import java.util.Map;
@@ -41,6 +42,7 @@ public abstract class Types {
     protected final SymbolFactory symbolFactory;
     protected final SymbolTable symbolTable;
     protected final PackageCache packageCache;
+    protected final BLangPackage bLangPackage;
 
     public final TypeSymbol BOOLEAN;
     public final TypeSymbol INT;
@@ -65,7 +67,8 @@ public abstract class Types {
     public final TypeSymbol REGEX;
     public final TypeSymbol RAW_TEMPLATE;
 
-    protected Types(CompilerContext context) {
+    protected Types(BLangPackage bLangPackage, CompilerContext context) {
+        this.bLangPackage = bLangPackage;
         this.context = context;
         TypesFactory typesFactory = TypesFactory.getInstance(context);
         this.symbolFactory = SymbolFactory.getInstance(context);
@@ -95,6 +98,16 @@ public abstract class Types {
         this.REGEX = typesFactory.getTypeDescriptor(symbolTable.regExpType);
         this.RAW_TEMPLATE = typesFactory.getTypeDescriptor(symbolTable.rawTemplateType);
     }
+
+    /**
+     * Parses a string representation of a Ballerina type descriptor into a {@link TypeSymbol}. Referenced named types
+     * within the {@code text} must be either built-in types or user-defined types declared within the current module.
+     *
+     * @param text The string representation of the Ballerina type descriptor to parse.
+     * @return An {@link Optional} containing the resolved {@link TypeSymbol}, or empty if parsing fails or the type is
+     * invalid in the current context.
+     */
+    public abstract Optional<TypeSymbol> getType(String text);
 
     /**
      * Lookup for the symbol of a user defined type within a given module. This would be considering type
