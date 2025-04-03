@@ -22,6 +22,7 @@ import io.ballerina.runtime.api.types.StructureType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.utils.JsonUtils;
 import io.ballerina.runtime.api.utils.StringUtils;
+import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
@@ -50,7 +51,7 @@ public final class JsonValues {
     }
 
     public static BMap<BString, Object> testConvertJSONToRecord(Object record, BTypedesc t) throws BError {
-        Type describingType = t.getDescribingType();
+        Type describingType = TypeUtils.getImpliedType(t.getDescribingType());
         if (describingType instanceof StructureType) {
             return convertJSONToRecord(record, (StructureType) describingType);
         } else {

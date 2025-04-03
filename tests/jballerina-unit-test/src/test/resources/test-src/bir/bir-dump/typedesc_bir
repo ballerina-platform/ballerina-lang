@@ -1,0 +1,227 @@
+================ Emitting Module ================
+module $anon/. v 0.0.0;
+
+
+
+Foo record {
+}
+{
+};
+
+A (int, string)
+{
+};
+
+public $anonType$_4 record {
+    string message;
+    int value;
+}
+{
+};
+
+public $anonIntersectionErrorType$_0 error{$anonType$_4}
+{
+};
+
+public $anonType$_0 record {
+    int a;
+}
+{
+};
+
+public $anonType$_1 record {
+    string name;
+}
+{
+};
+
+public $anonType$_2 record {
+    string message;
+    int value;
+}
+{
+};
+
+public $anonType$_3 error{$anonType$_2}
+{
+};
+
+
+
+$annotation_data map<any>;
+$typedesc$Foo typeDesc<Foo>;
+$typedesc$A typeDesc<A>;
+$typedesc$$anonType$_4 typeDesc<$anonType$_4>;
+
+
+public .<init> function() -> error{map<ballerina/lang.value:0.0.0:Cloneable>}|() {
+    %0(RETURN) error|();
+    %2(TEMP) typeDesc<any|error>;
+
+    bb0 {
+        %2 = newType map<any>;
+        $annotation_data = NewMap %2{};
+        $typedesc$Foo = newType Foo;
+        $typedesc$A = newType A;
+        $typedesc$$anonType$_4 = newType $anonType$_4;
+        %0 = ConstLoad 0;
+        GOTO bb1;
+    }
+    bb1 {
+        return;
+    }
+
+
+}
+
+public .<start> function() -> error|() {
+    %0(RETURN) error|();
+
+    bb0 {
+        %0 = ConstLoad 0;
+        GOTO bb1;
+    }
+    bb1 {
+        return;
+    }
+
+
+}
+
+public .<stop> function() -> error|() {
+    %0(RETURN) error|();
+
+    bb0 {
+        %0 = ConstLoad 0;
+        GOTO bb1;
+    }
+    bb1 {
+        return;
+    }
+
+
+}
+
+testSameTypeDesc function() -> () {
+    %0(RETURN) ();
+    %1(LOCAL) Foo;
+    %3(SYNTHETIC) typeDesc<$anonType$_0>;
+    %5(LOCAL) $anonType$_0;
+    %7(TEMP) string;
+    %8(TEMP) int;
+    %12(LOCAL) A;
+    %15(TEMP) int;
+    %17(LOCAL) A;
+    %22(LOCAL) A;
+    %28(SYNTHETIC) typeDesc<(int, string)>;
+    %30(LOCAL) (int, string);
+    %39(LOCAL) typeDesc<any|error>;
+    %41(TEMP) typeDesc<A>;
+    %42(LOCAL) typeDesc<any|error>;
+    %44(TEMP) typeDesc<Foo>;
+    %45(LOCAL) boolean;
+    %49(SYNTHETIC) typeDesc<$anonType$_1>;
+    %51(LOCAL) table<record {| string name; |}><record {
+    string name;
+}>;
+    %53(TEMP) string[];
+    %55(TEMP) $anonType$_1[];
+    %57(TEMP) $anonType$_1;
+    %59(TEMP) string;
+    %63(TEMP) $anonType$_1[];
+    %68(LOCAL) table<record {| string name; |}><record {
+    string name;
+}>;
+    %70(SYNTHETIC) typeDesc<$anonType$_2>;
+    %72(LOCAL) $anonIntersectionErrorType$_0;
+    %75(TEMP) error;
+    %76(TEMP) ();
+    %77(TEMP) $anonType$_4;
+    %79(TEMP) any;
+    %80(TEMP) string;
+    %82(TEMP) any;
+    %84(TEMP) $anonType$_4;
+    %85(LOCAL) error;
+
+    bb0 {
+        %1 = NewMap $typedesc$Foo{};
+        %3 = newType $anonType$_0;
+        %7 = ConstLoad a;
+        %8 = ConstLoad 1;
+        %5 = NewMap %3{%7:%8};
+        %7 = ConstLoad a;
+        %8 = ConstLoad 2;
+        %5 = NewMap %3{%7:%8};
+        %8 = ConstLoad 2;
+        %15 = ConstLoad 1;
+        %7 = ConstLoad a;
+        %12 = newArray $typedesc$A[%8]{%15,%7};
+        %8 = ConstLoad 2;
+        %15 = ConstLoad 2;
+        %7 = ConstLoad b;
+        %17 = newArray $typedesc$A[%8]{%15,%7};
+        %22 = %12;
+        %8 = ConstLoad 2;
+        %15 = ConstLoad 3;
+        %7 = ConstLoad c;
+        %12 = newArray $typedesc$A[%8]{%15,%7};
+        %28 = newType (int, string);
+        %8 = ConstLoad 2;
+        %15 = ConstLoad 1;
+        %7 = ConstLoad a;
+        %30 = newArray %28[%8]{%15,%7};
+        %8 = ConstLoad 2;
+        %15 = ConstLoad 2;
+        %7 = ConstLoad b;
+        %30 = newArray %28[%8]{%15,%7};
+        %41 = <typeDesc<A>> $typedesc$A;
+        %39 = <typeDesc<any|error>> %41;
+        %44 = <typeDesc<Foo>> $typedesc$Foo;
+        %42 = <typeDesc<any|error>> %44;
+        %45 = %39 === %42;
+        %49 = newType $anonType$_1;
+        %8 = ConstLoad -1;
+        %53 = newArray string[][%8]{};
+        %15 = ConstLoad -1;
+        %7 = ConstLoad name;
+        %59 = ConstLoad a;
+        %57 = NewMap %49{%7:%59};
+        %55 = newArray $anonType$_1[][%15] elementTypeDesc %49{%57};
+        %51 = NewTable <%55> key(%55);
+        %8 = ConstLoad -1;
+        %53 = newArray string[][%8]{};
+        %15 = ConstLoad -1;
+        %7 = ConstLoad name;
+        %59 = ConstLoad b;
+        %57 = NewMap %49{%7:%59};
+        %63 = newArray $anonType$_1[][%15] elementTypeDesc %49{%57};
+        %51 = NewTable <%63> key(%63);
+        %68 = %51;
+        %70 = newType $anonType$_2;
+        %7 = ConstLoad error;
+        %76 = ConstLoad 0;
+        %75 = <error> %76;
+        %59 = ConstLoad message;
+        %80 = ConstLoad a;
+        %79 = <any> %80;
+        %80 = ConstLoad value;
+        %8 = ConstLoad 0;
+        %82 = <any> %8;
+        %77 = NewMap $typedesc$$anonType$_4{%59:%79,%80:%82};
+        %84 = cloneReadOnly(%77) -> bb1;
+    }
+    bb1 {
+        %72 = error $anonIntersectionErrorType$_0(%7, %75, %84);
+        %85 = <error> %72;
+        %0 = ConstLoad 0;
+        GOTO bb2;
+    }
+    bb2 {
+        return;
+    }
+
+
+}
+
+
+================ Emitting Module ================
