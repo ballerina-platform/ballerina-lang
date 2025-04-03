@@ -192,12 +192,12 @@ public class BallerinaIteratorUtils {
             }
 
             Object result = env.getRuntime().callMethod(iteratorObj, "next", null);
-            if (result instanceof BError) {
+            if (result instanceof BError error) {
                 hasMore = false;
-                throw new QueryException((BError) result);
+                throw new QueryException(error, true);
             }
             if (result instanceof BMap<?, ?> record) {
-                nextValue = record.get(StringUtils.fromString("value"));
+                nextValue = record.get(VALUE_FIELD);
                 if (nextValue == null) {
                     hasMore = false;
                     return false;
@@ -210,9 +210,6 @@ public class BallerinaIteratorUtils {
 
         @Override
         public T next() {
-            if (nextValue == null && !hasNext()) {
-                throw new QueryException("No more elements available");
-            }
             T returnValue = (T) nextValue;
             nextValue = null;
             return returnValue;

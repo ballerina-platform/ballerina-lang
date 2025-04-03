@@ -78,9 +78,9 @@ type _Frame record {|
 type nextRecord record {|Type value;|};
 
 //Distinct error to identify errors thrown from query body
-public type Error error;
+public type Error distinct error;
 
 //Distinct error to identify errors thrown from query pipeline
-public type CompleteEarlyError error;
+public type CompleteEarlyError distinct error;
 
 public type QueryErrorTypes CompleteEarlyError|Error;

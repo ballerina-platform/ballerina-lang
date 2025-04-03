@@ -6,6 +6,7 @@ import io.ballerina.runtime.api.values.BFunctionPointer;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.internal.query.pipeline.ErrorFrame;
 import io.ballerina.runtime.internal.query.pipeline.Frame;
+import io.ballerina.runtime.internal.query.utils.QueryException;
 
 import java.util.stream.Stream;
 
@@ -52,7 +53,7 @@ public class SelectClause implements PipelineStage {
                 frame.updateRecord(mapVal);
                 return frame;
             } else if (result instanceof BError error) {
-                return ErrorFrame.from(error);
+                throw new QueryException(error);
             }
             return frame;
         });
