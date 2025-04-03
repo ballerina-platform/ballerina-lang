@@ -114,6 +114,21 @@ public abstract class Types {
     public abstract Optional<TypeSymbol> getType(Document document, String text);
 
     /**
+     * Parses a string representation of a Ballerina type descriptor into a {@link TypeSymbol}. Resolves types using
+     * built-ins, the current module (via {@code document}), its existing imports, and the additionally provided
+     * {@code importPackages}.
+     *
+     * @param document       The document for resolving types within the current module and its imports.
+     * @param text           The string representation of the Ballerina type descriptor.
+     * @param importPackages Additional packages (prefix -> package node) available for type resolution, that are not
+     *                       imported in the {@code document}.
+     * @return An {@link Optional} containing the resolved {@link TypeSymbol}, or empty if parsing fails or the type is
+     * not found/invalid within the combined scope.
+     */
+    public abstract Optional<TypeSymbol> getType(Document document, String text,
+                                                 Map<String, BLangPackage> importPackages);
+
+    /**
      * Lookup for the symbol of a user defined type within a given module. This would be considering type
      * definitions, constants, enums, enum members, and class definitions as valid user defined types when looking up.
      * An empty Optional instance is returned if the provided module is not found or, if the given type is either
