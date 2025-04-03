@@ -18,7 +18,6 @@
 package org.ballerinalang.langlib.value;
 
 import io.ballerina.runtime.api.types.Type;
-import io.ballerina.runtime.api.types.TypeTags;
 import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BTypedesc;
@@ -35,7 +34,7 @@ public final class EnsureType {
     }
 
     public static Object ensureType(Object value, BTypedesc type) {
-        if (TypeUtils.getImpliedType(TypeChecker.getType(value)).getTag() == TypeTags.ERROR_TAG) {
+        if (value instanceof BError) {
             return value;
         }
         return convert(TypeUtils.getImpliedType(type.getDescribingType()), value);

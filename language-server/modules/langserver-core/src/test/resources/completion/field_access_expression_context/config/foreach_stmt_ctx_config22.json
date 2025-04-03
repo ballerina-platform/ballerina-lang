@@ -402,11 +402,11 @@
     {
       "label": "iterator()",
       "kind": "Function",
-      "detail": "object {public isolated function next() returns record {|Report value; Report...;|}?;}",
+      "detail": "object {public isolated function next() returns record {|Report value;|}?;}",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.array:0.0.0_  \n  \nReturns an iterator over an array.\n\n```ballerina\nobject {\n    public isolated function next() returns record {|int value;|}?;\n} iterator = [2, 4, 6, 8].iterator();\niterator.next() ⇒ {\"value\":2}\n```\n  \n  \n  \n**Return** `object {public isolated function next() returns record {|Report value; Report...;|}?;}`   \n- a new iterator object that will iterate over the members of parameter `arr`  \n  \n"
+          "value": "**Package:** _ballerina/lang.array:0.0.0_  \n  \nReturns an iterator over an array.\n\n```ballerina\nobject {\n    public isolated function next() returns record {|int value;|}?;\n} iterator = [2, 4, 6, 8].iterator();\niterator.next() ⇒ {\"value\":2}\n```\n  \n  \n  \n**Return** `object {public isolated function next() returns record {|Report value;|}?;}`   \n- a new iterator object that will iterate over the members of parameter `arr`  \n  \n"
         }
       },
       "sortText": "CD",

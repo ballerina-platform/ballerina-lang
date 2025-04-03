@@ -16,95 +16,98 @@
 
 import ballerina/test;
 
-type A [int, A[]];
+type A_TTDC [int, A_TTDC[]];
 public function testCycleTypeArray() {
-    A a = [1];
-    A b = [1, [a]];
+    A_TTDC a = [1];
+    A_TTDC b = [1, [a]];
 
     assert(a[0] is int, true);
     assert(a[0], 1);
-    assert(b[1] is [int,A[]][], true);
+    assert(b[1] is [int,A_TTDC[]][], true);
 }
 
-type B [int, map<B>];
+type B_TTDC [int, map<B_TTDC>];
+
 public function testCycleTypeMap() {
-    B d = [1, {one: [1]}];
+    B_TTDC d = [1, {one: [1]}];
 
     int numberResult = 0;
-    if(d[1] is map<B>) {
+    if (d[1] is map<B_TTDC>) {
         numberResult = d[1].get("one")[0];
     }
     assert(numberResult is int, true);
     assert(numberResult, 1);
 }
 
-type Person record {
+type PersonTTDC record {
     int id;
     string name;
 };
 
-type C [Person, table<map<C>>];
+type CTTDC [PersonTTDC, table<map<CTTDC>>];
 
 public function testCycleTypeTable() {
-    table<map<C>> tb = table [
-            {
-                one: [{ id: 1, name: "Jane"}]
-            },
-            {
-                one: [{ id: 1, name: "Anne"}]
-            }
+    table<map<CTTDC>> tb = table [
+        {
+            one: [{id: 1, name: "Jane"}]
+        },
+        {
+            one: [{id: 1, name: "Anne"}]
+        }
     ];
 
     string names = "";
     foreach var x in tb {
-        var  a = x.get("one");
-        if(a[0] is Person) {
+        var a = x.get("one");
+        if (a[0] is PersonTTDC) {
             names = names + a[0].name;
         }
     }
     assert(names, "JaneAnne");
 }
 
-type D [int, map<D>];
+type DTTDC [int, map<DTTDC>];
 
 public function testCyclicAsFunctionParams() {
-   D d = [1, {elem: [2]}];
-   map<D> c = takeCyclicTyDef(d);
-   assert(c.get("elem")[0], 5);
+    DTTDC d = [1, {elem: [2]}];
+    map<DTTDC> c = takeCyclicTyDef(d);
+    assert(c.get("elem")[0], 5);
 }
 
-function takeCyclicTyDef(D d) returns map<D> {
-   if(d is [int, map<D>]) {
-       d[1]["elem"][0] = 5;
-   }
-   return d[1];
+function takeCyclicTyDef(DTTDC d) returns map<DTTDC> {
+    if (d is [int, map<DTTDC>]) {
+        d[1]["elem"][0] = 5;
+    }
+    return d[1];
 }
 
-type E [int, record{E a?;}];
+type ETTDC [int, record {ETTDC a?;}];
 
 public function testCyclicTypeDefInRecord() {
-    E rec = [1, {}];
+    ETTDC rec = [1, {}];
     int result = 0;
-    if (rec[1] is record{}) {
+    if (rec[1] is record {}) {
         result = rec[0];
     }
     assert(result, 1);
 }
 
-type F [int, string, F[]|int|(), map<F>];
+type FTTDC [int, string, FTTDC[]|int|(), map<FTTDC>];
 
 public function testCyclicTypeDefInUnion() {
-   int|F values = [1, "hello"];
-   assert((<F> values)[0], 1);
-   assert((<F> values)[1], "hello");
-   assert((<F> values)[2], ());
+    int|FTTDC values = [1, "hello"];
+    assert((<FTTDC>values)[0], 1);
+    assert((<FTTDC>values)[1], "hello");
+    assert((<FTTDC>values)[2], ());
 }
 
-type XType1 XNil|XBoolean|XInt|XString|XTuple1|XUnion1|XIntersection1|XNever|XAny|();
-type XType2 XNil|XBoolean|XInt|XString|XTuple2|XUnion2|XIntersection2|XNever|XAny|();
-type XType3 XNil|XTuple3[]|XNever|XAny|();
+type XType1TTDC XNil|XBoolean|XInt|XString|XTuple1TTDC|XUnion1TTDC|XIntersection1TTDC|XNever|XAny|();
 
-type P [XNil, XUnion4, XIntersection4, XAny, XListRef, XFunctionRef];
+type XType2TTDC XNil|XBoolean|XInt|XString|XTuple2TTDC|XUnion2TTDC|XIntersection2TTDC|XNever|XAny|();
+
+type XType3TTDC XNil|XTuple3TTDC[]|XNever|XAny|();
+
+type P [XNil, XUnion4TTDC, XIntersection4TTDC, XAny, XListRefTTDC, XFunctionRefTTDC];
 
 const XNil = "nil";
 const XBoolean = "boolean";
@@ -113,254 +116,296 @@ const XString = "string";
 const XNever = "never";
 const XAny = "any";
 
-type XTuple1 ["tuple", XType1, XType1];
-type XUnion1 ["union", XType1, XType1];
-type XIntersection1 ["intersection", XType1, XType1];
+type XTuple1TTDC ["tuple", XType1TTDC, XType1TTDC];
 
-type ApproxType string|ApproxType[];
+type XUnion1TTDC ["union", XType1TTDC, XType1TTDC];
 
-type XTuple2 ["tuple", ApproxType, ApproxType];
-type XUnion2 ["union", ApproxType, ApproxType];
-type XIntersection2 ["intersection", ApproxType, ApproxType];
+type XIntersection1TTDC ["intersection", XType1TTDC, XType1TTDC];
 
-type XTuple3 ["tuple", XType3, XType3];
+type ApproxTypeTTDC string|ApproxTypeTTDC[];
 
-type XUnion4 ["|", P...];
-type XIntersection4 "&"|P;
+type XTuple2TTDC ["tuple", ApproxTypeTTDC, ApproxTypeTTDC];
 
-type ListDef P[];
-type FunctionDef P[2];
+type XUnion2TTDC ["union", ApproxTypeTTDC, ApproxTypeTTDC];
 
-type Defs record {|
-       ListDef[] listDefs;
-       FunctionDef[] functionDefs;
+type XIntersection2TTDC ["intersection", ApproxTypeTTDC, ApproxTypeTTDC];
+
+type XTuple3TTDC ["tuple", XType3TTDC, XType3TTDC];
+
+type XUnion4TTDC ["|", P...];
+
+type XIntersection4TTDC "&"|P;
+
+type ListDefTTDC P[];
+
+type FunctionDefTTDC P[2];
+
+type DefsTTDC record {|
+    ListDefTTDC[] listDefs;
+    FunctionDefTTDC[] functionDefs;
 |};
 
-type XListRef ["listRef", int];
-type XFunctionRef ["functionRef", int];
-type mapDef map<P>;
-type tupleDef [P...];
+type XListRefTTDC ["listRef", int];
+
+type XFunctionRefTTDC ["functionRef", int];
+
+type mapDefTTDC map<P>;
+
+type tupleDefTTDC [P...];
 
 public function testCyclicUserDefinedTypes() {
-    XType1 a = ["tuple"];
-    assert(a is XTuple1, true);
+    XType1TTDC a = ["tuple"];
+    assert(a is XTuple1TTDC, true);
     assert(a is string, false);
 
-    ApproxType c = ["text1"];
-    assert(c is ApproxType[], true);
+    ApproxTypeTTDC c = ["text1"];
+    assert(c is ApproxTypeTTDC[], true);
 
-    XUnion2 b = ["union", "text1", "text2"];
-    assert(b[1] is ApproxType, true);
+    XUnion2TTDC b = ["union", "text1", "text2"];
+    assert(b[1] is ApproxTypeTTDC, true);
 
-    XType3 d = [["tuple"], ["tuple"]];
-    assert(d is XTuple3[], true);
+    XType3TTDC d = [["tuple"], ["tuple"]];
+    assert(d is XTuple3TTDC[], true);
 }
 
-type J [int, J[2]];
-type K [int, J[]];
+type JTTDC [int, JTTDC[2]];
+
+type KTTDC [int, JTTDC[]];
 
 function testIndirectRecursion() {
     P test1 = ["nil", ["|"], "&", "any", ["listRef"], ["functionRef", 2]];
-    assert(test1[2] is XIntersection4, true);
+    assert(test1[2] is XIntersection4TTDC, true);
 
-    FunctionDef test2 = [["nil", [], "&"], ["nil", [], "&"]];
-    assert(test2[0][1] is XUnion4, true);
+    FunctionDefTTDC test2 = [["nil", [], "&"], ["nil", [], "&"]];
+    assert(test2[0][1] is XUnion4TTDC, true);
 
-    ListDef test3 = [["nil", [], ["nil", [], "&"]]];
+    ListDefTTDC test3 = [["nil", [], ["nil", [], "&"]]];
 
-    if(test3[0][2] is XIntersection4) {
-       test2[1][2]= ["nil", [], "&"];
+    if (test3[0][2] is XIntersection4TTDC) {
+        test2[1][2] = ["nil", [], "&"];
     }
     assert((<P>test2[1][2])[2].toString(), "&");
 
-    Defs test4 = {
-       listDefs: [[],[],[]],
-       functionDefs: []
+    DefsTTDC test4 = {
+        listDefs: [[], [], []],
+        functionDefs: []
     };
     assert(test4.listDefs[0] is P[], true);
 
-    mapDef test5 = {one: ["nil", [], "&"]};
-    tupleDef test6;
+    mapDefTTDC test5 = {one: ["nil", [], "&"]};
+    tupleDefTTDC test6;
     if (test5.get("one")[0] is XNil) { // always true
         test6 = [["nil", ["|"], "&"]];
     }
     assert(test6[0][1][0] is string, true);
 
-    K tempTuple = [1, []];
-    assert(tempTuple[1] is J[], true);
+    KTTDC tempTuple = [1, []];
+    assert(tempTuple[1] is JTTDC[], true);
 }
 
-type G [int, string, G...];
-type H [int, H[], string, H...];
-type T [int, (int|T)...];
+type GTTDC [int, string, GTTDC...];
+
+type HTTDC [int, HTTDC[], string, HTTDC...];
+
+type TTTDC [int, (int|TTTDC)...];
 
 public function testCyclicRestType() {
-    G a = [1, "text"];
-    G b = [1, "text1", [2, "text2"], [3, "text3"]];
-    assert(b[2] is G, true);
+    GTTDC a = [1, "text"];
+    GTTDC b = [1, "text1", [2, "text2"], [3, "text3"]];
+    assert(b[2] is GTTDC, true);
 
-    H c = [1, [[1]], "text2"];
-    H d = [1, [[2]], "text2", [3]];
-    assert(d[1] is H[], true);
-    assert(d[3] is H, true);
+    HTTDC c = [1, [[1]], "text2"];
+    HTTDC d = [1, [[2]], "text2", [3]];
+    assert(d[1] is HTTDC[], true);
+    assert(d[3] is HTTDC, true);
 
-    T x = [0];
+    TTTDC x = [0];
     x[1] = 1;
-    assert(x[1] is int|T, true);
+    assert(x[1] is int|TTTDC, true);
 }
 
-type I [int, string, I[], map<I>, table<map<I>>, record { I a?; float x?;}, I...];
+type ITTDC [int, string, ITTDC[], map<ITTDC>, table<map<ITTDC>>, record {ITTDC a?; float x?;}, ITTDC...];
 
 public function testComplexCyclicTuple() {
-   string sampleString = "text";
-    I test1 = [1];
-    I test2 = [1, sampleString];
-    I test3 = [1, "hello", [[1, sampleString]]];
-    I test4 = [1, "hello", [[1, sampleString]], {
-         first: test1,
-         second: test3
-    }];
-
-    table<map<I>> tb = table [
-            {
-                one: test3
-            },
-            {
-                one: test4
-            }
+    string sampleString = "text";
+    ITTDC test1 = [1];
+    ITTDC test2 = [1, sampleString];
+    ITTDC test3 = [1, "hello", [[1, sampleString]]];
+    ITTDC test4 = [
+        1,
+        "hello",
+        [[1, sampleString]],
+        {
+            first: test1,
+            second: test3
+        }
     ];
 
-    I test5 = [1, "hello", [[1, sampleString]], {
-         first: test4,
-         second: test3
-    }, tb];
+    table<map<ITTDC>> tb = table [
+        {
+            one: test3
+        },
+        {
+            one: test4
+        }
+    ];
 
-    I test6 = [1, sampleString, [[1, "hello"]], {
-         first: test1,
-         second: test5
-    }, tb, {}, test1, test2, test3, test4, test5];
+    ITTDC test5 = [
+        1,
+        "hello",
+        [[1, sampleString]],
+        {
+            first: test4,
+            second: test3
+        },
+        tb
+    ];
 
-     int mapVal = 0;
-     string tableVal = "";
-     if (test6[1] is string) {
+    ITTDC test6 = [
+        1,
+        sampleString,
+        [[1, "hello"]],
+        {
+            first: test1,
+            second: test5
+        },
+        tb,
+        {},
+        test1,
+        test2,
+        test3,
+        test4,
+        test5
+    ];
+
+    int mapVal = 0;
+    string tableVal = "";
+    if (test6[1] is string) {
         test4[2][0][0] = 2;
 
         var m = test5[3];
-        if (m is map<I>) {
-            mapVal =  m.get("second")[0];
+        if (m is map<ITTDC>) {
+            mapVal = m.get("second")[0];
         }
 
         var n = test6[5];
-        if (n is record{}) {
+        if (n is record {}) {
             foreach var x in test5[4] {
                 var temp = x.get("one");
-                if(temp[2] is I[]) {
+                if (temp[2] is ITTDC[]) {
                     tableVal = tableVal + temp[1];
                 }
             }
         }
 
-     }
-     assert(test2[1] is string, true);
-     assert(test6[7][1] , "text");
-     assert(test4[2][0][0], 2);
-     assert(mapVal, 1);
-     assert(tableVal, "hellohello");
+    }
+    assert(test2[1] is string, true);
+    assert(test6[7][1], "text");
+    assert(test4[2][0][0], 2);
+    assert(mapVal, 1);
+    assert(tableVal, "hellohello");
 }
 
-type MyCyclicTuple [int, MyCyclicTuple[]];
-type MyRecType int|[MyRecType...];
+type MyCyclicTupleTTDC [int, MyCyclicTupleTTDC[]];
+
+type MyRecTypeTTDC int|[MyRecTypeTTDC...];
 
 function testCastingToImmutableCyclicTuple() {
-    MyCyclicTuple a = [1, [[2]]];
-    (MyCyclicTuple & readonly)|error b = trap <MyCyclicTuple & readonly> a;
+    MyCyclicTupleTTDC a = [1, [[2]]];
+    (MyCyclicTupleTTDC & readonly)|error b = trap <MyCyclicTupleTTDC & readonly>a;
     assert(b is error, true);
-    error err = <error> b;
+    error err = <error>b;
     assert(err.message(), "{ballerina}TypeCastError");
-    assert(<string> checkpanic err.detail()["message"], "incompatible types: 'MyCyclicTuple' cannot be " +
-    "cast to '(MyCyclicTuple & readonly)'");
-    MyCyclicTuple c = <[int, MyCyclicTuple[]] & readonly> [1, []];
-    MyCyclicTuple & readonly d = <MyCyclicTuple & readonly> c;
-    assert(d is [int, MyCyclicTuple[]] & readonly, true);
+    assert(<string>checkpanic err.detail()["message"], "incompatible types: 'MyCyclicTupleTTDC' cannot be cast to '(MyCyclicTupleTTDC & readonly)'");
+    MyCyclicTupleTTDC c = <[int, MyCyclicTupleTTDC[]] & readonly>[1, []];
+    MyCyclicTupleTTDC & readonly d = <MyCyclicTupleTTDC & readonly>c;
+    assert(d is [int, MyCyclicTupleTTDC[]] & readonly, true);
     anydata e = [1, 2, 3];
-    MyRecType f = <MyRecType>(e.cloneReadOnly());
-    assert(f is MyRecType[], true);
+    MyRecTypeTTDC f = <MyRecTypeTTDC>(e.cloneReadOnly());
+    assert(f is MyRecTypeTTDC[], true);
 }
 
-type RTuple [int, RTuple...];
+type RTupleTTDC [int, RTupleTTDC...];
 
 public function recursiveTupleArrayCloneTest() {
-   RTuple[] v = [];
-   any x = v.cloneReadOnly();
-   assertTrue(x is readonly & RTuple[]);
+    RTupleTTDC[] v = [];
+    any x = v.cloneReadOnly();
+    assertTrue(x is readonly & RTupleTTDC[]);
 }
 
-type RestTypeTuple [int, RestTypeTuple...];
+type RestTypeTupleTTDC [int, RestTypeTupleTTDC...];
 
 function testRecursiveTupleWithRestType() {
-   RestTypeTuple a = [1];
-   RestTypeTuple b = [2, a, a, a];
-   RestTypeTuple c = [3, a, b];
+    RestTypeTupleTTDC a = [1];
+    RestTypeTupleTTDC b = [2, a, a, a];
+    RestTypeTupleTTDC c = [3, a, b];
 
-   assertTrue(a[0] is int);
-   assertTrue(b[1] is RestTypeTuple);
-   assertTrue(c[2] is RestTypeTuple);
+    assertTrue(a[0] is int);
+    assertTrue(b[1] is RestTypeTupleTTDC);
+    assertTrue(c[2] is RestTypeTupleTTDC);
 }
 
-public type Type string|Union|Tuple;
+public type TypeTTDC string|UnionTTDC|TupleTTDC;
 
-public type Union ["|", Type...];
+public type UnionTTDC ["|", TypeTTDC...];
 
-public type Tuple ["tuple", Type, Type...]; 
+public type TupleTTDC ["tuple", TypeTTDC, TypeTTDC...];
 
-type SubtypeRelation record {|
-    Type subtype;
-    Type superType;
+type SubtypeRelationTTDC record {|
+    TypeTTDC subtype;
+    TypeTTDC superType;
 |};
 
 function testUnionWithCyclicTuplesHashCode() {
-    Tuple tup1 = ["tuple", "never", "int"];
-    Tuple tup2 = ["tuple", "never", ["|", "int", "string"]];
+    TupleTTDC tup1 = ["tuple", "never", "int"];
+    TupleTTDC tup2 = ["tuple", "never", ["|", "int", "string"]];
 
-    Type subtype = ["|", "int", tup1];
-    Type superType = ["|", ["|", "int", "float"], tup2];
-    SubtypeRelation p = {subtype: subtype, superType: superType};
+    TypeTTDC subtype = ["|", "int", tup1];
+    TypeTTDC superType = ["|", ["|", "int", "float"], tup2];
+    SubtypeRelationTTDC p = {subtype: subtype, superType: superType};
     assert(p.toJsonString(), "{\"subtype\":[\"|\", \"int\", [\"tuple\", \"never\", \"int\"]], " +
-    "\"superType\":[\"|\", [\"|\", \"int\", \"float\"], [\"tuple\", \"never\", [\"|\", \"int\", \"string\"]]]}"); 
+            "\"superType\":[\"|\", [\"|\", \"int\", \"float\"], [\"tuple\", \"never\", [\"|\", \"int\", \"string\"]]]}");
 }
 
-type List [List?];
+type ListTTDC [ListTTDC?];
 
 function testCloneOnRecursiveTuples() {
-    List list = [()];
+    ListTTDC list = [()];
     list[0] = list;
-    List list_cloned = list.clone();
+    ListTTDC list_cloned = list.clone();
     test:assertTrue(list_cloned == list);
     test:assertFalse(list_cloned === list);
 
-    List list_readonly = list.cloneReadOnly();
+    ListTTDC list_readonly = list.cloneReadOnly();
     test:assertTrue(list_readonly == list);
     test:assertFalse(list_readonly === list);
 }
 
-type Q1 [Q1];
-type Q2 [Q2, Q2];
-type Q3 [Q3, Q3...];
-type Q4 [Q4, Q4, Q4...];
-type Q5 [Q5]|[Q5, Q5]|[Q5...]|[Q5, Q5...]|[Q5, Q5, Q5...];
-type Q6 [Q1];
-type Q7 [Q1, Q2, Q3, Q4, Q5, Q6, Q7];
-type Q8 [Q1?];
+type Q1TTDC [Q1TTDC];
+
+type Q2TTDC [Q2TTDC, Q2TTDC];
+
+type Q3TTDC [Q3TTDC, Q3TTDC...];
+
+type Q4TTDC [Q4TTDC, Q4TTDC, Q4TTDC...];
+
+type Q5TTDC [Q5TTDC]|[Q5TTDC, Q5TTDC]|[Q5TTDC...]|[Q5TTDC, Q5TTDC...]|[Q5TTDC, Q5TTDC, Q5TTDC...];
+
+type Q6TTDC [Q1TTDC];
+
+type Q7TTDC [Q1TTDC, Q2TTDC, Q3TTDC, Q4TTDC, Q5TTDC, Q6TTDC, Q7TTDC];
+
+type Q8TTDC [Q1TTDC?];
 
 function testCyclicTuples() {
-    Q1? q1 = ();
-    Q2? q2 = ();
-    Q3? q3 = ();
-    Q4? q4 = ();
-    Q5? q5 = ();
-    Q6? q6 = ();
-    Q7? q7 = ();
-    Q8 q8 = [];
+    Q1TTDC? q1 = ();
+    Q2TTDC? q2 = ();
+    Q3TTDC? q3 = ();
+    Q4TTDC? q4 = ();
+    Q5TTDC? q5 = ();
+    Q6TTDC? q6 = ();
+    Q7TTDC? q7 = ();
+    Q8TTDC q8 = [];
 }
 
 function assertTrue(anydata actual) {

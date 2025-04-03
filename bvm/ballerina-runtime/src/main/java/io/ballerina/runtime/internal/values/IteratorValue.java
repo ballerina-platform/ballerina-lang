@@ -19,6 +19,8 @@ package io.ballerina.runtime.internal.values;
 
 import io.ballerina.runtime.api.types.PredefinedTypes;
 import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.types.semtype.BasicTypeBitSet;
+import io.ballerina.runtime.api.types.semtype.Builder;
 import io.ballerina.runtime.api.values.BIterator;
 import io.ballerina.runtime.api.values.BLink;
 import io.ballerina.runtime.api.values.BTypedesc;
@@ -70,5 +72,10 @@ public interface IteratorValue<T> extends RefValue, BIterator<T> {
     @Override
     default BTypedesc getTypedesc() {
         return TYPEDESC;
+    }
+
+    @Override
+    default BasicTypeBitSet getBasicType() {
+        return Builder.getObjectType();
     }
 }

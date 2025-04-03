@@ -289,6 +289,15 @@ public class SymbolFactory {
             builder.withAnnotation(annotAttachment.typeDescriptor());
         }
 
+        List<? extends AnnotationAttachmentSymbol> annotationAttachmentsOnExternal =
+                invokableSymbol.getAnnotationAttachmentsOnExternal();
+        if (annotationAttachmentsOnExternal != null) {
+            for (AnnotationAttachmentSymbol annAttachment : annotationAttachmentsOnExternal) {
+                builder.withAnnotationAttachmentOnExternal(
+                        createAnnotAttachment((BAnnotationAttachmentSymbol) annAttachment));
+            }
+        }
+
         return builder.withTypeDescriptor((FunctionTypeSymbol) typesFactory
                 .getTypeDescriptor(invokableSymbol.type, invokableSymbol.type.tsymbol, true))
                 .build();
@@ -403,7 +412,7 @@ public class SymbolFactory {
         type = Types.getReferredType(type);
         if (type.tag == TypeTags.INTERSECTION
                 && type.tsymbol != null && type.tsymbol.getOrigin() == SymbolOrigin.VIRTUAL &&
-                (type.flags & Flags.READONLY) ==  Flags.READONLY) {
+                Symbols.isFlagOn(type.getFlags(), Flags.READONLY)) {
             return true;
         }
         if (type.tag == TypeTags.ARRAY) {

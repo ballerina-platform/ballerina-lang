@@ -22,7 +22,14 @@ import io.ballerina.runtime.api.constants.TypeConstants;
 import io.ballerina.runtime.api.types.FutureType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.TypeTags;
-import io.ballerina.runtime.internal.TypeChecker;
+import io.ballerina.runtime.api.types.semtype.BasicTypeBitSet;
+import io.ballerina.runtime.api.types.semtype.Builder;
+import io.ballerina.runtime.api.types.semtype.Context;
+import io.ballerina.runtime.api.types.semtype.SemType;
+import io.ballerina.runtime.internal.types.semtype.FutureUtils;
+
+import java.util.Objects;
+import java.util.Set;
 
 /**
  * {@code BFutureType} represents a future value in Ballerina.
@@ -31,7 +38,9 @@ import io.ballerina.runtime.internal.TypeChecker;
  */
 public class BFutureType extends BType implements FutureType {
 
-    private Type constraint;
+    private static final BasicTypeBitSet BASIC_TYPE = Builder.getFutureType();
+    private static final SimpleTypeCheckFlyweightStore FLYWEIGHT_CACHE = new SimpleTypeCheckFlyweightStore();
+    private final Type constraint;
 
     /**
      * Create a {@code {@link BFutureType}} which represents the future value.
@@ -40,12 +49,16 @@ public class BFutureType extends BType implements FutureType {
      * @param pkg of the type
      */
     public BFutureType(String typeName, Module pkg) {
-        super(typeName, pkg, Object.class);
+        super(typeName, pkg, Object.class, true);
+        constraint = null;
     }
 
     public BFutureType(Type constraint) {
-        super(TypeConstants.FUTURE_TNAME, null, Object.class);
+        super(TypeConstants.FUTURE_TNAME, null, Object.class, false);
         this.constraint = constraint;
+        var flyweight = FLYWEIGHT_CACHE.get(constraint);
+        this.typeCheckCache = flyweight.typeCheckCache();
+        this.typeId = flyweight.typeId();
     }
 
     public Type getConstrainedType() {
@@ -81,8 +94,12 @@ public class BFutureType extends BType implements FutureType {
         if (constraint == other.constraint) {
             return true;
         }
+        return Objects.equals(constraint, other.constraint);
+    }
 
-        return TypeChecker.checkIsType(constraint, other.constraint);
+    @Override
+    public BasicTypeBitSet getBasicType() {
+        return BASIC_TYPE;
     }
 
     @Override
@@ -92,5 +109,18 @@ public class BFutureType extends BType implements FutureType {
 
     private String getConstraintString() {
         return constraint != null ? "<" + constraint + ">" : "";
+    }
+
+    @Override
+    public SemType createSemType(Context cx) {
+        if (constraint == null) {
+            return Builder.getFutureType();
+        }
+        return FutureUtils.futureContaining(cx.env, tryInto(cx, constraint));
+    }
+
+    @Override
+    protected boolean isDependentlyTypedInner(Set<MayBeDependentType> visited) {
+        return constraint instanceof MayBeDependentType constraintType && constraintType.isDependentlyTyped(visited);
     }
 }

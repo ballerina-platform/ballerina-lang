@@ -18,6 +18,7 @@
 package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
 import io.ballerina.tools.diagnostics.Location;
+import io.ballerina.types.PredefinedType;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.symbols.SymbolKind;
@@ -2828,7 +2829,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
         BType exprType = Types.getImpliedType(expr.getBType());
 
-        if (types.isSubTypeOfBaseType(exprType, TypeTags.OBJECT) &&
+        if (types.isSubTypeOfBaseType(exprType, PredefinedType.OBJECT) &&
                 isFinalFieldInAllObjects(fieldAccess.pos, exprType, fieldAccess.field.value)) {
             dlog.error(fieldAccess.pos, DiagnosticErrorCode.CANNOT_UPDATE_FINAL_OBJECT_FIELD,
                     fieldAccess.symbol.originalName);
@@ -2906,11 +2907,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     }
 
     private boolean addVarIfInferredTypeIncludesError(BLangSimpleVariable variable) {
-        BType typeIntersection =
-                types.getTypeIntersection(Types.IntersectionContext.compilerInternalIntersectionContext(),
-                                          variable.getBType(), symTable.errorType, env);
-        if (typeIntersection != null &&
-                typeIntersection != symTable.semanticError && typeIntersection != symTable.noType) {
+        if (types.containsErrorType(variable.getBType().semType())) {
             unusedErrorVarsDeclaredWithVar.put(variable.symbol, variable.pos);
             return true;
         }

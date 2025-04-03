@@ -22,7 +22,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BAnnotationType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BAnyType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BAnydataType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BBuiltInRefType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BErrorType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFiniteType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFutureType;
@@ -32,7 +31,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BJSONType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BNeverType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BNilType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BNoType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BPackageType;
@@ -47,70 +45,77 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeReferenceType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypedescType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BXMLType;
+import org.wso2.ballerinalang.compiler.util.TypeTags;
 
 /**
  * Visit ballerina types and maps them to instances T.
  *
  * @since 0.995.0
  */
-public interface TypeVisitor {
+public abstract class TypeVisitor {
 
-    void visit(BAnnotationType bAnnotationType);
+    public abstract void visit(BAnnotationType bAnnotationType);
 
-    void visit(BArrayType bArrayType);
+    public abstract void visit(BArrayType bArrayType);
 
-    void visit(BBuiltInRefType bBuiltInRefType);
+    public abstract void visit(BAnyType bAnyType);
 
-    void visit(BAnyType bAnyType);
+    public abstract void visit(BAnydataType bAnydataType);
 
-    void visit(BAnydataType bAnydataType);
+    public abstract void visit(BErrorType bErrorType);
 
-    void visit(BErrorType bErrorType);
+    public abstract void visit(BFiniteType bFiniteType);
 
-    void visit(BFiniteType bFiniteType);
+    public abstract void visit(BInvokableType bInvokableType);
 
-    void visit(BInvokableType bInvokableType);
+    public abstract void visit(BJSONType bjsonType);
 
-    void visit(BJSONType bjsonType);
+    public abstract void visit(BMapType bMapType);
 
-    void visit(BMapType bMapType);
+    public abstract void visit(BStreamType bStreamType);
 
-    void visit(BStreamType bStreamType);
+    public abstract void visit(BTypedescType bTypedescType);
 
-    void visit(BTypedescType bTypedescType);
+    public abstract void visit(BTypeReferenceType bTypeReferenceType);
 
-    void visit(BTypeReferenceType bTypeReferenceType);
+    public abstract void visit(BParameterizedType bTypedescType);
 
-    void visit(BParameterizedType bTypedescType);
+    public abstract void visit(BNeverType bNeverType);
 
-    void visit(BNeverType bNeverType);
+    public abstract void visitNilType(BType bType);
 
-    void visit(BNilType bNilType);
+    public abstract void visit(BNoType bNoType);
 
-    void visit(BNoType bNoType);
+    public abstract void visit(BPackageType bPackageType);
 
-    void visit(BPackageType bPackageType);
+    public abstract void visit(BStructureType bStructureType);
 
-    void visit(BStructureType bStructureType);
+    public abstract void visit(BTupleType bTupleType);
 
-    void visit(BTupleType bTupleType);
+    public abstract void visit(BUnionType bUnionType);
 
-    void visit(BUnionType bUnionType);
+    public abstract void visit(BIntersectionType bIntersectionType);
 
-    void visit(BIntersectionType bIntersectionType);
+    public abstract void visit(BXMLType bxmlType);
 
-    void visit(BXMLType bxmlType);
+    public abstract void visit(BTableType bTableType);
 
-    void visit(BTableType bTableType);
+    public abstract void visit(BRecordType bRecordType);
 
-    void visit(BRecordType bRecordType);
+    public abstract void visit(BObjectType bObjectType);
 
-    void visit(BObjectType bObjectType);
+    public void visit(BType type) {
+        if (type == null) { // TODO: see if we can remove
+            return;
+        }
 
-    void visit(BType bType);
+        switch (type.tag) {
+            case TypeTags.NIL:
+                visitNilType(type);
+        }
+    }
 
-    void visit(BFutureType bFutureType);
+    public abstract void visit(BFutureType bFutureType);
 
-    void visit(BHandleType bHandleType);
-
+    public abstract void visit(BHandleType bHandleType);
 }

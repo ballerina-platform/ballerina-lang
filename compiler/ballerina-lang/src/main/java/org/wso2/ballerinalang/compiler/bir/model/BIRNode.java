@@ -372,6 +372,8 @@ public abstract class BIRNode {
 
         public List<BIRAnnotationAttachment> annotAttachments;
 
+        public List<BIRAnnotationAttachment> annotAttachmentsOnExternal = null;
+
         public List<BIRAnnotationAttachment> returnTypeAnnots;
 
         public Set<BIRGlobalVariableDcl> dependentGlobalVars = new TreeSet<>();
@@ -461,6 +463,7 @@ public abstract class BIRNode {
             f.errorTable = errorTable;
             f.workerChannels = workerChannels;
             f.annotAttachments = annotAttachments;
+            f.annotAttachmentsOnExternal = annotAttachmentsOnExternal;
             f.returnTypeAnnots = returnTypeAnnots;
             return f;
 

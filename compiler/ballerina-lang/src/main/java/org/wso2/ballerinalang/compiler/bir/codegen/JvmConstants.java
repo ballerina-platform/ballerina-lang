@@ -235,6 +235,7 @@ public final class JvmConstants {
     public static final String HASH_MAP = "java/util/HashMap";
     public static final String PATH = "java/nio/file/Path";
     public static final String SYSTEM = "java/lang/System";
+    public static final String REENTRANT_LOCK = "java/util/concurrent/locks/ReentrantLock";
 
     // service objects, annotation processing related classes
     public static final String ANNOTATION_UTILS = "io/ballerina/runtime/internal/utils/AnnotationUtils";
@@ -358,6 +359,7 @@ public final class JvmConstants {
     public static final String CREATE_TYPES_METHOD = "$createTypes";
     public static final String CREATE_TYPE_CONSTANTS_METHOD = "$createTypeConstants";
     public static final String CREATE_TYPE_INSTANCES_METHOD = "$createTypeInstances";
+    public static final String CLASS_LOCK_VAR_NAME = "$lock";
     public static final String GLOBAL_LOCK_NAME = "lock";
     public static final String SERVICE_EP_AVAILABLE = "$serviceEPAvailable";
     public static final String BAL_RUNTIME_VAR_NAME = "$balRuntime";

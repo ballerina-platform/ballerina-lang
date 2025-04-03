@@ -76,6 +76,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangSimpleVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement;
@@ -100,6 +101,7 @@ import java.util.Objects;
 import java.util.Optional;
 
 import static io.ballerina.runtime.api.constants.RuntimeConstants.UNDERSCORE;
+import static java.util.List.of;
 import static org.ballerinalang.model.symbols.SymbolOrigin.VIRTUAL;
 
 /**
@@ -223,7 +225,7 @@ public class AnnotationDesugar {
                     owner);
             if (lambdaFunction != null) {
                 BType type = classDef.getBType();
-                if (Symbols.isFlagOn(type.flags, Flags.OBJECT_CTOR)) {
+                if (Symbols.isFlagOn(type.getFlags(), Flags.OBJECT_CTOR)) {
                     if (normalMode) {
                         // Add the lambda/invocation in a temporary block.
                         BLangBlockStmt target = (BLangBlockStmt) TreeBuilder.createBlockNode();
@@ -483,6 +485,13 @@ public class AnnotationDesugar {
     private void defineFunctionAnnotations(BLangPackage pkgNode, SymbolEnv env, BLangFunction initFunction) {
         BLangBlockFunctionBody initFnBody = (BLangBlockFunctionBody) initFunction.body;
         BLangFunction[] functions = pkgNode.functions.toArray(new BLangFunction[pkgNode.functions.size()]);
+        // TODO: Find a better way to get the annotation map init statement
+        Optional<BLangStatement> globalAnnotInitStmt = initFnBody.stmts.stream()
+                .filter(statement -> statement.getKind() == NodeKind.ASSIGNMENT && ((BLangAssignment) statement)
+                        .varRef.getKind() == NodeKind.SIMPLE_VARIABLE_REF)
+                .filter(statement -> ((BLangSimpleVarRef) ((BLangAssignment) statement).varRef).symbol.name.value.
+                        equals(ANNOTATION_DATA)).findFirst();
+
         for (BLangFunction function : functions) {
             PackageID pkgID = function.symbol.pkgID;
             BSymbol owner = function.symbol.owner;
@@ -503,11 +512,15 @@ public class AnnotationDesugar {
 
                 int index;
                 if (function.attachedFunction
-                        && Symbols.isFlagOn(function.receiver.getBType().flags, Flags.OBJECT_CTOR)) {
+                        && Symbols.isFlagOn(function.receiver.getBType().getFlags(), Flags.OBJECT_CTOR)) {
                     addLambdaToGlobalAnnotMap(identifier, lambdaFunction, target);
+                    globalAnnotInitStmt.ifPresent(statement ->
+                            updateInitOfAnnotGlobalMapWithEmptyRecordLiteral(statement, identifier, lambdaFunction));
                     index = calculateIndex(initFnBody.stmts, function.receiver.getBType().tsymbol);
                 } else {
-                    addInvocationToGlobalAnnotMap(identifier, lambdaFunction, target);
+                    addInvocationToGlobalAnnotMap(identifier, lambdaFunction, target, initFunction.symbol);
+                    globalAnnotInitStmt.ifPresent(statement ->
+                            updateInitOfAnnotGlobalMapWithEmptyRecordLiteral(statement, identifier, lambdaFunction));
                     index = initFnBody.stmts.size();
                 }
 
@@ -517,6 +530,14 @@ public class AnnotationDesugar {
                 }
             }
         }
+    }
+
+    private void updateInitOfAnnotGlobalMapWithEmptyRecordLiteral(BLangStatement globalAnnotInitStmt, String identifier,
+                                                          BLangLambdaFunction expression) {
+        BLangAssignment annotMapInitStmt = (BLangAssignment) globalAnnotInitStmt;
+        BLangRecordLiteral mapLiteral = (BLangRecordLiteral) annotMapInitStmt.expr;
+        addAnnotValueToLiteral(mapLiteral, identifier, ASTBuilderUtil.createEmptyRecordLiteral(expression.pos,
+                symTable.mapType), expression.pos);
     }
 
     private void attachSchedulerPolicy(BLangFunction function) {
@@ -759,7 +780,7 @@ public class AnnotationDesugar {
 
         BLangListConstructorExpr.BLangArrayLiteral valueLiteral = (BLangListConstructorExpr.BLangArrayLiteral)
                 TreeBuilder.createArrayLiteralExpressionNode();
-        valueLiteral.setBType(new BArrayType(symTable.stringType));
+        valueLiteral.setBType(new BArrayType(symTable.typeEnv(), symTable.stringType));
         valueLiteral.typeChecked = true;
         valueLiteral.pos = pos;
 
@@ -794,7 +815,7 @@ public class AnnotationDesugar {
     private BLangFunction defineFunction(Location pos, PackageID pkgID, BSymbol owner) {
         String funcName = ANNOT_FUNC + UNDERSCORE + annotFuncCount++;
         BLangFunction function = ASTBuilderUtil.createFunction(pos, funcName);
-        function.setBType(new BInvokableType(Collections.emptyList(), symTable.mapType, null));
+        function.setBType(new BInvokableType(symTable.typeEnv(), Collections.emptyList(), symTable.mapType, null));
         BLangBuiltInRefTypeNode anyMapType = (BLangBuiltInRefTypeNode) TreeBuilder.createBuiltInReferenceTypeNode();
         anyMapType.typeKind = TypeKind.MAP;
         anyMapType.pos = pos;
@@ -904,9 +925,9 @@ public class AnnotationDesugar {
                 .toList();
         functionSymbol.scope = new Scope(functionSymbol);
         functionSymbol.restParam = function.restParam != null ? function.restParam.symbol : null;
-        functionSymbol.type = new BInvokableType(Collections.emptyList(),
+        functionSymbol.type = new BInvokableType(symTable.typeEnv(), Collections.emptyList(),
                 function.restParam != null ? function.restParam.getBType() : null,
-                new BMapType(TypeTags.MAP, symTable.anyType, null),
+                new BMapType(symTable.typeEnv(), TypeTags.MAP, symTable.anyType, null),
                 null);
         function.symbol = functionSymbol;
         return functionSymbol;
@@ -958,10 +979,39 @@ public class AnnotationDesugar {
     }
 
     private void addInvocationToGlobalAnnotMap(String identifier, BLangLambdaFunction lambdaFunction,
-                                               BLangBlockStmt target) {
-        // create: $annotation_data["identifier"] = $annot_func$.call();
-        addAnnotValueAssignmentToMap(annotationMap, identifier, target,
-                                     getInvocation(lambdaFunction));
+                                               BLangBlockStmt target, BSymbol owner) {
+        // map<any> $sum = <map<any>> annotation_map["sum"]
+        BLangSimpleVariable mapVar = createMapDefFromGlobalAnnotMap(identifier, lambdaFunction, owner, target);
+        // lang.internal:putAll($sum, $annot_func_0());
+        createPutAllStmt(lambdaFunction.pos, getInvocation(lambdaFunction), target, mapVar);
+    }
+
+    private void createPutAllStmt(Location pos, BLangExpression expr, BLangBlockStmt target,
+                                  BLangSimpleVariable mapVar) {
+        BInvokableSymbol putAllFuncSymbol =
+                (BInvokableSymbol) symTable.langInternalModuleSymbol.scope.lookup(Names.MAP_PUT_ALL).symbol;
+        BLangInvocation putAllInvocation =
+                ASTBuilderUtil.createInvocationExpr(pos, putAllFuncSymbol, new ArrayList<>(), symResolver);
+        putAllInvocation.argExprs = new ArrayList<>(of(ASTBuilderUtil.createVariableRef(pos, mapVar.symbol), expr));
+        putAllInvocation.requiredArgs = putAllInvocation.argExprs;
+        BLangExpressionStmt expressionStmt = ASTBuilderUtil.createExpressionStmt(pos, target);
+        expressionStmt.expr = putAllInvocation;
+        expressionStmt.expr.pos = pos;
+    }
+
+    private BLangSimpleVariable createMapDefFromGlobalAnnotMap(String identifier, BLangLambdaFunction lambdaFunction,
+                                                               BSymbol owner, BLangBlockStmt target) {
+        BLangSimpleVariableDef stmt = ASTBuilderUtil.createVariableDef(lambdaFunction.pos,
+                ASTBuilderUtil.createVariable(lambdaFunction.pos, "$" + Utils.unescapeJava(identifier),
+                        symTable.mapType));
+        ASTBuilderUtil.defineVariable(stmt.var, owner, names);
+        BLangIndexBasedAccess mapAccessExpr = ASTBuilderUtil.createIndexAccessExpr(ASTBuilderUtil.
+                        createVariableRef(lambdaFunction.pos, annotationMap.symbol), ASTBuilderUtil
+                .createLiteral(lambdaFunction.pos, symTable.stringType, Utils.unescapeJava(identifier)));
+        mapAccessExpr.setBType(symTable.anyType);
+        stmt.var.expr = ASTBuilderUtil.generateConversionExpr(mapAccessExpr, symTable.mapType, symResolver);
+        target.stmts.add(stmt);
+        return stmt.var;
     }
 
     private void addInvocationToGlobalAnnotMap(String identifier, BLangLambdaFunction lambdaFunction,
@@ -984,6 +1034,13 @@ public class AnnotationDesugar {
         BLangInvocation annotFuncInvocation = getInvocation(lambdaFunction);
         recordLiteral.fields.add(ASTBuilderUtil.createBLangRecordKeyValue(
                 ASTBuilderUtil.createLiteral(pos, symTable.stringType, identifier), annotFuncInvocation));
+    }
+
+    private void addLambdaToLiteral(BLangRecordLiteral recordLiteral, String identifier,
+                                        Location pos, BLangLambdaFunction lambdaFunction) {
+        recordLiteral.fields.add(ASTBuilderUtil.createBLangRecordKeyValue(
+                ASTBuilderUtil.createLiteral(pos, symTable.stringType, identifier),
+                ASTBuilderUtil.createVariableRef(lambdaFunction.pos, lambdaFunction.function.symbol)));
     }
 
     private void addInvocationToLiteral(BLangRecordLiteral recordLiteral, String identifier,

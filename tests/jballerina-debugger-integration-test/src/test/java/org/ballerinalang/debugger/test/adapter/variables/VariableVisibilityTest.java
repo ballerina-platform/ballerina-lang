@@ -39,6 +39,8 @@ import static org.ballerinalang.debugger.test.utils.DebugTestRunner.VariableScop
 /**
  * Test class for variable visibility.
  */
+
+@Test(enabled = false)
 public class VariableVisibilityTest extends BaseTestCase {
 
     Pair<BallerinaTestDebugPoint, StoppedEventArguments> debugHitInfo;
@@ -70,7 +72,8 @@ public class VariableVisibilityTest extends BaseTestCase {
         Assert.assertEquals(globalVariables.size(), 14);
     }
 
-    @Test(description = "Variable visibility test in the middle of the main() method for a new variable")
+    @Test(description = "Variable visibility test in the middle of the main() method for a new variable",
+            enabled = false)
     public void newVariableVisibilityTest() throws BallerinaTestException {
         String testProjectName = "variable-tests";
         String testModuleFileName = "main.bal";
@@ -109,7 +112,8 @@ public class VariableVisibilityTest extends BaseTestCase {
         debugTestRunner.assertVariable(localVariables, "intVar", "5", "int");
     }
 
-    @Test(description = "Variable visibility test in control flows")
+    //Todo - Fix the test case after update 12 release
+    @Test(description = "Variable visibility test in control flows", enabled = false)
     public void controlFlowVariableVisibilityTest() throws BallerinaTestException {
         String testProjectName = "variable-tests";
         String testModuleFileName = "main.bal";

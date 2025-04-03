@@ -257,7 +257,7 @@ public abstract class AbstractParser {
         while (peek().kind != SyntaxKind.EOF_TOKEN) {
             STToken invalidToken = consume();
             node = SyntaxErrors.cloneWithTrailingInvalidNodeMinutiae(node, invalidToken,
-                    DiagnosticErrorCode.ERROR_INVALID_TOKEN);
+                    DiagnosticErrorCode.ERROR_INVALID_TOKEN, invalidToken.text());
         }
 
         return node;

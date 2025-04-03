@@ -25,3 +25,12 @@ public function createRecordFromMap(map<any> v, typedesc<any> t = <>) returns t|
  'class: "org.ballerinalang.langlib.internal.CreateRecordValue",
  name: "createRecordFromMap"
 } external;
+
+# Update a map with the keys and values from another map
+#
+# + target - the value map to be updated
+# + source - the value map of which the keys and values are inserted into map v
+public function putAll(map<any> target, map<any> 'source) = @java:Method {
+ 'class: "org.ballerinalang.langlib.internal.UpdateMapValue",
+ name: "putAll"
+} external;
