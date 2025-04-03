@@ -74,99 +74,36 @@ public class BallerinaTypes extends Types {
      */
     @Override
     public Optional<TypeSymbol> getType(Document document, String text) {
-        // Obtain the ST node
-        TypeDescriptorNode typeDescriptorNode = NodeParser.parseTypeDescriptor(text);
-        if (typeDescriptorNode == null || typeDescriptorNode.hasDiagnostics()) {
-            return Optional.empty();
-        }
-
         // Obtain the compilation unit
         Optional<BLangCompilationUnit> compilationUnit = SymbolUtils.getCompilationUnit(bLangPackage, document);
         if (compilationUnit.isEmpty()) {
             return Optional.empty();
         }
 
-        // Obtain the AST node
-        BLangNodeBuilder bLangNodeBuilder =
-                new BLangNodeBuilder(context, bLangPackage.packageID, compilationUnit.get().getName());
         SymbolEnv pkgEnv = symbolTable.pkgEnvMap.get(bLangPackage.symbol);
-        BLangNode bLangNode = typeDescriptorNode.apply(bLangNodeBuilder);
-
-        // Resolve the type
-        BType resolvedType;
-        if (bLangNode.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
-            BLangSimpleVarRef simpleVarRef = (BLangSimpleVarRef) bLangNode;
-            BSymbol symbolOfVarRef = typeResolver.getSymbolOfVarRef(simpleVarRef.pos, pkgEnv,
-                    Names.fromString(simpleVarRef.pkgAlias.value),
-                    Names.fromString(simpleVarRef.variableName.value));
-            resolvedType = symbolOfVarRef.type;
-        } else if (bLangNode instanceof BLangType bLangType) {
-            try {
-                typeResolver.resolveTypeDesc(bLangType, pkgEnv);
-                resolvedType = bLangType.getBType();
-            } catch (Throwable ignored) {
-                return Optional.empty();
-            }
-        } else {
-            return Optional.empty();
-        }
-
-        // Generate the type symbol
-        return Optional.of(TypesFactory.getInstance(context).getTypeDescriptor(resolvedType));
+        return getType(text, pkgEnv, compilationUnit.get().getName());
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public Optional<TypeSymbol> getType(Document document, String text, Map<String, BLangPackage> importPackages) {
-        // Obtain the ST node
-        TypeDescriptorNode typeDescriptorNode = NodeParser.parseTypeDescriptor(text);
-        if (typeDescriptorNode == null || typeDescriptorNode.hasDiagnostics()) {
-            return Optional.empty();
-        }
-
         // Obtain the compilation unit
         Optional<BLangCompilationUnit> compilationUnit = SymbolUtils.getCompilationUnit(bLangPackage, document);
         if (compilationUnit.isEmpty()) {
             return Optional.empty();
         }
 
-        // Obtain the AST node
-        String compUnitString = compilationUnit.get().getName();
-        BLangNodeBuilder bLangNodeBuilder =
-                new BLangNodeBuilder(context, bLangPackage.packageID, compUnitString);
-        SymbolEnv pkgEnv = symbolTable.pkgEnvMap.get(bLangPackage.symbol);
-        BLangNode bLangNode = typeDescriptorNode.apply(bLangNodeBuilder);
-
         // Define the packages in the environment
-        Name compUnitName = Names.fromString(compUnitString);
+        SymbolEnv pkgEnv = symbolTable.pkgEnvMap.get(bLangPackage.symbol);
+        Name compUnitName = Names.fromString(compilationUnit.get().getName());
         importPackages.forEach((prefix, importPackage) -> {
             importPackage.symbol.compUnit = compUnitName;
             pkgEnv.scope.define(Names.fromString(prefix), importPackage.symbol);
         });
 
-        // Resolve the type
-        BType resolvedType;
-        if (bLangNode.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
-            BLangSimpleVarRef simpleVarRef = (BLangSimpleVarRef) bLangNode;
-            BSymbol symbolOfVarRef = typeResolver.getSymbolOfVarRef(simpleVarRef.pos, pkgEnv,
-                    Names.fromString(simpleVarRef.pkgAlias.value),
-                    Names.fromString(simpleVarRef.variableName.value));
-            resolvedType = symbolOfVarRef.type;
-        } else if (bLangNode instanceof BLangType bLangType) {
-            try {
-                typeResolver.resolveTypeDesc(bLangType, pkgEnv);
-                resolvedType = bLangType.getBType();
-            } catch (Throwable ignored) {
-                return Optional.empty();
-            }
-        } else {
-            return Optional.empty();
-        }
-        if (resolvedType.getKind() == TypeKind.OTHER) {
-            return Optional.empty();
-        }
-
-        // Generate the type symbol
-        return Optional.of(TypesFactory.getInstance(context).getTypeDescriptor(resolvedType));
+       return getType(text, pkgEnv, compUnitName.getValue());
     }
 
     /**
@@ -239,6 +176,44 @@ public class BallerinaTypes extends Types {
     @Override
     public TypeBuilder builder() {
         return new BallerinaTypeBuilder(context);
+    }
+
+    private Optional<TypeSymbol> getType(String text, SymbolEnv pkgEnv, String compUnitName) {
+        // Obtain the ST node
+        TypeDescriptorNode typeDescriptorNode = NodeParser.parseTypeDescriptor(text);
+        if (typeDescriptorNode == null || typeDescriptorNode.hasDiagnostics()) {
+            return Optional.empty();
+        }
+
+        // Obtain the AST node
+        BLangNodeBuilder bLangNodeBuilder =
+                new BLangNodeBuilder(context, bLangPackage.packageID, compUnitName);
+        BLangNode bLangNode = typeDescriptorNode.apply(bLangNodeBuilder);
+
+        // Resolve the type
+        BType resolvedType;
+        if (bLangNode.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
+            BLangSimpleVarRef simpleVarRef = (BLangSimpleVarRef) bLangNode;
+            BSymbol symbolOfVarRef = typeResolver.getSymbolOfVarRef(simpleVarRef.pos, pkgEnv,
+                    Names.fromString(simpleVarRef.pkgAlias.value),
+                    Names.fromString(simpleVarRef.variableName.value));
+            resolvedType = symbolOfVarRef.type;
+        } else if (bLangNode instanceof BLangType bLangType) {
+            try {
+                typeResolver.resolveTypeDesc(bLangType, pkgEnv);
+                resolvedType = bLangType.getBType();
+            } catch (Throwable ignored) {
+                return Optional.empty();
+            }
+        } else {
+            return Optional.empty();
+        }
+        if (resolvedType.getKind() == TypeKind.OTHER) {
+            return Optional.empty();
+        }
+
+        // Generate the type symbol
+        return Optional.of(TypesFactory.getInstance(context).getTypeDescriptor(resolvedType));
     }
 
     private boolean isValidTypeDef(BSymbol bSymbol) {
