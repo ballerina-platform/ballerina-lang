@@ -19,8 +19,6 @@ public class IteratorObject {
         try {
             if (iterator.hasNext()) {
                 switch (iterator.next()) {
-                    case ErrorFrame errorFrame:
-                        return errorFrame.getError();
                     case Frame frame:
                         BMap<BString, Object> recordMap = frame.getRecord();
                         Object value = recordMap.get(VALUE_ACCESS_FIELD);
