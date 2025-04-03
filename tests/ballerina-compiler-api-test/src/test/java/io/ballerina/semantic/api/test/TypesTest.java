@@ -49,6 +49,7 @@ import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.api.symbols.TypeDefinitionSymbol;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
+import io.ballerina.projects.Document;
 import io.ballerina.projects.Module;
 import io.ballerina.projects.Project;
 import org.ballerinalang.test.BCompileUtil;
@@ -109,6 +110,7 @@ public class TypesTest {
 
     Project project;
     private Types types;
+    Document document;
 
     @BeforeClass
     public void setup() {
@@ -121,6 +123,9 @@ public class TypesTest {
         project = BCompileUtil.loadProject("test-src/types-project");
         SemanticModel model = getDefaultModulesSemanticModel(project);
         types = model.types();
+        project.currentPackage().getDefaultModule().documentIds().stream().findFirst().ifPresent(docId ->
+                document = project.currentPackage().getDefaultModule().document(docId));
+
     }
 
     @Test(dataProvider = "BuiltInTypesProvider")
@@ -131,7 +136,7 @@ public class TypesTest {
 
     @DataProvider(name = "BuiltInTypesProvider")
     private Object[][] getBuiltInTypes() {
-        return new Object[][] {
+        return new Object[][]{
                 {types.BOOLEAN, BOOLEAN, BallerinaBooleanTypeSymbol.class},
                 {types.INT, INT, BallerinaIntTypeSymbol.class},
                 {types.FLOAT, FLOAT, BallerinaFloatTypeSymbol.class},
@@ -158,14 +163,14 @@ public class TypesTest {
 
     @Test(dataProvider = "GetTypes")
     public void testGetType(String text, TypeDescKind expectedKind) {
-        Optional<TypeSymbol> type = types.getType(text);
+        Optional<TypeSymbol> type = types.getType(document, text);
         assertTrue(type.isPresent());
         assertEquals(type.get().typeKind(), expectedKind);
     }
 
     @DataProvider(name = "GetTypes")
     private Object[][] getTypes() {
-        return new Object[][] {
+        return new Object[][]{
                 {"string", STRING},
                 {"string?", UNION},
                 {"ExampleDec", TYPE_REFERENCE},
@@ -176,13 +181,17 @@ public class TypesTest {
                 {"ExampleDec[]", ARRAY},
                 {"string|error", UNION},
                 {"function (string) returns int", FUNCTION},
-                {"any", ANY}
+                {"any", ANY},
+                {"string:Char", TYPE_REFERENCE},
+                {"map<int:Signed32>", MAP},
+                {"typesbir:TestRecord", TYPE_REFERENCE},
+                {"typesbir:TestRecord|anydata", UNION},
         };
     }
 
     @Test(dataProvider = "InvalidGetTypes")
     public void testInvalidGetType(String text) {
-        Optional<TypeSymbol> type = types.getType(text);
+        Optional<TypeSymbol> type = types.getType(document, text);
         assertTrue(type.isEmpty());
     }
 
@@ -212,7 +221,7 @@ public class TypesTest {
 
     @DataProvider(name = "TypesByNameProvider")
     private Object[][] getTypesByName() {
-        return new Object[][] {
+        return new Object[][]{
                 // `foo` module
                 {"foo", "ErrorDetail1", TYPE_DEFINITION, RECORD},
                 {"foo", "MyErr", TYPE_DEFINITION, ERROR},
