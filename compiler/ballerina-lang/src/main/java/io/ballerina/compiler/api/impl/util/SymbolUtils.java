@@ -31,15 +31,22 @@ import io.ballerina.compiler.api.symbols.TypeDefinitionSymbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.api.symbols.VariableSymbol;
 import io.ballerina.identifier.Utils;
+import io.ballerina.projects.Document;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BXMLType;
+import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
+import org.wso2.ballerinalang.compiler.tree.BLangPackage;
+import org.wso2.ballerinalang.compiler.tree.BLangTestablePackage;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 /**
  * Common util methods related to symbols.
@@ -100,5 +107,34 @@ public final class SymbolUtils {
              case ERROR -> null;
              default -> null;
          };
+    }
+
+    /**
+     * Gets the compilation unit for a given source file document within a package.
+     * @see #getCompilationUnit(BLangPackage, String)
+     *
+     * @param bLangPackage The package to search within.
+     * @param srcFile      The source file document.
+     * @return Optional containing the compilation unit if found, empty otherwise.
+     */
+    public static Optional<BLangCompilationUnit> getCompilationUnit(BLangPackage bLangPackage, Document srcFile) {
+        return getCompilationUnit(bLangPackage, srcFile.name());
+    }
+
+    /**
+     * Finds a compilation unit by its name within a package, including its testable packages.
+     *
+     * @param bLangPackage The package to search within.
+     * @param srcFile      The name of the source file to find.
+     * @return Optional containing the compilation unit if found, empty otherwise.
+     */
+    public static Optional<BLangCompilationUnit> getCompilationUnit(BLangPackage bLangPackage, String srcFile) {
+        List<BLangCompilationUnit> testSrcs = new ArrayList<>();
+        for (BLangTestablePackage pkg : bLangPackage.testablePkgs) {
+            testSrcs.addAll(pkg.compUnits);
+        }
+
+        Stream<BLangCompilationUnit> units = Stream.concat(bLangPackage.compUnits.stream(), testSrcs.stream());
+        return units.filter(unit -> unit.name.equals(srcFile)).findFirst();
     }
 }

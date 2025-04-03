@@ -21,13 +21,16 @@ import io.ballerina.compiler.api.TypeBuilder;
 import io.ballerina.compiler.api.Types;
 import io.ballerina.compiler.api.impl.symbols.TypesFactory;
 import io.ballerina.compiler.api.impl.util.FieldMap;
+import io.ballerina.compiler.api.impl.util.SymbolUtils;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.syntax.tree.NodeParser;
 import io.ballerina.compiler.syntax.tree.TypeDescriptorNode;
+import io.ballerina.projects.Document;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.symbols.SymbolOrigin;
+import org.ballerinalang.model.tree.NodeKind;
 import org.wso2.ballerinalang.compiler.parser.BLangNodeBuilder;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.TypeResolver;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
@@ -35,8 +38,11 @@ import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.types.BLangType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Names;
@@ -53,14 +59,11 @@ import java.util.Optional;
  */
 public class BallerinaTypes extends Types {
 
-    private static final String COMPILATION_UNIT_NAME = "$types$compilation-unit$";
-    private final BLangNodeBuilder bLangNodeBuilder;
     private final TypeResolver typeResolver;
 
     public BallerinaTypes(BLangPackage bLangPackage, CompilerContext context) {
         super(bLangPackage, context);
         context.put(TYPES_KEY, this);
-        this.bLangNodeBuilder = new BLangNodeBuilder(context, bLangPackage.packageID, COMPILATION_UNIT_NAME);
         this.typeResolver = TypeResolver.getInstance(context);
     }
 
@@ -68,29 +71,46 @@ public class BallerinaTypes extends Types {
      * {@inheritDoc}
      */
     @Override
-    public Optional<TypeSymbol> getType(String text) {
+    public Optional<TypeSymbol> getType(Document document, String text) {
         // Obtain the ST node
         TypeDescriptorNode typeDescriptorNode = NodeParser.parseTypeDescriptor(text);
         if (typeDescriptorNode == null || typeDescriptorNode.hasDiagnostics()) {
             return Optional.empty();
         }
 
-        // Obtain the AST node
-        BLangNode bLangNode = typeDescriptorNode.apply(bLangNodeBuilder);
-        if (!(bLangNode instanceof BLangType)) {
+        // Obtain the compilation unit
+        Optional<BLangCompilationUnit> compilationUnit = SymbolUtils.getCompilationUnit(bLangPackage, document);
+        if (compilationUnit.isEmpty()) {
             return Optional.empty();
         }
 
-        // Resolve the type
+        // Obtain the AST node
+        BLangNodeBuilder bLangNodeBuilder =
+                new BLangNodeBuilder(context, bLangPackage.packageID, compilationUnit.get().getName());
         SymbolEnv pkgEnv = symbolTable.pkgEnvMap.get(bLangPackage.symbol);
-        try {
-            typeResolver.resolveTypeDesc((BLangType) bLangNode, pkgEnv);
-        } catch (Throwable ignored) {
+        BLangNode bLangNode = typeDescriptorNode.apply(bLangNodeBuilder);
+
+        // Resolve the type
+        BType resolvedType;
+        if (bLangNode.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
+            BLangSimpleVarRef simpleVarRef = (BLangSimpleVarRef) bLangNode;
+            BSymbol symbolOfVarRef = typeResolver.getSymbolOfVarRef(simpleVarRef.pos, pkgEnv,
+                    Names.fromString(simpleVarRef.pkgAlias.value),
+                    Names.fromString(simpleVarRef.variableName.value));
+            resolvedType = symbolOfVarRef.type;
+        } else if (bLangNode instanceof BLangType bLangType) {
+            try {
+                typeResolver.resolveTypeDesc(bLangType, pkgEnv);
+                resolvedType = bLangType.getBType();
+            } catch (Throwable ignored) {
+                return Optional.empty();
+            }
+        } else {
             return Optional.empty();
         }
 
         // Generate the type symbol
-        return Optional.of(TypesFactory.getInstance(context).getTypeDescriptor(bLangNode.getBType()));
+        return Optional.of(TypesFactory.getInstance(context).getTypeDescriptor(resolvedType));
     }
 
     /**
