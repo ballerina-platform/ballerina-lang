@@ -88,7 +88,7 @@ public class BallerinaTypes extends Types {
      * {@inheritDoc}
      */
     @Override
-    public Optional<TypeSymbol> getType(Document document, String text, Map<String, BLangPackage> importPackages) {
+    public Optional<TypeSymbol> getType(Document document, String text, Map<String, BLangPackage> importModules) {
         // Obtain the compilation unit
         Optional<BLangCompilationUnit> compilationUnit = SymbolUtils.getCompilationUnit(bLangPackage, document);
         if (compilationUnit.isEmpty()) {
@@ -98,7 +98,7 @@ public class BallerinaTypes extends Types {
         // Define the packages in the environment
         SymbolEnv pkgEnv = symbolTable.pkgEnvMap.get(bLangPackage.symbol);
         Name compUnitName = Names.fromString(compilationUnit.get().getName());
-        importPackages.forEach((prefix, importPackage) -> {
+        importModules.forEach((prefix, importPackage) -> {
             importPackage.symbol.compUnit = compUnitName;
             pkgEnv.scope.define(Names.fromString(prefix), importPackage.symbol);
         });
