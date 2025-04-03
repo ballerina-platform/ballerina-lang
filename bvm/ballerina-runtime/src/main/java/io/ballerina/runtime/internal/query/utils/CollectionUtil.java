@@ -13,7 +13,6 @@ import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BTable;
 import io.ballerina.runtime.api.values.BXml;
 import io.ballerina.runtime.api.values.BXmlSequence;
-import io.ballerina.runtime.internal.query.pipeline.ErrorFrame;
 import io.ballerina.runtime.internal.query.pipeline.Frame;
 import io.ballerina.runtime.internal.query.pipeline.StreamPipeline;
 import io.ballerina.runtime.internal.values.HandleValue;
@@ -38,8 +37,6 @@ public class CollectionUtil {
             Iterator<Frame> it = strm.iterator();
             while (it.hasNext()) {
                 switch (it.next()) {
-                    case ErrorFrame errorFrame:
-                        return errorFrame.getError();
                     case Frame frame:
                         array.append(frame.getRecord().get(VALUE_ACCESS_FIELD));
                 }
@@ -229,7 +226,8 @@ public class CollectionUtil {
             Iterator<Frame> it = strm.iterator();
             while (it.hasNext()) {
                 Frame frame = it.next();
-                if (frame.getRecord().containsKey(VALUE_ACCESS_FIELD) && frame.getRecord().get(VALUE_ACCESS_FIELD) != null) {
+                if (frame.getRecord().containsKey(VALUE_ACCESS_FIELD)
+                        && frame.getRecord().get(VALUE_ACCESS_FIELD) != null) {
                     return frame.getRecord().get(VALUE_ACCESS_FIELD);
                 }
             }
