@@ -19,16 +19,25 @@ package io.ballerina.compiler.api.impl;
 
 import io.ballerina.compiler.api.TypeBuilder;
 import io.ballerina.compiler.api.Types;
+import io.ballerina.compiler.api.impl.symbols.TypesFactory;
 import io.ballerina.compiler.api.impl.util.FieldMap;
 import io.ballerina.compiler.api.symbols.Symbol;
+import io.ballerina.compiler.api.symbols.TypeSymbol;
+import io.ballerina.compiler.syntax.tree.NodeParser;
+import io.ballerina.compiler.syntax.tree.TypeDescriptorNode;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.symbols.SymbolOrigin;
+import org.wso2.ballerinalang.compiler.parser.BLangNodeBuilder;
+import org.wso2.ballerinalang.compiler.semantics.analyzer.TypeResolver;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
+import org.wso2.ballerinalang.compiler.tree.BLangNode;
+import org.wso2.ballerinalang.compiler.tree.BLangPackage;
+import org.wso2.ballerinalang.compiler.tree.types.BLangType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.util.Flags;
@@ -44,18 +53,44 @@ import java.util.Optional;
  */
 public class BallerinaTypes extends Types {
 
-    private BallerinaTypes(CompilerContext context) {
-        super(context);
+    private static final String COMPILATION_UNIT_NAME = "$types$compilation-unit$";
+    private final BLangNodeBuilder bLangNodeBuilder;
+    private final TypeResolver typeResolver;
+
+    public BallerinaTypes(BLangPackage bLangPackage, CompilerContext context) {
+        super(bLangPackage, context);
         context.put(TYPES_KEY, this);
+        this.bLangNodeBuilder = new BLangNodeBuilder(context, bLangPackage.packageID, COMPILATION_UNIT_NAME);
+        this.typeResolver = TypeResolver.getInstance(context);
     }
 
-    public static Types getInstance(CompilerContext context) {
-        Types types = context.get(TYPES_KEY);
-        if (types == null) {
-            types = new BallerinaTypes(context);
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Optional<TypeSymbol> getType(String text) {
+        // Obtain the ST node
+        TypeDescriptorNode typeDescriptorNode = NodeParser.parseTypeDescriptor(text);
+        if (typeDescriptorNode == null || typeDescriptorNode.hasDiagnostics()) {
+            return Optional.empty();
         }
 
-        return types;
+        // Obtain the AST node
+        BLangNode bLangNode = typeDescriptorNode.apply(bLangNodeBuilder);
+        if (!(bLangNode instanceof BLangType)) {
+            return Optional.empty();
+        }
+
+        // Resolve the type
+        SymbolEnv pkgEnv = symbolTable.pkgEnvMap.get(bLangPackage.symbol);
+        try {
+            typeResolver.resolveTypeDesc((BLangType) bLangNode, pkgEnv);
+        } catch (Throwable ignored) {
+            return Optional.empty();
+        }
+
+        // Generate the type symbol
+        return Optional.of(TypesFactory.getInstance(context).getTypeDescriptor(bLangNode.getBType()));
     }
 
     /**

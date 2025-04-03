@@ -69,6 +69,7 @@ import static io.ballerina.compiler.api.symbols.SymbolKind.ENUM_MEMBER;
 import static io.ballerina.compiler.api.symbols.SymbolKind.TYPE_DEFINITION;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.ANY;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.ANYDATA;
+import static io.ballerina.compiler.api.symbols.TypeDescKind.ARRAY;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.BOOLEAN;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.BYTE;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.COMPILATION_ERROR;
@@ -80,6 +81,7 @@ import static io.ballerina.compiler.api.symbols.TypeDescKind.FUTURE;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.HANDLE;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.INT;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.JSON;
+import static io.ballerina.compiler.api.symbols.TypeDescKind.MAP;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.NEVER;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.NIL;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.OBJECT;
@@ -151,6 +153,47 @@ public class TypesTest {
                 {types.BYTE, BYTE, BallerinaByteTypeSymbol.class},
                 {types.COMPILATION_ERROR, COMPILATION_ERROR, BallerinaCompilationErrorTypeSymbol.class},
                 {types.RAW_TEMPLATE, TYPE_REFERENCE, BallerinaTypeReferenceTypeSymbol.class}
+        };
+    }
+
+    @Test(dataProvider = "GetTypes")
+    public void testGetType(String text, TypeDescKind expectedKind) {
+        Optional<TypeSymbol> type = types.getType(text);
+        assertTrue(type.isPresent());
+        assertEquals(type.get().typeKind(), expectedKind);
+    }
+
+    @DataProvider(name = "GetTypes")
+    private Object[][] getTypes() {
+        return new Object[][] {
+                {"string", STRING},
+                {"string?", UNION},
+                {"ExampleDec", TYPE_REFERENCE},
+                {"int", INT},
+                {"float", FLOAT},
+                {"boolean", BOOLEAN},
+                {"map<string>", MAP},
+                {"ExampleDec[]", ARRAY},
+                {"string|error", UNION},
+                {"function (string) returns int", FUNCTION},
+                {"any", ANY}
+        };
+    }
+
+    @Test(dataProvider = "InvalidGetTypes")
+    public void testInvalidGetType(String text) {
+        Optional<TypeSymbol> type = types.getType(text);
+        assertTrue(type.isEmpty());
+    }
+
+    @DataProvider(name = "InvalidGetTypes")
+    private Object[][] getInvalidTypes() {
+        return new Object[][] {
+                {"undefinedType"},
+                {"str"},
+                {"map<>"},
+                {"[]int"},
+                {"error|"}
         };
     }
 
