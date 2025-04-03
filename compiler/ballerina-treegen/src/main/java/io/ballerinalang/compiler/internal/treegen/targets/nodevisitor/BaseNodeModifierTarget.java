@@ -1,7 +1,7 @@
 /*
- *  Copyright (c) 2020, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *  Copyright (c) 2025, WSO2 LLC. (http://www.wso2.org).
  *
- *  WSO2 Inc. licenses this file to you under the Apache License,
+ *  WSO2 LLC. licenses this file to you under the Apache License,
  *  Version 2.0 (the "License"); you may not use this file except
  *  in compliance with the License.
  *  You may obtain a copy of the License at
@@ -19,22 +19,23 @@ package io.ballerinalang.compiler.internal.treegen.targets.nodevisitor;
 
 import io.ballerinalang.compiler.internal.treegen.TreeGenConfig;
 
-import java.util.Collections;
+import java.util.ArrayList;
 import java.util.List;
 
+import static io.ballerinalang.compiler.internal.treegen.TreeGenConfig.EXTERNAL_BASE_NODE_MODIFIER_TEMPLATE_KEY;
 import static io.ballerinalang.compiler.internal.treegen.TreeGenConfig.EXTERNAL_NODE_OUTPUT_DIR_KEY;
 import static io.ballerinalang.compiler.internal.treegen.TreeGenConfig.EXTERNAL_NODE_PACKAGE_KEY;
-import static io.ballerinalang.compiler.internal.treegen.TreeGenConfig.EXTERNAL_TREE_MODIFIER_TEMPLATE_KEY;
+import static io.ballerinalang.compiler.internal.treegen.TreeGenConfig.INTERNAL_NODE_PACKAGE_KEY;
 
 /**
  * Generates a syntax tree transformer java class for the external syntax tree.
- * New tree nodes can only be replaced with nodes of the same kind.
+ * New tree nodes can be replaced with any subclass of their base class.
  *
- * @since 1.3.0
+ * @since 2201.13.0
  */
-public class TreeModifierTarget extends AbstractNodeVisitorTarget {
+public class BaseNodeModifierTarget extends AbstractNodeVisitorTarget {
 
-    public TreeModifierTarget(TreeGenConfig config) {
+    public BaseNodeModifierTarget(TreeGenConfig config) {
         super(config);
     }
 
@@ -50,21 +51,24 @@ public class TreeModifierTarget extends AbstractNodeVisitorTarget {
 
     @Override
     protected String getClassName() {
-        return TREE_MODIFIER_CN;
+        return BASE_NODE_MODIFIER_CN;
     }
 
     @Override
     protected String getSuperClassName() {
-        return BASE_NODE_MODIFIER_CN;
+        return NODE_TRANSFORMER_CN;
     }
 
     protected @Override
     List<String> getImportClasses() {
-        return Collections.emptyList();
+        List<String> imports = new ArrayList<>();
+        imports.add(getClassFQN(config.getOrThrow(INTERNAL_NODE_PACKAGE_KEY), INTERNAL_BASE_NODE_CN));
+        imports.add(getClassFQN(config.getOrThrow(INTERNAL_NODE_PACKAGE_KEY), INTERNAL_NODE_FACTORY_CN));
+        return imports;
     }
 
     @Override
     protected String getTemplateName() {
-        return config.getOrThrow(EXTERNAL_TREE_MODIFIER_TEMPLATE_KEY);
+        return config.getOrThrow(EXTERNAL_BASE_NODE_MODIFIER_TEMPLATE_KEY);
     }
 }
