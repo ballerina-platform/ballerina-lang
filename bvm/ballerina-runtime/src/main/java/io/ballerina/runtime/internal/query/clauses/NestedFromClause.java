@@ -49,16 +49,19 @@ public class NestedFromClause implements PipelineStage {
     @Override
     public Stream<Frame> process(Stream<Frame> inputStream) {
         return inputStream.flatMap(frame -> {
+            Object collection = collectionFunc.call(env.getRuntime(), frame.getRecord());
+            if (collection instanceof BError error) {
+                throw new QueryException(error);
+            }
+
+            if (collection == null) {
+                return Stream.empty();
+            }
+
+            Iterator<Object> itr = BallerinaIteratorUtils.getIterator(env, collection);
+            List<Frame> results = new ArrayList<>();
+
             try {
-                Object collection = collectionFunc.call(env.getRuntime(), frame.getRecord());
-
-                if (collection == null) {
-                    return Stream.empty();
-                }
-
-                Iterator<Object> itr = BallerinaIteratorUtils.getIterator(env, collection);
-                List<Frame> results = new ArrayList<>();
-
                 while (itr.hasNext()) {
                     Object item = itr.next();
 
@@ -73,11 +76,11 @@ public class NestedFromClause implements PipelineStage {
                     newRecord.put(VALUE_FIELD, item);
                     results.add(new Frame(newRecord));
                 }
-
-                return results.stream();
             } catch (BError e) {
-                throw new QueryException(e);
+                throw new QueryException(e, true);
             }
+
+            return results.stream();
         });
     }
 }
