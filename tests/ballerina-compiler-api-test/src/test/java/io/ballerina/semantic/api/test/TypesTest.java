@@ -58,6 +58,7 @@ import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
+import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 
 import java.util.Arrays;
 import java.util.Map;
@@ -111,6 +112,7 @@ public class TypesTest {
     Project project;
     private Types types;
     Document document;
+    BLangPackage testProjectBLangProject;
 
     @BeforeClass
     public void setup() {
@@ -126,6 +128,9 @@ public class TypesTest {
         project.currentPackage().getDefaultModule().documentIds().stream().findFirst().ifPresent(docId ->
                 document = project.currentPackage().getDefaultModule().document(docId));
 
+        CompileResult testProjectCompileResult = BCompileUtil.compileAndCacheBala("test-src/testproject");
+        testProjectBLangProject =
+                testProjectCompileResult.project().currentPackage().getCompilation().defaultModuleBLangPackage();
     }
 
     @Test(dataProvider = "BuiltInTypesProvider")
@@ -197,12 +202,44 @@ public class TypesTest {
 
     @DataProvider(name = "InvalidGetTypes")
     private Object[][] getInvalidTypes() {
-        return new Object[][] {
+        return new Object[][]{
                 {"undefinedType"},
                 {"str"},
                 {"map<>"},
                 {"[]int"},
                 {"error|"}
+        };
+    }
+
+    @Test(dataProvider = "GetTypesWithImports")
+    public void testGetTypeWithImports(String text, TypeDescKind expectedKind) {
+        Optional<TypeSymbol> type =
+                types.getType(document, text, Map.of("test_p", testProjectBLangProject));
+        assertTrue(type.isPresent());
+        assertEquals(type.get().typeKind(), expectedKind);
+    }
+
+    @DataProvider(name = "GetTypesWithImports")
+    private Object[][] getTypeWithImports() {
+        return new Object[][]{
+                {"test_p:BasicType", TYPE_REFERENCE},
+                {"map<test_p:Digit>", MAP},
+                {"typesbir:TestRecord|anydata|test_p:BasicType", UNION}
+        };
+    }
+
+    @Test(dataProvider = "InvalidGetTypeWithImports")
+    public void testInvalidGetTypeWithImports(String text) {
+        Optional<TypeSymbol> type = types.getType(document, text, Map.of("test_p", testProjectBLangProject));
+        assertTrue(type.isEmpty());
+    }
+
+    @DataProvider(name = "InvalidGetTypeWithImports")
+    private Object[][] getInvalidTypeWithImports() {
+        return new Object[][]{
+                {"target:BasicType"},
+                {"test_p:Employee"},
+                {"map<test_p:Employee>"}
         };
     }
 

@@ -31,6 +31,7 @@ import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.symbols.SymbolOrigin;
 import org.ballerinalang.model.tree.NodeKind;
+import org.ballerinalang.model.types.TypeKind;
 import org.wso2.ballerinalang.compiler.parser.BLangNodeBuilder;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.TypeResolver;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
@@ -45,6 +46,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.types.BLangType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
+import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.util.Flags;
 
@@ -106,6 +108,60 @@ public class BallerinaTypes extends Types {
                 return Optional.empty();
             }
         } else {
+            return Optional.empty();
+        }
+
+        // Generate the type symbol
+        return Optional.of(TypesFactory.getInstance(context).getTypeDescriptor(resolvedType));
+    }
+
+    @Override
+    public Optional<TypeSymbol> getType(Document document, String text, Map<String, BLangPackage> importPackages) {
+        // Obtain the ST node
+        TypeDescriptorNode typeDescriptorNode = NodeParser.parseTypeDescriptor(text);
+        if (typeDescriptorNode == null || typeDescriptorNode.hasDiagnostics()) {
+            return Optional.empty();
+        }
+
+        // Obtain the compilation unit
+        Optional<BLangCompilationUnit> compilationUnit = SymbolUtils.getCompilationUnit(bLangPackage, document);
+        if (compilationUnit.isEmpty()) {
+            return Optional.empty();
+        }
+
+        // Obtain the AST node
+        String compUnitString = compilationUnit.get().getName();
+        BLangNodeBuilder bLangNodeBuilder =
+                new BLangNodeBuilder(context, bLangPackage.packageID, compUnitString);
+        SymbolEnv pkgEnv = symbolTable.pkgEnvMap.get(bLangPackage.symbol);
+        BLangNode bLangNode = typeDescriptorNode.apply(bLangNodeBuilder);
+
+        // Define the packages in the environment
+        Name compUnitName = Names.fromString(compUnitString);
+        importPackages.forEach((prefix, importPackage) -> {
+            importPackage.symbol.compUnit = compUnitName;
+            pkgEnv.scope.define(Names.fromString(prefix), importPackage.symbol);
+        });
+
+        // Resolve the type
+        BType resolvedType;
+        if (bLangNode.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
+            BLangSimpleVarRef simpleVarRef = (BLangSimpleVarRef) bLangNode;
+            BSymbol symbolOfVarRef = typeResolver.getSymbolOfVarRef(simpleVarRef.pos, pkgEnv,
+                    Names.fromString(simpleVarRef.pkgAlias.value),
+                    Names.fromString(simpleVarRef.variableName.value));
+            resolvedType = symbolOfVarRef.type;
+        } else if (bLangNode instanceof BLangType bLangType) {
+            try {
+                typeResolver.resolveTypeDesc(bLangType, pkgEnv);
+                resolvedType = bLangType.getBType();
+            } catch (Throwable ignored) {
+                return Optional.empty();
+            }
+        } else {
+            return Optional.empty();
+        }
+        if (resolvedType.getKind() == TypeKind.OTHER) {
             return Optional.empty();
         }
 
