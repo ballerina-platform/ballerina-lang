@@ -25,7 +25,7 @@ import java.util.function.Function;
 
 /**
  * Produces a new tree by doing a depth-first traversal of the tree.
- * New tree nodes can be replaced with any subclass of their base class.
+ * New tree nodes can be replaced with any syntax node.
  *
  * This is a generated class.
  *
@@ -36,7 +36,7 @@ public abstract class {{className}} extends {{superClassName}}<Node> {
     {{^isAbstract}}
 
     @Override
-    public {{superClassName}} transform(
+    public Node transform(
             {{externalClassName}} {{camelCaseExternalClassName}}) {
         {{#fields}}
         {{#isList}}{{listClassName}}<{{fieldClassName}}>{{/isList}}{{^isList}}{{fieldClassName}}{{/isList}} {{fieldName}} =

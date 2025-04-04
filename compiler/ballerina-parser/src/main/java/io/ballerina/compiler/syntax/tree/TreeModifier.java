@@ -26,7 +26,7 @@ package io.ballerina.compiler.syntax.tree;
  *
  * @since 2.0.0
  */
-public abstract class TreeModifier extends BaseNodeModifier {
+public abstract class TreeModifier extends SyntaxNodeTransformer {
 
     @Override
     public ModulePartNode transform(
