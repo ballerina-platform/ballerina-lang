@@ -39,20 +39,14 @@ public class BMethodType extends BFunctionType implements MethodType {
     public BObjectType parentObjectType;
 
     public BMethodType(String funcName, Module pkg, BObjectType parent, BFunctionType type, long flags) {
-        super(pkg);
+        super(pkg, type.getParameters(), type.getRestType(), type.getReturnType(), flags, type.getName());
         this.funcName = funcName;
-        this.type = type;
         this.parentObjectType = parent;
-        this.flags = flags;
-        this.parameters = type.parameters;
-        if (isFunctionTop()) {
-            resetTypeCheckCaches();
-        }
     }
 
     @Override
     public String toString() {
-        StringJoiner sj = new StringJoiner(",", "function " + funcName + "(", ") returns (" + type.retType + ")");
+        StringJoiner sj = new StringJoiner(",", "function " + funcName + "(", ") returns (" + this.retType + ")");
         for (Parameter parameter : parameters) {
             sj.add(parameter.type.getName());
         }
@@ -76,11 +70,11 @@ public class BMethodType extends BFunctionType implements MethodType {
 
     @Override
     public FunctionType getType() {
-        return type;
+        return this;
     }
 
     public <T extends MethodType> MethodType duplicate() {
-        return new BMethodType(funcName, pkg, parentObjectType, type, flags);
+        return new BMethodType(funcName, pkg, parentObjectType, this, flags);
     }
 
     @Override

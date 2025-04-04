@@ -39,9 +39,7 @@ public class BResourceMethodType extends BMethodType implements ResourceMethodTy
     public BResourceMethodType(String funcName, Module pkg, BObjectType parent, BFunctionType type,
                                Type[] pathSegmentTypes, long flags, String accessor, String[] resourcePath) {
         super(funcName, pkg, parent, type, flags);
-        this.type = type;
         this.pathSegmentTypes = pathSegmentTypes;
-        this.flags = flags;
         this.accessor = accessor;
         this.resourcePath = resourcePath;
     }
@@ -53,7 +51,7 @@ public class BResourceMethodType extends BMethodType implements ResourceMethodTy
             rp.add(p);
         }
         StringJoiner sj = new StringJoiner(",", "resource function " + accessor + " " + rp.toString() +
-                "(", ") returns (" + type.retType + ")");
+                "(", ") returns (" + this.retType + ")");
         for (Parameter parameter : parameters) {
             Type type = parameter.type;
             sj.add(type.getName() + " " + parameter.name);
@@ -83,7 +81,7 @@ public class BResourceMethodType extends BMethodType implements ResourceMethodTy
 
     @Override
     public <T extends MethodType> MethodType duplicate() {
-        return new BResourceMethodType(funcName, pkg, parentObjectType, type, pathSegmentTypes, flags, accessor,
+        return new BResourceMethodType(funcName, pkg, parentObjectType, this, pathSegmentTypes, flags, accessor,
                 resourcePath);
     }
 
