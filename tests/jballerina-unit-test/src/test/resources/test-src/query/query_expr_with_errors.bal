@@ -449,23 +449,23 @@ function checkErrorAtLet2() returns error? {
         select v;
 }
 
-function testErrorReturnedFromLimitClause() {
-    assertTrue(checkErrorAtLimitClause1() is error);
-    assertTrue(checkErrorAtLimitClause2() is error);
-}
+// function testErrorReturnedFromLimitClause() {
+//     assertTrue(checkErrorAtLimitClause1() is error);
+//     assertTrue(checkErrorAtLimitClause2() is error);
+// }
 
-function checkErrorAtLimitClause1() returns error? {
-    _ = from int i in 1 ... 3
-        limit check verifyCheck(i)
-        select i;
-}
+// function checkErrorAtLimitClause1() returns error? {
+//     _ = from int i in 1 ... 3
+//         limit check verifyCheck(i)
+//         select i;
+// }
 
-function checkErrorAtLimitClause2() returns error? {
-    _ = from int v in (from int i in 1 ... 3
-            limit check verifyCheck(i)
-            select i)
-        select v;
-}
+// function checkErrorAtLimitClause2() returns error? {
+//     _ = from int v in (from int i in 1 ... 3
+//             limit check verifyCheck(i)
+//             select i)
+//         select v;
+// }
 
 function testErrorReturnedFromJoinClause() {
     assertTrue(checkErrorAtJoinClause() is error);

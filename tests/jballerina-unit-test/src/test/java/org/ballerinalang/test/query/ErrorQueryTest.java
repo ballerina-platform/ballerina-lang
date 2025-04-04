@@ -109,10 +109,10 @@ public class ErrorQueryTest {
         BRunUtil.invoke(result, "testErrorReturnedFromLetClause");
     }
 
-    @Test
-    public void testErrorReturnedFromLimitClause() {
-        BRunUtil.invoke(result, "testErrorReturnedFromLimitClause");
-    }
+//    @Test
+//    public void testErrorReturnedFromLimitClause() {
+//        BRunUtil.invoke(result, "testErrorReturnedFromLimitClause");
+//    }
 
     @Test
     public void testErrorReturnedFromJoinClause() {

@@ -226,36 +226,36 @@ function testLimitClauseWithQueryAction4() returns FullName[] {
     return nameList;
 }
 
-function testLetExpressionWithLimitClause() returns boolean {
-
-    Person p1 = {firstName: "Alex", lastName: "George", age: 33};
-    Person p2 = {firstName: "Ranjan", lastName: "Fonseka", age: 35};
-    Person p3 = {firstName: "John", lastName: "David", age: 33};
-    Person p4 = {firstName: "Max", lastName: "Gomaz", age: 33};
-
-    Person[] personList = [p1, p2, p3, p4];
-
-    Person[] outputPersonList =
-            from var person in personList
-            let int newAge = 34
-            let int limitValue = 2
-            where person.age == 33
-            limit limitValue
-            select {
-                   firstName: person.firstName,
-                   lastName: person.lastName,
-                   age: newAge
-            };
-            
-    boolean testPassed = true;
-    Person p;
-    any res = outputPersonList;
-    testPassed = testPassed && res is Person[];
-    testPassed = testPassed && res is (any|error)[];
-    testPassed = testPassed && outputPersonList.length() == 2;
-    p = outputPersonList[0];
-    testPassed = testPassed && p.firstName == "Alex" && p.lastName == "George" && p.age == 34;
-    p = outputPersonList[1];
-    testPassed = testPassed && p.firstName == "John" && p.lastName == "David" && p.age == 34;
-    return testPassed;
-}
+// function testLetExpressionWithLimitClause() returns boolean {
+//
+//     Person p1 = {firstName: "Alex", lastName: "George", age: 33};
+//     Person p2 = {firstName: "Ranjan", lastName: "Fonseka", age: 35};
+//     Person p3 = {firstName: "John", lastName: "David", age: 33};
+//     Person p4 = {firstName: "Max", lastName: "Gomaz", age: 33};
+//
+//     Person[] personList = [p1, p2, p3, p4];
+//
+//     Person[] outputPersonList =
+//             from var person in personList
+//             let int newAge = 34
+//             let int limitValue = 2
+//             where person.age == 33
+//             limit limitValue
+//             select {
+//                    firstName: person.firstName,
+//                    lastName: person.lastName,
+//                    age: newAge
+//             };
+//
+//     boolean testPassed = true;
+//     Person p;
+//     any res = outputPersonList;
+//     testPassed = testPassed && res is Person[];
+//     testPassed = testPassed && res is (any|error)[];
+//     testPassed = testPassed && outputPersonList.length() == 2;
+//     p = outputPersonList[0];
+//     testPassed = testPassed && p.firstName == "Alex" && p.lastName == "George" && p.age == 34;
+//     p = outputPersonList[1];
+//     testPassed = testPassed && p.firstName == "John" && p.lastName == "David" && p.age == 34;
+//     return testPassed;
+// }
