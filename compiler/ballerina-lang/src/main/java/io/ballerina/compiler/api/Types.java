@@ -22,6 +22,7 @@ import io.ballerina.compiler.api.impl.SymbolFactory;
 import io.ballerina.compiler.api.impl.symbols.TypesFactory;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
+import io.ballerina.projects.Document;
 import org.wso2.ballerinalang.compiler.PackageCache;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
@@ -100,14 +101,32 @@ public abstract class Types {
     }
 
     /**
-     * Parses a string representation of a Ballerina type descriptor into a {@link TypeSymbol}. Referenced named types
-     * within the {@code text} must be either built-in types or user-defined types declared within the current module.
+     * Parses a string representation of a Ballerina type descriptor into a {@link TypeSymbol}.
+     * Referenced named types within the {@code text} are resolved by searching built-in types,
+     * user-defined types declared within the current module (provided by the {@code document}),
+     * and types accessible via the import statements within that {@code document}.
      *
-     * @param text The string representation of the Ballerina type descriptor to parse.
+     * @param document The document used to resolve types within the current module and its imports.
+     * @param text     The string representation of the Ballerina type descriptor to parse.
      * @return An {@link Optional} containing the resolved {@link TypeSymbol}, or empty if parsing fails or the type is
-     * invalid in the current context.
+     * invalid or not found within the accessible scope.
      */
-    public abstract Optional<TypeSymbol> getType(String text);
+    public abstract Optional<TypeSymbol> getType(Document document, String text);
+
+    /**
+     * Parses a string representation of a Ballerina type descriptor into a {@link TypeSymbol}. Resolves types using
+     * built-ins, the current module (via {@code document}), its existing imports, and the additionally provided
+     * {@code importModules}.
+     *
+     * @param document      The document for resolving types within the current module and its imports.
+     * @param text          The string representation of the Ballerina type descriptor.
+     * @param importModules Additional modules that are not imported in the {@code document} can be defined with
+     *                      'module_prefix -> module', and are accounted for in type resolution.
+     * @return An {@link Optional} containing the resolved {@link TypeSymbol}, or empty if parsing fails or the type is
+     * not found/invalid within the combined scope.
+     */
+    public abstract Optional<TypeSymbol> getType(Document document, String text,
+                                                 Map<String, BLangPackage> importModules);
 
     /**
      * Lookup for the symbol of a user defined type within a given module. This would be considering type
