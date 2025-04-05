@@ -1,0 +1,48 @@
+[[tool]]
+id = "dummy_tool"
+org = "foo"
+name = "dummypkg"
+version = "1.4.0"
+active = false
+
+[[tool]]
+id = "hidden_cmd_dummy_tool"
+org = "foo"
+name = "hidden_cmd_pkg"
+version = "1.4.0"
+active = false
+
+[[tool]]
+id = "missing_interface_dummy_tool"
+org = "foo"
+name = "missing_interface_pkg"
+version = "1.4.0"
+active = false
+
+[[tool]]
+id = "no_options_tool"
+org = "foo"
+name = "no_options_pkg"
+version = "1.4.0"
+active = false
+
+[[tool]]
+id = "dummy_tool_invalid_name"
+org = "foo"
+name = "dummypkg_invalid_name"
+version = "1.4.0"
+active = false
+
+[[tool]]
+id = "dummy_tool_higher_dist"
+org = "foo"
+name = "dummypkghigherdist"
+version = "1.4.0"
+active = false
+
+[[tool]]
+id = "generate_file"
+org = "foo"
+name = "ballerina_generate_file"
+version = "0.1.0"
+active = false
