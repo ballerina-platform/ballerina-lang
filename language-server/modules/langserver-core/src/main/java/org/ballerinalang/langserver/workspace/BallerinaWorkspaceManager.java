@@ -1429,6 +1429,10 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
                     .build();
             if (projectKind == ProjectKind.BUILD_PROJECT) {
                 project = BuildProject.load(projectRoot, options);
+                // Create a dependencies toml if not exists
+                if (project.currentPackage().dependenciesToml().isEmpty()) {
+                    project.save();
+                }
             } else if (projectKind == ProjectKind.SINGLE_FILE_PROJECT) {
                 project = SingleFileProject.load(projectRoot, options);
             } else {
