@@ -1450,13 +1450,12 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
 
                 // TODO: Remove this once https://github.com/ballerina-platform/ballerina-lang/issues/43972 is resolved
                 // Save the dependencies.toml to resolve the inconsistencies issue in the subsequent builds
-                if (project.currentPackage().dependenciesToml().isEmpty() && project.buildOptions().optimizeDependencyCompilation()) {
+                if (project.buildOptions().optimizeDependencyCompilation()) {
                     BuildOptions newOptions = BuildOptions.builder()
                             .setOffline(CommonUtil.COMPILE_OFFLINE)
                             .setSticky(false)
                             .build();
                     project = BuildProject.load(projectRoot, newOptions);
-                    project.save();
                 }
             } else if (projectKind == ProjectKind.SINGLE_FILE_PROJECT) {
                 project = SingleFileProject.load(projectRoot, options);
