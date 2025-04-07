@@ -21,6 +21,7 @@ package org.ballerinalang.langserver.eventsync.subscribers;
 import io.ballerina.compiler.api.SemanticModel;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.command.executors.PullModuleExecutor;
+import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.DocumentServiceContext;
 import org.ballerinalang.langserver.commons.LanguageServerContext;
 import org.ballerinalang.langserver.commons.client.ExtendedLanguageClient;
@@ -42,7 +43,6 @@ import java.util.Optional;
 public class ResolveModulesSubscriber implements EventSubscriber {
 
     public static final String NAME = "Resolve modules subscriber";
-    private static final String UNRESOLVED_MODULE_CODE = "BCE2003";
     private static final String PULL_MODULES_ACTION = "Pull Modules";
 
     @Override
@@ -58,9 +58,7 @@ public class ResolveModulesSubscriber implements EventSubscriber {
             return;
         }
 
-        boolean hasUnresolvedModules = semanticModel.get().diagnostics().stream()
-                .anyMatch(diagnostic -> UNRESOLVED_MODULE_CODE.equals(diagnostic.diagnosticInfo().code()));
-        if (!hasUnresolvedModules) {
+        if (!CommonUtil.hasUnresolvedModules(semanticModel.get())) {
             return;
         }
 
