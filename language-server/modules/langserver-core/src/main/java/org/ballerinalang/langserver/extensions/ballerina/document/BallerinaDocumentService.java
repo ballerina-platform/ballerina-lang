@@ -26,7 +26,6 @@ import io.ballerina.projects.Document;
 import io.ballerina.projects.PackageCompilation;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectKind;
-import io.ballerina.projects.util.DependencyUtils;
 import io.ballerina.syntaxapicallsgen.SyntaxApiCallsGen;
 import io.ballerina.syntaxapicallsgen.config.SyntaxApiCallsGenConfig;
 import io.ballerina.tools.text.LinePosition;

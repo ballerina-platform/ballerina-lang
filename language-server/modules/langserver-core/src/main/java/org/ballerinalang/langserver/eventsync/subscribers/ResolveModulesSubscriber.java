@@ -20,9 +20,11 @@ package org.ballerinalang.langserver.eventsync.subscribers;
 
 import io.ballerina.compiler.api.SemanticModel;
 import org.ballerinalang.annotation.JavaSPIService;
+import org.ballerinalang.langserver.LSContextOperation;
 import org.ballerinalang.langserver.command.executors.PullModuleExecutor;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.DocumentServiceContext;
+import org.ballerinalang.langserver.commons.LSOperation;
 import org.ballerinalang.langserver.commons.LanguageServerContext;
 import org.ballerinalang.langserver.commons.client.ExtendedLanguageClient;
 import org.ballerinalang.langserver.commons.eventsync.EventKind;
@@ -35,7 +37,7 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * Publisher to popup notification and resolve the missing dependencies on project updates
+ * Publisher to popup notification and resolve the missing dependencies on project updates.
  *
  * @since 2201.12.3
  */
@@ -53,6 +55,13 @@ public class ResolveModulesSubscriber implements EventSubscriber {
     @Override
     public void onEvent(ExtendedLanguageClient client, DocumentServiceContext context,
                         LanguageServerContext serverContext) {
+        // Do this only for the load project or did open
+        // TODO: Explore the UX on how we can provide this for each `didChange` with a proper interval
+        LSOperation operation = context.operation();
+        if (!operation.equals(LSContextOperation.LOAD_PROJECT) && !operation.equals(LSContextOperation.TXT_DID_OPEN)) {
+            return;
+        }
+
         Optional<SemanticModel> semanticModel = context.currentSemanticModel();
         if (semanticModel.isEmpty()) {
             return;
