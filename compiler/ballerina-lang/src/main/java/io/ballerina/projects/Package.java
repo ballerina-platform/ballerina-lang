@@ -426,7 +426,9 @@ public class Package {
     public PackageResolution getResolution(ResolutionOptions resolutionOptions) {
         boolean offline = resolutionOptions.offline();
         boolean sticky = resolutionOptions.sticky();
-        CompilationOptions newCompOptions = CompilationOptions.builder().setOffline(offline).setSticky(sticky).build();
+        boolean optimizeDependencyCompilation = resolutionOptions.optimizeDependencyCompilation();
+        CompilationOptions newCompOptions = CompilationOptions.builder().setOffline(offline).setSticky(sticky)
+                .setOptimizeDependencyCompilation(optimizeDependencyCompilation).build();
         newCompOptions = newCompOptions.acceptTheirs(project.currentPackage().compilationOptions());
         return this.packageContext.getResolution(newCompOptions, true);
     }
