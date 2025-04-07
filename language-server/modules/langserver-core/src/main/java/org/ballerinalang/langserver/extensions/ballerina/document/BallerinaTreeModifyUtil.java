@@ -138,7 +138,6 @@ public final class BallerinaTreeModifyUtil {
                         theEndOffset - theStartOffset), mainStartMapping);
     }
 
-
     public static JsonElement modifyTree(ASTModification[] astModifications, Path compilationPath,
                                          WorkspaceManager workspaceManager)
             throws Exception {
@@ -243,32 +242,54 @@ public final class BallerinaTreeModifyUtil {
                 || unusedSymbolsVisitor.getUnusedImports().containsKey(importValue));
     }
 
-    private static TextEdit constructEdit(
-            UnusedSymbolsVisitor unusedSymbolsVisitor, TextDocument oldTextDocument,
-            ASTModification astModification) {
-        String mapping = BallerinaTreeModifyUtil.resolveMapping(astModification.getType(),
+    private static TextEdit constructEdit(UnusedSymbolsVisitor unusedSymbolsVisitor, TextDocument oldTextDocument,
+                                          ASTModification astModification) {
+
+        String textEdit = BallerinaTreeModifyUtil.resolveMapping(astModification.getType(),
                 astModification.getConfig() == null ? new JsonObject() : astModification.getConfig());
-        if (mapping != null) {
-            boolean doEdit = false;
-            if (DELETE.equals(astModification.getType())) {
-                if (unusedSymbolsVisitor.toBeDeletedRanges().contains(astModification)) {
-                    doEdit = true;
-                }
-            } else {
+        if (textEdit == null) {
+            return null;
+        }
+
+        boolean doEdit = false;
+        if (DELETE.equals(astModification.getType())) {
+            if (unusedSymbolsVisitor.toBeDeletedRanges().contains(astModification)) {
                 doEdit = true;
             }
-            if (doEdit) {
-                LinePosition startLinePos = LinePosition.from(astModification.getStartLine(),
-                        astModification.getStartColumn());
-                LinePosition endLinePos = LinePosition.from(astModification.getEndLine(),
-                        astModification.getEndColumn());
-                int startOffset = oldTextDocument.textPositionFrom(startLinePos);
-                int endOffset = oldTextDocument.textPositionFrom(endLinePos);
-                return TextEdit.from(
-                        TextRange.from(startOffset,
-                                endOffset - startOffset), mapping);
+        } else {
+            doEdit = true;
+        }
+        if (doEdit) {
+            TextRange range = getRange(astModification, oldTextDocument, textEdit);
+            if (range == null) {
+                return null;
             }
+            return TextEdit.from(range, textEdit);
         }
         return null;
+    }
+
+    public static TextRange getRange(ASTModification modification, TextDocument oldTextDocument, String textEdit) {
+        LinePosition startLinePos = LinePosition.from(modification.getStartLine(), modification.getStartColumn());
+        LinePosition endLinePos = LinePosition.from(modification.getEndLine(), modification.getEndColumn());
+
+        int startOffset;
+        try {
+            startOffset = oldTextDocument.textPositionFrom(startLinePos);
+            int endOffset = oldTextDocument.textPositionFrom(endLinePos);
+            return TextRange.from(startOffset, endOffset - startOffset);
+        } catch (IndexOutOfBoundsException e) {
+            // If the start offset is out of bounds, we need to check if the insertion line is the last line and if so,
+            // we can still insert at the end of the document.
+            if (startLinePos.line() == oldTextDocument.textLines().size()) {
+                startOffset = oldTextDocument.toCharArray().length;
+                return TextRange.from(startOffset, 0);
+            } else {
+                return null;
+            }
+        } catch (IllegalArgumentException e) {
+            // TODO: Handle the case where the start offset is out of bounds
+            return null;
+        }
     }
 }
