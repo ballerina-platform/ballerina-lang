@@ -51,7 +51,6 @@ public class BuildOptions {
         this.exportComponentModel = exportComponentModel;
         this.graalVMBuildOptions = graalVMBuildOptions;
         this.showDependencyDiagnostics = showDependencyDiagnostics;
-
     }
 
     public boolean testReport() {
@@ -217,6 +216,7 @@ public class BuildOptions {
         buildOptionsBuilder.setEnableCache(compilationOptions.enableCache);
         buildOptionsBuilder.setRemoteManagement(compilationOptions.remoteManagement);
         buildOptionsBuilder.setOptimizeDependencyCompilation(compilationOptions.optimizeDependencyCompilation);
+        buildOptionsBuilder.setLockingMode(compilationOptions.lockingMode);
 
         return buildOptionsBuilder.build();
     }
@@ -429,6 +429,11 @@ public class BuildOptions {
          */
         public BuildOptionsBuilder setOptimizeDependencyCompilation(Boolean value) {
             compilationOptionsBuilder.setOptimizeDependencyCompilation(value);
+            return this;
+        }
+
+        public BuildOptionsBuilder setLockingMode(String value) {
+            compilationOptionsBuilder.setLockingMode(value);
             return this;
         }
 
