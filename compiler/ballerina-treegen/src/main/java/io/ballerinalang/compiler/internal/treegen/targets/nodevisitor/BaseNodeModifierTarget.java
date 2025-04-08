@@ -22,7 +22,7 @@ import io.ballerinalang.compiler.internal.treegen.TreeGenConfig;
 import java.util.ArrayList;
 import java.util.List;
 
-import static io.ballerinalang.compiler.internal.treegen.TreeGenConfig.EXTERNAL_SYNTAX_NODE_TRANSFORMER_TEMPLATE_KEY;
+import static io.ballerinalang.compiler.internal.treegen.TreeGenConfig.EXTERNAL_BASE_NODE_MODIFIER_TEMPLATE_KEY;
 import static io.ballerinalang.compiler.internal.treegen.TreeGenConfig.EXTERNAL_NODE_OUTPUT_DIR_KEY;
 import static io.ballerinalang.compiler.internal.treegen.TreeGenConfig.EXTERNAL_NODE_PACKAGE_KEY;
 import static io.ballerinalang.compiler.internal.treegen.TreeGenConfig.INTERNAL_NODE_PACKAGE_KEY;
@@ -33,9 +33,9 @@ import static io.ballerinalang.compiler.internal.treegen.TreeGenConfig.INTERNAL_
  *
  * @since 2201.13.0
  */
-public class SyntaxNodeTransformerTarget extends AbstractNodeVisitorTarget {
+public class BaseNodeModifierTarget extends AbstractNodeVisitorTarget {
 
-    public SyntaxNodeTransformerTarget(TreeGenConfig config) {
+    public BaseNodeModifierTarget(TreeGenConfig config) {
         super(config);
     }
 
@@ -51,7 +51,7 @@ public class SyntaxNodeTransformerTarget extends AbstractNodeVisitorTarget {
 
     @Override
     protected String getClassName() {
-        return SYNTAX_NODE_TRANSFORMER_CN;
+        return BASE_NODE_MODIFIER_CN;
     }
 
     @Override
@@ -69,6 +69,6 @@ public class SyntaxNodeTransformerTarget extends AbstractNodeVisitorTarget {
 
     @Override
     protected String getTemplateName() {
-        return config.getOrThrow(EXTERNAL_SYNTAX_NODE_TRANSFORMER_TEMPLATE_KEY);
+        return config.getOrThrow(EXTERNAL_BASE_NODE_MODIFIER_TEMPLATE_KEY);
     }
 }

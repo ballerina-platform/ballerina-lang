@@ -24,13 +24,13 @@ import java.util.function.Function;
 
 /**
  * Produces a new tree by doing a depth-first traversal of the tree.
- * New tree nodes can be replaced with any syntax node.
+ * New tree nodes can be replaced with any subclass of their base class.
  *
  * This is a generated class.
  *
  * @since 2201.13.0
  */
-public abstract class SyntaxNodeTransformer extends NodeTransformer<Node> {
+public abstract class BaseNodeModifier extends NodeTransformer<Node> {
 
     @Override
     public Node transform(
@@ -48,7 +48,7 @@ public abstract class SyntaxNodeTransformer extends NodeTransformer<Node> {
     }
 
     @Override
-    public Node transform(
+    public ModuleMemberDeclarationNode transform(
             FunctionDefinitionNode functionDefinitionNode) {
         MetadataNode metadata =
                 modifyNode(functionDefinitionNode.metadata().orElse(null));
@@ -97,7 +97,7 @@ public abstract class SyntaxNodeTransformer extends NodeTransformer<Node> {
     }
 
     @Override
-    public Node transform(
+    public ModuleMemberDeclarationNode transform(
             ListenerDeclarationNode listenerDeclarationNode) {
         MetadataNode metadata =
                 modifyNode(listenerDeclarationNode.metadata().orElse(null));
@@ -127,7 +127,7 @@ public abstract class SyntaxNodeTransformer extends NodeTransformer<Node> {
     }
 
     @Override
-    public Node transform(
+    public ModuleMemberDeclarationNode transform(
             TypeDefinitionNode typeDefinitionNode) {
         MetadataNode metadata =
                 modifyNode(typeDefinitionNode.metadata().orElse(null));
@@ -151,7 +151,7 @@ public abstract class SyntaxNodeTransformer extends NodeTransformer<Node> {
     }
 
     @Override
-    public Node transform(
+    public ModuleMemberDeclarationNode transform(
             ServiceDeclarationNode serviceDeclarationNode) {
         MetadataNode metadata =
                 modifyNode(serviceDeclarationNode.metadata().orElse(null));
@@ -190,7 +190,7 @@ public abstract class SyntaxNodeTransformer extends NodeTransformer<Node> {
     }
 
     @Override
-    public Node transform(
+    public StatementNode transform(
             AssignmentStatementNode assignmentStatementNode) {
         Node varRef =
                 modifyNode(assignmentStatementNode.varRef());
@@ -208,7 +208,7 @@ public abstract class SyntaxNodeTransformer extends NodeTransformer<Node> {
     }
 
     @Override
-    public Node transform(
+    public StatementNode transform(
             CompoundAssignmentStatementNode compoundAssignmentStatementNode) {
         ExpressionNode lhsExpression =
                 modifyNode(compoundAssignmentStatementNode.lhsExpression());
@@ -229,7 +229,7 @@ public abstract class SyntaxNodeTransformer extends NodeTransformer<Node> {
     }
 
     @Override
-    public Node transform(
+    public StatementNode transform(
             VariableDeclarationNode variableDeclarationNode) {
         NodeList<AnnotationNode> annotations =
                 modifyNodeList(variableDeclarationNode.annotations());
@@ -253,7 +253,7 @@ public abstract class SyntaxNodeTransformer extends NodeTransformer<Node> {
     }
 
     @Override
-    public Node transform(
+    public StatementNode transform(
             BlockStatementNode blockStatementNode) {
         Token openBraceToken =
                 modifyToken(blockStatementNode.openBraceToken());
@@ -268,7 +268,7 @@ public abstract class SyntaxNodeTransformer extends NodeTransformer<Node> {
     }
 
     @Override
-    public Node transform(
+    public StatementNode transform(
             BreakStatementNode breakStatementNode) {
         Token breakToken =
                 modifyToken(breakStatementNode.breakToken());
@@ -280,7 +280,7 @@ public abstract class SyntaxNodeTransformer extends NodeTransformer<Node> {
     }
 
     @Override
-    public Node transform(
+    public StatementNode transform(
             FailStatementNode failStatementNode) {
         Token failKeyword =
                 modifyToken(failStatementNode.failKeyword());
@@ -295,7 +295,7 @@ public abstract class SyntaxNodeTransformer extends NodeTransformer<Node> {
     }
 
     @Override
-    public Node transform(
+    public StatementNode transform(
             ExpressionStatementNode expressionStatementNode) {
         ExpressionNode expression =
                 modifyNode(expressionStatementNode.expression());
@@ -308,7 +308,7 @@ public abstract class SyntaxNodeTransformer extends NodeTransformer<Node> {
     }
 
     @Override
-    public Node transform(
+    public StatementNode transform(
             ContinueStatementNode continueStatementNode) {
         Token continueToken =
                 modifyToken(continueStatementNode.continueToken());
@@ -320,7 +320,7 @@ public abstract class SyntaxNodeTransformer extends NodeTransformer<Node> {
     }
 
     @Override
-    public Node transform(
+    public FunctionBodyNode transform(
             ExternalFunctionBodyNode externalFunctionBodyNode) {
         Token equalsToken =
                 modifyToken(externalFunctionBodyNode.equalsToken());
@@ -338,7 +338,7 @@ public abstract class SyntaxNodeTransformer extends NodeTransformer<Node> {
     }
 
     @Override
-    public Node transform(
+    public StatementNode transform(
             IfElseStatementNode ifElseStatementNode) {
         Token ifKeyword =
                 modifyToken(ifElseStatementNode.ifKeyword());
@@ -368,7 +368,7 @@ public abstract class SyntaxNodeTransformer extends NodeTransformer<Node> {
     }
 
     @Override
-    public Node transform(
+    public StatementNode transform(
             WhileStatementNode whileStatementNode) {
         Token whileKeyword =
                 modifyToken(whileStatementNode.whileKeyword());
@@ -386,7 +386,7 @@ public abstract class SyntaxNodeTransformer extends NodeTransformer<Node> {
     }
 
     @Override
-    public Node transform(
+    public StatementNode transform(
             PanicStatementNode panicStatementNode) {
         Token panicKeyword =
                 modifyToken(panicStatementNode.panicKeyword());
@@ -401,7 +401,7 @@ public abstract class SyntaxNodeTransformer extends NodeTransformer<Node> {
     }
 
     @Override
-    public Node transform(
+    public StatementNode transform(
             ReturnStatementNode returnStatementNode) {
         Token returnKeyword =
                 modifyToken(returnStatementNode.returnKeyword());
@@ -416,7 +416,7 @@ public abstract class SyntaxNodeTransformer extends NodeTransformer<Node> {
     }
 
     @Override
-    public Node transform(
+    public StatementNode transform(
             LocalTypeDefinitionStatementNode localTypeDefinitionStatementNode) {
         NodeList<AnnotationNode> annotations =
                 modifyNodeList(localTypeDefinitionStatementNode.annotations());
@@ -437,7 +437,7 @@ public abstract class SyntaxNodeTransformer extends NodeTransformer<Node> {
     }
 
     @Override
-    public Node transform(
+    public StatementNode transform(
             LockStatementNode lockStatementNode) {
         Token lockKeyword =
                 modifyToken(lockStatementNode.lockKeyword());
@@ -452,7 +452,7 @@ public abstract class SyntaxNodeTransformer extends NodeTransformer<Node> {
     }
 
     @Override
-    public Node transform(
+    public StatementNode transform(
             ForkStatementNode forkStatementNode) {
         Token forkKeyword =
                 modifyToken(forkStatementNode.forkKeyword());
@@ -470,7 +470,7 @@ public abstract class SyntaxNodeTransformer extends NodeTransformer<Node> {
     }
 
     @Override
-    public Node transform(
+    public StatementNode transform(
             ForEachStatementNode forEachStatementNode) {
         Token forEachKeyword =
                 modifyToken(forEachStatementNode.forEachKeyword());
@@ -494,7 +494,7 @@ public abstract class SyntaxNodeTransformer extends NodeTransformer<Node> {
     }
 
     @Override
-    public Node transform(
+    public ExpressionNode transform(
             BinaryExpressionNode binaryExpressionNode) {
         Node lhsExpr =
                 modifyNode(binaryExpressionNode.lhsExpr());
@@ -510,7 +510,7 @@ public abstract class SyntaxNodeTransformer extends NodeTransformer<Node> {
     }
 
     @Override
-    public Node transform(
+    public ExpressionNode transform(
             BracedExpressionNode bracedExpressionNode) {
         Token openParen =
                 modifyToken(bracedExpressionNode.openParen());
@@ -526,7 +526,7 @@ public abstract class SyntaxNodeTransformer extends NodeTransformer<Node> {
     }
 
     @Override
-    public Node transform(
+    public ExpressionNode transform(
             CheckExpressionNode checkExpressionNode) {
         Token checkKeyword =
                 modifyToken(checkExpressionNode.checkKeyword());
@@ -539,7 +539,7 @@ public abstract class SyntaxNodeTransformer extends NodeTransformer<Node> {
     }
 
     @Override
-    public Node transform(
+    public ExpressionNode transform(
             FieldAccessExpressionNode fieldAccessExpressionNode) {
         ExpressionNode expression =
                 modifyNode(fieldAccessExpressionNode.expression());
@@ -554,7 +554,7 @@ public abstract class SyntaxNodeTransformer extends NodeTransformer<Node> {
     }
 
     @Override
-    public Node transform(
+    public ExpressionNode transform(
             FunctionCallExpressionNode functionCallExpressionNode) {
         NameReferenceNode functionName =
                 modifyNode(functionCallExpressionNode.functionName());
@@ -572,7 +572,7 @@ public abstract class SyntaxNodeTransformer extends NodeTransformer<Node> {
     }
 
     @Override
-    public Node transform(
+    public ExpressionNode transform(
             MethodCallExpressionNode methodCallExpressionNode) {
         ExpressionNode expression =
                 modifyNode(methodCallExpressionNode.expression());
@@ -596,7 +596,7 @@ public abstract class SyntaxNodeTransformer extends NodeTransformer<Node> {
     }
 
     @Override
-    public Node transform(
+    public ExpressionNode transform(
             MappingConstructorExpressionNode mappingConstructorExpressionNode) {
         Token openBrace =
                 modifyToken(mappingConstructorExpressionNode.openBrace());
@@ -611,7 +611,7 @@ public abstract class SyntaxNodeTransformer extends NodeTransformer<Node> {
     }
 
     @Override
-    public Node transform(
+    public TypeDescriptorNode transform(
             IndexedExpressionNode indexedExpressionNode) {
         ExpressionNode containerExpression =
                 modifyNode(indexedExpressionNode.containerExpression());
@@ -629,7 +629,7 @@ public abstract class SyntaxNodeTransformer extends NodeTransformer<Node> {
     }
 
     @Override
-    public Node transform(
+    public ExpressionNode transform(
             TypeofExpressionNode typeofExpressionNode) {
         Token typeofKeyword =
                 modifyToken(typeofExpressionNode.typeofKeyword());
@@ -641,7 +641,7 @@ public abstract class SyntaxNodeTransformer extends NodeTransformer<Node> {
     }
 
     @Override
-    public Node transform(
+    public ExpressionNode transform(
             UnaryExpressionNode unaryExpressionNode) {
         Token unaryOperator =
                 modifyToken(unaryExpressionNode.unaryOperator());
@@ -653,7 +653,7 @@ public abstract class SyntaxNodeTransformer extends NodeTransformer<Node> {
     }
 
     @Override
-    public Node transform(
+    public MappingFieldNode transform(
             ComputedNameFieldNode computedNameFieldNode) {
         Token openBracket =
                 modifyToken(computedNameFieldNode.openBracket());
@@ -674,7 +674,7 @@ public abstract class SyntaxNodeTransformer extends NodeTransformer<Node> {
     }
 
     @Override
-    public Node transform(
+    public ModuleMemberDeclarationNode transform(
             ConstantDeclarationNode constantDeclarationNode) {
         MetadataNode metadata =
                 modifyNode(constantDeclarationNode.metadata().orElse(null));
@@ -704,7 +704,7 @@ public abstract class SyntaxNodeTransformer extends NodeTransformer<Node> {
     }
 
     @Override
-    public Node transform(
+    public ParameterNode transform(
             DefaultableParameterNode defaultableParameterNode) {
         NodeList<AnnotationNode> annotations =
                 modifyNodeList(defaultableParameterNode.annotations());
@@ -725,7 +725,7 @@ public abstract class SyntaxNodeTransformer extends NodeTransformer<Node> {
     }
 
     @Override
-    public Node transform(
+    public ParameterNode transform(
             RequiredParameterNode requiredParameterNode) {
         NodeList<AnnotationNode> annotations =
                 modifyNodeList(requiredParameterNode.annotations());
@@ -740,7 +740,7 @@ public abstract class SyntaxNodeTransformer extends NodeTransformer<Node> {
     }
 
     @Override
-    public Node transform(
+    public ParameterNode transform(
             IncludedRecordParameterNode includedRecordParameterNode) {
         NodeList<AnnotationNode> annotations =
                 modifyNodeList(includedRecordParameterNode.annotations());
@@ -758,7 +758,7 @@ public abstract class SyntaxNodeTransformer extends NodeTransformer<Node> {
     }
 
     @Override
-    public Node transform(
+    public ParameterNode transform(
             RestParameterNode restParameterNode) {
         NodeList<AnnotationNode> annotations =
                 modifyNodeList(restParameterNode.annotations());
@@ -800,7 +800,7 @@ public abstract class SyntaxNodeTransformer extends NodeTransformer<Node> {
     }
 
     @Override
-    public Node transform(
+    public MappingFieldNode transform(
             SpecificFieldNode specificFieldNode) {
         Token readonlyKeyword =
                 modifyToken(specificFieldNode.readonlyKeyword().orElse(null));
@@ -818,7 +818,7 @@ public abstract class SyntaxNodeTransformer extends NodeTransformer<Node> {
     }
 
     @Override
-    public Node transform(
+    public MappingFieldNode transform(
             SpreadFieldNode spreadFieldNode) {
         Token ellipsis =
                 modifyToken(spreadFieldNode.ellipsis());
@@ -830,7 +830,7 @@ public abstract class SyntaxNodeTransformer extends NodeTransformer<Node> {
     }
 
     @Override
-    public Node transform(
+    public FunctionArgumentNode transform(
             NamedArgumentNode namedArgumentNode) {
         SimpleNameReferenceNode argumentName =
                 modifyNode(namedArgumentNode.argumentName());
@@ -845,7 +845,7 @@ public abstract class SyntaxNodeTransformer extends NodeTransformer<Node> {
     }
 
     @Override
-    public Node transform(
+    public FunctionArgumentNode transform(
             PositionalArgumentNode positionalArgumentNode) {
         ExpressionNode expression =
                 modifyNode(positionalArgumentNode.expression());
@@ -854,7 +854,7 @@ public abstract class SyntaxNodeTransformer extends NodeTransformer<Node> {
     }
 
     @Override
-    public Node transform(
+    public FunctionArgumentNode transform(
             RestArgumentNode restArgumentNode) {
         Token ellipsis =
                 modifyToken(restArgumentNode.ellipsis());
@@ -866,7 +866,7 @@ public abstract class SyntaxNodeTransformer extends NodeTransformer<Node> {
     }
 
     @Override
-    public Node transform(
+    public ExpressionNode transform(
             InferredTypedescDefaultNode inferredTypedescDefaultNode) {
         Token ltToken =
                 modifyToken(inferredTypedescDefaultNode.ltToken());
@@ -878,7 +878,7 @@ public abstract class SyntaxNodeTransformer extends NodeTransformer<Node> {
     }
 
     @Override
-    public Node transform(
+    public TypeDescriptorNode transform(
             ObjectTypeDescriptorNode objectTypeDescriptorNode) {
         NodeList<Token> objectTypeQualifiers =
                 modifyNodeList(objectTypeDescriptorNode.objectTypeQualifiers());
@@ -899,7 +899,7 @@ public abstract class SyntaxNodeTransformer extends NodeTransformer<Node> {
     }
 
     @Override
-    public Node transform(
+    public ExpressionNode transform(
             ObjectConstructorExpressionNode objectConstructorExpressionNode) {
         NodeList<AnnotationNode> annotations =
                 modifyNodeList(objectConstructorExpressionNode.annotations());
@@ -926,7 +926,7 @@ public abstract class SyntaxNodeTransformer extends NodeTransformer<Node> {
     }
 
     @Override
-    public Node transform(
+    public TypeDescriptorNode transform(
             RecordTypeDescriptorNode recordTypeDescriptorNode) {
         Token recordKeyword =
                 modifyToken(recordTypeDescriptorNode.recordKeyword());
@@ -962,7 +962,7 @@ public abstract class SyntaxNodeTransformer extends NodeTransformer<Node> {
     }
 
     @Override
-    public Node transform(
+    public TypeDescriptorNode transform(
             NilTypeDescriptorNode nilTypeDescriptorNode) {
         Token openParenToken =
                 modifyToken(nilTypeDescriptorNode.openParenToken());
@@ -974,7 +974,7 @@ public abstract class SyntaxNodeTransformer extends NodeTransformer<Node> {
     }
 
     @Override
-    public Node transform(
+    public TypeDescriptorNode transform(
             OptionalTypeDescriptorNode optionalTypeDescriptorNode) {
         Node typeDescriptor =
                 modifyNode(optionalTypeDescriptorNode.typeDescriptor());
@@ -1082,7 +1082,7 @@ public abstract class SyntaxNodeTransformer extends NodeTransformer<Node> {
     }
 
     @Override
-    public Node transform(
+    public TypeDescriptorNode transform(
             TypeReferenceNode typeReferenceNode) {
         Token asteriskToken =
                 modifyToken(typeReferenceNode.asteriskToken());
@@ -1124,7 +1124,7 @@ public abstract class SyntaxNodeTransformer extends NodeTransformer<Node> {
     }
 
     @Override
-    public Node transform(
+    public ModuleMemberDeclarationNode transform(
             ModuleVariableDeclarationNode moduleVariableDeclarationNode) {
         MetadataNode metadata =
                 modifyNode(moduleVariableDeclarationNode.metadata().orElse(null));
@@ -1151,7 +1151,7 @@ public abstract class SyntaxNodeTransformer extends NodeTransformer<Node> {
     }
 
     @Override
-    public Node transform(
+    public ExpressionNode transform(
             TypeTestExpressionNode typeTestExpressionNode) {
         ExpressionNode expression =
                 modifyNode(typeTestExpressionNode.expression());
@@ -1166,7 +1166,7 @@ public abstract class SyntaxNodeTransformer extends NodeTransformer<Node> {
     }
 
     @Override
-    public Node transform(
+    public ActionNode transform(
             RemoteMethodCallActionNode remoteMethodCallActionNode) {
         ExpressionNode expression =
                 modifyNode(remoteMethodCallActionNode.expression());
@@ -1190,7 +1190,7 @@ public abstract class SyntaxNodeTransformer extends NodeTransformer<Node> {
     }
 
     @Override
-    public Node transform(
+    public TypeDescriptorNode transform(
             MapTypeDescriptorNode mapTypeDescriptorNode) {
         Token mapKeywordToken =
                 modifyToken(mapTypeDescriptorNode.mapKeywordToken());
@@ -1202,7 +1202,7 @@ public abstract class SyntaxNodeTransformer extends NodeTransformer<Node> {
     }
 
     @Override
-    public Node transform(
+    public ExpressionNode transform(
             NilLiteralNode nilLiteralNode) {
         Token openParenToken =
                 modifyToken(nilLiteralNode.openParenToken());
@@ -1214,7 +1214,7 @@ public abstract class SyntaxNodeTransformer extends NodeTransformer<Node> {
     }
 
     @Override
-    public Node transform(
+    public ModuleMemberDeclarationNode transform(
             AnnotationDeclarationNode annotationDeclarationNode) {
         MetadataNode metadata =
                 modifyNode(annotationDeclarationNode.metadata().orElse(null));
@@ -1259,7 +1259,7 @@ public abstract class SyntaxNodeTransformer extends NodeTransformer<Node> {
     }
 
     @Override
-    public Node transform(
+    public StatementNode transform(
             XMLNamespaceDeclarationNode xMLNamespaceDeclarationNode) {
         Token xmlnsKeyword =
                 modifyToken(xMLNamespaceDeclarationNode.xmlnsKeyword());
@@ -1280,7 +1280,7 @@ public abstract class SyntaxNodeTransformer extends NodeTransformer<Node> {
     }
 
     @Override
-    public Node transform(
+    public ModuleMemberDeclarationNode transform(
             ModuleXMLNamespaceDeclarationNode moduleXMLNamespaceDeclarationNode) {
         Token xmlnsKeyword =
                 modifyToken(moduleXMLNamespaceDeclarationNode.xmlnsKeyword());
@@ -1301,7 +1301,7 @@ public abstract class SyntaxNodeTransformer extends NodeTransformer<Node> {
     }
 
     @Override
-    public Node transform(
+    public FunctionBodyNode transform(
             FunctionBodyBlockNode functionBodyBlockNode) {
         Token openBraceToken =
                 modifyToken(functionBodyBlockNode.openBraceToken());
@@ -1361,7 +1361,7 @@ public abstract class SyntaxNodeTransformer extends NodeTransformer<Node> {
     }
 
     @Override
-    public Node transform(
+    public ExpressionNode transform(
             BasicLiteralNode basicLiteralNode) {
         Token literalToken =
                 modifyToken(basicLiteralNode.literalToken());
@@ -1371,7 +1371,7 @@ public abstract class SyntaxNodeTransformer extends NodeTransformer<Node> {
     }
 
     @Override
-    public Node transform(
+    public NameReferenceNode transform(
             SimpleNameReferenceNode simpleNameReferenceNode) {
         Token name =
                 modifyToken(simpleNameReferenceNode.name());
@@ -1380,7 +1380,7 @@ public abstract class SyntaxNodeTransformer extends NodeTransformer<Node> {
     }
 
     @Override
-    public Node transform(
+    public NameReferenceNode transform(
             QualifiedNameReferenceNode qualifiedNameReferenceNode) {
         Token modulePrefix =
                 modifyToken(qualifiedNameReferenceNode.modulePrefix());
@@ -1395,7 +1395,7 @@ public abstract class SyntaxNodeTransformer extends NodeTransformer<Node> {
     }
 
     @Override
-    public Node transform(
+    public NameReferenceNode transform(
             BuiltinSimpleNameReferenceNode builtinSimpleNameReferenceNode) {
         Token name =
                 modifyToken(builtinSimpleNameReferenceNode.name());
@@ -1405,7 +1405,7 @@ public abstract class SyntaxNodeTransformer extends NodeTransformer<Node> {
     }
 
     @Override
-    public Node transform(
+    public ExpressionNode transform(
             TrapExpressionNode trapExpressionNode) {
         Token trapKeyword =
                 modifyToken(trapExpressionNode.trapKeyword());
@@ -1418,7 +1418,7 @@ public abstract class SyntaxNodeTransformer extends NodeTransformer<Node> {
     }
 
     @Override
-    public Node transform(
+    public ExpressionNode transform(
             ListConstructorExpressionNode listConstructorExpressionNode) {
         Token openBracket =
                 modifyToken(listConstructorExpressionNode.openBracket());
@@ -1433,7 +1433,7 @@ public abstract class SyntaxNodeTransformer extends NodeTransformer<Node> {
     }
 
     @Override
-    public Node transform(
+    public ExpressionNode transform(
             TypeCastExpressionNode typeCastExpressionNode) {
         Token ltToken =
                 modifyToken(typeCastExpressionNode.ltToken());
@@ -1463,7 +1463,7 @@ public abstract class SyntaxNodeTransformer extends NodeTransformer<Node> {
     }
 
     @Override
-    public Node transform(
+    public TypeDescriptorNode transform(
             UnionTypeDescriptorNode unionTypeDescriptorNode) {
         TypeDescriptorNode leftTypeDesc =
                 modifyNode(unionTypeDescriptorNode.leftTypeDesc());
@@ -1478,7 +1478,7 @@ public abstract class SyntaxNodeTransformer extends NodeTransformer<Node> {
     }
 
     @Override
-    public Node transform(
+    public ExpressionNode transform(
             TableConstructorExpressionNode tableConstructorExpressionNode) {
         Token tableKeyword =
                 modifyToken(tableConstructorExpressionNode.tableKeyword());
@@ -1517,7 +1517,7 @@ public abstract class SyntaxNodeTransformer extends NodeTransformer<Node> {
     }
 
     @Override
-    public Node transform(
+    public TypeDescriptorNode transform(
             StreamTypeDescriptorNode streamTypeDescriptorNode) {
         Token streamKeywordToken =
                 modifyToken(streamTypeDescriptorNode.streamKeywordToken());
@@ -1550,7 +1550,7 @@ public abstract class SyntaxNodeTransformer extends NodeTransformer<Node> {
     }
 
     @Override
-    public Node transform(
+    public ExpressionNode transform(
             LetExpressionNode letExpressionNode) {
         Token letKeyword =
                 modifyToken(letExpressionNode.letKeyword());
@@ -1586,7 +1586,7 @@ public abstract class SyntaxNodeTransformer extends NodeTransformer<Node> {
     }
 
     @Override
-    public Node transform(
+    public ExpressionNode transform(
             TemplateExpressionNode templateExpressionNode) {
         Token type =
                 modifyToken(templateExpressionNode.type().orElse(null));
@@ -1605,7 +1605,7 @@ public abstract class SyntaxNodeTransformer extends NodeTransformer<Node> {
     }
 
     @Override
-    public Node transform(
+    public XMLItemNode transform(
             XMLElementNode xMLElementNode) {
         XMLStartTagNode startTag =
                 modifyNode(xMLElementNode.startTag());
@@ -1620,7 +1620,7 @@ public abstract class SyntaxNodeTransformer extends NodeTransformer<Node> {
     }
 
     @Override
-    public Node transform(
+    public XMLElementTagNode transform(
             XMLStartTagNode xMLStartTagNode) {
         Token ltToken =
                 modifyToken(xMLStartTagNode.ltToken());
@@ -1638,7 +1638,7 @@ public abstract class SyntaxNodeTransformer extends NodeTransformer<Node> {
     }
 
     @Override
-    public Node transform(
+    public XMLElementTagNode transform(
             XMLEndTagNode xMLEndTagNode) {
         Token ltToken =
                 modifyToken(xMLEndTagNode.ltToken());
@@ -1656,7 +1656,7 @@ public abstract class SyntaxNodeTransformer extends NodeTransformer<Node> {
     }
 
     @Override
-    public Node transform(
+    public XMLNameNode transform(
             XMLSimpleNameNode xMLSimpleNameNode) {
         Token name =
                 modifyToken(xMLSimpleNameNode.name());
@@ -1665,7 +1665,7 @@ public abstract class SyntaxNodeTransformer extends NodeTransformer<Node> {
     }
 
     @Override
-    public Node transform(
+    public XMLNameNode transform(
             XMLQualifiedNameNode xMLQualifiedNameNode) {
         XMLSimpleNameNode prefix =
                 modifyNode(xMLQualifiedNameNode.prefix());
@@ -1680,7 +1680,7 @@ public abstract class SyntaxNodeTransformer extends NodeTransformer<Node> {
     }
 
     @Override
-    public Node transform(
+    public XMLItemNode transform(
             XMLEmptyElementNode xMLEmptyElementNode) {
         Token ltToken =
                 modifyToken(xMLEmptyElementNode.ltToken());
@@ -1701,7 +1701,7 @@ public abstract class SyntaxNodeTransformer extends NodeTransformer<Node> {
     }
 
     @Override
-    public Node transform(
+    public XMLItemNode transform(
             InterpolationNode interpolationNode) {
         Token interpolationStartToken =
                 modifyToken(interpolationNode.interpolationStartToken());
@@ -1716,7 +1716,7 @@ public abstract class SyntaxNodeTransformer extends NodeTransformer<Node> {
     }
 
     @Override
-    public Node transform(
+    public XMLItemNode transform(
             XMLTextNode xMLTextNode) {
         Token content =
                 modifyToken(xMLTextNode.content());
@@ -1755,7 +1755,7 @@ public abstract class SyntaxNodeTransformer extends NodeTransformer<Node> {
     }
 
     @Override
-    public Node transform(
+    public XMLItemNode transform(
             XMLComment xMLComment) {
         Token commentStart =
                 modifyToken(xMLComment.commentStart());
@@ -1770,7 +1770,7 @@ public abstract class SyntaxNodeTransformer extends NodeTransformer<Node> {
     }
 
     @Override
-    public Node transform(
+    public XMLItemNode transform(
             XMLCDATANode xMLCDATANode) {
         Token cdataStart =
                 modifyToken(xMLCDATANode.cdataStart());
@@ -1785,7 +1785,7 @@ public abstract class SyntaxNodeTransformer extends NodeTransformer<Node> {
     }
 
     @Override
-    public Node transform(
+    public XMLItemNode transform(
             XMLProcessingInstruction xMLProcessingInstruction) {
         Token piStart =
                 modifyToken(xMLProcessingInstruction.piStart());
@@ -1803,7 +1803,7 @@ public abstract class SyntaxNodeTransformer extends NodeTransformer<Node> {
     }
 
     @Override
-    public Node transform(
+    public TypeDescriptorNode transform(
             TableTypeDescriptorNode tableTypeDescriptorNode) {
         Token tableKeywordToken =
                 modifyToken(tableTypeDescriptorNode.tableKeywordToken());
@@ -1845,7 +1845,7 @@ public abstract class SyntaxNodeTransformer extends NodeTransformer<Node> {
     }
 
     @Override
-    public Node transform(
+    public TypeDescriptorNode transform(
             FunctionTypeDescriptorNode functionTypeDescriptorNode) {
         NodeList<Token> qualifierList =
                 modifyNodeList(functionTypeDescriptorNode.qualifierList());
@@ -1878,7 +1878,7 @@ public abstract class SyntaxNodeTransformer extends NodeTransformer<Node> {
     }
 
     @Override
-    public Node transform(
+    public AnonymousFunctionExpressionNode transform(
             ExplicitAnonymousFunctionExpressionNode explicitAnonymousFunctionExpressionNode) {
         NodeList<AnnotationNode> annotations =
                 modifyNodeList(explicitAnonymousFunctionExpressionNode.annotations());
@@ -1899,7 +1899,7 @@ public abstract class SyntaxNodeTransformer extends NodeTransformer<Node> {
     }
 
     @Override
-    public Node transform(
+    public FunctionBodyNode transform(
             ExpressionFunctionBodyNode expressionFunctionBodyNode) {
         Token rightDoubleArrow =
                 modifyToken(expressionFunctionBodyNode.rightDoubleArrow());
@@ -1914,7 +1914,7 @@ public abstract class SyntaxNodeTransformer extends NodeTransformer<Node> {
     }
 
     @Override
-    public Node transform(
+    public TypeDescriptorNode transform(
             TupleTypeDescriptorNode tupleTypeDescriptorNode) {
         Token openBracketToken =
                 modifyToken(tupleTypeDescriptorNode.openBracketToken());
@@ -1929,7 +1929,7 @@ public abstract class SyntaxNodeTransformer extends NodeTransformer<Node> {
     }
 
     @Override
-    public Node transform(
+    public TypeDescriptorNode transform(
             ParenthesisedTypeDescriptorNode parenthesisedTypeDescriptorNode) {
         Token openParenToken =
                 modifyToken(parenthesisedTypeDescriptorNode.openParenToken());
@@ -1944,7 +1944,7 @@ public abstract class SyntaxNodeTransformer extends NodeTransformer<Node> {
     }
 
     @Override
-    public Node transform(
+    public NewExpressionNode transform(
             ExplicitNewExpressionNode explicitNewExpressionNode) {
         Token newKeyword =
                 modifyToken(explicitNewExpressionNode.newKeyword());
@@ -1959,7 +1959,7 @@ public abstract class SyntaxNodeTransformer extends NodeTransformer<Node> {
     }
 
     @Override
-    public Node transform(
+    public NewExpressionNode transform(
             ImplicitNewExpressionNode implicitNewExpressionNode) {
         Token newKeyword =
                 modifyToken(implicitNewExpressionNode.newKeyword());
@@ -1998,7 +1998,7 @@ public abstract class SyntaxNodeTransformer extends NodeTransformer<Node> {
     }
 
     @Override
-    public Node transform(
+    public IntermediateClauseNode transform(
             FromClauseNode fromClauseNode) {
         Token fromKeyword =
                 modifyToken(fromClauseNode.fromKeyword());
@@ -2016,7 +2016,7 @@ public abstract class SyntaxNodeTransformer extends NodeTransformer<Node> {
     }
 
     @Override
-    public Node transform(
+    public IntermediateClauseNode transform(
             WhereClauseNode whereClauseNode) {
         Token whereKeyword =
                 modifyToken(whereClauseNode.whereKeyword());
@@ -2028,7 +2028,7 @@ public abstract class SyntaxNodeTransformer extends NodeTransformer<Node> {
     }
 
     @Override
-    public Node transform(
+    public IntermediateClauseNode transform(
             LetClauseNode letClauseNode) {
         Token letKeyword =
                 modifyToken(letClauseNode.letKeyword());
@@ -2040,7 +2040,7 @@ public abstract class SyntaxNodeTransformer extends NodeTransformer<Node> {
     }
 
     @Override
-    public Node transform(
+    public IntermediateClauseNode transform(
             JoinClauseNode joinClauseNode) {
         Token outerKeyword =
                 modifyToken(joinClauseNode.outerKeyword().orElse(null));
@@ -2064,7 +2064,7 @@ public abstract class SyntaxNodeTransformer extends NodeTransformer<Node> {
     }
 
     @Override
-    public Node transform(
+    public ClauseNode transform(
             OnClauseNode onClauseNode) {
         Token onKeyword =
                 modifyToken(onClauseNode.onKeyword());
@@ -2082,7 +2082,7 @@ public abstract class SyntaxNodeTransformer extends NodeTransformer<Node> {
     }
 
     @Override
-    public Node transform(
+    public IntermediateClauseNode transform(
             LimitClauseNode limitClauseNode) {
         Token limitKeyword =
                 modifyToken(limitClauseNode.limitKeyword());
@@ -2094,7 +2094,7 @@ public abstract class SyntaxNodeTransformer extends NodeTransformer<Node> {
     }
 
     @Override
-    public Node transform(
+    public ClauseNode transform(
             OnConflictClauseNode onConflictClauseNode) {
         Token onKeyword =
                 modifyToken(onConflictClauseNode.onKeyword());
@@ -2121,7 +2121,7 @@ public abstract class SyntaxNodeTransformer extends NodeTransformer<Node> {
     }
 
     @Override
-    public Node transform(
+    public ClauseNode transform(
             SelectClauseNode selectClauseNode) {
         Token selectKeyword =
                 modifyToken(selectClauseNode.selectKeyword());
@@ -2133,7 +2133,7 @@ public abstract class SyntaxNodeTransformer extends NodeTransformer<Node> {
     }
 
     @Override
-    public Node transform(
+    public ClauseNode transform(
             CollectClauseNode collectClauseNode) {
         Token collectKeyword =
                 modifyToken(collectClauseNode.collectKeyword());
@@ -2145,7 +2145,7 @@ public abstract class SyntaxNodeTransformer extends NodeTransformer<Node> {
     }
 
     @Override
-    public Node transform(
+    public ExpressionNode transform(
             QueryExpressionNode queryExpressionNode) {
         QueryConstructTypeNode queryConstructType =
                 modifyNode(queryExpressionNode.queryConstructType().orElse(null));
@@ -2163,7 +2163,7 @@ public abstract class SyntaxNodeTransformer extends NodeTransformer<Node> {
     }
 
     @Override
-    public Node transform(
+    public ActionNode transform(
             QueryActionNode queryActionNode) {
         QueryPipelineNode queryPipeline =
                 modifyNode(queryActionNode.queryPipeline());
@@ -2178,7 +2178,7 @@ public abstract class SyntaxNodeTransformer extends NodeTransformer<Node> {
     }
 
     @Override
-    public Node transform(
+    public TypeDescriptorNode transform(
             IntersectionTypeDescriptorNode intersectionTypeDescriptorNode) {
         Node leftTypeDesc =
                 modifyNode(intersectionTypeDescriptorNode.leftTypeDesc());
@@ -2208,7 +2208,7 @@ public abstract class SyntaxNodeTransformer extends NodeTransformer<Node> {
     }
 
     @Override
-    public Node transform(
+    public AnonymousFunctionExpressionNode transform(
             ImplicitAnonymousFunctionExpressionNode implicitAnonymousFunctionExpressionNode) {
         Node params =
                 modifyNode(implicitAnonymousFunctionExpressionNode.params());
@@ -2223,7 +2223,7 @@ public abstract class SyntaxNodeTransformer extends NodeTransformer<Node> {
     }
 
     @Override
-    public Node transform(
+    public ExpressionNode transform(
             StartActionNode startActionNode) {
         NodeList<AnnotationNode> annotations =
                 modifyNodeList(startActionNode.annotations());
@@ -2238,7 +2238,7 @@ public abstract class SyntaxNodeTransformer extends NodeTransformer<Node> {
     }
 
     @Override
-    public Node transform(
+    public ExpressionNode transform(
             FlushActionNode flushActionNode) {
         Token flushKeyword =
                 modifyToken(flushActionNode.flushKeyword());
@@ -2250,7 +2250,7 @@ public abstract class SyntaxNodeTransformer extends NodeTransformer<Node> {
     }
 
     @Override
-    public Node transform(
+    public TypeDescriptorNode transform(
             SingletonTypeDescriptorNode singletonTypeDescriptorNode) {
         ExpressionNode simpleContExprNode =
                 modifyNode(singletonTypeDescriptorNode.simpleContExprNode());
@@ -2299,7 +2299,7 @@ public abstract class SyntaxNodeTransformer extends NodeTransformer<Node> {
     }
 
     @Override
-    public Node transform(
+    public BindingPatternNode transform(
             CaptureBindingPatternNode captureBindingPatternNode) {
         Token variableName =
                 modifyToken(captureBindingPatternNode.variableName());
@@ -2308,7 +2308,7 @@ public abstract class SyntaxNodeTransformer extends NodeTransformer<Node> {
     }
 
     @Override
-    public Node transform(
+    public BindingPatternNode transform(
             WildcardBindingPatternNode wildcardBindingPatternNode) {
         Token underscoreToken =
                 modifyToken(wildcardBindingPatternNode.underscoreToken());
@@ -2317,7 +2317,7 @@ public abstract class SyntaxNodeTransformer extends NodeTransformer<Node> {
     }
 
     @Override
-    public Node transform(
+    public BindingPatternNode transform(
             ListBindingPatternNode listBindingPatternNode) {
         Token openBracket =
                 modifyToken(listBindingPatternNode.openBracket());
@@ -2332,7 +2332,7 @@ public abstract class SyntaxNodeTransformer extends NodeTransformer<Node> {
     }
 
     @Override
-    public Node transform(
+    public BindingPatternNode transform(
             MappingBindingPatternNode mappingBindingPatternNode) {
         Token openBrace =
                 modifyToken(mappingBindingPatternNode.openBrace());
@@ -2347,7 +2347,7 @@ public abstract class SyntaxNodeTransformer extends NodeTransformer<Node> {
     }
 
     @Override
-    public Node transform(
+    public FieldBindingPatternNode transform(
             FieldBindingPatternFullNode fieldBindingPatternFullNode) {
         SimpleNameReferenceNode variableName =
                 modifyNode(fieldBindingPatternFullNode.variableName());
@@ -2362,7 +2362,7 @@ public abstract class SyntaxNodeTransformer extends NodeTransformer<Node> {
     }
 
     @Override
-    public Node transform(
+    public FieldBindingPatternNode transform(
             FieldBindingPatternVarnameNode fieldBindingPatternVarnameNode) {
         SimpleNameReferenceNode variableName =
                 modifyNode(fieldBindingPatternVarnameNode.variableName());
@@ -2371,7 +2371,7 @@ public abstract class SyntaxNodeTransformer extends NodeTransformer<Node> {
     }
 
     @Override
-    public Node transform(
+    public BindingPatternNode transform(
             RestBindingPatternNode restBindingPatternNode) {
         Token ellipsisToken =
                 modifyToken(restBindingPatternNode.ellipsisToken());
@@ -2383,7 +2383,7 @@ public abstract class SyntaxNodeTransformer extends NodeTransformer<Node> {
     }
 
     @Override
-    public Node transform(
+    public BindingPatternNode transform(
             ErrorBindingPatternNode errorBindingPatternNode) {
         Token errorKeyword =
                 modifyToken(errorBindingPatternNode.errorKeyword());
@@ -2404,7 +2404,7 @@ public abstract class SyntaxNodeTransformer extends NodeTransformer<Node> {
     }
 
     @Override
-    public Node transform(
+    public BindingPatternNode transform(
             NamedArgBindingPatternNode namedArgBindingPatternNode) {
         IdentifierToken argName =
                 modifyNode(namedArgBindingPatternNode.argName());
@@ -2419,7 +2419,7 @@ public abstract class SyntaxNodeTransformer extends NodeTransformer<Node> {
     }
 
     @Override
-    public Node transform(
+    public ActionNode transform(
             AsyncSendActionNode asyncSendActionNode) {
         ExpressionNode expression =
                 modifyNode(asyncSendActionNode.expression());
@@ -2434,7 +2434,7 @@ public abstract class SyntaxNodeTransformer extends NodeTransformer<Node> {
     }
 
     @Override
-    public Node transform(
+    public ActionNode transform(
             SyncSendActionNode syncSendActionNode) {
         ExpressionNode expression =
                 modifyNode(syncSendActionNode.expression());
@@ -2449,7 +2449,7 @@ public abstract class SyntaxNodeTransformer extends NodeTransformer<Node> {
     }
 
     @Override
-    public Node transform(
+    public ActionNode transform(
             ReceiveActionNode receiveActionNode) {
         Token leftArrow =
                 modifyToken(receiveActionNode.leftArrow());
@@ -2524,7 +2524,7 @@ public abstract class SyntaxNodeTransformer extends NodeTransformer<Node> {
     }
 
     @Override
-    public Node transform(
+    public ActionNode transform(
             WaitActionNode waitActionNode) {
         Token waitKeyword =
                 modifyToken(waitActionNode.waitKeyword());
@@ -2566,7 +2566,7 @@ public abstract class SyntaxNodeTransformer extends NodeTransformer<Node> {
     }
 
     @Override
-    public Node transform(
+    public ExpressionNode transform(
             AnnotAccessExpressionNode annotAccessExpressionNode) {
         ExpressionNode expression =
                 modifyNode(annotAccessExpressionNode.expression());
@@ -2581,7 +2581,7 @@ public abstract class SyntaxNodeTransformer extends NodeTransformer<Node> {
     }
 
     @Override
-    public Node transform(
+    public ExpressionNode transform(
             OptionalFieldAccessExpressionNode optionalFieldAccessExpressionNode) {
         ExpressionNode expression =
                 modifyNode(optionalFieldAccessExpressionNode.expression());
@@ -2596,7 +2596,7 @@ public abstract class SyntaxNodeTransformer extends NodeTransformer<Node> {
     }
 
     @Override
-    public Node transform(
+    public ExpressionNode transform(
             ConditionalExpressionNode conditionalExpressionNode) {
         ExpressionNode lhsExpression =
                 modifyNode(conditionalExpressionNode.lhsExpression());
@@ -2617,7 +2617,7 @@ public abstract class SyntaxNodeTransformer extends NodeTransformer<Node> {
     }
 
     @Override
-    public Node transform(
+    public ModuleMemberDeclarationNode transform(
             EnumDeclarationNode enumDeclarationNode) {
         MetadataNode metadata =
                 modifyNode(enumDeclarationNode.metadata().orElse(null));
@@ -2665,7 +2665,7 @@ public abstract class SyntaxNodeTransformer extends NodeTransformer<Node> {
     }
 
     @Override
-    public Node transform(
+    public TypeDescriptorNode transform(
             ArrayTypeDescriptorNode arrayTypeDescriptorNode) {
         TypeDescriptorNode memberTypeDesc =
                 modifyNode(arrayTypeDescriptorNode.memberTypeDesc());
@@ -2692,7 +2692,7 @@ public abstract class SyntaxNodeTransformer extends NodeTransformer<Node> {
     }
 
     @Override
-    public Node transform(
+    public StatementNode transform(
             TransactionStatementNode transactionStatementNode) {
         Token transactionKeyword =
                 modifyToken(transactionStatementNode.transactionKeyword());
@@ -2707,7 +2707,7 @@ public abstract class SyntaxNodeTransformer extends NodeTransformer<Node> {
     }
 
     @Override
-    public Node transform(
+    public StatementNode transform(
             RollbackStatementNode rollbackStatementNode) {
         Token rollbackKeyword =
                 modifyToken(rollbackStatementNode.rollbackKeyword());
@@ -2722,7 +2722,7 @@ public abstract class SyntaxNodeTransformer extends NodeTransformer<Node> {
     }
 
     @Override
-    public Node transform(
+    public StatementNode transform(
             RetryStatementNode retryStatementNode) {
         Token retryKeyword =
                 modifyToken(retryStatementNode.retryKeyword());
@@ -2743,7 +2743,7 @@ public abstract class SyntaxNodeTransformer extends NodeTransformer<Node> {
     }
 
     @Override
-    public Node transform(
+    public ActionNode transform(
             CommitActionNode commitActionNode) {
         Token commitKeyword =
                 modifyToken(commitActionNode.commitKeyword());
@@ -2752,7 +2752,7 @@ public abstract class SyntaxNodeTransformer extends NodeTransformer<Node> {
     }
 
     @Override
-    public Node transform(
+    public ExpressionNode transform(
             TransactionalExpressionNode transactionalExpressionNode) {
         Token transactionalKeyword =
                 modifyToken(transactionalExpressionNode.transactionalKeyword());
@@ -2761,7 +2761,7 @@ public abstract class SyntaxNodeTransformer extends NodeTransformer<Node> {
     }
 
     @Override
-    public Node transform(
+    public ExpressionNode transform(
             ByteArrayLiteralNode byteArrayLiteralNode) {
         Token type =
                 modifyToken(byteArrayLiteralNode.type());
@@ -2779,7 +2779,7 @@ public abstract class SyntaxNodeTransformer extends NodeTransformer<Node> {
     }
 
     @Override
-    public Node transform(
+    public XMLNavigateExpressionNode transform(
             XMLFilterExpressionNode xMLFilterExpressionNode) {
         ExpressionNode expression =
                 modifyNode(xMLFilterExpressionNode.expression());
@@ -2791,7 +2791,7 @@ public abstract class SyntaxNodeTransformer extends NodeTransformer<Node> {
     }
 
     @Override
-    public Node transform(
+    public XMLNavigateExpressionNode transform(
             XMLStepExpressionNode xMLStepExpressionNode) {
         ExpressionNode expression =
                 modifyNode(xMLStepExpressionNode.expression());
@@ -2866,7 +2866,7 @@ public abstract class SyntaxNodeTransformer extends NodeTransformer<Node> {
     }
 
     @Override
-    public Node transform(
+    public TypeDescriptorNode transform(
             TypeReferenceTypeDescNode typeReferenceTypeDescNode) {
         NameReferenceNode typeRef =
                 modifyNode(typeReferenceTypeDescNode.typeRef());
@@ -2875,7 +2875,7 @@ public abstract class SyntaxNodeTransformer extends NodeTransformer<Node> {
     }
 
     @Override
-    public Node transform(
+    public StatementNode transform(
             MatchStatementNode matchStatementNode) {
         Token matchKeyword =
                 modifyToken(matchStatementNode.matchKeyword());
@@ -2929,7 +2929,7 @@ public abstract class SyntaxNodeTransformer extends NodeTransformer<Node> {
     }
 
     @Override
-    public Node transform(
+    public TypeDescriptorNode transform(
             DistinctTypeDescriptorNode distinctTypeDescriptorNode) {
         Token distinctKeyword =
                 modifyToken(distinctTypeDescriptorNode.distinctKeyword());
@@ -3037,7 +3037,7 @@ public abstract class SyntaxNodeTransformer extends NodeTransformer<Node> {
     }
 
     @Override
-    public Node transform(
+    public DocumentationNode transform(
             MarkdownDocumentationNode markdownDocumentationNode) {
         NodeList<Node> documentationLines =
                 modifyNodeList(markdownDocumentationNode.documentationLines());
@@ -3046,7 +3046,7 @@ public abstract class SyntaxNodeTransformer extends NodeTransformer<Node> {
     }
 
     @Override
-    public Node transform(
+    public DocumentationNode transform(
             MarkdownDocumentationLineNode markdownDocumentationLineNode) {
         Token hashToken =
                 modifyToken(markdownDocumentationLineNode.hashToken());
@@ -3059,7 +3059,7 @@ public abstract class SyntaxNodeTransformer extends NodeTransformer<Node> {
     }
 
     @Override
-    public Node transform(
+    public DocumentationNode transform(
             MarkdownParameterDocumentationLineNode markdownParameterDocumentationLineNode) {
         Token hashToken =
                 modifyToken(markdownParameterDocumentationLineNode.hashToken());
@@ -3081,7 +3081,7 @@ public abstract class SyntaxNodeTransformer extends NodeTransformer<Node> {
     }
 
     @Override
-    public Node transform(
+    public DocumentationNode transform(
             BallerinaNameReferenceNode ballerinaNameReferenceNode) {
         Token referenceType =
                 modifyToken(ballerinaNameReferenceNode.referenceType().orElse(null));
@@ -3099,7 +3099,7 @@ public abstract class SyntaxNodeTransformer extends NodeTransformer<Node> {
     }
 
     @Override
-    public Node transform(
+    public DocumentationNode transform(
             InlineCodeReferenceNode inlineCodeReferenceNode) {
         Token startBacktick =
                 modifyToken(inlineCodeReferenceNode.startBacktick());
@@ -3114,7 +3114,7 @@ public abstract class SyntaxNodeTransformer extends NodeTransformer<Node> {
     }
 
     @Override
-    public Node transform(
+    public DocumentationNode transform(
             MarkdownCodeBlockNode markdownCodeBlockNode) {
         Token startLineHashToken =
                 modifyToken(markdownCodeBlockNode.startLineHashToken());
@@ -3138,7 +3138,7 @@ public abstract class SyntaxNodeTransformer extends NodeTransformer<Node> {
     }
 
     @Override
-    public Node transform(
+    public DocumentationNode transform(
             MarkdownCodeLineNode markdownCodeLineNode) {
         Token hashToken =
                 modifyToken(markdownCodeLineNode.hashToken());
@@ -3150,7 +3150,7 @@ public abstract class SyntaxNodeTransformer extends NodeTransformer<Node> {
     }
 
     @Override
-    public Node transform(
+    public IntermediateClauseNode transform(
             OrderByClauseNode orderByClauseNode) {
         Token orderKeyword =
                 modifyToken(orderByClauseNode.orderKeyword());
@@ -3177,7 +3177,7 @@ public abstract class SyntaxNodeTransformer extends NodeTransformer<Node> {
     }
 
     @Override
-    public Node transform(
+    public IntermediateClauseNode transform(
             GroupByClauseNode groupByClauseNode) {
         Token groupKeyword =
                 modifyToken(groupByClauseNode.groupKeyword());
@@ -3210,7 +3210,7 @@ public abstract class SyntaxNodeTransformer extends NodeTransformer<Node> {
     }
 
     @Override
-    public Node transform(
+    public ClauseNode transform(
             OnFailClauseNode onFailClauseNode) {
         Token onKeyword =
                 modifyToken(onFailClauseNode.onKeyword());
@@ -3228,7 +3228,7 @@ public abstract class SyntaxNodeTransformer extends NodeTransformer<Node> {
     }
 
     @Override
-    public Node transform(
+    public StatementNode transform(
             DoStatementNode doStatementNode) {
         Token doKeyword =
                 modifyToken(doStatementNode.doKeyword());
@@ -3243,7 +3243,7 @@ public abstract class SyntaxNodeTransformer extends NodeTransformer<Node> {
     }
 
     @Override
-    public Node transform(
+    public ModuleMemberDeclarationNode transform(
             ClassDefinitionNode classDefinitionNode) {
         MetadataNode metadata =
                 modifyNode(classDefinitionNode.metadata().orElse(null));
@@ -3301,7 +3301,7 @@ public abstract class SyntaxNodeTransformer extends NodeTransformer<Node> {
     }
 
     @Override
-    public Node transform(
+    public ExpressionNode transform(
             RequiredExpressionNode requiredExpressionNode) {
         Token questionMarkToken =
                 modifyToken(requiredExpressionNode.questionMarkToken());
@@ -3310,7 +3310,7 @@ public abstract class SyntaxNodeTransformer extends NodeTransformer<Node> {
     }
 
     @Override
-    public Node transform(
+    public ExpressionNode transform(
             ErrorConstructorExpressionNode errorConstructorExpressionNode) {
         Token errorKeyword =
                 modifyToken(errorConstructorExpressionNode.errorKeyword());
@@ -3331,7 +3331,7 @@ public abstract class SyntaxNodeTransformer extends NodeTransformer<Node> {
     }
 
     @Override
-    public Node transform(
+    public TypeDescriptorNode transform(
             ParameterizedTypeDescriptorNode parameterizedTypeDescriptorNode) {
         Token keywordToken =
                 modifyToken(parameterizedTypeDescriptorNode.keywordToken());
@@ -3356,7 +3356,7 @@ public abstract class SyntaxNodeTransformer extends NodeTransformer<Node> {
     }
 
     @Override
-    public Node transform(
+    public ActionNode transform(
             ClientResourceAccessActionNode clientResourceAccessActionNode) {
         ExpressionNode expression =
                 modifyNode(clientResourceAccessActionNode.expression());
@@ -3425,7 +3425,7 @@ public abstract class SyntaxNodeTransformer extends NodeTransformer<Node> {
     }
 
     @Override
-    public Node transform(
+    public ReTermNode transform(
             ReAtomQuantifierNode reAtomQuantifierNode) {
         Node reAtom =
                 modifyNode(reAtomQuantifierNode.reAtom());
@@ -3491,7 +3491,7 @@ public abstract class SyntaxNodeTransformer extends NodeTransformer<Node> {
     }
 
     @Override
-    public Node transform(
+    public ReUnicodePropertyNode transform(
             ReUnicodeScriptNode reUnicodeScriptNode) {
         Node scriptStart =
                 modifyNode(reUnicodeScriptNode.scriptStart());
@@ -3503,7 +3503,7 @@ public abstract class SyntaxNodeTransformer extends NodeTransformer<Node> {
     }
 
     @Override
-    public Node transform(
+    public ReUnicodePropertyNode transform(
             ReUnicodeGeneralCategoryNode reUnicodeGeneralCategoryNode) {
         Node categoryStart =
                 modifyNode(reUnicodeGeneralCategoryNode.categoryStart().orElse(null));
@@ -3668,7 +3668,7 @@ public abstract class SyntaxNodeTransformer extends NodeTransformer<Node> {
     }
 
     @Override
-    public Node transform(
+    public ReTermNode transform(
             ReAssertionNode reAssertionNode) {
         Node reAssertion =
                 modifyNode(reAssertionNode.reAssertion());

@@ -55,7 +55,7 @@ public class TreeModifierTarget extends AbstractNodeVisitorTarget {
 
     @Override
     protected String getSuperClassName() {
-        return SYNTAX_NODE_TRANSFORMER_CN;
+        return BASE_NODE_MODIFIER_CN;
     }
 
     protected @Override

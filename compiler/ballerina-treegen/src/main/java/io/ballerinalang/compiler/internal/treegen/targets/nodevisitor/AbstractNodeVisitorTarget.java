@@ -48,7 +48,7 @@ public abstract class AbstractNodeVisitorTarget extends Target {
     static final String EXTERNAL_NODE_FACTORY_CN = "NodeFactory";
     static final String EXTERNAL_BASE_NODE_FACTORY_CN = "AbstractNodeFactory";
     public static final String EXTERNAL_NODE_VISITOR_CN = "NodeVisitor";
-    public static final String SYNTAX_NODE_TRANSFORMER_CN = "SyntaxNodeTransformer";
+    public static final String BASE_NODE_MODIFIER_CN = "BaseNodeModifier";
 
     AbstractNodeVisitorTarget(TreeGenConfig config) {
         super(config);

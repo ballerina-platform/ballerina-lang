@@ -46,8 +46,7 @@ public class TreeGenConfig {
     public static final String EXTERNAL_TREE_MODIFIER_TEMPLATE_KEY = "external.tree.modifier.template";
     public static final String EXTERNAL_NODE_FACTORY_TEMPLATE_KEY = "external.node.factory.template";
     public static final String EXTERNAL_NODE_PACKAGE_KEY = "external.node.package";
-    public static final String EXTERNAL_SYNTAX_NODE_TRANSFORMER_TEMPLATE_KEY =
-            "external.syntax.node.transformer.template";
+    public static final String EXTERNAL_BASE_NODE_MODIFIER_TEMPLATE_KEY = "external.base.node.modifier.template";
 
     private static final String TREE_GEN_CONFIG_PROPERTIES = "treegen_config.properties";
 
