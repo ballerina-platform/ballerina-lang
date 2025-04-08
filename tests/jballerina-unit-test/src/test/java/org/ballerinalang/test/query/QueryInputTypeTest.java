@@ -35,7 +35,7 @@ import java.util.List;
 /**
  * This contains methods to test query expressions with different input types.
  *
- * @since 2.0.0
+ * @since 2201.13.0
  */
 public class QueryInputTypeTest {
 

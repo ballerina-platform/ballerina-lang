@@ -31,6 +31,12 @@ import static io.ballerina.runtime.api.constants.RuntimeConstants.BALLERINA_QUER
 import static io.ballerina.runtime.internal.query.utils.QueryConstants.VALUE_ACCESS_FIELD;
 import static io.ballerina.runtime.internal.query.utils.QueryConstants.VALUE_FIELD;
 
+
+/**
+ * Implementation of 'next' method of iterator object returned by query.
+ *
+ * @since 2201.13.0
+ */
 public class IteratorObject {
     public static Object next(Object itr) {
         Iterator<Frame> iterator = (Iterator<Frame>) itr;

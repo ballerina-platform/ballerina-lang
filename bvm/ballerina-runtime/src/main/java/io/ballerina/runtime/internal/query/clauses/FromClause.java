@@ -31,6 +31,8 @@ import java.util.stream.Stream;
 
 /**
  * Represents a `from` clause in the query pipeline that processes a stream of frames.
+ *
+ * @since 2201.13.0
  */
 public class FromClause implements PipelineStage {
 

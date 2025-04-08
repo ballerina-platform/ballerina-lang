@@ -39,6 +39,8 @@ import static io.ballerina.runtime.internal.query.utils.QueryConstants.VALUE_FIE
 
 /**
  * Represents a nested `from` clause in the query pipeline that processes a stream of frames.
+ *
+ * @since 2201.13.0
  */
 public class NestedFromClause implements PipelineStage {
     private final BFunctionPointer collectionFunc;

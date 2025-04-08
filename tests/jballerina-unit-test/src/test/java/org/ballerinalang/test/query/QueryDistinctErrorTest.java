@@ -25,6 +25,12 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
+
+/**
+ * Contains tests for distinct errors in query
+ *
+ * @since 2201.13.0
+ */
 public class QueryDistinctErrorTest {
     private CompileResult result;
 

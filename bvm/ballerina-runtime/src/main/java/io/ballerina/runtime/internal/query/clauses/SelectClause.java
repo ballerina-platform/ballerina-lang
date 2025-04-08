@@ -30,6 +30,8 @@ import java.util.stream.Stream;
 
 /**
  * Represents a `select` clause in the query pipeline that processes a stream of frames.
+ *
+ * @since 2201.13.0
  */
 public class SelectClause implements PipelineStage {
     private final BFunctionPointer selector;

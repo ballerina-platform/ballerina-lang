@@ -36,6 +36,8 @@ import java.util.stream.Stream;
 /**
  * Represents a `collect` clause in the query pipeline.
  * It aggregates values based on non-grouping keys and applies a user-defined function.
+ *
+ * @since 2201.13.0
  */
 public class CollectClause implements PipelineStage {
 

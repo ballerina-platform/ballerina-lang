@@ -31,6 +31,8 @@ import java.util.stream.Stream;
 
 /**
  * Represents a `do` clause in the query pipeline that applies a function to each element.
+ *
+ * @since 2201.13.0
  */
 public class DoClause implements PipelineStage {
     private final Environment env;

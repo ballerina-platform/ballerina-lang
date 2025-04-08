@@ -34,6 +34,8 @@ import java.util.stream.Stream;
 
 /**
  * A class that represents a stream pipeline for processing data.
+ *
+ * @since 2201.13.0
  */
 public class StreamPipeline {
 

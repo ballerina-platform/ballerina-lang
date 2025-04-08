@@ -25,6 +25,8 @@ import java.util.stream.Stream;
 
 /**
  * Interface representing a stage in the StreamPipeline.
+ *
+ * @since 2201.13.0
  */
 @FunctionalInterface
 public interface PipelineStage {

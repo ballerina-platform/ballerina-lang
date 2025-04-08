@@ -33,7 +33,11 @@ import io.ballerina.runtime.internal.utils.ValueComparisonUtils;
 import java.util.Comparator;
 import java.util.stream.Stream;
 
-
+/**
+ * Represents a `order by` clause in the query pipeline that processes a stream of frames.
+ *
+ * @since 2201.13.0
+ */
 public class OrderByClause implements PipelineStage {
     private final BFunctionPointer orderKeyFunction;
     private final Environment env;
