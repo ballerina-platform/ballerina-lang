@@ -3670,5 +3670,27 @@ public abstract class NodeFactory extends AbstractNodeFactory {
                 peerWorker.internalNode());
         return stReceiveFieldNode.createUnlinkedFacade();
     }
+
+    public static NaturalExpressionNode createNaturalExpressionNode(
+            Token constKeyword,
+            Token naturalKeyword,
+            ParenthesizedArgList parenthesizedArgList,
+            Token openBraceToken,
+            NodeList<Node> prompt,
+            Token closeBraceToken) {
+        Objects.requireNonNull(naturalKeyword, "naturalKeyword must not be null");
+        Objects.requireNonNull(openBraceToken, "openBraceToken must not be null");
+        Objects.requireNonNull(prompt, "prompt must not be null");
+        Objects.requireNonNull(closeBraceToken, "closeBraceToken must not be null");
+
+        STNode stNaturalExpressionNode = STNodeFactory.createNaturalExpressionNode(
+                getOptionalSTNode(constKeyword),
+                naturalKeyword.internalNode(),
+                getOptionalSTNode(parenthesizedArgList),
+                openBraceToken.internalNode(),
+                prompt.underlyingListNode().internalNode(),
+                closeBraceToken.internalNode());
+        return stNaturalExpressionNode.createUnlinkedFacade();
+    }
 }
 

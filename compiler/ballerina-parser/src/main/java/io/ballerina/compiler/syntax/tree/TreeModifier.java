@@ -1413,4 +1413,10 @@ public abstract class TreeModifier extends BaseNodeModifier {
             ReceiveFieldNode receiveFieldNode) {
         return (ReceiveFieldNode) super.transform(receiveFieldNode);
     }
+
+    @Override
+    public NaturalExpressionNode transform(
+            NaturalExpressionNode naturalExpressionNode) {
+        return (NaturalExpressionNode) super.transform(naturalExpressionNode);
+    }
 }

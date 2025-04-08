@@ -3736,6 +3736,30 @@ public abstract class BaseNodeModifier extends NodeTransformer<Node> {
                 peerWorker);
     }
 
+    @Override
+    public ExpressionNode transform(
+            NaturalExpressionNode naturalExpressionNode) {
+        Token constKeyword =
+                modifyToken(naturalExpressionNode.constKeyword().orElse(null));
+        Token naturalKeyword =
+                modifyToken(naturalExpressionNode.naturalKeyword());
+        ParenthesizedArgList parenthesizedArgList =
+                modifyNode(naturalExpressionNode.parenthesizedArgList().orElse(null));
+        Token openBraceToken =
+                modifyToken(naturalExpressionNode.openBraceToken());
+        NodeList<Node> prompt =
+                modifyNodeList(naturalExpressionNode.prompt());
+        Token closeBraceToken =
+                modifyToken(naturalExpressionNode.closeBraceToken());
+        return naturalExpressionNode.modify(
+                constKeyword,
+                naturalKeyword,
+                parenthesizedArgList,
+                openBraceToken,
+                prompt,
+                closeBraceToken);
+    }
+
     // Tokens
 
     @Override

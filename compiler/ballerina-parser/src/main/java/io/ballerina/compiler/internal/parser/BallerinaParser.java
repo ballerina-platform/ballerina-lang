@@ -5066,6 +5066,13 @@ public class BallerinaParser extends AbstractParser {
                 return parseByteArrayLiteral();
             case TRANSACTION_KEYWORD:
                 return parseQualifiedIdentWithTransactionPrefix(ParserRuleContext.VARIABLE_REF);
+            case NATURAL_KEYWORD:
+                return parseNaturalExpression();
+            case CONST_KEYWORD:
+                if (getNextNextToken().kind == SyntaxKind.NATURAL_KEYWORD) {
+                    return parseNaturalExpression();
+                }
+                // fall through
             default:
                 if (isSimpleTypeInExpression(nextToken.kind)) {
                     return parseSimpleTypeInTerminalExpr();
@@ -5074,6 +5081,100 @@ public class BallerinaParser extends AbstractParser {
                 recover(nextToken, ParserRuleContext.TERMINAL_EXPRESSION);
                 return parseTerminalExpression(annots, qualifiers, isRhsExpr, allowActions, isInConditionalExpr);
         }
+    }
+
+    /**
+     * <p>
+     * Parse a natural expression.
+     * </p>
+     * <code>
+     * natural-expr := [const] natural [(arg-list)] { prompt }
+     * prompt := ^ (`}`, `\`, `$`)
+     * </code>
+     *
+     * @return Parsed NaturalExpression node.
+     */
+    private STNode parseNaturalExpression() {
+        startContext(ParserRuleContext.NATURAL_EXPRESSION);
+        STNode optionalConstKeyword = peek().kind == SyntaxKind.CONST_KEYWORD ?
+                consume() : STNodeFactory.createEmptyNode();
+        STNode naturalKeyword = consume();
+        STNode optionalParenthesizedArgList = parseOptionalParenthesizedArgList();
+        STNode openBrace = parseOpenBrace();
+
+        if (openBrace.isMissing()) {
+            // special case missing open brace case to prevent all the below code becoming prompt content when user
+            // just type the `natural` keyword.
+            endContext();
+            return createMissingNaturalExpressionNode(optionalConstKeyword, naturalKeyword);
+        }
+
+        this.tokenReader.startMode(ParserMode.PROMPT);
+        STNode prompt = parsePromptContent();
+        STNode closeBrace = parseCloseBrace();
+
+        if (this.tokenReader.getCurrentMode() == ParserMode.PROMPT) {
+            this.tokenReader.endMode();
+        }
+        endContext();
+        return STNodeFactory.createNaturalExpressionNode(optionalConstKeyword, naturalKeyword,
+                optionalParenthesizedArgList, openBrace, prompt, closeBrace);
+    }
+
+    private STNode createMissingNaturalExpressionNode(STNode optionalConstKeyword, STNode naturalKeyword) {
+        STNode openBrace = SyntaxErrors.createMissingToken(SyntaxKind.OPEN_BRACE_TOKEN);
+        STNode closeBrace = SyntaxErrors.createMissingToken(SyntaxKind.CLOSE_BRACE_TOKEN);
+        STNode prompt = STAbstractNodeFactory.createEmptyNodeList();
+        STNode argList = STNodeFactory.createEmptyNode();
+        STNode naturalExpr =
+                STNodeFactory.createNaturalExpressionNode(optionalConstKeyword, naturalKeyword,
+                        argList, openBrace, prompt, closeBrace);
+        naturalExpr = SyntaxErrors.addDiagnostic(naturalExpr, DiagnosticErrorCode.ERROR_MISSING_NATURAL_PROMPT_BLOCK);
+        return naturalExpr;
+    }
+
+    private STNode parseOptionalParenthesizedArgList() {
+        return switch (peek().kind) {
+            case OPEN_PAREN_TOKEN -> parseParenthesizedArgList();
+            case OPEN_BRACE_TOKEN -> STNodeFactory.createEmptyNode();
+            default -> {
+                recover(peek(), ParserRuleContext.OPTIONAL_PARENTHESIZED_ARG_LIST);
+                yield parseOptionalParenthesizedArgList();
+            }
+        };
+    }
+
+    private STNode parsePromptContent() {
+        List<STNode> items = new ArrayList<>();
+        STToken nextToken = peek();
+        while (!isEndOfPromptContent(nextToken.kind)) {
+            STNode contentItem = parsePromptItem();
+            items.add(contentItem);
+            nextToken = peek();
+        }
+        return STNodeFactory.createNodeList(items);
+    }
+
+    private boolean isEndOfPromptContent(SyntaxKind kind) {
+        return switch (kind) {
+            case EOF_TOKEN, CLOSE_BRACE_TOKEN -> true;
+            default -> false;
+        };
+    }
+
+    private STNode parsePromptItem() {
+        STToken nextToken = peek();
+        if (nextToken.kind == SyntaxKind.INTERPOLATION_START_TOKEN) {
+            return parseInterpolation();
+        }
+
+        if (nextToken.kind != SyntaxKind.PROMPT_CONTENT) {
+            nextToken = consume();
+            return STNodeFactory.createLiteralValueToken(SyntaxKind.PROMPT_CONTENT,
+                    nextToken.text(), nextToken.leadingMinutiae(), nextToken.trailingMinutiae(),
+                    nextToken.diagnostics());
+        }
+        return consume();
     }
 
     private STNode createMissingObjectConstructor(STNode annots, STNode qualifierNodeList) {
@@ -19164,7 +19265,7 @@ public class BallerinaParser extends AbstractParser {
         if (nextToken.kind != SyntaxKind.CLOSE_BRACE_TOKEN) {
             return false;
         }
-        
+
         for (ParserRuleContext ctx : this.errorHandler.getContextStack()) {
             if (isBlockContext(ctx)) {
                 // This is done to exit at the earliest point when climbing up in the context stack.
