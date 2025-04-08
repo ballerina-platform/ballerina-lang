@@ -55,12 +55,11 @@ import java.util.regex.Matcher;
 public final class BallerinaTreeModifyUtil {
 
     private static final String DELETE = "delete";
-    private static final String IMPORT = "import";
 
     private BallerinaTreeModifyUtil() {
     }
 
-    private static final Map<String, String> typeMapping = new HashMap<String, String>() {{
+    private static final Map<String, String> typeMapping = new HashMap<>() {{
         put("DELETE", "");
         put("INSERT", "$STATEMENT");
     }};
@@ -232,8 +231,7 @@ public final class BallerinaTreeModifyUtil {
         // Update project instance
 
         PackageCompilation packageCompilation = updatedDoc.module().packageInstance().getCompilation();
-        SemanticModel semanticModel = packageCompilation.getSemanticModel(updatedDoc.module().moduleId());
-        return semanticModel;
+        return packageCompilation.getSemanticModel(updatedDoc.module().moduleId());
     }
 
     private static boolean importExist(UnusedSymbolsVisitor unusedSymbolsVisitor, ASTModification astModification) {
@@ -245,9 +243,9 @@ public final class BallerinaTreeModifyUtil {
     private static TextEdit constructEdit(UnusedSymbolsVisitor unusedSymbolsVisitor, TextDocument oldTextDocument,
                                           ASTModification astModification) {
 
-        String textEdit = BallerinaTreeModifyUtil.resolveMapping(astModification.getType(),
+        String editText = BallerinaTreeModifyUtil.resolveMapping(astModification.getType(),
                 astModification.getConfig() == null ? new JsonObject() : astModification.getConfig());
-        if (textEdit == null) {
+        if (editText == null) {
             return null;
         }
 
@@ -260,16 +258,16 @@ public final class BallerinaTreeModifyUtil {
             doEdit = true;
         }
         if (doEdit) {
-            TextRange range = getRange(astModification, oldTextDocument, textEdit);
+            TextRange range = getRange(astModification, oldTextDocument);
             if (range == null) {
                 return null;
             }
-            return TextEdit.from(range, textEdit);
+            return TextEdit.from(range, editText);
         }
         return null;
     }
 
-    public static TextRange getRange(ASTModification modification, TextDocument oldTextDocument, String textEdit) {
+    public static TextRange getRange(ASTModification modification, TextDocument oldTextDocument) {
         // Get line positions from modification
         LinePosition startLinePos = LinePosition.from(modification.getStartLine(), modification.getStartColumn());
         LinePosition endLinePos = LinePosition.from(modification.getEndLine(), modification.getEndColumn());
@@ -286,7 +284,7 @@ public final class BallerinaTreeModifyUtil {
     }
 
     /**
-     * Helper method to calculate text offset from a line position
+     * Helper method to calculate text offset from a line position.
      */
     private static int calculateOffset(TextDocument document, LinePosition linePos) {
         try {
