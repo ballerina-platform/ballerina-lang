@@ -761,7 +761,7 @@ public class Types {
      * @param target type.
      * @return true if source type is assignable to the target type.
      */
-    public boolean isAssignable(BType source, BType target) {
+    public synchronized boolean isAssignable(BType source, BType target) {
         return isSubtype(source.semType(), target.semType());
     }
 
