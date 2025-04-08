@@ -99,6 +99,10 @@ public class PackCommand implements BLauncherCmd {
             description = "experimental memory optimization for large projects")
     private Boolean optimizeDependencyCompilation;
 
+    @CommandLine.Option(names = "--locking-mode", hidden = true,
+            description = "allow passing the package locking mode.")
+    private String lockingMode;
+
     public PackCommand() {
         this.projectPath = Path.of(System.getProperty(ProjectConstants.USER_DIR));
         this.outStream = System.out;
@@ -289,7 +293,8 @@ public class PackCommand implements BLauncherCmd {
                 .setEnableCache(enableCache)
                 .disableSyntaxTreeCaching(disableSyntaxTreeCaching)
                 .setShowDependencyDiagnostics(showDependencyDiagnostics)
-                .setOptimizeDependencyCompilation(optimizeDependencyCompilation);
+                .setOptimizeDependencyCompilation(optimizeDependencyCompilation)
+                .setLockingMode(lockingMode);
 
         if (targetDir != null) {
             buildOptionsBuilder.targetDir(targetDir.toString());
