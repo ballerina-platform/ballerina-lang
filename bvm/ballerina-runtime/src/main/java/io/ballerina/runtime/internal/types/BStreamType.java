@@ -186,12 +186,14 @@ public class BStreamType extends BType implements StreamType {
 
 
     private static final class BStreamTypeCache {
-        record Key(int constrainId, int completionId) {}
-        record Value(int typeId, TypeCheckCache cache) {}
-        public final static LoadingCache<Key, Value> CACHE = CacheFactory.createCache(BStreamTypeCache::createNewValue);
+        record Key(int constrainId, int completionId) { }
+        record Value(int typeId, TypeCheckCache cache) { }
+        private static final LoadingCache<Key, Value> CACHE = CacheFactory.createCache(
+                BStreamTypeCache::createNewValue);
 
         public static Value get(Type constraint, Type completion) {
-            if (constraint instanceof CacheableTypeDescriptor constraintTD && completion instanceof CacheableTypeDescriptor completionTD) {
+            if (constraint instanceof CacheableTypeDescriptor constraintTD &&
+                    completion instanceof CacheableTypeDescriptor completionTD) {
                 return CACHE.get(new Key(constraintTD.typeId(), completionTD.typeId()));
             }
             return CACHE.get(new Key(constraint.hashCode(), completion.hashCode()));
