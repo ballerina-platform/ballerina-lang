@@ -204,7 +204,7 @@ public final class BallerinaTreeModifyUtil {
         newSyntaxTree = Formatter.format(newSyntaxTree);
 
         SemanticModel newSemanticModel = updateWorkspaceDocument(compilationPath, newSyntaxTree.toSourceCode(),
-                                                                 workspaceManager);
+                workspaceManager);
 
         Optional<Document> formattedSrcFile = workspaceManager.document(compilationPath);
         if (formattedSrcFile.isEmpty()) {
@@ -270,26 +270,36 @@ public final class BallerinaTreeModifyUtil {
     }
 
     public static TextRange getRange(ASTModification modification, TextDocument oldTextDocument, String textEdit) {
+        // Get line positions from modification
         LinePosition startLinePos = LinePosition.from(modification.getStartLine(), modification.getStartColumn());
         LinePosition endLinePos = LinePosition.from(modification.getEndLine(), modification.getEndColumn());
 
-        int startOffset;
-        try {
-            startOffset = oldTextDocument.textPositionFrom(startLinePos);
-            int endOffset = oldTextDocument.textPositionFrom(endLinePos);
-            return TextRange.from(startOffset, endOffset - startOffset);
-        } catch (IndexOutOfBoundsException e) {
-            // If the start offset is out of bounds, we need to check if the insertion line is the last line and if so,
-            // we can still insert at the end of the document.
-            if (startLinePos.line() == oldTextDocument.textLines().size()) {
-                startOffset = oldTextDocument.toCharArray().length;
-                return TextRange.from(startOffset, 0);
-            } else {
-                return null;
-            }
-        } catch (IllegalArgumentException e) {
-            // TODO: Handle the case where the start offset is out of bounds
+        // Calculate offsets
+        int startOffset = calculateOffset(oldTextDocument, startLinePos);
+        int endOffset = calculateOffset(oldTextDocument, endLinePos);
+
+        if (startOffset < 0 || endOffset < 0) {
             return null;
+        }
+
+        return TextRange.from(startOffset, endOffset - startOffset);
+    }
+
+    /**
+     * Helper method to calculate text offset from a line position
+     */
+    private static int calculateOffset(TextDocument document, LinePosition linePos) {
+        try {
+            return document.textPositionFrom(linePos);
+        } catch (IndexOutOfBoundsException e) {
+            // If the line position is at the end of the document, return the document length
+            if (linePos.line() == document.textLines().size()) {
+                return document.toCharArray().length;
+            }
+            return -1;
+        } catch (Exception e) {
+            // TODO: Handle other exceptions as needed
+            return -1;
         }
     }
 }
