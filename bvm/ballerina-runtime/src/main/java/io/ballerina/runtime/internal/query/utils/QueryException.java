@@ -29,8 +29,10 @@ import io.ballerina.runtime.internal.values.MapValueImpl;
 
 import static io.ballerina.runtime.api.constants.RuntimeConstants.BALLERINA_QUERY_PKG_ID;
 
-/*
-    * This class represents the Exception in query execution.
+/**
+ * This class represents the Exception in query execution.
+ *
+ * @since 2201.13.0
  */
 public class QueryException extends RuntimeException {
     private BError error;

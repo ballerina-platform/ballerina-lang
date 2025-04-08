@@ -29,6 +29,11 @@ import io.ballerina.runtime.internal.query.utils.QueryException;
 
 import java.util.stream.Stream;
 
+/**
+ * Represents a `on conflict` clause in the query pipeline that processes a stream of frames.
+ *
+ * @since 2201.13.0
+ */
 public class OnConflictClause implements PipelineStage {
     private final BFunctionPointer onConflictFunction;
     private final Environment env;

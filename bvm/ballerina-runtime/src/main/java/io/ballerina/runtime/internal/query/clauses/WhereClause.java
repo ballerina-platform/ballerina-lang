@@ -29,6 +29,8 @@ import java.util.stream.Stream;
 
 /**
  * Represents a `where` clause in the query pipeline that filters a stream of frames.
+ *
+ * @since 2201.13.0
  */
 public class WhereClause implements PipelineStage {
     private final BFunctionPointer filterFunc;

@@ -35,6 +35,8 @@ import java.util.stream.Stream;
 
 /**
  * Represents an Outer Join Clause in the query pipeline.
+ *
+ * @since 2201.13.0
  */
 public class OuterJoinClause implements PipelineStage {
     private final StreamPipeline pipelineToJoin;

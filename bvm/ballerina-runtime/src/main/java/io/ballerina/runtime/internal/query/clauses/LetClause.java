@@ -31,6 +31,8 @@ import java.util.stream.Stream;
 
 /**
  * Represents a `let` clause in the query pipeline that modifies frames.
+ *
+ * @since 2201.13.0
  */
 public class LetClause implements PipelineStage {
     private final BFunctionPointer frameModifier;

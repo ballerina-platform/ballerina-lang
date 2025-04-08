@@ -29,6 +29,8 @@ import java.util.stream.Stream;
 
 /**
  * Represents a `limit` clause in the query pipeline that restricts the number of frames.
+ *
+ * @since 2201.13.0
  */
 public class LimitClause implements PipelineStage {
     private final BFunctionPointer limitFunction;

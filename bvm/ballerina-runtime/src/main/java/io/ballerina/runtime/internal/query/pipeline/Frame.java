@@ -27,6 +27,8 @@ import static io.ballerina.runtime.api.constants.RuntimeConstants.BALLERINA_QUER
 
 /**
  * Represents a frame that wraps elements as Ballerina records (BMap).
+ *
+ * @since 2201.13.0
  */
 public class Frame {
 
