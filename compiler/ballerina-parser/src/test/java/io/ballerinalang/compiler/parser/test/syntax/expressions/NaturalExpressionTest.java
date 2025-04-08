@@ -31,4 +31,10 @@ public class NaturalExpressionTest extends AbstractExpressionsTest {
     public void testNaturalExpression() {
         testFile("natural-expr/natural_expr_source_01.bal", "natural-expr/natural_expr_assert_01.json");
     }
+
+    // Invalid syntax
+    @Test
+    public void testInvalidNaturalExpression() {
+        testFile("natural-expr/natural_expr_source_02.bal", "natural-expr/natural_expr_assert_02.json");
+    }
 }

@@ -256,6 +256,7 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     ERROR_MISSING_FIELD_MATCH_PATTERN_MEMBER("BCE0530", "error.missing.field.match.pattern.member"),
     ERROR_MISSING_OBJECT_CONSTRUCTOR_EXPRESSION("BCE0531", "error.missing.object.constructor.expression"),
     ERROR_MISSING_GROUPING_KEY("BCE0532", "error.missing.grouping.key"),
+    ERROR_MISSING_NATURAL_PROMPT_BLOCK("BCE0533", "error.missing.natural.prompt.block"),
 
     // Invalid nodes
     ERROR_INVALID_TOKEN("BCE0600", "error.invalid.token"),
