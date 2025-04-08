@@ -577,7 +577,10 @@ public class PackageResolution {
         // For new projects, the locking mode will be SOFT unless sticky == true.
         // For existing projects, if the package was built with a previous distribution, the locking mode
         // will be SOFT unless sticky == true. A warning is issued to notify the detection of the new distribution.
-        if (rootPackageContext.dependenciesTomlContext().isPresent()) {
+        if ("soft".equals(rootPackageContext.project().buildOptions().compilationOptions().lockingMode())) {
+            packageLockingMode = PackageLockingMode.SOFT;
+            sticky = false;
+        } else if (rootPackageContext.dependenciesTomlContext().isPresent()) {
             // existing project
             if (prevDistributionVersion == null) {
                 // Built with Update 4 or less. Therefore, we issue a warning
