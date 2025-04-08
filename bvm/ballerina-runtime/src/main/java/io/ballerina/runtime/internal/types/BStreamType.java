@@ -18,6 +18,7 @@
 
 package io.ballerina.runtime.internal.types;
 
+import com.github.benmanes.caffeine.cache.LoadingCache;
 import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.constants.TypeConstants;
 import io.ballerina.runtime.api.types.PredefinedTypes;
@@ -26,9 +27,13 @@ import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.TypeTags;
 import io.ballerina.runtime.api.types.semtype.BasicTypeBitSet;
 import io.ballerina.runtime.api.types.semtype.Builder;
+import io.ballerina.runtime.api.types.semtype.CacheableTypeDescriptor;
 import io.ballerina.runtime.api.types.semtype.Context;
 import io.ballerina.runtime.api.types.semtype.Env;
 import io.ballerina.runtime.api.types.semtype.SemType;
+import io.ballerina.runtime.api.types.semtype.TypeCheckCache;
+import io.ballerina.runtime.api.types.semtype.TypeCheckCacheFactory;
+import io.ballerina.runtime.internal.types.semtype.CacheFactory;
 import io.ballerina.runtime.internal.types.semtype.DefinitionContainer;
 import io.ballerina.runtime.internal.types.semtype.StreamDefinition;
 import io.ballerina.runtime.internal.values.StreamValue;
@@ -57,9 +62,12 @@ public class BStreamType extends BType implements StreamType {
      * @param pkgPath    package path
      */
     public BStreamType(String typeName, Type constraint, Type completionType, Module pkgPath) {
-        super(typeName, pkgPath, StreamValue.class, true);
+        super(typeName, pkgPath, StreamValue.class, false);
         this.constraint = constraint;
         this.completionType = completionType;
+        BStreamTypeCache.Value val = BStreamTypeCache.get(constraint, completionType);
+        this.typeCheckCache = val.cache;
+        this.typeId = val.typeId;
     }
 
     /**
@@ -174,5 +182,23 @@ public class BStreamType extends BType implements StreamType {
                 constrainedType.isDependentlyTyped(visited)) ||
                 (completionType instanceof MayBeDependentType completionType &&
                         completionType.isDependentlyTyped(visited));
+    }
+
+
+    private static final class BStreamTypeCache {
+        record Key(int constrainId, int completionId) {}
+        record Value(int typeId, TypeCheckCache cache) {}
+        public final static LoadingCache<Key, Value> CACHE = CacheFactory.createCache(BStreamTypeCache::createNewValue);
+
+        public static Value get(Type constraint, Type completion) {
+            if (constraint instanceof CacheableTypeDescriptor constraintTD && completion instanceof CacheableTypeDescriptor completionTD) {
+                return CACHE.get(new Key(constraintTD.typeId(), completionTD.typeId()));
+            }
+            return CACHE.get(new Key(constraint.hashCode(), completion.hashCode()));
+        }
+
+        private static Value createNewValue(Key key) {
+            return new Value(TypeIdSupplier.getAnonId(), TypeCheckCacheFactory.create());
+        }
     }
 }
