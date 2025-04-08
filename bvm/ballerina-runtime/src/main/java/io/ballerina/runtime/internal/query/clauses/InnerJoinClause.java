@@ -35,6 +35,8 @@ import java.util.stream.Stream;
 
 /**
  * Represents an Inner Join Clause in the query pipeline.
+ *
+ * @since 2201.13.0
  */
 public class InnerJoinClause implements PipelineStage {
     private final StreamPipeline pipelineToJoin;

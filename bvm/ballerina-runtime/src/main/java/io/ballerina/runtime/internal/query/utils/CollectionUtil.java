@@ -48,6 +48,11 @@ import static io.ballerina.runtime.api.constants.RuntimeConstants.BALLERINA_QUER
 import static io.ballerina.runtime.internal.query.utils.QueryConstants.ERROR_FIELD;
 import static io.ballerina.runtime.internal.query.utils.QueryConstants.VALUE_ACCESS_FIELD;
 
+/**
+ * Contains methods that collect query streams
+ *
+ * @since 2201.13.0
+ */
 public class CollectionUtil {
 
     public static Object createArray(StreamPipeline pipeline, BArray array) {

@@ -39,6 +39,11 @@ import java.util.stream.Stream;
 
 import static io.ballerina.runtime.internal.query.utils.QueryConstants.VALUE_FIELD;
 
+/**
+ * Represents a `group by` clause in the query pipeline that processes a stream of frames.
+ *
+ * @since 2201.13.0
+ */
 public class GroupByClause implements PipelineStage {
 
     private final BArray groupingKeys;

@@ -39,6 +39,11 @@ import java.util.stream.StreamSupport;
 
 import static io.ballerina.runtime.internal.query.utils.QueryConstants.VALUE_FIELD;
 
+/**
+ * contains util methods for get java iterators for ballerina iterators.
+ *
+ * @since 2201.13.0
+ */
 public class BallerinaIteratorUtils {
 
     /**
