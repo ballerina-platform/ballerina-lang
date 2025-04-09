@@ -5530,36 +5530,39 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
     private BLangRawTemplateLiteral createRawTemplateLiteral(NodeList<Node> members, Location location) {
         BLangRawTemplateLiteral literal = (BLangRawTemplateLiteral) TreeBuilder.createRawTemplateLiteralNode();
         literal.pos = location;
+        populateTemplateContent(members, literal.strings, literal.insertions);
+        return literal;
+    }
 
+    private void populateTemplateContent(NodeList<Node> members, List<BLangLiteral> strings,
+                                         List<BLangExpression> insertions) {
         boolean prevNodeWasInterpolation = false;
         Node firstMember = members.isEmpty() ? null : members.get(0); // will be empty for empty raw template
 
         if (firstMember != null && firstMember.kind() == SyntaxKind.INTERPOLATION) {
-            literal.strings.add(createStringLiteral("", getPosition(firstMember)));
+            strings.add(createStringLiteral("", getPosition(firstMember)));
         }
 
         for (Node member : members) {
             if (member.kind() == SyntaxKind.INTERPOLATION) {
-                literal.insertions.add((BLangExpression) member.apply(this));
+                insertions.add((BLangExpression) member.apply(this));
 
                 if (prevNodeWasInterpolation) {
-                    literal.strings.add(createStringLiteral("", getPosition(member)));
+                    strings.add(createStringLiteral("", getPosition(member)));
                 }
 
                 prevNodeWasInterpolation = true;
             } else {
-                literal.strings.add((BLangLiteral) member.apply(this));
+                strings.add((BLangLiteral) member.apply(this));
                 prevNodeWasInterpolation = false;
             }
         }
 
         if (prevNodeWasInterpolation) {
-            literal.strings.add(createStringLiteral("", getPosition(members.get(members.size() - 1))));
+            strings.add(createStringLiteral("", getPosition(members.get(members.size() - 1))));
         }
-
-        return literal;
     }
-    
+
     private BLangNode createRegExpTemplateLiteral(TemplateExpressionNode expressionNode) {
         BLangRegExpTemplateLiteral regExpTemplateLiteral =
                 (BLangRegExpTemplateLiteral) TreeBuilder.createRegExpTemplateLiteralNode();
@@ -7084,35 +7087,9 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
     }
 
     private BLangNaturalExpression createNaturalExpression(NodeList<Node> members, Location location) {
-        BLangNaturalExpression literal = (BLangNaturalExpression) TreeBuilder.createNaturalExpressionNode();
-        literal.pos = location;
-
-        boolean prevNodeWasInterpolation = false;
-        Node firstMember = members.isEmpty() ? null : members.get(0); // will be empty for empty raw template
-
-        if (firstMember != null && firstMember.kind() == SyntaxKind.INTERPOLATION) {
-            literal.strings.add(createStringLiteral("", getPosition(firstMember)));
-        }
-
-        for (Node member : members) {
-            if (member.kind() == SyntaxKind.INTERPOLATION) {
-                literal.insertions.add((BLangExpression) member.apply(this));
-
-                if (prevNodeWasInterpolation) {
-                    literal.strings.add(createStringLiteral("", getPosition(member)));
-                }
-
-                prevNodeWasInterpolation = true;
-            } else {
-                literal.strings.add((BLangLiteral) member.apply(this));
-                prevNodeWasInterpolation = false;
-            }
-        }
-
-        if (prevNodeWasInterpolation) {
-            literal.strings.add(createStringLiteral("", getPosition(members.get(members.size() - 1))));
-        }
-
-        return literal;
+        BLangNaturalExpression naturalExpr = (BLangNaturalExpression) TreeBuilder.createNaturalExpressionNode();
+        naturalExpr.pos = location;
+        populateTemplateContent(members, naturalExpr.strings, naturalExpr.insertions);
+        return naturalExpr;
     }
 }
