@@ -384,6 +384,7 @@ function testQueryExprWithLimitForStringResult() returns string {
     return outputNameString;
 }
 
+// TODO: related to the issue https://github.com/ballerina-platform/ballerina-lang/issues/43831
 // function testQueryExprWithLimitForStringResultV2() returns string {
 //    Person p1 = {firstName: "Alex", lastName: "George", age: 23};
 //    Person p2 = {firstName: "Ranjan", lastName: "Fonseka", age: 30};
