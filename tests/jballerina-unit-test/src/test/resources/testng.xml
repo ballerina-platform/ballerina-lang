@@ -53,6 +53,7 @@
             <package name="org.ballerinalang.test.expressions.listconstructor.*" />
             <package name="org.ballerinalang.test.expressions.literals.*" />
             <package name="org.ballerinalang.test.expressions.mappingconstructor.*" />
+            <package name="org.ballerinalang.test.expressions.natural.*" />
             <package name="org.ballerinalang.test.expressions.object.*" />
             <package name="org.ballerinalang.test.expressions.rawtemplate.*" />
             <package name="org.ballerinalang.test.expressions.stamp.*" />
