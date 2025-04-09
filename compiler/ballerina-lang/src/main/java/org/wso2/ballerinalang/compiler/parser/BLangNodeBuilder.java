@@ -2416,7 +2416,7 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
     public BLangNode transform(Token token) {
         SyntaxKind kind = token.kind();
         return switch (kind) {
-            case XML_TEXT_CONTENT, TEMPLATE_STRING, CLOSE_BRACE_TOKEN -> createSimpleLiteral(token);
+            case XML_TEXT_CONTENT, TEMPLATE_STRING, CLOSE_BRACE_TOKEN, PROMPT_CONTENT -> createSimpleLiteral(token);
             default -> {
                 if (isTokenInRegExp(kind)) {
                     yield createSimpleLiteral(token);

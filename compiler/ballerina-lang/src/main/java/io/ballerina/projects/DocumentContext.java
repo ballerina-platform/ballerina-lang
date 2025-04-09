@@ -145,7 +145,10 @@ class DocumentContext {
         return moduleLoadRequestSet;
     }
 
-    private static void addTransactionModuleImportIfRequired(ModuleDescriptor currentModuleDesc, PackageDependencyScope scope, ModulePartNode modulePartNode, Set<ModuleLoadRequest> moduleLoadRequestSet) {
+    private static void addTransactionModuleImportIfRequired(ModuleDescriptor currentModuleDesc,
+                                                             PackageDependencyScope scope,
+                                                             ModulePartNode modulePartNode,
+                                                             Set<ModuleLoadRequest> moduleLoadRequestSet) {
         // TODO This is a temporary solution for SLP6 release
         // TODO Traverse the syntax tree to see whether to import the ballerinai/transaction package or not
         TransactionImportValidator trxImportValidator = new TransactionImportValidator();
@@ -164,8 +167,8 @@ class DocumentContext {
         if (!naturalProgrammingImportValidator.shouldImportNaturalProgrammingModule(modulePartNode)) {
             return;
         }
-        addModuleLoadRequest(currentModuleDesc, scope, moduleLoadRequestSet, "ballerinax", // TODO
-                Names.NATURAL_PROGRAMMING.value, DependencyResolutionType.SOURCE);
+        addModuleLoadRequest(currentModuleDesc, scope, moduleLoadRequestSet, Names.BALLERINA_ORG.value,
+                Names.NATURAL_PROGRAMMING.value, DependencyResolutionType.PLATFORM_PROVIDED);
     }
 
     private static void addModuleLoadRequest(ModuleDescriptor currentModuleDesc, PackageDependencyScope scope,
