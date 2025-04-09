@@ -18,40 +18,64 @@
 
 package io.ballerina.projects.internal;
 
+import io.ballerina.compiler.syntax.tree.AnnotationNode;
+import io.ballerina.compiler.syntax.tree.ExternalFunctionBodyNode;
 import io.ballerina.compiler.syntax.tree.FunctionDefinitionNode;
 import io.ballerina.compiler.syntax.tree.ModulePartNode;
 import io.ballerina.compiler.syntax.tree.NaturalExpressionNode;
 import io.ballerina.compiler.syntax.tree.Node;
+import io.ballerina.compiler.syntax.tree.NodeList;
 import io.ballerina.compiler.syntax.tree.NodeVisitor;
+import io.ballerina.compiler.syntax.tree.SimpleNameReferenceNode;
 
 /**
  * Check and add an import for the natural programming module if there is a natural expression.
  *
  * @since 2201.13.0
  */
-public class NaturalProgrammingImportValidator extends NodeVisitor {
+public class NaturalProgrammingImportAnalyzer extends NodeVisitor {
 
-    private boolean importNaturalProgrammingModule;
+    private boolean shouldImportNaturalProgrammingModule;
+    private static final String CODE_ANNOTATION = "code";
 
     public boolean shouldImportNaturalProgrammingModule(ModulePartNode modulePartNode) {
         modulePartNode.accept(this);
-        return this.importNaturalProgrammingModule;
+        return this.shouldImportNaturalProgrammingModule;
     }
 
     @Override
     public void visit(NaturalExpressionNode naturalExpressionNode) {
-        this.importNaturalProgrammingModule = true;
+        this.shouldImportNaturalProgrammingModule = true;
     }
 
     @Override
     public void visit(FunctionDefinitionNode functionDefinitionNode) {
-        // TODO: check for compile-time function
+        if (this.shouldImportNaturalProgrammingModule) {
+            return;
+        }
+
+        if (isExternalFunctionWithCodeAnnotation(functionDefinitionNode)) {
+            this.shouldImportNaturalProgrammingModule = true;
+            return;
+        }
+
         super.visit(functionDefinitionNode);
+    }
+
+    private boolean isExternalFunctionWithCodeAnnotation(FunctionDefinitionNode functionDefinitionNode) {
+        if (!(functionDefinitionNode.functionBody() instanceof ExternalFunctionBodyNode externalFunctionBodyNode)) {
+            return false;
+        }
+
+        return externalFunctionBodyNode.annotations().stream()
+                .anyMatch(annotation ->
+                        annotation.annotReference() instanceof SimpleNameReferenceNode annotReference &&
+                                CODE_ANNOTATION.equals(annotReference.name().text()));
     }
 
     @Override
     protected void visitSyntaxNode(Node node) {
-        if (this.importNaturalProgrammingModule) {
+        if (this.shouldImportNaturalProgrammingModule) {
             return;
         }
         super.visitSyntaxNode(node);

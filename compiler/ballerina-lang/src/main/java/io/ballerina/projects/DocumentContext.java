@@ -23,7 +23,7 @@ import io.ballerina.compiler.syntax.tree.ModulePartNode;
 import io.ballerina.compiler.syntax.tree.SeparatedNodeList;
 import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import io.ballerina.projects.environment.ModuleLoadRequest;
-import io.ballerina.projects.internal.NaturalProgrammingImportValidator;
+import io.ballerina.projects.internal.NaturalProgrammingImportAnalyzer;
 import io.ballerina.projects.internal.TransactionImportValidator;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.text.TextDocument;
@@ -163,8 +163,8 @@ class DocumentContext {
                                                                     PackageDependencyScope scope,
                                                                     ModulePartNode modulePartNode,
                                                                     Set<ModuleLoadRequest> moduleLoadRequestSet) {
-        NaturalProgrammingImportValidator naturalProgrammingImportValidator = new NaturalProgrammingImportValidator();
-        if (!naturalProgrammingImportValidator.shouldImportNaturalProgrammingModule(modulePartNode)) {
+        NaturalProgrammingImportAnalyzer naturalProgrammingImportAnalyzer = new NaturalProgrammingImportAnalyzer();
+        if (!naturalProgrammingImportAnalyzer.shouldImportNaturalProgrammingModule(modulePartNode)) {
             return;
         }
         addModuleLoadRequest(currentModuleDesc, scope, moduleLoadRequestSet, Names.BALLERINA_ORG.value,

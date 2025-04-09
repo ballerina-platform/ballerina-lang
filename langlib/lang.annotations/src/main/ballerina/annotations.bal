@@ -104,3 +104,9 @@ public const annotation record {
 } display on source type, source class,
       source function, source return, source parameter, source field, source listener,
       source var, source const, source annotation, source service, source external, source worker;
+
+# Denotes that the body of a function has to be generated at compile-time.
+public const annotation record {|
+    # The natural language description of the code to be generated.
+    string prompt;
+|} code on source external;
