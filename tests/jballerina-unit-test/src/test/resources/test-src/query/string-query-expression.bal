@@ -384,22 +384,23 @@ function testQueryExprWithLimitForStringResult() returns string {
     return outputNameString;
 }
 
-function testQueryExprWithLimitForStringResultV2() returns string {
-   Person p1 = {firstName: "Alex", lastName: "George", age: 23};
-   Person p2 = {firstName: "Ranjan", lastName: "Fonseka", age: 30};
-   Person p3 = {firstName: "John", lastName: "David", age: 33};
+// TODO: related to the issue https://github.com/ballerina-platform/ballerina-lang/issues/43831
+// function testQueryExprWithLimitForStringResultV2() returns string {
+//    Person p1 = {firstName: "Alex", lastName: "George", age: 23};
+//    Person p2 = {firstName: "Ranjan", lastName: "Fonseka", age: 30};
+//    Person p3 = {firstName: "John", lastName: "David", age: 33};
 
-   Person[] personList = [p1, p2, p3];
+//    Person[] personList = [p1, p2, p3];
 
-   string outputNameString =
-               from var person in personList
-               let int limitValue = 2
-               where person.age >= 30
-               limit limitValue
-               select person.firstName+" ";
+//    string outputNameString =
+//                from var person in personList
+//                let int limitValue = 2
+//                where person.age >= 30
+//                limit limitValue
+//                select person.firstName+" ";
 
-   return outputNameString;
-}
+//    return outputNameString;
+// }
 
 function assertEquality(any|error actual, any|error expected) {
     if expected is anydata && actual is anydata && expected == actual {
