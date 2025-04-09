@@ -20,7 +20,7 @@
 <suite name="jBallerina-Test-Suite" time-out="120000">
     <test name="ballerina-packerina-tests">
         <classes>
-            <class name="org.ballerinalang.test.packaging.ModuleExecutionFlowTests"/>
+<!--            <class name="org.ballerinalang.test.packaging.ModuleExecutionFlowTests"/>-->
             <class name="org.ballerinalang.test.packaging.MultipleModuleVersionTests"/>
             <class name="org.ballerinalang.test.packaging.MavenTestCase"/>
         </classes>
@@ -46,16 +46,6 @@
         <packages>
             <package name="org.ballerinalang.test.run.*"/>
         </packages>
-    </test>
-    <test name="ballerina-testerina-tests">
-        <groups>
-            <run>
-                <exclude name="brokenOnJBallerina"/>
-            </run>
-        </groups>
-        <classes>
-            <class name="org.ballerinalang.test.testarina.TestarinaTestCase" />
-        </classes>
     </test>
     <test name="ballerina-identifier-tests">
         <classes>

@@ -40,18 +40,18 @@ object {
     }
 };
 
-NonIsolatedObject e = new NonIsolatedClassWithIsolatedInit(getIntArray(), ["hello", "world"]);
+NonIsolatedObjectIIV1 e = new NonIsolatedClassWithIsolatedInitIIV1(getIntArray(), ["hello", "world"]);
 
 final readonly & int[] x = [1, 2, 3];
 
 function getIntArray() returns int[] => x;
 
-type NonIsolatedObject object {
+type NonIsolatedObjectIIV1 object {
     int[] i;
     string[] j;
 };
 
-class NonIsolatedClassWithIsolatedInit {
+class NonIsolatedClassWithIsolatedInitIIV1 {
     int[] i;
     string[] j;
 
@@ -183,17 +183,17 @@ function copyOutAccessingIsolatedVar() returns map<int>[] {
      }
 }
 
-class NonIsolatedClass {
+class NonIsolatedClassIIV1 {
     int i = 2;
 }
 
-IsolatedClass varInferredAsIsolated1 = new;
-NonIsolatedClass varInferredAsIsolated2 = new;
+IsolatedClassIIV1 varInferredAsIsolated1 = new;
+NonIsolatedClassIIV1 varInferredAsIsolated2 = new;
 
-final IsolatedClass varWithTypeInferredAsIsolated1 = new;
-final IsolatedClass|int varWithTypeInferredAsIsolated2 = new;
+final IsolatedClassIIV1 varWithTypeInferredAsIsolated1 = new;
+final IsolatedClassIIV1|int varWithTypeInferredAsIsolated2 = new;
 
-function f1() returns IsolatedClass {
+function f1() returns IsolatedClassIIV1 {
     varWithTypeInferredAsIsolated1.func();
     lock {
         return varInferredAsIsolated1;
@@ -215,7 +215,7 @@ function f2() {
     }
 }
 
-class IsolatedClass {
+class IsolatedClassIIV1 {
     private int y = 1;
 
     function init() {
@@ -225,8 +225,8 @@ class IsolatedClass {
     }
 }
 
-class OtherIsolatedClass {
-    final IsolatedClass x = f1();
+class OtherIsolatedClassIIV1 {
+    final IsolatedClassIIV1 x = f1();
     private int y = 1;
 
     function init() {
@@ -243,8 +243,8 @@ class OtherIsolatedClass {
     }
 }
 
-final NonIsolatedClass varInferredAsIsolatedWithTypeNotInferredAsIsolated = new;
-final NonIsolatedClass varNotInferredAsIsolateWithTypeNotInferredAsIsolated = new;
+final NonIsolatedClassIIV1 varInferredAsIsolatedWithTypeNotInferredAsIsolated = new;
+final NonIsolatedClassIIV1 varNotInferredAsIsolateWithTypeNotInferredAsIsolated = new;
 
 function f3() {
     lock {
@@ -274,9 +274,9 @@ public function testIsolatedInference() {
     assertTrue(<any> f2 is isolated function);
     assertTrue(<any> f3 is isolated function);
     assertFalse(<any> f4 is isolated function);
-    assertTrue(<any> new IsolatedClass() is isolated object {});
-    assertTrue(<any> new OtherIsolatedClass() is isolated object {});
-    assertFalse(<any> new NonIsolatedClass() is isolated object {});
+    assertTrue(<any> new IsolatedClassIIV1() is isolated object {});
+    assertTrue(<any> new OtherIsolatedClassIIV1() is isolated object {});
+    assertFalse(<any> new NonIsolatedClassIIV1() is isolated object {});
 }
 
 isolated function assertTrue(any|error actual) {

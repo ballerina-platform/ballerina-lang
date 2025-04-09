@@ -109,7 +109,7 @@ public class JvmUnionTypeGen {
 
         jvmTypeGen.loadCyclicFlag(mv, unionType);
 
-        mv.visitLdcInsn(unionType.flags);
+        mv.visitLdcInsn(unionType.getFlags());
         // initialize the union type without the members array
         if (nameLoaded) {
             mv.visitMethodInsn(INVOKESPECIAL, UNION_TYPE_IMPL, JVM_INIT_METHOD,

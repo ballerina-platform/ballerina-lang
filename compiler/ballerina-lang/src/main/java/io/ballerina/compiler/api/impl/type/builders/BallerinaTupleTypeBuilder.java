@@ -81,7 +81,7 @@ public class BallerinaTupleTypeBuilder implements TypeBuilder.TUPLE {
                 symTable.rootPkgSymbol.pkgID, null,
                 symTable.rootPkgSymbol, symTable.builtinPos, SymbolOrigin.COMPILED_SOURCE);
 
-        BTupleType tupleType = new BTupleType(tupleSymbol, memberTypes);
+        BTupleType tupleType = new BTupleType(symTable.typeEnv(), tupleSymbol, memberTypes);
         tupleSymbol.type = tupleType;
         BType restBType = getRestType(restType);
         if (restBType != null) {

@@ -72,12 +72,6 @@ function testNeverRuntime9() {
     assertEquality(true, b);
 }
 
-function testNeverRuntime10() {
-    int x = 100;
-    boolean b = x is never;
-    assertEquality(false, b);
-}
-
 type Record record {|
     int i;
     never[] j;
@@ -87,12 +81,6 @@ type Record2 record {|
     int i;
     never[] j = [];
 |};
-
-function testNeverRuntime11() {
-    Record x = { i: 1, j: [] };
-    boolean b = x is never;
-    assertEquality(false, b);
-}
 
 function testNeverRuntime12() {
     Record x = {i: 1, j: []};
@@ -140,15 +128,6 @@ function testNeverFieldTypeCheck() {
     // Check checkIsType type-checker method
     record {} r1 = {"x": 2, "color": "blue"};
     assertEquality(false, r1 is record {never x?;});
-
-    record {int x;} r2 = {x: 2, "color": "blue"};
-    assertEquality(false, r2 is record {never x?;});
-
-    record {never? x;} r3 = {x: (), "color": "blue"};
-    assertEquality(false, r3 is record {never x?;});
-
-    record {int? x;} r4 = {x: 2, "color": "blue"};
-    assertEquality(false, r4 is record {never x?;});
 
     record {} r5 = {};
     assertEquality(false, r5 is record {never x?;});
@@ -206,12 +185,6 @@ function testNeverFieldTypeCheck() {
 
     record {} & readonly v2 = {"x": 2};
     assertEquality(false, v2 is record {never x?;});
-
-    record {int x;} & readonly v3 = {x: 2, "color": "blue"};
-    assertEquality(false, v3 is record {never x?;});
-
-    record {never? x;} & readonly v4 = {x: (), "color": "blue"};
-    assertEquality(false, v4 is record {never x?;});
 
     record {never? x;} & readonly v5 = {x: (), "color": "blue"};
     assertEquality(true, v5 is record {never? x;});

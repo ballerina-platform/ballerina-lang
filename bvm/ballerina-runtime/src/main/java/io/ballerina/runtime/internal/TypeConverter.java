@@ -23,11 +23,16 @@ import io.ballerina.runtime.api.types.ArrayType;
 import io.ballerina.runtime.api.types.Field;
 import io.ballerina.runtime.api.types.FiniteType;
 import io.ballerina.runtime.api.types.IntersectionType;
+import io.ballerina.runtime.api.types.MapType;
 import io.ballerina.runtime.api.types.PredefinedTypes;
 import io.ballerina.runtime.api.types.ReferenceType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.TypeTags;
 import io.ballerina.runtime.api.types.UnionType;
+import io.ballerina.runtime.api.types.semtype.Builder;
+import io.ballerina.runtime.api.types.semtype.Context;
+import io.ballerina.runtime.api.types.semtype.Core;
+import io.ballerina.runtime.api.types.semtype.SemType;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.utils.XmlUtils;
@@ -43,6 +48,7 @@ import io.ballerina.runtime.internal.errors.ErrorHelper;
 import io.ballerina.runtime.internal.errors.ErrorReasons;
 import io.ballerina.runtime.internal.regexp.RegExpFactory;
 import io.ballerina.runtime.internal.types.BArrayType;
+import io.ballerina.runtime.internal.types.BByteType;
 import io.ballerina.runtime.internal.types.BFiniteType;
 import io.ballerina.runtime.internal.types.BIntersectionType;
 import io.ballerina.runtime.internal.types.BMapType;
@@ -66,6 +72,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.function.Predicate;
 import java.util.function.Supplier;
 
 import static io.ballerina.runtime.api.constants.RuntimeConstants.BINT_MAX_VALUE_DOUBLE_RANGE_MAX;
@@ -77,6 +84,7 @@ import static io.ballerina.runtime.internal.TypeChecker.anyToSigned8;
 import static io.ballerina.runtime.internal.TypeChecker.anyToUnsigned16;
 import static io.ballerina.runtime.internal.TypeChecker.anyToUnsigned32;
 import static io.ballerina.runtime.internal.TypeChecker.anyToUnsigned8;
+import static io.ballerina.runtime.internal.TypeChecker.belongToSingleBasicTypeOrString;
 import static io.ballerina.runtime.internal.TypeChecker.checkIsLikeType;
 import static io.ballerina.runtime.internal.TypeChecker.getType;
 import static io.ballerina.runtime.internal.TypeChecker.isCharLiteralValue;
@@ -84,7 +92,6 @@ import static io.ballerina.runtime.internal.TypeChecker.isNumericType;
 import static io.ballerina.runtime.internal.TypeChecker.isSigned16LiteralValue;
 import static io.ballerina.runtime.internal.TypeChecker.isSigned32LiteralValue;
 import static io.ballerina.runtime.internal.TypeChecker.isSigned8LiteralValue;
-import static io.ballerina.runtime.internal.TypeChecker.isSimpleBasicType;
 import static io.ballerina.runtime.internal.TypeChecker.isUnsigned16LiteralValue;
 import static io.ballerina.runtime.internal.TypeChecker.isUnsigned32LiteralValue;
 import static io.ballerina.runtime.internal.TypeChecker.isUnsigned8LiteralValue;
@@ -133,28 +140,62 @@ public final class TypeConverter {
         };
     }
 
-    public static Object castValues(Type targetType, Object inputValue) {
-        return switch (targetType.getTag()) {
-            case TypeTags.SIGNED32_INT_TAG -> anyToSigned32(inputValue);
-            case TypeTags.SIGNED16_INT_TAG -> anyToSigned16(inputValue);
-            case TypeTags.SIGNED8_INT_TAG -> anyToSigned8(inputValue);
-            case TypeTags.UNSIGNED32_INT_TAG -> anyToUnsigned32(inputValue);
-            case TypeTags.UNSIGNED16_INT_TAG -> anyToUnsigned16(inputValue);
-            case TypeTags.UNSIGNED8_INT_TAG -> anyToUnsigned8(inputValue);
-            case TypeTags.INT_TAG -> anyToIntCast(inputValue, () ->
-                    ErrorUtils.createTypeCastError(inputValue, PredefinedTypes.TYPE_INT));
-            case TypeTags.DECIMAL_TAG -> anyToDecimalCast(inputValue, () ->
-                    ErrorUtils.createTypeCastError(inputValue, PredefinedTypes.TYPE_DECIMAL));
-            case TypeTags.FLOAT_TAG -> anyToFloatCast(inputValue, () ->
-                    ErrorUtils.createTypeCastError(inputValue, PredefinedTypes.TYPE_FLOAT));
-            case TypeTags.STRING_TAG -> anyToStringCast(inputValue, () ->
-                    ErrorUtils.createTypeCastError(inputValue, PredefinedTypes.TYPE_STRING));
-            case TypeTags.BOOLEAN_TAG -> anyToBooleanCast(inputValue, () ->
-                    ErrorUtils.createTypeCastError(inputValue, PredefinedTypes.TYPE_BOOLEAN));
-            case TypeTags.BYTE_TAG -> anyToByteCast(inputValue, () ->
+    private static Object castValueToInt(Context cx, SemType targetType, Object inputValue) {
+        assert Core.isSubType(cx, targetType, Builder.getIntType());
+        if (targetType instanceof BByteType) {
+            return anyToByteCast(inputValue, () ->
                     ErrorUtils.createTypeCastError(inputValue, PredefinedTypes.TYPE_BYTE));
-            default -> throw ErrorUtils.createTypeCastError(inputValue, targetType);
-        };
+        }
+        Predicate<Type> isIntSubType = (subType) -> Core.isSameType(cx, targetType, SemType.tryInto(cx, subType));
+        if (isIntSubType.test(PredefinedTypes.TYPE_INT_SIGNED_32)) {
+            return anyToSigned32(inputValue);
+        }
+        if (isIntSubType.test(PredefinedTypes.TYPE_INT_SIGNED_16)) {
+            return anyToSigned16(inputValue);
+        }
+        if (isIntSubType.test(PredefinedTypes.TYPE_INT_SIGNED_8)) {
+            return anyToSigned8(inputValue);
+        }
+        if (isIntSubType.test(PredefinedTypes.TYPE_INT_UNSIGNED_32)) {
+            return anyToUnsigned32(inputValue);
+        }
+        if (isIntSubType.test(PredefinedTypes.TYPE_INT_UNSIGNED_16)) {
+            return anyToUnsigned16(inputValue);
+        }
+        if (isIntSubType.test(PredefinedTypes.TYPE_INT_UNSIGNED_8)) {
+            return anyToUnsigned8(inputValue);
+        }
+        return anyToIntCast(inputValue, () ->
+                ErrorUtils.createTypeCastError(inputValue, PredefinedTypes.TYPE_INT));
+    }
+
+    public static Object castValues(Type targetType, Object inputValue) {
+        Context cx = TypeChecker.context();
+        return castValuesInner(cx, SemType.tryInto(cx, targetType), inputValue,
+                () -> ErrorUtils.createTypeCastError(inputValue, targetType));
+    }
+
+    static Object castValuesInner(Context cx, SemType targetType, Object inputValue, Supplier<BError> errorSupplier) {
+        if (Core.isSubType(cx, targetType, Builder.getIntType())) {
+            return castValueToInt(cx, targetType, inputValue);
+        }
+        if (Core.isSubType(cx, targetType, Builder.getDecimalType())) {
+            return anyToDecimalCast(inputValue, () ->
+                    ErrorUtils.createTypeCastError(inputValue, PredefinedTypes.TYPE_DECIMAL));
+        }
+        if (Core.isSubType(cx, targetType, Builder.getFloatType())) {
+            return anyToFloatCast(inputValue, () ->
+                    ErrorUtils.createTypeCastError(inputValue, PredefinedTypes.TYPE_FLOAT));
+        }
+        if (Core.isSubType(cx, targetType, Builder.getStringType())) {
+            return anyToStringCast(inputValue, () ->
+                    ErrorUtils.createTypeCastError(inputValue, PredefinedTypes.TYPE_STRING));
+        }
+        if (Core.isSubType(cx, targetType, Builder.getBooleanType())) {
+            return anyToBooleanCast(inputValue, () ->
+                    ErrorUtils.createTypeCastError(inputValue, PredefinedTypes.TYPE_BOOLEAN));
+        }
+        throw errorSupplier.get();
     }
 
     static boolean isConvertibleToByte(Object value) {
@@ -266,7 +307,7 @@ public final class TypeConverter {
                 }
                 break;
             case TypeTags.MAP_TAG:
-                if (isConvertibleToMapType(inputValue, (BMapType) targetType, unresolvedValues, varName, errors,
+                if (isConvertibleToMapType(inputValue, (MapType) targetType, unresolvedValues, varName, errors,
                         allowNumericConversion)) {
                     return targetType;
                 }
@@ -382,10 +423,11 @@ public final class TypeConverter {
     public static Type getConvertibleFiniteType(Object inputValue, BFiniteType targetFiniteType,
                                                 String varName, List<String> errors,
                                                 Set<TypeValuePair> unresolvedValues, boolean allowNumericConversion) {
+        Context cx = TypeChecker.context();
         // only the first matching type is returned.
         if (targetFiniteType.valueSpace.size() == 1) {
             Type valueType = getType(targetFiniteType.valueSpace.iterator().next());
-            if (!isSimpleBasicType(valueType) && valueType.getTag() != TypeTags.NULL_TAG) {
+            if (!belongToSingleBasicTypeOrString(cx, valueType) && valueType.getTag() != TypeTags.NULL_TAG) {
                 return getConvertibleType(inputValue, valueType, varName, unresolvedValues,
                         errors, allowNumericConversion);
             }
@@ -499,7 +541,7 @@ public final class TypeConverter {
             return "()";
         }
         String sourceValueName = sourceValue.toString();
-        if (TypeChecker.getType(sourceValue) == TYPE_STRING) {
+        if (TypeChecker.checkIsType(sourceValue, TYPE_STRING)) {
             sourceValueName = "\"" + sourceValueName + "\"";
         }
         if (sourceValueName.length() > MAX_DISPLAYED_SOURCE_VALUE_LENGTH) {
@@ -577,7 +619,7 @@ public final class TypeConverter {
         }
     }
 
-    private static boolean isConvertibleToMapType(Object sourceValue, BMapType targetType,
+    private static boolean isConvertibleToMapType(Object sourceValue, MapType targetType,
                                                   Set<TypeValuePair> unresolvedValues, String varName,
                                                   List<String> errors, boolean allowNumericConversion) {
         if (!(sourceValue instanceof MapValueImpl)) {
@@ -713,39 +755,31 @@ public final class TypeConverter {
     }
 
     static long anyToInt(Object sourceVal, Supplier<BError> errorFunc) {
-        if (sourceVal instanceof Long l) {
-            return l;
-        } else if (sourceVal instanceof Double d) {
-            return floatToInt(d);
-        } else if (sourceVal instanceof Integer i) {
-            return i.longValue();
-        } else if (sourceVal instanceof Boolean b) {
-            return b ? 1 : 0;
-        } else if (sourceVal instanceof DecimalValue decimalValue) {
-            return decimalValue.intValue();
-        } else if (sourceVal instanceof String s) {
-            try {
-                return Long.parseLong(s);
-            } catch (NumberFormatException e) {
-                throw errorFunc.get();
+        return switch (sourceVal) {
+            case Long l -> l;
+            case Double d -> floatToInt(d);
+            case Integer i -> i.longValue();
+            case Boolean b -> b ? 1 : 0;
+            case DecimalValue decimalValue -> decimalValue.intValue();
+            case String s -> {
+                try {
+                    yield Long.parseLong(s);
+                } catch (NumberFormatException e) {
+                    throw errorFunc.get();
+                }
             }
-        }
-
-        throw errorFunc.get();
+            default -> throw errorFunc.get();
+        };
     }
 
     static long anyToIntCast(Object sourceVal, Supplier<BError> errorFunc) {
-        if (sourceVal instanceof Long l) {
-            return l;
-        } else if (sourceVal instanceof Double d) {
-            return floatToInt(d);
-        } else if (sourceVal instanceof Integer i) {
-            return i.longValue();
-        } else if (sourceVal instanceof DecimalValue decimalValue) {
-            return decimalValue.intValue();
-        } else {
-            throw errorFunc.get();
-        }
+        return switch (sourceVal) {
+            case Long l -> l;
+            case Double d -> floatToInt(d);
+            case Integer i -> i.longValue();
+            case DecimalValue decimalValue -> decimalValue.intValue();
+            case null, default -> throw errorFunc.get();
+        };
     }
 
     static long anyToIntSubTypeCast(Object sourceVal, Type type, Supplier<BError> errorFunc) {
@@ -764,68 +798,56 @@ public final class TypeConverter {
     }
 
     static double anyToFloat(Object sourceVal, Supplier<BError> errorFunc) {
-        if (sourceVal instanceof Long l) {
-            return l.doubleValue();
-        } else if (sourceVal instanceof Double d) {
-            return d;
-        } else if (sourceVal instanceof Integer i) {
-            return i.floatValue();
-        } else if (sourceVal instanceof Boolean b) {
-            return b ? 1.0 : 0.0;
-        } else if (sourceVal instanceof DecimalValue decimalValue) {
-            return decimalValue.floatValue();
-        } else if (sourceVal instanceof String s) {
-            try {
-                return Double.parseDouble(s);
-            } catch (NumberFormatException e) {
-                throw errorFunc.get();
+        return switch (sourceVal) {
+            case Long l -> l.doubleValue();
+            case Double d -> d;
+            case Integer i -> i.floatValue();
+            case Boolean b -> b ? 1.0 : 0.0;
+            case DecimalValue decimalValue -> decimalValue.floatValue();
+            case String s -> {
+                try {
+                    yield Double.parseDouble(s);
+                } catch (NumberFormatException e) {
+                    throw errorFunc.get();
+                }
             }
-        }
+            case null, default -> throw errorFunc.get();
+        };
 
-        throw errorFunc.get();
     }
 
     static double anyToFloatCast(Object sourceVal, Supplier<BError> errorFunc) {
-        if (sourceVal instanceof Long l) {
-            return l.doubleValue();
-        } else if (sourceVal instanceof Double d) {
-            return d;
-        } else if (sourceVal instanceof Integer i) {
-            return i.floatValue();
-        } else if (sourceVal instanceof DecimalValue decimalValue) {
-            return decimalValue.floatValue();
-        } else {
-            throw errorFunc.get();
-        }
+        return switch (sourceVal) {
+            case Long l -> l.doubleValue();
+            case Double d -> d;
+            case Integer i -> i.floatValue();
+            case DecimalValue decimalValue -> decimalValue.floatValue();
+            case null, default -> throw errorFunc.get();
+        };
     }
 
     static boolean anyToBoolean(Object sourceVal, Supplier<BError> errorFunc) {
-        if (sourceVal instanceof Long l) {
-            return l != 0;
-        } else if (sourceVal instanceof Double d) {
-            return d != 0.0;
-        } else if (sourceVal instanceof Integer i) {
-            return i != 0;
-        } else if (sourceVal instanceof Boolean b) {
-            return b;
-        } else if (sourceVal instanceof DecimalValue decimalValue) {
-            return decimalValue.booleanValue();
-        } else if (sourceVal instanceof String s) {
-            try {
-                return Boolean.parseBoolean(s);
-            } catch (NumberFormatException e) {
-                throw errorFunc.get();
+        return switch (sourceVal) {
+            case Long l -> l != 0;
+            case Double d -> d != 0.0;
+            case Integer i -> i != 0;
+            case Boolean b -> b;
+            case DecimalValue decimalValue -> decimalValue.booleanValue();
+            case String s -> {
+                try {
+                    yield Boolean.parseBoolean(s);
+                } catch (NumberFormatException e) {
+                    throw errorFunc.get();
+                }
             }
-        }
-
-        throw errorFunc.get();
+            case null, default -> throw errorFunc.get();
+        };
     }
 
     static boolean anyToBooleanCast(Object sourceVal, Supplier<BError> errorFunc) {
-        if (sourceVal instanceof Boolean) {
-            return (boolean) sourceVal;
+        if (sourceVal instanceof Boolean b) {
+            return b;
         }
-
         throw errorFunc.get();
     }
 
@@ -998,62 +1020,46 @@ public final class TypeConverter {
     }
 
     static int anyToByte(Object sourceVal, Supplier<BError> errorFunc) {
-        if (sourceVal instanceof Long l) {
-            return intToByte(l);
-        } else if (sourceVal instanceof Double d) {
-            return floatToByte(d);
-        } else if (sourceVal instanceof Integer i) {
-            return i;
-        } else if (sourceVal instanceof Boolean b) {
-            return (b ? 1 : 0);
-        } else if (sourceVal instanceof DecimalValue decimalValue) {
-            return decimalValue.byteValue();
-        } else if (sourceVal instanceof String s) {
-            try {
-                return Integer.parseInt(s);
-            } catch (NumberFormatException e) {
-                throw errorFunc.get();
+        return switch (sourceVal) {
+            case Long l -> intToByte(l);
+            case Double d -> floatToByte(d);
+            case Integer i -> i;
+            case Boolean b -> (b ? 1 : 0);
+            case DecimalValue decimalValue -> decimalValue.byteValue();
+            case String s -> {
+                try {
+                    yield Integer.parseInt(s);
+                } catch (NumberFormatException e) {
+                    throw errorFunc.get();
+                }
             }
-        }
-
-        throw errorFunc.get();
+            case null, default -> throw errorFunc.get();
+        };
     }
 
     static int anyToByteCast(Object sourceVal, Supplier<BError> errorFunc) {
-        if (sourceVal instanceof Long l) {
-            return intToByte(l);
-        } else if (sourceVal instanceof Byte b) {
-            return b.intValue();
-        } else if (sourceVal instanceof Double d) {
-            return floatToByte(d);
-        } else if (sourceVal instanceof Integer i) {
-            return i;
-        } else if (sourceVal instanceof DecimalValue decimalValue) {
-            return decimalValue.byteValue();
-        } else {
-            throw errorFunc.get();
-        }
-
+        return switch (sourceVal) {
+            case Long l -> intToByte(l);
+            case Byte b -> b.intValue();
+            case Double d -> floatToByte(d);
+            case Integer i -> i;
+            case DecimalValue decimalValue -> decimalValue.byteValue();
+            case null, default -> throw errorFunc.get();
+        };
     }
 
     private static String anyToString(Object sourceVal) {
-        if (sourceVal instanceof Long l) {
-            return Long.toString(l);
-        } else if (sourceVal instanceof Double d) {
-            return Double.toString(d);
-        } else if (sourceVal instanceof Integer i) {
-            return Long.toString(i);
-        } else if (sourceVal instanceof Boolean b) {
-            return Boolean.toString(b);
-        } else if (sourceVal instanceof DecimalValue decimalValue) {
-            return decimalValue.stringValue(null);
-        } else if (sourceVal instanceof String s) {
-            return s;
-        } else if (sourceVal == null) {
-            return "()";
-        }
+        return switch (sourceVal) {
+            case Long l -> Long.toString(l);
+            case Double d -> Double.toString(d);
+            case Integer i -> Long.toString(i);
+            case Boolean b -> Boolean.toString(b);
+            case DecimalValue decimalValue -> decimalValue.stringValue(null);
+            case String s -> s;
+            case null -> "()";
+            default -> throw ErrorUtils.createNumericConversionError(sourceVal, PredefinedTypes.TYPE_STRING);
+        };
 
-        throw ErrorUtils.createNumericConversionError(sourceVal, PredefinedTypes.TYPE_STRING);
     }
 
     private static String anyToStringCast(Object sourceVal, Supplier<BError> errorFunc) {
@@ -1065,33 +1071,25 @@ public final class TypeConverter {
     }
 
     static DecimalValue anyToDecimal(Object sourceVal, Supplier<BError> errorFunc) {
-        if (sourceVal instanceof Long l) {
-            return DecimalValue.valueOf(l);
-        } else if (sourceVal instanceof Double d) {
-            return DecimalValue.valueOf(d);
-        } else if (sourceVal instanceof Integer i) {
-            return DecimalValue.valueOf(i);
-        } else if (sourceVal instanceof Boolean b) {
-            return DecimalValue.valueOf(b);
-        } else if (sourceVal instanceof DecimalValue decimalValue) {
-            return decimalValue;
-        }
-        throw errorFunc.get();
+        return switch (sourceVal) {
+            case Long l -> DecimalValue.valueOf(l);
+            case Double d -> DecimalValue.valueOf(d);
+            case Integer i -> DecimalValue.valueOf(i);
+            case Boolean b -> DecimalValue.valueOf(b);
+            case DecimalValue decimalValue -> decimalValue;
+            case null, default -> throw errorFunc.get();
+        };
     }
 
     static DecimalValue anyToDecimalCast(Object sourceVal, Supplier<BError> errorFunc) {
-        if (sourceVal instanceof Long l) {
-            return DecimalValue.valueOf(l);
-        } else if (sourceVal instanceof Double d) {
-            return DecimalValue.valueOf(d);
-        } else if (sourceVal instanceof Integer i) {
-            return DecimalValue.valueOf(i);
-        } else if (sourceVal instanceof DecimalValue decimalValue) {
-            return decimalValue;
-        } else if (sourceVal instanceof String s) {
-            return new DecimalValue(s);
-        }
-        throw errorFunc.get();
+        return switch (sourceVal) {
+            case Long l -> DecimalValue.valueOf(l);
+            case Double d -> DecimalValue.valueOf(d);
+            case Integer i -> DecimalValue.valueOf(i);
+            case DecimalValue decimalValue -> decimalValue;
+            case String s -> new DecimalValue(s);
+            case null, default -> throw errorFunc.get();
+        };
     }
 
     // JBallerina related casts

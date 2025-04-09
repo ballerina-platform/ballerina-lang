@@ -151,4 +151,13 @@ public class ParseExpressionTest {
         Assert.assertEquals(expressionNode.trailingInvalidTokens().size(), 0);
         Assert.assertEquals(expressionNode.toString(), "foo ?  MISSING[] MISSING[:] MISSING[]");
     }
+
+    @Test
+    public void testInvalidTokenDiagnostic() {
+        ExpressionNode expressionNode = NodeParser.parseExpression("ab cd");
+        Assert.assertEquals(expressionNode.kind(), SyntaxKind.SIMPLE_NAME_REFERENCE);
+        Assert.assertTrue(expressionNode.hasDiagnostics());
+        Assert.assertEquals(expressionNode.toString(), "ab  INVALID[cd]");
+        Assert.assertEquals(expressionNode.diagnostics().iterator().next().message(), "invalid token 'cd'");
+    }
 }

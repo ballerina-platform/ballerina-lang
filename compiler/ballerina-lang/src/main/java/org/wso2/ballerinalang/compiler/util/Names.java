@@ -127,7 +127,9 @@ public class Names {
     public static final Name XML_COMMENT = new Name(STRING_XML_COMMENT);
     public static final Name XML_TEXT = new Name(STRING_XML_TEXT);
     public static final Name REGEXP_TYPE = new Name(STRING_REGEXP);
-    
+    public static final Name TRUE = new Name("true");
+    public static final Name FALSE = new Name("false");
+
     // Names related to transactions.
     public static final Name TRANSACTION_PACKAGE = new Name("transactions");
     public static final Name TRANSACTION_INFO_RECORD = new Name("Info");
@@ -151,6 +153,9 @@ public class Names {
     // Module Versions
     public static final Name DEFAULT_VERSION = new Name("0.0.0");
     public static final Name DEFAULT_MAJOR_VERSION = new Name("0");
+
+    // Names related to internal langlib module
+    public static final Name MAP_PUT_ALL = new Name("putAll");
 
     public CompilerContext context;
 

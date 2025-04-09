@@ -20,7 +20,6 @@ package io.ballerina.cli.launcher.util;
 
 import io.ballerina.cli.cmd.CommandUtil;
 import io.ballerina.cli.cmd.ToolCommand;
-import io.ballerina.cli.launcher.CustomToolClassLoader;
 import io.ballerina.cli.launcher.LauncherUtils;
 import io.ballerina.projects.BalToolsManifest;
 import io.ballerina.projects.BalToolsToml;
@@ -30,6 +29,7 @@ import io.ballerina.projects.SemanticVersion;
 import io.ballerina.projects.internal.BalToolsManifestBuilder;
 import io.ballerina.projects.internal.BalaFiles;
 import io.ballerina.projects.internal.model.PackageJson;
+import io.ballerina.projects.util.CustomURLClassLoader;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectUtils;
 import org.wso2.ballerinalang.compiler.util.Names;
@@ -65,6 +65,7 @@ import static io.ballerina.cli.cmd.Constants.HELP_OPTION;
 import static io.ballerina.cli.cmd.Constants.HELP_SHORT_OPTION;
 import static io.ballerina.cli.cmd.Constants.HOME_COMMAND;
 import static io.ballerina.cli.cmd.Constants.INIT_COMMAND;
+import static io.ballerina.cli.cmd.Constants.LANG_SERVER_SPEC;
 import static io.ballerina.cli.cmd.Constants.NEW_COMMAND;
 import static io.ballerina.cli.cmd.Constants.OPENAPI_COMMAND;
 import static io.ballerina.cli.cmd.Constants.PACK_COMMAND;
@@ -111,8 +112,8 @@ public final class BalToolsUtil {
             SHELL_COMMAND, VERSION_COMMAND, OPENAPI_COMMAND, GRAPHQL_COMMAND, ASYNCAPI_COMMAND, GRPC_COMMAND,
             PERSIST_COMMAND, PROFILE_COMMAND);
     private static final List<String> hiddenCommands = Arrays.asList(INIT_COMMAND, TOOL_COMMAND, DIST_COMMAND,
-            UPDATE_COMMAND, START_LANG_SERVER_COMMAND, START_DEBUG_ADAPTER_COMMAND, HELP_COMMAND, HOME_COMMAND,
-            GENCACHE_COMMAND);
+            UPDATE_COMMAND, START_LANG_SERVER_COMMAND, LANG_SERVER_SPEC, START_DEBUG_ADAPTER_COMMAND, HELP_COMMAND,
+            HOME_COMMAND, GENCACHE_COMMAND);
     // if a command is a built-in tool command, add it to this list
     private static final List<String> builtInToolCommands = List.of();
 
@@ -134,7 +135,7 @@ public final class BalToolsUtil {
                 .flatMap(List::stream).noneMatch(commandName::equals);
     }
 
-    public static CustomToolClassLoader getCustomToolClassLoader(String commandName) {
+    public static CustomURLClassLoader getCustomToolClassLoader(String commandName) {
         List<File> toolJars = getToolCommandJarAndDependencyJars(commandName);
         URL[] urls = toolJars.stream()
                 .map(file -> {
@@ -148,7 +149,7 @@ public final class BalToolsUtil {
                 .toArray(URL[]::new);
         // Combine custom class loader with system class loader
         ClassLoader systemClassLoader = ClassLoader.getSystemClassLoader();
-        return new CustomToolClassLoader(urls, systemClassLoader);
+        return new CustomURLClassLoader(urls, systemClassLoader);
     }
 
     public static void addToolIfCommandIsABuiltInTool(String commandName) {

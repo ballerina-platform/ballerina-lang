@@ -84,6 +84,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OPERAND;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OPTION;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.PATH;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.READONLY_TYPE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.REENTRANT_LOCK;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.REG_EXP_ASSERTION;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.REG_EXP_ATOM_QUANTIFIER;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.REG_EXP_CAPTURING_GROUP;
@@ -360,6 +361,7 @@ public final class JvmSignatures {
     public static final String LOAD_HANDLE_TYPE = "L" + HANDLE_TYPE + ";";
     public static final String LOAD_INTEGER_TYPE = "L" + INTEGER_TYPE + ";";
     public static final String LOAD_JSON_TYPE = "L" + JSON_TYPE + ";";
+    public static final String LOAD_LOCK = "L" + REENTRANT_LOCK + ";";
     public static final String LOAD_NEVER_TYPE = "L" + NEVER_TYPE + ";";
     public static final String LOAD_NULL_TYPE = "L" + NULL_TYPE + ";";
     public static final String LOAD_OBJECT_TYPE = "L" + OBJECT_TYPE + ";";
@@ -402,6 +404,7 @@ public final class JvmSignatures {
     public static final String PASS_OBJECT_RETURN_SAME_TYPE = "(L" + OBJECT + ";)TV;";
     public static final String PASS_STRAND = "(L" + STRAND_CLASS + ";)V";
     public static final String PASS_STRAND_AND_LOCK_NAME = "(L" + STRAND_CLASS + ";L" + STRING_VALUE + ";)V";
+    public static final String PASS_STRAND_AND_REENTRANT_LOCK = "(L" + STRAND_CLASS + ";L" + REENTRANT_LOCK + ";)V";
     public static final String POPULATE_ATTACHED_FUNCTION = "([L" + METHOD_TYPE_IMPL + ";)V";
     public static final String POPULATE_CONFIG_DATA = "(L" + BAL_RUNTIME + ";)[L" + VARIABLE_KEY + ";";
     public static final String POPULATE_INITIAL_VALUES = "([L" + B_MAPPING_INITIAL_VALUE_ENTRY + ";)V";

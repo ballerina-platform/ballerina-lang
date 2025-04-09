@@ -91,32 +91,41 @@ public final class TypeTags {
     private TypeTags() {
     }
 
-    public static boolean isIntegerTypeTag(int tag) {
+    // NOTE: this works because each tag < 32
+    private static final int INT_MASK = (1 << BYTE_TAG) |
+            (1 << INT_TAG) |
+            (1 << SIGNED32_INT_TAG) |
+            (1 << SIGNED16_INT_TAG) |
+            (1 << SIGNED8_INT_TAG) |
+            (1 << UNSIGNED32_INT_TAG) |
+            (1 << UNSIGNED16_INT_TAG) |
+            (1 << UNSIGNED8_INT_TAG);
+    private static final int XML_MASK = (1 << XML_TAG) |
+            (1 << XML_ELEMENT_TAG) |
+            (1 << XML_COMMENT_TAG) |
+            (1 << XML_PI_TAG) |
+            (1 << XML_TEXT_TAG);
+    private static final int STRING_MASK = (1 << STRING_TAG) |
+            (1 << CHAR_STRING_TAG);
 
-        // TODO : Fix byte type. Ideally, byte belongs to here. But we have modeled it differently.
-        return switch (tag) {
-            case INT_TAG,
-                 SIGNED32_INT_TAG,
-                 SIGNED16_INT_TAG,
-                 SIGNED8_INT_TAG,
-                 UNSIGNED32_INT_TAG,
-                 UNSIGNED16_INT_TAG,
-                 UNSIGNED8_INT_TAG -> true;
-            default -> false;
-        };
+    public static boolean isIntegerTypeTag(int tag) {
+        if (tag > 32) {
+            return false;
+        }
+        return (INT_MASK & (1 << tag)) != 0;
     }
 
     public static boolean isXMLTypeTag(int tag) {
-        return switch (tag) {
-            case XML_TAG, XML_ELEMENT_TAG, XML_COMMENT_TAG, XML_PI_TAG, XML_TEXT_TAG -> true;
-            default -> false;
-        };
+        if (tag > 32) {
+            return false;
+        }
+        return (XML_MASK & (1 << tag)) != 0;
     }
 
     public static boolean isStringTypeTag(int tag) {
-        return switch (tag) {
-            case STRING_TAG, CHAR_STRING_TAG -> true;
-            default -> false;
-        };
+        if (tag > 32) {
+            return false;
+        }
+        return (STRING_MASK & (1 << tag)) != 0;
     }
 }

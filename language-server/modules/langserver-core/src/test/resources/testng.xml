@@ -27,6 +27,7 @@ under the License.
             </run>
         </groups>
         <packages>
+            <package name="org.ballerinalang.langserver.apispec.*"/>
             <package name="org.ballerinalang.langserver.definition.*"/>
             <package name="org.ballerinalang.langserver.extensions.*"/>
             <package name="org.ballerinalang.langserver.hover.*"/>

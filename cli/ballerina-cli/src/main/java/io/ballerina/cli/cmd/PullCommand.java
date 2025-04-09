@@ -90,7 +90,7 @@ public class PullCommand implements BLauncherCmd {
     @CommandLine.Option(names = "--repository")
     private String repositoryName;
 
-    @CommandLine.Option(names = "--sticky", hidden = true, defaultValue = "true")
+    @CommandLine.Option(names = "--sticky", hidden = true, defaultValue = "false")
     private boolean sticky;
 
     @CommandLine.Option(names = "--offline", hidden = true)
@@ -220,6 +220,7 @@ public class PullCommand implements BLauncherCmd {
 
         if (!version.equals(Names.EMPTY.getValue()) && Files.exists(packagePathInBalaCache.resolve(version))) {
             outStream.println("Package already exists.\n");
+            return version;
         }
         // create directory path in bala cache
         try {
@@ -250,6 +251,8 @@ public class PullCommand implements BLauncherCmd {
                 version = CommandUtil.getLatestVersion(versions);
             }
         } catch (PackageAlreadyExistsException e) {
+            // If version is specified by the user && the package exists, it shouldn't reach this point.
+            assert version.equals(Names.EMPTY.getValue());
             outStream.println("Package already exists.\n");
             version = e.version();
         } catch (CentralClientException e) {

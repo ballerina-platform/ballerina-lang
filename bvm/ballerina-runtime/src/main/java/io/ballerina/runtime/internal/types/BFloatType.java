@@ -18,8 +18,17 @@
 package io.ballerina.runtime.internal.types;
 
 import io.ballerina.runtime.api.Module;
+import io.ballerina.runtime.api.constants.TypeConstants;
 import io.ballerina.runtime.api.types.FloatType;
 import io.ballerina.runtime.api.types.TypeTags;
+import io.ballerina.runtime.api.types.semtype.BasicTypeBitSet;
+import io.ballerina.runtime.api.types.semtype.Builder;
+import io.ballerina.runtime.api.types.semtype.ConcurrentLazySupplier;
+import io.ballerina.runtime.api.types.semtype.SemType;
+
+import java.util.function.Supplier;
+
+import static io.ballerina.runtime.api.types.PredefinedTypes.EMPTY_MODULE;
 
 /**
  * {@code BFloatType} represents a integer which is a 32-bit floating-point number according to the
@@ -28,7 +37,9 @@ import io.ballerina.runtime.api.types.TypeTags;
  * @since 0.995.0
  */
 @SuppressWarnings("unchecked")
-public class BFloatType extends BType implements FloatType {
+public final class BFloatType extends BSemTypeWrapper<BFloatType.BFloatTypeImpl> implements FloatType {
+
+    private static final BasicTypeBitSet BASIC_TYPE = Builder.getFloatType();
 
     /**
      * Create a {@code BFloatType} which represents the boolean type.
@@ -36,26 +47,52 @@ public class BFloatType extends BType implements FloatType {
      * @param typeName string name of the type
      */
     public BFloatType(String typeName, Module pkg) {
-        super(typeName, pkg, Double.class);
+        this(() -> new BFloatTypeImpl(typeName, pkg), typeName, pkg, Builder.getFloatType());
+    }
+
+    private BFloatType(Supplier<BFloatTypeImpl> bType, String typeName, Module pkg, SemType semType) {
+        super(new ConcurrentLazySupplier<>(bType), typeName, pkg, TypeTags.FLOAT_TAG, semType);
+    }
+
+    public static BFloatType singletonType(Double value) {
+        return new BFloatType(() -> new BFloatTypeImpl(TypeConstants.FLOAT_TNAME, EMPTY_MODULE),
+                TypeConstants.FLOAT_TNAME, EMPTY_MODULE, Builder.getFloatConst(value));
     }
 
     @Override
-    public <V extends Object> V getZeroValue() {
-        return (V) new Double(0);
-    }
-    
-    @Override
-    public <V extends Object> V getEmptyValue() {
-        return (V) new Double(0);
+    public BasicTypeBitSet getBasicType() {
+        return BASIC_TYPE;
     }
 
-    @Override
-    public int getTag() {
-        return TypeTags.FLOAT_TAG;
-    }
+    protected static final class BFloatTypeImpl extends BType implements FloatType {
 
-    @Override
-    public boolean isReadOnly() {
-        return true;
+        private BFloatTypeImpl(String typeName, Module pkg) {
+            super(typeName, pkg, Double.class, false);
+        }
+
+        @Override
+        public <V extends Object> V getZeroValue() {
+            return (V) new Double(0);
+        }
+
+        @Override
+        public <V extends Object> V getEmptyValue() {
+            return (V) new Double(0);
+        }
+
+        @Override
+        public int getTag() {
+            return TypeTags.FLOAT_TAG;
+        }
+
+        @Override
+        public boolean isReadOnly() {
+            return true;
+        }
+
+        @Override
+        public BasicTypeBitSet getBasicType() {
+            return BASIC_TYPE;
+        }
     }
 }

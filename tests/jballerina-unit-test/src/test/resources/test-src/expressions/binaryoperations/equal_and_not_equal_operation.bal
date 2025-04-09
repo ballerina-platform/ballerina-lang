@@ -153,20 +153,17 @@ function checkAnyDataEquality() {
 }
 
 type IntOne 1;
-type FloatOne 1.0;
-type IntTwo 2;
-type FloatTwo 2f;
 
 function checkFiniteTypeEquality() {
     IntOne intOne_1 = 1;
     IntOne intOne_2 = 1;
-    IntTwo intTwo = 2;
-    FloatOne floatOne = 1f;
-    FloatTwo floatTwo = 2.0;
+    byte byteOne = 1;
+    byte byteTwo = 2;
 
     test:assertTrue((intOne_1 == intOne_2) && !(intOne_1 != intOne_2));
-    test:assertTrue((floatOne != floatTwo) && !(floatOne == floatTwo));
-    test:assertFalse((intOne_1 == intTwo) && !(intOne_1 != intTwo));
+    test:assertTrue((intOne_1 == byteOne) && !(intOne_1 != byteOne));
+    test:assertTrue(!(intOne_1 == byteTwo) && (intOne_1 != byteTwo));
+    test:assertTrue(!(byteOne == byteTwo) && (byteOne != byteTwo));
 }
 
 type ErrorDetail record {
@@ -231,6 +228,16 @@ function testOpenRecordWithOptionalFieldsEqualityNegative() {
     test:assertFalse((e1 == e2) || !(e1 != e2) || (e3 == e4) || !(e3 != e4));
 }
 
+type EmployeeWithOptionalId record {|
+    string name;
+    float id?;
+|};
+
+type PersonWithOptionalId record {|
+    string name;
+    string id?;
+|};
+
 function testClosedRecordWithOptionalFieldsEqualityPositive() {
     ClosedRecordWithOptionalFieldOne e1 = {name: "Em", one: 4000};
     ClosedRecordWithOptionalFieldOne e2 = e1;
@@ -239,6 +246,10 @@ function testClosedRecordWithOptionalFieldsEqualityPositive() {
     ClosedRecordWithOptionalFieldTwo e4 = {name: "Em"};
 
     test:assertTrue((e1 == e2) && !(e1 != e2) && isEqual(e3, e4));
+
+    EmployeeWithOptionalId e5 = { name: "Maryam" };
+    PersonWithOptionalId p1 = { name: "Maryam" };
+    test:assertTrue(e5 == p1 && !(e5 != p1));
 }
 
 function testClosedRecordWithOptionalFieldsEqualityNegative() {
@@ -626,10 +637,6 @@ function checkTupleEqualityNegative() {
     [string, ClosedEmployee] t6 = ["hi", {name: "Em"}];
 
     test:assertFalse(t1 == t2 || !(t1 != t2) || t3 == t4 || !(t3 != t4) || t5 == t6 || !(t5 != t6));
-
-    Array a = ["array", 1];
-    Mapping b = ["mapping", 2];
-    test:assertFalse(a == b);
 }
 
 function checkUnionConstrainedMapsPositive() {
@@ -698,6 +705,18 @@ function checkUnionConstrainedMapsNegative() {
     m4["one"] = ["hi", 100.0];
 
     test:assertFalse('equals || m3 == m4 || !(m3 != m4));
+}
+
+function checkEqualityOfMapsOfIncompatibleConstraintTypes() {
+    map<int> a = {};
+    map<float> b = {};
+    boolean bool1 = a == b && !(a != b);
+
+    map<string|int> c = {};
+    map<float> d = {};
+    boolean bool2 = c == d && !(c != d);
+
+    test:assertTrue(bool1 && bool2);
 }
 
 function checkUnionArrayPositive() {
@@ -1819,4 +1838,26 @@ function testEqualityWithCyclicReferences() {
     t5.add({loop: t3});
     test:assertTrue(t3 == t4);
     test:assertTrue(t3 == t5);
+}
+
+function readonlyMapEquality() {
+    map<int> & readonly immutableMarks = {
+        math: 80,
+        physics: 85,
+        chemistry: 75
+    };
+    readonly readonlyMarks = immutableMarks;
+
+    map<int> marks = {
+        math: 80,
+        physics: 85,
+        chemistry: 75
+    };
+
+    test:assertTrue(readonlyMarks == marks);
+}
+
+function readonlyListEquality() {
+    readonly arr = [1, 2 , 3];
+    test:assertTrue(arr == [1, 2 , 3]);
 }

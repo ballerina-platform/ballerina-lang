@@ -28,7 +28,7 @@ atomikosTransactionsVersion="5.0.8"
 atomikosUtilVersion="5.0.8"
 awaitilityVersion="3.1.6"
 balMessagingBrokerAmqpVersion="0.970.5"
-bouncycastleVersion="1.78"
+bouncycastleVersion="1.80"
 bytedecoJavacppPlatformVersion="6.0.1-1.4.2"
 checkStyleToolVersion="10.12.0"
 chewiebugGcviewerVersion="1.36"
@@ -86,15 +86,15 @@ mockitoCoreVersion="5.3.1"
 mockitoTestNGVersion="0.5.0"
 mustacheJavaCompilerVersion="0.8.9"
 mvel2Version="2.4.4.Final"
-nettyBufferVersion="4.1.115.Final"
-nettyCodecHttpVersion="4.1.115.Final"
-nettyCodecHttp2Version="4.1.115.Final"
-nettyCommonVersion="4.1.115.Final"
-nettyHandlerVersion="4.1.115.Final"
-nettyResolverVersion="4.1.115.Final"
-nettyTransportNativeEpollVersion="4.1.115.Final"
-nettyTransportNativeKqueueVersion="4.1.115.Final"
-nettyTransportVersion="4.1.115.Final"
+nettyBufferVersion="4.1.118.Final"
+nettyCodecHttpVersion="4.1.118.Final"
+nettyCodecHttp2Version="4.1.118.Final"
+nettyCommonVersion="4.1.118.Final"
+nettyHandlerVersion="4.1.118.Final"
+nettyResolverVersion="4.1.118.Final"
+nettyTransportNativeEpollVersion="4.1.118.Final"
+nettyTransportNativeKqueueVersion="4.1.118.Final"
+nettyTransportVersion="4.1.118.Final"
 okhttpVersion="3.14.0"
 openhftCompilerVersion="2.23ea0"
 openTelemetryApiVersion="1.32.0"
@@ -130,6 +130,7 @@ wso2StaxonCoreVersion="1.2.0.wso2v2"
 wso2TransportHttpVersion="6.3.11"
 wso2TransportLocalFileSystemVersion="6.0.55"
 zafarkhajaJsemverVersion="0.9.0"
+caffeineVersion = "3.2.0"
 
 [libraries]
 apache-commons-axiom-api = { module = "org.apache.ws.commons.axiom:axiom-api", version.ref = "apacheCommonsAxiomApiVersion" }
@@ -258,6 +259,7 @@ wso2-staxon-core = { module = "org.wso2.staxon:staxon-core", version.ref = "wso2
 wso2-transport-http = { module = "org.wso2.transport.http:org.wso2.transport.http.netty", version.ref = "wso2TransportHttpVersion"}
 wso2-transport-local-file-system = { module = "org.wso2.transport.file:org.wso2.transport.local-file-system", version.ref = "wso2TransportLocalFileSystemVersion"}
 zafarkhaja-jsemver = { module = "com.github.zafarkhaja:java-semver", version.ref = "zafarkhajaJsemverVersion"}
+caffeine = { module = "com.github.ben-manes.caffeine:caffeine", version.ref = "caffeineVersion" }
 
 [plugins]
 spotbugs = { id = "com.github.spotbugs", version.ref = "githubSpotbugsVersion"}

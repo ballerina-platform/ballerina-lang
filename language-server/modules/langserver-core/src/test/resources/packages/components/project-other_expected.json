@@ -170,6 +170,7 @@
           ],
           "configurableVariables": [],
           "automations": [],
+          "naturalFunctions": [],
           "name": "models"
         },
         {
@@ -193,7 +194,8 @@
           "listeners": [],
           "moduleVariables": [],
           "configurableVariables": [],
-          "automations": []
+          "automations": [],
+          "naturalFunctions": []
         }
       ]
     }

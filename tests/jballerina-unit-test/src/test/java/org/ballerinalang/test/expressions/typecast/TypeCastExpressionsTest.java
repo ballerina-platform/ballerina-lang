@@ -18,6 +18,7 @@ package org.ballerinalang.test.expressions.typecast;
 
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BArray;
+import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BMap;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
@@ -41,11 +42,12 @@ import static org.ballerinalang.test.BAssertUtil.validateError;
  */
 public class TypeCastExpressionsTest {
 
-    private CompileResult result;
+    private CompileResult result, result2;
 
     @BeforeClass
     public void setup() {
         result = BCompileUtil.compile("test-src/expressions/typecast/type_cast_expr.bal");
+        result2 = BCompileUtil.compile("test-src/expressions/typecast/type_cast_expr_runtime_errors.bal");
     }
 
     @Test(dataProvider = "positiveTests")
@@ -119,12 +121,6 @@ public class TypeCastExpressionsTest {
                 , 13);
         validateError(resultNegative, errIndex++, "incompatible types: '(json|error)' cannot be cast to 'string'", 69,
                 13);
-        validateError(resultNegative, errIndex++, "incompatible types: '(string[]|int)' cannot be cast to 'byte[]'",
-                78, 32);
-        validateError(resultNegative, errIndex++, "incompatible mapping constructor expression for type '(record {| " +
-                        "byte[] a; anydata...; |}|record {| string a; anydata...; |})'", 79, 47);
-        validateError(resultNegative, errIndex++, "incompatible types: '(string[]|int)' cannot be cast to 'byte[]'",
-                79, 51);
         validateError(resultNegative, errIndex++, "incompatible mapping constructor expression for type '(record {| " +
                 "string[] a; anydata...; |}|record {| string a; anydata...; |})'", 82, 49);
         validateError(resultNegative, errIndex++, "incompatible types: expected 'Obj', found 'object { int i; }'", 96,
@@ -276,8 +272,28 @@ public class TypeCastExpressionsTest {
         };
     }
 
+    @Test(dataProvider = "typeCastRuntimeErrorTests")
+    public void testTypeCastRuntimeErrors(String testFuncName) {
+        Object returns = BRunUtil.invoke(result2, testFuncName);
+        BError error = (BError) returns;
+        Assert.assertEquals(error.getErrorMessage().getValue(), "{ballerina}TypeCastError");
+    }
+
+    @DataProvider
+    public Object[] typeCastRuntimeErrorTests() {
+        return new Object[]{
+                "testTupleToJSONCastRuntimeError",
+                "testCastingWithEmptyKeyedKeylessTbl",
+                "testMapCastingRuntimeError",
+                "testListCastingRuntimeError",
+                "testCastingObjects",
+                "testCastingObjects2",
+        };
+    }
+
     @AfterClass
     public void tearDown() {
         result = null;
+        result2 = null;
     }
 }

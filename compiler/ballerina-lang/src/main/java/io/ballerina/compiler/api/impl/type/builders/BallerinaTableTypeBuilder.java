@@ -43,7 +43,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Names;
-import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.util.Flags;
 
 import java.util.ArrayList;
@@ -105,7 +104,7 @@ public class BallerinaTableTypeBuilder implements TypeBuilder.TABLE {
                 symTable.rootPkgSymbol.pkgID, null, symTable.rootPkgSymbol, symTable.builtinPos,
                 symTable.rootPkgSymbol.origin);
 
-        BTableType tableType = new BTableType(TypeTags.TABLE, rowBType, tableSymbol);
+        BTableType tableType = new BTableType(symTable.typeEnv(), rowBType, tableSymbol);
         tableSymbol.type = tableType;
         if (!keyTypes.isEmpty()) {
             tableType.keyTypeConstraint = getKeyConstraintBType(keyTypes, rowType);
@@ -147,7 +146,7 @@ public class BallerinaTableTypeBuilder implements TypeBuilder.TABLE {
         if (typeDescriptor instanceof AbstractTypeSymbol abstractTypeSymbol) {
             BType bType = abstractTypeSymbol.getBType();
 
-            return Symbols.isFlagOn(bType.flags, Flags.READONLY);
+            return Symbols.isFlagOn(bType.getFlags(), Flags.READONLY);
         }
 
         return false;
@@ -165,7 +164,7 @@ public class BallerinaTableTypeBuilder implements TypeBuilder.TABLE {
             tupleMembers.add(new BTupleMember(constraintType, varSymbol));
         }
 
-        return new BTupleType(tupleMembers);
+        return new BTupleType(symTable.typeEnv(), tupleMembers);
     }
 
     private BType checkKeyConstraintBType(TypeSymbol keyType, TypeSymbol rowType) {
@@ -193,7 +192,7 @@ public class BallerinaTableTypeBuilder implements TypeBuilder.TABLE {
     private boolean isValidKeyConstraintType(TypeSymbol fieldType, TypeSymbol keyType) {
         if ((fieldType.typeKind() == keyType.typeKind() || keyType.subtypeOf(fieldType))
                 && fieldType instanceof AbstractTypeSymbol abstractTypeSymbol) {
-            return Symbols.isFlagOn(abstractTypeSymbol.getBType().flags, Flags.READONLY);
+            return Symbols.isFlagOn(abstractTypeSymbol.getBType().getFlags(), Flags.READONLY);
         }
 
         return false;

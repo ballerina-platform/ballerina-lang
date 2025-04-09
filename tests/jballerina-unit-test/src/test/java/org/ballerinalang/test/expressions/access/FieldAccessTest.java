@@ -310,6 +310,11 @@ public class FieldAccessTest {
         BRunUtil.invoke(result, "testValidXMLmapFieldAccess");
     }
 
+    @Test
+    public void testLargeChainingFieldAccess() {
+        BRunUtil.invoke(result, "testLargeChainingFieldAccess");
+    }
+
     @Test(dataProvider = "fieldAccessOnJsonTypedRecordFields")
     public void testFieldAccessOnJsonTypedRecordFields(String function) {
         BRunUtil.invoke(result, function);

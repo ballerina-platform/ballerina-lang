@@ -278,12 +278,13 @@ public class TomlProviderNegativeTest {
 
     @Test(dataProvider = "table-negative-tests")
     public void testTableNegativeConfig(String tomlFileName, String[] errorMessages) {
+        TypeCreator.resetAllCaches();
         Field name = TypeCreator.createField(PredefinedTypes.TYPE_STRING, "name", SymbolFlags.REQUIRED);
         Field id = TypeCreator.createField(PredefinedTypes.TYPE_INT, "id", SymbolFlags.REQUIRED);
         Field age = TypeCreator.createField(PredefinedTypes.TYPE_INT, "age", SymbolFlags.OPTIONAL);
         Map<String, Field> fields = Map.ofEntries(Map.entry("name", name), Map.entry("age", age), Map.entry("id", id));
         RecordType type =
-                TypeCreator.createRecordType("Person", ROOT_MODULE, SymbolFlags.READONLY, fields, null, true, 6);
+                TypeCreator.createRecordType("PersonTPNT", ROOT_MODULE, SymbolFlags.READONLY, fields, null, true, 6);
         TableType tableType = TypeCreator.createTableType(type, new String[]{"name"}, true);
         IntersectionType intersectionType = new BIntersectionType(ROOT_MODULE, new Type[]{tableType,
                 PredefinedTypes.TYPE_READONLY}, tableType, 1, true);
@@ -296,16 +297,14 @@ public class TomlProviderNegativeTest {
 
     @DataProvider(name = "table-negative-tests")
     public Object[][] getTableNegativeTests() {
-        return new Object[][]{
-                {"MissingTableKey", new String[] {
-                        "[MissingTableKey.toml:(6:1,8:9)] value required for key 'name' of type " +
-                                "'table<test_module:Person> key(name) & readonly' in configurable variable 'tableVar'",
-                        "[MissingTableKey.toml:(7:1,7:8)] unused configuration value 'tableVar.id'",
-                        "[MissingTableKey.toml:(8:1,8:9)] unused configuration value 'tableVar.age'"
-                }},
+        return new Object[][]{{"MissingTableKey", new String[]{
+                "[MissingTableKey.toml:(6:1,8:9)] value required for key 'name' of type " +
+                        "'table<test_module:PersonTPNT> key(name) & readonly' in configurable variable 'tableVar'",
+                "[MissingTableKey.toml:(7:1,7:8)] unused configuration value 'tableVar.id'",
+                "[MissingTableKey.toml:(8:1,8:9)] unused configuration value 'tableVar.age'"}},
                 {"TableTypeError", new String[] {
                         "[TableTypeError.toml:(1:1,3:9)] configurable variable 'tableVar' is expected to be of type" +
-                                " 'table<test_module:Person> key(name) & readonly', but found 'record'",
+                                " 'table<test_module:PersonTPNT> key(name) & readonly', but found 'record'",
                         "[TableTypeError.toml:(2:1,2:14)] unused configuration value 'test_module.tableVar.name'",
                         "[TableTypeError.toml:(3:1,3:9)] unused configuration value 'test_module.tableVar.age'"
                 }},
@@ -321,11 +320,11 @@ public class TomlProviderNegativeTest {
                 }},
                 {"AdditionalField", new String[] {
                         "[AdditionalField.toml:(4:1,4:17)] undefined field 'city' provided for closed record " +
-                                "'test_module:Person'"
+                                "'test_module:PersonTPNT'"
                 }},
                 {"MissingTableField", new String[] {
                         "[MissingTableField.toml:(1:1,3:9)] value not provided for non-defaultable required field " +
-                                "'id' of record 'test_module:Person' in configurable variable 'tableVar'"
+                                "'id' of record 'test_module:PersonTPNT' in configurable variable 'tableVar'"
                 }},
                 {"TableInlineTypeError1", new String[] {
                         "[TableInlineTypeError1.toml:(1:34,1:37)] configurable variable 'tableVar.name' is expected " +
@@ -337,7 +336,7 @@ public class TomlProviderNegativeTest {
                 }},
                 {"TableInlineTypeError3", new String[] {
                         "[TableInlineTypeError3.toml:(1:24,1:53)] configurable variable 'tableVar' is expected to be " +
-                                "of type 'table<test_module:Person> key(name) & readonly', but found 'array'"
+                                "of type 'table<test_module:PersonTPNT> key(name) & readonly', but found 'array'"
                 }},
         };
     }
@@ -520,6 +519,7 @@ public class TomlProviderNegativeTest {
 
     @Test
     public void testUnusedTomlParts() {
+        TypeCreator.resetAllCaches();
         VariableKey intVar = new VariableKey(ROOT_MODULE, "intVar", PredefinedTypes.TYPE_INT, true);
         VariableKey stringVar = new VariableKey(ROOT_MODULE, "stringVar", PredefinedTypes.TYPE_STRING, true);
 
@@ -634,7 +634,7 @@ public class TomlProviderNegativeTest {
 
     @Test
     public void testRestFieldInvalidType() {
-        RecordType recordType = TypeCreator.createRecordType("Person", ROOT_MODULE, SymbolFlags.READONLY,
+        RecordType recordType = TypeCreator.createRecordType("PersonTPNT2", ROOT_MODULE, SymbolFlags.READONLY,
                 new HashMap<>(), PredefinedTypes.TYPE_INT, false, 6);
         VariableKey recordVar = new VariableKey(ROOT_MODULE, "person", recordType, true);
         String error = "[RestFieldNegative.toml:(3:8,3:14)] configurable variable 'person.name' is expected to be of " +

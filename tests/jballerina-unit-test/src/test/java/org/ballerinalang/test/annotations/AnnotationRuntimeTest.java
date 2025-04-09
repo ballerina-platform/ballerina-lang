@@ -227,6 +227,11 @@ public class AnnotationRuntimeTest {
         BRunUtil.invoke(resultOne, "testServiceObjectTypeAnnotations");
     }
 
+    @Test
+    public void testFuncAnnotationAccessInClasMethod() {
+        BRunUtil.invoke(resultOne, "testFuncAnnotationAccessInClasMethod");
+    }
+
     @AfterClass
     public void tearDown() {
         resultOne = null;
