@@ -109,6 +109,7 @@ public class ErrorQueryTest {
         BRunUtil.invoke(result, "testErrorReturnedFromLetClause");
     }
 
+// // TODO: related to the issue https://github.com/ballerina-platform/ballerina-lang/issues/43831
 //    @Test
 //    public void testErrorReturnedFromLimitClause() {
 //        BRunUtil.invoke(result, "testErrorReturnedFromLimitClause");
