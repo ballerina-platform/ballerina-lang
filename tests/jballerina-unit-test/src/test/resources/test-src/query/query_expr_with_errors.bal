@@ -449,6 +449,7 @@ function checkErrorAtLet2() returns error? {
         select v;
 }
 
+// TODO: related to the issue https://github.com/ballerina-platform/ballerina-lang/issues/43831
 // function testErrorReturnedFromLimitClause() {
 //     assertTrue(checkErrorAtLimitClause1() is error);
 //     assertTrue(checkErrorAtLimitClause2() is error);

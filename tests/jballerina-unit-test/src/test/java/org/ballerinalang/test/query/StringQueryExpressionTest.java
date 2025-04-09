@@ -170,6 +170,7 @@ public class StringQueryExpressionTest {
         Assert.assertEquals(returnValues.toString(), "Ranjan ");
     }
 
+//  // TODO: related to the issue https://github.com/ballerina-platform/ballerina-lang/issues/43831
 //    @Test(description = "Test query expression with limit clause-v2")
 //    public void testQueryExprWithLimitForStringResultV2() {
 //        Object returnValues = BRunUtil.invoke(result, "testQueryExprWithLimitForStringResultV2");
