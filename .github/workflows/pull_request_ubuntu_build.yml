@@ -15,6 +15,7 @@ on:
       - native-build
       - revert-client-decl-master
       - query-grouping-aggregation
+      - natural-programming
 
 jobs:
   ubuntu_build:
