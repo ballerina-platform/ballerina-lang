@@ -63,8 +63,8 @@ import java.util.concurrent.CompletableFuture;
 public class PullModuleExecutor implements LSCommandExecutor {
 
     public static final String COMMAND = "PULL_MODULE";
-
     private static final String TITLE_PULL_MODULE = "Pull Module";
+    private static final String PULL_MODULE_TASK_PREFIX = "pull-module-";
 
     /**
      * {@inheritDoc}
@@ -93,7 +93,7 @@ public class PullModuleExecutor implements LSCommandExecutor {
     public static void resolveModules(String fileUri, ExtendedLanguageClient languageClient,
                                       WorkspaceManager workspaceManager, LanguageServerContext languageServerContext) {
         // TODO Prevent running parallel tasks for the same project in future
-        String taskId = UUID.randomUUID().toString();
+        String taskId = PULL_MODULE_TASK_PREFIX + UUID.randomUUID();
         Path filePath = PathUtil.getPathFromURI(fileUri)
                 .orElseThrow(() -> new UserErrorException("Couldn't determine file path"));
         Project project = workspaceManager.project(filePath)
