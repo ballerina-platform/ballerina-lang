@@ -196,7 +196,7 @@ public class BStreamType extends BType implements StreamType {
                     completion instanceof CacheableTypeDescriptor completionTD) {
                 return CACHE.get(new Key(constraintTD.typeId(), completionTD.typeId()));
             }
-            return CACHE.get(new Key(constraint.hashCode(), completion.hashCode()));
+            return CACHE.get(new Key(TypeIdSupplier.getAnonId(), TypeIdSupplier.getAnonId()));
         }
 
         private static Value createNewValue(Key key) {
