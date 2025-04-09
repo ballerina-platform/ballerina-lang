@@ -192,11 +192,8 @@ public class BStreamType extends BType implements StreamType {
                 BStreamTypeCache::createNewValue);
 
         public static Value get(Type constraint, Type completion) {
-            if (constraint instanceof CacheableTypeDescriptor constraintTD &&
-                    completion instanceof CacheableTypeDescriptor completionTD) {
-                return CACHE.get(new Key(constraintTD.typeId(), completionTD.typeId()));
-            }
-            return CACHE.get(new Key(TypeIdSupplier.getAnonId(), TypeIdSupplier.getAnonId()));
+            return CACHE.get(new Key(((CacheableTypeDescriptor) constraint).typeId(),
+                        ((CacheableTypeDescriptor) completion).typeId()));
         }
 
         private static Value createNewValue(Key key) {
