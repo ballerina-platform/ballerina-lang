@@ -27,7 +27,7 @@ import org.testng.annotations.Test;
 
 
 /**
- * Contains tests for distinct errors in query
+ * Contains tests for distinct errors in query.
  *
  * @since 2201.13.0
  */
