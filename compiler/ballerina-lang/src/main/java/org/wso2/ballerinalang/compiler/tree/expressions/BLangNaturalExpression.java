@@ -37,6 +37,7 @@ public class BLangNaturalExpression extends BLangExpression implements NaturalEx
 
     public List<BLangLiteral> strings;
     public List<BLangExpression> insertions;
+    public boolean constExpr;
 
     public BLangNaturalExpression() {
         strings = new ArrayList<>();

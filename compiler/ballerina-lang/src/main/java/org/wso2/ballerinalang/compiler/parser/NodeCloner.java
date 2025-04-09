@@ -2544,5 +2544,6 @@ public class NodeCloner extends BLangNodeVisitor {
         source.cloneRef = clone;
         clone.strings = cloneList(source.strings);
         clone.insertions = cloneList(source.insertions);
+        clone.constExpr = source.constExpr;
     }
 }

@@ -823,7 +823,11 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     EXPECTED_TYPE_FOR_NATURAL_EXPR_MUST_CONTAIN_A_UNION_OF_NON_ERROR_AND_ERROR(
             "BCE4071", "expected.type.for.natural.expr.must.contain.a.union.of.non.error.and.error"),
     EXPECTED_TYPE_FOR_NATURAL_EXPR_MUST_BE_A_SUBTYPE_OF_ANYDATA_OR_ERROR(
-            "BCE4072", "expected.type.for.natural.expr.must.be.a.subtype.of.anydata.or.error")
+            "BCE4072", "expected.type.for.natural.expr.must.be.a.subtype.of.anydata.or.error"),
+    CONST_NATURAL_EXPR_CAN_HAVE_ONLY_CONST_EXPR_INSERTION(
+            "BCE4073", "const.natural.expr.can.have.only.const.expr.insertion"),
+    EXPECTED_TYPE_FOR_CONST_NATURAL_EXPR_MUST_BE_A_SUBTYPE_OF_ANYDATA(
+            "BCE4074", "expected.type.for.const.natural.expr.must.be.a.subtype.of.anydata")
     ;
 
     private final String diagnosticId;

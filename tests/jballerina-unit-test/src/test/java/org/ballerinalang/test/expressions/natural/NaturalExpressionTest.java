@@ -24,22 +24,32 @@ import org.testng.annotations.Test;
 
 /**
  * Negative semantic test cases for natural expressions.
+ *
+ * @since 2201.13.0
  */
 public class NaturalExpressionTest {
 
     @Test
-    public void testSemanticErrors() {
+    public void testNaturalExprNegative() {
         CompileResult negativeRes = BCompileUtil.compile(
                 "test-src/expressions/naturalexpr/natural_expr_negative.bal");
         int i = 0;
         BAssertUtil.validateError(negativeRes, i++,
                 "the expected type for a 'natural' expression must contain 'error'", 17, 9);
         BAssertUtil.validateError(negativeRes, i++,
-                "the expected type for a 'natural' expression must be a subtype of 'anydata|error'", 26, 57);
-        BAssertUtil.validateError(negativeRes, i++, "undefined symbol 'today'", 37, 12);
+                "the expected type for a 'natural' expression must be a subtype of 'anydata|error'", 26, 55);
+        BAssertUtil.validateError(negativeRes, i++, "undefined symbol 'day'", 37, 15);
+        BAssertUtil.validateError(negativeRes, i++, "incompatible types: expected 'anydata', found 'PersonObject'",
+                37, 29);
         BAssertUtil.validateError(negativeRes, i++,
                 "the expected type for a 'natural' expression must contain both a non-'error' type and 'error'",
                 40, 32);
+        BAssertUtil.validateError(negativeRes, i++,
+                "an insertion in a 'const' 'natural' expression must be a constant expression", 46, 15);
+        BAssertUtil.validateError(negativeRes, i++,
+                "the expected type for a 'const' 'natural' expression must be a subtype of 'anydata'", 49, 11);
+        BAssertUtil.validateError(negativeRes, i++,
+                "the expected type for a 'const' 'natural' expression must be a subtype of 'anydata'", 55, 18);
         Assert.assertEquals(negativeRes.getErrorCount(), i);
     }
 }

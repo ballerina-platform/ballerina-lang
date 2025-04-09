@@ -23,8 +23,8 @@ type PersonObject object {
     int age;
 };
 
-function f1(string today) returns PersonObject|error => natural {
-    Who is a popular person born ${today}?
+function f1(string day) returns PersonObject|error => natural {
+    Who is a popular person born on ${day}?
 };
 
 type Person record {|
@@ -32,11 +32,26 @@ type Person record {|
     int age;
 |};
 
-function f2() returns Person|error => natural {
+function f2(PersonObject person) returns Person|error => natural {
     Who is a popular person
-    born ${today}?
+    born on ${day}? Maybe ${person}?
 };
 
 function f3() returns error => natural {
     What's the colour of this IDE?
+};
+
+int count = 5;
+int[] b = const natural {
+    Give me ${count} integers between 1 and 100
+};
+
+error c = const natural {
+    What's the colour of this IDE?
+};
+
+const DAY = "9th April";
+
+PersonObject d = const natural {
+    Who is a popular person born on ${DAY}?
 };
