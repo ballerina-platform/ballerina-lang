@@ -226,6 +226,7 @@ function testLimitClauseWithQueryAction4() returns FullName[] {
     return nameList;
 }
 
+// TODO: related to the issue https://github.com/ballerina-platform/ballerina-lang/issues/43831
 // function testLetExpressionWithLimitClause() returns boolean {
 //
 //     Person p1 = {firstName: "Alex", lastName: "George", age: 33};
