@@ -687,8 +687,8 @@ public class JvmCreateTypeGen {
         // case body
         int i = 0;
         List<Label> targetLabels = new ArrayList<>();
-        // Skip function types for record default value functions since they can ba directly call from function
-        // pointers than given function name
+        // Skip function types for record default value functions since they can be called directly from function
+        // pointers instead of the function name
         List<BIRNode.BIRFunction> filteredFunctions = removeRecordDefaultValueFunctions(functions);
         for (BIRNode.BIRFunction func : filteredFunctions) {
             if (bTypesCount % MAX_TYPES_PER_METHOD == 0) {
