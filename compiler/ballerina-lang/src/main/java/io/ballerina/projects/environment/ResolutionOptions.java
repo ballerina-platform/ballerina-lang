@@ -25,14 +25,17 @@ package io.ballerina.projects.environment;
 public class ResolutionOptions {
     private final boolean offline;
     private final boolean sticky;
+    private final boolean optimizeDependencyCompilation;
     private final boolean dumpGraph;
     private final boolean dumpRawGraphs;
     private final PackageLockingMode packageLockingMode;
 
-    private ResolutionOptions(boolean offline, boolean sticky, boolean dumpGraph, boolean dumpRawGraphs,
+    private ResolutionOptions(boolean offline, boolean sticky, boolean optimizeDependencyCompilation,
+                              boolean dumpGraph, boolean dumpRawGraphs,
                               PackageLockingMode packageLockingMode) {
         this.offline = offline;
         this.sticky = sticky;
+        this.optimizeDependencyCompilation = optimizeDependencyCompilation;
         this.dumpGraph = dumpGraph;
         this.dumpRawGraphs = dumpRawGraphs;
         this.packageLockingMode = packageLockingMode;
@@ -63,6 +66,10 @@ public class ResolutionOptions {
         return sticky;
     }
 
+    public boolean optimizeDependencyCompilation() {
+        return optimizeDependencyCompilation;
+    }
+
     public boolean dumpGraph() {
         return dumpGraph;
     }
@@ -90,6 +97,7 @@ public class ResolutionOptions {
         private boolean dumpGraph = false;
         private boolean dumpRawGraphs = false;
         private PackageLockingMode packageLockingMode = PackageLockingMode.MEDIUM;
+        private boolean optimizeDependencyCompilation;
 
         public ResolutionOptionBuilder setOffline(boolean value) {
             offline = value;
@@ -100,6 +108,12 @@ public class ResolutionOptions {
             sticky = value;
             return this;
         }
+
+        public ResolutionOptionBuilder setOptimizeDependencyCompilation(boolean value) {
+            optimizeDependencyCompilation = value;
+            return this;
+        }
+
 
         public ResolutionOptionBuilder setDumpGraph(boolean value) {
             dumpGraph = value;
@@ -117,7 +131,8 @@ public class ResolutionOptions {
         }
 
         public ResolutionOptions build() {
-            return new ResolutionOptions(offline, sticky, dumpGraph, dumpRawGraphs, packageLockingMode);
+            return new ResolutionOptions(offline, sticky, optimizeDependencyCompilation, dumpGraph,
+                    dumpRawGraphs, packageLockingMode);
         }
     }
 }

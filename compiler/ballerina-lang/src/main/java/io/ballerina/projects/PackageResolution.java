@@ -147,6 +147,7 @@ public class PackageResolution {
             cmdArgs.add(packageDescriptor.toString());
 
             ProcessBuilder processBuilder = new ProcessBuilder(cmdArgs);
+            processBuilder.environment().put("BAL_JAVA_DEBUG", "5005");
             try {
                 Process process = processBuilder.start();
                 int i = process.waitFor();
