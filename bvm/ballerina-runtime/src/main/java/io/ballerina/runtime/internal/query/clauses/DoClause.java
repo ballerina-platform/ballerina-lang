@@ -20,14 +20,14 @@
 package io.ballerina.runtime.internal.query.clauses;
 
 import io.ballerina.runtime.api.Environment;
-import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BFunctionPointer;
-import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.internal.query.pipeline.Frame;
 import io.ballerina.runtime.internal.query.utils.QueryException;
 
 import java.util.stream.Stream;
+
+import static io.ballerina.runtime.internal.query.utils.QueryConstants.VALUE_ACCESS_FIELD;
 
 /**
  * Represents a `do` clause in the query pipeline that applies a function to each element.
@@ -37,8 +37,6 @@ import java.util.stream.Stream;
 public class DoClause implements PipelineStage {
     private final Environment env;
     private final BFunctionPointer function;
-
-    private static final BString $VALUE$_FIELD = StringUtils.fromString("$value$");
 
     /**
      * Constructor for the DoClause.
@@ -69,7 +67,7 @@ public class DoClause implements PipelineStage {
                 throw new QueryException(error);
             }
             if (result != null) {
-                frame.updateRecord($VALUE$_FIELD, result);
+                frame.updateRecord(VALUE_ACCESS_FIELD, result);
                 return frame;
             }
             return frame;
