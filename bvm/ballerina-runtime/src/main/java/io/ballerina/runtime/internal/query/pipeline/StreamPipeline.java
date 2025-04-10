@@ -80,10 +80,11 @@ public class StreamPipeline {
      * @param isLazyLoading Flag to indicate if lazy loading is enabled.
      * @return The stream pipeline.
      */
-    public static Object initStreamPipeline(Environment env, Object collection,
-                                                    BTypedesc constraintType,
-                                                    BTypedesc completionType,
-                                                    boolean isLazyLoading) {
+    public static Object initStreamPipeline(Environment env,
+                                                Object collection,
+                                                BTypedesc constraintType,
+                                                BTypedesc completionType,
+                                                boolean isLazyLoading) {
         try {
             return new StreamPipeline(env, collection, constraintType, completionType, isLazyLoading);
         } catch (ErrorValue e) {
