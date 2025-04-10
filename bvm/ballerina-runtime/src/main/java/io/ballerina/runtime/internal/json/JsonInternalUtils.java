@@ -49,6 +49,7 @@ import io.ballerina.runtime.internal.values.ArrayValue;
 import io.ballerina.runtime.internal.values.ArrayValueImpl;
 import io.ballerina.runtime.internal.values.DecimalValue;
 import io.ballerina.runtime.internal.values.ErrorValue;
+import io.ballerina.runtime.internal.values.ListInitialValueEntry;
 import io.ballerina.runtime.internal.values.MapValue;
 import io.ballerina.runtime.internal.values.MapValueImpl;
 import io.ballerina.runtime.internal.values.MappingInitialValueEntry;
@@ -57,7 +58,6 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Map.Entry;
 
 import static io.ballerina.runtime.api.constants.RuntimeConstants.MAP_LANG_LIB;
@@ -291,26 +291,26 @@ public final class JsonInternalUtils {
                                                            getComplexObjectTypeName(OBJECT), getTypeName(json));
         }
 
-        MapValueImpl<BString, Object> bStruct = new MapValueImpl<>(structType);
+        ArrayList<MappingInitialValueEntry.KeyValueEntry> keyValuePairs = new ArrayList<>();
         MapValueImpl<BString, Object> jsonObject = (MapValueImpl<BString, Object>) json;
-        for (Map.Entry<String, Field> field : structType.getFields().entrySet()) {
+        for (Entry<String, Field> field : structType.getFields().entrySet()) {
             Type fieldType = field.getValue().getFieldType();
             BString fieldName = StringUtils.fromString(field.getValue().getFieldName());
             try {
                 // If the field does not exists in the JSON, set the default value for that struct field.
                 if (!jsonObject.containsKey(fieldName)) {
-                    bStruct.put(fieldName, fieldType.getZeroValue());
+                    keyValuePairs.add(new MappingInitialValueEntry.KeyValueEntry(fieldName, fieldType.getZeroValue()));
                     continue;
                 }
 
                 Object jsonValue = jsonObject.get(fieldName);
-                bStruct.put(fieldName, convertJSON(jsonValue, fieldType));
+                keyValuePairs.add(new MappingInitialValueEntry.KeyValueEntry(fieldName,
+                        convertJSON(jsonValue, fieldType)));
             } catch (Exception e) {
                 handleError(e, fieldName.getValue());
             }
         }
-
-        return bStruct;
+        return new MapValueImpl<>(structType, keyValuePairs.toArray(MappingInitialValueEntry.KeyValueEntry[]::new));
     }
 
     public static Object convertJSON(Object jsonValue, Type targetType) {
@@ -449,7 +449,7 @@ public final class JsonInternalUtils {
         MapValue<BString, Object> m1 = (MapValue<BString, Object>) j1;
         MapValue<BString, Object> m2 = (MapValue<BString, Object>) j2;
 
-        for (Map.Entry<BString, Object> entry : m2.entrySet()) {
+        for (Entry<BString, Object> entry : m2.entrySet()) {
             BString key = entry.getKey();
 
             if (!m1.containsKey(key)) {
@@ -524,17 +524,18 @@ public final class JsonInternalUtils {
             case TypeTags.BOOLEAN_TAG:
                 return jsonArrayToBooleanArray(jsonArray);
             case TypeTags.ANY_TAG:
-                ArrayValue array = new ArrayValueImpl(targetArrayType);
+                ArrayList<ListInitialValueEntry> array = new ArrayList<>();
                 for (int i = 0; i < jsonArray.size(); i++) {
-                    array.add(i, jsonArray.getRefValue(i));
+                    array.add(i, new ListInitialValueEntry.ExpressionEntry(jsonArray.getRefValue(i)));
                 }
-                return array;
+                return new ArrayValueImpl(targetArrayType, array.toArray(ListInitialValueEntry[]::new));
             default:
-                array = new ArrayValueImpl(targetArrayType);
+                array = new ArrayList<>();
                 for (int i = 0; i < jsonArray.size(); i++) {
-                    array.append(convertJSON(jsonArray.getRefValue(i), targetElementType));
+                    array.add(new ListInitialValueEntry.ExpressionEntry(convertJSON(jsonArray.getRefValue(i),
+                            targetElementType)));
                 }
-                return array;
+                return new ArrayValueImpl(targetArrayType, array.toArray(ListInitialValueEntry[]::new));
         }
     }
 
