@@ -14,15 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-// import ballerina/lang.__internal as internal;
-// import ballerina/lang.'array as lang_array;
-// import ballerina/lang.'map as lang_map;
-// import ballerina/lang.'string as lang_string;
-// import ballerina/lang.'xml as lang_xml;
-// import ballerina/lang.'stream as lang_stream;
-// import ballerina/lang.'table as lang_table;
 import ballerina/lang.'object as lang_object;
-// import ballerina/lang.'function;
 
 # A type parameter that is a subtype of `any|error`.
 # Has the special semantic that when used in a declaration
