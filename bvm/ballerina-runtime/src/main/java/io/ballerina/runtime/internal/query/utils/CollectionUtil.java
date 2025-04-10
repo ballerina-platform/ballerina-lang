@@ -60,10 +60,8 @@ public class CollectionUtil {
         try {
             Iterator<Frame> it = strm.iterator();
             while (it.hasNext()) {
-                switch (it.next()) {
-                    case Frame frame:
-                        array.append(frame.getRecord().get(VALUE_ACCESS_FIELD));
-                }
+                Frame frame = it.next();
+                array.append(frame.getRecord().get(VALUE_ACCESS_FIELD));
             }
             return array;
         } catch (QueryException e) {
@@ -125,8 +123,8 @@ public class CollectionUtil {
                         try {
                             table.add(record);
                         } catch (Exception e) {
-                            if (frame.getRecord().get(ERROR_FIELD) instanceof BError) {
-                                return (BError) frame.getRecord().get(ERROR_FIELD);
+                            if (frame.getRecord().get(ERROR_FIELD) instanceof BError errorValue) {
+                                return errorValue;
                             } else {
                                 table.put(record);
                             }
@@ -169,8 +167,8 @@ public class CollectionUtil {
                         BArray recordArray = (BArray) record.get(VALUE_ACCESS_FIELD);
 
                         BString key = (BString) recordArray.get(0);
-                        if (map.containsKey(key) && record.get(ERROR_FIELD) instanceof BError) {
-                            return (BError) record.get(ERROR_FIELD);
+                        if (map.containsKey(key) && record.get(ERROR_FIELD) instanceof BError errorValue) {
+                            return errorValue;
                         }
                         Object value = recordArray.get(1);
 
@@ -222,23 +220,27 @@ public class CollectionUtil {
         List<BXml> backingArray = new ArrayList<>();
         BXml lastItem = null;
         for (Object refValue : arrayValue) {
-            if (refValue instanceof BString bString) {
-                if (lastItem != null && lastItem.getNodeType() == XmlNodeType.TEXT) {
-                    BString concat = StringUtils.fromString(lastItem.getTextValue()).concat(bString);
-                    BXml xmlText = XmlFactory.createXMLText(concat);
-                    backingArray.set(backingArray.size() - 1, xmlText);
+            switch (refValue) {
+                case BString bString -> {
+                    if (lastItem != null && lastItem.getNodeType() == XmlNodeType.TEXT) {
+                        BString concat = StringUtils.fromString(lastItem.getTextValue()).concat(bString);
+                        BXml xmlText = XmlFactory.createXMLText(concat);
+                        backingArray.set(backingArray.size() - 1, xmlText);
+                        lastItem = xmlText;
+                        continue;
+                    }
+                    BXml xmlText = XmlFactory.createXMLText(bString);
+                    backingArray.add(xmlText);
                     lastItem = xmlText;
-                    continue;
                 }
-                BXml xmlText = XmlFactory.createXMLText(bString);
-                backingArray.add(xmlText);
-                lastItem = xmlText;
-            } else if (refValue instanceof BXmlSequence bXmlSequence) {
-                backingArray.addAll(bXmlSequence.getChildrenList());
-                lastItem = (BXml) refValue;
-            } else {
-                backingArray.add((BXml) refValue);
-                lastItem = (BXml) refValue;
+                case BXmlSequence bXmlSequence -> {
+                    backingArray.addAll(bXmlSequence.getChildrenList());
+                    lastItem = (BXml) refValue;
+                }
+                case null, default -> {
+                    backingArray.add((BXml) refValue);
+                    lastItem = (BXml) refValue;
+                }
             }
         }
         return ValueCreator.createXmlSequence(backingArray);
