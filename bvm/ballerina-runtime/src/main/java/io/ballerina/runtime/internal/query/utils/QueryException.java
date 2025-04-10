@@ -35,7 +35,7 @@ import static io.ballerina.runtime.api.constants.RuntimeConstants.BALLERINA_QUER
  * @since 2201.13.0
  */
 public class QueryException extends RuntimeException {
-    private BError error;
+    private final BError error;
 
     public QueryException(BError error) {
         this.error = createDistinctError("Error", BALLERINA_QUERY_PKG_ID, error);
@@ -51,10 +51,6 @@ public class QueryException extends RuntimeException {
 
     public BError getError() {
         return error;
-    }
-
-    public void setError(BError error) {
-        this.error = error;
     }
 
     public BError createDistinctError(String typeIdName, Module typeIdPkg, BError error) {
