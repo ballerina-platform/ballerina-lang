@@ -21,6 +21,7 @@ package io.ballerina.runtime.internal.query.clauses;
 
 import io.ballerina.runtime.api.Environment;
 import io.ballerina.runtime.api.creators.TypeCreator;
+import io.ballerina.runtime.api.types.ArrayType;
 import io.ballerina.runtime.api.types.PredefinedTypes;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BError;
@@ -76,10 +77,11 @@ public class CollectClause implements PipelineStage {
         Frame groupedFrame = new Frame();
         BMap<BString, Object> groupedRecord = groupedFrame.getRecord();
 
+        ArrayType arrayType = TypeCreator.createArrayType(TypeCreator.createUnionType(
+                List.of(PredefinedTypes.TYPE_ANY, PredefinedTypes.TYPE_ERROR)));
         for (int i = 0; i < nonGroupingKeys.size(); i++) {
             BString key = (BString) nonGroupingKeys.get(i);
-            groupedRecord.put(key, new ArrayValueImpl(TypeCreator.createArrayType(TypeCreator.createUnionType(
-                    List.of(PredefinedTypes.TYPE_ANY, PredefinedTypes.TYPE_ERROR)))));
+            groupedRecord.put(key, new ArrayValueImpl(arrayType));
         }
 
         inputStream.forEach(frame -> {
@@ -95,14 +97,11 @@ public class CollectClause implements PipelineStage {
 
         return Stream.of(groupedFrame).map(frame -> {
             Object result = collectFunc.call(env.getRuntime(), groupedRecord);
-            if (result instanceof BError) {
-                throw (BError) result;
-            } else if (result instanceof BMap) {
-                Frame collectedFrame = new Frame();
-                collectedFrame.updateRecord((BMap<BString, Object>) result);
-                return collectedFrame;
-            }
-            return frame;
+            return switch (result) {
+                case BError error -> throw error;
+                case BMap<?, ?> map -> Frame.create((BMap<BString, Object>) map);
+                default -> frame;
+            };
         });
     }
 }
