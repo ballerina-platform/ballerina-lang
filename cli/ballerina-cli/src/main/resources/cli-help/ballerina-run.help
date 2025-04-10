@@ -69,6 +69,9 @@ OPTIONS
             [Experimental] Automatically re-run Ballerina service projects upon file
             changes.
 
+       --experimental
+           Enable experimental language features.
+
 
 ARGUMENTS
        --
