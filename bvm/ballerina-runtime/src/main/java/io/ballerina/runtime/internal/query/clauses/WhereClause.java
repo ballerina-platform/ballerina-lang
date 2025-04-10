@@ -68,8 +68,8 @@ public class WhereClause implements PipelineStage {
     public Stream<Frame> process(Stream<Frame> inputStream) {
         return inputStream.filter(frame -> {
             Object result = filterFunc.call(env.getRuntime(), frame.getRecord());
-            if (result instanceof Boolean) {
-                return (Boolean) result;
+            if (result instanceof Boolean booleanValue) {
+                return booleanValue;
             } else {
                 throw new QueryException((BError) result);
             }
