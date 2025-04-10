@@ -27,6 +27,8 @@ import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BTypedesc;
 import io.ballerina.runtime.internal.json.JsonGenerator;
+import io.ballerina.runtime.internal.types.BIntersectionType;
+import io.ballerina.runtime.internal.types.BTypeReferenceType;
 import io.ballerina.runtime.internal.values.ErrorValue;
 
 import java.io.ByteArrayInputStream;
@@ -50,9 +52,13 @@ public final class JsonValues {
     }
 
     public static BMap<BString, Object> testConvertJSONToRecord(Object record, BTypedesc t) throws BError {
-        Type describingType = t.getDescribingType();
-        if (describingType instanceof StructureType) {
-            return convertJSONToRecord(record, (StructureType) describingType);
+        Type structType = t.getDescribingType();
+        if (structType.isReadOnly()) {
+            structType = ((BIntersectionType) ((BTypeReferenceType) structType).
+                    getReferredType()).getEffectiveType();
+        }
+        if (structType instanceof StructureType) {
+            return convertJSONToRecord(record, (StructureType) structType);
         } else {
             throw new ErrorValue(StringUtils.fromString("provided typedesc does not describe a record type."));
         }
