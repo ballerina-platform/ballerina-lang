@@ -52,7 +52,7 @@ public class NestedFromClause implements PipelineStage {
      * @param env The runtime environment.
      * @param collectionFunc The function to extract the collection from each frame.
      */
-    public NestedFromClause(Environment env, BFunctionPointer collectionFunc) {
+    private NestedFromClause(Environment env, BFunctionPointer collectionFunc) {
         this.collectionFunc = collectionFunc;
         this.env = env;
     }

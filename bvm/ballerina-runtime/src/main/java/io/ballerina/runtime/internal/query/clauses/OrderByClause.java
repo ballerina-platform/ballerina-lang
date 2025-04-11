@@ -42,7 +42,7 @@ public class OrderByClause implements PipelineStage {
     private final BFunctionPointer orderKeyFunction;
     private final Environment env;
 
-    public OrderByClause(Environment env, BFunctionPointer orderKeyFunction) {
+    private OrderByClause(Environment env, BFunctionPointer orderKeyFunction) {
         this.orderKeyFunction = orderKeyFunction;
         this.env = env;
     }

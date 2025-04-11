@@ -44,7 +44,7 @@ public class DoClause implements PipelineStage {
      * @param env The runtime environment.
      * @param function The function to be executed for each frame.
      */
-    public DoClause(Environment env, BFunctionPointer function) {
+    private DoClause(Environment env, BFunctionPointer function) {
         this.env = env;
         this.function = function;
     }

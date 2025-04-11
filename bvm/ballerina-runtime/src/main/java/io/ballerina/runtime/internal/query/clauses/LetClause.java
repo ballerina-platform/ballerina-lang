@@ -44,7 +44,7 @@ public class LetClause implements PipelineStage {
      * @param env           The runtime environment.
      * @param frameModifier The function to modify the frame.
      */
-    public LetClause(Environment env, BFunctionPointer frameModifier) {
+    private LetClause(Environment env, BFunctionPointer frameModifier) {
         this.frameModifier = frameModifier;
         this.env = env;
     }
