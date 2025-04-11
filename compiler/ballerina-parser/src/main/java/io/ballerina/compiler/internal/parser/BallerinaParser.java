@@ -5301,6 +5301,7 @@ public class BallerinaParser extends AbstractParser {
                  ISOLATED_KEYWORD,
                  TRANSACTIONAL_KEYWORD,
                  CLIENT_KEYWORD,
+                 NATURAL_KEYWORD,
                  OBJECT_KEYWORD -> true;
             default -> {
                 if (isPredeclaredPrefix(tokenKind)) {
@@ -12812,6 +12813,7 @@ public class BallerinaParser extends AbstractParser {
             case ISOLATED_KEYWORD:
             case BASE16_KEYWORD:
             case BASE64_KEYWORD:
+            case NATURAL_KEYWORD:
                 return true;
             case PLUS_TOKEN:
             case MINUS_TOKEN:

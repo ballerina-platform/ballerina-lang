@@ -567,8 +567,6 @@ public enum ParserRuleContext {
     TYPE_REF_COLON("type-ref-colon"),
     METHOD_CALL_DOT("method-call-dot"),
     RESOURCE_METHOD_CALL_SLASH_TOKEN("resource-method-call-slash-token"),
-    PROMPT_CONTENT("prompt-content"),
-    PROMPT_TOKEN("prompt-token"),
 
     // Expressions
     EXPRESSION("expression"),
