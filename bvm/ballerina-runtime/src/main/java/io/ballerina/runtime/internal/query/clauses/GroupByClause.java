@@ -69,24 +69,26 @@ public class GroupByClause implements PipelineStage {
                         Collectors.toList()
                 ));
 
-        return groupedData.values().stream().map(frames -> {
-            Frame groupedFrame = frames.getFirst();
-            BMap<BString, Object> groupedRecord = groupedFrame.getRecord();
+        return groupedData.values().stream().map(this::aggregateNonGroupingKeys);
+    }
 
-            // Aggregate non-grouping fields into arrays
-            for (int i = 0; i < nonGroupingKeys.size(); i++) {
-                BString nonGroupingKey = (BString) nonGroupingKeys.get(i);
-                Object[] values = frames.stream()
-                        .map(f -> f.getRecord().get(nonGroupingKey))
-                        .filter(Objects::nonNull)
-                        .toArray();
-                BArray valuesArray = new ArrayValueImpl(values, TypeCreator.createArrayType(PredefinedTypes.TYPE_ANY));
-                groupedRecord.put(nonGroupingKey, valuesArray);
-            }
+    private Frame aggregateNonGroupingKeys(List<Frame> frames) {
+        Frame groupedFrame = frames.getFirst();
+        BMap<BString, Object> groupedRecord = groupedFrame.getRecord();
 
-            groupedFrame.updateRecord(groupedRecord);
-            return groupedFrame;
-        });
+        // Aggregate non-grouping fields into arrays
+        for (int i = 0; i < nonGroupingKeys.size(); i++) {
+            BString nonGroupingKey = (BString) nonGroupingKeys.get(i);
+            Object[] values = frames.stream()
+                    .map(f -> f.getRecord().get(nonGroupingKey))
+                    .filter(Objects::nonNull)
+                    .toArray();
+            BArray valuesArray = new ArrayValueImpl(values, TypeCreator.createArrayType(PredefinedTypes.TYPE_ANY));
+            groupedRecord.put(nonGroupingKey, valuesArray);
+        }
+
+        groupedFrame.updateRecord(groupedRecord);
+        return groupedFrame;
     }
 
     private BMap<BString, Object> extractOriginalKey(Frame frame) {
