@@ -43,7 +43,7 @@ public class SelectClause implements PipelineStage {
      * @param env      The runtime environment.
      * @param selector The function to select from each frame.
      */
-    public SelectClause(Environment env, BFunctionPointer selector) {
+    private SelectClause(Environment env, BFunctionPointer selector) {
         this.selector = selector;
         this.env = env;
     }

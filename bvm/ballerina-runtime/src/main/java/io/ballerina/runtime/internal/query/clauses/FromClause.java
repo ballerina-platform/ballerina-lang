@@ -44,7 +44,7 @@ public class FromClause implements PipelineStage {
      *
      * @param transformer The function to transform each frame.
      */
-    public FromClause(Environment env, BFunctionPointer transformer) {
+    private FromClause(Environment env, BFunctionPointer transformer) {
         this.transformer = transformer;
         this.env = env;
     }

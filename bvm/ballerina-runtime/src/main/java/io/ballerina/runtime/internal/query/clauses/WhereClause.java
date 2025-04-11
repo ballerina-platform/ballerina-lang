@@ -42,7 +42,7 @@ public class WhereClause implements PipelineStage {
      * @param env        The runtime environment.
      * @param filterFunc The function to filter frames.
      */
-    public WhereClause(Environment env, BFunctionPointer filterFunc) {
+    private WhereClause(Environment env, BFunctionPointer filterFunc) {
         this.filterFunc = filterFunc;
         this.env = env;
     }
