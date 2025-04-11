@@ -65,6 +65,7 @@ public class Names {
     public static final Name QUERY = new Name("query");
     public static final Name RUNTIME = new Name("runtime");
     public static final Name TRANSACTION = new Name("transaction");
+    public static final Name NATURAL_PROGRAMMING = new Name("np");
     public static final Name OBSERVE = new Name("observe");
     public static final Name CLOUD = new Name("cloud");
     public static final Name TABLE = new Name("table");

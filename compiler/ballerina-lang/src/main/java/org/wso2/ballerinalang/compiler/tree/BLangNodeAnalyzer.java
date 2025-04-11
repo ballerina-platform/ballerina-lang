@@ -80,6 +80,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkdownReturnParam
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchGuard;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMultipleWorkerReceive;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNamedArgsExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangNaturalExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangObjectConstructorExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangQueryAction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangQueryExpr;
@@ -683,4 +684,6 @@ public abstract class BLangNodeAnalyzer<T> {
     public abstract void visit(BLangXMLMethodCallStepExtend node, T props);
 
     public abstract void visit(BLangExtendedXMLNavigationAccess node, T props);
+
+    public abstract void visit(BLangNaturalExpression node, T props);
 }
