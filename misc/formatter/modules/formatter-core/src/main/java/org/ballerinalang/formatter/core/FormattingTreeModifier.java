@@ -3829,7 +3829,7 @@ public class FormattingTreeModifier extends TreeModifier {
         }
         boolean preserveIndentation = env.preserveIndentation;
         env.preserveIndentation = true;
-        prompt = formatNodeList(naturalExpressionNode.prompt(), 0, 0,0, promptTrailingNL);
+        prompt = formatNodeList(naturalExpressionNode.prompt(), 0, 0, 0, promptTrailingNL);
         env.hasNewline = preserveIndentation;
         Token closeBrace = formatToken(naturalExpressionNode.closeBraceToken(), env.trailingWS,
                 env.trailingNL);
