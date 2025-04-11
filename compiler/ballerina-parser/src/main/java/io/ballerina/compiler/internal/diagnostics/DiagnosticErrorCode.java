@@ -195,6 +195,7 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     ERROR_MISSING_RE_KEYWORD("BCE0295", "error.missing.re.keyword"),
     ERROR_MISSING_GROUP_KEYWORD("BCE0296", "error.missing.group.keyword"),
     ERROR_MISSING_COLLECT_KEYWORD("BCE0297", "error.missing.collect.keyword"),
+    ERROR_MISSING_NATURAL_KEYWORD("BCE0298", "error.missing.natural.keyword"),
 
     // Missing other tokens
     ERROR_MISSING_IDENTIFIER("BCE0400", "error.missing.identifier"),

@@ -863,9 +863,6 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
     private static final ParserRuleContext[] OPTIONAL_PARENTHESIZED_ARG_LIST =
                 { ParserRuleContext.ARG_LIST_OPEN_PAREN, ParserRuleContext.OPEN_BRACE };
 
-    private static final ParserRuleContext[] PROMPT_CONTENT =
-                { ParserRuleContext.CLOSE_BRACE, ParserRuleContext.PROMPT_TOKEN };
-
     public BallerinaParserErrorHandler(AbstractTokenReader tokenReader) {
         super(tokenReader);
     }
@@ -1210,9 +1207,6 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 case IS_KEYWORD:
                     hasMatch = nextToken.kind == SyntaxKind.IS_KEYWORD ||
                             nextToken.kind == SyntaxKind.NOT_IS_KEYWORD;
-                    break;
-                case PROMPT_TOKEN:
-                    hasMatch = true;
                     break;
 
                 // start a context, so that we know where to fall back, and continue
@@ -1630,8 +1624,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                  SINGLE_OR_ALTERNATE_WORKER_SEPARATOR,
                  XML_STEP_START_END,
                  NATURAL_EXPRESSION_START,
-                 OPTIONAL_PARENTHESIZED_ARG_LIST,
-                 PROMPT_CONTENT -> true;
+                 OPTIONAL_PARENTHESIZED_ARG_LIST -> true;
             default -> false;
         };
     }
@@ -1663,7 +1656,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case TYPE_NAME_OR_VAR_NAME -> ParserRuleContext.VARIABLE_NAME;
             case FIELD_DESCRIPTOR_RHS -> ParserRuleContext.SEMICOLON;
             case FIELD_OR_REST_DESCIPTOR_RHS -> ParserRuleContext.VARIABLE_NAME;
-            case RECORD_BODY_END, PROMPT_CONTENT -> ParserRuleContext.CLOSE_BRACE;
+            case RECORD_BODY_END -> ParserRuleContext.CLOSE_BRACE;
             case RECORD_BODY_START, OPTIONAL_PARENTHESIZED_ARG_LIST -> ParserRuleContext.OPEN_BRACE;
             case TYPE_DESCRIPTOR -> ParserRuleContext.SIMPLE_TYPE_DESC_IDENTIFIER;
             case TYPE_DESC_WITHOUT_ISOLATED -> ParserRuleContext.FUNC_TYPE_DESC;
@@ -2677,9 +2670,6 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 break;
             case OPTIONAL_PARENTHESIZED_ARG_LIST:
                 alternativeRules = OPTIONAL_PARENTHESIZED_ARG_LIST;
-                break;
-            case PROMPT_CONTENT:
-                alternativeRules = PROMPT_CONTENT;
                 break;
             default:
                 throw new IllegalStateException("seekMatchInExprRelatedAlternativePaths found: " + currentCtx);
@@ -3715,8 +3705,6 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 return getNextRuleForAction();
             case NATURAL_EXPRESSION:
                 return ParserRuleContext.NATURAL_EXPRESSION_START;
-            case PROMPT_TOKEN:
-                return ParserRuleContext.PROMPT_CONTENT;
             default:
                 return getNextRuleForKeywords(currentCtx, nextLookahead);
         }
@@ -4267,7 +4255,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case MAPPING_BINDING_PATTERN -> ParserRuleContext.MAPPING_BINDING_PATTERN_MEMBER;
             case MAPPING_MATCH_PATTERN -> ParserRuleContext.FIELD_MATCH_PATTERNS_START;
             case MATCH_BODY -> ParserRuleContext.MATCH_PATTERN;
-            case NATURAL_EXPRESSION ->  ParserRuleContext.PROMPT_CONTENT;
+            case NATURAL_EXPRESSION ->  ParserRuleContext.CLOSE_BRACE;
             default -> ParserRuleContext.STATEMENT;
         };
     }
