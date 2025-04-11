@@ -30,7 +30,7 @@ public class SyntaxInfoAPITest {
 
     @Test
     public void testKeywordCount() {
-        Assert.assertEquals(SyntaxInfo.keywords().size(), 99);
+        Assert.assertEquals(SyntaxInfo.keywords().size(), 100);
     }
 
     @Test

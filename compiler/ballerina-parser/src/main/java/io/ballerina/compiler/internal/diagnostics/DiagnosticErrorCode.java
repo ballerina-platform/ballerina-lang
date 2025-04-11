@@ -195,6 +195,7 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     ERROR_MISSING_RE_KEYWORD("BCE0295", "error.missing.re.keyword"),
     ERROR_MISSING_GROUP_KEYWORD("BCE0296", "error.missing.group.keyword"),
     ERROR_MISSING_COLLECT_KEYWORD("BCE0297", "error.missing.collect.keyword"),
+    ERROR_MISSING_NATURAL_KEYWORD("BCE0298", "error.missing.natural.keyword"),
 
     // Missing other tokens
     ERROR_MISSING_IDENTIFIER("BCE0400", "error.missing.identifier"),
@@ -256,6 +257,7 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     ERROR_MISSING_FIELD_MATCH_PATTERN_MEMBER("BCE0530", "error.missing.field.match.pattern.member"),
     ERROR_MISSING_OBJECT_CONSTRUCTOR_EXPRESSION("BCE0531", "error.missing.object.constructor.expression"),
     ERROR_MISSING_GROUPING_KEY("BCE0532", "error.missing.grouping.key"),
+    ERROR_MISSING_NATURAL_PROMPT_BLOCK("BCE0533", "error.missing.natural.prompt.block"),
 
     // Invalid nodes
     ERROR_INVALID_TOKEN("BCE0600", "error.invalid.token"),

@@ -953,6 +953,10 @@ public abstract class STNodeTransformer<T> {
         return transformSyntaxNode(receiveFieldNode);
     }
 
+    public T transform(STNaturalExpressionNode naturalExpressionNode) {
+        return transformSyntaxNode(naturalExpressionNode);
+    }
+
     // Tokens
 
     public T transform(STToken token) {

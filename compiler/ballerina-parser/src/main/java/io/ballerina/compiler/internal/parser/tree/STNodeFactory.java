@@ -2754,5 +2754,22 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 colon,
                 peerWorker);
     }
+
+    public static STNode createNaturalExpressionNode(
+            STNode constKeyword,
+            STNode naturalKeyword,
+            STNode parenthesizedArgList,
+            STNode openBraceToken,
+            STNode prompt,
+            STNode closeBraceToken) {
+
+        return new STNaturalExpressionNode(
+                constKeyword,
+                naturalKeyword,
+                parenthesizedArgList,
+                openBraceToken,
+                prompt,
+                closeBraceToken);
+    }
 }
 
