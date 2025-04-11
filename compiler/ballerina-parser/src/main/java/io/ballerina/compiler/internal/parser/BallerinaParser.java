@@ -79,6 +79,8 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
+import static io.ballerina.compiler.syntax.tree.SyntaxKind.OPEN_BRACE_TOKEN;
+
 /**
  * A LL(k) recursive-descent parser for ballerina.
  *
@@ -2569,7 +2571,7 @@ public class BallerinaParser extends AbstractParser {
                 STToken nextNextToken = getNextNextToken();
                 if (context == ParserRuleContext.TYPE_DESC_IN_EXPRESSION &&
                         !isValidTypeContinuationToken(nextNextToken) && isValidExprStart(nextNextToken.kind)) {
-                    if (nextNextToken.kind == SyntaxKind.OPEN_BRACE_TOKEN) {
+                    if (nextNextToken.kind == OPEN_BRACE_TOKEN) {
                         // TODO: support conditional expressions in which the middle expression starts with `{` #31033
                         ParserRuleContext grandParentCtx = this.errorHandler.getGrandParentContext();
                         isPossibleOptionalType = grandParentCtx == ParserRuleContext.IF_BLOCK ||
@@ -3163,7 +3165,7 @@ public class BallerinaParser extends AbstractParser {
      */
     private STNode parseOpenBrace() {
         STToken token = peek();
-        if (token.kind == SyntaxKind.OPEN_BRACE_TOKEN) {
+        if (token.kind == OPEN_BRACE_TOKEN) {
             return consume();
         } else {
             recover(token, ParserRuleContext.OPEN_BRACE);
@@ -3723,7 +3725,7 @@ public class BallerinaParser extends AbstractParser {
             }
 
             token = peek();
-            if (field.kind == SyntaxKind.RECORD_REST_TYPE && bodyStartDelimiter.kind == SyntaxKind.OPEN_BRACE_TOKEN) {
+            if (field.kind == SyntaxKind.RECORD_REST_TYPE && bodyStartDelimiter.kind == OPEN_BRACE_TOKEN) {
                 if (recordFields.isEmpty()) {
                     bodyStartDelimiter = SyntaxErrors.cloneWithTrailingInvalidNodeMinutiae(bodyStartDelimiter, field,
                             DiagnosticErrorCode.ERROR_INCLUSIVE_RECORD_TYPE_CANNOT_CONTAIN_REST_FIELD);
@@ -5106,7 +5108,8 @@ public class BallerinaParser extends AbstractParser {
             // special case missing open brace case to prevent all the below code becoming prompt content when user
             // just type the `natural` keyword.
             endContext();
-            return createMissingNaturalExpressionNode(optionalConstKeyword, naturalKeyword);
+            return createMissingNaturalExpressionNode(optionalConstKeyword, naturalKeyword,
+                    optionalParenthesizedArgList);
         }
 
         this.tokenReader.startMode(ParserMode.PROMPT);
@@ -5121,27 +5124,21 @@ public class BallerinaParser extends AbstractParser {
                 optionalParenthesizedArgList, openBrace, prompt, closeBrace);
     }
 
-    private STNode createMissingNaturalExpressionNode(STNode optionalConstKeyword, STNode naturalKeyword) {
-        STNode openBrace = SyntaxErrors.createMissingToken(SyntaxKind.OPEN_BRACE_TOKEN);
+    private STNode createMissingNaturalExpressionNode(STNode optionalConstKeyword, STNode naturalKeyword,
+                                                      STNode optionalParenthesizedArgList) {
+        STNode openBrace = SyntaxErrors.createMissingToken(OPEN_BRACE_TOKEN);
         STNode closeBrace = SyntaxErrors.createMissingToken(SyntaxKind.CLOSE_BRACE_TOKEN);
         STNode prompt = STAbstractNodeFactory.createEmptyNodeList();
-        STNode argList = STNodeFactory.createEmptyNode();
         STNode naturalExpr =
                 STNodeFactory.createNaturalExpressionNode(optionalConstKeyword, naturalKeyword,
-                        argList, openBrace, prompt, closeBrace);
+                        optionalParenthesizedArgList, openBrace, prompt, closeBrace);
         naturalExpr = SyntaxErrors.addDiagnostic(naturalExpr, DiagnosticErrorCode.ERROR_MISSING_NATURAL_PROMPT_BLOCK);
         return naturalExpr;
     }
 
     private STNode parseOptionalParenthesizedArgList() {
-        return switch (peek().kind) {
-            case OPEN_PAREN_TOKEN -> parseParenthesizedArgList();
-            case OPEN_BRACE_TOKEN -> STNodeFactory.createEmptyNode();
-            default -> {
-                recover(peek(), ParserRuleContext.OPTIONAL_PARENTHESIZED_ARG_LIST);
-                yield parseOptionalParenthesizedArgList();
-            }
-        };
+        return peek().kind == SyntaxKind.OPEN_PAREN_TOKEN ? parseParenthesizedArgList() :
+                STNodeFactory.createEmptyNode();
     }
 
     private STNode parsePromptContent() {
@@ -5179,7 +5176,7 @@ public class BallerinaParser extends AbstractParser {
 
     private STNode createMissingObjectConstructor(STNode annots, STNode qualifierNodeList) {
         STNode objectKeyword = SyntaxErrors.createMissingToken(SyntaxKind.OBJECT_KEYWORD);
-        STNode openBrace = SyntaxErrors.createMissingToken(SyntaxKind.OPEN_BRACE_TOKEN);
+        STNode openBrace = SyntaxErrors.createMissingToken(OPEN_BRACE_TOKEN);
         STNode closeBrace = SyntaxErrors.createMissingToken(SyntaxKind.CLOSE_BRACE_TOKEN);
 
         STNode objConstructor = STNodeFactory.createObjectConstructorExpressionNode(annots, qualifierNodeList,
@@ -8522,7 +8519,7 @@ public class BallerinaParser extends AbstractParser {
         }
 
         STNode annotValue;
-        if (peek().kind == SyntaxKind.OPEN_BRACE_TOKEN) {
+        if (peek().kind == OPEN_BRACE_TOKEN) {
             annotValue = parseMappingConstructorExpr();
         } else {
             annotValue = STNodeFactory.createEmptyNode();
@@ -13129,7 +13126,7 @@ public class BallerinaParser extends AbstractParser {
      */
     private STNode parseWaitAction() {
         STNode waitKeyword = parseWaitKeyword();
-        if (peek().kind == SyntaxKind.OPEN_BRACE_TOKEN) {
+        if (peek().kind == OPEN_BRACE_TOKEN) {
             return parseMultiWaitAction(waitKeyword);
         }
 
@@ -13943,7 +13940,7 @@ public class BallerinaParser extends AbstractParser {
 
     private STNode parseOnfailOptionalBP() {
         STToken nextToken = peek();
-        if (nextToken.kind == SyntaxKind.OPEN_BRACE_TOKEN) {
+        if (nextToken.kind == OPEN_BRACE_TOKEN) {
             return STAbstractNodeFactory.createEmptyNode();
         } else if (isTypeStartingToken(nextToken.kind)) {
             return parseTypedBindingPattern();

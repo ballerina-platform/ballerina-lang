@@ -3812,8 +3812,7 @@ public class FormattingTreeModifier extends TreeModifier {
 
     @Override
     public NaturalExpressionNode transform(NaturalExpressionNode naturalExpressionNode) {
-        Token constKeyword = formatToken(naturalExpressionNode.constKeyword().orElse(null),
-                1, 0);
+        Token constKeyword = formatToken(naturalExpressionNode.constKeyword().orElse(null), 1, 0);
         Token naturalKeyword = formatToken(naturalExpressionNode.naturalKeyword(), 1, 0);
         ParenthesizedArgList parenthesizedArgList = formatNode(
                 naturalExpressionNode.parenthesizedArgList().orElse(null), 1, 0);
@@ -3831,8 +3830,7 @@ public class FormattingTreeModifier extends TreeModifier {
         env.preserveIndentation = true;
         prompt = formatNodeList(naturalExpressionNode.prompt(), 0, 0, 0, promptTrailingNL);
         env.hasNewline = preserveIndentation;
-        Token closeBrace = formatToken(naturalExpressionNode.closeBraceToken(), env.trailingWS,
-                env.trailingNL);
+        Token closeBrace = formatToken(naturalExpressionNode.closeBraceToken(), env.trailingWS, env.trailingNL);
 
         return naturalExpressionNode.modify()
                 .withConstKeyword(constKeyword)
