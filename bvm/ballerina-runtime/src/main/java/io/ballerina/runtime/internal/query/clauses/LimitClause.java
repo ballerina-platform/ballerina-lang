@@ -42,7 +42,7 @@ public class LimitClause implements PipelineStage {
      * @param env          The runtime environment.
      * @param limitFunction The function to determine the limit dynamically.
      */
-    public LimitClause(Environment env, BFunctionPointer limitFunction) {
+    private LimitClause(Environment env, BFunctionPointer limitFunction) {
         this.limitFunction = limitFunction;
         this.env = env;
     }

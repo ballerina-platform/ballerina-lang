@@ -50,7 +50,7 @@ public class GroupByClause implements PipelineStage {
     private final BArray nonGroupingKeys;
     private final Environment env;
 
-    public GroupByClause(Environment env, BArray groupingKeys, BArray nonGroupingKeys) {
+    private GroupByClause(Environment env, BArray groupingKeys, BArray nonGroupingKeys) {
         this.groupingKeys = groupingKeys;
         this.nonGroupingKeys = nonGroupingKeys;
         this.env = env;

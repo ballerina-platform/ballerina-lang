@@ -38,7 +38,7 @@ public class OnConflictClause implements PipelineStage {
     private final BFunctionPointer onConflictFunction;
     private final Environment env;
 
-    public OnConflictClause(Environment env, BFunctionPointer onConflictFunction) {
+    private OnConflictClause(Environment env, BFunctionPointer onConflictFunction) {
         this.onConflictFunction = onConflictFunction;
         this.env = env;
     }

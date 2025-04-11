@@ -53,7 +53,7 @@ public class CollectClause implements PipelineStage {
      * @param collectFunc     The function applied to collected data.
      * @param env             The runtime environment.
      */
-    public CollectClause(Environment env, BArray nonGroupingKeys, BFunctionPointer collectFunc) {
+    private CollectClause(Environment env, BArray nonGroupingKeys, BFunctionPointer collectFunc) {
         this.nonGroupingKeys = nonGroupingKeys;
         this.collectFunc = collectFunc;
         this.env = env;
