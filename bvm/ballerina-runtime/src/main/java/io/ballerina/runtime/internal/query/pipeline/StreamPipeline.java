@@ -107,9 +107,9 @@ public class StreamPipeline {
      * @param pipeline The stream pipeline.
      * @return The processed stream.
      */
-    public static Object getStreamFromPipeline(Object pipeline) {
+    public static Object getStreamFromPipeline(StreamPipeline pipeline) {
         try {
-            ((StreamPipeline) pipeline).execute();
+            pipeline.execute();
         } catch (QueryException e) {
             return e.getError();
         }
