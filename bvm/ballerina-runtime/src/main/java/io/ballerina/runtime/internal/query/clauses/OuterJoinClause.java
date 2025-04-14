@@ -54,9 +54,9 @@ public class OuterJoinClause implements PipelineStage {
      * @param lhsKeyFunction The function to extract the join key from the left-hand side.
      * @param rhsKeyFunction The function to extract the join key from the right-hand side.
      */
-    private OuterJoinClause(Environment env, Object pipelineToJoin,
+    private OuterJoinClause(Environment env, StreamPipeline pipelineToJoin,
                            BFunctionPointer lhsKeyFunction, BFunctionPointer rhsKeyFunction) {
-        this.pipelineToJoin = (StreamPipeline) pipelineToJoin;
+        this.pipelineToJoin = pipelineToJoin;
         this.lhsKeyFunction = lhsKeyFunction;
         this.rhsKeyFunction = rhsKeyFunction;
         this.nilFrame = new Frame();
@@ -74,7 +74,7 @@ public class OuterJoinClause implements PipelineStage {
      * @return The initialized OuterJoinClause.
      */
     public static OuterJoinClause initOuterJoinClause(Environment env,
-                                                      Object pipelineToJoin,
+                                                      StreamPipeline pipelineToJoin,
                                                       BFunctionPointer lhsKeyFunction,
                                                       BFunctionPointer rhsKeyFunction) {
         return new OuterJoinClause(env, pipelineToJoin, lhsKeyFunction, rhsKeyFunction);
