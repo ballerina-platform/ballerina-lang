@@ -53,9 +53,9 @@ public class InnerJoinClause implements PipelineStage {
      * @param lhsKeyFunction The function to extract the join key from the left-hand side.
      * @param rhsKeyFunction The function to extract the join key from the right-hand side.
      */
-    private InnerJoinClause(Environment env, Object pipelineToJoin,
+    private InnerJoinClause(Environment env, StreamPipeline pipelineToJoin,
                            BFunctionPointer lhsKeyFunction, BFunctionPointer rhsKeyFunction) {
-        this.pipelineToJoin = (StreamPipeline) pipelineToJoin;
+        this.pipelineToJoin = pipelineToJoin;
         this.lhsKeyFunction = lhsKeyFunction;
         this.rhsKeyFunction = rhsKeyFunction;
         this.env = env;
@@ -72,7 +72,7 @@ public class InnerJoinClause implements PipelineStage {
      * @return The initialized InnerJoinClause.
      */
     public static InnerJoinClause initInnerJoinClause(Environment env,
-                                                      Object pipelineToJoin,
+                                                      StreamPipeline pipelineToJoin,
                                                       BFunctionPointer lhsKeyFunction,
                                                       BFunctionPointer rhsKeyFunction) {
         return new InnerJoinClause(env, pipelineToJoin, lhsKeyFunction, rhsKeyFunction);

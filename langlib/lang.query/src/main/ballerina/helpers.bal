@@ -143,7 +143,7 @@ function createInnerJoinFunction(
         function (_Frame _frame) returns any rhsKeyFunction) returns handle = @java:Method {
     'class: "io.ballerina.runtime.internal.query.clauses.InnerJoinClause",
     name: "initInnerJoinClause",
-    paramTypes: ["java.lang.Object","io.ballerina.runtime.api.values.BFunctionPointer","io.ballerina.runtime.api.values.BFunctionPointer"]
+    paramTypes: ["io.ballerina.runtime.internal.query.pipeline.StreamPipeline","io.ballerina.runtime.api.values.BFunctionPointer","io.ballerina.runtime.api.values.BFunctionPointer"]
 } external;
 
 function createOuterJoinFunction(
@@ -152,7 +152,7 @@ function createOuterJoinFunction(
         function (_Frame _frame) returns any rhsKeyFunction) returns handle = @java:Method {
     'class: "io.ballerina.runtime.internal.query.clauses.OuterJoinClause",
     name: "initOuterJoinClause",
-    paramTypes: ["java.lang.Object","io.ballerina.runtime.api.values.BFunctionPointer","io.ballerina.runtime.api.values.BFunctionPointer"]
+    paramTypes: ["io.ballerina.runtime.internal.query.pipeline.StreamPipeline","io.ballerina.runtime.api.values.BFunctionPointer","io.ballerina.runtime.api.values.BFunctionPointer"]
 } external;
 
 function createOnConflictFunction(function(_Frame _frame) returns _Frame|error? onConflictFunc) returns handle = @java:Method {
@@ -170,13 +170,13 @@ function createDoFunction(function(_Frame _frame) returns any|error doFunc) retu
 function getStreamFromPipeline(handle pipeline) returns handle = @java:Method {
     'class: "io.ballerina.runtime.internal.query.pipeline.StreamPipeline",
     name: "getStreamFromPipeline",
-    paramTypes: ["java.lang.Object"]
+    paramTypes: ["io.ballerina.runtime.internal.query.pipeline.StreamPipeline"]
 } external;
 
 function getStreamForOnConflictFromPipeline(handle pipeline) returns handle = @java:Method {
     'class: "io.ballerina.runtime.internal.query.pipeline.StreamPipeline",
     name: "getStreamFromPipeline",
-    paramTypes: ["java.lang.Object"]
+    paramTypes: ["io.ballerina.runtime.internal.query.pipeline.StreamPipeline"]
 } external;
 
 function toXML(handle strm, boolean isReadOnly) returns xml|error {
