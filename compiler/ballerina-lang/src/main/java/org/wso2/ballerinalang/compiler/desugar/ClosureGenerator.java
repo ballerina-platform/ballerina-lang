@@ -1795,6 +1795,7 @@ public class ClosureGenerator extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangNaturalExpression naturalExpression) {
+        rewriteExprs(naturalExpression.arguments);
         rewriteExprs(naturalExpression.strings);
         rewriteExprs(naturalExpression.insertions);
         result = naturalExpression;

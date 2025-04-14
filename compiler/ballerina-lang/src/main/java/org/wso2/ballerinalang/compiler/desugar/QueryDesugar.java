@@ -2804,6 +2804,7 @@ public class QueryDesugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangNaturalExpression naturalExpression) {
+        rewrite(naturalExpression.arguments);
         rewrite(naturalExpression.strings);
         rewrite(naturalExpression.insertions);
         result = naturalExpression;

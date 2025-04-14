@@ -1277,6 +1277,7 @@ public class ConstantPropagation extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangNaturalExpression naturalExpression) {
+        rewrite(naturalExpression.arguments);
         rewrite(naturalExpression.strings);
         rewrite(naturalExpression.insertions);
         result = naturalExpression;

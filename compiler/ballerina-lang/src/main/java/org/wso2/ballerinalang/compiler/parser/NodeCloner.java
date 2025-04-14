@@ -2542,6 +2542,7 @@ public class NodeCloner extends BLangNodeVisitor {
     public void visit(BLangNaturalExpression source) {
         BLangNaturalExpression clone = new BLangNaturalExpression();
         source.cloneRef = clone;
+        clone.arguments = cloneList(source.arguments);
         clone.strings = cloneList(source.strings);
         clone.insertions = cloneList(source.insertions);
         clone.constExpr = source.constExpr;

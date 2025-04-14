@@ -2499,6 +2499,10 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangNaturalExpression naturalExpression) {
+        for (BLangExpression argumentExpr : naturalExpression.arguments) {
+            analyzeNode(argumentExpr, env);
+        }
+
         for (BLangLiteral string : naturalExpression.strings) {
             analyzeNode(string, env);
         }

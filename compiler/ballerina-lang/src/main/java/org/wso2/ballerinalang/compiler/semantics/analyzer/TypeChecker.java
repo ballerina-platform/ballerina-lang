@@ -6672,8 +6672,15 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                     DiagnosticErrorCode.EXPECTED_TYPE_FOR_NATURAL_EXPR_MUST_BE_A_SUBTYPE_OF_ANYDATA_OR_ERROR);
             type = symTable.semanticError;
         }
+        checkNaturalExprArguments(naturalExpression, data);
         checkNaturalExprInsertions(naturalExpression, data);
         data.resultType = type;
+    }
+
+    private void checkNaturalExprArguments(BLangNaturalExpression naturalExpression, AnalyzerData data) {
+        for (BLangExpression expr : naturalExpression.arguments) {
+            checkExpr(expr, symTable.anyType, data);
+        }
     }
 
     // Private methods

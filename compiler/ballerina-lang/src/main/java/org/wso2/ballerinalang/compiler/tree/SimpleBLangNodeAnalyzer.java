@@ -1829,6 +1829,7 @@ public abstract class SimpleBLangNodeAnalyzer<T> extends BLangNodeAnalyzer<T> {
     @Override
     public void visit(BLangNaturalExpression node, T data) {
         analyzeNode(node, data);
+        visitNode(node.arguments, data);
         visitNode(node.strings, data);
         visitNode(node.insertions, data);
     }

@@ -3561,6 +3561,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
 
     @Override
     public void visit(BLangNaturalExpression naturalExpression, AnalyzerData data) {
+        analyzeExprs(naturalExpression.arguments, data);
         analyzeExprs(naturalExpression.strings, data);
         analyzeExprs(naturalExpression.insertions, data);
     }

@@ -3630,6 +3630,7 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
         BLangNaturalExpression naturalExpr = (BLangNaturalExpression) TreeBuilder.createNaturalExpressionNode();
         naturalExpr.pos = getPosition(naturalExpressionNode);
         naturalExpr.constExpr = naturalExpressionNode.constKeyword().isPresent();
+        naturalExpr.arguments = getNaturalExpressionArguments(naturalExpressionNode);
         populateTemplateContent(naturalExpressionNode.prompt(), naturalExpr.strings, naturalExpr.insertions);
         return naturalExpr;
     }
@@ -7088,5 +7089,14 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
             extensions.add(curExpr);
         }
         return extensions;
+    }
+
+    private List<BLangExpression> getNaturalExpressionArguments(NaturalExpressionNode naturalExpressionNode) {
+        Optional<ParenthesizedArgList> argsList = naturalExpressionNode.parenthesizedArgList();
+        return argsList.map(
+                parenthesizedArgList -> parenthesizedArgList.arguments()
+                        .stream()
+                        .map(this::createExpression).toList()).
+                orElseGet(() -> new ArrayList<>(0));
     }
 }

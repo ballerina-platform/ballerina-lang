@@ -35,11 +35,13 @@ import java.util.List;
  */
 public class BLangNaturalExpression extends BLangExpression implements NaturalExpressionNode {
 
+    public boolean constExpr;
+    public List<BLangExpression> arguments;
     public List<BLangLiteral> strings;
     public List<BLangExpression> insertions;
-    public boolean constExpr;
 
     public BLangNaturalExpression() {
+        arguments = new ArrayList<>();
         strings = new ArrayList<>();
         insertions = new ArrayList<>();
     }
@@ -66,7 +68,7 @@ public class BLangNaturalExpression extends BLangExpression implements NaturalEx
 
     @Override
     public String toString() {
-        return "BLangNaturalExpression: strings " + strings + ", insertions " + insertions;
+        return "BLangNaturalExpression: arguments " + arguments + ", strings " + strings + ", insertions " + insertions;
     }
 
     @Override

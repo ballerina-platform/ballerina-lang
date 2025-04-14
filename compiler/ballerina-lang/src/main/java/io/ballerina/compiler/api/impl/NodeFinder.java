@@ -1581,6 +1581,7 @@ class NodeFinder extends BaseVisitor {
 
     @Override
     public void visit(BLangNaturalExpression naturalExpression) {
+        lookupNodes(naturalExpression.arguments);
         lookupNodes(naturalExpression.strings);
         lookupNodes(naturalExpression.insertions);
     }

@@ -1483,6 +1483,7 @@ public class ReferenceFinder extends BaseVisitor {
 
     @Override
     public void visit(BLangNaturalExpression naturalExpression) {
+        find(naturalExpression.arguments);
         find(naturalExpression.insertions);
         find(naturalExpression.strings);
     }
