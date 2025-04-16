@@ -94,11 +94,11 @@ public class StreamPipeline {
     /**
      * Adds a stage (clause) to the pipeline.
      *
-     * @param jStreamPipeline The stream pipeline.
-     * @param pipelineStage The pipeline stage.
+     * @param streamPipeline The stream pipeline.
+     * @param pipelineStage The pipeline stage (clause).
      */
-    public static void addStreamFunction(Object jStreamPipeline, Object pipelineStage) {
-        ((StreamPipeline) jStreamPipeline).addStage((PipelineStage) pipelineStage);
+    public static void addStreamFunction(StreamPipeline streamPipeline, PipelineStage pipelineStage) {
+        streamPipeline.addStage(pipelineStage);
     }
 
     /**
