@@ -26,7 +26,6 @@ import io.ballerina.projects.Document;
 import io.ballerina.projects.PackageCompilation;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectKind;
-import io.ballerina.projects.util.DependencyUtils;
 import io.ballerina.syntaxapicallsgen.SyntaxApiCallsGen;
 import io.ballerina.syntaxapicallsgen.config.SyntaxApiCallsGenConfig;
 import io.ballerina.tools.text.LinePosition;
@@ -34,11 +33,13 @@ import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.diagramutil.DiagramUtil;
 import org.ballerinalang.langserver.LSClientLogger;
 import org.ballerinalang.langserver.LSContextOperation;
+import org.ballerinalang.langserver.command.executors.PullModuleExecutor;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.PathUtil;
 import org.ballerinalang.langserver.commons.BallerinaDefinitionContext;
 import org.ballerinalang.langserver.commons.DocumentServiceContext;
 import org.ballerinalang.langserver.commons.LanguageServerContext;
+import org.ballerinalang.langserver.commons.client.ExtendedLanguageClient;
 import org.ballerinalang.langserver.commons.service.spi.ExtendedLanguageServerService;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceManager;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceManagerProxy;
@@ -504,14 +505,20 @@ public class BallerinaDocumentService implements ExtendedLanguageServerService {
             if (filePath.isEmpty()) {
                 return reply;
             }
-
             try {
-                Optional<Project> project = this.workspaceManagerProxy.get().project(filePath.get());
-                if (project.isEmpty()) {
+                Optional<SemanticModel> semanticModel = this.workspaceManagerProxy.get().semanticModel(filePath.get());
+                if (semanticModel.isEmpty()) {
                     reply.setParseSuccess(false);
                     return reply;
                 }
-                DependencyUtils.pullMissingDependencies(project.get());
+
+                if (!CommonUtil.hasUnresolvedModules(semanticModel.get())) {
+                    reply.setParseSuccess(true);
+                    return reply;
+                }
+
+                PullModuleExecutor.resolveModules(fileUri, serverContext.get(ExtendedLanguageClient.class),
+                        workspaceManagerProxy.get(fileUri), serverContext);
                 reply.setParseSuccess(true);
             } catch (Throwable e) {
                 reply.setParseSuccess(false);
