@@ -5,7 +5,7 @@ class = "io.samjs.plugins.twodependencies.CompilerPluginWithTwoDependencies"
 path = "../../../../../build/compiler-plugin-jars/compiler-plugin-with-two-dependencies-1.0.0.jar"
 
 [[dependency]]
-path = "../../../../../build/compiler-plugin-jars/string-utils-lib-1.0.0.jar"
+path = "lib/string-utils-lib-1.1.0.jar"
 
 [[dependency]]
 path = "../../../../../build/compiler-plugin-jars/diagnostic-utils-lib-1.0.0.jar"
