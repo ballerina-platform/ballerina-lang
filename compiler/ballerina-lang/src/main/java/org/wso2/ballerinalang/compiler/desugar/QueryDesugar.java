@@ -723,9 +723,6 @@ public class QueryDesugar extends BLangNodeVisitor {
         BLangLambdaFunction lhsKeyFunction = createKeyFunction(lhsExpr, stmtsToBePropagated);
         BLangLambdaFunction rhsKeyFunction = createKeyFunction(rhsExpr, stmtsToBePropagated);
         if (joinClause.isOuterJoin) {
-//            List<BVarSymbol> symbols =
-//                    getIntroducedSymbols((BLangVariable) joinClause.variableDefinitionNode.getVariable());
-//            final BLangSimpleVarRef nilFrame = defineNilFrameForType(symbols, blockStmt, rhsExpr.pos);
             return getStreamFunctionVariableRef(blockStmt, QUERY_CREATE_OUTER_JOIN_FUNCTION,
                     Lists.of(joinPipeline, lhsKeyFunction, rhsKeyFunction), joinClause.pos);
         } else {

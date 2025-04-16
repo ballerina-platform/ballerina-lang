@@ -1,20 +1,19 @@
 /*
- *  Copyright (c) 2025, WSO2 Inc. (http://www.wso2.org)
+ * Copyright (c) 2025, WSO2 LLC. (http://www.wso2.com)
  *
- * WSO2 Inc. licenses this file to you under the Apache License,
+ * WSO2 LLC. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License.
- * You may obtain a copy of the License at
+ * You may obtain a copy of the License at:
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
- *  Unless required by applicable law or agreed to in writing,
- *  software distributed under the License is distributed on an
- *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- *  KIND, either express or implied. See the License for
- *  the specific language governing permissions and limitations
- *  under the License.
- *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied. See the License for
+ * the specific language governing permissions and limitations
+ * under the License.
  */
 
 package io.ballerina.runtime.internal.query.clauses;
@@ -54,9 +53,9 @@ public class InnerJoinClause implements PipelineStage {
      * @param lhsKeyFunction The function to extract the join key from the left-hand side.
      * @param rhsKeyFunction The function to extract the join key from the right-hand side.
      */
-    public InnerJoinClause(Environment env, Object pipelineToJoin,
+    private InnerJoinClause(Environment env, StreamPipeline pipelineToJoin,
                            BFunctionPointer lhsKeyFunction, BFunctionPointer rhsKeyFunction) {
-        this.pipelineToJoin = (StreamPipeline) pipelineToJoin;
+        this.pipelineToJoin = pipelineToJoin;
         this.lhsKeyFunction = lhsKeyFunction;
         this.rhsKeyFunction = rhsKeyFunction;
         this.env = env;
@@ -73,7 +72,7 @@ public class InnerJoinClause implements PipelineStage {
      * @return The initialized InnerJoinClause.
      */
     public static InnerJoinClause initInnerJoinClause(Environment env,
-                                                      Object pipelineToJoin,
+                                                      StreamPipeline pipelineToJoin,
                                                       BFunctionPointer lhsKeyFunction,
                                                       BFunctionPointer rhsKeyFunction) {
         return new InnerJoinClause(env, pipelineToJoin, lhsKeyFunction, rhsKeyFunction);

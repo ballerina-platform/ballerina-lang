@@ -1,20 +1,19 @@
 /*
- *  Copyright (c) 2025, WSO2 Inc. (http://www.wso2.org)
+ * Copyright (c) 2025, WSO2 LLC. (http://www.wso2.com)
  *
- * WSO2 Inc. licenses this file to you under the Apache License,
+ * WSO2 LLC. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License.
- * You may obtain a copy of the License at
+ * You may obtain a copy of the License at:
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
- *  Unless required by applicable law or agreed to in writing,
- *  software distributed under the License is distributed on an
- *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- *  KIND, either express or implied. See the License for
- *  the specific language governing permissions and limitations
- *  under the License.
- *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied. See the License for
+ * the specific language governing permissions and limitations
+ * under the License.
  */
 
 package io.ballerina.runtime.internal.query.clauses;
@@ -50,7 +49,7 @@ public class GroupByClause implements PipelineStage {
     private final BArray nonGroupingKeys;
     private final Environment env;
 
-    public GroupByClause(Environment env, BArray groupingKeys, BArray nonGroupingKeys) {
+    private GroupByClause(Environment env, BArray groupingKeys, BArray nonGroupingKeys) {
         this.groupingKeys = groupingKeys;
         this.nonGroupingKeys = nonGroupingKeys;
         this.env = env;
@@ -69,24 +68,26 @@ public class GroupByClause implements PipelineStage {
                         Collectors.toList()
                 ));
 
-        return groupedData.values().stream().map(frames -> {
-            Frame groupedFrame = frames.getFirst();
-            BMap<BString, Object> groupedRecord = groupedFrame.getRecord();
+        return groupedData.values().stream().map(this::aggregateNonGroupingKeys);
+    }
 
-            // Aggregate non-grouping fields into arrays
-            for (int i = 0; i < nonGroupingKeys.size(); i++) {
-                BString nonGroupingKey = (BString) nonGroupingKeys.get(i);
-                Object[] values = frames.stream()
-                        .map(f -> f.getRecord().get(nonGroupingKey))
-                        .filter(Objects::nonNull)
-                        .toArray();
-                BArray valuesArray = new ArrayValueImpl(values, TypeCreator.createArrayType(PredefinedTypes.TYPE_ANY));
-                groupedRecord.put(nonGroupingKey, valuesArray);
-            }
+    private Frame aggregateNonGroupingKeys(List<Frame> frames) {
+        Frame groupedFrame = frames.getFirst();
+        BMap<BString, Object> groupedRecord = groupedFrame.getRecord();
 
-            groupedFrame.updateRecord(groupedRecord);
-            return groupedFrame;
-        });
+        // Aggregate non-grouping fields into arrays
+        for (int i = 0; i < nonGroupingKeys.size(); i++) {
+            BString nonGroupingKey = (BString) nonGroupingKeys.get(i);
+            Object[] values = frames.stream()
+                    .map(f -> f.getRecord().get(nonGroupingKey))
+                    .filter(Objects::nonNull)
+                    .toArray();
+            BArray valuesArray = new ArrayValueImpl(values, TypeCreator.createArrayType(PredefinedTypes.TYPE_ANY));
+            groupedRecord.put(nonGroupingKey, valuesArray);
+        }
+
+        groupedFrame.updateRecord(groupedRecord);
+        return groupedFrame;
     }
 
     private BMap<BString, Object> extractOriginalKey(Frame frame) {
