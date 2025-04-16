@@ -417,10 +417,6 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
     private static final ParserRuleContext[] FUNC_TYPE_FUNC_KEYWORD_RHS_START =
             { ParserRuleContext.FUNC_TYPE_DESC_END, ParserRuleContext.OPEN_PARENTHESIS };
 
-    private static final ParserRuleContext[] TYPE_DESC_RHS = { ParserRuleContext.END_OF_TYPE_DESC,
-            ParserRuleContext.ARRAY_TYPE_DESCRIPTOR, ParserRuleContext.OPTIONAL_TYPE_DESCRIPTOR, ParserRuleContext.PIPE,
-            ParserRuleContext.BITWISE_AND_OPERATOR };
-
     private static final ParserRuleContext[] TABLE_TYPE_DESC_RHS =
             { ParserRuleContext.KEY_KEYWORD, ParserRuleContext.TYPE_DESC_RHS };
 
@@ -1438,7 +1434,6 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                  ATTACH_POINT_END,
                  XML_NAMESPACE_PREFIX_DECL,
                  CONSTANT_EXPRESSION_START,
-                 TYPE_DESC_RHS,
                  LIST_CONSTRUCTOR_FIRST_MEMBER,
                  LIST_CONSTRUCTOR_MEMBER,
                  TYPE_CAST_PARAM,
@@ -2267,10 +2262,6 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 break;
             case EXPRESSION_STATEMENT_START:
                 alternativeRules = EXPRESSION_STATEMENT_START;
-                break;
-            case TYPE_DESC_RHS:
-                assert isInTypeDescContext();
-                alternativeRules = TYPE_DESC_RHS;
                 break;
             case STREAM_TYPE_FIRST_PARAM_RHS:
                 alternativeRules = STREAM_TYPE_FIRST_PARAM_RHS;
@@ -3684,6 +3675,17 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                     endContext();
                 }
                 return getNextRuleForAction();
+            case TYPE_DESC_RHS:
+                assert isInTypeDescContext();
+                // To align with the parser, error handler will only recover for complex type desc only if the
+                // complex type desc start token is present
+                return switch (this.tokenReader.peek(nextLookahead).kind) {
+                    case OPEN_BRACKET_TOKEN -> ParserRuleContext.ARRAY_TYPE_DESCRIPTOR;
+                    case QUESTION_MARK_TOKEN -> ParserRuleContext.OPTIONAL_TYPE_DESCRIPTOR;
+                    case PIPE_TOKEN -> ParserRuleContext.PIPE;
+                    case BITWISE_AND_TOKEN -> ParserRuleContext.BITWISE_AND_OPERATOR;
+                    default -> ParserRuleContext.END_OF_TYPE_DESC;
+                };
             default:
                 return getNextRuleForKeywords(currentCtx, nextLookahead);
         }
