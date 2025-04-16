@@ -12,7 +12,6 @@
       "children": [
         {
           "kind": "ARRAY_TYPE_DESC",
-          "hasDiagnostics": true,
           "children": [
             {
               "kind": "INT_TYPE_DESC",
@@ -24,7 +23,6 @@
             },
             {
               "kind": "LIST",
-              "hasDiagnostics": true,
               "children": [
                 {
                   "kind": "ARRAY_DIMENSION",
@@ -36,29 +34,6 @@
                       "kind": "CLOSE_BRACKET_TOKEN"
                     }
                   ]
-                },
-                {
-                  "kind": "ARRAY_DIMENSION",
-                  "hasDiagnostics": true,
-                  "children": [
-                    {
-                      "kind": "OPEN_BRACKET_TOKEN",
-                      "isMissing": true,
-                      "hasDiagnostics": true,
-                      "diagnostics": [
-                        "ERROR_MISSING_OPEN_BRACKET_TOKEN"
-                      ]
-                    },
-                    {
-                      "kind": "CLOSE_BRACKET_TOKEN",
-                      "trailingMinutiae": [
-                        {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": " "
-                        }
-                      ]
-                    }
-                  ]
                 }
               ]
             }
@@ -66,10 +41,34 @@
         },
         {
           "kind": "CAPTURE_BINDING_PATTERN",
+          "hasDiagnostics": true,
           "children": [
             {
               "kind": "IDENTIFIER_TOKEN",
-              "value": "a"
+              "hasDiagnostics": true,
+              "value": "a",
+              "leadingMinutiae": [
+                {
+                  "kind": "INVALID_NODE_MINUTIAE",
+                  "invalidNode": {
+                    "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                    "hasDiagnostics": true,
+                    "children": [
+                      {
+                        "kind": "CLOSE_BRACKET_TOKEN",
+                        "hasDiagnostics": true,
+                        "diagnostics": [
+                          "ERROR_INVALID_TOKEN"
+                        ]
+                      }
+                    ]
+                  }
+                },
+                {
+                  "kind": "WHITESPACE_MINUTIAE",
+                  "value": " "
+                }
+              ]
             }
           ]
         }

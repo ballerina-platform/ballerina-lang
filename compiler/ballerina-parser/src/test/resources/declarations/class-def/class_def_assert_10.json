@@ -329,61 +329,50 @@
           ]
         },
         {
-          "kind": "MODULE_VAR_DECL",
+          "kind": "FUNCTION_DEFINITION",
           "hasDiagnostics": true,
           "children": [
             {
-              "kind": "LIST",
-              "children": []
-            },
-            {
-              "kind": "TYPED_BINDING_PATTERN",
+              "kind": "METADATA",
               "hasDiagnostics": true,
               "children": [
                 {
-                  "kind": "SIMPLE_NAME_REFERENCE",
-                  "children": [
-                    {
-                      "kind": "IDENTIFIER_TOKEN",
-                      "value": "parent",
-                      "trailingMinutiae": [
-                        {
-                          "kind": "END_OF_LINE_MINUTIAE",
-                          "value": "\n"
-                        }
-                      ]
-                    }
-                  ]
-                },
-                {
-                  "kind": "CAPTURE_BINDING_PATTERN",
+                  "kind": "LIST",
                   "hasDiagnostics": true,
                   "children": [
                     {
-                      "kind": "IDENTIFIER_TOKEN",
-                      "isMissing": true,
+                      "kind": "ANNOTATION",
                       "hasDiagnostics": true,
-                      "diagnostics": [
-                        "ERROR_MISSING_IDENTIFIER"
+                      "children": [
+                        {
+                          "kind": "AT_TOKEN",
+                          "isMissing": true,
+                          "hasDiagnostics": true,
+                          "diagnostics": [
+                            "ERROR_MISSING_AT_TOKEN"
+                          ]
+                        },
+                        {
+                          "kind": "SIMPLE_NAME_REFERENCE",
+                          "children": [
+                            {
+                              "kind": "IDENTIFIER_TOKEN",
+                              "value": "parent",
+                              "trailingMinutiae": [
+                                {
+                                  "kind": "END_OF_LINE_MINUTIAE",
+                                  "value": "\n"
+                                }
+                              ]
+                            }
+                          ]
+                        }
                       ]
                     }
                   ]
                 }
               ]
             },
-            {
-              "kind": "SEMICOLON_TOKEN",
-              "isMissing": true,
-              "hasDiagnostics": true,
-              "diagnostics": [
-                "ERROR_MISSING_SEMICOLON_TOKEN"
-              ]
-            }
-          ]
-        },
-        {
-          "kind": "FUNCTION_DEFINITION",
-          "children": [
             {
               "kind": "LIST",
               "children": []
