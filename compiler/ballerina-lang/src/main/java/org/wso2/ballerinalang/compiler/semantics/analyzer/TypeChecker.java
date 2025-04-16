@@ -6648,20 +6648,20 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
     public void visit(BLangNaturalExpression naturalExpression, AnalyzerData data) {
         BType type = data.expType;
         SemType expTypeSemType = type.semType();
-        boolean constNaturalExpr = naturalExpression.constExpr;
+        boolean isConstNaturalExpr = naturalExpression.isConstExpr;
 
-        if (!constNaturalExpr && !types.isSubtype(symTable.errorType, expTypeSemType)) {
+        if (!isConstNaturalExpr && !types.isSubtype(symTable.errorType, expTypeSemType)) {
             dlog.error(naturalExpression.pos, DiagnosticErrorCode.EXPECTED_TYPE_FOR_NATURAL_EXPR_MUST_CONTAIN_ERROR);
             type = symTable.semanticError;
         } else if (types.isSubtype(expTypeSemType, symTable.errorType.semType())) {
-            dlog.error(naturalExpression.pos, constNaturalExpr ?
+            dlog.error(naturalExpression.pos, isConstNaturalExpr ?
                     DiagnosticErrorCode.EXPECTED_TYPE_FOR_CONST_NATURAL_EXPR_MUST_BE_A_SUBTYPE_OF_ANYDATA :
                     DiagnosticErrorCode.EXPECTED_TYPE_FOR_NATURAL_EXPR_MUST_CONTAIN_A_UNION_OF_NON_ERROR_AND_ERROR);
             type = symTable.semanticError;
         }
 
         SemType errorLiftedType = types.getErrorLiftType(expTypeSemType);
-        if (constNaturalExpr) {
+        if (isConstNaturalExpr) {
             if (!types.isSubtype(errorLiftedType, symTable.anydataType.semType())) {
                 dlog.error(naturalExpression.pos,
                         DiagnosticErrorCode.EXPECTED_TYPE_FOR_CONST_NATURAL_EXPR_MUST_BE_A_SUBTYPE_OF_ANYDATA);
@@ -9975,10 +9975,10 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
     }
 
     private void checkNaturalExprInsertions(BLangNaturalExpression naturalExpression, AnalyzerData data) {
-        boolean constNaturalExpr = naturalExpression.constExpr;
+        boolean isConstNaturalExpr = naturalExpression.isConstExpr;
         for (BLangExpression expr : naturalExpression.insertions) {
             checkExpr(expr, symTable.anydataType, data);
-            if (constNaturalExpr && !isConstExpression(expr)) {
+            if (isConstNaturalExpr && !isConstExpression(expr)) {
                 dlog.error(expr.pos, DiagnosticErrorCode.CONST_NATURAL_EXPR_CAN_HAVE_ONLY_CONST_EXPR_INSERTION);
             }
         }
