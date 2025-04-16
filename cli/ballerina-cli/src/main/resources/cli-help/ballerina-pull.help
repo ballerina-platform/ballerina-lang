@@ -24,6 +24,11 @@ OPTIONS
            Pull a package from a custom repository.
            The repository must be configured in the <USER_HOME>/.ballerina/Settings.toml file.
 
+       --optimize-dependency-compilation
+           [EXPERIMENTAL] Enables memory-efficient compilation of package dependencies
+           using separate processes. This can help prevent out-of-memory issues during
+           the initial compilation with a clean central cache.
+
 
 EXAMPLES
        Pull the latest version of the 'gmail' connector in the 'wso2'

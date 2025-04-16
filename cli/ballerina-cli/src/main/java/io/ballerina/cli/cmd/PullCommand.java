@@ -96,6 +96,9 @@ public class PullCommand implements BLauncherCmd {
     @CommandLine.Option(names = "--offline", hidden = true)
     private boolean offline;
 
+    @CommandLine.Option(names = "--optimize-dependency-compilation", hidden = true)
+    private Boolean optimizeDependencyCompilation;
+
     public PullCommand() {
         this.outStream = System.out;
         this.errStream = System.err;
@@ -327,7 +330,8 @@ public class PullCommand implements BLauncherCmd {
     private boolean resolveDependencies(String orgName, String packageName, String version) {
         CommandUtil.setPrintStream(errStream);
         try {
-            BuildOptions buildOptions = BuildOptions.builder().setSticky(sticky).setOffline(offline).build();
+            BuildOptions buildOptions = BuildOptions.builder().setSticky(sticky).setOffline(offline)
+                    .setOptimizeDependencyCompilation(optimizeDependencyCompilation).build();
             boolean hasCompilationErrors = CommandUtil.pullDependencyPackages(
                     orgName, packageName, version, buildOptions, repositoryName);
             if (hasCompilationErrors) {
