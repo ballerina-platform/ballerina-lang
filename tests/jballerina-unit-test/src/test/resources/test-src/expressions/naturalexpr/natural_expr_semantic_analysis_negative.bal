@@ -1,6 +1,6 @@
-// Copyright (c) 2025 WSO2 LLC. (http://www.wso2.org).
+// Copyright (c) 2025 WSO2 LLC. (http://www.wso2.com).
 //
-// WSO2 Inc. licenses this file to you under the Apache License,
+// WSO2 LLC. licenses this file to you under the Apache License,
 // Version 2.0 (the "License"); you may not use this file except
 // in compliance with the License.
 // You may obtain a copy of the License at
@@ -54,4 +54,8 @@ const DAY = "9th April";
 
 PersonObject d = const natural {
     Who is a popular person born on ${DAY}?
+};
+
+function f4() returns string|error => natural (mdl) {
+    What day is it today?
 };
