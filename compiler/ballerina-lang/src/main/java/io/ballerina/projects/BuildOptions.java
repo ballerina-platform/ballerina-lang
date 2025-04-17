@@ -83,6 +83,10 @@ public class BuildOptions {
         return this.compilationOptions.disableSyntaxTree();
     }
 
+    public boolean optimizeDependencyCompilation() {
+        return this.compilationOptions.optimizeDependencyCompilation();
+    }
+
     /**
      * Checks whether experimental compilation option is set.
      *
