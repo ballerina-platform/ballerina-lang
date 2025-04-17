@@ -110,9 +110,11 @@ public class IdentifierLiteralTest {
         BAssertUtil.validateError(resultNeg, i++, "invalid expression statement", 3, 29);
         BAssertUtil.validateError(resultNeg, i++, "missing semicolon token", 3, 29);
         BAssertUtil.validateError(resultNeg, i++, "undefined symbol 'dfs'", 3, 29);
+        BAssertUtil.validateError(resultNeg, i++, "invalid expression statement", 3, 32);
         BAssertUtil.validateError(resultNeg, i++, "missing double quote", 3, 32);
         BAssertUtil.validateError(resultNeg, i++, "missing semicolon token", 3, 32);
-        BAssertUtil.validateError(resultNeg, i++, "missing pipe token", 4, 1);
+        BAssertUtil.validateError(resultNeg, i++, "variable assignment is required", 3, 32);
+        BAssertUtil.validateError(resultNeg, i++, "missing semicolon token", 4, 1);
         BAssertUtil.validateError(resultNeg, i++, "invalid escape sequence '\\'", 4, 9);
         BAssertUtil.validateError(resultNeg, i++, "invalid escape sequence '\\'", 6, 12);
         BAssertUtil.validateError(resultNeg, i++, "missing semicolon token", 7, 1);
