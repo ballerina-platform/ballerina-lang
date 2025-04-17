@@ -23,6 +23,7 @@ import io.ballerina.types.Core;
 import io.ballerina.types.PredefinedType;
 import io.ballerina.types.SemType;
 import io.ballerina.types.Value;
+import org.ballerinalang.compiler.CompilerOptionName;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.PackageID;
@@ -253,6 +254,7 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangUnionTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangValueType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
+import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 import org.wso2.ballerinalang.compiler.util.Constants;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
@@ -297,6 +299,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
 
     private static final CompilerContext.Key<CodeAnalyzer> CODE_ANALYZER_KEY = new CompilerContext.Key<>();
     private static final String NO_MESSAGE_ERROR_TYPE = "NoMessage";
+    private static final String CODE_ANNOTATION = "code";
 
     private final SymbolResolver symResolver;
     private final SymbolTable symTable;
@@ -305,6 +308,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
     private final TypeChecker typeChecker;
     private final Names names;
     private final ReachabilityAnalyzer reachabilityAnalyzer;
+    private final boolean experimentalFeaturesEnabled;
 
     public static CodeAnalyzer getInstance(CompilerContext context) {
         CodeAnalyzer codeGenerator = context.get(CODE_ANALYZER_KEY);
@@ -323,6 +327,8 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         this.names = Names.getInstance(context);
         this.symResolver = SymbolResolver.getInstance(context);
         this.reachabilityAnalyzer = ReachabilityAnalyzer.getInstance(context);
+        this.experimentalFeaturesEnabled = Boolean.parseBoolean(
+                CompilerOptions.getInstance(context).get(CompilerOptionName.EXPERIMENTAL));
     }
 
     public BLangPackage analyze(BLangPackage pkgNode) {
@@ -478,7 +484,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
             this.finalizeCurrentWorkerActionSystem(data);
         }
         funcNode.annAttachments.forEach(annotationAttachment -> analyzeNode(annotationAttachment, data));
-
+        validateCodeAnnotation(funcNode);
         validateNamedWorkerUniqueReferences(data);
     }
 
@@ -3561,6 +3567,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
 
     @Override
     public void visit(BLangNaturalExpression naturalExpression, AnalyzerData data) {
+        checkExperimentalOption(naturalExpression.pos, "natural expression");
         analyzeExprs(naturalExpression.arguments, data);
         analyzeExprs(naturalExpression.strings, data);
         analyzeExprs(naturalExpression.insertions, data);
@@ -4358,6 +4365,35 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
             parent = parent.parent;
         }
         return null;
+    }
+
+    private void checkExperimentalOption(Location pos, String feature) {
+        if (!this.experimentalFeaturesEnabled) {
+            dlog.error(pos, DiagnosticErrorCode.INVALID_USE_OF_EXPERIMENTAL_FEATURE, feature);
+        }
+    }
+
+    private void validateCodeAnnotation(BLangFunction function) {
+        if (!Symbols.isNative(function.symbol)) {
+            return;
+        }
+
+        BLangExternalFunctionBody externalFunctionBody = (BLangExternalFunctionBody) function.body;
+        PackageID annotationPkgId = symTable.langAnnotationModuleSymbol.pkgID;
+
+        Optional<BLangAnnotationAttachment> codeAnnot = Optional.empty();
+        for (BLangAnnotationAttachment annotAttachment : externalFunctionBody.annAttachments) {
+            BAnnotationSymbol annotSymbol = annotAttachment.annotationSymbol;
+            if (annotationPkgId.equals(annotSymbol.pkgID) && CODE_ANNOTATION.equals(annotSymbol.name.value)) {
+                codeAnnot = Optional.of(annotAttachment);
+                break;
+            }
+        }
+
+        if (codeAnnot.isPresent() && !this.experimentalFeaturesEnabled) {
+            dlog.error(codeAnnot.get().pos, DiagnosticErrorCode.INVALID_USE_OF_EXPERIMENTAL_FEATURE,
+                    "code generation");
+        }
     }
 
     private boolean inDefaultValue(DefaultValueState prevDefaultValueState) {

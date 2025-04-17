@@ -146,6 +146,7 @@
             <package name="org.ballerinalang.test.visibility"/>
         </packages>
         <classes>
+            <class name="org.ballerinalang.test.experimental.ExperimentalFeaturesTest"/>
             <class name="org.ballerinalang.test.expressions.TemplateExpressionTest"/>
             <class name="org.ballerinalang.test.parser.ResilientParserTest"/>
             <class name="org.ballerinalang.test.types.TypeUnificationTest"/>

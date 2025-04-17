@@ -16,15 +16,13 @@
  * under the License.
  */
 
-package org.ballerinalang.test.parser;
+package org.ballerinalang.test.experimental;
 
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.Test;
-
-import java.util.Arrays;
 
 /**
  * Test for using experimental features without enabling them.
@@ -33,14 +31,16 @@ import java.util.Arrays;
  */
 public class ExperimentalFeaturesTest {
 
-    //TODO Add natural expression test for this
-    @Test (enabled = false)
+    @Test
     public void testExperimentalFeaturesNegative() {
-        CompileResult result = BCompileUtil.compile("test-src/parser/experimental-features-negative.bal");
+        CompileResult result = BCompileUtil.compile("test-src/experimental-option/experimental_features_negative.bal");
         int i = 0;
-        BAssertUtil.validateError(result, i++, "using experimental feature 'transaction'. " +
-                "use '--experimental' flag to enable the experimental features", 4, 5);
-        Assert.assertEquals(result.getDiagnostics().length, i,
-                            "Error count mismatch" + Arrays.toString(result.getDiagnostics()));
+        BAssertUtil.validateError(result, i++, "using the experimental 'natural expression' feature, " +
+                "use the '--experimental' option to enable experimental features", 17, 15);
+        BAssertUtil.validateError(result, i++, "using the experimental 'natural expression' feature, " +
+                "use the '--experimental' option to enable experimental features", 22, 15);
+        BAssertUtil.validateError(result, i++, "using the experimental 'code generation' feature, " +
+                "use the '--experimental' option to enable experimental features", 27, 47);
+        Assert.assertEquals(result.getDiagnostics().length, i);
     }
 }
