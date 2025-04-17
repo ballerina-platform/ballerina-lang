@@ -25,11 +25,8 @@ import io.ballerina.projects.ProjectEnvironmentBuilder;
 import io.ballerina.projects.SemanticVersion;
 import io.ballerina.projects.environment.Environment;
 import io.ballerina.projects.environment.EnvironmentBuilder;
-import io.ballerina.projects.util.BuildToolUtils;
 import io.ballerina.projects.util.ProjectUtils;
 import org.ballerinalang.test.BCompileUtil;
-import org.mockito.MockedStatic;
-import org.mockito.Mockito;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeGroups;
@@ -640,18 +637,14 @@ public class BuildCommandTest extends BaseCommandTest {
     @Test(description = "Build an empty package with code generator build tools")
     public void testBuildEmptyProjectWithBuildTools() throws IOException {
         BCompileUtil.compileAndCacheBala(testResources.resolve("buildToolResources").resolve("tools")
-                .resolve("ballerina-generate-file").toString(), testDistCacheDirectory, projectEnvironmentBuilder);
+                .resolve("ballerina-generate-file").toString(), testCentralRepoCache, projectEnvironmentBuilder);
         Path projectPath = this.testResources.resolve("emptyProjectWithBuildTool");
         replaceDependenciesTomlContent(projectPath, "**INSERT_DISTRIBUTION_VERSION_HERE**",
                 RepoUtils.getBallerinaShortVersion());
         System.setProperty(USER_DIR_PROPERTY, projectPath.toString());
-        try (MockedStatic<BuildToolUtils> repoUtils = Mockito.mockStatic(
-                BuildToolUtils.class, Mockito.CALLS_REAL_METHODS)) {
-            repoUtils.when(BuildToolUtils::getCentralBalaDirPath).thenReturn(testDistCacheDirectory.resolve("bala"));
-            BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
-            new CommandLine(buildCommand).parseArgs();
-            buildCommand.execute();
-        }
+        BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
+        new CommandLine(buildCommand).parseArgs();
+        buildCommand.execute();
         String buildLog = readOutput(true);
         Assert.assertEquals(buildLog.replace("\r", "").replace("\\", "/"),
                 getOutput("build-empty-project-with-build-tools.txt"));
