@@ -1,7 +1,7 @@
 /*
  *  Copyright (c) 2025, WSO2 LLC. (http://www.wso2.org).
  *
- *  WSO2 Inc. licenses this file to you under the Apache License,
+ *  WSO2 LLC. licenses this file to you under the Apache License,
  *  Version 2.0 (the "License"); you may not use this file except
  *  in compliance with the License.
  *  You may obtain a copy of the License at
@@ -35,7 +35,7 @@ import java.util.List;
  */
 public class BLangNaturalExpression extends BLangExpression implements NaturalExpressionNode {
 
-    public boolean constExpr;
+    public boolean isConstExpr;
     public List<BLangExpression> arguments;
     public List<BLangLiteral> strings;
     public List<BLangExpression> insertions;

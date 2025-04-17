@@ -16,11 +16,16 @@
 
 package org.ballerinalang.test.expressions.natural;
 
+import io.ballerina.projects.BuildOptions;
+import io.ballerina.tools.diagnostics.Diagnostic;
+import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.Test;
+
+import java.util.List;
 
 /**
  * Negative semantic test cases for natural expressions.
@@ -30,9 +35,9 @@ import org.testng.annotations.Test;
 public class NaturalExpressionTest {
 
     @Test
-    public void testNaturalExprNegative() {
+    public void testNaturalExprSemanticAnalysisNegative() {
         CompileResult negativeRes = BCompileUtil.compile(
-                "test-src/expressions/naturalexpr/natural_expr_negative.bal");
+                "test-src/expressions/naturalexpr/natural_expr_semantic_analysis_negative.bal");
         int i = 0;
         BAssertUtil.validateError(negativeRes, i++,
                 "the expected type for a 'natural' expression must contain 'error'", 17, 9);
@@ -50,6 +55,41 @@ public class NaturalExpressionTest {
                 "the expected type for a 'const' 'natural' expression must be a subtype of 'anydata'", 49, 11);
         BAssertUtil.validateError(negativeRes, i++,
                 "the expected type for a 'const' 'natural' expression must be a subtype of 'anydata'", 55, 18);
+        BAssertUtil.validateError(negativeRes, i++, "undefined symbol 'mdl'", 59, 48);
         Assert.assertEquals(negativeRes.getErrorCount(), i);
+    }
+
+    @Test
+    public void testNaturalExprCodeAnalysisNegative() {
+        BuildOptions.BuildOptionsBuilder buildOptionsBuilder = BuildOptions.builder();
+        buildOptionsBuilder.setExperimental(true);
+        List<Diagnostic> negativeRes =
+                BCompileUtil.loadProject("test-src/expressions/naturalexpr/natural_expr_code_analysis_negative.bal",
+                                buildOptionsBuilder.build())
+                        .currentPackage().getCompilation().defaultModuleBLangPackage().getDiagnostics();
+
+        int i = 0;
+        validateError(negativeRes, i++, "variable 'mdl1' is not initialized", 23, 13);
+        validateError(negativeRes, i++, "variable 'day2' is not initialized", 29, 13);
+        validateError(negativeRes, i++, "invalid access of mutable storage in an 'isolated' function",
+                49, 9);
+        validateError(negativeRes, i++, "invalid access of mutable storage in an 'isolated' function",
+                52, 9);
+        validateError(negativeRes, i++, "invalid key 'name': identifiers cannot be used as rest " +
+                "field keys, expected a string literal or an expression", 66, 9);
+        validateError(negativeRes, i++, "invalid key 'interests': identifiers cannot be used as rest " +
+                "field keys, expected a string literal or an expression", 73, 17);
+        Assert.assertEquals(negativeRes.size(), i);
+    }
+
+    private static void validateError(List<Diagnostic> diagnostics, int errorIndex, String expectedErrMsg,
+                                      int expectedErrLine, int expectedErrCol) {
+        Diagnostic diag = diagnostics.get(errorIndex);
+        Assert.assertEquals(diag.diagnosticInfo().severity(), DiagnosticSeverity.ERROR, "incorrect diagnostic type");
+        Assert.assertEquals(diag.message(), expectedErrMsg, "incorrect error message:");
+        Assert.assertEquals(diag.location().lineRange().startLine().line() + 1, expectedErrLine,
+                "incorrect line number:");
+        Assert.assertEquals(diag.location().lineRange().startLine().offset() + 1, expectedErrCol,
+                "incorrect column position:");
     }
 }

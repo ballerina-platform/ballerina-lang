@@ -3629,7 +3629,7 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
     public BLangNode transform(NaturalExpressionNode naturalExpressionNode) {
         BLangNaturalExpression naturalExpr = (BLangNaturalExpression) TreeBuilder.createNaturalExpressionNode();
         naturalExpr.pos = getPosition(naturalExpressionNode);
-        naturalExpr.constExpr = naturalExpressionNode.constKeyword().isPresent();
+        naturalExpr.isConstExpr = naturalExpressionNode.constKeyword().isPresent();
         naturalExpr.arguments = getNaturalExpressionArguments(naturalExpressionNode);
         populateTemplateContent(naturalExpressionNode.prompt(), naturalExpr.strings, naturalExpr.insertions);
         return naturalExpr;

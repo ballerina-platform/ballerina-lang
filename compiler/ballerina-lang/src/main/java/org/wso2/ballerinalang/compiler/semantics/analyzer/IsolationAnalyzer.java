@@ -2093,6 +2093,10 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangNaturalExpression naturalExpression) {
+        for (BLangExpression argument : naturalExpression.arguments) {
+            analyzeNode(argument, env);
+        }
+
         for (BLangExpression insertion : naturalExpression.insertions) {
             analyzeNode(insertion, env);
         }
