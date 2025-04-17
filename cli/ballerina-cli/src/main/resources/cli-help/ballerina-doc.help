@@ -39,6 +39,9 @@ OPTIONS
            using separate processes. This can help prevent out-of-memory issues during
            the initial compilation with a clean central cache.
 
+       --experimental
+           Enable experimental language features.
+
 
 EXAMPLES
        Generate API documentation for the current package.
