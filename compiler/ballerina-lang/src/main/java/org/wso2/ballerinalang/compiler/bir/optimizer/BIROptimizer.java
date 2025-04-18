@@ -347,6 +347,9 @@ public class BIROptimizer {
                 }
                 BIRVariableDcl reusableVar = removableVarVsReplacementVarMap.get(variableDcl);
                 Set<BIRVariableDcl> reusableList = typeVsReusableVarsMap.get(variableDcl.type);
+                if (reusableList == null) {
+                    continue;
+                }
                 // Same var can be used by multiple operands. We need to collect all and then replace them with
                 // variable declarations.
                 if (reusableVar != null) {
@@ -562,6 +565,7 @@ public class BIROptimizer {
             if (birNewArray.typedescOp != null) {
                 birNewArray.typedescOp.accept(this);
             }
+            this.optimizeNode(birNewArray.elementTypedescOp, this.env);
         }
 
         @Override

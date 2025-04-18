@@ -234,6 +234,10 @@ public class BTupleType extends BAnnotatableType implements TupleType, TypeWithS
         if (cachedToString != null) {
             return;
         }
+        if (typeName != null && !typeName.isEmpty()) {
+            cachedToString = typeName;
+            return;
+        }
         StringBuilder stringRep =
                 new StringBuilder("[").append(tupleTypes.stream().map(Type::toString).collect(Collectors.joining(",")));
         if (restType != null) {
