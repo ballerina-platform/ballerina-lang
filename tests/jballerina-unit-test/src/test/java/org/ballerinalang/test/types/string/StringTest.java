@@ -238,11 +238,9 @@ public class StringTest {
         validateError(multilineLiterals, indx++, "invalid expression statement", 20, 28);
         validateError(multilineLiterals, indx++, "missing semicolon token", 20, 28);
         validateError(multilineLiterals, indx++, "undefined symbol 'Bob'", 20, 28);
-        validateError(multilineLiterals, indx++, "invalid expression statement", 20, 32);
         validateError(multilineLiterals, indx++, "missing double quote", 20, 32);
         validateError(multilineLiterals, indx++, "missing semicolon token", 20, 32);
-        validateError(multilineLiterals, indx++, "variable assignment is required", 20, 32);
-        validateError(multilineLiterals, indx++, "missing semicolon token", 21, 1);
+        validateError(multilineLiterals, indx++, "missing pipe token", 21, 1);
         validateError(multilineLiterals, indx++, "missing binary operator", 21, 22);
         validateError(multilineLiterals, indx++, "missing double quote", 21, 22);
         validateError(multilineLiterals, indx++, "missing semicolon token", 22, 1);
