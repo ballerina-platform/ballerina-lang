@@ -345,8 +345,10 @@ public final class BRunUtil {
                 new Object[]{new HashMap<>(), new String[]{},
                         configurationDetails.paths, configurationDetails.configContent, runtime});
         FutureValue future = runOnSchedule(initClazz, "$moduleInit", runtime);
-        AsyncUtils.getFutureResult(future.completableFuture);
+        // TODO - check this (Below 2 lines were interchanged in the original code)
+        // Reported here - https://github.com/ballerina-platform/ballerina-lang/issues/43957
         runtime.moduleInitialized = true;
+        AsyncUtils.getFutureResult(future.completableFuture);
         AsyncUtils.getFutureResult(runOnSchedule(initClazz, "$moduleStart", runtime).completableFuture);
     }
 
