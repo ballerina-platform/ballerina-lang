@@ -50,7 +50,6 @@ import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
-import org.ballerinalang.langserver.BallerinaLanguageServer;
 import org.ballerinalang.langserver.LSClientLogger;
 import org.ballerinalang.langserver.LSContextOperation;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
@@ -101,6 +100,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.StringJoiner;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -133,6 +133,12 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
      * Mapping of source root to project instance.
      */
     protected final Map<Path, ProjectContext> sourceRootToProject;
+    /**
+     * TODO: This should be combined with the project context lock. The current implementation of the project context
+     *  lock does not consider the first compilation (before creating the project context).
+     */
+    private final Map<Path, Lock> projectLockMap;
+
     protected final LSClientLogger clientLogger;
     private final LanguageServerContext serverContext;
     private final Set<Path> openedDocuments = new HashSet<>();
@@ -146,6 +152,7 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
                 .build();
         this.pathToSourceRootCache = cache.asMap();
         this.sourceRootToProject = new SourceRootToProjectMap<>(pathToSourceRootCache);
+        this.projectLockMap = new ConcurrentHashMap<>();
 
         // We are only doing a best effort cleanup here. If we held a strong reference to the map
         // GC will not be able to clean the projects. It impacts tests since all run in the same JVM.
@@ -210,25 +217,30 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
      */
     @Override
     public Project loadProject(Path filePath) throws ProjectException, WorkspaceDocumentException, EventSyncException {
-        Project project;
         Optional<Project> optionalProject = project(filePath);
-
         if (optionalProject.isPresent()) {
-            project = optionalProject.get();
-        } else {
-            project = createOrGetProjectPair(filePath, LSContextOperation.LOAD_PROJECT.getName()).project();
+            return optionalProject.get();
+        }
 
-            BallerinaLanguageServer languageServer = new BallerinaLanguageServer();
+        Lock projectLock = projectLockMap.computeIfAbsent(projectRoot(filePath), k -> new ReentrantLock());
+        projectLock.lock();
+        try {
+            optionalProject = project(filePath);
+            if (optionalProject.isPresent()) {
+                return optionalProject.get();
+            }
+            Project project = createOrGetProjectPair(filePath, LSContextOperation.LOAD_PROJECT.getName()).project();
             DocumentServiceContext context = ContextBuilder.buildDocumentServiceContext(
                     filePath.toUri().toString(),
-                    languageServer.getWorkspaceManager(),
+                    this,
                     LSContextOperation.LOAD_PROJECT, this.serverContext);
             EventSyncPubSubHolder.getInstance(this.serverContext)
                     .getPublisher(EventKind.PROJECT_UPDATE)
-                    .publish(languageServer.getClient(), this.serverContext, context);
+                    .publish(this.serverContext.get(ExtendedLanguageClient.class), this.serverContext, context);
+            return project;
+        } finally {
+            projectLock.unlock();
         }
-
-        return project;
     }
 
     /**
@@ -245,6 +257,12 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
         }
         Optional<Document> document = document(filePath, project.get(), null);
         if (document.isEmpty()) {
+            // If the file path points to the project root, then return the default module
+            // TODO: Need to extend this to support module paths once we have an API to obtain the module root from
+            //  the given file path
+            if (filePath.equals(this.projectRoot(filePath))) {
+                return Optional.of(project.get().currentPackage().getDefaultModule());
+            }
             return Optional.empty();
         }
         return Optional.of(document.get().module());
@@ -1429,6 +1447,16 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
                     .build();
             if (projectKind == ProjectKind.BUILD_PROJECT) {
                 project = BuildProject.load(projectRoot, options);
+
+                // TODO: Remove this once https://github.com/ballerina-platform/ballerina-lang/issues/43972 is resolved
+                // Save the dependencies.toml to resolve the inconsistencies issue in the subsequent builds
+                if (project.buildOptions().optimizeDependencyCompilation()) {
+                    BuildOptions newOptions = BuildOptions.builder()
+                            .setOffline(CommonUtil.COMPILE_OFFLINE)
+                            .setSticky(false)
+                            .build();
+                    project = BuildProject.load(projectRoot, newOptions);
+                }
             } else if (projectKind == ProjectKind.SINGLE_FILE_PROJECT) {
                 project = SingleFileProject.load(projectRoot, options);
             } else {
@@ -1651,8 +1679,8 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
      * Represents a map of Path to ProjectContext.
      *
      * @param <K> cache key
-     * @param <V> cache value
-     *            Clear out front-faced cache implementation whenever a modification operation triggered for this map.
+     * @param <V> cache value Clear out front-faced cache implementation whenever a modification operation triggered for
+     *            this map.
      */
     private static class SourceRootToProjectMap<K, V> extends HashMap<K, V> {
 

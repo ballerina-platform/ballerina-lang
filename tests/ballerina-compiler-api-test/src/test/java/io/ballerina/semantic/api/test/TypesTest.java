@@ -49,6 +49,7 @@ import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.api.symbols.TypeDefinitionSymbol;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
+import io.ballerina.projects.Document;
 import io.ballerina.projects.Module;
 import io.ballerina.projects.Project;
 import org.ballerinalang.test.BCompileUtil;
@@ -57,6 +58,7 @@ import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
+import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 
 import java.util.Arrays;
 import java.util.Map;
@@ -69,6 +71,7 @@ import static io.ballerina.compiler.api.symbols.SymbolKind.ENUM_MEMBER;
 import static io.ballerina.compiler.api.symbols.SymbolKind.TYPE_DEFINITION;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.ANY;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.ANYDATA;
+import static io.ballerina.compiler.api.symbols.TypeDescKind.ARRAY;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.BOOLEAN;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.BYTE;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.COMPILATION_ERROR;
@@ -80,6 +83,7 @@ import static io.ballerina.compiler.api.symbols.TypeDescKind.FUTURE;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.HANDLE;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.INT;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.JSON;
+import static io.ballerina.compiler.api.symbols.TypeDescKind.MAP;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.NEVER;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.NIL;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.OBJECT;
@@ -107,6 +111,8 @@ public class TypesTest {
 
     Project project;
     private Types types;
+    Document document;
+    BLangPackage testProjectBLangProject;
 
     @BeforeClass
     public void setup() {
@@ -119,6 +125,12 @@ public class TypesTest {
         project = BCompileUtil.loadProject("test-src/types-project");
         SemanticModel model = getDefaultModulesSemanticModel(project);
         types = model.types();
+        project.currentPackage().getDefaultModule().documentIds().stream().findFirst().ifPresent(docId ->
+                document = project.currentPackage().getDefaultModule().document(docId));
+
+        CompileResult testProjectCompileResult = BCompileUtil.compileAndCacheBala("test-src/testproject");
+        testProjectBLangProject =
+                testProjectCompileResult.project().currentPackage().getCompilation().defaultModuleBLangPackage();
     }
 
     @Test(dataProvider = "BuiltInTypesProvider")
@@ -129,7 +141,7 @@ public class TypesTest {
 
     @DataProvider(name = "BuiltInTypesProvider")
     private Object[][] getBuiltInTypes() {
-        return new Object[][] {
+        return new Object[][]{
                 {types.BOOLEAN, BOOLEAN, BallerinaBooleanTypeSymbol.class},
                 {types.INT, INT, BallerinaIntTypeSymbol.class},
                 {types.FLOAT, FLOAT, BallerinaFloatTypeSymbol.class},
@@ -154,6 +166,83 @@ public class TypesTest {
         };
     }
 
+    @Test(dataProvider = "GetTypes")
+    public void testGetType(String text, TypeDescKind expectedKind) {
+        Optional<TypeSymbol> type = types.getType(document, text);
+        assertTrue(type.isPresent());
+        assertEquals(type.get().typeKind(), expectedKind);
+    }
+
+    @DataProvider(name = "GetTypes")
+    private Object[][] getTypes() {
+        return new Object[][]{
+                {"string", STRING},
+                {"string?", UNION},
+                {"ExampleDec", TYPE_REFERENCE},
+                {"int", INT},
+                {"float", FLOAT},
+                {"boolean", BOOLEAN},
+                {"map<string>", MAP},
+                {"ExampleDec[]", ARRAY},
+                {"string|error", UNION},
+                {"function (string) returns int", FUNCTION},
+                {"any", ANY},
+                {"string:Char", TYPE_REFERENCE},
+                {"map<int:Signed32>", MAP},
+                {"typesbir:TestRecord", TYPE_REFERENCE},
+                {"typesbir:TestRecord|anydata", UNION},
+        };
+    }
+
+    @Test(dataProvider = "InvalidGetTypes")
+    public void testInvalidGetType(String text) {
+        Optional<TypeSymbol> type = types.getType(document, text);
+        assertTrue(type.isEmpty());
+    }
+
+    @DataProvider(name = "InvalidGetTypes")
+    private Object[][] getInvalidTypes() {
+        return new Object[][]{
+                {"undefinedType"},
+                {"str"},
+                {"map<>"},
+                {"[]int"},
+                {"error|"}
+        };
+    }
+
+    @Test(dataProvider = "GetTypesWithImports")
+    public void testGetTypeWithImports(String text, TypeDescKind expectedKind) {
+        Optional<TypeSymbol> type =
+                types.getType(document, text, Map.of("test_p", testProjectBLangProject));
+        assertTrue(type.isPresent());
+        assertEquals(type.get().typeKind(), expectedKind);
+    }
+
+    @DataProvider(name = "GetTypesWithImports")
+    private Object[][] getTypeWithImports() {
+        return new Object[][]{
+                {"test_p:BasicType", TYPE_REFERENCE},
+                {"map<test_p:Digit>", MAP},
+                {"typesbir:TestRecord|anydata|test_p:BasicType", UNION}
+        };
+    }
+
+    @Test(dataProvider = "InvalidGetTypeWithImports")
+    public void testInvalidGetTypeWithImports(String text) {
+        Optional<TypeSymbol> type = types.getType(document, text, Map.of("test_p", testProjectBLangProject));
+        assertTrue(type.isEmpty());
+    }
+
+    @DataProvider(name = "InvalidGetTypeWithImports")
+    private Object[][] getInvalidTypeWithImports() {
+        return new Object[][]{
+                {"target:BasicType"},
+                {"test_p:Employee"},
+                {"map<test_p:Employee>"}
+        };
+    }
+
     @Test(dataProvider = "TypesByNameProvider")
     public void testTypeByName(String moduleName, String typeDefName, SymbolKind symKind, TypeDescKind typeDescKind) {
         Module module = getModule(project, moduleName);
@@ -169,7 +258,7 @@ public class TypesTest {
 
     @DataProvider(name = "TypesByNameProvider")
     private Object[][] getTypesByName() {
-        return new Object[][] {
+        return new Object[][]{
                 // `foo` module
                 {"foo", "ErrorDetail1", TYPE_DEFINITION, RECORD},
                 {"foo", "MyErr", TYPE_DEFINITION, ERROR},

@@ -59,7 +59,7 @@ public class ProjectUpdateEventPublisher extends AbstractEventPublisher {
         Executor delayedExecutor = CompletableFuture.delayedExecutor(DIAGNOSTIC_DELAY, TimeUnit.SECONDS);
         CompletableFuture<Boolean> scheduledFuture = CompletableFuture.supplyAsync(() -> true, delayedExecutor);
         latestScheduled = scheduledFuture;
-        scheduledFuture.thenAcceptAsync(aBoolean -> 
-                subscribers.forEach(subscriber -> subscriber.onEvent(client, context, serverContext)));
+        scheduledFuture.thenAcceptAsync(aBoolean -> subscribers.parallelStream()
+                .forEach(subscriber -> subscriber.onEvent(client, context, serverContext)));
     }
 }
