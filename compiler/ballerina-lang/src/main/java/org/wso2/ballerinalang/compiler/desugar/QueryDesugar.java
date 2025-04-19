@@ -114,6 +114,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchGuard;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMultipleWorkerReceive;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNamedArgsExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangNaturalExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNumericLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangQueryAction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangQueryExpr;
@@ -2799,6 +2800,14 @@ public class QueryDesugar extends BLangNodeVisitor {
                 symResolver.getListOfInterpolations(regExpTemplateLiteral.reDisjunction.sequenceList);
         rewrite(interpolationsList);
         result = regExpTemplateLiteral;
+    }
+
+    @Override
+    public void visit(BLangNaturalExpression naturalExpression) {
+        rewrite(naturalExpression.arguments);
+        rewrite(naturalExpression.strings);
+        rewrite(naturalExpression.insertions);
+        result = naturalExpression;
     }
 
     private void acceptNode(BLangNode node) {

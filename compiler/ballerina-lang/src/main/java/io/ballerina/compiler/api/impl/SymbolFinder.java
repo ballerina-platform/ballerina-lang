@@ -118,6 +118,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkdownReturnParam
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchGuard;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMultipleWorkerReceive;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNamedArgsExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangNaturalExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNumericLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangQueryAction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangQueryExpr;
@@ -1793,6 +1794,13 @@ class SymbolFinder extends BaseVisitor {
         lookupNode(reFlagExpression.questionMark);
         lookupNode(reFlagExpression.flagsOnOff);
         lookupNode(reFlagExpression.colon);
+    }
+
+    @Override
+    public void visit(BLangNaturalExpression naturalExpression) {
+        lookupNodes(naturalExpression.arguments);
+        lookupNodes(naturalExpression.strings);
+        lookupNodes(naturalExpression.insertions);
     }
 
     private void lookupResourceAccessPathSegments(BLangInvocation.BLangResourceAccessInvocation resourceInvocation) {

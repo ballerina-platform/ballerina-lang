@@ -334,7 +334,7 @@ public class SymbolBIRTest {
                         {"deprecated", ANNOTATION}, {"untainted", ANNOTATION}, {"tainted", ANNOTATION},
                         {"display", ANNOTATION}, {"strand", ANNOTATION}, {"StrandData", TYPE_DEFINITION},
                         {"typeParam", ANNOTATION}, {"Thread", TYPE_DEFINITION}, {"builtinSubtype", ANNOTATION},
-                        {"isolatedParam", ANNOTATION}, {"error", TYPE_DEFINITION}
+                        {"isolatedParam", ANNOTATION}, {"error", TYPE_DEFINITION}, {"code", ANNOTATION}
                 });
     }
 

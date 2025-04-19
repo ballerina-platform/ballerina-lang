@@ -95,6 +95,7 @@ import org.ballerinalang.model.tree.expressions.MarkdownDocumentationParameterAt
 import org.ballerinalang.model.tree.expressions.MarkdownDocumentationReturnParameterAttributeNode;
 import org.ballerinalang.model.tree.expressions.MarkdownDocumentationTextAttributeNode;
 import org.ballerinalang.model.tree.expressions.NamedArgNode;
+import org.ballerinalang.model.tree.expressions.NaturalExpressionNode;
 import org.ballerinalang.model.tree.expressions.QueryExpressionNode;
 import org.ballerinalang.model.tree.expressions.RawTemplateLiteralNode;
 import org.ballerinalang.model.tree.expressions.ReAssertionNode;
@@ -275,6 +276,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkdownReturnParam
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchGuard;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMultipleWorkerReceive;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNamedArgsExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangNaturalExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNumericLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangObjectConstructorExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangQueryAction;
@@ -1190,5 +1192,9 @@ public final class TreeBuilder {
 
     public static BLangInvocation.BLangResourceAccessInvocation createResourceAccessInvocation() {
         return new BLangInvocation.BLangResourceAccessInvocation();
+    }
+
+    public static NaturalExpressionNode createNaturalExpressionNode() {
+        return new BLangNaturalExpression();
     }
 }

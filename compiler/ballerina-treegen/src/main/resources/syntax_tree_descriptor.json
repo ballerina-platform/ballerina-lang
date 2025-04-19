@@ -5019,6 +5019,40 @@
                     "type": "SimpleNameReferenceNode"
                 }
             ]
+        },
+        {
+            "name": "NaturalExpressionNode",
+            "base": "ExpressionNode",
+            "kind": "NATURAL_EXPRESSION",
+            "attributes": [
+                {
+                    "name": "constKeyword",
+                    "type": "Token",
+                    "isOptional": true
+                },
+                {
+                    "name": "naturalKeyword",
+                    "type": "Token"
+                },
+                {
+                    "name": "parenthesizedArgList",
+                    "type": "ParenthesizedArgList",
+                    "isOptional": true
+                },
+                {
+                    "name": "openBraceToken",
+                    "type": "Token"
+                },
+                {
+                    "name": "prompt",
+                    "type": "Node",
+                    "occurrences": "MULTIPLE"
+                },
+                {
+                    "name": "closeBraceToken",
+                    "type": "Token"
+                }
+            ]
         }
     ]
 }
