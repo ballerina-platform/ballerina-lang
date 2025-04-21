@@ -30,4 +30,9 @@ public interface ExtendedLanguageClient extends LanguageClient {
 
     @JsonNotification("window/showTextDocument")
     void showTextDocument(Location location);
+
+    // TODO: This should be removed once a service loader implementation is added to allow LS extensions to define
+    //  notifications to the client
+    @JsonNotification("designModelService/publishArtifacts")
+    void publishArtifacts(Object artifacts);
 }
