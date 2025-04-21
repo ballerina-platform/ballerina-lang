@@ -49,7 +49,7 @@ dependencies {
         implementation 'com.google.guava:guava:32.1.1-jre'
         implementation 'com.moandjiezana.toml:toml4j:0.7.2'
         implementation 'com.sun.mail:javax.mail:1.6.2'
-        implementation 'com.squareup.okhttp3:okhttp:3.14.9'
+        implementation 'com.squareup.okhttp3:okhttp:4.12.0'
         implementation 'com.squareup.okio:okio:3.4.0'
         implementation 'io.jaegertracing:jaeger-core:1.6.0'
         implementation 'io.jaegertracing:jaeger-thrift:1.6.0'

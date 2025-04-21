@@ -24,7 +24,7 @@ configurations {
 }
 
 dependencies {
-    dist 'com.squareup.okhttp3:okhttp:3.14.9'
+    dist 'com.squareup.okhttp3:okhttp:4.12.0'
     dist 'com.squareup.okio:okio:3.4.0'
     dist 'io.jaegertracing:jaeger-core:1.6.0'
     dist 'io.jaegertracing:jaeger-thrift:1.6.0'
