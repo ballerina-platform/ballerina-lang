@@ -19,7 +19,7 @@ jobs:
           run: |
             git submodule update --init
       -   name: Cache Gradle packages
-          uses: actions/cache@v2
+          uses: actions/cache@v4
           with:
             path: |
               ~/.gradle/caches

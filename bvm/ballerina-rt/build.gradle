@@ -103,7 +103,7 @@ dependencies {
     dist 'io.jaegertracing:jaeger-core:1.6.0'
     dist 'io.jaegertracing:jaeger-thrift:1.6.0'
     dist 'org.apache.thrift:libthrift:0.14.1'
-    dist 'com.squareup.okhttp3:okhttp:3.14.9'
+    dist 'com.squareup.okhttp3:okhttp:4.12.0'
     dist 'com.squareup.okio:okio:3.4.0'
 
     // Temporary adding . Need to Remove once fix #17878
