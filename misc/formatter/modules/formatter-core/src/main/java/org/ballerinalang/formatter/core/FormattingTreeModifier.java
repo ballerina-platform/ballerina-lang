@@ -3822,7 +3822,7 @@ public class FormattingTreeModifier extends TreeModifier {
         int promptTrailingNL = 1;
         if (lastPromptContent.kind() == SyntaxKind.PROMPT_CONTENT) {
             String lastPromptString = ((LiteralValueToken) lastPromptContent).text();
-            if (lastPromptString.matches("(?s).*?\\n\\s*$")) {
+            if (lastPromptString.matches("(?s)^.*\\n\\s*$")) {
                 promptTrailingNL = 0;
             }
         }
