@@ -46,6 +46,7 @@ import java.util.stream.Stream;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.BALLERINA_QUERY_PKG_ID;
 import static io.ballerina.runtime.internal.query.utils.QueryConstants.ERROR_FIELD;
 import static io.ballerina.runtime.internal.query.utils.QueryConstants.VALUE_ACCESS_FIELD;
+import static io.ballerina.runtime.internal.query.utils.QueryConstants.EMPTY_BSTRING;
 
 /**
  * Contains methods that collect query streams.
@@ -89,7 +90,7 @@ public class CollectionUtil {
             return strm
                     .map(frame -> frame.getRecord().get(VALUE_ACCESS_FIELD))
                     .map(string -> (BString) string)
-                    .reduce(StringUtils.fromString(""), BString::concat);
+                    .reduce(EMPTY_BSTRING, BString::concat);
         } catch (QueryException e) {
             return e.getError();
         }
@@ -170,7 +171,6 @@ public class CollectionUtil {
                             return errorValue;
                         }
                         Object value = recordArray.get(1);
-
                         map.put(key, value);
                         return null;
                     })

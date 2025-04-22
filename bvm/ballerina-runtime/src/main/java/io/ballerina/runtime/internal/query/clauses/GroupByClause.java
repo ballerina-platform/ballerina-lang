@@ -36,6 +36,7 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static io.ballerina.runtime.internal.query.utils.QueryConstants.GROUP_KEY_CONSTANT;
 import static io.ballerina.runtime.internal.query.utils.QueryConstants.VALUE_FIELD;
 
 /**
@@ -43,7 +44,7 @@ import static io.ballerina.runtime.internal.query.utils.QueryConstants.VALUE_FIE
  *
  * @since 2201.13.0
  */
-public class GroupByClause implements PipelineStage {
+public class GroupByClause implements QueryClause {
 
     private final BArray groupingKeys;
     private final BArray nonGroupingKeys;
@@ -97,16 +98,15 @@ public class GroupByClause implements PipelineStage {
         for (int i = 0; i < groupingKeys.size(); i++) {
             BString key = (BString) groupingKeys.get(i);
             Object value;
-
             if (record.containsKey(key)) {
                 value = record.get(key);
             } else {
                 BMap<BString, Object> nestedRec = (BMap<BString, Object>) record.get(VALUE_FIELD);
                 value = nestedRec.get(key);
             }
-
             keyMap.put(key, value);
         }
+
         return keyMap;
     }
 
@@ -126,7 +126,7 @@ public class GroupByClause implements PipelineStage {
 
         @Override
         public int hashCode() {
-            return 36;
+            return GROUP_KEY_CONSTANT;
         }
     }
 }

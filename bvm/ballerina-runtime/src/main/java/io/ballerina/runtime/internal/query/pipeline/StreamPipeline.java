@@ -20,8 +20,8 @@ package io.ballerina.runtime.internal.query.pipeline;
 
 import io.ballerina.runtime.api.Environment;
 import io.ballerina.runtime.api.values.BTypedesc;
-import io.ballerina.runtime.internal.query.clauses.PipelineStage;
-import io.ballerina.runtime.internal.query.utils.BallerinaIteratorUtils;
+import io.ballerina.runtime.internal.query.clauses.QueryClause;
+import io.ballerina.runtime.internal.query.utils.IteratorUtils;
 import io.ballerina.runtime.internal.query.utils.QueryException;
 import io.ballerina.runtime.internal.values.ErrorValue;
 
@@ -40,7 +40,7 @@ public class StreamPipeline {
 
     private Stream<Frame> stream;
     private Supplier<Stream<Frame>> streamSupplier;
-    private final List<PipelineStage> pipelineStages;
+    private final List<QueryClause> clauseList;
     private final BTypedesc constraintType;
     private final BTypedesc completionType;
     private final boolean isLazyLoading;
@@ -61,11 +61,11 @@ public class StreamPipeline {
                           BTypedesc completionType,
                           boolean isLazyLoading) {
         this.env = env;
-        this.pipelineStages = new ArrayList<>();
+        this.clauseList = new ArrayList<>();
         this.constraintType = constraintType;
         this.completionType = completionType;
         this.isLazyLoading = isLazyLoading;
-        this.itr = BallerinaIteratorUtils.getIterator(env, collection);
+        this.itr = IteratorUtils.getIterator(env, collection);
         this.stream = initializeFrameStream(itr);
     }
 
@@ -95,10 +95,10 @@ public class StreamPipeline {
      * Adds a stage (clause) to the pipeline.
      *
      * @param streamPipeline The stream pipeline.
-     * @param pipelineStage The pipeline stage (clause).
+     * @param clause The pipeline stage (clause).
      */
-    public static void addStreamFunction(StreamPipeline streamPipeline, PipelineStage pipelineStage) {
-        streamPipeline.addStage(pipelineStage);
+    public static void addStreamFunction(StreamPipeline streamPipeline, QueryClause clause) {
+        streamPipeline.addStage(clause);
     }
 
     /**
@@ -113,25 +113,24 @@ public class StreamPipeline {
         } catch (QueryException e) {
             return e.getError();
         }
-
         return pipeline;
     }
 
     /**
-     * Queue a stage (function) to the pipeline.
+     * Queue a stage (clause) to the pipeline.
      *
-     * @param stage A function to process each frame.
+     * @param clause A clause to process each frame.
      */
-    public void addStage(PipelineStage stage) {
-        this.pipelineStages.add(stage);
+    public void addStage(QueryClause clause) {
+        this.clauseList.add(clause);
     }
 
     /**
      * Processes the stream through all the pipeline stages.
      */
     public void execute() {
-        for (PipelineStage stage : pipelineStages) {
-            stream = stage.process(stream);
+        for (QueryClause clause : clauseList) {
+            stream = clause.process(stream);
         }
     }
 
@@ -142,7 +141,7 @@ public class StreamPipeline {
      * @return A Java stream of `Frame` objects.
      */
     private Stream<Frame> initializeFrameStream(Iterator<?> itr) throws ErrorValue {
-        return BallerinaIteratorUtils.toStream(itr);
+        return IteratorUtils.toStream(itr);
     }
 
     /**

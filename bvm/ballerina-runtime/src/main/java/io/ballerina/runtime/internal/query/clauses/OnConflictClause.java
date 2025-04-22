@@ -33,7 +33,7 @@ import java.util.stream.Stream;
  *
  * @since 2201.13.0
  */
-public class OnConflictClause implements PipelineStage {
+public class OnConflictClause implements QueryClause {
     private final BFunctionPointer onConflictFunction;
     private final Environment env;
 
@@ -54,9 +54,8 @@ public class OnConflictClause implements PipelineStage {
             if (result instanceof BMap) {
                 frame.updateRecord((BMap<BString, Object>) result);
                 return frame;
-            } else {
-                throw new QueryException((BError) result);
             }
+            throw new QueryException((BError) result);
         });
     }
 }

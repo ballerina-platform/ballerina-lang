@@ -41,19 +41,16 @@ public class IteratorObject {
         Iterator<Frame> iterator = (Iterator<Frame>) itr;
 
         try {
-            if (iterator.hasNext()) {
-                switch (iterator.next()) {
-                    case Frame frame:
-                        BMap<BString, Object> recordMap = frame.getRecord();
-                        Object value = recordMap.get(VALUE_ACCESS_FIELD);
-                        if (value instanceof BError error) {
-                            return error;
-                        }
-                        BMap<BString, Object> record = ValueCreator
-                                .createRecordValue(BALLERINA_QUERY_PKG_ID, "nextRecord");
-                        record.put(VALUE_FIELD, value);
-                        return record;
+            if (iterator.hasNext() && iterator.next() instanceof Frame frame) {
+                BMap<BString, Object> recordMap = frame.getRecord();
+                Object value = recordMap.get(VALUE_ACCESS_FIELD);
+                if (value instanceof BError error) {
+                    return error;
                 }
+                BMap<BString, Object> record = ValueCreator
+                        .createRecordValue(BALLERINA_QUERY_PKG_ID, "nextRecord");
+                record.put(VALUE_FIELD, value);
+                return record;
             }
         } catch (QueryException e) {
             return e.getError();

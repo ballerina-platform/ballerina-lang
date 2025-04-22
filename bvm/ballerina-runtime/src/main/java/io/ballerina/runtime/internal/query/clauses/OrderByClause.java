@@ -19,7 +19,6 @@
 package io.ballerina.runtime.internal.query.clauses;
 
 import io.ballerina.runtime.api.Environment;
-import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BFunctionPointer;
@@ -32,12 +31,15 @@ import io.ballerina.runtime.internal.utils.ValueComparisonUtils;
 import java.util.Comparator;
 import java.util.stream.Stream;
 
+import static io.ballerina.runtime.internal.query.utils.QueryConstants.ORDER_DIRECTION;
+import static io.ballerina.runtime.internal.query.utils.QueryConstants.ORDER_KEY;
+
 /**
  * Represents a `order by` clause in the query pipeline that processes a stream of frames.
  *
  * @since 2201.13.0
  */
-public class OrderByClause implements PipelineStage {
+public class OrderByClause implements QueryClause {
     private final BFunctionPointer orderKeyFunction;
     private final Environment env;
 
@@ -53,8 +55,7 @@ public class OrderByClause implements PipelineStage {
     @Override
     public Stream<Frame> process(Stream<Frame> inputStream) {
         return inputStream.peek(frame -> {
-            BMap<BString, Object> record = frame.getRecord();
-            Object result = orderKeyFunction.call(env.getRuntime(), record);
+            Object result = orderKeyFunction.call(env.getRuntime(), frame.getRecord());
             if (result instanceof BError error) {
                 throw new QueryException(error);
             }
@@ -66,9 +67,9 @@ public class OrderByClause implements PipelineStage {
             BMap<BString, Object> record1 = frame1.getRecord();
             BMap<BString, Object> record2 = frame2.getRecord();
 
-            BArray orderKey1Array = (BArray) record1.get(StringUtils.fromString("$orderKey$"));
-            BArray orderKey2Array = (BArray) record2.get(StringUtils.fromString("$orderKey$"));
-            BArray orderDirectionArray = (BArray) record1.get(StringUtils.fromString("$orderDirection$"));
+            BArray orderKey1Array = (BArray) record1.get(ORDER_KEY);
+            BArray orderKey2Array = (BArray) record2.get(ORDER_KEY);
+            BArray orderDirectionArray = (BArray) record1.get(ORDER_DIRECTION);
 
             int size = orderKey1Array.size();
             for (int i = 0; i < size; i++) {

@@ -31,7 +31,7 @@ import java.util.stream.Stream;
  *
  * @since 2201.13.0
  */
-public class LimitClause implements PipelineStage {
+public class LimitClause implements QueryClause {
     private final BFunctionPointer limitFunction;
     private final Environment env;
 

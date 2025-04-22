@@ -37,7 +37,7 @@ import java.util.stream.Stream;
  *
  * @since 2201.13.0
  */
-public class InnerJoinClause implements PipelineStage {
+public class InnerJoinClause implements QueryClause {
     private final StreamPipeline pipelineToJoin;
     private final BFunctionPointer lhsKeyFunction;
     private final BFunctionPointer rhsKeyFunction;
@@ -115,7 +115,6 @@ public class InnerJoinClause implements PipelineStage {
                     throw new QueryException(error);
                 }
                 List<Frame> rhsCandidates = rhsFramesMap.getOrDefault(lhsKey.toString(), Collections.emptyList());
-
                 return rhsCandidates.stream()
                         .map(rhsFrame -> mergeFrames(lhsFrame, rhsFrame));
 
@@ -134,15 +133,12 @@ public class InnerJoinClause implements PipelineStage {
      */
     private Frame mergeFrames(Frame lhs, Frame rhs) {
         Frame result = new Frame();
-
         lhs.getRecord().entrySet().forEach(entry ->
                 result.getRecord().put(entry.getKey(), entry.getValue())
         );
-
         rhs.getRecord().entrySet().forEach(entry ->
                 result.getRecord().put(entry.getKey(), entry.getValue())
         );
-
         return result;
     }
 }

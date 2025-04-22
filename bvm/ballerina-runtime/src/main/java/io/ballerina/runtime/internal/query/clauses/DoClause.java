@@ -33,7 +33,7 @@ import static io.ballerina.runtime.internal.query.utils.QueryConstants.VALUE_ACC
  *
  * @since 2201.13.0
  */
-public class DoClause implements PipelineStage {
+public class DoClause implements QueryClause {
     private final Environment env;
     private final BFunctionPointer function;
 
@@ -67,7 +67,6 @@ public class DoClause implements PipelineStage {
             }
             if (result != null) {
                 frame.updateRecord(VALUE_ACCESS_FIELD, result);
-                return frame;
             }
             return frame;
         });
