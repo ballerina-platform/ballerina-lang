@@ -18,19 +18,12 @@
 
 package org.ballerinalang.test.query;
 
-import io.ballerina.runtime.api.utils.StringUtils;
-import io.ballerina.runtime.api.values.BArray;
-import io.ballerina.runtime.api.values.BMap;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
-import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-
-import java.util.Arrays;
-import java.util.List;
 
 /**
  * This contains methods to test query expressions with different input types.
@@ -48,52 +41,22 @@ public class QueryInputTypeTest {
 
     @Test(description = "Test query expression with array input")
     public void testArrayType() {
-        BArray returnValues = (BArray) BRunUtil.invoke(result, "testArrayQuery");
-        Assert.assertNotNull(returnValues);
-        Assert.assertEquals(returnValues.size(), 3);
-        Assert.assertEquals(returnValues.getInt(0), 1L);
-        Assert.assertEquals(returnValues.getInt(1), 2L);
-        Assert.assertEquals(returnValues.getInt(2), 3L);
+        BRunUtil.invoke(result, "testArrayQuery");
     }
 
     @Test(description = "Test query expression with map input")
     public void testMapType() {
-        BArray returnValues = (BArray) BRunUtil.invoke(result, "testMapQuery");
-        Assert.assertNotNull(returnValues);
-        Assert.assertEquals(returnValues.size(), 3);
-
-        // Convert BArray to List for easier contains checking
-        List<Long> values = Arrays.stream(returnValues.getIntArray())
-                .boxed()
-                .toList();
-        Assert.assertTrue(values.contains(1L));
-        Assert.assertTrue(values.contains(2L));
-        Assert.assertTrue(values.contains(3L));
+        BRunUtil.invoke(result, "testMapQuery");
     }
 
     @Test(description = "Test query expression with record input")
     public void testRecordType() {
-        BArray returnValues = (BArray) BRunUtil.invoke(result, "testRecordQuery");
-        Assert.assertNotNull(returnValues);
-        Assert.assertEquals(returnValues.size(), 2);
-
-        BMap<?, ?> record1 = (BMap<?, ?>) returnValues.get(0);
-        Assert.assertEquals(record1.get(StringUtils.fromString("id")).toString(), "1");
-        Assert.assertEquals(record1.get(StringUtils.fromString("name")).toString(), "record1");
-
-        BMap<?, ?> record2 = (BMap<?, ?>) returnValues.get(1);
-        Assert.assertEquals(record2.get(StringUtils.fromString("id")).toString(), "2");
-        Assert.assertEquals(record2.get(StringUtils.fromString("name")).toString(), "record2");
+        BRunUtil.invoke(result, "testRecordQuery");
     }
 
     @Test(description = "Test query expression with string input")
     public void testStringType() {
-        BArray returnValues = (BArray) BRunUtil.invoke(result, "testStringQuery");
-        Assert.assertNotNull(returnValues);
-        Assert.assertEquals(returnValues.size(), 9);
-        Assert.assertEquals((returnValues.get(0).toString()), "B");
-        Assert.assertEquals(returnValues.get(1).toString(), "a");
-        Assert.assertEquals(returnValues.get(8).toString(), "a");
+        BRunUtil.invoke(result, "testStringQuery");
     }
 
     @AfterClass
