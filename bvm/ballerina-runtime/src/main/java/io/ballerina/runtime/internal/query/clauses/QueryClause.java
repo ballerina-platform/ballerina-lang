@@ -28,7 +28,7 @@ import java.util.stream.Stream;
  * @since 2201.13.0
  */
 @FunctionalInterface
-public interface PipelineStage {
+public interface QueryClause {
 
     /**
      * Processes a stream of frames and returns a transformed stream of frames.

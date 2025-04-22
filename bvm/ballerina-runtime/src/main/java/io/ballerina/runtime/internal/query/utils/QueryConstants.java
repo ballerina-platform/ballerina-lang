@@ -25,4 +25,8 @@ public final class QueryConstants {
     public static final BString VALUE_FIELD = StringUtils.fromString("value");
     public static final BString ERROR_FIELD = StringUtils.fromString("$error$");
     public static final BString VALUE_ACCESS_FIELD = StringUtils.fromString("$value$");
+    public static final BString ORDER_KEY = StringUtils.fromString("$orderKey$");
+    public static final BString ORDER_DIRECTION = StringUtils.fromString("$orderDirection$");
+    public static final BString EMPTY_BSTRING = StringUtils.fromString("");
+    public static final int GROUP_KEY_CONSTANT = 1;
 }

@@ -39,11 +39,13 @@ import java.util.stream.Stream;
  *
  * @since 2201.13.0
  */
-public class CollectClause implements PipelineStage {
+public class CollectClause implements QueryClause {
 
     private final BArray nonGroupingKeys;
     private final BFunctionPointer collectFunc;
     private final Environment env;
+    private final ArrayType arrayType = TypeCreator.createArrayType(TypeCreator.createUnionType(
+            List.of(PredefinedTypes.TYPE_ANY, PredefinedTypes.TYPE_ERROR)));
 
     /**
      * Constructor for CollectClause.
@@ -58,6 +60,14 @@ public class CollectClause implements PipelineStage {
         this.env = env;
     }
 
+    /**
+     * Factory method for collect clause.
+     *
+     * @param nonGroupingKeys The keys to collect values for.
+     * @param collectFunc     The function applied to collected data.
+     * @param env             The runtime environment.
+     * @return                A CollectClause instance.
+     */
     public static CollectClause initCollectClause(Environment env,
                                                   BArray nonGroupingKeys,
                                                   BFunctionPointer collectFunc) {
@@ -76,8 +86,6 @@ public class CollectClause implements PipelineStage {
         Frame groupedFrame = new Frame();
         BMap<BString, Object> groupedRecord = groupedFrame.getRecord();
 
-        ArrayType arrayType = TypeCreator.createArrayType(TypeCreator.createUnionType(
-                List.of(PredefinedTypes.TYPE_ANY, PredefinedTypes.TYPE_ERROR)));
         for (int i = 0; i < nonGroupingKeys.size(); i++) {
             BString key = (BString) nonGroupingKeys.get(i);
             groupedRecord.put(key, new ArrayValueImpl(arrayType));

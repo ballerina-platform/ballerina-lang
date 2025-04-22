@@ -41,7 +41,7 @@ function createSelectFunction(function(_Frame _frame) returns _Frame|error? sele
 function addStreamFunction(handle pipeline, handle jClause) = @java:Method {
     'class: "io.ballerina.runtime.internal.query.pipeline.StreamPipeline",
     name: "addStreamFunction",
-    paramTypes: ["io.ballerina.runtime.internal.query.pipeline.StreamPipeline","io.ballerina.runtime.internal.query.clauses.PipelineStage"]
+    paramTypes: ["io.ballerina.runtime.internal.query.pipeline.StreamPipeline","io.ballerina.runtime.internal.query.clauses.QueryClause"]
 } external;
 
 function createFilterFunction(function(_Frame _frame) returns boolean|error filterFunc) returns handle = @java:Method {
