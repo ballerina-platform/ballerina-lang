@@ -19,16 +19,11 @@
 package io.ballerina.runtime.internal.query.utils;
 
 import io.ballerina.runtime.api.Environment;
-import io.ballerina.runtime.api.utils.StringUtils;
-import io.ballerina.runtime.api.values.BArray;
-import io.ballerina.runtime.api.values.BCollection;
 import io.ballerina.runtime.api.values.BError;
-import io.ballerina.runtime.api.values.BIterator;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.api.values.BStream;
-import io.ballerina.runtime.api.values.BString;
-import io.ballerina.runtime.api.values.BTable;
+import io.ballerina.runtime.api.values.IterableValue;
 import io.ballerina.runtime.internal.query.pipeline.Frame;
 import io.ballerina.runtime.internal.values.ErrorValue;
 
@@ -62,27 +57,13 @@ public class IteratorUtils {
      *
      * @param env        The Ballerina runtime environment.
      * @param collection The Ballerina collection.
-     * @param <T>        The type of elements in the collection.
      * @return A Java Iterator for the collection.
      */
-    public static <T> Iterator<T> getIterator(Environment env, Object collection) {
+    public static Iterator<?> getIterator(Environment env, Object collection) {
         try {
             switch (collection) {
-                case BMap<?, ?> bMap -> {
-                    BIterator<?> iterator = bMap.getIterator();
-                    return createJavaMapIterator(iterator);
-                }
-                case BTable<?, ?> table -> {
-                    BIterator<?> iterator = table.getIterator();
-                    return createJavaTableIterator(iterator);
-                }
-                case BString bString -> {
-                    BIterator<?> iterator = bString.getIterator();
-                    return createJavaStringIterator(iterator);
-                }
-                case BCollection bCollection -> {
-                    BIterator<?> iterator = bCollection.getIterator();
-                    return createJavaIterator(iterator);
+                case IterableValue iterable -> {
+                    return iterable.getJavaIterator();
                 }
                 case BStream bStream -> {
                     BObject iteratorObj = bStream.getIteratorObj();
@@ -100,97 +81,6 @@ public class IteratorUtils {
         } catch (BError e) {
             throw new QueryException(e);
         }
-    }
-
-    /**
-     * Creates a Java `Iterator` from a Ballerina `BIterator` for map.
-     *
-     * @param iterator The Ballerina iterator.
-     * @param <T>      The type of elements.
-     * @return A Java `Iterator<T>`.
-     */
-    private static <T> Iterator<T> createJavaMapIterator(BIterator<?> iterator) {
-        return new Iterator<>() {
-            @Override
-            public boolean hasNext() {
-                return iterator.hasNext();
-            }
-
-            @Override
-            @SuppressWarnings("unchecked")
-            public T next() {
-                BArray keyValueTuple = (BArray) iterator.next();
-                return (T) keyValueTuple.get(1);
-            }
-        };
-    }
-
-    /**
-     * Creates a Java `Iterator` from a Ballerina `BIterator` for table.
-     *
-     * @param iterator The Ballerina iterator.
-     * @param <T>      The type of elements.
-     * @return A Java `Iterator<T>`.
-     */
-    private static <T> Iterator<T> createJavaTableIterator(BIterator<?> iterator) {
-        return new Iterator<>() {
-            @Override
-            public boolean hasNext() {
-                return iterator.hasNext();
-            }
-
-            @Override
-            @SuppressWarnings("unchecked")
-            public T next() {
-                BArray keyValueTuple = (BArray) iterator.next();
-                return (T) keyValueTuple.get(1);
-            }
-        };
-    }
-
-    /**
-     * Creates a Java `Iterator` from a Ballerina `BIterator` for string.
-     *
-     * @param ballerinaIterator The Ballerina iterator.
-     * @param <T>               The type of elements.
-     * @return A Java `Iterator<T>`.
-     */
-    private static <T> Iterator<T> createJavaStringIterator(BIterator<?> ballerinaIterator) throws ErrorValue {
-        BIterator<String> charIterator = (BIterator<String>) ballerinaIterator;
-        return new Iterator<>() {
-            @Override
-            public boolean hasNext() {
-                return charIterator.hasNext();
-            }
-
-            @Override
-            @SuppressWarnings("unchecked")
-            public T next() {
-                return (T) StringUtils.fromString(charIterator.next());
-            }
-        };
-    }
-
-    /**
-     * Creates a Java `Iterator` from a Ballerina `BIterator`.
-     *
-     * @param ballerinaIterator The Ballerina iterator.
-     * @param <T>               The type of elements.
-     * @return A Java `Iterator<T>`.
-     */
-    private static <T> Iterator<T> createJavaIterator(BIterator<?> ballerinaIterator) throws ErrorValue {
-        return new Iterator<>() {
-            @Override
-            public boolean hasNext() {
-                return ballerinaIterator.hasNext();
-            }
-
-            @Override
-            @SuppressWarnings("unchecked")
-            public T next() {
-                return (T) ballerinaIterator.next();
-            }
-        };
     }
 
     /**
