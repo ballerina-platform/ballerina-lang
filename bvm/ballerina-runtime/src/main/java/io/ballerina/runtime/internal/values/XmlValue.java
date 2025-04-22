@@ -26,6 +26,7 @@ import io.ballerina.runtime.api.types.semtype.Context;
 import io.ballerina.runtime.api.types.semtype.SemType;
 import io.ballerina.runtime.api.types.semtype.ShapeAnalyzer;
 import io.ballerina.runtime.api.utils.StringUtils;
+import io.ballerina.runtime.api.values.BIterator;
 import io.ballerina.runtime.api.values.BLink;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
@@ -37,6 +38,7 @@ import io.ballerina.runtime.internal.utils.IteratorUtils;
 import io.ballerina.runtime.internal.xml.BallerinaXmlSerializer;
 
 import java.io.OutputStream;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -295,5 +297,21 @@ public abstract class XmlValue implements RefValue, BXml, CollectionValue {
     @Override
     public BasicTypeBitSet getBasicType() {
         return BASIC_TYPE;
+    }
+
+    @Override
+    public Iterator<?> getJavaIterator() {
+        BIterator<?> iterator = getIterator();
+        return new Iterator<>() {
+            @Override
+            public boolean hasNext() {
+                return iterator.hasNext();
+            }
+
+            @Override
+            public Object next() {
+                return iterator.next();
+            }
+        };
     }
 }

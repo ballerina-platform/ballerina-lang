@@ -78,7 +78,7 @@ public class NestedFrom implements QueryClause {
                 return Stream.empty();
             }
 
-            Iterator<Object> itr = IteratorUtils.getIterator(env, collection);
+            Iterator<?> itr = IteratorUtils.getIterator(env, collection);
             List<Frame> results = new ArrayList<>();
 
             try {
