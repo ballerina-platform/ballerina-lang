@@ -3821,9 +3821,15 @@ public class FormattingTreeModifier extends TreeModifier {
         Node lastPromptContent = prompt.get(prompt.size() - 1);
         int promptTrailingNL = 1;
         if (lastPromptContent.kind() == SyntaxKind.PROMPT_CONTENT) {
+            // If the last prompt content is a literal value, check if it ends with a newline followed by
+            // optional spaces. If so we do not need to add a trailing newline.
             String lastPromptString = ((LiteralValueToken) lastPromptContent).text();
-            if (lastPromptString.matches("(?s)^.*\\n\\s*$")) {
-                promptTrailingNL = 0;
+            int lastNewline = lastPromptString.lastIndexOf('\n');
+            if (lastNewline != -1) {
+                String afterNewline = lastPromptString.substring(lastNewline + 1);
+                if (afterNewline.matches("\\s*")) {
+                    promptTrailingNL = 0;
+                }
             }
         }
         boolean preserveIndentation = env.preserveIndentation;
