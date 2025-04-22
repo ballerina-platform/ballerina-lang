@@ -26,6 +26,7 @@ import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BFunctionPointer;
+import io.ballerina.runtime.api.values.BIterator;
 import io.ballerina.runtime.api.values.BLink;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BMapInitialValueEntry;
@@ -721,5 +722,22 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
      */
     protected V putValue(K key, V value) {
         return super.put(key, value);
+    }
+
+    @Override
+    public Iterator<?> getJavaIterator() {
+        BIterator<?> iterator = getIterator();
+        return new Iterator<>() {
+            @Override
+            public boolean hasNext() {
+                return iterator.hasNext();
+            }
+
+            @Override
+            public Object next() {
+                BArray keyValueTuple = (BArray) iterator.next();
+                return keyValueTuple.get(1);
+            }
+        };
     }
 }

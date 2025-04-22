@@ -21,6 +21,7 @@ import io.ballerina.runtime.api.types.PredefinedTypes;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.XmlNodeType;
 import io.ballerina.runtime.api.utils.StringUtils;
+import io.ballerina.runtime.api.values.BIterator;
 import io.ballerina.runtime.api.values.BLink;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
@@ -31,6 +32,7 @@ import io.ballerina.runtime.internal.utils.IteratorUtils;
 import io.ballerina.runtime.internal.xml.BallerinaXmlSerializer;
 
 import java.io.OutputStream;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -273,4 +275,19 @@ public abstract class XmlValue implements RefValue, BXml, CollectionValue {
         return iteratorNextReturnType;
     }
 
+    @Override
+    public Iterator<?> getJavaIterator() {
+        BIterator<?> iterator = getIterator();
+        return new Iterator<>() {
+            @Override
+            public boolean hasNext() {
+                return iterator.hasNext();
+            }
+
+            @Override
+            public Object next() {
+                return iterator.next();
+            }
+        };
+    }
 }

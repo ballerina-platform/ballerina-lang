@@ -19,9 +19,16 @@ package io.ballerina.runtime.internal.values;
 
 import io.ballerina.runtime.api.types.PredefinedTypes;
 import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.types.semtype.BasicTypeBitSet;
+import io.ballerina.runtime.api.types.semtype.Builder;
+import io.ballerina.runtime.api.types.semtype.Context;
+import io.ballerina.runtime.api.types.semtype.SemType;
+import io.ballerina.runtime.api.utils.StringUtils;
+import io.ballerina.runtime.api.values.BIterator;
 import io.ballerina.runtime.api.values.BLink;
 import io.ballerina.runtime.api.values.BString;
 
+import java.util.Iterator;
 import java.util.Map;
 
 /**
@@ -100,4 +107,19 @@ public abstract class StringValue implements BString, SimpleValue {
         return false;
     }
 
+    @Override
+    public Iterator<?> getJavaIterator() {
+        BIterator<String> iterator = getIterator();
+        return new Iterator<>() {
+            @Override
+            public boolean hasNext() {
+                return iterator.hasNext();
+            }
+
+            @Override
+            public Object next() {
+                return StringUtils.fromString(iterator.next());
+            }
+        };
+    }
 }
