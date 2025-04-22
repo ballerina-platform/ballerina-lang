@@ -32,7 +32,7 @@ import java.util.stream.Stream;
  *
  * @since 2201.13.0
  */
-public class SelectClause implements PipelineStage {
+public class SelectClause implements QueryClause {
     private final BFunctionPointer selector;
     private final Environment env;
 

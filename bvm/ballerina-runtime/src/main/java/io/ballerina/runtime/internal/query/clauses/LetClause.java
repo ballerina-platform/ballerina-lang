@@ -33,7 +33,7 @@ import java.util.stream.Stream;
  *
  * @since 2201.13.0
  */
-public class LetClause implements PipelineStage {
+public class LetClause implements QueryClause {
     private final BFunctionPointer frameModifier;
     private final Environment env;
 
@@ -72,9 +72,8 @@ public class LetClause implements PipelineStage {
             if (result instanceof BMap) {
                 frame.updateRecord((BMap<BString, Object>) result);
                 return frame;
-            } else {
-                throw new QueryException((BError) result);
             }
+            throw new QueryException((BError) result);
         });
     }
 }

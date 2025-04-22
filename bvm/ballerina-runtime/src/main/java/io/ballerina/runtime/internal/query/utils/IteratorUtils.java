@@ -43,7 +43,7 @@ import static io.ballerina.runtime.internal.query.utils.QueryConstants.VALUE_FIE
  *
  * @since 2201.13.0
  */
-public class BallerinaIteratorUtils {
+public class IteratorUtils {
 
     /**
      * Converts a Ballerina collection to a Java stream.

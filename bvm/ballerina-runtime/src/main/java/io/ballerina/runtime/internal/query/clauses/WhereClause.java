@@ -31,7 +31,7 @@ import java.util.stream.Stream;
  *
  * @since 2201.13.0
  */
-public class WhereClause implements PipelineStage {
+public class WhereClause implements QueryClause {
     private final BFunctionPointer filterFunc;
     private final Environment env;
 
@@ -69,9 +69,8 @@ public class WhereClause implements PipelineStage {
             Object result = filterFunc.call(env.getRuntime(), frame.getRecord());
             if (result instanceof Boolean booleanValue) {
                 return booleanValue;
-            } else {
-                throw new QueryException((BError) result);
             }
+            throw new QueryException((BError) result);
         });
     }
 }

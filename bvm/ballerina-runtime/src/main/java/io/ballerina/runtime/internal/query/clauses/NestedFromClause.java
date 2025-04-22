@@ -25,7 +25,7 @@ import io.ballerina.runtime.api.values.BFunctionPointer;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.internal.query.pipeline.Frame;
-import io.ballerina.runtime.internal.query.utils.BallerinaIteratorUtils;
+import io.ballerina.runtime.internal.query.utils.IteratorUtils;
 import io.ballerina.runtime.internal.query.utils.QueryException;
 
 import java.util.ArrayList;
@@ -41,7 +41,7 @@ import static io.ballerina.runtime.internal.query.utils.QueryConstants.VALUE_FIE
  *
  * @since 2201.13.0
  */
-public class NestedFromClause implements PipelineStage {
+public class NestedFromClause implements QueryClause {
     private final BFunctionPointer collectionFunc;
     private final Environment env;
 
@@ -78,7 +78,7 @@ public class NestedFromClause implements PipelineStage {
                 return Stream.empty();
             }
 
-            Iterator<Object> itr = BallerinaIteratorUtils.getIterator(env, collection);
+            Iterator<Object> itr = IteratorUtils.getIterator(env, collection);
             List<Frame> results = new ArrayList<>();
 
             try {
@@ -99,7 +99,6 @@ public class NestedFromClause implements PipelineStage {
             } catch (BError e) {
                 throw new QueryException(e, true);
             }
-
             return results.stream();
         });
     }
