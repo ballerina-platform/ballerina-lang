@@ -353,6 +353,7 @@ public class RunCommand implements BLauncherCmd {
                 .setSkipTests(true)
                 .setTestReport(false)
                 .setObservabilityIncluded(observabilityIncluded)
+                .setCloud("") // Skip the cloud import for the run command
                 .setRemoteManagement(remoteManagement)
                 .setSticky(sticky)
                 .setDumpGraph(dumpGraph)
