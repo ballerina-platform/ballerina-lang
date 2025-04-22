@@ -21,59 +21,54 @@ package io.ballerina.runtime.internal.query.clauses;
 import io.ballerina.runtime.api.Environment;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BFunctionPointer;
-import io.ballerina.runtime.api.values.BMap;
-import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.internal.query.pipeline.Frame;
 import io.ballerina.runtime.internal.query.utils.QueryException;
 
 import java.util.stream.Stream;
 
+import static io.ballerina.runtime.internal.query.utils.QueryConstants.VALUE_ACCESS_FIELD;
+
 /**
- * Represents a `let` clause in the query pipeline that modifies frames.
+ * Represents a `do` clause in the query pipeline that applies a function to each element.
  *
  * @since 2201.13.0
  */
-public class LetClause implements QueryClause {
-    private final BFunctionPointer frameModifier;
+public class Do implements QueryClause {
     private final Environment env;
+    private final BFunctionPointer function;
 
     /**
-     * Constructor for the LetClause.
+     * Constructor for the Do.
      *
-     * @param env           The runtime environment.
-     * @param frameModifier The function to modify the frame.
+     * @param env The runtime environment.
+     * @param function The function to be executed for each frame.
      */
-    private LetClause(Environment env, BFunctionPointer frameModifier) {
-        this.frameModifier = frameModifier;
+    private Do(Environment env, BFunctionPointer function) {
         this.env = env;
+        this.function = function;
+    }
+
+    public static Do initDoClause(Environment env, BFunctionPointer function) {
+        return new Do(env, function);
     }
 
     /**
-     * Static initializer for LetClause.
-     *
-     * @param env           The runtime environment.
-     * @param frameModifier The function to modify the frame.
-     * @return A new instance of LetClause.
-     */
-    public static LetClause initLetClause(Environment env, BFunctionPointer frameModifier) {
-        return new LetClause(env, frameModifier);
-    }
-
-    /**
-     * Processes a stream of frames by applying the modifier function to each frame.
+     * Processes each element in the stream by applying the function.
      *
      * @param inputStream The input stream of frames.
-     * @return A stream of modified frames.
+     * @return The same stream after applying the function.
      */
     @Override
     public Stream<Frame> process(Stream<Frame> inputStream) {
         return inputStream.map(frame -> {
-            Object result = frameModifier.call(env.getRuntime(), frame.getRecord());
-            if (result instanceof BMap) {
-                frame.updateRecord((BMap<BString, Object>) result);
-                return frame;
+            Object result = function.call(env.getRuntime(), frame.getRecord());
+            if (result instanceof BError error) {
+                throw new QueryException(error);
             }
-            throw new QueryException((BError) result);
+            if (result != null) {
+                frame.updateRecord(VALUE_ACCESS_FIELD, result);
+            }
+            return frame;
         });
     }
 }

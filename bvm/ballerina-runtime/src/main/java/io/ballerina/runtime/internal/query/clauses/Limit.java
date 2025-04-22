@@ -21,52 +21,55 @@ package io.ballerina.runtime.internal.query.clauses;
 import io.ballerina.runtime.api.Environment;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BFunctionPointer;
-import io.ballerina.runtime.api.values.BMap;
-import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.internal.query.pipeline.Frame;
 import io.ballerina.runtime.internal.query.utils.QueryException;
 
 import java.util.stream.Stream;
 
 /**
- * Represents a `from` clause in the query pipeline that processes a stream of frames.
+ * Represents a `limit` clause in the query pipeline that restricts the number of frames.
  *
  * @since 2201.13.0
  */
-public class FromClause implements QueryClause {
-
-    private final BFunctionPointer transformer;
+public class Limit implements QueryClause {
+    private final BFunctionPointer limitFunction;
     private final Environment env;
 
     /**
-     * Constructor for the FromClause.
+     * Constructor for the Limit.
      *
-     * @param transformer The function to transform each frame.
+     * @param env          The runtime environment.
+     * @param limitFunction The function to determine the limit dynamically.
      */
-    private FromClause(Environment env, BFunctionPointer transformer) {
-        this.transformer = transformer;
+    private Limit(Environment env, BFunctionPointer limitFunction) {
+        this.limitFunction = limitFunction;
         this.env = env;
     }
 
-    public static FromClause initFromClause(Environment env, BFunctionPointer transformer) {
-        return new FromClause(env, transformer);
+    /**
+     * Static initializer for Limit.
+     *
+     * @param env          The runtime environment.
+     * @param limitFunction The function to determine the limit dynamically.
+     * @return A new instance of Limit.
+     */
+    public static Limit initLimitClause(Environment env, BFunctionPointer limitFunction) {
+        return new Limit(env, limitFunction);
     }
 
     /**
-     * Processes a stream of frames by applying the transformation function to each frame.
+     * Processes a stream of frames by applying the limit function to determine the maximum number of frames.
      *
      * @param inputStream The input stream of frames.
-     * @return A transformed stream of frames.
+     * @return A stream of frames with at most `limit` frames.
      */
     @Override
     public Stream<Frame> process(Stream<Frame> inputStream) {
-        return inputStream.map(frame -> {
-            Object result = transformer.call(env.getRuntime(), frame.getRecord());
-            if (result instanceof BMap) {
-                frame.updateRecord((BMap<BString, Object>) result);
-                return frame;
-            }
-            throw new QueryException((BError) result);
-        });
+        Object limitResult = limitFunction.call(env.getRuntime(), new Frame().getRecord());
+        if (limitResult instanceof BError error) {
+            throw new QueryException(error);
+        }
+        Long limit = (Long) limitResult;
+        return inputStream.limit(limit);
     }
 }
