@@ -21,52 +21,58 @@ package io.ballerina.runtime.internal.query.clauses;
 import io.ballerina.runtime.api.Environment;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BFunctionPointer;
+import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.internal.query.pipeline.Frame;
 import io.ballerina.runtime.internal.query.utils.QueryException;
 
 import java.util.stream.Stream;
 
-import static io.ballerina.runtime.internal.query.utils.QueryConstants.VALUE_ACCESS_FIELD;
-
 /**
- * Represents a `do` clause in the query pipeline that applies a function to each element.
+ * Represents a `select` clause in the query pipeline that processes a stream of frames.
  *
  * @since 2201.13.0
  */
-public class DoClause implements QueryClause {
+public class Select implements QueryClause {
+    private final BFunctionPointer selector;
     private final Environment env;
-    private final BFunctionPointer function;
 
     /**
-     * Constructor for the DoClause.
+     * Constructor for the Select.
      *
-     * @param env The runtime environment.
-     * @param function The function to be executed for each frame.
+     * @param env      The runtime environment.
+     * @param selector The function to select from each frame.
      */
-    private DoClause(Environment env, BFunctionPointer function) {
+    private Select(Environment env, BFunctionPointer selector) {
+        this.selector = selector;
         this.env = env;
-        this.function = function;
-    }
-
-    public static DoClause initDoClause(Environment env, BFunctionPointer function) {
-        return new DoClause(env, function);
     }
 
     /**
-     * Processes each element in the stream by applying the function.
+     * Static initializer for Select.
+     *
+     * @param env      The runtime environment.
+     * @param selector The selector function.
+     * @return A new instance of Select.
+     */
+    public static Select initSelectClause(Environment env, BFunctionPointer selector) {
+        return new Select(env, selector);
+    }
+
+    /**
+     * Processes a stream of frames by applying the selector function to each frame.
      *
      * @param inputStream The input stream of frames.
-     * @return The same stream after applying the function.
+     * @return A transformed stream of frames.
      */
     @Override
-    public Stream<Frame> process(Stream<Frame> inputStream) {
+    public Stream<Frame> process(Stream<Frame> inputStream) throws BError {
         return inputStream.map(frame -> {
-            Object result = function.call(env.getRuntime(), frame.getRecord());
-            if (result instanceof BError error) {
+            Object result = selector.call(env.getRuntime(), frame.getRecord());
+            if (result instanceof BMap mapVal) {
+                frame.updateRecord(mapVal);
+                return frame;
+            } else if (result instanceof BError error) {
                 throw new QueryException(error);
-            }
-            if (result != null) {
-                frame.updateRecord(VALUE_ACCESS_FIELD, result);
             }
             return frame;
         });

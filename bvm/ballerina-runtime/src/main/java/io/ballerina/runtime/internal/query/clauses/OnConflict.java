@@ -33,17 +33,17 @@ import java.util.stream.Stream;
  *
  * @since 2201.13.0
  */
-public class OnConflictClause implements QueryClause {
+public class OnConflict implements QueryClause {
     private final BFunctionPointer onConflictFunction;
     private final Environment env;
 
-    private OnConflictClause(Environment env, BFunctionPointer onConflictFunction) {
+    private OnConflict(Environment env, BFunctionPointer onConflictFunction) {
         this.onConflictFunction = onConflictFunction;
         this.env = env;
     }
 
-    public static OnConflictClause initOnConflictClause(Environment env, BFunctionPointer onConflictFunction) {
-        return new OnConflictClause(env, onConflictFunction);
+    public static OnConflict initOnConflictClause(Environment env, BFunctionPointer onConflictFunction) {
+        return new OnConflict(env, onConflictFunction);
     }
 
 
