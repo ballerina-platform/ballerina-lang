@@ -53,7 +53,7 @@ import static io.ballerina.runtime.internal.query.utils.QueryConstants.EMPTY_BST
  *
  * @since 2201.13.0
  */
-public class CollectionUtil {
+public class CollectionUtils {
 
     public static Object createArray(StreamPipeline pipeline, BArray array) {
         Stream<Frame> strm = pipeline.getStream();

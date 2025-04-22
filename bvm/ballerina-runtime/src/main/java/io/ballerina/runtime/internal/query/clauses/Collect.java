@@ -39,7 +39,7 @@ import java.util.stream.Stream;
  *
  * @since 2201.13.0
  */
-public class CollectClause implements QueryClause {
+public class Collect implements QueryClause {
 
     private final BArray nonGroupingKeys;
     private final BFunctionPointer collectFunc;
@@ -48,13 +48,13 @@ public class CollectClause implements QueryClause {
             List.of(PredefinedTypes.TYPE_ANY, PredefinedTypes.TYPE_ERROR)));
 
     /**
-     * Constructor for CollectClause.
+     * Constructor for Collect.
      *
      * @param nonGroupingKeys The keys to collect values for.
      * @param collectFunc     The function applied to collected data.
      * @param env             The runtime environment.
      */
-    private CollectClause(Environment env, BArray nonGroupingKeys, BFunctionPointer collectFunc) {
+    private Collect(Environment env, BArray nonGroupingKeys, BFunctionPointer collectFunc) {
         this.nonGroupingKeys = nonGroupingKeys;
         this.collectFunc = collectFunc;
         this.env = env;
@@ -66,12 +66,12 @@ public class CollectClause implements QueryClause {
      * @param nonGroupingKeys The keys to collect values for.
      * @param collectFunc     The function applied to collected data.
      * @param env             The runtime environment.
-     * @return                A CollectClause instance.
+     * @return                A Collect instance.
      */
-    public static CollectClause initCollectClause(Environment env,
-                                                  BArray nonGroupingKeys,
-                                                  BFunctionPointer collectFunc) {
-        return new CollectClause(env, nonGroupingKeys, collectFunc);
+    public static Collect initCollectClause(Environment env,
+                                            BArray nonGroupingKeys,
+                                            BFunctionPointer collectFunc) {
+        return new Collect(env, nonGroupingKeys, collectFunc);
     }
 
     /**

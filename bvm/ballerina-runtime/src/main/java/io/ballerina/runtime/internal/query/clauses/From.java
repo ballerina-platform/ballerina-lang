@@ -21,54 +21,50 @@ package io.ballerina.runtime.internal.query.clauses;
 import io.ballerina.runtime.api.Environment;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BFunctionPointer;
+import io.ballerina.runtime.api.values.BMap;
+import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.internal.query.pipeline.Frame;
 import io.ballerina.runtime.internal.query.utils.QueryException;
 
 import java.util.stream.Stream;
 
 /**
- * Represents a `where` clause in the query pipeline that filters a stream of frames.
+ * Represents a `from` clause in the query pipeline that processes a stream of frames.
  *
  * @since 2201.13.0
  */
-public class WhereClause implements QueryClause {
-    private final BFunctionPointer filterFunc;
+public class From implements QueryClause {
+
+    private final BFunctionPointer transformer;
     private final Environment env;
 
     /**
-     * Constructor for the WhereClause.
+     * Constructor for the From.
      *
-     * @param env        The runtime environment.
-     * @param filterFunc The function to filter frames.
+     * @param transformer The function to transform each frame.
      */
-    private WhereClause(Environment env, BFunctionPointer filterFunc) {
-        this.filterFunc = filterFunc;
+    private From(Environment env, BFunctionPointer transformer) {
+        this.transformer = transformer;
         this.env = env;
     }
 
-    /**
-     * Static initializer for WhereClause.
-     *
-     * @param env        The runtime environment.
-     * @param filterFunc The filter function.
-     * @return A new instance of WhereClause.
-     */
-    public static WhereClause initWhereClause(Environment env, BFunctionPointer filterFunc) {
-        return new WhereClause(env, filterFunc);
+    public static From initFromClause(Environment env, BFunctionPointer transformer) {
+        return new From(env, transformer);
     }
 
     /**
-     * Filters a stream of frames by applying the filter function to each frame.
+     * Processes a stream of frames by applying the transformation function to each frame.
      *
      * @param inputStream The input stream of frames.
-     * @return A filtered stream of frames.
+     * @return A transformed stream of frames.
      */
     @Override
     public Stream<Frame> process(Stream<Frame> inputStream) {
-        return inputStream.filter(frame -> {
-            Object result = filterFunc.call(env.getRuntime(), frame.getRecord());
-            if (result instanceof Boolean booleanValue) {
-                return booleanValue;
+        return inputStream.map(frame -> {
+            Object result = transformer.call(env.getRuntime(), frame.getRecord());
+            if (result instanceof BMap) {
+                frame.updateRecord((BMap<BString, Object>) result);
+                return frame;
             }
             throw new QueryException((BError) result);
         });

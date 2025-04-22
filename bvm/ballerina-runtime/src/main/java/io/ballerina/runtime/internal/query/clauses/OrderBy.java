@@ -39,17 +39,17 @@ import static io.ballerina.runtime.internal.query.utils.QueryConstants.ORDER_KEY
  *
  * @since 2201.13.0
  */
-public class OrderByClause implements QueryClause {
+public class OrderBy implements QueryClause {
     private final BFunctionPointer orderKeyFunction;
     private final Environment env;
 
-    private OrderByClause(Environment env, BFunctionPointer orderKeyFunction) {
+    private OrderBy(Environment env, BFunctionPointer orderKeyFunction) {
         this.orderKeyFunction = orderKeyFunction;
         this.env = env;
     }
 
-    public static OrderByClause initOrderByClause(Environment env, BFunctionPointer orderKeyFunction) {
-        return new OrderByClause(env, orderKeyFunction);
+    public static OrderBy initOrderByClause(Environment env, BFunctionPointer orderKeyFunction) {
+        return new OrderBy(env, orderKeyFunction);
     }
 
     @Override

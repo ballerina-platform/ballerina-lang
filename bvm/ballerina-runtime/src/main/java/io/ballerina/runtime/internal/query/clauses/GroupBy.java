@@ -44,20 +44,20 @@ import static io.ballerina.runtime.internal.query.utils.QueryConstants.VALUE_FIE
  *
  * @since 2201.13.0
  */
-public class GroupByClause implements QueryClause {
+public class GroupBy implements QueryClause {
 
     private final BArray groupingKeys;
     private final BArray nonGroupingKeys;
     private final Environment env;
 
-    private GroupByClause(Environment env, BArray groupingKeys, BArray nonGroupingKeys) {
+    private GroupBy(Environment env, BArray groupingKeys, BArray nonGroupingKeys) {
         this.groupingKeys = groupingKeys;
         this.nonGroupingKeys = nonGroupingKeys;
         this.env = env;
     }
 
-    public static GroupByClause initGroupByClause(Environment env, BArray groupingKeys, BArray nonGroupingKeys) {
-        return new GroupByClause(env, groupingKeys, nonGroupingKeys);
+    public static GroupBy initGroupByClause(Environment env, BArray groupingKeys, BArray nonGroupingKeys) {
+        return new GroupBy(env, groupingKeys, nonGroupingKeys);
     }
 
     @Override

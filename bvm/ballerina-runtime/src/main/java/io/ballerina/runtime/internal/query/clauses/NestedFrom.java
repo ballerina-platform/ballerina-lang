@@ -41,23 +41,23 @@ import static io.ballerina.runtime.internal.query.utils.QueryConstants.VALUE_FIE
  *
  * @since 2201.13.0
  */
-public class NestedFromClause implements QueryClause {
+public class NestedFrom implements QueryClause {
     private final BFunctionPointer collectionFunc;
     private final Environment env;
 
     /**
-     * Constructor for the NestedFromClause.
+     * Constructor for the NestedFrom.
      *
      * @param env The runtime environment.
      * @param collectionFunc The function to extract the collection from each frame.
      */
-    private NestedFromClause(Environment env, BFunctionPointer collectionFunc) {
+    private NestedFrom(Environment env, BFunctionPointer collectionFunc) {
         this.collectionFunc = collectionFunc;
         this.env = env;
     }
 
-    public static NestedFromClause initNestedFromClause(Environment env, BFunctionPointer collectionFunc) {
-        return new NestedFromClause(env, collectionFunc);
+    public static NestedFrom initNestedFromClause(Environment env, BFunctionPointer collectionFunc) {
+        return new NestedFrom(env, collectionFunc);
     }
 
     /**

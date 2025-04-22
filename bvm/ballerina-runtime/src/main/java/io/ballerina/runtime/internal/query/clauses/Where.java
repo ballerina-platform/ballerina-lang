@@ -27,49 +27,50 @@ import io.ballerina.runtime.internal.query.utils.QueryException;
 import java.util.stream.Stream;
 
 /**
- * Represents a `limit` clause in the query pipeline that restricts the number of frames.
+ * Represents a `where` clause in the query pipeline that filters a stream of frames.
  *
  * @since 2201.13.0
  */
-public class LimitClause implements QueryClause {
-    private final BFunctionPointer limitFunction;
+public class Where implements QueryClause {
+    private final BFunctionPointer filterFunc;
     private final Environment env;
 
     /**
-     * Constructor for the LimitClause.
+     * Constructor for the Where.
      *
-     * @param env          The runtime environment.
-     * @param limitFunction The function to determine the limit dynamically.
+     * @param env        The runtime environment.
+     * @param filterFunc The function to filter frames.
      */
-    private LimitClause(Environment env, BFunctionPointer limitFunction) {
-        this.limitFunction = limitFunction;
+    private Where(Environment env, BFunctionPointer filterFunc) {
+        this.filterFunc = filterFunc;
         this.env = env;
     }
 
     /**
-     * Static initializer for LimitClause.
+     * Static initializer for Where.
      *
-     * @param env          The runtime environment.
-     * @param limitFunction The function to determine the limit dynamically.
-     * @return A new instance of LimitClause.
+     * @param env        The runtime environment.
+     * @param filterFunc The filter function.
+     * @return A new instance of Where.
      */
-    public static LimitClause initLimitClause(Environment env, BFunctionPointer limitFunction) {
-        return new LimitClause(env, limitFunction);
+    public static Where initWhereClause(Environment env, BFunctionPointer filterFunc) {
+        return new Where(env, filterFunc);
     }
 
     /**
-     * Processes a stream of frames by applying the limit function to determine the maximum number of frames.
+     * Filters a stream of frames by applying the filter function to each frame.
      *
      * @param inputStream The input stream of frames.
-     * @return A stream of frames with at most `limit` frames.
+     * @return A filtered stream of frames.
      */
     @Override
     public Stream<Frame> process(Stream<Frame> inputStream) {
-        Object limitResult = limitFunction.call(env.getRuntime(), new Frame().getRecord());
-        if (limitResult instanceof BError error) {
-            throw new QueryException(error);
-        }
-        Long limit = (Long) limitResult;
-        return inputStream.limit(limit);
+        return inputStream.filter(frame -> {
+            Object result = filterFunc.call(env.getRuntime(), frame.getRecord());
+            if (result instanceof Boolean booleanValue) {
+                return booleanValue;
+            }
+            throw new QueryException((BError) result);
+        });
     }
 }

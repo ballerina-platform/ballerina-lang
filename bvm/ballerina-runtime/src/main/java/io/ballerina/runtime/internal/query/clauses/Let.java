@@ -22,59 +22,58 @@ import io.ballerina.runtime.api.Environment;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BFunctionPointer;
 import io.ballerina.runtime.api.values.BMap;
+import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.internal.query.pipeline.Frame;
 import io.ballerina.runtime.internal.query.utils.QueryException;
 
 import java.util.stream.Stream;
 
 /**
- * Represents a `select` clause in the query pipeline that processes a stream of frames.
+ * Represents a `let` clause in the query pipeline that modifies frames.
  *
  * @since 2201.13.0
  */
-public class SelectClause implements QueryClause {
-    private final BFunctionPointer selector;
+public class Let implements QueryClause {
+    private final BFunctionPointer frameModifier;
     private final Environment env;
 
     /**
-     * Constructor for the SelectClause.
+     * Constructor for the Let.
      *
-     * @param env      The runtime environment.
-     * @param selector The function to select from each frame.
+     * @param env           The runtime environment.
+     * @param frameModifier The function to modify the frame.
      */
-    private SelectClause(Environment env, BFunctionPointer selector) {
-        this.selector = selector;
+    private Let(Environment env, BFunctionPointer frameModifier) {
+        this.frameModifier = frameModifier;
         this.env = env;
     }
 
     /**
-     * Static initializer for SelectClause.
+     * Static initializer for Let.
      *
-     * @param env      The runtime environment.
-     * @param selector The selector function.
-     * @return A new instance of SelectClause.
+     * @param env           The runtime environment.
+     * @param frameModifier The function to modify the frame.
+     * @return A new instance of Let.
      */
-    public static SelectClause initSelectClause(Environment env, BFunctionPointer selector) {
-        return new SelectClause(env, selector);
+    public static Let initLetClause(Environment env, BFunctionPointer frameModifier) {
+        return new Let(env, frameModifier);
     }
 
     /**
-     * Processes a stream of frames by applying the selector function to each frame.
+     * Processes a stream of frames by applying the modifier function to each frame.
      *
      * @param inputStream The input stream of frames.
-     * @return A transformed stream of frames.
+     * @return A stream of modified frames.
      */
     @Override
-    public Stream<Frame> process(Stream<Frame> inputStream) throws BError {
+    public Stream<Frame> process(Stream<Frame> inputStream) {
         return inputStream.map(frame -> {
-            Object result = selector.call(env.getRuntime(), frame.getRecord());
-            if (result instanceof BMap mapVal) {
-                frame.updateRecord(mapVal);
+            Object result = frameModifier.call(env.getRuntime(), frame.getRecord());
+            if (result instanceof BMap) {
+                frame.updateRecord((BMap<BString, Object>) result);
                 return frame;
-            } else if (result instanceof BError error) {
-                throw new QueryException(error);
             }
-            return frame;
+            throw new QueryException((BError) result);
         });
     }
 }
