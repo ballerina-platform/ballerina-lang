@@ -932,7 +932,7 @@ public class Desugar extends BLangNodeVisitor {
 
     private Name generateTypedescVariableName(BType targetType) {
         // tsymbol.name.value is empty for anonymous types except for record types and map types
-        return targetType.tag == TypeTags.MAP || targetType.tsymbol.name.value.isEmpty() ?
+        return targetType.tag != TypeTags.TYPEREFDESC?
                 new Name(TYPEDESC + typedescCount++) : new Name(TYPEDESC + targetType.tsymbol.name.value);
     }
 
