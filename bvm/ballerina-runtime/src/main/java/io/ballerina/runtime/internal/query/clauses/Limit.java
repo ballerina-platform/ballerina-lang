@@ -23,8 +23,11 @@ import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BFunctionPointer;
 import io.ballerina.runtime.internal.query.pipeline.Frame;
 import io.ballerina.runtime.internal.query.utils.QueryException;
+import io.ballerina.runtime.internal.values.ErrorValue;
 
 import java.util.stream.Stream;
+
+import static io.ballerina.runtime.internal.query.utils.QueryConstants.LIMIT_NEGATIVE_ERROR;
 
 /**
  * Represents a `limit` clause in the query pipeline that restricts the number of frames.
@@ -67,9 +70,14 @@ public class Limit implements QueryClause {
     public Stream<Frame> process(Stream<Frame> inputStream) {
         Object limitResult = limitFunction.call(env.getRuntime(), new Frame().getRecord());
         if (limitResult instanceof BError error) {
-            throw new QueryException(error);
+            return Stream.generate(() -> {
+                throw new QueryException(error);
+            });
         }
         Long limit = (Long) limitResult;
+        if (limit < 1) {
+            throw new ErrorValue(LIMIT_NEGATIVE_ERROR);
+        }
         return inputStream.limit(limit);
     }
 }

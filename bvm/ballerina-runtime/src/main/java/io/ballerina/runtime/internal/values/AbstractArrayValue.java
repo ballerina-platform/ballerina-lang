@@ -27,6 +27,7 @@ import io.ballerina.runtime.api.types.semtype.SemType;
 import io.ballerina.runtime.api.types.semtype.ShapeAnalyzer;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.utils.TypeUtils;
+import io.ballerina.runtime.api.values.BIterator;
 import io.ballerina.runtime.internal.errors.ErrorHelper;
 import io.ballerina.runtime.internal.json.JsonGenerator;
 import io.ballerina.runtime.internal.types.BTupleType;
@@ -38,6 +39,7 @@ import io.ballerina.runtime.internal.utils.IteratorUtils;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Optional;
@@ -340,6 +342,22 @@ public abstract class AbstractArrayValue implements ArrayValue, RecursiveValue<L
     @Override
     public BasicTypeBitSet getBasicType() {
         return BASIC_TYPE;
+    }
+
+    @Override
+    public Iterator<?> getJavaIterator() {
+        BIterator<?> iterator = getIterator();
+        return new Iterator<>() {
+            @Override
+            public boolean hasNext() {
+                return iterator.hasNext();
+            }
+
+            @Override
+            public Object next() {
+                return iterator.next();
+            }
+        };
     }
 
 }

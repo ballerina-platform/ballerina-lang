@@ -28,5 +28,6 @@ public final class QueryConstants {
     public static final BString ORDER_KEY = StringUtils.fromString("$orderKey$");
     public static final BString ORDER_DIRECTION = StringUtils.fromString("$orderDirection$");
     public static final BString EMPTY_BSTRING = StringUtils.fromString("");
+    public static final BString LIMIT_NEGATIVE_ERROR = StringUtils.fromString("limit cannot be < 1.");
     public static final int GROUP_KEY_CONSTANT = 1;
 }
