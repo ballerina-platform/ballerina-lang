@@ -26,6 +26,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import static org.ballerinalang.langserver.Experimental.EXPERIMENTAL_COMPILATION;
 import static org.ballerinalang.langserver.Experimental.INTROSPECTION;
 import static org.ballerinalang.langserver.Experimental.SHOW_TEXT_DOCUMENT;
 
@@ -116,9 +117,14 @@ public class LSClientCapabilitiesImpl implements LSClientCapabilities {
         Object showTextDocument = experimentalCapabilities.get(SHOW_TEXT_DOCUMENT.getValue());
         boolean showTextDocumentEnabled = showTextDocument instanceof Boolean && (Boolean) showTextDocument;
 
+        Object experimentalCompilation = experimentalCapabilities.get(EXPERIMENTAL_COMPILATION.getValue());
+        boolean experimentalCompilationEnabled = experimentalCompilation instanceof Boolean &&
+                (Boolean) experimentalCompilation;
+
         ExperimentalClientCapabilitiesImpl capabilities = new ExperimentalClientCapabilitiesImpl();
         capabilities.setIntrospectionEnabled(introspectionEnabled);
         capabilities.setShowTextDocumentEnabled(showTextDocumentEnabled);
+        capabilities.setExperimentalCompilationEnabled(experimentalCompilationEnabled);
 
         return capabilities;
     }
@@ -183,6 +189,7 @@ public class LSClientCapabilitiesImpl implements LSClientCapabilities {
 
         private boolean introspectionEnabled = false;
         private boolean showTextDocumentEnabled = false;
+        private boolean experimentalCompilationEnabled = false;
 
         /**
          * Returns whether the introspection enabled or not.
@@ -204,12 +211,24 @@ public class LSClientCapabilitiesImpl implements LSClientCapabilities {
             return showTextDocumentEnabled;
         }
 
+        /**
+         * @inheritDoc
+         */
+        @Override
+        public boolean isExperimentalCompilationEnabled() {
+            return experimentalCompilationEnabled;
+        }
+
         private void setIntrospectionEnabled(boolean introspectionEnabled) {
             this.introspectionEnabled = introspectionEnabled;
         }
 
         private void setShowTextDocumentEnabled(boolean showTextDocumentEnabled) {
             this.showTextDocumentEnabled = showTextDocumentEnabled;
+        }
+
+        private void setExperimentalCompilationEnabled(boolean experimentalCompilationEnabled) {
+            this.experimentalCompilationEnabled = experimentalCompilationEnabled;
         }
     }
 

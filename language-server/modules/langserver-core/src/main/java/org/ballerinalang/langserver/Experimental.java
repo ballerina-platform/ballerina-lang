@@ -25,6 +25,7 @@ public enum Experimental {
     INTROSPECTION("introspection"),
     AST_PROVIDER("astProvider"),
     SHOW_TEXT_DOCUMENT("showTextDocument"),
+    EXPERIMENTAL_COMPILATION("experimentalCompilation"),
     EXAMPLES_PROVIDER("examplesProvider"),
     API_EDITOR_PROVIDER("apiEditorProvider"),
     SEMANTIC_SCOPES("semanticScopes");
