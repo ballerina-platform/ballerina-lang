@@ -70,7 +70,7 @@ public class BTypedescSubType extends SubType implements DelegatedSubType {
 
     @Override
     public SubType complement() {
-        return createDelegate(Builder.getBddSubtypeRo().diff(inner));
+        return createDelegate(inner.complement());
     }
 
     @Override
