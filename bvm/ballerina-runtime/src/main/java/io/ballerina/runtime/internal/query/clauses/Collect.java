@@ -20,6 +20,7 @@ package io.ballerina.runtime.internal.query.clauses;
 
 import io.ballerina.runtime.api.Environment;
 import io.ballerina.runtime.api.creators.TypeCreator;
+import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.types.ArrayType;
 import io.ballerina.runtime.api.types.PredefinedTypes;
 import io.ballerina.runtime.api.values.BArray;
@@ -27,7 +28,6 @@ import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BFunctionPointer;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
-import io.ballerina.runtime.internal.query.pipeline.Frame;
 import io.ballerina.runtime.internal.values.ArrayValueImpl;
 
 import java.util.List;
@@ -82,9 +82,8 @@ public class Collect implements QueryClause {
      * @return A transformed stream with the collected frame.
      */
     @Override
-    public Stream<Frame> process(Stream<Frame> inputStream) {
-        Frame groupedFrame = new Frame();
-        BMap<BString, Object> groupedRecord = groupedFrame.getRecord();
+    public Stream<BMap<BString, Object>> process(Stream<BMap<BString, Object>> inputStream) {
+        BMap<BString, Object> groupedRecord = ValueCreator.createMapValue();
 
         for (int i = 0; i < nonGroupingKeys.size(); i++) {
             BString key = (BString) nonGroupingKeys.get(i);
@@ -92,21 +91,20 @@ public class Collect implements QueryClause {
         }
 
         inputStream.forEach(frame -> {
-            BMap<BString, Object> record = frame.getRecord();
             for (int i = 0; i < nonGroupingKeys.size(); i++) {
                 BString key = (BString) nonGroupingKeys.get(i);
-                if (record.containsKey(key) && record.get(key) != null) {
+                if (frame.containsKey(key) && frame.get(key) != null) {
                     BArray existingValues = (BArray) groupedRecord.get(key);
-                    existingValues.append(record.get(key));
+                    existingValues.append(frame.get(key));
                 }
             }
         });
 
-        return Stream.of(groupedFrame).map(frame -> {
+        return Stream.of(groupedRecord).map(frame -> {
             Object result = collectFunc.call(env.getRuntime(), groupedRecord);
             return switch (result) {
                 case BError error -> throw error;
-                case BMap<?, ?> map -> Frame.create((BMap<BString, Object>) map);
+                case BMap<?, ?> map -> (BMap<BString, Object>) map;
                 default -> frame;
             };
         });

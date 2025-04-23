@@ -21,7 +21,8 @@ package io.ballerina.runtime.internal.query.clauses;
 import io.ballerina.runtime.api.Environment;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BFunctionPointer;
-import io.ballerina.runtime.internal.query.pipeline.Frame;
+import io.ballerina.runtime.api.values.BMap;
+import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.internal.query.utils.QueryException;
 
 import java.util.stream.Stream;
@@ -64,9 +65,9 @@ public class Where implements QueryClause {
      * @return A filtered stream of frames.
      */
     @Override
-    public Stream<Frame> process(Stream<Frame> inputStream) {
+    public Stream<BMap<BString, Object>> process(Stream<BMap<BString, Object>> inputStream) {
         return inputStream.filter(frame -> {
-            Object result = filterFunc.call(env.getRuntime(), frame.getRecord());
+            Object result = filterFunc.call(env.getRuntime(), frame);
             if (result instanceof Boolean booleanValue) {
                 return booleanValue;
             }

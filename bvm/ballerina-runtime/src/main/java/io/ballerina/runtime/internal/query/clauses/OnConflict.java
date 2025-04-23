@@ -23,7 +23,6 @@ import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BFunctionPointer;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
-import io.ballerina.runtime.internal.query.pipeline.Frame;
 import io.ballerina.runtime.internal.query.utils.QueryException;
 
 import java.util.stream.Stream;
@@ -48,12 +47,11 @@ public class OnConflict implements QueryClause {
 
 
     @Override
-    public Stream<Frame> process(Stream<Frame> inputStream) {
+    public Stream<BMap<BString, Object>> process(Stream<BMap<BString, Object>> inputStream) {
         return inputStream.map(frame -> {
-            Object result = onConflictFunction.call(env.getRuntime(), frame.getRecord());
-            if (result instanceof BMap) {
-                frame.updateRecord((BMap<BString, Object>) result);
-                return frame;
+            Object result = onConflictFunction.call(env.getRuntime(), frame);
+            if (result instanceof BMap<?, ?> map) {
+                return (BMap<BString, Object>) map;
             }
             throw new QueryException((BError) result);
         });

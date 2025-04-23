@@ -24,7 +24,6 @@ import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BFunctionPointer;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
-import io.ballerina.runtime.internal.query.pipeline.Frame;
 import io.ballerina.runtime.internal.query.utils.IteratorUtils;
 import io.ballerina.runtime.internal.query.utils.QueryException;
 
@@ -67,9 +66,9 @@ public class NestedFrom implements QueryClause {
      * @return A stream of frames from the nested collections.
      */
     @Override
-    public Stream<Frame> process(Stream<Frame> inputStream) {
+    public Stream<BMap<BString, Object>> process(Stream<BMap<BString, Object>> inputStream) {
         return inputStream.flatMap(frame -> {
-            Object collection = collectionFunc.call(env.getRuntime(), frame.getRecord());
+            Object collection = collectionFunc.call(env.getRuntime(), frame);
             if (collection instanceof BError error) {
                 throw new QueryException(error);
             }
@@ -79,22 +78,19 @@ public class NestedFrom implements QueryClause {
             }
 
             Iterator<?> itr = IteratorUtils.getIterator(env, collection);
-            List<Frame> results = new ArrayList<>();
+            List<BMap<BString, Object>> results = new ArrayList<>();
 
             try {
                 while (itr.hasNext()) {
                     Object item = itr.next();
-
-                    BMap<BString, Object> originalRecord = frame.getRecord();
                     BMap<BString, Object> newRecord = ValueCreator.createRecordValue(BALLERINA_QUERY_PKG_ID, "_Frame");
-
-                    originalRecord.entrySet().forEach(entry -> {
+                    frame.entrySet().forEach(entry -> {
                         BString key = entry.getKey();
                         Object value = entry.getValue();
                         newRecord.put(key, value);
                     });
                     newRecord.put(VALUE_FIELD, item);
-                    results.add(new Frame(newRecord));
+                    results.add(newRecord);
                 }
             } catch (BError e) {
                 throw new QueryException(e, true);

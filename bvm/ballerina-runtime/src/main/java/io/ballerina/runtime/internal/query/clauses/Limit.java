@@ -19,14 +19,17 @@
 package io.ballerina.runtime.internal.query.clauses;
 
 import io.ballerina.runtime.api.Environment;
+import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BFunctionPointer;
-import io.ballerina.runtime.internal.query.pipeline.Frame;
+import io.ballerina.runtime.api.values.BMap;
+import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.internal.query.utils.QueryException;
 import io.ballerina.runtime.internal.values.ErrorValue;
 
 import java.util.stream.Stream;
 
+import static io.ballerina.runtime.api.constants.RuntimeConstants.BALLERINA_QUERY_PKG_ID;
 import static io.ballerina.runtime.internal.query.utils.QueryConstants.LIMIT_NEGATIVE_ERROR;
 
 /**
@@ -67,8 +70,9 @@ public class Limit implements QueryClause {
      * @return A stream of frames with at most `limit` frames.
      */
     @Override
-    public Stream<Frame> process(Stream<Frame> inputStream) {
-        Object limitResult = limitFunction.call(env.getRuntime(), new Frame().getRecord());
+    public Stream<BMap<BString, Object>> process(Stream<BMap<BString, Object>> inputStream) {
+        BMap<BString, Object> record = ValueCreator.createRecordValue(BALLERINA_QUERY_PKG_ID, "_Frame");
+        Object limitResult = limitFunction.call(env.getRuntime(), record);
         if (limitResult instanceof BError error) {
             return Stream.generate(() -> {
                 throw new QueryException(error);

@@ -24,7 +24,6 @@ import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BFunctionPointer;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
-import io.ballerina.runtime.internal.query.pipeline.Frame;
 import io.ballerina.runtime.internal.query.utils.QueryException;
 import io.ballerina.runtime.internal.utils.ValueComparisonUtils;
 
@@ -53,24 +52,20 @@ public class OrderBy implements QueryClause {
     }
 
     @Override
-    public Stream<Frame> process(Stream<Frame> inputStream) {
+    public Stream<BMap<BString, Object>> process(Stream<BMap<BString, Object>> inputStream) {
         return inputStream.peek(frame -> {
-            Object result = orderKeyFunction.call(env.getRuntime(), frame.getRecord());
+            Object result = orderKeyFunction.call(env.getRuntime(), frame);
             if (result instanceof BError error) {
                 throw new QueryException(error);
             }
         }).sorted(getComparator());
     }
 
-    private Comparator<Frame> getComparator() {
+    private Comparator<BMap<BString, Object>> getComparator() {
         return (frame1, frame2) -> {
-            BMap<BString, Object> record1 = frame1.getRecord();
-            BMap<BString, Object> record2 = frame2.getRecord();
-
-            BArray orderKey1Array = (BArray) record1.get(ORDER_KEY);
-            BArray orderKey2Array = (BArray) record2.get(ORDER_KEY);
-            BArray orderDirectionArray = (BArray) record1.get(ORDER_DIRECTION);
-
+            BArray orderKey1Array = (BArray) frame1.get(ORDER_KEY);
+            BArray orderKey2Array = (BArray) frame2.get(ORDER_KEY);
+            BArray orderDirectionArray = (BArray) frame1.get(ORDER_DIRECTION);
             int size = orderKey1Array.size();
             for (int i = 0; i < size; i++) {
                 Object key1 = orderKey1Array.getRefValue(i);
