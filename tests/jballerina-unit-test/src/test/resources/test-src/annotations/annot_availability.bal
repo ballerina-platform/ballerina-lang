@@ -20,7 +20,7 @@ annotation map<string> Y on object field;
 annotation Z on field;
 
 @W
-type Foo record {
+type FooAA record {
     string s;
     @Z
     @X {
@@ -29,7 +29,7 @@ type Foo record {
 };
 
 @W
-class Bar {
+class BarAA {
     @Y {
         q: "hello",
         r: "world"
@@ -39,7 +39,7 @@ class Bar {
 }
 
 @W
-service class Ser {
+service class SerAA {
     @Z
     int j = 1;
 }
@@ -49,10 +49,10 @@ int glob = 2;
 public function testStructureAnnots() returns [typedesc<record {}>, typedesc<object {}>, typedesc<service object {}>] {
     glob = 123;
 
-    Foo f = {s: "", i: 1};
-    Bar b = new;
+    FooAA f = {s: "", i: 1};
+    BarAA b = new;
 
-    var bar = new Ser();
+    var bar = new SerAA();
 
     return [typeof f, typeof b, typeof bar];
 }
