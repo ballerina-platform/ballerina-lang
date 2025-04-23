@@ -21,7 +21,8 @@ package io.ballerina.runtime.internal.query.clauses;
 import io.ballerina.runtime.api.Environment;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BFunctionPointer;
-import io.ballerina.runtime.internal.query.pipeline.Frame;
+import io.ballerina.runtime.api.values.BMap;
+import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.internal.query.utils.QueryException;
 
 import java.util.stream.Stream;
@@ -59,14 +60,14 @@ public class Do implements QueryClause {
      * @return The same stream after applying the function.
      */
     @Override
-    public Stream<Frame> process(Stream<Frame> inputStream) {
+    public Stream<BMap<BString, Object>> process(Stream<BMap<BString, Object>> inputStream) {
         return inputStream.map(frame -> {
-            Object result = function.call(env.getRuntime(), frame.getRecord());
+            Object result = function.call(env.getRuntime(), frame);
             if (result instanceof BError error) {
                 throw new QueryException(error);
             }
             if (result != null) {
-                frame.updateRecord(VALUE_ACCESS_FIELD, result);
+                frame.put(VALUE_ACCESS_FIELD, result);
             }
             return frame;
         });

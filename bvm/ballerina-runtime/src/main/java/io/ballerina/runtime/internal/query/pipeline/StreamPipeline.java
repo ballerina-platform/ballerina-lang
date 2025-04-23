@@ -19,6 +19,8 @@
 package io.ballerina.runtime.internal.query.pipeline;
 
 import io.ballerina.runtime.api.Environment;
+import io.ballerina.runtime.api.values.BMap;
+import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BTypedesc;
 import io.ballerina.runtime.internal.query.clauses.QueryClause;
 import io.ballerina.runtime.internal.query.utils.IteratorUtils;
@@ -28,7 +30,6 @@ import io.ballerina.runtime.internal.values.ErrorValue;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.function.Supplier;
 import java.util.stream.Stream;
 
 /**
@@ -38,8 +39,7 @@ import java.util.stream.Stream;
  */
 public class StreamPipeline {
 
-    private Stream<Frame> stream;
-    private Supplier<Stream<Frame>> streamSupplier;
+    private Stream<BMap<BString, Object>> stream;
     private final List<QueryClause> clauseList;
     private final BTypedesc constraintType;
     private final BTypedesc completionType;
@@ -140,7 +140,7 @@ public class StreamPipeline {
      * @param itr The iterator for the Ballerina collection.
      * @return A Java stream of `Frame` objects.
      */
-    private Stream<Frame> initializeFrameStream(Iterator<?> itr) throws ErrorValue {
+    private Stream<BMap<BString, Object>> initializeFrameStream(Iterator<?> itr) throws ErrorValue {
         return IteratorUtils.toStream(itr);
     }
 
@@ -159,7 +159,7 @@ public class StreamPipeline {
         return completionType;
     }
 
-    public Stream<Frame> getStream() {
+    public Stream<BMap<BString, Object>> getStream() {
         return stream;
     }
 }

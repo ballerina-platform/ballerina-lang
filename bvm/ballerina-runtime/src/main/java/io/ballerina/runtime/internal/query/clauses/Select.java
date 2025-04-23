@@ -22,7 +22,7 @@ import io.ballerina.runtime.api.Environment;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BFunctionPointer;
 import io.ballerina.runtime.api.values.BMap;
-import io.ballerina.runtime.internal.query.pipeline.Frame;
+import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.internal.query.utils.QueryException;
 
 import java.util.stream.Stream;
@@ -65,12 +65,11 @@ public class Select implements QueryClause {
      * @return A transformed stream of frames.
      */
     @Override
-    public Stream<Frame> process(Stream<Frame> inputStream) throws BError {
+    public Stream<BMap<BString, Object>> process(Stream<BMap<BString, Object>> inputStream) throws BError {
         return inputStream.map(frame -> {
-            Object result = selector.call(env.getRuntime(), frame.getRecord());
-            if (result instanceof BMap mapVal) {
-                frame.updateRecord(mapVal);
-                return frame;
+            Object result = selector.call(env.getRuntime(), frame);
+            if (result instanceof BMap<?, ?> map) {
+                return (BMap<BString, Object>) map;
             } else if (result instanceof BError error) {
                 throw new QueryException(error);
             }
