@@ -51,7 +51,7 @@ public $anonType$_3 error{$anonType$_2}
 $annotation_data map<any>;
 $typedesc$Foo typeDesc<Foo>;
 $typedesc$A typeDesc<A>;
-$typedesc$$anonType$_4 typeDesc<$anonType$_4>;
+$typedesc$0 typeDesc<$anonType$_4>;
 
 
 public .<init> function() -> error{map<ballerina/lang.value:0.0.0:Cloneable>}|() {
@@ -63,7 +63,7 @@ public .<init> function() -> error{map<ballerina/lang.value:0.0.0:Cloneable>}|()
         $annotation_data = NewMap %2{};
         $typedesc$Foo = newType Foo;
         $typedesc$A = newType A;
-        $typedesc$$anonType$_4 = newType $anonType$_4;
+        $typedesc$0 = newType $anonType$_4;
         %0 = ConstLoad 0;
         GOTO bb1;
     }
@@ -207,7 +207,7 @@ testSameTypeDesc function() -> () {
         %80 = ConstLoad value;
         %8 = ConstLoad 0;
         %82 = <any> %8;
-        %77 = NewMap $typedesc$$anonType$_4{%59:%79,%80:%82};
+        %77 = NewMap $typedesc$0{%59:%79,%80:%82};
         %84 = cloneReadOnly(%77) -> bb1;
     }
     bb1 {
