@@ -19,18 +19,20 @@
 package io.ballerina.runtime.internal.query.utils;
 
 import io.ballerina.runtime.api.Environment;
+import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.api.values.BStream;
+import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.IterableValue;
-import io.ballerina.runtime.internal.query.pipeline.Frame;
 import io.ballerina.runtime.internal.values.ErrorValue;
 
 import java.util.Iterator;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
+import static io.ballerina.runtime.api.constants.RuntimeConstants.BALLERINA_QUERY_PKG_ID;
 import static io.ballerina.runtime.internal.query.utils.QueryConstants.VALUE_FIELD;
 
 /**
@@ -47,9 +49,13 @@ public class IteratorUtils {
      * @param <T>          The type of elements in the collection.
      * @return A Java Stream of elements.
      */
-    public static <T> Stream<Frame> toStream(Iterator<T> javaIterator) throws ErrorValue {
+    public static <T> Stream<BMap<BString, Object>> toStream(Iterator<T> javaIterator) throws ErrorValue {
         return StreamSupport.stream(((Iterable<T>) () -> javaIterator).spliterator(), false)
-                .map(element -> Frame.create(VALUE_FIELD, element));
+                .map(element -> {
+                    BMap<BString, Object> record = ValueCreator.createRecordValue(BALLERINA_QUERY_PKG_ID, "_Frame");
+                    record.put(VALUE_FIELD, element);
+                    return record;
+                });
     }
 
     /**

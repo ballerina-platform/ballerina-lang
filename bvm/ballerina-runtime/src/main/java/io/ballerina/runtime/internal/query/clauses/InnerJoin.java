@@ -19,9 +19,11 @@
 package io.ballerina.runtime.internal.query.clauses;
 
 import io.ballerina.runtime.api.Environment;
+import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BFunctionPointer;
-import io.ballerina.runtime.internal.query.pipeline.Frame;
+import io.ballerina.runtime.api.values.BMap;
+import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.internal.query.pipeline.StreamPipeline;
 import io.ballerina.runtime.internal.query.utils.QueryException;
 
@@ -32,6 +34,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
 
+import static io.ballerina.runtime.api.constants.RuntimeConstants.BALLERINA_QUERY_PKG_ID;
+
 /**
  * Represents an Inner Join Clause in the query pipeline.
  *
@@ -41,7 +45,7 @@ public class InnerJoin implements QueryClause {
     private final StreamPipeline pipelineToJoin;
     private final BFunctionPointer lhsKeyFunction;
     private final BFunctionPointer rhsKeyFunction;
-    private final Map<String, List<Frame>> rhsFramesMap = new HashMap<>();
+    private final Map<String, List<BMap<BString, Object>>> rhsFramesMap = new HashMap<>();
     private BError failureAtJoin = null;
     private final Environment env;
 
@@ -83,9 +87,10 @@ public class InnerJoin implements QueryClause {
      */
     private void initializeRhsFrames() {
         try {
-            Stream<Frame> strm = ((StreamPipeline) StreamPipeline.getStreamFromPipeline(pipelineToJoin)).getStream();
+            Stream<BMap<BString, Object>> strm = ((StreamPipeline) StreamPipeline
+                            .getStreamFromPipeline(pipelineToJoin)).getStream();
             strm.forEach(frame -> {
-                Object key = rhsKeyFunction.call(env.getRuntime(), frame.getRecord());
+                Object key = rhsKeyFunction.call(env.getRuntime(), frame);
                 if (key instanceof BError error) {
                     failureAtJoin = error;
                     return;
@@ -104,17 +109,18 @@ public class InnerJoin implements QueryClause {
      * @return A joined stream of frames.
      */
     @Override
-    public Stream<Frame> process(Stream<Frame> inputStream) {
+    public Stream<BMap<BString, Object>> process(Stream<BMap<BString, Object>> inputStream) {
         return inputStream.flatMap(lhsFrame -> {
             try {
                 if (failureAtJoin != null) {
                     throw new QueryException(failureAtJoin);
                 }
-                Object lhsKey = lhsKeyFunction.call(env.getRuntime(), lhsFrame.getRecord());
+                Object lhsKey = lhsKeyFunction.call(env.getRuntime(), lhsFrame);
                 if (lhsKey instanceof BError error) {
                     throw new QueryException(error);
                 }
-                List<Frame> rhsCandidates = rhsFramesMap.getOrDefault(lhsKey.toString(), Collections.emptyList());
+                List<BMap<BString, Object>> rhsCandidates = rhsFramesMap
+                        .getOrDefault(lhsKey.toString(), Collections.emptyList());
                 return rhsCandidates.stream()
                         .map(rhsFrame -> mergeFrames(lhsFrame, rhsFrame));
 
@@ -131,13 +137,13 @@ public class InnerJoin implements QueryClause {
      * @param rhs The right-hand frame.
      * @return A merged frame.
      */
-    private Frame mergeFrames(Frame lhs, Frame rhs) {
-        Frame result = new Frame();
-        lhs.getRecord().entrySet().forEach(entry ->
-                result.getRecord().put(entry.getKey(), entry.getValue())
+    private BMap<BString, Object> mergeFrames(BMap<BString, Object> lhs, BMap<BString, Object> rhs) {
+        BMap<BString, Object> result = ValueCreator.createRecordValue(BALLERINA_QUERY_PKG_ID, "_Frame");
+        lhs.entrySet().forEach(entry ->
+                result.put(entry.getKey(), entry.getValue())
         );
-        rhs.getRecord().entrySet().forEach(entry ->
-                result.getRecord().put(entry.getKey(), entry.getValue())
+        rhs.entrySet().forEach(entry ->
+                result.put(entry.getKey(), entry.getValue())
         );
         return result;
     }
