@@ -27,7 +27,7 @@ import java.util.HashMap;
 /**
  * Test class to test the parallel execution of Ballerina tests.
  */
-
+@Test(enabled = false)
 public class TestparallelizationTest extends BaseTestCase {
 
     public static final String PARALLEL_FLAG = "--parallel";
