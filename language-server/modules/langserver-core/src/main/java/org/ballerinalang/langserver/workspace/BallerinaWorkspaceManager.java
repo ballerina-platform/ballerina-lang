@@ -138,6 +138,11 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
      *  lock does not consider the first compilation (before creating the project context).
      */
     private final Map<Path, Lock> projectLockMap;
+    /**
+     * The build options are used when compiling the project for the LS change events. The build options can be
+     * changed based on the flags set in the client.
+     */
+    private BuildOptions buildOptions;
 
     protected final LSClientLogger clientLogger;
     private final LanguageServerContext serverContext;
@@ -167,6 +172,12 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
                 projectContext.process().ifPresent(Process::destroy);
             }
         }));
+
+        // Set the default build options
+        this.buildOptions = BuildOptions.builder()
+                .setOffline(CommonUtil.COMPILE_OFFLINE)
+                .setSticky(true)
+                .build();
     }
 
     @Override
@@ -820,6 +831,16 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
         }
     }
 
+    /**
+     * Sets the build options for the subsequent builds. This is not exposed to the extended language services since it
+     * is only required for the core services.
+     *
+     * @param buildOptions The build options to be set
+     */
+    public void setBuildOptions(BuildOptions buildOptions) {
+        this.buildOptions = buildOptions;
+    }
+
     private Optional<ProjectContext> projectOfWatchedFileChange(Path filePath, FileEvent fileEvent,
                                                                 boolean isBallerinaSourceChange,
                                                                 boolean isBallerinaTomlChange,
@@ -1441,12 +1462,8 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
         Path projectRoot = projectKindAndProjectRootPair.getRight();
         try {
             Project project;
-            BuildOptions options = BuildOptions.builder()
-                    .setOffline(CommonUtil.COMPILE_OFFLINE)
-                    .setSticky(true)
-                    .build();
             if (projectKind == ProjectKind.BUILD_PROJECT) {
-                project = BuildProject.load(projectRoot, options);
+                project = BuildProject.load(projectRoot, buildOptions);
 
                 // TODO: Remove this once https://github.com/ballerina-platform/ballerina-lang/issues/43972 is resolved
                 // Save the dependencies.toml to resolve the inconsistencies issue in the subsequent builds
@@ -1458,10 +1475,10 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
                     project = BuildProject.load(projectRoot, newOptions);
                 }
             } else if (projectKind == ProjectKind.SINGLE_FILE_PROJECT) {
-                project = SingleFileProject.load(projectRoot, options);
+                project = SingleFileProject.load(projectRoot, buildOptions);
             } else {
                 // Projects other than single file and build will use the ProjectLoader.
-                project = ProjectLoader.loadProject(projectRoot, options);
+                project = ProjectLoader.loadProject(projectRoot, buildOptions);
             }
             clientLogger.logTrace("Operation '" + operationName +
                     "' {project: '" + projectRoot.toUri().toString() + "' kind: '" +

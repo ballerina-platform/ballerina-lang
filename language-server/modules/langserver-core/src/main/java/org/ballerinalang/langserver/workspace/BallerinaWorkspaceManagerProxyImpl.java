@@ -15,6 +15,7 @@
  */
 package org.ballerinalang.langserver.workspace;
 
+import io.ballerina.projects.BuildOptions;
 import io.ballerina.projects.Project;
 import org.ballerinalang.langserver.LSContextOperation;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
@@ -126,6 +127,18 @@ public class BallerinaWorkspaceManagerProxyImpl implements BallerinaWorkspaceMan
         public String uriScheme() {
             return CommonUtil.EXPR_SCHEME;
         }
+    }
+
+    /**
+     * Sets the build options for both base and cloned workspace managers.
+     *
+     * @param buildOptions The build options to be set
+     */
+    public void setBuildOptions(BuildOptions buildOptions) {
+        if (this.baseWorkspaceManager instanceof BallerinaWorkspaceManager ballerinaWorkspaceManager) {
+            ballerinaWorkspaceManager.setBuildOptions(buildOptions);
+        }
+        this.clonedWorkspaceManager.setBuildOptions(buildOptions);
     }
 
     private boolean isExprScheme(String uri) {

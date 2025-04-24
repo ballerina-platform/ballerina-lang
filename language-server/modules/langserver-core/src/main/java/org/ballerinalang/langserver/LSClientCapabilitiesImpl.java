@@ -26,6 +26,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import static org.ballerinalang.langserver.Experimental.EXPERIMENTAL_LANGUAGE_FEATURES;
 import static org.ballerinalang.langserver.Experimental.INTROSPECTION;
 import static org.ballerinalang.langserver.Experimental.SHOW_TEXT_DOCUMENT;
 
@@ -116,9 +117,14 @@ public class LSClientCapabilitiesImpl implements LSClientCapabilities {
         Object showTextDocument = experimentalCapabilities.get(SHOW_TEXT_DOCUMENT.getValue());
         boolean showTextDocumentEnabled = showTextDocument instanceof Boolean && (Boolean) showTextDocument;
 
+        Object experimentalLanguageFeatures = experimentalCapabilities.get(EXPERIMENTAL_LANGUAGE_FEATURES.getValue());
+        boolean experimentalLanguageFeaturesEnabled = experimentalLanguageFeatures instanceof Boolean &&
+                (Boolean) experimentalLanguageFeatures;
+
         ExperimentalClientCapabilitiesImpl capabilities = new ExperimentalClientCapabilitiesImpl();
         capabilities.setIntrospectionEnabled(introspectionEnabled);
         capabilities.setShowTextDocumentEnabled(showTextDocumentEnabled);
+        capabilities.setExperimentalLanguageFeaturesEnabled(experimentalLanguageFeaturesEnabled);
 
         return capabilities;
     }
@@ -183,6 +189,7 @@ public class LSClientCapabilitiesImpl implements LSClientCapabilities {
 
         private boolean introspectionEnabled = false;
         private boolean showTextDocumentEnabled = false;
+        private boolean experimentalLanguageFeaturesEnabled = false;
 
         /**
          * Returns whether the introspection enabled or not.
@@ -204,12 +211,24 @@ public class LSClientCapabilitiesImpl implements LSClientCapabilities {
             return showTextDocumentEnabled;
         }
 
+        /**
+         * @inheritDoc
+         */
+        @Override
+        public boolean isExperimentalLanguageFeaturesEnabled() {
+            return experimentalLanguageFeaturesEnabled;
+        }
+
         private void setIntrospectionEnabled(boolean introspectionEnabled) {
             this.introspectionEnabled = introspectionEnabled;
         }
 
         private void setShowTextDocumentEnabled(boolean showTextDocumentEnabled) {
             this.showTextDocumentEnabled = showTextDocumentEnabled;
+        }
+
+        private void setExperimentalLanguageFeaturesEnabled(boolean experimentalLanguageFeaturesEnabled) {
+            this.experimentalLanguageFeaturesEnabled = experimentalLanguageFeaturesEnabled;
         }
     }
 
