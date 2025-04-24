@@ -37,9 +37,9 @@ public interface ExperimentalClientCapabilities {
     boolean isShowTextDocumentEnabled();
 
     /**
-     * Returns whether the experimental compilation enabled or not.
+     * Returns whether the experimental language features enabled or not.
      *
      * @return True when enabled, False otherwise
      */
-    boolean isExperimentalCompilationEnabled();
+    boolean isExperimentalLanguageFeaturesEnabled();
 }

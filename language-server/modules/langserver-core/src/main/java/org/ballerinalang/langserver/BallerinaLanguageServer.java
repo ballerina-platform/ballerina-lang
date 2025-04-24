@@ -146,15 +146,14 @@ public class BallerinaLanguageServer extends AbstractExtendedLanguageServer
         }
 
         // Compile the project with the experimental flag if the client has it enabled
-        if (capabilities.getExperimentalCapabilities().isExperimentalCompilationEnabled()) {
+        if (capabilities.getExperimentalCapabilities().isExperimentalLanguageFeaturesEnabled() &&
+                workspaceManagerProxy instanceof BallerinaWorkspaceManagerProxyImpl ballerinaWorkspaceManagerProxy) {
             BuildOptions buildOptions = BuildOptions.builder()
                     .setOffline(CommonUtil.COMPILE_OFFLINE)
                     .setSticky(true)
                     .setExperimental(true)
                     .build();
-            if (workspaceManagerProxy instanceof BallerinaWorkspaceManagerProxyImpl ballerinaWorkspaceManagerProxy) {
-                ballerinaWorkspaceManagerProxy.setBuildOptions(buildOptions);
-            }
+            ballerinaWorkspaceManagerProxy.setBuildOptions(buildOptions);
         }
 
         final SignatureHelpOptions signatureHelpOptions = new SignatureHelpOptions(Arrays.asList("(", ","));

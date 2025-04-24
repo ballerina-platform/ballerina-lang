@@ -26,7 +26,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import static org.ballerinalang.langserver.Experimental.EXPERIMENTAL_COMPILATION;
+import static org.ballerinalang.langserver.Experimental.EXPERIMENTAL_LANGUAGE_FEATURES;
 import static org.ballerinalang.langserver.Experimental.INTROSPECTION;
 import static org.ballerinalang.langserver.Experimental.SHOW_TEXT_DOCUMENT;
 
@@ -117,14 +117,14 @@ public class LSClientCapabilitiesImpl implements LSClientCapabilities {
         Object showTextDocument = experimentalCapabilities.get(SHOW_TEXT_DOCUMENT.getValue());
         boolean showTextDocumentEnabled = showTextDocument instanceof Boolean && (Boolean) showTextDocument;
 
-        Object experimentalCompilation = experimentalCapabilities.get(EXPERIMENTAL_COMPILATION.getValue());
-        boolean experimentalCompilationEnabled = experimentalCompilation instanceof Boolean &&
-                (Boolean) experimentalCompilation;
+        Object experimentalLanguageFeatures = experimentalCapabilities.get(EXPERIMENTAL_LANGUAGE_FEATURES.getValue());
+        boolean experimentalLanguageFeaturesEnabled = experimentalLanguageFeatures instanceof Boolean &&
+                (Boolean) experimentalLanguageFeatures;
 
         ExperimentalClientCapabilitiesImpl capabilities = new ExperimentalClientCapabilitiesImpl();
         capabilities.setIntrospectionEnabled(introspectionEnabled);
         capabilities.setShowTextDocumentEnabled(showTextDocumentEnabled);
-        capabilities.setExperimentalCompilationEnabled(experimentalCompilationEnabled);
+        capabilities.setExperimentalLanguageFeaturesEnabled(experimentalLanguageFeaturesEnabled);
 
         return capabilities;
     }
@@ -189,7 +189,7 @@ public class LSClientCapabilitiesImpl implements LSClientCapabilities {
 
         private boolean introspectionEnabled = false;
         private boolean showTextDocumentEnabled = false;
-        private boolean experimentalCompilationEnabled = false;
+        private boolean experimentalLanguageFeaturesEnabled = false;
 
         /**
          * Returns whether the introspection enabled or not.
@@ -215,8 +215,8 @@ public class LSClientCapabilitiesImpl implements LSClientCapabilities {
          * @inheritDoc
          */
         @Override
-        public boolean isExperimentalCompilationEnabled() {
-            return experimentalCompilationEnabled;
+        public boolean isExperimentalLanguageFeaturesEnabled() {
+            return experimentalLanguageFeaturesEnabled;
         }
 
         private void setIntrospectionEnabled(boolean introspectionEnabled) {
@@ -227,8 +227,8 @@ public class LSClientCapabilitiesImpl implements LSClientCapabilities {
             this.showTextDocumentEnabled = showTextDocumentEnabled;
         }
 
-        private void setExperimentalCompilationEnabled(boolean experimentalCompilationEnabled) {
-            this.experimentalCompilationEnabled = experimentalCompilationEnabled;
+        private void setExperimentalLanguageFeaturesEnabled(boolean experimentalLanguageFeaturesEnabled) {
+            this.experimentalLanguageFeaturesEnabled = experimentalLanguageFeaturesEnabled;
         }
     }
 
