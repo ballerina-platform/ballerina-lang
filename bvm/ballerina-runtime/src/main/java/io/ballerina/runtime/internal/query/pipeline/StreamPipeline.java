@@ -135,10 +135,10 @@ public class StreamPipeline {
     }
 
     /**
-     * Initializes a stream of `Frame` objects from the provided Ballerina collection.
+     * Initializes a stream of records from the provided Ballerina collection.
      *
      * @param itr The iterator for the Ballerina collection.
-     * @return A Java stream of `Frame` objects.
+     * @return A Java stream of record objects.
      */
     private Stream<BMap<BString, Object>> initializeFrameStream(Iterator<?> itr) throws ErrorValue {
         return IteratorUtils.toStream(itr);
