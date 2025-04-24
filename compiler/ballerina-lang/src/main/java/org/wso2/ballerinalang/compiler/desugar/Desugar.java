@@ -857,8 +857,8 @@ public class Desugar extends BLangNodeVisitor {
         result = pkgNode;
     }
 
-    private void desugarConstants(BLangConstant constant, List<BLangVariable> desugaredGlobalVarList,
-                                  BLangBlockFunctionBody initFnBody, SymbolEnv initFunctionEnv) {
+    private void desugarConstant(BLangConstant constant, List<BLangVariable> desugaredGlobalVarList,
+                                 BLangBlockFunctionBody initFnBody, SymbolEnv initFunctionEnv) {
         BType constType = Types.getReferredType(constant.symbol.type);
         if (constType.tag != TypeTags.INTERSECTION) {
             return;
@@ -932,8 +932,9 @@ public class Desugar extends BLangNodeVisitor {
 
     private Name generateTypedescVariableName(BType targetType) {
         // tsymbol.name.value is empty for anonymous types except for record types and map types
-        return targetType.tag != TypeTags.TYPEREFDESC?
-                new Name(TYPEDESC + typedescCount++) : new Name(TYPEDESC + targetType.tsymbol.name.value);
+        // tsymbol.name.value is always `map` for map types
+        return targetType.tag == TypeTags.MAP || targetType.tsymbol.name.value.isEmpty() ?
+                 new Name(TYPEDESC + typedescCount++) : new Name(TYPEDESC + targetType.tsymbol.name.value);
     }
 
     private BLangSimpleVariableDef createSimpleVariableDef(Location pos, String name, BType type, BLangExpression expr,
@@ -1048,10 +1049,10 @@ public class Desugar extends BLangNodeVisitor {
                         desugarVariable((BLangVariable) topLevelNode, initFunctionEnv, initFnBody,
                                 desugaredGlobalVarList);
                 case VARIABLE ->
-                        desugarGlobalVariables(initFunctionEnv, desugaredGlobalVarList, (BLangVariable) topLevelNode,
+                        desugarGlobalVariable(initFunctionEnv, desugaredGlobalVarList, (BLangVariable) topLevelNode,
                                 initFnBody);
                 case CONSTANT ->
-                        desugarConstants((BLangConstant) topLevelNode, desugaredGlobalVarList, initFnBody,
+                        desugarConstant((BLangConstant) topLevelNode, desugaredGlobalVarList, initFnBody,
                                 initFunctionEnv);
                 case TYPE_DEFINITION -> {
                     rewrite((BLangTypeDefinition) topLevelNode, env);
@@ -1088,8 +1089,8 @@ public class Desugar extends BLangNodeVisitor {
         }
     }
 
-    private void desugarGlobalVariables(SymbolEnv initFunctionEnv, List<BLangVariable> desugaredGlobalVarList,
-                                        BLangVariable globalVar, BLangBlockFunctionBody initFnBody) {
+    private void desugarGlobalVariable(SymbolEnv initFunctionEnv, List<BLangVariable> desugaredGlobalVarList,
+                                       BLangVariable globalVar, BLangBlockFunctionBody initFnBody) {
         long globalVarFlags = globalVar.symbol.flags;
         BLangSimpleVariable simpleGlobalVar = (BLangSimpleVariable) globalVar;
 

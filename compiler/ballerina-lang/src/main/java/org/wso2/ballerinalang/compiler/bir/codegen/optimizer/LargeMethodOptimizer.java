@@ -1926,7 +1926,7 @@ public class LargeMethodOptimizer {
                                               List<BIRVariableDcl> splitFuncLocalVars,
                                               List<BIRNonTerminator> entryBBInstList) {
         if (!argNameList.isEmpty()) {
-            BIRVariableDcl argTuple = funcArgs.get(funcArgs.size() - 1);
+            BIRVariableDcl argTuple = funcArgs.getLast();
             List<BType> argTupleMembers = ((BTupleType) argTuple.type).getTupleTypes();
 
             // Create temp var to store the arg index which needs to be loaded from the arg tuple
