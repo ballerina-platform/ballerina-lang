@@ -21,7 +21,8 @@ package io.ballerina.runtime.internal.query.clauses;
 import io.ballerina.runtime.api.Environment;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BFunctionPointer;
-import io.ballerina.runtime.internal.query.pipeline.Frame;
+import io.ballerina.runtime.api.values.BMap;
+import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.internal.query.utils.QueryException;
 
 import java.util.stream.Stream;
@@ -31,30 +32,30 @@ import java.util.stream.Stream;
  *
  * @since 2201.13.0
  */
-public class WhereClause implements PipelineStage {
+public class Where implements QueryClause {
     private final BFunctionPointer filterFunc;
     private final Environment env;
 
     /**
-     * Constructor for the WhereClause.
+     * Constructor for the Where.
      *
      * @param env        The runtime environment.
      * @param filterFunc The function to filter frames.
      */
-    private WhereClause(Environment env, BFunctionPointer filterFunc) {
+    private Where(Environment env, BFunctionPointer filterFunc) {
         this.filterFunc = filterFunc;
         this.env = env;
     }
 
     /**
-     * Static initializer for WhereClause.
+     * Static initializer for Where.
      *
      * @param env        The runtime environment.
      * @param filterFunc The filter function.
-     * @return A new instance of WhereClause.
+     * @return A new instance of Where.
      */
-    public static WhereClause initWhereClause(Environment env, BFunctionPointer filterFunc) {
-        return new WhereClause(env, filterFunc);
+    public static Where initWhereClause(Environment env, BFunctionPointer filterFunc) {
+        return new Where(env, filterFunc);
     }
 
     /**
@@ -64,14 +65,13 @@ public class WhereClause implements PipelineStage {
      * @return A filtered stream of frames.
      */
     @Override
-    public Stream<Frame> process(Stream<Frame> inputStream) {
+    public Stream<BMap<BString, Object>> process(Stream<BMap<BString, Object>> inputStream) {
         return inputStream.filter(frame -> {
-            Object result = filterFunc.call(env.getRuntime(), frame.getRecord());
+            Object result = filterFunc.call(env.getRuntime(), frame);
             if (result instanceof Boolean booleanValue) {
                 return booleanValue;
-            } else {
-                throw new QueryException((BError) result);
             }
+            throw new QueryException((BError) result);
         });
     }
 }

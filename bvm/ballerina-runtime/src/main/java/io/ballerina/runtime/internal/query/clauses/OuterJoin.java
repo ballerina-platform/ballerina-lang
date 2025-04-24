@@ -19,9 +19,11 @@
 package io.ballerina.runtime.internal.query.clauses;
 
 import io.ballerina.runtime.api.Environment;
+import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BFunctionPointer;
-import io.ballerina.runtime.internal.query.pipeline.Frame;
+import io.ballerina.runtime.api.values.BMap;
+import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.internal.query.pipeline.StreamPipeline;
 import io.ballerina.runtime.internal.query.utils.QueryException;
 
@@ -32,34 +34,36 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
 
+import static io.ballerina.runtime.api.constants.RuntimeConstants.BALLERINA_QUERY_PKG_ID;
+
 /**
  * Represents an Outer Join Clause in the query pipeline.
  *
  * @since 2201.13.0
  */
-public class OuterJoinClause implements PipelineStage {
+public class OuterJoin implements QueryClause {
     private final StreamPipeline pipelineToJoin;
     private final BFunctionPointer lhsKeyFunction;
     private final BFunctionPointer rhsKeyFunction;
-    private final Map<String, List<Frame>> rhsFramesMap = new HashMap<>();
-    private final Frame nilFrame;
+    private final Map<String, List<BMap<BString, Object>>> rhsFramesMap = new HashMap<>();
+    private final BMap<BString, Object> nilFrame;
     private BError failureAtJoin = null;
     private final Environment env;
 
     /**
-     * Constructor for the OuterJoinClause.
+     * Constructor for the OuterJoin.
      *
      * @param env The runtime environment.
      * @param pipelineToJoin The pipeline representing the right-hand side of the join.
      * @param lhsKeyFunction The function to extract the join key from the left-hand side.
      * @param rhsKeyFunction The function to extract the join key from the right-hand side.
      */
-    private OuterJoinClause(Environment env, StreamPipeline pipelineToJoin,
-                           BFunctionPointer lhsKeyFunction, BFunctionPointer rhsKeyFunction) {
+    private OuterJoin(Environment env, StreamPipeline pipelineToJoin,
+                      BFunctionPointer lhsKeyFunction, BFunctionPointer rhsKeyFunction) {
         this.pipelineToJoin = pipelineToJoin;
         this.lhsKeyFunction = lhsKeyFunction;
         this.rhsKeyFunction = rhsKeyFunction;
-        this.nilFrame = new Frame();
+        this.nilFrame = ValueCreator.createRecordValue(BALLERINA_QUERY_PKG_ID, "_Frame");
         this.env = env;
         initializeRhsFrames();
     }
@@ -71,13 +75,13 @@ public class OuterJoinClause implements PipelineStage {
      * @param pipelineToJoin The pipeline representing the right-hand side of the join.
      * @param lhsKeyFunction The function to extract the join key from the left-hand side.
      * @param rhsKeyFunction The function to extract the join key from the right-hand side.
-     * @return The initialized OuterJoinClause.
+     * @return The initialized OuterJoin.
      */
-    public static OuterJoinClause initOuterJoinClause(Environment env,
-                                                      StreamPipeline pipelineToJoin,
-                                                      BFunctionPointer lhsKeyFunction,
-                                                      BFunctionPointer rhsKeyFunction) {
-        return new OuterJoinClause(env, pipelineToJoin, lhsKeyFunction, rhsKeyFunction);
+    public static OuterJoin initOuterJoinClause(Environment env,
+                                                StreamPipeline pipelineToJoin,
+                                                BFunctionPointer lhsKeyFunction,
+                                                BFunctionPointer rhsKeyFunction) {
+        return new OuterJoin(env, pipelineToJoin, lhsKeyFunction, rhsKeyFunction);
     }
 
     /**
@@ -85,9 +89,10 @@ public class OuterJoinClause implements PipelineStage {
      */
     private void initializeRhsFrames() {
         try {
-            Stream<Frame> strm = ((StreamPipeline) StreamPipeline.getStreamFromPipeline(pipelineToJoin)).getStream();
+            Stream<BMap<BString, Object>> strm = ((StreamPipeline) StreamPipeline
+                    .getStreamFromPipeline(pipelineToJoin)).getStream();
             strm.forEach(frame -> {
-                Object key = rhsKeyFunction.call(env.getRuntime(), frame.getRecord());
+                Object key = rhsKeyFunction.call(env.getRuntime(), frame);
                 if (key instanceof BError error) {
                     failureAtJoin = error;
                     return;
@@ -106,26 +111,26 @@ public class OuterJoinClause implements PipelineStage {
      * @return A joined stream of frames.
      */
     @Override
-    public Stream<Frame> process(Stream<Frame> inputStream) {
+    public Stream<BMap<BString, Object>> process(Stream<BMap<BString, Object>> inputStream) {
         return inputStream.flatMap(lhsFrame -> {
             try {
                 if (failureAtJoin != null) {
                     throw new QueryException(failureAtJoin);
                 }
-                Object lhsKey = lhsKeyFunction.call(env.getRuntime(), lhsFrame.getRecord());
+                Object lhsKey = lhsKeyFunction.call(env.getRuntime(), lhsFrame);
                 if (lhsKey instanceof BError error) {
                     throw new QueryException(error);
                 }
-                List<Frame> rhsCandidates = rhsFramesMap.getOrDefault(lhsKey.toString(), Collections.emptyList());
-
+                List<BMap<BString, Object>> rhsCandidates = rhsFramesMap
+                        .getOrDefault(lhsKey.toString(), Collections.emptyList());
                 if (rhsCandidates.isEmpty()) {
                     // No matching RHS frames, join with nilFrame
-                    Frame joinedFrame = new Frame();
-                    lhsFrame.getRecord().entrySet().forEach(entry ->
-                            joinedFrame.getRecord().put(entry.getKey(), entry.getValue())
+                    BMap<BString, Object> joinedFrame = ValueCreator.createMapValue();
+                    lhsFrame.entrySet().forEach(entry ->
+                            joinedFrame.put(entry.getKey(), entry.getValue())
                     );
-                    nilFrame.getRecord().entrySet().forEach(entry ->
-                            joinedFrame.getRecord().put(entry.getKey(), entry.getValue())
+                    nilFrame.entrySet().forEach(entry ->
+                            joinedFrame.put(entry.getKey(), entry.getValue())
                     );
                     return Stream.of(joinedFrame);
                 } else {
@@ -145,17 +150,13 @@ public class OuterJoinClause implements PipelineStage {
      * @param rhs The right-hand frame.
      * @return A merged frame.
      */
-    private Frame mergeFrames(Frame lhs, Frame rhs) {
-        Frame result = new Frame();
-
-        lhs.getRecord().entrySet().forEach(entry ->
-                result.getRecord().put(entry.getKey(), entry.getValue())
+    private BMap<BString, Object> mergeFrames(BMap<BString, Object> lhs, BMap<BString, Object> rhs) {
+        BMap<BString, Object> result = ValueCreator.createRecordValue(BALLERINA_QUERY_PKG_ID, "_Frame");
+        lhs.entrySet().forEach(entry -> result.put(entry.getKey(), entry.getValue()));
         );
-
-        rhs.getRecord().entrySet().forEach(entry ->
-                result.getRecord().put(entry.getKey(), entry.getValue())
+        rhs.entrySet().forEach(entry ->
+                result.put(entry.getKey(), entry.getValue())
         );
-
         return result;
     }
 }

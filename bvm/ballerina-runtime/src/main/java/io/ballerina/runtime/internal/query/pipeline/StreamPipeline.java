@@ -19,16 +19,17 @@
 package io.ballerina.runtime.internal.query.pipeline;
 
 import io.ballerina.runtime.api.Environment;
+import io.ballerina.runtime.api.values.BMap;
+import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BTypedesc;
-import io.ballerina.runtime.internal.query.clauses.PipelineStage;
-import io.ballerina.runtime.internal.query.utils.BallerinaIteratorUtils;
+import io.ballerina.runtime.internal.query.clauses.QueryClause;
+import io.ballerina.runtime.internal.query.utils.IteratorUtils;
 import io.ballerina.runtime.internal.query.utils.QueryException;
 import io.ballerina.runtime.internal.values.ErrorValue;
 
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.function.Supplier;
 import java.util.stream.Stream;
 
 /**
@@ -38,9 +39,8 @@ import java.util.stream.Stream;
  */
 public class StreamPipeline {
 
-    private Stream<Frame> stream;
-    private Supplier<Stream<Frame>> streamSupplier;
-    private final List<PipelineStage> pipelineStages;
+    private Stream<BMap<BString, Object>> stream;
+    private final List<QueryClause> clauseList;
     private final BTypedesc constraintType;
     private final BTypedesc completionType;
     private final boolean isLazyLoading;
@@ -61,11 +61,11 @@ public class StreamPipeline {
                           BTypedesc completionType,
                           boolean isLazyLoading) {
         this.env = env;
-        this.pipelineStages = new ArrayList<>();
+        this.clauseList = new ArrayList<>();
         this.constraintType = constraintType;
         this.completionType = completionType;
         this.isLazyLoading = isLazyLoading;
-        this.itr = BallerinaIteratorUtils.getIterator(env, collection);
+        this.itr = IteratorUtils.getIterator(env, collection);
         this.stream = initializeFrameStream(itr);
     }
 
@@ -94,11 +94,11 @@ public class StreamPipeline {
     /**
      * Adds a stage (clause) to the pipeline.
      *
-     * @param jStreamPipeline The stream pipeline.
-     * @param pipelineStage The pipeline stage.
+     * @param streamPipeline The stream pipeline.
+     * @param clause The pipeline stage (clause).
      */
-    public static void addStreamFunction(Object jStreamPipeline, Object pipelineStage) {
-        ((StreamPipeline) jStreamPipeline).addStage((PipelineStage) pipelineStage);
+    public static void addStreamFunction(StreamPipeline streamPipeline, QueryClause clause) {
+        streamPipeline.addStage(clause);
     }
 
     /**
@@ -113,36 +113,35 @@ public class StreamPipeline {
         } catch (QueryException e) {
             return e.getError();
         }
-
         return pipeline;
     }
 
     /**
-     * Queue a stage (function) to the pipeline.
+     * Queue a stage (clause) to the pipeline.
      *
-     * @param stage A function to process each frame.
+     * @param clause A clause to process each frame.
      */
-    public void addStage(PipelineStage stage) {
-        this.pipelineStages.add(stage);
+    public void addStage(QueryClause clause) {
+        this.clauseList.add(clause);
     }
 
     /**
      * Processes the stream through all the pipeline stages.
      */
     public void execute() {
-        for (PipelineStage stage : pipelineStages) {
-            stream = stage.process(stream);
+        for (QueryClause clause : clauseList) {
+            stream = clause.process(stream);
         }
     }
 
     /**
-     * Initializes a stream of `Frame` objects from the provided Ballerina collection.
+     * Initializes a stream of records from the provided Ballerina collection.
      *
      * @param itr The iterator for the Ballerina collection.
-     * @return A Java stream of `Frame` objects.
+     * @return A Java stream of record objects.
      */
-    private Stream<Frame> initializeFrameStream(Iterator<?> itr) throws ErrorValue {
-        return BallerinaIteratorUtils.toStream(itr);
+    private Stream<BMap<BString, Object>> initializeFrameStream(Iterator<?> itr) throws ErrorValue {
+        return IteratorUtils.toStream(itr);
     }
 
     /**
@@ -160,7 +159,7 @@ public class StreamPipeline {
         return completionType;
     }
 
-    public Stream<Frame> getStream() {
+    public Stream<BMap<BString, Object>> getStream() {
         return stream;
     }
 }

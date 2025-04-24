@@ -18,7 +18,8 @@
 
 package io.ballerina.runtime.internal.query.clauses;
 
-import io.ballerina.runtime.internal.query.pipeline.Frame;
+import io.ballerina.runtime.api.values.BMap;
+import io.ballerina.runtime.api.values.BString;
 
 import java.util.stream.Stream;
 
@@ -28,7 +29,7 @@ import java.util.stream.Stream;
  * @since 2201.13.0
  */
 @FunctionalInterface
-public interface PipelineStage {
+public interface QueryClause {
 
     /**
      * Processes a stream of frames and returns a transformed stream of frames.
@@ -36,5 +37,5 @@ public interface PipelineStage {
      * @param inputStream The input stream of frames.
      * @return The transformed stream of frames.
      */
-    Stream<Frame> process(Stream<Frame> inputStream);
+    Stream<BMap<BString, Object>> process(Stream<BMap<BString, Object>> inputStream);
 }

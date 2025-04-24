@@ -31,7 +31,6 @@ import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BTable;
 import io.ballerina.runtime.api.values.BXml;
 import io.ballerina.runtime.api.values.BXmlSequence;
-import io.ballerina.runtime.internal.query.pipeline.Frame;
 import io.ballerina.runtime.internal.query.pipeline.StreamPipeline;
 import io.ballerina.runtime.internal.values.HandleValue;
 import io.ballerina.runtime.internal.xml.XmlFactory;
@@ -46,21 +45,22 @@ import java.util.stream.Stream;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.BALLERINA_QUERY_PKG_ID;
 import static io.ballerina.runtime.internal.query.utils.QueryConstants.ERROR_FIELD;
 import static io.ballerina.runtime.internal.query.utils.QueryConstants.VALUE_ACCESS_FIELD;
+import static io.ballerina.runtime.internal.query.utils.QueryConstants.EMPTY_BSTRING;
 
 /**
  * Contains methods that collect query streams.
  *
  * @since 2201.13.0
  */
-public class CollectionUtil {
+public class CollectionUtils {
 
     public static Object createArray(StreamPipeline pipeline, BArray array) {
-        Stream<Frame> strm = pipeline.getStream();
+        Stream<BMap<BString, Object>> strm = pipeline.getStream();
         try {
-            Iterator<Frame> it = strm.iterator();
+            Iterator<BMap<BString, Object>> it = strm.iterator();
             while (it.hasNext()) {
-                Frame frame = it.next();
-                array.append(frame.getRecord().get(VALUE_ACCESS_FIELD));
+                BMap<BString, Object> frame = it.next();
+                array.append(frame.get(VALUE_ACCESS_FIELD));
             }
             return array;
         } catch (QueryException e) {
@@ -70,9 +70,9 @@ public class CollectionUtil {
 
     public static Object collectQuery(Object pipeline) {
         if (pipeline instanceof StreamPipeline streamPipeline) {
-            Stream<Frame> strm = streamPipeline.getStream();
+            Stream<BMap<BString, Object>> strm = streamPipeline.getStream();
             Optional<Object> result = strm
-                    .map(frame -> frame.getRecord().get(VALUE_ACCESS_FIELD))
+                    .map(frame -> frame.get(VALUE_ACCESS_FIELD))
                     .filter(Objects::nonNull)
                     .findFirst();
 
@@ -83,24 +83,24 @@ public class CollectionUtil {
     }
 
     public static Object toString(StreamPipeline pipeline) {
-        Stream<Frame> strm = pipeline.getStream();
+        Stream<BMap<BString, Object>> strm = pipeline.getStream();
 
         try {
             return strm
-                    .map(frame -> frame.getRecord().get(VALUE_ACCESS_FIELD))
+                    .map(frame -> frame.get(VALUE_ACCESS_FIELD))
                     .map(string -> (BString) string)
-                    .reduce(StringUtils.fromString(""), BString::concat);
+                    .reduce(EMPTY_BSTRING, BString::concat);
         } catch (QueryException e) {
             return e.getError();
         }
     }
 
     public static Object createTable(StreamPipeline pipeline, BTable table) {
-        Stream<Frame> strm = pipeline.getStream();
+        Stream<BMap<BString, Object>> strm = pipeline.getStream();
 
         try {
             strm.forEach(frame -> {
-                BMap<BString, Object> record = (BMap<BString, Object>) frame.getRecord().get(VALUE_ACCESS_FIELD);
+                BMap<BString, Object> record = (BMap<BString, Object>) frame.get(VALUE_ACCESS_FIELD);
                 table.put(record);
             });
 
@@ -111,18 +111,17 @@ public class CollectionUtil {
     }
 
     public static Object createTableForOnConflict(StreamPipeline pipeline, BTable table) {
-        Stream<Frame> strm = pipeline.getStream();
+        Stream<BMap<BString, Object>> strm = pipeline.getStream();
 
         try {
             Optional<BError> error = strm
                     .map(frame -> {
                         BMap<BString, Object> record = (BMap<BString, Object>) frame
-                                .getRecord()
                                 .get(VALUE_ACCESS_FIELD);
                         try {
                             table.add(record);
                         } catch (Exception e) {
-                            if (frame.getRecord().get(ERROR_FIELD) instanceof BError errorValue) {
+                            if (frame.get(ERROR_FIELD) instanceof BError errorValue) {
                                 return errorValue;
                             } else {
                                 table.put(record);
@@ -140,11 +139,11 @@ public class CollectionUtil {
     }
 
     public static Object createMap(StreamPipeline pipeline, BMap<BString, Object> map) {
-        Stream<Frame> strm = pipeline.getStream();
+        Stream<BMap<BString, Object>> strm = pipeline.getStream();
 
         try {
             strm.forEach(frame -> {
-                BArray record = (BArray) frame.getRecord().get(VALUE_ACCESS_FIELD);
+                BArray record = (BArray) frame.get(VALUE_ACCESS_FIELD);
                 BString key = (BString) record.get(0);
                 Object value = record.get(1);
                 map.put(key, value);
@@ -157,20 +156,18 @@ public class CollectionUtil {
     }
 
     public static Object createMapForOnConflict(StreamPipeline pipeline, BMap<BString, Object> map) {
-        Stream<Frame> strm = pipeline.getStream();
+        Stream<BMap<BString, Object>> strm = pipeline.getStream();
 
         try {
             Optional<BError> error = strm
                     .map(frame -> {
-                        BMap<BString, Object> record = frame.getRecord();
-                        BArray recordArray = (BArray) record.get(VALUE_ACCESS_FIELD);
+                        BArray recordArray = (BArray) frame.get(VALUE_ACCESS_FIELD);
 
                         BString key = (BString) recordArray.get(0);
-                        if (map.containsKey(key) && record.get(ERROR_FIELD) instanceof BError errorValue) {
+                        if (map.containsKey(key) && frame.get(ERROR_FIELD) instanceof BError errorValue) {
                             return errorValue;
                         }
                         Object value = recordArray.get(1);
-
                         map.put(key, value);
                         return null;
                     })
@@ -201,11 +198,11 @@ public class CollectionUtil {
     }
 
     public static Object createXML(StreamPipeline pipeline) {
-        Stream<Frame> strm = pipeline.getStream();
+        Stream<BMap<BString, Object>> strm = pipeline.getStream();
 
         try {
             Object[] xmlArray = strm
-                    .map(frame -> frame.getRecord().get(VALUE_ACCESS_FIELD))
+                    .map(frame -> frame.get(VALUE_ACCESS_FIELD))
                     .filter(Objects::nonNull)
                     .toArray();
 
@@ -246,14 +243,14 @@ public class CollectionUtil {
     }
 
     public static Object consumeStream(StreamPipeline pipeline) {
-        Stream<Frame> strm = pipeline.getStream();
+        Stream<BMap<BString, Object>> strm = pipeline.getStream();
         try {
-            Iterator<Frame> it = strm.iterator();
+            Iterator<BMap<BString, Object>> it = strm.iterator();
             while (it.hasNext()) {
-                Frame frame = it.next();
-                if (frame.getRecord().containsKey(VALUE_ACCESS_FIELD)
-                        && frame.getRecord().get(VALUE_ACCESS_FIELD) != null) {
-                    return frame.getRecord().get(VALUE_ACCESS_FIELD);
+                BMap<BString, Object> frame = it.next();
+                if (frame.containsKey(VALUE_ACCESS_FIELD)
+                        && frame.get(VALUE_ACCESS_FIELD) != null) {
+                    return frame.get(VALUE_ACCESS_FIELD);
                 }
             }
         } catch (QueryException e) {

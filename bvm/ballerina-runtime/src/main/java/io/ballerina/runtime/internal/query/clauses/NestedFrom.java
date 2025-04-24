@@ -24,8 +24,7 @@ import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BFunctionPointer;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
-import io.ballerina.runtime.internal.query.pipeline.Frame;
-import io.ballerina.runtime.internal.query.utils.BallerinaIteratorUtils;
+import io.ballerina.runtime.internal.query.utils.IteratorUtils;
 import io.ballerina.runtime.internal.query.utils.QueryException;
 
 import java.util.ArrayList;
@@ -41,23 +40,23 @@ import static io.ballerina.runtime.internal.query.utils.QueryConstants.VALUE_FIE
  *
  * @since 2201.13.0
  */
-public class NestedFromClause implements PipelineStage {
+public class NestedFrom implements QueryClause {
     private final BFunctionPointer collectionFunc;
     private final Environment env;
 
     /**
-     * Constructor for the NestedFromClause.
+     * Constructor for the NestedFrom.
      *
      * @param env The runtime environment.
      * @param collectionFunc The function to extract the collection from each frame.
      */
-    private NestedFromClause(Environment env, BFunctionPointer collectionFunc) {
+    private NestedFrom(Environment env, BFunctionPointer collectionFunc) {
         this.collectionFunc = collectionFunc;
         this.env = env;
     }
 
-    public static NestedFromClause initNestedFromClause(Environment env, BFunctionPointer collectionFunc) {
-        return new NestedFromClause(env, collectionFunc);
+    public static NestedFrom initNestedFromClause(Environment env, BFunctionPointer collectionFunc) {
+        return new NestedFrom(env, collectionFunc);
     }
 
     /**
@@ -67,9 +66,9 @@ public class NestedFromClause implements PipelineStage {
      * @return A stream of frames from the nested collections.
      */
     @Override
-    public Stream<Frame> process(Stream<Frame> inputStream) {
+    public Stream<BMap<BString, Object>> process(Stream<BMap<BString, Object>> inputStream) {
         return inputStream.flatMap(frame -> {
-            Object collection = collectionFunc.call(env.getRuntime(), frame.getRecord());
+            Object collection = collectionFunc.call(env.getRuntime(), frame);
             if (collection instanceof BError error) {
                 throw new QueryException(error);
             }
@@ -78,28 +77,24 @@ public class NestedFromClause implements PipelineStage {
                 return Stream.empty();
             }
 
-            Iterator<Object> itr = BallerinaIteratorUtils.getIterator(env, collection);
-            List<Frame> results = new ArrayList<>();
+            Iterator<?> itr = IteratorUtils.getIterator(env, collection);
+            List<BMap<BString, Object>> results = new ArrayList<>();
 
             try {
                 while (itr.hasNext()) {
                     Object item = itr.next();
-
-                    BMap<BString, Object> originalRecord = frame.getRecord();
                     BMap<BString, Object> newRecord = ValueCreator.createRecordValue(BALLERINA_QUERY_PKG_ID, "_Frame");
-
-                    originalRecord.entrySet().forEach(entry -> {
+                    frame.entrySet().forEach(entry -> {
                         BString key = entry.getKey();
                         Object value = entry.getValue();
                         newRecord.put(key, value);
                     });
                     newRecord.put(VALUE_FIELD, item);
-                    results.add(new Frame(newRecord));
+                    results.add(newRecord);
                 }
             } catch (BError e) {
                 throw new QueryException(e, true);
             }
-
             return results.stream();
         });
     }

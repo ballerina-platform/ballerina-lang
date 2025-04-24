@@ -23,40 +23,48 @@ import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BFunctionPointer;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
-import io.ballerina.runtime.internal.query.pipeline.Frame;
 import io.ballerina.runtime.internal.query.utils.QueryException;
 
 import java.util.stream.Stream;
 
 /**
- * Represents a `on conflict` clause in the query pipeline that processes a stream of frames.
+ * Represents a `from` clause in the query pipeline that processes a stream of frames.
  *
  * @since 2201.13.0
  */
-public class OnConflictClause implements PipelineStage {
-    private final BFunctionPointer onConflictFunction;
+public class From implements QueryClause {
+
+    private final BFunctionPointer transformer;
     private final Environment env;
 
-    private OnConflictClause(Environment env, BFunctionPointer onConflictFunction) {
-        this.onConflictFunction = onConflictFunction;
+    /**
+     * Constructor for the From.
+     *
+     * @param transformer The function to transform each frame.
+     */
+    private From(Environment env, BFunctionPointer transformer) {
+        this.transformer = transformer;
         this.env = env;
     }
 
-    public static OnConflictClause initOnConflictClause(Environment env, BFunctionPointer onConflictFunction) {
-        return new OnConflictClause(env, onConflictFunction);
+    public static From initFromClause(Environment env, BFunctionPointer transformer) {
+        return new From(env, transformer);
     }
 
-
+    /**
+     * Processes a stream of frames by applying the transformation function to each frame.
+     *
+     * @param inputStream The input stream of frames.
+     * @return A transformed stream of frames.
+     */
     @Override
-    public Stream<Frame> process(Stream<Frame> inputStream) {
+    public Stream<BMap<BString, Object>> process(Stream<BMap<BString, Object>> inputStream) {
         return inputStream.map(frame -> {
-            Object result = onConflictFunction.call(env.getRuntime(), frame.getRecord());
-            if (result instanceof BMap) {
-                frame.updateRecord((BMap<BString, Object>) result);
-                return frame;
-            } else {
-                throw new QueryException((BError) result);
+            Object result = transformer.call(env.getRuntime(), frame);
+            if (result instanceof BMap<?, ?> map) {
+                return (BMap<BString, Object>) map;
             }
+            throw new QueryException((BError) result);
         });
     }
 }

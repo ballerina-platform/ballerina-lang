@@ -27,13 +27,13 @@ function createPipeline(
 } external;
 
 function createInputFunction(function(_Frame _frame) returns _Frame|error? inputFunc) returns handle = @java:Method {
-    'class: "io.ballerina.runtime.internal.query.clauses.FromClause",
+    'class: "io.ballerina.runtime.internal.query.clauses.From",
     name: "initFromClause",
     paramTypes: ["io.ballerina.runtime.api.values.BFunctionPointer"]
 } external;
 
 function createSelectFunction(function(_Frame _frame) returns _Frame|error? selectFunc) returns handle = @java:Method {
-    'class: "io.ballerina.runtime.internal.query.clauses.SelectClause",
+    'class: "io.ballerina.runtime.internal.query.clauses.Select",
     name: "initSelectClause",
     paramTypes: ["io.ballerina.runtime.api.values.BFunctionPointer"]
 } external;
@@ -41,41 +41,41 @@ function createSelectFunction(function(_Frame _frame) returns _Frame|error? sele
 function addStreamFunction(handle pipeline, handle jClause) = @java:Method {
     'class: "io.ballerina.runtime.internal.query.pipeline.StreamPipeline",
     name: "addStreamFunction",
-    paramTypes: ["java.lang.Object","java.lang.Object"]
+    paramTypes: ["io.ballerina.runtime.internal.query.pipeline.StreamPipeline","io.ballerina.runtime.internal.query.clauses.QueryClause"]
 } external;
 
 function createFilterFunction(function(_Frame _frame) returns boolean|error filterFunc) returns handle = @java:Method {
-    'class: "io.ballerina.runtime.internal.query.clauses.WhereClause",
+    'class: "io.ballerina.runtime.internal.query.clauses.Where",
     name: "initWhereClause",
     paramTypes: ["io.ballerina.runtime.api.values.BFunctionPointer"]
 } external;
 
 function createLimitFunction(function (_Frame _frame) returns int limitFunction) returns handle = @java:Method {
-    'class: "io.ballerina.runtime.internal.query.clauses.LimitClause",
+    'class: "io.ballerina.runtime.internal.query.clauses.Limit",
     name: "initLimitClause",
     paramTypes: ["io.ballerina.runtime.api.values.BFunctionPointer"]
 } external;
 
 function createLetFunction(function(_Frame _frame) returns _Frame|error? letFunc) returns handle = @java:Method {
-    'class: "io.ballerina.runtime.internal.query.clauses.LetClause",
+    'class: "io.ballerina.runtime.internal.query.clauses.Let",
     name: "initLetClause",
     paramTypes: ["io.ballerina.runtime.api.values.BFunctionPointer"]
 } external;
 
 function createOrderByFunction(function(_Frame _frame) returns error? orderFunc) returns handle = @java:Method {
-    'class: "io.ballerina.runtime.internal.query.clauses.OrderByClause",
+    'class: "io.ballerina.runtime.internal.query.clauses.OrderBy",
     name: "initOrderByClause",
     paramTypes: ["io.ballerina.runtime.api.values.BFunctionPointer"]
 } external;
 
 function createGroupByFunction(string[] keys, string[] nonGroupingKeys) returns handle = @java:Method {
-    'class: "io.ballerina.runtime.internal.query.clauses.GroupByClause",
+    'class: "io.ballerina.runtime.internal.query.clauses.GroupBy",
     name: "initGroupByClause",
     paramTypes: ["io.ballerina.runtime.api.values.BArray","io.ballerina.runtime.api.values.BArray"]
 } external;
 
 function createCollectFunction(string[] nonGroupingKeys, function(_Frame _frame) returns _Frame|error? collectFunc) returns handle = @java:Method {
-    'class: "io.ballerina.runtime.internal.query.clauses.CollectClause",
+    'class: "io.ballerina.runtime.internal.query.clauses.Collect",
     name: "initCollectClause",
     paramTypes: ["io.ballerina.runtime.api.values.BArray","io.ballerina.runtime.api.values.BFunctionPointer"]
 } external;
@@ -93,7 +93,7 @@ function toArray(handle strm, Type[] arr, boolean isReadOnly) returns Type[]|err
 }
 
 function createArray(handle strm, Type[] arr) returns Type[]|error = @java:Method {
-    'class: "io.ballerina.runtime.internal.query.utils.CollectionUtil",
+    'class: "io.ballerina.runtime.internal.query.utils.CollectionUtils",
     name: "createArray",
     paramTypes: ["io.ballerina.runtime.internal.query.pipeline.StreamPipeline","io.ballerina.runtime.api.values.BArray"]
 } external;
@@ -104,7 +104,7 @@ function collectQuery(handle strm) returns Type|error {
 }
 
 function collectQueryJava(handle strm) returns Type|error = @java:Method {
-    'class: "io.ballerina.runtime.internal.query.utils.CollectionUtil",
+    'class: "io.ballerina.runtime.internal.query.utils.CollectionUtils",
     name: "collectQuery",
     paramTypes: ["java.lang.Object"]
 } external;
@@ -124,7 +124,7 @@ function consumeStreamOld(handle javaPipeline) returns any|error {
 }
 
 function consumeStream(handle javaPipeline) returns any|error = @java:Method {
-    'class: "io.ballerina.runtime.internal.query.utils.CollectionUtil",
+    'class: "io.ballerina.runtime.internal.query.utils.CollectionUtils",
     name: "consumeStream",
     paramTypes: ["io.ballerina.runtime.internal.query.pipeline.StreamPipeline"]
 } external;
@@ -132,7 +132,7 @@ function consumeStream(handle javaPipeline) returns any|error = @java:Method {
 
 function createNestedFromFunction(function(_Frame _frame) returns _Frame|error? collectionFunc)
         returns handle = @java:Method {
-    'class: "io.ballerina.runtime.internal.query.clauses.NestedFromClause",
+    'class: "io.ballerina.runtime.internal.query.clauses.NestedFrom",
     name: "initNestedFromClause",
     paramTypes: ["io.ballerina.runtime.api.values.BFunctionPointer"]
 } external;
@@ -141,7 +141,7 @@ function createInnerJoinFunction(
         handle joinedPipeline,
         function (_Frame _frame) returns any lhsKeyFunction,
         function (_Frame _frame) returns any rhsKeyFunction) returns handle = @java:Method {
-    'class: "io.ballerina.runtime.internal.query.clauses.InnerJoinClause",
+    'class: "io.ballerina.runtime.internal.query.clauses.InnerJoin",
     name: "initInnerJoinClause",
     paramTypes: ["io.ballerina.runtime.internal.query.pipeline.StreamPipeline","io.ballerina.runtime.api.values.BFunctionPointer","io.ballerina.runtime.api.values.BFunctionPointer"]
 } external;
@@ -150,19 +150,19 @@ function createOuterJoinFunction(
         handle joinedPipeline,
         function (_Frame _frame) returns any lhsKeyFunction,
         function (_Frame _frame) returns any rhsKeyFunction) returns handle = @java:Method {
-    'class: "io.ballerina.runtime.internal.query.clauses.OuterJoinClause",
+    'class: "io.ballerina.runtime.internal.query.clauses.OuterJoin",
     name: "initOuterJoinClause",
     paramTypes: ["io.ballerina.runtime.internal.query.pipeline.StreamPipeline","io.ballerina.runtime.api.values.BFunctionPointer","io.ballerina.runtime.api.values.BFunctionPointer"]
 } external;
 
 function createOnConflictFunction(function(_Frame _frame) returns _Frame|error? onConflictFunc) returns handle = @java:Method {
-    'class: "io.ballerina.runtime.internal.query.clauses.OnConflictClause",
+    'class: "io.ballerina.runtime.internal.query.clauses.OnConflict",
     name: "initOnConflictClause",
     paramTypes: ["io.ballerina.runtime.api.values.BFunctionPointer"]
 } external;
 
 function createDoFunction(function(_Frame _frame) returns any|error doFunc) returns handle = @java:Method {
-    'class: "io.ballerina.runtime.internal.query.clauses.DoClause",
+    'class: "io.ballerina.runtime.internal.query.clauses.Do",
     name: "initDoClause",
     paramTypes: ["io.ballerina.runtime.api.values.BFunctionPointer"]
 } external;
@@ -190,13 +190,13 @@ function toXML(handle strm, boolean isReadOnly) returns xml|error {
 }
 
 function createXML(handle strm) returns xml|error = @java:Method {
-    'class: "io.ballerina.runtime.internal.query.utils.CollectionUtil",
+    'class: "io.ballerina.runtime.internal.query.utils.CollectionUtils",
     name: "createXML",
     paramTypes: ["io.ballerina.runtime.internal.query.pipeline.StreamPipeline"]
 } external;
 
 function toString(handle strm) returns string|error = @java:Method {
-    'class: "io.ballerina.runtime.internal.query.utils.CollectionUtil",
+    'class: "io.ballerina.runtime.internal.query.utils.CollectionUtils",
     name: "toString",
     paramTypes: ["io.ballerina.runtime.internal.query.pipeline.StreamPipeline"]
 } external;
@@ -219,7 +219,7 @@ function addToTable(handle strm, table<map<Type>> tbl, boolean isReadOnly)
 }
 
 function createTable(handle strm, table<map<Type>> tbl) returns table<map<Type>>|error = @java:Method {
-    'class: "io.ballerina.runtime.internal.query.utils.CollectionUtil",
+    'class: "io.ballerina.runtime.internal.query.utils.CollectionUtils",
     name: "createTable",
     paramTypes: ["io.ballerina.runtime.internal.query.pipeline.StreamPipeline","io.ballerina.runtime.api.values.BTable"]
 } external;
@@ -241,7 +241,7 @@ function addToTableForOnConflict(handle strm, table<map<Type>> tbl, boolean isRe
 }
 
 function createTableForOnConflict(handle strm, table<map<Type>> tbl) returns table<map<Type>>|error = @java:Method {
-    'class: "io.ballerina.runtime.internal.query.utils.CollectionUtil",
+    'class: "io.ballerina.runtime.internal.query.utils.CollectionUtils",
     name: "createTableForOnConflict",
     paramTypes: ["io.ballerina.runtime.internal.query.pipeline.StreamPipeline","io.ballerina.runtime.api.values.BTable"]
 } external;
@@ -259,7 +259,7 @@ function addToMap(handle strm, map<Type> mp, boolean isReadOnly) returns map<Typ
 }
 
 function createMap(handle strm, map<Type> mp) returns map<Type>|error = @java:Method {
-    'class: "io.ballerina.runtime.internal.query.utils.CollectionUtil",
+    'class: "io.ballerina.runtime.internal.query.utils.CollectionUtils",
     name: "createMap",
     paramTypes: ["io.ballerina.runtime.internal.query.pipeline.StreamPipeline","io.ballerina.runtime.api.values.BMap"]
 } external;
@@ -278,7 +278,7 @@ function addToMapForOnConflict(handle strm, map<Type> mp, boolean isReadOnly)
 }
 
 function createMapForOnConflict(handle strm, map<Type> mp) returns map<Type>|error = @java:Method {
-    'class: "io.ballerina.runtime.internal.query.utils.CollectionUtil",
+    'class: "io.ballerina.runtime.internal.query.utils.CollectionUtils",
     name: "createMapForOnConflict",
     paramTypes: ["io.ballerina.runtime.internal.query.pipeline.StreamPipeline","io.ballerina.runtime.api.values.BMap"]
 } external;
@@ -300,7 +300,7 @@ function createImmutableValue(any mutableValue) = @java:Method {
 } external;
 
 function toStream(handle strm) returns stream<Type, CompletionType>|error = @java:Method {
-    'class: "io.ballerina.runtime.internal.query.utils.CollectionUtil",
+    'class: "io.ballerina.runtime.internal.query.utils.CollectionUtils",
     name: "toStream",
     paramTypes: ["io.ballerina.runtime.internal.query.pipeline.StreamPipeline"]
 } external;

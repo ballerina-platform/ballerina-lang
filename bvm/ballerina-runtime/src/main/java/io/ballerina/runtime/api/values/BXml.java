@@ -39,7 +39,7 @@ import javax.xml.XMLConstants;
  *
  * @since 1.1.0
  */
-public interface BXml extends BRefValue, BCollection {
+public interface BXml extends BRefValue, BCollection, IterableValue {
 
     /**
      * Start of a XML comment.

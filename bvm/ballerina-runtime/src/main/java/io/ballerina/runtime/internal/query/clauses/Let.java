@@ -23,52 +23,55 @@ import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BFunctionPointer;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
-import io.ballerina.runtime.internal.query.pipeline.Frame;
 import io.ballerina.runtime.internal.query.utils.QueryException;
 
 import java.util.stream.Stream;
 
 /**
- * Represents a `from` clause in the query pipeline that processes a stream of frames.
+ * Represents a `let` clause in the query pipeline that modifies frames.
  *
  * @since 2201.13.0
  */
-public class FromClause implements PipelineStage {
-
-    private final BFunctionPointer transformer;
+public class Let implements QueryClause {
+    private final BFunctionPointer frameModifier;
     private final Environment env;
 
     /**
-     * Constructor for the FromClause.
+     * Constructor for the Let.
      *
-     * @param transformer The function to transform each frame.
+     * @param env           The runtime environment.
+     * @param frameModifier The function to modify the frame.
      */
-    private FromClause(Environment env, BFunctionPointer transformer) {
-        this.transformer = transformer;
+    private Let(Environment env, BFunctionPointer frameModifier) {
+        this.frameModifier = frameModifier;
         this.env = env;
     }
 
-    public static FromClause initFromClause(Environment env, BFunctionPointer transformer) {
-        return new FromClause(env, transformer);
+    /**
+     * Static initializer for Let.
+     *
+     * @param env           The runtime environment.
+     * @param frameModifier The function to modify the frame.
+     * @return A new instance of Let.
+     */
+    public static Let initLetClause(Environment env, BFunctionPointer frameModifier) {
+        return new Let(env, frameModifier);
     }
 
     /**
-     * Processes a stream of frames by applying the transformation function to each frame.
+     * Processes a stream of frames by applying the modifier function to each frame.
      *
      * @param inputStream The input stream of frames.
-     * @return A transformed stream of frames.
+     * @return A stream of modified frames.
      */
     @Override
-    public Stream<Frame> process(Stream<Frame> inputStream) {
+    public Stream<BMap<BString, Object>> process(Stream<BMap<BString, Object>> inputStream) {
         return inputStream.map(frame -> {
-            Object result = transformer.call(env.getRuntime(), frame.getRecord());
-
-            if (result instanceof BMap) {
-                frame.updateRecord((BMap<BString, Object>) result);
-                return frame;
-            } else {
-                throw new QueryException((BError) result);
+            Object result = frameModifier.call(env.getRuntime(), frame);
+            if (result instanceof BMap<?, ?> map) {
+                return (BMap<BString, Object>) map;
             }
+            throw new QueryException((BError) result);
         });
     }
 }

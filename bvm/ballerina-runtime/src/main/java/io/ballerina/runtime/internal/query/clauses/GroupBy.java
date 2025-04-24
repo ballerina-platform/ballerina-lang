@@ -26,8 +26,6 @@ import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.internal.TypeChecker;
-import io.ballerina.runtime.internal.query.pipeline.Frame;
-import io.ballerina.runtime.internal.values.ArrayValueImpl;
 
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -36,6 +34,8 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static io.ballerina.runtime.api.types.PredefinedTypes.TYPE_ANY_ARRAY;
+import static io.ballerina.runtime.internal.query.utils.QueryConstants.GROUP_KEY_CONSTANT;
 import static io.ballerina.runtime.internal.query.utils.QueryConstants.VALUE_FIELD;
 
 /**
@@ -43,25 +43,25 @@ import static io.ballerina.runtime.internal.query.utils.QueryConstants.VALUE_FIE
  *
  * @since 2201.13.0
  */
-public class GroupByClause implements PipelineStage {
+public class GroupBy implements QueryClause {
 
     private final BArray groupingKeys;
     private final BArray nonGroupingKeys;
     private final Environment env;
 
-    private GroupByClause(Environment env, BArray groupingKeys, BArray nonGroupingKeys) {
+    private GroupBy(Environment env, BArray groupingKeys, BArray nonGroupingKeys) {
         this.groupingKeys = groupingKeys;
         this.nonGroupingKeys = nonGroupingKeys;
         this.env = env;
     }
 
-    public static GroupByClause initGroupByClause(Environment env, BArray groupingKeys, BArray nonGroupingKeys) {
-        return new GroupByClause(env, groupingKeys, nonGroupingKeys);
+    public static GroupBy initGroupByClause(Environment env, BArray groupingKeys, BArray nonGroupingKeys) {
+        return new GroupBy(env, groupingKeys, nonGroupingKeys);
     }
 
     @Override
-    public Stream<Frame> process(Stream<Frame> inputStream) {
-        Map<GroupKey, List<Frame>> groupedData = inputStream
+    public Stream<BMap<BString, Object>> process(Stream<BMap<BString, Object>> inputStream) {
+        Map<GroupKey, List<BMap<BString, Object>>> groupedData = inputStream
                 .collect(Collectors.groupingBy(
                         frame -> new GroupKey(extractOriginalKey(frame)),
                         LinkedHashMap::new,
@@ -71,42 +71,38 @@ public class GroupByClause implements PipelineStage {
         return groupedData.values().stream().map(this::aggregateNonGroupingKeys);
     }
 
-    private Frame aggregateNonGroupingKeys(List<Frame> frames) {
-        Frame groupedFrame = frames.getFirst();
-        BMap<BString, Object> groupedRecord = groupedFrame.getRecord();
+    private BMap<BString, Object> aggregateNonGroupingKeys(List<BMap<BString, Object>> frames) {
+        BMap<BString, Object> groupedRecord = frames.getFirst();
 
         // Aggregate non-grouping fields into arrays
         for (int i = 0; i < nonGroupingKeys.size(); i++) {
             BString nonGroupingKey = (BString) nonGroupingKeys.get(i);
             Object[] values = frames.stream()
-                    .map(f -> f.getRecord().get(nonGroupingKey))
+                    .map(f -> f.get(nonGroupingKey))
                     .filter(Objects::nonNull)
                     .toArray();
-            BArray valuesArray = new ArrayValueImpl(values, TypeCreator.createArrayType(PredefinedTypes.TYPE_ANY));
+            BArray valuesArray = ValueCreator.createArrayValue(values, TYPE_ANY_ARRAY);
             groupedRecord.put(nonGroupingKey, valuesArray);
         }
 
-        groupedFrame.updateRecord(groupedRecord);
-        return groupedFrame;
+        return groupedRecord;
     }
 
-    private BMap<BString, Object> extractOriginalKey(Frame frame) {
+    private BMap<BString, Object> extractOriginalKey(BMap<BString, Object> frame) {
         BMap<BString, Object> keyMap = ValueCreator.createMapValue(TypeCreator.createMapType(PredefinedTypes.TYPE_ANY));
-        BMap<BString, Object> record = frame.getRecord();
 
         for (int i = 0; i < groupingKeys.size(); i++) {
             BString key = (BString) groupingKeys.get(i);
             Object value;
-
-            if (record.containsKey(key)) {
-                value = record.get(key);
+            if (frame.containsKey(key)) {
+                value = frame.get(key);
             } else {
-                BMap<BString, Object> nestedRec = (BMap<BString, Object>) record.get(VALUE_FIELD);
+                BMap<BString, Object> nestedRec = (BMap<BString, Object>) frame.get(VALUE_FIELD);
                 value = nestedRec.get(key);
             }
-
             keyMap.put(key, value);
         }
+
         return keyMap;
     }
 
@@ -126,7 +122,7 @@ public class GroupByClause implements PipelineStage {
 
         @Override
         public int hashCode() {
-            return 36;
+            return GROUP_KEY_CONSTANT;
         }
     }
 }
