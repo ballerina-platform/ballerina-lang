@@ -18,7 +18,6 @@ package org.ballerinalang.langserver.extensions.ballerina.packages;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.projects.ConfigReader;
 import io.ballerina.projects.Module;
 import io.ballerina.projects.Package;
@@ -165,11 +164,10 @@ public class BallerinaPackageService implements ExtendedLanguageServerService {
         currentPackage.moduleIds().forEach(moduleId -> {
             ModuleObject moduleObject = new ModuleObject();
             Module module = project.currentPackage().module(moduleId);
-            SemanticModel semanticModel = currentPackage.getCompilation().getSemanticModel(moduleId);
             if (module.moduleName().moduleNamePart() != null) {
                 moduleObject.setName(module.moduleName().moduleNamePart());
             }
-            module.documentIds().forEach(documentId -> new DocumentComponentTransformer(moduleObject, semanticModel)
+            module.documentIds().forEach(documentId -> new DocumentComponentTransformer(moduleObject)
                     .getModuleObject(module.document(documentId).syntaxTree().rootNode()));
             packageObject.addModule(moduleObject);
         });

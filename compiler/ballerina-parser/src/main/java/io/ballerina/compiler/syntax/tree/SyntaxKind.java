@@ -105,6 +105,7 @@ public enum SyntaxKind {
     DESCENDING_KEYWORD(251, "descending"),
     UNDERSCORE_KEYWORD(252, "_"),
     NOT_IS_KEYWORD(253, "!is"),
+    NATURAL_KEYWORD(254, "natural"),
 
     // Type keywords
     INT_KEYWORD(300, "int"),
@@ -225,6 +226,7 @@ public enum SyntaxKind {
     HEX_FLOATING_POINT_LITERAL_TOKEN(1005),
     XML_TEXT_CONTENT(1006),
     TEMPLATE_STRING(1007),
+    PROMPT_CONTENT(1007),
 
     // Documentation
     DOCUMENTATION_DESCRIPTION(1100),
@@ -337,6 +339,7 @@ public enum SyntaxKind {
     ERROR_CONSTRUCTOR(1345),
     XML_STEP_METHOD_CALL_EXTEND(1346),
     XML_STEP_INDEXED_EXTEND(1347),
+    NATURAL_EXPRESSION(1348),
 
     // Type descriptors
     TYPE_DESC(2000),
