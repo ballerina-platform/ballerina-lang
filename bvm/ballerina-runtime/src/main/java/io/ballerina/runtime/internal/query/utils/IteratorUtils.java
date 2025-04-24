@@ -61,7 +61,7 @@ public class IteratorUtils {
     /**
      * Returns a Java iterator for a given Ballerina collection.
      *
-     * @param env        The Ballerina runtime environment.
+     * @param env The Ballerina runtime environment.
      * @param collection The Ballerina collection.
      * @return A Java Iterator for the collection.
      */
