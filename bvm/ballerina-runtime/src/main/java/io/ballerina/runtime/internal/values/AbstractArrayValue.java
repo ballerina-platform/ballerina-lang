@@ -348,6 +348,7 @@ public abstract class AbstractArrayValue implements ArrayValue, RecursiveValue<L
     public Iterator<?> getJavaIterator() {
         BIterator<?> iterator = getIterator();
         return new Iterator<>() {
+
             @Override
             public boolean hasNext() {
                 return iterator.hasNext();
