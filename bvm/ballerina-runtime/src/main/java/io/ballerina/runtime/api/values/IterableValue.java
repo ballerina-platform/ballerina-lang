@@ -21,6 +21,11 @@ package io.ballerina.runtime.api.values;
 
 import java.util.Iterator;
 
+/**
+ * Represents Java Iterator for Ballerina Collections that support query.
+ *
+ * @since 2201.13.0
+ */
 public interface IterableValue {
 
     /**
