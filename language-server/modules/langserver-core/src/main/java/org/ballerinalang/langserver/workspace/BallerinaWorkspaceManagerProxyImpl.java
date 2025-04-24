@@ -135,9 +135,7 @@ public class BallerinaWorkspaceManagerProxyImpl implements BallerinaWorkspaceMan
      * @param buildOptions The build options to be set
      */
     public void setBuildOptions(BuildOptions buildOptions) {
-        if (this.baseWorkspaceManager instanceof BallerinaWorkspaceManager ballerinaWorkspaceManager) {
-            ballerinaWorkspaceManager.setBuildOptions(buildOptions);
-        }
+        ((BallerinaWorkspaceManager) this.baseWorkspaceManager).setBuildOptions(buildOptions);
         this.clonedWorkspaceManager.setBuildOptions(buildOptions);
     }
 
