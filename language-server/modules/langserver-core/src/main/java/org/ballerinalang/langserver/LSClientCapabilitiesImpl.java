@@ -212,7 +212,7 @@ public class LSClientCapabilitiesImpl implements LSClientCapabilities {
         }
 
         /**
-         * @inheritDoc
+         * {@inheritDoc}
          */
         @Override
         public boolean isExperimentalLanguageFeaturesEnabled() {
