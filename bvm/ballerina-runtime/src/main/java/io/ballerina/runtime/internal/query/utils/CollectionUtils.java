@@ -135,8 +135,6 @@ public class CollectionUtils {
             return error.orElse(null) != null ? error.get() : table;
         } catch (QueryException e) {
             return e.getError();
-        } catch (Exception ex){
-            throw ex;
         }
     }
 
