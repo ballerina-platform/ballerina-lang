@@ -152,7 +152,8 @@ public class OuterJoin implements QueryClause {
      */
     private BMap<BString, Object> mergeFrames(BMap<BString, Object> lhs, BMap<BString, Object> rhs) {
         BMap<BString, Object> result = ValueCreator.createRecordValue(BALLERINA_QUERY_PKG_ID, "_Frame");
-        lhs.entrySet().forEach(entry -> result.put(entry.getKey(), entry.getValue()));
+        lhs.entrySet().forEach(entry ->
+                result.put(entry.getKey(), entry.getValue())
         );
         rhs.entrySet().forEach(entry ->
                 result.put(entry.getKey(), entry.getValue())
