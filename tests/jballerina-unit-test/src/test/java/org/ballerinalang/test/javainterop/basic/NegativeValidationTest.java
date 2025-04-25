@@ -284,14 +284,7 @@ public class NegativeValidationTest {
     public void testMethodSignatureNotMatch8() {
         CompileResult compileResult = BCompileUtil.compile("test-src/javainterop/negative/distinct_error");
         compileResult.getDiagnostics();
-        Assert.assertEquals(compileResult.getDiagnostics().length, 2);
-        BAssertUtil.validateError(compileResult, 0,
-        "{ballerina/jballerina.java}METHOD_SIGNATURE_DOES_NOT_MATCH " +
-                "'Incompatible ballerina return type for Java method " +
-                "'returnDistinctErrorUnionWhichThrowsCheckedException' which throws checked exception " +
-                "found in class 'org.ballerinalang.nativeimpl.jvm.tests.StaticMethods': " +
-                "expected 'int|error', found '(int|testorg/distinct_error.errors:1.0.0:DistinctError)''",
-                21, 1);
+        Assert.assertEquals(compileResult.getErrorCount(), 0);
     }
 
     @Test
@@ -551,15 +544,7 @@ public class NegativeValidationTest {
         String path = "test-src/javainterop/negative/method_sig_not_match16.bal";
         CompileResult compileResult = BCompileUtil.compile(path);
         compileResult.getDiagnostics();
-        Assert.assertEquals(compileResult.getDiagnostics().length, 1);
-        BAssertUtil.validateError(compileResult, 0,
-                "{ballerina/jballerina.java}METHOD_SIGNATURE_DOES_NOT_MATCH " +
-                        "'Incompatible ballerina return type for Java method " +
-                        "'acceptIntErrorUnionReturnWhichThrowsUncheckedException' which throws " +
-                        "'java.lang.RuntimeException' found in class " +
-                        "'org.ballerinalang.nativeimpl.jvm.tests.StaticMethods': " +
-                        "expected 'int', found '(int|error)''",
-                "method_sig_not_match16.bal", 19, 1);
+        Assert.assertEquals(compileResult.getDiagnostics().length, 0);
     }
 
     @Test
@@ -569,12 +554,10 @@ public class NegativeValidationTest {
         compileResult.getDiagnostics();
         Assert.assertEquals(compileResult.getDiagnostics().length, 1);
         BAssertUtil.validateError(compileResult, 0,
-                "{ballerina/jballerina.java}METHOD_SIGNATURE_DOES_NOT_MATCH " +
-                        "'Incompatible ballerina return type for Java method " +
-                        "'acceptIntErrorUnionReturnWhichThrowsUncheckedException' which throws " +
-                        "'java.lang.RuntimeException' found in class " +
+                "{ballerina/jballerina.java}METHOD_SIGNATURE_DOES_NOT_MATCH 'Incompatible return type for method " +
+                        "'acceptIntErrorUnionReturnWhichThrowsUncheckedException' in class " +
                         "'org.ballerinalang.nativeimpl.jvm.tests.StaticMethods': " +
-                        "no return type expected but found 'error''",
+                        "Java type 'long' will not be matched to ballerina type 'error''",
                 "method_sig_not_match17.bal", 19, 1);
     }
 

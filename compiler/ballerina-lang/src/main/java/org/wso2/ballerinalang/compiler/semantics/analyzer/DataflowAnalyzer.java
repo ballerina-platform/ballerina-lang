@@ -18,6 +18,7 @@
 package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
 import io.ballerina.tools.diagnostics.Location;
+import io.ballerina.types.PredefinedType;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.symbols.SymbolKind;
@@ -127,6 +128,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkdownReturnParam
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchGuard;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMultipleWorkerReceive;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNamedArgsExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangNaturalExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangObjectConstructorExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangQueryAction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangQueryExpr;
@@ -2495,6 +2497,21 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         analyzeNode(bLangErrorVariableDef.errorVariable, env);
     }
 
+    @Override
+    public void visit(BLangNaturalExpression naturalExpression) {
+        for (BLangExpression argumentExpr : naturalExpression.arguments) {
+            analyzeNode(argumentExpr, env);
+        }
+
+        for (BLangLiteral string : naturalExpression.strings) {
+            analyzeNode(string, env);
+        }
+
+        for (BLangExpression expr : naturalExpression.insertions) {
+            analyzeNode(expr, env);
+        }
+    }
+
     private void addUninitializedVar(BLangVariable variable) {
         if (!this.uninitializedVars.containsKey(variable.symbol)) {
             this.uninitializedVars.put(variable.symbol, InitStatus.UN_INIT);
@@ -2738,7 +2755,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
         BType exprType = Types.getImpliedType(expr.getBType());
 
-        if (types.isSubTypeOfBaseType(exprType, TypeTags.OBJECT) &&
+        if (types.isSubTypeOfBaseType(exprType, PredefinedType.OBJECT) &&
                 isFinalFieldInAllObjects(fieldAccess.pos, exprType, fieldAccess.field.value)) {
             dlog.error(fieldAccess.pos, DiagnosticErrorCode.CANNOT_UPDATE_FINAL_OBJECT_FIELD,
                     fieldAccess.symbol.originalName);
@@ -2816,11 +2833,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     }
 
     private boolean addVarIfInferredTypeIncludesError(BLangSimpleVariable variable) {
-        BType typeIntersection =
-                types.getTypeIntersection(Types.IntersectionContext.compilerInternalIntersectionContext(),
-                                          variable.getBType(), symTable.errorType, env);
-        if (typeIntersection != null &&
-                typeIntersection != symTable.semanticError && typeIntersection != symTable.noType) {
+        if (types.containsErrorType(variable.getBType().semType())) {
             unusedErrorVarsDeclaredWithVar.put(variable.symbol, variable.pos);
             return true;
         }

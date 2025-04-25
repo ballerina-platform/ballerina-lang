@@ -20,6 +20,11 @@ import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.types.PredefinedTypes;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.XmlNodeType;
+import io.ballerina.runtime.api.types.semtype.BasicTypeBitSet;
+import io.ballerina.runtime.api.types.semtype.Builder;
+import io.ballerina.runtime.api.types.semtype.Context;
+import io.ballerina.runtime.api.types.semtype.SemType;
+import io.ballerina.runtime.api.types.semtype.ShapeAnalyzer;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BIterator;
 import io.ballerina.runtime.api.values.BLink;
@@ -28,6 +33,7 @@ import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BTypedesc;
 import io.ballerina.runtime.api.values.BXml;
 import io.ballerina.runtime.api.values.BXmlQName;
+import io.ballerina.runtime.internal.types.TypeWithShape;
 import io.ballerina.runtime.internal.utils.IteratorUtils;
 import io.ballerina.runtime.internal.xml.BallerinaXmlSerializer;
 
@@ -35,6 +41,7 @@ import java.io.OutputStream;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import javax.xml.namespace.QName;
 
@@ -59,6 +66,7 @@ public abstract class XmlValue implements RefValue, BXml, CollectionValue {
 
     Type type = PredefinedTypes.TYPE_XML;
     protected BTypedesc typedesc;
+    private static final BasicTypeBitSet BASIC_TYPE = Builder.getXmlType();
 
     protected Type iteratorNextReturnType;
 
@@ -77,30 +85,32 @@ public abstract class XmlValue implements RefValue, BXml, CollectionValue {
     }
 
     /**
-     * Set the value of a single attribute. If the attribute already exsists, then the value will be updated.
+     * Set the value of a single attribute. If the attribute already exsists, then
+     * the value will be updated.
      * Otherwise a new attribute will be added.
      * 
      * @param attributeName Qualified name of the attribute
-     * @param value Value of the attribute
+     * @param value         Value of the attribute
      */
     @Override
     @Deprecated
     public void setAttribute(BXmlQName attributeName, String value) {
         setAttributeOnInitialization(attributeName.getLocalName(), attributeName.getUri(), attributeName.getPrefix(),
-                                     value);
+                value);
     }
 
     /**
-     * Set the value of a single attribute. If the attribute already exsists, then the value will be updated.
+     * Set the value of a single attribute. If the attribute already exsists, then
+     * the value will be updated.
      * Otherwise a new attribute will be added.
      *
      * @param attributeName Qualified name of the attribute
-     * @param value Value of the attribute
+     * @param value         Value of the attribute
      */
     @Deprecated
     public void setAttribute(BXmlQName attributeName, BString value) {
         setAttributeOnInitialization(attributeName.getLocalName(), attributeName.getUri(), attributeName.getPrefix(),
-                                     value.getValue());
+                value.getValue());
     }
 
     /**
@@ -149,12 +159,13 @@ public abstract class XmlValue implements RefValue, BXml, CollectionValue {
     protected abstract void setAttributesOnInitialization(BMap<BString, BString> attributes);
 
     protected abstract void setAttributeOnInitialization(String localName, String namespace, String prefix,
-                                                         String value);
+            String value);
 
     // private methods
 
     protected static void handleXmlException(String message, Throwable t) {
-        // Here local message of the cause is logged whenever possible, to avoid java class being logged
+        // Here local message of the cause is logged whenever possible, to avoid java
+        // class being logged
         // along with the error message.
         if (t.getCause() != null) {
             throw ErrorCreator.createError(StringUtils.fromString(message + t.getCause().getMessage()));
@@ -186,10 +197,12 @@ public abstract class XmlValue implements RefValue, BXml, CollectionValue {
     }
 
     /**
-     * Recursively traverse and add the descendant with the given name to the descendants list.
-     * @param descendants List to add descendants
+     * Recursively traverse and add the descendant with the given name to the
+     * descendants list.
+     *
+     * @param descendants    List to add descendants
      * @param currentElement Current node
-     * @param qnames Qualified names of the descendants to search
+     * @param qnames         Qualified names of the descendants to search
      */
     protected void addDescendants(List<BXml> descendants, XmlItem currentElement, List<String> qnames) {
         for (BXml child : currentElement.getChildrenSeq().getChildrenList()) {
@@ -275,6 +288,16 @@ public abstract class XmlValue implements RefValue, BXml, CollectionValue {
         return iteratorNextReturnType;
     }
 
+    @Override
+    public Optional<SemType> inherentTypeOf(Context cx) {
+        TypeWithShape typeWithShape = (TypeWithShape) type;
+        return typeWithShape.inherentTypeOf(cx, ShapeAnalyzer::inherentTypeOf, this);
+    }
+
+    @Override
+    public BasicTypeBitSet getBasicType() {
+        return BASIC_TYPE;
+    }
     @Override
     public Iterator<?> getJavaIterator() {
         BIterator<?> iterator = getIterator();

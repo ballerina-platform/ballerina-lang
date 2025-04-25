@@ -16,6 +16,7 @@
 package org.ballerinalang.langserver.common.utils;
 
 import io.ballerina.compiler.api.ModuleID;
+import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.symbols.ArrayTypeSymbol;
 import io.ballerina.compiler.api.symbols.FunctionSymbol;
 import io.ballerina.compiler.api.symbols.FunctionTypeSymbol;
@@ -128,6 +129,7 @@ public final class CommonUtil {
             SyntaxKind.PUBLIC_KEYWORD, SyntaxKind.PRIVATE_KEYWORD, SyntaxKind.CONFIGURABLE_KEYWORD);
 
     private static final Pattern TYPE_NAME_DECOMPOSE_PATTERN = Pattern.compile("([\\w_.]*)/([\\w._]*):([\\w.-]*)");
+    private static final String UNRESOLVED_MODULE_CODE = "BCE2003";
 
     static {
         BALLERINA_HOME = System.getProperty("ballerina.home");
@@ -775,6 +777,17 @@ public final class CommonUtil {
                         diagnostics.contains(diagnostic.diagnosticInfo().code()) &&
                         PositionUtil.isWithinLineRange(diagnostic.location().lineRange(), node.lineRange())) &&
                 currentDiagnostic.diagnosticInfo().code().equals(prioritizedDiagnostic);
+    }
+
+    /**
+     * Checks if there are unresolved modules in the given semantic model.
+     *
+     * @param semanticModel The semantic model to check for unresolved modules.
+     * @return {@code true} if there are unresolved modules, {@code false} otherwise.
+     */
+    public static boolean hasUnresolvedModules(SemanticModel semanticModel) {
+        return semanticModel.diagnostics().stream()
+                .anyMatch(diagnostic -> UNRESOLVED_MODULE_CODE.equals(diagnostic.diagnosticInfo().code()));
     }
 
     /**

@@ -68,6 +68,7 @@ import org.eclipse.lsp4j.debug.CompletionsResponse;
 import org.eclipse.lsp4j.debug.ConfigurationDoneArguments;
 import org.eclipse.lsp4j.debug.ContinueArguments;
 import org.eclipse.lsp4j.debug.ContinueResponse;
+import org.eclipse.lsp4j.debug.ContinuedEventArguments;
 import org.eclipse.lsp4j.debug.DisconnectArguments;
 import org.eclipse.lsp4j.debug.EvaluateArguments;
 import org.eclipse.lsp4j.debug.EvaluateResponse;
@@ -328,7 +329,7 @@ public class JBallerinaDebugServer implements BallerinaExtendedDebugServer {
         // Checks if the program VM is a read-only VM. If a method which modified the state of the VM is called
         // on a read-only VM, a `VMCannotBeModifiedException` will be thrown.
         if (!debuggeeVM.canBeModified()) {
-            getOutputLogger().sendConsoleOutput("Failed to suspend the remote VM due to: pause requests are not " +
+            getOutputLogger().sendDebugServerOutput("Failed to suspend the remote VM due to: pause requests are not " +
                     "supported on read-only VMs");
             return CompletableFuture.completedFuture(null);
         }
@@ -450,19 +451,20 @@ public class JBallerinaDebugServer implements BallerinaExtendedDebugServer {
     @Override
     public CompletableFuture<Void> restart(RestartArguments args) {
         if (context.getDebugMode() == ExecutionContext.DebugMode.ATTACH) {
-            outputLogger.sendErrorOutput("Restart is not supported in remote debug mode.");
+            outputLogger.sendErrorOutput("Restart operation is not supported in remote debug mode.");
             return CompletableFuture.completedFuture(null);
         }
 
         try {
             resetServer();
             launchDebuggeeProgram();
-            return CompletableFuture.completedFuture(null);
         } catch (Exception e) {
-            LOGGER.error("Failed to restart the ballerina program due to: " + e.getMessage(), e);
-            outputLogger.sendErrorOutput("Failed to restart the ballerina program");
-            return CompletableFuture.completedFuture(null);
+            LOGGER.error("Failed to restart the Ballerina program due to: {}", e.getMessage(), e);
+            outputLogger.sendErrorOutput("Failed to restart the Ballerina program");
+            terminateDebugSession(context.getDebuggeeVM() != null, true);
         }
+
+        return CompletableFuture.completedFuture(null);
     }
 
     private void launchDebuggeeProgram() throws Exception {
@@ -679,7 +681,7 @@ public class JBallerinaDebugServer implements BallerinaExtendedDebugServer {
         programRunner.getBallerinaCommand(sourceProjectRoot).toArray(command);
         runInTerminalRequestArguments.setArgs(command);
 
-        outputLogger.sendConsoleOutput("Launching debugger in terminal");
+        outputLogger.sendDebugServerOutput("Launching debugger in terminal");
         context.getAdapter().runInTerminal(runInTerminalRequestArguments);
     }
 
@@ -1219,11 +1221,22 @@ public class JBallerinaDebugServer implements BallerinaExtendedDebugServer {
      * Clears all state information.
      */
     private void resetServer() {
+        clearDebugHits();
         Optional.ofNullable(eventProcessor).ifPresent(JDIEventProcessor::reset);
         Optional.ofNullable(outputLogger).ifPresent(DebugOutputLogger::reset);
         Optional.ofNullable(executionManager).ifPresent(DebugExecutionManager::reset);
         terminateDebuggee();
         clearSuspendedState();
         context.reset();
+    }
+
+    /**
+     * Clears any debug hits in the client side before restarting the debug session.
+     */
+    private void clearDebugHits() {
+        // Notifies the debug client that the execution is resumed.
+        ContinuedEventArguments continuedEventArguments = new ContinuedEventArguments();
+        continuedEventArguments.setAllThreadsContinued(true);
+        context.getClient().continued(continuedEventArguments);
     }
 }

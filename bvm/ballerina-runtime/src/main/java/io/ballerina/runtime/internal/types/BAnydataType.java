@@ -24,6 +24,13 @@ import io.ballerina.runtime.api.types.AnydataType;
 import io.ballerina.runtime.api.types.PredefinedTypes;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.TypeTags;
+import io.ballerina.runtime.api.types.semtype.BasicTypeBitSet;
+import io.ballerina.runtime.api.types.semtype.Builder;
+import io.ballerina.runtime.api.types.semtype.Context;
+import io.ballerina.runtime.api.types.semtype.Core;
+import io.ballerina.runtime.api.types.semtype.SemType;
+import io.ballerina.runtime.api.types.semtype.TypeCheckCache;
+import io.ballerina.runtime.api.types.semtype.TypeCheckCacheFactory;
 import io.ballerina.runtime.internal.values.RefValue;
 
 /**
@@ -33,29 +40,49 @@ import io.ballerina.runtime.internal.values.RefValue;
  */
 public class BAnydataType extends BUnionType implements AnydataType {
 
+    private static final BasicTypeBitSet BASIC_TYPE;
+    private static final int TYPE_ID_RW = TypeIdSupplier.getReservedId();
+    private static final int TYPE_ID_RO = TypeIdSupplier.getReservedId();
+    private static final TypeCheckCache TYPE_CHECK_CACHE_RW = TypeCheckCacheFactory.create();
+    private static final TypeCheckCache TYPE_CHECK_CACHE_RO = TypeCheckCacheFactory.create();
+    static {
+        SemType anydata = Builder.getAnyDataType();
+        BASIC_TYPE = new BasicTypeBitSet(anydata.all() | anydata.some());
+    }
     /**
      * Create a {@code BAnydataType} which represents the anydata type.
      *
      * @param typeName string name of the type
      */
     public BAnydataType(String typeName, Module pkg, boolean readonly) {
-        super(typeName, pkg, readonly, RefValue.class);
+        super(typeName, pkg, readonly, RefValue.class, false);
         if (!readonly) {
             BAnydataType immutableAnydataType = new BAnydataType(TypeConstants.READONLY_ANYDATA_TNAME, pkg, true);
             this.immutableType = new BIntersectionType(pkg, new Type[]{ this, PredefinedTypes.TYPE_READONLY},
                                                        immutableAnydataType, TypeFlags.asMask(TypeFlags.NILABLE,
                                                         TypeFlags.ANYDATA, TypeFlags.PURETYPE), true);
+            this.typeId = TYPE_ID_RW;
+            this.typeCheckCache = TYPE_CHECK_CACHE_RW;
+        } else {
+            this.typeId = TYPE_ID_RO;
+            this.typeCheckCache = TYPE_CHECK_CACHE_RO;
         }
         this.mergeUnionType((BUnionType) PredefinedTypes.TYPE_ANYDATA);
     }
 
     public BAnydataType(BUnionType unionType, String typeName, boolean readonly) {
-        super(unionType, typeName, readonly);
+        super(unionType, typeName, readonly, false);
         if (!readonly) {
             BAnydataType immutableAnydataType = new BAnydataType(unionType, TypeConstants.READONLY_ANYDATA_TNAME, true);
             this.immutableType = new BIntersectionType(pkg, new Type[]{this, PredefinedTypes.TYPE_READONLY},
                     immutableAnydataType, TypeFlags.asMask(TypeFlags.NILABLE, TypeFlags.ANYDATA, TypeFlags.PURETYPE),
                     true);
+
+            this.typeId = TYPE_ID_RW;
+            this.typeCheckCache = TYPE_CHECK_CACHE_RW;
+        } else {
+            this.typeId = TYPE_ID_RO;
+            this.typeCheckCache = TYPE_CHECK_CACHE_RO;
         }
     }
 
@@ -85,5 +112,22 @@ public class BAnydataType extends BUnionType implements AnydataType {
             return this.typeName;
         }
         return super.toString();
+    }
+
+    // TODO: this type don't have mutable parts so this should be a immutable
+    // semtype. But some things could depend on this being a union type descriptor
+    // as well (which has to be mutable)
+    @Override
+    public SemType createSemType(Context cx) {
+        SemType semType = Builder.getAnyDataType();
+        if (isReadOnly()) {
+            semType = Core.intersect(semType, Builder.getReadonlyType());
+        }
+        return semType;
+    }
+
+    @Override
+    public BasicTypeBitSet getBasicType() {
+        return BASIC_TYPE;
     }
 }

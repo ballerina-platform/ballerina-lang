@@ -39,20 +39,28 @@ public final class TypeFlags {
         return addToMask(0, flags);
     }
 
+    public static int asMask(int flag) {
+        return addToMask(0, flag);
+    }
+
     public static int addToMask(int mask, int... flags) {
         for (int flag : flags) {
-            switch (flag) {
-                case NILABLE:
-                    mask |= NILABLE;
-                    break;
-                case ANYDATA:
-                    mask |= ANYDATA;
-                    break;
-                case PURETYPE:
-                    mask |= PURETYPE;
-                    break;
-            }
+            mask = addToMask(mask, flag);
+        }
+        return mask;
+    }
 
+    public static int addToMask(int mask, int flag) {
+        switch (flag) {
+            case NILABLE:
+                mask |= NILABLE;
+                break;
+            case ANYDATA:
+                mask |= ANYDATA;
+                break;
+            case PURETYPE:
+                mask |= PURETYPE;
+                break;
         }
         return mask;
     }

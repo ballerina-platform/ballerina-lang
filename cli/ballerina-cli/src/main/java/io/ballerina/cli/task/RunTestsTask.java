@@ -142,11 +142,6 @@ public class RunTestsTask implements Task {
     public void execute(Project project) {
         long start = 0;
 
-        //do not execute if cloud option is given, we only use the object to use the properties and methods in it
-        if (!project.buildOptions().cloud().isEmpty()) {
-            return;
-        }
-
         if (project.buildOptions().dumpBuildTime()) {
             start = System.currentTimeMillis();
         }

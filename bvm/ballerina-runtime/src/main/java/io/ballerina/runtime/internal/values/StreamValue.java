@@ -19,6 +19,8 @@
 package io.ballerina.runtime.internal.values;
 
 import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.types.semtype.BasicTypeBitSet;
+import io.ballerina.runtime.api.types.semtype.Builder;
 import io.ballerina.runtime.api.values.BLink;
 import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.api.values.BStream;
@@ -40,6 +42,8 @@ import java.util.UUID;
  * @since 1.2.0
  */
 public class StreamValue implements RefValue, BStream {
+
+    private static final BasicTypeBitSet BASIC_TYPE = Builder.getStreamType();
 
     private BTypedesc typedesc;
     private final Type type;
@@ -109,6 +113,11 @@ public class StreamValue implements RefValue, BStream {
     @Override
     public Type getType() {
         return this.type;
+    }
+
+    @Override
+    public BasicTypeBitSet getBasicType() {
+        return BASIC_TYPE;
     }
 
     @Override

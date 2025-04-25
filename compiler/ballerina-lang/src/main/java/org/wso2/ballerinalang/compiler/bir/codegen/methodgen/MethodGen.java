@@ -19,6 +19,7 @@
 package org.wso2.ballerinalang.compiler.bir.codegen.methodgen;
 
 import io.ballerina.identifier.Utils;
+import io.ballerina.types.Env;
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.model.elements.PackageID;
 import org.objectweb.asm.ClassWriter;
@@ -147,11 +148,13 @@ public class MethodGen {
     private final JvmPackageGen jvmPackageGen;
     private final SymbolTable symbolTable;
     private final Types types;
+    private final Env typeEnv;
 
     public MethodGen(JvmPackageGen jvmPackageGen, Types types) {
         this.jvmPackageGen = jvmPackageGen;
         this.symbolTable = jvmPackageGen.symbolTable;
         this.types = types;
+        this.typeEnv = types.typeEnv();
     }
 
     public void generateMethod(BIRFunction birFunc, ClassWriter cw, BIRPackage birModule, BType attachedType,
@@ -177,7 +180,7 @@ public class MethodGen {
         indexMap.addIfNotExists(STRAND, symbolTable.stringType);
         String funcName = func.name.value;
         BType retType = getReturnType(func);
-        String desc = JvmCodeGenUtil.getMethodDesc(func.type.paramTypes, retType);
+        String desc = JvmCodeGenUtil.getMethodDesc(typeEnv, func.type.paramTypes, retType);
         MethodVisitor mv = cw.visitMethod(Opcodes.ACC_PUBLIC, funcName, desc, null, null);
         mv.visitCode();
         Label methodStartLabel = new Label();
@@ -190,7 +193,7 @@ public class MethodGen {
         for (BIRNode.BIRFunctionParameter parameter : func.parameters) {
             instGen.generateVarLoad(mv, parameter, indexMap.addIfNotExists(parameter.name.value, parameter.type));
         }
-        String methodDesc = JvmCodeGenUtil.getMethodDesc(func.type.paramTypes, retType, moduleClassName);
+        String methodDesc = JvmCodeGenUtil.getMethodDesc(typeEnv, func.type.paramTypes, retType, moduleClassName);
         mv.visitMethodInsn(INVOKESTATIC, splitClassName, encodedMethodName, methodDesc, false);
         Label methodEndLabel = new Label();
         mv.visitLabel(methodEndLabel);
@@ -248,9 +251,9 @@ public class MethodGen {
         BType retType = getReturnType(func);
         String desc;
         if (isObjectMethodSplit) {
-            desc = JvmCodeGenUtil.getMethodDesc(func.type.paramTypes, retType, moduleClassName);
+            desc = JvmCodeGenUtil.getMethodDesc(typeEnv, func.type.paramTypes, retType, moduleClassName);
         } else {
-            desc = JvmCodeGenUtil.getMethodDesc(func.type.paramTypes, retType);
+            desc = JvmCodeGenUtil.getMethodDesc(typeEnv, func.type.paramTypes, retType);
         }
         MethodVisitor mv = cw.visitMethod(access, funcName, desc, null, null);
         mv.visitCode();
@@ -282,10 +285,11 @@ public class MethodGen {
                 jvmCastGen, jvmConstantsGen, asyncDataCollector, types);
         JvmErrorGen errorGen = new JvmErrorGen(mv, indexMap, instGen);
         JvmTerminatorGen termGen = new JvmTerminatorGen(mv, indexMap, labelGen, errorGen, module.packageID, instGen,
-                jvmPackageGen, jvmTypeGen, jvmCastGen, jvmConstantsGen, asyncDataCollector);
+                jvmPackageGen, jvmTypeGen, jvmCastGen, asyncDataCollector);
 
-        generateBasicBlocks(mv, labelGen, errorGen, instGen, termGen, func, returnVarRefIndex, channelMapVarIndex,
-                localVarOffset, module, attachedType, sendWorkerChannelNamesVar, receiveWorkerChannelNamesVar);
+        generateBasicBlocks(mv, labelGen, errorGen, instGen, termGen, moduleClassName, func, returnVarRefIndex,
+                channelMapVarIndex, localVarOffset, module, attachedType, sendWorkerChannelNamesVar,
+                receiveWorkerChannelNamesVar);
         termGen.genReturnTerm(returnVarRefIndex, func, channelMapVarIndex, sendWorkerChannelNamesVar,
                 receiveWorkerChannelNamesVar, localVarOffset);
         handleWorkerPanic(func, mv, tryLabel, catchLabel, handleThrowableLabel, channelMapVarIndex,
@@ -336,8 +340,8 @@ public class MethodGen {
 
     private BType getReturnType(BIRFunction func) {
         BType retType = func.type.retType;
-        if (JvmCodeGenUtil.isExternFunc(func) && Symbols.isFlagOn(retType.flags, Flags.PARAMETERIZED)) {
-            retType = JvmCodeGenUtil.UNIFIER.build(func.type.retType);
+        if (JvmCodeGenUtil.isExternFunc(func) && Symbols.isFlagOn(retType.getFlags(), Flags.PARAMETERIZED)) {
+            retType = JvmCodeGenUtil.UNIFIER.build(typeEnv, func.type.retType);
         }
         return retType;
     }
@@ -515,7 +519,7 @@ public class MethodGen {
     }
 
     void generateBasicBlocks(MethodVisitor mv, LabelGenerator labelGen, JvmErrorGen errorGen, JvmInstructionGen instGen,
-                             JvmTerminatorGen termGen, BIRFunction func, int returnVarRefIndex,
+                             JvmTerminatorGen termGen, String moduleClassName, BIRFunction func, int returnVarRefIndex,
                              int channelMapVarIndex, int localVarOffset, BIRPackage module, BType attachedType,
                              int sendWorkerChannelNamesVar, int receiveWorkerChannelNamesVar) {
 
@@ -535,8 +539,8 @@ public class MethodGen {
             mv.visitLabel(bbEndLabel);
             BIRTerminator terminator = bb.terminator;
             processTerminator(mv, func, module, funcName, terminator);
-            termGen.genTerminator(terminator, func, funcName, localVarOffset, returnVarRefIndex, attachedType,
-                    channelMapVarIndex, sendWorkerChannelNamesVar, receiveWorkerChannelNamesVar);
+            termGen.genTerminator(terminator, moduleClassName, func, funcName, localVarOffset, returnVarRefIndex,
+                    attachedType, channelMapVarIndex, sendWorkerChannelNamesVar, receiveWorkerChannelNamesVar);
             lastScope = JvmCodeGenUtil.getLastScopeFromTerminator(mv, bb, funcName, labelGen, lastScope,
                     visitedScopesSet);
             errorGen.generateTryCatch(func, funcName, bb, termGen, labelGen, channelMapVarIndex,

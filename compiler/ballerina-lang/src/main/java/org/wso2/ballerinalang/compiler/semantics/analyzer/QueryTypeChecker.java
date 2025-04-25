@@ -18,6 +18,7 @@
 package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
 import io.ballerina.tools.diagnostics.Location;
+import io.ballerina.types.PredefinedType;
 import org.ballerinalang.model.clauses.OrderKeyNode;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.SymbolOrigin;
@@ -195,7 +196,7 @@ public class QueryTypeChecker extends TypeChecker {
             List<BType> collectionTypes = getCollectionTypes(clauses);
             BType completionType = getCompletionType(collectionTypes, Types.QueryConstructType.DEFAULT, data);
             if (completionType != null) {
-                queryType = BUnionType.create(null, queryType, completionType);
+                queryType = BUnionType.create(symTable.typeEnv(), null, queryType, completionType);
             }
             queryExpr.setDeterminedType(queryType);
             actualType = types.checkType(finalClauseExpr.pos, queryType, data.expType,
@@ -302,15 +303,15 @@ public class QueryTypeChecker extends TypeChecker {
             BType completionType = getCompletionType(collectionTypes, types.getQueryConstructType(queryExpr), data);
 
             if (queryExpr.isStream) {
-                return new BStreamType(TypeTags.STREAM, selectType, completionType, null);
+                return new BStreamType(symTable.typeEnv(), TypeTags.STREAM, selectType, completionType, null);
             } else if (queryExpr.isTable) {
                 actualType = getQueryTableType(queryExpr, selectType, resolvedTypes.get(0), env);
             } else if (queryExpr.isMap) {
                 BType mapConstraintType = getTypeOfTypeParameter(selectType,
                         queryExpr.getSelectClause().expression.pos);
                 if (mapConstraintType != symTable.semanticError) {
-                    actualType = new BMapType(TypeTags.MAP, mapConstraintType, null);
-                    if (Symbols.isFlagOn(resolvedTypes.get(0).flags, Flags.READONLY)) {
+                    actualType = new BMapType(symTable.typeEnv(), TypeTags.MAP, mapConstraintType, null);
+                    if (Symbols.isFlagOn(resolvedTypes.get(0).getFlags(), Flags.READONLY)) {
                         actualType = ImmutableTypeCloner.getImmutableIntersectionType(null, types, actualType, env,
                                 symTable, anonymousModelHelper, names, null);
                     }
@@ -320,7 +321,8 @@ public class QueryTypeChecker extends TypeChecker {
             }
 
             if (completionType != null && completionType.tag != TypeTags.NIL) {
-                return BUnionType.create(null, actualType, types.getSafeType(completionType, true, false));
+                return BUnionType.create(symTable.typeEnv(), null, actualType,
+                        types.getSafeType(completionType, true, false));
             } else {
                 return actualType;
             }
@@ -349,7 +351,7 @@ public class QueryTypeChecker extends TypeChecker {
                         errorTypes.add(elementType);
                         continue;
                     }
-                    BType queryResultType = new BArrayType(selectType);
+                    BType queryResultType = new BArrayType(symTable.typeEnv(), selectType);
                     resolvedType = getResolvedType(queryResultType, type, isReadonly, env);
                     break;
                 case TypeTags.TABLE:
@@ -380,7 +382,7 @@ public class QueryTypeChecker extends TypeChecker {
                     BType memberType = ((BMapType) type).getConstraint();
                     BVarSymbol varSymbol = Symbols.createVarSymbolForTupleMember(memberType);
                     memberTypeList.add(new BTupleMember(memberType, varSymbol));
-                    BTupleType newExpType = new BTupleType(null, memberTypeList);
+                    BTupleType newExpType = new BTupleType(symTable.typeEnv(), memberTypeList);
                     selectType = checkExprSilent(selectExp, env, newExpType, data);
                     if (selectType == symTable.semanticError) {
                         errorTypes.add(newExpType);
@@ -414,7 +416,7 @@ public class QueryTypeChecker extends TypeChecker {
                 case TypeTags.INTERSECTION:
                     type = ((BIntersectionType) type).effectiveType;
                     solveSelectTypeAndResolveType(queryExpr, selectExp, List.of(type), collectionType, selectTypes,
-                            resolvedTypes, env, data, Symbols.isFlagOn(type.flags, Flags.READONLY));
+                            resolvedTypes, env, data, Symbols.isFlagOn(type.getFlags(), Flags.READONLY));
                     return;
                 case TypeTags.NONE:
                 default:
@@ -472,7 +474,7 @@ public class QueryTypeChecker extends TypeChecker {
                 BType actualQueryType = silentTypeCheckExpr(queryExpr, symTable.noType, data);
                 if (actualQueryType != symTable.semanticError) {
                     types.checkType(queryExpr, actualQueryType,
-                            BUnionType.create(null, new LinkedHashSet<>(expTypes)));
+                            BUnionType.create(symTable.typeEnv(), null, new LinkedHashSet<>(expTypes)));
                     errorTypes.forEach(expType -> {
                         if (expType.tag == TypeTags.UNION) {
                             checkExpr(nodeCloner.cloneNode(selectExp), env, expType, data);
@@ -491,14 +493,14 @@ public class QueryTypeChecker extends TypeChecker {
     }
 
     private BType getQueryTableType(BLangQueryExpr queryExpr, BType constraintType, BType resolvedType, SymbolEnv env) {
-        final BTableType tableType = new BTableType(TypeTags.TABLE, constraintType, null);
+        final BTableType tableType = new BTableType(symTable.typeEnv(), constraintType, null);
         if (!queryExpr.fieldNameIdentifierList.isEmpty()) {
             validateKeySpecifier(queryExpr.fieldNameIdentifierList, constraintType);
             markReadOnlyForConstraintType(constraintType);
             tableType.fieldNameList = queryExpr.fieldNameIdentifierList.stream()
                     .map(identifier -> ((BLangIdentifier) identifier).value).toList();
         }
-        if (Symbols.isFlagOn(resolvedType.flags, Flags.READONLY)) {
+        if (Symbols.isFlagOn(resolvedType.getFlags(), Flags.READONLY)) {
             return ImmutableTypeCloner.getImmutableIntersectionType(null, types,
                     tableType, env, symTable, anonymousModelHelper, names, null);
         }
@@ -528,7 +530,7 @@ public class QueryTypeChecker extends TypeChecker {
             }
         }
         if (recordType.sealed) {
-            recordType.flags |= Flags.READONLY;
+            recordType.addFlags(Flags.READONLY);
             recordType.tsymbol.flags |= Flags.READONLY;
         }
     }
@@ -549,7 +551,7 @@ public class QueryTypeChecker extends TypeChecker {
                 }
                 memberTypes.add(mapType);
             }
-            return new BUnionType(null, memberTypes, false, false);
+            return new BUnionType(types.typeEnv(), null, memberTypes, false);
         } else {
             return getQueryMapConstraintType(referredType, pos);
         }
@@ -558,7 +560,7 @@ public class QueryTypeChecker extends TypeChecker {
     private BType getQueryMapConstraintType(BType type, Location pos) {
         if (type.tag == TypeTags.ARRAY) {
             BArrayType arrayType = (BArrayType) type;
-            if (arrayType.state != BArrayState.OPEN && arrayType.size == 2 &&
+            if (arrayType.state != BArrayState.OPEN && arrayType.getSize() == 2 &&
                     types.isAssignable(arrayType.eType, symTable.stringType)) {
                 return arrayType.eType;
             }
@@ -632,7 +634,7 @@ public class QueryTypeChecker extends TypeChecker {
             if (completionTypes.size() == 1) {
                 completionType = completionTypes.iterator().next();
             } else {
-                completionType = BUnionType.create(null, completionTypes.toArray(new BType[0]));
+                completionType = BUnionType.create(symTable.typeEnv(), null, completionTypes.toArray(new BType[0]));
             }
         }
         return completionType;
@@ -647,7 +649,7 @@ public class QueryTypeChecker extends TypeChecker {
 
     private BType getResolvedType(BType initType, BType expType, boolean isReadonly, SymbolEnv env) {
         if (initType.tag != TypeTags.SEMANTIC_ERROR && (isReadonly ||
-                Symbols.isFlagOn(expType.flags, Flags.READONLY))) {
+                Symbols.isFlagOn(expType.getFlags(), Flags.READONLY))) {
             return ImmutableTypeCloner.getImmutableIntersectionType(null, types, initType, env,
                     symTable, anonymousModelHelper, names, null);
         }
@@ -670,19 +672,19 @@ public class QueryTypeChecker extends TypeChecker {
                 dlog.error(pos, INVALID_QUERY_CONSTRUCT_INFERRED_MAP);
                 return symTable.semanticError;
             case TypeTags.XML:
-                if (types.isSubTypeOfBaseType(constraintType, symTable.xmlType.tag)) {
+                if (types.isSubTypeOfBaseType(constraintType, PredefinedType.XML)) {
                     return new BXMLType(constraintType, null);
                 }
                 break;
             case TypeTags.STRING:
-                if (types.isSubTypeOfBaseType(constraintType, TypeTags.STRING)) {
+                if (types.isSubTypeOfBaseType(constraintType, PredefinedType.STRING)) {
                     return symTable.stringType;
                 }
                 break;
             case TypeTags.ARRAY:
             case TypeTags.TUPLE:
             case TypeTags.OBJECT:
-                return new BArrayType(constraintType);
+                return new BArrayType(symTable.typeEnv(), constraintType);
             default:
                 return symTable.semanticError;
         }
@@ -743,24 +745,26 @@ public class QueryTypeChecker extends TypeChecker {
 
         BLangVariable variableNode = (BLangVariable) bLangInputClause.variableDefinitionNode.getVariable();
         // Check whether the foreach node's variables are declared with var.
+        BType inputClauseVarType = bLangInputClause.varType;
         if (bLangInputClause.isDeclaredWithVar) {
             // If the foreach node's variables are declared with var, type is `varType`.
-            semanticAnalyzer.handleDeclaredVarInForeach(variableNode, bLangInputClause.varType, blockEnv);
+            semanticAnalyzer.handleDeclaredVarInForeach(variableNode, inputClauseVarType, blockEnv);
             return;
         }
         // If the type node is available, we get the type from it.
         BType typeNodeType = symResolver.resolveTypeNode(variableNode.typeNode, blockEnv);
         // Then we need to check whether the RHS type is assignable to LHS type.
-        if (types.isAssignable(bLangInputClause.varType, typeNodeType)) {
-            // If assignable, we set types to the variables.
-            semanticAnalyzer.handleDeclaredVarInForeach(variableNode, bLangInputClause.varType, blockEnv);
-            return;
-        }
-        // Log an error and define a symbol with the node's type to avoid undeclared symbol errors.
-        if (typeNodeType != symTable.semanticError) {
+        if (inputClauseVarType.tag != TypeTags.SEMANTIC_ERROR) {
+            if (types.isAssignable(inputClauseVarType, typeNodeType)) {
+                // If assignable, we set types to the variables.
+                semanticAnalyzer.handleDeclaredVarInForeach(variableNode, inputClauseVarType, blockEnv);
+                return;
+            }
+            // Log an error and define a symbol with the node's type to avoid undeclared symbol errors.
             dlog.error(variableNode.typeNode.pos, DiagnosticErrorCode.INCOMPATIBLE_TYPES,
-                    bLangInputClause.varType, typeNodeType);
+                    inputClauseVarType, typeNodeType);
         }
+
         semanticAnalyzer.handleDeclaredVarInForeach(variableNode, typeNodeType, blockEnv);
     }
 
@@ -867,7 +871,8 @@ public class QueryTypeChecker extends TypeChecker {
             Name name = new Name(var);
             BSymbol originalSymbol = symResolver.lookupSymbolInMainSpace(collectEnv, name);
             BSequenceSymbol sequenceSymbol = new BSequenceSymbol(originalSymbol.flags, name, originalSymbol.pkgID,
-                    new BSequenceType(originalSymbol.getType()), originalSymbol.owner, originalSymbol.pos);
+                    new BSequenceType(symTable.typeEnv(), originalSymbol.getType()), originalSymbol.owner,
+                    originalSymbol.pos);
             collectEnv.scope.define(name, sequenceSymbol);
         }
     }
@@ -890,7 +895,7 @@ public class QueryTypeChecker extends TypeChecker {
             if (data.queryData.completeEarlyErrorList != null) {
                 BType possibleErrorType = type.tag == TypeTags.UNION ?
                         types.getErrorType((BUnionType) type) :
-                        types.getErrorType(BUnionType.create(null, type));
+                        types.getErrorType(BUnionType.create(symTable.typeEnv(), null, type));
                 data.queryData.completeEarlyErrorList.add(possibleErrorType);
             }
         }
@@ -910,7 +915,7 @@ public class QueryTypeChecker extends TypeChecker {
         orderByClause.env = data.commonAnalyzerData.queryEnvs.peek();
         for (OrderKeyNode orderKeyNode : orderByClause.getOrderKeyList()) {
             BType exprType = checkExpr((BLangExpression) orderKeyNode.getOrderKey(), orderByClause.env, data);
-            if (!types.isOrderedType(exprType, false)) {
+            if (exprType.tag != TypeTags.SEMANTIC_ERROR && !types.isOrderedType(exprType)) {
                 dlog.error(((BLangOrderKey) orderKeyNode).expression.pos, DiagnosticErrorCode.ORDER_BY_NOT_SUPPORTED);
             }
         }
@@ -945,7 +950,8 @@ public class QueryTypeChecker extends TypeChecker {
             Name name = new Name(var);
             BSymbol originalSymbol = symResolver.lookupSymbolInMainSpace(groupByEnv, name);
             BSequenceSymbol sequenceSymbol = new BSequenceSymbol(originalSymbol.flags, name, originalSymbol.pkgID,
-                    new BSequenceType(originalSymbol.getType()), originalSymbol.owner, originalSymbol.pos);
+                    new BSequenceType(symTable.typeEnv(), originalSymbol.getType()), originalSymbol.owner,
+                    originalSymbol.pos);
             groupByEnv.scope.define(name, sequenceSymbol);
         }
     }
@@ -1080,7 +1086,7 @@ public class QueryTypeChecker extends TypeChecker {
         BLangInvocation invocation = collectContextInvocation.invocation;
         data.resultType = checkExpr(invocation, data.env, data);
         if (isNilReturnInvocationInCollectClause(invocation, data)) {
-            data.resultType = BUnionType.create(null, data.resultType, symTable.nilType);
+            data.resultType = BUnionType.create(symTable.typeEnv(), null, data.resultType, symTable.nilType);
         }
         collectContextInvocation.setBType(data.resultType);
     }
@@ -1149,7 +1155,8 @@ public class QueryTypeChecker extends TypeChecker {
                     dlog.error(varRefExpr.pos, DiagnosticErrorCode.VARIABLE_IS_SEQUENCED_MORE_THAN_ONCE, varName);
                 }
             } else if ((symbol.tag & SymTag.TYPE_DEF) == SymTag.TYPE_DEF) {
-                actualType = symbol.type.tag == TypeTags.TYPEDESC ? symbol.type : new BTypedescType(symbol.type, null);
+                actualType = symbol.type.tag == TypeTags.TYPEDESC ? symbol.type :
+                        new BTypedescType(symTable.typeEnv(), symbol.type, null);
                 varRefExpr.symbol = symbol;
             } else if ((symbol.tag & SymTag.CONSTANT) == SymTag.CONSTANT) {
                 BConstantSymbol constSymbol = (BConstantSymbol) symbol;
@@ -1199,7 +1206,8 @@ public class QueryTypeChecker extends TypeChecker {
                     checkExpr(expr, data.env, symTable.noType, data);
                     data.queryData.withinSequenceContext = false;
                     data.resultType = types.checkType(listConstructor.pos,
-                            new BTupleType(null, new ArrayList<>(0), ((BSequenceType) type).elementType, 0),
+                            new BTupleType(symTable.typeEnv(), null, new ArrayList<>(0),
+                                    ((BSequenceType) type).elementType, 0),
                             expType, DiagnosticErrorCode.INCOMPATIBLE_TYPES);
                     listConstructor.setBType(data.resultType);
                     return;

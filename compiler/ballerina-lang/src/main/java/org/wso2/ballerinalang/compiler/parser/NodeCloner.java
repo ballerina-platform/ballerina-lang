@@ -120,6 +120,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkdownReturnParam
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchGuard;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMultipleWorkerReceive;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNamedArgsExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangNaturalExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNumericLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangObjectConstructorExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangQueryAction;
@@ -399,6 +400,7 @@ public class NodeCloner extends BLangNodeVisitor {
         clone.nullable = source.nullable;
         clone.grouped = source.grouped;
         clone.flagSet = cloneSet(source.flagSet, Flag.class);
+        clone.defn = source.defn;
     }
 
     private <T extends Enum<T>> EnumSet<T> cloneSet(Set<T> source, Class<T> elementType) {
@@ -2534,5 +2536,15 @@ public class NodeCloner extends BLangNodeVisitor {
         clone.questionMark = clone(source.questionMark);
         clone.flagsOnOff = clone(source.flagsOnOff);
         clone.colon = clone(source.colon);
+    }
+
+    @Override
+    public void visit(BLangNaturalExpression source) {
+        BLangNaturalExpression clone = new BLangNaturalExpression();
+        source.cloneRef = clone;
+        clone.arguments = cloneList(source.arguments);
+        clone.strings = cloneList(source.strings);
+        clone.insertions = cloneList(source.insertions);
+        clone.isConstExpr = source.isConstExpr;
     }
 }

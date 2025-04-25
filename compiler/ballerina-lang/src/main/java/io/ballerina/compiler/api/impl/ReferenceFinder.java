@@ -109,6 +109,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchGuard;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMultipleWorkerReceive;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNamedArgsExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangNaturalExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangObjectConstructorExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangQueryAction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangQueryExpr;
@@ -1478,6 +1479,13 @@ public class ReferenceFinder extends BaseVisitor {
         find(reFlagExpression.questionMark);
         find(reFlagExpression.flagsOnOff);
         find(reFlagExpression.colon);
+    }
+
+    @Override
+    public void visit(BLangNaturalExpression naturalExpression) {
+        find(naturalExpression.arguments);
+        find(naturalExpression.insertions);
+        find(naturalExpression.strings);
     }
 
     // Private methods

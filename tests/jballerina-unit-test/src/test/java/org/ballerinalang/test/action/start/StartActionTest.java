@@ -59,7 +59,6 @@ public class StartActionTest {
         BAssertUtil.validateError(result, indx++, "'wait' cannot be used with actions", 72, 18);
         BAssertUtil.validateError(result, indx++, "action invocation as an expression not allowed here", 72, 28);
         BAssertUtil.validateError(result, indx++, "action invocation as an expression not allowed here", 76, 25);
-        BAssertUtil.validateError(result, indx++, "incompatible types: expected 'other', found 'int'", 90, 13);
         BAssertUtil.validateError(result, indx++, "incompatible types: '(int[]|error)' is not an iterable collection"
                 , 90, 22);
         BAssertUtil.validateError(result, indx++, "'wait' cannot be used with actions", 90, 27);

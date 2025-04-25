@@ -17,7 +17,7 @@
  */
 package org.wso2.ballerinalang.compiler.semantics.model.types;
 
-import org.ballerinalang.model.types.ReferenceType;
+import io.ballerina.types.SemType;
 import org.ballerinalang.model.types.TypeKind;
 import org.wso2.ballerinalang.compiler.semantics.model.TypeVisitor;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
@@ -27,11 +27,10 @@ import static org.wso2.ballerinalang.compiler.util.TypeTags.TYPEREFDESC;
 /**
  * @since 2.0.0
  */
-public class BTypeReferenceType extends BType implements ReferenceType {
+public class BTypeReferenceType extends BType {
 
     public BType referredType;
     public final String definitionName;
-    private Boolean nilable = null;
 
     public BTypeReferenceType(BType referredType, BTypeSymbol tsymbol, long flags) {
         super(TYPEREFDESC, tsymbol, flags);
@@ -39,9 +38,9 @@ public class BTypeReferenceType extends BType implements ReferenceType {
         this.definitionName = tsymbol.getName().getValue();
     }
 
-    public BTypeReferenceType(BType referredType, BTypeSymbol tsymbol, long flags, boolean nilable) {
-        this(referredType, tsymbol, flags);
-        this.nilable = nilable;
+    @Override
+    public SemType semType() {
+        return referredType.semType();
     }
 
     @Override
@@ -63,15 +62,5 @@ public class BTypeReferenceType extends BType implements ReferenceType {
     @Override
     public TypeKind getKind() {
         return TypeKind.TYPEREFDESC;
-    }
-
-    @Override
-    public boolean isNullable() {
-        if (this.nilable != null) {
-            return this.nilable;
-        }
-
-        this.nilable = this.referredType.isNullable();
-        return this.nilable;
     }
 }

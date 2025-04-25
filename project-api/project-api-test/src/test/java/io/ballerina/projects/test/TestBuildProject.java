@@ -363,7 +363,7 @@ public class TestBuildProject extends BaseTest {
         // 1) Initialize the project instance
         BuildOptions buildOptions = BuildOptions.builder().setSkipTests(false).build();
         BuildProject project = loadBuildProject(projectPath, buildOptions);
-        
+
         // 2) Compile the current package
         PackageCompilation compilation = project.currentPackage().getCompilation();
         JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(compilation, JvmTarget.JAVA_21);
@@ -483,6 +483,7 @@ public class TestBuildProject extends BaseTest {
         Assert.assertTrue(project.buildOptions().observabilityIncluded());
         Assert.assertFalse(project.buildOptions().codeCoverage());
         Assert.assertFalse(project.buildOptions().offlineBuild());
+        Assert.assertTrue(project.buildOptions().experimental());
         Assert.assertFalse(project.buildOptions().testReport());
         Assert.assertTrue(project.buildOptions().remoteManagement());
     }
@@ -504,6 +505,7 @@ public class TestBuildProject extends BaseTest {
         Assert.assertTrue(project.buildOptions().observabilityIncluded());
         Assert.assertFalse(project.buildOptions().codeCoverage());
         Assert.assertFalse(project.buildOptions().offlineBuild());
+        Assert.assertTrue(project.buildOptions().experimental());
         Assert.assertFalse(project.buildOptions().testReport());
     }
 
@@ -536,6 +538,7 @@ public class TestBuildProject extends BaseTest {
         // Test when build option provided only in Ballerina TOML
         Assert.assertTrue(newPackage.project().buildOptions().codeCoverage());
         Assert.assertTrue(newPackage.project().buildOptions().observabilityIncluded());
+        Assert.assertTrue(newPackage.project().buildOptions().experimental());
         Assert.assertTrue(newPackage.project().buildOptions().skipTests());
     }
 
@@ -1864,7 +1867,8 @@ public class TestBuildProject extends BaseTest {
     @Test
     public void testProjectDuplicate() {
         Path projectPath = tempResourceDir.resolve("myproject");
-        BuildOptions.BuildOptionsBuilder optionsBuilder = BuildOptions.builder().setCodeCoverage(true);
+        BuildOptions.BuildOptionsBuilder optionsBuilder = BuildOptions.builder()
+                .setCodeCoverage(true).setExperimental(true);
         Project project = loadProject(projectPath, optionsBuilder.build());
 
         Project duplicate = project.duplicate();
@@ -1882,6 +1886,7 @@ public class TestBuildProject extends BaseTest {
 
         Assert.assertEquals(project.sourceRoot().toString(), duplicate.sourceRoot().toString());
         Assert.assertTrue(duplicate.buildOptions().codeCoverage());
+        Assert.assertTrue(duplicate.buildOptions().experimental());
         Assert.assertFalse(duplicate.buildOptions().testReport());
 
         Assert.assertNotSame(project.currentPackage(), duplicate.currentPackage());

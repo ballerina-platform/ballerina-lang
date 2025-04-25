@@ -15,6 +15,7 @@ on:
       - native-build
       - revert-client-decl-master
       - query-grouping-aggregation
+
 jobs:
   windows_build:
     name: Build with some tests on Windows
@@ -64,5 +65,5 @@ jobs:
         env:
           packageUser: ${{ github.actor }}
           packagePAT: ${{ secrets.GITHUB_TOKEN }}
-        run: ./gradlew.bat build --continue -x :ballerina-lang:test -x :jballerina-integration-test:test -x javadoc --stacktrace -scan --console=plain --no-daemon --no-parallel
+        run: ./gradlew.bat build --continue -x :ballerina-lang:test -x :jballerina-integration-test:test -x :jballerina-debugger-integration-test:test -x javadoc --stacktrace -scan --console=plain --no-daemon --no-parallel
 

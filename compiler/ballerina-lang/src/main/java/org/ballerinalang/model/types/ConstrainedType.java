@@ -20,7 +20,7 @@ package org.ballerinalang.model.types;
 /**
  * @since 0.94
  */
-public interface ConstrainedType extends ReferenceType {
+public interface ConstrainedType {
 
     Type getConstraint();
 }
