@@ -23,7 +23,6 @@ import io.ballerina.runtime.api.types.TypeTags;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BIterator;
-import io.ballerina.runtime.api.values.BIterator;
 import io.ballerina.runtime.internal.errors.ErrorHelper;
 import io.ballerina.runtime.internal.json.JsonGenerator;
 import io.ballerina.runtime.internal.types.BTupleType;
@@ -32,8 +31,11 @@ import io.ballerina.runtime.internal.utils.IteratorUtils;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
+import java.util.Map;
+import java.util.Set;
 
 import static io.ballerina.runtime.api.constants.RuntimeConstants.ARRAY_LANG_LIB;
 import static io.ballerina.runtime.internal.TypeChecker.isEqual;
