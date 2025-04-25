@@ -107,6 +107,7 @@ import io.ballerina.compiler.syntax.tree.ListBindingPatternNode;
 import io.ballerina.compiler.syntax.tree.ListConstructorExpressionNode;
 import io.ballerina.compiler.syntax.tree.ListMatchPatternNode;
 import io.ballerina.compiler.syntax.tree.ListenerDeclarationNode;
+import io.ballerina.compiler.syntax.tree.LiteralValueToken;
 import io.ballerina.compiler.syntax.tree.LocalTypeDefinitionStatementNode;
 import io.ballerina.compiler.syntax.tree.LockStatementNode;
 import io.ballerina.compiler.syntax.tree.MapTypeDescriptorNode;
@@ -138,6 +139,7 @@ import io.ballerina.compiler.syntax.tree.NamedArgMatchPatternNode;
 import io.ballerina.compiler.syntax.tree.NamedArgumentNode;
 import io.ballerina.compiler.syntax.tree.NamedWorkerDeclarationNode;
 import io.ballerina.compiler.syntax.tree.NamedWorkerDeclarator;
+import io.ballerina.compiler.syntax.tree.NaturalExpressionNode;
 import io.ballerina.compiler.syntax.tree.NilLiteralNode;
 import io.ballerina.compiler.syntax.tree.NilTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.Node;
@@ -3805,6 +3807,44 @@ public class FormattingTreeModifier extends TreeModifier {
                 .withEllipsisToken(ellipsis)
                 .withExpression(expressionNode)
                 .withCloseBracketToken(closeBracket)
+                .apply();
+    }
+
+    @Override
+    public NaturalExpressionNode transform(NaturalExpressionNode naturalExpressionNode) {
+        Token constKeyword = formatToken(naturalExpressionNode.constKeyword().orElse(null), 1, 0);
+        Token naturalKeyword = formatToken(naturalExpressionNode.naturalKeyword(), 1, 0);
+        ParenthesizedArgList parenthesizedArgList = formatNode(
+                naturalExpressionNode.parenthesizedArgList().orElse(null), 1, 0);
+        Token openBrace = formatToken(naturalExpressionNode.openBraceToken(), 0, 1);
+        NodeList<Node> prompt = naturalExpressionNode.prompt();
+        Node lastPromptContent = prompt.get(prompt.size() - 1);
+        int promptTrailingNL = 1;
+        if (lastPromptContent.kind() == SyntaxKind.PROMPT_CONTENT) {
+            // If the last prompt content is a literal value, check if it ends with a newline followed by
+            // optional spaces. If so we do not need to add a trailing newline.
+            String lastPromptString = ((LiteralValueToken) lastPromptContent).text();
+            int lastNewline = lastPromptString.lastIndexOf('\n');
+            if (lastNewline != -1) {
+                String afterNewline = lastPromptString.substring(lastNewline + 1);
+                if (afterNewline.matches("\\s*")) {
+                    promptTrailingNL = 0;
+                }
+            }
+        }
+        boolean preserveIndentation = env.preserveIndentation;
+        env.preserveIndentation = true;
+        prompt = formatNodeList(naturalExpressionNode.prompt(), 0, 0, 0, promptTrailingNL);
+        env.hasNewline = preserveIndentation;
+        Token closeBrace = formatToken(naturalExpressionNode.closeBraceToken(), env.trailingWS, env.trailingNL);
+
+        return naturalExpressionNode.modify()
+                .withConstKeyword(constKeyword)
+                .withNaturalKeyword(naturalKeyword)
+                .withParenthesizedArgList(parenthesizedArgList)
+                .withOpenBraceToken(openBrace)
+                .withPrompt(prompt)
+                .withCloseBraceToken(closeBrace)
                 .apply();
     }
 

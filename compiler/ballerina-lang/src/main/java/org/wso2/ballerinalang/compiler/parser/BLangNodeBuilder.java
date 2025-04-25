@@ -131,6 +131,7 @@ import io.ballerina.compiler.syntax.tree.NamedArgMatchPatternNode;
 import io.ballerina.compiler.syntax.tree.NamedArgumentNode;
 import io.ballerina.compiler.syntax.tree.NamedWorkerDeclarationNode;
 import io.ballerina.compiler.syntax.tree.NamedWorkerDeclarator;
+import io.ballerina.compiler.syntax.tree.NaturalExpressionNode;
 import io.ballerina.compiler.syntax.tree.NewExpressionNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NodeFactory;
@@ -379,6 +380,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkdownReturnParam
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchGuard;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMultipleWorkerReceive;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNamedArgsExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangNaturalExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNumericLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangObjectConstructorExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangQueryAction;
@@ -2414,7 +2416,7 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
     public BLangNode transform(Token token) {
         SyntaxKind kind = token.kind();
         return switch (kind) {
-            case XML_TEXT_CONTENT, TEMPLATE_STRING, CLOSE_BRACE_TOKEN -> createSimpleLiteral(token);
+            case XML_TEXT_CONTENT, TEMPLATE_STRING, CLOSE_BRACE_TOKEN, PROMPT_CONTENT -> createSimpleLiteral(token);
             default -> {
                 if (isTokenInRegExp(kind)) {
                     yield createSimpleLiteral(token);
@@ -3621,6 +3623,16 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
     @Override
     public BLangNode transform(XMLTextNode xmlTextNode) {
         return createExpression(xmlTextNode.content());
+    }
+
+    @Override
+    public BLangNode transform(NaturalExpressionNode naturalExpressionNode) {
+        BLangNaturalExpression naturalExpr = (BLangNaturalExpression) TreeBuilder.createNaturalExpressionNode();
+        naturalExpr.pos = getPosition(naturalExpressionNode);
+        naturalExpr.isConstExpr = naturalExpressionNode.constKeyword().isPresent();
+        naturalExpr.arguments = getNaturalExpressionArguments(naturalExpressionNode);
+        populateTemplateContent(naturalExpressionNode.prompt(), naturalExpr.strings, naturalExpr.insertions);
+        return naturalExpr;
     }
 
     private BLangNode createXMLEmptyLiteral(Node expressionNode) {
@@ -5523,36 +5535,39 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
     private BLangRawTemplateLiteral createRawTemplateLiteral(NodeList<Node> members, Location location) {
         BLangRawTemplateLiteral literal = (BLangRawTemplateLiteral) TreeBuilder.createRawTemplateLiteralNode();
         literal.pos = location;
+        populateTemplateContent(members, literal.strings, literal.insertions);
+        return literal;
+    }
 
+    private void populateTemplateContent(NodeList<Node> members, List<BLangLiteral> strings,
+                                         List<BLangExpression> insertions) {
         boolean prevNodeWasInterpolation = false;
         Node firstMember = members.isEmpty() ? null : members.get(0); // will be empty for empty raw template
 
         if (firstMember != null && firstMember.kind() == SyntaxKind.INTERPOLATION) {
-            literal.strings.add(createStringLiteral("", getPosition(firstMember)));
+            strings.add(createStringLiteral("", getPosition(firstMember)));
         }
 
         for (Node member : members) {
             if (member.kind() == SyntaxKind.INTERPOLATION) {
-                literal.insertions.add((BLangExpression) member.apply(this));
+                insertions.add((BLangExpression) member.apply(this));
 
                 if (prevNodeWasInterpolation) {
-                    literal.strings.add(createStringLiteral("", getPosition(member)));
+                    strings.add(createStringLiteral("", getPosition(member)));
                 }
 
                 prevNodeWasInterpolation = true;
             } else {
-                literal.strings.add((BLangLiteral) member.apply(this));
+                strings.add((BLangLiteral) member.apply(this));
                 prevNodeWasInterpolation = false;
             }
         }
 
         if (prevNodeWasInterpolation) {
-            literal.strings.add(createStringLiteral("", getPosition(members.get(members.size() - 1))));
+            strings.add(createStringLiteral("", getPosition(members.get(members.size() - 1))));
         }
-
-        return literal;
     }
-    
+
     private BLangNode createRegExpTemplateLiteral(TemplateExpressionNode expressionNode) {
         BLangRegExpTemplateLiteral regExpTemplateLiteral =
                 (BLangRegExpTemplateLiteral) TreeBuilder.createRegExpTemplateLiteralNode();
@@ -7074,5 +7089,14 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
             extensions.add(curExpr);
         }
         return extensions;
+    }
+
+    private List<BLangExpression> getNaturalExpressionArguments(NaturalExpressionNode naturalExpressionNode) {
+        Optional<ParenthesizedArgList> argsList = naturalExpressionNode.parenthesizedArgList();
+        return argsList.map(
+                parenthesizedArgList -> parenthesizedArgList.arguments()
+                        .stream()
+                        .map(this::createExpression).toList()).
+                orElseGet(() -> new ArrayList<>(0));
     }
 }
