@@ -141,6 +141,9 @@ public class TestCommand implements BLauncherCmd {
     @CommandLine.Option(names = {"--help", "-h"}, hidden = true)
     private boolean helpFlag;
 
+    @CommandLine.Option(names = "--experimental", description = "Enable experimental language features.")
+    private Boolean experimentalFlag;
+
     @CommandLine.Option(names = "--debug", description = "start in remote debugging mode")
     private String debugPort;
 
@@ -419,6 +422,7 @@ public class TestCommand implements BLauncherCmd {
 
         buildOptionsBuilder
                 .setCodeCoverage(coverage)
+                .setExperimental(experimentalFlag)
                 .setOffline(offline)
                 .setSkipTests(false)
                 .setTestReport(testReport)

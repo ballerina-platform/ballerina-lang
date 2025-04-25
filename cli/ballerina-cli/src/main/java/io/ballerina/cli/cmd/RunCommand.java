@@ -92,6 +92,9 @@ public class RunCommand implements BLauncherCmd {
     @CommandLine.Option(names = "--dump-bir", hidden = true)
     private boolean dumpBIR;
 
+    @CommandLine.Option(names = "--experimental", description = "Enable experimental language features.")
+    private boolean experimentalFlag;
+
     @CommandLine.Option(names = "--observability-included", description = "package observability in the executable " +
             "when run is used with a source file or a module.")
     private Boolean observabilityIncluded;
@@ -141,7 +144,7 @@ public class RunCommand implements BLauncherCmd {
     private static final String runCmd =
             """
                     bal run [--debug <port>] <executable-jar>\s
-                        bal run [--offline]
+                        bal run [--experimental] [--offline]
                                       [<ballerina-file | package-path>] [-- program-args...]
                     \s""";
 
@@ -345,6 +348,7 @@ public class RunCommand implements BLauncherCmd {
 
         buildOptionsBuilder
                 .setCodeCoverage(false)
+                .setExperimental(experimentalFlag)
                 .setOffline(offline)
                 .setSkipTests(true)
                 .setTestReport(false)

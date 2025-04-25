@@ -254,6 +254,7 @@ class PackageContext {
     PackageCompilation getPackageCompilation(CompilationOptions compilationOptions) {
         CompilationOptions options = CompilationOptions.builder()
                 .setOffline(this.compilationOptions.offlineBuild())
+                .setExperimental(this.compilationOptions.experimental())
                 .setObservabilityIncluded(this.compilationOptions.observabilityIncluded())
                 .setDumpBir(this.compilationOptions.dumpBir())
                 .setCloud(this.compilationOptions.getCloud())
