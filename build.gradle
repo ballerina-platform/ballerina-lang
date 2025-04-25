@@ -11,6 +11,14 @@ plugins {
 }
 
 allprojects {
+    tasks.all { Task task ->
+        task.doFirst {
+            task.ext.startTime = System.currentTimeMillis()
+        }
+        task.doLast {
+            println "${task.path} took ${System.currentTimeMillis() - task.ext.startTime}ms"
+        }
+    }
     tasks.withType(JavaCompile).configureEach {
         options.fork = true
     }

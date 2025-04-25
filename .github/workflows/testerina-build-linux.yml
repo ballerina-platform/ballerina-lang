@@ -1,16 +1,16 @@
-name: Testerina integration test on Windows
+name: CI Ubuntu
 
 on:
   workflow_dispatch:
 
 jobs:
-  windows_build:
-    name: Build with some tests on Windows
-    runs-on: windows-latest
-    timeout-minutes: 240
-    concurrency: 
-       group: ${{ github.head_ref }}-windows
-       cancel-in-progress: true
+  ubuntu_build:
+    name: Build with all tests on Ubuntu
+    runs-on: ubuntu-latest
+    timeout-minutes: 150
+    concurrency:
+      group: ${{ github.head_ref }}-ubuntu
+      cancel-in-progress: true
 
     steps:
       - name: Checkout Repository
@@ -22,13 +22,6 @@ jobs:
           distribution: 'temurin'
           java-version: '21.0.3'
 
-      - name: configure Pagefile
-        uses: al-cheb/configure-pagefile-action@v1.4
-        with:
-          minimum-size: 8GB
-          maximum-size: 16GB
-          disk-root: "C:"
-
       - name: Initialize sub-modules
         run: git submodule update --init
 
@@ -36,7 +29,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: ~/.gradle/caches
-          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle') }}
+          key: ${{ runner.os }}-gradle-${{ github.sha }}
           restore-keys: ${{ runner.os }}-gradle
 
       - name: Setup GraalVM
@@ -52,4 +45,19 @@ jobs:
         env:
           packageUser: ${{ github.actor }}
           packagePAT: ${{ secrets.GITHUB_TOKEN }}
-        run: ./gradlew clean :testerina-integration-test:test
+        run: |
+          export DISPLAY=':99.0'
+          /usr/bin/Xvfb :99 -screen 0 1024x768x24 > /dev/null 2>&1 &
+          ./gradlew build -x :jballerina-debugger-integration-test:test -Pnative.test --max-workers=2 --scan --no-daemon
+
+      - name: Generate Jacoco report
+        if: github.event_name == 'pull_request'
+        run: ./gradlew createCodeCoverageReport
+
+      - name: Generate Codecov Report
+        if: github.event_name == 'pull_request'
+        uses: codecov/codecov-action@v4
+        with:
+          files: ./.jacoco/reports/jacoco/report.xml
+
+
