@@ -46,7 +46,6 @@ public class IteratorUtils {
      * Converts a Ballerina collection to a Java stream.
      *
      * @param javaIterator The Java iterator.
-     * @param <T>          The type of elements in the collection.
      * @return A Java Stream of elements.
      */
     public static <T> Stream<BMap<BString, Object>> toStream(Iterator<T> javaIterator) throws ErrorValue {
@@ -62,28 +61,28 @@ public class IteratorUtils {
      * Returns a Java iterator for a given Ballerina collection.
      *
      * @param env        The Ballerina runtime environment.
+     * @param env The Ballerina runtime environment.
      * @param collection The Ballerina collection.
      * @return A Java Iterator for the collection.
      */
     public static Iterator<?> getIterator(Environment env, Object collection) {
         try {
-            switch (collection) {
-                case IterableValue iterable -> {
-                    return iterable.getJavaIterator();
-                }
+            return switch (collection) {
+                case IterableValue iterable -> iterable.getJavaIterator();
                 case BStream bStream -> {
                     BObject iteratorObj = bStream.getIteratorObj();
-                    return new BStreamIterator<>(env, iteratorObj);
+                    yield new BStreamIterator<>(env, iteratorObj);
                 }
                 case BObject bObject -> {
                     Object iteratorObj = env.getRuntime().callMethod(bObject, "iterator", null);
                     if (iteratorObj instanceof BObject iteratorInstance) {
                         return new BStreamIterator<>(env, iteratorInstance);
+                        yield new BStreamIterator<>(env, iteratorInstance);
                     }
                     throw new QueryException("Unsupported collection type");
                 }
                 default -> throw new QueryException("Unsupported collection type");
-            }
+            };
         } catch (BError e) {
             throw new QueryException(e);
         }

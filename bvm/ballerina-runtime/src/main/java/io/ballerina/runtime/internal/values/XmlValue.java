@@ -298,6 +298,7 @@ public abstract class XmlValue implements RefValue, BXml, CollectionValue {
     public BasicTypeBitSet getBasicType() {
         return BASIC_TYPE;
     }
+
     @Override
     public Iterator<?> getJavaIterator() {
         BIterator<?> iterator = getIterator();
