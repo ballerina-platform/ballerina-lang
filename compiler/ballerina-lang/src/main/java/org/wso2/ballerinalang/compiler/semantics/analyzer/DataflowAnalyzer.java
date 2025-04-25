@@ -129,6 +129,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkdownReturnParam
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchGuard;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMultipleWorkerReceive;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNamedArgsExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangNaturalExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangObjectConstructorExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangQueryAction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangQueryExpr;
@@ -2583,6 +2584,21 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangErrorVariableDef bLangErrorVariableDef) {
         analyzeNode(bLangErrorVariableDef.errorVariable, env);
+    }
+
+    @Override
+    public void visit(BLangNaturalExpression naturalExpression) {
+        for (BLangExpression argumentExpr : naturalExpression.arguments) {
+            analyzeNode(argumentExpr, env);
+        }
+
+        for (BLangLiteral string : naturalExpression.strings) {
+            analyzeNode(string, env);
+        }
+
+        for (BLangExpression expr : naturalExpression.insertions) {
+            analyzeNode(expr, env);
+        }
     }
 
     private void addUninitializedVar(BLangVariable variable) {
