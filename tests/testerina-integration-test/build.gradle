@@ -80,6 +80,13 @@ tasks.register('testUtilsJar', Jar) {
 
 // Integration tests for testerina
 test {
+    testLogging {
+        events "passed", "failed", "skipped"
+        showStandardStreams = true
+    }
+    beforeTest { descriptor ->
+        println "Running test: ${descriptor.className} - ${descriptor.name}"
+    }
     mustRunAfter ':jballerina-integration-test:test'
     dependsOn extractDistribution
     dependsOn testUtilsJar
