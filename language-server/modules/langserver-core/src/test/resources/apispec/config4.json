@@ -1,0 +1,47 @@
+{
+  "method": "ballerinaDocument/syntaxTree",
+  "parameters": [
+    {
+      "name": "param0",
+      "schema": {
+        "properties": {
+          "documentIdentifier": {
+            "properties": {
+              "uri": {
+                "type": "string",
+                "className": "java.lang.String"
+              }
+            },
+            "type": "object",
+            "className": "org.eclipse.lsp4j.TextDocumentIdentifier"
+          }
+        },
+        "type": "object",
+        "className": "org.ballerinalang.langserver.extensions.ballerina.document.BallerinaSyntaxTreeRequest"
+      }
+    }
+  ],
+  "returnType": {
+    "properties": {
+      "syntaxTree": {
+        "properties": {},
+        "type": "object",
+        "className": "com.google.gson.JsonElement"
+      },
+      "defFilePath": {
+        "type": "string",
+        "className": "java.lang.String"
+      },
+      "parseSuccess": {
+        "type": "boolean",
+        "className": "boolean"
+      },
+      "source": {
+        "type": "string",
+        "className": "java.lang.String"
+      }
+    },
+    "type": "object",
+    "className": "org.ballerinalang.langserver.extensions.ballerina.document.BallerinaSyntaxTreeResponse"
+  }
+}

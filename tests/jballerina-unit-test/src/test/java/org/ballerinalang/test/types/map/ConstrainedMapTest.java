@@ -50,7 +50,7 @@ public class ConstrainedMapTest {
 
     @Test(description = "Test Map constrained with type negative semantic validations.")
     public void testConstrainedMapNegative() {
-        Assert.assertEquals(negativeResult.getErrorCount(), 7);
+        Assert.assertEquals(negativeResult.getErrorCount(), 6);
         int i = 0;
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'map<int>', found 'map'", 3, 12);
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'int', found 'string'", 7, 44);
@@ -61,8 +61,6 @@ public class ConstrainedMapTest {
                 "incompatible types: expected 'map<Person>', " + "found 'map<Employee>'", 35, 31);
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'map<Person>', found 'map'", 45,
                 31);
-        BAssertUtil.validateError(negativeResult, i, "incompatible types: 'map<Person>' cannot be cast to" +
-                " 'map<Student>'", 77, 29);
     }
 
     @Test(description = "Test Map constrained with value type value retrieval positive case.")
@@ -276,7 +274,7 @@ public class ConstrainedMapTest {
         String errorMsg =
                 ((BMap<String, BString>) ((BError) returns).getDetails()).get(StringUtils.fromString("message"))
                         .toString();
-        Assert.assertTrue(errorMsg.startsWith("incompatible types: 'map<Person>' cannot be cast to 'map<int>'"));
+        Assert.assertTrue(errorMsg.startsWith("incompatible types: 'map<PersonCM>' cannot be cast to 'map<int>'"));
 
     }
 
@@ -353,7 +351,8 @@ public class ConstrainedMapTest {
         String errorMsg =
                 ((BMap<String, BString>) ((BError) returns).getDetails()).get(StringUtils.fromString("message"))
                         .toString();
-        Assert.assertTrue(errorMsg.startsWith("incompatible types: 'map<Employee>' cannot be cast to 'map<Person>'"));
+        Assert.assertTrue(
+                errorMsg.startsWith("incompatible types: 'map<EmployeeCM>' cannot be cast to 'map<PersonCM>'"));
     }
 
     @Test(description = "Test runtime cast for any map to int map.")
@@ -373,7 +372,7 @@ public class ConstrainedMapTest {
         String errorMsg =
                 ((BMap<String, BString>) ((BError) returns).getDetails()).get(StringUtils.fromString("message"))
                         .toString();
-        Assert.assertTrue(errorMsg.startsWith("incompatible types: 'map' cannot be cast to 'map<Employee>'"));
+        Assert.assertTrue(errorMsg.startsWith("incompatible types: 'map' cannot be cast to 'map<EmployeeCM>'"));
     }
 
     @Test(description = "Test struct to map conversion for constrained map.")

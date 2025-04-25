@@ -45,6 +45,9 @@ public class BMethodType extends BFunctionType implements MethodType {
         this.parentObjectType = parent;
         this.flags = flags;
         this.parameters = type.parameters;
+        if (isFunctionTop()) {
+            resetTypeCheckCaches();
+        }
     }
 
     @Override
@@ -83,5 +86,9 @@ public class BMethodType extends BFunctionType implements MethodType {
     @Override
     public boolean isIsolated() {
         return SymbolFlags.isFlagOn(flags, SymbolFlags.ISOLATED);
+    }
+
+    public String name() {
+        return funcName;
     }
 }

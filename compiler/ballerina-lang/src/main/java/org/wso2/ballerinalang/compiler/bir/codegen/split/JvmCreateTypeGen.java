@@ -509,7 +509,7 @@ public class JvmCreateTypeGen {
         // filter anon types and sorts them before generating switch case.
         Set<BIRTypeDefinition> typeDefSet = new TreeSet<>(typeDefHashComparator);
         for (BIRTypeDefinition t : typeDefinitions) {
-            if (Symbols.isFlagOn(t.type.flags, Flags.ANONYMOUS)) {
+            if (Symbols.isFlagOn(t.type.getFlags(), Flags.ANONYMOUS)) {
                 typeDefSet.add(t);
             }
         }

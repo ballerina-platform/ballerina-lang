@@ -24,7 +24,14 @@ import io.ballerina.runtime.api.types.JsonType;
 import io.ballerina.runtime.api.types.PredefinedTypes;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.TypeTags;
+import io.ballerina.runtime.api.types.semtype.BasicTypeBitSet;
+import io.ballerina.runtime.api.types.semtype.Builder;
+import io.ballerina.runtime.api.types.semtype.SemType;
+import io.ballerina.runtime.api.types.semtype.TypeCheckCache;
+import io.ballerina.runtime.api.types.semtype.TypeCheckCacheFactory;
 import io.ballerina.runtime.internal.values.MapValueImpl;
+
+import java.util.stream.Stream;
 
 /**
  * {@code BJSONType} represents a JSON value.
@@ -34,6 +41,21 @@ import io.ballerina.runtime.internal.values.MapValueImpl;
 @SuppressWarnings("unchecked")
 public class BJsonType extends BUnionType implements JsonType {
 
+    private static final BasicTypeBitSet BASIC_TYPE = createBasicType();
+
+    private static BasicTypeBitSet createBasicType() {
+        int bitset =
+                Stream.of(Builder.getNilType(), Builder.getBooleanType(), Builder.getIntType(), Builder.getFloatType(),
+                        Builder.getDecimalType(), Builder.getStringType(), Builder.getListType(),
+                        Builder.getMappingType()).map(
+                        SemType::all).reduce(0, (accum, bits) -> accum | bits);
+        return new BasicTypeBitSet(bitset);
+    }
+
+    private static final int TYPE_ID_RW = TypeIdSupplier.getReservedId();
+    private static final int TYPE_ID_RO = TypeIdSupplier.getReservedId();
+    private static final TypeCheckCache TYPE_CHECK_CACHE_RW = TypeCheckCacheFactory.create();
+    private static final TypeCheckCache TYPE_CHECK_CACHE_RO = TypeCheckCacheFactory.create();
     /**
      * Create a {@code BJSONType} which represents the JSON type.
      *
@@ -42,35 +64,46 @@ public class BJsonType extends BUnionType implements JsonType {
      * @param readonly whether immutable
      */
     public BJsonType(String typeName, Module pkg, boolean readonly) {
-        super(typeName, pkg, readonly, MapValueImpl.class);
+        super(typeName, pkg, readonly, MapValueImpl.class, false);
         if (!readonly) {
             BJsonType immutableJsonType = new BJsonType(TypeConstants.READONLY_JSON_TNAME, pkg, true);
             this.immutableType = new BIntersectionType(pkg, new Type[]{this, PredefinedTypes.TYPE_READONLY},
                                                        immutableJsonType,
                                                        TypeFlags.asMask(TypeFlags.NILABLE, TypeFlags.ANYDATA,
                                                                         TypeFlags.PURETYPE), true);
+            typeId = TYPE_ID_RW;
+            typeCheckCache = TYPE_CHECK_CACHE_RW;
+        } else {
+            typeId = TYPE_ID_RO;
+            typeCheckCache = TYPE_CHECK_CACHE_RO;
         }
     }
 
     public BJsonType() {
-        super(TypeConstants.JSON_TNAME, null, false, MapValueImpl.class);
+        super(TypeConstants.JSON_TNAME, null, false, MapValueImpl.class, false);
         BJsonType immutableJsonType = new BJsonType(TypeConstants.READONLY_JSON_TNAME, pkg, true);
         this.immutableType = new BIntersectionType(pkg, new Type[]{ this, PredefinedTypes.TYPE_READONLY},
                                                    immutableJsonType,
                                                    TypeFlags.asMask(TypeFlags.NILABLE, TypeFlags.ANYDATA,
                                                                     TypeFlags.PURETYPE), true);
+        typeId = TYPE_ID_RW;
+        typeCheckCache = TYPE_CHECK_CACHE_RW;
     }
 
     public BJsonType(BUnionType unionType, String typeName, boolean readonly) {
-        super(unionType, typeName, readonly);
+        super(unionType, typeName, readonly, false);
         if (!readonly) {
             BJsonType immutableJsonType = new BJsonType(unionType, TypeConstants.READONLY_JSON_TNAME, true);
             this.immutableType = new BIntersectionType(pkg, new Type[]{this, PredefinedTypes.TYPE_READONLY},
                     immutableJsonType,
                     TypeFlags.asMask(TypeFlags.NILABLE, TypeFlags.ANYDATA,
                             TypeFlags.PURETYPE), true);
+            typeId = TYPE_ID_RW;
+            typeCheckCache = TYPE_CHECK_CACHE_RW;
+        } else {
+            typeId = TYPE_ID_RO;
+            typeCheckCache = TYPE_CHECK_CACHE_RO;
         }
-
     }
 
     @Override
@@ -94,10 +127,20 @@ public class BJsonType extends BUnionType implements JsonType {
     }
 
     @Override
+    public int typeId() {
+        return typeId;
+    }
+
+    @Override
     public String toString() {
         if (this.typeName != null) {
             return this.typeName;
         }
         return super.toString();
+    }
+
+    @Override
+    public BasicTypeBitSet getBasicType() {
+        return BASIC_TYPE;
     }
 }

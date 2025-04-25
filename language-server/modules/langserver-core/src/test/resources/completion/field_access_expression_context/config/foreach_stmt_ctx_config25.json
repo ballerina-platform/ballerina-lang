@@ -104,11 +104,11 @@
     {
       "label": "next()",
       "kind": "Function",
-      "detail": "record {|int value; int...;|}|stream:CompletionType",
+      "detail": "record {|int value;|}|stream:CompletionType",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.stream:0.0.0_  \n  \nReturns the next element in the stream wrapped in a record or () if the stream ends.\n\n```ballerina\nstream<int> scores = [45, 60, 75, 30, 90].toStream();\nscores.next() ⇒ {\"value\":45}\n```\n  \n  \n  \n**Return** `record {|int value; int...;|}|stream:CompletionType`   \n- If the stream has elements, return the element wrapped in a record with single field called `value`,  \notherwise returns ()  \n  \n"
+          "value": "**Package:** _ballerina/lang.stream:0.0.0_  \n  \nReturns the next element in the stream wrapped in a record or () if the stream ends.\n\n```ballerina\nstream<int> scores = [45, 60, 75, 30, 90].toStream();\nscores.next() ⇒ {\"value\":45}\n```\n  \n  \n  \n**Return** `record {|int value;|}|stream:CompletionType`   \n- If the stream has elements, return the element wrapped in a record with single field called `value`,  \notherwise returns ()  \n  \n"
         }
       },
       "sortText": "CD",
@@ -119,11 +119,11 @@
     {
       "label": "iterator()",
       "kind": "Function",
-      "detail": "object {public isolated function next() returns record {|int value; int...;|}|stream:CompletionType;}",
+      "detail": "object {public isolated function next() returns record {|int value;|}|stream:CompletionType;}",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.stream:0.0.0_  \n  \nReturns an iterator over a stream.\n\n```ballerina\nstream<int> scores = [45, 60, 75, 30, 90].toStream();\nobject {\n    public isolated function next() returns record {|int value;|}?;\n} iterator = scores.iterator();\niterator.next() ⇒ {\"value\":45}\n```\n  \n  \n  \n**Return** `object {public isolated function next() returns record {|int value; int...;|}|stream:CompletionType;}`   \n- a new iterator object that will iterate over the members of parameter `stm`.  \n  \n"
+          "value": "**Package:** _ballerina/lang.stream:0.0.0_  \n  \nReturns an iterator over a stream.\n\n```ballerina\nstream<int> scores = [45, 60, 75, 30, 90].toStream();\nobject {\n    public isolated function next() returns record {|int value;|}?;\n} iterator = scores.iterator();\niterator.next() ⇒ {\"value\":45}\n```\n  \n  \n  \n**Return** `object {public isolated function next() returns record {|int value;|}|stream:CompletionType;}`   \n- a new iterator object that will iterate over the members of parameter `stm`.  \n  \n"
         }
       },
       "sortText": "CD",

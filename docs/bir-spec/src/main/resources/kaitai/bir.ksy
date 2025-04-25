@@ -96,8 +96,6 @@ types:
         type: s4
       - id: type_flag
         type: s8
-      - id: type_special_flag
-        type: s4
       - id: type_structure
         type:
           switch-on: type_tag
@@ -122,6 +120,238 @@ types:
     instances:
       name_as_str:
         value: _root.constant_pool.constant_pool_entries[name_index].cp_info.as<string_cp_info>.value
+  sem_named_type:
+    seq:
+      - id: semtype
+        type: semtype_info
+      - id: optional_name
+        type: nullable_str_info
+  nullable_str_info:
+    seq:
+      - id: has_non_null_string
+        type: u1
+      - id: str_cp_index
+        type: s4
+        if: has_non_null_string == 1
+  semtype_info:
+    seq:
+      - id: has_semtype
+        type: u1
+      - id: semtype
+        type: semtype_internal
+        if: has_semtype == 1
+  semtype_internal:
+    seq:
+      - id: is_uniform_type_bit_set
+        type: u1
+      - id: uniform_type_bit_set
+        type: s4
+        if: is_uniform_type_bit_set == 1
+      - id: complex_semtype
+        type: semtype_complex
+        if: is_uniform_type_bit_set == 0
+  semtype_complex:
+    seq:
+      - id: all_bit_set
+        type: s4
+      - id: some_bit_set
+        type: s4
+      - id: subtype_data_list_length
+        type: s1
+      - id: proper_subtype_data
+        type: semtype_proper_subtype_data
+        repeat: expr
+        repeat-expr: subtype_data_list_length
+  semtype_proper_subtype_data:
+    seq:
+      - id: proper_subtype_data_kind
+        type: s1
+      - id: bdd
+        type: semtype_bdd
+        if: proper_subtype_data_kind == 1
+      - id: int_subtype
+        type: semtype_int_subtype
+        if: proper_subtype_data_kind == 2
+      - id: boolean_subtype
+        type: semtype_boolean_subtype
+        if: proper_subtype_data_kind == 3
+      - id: float_subtype
+        type: semtype_float_subtype
+        if: proper_subtype_data_kind == 4
+      - id: decimal_subtype
+        type: semtype_decimal_subtype
+        if: proper_subtype_data_kind == 5
+      - id: string_subtype
+        type: semtype_string_subtype
+        if: proper_subtype_data_kind == 6
+      - id: xml_subtype
+        type: semtype_xml_subtype
+        if: proper_subtype_data_kind == 7
+  semtype_bdd:
+    seq:
+      - id: is_bdd_node
+        type: u1
+      - id: bdd_node
+        type: semtype_bdd_node
+        if: is_bdd_node == 1
+      - id: bdd_all_or_nothing
+        type: u1
+        if: is_bdd_node == 0
+  semtype_bdd_node:
+    seq:
+      - id: is_rec_atom
+        type: u1
+      - id: rec_atom_index
+        type: s4
+        if: is_rec_atom == 1
+      - id: target_kind
+        type: s4
+        if: is_rec_atom == 1 and rec_atom_index > 1
+      - id: type_atom
+        type: semtype_type_atom
+        if: is_rec_atom == 0
+      - id: bdd_node_left
+        type: semtype_bdd
+      - id: bdd_node_middle
+        type: semtype_bdd
+      - id: bdd_node_right
+        type: semtype_bdd
+  semtype_type_atom:
+    seq:
+      - id: type_atom_index
+        type: s4
+      - id: type_atom_kind
+        type: s1
+      - id: mapping_atomic_type
+        type: semtype_mapping_atomic_type
+        if: type_atom_kind == 1
+      - id: list_atomic_type
+        type: semtype_list_atomic_type
+        if: type_atom_kind == 2
+      - id: function_atomic_type
+        type: semtype_function_atomic_type
+        if: type_atom_kind == 3
+      - id: cell_atomic_type
+        type: semtype_cell_atomic_type
+        if: type_atom_kind == 4
+  semtype_mapping_atomic_type:
+    seq:
+      - id: names_length
+        type: s4
+      - id: names
+        type: s4
+        repeat: expr
+        repeat-expr: names_length
+      - id: types_length
+        type: s4
+      - id: types
+        type: semtype_info
+        repeat: expr
+        repeat-expr: types_length
+      - id: rest
+        type: semtype_info
+  semtype_list_atomic_type:
+    seq:
+      - id: initial_list_size
+        type: s4
+      - id: initial
+        type: semtype_info
+        repeat: expr
+        repeat-expr: initial_list_size
+      - id: fixed_length
+        type: s4
+      - id: rest
+        type: semtype_info
+  semtype_function_atomic_type:
+    seq:
+      - id: param_type
+        type: semtype_info
+      - id: ret_type
+        type: semtype_info
+      - id: qualifier_type
+        type: semtype_info
+      - id: is_generic
+        type: u1
+  semtype_cell_atomic_type:
+    seq:
+      - id: ty
+        type: semtype_info
+      - id: mut
+        type: s1
+  semtype_int_subtype:
+    seq:
+      - id: ranges_length
+        type: s4
+      - id: x
+        type: semtype_range
+        repeat: expr
+        repeat-expr: ranges_length
+  semtype_range:
+    seq:
+      - id: min
+        type: s8
+      - id: max
+        type: s8
+  semtype_boolean_subtype:
+    seq:
+      - id: value
+        type: u1
+  semtype_float_subtype:
+    seq:
+      - id: allowed
+        type: u1
+      - id: values_length
+        type: s4
+      - id: values
+        type: f8
+        repeat: expr
+        repeat-expr: values_length
+  semtype_decimal_subtype:
+    seq:
+      - id: allowed
+        type: u1
+      - id: values_length
+        type: s4
+      - id: values
+        type: semtype_enumerable_decimal
+        repeat: expr
+        repeat-expr: values_length
+  semtype_enumerable_decimal:
+    seq:
+      - id: scale
+        type: s4
+      - id: unscaled_value_bytes_length
+        type: s4
+      - id: unscaled_value_bytes
+        size: unscaled_value_bytes_length
+  semtype_string_subtype:
+    seq:
+      - id: allowed
+        type: u1
+      - id: values_length
+        type: s4
+      - id: values
+        type: semtype_enumerable_string
+        repeat: expr
+        repeat-expr: values_length
+      - id: allowed1
+        type: u1
+      - id: values_length1
+        type: s4
+      - id: values1
+        type: semtype_enumerable_string
+        repeat: expr
+        repeat-expr: values_length1
+  semtype_enumerable_string:
+    seq:
+      - id: string_cp_index
+        type: s4
+  semtype_xml_subtype:
+    seq:
+      - id: primitives
+        type: s4
+      - id: sequence
+        type: semtype_bdd
   type_array:
     seq:
       - id: state
@@ -170,18 +400,10 @@ types:
         type: s8
       - id: value_space_size
         type: s4
-      - id: finite_values
-        type: finite_value
+      - id: value_space
+        type: sem_named_type
         repeat: expr
         repeat-expr: value_space_size
-  finite_value:
-    seq:
-      - id : type_cp_index
-        type: s4
-      - id: value_length
-        type: s4
-      - id: value
-        size: value_length
   closure_symbol_body:
     seq:
       - id: name_cp_index

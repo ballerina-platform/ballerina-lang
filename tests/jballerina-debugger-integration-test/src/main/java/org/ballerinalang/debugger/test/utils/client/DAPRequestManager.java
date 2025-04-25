@@ -383,7 +383,7 @@ public class DAPRequestManager {
         SET_BREAKPOINTS(10000),
         CONFIG_DONE(2000),
         ATTACH(5000),
-        LAUNCH(10000),
+        LAUNCH(15000),
         THREADS(2000),
         STACK_TRACE(7000),
         SCOPES(2000),
@@ -395,7 +395,7 @@ public class DAPRequestManager {
         STEP_OUT(5000),
         RESUME(5000),
         PAUSE(5000),
-        RESTART(10000),
+        RESTART(15000),
         DISCONNECT(5000);
 
         private final long value;

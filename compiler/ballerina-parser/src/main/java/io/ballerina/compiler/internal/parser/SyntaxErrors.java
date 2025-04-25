@@ -381,6 +381,7 @@ public final class SyntaxErrors {
                  THIRD_CLASS_TYPE_QUALIFIER,
                  FOURTH_CLASS_TYPE_QUALIFIER -> DiagnosticErrorCode.ERROR_MISSING_CLASS_KEYWORD;
             case COLLECT_KEYWORD -> DiagnosticErrorCode.ERROR_MISSING_COLLECT_KEYWORD;
+            case NATURAL_KEYWORD -> DiagnosticErrorCode.ERROR_MISSING_NATURAL_KEYWORD;
             default -> DiagnosticErrorCode.ERROR_SYNTAX_ERROR;
         };
     }

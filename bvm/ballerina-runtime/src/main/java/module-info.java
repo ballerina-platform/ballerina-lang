@@ -18,6 +18,7 @@ module io.ballerina.runtime {
     requires io.ballerina.identifier;
     requires jdk.unsupported;
     requires jdk.management;
+    requires com.github.benmanes.caffeine;
 
     // API exports
     exports io.ballerina.runtime.api;
@@ -28,6 +29,7 @@ module io.ballerina.runtime {
     exports io.ballerina.runtime.api.types;
     exports io.ballerina.runtime.api.utils;
     exports io.ballerina.runtime.api.values;
+    exports io.ballerina.runtime.api.types.semtype;
 
     exports io.ballerina.runtime.observability;
     exports io.ballerina.runtime.observability.metrics;
@@ -62,4 +64,5 @@ module io.ballerina.runtime {
     exports io.ballerina.runtime.internal to ballerina.debug.adapter.core, io.ballerina.cli, io.ballerina.cli.utils, io.ballerina.java, io.ballerina.lang, io.ballerina.lang.array, io.ballerina.lang.bool, io.ballerina.lang.decimal, io.ballerina.lang.error, io.ballerina.lang.floatingpoint, io.ballerina.lang.function, io.ballerina.lang.integer, io.ballerina.lang.internal, io.ballerina.lang.map, io.ballerina.lang.regexp, io.ballerina.lang.table, io.ballerina.lang.test, io.ballerina.lang.transaction, io.ballerina.lang.value, io.ballerina.lang.xml, io.ballerina.log.api, io.ballerina.runtime.profiler, io.ballerina.shell, io.ballerina.testerina.core, io.ballerina.testerina.runtime, org.ballerinalang.debugadapter.runtime;
     exports io.ballerina.runtime.api.repository;
     exports io.ballerina.runtime.internal.repository to ballerina.debug.adapter.core, io.ballerina.cli, io.ballerina.cli.utils, io.ballerina.java, io.ballerina.lang, io.ballerina.lang.array, io.ballerina.lang.bool, io.ballerina.lang.decimal, io.ballerina.lang.error, io.ballerina.lang.floatingpoint, io.ballerina.lang.function, io.ballerina.lang.integer, io.ballerina.lang.internal, io.ballerina.lang.map, io.ballerina.lang.regexp, io.ballerina.lang.table, io.ballerina.lang.test, io.ballerina.lang.transaction, io.ballerina.lang.value, io.ballerina.lang.xml, io.ballerina.log.api, io.ballerina.runtime.profiler, io.ballerina.shell, io.ballerina.testerina.core, io.ballerina.testerina.runtime, org.ballerinalang.debugadapter.runtime;
+    exports io.ballerina.runtime.internal.types.semtype;
 }

@@ -28,6 +28,7 @@ import org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmTypeGen;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.util.Flags;
@@ -109,7 +110,7 @@ public class JvmAnnotationsGen {
             }
             BType bType = optionalTypeDef.type;
             // Annotations for object constructors are populated at object init site.
-            boolean constructorsPopulated = (bType.flags & Flags.OBJECT_CTOR) == Flags.OBJECT_CTOR;
+            boolean constructorsPopulated = Symbols.isFlagOn(bType.getFlags(), Flags.OBJECT_CTOR);
             if (!constructorsPopulated) {
                 loadAnnotations(mv, typePkgName, optionalTypeDef, jvmTypeGen);
             }

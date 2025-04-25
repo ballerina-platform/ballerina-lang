@@ -166,7 +166,7 @@ public class SymbolsInResourceAccessActionTest {
     @Test
     public void testPathSegmentOfAmbiguousResourceFunction() {
         Optional<Symbol> symbol = model.symbol(srcFile, LinePosition.from(91, 9));
-        assertTrue(symbol.isEmpty()); // Resource method is ambiguous
+        assertTrue(symbol.isPresent());
     }
 
     // Utils

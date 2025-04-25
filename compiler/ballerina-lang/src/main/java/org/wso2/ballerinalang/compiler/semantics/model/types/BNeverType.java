@@ -17,6 +17,7 @@
  */
 package org.wso2.ballerinalang.compiler.semantics.model.types;
 
+import io.ballerina.types.PredefinedType;
 import org.wso2.ballerinalang.compiler.semantics.model.TypeVisitor;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
@@ -31,13 +32,8 @@ import org.wso2.ballerinalang.util.Flags;
 
 public class BNeverType extends BType {
 
-    public BNeverType() {
-        super(TypeTags.NEVER, null, Flags.READONLY);
-    }
-
-    @Override
-    public boolean isNullable() {
-        return false;
+    protected BNeverType() {
+        super(TypeTags.NEVER, null, Flags.READONLY, PredefinedType.NEVER);
     }
 
     @Override

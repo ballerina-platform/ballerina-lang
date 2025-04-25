@@ -893,6 +893,39 @@ function testFromJsonStringWithUnexpectedChars() {
     assertEquality(err.message(), "{ballerina/lang.value}FromJsonStringError");
 }
 
+type Message1 record {|
+    readonly int id?;
+    string message;
+|};
+
+type Message2 record {|
+    readonly & int id?;
+    string message;
+|};
+
+type ReadOnlyInt readonly & int;
+
+type Message3 record {|
+    ReadOnlyInt id?;
+    string message;
+|};
+
+function testFromJsonWithTypeWithRecordOptionalReadOnlyField() {
+    json jValue = {id: 1, message: "Hello, World!"};
+
+    Message1|error t1 = jValue.fromJsonWithType();
+    assertFalse(t1 is error);
+    assertEquality(t1, <Message1> {id: 1, message: "Hello, World!"});
+
+    Message2|error t2 = jValue.fromJsonWithType();
+    assertFalse(t2 is error);
+    assertEquality(t2, <Message2> {id: 1, message: "Hello, World!"});
+
+    Message3|error t3 = jValue.fromJsonWithType();
+    assertFalse(t3 is error);
+    assertEquality(t3, <Message3> {id: 1, message: "Hello, World!"});
+}
+
 function assert(anydata actual, anydata expected) {
     if (expected == actual) {
         return;

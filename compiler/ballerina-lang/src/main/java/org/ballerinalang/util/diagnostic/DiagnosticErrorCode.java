@@ -778,7 +778,7 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     UNDEFINED_RESOURCE("BCE4028", "undefined.resource"),
     UNDEFINED_RESOURCE_METHOD("BCE4029", "undefined.resource.method"),
     AMBIGUOUS_RESOURCE_ACCESS_NOT_YET_SUPPORTED("BCE4030", "ambiguous.resource.access.not.yet.supported"),
-    UNSUPPORTED_COMPUTED_RESOURCE_ACCESS_PATH_SEGMENT_TYPE("BCE4031", 
+    UNSUPPORTED_COMPUTED_RESOURCE_ACCESS_PATH_SEGMENT_TYPE("BCE4031",
             "unsupported.computed.resource.access.path.segment.type"),
     UNSUPPORTED_RESOURCE_ACCESS_REST_SEGMENT_TYPE("BCE4032", "unsupported.resource.access.rest.segment.type"),
     INVALID_RESOURCE_METHOD_RETURN_TYPE("BCE4033", "invalid.resource.method.return.type"),
@@ -817,7 +817,17 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     EXPRESSION_OF_FUTURE_TYPE_EXPECTED("BCE4057", "future.expression.expected"),
     INSTANTIATION_ERROR("BCE4058", "instantiation.error"),
     INVALID_BINDING_PATTERN_IN_ON_FAIL("BCE4059", "invalid.binding.pattern.in.on.fail"),
-    INVALID_USAGE_OF_CHECK_IN_PARAMETER_DEFAULT("BCE4060", "invalid.usage.of.check.in.parameter.default")
+    INVALID_USAGE_OF_CHECK_IN_PARAMETER_DEFAULT("BCE4060", "invalid.usage.of.check.in.parameter.default"),
+
+    EXPECTED_TYPE_FOR_NATURAL_EXPR_MUST_CONTAIN_ERROR("BCE4070", "expected.type.for.natural.expr.must.contain.error"),
+    EXPECTED_TYPE_FOR_NATURAL_EXPR_MUST_CONTAIN_A_UNION_OF_NON_ERROR_AND_ERROR(
+            "BCE4071", "expected.type.for.natural.expr.must.contain.a.union.of.non.error.and.error"),
+    EXPECTED_TYPE_FOR_NATURAL_EXPR_MUST_BE_A_SUBTYPE_OF_ANYDATA_OR_ERROR(
+            "BCE4072", "expected.type.for.natural.expr.must.be.a.subtype.of.anydata.or.error"),
+    CONST_NATURAL_EXPR_CAN_HAVE_ONLY_CONST_EXPR_INSERTION(
+            "BCE4073", "const.natural.expr.can.have.only.const.expr.insertion"),
+    EXPECTED_TYPE_FOR_CONST_NATURAL_EXPR_MUST_BE_A_SUBTYPE_OF_ANYDATA(
+            "BCE4074", "expected.type.for.const.natural.expr.must.be.a.subtype.of.anydata")
     ;
 
     private final String diagnosticId;

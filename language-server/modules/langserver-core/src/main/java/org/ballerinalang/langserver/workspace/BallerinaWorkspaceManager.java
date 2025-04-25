@@ -50,7 +50,6 @@ import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
-import org.ballerinalang.langserver.BallerinaLanguageServer;
 import org.ballerinalang.langserver.LSClientLogger;
 import org.ballerinalang.langserver.LSContextOperation;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
@@ -61,6 +60,7 @@ import org.ballerinalang.langserver.commons.client.ExtendedLanguageClient;
 import org.ballerinalang.langserver.commons.eventsync.EventKind;
 import org.ballerinalang.langserver.commons.eventsync.exceptions.EventSyncException;
 import org.ballerinalang.langserver.commons.workspace.RunContext;
+import org.ballerinalang.langserver.commons.workspace.RunResult;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentException;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceManager;
@@ -92,6 +92,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -99,6 +100,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.StringJoiner;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -131,6 +133,17 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
      * Mapping of source root to project instance.
      */
     protected final Map<Path, ProjectContext> sourceRootToProject;
+    /**
+     * TODO: This should be combined with the project context lock. The current implementation of the project context
+     *  lock does not consider the first compilation (before creating the project context).
+     */
+    private final Map<Path, Lock> projectLockMap;
+    /**
+     * The build options are used when compiling the project for the LS change events. The build options can be
+     * changed based on the flags set in the client.
+     */
+    private BuildOptions buildOptions;
+
     protected final LSClientLogger clientLogger;
     private final LanguageServerContext serverContext;
     private final Set<Path> openedDocuments = new HashSet<>();
@@ -144,6 +157,7 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
                 .build();
         this.pathToSourceRootCache = cache.asMap();
         this.sourceRootToProject = new SourceRootToProjectMap<>(pathToSourceRootCache);
+        this.projectLockMap = new ConcurrentHashMap<>();
 
         // We are only doing a best effort cleanup here. If we held a strong reference to the map
         // GC will not be able to clean the projects. It impacts tests since all run in the same JVM.
@@ -158,6 +172,12 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
                 projectContext.process().ifPresent(Process::destroy);
             }
         }));
+
+        // Set the default build options
+        this.buildOptions = BuildOptions.builder()
+                .setOffline(CommonUtil.COMPILE_OFFLINE)
+                .setSticky(true)
+                .build();
     }
 
     @Override
@@ -208,25 +228,30 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
      */
     @Override
     public Project loadProject(Path filePath) throws ProjectException, WorkspaceDocumentException, EventSyncException {
-        Project project;
         Optional<Project> optionalProject = project(filePath);
-
         if (optionalProject.isPresent()) {
-            project = optionalProject.get();
-        } else {
-            project = createOrGetProjectPair(filePath, LSContextOperation.LOAD_PROJECT.getName()).project();
+            return optionalProject.get();
+        }
 
-            BallerinaLanguageServer languageServer = new BallerinaLanguageServer();
+        Lock projectLock = projectLockMap.computeIfAbsent(projectRoot(filePath), k -> new ReentrantLock());
+        projectLock.lock();
+        try {
+            optionalProject = project(filePath);
+            if (optionalProject.isPresent()) {
+                return optionalProject.get();
+            }
+            Project project = createOrGetProjectPair(filePath, LSContextOperation.LOAD_PROJECT.getName()).project();
             DocumentServiceContext context = ContextBuilder.buildDocumentServiceContext(
                     filePath.toUri().toString(),
-                    languageServer.getWorkspaceManager(),
+                    this,
                     LSContextOperation.LOAD_PROJECT, this.serverContext);
             EventSyncPubSubHolder.getInstance(this.serverContext)
                     .getPublisher(EventKind.PROJECT_UPDATE)
-                    .publish(languageServer.getClient(), this.serverContext, context);
+                    .publish(this.serverContext.get(ExtendedLanguageClient.class), this.serverContext, context);
+            return project;
+        } finally {
+            projectLock.unlock();
         }
-
-        return project;
     }
 
     /**
@@ -243,6 +268,12 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
         }
         Optional<Document> document = document(filePath, project.get(), null);
         if (document.isEmpty()) {
+            // If the file path points to the project root, then return the default module
+            // TODO: Need to extend this to support module paths once we have an API to obtain the module root from
+            //  the given file path
+            if (filePath.equals(this.projectRoot(filePath))) {
+                return Optional.of(project.get().currentPackage().getDefaultModule());
+            }
             return Optional.empty();
         }
         return Optional.of(document.get().module());
@@ -595,18 +626,39 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
     }
 
     @Override
-    public Optional<Process> run(RunContext executionContext) throws IOException {
+    public RunResult run(RunContext executionContext) throws IOException {
         Path projectRoot = projectRoot(executionContext.balSourcePath());
         Optional<ProjectContext> projectContext = validateProjectContext(projectRoot);
         if (projectContext.isEmpty()) {
-            return Optional.empty();
+            return new RunResult(null, Collections.emptyList());
         }
 
-        if (!prepareProjectForExecution(projectContext.get())) {
-            return Optional.empty();
+        if (!stopProject(projectContext.get())) {
+            logError("Run command execution aborted because couldn't stop the previous run");
+            return new RunResult(null, Collections.emptyList());
         }
 
-        return executeProject(projectContext.get(), executionContext);
+        Project project = projectContext.get().project();
+        Optional<PackageCompilation> packageCompilation = waitAndGetPackageCompilation(project.sourceRoot(), true);
+        if (packageCompilation.isEmpty()) {
+            logError("Run command execution aborted because package compilation failed");
+            return new RunResult(null, Collections.emptyList());
+        }
+
+        JBallerinaBackend jBallerinaBackend = execBackend(projectContext.get(), packageCompilation.get());
+        Collection<Diagnostic> diagnostics = new LinkedList<>();
+        // check for compilation errors
+        diagnostics.addAll(jBallerinaBackend.diagnosticResult().diagnostics(false));
+        // Add tool resolution diagnostics to diagnostics
+        diagnostics.addAll(project.currentPackage().getBuildToolResolution().getDiagnosticList());
+
+        if (diagnostics.stream().anyMatch(d -> d.diagnosticInfo().severity() == DiagnosticSeverity.ERROR)) {
+            return new RunResult(null, diagnostics);
+        }
+
+        Optional<Process> process = executeProject(projectContext.get(), executionContext);
+        return process.map(value -> new RunResult(value, diagnostics))
+                .orElseGet(() -> new RunResult(null, diagnostics));
     }
 
     private Optional<ProjectContext> validateProjectContext(Path projectRoot) {
@@ -617,31 +669,6 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
         }
 
         return projectContextOpt;
-    }
-
-    private boolean prepareProjectForExecution(ProjectContext projectContext) {
-        // stop previous project run
-        if (!stopProject(projectContext)) {
-            logError("Run command execution aborted because couldn't stop the previous run");
-            return false;
-        }
-
-        Project project = projectContext.project();
-        Optional<PackageCompilation> packageCompilation = waitAndGetPackageCompilation(project.sourceRoot(), true);
-        if (packageCompilation.isEmpty()) {
-            logError("Run command execution aborted because package compilation failed");
-            return false;
-        }
-
-        // check for compilation errors
-        JBallerinaBackend jBallerinaBackend = execBackend(projectContext, packageCompilation.get());
-        Collection<Diagnostic> diagnostics = jBallerinaBackend.diagnosticResult().diagnostics(false);
-        if (diagnostics.stream().anyMatch(BallerinaWorkspaceManager::isError)) {
-            logError("Run command execution aborted due to compilation errors: " + diagnostics);
-            return false;
-        }
-
-        return true;
     }
 
     private Optional<Process> executeProject(ProjectContext projectContext, RunContext context) throws IOException {
@@ -718,7 +745,7 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
 
     @Override
     public boolean stop(Path filePath) {
-        Optional<ProjectContext> projectPairOpt = projectContext(projectRoot(filePath));
+        Optional<ProjectContext> projectPairOpt = projectContext(projectRoot(filePath).toAbsolutePath());
         if (projectPairOpt.isEmpty()) {
             clientLogger.logWarning("Failed to stop process: Project not found");
             return false;
@@ -802,6 +829,16 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
         } finally {
             lock.unlock();
         }
+    }
+
+    /**
+     * Sets the build options for the subsequent builds. This is not exposed to the extended language services since it
+     * is only required for the core services.
+     *
+     * @param buildOptions The build options to be set
+     */
+    public void setBuildOptions(BuildOptions buildOptions) {
+        this.buildOptions = buildOptions;
     }
 
     private Optional<ProjectContext> projectOfWatchedFileChange(Path filePath, FileEvent fileEvent,
@@ -1425,17 +1462,23 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
         Path projectRoot = projectKindAndProjectRootPair.getRight();
         try {
             Project project;
-            BuildOptions options = BuildOptions.builder()
-                    .setOffline(CommonUtil.COMPILE_OFFLINE)
-                    .setSticky(true)
-                    .build();
             if (projectKind == ProjectKind.BUILD_PROJECT) {
-                project = BuildProject.load(projectRoot, options);
+                project = BuildProject.load(projectRoot, buildOptions);
+
+                // TODO: Remove this once https://github.com/ballerina-platform/ballerina-lang/issues/43972 is resolved
+                // Save the dependencies.toml to resolve the inconsistencies issue in the subsequent builds
+                if (project.buildOptions().optimizeDependencyCompilation()) {
+                    BuildOptions newOptions = BuildOptions.builder()
+                            .setOffline(CommonUtil.COMPILE_OFFLINE)
+                            .setSticky(false)
+                            .build();
+                    project = BuildProject.load(projectRoot, newOptions);
+                }
             } else if (projectKind == ProjectKind.SINGLE_FILE_PROJECT) {
-                project = SingleFileProject.load(projectRoot, options);
+                project = SingleFileProject.load(projectRoot, buildOptions);
             } else {
                 // Projects other than single file and build will use the ProjectLoader.
-                project = ProjectLoader.loadProject(projectRoot, options);
+                project = ProjectLoader.loadProject(projectRoot, buildOptions);
             }
             clientLogger.logTrace("Operation '" + operationName +
                     "' {project: '" + projectRoot.toUri().toString() + "' kind: '" +
@@ -1653,8 +1696,8 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
      * Represents a map of Path to ProjectContext.
      *
      * @param <K> cache key
-     * @param <V> cache value
-     *            Clear out front-faced cache implementation whenever a modification operation triggered for this map.
+     * @param <V> cache value Clear out front-faced cache implementation whenever a modification operation triggered for
+     *            this map.
      */
     private static class SourceRootToProjectMap<K, V> extends HashMap<K, V> {
 

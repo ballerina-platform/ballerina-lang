@@ -111,17 +111,17 @@ public class BServerInstance implements BServer {
     @Override
     public void startServer(String balFile, boolean useBallerinaRunCommand) throws BallerinaTestException {
         assert requiredPorts.length < 20 : "test try to open too many ports : " + requiredPorts.length;
-        startServer(balFile, new String[] {}, null, null, requiredPorts, true);
+        startServer(balFile, new String[] { "--experimental" }, null, null, requiredPorts, true);
     }
 
     @Override
     public void startServer(String balFile, int[] requiredPorts) throws BallerinaTestException {
         assert requiredPorts.length < 20 : "test try to open too many ports : " + requiredPorts.length;
-        startServer(balFile, new String[] { }, null, requiredPorts);
+        startServer(balFile, new String[] { "--experimental" }, null, requiredPorts);
     }
 
     @Override
-    public void startServer(String balFile,  String[] buildArgs, String[] runtimeArgs, int[] requiredPorts) 
+    public void startServer(String balFile, String[] buildArgs, String[] runtimeArgs, int[] requiredPorts)
             throws BallerinaTestException {
         startServer(balFile, buildArgs, runtimeArgs, null, requiredPorts);
     }
@@ -375,7 +375,7 @@ public class BServerInstance implements BServer {
         try {
             if (Utils.isWindowsOS()) {
                 cmdArray = new String[]{"cmd.exe", "/c", "bin\\" + Constant.BALLERINA_SERVER_SCRIPT_NAME + ".bat",
-                                        command};
+                        command};
             } else {
                 cmdArray = new String[]{"bash", "bin/" + Constant.BALLERINA_SERVER_SCRIPT_NAME, command};
             }
@@ -439,7 +439,7 @@ public class BServerInstance implements BServer {
             throws BallerinaTestException {
         File commandDir = new File(balServer.getServerHome());
         executeJarFile(Path.of(sourceRoot, "target", "bin", packageName + ".jar").toFile().getPath(),
-                       args, envProperties, commandDir, requiredPorts);
+                args, envProperties, commandDir, requiredPorts);
     }
 
     /**
@@ -493,7 +493,7 @@ public class BServerInstance implements BServer {
                 }
             }
             String tempBalHome = new File("src" + File.separator + "test" + File.separator +
-                                                  "resources" + File.separator + "ballerina.home").getAbsolutePath();
+                    "resources" + File.separator + "ballerina.home").getAbsolutePath();
             runCmdSet.add("-Dballerina.home=" + tempBalHome);
             runCmdSet.addAll(Arrays.asList("-jar", jarPath));
             runCmdSet.addAll(Arrays.asList(args));

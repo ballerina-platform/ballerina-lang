@@ -28,4 +28,8 @@ public final class StringUtils {
     public static boolean isEmpty(String value) {
         return value.isEmpty();
     }
+
+     public static String trim(String value) {
+        throw new UnsupportedOperationException();
+     }
 }

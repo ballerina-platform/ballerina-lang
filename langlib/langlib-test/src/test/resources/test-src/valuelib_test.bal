@@ -883,7 +883,7 @@ function testCloneWithTypeDecimalToIntNegative() {
     var message = err.detail()["message"];
     string messageString = message is error ? message.toString() : message.toString();
     assert(err.message(), "{ballerina/lang.value}ConversionError");
-    assert(messageString, "'decimal' value cannot be converted to 'int'");
+    assert(messageString, "'decimal' value '9223372036854775807.5' cannot be converted to 'int'");
 
     decimal[] a1 = [9223372036854775807.5, -9223372036854775807.6];
     int[]|error a2e = a1.cloneWithType(IntArray);
@@ -892,7 +892,7 @@ function testCloneWithTypeDecimalToIntNegative() {
     message = err.detail()["message"];
     messageString = message is error ? message.toString() : message.toString();
     assert(err.message(), "{ballerina/lang.value}ConversionError");
-    assert(messageString, "'decimal' value cannot be converted to 'int'");
+    assert(messageString, "'decimal' value '9223372036854775807.5' cannot be converted to 'int'");
 }
 
 type IntSubtypeArray1 int:Signed32[];
@@ -1007,8 +1007,7 @@ function testCloneWithTypeIntArrayToUnionArray() {
     error err = <error>u;
     var message = err.detail()["message"];
     string messageString = message is error ? message.toString() : message.toString();
-    string errMsg = "'int[]' value cannot be converted to '(byte|lang.int:Signed16)[]': " +
-                "\n\t\tarray element '[2]' should be of type '(byte|lang.int:Signed16)', found '65000'";
+    string errMsg =  "'int' value cannot be converted to '(byte|lang.int:Signed16)'";
     assert(err.message(), "{ballerina/lang.value}ConversionError");
     assert(messageString, errMsg);
 
@@ -1739,9 +1738,7 @@ function testCloneWithTypeWithFiniteTypeArrayFromIntArrayNegative() {
     error err = <error>a;
     var message = err.detail()["message"];
     string messageString = message is error ? message.toString() : message.toString();
-    string errMsg = "'int[]' value cannot be converted to 'IntTwoOrThree[]': " +
-    "\n\t\tarray element '[0]' should be of type 'IntTwoOrThree', found '1'" +
-    "\n\t\tarray element '[3]' should be of type 'IntTwoOrThree', found '4'";
+    string errMsg = "'int' value cannot be converted to 'IntTwoOrThree'";
     assert(messageString, errMsg);
 
     (IntTwoOrThree|IntThreeOrFour)[]|error c = x.cloneWithType();
@@ -1749,8 +1746,7 @@ function testCloneWithTypeWithFiniteTypeArrayFromIntArrayNegative() {
     err = <error>c;
     message = err.detail()["message"];
     messageString = message is error ? message.toString() : message.toString();
-    errMsg = "'int[]' value cannot be converted to '(IntTwoOrThree|IntThreeOrFour)[]': " +
-    "\n\t\tarray element '[0]' should be of type '(IntTwoOrThree|IntThreeOrFour)', found '1'";
+    errMsg = "'int' value cannot be converted to '(IntTwoOrThree|IntThreeOrFour)'";
     assert(messageString, errMsg);
 
     int[] y = [3, 4];
@@ -4713,8 +4709,8 @@ function testEnsureTypeJsonToNestedRecordsWithErrors() {
     Factory|error val = trap clonedJsonVal.ensureType(Factory);
 
     error err = <error>val;
-    string errorMsgPrefix = "incompatible types: 'map<(json & readonly)> & readonly' cannot be cast to 'Factory': ";
-    string errorMsg = errorMsgPrefix + errorMsgContent;
+    string errorMsgPrefix = "incompatible types: 'map<(json & readonly)> & readonly' cannot be cast to 'Factory'";
+    string errorMsg = errorMsgPrefix;
     assert(<string>checkpanic err.detail()["message"], errorMsg);
     assert(err.message(), "{ballerina}TypeCastError");
 }

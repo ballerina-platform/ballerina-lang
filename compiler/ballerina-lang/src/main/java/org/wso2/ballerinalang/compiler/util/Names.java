@@ -65,6 +65,7 @@ public class Names {
     public static final Name QUERY = new Name("query");
     public static final Name RUNTIME = new Name("runtime");
     public static final Name TRANSACTION = new Name("transaction");
+    public static final Name NATURAL_PROGRAMMING = new Name("np");
     public static final Name OBSERVE = new Name("observe");
     public static final Name CLOUD = new Name("cloud");
     public static final Name TABLE = new Name("table");
@@ -127,7 +128,9 @@ public class Names {
     public static final Name XML_COMMENT = new Name(STRING_XML_COMMENT);
     public static final Name XML_TEXT = new Name(STRING_XML_TEXT);
     public static final Name REGEXP_TYPE = new Name(STRING_REGEXP);
-    
+    public static final Name TRUE = new Name("true");
+    public static final Name FALSE = new Name("false");
+
     // Names related to transactions.
     public static final Name TRANSACTION_PACKAGE = new Name("transactions");
     public static final Name TRANSACTION_INFO_RECORD = new Name("Info");
@@ -151,6 +154,9 @@ public class Names {
     // Module Versions
     public static final Name DEFAULT_VERSION = new Name("0.0.0");
     public static final Name DEFAULT_MAJOR_VERSION = new Name("0");
+
+    // Names related to internal langlib module
+    public static final Name MAP_PUT_ALL = new Name("putAll");
 
     public CompilerContext context;
 

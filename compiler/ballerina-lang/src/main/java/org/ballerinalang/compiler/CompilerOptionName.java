@@ -58,12 +58,15 @@ public enum CompilerOptionName {
 
     LOCK_ENABLED("lockEnabled"),
 
+    EXPERIMENTAL("experimental"),
+
     LIST_CONFLICTED_CLASSES("listConflictedClasses"),
 
     STICKY("sticky"),
 
     ENABLE_CACHE("enableCache"),
     REMOTE_MANAGEMENT("remoteManagement"),
+    LOCKING_MODE("lockingMode"),
 
     /**
      * We've introduced this temporary option to support old-project structure and the new package structure.
