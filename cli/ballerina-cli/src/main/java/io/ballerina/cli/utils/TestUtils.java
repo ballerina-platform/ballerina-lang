@@ -165,7 +165,7 @@ public class TestUtils {
         testReport.finalizeTestResults(project.buildOptions().codeCoverage());
 
         Gson gson = new Gson();
-        String json = gson.toJson(testReport).replaceAll("\\\\\\(", "(");
+        String json = gson.toJson(testReport);
 
         File jsonFile = new File(reportDir.resolve(RESULTS_JSON_FILE).toString());
         try (FileOutputStream fileOutputStream = new FileOutputStream(jsonFile)) {
