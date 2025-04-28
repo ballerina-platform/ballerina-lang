@@ -359,6 +359,9 @@ public enum ParserRuleContext {
     OPTIONAL_RESOURCE_ACCESS_METHOD("optional-resource-access-method"),
     OPTIONAL_RESOURCE_ACCESS_ACTION_ARG_LIST("optional-resource-method-call-arg-list"),
     ACTION_END("action-end"),
+    OPTIONAL_PARENTHESIZED_ARG_LIST("optional-parenthesized-arg-list"),
+    NATURAL_EXPRESSION("natural-expression"),
+    NATURAL_EXPRESSION_START("natural-expression-start"),
 
     // Statements
     STATEMENT("statement"),
@@ -482,6 +485,7 @@ public enum ParserRuleContext {
     NOT_IS_KEYWORD("!is"),
     RE_KEYWORD("re"),
     GROUP_KEYWORD("group"),
+    NATURAL_KEYWORD("natural"),
 
     // Syntax tokens
     OPEN_PARENTHESIS("("),

@@ -19,16 +19,16 @@ package io.ballerinalang.compiler.internal.treegen.targets.nodevisitor;
 
 import io.ballerinalang.compiler.internal.treegen.TreeGenConfig;
 
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import static io.ballerinalang.compiler.internal.treegen.TreeGenConfig.EXTERNAL_NODE_OUTPUT_DIR_KEY;
 import static io.ballerinalang.compiler.internal.treegen.TreeGenConfig.EXTERNAL_NODE_PACKAGE_KEY;
 import static io.ballerinalang.compiler.internal.treegen.TreeGenConfig.EXTERNAL_TREE_MODIFIER_TEMPLATE_KEY;
-import static io.ballerinalang.compiler.internal.treegen.TreeGenConfig.INTERNAL_NODE_PACKAGE_KEY;
 
 /**
  * Generates a syntax tree transformer java class for the external syntax tree.
+ * New tree nodes can only be replaced with nodes of the same kind.
  *
  * @since 1.3.0
  */
@@ -55,15 +55,12 @@ public class TreeModifierTarget extends AbstractNodeVisitorTarget {
 
     @Override
     protected String getSuperClassName() {
-        return NODE_TRANSFORMER_CN;
+        return BASE_NODE_MODIFIER_CN;
     }
 
     protected @Override
     List<String> getImportClasses() {
-        List<String> imports = new ArrayList<>();
-        imports.add(getClassFQN(config.getOrThrow(INTERNAL_NODE_PACKAGE_KEY), INTERNAL_BASE_NODE_CN));
-        imports.add(getClassFQN(config.getOrThrow(INTERNAL_NODE_PACKAGE_KEY), INTERNAL_NODE_FACTORY_CN));
-        return imports;
+        return Collections.emptyList();
     }
 
     @Override

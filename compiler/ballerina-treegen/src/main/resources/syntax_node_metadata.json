@@ -1,4 +1,12 @@
 {
+    "NaturalExpressionNode": {
+        "createdYear": "2025",
+        "since": "2201.13.0"
+    },
+    "NaturalModelNode": {
+        "createdYear": "2025",
+        "since": "2201.13.0"
+    },
     "XMLStepMethodCallExtendNode": {
         "createdYear": "2024",
         "since": "2201.11.0"

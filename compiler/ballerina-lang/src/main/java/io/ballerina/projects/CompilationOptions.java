@@ -24,6 +24,7 @@ package io.ballerina.projects;
  */
 public class CompilationOptions {
     Boolean offlineBuild;
+    Boolean experimental;
     Boolean observabilityIncluded;
     Boolean dumpBir;
     Boolean dumpBirFile;
@@ -41,14 +42,17 @@ public class CompilationOptions {
     Boolean disableSyntaxTree;
     Boolean remoteManagement;
     Boolean optimizeDependencyCompilation;
+    String lockingMode;
 
-    CompilationOptions(Boolean offlineBuild, Boolean observabilityIncluded, Boolean dumpBir,
-                       Boolean dumpBirFile, String cloud, Boolean listConflictedClasses, Boolean sticky,
+    CompilationOptions(Boolean offlineBuild, Boolean experimental,
+                       Boolean observabilityIncluded, Boolean dumpBir, Boolean dumpBirFile,
+                       String cloud, Boolean listConflictedClasses, Boolean sticky,
                        Boolean dumpGraph, Boolean dumpRawGraphs, Boolean withCodeGenerators,
                        Boolean withCodeModifiers, Boolean configSchemaGen, Boolean exportOpenAPI,
                        Boolean exportComponentModel, Boolean enableCache, Boolean disableSyntaxTree,
-                       Boolean remoteManagement, Boolean optimizeDependencyCompilation) {
+                       Boolean remoteManagement, Boolean optimizeDependencyCompilation, String lockingMode) {
         this.offlineBuild = offlineBuild;
+        this.experimental = experimental;
         this.observabilityIncluded = observabilityIncluded;
         this.dumpBir = dumpBir;
         this.dumpBirFile = dumpBirFile;
@@ -66,6 +70,7 @@ public class CompilationOptions {
         this.disableSyntaxTree = disableSyntaxTree;
         this.remoteManagement = remoteManagement;
         this.optimizeDependencyCompilation = optimizeDependencyCompilation;
+        this.lockingMode = lockingMode;
     }
 
     public boolean offlineBuild() {
@@ -74,6 +79,10 @@ public class CompilationOptions {
 
     boolean sticky() {
         return toBooleanTrueIfNull(this.sticky);
+    }
+
+    boolean experimental() {
+        return toBooleanDefaultIfNull(this.experimental);
     }
 
     boolean observabilityIncluded() {
@@ -136,6 +145,10 @@ public class CompilationOptions {
         return toBooleanDefaultIfNull(this.optimizeDependencyCompilation);
     }
 
+    public String lockingMode() {
+        return toStringDefaultIfNull(this.lockingMode);
+    }
+
     /**
      * Merge the given compilation options by favoring theirs if there are conflicts.
      *
@@ -148,6 +161,11 @@ public class CompilationOptions {
             compilationOptionsBuilder.setOffline(theirOptions.offlineBuild);
         } else {
             compilationOptionsBuilder.setOffline(this.offlineBuild);
+        }
+        if (theirOptions.experimental != null) {
+            compilationOptionsBuilder.setExperimental(theirOptions.experimental);
+        } else {
+            compilationOptionsBuilder.setExperimental(this.experimental);
         }
         if (theirOptions.observabilityIncluded != null) {
             compilationOptionsBuilder.setObservabilityIncluded(theirOptions.observabilityIncluded);
@@ -229,6 +247,11 @@ public class CompilationOptions {
         } else {
             compilationOptionsBuilder.setOptimizeDependencyCompilation(this.optimizeDependencyCompilation);
         }
+        if (theirOptions.lockingMode != null) {
+            compilationOptionsBuilder.setLockingMode(theirOptions.lockingMode);
+        } else {
+            compilationOptionsBuilder.setLockingMode(this.lockingMode);
+        }
         return compilationOptionsBuilder.build();
     }
 
@@ -268,6 +291,7 @@ public class CompilationOptions {
      */
     public static class CompilationOptionsBuilder {
         private Boolean offline;
+        private Boolean experimental;
         private Boolean observabilityIncluded;
         private Boolean dumpBir;
         private Boolean dumpBirFile;
@@ -285,6 +309,8 @@ public class CompilationOptions {
         private Boolean disableSyntaxTree;
         private Boolean remoteManagement;
         private Boolean optimizeDependencyCompilation;
+        // TODO: remove this after fixing https://github.com/ballerina-platform/ballerina-library/issues/7755
+        private String lockingMode;
 
         public CompilationOptionsBuilder setOffline(Boolean value) {
             offline = value;
@@ -293,6 +319,11 @@ public class CompilationOptions {
 
         public CompilationOptionsBuilder setSticky(Boolean value) {
             sticky = value;
+            return this;
+        }
+
+        CompilationOptionsBuilder setExperimental(Boolean value) {
+            experimental = value;
             return this;
         }
 
@@ -376,12 +407,17 @@ public class CompilationOptions {
             return this;
         }
 
+        public CompilationOptionsBuilder setLockingMode(String value) {
+            lockingMode = value;
+            return this;
+        }
+
         public CompilationOptions build() {
-            return new CompilationOptions(offline, observabilityIncluded, dumpBir,
+            return new CompilationOptions(offline, experimental, observabilityIncluded, dumpBir,
                     dumpBirFile, cloud, listConflictedClasses, sticky, dumpGraph, dumpRawGraph,
                     withCodeGenerators, withCodeModifiers, configSchemaGen, exportOpenAPI,
                     exportComponentModel, enableCache, disableSyntaxTree, remoteManagement,
-                    optimizeDependencyCompilation);
+                    optimizeDependencyCompilation, lockingMode);
         }
     }
 }

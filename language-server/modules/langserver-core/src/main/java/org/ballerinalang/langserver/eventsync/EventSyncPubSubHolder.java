@@ -42,8 +42,8 @@ public class EventSyncPubSubHolder {
 
     private EventSyncPubSubHolder(LanguageServerContext serverContext) {
         LSClientLogger lsClientLogger = LSClientLogger.getInstance(serverContext);
-        serverContext.put(SUBSCRIBERS_HOLDER_KEY, this);
         initialize(lsClientLogger);
+        serverContext.put(SUBSCRIBERS_HOLDER_KEY, this);
     }
 
     private void initialize(LSClientLogger lsClientLogger) {
