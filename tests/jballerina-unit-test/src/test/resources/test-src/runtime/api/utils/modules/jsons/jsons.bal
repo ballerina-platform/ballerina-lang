@@ -83,6 +83,8 @@ type union3 singletonunion|union1|union2;
 
 type intArray int[];
 
+type readonlyIntArray readonly & int[];
+
 type stringMap map<string>;
 
 function testConvertJSON() {
@@ -120,6 +122,10 @@ function testConvertJSON() {
 
     jval = [12, -1, 0, 15];
     jval_result = trap convertJSON(jval, intArray);
+    test:assertEquals(jval_result, [12, -1, 0, 15]);
+
+    jval = [12, -1, 0, 15];
+    jval_result = trap convertJSON(jval, readonlyIntArray);
     test:assertEquals(jval_result, [12, -1, 0, 15]);
 
     jval = {"a": "true"};
