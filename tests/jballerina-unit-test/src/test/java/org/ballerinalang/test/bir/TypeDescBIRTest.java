@@ -62,7 +62,6 @@ public class TypeDescBIRTest {
             try (Stream<String> stream = Files.lines(filePath, StandardCharsets.UTF_8)) {
                 stream.forEach(s -> contentBuilder.append(s).append("\n"));
             }
-
             return contentBuilder.toString().trim();
         }
         Assert.fail("Expected BIR file not found for test: " + name);

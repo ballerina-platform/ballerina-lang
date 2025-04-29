@@ -853,7 +853,6 @@ public class Desugar extends BLangNodeVisitor {
         }
         pkgNode.completedPhases.add(CompilerPhase.DESUGAR);
         clearGlobalVariables();
-
         result = pkgNode;
     }
 
@@ -9007,7 +9006,6 @@ public class Desugar extends BLangNodeVisitor {
         } else {
             constant.expr = rewriteExpr(constant.expr);
         }
-
         constant.annAttachments.forEach(attachment ->  rewrite(attachment, env));
         result = constant;
     }

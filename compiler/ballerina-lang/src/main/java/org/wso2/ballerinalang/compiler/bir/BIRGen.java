@@ -34,6 +34,7 @@ import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.OperatorKind;
 import org.ballerinalang.model.tree.TopLevelNode;
 import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
+import org.ballerinalang.model.types.TypeKind;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRAnnotation;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRAnnotationAttachment;
@@ -62,7 +63,6 @@ import org.wso2.ballerinalang.compiler.bir.optimizer.BIROptimizer;
 import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLocation;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SemTypeHelper;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
-import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
@@ -2434,7 +2434,7 @@ public class BIRGen extends BLangNodeVisitor {
             return variableDcl;
         }
 
-        variableDcl = findInPackageScope(type);
+        variableDcl = findInDifferentPackage(type);
         if (variableDcl != null && variableDcl.initialized) {
             return variableDcl;
         }
@@ -2446,16 +2446,24 @@ public class BIRGen extends BLangNodeVisitor {
         return this.env.targetOperand.variableDcl;
     }
 
-    private BIRVariableDcl findInPackageScope(BType type) {
+    private BIRVariableDcl findInDifferentPackage(BType type) {
         BTypeSymbol typeSymbol = type.tsymbol;
         if (typeSymbol == null || typeSymbol.owner.tag != SymTag.PACKAGE ||
                 isInSameModule(typeSymbol, env.enclPkg.packageID)) {
             return null;
         }
         BPackageSymbol packageSymbol = (BPackageSymbol) typeSymbol.owner;
-        Scope.ScopeEntry scopeEntry =
-                packageSymbol.scope.lookup(new Name(TYPEDESC + typeSymbol.name.value));
-        BSymbol symbol = scopeEntry.symbol;
+        BSymbol symbol = packageSymbol.scope.entries.entrySet().stream()
+                .filter(entry -> entry.getKey().value.startsWith(TYPEDESC))
+                .map(entry -> entry.getValue().symbol)
+                .filter(entrySymbol -> {
+                    BType symbolType = entrySymbol.getType();
+                    return symbolType.getKind() == TypeKind.TYPEDESC &&
+                            ((BTypedescType) symbolType).constraint == type;
+                })
+                .findFirst()
+                .orElse(null);
+
         return symbol != null ? getVarRef(createPackageVarRef(symbol)) : null;
     }
 
@@ -2504,9 +2512,7 @@ public class BIRGen extends BLangNodeVisitor {
         BTypeSymbol typeSymbol = resolveType.tsymbol;
         BIRVariableDcl tempVarDcl = createTempVariable();
         BIROperand toVarRef = new BIROperand(tempVarDcl);
-
         BIRNonTerminator.NewTypeDesc newTypeDesc = createNewTypeDesc(position, toVarRef, resolveType, typeSymbol);
-
         this.env.targetOperand = toVarRef;
         setScopeAndEmit(newTypeDesc);
     }
@@ -2812,7 +2818,6 @@ public class BIRGen extends BLangNodeVisitor {
                                                        VarScope.FUNCTION, VarKind.TEMP);
         this.env.enclFunc.localVars.add(tempVarDcl);
         BIROperand toVarRef = new BIROperand(tempVarDcl);
-
         BType listConstructorExprType = listConstructorExpr.getBType();
 
         List<BLangExpression> exprs = listConstructorExpr.exprs;

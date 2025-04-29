@@ -97,7 +97,7 @@ public class LargeMethodOptimizer {
     // splits are done only if the newly created method will contain more instructions than the below number
     private static final int SPLIT_INSTRUCTION_COUNT_THRESHOLD = 25;
     // splits are done only if the newly created method will have less function arguments than the below number
-    private static final int MAX_SPLIT_FUNCTION_ARG_COUNT = 93;
+    private static final int MAX_SPLIT_FUNCTION_ARG_COUNT = 90;
     // total least no. of terminators and non-terminators that should be there to make the periodic split
     private static final int INS_COUNT_PERIODIC_SPLIT_THRESHOLD = 500;
     // current BIR package id
@@ -845,7 +845,7 @@ public class LargeMethodOptimizer {
         for (int bbIndex = 0; bbIndex < bbs.size() - 1; bbIndex++) {
             BIRBasicBlock bb = bbs.get(bbIndex);
             handleBasicBlockStart(splitFuncEnv, nextBBPendingIns, bb);
-            // skip large arg restore and array size ins
+            // skips large argument restore instructions and array size instruction
             int insIndex = bbIndex == 0 ? skipLargeArgRestoreInstsAndGetIndex(bb) + 1 : 0;
             for (; insIndex < bb.instructions.size(); insIndex++) {
                 if ((bbIndex == newArrayInsBBNum) && (insIndex == newArrayInsNumInRelevantBB)) {
