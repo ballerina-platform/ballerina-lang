@@ -114,6 +114,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchGuard;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMultipleWorkerReceive;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNamedArgsExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangNaturalExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNumericLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangQueryAction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangQueryExpr;
@@ -229,6 +230,7 @@ public class QueryDesugar extends BLangNodeVisitor {
     private static final Name QUERY_CREATE_LIMIT_FUNCTION = new Name("createLimitFunction");
     private static final Name QUERY_ADD_STREAM_FUNCTION = new Name("addStreamFunction");
     private static final Name QUERY_CONSUME_STREAM_FUNCTION = new Name("consumeStream");
+    private static final Name QUERY_TO_STREAM_FUNCTION = new Name("toStream");
     private static final Name QUERY_TO_ARRAY_FUNCTION = new Name("toArray");
     private static final Name COLLECT_QUERY_FUNCTION = new Name("collectQuery");
     private static final Name QUERY_TO_STRING_FUNCTION = new Name("toString");
@@ -306,6 +308,7 @@ public class QueryDesugar extends BLangNodeVisitor {
         BType resultType = queryExpr.getBType();
         if (queryExpr.isStream) {
             resultType = streamRef.getBType();
+            result = getStreamFunctionVariableRef(queryBlock, QUERY_TO_STREAM_FUNCTION, Lists.of(streamRef), pos);
         } else if (queryExpr.isTable) {
             BLangVariableReference tableRef = addTableConstructor(queryExpr, queryBlock);
             Name internalFuncName = onConflictExpr == null ? QUERY_ADD_TO_TABLE_FUNCTION
@@ -626,7 +629,6 @@ public class QueryDesugar extends BLangNodeVisitor {
     }
 
     /**
-     * Desugar inputClause to below and return a reference to created from _StreamFunction.
      * _StreamFunction xsFrom = createFromFunction(function(_Frame frame) returns _Frame|error? {
      * int x = <int> frame["value"];
      * frame["x"] = x;
@@ -722,11 +724,8 @@ public class QueryDesugar extends BLangNodeVisitor {
         BLangLambdaFunction lhsKeyFunction = createKeyFunction(lhsExpr, stmtsToBePropagated);
         BLangLambdaFunction rhsKeyFunction = createKeyFunction(rhsExpr, stmtsToBePropagated);
         if (joinClause.isOuterJoin) {
-            List<BVarSymbol> symbols =
-                    getIntroducedSymbols((BLangVariable) joinClause.variableDefinitionNode.getVariable());
-            final BLangSimpleVarRef nilFrame = defineNilFrameForType(symbols, blockStmt, rhsExpr.pos);
             return getStreamFunctionVariableRef(blockStmt, QUERY_CREATE_OUTER_JOIN_FUNCTION,
-                    Lists.of(joinPipeline, lhsKeyFunction, rhsKeyFunction, nilFrame), joinClause.pos);
+                    Lists.of(joinPipeline, lhsKeyFunction, rhsKeyFunction), joinClause.pos);
         } else {
             return getStreamFunctionVariableRef(blockStmt, QUERY_CREATE_INNER_JOIN_FUNCTION,
                     Lists.of(joinPipeline, lhsKeyFunction, rhsKeyFunction), joinClause.pos);
@@ -2799,6 +2798,14 @@ public class QueryDesugar extends BLangNodeVisitor {
                 symResolver.getListOfInterpolations(regExpTemplateLiteral.reDisjunction.sequenceList);
         rewrite(interpolationsList);
         result = regExpTemplateLiteral;
+    }
+
+    @Override
+    public void visit(BLangNaturalExpression naturalExpression) {
+        rewrite(naturalExpression.arguments);
+        rewrite(naturalExpression.strings);
+        rewrite(naturalExpression.insertions);
+        result = naturalExpression;
     }
 
     private void acceptNode(BLangNode node) {

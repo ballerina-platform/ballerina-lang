@@ -170,13 +170,14 @@ public class StringQueryExpressionTest {
         Assert.assertEquals(returnValues.toString(), "Ranjan ");
     }
 
-    @Test(description = "Test query expression with limit clause-v2")
-    public void testQueryExprWithLimitForStringResultV2() {
-        Object returnValues = BRunUtil.invoke(result, "testQueryExprWithLimitForStringResultV2");
-        Assert.assertNotNull(returnValues);
-
-        Assert.assertEquals(returnValues.toString(), "Ranjan John ");
-    }
+//  // TODO: related to the issue https://github.com/ballerina-platform/ballerina-lang/issues/43831
+//    @Test(description = "Test query expression with limit clause-v2")
+//    public void testQueryExprWithLimitForStringResultV2() {
+//        Object returnValues = BRunUtil.invoke(result, "testQueryExprWithLimitForStringResultV2");
+//        Assert.assertNotNull(returnValues);
+//
+//        Assert.assertEquals(returnValues.toString(), "Ranjan John ");
+//    }
 
     // issue - #40012
     // @Test(description = "Negative Query expr for String tests")

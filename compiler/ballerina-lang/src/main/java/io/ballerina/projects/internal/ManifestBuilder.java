@@ -885,6 +885,8 @@ public class ManifestBuilder {
         BuildOptions.BuildOptionsBuilder buildOptionsBuilder = BuildOptions.builder();
 
         Boolean offline = getBooleanFromBuildOptionsTableNode(tableNode, CompilerOptionName.OFFLINE.toString());
+        Boolean experimental =
+                getBooleanFromBuildOptionsTableNode(tableNode, CompilerOptionName.EXPERIMENTAL.toString());
         Boolean observabilityIncluded =
                 getBooleanFromBuildOptionsTableNode(tableNode, CompilerOptionName.OBSERVABILITY_INCLUDED.toString());
         Boolean testReport =
@@ -918,9 +920,12 @@ public class ManifestBuilder {
                 BuildOptions.OptionName.SHOW_DEPENDENCY_DIAGNOSTICS.toString());
         Boolean optimizeDependencyCompilation = getBooleanFromBuildOptionsTableNode(tableNode,
                 BuildOptions.OptionName.OPTIMIZE_DEPENDENCY_COMPILATION.toString());
+        String lockingMode = getStringFromBuildOptionsTableNode(tableNode,
+                CompilerOptionName.LOCKING_MODE.toString());
 
         buildOptionsBuilder
                 .setOffline(offline)
+                .setExperimental(experimental)
                 .setObservabilityIncluded(observabilityIncluded)
                 .setTestReport(testReport)
                 .setCodeCoverage(codeCoverage)
@@ -934,7 +939,8 @@ public class ManifestBuilder {
                 .setGraalVMBuildOptions(graalVMBuildOptions)
                 .setRemoteManagement(remoteManagement)
                 .setShowDependencyDiagnostics(showDependencyDiagnostics)
-                .setOptimizeDependencyCompilation(optimizeDependencyCompilation);
+                .setOptimizeDependencyCompilation(optimizeDependencyCompilation)
+                .setLockingMode(lockingMode);
 
         if (targetDir != null) {
             buildOptionsBuilder.targetDir(targetDir);

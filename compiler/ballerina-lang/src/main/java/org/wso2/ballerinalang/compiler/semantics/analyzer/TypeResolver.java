@@ -698,6 +698,32 @@ public class TypeResolver {
         return resolveTypeDesc(symEnv, defn, depth, td, data, true);
     }
 
+    public void resolveTypeDesc(BLangType td, SymbolEnv symEnv) {
+        ResolverData data = new ResolverData();
+        data.modTable = new LinkedHashMap<>();
+        data.env = symEnv;
+
+        BType resultType = switch (td.getKind()) {
+            case VALUE_TYPE -> resolveTypeDesc((BLangValueType) td, symEnv);
+            case CONSTRAINED_TYPE -> resolveTypeDesc((BLangConstrainedType) td, data);
+            case ARRAY_TYPE -> resolveTypeDesc(((BLangArrayType) td), data);
+            case TUPLE_TYPE_NODE -> resolveTypeDesc((BLangTupleTypeNode) td, data);
+            case RECORD_TYPE -> resolveTypeDesc((BLangRecordTypeNode) td, data);
+            case OBJECT_TYPE -> resolveTypeDesc((BLangObjectTypeNode) td, data);
+            case FUNCTION_TYPE -> resolveTypeDesc((BLangFunctionTypeNode) td, data);
+            case ERROR_TYPE -> resolveTypeDesc((BLangErrorType) td, data);
+            case UNION_TYPE_NODE -> resolveTypeDesc((BLangUnionTypeNode) td, data);
+            case INTERSECTION_TYPE_NODE -> resolveTypeDesc((BLangIntersectionTypeNode) td, data, true);
+            case USER_DEFINED_TYPE -> resolveTypeDesc((BLangUserDefinedType) td, data);
+            case BUILT_IN_REF_TYPE -> resolveTypeDesc((BLangBuiltInRefTypeNode) td, symEnv);
+            case FINITE_TYPE_NODE -> resolveSingletonType((BLangFiniteTypeNode) td, symEnv);
+            case TABLE_TYPE -> resolveTypeDesc((BLangTableTypeNode) td, data);
+            case STREAM_TYPE -> resolveTypeDesc((BLangStreamType) td, data);
+            default -> throw new AssertionError("Invalid type");
+        };
+        td.setBType(resultType);
+    }
+
     private BType resolveTypeDesc(SymbolEnv symEnv, BLangTypeDefinition defn, int depth,
                                   BLangType td, ResolverData data, boolean anonymous) {
         SymbolEnv prevEnv = data.env;

@@ -953,6 +953,10 @@ public abstract class STNodeVisitor {
         visitSyntaxNode(receiveFieldNode);
     }
 
+    public void visit(STNaturalExpressionNode naturalExpressionNode) {
+        visitSyntaxNode(naturalExpressionNode);
+    }
+
     // STNodeList
     public void visit(STNodeList nodeList) {
         visitChildren(nodeList);

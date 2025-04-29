@@ -79,6 +79,8 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
+import static io.ballerina.compiler.syntax.tree.SyntaxKind.OPEN_BRACE_TOKEN;
+
 /**
  * A LL(k) recursive-descent parser for ballerina.
  *
@@ -505,6 +507,11 @@ public class BallerinaParser extends AbstractParser {
             case SERVICE_KEYWORD:
                 metadata = STNodeFactory.createEmptyNode();
                 break;
+            case RESOURCE_KEYWORD:
+            case REMOTE_KEYWORD:
+                // Special case to invalidate
+                reportInvalidQualifier(consume());
+                return parseTopLevelNode();
             case IDENTIFIER_TOKEN:
                 // Here we assume that after recovering, we'll never reach here.
                 // Otherwise the tokenOffset will not be 1.
@@ -574,6 +581,11 @@ public class BallerinaParser extends AbstractParser {
             case SERVICE_KEYWORD:
             case CONFIGURABLE_KEYWORD:
                 break;
+            case RESOURCE_KEYWORD:
+            case REMOTE_KEYWORD:
+                // Special case to invalidate
+                reportInvalidQualifier(consume());
+                return parseTopLevelNode(metadata);
             case IDENTIFIER_TOKEN:
                 // Here we assume that after recovering, we'll never reach here.
                 // Otherwise the tokenOffset will not be 1.
@@ -992,6 +1004,11 @@ public class BallerinaParser extends AbstractParser {
             case ENUM_KEYWORD:
                 reportInvalidQualifierList(qualifiers);
                 return parseEnumDeclaration(metadata, publicQualifier);
+            case RESOURCE_KEYWORD:
+            case REMOTE_KEYWORD:
+                // Special case to invalidate
+                reportInvalidQualifier(consume());
+                return parseTopLevelNode(metadata, publicQualifier, qualifiers);
             case IDENTIFIER_TOKEN:
                 // Here we assume that after recovering, we'll never reach here.
                 // Otherwise the tokenOffset will not be 1.
@@ -2569,7 +2586,7 @@ public class BallerinaParser extends AbstractParser {
                 STToken nextNextToken = getNextNextToken();
                 if (context == ParserRuleContext.TYPE_DESC_IN_EXPRESSION &&
                         !isValidTypeContinuationToken(nextNextToken) && isValidExprStart(nextNextToken.kind)) {
-                    if (nextNextToken.kind == SyntaxKind.OPEN_BRACE_TOKEN) {
+                    if (nextNextToken.kind == OPEN_BRACE_TOKEN) {
                         // TODO: support conditional expressions in which the middle expression starts with `{` #31033
                         ParserRuleContext grandParentCtx = this.errorHandler.getGrandParentContext();
                         isPossibleOptionalType = grandParentCtx == ParserRuleContext.IF_BLOCK ||
@@ -3163,7 +3180,7 @@ public class BallerinaParser extends AbstractParser {
      */
     private STNode parseOpenBrace() {
         STToken token = peek();
-        if (token.kind == SyntaxKind.OPEN_BRACE_TOKEN) {
+        if (token.kind == OPEN_BRACE_TOKEN) {
             return consume();
         } else {
             recover(token, ParserRuleContext.OPEN_BRACE);
@@ -3723,7 +3740,7 @@ public class BallerinaParser extends AbstractParser {
             }
 
             token = peek();
-            if (field.kind == SyntaxKind.RECORD_REST_TYPE && bodyStartDelimiter.kind == SyntaxKind.OPEN_BRACE_TOKEN) {
+            if (field.kind == SyntaxKind.RECORD_REST_TYPE && bodyStartDelimiter.kind == OPEN_BRACE_TOKEN) {
                 if (recordFields.isEmpty()) {
                     bodyStartDelimiter = SyntaxErrors.cloneWithTrailingInvalidNodeMinutiae(bodyStartDelimiter, field,
                             DiagnosticErrorCode.ERROR_INCLUSIVE_RECORD_TYPE_CANNOT_CONTAIN_REST_FIELD);
@@ -5066,6 +5083,13 @@ public class BallerinaParser extends AbstractParser {
                 return parseByteArrayLiteral();
             case TRANSACTION_KEYWORD:
                 return parseQualifiedIdentWithTransactionPrefix(ParserRuleContext.VARIABLE_REF);
+            case NATURAL_KEYWORD:
+                return parseNaturalExpression();
+            case CONST_KEYWORD:
+                if (getNextNextToken().kind == SyntaxKind.NATURAL_KEYWORD) {
+                    return parseNaturalExpression();
+                }
+                // fall through
             default:
                 if (isSimpleTypeInExpression(nextToken.kind)) {
                     return parseSimpleTypeInTerminalExpr();
@@ -5076,9 +5100,98 @@ public class BallerinaParser extends AbstractParser {
         }
     }
 
+    /**
+     * <p>
+     * Parse a natural expression.
+     * </p>
+     * <code>
+     * natural-expr := [const] natural [(arg-list)] { prompt }
+     * prompt := ^ (`}`, `\`, `$`)
+     * </code>
+     *
+     * @return Parsed NaturalExpression node.
+     */
+    private STNode parseNaturalExpression() {
+        startContext(ParserRuleContext.NATURAL_EXPRESSION);
+        STNode optionalConstKeyword = peek().kind == SyntaxKind.CONST_KEYWORD ?
+                consume() : STNodeFactory.createEmptyNode();
+        STNode naturalKeyword = consume();
+        STNode optionalParenthesizedArgList = parseOptionalParenthesizedArgList();
+        STNode openBrace = parseOpenBrace();
+
+        if (openBrace.isMissing()) {
+            // special case missing open brace case to prevent all the below code becoming prompt content when user
+            // just type the `natural` keyword.
+            endContext();
+            return createMissingNaturalExpressionNode(optionalConstKeyword, naturalKeyword,
+                    optionalParenthesizedArgList);
+        }
+
+        this.tokenReader.startMode(ParserMode.PROMPT);
+        STNode prompt = parsePromptContent();
+        STNode closeBrace = parseCloseBrace();
+
+        if (this.tokenReader.getCurrentMode() == ParserMode.PROMPT) {
+            this.tokenReader.endMode();
+        }
+        endContext();
+        return STNodeFactory.createNaturalExpressionNode(optionalConstKeyword, naturalKeyword,
+                optionalParenthesizedArgList, openBrace, prompt, closeBrace);
+    }
+
+    private STNode createMissingNaturalExpressionNode(STNode optionalConstKeyword, STNode naturalKeyword,
+                                                      STNode optionalParenthesizedArgList) {
+        STNode openBrace = SyntaxErrors.createMissingToken(OPEN_BRACE_TOKEN);
+        STNode closeBrace = SyntaxErrors.createMissingToken(SyntaxKind.CLOSE_BRACE_TOKEN);
+        STNode prompt = STAbstractNodeFactory.createEmptyNodeList();
+        STNode naturalExpr =
+                STNodeFactory.createNaturalExpressionNode(optionalConstKeyword, naturalKeyword,
+                        optionalParenthesizedArgList, openBrace, prompt, closeBrace);
+        naturalExpr = SyntaxErrors.addDiagnostic(naturalExpr, DiagnosticErrorCode.ERROR_MISSING_NATURAL_PROMPT_BLOCK);
+        return naturalExpr;
+    }
+
+    private STNode parseOptionalParenthesizedArgList() {
+        return peek().kind == SyntaxKind.OPEN_PAREN_TOKEN ? parseParenthesizedArgList() :
+                STNodeFactory.createEmptyNode();
+    }
+
+    private STNode parsePromptContent() {
+        List<STNode> items = new ArrayList<>();
+        STToken nextToken = peek();
+        while (!isEndOfPromptContent(nextToken.kind)) {
+            STNode contentItem = parsePromptItem();
+            items.add(contentItem);
+            nextToken = peek();
+        }
+        return STNodeFactory.createNodeList(items);
+    }
+
+    private boolean isEndOfPromptContent(SyntaxKind kind) {
+        return switch (kind) {
+            case EOF_TOKEN, CLOSE_BRACE_TOKEN -> true;
+            default -> false;
+        };
+    }
+
+    private STNode parsePromptItem() {
+        STToken nextToken = peek();
+        if (nextToken.kind == SyntaxKind.INTERPOLATION_START_TOKEN) {
+            return parseInterpolation();
+        }
+
+        if (nextToken.kind != SyntaxKind.PROMPT_CONTENT) {
+            nextToken = consume();
+            return STNodeFactory.createLiteralValueToken(SyntaxKind.PROMPT_CONTENT,
+                    nextToken.text(), nextToken.leadingMinutiae(), nextToken.trailingMinutiae(),
+                    nextToken.diagnostics());
+        }
+        return consume();
+    }
+
     private STNode createMissingObjectConstructor(STNode annots, STNode qualifierNodeList) {
         STNode objectKeyword = SyntaxErrors.createMissingToken(SyntaxKind.OBJECT_KEYWORD);
-        STNode openBrace = SyntaxErrors.createMissingToken(SyntaxKind.OPEN_BRACE_TOKEN);
+        STNode openBrace = SyntaxErrors.createMissingToken(OPEN_BRACE_TOKEN);
         STNode closeBrace = SyntaxErrors.createMissingToken(SyntaxKind.CLOSE_BRACE_TOKEN);
 
         STNode objConstructor = STNodeFactory.createObjectConstructorExpressionNode(annots, qualifierNodeList,
@@ -5200,6 +5313,7 @@ public class BallerinaParser extends AbstractParser {
                  ISOLATED_KEYWORD,
                  TRANSACTIONAL_KEYWORD,
                  CLIENT_KEYWORD,
+                 NATURAL_KEYWORD,
                  OBJECT_KEYWORD -> true;
             default -> {
                 if (isPredeclaredPrefix(tokenKind)) {
@@ -6430,6 +6544,10 @@ public class BallerinaParser extends AbstractParser {
             case AT_TOKEN:
                 metadata = parseMetaData();
                 break;
+            case RETURN_KEYWORD:
+                // This is a special case to prevent error handler from reaching failsafe on return keyword
+                addInvalidNodeToNextToken(consume(), DiagnosticErrorCode.ERROR_INVALID_TOKEN);
+                return parseObjectMember(context);
             default:
                 if (isTypeStartingToken(nextToken.kind)) {
                     metadata = STNodeFactory.createEmptyNode();
@@ -8420,7 +8538,7 @@ public class BallerinaParser extends AbstractParser {
         }
 
         STNode annotValue;
-        if (peek().kind == SyntaxKind.OPEN_BRACE_TOKEN) {
+        if (peek().kind == OPEN_BRACE_TOKEN) {
             annotValue = parseMappingConstructorExpr();
         } else {
             annotValue = STNodeFactory.createEmptyNode();
@@ -10790,6 +10908,12 @@ public class BallerinaParser extends AbstractParser {
         }
 
         // Template string component
+        if (nextToken.kind != SyntaxKind.TEMPLATE_STRING) {
+            nextToken = consume();
+            return STNodeFactory.createLiteralValueToken(SyntaxKind.TEMPLATE_STRING,
+                    nextToken.text(), nextToken.leadingMinutiae(), nextToken.trailingMinutiae(),
+                    nextToken.diagnostics());
+        }
         return consume();
     }
 
@@ -12711,6 +12835,7 @@ public class BallerinaParser extends AbstractParser {
             case ISOLATED_KEYWORD:
             case BASE16_KEYWORD:
             case BASE64_KEYWORD:
+            case NATURAL_KEYWORD:
                 return true;
             case PLUS_TOKEN:
             case MINUS_TOKEN:
@@ -13026,7 +13151,7 @@ public class BallerinaParser extends AbstractParser {
      */
     private STNode parseWaitAction() {
         STNode waitKeyword = parseWaitKeyword();
-        if (peek().kind == SyntaxKind.OPEN_BRACE_TOKEN) {
+        if (peek().kind == OPEN_BRACE_TOKEN) {
             return parseMultiWaitAction(waitKeyword);
         }
 
@@ -13840,7 +13965,7 @@ public class BallerinaParser extends AbstractParser {
 
     private STNode parseOnfailOptionalBP() {
         STToken nextToken = peek();
-        if (nextToken.kind == SyntaxKind.OPEN_BRACE_TOKEN) {
+        if (nextToken.kind == OPEN_BRACE_TOKEN) {
             return STAbstractNodeFactory.createEmptyNode();
         } else if (isTypeStartingToken(nextToken.kind)) {
             return parseTypedBindingPattern();
@@ -19164,7 +19289,7 @@ public class BallerinaParser extends AbstractParser {
         if (nextToken.kind != SyntaxKind.CLOSE_BRACE_TOKEN) {
             return false;
         }
-        
+
         for (ParserRuleContext ctx : this.errorHandler.getContextStack()) {
             if (isBlockContext(ctx)) {
                 // This is done to exit at the earliest point when climbing up in the context stack.

@@ -47,6 +47,7 @@ public class BallerinaLexer extends AbstractLexer {
     public STToken nextToken() {
         STToken token = switch (this.mode) {
             case TEMPLATE -> readTemplateToken();
+            case PROMPT -> readPromptToken();
             case REGEXP -> readRegExpTemplateToken();
             case INTERPOLATION -> {
                 processLeadingTrivia();
@@ -925,6 +926,7 @@ public class BallerinaLexer extends AbstractLexer {
             case LexerTerminals.ASCENDING -> getSyntaxToken(SyntaxKind.ASCENDING_KEYWORD);
             case LexerTerminals.DESCENDING -> getSyntaxToken(SyntaxKind.DESCENDING_KEYWORD);
             case LexerTerminals.JOIN -> getSyntaxToken(SyntaxKind.JOIN_KEYWORD);
+            case LexerTerminals.NATURAL -> getSyntaxToken(SyntaxKind.NATURAL_KEYWORD);
             case LexerTerminals.RE -> {
                 if (getNextNonWSOrNonCommentChar() == LexerTerminals.BACKTICK) {
                     yield getSyntaxToken(SyntaxKind.RE_KEYWORD);
@@ -1323,7 +1325,7 @@ public class BallerinaLexer extends AbstractLexer {
     private STToken getBacktickToken() {
         STNode leadingTrivia = getLeadingTrivia();
         // Trivia after the back-tick including whitespace belongs to the content of the back-tick.
-        // Therefore do not process trailing trivia for starting back-tick. We reach here only for
+        // Therefore, do not process trailing trivia for starting back-tick. We reach here only for
         // starting back-tick. Ending back-tick is processed by the template mode.
         STNode trailingTrivia = STNodeFactory.createEmptyNodeList();
         return STNodeFactory.createToken(SyntaxKind.BACKTICK_TOKEN, leadingTrivia, trailingTrivia);
@@ -1336,40 +1338,71 @@ public class BallerinaLexer extends AbstractLexer {
         }
 
         char nextChar = this.reader.peek();
-        switch (nextChar) {
-            case LexerTerminals.BACKTICK:
-                reader.advance();
-                endMode();
-                return getSyntaxToken(SyntaxKind.BACKTICK_TOKEN);
-            case LexerTerminals.DOLLAR:
-                if (reader.peek(1) == LexerTerminals.OPEN_BRACE) {
-                    // Switch to interpolation mode. Then the next token will be read in that mode.
-                    startMode(ParserMode.INTERPOLATION);
-                    reader.advance(2);
+        if (nextChar == LexerTerminals.BACKTICK) {
+            reader.advance();
+            endMode();
+            return getSyntaxToken(SyntaxKind.BACKTICK_TOKEN);
+        }
 
-                    return getSyntaxToken(SyntaxKind.INTERPOLATION_START_TOKEN);
-                }
-                // fall through
-            default:
-                while (!reader.isEOF()) {
-                    reader.advance();
-                    nextChar = this.reader.peek();
-                    switch (nextChar) {
-                        case LexerTerminals.DOLLAR:
-                            if (this.reader.peek(1) == LexerTerminals.OPEN_BRACE) {
-                                break;
-                            }
-                            continue;
-                        case LexerTerminals.BACKTICK:
-                            break;
-                        default:
-                            continue;
-                    }
-                    break;
-                }
+        if (nextChar == LexerTerminals.DOLLAR && reader.peek(1) == LexerTerminals.OPEN_BRACE) {
+                // Switch to interpolation mode. Then the next token will be read in that mode.
+                startMode(ParserMode.INTERPOLATION);
+                reader.advance(2);
+
+                return getSyntaxToken(SyntaxKind.INTERPOLATION_START_TOKEN);
+        }
+
+        while (!reader.isEOF()) {
+            reader.advance();
+            nextChar = this.reader.peek();
+            if (nextChar == LexerTerminals.BACKTICK ||
+                    (nextChar == LexerTerminals.DOLLAR && reader.peek(1) == LexerTerminals.OPEN_BRACE)) {
+                break;
+            }
         }
 
         return getLiteral(SyntaxKind.TEMPLATE_STRING);
+    }
+
+    private STToken readPromptToken() {
+        reader.mark();
+        if (reader.isEOF()) {
+            return getSyntaxToken(SyntaxKind.EOF_TOKEN);
+        }
+
+        char nextChar = this.reader.peek();
+        if (nextChar == LexerTerminals.CLOSE_BRACE) {
+            reader.advance();
+            endMode();
+            return getSyntaxToken(SyntaxKind.CLOSE_BRACE_TOKEN);
+        }
+
+        if (nextChar == LexerTerminals.DOLLAR && reader.peek(1) == LexerTerminals.OPEN_BRACE) {
+            // Switch to interpolation mode. Then the next token will be read in that mode.
+            startMode(ParserMode.INTERPOLATION);
+            reader.advance(2);
+
+            return getSyntaxToken(SyntaxKind.INTERPOLATION_START_TOKEN);
+        }
+
+        while (!reader.isEOF()) {
+            reader.advance();
+            nextChar = this.reader.peek();
+            char nextNextChar = this.reader.peek(1);
+            if (nextChar == LexerTerminals.CLOSE_BRACE ||
+                    (nextChar == LexerTerminals.DOLLAR && nextNextChar == LexerTerminals.OPEN_BRACE)) {
+                break;
+            }
+
+            if (nextChar == LexerTerminals.BACKSLASH) {
+                if (nextNextChar != LexerTerminals.CLOSE_BRACE && nextNextChar != LexerTerminals.BACKSLASH) {
+                    reportInvalidEscapeSequence(this.reader.peek(1));
+                }
+                reader.advance();
+            }
+        }
+
+        return getLiteral(SyntaxKind.PROMPT_CONTENT);
     }
 
     /**

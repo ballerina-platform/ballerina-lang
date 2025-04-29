@@ -158,6 +158,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchGuard;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMultipleWorkerReceive;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNamedArgsExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangNaturalExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNumericLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangObjectConstructorExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangQueryAction;
@@ -2088,6 +2089,17 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
         List<BLangExpression> interpolationsList =
                 symResolver.getListOfInterpolations(regExpTemplateLiteral.reDisjunction.sequenceList);
         interpolationsList.forEach(interpolation -> analyzeNode(interpolation, env));
+    }
+
+    @Override
+    public void visit(BLangNaturalExpression naturalExpression) {
+        for (BLangExpression argument : naturalExpression.arguments) {
+            analyzeNode(argument, env);
+        }
+
+        for (BLangExpression insertion : naturalExpression.insertions) {
+            analyzeNode(insertion, env);
+        }
     }
 
     private void analyzeInvocation(BLangInvocation invocationExpr) {
