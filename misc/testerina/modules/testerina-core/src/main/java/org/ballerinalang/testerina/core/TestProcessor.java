@@ -154,7 +154,7 @@ public class TestProcessor {
         }
 
         // If not a cloud build, add the test execution dependencies
-        if (module.project().buildOptions().cloud().isEmpty()) {
+        if (!areTestsDelegated(module)) {
             addTestExecutionDependencies(module, jarResolver, testSuite);
         } else if (module.project().buildOptions().nativeImage()) {
             // If it is a cloud build, add the test execution dependencies only if native image is enabled
@@ -183,7 +183,7 @@ public class TestProcessor {
                 module.descriptor().name().toString(), testSuite);
         testSuite.setPackageName(module.descriptor().packageName().toString());
 
-        if (module.project().buildOptions().cloud().isEmpty()) {
+        if (!areTestsDelegated(module)) {
             testSuite.setSourceRootPath(module.project().sourceRoot().toString());
         } else {
             testSuite.setSourceRootPath("./");
@@ -614,5 +614,9 @@ public class TestProcessor {
         }
         //TODO: Throw an exception for not generating the test execution file. Currently, this handles at BTestRunner
         return executePath;
+    }
+
+    private boolean areTestsDelegated(Module module) {
+        return module.project().buildOptions().cloud().equals("docker");
     }
 }

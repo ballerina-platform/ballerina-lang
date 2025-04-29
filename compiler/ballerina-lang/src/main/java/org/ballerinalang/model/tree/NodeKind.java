@@ -151,6 +151,7 @@ public enum NodeKind {
     REG_EXP_CAPTURING_GROUP,
     REG_EXP_FLAG_EXPR,
     REG_EXP_FLAGS_ON_OFF,
+    NATURAL_EXPR,
 
     /* Statements */
     ABORT,

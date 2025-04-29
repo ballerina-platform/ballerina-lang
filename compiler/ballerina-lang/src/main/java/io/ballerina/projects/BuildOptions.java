@@ -90,11 +90,9 @@ public class BuildOptions {
      * Checks whether experimental compilation option is set.
      *
      * @return Is experimental compilation option is set
-     * @deprecated Since language no longer has experimental features
      */
-    @Deprecated(forRemoval = true)
     public boolean experimental() {
-        return false;
+        return this.compilationOptions.experimental();
     }
 
     public boolean observabilityIncluded() {
@@ -202,6 +200,7 @@ public class BuildOptions {
 
         CompilationOptions compilationOptions = this.compilationOptions.acceptTheirs(theirOptions.compilationOptions());
         buildOptionsBuilder.setOffline(compilationOptions.offlineBuild);
+        buildOptionsBuilder.setExperimental(compilationOptions.experimental);
         buildOptionsBuilder.setObservabilityIncluded(compilationOptions.observabilityIncluded);
         buildOptionsBuilder.setDumpBir(compilationOptions.dumpBir);
         buildOptionsBuilder.setDumpBirFile(compilationOptions.dumpBirFile);
@@ -342,10 +341,9 @@ public class BuildOptions {
          * Set experimental compilation option.
          *
          * @return Build options builder
-         * @deprecated Since language no longer has experimental features
          */
-        @Deprecated(forRemoval = true)
         public BuildOptionsBuilder setExperimental(Boolean value) {
+            compilationOptionsBuilder.setExperimental(value);
             return this;
         }
 
@@ -420,11 +418,11 @@ public class BuildOptions {
             showDependencyDiagnostics = value;
             return this;
         }
-        
+
         /**
          * (Experimental) option to specify that the memory usage must be optimized.
-         * 
-         * @param value true or false (default)  
+         *
+         * @param value true or false (default)
          * @return BuildOptionsBuilder instance
          */
         public BuildOptionsBuilder setOptimizeDependencyCompilation(Boolean value) {

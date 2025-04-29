@@ -966,6 +966,10 @@ public abstract class NodeVisitor {
         visitSyntaxNode(commentNode);
     }
 
+    public void visit(NaturalExpressionNode naturalExpressionNode) {
+        visitSyntaxNode(naturalExpressionNode);
+    }
+
     // Tokens
 
     public void visit(Token token) {
