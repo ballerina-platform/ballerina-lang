@@ -35,7 +35,6 @@ import java.util.StringJoiner;
 public class BMethodType extends BFunctionType implements MethodType {
 
     public String funcName;
-    public BFunctionType type;
     public BObjectType parentObjectType;
 
     public BMethodType(String funcName, Module pkg, BObjectType parent, BFunctionType type, long flags) {
