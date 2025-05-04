@@ -23,6 +23,7 @@ import org.ballerinalang.test.context.BMainInstance;
 import org.ballerinalang.test.context.BallerinaTestException;
 import org.ballerinalang.test.context.LogLeecher;
 import org.ballerinalang.test.context.ServerLogReader;
+import org.testng.SkipException;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.ballerinalang.util.Lists;
@@ -33,6 +34,8 @@ import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import static io.ballerina.cli.utils.OsUtils.isWindows;
 
 
 /**
@@ -112,6 +115,9 @@ public class ProfilerTest extends BaseTest {
 
     @Test
     public void testProfilerExecutionWithKillSignal() throws BallerinaTestException {
+        if (isWindows()) {
+            throw new SkipException("Windows is not supported");
+        }
         String sourceRoot = testFileLocation + File.separator;
         String packageName = "serviceProjectForProfile" + File.separator + "package_a";
         Map<String, String> envProperties = new HashMap<>();

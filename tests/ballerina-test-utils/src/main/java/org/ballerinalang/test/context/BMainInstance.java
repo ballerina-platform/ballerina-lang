@@ -706,8 +706,9 @@ public class BMainInstance implements BMain {
     }
 
     public void compilePackageAndPushToLocal(String packagPath, String balaFileName) throws BallerinaTestException {
-        LogLeecher buildLeecher = new LogLeecher("target/bala/" + balaFileName + ".bala");
-        LogLeecher pushLeecher = new LogLeecher("Successfully pushed target/bala/" + balaFileName + ".bala to " +
+        String targetBalaFilename = Path.of("target/bala/" + balaFileName + ".bala").toString();
+        LogLeecher buildLeecher = new LogLeecher(targetBalaFilename);
+        LogLeecher pushLeecher = new LogLeecher("Successfully pushed " + targetBalaFilename + " to " +
                                                 "'local' repository.");
         this.runMain("pack", new String[]{}, null, null, new LogLeecher[]{buildLeecher}, packagPath);
         buildLeecher.waitForText(5000);

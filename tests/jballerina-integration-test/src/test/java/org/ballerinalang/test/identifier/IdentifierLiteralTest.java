@@ -36,7 +36,7 @@ import java.util.HashMap;
  */
 public class IdentifierLiteralTest  extends BaseTest {
 
-    private static final String testFileLocation = Path.of("src", "test", "resources", "identifier")
+    private static final String testFileLocation = Path.of("src/test/resources/identifier")
             .toAbsolutePath().toString();
     private BMainInstance bMainInstance;
 
