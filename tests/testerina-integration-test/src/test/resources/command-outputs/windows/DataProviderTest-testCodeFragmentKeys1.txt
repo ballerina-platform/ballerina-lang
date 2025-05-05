@@ -24,4 +24,4 @@ Running Tests with Coverage
 
 Generating Test Report
 	data-providers\target\report\test_results.json
-
+
