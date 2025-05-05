@@ -19,6 +19,7 @@
 package io.ballerina.cli.task;
 
 import io.ballerina.cli.cmd.CommandUtil;
+import io.ballerina.cli.launcher.CustomToolClassLoader;
 import io.ballerina.cli.launcher.LauncherUtils;
 import io.ballerina.cli.utils.FileUtils;
 import io.ballerina.projects.BuildTool;
@@ -53,7 +54,6 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.net.URLClassLoader;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -136,6 +136,7 @@ public class RunBuildToolsTask implements Task {
                 pullLocallyUnavailableTools(centralDeliveredResolvedTools, buildToolResolution);
             }
             toolClassLoader = createToolClassLoader(centralDeliveredResolvedTools);
+            Thread.currentThread().setContextClassLoader(toolClassLoader);
             toolServiceLoader = ServiceLoader.load(CodeGeneratorTool.class, toolClassLoader);
         }
 
@@ -216,6 +217,7 @@ public class RunBuildToolsTask implements Task {
         if (hasErrors) {
             throw createLauncherException("build tool execution contains errors");
         }
+        Thread.currentThread().setContextClassLoader(ClassLoader.getSystemClassLoader());
         // Reload the project to load the generated code
         reloadProject(project);
         this.outStream.println();
@@ -338,7 +340,7 @@ public class RunBuildToolsTask implements Task {
                 })
                 .toArray(URL[]::new);
         ClassLoader systemClassLoader = this.getClass().getClassLoader();
-        return new URLClassLoader(urls, systemClassLoader);
+        return new CustomToolClassLoader(urls, systemClassLoader);
     }
 
     private void printToolSkipWarning(PackageManifest.Tool toolEntry) {
