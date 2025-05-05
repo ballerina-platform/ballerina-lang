@@ -47,8 +47,9 @@ public class MultipleModuleVersionTests extends BaseTest {
     }
 
     private void compilePackageAndPushToLocal(String packagePath, String balaFileName) throws BallerinaTestException {
-        LogLeecher buildLeecher = new LogLeecher("target/bala/" + balaFileName + ".bala");
-        LogLeecher pushLeecher = new LogLeecher("Successfully pushed target/bala/" + balaFileName + ".bala to " +
+        String targetBalaFilename = Path.of("target/bala/" + balaFileName + ".bala").toString();
+        LogLeecher buildLeecher = new LogLeecher(targetBalaFilename);
+        LogLeecher pushLeecher = new LogLeecher("Successfully pushed " + targetBalaFilename + " to " +
                 "'local' repository.");
         bMainInstance.runMain("pack", new String[]{}, null, null, new LogLeecher[]{buildLeecher},
                 packagePath);

@@ -22,6 +22,7 @@ import org.ballerinalang.test.context.BallerinaTestException;
 import org.ballerinalang.test.context.LogLeecher;
 import org.ballerinalang.test.context.ServerLogReader;
 import org.ballerinalang.test.util.BFileUtil;
+import org.testng.SkipException;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -32,6 +33,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import static io.ballerina.cli.utils.OsUtils.isWindows;
 
 /**
  * Test class to test the functionality of Ballerina runtime APIs for invoking functions.
@@ -57,6 +60,9 @@ public class RuntimeAPITest extends BaseTest {
 
     @Test
     public void testRuntimeAPIsForBalFunctionInvocation() throws BallerinaTestException {
+        if (isWindows()) {
+            throw new SkipException("Windows is not supported");
+        }
         Path jarPath = Path.of(testFileLocation, "function_invocation", "target", "bin",
                 "function_invocation.jar").toAbsolutePath();
         compileJavaSource(jarPath, "targetDir", "RuntimeAPICall.java");
@@ -99,6 +105,9 @@ public class RuntimeAPITest extends BaseTest {
 
     @Test
     public void testBalFunctionInvocationAPINegative() throws BallerinaTestException {
+        if (isWindows()) {
+            throw new SkipException("Windows is not supported");
+        }
         Path jarPath = Path.of(testFileLocation, "function_invocation", "target", "bin",
                 "function_invocation.jar").toAbsolutePath();
         compileJavaSource(jarPath, "target-dir-negative", "RuntimeAPICallNegative.java");
