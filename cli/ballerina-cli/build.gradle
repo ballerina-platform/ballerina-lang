@@ -35,7 +35,6 @@ configurations {
 }
 
 dependencies {
-
     implementation project(':ballerina-lang')
     implementation project(':ballerina-runtime')
     implementation project(':ballerina-tools-api')
@@ -114,13 +113,30 @@ tasks.register('createTestBre', Copy) {
     into "$buildDir/bre/lib"
 }
 
+tasks.register('copyBalToolsResources') {
+    doLast {
+        copy {
+            from 'src/test/resources/bal-tools-dist.toml'
+            into "$buildDir/bal-tools.toml"
+        }
+
+        copy {
+            from 'src/test/resources/test-resources/local-tool-test/ballerina-cache/repositories/local/bala/'
+            into "$buildDir/user-home/.ballerina/repositories/local/bala/"
+            include '**'
+        }
+    }
+}
+
 test {
     dependsOn createTestDistributionCache
     dependsOn createTestBre
     dependsOn copyCompilerPluginJars
     dependsOn copyProfilerResources
+    dependsOn copyBalToolsResources
 
     systemProperty "ballerina.home", "$buildDir"
+    environment 'BALLERINA_HOME_DIR', "$buildDir/user-home/.ballerina"
 
     useTestNG() {
         suites 'src/test/resources/testng.xml'
