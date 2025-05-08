@@ -22,6 +22,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 
 /**
  * This class hold the server location and manage the a server location.
@@ -46,8 +47,13 @@ public class BalServer {
         this(System.getProperty(Constant.SYSTEM_PROP_SERVER_ZIP));
     }
 
-    public BalServer(String serverZipFile) throws BallerinaTestException {
-        setUpServerHome(serverZipFile);
+    public BalServer(String serverPath) throws BallerinaTestException {
+        int indexOfZip = serverPath.lastIndexOf(".zip");
+        if (indexOfZip == -1) {
+            this.serverHome = serverPath;
+        } else {
+            setUpServerHome(serverPath);
+        }
         log.info("Server Home " + serverHome);
     }
 
@@ -60,7 +66,6 @@ public class BalServer {
      * @throws BallerinaTestException if setting up the server fails
      */
     private void setUpServerHome(String serverZipFile) throws BallerinaTestException {
-
         int indexOfZip = serverZipFile.lastIndexOf(".zip");
         if (indexOfZip == -1) {
             throw new IllegalArgumentException(serverZipFile + " is not a zip file");
@@ -106,6 +111,10 @@ public class BalServer {
      * Delete the working directory with the extracted ballerina instance to cleanup data after execution is complete.
      */
     private void deleteWorkDir() {
+        if (extractDir == null) {
+            return;
+        }
+
         File workDir = new File(extractDir);
         Utils.deleteFolder(workDir);
     }
