@@ -21,9 +21,9 @@ import io.ballerina.cli.BLauncherCmd;
 import io.ballerina.cli.launcher.util.BalToolsUtil;
 import io.ballerina.projects.BalToolsManifest;
 import io.ballerina.projects.BalToolsToml;
+import io.ballerina.projects.BlendedBalToolsManifest;
 import io.ballerina.projects.internal.BalToolsManifestBuilder;
 import io.ballerina.runtime.api.values.BError;
-import org.wso2.ballerinalang.util.RepoUtils;
 import picocli.CommandLine;
 
 import java.io.IOException;
@@ -38,8 +38,6 @@ import java.util.List;
 import java.util.Map;
 
 import static io.ballerina.cli.launcher.BallerinaCliCommands.HELP;
-import static io.ballerina.projects.util.ProjectConstants.BAL_TOOLS_TOML;
-import static io.ballerina.projects.util.ProjectConstants.CONFIG_DIR;
 
 /**
  * Contains utility methods for executing a Ballerina program.
@@ -121,9 +119,12 @@ public final class LauncherUtils {
         StringBuilder helpBuilder = new StringBuilder();
         helpBuilder.append(BLauncherCmd.getCommandUsageInfo(HELP));
 
-        Path balToolsTomlPath = RepoUtils.createAndGetHomeReposPath().resolve(CONFIG_DIR).resolve(BAL_TOOLS_TOML);
-        BalToolsToml balToolsToml = BalToolsToml.from(balToolsTomlPath);
+        BalToolsToml balToolsToml = BalToolsToml.from(BalToolsUtil.BAL_TOOLS_TOML_PATH);
         BalToolsManifest balToolsManifest = BalToolsManifestBuilder.from(balToolsToml).build();
+        BalToolsToml distBalToolsToml = BalToolsToml.from(BalToolsUtil.DIST_BAL_TOOLS_TOML_PATH);
+        BalToolsManifest distBalToolsManifest = BalToolsManifestBuilder.from(distBalToolsToml).build();
+        BlendedBalToolsManifest blendedBalToolsManifest = BlendedBalToolsManifest
+                .from(balToolsManifest, distBalToolsManifest);
         Map<String, String> activeToolsVsRepos = new HashMap<>();
 
         // if there are any tools, add Tool Commands section
@@ -133,7 +134,7 @@ public final class LauncherUtils {
 
         if (!toolNames.isEmpty()) {
             toolNames.forEach(toolName ->
-                balToolsManifest.getActiveTool(toolName).ifPresent(tool ->
+                    blendedBalToolsManifest.getActiveTool(toolName).ifPresent(tool ->
                     activeToolsVsRepos.put(toolName, tool.repository() == null ? "" : "[" + tool.repository()
                             .toUpperCase() + "] ")));
             helpBuilder.append("\n\n   Tool Commands:");
