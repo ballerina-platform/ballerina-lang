@@ -4,7 +4,7 @@ import com.google.gson.Gson;
 import io.ballerina.cli.launcher.BLauncherException;
 import io.ballerina.projects.JvmTarget;
 import io.ballerina.projects.internal.bala.PackageJson;
-import io.ballerina.projects.util.BuildToolUtils;
+import io.ballerina.projects.util.BuildToolsUtil;
 import io.ballerina.projects.util.ProjectUtils;
 import org.ballerinalang.test.BCompileUtil;
 import org.mockito.MockedStatic;
@@ -355,9 +355,9 @@ public class PackCommandTest extends BaseCommandTest {
         replaceDependenciesTomlContent(projectPath, "**INSERT_DISTRIBUTION_VERSION_HERE**",
                 RepoUtils.getBallerinaShortVersion());
         System.setProperty(USER_DIR, projectPath.toString());
-        try (MockedStatic<BuildToolUtils> repoUtils = Mockito.mockStatic(
-                BuildToolUtils.class, Mockito.CALLS_REAL_METHODS)) {
-            repoUtils.when(BuildToolUtils::getCentralBalaDirPath).thenReturn(testDistCacheDirectory.resolve("bala"));
+        try (MockedStatic<BuildToolsUtil> repoUtils = Mockito.mockStatic(
+                BuildToolsUtil.class, Mockito.CALLS_REAL_METHODS)) {
+            repoUtils.when(BuildToolsUtil::getCentralBalaDirPath).thenReturn(testDistCacheDirectory.resolve("bala"));
             PackCommand packCommand = new PackCommand(projectPath, printStream, printStream, false, true);
             new CommandLine(packCommand).parseArgs();
             packCommand.execute();

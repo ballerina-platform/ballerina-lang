@@ -22,7 +22,7 @@ import io.ballerina.cli.launcher.BLauncherException;
 import io.ballerina.projects.ProjectEnvironmentBuilder;
 import io.ballerina.projects.environment.Environment;
 import io.ballerina.projects.environment.EnvironmentBuilder;
-import io.ballerina.projects.util.BuildToolUtils;
+import io.ballerina.projects.util.BuildToolsUtil;
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.test.BCompileUtil;
 import org.mockito.MockedStatic;
@@ -240,9 +240,9 @@ public class GraphCommandTest extends BaseCommandTest {
         replaceDependenciesTomlContent(emptyPackagePath, "**INSERT_DISTRIBUTION_VERSION_HERE**",
                 RepoUtils.getBallerinaShortVersion());
         System.setProperty(USER_DIR_PROPERTY, emptyPackagePath.toString());
-        try (MockedStatic<BuildToolUtils> repoUtils = Mockito.mockStatic(
-                BuildToolUtils.class, Mockito.CALLS_REAL_METHODS)) {
-            repoUtils.when(BuildToolUtils::getCentralBalaDirPath).thenReturn(testDistCacheDirectory.resolve("bala"));
+        try (MockedStatic<BuildToolsUtil> repoUtils = Mockito.mockStatic(
+                BuildToolsUtil.class, Mockito.CALLS_REAL_METHODS)) {
+            repoUtils.when(BuildToolsUtil::getCentralBalaDirPath).thenReturn(testDistCacheDirectory.resolve("bala"));
             GraphCommand graphCommand = new GraphCommand(emptyPackagePath, printStream, printStream, false);
             new CommandLine(graphCommand).parseArgs(emptyPackagePath.toString());
             graphCommand.execute();

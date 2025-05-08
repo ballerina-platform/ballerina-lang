@@ -35,7 +35,7 @@ import io.ballerina.projects.buildtools.ToolContext;
 import io.ballerina.projects.internal.PackageConfigCreator;
 import io.ballerina.projects.internal.PackageDiagnostic;
 import io.ballerina.projects.internal.ProjectDiagnosticErrorCode;
-import io.ballerina.projects.util.BuildToolUtils;
+import io.ballerina.projects.util.BuildToolsUtil;
 import io.ballerina.projects.util.CustomURLClassLoader;
 import io.ballerina.toml.api.Toml;
 import io.ballerina.toml.semantic.diagnostics.TomlDiagnostic;
@@ -148,10 +148,10 @@ public class RunBuildToolsTask implements Task {
         for (Tool toolEntry : resolvedToolEntries) {
             String commandName = toolEntry.type().value();
             ToolContext toolContext = toolContextMap.get(toolEntry.id());
-            Optional<CodeGeneratorTool> targetTool = BuildToolUtils.getTargetTool(commandName, toolServiceLoader);
+            Optional<CodeGeneratorTool> targetTool = BuildToolsUtil.getTargetTool(commandName, toolServiceLoader);
             if (targetTool.isEmpty()) {
                 // If the tool is not found, we skip the execution and report a diagnostic
-                Diagnostic diagnostic = BuildToolUtils.getBuildToolCommandNotFoundDiagnostic(
+                Diagnostic diagnostic = BuildToolsUtil.getBuildToolCommandNotFoundDiagnostic(
                         commandName, toolEntry.type().location());
                 toolContext.reportDiagnostic(diagnostic);
                 this.outStream.println(diagnostic);
@@ -161,7 +161,7 @@ public class RunBuildToolsTask implements Task {
             // Here, we can safely pass the tool type value given in Ballerina.toml instead of
             // the aggregation of the ToolConfig annotation name fields of a command/ subcommand field
             // since we have verified that those two are identical in the ToolUtils.getTargetTool method
-            Optional<TomlDiagnostic> cmdNameDiagnostic = BuildToolUtils
+            Optional<TomlDiagnostic> cmdNameDiagnostic = BuildToolsUtil
                     .getDiagnosticIfInvalidCommandName(commandName, toolEntry.id().location());
             if (cmdNameDiagnostic.isPresent()) {
                 toolContext.reportDiagnostic(cmdNameDiagnostic.get());
@@ -288,7 +288,7 @@ public class RunBuildToolsTask implements Task {
     }
 
     private boolean isToolLocallyAvailable(String org, String name, String version) {
-        Path toolCacheDir = BuildToolUtils.getCentralBalaDirPath().resolve(org).resolve(name);
+        Path toolCacheDir = BuildToolsUtil.getCentralBalaDirPath().resolve(org).resolve(name);
         if (toolCacheDir.toFile().isDirectory()) {
             try (Stream<Path> versions = Files.list(toolCacheDir)) {
                 return versions.anyMatch(path ->
@@ -305,7 +305,7 @@ public class RunBuildToolsTask implements Task {
         String supportedPlatform = Arrays.stream(JvmTarget.values())
                 .map(JvmTarget::code)
                 .collect(Collectors.joining(","));
-        Path balaCacheDirPath = BuildToolUtils.getCentralBalaDirPath();
+        Path balaCacheDirPath = BuildToolsUtil.getCentralBalaDirPath();
         Settings settings;
         settings = RepoUtils.readSettings();
         // Ignore Settings.toml diagnostics in the pull command
@@ -355,7 +355,7 @@ public class RunBuildToolsTask implements Task {
     }
 
     private static List<File> getToolCommandJarAndDependencyJars(List<BuildTool> resolvedTools) {
-        Path centralBalaDirPath = BuildToolUtils.getCentralBalaDirPath();
+        Path centralBalaDirPath = BuildToolsUtil.getCentralBalaDirPath();
         return resolvedTools.stream()
                 .map(tool -> findJarFiles(CommandUtil.getPlatformSpecificBalaPath(
                                 tool.org().value(),

@@ -1,0 +1,98 @@
+[[tool]]
+id = "scan"
+org = "ballerina"
+name = "tool_scan"
+version = "0.9.0"
+active = true
+
+[[tool]]
+id = "consolidate-packages"
+org = "ballerinax"
+name = "tool_consolidate_package"
+version = "0.1.7"
+active = true
+
+[[tool]]
+id = "graphql"
+org = "ballerina"
+name = "tool_graphql"
+version = "1.0.0"
+active = false
+
+[[tool]]
+id = "graphql"
+org = "ballerina"
+name = "tool_graphql"
+version = "1.1.5"
+active = true
+
+[[tool]]
+id = "edi"
+org = "ballerina"
+name = "tool_edi"
+version = "1.0.0"
+active = true
+
+[[tool]]
+id = "openapi"
+org = "ballerina"
+name = "tool_openapi"
+version = "1.2.2"
+active = false
+repository = "local"
+
+[[tool]]
+id = "openapi"
+org = "ballerina"
+name = "tool_openapi"
+version = "1.2.0"
+active = false
+
+[[tool]]
+id = "openapi"
+org = "ballerina"
+name = "tool_openapi"
+version = "1.1.0"
+active = false
+
+[[tool]]
+id = "openapi"
+org = "ballerina"
+name = "tool_openapi"
+version = "1.3.0" # incompatible
+active = true
+
+[[tool]]
+id = "asyncapi"
+org = "ballerina"
+name = "tool_asyncapi"
+version = "1.2.0" # incompatible
+active = true
+
+[[tool]]
+id = "asyncapi"
+org = "ballerina"
+name = "tool_asyncapi"
+version = "1.1.0"
+active = false
+
+[[tool]]
+id = "grpc"
+org = "ballerina"
+name = "tool_grpc"
+version = "1.0.1"
+active = false
+
+[[tool]]
+id = "grpc"
+org = "ballerina"
+name = "tool_grpc"
+version = "1.0.2"
+active = false
+
+[[tool]]
+id = "bindgen"
+org = "ballerina"
+name = "tool_scan"
+version = "0.9.0"
+active = true
