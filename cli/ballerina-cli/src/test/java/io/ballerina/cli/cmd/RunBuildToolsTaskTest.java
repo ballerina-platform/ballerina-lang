@@ -23,7 +23,7 @@ import io.ballerina.cli.task.RunBuildToolsTask;
 import io.ballerina.projects.BuildOptions;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.directory.BuildProject;
-import io.ballerina.projects.util.BuildToolUtils;
+import io.ballerina.projects.util.BuildToolsUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.mockito.MockedStatic;
 import org.mockito.Mockito;
@@ -102,9 +102,9 @@ public class RunBuildToolsTaskTest extends BaseCommandTest {
         Project project = BuildProject.load(projectPath,
                 BuildOptions.builder().setOffline(true).setSticky(sticky).build());
         RunBuildToolsTask runBuildToolsTask = new RunBuildToolsTask(printStream);
-        try (MockedStatic<BuildToolUtils> repoUtils = Mockito.mockStatic(
-                BuildToolUtils.class, Mockito.CALLS_REAL_METHODS)) {
-            repoUtils.when(BuildToolUtils::getCentralBalaDirPath).thenReturn(mockCentralBalaDirPath);
+        try (MockedStatic<BuildToolsUtil> repoUtils = Mockito.mockStatic(
+                BuildToolsUtil.class, Mockito.CALLS_REAL_METHODS)) {
+            repoUtils.when(BuildToolsUtil::getCentralBalaDirPath).thenReturn(mockCentralBalaDirPath);
             try {
                 runBuildToolsTask.execute(project);
             } catch (BLauncherException e) {
@@ -127,9 +127,9 @@ public class RunBuildToolsTaskTest extends BaseCommandTest {
         Path projectPath = buildToolResources.resolve("project-with-generate-file-tool");
         Project project = BuildProject.load(projectPath, BuildOptions.builder().setOffline(true).build());
         RunBuildToolsTask runBuildToolsTask = new RunBuildToolsTask(printStream);
-        try (MockedStatic<BuildToolUtils> repoUtils = Mockito.mockStatic(
-                BuildToolUtils.class, Mockito.CALLS_REAL_METHODS)) {
-            repoUtils.when(BuildToolUtils::getCentralBalaDirPath).thenReturn(mockCentralBalaDirPath);
+        try (MockedStatic<BuildToolsUtil> repoUtils = Mockito.mockStatic(
+                BuildToolsUtil.class, Mockito.CALLS_REAL_METHODS)) {
+            repoUtils.when(BuildToolsUtil::getCentralBalaDirPath).thenReturn(mockCentralBalaDirPath);
             runBuildToolsTask.execute(project);
         }
         String buildLog = readOutput(true);
