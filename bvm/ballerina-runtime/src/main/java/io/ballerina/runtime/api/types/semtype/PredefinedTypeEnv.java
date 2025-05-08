@@ -202,7 +202,7 @@ final class PredefinedTypeEnv {
     ));
 
     private final ConcurrentLazySupplier<SemType> innerReadOnly =
-            new ConcurrentLazySupplier<>(() -> union(readonlyType.get(), inner.get()));
+            new ConcurrentLazySupplier<>(() -> union(readonlyType.get(), from(BasicTypeCode.BT_UNDEF)));
     private final Supplier<CellAtomicType> cellAtomicInnerRO = new ConcurrentLazySupplierWithCallback<>(
             () -> CellAtomicType.from(innerReadOnly.get(), CellAtomicType.CellMutability.CELL_MUT_NONE),
             this::addInitializedCellAtom
