@@ -1,0 +1,15 @@
+{
+  "organization": "ballerina",
+  "name": "tool_graphql",
+  "version": "1.0.0",
+  "export": [
+    "tool_graphql"
+  ],
+  "ballerina_version": "2201.12.3",
+  "implementation_vendor": "WSO2",
+  "language_spec_version": "2024R1",
+  "platform": "java21",
+  "graalvmCompatible": true,
+  "template": false,
+  "readme": "docs/README.md"
+}

@@ -1,0 +1,6 @@
+{
+  "tool_id": "consolidate-packages",
+  "dependency_paths": [
+    "tool/libs/tool-intg-test-1.0-SNAPSHOT.jar"
+  ]
+}

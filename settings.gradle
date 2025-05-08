@@ -96,6 +96,7 @@ include(':testerina:report-tools')
 include(':testerina-integration-test')
 include(':jballerina-debugger-integration-test')
 include(':language-server-integration-tests')
+include(':bal-tools-integration-tests')
 // TODO: enable at 'dependsOn' of tools-intergration-tests
 // and 'mustRunAfter' of vs-code-pluggin
 
@@ -254,6 +255,7 @@ project(':testerina:testerina-runtime').projectDir = file('misc/testerina/module
 project(':testerina:report-tools').projectDir = file('misc/testerina/modules/report-tools')
 project(':testerina-integration-test').projectDir = file('tests/testerina-integration-test')
 project(':jballerina-debugger-integration-test').projectDir = file('tests/jballerina-debugger-integration-test')
+project(':bal-tools-integration-tests').projectDir = file( 'tests/bal-tools-integration-tests')
 project(':bir-spec').projectDir = file('docs/bir-spec')
 project(':identifier-util').projectDir = file('misc/identifier-util')
 
