@@ -195,6 +195,7 @@ public final class JvmConstants {
     public static final String ASYNC_UTILS = "io/ballerina/runtime/internal/scheduling/AsyncUtils";
     public static final String WORKER_UTILS = "io/ballerina/runtime/internal/scheduling/WorkerUtils";
     public static final String WORKER_CHANNEL_MAP = "io/ballerina/runtime/internal/scheduling/WorkerChannelMap";
+    public static final String FUNCTION_POINTER_UTILS = "io/ballerina/runtime/internal/utils/FunctionPointerUtils";
     public static final String MAP_UTILS = "io/ballerina/runtime/internal/utils/MapUtils";
     public static final String TABLE_UTILS = "io/ballerina/runtime/internal/utils/TableUtils";
     public static final String STRING_UTILS = "io/ballerina/runtime/api/utils/StringUtils";
@@ -460,8 +461,8 @@ public final class JvmConstants {
     public static final int MAX_STRINGS_PER_METHOD = 5000;
     public static final int VISIT_MAX_SAFE_MARGIN = 10;
     public static final int OVERFLOW_LINE_NUMBER = 0x80000000;
-    public static final int MAX_GENERATED_METHODS_PER_CLASS = 100;
-    public static final int MAX_GENERATED_LAMBDAS_PER_CLASS = 500;
+    public static final int MAX_GENERATED_METHODS_PER_CLASS = 1000;
+    public static final int MAX_GENERATED_LAMBDAS_PER_CLASS = 1000;
 
     private JvmConstants() {
     }

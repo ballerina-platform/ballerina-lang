@@ -55,6 +55,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ARRAY_LIS
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CLASS_FILE_SUFFIX;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JVM_INIT_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.LIST;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAX_GENERATED_METHODS_PER_CLASS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_TUPLE_TYPES_CLASS_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBJECT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SET_CYCLIC_METHOD;
@@ -73,11 +74,13 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.VOID_MET
  */
 public class JvmTupleTypeGen {
 
-    public final String tupleTypesClass;
-    public final ClassWriter tupleTypesCw;
+    public String tupleTypesClass;
+    public ClassWriter tupleTypesCw;
     private final JvmCreateTypeGen jvmCreateTypeGen;
     private final JvmTypeGen jvmTypeGen;
     private final  JvmConstantsGen jvmConstantsGen;
+    public int classIndex = 0;
+    public int methodCount = 0;
 
     public JvmTupleTypeGen(JvmCreateTypeGen jvmCreateTypeGen, JvmTypeGen jvmTypeGen, JvmConstantsGen jvmConstantsGen,
                            PackageID packageID) {
@@ -87,6 +90,19 @@ public class JvmTupleTypeGen {
         this.jvmConstantsGen = jvmConstantsGen;
         this.tupleTypesCw = new BallerinaClassWriter(COMPUTE_FRAMES);
         this.tupleTypesCw.visit(V21, ACC_PUBLIC + ACC_SUPER, tupleTypesClass, null, OBJECT, null);
+    }
+
+    public void checkAndSplitTypeClass(JvmPackageGen jvmPackageGen, BIRNode.BIRPackage module, JarEntries jarEntries) {
+        if (this.methodCount++ < MAX_GENERATED_METHODS_PER_CLASS) {
+            return;
+        }
+        this.tupleTypesCw.visitEnd();
+        jarEntries.put(this.tupleTypesClass + CLASS_FILE_SUFFIX, jvmPackageGen.getBytes(this.tupleTypesCw, module));
+        this.tupleTypesClass = getModuleLevelClassName(module.packageID,
+                MODULE_TUPLE_TYPES_CLASS_NAME + this.classIndex++);
+        this.tupleTypesCw = new BallerinaClassWriter(COMPUTE_FRAMES);
+        this.tupleTypesCw.visit(V21, ACC_PUBLIC + ACC_SUPER, this.tupleTypesClass, null, OBJECT, null);
+        this.methodCount = 0;
     }
 
     public void visitEnd(JvmPackageGen jvmPackageGen, BIRNode.BIRPackage module, JarEntries jarEntries) {

@@ -51,6 +51,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil.getModu
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CLASS_FILE_SUFFIX;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JVM_INIT_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.LINKED_HASH_MAP;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAX_GENERATED_METHODS_PER_CLASS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_RECORD_TYPES_CLASS_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBJECT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.RECORD_TYPE_IMPL;
@@ -68,20 +69,36 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.VOID_MET
  */
 public class JvmRecordTypeGen {
 
-    public final String recordTypesClass;
-    public final ClassWriter recordTypesCw;
+    public String recordTypesClass;
+    public ClassWriter recordTypesCw;
     private final JvmCreateTypeGen jvmCreateTypeGen;
     private final JvmTypeGen jvmTypeGen;
     private final  JvmConstantsGen jvmConstantsGen;
+    public int classIndex = 0;
+    public int methodCount = 0;
 
-    public JvmRecordTypeGen(JvmCreateTypeGen jvmCreateTypeGen, JvmTypeGen jvmTypeGen, JvmConstantsGen jvmConstantsGen
-            , PackageID packageID) {
-        this.recordTypesClass = getModuleLevelClassName(packageID, MODULE_RECORD_TYPES_CLASS_NAME);
+    public JvmRecordTypeGen(JvmCreateTypeGen jvmCreateTypeGen, JvmTypeGen jvmTypeGen, JvmConstantsGen jvmConstantsGen,
+                            PackageID packageID) {
         this.jvmCreateTypeGen = jvmCreateTypeGen;
         this.jvmTypeGen = jvmTypeGen;
         this.jvmConstantsGen = jvmConstantsGen;
+        this.recordTypesClass = getModuleLevelClassName(packageID, MODULE_RECORD_TYPES_CLASS_NAME + classIndex++);
         this.recordTypesCw = new BallerinaClassWriter(COMPUTE_FRAMES);
         this.recordTypesCw.visit(V21, ACC_PUBLIC + ACC_SUPER, recordTypesClass, null, OBJECT, null);
+    }
+
+
+    public void checkAndSplitTypeClass(JvmPackageGen jvmPackageGen, BIRNode.BIRPackage module, JarEntries jarEntries) {
+        if (this.methodCount++ < MAX_GENERATED_METHODS_PER_CLASS) {
+            return;
+        }
+        this.recordTypesCw.visitEnd();
+        jarEntries.put(this.recordTypesClass + CLASS_FILE_SUFFIX, jvmPackageGen.getBytes(this.recordTypesCw, module));
+        this.recordTypesClass = getModuleLevelClassName(module.packageID,
+                MODULE_RECORD_TYPES_CLASS_NAME + this.classIndex++);
+        this.recordTypesCw = new BallerinaClassWriter(COMPUTE_FRAMES);
+        this.recordTypesCw.visit(V21, ACC_PUBLIC + ACC_SUPER, this.recordTypesClass, null, OBJECT, null);
+        this.methodCount = 0;
     }
 
     public void visitEnd(JvmPackageGen jvmPackageGen, BIRNode.BIRPackage module, JarEntries jarEntries) {
