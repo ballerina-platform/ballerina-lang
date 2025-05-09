@@ -23,8 +23,8 @@ import io.ballerina.types.Context;
 import io.ballerina.types.SubtypeData;
 
 import static io.ballerina.types.Common.bddPosMaybeEmpty;
-import static io.ballerina.types.Common.bddSubtypeDiff;
 import static io.ballerina.types.PredefinedType.BDD_SUBTYPE_RO;
+import static io.ballerina.types.typeops.BddCommonOps.bddComplement;
 import static io.ballerina.types.typeops.BddCommonOps.bddIntersect;
 import static io.ballerina.types.typeops.MappingOps.mappingSubtypeIsEmpty;
 
@@ -36,7 +36,7 @@ import static io.ballerina.types.typeops.MappingOps.mappingSubtypeIsEmpty;
 public class TypedescOps extends CommonOps implements BasicTypeOps {
 
     private static SubtypeData typedescSubtypeComplement(SubtypeData t) {
-        return bddSubtypeDiff(BDD_SUBTYPE_RO, t);
+        return bddComplement((Bdd) t);
     }
 
     private static boolean typedescSubtypeIsEmpty(Context cx, SubtypeData t) {
