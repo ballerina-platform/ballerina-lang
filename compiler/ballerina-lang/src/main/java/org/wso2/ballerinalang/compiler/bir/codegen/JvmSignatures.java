@@ -157,6 +157,7 @@ public final class JvmSignatures {
     public static final String BOOLEAN_VALUE_OF_METHOD = "(Z)L" + BOOLEAN_VALUE + ";";
     public static final String BSTRING_CONCAT = "(L" + B_STRING_VALUE + ";)L" + B_STRING_VALUE + ";";
     public static final String CAST_B_MAPPING_INITIAL_VALUE_ENTRY = "[L" + B_MAPPING_INITIAL_VALUE_ENTRY + ";";
+    public static final String CALL_FP = "(L" + FUNCTION_POINTER + ";L" + STRAND_CLASS + ";)L" + OBJECT + ";";
     public static final String CHECK_CAST = "(L" + OBJECT + ";L" + TYPE + ";)L" + OBJECT + ";";
     public static final String CHECK_FIELD_UPDATE = "(L" + STRING_VALUE + ";L" + OBJECT + ";)V";
     public static final String CHECK_IS_TYPE = "(L" + OBJECT + ";L" + TYPE + ";)Z";

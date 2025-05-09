@@ -45,6 +45,7 @@ import static org.objectweb.asm.Opcodes.V21;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil.getModuleLevelClassName;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CLASS_FILE_SUFFIX;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JVM_INIT_METHOD;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAX_GENERATED_METHODS_PER_CLASS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_UNION_TYPES_CLASS_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBJECT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SET_MEMBERS_METHOD;
@@ -61,11 +62,13 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.SET_TYPE
  */
 public class JvmUnionTypeGen {
 
-    public final String unionTypesClass;
-    public final ClassWriter unionTypesCw;
+    public String unionTypesClass;
+    public ClassWriter unionTypesCw;
     private final JvmCreateTypeGen jvmCreateTypeGen;
     private final JvmTypeGen jvmTypeGen;
-    private final  JvmConstantsGen jvmConstantsGen;
+    private final JvmConstantsGen jvmConstantsGen;
+    public int classIndex = 0;
+    public int methodCount = 0;
 
     public JvmUnionTypeGen(JvmCreateTypeGen jvmCreateTypeGen, JvmTypeGen jvmTypeGen, JvmConstantsGen jvmConstantsGen,
                            PackageID packageID) {
@@ -75,6 +78,19 @@ public class JvmUnionTypeGen {
         this.jvmConstantsGen = jvmConstantsGen;
         this.unionTypesCw = new BallerinaClassWriter(COMPUTE_FRAMES);
         this.unionTypesCw.visit(V21, ACC_PUBLIC + ACC_SUPER, unionTypesClass, null, OBJECT, null);
+    }
+
+    public void checkAndSplitTypeClass(JvmPackageGen jvmPackageGen, BIRNode.BIRPackage module, JarEntries jarEntries) {
+        if (this.methodCount++ < MAX_GENERATED_METHODS_PER_CLASS) {
+            return;
+        }
+        this.unionTypesCw.visitEnd();
+        jarEntries.put(this.unionTypesClass + CLASS_FILE_SUFFIX, jvmPackageGen.getBytes(this.unionTypesCw, module));
+        this.unionTypesClass = getModuleLevelClassName(module.packageID,
+                MODULE_UNION_TYPES_CLASS_NAME + this.classIndex++);
+        this.unionTypesCw = new BallerinaClassWriter(COMPUTE_FRAMES);
+        this.unionTypesCw.visit(V21, ACC_PUBLIC + ACC_SUPER, this.unionTypesClass, null, OBJECT, null);
+        this.methodCount = 0;
     }
 
     public void visitEnd(JvmPackageGen jvmPackageGen, BIRNode.BIRPackage module, JarEntries jarEntries) {
