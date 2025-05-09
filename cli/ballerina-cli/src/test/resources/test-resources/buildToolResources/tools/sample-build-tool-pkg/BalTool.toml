@@ -1,0 +1,5 @@
+[tool]
+id="sample-build-tool"
+
+[[dependency]]
+path="./resources/sample-build-tool-1.0.0.jar"

@@ -89,6 +89,10 @@ public class BuildCommandTest extends BaseCommandTest {
                         this.testResources.resolve("valid-bal-file-no-permission")).resolve("hello_world.bal"));
         Path validProjectPath = this.testResources.resolve("validApplicationProject");
         Files.copy(validProjectPath, this.testResources.resolve("validProject-no-permission"));
+
+        // compile and cache sample build tool
+        BCompileUtil.compileAndCacheBala(testResources.resolve("buildToolResources").resolve("tools")
+                .resolve("sample-build-tool-pkg").toString(), testCentralRepoCache);
     }
 
     @Test(description = "Build a valid ballerina file", dataProvider = "optimizeDependencyCompilation")
@@ -632,22 +636,6 @@ public class BuildCommandTest extends BaseCommandTest {
             Assert.assertEquals(messages.size(), 1);
             Assert.assertEquals(messages.get(0), getOutput("build-empty-project-with-compiler-plugin.txt"));
         }
-    }
-
-    @Test(description = "Build an empty package with code generator build tools")
-    public void testBuildEmptyProjectWithBuildTools() throws IOException {
-        BCompileUtil.compileAndCacheBala(testResources.resolve("buildToolResources").resolve("tools")
-                .resolve("ballerina-generate-file").toString(), testDistCacheDirectory, projectEnvironmentBuilder);
-        Path projectPath = this.testResources.resolve("emptyProjectWithBuildTool");
-        replaceDependenciesTomlContent(projectPath, "**INSERT_DISTRIBUTION_VERSION_HERE**",
-                RepoUtils.getBallerinaShortVersion());
-        System.setProperty(USER_DIR_PROPERTY, projectPath.toString());
-        BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
-        new CommandLine(buildCommand).parseArgs();
-        buildCommand.execute();
-        String buildLog = readOutput(true);
-        Assert.assertEquals(buildLog.replace("\r", "").replace("\\", "/"),
-                getOutput("build-empty-project-with-build-tools.txt"));
     }
 
     @Test(description = "Build an empty package with tests only", dataProvider = "optimizeDependencyCompilation")

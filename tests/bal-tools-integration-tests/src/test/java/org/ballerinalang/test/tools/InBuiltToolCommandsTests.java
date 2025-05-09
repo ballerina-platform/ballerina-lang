@@ -27,8 +27,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashMap;
+import java.util.Map;
 
-public class InBuiltToolTests extends BaseTestCase {
+public class InBuiltToolCommandsTests extends BaseTestCase {
     private BMainInstance balClient;
     private final String userDir = System.getProperty("user.dir");
 
@@ -109,5 +110,27 @@ public class InBuiltToolTests extends BaseTestCase {
         String output = balClient.runMainAndReadStdOut("grpc1", new String[]{},
                 new HashMap<>(), userDir, true);
         Assert.assertEquals(output, "grpc1 1.1.0");
+    }
+
+    @Test (description = "No bal-tools.toml present in the user home. The tool is only available in the distribution")
+    public void testNoLocalBalToolsToml1() throws BallerinaTestException {
+        Map<String, String> env = new HashMap<>();
+        env.put("BALLERINA_HOME_DIR", Paths.get("build/tmp-home/.ballerina").toAbsolutePath().toString());
+        balClient = new BMainInstance(balServer);
+        String output = balClient.runMainAndReadStdOut("persist1", new String[]{},
+                env, userDir, true);
+        Assert.assertEquals(output, "persist1 0.9.0");
+    }
+
+    @Test (description = "No bal-tools.toml present in the user home. " +
+            "The highest version must be from the distribution")
+    public void testNoLocalBalToolsToml2() throws BallerinaTestException {
+        Map<String, String> env = new HashMap<>();
+        env.put("BALLERINA_HOME_DIR", Paths.get("build/tmp-home/.ballerina").toAbsolutePath().toString());
+        balClient = new BMainInstance(balServer);
+
+        String output = balClient.runMainAndReadStdOut("graphql1", new String[]{},
+                env, userDir, true);
+        Assert.assertEquals(output, "graphql1 1.1.0");
     }
 }
