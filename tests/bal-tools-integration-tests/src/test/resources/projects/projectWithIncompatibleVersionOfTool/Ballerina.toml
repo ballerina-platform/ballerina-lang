@@ -1,0 +1,8 @@
+[package]
+org = "asmaj"
+name = "projectWithOneTool"
+version = "0.1.0"
+distribution = "2201.12.3"
+
+[[tool.openapi1]]
+id = "opeanapi-1"

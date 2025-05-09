@@ -18,11 +18,11 @@
 
 package io.ballerina.cli.cmd;
 
-import io.ballerina.cli.launcher.util.BalToolsUtil;
 import io.ballerina.projects.BalToolsManifest;
 import io.ballerina.projects.BalToolsToml;
 import io.ballerina.projects.BlendedBalToolsManifest;
 import io.ballerina.projects.internal.BalToolsManifestBuilder;
+import io.ballerina.projects.util.BalToolsUtil;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
@@ -46,18 +46,16 @@ import static io.ballerina.cli.cmd.CommandOutputUtils.getOutput;
  */
 public class ToolCommandTest extends BaseCommandTest {
 
-    private Path testResources;
-
     @Override
     @BeforeClass
     public void setup() throws IOException {
         super.setup();
         try {
-            this.testResources = super.tmpDir.resolve("build-test-resources");
+            Path testResources = super.tmpDir.resolve("build-test-resources");
             URI testResourcesURI = Objects.requireNonNull(getClass().getClassLoader().getResource("test-resources"))
                     .toURI();
             Files.walkFileTree(Path.of(testResourcesURI),
-                    new BuildCommandTest.Copy(Path.of(testResourcesURI), this.testResources));
+                    new BuildCommandTest.Copy(Path.of(testResourcesURI), testResources));
         } catch (URISyntaxException e) {
             Assert.fail("error loading resources");
         }

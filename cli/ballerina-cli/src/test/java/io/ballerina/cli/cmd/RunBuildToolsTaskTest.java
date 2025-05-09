@@ -87,7 +87,6 @@ public class RunBuildToolsTaskTest extends BaseCommandTest {
                 .resolve("missing-interface-tool-pkg").toString(), testCentralRepoCache);
         BCompileUtil.compileAndCacheBala(buildToolResources.resolve("tools")
                 .resolve("no-options-tool-pkg").toString(), testCentralRepoCache);
-
         BCompileUtil.compileAndCacheBala(buildToolResources.resolve("tools")
                 .resolve("dummy-tool-pkg-higher-dist").toString(), testCentralRepoCache);
 

@@ -31,6 +31,7 @@ import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.SemanticVersion;
 import io.ballerina.projects.Settings;
 import io.ballerina.projects.internal.BalToolsManifestBuilder;
+import io.ballerina.projects.util.BalToolsUtil;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectUtils;
 import org.ballerinalang.central.client.CentralAPIClient;
@@ -63,8 +64,10 @@ import static io.ballerina.cli.cmd.Constants.TOOL_COMMAND;
 import static io.ballerina.cli.utils.PrintUtils.printTools;
 import static io.ballerina.projects.util.BalToolsUtil.BAL_TOOLS_TOML_PATH;
 import static io.ballerina.projects.util.BalToolsUtil.DIST_BAL_TOOLS_TOML_PATH;
+import static io.ballerina.projects.util.BalToolsUtil.isCompatibleWithPlatform;
 import static io.ballerina.projects.util.ProjectConstants.BALA_DIR_NAME;
 import static io.ballerina.projects.util.ProjectConstants.CENTRAL_REPOSITORY_CACHE_NAME;
+import static io.ballerina.projects.util.ProjectConstants.DISTRIBUTION_REPOSITORY_NAME;
 import static io.ballerina.projects.util.ProjectConstants.LOCAL_REPOSITORY_NAME;
 import static io.ballerina.projects.util.ProjectConstants.REPOSITORIES_DIR;
 import static io.ballerina.projects.util.ProjectUtils.getAccessTokenOfCLI;
@@ -323,19 +326,18 @@ public class ToolCommand implements BLauncherCmd {
             return;
         }
 
-        boolean isCompatibleWithPlatform = io.ballerina.projects.util.BalToolsUtil.isCompatibleWithPlatform(
-                org, name, version, Objects.requireNonNullElse(repositoryName, CENTRAL_REPOSITORY_CACHE_NAME));
+        boolean isCompatibleWithPlatform = isCompatibleWithPlatform(
+                org, name, version, tool.get().repository());
         if (!isCompatibleWithPlatform) {
             CommandUtil.exitError(this.exitWhenFinish);
             return;
         }
 
-        if (balToolsManifest.getTool(toolId, version, repositoryName).isPresent()) {
-            balToolsManifest.setActiveToolVersion(toolId, version, repositoryName);
-            balToolsToml.modify(balToolsManifest);
-        } else {
-            blendedBalToolsManifest.setActiveToolVersion(toolId, version, repositoryName);
+        balToolsManifest.resetCurrentActiveVersion(toolId);
+        if (!DISTRIBUTION_REPOSITORY_NAME.equals(tool.get().repository())) {
+            balToolsManifest.setActiveToolVersion(toolId, version, tool.get().repository());
         }
+        balToolsToml.modify(balToolsManifest);
         outStream.println("tool '" + toolId + ":" + version + "' successfully set as the active version.");
     }
 
@@ -459,13 +461,7 @@ public class ToolCommand implements BLauncherCmd {
     public void pullToolAndUpdateBalToolsToml(String toolIdArg, String versionArg) {
         toolId = toolIdArg;
         version = versionArg;
-        Path balaCacheDirPath = RepoUtils.createAndGetHomeReposPath()
-                .resolve(REPOSITORIES_DIR).resolve(CENTRAL_REPOSITORY_CACHE_NAME)
-                .resolve(ProjectConstants.BALA_DIR_NAME);
 
-        String supportedPlatform = Arrays.stream(JvmTarget.values())
-                .map(JvmTarget::code)
-                .collect(Collectors.joining(","));
         if (LOCAL_REPOSITORY_NAME.equals(repositoryName)) {
             if (!isToolAvailableInLocalRepo(toolId, version)) {
                 errStream.println("tool '" + toolId + ":" + version + "' is not available in local repository." +
@@ -479,7 +475,14 @@ public class ToolCommand implements BLauncherCmd {
             if (isToolAvailableLocally(toolId, version)) {
                 outStream.println("tool '" + toolId + ":" + version + "' is already available locally.");
             } else {
-                pullToolFromCentral(supportedPlatform, balaCacheDirPath);
+                try {
+                    String[] toolInfo = BalToolsUtil.pullToolPackageFromRemote(toolId, version);
+                    org = toolInfo[0];
+                    name = toolInfo[1];
+                    version = toolInfo[2];
+                } catch (PackageAlreadyExistsException ignore) {
+                    return;
+                }
             }
             addToBalToolsToml();
         } catch (PackageAlreadyExistsException e) {
@@ -519,38 +522,11 @@ public class ToolCommand implements BLauncherCmd {
         }
     }
 
-    private void pullToolFromCentral(String supportedPlatform, Path balaCacheDirPath) throws CentralClientException {
-        Settings settings;
-        settings = RepoUtils.readSettings();
-        // Ignore Settings.toml diagnostics in the pull command
-
-        System.setProperty(CentralClientConstants.ENABLE_OUTPUT_STREAM, "true");
-        CentralAPIClient client = new CentralAPIClient(RepoUtils.getRemoteRepoURL(),
-                initializeProxy(settings.getProxy()), settings.getProxy().username(),
-                settings.getProxy().password(), getAccessTokenOfCLI(settings),
-                settings.getCentral().getConnectTimeout(),
-                settings.getCentral().getReadTimeout(), settings.getCentral().getWriteTimeout(),
-                settings.getCentral().getCallTimeout(), settings.getCentral().getMaxRetries());
-        String[] toolInfo = client.pullTool(toolId, version, balaCacheDirPath, supportedPlatform,
-                RepoUtils.getBallerinaVersion(), false);
-        boolean isPulled = Boolean.parseBoolean(toolInfo[0]);
-        org = toolInfo[1];
-        name = toolInfo[2];
-        version = toolInfo[3];
-
-        if (isPulled) {
-            outStream.println("tool '" + toolId + ":" + version + "' pulled successfully.");
-        } else {
-            outStream.println("tool '" + toolId + ":" + version + "' is already available locally.");
-        }
-    }
-
     private void addToBalToolsToml() {
         BalToolsToml balToolsToml = BalToolsToml.from(BAL_TOOLS_TOML_PATH);
         BalToolsManifest balToolsManifest = BalToolsManifestBuilder.from(balToolsToml).build();
 
-        boolean isCompatibleWithPlatform = io.ballerina.projects.util.BalToolsUtil.isCompatibleWithPlatform(
-                org, name, version, Objects.requireNonNullElse(repositoryName, CENTRAL_REPOSITORY_CACHE_NAME));
+        boolean isCompatibleWithPlatform = isCompatibleWithPlatform(org, name, version, repositoryName);
         if (!isCompatibleWithPlatform) {
             CommandUtil.exitError(this.exitWhenFinish);
             return;
@@ -632,8 +608,7 @@ public class ToolCommand implements BLauncherCmd {
         name = tool.get().name();
 
         boolean isCompatibleWithPlatform;
-        isCompatibleWithPlatform = io.ballerina.projects.util.BalToolsUtil.isCompatibleWithPlatform(
-                org, name, version, Objects.requireNonNullElse(repositoryName, CENTRAL_REPOSITORY_CACHE_NAME));
+        isCompatibleWithPlatform = isCompatibleWithPlatform(org, name, version, repositoryName);
         if (!isCompatibleWithPlatform) {
             CommandUtil.printError(errStream, "tool '" + toolId + ":" + version + "' is not compatible with the " +
                             "current Ballerina distribution '" + RepoUtils.getBallerinaShortVersion() +
@@ -782,10 +757,6 @@ public class ToolCommand implements BLauncherCmd {
             CommandUtil.exitError(this.exitWhenFinish);
         }
 
-        Path balaCacheDirPath = RepoUtils.createAndGetHomeReposPath()
-                .resolve(REPOSITORIES_DIR).resolve(CENTRAL_REPOSITORY_CACHE_NAME)
-                .resolve(ProjectConstants.BALA_DIR_NAME);
-
         String supportedPlatform = Arrays.stream(JvmTarget.values())
                 .map(JvmTarget::code)
                 .collect(Collectors.joining(","));
@@ -799,7 +770,10 @@ public class ToolCommand implements BLauncherCmd {
             if (isToolAvailableLocally(toolId, version)) {
                 outStream.println("tool '" + toolId + ":" + version + "' is already available locally.");
             } else {
-                pullToolFromCentral(supportedPlatform, balaCacheDirPath);
+                String[] toolInfo = BalToolsUtil.pullToolPackageFromRemote(toolId, version);
+                org = toolInfo[0];
+                name = toolInfo[1];
+                version = toolInfo[2];
             }
             addToBalToolsToml();
         } catch (PackageAlreadyExistsException e) {

@@ -18,11 +18,10 @@
 
 package io.ballerina.projects;
 
-import io.ballerina.projects.buildtools.CodeGeneratorTool;
 import io.ballerina.projects.buildtools.ToolContext;
 import io.ballerina.projects.environment.PackageLockingMode;
 import io.ballerina.projects.environment.ToolResolutionRequest;
-import io.ballerina.projects.internal.BalToolsManifestBuilder;
+import io.ballerina.projects.util.BalToolsUtil;
 import io.ballerina.projects.util.BuildToolsUtil;
 import io.ballerina.projects.internal.PackageDiagnostic;
 import io.ballerina.projects.internal.ProjectDiagnosticErrorCode;
@@ -32,28 +31,21 @@ import io.ballerina.toml.semantic.diagnostics.TomlNodeLocation;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.diagnostics.DiagnosticInfo;
 import io.ballerina.tools.diagnostics.DiagnosticSeverity;
-import org.ballerinalang.central.client.CentralAPIClient;
 import org.ballerinalang.central.client.exceptions.CentralClientException;
 import org.ballerinalang.central.client.model.ToolResolutionCentralRequest;
 import org.ballerinalang.central.client.model.ToolResolutionCentralResponse;
 import org.wso2.ballerinalang.util.RepoUtils;
 
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.ServiceLoader;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.stream.Collectors;
-
-import static io.ballerina.projects.util.BalToolsUtil.BAL_TOOLS_TOML_PATH;
-import static io.ballerina.projects.util.BalToolsUtil.DIST_BAL_TOOLS_TOML_PATH;
-import static io.ballerina.projects.util.ProjectConstants.CENTRAL_REPOSITORY_CACHE_NAME;
-import static io.ballerina.projects.util.ProjectConstants.DEFAULT_VERSION;
-import static io.ballerina.projects.util.ProjectUtils.getAccessTokenOfCLI;
-import static io.ballerina.projects.util.ProjectUtils.initializeProxy;
+import java.util.stream.Stream;
 
 /**
  * {@code BuildToolResolution} Model for resolving tool dependencies.
@@ -61,7 +53,6 @@ import static io.ballerina.projects.util.ProjectUtils.initializeProxy;
  * @since 2201.9.0
  */
 public class BuildToolResolution {
-    private static final String PACKAGE_NAME_PREFIX  = "tool_";
     private final PackageContext packageContext;
     private final List<BuildTool> resolvedTools;
     private final List<Diagnostic> diagnosticList;
@@ -112,32 +103,27 @@ public class BuildToolResolution {
                 buildTools.add(BuildTool.from(toolId, null, null, null, location));
             }
         }
-        ClassLoader toolClassLoader = this.getClass().getClassLoader();
-        ServiceLoader<CodeGeneratorTool> toolServiceLoader = ServiceLoader.load(
-                CodeGeneratorTool.class, toolClassLoader);
 
-        // Find tools which need resolution
-        List<BuildTool> resolutionRequiredTools = new ArrayList<>();
-        for (BuildTool tool : buildTools) {
-            Optional<CodeGeneratorTool> targetTool = BuildToolsUtil.getTargetTool(tool.id().value(), toolServiceLoader);
-            if (targetTool.isEmpty()) {
-                resolutionRequiredTools.add(tool);
-            } else {
-                // If platform-provided, add to resolved tools with 0.0.0 version
-                tool.setVersion(PackageVersion.from(DEFAULT_VERSION));
-                tool.setOrg(PackageOrg.BALLERINA_ORG);
-                tool.setName(PackageName.from(PACKAGE_NAME_PREFIX + tool.id()));
-                resolvedTools.add(tool);
-            }
-        }
-        if (resolutionRequiredTools.isEmpty()) {
-            return;
-        }
         PackageLockingMode packageLockingMode = getPackageLockingMode(currentProject);
-        updateLockedToolDependencyVersions(resolutionRequiredTools, currentProject);
+        updateLockedToolDependencyVersions(buildTools, currentProject);
+        List<BuildTool> resolvedTools = resolveToolVersions(packageLockingMode,
+                currentProject.buildOptions().offlineBuild(), buildTools);
+        this.resolvedTools.addAll(resolvedTools);
+    }
+
+    private List<BuildTool> resolveToolVersions(PackageLockingMode packageLockingMode, boolean offline,
+                                                List<BuildTool> unresolvedTools) {
+        List<BuildTool> toolResolutionResponseOffline =
+                getToolResolutionResponseOffline(unresolvedTools, packageLockingMode);
+        if (offline) {
+            reportDiagnosticsForUnresolvedTools(unresolvedTools, toolResolutionResponseOffline);
+            return toolResolutionResponseOffline;
+        }
+        Set<ToolResolutionRequest> resolutionRequests = getToolResolutionRequests(unresolvedTools, packageLockingMode);
+        ToolResolutionCentralRequest toolResolutionRequest = createToolResolutionRequests(resolutionRequests);
+        List<BuildTool> toolResolutionResponse;
         try {
-            resolvedTools.addAll(resolveToolVersions(packageLockingMode, currentProject.buildOptions().offlineBuild(),
-                    resolutionRequiredTools));
+            toolResolutionResponse = getToolResolutionResponse(toolResolutionRequest);
         } catch (CentralClientException e) {
             DiagnosticInfo diagnosticInfo = new DiagnosticInfo(
                     ProjectDiagnosticErrorCode.CENTRAL_CONNECTION_ERROR.diagnosticId(),
@@ -145,21 +131,44 @@ public class BuildToolResolution {
                             + e.getMessage() + "'",
                     DiagnosticSeverity.WARNING);
             PackageDiagnostic diagnostic = new PackageDiagnostic(diagnosticInfo,
-                    currentProject.currentPackage().descriptor().name().toString());
+                    this.packageContext.descriptor().name().toString());
             diagnosticList.add(diagnostic);
-            resolvedTools.addAll(getToolResolutionResponseOffline(resolutionRequiredTools, packageLockingMode));
+            return toolResolutionResponseOffline;
         }
+
+        ArrayList<BuildTool> resolvedTools = new ArrayList<>(Stream.of(toolResolutionResponseOffline, toolResolutionResponse)
+                .flatMap(Collection::stream).collect(Collectors.toMap(
+                        BuildTool::id, // Use the tool ID as the key
+                        Function.identity(), (tool1, tool2) -> {
+                            // Resolve conflicts by selecting the tool with the latest version
+                            SemanticVersion.VersionCompatibilityResult versionCompatibilityResult =
+                                    tool1.version().compareTo(tool2.version());
+                            if (versionCompatibilityResult.equals(SemanticVersion.VersionCompatibilityResult.EQUAL)) {
+                                return tool1;
+                            }
+                            return tool2;
+                        })).values());
+
+        // Report errors for unresolved tools
+        reportDiagnosticsForUnresolvedTools(unresolvedTools, resolvedTools);
+        return resolvedTools;
     }
 
-    private List<BuildTool> resolveToolVersions(PackageLockingMode packageLockingMode, boolean offline,
-                                                List<BuildTool> unresolvedTools)
-            throws CentralClientException {
-        if (offline) {
-            return getToolResolutionResponseOffline(unresolvedTools, packageLockingMode);
-        }
-        Set<ToolResolutionRequest> resolutionRequests = getToolResolutionRequests(unresolvedTools, packageLockingMode);
-        ToolResolutionCentralRequest toolResolutionRequest = createToolResolutionRequests(resolutionRequests);
-        return getToolResolutionResponse(toolResolutionRequest);
+    private void reportDiagnosticsForUnresolvedTools(
+            List<BuildTool> unresolvedTools, List<BuildTool> toolResolutionResponseOffline) {
+        unresolvedTools.stream().filter(tool ->
+                toolResolutionResponseOffline.stream().noneMatch(resolvedTool ->
+                        resolvedTool.id().equals(tool.id()))).forEach(tool -> {
+            String toolIdWithVersion = tool.id().toString();
+            if (tool.version() != null && !tool.version().toString().isEmpty()) {
+                toolIdWithVersion += ":" + tool.version().toString();
+            }
+            TomlNodeLocation location = BuildToolsUtil.getFirstToolEntryLocation(
+                    tool.id().toString(), packageContext.packageManifest().tools());
+            TomlDiagnostic diagnostic = BuildToolsUtil.getCannotResolveBuildToolDiagnostic(
+                    toolIdWithVersion, location);
+            diagnosticList.add(diagnostic);
+        });
     }
 
     private PackageLockingMode getPackageLockingMode(Project project) {
@@ -191,16 +200,11 @@ public class BuildToolResolution {
                                                              PackageLockingMode packageLockingMode) {
         List<BuildTool> resolvedTools = new ArrayList<>();
         for (BuildTool tool: unresolvedTools) {
-            String id = tool.id().toString();
             PackageVersion version = tool.version();
 
             Optional<BalToolsManifest.Tool> latestCompatibleVersion = BuildToolsUtil
-                    .getCompatibleToolVersionsAvailableLocally(tool, version, packageLockingMode);;
+                    .getCompatibleToolVersionsAvailableLocally(tool, version, packageLockingMode);
             if (latestCompatibleVersion.isEmpty()) {
-                String toolIdAndVersionOpt = id + (version == null ? "" : ":" + tool.version().toString());
-                TomlDiagnostic diagnostic = BuildToolsUtil.getCannotResolveBuildToolDiagnostic(toolIdAndVersionOpt,
-                        tool.location());
-                diagnosticList.add(diagnostic);
                 continue;
             }
             BalToolsManifest.Tool latestTool = latestCompatibleVersion.get();
@@ -240,49 +244,45 @@ public class BuildToolResolution {
 
     private List<BuildTool> getToolResolutionResponse(ToolResolutionCentralRequest toolResolutionRequest)
             throws CentralClientException {
-        Settings settings;
-        settings = RepoUtils.readSettings();
-        CentralAPIClient client = new CentralAPIClient(RepoUtils.getRemoteRepoURL(),
-                initializeProxy(settings.getProxy()), settings.getProxy().username(),
-                settings.getProxy().password(), getAccessTokenOfCLI(settings),
-                settings.getCentral().getConnectTimeout(),
-                settings.getCentral().getReadTimeout(), settings.getCentral().getWriteTimeout(),
-                settings.getCentral().getCallTimeout(), settings.getCentral().getMaxRetries());
-        String supportedPlatform = Arrays.stream(JvmTarget.values())
-                .map(JvmTarget::code)
-                .collect(Collectors.joining(","));
-        ToolResolutionCentralResponse packageResolutionResponse;
-        packageResolutionResponse = client.resolveToolDependencies(
-                toolResolutionRequest, supportedPlatform, RepoUtils.getBallerinaVersion());
+        ToolResolutionCentralResponse packageResolutionResponse =
+                BalToolsUtil.getLatestVersionsInCentral(toolResolutionRequest);
         List<ToolResolutionCentralResponse.ResolvedTool> resolved = packageResolutionResponse.resolved();
-        List<ToolResolutionCentralResponse.UnresolvedTool> unresolved = packageResolutionResponse.unresolved();
-        for (ToolResolutionCentralResponse.UnresolvedTool tool : unresolved) {
-            TomlNodeLocation location = BuildToolsUtil.getFirstToolEntryLocation(
-                    tool.id(), packageContext.packageManifest().tools());
-            TomlDiagnostic diagnostic = BuildToolsUtil.getCannotResolveBuildToolDiagnostic(tool.id(), location);
-            diagnosticList.add(diagnostic);
-        }
         List<BuildTool> resolvedTools = new ArrayList<>();
         for (ToolResolutionCentralResponse.ResolvedTool tool : resolved) {
-            TomlNodeLocation location = BuildToolsUtil.getFirstToolEntryLocation(tool.id(),
+            String toolId = tool.id();
+            String version = tool.version();
+            TomlNodeLocation location = BuildToolsUtil.getFirstToolEntryLocation(toolId,
                     packageContext.packageManifest().tools());
-            if (tool.version() == null || tool.name() == null || tool.org() == null) {
-                TomlDiagnostic diagnostic = BuildToolsUtil.getCannotResolveBuildToolDiagnostic(tool.id(), location);
+            if (version == null || tool.name() == null || tool.org() == null) {
+                TomlDiagnostic diagnostic = BuildToolsUtil.getCannotResolveBuildToolDiagnostic(toolId, location);
                 diagnosticList.add(diagnostic);
                 continue;
             }
             try {
-                PackageVersion.from(tool.version());
+                PackageVersion.from(version);
             } catch (ProjectException ignore) {
-                TomlDiagnostic diagnostic = BuildToolsUtil.getCannotResolveBuildToolDiagnostic(tool.id(), location);
+                TomlDiagnostic diagnostic = BuildToolsUtil.getCannotResolveBuildToolDiagnostic(toolId, location);
                 diagnosticList.add(diagnostic);
                 continue;
             }
+            try {
+                BalToolsUtil.pullToolPackageFromRemote(toolId, version);
+            } catch (CentralClientException e) {
+                String message = "failed to pull build tool '" + toolId + ":" + version + "' from Ballerina Central: "
+                        + e.getMessage();
+                DiagnosticInfo diagnosticInfo = new DiagnosticInfo(
+                        ProjectDiagnosticErrorCode.BUILD_TOOL_NOT_FOUND.diagnosticId(),
+                        ProjectDiagnosticErrorCode.BUILD_TOOL_NOT_FOUND.messageKey(),
+                        DiagnosticSeverity.WARNING);
+                TomlDiagnostic diagnostic = new TomlDiagnostic(location, diagnosticInfo, message);
+
+                diagnosticList.add(diagnostic);
+            }
             BuildTool buildTool = BuildTool.from(
-                    BuildToolId.from(tool.id()),
+                    BuildToolId.from(toolId),
                     PackageOrg.from(tool.org()),
                     PackageName.from(tool.name()),
-                    PackageVersion.from(tool.version()),
+                    PackageVersion.from(version),
                     location
             );
             resolvedTools.add(buildTool);

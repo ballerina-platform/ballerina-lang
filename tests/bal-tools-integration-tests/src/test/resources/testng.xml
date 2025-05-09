@@ -20,11 +20,10 @@ under the License.
 <!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd" >
 
 <suite name="bal-tools-intg-test-suite">
-
-    <!-- ballerina.test Related Test Cases. -->
     <test name="bal-tools-intg-tests">
         <classes>
             <class name="org.ballerinalang.test.tools.InBuiltToolCommandsTests" />
+            <class name="org.ballerinalang.test.tools.InBuiltToolAutomationTests" />
         </classes>
     </test>
 </suite>

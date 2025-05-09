@@ -684,18 +684,16 @@ public class CentralAPIClient {
      * @param supportedPlatform The supported platform.
      * @param ballerinaVersion  The ballerina version.
      * @param isBuild           If build option is enabled or not.
-     * @return An array containing isPulled, organization, package name and version.
+     * @return A string array containing the tool organization, package name and version.
      * @throws CentralClientException Central Client exception.
      */
     public String[] pullTool(String toolId, String version, Path balaCacheDirPath, String supportedPlatform,
                              String ballerinaVersion, boolean isBuild) throws CentralClientException {
         int retryCount = 0;
-        String[] result = new String[0];
         while (retryCount <= this.maxRetries) {
             try {
-                result = pullToolInternal(toolId, version, balaCacheDirPath, supportedPlatform, ballerinaVersion,
+                return pullToolInternal(toolId, version, balaCacheDirPath, supportedPlatform, ballerinaVersion,
                         isBuild);
-                break;
             } catch (CentralClientException centralClientException) {
                 if (centralClientException.getMessage().contains(CONNECTION_RESET) && retryCount < this.maxRetries) {
                     if (verboseEnabled) {
@@ -709,7 +707,7 @@ public class CentralAPIClient {
                 throw centralClientException;
             }
         }
-        return result;
+        return null;
     }
 
     private String[] pullToolInternal(String toolId, String version, Path balaCacheDirPath, String supportedPlatform,
@@ -796,11 +794,13 @@ public class CentralAPIClient {
                             createBalaInHomeRepo(balaDownloadResponse, packagePathInBalaCache, org.get(), pkgName.get(),
                                     isNightlyBuild, null, balaUrl.get(), balaFileName,
                                     enableOutputStream ? outStream : null, logFormatter, digest);
-                            return new String[] { String.valueOf(true), org.get(), pkgName.get(), latestVersion.get() };
-                        } catch (PackageAlreadyExistsException ignore) {
+                            return new String[] { org.get(), pkgName.get(), latestVersion.get() };
+                        } catch (PackageAlreadyExistsException e) {
                             // package already exists. setting org, name and version fields is enough
-                            return new String[] { String.valueOf(false), org.get(), pkgName.get(),
-                                    latestVersion.get() };
+                            if (enableOutputStream) {
+                                outStream.println("tool '" + toolId + ":" + version + "' is already available locally.");
+                            }
+                            return new String[] { org.get(), pkgName.get(), latestVersion.get() };
                         }
                     } else {
                         String errorMessage = logFormatter.formatLog(ERR_CANNOT_PULL_PACKAGE + "'" + toolSignature +

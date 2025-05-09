@@ -46,3 +46,10 @@ org = "foo"
 name = "ballerina_generate_file"
 version = "0.1.0"
 active = false
+
+[[tool]]
+id = "sample-build-tool"
+org = "foo"
+name = "tool_sample_build_tool"
+version = "1.0.0"
+active = false
