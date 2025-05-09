@@ -43,6 +43,7 @@ import static org.objectweb.asm.Opcodes.INVOKESPECIAL;
 import static org.objectweb.asm.Opcodes.INVOKESTATIC;
 import static org.objectweb.asm.Opcodes.RETURN;
 import static org.objectweb.asm.Opcodes.V1_8;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil.skipRecordDefaultValueFunctions;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_FUNCTION_TYPE_INIT_METHOD_PREFIX;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.FUNCTION_TYPE_CONSTANT_CLASS_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.FUNCTION_TYPE_VAR_PREFIX;
@@ -67,7 +68,9 @@ public class JvmFunctionTypeConstantsGen {
     public JvmFunctionTypeConstantsGen(PackageID module, List<BIRNode.BIRFunction> functions) {
         this.functionTypeConstantClass = JvmCodeGenUtil.getModuleLevelClassName(module,
                 FUNCTION_TYPE_CONSTANT_CLASS_NAME);
-        this.functions = functions;
+        // Skip function types for record default value functions since they can be called directly from function
+        // pointers instead of the function name
+        this.functions = skipRecordDefaultValueFunctions(functions);
     }
 
     public void generateClass(JarEntries jarEntries) {

@@ -45,7 +45,9 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil.getModu
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CLASS_FILE_SUFFIX;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ERROR_TYPE_IMPL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JVM_INIT_METHOD;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAX_GENERATED_METHODS_PER_CLASS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_ERROR_TYPES_CLASS_NAME;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_RECORD_TYPES_CLASS_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBJECT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SET_DETAIL_TYPE_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SET_TYPEID_SET_METHOD;
@@ -61,11 +63,13 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.TYPE_PAR
  */
 public class JvmErrorTypeGen {
 
-    public final String errorTypesClass;
-    public final ClassWriter errorTypesCw;
+    public String errorTypesClass;
+    public ClassWriter errorTypesCw;
     private final JvmCreateTypeGen jvmCreateTypeGen;
     private final JvmTypeGen jvmTypeGen;
     private final  JvmConstantsGen jvmConstantsGen;
+    public int classIndex = 0;
+    public int methodCount = 0;
 
     public JvmErrorTypeGen(JvmCreateTypeGen jvmCreateTypeGen, JvmTypeGen jvmTypeGen, JvmConstantsGen jvmConstantsGen,
                            PackageID packageID) {
@@ -75,6 +79,19 @@ public class JvmErrorTypeGen {
         this.jvmConstantsGen = jvmConstantsGen;
         this.errorTypesCw = new BallerinaClassWriter(COMPUTE_FRAMES);
         this.errorTypesCw.visit(V21, ACC_PUBLIC + ACC_SUPER, errorTypesClass, null, OBJECT, null);
+    }
+
+    public void checkAndSplitTypeClass(JvmPackageGen jvmPackageGen, BIRNode.BIRPackage module, JarEntries jarEntries) {
+        if (this.methodCount++ < MAX_GENERATED_METHODS_PER_CLASS) {
+            return;
+        }
+        this.errorTypesCw.visitEnd();
+        jarEntries.put(this.errorTypesClass + CLASS_FILE_SUFFIX, jvmPackageGen.getBytes(this.errorTypesCw, module));
+        this.errorTypesClass = getModuleLevelClassName(module.packageID,
+                MODULE_ERROR_TYPES_CLASS_NAME + this.classIndex++);
+        this.errorTypesCw = new BallerinaClassWriter(COMPUTE_FRAMES);
+        this.errorTypesCw.visit(V21, ACC_PUBLIC + ACC_SUPER, this.errorTypesClass, null, OBJECT, null);
+        this.methodCount = 0;
     }
 
     public void visitEnd(JvmPackageGen jvmPackageGen, BIRNode.BIRPackage module, JarEntries jarEntries) {
