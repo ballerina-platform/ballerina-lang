@@ -572,9 +572,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
             symbol = symbol.type.tsymbol;
         }
         this.currDependentSymbolDeque.push(symbol);
-        for (BLangAnnotationAttachment bLangAnnotationAttachment : typeDefinition.annAttachments) {
-            analyzeNode(bLangAnnotationAttachment.expr, env);
-        }
+        typeDefinition.annAttachments.forEach(attachment -> analyzeNode(attachment.expr, env));
         analyzeNode(typeDefinition.typeNode, env);
         this.currDependentSymbolDeque.pop();
     }
@@ -1638,7 +1636,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     public void visit(BLangRecordLiteral recordLiteral) {
         BType type = recordLiteral.getBType();
         if (type != null) {
-            recordGlobalVariableReferenceRelationship(Types.getImpliedType(type).tsymbol);
+            addDependency(this.currDependentSymbolDeque.peek(), Types.getImpliedType(type).tsymbol);
         }
         for (RecordLiteralNode.RecordField field : recordLiteral.fields) {
             if (field.isKeyValueField()) {
@@ -1786,7 +1784,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
             analyzeNode(namedArg, env);
         }
         BType detailType = ((BErrorType) Types.getImpliedType(errorConstructorExpr.getBType())).detailType;
-        recordGlobalVariableReferenceRelationship(detailType.tsymbol);
+        addDependency(this.currDependentSymbolDeque.peek(), detailType.tsymbol);
     }
 
     @Override
@@ -2484,7 +2482,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     public void visit(BLangErrorType errorType) {
         BLangType detailType = errorType.detailType;
         if (detailType != null && detailType.getBType() != null) {
-            recordGlobalVariableReferenceRelationship(Types.getImpliedType(detailType.getBType()).tsymbol);
+            addDependency(this.currDependentSymbolDeque.peek(), Types.getImpliedType(detailType.getBType()).tsymbol);
         }
     }
 
