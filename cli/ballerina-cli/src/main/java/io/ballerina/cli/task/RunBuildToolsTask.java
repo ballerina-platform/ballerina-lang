@@ -36,6 +36,7 @@ import io.ballerina.projects.internal.PackageConfigCreator;
 import io.ballerina.projects.internal.PackageDiagnostic;
 import io.ballerina.projects.internal.ProjectDiagnosticErrorCode;
 import io.ballerina.projects.util.BuildToolUtils;
+import io.ballerina.projects.util.CustomURLClassLoader;
 import io.ballerina.toml.api.Toml;
 import io.ballerina.toml.semantic.diagnostics.TomlDiagnostic;
 import io.ballerina.toml.semantic.diagnostics.TomlNodeLocation;
@@ -53,7 +54,6 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.net.URLClassLoader;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -136,6 +136,7 @@ public class RunBuildToolsTask implements Task {
                 pullLocallyUnavailableTools(centralDeliveredResolvedTools, buildToolResolution);
             }
             toolClassLoader = createToolClassLoader(centralDeliveredResolvedTools);
+            Thread.currentThread().setContextClassLoader(toolClassLoader);
             toolServiceLoader = ServiceLoader.load(CodeGeneratorTool.class, toolClassLoader);
         }
 
@@ -216,6 +217,7 @@ public class RunBuildToolsTask implements Task {
         if (hasErrors) {
             throw createLauncherException("build tool execution contains errors");
         }
+        Thread.currentThread().setContextClassLoader(ClassLoader.getSystemClassLoader());
         // Reload the project to load the generated code
         reloadProject(project);
         this.outStream.println();
@@ -338,7 +340,7 @@ public class RunBuildToolsTask implements Task {
                 })
                 .toArray(URL[]::new);
         ClassLoader systemClassLoader = this.getClass().getClassLoader();
-        return new URLClassLoader(urls, systemClassLoader);
+        return new CustomURLClassLoader(urls, systemClassLoader);
     }
 
     private void printToolSkipWarning(PackageManifest.Tool toolEntry) {
