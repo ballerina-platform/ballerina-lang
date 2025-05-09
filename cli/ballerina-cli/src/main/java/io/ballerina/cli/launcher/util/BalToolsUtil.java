@@ -137,6 +137,12 @@ public final class BalToolsUtil {
                 .flatMap(List::stream).noneMatch(commandName::equals);
     }
 
+    /**
+     * Get classloader for the tool command.
+     *
+     * @param commandName command name
+     * @return the tool classloader
+     */
     public static CustomURLClassLoader getCustomToolClassLoader(String commandName) {
         List<File> toolJars = getToolCommandJarAndDependencyJars(commandName);
         URL[] urls = toolJars.stream()

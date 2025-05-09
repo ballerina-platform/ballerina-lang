@@ -66,6 +66,11 @@ tasks.register('copyTestResources') {
             into "$buildDir/extractedDistribution/jballerina-tools-${project.version}/repo/bala/ballerina/"
             include '**'
         }
+        copy {
+            from 'src/test/resources/projects'
+            into "$buildDir/projects/"
+            include '**'
+        }
     }
 }
 

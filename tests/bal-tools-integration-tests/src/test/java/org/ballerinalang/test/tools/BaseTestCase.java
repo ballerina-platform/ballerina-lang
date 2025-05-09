@@ -23,8 +23,11 @@ import org.testng.annotations.AfterSuite;
 import org.testng.annotations.BeforeSuite;
 
 /**
- * Parent test class for all integration test cases. This will provide basic functionality for integration tests. This
- * will initialize a single ballerina instance which will be used by all the test cases throughout.
+ * Parent test class for all bal tools integration test cases.
+ * This will provide basic functionality for integration tests.
+ * This will initialize a single ballerina instance which will be used by all the test cases throughout.
+ *
+ * @since 2201.13.0
  */
 public class BaseTestCase {
 

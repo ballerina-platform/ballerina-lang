@@ -56,16 +56,7 @@ public class BlendedBalToolsManifest {
     private static BlendedBalToolsManifest mergeBalToolManifests(BalToolsManifest localBalToolsManifest,
             BalToolsManifest distBalToolsManifest) {
 
-//        if (distBalToolsManifest.tools().isEmpty()) {
-//            // No distribution tools, return the local bal-tools.toml
-//            return new BlendedBalToolsManifest(localBalToolsManifest.tools());
-//        }
-//        if (localBalToolsManifest.tools().isEmpty()) {
-//            // No tools installed, return the distribution bal-tools.toml
-//            return new BlendedBalToolsManifest(distBalToolsManifest.tools());
-//        }
-        Map<String, Map<String, Map<String, BalToolsManifest.Tool>>> mergedTools =
-                new HashMap<>();
+        Map<String, Map<String, Map<String, BalToolsManifest.Tool>>> mergedTools = new HashMap<>();
 
         for (Map.Entry<String, Map<String, Map<String, BalToolsManifest.Tool>>> mapEntry :
                 localBalToolsManifest.tools().entrySet()) {
@@ -78,8 +69,8 @@ public class BlendedBalToolsManifest {
                 continue;
             }
             Optional<BalToolsManifest.Tool> activeTool = localBalToolsManifest.getActiveTool(toolId);
-            if (activeTool.isEmpty()) {
-                // No active tool versions
+            if (activeTool.isEmpty() || LOCAL_REPOSITORY_NAME.equals(activeTool.get().repository())) {
+                // No active tool versions or the tool is set to use from the local repo. Prioritize this version
                 continue;
             }
             String org = activeTool.get().org();
@@ -125,16 +116,25 @@ public class BlendedBalToolsManifest {
             Optional<BalToolsManifest.Tool> activeToolLocal = mergedTools.get(toolCommand).values().stream()
                     .flatMap(v -> v.values().stream()).filter(BalToolsManifest.Tool::active).findFirst();
 
+            BalToolsManifest.Tool distTool = activeToolDist.orElseThrow();
             if (activeToolLocal.isEmpty()) {
-                // 2. No locally installed versions => => set the version in the distribution as active
-                BalToolsManifest.Tool tool = activeToolDist.orElseThrow();
+                // 2. No locally installed versions => set the version in the distribution as active
                 BalToolsManifest.Tool toolNew = new BalToolsManifest.Tool(
-                        tool.id(), tool.org(), tool.name(), tool.version(), true, DISTRIBUTION_REPOSITORY_NAME);
-                mergedTools.get(toolCommand).put(tool.version(), Map.of(DISTRIBUTION_REPOSITORY_NAME, toolNew));
+                        distTool.id(), distTool.org(), distTool.name(), distTool.version(),
+                        true, DISTRIBUTION_REPOSITORY_NAME);
+                mergedTools.get(toolCommand).put(distTool.version(), Map.of(DISTRIBUTION_REPOSITORY_NAME, toolNew));
                 continue;
             }
 
             BalToolsManifest.Tool localTool = activeToolLocal.get();
+            if (LOCAL_REPOSITORY_NAME.equals(localTool.repository())) {
+                // Tool is set to use from the local repo. Prioritize this version
+                BalToolsManifest.Tool toolNew = new BalToolsManifest.Tool(
+                        distTool.id(), distTool.org(), distTool.name(), distTool.version(),
+                        false, DISTRIBUTION_REPOSITORY_NAME);
+                mergedTools.get(toolCommand).put(distTool.version(), Map.of(DISTRIBUTION_REPOSITORY_NAME, toolNew));
+                continue;
+            }
 
             // 3. Locally active version is compatible but not the highest/incompatible
             Optional<PackageVersion> highestVersion = getHighestCompatibleLocalVersion(localBalToolsManifest,
@@ -169,7 +169,7 @@ public class BlendedBalToolsManifest {
                 .get(toolId).keySet().stream()
                 .map(PackageVersion::from)
                 .filter(version -> !localBalToolsManifest.tools().get(toolId).get(version.toString())
-                        .containsKey("local"))
+                        .containsKey(LOCAL_REPOSITORY_NAME))
                 .toList());
 
         // Check if there are any compatible versions in the local bal-tools.toml
@@ -224,6 +224,9 @@ public class BlendedBalToolsManifest {
     public Map<String, Map<String, BalToolsManifest.Tool>> compatibleVersions(String toolId) {
         Map<String, Map<String, Map<String, BalToolsManifest.Tool>>> compatibleTools = new HashMap<>(tools);
         Map<String, Map<String, BalToolsManifest.Tool>> versions = compatibleTools.get(toolId);
+        if (versions == null) {
+            return new HashMap<>();
+        }
         versions.keySet().removeIf(version ->
                 LOCAL_REPOSITORY_NAME.equals(versions.get(version).values().iterator().next().repository())
                         || !BalToolsUtil.isCompatibleWithPlatform(
@@ -243,7 +246,10 @@ public class BlendedBalToolsManifest {
      */
     public Optional<BalToolsManifest.Tool> getTool(String id, String version, String repository) {
         if (tools.containsKey(id) && tools.get(id).containsKey(version)) {
-            return Optional.ofNullable(tools.get(id).get(version).get(repository));
+            if (LOCAL_REPOSITORY_NAME.equals(repository)) {
+                return Optional.ofNullable(tools.get(id).get(version).get(repository));
+            }
+            return Optional.of(tools.get(id).get(version).entrySet().iterator().next().getValue());
         }
         return Optional.empty();
     }

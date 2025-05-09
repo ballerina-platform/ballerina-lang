@@ -18,13 +18,22 @@
 package io.ballerina.projects.util;
 
 import io.ballerina.projects.BalToolsManifest;
+import io.ballerina.projects.JvmTarget;
 import io.ballerina.projects.SemanticVersion;
+import io.ballerina.projects.Settings;
 import io.ballerina.projects.internal.BalaFiles;
 import io.ballerina.projects.internal.model.PackageJson;
+import org.ballerinalang.central.client.CentralAPIClient;
+import org.ballerinalang.central.client.CentralClientConstants;
+import org.ballerinalang.central.client.exceptions.CentralClientException;
+import org.ballerinalang.central.client.model.ToolResolutionCentralRequest;
+import org.ballerinalang.central.client.model.ToolResolutionCentralResponse;
 import org.wso2.ballerinalang.util.RepoUtils;
 
 import java.nio.file.Path;
+import java.util.Arrays;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static io.ballerina.projects.util.BuildToolsUtil.getCentralBalaDirPath;
 import static io.ballerina.projects.util.ProjectConstants.BAL_TOOLS_TOML;
@@ -32,6 +41,8 @@ import static io.ballerina.projects.util.ProjectConstants.CENTRAL_REPOSITORY_CAC
 import static io.ballerina.projects.util.ProjectConstants.CONFIG_DIR;
 import static io.ballerina.projects.util.ProjectConstants.DIST_CACHE_DIRECTORY;
 import static io.ballerina.projects.util.ProjectConstants.REPOSITORIES_DIR;
+import static io.ballerina.projects.util.ProjectUtils.getAccessTokenOfCLI;
+import static io.ballerina.projects.util.ProjectUtils.initializeProxy;
 
 /**
  * Utility class for Bal tools.
@@ -125,6 +136,45 @@ public class BalToolsUtil {
         } else {
             return getCentralBalaDirPath();
         }
+    }
+
+    public static ToolResolutionCentralResponse getLatestVersionsInCentral(ToolResolutionCentralRequest toolResolutionRequest)
+            throws CentralClientException {
+        Settings settings;
+        settings = RepoUtils.readSettings();
+        CentralAPIClient client = new CentralAPIClient(RepoUtils.getRemoteRepoURL(),
+                initializeProxy(settings.getProxy()), settings.getProxy().username(),
+                settings.getProxy().password(), getAccessTokenOfCLI(settings),
+                settings.getCentral().getConnectTimeout(),
+                settings.getCentral().getReadTimeout(), settings.getCentral().getWriteTimeout(),
+                settings.getCentral().getCallTimeout(), settings.getCentral().getMaxRetries());
+        String supportedPlatform = Arrays.stream(JvmTarget.values())
+                .map(JvmTarget::code)
+                .collect(Collectors.joining(","));
+        ToolResolutionCentralResponse packageResolutionResponse;
+        packageResolutionResponse = client.resolveToolDependencies(
+                toolResolutionRequest, supportedPlatform, RepoUtils.getBallerinaVersion());
+        return packageResolutionResponse;
+    }
+
+    public static String[] pullToolPackageFromRemote(String toolId, String version) throws CentralClientException {
+        String supportedPlatform = Arrays.stream(JvmTarget.values())
+                .map(JvmTarget::code)
+                .collect(Collectors.joining(","));
+        Path balaCacheDirPath = BuildToolsUtil.getCentralBalaDirPath();
+        Settings settings;
+        settings = RepoUtils.readSettings();
+        // Ignore Settings.toml diagnostics in the pull command
+
+        System.setProperty(CentralClientConstants.ENABLE_OUTPUT_STREAM, Boolean.TRUE.toString());
+        CentralAPIClient client = new CentralAPIClient(RepoUtils.getRemoteRepoURL(),
+                initializeProxy(settings.getProxy()), settings.getProxy().username(),
+                settings.getProxy().password(), getAccessTokenOfCLI(settings),
+                settings.getCentral().getConnectTimeout(),
+                settings.getCentral().getReadTimeout(), settings.getCentral().getWriteTimeout(),
+                settings.getCentral().getCallTimeout(), settings.getCentral().getMaxRetries());
+        return client.pullTool(toolId, version, balaCacheDirPath, supportedPlatform,
+                RepoUtils.getBallerinaVersion(), false);
     }
 
     private static SemanticVersion getToolDistVersionFromCache(

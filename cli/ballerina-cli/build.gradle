@@ -80,7 +80,6 @@ dependencies {
     testRuntimeOnly project(':project-api-test-artifact:log-creator-in-built-code-modifier')
     testRuntimeOnly project(':project-api-test-artifact:log-creator-in-built-code-generator')
     testRuntimeOnly project(':project-api-test-artifact:log-creator-in-built-code-analyzer')
-    testRuntimeOnly project(':project-api-test-artifact:sample-openapi-build-tool')
 
     compilerPluginJar project(':project-api-test-artifact:log-creator-pkg-provided-code-modifier')
     compilerPluginJar project(':project-api-test-artifact:log-creator-pkg-provided-code-generator')
