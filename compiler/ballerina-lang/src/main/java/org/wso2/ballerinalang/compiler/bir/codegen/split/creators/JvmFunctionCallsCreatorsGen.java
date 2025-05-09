@@ -49,6 +49,7 @@ import static org.objectweb.asm.Opcodes.L2I;
 import static org.objectweb.asm.Opcodes.V21;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil.createDefaultCase;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil.getModuleLevelClassName;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil.skipRecordDefaultValueFunctions;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CALL_FUNCTION;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CLASS_FILE_SUFFIX;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAX_CALLS_PER_FUNCTION_CALL_METHOD;
@@ -95,7 +96,10 @@ public class JvmFunctionCallsCreatorsGen {
         int i = 0;
         List<Label> targetLabels = new ArrayList<>();
         String callMethod = CALL_FUNCTION;
-        for (BIRNode.BIRFunction func : functions) {
+        // Skip function calls for record default value functions since they can be called directly from function
+        // pointers instead of the function name
+        List<BIRNode.BIRFunction> filteredFunctions = skipRecordDefaultValueFunctions(functions);
+        for (BIRNode.BIRFunction func : filteredFunctions) {
             String encodedMethodName = Utils.encodeFunctionIdentifier(func.name.value);
             String packageName = JvmCodeGenUtil.getPackageName(packageID);
             BIRFunctionWrapper functionWrapper =
@@ -104,13 +108,13 @@ public class JvmFunctionCallsCreatorsGen {
                 mv = cw.visitMethod(ACC_PUBLIC + ACC_STATIC, callMethod, FUNCTION_CALL, null, null);
                 mv.visitCode();
                 defaultCaseLabel = new Label();
-                int remainingCases = functions.size() - bTypesCount;
+                int remainingCases = filteredFunctions.size() - bTypesCount;
                 if (remainingCases > MAX_CALLS_PER_FUNCTION_CALL_METHOD) {
                     remainingCases = MAX_CALLS_PER_FUNCTION_CALL_METHOD;
                 }
-                List<Label> labels = JvmCreateTypeGen.createLabelsForSwitch(mv, funcNameRegIndex, functions,
+                List<Label> labels = JvmCreateTypeGen.createLabelsForSwitch(mv, funcNameRegIndex, filteredFunctions,
                         bTypesCount, remainingCases, defaultCaseLabel, false);
-                targetLabels = JvmCreateTypeGen.createLabelsForEqualCheck(mv, funcNameRegIndex, functions,
+                targetLabels = JvmCreateTypeGen.createLabelsForEqualCheck(mv, funcNameRegIndex, filteredFunctions,
                         bTypesCount, remainingCases, labels, defaultCaseLabel, false);
                 i = 0;
                 callMethod = CALL_FUNCTION + ++methodCount;

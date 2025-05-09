@@ -28,6 +28,7 @@ import org.objectweb.asm.MethodVisitor;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.AsyncDataCollector;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.BIRVarToJVMIndexMap;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.LambdaFunction;
+import org.wso2.ballerinalang.compiler.bir.codegen.model.BIRFunctionWrapper;
 import org.wso2.ballerinalang.compiler.bir.codegen.model.JCast;
 import org.wso2.ballerinalang.compiler.bir.codegen.model.JInstruction;
 import org.wso2.ballerinalang.compiler.bir.codegen.model.JLargeArrayInstruction;
@@ -267,6 +268,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.XML_SET_
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmTypeGen.getTypeDesc;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmValueGen.getTypeDescClassName;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmValueGen.getTypeValueClassName;
+import static org.wso2.ballerinalang.compiler.util.Constants.RECORD_DELIMITER;
 
 /**
  * Instruction generator helper class to hold its enclosing pkg and index map.
@@ -1674,21 +1676,30 @@ public class JvmInstructionGen {
             mv.visitInsn(ICONST_0);
         }
         this.mv.visitMethodInsn(INVOKESPECIAL, FUNCTION_POINTER, JVM_INIT_METHOD, FP_INIT, false);
-
+        // Set annotations if available.
         PackageID boundMethodPkgId = inst.boundMethodPkgId;
         String funcPkgName = JvmCodeGenUtil.getPackageName(boundMethodPkgId == null ? inst.pkgId : boundMethodPkgId);
-        // Set annotations if available.
-        this.mv.visitInsn(DUP);
-        String pkgClassName = funcPkgName.isEmpty() ? MODULE_INIT_CLASS_NAME :
-                jvmPackageGen.lookupGlobalVarClassName(funcPkgName, ANNOTATION_MAP_NAME);
-        this.mv.visitFieldInsn(GETSTATIC, pkgClassName, ANNOTATION_MAP_NAME, GET_MAP_VALUE);
-        // Format of name `$anon$method$delegate$Foo.func$0`.
-        this.mv.visitLdcInsn(name.startsWith(ANON_METHOD_DELEGATE) ?
-                name.subSequence(ANON_METHOD_DELEGATE.length(), name.lastIndexOf("$")) :
-                name);
-        this.mv.visitMethodInsn(INVOKESTATIC, ANNOTATION_UTILS, "processFPValueAnnotations",
-                PROCESS_FP_ANNOTATIONS, false);
+        if (hasFPAnnotations(name, funcPkgName)) {
+            this.mv.visitInsn(DUP);
+            String pkgClassName = funcPkgName.isEmpty() ? MODULE_INIT_CLASS_NAME :
+                    jvmPackageGen.lookupGlobalVarClassName(funcPkgName, ANNOTATION_MAP_NAME);
+            this.mv.visitFieldInsn(GETSTATIC, pkgClassName, ANNOTATION_MAP_NAME, GET_MAP_VALUE);
+            // Format of name `$anon$method$delegate$Foo.func$0`.
+            this.mv.visitLdcInsn(name.startsWith(ANON_METHOD_DELEGATE) ?
+                    name.subSequence(ANON_METHOD_DELEGATE.length(), name.lastIndexOf("$")) : name);
+            this.mv.visitMethodInsn(INVOKESTATIC, ANNOTATION_UTILS, "processFPValueAnnotations", PROCESS_FP_ANNOTATIONS, false);
+        }
         this.storeToVar(inst.lhsOp.variableDcl);
+    }
+
+    private boolean hasFPAnnotations(String name, String funcPkgName) {
+        if (name.contains(RECORD_DELIMITER)) {
+            return false;
+        }
+        BIRFunctionWrapper birFunctionWrapper =
+                jvmPackageGen.lookupBIRFunctionWrapper(funcPkgName + Utils.decodeIdentifier(name));
+        return birFunctionWrapper == null || birFunctionWrapper.func().annotAttachments != null &&
+                !birFunctionWrapper.func().annotAttachments.isEmpty();
     }
 
     private void generateRecordDefaultFPLoadIns(BIRNonTerminator.RecordDefaultFPLoad inst) {
