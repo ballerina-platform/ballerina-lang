@@ -192,7 +192,7 @@ public final class Main {
             Properties properties = new Properties();
             properties.load(inputStream);
 
-            String version = properties.getProperty("ballerina.packVersion").split("-")[0];
+            String version = properties.getProperty("ballerina.packVersion").replace("-SNAPSHOT", "");
             int minorVersion = Integer.parseInt(version.split("\\.")[1]);
             String updateVersionText = minorVersion > 0 ? " Update " + minorVersion : "";
             String output = "Ballerina " + version +
