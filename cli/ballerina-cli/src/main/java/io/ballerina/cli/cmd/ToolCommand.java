@@ -257,6 +257,7 @@ public class ToolCommand implements BLauncherCmd {
     }
 
     private void handleUseCommand() {
+        outStream.println("WARNING: This command is deprecated and may be removed in a future version.");
         if (argList.size() < 2) {
             CommandUtil.printError(this.errStream, "tool id is not provided.", TOOL_USE_USAGE_TEXT, false);
             CommandUtil.exitError(this.exitWhenFinish);
