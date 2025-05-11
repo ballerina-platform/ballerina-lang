@@ -111,6 +111,9 @@ public class ToolCommand implements BLauncherCmd {
     @CommandLine.Option(names = "--repository")
     private String repositoryName;
 
+    @CommandLine.Option(names = "--all")
+    private boolean all;
+
     private String toolId;
     private String org;
     private String name;
@@ -228,7 +231,7 @@ public class ToolCommand implements BLauncherCmd {
 
         if (LOCAL_REPOSITORY_NAME.equals(repositoryName) && EMPTY_STRING.equals(version)) {
             CommandUtil.printError(errStream, "tool version should be provided when pulling a tool from local " +
-                            "repository", null, false);
+                    "repository", null, false);
             CommandUtil.exitError(this.exitWhenFinish);
             return;
         }
@@ -311,8 +314,8 @@ public class ToolCommand implements BLauncherCmd {
                 CommandUtil.exitError(this.exitWhenFinish);
                 return;
             }
-            CommandUtil.printError(errStream, "tool '" + toolId + ":" + version + "' is not found. " +
-                    "Run 'bal tool pull " + toolId + ":" + version + "' to fetch and set as the active version.",
+            CommandUtil.printError(errStream, "tool '" + toolId + ":" + version + "' is not found. Run " +
+                            "'bal tool pull " + toolId + ":" + version + "' to fetch and set as the active version.",
                     null, false);
             CommandUtil.exitError(this.exitWhenFinish);
             return;
@@ -348,12 +351,12 @@ public class ToolCommand implements BLauncherCmd {
             CommandUtil.exitError(this.exitWhenFinish);
             return;
         }
-        List<BalToolsManifest.Tool> tools = listBalToolsTomlFile(false);
+        List<BalToolsManifest.Tool> tools = listBalToolsTomlFile(all);
         if (tools.isEmpty()) {
             outStream.println("no tools found locally.");
             return;
         }
-        PrintUtils.printLocalTools(tools, RepoUtils.getTerminalWidth());
+        PrintUtils.printLocalTools(tools, RepoUtils.getTerminalWidth(), all);
     }
 
     private void handleSearchCommand() {
@@ -550,17 +553,23 @@ public class ToolCommand implements BLauncherCmd {
                 from(balToolsManifest, distBalToolsManifest);
 
         List<BalToolsManifest.Tool> flattenedTools = new ArrayList<>();
-        Map<String, Map<String, Map<String, BalToolsManifest.Tool>>> tools;
         if (all) {
-            tools = blendedBalToolsManifest.tools();
+            blendedBalToolsManifest.tools().values().stream()
+                    .flatMap(map -> map.values().stream()).flatMap(map -> map.values().stream())
+                    .sorted(Comparator.comparing(BalToolsManifest.Tool::id)
+                            .thenComparing(BalToolsManifest.Tool::version).reversed())
+                    .forEach(flattenedTools::add);
         } else {
-            tools = blendedBalToolsManifest.compatibleTools();
+            for (Map.Entry<String, Map<String, Map<String, BalToolsManifest.Tool>>> toolEntry :
+                    blendedBalToolsManifest.compatibleTools().entrySet()) {
+                Optional<BalToolsManifest.Tool> activeTool = blendedBalToolsManifest.getActiveTool(toolEntry.getKey());
+                if (activeTool.isEmpty()) {
+                    continue;
+                }
+                flattenedTools.add(toolEntry.getValue().get(
+                        activeTool.get().version()).entrySet().iterator().next().getValue());
+            }
         }
-        tools.values().stream()
-                .flatMap(map -> map.values().stream()).flatMap(map -> map.values().stream())
-                .sorted(Comparator.comparing(BalToolsManifest.Tool::id)
-                        .thenComparing(BalToolsManifest.Tool::version).reversed())
-                .forEach(flattenedTools::add);
         return flattenedTools;
     }
 
