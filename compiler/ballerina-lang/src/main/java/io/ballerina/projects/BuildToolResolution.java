@@ -21,10 +21,10 @@ package io.ballerina.projects;
 import io.ballerina.projects.buildtools.ToolContext;
 import io.ballerina.projects.environment.PackageLockingMode;
 import io.ballerina.projects.environment.ToolResolutionRequest;
-import io.ballerina.projects.util.BalToolsUtil;
-import io.ballerina.projects.util.BuildToolsUtil;
 import io.ballerina.projects.internal.PackageDiagnostic;
 import io.ballerina.projects.internal.ProjectDiagnosticErrorCode;
+import io.ballerina.projects.util.BalToolsUtil;
+import io.ballerina.projects.util.BuildToolsUtil;
 import io.ballerina.projects.util.ProjectUtils;
 import io.ballerina.toml.semantic.diagnostics.TomlDiagnostic;
 import io.ballerina.toml.semantic.diagnostics.TomlNodeLocation;
@@ -136,7 +136,8 @@ public class BuildToolResolution {
             return toolResolutionResponseOffline;
         }
 
-        ArrayList<BuildTool> resolvedTools = new ArrayList<>(Stream.of(toolResolutionResponseOffline, toolResolutionResponse)
+        ArrayList<BuildTool> resolvedTools = new ArrayList<>(
+                Stream.of(toolResolutionResponseOffline, toolResolutionResponse)
                 .flatMap(Collection::stream).collect(Collectors.toMap(
                         BuildTool::id, // Use the tool ID as the key
                         Function.identity(), (tool1, tool2) -> {
