@@ -138,7 +138,8 @@ public class BalToolsUtil {
         }
     }
 
-    public static ToolResolutionCentralResponse getLatestVersionsInCentral(ToolResolutionCentralRequest toolResolutionRequest)
+    public static ToolResolutionCentralResponse getLatestVersionsInCentral(
+            ToolResolutionCentralRequest toolResolutionRequest)
             throws CentralClientException {
         Settings settings;
         settings = RepoUtils.readSettings();
