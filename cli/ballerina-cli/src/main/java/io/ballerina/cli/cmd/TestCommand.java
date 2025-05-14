@@ -142,7 +142,7 @@ public class TestCommand implements BLauncherCmd {
     private boolean helpFlag;
 
     @CommandLine.Option(names = "--experimental", description = "Enable experimental language features.")
-    private Boolean experimentalFlag;
+    private boolean experimentalFlag;
 
     @CommandLine.Option(names = "--debug", description = "start in remote debugging mode")
     private String debugPort;
