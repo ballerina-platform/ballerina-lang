@@ -21,5 +21,11 @@ DESCRIPTION
        will be fetched.
 
 EXAMPLES
+       Pull the latest version of the 'eod' tool.
+           $ bal tool pull eod
+
+       Pull the '1.1.0' version of the 'eod' tool.
+           $ bal tool pull eod:1.1.0
+
        Pull the '1.1.0' version of the 'eod' tool from local repository.
            $ bal tool pull eod:1.1.0 --repository=local

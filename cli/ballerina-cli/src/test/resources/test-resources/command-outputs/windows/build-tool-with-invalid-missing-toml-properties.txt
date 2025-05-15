@@ -1,6 +1,6 @@
-ERROR [Ballerina.toml:(6:1,10:24)] empty string found for key '[filePath]' in table '[tool.openapi]'.
+ERROR [Ballerina.toml:(6:1,10:24)] empty string found for key '[filePath]' in table '[tool.sample-build-tool]'.
 ERROR [Ballerina.toml:(12:1,15:24)] recurring target module found in Ballerina.toml. Target module must be unique for each tool
 
 Executing Build Tools
-WARNING: Execution of 'openapi:generate-delivery-client' is skipped due to errors
-WARNING: Execution of 'openapi:generate-client' is skipped due to errors
+WARNING: Execution of 'sample-build-tool:generate-delivery-client' is skipped due to errors
+WARNING: Execution of 'sample-build-tool:generate-client' is skipped due to errors
