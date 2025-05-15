@@ -62,6 +62,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BRecordTypeSymbol
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BResourceFunction;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BResourcePathSegmentSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeDefinitionSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BXMLNSSymbol;
@@ -81,6 +82,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleMember;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeReferenceType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypedescType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BXMLSubType;
@@ -317,7 +319,6 @@ import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.Deque;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -371,6 +372,7 @@ public class Desugar extends BLangNodeVisitor {
     private static final String PUSH_LANGLIB_METHOD = "push";
     private static final String DESUGARED_VARARG_KEY = "$vararg$";
     private static final String GENERATED_ERROR_VAR = "$error$";
+    private static final String TYPEDESC = "$typedesc$";
     private static final String HAS_KEY = "hasKey";
     private static final String CREATE_RECORD_VALUE = "createRecordFromMap";
     private static final String CHANNEL_AUTO_CLOSE_FUNC_NAME = "autoClose";
@@ -413,6 +415,7 @@ public class Desugar extends BLangNodeVisitor {
     private final List<BLangOnFailClause> enclosingOnFailClause = new ArrayList<>();
     private final Map<BLangOnFailClause, BLangSimpleVarRef> enclosingShouldPanic = new HashMap<>();
     private final List<BLangSimpleVarRef> enclosingShouldContinue = new ArrayList<>();
+    private List<BLangSimpleVariableDef> typedescList = new ArrayList<>();
     private BLangSimpleVarRef shouldRetryRef;
 
     private SymbolEnv env;
@@ -426,6 +429,7 @@ public class Desugar extends BLangNodeVisitor {
     private int funcParamCount = 1;
     private boolean isVisitingQuery;
     private boolean desugarToReturn;
+    private int typedescCount = 0;
 
     // Worker related variables
     private Set<BLangWorkerSendReceiveExpr.Channel> channelsWithinIfStmt = new LinkedHashSet<>();
@@ -791,36 +795,30 @@ public class Desugar extends BLangNodeVisitor {
         // Initialize the annotation map
         annotationDesugar.initializeAnnotationMap(pkgNode);
 
-        pkgNode.constants.stream()
-                .filter(constant -> (constant.expr.getKind() == NodeKind.LITERAL ||
-                        constant.expr.getKind() == NodeKind.NUMERIC_LITERAL)
-                        && constant.expr.getBType().tag != TypeTags.TUPLE)
-                .forEach(constant -> pkgNode.typeDefinitions.add(constant.associatedTypeDefinition));
+        pkgNode.constants = removeDuplicateConstants(pkgNode);
+        for (BLangConstant constant : pkgNode.constants) {
+            if ((constant.expr.getKind() == NodeKind.LITERAL ||
+                    constant.expr.getKind() == NodeKind.NUMERIC_LITERAL)
+                    && constant.expr.getBType().tag != TypeTags.TUPLE) {
+                pkgNode.typeDefinitions.add(constant.associatedTypeDefinition);
+            }
+        }
 
         BLangBlockStmt serviceAttachments = serviceDesugar.rewriteServiceVariables(pkgNode.services, env);
-        BLangBlockFunctionBody initFnBody = (BLangBlockFunctionBody) pkgNode.initFunction.body;
-
-        rewriteConstants(pkgNode, initFnBody);
-
-        pkgNode.constants = removeDuplicateConstants(pkgNode);
-
-        pkgNode.globalVars = desugarGlobalVariables(pkgNode, initFnBody);
-
         pkgNode.services.forEach(service -> serviceDesugar.engageCustomServiceDesugar(service, env));
+
+        // Desugar variables, constants and type definitions.
+        desugarTopLevelNodes(pkgNode);
 
         annotationDesugar.rewritePackageAnnotations(pkgNode, env);
 
+        rewrite(pkgNode.xmlnsList, env);
+        rewrite(pkgNode.constants, env);
+        rewrite(pkgNode.globalVars, env);
+        rewrite(pkgNode.classDefinitions, env);
+
         // Add invocation for user specified module init function (`init()`) if present and return.
         addUserDefinedModuleInitInvocationAndReturn(pkgNode);
-
-        //Sort type definitions with precedence
-        pkgNode.typeDefinitions.sort(Comparator.comparing(t -> t.precedence));
-
-        pkgNode.typeDefinitions = rewrite(pkgNode.typeDefinitions, env);
-        pkgNode.xmlnsList = rewrite(pkgNode.xmlnsList, env);
-        pkgNode.constants = rewrite(pkgNode.constants, env);
-        pkgNode.globalVars = rewrite(pkgNode.globalVars, env);
-        pkgNode.classDefinitions = rewrite(pkgNode.classDefinitions, env);
 
         serviceDesugar.rewriteListeners(pkgNode.globalVars, env, pkgNode.startFunction, pkgNode.stopFunction);
         ASTBuilderUtil.appendStatements(serviceAttachments, (BLangBlockFunctionBody) pkgNode.initFunction.body);
@@ -854,35 +852,97 @@ public class Desugar extends BLangNodeVisitor {
             rewrite(testablePkg, this.symTable.pkgEnvMap.get(testablePkg.symbol));
         }
         pkgNode.completedPhases.add(CompilerPhase.DESUGAR);
+        clearGlobalVariables();
         result = pkgNode;
     }
 
-    private void rewriteConstants(BLangPackage pkgNode, BLangBlockFunctionBody initFnBody) {
-        for (BLangConstant constant : pkgNode.constants) {
-            BType constType = Types.getReferredType(constant.symbol.type);
-            if (constType.tag != TypeTags.INTERSECTION) {
-                continue;
-            }
-            for (BType memberType : ((BIntersectionType) constType).getConstituentTypes()) {
-                BLangType typeNode;
-                switch (Types.getImpliedType(memberType).tag) {
-                    case TypeTags.RECORD:
-                        typeNode = constant.associatedTypeDefinition.typeNode;
-                        break;
-                    case TypeTags.TUPLE:
-                        typeNode = (BLangTupleTypeNode) TreeBuilder.createTupleTypeNode();
-                        break;
-                    default:
-                        continue;
-                }
-                BLangSimpleVarRef constVarRef = ASTBuilderUtil.createVariableRef(constant.pos, constant.symbol);
-                constant.expr = rewrite(constant.expr,
-                        SymbolEnv.createTypeEnv(typeNode, pkgNode.initFunction.symbol.scope, env));
-                BLangAssignment constInit = ASTBuilderUtil.createAssignmentStmt(constant.pos, constVarRef,
-                        constant.expr);
-                initFnBody.stmts.add(constInit);
+    private void desugarConstant(BLangConstant constant, List<BLangVariable> desugaredGlobalVarList,
+                                 BLangBlockFunctionBody initFnBody, SymbolEnv initFunctionEnv) {
+        BType constType = Types.getReferredType(constant.symbol.type);
+        if (constType.tag != TypeTags.INTERSECTION) {
+            return;
+        }
+
+        BConstantSymbol constSymbol = constant.symbol;
+        BType impliedType = Types.getImpliedType(constSymbol.literalType);
+        int tag = impliedType.tag;
+        if (((tag == TypeTags.RECORD || tag == TypeTags.MAP) && constant.expr.getKind() == NodeKind.RECORD_LITERAL_EXPR)
+                || (tag == TypeTags.TUPLE && constant.expr.getKind() == NodeKind.LIST_CONSTRUCTOR_EXPR)) {
+            // Literal type will have a typedesc var created via the associated type def.
+            // The issue is that type def has the effective type not the original intersection.
+            // Hence, create the typedesc var here.
+            // Todo: In the below sample, `a` and `b` will have the same literal type. Then the typedesc will be
+            // created with the same type. ATM in the BIRGen we lookup the typedesc given the type. Hence that
+            // logic will fail to identify the correct typedesc and it will fail when there are large methods.
+            // Need to find a fix for this. ATM we create only one typedesc for the
+            // following sample to overcome that issue.
+            //
+            // const string[] a = ["apple", "orange"];
+            // const string[] b = a;
+            BLangType blangIntersection = (BLangIntersectionTypeNode) TreeBuilder.createIntersectionTypeNode();
+            blangIntersection.setBType(constSymbol.literalType);
+            blangIntersection.pos = constSymbol.literalType.tsymbol.pos;
+            createTypedescVariableForAnonType(blangIntersection);
+        }
+
+        addTypeDescStmtsToInitFunction(initFunctionEnv, desugaredGlobalVarList, initFnBody);
+        BLangSimpleVarRef constVarRef = ASTBuilderUtil.createVariableRef(constant.pos, constant.symbol);
+        BLangAssignment constInit = ASTBuilderUtil.createAssignmentStmt(constant.pos, constVarRef, constant.expr);
+        initFnBody.stmts.add(constInit);
+        constant.expr = null;
+    }
+
+    private void createTypedescVariable(BType type, Location pos) {
+        BType finalType = type;
+        if ((Types.getReferredType(type).tag != TypeTags.INTERSECTION && this.env.enclPkg.typeDefinitions.stream()
+                .anyMatch(typeDef ->
+                        (Types.getReferredType(typeDef.typeNode.getBType()).tag == TypeTags.INTERSECTION) &&
+                                typeDef.symbol.name.value.equals(finalType.tsymbol.name.value)))) {
+            // This is a workaround for an issue where we create two type defs with same name for the below sample
+            // type T1 [T1] & readonly;
+            return;
+        }
+
+        Name name = generateTypedescVariableName(type);
+        if (type.tag == TypeTags.TYPEREFDESC) {
+            BType referredType = ((BTypeReferenceType) type).referredType;
+            int tag = referredType.tag;
+            if (tag == TypeTags.RECORD) {
+                type = referredType;
             }
         }
+        BType typedescType = new BTypedescType(symTable.typeEnv(), type, symTable.typeDesc.tsymbol);
+        BSymbol owner = this.env.scope.owner;
+        BVarSymbol varSymbol  = new BVarSymbol(0, name, owner.pkgID, typedescType, owner, pos, VIRTUAL);
+        BLangTypedescExpr typedescExpr = ASTBuilderUtil.createTypedescExpr(pos, typedescType, type);
+        typedescList.add(createSimpleVariableDef(pos, name.value, typedescType, typedescExpr, varSymbol));
+    }
+
+    private void createTypedescVariableForAnonType(BLangType typeNode) {
+        BLangNode parentNode = typeNode.parent;
+        if (parentNode != null && parentNode.getKind() == NodeKind.TYPE_DEFINITION) {
+            BSymbol typeDefSymbol = ((BLangTypeDefinition) parentNode).symbol;
+            if (typeDefSymbol.kind == SymbolKind.TYPE_DEF && typeDefSymbol.origin != VIRTUAL) {
+                return;
+            }
+        }
+        createTypedescVariable(typeNode.getBType(), typeNode.pos);
+    }
+
+    private Name generateTypedescVariableName(BType targetType) {
+        // tsymbol.name.value is empty for anonymous types except for record types and map types
+        // tsymbol.name.value is always `map` for map types
+        return targetType.tag == TypeTags.MAP || targetType.tsymbol.name.value.isEmpty() ?
+                 new Name(TYPEDESC + typedescCount++) : new Name(TYPEDESC + targetType.tsymbol.name.value);
+    }
+
+    private BLangSimpleVariableDef createSimpleVariableDef(Location pos, String name, BType type, BLangExpression expr,
+                                                           BVarSymbol varSymbol) {
+        BLangSimpleVariable simpleVariable = ASTBuilderUtil.createVariable(pos, name, type, expr, varSymbol);
+        BLangSimpleVariableDef variableDef = ASTBuilderUtil.createVariableDef(pos);
+        variableDef.var = simpleVariable;
+        variableDef.setBType(type);
+        return variableDef;
     }
 
     private List<BLangConstant> removeDuplicateConstants(BLangPackage pkgNode) {
@@ -975,62 +1035,107 @@ public class Desugar extends BLangNodeVisitor {
                 typedescExpr));
     }
 
-    private List<BLangVariable> desugarGlobalVariables(BLangPackage pkgNode, BLangBlockFunctionBody initFnBody) {
+    private void desugarTopLevelNodes(BLangPackage pkgNode) {
         List<BLangVariable> desugaredGlobalVarList = new ArrayList<>();
+        typedescList = new ArrayList<>();
+        BLangBlockFunctionBody initFnBody = (BLangBlockFunctionBody) pkgNode.initFunction.body;
         SymbolEnv initFunctionEnv =
                 SymbolEnv.createFunctionEnv(pkgNode.initFunction, pkgNode.initFunction.symbol.scope, env);
-
-        for (BLangVariable globalVar : pkgNode.globalVars) {
-            this.env.enclPkg.topLevelNodes.remove(globalVar);
-            // This will convert complex variables to simple variables.
-            switch (globalVar.getKind()) {
-                case TUPLE_VARIABLE:
-                    BLangNode blockStatementNode = rewrite(globalVar, initFunctionEnv);
-                    List<BLangStatement> statements = ((BLangBlockStmt) blockStatementNode).stmts;
-
-                    int statementSize = statements.size();
-                    for (BLangStatement bLangStatement : statements) {
-                        addToGlobalVariableList(bLangStatement, initFnBody, globalVar, desugaredGlobalVarList);
-                    }
-                    break;
-                case RECORD_VARIABLE:
-                case ERROR_VARIABLE:
-                    blockStatementNode = rewrite(globalVar, initFunctionEnv);
-                    for (BLangStatement statement : ((BLangBlockStmt) blockStatementNode).stmts) {
-                        addToGlobalVariableList(statement, initFnBody, globalVar, desugaredGlobalVarList);
-                    }
-                    break;
-                default:
-                    long globalVarFlags = globalVar.symbol.flags;
-                    BLangSimpleVariable simpleGlobalVar = (BLangSimpleVariable) globalVar;
-                    if (Symbols.isFlagOn(globalVarFlags, Flags.CONFIGURABLE)) {
-                        if (Symbols.isFlagOn(globalVarFlags, Flags.REQUIRED)) {
-                            // If it is required configuration get directly
-                            List<BLangExpression> args = getConfigurableLangLibInvocationParam(simpleGlobalVar);
-                            BLangInvocation getValueInvocation = createLangLibInvocationNode("getConfigurableValue",
-                                    args, symTable.anydataType, simpleGlobalVar.pos);
-                            simpleGlobalVar.expr = getValueInvocation;
-                        } else {
-                            // If it is optional configuration create if else
-                            simpleGlobalVar.expr = createIfElseFromConfigurable(simpleGlobalVar, initFunctionEnv);
-                        }
-                    }
-
-                    // Module init should fail if listener is a error value.
-                    if (Symbols.isFlagOn(globalVarFlags, Flags.LISTENER)
-                            && types.containsErrorType(globalVar.expr.getBType())) {
-                        globalVar.expr = ASTBuilderUtil.createCheckExpr(globalVar.expr.pos, globalVar.expr,
-                                                                        globalVar.getBType());
-                    }
-
-                    addToInitFunction(simpleGlobalVar, initFnBody);
-                    desugaredGlobalVarList.add(simpleGlobalVar);
-                    break;
+        for (int i = 0; i < pkgNode.topLevelNodes.size(); i++) {
+            TopLevelNode topLevelNode = pkgNode.topLevelNodes.get(i);
+            switch (topLevelNode.getKind()) {
+                case TUPLE_VARIABLE, RECORD_VARIABLE, ERROR_VARIABLE ->
+                        desugarVariable((BLangVariable) topLevelNode, initFunctionEnv, initFnBody,
+                                desugaredGlobalVarList);
+                case VARIABLE ->
+                        desugarGlobalVariable(initFunctionEnv, desugaredGlobalVarList, (BLangVariable) topLevelNode,
+                                initFnBody);
+                case CONSTANT ->
+                        desugarConstant((BLangConstant) topLevelNode, desugaredGlobalVarList, initFnBody,
+                                initFunctionEnv);
+                case TYPE_DEFINITION -> {
+                    rewrite((BLangTypeDefinition) topLevelNode, env);
+                    addTypeDescStmtsToInitFunction(initFunctionEnv, desugaredGlobalVarList, initFnBody);
+                }
             }
         }
+        pkgNode.globalVars = desugaredGlobalVarList;
+    }
 
-        this.env.enclPkg.topLevelNodes.addAll(desugaredGlobalVarList);
-        return desugaredGlobalVarList;
+    private void addTypeDescStmtsToInitFunction(SymbolEnv initFunctionEnv, List<BLangVariable> desugaredGlobalVarList,
+                                                BLangBlockFunctionBody initFnBody) {
+        BSymbol owner = this.env.scope.owner;
+        for (BLangSimpleVariableDef variableDef : typedescList) {
+            // typedesc statements are created while rewriting the type node. For that the env will be initFuncEnv.
+            // But the owner of the symbol should be the package. Hence, correct it here.
+            BSymbol varSymbol = variableDef.var.symbol;
+            varSymbol.pkgID = owner.pkgID;
+            varSymbol.owner = owner;
+            rewrite(variableDef, initFunctionEnv);
+            addToInitFunction(variableDef.var, initFnBody);
+            desugaredGlobalVarList.add(variableDef.var);
+        }
+        typedescList.clear();
+    }
+
+    private void desugarVariable(BLangVariable variable, SymbolEnv initFunctionEnv,
+                                 BLangBlockFunctionBody initFnBody, List<BLangVariable> desugaredGlobalVarList) {
+        BLangNode blockStatementNode = rewrite(variable, initFunctionEnv);
+        List<BLangStatement> statements = ((BLangBlockStmt) blockStatementNode).stmts;
+        addTypeDescStmtsToInitFunction(initFunctionEnv, desugaredGlobalVarList, initFnBody);
+        for (BLangStatement statement : statements) {
+            addToGlobalVariableList(statement, initFnBody, variable, desugaredGlobalVarList);
+        }
+    }
+
+    private void desugarGlobalVariable(SymbolEnv initFunctionEnv, List<BLangVariable> desugaredGlobalVarList,
+                                       BLangVariable globalVar, BLangBlockFunctionBody initFnBody) {
+        long globalVarFlags = globalVar.symbol.flags;
+        BLangSimpleVariable simpleGlobalVar = (BLangSimpleVariable) globalVar;
+
+        // Handle configurable global variables
+        if (Symbols.isFlagOn(globalVarFlags, Flags.CONFIGURABLE)) {
+            handleConfigurableGlobalVariable(simpleGlobalVar, initFunctionEnv);
+        }
+
+        // Handle listener with error type
+        if (Symbols.isFlagOn(globalVarFlags, Flags.LISTENER) && containsErrorType(globalVar.expr.getBType())) {
+            handleListenerWithErrorType(globalVar);
+        }
+
+        BLangType typeNode = simpleGlobalVar.typeNode;
+        if (typeNode != null && typeNode.getKind() != null) {
+            rewrite(typeNode, initFunctionEnv);
+        }
+
+        addTypeDescStmtsToInitFunction(initFunctionEnv, desugaredGlobalVarList, initFnBody);
+        // Add variable to the initialization function
+        addToInitFunction(simpleGlobalVar, initFnBody);
+        desugaredGlobalVarList.add(simpleGlobalVar);
+    }
+
+    private void handleConfigurableGlobalVariable(BLangSimpleVariable simpleGlobalVar, SymbolEnv initFunctionEnv) {
+        long globalVarFlags = simpleGlobalVar.symbol.flags;
+
+        if (Symbols.isFlagOn(globalVarFlags, Flags.REQUIRED)) {
+            // If it is a required configuration, get directly
+            List<BLangExpression> args = getConfigurableLangLibInvocationParam(simpleGlobalVar);
+            simpleGlobalVar.expr = createLangLibInvocationNode("getConfigurableValue", args,
+                    symTable.anydataType, simpleGlobalVar.pos);
+        } else {
+            // If it is an optional configuration, create if-else
+            simpleGlobalVar.expr = createIfElseFromConfigurable(simpleGlobalVar, initFunctionEnv);
+        }
+    }
+
+    private void handleListenerWithErrorType(BLangVariable globalVar) {
+        globalVar.expr = ASTBuilderUtil.createCheckExpr(globalVar.expr.pos, globalVar.expr,
+                globalVar.getBType());
+    }
+
+    private boolean containsErrorType(BType type) {
+        // Check if the type contains an error type
+        return types.containsErrorType(type);
     }
 
     private void addToGlobalVariableList(BLangStatement bLangStatement, BLangBlockFunctionBody initFnBody,
@@ -1070,8 +1175,18 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangTypeDefinition typeDef) {
-        typeDef.typeNode = rewrite(typeDef.typeNode, env);
+        BSymbol typeDefSymbol = typeDef.symbol;
+        if (typeDefSymbol.kind == SymbolKind.TYPE_DEF && typeDefSymbol.origin != VIRTUAL) {
+            BType referenceType = ((BTypeDefinitionSymbol) typeDefSymbol).referenceType;
+            int typeTag = Types.getImpliedType(referenceType).tag;
+            if (typeTag == TypeTags.RECORD || typeTag == TypeTags.MAP || typeTag == TypeTags.TUPLE) {
+                createTypedescVariable(referenceType, typeDefSymbol.pos);
+            }
+        }
 
+        if (!Symbols.isFlagOn(typeDef.symbol.flags, Flags.SOURCE_ANNOTATION)) {
+            typeDef.typeNode = rewrite(typeDef.typeNode, env);
+        }
         typeDef.annAttachments.forEach(attachment ->  rewrite(attachment, env));
         result = typeDef;
     }
@@ -1191,6 +1306,7 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangRecordTypeNode recordTypeNode) {
+        createTypedescVariableForAnonType(recordTypeNode);
         recordTypeNode.fields.addAll(recordTypeNode.includedFields);
 
         BRecordTypeSymbol recordTypeSymbol = (BRecordTypeSymbol) recordTypeNode.getBType().tsymbol;
@@ -1207,7 +1323,6 @@ public class Desugar extends BLangNodeVisitor {
         }
 
         recordTypeNode.restFieldType = rewrite(recordTypeNode.restFieldType, env);
-
         if (recordTypeNode.isAnonymous && recordTypeNode.isLocal) {
             BLangUserDefinedType userDefinedType = desugarLocalAnonRecordTypeNode(recordTypeNode);
             TypeDefBuilderHelper.createTypeDefinitionForTSymbol(recordTypeNode.getBType(),
@@ -1216,7 +1331,6 @@ public class Desugar extends BLangNodeVisitor {
             result = userDefinedType;
             return;
         }
-
         result = recordTypeNode;
     }
 
@@ -1233,6 +1347,9 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangConstrainedType constrainedType) {
+        if (constrainedType.getBType() != null && constrainedType.getBType().tag == TypeTags.MAP) {
+            createTypedescVariableForAnonType(constrainedType);
+        }
         constrainedType.constraint = rewrite(constrainedType.constraint, env);
         result = constrainedType;
     }
@@ -1277,8 +1394,12 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangIntersectionTypeNode intersectionTypeNode) {
-        List<BLangType> rewrittenConstituents = new ArrayList<>();
+        int tag = Types.getImpliedType(intersectionTypeNode.getBType()).tag;
+        if (tag == TypeTags.RECORD || tag == TypeTags.TUPLE || tag == TypeTags.MAP) {
+            createTypedescVariableForAnonType(intersectionTypeNode);
+        }
 
+        List<BLangType> rewrittenConstituents = new ArrayList<>();
         for (BLangType constituentTypeNode : intersectionTypeNode.constituentTypeNodes) {
             rewrittenConstituents.add(rewrite(constituentTypeNode, env));
         }
@@ -1332,6 +1453,7 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangTupleTypeNode tupleTypeNode) {
+        createTypedescVariableForAnonType(tupleTypeNode);
         tupleTypeNode.members.forEach(member -> member.typeNode = rewrite(member.typeNode, env));
         tupleTypeNode.restParamType = rewrite(tupleTypeNode.restParamType, env);
         result = tupleTypeNode;
@@ -8870,11 +8992,11 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangConstant constant) {
-
         BConstantSymbol constSymbol = constant.symbol;
-        BType refType = Types.getImpliedType(constSymbol.literalType);
-        if (refType.tag <= TypeTags.BOOLEAN || refType.tag == TypeTags.NIL) {
-            if (refType.tag != TypeTags.NIL && (constSymbol.value == null ||
+        BType impliedType = Types.getImpliedType(constSymbol.literalType);
+        int tag = impliedType.tag;
+        if (tag <= TypeTags.BOOLEAN || tag == TypeTags.NIL) {
+            if (tag != TypeTags.NIL && (constSymbol.value == null ||
                             constSymbol.value.value == null)) {
                 throw new IllegalStateException();
             }
@@ -9304,9 +9426,18 @@ public class Desugar extends BLangNodeVisitor {
     }
 
     private <E extends BLangStatement> List<E> rewriteStmt(List<E> nodeList, SymbolEnv env) {
+        List<BLangSimpleVariableDef> prevTypedescList = this.typedescList;
         for (int i = 0; i < nodeList.size(); i++) {
+            typedescList = new ArrayList<>();
             nodeList.set(i, rewrite(nodeList.get(i), env));
+            for (BLangSimpleVariableDef variableDef : typedescList) {
+                nodeList.add(i, rewrite((E) variableDef, env));
+                BSymbol symbol = variableDef.var.symbol;
+                env.scope.define(symbol.name, symbol);
+                i++;
+            }
         }
+        this.typedescList = prevTypedescList;
         return nodeList;
     }
 
@@ -10854,5 +10985,9 @@ public class Desugar extends BLangNodeVisitor {
         BLangSimpleVarRef simpleVarRef = (BLangSimpleVarRef) expression;
         simpleVarRef.symbol.closure = true;
         arrFunction.closureVarSymbols.add(new ClosureVarSymbol(simpleVarRef.symbol, simpleVarRef.pos));
+    }
+
+    private void clearGlobalVariables() {
+        this.typedescList = null;
     }
 }

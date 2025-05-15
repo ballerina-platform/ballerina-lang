@@ -43,6 +43,8 @@ public class ForwardReferencingGlobalDefinitionTest {
         Assert.assertTrue(diagnostics.length > 0);
         BAssertUtil.validateError(resultNegativeCycleFound, 0, "illegal cyclic reference '[person, employee]'", 17, 1);
         BAssertUtil.validateError(resultNegativeCycleFound, 1, "illegal cyclic reference '[dep2, dep1]'", 24, 1);
+        BAssertUtil.validateError(resultNegativeCycleFound, 2,
+                "illegal cyclic reference '[myBool, $lambda$_0]'", 30, 1);
     }
 
     @Test(description = "Test re-ordering global variable initializations to satisfy dependency order")
@@ -131,6 +133,8 @@ public class ForwardReferencingGlobalDefinitionTest {
         BAssertUtil.validateError(cycle, i++,
                 "illegal cyclic reference '[modVarQueryLet1, queryRef, modVarQuery]'", 19, 1);
         BAssertUtil.validateError(cycle, i++, "illegal cyclic reference '[modVarQueryLet2, queryRef2]'", 20, 1);
+        BAssertUtil.validateError(cycle, i++,
+                "illegal cyclic reference '[recD, RecordTypeWithDefaultLetExpr, moduleCode]'", 26, 1);
 
         Assert.assertEquals(cycle.getDiagnostics().length, i);
     }
