@@ -23,12 +23,11 @@ import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.TopLevelNode;
 import org.ballerinalang.util.diagnostic.DiagnosticErrorCode;
 import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLog;
+import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeDefinitionSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangClassDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
@@ -313,7 +312,7 @@ public class GlobalVariableRefAnalyzer {
             }
         }
         // Add all non-dependent symbols after dependent functions.
-        // This will bring lambda functions to the top of the order.
+        // This will bring dependent functions to the top of the order.
         resultMap.putAll(tempVarMap);
         return resultMap;
     }
@@ -321,7 +320,7 @@ public class GlobalVariableRefAnalyzer {
     private BSymbol getSymbolFromTopLevelNode(TopLevelNode topLevelNode) {
         return switch (topLevelNode.getKind()) {
             case VARIABLE, RECORD_VARIABLE, TUPLE_VARIABLE, ERROR_VARIABLE -> ((BLangVariable) topLevelNode).symbol;
-            case TYPE_DEFINITION -> ((BLangTypeDefinition) topLevelNode).symbol.type.tsymbol;
+            case TYPE_DEFINITION -> Types.getImpliedType(((BLangTypeDefinition) topLevelNode).symbol.type).tsymbol;
             case CONSTANT -> ((BLangConstant) topLevelNode).symbol;
             case FUNCTION -> ((BLangFunction) topLevelNode).symbol;
             default -> null;
