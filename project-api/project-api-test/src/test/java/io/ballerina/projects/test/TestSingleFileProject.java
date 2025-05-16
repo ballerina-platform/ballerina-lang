@@ -147,6 +147,7 @@ public class TestSingleFileProject {
         Assert.assertFalse(project.buildOptions().observabilityIncluded());
         Assert.assertFalse(project.buildOptions().codeCoverage());
         Assert.assertFalse(project.buildOptions().offlineBuild());
+        Assert.assertFalse(project.buildOptions().experimental());
         Assert.assertFalse(project.buildOptions().testReport());
     }
 
@@ -168,6 +169,7 @@ public class TestSingleFileProject {
         Assert.assertTrue(project.buildOptions().skipTests());
         Assert.assertTrue(project.buildOptions().observabilityIncluded());
         Assert.assertFalse(project.buildOptions().codeCoverage());
+        Assert.assertFalse(project.buildOptions().experimental());
         Assert.assertFalse(project.buildOptions().testReport());
     }
 

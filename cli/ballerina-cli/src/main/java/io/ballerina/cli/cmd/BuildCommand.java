@@ -149,6 +149,9 @@ public class BuildCommand implements BLauncherCmd {
     @CommandLine.Option(names = {"--help", "-h"}, hidden = true)
     private boolean helpFlag;
 
+    @CommandLine.Option(names = "--experimental", description = "Enable experimental language features.")
+    private boolean experimentalFlag;
+
     @CommandLine.Option(names = "--generate-config-schema", hidden = true)
     private Boolean configSchemaGen;
 
@@ -311,6 +314,7 @@ public class BuildCommand implements BLauncherCmd {
         BuildOptions.BuildOptionsBuilder buildOptionsBuilder = BuildOptions.builder();
 
         buildOptionsBuilder
+                .setExperimental(experimentalFlag)
                 .setOffline(offline)
                 .setObservabilityIncluded(observabilityIncluded)
                 .setCloud(cloud)

@@ -108,7 +108,7 @@ public class SingleBalBuildWithSiddhiRuntimeTestCase extends BaseTest {
     @Test(description = "Test building a bal file with the siddhiruntime flag",
             dependsOnMethods = "testBuildingWithoutSiddhiRuntime")
     public void testBuildingWithSiddhiRuntime() throws Exception {
-        String[] clientArgs = {"--siddhiruntime", Path.of("sourcePkg", "main.bal").toString()};
+        String[] clientArgs = {"--experimental", "--siddhiruntime", Path.of("sourcePkg", "main.bal").toString()};
         balClient.runMain("build", clientArgs, envVariables, new String[]{},
                 new LogLeecher[]{}, tempProjectDirectory.toString());
         Path generatedBalx = tempProjectDirectory.resolve("main.balx");
