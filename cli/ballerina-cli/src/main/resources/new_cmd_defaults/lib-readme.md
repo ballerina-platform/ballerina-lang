@@ -48,7 +48,7 @@ import user/socialMedia;
 
 ```ballerina
 public function main() {
-    string greeting = socialMedia:hello("Ballerina");
+    string greeting = myorg:hello("Ballerina");
     io:println(greeting); // Output: Hello, Ballerina
 }
 ```
