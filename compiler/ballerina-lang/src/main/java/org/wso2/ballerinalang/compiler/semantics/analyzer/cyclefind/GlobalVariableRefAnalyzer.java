@@ -23,6 +23,7 @@ import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.TopLevelNode;
 import org.ballerinalang.util.diagnostic.DiagnosticErrorCode;
 import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLog;
+import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
@@ -292,23 +293,36 @@ public class GlobalVariableRefAnalyzer {
     }
 
     private Map<BSymbol, TopLevelNode> collectAssociateSymbolsWithTopLevelNodes() {
-        Map<BSymbol, TopLevelNode> varMap = new LinkedHashMap<>();
-
+        // Create a single map to hold dependent functions first, then other variables
+        Map<BSymbol, TopLevelNode> resultMap = new LinkedHashMap<>();
+        // Temporary collection to hold other top level nodes except dependent functions
+        Map<BSymbol, TopLevelNode> tempVarMap = new LinkedHashMap<>();
         for (TopLevelNode topLevelNode : this.pkgNode.topLevelNodes) {
             BSymbol symbol = getSymbolFromTopLevelNode(topLevelNode);
-            if (symbol != null) {
-                varMap.put(symbol, topLevelNode);
+            if (symbol == null) {
+                continue;
+            }
+
+            boolean isDependentFunction = (symbol.tag & SymTag.FUNCTION) == SymTag.FUNCTION &&
+                    globalNodeDependsOn.containsKey(symbol);
+            if (isDependentFunction) {
+                resultMap.put(symbol, topLevelNode);
+            } else {
+                tempVarMap.put(symbol, topLevelNode);
             }
         }
-
-        return varMap;
+        // Add all non-dependent symbols after dependent functions.
+        // This will bring dependent functions to the top of the order.
+        resultMap.putAll(tempVarMap);
+        return resultMap;
     }
 
     private BSymbol getSymbolFromTopLevelNode(TopLevelNode topLevelNode) {
         return switch (topLevelNode.getKind()) {
             case VARIABLE, RECORD_VARIABLE, TUPLE_VARIABLE, ERROR_VARIABLE -> ((BLangVariable) topLevelNode).symbol;
-            case TYPE_DEFINITION -> ((BLangTypeDefinition) topLevelNode).symbol.type.tsymbol;
+            case TYPE_DEFINITION -> Types.getImpliedType(((BLangTypeDefinition) topLevelNode).symbol.type).tsymbol;
             case CONSTANT -> ((BLangConstant) topLevelNode).symbol;
+            case FUNCTION -> ((BLangFunction) topLevelNode).symbol;
             default -> null;
         };
     }

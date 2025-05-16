@@ -28,6 +28,14 @@ class A {
 
 final record {|string n = name;|} & readonly p = {};
 
+function() returns int lambdaFunc = foo;
+int res = lambdaFunc();
+
+function foo() returns int {
+    return b;
+}
+
+int b  = 5;
 
 public function main() {
     testModuleVariables();
@@ -38,6 +46,7 @@ function testModuleVariables() {
     assertEquality(p.n, name);
     assertEquality(nestedRec.r.n, name);
     assertEquality(objectA.r.n, name);
+    assertEquality(res, 5);
 }
 
 function assertEquality(any|error actual, any|error expected) {
