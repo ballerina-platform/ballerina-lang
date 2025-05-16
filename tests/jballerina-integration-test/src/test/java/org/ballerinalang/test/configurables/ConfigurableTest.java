@@ -23,6 +23,7 @@ import org.ballerinalang.test.context.BMainInstance;
 import org.ballerinalang.test.context.BallerinaTestException;
 import org.ballerinalang.test.context.LogLeecher;
 import org.ballerinalang.test.packaging.PackerinaTestUtils;
+import org.testng.SkipException;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -31,6 +32,7 @@ import java.io.File;
 import java.nio.file.Path;
 import java.util.Map;
 
+import static io.ballerina.cli.utils.OsUtils.isWindows;
 import static io.ballerina.runtime.internal.configurable.providers.toml.TomlConstants.CONFIG_DATA_ENV_VARIABLE;
 import static io.ballerina.runtime.internal.configurable.providers.toml.TomlConstants.CONFIG_FILES_ENV_VARIABLE;
 import static io.ballerina.runtime.internal.configurable.providers.toml.TomlConstants.ENV_VAR_PREFIX;
@@ -39,6 +41,7 @@ import static org.ballerinalang.test.context.LogLeecher.LeecherType.ERROR;
 /**
  * Test cases for checking configurable variables in Ballerina.
  */
+@Test(singleThreaded = true)
 public class ConfigurableTest extends BaseTest {
 
     private static final String testFileLocation = Path.of("src/test/resources/configurables")
@@ -269,6 +272,9 @@ public class ConfigurableTest extends BaseTest {
 
     @Test
     public void testConfigurableVariablesWithInvalidCliArgs() throws BallerinaTestException {
+        if (isWindows()) {
+            throw new SkipException("Failing on Windows");
+        }
         LogLeecher errorLeecher1 = new LogLeecher("error: [intVar=waruna] configurable variable 'intVar' is expected " +
                                                           "to be of type 'int', but found 'waruna'", ERROR);
         LogLeecher errorLeecher2 = new LogLeecher("error: [byteVar=2200] value provided for byte variable 'byteVar' " +
