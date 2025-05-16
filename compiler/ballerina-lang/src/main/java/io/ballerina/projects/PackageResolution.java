@@ -334,8 +334,8 @@ public class PackageResolution {
         }
 
         // TODO Can we make this a builtin compiler plugin
-        if ("k8s".equals(compilationOptions.getCloud()) || "docker".equals(compilationOptions.getCloud()) ||
-                "choreo".equals(compilationOptions.getCloud())) {
+        List<String> cloudOptions = List.of("k8s", "docker", "choreo", "openshift");
+        if (cloudOptions.contains(compilationOptions.getCloud())) {
             String moduleName = Names.CLOUD.getValue();
             ModuleLoadRequest c2cModuleLoadReq = new ModuleLoadRequest(
                     PackageOrg.from(Names.BALLERINA_ORG.value), moduleName,
@@ -505,7 +505,7 @@ public class PackageResolution {
         List<ModuleContext> sortedModuleList = new ArrayList<>();
         List<ResolvedPackageDependency> sortedPackages = dependencyGraph.toTopologicallySortedList();
         if (!dependencyGraph.findCycles().isEmpty()) {
-            for (List<ResolvedPackageDependency> cycle: dependencyGraph.findCycles()) {
+            for (List<ResolvedPackageDependency> cycle : dependencyGraph.findCycles()) {
                 DiagnosticInfo diagnosticInfo = new DiagnosticInfo(
                         DiagnosticErrorCode.CYCLIC_MODULE_IMPORTS_DETECTED.diagnosticId(),
                         "cyclic module imports detected ''"
@@ -525,7 +525,7 @@ public class PackageResolution {
             List<ModuleDescriptor> sortedModuleDescriptors
                     = moduleDependencyGraph.toTopologicallySortedList();
             if (!moduleDependencyGraph.findCycles().isEmpty()) {
-                for (List<ModuleDescriptor> cycle: moduleDependencyGraph.findCycles()) {
+                for (List<ModuleDescriptor> cycle : moduleDependencyGraph.findCycles()) {
                     DiagnosticInfo diagnosticInfo = new DiagnosticInfo(
                             DiagnosticErrorCode.CYCLIC_MODULE_IMPORTS_DETECTED.diagnosticId(),
                             "cyclic module imports detected ''"
@@ -620,7 +620,7 @@ public class PackageResolution {
     }
 
     private boolean isNewUpdateDistribution(SemanticVersion prevDistributionVersion,
-                                                  SemanticVersion currentDistributionVersion) {
+                                            SemanticVersion currentDistributionVersion) {
         return currentDistributionVersion.major() == prevDistributionVersion.major()
                 && currentDistributionVersion.minor() > prevDistributionVersion.minor();
     }
@@ -710,7 +710,7 @@ public class PackageResolution {
             packageName = importModuleResponse.packageDescriptor().name();
 
             Optional<Package> optionalPackage = getPackage(packageOrg,
-                                                           packageName);
+                    packageName);
             if (optionalPackage.isEmpty()) {
                 return Optional.empty();
                 // This branch cannot be executed since the package is resolved before hand
