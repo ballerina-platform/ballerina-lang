@@ -36,6 +36,7 @@ type Shop record {
     num number;
     ftype1 foo_status;
     funion union_status;
+    int val = 7;
 };
 
 type readonlyShop record {
@@ -44,6 +45,7 @@ type readonlyShop record {
     num number;
     ftype1 foo_status;
     funion union_status;
+    int? val = 7;
 } & readonly;
 
 function testConvertJSONToRecord() {
@@ -58,7 +60,7 @@ function testConvertJSONToRecord() {
     map<anydata> recordValue = convertJSONToRecord(j, Shop);
     map<anydata> recordValue2 = convertJSONToRecord(j, readonlyShop);
     string expectedOutput = "{\"name\":\"My Shop\",\"status\":\"OPEN\",\"number\":1,\"foo_status\":" +
-    "\"foo\",\"union_status\":\"bar\"}";
+    "\"foo\",\"union_status\":\"bar\",\"val\":7}";
     test:assertEquals(recordValue.toString(), expectedOutput);
     test:assertEquals(recordValue2.toString(), expectedOutput);
     var jval_result = convertJSON(j, Shop);

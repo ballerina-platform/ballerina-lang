@@ -40,9 +40,11 @@ import io.ballerina.runtime.internal.TypeConverter;
 import io.ballerina.runtime.internal.errors.ErrorCodes;
 import io.ballerina.runtime.internal.errors.ErrorHelper;
 import io.ballerina.runtime.internal.errors.ErrorReasons;
+import io.ballerina.runtime.internal.scheduling.Scheduler;
 import io.ballerina.runtime.internal.types.BArrayType;
 import io.ballerina.runtime.internal.types.BFiniteType;
 import io.ballerina.runtime.internal.types.BJsonType;
+import io.ballerina.runtime.internal.types.BRecordType;
 import io.ballerina.runtime.internal.types.BStructureType;
 import io.ballerina.runtime.internal.types.BUnionType;
 import io.ballerina.runtime.internal.values.ArrayValue;
@@ -299,7 +301,15 @@ public final class JsonInternalUtils {
             try {
                 // If the field does not exists in the JSON, set the default value for that struct field.
                 if (!jsonObject.containsKey(fieldName)) {
-                    keyValuePairs.add(new MappingInitialValueEntry.KeyValueEntry(fieldName, fieldType.getZeroValue()));
+                    boolean hasDefaultValue = (((BRecordType) structType).getDefaultValues()).
+                            containsKey(fieldName.toString());
+                    if (!fieldType.isNilable() && !hasDefaultValue) {
+                        throw ErrorHelper.getRuntimeException(ErrorCodes.KEY_NOT_FOUND_IN_JSON_MAPPING, fieldName);
+                    }
+                    Object val = hasDefaultValue ?
+                            ((BRecordType) structType).getDefaultValues().get(
+                                    fieldName.toString()).call(Scheduler.getStrand().scheduler.runtime) : null;
+                    keyValuePairs.add(new MappingInitialValueEntry.KeyValueEntry(fieldName, val));
                     continue;
                 }
 
