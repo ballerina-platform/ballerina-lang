@@ -116,7 +116,7 @@ tasks.register('copyBalToolsResources') {
     doLast {
         copy {
             from 'src/test/resources/bal-tools-dist.toml'
-            into "$buildDir/bal-tools.toml"
+            into "$buildDir/resources/bal-tools.toml"
         }
 
         copy {

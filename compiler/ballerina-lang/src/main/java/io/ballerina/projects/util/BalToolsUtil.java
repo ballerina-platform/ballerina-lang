@@ -41,6 +41,7 @@ import static io.ballerina.projects.util.ProjectConstants.CENTRAL_REPOSITORY_CAC
 import static io.ballerina.projects.util.ProjectConstants.CONFIG_DIR;
 import static io.ballerina.projects.util.ProjectConstants.DIST_CACHE_DIRECTORY;
 import static io.ballerina.projects.util.ProjectConstants.REPOSITORIES_DIR;
+import static io.ballerina.projects.util.ProjectConstants.RESOURCE_DIR_NAME;
 import static io.ballerina.projects.util.ProjectUtils.getAccessTokenOfCLI;
 import static io.ballerina.projects.util.ProjectUtils.initializeProxy;
 
@@ -53,7 +54,8 @@ public class BalToolsUtil {
 
     public static final Path BAL_TOOLS_TOML_PATH = RepoUtils.createAndGetHomeReposPath().resolve(
             Path.of(CONFIG_DIR, BAL_TOOLS_TOML));
-    public static final Path DIST_BAL_TOOLS_TOML_PATH = ProjectUtils.getBalHomePath().resolve(BAL_TOOLS_TOML);
+    public static final Path DIST_BAL_TOOLS_TOML_PATH = ProjectUtils.getBalHomePath().resolve(RESOURCE_DIR_NAME)
+            .resolve(BAL_TOOLS_TOML);
 
     private BalToolsUtil() {}
 
