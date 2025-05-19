@@ -678,7 +678,8 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         }
         visit(objectConstructorExpression.classNode);
         visit(objectConstructorExpression.typeInit);
-        addDependency(objectConstructorExpression.getBType().tsymbol, objectConstructorExpression.classNode.symbol);
+        addDependency(Types.getImpliedType(objectConstructorExpression.getBType()).tsymbol,
+                objectConstructorExpression.classNode.symbol);
     }
 
     @Override
@@ -1662,7 +1663,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
             this.unusedLocalVariables.remove(varRefExpr.symbol);
         }
         BSymbol varRefSymbol = varRefExpr.symbol;
-        if (varRefSymbol != null && varRefSymbol.kind != SymbolKind.FUNCTION) {
+        if (varRefSymbol != null && (varRefSymbol.tag & SymTag.FUNCTION) != SymTag.FUNCTION) {
             checkVarRef(varRefSymbol, varRefExpr.pos);
         }
     }
@@ -1784,7 +1785,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
             analyzeNode(namedArg, env);
         }
         BType detailType = ((BErrorType) Types.getImpliedType(errorConstructorExpr.getBType())).detailType;
-        addDependency(this.currDependentSymbolDeque.peek(), detailType.tsymbol);
+        addDependency(this.currDependentSymbolDeque.peek(), Types.getImpliedType(detailType).tsymbol);
     }
 
     @Override
@@ -2318,7 +2319,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         if (resolvedType == symTable.semanticError) {
             return;
         }
-        BTypeSymbol tsymbol = resolvedType.tsymbol;
+        BTypeSymbol tsymbol = Types.getImpliedType(resolvedType).tsymbol;
         recordGlobalVariableReferenceRelationship(tsymbol);
     }
 
@@ -2714,7 +2715,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     }
 
     private void recordGlobalVariableReferenceRelationship(BSymbol symbol) {
-        if (this.env.scope == null) {
+        if (this.env.scope == null || symbol == null) {
             return;
         }
 
@@ -2734,9 +2735,11 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
                 }
                 // fall through
             default:
-                if (globalVarSymbol || symbol instanceof BTypeSymbol || ownerSymbol.tag == SymTag.LET) {
+                if (symbol.kind == SymbolKind.TYPE_DEF || globalVarSymbol || symbol instanceof BTypeSymbol ||
+                        ownerSymbol.tag == SymTag.LET) {
                     BSymbol dependent = this.currDependentSymbolDeque.peek();
-                    addDependency(dependent, symbol);
+                    addDependency(dependent, symbol.kind == SymbolKind.TYPE_DEF
+                            ? Types.getImpliedType(symbol.type).tsymbol : symbol);
                 }
         }
     }
