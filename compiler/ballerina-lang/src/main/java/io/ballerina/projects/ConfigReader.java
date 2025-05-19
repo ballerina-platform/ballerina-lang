@@ -33,6 +33,7 @@ import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import io.ballerina.projects.configurations.ConfigModuleDetails;
 import io.ballerina.projects.configurations.ConfigVariable;
 import org.ballerinalang.model.elements.PackageID;
+import org.wso2.ballerinalang.compiler.PackageCache;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
@@ -40,6 +41,8 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
+import org.wso2.ballerinalang.compiler.tree.BLangVariable;
+import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.util.Flags;
 
 import java.util.ArrayList;
@@ -48,6 +51,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 
@@ -79,61 +83,103 @@ public final class ConfigReader {
         // Get configurable variables of the direct imports
         Collection<ModuleDependency> dependencies = new ArrayList<>();
         getValidDependencies(packageInstance, packageInstance.getDefaultModule(), dependencies);
-        getImportedConfigVars(packageInstance, dependencies, configDetails);
+        configDetails.putAll(getImportedConfigVars(packageInstance, dependencies, validConfigs));
         return configDetails;
     }
 
     /**
      * Retrieve configurable variables for all the direct imports for a package.
      *
-     * @param currentPackage Current package instance
+     * @param currentPackage     Current package instance
      * @param moduleDependencies Used dependencies of the package
-     * @param configDetails Map to store the configurable variables against module
+     * @param validConfigs       Set of valid configurable variable symbols
+     * @return Map of configurable variables organized by module details
      */
-    private static void getImportedConfigVars(Package currentPackage,
-                                              Collection<ModuleDependency> moduleDependencies,
-                                              Map<ConfigModuleDetails, List<ConfigVariable>> configDetails) {
-        currentPackage.modules().forEach(module ->
-                module.moduleContext().bLangPackage().symbol.imports.stream()
-                        .filter(importSymbol -> isDirectDependency(
-                                moduleDependencies,
-                                importSymbol.descriptor.org().value(),
-                                importSymbol.descriptor.packageName().value(),
-                                importSymbol.descriptor.name().moduleNamePart()
-                        ))
-                        .forEach(importSymbol -> {
-                            String orgName = importSymbol.descriptor.org().value();
-                            String packageName = importSymbol.descriptor.packageName().value();
-                            String moduleName = importSymbol.descriptor.name().moduleNamePart();
+    private static Map<ConfigModuleDetails, List<ConfigVariable>> getImportedConfigVars(Package currentPackage,
+                                                                                        Collection<ModuleDependency> moduleDependencies,
+                                                                                        Set<BVarSymbol> validConfigs) {
+        Map<ConfigModuleDetails, List<ConfigVariable>> configDetails = new HashMap<>();
+        for (Module module : currentPackage.modules()) {
+            module.moduleContext().bLangPackage().symbol.imports.forEach(
+                    importSymbol -> {
+                        if (isDirectDependency(moduleDependencies, importSymbol)) {
+                            processImportSymbol(module, importSymbol, configDetails, moduleDependencies, validConfigs);
+                        }
+                    }
+            );
+        }
 
-                            // If default module
-                            if (moduleName == null) {
-                                moduleName = packageName;
-                            }
-
-                            List<ConfigVariable> configVariables = new ArrayList<>();
-                            getConfigVars(module, importSymbol.scope.entries.values(), null, configVariables);
-
-                            if (!configVariables.isEmpty()) {
-                                configDetails.put(
-                                        new ConfigModuleDetails(orgName, packageName, moduleName,
-                                                ProjectKind.BALA_PROJECT), configVariables);
-                            }
-                        })
-        );
+        return configDetails;
     }
 
     /**
-     * Checks whether it is a direct dependency.
+     * Process an import symbol to extract configuration variables
      *
-     * @param moduleDependencies collection of module dependencies
-     * @param orgName org name
-     * @param packageName package name
-     * @param moduleName module name
-     * @return boolean value indicating whether it is a direct dependency
+     * @param module             Current module
+     * @param importSymbol       Import symbol to process
+     * @param configDetails      Map to store the configurable variables against module
+     * @param moduleDependencies Collection of module dependencies
+     * @param validConfigs       Set of valid configurable variable symbols
      */
-    private static boolean isDirectDependency(Collection<ModuleDependency> moduleDependencies, String orgName,
-                                              String packageName, String moduleName) {
+    private static void processImportSymbol(Module module, BPackageSymbol importSymbol, Map<ConfigModuleDetails,
+            List<ConfigVariable>> configDetails, Collection<ModuleDependency> moduleDependencies, Set<BVarSymbol> validConfigs) {
+        String orgName = importSymbol.descriptor.org().value();
+        String packageName = importSymbol.descriptor.packageName().value();
+        String moduleNamePart = importSymbol.descriptor.name().moduleNamePart();
+        String moduleName = moduleNamePart == null ? packageName : moduleNamePart;
+
+        Optional<ModuleDependency> matchingDependency = Optional.empty();
+        for (ModuleDependency dependency : moduleDependencies) {
+            String dependencyOrgName = dependency.descriptor().org().value();
+            String dependencyPackageName = dependency.descriptor().packageName().value();
+            String dependencyModuleNamePart = dependency.descriptor().name().moduleNamePart();
+
+            if (dependencyOrgName.equals(orgName) && dependencyPackageName.equals(packageName)
+                    && Objects.equals(moduleNamePart, dependencyModuleNamePart)) {
+                matchingDependency = Optional.of(dependency);
+                break;
+            }
+        }
+
+        if (matchingDependency.isEmpty()) {
+            return;
+        }
+
+        CompilerContext compilerContext = module.project().projectEnvironmentContext()
+                .getService(CompilerContext.class);
+        PackageCache packageCache = PackageCache.getInstance(compilerContext);
+        PackageID packageID = matchingDependency.get().descriptor().moduleCompilationId();
+        BLangPackage bLangPackage = packageCache.get(packageID);
+        if (bLangPackage == null) {
+            return;
+        }
+
+        List<ConfigVariable> configVariables = new ArrayList<>();
+        bLangPackage.getGlobalVariables().forEach(globalVar -> {
+            Optional<ConfigVariable> configVariable = extractConfigFromBVar(globalVar, validConfigs);
+            configVariable.ifPresent(configVariables::add);
+        });
+
+        if (!configVariables.isEmpty()) {
+            ConfigModuleDetails moduleDetails = new ConfigModuleDetails(orgName, packageName, moduleName,
+                    ProjectKind.BALA_PROJECT);
+            configDetails.put(moduleDetails, configVariables);
+        }
+    }
+
+    /**
+     * Check if a given import symbol is a direct dependency of the package.
+     *
+     * @param moduleDependencies Collection of module dependencies
+     * @param importSymbol       Import symbol to check against
+     * @return boolean value indicating whether the module dependency is a direct dependency or not
+     */
+    private static boolean isDirectDependency(Collection<ModuleDependency> moduleDependencies,
+                                              BPackageSymbol importSymbol) {
+        String orgName = importSymbol.descriptor.org().value();
+        String packageName = importSymbol.descriptor.packageName().value();
+        String moduleName = importSymbol.descriptor.name().moduleNamePart();
+
         return moduleDependencies.stream().anyMatch(dependency ->
                 dependency.descriptor().org().value().equals(orgName) &&
                         dependency.descriptor().packageName().value().equals(packageName) &&
@@ -169,8 +215,6 @@ public final class ConfigReader {
         return "";
     }
 
-
-
     /**
      * Update provided map with the configurable variable details for the given module.
      *
@@ -178,8 +222,7 @@ public final class ConfigReader {
      * @param bLangPackage  to retrieve configurable variable details
      * @param configDetails Map to store the configurable variables against module
      */
-    private static void getConfigs(Module module,
-                                   BLangPackage bLangPackage, Map<ConfigModuleDetails,
+    private static void getConfigs(Module module, BLangPackage bLangPackage, Map<ConfigModuleDetails,
             List<ConfigVariable>> configDetails, Set<BVarSymbol> validConfigs) {
         List<ConfigVariable> configVariables = new ArrayList<>();
         PackageID currentPkgId = bLangPackage.symbol.pkgID;
@@ -195,20 +238,54 @@ public final class ConfigReader {
                                       Set<BVarSymbol> validConfigs, List<ConfigVariable> configVariables) {
         for (Scope.ScopeEntry entry : scopeEntries) {
             BSymbol symbol = entry.symbol;
-            // Filter configurable variables
-            if (symbol != null && symbol.tag == SymTag.VARIABLE && Symbols.isFlagOn(symbol.flags,
-                    Flags.CONFIGURABLE)) {
-                if (symbol instanceof BVarSymbol varSymbol) {
-                    if ((validConfigs != null && validConfigs.contains(varSymbol)) || validConfigs == null) {
-                        // Get description
-                        String description = getDescriptionValue(varSymbol, module);
-                        configVariables.add(new ConfigVariable(
-                                varSymbol.name.value.replace("\\", ""), varSymbol.type,
-                                Symbols.isFlagOn(varSymbol.flags, Flags.REQUIRED), description));
-                    }
-                }
-            }
+            extractConfigFromSymbol(symbol, module, validConfigs).ifPresent(configVariables::add);
         }
+    }
+
+    private static Optional<ConfigVariable> extractConfigFromSymbol(BSymbol symbol, Module module,
+                                                                    Set<BVarSymbol> validConfigs) {
+        if (symbol == null || symbol.tag != SymTag.VARIABLE || !Symbols.isFlagOn(symbol.flags, Flags.CONFIGURABLE)) {
+            return Optional.empty();
+        }
+        if (!(symbol instanceof BVarSymbol varSymbol)) {
+            return Optional.empty();
+        }
+        if (validConfigs != null && !validConfigs.contains(varSymbol)) {
+            return Optional.empty();
+        }
+
+        Optional<String> defaultValue = getDefaultValue(varSymbol, module);
+        Optional<String> description = getDescriptionValue(varSymbol, module);
+        return Optional.of(new ConfigVariable(
+                varSymbol.name.value.replace("\\", ""),
+                varSymbol.type,
+                Symbols.isFlagOn(varSymbol.flags, Flags.REQUIRED),
+                defaultValue.orElse(""),
+                description.orElse("")
+        ));
+    }
+
+    private static Optional<ConfigVariable> extractConfigFromBVar(BLangVariable globalVar, Set<BVarSymbol> validConfigs) {
+        BVarSymbol varSymbol = globalVar.symbol;
+        if (varSymbol == null || varSymbol.tag != SymTag.VARIABLE || !Symbols.isFlagOn(varSymbol.flags, Flags.CONFIGURABLE)) {
+            return Optional.empty();
+        }
+
+        if (validConfigs != null && !validConfigs.contains(varSymbol)) {
+            return Optional.empty();
+        }
+
+        // TODO: improve this to get default value without using toString()
+        String defaultValue = globalVar.getInitialExpression().toString();
+        // TODO: add support for description
+        String description = "";
+        return Optional.of(new ConfigVariable(
+                varSymbol.name.value.replace("\\", ""),
+                varSymbol.type,
+                Symbols.isFlagOn(varSymbol.flags, Flags.REQUIRED),
+                defaultValue,
+                description
+        ));
     }
 
     /**
@@ -273,22 +350,41 @@ public final class ConfigReader {
      * @param module to retrieve module details
      * @return configurable variable description
      */
-    private static String getDescriptionValue(BVarSymbol symbol, Module module) {
+    private static Optional<String> getDescriptionValue(BVarSymbol symbol, Module module) {
         Map<Document, SyntaxTree> syntaxTreeMap = getSyntaxTreeMap(module);
-        Node variableNode = getVariableNode(symbol.getPosition().lineRange().startLine().line(), syntaxTreeMap);
-        if (variableNode != null) {
-            Optional<MetadataNode> optionalMetadataNode =
-                    ((ModuleVariableDeclarationNode) variableNode).metadata();
+        Optional<ModuleVariableDeclarationNode> variableNode = getVariableNode(symbol.getPosition().lineRange().startLine().line(),
+                syntaxTreeMap);
+        if (variableNode.isPresent()) {
+            Optional<MetadataNode> optionalMetadataNode = variableNode.get().metadata();
             if (optionalMetadataNode.isPresent()) {
                 String description = getDescriptionValue(optionalMetadataNode.get());
                 // Remove enclosing quotes if present
                 if (description.startsWith("\"") && description.endsWith("\"")) {
                     description = description.substring(1, description.length() - 1);
                 }
-                return description;
+                return Optional.of(description);
             }
         }
-        return "";
+        return Optional.empty();
+    }
+
+    /**
+     * Get default value of the configurable variable.
+     *
+     * @param symbol to get position details
+     * @param module to retrieve module details
+     * @return default value of the configurable variable
+     */
+    private static Optional<String> getDefaultValue(BVarSymbol symbol, Module module) {
+        Map<Document, SyntaxTree> syntaxTreeMap = getSyntaxTreeMap(module);
+        Optional<ModuleVariableDeclarationNode> variableNode = getVariableNode(symbol.getPosition().lineRange().startLine().line(), syntaxTreeMap);
+        if (variableNode.isPresent()) {
+            Optional<ExpressionNode> defaultValueExpr = variableNode.get().initializer();
+            if (defaultValueExpr.isPresent()) {
+                return Optional.ofNullable(defaultValueExpr.get().toSourceCode());
+            }
+        }
+        return Optional.empty();
     }
 
     /**
@@ -298,20 +394,26 @@ public final class ConfigReader {
      * @param syntaxTreeMap Syntax tree map for the specific module
      * @return Relevant syntax tree node for the variable
      */
-    private static Node getVariableNode(int position, Map<Document, SyntaxTree> syntaxTreeMap) {
+    private static Optional<ModuleVariableDeclarationNode> getVariableNode(int position,
+                                                                           Map<Document, SyntaxTree> syntaxTreeMap) {
         for (Map.Entry<Document, SyntaxTree> syntaxTreeEntry : syntaxTreeMap.entrySet()) {
-            if (syntaxTreeEntry.getValue().containsModulePart()) {
-                ModulePartNode modulePartNode = syntaxTreeMap.get(syntaxTreeEntry.getKey()).rootNode();
-                return modulePartNode.members().stream()
-                    .filter(node -> node.kind() == SyntaxKind.MODULE_VAR_DECL &&
-                        node instanceof ModuleVariableDeclarationNode &&
+            SyntaxTree syntaxTree = syntaxTreeEntry.getValue();
+            if (!syntaxTree.containsModulePart()) {
+                continue;
+            }
+
+            ModulePartNode modulePartNode = syntaxTree.rootNode();
+            for (Node node : modulePartNode.members()) {
+                if (node.kind() == SyntaxKind.MODULE_VAR_DECL &&
+                        node instanceof ModuleVariableDeclarationNode varNode &&
                         node.location().lineRange().startLine().line() <= position &&
-                        node.location().lineRange().endLine().line() >= position)
-                    .findFirst()
-                    .orElse(null);
+                        node.location().lineRange().endLine().line() >= position) {
+                    return Optional.of(varNode);
+                }
             }
         }
-        return null;
+
+        return Optional.empty();
     }
 
     /**

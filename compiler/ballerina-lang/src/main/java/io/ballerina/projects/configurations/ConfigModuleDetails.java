@@ -24,33 +24,6 @@ import io.ballerina.projects.ProjectKind;
  *
  * @since 2.0.0
  */
-public class ConfigModuleDetails {
-    String orgName;
-    String packageName;
-    String moduleName;
-    ProjectKind projectKind;
-
-    public ConfigModuleDetails(String orgName, String packageName, String moduleName, ProjectKind projectKind) {
-        this.orgName = orgName;
-        this.packageName = packageName;
-        this.moduleName = moduleName;
-        this.projectKind = projectKind;
-    }
-
-    public String orgName() {
-        return orgName;
-    }
-
-    public String packageName() {
-        return packageName;
-    }
-
-    public String moduleName() {
-        return moduleName;
-    }
-
-    public ProjectKind projectKind() {
-        return projectKind;
-    }
+public record ConfigModuleDetails(String orgName, String packageName, String moduleName, ProjectKind projectKind) {
 
 }

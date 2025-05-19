@@ -144,16 +144,15 @@ public class ConfigSchemaBuilder {
      * @param node            JSONObject to set the configurable details
      * @return JSONObject with configurable details
      */
-    private JsonObject setConfigVariables(List<ConfigVariable> configVariables,
-                                                 JsonObject node) {
+    private JsonObject setConfigVariables(List<ConfigVariable> configVariables, JsonObject node) {
         for (ConfigVariable configVariable : configVariables) {
             if (configVariable.type() != null) {
                 JsonObject typeNode = new TypeConverter().getType(configVariable.type());
                 typeNode.addProperty("description", configVariable.description());
+                typeNode.addProperty("default", configVariable.defaultValue());
                 node.add(configVariable.name(), typeNode);
             }
         }
         return node;
     }
-
 }
