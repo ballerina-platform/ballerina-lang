@@ -276,13 +276,13 @@ public class ToolCommandTest extends BaseCommandTest {
         new CommandLine(toolCommand).parseArgs("list", "arg");
         toolCommand.execute();
         String buildLog = readOutput(true);
-        Assert.assertEquals(buildLog.replace("\r", ""), getOutput("tool-list-with-args.txt"));
+        Assert.assertEquals(buildLog.replace("\r", ""), getOutput("tool-list-with-invalid-arg.txt"));
 
         toolCommand = new ToolCommand(printStream, printStream, false);
         new CommandLine(toolCommand).parseArgs("list", "arg1", "arg2");
         toolCommand.execute();
         buildLog = readOutput(true);
-        Assert.assertEquals(buildLog.replace("\r", ""), getOutput("tool-list-with-args.txt"));
+        Assert.assertEquals(buildLog.replace("\r", ""), getOutput("tool-list-with-too-many-args.txt"));
     }
 
     @Test(description = "Test tool remove with more than one argument")
