@@ -45,7 +45,9 @@ public final class PrintUtils {
     /**
      * Print locally available tool information as a table in the CLI.
      *
-     * @param tools       List of tools
+     * @param tools         list of tools
+     * @param terminalWidth terminal width
+     * @param all           whether to print all tools or only active tools
      */
     public static void printLocalTools(List<BalToolsManifest.Tool> tools, String terminalWidth, boolean all) {
         int rightMargin = 3;
