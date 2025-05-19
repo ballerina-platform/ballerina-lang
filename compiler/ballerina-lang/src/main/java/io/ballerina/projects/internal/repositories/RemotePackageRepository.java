@@ -276,7 +276,8 @@ public class RemotePackageRepository implements PackageRepository {
         List<ResolutionRequest> updatedRequests = new ArrayList<>(requests);
         // Remove the already resolved requests when the locking mode is hard
         for (PackageMetadataResponse response : cachedPackages) {
-            if (response.packageLoadRequest().packageLockingMode().equals(PackageLockingMode.HARD)
+            if (response.packageLoadRequest().version().isPresent()
+                    && response.packageLoadRequest().packageLockingMode().equals(PackageLockingMode.HARD)
                     && response.resolutionStatus().equals(ResolutionResponse.ResolutionStatus.RESOLVED)) {
                 updatedRequests.remove(response.packageLoadRequest());
             }

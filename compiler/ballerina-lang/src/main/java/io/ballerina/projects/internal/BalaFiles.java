@@ -357,6 +357,9 @@ public final class BalaFiles {
                 throw new ProjectException("unable to read content from the file '" + DEPRECATED_META_FILE_NAME +
                         "'", e);
             }
+            if (fileContents.isEmpty()) {
+                return "";
+            }
             return fileContents.substring(0, fileContents.length() - 1);
         }
         return null;
