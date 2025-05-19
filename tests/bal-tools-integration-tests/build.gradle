@@ -50,7 +50,7 @@ tasks.register('copyTestResources') {
     doLast {
         copy {
             from 'src/test/resources/dist-tools/bal-tools.toml'
-            into "$buildDir/extractedDistribution/jballerina-tools-${project.version}/"
+            into "$buildDir/extractedDistribution/jballerina-tools-${project.version}/resources/"
         }
         copy {
             from 'src/test/resources/central-tools/bal-tools.toml'
