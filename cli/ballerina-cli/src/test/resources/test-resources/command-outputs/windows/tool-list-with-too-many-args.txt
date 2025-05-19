@@ -1,4 +1,4 @@
 ballerina: too many arguments.
 
 USAGE:
-    bal tool list
+    bal tool list [--all]

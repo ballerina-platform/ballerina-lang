@@ -92,11 +92,12 @@ public class ToolCommand implements BLauncherCmd {
     private static final String TOOL_USAGE_TEXT = "bal tool <sub-command> [args]";
     private static final String TOOL_PULL_USAGE_TEXT = "bal tool pull <tool-id>[:<version>]";
     private static final String TOOL_USE_USAGE_TEXT = "bal tool use <tool-id>:<version>";
-    private static final String TOOL_LIST_USAGE_TEXT = "bal tool list";
+    private static final String TOOL_LIST_USAGE_TEXT = "bal tool list [--all]";
     private static final String TOOL_REMOVE_USAGE_TEXT = "bal tool remove <tool-id>:[<version>]";
     private static final String TOOL_SEARCH_USAGE_TEXT = "bal tool search [<tool-id>|<text>]";
     private static final String TOOL_UPDATE_USAGE_TEXT = "bal tool update <tool-id>";
     private static final String EMPTY_STRING = Names.EMPTY.getValue();
+    public static final String ALL = "--all";
 
     private final boolean exitWhenFinish;
     private final PrintStream outStream;
@@ -110,9 +111,6 @@ public class ToolCommand implements BLauncherCmd {
 
     @CommandLine.Option(names = "--repository")
     private String repositoryName;
-
-    @CommandLine.Option(names = "--all")
-    private boolean all;
 
     private String toolId;
     private String org;
@@ -346,11 +344,20 @@ public class ToolCommand implements BLauncherCmd {
     }
 
     private void handleListCommand() {
-        if (argList.size() > 1) {
+        if (argList.size() > 2) {
             CommandUtil.printError(
                     this.errStream, "too many arguments.", TOOL_LIST_USAGE_TEXT, false);
             CommandUtil.exitError(this.exitWhenFinish);
             return;
+        }
+        boolean all = false;
+        if (argList.size() == 2) {
+            if (!ALL.equals(argList.get(1))) {
+                CommandUtil.printError(
+                        this.errStream, "invalid argument.", TOOL_LIST_USAGE_TEXT, false);
+                CommandUtil.exitError(this.exitWhenFinish);
+                return;
+            }
         }
         List<BalToolsManifest.Tool> tools = listBalToolsTomlFile(all);
         if (tools.isEmpty()) {
@@ -719,7 +726,7 @@ public class ToolCommand implements BLauncherCmd {
 
         Path toolCacheDir = RepoUtils.createAndGetHomeReposPath()
                 .resolve(REPOSITORIES_DIR).resolve(CENTRAL_REPOSITORY_CACHE_NAME)
-                .resolve(ProjectConstants.BALA_DIR_NAME).resolve(tool.org()).resolve(tool.name());
+                .resolve(BALA_DIR_NAME).resolve(tool.org()).resolve(tool.name());
         if (toolCacheDir.toFile().isDirectory()) {
             try (Stream<Path> versions = Files.list(toolCacheDir)) {
                 return versions.anyMatch(path -> path.getFileName().toString().equals(version));
