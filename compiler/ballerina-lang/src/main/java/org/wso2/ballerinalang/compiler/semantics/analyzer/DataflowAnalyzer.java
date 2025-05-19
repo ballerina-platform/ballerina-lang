@@ -2715,7 +2715,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     }
 
     private void recordGlobalVariableReferenceRelationship(BSymbol symbol) {
-        if (this.env.scope == null) {
+        if (this.env.scope == null || symbol == null) {
             return;
         }
 
@@ -2735,9 +2735,11 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
                 }
                 // fall through
             default:
-                if (globalVarSymbol || symbol instanceof BTypeSymbol || ownerSymbol.tag == SymTag.LET) {
+                if (symbol.kind == SymbolKind.TYPE_DEF || globalVarSymbol || symbol instanceof BTypeSymbol ||
+                        ownerSymbol.tag == SymTag.LET) {
                     BSymbol dependent = this.currDependentSymbolDeque.peek();
-                    addDependency(dependent, symbol);
+                    addDependency(dependent, symbol.kind == SymbolKind.TYPE_DEF
+                            ? Types.getImpliedType(symbol.type).tsymbol : symbol);
                 }
         }
     }
