@@ -148,8 +148,9 @@ public class ConfigSchemaBuilder {
         for (ConfigVariable configVariable : configVariables) {
             if (configVariable.type() != null) {
                 JsonObject typeNode = new TypeConverter().getType(configVariable.type());
+                String defaultValue = configVariable.defaultValue() != null ? configVariable.defaultValue() : "";
+                typeNode.addProperty("default", defaultValue);
                 typeNode.addProperty("description", configVariable.description());
-                typeNode.addProperty("default", configVariable.defaultValue());
                 node.add(configVariable.name(), typeNode);
             }
         }
