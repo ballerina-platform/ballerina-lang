@@ -28,6 +28,7 @@ import io.ballerina.projects.configurations.ConfigVariable;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import static io.ballerina.projects.internal.configschema.TypeConverter.PROPERTIES;
 
@@ -148,8 +149,9 @@ public class ConfigSchemaBuilder {
         for (ConfigVariable configVariable : configVariables) {
             if (configVariable.type() != null) {
                 JsonObject typeNode = new TypeConverter().getType(configVariable.type());
-                String defaultValue = configVariable.defaultValue() != null ? configVariable.defaultValue() : "";
-                typeNode.addProperty("default", defaultValue);
+                Optional<JsonElement> defaultVal = new TypeConverter()
+                        .convertDefaultValueToType(configVariable.defaultValue(), typeNode);
+                defaultVal.ifPresent(jsonElement -> typeNode.add("default", jsonElement));
                 typeNode.addProperty("description", configVariable.description());
                 node.add(configVariable.name(), typeNode);
             }
