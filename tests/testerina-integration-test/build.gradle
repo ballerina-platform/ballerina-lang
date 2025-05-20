@@ -98,4 +98,8 @@ test {
     }
 
     jacoco.excludes = ["org.terasology.protobuf.*", "*MethodAccess", "*FieldAccess"]
+    testLogging {
+        events "started", "passed", "failed", "skipped"
+        showStandardStreams = true
+    }
 }
