@@ -141,6 +141,9 @@ public class TestCommand implements BLauncherCmd {
     @CommandLine.Option(names = {"--help", "-h"}, hidden = true)
     private boolean helpFlag;
 
+    @CommandLine.Option(names = "--experimental", description = "Enable experimental language features.")
+    private boolean experimentalFlag;
+
     @CommandLine.Option(names = "--debug", description = "start in remote debugging mode")
     private String debugPort;
 
@@ -222,6 +225,10 @@ public class TestCommand implements BLauncherCmd {
     @CommandLine.Option(names = "--optimize-dependency-compilation", hidden = true,
             description = "experimental memory optimization for large projects")
     private Boolean optimizeDependencyCompilation;
+
+    @CommandLine.Option(names = "--locking-mode", hidden = true,
+            description = "allow passing the package locking mode.")
+    private String lockingMode;
 
     private static final String testCmd = "bal test [--OPTIONS]\n" +
             "                   [<ballerina-file> | <package-path>] [(-Ckey=value)...]";
@@ -415,6 +422,7 @@ public class TestCommand implements BLauncherCmd {
 
         buildOptionsBuilder
                 .setCodeCoverage(coverage)
+                .setExperimental(experimentalFlag)
                 .setOffline(offline)
                 .setSkipTests(false)
                 .setTestReport(testReport)
@@ -429,7 +437,8 @@ public class TestCommand implements BLauncherCmd {
                 .disableSyntaxTreeCaching(disableSyntaxTreeCaching)
                 .setGraalVMBuildOptions(graalVMBuildOptions)
                 .setShowDependencyDiagnostics(showDependencyDiagnostics)
-                .setOptimizeDependencyCompilation(optimizeDependencyCompilation);
+                .setOptimizeDependencyCompilation(optimizeDependencyCompilation)
+                .setLockingMode(lockingMode);
 
         if (targetDir != null) {
             buildOptionsBuilder.targetDir(targetDir.toString());

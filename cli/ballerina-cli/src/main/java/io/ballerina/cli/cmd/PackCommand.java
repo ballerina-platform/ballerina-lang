@@ -69,6 +69,9 @@ public class PackCommand implements BLauncherCmd {
     @CommandLine.Option(names = {"--help", "-h"}, hidden = true)
     private boolean helpFlag;
 
+    @CommandLine.Option(names = "--experimental", description = "Enable experimental language features.")
+    private boolean experimentalFlag;
+
     @CommandLine.Option(names = "--debug", description = "run tests in remote debugging mode")
     private String debugPort;
 
@@ -98,6 +101,10 @@ public class PackCommand implements BLauncherCmd {
     @CommandLine.Option(names = "--optimize-dependency-compilation", hidden = true,
             description = "experimental memory optimization for large projects")
     private Boolean optimizeDependencyCompilation;
+
+    @CommandLine.Option(names = "--locking-mode", hidden = true,
+            description = "allow passing the package locking mode.")
+    private String lockingMode;
 
     public PackCommand() {
         this.projectPath = Path.of(System.getProperty(ProjectConstants.USER_DIR));
@@ -278,6 +285,7 @@ public class PackCommand implements BLauncherCmd {
     private BuildOptions constructBuildOptions() {
         BuildOptions.BuildOptionsBuilder buildOptionsBuilder = BuildOptions.builder();
         buildOptionsBuilder
+                .setExperimental(experimentalFlag)
                 .setOffline(offline)
                 .setDumpBir(dumpBIR)
                 .setDumpBirFile(dumpBIRFile)
@@ -289,7 +297,8 @@ public class PackCommand implements BLauncherCmd {
                 .setEnableCache(enableCache)
                 .disableSyntaxTreeCaching(disableSyntaxTreeCaching)
                 .setShowDependencyDiagnostics(showDependencyDiagnostics)
-                .setOptimizeDependencyCompilation(optimizeDependencyCompilation);
+                .setOptimizeDependencyCompilation(optimizeDependencyCompilation)
+                .setLockingMode(lockingMode);
 
         if (targetDir != null) {
             buildOptionsBuilder.targetDir(targetDir.toString());
