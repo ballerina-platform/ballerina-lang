@@ -95,9 +95,9 @@ public final class ConfigReader {
      * @param validConfigs       Set of valid configurable variable symbols
      * @return Map of configurable variables organized by module details
      */
-    private static Map<ConfigModuleDetails, List<ConfigVariable>> getImportedConfigVars(Package currentPackage,
-                                                                                        Collection<ModuleDependency> moduleDependencies,
-                                                                                        Set<BVarSymbol> validConfigs) {
+    private static Map<ConfigModuleDetails, List<ConfigVariable>> getImportedConfigVars(
+            Package currentPackage, Collection<ModuleDependency> moduleDependencies, Set<BVarSymbol> validConfigs) {
+
         Map<ConfigModuleDetails, List<ConfigVariable>> configDetails = new HashMap<>();
         for (Module module : currentPackage.modules()) {
             module.moduleContext().bLangPackage().symbol.imports.forEach(
@@ -113,7 +113,7 @@ public final class ConfigReader {
     }
 
     /**
-     * Process an import symbol to extract configuration variables
+     * Process an import symbol to extract configuration variables.
      *
      * @param module             Current module
      * @param importSymbol       Import symbol to process
@@ -121,8 +121,10 @@ public final class ConfigReader {
      * @param moduleDependencies Collection of module dependencies
      * @param validConfigs       Set of valid configurable variable symbols
      */
-    private static void processImportSymbol(Module module, BPackageSymbol importSymbol, Map<ConfigModuleDetails,
-            List<ConfigVariable>> configDetails, Collection<ModuleDependency> moduleDependencies, Set<BVarSymbol> validConfigs) {
+    private static void processImportSymbol(Module module, BPackageSymbol importSymbol,
+                                            Map<ConfigModuleDetails, List<ConfigVariable>> configDetails,
+                                            Collection<ModuleDependency> moduleDependencies,
+                                            Set<BVarSymbol> validConfigs) {
         String orgName = importSymbol.descriptor.org().value();
         String packageName = importSymbol.descriptor.packageName().value();
         String moduleNamePart = importSymbol.descriptor.name().moduleNamePart();
@@ -156,7 +158,7 @@ public final class ConfigReader {
 
         List<ConfigVariable> configVariables = new ArrayList<>();
         bLangPackage.getGlobalVariables().forEach(globalVar -> {
-            Optional<ConfigVariable> configVariable = extractConfigFromBVar(globalVar, validConfigs);
+            Optional<ConfigVariable> configVariable = getConfigFromBVar(globalVar, validConfigs);
             configVariable.ifPresent(configVariables::add);
         });
 
@@ -265,24 +267,23 @@ public final class ConfigReader {
         ));
     }
 
-    private static Optional<ConfigVariable> extractConfigFromBVar(BLangVariable globalVar, Set<BVarSymbol> validConfigs) {
-        BVarSymbol varSymbol = globalVar.symbol;
-        if (varSymbol == null || varSymbol.tag != SymTag.VARIABLE || !Symbols.isFlagOn(varSymbol.flags, Flags.CONFIGURABLE)) {
+    private static Optional<ConfigVariable> getConfigFromBVar(BLangVariable globalVar, Set<BVarSymbol> validConfigs) {
+        BVarSymbol symbol = globalVar.symbol;
+        if (symbol == null || symbol.tag != SymTag.VARIABLE || !Symbols.isFlagOn(symbol.flags, Flags.CONFIGURABLE)) {
             return Optional.empty();
         }
 
-        if (validConfigs != null && !validConfigs.contains(varSymbol)) {
+        if (validConfigs != null && !validConfigs.contains(symbol)) {
             return Optional.empty();
         }
 
-        // TODO: improve this to get default value without using toString()
         String defaultValue = globalVar.getInitialExpression().toString();
         // TODO: add support for description
         String description = "";
         return Optional.of(new ConfigVariable(
-                varSymbol.name.value.replace("\\", ""),
-                varSymbol.type,
-                Symbols.isFlagOn(varSymbol.flags, Flags.REQUIRED),
+                symbol.name.value.replace("\\", ""),
+                symbol.type,
+                Symbols.isFlagOn(symbol.flags, Flags.REQUIRED),
                 defaultValue,
                 description
         ));
@@ -352,8 +353,8 @@ public final class ConfigReader {
      */
     private static Optional<String> getDescriptionValue(BVarSymbol symbol, Module module) {
         Map<Document, SyntaxTree> syntaxTreeMap = getSyntaxTreeMap(module);
-        Optional<ModuleVariableDeclarationNode> variableNode = getVariableNode(symbol.getPosition().lineRange().startLine().line(),
-                syntaxTreeMap);
+        int position = symbol.getPosition().lineRange().startLine().line();
+        Optional<ModuleVariableDeclarationNode> variableNode = getVariableNode(position, syntaxTreeMap);
         if (variableNode.isPresent()) {
             Optional<MetadataNode> optionalMetadataNode = variableNode.get().metadata();
             if (optionalMetadataNode.isPresent()) {
@@ -377,7 +378,8 @@ public final class ConfigReader {
      */
     private static Optional<String> getDefaultValue(BVarSymbol symbol, Module module) {
         Map<Document, SyntaxTree> syntaxTreeMap = getSyntaxTreeMap(module);
-        Optional<ModuleVariableDeclarationNode> variableNode = getVariableNode(symbol.getPosition().lineRange().startLine().line(), syntaxTreeMap);
+        int position = symbol.getPosition().lineRange().startLine().line();
+        Optional<ModuleVariableDeclarationNode> variableNode = getVariableNode(position, syntaxTreeMap);
         if (variableNode.isPresent()) {
             Optional<ExpressionNode> defaultValueExpr = variableNode.get().initializer();
             if (defaultValueExpr.isPresent()) {

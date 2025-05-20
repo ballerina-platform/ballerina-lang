@@ -20,8 +20,12 @@ package io.ballerina.projects.configurations;
 import io.ballerina.projects.ProjectKind;
 
 /**
- * Holder class for module details to map the configurable variables against.
+ * Holder class for module details.
  *
+ * @param orgName     Organization name of the package
+ * @param packageName Ballerina package name
+ * @param moduleName  Module name
+ * @param projectKind type of the project (e.g., build, single file, etc.)
  * @since 2.0.0
  */
 public record ConfigModuleDetails(String orgName, String packageName, String moduleName, ProjectKind projectKind) {
