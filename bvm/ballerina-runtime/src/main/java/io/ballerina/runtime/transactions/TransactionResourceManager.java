@@ -314,7 +314,7 @@ public class TransactionResourceManager {
                     if (xaResource != null) {
                         xaResource.prepare(xid);
                     }
-                } catch (XAException e) {
+                } catch (Exception e) {
                     log.error("error at transaction prepare phase in transaction " + transactionId
                             + ":" + e.getMessage(), e);
                     return false;
@@ -369,7 +369,7 @@ public class TransactionResourceManager {
                             ctx.commit();
                         }
                     }
-                } catch (XAException e) {
+                } catch (Exception e) {
                     log.error("error when committing transaction " + transactionId + ":" + e.getMessage(), e);
                     commitSuccess = false;
                 } finally {
@@ -426,7 +426,7 @@ public class TransactionResourceManager {
                             ctx.rollback();
                         }
                     }
-                } catch (XAException e) {
+                } catch (Exception e) {
                     log.error("error when aborting the transaction " + transactionId + ":" + e.getMessage(), e);
                     abortSuccess = false;
                 } finally {
