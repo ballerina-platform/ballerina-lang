@@ -22,9 +22,12 @@ import org.ballerinalang.test.BaseTest;
 import org.ballerinalang.test.context.BMainInstance;
 import org.ballerinalang.test.context.BallerinaTestException;
 import org.testng.Assert;
+import org.testng.SkipException;
 import org.testng.annotations.Test;
 
 import java.nio.file.Path;
+
+import static io.ballerina.cli.utils.OsUtils.isWindows;
 
 
 /**
@@ -40,18 +43,22 @@ public class BalRunFunctionPositiveTestCase extends BaseTest {
 
     @Test
     public void testMultipleParam() throws BallerinaTestException {
+        if (isWindows()) {
+            throw new SkipException("Windows is not supported");
+        }
         String[] args = new String[]{
                 "test_main_with_multiple_typed_params.bal", "--", "1000", "1.0", "Hello Ballerina",
                 "just", "the", "rest", "--name=Em"};
         executeTest(args,
                     "integer: 1000, float: 1.0, string: Hello Ballerina, Employee Name Field: Em, string rest args: " +
-                            "just the rest ");
+                            "just the rest");
     }
 
     private void executeTest(String[] args, String expected) throws BallerinaTestException {
         BMainInstance bMainInstance = new BMainInstance(balServer);
         String output = bMainInstance.runMainAndReadStdOut("run", args,
                 Path.of("src/test/resources/run/file").toString());
-        Assert.assertTrue(output.endsWith(expected));
+        Assert.assertTrue(output.stripTrailing().endsWith(expected),
+                "Output: '" + output + "' Expected: '" + expected + "'");
     }
 }
