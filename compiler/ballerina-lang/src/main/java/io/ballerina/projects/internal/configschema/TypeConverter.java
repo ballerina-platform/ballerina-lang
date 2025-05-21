@@ -18,7 +18,11 @@
 package io.ballerina.projects.internal.configschema;
 
 import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonNull;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+import com.google.gson.JsonPrimitive;
 import io.ballerina.types.ComplexSemType;
 import io.ballerina.types.PredefinedType;
 import io.ballerina.types.SemType;
@@ -49,6 +53,7 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
+import java.util.Optional;
 
 import static io.ballerina.types.Core.getComplexSubtypeData;
 import static io.ballerina.types.SemTypes.isSubtypeSimple;
@@ -74,23 +79,6 @@ public class TypeConverter {
     static final String TYPE = "type";
     // Stores already visited complex types against the type name
     private final Map<String, VisitedType> visitedTypeMap = new HashMap<>();
-
-    private VisitedType getVisitedType(String typeName) {
-        if (visitedTypeMap.containsKey(typeName)) {
-            return visitedTypeMap.get(typeName);
-        }
-        return null;
-    }
-
-    public void addVisitedTypeEntry(String typeName) {
-        visitedTypeMap.put(typeName, new VisitedType());
-    }
-
-    private void completeVisitedTypeEntry(String typeName, JsonObject typeNode) {
-        VisitedType visitedType = visitedTypeMap.get(typeName);
-        visitedType.setCompleted(true);
-        visitedType.setTypeNode(typeNode);
-    }
 
     /**
      * Get the type as a JSONObject.
@@ -156,6 +144,76 @@ public class TypeConverter {
         }
 
         return typeNode;
+    }
+
+    /**
+     * Converts a string default value to the appropriate type based on the type node.
+     *
+     * @param defaultValue The string default value to convert
+     * @param typeNode     The JSON type node that contains the type information
+     * @return The converted value as a JsonElement
+     */
+    Optional<JsonElement> convertDefaultValueToType(String defaultValue, JsonObject typeNode) {
+        if (defaultValue == null || defaultValue.isEmpty()) {
+            return Optional.of(JsonNull.INSTANCE);
+        }
+
+        String type = typeNode.has(TYPE) ? typeNode.get(TYPE).getAsString() : null;
+        if (type == null) {
+            return Optional.of(JsonNull.INSTANCE);
+        }
+        if (typeNode.has("enum")) {
+            return Optional.of(new JsonPrimitive(defaultValue));
+        }
+
+        // Convert based on type
+        switch (type) {
+            case "integer":
+                try {
+                    return Optional.of(new JsonPrimitive(Integer.parseInt(defaultValue)));
+                } catch (NumberFormatException e) {
+                    return Optional.empty();
+                }
+            case "number":
+                try {
+                    return Optional.of(new JsonPrimitive(Double.parseDouble(defaultValue)));
+                } catch (NumberFormatException e) {
+                    return Optional.empty();
+                }
+            case "boolean":
+                return Optional.of(new JsonPrimitive(Boolean.parseBoolean(defaultValue)));
+            case "null":
+                return Optional.of(JsonNull.INSTANCE);
+            case "array":
+                try {
+                    JsonElement element = JsonParser.parseString(defaultValue);
+                    if (element.isJsonArray()) {
+                        return Optional.of(element);
+                    }
+                } catch (Exception e) {
+                    return Optional.empty();
+                }
+                return Optional.empty();
+            case "object":
+                try {
+                    JsonElement element = JsonParser.parseString(defaultValue);
+                    if (element.isJsonObject()) {
+                        return Optional.of(element);
+                    }
+                } catch (Exception e) {
+                    return Optional.empty();
+                }
+                return Optional.empty();
+            case "string":
+                // "?" is used to indicate required configs, so not a valid default value
+                if (defaultValue.equals("?")) {
+                    return Optional.empty();
+                } else {
+                    return Optional.of(new JsonPrimitive(defaultValue));
+                }
+            default:
+                return Optional.of(new JsonPrimitive(defaultValue));
+        }
     }
 
     private void generateTableType(JsonObject typeNode, BTableType effectiveType) {
@@ -348,4 +406,16 @@ public class TypeConverter {
         return node;
     }
 
+    private VisitedType getVisitedType(String typeName) {
+        if (visitedTypeMap.containsKey(typeName)) {
+            return visitedTypeMap.get(typeName);
+        }
+        return null;
+    }
+
+    private void completeVisitedTypeEntry(String typeName, JsonObject typeNode) {
+        VisitedType visitedType = visitedTypeMap.get(typeName);
+        visitedType.setCompleted(true);
+        visitedType.setTypeNode(typeNode);
+    }
 }

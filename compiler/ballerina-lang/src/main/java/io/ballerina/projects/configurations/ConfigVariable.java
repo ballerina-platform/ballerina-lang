@@ -22,36 +22,13 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 /**
  * Holder class for configurable variable details.
  *
+ * @param name         Variable name
+ * @param type         Variable type
+ * @param isRequired   Whether the variable is a required configurable
+ * @param defaultValue Default value of the variable
+ * @param description  Variable description
  * @since 2.0.0
  */
-public class ConfigVariable {
-
-    String name;
-    BType type;
-    boolean isRequired;
-    String description;
-
-    public ConfigVariable(String name, BType type, boolean isRequired, String description) {
-        this.name = name;
-        this.type = type;
-        this.isRequired = isRequired;
-        this.description = description;
-    }
-
-    public String name() {
-        return name;
-    }
-
-    public BType type() {
-        return type;
-    }
-
-    public boolean isRequired() {
-        return isRequired;
-    }
-
-    public String description() {
-        return description;
-    }
+public record ConfigVariable(String name, BType type, boolean isRequired, String defaultValue, String description) {
 
 }

@@ -34,6 +34,11 @@
               "additionalProperties": {
                 "type": "integer"
               },
+              "default": {
+                "item1": 11,
+                "item2": 12,
+                "item3": 45
+              },
               "description": ""
             },
             "itemColor": {
@@ -73,6 +78,14 @@
                   "type": "integer"
                 }
               },
+              "default": [
+                {
+                  "val1": 22
+                },
+                {
+                  "val2": 32
+                }
+              ],
               "description": ""
             },
             "employeeArray": {
@@ -114,6 +127,12 @@
                   "salary"
                 ],
                 "name": "dilhashanazeer/complexconfigs2:0.1.0:Employee"
+              },
+              "default": {
+                "emp1": {
+                  "name": "user1",
+                  "salary": 1200
+                }
               },
               "description": ""
             },
