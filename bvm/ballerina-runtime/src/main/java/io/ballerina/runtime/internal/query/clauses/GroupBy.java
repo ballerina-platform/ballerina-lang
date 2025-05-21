@@ -79,7 +79,6 @@ public class GroupBy implements QueryClause {
             BString nonGroupingKey = (BString) nonGroupingKeys.get(i);
             Object[] values = frames.stream()
                     .map(f -> f.get(nonGroupingKey))
-                    .filter(Objects::nonNull)
                     .toArray();
             BArray valuesArray = ValueCreator.createArrayValue(values, TYPE_ANY_ARRAY);
             groupedRecord.put(nonGroupingKey, valuesArray);
