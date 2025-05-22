@@ -52,6 +52,7 @@ import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.compiler.util.Unifier;
 import org.wso2.ballerinalang.util.Flags;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.regex.Pattern;
@@ -139,6 +140,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.RETURN_X
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.STRING_BUILDER_APPEND;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.VOID_METHOD_DESC;
 import static org.wso2.ballerinalang.compiler.util.CompilerUtils.getMajorVersion;
+import static org.wso2.ballerinalang.compiler.util.Constants.RECORD_DELIMITER;
 
 /**
  * The common functions used in CodeGen.
@@ -741,5 +743,17 @@ public final class JvmCodeGenUtil {
             mv.visitVarInsn(ALOAD, localVarOffset);
             mv.visitFieldInsn(GETFIELD, STRAND_CLASS, STRAND_WORKER_CHANNEL_MAP, GET_WORKER_CHANNEL_MAP);
         }
+    }
+
+    public static List<BIRNode.BIRFunction> skipRecordDefaultValueFunctions(List<BIRNode.BIRFunction> functions) {
+        List<BIRNode.BIRFunction> filteredFunctions = new ArrayList<>();
+        for (BIRNode.BIRFunction func : functions) {
+            String funcName = func.name.value;
+            if (funcName.contains(RECORD_DELIMITER)) {
+                continue;
+            }
+            filteredFunctions.add(func);
+        }
+        return filteredFunctions;
     }
 }
