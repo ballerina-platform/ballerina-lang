@@ -30,7 +30,6 @@ import io.ballerina.runtime.internal.TypeChecker;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -79,7 +78,6 @@ public class GroupBy implements QueryClause {
             BString nonGroupingKey = (BString) nonGroupingKeys.get(i);
             Object[] values = frames.stream()
                     .map(f -> f.get(nonGroupingKey))
-                    .filter(Objects::nonNull)
                     .toArray();
             BArray valuesArray = ValueCreator.createArrayValue(values, TYPE_ANY_ARRAY);
             groupedRecord.put(nonGroupingKey, valuesArray);
