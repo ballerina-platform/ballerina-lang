@@ -60,6 +60,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -385,6 +386,12 @@ public final class TestUtils {
             cmdArgs.add(System.getProperty("java.command"));
         } else {
             cmdArgs.add(javaCommand);
+        }
+
+        String javaOpts = System.getenv("JAVA_OPTS");
+        if ( javaOpts != null) {
+            String[] opts = javaOpts.split("\\s+");
+            cmdArgs.addAll(Arrays.asList(opts));
         }
 
         cmdArgs.add("-XX:+HeapDumpOnOutOfMemoryError");

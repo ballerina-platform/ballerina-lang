@@ -28,6 +28,7 @@ import org.wso2.ballerinalang.util.Lists;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import static io.ballerina.cli.launcher.LauncherUtils.createLauncherException;
@@ -92,6 +93,11 @@ public class RunExecutableTask implements Task {
             }
             commands.add("-XX:+HeapDumpOnOutOfMemoryError");
             commands.add("-XX:HeapDumpPath=" + System.getProperty(USER_DIR));
+            String javaOpts = System.getenv("JAVA_OPTS");
+            if ( javaOpts != null) {
+                String[] opts = javaOpts.split("\\s+");
+                commands.addAll(Arrays.asList(opts));
+            }
             // Sets classpath with executable thin jar and all dependency jar paths.
             commands.add("-jar");
             commands.add(this.target.getExecutablePath(project.currentPackage()).toAbsolutePath()
