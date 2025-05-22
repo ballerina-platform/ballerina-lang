@@ -389,7 +389,7 @@ public final class TestUtils {
         }
 
         String javaOpts = System.getenv("JAVA_OPTS");
-        if ( javaOpts != null) {
+        if (javaOpts != null) {
             String[] opts = javaOpts.split("\\s+");
             cmdArgs.addAll(Arrays.asList(opts));
         }

@@ -94,7 +94,7 @@ public class RunExecutableTask implements Task {
             commands.add("-XX:+HeapDumpOnOutOfMemoryError");
             commands.add("-XX:HeapDumpPath=" + System.getProperty(USER_DIR));
             String javaOpts = System.getenv("JAVA_OPTS");
-            if ( javaOpts != null) {
+            if (javaOpts != null) {
                 String[] opts = javaOpts.split("\\s+");
                 commands.addAll(Arrays.asList(opts));
             }
