@@ -388,20 +388,14 @@ public final class TestUtils {
             cmdArgs.add(javaCommand);
         }
 
-        String javaOpts = System.getenv("JAVA_OPTS");
-        if (javaOpts != null) {
-            String[] opts = javaOpts.split("\\s+");
-            cmdArgs.addAll(Arrays.asList(opts));
-        }
-
         cmdArgs.add("-XX:+HeapDumpOnOutOfMemoryError");
+        cmdArgs.add("-XX:+ExitOnOutOfMemoryError");
 
         if (userDir == null) {
             cmdArgs.add("-XX:HeapDumpPath=" + System.getProperty(USER_DIR));
         } else {
             cmdArgs.add("-XX:HeapDumpPath=" + userDir);
         }
-
         return cmdArgs;
     }
 
