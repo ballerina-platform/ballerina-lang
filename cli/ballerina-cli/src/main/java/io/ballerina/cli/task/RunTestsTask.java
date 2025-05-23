@@ -274,6 +274,18 @@ public class RunTestsTask implements Task {
         if (isInDebugMode()) {
             cmdArgs.add(getDebugArgs(this.err));
         }
+
+        String javaOpts = System.getenv("JAVA_OPTS");
+        if (javaOpts != null) {
+            String[] opts = javaOpts.split("\\s+");
+            for (int i = 0; i < opts.length; i++) {
+                // Avoid adding duplicate options and '-javaagent' to avoid clashes in monitoring tools
+                if (!cmdArgs.contains(opts[i]) && !opts[i].contains("-javaagent:")) {
+                    cmdArgs.add(opts[i]);
+                }
+            }
+        }
+
         cmdArgs.add(mainClassName);
 
         // Adds arguments to be read at the Test Runner
