@@ -38,6 +38,14 @@ type Shop record {
     funion union_status;
 };
 
+type readonlyShop record {
+    string name;
+    Status status;
+    num number;
+    ftype1 foo_status;
+    funion union_status;
+} & readonly;
+
 function testConvertJSONToRecord() {
     json j = {
         "name": "My Shop",
@@ -48,12 +56,15 @@ function testConvertJSONToRecord() {
     };
 
     map<anydata> recordValue = convertJSONToRecord(j, Shop);
+    map<anydata> recordValue2 = convertJSONToRecord(j, readonlyShop);
     string expectedOutput = "{\"name\":\"My Shop\",\"status\":\"OPEN\",\"number\":1,\"foo_status\":" +
     "\"foo\",\"union_status\":\"bar\"}";
     test:assertEquals(recordValue.toString(), expectedOutput);
-
+    test:assertEquals(recordValue2.toString(), expectedOutput);
     var jval_result = convertJSON(j, Shop);
+    var jval_result2 = convertJSON(j, readonlyShop);
     test:assertEquals(jval_result.toString(), expectedOutput);
+    test:assertEquals(jval_result2.toString(), expectedOutput);
 }
 
 type numUnion1 int|decimal|float;
@@ -71,6 +82,8 @@ type union2 int|int:Signed16;
 type union3 singletonunion|union1|union2;
 
 type intArray int[];
+
+type readonlyIntArray readonly & int[];
 
 type stringMap map<string>;
 
@@ -109,6 +122,10 @@ function testConvertJSON() {
 
     jval = [12, -1, 0, 15];
     jval_result = trap convertJSON(jval, intArray);
+    test:assertEquals(jval_result, [12, -1, 0, 15]);
+
+    jval = [12, -1, 0, 15];
+    jval_result = trap convertJSON(jval, readonlyIntArray);
     test:assertEquals(jval_result, [12, -1, 0, 15]);
 
     jval = {"a": "true"};
