@@ -375,7 +375,8 @@ public class TransactionResourceManager {
                     try {
                         ctx.close();
                     } catch (Exception e) {
-                        log.error("error when committing and releasing resources for transaction " + transactionId + ":" + e.getMessage(), e);
+                        log.error("error when committing and releasing resources for transaction " + transactionId +
+                                ":" + e.getMessage(), e);
                         commitSuccess = false;
                     }
                 }
@@ -437,7 +438,8 @@ public class TransactionResourceManager {
                     try {
                         ctx.close();
                     } catch (Exception e) {
-                        log.error("error when aborting and releasing resources for transaction " + transactionId + ":" + e.getMessage(), e);
+                        log.error("error when aborting and releasing resources for transaction " + transactionId +
+                                ":" + e.getMessage(), e);
                         abortSuccess = false;
                     }
                 }
