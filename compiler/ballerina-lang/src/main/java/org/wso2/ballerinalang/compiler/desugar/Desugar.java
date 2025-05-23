@@ -1057,9 +1057,26 @@ public class Desugar extends BLangNodeVisitor {
                     rewrite((BLangTypeDefinition) topLevelNode, env);
                     addTypeDescStmtsToInitFunction(initFunctionEnv, desugaredGlobalVarList, initFnBody);
                 }
+                case FUNCTION -> {
+                    BLangFunction function = (BLangFunction) topLevelNode;
+                    if (!function.annAttachments.isEmpty()) {
+                        createAnnotationResolvePoint((BLangFunction) topLevelNode, initFnBody);
+                    }
+                }
             }
         }
         pkgNode.globalVars = desugaredGlobalVarList;
+    }
+
+    private void createAnnotationResolvePoint(BLangFunction function, BLangBlockFunctionBody initFnBody) {
+        // This will add a dummy simple var def statement to the init function body which tracks the
+        // point to resolve the annot of the function
+        BLangSimpleVariable simpleVariable = ASTBuilderUtil.createVariable(null,
+                "$" + function.symbol.name + "$AnnotResolvePoint", null, null, function.symbol);
+        BLangSimpleVariableDef simpleVariableDef = ASTBuilderUtil.createVariableDef(null);
+        simpleVariableDef.var = simpleVariable;
+        simpleVariableDef.setBType(simpleVariable.getBType());
+        initFnBody.addStatement(simpleVariableDef);
     }
 
     private void addTypeDescStmtsToInitFunction(SymbolEnv initFunctionEnv, List<BLangVariable> desugaredGlobalVarList,

@@ -521,7 +521,16 @@ public class AnnotationDesugar {
                     addInvocationToGlobalAnnotMap(identifier, lambdaFunction, target, initFunction.symbol);
                     globalAnnotInitStmt.ifPresent(statement ->
                             updateInitOfAnnotGlobalMapWithEmptyRecordLiteral(statement, identifier, lambdaFunction));
-                    index = initFnBody.stmts.size();
+                    index = initFnBody.stmts.stream().filter((stmt -> (stmt.getKind() == NodeKind.VARIABLE_DEF) &&
+                            ((BLangSimpleVariableDef) stmt).var.name.value.endsWith("$AnnotResolvePoint") &&
+                            ((BLangSimpleVariableDef) stmt).var.symbol == function.symbol)).findFirst()
+                            .map(initFnBody.stmts::indexOf).orElse(-1);
+                    if (index == -1) {
+                        index = initFnBody.stmts.size();
+                    } else {
+                        // Remove the AnnotResolvePoint statement
+                        initFnBody.stmts.remove(index);
+                    }
                 }
 
                 // Add the annotation assignment for resources to immediately before the service init.

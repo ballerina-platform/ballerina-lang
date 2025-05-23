@@ -293,9 +293,9 @@ public class GlobalVariableRefAnalyzer {
     }
 
     private Map<BSymbol, TopLevelNode> collectAssociateSymbolsWithTopLevelNodes() {
-        // Create a single map to hold dependent functions first, then other variables
+        // Create a single map to hold functions first, then other variables
         Map<BSymbol, TopLevelNode> resultMap = new LinkedHashMap<>();
-        // Temporary collection to hold other top level nodes except dependent functions
+        // Temporary collection to hold other top level nodes except functions
         Map<BSymbol, TopLevelNode> tempVarMap = new LinkedHashMap<>();
         for (TopLevelNode topLevelNode : this.pkgNode.topLevelNodes) {
             BSymbol symbol = getSymbolFromTopLevelNode(topLevelNode);
@@ -303,16 +303,13 @@ public class GlobalVariableRefAnalyzer {
                 continue;
             }
 
-            boolean isDependentFunction = (symbol.tag & SymTag.FUNCTION) == SymTag.FUNCTION &&
-                    globalNodeDependsOn.containsKey(symbol);
-            if (isDependentFunction) {
+            if ((symbol.tag & SymTag.FUNCTION) == SymTag.FUNCTION) {
                 resultMap.put(symbol, topLevelNode);
             } else {
                 tempVarMap.put(symbol, topLevelNode);
             }
         }
-        // Add all non-dependent symbols after dependent functions.
-        // This will bring dependent functions to the top of the order.
+        // This will bring functions to the top of the order.
         resultMap.putAll(tempVarMap);
         return resultMap;
     }

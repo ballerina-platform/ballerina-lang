@@ -434,9 +434,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
         this.currDependentSymbolDeque.push(funcNode.symbol);
         SymbolEnv moduleInitFuncEnv = SymbolEnv.createModuleInitFunctionEnv(funcNode, funcNode.symbol.scope, env);
-        for (BLangAnnotationAttachment bLangAnnotationAttachment : funcNode.annAttachments) {
-            analyzeNode(bLangAnnotationAttachment.expr, env);
-        }
+        funcNode.annAttachments.forEach(attachment -> analyzeNode(attachment, env));
         analyzeNode(funcNode.body, moduleInitFuncEnv);
         this.currDependentSymbolDeque.pop();
 
@@ -465,7 +463,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         this.unusedLocalVariables = new HashMap<>();
         this.currDependentSymbolDeque.push(funcNode.symbol);
 
-        funcNode.annAttachments.forEach(bLangAnnotationAttachment -> analyzeNode(bLangAnnotationAttachment.expr, env));
+        funcNode.annAttachments.forEach(attachment -> analyzeNode(attachment, env));
         funcNode.requiredParams.forEach(param -> analyzeNode(param, funcEnv));
         analyzeNode(funcNode.restParam, funcEnv);
         analyzeNode(funcNode.returnTypeNode, env);
@@ -561,7 +559,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
             analyzeNode(attachedExpr, env);
         }
 
-        service.annAttachments.forEach(bLangAnnotationAttachment -> analyzeNode(bLangAnnotationAttachment.expr, env));
+        service.annAttachments.forEach(attachment -> analyzeNode(attachment, env));
         this.currDependentSymbolDeque.pop();
     }
 
@@ -572,7 +570,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
             symbol = symbol.type.tsymbol;
         }
         this.currDependentSymbolDeque.push(symbol);
-        typeDefinition.annAttachments.forEach(attachment -> analyzeNode(attachment.expr, env));
+        typeDefinition.annAttachments.forEach(attachment -> analyzeNode(attachment, env));
         analyzeNode(typeDefinition.typeNode, env);
         this.currDependentSymbolDeque.pop();
     }
@@ -599,7 +597,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         this.currDependentSymbolDeque.push(classDef.symbol);
 
         for (BLangAnnotationAttachment bLangAnnotationAttachment : classDef.annAttachments) {
-            analyzeNode(bLangAnnotationAttachment.expr, env);
+            analyzeNode(bLangAnnotationAttachment, env);
         }
 
         classDef.fields.forEach(field -> analyzeNode(field, this.env));
@@ -2219,10 +2217,15 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangAnnotation annotationNode) {
+        this.currDependentSymbolDeque.push(annotationNode.symbol);
+        analyzeNode(annotationNode.typeNode, env);
+        this.currDependentSymbolDeque.pop();
     }
 
     @Override
     public void visit(BLangAnnotationAttachment annAttachmentNode) {
+        addDependency(currDependentSymbolDeque.peek(), annAttachmentNode.annotationSymbol);
+        analyzeNode(annAttachmentNode.expr, env);
     }
 
     @Override
@@ -2360,9 +2363,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         for (BLangSimpleVariable field : recordTypeNode.fields) {
             addTypeDependency(tsymbol, Types.getImpliedType(field.getBType()), new HashSet<>());
             analyzeNode(field, env);
-            for (BLangAnnotationAttachment annotationAttachment : field.annAttachments) {
-                analyzeNode(annotationAttachment.expr, env);
-            }
+            field.annAttachments.forEach(attachment -> analyzeNode(attachment, env));
             recordGlobalVariableReferenceRelationship(field.symbol);
         }
     }
@@ -2404,9 +2405,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     public void visit(BLangTupleTypeNode tupleTypeNode) {
         for (BLangSimpleVariable member : tupleTypeNode.members) {
             analyzeNode(member, env);
-            for (BLangAnnotationAttachment annotationAttachment : member.annAttachments) {
-                analyzeNode(annotationAttachment.expr, env);
-            }
+            member.annAttachments.forEach(attachment -> analyzeNode(attachment, env));
         }
     }
 
