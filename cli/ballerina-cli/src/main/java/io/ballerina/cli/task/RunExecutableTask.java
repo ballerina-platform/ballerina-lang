@@ -28,7 +28,6 @@ import org.wso2.ballerinalang.util.Lists;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import static io.ballerina.cli.launcher.LauncherUtils.createLauncherException;
