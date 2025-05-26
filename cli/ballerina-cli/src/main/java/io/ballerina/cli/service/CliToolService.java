@@ -19,6 +19,7 @@
 package io.ballerina.cli.service;
 
 import io.ballerina.cli.service.types.CommandResponse;
+import io.ballerina.cli.service.types.Context;
 import io.ballerina.cli.service.types.SubCommand;
 
 import java.util.List;
@@ -37,7 +38,7 @@ public interface CliToolService {
      * @param args    The arguments for the command.
      * @return The response from executing the command.
      */
-    CommandResponse executeCommand(String command, String[] args);
+    CommandResponse executeCommand(String command, String[] args, Context context);
 
     /**
      * Retrieves the list of available commands.
