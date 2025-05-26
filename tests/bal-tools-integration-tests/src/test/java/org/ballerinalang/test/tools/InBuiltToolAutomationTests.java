@@ -42,7 +42,7 @@ public class InBuiltToolAutomationTests extends BaseTestCase {
         String projectPath = projectsRoot.resolve("projectWithOneTool").toString();
         String output = balClient.runMainAndReadStdOut("build", new String[]{projectPath},
                 new HashMap<>(), userDir, true);
-        Assert.assertTrue(output.contains("persist1 0.9.0"));
+        Assert.assertTrue(output.contains("persist1 0.9.0"), output);
     }
 
     @Test
@@ -51,7 +51,7 @@ public class InBuiltToolAutomationTests extends BaseTestCase {
         String projectPath = projectsRoot.resolve("projectWithOneToolWithDepsToml").toString();
         String output = balClient.runMainAndReadStdOut("build", new String[]{projectPath},
                 new HashMap<>(), userDir, true);
-        Assert.assertTrue(output.contains("openapi1 1.2.1"));
+        Assert.assertTrue(output.contains("openapi1 1.2.1"), output);
     }
 
     @Test
@@ -60,7 +60,7 @@ public class InBuiltToolAutomationTests extends BaseTestCase {
         String projectPath = projectsRoot.resolve("projectWithOneToolWithDepsTomlAndSticky").toString();
         String output = balClient.runMainAndReadStdOut("build", new String[]{"--sticky", projectPath},
                 new HashMap<>(), userDir, true);
-        Assert.assertTrue(output.contains("openapi1 1.2.0"));
+        Assert.assertTrue(output.contains("openapi1 1.2.0"), output);
     }
 
     @Test
@@ -69,7 +69,7 @@ public class InBuiltToolAutomationTests extends BaseTestCase {
         String projectPath = projectsRoot.resolve("projectWithIncompatibleVersionOfTool").toString();
         String output = balClient.runMainAndReadStdOut("build", new String[]{projectPath},
                 new HashMap<>(), userDir, true);
-        Assert.assertTrue(output.contains("Build tool 'openapi1:1.3.0' cannot be resolved"));
+        Assert.assertTrue(output.contains("Build tool 'openapi1:1.3.0' cannot be resolved"), output);
     }
 
     @Test
@@ -78,8 +78,8 @@ public class InBuiltToolAutomationTests extends BaseTestCase {
         String projectPath = projectsRoot.resolve("projectWithMultipleTools").toString();
         String output = balClient.runMainAndReadStdOut("build", new String[]{"--offline", projectPath},
                 new HashMap<>(), userDir, true);
-        Assert.assertTrue(output.contains("persist1 0.9.0"));
-        Assert.assertTrue(output.contains("openapi1 1.2.1"));
-        Assert.assertTrue(output.contains("consolidate-packages 0.1.7"));
+        Assert.assertTrue(output.contains("persist1 0.9.0"), output);
+        Assert.assertTrue(output.contains("openapi1 1.2.1"), output);
+        Assert.assertTrue(output.contains("consolidate-packages 0.1.7"), output);
     }
 }
