@@ -1,23 +1,25 @@
 /*
- * Copyright (c) 2025, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *  Copyright (c) 2025, WSO2 LLC. (http://www.wso2.com)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ *  WSO2 LLC. licenses this file to you under the Apache License,
+ *  Version 2.0 (the "License"); you may not use this file except
+ *  in compliance with the License.
+ *  You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ *    http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *
+ *  Unless required by applicable law or agreed to in writing,
+ *  software distributed under the License is distributed on an
+ *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ *  KIND, either express or implied.  See the License for the
+ *  specific language governing permissions and limitations
+ *  under the License.
  */
 
 plugins {
     id 'base'
     id 'javaProject'
+    id 'ballerinaLangLibLoad'
 }
 
 description = 'Ballerina - Bal tools Test'
@@ -33,10 +35,14 @@ dependencies {
     testImplementation libs.testng
     testImplementation libs.slf4j.jdk14
     testImplementation libs.gson
-    implementation libs.picocli
+    testImplementation libs.commons.io
 
-    implementation project(path: ':ballerina-test-utils')
+    implementation libs.picocli
+    implementation project(':ballerina-lang')
+    implementation project(':ballerina-cli')
+    implementation project(':ballerina-tools-api')
     implementation project(':ballerina-runtime')
+    implementation project(path: ':ballerina-test-utils')
 }
 
 tasks.register('extractDistribution', Copy) {
@@ -46,33 +52,130 @@ tasks.register('extractDistribution', Copy) {
 
 }
 
+tasks.register('copyDistToml', Copy) {
+    from 'src/test/resources/bal-tool-tomls/dist-bal-tools.toml'
+    into "$buildDir/extractedDistribution/jballerina-tools-${project.version}/resources/"
+    rename { 'bal-tools.toml' }
+}
+
+tasks.register('copyCentralToml', Copy) {
+    from 'src/test/resources/bal-tool-tomls/central-bal-tools.toml'
+    into "$buildDir/user-home/.ballerina/.config/"
+    rename { 'bal-tools.toml' }
+}
+
+tasks.register('copyProjects', Copy) {
+    from 'src/test/resources/projects'
+    into "$buildDir/projects/"
+    include '**'
+}
+
 tasks.register('copyTestResources') {
-    doLast {
-        copy {
-            from 'src/test/resources/dist-tools/bal-tools.toml'
-            into "$buildDir/extractedDistribution/jballerina-tools-${project.version}/resources/"
+    dependsOn 'copyDistToml', 'copyCentralToml', 'copyProjects'
+}
+
+def commands = [
+        dummytoolA: [
+                className: "org.ballerina.tools.test.DummyToolACmd",
+                versions: ["1.1.0", "1.2.0", "1.2.1", "1.2.2", "1.3.0"]
+        ],
+        dummytoolB: [
+                className: "org.ballerina.tools.test.DummyToolBCmd",
+                versions: ["1.0.0", "1.1.0", "1.2.0"]
+        ],
+        dummytoolC: [
+                className: "org.ballerina.tools.test.DummyToolCCmd",
+                versions: ["1.0.0", "1.1.0"]
+        ],
+        dummytoolD: [
+                className: "org.ballerina.tools.test.DummyToolDCmd",
+                versions: ["1.0.0", "1.1.0", "1.1.5"]
+        ],
+        dummytoolE: [
+                className: "org.ballerina.tools.test.DummyToolECmd",
+                versions: ["1.0.1", "1.0.2", "1.1.0"]
+        ],
+        dummytoolF: [
+                className: "org.ballerina.tools.test.DummyToolFCmd",
+                versions: ["0.9.0"]
+        ],
+        dummyToolX: [
+                className: "org.ballerina.tools.test.DummyToolXCmd",
+                versions: ["0.1.7"]
+        ]
+]
+
+commands.each { commandName, config ->
+    def className = config.className
+    def implClassName = className.tokenize('.')[-1]
+    def packagePath = className.replace('.', '/')
+    def resourcesRoot = "src/test/resources/tool-impl-java"
+    def javaTemplateFile = file("${resourcesRoot}/org/ballerina/tools/test/CommandTemplate.java")
+
+    config.versions.each { version ->
+        def taskSuffix = "${commandName.capitalize()}${version.replace('.', '_')}"
+        def genDir = file("$buildDir/generated/${commandName}/${version}")
+        def genSrcDir = new File(genDir, "src")
+        def genResDir = new File(genDir, "resources")
+        def metaInf = "META-INF/services"
+        def templatesRoot = "${resourcesRoot}/${metaInf}"
+
+        def generateTask = tasks.register("generate${taskSuffix}") {
+            doLast {
+                // Replace the Java content for the CLI output
+                def destJava = new File(genSrcDir, "${packagePath}.java")
+                destJava.parentFile.mkdirs()
+                def javaContent = javaTemplateFile.text
+                        .replace("CommandTemplate", implClassName)
+                        .replace("<TOOL_NAME>", commandName)
+                        .replace("<VERSION>", version)
+                destJava.text = javaContent
+
+                // Replace the SPI content for the CLI command
+                def spiInterface1 = "io.ballerina.cli.BLauncherCmd"
+                def serviceTemplate1 = file("${templatesRoot}/${spiInterface1}")
+                def serviceContent1 = serviceTemplate1.text.replace("<CLASSNAME>", className)
+                def serviceOut1 = new File(genResDir, "${metaInf}/${spiInterface1}")
+                serviceOut1.parentFile.mkdirs()
+                serviceOut1.text = serviceContent1
+
+                // Replace the SPI content for the build tool
+                def spiInterface2 = "io.ballerina.projects.buildtools.CodeGeneratorTool"
+                def serviceTemplate2 = file("${templatesRoot}/${spiInterface2}")
+                def serviceContent2 = serviceTemplate2.text.replace("<CLASSNAME>", className)
+                def serviceOut2 = new File(genResDir, "${metaInf}/${spiInterface2}")
+                serviceOut2.parentFile.mkdirs()
+                serviceOut2.text = serviceContent2
+            }
         }
-        copy {
-            from 'src/test/resources/central-tools/bal-tools.toml'
-            into "$buildDir/user-home/.ballerina/.config/"
+
+        def compileTask = tasks.register("compile${taskSuffix}", JavaCompile) {
+            dependsOn generateTask
+            source = fileTree(dir: genSrcDir, include: '**/*.java')
+            classpath = sourceSets.main.compileClasspath
+            destinationDirectory.set(new File(genDir, "classes"))
         }
-        copy {
-            from 'src/test/resources/central-tools'
-            into "$buildDir/user-home/.ballerina/repositories/central.ballerina.io/bala/"
-            include '**'
-        }
-        copy {
-            from 'src/test/resources/dist-tools'
-            into "$buildDir/extractedDistribution/jballerina-tools-${project.version}/repo/bala/ballerina/"
-            include '**'
-        }
-        copy {
-            from 'src/test/resources/projects'
-            into "$buildDir/projects/"
-            include '**'
+
+        tasks.register("${commandName}${version.replace('.', '_')}Jar", Jar) {
+            dependsOn compileTask
+            archiveBaseName.set(commandName)
+            archiveVersion.set(version)
+            destinationDirectory.set(file("$buildDir/libs"))
+            from(new File(genDir, "classes"))
+            from(genResDir)
         }
     }
 }
+
+tasks.register("buildAllJars") {
+    dependsOn commands.collectMany { commandName, cfg ->
+        cfg.versions.collect { version ->
+            "${commandName}${version.replace('.', '_')}Jar"
+        }
+    }
+}
+
+test.dependsOn buildAllJars
 
 // Integration tests for bal tools
 test {

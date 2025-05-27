@@ -1,0 +1,95 @@
+plugins {
+    id 'javaProject'
+}
+
+description = 'Bal tool test artifacts'
+version = '1.0.0'
+
+dependencies {
+    implementation project(':ballerina-lang')
+    implementation project(':ballerina-cli')
+    implementation project(':ballerina-tools-api')
+    implementation libs.picocli
+}
+
+def commands = [
+        openapi: [
+                className: "org.asmaj.test.OpenApiCmd",
+                versions: ["1.1.0", "1.2.0", "1.2.1", "1.2.2", "1.3.0"]
+        ],
+        asyncapi: [
+                className: "org.asmaj.test.AsyncAPICmd",
+                versions: ["1.0.0", "1.1.0", "1.2.0"]
+        ]
+]
+
+commands.each { commandName, config ->
+    def className = config.className
+    def implClassName = className.tokenize('.')[-1]
+    def packagePath = className.replace('.', '/')
+    def javaTemplateFile = file("src/main/java/org/asmaj/test/CommandTemplate.java")
+
+    config.versions.each { version ->
+        def taskSuffix = "${commandName.capitalize()}${version.replace('.', '_')}"
+        def genDir = file("$buildDir/generated/${commandName}/${version}")
+        def genSrcDir = new File(genDir, "src")
+        def genResDir = new File(genDir, "resources")
+        def metaInf = "META-INF/services"
+        def templatesRoot = "src/main/resources/${metaInf}"
+
+        def generateTask = tasks.register("generate${taskSuffix}") {
+            doLast {
+                // Replace the Java content for the CLI output
+                def destJava = new File(genSrcDir, "${packagePath}.java")
+                destJava.parentFile.mkdirs()
+                def javaContent = javaTemplateFile.text
+                        .replace("CommandTemplate", implClassName)
+                        .replace("<TOOL_NAME>", commandName)
+                        .replace("<VERSION>", version)
+                destJava.text = javaContent
+
+                // Replace the SPI content for the CLI command
+                def spiInterface1 = "io.ballerina.cli.BLauncherCmd"
+                def serviceTemplate1 = file("${templatesRoot}/${spiInterface1}")
+                def serviceContent1 = serviceTemplate1.text.replace("<CLASSNAME>", className)
+                def serviceOut1 = new File(genResDir, "${metaInf}/${spiInterface1}")
+                serviceOut1.parentFile.mkdirs()
+                serviceOut1.text = serviceContent1
+
+                // Replace the SPI content for the build tool
+                def spiInterface2 = "io.ballerina.projects.buildtools.CodeGeneratorTool"
+                def serviceTemplate2 = file("${templatesRoot}/${spiInterface2}")
+                def serviceContent2 = serviceTemplate2.text.replace("<CLASSNAME>", className)
+                def serviceOut2 = new File(genResDir, "${metaInf}/${spiInterface2}")
+                serviceOut2.parentFile.mkdirs()
+                serviceOut2.text = serviceContent2
+            }
+        }
+
+        def compileTask = tasks.register("compile${taskSuffix}", JavaCompile) {
+            dependsOn generateTask
+            source = fileTree(dir: genSrcDir, include: '**/*.java')
+            classpath = sourceSets.main.compileClasspath
+            destinationDirectory.set(new File(genDir, "classes"))
+        }
+
+        tasks.register("${commandName}${version.replace('.', '_')}Jar", Jar) {
+            dependsOn compileTask
+            archiveBaseName.set(commandName)
+            archiveVersion.set(version)
+            destinationDirectory.set(file("$buildDir/libs"))
+            from(new File(genDir, "classes"))
+            from(genResDir)
+        }
+    }
+}
+
+tasks.register("buildAllJars") {
+    dependsOn commands.collectMany { commandName, cfg ->
+        cfg.versions.collect { version ->
+            "${commandName}${version.replace('.', '_')}Jar"
+        }
+    }
+}
+
+build.dependsOn buildAllJars

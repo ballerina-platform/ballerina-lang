@@ -21,11 +21,11 @@ DESCRIPTION
        will be fetched.
 
 EXAMPLES
-       Pull the latest version of the 'eod' tool.
-           $ bal tool pull eod
+       Pull the latest version of the 'scan' tool.
+           $ bal tool pull scan
 
-       Pull the '1.1.0' version of the 'eod' tool.
-           $ bal tool pull eod:1.1.0
+       Pull the '1.0.0' version of the 'scan' tool.
+           $ bal tool pull scan:1.0.0
 
-       Pull the '1.1.0' version of the 'eod' tool from local repository.
-           $ bal tool pull eod:1.1.0 --repository=local
+       Pull the '1.0.0' version of the 'scan' tool from local repository.
+           $ bal tool pull scan:1.0.0 --repository=local
