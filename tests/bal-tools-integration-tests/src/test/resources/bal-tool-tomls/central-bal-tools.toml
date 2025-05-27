@@ -1,11 +1,4 @@
 [[tool]]
-id = "scan"
-org = "ballerina"
-name = "tool_scan"
-version = "0.9.0"
-active = true
-
-[[tool]]
 id = "dummyToolX"
 org = "ballerinax"
 name = "tool_dummyToolX"
@@ -13,86 +6,79 @@ version = "0.1.7"
 active = true
 
 [[tool]]
-id = "dummyToolC"
+id = "dummytoolD"
 org = "ballerina"
-name = "tool_dummyToolC"
+name = "tool_dummytoolD"
 version = "1.0.0"
 active = false
 
 [[tool]]
-id = "dummyToolC"
+id = "dummytoolD"
 org = "ballerina"
-name = "tool_dummyToolC"
+name = "tool_dummytoolD"
 version = "1.1.5"
 active = true
 
 [[tool]]
-id = "dummyToolD"
+id = "dummytoolC"
 org = "ballerina"
-name = "tool_dummyToolD"
+name = "tool_dummytoolC"
 version = "1.0.0"
 active = true
 
 [[tool]]
-id = "dummyToolA"
+id = "dummytoolA"
 org = "ballerina"
-name = "tool_dummyToolA"
+name = "tool_dummytoolA"
 version = "1.2.2"
 active = false
 repository = "local"
 
 [[tool]]
-id = "dummyToolA"
+id = "dummytoolA"
 org = "ballerina"
-name = "tool_dummyToolA"
+name = "tool_dummytoolA"
 version = "1.2.0"
 active = false
 
 [[tool]]
-id = "dummyToolA"
+id = "dummytoolA"
 org = "ballerina"
-name = "tool_dummyToolA"
+name = "tool_dummytoolA"
 version = "1.1.0"
 active = false
 
 [[tool]]
-id = "dummyToolA"
+id = "dummytoolA"
 org = "ballerina"
-name = "tool_dummyToolA"
+name = "tool_dummytoolA"
 version = "1.3.0" # incompatible
 active = true
 
 [[tool]]
-id = "dummyToolB"
+id = "dummytoolB"
 org = "ballerina"
-name = "tool_dummyToolB"
+name = "tool_dummytoolB"
 version = "1.2.0" # incompatible
 active = true
 
 [[tool]]
-id = "dummyToolB"
+id = "dummytoolB"
 org = "ballerina"
-name = "tool_dummyToolB"
+name = "tool_dummytoolB"
 version = "1.1.0"
 active = false
 
 [[tool]]
-id = "dummyToolF"
+id = "dummytoolE"
 org = "ballerina"
-name = "tool_dummyToolF"
+name = "tool_dummytoolE"
 version = "1.0.1"
 active = false
 
 [[tool]]
-id = "dummyToolF"
+id = "dummytoolE"
 org = "ballerina"
-name = "tool_dummyToolF"
+name = "tool_dummytoolE"
 version = "1.0.2"
-active = false
-
-[[tool]]
-id = "bindgen"
-org = "ballerina"
-name = "tool_scan"
-version = "0.9.0"
 active = true

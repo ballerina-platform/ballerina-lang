@@ -8,16 +8,16 @@ dependencies-toml-version = "2"
 distribution-version = "2201.13.0-m1"
 
 [[package]]
-org = "asmaj"
+org = "testorg"
 name = "projectWithOneToolWithDepsTomlAndSticky"
 version = "0.1.0"
 modules = [
-	{org = "asmaj", packageName = "projectWithOneToolWithDepsTomlAndSticky", moduleName = "projectWithOneToolWithDepsTomlAndSticky"}
+	{org = "testorg", packageName = "projectWithOneToolWithDepsTomlAndSticky", moduleName = "projectWithOneToolWithDepsTomlAndSticky"}
 ]
 
 [[tool]]
-id = "openapi1"
+id = "dummytoolA"
 org = "ballerina"
-name = "tool_openapi"
+name = "tool_dummyToolA"
 version = "1.2.0"
 

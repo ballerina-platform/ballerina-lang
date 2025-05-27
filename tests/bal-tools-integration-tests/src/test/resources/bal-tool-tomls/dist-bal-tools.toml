@@ -1,41 +1,41 @@
 [[tool]]
-id = "dummyToolA"
+id = "dummytoolA"
 org = "ballerina"
-name = "tool_dummyToolA"
+name = "tool_dummytoolA"
 version = "1.2.1"
 active = true
 
 [[tool]]
-id = "dummyToolE"
+id = "dummytoolF"
 org = "ballerina"
-name = "tool_dummyToolE"
+name = "tool_dummytoolF"
 version = "0.9.0"
 active = true
 
 [[tool]]
-id = "dummyToolC"
+id = "dummytoolD"
 org = "ballerina"
-name = "tool_dummyToolC"
+name = "tool_dummytoolD"
 version = "1.1.0"
 active = true
 
 [[tool]]
-id = "dummyToolD"
+id = "dummytoolC"
 org = "ballerina"
-name = "tool_dummyToolD"
+name = "tool_dummytoolC"
 version = "1.1.0"
 active = true
 
 [[tool]]
-id = "dummyToolB"
+id = "dummytoolB"
 org = "ballerina"
-name = "tool_dummyToolB"
+name = "tool_dummytoolB"
 version = "1.0.0"
 active = true
 
 [[tool]]
-id = "dummyToolF"
+id = "dummytoolE"
 org = "ballerina"
-name = "tool_dummyToolF"
-version = "1.0.0"
+name = "tool_dummytoolE"
+version = "1.1.0"
 active = true

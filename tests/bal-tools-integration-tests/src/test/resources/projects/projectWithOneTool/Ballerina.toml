@@ -1,8 +1,8 @@
 [package]
-org = "asmaj"
+org = "testorg"
 name = "projectWithOneTool"
 version = "0.1.0"
 distribution = "2201.12.3"
 
-[[tool.persist1]]
-id = "persist-1"
+[[tool.dummytoolF]]
+id = "dummytoolF-1"

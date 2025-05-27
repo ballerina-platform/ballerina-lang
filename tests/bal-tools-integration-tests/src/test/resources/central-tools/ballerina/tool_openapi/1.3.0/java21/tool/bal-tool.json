@@ -1,6 +1,0 @@
-{
-  "tool_id": "openapi1",
-  "dependency_paths": [
-    "tool/libs/tool-intg-test-1.0-SNAPSHOT.jar"
-  ]
-}

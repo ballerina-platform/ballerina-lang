@@ -1,12 +1,12 @@
 /*
- *  Copyright (c) 2025, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *  Copyright (c) 2025, WSO2 LLC. (http://www.wso2.com)
  *
- *  WSO2 Inc. licenses this file to you under the Apache License,
+ *  WSO2 LLC. licenses this file to you under the Apache License,
  *  Version 2.0 (the "License"); you may not use this file except
  *  in compliance with the License.
  *  You may obtain a copy of the License at
  *
- *  http://www.apache.org/licenses/LICENSE-2.0
+ *    http://www.apache.org/licenses/LICENSE-2.0
  *
  *  Unless required by applicable law or agreed to in writing,
  *  software distributed under the License is distributed on an
@@ -42,7 +42,7 @@ public class InBuiltToolAutomationTests extends BaseTestCase {
         String projectPath = projectsRoot.resolve("projectWithOneTool").toString();
         String output = balClient.runMainAndReadStdOut("build", new String[]{projectPath},
                 new HashMap<>(), userDir, true);
-        Assert.assertTrue(output.contains("persist1 0.9.0"), output);
+        Assert.assertTrue(output.contains("dummytoolF 0.9.0"), output);
     }
 
     @Test
@@ -51,7 +51,7 @@ public class InBuiltToolAutomationTests extends BaseTestCase {
         String projectPath = projectsRoot.resolve("projectWithOneToolWithDepsToml").toString();
         String output = balClient.runMainAndReadStdOut("build", new String[]{projectPath},
                 new HashMap<>(), userDir, true);
-        Assert.assertTrue(output.contains("openapi1 1.2.1"), output);
+        Assert.assertTrue(output.contains("dummytoolA 1.2.1"), output);
     }
 
     @Test
@@ -60,7 +60,7 @@ public class InBuiltToolAutomationTests extends BaseTestCase {
         String projectPath = projectsRoot.resolve("projectWithOneToolWithDepsTomlAndSticky").toString();
         String output = balClient.runMainAndReadStdOut("build", new String[]{"--sticky", projectPath},
                 new HashMap<>(), userDir, true);
-        Assert.assertTrue(output.contains("openapi1 1.2.0"), output);
+        Assert.assertTrue(output.contains("dummytoolA 1.2.0"), output);
     }
 
     @Test
@@ -69,7 +69,7 @@ public class InBuiltToolAutomationTests extends BaseTestCase {
         String projectPath = projectsRoot.resolve("projectWithIncompatibleVersionOfTool").toString();
         String output = balClient.runMainAndReadStdOut("build", new String[]{projectPath},
                 new HashMap<>(), userDir, true);
-        Assert.assertTrue(output.contains("Build tool 'openapi1:1.3.0' cannot be resolved"), output);
+        Assert.assertTrue(output.contains("Build tool 'dummytoolA:1.3.0' cannot be resolved"), output);
     }
 
     @Test
@@ -78,8 +78,8 @@ public class InBuiltToolAutomationTests extends BaseTestCase {
         String projectPath = projectsRoot.resolve("projectWithMultipleTools").toString();
         String output = balClient.runMainAndReadStdOut("build", new String[]{"--offline", projectPath},
                 new HashMap<>(), userDir, true);
-        Assert.assertTrue(output.contains("persist1 0.9.0"), output);
-        Assert.assertTrue(output.contains("openapi1 1.2.1"), output);
-        Assert.assertTrue(output.contains("consolidate-packages 0.1.7"), output);
+        Assert.assertTrue(output.contains("dummytoolF 0.9.0"), output);
+        Assert.assertTrue(output.contains("dummytoolA 1.2.1"), output);
+        Assert.assertTrue(output.contains("dummyToolX 0.1.7"), output);
     }
 }

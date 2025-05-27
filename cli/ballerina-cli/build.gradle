@@ -27,6 +27,9 @@ configurations {
     compilerPluginJar {
         transitive false
     }
+    toolImplJar {
+        transitive false
+    }
     distributionBala
     distributionBirJar
     balRt
@@ -80,6 +83,7 @@ dependencies {
     testRuntimeOnly project(':project-api-test-artifact:log-creator-in-built-code-modifier')
     testRuntimeOnly project(':project-api-test-artifact:log-creator-in-built-code-generator')
     testRuntimeOnly project(':project-api-test-artifact:log-creator-in-built-code-analyzer')
+    toolImplJar project(':project-api-test-artifact:sample-build-tool')
 
     compilerPluginJar project(':project-api-test-artifact:log-creator-pkg-provided-code-modifier')
     compilerPluginJar project(':project-api-test-artifact:log-creator-pkg-provided-code-generator')
@@ -112,6 +116,11 @@ tasks.register('createTestBre', Copy) {
     into "$buildDir/bre/lib"
 }
 
+tasks.register('copyToolImplJar', Copy) {
+    from configurations.toolImplJar
+    into "$buildDir/tool-libs"
+}
+
 tasks.register('copyBalToolsResources') {
     doLast {
         copy {
@@ -133,6 +142,7 @@ test {
     dependsOn copyCompilerPluginJars
     dependsOn copyProfilerResources
     dependsOn copyBalToolsResources
+    dependsOn copyToolImplJar
 
     systemProperty "ballerina.home", "$buildDir"
     environment 'BALLERINA_HOME_DIR', "$buildDir/user-home/.ballerina"

@@ -50,7 +50,6 @@ import java.util.Optional;
 import java.util.stream.Stream;
 
 import static io.ballerina.cli.cmd.Constants.ADD_COMMAND;
-import static io.ballerina.cli.cmd.Constants.ASYNCAPI_COMMAND;
 import static io.ballerina.cli.cmd.Constants.BINDGEN_COMMAND;
 import static io.ballerina.cli.cmd.Constants.BUILD_COMMAND;
 import static io.ballerina.cli.cmd.Constants.CLEAN_COMMAND;
@@ -60,9 +59,7 @@ import static io.ballerina.cli.cmd.Constants.DIST_COMMAND;
 import static io.ballerina.cli.cmd.Constants.DOC_COMMAND;
 import static io.ballerina.cli.cmd.Constants.FORMAT_COMMAND;
 import static io.ballerina.cli.cmd.Constants.GENCACHE_COMMAND;
-import static io.ballerina.cli.cmd.Constants.GRAPHQL_COMMAND;
 import static io.ballerina.cli.cmd.Constants.GRAPH_COMMAND;
-import static io.ballerina.cli.cmd.Constants.GRPC_COMMAND;
 import static io.ballerina.cli.cmd.Constants.HELP_COMMAND;
 import static io.ballerina.cli.cmd.Constants.HELP_OPTION;
 import static io.ballerina.cli.cmd.Constants.HELP_SHORT_OPTION;
@@ -70,9 +67,7 @@ import static io.ballerina.cli.cmd.Constants.HOME_COMMAND;
 import static io.ballerina.cli.cmd.Constants.INIT_COMMAND;
 import static io.ballerina.cli.cmd.Constants.LANG_SERVER_SPEC;
 import static io.ballerina.cli.cmd.Constants.NEW_COMMAND;
-import static io.ballerina.cli.cmd.Constants.OPENAPI_COMMAND;
 import static io.ballerina.cli.cmd.Constants.PACK_COMMAND;
-import static io.ballerina.cli.cmd.Constants.PERSIST_COMMAND;
 import static io.ballerina.cli.cmd.Constants.PROFILE_COMMAND;
 import static io.ballerina.cli.cmd.Constants.PULL_COMMAND;
 import static io.ballerina.cli.cmd.Constants.PUSH_COMMAND;
@@ -113,8 +108,7 @@ public final class BalToolsUtil {
             PUSH_COMMAND, SEARCH_COMMAND, SEMVER_COMMAND, GRAPH_COMMAND, DEPRECATE_COMMAND);
     // if a command is a built-in tool command, remove it from this list
     private static final List<String> otherCommands = Arrays.asList(CLEAN_COMMAND, FORMAT_COMMAND, BINDGEN_COMMAND,
-            SHELL_COMMAND, VERSION_COMMAND, OPENAPI_COMMAND, GRAPHQL_COMMAND, ASYNCAPI_COMMAND, GRPC_COMMAND,
-            PERSIST_COMMAND, PROFILE_COMMAND);
+            SHELL_COMMAND, VERSION_COMMAND, PROFILE_COMMAND);
     private static final List<String> hiddenCommands = Arrays.asList(INIT_COMMAND, TOOL_COMMAND, DIST_COMMAND,
             UPDATE_COMMAND, START_LANG_SERVER_COMMAND, LANG_SERVER_SPEC, START_DEBUG_ADAPTER_COMMAND, HELP_COMMAND,
             HOME_COMMAND, GENCACHE_COMMAND);
