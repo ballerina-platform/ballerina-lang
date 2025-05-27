@@ -510,7 +510,7 @@ public class AnnotationDesugar {
                 } else {
                     addInvocationToGlobalAnnotMap(identifier, lambdaFunction, target);
                     index = initFnBody.stmts.stream().filter((stmt -> (stmt.getKind() == NodeKind.VARIABLE_DEF) &&
-                            ((BLangSimpleVariableDef) stmt).var.name.value.endsWith("$AnnotResolvePoint") &&
+                            ((BLangSimpleVariableDef) stmt).var.name.value.endsWith(Desugar.ANNOT_RESOLVE_POINT) &&
                             ((BLangSimpleVariableDef) stmt).var.symbol == function.symbol)).findFirst()
                             .map(initFnBody.stmts::indexOf).orElse(-1);
                     if (index == -1) {
@@ -526,7 +526,7 @@ public class AnnotationDesugar {
         }
         // Remove all $AnnotResolvePoint statements
         initFnBody.stmts.removeIf(stmt -> stmt.getKind() == NodeKind.VARIABLE_DEF &&
-                ((BLangSimpleVariableDef) stmt).var.name.value.endsWith("$AnnotResolvePoint"));
+                ((BLangSimpleVariableDef) stmt).var.name.value.endsWith(Desugar.ANNOT_RESOLVE_POINT));
     }
 
     private void attachSchedulerPolicy(BLangFunction function) {

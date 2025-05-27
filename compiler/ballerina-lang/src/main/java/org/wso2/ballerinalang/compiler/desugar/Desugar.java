@@ -384,6 +384,7 @@ public class Desugar extends BLangNodeVisitor {
     public static final String XML_INTERNAL_GET_ATTRIBUTE = "getAttribute";
     public static final String XML_INTERNAL_GET_ELEMENTS = "getElements";
     public static final String XML_ELEMENTS = "elements";
+    public static final String ANNOT_RESOLVE_POINT = "$AnnotResolvePoint";
 
     private final SymbolTable symTable;
     private final SymbolResolver symResolver;
@@ -1072,7 +1073,7 @@ public class Desugar extends BLangNodeVisitor {
         // This will add a dummy simple var def statement to the init function body which tracks the
         // point to resolve the annot of the function
         BLangSimpleVariable simpleVariable = ASTBuilderUtil.createVariable(null,
-                "$" + function.symbol.name + "$AnnotResolvePoint", null, null, function.symbol);
+                "$" + function.symbol.name + ANNOT_RESOLVE_POINT, null, null, function.symbol);
         BLangSimpleVariableDef simpleVariableDef = ASTBuilderUtil.createVariableDef(null);
         simpleVariableDef.var = simpleVariable;
         simpleVariableDef.setBType(simpleVariable.getBType());
