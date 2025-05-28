@@ -698,8 +698,8 @@ public class ClosureGenerator extends BLangNodeVisitor {
     private BVarSymbol createSimpleVariable(BInvokableSymbol invokableSymbol, boolean isAnnotationClosure) {
         BType type = invokableSymbol.retType;
         Location pos = invokableSymbol.pos;
-        Name name = invokableSymbol.name;
-        BVarSymbol varSymbol = new BVarSymbol(0, name, invokableSymbol.originalName, invokableSymbol.pkgID, type,
+        Name name = Names.fromString(invokableSymbol.name + "$annotations");
+        BVarSymbol varSymbol = new BVarSymbol(0, name, name, invokableSymbol.pkgID, type,
                                               invokableSymbol.owner, pos, VIRTUAL);
         BLangSimpleVariableDef variableDef = createSimpleVariableDef(pos, name.value, type,
                                                                      getInvocation(invokableSymbol), varSymbol);
