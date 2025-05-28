@@ -22,9 +22,12 @@ import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
+import org.wso2.ballerinalang.compiler.util.Name;
 
 import java.io.PrintStream;
+import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import static org.wso2.ballerinalang.compiler.bir.emit.EmitterUtils.emitBasicBlockRef;

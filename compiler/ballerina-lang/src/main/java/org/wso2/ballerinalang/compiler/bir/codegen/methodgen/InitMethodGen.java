@@ -24,7 +24,8 @@ import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmCastGen;
-import org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil;
+import org.wso2.ballerinalang.compiler.bir.codegen.utils.JVMModuleUtils;
+import org.wso2.ballerinalang.compiler.bir.codegen.utils.JvmCodeGenUtil;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.AsyncDataCollector;
@@ -48,6 +49,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.util.Name;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -82,6 +84,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CURRENT_M
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CURRENT_MODULE_STOP_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.GET_TEST_EXECUTION_STATE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.HANDLE_FUTURE_METHOD;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.INIT_FUNCTION_SUFFIX;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JVM_INIT_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.LAMBDA_PREFIX;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAIN_METHOD;
@@ -96,7 +99,9 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.RUNTIME_R
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.RUNTIME_UTILS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SCHEDULER;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SCHEDULER_VARIABLE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.START_FUNCTION_SUFFIX;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.START_ISOLATED_WORKER;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STOP_FUNCTION_SUFFIX;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRAND_CLASS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TEST_EXECUTE_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TEST_EXECUTION_STATE;
@@ -207,7 +212,7 @@ public class InitMethodGen {
         mv.visitInsn(ICONST_0);
         mv.visitInsn(AALOAD);
         mv.visitTypeInsn(CHECKCAST, STRAND_CLASS);
-        String stopFuncName = MethodGenUtils.encodeModuleSpecialFuncName(MethodGenUtils.STOP_FUNCTION_SUFFIX);
+        String stopFuncName = MethodGenUtils.encodeModuleSpecialFuncName(STOP_FUNCTION_SUFFIX);
         mv.visitMethodInsn(INVOKESTATIC, initClass, stopFuncName, JvmSignatures.MODULE_START,
                            false);
         MethodGenUtils.visitReturn(mv, methodName, initClass);
@@ -328,24 +333,24 @@ public class InitMethodGen {
                                           BIRNode.BIRFunction testExecuteFunc) {
         JavaClass javaClass = jvmClassMap.get(typeOwnerClass);
         BIRNode.BIRFunction initFunc = generateDefaultFunction(moduleImports, pkg, MODULE_INIT_METHOD,
-                MethodGenUtils.INIT_FUNCTION_SUFFIX);
+                INIT_FUNCTION_SUFFIX);
         javaClass.functions.add(initFunc);
         pkg.functions.add(initFunc);
-        birFunctionMap.put(JvmCodeGenUtil.getPackageName(pkg.packageID) + MODULE_INIT_METHOD,
+        birFunctionMap.put(JVMModuleUtils.getPackageName(pkg.packageID) + MODULE_INIT_METHOD,
                 JvmPackageGen.getFunctionWrapper(symbolTable.typeEnv(), initFunc, pkg.packageID, typeOwnerClass));
 
         BIRNode.BIRFunction startFunc = generateDefaultFunction(moduleImports, pkg, MODULE_START_METHOD,
-                                                                MethodGenUtils.START_FUNCTION_SUFFIX);
+                START_FUNCTION_SUFFIX);
         javaClass.functions.add(startFunc);
         pkg.functions.add(startFunc);
-        birFunctionMap.put(JvmCodeGenUtil.getPackageName(pkg.packageID) + MODULE_START_METHOD,
+        birFunctionMap.put(JVMModuleUtils.getPackageName(pkg.packageID) + MODULE_START_METHOD,
                 JvmPackageGen.getFunctionWrapper(symbolTable.typeEnv(), startFunc, pkg.packageID, typeOwnerClass));
 
         BIRNode.BIRFunction execFunc = generateExecuteFunction(pkg, mainFunc, testExecuteFunc
                                                               );
         javaClass.functions.add(execFunc);
         pkg.functions.add(execFunc);
-        birFunctionMap.put(JvmCodeGenUtil.getPackageName(pkg.packageID) + MODULE_EXECUTE_METHOD,
+        birFunctionMap.put(JVMModuleUtils.getPackageName(pkg.packageID) + MODULE_EXECUTE_METHOD,
                 JvmPackageGen.getFunctionWrapper(symbolTable.typeEnv(), execFunc, pkg.packageID, typeOwnerClass));
     }
 
@@ -556,7 +561,7 @@ public class InitMethodGen {
                                                                                        calleeAnnotAttachments) {
         BIRNode.BIRBasicBlock lastBB = func.basicBlocks.getLast();
         BIRNode.BIRBasicBlock nextBB = addAndGetNextBasicBlock(func);
-        if (JvmCodeGenUtil.isBuiltInPackage(modId)) {
+        if (JVMModuleUtils.isBuiltInPackage(modId)) {
             lastBB.terminator = new BIRTerminator.Call(null, InstructionKind.CALL, false, modId,
                     new Name(TEST_EXECUTE_METHOD), args, null, nextBB, calleeAnnotAttachments, Collections.emptySet());
             return nextBB;
@@ -575,7 +580,7 @@ public class InitMethodGen {
         BIRNode.BIRBasicBlock lastBB = func.basicBlocks.getLast();
         BIRNode.BIRBasicBlock nextBB = addAndGetNextBasicBlock(func);
         // TODO remove once lang.annotation is fixed
-        if (JvmCodeGenUtil.isBuiltInPackage(modId)) {
+        if (JVMModuleUtils.isBuiltInPackage(modId)) {
             lastBB.terminator = new BIRTerminator.Call(null, InstructionKind.CALL, false, modId,
                     new Name(initFuncName), args, null, nextBB, calleeAnnotAttachments, Collections.emptySet());
             return nextBB;

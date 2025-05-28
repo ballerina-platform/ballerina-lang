@@ -16,7 +16,7 @@
  *  under the License.
  */
 
-package org.wso2.ballerinalang.compiler.bir.codegen.optimizer;
+package org.wso2.ballerinalang.compiler.bir.optimizer;
 
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.PackageID;

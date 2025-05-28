@@ -1,0 +1,123 @@
+/*
+ * Copyright (c) 2021, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+
+package org.wso2.ballerinalang.compiler.bir.codegen.split.identifiers;
+
+import org.objectweb.asm.ClassWriter;
+import org.objectweb.asm.FieldVisitor;
+import org.objectweb.asm.MethodVisitor;
+import org.wso2.ballerinalang.compiler.bir.codegen.BallerinaClassWriter;
+import org.wso2.ballerinalang.compiler.bir.codegen.JvmCastGen;
+import org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants;
+import org.wso2.ballerinalang.compiler.bir.codegen.JvmInstructionGen;
+import org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen;
+import org.wso2.ballerinalang.compiler.bir.codegen.JvmTypeGen;
+import org.wso2.ballerinalang.compiler.bir.codegen.internal.AsyncDataCollector;
+import org.wso2.ballerinalang.compiler.bir.codegen.internal.BIRVarToJVMIndexMap;
+import org.wso2.ballerinalang.compiler.bir.codegen.internal.JarEntries;
+import org.wso2.ballerinalang.compiler.bir.codegen.utils.JvmCodeGenUtil;
+import org.wso2.ballerinalang.compiler.bir.codegen.internal.LazyLoadingGlobalVarCollector;
+import org.wso2.ballerinalang.compiler.bir.codegen.split.JvmConstantsGen;
+import org.wso2.ballerinalang.compiler.bir.model.BIRInstruction;
+import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
+import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+
+import static org.objectweb.asm.ClassWriter.COMPUTE_FRAMES;
+import static org.objectweb.asm.Opcodes.ACC_PUBLIC;
+import static org.objectweb.asm.Opcodes.ACC_STATIC;
+import static org.objectweb.asm.Opcodes.ACC_SUPER;
+import static org.objectweb.asm.Opcodes.ALOAD;
+import static org.objectweb.asm.Opcodes.INVOKESPECIAL;
+import static org.objectweb.asm.Opcodes.RETURN;
+import static org.objectweb.asm.Opcodes.V21;
+import static org.wso2.ballerinalang.compiler.bir.codegen.utils.JVMModuleUtils.getModuleLevelClassName;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CLASS_FILE_SUFFIX;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.GLOBAL_VARIABLES_CLASS_NAME;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JVM_INIT_METHOD;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JVM_STATIC_INIT_METHOD;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBJECT;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.VOID_METHOD_DESC;
+import static org.wso2.ballerinalang.compiler.bir.codegen.utils.JvmCodeGenUtil.getVarStoreClass;
+import static org.wso2.ballerinalang.compiler.bir.codegen.utils.JvmConstantGenUtils.genLazyLoadingClass;
+import static org.wso2.ballerinalang.compiler.bir.codegen.utils.JvmConstantGenUtils.genMethodReturn;
+
+/**
+ * Generates Jvm class for the used ballerina module global vars for given module.
+ *
+ * @since 2201.12.4
+ */
+public class JvmGlobalVariablesGen {
+
+    private final String globalVarsClass;
+    private final BIRNode.BIRPackage module;
+    private final LazyLoadingGlobalVarCollector lazyLoadingGlobalVarCollector;
+
+    public JvmGlobalVariablesGen(BIRNode.BIRPackage module,
+                                 LazyLoadingGlobalVarCollector lazyLoadingGlobalVarCollector) {
+        this.module = module;
+        this.lazyLoadingGlobalVarCollector = lazyLoadingGlobalVarCollector;
+        this.globalVarsClass = getModuleLevelClassName(module.packageID, GLOBAL_VARIABLES_CLASS_NAME);
+    }
+
+    public void generateGlobalVarsInit(JarEntries jarEntries, JvmPackageGen jvmPackageGen, JvmTypeGen jvmTypeGen,
+                                       JvmCastGen jvmCastGen, JvmConstantsGen jvmConstantsGen,
+                                       AsyncDataCollector asyncDataCollector, Types types) {
+        // populate global variable to classes
+        generateGlobalVarClasses(jarEntries, jvmPackageGen, jvmTypeGen, jvmCastGen, jvmConstantsGen,
+                asyncDataCollector, types);
+    }
+
+    private void generateGlobalVarClasses(JarEntries jarEntries, JvmPackageGen jvmPackageGen, JvmTypeGen jvmTypeGen,
+                                          JvmCastGen jvmCastGen, JvmConstantsGen jvmConstantsGen,
+                                          AsyncDataCollector asyncDataCollector, Types types) {
+        Map<String, List<BIRInstruction>> lazyLoadingMap = lazyLoadingGlobalVarCollector.getLazyLoadingMap();
+        Collection<BIRNode.BIRGlobalVariableDcl> globalVariableDcls = module.globalVars;
+        for (BIRNode.BIRGlobalVariableDcl globalVar : globalVariableDcls) {
+            ClassWriter cw = new BallerinaClassWriter(COMPUTE_FRAMES);
+            String varName = globalVar.name.value;
+            String globalVarClassName = getVarStoreClass(globalVarsClass, varName);
+            BType bType = JvmCodeGenUtil.getImpliedType(globalVar.type);
+            String descriptor = JvmCodeGenUtil.getFieldTypeSignature(bType);
+            // Create lazy loading class
+            genLazyLoadingClass(cw, globalVarClassName, varName, descriptor);
+            List<BIRInstruction> instructions = lazyLoadingMap.get(varName);
+            if (instructions != null) {
+                // Initialize global value
+                MethodVisitor mv = cw.visitMethod(ACC_STATIC, JVM_STATIC_INIT_METHOD, VOID_METHOD_DESC, null, null);
+                mv.visitCode();
+                BIRVarToJVMIndexMap indexMap = new BIRVarToJVMIndexMap();
+                JvmInstructionGen instructionGen = new JvmInstructionGen(mv, indexMap, this.module.packageID,
+                        jvmPackageGen, jvmTypeGen, jvmCastGen, jvmConstantsGen, asyncDataCollector, types);
+                for (BIRInstruction instruction : instructions) {
+                    instructionGen.generateInstructions(0, instruction);
+                }
+                genMethodReturn(mv);
+            }
+            cw.visitEnd();
+            jarEntries.put(globalVarClassName + CLASS_FILE_SUFFIX, cw.toByteArray());
+
+        }
+    }
+}
+

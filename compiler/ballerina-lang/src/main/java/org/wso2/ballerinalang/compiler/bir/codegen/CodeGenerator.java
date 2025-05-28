@@ -19,6 +19,8 @@ package org.wso2.ballerinalang.compiler.bir.codegen;
 
 import org.wso2.ballerinalang.compiler.PackageCache;
 import org.wso2.ballerinalang.compiler.bir.BIRGenUtils;
+import org.wso2.ballerinalang.compiler.bir.codegen.desugar.IdentifierDesugar;
+import org.wso2.ballerinalang.compiler.bir.codegen.internal.CompiledJarFile;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
@@ -80,13 +82,11 @@ public class CodeGenerator {
                 isRemoteMgtEnabled);
 
         //Rewrite identifier names with encoding special characters
-        HashMap<String, String> originalIdentifierMap = JvmDesugarPhase.encodeModuleIdentifiers(packageSymbol.bir);
-
-        // TODO Get-rid of the following assignment
+        HashMap<String, String> originalIdentifierMap = IdentifierDesugar.encodeModuleIdentifiers(packageSymbol.bir);
         CompiledJarFile compiledJarFile = jvmPackageGen.generate(packageSymbol.bir);
         cleanUpBirPackage(packageSymbol);
         //Revert encoding identifier names
-        JvmDesugarPhase.replaceEncodedModuleIdentifiers(packageSymbol.bir, originalIdentifierMap);
+        IdentifierDesugar.replaceEncodedModuleIdentifiers(packageSymbol.bir, originalIdentifierMap);
         return compiledJarFile;
     }
 

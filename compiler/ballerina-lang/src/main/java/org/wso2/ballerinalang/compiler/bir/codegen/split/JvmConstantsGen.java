@@ -19,17 +19,17 @@ package org.wso2.ballerinalang.compiler.bir.codegen.split;
 
 import org.ballerinalang.model.elements.PackageID;
 import org.objectweb.asm.MethodVisitor;
-import org.wso2.ballerinalang.compiler.bir.codegen.JarEntries;
+import org.wso2.ballerinalang.compiler.bir.codegen.internal.JarEntries;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.BTypeHashComparator;
 import org.wso2.ballerinalang.compiler.bir.codegen.split.constants.JvmArrayTypeConstantsGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.split.constants.JvmBStringConstantsGen;
-import org.wso2.ballerinalang.compiler.bir.codegen.split.constants.JvmBallerinaConstantsGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.split.constants.JvmErrorTypeConstantsGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.split.constants.JvmFunctionTypeConstantsGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.split.constants.JvmModuleConstantsGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.split.constants.JvmRefTypeConstantsGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.split.constants.JvmTupleTypeConstantsGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.split.constants.JvmUnionTypeConstantsGen;
+import org.wso2.ballerinalang.compiler.bir.codegen.split.identifiers.JvmBallerinaConstantsGen;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.TypeHashVisitor;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
@@ -67,16 +67,14 @@ public class JvmConstantsGen {
 
     private final JvmFunctionTypeConstantsGen functionTypeConstantsGen;
 
-
     public final BTypeHashComparator bTypeHashComparator;
 
-    public JvmConstantsGen(BIRNode.BIRPackage module, String moduleInitClass, Types types,
-                           TypeHashVisitor typeHashVisitor) {
+    public JvmConstantsGen(BIRNode.BIRPackage module, Types types, TypeHashVisitor typeHashVisitor) {
         this.bTypeHashComparator = new BTypeHashComparator(typeHashVisitor);
         this.stringConstantsGen = new JvmBStringConstantsGen(module.packageID);
         this.moduleConstantsGen = new JvmModuleConstantsGen(module);
         this.functionTypeConstantsGen = new JvmFunctionTypeConstantsGen(module.packageID, module.functions);
-        this.jvmBallerinaConstantsGen = new JvmBallerinaConstantsGen(module, moduleInitClass, this);
+        this.jvmBallerinaConstantsGen = new JvmBallerinaConstantsGen(module, this);
         this.unionTypeConstantsGen = new JvmUnionTypeConstantsGen(module.packageID, bTypeHashComparator);
         this.errorTypeConstantsGen = new JvmErrorTypeConstantsGen(module.packageID, bTypeHashComparator);
         this.tupleTypeConstantsGen = new JvmTupleTypeConstantsGen(module.packageID, bTypeHashComparator);
@@ -102,8 +100,8 @@ public class JvmConstantsGen {
     }
 
     public void generateConstants(JarEntries jarEntries) {
-        functionTypeConstantsGen.generateClass(jarEntries);
         jvmBallerinaConstantsGen.generateConstantInit(jarEntries);
+        functionTypeConstantsGen.generateClass(jarEntries);
         unionTypeConstantsGen.generateClass(jarEntries);
         errorTypeConstantsGen.generateClass(jarEntries);
         moduleConstantsGen.generateConstantInit(jarEntries);
@@ -161,10 +159,6 @@ public class JvmConstantsGen {
 
     public String getErrorTypeConstantClass() {
         return errorTypeConstantsGen.getErrorTypeConstantClass();
-    }
-
-    public String getConstantClass() {
-        return jvmBallerinaConstantsGen.getConstantClass();
     }
 
     public String getFunctionTypeConstantClass() {

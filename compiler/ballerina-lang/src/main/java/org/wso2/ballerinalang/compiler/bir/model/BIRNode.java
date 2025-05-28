@@ -29,9 +29,11 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.NamedNode;
 import org.wso2.ballerinalang.compiler.util.Name;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -487,20 +489,20 @@ public abstract class BIRNode {
         public BIRTerminator terminator;
         public static final String BIR_BASIC_BLOCK_PREFIX = "bb";
 
-        public BIRBasicBlock(int number) {
+        public BIRBasicBlock(Name id, int number) {
             super(null);
             this.number = number;
-            this.id = new Name(BIR_BASIC_BLOCK_PREFIX + number);
+            this.id = id;
             this.instructions = new ArrayList<>();
             this.terminator = null;
         }
 
+        public BIRBasicBlock(int number) {
+            this(new Name(BIR_BASIC_BLOCK_PREFIX + number), number);
+        }
+
         public BIRBasicBlock(String idPrefix, int number) {
-            super(null);
-            this.number = number;
-            this.id = new Name(idPrefix + number);
-            this.instructions = new ArrayList<>();
-            this.terminator = null;
+            this(new Name(idPrefix + number), number);
         }
 
         @Override

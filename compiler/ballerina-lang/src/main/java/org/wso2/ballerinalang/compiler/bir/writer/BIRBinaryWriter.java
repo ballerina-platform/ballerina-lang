@@ -38,6 +38,7 @@ import org.wso2.ballerinalang.programfile.CompiledBinaryFile;
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 

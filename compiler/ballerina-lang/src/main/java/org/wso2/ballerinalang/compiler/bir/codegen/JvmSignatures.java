@@ -245,8 +245,8 @@ public final class JvmSignatures {
     public static final String GET_JBOOLEAN_TYPE = "Z";
     public static final String GET_JSTRING = "()L" + STRING_VALUE + ";";
     public static final String GET_LOCK_STORE = "L" + LOCK_STORE + ";";
+    public static final String GET_LOOKUP_KEY =  "(L" + MODULE + ";)L" + STRING_VALUE + ";";
     public static final String GET_MAIN_ARGS = "()[L" + OBJECT + ";";
-    public static final String GET_MAP_ARRAY = "[L" + MAP_VALUE + ";";
     public static final String GET_MAP_VALUE = "L" + MAP_VALUE + ";";
     public static final String GET_MODULE = "L" + MODULE + ";";
     public static final String GET_OBJECT = "L" + OBJECT + ";";
@@ -275,6 +275,7 @@ public final class JvmSignatures {
     public static final String GET_TYPEDESC = "L" + TYPEDESC_VALUE + ";";
     public static final String GET_TYPEDESC_OF_OBJECT = "(L" + OBJECT + ";)L" + TYPEDESC_VALUE + ";";
     public static final String GET_UNION_TYPE_IMPL = "L" + UNION_TYPE_IMPL + ";";
+    public static final String GET_VALUE_CREATOR = "(L" + STRING_VALUE + ";)L" + VALUE_CREATOR + ";";
     public static final String GET_WORKER_CHANNEL_MAP = "L" + WORKER_CHANNEL_MAP + ";";
     public static final String GET_XML = "L" + XML_VALUE + ";";
     public static final String HANDLE_FLUSH = "(L" + STRAND_CLASS + ";L" + WORKER_CHANNEL_MAP + ";[L" +

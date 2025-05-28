@@ -24,7 +24,8 @@ import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
-import org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil;
+import org.wso2.ballerinalang.compiler.bir.codegen.utils.JVMModuleUtils;
+import org.wso2.ballerinalang.compiler.bir.codegen.utils.JvmCodeGenUtil;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmTypeGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.BIRVarToJVMIndexMap;
@@ -235,7 +236,7 @@ public class MainMethodGen {
     }
 
     private void invokeConfigInit(MethodVisitor mv, PackageID packageID, int runtimeVarIndex) {
-        String configClass = JvmCodeGenUtil.getModuleLevelClassName(packageID, CONFIGURATION_CLASS_NAME);
+        String configClass = JVMModuleUtils.getModuleLevelClassName(packageID, CONFIGURATION_CLASS_NAME);
         mv.visitTypeInsn(NEW, HASH_MAP);
         mv.visitInsn(DUP);
         mv.visitMethodInsn(INVOKESPECIAL, HASH_MAP, JVM_INIT_METHOD, VOID_METHOD_DESC, false);
@@ -248,7 +249,7 @@ public class MainMethodGen {
                     false);
         } else {
             loadCLIArgsForTestConfigInit(mv);
-            String initClass = JvmCodeGenUtil.getModuleLevelClassName(packageID, MODULE_INIT_CLASS_NAME);
+            String initClass = JVMModuleUtils.getModuleLevelClassName(packageID, MODULE_INIT_CLASS_NAME);
             mv.visitFieldInsn(GETSTATIC, initClass, CURRENT_MODULE_VAR_NAME, GET_MODULE);
             mv.visitLdcInsn(packageID.pkgName.toString());
             mv.visitLdcInsn(packageID.sourceRoot);
@@ -264,7 +265,7 @@ public class MainMethodGen {
         mv.visitFieldInsn(GETFIELD, CONFIG_DETAILS, "configContent", GET_STRING);
         mv.visitVarInsn(ALOAD, runtimeVarIndex);
         mv.visitMethodInsn(INVOKESTATIC, configClass, CONFIGURE_INIT, INIT_CONFIG, false);
-        String moduleInitClass = JvmCodeGenUtil.getModuleLevelClassName(packageID, MODULE_INIT_CLASS_NAME);
+        String moduleInitClass = JVMModuleUtils.getModuleLevelClassName(packageID, MODULE_INIT_CLASS_NAME);
         mv.visitFieldInsn(GETSTATIC, moduleInitClass, CURRENT_MODULE_VAR_NAME, GET_MODULE);
         mv.visitVarInsn(ALOAD, 6);
         mv.visitVarInsn(ALOAD, 0);

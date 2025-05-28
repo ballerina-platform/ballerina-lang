@@ -21,7 +21,6 @@ package org.wso2.ballerinalang.compiler.bir.optimizer;
 import org.wso2.ballerinalang.compiler.bir.codegen.model.JLargeArrayInstruction;
 import org.wso2.ballerinalang.compiler.bir.codegen.model.JLargeMapInstruction;
 import org.wso2.ballerinalang.compiler.bir.codegen.model.JMethodCallInstruction;
-import org.wso2.ballerinalang.compiler.bir.codegen.optimizer.LargeMethodOptimizer;
 import org.wso2.ballerinalang.compiler.bir.model.BIRAbstractInstruction;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRBasicBlock;
@@ -70,7 +69,6 @@ public class BIROptimizer {
         if (birGen == null) {
             birGen = new BIROptimizer(context);
         }
-
         return birGen;
     }
 
@@ -87,7 +85,7 @@ public class BIROptimizer {
         // RHS temp var optimization
         pkg.accept(this.rhsTempVarOptimizer);
         // Split large BIR functions into smaller methods based on maps and arrays
-        largeMethodOptimizer.splitLargeBIRFunctions(pkg);
+        this.largeMethodOptimizer.splitLargeBIRFunctions(pkg);
         // LHS temp var optimization
         this.lhsTempVarOptimizer.optimizeNode(pkg, null);
 
@@ -95,11 +93,7 @@ public class BIROptimizer {
         this.lockOptimizer.optimizeNode(pkg);
 
         // Optimize BB - unnecessary goto removal
-        bbOptimizer.optimizeNode(pkg, null);
-
-        // Optimize record value creation for default values - remove unnecessary method call
-        BIRRecordValueOptimizer recordValueOptimizer = new BIRRecordValueOptimizer();
-        recordValueOptimizer.optimizeNode(pkg);
+        this.bbOptimizer.optimizeNode(pkg, null);
     }
 
     /**

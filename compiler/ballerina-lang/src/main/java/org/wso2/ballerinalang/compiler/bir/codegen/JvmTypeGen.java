@@ -36,6 +36,8 @@ import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.MethodVisitor;
 import org.wso2.ballerinalang.compiler.bir.codegen.split.JvmConstantsGen;
+import org.wso2.ballerinalang.compiler.bir.codegen.utils.JVMModuleUtils;
+import org.wso2.ballerinalang.compiler.bir.codegen.utils.JvmCodeGenUtil;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRTypeDefinition;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SemTypeHelper;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.TypeHashVisitor;
@@ -99,10 +101,10 @@ import static org.objectweb.asm.Opcodes.L2I;
 import static org.objectweb.asm.Opcodes.NEW;
 import static org.objectweb.asm.Opcodes.POP;
 import static org.objectweb.asm.Opcodes.RETURN;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil.getModuleLevelClassName;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil.getStringConstantsClass;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil.removeDecimalDiscriminator;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil.toNameString;
+import static org.wso2.ballerinalang.compiler.bir.codegen.utils.JVMModuleUtils.getModuleLevelClassName;
+import static org.wso2.ballerinalang.compiler.bir.codegen.utils.JvmCodeGenUtil.getStringConstantsClass;
+import static org.wso2.ballerinalang.compiler.bir.codegen.utils.JvmCodeGenUtil.removeDecimalDiscriminator;
+import static org.wso2.ballerinalang.compiler.bir.codegen.utils.JvmCodeGenUtil.toNameString;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ADD_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BOOLEAN_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_STRING_VAR_PREFIX;
@@ -128,9 +130,9 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_AN
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_ERRORS_CREATOR_CLASS_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_FUNCTION_CALLS_CLASS_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_FUNCTION_TYPES_CLASS_NAME;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_INIT_CLASS_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_OBJECTS_CREATOR_CLASS_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_RECORDS_CREATOR_CLASS_NAME;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_TYPES_CLASS_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.PARAMETERIZED_TYPE_IMPL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.PREDEFINED_TYPES;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SET;
@@ -140,6 +142,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TABLE_TYP
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPEDESC_TYPE_IMPL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPES_ERROR;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.VALUE_CREATOR;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.VALUE_OF_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.XML_TYPE_IMPL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.ANY_TO_JBOOLEAN;
@@ -160,6 +163,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_FUNC
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_FUNCTION_TYPE_FOR_STRING;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_FUTURE_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_HANDLE_VALUE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_LOOKUP_KEY;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_MAP_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_MODULE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_OBJECT;
@@ -169,8 +173,8 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_TABL
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_TYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_TYPEDESC;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_TYPE_REF_TYPE_IMPL;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_VALUE_CREATOR;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_XML;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INIT_CLASS_CONSTRUCTOR;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INIT_FINITE_TYPE_IMPL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INIT_FUNCTION_PARAM;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INIT_FUNCTION_TYPE_IMPL;
@@ -247,7 +251,7 @@ public class JvmTypeGen {
      * @param cw       class writer
      * @param typeDefs array of type definitions
      */
-    void generateUserDefinedTypeFields(ClassWriter cw, List<BIRTypeDefinition> typeDefs) {
+    public void generateUserDefinedTypeFields(ClassWriter cw, List<BIRTypeDefinition> typeDefs) {
         // create the type
         for (BIRTypeDefinition typeDef : typeDefs) {
             BType bType = typeDef.type;
@@ -509,7 +513,7 @@ public class JvmTypeGen {
                     return;
                 }
                 case TypeTags.TYPEREFDESC -> {
-                    String typeOwner = JvmCodeGenUtil.getModuleLevelClassName(bType.tsymbol.pkgID,
+                    String typeOwner = JVMModuleUtils.getModuleLevelClassName(bType.tsymbol.pkgID,
                             JvmConstants.TYPEREF_TYPE_CONSTANT_CLASS_NAME);
                     mv.visitFieldInsn(GETSTATIC, typeOwner,
                             JvmCodeGenUtil.getRefTypeConstantName((BTypeReferenceType) bType), GET_TYPE_REF_TYPE_IMPL);
@@ -689,15 +693,15 @@ public class JvmTypeGen {
 
         PackageID pkgID = errorType.tsymbol.pkgID;
         // TODO: Builtin error type will be loaded from BTypes java class. Need to handle this properly.
-        if (JvmCodeGenUtil.isBuiltInPackage(pkgID)) {
+        if (JVMModuleUtils.isBuiltInPackage(pkgID)) {
             mv.visitFieldInsn(GETSTATIC, PREDEFINED_TYPES, TYPES_ERROR, GET_ERROR_TYPE);
             return;
         }
-        
+
         if (Symbols.isFlagOn(errorType.getFlags(), Flags.ANONYMOUS)) {
             jvmConstantsGen.generateGetBErrorType(mv, jvmConstantsGen.getTypeConstantsVar(errorType, symbolTable));
         } else {
-            String typeOwner = JvmCodeGenUtil.getPackageName(pkgID) + MODULE_INIT_CLASS_NAME;
+            String typeOwner = getModuleLevelClassName(pkgID, MODULE_TYPES_CLASS_NAME);
             String fieldName = getTypeFieldName(toNameString(errorType));
             mv.visitFieldInsn(GETSTATIC, typeOwner, fieldName, GET_TYPE);
         }
@@ -826,7 +830,7 @@ public class JvmTypeGen {
         BTypeSymbol typeSymbol = bType.tsymbol.isTypeParamResolved ? bType.tsymbol.typeParamTSymbol : bType.tsymbol;
         BType typeToLoad = bType.tsymbol.isTypeParamResolved ? typeSymbol.type : bType;
         PackageID pkgID = typeSymbol.pkgID;
-        String typeOwner = JvmCodeGenUtil.getPackageName(pkgID) + MODULE_INIT_CLASS_NAME;
+        String typeOwner =  getModuleLevelClassName(pkgID, MODULE_TYPES_CLASS_NAME);
         String defName = "";
         if ((typeSymbol.kind == SymbolKind.RECORD || typeSymbol.kind == SymbolKind.OBJECT)
                 && typeSymbol.name.value.isEmpty()) {
@@ -836,22 +840,20 @@ public class JvmTypeGen {
         //class symbols
         String fieldName = defName.isEmpty() ? getTypeFieldName(toNameString(typeToLoad)) : defName;
 
-        boolean samePackage = JvmCodeGenUtil.isSameModule(this.packageID, pkgID);
+        boolean samePackage = JVMModuleUtils.isSameModule(this.packageID, pkgID);
 
         // if name contains $anon and doesn't belong to the same package, load type using getAnonType() method.
         if (!samePackage && Symbols.isFlagOn(typeToLoad.getFlags(), Flags.ANONYMOUS)) {
+            String varName = jvmConstantsGen.getModuleConstantVar(pkgID);
+            mv.visitFieldInsn(GETSTATIC, jvmConstantsGen.getModuleConstantClass(), varName, GET_MODULE);
+            mv.visitMethodInsn(INVOKESTATIC, VALUE_CREATOR, "getLookupKey", GET_LOOKUP_KEY, false);
+            mv.visitMethodInsn(INVOKESTATIC, VALUE_CREATOR, "getValueCreator", GET_VALUE_CREATOR, false);
             Integer hash = typeHashVisitor.visit(typeToLoad);
             String shape = typeToLoad.toString();
             typeHashVisitor.reset();
-
-            mv.visitTypeInsn(NEW, typeOwner);
-            mv.visitInsn(DUP);
-            mv.visitInsn(ACONST_NULL);
-            mv.visitMethodInsn(INVOKESPECIAL, typeOwner, JVM_INIT_METHOD, INIT_CLASS_CONSTRUCTOR, false);
-
             mv.visitLdcInsn(hash);
-            mv.visitLdcInsn("Package: " + typeOwner + ", TypeName: " + fieldName + ", Shape: " + shape);
-            mv.visitMethodInsn(INVOKEVIRTUAL, typeOwner, GET_ANON_TYPE_METHOD, JvmSignatures.GET_ANON_TYPE, false);
+            mv.visitLdcInsn("Package: " + JVMModuleUtils.getPackageName(pkgID) + ", TypeName: " + fieldName + ", Shape: " + shape);
+            mv.visitMethodInsn(INVOKEVIRTUAL, VALUE_CREATOR, GET_ANON_TYPE_METHOD, JvmSignatures.GET_ANON_TYPE, false);
         } else {
             mv.visitFieldInsn(GETSTATIC, typeOwner, fieldName, GET_TYPE);
         }

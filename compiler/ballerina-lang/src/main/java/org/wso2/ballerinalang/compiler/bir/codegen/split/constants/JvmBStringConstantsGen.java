@@ -23,8 +23,9 @@ import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.MethodVisitor;
 import org.wso2.ballerinalang.compiler.bir.codegen.BallerinaClassWriter;
-import org.wso2.ballerinalang.compiler.bir.codegen.JarEntries;
-import org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil;
+import org.wso2.ballerinalang.compiler.bir.codegen.internal.JarEntries;
+import org.wso2.ballerinalang.compiler.bir.codegen.utils.JVMModuleUtils;
+import org.wso2.ballerinalang.compiler.bir.codegen.utils.JvmCodeGenUtil;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -70,8 +71,8 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INIT_WIT
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.STRING_BUILDER_APPEND;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.TO_STRING_RETURN;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.VOID_METHOD_DESC;
-import static org.wso2.ballerinalang.compiler.bir.codegen.split.constants.JvmConstantGenCommons.genMethodReturn;
-import static org.wso2.ballerinalang.compiler.bir.codegen.split.constants.JvmConstantGenCommons.generateConstantsClassInit;
+import static org.wso2.ballerinalang.compiler.bir.codegen.utils.JvmConstantGenUtils.genMethodReturn;
+import static org.wso2.ballerinalang.compiler.bir.codegen.utils.JvmConstantGenUtils.generateConstantsClassInit;
 
 /**
  * Generates Jvm class for the ballerina string constants for given module.
@@ -89,8 +90,8 @@ public class JvmBStringConstantsGen {
 
     public JvmBStringConstantsGen(PackageID module) {
         this.bStringVarIndexMap = new LinkedHashMap<>();
-        this.stringConstantsClass = JvmCodeGenUtil.getModuleLevelClassName(module, MODULE_STRING_CONSTANT_CLASS_NAME);
-        this.surrogatesMethodsClass = JvmCodeGenUtil.getModuleLevelClassName(module, MODULE_SURROGATES_CLASS_NAME);
+        this.stringConstantsClass = JVMModuleUtils.getModuleLevelClassName(module, MODULE_STRING_CONSTANT_CLASS_NAME);
+        this.surrogatesMethodsClass = JVMModuleUtils.getModuleLevelClassName(module, MODULE_SURROGATES_CLASS_NAME);
     }
 
     public int addBStringConstantVarIndex(String val) {

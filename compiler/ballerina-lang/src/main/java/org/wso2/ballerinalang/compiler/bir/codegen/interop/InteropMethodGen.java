@@ -25,7 +25,7 @@ import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmCastGen;
-import org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil;
+import org.wso2.ballerinalang.compiler.bir.codegen.utils.JvmCodeGenUtil;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmErrorGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmInstructionGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen;
@@ -120,8 +120,8 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.HANDLE_VA
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JVM_INIT_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBJECT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRING_VALUE;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmDesugarPhase.getNextDesugarBBId;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmDesugarPhase.insertAndGetNextBasicBlock;
+import static org.wso2.ballerinalang.compiler.bir.codegen.desugar.Desugar.getNextDesugarBBId;
+import static org.wso2.ballerinalang.compiler.bir.codegen.desugar.Desugar.insertAndGetNextBasicBlock;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_BSTRING_FOR_ARRAY_INDEX;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_STRING_FROM_ARRAY;
 /**

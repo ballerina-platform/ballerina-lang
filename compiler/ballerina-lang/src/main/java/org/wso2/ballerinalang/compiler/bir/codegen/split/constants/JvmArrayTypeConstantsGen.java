@@ -24,8 +24,8 @@ import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.wso2.ballerinalang.compiler.bir.codegen.BallerinaClassWriter;
-import org.wso2.ballerinalang.compiler.bir.codegen.JarEntries;
-import org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil;
+import org.wso2.ballerinalang.compiler.bir.codegen.internal.JarEntries;
+import org.wso2.ballerinalang.compiler.bir.codegen.utils.JVMModuleUtils;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.BTypeHashComparator;
 import org.wso2.ballerinalang.compiler.bir.codegen.split.types.JvmArrayTypeGen;
@@ -50,8 +50,8 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAX_CONST
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.POPULATE_METHOD_PREFIX;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_ARRAY_TYPE_IMPL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.VOID_METHOD_DESC;
-import static org.wso2.ballerinalang.compiler.bir.codegen.split.constants.JvmConstantGenCommons.genMethodReturn;
-import static org.wso2.ballerinalang.compiler.bir.codegen.split.constants.JvmConstantGenCommons.generateConstantsClassInit;
+import static org.wso2.ballerinalang.compiler.bir.codegen.utils.JvmConstantGenUtils.genMethodReturn;
+import static org.wso2.ballerinalang.compiler.bir.codegen.utils.JvmConstantGenUtils.generateConstantsClassInit;
 
 /**
  * Generates Jvm class for the ballerina array types as constants for a given module.
@@ -73,7 +73,7 @@ public class JvmArrayTypeConstantsGen {
 
     public JvmArrayTypeConstantsGen(PackageID packageID, BTypeHashComparator bTypeHashComparator, Types types) {
         this.arrayConstantsClass =
-                JvmCodeGenUtil.getModuleLevelClassName(packageID, JvmConstants.ARRAY_TYPE_CONSTANT_CLASS_NAME);
+                JVMModuleUtils.getModuleLevelClassName(packageID, JvmConstants.ARRAY_TYPE_CONSTANT_CLASS_NAME);
         cw = new BallerinaClassWriter(COMPUTE_FRAMES);
         generateConstantsClassInit(cw, arrayConstantsClass);
         mv = cw.visitMethod(ACC_PUBLIC + ACC_STATIC, B_ARRAY_TYPE_INIT_METHOD, VOID_METHOD_DESC, null, null);

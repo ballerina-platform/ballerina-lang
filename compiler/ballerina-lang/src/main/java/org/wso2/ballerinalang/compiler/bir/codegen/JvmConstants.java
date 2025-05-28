@@ -195,7 +195,6 @@ public final class JvmConstants {
     public static final String ASYNC_UTILS = "io/ballerina/runtime/internal/scheduling/AsyncUtils";
     public static final String WORKER_UTILS = "io/ballerina/runtime/internal/scheduling/WorkerUtils";
     public static final String WORKER_CHANNEL_MAP = "io/ballerina/runtime/internal/scheduling/WorkerChannelMap";
-    public static final String FUNCTION_POINTER_UTILS = "io/ballerina/runtime/internal/utils/FunctionPointerUtils";
     public static final String MAP_UTILS = "io/ballerina/runtime/internal/utils/MapUtils";
     public static final String TABLE_UTILS = "io/ballerina/runtime/internal/utils/TableUtils";
     public static final String STRING_UTILS = "io/ballerina/runtime/api/utils/StringUtils";
@@ -276,6 +275,9 @@ public final class JvmConstants {
     public static final String HANDLE_THROWABLE_METHOD = "handleThrowable";
 
     // code generation related constants.
+    public static final String INIT_FUNCTION_SUFFIX = ".<init>";
+    public static final String STOP_FUNCTION_SUFFIX = ".<stop>";
+    public static final String START_FUNCTION_SUFFIX = ".<start>";
     public static final String MODULE_INIT_CLASS_NAME = "$_init";
     public static final String OBJECT_SELF_INSTANCE = "self";
     public static final String UNION_TYPE_CONSTANT_CLASS_NAME = "constants/$_union_type_constants";
@@ -287,7 +289,8 @@ public final class JvmConstants {
     public static final String MODULE_STRING_CONSTANT_CLASS_NAME = "constants/$_string_constants";
     public static final String MODULE_SURROGATES_CLASS_NAME = "constants/$_surrogate_methods";
     public static final String MODULE_CONSTANT_CLASS_NAME = "constants/$_module_constants";
-    public static final String CONSTANTS_CLASS_NAME = "constants/$_constants";
+    public static final String GLOBAL_VARIABLES_CLASS_NAME = "identifiers/global_vars/";
+    public static final String GLOBAL_CONSTANTS_CLASS_NAME = "identifiers/constants/";
     public static final String MODULE_TYPES_CLASS_NAME = "types/$_types";
     public static final String MODULE_RECORD_TYPES_CLASS_NAME = "types/$_record_types";
     public static final String MODULE_OBJECT_TYPES_CLASS_NAME = "types/$_object_types";
@@ -309,11 +312,11 @@ public final class JvmConstants {
     public static final String B_ERROR_TYPE_INIT_METHOD = "$error_type_init";
     public static final String B_TUPLE_TYPE_INIT_METHOD = "$tuple_type_init";
     public static final String B_ARRAY_TYPE_INIT_METHOD = "$array_type_init";
-    public static final String B_TYPEREF_TYPE_INIT_METHOD = "$typeref_type_init";
+    public static final String B_TYPE_REF_TYPE_INIT_METHOD = "$type_ref_type_init";
     public static final String B_UNION_TYPE_POPULATE_METHOD = "$populate_union_types";
     public static final String B_TUPLE_TYPE_POPULATE_METHOD = "$populate_tuple_types";
     public static final String B_ARRAY_TYPE_POPULATE_METHOD = "$populate_array_types";
-    public static final String B_TYPEREF_TYPE_POPULATE_METHOD = "$populate_typeref_types";
+    public static final String B_TYPE_REF_TYPE_POPULATE_METHOD = "$populate_typeref_types";
     public static final String B_ERROR_TYPE_POPULATE_METHOD = "$populate_error_typeS";
     public static final String MODULE_INIT_METHOD_PREFIX = "$module_init";
     public static final String CONSTANT_INIT_METHOD_PREFIX = "$constant_init";
@@ -330,8 +333,8 @@ public final class JvmConstants {
     public static final String WINDOWS_PATH_SEPERATOR = "\\";
     public static final String JAVA_PACKAGE_SEPERATOR = "/";
     public static final String FILE_NAME_PERIOD_SEPERATOR = "$$$";
-    public static final String VALUE_CLASS_PREFIX = "$value$";
-    public static final String TYPEDESC_CLASS_PREFIX = "$typedesc$";
+    public static final String VALUE_CLASS_PREFIX = "values/$_";
+    public static final String TYPEDESC_CLASS_PREFIX = "typedescs/$_";
     public static final String BALLERINA = "ballerina";
     public static final String ENCODED_DOT_CHARACTER = "&0046";
     public static final String ENCODED_JAVA_MODULE = "jballerina&0046java";
@@ -409,7 +412,6 @@ public final class JvmConstants {
     public static final String STRAND_POLICY_NAME = "policy";
     public static final String STRAND_WORKER_CHANNEL_MAP = "workerChannelMap";
     public static final String STRAND_VALUE_ANY = "any";
-    public static final String STRAND_METADATA_VAR_PREFIX = "$strand_metadata$";
     public static final String MAIN_ARG_VAR_PREFIX = "%param";
     public static final String WAIT_ON_LISTENERS_METHOD_NAME = "waitOnListeners";
     public static final String DEFAULT_STRAND_DISPATCHER = "DEFAULT";

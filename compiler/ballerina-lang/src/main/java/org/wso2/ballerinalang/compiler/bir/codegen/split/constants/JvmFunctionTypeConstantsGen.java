@@ -24,8 +24,8 @@ import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.wso2.ballerinalang.compiler.bir.codegen.BallerinaClassWriter;
-import org.wso2.ballerinalang.compiler.bir.codegen.JarEntries;
-import org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil;
+import org.wso2.ballerinalang.compiler.bir.codegen.internal.JarEntries;
+import org.wso2.ballerinalang.compiler.bir.codegen.utils.JVMModuleUtils;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmTypeGen;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
@@ -33,7 +33,6 @@ import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import java.util.List;
 
 import static org.objectweb.asm.ClassWriter.COMPUTE_FRAMES;
-import static org.objectweb.asm.Opcodes.ACC_FINAL;
 import static org.objectweb.asm.Opcodes.ACC_PRIVATE;
 import static org.objectweb.asm.Opcodes.ACC_PUBLIC;
 import static org.objectweb.asm.Opcodes.ACC_STATIC;
@@ -43,7 +42,7 @@ import static org.objectweb.asm.Opcodes.INVOKESPECIAL;
 import static org.objectweb.asm.Opcodes.INVOKESTATIC;
 import static org.objectweb.asm.Opcodes.RETURN;
 import static org.objectweb.asm.Opcodes.V21;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil.skipRecordDefaultValueFunctions;
+import static org.wso2.ballerinalang.compiler.bir.codegen.utils.JvmCodeGenUtil.skipRecordDefaultValueFunctions;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_FUNCTION_TYPE_INIT_METHOD_PREFIX;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.FUNCTION_TYPE_CONSTANT_CLASS_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.FUNCTION_TYPE_VAR_PREFIX;
@@ -66,7 +65,7 @@ public class JvmFunctionTypeConstantsGen {
     private JvmTypeGen jvmTypeGen;
 
     public JvmFunctionTypeConstantsGen(PackageID module, List<BIRNode.BIRFunction> functions) {
-        this.functionTypeConstantClass = JvmCodeGenUtil.getModuleLevelClassName(module,
+        this.functionTypeConstantClass = JVMModuleUtils.getModuleLevelClassName(module,
                 FUNCTION_TYPE_CONSTANT_CLASS_NAME);
         // Skip function types for record default value functions since they can be called directly from function
         // pointers instead of the function name
@@ -94,7 +93,7 @@ public class JvmFunctionTypeConstantsGen {
 
     private void visitFunctionTypeFields(ClassWriter cw, String functionName) {
         FieldVisitor fv;
-        fv = cw.visitField(ACC_PUBLIC + ACC_FINAL + ACC_STATIC, getFunctionTypeVar(functionName),
+        fv = cw.visitField(ACC_PUBLIC + ACC_STATIC, getFunctionTypeVar(functionName),
                 JvmSignatures.GET_FUNCTION_TYPE, null, null);
         fv.visitEnd();
     }

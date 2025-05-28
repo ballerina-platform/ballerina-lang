@@ -855,9 +855,8 @@ public class BIRGen extends BLangNodeVisitor {
                 targetType.tag == TypeTags.RECORD) {
             // If the function is for record type and has captured variables, then we need to create a
             // temp value in the type and keep it
-            setScopeAndEmit(
-                    new BIRNonTerminator.RecordDefaultFPLoad(lhsOp.pos, lhsOp, targetType,
-                            getFieldName(funcName.value, targetType.tsymbol.name.value)));
+            setScopeAndEmit(new BIRNonTerminator.RecordDefaultFPLoad(lhsOp.pos, lhsOp, targetType,
+                    getFieldName(funcName.value, targetType.tsymbol.name.value)));
         }
         this.env.targetOperand = lhsOp;
     }
@@ -883,7 +882,6 @@ public class BIRGen extends BLangNodeVisitor {
 
     private List<BIROperand> getClosureMapOperands(BLangLambdaFunction lambdaExpr) {
         List<BIROperand> closureMaps = new ArrayList<>(lambdaExpr.function.paramClosureMap.size());
-
         lambdaExpr.function.paramClosureMap.forEach((k, v) -> {
             BVarSymbol symbol = lambdaExpr.enclMapSymbols.get(k);
             if (symbol == null) {
@@ -1932,12 +1930,15 @@ public class BIRGen extends BLangNodeVisitor {
         BSymbol symbol = astPackageVarRefExpr.symbol;
         BIRGlobalVariableDcl globalVarDcl = this.globalVarMap.get(symbol);
         if (globalVarDcl == null) {
+            VarKind varKind = VarKind.GLOBAL;
+            if (symbol.kind == SymbolKind.CONSTANT) {
+                varKind = VarKind.CONSTANT;
+            }
             globalVarDcl = new BIRGlobalVariableDcl(astPackageVarRefExpr.pos, symbol.flags, symbol.type, symbol.pkgID,
-                    symbol.name, symbol.getOriginalName(), VarScope.GLOBAL, VarKind.CONSTANT, symbol.name.getValue(),
+                    symbol.name, symbol.getOriginalName(), VarScope.GLOBAL, varKind, symbol.name.getValue(),
                     symbol.origin.toBIROrigin());
             this.globalVarMap.put(symbol, globalVarDcl);
         }
-
         if (!isInSameModule(astPackageVarRefExpr.varSymbol, env.enclPkg.packageID) ||
                 env.enclPkg.packageID.isTestPkg) {
             this.env.enclPkg.importedGlobalVarsDummyVarDcls.add(globalVarDcl);
@@ -1945,7 +1946,7 @@ public class BIRGen extends BLangNodeVisitor {
         return globalVarDcl;
     }
 
-    @Override
+        @Override
     public void visit(BLangBinaryExpr astBinaryExpr) {
         astBinaryExpr.lhsExpr.accept(this);
         BIROperand rhsOp1 = this.env.targetOperand;
@@ -3164,7 +3165,7 @@ public class BIRGen extends BLangNodeVisitor {
     }
 
 
-    // For invocation expressions, there is no symbol to attach the annotation annotation symbols to. So we
+    // For invocation expressions, there is no symbol to attach the annotation symbols to. So we
     // add the attachments symbols to the attachment expression and extract them here.
     private List<BIRAnnotationAttachment> getBIRAnnotAttachmentsForASTAnnotAttachments(
             List<BLangAnnotationAttachment> astAnnotAttachments) {

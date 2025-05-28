@@ -24,10 +24,10 @@ import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.wso2.ballerinalang.compiler.bir.codegen.BallerinaClassWriter;
-import org.wso2.ballerinalang.compiler.bir.codegen.JarEntries;
-import org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil;
+import org.wso2.ballerinalang.compiler.bir.codegen.internal.JarEntries;
+import org.wso2.ballerinalang.compiler.bir.codegen.utils.JVMModuleUtils;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants;
-import org.wso2.ballerinalang.compiler.bir.codegen.TypeNamePair;
+import org.wso2.ballerinalang.compiler.bir.codegen.model.TypeNamePair;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.BTypeHashComparator;
 import org.wso2.ballerinalang.compiler.bir.codegen.split.types.JvmTupleTypeGen;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
@@ -52,8 +52,8 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAX_CONST
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.POPULATE_METHOD_PREFIX;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_TUPLE_TYPE_IMPL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.VOID_METHOD_DESC;
-import static org.wso2.ballerinalang.compiler.bir.codegen.split.constants.JvmConstantGenCommons.genMethodReturn;
-import static org.wso2.ballerinalang.compiler.bir.codegen.split.constants.JvmConstantGenCommons.generateConstantsClassInit;
+import static org.wso2.ballerinalang.compiler.bir.codegen.utils.JvmConstantGenUtils.genMethodReturn;
+import static org.wso2.ballerinalang.compiler.bir.codegen.utils.JvmConstantGenUtils.generateConstantsClassInit;
 
 /**
  * Generates Jvm class for the ballerina tuple types as constants for a given module.
@@ -74,7 +74,7 @@ public class JvmTupleTypeConstantsGen {
     private int constantIndex = 0;
 
     public JvmTupleTypeConstantsGen(PackageID packageID, BTypeHashComparator bTypeHashComparator) {
-        tupleVarConstantsClass = JvmCodeGenUtil.getModuleLevelClassName(packageID,
+        tupleVarConstantsClass = JVMModuleUtils.getModuleLevelClassName(packageID,
                 JvmConstants.TUPLE_TYPE_CONSTANT_CLASS_NAME);
         cw = new BallerinaClassWriter(COMPUTE_FRAMES);
         generateConstantsClassInit(cw, tupleVarConstantsClass);

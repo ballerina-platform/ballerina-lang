@@ -27,7 +27,8 @@ import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmCastGen;
-import org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil;
+import org.wso2.ballerinalang.compiler.bir.codegen.utils.JVMModuleUtils;
+import org.wso2.ballerinalang.compiler.bir.codegen.utils.JvmCodeGenUtil;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmErrorGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmInstructionGen;
@@ -96,8 +97,8 @@ import static org.objectweb.asm.Opcodes.LRETURN;
 import static org.objectweb.asm.Opcodes.LSTORE;
 import static org.objectweb.asm.Opcodes.NEW;
 import static org.objectweb.asm.Opcodes.PUTSTATIC;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil.SCOPE_PREFIX;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil.getModuleLevelClassName;
+import static org.wso2.ballerinalang.compiler.bir.codegen.utils.JvmCodeGenUtil.SCOPE_PREFIX;
+import static org.wso2.ballerinalang.compiler.bir.codegen.utils.JVMModuleUtils.getModuleLevelClassName;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ANNOTATIONS_METHOD_PREFIX;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JVM_INIT_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_ANNOTATIONS_CLASS_NAME;
@@ -109,6 +110,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBJECT_SE
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.PARENT_MODULE_START_ATTEMPTED;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.RECEIVE_WORKER_CHANNEL_NAMES_VAR_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SEND_WORKER_CHANNEL_NAMES_VAR_NAME;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.START_FUNCTION_SUFFIX;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRAND;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRAND_LOCAL_VARIABLE_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRING_VALUE;
@@ -308,7 +310,7 @@ public class MethodGen {
 
     private void handleDependantModuleForInit(MethodVisitor mv, PackageID packageID, String funcName) {
         if (isModuleInitFunction(funcName)) {
-            String moduleClass = JvmCodeGenUtil.getModuleLevelClassName(packageID, MODULE_INIT_CLASS_NAME);
+            String moduleClass = JVMModuleUtils.getModuleLevelClassName(packageID, MODULE_INIT_CLASS_NAME);
             mv.visitFieldInsn(GETSTATIC, moduleClass, NO_OF_DEPENDANT_MODULES, "I");
             mv.visitInsn(ICONST_1);
             mv.visitInsn(IADD);
@@ -326,7 +328,7 @@ public class MethodGen {
 
     private void handleParentModuleStart(MethodVisitor mv, PackageID packageID, String funcName) {
         if (isModuleStartFunction(funcName)) {
-            String moduleClass = JvmCodeGenUtil.getModuleLevelClassName(packageID, MODULE_INIT_CLASS_NAME);
+            String moduleClass = JVMModuleUtils.getModuleLevelClassName(packageID, MODULE_INIT_CLASS_NAME);
             mv.visitFieldInsn(GETSTATIC, moduleClass, PARENT_MODULE_START_ATTEMPTED, "Z");
             Label labelIf = new Label();
             mv.visitJumpInsn(IFEQ, labelIf);
@@ -351,7 +353,7 @@ public class MethodGen {
             return;
         }
         mv.visitInsn(ICONST_1);
-        mv.visitFieldInsn(PUTSTATIC, JvmCodeGenUtil.getModuleLevelClassName(packageID, MODULE_INIT_CLASS_NAME),
+        mv.visitFieldInsn(PUTSTATIC, JVMModuleUtils.getModuleLevelClassName(packageID, MODULE_INIT_CLASS_NAME),
                 MODULE_START_ATTEMPTED, "Z");
     }
 
@@ -604,7 +606,7 @@ public class MethodGen {
         //set module start success to true for $_init class
         if (isStartFunction(funcName) && terminator.kind == InstructionKind.RETURN) {
             mv.visitInsn(ICONST_1);
-            mv.visitFieldInsn(PUTSTATIC, JvmCodeGenUtil.getModuleLevelClassName(module.packageID,
+            mv.visitFieldInsn(PUTSTATIC, JVMModuleUtils.getModuleLevelClassName(module.packageID,
                             MODULE_INIT_CLASS_NAME),
                     MODULE_STARTED, "Z");
         }
@@ -615,7 +617,7 @@ public class MethodGen {
     }
 
     private boolean isStartFunction(String functionName) {
-        return functionName.equals(MethodGenUtils.encodeModuleSpecialFuncName(MethodGenUtils.START_FUNCTION_SUFFIX));
+        return functionName.equals(MethodGenUtils.encodeModuleSpecialFuncName(START_FUNCTION_SUFFIX));
     }
 
     private boolean isModuleInitFunction(String functionName) {

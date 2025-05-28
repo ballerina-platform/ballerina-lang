@@ -16,19 +16,35 @@
  * under the License.
  */
 
-package org.wso2.ballerinalang.compiler.bir.codegen.split.constants;
+package org.wso2.ballerinalang.compiler.bir.codegen.utils;
 
 import org.objectweb.asm.ClassWriter;
+import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.MethodVisitor;
+import org.wso2.ballerinalang.compiler.bir.codegen.BallerinaClassWriter;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants;
+import org.wso2.ballerinalang.compiler.bir.codegen.JvmInstructionGen;
+import org.wso2.ballerinalang.compiler.bir.codegen.internal.BIRVarToJVMIndexMap;
+import org.wso2.ballerinalang.compiler.bir.model.BIRInstruction;
+import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 
+import java.util.List;
+import java.util.Map;
+
+import static org.objectweb.asm.ClassWriter.COMPUTE_FRAMES;
 import static org.objectweb.asm.Opcodes.ACC_PRIVATE;
 import static org.objectweb.asm.Opcodes.ACC_PUBLIC;
+import static org.objectweb.asm.Opcodes.ACC_STATIC;
 import static org.objectweb.asm.Opcodes.ACC_SUPER;
 import static org.objectweb.asm.Opcodes.ALOAD;
 import static org.objectweb.asm.Opcodes.INVOKESPECIAL;
 import static org.objectweb.asm.Opcodes.RETURN;
 import static org.objectweb.asm.Opcodes.V21;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CLASS_FILE_SUFFIX;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JVM_INIT_METHOD;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JVM_STATIC_INIT_METHOD;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBJECT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.VOID_METHOD_DESC;
 
 /**
@@ -36,9 +52,9 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.VOID_MET
  *
  * @since 2201.2.0
  */
-public final class JvmConstantGenCommons {
+public final class JvmConstantGenUtils {
 
-    private JvmConstantGenCommons() {
+    private JvmConstantGenUtils() {
     }
 
     public static void generateConstantsClassInit(ClassWriter cw, String constantsClass) {
@@ -58,4 +74,11 @@ public final class JvmConstantGenCommons {
         methodVisitor.visitEnd();
     }
 
+    public static void genLazyLoadingClass(ClassWriter cw, String lazyLoadingClass, String varName,
+                                           String descriptor) {
+        cw.visit(V21, ACC_PUBLIC | ACC_SUPER, lazyLoadingClass, null, OBJECT, null);
+        FieldVisitor fv = cw.visitField(ACC_PUBLIC + ACC_STATIC, varName, descriptor, null, null);
+        fv.visitEnd();
+        generateConstantsClassInit(cw, lazyLoadingClass);
+    }
 }
