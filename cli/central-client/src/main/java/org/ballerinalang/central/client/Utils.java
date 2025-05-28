@@ -19,7 +19,6 @@
 package org.ballerinalang.central.client;
 
 import com.github.zafarkhaja.semver.ParseException;
-import com.github.zafarkhaja.semver.UnexpectedCharacterException;
 import com.github.zafarkhaja.semver.Version;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
