@@ -707,7 +707,8 @@ public class CentralAPIClient {
                 throw centralClientException;
             }
         }
-        return null;
+        throw new CentralClientException("Failed to pull the tool: " + toolId + ":" + version +
+                " after " + this.maxRetries + " attempts.");
     }
 
     private String[] pullToolInternal(String toolId, String version, Path balaCacheDirPath, String supportedPlatform,
@@ -798,7 +799,8 @@ public class CentralAPIClient {
                         } catch (PackageAlreadyExistsException e) {
                             // package already exists. setting org, name and version fields is enough
                             if (enableOutputStream) {
-                                outStream.println("tool '" + toolId + ":" + version + "' is already available locally.");
+                                outStream.println("tool '" + toolId + ":" + version +
+                                        "' is already available locally.");
                             }
                             return new String[] { org.get(), pkgName.get(), latestVersion.get() };
                         }
