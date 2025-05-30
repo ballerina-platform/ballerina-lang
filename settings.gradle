@@ -96,6 +96,7 @@ include(':testerina:report-tools')
 include(':testerina-integration-test')
 include(':jballerina-debugger-integration-test')
 include(':language-server-integration-tests')
+include(':bal-tools-integration-tests')
 // TODO: enable at 'dependsOn' of tools-intergration-tests
 // and 'mustRunAfter' of vs-code-pluggin
 
@@ -138,7 +139,7 @@ include(':project-api-test-artifact:log-creator-pkg-provided-code-analyzer')
 include(':project-api-test-artifact:simple-code-gen-plugin-with-resource-gen')
 include(':project-api-test-artifact:init-function-diagnostic-compiler-plugin')
 include(':project-api-test-artifact:compiler-plugin-with-analyzer-generator-modifier')
-include(':project-api-test-artifact:sample-openapi-build-tool')
+include(':project-api-test-artifact:sample-build-tool')
 include(':project-api-test-artifact:pkg-provided-compiler-plugin-with-shared-data')
 include(':project-api-test-artifact:pkg-provided-compiler-plugin-with-resource-addition')
 include(':identifier-util')
@@ -178,7 +179,7 @@ project(':project-api-test-artifact:init-function-diagnostic-compiler-plugin').p
 project(':project-api-test-artifact:compiler-plugin-with-analyzer-generator-modifier').projectDir = file('project-api/test-artifacts/compiler-plugin-with-analyzer-generator-modifier')
 project(':project-api-test-artifact:pkg-provided-compiler-plugin-with-shared-data').projectDir = file('project-api/test-artifacts/pkg-provided-compiler-plugin-with-shared-data')
 project(':project-api-test-artifact:pkg-provided-compiler-plugin-with-resource-addition').projectDir = file('project-api/test-artifacts/pkg-provided-compiler-plugin-with-resource-addition')
-project(':project-api-test-artifact:sample-openapi-build-tool').projectDir = file('project-api/test-artifacts/sample-openapi-build-tool')
+project(':project-api-test-artifact:sample-build-tool').projectDir = file('project-api/test-artifacts/sample-build-tool')
 project(':ballerina-lang:internal').projectDir = file('langlib/lang.__internal')
 project(':ballerina-lang:annotations').projectDir = file('langlib/lang.annotations')
 project(':ballerina-lang:jballerina.java').projectDir = file('langlib/jballerina.java')
@@ -254,6 +255,7 @@ project(':testerina:testerina-runtime').projectDir = file('misc/testerina/module
 project(':testerina:report-tools').projectDir = file('misc/testerina/modules/report-tools')
 project(':testerina-integration-test').projectDir = file('tests/testerina-integration-test')
 project(':jballerina-debugger-integration-test').projectDir = file('tests/jballerina-debugger-integration-test')
+project(':bal-tools-integration-tests').projectDir = file( 'tests/bal-tools-integration-tests')
 project(':bir-spec').projectDir = file('docs/bir-spec')
 project(':identifier-util').projectDir = file('misc/identifier-util')
 

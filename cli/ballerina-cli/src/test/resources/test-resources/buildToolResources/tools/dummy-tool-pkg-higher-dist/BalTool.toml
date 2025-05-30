@@ -1,0 +1,5 @@
+[tool]
+id="dummy_tool_higher_dist"
+
+[[dependency]]
+path="./lib/sample-build-tool-1.0.0.jar"

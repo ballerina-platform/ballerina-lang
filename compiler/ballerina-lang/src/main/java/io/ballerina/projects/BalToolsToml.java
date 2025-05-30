@@ -93,6 +93,10 @@ public class BalToolsToml {
         return this.balToolsTomlContext.tomlDocument();
     }
 
+    public Path path() {
+        return this.balToolsTomlPath;
+    }
+
     public void modify(BalToolsManifest balToolsManifest) {
         String updatedContent = generateContent(balToolsManifest);
         this.balToolsTomlContext = TomlDocumentContext.from(TomlDocument.from(BAL_TOOLS_TOML, updatedContent));

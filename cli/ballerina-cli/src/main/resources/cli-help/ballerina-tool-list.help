@@ -1,5 +1,5 @@
 NAME
-       ballerina-tool-list - List all tools available in the local environment.
+       ballerina-tool-list - List all active tools in the local environment.
 
 SYNOPSIS
        bal tool list
@@ -8,7 +8,16 @@ OPTIONS
        -h, --help
            Print the usage details of tool list command.
 
+       --all
+           List all tools in the local environment, including the ones that are not active.
+           The active tool version is marked with an asterisk (*).
+
 DESCRIPTION
        List the tool-id and the versions of all locally available tools.
 
-       The active tool version is marked with an asterisk (*).
+EXAMPLES
+       List all active tools
+           $ bal tool list
+
+       List all tools, including the inactive ones
+           $ bal tool list --all

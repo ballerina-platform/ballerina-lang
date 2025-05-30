@@ -1417,6 +1417,7 @@ public final class ProjectUtils {
         return "'" + RESOURCE_DIR_NAME + DIR_PATH_SEPARATOR +
                 DOT + WILD_CARD + "'";
     }
+
     /**
      * Denote the compatibility range of a given tool version.
      */

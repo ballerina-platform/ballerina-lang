@@ -28,17 +28,21 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.BeforeSuite;
 import org.testng.annotations.DataProvider;
+import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.stream.Stream;
 
 import static io.ballerina.projects.util.ProjectConstants.CENTRAL_REPOSITORY_CACHE_NAME;
+import static io.ballerina.projects.util.ProjectConstants.REPOSITORIES_DIR;
 
 /**
  * Command tests super class.
@@ -51,7 +55,10 @@ public abstract class BaseCommandTest {
     protected PrintStream printStream;
     protected Path homeCache;
     private final String userDir = System.getProperty("user.dir");
-    
+    final Path testDotBallerina = Paths.get(System.getenv(ProjectDirConstants.HOME_REPO_ENV_KEY));
+    final Path testCentralRepoCache = testDotBallerina.resolve(REPOSITORIES_DIR)
+            .resolve(CENTRAL_REPOSITORY_CACHE_NAME);
+
     @BeforeClass
     public void setup() throws IOException {
         System.setProperty("java.command", "java");
@@ -59,6 +66,16 @@ public abstract class BaseCommandTest {
         this.homeCache = Path.of("build", "userHome");
         this.console = new ByteArrayOutputStream();
         this.printStream = new PrintStream(this.console);
+    }
+
+    @BeforeSuite
+    public void copyBalTools() throws IOException {
+        // copy the bal-tools.toml to <user-home>/.ballerina/.config/
+        Path balToolsTomlSrcPath = Paths.get("src/test/resources/test-resources/" +
+                "buildToolResources/tools/bal-tools.toml");
+        Path balToolsTomlDstPath = testDotBallerina.resolve(".config");
+        Files.createDirectories(balToolsTomlDstPath);
+        Files.copy(balToolsTomlSrcPath, balToolsTomlDstPath.resolve("bal-tools.toml"));
     }
 
     @BeforeMethod
