@@ -90,8 +90,19 @@ public class RunExecutableTask implements Task {
             if (isInDebugMode()) {
                 commands.add(getDebugArgs(err));
             }
+            commands.add("-XX:+ExitOnOutOfMemoryError");
             commands.add("-XX:+HeapDumpOnOutOfMemoryError");
             commands.add("-XX:HeapDumpPath=" + System.getProperty(USER_DIR));
+            String javaOpts = System.getenv("JAVA_OPTS");
+            if (javaOpts != null) {
+                String[] opts = javaOpts.split("\\s+");
+                for (int i = 0; i < opts.length; i++) {
+                    // Avoid adding duplicate options and '-javaagent' to avoid clashes in monitoring tools
+                    if (!commands.contains(opts[i]) && !opts[i].contains("-javaagent:")) {
+                        commands.add(opts[i]);
+                    }
+                }
+            }
             // Sets classpath with executable thin jar and all dependency jar paths.
             commands.add("-jar");
             commands.add(this.target.getExecutablePath(project.currentPackage()).toAbsolutePath()
