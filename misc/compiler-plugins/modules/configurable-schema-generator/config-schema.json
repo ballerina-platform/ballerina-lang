@@ -4,6 +4,7 @@
   "properties": {
     "fixedDiscount": {
       "type": "integer",
+      "default": -200,
       "description": "Fixed dicount value in LKR"
     },
     "discountPercentage": {
@@ -12,6 +13,7 @@
     },
     "testMode": {
       "type": "boolean",
+      "default": true,
       "description": "Flag to enable test mode"
     }
   },

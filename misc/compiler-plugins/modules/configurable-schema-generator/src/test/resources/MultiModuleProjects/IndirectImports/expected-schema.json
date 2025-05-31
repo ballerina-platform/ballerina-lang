@@ -13,6 +13,7 @@
               "properties": {
                 "value": {
                   "type": "string",
+                  "default": "World",
                   "description": ""
                 }
               },
@@ -23,6 +24,7 @@
               "properties": {
                 "name": {
                   "type": "string",
+                  "default": "World",
                   "description": ""
                 }
               },
