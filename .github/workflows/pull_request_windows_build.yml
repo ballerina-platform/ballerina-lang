@@ -15,7 +15,6 @@ on:
       - native-build
       - revert-client-decl-master
       - query-grouping-aggregation
-      - natural-programming
 
 jobs:
   windows_build:
