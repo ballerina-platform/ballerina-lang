@@ -584,21 +584,49 @@ class Agent {
     }
 }
 
+class Agent2 {
+    private ToolConfig toolConfig;
+
+    isolated function init((isolated function)[] tools) returns error? {
+        typedesc<isolated function> typedesVal = typeof tools.pop();
+        ToolConfig toolConfig = check typedesVal.@Tool.ensureType();
+        self.toolConfig = toolConfig;
+    }
+
+    isolated function run() returns ToolConfig {
+        return self.toolConfig;
+    }
+}
+
 @Tool {name: n}
 isolated function sum(int a, int b) returns int {
     return a + b;
 }
 
+string? res1 = (typeof sum).@Tool?.name;
+
 Agent agent = new ([sum]);
+Agent2|error agent2 = check new ([sum]);
 
 public function testFuncAnnotationAccessInClasMethod() returns error? {
-    ToolConfig toolConfig = check agent.run();
-    assertEquality(toolConfig.name, "name");
+    ToolConfig|error toolConfig = agent.run();
+    if toolConfig is ToolConfig {
+        assertEquality(toolConfig.name, "name");
+    } else {
+        panic error("Agent run returned an error");
+    }
+
+    assertEquality(res1, "name");
+
+    Agent2|error agentVar = agent2;
+    if agentVar is Agent2 {
+        assertEquality(agentVar.run().name, "name");
+    } else {
+        panic error("Agent init returned an error");
+    }
 }
 
 string n = "name";
-
-
 
 function getMethodAnnotations(typedesc<object {}> bTypedesc, string method, string annotName) returns anydata =
     @java:Method {

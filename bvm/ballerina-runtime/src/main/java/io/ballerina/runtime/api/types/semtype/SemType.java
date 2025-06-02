@@ -21,6 +21,7 @@ package io.ballerina.runtime.api.types.semtype;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.internal.types.semtype.ImmutableSemType;
 import io.ballerina.runtime.internal.types.semtype.MutableSemType;
+import io.ballerina.runtime.internal.types.semtype.SemTypeHelper;
 
 /**
  * Represent a type in runtime.
@@ -83,5 +84,10 @@ public sealed class SemType extends BasicTypeBitSet
         }
 
         return (SemType) type;
+    }
+
+    @Override
+    public String toString() {
+        return SemTypeHelper.stringRepr(this);
     }
 }

@@ -24,7 +24,7 @@ import io.ballerina.runtime.api.types.Type;
  *
  * @since 1.1.0
  */
-public interface BString {
+public interface BString extends IterableValue {
 
     String getValue();
 

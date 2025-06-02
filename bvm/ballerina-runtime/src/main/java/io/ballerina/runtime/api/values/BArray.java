@@ -26,7 +26,7 @@ import io.ballerina.runtime.api.types.Type;
  * 
  * @since 1.1.0
  */
-public interface BArray extends BRefValue, BCollection {
+public interface BArray extends BRefValue, BCollection, IterableValue {
 
     /**
      * Get value in the given array index.

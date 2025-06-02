@@ -2167,17 +2167,17 @@ function testOptionalFieldInput() {
     var x3 = from var {name, price1, price2} in input
                 group by name
                 select [price2];
-    assertEquality([[11, 12], [13, 12, 9], [], []], x3);
+    assertEquality([[11, 12], [13, 12, 9], [()], [()]], x3);
 
     var x4 = from var {name, price1, price2} in input
                 group by name
                 select [price2].length();
-    assertEquality([2, 3, 0, 0], x4);
+    assertEquality([2, 3, 1, 1], x4);
 
     var x5 = from var {name: n, price1: p1, price2: p2} in input
                 group by n
                 select [p2].length();
-    assertEquality([2, 3, 0, 0], x5);
+    assertEquality([2, 3, 1, 1], x5);
 }
 
 enum Student {
@@ -2243,7 +2243,7 @@ function assertEquality(anydata expected, anydata actual) {
     if expected == actual {
         return;
     }
-    panic error("expected '" + expected.toString() + "', found '" + actual.toString() + "'");
+    panic error("expected '" + expected.toBalString() + "', found '" + actual.toBalString() + "'");
 }
 
 // TODO: Add test cases readonly types

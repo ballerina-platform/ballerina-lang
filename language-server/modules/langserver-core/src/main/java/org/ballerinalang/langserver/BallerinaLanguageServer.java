@@ -18,6 +18,7 @@ package org.ballerinalang.langserver;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.reflect.TypeToken;
+import io.ballerina.projects.BuildOptions;
 import io.ballerina.projects.util.ProjectConstants;
 import org.ballerinalang.langserver.command.LSCommandExecutorProvidersHolder;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
@@ -37,6 +38,7 @@ import org.ballerinalang.langserver.extensions.AbstractExtendedLanguageServer;
 import org.ballerinalang.langserver.extensions.ExtendedLanguageServer;
 import org.ballerinalang.langserver.semantictokens.SemanticTokensUtils;
 import org.ballerinalang.langserver.util.LSClientUtil;
+import org.ballerinalang.langserver.workspace.BallerinaWorkspaceManagerProxyImpl;
 import org.eclipse.lsp4j.CodeActionKind;
 import org.eclipse.lsp4j.CodeActionOptions;
 import org.eclipse.lsp4j.CodeLensOptions;
@@ -141,6 +143,17 @@ public class BallerinaLanguageServer extends AbstractExtendedLanguageServer
         //Checks for instances in which the LS needs to be initiated in lightweight mode
         if (capabilities.getInitializationOptions().isEnableLightWeightMode()) {
             return CompletableFuture.supplyAsync(() -> res);
+        }
+
+        // Compile the project with the experimental flag if the client has it enabled
+        if (capabilities.getExperimentalCapabilities().isExperimentalLanguageFeaturesEnabled() &&
+                workspaceManagerProxy instanceof BallerinaWorkspaceManagerProxyImpl ballerinaWorkspaceManagerProxy) {
+            BuildOptions buildOptions = BuildOptions.builder()
+                    .setOffline(CommonUtil.COMPILE_OFFLINE)
+                    .setSticky(true)
+                    .setExperimental(true)
+                    .build();
+            ballerinaWorkspaceManagerProxy.setBuildOptions(buildOptions);
         }
 
         final SignatureHelpOptions signatureHelpOptions = new SignatureHelpOptions(Arrays.asList("(", ","));

@@ -924,4 +924,21 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
     public BasicTypeBitSet getBasicType() {
         return BASIC_TYPE;
     }
+
+    @Override
+    public Iterator<?> getJavaIterator() {
+        BIterator<?> iterator = getIterator();
+        return new Iterator<>() {
+            @Override
+            public boolean hasNext() {
+                return iterator.hasNext();
+            }
+
+            @Override
+            public Object next() {
+                BArray keyValueTuple = (BArray) iterator.next();
+                return keyValueTuple.get(1);
+            }
+        };
+    }
 }

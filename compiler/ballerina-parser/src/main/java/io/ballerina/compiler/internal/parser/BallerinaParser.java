@@ -507,6 +507,11 @@ public class BallerinaParser extends AbstractParser {
             case SERVICE_KEYWORD:
                 metadata = STNodeFactory.createEmptyNode();
                 break;
+            case RESOURCE_KEYWORD:
+            case REMOTE_KEYWORD:
+                // Special case to invalidate
+                reportInvalidQualifier(consume());
+                return parseTopLevelNode();
             case IDENTIFIER_TOKEN:
                 // Here we assume that after recovering, we'll never reach here.
                 // Otherwise the tokenOffset will not be 1.
@@ -576,6 +581,11 @@ public class BallerinaParser extends AbstractParser {
             case SERVICE_KEYWORD:
             case CONFIGURABLE_KEYWORD:
                 break;
+            case RESOURCE_KEYWORD:
+            case REMOTE_KEYWORD:
+                // Special case to invalidate
+                reportInvalidQualifier(consume());
+                return parseTopLevelNode(metadata);
             case IDENTIFIER_TOKEN:
                 // Here we assume that after recovering, we'll never reach here.
                 // Otherwise the tokenOffset will not be 1.
@@ -994,6 +1004,11 @@ public class BallerinaParser extends AbstractParser {
             case ENUM_KEYWORD:
                 reportInvalidQualifierList(qualifiers);
                 return parseEnumDeclaration(metadata, publicQualifier);
+            case RESOURCE_KEYWORD:
+            case REMOTE_KEYWORD:
+                // Special case to invalidate
+                reportInvalidQualifier(consume());
+                return parseTopLevelNode(metadata, publicQualifier, qualifiers);
             case IDENTIFIER_TOKEN:
                 // Here we assume that after recovering, we'll never reach here.
                 // Otherwise the tokenOffset will not be 1.
@@ -6529,6 +6544,10 @@ public class BallerinaParser extends AbstractParser {
             case AT_TOKEN:
                 metadata = parseMetaData();
                 break;
+            case RETURN_KEYWORD:
+                // This is a special case to prevent error handler from reaching failsafe on return keyword
+                addInvalidNodeToNextToken(consume(), DiagnosticErrorCode.ERROR_INVALID_TOKEN);
+                return parseObjectMember(context);
             default:
                 if (isTypeStartingToken(nextToken.kind)) {
                     metadata = STNodeFactory.createEmptyNode();
@@ -10889,6 +10908,12 @@ public class BallerinaParser extends AbstractParser {
         }
 
         // Template string component
+        if (nextToken.kind != SyntaxKind.TEMPLATE_STRING) {
+            nextToken = consume();
+            return STNodeFactory.createLiteralValueToken(SyntaxKind.TEMPLATE_STRING,
+                    nextToken.text(), nextToken.leadingMinutiae(), nextToken.trailingMinutiae(),
+                    nextToken.diagnostics());
+        }
         return consume();
     }
 

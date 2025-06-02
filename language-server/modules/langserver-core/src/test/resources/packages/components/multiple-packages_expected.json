@@ -36,7 +36,6 @@
           "moduleVariables": [],
           "configurableVariables": [],
           "automations": [],
-          "naturalFunctions": [],
           "name": "services"
         },
         {
@@ -69,8 +68,7 @@
               "endLine": 6,
               "endColumn": 1
             }
-          ],
-          "naturalFunctions": []
+          ]
         }
       ]
     },
@@ -100,7 +98,6 @@
           "moduleVariables": [],
           "configurableVariables": [],
           "automations": [],
-          "naturalFunctions": [],
           "name": "storage"
         },
         {
@@ -133,8 +130,7 @@
               "endLine": 6,
               "endColumn": 1
             }
-          ],
-          "naturalFunctions": []
+          ]
         },
         {
           "functions": [
@@ -158,7 +154,6 @@
           "moduleVariables": [],
           "configurableVariables": [],
           "automations": [],
-          "naturalFunctions": [],
           "name": "services"
         }
       ]
@@ -198,8 +193,7 @@
           "listeners": [],
           "moduleVariables": [],
           "configurableVariables": [],
-          "automations": [],
-          "naturalFunctions": []
+          "automations": []
         },
         {
           "functions": [],
@@ -233,7 +227,6 @@
           "moduleVariables": [],
           "configurableVariables": [],
           "automations": [],
-          "naturalFunctions": [],
           "name": "db_service"
         },
         {
@@ -277,7 +270,6 @@
           "moduleVariables": [],
           "configurableVariables": [],
           "automations": [],
-          "naturalFunctions": [],
           "name": "hello_service"
         }
       ]
@@ -433,8 +425,7 @@
               "endLine": 46,
               "endColumn": 1
             }
-          ],
-          "naturalFunctions": []
+          ]
         }
       ]
     }

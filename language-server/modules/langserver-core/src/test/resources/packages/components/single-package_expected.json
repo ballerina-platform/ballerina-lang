@@ -36,7 +36,6 @@
           "moduleVariables": [],
           "configurableVariables": [],
           "automations": [],
-          "naturalFunctions": [],
           "name": "services"
         },
         {
@@ -69,8 +68,7 @@
               "endLine": 6,
               "endColumn": 1
             }
-          ],
-          "naturalFunctions": []
+          ]
         }
       ]
     }

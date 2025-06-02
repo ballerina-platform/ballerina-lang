@@ -15,14 +15,6 @@
  */
 package org.ballerinalang.langserver.extensions.ballerina.packages;
 
-import io.ballerina.compiler.api.ModuleID;
-import io.ballerina.compiler.api.SemanticModel;
-import io.ballerina.compiler.api.symbols.AnnotationAttachmentSymbol;
-import io.ballerina.compiler.api.symbols.ExternalFunctionSymbol;
-import io.ballerina.compiler.api.symbols.FunctionSymbol;
-import io.ballerina.compiler.api.symbols.ModuleSymbol;
-import io.ballerina.compiler.api.symbols.Symbol;
-import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.syntax.tree.ClassDefinitionNode;
 import io.ballerina.compiler.syntax.tree.ConstantDeclarationNode;
 import io.ballerina.compiler.syntax.tree.EnumDeclarationNode;
@@ -38,7 +30,6 @@ import io.ballerina.compiler.syntax.tree.Token;
 import io.ballerina.compiler.syntax.tree.TypeDefinitionNode;
 import io.ballerina.tools.text.LineRange;
 
-import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -48,15 +39,9 @@ import java.util.stream.Collectors;
 public class DocumentComponentTransformer extends NodeTransformer<Optional<MapperObject>> {
 
     private final ModuleObject module;
-    private final SemanticModel semanticModel;
 
-    private static final String BALLERINAX_ORG_NAME = "ballerinax";
-    private static final String NP_MODULE_NAME = "np";
-    private static final String NATURAL_FUNCTION = "NaturalFunction";
-
-    DocumentComponentTransformer(ModuleObject moduleObject, SemanticModel semanticModel) {
+    DocumentComponentTransformer(ModuleObject moduleObject) {
         this.module = moduleObject;
-        this.semanticModel = semanticModel;
     }
 
     public ModuleObject getModuleObject(Node node) {
@@ -83,11 +68,6 @@ public class DocumentComponentTransformer extends NodeTransformer<Optional<Mappe
         if (functionDefinitionNode.functionName().text().equals(PackageServiceConstants.MAIN_FUNCTION)) {
             return Optional.of(new MapperObject(PackageServiceConstants.AUTOMATIONS,
                     createDataObject(PackageServiceConstants.MAIN_FUNCTION, functionDefinitionNode)));
-        }
-
-        if (isNaturalFunction(functionDefinitionNode)) {
-            return Optional.of(new MapperObject(PackageServiceConstants.NATURAL_FUNCTIONS,
-                    createDataObject(functionDefinitionNode.functionName().text(), functionDefinitionNode)));
         }
 
         return Optional.of(new MapperObject(PackageServiceConstants.FUNCTIONS,
@@ -190,36 +170,5 @@ public class DocumentComponentTransformer extends NodeTransformer<Optional<Mappe
         LineRange lineRange = node.lineRange();
         return new DataObject(name, lineRange.fileName(), lineRange.startLine().line(), lineRange.startLine().offset(),
                 lineRange.endLine().line(), lineRange.endLine().offset());
-    }
-
-    /**
-     * Check whether the given function is a natural function.
-     *
-     * @param functionDefinitionNode Function definition node
-     * @return true if the function is a natural programming function else false
-     */
-    private boolean isNaturalFunction(FunctionDefinitionNode functionDefinitionNode) {
-        Optional<Symbol> funcSymbol = this.semanticModel.symbol(functionDefinitionNode);
-        if (funcSymbol.isEmpty() || funcSymbol.get().kind() != SymbolKind.FUNCTION
-                || !((FunctionSymbol) funcSymbol.get()).external()) {
-            return false;
-        }
-
-        List<AnnotationAttachmentSymbol> annotAttachments =
-                ((ExternalFunctionSymbol) funcSymbol.get()).annotAttachmentsOnExternal();
-        return annotAttachments.stream().anyMatch(annot ->
-                isNpModule(annot.typeDescriptor())
-                        && annot.typeDescriptor().getName().isPresent()
-                        && annot.typeDescriptor().getName().get().equals(NATURAL_FUNCTION));
-    }
-
-    private boolean isNpModule(Symbol symbol) {
-        Optional<ModuleSymbol> module = symbol.getModule();
-        if (module.isEmpty()) {
-            return false;
-        }
-
-        ModuleID moduleId = module.get().id();
-        return moduleId.orgName().equals(BALLERINAX_ORG_NAME) && moduleId.packageName().equals(NP_MODULE_NAME);
     }
 }

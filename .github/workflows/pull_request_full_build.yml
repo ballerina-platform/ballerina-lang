@@ -6,7 +6,6 @@ on:
       - master
       - 2201.[0-9]+.x
       - 2201.[0-9]+.[0-9]+-stage
-      - natural-programming
 
 jobs:
   build-lang:
@@ -120,6 +119,12 @@ jobs:
             fi
           done
         shell: bash
+
+#      - name: Checkout non-default branch
+#        run: |
+#          for module_name in $(jq -r '.standard_library| .[] | select(.level==${{ matrix.level }}) | .name' extensions.json); do \
+#          cd $module_name && git fetch origin && git checkout -t origin/typeDesc-stmt || : && cd ..; \
+#          done
 
       - name: Update Lang Version in Module
         run: |

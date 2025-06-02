@@ -61,6 +61,7 @@ import java.util.stream.Stream;
 import static io.ballerina.cli.cmd.CommandOutputUtils.getOutput;
 import static io.ballerina.cli.cmd.CommandOutputUtils.readFileAsString;
 import static io.ballerina.cli.cmd.CommandOutputUtils.replaceDependenciesTomlContent;
+import static io.ballerina.cli.cmd.CommandUtil.USER_HOME;
 import static io.ballerina.cli.utils.OsUtils.isWindows;
 import static io.ballerina.projects.util.ProjectConstants.BUILD_FILE;
 import static io.ballerina.projects.util.ProjectConstants.DEPENDENCIES_TOML;
@@ -433,13 +434,35 @@ public class TestCommandTest extends BaseCommandTest {
         Assert.assertEquals(buildLog.replace("\r", ""), getOutput("test-empty-project-with-build-tools.txt"));
     }
 
-    @Test(description = "Test the emission of testable fat jar for a project with tests")
+    @Test(description = "Test --cloud=k8s flag with a project with tests")
+    public void testTestWithCloudK8s() throws IOException {
+        Path projectPath = this.testResources.resolve("validProjectWithTests");
+        ProjectUtils.deleteDirectory(projectPath.resolve("target"));
+        System.setProperty(ProjectConstants.USER_DIR, projectPath.toString());
+        Path mockedLocalRepo = this.testResources.resolve("mocked-local-repo");
+        System.setProperty(USER_HOME, mockedLocalRepo.toString());
+        TestCommand testCommand = new TestCommand(projectPath, printStream, printStream, false);
+        new CommandLine(testCommand).parseArgs("--cloud=k8s");
+        testCommand.execute();
+
+        String buildLog = readOutput(true);
+        Assert.assertEquals(buildLog.replace("\r", ""), getOutput("test-project.txt"));
+
+        Path targetDir = projectPath.resolve("target");
+        Path testableJar = targetDir.resolve("bin/tests/winery-testable.jar");
+        Assert.assertFalse(Files.exists(testableJar));
+        Path mainArgsFile = testableJar.getParent().resolve(TEST_RUNTIME_MAIN_ARGS_FILE);
+        Assert.assertFalse(Files.exists(mainArgsFile));
+    }
+
+    @Test(description = "Test the emission of testable fat jar for a project with tests",
+            dependsOnMethods = "testTestWithCloudK8s")
     public void testTestableFatJarEmission() {
         Path projectPath = this.testResources.resolve("validProjectWithTests");
         System.setProperty(ProjectConstants.USER_DIR, projectPath.toString());
 
         Path mockedLocalRepo = this.testResources.resolve("mocked-local-repo");
-        System.setProperty("user.home", mockedLocalRepo.toString());
+        System.setProperty(USER_HOME, mockedLocalRepo.toString());
 
         TestCommand testCommand = new TestCommand(projectPath, printStream, printStream, false);
         new CommandLine(testCommand).parseArgs("--cloud=docker");
@@ -494,7 +517,7 @@ public class TestCommandTest extends BaseCommandTest {
         System.setProperty(ProjectConstants.USER_DIR, projectPath.toString());
 
         Path mockedLocalRepo = this.testResources.resolve("mocked-local-repo");
-        System.setProperty("user.home", mockedLocalRepo.toString());
+        System.setProperty(USER_HOME, mockedLocalRepo.toString());
 
         TestCommand testCommand = new TestCommand(projectPath, printStream, printStream, false);
         new CommandLine(testCommand).parseArgs("--cloud=docker");
@@ -556,7 +579,7 @@ public class TestCommandTest extends BaseCommandTest {
         System.setProperty(ProjectConstants.USER_DIR, projectPath.toString());
 
         Path mockedLocalRepo = this.testResources.resolve("mocked-local-repo");
-        System.setProperty("user.home", mockedLocalRepo.toString());
+        System.setProperty(USER_HOME, mockedLocalRepo.toString());
 
         TestCommand testCommand = new TestCommand(projectPath, printStream, printStream, false);
         new CommandLine(testCommand).parseArgs("--cloud=docker", "--graalvm");
@@ -580,7 +603,7 @@ public class TestCommandTest extends BaseCommandTest {
         System.setProperty(ProjectConstants.USER_DIR, projectPath.toString());
 
         Path mockedLocalRepo = this.testResources.resolve("mocked-local-repo");
-        System.setProperty("user.home", mockedLocalRepo.toString());
+        System.setProperty(USER_HOME, mockedLocalRepo.toString());
 
         TestCommand testCommand = new TestCommand(projectPath, printStream, printStream, false);
         new CommandLine(testCommand).parseArgs("--cloud=docker", "--graalvm");
@@ -654,7 +677,7 @@ public class TestCommandTest extends BaseCommandTest {
         System.setProperty(ProjectConstants.USER_DIR, projectPath.toString());
 
         Path mockedLocalRepo = this.testResources.resolve("mocked-local-repo");
-        System.setProperty("user.home", mockedLocalRepo.toString());
+        System.setProperty(USER_HOME, mockedLocalRepo.toString());
 
         TestCommand testCommand = new TestCommand(projectPath, printStream, printStream, false);
         new CommandLine(testCommand).parseArgs("--cloud=docker", "main_tests.bal");

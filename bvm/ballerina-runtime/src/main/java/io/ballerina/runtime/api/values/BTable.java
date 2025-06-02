@@ -33,7 +33,7 @@ import java.util.Set;
  *
  * @since 2.0.0
  */
-public interface BTable<K, V> extends BRefValue, BCollection {
+public interface BTable<K, V> extends BRefValue, BCollection, IterableValue {
 
     /**
      * Returns the value to which the specified key is mapped, or {@code null} if this map contains no

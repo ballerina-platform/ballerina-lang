@@ -55,12 +55,11 @@ import java.util.regex.Matcher;
 public final class BallerinaTreeModifyUtil {
 
     private static final String DELETE = "delete";
-    private static final String IMPORT = "import";
 
     private BallerinaTreeModifyUtil() {
     }
 
-    private static final Map<String, String> typeMapping = new HashMap<String, String>() {{
+    private static final Map<String, String> typeMapping = new HashMap<>() {{
         put("DELETE", "");
         put("INSERT", "$STATEMENT");
     }};
@@ -138,7 +137,6 @@ public final class BallerinaTreeModifyUtil {
                         theEndOffset - theStartOffset), mainStartMapping);
     }
 
-
     public static JsonElement modifyTree(ASTModification[] astModifications, Path compilationPath,
                                          WorkspaceManager workspaceManager)
             throws Exception {
@@ -205,7 +203,7 @@ public final class BallerinaTreeModifyUtil {
         newSyntaxTree = Formatter.format(newSyntaxTree);
 
         SemanticModel newSemanticModel = updateWorkspaceDocument(compilationPath, newSyntaxTree.toSourceCode(),
-                                                                 workspaceManager);
+                workspaceManager);
 
         Optional<Document> formattedSrcFile = workspaceManager.document(compilationPath);
         if (formattedSrcFile.isEmpty()) {
@@ -233,8 +231,7 @@ public final class BallerinaTreeModifyUtil {
         // Update project instance
 
         PackageCompilation packageCompilation = updatedDoc.module().packageInstance().getCompilation();
-        SemanticModel semanticModel = packageCompilation.getSemanticModel(updatedDoc.module().moduleId());
-        return semanticModel;
+        return packageCompilation.getSemanticModel(updatedDoc.module().moduleId());
     }
 
     private static boolean importExist(UnusedSymbolsVisitor unusedSymbolsVisitor, ASTModification astModification) {
@@ -243,32 +240,64 @@ public final class BallerinaTreeModifyUtil {
                 || unusedSymbolsVisitor.getUnusedImports().containsKey(importValue));
     }
 
-    private static TextEdit constructEdit(
-            UnusedSymbolsVisitor unusedSymbolsVisitor, TextDocument oldTextDocument,
-            ASTModification astModification) {
-        String mapping = BallerinaTreeModifyUtil.resolveMapping(astModification.getType(),
+    private static TextEdit constructEdit(UnusedSymbolsVisitor unusedSymbolsVisitor, TextDocument oldTextDocument,
+                                          ASTModification astModification) {
+
+        String editText = BallerinaTreeModifyUtil.resolveMapping(astModification.getType(),
                 astModification.getConfig() == null ? new JsonObject() : astModification.getConfig());
-        if (mapping != null) {
-            boolean doEdit = false;
-            if (DELETE.equals(astModification.getType())) {
-                if (unusedSymbolsVisitor.toBeDeletedRanges().contains(astModification)) {
-                    doEdit = true;
-                }
-            } else {
+        if (editText == null) {
+            return null;
+        }
+
+        boolean doEdit = false;
+        if (DELETE.equals(astModification.getType())) {
+            if (unusedSymbolsVisitor.toBeDeletedRanges().contains(astModification)) {
                 doEdit = true;
             }
-            if (doEdit) {
-                LinePosition startLinePos = LinePosition.from(astModification.getStartLine(),
-                        astModification.getStartColumn());
-                LinePosition endLinePos = LinePosition.from(astModification.getEndLine(),
-                        astModification.getEndColumn());
-                int startOffset = oldTextDocument.textPositionFrom(startLinePos);
-                int endOffset = oldTextDocument.textPositionFrom(endLinePos);
-                return TextEdit.from(
-                        TextRange.from(startOffset,
-                                endOffset - startOffset), mapping);
+        } else {
+            doEdit = true;
+        }
+        if (doEdit) {
+            TextRange range = getRange(astModification, oldTextDocument);
+            if (range == null) {
+                return null;
             }
+            return TextEdit.from(range, editText);
         }
         return null;
+    }
+
+    public static TextRange getRange(ASTModification modification, TextDocument oldTextDocument) {
+        // Get line positions from modification
+        LinePosition startLinePos = LinePosition.from(modification.getStartLine(), modification.getStartColumn());
+        LinePosition endLinePos = LinePosition.from(modification.getEndLine(), modification.getEndColumn());
+
+        // Calculate offsets
+        int startOffset = calculateOffset(oldTextDocument, startLinePos);
+        int endOffset = calculateOffset(oldTextDocument, endLinePos);
+
+        if (startOffset < 0 || endOffset < 0) {
+            return null;
+        }
+
+        return TextRange.from(startOffset, endOffset - startOffset);
+    }
+
+    /**
+     * Helper method to calculate text offset from a line position.
+     */
+    private static int calculateOffset(TextDocument document, LinePosition linePos) {
+        try {
+            return document.textPositionFrom(linePos);
+        } catch (IndexOutOfBoundsException e) {
+            // If the line position is at the end of the document, return the document length
+            if (linePos.line() == document.textLines().size()) {
+                return document.toCharArray().length;
+            }
+            return -1;
+        } catch (Exception e) {
+            // TODO: Handle other exceptions as needed
+            return -1;
+        }
     }
 }

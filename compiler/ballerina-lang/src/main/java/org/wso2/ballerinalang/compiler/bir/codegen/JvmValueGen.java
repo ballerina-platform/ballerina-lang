@@ -65,10 +65,8 @@ import static org.objectweb.asm.Opcodes.INVOKEVIRTUAL;
 import static org.objectweb.asm.Opcodes.IRETURN;
 import static org.objectweb.asm.Opcodes.ISTORE;
 import static org.objectweb.asm.Opcodes.NEW;
-import static org.objectweb.asm.Opcodes.POP;
 import static org.objectweb.asm.Opcodes.PUTFIELD;
 import static org.objectweb.asm.Opcodes.RETURN;
-import static org.objectweb.asm.Opcodes.SWAP;
 import static org.objectweb.asm.Opcodes.V21;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil.toNameString;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ABSTRACT_OBJECT_VALUE;
@@ -90,13 +88,11 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SPLIT_CLA
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPEDESC_CLASS_PREFIX;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPEDESC_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPEDESC_VALUE_IMPL;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPEDESC_VALUE_IMPL_CLOSURES;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPE_IMPL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.UNSUPPORTED_OPERATION_EXCEPTION;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.VALUE_CLASS_PREFIX;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmDesugarPhase.addDefaultableBooleanVarsToSignature;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.CAST_B_MAPPING_INITIAL_VALUE_ENTRY;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_MAP_ARRAY;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_MAP_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INIT_TYPEDESC;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INSTANTIATE;
@@ -263,14 +259,6 @@ public class JvmValueGen {
         mv.visitMethodInsn(INVOKESPECIAL, className, JVM_INIT_METHOD, INIT_TYPEDESC, false);
 
         // Invoke the init-function of this type.
-        mv.visitVarInsn(ALOAD, 1);
-        mv.visitInsn(SWAP);
-        mv.visitVarInsn(ALOAD, 0);
-        mv.visitFieldInsn(GETFIELD, TYPEDESC_VALUE_IMPL, TYPEDESC_VALUE_IMPL_CLOSURES,
-                          GET_MAP_ARRAY);
-        mv.visitInsn(POP);
-
-        // Invoke the init-function of this type.
         String valueClassName;
         List<BIRFunction> attachedFuncs = typeDef.attachedFuncs;
 
@@ -341,7 +329,6 @@ public class JvmValueGen {
         // load type
         mv.visitVarInsn(ALOAD, 1);
 
-        mv.visitVarInsn(ALOAD, 2);
         // invoke `super(type)`;
         mv.visitMethodInsn(INVOKESPECIAL, TYPEDESC_VALUE_IMPL, JVM_INIT_METHOD, descriptor, false);
 
@@ -356,16 +343,14 @@ public class JvmValueGen {
         mv.visitCode();
 
         mv.visitVarInsn(ALOAD, 0);
-        mv.visitVarInsn(ALOAD, 3);
+        mv.visitVarInsn(ALOAD, 2);
         mv.visitFieldInsn(PUTFIELD, name, ANNOTATIONS_FIELD, GET_MAP_VALUE);
         // load super
         mv.visitVarInsn(ALOAD, 0);
         // load type
         mv.visitVarInsn(ALOAD, 1);
-        // load closures
-        mv.visitVarInsn(ALOAD, 2);
         // load annotations
-        mv.visitVarInsn(ALOAD, 3);
+        mv.visitVarInsn(ALOAD, 2);
         // invoke `super(type)`;
         mv.visitMethodInsn(INVOKESPECIAL, TYPEDESC_VALUE_IMPL, JVM_INIT_METHOD, TYPE_DESC_CONSTRUCTOR_WITH_ANNOTATIONS,
                            false);
