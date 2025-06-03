@@ -19,10 +19,10 @@
 package io.ballerina.cli.service;
 
 import io.ballerina.cli.service.types.CommandResponse;
-import io.ballerina.cli.service.types.Context;
 import io.ballerina.cli.service.types.SubCommand;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * Java SPI for executing CLI commands and retrieving available commands.
@@ -38,7 +38,7 @@ public interface CliToolService {
      * @param args    The arguments for the command.
      * @return The response from executing the command.
      */
-    CommandResponse executeCommand(String command, String[] args, Context context);
+    CommandResponse executeCommand(String command, String[] args, Map<String, Object> context);
 
     /**
      * Retrieves the list of available commands.
