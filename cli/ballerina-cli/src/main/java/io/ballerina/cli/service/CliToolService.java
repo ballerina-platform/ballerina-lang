@@ -27,7 +27,7 @@ import java.util.List;
 /**
  * Java SPI for executing CLI commands and retrieving available commands.
  *
- * @since 2.0.0
+ * @since 2201.13.0
  */
 public interface CliToolService {
 
