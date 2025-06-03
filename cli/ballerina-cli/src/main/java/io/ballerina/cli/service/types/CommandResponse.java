@@ -18,6 +18,7 @@
 
 package io.ballerina.cli.service.types;
 
+import io.ballerina.tools.text.LSPTextEdit;
 import io.ballerina.tools.text.TextEdit;
 
 import java.util.List;
@@ -33,7 +34,7 @@ import java.util.Map;
  *
  * @since 2201.13.0
  */
-public record CommandResponse(Status status, List<ResultType> resultTypes, Map<String, List<TextEdit>> textEdits,
+public record CommandResponse(Status status, List<ResultType> resultTypes, Map<String, List<LSPTextEdit>> textEdits,
                               List<Error> errors) {
 
     /**
@@ -42,7 +43,7 @@ public record CommandResponse(Status status, List<ResultType> resultTypes, Map<S
     public static class Builder {
         private Status status;
         private List<ResultType> resultTypes;
-        private Map<String, List<TextEdit>> textEdits;
+        private Map<String, List<LSPTextEdit>> textEdits;
         private List<Error> errors;
 
         public Builder status(Status status) {
@@ -55,7 +56,7 @@ public record CommandResponse(Status status, List<ResultType> resultTypes, Map<S
             return this;
         }
 
-        public Builder textEdits(Map<String, List<TextEdit>> textEdits) {
+        public Builder textEdits(Map<String, List<LSPTextEdit>> textEdits) {
             this.textEdits = textEdits;
             return this;
         }
