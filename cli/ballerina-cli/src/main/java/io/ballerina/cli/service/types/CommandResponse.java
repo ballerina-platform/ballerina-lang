@@ -33,6 +33,40 @@ import java.util.Map;
  *
  * @since 2201.13.0
  */
-public record CommandResponse(Status status, List<ResultType> resultTypes, Map<String, TextEdit> textEdits,
+public record CommandResponse(Status status, List<ResultType> resultTypes, Map<String, List<TextEdit>> textEdits,
                               List<Error> errors) {
+
+    /**
+     * Builder class for constructing a CommandResponse.
+     */
+    public static class Builder {
+        private Status status;
+        private List<ResultType> resultTypes;
+        private Map<String, List<TextEdit>> textEdits;
+        private List<Error> errors;
+
+        public Builder status(Status status) {
+            this.status = status;
+            return this;
+        }
+
+        public Builder resultTypes(List<ResultType> resultTypes) {
+            this.resultTypes = resultTypes;
+            return this;
+        }
+
+        public Builder textEdits(Map<String, List<TextEdit>> textEdits) {
+            this.textEdits = textEdits;
+            return this;
+        }
+
+        public Builder errors(List<Error> errors) {
+            this.errors = errors;
+            return this;
+        }
+
+        public CommandResponse build() {
+            return new CommandResponse(status, resultTypes, textEdits, errors);
+        }
+    }
 }
