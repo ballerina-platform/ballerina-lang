@@ -384,6 +384,7 @@ public class Desugar extends BLangNodeVisitor {
     public static final String XML_INTERNAL_GET_ATTRIBUTE = "getAttribute";
     public static final String XML_INTERNAL_GET_ELEMENTS = "getElements";
     public static final String XML_ELEMENTS = "elements";
+    public static final String ANNOT_RESOLVE_POINT = "$AnnotResolvePoint";
 
     private final SymbolTable symTable;
     private final SymbolResolver symResolver;
@@ -1057,9 +1058,26 @@ public class Desugar extends BLangNodeVisitor {
                     rewrite((BLangTypeDefinition) topLevelNode, env);
                     addTypeDescStmtsToInitFunction(initFunctionEnv, desugaredGlobalVarList, initFnBody);
                 }
+                case FUNCTION -> {
+                    BLangFunction function = (BLangFunction) topLevelNode;
+                    if (!function.annAttachments.isEmpty()) {
+                        createAnnotationResolvePoint((BLangFunction) topLevelNode, initFnBody);
+                    }
+                }
             }
         }
         pkgNode.globalVars = desugaredGlobalVarList;
+    }
+
+    private void createAnnotationResolvePoint(BLangFunction function, BLangBlockFunctionBody initFnBody) {
+        // This will add a dummy simple var def statement to the init function body which tracks the
+        // point to resolve the annot of the function
+        BLangSimpleVariable simpleVariable = ASTBuilderUtil.createVariable(null,
+                "$" + function.symbol.name + ANNOT_RESOLVE_POINT, null, null, function.symbol);
+        BLangSimpleVariableDef simpleVariableDef = ASTBuilderUtil.createVariableDef(null);
+        simpleVariableDef.var = simpleVariable;
+        simpleVariableDef.setBType(simpleVariable.getBType());
+        initFnBody.addStatement(simpleVariableDef);
     }
 
     private void addTypeDescStmtsToInitFunction(SymbolEnv initFunctionEnv, List<BLangVariable> desugaredGlobalVarList,
