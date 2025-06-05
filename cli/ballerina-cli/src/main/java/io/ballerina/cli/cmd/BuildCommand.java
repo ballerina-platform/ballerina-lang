@@ -22,6 +22,7 @@ import io.ballerina.cli.TaskExecutor;
 import io.ballerina.cli.task.CleanTargetDirTask;
 import io.ballerina.cli.task.CompileTask;
 import io.ballerina.cli.task.CreateExecutableTask;
+import io.ballerina.cli.task.CreateFingerprintTask;
 import io.ballerina.cli.task.DumpBuildTimeTask;
 import io.ballerina.cli.task.ResolveMavenDependenciesTask;
 import io.ballerina.cli.task.RunBuildToolsTask;
@@ -32,15 +33,19 @@ import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.directory.BuildProject;
 import io.ballerina.projects.directory.SingleFileProject;
+import io.ballerina.projects.internal.model.BuildJson;
 import io.ballerina.projects.util.ProjectConstants;
 import org.wso2.ballerinalang.util.RepoUtils;
 import picocli.CommandLine;
 
+import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.file.Path;
 
 import static io.ballerina.cli.cmd.Constants.BUILD_COMMAND;
+import static io.ballerina.projects.util.ProjectConstants.BUILD_FILE;
 import static io.ballerina.projects.util.ProjectUtils.isProjectUpdated;
+import static io.ballerina.projects.util.ProjectUtils.readBuildJson;
 
 /**
  * This class represents the "bal build" command.
@@ -287,27 +292,62 @@ public class BuildCommand implements BLauncherCmd {
                     "flag is not set");
         }
 
+        boolean rebuildStatus = isRebuildNeeded(project);
+
         // Check package files are modified after last build
         boolean isPackageModified = isProjectUpdated(project);
 
         TaskExecutor taskExecutor = new TaskExecutor.TaskBuilder()
                 // clean the target directory(projects only)
-                .addTask(new CleanTargetDirTask(isPackageModified, buildOptions.enableCache()), isSingleFileBuild)
+                .addTask(new CleanTargetDirTask(isPackageModified, buildOptions.enableCache()), !rebuildStatus
+                        || isSingleFileBuild)
                 // Run build tools
-                .addTask(new RunBuildToolsTask(outStream), isSingleFileBuild)
+                .addTask(new RunBuildToolsTask(outStream, !rebuildStatus), isSingleFileBuild)
                 // resolve maven dependencies in Ballerina.toml
-                .addTask(new ResolveMavenDependenciesTask(outStream))
+                .addTask(new ResolveMavenDependenciesTask(outStream, !rebuildStatus))
                 // compile the modules
                 .addTask(new CompileTask(outStream, errStream, false, true,
-                        isPackageModified, buildOptions.enableCache()))
-                .addTask(new CreateExecutableTask(outStream, this.output, null, false))
+                        isPackageModified, buildOptions.enableCache(), !rebuildStatus))
+                .addTask(new CreateExecutableTask(outStream, this.output, null, false,
+                        !rebuildStatus))
                 .addTask(new DumpBuildTimeTask(outStream), !project.buildOptions().dumpBuildTime())
+                .addTask(new CreateFingerprintTask(), !rebuildStatus || isSingleFileBuild)
                 .build();
 
         taskExecutor.executeTasks(project);
         if (this.exitWhenFinish) {
             Runtime.getRuntime().exit(0);
         }
+    }
+
+    private boolean isRebuildNeeded(Project project) {
+        Path buildFilePath = project.targetDir().resolve(BUILD_FILE);
+        try {
+            BuildJson buildJson = readBuildJson(buildFilePath);
+            if (buildJson.isExpiredLastUpdateTime()) {
+                return true;
+            }
+            if (CommandUtil.isFilesModifiedSinceLastBuild(buildJson, project)) {
+                return true;
+            }
+            if (isRebuildForCurrCmd()) {
+                return true;
+            }
+            return !CommandUtil.isPrevCurrCmdCompatible(project.buildOptions(), buildJson.getBuildOptions());
+        } catch (IOException e) {
+            // ignore
+        }
+        return true;
+    }
+
+    private boolean isRebuildForCurrCmd() {
+        return dumpBIR
+                || Boolean.TRUE.equals(dumpBIRFile) || dumpGraph || dumpRawGraphs
+                || Boolean.TRUE.equals(configSchemaGen) || Boolean.TRUE.equals(showDependencyDiagnostics)
+                || Boolean.TRUE.equals(listConflictedClasses) || Boolean.TRUE.equals(dumpBuildTime)
+                || targetDir != null || Boolean.TRUE.equals(exportOpenAPI) || Boolean.TRUE.equals(exportComponentModel)
+                || Boolean.TRUE.equals(enableCache) || Boolean.TRUE.equals(nativeImage)
+                || Boolean.TRUE.equals(disableSyntaxTreeCaching) || graalVMBuildOptions != null;
     }
 
     private BuildOptions constructBuildOptions() {

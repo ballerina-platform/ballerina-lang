@@ -86,6 +86,10 @@ public class BuildOptions {
         return this.compilationOptions.optimizeDependencyCompilation();
     }
 
+    public String lockingMode() {
+        return this.compilationOptions.lockingMode();
+    }
+
     /**
      * Checks whether experimental compilation option is set.
      *

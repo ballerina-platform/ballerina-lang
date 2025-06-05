@@ -53,11 +53,24 @@ public class CreateExecutableTask implements Task {
     private Path currentDir;
     private Target target;
     private final boolean isHideTaskOutput;
+    private final boolean skipTask;
 
     public CreateExecutableTask(PrintStream out, String output, Target target, boolean isHideTaskOutput) {
         this.out = out;
         this.target = target;
         this.isHideTaskOutput = isHideTaskOutput;
+        this.skipTask = false;
+        if (output != null) {
+            this.output = Path.of(output);
+        }
+    }
+
+    public CreateExecutableTask(PrintStream out, String output, Target target, boolean isHideTaskOutput,
+                                boolean skipTask) {
+        this.out = out;
+        this.target = target;
+        this.isHideTaskOutput = isHideTaskOutput;
+        this.skipTask = skipTask;
         if (output != null) {
             this.output = Path.of(output);
         }
@@ -68,8 +81,11 @@ public class CreateExecutableTask implements Task {
         if (!isHideTaskOutput) {
             this.out.println();
             if (!project.buildOptions().nativeImage()) {
-                this.out.println("Generating executable");
+                this.out.println("Generating executable" + (skipTask ? "(skipped)" : ""));
             }
+        }
+        if (skipTask) {
+            return;
         }
 
         this.currentDir = Path.of(System.getProperty(USER_DIR));

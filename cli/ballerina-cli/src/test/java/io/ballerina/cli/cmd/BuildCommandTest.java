@@ -1476,4 +1476,22 @@ public class BuildCommandTest extends BaseCommandTest {
                     && !buildLog.contains("WARNING: Package is not verified with GraalVM"));
         }
     }
+
+    @Test()
+    public void testBuildAProjectTwice() throws IOException {
+        Path projectPath = this.testResources.resolve("validProject");
+        System.setProperty(USER_DIR_PROPERTY, projectPath.toString());
+
+        BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
+        new CommandLine(buildCommand).parseArgs();
+        buildCommand.execute();
+        String firstBuildLog = readOutput(true);
+        validateBuildTimeInfo(firstBuildLog);
+
+        // Execute the build command again
+        buildCommand.execute();
+        String secondBuildLog = readOutput(true);
+        validateBuildTimeInfo(secondBuildLog);
+
+        Assert.assertEquals(firstBuildLog, secondBuildLog);
 }
