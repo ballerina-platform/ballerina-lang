@@ -88,8 +88,15 @@ public class RunBuildToolsTask implements Task {
     private ClassLoader toolClassLoader = this.getClass().getClassLoader();
     ServiceLoader<CodeGeneratorTool> toolServiceLoader = ServiceLoader.load(CodeGeneratorTool.class, toolClassLoader);
     private final Map<Tool.Field, ToolContext> toolContextMap = new HashMap<>();
+    private boolean skipTask = false;
 
     public RunBuildToolsTask(PrintStream out) {
+        this.outStream = out;
+        this.exitWhenFinish = true;
+    }
+
+    public RunBuildToolsTask(PrintStream out, boolean skipTask) {
+        this.skipTask = skipTask;
         this.outStream = out;
         this.exitWhenFinish = true;
     }
@@ -110,7 +117,10 @@ public class RunBuildToolsTask implements Task {
         if (toolEntries.isEmpty()) {
             return;
         }
-        this.outStream.println("\nExecuting Build Tools");
+        this.outStream.println("\nExecuting Build Tools" + (skipTask ? "(skipped)" : ""));
+        if (skipTask) {
+            return;
+        }
 
         // Populate the tool context map
         for (Tool toolEntry : toolEntries) {
