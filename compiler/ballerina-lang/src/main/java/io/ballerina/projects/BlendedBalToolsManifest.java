@@ -69,17 +69,22 @@ public class BlendedBalToolsManifest {
                 continue;
             }
             Optional<BalToolsManifest.Tool> activeTool = localBalToolsManifest.getActiveTool(toolId);
-            if (activeTool.isEmpty() || LOCAL_REPOSITORY_NAME.equals(activeTool.get().repository())) {
+            if (activeTool.isPresent() && LOCAL_REPOSITORY_NAME.equals(activeTool.get().repository())) {
                 // No active tool versions or the tool is set to use from the local repo. Prioritize this version
                 continue;
             }
-            String org = activeTool.get().org();
-            String name = activeTool.get().name();
-            String version = activeTool.get().version();
+
+            BalToolsManifest.Tool tool = mergedTools.get(toolId).values().stream()
+                    .flatMap(map -> map.values().stream())
+                    .findFirst().orElseThrow();
+
+            String org = tool.org();
+            String name = tool.name();
+            String version = tool.version();
 
             // Set the active tool version if the current active version is incompatible with the distribution
             SemanticVersion.VersionCompatibilityResult versionCompatibilityResult =
-                    BalToolsUtil.compareToolDistWithCurrentDist(org, name, version, activeTool.get().repository());
+                    BalToolsUtil.compareToolDistWithCurrentDist(org, name, version, tool.repository());
 
             if (!versionCompatibilityResult.equals(SemanticVersion.VersionCompatibilityResult.EQUAL)) {
                 Optional<PackageVersion> highestVersion = getHighestCompatibleLocalVersion(localBalToolsManifest,
@@ -182,11 +187,7 @@ public class BlendedBalToolsManifest {
         }
         PackageVersion highestVersion = toolVersions.stream().findFirst().orElseThrow();
         for (PackageVersion toolVersion : toolVersions) {
-            ProjectUtils.getLatest(highestVersion, toolVersion);
-            if (toolVersion.compareTo(highestVersion)
-                    .equals(SemanticVersion.VersionCompatibilityResult.GREATER_THAN)) {
-                highestVersion = toolVersion;
-            }
+            highestVersion = ProjectUtils.getLatest(highestVersion, toolVersion);
         }
         return Optional.of(highestVersion);
     }

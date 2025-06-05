@@ -61,9 +61,6 @@ public class BlendedBalToolsManifestTest {
      * 3.2.1 Dist > locals - dummyToolA
      * 3.2.2 Locals > dist - dummyToolB
      * 4 No locally active versions - dummyToolF
-     * 5. Not a tool
-     * 5.1 No locally active versions
-     * 5.2 No versions at all
      * */
 
     @BeforeClass

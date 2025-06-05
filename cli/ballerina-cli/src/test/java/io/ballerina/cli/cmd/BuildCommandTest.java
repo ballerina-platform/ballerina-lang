@@ -42,7 +42,6 @@ import java.nio.charset.Charset;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.attribute.BasicFileAttributes;
@@ -90,16 +89,6 @@ public class BuildCommandTest extends BaseCommandTest {
                         this.testResources.resolve("valid-bal-file-no-permission")).resolve("hello_world.bal"));
         Path validProjectPath = this.testResources.resolve("validApplicationProject");
         Files.copy(validProjectPath, this.testResources.resolve("validProject-no-permission"));
-
-        // compile and cache sample build tool
-        String sampleBuildToolJar = "sample-build-tool-1.0.0.jar";
-        Path sampleBuildToolJarPath = Paths.get("build/tool-libs").resolve(sampleBuildToolJar);
-        Path destPath = testResources.resolve("buildToolResources/tools/sample-build-tool-pkg")
-                .resolve("lib").resolve(sampleBuildToolJar);
-        Files.createDirectories(destPath.getParent());
-        Files.copy(sampleBuildToolJarPath, destPath);
-        BCompileUtil.compileAndCacheBala(testResources.resolve("buildToolResources").resolve("tools")
-                .resolve("sample-build-tool-pkg").toString(), testCentralRepoCache);
     }
 
     @Test(description = "Build a valid ballerina file", dataProvider = "optimizeDependencyCompilation")

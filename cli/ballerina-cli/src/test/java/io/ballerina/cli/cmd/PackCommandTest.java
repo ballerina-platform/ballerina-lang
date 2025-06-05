@@ -4,11 +4,8 @@ import com.google.gson.Gson;
 import io.ballerina.cli.launcher.BLauncherException;
 import io.ballerina.projects.JvmTarget;
 import io.ballerina.projects.internal.bala.PackageJson;
-import io.ballerina.projects.util.BuildToolsUtil;
 import io.ballerina.projects.util.ProjectUtils;
 import org.ballerinalang.test.BCompileUtil;
-import org.mockito.MockedStatic;
-import org.mockito.Mockito;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.AfterMethod;
@@ -33,7 +30,6 @@ import static io.ballerina.cli.cmd.CommandOutputUtils.replaceDependenciesTomlCon
 import static io.ballerina.projects.util.ProjectConstants.BALA_DOCS_DIR;
 import static io.ballerina.projects.util.ProjectConstants.BALLERINA_TOML;
 import static io.ballerina.projects.util.ProjectConstants.DEPENDENCIES_TOML;
-import static io.ballerina.projects.util.ProjectConstants.DIST_CACHE_DIRECTORY;
 import static io.ballerina.projects.util.ProjectConstants.MODULES_ROOT;
 import static io.ballerina.projects.util.ProjectConstants.MODULE_MD_FILE_NAME;
 import static io.ballerina.projects.util.ProjectConstants.PACKAGE_JSON;
@@ -348,20 +344,13 @@ public class PackCommandTest extends BaseCommandTest {
 
     @Test(description = "Pack an empty package with compiler plugin")
     public void testPackEmptyProjectWithBuildTools() throws IOException {
-        Path testDistCacheDirectory = Path.of("build").toAbsolutePath().resolve(DIST_CACHE_DIRECTORY);
-        BCompileUtil.compileAndCacheBala(testResources.resolve("buildToolResources").resolve("tools")
-                .resolve("ballerina-generate-file").toString(), testDistCacheDirectory);
         Path projectPath = this.testResources.resolve("emptyProjectWithBuildTool");
         replaceDependenciesTomlContent(projectPath, "**INSERT_DISTRIBUTION_VERSION_HERE**",
                 RepoUtils.getBallerinaShortVersion());
         System.setProperty(USER_DIR, projectPath.toString());
-        try (MockedStatic<BuildToolsUtil> repoUtils = Mockito.mockStatic(
-                BuildToolsUtil.class, Mockito.CALLS_REAL_METHODS)) {
-            repoUtils.when(BuildToolsUtil::getCentralBalaDirPath).thenReturn(testDistCacheDirectory.resolve("bala"));
-            PackCommand packCommand = new PackCommand(projectPath, printStream, printStream, false, true);
-            new CommandLine(packCommand).parseArgs();
-            packCommand.execute();
-        }
+        PackCommand packCommand = new PackCommand(projectPath, printStream, printStream, false, true);
+        new CommandLine(packCommand).parseArgs();
+        packCommand.execute();
         String buildLog = readOutput(true);
         Assert.assertEquals(buildLog.replace("\r", "").replace("\\", "/"),
                 getOutput("pack-empty-project-with-build-tools.txt"));

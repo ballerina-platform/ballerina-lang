@@ -19,11 +19,7 @@
 package io.ballerina.cli.cmd;
 
 import io.ballerina.cli.launcher.BLauncherException;
-import io.ballerina.projects.util.BuildToolsUtil;
 import io.ballerina.projects.util.ProjectUtils;
-import org.ballerinalang.test.BCompileUtil;
-import org.mockito.MockedStatic;
-import org.mockito.Mockito;
 import org.testng.Assert;
 import org.testng.annotations.AfterSuite;
 import org.testng.annotations.BeforeClass;
@@ -44,7 +40,6 @@ import java.util.Objects;
 
 import static io.ballerina.cli.cmd.CommandOutputUtils.getOutput;
 import static io.ballerina.cli.cmd.CommandOutputUtils.replaceDependenciesTomlContent;
-import static io.ballerina.projects.util.ProjectConstants.DIST_CACHE_DIRECTORY;
 import static io.ballerina.projects.util.ProjectConstants.USER_DIR_PROPERTY;
 
 /**
@@ -159,20 +154,14 @@ public class ProfileCommandTest extends BaseCommandTest {
 
     @Test(description = "Profile an empty package with code generator build tools")
     public void testProfileEmptyProjectWithBuildTools() throws IOException {
-        Path testDistCacheDirectory = Path.of("build").toAbsolutePath().resolve(DIST_CACHE_DIRECTORY);
-        BCompileUtil.compileAndCacheBala(
-                testResources.resolve("buildToolResources/tools/ballerina-generate-file").toString());
         Path projectPath = this.testResources.resolve("emptyProjectWithBuildTool");
         replaceDependenciesTomlContent(projectPath, "**INSERT_DISTRIBUTION_VERSION_HERE**",
                 RepoUtils.getBallerinaShortVersion());
         System.setProperty(USER_DIR_PROPERTY, projectPath.toString());
-        try (MockedStatic<BuildToolsUtil> repoUtils = Mockito.mockStatic(
-                BuildToolsUtil.class, Mockito.CALLS_REAL_METHODS)) {
-            repoUtils.when(BuildToolsUtil::getCentralBalaDirPath).thenReturn(testDistCacheDirectory.resolve("bala"));
-            ProfileCommand profileCommand = new ProfileCommand(projectPath, printStream, false);
-            new CommandLine(profileCommand).parseArgs();
-            profileCommand.execute();
-        }
+
+        ProfileCommand profileCommand = new ProfileCommand(projectPath, printStream, false);
+        new CommandLine(profileCommand).parseArgs();
+        profileCommand.execute();
         String buildLog = readOutput(true);
         Assert.assertEquals(buildLog.replaceAll("\r", "").replace("\\", "/"),
                 getOutput("profile-empty-project-with-build-tools.txt"));

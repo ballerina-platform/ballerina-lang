@@ -160,7 +160,8 @@ public class BalToolsUtil {
         return packageResolutionResponse;
     }
 
-    public static String[] pullToolPackageFromRemote(String toolId, String version) throws CentralClientException {
+    public static BalToolsManifest.Tool pullToolPackageFromRemote(String toolId, String version)
+            throws CentralClientException {
         String supportedPlatform = Arrays.stream(JvmTarget.values())
                 .map(JvmTarget::code)
                 .collect(Collectors.joining(","));
@@ -176,8 +177,10 @@ public class BalToolsUtil {
                 settings.getCentral().getConnectTimeout(),
                 settings.getCentral().getReadTimeout(), settings.getCentral().getWriteTimeout(),
                 settings.getCentral().getCallTimeout(), settings.getCentral().getMaxRetries());
-        return client.pullTool(toolId, version, balaCacheDirPath, supportedPlatform,
+        String[] toolInfo = client.pullTool(toolId, version, balaCacheDirPath, supportedPlatform,
                 RepoUtils.getBallerinaVersion(), false);
+
+        return new BalToolsManifest.Tool(toolId, toolInfo[0], toolInfo[1], toolInfo[2], true, null);
     }
 
     private static SemanticVersion getToolDistVersionFromCache(

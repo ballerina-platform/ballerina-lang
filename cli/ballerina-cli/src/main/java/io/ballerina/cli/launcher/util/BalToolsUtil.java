@@ -19,7 +19,7 @@
 package io.ballerina.cli.launcher.util;
 
 import io.ballerina.cli.cmd.CommandUtil;
-import io.ballerina.cli.cmd.ToolCommand;
+import io.ballerina.cli.cmd.ToolPullCommand;
 import io.ballerina.cli.launcher.LauncherUtils;
 import io.ballerina.projects.BalToolsManifest;
 import io.ballerina.projects.BalToolsToml;
@@ -169,8 +169,8 @@ public final class BalToolsUtil {
         if (blendedBalToolsManifest.getActiveTool(commandName).isPresent()) {
             return;
         }
-        ToolCommand toolCommand = new ToolCommand();
-        toolCommand.pullToolAndUpdateBalToolsToml(commandName, Names.EMPTY.getValue());
+        ToolPullCommand toolPullCommand = new ToolPullCommand();
+        toolPullCommand.pullToolAndUpdateBalToolsToml(commandName, Names.EMPTY.getValue());
     }
 
     private static List<File> getToolCommandJarAndDependencyJars(String commandName) {

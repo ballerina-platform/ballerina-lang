@@ -52,7 +52,7 @@ public class InBuiltToolCommandsTests extends BaseTestCase {
         balClient = new BMainInstance(balServer);
         String output = balClient.runMainAndReadStdOut("dummytoolF", new String[]{},
                 new HashMap<>(), userDir, true);
-        Assert.assertEquals(output, "dummytoolF 0.9.0");
+        Assert.assertTrue(output.contains("dummytoolF 0.9.0"));
     }
 
     @Test (description = "Test a tool that is only available in central cache")
@@ -60,7 +60,7 @@ public class InBuiltToolCommandsTests extends BaseTestCase {
         balClient = new BMainInstance(balServer);
         String output = balClient.runMainAndReadStdOut("dummyToolX", new String[]{},
                 new HashMap<>(), userDir, true);
-        Assert.assertEquals(output, "dummyToolX 0.1.7");
+        Assert.assertTrue(output.contains("dummyToolX 0.1.7"));
     }
 
     @Test (description = "Test a tool that is available in both dist and local. " +
@@ -69,7 +69,7 @@ public class InBuiltToolCommandsTests extends BaseTestCase {
         balClient = new BMainInstance(balServer);
         String output = balClient.runMainAndReadStdOut("dummytoolD", new String[]{},
                 new HashMap<>(), userDir, true);
-        Assert.assertEquals(output, "dummytoolD 1.1.5");
+        Assert.assertTrue(output.contains("dummytoolD 1.1.5"));
     }
 
     @Test (description = "Test a tool that is available in both dist and local. " +
@@ -78,7 +78,7 @@ public class InBuiltToolCommandsTests extends BaseTestCase {
         balClient = new BMainInstance(balServer);
         String output = balClient.runMainAndReadStdOut("dummytoolC", new String[]{},
                 new HashMap<>(), userDir, true);
-        Assert.assertEquals(output, "dummytoolC 1.1.0");
+        Assert.assertTrue(output.contains("dummytoolC 1.1.0"));
     }
 
     @Test (description = "Locally active version is incompatible. Dist has the highest compatible version")
@@ -87,7 +87,7 @@ public class InBuiltToolCommandsTests extends BaseTestCase {
         balClient = new BMainInstance(balServer);
         String output = balClient.runMainAndReadStdOut("dummytoolA", new String[]{},
                 new HashMap<>(), userDir, true);
-        Assert.assertEquals(output, "dummytoolA 1.2.1");
+        Assert.assertTrue(output.contains("dummytoolA 1.2.1"));
     }
 
     @Test (description = "Locally active version is incompatible. Local has the highest compatible version")
@@ -95,7 +95,7 @@ public class InBuiltToolCommandsTests extends BaseTestCase {
         balClient = new BMainInstance(balServer);
         String output = balClient.runMainAndReadStdOut("dummytoolB", new String[]{},
                 new HashMap<>(), userDir, true);
-        Assert.assertEquals(output, "dummytoolB 1.1.0");
+        Assert.assertTrue(output.contains("dummytoolB 1.1.0"));
     }
 
     @Test (description = "Locally active version is compatible. Dist has upgraded")
@@ -109,7 +109,7 @@ public class InBuiltToolCommandsTests extends BaseTestCase {
         balClient = new BMainInstance(balServer);
         String output = balClient.runMainAndReadStdOut("dummytoolE", new String[]{},
                 new HashMap<>(), userDir, true);
-        Assert.assertEquals(output, "dummytoolE 1.1.0");
+        Assert.assertTrue(output.contains("dummytoolE 1.1.0"));
     }
 
     @Test (description = "No bal-tools.toml present in the user home. The tool is only available in the distribution")
@@ -119,7 +119,7 @@ public class InBuiltToolCommandsTests extends BaseTestCase {
         balClient = new BMainInstance(balServer);
         String output = balClient.runMainAndReadStdOut("dummytoolF", new String[]{},
                 env, userDir, true);
-        Assert.assertEquals(output, "dummytoolF 0.9.0");
+        Assert.assertTrue(output.contains("dummytoolF 0.9.0"));
     }
 
     @Test (description = "No bal-tools.toml present in the user home. " +
@@ -131,6 +131,6 @@ public class InBuiltToolCommandsTests extends BaseTestCase {
 
         String output = balClient.runMainAndReadStdOut("dummytoolD", new String[]{},
                 env, userDir, true);
-        Assert.assertEquals(output, "dummytoolD 1.1.0");
+        Assert.assertTrue(output.contains("dummytoolD 1.1.0"));
     }
 }

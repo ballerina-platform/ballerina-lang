@@ -415,9 +415,6 @@ public class TestCommandTest extends BaseCommandTest {
 
     @Test(description = "Test an empty project with build tools")
     public void testTestEmptyProjectWithBuildTools() throws IOException {
-        BCompileUtil.compileAndCacheBala(
-                testResources.resolve("buildToolResources/tools/ballerina-generate-file").toString(),
-                testCentralRepoCache, projectEnvironmentBuilder);
         Path projectPath = this.testResources.resolve("emptyProjectWithBuildTool");
         replaceDependenciesTomlContent(projectPath, "**INSERT_DISTRIBUTION_VERSION_HERE**",
                 RepoUtils.getBallerinaShortVersion());

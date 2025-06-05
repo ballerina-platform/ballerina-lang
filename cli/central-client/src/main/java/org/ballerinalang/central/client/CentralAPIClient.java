@@ -799,7 +799,7 @@ public class CentralAPIClient {
                         } catch (PackageAlreadyExistsException e) {
                             // package already exists. setting org, name and version fields is enough
                             if (enableOutputStream) {
-                                outStream.println("tool '" + toolId + ":" + version +
+                                outStream.println("tool '" + toolId + ":" + latestVersion.get() +
                                         "' is already available locally.");
                             }
                             return new String[] { org.get(), pkgName.get(), latestVersion.get() };

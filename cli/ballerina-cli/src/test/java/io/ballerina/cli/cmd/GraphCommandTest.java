@@ -22,11 +22,8 @@ import io.ballerina.cli.launcher.BLauncherException;
 import io.ballerina.projects.ProjectEnvironmentBuilder;
 import io.ballerina.projects.environment.Environment;
 import io.ballerina.projects.environment.EnvironmentBuilder;
-import io.ballerina.projects.util.BuildToolsUtil;
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.test.BCompileUtil;
-import org.mockito.MockedStatic;
-import org.mockito.Mockito;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -234,19 +231,15 @@ public class GraphCommandTest extends BaseCommandTest {
 
     @Test(description = "Call bal graph for an empty project with build tools")
     public void testEmptyBalProjectGraphWithBuildTools() throws IOException {
-        BCompileUtil.compileAndCacheBala(testResources.resolve("buildToolResources").resolve("tools")
-                .resolve("ballerina-generate-file").toString(), testDistCacheDirectory, projectEnvironmentBuilder);
+
         Path emptyPackagePath = this.testResources.resolve("emptyProjectWithBuildTool");
         replaceDependenciesTomlContent(emptyPackagePath, "**INSERT_DISTRIBUTION_VERSION_HERE**",
                 RepoUtils.getBallerinaShortVersion());
         System.setProperty(USER_DIR_PROPERTY, emptyPackagePath.toString());
-        try (MockedStatic<BuildToolsUtil> repoUtils = Mockito.mockStatic(
-                BuildToolsUtil.class, Mockito.CALLS_REAL_METHODS)) {
-            repoUtils.when(BuildToolsUtil::getCentralBalaDirPath).thenReturn(testDistCacheDirectory.resolve("bala"));
-            GraphCommand graphCommand = new GraphCommand(emptyPackagePath, printStream, printStream, false);
-            new CommandLine(graphCommand).parseArgs(emptyPackagePath.toString());
-            graphCommand.execute();
-        }
+
+        GraphCommand graphCommand = new GraphCommand(emptyPackagePath, printStream, printStream, false);
+        new CommandLine(graphCommand).parseArgs(emptyPackagePath.toString());
+        graphCommand.execute();
         String actualLog = readFormattedOutput();
         String expectedLog = CommandOutputUtils.getOutput("graph-empty-project-with-build-tools.txt");
         Assert.assertEquals(actualLog, expectedLog);
