@@ -23,6 +23,7 @@ import io.ballerina.cli.TaskExecutor;
 import io.ballerina.cli.task.CleanTargetDirTask;
 import io.ballerina.cli.task.CompileTask;
 import io.ballerina.cli.task.CreateExecutableTask;
+import io.ballerina.cli.task.CreateFingerprintTask;
 import io.ballerina.cli.task.DumpBuildTimeTask;
 import io.ballerina.cli.task.ResolveMavenDependenciesTask;
 import io.ballerina.cli.task.RunBuildToolsTask;
@@ -36,6 +37,7 @@ import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.ProjectKind;
 import io.ballerina.projects.directory.BuildProject;
 import io.ballerina.projects.directory.SingleFileProject;
+import io.ballerina.projects.internal.model.BuildJson;
 import io.ballerina.projects.internal.model.Target;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectUtils;
@@ -52,7 +54,9 @@ import java.util.List;
 
 import static io.ballerina.cli.cmd.Constants.RUN_COMMAND;
 import static io.ballerina.cli.launcher.LauncherUtils.createLauncherException;
+import static io.ballerina.projects.util.ProjectConstants.BUILD_FILE;
 import static io.ballerina.projects.util.ProjectUtils.isProjectUpdated;
+import static io.ballerina.projects.util.ProjectUtils.readBuildJson;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.SYSTEM_PROP_BAL_DEBUG;
 
 /**
@@ -88,6 +92,7 @@ public class RunCommand implements BLauncherCmd {
 
     @CommandLine.Option(names = "--watch", description = "watch for file changes and automatically re-run the project")
     private boolean watch;
+    private boolean initialWatch;
 
     @CommandLine.Option(names = "--dump-bir", hidden = true)
     private boolean dumpBIR;
@@ -290,24 +295,62 @@ public class RunCommand implements BLauncherCmd {
             throw createLauncherException("unable to create the executable:" + e.getMessage());
         }
 
+        boolean rebuildStatus = isRebuildNeeded(project);
+
         // Check package files are modified after last build
         boolean isPackageModified = isProjectUpdated(project);
         TaskExecutor taskExecutor = new TaskExecutor.TaskBuilder()
                 // clean target dir for projects
-                .addTask(new CleanTargetDirTask(isPackageModified, buildOptions.enableCache()), isSingleFileBuild)
+                .addTask(new CleanTargetDirTask(isPackageModified, buildOptions.enableCache()), !rebuildStatus
+                        || isSingleFileBuild)
                 // Run build tools
-                .addTask(new RunBuildToolsTask(outStream), isSingleFileBuild)
+                .addTask(new RunBuildToolsTask(outStream, !rebuildStatus), isSingleFileBuild)
                 // resolve maven dependencies in Ballerina.toml
-                .addTask(new ResolveMavenDependenciesTask(outStream))
+                .addTask(new ResolveMavenDependenciesTask(outStream, !rebuildStatus))
                 // compile the modules
                 .addTask(new CompileTask(outStream, errStream, false, false,
-                        isPackageModified, buildOptions.enableCache()))
+                        isPackageModified, buildOptions.enableCache(), !rebuildStatus))
 //                .addTask(new CopyResourcesTask(), isSingleFileBuild)
-                .addTask(new CreateExecutableTask(outStream, null, target, true))
+                .addTask(new CreateExecutableTask(outStream, null, target, true, !rebuildStatus))
+                .addTask(new CreateFingerprintTask(), !rebuildStatus || isSingleFileBuild)
                 .addTask(runExecutableTask = new RunExecutableTask(args, outStream, errStream, target))
                 .addTask(new DumpBuildTimeTask(outStream), !project.buildOptions().dumpBuildTime())
                 .build();
         taskExecutor.executeTasks(project);
+    }
+
+    private boolean isRebuildNeeded(Project project) {
+        Path buildFilePath = project.targetDir().resolve(BUILD_FILE);
+        try {
+            BuildJson buildJson = readBuildJson(buildFilePath);
+            if (buildJson.isExpiredLastUpdateTime()) {
+                return true;
+            }
+            if (CommandUtil.isFilesModifiedSinceLastBuild(buildJson, project)) {
+                return true;
+            }
+            if (isRebuildForCurrCmd()) {
+                return true;
+            }
+            return !CommandUtil.isPrevCurrCmdCompatible(project.buildOptions(), buildJson.getBuildOptions());
+        } catch (IOException e) {
+            // ignore
+        }
+        return true;
+    }
+
+    private boolean isRebuildForCurrCmd() {
+        return this.debugPort != null
+                || initialWatch
+                || this.dumpBIR
+                || this.dumpGraph
+                || this.dumpRawGraphs
+                || Boolean.TRUE.equals(this.configSchemaGen)
+                || this.targetDir != null
+                || Boolean.TRUE.equals(this.enableCache)
+                || Boolean.TRUE.equals(this.disableSyntaxTreeCaching)
+                || Boolean.TRUE.equals(this.dumpBuildTime)
+                || Boolean.TRUE.equals(this.showDependencyDiagnostics);
     }
 
     @Override
@@ -335,6 +378,10 @@ public class RunCommand implements BLauncherCmd {
 
     public void unsetWatch() {
         this.watch = false;
+    }
+
+    public void setInitialWatch() {
+        this.initialWatch = true;
     }
 
     public void killProcess() {

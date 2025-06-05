@@ -29,6 +29,7 @@ import io.ballerina.projects.PackageCompilation;
 import io.ballerina.projects.PackageManifest;
 import io.ballerina.projects.PackageVersion;
 import io.ballerina.projects.PlatformLibraryScope;
+import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectEnvironmentBuilder;
 import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.ResolvedPackageDependency;
@@ -40,7 +41,9 @@ import io.ballerina.projects.internal.bala.BalaJson;
 import io.ballerina.projects.internal.bala.DependencyGraphJson;
 import io.ballerina.projects.internal.bala.ModuleDependency;
 import io.ballerina.projects.internal.bala.PackageJson;
+import io.ballerina.projects.internal.model.BuildJson;
 import io.ballerina.projects.internal.model.Dependency;
+import io.ballerina.projects.internal.model.Target;
 import io.ballerina.projects.repos.FileSystemCache;
 import io.ballerina.projects.util.FileUtils;
 import io.ballerina.projects.util.ProjectConstants;
@@ -52,6 +55,7 @@ import org.ballerinalang.central.client.exceptions.CentralClientException;
 import org.ballerinalang.central.client.exceptions.PackageAlreadyExistsException;
 import org.wso2.ballerinalang.util.RepoUtils;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -67,9 +71,12 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.StandardOpenOption;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Formatter;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -83,12 +90,16 @@ import java.util.stream.Stream;
 
 import static io.ballerina.cli.launcher.LauncherUtils.createLauncherException;
 import static io.ballerina.projects.util.ProjectConstants.BALA_JSON;
+import static io.ballerina.projects.util.ProjectConstants.BALLERINA_TOML;
 import static io.ballerina.projects.util.ProjectConstants.BAL_TOOL_JSON;
 import static io.ballerina.projects.util.ProjectConstants.BAL_TOOL_TOML;
+import static io.ballerina.projects.util.ProjectConstants.BLANG_SOURCE_EXT;
 import static io.ballerina.projects.util.ProjectConstants.DEPENDENCIES_TOML;
 import static io.ballerina.projects.util.ProjectConstants.DEPENDENCY_GRAPH_JSON;
 import static io.ballerina.projects.util.ProjectConstants.LIB_DIR;
+import static io.ballerina.projects.util.ProjectConstants.MODULES_ROOT;
 import static io.ballerina.projects.util.ProjectConstants.PACKAGE_JSON;
+import static io.ballerina.projects.util.ProjectConstants.SETTINGS_FILE_NAME;
 import static io.ballerina.projects.util.ProjectConstants.TOOL_DIR;
 import static io.ballerina.projects.util.ProjectUtils.deleteDirectory;
 import static io.ballerina.projects.util.ProjectUtils.getAccessTokenOfCLI;
@@ -118,6 +129,8 @@ public final class CommandUtil {
     public static final String DEFAULT_TEMPLATE = "default";
     public static final String MAIN_TEMPLATE = "main";
     public static final String FILE_STRING_SEPARATOR = ", ";
+    public static final String SHA_256 = "SHA-256";
+    public static final String BYTE_TO_HEX_FROMAT = "%02x";
     private static FileSystem jarFs;
     private static Map<String, String> env;
     private static PrintStream errStream;
@@ -1275,4 +1288,147 @@ public final class CommandUtil {
     }
 
 
+    public static boolean isPrevCurrCmdCompatible(BuildOptions buildOptions, BuildOptions prevBuildOptions) {
+       return  prevBuildOptions.offlineBuild() == buildOptions.offlineBuild() &&
+               prevBuildOptions.sticky() == buildOptions.sticky() &&
+               prevBuildOptions.optimizeDependencyCompilation() == buildOptions.optimizeDependencyCompilation() &&
+               prevBuildOptions.experimental() == buildOptions.experimental() &&
+               prevBuildOptions.remoteManagement() == buildOptions.remoteManagement() &&
+               buildOptions.lockingMode().equals(prevBuildOptions.lockingMode());
+    }
+
+
+    public static boolean isFilesModifiedSinceLastBuild(BuildJson buildJson, Project project) {
+        if (isProjectFilesModified(buildJson, project)) {
+            return true;
+        }
+        if (isSettingsFileModified(buildJson)) {
+            return true;
+        }
+        return isExecutableModified(buildJson, project);
+    }
+
+    private static boolean isProjectFilesModified(BuildJson buildJson, Project project) {
+        List<File> filesToEvaluate = getAllProjectFiles(project);
+        if (buildJson.getSrcMetaInfo() == null || filesToEvaluate.size() != buildJson.getSrcMetaInfo().length) {
+            return true;
+        }
+        for (BuildJson.FileMetaInfo fileMetaInfo : buildJson.getSrcMetaInfo()) {
+            boolean fileExist = false;
+            for (File file : filesToEvaluate) {
+                if (!file.getAbsolutePath().equals(fileMetaInfo.getFile())) {
+                    continue;
+                }
+                fileExist = true;
+                try {
+                    long lastModified = file.lastModified();
+                    long size = Files.size(file.toPath());
+                    if (fileMetaInfo.getSize() == size && fileMetaInfo.getLastModifiedTime() == lastModified) {
+                        break;
+                    }
+                    if (getSHA256Digest(file).equals(fileMetaInfo.getHash())) {
+                        break;
+                    }
+                    return true;
+                } catch (IOException | NoSuchAlgorithmException e) {
+                    return true;
+                }
+            }
+            if (!fileExist) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public static List<File> getAllProjectFiles(Project project) {
+        File[] filesInRoot = project.sourceRoot().toAbsolutePath().toFile().listFiles();
+        List<File> filesToEvaluate = new ArrayList<>();
+        for (File file : filesInRoot) {
+            if (file.getName().endsWith(BLANG_SOURCE_EXT) || file.getName().equals(BALLERINA_TOML)) {
+                filesToEvaluate.add(file);
+            }
+        }
+        List<String> moduleNames = new ArrayList<>();
+        project.currentPackage().modules().forEach(
+                module -> moduleNames.add(module.moduleName().moduleNamePart()));
+        for (String moduleName : moduleNames) {
+            if (moduleName == null) {
+                continue;
+            }
+            File[] moduleSrcs = project.sourceRoot().resolve(MODULES_ROOT).resolve(moduleName)
+                    .toFile().listFiles();
+            if (moduleSrcs == null) {
+                continue;
+            }
+            for (File moduleSrc : moduleSrcs) {
+                if (moduleSrc.getName().endsWith(BLANG_SOURCE_EXT)) {
+                    filesToEvaluate.add(moduleSrc);
+                }
+            }
+        }
+        return filesToEvaluate;
+    }
+
+    private static boolean isExecutableModified(BuildJson buildJson, Project project) {
+        try {
+            Target target = new Target(project.targetDir());
+            File execFile = target.getExecutablePath(project.currentPackage()).toAbsolutePath().toFile();
+            if (execFile.exists() && execFile.isFile()) {
+                long lastModified = execFile.lastModified();
+                long size = Files.size(execFile.toPath());
+                BuildJson.FileMetaInfo targetExecMetaInfo = buildJson.getTargetExecMetaInfo();
+                if (targetExecMetaInfo == null) {
+                    return true;
+                }
+                if (targetExecMetaInfo.getSize() == size && targetExecMetaInfo.getLastModifiedTime() == lastModified) {
+                    return false;
+                }
+                return !getSHA256Digest(execFile).equals(targetExecMetaInfo.getHash());
+            }
+            return true;
+        } catch (IOException | NoSuchAlgorithmException e) {
+            return true;
+        }
+    }
+
+    private static boolean isSettingsFileModified(BuildJson buildJson) {
+        try {
+            File settingsFile = RepoUtils.createAndGetHomeReposPath().resolve(SETTINGS_FILE_NAME)
+                    .toFile();
+            if (settingsFile.exists() && settingsFile.isFile()) {
+                long lastModified = settingsFile.lastModified();
+                long size = Files.size(settingsFile.toPath());
+                BuildJson.FileMetaInfo settingsFileMetaInfo = buildJson.getSettingsMetaInfo();
+                if (settingsFileMetaInfo == null) {
+                    return true;
+                }
+                if (settingsFileMetaInfo.getSize() == size &&
+                        settingsFileMetaInfo.getLastModifiedTime() == lastModified) {
+                    return false;
+                }
+                return !getSHA256Digest(settingsFile).equals(settingsFileMetaInfo.getHash());
+            }
+            return true;
+        } catch (IOException | NoSuchAlgorithmException e) {
+            return true;
+        }
+    }
+
+    public static String getSHA256Digest(File fileToEvaluate) throws NoSuchAlgorithmException, IOException {
+        MessageDigest digest = MessageDigest.getInstance(SHA_256);
+        byte[] fileBytes = Files.readAllBytes(fileToEvaluate.toPath());
+        byte[] hashBytes = digest.digest(fileBytes);
+        return bytesToHex(hashBytes);
+    }
+
+    private static String bytesToHex(byte[] bytes) {
+        Formatter formatter = new Formatter();
+        for (byte b : bytes) {
+            formatter.format(BYTE_TO_HEX_FROMAT, b);
+        }
+        String result = formatter.toString();
+        formatter.close();
+        return result;
+    }
 }

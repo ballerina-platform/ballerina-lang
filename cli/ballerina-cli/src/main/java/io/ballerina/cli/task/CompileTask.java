@@ -67,6 +67,7 @@ public class CompileTask implements Task {
     private final boolean compileForBalBuild;
     private final boolean isPackageModified;
     private final boolean cachesEnabled;
+    private final boolean skipTask;
 
     public CompileTask(PrintStream out, PrintStream err) {
         this(out, err, false, false, true, false);
@@ -84,6 +85,23 @@ public class CompileTask implements Task {
         this.compileForBalBuild = compileForBalBuild;
         this.isPackageModified = isPackageModified;
         this.cachesEnabled = cachesEnabled;
+        this.skipTask = false;
+    }
+
+    public CompileTask(PrintStream out,
+                       PrintStream err,
+                       boolean compileForBalPack,
+                       boolean compileForBalBuild,
+                       boolean isPackageModified,
+                       boolean cachesEnabled,
+                       boolean skipTask) {
+        this.out = out;
+        this.err = err;
+        this.compileForBalPack = compileForBalPack;
+        this.compileForBalBuild = compileForBalBuild;
+        this.isPackageModified = isPackageModified;
+        this.cachesEnabled = cachesEnabled;
+        this.skipTask = skipTask;
     }
 
     @Override
@@ -91,7 +109,10 @@ public class CompileTask implements Task {
         if (ProjectUtils.isProjectEmpty(project) && skipCompilationForBalPack(project)) {
             throw createLauncherException("package is empty. Please add at least one .bal file.");
         }
-        this.out.println("Compiling source");
+        this.out.println("Compiling source" + (skipTask ? "(skipped)" : ""));
+        if (skipTask) {
+            return;
+        }
 
         String sourceName;
         if (project instanceof SingleFileProject) {
