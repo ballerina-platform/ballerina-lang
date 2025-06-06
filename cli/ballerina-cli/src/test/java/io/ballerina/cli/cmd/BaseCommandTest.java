@@ -22,23 +22,29 @@ import io.ballerina.cli.BLauncherCmd;
 import io.ballerina.cli.launcher.BLauncherException;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectUtils;
+import org.apache.commons.io.FileUtils;
 import org.ballerinalang.compiler.BLangCompilerException;
+import org.ballerinalang.test.BCompileUtil;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.BeforeSuite;
 import org.testng.annotations.DataProvider;
+import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.stream.Stream;
 
 import static io.ballerina.projects.util.ProjectConstants.CENTRAL_REPOSITORY_CACHE_NAME;
+import static io.ballerina.projects.util.ProjectConstants.REPOSITORIES_DIR;
 
 /**
  * Command tests super class.
@@ -51,7 +57,10 @@ public abstract class BaseCommandTest {
     protected PrintStream printStream;
     protected Path homeCache;
     private final String userDir = System.getProperty("user.dir");
-    
+    final Path testDotBallerina = Paths.get(System.getenv(ProjectDirConstants.HOME_REPO_ENV_KEY));
+    final Path testCentralRepoCache = testDotBallerina.resolve(REPOSITORIES_DIR)
+            .resolve(CENTRAL_REPOSITORY_CACHE_NAME);
+
     @BeforeClass
     public void setup() throws IOException {
         System.setProperty("java.command", "java");
@@ -59,6 +68,49 @@ public abstract class BaseCommandTest {
         this.homeCache = Path.of("build", "userHome");
         this.console = new ByteArrayOutputStream();
         this.printStream = new PrintStream(this.console);
+    }
+
+    @BeforeSuite
+    public void copyBalTools() throws IOException {
+        Path testResourcesSrc = Paths.get("src/test/resources/test-resources/buildToolResources/tools");
+        Path testResources = Files.createTempDirectory("b7a-cmd-test-" + System.nanoTime());
+        // copy the bal-tools.toml to <user-home>/.ballerina/.config/
+        Path balToolsTomlSrcPath = Paths.get("src/test/resources/test-resources/" +
+                "buildToolResources/tools/bal-tools.toml");
+        Path balToolsTomlDstPath = testDotBallerina.resolve(".config");
+        Files.createDirectories(balToolsTomlDstPath);
+        Files.copy(balToolsTomlSrcPath, balToolsTomlDstPath.resolve("bal-tools.toml"));
+
+
+        FileUtils.copyDirectory(testResourcesSrc.toFile(), testResources.toFile());
+        // compile and cache test build tools
+        String sampleBuildToolJar = "sample-build-tool-1.0.0.jar";
+        Path sampleBuildToolJarPath = Paths.get("build/tool-libs").resolve(sampleBuildToolJar);
+        Path destPath = testResources.resolve("sample-build-tool-pkg")
+                .resolve("lib").resolve(sampleBuildToolJar);
+        Files.createDirectories(destPath.getParent());
+        Files.copy(sampleBuildToolJarPath, destPath);
+        destPath = testResources.resolve("dummy-tool-pkg-higher-dist")
+                .resolve("lib").resolve(sampleBuildToolJar);
+        Files.createDirectories(destPath.getParent());
+        Files.copy(sampleBuildToolJarPath, destPath);
+
+        BCompileUtil.compileAndCacheBala(
+                testResources.resolve("dummy-tool-pkg").toString(), testCentralRepoCache);
+        BCompileUtil.compileAndCacheBala(
+                testResources.resolve("hidden-cmd-tool-pkg").toString(), testCentralRepoCache);
+        BCompileUtil.compileAndCacheBala(
+                testResources.resolve("missing-interface-tool-pkg").toString(), testCentralRepoCache);
+        BCompileUtil.compileAndCacheBala(
+                testResources.resolve("no-options-tool-pkg").toString(), testCentralRepoCache);
+        BCompileUtil.compileAndCacheBala(
+                testResources.resolve("invalid-name-tool-pkg").toString(), testCentralRepoCache);
+        BCompileUtil.compileAndCacheBala(
+                testResources.resolve("dummy-tool-pkg-higher-dist").toString(), testCentralRepoCache);
+        BCompileUtil.compileAndCacheBala(
+                testResources.resolve("ballerina-generate-file").toString(), testCentralRepoCache);
+        BCompileUtil.compileAndCacheBala(
+                testResources.resolve("sample-build-tool-pkg").toString(), testCentralRepoCache);
     }
 
     @BeforeMethod
@@ -145,8 +197,12 @@ public abstract class BaseCommandTest {
 
     @AfterMethod (alwaysRun = true)
     public void afterMethod() throws IOException {
-        console.close();
-        printStream.close();
+        if (console != null) {
+            console.close();
+        }
+        if (printStream != null) {
+            printStream.close();
+        }
     }
 
     @AfterClass (alwaysRun = true)

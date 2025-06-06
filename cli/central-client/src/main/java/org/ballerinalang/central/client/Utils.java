@@ -19,7 +19,6 @@
 package org.ballerinalang.central.client;
 
 import com.github.zafarkhaja.semver.ParseException;
-import com.github.zafarkhaja.semver.UnexpectedCharacterException;
 import com.github.zafarkhaja.semver.Version;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -168,13 +167,13 @@ public final class Utils {
                     downloadBody.ifPresent(ResponseBody::close);
                     throw new PackageAlreadyExistsException(
                             logFormatter.formatLog("package already exists in the home repository: " +
-                                    balaCacheWithPkgPath.toString()), validPkgVersion);
+                                    balaCacheWithPkgPath), validPkgVersion);
                 }
             }
         } catch (IOException e) {
             downloadBody.ifPresent(ResponseBody::close);
             throw new PackageAlreadyExistsException(
-                    logFormatter.formatLog("error accessing bala : " + balaCacheWithPkgPath.toString()),
+                    logFormatter.formatLog("error accessing bala : " + balaCacheWithPkgPath),
                     validPkgVersion);
         }
 
@@ -218,9 +217,6 @@ public final class Utils {
             return version.toString();
         } catch (IllegalArgumentException e) {
             throw new CentralClientException(logFormatter.formatLog("Version cannot be empty"));
-        } catch (UnexpectedCharacterException e) {
-            throw new CentralClientException(
-                    logFormatter.formatLog("Invalid version: '" + pkgVersion + "'. " + e.toString()));
         } catch (ParseException e) {
             throw new CentralClientException(
                     logFormatter.formatLog("Invalid version: '" + pkgVersion + "'. " + e.toString()));

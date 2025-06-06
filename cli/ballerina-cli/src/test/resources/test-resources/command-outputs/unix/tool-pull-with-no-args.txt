@@ -1,4 +1,4 @@
 ballerina: tool id is not provided.
 
 USAGE:
-    bal tool pull <tool-id>[:<version>]
+    bal tool pull <tool-id>

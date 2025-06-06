@@ -1,4 +1,0 @@
-ballerina: too many arguments.
-
-USAGE:
-    bal tool list

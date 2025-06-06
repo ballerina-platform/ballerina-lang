@@ -1,0 +1,4 @@
+ballerina: invalid argument.
+
+USAGE:
+    bal tool list [--all]

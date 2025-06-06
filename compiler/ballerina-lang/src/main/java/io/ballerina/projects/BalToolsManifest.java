@@ -54,7 +54,7 @@ public class BalToolsManifest {
         }
 
         if (active) {
-            flipCurrentActiveToolVersion(id);
+            resetCurrentActiveVersion(id);
         }
         tools.get(id).get(version).put(repository, new Tool(id, org, name, version, active, repository));
     }
@@ -75,7 +75,7 @@ public class BalToolsManifest {
 
     public void setActiveToolVersion(String id, String version, String repository) {
         if (tools.containsKey(id)) {
-            flipCurrentActiveToolVersion(id);
+            resetCurrentActiveVersion(id);
             tools.get(id).get(version).get(repository).setActive(true);
         }
     }
@@ -93,7 +93,7 @@ public class BalToolsManifest {
         }
     }
 
-    private void flipCurrentActiveToolVersion(String id) {
+    public void resetCurrentActiveVersion(String id) {
         tools.get(id).forEach((k, v) -> v.forEach((k1, v1) -> v1.setActive(false)));
     }
 
