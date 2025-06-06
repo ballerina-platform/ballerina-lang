@@ -55,12 +55,13 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 @Test
 public class AnnotationRuntimeTest {
 
-    private CompileResult resultOne, resultAccessNegative;
+    private CompileResult resultOne, resultTwo, resultAccessNegative;
     
     @BeforeClass
     public void setup() {
         resultOne = BCompileUtil.compile("test-src/annotations/annot_access.bal");
         resultAccessNegative = BCompileUtil.compile("test-src/annotations/annotation_access_negative.bal");
+        resultTwo = BCompileUtil.compile("test-src/annotations/annot_access_with_source_only_points.bal");
     }
 
     @Test(dataProvider = "annotAccessTests")
@@ -74,8 +75,6 @@ public class AnnotationRuntimeTest {
     @Test(description = "test accessing source only annots at runtime, the annots should not be available",
             dataProvider = "annotAccessWithSourceOnlyPointsTests")
     public void testSourceOnlyAnnotAccess(String testFunction) {
-        CompileResult resultTwo = BCompileUtil.compile("test-src/annotations/annot_access_with_source_only_points.bal");
-        Assert.assertEquals(resultTwo.getErrorCount(), 0);
         Object returns = BRunUtil.invoke(resultTwo, testFunction);
         Assert.assertSame(returns.getClass(), Boolean.class);
         Assert.assertTrue((Boolean) returns);

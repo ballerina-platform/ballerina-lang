@@ -809,7 +809,11 @@ public class Desugar extends BLangNodeVisitor {
         pkgNode.services.forEach(service -> serviceDesugar.engageCustomServiceDesugar(service, env));
 
         // Desugar variables, constants and type definitions.
-        desugarTopLevelNodes(pkgNode);
+        SymbolEnv initFunctionEnv =
+                SymbolEnv.createFunctionEnv(pkgNode.initFunction, pkgNode.initFunction.symbol.scope, env);
+        pkgNode.globalVars = new ArrayList<>();
+        desugarTopLevelNodes(pkgNode, pkgNode.globalVars,  new ArrayList<>(pkgNode.topLevelNodes),
+                (BLangBlockFunctionBody) pkgNode.initFunction.body, initFunctionEnv);
 
         annotationDesugar.rewritePackageAnnotations(pkgNode, env);
 
@@ -1036,48 +1040,39 @@ public class Desugar extends BLangNodeVisitor {
                 typedescExpr));
     }
 
-    private void desugarTopLevelNodes(BLangPackage pkgNode) {
-        List<BLangVariable> desugaredGlobalVarList = new ArrayList<>();
+    private void desugarTopLevelNodes(BLangPackage pkgNode, List<BLangVariable> desugaredGlobalVarList,
+                                      List<TopLevelNode> nodeList, BLangBlockFunctionBody initFnBody,
+                                      SymbolEnv initFunctionEnv) {
         typedescList = new ArrayList<>();
-        BLangBlockFunctionBody initFnBody = (BLangBlockFunctionBody) pkgNode.initFunction.body;
-        SymbolEnv initFunctionEnv =
-                SymbolEnv.createFunctionEnv(pkgNode.initFunction, pkgNode.initFunction.symbol.scope, env);
-        for (int i = 0; i < pkgNode.topLevelNodes.size(); i++) {
-            TopLevelNode topLevelNode = pkgNode.topLevelNodes.get(i);
+        for (TopLevelNode topLevelNode : nodeList) {
+            int topLevelNodesSize = pkgNode.topLevelNodes.size();
+            BLangBlockFunctionBody fnBody = (BLangBlockFunctionBody) TreeBuilder.createBlockFunctionBodyNode();
             switch (topLevelNode.getKind()) {
                 case TUPLE_VARIABLE, RECORD_VARIABLE, ERROR_VARIABLE ->
-                        desugarVariable((BLangVariable) topLevelNode, initFunctionEnv, initFnBody,
+                        desugarVariable((BLangVariable) topLevelNode, initFunctionEnv, fnBody,
                                 desugaredGlobalVarList);
                 case VARIABLE ->
                         desugarGlobalVariable(initFunctionEnv, desugaredGlobalVarList, (BLangVariable) topLevelNode,
-                                initFnBody);
-                case CONSTANT ->
-                        desugarConstant((BLangConstant) topLevelNode, desugaredGlobalVarList, initFnBody,
-                                initFunctionEnv);
+                                fnBody);
+                case CONSTANT -> desugarConstant((BLangConstant) topLevelNode, desugaredGlobalVarList, fnBody,
+                        initFunctionEnv);
                 case TYPE_DEFINITION -> {
+                    annotationDesugar.defineTypeAnnotations((BLangTypeDefinition) topLevelNode, pkgNode, env, fnBody);
                     rewrite((BLangTypeDefinition) topLevelNode, env);
-                    addTypeDescStmtsToInitFunction(initFunctionEnv, desugaredGlobalVarList, initFnBody);
+                    addTypeDescStmtsToInitFunction(initFunctionEnv, desugaredGlobalVarList, fnBody);
                 }
-                case FUNCTION -> {
-                    BLangFunction function = (BLangFunction) topLevelNode;
-                    if (!function.annAttachments.isEmpty()) {
-                        createAnnotationResolvePoint((BLangFunction) topLevelNode, initFnBody);
-                    }
-                }
+                case FUNCTION, RESOURCE_FUNC -> annotationDesugar.defineFunctionAnnotations(
+                        (BLangFunction) topLevelNode, pkgNode, env, fnBody);
             }
+            // Above cases may create additional top level nodes.
+            // Those needs to be desugared first and add to the init function body.
+            if (pkgNode.topLevelNodes.size() > topLevelNodesSize) {
+                desugarTopLevelNodes(pkgNode, desugaredGlobalVarList,
+                        pkgNode.topLevelNodes.subList(topLevelNodesSize, pkgNode.topLevelNodes.size()),
+                        initFnBody, initFunctionEnv);
+            }
+            initFnBody.stmts.addAll(fnBody.stmts);
         }
-        pkgNode.globalVars = desugaredGlobalVarList;
-    }
-
-    private void createAnnotationResolvePoint(BLangFunction function, BLangBlockFunctionBody initFnBody) {
-        // This will add a dummy simple var def statement to the init function body which tracks the
-        // point to resolve the annot of the function
-        BLangSimpleVariable simpleVariable = ASTBuilderUtil.createVariable(null,
-                "$" + function.symbol.name + ANNOT_RESOLVE_POINT, null, null, function.symbol);
-        BLangSimpleVariableDef simpleVariableDef = ASTBuilderUtil.createVariableDef(null);
-        simpleVariableDef.var = simpleVariable;
-        simpleVariableDef.setBType(simpleVariable.getBType());
-        initFnBody.addStatement(simpleVariableDef);
     }
 
     private void addTypeDescStmtsToInitFunction(SymbolEnv initFunctionEnv, List<BLangVariable> desugaredGlobalVarList,

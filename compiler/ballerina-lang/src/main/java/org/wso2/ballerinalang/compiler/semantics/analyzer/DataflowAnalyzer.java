@@ -40,13 +40,13 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConstantSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BRecordTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BErrorType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
@@ -566,9 +566,6 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangTypeDefinition typeDefinition) {
         BSymbol symbol = typeDefinition.symbol;
-        if (typeDefinition.symbol.kind == SymbolKind.TYPE_DEF) {
-            symbol = symbol.type.tsymbol;
-        }
         this.currDependentSymbolDeque.push(symbol);
         typeDefinition.annAttachments.forEach(attachment -> analyzeNode(attachment, env));
         analyzeNode(typeDefinition.typeNode, env);
@@ -704,20 +701,19 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         BVarSymbol symbol = variable.symbol;
         boolean isRecordField = variable.flagSet.contains(Flag.FIELD);
         if (!isRecordField) {
+            addDependency(this.currDependentSymbolDeque.peek(), symbol);
             this.currDependentSymbolDeque.push(symbol);
         }
 
         analyzeNode(variable.typeNode, env);
+        variable.annAttachments.forEach(attachment -> analyzeNode(attachment, env));
         if (symbol == null) {
             if (variable.expr != null) {
                 analyzeNode(variable.expr, env);
             }
             return;
         }
-        if (variable.typeNode != null && variable.typeNode.getBType() != null) {
-            BType type = variable.typeNode.getBType();
-            recordGlobalVariableReferenceRelationship(Types.getImpliedType(type).tsymbol);
-        }
+
         boolean withInModuleVarLetExpr = symbol.owner.tag == SymTag.LET && isGlobalVarSymbol(env.enclVarSym);
         if (withInModuleVarLetExpr) {
             BVarSymbol dependentVar = env.enclVarSym;
@@ -1614,7 +1610,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     }
 
     private List<String> getFieldNames(BLangTableConstructorExpr constructorExpr) {
-        List<String> fieldNames = null;
+        List<String> fieldNames;
         if (Types.getImpliedType(constructorExpr.getBType()).tag == TypeTags.TABLE) {
             fieldNames = ((BTableType) Types.getImpliedType(constructorExpr.getBType())).fieldNameList;
             if (fieldNames != null) {
@@ -1633,9 +1629,10 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangRecordLiteral recordLiteral) {
-        BType type = recordLiteral.getBType();
+        BType type = Types.getImpliedType(recordLiteral.getBType());
         if (type != null) {
-            addDependency(this.currDependentSymbolDeque.peek(), Types.getImpliedType(type).tsymbol);
+            addDependency(this.currDependentSymbolDeque.peek(),
+                    type.tag == TypeTags.MAP ? type.tsymbol : ((BRecordTypeSymbol) type.tsymbol).typeDefinitionSymbol);
         }
         for (RecordLiteralNode.RecordField field : recordLiteral.fields) {
             if (field.isKeyValueField()) {
@@ -1782,8 +1779,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         for (BLangNamedArgsExpression namedArg : errorConstructorExpr.namedArgs) {
             analyzeNode(namedArg, env);
         }
-        BType detailType = ((BErrorType) Types.getImpliedType(errorConstructorExpr.getBType())).detailType;
-        addDependency(this.currDependentSymbolDeque.peek(), Types.getImpliedType(detailType).tsymbol);
+        analyzeNode(errorConstructorExpr.errorTypeRef, env);
     }
 
     @Override
@@ -2059,10 +2055,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangTypeInit typeInitExpr) {
         typeInitExpr.argsExpr.forEach(argExpr -> analyzeNode(argExpr, env));
-        if (this.currDependentSymbolDeque.peek() != null) {
-            addDependency(this.currDependentSymbolDeque.peek(),
-                    Types.getImpliedType(typeInitExpr.getBType()).tsymbol);
-        }
+        analyzeNode(typeInitExpr.userDefinedType, env);
     }
 
     @Override
@@ -2315,15 +2308,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangUserDefinedType userDefinedType) {
-        if (this.currDependentSymbolDeque.isEmpty()) {
-            return;
-        }
-        BType resolvedType = userDefinedType.getBType();
-        if (resolvedType == symTable.semanticError) {
-            return;
-        }
-        BTypeSymbol tsymbol = Types.getImpliedType(resolvedType).tsymbol;
-        recordGlobalVariableReferenceRelationship(tsymbol);
+        addDependency(currDependentSymbolDeque.peek(), userDefinedType.symbol);
     }
 
     @Override
@@ -2353,18 +2338,13 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangRecordTypeNode recordTypeNode) {
-        BTypeSymbol tsymbol = Types.getImpliedType(recordTypeNode.getBType()).tsymbol;
         for (TypeNode type : recordTypeNode.getTypeReferences()) {
             BLangType bLangType = (BLangType) type;
             analyzeNode(bLangType, env);
-            recordGlobalVariableReferenceRelationship(
-                    Types.getImpliedType(bLangType.getBType()).tsymbol);
         }
         for (BLangSimpleVariable field : recordTypeNode.fields) {
-            addTypeDependency(tsymbol, Types.getImpliedType(field.getBType()), new HashSet<>());
             analyzeNode(field, env);
             field.annAttachments.forEach(attachment -> analyzeNode(attachment, env));
-            recordGlobalVariableReferenceRelationship(field.symbol);
         }
     }
 
@@ -2480,10 +2460,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangErrorType errorType) {
-        BLangType detailType = errorType.detailType;
-        if (detailType != null && detailType.getBType() != null) {
-            addDependency(this.currDependentSymbolDeque.peek(), Types.getImpliedType(detailType.getBType()).tsymbol);
-        }
+        analyzeNode(errorType.detailType, env);
     }
 
     @Override
@@ -2698,7 +2675,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     }
 
     private void checkVarRef(BSymbol symbol, Location pos) {
-        recordGlobalVariableReferenceRelationship(symbol);
+        addDependency(this.currDependentSymbolDeque.peek(), symbol);
 
         InitStatus initStatus = this.uninitializedVars.get(symbol);
         if (initStatus == null) {
@@ -2711,36 +2688,6 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         }
 
         this.dlog.error(pos, DiagnosticErrorCode.PARTIALLY_INITIALIZED_VARIABLE, symbol);
-    }
-
-    private void recordGlobalVariableReferenceRelationship(BSymbol symbol) {
-        if (this.env.scope == null || symbol == null) {
-            return;
-        }
-
-        boolean globalVarSymbol = isGlobalVarSymbol(symbol);
-        BSymbol ownerSymbol = this.env.scope.owner;
-        switch (ownerSymbol.getKind()) {
-            case FUNCTION :
-                // Global variable ref from non package level.
-            case OBJECT:
-                // Global variable reference from a field assignment of an object or a service.
-                // Or global variable reference from an init function of an object or a service.
-            case RECORD:
-                // Global variable reference from a field assignment of a record type declaration.
-                if (globalVarSymbol) {
-                    addDependency(ownerSymbol, symbol);
-                    break;
-                }
-                // fall through
-            default:
-                if (symbol.kind == SymbolKind.TYPE_DEF || globalVarSymbol || symbol instanceof BTypeSymbol ||
-                        ownerSymbol.tag == SymTag.LET) {
-                    BSymbol dependent = this.currDependentSymbolDeque.peek();
-                    addDependency(dependent, symbol.kind == SymbolKind.TYPE_DEF
-                            ? Types.getImpliedType(symbol.type).tsymbol : symbol);
-                }
-        }
     }
 
     private boolean isObjectMemberAccessWithSelf(BLangAccessExpression fieldAccessExpr) {

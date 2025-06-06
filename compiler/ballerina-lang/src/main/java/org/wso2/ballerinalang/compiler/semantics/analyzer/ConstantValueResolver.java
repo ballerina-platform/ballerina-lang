@@ -107,7 +107,6 @@ public class ConstantValueResolver extends BLangNodeVisitor {
     private final Names names;
     private final SymbolTable symTable;
     private final Types types;
-    private PackageID pkgID;
     private final Map<BConstantSymbol, BLangConstant> unresolvedConstants = new HashMap<>();
     private final Map<String, BLangConstantValue> constantMap = new HashMap<>();
     private final ArrayList<BConstantSymbol> resolvingConstants = new ArrayList<>();
@@ -130,16 +129,6 @@ public class ConstantValueResolver extends BLangNodeVisitor {
             constantValueResolver = new ConstantValueResolver(context);
         }
         return constantValueResolver;
-    }
-
-    public void resolve(List<BLangConstant> constants, PackageID packageID, SymbolEnv symEnv) {
-        this.dlog.setCurrentPackageId(packageID);
-        this.pkgID = packageID;
-        this.symEnv = symEnv;
-        constants.forEach(constant -> this.unresolvedConstants.put(constant.symbol, constant));
-        constants.forEach(constant -> constant.accept(this));
-        constantMap.clear();
-        this.createdTypeDefinitions.clear();
     }
 
     private void reset() {
@@ -784,10 +773,13 @@ public class ConstantValueResolver extends BLangNodeVisitor {
     }
 
     private void createTypeDefinition(BRecordType type, Location pos, SymbolEnv env) {
+        BLangRecordTypeNode recordTypeNode = TypeDefBuilderHelper.createRecordTypeNode(new ArrayList<>(), type,
+                pos);
         BRecordTypeSymbol recordSymbol = (BRecordTypeSymbol) type.tsymbol;
+        BLangTypeDefinition typeDefinition = TypeDefBuilderHelper.createTypeDefinitionForTSymbol(null,
+                recordSymbol, recordTypeNode, env);
 
-        BTypeDefinitionSymbol typeDefinitionSymbol = Symbols.createTypeDefinitionSymbol(type.tsymbol.flags,
-                type.tsymbol.name, pkgID, null, env.scope.owner, pos, VIRTUAL);
+        BTypeDefinitionSymbol typeDefinitionSymbol = (BTypeDefinitionSymbol) typeDefinition.symbol;
         typeDefinitionSymbol.scope = new Scope(typeDefinitionSymbol);
         typeDefinitionSymbol.scope.define(Names.fromString(typeDefinitionSymbol.name.value), typeDefinitionSymbol);
 
@@ -801,14 +793,10 @@ public class ConstantValueResolver extends BLangNodeVisitor {
         recordSymbol.typeDefinitionSymbol = typeDefinitionSymbol;
         recordSymbol.markdownDocumentation = new MarkdownDocAttachment(0);
 
-        BLangRecordTypeNode recordTypeNode = TypeDefBuilderHelper.createRecordTypeNode(new ArrayList<>(), type,
-                pos);
         TypeDefBuilderHelper.populateStructureFieldsAndTypeInclusions(types, symTable, null, names,
-                recordTypeNode, type, type, pos, env, pkgID, null, 0, false);
+                recordTypeNode, type, type, pos, env, type.tsymbol.pkgID, null, 0, false);
         recordTypeNode.sealed = true;
         type.restFieldType = new BNoType(TypeTags.NONE);
-        BLangTypeDefinition typeDefinition = TypeDefBuilderHelper.createTypeDefinitionForTSymbol(null,
-                typeDefinitionSymbol, recordTypeNode, env);
         typeDefinition.symbol.scope = new Scope(typeDefinition.symbol);
         typeDefinition.symbol.type = type;
         typeDefinition.flagSet = new HashSet<>();
