@@ -155,7 +155,7 @@ public final class VariableReturnType {
     }
 
     public static BStream getStreamOfRecords(ObjectValue objectValue, BStream strm, BTypedesc typedesc) {
-        RecordType streamConstraint = (RecordType) typedesc.getDescribingType();
+        RecordType streamConstraint = (RecordType) TypeUtils.getImpliedType(typedesc.getDescribingType());
         Assert.assertSame(streamConstraint, TypeUtils.getImpliedType(strm.getConstraintType()));
         return strm;
     }
@@ -163,7 +163,7 @@ public final class VariableReturnType {
     public static ArrayValue getTuple(BTypedesc td1, BTypedesc td2, BTypedesc td3) {
         List<Type> memTypes = new ArrayList<>();
         memTypes.add(td1.getDescribingType());
-        memTypes.add(td2.getDescribingType());
+        memTypes.add(TypeUtils.getImpliedType(td2.getDescribingType()));
         memTypes.add(td3.getDescribingType());
         BTupleType tupleType = new BTupleType(memTypes);
 
@@ -195,7 +195,7 @@ public final class VariableReturnType {
     }
 
     public static MapValue<BString, Object> getRecord(BTypedesc td) {
-        BRecordType recType = (BRecordType) td.getDescribingType();
+        BRecordType recType = (BRecordType) TypeUtils.getImpliedType(td.getDescribingType());
         MapValueImpl<BString, Object> person = new MapValueImpl<>(recType);
 
         if (recType.getName().contains("Person")) {
@@ -262,6 +262,7 @@ public final class VariableReturnType {
     }
 
     private static Object getValue(Type type) {
+        type = TypeUtils.getImpliedType(type);
         switch (type.getTag()) {
             case INT_TAG:
                 return 150L;

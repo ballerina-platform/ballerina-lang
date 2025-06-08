@@ -1,18 +1,16 @@
 setRequiredField function() -> () {
     %0(RETURN) ();
     %1(LOCAL) R1;
-    %2(TEMP) typeDesc<any|error{map<ballerina/lang.value:0.0.0:Cloneable>}>;
-    %4(TEMP) string;
-    %5(TEMP) int;
+    %3(TEMP) string;
+    %4(TEMP) int;
 
     bb0 {
-        %2 = newType R1;
-        %4 = ConstLoad x;
-        %5 = ConstLoad 1;
-        %1 = NewMap %2{%4:%5};
-        %5 = ConstLoad 2;
-        %4 = ConstLoad x;
-        %1[%4] = %5;
+        %3 = ConstLoad x;
+        %4 = ConstLoad 1;
+        %1 = NewMap $typedesc$R1{%3:%4};
+        %4 = ConstLoad 2;
+        %3 = ConstLoad x;
+        %1[%3] = %4;
         %0 = ConstLoad 0;
         GOTO bb1;
     }
