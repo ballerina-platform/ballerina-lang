@@ -102,6 +102,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ERROR_HEL
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ERROR_REASONS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.FUNCTION;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.FUNCTION_POINTER;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.FUNCTION_POINTER_UTILS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.GET_VALUE_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.GLOBAL_LOCK_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.HANDLE_VALUE;
@@ -134,6 +135,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.ANY_TO_J
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.ASYNC_SEND;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.BAL_ENV_PARAM;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.BOBJECT_CALL;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.CALL_FP;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_FUNCTION;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_LOCK_STORE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_MODULE;
@@ -570,7 +572,6 @@ public class JvmTerminatorGen {
         String encodedMethodName = Utils.encodeFunctionIdentifier(methodLookupName);
         String packageName = JvmCodeGenUtil.getPackageName(callIns.calleePkg);
 
-
         int argsCount = callIns.args.size();
         int i = 0;
         while (i < argsCount) {
@@ -810,7 +811,6 @@ public class JvmTerminatorGen {
         } else {
             // load function ref, going to directly call the fp
             this.loadVar(fpCall.fp.variableDcl);
-            this.mv.visitFieldInsn(GETFIELD, FUNCTION_POINTER, "function", GET_FUNCTION);
         }
 
         // if async, we submit this to scheduler (worker scenario)
@@ -848,8 +848,14 @@ public class JvmTerminatorGen {
             this.mv.visitLdcInsn(Objects.requireNonNullElse(workerName, DEFAULT_STRAND_NAME));
             this.submitToScheduler(fpCall.lhsOp, isIsolated, fpCall, localVarOffset, hasWorkers, channelMapVarIndex);
         } else {
-            this.genFpCallArgs(fpCall, localVarOffset);
-            this.mv.visitMethodInsn(INVOKEINTERFACE, FUNCTION, "apply", PASS_OBJECT_RETURN_OBJECT, true);
+            if (fpCall.args.isEmpty()) {
+                this.mv.visitVarInsn(ALOAD, localVarOffset);
+                this.mv.visitMethodInsn(INVOKESTATIC, FUNCTION_POINTER_UTILS, "callFP", CALL_FP, false);
+            } else {
+                this.mv.visitFieldInsn(GETFIELD, FUNCTION_POINTER, "function", GET_FUNCTION);
+                this.genFpCallArgs(fpCall, localVarOffset);
+                this.mv.visitMethodInsn(INVOKEINTERFACE, FUNCTION, "apply", PASS_OBJECT_RETURN_OBJECT, true);
+            }
             // store result
             BType lhsType = fpCall.lhsOp.variableDcl.type;
             if (lhsType != null) {

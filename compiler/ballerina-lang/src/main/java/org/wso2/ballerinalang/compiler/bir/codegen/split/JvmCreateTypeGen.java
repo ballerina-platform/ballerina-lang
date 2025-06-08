@@ -92,6 +92,7 @@ import static org.objectweb.asm.Opcodes.RETURN;
 import static org.objectweb.asm.Opcodes.V21;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil.createDefaultCase;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil.getModuleLevelClassName;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil.skipRecordDefaultValueFunctions;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ADD_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_ARRAY_TYPE_INIT_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_ARRAY_TYPE_POPULATE_METHOD;
@@ -181,7 +182,8 @@ public class JvmCreateTypeGen {
     public void generateTypeClass(JvmPackageGen jvmPackageGen, BIRNode.BIRPackage module,
                                   JarEntries jarEntries,
                                   String moduleInitClass, SymbolTable symbolTable) {
-        generateCreateTypesMethod(typesCw, module.typeDefs, moduleInitClass, symbolTable);
+        generateCreateTypesMethod(jvmPackageGen, module, jarEntries, typesCw, module.typeDefs, moduleInitClass,
+                symbolTable);
         typesCw.visitEnd();
         jvmRecordTypeGen.visitEnd(jvmPackageGen, module, jarEntries);
         jvmObjectTypeGen.visitEnd(jvmPackageGen, module, jarEntries);
@@ -221,11 +223,13 @@ public class JvmCreateTypeGen {
         mv.visitEnd();
     }
 
-    void generateCreateTypesMethod(ClassWriter cw, List<BIRTypeDefinition> typeDefs,
-                                   String moduleInitClass, SymbolTable symbolTable) {
+    void generateCreateTypesMethod(JvmPackageGen jvmPackageGen, BIRNode.BIRPackage module, JarEntries jarEntries,
+                                   ClassWriter cw, List<BIRTypeDefinition> typeDefs, String moduleInitClass,
+                                   SymbolTable symbolTable) {
         createTypeConstants(cw, moduleInitClass);
         createTypesInstance(cw, typeDefs, moduleInitClass);
-        Map<String, String> populateTypeFuncNames = populateTypes(cw, typeDefs, moduleInitClass, symbolTable);
+        Map<String, String> populateTypeFuncNames = populateTypes(jvmPackageGen, module, jarEntries, cw, typeDefs,
+                moduleInitClass, symbolTable);
 
         MethodVisitor mv = cw.visitMethod(ACC_PUBLIC + ACC_STATIC, CREATE_TYPES_METHOD, VOID_METHOD_DESC, null, null);
         mv.visitCode();
@@ -311,9 +315,9 @@ public class JvmCreateTypeGen {
         return methodCount;
     }
 
-    private Map<String, String> populateTypes(ClassWriter cw, List<BIRTypeDefinition> typeDefs, String typeOwnerClass,
-                                              SymbolTable symbolTable) {
-
+    private Map<String, String> populateTypes(JvmPackageGen jvmPackageGen, BIRNode.BIRPackage module,
+                                              JarEntries jarEntries, ClassWriter cw, List<BIRTypeDefinition> typeDefs,
+                                              String typeOwnerClass, SymbolTable symbolTable) {
         Map<String, String> funcTypeClassMap = new HashMap<>();
         String fieldName;
         for (BIRTypeDefinition optionalTypeDef : typeDefs) {
@@ -322,18 +326,19 @@ public class JvmCreateTypeGen {
             if (JvmCodeGenUtil.needNoTypeGeneration(bTypeTag)) {
                 continue;
             }
-
             fieldName = getTypeFieldName(optionalTypeDef.internalName.value);
             String methodName = POPULATE_METHOD_PREFIX + fieldName;
             MethodVisitor mv;
             switch (bTypeTag) {
                 case TypeTags.RECORD -> {
+                    jvmRecordTypeGen.checkAndSplitTypeClass(jvmPackageGen, module, jarEntries);
                     funcTypeClassMap.put(methodName, jvmRecordTypeGen.recordTypesClass);
                     mv = createPopulateTypeMethod(jvmRecordTypeGen.recordTypesCw, methodName, typeOwnerClass,
                             fieldName);
                     jvmRecordTypeGen.populateRecord(mv, methodName, (BRecordType) bType, symbolTable);
                 }
                 case TypeTags.OBJECT -> {
+                    jvmObjectTypeGen.checkAndSplitTypeClass(jvmPackageGen, module, jarEntries);
                     funcTypeClassMap.put(methodName, jvmObjectTypeGen.objectTypesClass);
                     mv = createPopulateTypeMethod(jvmObjectTypeGen.objectTypesCw, methodName,
                             typeOwnerClass, fieldName);
@@ -341,28 +346,28 @@ public class JvmCreateTypeGen {
                             new BIRVarToJVMIndexMap());
                 }
                 case TypeTags.ERROR -> {
-                    // populate detail field
+                    jvmErrorTypeGen.checkAndSplitTypeClass(jvmPackageGen, module, jarEntries);
                     funcTypeClassMap.put(methodName, jvmErrorTypeGen.errorTypesClass);
                     mv = createPopulateTypeMethod(jvmErrorTypeGen.errorTypesCw, methodName, typeOwnerClass, fieldName);
                     jvmErrorTypeGen.populateError(mv, (BErrorType) bType);
                 }
                 case TypeTags.TUPLE -> {
+                    jvmTupleTypeGen.checkAndSplitTypeClass(jvmPackageGen, module, jarEntries);
                     funcTypeClassMap.put(methodName, jvmTupleTypeGen.tupleTypesClass);
                     mv = createPopulateTypeMethod(jvmTupleTypeGen.tupleTypesCw, methodName, typeOwnerClass, fieldName);
                     jvmTupleTypeGen.populateTuple(mv, (BTupleType) bType, symbolTable);
                 }
                 default -> {
+                    jvmUnionTypeGen.checkAndSplitTypeClass(jvmPackageGen, module, jarEntries);
                     funcTypeClassMap.put(methodName, jvmUnionTypeGen.unionTypesClass);
                     mv = createPopulateTypeMethod(jvmUnionTypeGen.unionTypesCw, methodName, typeOwnerClass, fieldName);
                     jvmUnionTypeGen.populateUnion(cw, mv, (BUnionType) bType, typesClass, fieldName, symbolTable);
                 }
             }
-
             mv.visitInsn(RETURN);
             JvmCodeGenUtil.visitMaxStackForMethod(mv, methodName, typeOwnerClass);
             mv.visitEnd();
         }
-
         return funcTypeClassMap;
     }
 
@@ -687,19 +692,22 @@ public class JvmCreateTypeGen {
         int i = 0;
 
         List<Label> targetLabels = new ArrayList<>();
-        for (BIRNode.BIRFunction func : functions) {
+        // Skip function types for record default value functions since they can be called directly from function
+        // pointers instead of the function name
+        List<BIRNode.BIRFunction> filteredFunctions = skipRecordDefaultValueFunctions(functions);
+        for (BIRNode.BIRFunction func : filteredFunctions) {
             if (bTypesCount % MAX_TYPES_PER_METHOD == 0) {
                 mv = cw.visitMethod(ACC_PRIVATE + ACC_STATIC, GET_FUNCTION_TYPE_METHOD + methodCount++,
                         GET_FUNCTION_TYPE_FOR_STRING, null, null);
                 mv.visitCode();
                 defaultCaseLabel = new Label();
-                int remainingCases = functions.size() - bTypesCount;
+                int remainingCases = filteredFunctions.size() - bTypesCount;
                 if (remainingCases > MAX_TYPES_PER_METHOD) {
                     remainingCases = MAX_TYPES_PER_METHOD;
                 }
-                List<Label> labels = JvmCreateTypeGen.createLabelsForSwitch(mv, funcNameRegIndex, functions,
+                List<Label> labels = JvmCreateTypeGen.createLabelsForSwitch(mv, funcNameRegIndex, filteredFunctions,
                         bTypesCount, remainingCases, defaultCaseLabel, false);
-                targetLabels = JvmCreateTypeGen.createLabelsForEqualCheck(mv, funcNameRegIndex, functions,
+                targetLabels = JvmCreateTypeGen.createLabelsForEqualCheck(mv, funcNameRegIndex, filteredFunctions,
                         bTypesCount, remainingCases, labels, defaultCaseLabel, false);
                 i = 0;
             }
@@ -712,7 +720,7 @@ public class JvmCreateTypeGen {
             i += 1;
             bTypesCount++;
             if (bTypesCount % MAX_TYPES_PER_METHOD == 0) {
-                if (bTypesCount == (functions.size())) {
+                if (bTypesCount == (filteredFunctions.size())) {
                     createDefaultCase(mv, defaultCaseLabel, funcNameRegIndex, "No such function type: ");
                 } else {
                     mv.visitLabel(defaultCaseLabel);
