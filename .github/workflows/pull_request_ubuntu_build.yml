@@ -24,6 +24,148 @@ jobs:
     concurrency:
       group: ${{ github.head_ref }}-ubuntu
       cancel-in-progress: true
+    strategy:
+      matrix:
+        task:
+          - checkstyleMain
+          - checkstyleTest
+          - spotbugsMain
+          - spotbugsTest
+          - :ballerina-tools-api:test
+          - :ballerina-parser:test
+          - :ballerina-compiler-api-test:test
+          - :ballerina-lang:test
+          - :ballerina-linter:test
+          - :project-api-test:test
+          - :ballerina-lang:internal:test
+          - :ballerina-lang:annotations:test
+          - :ballerina-lang:jballerina.java:test
+          - :ballerina-lang:array:test
+          - :ballerina-lang:decimal:test
+          - :ballerina-lang:error:test
+          - :ballerina-lang:floatingpoint:test
+          - :ballerina-lang:function:test
+          - :ballerina-lang:future:test
+          - :ballerina-lang:integer:test
+          - :ballerina-lang:map:test
+          - :ballerina-lang:object:test
+          - :ballerina-lang:stream:test
+          - :ballerina-lang:table:test
+          - :ballerina-lang:query:test
+          - :ballerina-lang:transaction:test
+          - :ballerina-lang:string:test
+          - :ballerina-lang:typedesc:test
+          - :ballerina-lang:value:test
+          - :ballerina-lang:xml:test
+          - :ballerina-lang:bool:test
+          - :ballerina-lang:runtime:test
+          - :ballerina-lang:regexp:test
+          - :ballerina-lang-test:test
+          - :ballerina-langlib:test:test
+          - :ballerina-io-internal:test
+          - :json-mapper:test
+          - :xml-to-record-converter:test
+          - :lib-creator:test
+          - :ballerina-runtime:test
+          - :ballerina-rt:test
+          - :ballerina-test-utils:test
+          - :ballerina-treegen:test
+          - :ballerina-bindgen:test
+          - :maven-resolver:test
+          - :jballerina-unit-test:test
+          - :jballerina-semtype-test:test
+          - :jballerina-semtype-port-test:test
+          - :jballerina-benchmark-test:test
+          - :ballerina-compiler-plugin-test:test
+          - :ballerina-cli:test
+          - :diagram-util:test
+          - :syntax-api-calls-gen:test
+          - :language-server:language-server-stdlib:test
+          - :language-server:language-server-commons:test
+          - :language-server:language-server-core:test
+          - :language-server:language-server-stdio-launcher:test
+          - :language-server:language-server-cli:test
+          - :language-server:language-server-launchers:test
+          - :language-server:language-server-test-coverage:test
+          - :language-server:test
+          - :ballerina-shell:shell-rt:test
+          - :ballerina-shell:shell-core:test
+          - :ballerina-shell:shell-cli:test
+          - :ballerina-shell:test
+          - :docerina-gradle-plugin:test
+          - :docerina:test
+          - :ballerina-formatter:test
+          - :ballerinalang-data-mapper:test
+          - :ballerina-config-schema-builder:test
+          - :testerina:testerina-core:test
+          - :testerina:test
+          - :testerina:report-tools:test
+          - :testerina:testerina-compiler-plugin:test
+          - :testerina:testerina-runtime:test
+          - :ballerina-spec-conformance-tests:test
+          - :metrics-extensions:ballerina-metrics-extension:test
+          - :metrics-extensions:test
+          - :toml-parser:test
+          - :composer-library:test
+          - :ballerina-stringutils:test
+          - :ballerina:test
+          - :jballerina:test
+          - :jballerina-tools:test
+          - :nballerina-tools:test
+          - :jballerina-integration-test:test
+          - :central-client:test
+          - :testerina:testerina-runtime:test
+          - :testerina:report-tools:test
+          - :testerina-integration-test:test
+          #- :jballerina-debugger-integration-test:test
+          - :language-server-integration-tests:test
+          - :benchmarks:test
+          - :build-config:checkstyle:test
+          - :debug-adapter:debug-adapter-core:test
+          - :debug-adapter:debug-adapter-cli:test
+          - :debug-adapter:debug-adapter-runtime:test
+          - :semver-checker:semver-checker-cli:test
+          - :semver-checker:semver-checker-core:test
+          - :compiler-plugins:package-semantic-analyzer:test
+          - :compiler-plugins:configurable-schema-generator:test
+          - :formatter:formatter-core:test
+          - :formatter:formatter-cli:test
+          - :ls-extensions:json-to-record-converter:test
+          - :ls-extensions:performance-analyzer-services:test
+          - :ls-extensions:partial-parser:test
+          - :ls-extensions:trigger-service:test
+          - :ls-extensions:bal-shell-service:test
+          - :project-api-test-artifact:event-logger-compiler-plugin:test
+          - :project-api-test-artifact:compiler-plugin-with-one-dependency:test
+          - :project-api-test-artifact:compiler-plugin-with-codeactions:test
+          - :project-api-test-artifact:compiler-plugin-with-completion-providers:test
+          - :project-api-test-artifact:compiler-plugin-with-two-dependencies:test
+          - :project-api-test-artifact:string-utils-lib:test
+          - :project-api-test-artifact:diagnostic-utils-lib:test
+          - :project-api-test-artifact:function-node-analyzer-compiler-plugin:test
+          - :project-api-test-artifact:bad-sad-compiler-plugin:test
+          - :project-api-test-artifact:logging-file-appender-plugin:test
+          - :project-api-test-artifact:init-function-codegen-compiler-plugin:test
+          - :project-api-test-artifact:init-function-code-modify-compiler-plugin:test
+          - :project-api-test-artifact:remove-function-code-modify-compiler-plugin:test
+          - :project-api-test-artifact:add-remove-function-code-modify-compiler-plugin:test
+          - :project-api-test-artifact:log-creator-in-built-code-modifier:test
+          - :project-api-test-artifact:log-creator-in-built-code-generator:test
+          - :project-api-test-artifact:log-creator-in-built-code-analyzer:test
+          - :project-api-test-artifact:log-creator-pkg-provided-code-modifier:test
+          - :project-api-test-artifact:log-creator-pkg-provided-code-generator:test
+          - :project-api-test-artifact:log-creator-pkg-provided-code-analyzer:test
+          - :project-api-test-artifact:simple-code-gen-plugin-with-resource-gen:test
+          - :project-api-test-artifact:init-function-diagnostic-compiler-plugin:test
+          - :project-api-test-artifact:compiler-plugin-with-analyzer-generator-modifier:test
+          - :project-api-test-artifact:sample-openapi-build-tool:test
+          - :project-api-test-artifact:pkg-provided-compiler-plugin-with-shared-data:test
+          - :project-api-test-artifact:pkg-provided-compiler-plugin-with-resource-addition:test
+          - :identifier-util:test
+          - :ballerina-profiler:test
+          #- :ballerina-libs:test
+          - :bir-spec:test
+          - :semtypes:test
 
     steps:
       - name: Checkout Repository
@@ -61,7 +203,7 @@ jobs:
         run: |
           export DISPLAY=':99.0'
           /usr/bin/Xvfb :99 -screen 0 1024x768x24 > /dev/null 2>&1 &
-          ./gradlew build -x :jballerina-debugger-integration-test:test -Pnative.test --max-workers=2 --scan --no-daemon
+          ./gradlew ${{ matrix.task }} -Pnative.test --max-workers=2 --scan --no-daemon
 
       - name: Generate Jacoco report
         if: github.event_name == 'pull_request'
@@ -92,9 +234,6 @@ jobs:
         with:
           distribution: 'temurin'
           java-version: '21.0.3'
-
-      - name: Initialize sub-modules
-        run: git submodule update --init
 
       - name: Cache SonarCloud packages
         uses: actions/cache@v4
