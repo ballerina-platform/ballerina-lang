@@ -56,6 +56,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -88,6 +89,8 @@ public class PackageResolution {
     private List<ModuleContext> topologicallySortedModuleList;
     private Collection<ResolvedPackageDependency> dependenciesWithTransitives;
 
+    private static final Boolean isWindows = System.getProperty("os.name").toLowerCase(Locale.getDefault())
+            .contains("win");
     private PackageResolution(PackageContext rootPackageContext, CompilationOptions compilationOptions) {
         this.rootPackageContext = rootPackageContext;
         this.diagnosticList = new ArrayList<>();
@@ -133,7 +136,11 @@ public class PackageResolution {
 
             // We use the pull command to generate the BIR of the dependency.
             List<String> cmdArgs = new ArrayList<>();
-            cmdArgs.add(System.getProperty(BALLERINA_HOME) + "/bin/bal");
+            if (isWindows) {
+                cmdArgs.add(System.getProperty(BALLERINA_HOME) + "\\bin\\bal.bat");
+            } else {
+                cmdArgs.add(System.getProperty(BALLERINA_HOME) + "/bin/bal");
+            }
             cmdArgs.add("pull");
             cmdArgs.add(STICKY_FLAG + EQUAL + resolutionOptions.sticky());
             cmdArgs.add(OFFLINE_FLAG + EQUAL + resolutionOptions.offline());
