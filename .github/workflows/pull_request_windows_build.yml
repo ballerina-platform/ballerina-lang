@@ -119,7 +119,7 @@ jobs:
       - name: Download Ballerina Lang Build Files
         uses: actions/download-artifact@v4
         with:
-          name: Ballerina Lang Build Files (ubuntu)
+          name: Ballerina Lang Build Files (windows)
 
       - name: Build with Gradle
         env:
