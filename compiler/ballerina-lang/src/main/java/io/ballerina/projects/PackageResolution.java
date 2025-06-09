@@ -51,6 +51,7 @@ import org.wso2.ballerinalang.util.RepoUtils;
 
 import java.io.IOException;
 import java.io.PrintStream;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -136,11 +137,8 @@ public class PackageResolution {
 
             // We use the pull command to generate the BIR of the dependency.
             List<String> cmdArgs = new ArrayList<>();
-            if (isWindows) {
-                cmdArgs.add(System.getProperty(BALLERINA_HOME) + "\\bin\\bal.bat");
-            } else {
-                cmdArgs.add(System.getProperty(BALLERINA_HOME) + "/bin/bal");
-            }
+            String balExecutable = isWindows ? "bal.bat" : "bal";
+            cmdArgs.add(Paths.get(System.getProperty(BALLERINA_HOME), "bin", balExecutable).toString());
             cmdArgs.add("pull");
             cmdArgs.add(STICKY_FLAG + EQUAL + resolutionOptions.sticky());
             cmdArgs.add(OFFLINE_FLAG + EQUAL + resolutionOptions.offline());
