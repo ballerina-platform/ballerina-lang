@@ -62,6 +62,13 @@ jobs:
           packagePAT: ${{ secrets.GITHUB_TOKEN }}
         run: ./gradlew.bat build -x check --stacktrace -scan --console=plain --no-daemon --no-parallel
 
+      - name: Archive Ballerina Lang Build files
+        uses: actions/upload-artifact@v4
+        with:
+          name: Ballerina Lang Build Files (windows)
+          path: '**/build'
+          include-hidden-files: true
+
   windows_test:
     name: Build with some tests on Windows
     runs-on: windows-latest
@@ -109,6 +116,10 @@ jobs:
           distribution: 'graalvm'
           github-token: ${{ secrets.GITHUB_TOKEN }}
           set-java-home: 'false'
+      - name: Download Ballerina Lang Build Files
+        uses: actions/download-artifact@v4
+        with:
+          name: Ballerina Lang Build Files (ubuntu)
 
       - name: Build with Gradle
         env:
