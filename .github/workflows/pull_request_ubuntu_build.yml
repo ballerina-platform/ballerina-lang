@@ -65,10 +65,8 @@ jobs:
   ubuntu_test:
     name: Build with all tests on Ubuntu
     runs-on: ubuntu-latest
+    needs: ubuntu_build
     timeout-minutes: 150
-    concurrency:
-      group: ${{ github.head_ref }}-ubuntu
-      cancel-in-progress: true
     strategy:
       matrix:
         task:
@@ -77,6 +75,9 @@ jobs:
           - :testerina-integration-test:test
           - :jballerina-unit-test:test
           - check -x :ballerina-cli:test -x :jballerina-integration-test:test -x :testerina-integration-test:test -x :jballerina-unit-test:test -x :jballerina-debugger-integration-test:test
+    concurrency:
+      group: ${{ github.head_ref }}-ubuntu-${{ matrix.task }}
+      cancel-in-progress: true
 
     steps:
       - name: Checkout Repository

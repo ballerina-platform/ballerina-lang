@@ -66,10 +66,8 @@ jobs:
   windows_test:
     name: Build with some tests on Windows
     runs-on: windows-latest
+    needs: windows_build
     timeout-minutes: 240
-    concurrency: 
-       group: ${{ github.head_ref }}-windows
-       cancel-in-progress: true
     strategy:
       matrix:
         task:
@@ -77,6 +75,9 @@ jobs:
           - :testerina-integration-test:test
           - :jballerina-unit-test:test
           - check -x :ballerina-cli:test -x :testerina-integration-test:test -x :jballerina-unit-test:test -x :jballerina-debugger-integration-test:test -x :jballerina-integration-test:test
+    concurrency:
+       group: ${{ github.head_ref }}-windows-${{ matrix.task }}
+       cancel-in-progress: true
 
     steps:
       - name: Checkout Repository
