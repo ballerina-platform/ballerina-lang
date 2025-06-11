@@ -245,6 +245,9 @@ final class InstructionEmitter {
         str += "[";
         str += emitVarRef(ins.sizeOp);
         str += "]";
+        if (ins.elementTypedescOp != null) {
+            str += " elementTypeDesc " + emitVarRef(ins.elementTypedescOp);
+        }
         str += "{";
         str += emitArrayValues(ins.values);
         str += "}";

@@ -321,6 +321,7 @@ public class ClosedRecordTest {
     public void testCyclicRecordViaFields() {
         CompileResult cyclicBal = BCompileUtil.compile("test-src/record/cyclic_record_via_fields.bal");
         BRunUtil.invoke(cyclicBal, "testCyclicRecordResolution");
+        BRunUtil.invoke(cyclicBal, "testFunctionPointerNotCyclicViaRecordField");
     }
 
     @Test

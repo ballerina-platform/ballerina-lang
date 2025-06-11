@@ -90,9 +90,7 @@ public class BuildOptions {
      * Checks whether experimental compilation option is set.
      *
      * @return Is experimental compilation option is set
-     * @deprecated Since language no longer has experimental features
      */
-    @Deprecated(forRemoval = true)
     public boolean experimental() {
         return this.compilationOptions.experimental();
     }

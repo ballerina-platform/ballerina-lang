@@ -23,6 +23,7 @@ import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.TopLevelNode;
 import org.ballerinalang.util.diagnostic.DiagnosticErrorCode;
 import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLog;
+import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
@@ -46,8 +47,8 @@ import java.util.Comparator;
 import java.util.Deque;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -64,6 +65,7 @@ public class GlobalVariableRefAnalyzer {
     private final BLangDiagnosticLog dlog;
     private BLangPackage pkgNode;
     private Map<BSymbol, Set<BSymbol>> globalNodeDependsOn;
+    Map<BSymbol, BSymbol> symbolOwner;
     private Map<BSymbol, Set<BVarSymbol>> globalVariablesDependsOn;
     private final Map<BSymbol, NodeInfo> dependencyNodes;
     private final Deque<NodeInfo> nodeInfoStack;
@@ -228,54 +230,21 @@ public class GlobalVariableRefAnalyzer {
     }
 
     /**
-     * Analyze the global variable references and reorder them or emit error if they contain cyclic references.
+     * Analyze the global references and reorder them or emit error if they contain cyclic references.
      *
      * @param pkgNode package to be analyzed.
      * @param globalNodeDependsOn symbol dependency relationship.
+     * @param symbolOwner symbol owner relationship.
      */
-    public void analyzeAndReOrder(BLangPackage pkgNode, Map<BSymbol, Set<BSymbol>> globalNodeDependsOn) {
+    public void analyzeAndReOrder(BLangPackage pkgNode, Map<BSymbol, Set<BSymbol>> globalNodeDependsOn,
+                                  Map<BSymbol, BSymbol> symbolOwner) {
         this.dlog.setCurrentPackageId(pkgNode.packageID);
         this.pkgNode = pkgNode;
         this.globalNodeDependsOn = globalNodeDependsOn;
+        this.symbolOwner = symbolOwner;
         resetAnalyzer();
 
-        List<BSymbol> globalVarsAndDependentFuncs = getGlobalVariablesAndDependentFunctions();
-
-        pruneDependencyRelations();
-
-        Set<BSymbol> sorted = new LinkedHashSet<>();
-        LinkedList<BSymbol> dependencies = new LinkedList<>();
-
-        for (BSymbol symbol : globalVarsAndDependentFuncs) {
-            List<BSymbol> dependencyTrain = analyzeDependenciesStartingFrom(symbol);
-            dependencies.addAll(dependencyTrain);
-
-            Set<BSymbol> symbolsProviders = globalNodeDependsOn.get(symbol);
-            boolean symbolHasProviders = symbolsProviders != null && !symbolsProviders.isEmpty();
-            boolean notInSortedList = !sorted.contains(symbol);
-
-            // Independent variable declaration, add to sorted list.
-            if (notInSortedList && !symbolHasProviders) {
-                moveAndAppendToSortedList(symbol, dependencies, sorted);
-            }
-            // Dependent variable, and all the dependencies are satisfied, add to sorted list.
-            if (notInSortedList && symbolHasProviders && sorted.containsAll(symbolsProviders)) {
-                moveAndAppendToSortedList(symbol, dependencies, sorted);
-            }
-
-            // If we can satisfy the dependencies' dependencies then we can add those dependencies to sorted list now.
-            addDependenciesDependencies(dependencies, sorted);
-        }
-        sorted.addAll(dependencies);
-
-        // Cyclic error found no need to sort.
-        if (cyclicErrorFound) {
-            return;
-        }
-
-        sortConstants(sorted);
-        projectSortToGlobalVarsList(sorted);
-        projectSortToTopLevelNodesList();
+        reOrderTopLevelNodeList();
     }
 
     private List<BSymbol> analyzeDependenciesStartingFrom(BSymbol symbol) {
@@ -298,148 +267,61 @@ public class GlobalVariableRefAnalyzer {
         return new ArrayList<>();
     }
 
-    private void pruneDependencyRelations() {
-        List<BSymbol> dependents = new ArrayList<>(this.globalNodeDependsOn.keySet());
-        Set<BSymbol> visited = new HashSet<>();
-        for (BSymbol dependent : dependents) {
-            // Taking a copy as we need to modify the original list.
-            List<BSymbol> providers = new ArrayList<>(this.globalNodeDependsOn.get(dependent));
-            for (BSymbol provider : providers) {
-                pruneFunctions(dependent, provider, this.globalNodeDependsOn, visited);
-            }
-        }
-    }
+    private void reOrderTopLevelNodeList() {
+        Map<BSymbol, TopLevelNode> varMap = collectAssociateSymbolsWithTopLevelNodes();
 
-    private void pruneFunctions(BSymbol dependent, BSymbol provider, Map<BSymbol, Set<BSymbol>> globalNodeDependsOn,
-                                Set<BSymbol> visited) {
-        if (visited.contains(provider)) {
-            return;
-        } else {
-            visited.add(provider);
+        Set<BSymbol> sorted = new LinkedHashSet<>();
+        for (BSymbol symbol : varMap.keySet()) {
+            sorted.addAll(analyzeDependenciesStartingFrom(symbol));
         }
 
-        // Dependent has a dependency on a global var.
-        if (provider.tag != SymTag.FUNCTION) {
+        // Cyclic error found no need to sort.
+        if (cyclicErrorFound) {
             return;
         }
 
-        // Provider is a function.
-        // And doesn't have dependency on a global variable. We can prune provider.
-        if (!globalNodeDependsOn.containsKey(provider) || globalNodeDependsOn.get(provider).isEmpty()) {
-            globalNodeDependsOn.get(dependent).remove(provider);
-            return;
-        }
-
-        // Taking a copy as we need to modify the original list.
-        List<BSymbol> providersProviders = new ArrayList<>(globalNodeDependsOn.get(provider));
-        for (BSymbol prov : providersProviders) {
-            pruneFunctions(provider, prov, globalNodeDependsOn, visited);
-        }
-    }
-
-    private void addDependenciesDependencies(LinkedList<BSymbol> dependencies, Set<BSymbol> sorted) {
-        // For each dependency if they satisfy their dependencies in sorted list, then add them to sorted list.
-        ArrayList<BSymbol> depCopy = new ArrayList<>(dependencies);
-        for (BSymbol dep : depCopy) {
-            Set<BSymbol> depsDependencies = globalNodeDependsOn.getOrDefault(dep, new LinkedHashSet<>());
-            if (!depsDependencies.isEmpty() && sorted.containsAll(depsDependencies)) {
-                moveAndAppendToSortedList(dep, dependencies, sorted);
-            }
-        }
-    }
-
-    private void projectSortToTopLevelNodesList() {
-        // Swap global variable nodes in 'topLevelNodes' list to reflect sorted global variables.
-        List<Integer> topLevelPositions = new ArrayList<>();
-        for (BLangVariable globalVar : pkgNode.globalVars) {
-            topLevelPositions.add(pkgNode.topLevelNodes.indexOf(globalVar));
-        }
-        topLevelPositions.sort(Comparator.comparingInt(i -> i));
-        for (int i = 0; i < topLevelPositions.size(); i++) {
-            Integer targetIndex = topLevelPositions.get(i);
-            pkgNode.topLevelNodes.set(targetIndex, pkgNode.globalVars.get(i));
-        }
-
-        topLevelPositions = new ArrayList<>();
-        for (BLangConstant constant : pkgNode.constants) {
-            topLevelPositions.add(pkgNode.topLevelNodes.indexOf(constant));
-        }
-        topLevelPositions.sort(Comparator.comparingInt(i -> i));
-        for (int i = 0; i < topLevelPositions.size(); i++) {
-            Integer targetIndex = topLevelPositions.get(i);
-            pkgNode.topLevelNodes.set(targetIndex, pkgNode.constants.get(i));
-        }
-    }
-
-    private void projectSortToGlobalVarsList(Set<BSymbol> sorted) {
-        Map<BSymbol, BLangVariable> varMap = new HashMap<>();
-        this.pkgNode.globalVars.forEach(globalVar -> {
-            if (globalVar.symbol != null) {
-                varMap.put(globalVar.symbol, globalVar);
-            }
-        });
-
-        List<BLangVariable> sortedGlobalVars = sorted.stream()
-                .filter(varMap::containsKey)
-                .map(varMap::get)
-                .toList();
-
-        if (sortedGlobalVars.size() != this.pkgNode.globalVars.size()) {
-            List<BLangVariable> symbolLessGlobalVars = this.pkgNode.globalVars.stream()
-                    .filter(g -> g.symbol == null)
-                    .toList();
-            sortedGlobalVars.addAll(symbolLessGlobalVars);
-        }
-        this.pkgNode.globalVars.clear();
-        this.pkgNode.globalVars.addAll(sortedGlobalVars);
-    }
-
-    private void sortConstants(Set<BSymbol> sorted) {
-        Map<BSymbol, BLangConstant> varMap = this.pkgNode.constants.stream()
-                .collect(Collectors.toMap(k -> k.symbol, k -> k));
-
-        List<BLangConstant> sortedConstants = sorted.stream()
-                .filter(varMap::containsKey)
-                .map(varMap::get)
-                .toList();
-
-        if (sortedConstants.size() != this.pkgNode.constants.size()) {
-            List<BLangConstant> symbolLessGlobalVars = this.pkgNode.constants.stream()
-                    .filter(c -> !sortedConstants.contains(c))
-                    .toList();
-            sortedConstants.addAll(symbolLessGlobalVars);
-        }
-        this.pkgNode.constants.clear();
-        this.pkgNode.constants.addAll(sortedConstants);
-    }
-    
-    private List<BSymbol> getGlobalVariablesAndDependentFunctions() {
-        List<BSymbol> dependents = new ArrayList<>();
-
-        for (BSymbol s : globalNodeDependsOn.keySet()) {
-            if ((s.tag & SymTag.FUNCTION) == SymTag.FUNCTION) {
-                dependents.add(s);
+        Set<TopLevelNode> sortedTopLevelNodes = new LinkedHashSet<>();
+        for (BSymbol symbol : sorted) {
+            if (varMap.containsKey(symbol)) {
+                sortedTopLevelNodes.add(varMap.get(symbol));
             }
         }
 
-        for (BLangVariable var : this.pkgNode.globalVars) {
-            if (var.symbol != null) {
-                dependents.add(var.symbol);
-            }
-        }
-
-        for (BLangConstant constant : this.pkgNode.constants) {
-            if (constant.symbol != null) {
-                dependents.add(constant.symbol);
-            }
-        }
-
-        return dependents;
+        sortedTopLevelNodes.addAll(pkgNode.topLevelNodes);
+        this.pkgNode.topLevelNodes.clear();
+        this.pkgNode.topLevelNodes.addAll(sortedTopLevelNodes);
     }
 
-    private void moveAndAppendToSortedList(BSymbol symbol, List<BSymbol> moveFrom, Set<BSymbol> sorted) {
-        sorted.add(symbol);
-        moveFrom.remove(symbol);
+    private Map<BSymbol, TopLevelNode> collectAssociateSymbolsWithTopLevelNodes() {
+        // Create a single map to hold functions first, then other variables
+        Map<BSymbol, TopLevelNode> resultMap = new LinkedHashMap<>();
+        // Temporary collection to hold other top level nodes except functions
+        Map<BSymbol, TopLevelNode> tempVarMap = new LinkedHashMap<>();
+        for (TopLevelNode topLevelNode : this.pkgNode.topLevelNodes) {
+            BSymbol symbol = getSymbolFromTopLevelNode(topLevelNode);
+            if (symbol == null) {
+                continue;
+            }
+
+            if ((symbol.tag & SymTag.FUNCTION) == SymTag.FUNCTION) {
+                resultMap.put(symbol, topLevelNode);
+            } else {
+                tempVarMap.put(symbol, topLevelNode);
+            }
+        }
+        // This will bring functions to the top of the order.
+        resultMap.putAll(tempVarMap);
+        return resultMap;
+    }
+
+    private BSymbol getSymbolFromTopLevelNode(TopLevelNode topLevelNode) {
+        return switch (topLevelNode.getKind()) {
+            case VARIABLE, RECORD_VARIABLE, TUPLE_VARIABLE, ERROR_VARIABLE -> ((BLangVariable) topLevelNode).symbol;
+            case TYPE_DEFINITION -> Types.getImpliedType(((BLangTypeDefinition) topLevelNode).symbol.type).tsymbol;
+            case CONSTANT -> ((BLangConstant) topLevelNode).symbol;
+            case FUNCTION -> ((BLangFunction) topLevelNode).symbol;
+            default -> null;
+        };
     }
 
     private int analyzeProvidersRecursively(NodeInfo node) {
@@ -454,8 +336,9 @@ public class GlobalVariableRefAnalyzer {
 
         Set<BSymbol> providers = globalNodeDependsOn.getOrDefault(node.symbol, new LinkedHashSet<>());
         for (BSymbol providerSym : providers) {
+            BSymbol symbol = symbolOwner.getOrDefault(providerSym, providerSym);
             NodeInfo providerNode =
-                    dependencyNodes.computeIfAbsent(providerSym, s -> new NodeInfo(curNodeId++, providerSym));
+                    dependencyNodes.computeIfAbsent(providerSym, s -> new NodeInfo(curNodeId++, symbol));
             int lastLowLink = analyzeProvidersRecursively(providerNode);
             if (providerNode.onStack) {
                 node.lowLink = Math.min(node.lowLink, lastLowLink);

@@ -28,8 +28,8 @@ public isolated function f1() {
 
 type Func isolated function ();
 
-final readonly & map<Func> func1 = {
-    "f1": f2
+final readonly & map<Func?> func1 = {
+    "f1": f2()
 };
 
 public isolated function testFunc1() {
