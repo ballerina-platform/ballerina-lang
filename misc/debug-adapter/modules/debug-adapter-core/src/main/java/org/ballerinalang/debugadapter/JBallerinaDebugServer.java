@@ -980,9 +980,8 @@ public class JBallerinaDebugServer implements BallerinaExtendedDebugServer {
                 .map(varFuture -> {
                     try {
                         return varFuture.get(VARIABLE_FETCH_TIMEOUT, TimeUnit.MILLISECONDS);
-                    } catch (Exception ignored) {
-                        // Todo - Refactor after implementing debug/trace logger
-                        LOGGER.error("Failed to load some debug variables due to runtime exceptions.");
+                    } catch (Exception e) {
+                        LOGGER.error("Failed to load some debug variables due to runtime exceptions.", e);
                         return null;
                     }
                 })
