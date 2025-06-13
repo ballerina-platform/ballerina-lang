@@ -18,8 +18,11 @@ package io.ballerina.cli.launcher.util;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 /**
  * Utility methods for compile Ballerina files.
@@ -31,6 +34,13 @@ public final class BCompileUtil {
     private BCompileUtil() {
     }
 
+    /**
+     * Reads the content of a file from the system class loader.
+     *
+     * @param path        the path to the file
+     * @return the content of the file as a string
+     * @throws IOException if an I/O error occurs
+     */
     public static String readFileAsString(String path) throws IOException {
         StringBuilder sb = new StringBuilder();
         try (BufferedReader br = new BufferedReader(
@@ -48,4 +58,21 @@ public final class BCompileUtil {
         }
         return sb.toString();
     }
+
+    /**
+     * Reads the content of a file as a string from the specified class loader.
+     *
+     * @param path        the path to the file
+     * @param classLoader the class loader to use for loading the file
+     * @return the content of the file as a string
+     * @throws IOException if an I/O error occurs
+     */
+    public static String readFileAsString(String path, ClassLoader classLoader) throws IOException {
+        try (InputStream inputStream = classLoader.getResourceAsStream(path);
+             BufferedReader reader = new BufferedReader(new InputStreamReader(
+                     Objects.requireNonNull(inputStream), StandardCharsets.UTF_8))) {
+            return reader.lines().collect(Collectors.joining("\n"));
+        }
+    }
+
 }
