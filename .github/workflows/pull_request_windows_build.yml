@@ -80,7 +80,7 @@ jobs:
           - :ballerina-cli:test
           - :testerina-integration-test:test
           - :jballerina-unit-test:test
-          - check -x :ballerina-cli:test -x :testerina-integration-test:test -x :jballerina-unit-test:test -x :jballerina-debugger-integration-test:test -x :jballerina-integration-test:test
+          - "check -x :ballerina-cli:test -x :testerina-integration-test:test -x :jballerina-unit-test:test -x :jballerina-debugger-integration-test:test -x :jballerina-integration-test:test"
     concurrency:
        group: ${{ github.head_ref }}-windows-${{ matrix.task }}
        cancel-in-progress: true
