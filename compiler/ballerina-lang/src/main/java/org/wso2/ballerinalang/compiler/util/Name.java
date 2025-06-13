@@ -26,7 +26,7 @@ public class Name implements org.ballerinalang.model.Name {
     public final String value;
 
     public Name(String value) {
-        this.value = value;
+        this.value = value != null ? value.intern() : null;
     }
 
     @Override

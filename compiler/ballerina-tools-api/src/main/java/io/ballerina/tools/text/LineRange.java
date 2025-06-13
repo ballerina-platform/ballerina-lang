@@ -30,7 +30,7 @@ public class LineRange {
     private final LinePosition endLine;
 
     private LineRange(String fileName, LinePosition startLine, LinePosition endLine) {
-        this.fileName = fileName;
+        this.fileName = fileName != null ? fileName.intern() : fileName;
         this.startLine = startLine;
         this.endLine = endLine;
     }

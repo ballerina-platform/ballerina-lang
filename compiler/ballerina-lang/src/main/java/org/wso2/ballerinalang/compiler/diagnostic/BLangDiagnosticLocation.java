@@ -43,7 +43,7 @@ public class BLangDiagnosticLocation implements Location {
 
     public BLangDiagnosticLocation(String filePath, int startLine, int endLine, int startColumn, int endColumn,
                                    int startOffset, int length) {
-        this.filePath = filePath;
+        this.filePath = filePath != null ? filePath.intern() : filePath;
         this.startLine = startLine;
         this.endLine = endLine;
         this.startColumn = startColumn;
