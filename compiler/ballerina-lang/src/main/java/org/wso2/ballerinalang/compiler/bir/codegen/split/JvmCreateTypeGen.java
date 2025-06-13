@@ -134,6 +134,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.SET_IMMU
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.SET_LINKED_HASH_MAP;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.VOID_METHOD_DESC;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmTypeGen.getTypeFieldName;
+import static org.wso2.ballerinalang.compiler.util.Constants.RECORD_DELIMITER;
 
 /**
  * BIR types to JVM byte code generation class.
@@ -685,21 +686,23 @@ public class JvmCreateTypeGen {
 
         // case body
         int i = 0;
-
         List<Label> targetLabels = new ArrayList<>();
-        for (BIRNode.BIRFunction func : functions) {
+        // Skip function types for record default value functions since they can be called directly from function
+        // pointers instead of the function name
+        List<BIRNode.BIRFunction> filteredFunctions = removeRecordDefaultValueFunctions(functions);
+        for (BIRNode.BIRFunction func : filteredFunctions) {
             if (bTypesCount % MAX_TYPES_PER_METHOD == 0) {
                 mv = cw.visitMethod(ACC_PRIVATE + ACC_STATIC, GET_FUNCTION_TYPE_METHOD + methodCount++,
                         GET_FUNCTION_TYPE_FOR_STRING, null, null);
                 mv.visitCode();
                 defaultCaseLabel = new Label();
-                int remainingCases = functions.size() - bTypesCount;
+                int remainingCases = filteredFunctions.size() - bTypesCount;
                 if (remainingCases > MAX_TYPES_PER_METHOD) {
                     remainingCases = MAX_TYPES_PER_METHOD;
                 }
-                List<Label> labels = JvmCreateTypeGen.createLabelsForSwitch(mv, funcNameRegIndex, functions,
+                List<Label> labels = JvmCreateTypeGen.createLabelsForSwitch(mv, funcNameRegIndex, filteredFunctions,
                         bTypesCount, remainingCases, defaultCaseLabel, false);
-                targetLabels = JvmCreateTypeGen.createLabelsForEqualCheck(mv, funcNameRegIndex, functions,
+                targetLabels = JvmCreateTypeGen.createLabelsForEqualCheck(mv, funcNameRegIndex, filteredFunctions,
                         bTypesCount, remainingCases, labels, defaultCaseLabel, false);
                 i = 0;
             }
@@ -712,7 +715,7 @@ public class JvmCreateTypeGen {
             i += 1;
             bTypesCount++;
             if (bTypesCount % MAX_TYPES_PER_METHOD == 0) {
-                if (bTypesCount == (functions.size())) {
+                if (bTypesCount == (filteredFunctions.size())) {
                     createDefaultCase(mv, defaultCaseLabel, funcNameRegIndex, "No such function type: ");
                 } else {
                     mv.visitLabel(defaultCaseLabel);
@@ -725,12 +728,23 @@ public class JvmCreateTypeGen {
                 mv.visitEnd();
             }
         }
-
         if (methodCount != 0 && bTypesCount % MAX_TYPES_PER_METHOD != 0) {
             createDefaultCase(mv, defaultCaseLabel, funcNameRegIndex, "No such function type: ");
             mv.visitMaxs(i + 10, i + 10);
             mv.visitEnd();
         }
+    }
+
+    private static List<BIRNode.BIRFunction> removeRecordDefaultValueFunctions(List<BIRNode.BIRFunction> functions) {
+        List<BIRNode.BIRFunction> filteredFunctions = new ArrayList<>();
+        for (BIRNode.BIRFunction func : functions) {
+            String funcName = func.name.value;
+            if (funcName.contains(RECORD_DELIMITER)) {
+                continue;
+            }
+            filteredFunctions.add(func);
+        }
+        return filteredFunctions;
     }
 
     public void splitAddFields(ClassWriter cw, String typeClassName, String methodName, Map<String, BField> fields) {
