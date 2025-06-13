@@ -40,7 +40,6 @@ jobs:
         with:
           java-version: '21.0.3'
           distribution: 'graalvm'
-          components: 'native-image'
           github-token: ${{ secrets.GITHUB_TOKEN }}
           set-java-home: 'false'
 
@@ -91,7 +90,6 @@ jobs:
         with:
           java-version: '21.0.3'
           distribution: 'graalvm'
-          components: 'native-image'
           github-token: ${{ secrets.GITHUB_TOKEN }}
           set-java-home: 'false'
 
