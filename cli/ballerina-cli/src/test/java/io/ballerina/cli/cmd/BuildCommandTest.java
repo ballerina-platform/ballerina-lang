@@ -25,6 +25,7 @@ import io.ballerina.projects.ProjectEnvironmentBuilder;
 import io.ballerina.projects.SemanticVersion;
 import io.ballerina.projects.environment.Environment;
 import io.ballerina.projects.environment.EnvironmentBuilder;
+import io.ballerina.projects.internal.model.BuildJson;
 import io.ballerina.projects.util.BuildToolUtils;
 import io.ballerina.projects.util.ProjectUtils;
 import org.ballerinalang.test.BCompileUtil;
@@ -60,10 +61,11 @@ import static io.ballerina.projects.util.ProjectConstants.DOT;
 import static io.ballerina.projects.util.ProjectConstants.USER_DIR_PROPERTY;
 import static io.ballerina.projects.util.ProjectConstants.USER_NAME;
 import static io.ballerina.projects.util.ProjectUtils.deleteDirectory;
+import static io.ballerina.projects.util.ProjectUtils.readBuildJson;
 
 /**
  * Build command tests.
- *
+ *  
  * @since 2.0.0
  */
 public class BuildCommandTest extends BaseCommandTest {
@@ -1500,21 +1502,210 @@ public class BuildCommandTest extends BaseCommandTest {
         }
     }
 
-    @Test()
-    public void testBuildAProjectTwice() throws IOException {
-        Path projectPath = this.testResources.resolve("validProject");
-        System.setProperty(USER_DIR_PROPERTY, projectPath.toString());
+    @Test(description = "Build a project twice with the same flags and different flags")
+    public void testBuildAProjectTwiceWithFlags() throws IOException {
+        String[] argsList1 = {
+                "--offline",
+                "--sticky",
+                "--locking-mode=SOFT",
+                "--experimental",
+                "--optimize-dependency-compilation",
+                "--remote-management",
+                "--observability-included"
+        };
 
+        //Use the same flag that affects jar generation similarly in the consecutive builds
+        for (String arg : argsList1) {
+            Path projectPath = this.testResources.resolve("buildAProjectTwice");
+            deleteDirectory(projectPath.resolve("target"));
+            System.setProperty(USER_DIR_PROPERTY, projectPath.toString());
+            BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
+            new CommandLine(buildCommand).parseArgs(arg);
+            buildCommand.execute();
+            String firstBuildLog = readOutput(true);
+            buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
+            new CommandLine(buildCommand).parseArgs(arg);
+            buildCommand.execute();
+            String secondBuildLog = readOutput(true);
+            Assert.assertTrue(firstBuildLog.contains("buildAProjectTwice.jar"));
+            Assert.assertTrue(secondBuildLog.contains("Generating executable(skipped)"));
+        }
+
+        //Use different flags that affect jar generation differently in the consecutive builds
+        for (String arg : argsList1) {
+            Path projectPath = this.testResources.resolve("buildAProjectTwice");
+            deleteDirectory(projectPath.resolve("target"));
+            System.setProperty(USER_DIR_PROPERTY, projectPath.toString());
+            BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
+            new CommandLine(buildCommand).parseArgs(arg);
+            buildCommand.execute();
+            String firstBuildLog = readOutput(true);
+            buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
+            new CommandLine(buildCommand).parseArgs();
+            buildCommand.execute();
+            String secondBuildLog = readOutput(true);
+            Assert.assertTrue(firstBuildLog.contains("target/bin/buildAProjectTwice.jar"));
+            Assert.assertTrue(secondBuildLog.contains("target/bin/buildAProjectTwice.jar"));
+            Assert.assertFalse(secondBuildLog.contains("Generating executable(skipped)"));
+        }
+
+        String[] argsList2 = {
+                "--dump-bir",
+                "--dump-bir-file",
+                "--dump-graph",
+                "--dump-raw-graphs",
+                "--generate-config-schema",
+                "--show-dependency-diagnostics",
+                "--list-conflicted-classes",
+                "--dump-build-time",
+                "--export-openapi",
+                "--export-component-model",
+                "--enable-cache",
+                "--graalvm",
+                "--disable-syntax-tree-caching"
+        };
+
+        //Use different flags that doesn't affect jar generation in the consecutive builds
+        for (String arg : argsList2) {
+            Path projectPath = this.testResources.resolve("buildAProjectTwice");
+            deleteDirectory(projectPath.resolve("target"));
+            System.setProperty(USER_DIR_PROPERTY, projectPath.toString());
+            BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
+            new CommandLine(buildCommand).parseArgs(arg);
+            buildCommand.execute();
+            String firstBuildLog = readOutput(true);
+            buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
+            new CommandLine(buildCommand).parseArgs();
+            buildCommand.execute();
+            String secondBuildLog = readOutput(true);
+            Assert.assertTrue(firstBuildLog.contains("Compiling source"));
+            Assert.assertFalse(firstBuildLog.contains("Compiling source(skipped)"));
+            Assert.assertTrue(secondBuildLog.contains("Generating executable(skipped)"));
+        }
+
+        String[] argsList3 = {
+                "--dump-bir",
+                "--dump-bir-file",
+                "--dump-graph",
+                "--dump-raw-graphs",
+                "--generate-config-schema",
+                "--show-dependency-diagnostics",
+                "--list-conflicted-classes",
+                "--dump-build-time",
+                "--export-openapi",
+                "--export-component-model",
+                "--enable-cache",
+                "--graalvm",
+                "--disable-syntax-tree-caching",
+        };
+
+        for (String arg : argsList3) {
+            Path projectPath = this.testResources.resolve("buildAProjectTwice");
+            deleteDirectory(projectPath.resolve("target"));
+            System.setProperty(USER_DIR_PROPERTY, projectPath.toString());
+            BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
+            new CommandLine(buildCommand).parseArgs();
+            buildCommand.execute();
+            String firstBuildLog = readOutput(true);
+            buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
+            new CommandLine(buildCommand).parseArgs(arg);
+            buildCommand.execute();
+            String secondBuildLog = readOutput(true);
+            Assert.assertTrue(firstBuildLog.contains("target/bin/buildAProjectTwice.jar"));
+            Assert.assertTrue(secondBuildLog.contains("Compiling source"));
+            Assert.assertFalse(secondBuildLog.contains("Generating executable(skipped)"));
+        }
+    }
+
+    @Test(description = "Build a project after 24 hours of the last build")
+    public void testBuildAProjectTwiceBeforeAfter24Hr() throws IOException {
+        Path projectPath = this.testResources.resolve("buildAProjectTwice");
+        deleteDirectory(projectPath.resolve("target"));
+        System.setProperty(USER_DIR_PROPERTY, projectPath.toString());
         BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
         new CommandLine(buildCommand).parseArgs();
         buildCommand.execute();
         String firstBuildLog = readOutput(true);
-        validateBuildTimeInfo(firstBuildLog);
 
-        // Execute the build command again
+        // Second build within 24 hours
+        buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
+        new CommandLine(buildCommand).parseArgs();
         buildCommand.execute();
         String secondBuildLog = readOutput(true);
-        validateBuildTimeInfo(secondBuildLog);
 
-        Assert.assertEquals(firstBuildLog, secondBuildLog);
+        Path buildFilePath = projectPath.resolve("target").resolve("build");
+        BuildJson buildJson = readBuildJson(buildFilePath);
+        buildJson.setLastUpdateTime(buildJson.lastUpdateTime() - (24 * 60 * 60 * 1000 + 1));
+        ProjectUtils.writeBuildFile(buildFilePath, buildJson);
+        buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
+        new CommandLine(buildCommand).parseArgs();
+        buildCommand.execute();
+        String thirdBuildLog = readOutput(true);
+        Assert.assertTrue(firstBuildLog.contains("buildAProjectTwice.jar"));
+        Assert.assertTrue(secondBuildLog.contains("Generating executable(skipped)"));
+        Assert.assertTrue(thirdBuildLog.contains("Generating executable"));
+        Assert.assertFalse(thirdBuildLog.contains("Generating executable(skipped)"));
+    }
+
+    @Test(description = "Build a project with a new file within 24 hours of the last build")
+    public void testBuildAProjectWithFileAddition() throws IOException {
+        Path projectPath = this.testResources.resolve("buildAProjectTwice");
+        deleteDirectory(projectPath.resolve("target"));
+        System.setProperty(USER_DIR_PROPERTY, projectPath.toString());
+        BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
+        new CommandLine(buildCommand).parseArgs();
+        buildCommand.execute();
+        String firstBuildLog = readOutput(true);
+        Path balFilePath = projectPath.resolve("main2.bal");
+        String balContent = "public function main2() {\n}\n";
+        Files.writeString(balFilePath, balContent);
+        buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
+        new CommandLine(buildCommand).parseArgs();
+        buildCommand.execute();
+        String secondBuildLog = readOutput(true);
+        Assert.assertTrue(firstBuildLog.contains("buildAProjectTwice.jar"));
+        Assert.assertTrue(secondBuildLog.contains("Generating executable"));
+        Assert.assertFalse(secondBuildLog.contains("Generating executable(skipped)"));
+    }
+
+    @Test(description = "Build a project with a new file within 24 hours of the last build")
+    public void testBuildAProjectWithFileModification() throws IOException {
+        Path projectPath = this.testResources.resolve("buildAProjectTwice");
+        deleteDirectory(projectPath.resolve("target"));
+        System.setProperty(USER_DIR_PROPERTY, projectPath.toString());
+        BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
+        new CommandLine(buildCommand).parseArgs();
+        buildCommand.execute();
+        String firstBuildLog = readOutput(true);
+        Path balFilePath = projectPath.resolve("main.bal");
+        String balContent = "public function main2() {\n}\n";
+        Files.writeString(balFilePath, balContent);
+        buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
+        new CommandLine(buildCommand).parseArgs();
+        buildCommand.execute();
+        String secondBuildLog = readOutput(true);
+        Assert.assertTrue(firstBuildLog.contains("buildAProjectTwice.jar"));
+        Assert.assertTrue(secondBuildLog.contains("Generating executable"));
+        Assert.assertFalse(secondBuildLog.contains("Generating executable(skipped)"));
+    }
+
+    @Test(description = "Build a project with no content change")
+    public void testBuildAProjectWithFileNoContentChange() throws IOException {
+        Path projectPath = this.testResources.resolve("buildAProjectTwice");
+        deleteDirectory(projectPath.resolve("target"));
+        System.setProperty(USER_DIR_PROPERTY, projectPath.toString());
+        BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
+        new CommandLine(buildCommand).parseArgs();
+        buildCommand.execute();
+        String firstBuildLog = readOutput(true);
+        Path balFilePath = projectPath.resolve("main.bal");
+        String balContent = "public function main() {\n\n}\n";
+        Files.writeString(balFilePath, balContent);
+        buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
+        new CommandLine(buildCommand).parseArgs();
+        buildCommand.execute();
+        String secondBuildLog = readOutput(true);
+        Assert.assertTrue(firstBuildLog.contains("buildAProjectTwice.jar"));
+        Assert.assertTrue(secondBuildLog.contains("Generating executable(skipped)"));
+    }
 }
