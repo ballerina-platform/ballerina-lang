@@ -1014,9 +1014,8 @@ public class JBallerinaDebugServer implements BallerinaExtendedDebugServer {
                 if (variable != null) {
                     resolvedVariables.add(variable);
                 }
-            } catch (Exception ignored) {
-                // Todo - Refactor after implementing debug/trace logger
-                LOGGER.error("Failed to load some debug variables due to runtime exceptions.");
+            } catch (Exception e) {
+                LOGGER.error("Failed to load some debug variables due to runtime exceptions.", e);
             }
         });
 
@@ -1026,9 +1025,8 @@ public class JBallerinaDebugServer implements BallerinaExtendedDebugServer {
                 if (variables != null) {
                     resolvedVariables.addAll(Arrays.asList(variables));
                 }
-            } catch (Exception ignored) {
-                // Todo - Refactor after implementing debug/trace logger
-                LOGGER.error("Failed to load some debug variables due to runtime exceptions.");
+            } catch (Exception e) {
+                LOGGER.error("Failed to load some debug variables due to runtime exceptions.", e);
             }
         });
         return resolvedVariables.toArray(new Variable[0]);
