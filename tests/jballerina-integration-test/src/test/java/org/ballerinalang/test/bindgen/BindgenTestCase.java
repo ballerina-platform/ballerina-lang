@@ -61,7 +61,7 @@ public class BindgenTestCase extends BaseTest {
      */
     @Test(description = "Test the bindgen command functionality.")
     public void bindgenTest() throws BallerinaTestException {
-        String buildMsg = "target/bin/bindgen.jar";
+        String buildMsg = Path.of("target/bin/bindgen.jar").toString();
         LogLeecher buildLeecher = new LogLeecher(buildMsg);
 
         String bindgenMsg1 = "error: unable to generate the '";

@@ -38,9 +38,10 @@ public class AsyncFunctionsTest extends BaseTest {
     public void setup() throws BallerinaTestException {
         bMainInstance = new BMainInstance(balServer);
         // Build and push config Lib project.
-        LogLeecher buildLeecher = new LogLeecher("target/bala/testOrg-functionsLib-java21-0.1.0.bala");
-        LogLeecher pushLeecher = new LogLeecher("Successfully pushed target/bala/testOrg-functionsLib-java21-0.1.0" +
-                ".bala to 'local' repository.");
+        String targetBalaFilename = Path.of("target/bala/testOrg-functionsLib-java21-0.1.0.bala").toString();
+        LogLeecher buildLeecher = new LogLeecher(targetBalaFilename);
+        LogLeecher pushLeecher = new LogLeecher("Successfully pushed " + targetBalaFilename +
+                " to 'local' repository.");
         LogLeecher runLeecher = new LogLeecher("Run the library package to fix code coverage");
         bMainInstance.runMain(testFileLocation + "/", "functionsLib", null, new String[]{}, null, null,
                 new LogLeecher[]{runLeecher});
