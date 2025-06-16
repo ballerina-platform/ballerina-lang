@@ -252,7 +252,6 @@ public class JvmValueGen {
         MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, INSTANTIATE_FUNCTION, INSTANTIATE_WITH_INITIAL_VALUES,
                 null, null);
         mv.visitCode();
-
         String className = getTypeValueClassName(recordType.tsymbol.pkgID, toNameString(recordType));
         mv.visitTypeInsn(NEW, className);
         mv.visitInsn(DUP);
@@ -274,7 +273,7 @@ public class JvmValueGen {
 
         mv.visitInsn(DUP);
         mv.visitTypeInsn(CHECKCAST, valueClassName);
-        mv.visitVarInsn(ALOAD, 2);
+        mv.visitVarInsn(ALOAD, 1);
         mv.visitTypeInsn(CHECKCAST, CAST_B_MAPPING_INITIAL_VALUE_ENTRY);
         mv.visitMethodInsn(INVOKEVIRTUAL, valueClassName, POPULATE_INITIAL_VALUES_METHOD,
                            POPULATE_INITIAL_VALUES, false);
