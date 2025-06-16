@@ -1294,7 +1294,8 @@ public final class CommandUtil {
                prevBuildOptions.optimizeDependencyCompilation() == buildOptions.optimizeDependencyCompilation() &&
                prevBuildOptions.experimental() == buildOptions.experimental() &&
                prevBuildOptions.remoteManagement() == buildOptions.remoteManagement() &&
-               buildOptions.lockingMode().equals(prevBuildOptions.lockingMode());
+               buildOptions.lockingMode().equals(prevBuildOptions.lockingMode()) &&
+               buildOptions.observabilityIncluded() == prevBuildOptions.observabilityIncluded();
     }
 
 

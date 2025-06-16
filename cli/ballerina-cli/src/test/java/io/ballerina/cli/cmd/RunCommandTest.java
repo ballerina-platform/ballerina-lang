@@ -5,6 +5,7 @@ import io.ballerina.cli.launcher.RuntimePanicException;
 import io.ballerina.projects.ProjectEnvironmentBuilder;
 import io.ballerina.projects.environment.Environment;
 import io.ballerina.projects.environment.EnvironmentBuilder;
+import io.ballerina.projects.internal.model.BuildJson;
 import io.ballerina.projects.util.ProjectUtils;
 import org.apache.commons.io.filefilter.WildcardFileFilter;
 import org.ballerinalang.test.BCompileUtil;
@@ -32,6 +33,8 @@ import static io.ballerina.cli.cmd.CommandOutputUtils.getOutput;
 import static io.ballerina.cli.cmd.CommandOutputUtils.replaceDependenciesTomlContent;
 import static io.ballerina.projects.util.ProjectConstants.DIST_CACHE_DIRECTORY;
 import static io.ballerina.projects.util.ProjectConstants.USER_DIR_PROPERTY;
+import static io.ballerina.projects.util.ProjectUtils.deleteDirectory;
+import static io.ballerina.projects.util.ProjectUtils.readBuildJson;
 
 /**
  * Run command tests.
@@ -419,6 +422,229 @@ public class RunCommandTest extends BaseCommandTest {
         runCommand.execute();
         String buildLog = readOutput(true);
         Assert.assertEquals(buildLog.replaceAll("\r", ""), getOutput("run-empty-project-with-build-tools.txt"));
+    }
+
+    @Test(description = "Run a project twice with the same flags and different flags")
+    public void testRunAProjectTwiceWithFlags() throws IOException {
+        String[] argsList1 = {
+                "--offline",
+                "--sticky",
+                "--locking-mode=SOFT",
+                "--experimental",
+                "--optimize-dependency-compilation",
+                "--remote-management",
+                "--observability-included"
+        };
+
+        //Use the same flag that affects jar generation similarly in the consecutive builds
+        for (String arg : argsList1) {
+            Path projectPath = this.testResources.resolve("buildAProjectTwice");
+            deleteDirectory(projectPath.resolve("target"));
+            System.setProperty(USER_DIR_PROPERTY, projectPath.toString());
+            RunCommand runCommand = new RunCommand(projectPath, printStream, false);
+            new CommandLine(runCommand).parseArgs(arg);
+            runCommand.execute();
+            String firstBuildLog = readOutput(true);
+            runCommand = new RunCommand(projectPath, printStream, false);
+            new CommandLine(runCommand).parseArgs(arg);
+            runCommand.execute();
+            String secondBuildLog = readOutput(true);
+            Assert.assertTrue(firstBuildLog.contains("Compiling source"));
+            Assert.assertFalse(firstBuildLog.contains("Compiling source(skipped)"));
+            Assert.assertTrue(secondBuildLog.contains("Compiling source(skipped)"));
+        }
+
+        //Use different flags that affect jar generation differently in the consecutive builds
+        for (String arg : argsList1) {
+            Path projectPath = this.testResources.resolve("buildAProjectTwice");
+            deleteDirectory(projectPath.resolve("target"));
+            System.setProperty(USER_DIR_PROPERTY, projectPath.toString());
+            RunCommand runCommand = new RunCommand(projectPath, printStream, false);
+            new CommandLine(runCommand).parseArgs(arg);
+            runCommand.execute();
+            String firstBuildLog = readOutput(true);
+            runCommand = new RunCommand(projectPath, printStream, false);
+            new CommandLine(runCommand).parseArgs();
+            runCommand.execute();
+            String secondBuildLog = readOutput(true);
+            Assert.assertTrue(firstBuildLog.contains("Compiling source"));
+            Assert.assertFalse(firstBuildLog.contains("Compiling source(skipped)"));
+            Assert.assertTrue(secondBuildLog.contains("Compiling source"));
+            Assert.assertFalse(secondBuildLog.contains("Compiling source(skipped)"));
+        }
+
+        String[] argsList2 = {
+                "--watch",
+                "--dump-bir",
+                "--dump-graph",
+                "--dump-raw-graphs",
+                "--generate-config-schema",
+                "--enable-cache",
+                "--disable-syntax-tree-caching",
+                "--dump-build-time",
+                "--show-dependency-diagnostics"
+        };
+
+        //Use different flags that doesn't affect jar generation in the consecutive builds
+        for (String arg : argsList2) {
+            Path projectPath = this.testResources.resolve("buildAProjectTwice");
+            deleteDirectory(projectPath.resolve("target"));
+            System.setProperty(USER_DIR_PROPERTY, projectPath.toString());
+            RunCommand runCommand = new RunCommand(projectPath, printStream, false);
+            new CommandLine(runCommand).parseArgs(arg);
+            runCommand.execute();
+            String firstBuildLog = readOutput(true);
+            runCommand = new RunCommand(projectPath, printStream, false);
+            new CommandLine(runCommand).parseArgs();
+            runCommand.execute();
+            String secondBuildLog = readOutput(true);
+            Assert.assertTrue(firstBuildLog.contains("Compiling source"));
+            Assert.assertFalse(firstBuildLog.contains("Compiling source(skipped)"));
+            Assert.assertTrue(secondBuildLog.contains("Compiling source(skipped)"));
+        }
+
+        String[] argsList3 = {
+                "--watch",
+                "--dump-bir",
+                "--dump-graph",
+                "--dump-raw-graphs",
+                "--generate-config-schema",
+                "--enable-cache",
+                "--disable-syntax-tree-caching",
+                "--dump-build-time",
+                "--show-dependency-diagnostics"
+        };
+
+        for (String arg : argsList3) {
+            Path projectPath = this.testResources.resolve("buildAProjectTwice");
+            deleteDirectory(projectPath.resolve("target"));
+            System.setProperty(USER_DIR_PROPERTY, projectPath.toString());
+            RunCommand runCommand = new RunCommand(projectPath, printStream, false);
+            new CommandLine(runCommand).parseArgs();
+            runCommand.execute();
+            String firstBuildLog = readOutput(true);
+            runCommand = new RunCommand(projectPath, printStream, false);
+            new CommandLine(runCommand).parseArgs(arg);
+            runCommand.execute();
+            String secondBuildLog = readOutput(true);
+            Assert.assertTrue(firstBuildLog.contains("Compiling source"));
+            Assert.assertFalse(firstBuildLog.contains("Compiling source(skipped)"));
+            Assert.assertTrue(secondBuildLog.contains("Compiling source"));
+            Assert.assertFalse(secondBuildLog.contains("Compiling source(skipped)"));
+        }
+    }
+
+    @Test(description = "Run a project after 24 hours of the last build")
+    public void testRunAProjectTwiceBeforeAfter24Hr() throws IOException {
+        Path projectPath = this.testResources.resolve("buildAProjectTwice");
+        deleteDirectory(projectPath.resolve("target"));
+        System.setProperty(USER_DIR_PROPERTY, projectPath.toString());
+        RunCommand runCommand = new RunCommand(projectPath, printStream, false);
+        new CommandLine(runCommand).parseArgs();
+        runCommand.execute();
+        String firstBuildLog = readOutput(true);
+
+        // Second build within 24 hours
+        runCommand = new RunCommand(projectPath, printStream, false);
+        new CommandLine(runCommand).parseArgs();
+        runCommand.execute();
+        String secondBuildLog = readOutput(true);
+
+        Path buildFilePath = projectPath.resolve("target").resolve("build");
+        BuildJson buildJson = readBuildJson(buildFilePath);
+        buildJson.setLastUpdateTime(buildJson.lastUpdateTime() - (24 * 60 * 60 * 1000 + 1));
+        ProjectUtils.writeBuildFile(buildFilePath, buildJson);
+        runCommand = new RunCommand(projectPath, printStream, false);
+        new CommandLine(runCommand).parseArgs();
+        runCommand.execute();
+        String thirdBuildLog = readOutput(true);
+        Assert.assertTrue(firstBuildLog.contains("Compiling source"));
+        Assert.assertFalse(firstBuildLog.contains("Compiling source(skipped)"));
+        Assert.assertTrue(secondBuildLog.contains("Compiling source(skipped)"));
+        Assert.assertTrue(thirdBuildLog.contains("Compiling source"));
+        Assert.assertFalse(thirdBuildLog.contains("Compiling source(skipped)"));
+    }
+
+    @Test(description = "Run a project with a new file within 24 hours of the last build")
+    public void testRunAProjectWithFileAddition() throws IOException {
+        Path projectPath = this.testResources.resolve("buildAProjectTwice");
+        deleteDirectory(projectPath.resolve("target"));
+        System.setProperty(USER_DIR_PROPERTY, projectPath.toString());
+        RunCommand runCommand = new RunCommand(projectPath, printStream, false);
+        new CommandLine(runCommand).parseArgs();
+        runCommand.execute();
+        String firstBuildLog = readOutput(true);
+        Path balFilePath = projectPath.resolve("main2.bal");
+        String balContent = "public function main2() {\n}\n";
+        Files.writeString(balFilePath, balContent);
+        runCommand = new RunCommand(projectPath, printStream, false);
+        new CommandLine(runCommand).parseArgs();
+        runCommand.execute();
+        String secondBuildLog = readOutput(true);
+        Assert.assertTrue(firstBuildLog.contains("Compiling source"));
+        Assert.assertFalse(firstBuildLog.contains("Compiling source(skipped)"));
+        Assert.assertTrue(secondBuildLog.contains("Compiling source"));
+        Assert.assertFalse(secondBuildLog.contains("Compiling source(skipped)"));
+    }
+
+    @Test(description = "Run a project with a new file within 24 hours of the last build")
+    public void testRunAProjectWithFileModification() throws IOException {
+        Path projectPath = this.testResources.resolve("buildAProjectTwice");
+        deleteDirectory(projectPath.resolve("target"));
+        System.setProperty(USER_DIR_PROPERTY, projectPath.toString());
+        RunCommand runCommand = new RunCommand(projectPath, printStream, false);
+        new CommandLine(runCommand).parseArgs();
+        runCommand.execute();
+        String firstBuildLog = readOutput(true);
+        Path balFilePath = projectPath.resolve("main.bal");
+        String balContent = "public function main2() {\n}\n";
+        Files.writeString(balFilePath, balContent);
+        runCommand = new RunCommand(projectPath, printStream, false);
+        new CommandLine(runCommand).parseArgs();
+        runCommand.execute();
+        String secondBuildLog = readOutput(true);
+        Assert.assertTrue(firstBuildLog.contains("Compiling source"));
+        Assert.assertFalse(firstBuildLog.contains("Compiling source(skipped)"));
+        Assert.assertTrue(secondBuildLog.contains("Compiling source"));
+        Assert.assertFalse(secondBuildLog.contains("Compiling source(skipped)"));
+    }
+
+    @Test(description = "Run a project with no content change")
+    public void testRunAProjectWithFileNoContentChange() throws IOException {
+        Path projectPath = this.testResources.resolve("buildAProjectTwice");
+        deleteDirectory(projectPath.resolve("target"));
+        System.setProperty(USER_DIR_PROPERTY, projectPath.toString());
+        RunCommand runCommand = new RunCommand(projectPath, printStream, false);
+        new CommandLine(runCommand).parseArgs();
+        runCommand.execute();
+        String firstBuildLog = readOutput(true);
+        Path balFilePath = projectPath.resolve("main.bal");
+        String balContent = "public function main() {\n\n}\n";
+        Files.writeString(balFilePath, balContent);
+        runCommand = new RunCommand(projectPath, printStream, false);
+        new CommandLine(runCommand).parseArgs();
+        runCommand.execute();
+        String secondBuildLog = readOutput(true);
+        Assert.assertTrue(firstBuildLog.contains("Compiling source"));
+        Assert.assertFalse(firstBuildLog.contains("Compiling source(skipped)"));
+        Assert.assertTrue(secondBuildLog.contains("Compiling source(skipped)"));
+    }
+
+    @Test(description = "Run a project after a build")
+    public void testRunAProjectAfterABuild() throws IOException {
+        Path projectPath = this.testResources.resolve("buildAProjectTwice");
+        deleteDirectory(projectPath.resolve("target"));
+        System.setProperty(USER_DIR_PROPERTY, projectPath.toString());
+        BuildCommand buildCommand = new BuildCommand(projectPath,printStream ,printStream, false);
+        new CommandLine(buildCommand).parseArgs();
+        buildCommand.execute();
+        String firstBuildLog = readOutput(true);
+        RunCommand runCommand = new RunCommand(projectPath, printStream, false);
+        new CommandLine(runCommand).parseArgs();
+        runCommand.execute();
+        String secondBuildLog = readOutput(true);
+        Assert.assertTrue(firstBuildLog.contains("buildAProjectTwice.jar"));
+        Assert.assertTrue(secondBuildLog.contains("Compiling source(skipped)"));
     }
 
     @AfterSuite
