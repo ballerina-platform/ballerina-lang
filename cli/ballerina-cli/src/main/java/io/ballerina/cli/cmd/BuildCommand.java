@@ -226,9 +226,6 @@ public class BuildCommand implements BLauncherCmd {
             return;
         }
 
-        if (sticky == null) {
-            sticky = false;
-        }
 
         // load project
         Project project;

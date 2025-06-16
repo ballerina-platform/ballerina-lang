@@ -254,9 +254,6 @@ public class TestCommand implements BLauncherCmd {
             }
         }
 
-        if (sticky == null) {
-            sticky = false;
-        }
         if (isParallelExecution) {
             this.outStream.println("WARNING: Running tests in parallel is an experimental feature");
         }

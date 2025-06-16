@@ -220,10 +220,6 @@ public class RunCommand implements BLauncherCmd {
             }
         }
 
-        if (sticky == null) {
-            sticky = false;
-        }
-
         if (this.watch) {
             try {
                 ProjectWatcher projectWatcher = new ProjectWatcher(
