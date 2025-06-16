@@ -31,8 +31,10 @@ import static org.objectweb.asm.ClassWriter.COMPUTE_FRAMES;
 import static org.objectweb.asm.Opcodes.ACC_STATIC;
 import static org.objectweb.asm.Opcodes.PUTSTATIC;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CLASS_FILE_SUFFIX;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.GLOBAL_CONSTANTS_CLASS_NAME;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.GLOBAL_CONSTANTS_PACKAGE_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JVM_STATIC_INIT_METHOD;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_STRING_CONSTANT_PACKAGE_NAME;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.VALUE_VAR_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.VOID_METHOD_DESC;
 import static org.wso2.ballerinalang.compiler.bir.codegen.utils.JVMModuleUtils.getModuleLevelClassName;
 import static org.wso2.ballerinalang.compiler.bir.codegen.utils.JvmCodeGenUtil.getVarStoreClass;
@@ -48,12 +50,14 @@ public class JvmBallerinaConstantsGen {
 
     private final JvmConstantsGen jvmConstantsGen;
     private final BIRNode.BIRPackage module;
-    private final String constantsClass;
+    private final String constantsPkgName;
+    private final String stringConstantsPkgName;
 
     public JvmBallerinaConstantsGen(BIRNode.BIRPackage module, JvmConstantsGen jvmConstantsGen) {
         this.jvmConstantsGen = jvmConstantsGen;
         this.module = module;
-        this.constantsClass = getModuleLevelClassName(module.packageID, GLOBAL_CONSTANTS_CLASS_NAME);
+        this.constantsPkgName = getModuleLevelClassName(module.packageID, GLOBAL_CONSTANTS_PACKAGE_NAME);
+        this.stringConstantsPkgName = getModuleLevelClassName(module.packageID, MODULE_STRING_CONSTANT_PACKAGE_NAME);
     }
 
     public void generateConstantInit(JarEntries jarEntries) {
@@ -67,7 +71,7 @@ public class JvmBallerinaConstantsGen {
             BType bType = JvmCodeGenUtil.getImpliedType(constValue.type);
             ClassWriter cw = new BallerinaClassWriter(COMPUTE_FRAMES);
             String varName = constant.name.value;
-            String constantVarClassName = getVarStoreClass(constantsClass, varName);
+            String constantVarClassName = getVarStoreClass(constantsPkgName, varName);
             String descriptor = JvmCodeGenUtil.getFieldTypeSignature(bType);
             // Create lazy loading class
             genLazyLoadingClass(cw, constantVarClassName, varName, descriptor);
@@ -75,8 +79,9 @@ public class JvmBallerinaConstantsGen {
                 // load basic constant value
                 MethodVisitor mv = cw.visitMethod(ACC_STATIC, JVM_STATIC_INIT_METHOD, VOID_METHOD_DESC, null, null);
                 mv.visitCode();
-                JvmCodeGenUtil.loadConstantValue(constValue.type, constValue.value, mv, this.jvmConstantsGen);
-                mv.visitFieldInsn(PUTSTATIC, constantVarClassName, constant.name.value, descriptor);
+                JvmCodeGenUtil.loadConstantValue(constValue.type, constValue.value, mv, this.jvmConstantsGen,
+                        this.stringConstantsPkgName);
+                mv.visitFieldInsn(PUTSTATIC, constantVarClassName, VALUE_VAR_NAME, descriptor);
                 genMethodReturn(mv);
             }
             cw.visitEnd();
