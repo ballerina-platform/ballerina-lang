@@ -897,7 +897,7 @@ public class ManifestBuilder {
         Boolean dumpBuildTime =
                 getBooleanFromBuildOptionsTableNode(tableNode, BuildOptions.OptionName.DUMP_BUILD_TIME.toString());
         Boolean sticky =
-                getTrueFromBuildOptionsTableNode(tableNode, CompilerOptionName.STICKY.toString());
+                getBooleanFromBuildOptionsTableNode(tableNode, CompilerOptionName.STICKY.toString());
         String cloud = "";
         if (topLevelNode != null) {
             cloud = getStringFromTomlTableNode(topLevelNode);
