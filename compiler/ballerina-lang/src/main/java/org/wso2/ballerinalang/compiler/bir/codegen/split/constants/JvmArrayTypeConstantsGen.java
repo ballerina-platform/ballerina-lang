@@ -24,17 +24,14 @@ import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.wso2.ballerinalang.compiler.bir.codegen.BallerinaClassWriter;
-import org.wso2.ballerinalang.compiler.bir.codegen.internal.JarEntries;
-import org.wso2.ballerinalang.compiler.bir.codegen.utils.JVMModuleUtils;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.BTypeHashComparator;
+import org.wso2.ballerinalang.compiler.bir.codegen.internal.JarEntries;
 import org.wso2.ballerinalang.compiler.bir.codegen.split.types.JvmArrayTypeGen;
+import org.wso2.ballerinalang.compiler.bir.codegen.utils.JVMModuleUtils;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
-import org.wso2.ballerinalang.compiler.util.TypeTags;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -42,12 +39,9 @@ import static org.objectweb.asm.ClassWriter.COMPUTE_FRAMES;
 import static org.objectweb.asm.Opcodes.ACC_PUBLIC;
 import static org.objectweb.asm.Opcodes.ACC_STATIC;
 import static org.objectweb.asm.Opcodes.GETSTATIC;
-import static org.objectweb.asm.Opcodes.INVOKESTATIC;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_ARRAY_TYPE_INIT_METHOD;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_ARRAY_TYPE_POPULATE_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CLASS_FILE_SUFFIX;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAX_CONSTANTS_PER_METHOD;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.POPULATE_METHOD_PREFIX;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JVM_STATIC_INIT_METHOD;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPE_VAR_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_ARRAY_TYPE_IMPL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.VOID_METHOD_DESC;
 import static org.wso2.ballerinalang.compiler.bir.codegen.utils.JvmConstantGenUtils.genMethodReturn;
@@ -60,25 +54,20 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.utils.JvmConstantGenUt
  */
 public class JvmArrayTypeConstantsGen {
 
-    private final String arrayConstantsClass;
-    private final ClassWriter cw;
-    private MethodVisitor mv;
+    private final JarEntries jarEntries;
     private final Map<BArrayType, String> arrayTypeVarMap;
     private JvmArrayTypeGen jvmArrayTypeGen;
     private final Types types;
-    private final List<String> funcNames = new ArrayList<>();
-    private int arrayTypeVarCount = 0;
-    private int methodCount = 1;
     private int constantIndex = 0;
+    private final String arrayConstantsPkgName;
 
-    public JvmArrayTypeConstantsGen(PackageID packageID, BTypeHashComparator bTypeHashComparator, Types types) {
-        this.arrayConstantsClass =
-                JVMModuleUtils.getModuleLevelClassName(packageID, JvmConstants.ARRAY_TYPE_CONSTANT_CLASS_NAME);
-        cw = new BallerinaClassWriter(COMPUTE_FRAMES);
-        generateConstantsClassInit(cw, arrayConstantsClass);
-        mv = cw.visitMethod(ACC_PUBLIC + ACC_STATIC, B_ARRAY_TYPE_INIT_METHOD, VOID_METHOD_DESC, null, null);
+    public JvmArrayTypeConstantsGen(PackageID packageID, BTypeHashComparator bTypeHashComparator, Types types,
+                                    JarEntries jarEntries) {
         this.arrayTypeVarMap = new TreeMap<>(bTypeHashComparator);
         this.types = types;
+        this.jarEntries = jarEntries;
+        this.arrayConstantsPkgName = JVMModuleUtils.getModuleLevelClassName(packageID,
+                JvmConstants.ARRAY_TYPE_CONSTANT_PACKAGE_NAME);
     }
 
     public void setJvmArrayTypeGen(JvmArrayTypeGen jvmArrayTypeGen) {
@@ -95,70 +84,19 @@ public class JvmArrayTypeConstantsGen {
     }
 
     private String generateBArrayInits(BArrayType arrayType) {
+        ClassWriter cw = new BallerinaClassWriter(COMPUTE_FRAMES);
         String varName = JvmConstants.ARRAY_TYPE_VAR_PREFIX + constantIndex++;
-        if (arrayTypeVarCount % MAX_CONSTANTS_PER_METHOD == 0 && arrayTypeVarCount != 0) {
-            mv.visitMethodInsn(INVOKESTATIC, arrayConstantsClass,
-                    B_ARRAY_TYPE_INIT_METHOD + methodCount, VOID_METHOD_DESC, false);
-            genMethodReturn(mv);
-            mv = cw.visitMethod(ACC_STATIC, B_ARRAY_TYPE_INIT_METHOD + methodCount++, VOID_METHOD_DESC,
-                    null, null);
-        }
-        createBArrayType(mv, arrayType, varName);
-        if (!TypeTags.isSimpleBasicType(arrayType.eType.tag)) {
-            genPopulateMethod(arrayType, varName);
-        }
-        arrayTypeVarCount++;
+        String arrayConstantClass = this.arrayConstantsPkgName + varName;
+        generateConstantsClassInit(cw, arrayConstantClass);
+        MethodVisitor mv = cw.visitMethod(ACC_STATIC, JVM_STATIC_INIT_METHOD, VOID_METHOD_DESC, null, null);
+        jvmArrayTypeGen.createArrayType(cw, mv, arrayType, types, arrayConstantClass);
+        genMethodReturn(mv);
+        cw.visitEnd();
+        jarEntries.put(arrayConstantClass + CLASS_FILE_SUFFIX, cw.toByteArray());
         return varName;
     }
 
-    private void genPopulateMethod(BArrayType arrayType, String varName) {
-        String methodName = POPULATE_METHOD_PREFIX + varName;
-        funcNames.add(methodName);
-        MethodVisitor methodVisitor = cw.visitMethod(ACC_STATIC, methodName, VOID_METHOD_DESC, null, null);
-        methodVisitor.visitCode();
-        generateGetBArrayType(methodVisitor, varName);
-        jvmArrayTypeGen.populateArray(methodVisitor, arrayType);
-        genMethodReturn(methodVisitor);
-    }
-
-    private void visitArrayTypeConstPopulateInitMethods() {
-        int populateFuncCount = 0;
-        int populateInitMethodCount = 1;
-        MethodVisitor mv = cw.visitMethod(ACC_PUBLIC + ACC_STATIC, B_ARRAY_TYPE_POPULATE_METHOD,
-                VOID_METHOD_DESC, null, null);
-        for (String funcName : funcNames) {
-            if (populateFuncCount % MAX_CONSTANTS_PER_METHOD == 0 && populateFuncCount != 0) {
-                mv.visitMethodInsn(INVOKESTATIC, arrayConstantsClass,
-                        B_ARRAY_TYPE_POPULATE_METHOD + populateInitMethodCount, VOID_METHOD_DESC, false);
-                genMethodReturn(mv);
-                mv = cw.visitMethod(ACC_STATIC, B_ARRAY_TYPE_POPULATE_METHOD + populateInitMethodCount++,
-                        VOID_METHOD_DESC, null, null);
-            }
-            mv.visitMethodInsn(INVOKESTATIC, arrayConstantsClass, funcName, VOID_METHOD_DESC, false);
-            populateFuncCount++;
-        }
-        genMethodReturn(mv);
-    }
-
-    private void createBArrayType(MethodVisitor mv, BArrayType arrayType, String varName) {
-        FieldVisitor fv = cw.visitField(ACC_PUBLIC + ACC_STATIC, varName, GET_ARRAY_TYPE_IMPL, null, null);
-        fv.visitEnd();
-        jvmArrayTypeGen.createArrayType(mv, arrayType, types);
-        mv.visitFieldInsn(Opcodes.PUTSTATIC, arrayConstantsClass, varName, GET_ARRAY_TYPE_IMPL);
-    }
-
     public void generateGetBArrayType(MethodVisitor mv, String varName) {
-        mv.visitFieldInsn(GETSTATIC, arrayConstantsClass, varName, GET_ARRAY_TYPE_IMPL);
-    }
-
-    public void generateClass(JarEntries jarEntries) {
-        genMethodReturn(mv);
-        visitArrayTypeConstPopulateInitMethods();
-        cw.visitEnd();
-        jarEntries.put(arrayConstantsClass + CLASS_FILE_SUFFIX, cw.toByteArray());
-    }
-
-    public String getArrayTypeConstantClass() {
-        return this.arrayConstantsClass;
+        mv.visitFieldInsn(GETSTATIC, arrayConstantsPkgName + varName, TYPE_VAR_NAME, GET_ARRAY_TYPE_IMPL);
     }
 }
