@@ -67,6 +67,7 @@ public abstract class BIRNode {
         public final List<BIRConstant> constants;
         public final List<BIRServiceDeclaration> serviceDecls;
         public boolean isListenerAvailable;
+        public Map<String, Map<String, String>> recordDefaultValueMap = new HashMap<>();
 
         public BIRPackage(Location pos, Name org, Name pkgName, Name name, Name version,
                           Name sourceFileName, String sourceRoot, boolean skipTest) {
