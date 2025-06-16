@@ -17,18 +17,18 @@
  */
 package org.wso2.ballerinalang.compiler.bir.codegen.split;
 
+import io.ballerina.identifier.Utils;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.types.SelectivelyImmutableReferenceType;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.wso2.ballerinalang.compiler.bir.codegen.BallerinaClassWriter;
-import org.wso2.ballerinalang.compiler.bir.codegen.internal.JarEntries;
-import org.wso2.ballerinalang.compiler.bir.codegen.utils.JvmCodeGenUtil;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmTypeGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.BIRVarToJVMIndexMap;
+import org.wso2.ballerinalang.compiler.bir.codegen.internal.JarEntries;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.TypeDefHashComparator;
 import org.wso2.ballerinalang.compiler.bir.codegen.split.types.JvmArrayTypeGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.split.types.JvmErrorTypeGen;
@@ -37,8 +37,10 @@ import org.wso2.ballerinalang.compiler.bir.codegen.split.types.JvmRecordTypeGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.split.types.JvmRefTypeGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.split.types.JvmTupleTypeGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.split.types.JvmUnionTypeGen;
+import org.wso2.ballerinalang.compiler.bir.codegen.utils.JvmCodeGenUtil;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRTypeDefinition;
+import org.wso2.ballerinalang.compiler.bir.model.BIROperand;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.TypeHashVisitor;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
@@ -58,7 +60,6 @@ import org.wso2.ballerinalang.util.Flags;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -87,54 +88,49 @@ import static org.objectweb.asm.Opcodes.INVOKESTATIC;
 import static org.objectweb.asm.Opcodes.INVOKEVIRTUAL;
 import static org.objectweb.asm.Opcodes.NEW;
 import static org.objectweb.asm.Opcodes.POP;
-import static org.objectweb.asm.Opcodes.PUTSTATIC;
 import static org.objectweb.asm.Opcodes.RETURN;
 import static org.objectweb.asm.Opcodes.V21;
-import static org.wso2.ballerinalang.compiler.bir.codegen.utils.JvmCodeGenUtil.createDefaultCase;
-import static org.wso2.ballerinalang.compiler.bir.codegen.utils.JVMModuleUtils.getModuleLevelClassName;
-import static org.wso2.ballerinalang.compiler.bir.codegen.utils.JvmCodeGenUtil.skipRecordDefaultValueFunctions;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ADD_METHOD;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_ARRAY_TYPE_INIT_METHOD;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_ARRAY_TYPE_POPULATE_METHOD;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_ERROR_TYPE_INIT_METHOD;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_ERROR_TYPE_POPULATE_METHOD;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_TUPLE_TYPE_INIT_METHOD;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_TUPLE_TYPE_POPULATE_METHOD;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_TYPE_REF_TYPE_POPULATE_METHOD;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_TYPE_REF_TYPE_INIT_METHOD;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_UNION_TYPE_INIT_METHOD;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_UNION_TYPE_POPULATE_METHOD;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ANNOTATION_MAP_NAME;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ANNOTATION_UTILS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CLASS_FILE_SUFFIX;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CREATE_TYPES_METHOD;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CREATE_TYPE_CONSTANTS_METHOD;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CREATE_TYPE_INSTANCES_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.FIELD_IMPL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.GET_ANON_TYPE_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.GET_FUNCTION_TYPE_METHOD;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.GLOBAL_VARIABLES_PACKAGE_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JVM_INIT_METHOD;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JVM_STATIC_INIT_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAP;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAX_FIELDS_PER_SPLIT_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAX_TYPES_PER_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_ANON_TYPES_CLASS_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_FUNCTION_TYPES_CLASS_NAME;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_TYPES_CLASS_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBJECT;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.POPULATE_METHOD_PREFIX;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SET_IMMUTABLE_TYPE_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRING_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPE_ID_SET;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.VALUE_VAR_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.VISIT_MAX_SAFE_MARGIN;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.ADD_TYPE_ID;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.ANY_TO_JBOOLEAN;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_FUNCTION_POINTER;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_FUNCTION_TYPE_FOR_STRING;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_TYPE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_MAP_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INIT_FIELD_IMPL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.MAP_PUT;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.PROCESS_ANNOTATIONS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.SET_IMMUTABLE_TYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.SET_LINKED_HASH_MAP;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.VOID_METHOD_DESC;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmTypeGen.getTypeFieldName;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmTypeGen.getTypeDesc;
+import static org.wso2.ballerinalang.compiler.bir.codegen.utils.JVMModuleUtils.getModuleLevelClassName;
+import static org.wso2.ballerinalang.compiler.bir.codegen.utils.JvmCodeGenUtil.createDefaultCase;
+import static org.wso2.ballerinalang.compiler.bir.codegen.utils.JvmCodeGenUtil.getVarStoreClass;
+import static org.wso2.ballerinalang.compiler.bir.codegen.utils.JvmCodeGenUtil.skipRecordDefaultValueFunctions;
+import static org.wso2.ballerinalang.compiler.bir.codegen.utils.JvmCodeGenUtil.toNameString;
+import static org.wso2.ballerinalang.compiler.bir.codegen.utils.JvmConstantGenUtils.genMethodReturn;
+import static org.wso2.ballerinalang.compiler.bir.codegen.utils.JvmConstantGenUtils.generateConstantsClassInit;
 
 /**
  * BIR types to JVM byte code generation class.
@@ -154,237 +150,75 @@ public class JvmCreateTypeGen {
     private final JvmRefTypeGen jvmRefTypeGen;
     private final TypeHashVisitor typeHashVisitor;
     public final TypeDefHashComparator typeDefHashComparator;
-    private final String typesClass;
     private final String anonTypesClass;
+    private final String annotationVarClassName;
+    private final String globalVarsPkgName;
     private final String functionTypesClass;
-    private final ClassWriter typesCw;
 
     public JvmCreateTypeGen(JvmTypeGen jvmTypeGen, JvmConstantsGen jvmConstantsGen, PackageID packageID,
                             TypeHashVisitor typeHashVisitor) {
         this.jvmTypeGen = jvmTypeGen;
         this.jvmConstantsGen = jvmConstantsGen;
-        this.typesClass = getModuleLevelClassName(packageID, MODULE_TYPES_CLASS_NAME);
-        this.anonTypesClass = getModuleLevelClassName(packageID, MODULE_ANON_TYPES_CLASS_NAME);
-        this.functionTypesClass = getModuleLevelClassName(packageID, MODULE_FUNCTION_TYPES_CLASS_NAME);
-        this.jvmRecordTypeGen = new JvmRecordTypeGen(this, jvmTypeGen, jvmConstantsGen, packageID);
-        this.jvmObjectTypeGen = new JvmObjectTypeGen(this, typesClass, jvmTypeGen, jvmConstantsGen, packageID);
-        this.jvmErrorTypeGen = new JvmErrorTypeGen(this, jvmTypeGen, jvmConstantsGen, packageID);
-        this.jvmUnionTypeGen = new JvmUnionTypeGen(this, jvmTypeGen, jvmConstantsGen, packageID);
-        this.jvmTupleTypeGen = new JvmTupleTypeGen(this, jvmTypeGen, jvmConstantsGen, packageID);
+        this.jvmRecordTypeGen = new JvmRecordTypeGen(this, jvmTypeGen, jvmConstantsGen);
+        this.jvmObjectTypeGen = new JvmObjectTypeGen(this, jvmTypeGen, jvmConstantsGen);
+        this.jvmErrorTypeGen = new JvmErrorTypeGen(this, jvmTypeGen, jvmConstantsGen);
+        this.jvmUnionTypeGen = new JvmUnionTypeGen(this, jvmTypeGen, jvmConstantsGen);
+        this.jvmTupleTypeGen = new JvmTupleTypeGen(this, jvmTypeGen, jvmConstantsGen);
+        this.jvmRefTypeGen = new JvmRefTypeGen(this, jvmTypeGen, jvmConstantsGen);
         this.jvmArrayTypeGen = new JvmArrayTypeGen(jvmTypeGen);
-        this.jvmRefTypeGen = new JvmRefTypeGen(jvmTypeGen, jvmConstantsGen);
-        this.typesCw = new BallerinaClassWriter(COMPUTE_FRAMES);
         this.typeHashVisitor =  typeHashVisitor;
         this.typeDefHashComparator = new TypeDefHashComparator(typeHashVisitor);
-        this.typesCw.visit(V21, ACC_PUBLIC + ACC_SUPER, typesClass, null, OBJECT, null);
+        this.anonTypesClass = getModuleLevelClassName(packageID, MODULE_ANON_TYPES_CLASS_NAME);
+        this.functionTypesClass = getModuleLevelClassName(packageID, MODULE_FUNCTION_TYPES_CLASS_NAME);
+        this.globalVarsPkgName = getModuleLevelClassName(packageID, GLOBAL_VARIABLES_PACKAGE_NAME);
+        this.annotationVarClassName = getVarStoreClass(this.globalVarsPkgName , ANNOTATION_MAP_NAME);
     }
 
-    public void generateTypeClass(JvmPackageGen jvmPackageGen, BIRNode.BIRPackage module, JarEntries jarEntries,
-                                  SymbolTable symbolTable) {
-        generateCreateTypesMethod(jvmPackageGen, module, jarEntries, typesCw, module.typeDefs, symbolTable);
-        typesCw.visitEnd();
-        jvmRecordTypeGen.visitEnd(jvmPackageGen, module, jarEntries);
-        jvmObjectTypeGen.visitEnd(jvmPackageGen, module, jarEntries);
-        jvmErrorTypeGen.visitEnd(jvmPackageGen, module, jarEntries);
-        jvmUnionTypeGen.visitEnd(jvmPackageGen, module, jarEntries);
-        jvmTupleTypeGen.visitEnd(jvmPackageGen, module, jarEntries);
-        jarEntries.put(typesClass + CLASS_FILE_SUFFIX, jvmPackageGen.getBytes(typesCw, module));
-    }
-
-    void createTypeConstants(ClassWriter cw) {
-        MethodVisitor mv =
-                cw.visitMethod(ACC_PUBLIC + ACC_STATIC, CREATE_TYPE_CONSTANTS_METHOD, VOID_METHOD_DESC, null, null);
-        mv.visitCode();
-
-        String refTypeConstantsClass = jvmConstantsGen.getRefTypeConstantsClass();
-        String arrayTypeConstantClass = jvmConstantsGen.getArrayTypeConstantClass();
-        String tupleTypeConstantsClass = jvmConstantsGen.getTupleTypeConstantsClass();
-        String unionTypeConstantClass = jvmConstantsGen.getUnionTypeConstantClass();
-        String errorTypeConstantClass = jvmConstantsGen.getErrorTypeConstantClass();
-
-        mv.visitMethodInsn(INVOKESTATIC, refTypeConstantsClass, B_TYPE_REF_TYPE_INIT_METHOD, VOID_METHOD_DESC, false);
-        mv.visitMethodInsn(INVOKESTATIC, arrayTypeConstantClass, B_ARRAY_TYPE_INIT_METHOD, VOID_METHOD_DESC, false);
-        mv.visitMethodInsn(INVOKESTATIC, tupleTypeConstantsClass, B_TUPLE_TYPE_INIT_METHOD, VOID_METHOD_DESC, false);
-        mv.visitMethodInsn(INVOKESTATIC, unionTypeConstantClass, B_UNION_TYPE_INIT_METHOD, VOID_METHOD_DESC, false);
-        mv.visitMethodInsn(INVOKESTATIC, errorTypeConstantClass, B_ERROR_TYPE_INIT_METHOD, VOID_METHOD_DESC, false);
-        mv.visitMethodInsn(INVOKESTATIC, refTypeConstantsClass, B_TYPE_REF_TYPE_POPULATE_METHOD, VOID_METHOD_DESC,
-                false);
-        mv.visitMethodInsn(INVOKESTATIC, arrayTypeConstantClass, B_ARRAY_TYPE_POPULATE_METHOD, VOID_METHOD_DESC, false);
-        mv.visitMethodInsn(INVOKESTATIC, tupleTypeConstantsClass, B_TUPLE_TYPE_POPULATE_METHOD, VOID_METHOD_DESC,
-                false);
-        mv.visitMethodInsn(INVOKESTATIC, unionTypeConstantClass, B_UNION_TYPE_POPULATE_METHOD, VOID_METHOD_DESC, false);
-        mv.visitMethodInsn(INVOKESTATIC, errorTypeConstantClass, B_ERROR_TYPE_POPULATE_METHOD, VOID_METHOD_DESC, false);
-
-        mv.visitInsn(RETURN);
-        JvmCodeGenUtil.visitMaxStackForMethod(mv, CREATE_TYPE_CONSTANTS_METHOD, this.typesClass);
-        mv.visitEnd();
-    }
-
-    void generateCreateTypesMethod(JvmPackageGen jvmPackageGen, BIRNode.BIRPackage module, JarEntries jarEntries,
-                                   ClassWriter cw, List<BIRTypeDefinition> typeDefs, SymbolTable symbolTable) {
-        jvmTypeGen.generateUserDefinedTypeFields(cw, typeDefs);
-        createTypeConstants(cw);
-        createTypesInstance(cw, typeDefs);
-        Map<String, String> populateTypeFuncNames = populateTypes(jvmPackageGen, module, jarEntries, cw, typeDefs,
-                symbolTable);
-
-        MethodVisitor mv = cw.visitMethod(ACC_PUBLIC + ACC_STATIC, CREATE_TYPES_METHOD, VOID_METHOD_DESC, null, null);
-        mv.visitCode();
-
-        // Invoke create-type-instances method
-        mv.visitMethodInsn(INVOKESTATIC, typesClass, CREATE_TYPE_INSTANCES_METHOD, VOID_METHOD_DESC, false);
-
-        // Invoke create-type-constants method
-        mv.visitMethodInsn(INVOKESTATIC, typesClass, CREATE_TYPE_CONSTANTS_METHOD, VOID_METHOD_DESC, false);
-
-        // Invoke the populate-type functions
-        for (Map.Entry<String, String> entry : populateTypeFuncNames.entrySet()) {
-            String funcName = entry.getKey();
-            String typeClassName = entry.getValue();
-            mv.visitMethodInsn(INVOKESTATIC, typeClassName, funcName, VOID_METHOD_DESC, false);
-        }
-        mv.visitInsn(RETURN);
-        JvmCodeGenUtil.visitMaxStackForMethod(mv, CREATE_TYPES_METHOD, this.typesClass);
-        mv.visitEnd();
-    }
-
-    private void createTypesInstance(ClassWriter cw, List<BIRTypeDefinition> typeDefs) {
-        int instanceSplits = createTypesInstanceSplits(cw, typeDefs);
-        MethodVisitor mv = cw.visitMethod(ACC_PUBLIC + ACC_STATIC, CREATE_TYPE_INSTANCES_METHOD, VOID_METHOD_DESC,
-                null, null);
-        mv.visitCode();
-        for (int i = 0; i < instanceSplits; i++) {
-            mv.visitMethodInsn(INVOKESTATIC, typesClass, CREATE_TYPE_INSTANCES_METHOD + i, VOID_METHOD_DESC, false);
-        }
-        mv.visitInsn(RETURN);
-        JvmCodeGenUtil.visitMaxStackForMethod(mv, CREATE_TYPE_INSTANCES_METHOD, this.typesClass);
-        mv.visitEnd();
-    }
-
-    private int createTypesInstanceSplits(ClassWriter cw, List<BIRTypeDefinition> typeDefs) {
-        if (typeDefs.isEmpty()) {
-            return 0;
-        }
-        MethodVisitor mv = null;
-        int bTypesCount = 0;
-        int methodCount = 0;
-
+    public void createTypes(BIRNode.BIRPackage module, JarEntries jarEntries, SymbolTable symbolTable) {
         // Create the type
-        for (BIRTypeDefinition optionalTypeDef : typeDefs) {
-            String name = optionalTypeDef.internalName.value;
-            BType bType = optionalTypeDef.type;
+        for (BIRTypeDefinition typeDef : module.typeDefs) {
+            BType bType = typeDef.type;
             int bTypeTag = bType.tag;
             if (JvmCodeGenUtil.needNoTypeGeneration(bTypeTag)) {
-                continue;
-            } else {
-                if (bTypesCount % MAX_TYPES_PER_METHOD == 0) {
-                    mv = cw.visitMethod(ACC_PUBLIC + ACC_STATIC, CREATE_TYPE_INSTANCES_METHOD + methodCount++,
-                            VOID_METHOD_DESC,
-                            null, null);
-                    mv.visitCode();
-                }
-            }
-            switch (bTypeTag) {
-                case TypeTags.RECORD ->
-                        jvmRecordTypeGen.createRecordType(mv, (BRecordType) bType, this.typesClass, name);
-                case TypeTags.OBJECT -> jvmObjectTypeGen.createObjectType(mv, (BObjectType) bType);
-                case TypeTags.ERROR ->
-                        jvmErrorTypeGen.createErrorType(mv, (BErrorType) bType, bType.tsymbol.name.value);
-                case TypeTags.TUPLE -> jvmTupleTypeGen.createTupleType(mv, (BTupleType) bType);
-                default -> jvmUnionTypeGen.createUnionType(mv, (BUnionType) bType);
-            }
-
-            mv.visitFieldInsn(PUTSTATIC, this.typesClass, getTypeFieldName(name), GET_TYPE);
-            bTypesCount++;
-            if (bTypesCount % MAX_TYPES_PER_METHOD == 0) {
-                mv.visitInsn(RETURN);
-                JvmCodeGenUtil.visitMaxStackForMethod(mv, CREATE_TYPE_INSTANCES_METHOD, this.typesClass);
-                mv.visitEnd();
-            }
-        }
-        if (methodCount != 0 && bTypesCount % MAX_TYPES_PER_METHOD != 0) {
-            mv.visitInsn(RETURN);
-            JvmCodeGenUtil.visitMaxStackForMethod(mv, CREATE_TYPE_INSTANCES_METHOD, this.typesClass);
-            mv.visitEnd();
-        }
-        return methodCount;
-    }
-
-    private Map<String, String> populateTypes(JvmPackageGen jvmPackageGen, BIRNode.BIRPackage module,
-                                              JarEntries jarEntries, ClassWriter cw, List<BIRTypeDefinition> typeDefs,
-                                              SymbolTable symbolTable) {
-        Map<String, String> funcTypeClassMap = new HashMap<>();
-        String fieldName;
-        for (BIRTypeDefinition optionalTypeDef : typeDefs) {
-            BType bType = optionalTypeDef.type;
-            int bTypeTag = bType.tag;
-            if (JvmCodeGenUtil.needNoTypeGeneration(bTypeTag)) {
+                // do not generate anything for other types (e.g.: finite type, type reference types etc.)
                 continue;
             }
-            fieldName = getTypeFieldName(optionalTypeDef.internalName.value);
-            String methodName = POPULATE_METHOD_PREFIX + fieldName;
-            MethodVisitor mv;
+            String varName = toNameString(typeDef.type);
+            ClassWriter cw = new BallerinaClassWriter(COMPUTE_FRAMES);
+            String typeClass = jvmTypeGen.getTypeClass(bType);
+            generateConstantsClassInit(cw, typeClass);
+            MethodVisitor mv = cw.visitMethod(ACC_STATIC, JVM_STATIC_INIT_METHOD, VOID_METHOD_DESC, null, null);
             switch (bTypeTag) {
-                case TypeTags.RECORD -> {
-                    jvmRecordTypeGen.checkAndSplitTypeClass(jvmPackageGen, module, jarEntries);
-                    funcTypeClassMap.put(methodName, jvmRecordTypeGen.recordTypesClass);
-                    mv = createPopulateTypeMethod(jvmRecordTypeGen.recordTypesCw, methodName, this.typesClass,
-                            fieldName);
-                    jvmRecordTypeGen.populateRecord(mv, methodName, (BRecordType) bType, symbolTable);
-                }
-                case TypeTags.OBJECT -> {
-                    jvmObjectTypeGen.checkAndSplitTypeClass(jvmPackageGen, module, jarEntries);
-                    funcTypeClassMap.put(methodName, jvmObjectTypeGen.objectTypesClass);
-                    mv = createPopulateTypeMethod(jvmObjectTypeGen.objectTypesCw, methodName,
-                            this.typesClass, fieldName);
-                    jvmObjectTypeGen.populateObject(cw, mv, methodName, symbolTable, fieldName, (BObjectType) bType,
-                            new BIRVarToJVMIndexMap());
-                }
-                case TypeTags.ERROR -> {
-                    jvmErrorTypeGen.checkAndSplitTypeClass(jvmPackageGen, module, jarEntries);
-                    funcTypeClassMap.put(methodName, jvmErrorTypeGen.errorTypesClass);
-                    mv = createPopulateTypeMethod(jvmErrorTypeGen.errorTypesCw, methodName, this.typesClass, fieldName);
-                    jvmErrorTypeGen.populateError(mv, (BErrorType) bType);
-                }
-                case TypeTags.TUPLE -> {
-                    jvmTupleTypeGen.checkAndSplitTypeClass(jvmPackageGen, module, jarEntries);
-                    funcTypeClassMap.put(methodName, jvmTupleTypeGen.tupleTypesClass);
-                    mv = createPopulateTypeMethod(jvmTupleTypeGen.tupleTypesCw, methodName, this.typesClass, fieldName);
-                    jvmTupleTypeGen.populateTuple(mv, (BTupleType) bType, symbolTable);
-                }
-                default -> {
-                    jvmUnionTypeGen.checkAndSplitTypeClass(jvmPackageGen, module, jarEntries);
-                    funcTypeClassMap.put(methodName, jvmUnionTypeGen.unionTypesClass);
-                    mv = createPopulateTypeMethod(jvmUnionTypeGen.unionTypesCw, methodName, this.typesClass, fieldName);
-                    jvmUnionTypeGen.populateUnion(cw, mv, (BUnionType) bType, typesClass, fieldName, symbolTable);
+                case TypeTags.RECORD -> jvmRecordTypeGen.createRecordType(cw, mv, module, typeClass,
+                        (BRecordType) bType, varName, symbolTable);
+                case TypeTags.OBJECT -> jvmObjectTypeGen.createObjectType(cw, mv, typeClass, (BObjectType) bType,
+                        varName, symbolTable, new BIRVarToJVMIndexMap());
+                case TypeTags.ERROR -> jvmErrorTypeGen.createErrorType(cw, mv, (BErrorType) bType, typeClass);
+                case TypeTags.TUPLE -> jvmTupleTypeGen.createTupleType(cw, mv, typeClass, (BTupleType) bType,
+                        symbolTable);
+                default -> jvmUnionTypeGen.createUnionType(cw, mv, typeClass, varName, (BUnionType) bType, symbolTable);
+            }
+            if (!typeDef.isBuiltin || typeDef.referenceType == null || bTypeTag == TypeTags.RECORD) {
+                // Annotations for object constructors are populated at object init site.
+                boolean constructorsPopulated = Symbols.isFlagOn(bType.getFlags(), Flags.OBJECT_CTOR);
+                if (!constructorsPopulated) {
+                    loadAnnotations(mv, bType);
                 }
             }
-            mv.visitInsn(RETURN);
-            JvmCodeGenUtil.visitMaxStackForMethod(mv, methodName, this.typesClass);
-            mv.visitEnd();
+            genMethodReturn(mv);
+            cw.visitEnd();
+            jarEntries.put(typeClass + CLASS_FILE_SUFFIX, cw.toByteArray());
         }
-        return funcTypeClassMap;
     }
-
-    private MethodVisitor createPopulateTypeMethod(ClassWriter cw, String methodName, String typeOwnerClass,
-                                                   String fieldName) {
-        MethodVisitor mv = cw.visitMethod(ACC_PUBLIC + ACC_STATIC, methodName, VOID_METHOD_DESC, null, null);
-        mv.visitCode();
-        mv.visitFieldInsn(GETSTATIC, typeOwnerClass, fieldName, GET_TYPE);
-        return mv;
-    }
-
-    public void addImmutableType(MethodVisitor mv, BType type, SymbolTable symbolTable) {
+        public void addImmutableType(MethodVisitor mv, BType type, SymbolTable symbolTable) {
         if (type.tsymbol == null) {
             return;
         }
-
         Optional<BIntersectionType> immutableType = Types.getImmutableType(symbolTable, type.tsymbol.pkgID,
                 (SelectivelyImmutableReferenceType) type);
         if (immutableType.isEmpty()) {
             return;
         }
-
         mv.visitInsn(DUP);
         jvmTypeGen.loadType(mv, immutableType.get());
         mv.visitMethodInsn(INVOKEINTERFACE, TYPE, SET_IMMUTABLE_TYPE_METHOD, SET_IMMUTABLE_TYPE, true);
@@ -395,11 +229,9 @@ public class JvmCreateTypeGen {
         mv.visitTypeInsn(NEW, TYPE_ID_SET);
         mv.visitInsn(DUP);
         mv.visitMethodInsn(INVOKESPECIAL, TYPE_ID_SET, JVM_INIT_METHOD, VOID_METHOD_DESC, false);
-
         for (BTypeIdSet.BTypeId typeId : typeIdSet.getPrimary()) {
             addTypeId(mv, typeId, true);
         }
-
         for (BTypeIdSet.BTypeId typeId : typeIdSet.getSecondary()) {
             addTypeId(mv, typeId, false);
         }
@@ -408,8 +240,8 @@ public class JvmCreateTypeGen {
     private void addTypeId(MethodVisitor mv, BTypeIdSet.BTypeId typeId, boolean isPrimaryTypeId) {
         mv.visitInsn(DUP);
         // Load package
-        String varName = jvmConstantsGen.getModuleConstantVar(typeId.packageID);
-        mv.visitFieldInsn(GETSTATIC, jvmConstantsGen.getModuleConstantClass(), varName, JvmSignatures.GET_MODULE);
+        String moduleVar = jvmConstantsGen.getModuleConstantVar(typeId.packageID);
+        mv.visitFieldInsn(GETSTATIC, jvmConstantsGen.getModuleConstantClass(moduleVar), moduleVar, JvmSignatures.GET_MODULE);
 
         mv.visitLdcInsn(typeId.name);
         mv.visitInsn(isPrimaryTypeId ? ICONST_1 : ICONST_0);
@@ -486,13 +318,21 @@ public class JvmCreateTypeGen {
         return targetLabels;
     }
 
+    // -------------------------------------------------------
+    //              Annotation processing related methods
+    // -------------------------------------------------------
+
+    public void loadAnnotations(MethodVisitor mv, BType type) {
+        mv.visitFieldInsn(GETSTATIC, this.annotationVarClassName, VALUE_VAR_NAME, GET_MAP_VALUE);
+        jvmTypeGen.loadType(mv, type);
+        mv.visitMethodInsn(INVOKESTATIC, ANNOTATION_UTILS, "processAnnotations", PROCESS_ANNOTATIONS, false);
+    }
 
     // -------------------------------------------------------
     //              getAnonType() generation methods
     // -------------------------------------------------------
 
-    public void generateAnonTypeClass(JvmPackageGen jvmPackageGen, BIRNode.BIRPackage module,
-                                      JarEntries jarEntries) {
+    public void generateAnonTypeClass(JvmPackageGen jvmPackageGen, BIRNode.BIRPackage module, JarEntries jarEntries) {
         ClassWriter cw = new BallerinaClassWriter(COMPUTE_FRAMES);
         cw.visit(V21, ACC_PUBLIC + ACC_SUPER, anonTypesClass, null, OBJECT, null);
         generateGetAnonTypeMainMethod(cw, module.typeDefs);
@@ -519,22 +359,19 @@ public class JvmCreateTypeGen {
         } else {
             mv.visitVarInsn(ILOAD, 0);
             mv.visitVarInsn(ALOAD, 1);
-            mv.visitMethodInsn(INVOKESTATIC, anonTypesClass, GET_ANON_TYPE_METHOD + 0,
-                    JvmSignatures.GET_ANON_TYPE, false);
+            mv.visitMethodInsn(INVOKESTATIC, anonTypesClass, GET_ANON_TYPE_METHOD + 0, JvmSignatures.GET_ANON_TYPE,
+                    false);
             mv.visitInsn(ARETURN);
-            generateGetAnonTypeSplitMethods(cw, anonTypeHashSwitch, typesClass);
+            generateGetAnonTypeSplitMethods(cw, anonTypeHashSwitch);
         }
         JvmCodeGenUtil.visitMaxStackForMethod(mv, GET_ANON_TYPE_METHOD, anonTypesClass);
         mv.visitEnd();
     }
 
-    void generateGetAnonTypeSplitMethods(ClassWriter cw,  AnonTypeHashInfo anonTypeHashSwitch,
-                                         String typeOwnerClass) {
-
+    void generateGetAnonTypeSplitMethods(ClassWriter cw,  AnonTypeHashInfo anonTypeHashSwitch) {
         int bTypesCount = 0;
         int methodCount = 0;
         MethodVisitor mv = null;
-
         int hashParamRegIndex = 0;
         int shapeParamRegIndex = 1;
         Label defaultCaseLabel = new Label();
@@ -560,7 +397,8 @@ public class JvmCreateTypeGen {
             String fieldName = labelEntry.getKey();
             Label targetLabel = labelEntry.getValue();
             mv.visitLabel(targetLabel);
-            mv.visitFieldInsn(GETSTATIC, typeOwnerClass, fieldName, JvmSignatures.GET_TYPE);
+            BType type = anonTypeHashSwitch.nameTypeMapping.get(fieldName);
+            jvmTypeGen.getUserDefinedType(mv, type);
             mv.visitInsn(ARETURN);
             i++;
             bTypesCount++;
@@ -587,14 +425,14 @@ public class JvmCreateTypeGen {
     }
 
     private AnonTypeHashInfo createLabelsForAnonTypeHashSwitch(Set<BIRTypeDefinition> nodes) {
-
         // Create labels for the cases
         Map<String, Label> labelFieldMapping = new LinkedHashMap<>();
         Map<Integer, Label> labelHashMapping = new LinkedHashMap<>();
+        Map<String, BType> nameTypeMapping = new LinkedHashMap<>();
         for (BIRTypeDefinition node : nodes) {
             if (node != null) {
                 BType type = node.type;
-                String fieldName = getTypeFieldName(node.internalName.value);
+                String fieldName = node.internalName.value;
                 Integer typeHash = typeHashVisitor.visit(type);
                 boolean fieldExists = labelFieldMapping.containsKey(fieldName);
                 boolean hashExists = labelHashMapping.containsKey(typeHash);
@@ -602,6 +440,7 @@ public class JvmCreateTypeGen {
                     Label label = new Label();
                     labelFieldMapping.put(fieldName, label);
                     labelHashMapping.put(typeHash, label);
+                    nameTypeMapping.put(fieldName, type);
                 } else {
                     assert fieldExists && hashExists; // hashing issues.
                 }
@@ -619,13 +458,13 @@ public class JvmCreateTypeGen {
         }
         hashes = Arrays.copyOfRange(hashes, 0, count);
         Label[] labels = labelHashMapping.values().toArray(new Label[0]);
-        return new AnonTypeHashInfo(hashes, labels, labelFieldMapping);
+        return new AnonTypeHashInfo(hashes, labels, labelFieldMapping, nameTypeMapping);
     }
 
-    public void generateRefTypeConstants(List<BIRTypeDefinition> typeDefs, SymbolTable symbolTable) {
+    public void generateRefTypeConstants(List<BIRTypeDefinition> typeDefs) {
         for (BIRTypeDefinition typeDef : typeDefs) {
             if (typeDef.referenceType != null) {
-                jvmConstantsGen.getTypeConstantsVar(typeDef.referenceType, symbolTable);
+                jvmConstantsGen.getRefTypeConstantsVar(typeDef.referenceType);
             }
         }
     }
@@ -635,11 +474,14 @@ public class JvmCreateTypeGen {
         int[] hashes;
         Label[] labels;
         Map<String, Label> labelFieldMapping;
+        Map<String, BType> nameTypeMapping;
 
-        public AnonTypeHashInfo(int[] hashes, Label[] labels, Map<String, Label> labelFieldMapping) {
+        public AnonTypeHashInfo(int[] hashes, Label[] labels, Map<String, Label> labelFieldMapping,
+                                Map<String, BType> nameTypeMapping) {
             this.hashes = hashes;
             this.labels = labels;
             this.labelFieldMapping = labelFieldMapping;
+            this.nameTypeMapping = nameTypeMapping;
         }
     }
 
@@ -675,16 +517,13 @@ public class JvmCreateTypeGen {
     }
 
     void generateGetFunctionTypeSplitMethods(ClassWriter cw, List<BIRNode.BIRFunction> functions) {
-
         int bTypesCount = 0;
         int methodCount = 0;
         MethodVisitor mv = null;
         int funcNameRegIndex = 0;
         Label defaultCaseLabel = new Label();
-
         // case body
         int i = 0;
-
         List<Label> targetLabels = new ArrayList<>();
         // Skip function types for record default value functions since they can be called directly from function
         // pointers instead of the function name
@@ -707,9 +546,8 @@ public class JvmCreateTypeGen {
             }
             Label targetLabel = targetLabels.get(i);
             mv.visitLabel(targetLabel);
-
-            mv.visitFieldInsn(GETSTATIC, jvmConstantsGen.getFunctionTypeConstantClass(),
-                    jvmConstantsGen.getFunctionTypeVar(func.name.value), JvmSignatures.GET_FUNCTION_TYPE);
+            String varName = jvmConstantsGen.getFunctionTypeVar(func.name.value);
+            mv.visitFieldInsn(GETSTATIC, jvmConstantsGen.getFunctionTypeConstantClass(varName), varName, JvmSignatures.GET_FUNCTION_TYPE);
             mv.visitInsn(ARETURN);
             i += 1;
             bTypesCount++;
@@ -727,7 +565,6 @@ public class JvmCreateTypeGen {
                 mv.visitEnd();
             }
         }
-
         if (methodCount != 0 && bTypesCount % MAX_TYPES_PER_METHOD != 0) {
             createDefaultCase(mv, defaultCaseLabel, funcNameRegIndex, "No such function type: ");
             mv.visitMaxs(i + 10, i + 10);
@@ -735,30 +572,25 @@ public class JvmCreateTypeGen {
         }
     }
 
-    public void splitAddFields(ClassWriter cw, String typeClassName, String methodName, Map<String, BField> fields) {
+    public void splitAddFields(ClassWriter cw, String typeClassName, Map<String, BField> fields) {
         int fieldMapIndex = 0;
         MethodVisitor mv = null;
         int methodCount = 0;
         int fieldsCount = 0;
-        String addFieldMethod = methodName + "$addField$";
-        for (BField optionalField : fields.values()) {
+        String addFieldMethod = "addFields";
+        for (BField field : fields.values()) {
             if (fieldsCount % MAX_FIELDS_PER_SPLIT_METHOD == 0) {
                 mv = cw.visitMethod(ACC_STATIC + ACC_PRIVATE, addFieldMethod, SET_LINKED_HASH_MAP, null, null);
                 mv.visitCode();
-                addFieldMethod = methodName + "$addField$" + ++methodCount;
+                addFieldMethod = "addFields$" + ++methodCount;
             }
             mv.visitVarInsn(ALOAD, fieldMapIndex);
-
             // Load field name
-            mv.visitLdcInsn(decodeIdentifier(optionalField.name.value));
-
+            mv.visitLdcInsn(decodeIdentifier(field.name.value));
             // create and load field type
-            createField(mv, optionalField);
-
+            createField(mv, field);
             // Add the field to the map
-            mv.visitMethodInsn(INVOKEINTERFACE, MAP, "put", MAP_PUT,
-                    true);
-
+            mv.visitMethodInsn(INVOKEINTERFACE, MAP, "put", MAP_PUT, true);
             // emit a pop, since we are not using the return value from the map.put()
             mv.visitInsn(POP);
             fieldsCount++;
@@ -768,38 +600,73 @@ public class JvmCreateTypeGen {
                     mv.visitMethodInsn(INVOKESTATIC, typeClassName, addFieldMethod, SET_LINKED_HASH_MAP, false);
                 }
                 mv.visitInsn(RETURN);
-                JvmCodeGenUtil.visitMaxStackForMethod(mv, methodName, typeClassName);
+                JvmCodeGenUtil.visitMaxStackForMethod(mv, addFieldMethod, typeClassName);
                 mv.visitEnd();
             }
         }
         if (methodCount != 0 && fieldsCount % MAX_FIELDS_PER_SPLIT_METHOD != 0) {
             mv.visitInsn(RETURN);
-            JvmCodeGenUtil.visitMaxStackForMethod(mv, methodName, typeClassName);
+            JvmCodeGenUtil.visitMaxStackForMethod(mv, addFieldMethod, typeClassName);
             mv.visitEnd();
         }
     }
 
-    /**
-     * Create a field information for objects and records.
-     *
-     * @param mv    method visitor
-     * @param field field parameter description
-     */
     private void createField(MethodVisitor mv, BField field) {
-
         mv.visitTypeInsn(NEW, FIELD_IMPL);
         mv.visitInsn(DUP);
-
         // Load the field type
         jvmTypeGen.loadType(mv, field.symbol.type);
-
         // Load field name
         mv.visitLdcInsn(decodeIdentifier(field.name.value));
-
         // Load flags
         mv.visitLdcInsn(field.symbol.flags);
-
         mv.visitMethodInsn(INVOKESPECIAL, FIELD_IMPL, JVM_INIT_METHOD, INIT_FIELD_IMPL, false);
+    }
+
+    public void splitAddDefaultValues(ClassWriter cw, String typeClassName, BRecordType recordType,
+                                      Map<String, String> fieldNameFPNameMap) {
+        int fieldMapIndex = 0;
+        MethodVisitor mv = null;
+        int methodCount = 0;
+        int fieldsCount = 0;
+        String addDefaultValueMethod = "addDefaultValues";
+        Map<String, BField> fields = recordType.fields;
+        for (Map.Entry<String, String> field : fieldNameFPNameMap.entrySet()) {
+            if (fieldsCount % MAX_FIELDS_PER_SPLIT_METHOD == 0) {
+                mv = cw.visitMethod(ACC_STATIC + ACC_PRIVATE, addDefaultValueMethod, SET_LINKED_HASH_MAP, null, null);
+                mv.visitCode();
+                addDefaultValueMethod = "addDefaultValue$" + ++methodCount;
+            }
+            mv.visitVarInsn(ALOAD, fieldMapIndex);
+            // Load field name
+            mv.visitLdcInsn(Utils.unescapeBallerina(field.getKey()));
+            // load default value function pointer
+            this.loadDefaultValueFp(mv, field.getValue());
+            // Add the field to the map
+            mv.visitMethodInsn(INVOKEINTERFACE, MAP, "put", MAP_PUT, true);
+            // emit a pop, since we are not using the return value from the map.put()
+            mv.visitInsn(POP);
+            fieldsCount++;
+            if (fieldsCount % MAX_FIELDS_PER_SPLIT_METHOD == 0) {
+                if (fieldsCount != fields.size()) {
+                    mv.visitVarInsn(ALOAD, fieldMapIndex);
+                    mv.visitMethodInsn(INVOKESTATIC, typeClassName, addDefaultValueMethod, SET_LINKED_HASH_MAP, false);
+                }
+                mv.visitInsn(RETURN);
+                JvmCodeGenUtil.visitMaxStackForMethod(mv, addDefaultValueMethod, typeClassName);
+                mv.visitEnd();
+            }
+        }
+        if (methodCount != 0 && fieldsCount % MAX_FIELDS_PER_SPLIT_METHOD != 0) {
+            mv.visitInsn(RETURN);
+            JvmCodeGenUtil.visitMaxStackForMethod(mv, addDefaultValueMethod, typeClassName);
+            mv.visitEnd();
+        }
+    }
+
+    private void loadDefaultValueFp(MethodVisitor mv, String functionName) {
+        String varClass = getVarStoreClass(globalVarsPkgName, functionName);
+        mv.visitFieldInsn(GETSTATIC, varClass, VALUE_VAR_NAME, GET_FUNCTION_POINTER);
     }
 
     public JvmUnionTypeGen getJvmUnionTypeGen() {

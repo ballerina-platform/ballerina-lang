@@ -70,12 +70,12 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmValueGen.getTypeVal
  */
 public class JvmRecordCreatorGen {
 
-    private final String recordsClass;
     private final JvmTypeGen jvmTypeGen;
+    private final String recordsClass;
 
     public JvmRecordCreatorGen(PackageID packageID, JvmTypeGen jvmTypeGen) {
-        this.recordsClass = getModuleLevelClassName(packageID, MODULE_RECORDS_CREATOR_CLASS_NAME);
         this.jvmTypeGen = jvmTypeGen;
+        this.recordsClass = getModuleLevelClassName(packageID, MODULE_RECORDS_CREATOR_CLASS_NAME);
     }
 
     public void generateRecordsClass(JvmPackageGen jvmPackageGen, BIRNode.BIRPackage module,

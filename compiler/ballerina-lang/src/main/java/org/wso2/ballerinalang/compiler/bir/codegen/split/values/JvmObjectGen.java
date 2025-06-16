@@ -92,10 +92,8 @@ public class JvmObjectGen {
         MethodVisitor mv = null;
         int funcNameRegIndex = 2;
         Label defaultCaseLabel = new Label();
-
         // sort the fields before generating switch case
         functions.sort(NAME_HASH_COMPARATOR);
-
         // case body
         int i = 0;
         List<Label> targetLabels = new ArrayList<>();
@@ -119,25 +117,19 @@ public class JvmObjectGen {
             BIRNode.BIRFunction func = getFunction(optionalFunc);
             Label targetLabel = targetLabels.get(i);
             mv.visitLabel(targetLabel);
-
             List<BType> paramTypes = func.type.paramTypes;
             BType retType = func.type.retType;
-
             String methodSig;
-
             // use index access, since retType can be nil.
             methodSig = JvmCodeGenUtil.getMethodDesc(jvmCastGen.typeEnv(), paramTypes, retType);
-
             // load self
             mv.visitVarInsn(ALOAD, 0);
-
             // load strand
             mv.visitVarInsn(ALOAD, 1);
             int j = 0;
             for (BType paramType : paramTypes) {
                 // load parameters
                 mv.visitVarInsn(ALOAD, 3);
-
                 // load j parameter
                 mv.visitLdcInsn((long) j);
                 mv.visitInsn(L2I);
@@ -145,9 +137,7 @@ public class JvmObjectGen {
                 jvmCastGen.addUnboxInsn(mv, paramType);
                 j += 1;
             }
-
-            mv.visitMethodInsn(INVOKEVIRTUAL, objClassName, func.name.value,
-                    methodSig, false);
+            mv.visitMethodInsn(INVOKEVIRTUAL, objClassName, func.name.value, methodSig, false);
             int retTypeTag = JvmCodeGenUtil.getImpliedType(retType).tag;
             if (retType == null || retTypeTag == TypeTags.NIL || retTypeTag == TypeTags.NEVER) {
                 mv.visitInsn(ACONST_NULL);
@@ -165,8 +155,7 @@ public class JvmObjectGen {
                 mv.visitVarInsn(ALOAD, 3);
                 mv.visitInsn(ICONST_1);
                 mv.visitInsn(AALOAD);
-                mv.visitMethodInsn(INVOKESTATIC, REPOSITORY_IMPL, "addServiceListener", ADD_SERVICE_LISTENER,
-                        false);
+                mv.visitMethodInsn(INVOKESTATIC, REPOSITORY_IMPL, "addServiceListener", ADD_SERVICE_LISTENER, false);
                 mv.visitVarInsn(ALOAD, 4);
             }
             mv.visitInsn(ARETURN);
@@ -188,7 +177,6 @@ public class JvmObjectGen {
                 mv.visitEnd();
             }
         }
-
         if (methodCount != 0 && bTypesCount % MAX_CALLS_PER_CLIENT_METHOD != 0) {
             createDefaultCase(mv, defaultCaseLabel, funcNameRegIndex, "No such method: ");
             mv.visitMaxs(i + VISIT_MAX_SAFE_MARGIN, i + VISIT_MAX_SAFE_MARGIN);

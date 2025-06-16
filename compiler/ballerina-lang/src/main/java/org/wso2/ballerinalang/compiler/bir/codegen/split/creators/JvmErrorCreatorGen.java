@@ -66,17 +66,17 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.ERROR_IN
  */
 public class JvmErrorCreatorGen {
 
-    private final String errorsClass;
     private final JvmTypeGen jvmTypeGen;
+    private final String errorsClass;
 
     public JvmErrorCreatorGen(PackageID packageID, JvmTypeGen jvmTypeGen) {
-       this.errorsClass = getModuleLevelClassName(packageID, MODULE_ERRORS_CREATOR_CLASS_NAME);
         this.jvmTypeGen = jvmTypeGen;
+        this.errorsClass = getModuleLevelClassName(packageID, MODULE_ERRORS_CREATOR_CLASS_NAME);
     }
 
     public void generateErrorsClass(JvmPackageGen jvmPackageGen, BIRNode.BIRPackage module,
-                                    JarEntries jarEntries,
-                                    List<BIRNode.BIRTypeDefinition> errorTypeDefList, SymbolTable symbolTable) {
+                                    JarEntries jarEntries, List<BIRNode.BIRTypeDefinition> errorTypeDefList,
+                                    SymbolTable symbolTable) {
         ClassWriter cw = new BallerinaClassWriter(COMPUTE_FRAMES);
         cw.visit(V21, ACC_PUBLIC + ACC_SUPER, errorsClass, null, OBJECT, null);
         generateCreateErrorMethods(cw, errorTypeDefList, errorsClass, symbolTable);
