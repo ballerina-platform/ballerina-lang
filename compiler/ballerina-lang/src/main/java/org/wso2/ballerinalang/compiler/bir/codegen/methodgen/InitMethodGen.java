@@ -24,15 +24,13 @@ import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmCastGen;
-import org.wso2.ballerinalang.compiler.bir.codegen.utils.JVMModuleUtils;
-import org.wso2.ballerinalang.compiler.bir.codegen.utils.JvmCodeGenUtil;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures;
-import org.wso2.ballerinalang.compiler.bir.codegen.internal.AsyncDataCollector;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.JavaClass;
 import org.wso2.ballerinalang.compiler.bir.codegen.model.BIRFunctionWrapper;
 import org.wso2.ballerinalang.compiler.bir.codegen.model.JIMethodCLICall;
-import org.wso2.ballerinalang.compiler.bir.codegen.split.JvmConstantsGen;
+import org.wso2.ballerinalang.compiler.bir.codegen.utils.JVMModuleUtils;
+import org.wso2.ballerinalang.compiler.bir.codegen.utils.JvmCodeGenUtil;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator;
 import org.wso2.ballerinalang.compiler.bir.model.BIROperand;
@@ -49,7 +47,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.util.Name;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -79,13 +76,13 @@ import static org.objectweb.asm.Opcodes.NEW;
 import static org.objectweb.asm.Opcodes.RETURN;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BAL_RUNTIME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CLI_SPEC;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CREATE_TYPES_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CURRENT_MODULE_INIT_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CURRENT_MODULE_STOP_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.GET_TEST_EXECUTION_STATE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.HANDLE_FUTURE_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.INIT_FUNCTION_SUFFIX;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JVM_INIT_METHOD;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JVM_STATIC_INIT_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.LAMBDA_PREFIX;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAIN_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_EXECUTE_METHOD;
@@ -119,7 +116,6 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.MODULE_S
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.PASS_OBJECT_ARRAY_RETURN_OBJECT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.PASS_STRAND;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.SCHEDULE_CALL;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.VOID_METHOD_DESC;
 import static org.wso2.ballerinalang.compiler.util.CompilerUtils.getMajorVersion;
 
 /**
@@ -218,18 +214,16 @@ public class InitMethodGen {
         MethodGenUtils.visitReturn(mv, methodName, initClass);
     }
 
-    public void generateModuleInitializer(ClassWriter cw, BIRNode.BIRPackage module, String typeOwnerClass,
-                                          String moduleInitClass) {
+    public void generateModuleInitializer(ClassWriter cw, BIRNode.BIRPackage module, String moduleInitClass) {
         // Using object return type since this is similar to a ballerina function without a return.
         // A ballerina function with no returns is equivalent to a function with nil-return.
         MethodVisitor mv = cw.visitMethod(ACC_PUBLIC + ACC_STATIC, CURRENT_MODULE_INIT_METHOD,
                 CURRENT_MODULE_INIT, null, null);
         mv.visitCode();
-        mv.visitMethodInsn(INVOKESTATIC, moduleInitClass, CREATE_TYPES_METHOD, VOID_METHOD_DESC, false);
-        mv.visitTypeInsn(NEW, typeOwnerClass);
+        mv.visitTypeInsn(NEW, moduleInitClass);
         mv.visitInsn(DUP);
         mv.visitVarInsn(ALOAD, 0);
-        mv.visitMethodInsn(INVOKESPECIAL, typeOwnerClass, JVM_INIT_METHOD, INIT_CLASS_CONSTRUCTOR, false);
+        mv.visitMethodInsn(INVOKESPECIAL, moduleInitClass, JVM_INIT_METHOD, INIT_CLASS_CONSTRUCTOR, false);
         mv.visitVarInsn(ASTORE, 1);
         mv.visitLdcInsn(Utils.decodeIdentifier(module.packageID.orgName.getValue()));
         mv.visitLdcInsn(Utils.decodeIdentifier(module.packageID.name.getValue()));
@@ -241,14 +235,12 @@ public class InitMethodGen {
         }
         mv.visitVarInsn(ALOAD, 1);
         mv.visitMethodInsn(INVOKESTATIC, VALUE_CREATOR, "addValueCreator", ADD_VALUE_CREATOR, false);
-
-        // Add a nil-return
-        mv.visitInsn(ACONST_NULL);
-        MethodGenUtils.visitReturn(mv, CURRENT_MODULE_INIT_METHOD, typeOwnerClass);
+        mv.visitInsn(RETURN);
+        JvmCodeGenUtil.visitMaxStackForMethod(mv, JVM_STATIC_INIT_METHOD, moduleInitClass);
+        mv.visitEnd();
     }
 
-    public void generateModuleStop(ClassWriter cw, String moduleInitClass, AsyncDataCollector asyncDataCollector,
-                                   JvmConstantsGen jvmConstantsGen) {
+    public void generateModuleStop(ClassWriter cw, String moduleInitClass) {
         // Using object return type since this is similar to a ballerina function without a return.
         // A ballerina function with no returns is equivalent to a function with nil-return.
         MethodVisitor mv = cw.visitMethod(ACC_PUBLIC + ACC_STATIC, CURRENT_MODULE_STOP_METHOD, CURRENT_MODULE_STOP,
