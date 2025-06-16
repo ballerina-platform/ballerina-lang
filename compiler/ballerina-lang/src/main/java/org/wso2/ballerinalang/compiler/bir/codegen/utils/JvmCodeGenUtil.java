@@ -23,6 +23,7 @@ import io.ballerina.tools.diagnostics.Location;
 import io.ballerina.types.Env;
 import org.apache.commons.lang3.StringUtils;
 import org.ballerinalang.compiler.BLangCompilerException;
+import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Handle;
@@ -57,7 +58,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.regex.Pattern;
 
-import static io.ballerina.runtime.api.constants.RuntimeConstants.UNDERSCORE;
 import static org.objectweb.asm.Opcodes.ACONST_NULL;
 import static org.objectweb.asm.Opcodes.ALOAD;
 import static org.objectweb.asm.Opcodes.ASTORE;
@@ -75,18 +75,17 @@ import static org.objectweb.asm.Opcodes.INVOKEVIRTUAL;
 import static org.objectweb.asm.Opcodes.NEW;
 import static org.objectweb.asm.Opcodes.RETURN;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BAL_EXTENSION;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BSTRING_VAR_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_STRING_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_STRING_VAR_PREFIX;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.DECIMAL_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ERROR_VALUE;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.FILE_NAME_PERIOD_SEPERATOR;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.FUNCTION_POINTER;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.GET_VALUE_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JAVA_PACKAGE_SEPERATOR;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JAVA_RUNTIME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JVM_INIT_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JVM_TO_STRING_METHOD;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAX_STRINGS_PER_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_INIT_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_START_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OVERFLOW_LINE_NUMBER;
@@ -94,6 +93,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRAND_CL
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRAND_WORKER_CHANNEL_MAP;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRING_BUILDER;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRING_UTILS;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.VALUE_VAR_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.WINDOWS_PATH_SEPERATOR;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.FP_INIT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.FROM_STRING;
@@ -508,7 +508,7 @@ public final class JvmCodeGenUtil {
     }
 
     public static void loadConstantValue(BType bType, Object constVal, MethodVisitor mv,
-                                         JvmConstantsGen jvmConstantsGen) {
+                                         JvmConstantsGen jvmConstantsGen, String stringConstantsClass) {
 
         int typeTag = getImpliedType(bType).tag;
         if (TypeTags.isIntegerTypeTag(typeTag)) {
@@ -519,8 +519,7 @@ public final class JvmCodeGenUtil {
             String val = String.valueOf(constVal);
             int index = jvmConstantsGen.getBStringConstantVarIndex(val);
             String varName = B_STRING_VAR_PREFIX + index;
-            String stringConstantsClass = getStringConstantsClass(index, jvmConstantsGen);
-            mv.visitFieldInsn(GETSTATIC, stringConstantsClass, varName, GET_BSTRING);
+            mv.visitFieldInsn(GETSTATIC, stringConstantsClass + varName, BSTRING_VAR_NAME, GET_BSTRING);
             return;
         }
 
@@ -548,11 +547,6 @@ public final class JvmCodeGenUtil {
             case TypeTags.NIL, TypeTags.NEVER -> mv.visitInsn(ACONST_NULL);
             default -> throw new BLangCompilerException("JVM generation is not supported for type : " + bType);
         }
-    }
-
-    public static String getStringConstantsClass(int varIndex, JvmConstantsGen jvmConstantsGen) {
-        int classIndex = varIndex / MAX_STRINGS_PER_METHOD;
-        return jvmConstantsGen.getStringConstantsClass() + UNDERSCORE + classIndex;
     }
 
     public static String removeDecimalDiscriminator(String value) {
@@ -674,7 +668,7 @@ public final class JvmCodeGenUtil {
         return filteredFunctions;
     }
 
-    public static String getVarStoreClass(String varClass, String varName) {
-        return varClass + varName;
+    public static String getVarStoreClass(String varClassPkgName, String varName) {
+        return varClassPkgName + varName;
     }
 }
