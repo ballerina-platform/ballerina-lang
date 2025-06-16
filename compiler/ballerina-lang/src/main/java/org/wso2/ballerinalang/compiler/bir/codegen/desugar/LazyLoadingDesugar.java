@@ -33,9 +33,7 @@ import java.util.List;
 public class LazyLoadingDesugar {
 
     LazyLoadingGlobalVarCollector lazyLoadingGlobalVarCollector;
-
     List<BIRNode.BIRBasicBlock> newBBs;
-
     BIRNode.BIRBasicBlock currentBB;
 
     public LazyLoadingDesugar(LazyLoadingGlobalVarCollector lazyLoadingGlobalVarCollector) {
@@ -62,83 +60,137 @@ public class LazyLoadingDesugar {
             for (int i = 0; i < instructions.size(); i++) {
                 BIRNonTerminator instruction = instructions.get(i);
                 switch (instruction.kind) {
+                    case CONST_LOAD -> lazyLoadConstantLoad((BIRNonTerminator.ConstantLoad) instruction);
                     case FP_LOAD -> i = lazyLoadFpLoad((BIRNonTerminator.FPLoad) instruction, instructions, i);
                     case NEW_TYPEDESC -> i = lazyLoadNewTypeDesc((BIRNonTerminator.NewTypeDesc) instruction,
                             instructions, i);
-//                    case NEW_ARRAY-> lazyLoadNewArray((BIRNonTerminator.NewArray) instruction, i);
+                    case NEW_STRUCTURE -> lazyLoadNewStructure((BIRNonTerminator.NewStructure) instruction);
+                    case NEW_ARRAY-> lazyLoadNewArray((BIRNonTerminator.NewArray) instruction);
                     default -> currentBB.instructions.add(instruction);
                 }
             }
         }
     }
 
+    private void lazyLoadConstantLoad(BIRNonTerminator.ConstantLoad constantLoad) {
+        if (constantLoad.lhsOp.variableDcl.kind != VarKind.GLOBAL) {
+            currentBB.instructions.add(constantLoad);
+            return;
+        }
+        String varName = constantLoad.lhsOp.variableDcl.name.value;
+        this.lazyLoadingGlobalVarCollector.add(varName, List.of(constantLoad));
+    }
+
     private int lazyLoadNewTypeDesc(BIRNonTerminator.NewTypeDesc newTypeDesc, List<BIRNonTerminator> instructions,
                                     int i) {
-        if (newTypeDesc.lhsOp.variableDcl.kind == VarKind.GLOBAL) {
-            String varName = newTypeDesc.lhsOp.variableDcl.name.value;
-            if (instructions.size() > i + 1) {
-                BIRNonTerminator nextIns = instructions.get(i + 1);
-                if (nextIns.kind == InstructionKind.TYPE_CAST && nextIns.lhsOp.variableDcl.kind == VarKind.GLOBAL) {
-                    this.lazyLoadingGlobalVarCollector.add(varName, List.of(newTypeDesc, nextIns));
-                    i++;
-                } else {
-                    this.lazyLoadingGlobalVarCollector.add(varName, List.of(newTypeDesc));
-                }
-            } else {
-                this.lazyLoadingGlobalVarCollector.add(varName, List.of(newTypeDesc));
-            }
-        } else {
+        if (newTypeDesc.lhsOp.variableDcl.kind != VarKind.GLOBAL) {
             currentBB.instructions.add(newTypeDesc);
+            return i;
         }
+        String varName = newTypeDesc.lhsOp.variableDcl.name.value;
+        if (instructions.size() > i + 1) {
+            BIRNonTerminator nextIns = instructions.get(i + 1);
+            if (nextIns.kind == InstructionKind.TYPE_CAST && nextIns.lhsOp.variableDcl.kind == VarKind.GLOBAL) {
+                this.lazyLoadingGlobalVarCollector.add(varName, List.of(newTypeDesc, nextIns));
+                return ++i;
+            }
+            this.lazyLoadingGlobalVarCollector.add(varName, List.of(newTypeDesc));
+            return i;
+        }
+        this.lazyLoadingGlobalVarCollector.add(varName, List.of(newTypeDesc));
         return i;
+    }
+
+    private void lazyLoadNewStructure(BIRNonTerminator.NewStructure newStructure) {
+        if (newStructure.lhsOp.variableDcl.kind != VarKind.GLOBAL) {
+            currentBB.instructions.add(newStructure);
+            return;
+        }
+        BIROperand rhsOp = newStructure.rhsOp;
+        String varName = newStructure.lhsOp.variableDcl.name.value;
+        if (rhsOp.variableDcl.kind != VarKind.GLOBAL) {
+            if (copyAndRemovePreviousInstructions(newStructure, rhsOp, varName)) {
+                return;
+            }
+            currentBB.instructions.add(newStructure);
+            return;
+        }
+        List<BIRNode.BIRMappingConstructorEntry> initialValues = newStructure.initialValues;
+        if (initialValues.isEmpty()) {
+            this.lazyLoadingGlobalVarCollector.add(varName, List.of(newStructure));
+            return;
+        }
+        BIRNode.BIRMappingConstructorEntry firstEntry = initialValues.getFirst();
+        if (firstEntry.isKeyValuePair()) {
+            BIRNode.BIRMappingConstructorKeyValueEntry keyValueEntry =
+                    (BIRNode.BIRMappingConstructorKeyValueEntry) firstEntry;
+            if (copyAndRemovePreviousInstructions(newStructure, keyValueEntry.keyOp, varName)) {
+                return;
+            }
+            currentBB.instructions.add(newStructure);
+            return;
+        }
+        BIROperand exprOp = ((BIRNode.BIRMappingConstructorSpreadFieldEntry) firstEntry).exprOp;
+        if (exprOp.variableDcl.kind != VarKind.GLOBAL) {
+            currentBB.instructions.add(newStructure);
+            return;
+        }
+        this.lazyLoadingGlobalVarCollector.add(varName, List.of(newStructure));
     }
 
     private int lazyLoadFpLoad(BIRNonTerminator.FPLoad fpLoad, List<BIRNonTerminator> instructions, int i) {
-        if (fpLoad.lhsOp.variableDcl.kind == VarKind.GLOBAL) {
-            String varName = fpLoad.lhsOp.variableDcl.name.value;
-            if (instructions.size() > i + 1) {
-                BIRNonTerminator nextIns = instructions.get(i + 1);
-                if (nextIns.kind == InstructionKind.RECORD_DEFAULT_FP_LOAD) {
-                    this.lazyLoadingGlobalVarCollector.add(varName, List.of(fpLoad, nextIns));
-                    i++;
-                } else {
-                    this.lazyLoadingGlobalVarCollector.add(varName, List.of(fpLoad));
-                }
-            } else {
-                this.lazyLoadingGlobalVarCollector.add(varName, List.of(fpLoad));
-            }
-        } else {
+        if (fpLoad.lhsOp.variableDcl.kind != VarKind.GLOBAL) {
             currentBB.instructions.add(fpLoad);
+            return i;
         }
+        String varName = fpLoad.lhsOp.variableDcl.name.value;
+        if (instructions.size() > i + 1) {
+            BIRNonTerminator nextIns = instructions.get(i + 1);
+            if (nextIns.kind == InstructionKind.RECORD_DEFAULT_FP_LOAD) {
+                this.lazyLoadingGlobalVarCollector.add(varName, List.of(fpLoad, nextIns));
+                return ++i;
+            }
+            this.lazyLoadingGlobalVarCollector.add(varName, List.of(fpLoad));
+            return i;
+        }
+        this.lazyLoadingGlobalVarCollector.add(varName, List.of(fpLoad));
         return i;
+
     }
 
-    private void lazyLoadNewArray(BIRNonTerminator.NewArray newArray, int i) {
+    private void lazyLoadNewArray(BIRNonTerminator.NewArray newArray) {
         if (newArray.lhsOp.variableDcl.kind != VarKind.GLOBAL) {
             currentBB.instructions.add(newArray);
             return;
         }
         String varName = newArray.lhsOp.variableDcl.name.value;
-        BIROperand sizeOp = newArray.sizeOp;
-        List<BIRInstruction> arrayInstructions = new ArrayList<>();
-        // if there are any terminators like method call for array values will not be added to lazy loader. HEnce
-        // only current instructions set will be checked.
-        int sizeOpInsIndex = -1;
-        int currentBBLastInsIndex = currentBB.instructions.size() - 1;
-        for (int j = currentBBLastInsIndex; j >= 0; j--) {
-            if (currentBB.instructions.get(j).lhsOp == sizeOp) {
-                sizeOpInsIndex = j;
-                break;
-            }
+        BIROperand extractedOp;
+        if (newArray.elementTypedescOp != null) {
+            extractedOp = newArray.elementTypedescOp;
+        } else if (newArray.typedescOp != null) {
+            extractedOp = newArray.typedescOp;
+        } else {
+            extractedOp = newArray.sizeOp;
         }
-        if (sizeOpInsIndex == -1) {
-            currentBB.instructions.add(newArray);
+        if (copyAndRemovePreviousInstructions(newArray, extractedOp, varName)) {
             return;
         }
-        for (int k = sizeOpInsIndex; k <= currentBBLastInsIndex; k++) {
-            arrayInstructions.add(currentBB.instructions.remove(sizeOpInsIndex));
+        currentBB.instructions.add(newArray);
+    }
+
+    private boolean copyAndRemovePreviousInstructions(BIRInstruction instruction, BIROperand birOperand, String varName) {
+        int currentBBInsSize = currentBB.instructions.size();
+        for (int j = currentBBInsSize - 1; j >= 0; j--) {
+            if (currentBB.instructions.get(j).lhsOp.equals(birOperand)) {
+                List<BIRInstruction> newInstructions = new ArrayList<>();
+                for (int k = j; k < currentBBInsSize; k++) {
+                    newInstructions.add(currentBB.instructions.remove(j));
+                }
+                newInstructions.add(instruction);
+                this.lazyLoadingGlobalVarCollector.add(varName, newInstructions);
+                return true;
+            }
         }
-        arrayInstructions.add(newArray);
-        this.lazyLoadingGlobalVarCollector.add(varName, arrayInstructions);
+        return false;
     }
 }
