@@ -21,6 +21,7 @@ package io.ballerina.projects;
 import io.ballerina.toml.semantic.diagnostics.TomlNodeLocation;
 
 import java.util.Objects;
+import java.util.Optional;
 
 /**
  * Represents a tool integrated with package build.
@@ -32,6 +33,7 @@ public class BuildTool {
     private PackageOrg org;
     private PackageName name;
     private PackageVersion version;
+    private final String repository;
     private final TomlNodeLocation location;
 
     private BuildTool(
@@ -39,12 +41,14 @@ public class BuildTool {
             PackageOrg org,
             PackageName name,
             PackageVersion version,
-            TomlNodeLocation location) {
+            TomlNodeLocation location,
+            String repository) {
         this.id = id;
         this.org = org;
         this.name = name;
         this.version = version;
         this.location = location;
+        this.repository = repository;
     }
 
     /**
@@ -60,7 +64,24 @@ public class BuildTool {
             PackageName name,
             PackageVersion version,
             TomlNodeLocation location) {
-        return new BuildTool(id, org, name, version, location);
+        return new BuildTool(id, org, name, version, location, null);
+    }
+
+    /**
+     * Create a build tool instance.
+     *
+     * @param id      build tool id
+     * @param version build tool version
+     * @return build tool instance
+     */
+    public static BuildTool from(
+            BuildToolId id,
+            PackageOrg org,
+            PackageName name,
+            PackageVersion version,
+            TomlNodeLocation location,
+            String repository) {
+        return new BuildTool(id, org, name, version, location, repository);
     }
 
     /**
@@ -106,6 +127,10 @@ public class BuildTool {
      */
     public TomlNodeLocation location() {
         return location;
+    }
+
+    public Optional<String> repository() {
+        return Optional.ofNullable(repository);
     }
 
     /**

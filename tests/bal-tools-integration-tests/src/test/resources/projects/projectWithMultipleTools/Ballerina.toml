@@ -1,0 +1,16 @@
+[package]
+org = "testorg"
+name = "projectWithMultipleTools"
+version = "0.1.0"
+distribution = "2201.12.3"
+
+[[tool.dummytoolA]]
+id = "dummyToolA-1"
+targetModule = "mod2"
+
+[[tool.dummytoolF]]
+id = "dummytoolF-1"
+targetModule = "mod1"
+
+[[tool.dummyToolX]]
+id = "dummyToolX-1"
