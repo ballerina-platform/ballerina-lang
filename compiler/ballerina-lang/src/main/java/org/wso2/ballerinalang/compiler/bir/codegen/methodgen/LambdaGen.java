@@ -26,9 +26,10 @@ import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.wso2.ballerinalang.compiler.bir.codegen.BallerinaClassWriter;
-import org.wso2.ballerinalang.compiler.bir.codegen.JarEntries;
+import org.wso2.ballerinalang.compiler.bir.codegen.internal.JarEntries;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmCastGen;
-import org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil;
+import org.wso2.ballerinalang.compiler.bir.codegen.utils.JVMModuleUtils;
+import org.wso2.ballerinalang.compiler.bir.codegen.utils.JvmCodeGenUtil;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.AsyncDataCollector;
@@ -85,7 +86,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.FUNCTION
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_OBJECT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INITIAL_METHOD_DESC;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.VOID_METHOD_DESC;
-import static org.wso2.ballerinalang.compiler.bir.codegen.split.constants.JvmConstantGenCommons.genMethodReturn;
+import static org.wso2.ballerinalang.compiler.bir.codegen.utils.JvmConstantGenUtils.genMethodReturn;
 
 /**
  * Generates Jvm byte code for the lambda method.
@@ -107,9 +108,6 @@ public class LambdaGen {
     public void generateLambdaClasses(AsyncDataCollector asyncDataCollector,
                                       JarEntries jarEntries) {
         Map<String, LambdaClass> lambdaClasses = asyncDataCollector.getLambdaClasses();
-        if (lambdaClasses.isEmpty()) {
-            return;
-        }
         for (Map.Entry<String, LambdaClass> entry : lambdaClasses.entrySet()) {
             String lambdaClassName = entry.getKey();
             LambdaClass lambdaClass = entry.getValue();
@@ -144,7 +142,7 @@ public class LambdaGen {
 
     private void generateLambdaMethod(BIRInstruction ins, ClassWriter cw, String lambdaName, String className) {
         LambdaDetails lambdaDetails = getLambdaDetails(ins);
-        boolean isSamePkg = JvmCodeGenUtil.isSameModule(module.packageID, lambdaDetails.packageID);
+        boolean isSamePkg = JVMModuleUtils.isSameModule(module.packageID, lambdaDetails.packageID);
         MethodVisitor mv = getMethodVisitorAndLoadFirst(cw, lambdaName, lambdaDetails, ins, isSamePkg);
 
         List<BType> paramBTypes = new ArrayList<>();
@@ -161,7 +159,7 @@ public class LambdaGen {
         String jvmClass, funcName, methodDesc;
         if (!isSamePkg) {
             // Use call method of function calls class to execute functions from imported modules
-            jvmClass = JvmCodeGenUtil.getModuleLevelClassName(lambdaDetails.packageID,
+            jvmClass = JVMModuleUtils.getModuleLevelClassName(lambdaDetails.packageID,
                     MODULE_FUNCTION_CALLS_CLASS_NAME);
             funcName = CALL_FUNCTION;
             methodDesc = FUNCTION_CALL;
@@ -171,7 +169,7 @@ public class LambdaGen {
         if (lambdaDetails.functionWrapper != null) {
             jvmClass = lambdaDetails.functionWrapper.fullQualifiedClassName();
         } else {
-            jvmClass = JvmCodeGenUtil.getModuleLevelClassName(lambdaDetails.packageID,
+            jvmClass = JVMModuleUtils.getModuleLevelClassName(lambdaDetails.packageID,
                     MODULE_FUNCTION_CALLS_CLASS_NAME);
         }
         methodDesc = getLambdaMethodDesc(paramBTypes, lambdaDetails.returnType, lambdaDetails.closureMapsCount);
@@ -382,7 +380,7 @@ public class LambdaGen {
 
     private void populateLambdaFunctionDetails(LambdaDetails lambdaDetails) {
         lambdaDetails.encodedFuncName = Utils.encodeFunctionIdentifier(lambdaDetails.funcName);
-        lambdaDetails.lookupKey = JvmCodeGenUtil.getPackageName(lambdaDetails.packageID) +
+        lambdaDetails.lookupKey = JVMModuleUtils.getPackageName(lambdaDetails.packageID) +
                 lambdaDetails.encodedFuncName;
         lambdaDetails.functionWrapper = jvmPackageGen.lookupBIRFunctionWrapper(lambdaDetails.lookupKey);
         if (lambdaDetails.functionWrapper == null) {
@@ -422,7 +420,7 @@ public class LambdaGen {
                     "instruction " + callIns);
         }
 
-        String key = JvmCodeGenUtil.getPackageName(packageID) + methodName;
+        String key = JVMModuleUtils.getPackageName(packageID) + methodName;
 
         BIRFunctionWrapper functionWrapper = jvmPackageGen.lookupBIRFunctionWrapper(key);
         return functionWrapper != null && JvmCodeGenUtil.isExternFunc(functionWrapper.func());

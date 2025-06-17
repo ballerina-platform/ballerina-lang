@@ -34,6 +34,8 @@ import org.wso2.ballerinalang.compiler.bir.codegen.model.JIMethodCLICall;
 import org.wso2.ballerinalang.compiler.bir.codegen.model.JIMethodCall;
 import org.wso2.ballerinalang.compiler.bir.codegen.model.JTerminator;
 import org.wso2.ballerinalang.compiler.bir.codegen.model.JavaMethodCall;
+import org.wso2.ballerinalang.compiler.bir.codegen.utils.JVMModuleUtils;
+import org.wso2.ballerinalang.compiler.bir.codegen.utils.JvmCodeGenUtil;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.bir.model.BIROperand;
 import org.wso2.ballerinalang.compiler.bir.model.BIRTerminator;
@@ -175,7 +177,6 @@ public class JvmTerminatorGen {
     private final BIRVarToJVMIndexMap indexMap;
     private final LabelGenerator labelGen;
     private final JvmErrorGen errorGen;
-    private final String currentPackageName;
     private final String moduleInitClass;
     private final JvmPackageGen jvmPackageGen;
     private final JvmInstructionGen jvmInstructionGen;
@@ -201,8 +202,7 @@ public class JvmTerminatorGen {
         this.packageCache = jvmPackageGen.packageCache;
         this.jvmInstructionGen = jvmInstructionGen;
         this.symbolTable = jvmPackageGen.symbolTable;
-        this.currentPackageName = JvmCodeGenUtil.getPackageName(packageID);
-        this.moduleInitClass = JvmCodeGenUtil.getModuleLevelClassName(packageID, MODULE_INIT_CLASS_NAME);
+        this.moduleInitClass = JVMModuleUtils.getModuleLevelClassName(packageID, MODULE_INIT_CLASS_NAME);
         this.unifier = new Unifier();
         this.asyncDataCollector = asyncDataCollector;
     }
@@ -568,7 +568,7 @@ public class JvmTerminatorGen {
         // load strand
         this.mv.visitVarInsn(ALOAD, localVarOffset);
         String encodedMethodName = Utils.encodeFunctionIdentifier(methodLookupName);
-        String packageName = JvmCodeGenUtil.getPackageName(callIns.calleePkg);
+        String packageName = JVMModuleUtils.getPackageName(callIns.calleePkg);
 
 
         int argsCount = callIns.args.size();
@@ -597,7 +597,7 @@ public class JvmTerminatorGen {
             if (funcSymbol == null && JvmCodeGenUtil.isModuleInitializerMethod(decodedMethodName.value)) {
                 // moduleInit() and moduleStart() functions are not present in the BIR cache because they are generated
                 // in CodeGen phase. Therefore, they are not found inside the packageSymbol scope.
-                jvmClass = JvmCodeGenUtil.getModuleLevelClassName(packageID,
+                jvmClass = JVMModuleUtils.getModuleLevelClassName(packageID,
                         JvmCodeGenUtil.cleanupPathSeparators(MODULE_INIT_CLASS_NAME));
                 this.mv.visitMethodInsn(INVOKESTATIC, jvmClass, encodedMethodName, MODULE_INITIALIZER, false);
                 return;
@@ -614,7 +614,7 @@ public class JvmTerminatorGen {
                 balFileName = MODULE_INIT_CLASS_NAME;
             }
 
-            jvmClass = JvmCodeGenUtil.getModuleLevelClassName(packageID,
+            jvmClass = JVMModuleUtils.getModuleLevelClassName(packageID,
                     JvmCodeGenUtil.cleanupPathSeparators(balFileName));
             //TODO: add receiver:  BType attachedType = type.r != null ? receiver.type : null;
             BType retType = unifier.build(symbolTable.typeEnv(), type.retType);
@@ -682,7 +682,7 @@ public class JvmTerminatorGen {
             for (BIRNode.BIRAnnotationAttachment annotationAttachment : callIns.annotAttachments) {
                 if (annotationAttachment == null ||
                         !STRAND.equals(annotationAttachment.annotTagRef.value) ||
-                        !JvmCodeGenUtil.isBuiltInPackage(annotationAttachment.annotPkgId)) {
+                        !JVMModuleUtils.isBuiltInPackage(annotationAttachment.annotPkgId)) {
                     continue;
                 }
 
@@ -722,11 +722,11 @@ public class JvmTerminatorGen {
 
     private void genPanicIfInLock(int localVarOffset) {
         String lockStore = "L" + LOCK_STORE + ";";
-        String initClassName = jvmPackageGen.lookupGlobalVarClassName(this.currentPackageName, LOCK_STORE_VAR_NAME);
-        this.mv.visitFieldInsn(GETSTATIC, initClassName, LOCK_STORE_VAR_NAME, lockStore);
+        this.mv.visitFieldInsn(GETSTATIC, this.moduleInitClass, LOCK_STORE_VAR_NAME, lockStore);
         this.mv.visitVarInsn(ALOAD, localVarOffset);
         this.mv.visitMethodInsn(INVOKEVIRTUAL, LOCK_STORE, "panicIfInLock", PASS_STRAND, false);
     }
+
 
     private void genAsyncCallArgs(BIRTerminator.AsyncCall callIns) {
         // create an Object[] for the rest params

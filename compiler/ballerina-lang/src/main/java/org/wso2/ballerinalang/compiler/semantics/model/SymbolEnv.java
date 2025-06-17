@@ -42,9 +42,11 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangRetry;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTransaction;
 import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangType;
+import org.wso2.ballerinalang.compiler.util.Name;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @since 0.94
@@ -375,11 +377,13 @@ public class SymbolEnv {
 
     private static SymbolEnv cloneSymbolEnvForClosure(BLangNode node, SymbolEnv env) {
         Scope scope = new Scope(env.scope.owner);
-        env.scope.entries.entrySet().stream()
-                // skip the type narrowed symbols when taking the snapshot for closures.
-                .filter(entry -> (entry.getValue().symbol.tag & SymTag.VARIABLE) != SymTag.VARIABLE ||
-                        ((BVarSymbol) entry.getValue().symbol).originalSymbol == null)
-                .forEach(entry -> scope.entries.put(entry.getKey(), entry.getValue()));
+        // skip the type narrowed symbols when taking the snapshot for closures.
+        for (Map.Entry<Name, Scope.ScopeEntry> entry : env.scope.entries.entrySet()) {
+            if ((entry.getValue().symbol.tag & SymTag.VARIABLE) != SymTag.VARIABLE ||
+                    ((BVarSymbol) entry.getValue().symbol).originalSymbol == null) {
+                scope.entries.put(entry.getKey(), entry.getValue());
+            }
+        }
         return new SymbolEnv(node, scope);
     }
 

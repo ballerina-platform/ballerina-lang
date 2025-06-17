@@ -508,7 +508,7 @@
         </Bug>
     </Match>
     <Match>
-        <Class name="org.wso2.ballerinalang.compiler.bir.codegen.optimizer.LargeMethodOptimizer" />
+        <Class name="org.wso2.ballerinalang.compiler.bir.optimizer.LargeMethodOptimizer" />
         <Method name="restoreOriginalArgsFromTuple" />
         <Bug pattern="BC_UNCONFIRMED_CAST" />
     </Match>

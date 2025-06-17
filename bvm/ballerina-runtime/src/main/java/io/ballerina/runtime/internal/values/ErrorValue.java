@@ -80,7 +80,8 @@ public class ErrorValue extends BError implements RefValue {
     private final BError cause;
     private final BMap<BString, Object> details;
 
-    private static final String GENERATED_CLASS_TEXTS_REGEX = "\\$value\\$|\\$split\\$\\d|lambdas.\\$_generated\\d*";
+    private static final String GENERATED_CLASS_TEXTS_REGEX =
+            "values\\.\\$_|\\$split\\$\\d|lambdas.\\$_generated\\d*";
     private static final String GENERATE_PKG_INIT = "___init_";
     private static final String GENERATE_PKG_START = "___start_";
     private static final String GENERATE_PKG_STOP = "___stop_";

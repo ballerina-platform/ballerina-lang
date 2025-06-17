@@ -18,7 +18,7 @@
 package org.wso2.ballerinalang.compiler.bir.codegen.model;
 
 import io.ballerina.runtime.api.Environment;
-import org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil;
+import org.wso2.ballerinalang.compiler.bir.codegen.utils.JvmCodeGenUtil;
 import org.wso2.ballerinalang.compiler.bir.codegen.exceptions.JInteropException;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 

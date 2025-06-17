@@ -28,6 +28,7 @@ import org.objectweb.asm.MethodVisitor;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.AsyncDataCollector;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.BIRVarToJVMIndexMap;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.LambdaFunction;
+import org.wso2.ballerinalang.compiler.bir.codegen.model.BIRFunctionWrapper;
 import org.wso2.ballerinalang.compiler.bir.codegen.model.JCast;
 import org.wso2.ballerinalang.compiler.bir.codegen.model.JInstruction;
 import org.wso2.ballerinalang.compiler.bir.codegen.model.JLargeArrayInstruction;
@@ -36,6 +37,8 @@ import org.wso2.ballerinalang.compiler.bir.codegen.model.JMethodCallInstruction;
 import org.wso2.ballerinalang.compiler.bir.codegen.model.JType;
 import org.wso2.ballerinalang.compiler.bir.codegen.model.JTypeTags;
 import org.wso2.ballerinalang.compiler.bir.codegen.split.JvmConstantsGen;
+import org.wso2.ballerinalang.compiler.bir.codegen.utils.JVMModuleUtils;
+import org.wso2.ballerinalang.compiler.bir.codegen.utils.JvmCodeGenUtil;
 import org.wso2.ballerinalang.compiler.bir.model.BIRInstruction;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator;
@@ -43,7 +46,6 @@ import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.FieldAccess;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.NewTable;
 import org.wso2.ballerinalang.compiler.bir.model.BIROperand;
 import org.wso2.ballerinalang.compiler.bir.model.InstructionKind;
-import org.wso2.ballerinalang.compiler.bir.model.VarKind;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SchedulerPolicy;
@@ -124,7 +126,13 @@ import static org.objectweb.asm.Opcodes.LXOR;
 import static org.objectweb.asm.Opcodes.NEW;
 import static org.objectweb.asm.Opcodes.PUTSTATIC;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmCastGen.getTargetClass;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil.toNameString;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.GLOBAL_CONSTANTS_PACKAGE_NAME;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.GLOBAL_VARIABLES_PACKAGE_NAME;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_STRING_CONSTANT_PACKAGE_NAME;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.VALUE_VAR_NAME;
+import static org.wso2.ballerinalang.compiler.bir.codegen.utils.JVMModuleUtils.getModuleLevelClassName;
+import static org.wso2.ballerinalang.compiler.bir.codegen.utils.JvmCodeGenUtil.getVarStoreClass;
+import static org.wso2.ballerinalang.compiler.bir.codegen.utils.JvmCodeGenUtil.toNameString;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ADD_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ANNOTATION_MAP_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ANNOTATION_UTILS;
@@ -264,6 +272,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.XML_SET_
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmTypeGen.getTypeDesc;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmValueGen.getTypeDescClassName;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmValueGen.getTypeValueClassName;
+import static org.wso2.ballerinalang.compiler.util.Constants.RECORD_DELIMITER;
 
 /**
  * Instruction generator helper class to hold its enclosing pkg and index map.
@@ -278,7 +287,6 @@ public class JvmInstructionGen {
     static BType anyType;
     private final MethodVisitor mv;
     private final BIRVarToJVMIndexMap indexMap;
-    private final String currentPackageName;
     private final JvmPackageGen jvmPackageGen;
     private final JvmTypeGen jvmTypeGen;
     private final JvmCastGen jvmCastGen;
@@ -288,6 +296,11 @@ public class JvmInstructionGen {
     private final JvmTypeTestGen typeTestGen;
     private final Map<String, LambdaFunction> functions;
     private final String moduleInitClass;
+    private final PackageID currentPackage;
+    private final String annotationVarClassName;
+    private final String globalVarsPkgName;
+    private final String constantsPkgName;
+    private final String stringConstantsPkgName;
 
     public JvmInstructionGen(MethodVisitor mv, BIRVarToJVMIndexMap indexMap, PackageID currentPackage,
                              JvmPackageGen jvmPackageGen, JvmTypeGen jvmTypeGen, JvmCastGen jvmCastGen,
@@ -297,13 +310,18 @@ public class JvmInstructionGen {
         this.jvmPackageGen = jvmPackageGen;
         this.jvmTypeGen = jvmTypeGen;
         this.symbolTable = jvmPackageGen.symbolTable;
-        this.currentPackageName = JvmCodeGenUtil.getPackageName(currentPackage);
         this.asyncDataCollector = asyncDataCollector;
         this.jvmCastGen = jvmCastGen;
         this.jvmConstantsGen = jvmConstantsGen;
-        typeTestGen = new JvmTypeTestGen(this, types, mv, jvmTypeGen, jvmCastGen);
+        this.typeTestGen = new JvmTypeTestGen(this, types, mv, jvmTypeGen, jvmCastGen);
         this.functions = new HashMap<>();
-        this.moduleInitClass = JvmCodeGenUtil.getModuleLevelClassName(currentPackage, MODULE_INIT_CLASS_NAME);
+        this.currentPackage = currentPackage;
+        this.moduleInitClass = JVMModuleUtils.getModuleLevelClassName(currentPackage, MODULE_INIT_CLASS_NAME);
+        this.globalVarsPkgName = getModuleLevelClassName(currentPackage, GLOBAL_VARIABLES_PACKAGE_NAME);
+        this.constantsPkgName = getModuleLevelClassName(currentPackage, GLOBAL_CONSTANTS_PACKAGE_NAME);
+        this.annotationVarClassName = getVarStoreClass(getModuleLevelClassName(currentPackage,
+                GLOBAL_VARIABLES_PACKAGE_NAME) , ANNOTATION_MAP_NAME);
+        this.stringConstantsPkgName = getModuleLevelClassName(currentPackage, MODULE_STRING_CONSTANT_PACKAGE_NAME);
     }
 
     private void generateJVarLoad(MethodVisitor mv, JType jType, int valueIndex) {
@@ -353,28 +371,26 @@ public class JvmInstructionGen {
     }
 
     public void generateVarLoad(MethodVisitor mv, BIRNode.BIRVariableDcl varDcl, int valueIndex) {
-
         BType bType = JvmCodeGenUtil.getImpliedType(varDcl.type);
-
         switch (varDcl.kind) {
-            case SELF -> {
-                mv.visitVarInsn(ALOAD, this.indexMap.get(OBJECT_SELF_INSTANCE));
-                return;
-            }
-            case CONSTANT, GLOBAL -> {
-                String varName = varDcl.name.value;
-                PackageID moduleId = ((BIRNode.BIRGlobalVariableDcl) varDcl).pkgId;
-                String pkgName = JvmCodeGenUtil.getPackageName(moduleId);
-                String className = jvmPackageGen.lookupGlobalVarClassName(pkgName, varName);
-                String typeSig = getTypeDesc(bType);
-                mv.visitFieldInsn(GETSTATIC, className, varName, typeSig);
-                return;
-            }
-            default -> {
-            }
+            case SELF -> mv.visitVarInsn(ALOAD, this.indexMap.get(OBJECT_SELF_INSTANCE));
+            case CONSTANT -> generateVarLoad(mv, varDcl, bType, this.constantsPkgName, GLOBAL_CONSTANTS_PACKAGE_NAME);
+            case GLOBAL -> generateVarLoad(mv, varDcl, bType, this.globalVarsPkgName, GLOBAL_VARIABLES_PACKAGE_NAME);
+            default -> generateVarLoadForType(mv, bType, valueIndex);
         }
+    }
 
-        generateVarLoadForType(mv, bType, valueIndex);
+    private void generateVarLoad(MethodVisitor mv, BIRNode.BIRVariableDcl varDcl, BType bType, String varClass,
+                                 String className) {
+        String varName = varDcl.name.value;
+        PackageID moduleId = ((BIRNode.BIRGlobalVariableDcl) varDcl).pkgId;
+        String typeSig = getTypeDesc(bType);
+        if (moduleId.equals(currentPackage)) {
+            mv.visitFieldInsn(GETSTATIC, getVarStoreClass(varClass, varName), VALUE_VAR_NAME, typeSig);
+        } else {
+            mv.visitFieldInsn(GETSTATIC, getVarStoreClass(getModuleLevelClassName(moduleId, className), varName),
+                    VALUE_VAR_NAME, typeSig);
+        }
     }
 
     private void generateVarLoadForType (MethodVisitor mv, BType bType, int valueIndex) {
@@ -407,19 +423,25 @@ public class JvmInstructionGen {
     }
 
     public void generateVarStore(MethodVisitor mv, BIRNode.BIRVariableDcl varDcl, int valueIndex) {
-
         BType bType = JvmCodeGenUtil.getImpliedType(varDcl.type);
-        if (varDcl.kind == VarKind.GLOBAL || varDcl.kind == VarKind.CONSTANT) {
-            String varName = varDcl.name.value;
-            PackageID moduleId = ((BIRNode.BIRGlobalVariableDcl) varDcl).pkgId;
-            String pkgName = JvmCodeGenUtil.getPackageName(moduleId);
-            String className = jvmPackageGen.lookupGlobalVarClassName(pkgName, varName);
-            String typeSig = getTypeDesc(bType);
-            mv.visitFieldInsn(PUTSTATIC, className, varName, typeSig);
-            return;
+        switch (varDcl.kind) {
+            case GLOBAL -> generateVarsStore(mv, varDcl, bType, this.globalVarsPkgName, GLOBAL_VARIABLES_PACKAGE_NAME);
+            case CONSTANT -> generateVarsStore(mv, varDcl, bType, this.constantsPkgName, GLOBAL_CONSTANTS_PACKAGE_NAME);
+            default -> generateVarStoreForType(mv, bType, valueIndex);
         }
+    }
 
-        generateVarStoreForType(mv, bType, valueIndex);
+    private void generateVarsStore(MethodVisitor mv, BIRNode.BIRVariableDcl varDcl, BType bType, String varClass,
+                                   String className) {
+        String varName = varDcl.name.value;
+        PackageID moduleId = ((BIRNode.BIRGlobalVariableDcl) varDcl).pkgId;
+        String typeSig = getTypeDesc(bType);
+        if (moduleId.equals(currentPackage)) {
+            mv.visitFieldInsn(PUTSTATIC, getVarStoreClass(varClass, varName), VALUE_VAR_NAME, typeSig);
+        } else {
+            mv.visitFieldInsn(PUTSTATIC, getVarStoreClass(getModuleLevelClassName(moduleId, className), varName),
+                    VALUE_VAR_NAME, typeSig);
+        }
     }
 
     private void generateVarStoreForType (MethodVisitor mv, BType bType, int valueIndex) {
@@ -472,15 +494,13 @@ public class JvmInstructionGen {
         switch (ins.jKind) {
             case J_CAST -> generateJCastIns((JCast) ins);
             case CALL -> generateJMethodCallIns(localVarOffset, (JMethodCallInstruction) ins);
-            case LARGE_ARRAY -> generateJLargeArrayIns(localVarOffset, (JLargeArrayInstruction) ins);
-            default -> generateJLargeMapIns(localVarOffset, (JLargeMapInstruction) ins);
+            case LARGE_ARRAY -> generateJLargeArrayIns((JLargeArrayInstruction) ins);
+            default -> generateJLargeMapIns((JLargeMapInstruction) ins);
         }
     }
 
-    private void generateJLargeMapIns(int localVarOffset, JLargeMapInstruction mapNewIns) {
+    private void generateJLargeMapIns(JLargeMapInstruction mapNewIns) {
         this.loadVar(mapNewIns.rhsOp.variableDcl);
-        this.mv.visitVarInsn(ALOAD, localVarOffset);
-
         // load the initial values operand
         this.loadVar(mapNewIns.initialValues.variableDcl);
         mv.visitMethodInsn(INVOKEVIRTUAL, HANDLE_VALUE, GET_VALUE_METHOD, RETURN_OBJECT, false);
@@ -491,7 +511,7 @@ public class JvmInstructionGen {
         this.storeToVar(mapNewIns.lhsOp.variableDcl);
     }
 
-    private void generateJLargeArrayIns(int localVarOffset, JLargeArrayInstruction inst) {
+    private void generateJLargeArrayIns(JLargeArrayInstruction inst) {
         BType instType = JvmCodeGenUtil.getImpliedType(inst.type);
         if (instType.tag == TypeTags.ARRAY) {
             this.mv.visitTypeInsn(NEW, ARRAY_VALUE_IMPL);
@@ -508,7 +528,6 @@ public class JvmInstructionGen {
             this.storeToVar(inst.lhsOp.variableDcl);
         } else {
             this.loadVar(inst.typedescOp.variableDcl);
-            this.mv.visitVarInsn(ALOAD, localVarOffset);
             loadListInitialValues(inst);
             this.mv.visitMethodInsn(INVOKEINTERFACE, TYPEDESC_VALUE, INSTANTIATE_FUNCTION,
                     INSTANTIATE_WITH_INITIAL_VALUES, true);
@@ -1194,32 +1213,25 @@ public class JvmInstructionGen {
         return this.indexMap.addIfNotExists(varDcl.name.value, varDcl.type);
     }
 
-    void generateMapNewIns(BIRNonTerminator.NewStructure mapNewIns, int localVarOffset) {
-
+    void generateMapNewIns(BIRNonTerminator.NewStructure mapNewIns) {
         this.loadVar(mapNewIns.rhsOp.variableDcl);
-        this.mv.visitVarInsn(ALOAD, localVarOffset);
-
         List<BIRNode.BIRMappingConstructorEntry> initialValues = mapNewIns.initialValues;
         mv.visitLdcInsn((long) initialValues.size());
         mv.visitInsn(L2I);
         mv.visitTypeInsn(ANEWARRAY, B_MAPPING_INITIAL_VALUE_ENTRY);
-
         int i = 0;
         for (BIRNode.BIRMappingConstructorEntry initialValue : initialValues) {
             mv.visitInsn(DUP);
             mv.visitLdcInsn((long) i);
             mv.visitInsn(L2I);
             i += 1;
-
             if (initialValue.isKeyValuePair()) {
                 createKeyValueEntry(mv, (BIRNode.BIRMappingConstructorKeyValueEntry) initialValue);
             } else {
                 createSpreadFieldEntry(mv, (BIRNode.BIRMappingConstructorSpreadFieldEntry) initialValue);
             }
-
             mv.visitInsn(AASTORE);
         }
-
         this.mv.visitMethodInsn(INVOKEINTERFACE, TYPEDESC_VALUE, INSTANTIATE_FUNCTION,
                 INSTANTIATE_WITH_INITIAL_VALUES, true);
         this.storeToVar(mapNewIns.lhsOp.variableDcl);
@@ -1367,7 +1379,7 @@ public class JvmInstructionGen {
         this.loadVar(objectStoreIns.lhsOp.variableDcl);
         if (objectStoreIns.onInitialization) {
             BObjectType objectType = (BObjectType) objectStoreIns.lhsOp.variableDcl.type;
-            String className = getTypeValueClassName(JvmCodeGenUtil.getPackageName(objectType.tsymbol.pkgID),
+            String className = getTypeValueClassName(JVMModuleUtils.getPackageName(objectType.tsymbol.pkgID),
                     toNameString(objectType));
             // add cast to typeValueClass
             this.mv.visitTypeInsn(CHECKCAST, className);
@@ -1407,7 +1419,7 @@ public class JvmInstructionGen {
         this.storeToVar(stringLoadIns.lhsOp.variableDcl);
     }
 
-    void generateArrayNewIns(BIRNonTerminator.NewArray inst, int localVarOffset) {
+    void generateArrayNewIns(BIRNonTerminator.NewArray inst) {
         BType instType = JvmCodeGenUtil.getImpliedType(inst.type);
         if (instType.tag == TypeTags.ARRAY) {
             this.mv.visitTypeInsn(NEW, ARRAY_VALUE_IMPL);
@@ -1425,7 +1437,6 @@ public class JvmInstructionGen {
             this.storeToVar(inst.lhsOp.variableDcl);
         } else {
             this.loadVar(inst.typedescOp.variableDcl);
-            this.mv.visitVarInsn(ALOAD, localVarOffset);
             loadListInitialValues(inst);
             this.mv.visitMethodInsn(INVOKEINTERFACE, TYPEDESC_VALUE, INSTANTIATE_FUNCTION,
                     INSTANTIATE_WITH_INITIAL_VALUES, true);
@@ -1595,10 +1606,10 @@ public class JvmInstructionGen {
         BType type = jvmPackageGen.lookupTypeDef(objectNewIns);
         String className;
         if (objectNewIns.isExternalDef) {
-            className = getTypeValueClassName(JvmCodeGenUtil.getPackageName(objectNewIns.externalPackageId),
+            className = getTypeValueClassName(JVMModuleUtils.getPackageName(objectNewIns.externalPackageId),
                                               objectNewIns.objectName);
         } else {
-            className = getTypeValueClassName(JvmCodeGenUtil.getPackageName(type.tsymbol.pkgID),
+            className = getTypeValueClassName(JVMModuleUtils.getPackageName(type.tsymbol.pkgID),
                                               objectNewIns.def.internalName.value);
         }
 
@@ -1616,15 +1627,10 @@ public class JvmInstructionGen {
             this.mv.visitTypeInsn(CHECKCAST, OBJECT_TYPE_IMPL);
             mv.visitMethodInsn(INVOKEVIRTUAL, OBJECT_TYPE_IMPL, "duplicate", OBJECT_TYPE_DUPLICATE, false);
             this.mv.visitInsn(DUP);
-
-            String pkgClassName = currentPackageName.equals(".") || currentPackageName.isEmpty() ?
-                    MODULE_INIT_CLASS_NAME : jvmPackageGen.lookupGlobalVarClassName(currentPackageName,
-                    ANNOTATION_MAP_NAME);
-
-            this.mv.visitFieldInsn(GETSTATIC, pkgClassName, ANNOTATION_MAP_NAME, GET_MAP_VALUE);
+            this.mv.visitFieldInsn(GETSTATIC, this.annotationVarClassName, VALUE_VAR_NAME, GET_MAP_VALUE);
             this.mv.visitVarInsn(ALOAD, strandIndex);
             this.mv.visitMethodInsn(INVOKESTATIC, ANNOTATION_UTILS, "processObjectCtorAnnotations",
-                   PROCESS_OBJ_CTR_ANNOTATIONS, false);
+                    PROCESS_OBJ_CTR_ANNOTATIONS, false);
         }
     }
 
@@ -1666,21 +1672,28 @@ public class JvmInstructionGen {
             mv.visitInsn(ICONST_0);
         }
         this.mv.visitMethodInsn(INVOKESPECIAL, FUNCTION_POINTER, JVM_INIT_METHOD, FP_INIT, false);
-
-        PackageID boundMethodPkgId = inst.boundMethodPkgId;
-        String funcPkgName = JvmCodeGenUtil.getPackageName(boundMethodPkgId == null ? inst.pkgId : boundMethodPkgId);
         // Set annotations if available.
-        this.mv.visitInsn(DUP);
-        String pkgClassName = funcPkgName.isEmpty() ? MODULE_INIT_CLASS_NAME :
-                jvmPackageGen.lookupGlobalVarClassName(funcPkgName, ANNOTATION_MAP_NAME);
-        this.mv.visitFieldInsn(GETSTATIC, pkgClassName, ANNOTATION_MAP_NAME, GET_MAP_VALUE);
-        // Format of name `$anon$method$delegate$Foo.func$0`.
-        this.mv.visitLdcInsn(name.startsWith(ANON_METHOD_DELEGATE) ?
-                name.subSequence(ANON_METHOD_DELEGATE.length(), name.lastIndexOf("$")) :
-                name);
-        this.mv.visitMethodInsn(INVOKESTATIC, ANNOTATION_UTILS, "processFPValueAnnotations",
-                PROCESS_FP_ANNOTATIONS, false);
+        PackageID boundMethodPkgId = inst.boundMethodPkgId;
+        String funcPkgName = JVMModuleUtils.getPackageName(boundMethodPkgId == null ? inst.pkgId : boundMethodPkgId);
+        if (hasFPAnnotations(name, funcPkgName)) {
+            this.mv.visitInsn(DUP);
+            this.mv.visitFieldInsn(GETSTATIC, this.annotationVarClassName, VALUE_VAR_NAME, GET_MAP_VALUE);
+            // Format of name `$anon$method$delegate$Foo.func$0`.
+            this.mv.visitLdcInsn(name.startsWith(ANON_METHOD_DELEGATE) ?
+                    name.subSequence(ANON_METHOD_DELEGATE.length(), name.lastIndexOf("$")) : name);
+            this.mv.visitMethodInsn(INVOKESTATIC, ANNOTATION_UTILS, "processFPValueAnnotations", PROCESS_FP_ANNOTATIONS, false);
+        }
         this.storeToVar(inst.lhsOp.variableDcl);
+    }
+
+    private boolean hasFPAnnotations(String name, String funcPkgName) {
+        if (name.contains(RECORD_DELIMITER)) {
+            return false;
+        }
+        BIRFunctionWrapper birFunctionWrapper =
+                jvmPackageGen.lookupBIRFunctionWrapper(funcPkgName + Utils.decodeIdentifier(name));
+        return birFunctionWrapper == null || birFunctionWrapper.func().annotAttachments != null &&
+                !birFunctionWrapper.func().annotAttachments.isEmpty();
     }
 
     private void generateRecordDefaultFPLoadIns(BIRNonTerminator.RecordDefaultFPLoad inst) {
@@ -1995,7 +2008,7 @@ public class JvmInstructionGen {
         String className = TYPEDESC_VALUE_IMPL;
         BType type = JvmCodeGenUtil.getImpliedType(newTypeDesc.type);
         if (type.tag == TypeTags.RECORD) {
-            className = getTypeDescClassName(JvmCodeGenUtil.getPackageName(type.tsymbol.pkgID), toNameString(type));
+            className = getTypeDescClassName(JVMModuleUtils.getPackageName(type.tsymbol.pkgID), toNameString(type));
         }
         this.mv.visitTypeInsn(NEW, className);
         this.mv.visitInsn(DUP);
@@ -2021,7 +2034,8 @@ public class JvmInstructionGen {
 
     void generateConstantLoadIns(BIRNonTerminator.ConstantLoad loadIns) {
 
-        JvmCodeGenUtil.loadConstantValue(loadIns.type, loadIns.value, this.mv, jvmConstantsGen);
+        JvmCodeGenUtil.loadConstantValue(loadIns.type, loadIns.value, this.mv, jvmConstantsGen,
+                this.stringConstantsPkgName);
         this.storeToVar(loadIns.lhsOp.variableDcl);
     }
 
@@ -2077,20 +2091,20 @@ public class JvmInstructionGen {
                 false);
     }
 
-    void generateInstructions(int localVarOffset, BIRInstruction inst) {
+    public void generateInstructions(int localVarOffset, BIRInstruction inst) {
         if (inst instanceof BIRNonTerminator.BinaryOp) {
             generateBinaryOpIns((BIRNonTerminator.BinaryOp) inst);
         } else {
             switch (inst.getKind()) {
                 case MOVE -> generateMoveIns((BIRNonTerminator.Move) inst);
                 case CONST_LOAD -> generateConstantLoadIns((BIRNonTerminator.ConstantLoad) inst);
-                case NEW_STRUCTURE -> generateMapNewIns((BIRNonTerminator.NewStructure) inst, localVarOffset);
+                case NEW_STRUCTURE -> generateMapNewIns((BIRNonTerminator.NewStructure) inst);
                 case NEW_INSTANCE -> generateObjectNewIns((BIRNonTerminator.NewInstance) inst, localVarOffset);
                 case MAP_STORE -> generateMapStoreIns((FieldAccess) inst);
                 case NEW_TABLE -> generateTableNewIns((NewTable) inst);
                 case TABLE_STORE -> generateTableStoreIns((FieldAccess) inst);
                 case TABLE_LOAD -> generateTableLoadIns((FieldAccess) inst);
-                case NEW_ARRAY -> generateArrayNewIns((BIRNonTerminator.NewArray) inst, localVarOffset);
+                case NEW_ARRAY -> generateArrayNewIns((BIRNonTerminator.NewArray) inst);
                 case ARRAY_STORE -> generateArrayStoreIns((FieldAccess) inst);
                 case MAP_LOAD -> generateMapLoadIns((FieldAccess) inst);
                 case ARRAY_LOAD -> generateArrayValueLoad((FieldAccess) inst);

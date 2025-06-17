@@ -228,17 +228,13 @@ public final class ReadOnlyUtils {
                             new BField(getImmutableType(originalField.getFieldType(), unresolvedTypes),
                                     originalField.getFieldName(), originalField.getFlags() | SymbolFlags.READONLY));
                 }
-
                 BRecordType immutableRecordType = new BRecordType(
                         Utils.decodeIdentifier(origRecordType.getName().concat(" & readonly")),
                         origRecordType.getPackage(),
                         origRecordType.flags |= SymbolFlags.READONLY, fields,
                         null, origRecordType.sealed,
                         origRecordType.typeFlags);
-                for (Map.Entry<String, BFunctionPointer> field : origRecordType.getDefaultValues()
-                        .entrySet()) {
-                    immutableRecordType.setDefaultValue(field.getKey(), field.getValue());
-                }
+                immutableRecordType.setDefaultValues(origRecordType.getDefaultValues());
                 BIntersectionType intersectionType = createAndSetImmutableIntersectionType(origRecordType,
                                                                                            immutableRecordType);
 

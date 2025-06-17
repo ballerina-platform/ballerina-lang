@@ -84,6 +84,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OPERAND;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OPTION;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.PATH;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.READONLY_TYPE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.RECORD_TYPE_IMPL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.REENTRANT_LOCK;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.REG_EXP_ASSERTION;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.REG_EXP_ATOM_QUANTIFIER;
@@ -104,14 +105,12 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SCHEDULER
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SERVICE_TYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SET;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRAND_CLASS;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRAND_METADATA;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STREAM_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRING_BUILDER;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRING_TYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRING_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TABLE_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.THROWABLE;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TRANSACTION_CONTEXT_CLASS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TUPLE_TYPE_IMPL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPEDESC_VALUE;
@@ -201,7 +200,7 @@ public final class JvmSignatures {
     public static final String CREATE_XML_PI = "(L" + B_STRING_VALUE + ";L" + B_STRING_VALUE + ";Z)L" + XML_VALUE + ";";
     public static final String CREATE_XML_TEXT = "(L" + B_STRING_VALUE + ";)L" + XML_VALUE + ";";
     public static final String CRETAE_XML_SEQUENCE = "()L" + XML_SEQUENCE + ";";
-    public static final String CURRENT_MODULE_INIT = "(L" + BAL_RUNTIME + ";)L" + OBJECT + ";";
+    public static final String CURRENT_MODULE_INIT = "(L" + BAL_RUNTIME + ";)V";
     public static final String CURRENT_MODULE_STOP = "(L" + BAL_RUNTIME + ";)V";
     public static final String DECIMAL_NEGATE = "()L" + DECIMAL_VALUE + ";";
     public static final String DECIMAL_TO_HANDLE = "(L" + OBJECT + ";)L" + HANDLE_VALUE + ";";
@@ -244,13 +243,15 @@ public final class JvmSignatures {
     public static final String GET_JBOOLEAN_TYPE = "Z";
     public static final String GET_JSTRING = "()L" + STRING_VALUE + ";";
     public static final String GET_LOCK_STORE = "L" + LOCK_STORE + ";";
+    public static final String GET_LOOKUP_KEY =  "(L" + MODULE + ";)L" + STRING_VALUE + ";";
     public static final String GET_MAIN_ARGS = "()[L" + OBJECT + ";";
-    public static final String GET_MAP_ARRAY = "[L" + MAP_VALUE + ";";
     public static final String GET_MAP_VALUE = "L" + MAP_VALUE + ";";
     public static final String GET_MODULE = "L" + MODULE + ";";
     public static final String GET_OBJECT = "L" + OBJECT + ";";
     public static final String GET_OBJECT_FOR_STRING = "(L" + STRING_VALUE + ";)L" + OBJECT + ";";
+    public static final String GET_OBJECT_TYPE_IMPL = "L" + OBJECT_TYPE_IMPL + ";";
     public static final String GET_PATH = "[L" + PATH + ";";
+    public static final String GET_RECORD_TYPE_IMPL = "L" + RECORD_TYPE_IMPL + ";";
     public static final String GET_REGEXP = "L" + REG_EXP_VALUE + ";";
     public static final String GET_RUNTIME = "()L" + JvmConstants.JAVA_RUNTIME + ";";
     public static final String GET_RUNTIME_ERROR = "L" + ERROR_CODES + ";";
@@ -259,7 +260,6 @@ public final class JvmSignatures {
     public static final String GET_RUNTIME_REGISTRY = "L" + RUNTIME_REGISTRY_CLASS + ";";
     public static final String GET_SCHEDULER = "L" + SCHEDULER + ";";
     public static final String GET_STRAND = "L" + STRAND_CLASS + ";";
-    public static final String GET_STRAND_METADATA = "L" + STRAND_METADATA + ";";
     public static final String GET_STREAM_VALUE = "L" + STREAM_VALUE + ";";
     public static final String GET_STRING = "L" + STRING_VALUE + ";";
     public static final String GET_STRING_ARRAY = "()[L" + STRING_VALUE + ";";
@@ -274,6 +274,7 @@ public final class JvmSignatures {
     public static final String GET_TYPEDESC = "L" + TYPEDESC_VALUE + ";";
     public static final String GET_TYPEDESC_OF_OBJECT = "(L" + OBJECT + ";)L" + TYPEDESC_VALUE + ";";
     public static final String GET_UNION_TYPE_IMPL = "L" + UNION_TYPE_IMPL + ";";
+    public static final String GET_VALUE_CREATOR = "(L" + STRING_VALUE + ";)L" + VALUE_CREATOR + ";";
     public static final String GET_WORKER_CHANNEL_MAP = "L" + WORKER_CHANNEL_MAP + ";";
     public static final String GET_XML = "L" + XML_VALUE + ";";
     public static final String HANDLE_FLUSH = "(L" + STRAND_CLASS + ";L" + WORKER_CHANNEL_MAP + ";[L" +
@@ -289,7 +290,8 @@ public final class JvmSignatures {
     public static final String HANDLE_WAIT_MULTIPLE = "(L" + STRAND_CLASS + ";L" + MAP + ";L" + MAP_VALUE + ";)V";
     public static final String INIT_ANYDATA_ARRAY = "([L" + OBJECT + ";L" + ARRAY_TYPE + ";)V";
     public static final String INIT_ARRAY = "(L" + TYPE + ";[L" + B_LIST_INITIAL_VALUE_ENTRY + ";)V";
-    public static final String INIT_ARRAY_TYPE_IMPL = "(L" + TYPE + ";IZI)V";
+    public static final String INIT_BASIC_VALUE_ARRAY_TYPE_IMPL = "(L" + TYPE + ";IZI)V";
+    public static final String INIT_COMPLEX_VALUE_ARRAY_TYPE_IMPL = "(IIZZ)V";
     public static final String INIT_ARRAY_WITH_INITIAL_VALUES = "(L" + TYPE + ";[L" + B_LIST_INITIAL_VALUE_ENTRY +
             ";L" + TYPEDESC_VALUE + ";)V";
    public static final String INIT_BAL_ENV =
@@ -325,9 +327,6 @@ public final class JvmSignatures {
     public static final String INIT_PARAMETERIZED_TYPE_IMPL = "(L" + TYPE + ";I)V";
     public static final String INIT_RUNTIME = "(L" + MODULE + ";)V";
     public static final String INIT_SIGNAL_LISTENER = "(L" + BAL_RUNTIME + ";)V";
-    public static final String INIT_STRAND =
-            "(L" + SCHEDULER + ";L" + STRAND_CLASS + ";ZL" + STRING_VALUE + ";L" + STRING_VALUE + ";L" + MAP + ";L"
-                    + TRANSACTION_CONTEXT_CLASS + ";)V";
     public static final String INIT_STREAM_TYPE_IMPL = "(L" + TYPE + ";L" + TYPE + ";)V";
     public static final String INIT_TABLE_TYPE_IMPL = "(L" + TYPE + ";L" + TYPE + ";Z)V";
     public static final String INIT_TABLE_TYPE_WITH_FIELD_NAME_LIST = "(L" + TYPE + ";[L" + STRING_VALUE + ";Z)V";
@@ -342,9 +341,8 @@ public final class JvmSignatures {
     public static final String INIT_XML_QNAME = "(L" + B_STRING_VALUE + ";L" + B_STRING_VALUE + ";L" + B_STRING_VALUE +
             ";)V";
     public static final String INITIAL_METHOD_DESC = "(L" + STRAND_CLASS + ";";
-    public static final String INSTANTIATE = "(L" + STRAND_CLASS + ";)L" + OBJECT + ";";
-    public static final String INSTANTIATE_WITH_INITIAL_VALUES = "(L" + STRAND_CLASS + ";[L" + B_INITIAL_VALUE_ENTRY +
-            ";)L" + OBJECT + ";";
+    public static final String INSTANTIATE = "()L" + OBJECT + ";";
+    public static final String INSTANTIATE_WITH_INITIAL_VALUES = "([L" + B_INITIAL_VALUE_ENTRY + ";)L" + OBJECT + ";";
     public static final String INT_VALUE_OF_METHOD = "(I)L" + INT_VALUE + ";";
     public static final String INTI_VARIABLE_KEY = "(L" + MODULE + ";L" + STRING_VALUE + ";L" + TYPE + ";L" +
             STRING_VALUE + ";Z)V";

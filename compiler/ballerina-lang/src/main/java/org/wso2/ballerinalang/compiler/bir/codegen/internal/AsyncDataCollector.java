@@ -25,7 +25,7 @@ import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil.getModuleLevelClassName;
+import static org.wso2.ballerinalang.compiler.bir.codegen.utils.JVMModuleUtils.getModuleLevelClassName;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.LAMBDA_PREFIX;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAX_GENERATED_LAMBDAS_PER_CLASS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_LAMBDAS_CLASS_NAME;
@@ -51,12 +51,10 @@ public class AsyncDataCollector {
 
     public LambdaFunction addAndGetLambda(String funcName, BIRInstruction inst, boolean isAsync) {
         String encodedFuncName = Utils.encodeFunctionIdentifier(funcName);
-        String enclosingClass = getModuleLevelClassName(packageID, MODULE_LAMBDAS_CLASS_NAME + classIndex,
-                currentSourceFileWithoutExt, "/");
+        String enclosingClass = getModuleLevelClassName(packageID, MODULE_LAMBDAS_CLASS_NAME + classIndex);
         LambdaClass lambdaClass = lambdas.get(enclosingClass);
-        if (lambdaClass == null || lambdaClass.lambdaFunctionList.size() > MAX_GENERATED_LAMBDAS_PER_CLASS) {
-            enclosingClass = getModuleLevelClassName(packageID, MODULE_LAMBDAS_CLASS_NAME + ++classIndex,
-                    currentSourceFileWithoutExt, "/");
+        if (lambdaClass == null) {
+            enclosingClass = getModuleLevelClassName(packageID, MODULE_LAMBDAS_CLASS_NAME + classIndex);
             lambdaClass = new LambdaClass(currentSourceFileName);
             lambdas.put(enclosingClass, lambdaClass);
             lambdaIndex = 0;
@@ -71,6 +69,9 @@ public class AsyncDataCollector {
         }
         LambdaFunction lambdaFunction = new LambdaFunction(lambdaName, enclosingClass, inst);
         lambdaClass.lambdaFunctionList.add(lambdaFunction);
+        if (lambdaClass.lambdaFunctionList.size() > MAX_GENERATED_LAMBDAS_PER_CLASS) {
+            classIndex++;
+        }
         return lambdaFunction;
     }
 
