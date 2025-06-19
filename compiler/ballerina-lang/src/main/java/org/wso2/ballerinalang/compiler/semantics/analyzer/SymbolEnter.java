@@ -4968,18 +4968,24 @@ public class SymbolEnter extends BLangNodeVisitor {
                 var.flagSet = field.symbol.getFlags();
                 var structuredTypeNode = visitedNodes.get(finalReferredType.tsymbol);
                 if (structuredTypeNode != null) {
-                    structuredTypeNode.fields.stream().filter(f -> f.name.value.equals(field.name.value)).findFirst()
-                            .ifPresent(v ->
-                                    v.annAttachments.forEach(a -> {
-                                                var clonda = this.nodeCloner.cloneNode(a);
-                                                var.addAnnotationAttachment(clonda);
-                                            }
-                                    ));
+                    copyMatchingConstAnnotations(field, structuredTypeNode, var);
                 }
                 return var;
             });
         }).toList();
         structureTypeNode.typeRefs.removeAll(invalidTypeRefs);
+    }
+
+    private void copyMatchingConstAnnotations(BField field, BLangStructureTypeNode structuredTypeNode,
+                                              BLangSimpleVariable var) {
+        structuredTypeNode.fields.stream()
+                .filter(f -> f.name.value.equals(field.name.value))
+                .findFirst()
+                .ifPresent(sourceVariable ->
+                                sourceVariable.annAttachments.stream()
+//                                .filter(annon -> annon.annotationAttachmentSymbol.isConstAnnotation())
+                                        .map(this.nodeCloner::cloneNode).forEach(var::addAnnotationAttachment)
+                );
     }
 
     private void defineReferencedFunction(Location location, Set<Flag> flagSet, SymbolEnv objEnv,
