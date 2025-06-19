@@ -38,6 +38,10 @@ public class ValidateFieldAnnotations {
         return assertAnnotatedFields(value, "x", "y", "z");
     }
 
+    public static boolean testDerived3(BTypedesc value) {
+        return assertAnnotatedFields(value, "x", "y", "a");
+    }
+
     public static boolean testOverride1(BTypedesc value) {
         return assertAnnotatedFields(value);
     }

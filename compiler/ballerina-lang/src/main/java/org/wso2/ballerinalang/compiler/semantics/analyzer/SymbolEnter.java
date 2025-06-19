@@ -4968,7 +4968,7 @@ public class SymbolEnter extends BLangNodeVisitor {
                 var.flagSet = field.symbol.getFlags();
                 var structuredTypeNode = visitedNodes.get(finalReferredType.tsymbol);
                 if (structuredTypeNode != null) {
-                    copyMatchingConstAnnotations(field, structuredTypeNode, var);
+                    copyMatchingConstAnnotations(field, structuredTypeNode, var, typeDefEnv);
                 }
                 return var;
             });
@@ -4976,16 +4976,31 @@ public class SymbolEnter extends BLangNodeVisitor {
         structureTypeNode.typeRefs.removeAll(invalidTypeRefs);
     }
 
-    private void copyMatchingConstAnnotations(BField field, BLangStructureTypeNode structuredTypeNode,
-                                              BLangSimpleVariable var) {
-        structuredTypeNode.fields.stream()
+    private boolean copyMatchingConstAnnotations(BField field, BLangStructureTypeNode parentTypeNode,
+                                                 BLangSimpleVariable var, SymbolEnv typeDefEnv) {
+        assert parentTypeNode != null;
+        Optional<BLangSimpleVariable> matchingFieldVar = parentTypeNode.fields.stream()
                 .filter(f -> f.name.value.equals(field.name.value))
-                .findFirst()
-                .ifPresent(sourceVariable ->
-                                sourceVariable.annAttachments.stream()
+                .findFirst();
+        if (matchingFieldVar.isPresent()) {
+            var sourceVariable = matchingFieldVar.get();
+            sourceVariable.annAttachments.stream()
 //                                .filter(annon -> annon.annotationAttachmentSymbol.isConstAnnotation())
-                                        .map(this.nodeCloner::cloneNode).forEach(var::addAnnotationAttachment)
-                );
+                    .map(this.nodeCloner::cloneNode).forEach(var::addAnnotationAttachment);
+            return true;
+        } else {
+            for (BLangType each : parentTypeNode.typeRefs) {
+                var structuredTypeNode = visitedNodes.get(Types.getReferredType(
+                        symResolver.resolveTypeNode(each, typeDefEnv)).tsymbol);
+                if (structuredTypeNode == null) {
+                    continue;
+                }
+                if (copyMatchingConstAnnotations(field, structuredTypeNode, var, typeDefEnv)) {
+                    return true;
+                }
+            }
+            return false;
+        }
     }
 
     private void defineReferencedFunction(Location location, Set<Flag> flagSet, SymbolEnv objEnv,
