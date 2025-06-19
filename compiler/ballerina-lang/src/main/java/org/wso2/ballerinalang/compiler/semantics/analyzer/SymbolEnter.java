@@ -46,6 +46,7 @@ import org.wso2.ballerinalang.compiler.desugar.ASTBuilderUtil;
 import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.compiler.parser.BLangAnonymousModelHelper;
 import org.wso2.ballerinalang.compiler.parser.BLangMissingNodesHelper;
+import org.wso2.ballerinalang.compiler.parser.NodeCloner;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope.ScopeEntry;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
@@ -242,12 +243,14 @@ public class SymbolEnter extends BLangNodeVisitor {
     private final BLangMissingNodesHelper missingNodesHelper;
     private final PackageCache packageCache;
     private final List<BLangNode> intersectionTypes;
+    private final NodeCloner nodeCloner;
 
     private SymbolEnv env;
     private final boolean projectAPIInitiatedCompilation;
 
     private static final String DEPRECATION_ANNOTATION = "deprecated";
     private static final String ANONYMOUS_RECORD_NAME = "anonymous-record";
+    private Map<BSymbol, BLangStructureTypeNode> visitedNodes = new HashMap<>();
 
     public static SymbolEnter getInstance(CompilerContext context) {
         SymbolEnter symbolEnter = context.get(SYMBOL_ENTER_KEY);
@@ -276,6 +279,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         this.packageCache = PackageCache.getInstance(context);
         this.constResolver = ConstantValueResolver.getInstance(context);
         this.intersectionTypes = new ArrayList<>();
+        this.nodeCloner = NodeCloner.getInstance(context);
 
         CompilerOptions options = CompilerOptions.getInstance(context);
         projectAPIInitiatedCompilation = Boolean.parseBoolean(
@@ -4848,6 +4852,7 @@ public class SymbolEnter extends BLangNodeVisitor {
     }
 
     private void resolveIncludedFields(BLangStructureTypeNode structureTypeNode) {
+        visitedNodes.put(structureTypeNode.symbol, structureTypeNode);
         SymbolEnv typeDefEnv = structureTypeNode.typeDefEnv;
         List<BLangType> typeRefs = structureTypeNode.typeRefs;
         int typeRefSize = typeRefs.size();
@@ -4945,6 +4950,7 @@ public class SymbolEnter extends BLangNodeVisitor {
                 }
             }
 
+            BType finalReferredType = referredType;
             return ((BStructureType) referredType).fields.values().stream().filter(f -> {
                 if (fieldNames.containsKey(f.name.value)) {
                     BLangSimpleVariable existingVariable = fieldNames.get(f.name.value);
@@ -4960,6 +4966,16 @@ public class SymbolEnter extends BLangNodeVisitor {
             }).map(field -> {
                 BLangSimpleVariable var = ASTBuilderUtil.createVariable(typeRef.pos, field.name.value, field.type);
                 var.flagSet = field.symbol.getFlags();
+                var structuredTypeNode = visitedNodes.get(finalReferredType.tsymbol);
+                if (structuredTypeNode != null) {
+                    structuredTypeNode.fields.stream().filter(f -> f.name.value.equals(field.name.value)).findFirst()
+                            .ifPresent(v ->
+                                    v.annAttachments.forEach(a -> {
+                                                var clonda = this.nodeCloner.cloneNode(a);
+                                                var.addAnnotationAttachment(clonda);
+                                            }
+                                    ));
+                }
                 return var;
             });
         }).toList();
