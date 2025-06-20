@@ -1,4 +1,4 @@
 ballerina: too many arguments.
 
 USAGE:
-    bal tool pull <tool-id>[:<version>]
+    bal tool pull <tool-id>

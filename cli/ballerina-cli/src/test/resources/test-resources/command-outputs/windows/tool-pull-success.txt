@@ -1,0 +1,2 @@
+WARNING: Specifying a version of the tool is deprecated and may be removed in a future version. Use 'bal tool pull <tool-id>' to pull the latest version of the tool.
+tool 'luhee:1.1.0' successfully set as the active version.

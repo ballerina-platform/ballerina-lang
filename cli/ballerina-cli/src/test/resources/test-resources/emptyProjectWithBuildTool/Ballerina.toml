@@ -5,6 +5,4 @@ version = "0.1.0"
 
 [[tool.generate_file]]
 id = "generate_client"
-filePath = "delivery.json"
-targetModule = "mod_generate"
 options.fileName = "client"
