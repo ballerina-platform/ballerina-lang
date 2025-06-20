@@ -4866,6 +4866,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         }
 
         structureTypeNode.includedFields = typeRefs.stream().flatMap(typeRef -> {
+            Optional<BLangIdentifier> pkgAlias = getPkgAlias(typeRef);
             BType referredType = symResolver.resolveTypeNode(typeRef, typeDefEnv);
             referredType = Types.getReferredType(referredType);
             if (referredType == symTable.semanticError) {
@@ -4968,7 +4969,7 @@ public class SymbolEnter extends BLangNodeVisitor {
                 var.flagSet = field.symbol.getFlags();
                 var structuredTypeNode = visitedNodes.get(finalReferredType.tsymbol);
                 if (structuredTypeNode != null) {
-                    copyMatchingConstAnnotations(field, structuredTypeNode, var, typeDefEnv);
+                    copyMatchingConstAnnotations(field, structuredTypeNode, var, typeDefEnv, pkgAlias);
                 }
                 return var;
             });
@@ -4976,8 +4977,14 @@ public class SymbolEnter extends BLangNodeVisitor {
         structureTypeNode.typeRefs.removeAll(invalidTypeRefs);
     }
 
+    private static Optional<BLangIdentifier> getPkgAlias(BLangType typeRef) {
+        return typeRef instanceof BLangUserDefinedType userDefinedType ? Optional.ofNullable(userDefinedType.pkgAlias) :
+                Optional.empty();
+    }
+
     private boolean copyMatchingConstAnnotations(BField field, BLangStructureTypeNode parentTypeNode,
-                                                 BLangSimpleVariable var, SymbolEnv typeDefEnv) {
+                                                 BLangSimpleVariable targetVariable, SymbolEnv typeDefEnv,
+                                                 Optional<BLangIdentifier> pkgAlias) {
         assert parentTypeNode != null;
         Optional<BLangSimpleVariable> matchingFieldVar = parentTypeNode.fields.stream()
                 .filter(f -> f.name.value.equals(field.name.value))
@@ -4985,17 +4992,22 @@ public class SymbolEnter extends BLangNodeVisitor {
         if (matchingFieldVar.isPresent()) {
             var sourceVariable = matchingFieldVar.get();
             sourceVariable.annAttachments.stream()
-//                                .filter(annon -> annon.annotationAttachmentSymbol.isConstAnnotation())
-                    .map(this.nodeCloner::cloneNode).forEach(var::addAnnotationAttachment);
+                    .map(this.nodeCloner::cloneNode).forEach(
+                            annAttachment -> {
+                                annAttachment.pos = targetVariable.pos;
+                                pkgAlias.ifPresent(alias -> annAttachment.pkgAlias = alias);
+                                targetVariable.addAnnotationAttachment(annAttachment);
+                            });
             return true;
         } else {
             for (BLangType each : parentTypeNode.typeRefs) {
+                Optional<BLangIdentifier> eachAlias = getPkgAlias(each);
                 var structuredTypeNode = visitedNodes.get(Types.getReferredType(
                         symResolver.resolveTypeNode(each, typeDefEnv)).tsymbol);
                 if (structuredTypeNode == null) {
                     continue;
                 }
-                if (copyMatchingConstAnnotations(field, structuredTypeNode, var, typeDefEnv)) {
+                if (copyMatchingConstAnnotations(field, structuredTypeNode, targetVariable, typeDefEnv, eachAlias)) {
                     return true;
                 }
             }
