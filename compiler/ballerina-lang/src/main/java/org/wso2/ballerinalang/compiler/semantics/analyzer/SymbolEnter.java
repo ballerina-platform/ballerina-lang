@@ -250,7 +250,7 @@ public class SymbolEnter extends BLangNodeVisitor {
 
     private static final String DEPRECATION_ANNOTATION = "deprecated";
     private static final String ANONYMOUS_RECORD_NAME = "anonymous-record";
-    private Map<BSymbol, BLangStructureTypeNode> visitedNodes = new HashMap<>();
+    private final Map<BSymbol, BLangStructureTypeNode> visitedNodes = new HashMap<>();
 
     public static SymbolEnter getInstance(CompilerContext context) {
         SymbolEnter symbolEnter = context.get(SYMBOL_ENTER_KEY);
@@ -4982,6 +4982,12 @@ public class SymbolEnter extends BLangNodeVisitor {
                 Optional.empty();
     }
 
+    private BSymbol getTypeSymbol(BLangType type, SymbolEnv typeDefEnv) {
+        return type instanceof BLangUserDefinedType userDefinedTypeNode ? userDefinedTypeNode.symbol :
+                Types.getReferredType(
+                        symResolver.resolveTypeNode(type, typeDefEnv)).tsymbol;
+    }
+
     private boolean copyMatchingConstAnnotations(BField field, BLangStructureTypeNode parentTypeNode,
                                                  BLangSimpleVariable targetVariable, SymbolEnv typeDefEnv,
                                                  Optional<BLangIdentifier> pkgAlias) {
@@ -5002,8 +5008,8 @@ public class SymbolEnter extends BLangNodeVisitor {
         } else {
             for (BLangType each : parentTypeNode.typeRefs) {
                 Optional<BLangIdentifier> eachAlias = getPkgAlias(each);
-                var structuredTypeNode = visitedNodes.get(Types.getReferredType(
-                        symResolver.resolveTypeNode(each, typeDefEnv)).tsymbol);
+                BLangStructureTypeNode structuredTypeNode =
+                        visitedNodes.get(getTypeSymbol(each, typeDefEnv));
                 if (structuredTypeNode == null) {
                     continue;
                 }
