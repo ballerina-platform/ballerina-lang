@@ -44,6 +44,7 @@ import static org.ballerinalang.model.elements.PackageID.INT;
 import static org.ballerinalang.model.elements.PackageID.INTERNAL;
 import static org.ballerinalang.model.elements.PackageID.JAVA;
 import static org.ballerinalang.model.elements.PackageID.MAP;
+import static org.ballerinalang.model.elements.PackageID.NATURAL;
 import static org.ballerinalang.model.elements.PackageID.OBJECT;
 import static org.ballerinalang.model.elements.PackageID.QUERY;
 import static org.ballerinalang.model.elements.PackageID.REGEXP;
@@ -164,6 +165,10 @@ public class Bootstrap {
             symbolTable.langMapModuleSymbol = loadLangLibFromBala(MAP, compilerContext);
         }
 
+        if (langLib.equals(NATURAL)) {
+            symbolTable.langObjectModuleSymbol = loadLangLibFromBala(OBJECT, compilerContext);
+        }
+
         symResolver.bootstrapCloneableType();
         symResolver.defineOperators();
     }
@@ -190,6 +195,7 @@ public class Bootstrap {
         symbolTable.langFunctionModuleSymbol = loadLangLibFromBala(FUNCTION, compilerContext);
         symbolTable.langFutureModuleSymbol = loadLangLibFromBala(FUTURE, compilerContext);
         symbolTable.langMapModuleSymbol = loadLangLibFromBala(MAP, compilerContext);
+        symbolTable.langNaturalModuleSymbol = loadLangLibFromBala(NATURAL, compilerContext);
         symbolTable.langIntModuleSymbol = loadLangLibFromBala(INT, compilerContext);
         symbolTable.langObjectModuleSymbol = loadLangLibFromBala(OBJECT, compilerContext);
         symResolver.loadRawTemplateType();
