@@ -1346,11 +1346,13 @@ public final class ProjectUtils {
             return versions;
         }
         if (compatibleRange.equals(CompatibleRange.LOCK_MAJOR)) {
-            return versions.stream().filter(version -> version.major() == minVersion.major()).toList();
+            return versions.stream().filter(version ->
+                    version.major() == minVersion.major() && version.greaterThanOrEqualTo(minVersion)).toList();
         }
         if (compatibleRange.equals(CompatibleRange.LOCK_MINOR)) {
             return versions.stream().filter(version ->
-                            version.major() == minVersion.major() && version.minor() == minVersion.minor()).toList();
+                            version.major() == minVersion.major() && version.minor() == minVersion.minor()
+                                    && version.greaterThanOrEqualTo(minVersion)).toList();
         }
         if (versions.contains(minVersion)) {
             return Collections.singletonList(minVersion);
