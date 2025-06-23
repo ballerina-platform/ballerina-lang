@@ -41,6 +41,7 @@ import picocli.CommandLine;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.file.Path;
+import java.util.Objects;
 
 import static io.ballerina.cli.cmd.Constants.BUILD_COMMAND;
 import static io.ballerina.projects.util.ProjectConstants.BUILD_FILE;
@@ -311,7 +312,7 @@ public class BuildCommand implements BLauncherCmd {
                 .addTask(new CreateExecutableTask(outStream, this.output, null, false,
                         !rebuildStatus))
                 .addTask(new DumpBuildTimeTask(outStream), !project.buildOptions().dumpBuildTime())
-                .addTask(new CreateFingerprintTask(), !rebuildStatus || isSingleFileBuild)
+                .addTask(new CreateFingerprintTask(false), !rebuildStatus || isSingleFileBuild)
                 .build();
 
         taskExecutor.executeTasks(project);
@@ -324,10 +325,13 @@ public class BuildCommand implements BLauncherCmd {
         Path buildFilePath = project.targetDir().resolve(BUILD_FILE);
         try {
             BuildJson buildJson = readBuildJson(buildFilePath);
+            if (!Objects.equals(buildJson.distributionVersion(), RepoUtils.getBallerinaVersion())) {
+                return true;
+            }
             if (buildJson.isExpiredLastUpdateTime()) {
                 return true;
             }
-            if (CommandUtil.isFilesModifiedSinceLastBuild(buildJson, project)) {
+            if (CommandUtil.isFilesModifiedSinceLastBuild(buildJson, project, false)) {
                 return true;
             }
             if (isRebuildForCurrCmd()) {

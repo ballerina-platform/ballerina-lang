@@ -41,6 +41,7 @@ import io.ballerina.projects.internal.model.BuildJson;
 import io.ballerina.projects.internal.model.Target;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectUtils;
+import org.wso2.ballerinalang.util.RepoUtils;
 import picocli.CommandLine;
 
 import java.io.IOException;
@@ -51,6 +52,7 @@ import java.nio.file.Path;
 import java.nio.file.PathMatcher;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import static io.ballerina.cli.cmd.Constants.RUN_COMMAND;
 import static io.ballerina.cli.launcher.LauncherUtils.createLauncherException;
@@ -312,7 +314,7 @@ public class RunCommand implements BLauncherCmd {
                         isPackageModified, buildOptions.enableCache(), !rebuildStatus))
 //                .addTask(new CopyResourcesTask(), isSingleFileBuild)
                 .addTask(new CreateExecutableTask(outStream, null, target, true, !rebuildStatus))
-                .addTask(new CreateFingerprintTask(), !rebuildStatus || isSingleFileBuild)
+                .addTask(new CreateFingerprintTask(false), !rebuildStatus || isSingleFileBuild)
                 .addTask(runExecutableTask = new RunExecutableTask(args, outStream, errStream, target))
                 .addTask(new DumpBuildTimeTask(outStream), !project.buildOptions().dumpBuildTime())
                 .build();
@@ -323,10 +325,13 @@ public class RunCommand implements BLauncherCmd {
         Path buildFilePath = project.targetDir().resolve(BUILD_FILE);
         try {
             BuildJson buildJson = readBuildJson(buildFilePath);
+            if (!Objects.equals(buildJson.distributionVersion(), RepoUtils.getBallerinaVersion())) {
+                return true;
+            }
             if (buildJson.isExpiredLastUpdateTime()) {
                 return true;
             }
-            if (CommandUtil.isFilesModifiedSinceLastBuild(buildJson, project)) {
+            if (CommandUtil.isFilesModifiedSinceLastBuild(buildJson, project, false)) {
                 return true;
             }
             if (isRebuildForCurrCmd()) {

@@ -42,6 +42,12 @@ import static io.ballerina.projects.util.ProjectUtils.readBuildJson;
 
 
 public class CreateFingerprintTask implements Task {
+    public static final String JAR = ".jar";
+    private final boolean isTestExecution ;
+
+    public CreateFingerprintTask(boolean isTestExecution) {
+        this.isTestExecution = isTestExecution;
+    }
 
     @Override
     public void execute(Project project) {
@@ -50,41 +56,82 @@ public class CreateFingerprintTask implements Task {
             return;
         }
         try {
-            List<BuildJson.FileMetaInfo> fileMetaInfoList = new ArrayList<>();
             BuildJson buildJson = readBuildJson(buildFilePath);
             buildJson.setBuildOptions(project.buildOptions());
-            List<File> filesToEvaluate = CommandUtil.getAllProjectFiles(project);
-            for (File fileToEvaluate : filesToEvaluate) {
-                BuildJson.FileMetaInfo fileMetaInfo = new BuildJson.FileMetaInfo();
-                fileMetaInfo.setFile(fileToEvaluate.getAbsolutePath());
-                fileMetaInfo.setLastModifiedTime(Files.getLastModifiedTime(fileToEvaluate.toPath()).toMillis());
-                fileMetaInfo.setSize(Files.size(fileToEvaluate.toPath()));
-                fileMetaInfo.setHash(getSHA256Digest(fileToEvaluate));
-                fileMetaInfoList.add(fileMetaInfo);
-            }
-
-            Target target = new Target(project.targetDir());
-            File execFile = target.getExecutablePath(project.currentPackage()).toAbsolutePath().toFile();
-            BuildJson.FileMetaInfo execMetaInfo = new BuildJson.FileMetaInfo();
-            execMetaInfo.setFile(execFile.getAbsolutePath());
-            execMetaInfo.setLastModifiedTime(Files.getLastModifiedTime(execFile.toPath()).toMillis());
-            execMetaInfo.setSize(Files.size(execFile.toPath()));
-            execMetaInfo.setHash(getSHA256Digest(execFile));
-            buildJson.setTargetExecMetaInfo(execMetaInfo);
-            buildJson.setSrcMetaInfo(fileMetaInfoList.toArray(new BuildJson.FileMetaInfo[0]));
-
-            File settingsFile = RepoUtils.createAndGetHomeReposPath().resolve(ProjectConstants.SETTINGS_FILE_NAME)
-                    .toFile();
-            BuildJson.FileMetaInfo settingsMetaInfo = new BuildJson.FileMetaInfo();
-            settingsMetaInfo.setFile(settingsFile.getAbsolutePath());
-            settingsMetaInfo.setLastModifiedTime(Files.getLastModifiedTime(settingsFile.toPath()).toMillis());
-            settingsMetaInfo.setSize(Files.size(settingsFile.toPath()));
-            settingsMetaInfo.setHash(getSHA256Digest(settingsFile));
-            buildJson.setSettingsMetaInfo(settingsMetaInfo);
+            createFingerPrintForProjectFiles(project, buildJson, isTestExecution);
+            createFingerPrintForArtifacts(project, buildJson, isTestExecution);
+            createFingerPrintForSettingsToml(buildJson);
+            createFingerPrintForBallerinaToml(buildJson, project);
             writeBuildFile(buildFilePath, buildJson);
         } catch (JsonSyntaxException | IOException | NoSuchAlgorithmException e) {
             // ignore
         }
+    }
+
+    private void createFingerPrintForBallerinaToml(BuildJson buildJson, Project project) throws IOException, NoSuchAlgorithmException {
+        File ballerinaTomlFile = project.sourceRoot().resolve(ProjectConstants.BALLERINA_TOML).toFile();
+        BuildJson.FileMetaInfo ballerinaTomlMetaInfo = getFileMetaInfo(ballerinaTomlFile);
+        buildJson.setBallerinaTomlMetaInfo(ballerinaTomlMetaInfo);
+    }
+
+    private static void createFingerPrintForProjectFiles(Project project, BuildJson buildJson, boolean isTestExecution)
+            throws IOException, NoSuchAlgorithmException {
+        List<BuildJson.FileMetaInfo> fileMetaInfoList = new ArrayList<>();
+        List<File> srcToEvaluate = CommandUtil.getSrcFiles(project);
+        for (File fileToEvaluate : srcToEvaluate) {
+            fileMetaInfoList.add(getFileMetaInfo(fileToEvaluate));
+        }
+        buildJson.setSrcMetaInfo(fileMetaInfoList.toArray(new BuildJson.FileMetaInfo[0]));
+        if (isTestExecution) {
+            List<BuildJson.FileMetaInfo> testSrcMetaInfoList = new ArrayList<>();
+            List<File> testSrcToEvaluate = CommandUtil.getTestSrcFiles(project);
+            for (File fileToEvaluate : testSrcToEvaluate) {
+                testSrcMetaInfoList.add(getFileMetaInfo(fileToEvaluate));
+            }
+            buildJson.setTestSrcMetaInfo(testSrcMetaInfoList.toArray(new BuildJson.FileMetaInfo[0]));
+        }
+    }
+
+    private static void createFingerPrintForSettingsToml(BuildJson buildJson) throws IOException,
+            NoSuchAlgorithmException {
+        File settingsFile = RepoUtils.createAndGetHomeReposPath().resolve(ProjectConstants.SETTINGS_FILE_NAME)
+                .toFile();
+        buildJson.setSettingsMetaInfo(getFileMetaInfo(settingsFile));
+    }
+
+    private static void createFingerPrintForArtifacts(Project project, BuildJson buildJson, boolean isTestExecution)
+            throws IOException, NoSuchAlgorithmException {
+        Target target = new Target(project.targetDir());
+        if (isTestExecution) {
+            List<BuildJson.FileMetaInfo> testArtifactMetaInfoList = new ArrayList<>();
+            File testSuiteFile = target.getTestsCachePath().resolve(ProjectConstants.TEST_SUITE_JSON).toFile();
+            testArtifactMetaInfoList.add(getFileMetaInfo(testSuiteFile));
+
+            String packageOrg = project.currentPackage().packageOrg().toString();
+            String packageName = project.currentPackage().packageName().toString();
+            String packageVersion = project.currentPackage().packageVersion().toString();
+            List<Path> testJarArtifactsPath =
+                    Files.walk(target.cachesPath().resolve(packageOrg).resolve(packageName).resolve(packageVersion))
+                    .filter(Files::isRegularFile)
+                    .filter(path -> path.toString().endsWith(JAR))
+                    .toList();
+            for (Path testJarArtifactPath : testJarArtifactsPath) {
+                testArtifactMetaInfoList.add(getFileMetaInfo(testJarArtifactPath.toFile()));
+            }
+            buildJson.setTestArtifactMetaInfo(testArtifactMetaInfoList.toArray(new BuildJson.FileMetaInfo[0]));
+            return;
+        }
+        File execFile = target.getExecutablePath(project.currentPackage()).toAbsolutePath().toFile();
+        buildJson.setTargetExecMetaInfo(getFileMetaInfo(execFile));
+    }
+
+    private static BuildJson.FileMetaInfo getFileMetaInfo(File execFile) throws IOException, NoSuchAlgorithmException {
+        BuildJson.FileMetaInfo execMetaInfo = new BuildJson.FileMetaInfo();
+        execMetaInfo.setFile(execFile.getAbsolutePath());
+        execMetaInfo.setLastModifiedTime(Files.getLastModifiedTime(execFile.toPath()).toMillis());
+        execMetaInfo.setSize(Files.size(execFile.toPath()));
+        execMetaInfo.setHash(getSHA256Digest(execFile));
+        return execMetaInfo;
     }
 
     private static void writeBuildFile(Path buildFilePath, BuildJson buildJson) {

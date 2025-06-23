@@ -54,6 +54,10 @@ public class BuildJson {
     @SerializedName(SRC_META_INFO)
     private FileMetaInfo[] srcMetaInfo;
 
+    public static final String TEST_SRC_META_INFO = "test_src_meta_info";
+    @SerializedName(TEST_SRC_META_INFO)
+    private FileMetaInfo[] testSrcMetaInfo;
+
     public static final String TARGET_EXEC_META_INFO = "target_exec_meta_info";
     @SerializedName(TARGET_EXEC_META_INFO)
     private FileMetaInfo targetExecMetaInfo;
@@ -61,6 +65,18 @@ public class BuildJson {
     public static final String SETTINGS_META_INFO = "settings_meta_info";
     @SerializedName(SETTINGS_META_INFO)
     private FileMetaInfo settingsMetaInfo;
+
+    public static final String BALLERINA_TOML_META_INFO = "ballerina_toml_meta_info";
+    @SerializedName(BALLERINA_TOML_META_INFO)
+    private FileMetaInfo ballerinaTomlMetaInfo;
+
+    public static final String TEST_ARTIFACT_META_INFO = "test_artifact_meta_info";
+    @SerializedName(TEST_ARTIFACT_META_INFO)
+    private FileMetaInfo[] testArtifactMetaInfo;
+
+    public static final String TEST_CLASS_PATH = "test_class_path";
+    @SerializedName(TEST_CLASS_PATH)
+    private String testClassPath;
 
     private static final long ONE_DAY = 24 * 60 * 60 * 1000;
 
@@ -141,6 +157,38 @@ public class BuildJson {
 
     public void setSettingsMetaInfo(FileMetaInfo settingsMetaInfo) {
         this.settingsMetaInfo = settingsMetaInfo;
+    }
+
+    public FileMetaInfo[] getTestArtifactMetaInfo() {
+        return testArtifactMetaInfo;
+    }
+
+    public void setTestArtifactMetaInfo(FileMetaInfo[] testArtifactMetaInfo) {
+        this.testArtifactMetaInfo = testArtifactMetaInfo;
+    }
+
+    public FileMetaInfo[] getTestSrcMetaInfo() {
+        return testSrcMetaInfo;
+    }
+
+    public void setTestSrcMetaInfo(FileMetaInfo[] testSrcMetaInfo) {
+        this.testSrcMetaInfo = testSrcMetaInfo;
+    }
+
+    public FileMetaInfo getBallerinaTomlMetaInfo() {
+        return ballerinaTomlMetaInfo;
+    }
+
+    public void setBallerinaTomlMetaInfo(FileMetaInfo ballerinaTomlMetaInfo) {
+        this.ballerinaTomlMetaInfo = ballerinaTomlMetaInfo;
+    }
+
+    public String getTestClassPath() {
+        return testClassPath;
+    }
+
+    public void setTestClassPath(String testClassPath) {
+        this.testClassPath = testClassPath;
     }
 
     public  static class FileMetaInfo {

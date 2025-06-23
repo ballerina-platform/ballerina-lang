@@ -22,6 +22,7 @@ import io.ballerina.cli.TaskExecutor;
 import io.ballerina.cli.task.CleanTargetBinTestsDirTask;
 import io.ballerina.cli.task.CleanTargetCacheDirTask;
 import io.ballerina.cli.task.CompileTask;
+import io.ballerina.cli.task.CreateFingerprintTask;
 import io.ballerina.cli.task.CreateTestExecutableTask;
 import io.ballerina.cli.task.DumpBuildTimeTask;
 import io.ballerina.cli.task.ResolveMavenDependenciesTask;
@@ -36,18 +37,24 @@ import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.directory.BuildProject;
 import io.ballerina.projects.directory.SingleFileProject;
+import io.ballerina.projects.internal.model.BuildJson;
 import io.ballerina.projects.util.ProjectConstants;
+import org.wso2.ballerinalang.util.RepoUtils;
 import picocli.CommandLine;
 
+import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import static io.ballerina.cli.cmd.Constants.TEST_COMMAND;
+import static io.ballerina.projects.util.ProjectConstants.BUILD_FILE;
 import static io.ballerina.projects.util.ProjectUtils.isProjectUpdated;
+import static io.ballerina.projects.util.ProjectUtils.readBuildJson;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.SYSTEM_PROP_BAL_DEBUG;
 import static org.ballerinalang.test.runtime.util.TesterinaConstants.JACOCO_XML_FORMAT;
 
@@ -368,6 +375,18 @@ public class TestCommand implements BLauncherCmd {
             this.outStream.println("WARNING: Test report generation is not supported with Ballerina cloud test");
         }
 
+        Path buildFilePath = project.targetDir().resolve(BUILD_FILE);
+        boolean rebuildStatus = true;
+        String prevTestClassPath = "";
+        BuildJson buildJson;
+        try {
+            buildJson = readBuildJson(buildFilePath);
+            prevTestClassPath = buildJson.getTestClassPath();
+            rebuildStatus = isRebuildNeeded(project, buildJson) || prevTestClassPath.isEmpty() ;
+        } catch (IOException e) {
+            //ignore exception
+        }
+
         boolean isTestingDelegated = project.buildOptions().cloud().equals("docker");
 
         // Run pre-build tasks to have the project reloaded.
@@ -376,9 +395,9 @@ public class TestCommand implements BLauncherCmd {
         // which has the newly generated code for code coverage calculation.
         // Hence, below tasks are executed before extracting the module map from the project.
         TaskExecutor preBuildTaskExecutor = new TaskExecutor.TaskBuilder()
-                .addTask(new CleanTargetCacheDirTask(), isSingleFile) // clean the target cache dir(projects only)
-                .addTask(new CleanTargetBinTestsDirTask(), (isSingleFile || !isTestingDelegated))
-                .addTask(new RunBuildToolsTask(outStream), isSingleFile) // run build tools
+                .addTask(new CleanTargetCacheDirTask(), !rebuildStatus || isSingleFile) // clean the target cache dir(projects only)
+                .addTask(new CleanTargetBinTestsDirTask(), !rebuildStatus || (isSingleFile || !isTestingDelegated))
+                .addTask(new RunBuildToolsTask(outStream), !rebuildStatus || isSingleFile) // run build tools
                 .build();
         preBuildTaskExecutor.executeTasks(project);
 
@@ -393,27 +412,64 @@ public class TestCommand implements BLauncherCmd {
         boolean isPackageModified = isProjectUpdated(project);
 
         TaskExecutor taskExecutor = new TaskExecutor.TaskBuilder()
-                .addTask(new ResolveMavenDependenciesTask(outStream)) // resolve maven dependencies in Ballerina.toml
+                .addTask(new ResolveMavenDependenciesTask(outStream, !rebuildStatus)) // resolve maven dependencies in Ballerina.toml
                 // compile the modules
                 .addTask(new CompileTask(outStream, errStream, false, false,
-                        isPackageModified, buildOptions.enableCache()))
+                        isPackageModified, buildOptions.enableCache(), !rebuildStatus))
 //                .addTask(new CopyResourcesTask(), listGroups) // merged with CreateJarTask
                 .addTask(new CreateTestExecutableTask(outStream, groupList, disableGroupList, testList, listGroups,
                                 cliArgs, isParallelExecution), !isTestingDelegated)
                 .addTask(new RunTestsTask(outStream, errStream, rerunTests, groupList, disableGroupList,
                                 testList, includes, coverageFormat, moduleMap, listGroups, excludes, cliArgs,
-                                isParallelExecution),
+                                isParallelExecution, rebuildStatus, prevTestClassPath ),
                         (project.buildOptions().nativeImage() || isTestingDelegated))
                 .addTask(new RunNativeImageTestTask(outStream, rerunTests, groupList, disableGroupList,
                                 testList, includes, coverageFormat, moduleMap, listGroups, isParallelExecution),
                         (!project.buildOptions().nativeImage() || isTestingDelegated))
                 .addTask(new DumpBuildTimeTask(outStream), !project.buildOptions().dumpBuildTime())
+                .addTask(new CreateFingerprintTask(true), !rebuildStatus || isSingleFile)
                 .build();
 
         taskExecutor.executeTasks(project);
         if (this.exitWhenFinish) {
             Runtime.getRuntime().exit(0);
         }
+    }
+
+    private boolean isRebuildNeeded(Project project, BuildJson buildJson) {
+
+        try {
+            if (!Objects.equals(buildJson.distributionVersion(), RepoUtils.getBallerinaVersion())) {
+                return true;
+            }
+            if (buildJson.isExpiredLastUpdateTime()) {
+                return true;
+            }
+            if (CommandUtil.isFilesModifiedSinceLastBuild(buildJson, project, true )) {
+                return true;
+            }
+            if (isRebuildForCurrCmd()) {
+                return true;
+            }
+            //TODO :  Need to investigate further
+            if (!"".equals(project.buildOptions().cloud()) || project.buildOptions().nativeImage() || project.buildOptions().codeCoverage() ) {
+                return true;
+            }
+            return !CommandUtil.isPrevCurrCmdCompatible(project.buildOptions(), buildJson.getBuildOptions());
+        } catch (IOException e) {
+            // ignore
+        }
+        return true;
+    }
+
+    private boolean isRebuildForCurrCmd() {
+        return  this.dumpGraph
+                || this.dumpRawGraphs
+                || this.targetDir != null
+                || Boolean.TRUE.equals(this.enableCache)
+                || Boolean.TRUE.equals(this.disableSyntaxTreeCaching)
+                || Boolean.TRUE.equals(this.dumpBuildTime)
+                || Boolean.TRUE.equals(this.showDependencyDiagnostics);
     }
 
     private BuildOptions constructBuildOptions() {
