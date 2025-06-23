@@ -299,6 +299,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
 
     private static final CompilerContext.Key<CodeAnalyzer> CODE_ANALYZER_KEY = new CompilerContext.Key<>();
     private static final String NO_MESSAGE_ERROR_TYPE = "NoMessage";
+    private static final String NATURAL_LANG_LIB_NAME = "lang.natural";
     private static final String CODE_ANNOTATION = "code";
 
     private final SymbolResolver symResolver;
@@ -4379,20 +4380,19 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         }
 
         BLangExternalFunctionBody externalFunctionBody = (BLangExternalFunctionBody) function.body;
-        PackageID annotationPkgId = symTable.langAnnotationModuleSymbol.pkgID;
 
-        Optional<BLangAnnotationAttachment> codeAnnot = Optional.empty();
         for (BLangAnnotationAttachment annotAttachment : externalFunctionBody.annAttachments) {
             BAnnotationSymbol annotSymbol = annotAttachment.annotationSymbol;
-            if (annotationPkgId.equals(annotSymbol.pkgID) && CODE_ANNOTATION.equals(annotSymbol.name.value)) {
-                codeAnnot = Optional.of(annotAttachment);
+            PackageID pkgID = annotSymbol.pkgID;
+            Name orgName = pkgID.orgName;
+            String pkgName = pkgID.pkgName.value;
+
+            if (Names.BALLERINA_ORG.equals(orgName) &&
+                    NATURAL_LANG_LIB_NAME.equals(pkgName) &&
+                    CODE_ANNOTATION.equals(annotSymbol.name.value)) {
+                checkExperimentalOption(annotAttachment.pos, "code generation");
                 break;
             }
-        }
-
-        if (codeAnnot.isPresent() && !this.experimentalFeaturesEnabled) {
-            dlog.error(codeAnnot.get().pos, DiagnosticErrorCode.INVALID_USE_OF_EXPERIMENTAL_FEATURE,
-                    "code generation");
         }
     }
 

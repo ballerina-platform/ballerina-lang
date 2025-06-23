@@ -13,8 +13,6 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
-// These functions will all be isolated and public
-// regexp module
 
 import ballerina/lang.'object;
 
@@ -41,3 +39,9 @@ public type Generator isolated object {
     public isolated function generate(
             Prompt prompt, typedesc<anydata> td) returns td|error;
 };
+
+# Denotes that the body of a function has to be generated at compile-time.
+public const annotation record {|
+    # The natural language description of the code to be generated.
+    string prompt;
+|} code on source external;

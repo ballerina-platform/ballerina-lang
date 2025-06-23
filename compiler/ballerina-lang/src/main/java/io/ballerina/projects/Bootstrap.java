@@ -165,10 +165,6 @@ public class Bootstrap {
             symbolTable.langMapModuleSymbol = loadLangLibFromBala(MAP, compilerContext);
         }
 
-        if (langLib.equals(NATURAL)) {
-            symbolTable.langObjectModuleSymbol = loadLangLibFromBala(OBJECT, compilerContext);
-        }
-
         symResolver.bootstrapCloneableType();
         symResolver.defineOperators();
     }

@@ -24,6 +24,6 @@ function f1() {
     };
 }
 
-function f2(int a, int b) returns int|error = @code {
+function f2(int a, int b) returns int|error = @natural:code {
     prompt: "What's the sum of these values?"
 } external;
