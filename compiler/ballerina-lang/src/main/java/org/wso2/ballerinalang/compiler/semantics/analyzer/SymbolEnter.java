@@ -250,7 +250,15 @@ public class SymbolEnter extends BLangNodeVisitor {
 
     private static final String DEPRECATION_ANNOTATION = "deprecated";
     private static final String ANONYMOUS_RECORD_NAME = "anonymous-record";
-    private final Map<BSymbol, BLangStructureTypeNode> visitedNodes = new HashMap<>();
+    private final Map<BLangStructureTypeNodeLookupKey, BLangStructureTypeNode> visitedStructuredTypeNodes =
+            new HashMap<>();
+
+    private record BLangStructureTypeNodeLookupKey(PackageID packageID, Name name) {
+
+        static BLangStructureTypeNodeLookupKey from(BSymbol symbol) {
+            return new BLangStructureTypeNodeLookupKey(symbol.pkgID, symbol.name);
+        }
+    }
 
     public static SymbolEnter getInstance(CompilerContext context) {
         SymbolEnter symbolEnter = context.get(SYMBOL_ENTER_KEY);
@@ -288,6 +296,7 @@ public class SymbolEnter extends BLangNodeVisitor {
 
     private void cleanup() {
         unknownTypeRefs.clear();
+        visitedStructuredTypeNodes.clear();
     }
 
     public BLangPackage definePackage(BLangPackage pkgNode) {
@@ -4852,7 +4861,8 @@ public class SymbolEnter extends BLangNodeVisitor {
     }
 
     private void resolveIncludedFields(BLangStructureTypeNode structureTypeNode) {
-        visitedNodes.put(structureTypeNode.symbol, structureTypeNode);
+        visitedStructuredTypeNodes.put(BLangStructureTypeNodeLookupKey.from(structureTypeNode.symbol),
+                structureTypeNode);
         SymbolEnv typeDefEnv = structureTypeNode.typeDefEnv;
         List<BLangType> typeRefs = structureTypeNode.typeRefs;
         int typeRefSize = typeRefs.size();
@@ -4967,7 +4977,8 @@ public class SymbolEnter extends BLangNodeVisitor {
             }).map(field -> {
                 BLangSimpleVariable var = ASTBuilderUtil.createVariable(typeRef.pos, field.name.value, field.type);
                 var.flagSet = field.symbol.getFlags();
-                var structuredTypeNode = visitedNodes.get(finalReferredType.tsymbol);
+                var structuredTypeNode =
+                        visitedStructuredTypeNodes.get(BLangStructureTypeNodeLookupKey.from(finalReferredType.tsymbol));
                 if (structuredTypeNode != null) {
                     copyMatchingConstAnnotations(field, structuredTypeNode, var, typeDefEnv, pkgAlias);
                 }
@@ -5009,7 +5020,8 @@ public class SymbolEnter extends BLangNodeVisitor {
             for (BLangType each : parentTypeNode.typeRefs) {
                 Optional<BLangIdentifier> eachAlias = getPkgAlias(each);
                 BLangStructureTypeNode structuredTypeNode =
-                        visitedNodes.get(getTypeSymbol(each, typeDefEnv));
+                        visitedStructuredTypeNodes.get(
+                                BLangStructureTypeNodeLookupKey.from(getTypeSymbol(each, typeDefEnv)));
                 if (structuredTypeNode == null) {
                     continue;
                 }
