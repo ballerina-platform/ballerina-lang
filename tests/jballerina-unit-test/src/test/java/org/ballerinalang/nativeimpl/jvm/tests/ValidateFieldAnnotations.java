@@ -48,14 +48,14 @@ public class ValidateFieldAnnotations {
 
     private static boolean assertAnnotatedFields(BTypedesc td, String... fields) {
         BAnnotatableType recordType = (BAnnotatableType) ((BTypedescType) td.getType()).getConstraint();
-        BMap<BString, Object> annoations = recordType.getAnnotations();
-        Set<String> annoatatedFields =
-                Arrays.stream(annoations.getKeys()).map(BString::getValue).collect(Collectors.toSet());
-        if (annoatatedFields.size() != fields.length) {
+        BMap<BString, Object> annotations = recordType.getAnnotations();
+        Set<String> annotatedFields = Arrays.stream(annotations.getKeys()).map(BString::getValue)
+                .collect(Collectors.toSet());
+        if (annotatedFields.size() != fields.length) {
             return false;
         }
         for (String field : fields) {
-            if (!annoatatedFields.contains("$field$." + field)) {
+            if (!annotatedFields.contains("$field$." + field)) {
                 return false;
             }
         }
