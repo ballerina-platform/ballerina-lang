@@ -781,7 +781,7 @@ class CodeGeneratorManager {
                                           ModuleId moduleId) {
             DocumentId documentId = DocumentId.create(newDocFilename, moduleId);
             DocumentConfig documentConfig = DocumentConfig.from(documentId,
-                    textDocument.toString(), newDocFilename);
+                    textDocument::toString, newDocFilename);
             modifier.addDocument(documentConfig);
         }
 
@@ -791,7 +791,7 @@ class CodeGeneratorManager {
                                               ModuleId moduleId) {
             DocumentId documentId = DocumentId.create(newDocFilename, moduleId);
             DocumentConfig documentConfig = DocumentConfig.from(documentId,
-                    textDocument.toString(), newDocFilename);
+                    textDocument::toString, newDocFilename);
             modifier.addTestDocument(documentConfig);
         }
 
