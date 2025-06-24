@@ -17,7 +17,6 @@
  */
 package org.wso2.ballerinalang.programfile;
 
-import org.wso2.ballerinalang.programfile.CompiledBinaryFile.BIRPackageFile;
 import org.wso2.ballerinalang.programfile.CompiledBinaryFile.PackageFile;
 
 import java.io.ByteArrayOutputStream;
@@ -46,7 +45,7 @@ public final class PackageFileWriter {
     public static byte[] writePackage(BIRPackageFile packageFile) throws IOException {
         ByteArrayOutputStream byteArrayOS = new ByteArrayOutputStream();
         try (DataOutputStream dataOutStream = new DataOutputStream(byteArrayOS)) {
-            dataOutStream.write(packageFile.pkgBirBinaryContent);
+            dataOutStream.write(packageFile.getPkgBirBinaryContent());
             return byteArrayOS.toByteArray();
         }
     }

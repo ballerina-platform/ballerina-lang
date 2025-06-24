@@ -40,13 +40,14 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangTestablePackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
-import org.wso2.ballerinalang.programfile.CompiledBinaryFile;
+import org.wso2.ballerinalang.programfile.BIRPackageFile;
 import org.wso2.ballerinalang.programfile.PackageFileWriter;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.lang.ref.WeakReference;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
@@ -68,7 +69,10 @@ import static org.ballerinalang.model.tree.SourceKind.TEST_SOURCE;
  *
  * @since 2.0.0
  */
-class ModuleContext {
+public class ModuleContext {
+
+    private static final WeakReference<byte[]> DEFAULT_BIR_BYTE = new WeakReference<>(new byte[0]);
+
     private final ModuleId moduleId;
     private final ModuleDescriptor moduleDescriptor;
     private final Collection<DocumentId> srcDocIds;
@@ -84,7 +88,7 @@ class ModuleContext {
     private Set<ModuleDependency> moduleDependencies;
     private BLangPackage bLangPackage;
     private BPackageSymbol bPackageSymbol;
-    private byte[] birBytes = new byte[0];
+    private WeakReference<byte[]> birBytes = DEFAULT_BIR_BYTE;
     private final Bootstrap bootstrap;
     private ModuleCompilationState moduleCompState;
     private Set<ModuleLoadRequest> allModuleLoadRequests = null;
@@ -138,7 +142,7 @@ class ModuleContext {
         return this.moduleId;
     }
 
-    ModuleDescriptor descriptor() {
+    public ModuleDescriptor descriptor() {
         return moduleDescriptor;
     }
 
@@ -496,10 +500,9 @@ class ModuleContext {
         ByteArrayOutputStream birContent = new ByteArrayOutputStream();
         SymbolTable symTable = SymbolTable.getInstance(compilerContext);
         try {
-            CompiledBinaryFile.BIRPackageFile birPackageFile = moduleContext.bLangPackage.symbol.birPackageFile;
+            BIRPackageFile birPackageFile = moduleContext.bLangPackage.symbol.birPackageFile;
             if (birPackageFile == null) {
-                birPackageFile = new CompiledBinaryFile
-                        .BIRPackageFile(
+                birPackageFile = new BIRPackageFile.EagerBirPackageFile(
                         new BIRBinaryWriter(moduleContext.bLangPackage.symbol.bir, symTable.typeEnv()).serialize());
                 moduleContext.bLangPackage.symbol.birPackageFile = birPackageFile;
             }
@@ -513,7 +516,11 @@ class ModuleContext {
     }
 
     static void loadBirBytesInternal(ModuleContext moduleContext) {
-        moduleContext.birBytes = moduleContext.compilationCache.getBir(moduleContext.moduleName());
+        moduleContext.birBytes = new WeakReference<>(moduleContext.loadBirBytesInternalInner());
+    }
+
+    private byte[] loadBirBytesInternalInner() {
+        return compilationCache.getBir(this.moduleName());
     }
 
     static void resolveDependenciesFromBALAInternal(ModuleContext moduleContext) {
@@ -525,7 +532,8 @@ class ModuleContext {
         BIRPackageSymbolEnter birPackageSymbolEnter = BIRPackageSymbolEnter.getInstance(compilerContext);
 
         PackageID moduleCompilationId = moduleContext.descriptor().moduleCompilationId();
-        moduleContext.bPackageSymbol = birPackageSymbolEnter.definePackage(moduleCompilationId, moduleContext.birBytes);
+        moduleContext.bPackageSymbol =
+                birPackageSymbolEnter.definePackage(moduleContext);
         moduleContext.bPackageSymbol.exported = moduleContext.isExported();
         moduleContext.bPackageSymbol.descriptor = moduleContext.descriptor();
         packageCache.putSymbol(moduleCompilationId, moduleContext.bPackageSymbol);
@@ -594,5 +602,14 @@ class ModuleContext {
             }
             return super.add(moduleLoadRequest);
         }
+    }
+
+    public byte[] getBirBytes() {
+        byte[] birBytes = this.birBytes.get();
+        if (birBytes == null) {
+            birBytes = loadBirBytesInternalInner();
+            this.birBytes = new WeakReference<>(birBytes);
+        }
+        return birBytes;
     }
 }
