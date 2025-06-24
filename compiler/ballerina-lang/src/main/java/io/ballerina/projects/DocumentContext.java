@@ -57,25 +57,22 @@ class DocumentContext {
     private Set<ModuleLoadRequest> moduleLoadRequests;
     private BLangCompilationUnit compilationUnit;
     private NodeCloner nodeCloner;
-    private final DocumentId documentId;
     private final String name;
-    private String content;
+    private DocumentConfig documentConfig;
     private final boolean disableSyntaxTree;
 
-    private DocumentContext(DocumentId documentId, String name, String content, boolean disableSyntaxTree) {
-        this.documentId = documentId;
-        this.name = name;
-        this.content = content;
+    private DocumentContext(DocumentConfig documentConfig, boolean disableSyntaxTree) {
+        this.documentConfig = documentConfig;
+        this.name = documentConfig.name();
         this.disableSyntaxTree = disableSyntaxTree;
     }
 
     static DocumentContext from(DocumentConfig documentConfig, boolean disableSyntaxTree) {
-        return new DocumentContext(documentConfig.documentId(), documentConfig.name(), documentConfig.content(),
-                disableSyntaxTree);
+        return new DocumentContext(documentConfig, disableSyntaxTree);
     }
 
     DocumentId documentId() {
-        return this.documentId;
+        return this.documentConfig.documentId();
     }
 
     String name() {
@@ -87,10 +84,10 @@ class DocumentContext {
             return this.syntaxTree;
         }
         if (!this.disableSyntaxTree) {
-            this.syntaxTree = SyntaxTree.from(this.textDocument(), this.name);
+            this.syntaxTree = SyntaxTree.from(this.textDocument(), this.name());
             return this.syntaxTree;
         }
-        return SyntaxTree.from(this.textDocument(), this.name);
+        return SyntaxTree.from(this.textDocument(), this.name());
     }
 
     SyntaxTree syntaxTree() {
@@ -102,10 +99,14 @@ class DocumentContext {
             return this.textDocument;
         }
         if (!this.disableSyntaxTree) {
-            this.textDocument = TextDocuments.from(this.content);
+            this.textDocument = TextDocuments.from(this::content);
             return this.textDocument;
         }
-        return TextDocuments.from(this.content);
+        return TextDocuments.from(this::content);
+    }
+
+    private String content() {
+        return this.documentConfig.content();
     }
 
     BLangCompilationUnit compilationUnit(CompilerContext compilerContext, PackageID pkgID, SourceKind sourceKind) {
@@ -117,7 +118,7 @@ class DocumentContext {
         if (this.compilationUnit != null) {
             return this.nodeCloner.cloneCUnit(this.compilationUnit);
         }
-        BLangNodeBuilder bLangNodeBuilder = new BLangNodeBuilder(compilerContext, pkgID, this.name);
+        BLangNodeBuilder bLangNodeBuilder = new BLangNodeBuilder(compilerContext, pkgID, this.name());
         this.compilationUnit = (BLangCompilationUnit) bLangNodeBuilder.accept(synTree.rootNode()).get(0);
         this.compilationUnit.setSourceKind(sourceKind);
         return this.nodeCloner.cloneCUnit(this.compilationUnit);
@@ -216,7 +217,7 @@ class DocumentContext {
     }
 
     DocumentContext duplicate() {
-        return new DocumentContext(this.documentId, this.name, syntaxTree().toSourceCode(), false);
+        return new DocumentContext(this.documentConfig, false);
     }
 
     void shrink() {
@@ -225,6 +226,5 @@ class DocumentContext {
         }
         this.syntaxTree = null;
         this.moduleLoadRequests = null;
-        this.content = null;
     }
 }

@@ -41,6 +41,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -313,13 +314,14 @@ public final class ProjectFiles {
             // ignore for zip entries
         }
 
-        String content;
-        try {
-            content = Files.readString(documentFilePath, StandardCharsets.UTF_8);
-        } catch (IOException e) {
-            throw new ProjectException(e);
-        }
-        return DocumentData.from(Optional.of(documentFilePath.getFileName()).get().toString(), content);
+        Supplier<String> contentSupplier = () -> {
+            try {
+                return Files.readString(documentFilePath, StandardCharsets.UTF_8);
+            } catch (IOException e) {
+                throw new ProjectException(e);
+            }
+        };
+        return DocumentData.from(Optional.of(documentFilePath.getFileName()).get().toString(), contentSupplier);
     }
 
     private static DocumentData loadTestDocument(Path documentFilePath) {
@@ -328,14 +330,16 @@ public final class ProjectFiles {
         } catch (UnsupportedOperationException ignore) {
             // ignore for zip entries
         }
-        String content;
-        try {
-            content = Files.readString(documentFilePath, Charset.defaultCharset());
-        } catch (IOException e) {
-            throw new ProjectException(e);
-        }
+
+        Supplier<String> contentSupplier = () -> {
+            try {
+                return Files.readString(documentFilePath, StandardCharsets.UTF_8);
+            } catch (IOException e) {
+                throw new ProjectException(e);
+            }
+        };
         String documentName = Optional.of(documentFilePath.getFileName()).get().toString();
-        return DocumentData.from(ProjectConstants.TEST_DIR_NAME + "/" + documentName, content);
+        return DocumentData.from(ProjectConstants.TEST_DIR_NAME + "/" + documentName, contentSupplier);
     }
 
     public static BuildOptions createBuildOptions(PackageConfig packageConfig, BuildOptions theirOptions,
