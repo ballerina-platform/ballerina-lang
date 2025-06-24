@@ -2,7 +2,6 @@
 
 This package provides a simple function to print "Hello, World!" to the command line. Additionally, you can provide a name to the function to print a personalized greeting.
 
-(Note: For this example, we are assuming the organization name is `user` and the package name is `socialMedia`.)
 
 ## Functionality
 
@@ -49,7 +48,7 @@ import user/socialMedia;
 ```ballerina
 public function main() {
     string greeting = myorg:hello("Ballerina");
-    io:println(greeting); // Output: Hello, Ballerina
+    io:println(myorg:hello("Ballerina")); // Output: Hello, Ballerina
 }
 ```
 
