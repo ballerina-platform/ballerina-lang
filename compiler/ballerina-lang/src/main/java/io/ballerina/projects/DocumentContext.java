@@ -99,10 +99,10 @@ class DocumentContext {
             return this.textDocument;
         }
         if (!this.disableSyntaxTree) {
-            this.textDocument = TextDocuments.from(this.content());
+            this.textDocument = TextDocuments.from(this::content);
             return this.textDocument;
         }
-        return TextDocuments.from(this.content());
+        return TextDocuments.from(this::content);
     }
 
     private String content() {
@@ -226,6 +226,5 @@ class DocumentContext {
         }
         this.syntaxTree = null;
         this.moduleLoadRequests = null;
-        this.documentConfig = null;
     }
 }
