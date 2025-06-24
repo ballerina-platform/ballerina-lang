@@ -17,30 +17,62 @@
  */
 package io.ballerina.projects.internal;
 
+import java.util.function.Supplier;
+
 /**
  * {@code ModuleFileData} represents a Ballerina source file (.bal).
  *
  * @since 2.0.0
  */
-public class DocumentData {
+public abstract class DocumentData {
     //TODO: Remove this class and use DocumentConfig for creating a document
     private final String name;
-    private final String content;
 
-    private DocumentData(String name, String content) {
+    private DocumentData(String name) {
         this.name = name;
-        this.content = content;
     }
 
     public static DocumentData from(String name, String content) {
-        return new DocumentData(name, content);
+        return new DocumentData.EagerDocumentData(name, content);
     }
 
-    public String content() {
-        return content;
+    public static DocumentData from(String name, Supplier<String> content) {
+        return new DocumentData.LazyDocumentData(name, content);
     }
+
+    public abstract String content();
 
     public String name() {
         return name;
+    }
+
+    private static class EagerDocumentData extends DocumentData {
+
+        private final String content;
+
+        private EagerDocumentData(String name, String content) {
+            super(name);
+            this.content = content;
+        }
+
+        @Override
+        public String content() {
+            return content;
+        }
+    }
+
+    private static class LazyDocumentData extends DocumentData {
+
+        private final Supplier<String> contentSupplier;
+
+        public LazyDocumentData(String name, Supplier<String> content) {
+            super(name);
+            this.contentSupplier = content;
+        }
+
+        @Override
+        public String content() {
+            return contentSupplier.get();
+        }
     }
 }

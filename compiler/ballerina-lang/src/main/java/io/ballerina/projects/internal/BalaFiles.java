@@ -60,6 +60,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -166,13 +167,14 @@ public final class BalaFiles {
         if (Files.notExists(documentFilePath)) {
             return null;
         } else {
-            String content;
-            try {
-                content = Files.readString(documentFilePath, Charset.defaultCharset());
-            } catch (IOException e) {
-                throw new ProjectException(e);
-            }
-            return DocumentData.from(Optional.of(documentFilePath.getFileName()).get().toString(), content);
+            Supplier<String> contentSupplier = () -> {
+                try {
+                    return Files.readString(documentFilePath, Charset.defaultCharset());
+                } catch (IOException e) {
+                    throw new ProjectException(e);
+                }
+            };
+            return DocumentData.from(Optional.of(documentFilePath.getFileName()).get().toString(), contentSupplier);
         }
     }
 

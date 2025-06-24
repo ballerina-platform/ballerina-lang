@@ -19,19 +19,18 @@ package io.ballerina.tools.text;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Supplier;
+import java.lang.ref.WeakReference;
 
 /**
  * The {@code StringTextDocument} represents a {@code TextDocument} created with a string.
  *
  * @since 2.0.0
  */
-class StringTextDocument extends TextDocument {
-    private final String text;
+abstract class StringTextDocument extends TextDocument {
     private LineMap textLineMap;
 
-    StringTextDocument(String text) {
-        this.text = text;
-    }
+    abstract protected String text();
 
     @Override
     public TextDocument apply(TextDocumentChange textDocumentChange) {
@@ -41,12 +40,12 @@ class StringTextDocument extends TextDocument {
         for (int i = 0; i < textEditCount; i++) {
             TextEdit textEdit = textDocumentChange.getTextEdit(i);
             TextRange textRange = textEdit.range();
-            sb.append(text, startOffset, textRange.startOffset());
+            sb.append(text(), startOffset, textRange.startOffset());
             sb.append(textEdit.text());
             startOffset = textRange.endOffset();
         }
-        sb.append(text, startOffset, text.length());
-        return new StringTextDocument(sb.toString());
+        sb.append(text(), startOffset, text().length());
+        return new EagerStringTextDocument(sb.toString());
     }
 
     @Override
@@ -60,11 +59,11 @@ class StringTextDocument extends TextDocument {
 
     @Override
     public char[] toCharArray() {
-        return this.text.toCharArray();
+        return this.text().toCharArray();
     }
 
     public String toString() {
-        return text;
+        return text();
     }
 
     private TextLine[] calculateTextLines() {
@@ -73,6 +72,7 @@ class StringTextDocument extends TextDocument {
         StringBuilder lineBuilder = new StringBuilder();
         int index = 0;
         int line = 0;
+        String text = text();
         int textLength = text.length();
         int lengthOfNewLineChars;
         while (index < textLength) {
@@ -99,5 +99,54 @@ class StringTextDocument extends TextDocument {
         String strLine = lineBuilder.toString();
         textLines.add(new TextLine(line, strLine, startOffset, startOffset + strLine.length(), 0));
         return textLines.toArray(new TextLine[0]);
+    }
+
+    static class EagerStringTextDocument extends StringTextDocument {
+
+        private final String text;
+
+        EagerStringTextDocument(String text) {
+            this.text = text;
+        }
+
+        @Override
+        public String toString() {
+            return text;
+        }
+
+        @Override
+        protected String text() {
+            return text;
+        }
+    }
+
+    static class LazyStringTextDocument extends StringTextDocument {
+
+        private final Supplier<String> text;
+        private WeakReference<String> cachedText;
+
+        LazyStringTextDocument(Supplier<String> text) {
+            this.text = text;
+            this.cachedText = new WeakReference<>(null);
+        }
+
+        @Override
+        public String toString() {
+            return getText();
+        }
+
+        @Override
+        protected String text() {
+            return getText();
+        }
+
+        private String getText() {
+            String cached = cachedText.get();
+            if (cached == null) {
+                cached = text.get();
+                cachedText = new WeakReference<>(cached);
+            }
+            return cached;
+        }
     }
 }
