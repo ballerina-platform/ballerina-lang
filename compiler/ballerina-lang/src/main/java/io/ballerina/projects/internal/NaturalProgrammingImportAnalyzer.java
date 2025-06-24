@@ -82,7 +82,9 @@ public class NaturalProgrammingImportAnalyzer extends NodeVisitor {
 
     @Override
     public void visit(NaturalExpressionNode naturalExpressionNode) {
-        this.shouldImportNaturalProgrammingModule = true;
+        if (naturalExpressionNode.constKeyword().isPresent()) {
+            this.shouldImportNaturalProgrammingModule = true;
+        }
     }
 
     @Override

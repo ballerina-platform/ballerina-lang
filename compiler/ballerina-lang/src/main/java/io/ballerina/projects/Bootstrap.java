@@ -191,11 +191,12 @@ public class Bootstrap {
         symbolTable.langFunctionModuleSymbol = loadLangLibFromBala(FUNCTION, compilerContext);
         symbolTable.langFutureModuleSymbol = loadLangLibFromBala(FUTURE, compilerContext);
         symbolTable.langMapModuleSymbol = loadLangLibFromBala(MAP, compilerContext);
-        symbolTable.langNaturalModuleSymbol = loadLangLibFromBala(NATURAL, compilerContext);
         symbolTable.langIntModuleSymbol = loadLangLibFromBala(INT, compilerContext);
         symbolTable.langObjectModuleSymbol = loadLangLibFromBala(OBJECT, compilerContext);
         symResolver.loadRawTemplateType();
         symResolver.bootstrapIterableType();
+        symbolTable.langNaturalModuleSymbol = loadLangLibFromBala(NATURAL, compilerContext);
+        symResolver.loadNaturalGeneratorType();
         symbolTable.langStreamModuleSymbol = loadLangLibFromBala(STREAM, compilerContext);
         symbolTable.langTableModuleSymbol = loadLangLibFromBala(TABLE, compilerContext);
         symbolTable.langRegexpModuleSymbol = loadLangLibFromBala(REGEXP, compilerContext);
