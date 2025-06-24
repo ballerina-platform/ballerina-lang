@@ -9,6 +9,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.function.Supplier;
 
 import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BLANG_COMPILED_PKG_BINARY_EXT;
 
@@ -74,7 +75,8 @@ public class FileSystemSourceInput implements CompilerInput {
         if (this.tree != null) {
             return this.tree;
         }
-        this.tree = SyntaxTree.from(TextDocuments.from(new String(getCode())), this.path.getFileName().toString());
+        this.tree = SyntaxTree.from(TextDocuments.from(getCodeSupplier(isBLangBinaryFile(path), path)),
+                this.path.getFileName().toString());
         return this.tree;
     }
 
@@ -89,5 +91,19 @@ public class FileSystemSourceInput implements CompilerInput {
 
     private boolean isBLangBinaryFile(Path path) {
         return path.toString().endsWith(BLANG_COMPILED_PKG_BINARY_EXT);
+    }
+
+    private static Supplier<String> getCodeSupplier(boolean isBLangBinaryFile, Path path) {
+        return () -> {
+            try {
+                byte[] code = Files.readAllBytes(path);
+                if (isBLangBinaryFile) {
+                    path.getFileSystem().close();
+                }
+                return new String(code);
+            } catch (IOException e) {
+                throw new RuntimeException("Error reading source file " + path, e);
+            }
+        };
     }
 }
