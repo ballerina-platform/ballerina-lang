@@ -18,9 +18,9 @@
 
 package org.wso2.ballerinalang.programfile;
 
-import java.util.Arrays;
-
 import io.ballerina.projects.ModuleContext;
+
+import java.util.Arrays;
 
 import static org.wso2.ballerinalang.programfile.ProgramFileConstants.BIR_VERSION_NUMBER;
 
@@ -34,9 +34,9 @@ public abstract class BIRPackageFile extends CompiledBinaryFile {
     public static final byte[] BIR_MAGIC = {(byte) 0xba, (byte) 0x10, (byte) 0xc0, (byte) 0xde};
     public static final int BIR_VERSION = BIR_VERSION_NUMBER;
 
-    abstract  public byte[] getPkgBirBinaryContent() ;
+    public abstract byte[] getPkgBirBinaryContent();
 
-    abstract public void setPkgBirBinaryContent(byte[] pkgBirBinaryContent);
+    public abstract void setPkgBirBinaryContent(byte[] pkgBirBinaryContent);
 
     public static class EagerBirPackageFile extends BIRPackageFile {
 
