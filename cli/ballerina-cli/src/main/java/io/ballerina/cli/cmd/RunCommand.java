@@ -314,7 +314,7 @@ public class RunCommand implements BLauncherCmd {
                         isPackageModified, buildOptions.enableCache(), !rebuildStatus))
 //                .addTask(new CopyResourcesTask(), isSingleFileBuild)
                 .addTask(new CreateExecutableTask(outStream, null, target, true, !rebuildStatus))
-                .addTask(new CreateFingerprintTask(false), !rebuildStatus || isSingleFileBuild)
+                .addTask(new CreateFingerprintTask(false, false), !rebuildStatus || isSingleFileBuild)
                 .addTask(runExecutableTask = new RunExecutableTask(args, outStream, errStream, target))
                 .addTask(new DumpBuildTimeTask(outStream), !project.buildOptions().dumpBuildTime())
                 .build();

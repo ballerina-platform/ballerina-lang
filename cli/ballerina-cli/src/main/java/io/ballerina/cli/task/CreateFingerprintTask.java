@@ -43,10 +43,12 @@ import static io.ballerina.projects.util.ProjectUtils.readBuildJson;
 
 public class CreateFingerprintTask implements Task {
     public static final String JAR = ".jar";
-    private final boolean isTestExecution ;
+    private final boolean isTestExecution;
+    private final boolean isWorkspaceDependency;
 
-    public CreateFingerprintTask(boolean isTestExecution) {
+    public CreateFingerprintTask(boolean isTestExecution, boolean isWorkspaceDependency) {
         this.isTestExecution = isTestExecution;
+        this.isWorkspaceDependency = isWorkspaceDependency;
     }
 
     @Override
@@ -59,7 +61,7 @@ public class CreateFingerprintTask implements Task {
             BuildJson buildJson = readBuildJson(buildFilePath);
             buildJson.setBuildOptions(project.buildOptions());
             createFingerPrintForProjectFiles(project, buildJson, isTestExecution);
-            createFingerPrintForArtifacts(project, buildJson, isTestExecution);
+            createFingerPrintForArtifacts(project, buildJson, isTestExecution, isWorkspaceDependency);
             createFingerPrintForSettingsToml(buildJson);
             createFingerPrintForBallerinaToml(buildJson, project);
             writeBuildFile(buildFilePath, buildJson);
@@ -68,7 +70,8 @@ public class CreateFingerprintTask implements Task {
         }
     }
 
-    private void createFingerPrintForBallerinaToml(BuildJson buildJson, Project project) throws IOException, NoSuchAlgorithmException {
+    private void createFingerPrintForBallerinaToml(BuildJson buildJson, Project project) throws
+            IOException, NoSuchAlgorithmException {
         File ballerinaTomlFile = project.sourceRoot().resolve(ProjectConstants.BALLERINA_TOML).toFile();
         BuildJson.FileMetaInfo ballerinaTomlMetaInfo = getFileMetaInfo(ballerinaTomlFile);
         buildJson.setBallerinaTomlMetaInfo(ballerinaTomlMetaInfo);
@@ -99,8 +102,9 @@ public class CreateFingerprintTask implements Task {
         buildJson.setSettingsMetaInfo(getFileMetaInfo(settingsFile));
     }
 
-    private static void createFingerPrintForArtifacts(Project project, BuildJson buildJson, boolean isTestExecution)
-            throws IOException, NoSuchAlgorithmException {
+    private static void createFingerPrintForArtifacts(Project project, BuildJson buildJson, boolean isTestExecution,
+                                                      boolean isWorkspace)
+                                                        throws IOException, NoSuchAlgorithmException {
         Target target = new Target(project.targetDir());
         if (isTestExecution) {
             List<BuildJson.FileMetaInfo> testArtifactMetaInfoList = new ArrayList<>();
@@ -121,8 +125,10 @@ public class CreateFingerprintTask implements Task {
             buildJson.setTestArtifactMetaInfo(testArtifactMetaInfoList.toArray(new BuildJson.FileMetaInfo[0]));
             return;
         }
-        File execFile = target.getExecutablePath(project.currentPackage()).toAbsolutePath().toFile();
-        buildJson.setTargetExecMetaInfo(getFileMetaInfo(execFile));
+        if (isWorkspace) {
+            File execFile = target.getExecutablePath(project.currentPackage()).toAbsolutePath().toFile();
+            buildJson.setTargetExecMetaInfo(getFileMetaInfo(execFile));
+        }
     }
 
     private static BuildJson.FileMetaInfo getFileMetaInfo(File execFile) throws IOException, NoSuchAlgorithmException {

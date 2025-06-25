@@ -635,7 +635,7 @@ public class RunCommandTest extends BaseCommandTest {
         Path projectPath = this.testResources.resolve("buildAProjectTwice");
         deleteDirectory(projectPath.resolve("target"));
         System.setProperty(USER_DIR_PROPERTY, projectPath.toString());
-        BuildCommand buildCommand = new BuildCommand(projectPath,printStream ,printStream, false);
+        BuildCommand buildCommand = new BuildCommand(projectPath, printStream , printStream, false);
         new CommandLine(buildCommand).parseArgs();
         buildCommand.execute();
         String firstBuildLog = readOutput(true);
