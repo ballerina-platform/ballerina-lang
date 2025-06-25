@@ -34,7 +34,7 @@ public class CodeAnnotationTest {
     @Test
     public void testExternalDependencyAnnotation() {
         CompileResult compileResult =
-                BCompileUtil.compile("test-src/annotations/code_annotation_negative.bal");
+                BCompileUtil.compileWithoutInitInvocation("test-src/annotations/code_annotation_negative.bal");
         int i = 0;
         BAssertUtil.validateError(compileResult, i++,
                 "annotation value expected for annotation of record type " +

@@ -36,7 +36,7 @@ public class NaturalExpressionTest {
 
     @Test
     public void testNaturalExprSemanticAnalysisNegative() {
-        CompileResult negativeRes = BCompileUtil.compile(
+        CompileResult negativeRes = BCompileUtil.compileWithoutInitInvocation(
                 "test-src/expressions/naturalexpr/natural_expr_semantic_analysis_negative.bal");
         int i = 0;
         BAssertUtil.validateError(negativeRes, i++,
@@ -69,16 +69,18 @@ public class NaturalExpressionTest {
                         .currentPackage().getCompilation().defaultModuleBLangPackage().getDiagnostics();
 
         int i = 0;
-        validateError(negativeRes, i++, "variable 'mdl1' is not initialized", 23, 13);
-        validateError(negativeRes, i++, "variable 'day2' is not initialized", 29, 13);
+        validateError(negativeRes, i++, "variable 'mdl1' is not initialized", 19, 34);
+        validateError(negativeRes, i++, "variable 'day2' is not initialized", 28, 13);
         validateError(negativeRes, i++, "invalid access of mutable storage in an 'isolated' function",
-                49, 9);
+                47, 17);
         validateError(negativeRes, i++, "invalid access of mutable storage in an 'isolated' function",
-                52, 9);
+                50, 17);
+        validateError(negativeRes, i++, "invalid access of mutable storage in an 'isolated' function",
+                58, 17);
         validateError(negativeRes, i++, "invalid key 'name': identifiers cannot be used as rest " +
-                "field keys, expected a string literal or an expression", 66, 9);
+                "field keys, expected a string literal or an expression", 70, 9);
         validateError(negativeRes, i++, "invalid key 'interests': identifiers cannot be used as rest " +
-                "field keys, expected a string literal or an expression", 73, 17);
+                "field keys, expected a string literal or an expression", 77, 17);
         Assert.assertEquals(negativeRes.size(), i);
     }
 

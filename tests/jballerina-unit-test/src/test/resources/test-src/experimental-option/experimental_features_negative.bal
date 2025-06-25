@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-int a = check natural {
+int a = check natural (new MyGenerator()) {
     What is 1 + 1?
 };
 
@@ -27,3 +27,8 @@ function f1() {
 function f2(int a, int b) returns int|error = @natural:code {
     prompt: "What's the sum of these values?"
 } external;
+
+isolated class MyGenerator {
+    public isolated function generate(
+            'natural:Prompt prompt, typedesc<anydata> td) returns td|error = external;
+}
