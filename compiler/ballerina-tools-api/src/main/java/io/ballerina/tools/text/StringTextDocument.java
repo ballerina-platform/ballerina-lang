@@ -20,6 +20,7 @@ package io.ballerina.tools.text;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Supplier;
+import java.lang.ref.WeakReference;
 
 /**
  * The {@code StringTextDocument} represents a {@code TextDocument} created with a string.
@@ -122,19 +123,30 @@ abstract class StringTextDocument extends TextDocument {
     static class LazyStringTextDocument extends StringTextDocument {
 
         private final Supplier<String> text;
+        private WeakReference<String> cachedText;
 
         LazyStringTextDocument(Supplier<String> text) {
             this.text = text;
+            this.cachedText = new WeakReference<>(null);
         }
 
         @Override
         public String toString() {
-            return text.get();
+            return getText();
         }
 
         @Override
         protected String text() {
-            return text.get();
+            return getText();
+        }
+
+        private String getText() {
+            String cached = cachedText.get();
+            if (cached == null) {
+                cached = text.get();
+                cachedText = new WeakReference<>(cached);
+            }
+            return cached;
         }
     }
 }
