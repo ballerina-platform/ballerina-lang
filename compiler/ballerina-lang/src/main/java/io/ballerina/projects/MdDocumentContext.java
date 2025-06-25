@@ -19,8 +19,6 @@
 
 package io.ballerina.projects;
 
-import java.util.function.Supplier;
-
 import io.ballerina.tools.text.TextDocument;
 import io.ballerina.tools.text.TextDocuments;
 

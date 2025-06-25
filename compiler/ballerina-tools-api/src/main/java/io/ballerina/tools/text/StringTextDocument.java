@@ -17,10 +17,10 @@
  */
 package io.ballerina.tools.text;
 
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Supplier;
-import java.lang.ref.WeakReference;
 
 /**
  * The {@code StringTextDocument} represents a {@code TextDocument} created with a string.
@@ -30,7 +30,7 @@ import java.lang.ref.WeakReference;
 abstract class StringTextDocument extends TextDocument {
     private LineMap textLineMap;
 
-    abstract protected String text();
+    protected abstract String text();
 
     @Override
     public TextDocument apply(TextDocumentChange textDocumentChange) {
