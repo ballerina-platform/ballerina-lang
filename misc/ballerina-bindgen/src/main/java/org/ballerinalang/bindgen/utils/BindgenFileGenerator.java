@@ -28,7 +28,6 @@ import java.io.File;
 import java.io.InputStream;
 import java.nio.file.Path;
 import java.util.Locale;
-import java.util.function.Supplier;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.ballerinalang.bindgen.utils.BindgenConstants.DEFAULT_TEMPLATE_DIR;
