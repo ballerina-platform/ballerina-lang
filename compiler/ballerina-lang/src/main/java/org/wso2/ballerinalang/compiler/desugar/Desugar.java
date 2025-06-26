@@ -17,6 +17,8 @@
  */
 package org.wso2.ballerinalang.compiler.desugar;
 
+import io.ballerina.compiler.syntax.tree.NodeFactory;
+import io.ballerina.compiler.syntax.tree.NodeParser;
 import io.ballerina.identifier.Utils;
 import io.ballerina.runtime.api.constants.RuntimeConstants;
 import io.ballerina.tools.diagnostics.Location;
@@ -175,6 +177,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMultipleWorkerReceive;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNamedArgsExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangNaturalExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangObjectConstructorExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangQueryAction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangQueryExpr;
@@ -376,6 +379,8 @@ public class Desugar extends BLangNodeVisitor {
     private static final String HAS_KEY = "hasKey";
     private static final String CREATE_RECORD_VALUE = "createRecordFromMap";
     private static final String CHANNEL_AUTO_CLOSE_FUNC_NAME = "autoClose";
+    private static final String GENERATE = "generate";
+    private static final String ESCAPED_BACKTICK = "\"`\"";
 
     public static final String XML_INTERNAL_CHILDREN = "children";
     public static final String XML_MAP = "map";
@@ -9171,6 +9176,30 @@ public class Desugar extends BLangNodeVisitor {
         result = reFlagsOnOff;
     }
 
+    @Override
+    public void visit(BLangNaturalExpression naturalExpression) {
+        if (naturalExpression.isConstExpr) {
+            // Shouldn't get here
+            throw new IllegalStateException("'const' natural expression should be handled by the implementation");
+        }
+
+        Location pos = naturalExpression.pos;
+        String varName = anonModelHelper.getNextNaturalGeneratorVariableName(env.enclPkg.packageID);
+
+        BLangSimpleVariableDef generatorVariableDef =
+                createGeneratorVariableDefinition(naturalExpression, varName, pos);
+        BType bType = naturalExpression.getBType();
+        BLangInvocation generatorGenerateCall = createGeneratorGenerateCall(
+                pos, generatorVariableDef, naturalExpression, bType);
+
+        BLangBlockStmt blockStmt = createBlockStmt(pos);
+        blockStmt.addStatement(generatorVariableDef);
+
+        BLangStatementExpression statementExpression = createStatementExpression(blockStmt, generatorGenerateCall);
+        statementExpression.setBType(bType);
+        result = rewrite(statementExpression, env);
+    }
+
     // private functions
 
     // Foreach desugar helper method.
@@ -9211,7 +9240,7 @@ public class Desugar extends BLangNodeVisitor {
         BLangIdentifier nextIdentifier = ASTBuilderUtil.createIdentifier(pos, "next");
         BLangSimpleVarRef iteratorReferenceInNext = ASTBuilderUtil.createVariableRef(pos, iteratorSymbol);
         BInvokableSymbol nextFuncSymbol =
-                getNextFunc((BObjectType) Types.getImpliedType(iteratorSymbol.type)).symbol;
+                getObjectMethod((BObjectType) Types.getImpliedType(iteratorSymbol.type), "next").symbol;
         BLangInvocation nextInvocation = (BLangInvocation) TreeBuilder.createInvocationNode();
         nextInvocation.pos = pos;
         nextInvocation.name = nextIdentifier;
@@ -9223,10 +9252,10 @@ public class Desugar extends BLangNodeVisitor {
         return nextInvocation;
     }
 
-    private BAttachedFunction getNextFunc(BObjectType iteratorType) {
-        BObjectTypeSymbol iteratorSymbol = (BObjectTypeSymbol) iteratorType.tsymbol;
+    private BAttachedFunction getObjectMethod(BObjectType objectType, String methodName) {
+        BObjectTypeSymbol iteratorSymbol = (BObjectTypeSymbol) objectType.tsymbol;
         for (BAttachedFunction bAttachedFunction : iteratorSymbol.attachedFuncs) {
-            if (bAttachedFunction.funcName.value.equals("next")) {
+            if (bAttachedFunction.funcName.value.equals(methodName)) {
                 return bAttachedFunction;
             }
         }
@@ -11007,5 +11036,85 @@ public class Desugar extends BLangNodeVisitor {
 
     private void clearGlobalVariables() {
         this.typedescList = null;
+    }
+
+    private BLangSimpleVariableDef createGeneratorVariableDefinition(BLangNaturalExpression naturalExpression,
+                                                                     String varName, Location pos) {
+        BVarSymbol generatorVarSymbol = new BVarSymbol(0, Names.fromString(varName), env.scope.owner.pkgID,
+                symTable.naturalGeneratorType, this.env.scope.owner, pos, VIRTUAL);
+        BLangSimpleVariable generatorVariable = ASTBuilderUtil.createVariable(pos,
+                varName, symTable.naturalGeneratorType, naturalExpression.arguments.getFirst(), generatorVarSymbol);
+        return ASTBuilderUtil.createVariableDef(pos, generatorVariable);
+    }
+
+    private BLangInvocation createGeneratorGenerateCall(Location pos, BLangSimpleVariableDef generatorVariableDef,
+                                                        BLangNaturalExpression naturalExpression, BType exprType) {
+        BType nonErrorType = types.getSafeType(exprType, false, true);
+        BType typedescType = new BTypedescType(symTable.typeEnv(), nonErrorType, symTable.typeDesc.tsymbol);
+
+        BVarSymbol generatorVarSymbol = generatorVariableDef.var.symbol;
+        BLangSimpleVarRef generatorVarRef = ASTBuilderUtil.createVariableRef(pos, generatorVarSymbol);
+        BLangIdentifier generateIdentifier = ASTBuilderUtil.createIdentifier(pos, GENERATE);
+        BInvokableSymbol generateMethodSymbol = getObjectMethod(
+                (BObjectType) Types.getImpliedType(symTable.naturalGeneratorType), GENERATE).symbol;
+        BLangInvocation generateCall = (BLangInvocation) TreeBuilder.createInvocationNode();
+        generateCall.pos = pos;
+        generateCall.name = generateIdentifier;
+        generateCall.expr = generatorVarRef;
+        generateCall.requiredArgs = Lists.of(
+                ASTBuilderUtil.createVariableRef(pos, generatorVarSymbol),
+                createPromptRawTemplate(naturalExpression),
+                ASTBuilderUtil.createTypedescExpr(pos, typedescType, nonErrorType)
+        );
+        generateCall.argExprs = generateCall.requiredArgs;
+        generateCall.symbol = generateMethodSymbol;
+        generateCall.setBType(exprType);
+        return generateCall;
+    }
+
+    private BLangRawTemplateLiteral createPromptRawTemplate(BLangNaturalExpression naturalExpression) {
+        Location pos = naturalExpression.pos;
+        List<BLangLiteral> updatedStrings = new ArrayList<>();
+        List<BLangExpression> updatedInsertions = new ArrayList<>();
+
+        List<BLangLiteral> strings = naturalExpression.strings;
+        List<BLangExpression> insertions = naturalExpression.insertions;
+        int insertionsSize = insertions.size();
+
+        for (int i = 0; i < strings.size(); i++) {
+            BLangLiteral literal = strings.get(i);
+            String text = (String) literal.value;
+            String updatedText = text.replace("\\}", "}");
+            updatedText = updatedText.replace("`", ESCAPED_BACKTICK);
+            if (text.equals(updatedText)) {
+                updatedStrings.add(literal);
+            } else {
+                String[] split = updatedText.split(ESCAPED_BACKTICK);
+
+                int length = split.length;
+                for (int j = 0; j < length - 1; j++) {
+                    String part = split[j];
+                    updatedStrings.add(ASTBuilderUtil.createLiteral(pos, symTable.stringType, part));
+                    updatedInsertions.add(ASTBuilderUtil.createLiteral(pos, symTable.stringType, ESCAPED_BACKTICK));
+                }
+
+                updatedStrings.add(ASTBuilderUtil.createLiteral(pos, symTable.stringType, split[length - 1]));
+
+                if (updatedText.endsWith(ESCAPED_BACKTICK)) {
+                    updatedInsertions.add(ASTBuilderUtil.createLiteral(pos, symTable.stringType, ESCAPED_BACKTICK));
+                }
+            }
+
+            if (i < insertionsSize) {
+                updatedInsertions.add(insertions.get(i));
+            }
+        }
+
+        return ASTBuilderUtil.createRawTemplateExpression(
+                pos, symResolver.lookupPossibleMemberSymbol(
+                        symTable.langNaturalModuleSymbol.scope,
+                        Names.fromString("Prompt"),
+                        SymTag.TYPE_DEF).type,
+                updatedStrings, updatedInsertions);
     }
 }
