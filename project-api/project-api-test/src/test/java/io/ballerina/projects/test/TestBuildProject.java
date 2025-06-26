@@ -2455,41 +2455,44 @@ public class TestBuildProject extends BaseTest {
                 " dependency of 'platformlib/pkg1'. Picking 'lib3-2.0.1.jar' over 'lib3-2.0.0.jar'.");
     }
 
-    @Test(description = "Test sticky flag for Build Project in different scenarios")
-    public void testStickyFlag() throws IOException {
-        // Sticky option isn't defined in Ballerina.toml
+    @Test(description = "Test sticky flag when not defined in Ballerina.toml")
+    public void testStickyFlagNotDefinedInToml() throws IOException {
         Path projectPath = tempResourceDir.resolve("stickyTestProjs/projNullStickyInBalTom");
-        BuildOptions buildOptions = BuildOptions.builder().setSticky(false).build(); //CLI Sticky
+        BuildOptions buildOptions = BuildOptions.builder().setSticky(false).build(); // CLI Sticky
         BuildProject project = loadBuildProject(projectPath, buildOptions);
         Assert.assertFalse(project.buildOptions().sticky());
-        buildOptions = BuildOptions.builder().setSticky(true).build(); //CLI Sticky
+        buildOptions = BuildOptions.builder().setSticky(true).build(); // CLI Sticky
         project = loadBuildProject(projectPath, buildOptions);
         Assert.assertTrue(project.buildOptions().sticky());
-        buildOptions = BuildOptions.builder().build(); //CLI Sticky
+        buildOptions = BuildOptions.builder().build(); // CLI Sticky
         project = loadBuildProject(projectPath, buildOptions);
         Assert.assertFalse(project.buildOptions().sticky());
+    }
 
-        // Sticky option is set to false in Ballerina.toml
-        projectPath = tempResourceDir.resolve("stickyTestProjs/projFalseStickyInBalTom");
-        buildOptions = BuildOptions.builder().setSticky(false).build(); //CLI Sticky
-        project = loadBuildProject(projectPath, buildOptions);
+    @Test(description = "Test sticky flag when set to false in Ballerina.toml")
+    public void testStickyFlagFalseInToml() throws IOException {
+        Path projectPath = tempResourceDir.resolve("stickyTestProjs/projFalseStickyInBalTom");
+        BuildOptions buildOptions = BuildOptions.builder().setSticky(false).build(); // CLI Sticky
+        BuildProject project = loadBuildProject(projectPath, buildOptions);
         Assert.assertFalse(project.buildOptions().sticky());
-        buildOptions = BuildOptions.builder().setSticky(true).build(); //CLI Sticky
+        buildOptions = BuildOptions.builder().setSticky(true).build(); // CLI Sticky
         project = loadBuildProject(projectPath, buildOptions);
         Assert.assertTrue(project.buildOptions().sticky());
-        buildOptions = BuildOptions.builder().build(); //CLI Sticky
+        buildOptions = BuildOptions.builder().build(); // CLI Sticky
         project = loadBuildProject(projectPath, buildOptions);
         Assert.assertFalse(project.buildOptions().sticky());
+    }
 
-        // Sticky option is set to true in Ballerina.toml
-        projectPath = tempResourceDir.resolve("stickyTestProjs/projTrueStickyInBalTom");
-        buildOptions = BuildOptions.builder().setSticky(false).build(); //CLI Sticky
-        project = loadBuildProject(projectPath, buildOptions);
+    @Test(description = "Test sticky flag when set to true in Ballerina.toml")
+    public void testStickyFlagTrueInToml() throws IOException {
+        Path projectPath = tempResourceDir.resolve("stickyTestProjs/projTrueStickyInBalTom");
+        BuildOptions buildOptions = BuildOptions.builder().setSticky(false).build(); // CLI Sticky
+        BuildProject project = loadBuildProject(projectPath, buildOptions);
         Assert.assertFalse(project.buildOptions().sticky());
-        buildOptions = BuildOptions.builder().setSticky(true).build(); //CLI Sticky
+        buildOptions = BuildOptions.builder().setSticky(true).build(); // CLI Sticky
         project = loadBuildProject(projectPath, buildOptions);
         Assert.assertTrue(project.buildOptions().sticky());
-        buildOptions = BuildOptions.builder().build(); //CLI Sticky
+        buildOptions = BuildOptions.builder().build(); // CLI Sticky
         project = loadBuildProject(projectPath, buildOptions);
         Assert.assertTrue(project.buildOptions().sticky());
     }
