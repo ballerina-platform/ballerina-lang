@@ -167,14 +167,27 @@ public final class BalaFiles {
         if (Files.notExists(documentFilePath)) {
             return null;
         } else {
-            Supplier<String> contentSupplier = () -> {
+            FileSystem fileSystem = documentFilePath.getFileSystem();
+            if (fileSystem.equals(FileSystems.getDefault())) {
+                // For default file system, use lazy loading for better performance
+                Supplier<String> contentSupplier = () -> {
+                    try {
+                        return Files.readString(documentFilePath, Charset.defaultCharset());
+                    } catch (IOException e) {
+                        throw new ProjectException(e);
+                    }
+                };
+                return DocumentData.from(Optional.of(documentFilePath.getFileName()).get().toString(), contentSupplier);
+            } else {
+                // For non-default file systems (like ZipFileSystem), read content immediately
+                // to avoid ClosedFileSystemException
                 try {
-                    return Files.readString(documentFilePath, Charset.defaultCharset());
+                    String content = Files.readString(documentFilePath, Charset.defaultCharset());
+                    return DocumentData.from(Optional.of(documentFilePath.getFileName()).get().toString(), content);
                 } catch (IOException e) {
                     throw new ProjectException(e);
                 }
-            };
-            return DocumentData.from(Optional.of(documentFilePath.getFileName()).get().toString(), contentSupplier);
+            }
         }
     }
 
