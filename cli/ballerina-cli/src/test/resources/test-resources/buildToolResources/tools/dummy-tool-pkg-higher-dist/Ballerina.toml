@@ -1,0 +1,8 @@
+[package]
+org = "foo"
+name = "dummypkghigherdist"
+version = "1.4.0"
+distribution = "2201.99.0"
+
+[build-options]
+observabilityIncluded = true

@@ -1,4 +1,4 @@
 
 Executing Build Tools
-	openapi(generate-delivery-client)
+	sample-build-tool(generate-delivery-client)
 ERROR [generate-delivery-client] The provided filePath does not exist
