@@ -65,6 +65,7 @@ dependencies {
     balSource project(path: ':ballerina-lang:future', configuration: 'balSource')
     balSource project(path: ':ballerina-lang:integer', configuration: 'balSource')
     balSource project(path: ':ballerina-lang:map', configuration: 'balSource')
+    balSource project(path: ':ballerina-lang:natural', configuration: 'balSource')
     balSource project(path: ':ballerina-lang:object', configuration: 'balSource')
     balSource project(path: ':ballerina-lang:stream', configuration: 'balSource')
     balSource project(path: ':ballerina-lang:table', configuration: 'balSource')

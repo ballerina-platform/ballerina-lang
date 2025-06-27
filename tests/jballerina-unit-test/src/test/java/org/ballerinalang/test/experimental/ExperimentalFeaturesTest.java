@@ -33,7 +33,8 @@ public class ExperimentalFeaturesTest {
 
     @Test
     public void testExperimentalFeaturesNegative() {
-        CompileResult result = BCompileUtil.compile("test-src/experimental-option/experimental_features_negative.bal");
+        CompileResult result = BCompileUtil.compileWithoutInitInvocation(
+                "test-src/experimental-option/experimental_features_negative.bal");
         int i = 0;
         BAssertUtil.validateError(result, i++, "using the experimental 'natural expression' feature, " +
                 "use the '--experimental' option to enable experimental features", 17, 15);

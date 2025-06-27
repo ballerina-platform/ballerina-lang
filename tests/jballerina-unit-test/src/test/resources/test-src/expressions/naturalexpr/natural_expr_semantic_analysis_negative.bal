@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-int a = natural {
+int a = natural (new MyGenerator()) {
     What is 1 + 1?
 };
 
@@ -23,7 +23,7 @@ type PersonObject object {
     int age;
 };
 
-function f1(string day) returns PersonObject|error => natural {
+function f1(string day) returns PersonObject|error => natural (new MyGenerator()) {
     Who is a popular person born on ${day}?
 };
 
@@ -32,12 +32,12 @@ type Person record {|
     int age;
 |};
 
-function f2(PersonObject person) returns Person|error => natural {
+function f2(PersonObject person) returns Person|error => natural (new MyGenerator()) {
     Who is a popular person
     born on ${day}? Maybe ${person}?
 };
 
-function f3() returns error => natural {
+function f3() returns error => natural (new MyGenerator()) {
     What's the colour of this IDE?
 };
 
@@ -59,3 +59,8 @@ PersonObject d = const natural {
 function f4() returns string|error => natural (mdl) {
     What day is it today?
 };
+
+isolated class MyGenerator {
+    public isolated function generate(
+            'natural:Prompt prompt, typedesc<anydata> td) returns td|error = external;
+}

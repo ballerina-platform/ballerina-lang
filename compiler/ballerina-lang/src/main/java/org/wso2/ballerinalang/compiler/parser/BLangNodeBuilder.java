@@ -6165,7 +6165,7 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
             bLiteral = (BLangLiteral) TreeBuilder.createLiteralExpression();
         } else if (type == SyntaxKind.STRING_LITERAL || type == SyntaxKind.XML_TEXT_CONTENT ||
                 type == SyntaxKind.TEMPLATE_STRING || type == SyntaxKind.IDENTIFIER_TOKEN ||
-                isTokenInRegExp(type)) {
+                type == SyntaxKind.PROMPT_CONTENT || isTokenInRegExp(type)) {
             String text = textValue;
             if (type == SyntaxKind.STRING_LITERAL) {
                 if (text.length() > 1 && text.charAt(text.length() - 1) == '"') {
@@ -6181,7 +6181,7 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
             }
 
             if (type != SyntaxKind.TEMPLATE_STRING && type != SyntaxKind.XML_TEXT_CONTENT &&
-                    !isTokenInRegExp(type)) {
+                    type != SyntaxKind.PROMPT_CONTENT && !isTokenInRegExp(type)) {
                 Location pos = getPosition(literal);
                 validateUnicodePoints(text, pos);
 
