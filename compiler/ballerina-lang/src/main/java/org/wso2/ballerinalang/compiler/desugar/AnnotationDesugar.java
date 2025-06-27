@@ -171,9 +171,7 @@ public class AnnotationDesugar {
     void rewritePackageAnnotations(BLangPackage pkgNode, SymbolEnv env) {
         BLangFunction initFunction = pkgNode.initFunction;
 
-        defineTypeAnnotations(pkgNode, env, initFunction);
         defineClassAnnotations(pkgNode, env, initFunction);
-        defineFunctionAnnotations(pkgNode, env, initFunction);
     }
 
     private void defineClassAnnotations(BLangPackage pkgNode, SymbolEnv env2, BLangFunction initFunction) {
@@ -455,78 +453,63 @@ public class AnnotationDesugar {
         addAnnotsToLiteral(attachments, mapLiteral, location, env, false);
     }
 
-    private void defineTypeAnnotations(BLangPackage pkgNode, SymbolEnv env, BLangFunction initFunction) {
-        for (BLangTypeDefinition typeDef : pkgNode.typeDefinitions) {
-            if (typeDef.isBuiltinTypeDef) {
-                continue;
-            }
-            PackageID pkgID = typeDef.symbol.pkgID;
-            BSymbol owner = typeDef.symbol.owner;
+    void defineTypeAnnotations(BLangTypeDefinition typeDef, BLangPackage pkgNode, SymbolEnv env,
+                               BLangBlockFunctionBody target) {
+        if (typeDef.isBuiltinTypeDef) {
+            return;
+        }
+        PackageID pkgID = typeDef.symbol.pkgID;
+        BSymbol owner = typeDef.symbol.owner;
 
-            BLangType typeNode = typeDef.typeNode;
-            SymbolEnv typeEnv = SymbolEnv.createTypeEnv(typeNode, initFunction.symbol.scope, env);
-            BLangLambdaFunction lambdaFunction;
+        BLangType typeNode = typeDef.typeNode;
+        SymbolEnv typeEnv = SymbolEnv.createTypeEnv(typeNode, pkgNode.initFunction.symbol.scope, env);
+        BLangLambdaFunction lambdaFunction;
 
-            if (typeNode.getKind() == NodeKind.RECORD_TYPE || typeNode.getKind() == NodeKind.OBJECT_TYPE
-                    || typeNode.getKind() == NodeKind.TUPLE_TYPE_NODE) {
-                lambdaFunction = defineAnnotations(typeDef, pkgNode, typeEnv, pkgID, owner);
-            } else {
-                lambdaFunction = defineAnnotations(getAnnotationList(typeDef), pkgNode, env, pkgID, owner, false);
-            }
+        if (typeNode.getKind() == NodeKind.RECORD_TYPE || typeNode.getKind() == NodeKind.OBJECT_TYPE
+                || typeNode.getKind() == NodeKind.TUPLE_TYPE_NODE) {
+            lambdaFunction = defineAnnotations(typeDef, pkgNode, typeEnv, pkgID, owner);
+        } else {
+            lambdaFunction = defineAnnotations(getAnnotationList(typeDef), pkgNode, env, pkgID, owner, false);
+        }
 
-            if (lambdaFunction != null) {
-                addInvocationToGlobalAnnotMap(typeDef.name.value, lambdaFunction, initFunction.body);
-            }
+        if (lambdaFunction != null) {
+            addInvocationToGlobalAnnotMap(typeDef.name.value, lambdaFunction, target);
         }
     }
 
-    private void defineFunctionAnnotations(BLangPackage pkgNode, SymbolEnv env, BLangFunction initFunction) {
-        BLangBlockFunctionBody initFnBody = (BLangBlockFunctionBody) initFunction.body;
-        BLangFunction[] functions = pkgNode.functions.toArray(new BLangFunction[pkgNode.functions.size()]);
-
-        for (BLangFunction function : functions) {
-            PackageID pkgID = function.symbol.pkgID;
-            BSymbol owner = function.symbol.owner;
-            if (function.symbol.name.getValue().equals("main")) {
-                addVarArgsAnnotation(function, env);
-            }
-
-            if (function.flagSet.contains(Flag.WORKER)) {
-                attachSchedulerPolicy(function);
-            }
-
-            BLangLambdaFunction lambdaFunction = defineAnnotations(function, pkgNode, env, pkgID, owner);
-            if (lambdaFunction != null) {
-                // Add the lambda/invocation in a temporary block.
-                BLangBlockStmt target = (BLangBlockStmt) TreeBuilder.createBlockNode();
-                target.pos = initFnBody.pos;
-                String identifier = function.attachedFunction ? function.symbol.name.value : function.name.value;
-
-                int index;
-                if (function.attachedFunction
-                        && Symbols.isFlagOn(function.receiver.getBType().getFlags(), Flags.OBJECT_CTOR)) {
-                    addLambdaToGlobalAnnotMap(identifier, lambdaFunction, target);
-                    index = calculateIndex(initFnBody.stmts, function.receiver.getBType().tsymbol);
-                } else {
-                    addInvocationToGlobalAnnotMap(identifier, lambdaFunction, target);
-                    index = initFnBody.stmts.stream().filter((stmt -> (stmt.getKind() == NodeKind.VARIABLE_DEF) &&
-                            ((BLangSimpleVariableDef) stmt).var.name.value.endsWith(Desugar.ANNOT_RESOLVE_POINT) &&
-                            ((BLangSimpleVariableDef) stmt).var.symbol == function.symbol)).findFirst()
-                            .map(initFnBody.stmts::indexOf).orElse(-1);
-                    if (index == -1) {
-                        index = initFnBody.stmts.size();
-                    }
-                }
-
-                // Add the annotation assignment for resources to immediately before the service init.
-                for (BLangStatement stmt : target.stmts) {
-                    initFnBody.stmts.add(index++, stmt);
-                }
-            }
+    void defineFunctionAnnotations(BLangFunction function, BLangPackage pkgNode, SymbolEnv env,
+                                          BLangBlockFunctionBody initFnBody) {
+        if (function.symbol.name.getValue().equals("main")) {
+            addVarArgsAnnotation(function, env);
         }
-        // Remove all $AnnotResolvePoint statements
-        initFnBody.stmts.removeIf(stmt -> stmt.getKind() == NodeKind.VARIABLE_DEF &&
-                ((BLangSimpleVariableDef) stmt).var.name.value.endsWith(Desugar.ANNOT_RESOLVE_POINT));
+
+        if (function.flagSet.contains(Flag.WORKER)) {
+            attachSchedulerPolicy(function);
+        }
+
+        BLangLambdaFunction lambdaFunction = defineAnnotations(function, pkgNode, env, function.symbol.pkgID,
+                function.symbol.owner);
+        if (lambdaFunction == null) {
+            return;
+        }
+        // Add the lambda/invocation in a temporary block.
+        BLangBlockStmt target = (BLangBlockStmt) TreeBuilder.createBlockNode();
+        target.pos = initFnBody.pos;
+        String identifier = function.attachedFunction ? function.symbol.name.value : function.name.value;
+
+        int index;
+        if (function.attachedFunction
+                && Symbols.isFlagOn(function.receiver.getBType().getFlags(), Flags.OBJECT_CTOR)) {
+            addLambdaToGlobalAnnotMap(identifier, lambdaFunction, target);
+            index = calculateIndex(initFnBody.stmts, function.receiver.getBType().tsymbol);
+        } else {
+            addInvocationToGlobalAnnotMap(identifier, lambdaFunction, target);
+            index = initFnBody.stmts.size();
+        }
+
+        for (BLangStatement stmt : target.stmts) {
+            initFnBody.stmts.add(index++, stmt);
+        }
     }
 
     private void attachSchedulerPolicy(BLangFunction function) {
@@ -726,7 +709,7 @@ public class AnnotationDesugar {
         return lambdaFunction;
     }
 
-    private void addVarArgsAnnotation(BLangFunction mainFunc, SymbolEnv env) {
+    void addVarArgsAnnotation(BLangFunction mainFunc, SymbolEnv env) {
         if (mainFunc.symbol.getParameters().isEmpty() && mainFunc.symbol.restParam == null) {
             return;
         }
