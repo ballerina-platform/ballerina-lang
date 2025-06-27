@@ -17,10 +17,14 @@
 package org.ballerinalang.test.expressions.natural;
 
 import io.ballerina.projects.BuildOptions;
+import io.ballerina.runtime.api.Environment;
+import io.ballerina.runtime.api.values.BObject;
+import io.ballerina.runtime.api.values.BTypedesc;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.Test;
@@ -33,6 +37,15 @@ import java.util.List;
  * @since 2201.13.0
  */
 public class NaturalExpressionTest {
+
+    @Test
+    public void testNaturalExpr() {
+        BuildOptions.BuildOptionsBuilder buildOptionsBuilder = BuildOptions.builder();
+        BuildOptions buildOptions = buildOptionsBuilder.setExperimental(Boolean.TRUE).build();
+        CompileResult result = BCompileUtil.compile("test-src/expressions/naturalexpr/natural_expr.bal", buildOptions);
+        Assert.assertEquals(result.getDiagnostics().length, 0);
+        BRunUtil.invoke(result, "testNaturalExpr");
+    }
 
     @Test
     public void testNaturalExprSemanticAnalysisNegative() {
@@ -93,5 +106,9 @@ public class NaturalExpressionTest {
                 "incorrect line number:");
         Assert.assertEquals(diag.location().lineRange().startLine().offset() + 1, expectedErrCol,
                 "incorrect column position:");
+    }
+
+    public static Object generateProxy(Environment env, BObject object, BObject prompt, BTypedesc td) {
+        return env.getRuntime().callMethod(object, "generateData", null, prompt, td);
     }
 }

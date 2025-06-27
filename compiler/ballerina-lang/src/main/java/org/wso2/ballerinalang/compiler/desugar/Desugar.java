@@ -11062,7 +11062,6 @@ public class Desugar extends BLangNodeVisitor {
         generateCall.name = generateIdentifier;
         generateCall.expr = generatorVarRef;
         generateCall.requiredArgs = Lists.of(
-                ASTBuilderUtil.createVariableRef(pos, generatorVarSymbol),
                 createPromptRawTemplate(naturalExpression),
                 ASTBuilderUtil.createTypedescExpr(pos, typedescType, nonErrorType)
         );
