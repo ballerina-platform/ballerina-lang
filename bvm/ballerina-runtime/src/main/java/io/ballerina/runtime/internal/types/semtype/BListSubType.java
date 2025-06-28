@@ -36,6 +36,8 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 import static io.ballerina.runtime.api.types.semtype.Bdd.bddEvery;
 import static io.ballerina.runtime.api.types.semtype.Core.cellInner;
@@ -52,6 +54,9 @@ import static io.ballerina.runtime.internal.types.semtype.BIntSubType.intSubtype
 public class BListSubType extends SubType implements DelegatedSubType {
 
     public final Bdd inner;
+
+    record ListMember<E extends SemType>(E semType, boolean isRest) {
+    }
 
     private BListSubType(Bdd inner) {
         super(inner.isAll(), inner.isNothing());
@@ -142,7 +147,7 @@ public class BListSubType extends SubType implements DelegatedSubType {
             }
         }
         Integer[] indices = listSamples(cx, members, rest, neg);
-        Pair<SemType[], Integer> sampleTypes = listSampleTypes(cx, members, rest, indices);
+        Pair<ListMember<SemType>[], Integer> sampleTypes = listSampleTypesInner(cx, members, rest, indices);
         return !listInhabited(cx, indices, sampleTypes.first(), sampleTypes.second(), neg);
     }
 
@@ -157,8 +162,8 @@ public class BListSubType extends SubType implements DelegatedSubType {
     // `memberTypes[i]` is the type that P gives to `indices[i]`;
     // `nRequired` is the number of members of `memberTypes` that are required by P.
     // `neg` represents N.
-    private static boolean listInhabited(Context cx, Integer[] indices, SemType[] memberTypes, int nRequired,
-                                         Conjunction neg) {
+    private static boolean listInhabited(Context cx, Integer[] indices, ListMember<SemType>[] memberTypes,
+            int nRequired, Conjunction neg) {
         if (neg == null) {
             return true;
         } else {
@@ -167,21 +172,13 @@ public class BListSubType extends SubType implements DelegatedSubType {
                 // Skip this negative if it is always shorter than the minimum required by the positive
                 return listInhabited(cx, indices, memberTypes, nRequired, neg.next());
             }
-            for (int i = 0; i < memberTypes.length; i++) {
-                // If we have isEmpty(T1 & S1) or isEmpty(T2 & S2) then we have [T1, T2] / [S1, S2] = [T1, T2].
-                // Therefore, we can skip the negative
-                SemType t1 = memberTypes[i];
-                SemType t2 = listMemberAt(nt.members(), nt.rest(), indices[i]);
-                SemType common = Core.intersect(t1, t2);
-                if (Core.isEmpty(cx, common)) {
-                    return listInhabited(cx, indices, memberTypes, nRequired, neg.next());
-                }
+            if (pruningCandidates(indices, memberTypes, nt).anyMatch(each -> Core.isEmpty(cx, each))) {
+                return listInhabited(cx, indices, memberTypes, nRequired, neg.next());
             }
-            // Consider cases we can avoid this negative by having a sufficiently short list
             int negLen = nt.members().fixedLength();
             if (negLen > 0) {
-                int len = memberTypes.length;
                 // Consider cases we can avoid this negative by having a sufficiently short list
+                int len = memberTypes.length;
                 if (len < indices.length && indices[len] < negLen) {
                     return listInhabited(cx, indices, memberTypes, nRequired, neg.next());
                 }
@@ -189,9 +186,8 @@ public class BListSubType extends SubType implements DelegatedSubType {
                     if (indices[i] >= negLen) {
                         break;
                     }
-                    // TODO: avoid creating new arrays here, maybe use an object pool for this
-                    //  -- Or use a copy on write array?
-                    SemType[] t = Arrays.copyOfRange(memberTypes, 0, i);
+                    // TODO: avoid creating new arrays here
+                    ListMember<SemType>[] t = Arrays.copyOfRange(memberTypes, 0, i);
                     if (listInhabited(cx, indices, t, nRequired, neg.next())) {
                         return true;
                     }
@@ -218,10 +214,10 @@ public class BListSubType extends SubType implements DelegatedSubType {
             // return !isEmpty(cx, d1) &&  tupleInhabited(cx, [s[0], d1], neg.rest);
             // We can generalize this to tuples of arbitrary length.
             for (int i = 0; i < memberTypes.length; i++) {
-                SemType d = Core.diff(memberTypes[i], listMemberAt(nt.members(), nt.rest(), indices[i]));
+                SemType d = Core.diff(memberTypes[i].semType, listMemberAt(nt.members(), nt.rest(), indices[i]));
                 if (!Core.isEmpty(cx, d)) {
-                    SemType[] t = memberTypes.clone();
-                    t[i] = d;
+                    ListMember<SemType>[] t = memberTypes.clone();
+                    t[i] = new ListMember<>(d, memberTypes[i].isRest);
                     // We need to make index i be required
                     if (listInhabited(cx, indices, t, Integer.max(nRequired, i + 1), neg.next())) {
                         return true;
@@ -234,95 +230,63 @@ public class BListSubType extends SubType implements DelegatedSubType {
         }
     }
 
+    // If we have isEmpty(T1 & S1) or isEmpty(T2 & S2) then we have [T1, T2] / [S1,
+    // S2] = [T1, T2].
+    // Therefore, we can skip the negative. More generally, if we have a member type
+    // t that is not the rest in either
+    // the positive or the negative and the intersection with the corresponding
+    // member of the other atom is empty
+    // we can skip the negative atom.
+    private static Stream<SemType> pruningCandidates(Integer[] indices, ListMember<SemType>[] listMembers,
+            ListAtomicType negAtom) {
+        record Data(ListMember<SemType> pos, ListMember<SemType> neg) {
+        }
+        return IntStream.range(0, listMembers.length)
+                .mapToObj(
+                        i -> new Data(listMembers[i], listMemberAtInner(negAtom.members(), negAtom.rest(), indices[i])))
+                .filter(each -> !each.pos().isRest() || !each.neg().isRest())
+                .map(each -> Core.intersect(each.pos.semType, each.neg.semType));
+    }
+
     public static Pair<SemType[], Integer> listSampleTypes(Context cx, FixedLengthArray members,
                                                            SemType rest, Integer[] indices) {
-        List<SemType> memberTypes = new ArrayList<>(indices.length);
+        Pair<ListMember<SemType>[], Integer> samples = listSampleTypesInner(cx, members, rest, indices);
+        SemType[] sampleTypes = Arrays.stream(samples.first()).map(ListMember::semType).toArray(SemType[]::new);
+        return Pair.from(sampleTypes, samples.second());
+    }
+
+    private static Pair<ListMember<SemType>[], Integer> listSampleTypesInner(Context cx, FixedLengthArray members,
+            SemType rest, Integer[] indices) {
+        List<ListMember<SemType>> memberTypes = new ArrayList<>(indices.length);
         int nRequired = 0;
         for (int i = 0; i < indices.length; i++) {
             int index = indices[i];
-            SemType t = getCellContainingInnerVal(cx.env, listMemberAt(members, rest, index));
+            ListMember<SemType> member = listMemberAtInner(members, rest, index);
+            SemType t = getCellContainingInnerVal(cx.env, member.semType);
             if (Core.isEmpty(cx, t)) {
                 break;
             }
-            memberTypes.add(t);
+            memberTypes.add(new ListMember<>(t, member.isRest));
             if (index < members.fixedLength()) {
                 nRequired = i + 1;
             }
         }
-        SemType[] buffer = new SemType[memberTypes.size()];
+        ListMember<SemType>[] buffer = new ListMember[memberTypes.size()];
         return Pair.from(memberTypes.toArray(buffer), nRequired);
     }
 
-    // Return a list of sample indices for use as second argument of `listInhabited`.
-    // The positive list type P is represented by `members` and `rest`.
-    // The negative list types N are represented by `neg`
-    // The `indices` list (first member of return value) is constructed in two stages.
-    // First, the set of all non-negative integers is partitioned so that two integers are
-    // in different partitions if they get different types as an index in P or N.
-    // Second, we choose a number of samples from each partition. It doesn't matter
-    // which sample we choose, but (this is the key point) we need at least as many samples
-    // as there are negatives in N, so that for each negative we can freely choose a type for the sample
-    // to avoid being matched by that negative.
-    public static Integer[] listSamples(Context cx, FixedLengthArray members, SemType rest, Conjunction neg) {
-        int maxInitialLength = members.initial().length;
-        List<Integer> fixedLengths = new ArrayList<>();
-        fixedLengths.add(members.fixedLength());
-        Conjunction tem = neg;
-        int nNeg = 0;
-        while (true) {
-            if (tem != null) {
-                ListAtomicType lt = cx.listAtomType(tem.atom());
-                FixedLengthArray m = lt.members();
-                maxInitialLength = Integer.max(maxInitialLength, m.initial().length);
-                if (m.fixedLength() > maxInitialLength) {
-                    fixedLengths.add(m.fixedLength());
-                }
-                nNeg += 1;
-                tem = tem.next();
-            } else {
-                break;
-            }
+    private static SemType listMemberAt(FixedLengthArray fixedArray, SemType rest, int index) {
+        if (index < fixedArray.fixedLength()) {
+            return fixedArrayGet(fixedArray, index);
         }
-        Collections.sort(fixedLengths);
-        // `boundaries` partitions the non-negative integers
-        // Construct `boundaries` from `fixedLengths` and `maxInitialLength`
-        // An index b is a boundary point if indices < b are different from indices >= b
-        //int[] boundaries = from int i in 1 ... maxInitialLength select i;
-        List<Integer> boundaries = new ArrayList<>(fixedLengths.size());
-        for (int i = 1; i <= maxInitialLength; i++) {
-            boundaries.add(i);
+        return rest;
+    }
+
+    private static ListMember<SemType> listMemberAtInner(FixedLengthArray fixedArray, SemType rest, int index) {
+        if (index < fixedArray.fixedLength()) {
+            return new ListMember<>(fixedArrayGet(fixedArray, index), false);
         }
-        for (int n : fixedLengths) {
-            // this also removes duplicates
-            if (boundaries.isEmpty() || n > boundaries.get(boundaries.size() - 1)) {
-                boundaries.add(n);
-            }
-        }
-        // Now construct the list of indices by taking nNeg samples from each partition.
-        List<Integer> indices = new ArrayList<>(boundaries.size());
-        int lastBoundary = 0;
-        if (nNeg == 0) {
-            // this is needed for when this is used in listProj
-            nNeg = 1;
-        }
-        for (int b : boundaries) {
-            int segmentLength = b - lastBoundary;
-            // Cannot have more samples than are in the parition.
-            int nSamples = Integer.min(segmentLength, nNeg);
-            for (int i = b - nSamples; i < b; i++) {
-                indices.add(i);
-            }
-            lastBoundary = b;
-        }
-        for (int i = 0; i < nNeg; i++) {
-            // Be careful to avoid integer overflow.
-            if (lastBoundary > Integer.MAX_VALUE - i) {
-                break;
-            }
-            indices.add(lastBoundary + i);
-        }
-        Integer[] arr = new Integer[indices.size()];
-        return indices.toArray(arr);
+        return new ListMember<>(rest, true);
     }
 
     public static boolean fixedArrayAnyEmpty(Context cx, FixedLengthArray array) {
@@ -363,13 +327,6 @@ public class BListSubType extends SubType implements DelegatedSubType {
             return Core.isNever(cellInnerVal(rest2));
         }
         return false;
-    }
-
-    private static SemType listMemberAt(FixedLengthArray fixedArray, SemType rest, int index) {
-        if (index < fixedArray.fixedLength()) {
-            return fixedArrayGet(fixedArray, index);
-        }
-        return rest;
     }
 
     private static SemType fixedArrayGet(FixedLengthArray members, int index) {
@@ -455,5 +412,82 @@ public class BListSubType extends SubType implements DelegatedSubType {
     @Override
     public int hashCode() {
         return Objects.hashCode(inner);
+    }
+
+    // Return a list of sample indices for use as second argument of
+    // `listInhabited`.
+    // The positive list type P is represented by `members` and `rest`.
+    // The negative list types N are represented by `neg`
+    // The `indices` list (first member of return value) is constructed in two
+    // stages.
+    // First, the set of all non-negative integers is partitioned so that two
+    // integers are
+    // in different partitions if they get different types as an index in P or N.
+    // Second, we choose a number of samples from each partition. It doesn't matter
+    // which sample we choose, but (this is the key point) we need at least as many
+    // samples
+    // as there are negatives in N, so that for each negative we can freely choose a
+    // type for the sample
+    // to avoid being matched by that negative.
+    public static Integer[] listSamples(Context cx, FixedLengthArray members, SemType rest, Conjunction neg) {
+        int maxInitialLength = members.initial().length;
+        List<Integer> fixedLengths = new ArrayList<>();
+        fixedLengths.add(members.fixedLength());
+        Conjunction tem = neg;
+        int nNeg = 0;
+        while (true) {
+            if (tem != null) {
+                ListAtomicType lt = cx.listAtomType(tem.atom());
+                FixedLengthArray m = lt.members();
+                maxInitialLength = Integer.max(maxInitialLength, m.initial().length);
+                if (m.fixedLength() > maxInitialLength) {
+                    fixedLengths.add(m.fixedLength());
+                }
+                nNeg += 1;
+                tem = tem.next();
+            } else {
+                break;
+            }
+        }
+        Collections.sort(fixedLengths);
+        // `boundaries` partitions the non-negative integers
+        // Construct `boundaries` from `fixedLengths` and `maxInitialLength`
+        // An index b is a boundary point if indices < b are different from indices >= b
+        // int[] boundaries = from int i in 1 ... maxInitialLength select i;
+        List<Integer> boundaries = new ArrayList<>(fixedLengths.size());
+        for (int i = 1; i <= maxInitialLength; i++) {
+            boundaries.add(i);
+        }
+        for (int n : fixedLengths) {
+            // this also removes duplicates
+            if (boundaries.isEmpty() || n > boundaries.get(boundaries.size() - 1)) {
+                boundaries.add(n);
+            }
+        }
+        // Now construct the list of indices by taking nNeg samples from each partition.
+        List<Integer> indices = new ArrayList<>(boundaries.size());
+        int lastBoundary = 0;
+        if (nNeg == 0) {
+            // this is needed for when this is used in listProj
+            nNeg = 1;
+        }
+        for (int b : boundaries) {
+            int segmentLength = b - lastBoundary;
+            // Cannot have more samples than are in the parition.
+            int nSamples = Integer.min(segmentLength, nNeg);
+            for (int i = b - nSamples; i < b; i++) {
+                indices.add(i);
+            }
+            lastBoundary = b;
+        }
+        for (int i = 0; i < nNeg; i++) {
+            // Be careful to avoid integer overflow.
+            if (lastBoundary > Integer.MAX_VALUE - i) {
+                break;
+            }
+            indices.add(lastBoundary + i);
+        }
+        Integer[] arr = new Integer[indices.size()];
+        return indices.toArray(arr);
     }
 }

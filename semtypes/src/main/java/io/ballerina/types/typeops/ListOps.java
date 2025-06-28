@@ -40,6 +40,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 import static io.ballerina.types.Common.bddSubtypeComplement;
 import static io.ballerina.types.Common.bddSubtypeDiff;
@@ -110,23 +111,33 @@ public class ListOps extends CommonOps implements BasicTypeOps {
             }
         }
         List<Integer> indices = listSamples(cx, members, rest, neg);
-        TwoTuple<List<CellSemType>, Integer> sampleTypes = listSampleTypes(cx, members, rest, indices);
+        TwoTuple<List<ListMember<CellSemType>>, Integer> sampleTypes = listSampleTypesInner(cx, members, rest, indices);
         return !listInhabited(cx, indices.toArray(new Integer[0]),
-                sampleTypes.item1.toArray(SemType[]::new),
+                sampleTypes.item1.toArray(ListMember[]::new),
                 sampleTypes.item2, neg);
     }
 
     public static TwoTuple<List<CellSemType>, Integer> listSampleTypes(Context cx, FixedLengthArray members,
                                                                        CellSemType rest, List<Integer> indices) {
-        List<CellSemType> memberTypes = new ArrayList<>();
+        TwoTuple<List<ListMember<CellSemType>>, Integer> samples = listSampleTypesInner(cx, members, rest, indices);
+        List<CellSemType> sampleTypes = samples.item1.stream().map(ListMember::semType).toList();
+        return TwoTuple.from(sampleTypes, samples.item2);
+    }
+
+    static TwoTuple<List<ListMember<CellSemType>>, Integer> listSampleTypesInner(Context cx,
+                                                                                 FixedLengthArray members,
+                                                                                 CellSemType rest,
+                                                                                 List<Integer> indices) {
+        List<ListMember<CellSemType>> memberTypes = new ArrayList<>();
         int nRequired = 0;
         for (int i = 0; i < indices.size(); i++) {
             int index = indices.get(i);
-            CellSemType t = cellContainingInnerVal(cx.env, listMemberAt(members, rest, index));
+            ListMember<CellSemType> member = listMemberAtInner(members, rest, index);
+            CellSemType t = cellContainingInnerVal(cx.env, member.semType);
             if (Core.isEmpty(cx, t)) {
                 break;
             }
-            memberTypes.add(t);
+            memberTypes.add(new ListMember<>(t, member.isRest));
             if (index < members.fixedLength()) {
                 nRequired = i + 1;
             }
@@ -230,6 +241,10 @@ public class ListOps extends CommonOps implements BasicTypeOps {
         return FixedLengthArray.from(array.initial(), array.fixedLength());
     }
 
+    record ListMember<E extends SemType>(E semType, boolean isRest) {
+
+    }
+
     // This function determines whether a list type P & N is inhabited.
     // where P is a positive list type and N is a list of negative list types.
     // With just straightforward fixed-length tuples we can consider every index of the tuple.
@@ -241,7 +256,8 @@ public class ListOps extends CommonOps implements BasicTypeOps {
     // `memberTypes[i]` is the type that P gives to `indices[i]`;
     // `nRequired` is the number of members of `memberTypes` that are required by P.
     // `neg` represents N.
-    static boolean listInhabited(Context cx, Integer[] indices, SemType[] memberTypes, int nRequired, Conjunction neg) {
+    static boolean listInhabited(Context cx, Integer[] indices, ListMember<SemType>[] memberTypes, int nRequired,
+                                 Conjunction neg) {
         // TODO: Way `listInhabited` method works is essentially removing negative atoms one by one until either we
         //  run-out of negative atoms or there is nothing left in the positive (intersection) atom. While correctness
         //  of this method is independent of the order of negative atoms, the performance of this method is dependent
@@ -258,15 +274,8 @@ public class ListOps extends CommonOps implements BasicTypeOps {
                 // Skip this negative if it is always shorter than the minimum required by the positive
                 return listInhabited(cx, indices, memberTypes, nRequired, neg.next);
             }
-            for (int i = 0; i < memberTypes.length; i++) {
-                // If we have isEmpty(T1 & S1) or isEmpty(T2 & S2) then we have [T1, T2] / [S1, S2] = [T1, T2].
-                // Therefore, we can skip the negative
-                SemType t1 = memberTypes[i];
-                SemType t2 = listMemberAt(nt.members(), nt.rest(), indices[i]);
-                SemType common = Core.intersect(t1, t2);
-                if (Core.isEmpty(cx, common)) {
-                    return listInhabited(cx, indices, memberTypes, nRequired, neg.next);
-                }
+            if (pruningCandidates(indices, memberTypes, nt).anyMatch(each -> Core.isEmpty(cx, each))) {
+                return listInhabited(cx, indices, memberTypes, nRequired, neg.next);
             }
             int negLen = nt.members().fixedLength();
             if (negLen > 0) {
@@ -280,7 +289,7 @@ public class ListOps extends CommonOps implements BasicTypeOps {
                         break;
                     }
                     // TODO: avoid creating new arrays here
-                    SemType[] t = Arrays.copyOfRange(memberTypes, 0, i);
+                    ListMember<SemType>[] t = Arrays.copyOfRange(memberTypes, 0, i);
                     if (listInhabited(cx, indices, t, nRequired, neg.next)) {
                         return true;
                     }
@@ -307,10 +316,10 @@ public class ListOps extends CommonOps implements BasicTypeOps {
             // return !isEmpty(cx, d1) &&  tupleInhabited(cx, [s[0], d1], neg.rest);
             // We can generalize this to tuples of arbitrary length.
             for (int i = 0; i < memberTypes.length; i++) {
-                SemType d = Core.diff(memberTypes[i], listMemberAt(nt.members(), nt.rest(), indices[i]));
+                SemType d = Core.diff(memberTypes[i].semType, listMemberAt(nt.members(), nt.rest(), indices[i]));
                 if (!Core.isEmpty(cx, d)) {
-                    SemType[] t = memberTypes.clone();
-                    t[i] = d;
+                    ListMember<SemType>[] t = memberTypes.clone();
+                    t[i] = new ListMember<>(d, memberTypes[i].isRest);
                     // We need to make index i be required
                     if (listInhabited(cx, indices, t, Integer.max(nRequired, i + 1), neg.next)) {
                         return true;
@@ -321,6 +330,22 @@ public class ListOps extends CommonOps implements BasicTypeOps {
             // negative is 0, and [] - [] is empty.
             return false;
         }
+    }
+
+    // If we have isEmpty(T1 & S1) or isEmpty(T2 & S2) then we have [T1, T2] / [S1, S2] = [T1, T2].
+    // Therefore, we can skip the negative. More generally, if we have a member type t that is not the rest in either
+    // the positive or the negative and the intersection with the corresponding member of the other atom is empty
+    // we can skip the negative atom.
+    static Stream<SemType> pruningCandidates(Integer[] indices, ListMember<SemType>[] listMembers,
+                                             ListAtomicType negAtom) {
+        record Data(ListMember<SemType> pos, ListMember<CellSemType> neg) {
+
+        }
+        return IntStream.range(0, listMembers.length)
+                .mapToObj(
+                        i -> new Data(listMembers[i], listMemberAtInner(negAtom.members(), negAtom.rest(), indices[i])))
+                .filter(each -> !each.pos().isRest() || !each.neg().isRest())
+                .map(each -> Core.intersect(each.pos.semType, each.neg.semType));
     }
 
     static SemType listMemberAtInnerVal(FixedLengthArray fixedArray, CellSemType rest, int index) {
@@ -341,10 +366,14 @@ public class ListOps extends CommonOps implements BasicTypeOps {
     }
 
     static CellSemType listMemberAt(FixedLengthArray fixedArray, CellSemType rest, int index) {
+        return listMemberAtInner(fixedArray, rest, index).semType;
+    }
+
+    static ListMember<CellSemType> listMemberAtInner(FixedLengthArray fixedArray, CellSemType rest, int index) {
         if (index < fixedArray.fixedLength()) {
-            return fixedArrayGet(fixedArray, index);
+            return new ListMember<>(fixedArrayGet(fixedArray, index), false);
         }
-        return rest;
+        return new ListMember<>(rest, true);
     }
 
     static boolean fixedArrayAnyEmpty(Context cx, FixedLengthArray array) {
