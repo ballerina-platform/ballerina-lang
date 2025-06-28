@@ -31,8 +31,8 @@ import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
-import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -41,6 +41,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -313,13 +314,27 @@ public final class ProjectFiles {
             // ignore for zip entries
         }
 
-        String content;
-        try {
-            content = Files.readString(documentFilePath, StandardCharsets.UTF_8);
-        } catch (IOException e) {
-            throw new ProjectException(e);
+        FileSystem fileSystem = documentFilePath.getFileSystem();
+        if (fileSystem.equals(FileSystems.getDefault())) {
+            // For default file system, use lazy loading for better performance
+            Supplier<String> contentSupplier = () -> {
+                try {
+                    return Files.readString(documentFilePath, StandardCharsets.UTF_8);
+                } catch (IOException e) {
+                    throw new ProjectException(e);
+                }
+            };
+            return DocumentData.from(Optional.of(documentFilePath.getFileName()).get().toString(), contentSupplier);
+        } else {
+            // For non-default file systems (like ZipFileSystem), read content immediately
+            // to avoid ClosedFileSystemException
+            try {
+                String content = Files.readString(documentFilePath, StandardCharsets.UTF_8);
+                return DocumentData.from(Optional.of(documentFilePath.getFileName()).get().toString(), content);
+            } catch (IOException e) {
+                throw new ProjectException(e);
+            }
         }
-        return DocumentData.from(Optional.of(documentFilePath.getFileName()).get().toString(), content);
     }
 
     private static DocumentData loadTestDocument(Path documentFilePath) {
@@ -328,14 +343,30 @@ public final class ProjectFiles {
         } catch (UnsupportedOperationException ignore) {
             // ignore for zip entries
         }
-        String content;
-        try {
-            content = Files.readString(documentFilePath, Charset.defaultCharset());
-        } catch (IOException e) {
-            throw new ProjectException(e);
+
+        FileSystem fileSystem = documentFilePath.getFileSystem();
+        if (fileSystem.equals(FileSystems.getDefault())) {
+            // For default file system, use lazy loading for better performance
+            Supplier<String> contentSupplier = () -> {
+                try {
+                    return Files.readString(documentFilePath, StandardCharsets.UTF_8);
+                } catch (IOException e) {
+                    throw new ProjectException(e);
+                }
+            };
+            String documentName = Optional.of(documentFilePath.getFileName()).get().toString();
+            return DocumentData.from(ProjectConstants.TEST_DIR_NAME + "/" + documentName, contentSupplier);
+        } else {
+            // For non-default file systems (like ZipFileSystem), read content immediately
+            // to avoid ClosedFileSystemException
+            try {
+                String content = Files.readString(documentFilePath, StandardCharsets.UTF_8);
+                String documentName = Optional.of(documentFilePath.getFileName()).get().toString();
+                return DocumentData.from(ProjectConstants.TEST_DIR_NAME + "/" + documentName, content);
+            } catch (IOException e) {
+                throw new ProjectException(e);
+            }
         }
-        String documentName = Optional.of(documentFilePath.getFileName()).get().toString();
-        return DocumentData.from(ProjectConstants.TEST_DIR_NAME + "/" + documentName, content);
     }
 
     public static BuildOptions createBuildOptions(PackageConfig packageConfig, BuildOptions theirOptions,
