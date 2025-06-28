@@ -17,37 +17,69 @@
  */
 package io.ballerina.projects;
 
+import java.util.function.Supplier;
+
 /**
  * {@code DocumentConfig} contains necessary configuration elements required to
  * create an instance of a {@code Document}.
  *
  * @since 2.0.0
  */
-public class DocumentConfig {
+public abstract class DocumentConfig {
     // This class should contain project-agnostic information
     private final DocumentId documentId;
-    private final String content;
     private final String name;
 
-    private DocumentConfig(DocumentId documentId, String content, String name) {
+    private DocumentConfig(DocumentId documentId, String name) {
         this.documentId = documentId;
-        this.content = content;
         this.name = name;
     }
 
     public static DocumentConfig from(DocumentId documentId, String content, String name) {
-        return new DocumentConfig(documentId, content, name);
+        return new EagerDocumentConfig(documentId, content, name);
+    }
+
+    public static DocumentConfig from(DocumentId documentId, Supplier<String> content, String name) {
+        return new LazyDocumentConfig(documentId, content, name);
     }
 
     public DocumentId documentId() {
         return documentId;
     }
 
-    public String content() {
-        return content;
-    }
+    public abstract String content();
 
     public String name() {
         return name;
+    }
+
+    private static class EagerDocumentConfig extends DocumentConfig {
+
+        private final String content;
+
+        private EagerDocumentConfig(DocumentId documentId, String content, String name) {
+            super(documentId, name);
+            this.content = content;
+        }
+
+        @Override
+        public String content() {
+            return content;
+        }
+    }
+
+    private static class LazyDocumentConfig extends DocumentConfig {
+
+        private final Supplier<String> contentSupplier;
+
+        private LazyDocumentConfig(DocumentId documentId, Supplier<String> contentSupplier, String name) {
+            super(documentId, name);
+            this.contentSupplier = contentSupplier;
+        }
+
+        @Override
+        public String content() {
+            return contentSupplier.get();
+        }
     }
 }
