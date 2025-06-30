@@ -24,11 +24,11 @@ import java.util.Objects;
  *
  * @since 2201.12.0
  */
-public final class ListAtomicType implements AtomicType {
+public final class ListAtomicType implements AtomicType, TypeAtomWithTemperature {
 
     private final FixedLengthArray members;
     private final CellSemType rest;
-    public int temperature = 0;
+    private int temperature = 0;
 
     public ListAtomicType(FixedLengthArray members, CellSemType rest) {
         assert members != null;
@@ -75,4 +75,18 @@ public final class ListAtomicType implements AtomicType {
                 "rest=" + rest + ']';
     }
 
+    @Override
+    public void heatUp() {
+        this.temperature++;
+    }
+
+    @Override
+    public void coolDown() {
+        this.temperature--;
+    }
+
+    @Override
+    public int temperature() {
+        return this.temperature;
+    }
 }

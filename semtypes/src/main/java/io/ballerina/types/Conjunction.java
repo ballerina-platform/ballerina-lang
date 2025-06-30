@@ -17,7 +17,8 @@
  */
 package io.ballerina.types;
 
-import java.util.PriorityQueue;
+import java.util.ArrayList;
+import java.util.Comparator;
 
 /**
  * Represents the Conjunction record type.
@@ -45,26 +46,25 @@ public class Conjunction {
      * @param conjunction the conjunction to reorder
      * @return the head of the reordered linked list
      */
-    public static Conjunction reorderByTemperature(Context cx, Conjunction conjunction) {
+    public static Conjunction reorderByTemperature(Context cx, Context.TypeAtomKind kind, Conjunction conjunction) {
         if (conjunction == null) {
             return null;
         }
-        PriorityQueue<Atom> atomQueue = new PriorityQueue<>(
-                (a1, a2) -> Integer.compare(a2.temperature(cx), a1.temperature(cx)));
+        ArrayList<Atom> atoms = new ArrayList<>();
 
         Conjunction current = conjunction;
         while (current != null) {
-            atomQueue.offer(current.atom);
+            atoms.add(current.atom);
             current = current.next;
         }
 
-        assert !atomQueue.isEmpty();
+        atoms.sort(Comparator.comparingInt((Atom atom) -> atom.temperature(cx, kind)).reversed());
 
-        Conjunction head = new Conjunction(atomQueue.poll(), null);
+        Conjunction head = new Conjunction(atoms.get(0), null);
         Conjunction tail = head;
 
-        while (!atomQueue.isEmpty()) {
-            tail.next = new Conjunction(atomQueue.poll(), null);
+        for (int i = 1; i < atoms.size(); i++) {
+            tail.next = new Conjunction(atoms.get(i), null);
             tail = tail.next;
         }
 

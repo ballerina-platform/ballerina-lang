@@ -23,15 +23,17 @@ import java.util.Arrays;
 import java.util.Objects;
 
 /**
- * MappingAtomicType node. {@code names} and {@code types} fields must be sorted.
+ * MappingAtomicType node. {@code names} and {@code types} fields must be
+ * sorted.
  *
- * @param names names of the required members
- * @param types types of the required members
- * @param rest  for a given mapping type this represents the rest type. This is NEVER if the mapping don't have a rest
- *              type
  * @since 2201.12.0
  */
-public record MappingAtomicType(String[] names, CellSemType[] types, CellSemType rest) implements AtomicType {
+public final class MappingAtomicType implements AtomicType, TypeAtomWithTemperature {
+
+    private final String[] names;
+    private final CellSemType[] types;
+    private final CellSemType rest;
+    private int temperature = 0;
 
     public MappingAtomicType(String[] names, CellSemType[] types, CellSemType rest) {
         this.names = Arrays.copyOf(names, names.length);
@@ -83,5 +85,24 @@ public record MappingAtomicType(String[] names, CellSemType[] types, CellSemType
                 ", types=" + Arrays.toString(types) +
                 ", rest=" + rest +
                 '}';
+    }
+
+    public CellSemType rest() {
+        return rest;
+    }
+
+    @Override
+    public void heatUp() {
+        this.temperature++;
+    }
+
+    @Override
+    public void coolDown() {
+        this.temperature--;
+    }
+
+    @Override
+    public int temperature() {
+        return temperature;
     }
 }

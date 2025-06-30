@@ -61,8 +61,8 @@ public interface Atom {
      *
      * @param cx the context
      */
-    default void heatUp(Context cx) {
-        cx.heatUp(this);
+    default void heatUp(Context cx, Context.TypeAtomKind kind) {
+        cx.heatUp(kind, this);
     }
 
     /**
@@ -70,8 +70,8 @@ public interface Atom {
      *
      * @param cx the context
      */
-    default void coolDown(Context cx) {
-        cx.coolDown(this);
+    default void coolDown(Context cx, Context.TypeAtomKind kind) {
+        cx.coolDown(kind, this);
     }
 
     /**
@@ -80,7 +80,7 @@ public interface Atom {
      * @param cx the context
      * @return the current temperature value
      */
-    default int temperature(Context cx) {
-        return cx.temperature(this);
+    default int temperature(Context cx, Context.TypeAtomKind kind) {
+        return cx.temperature(kind, this);
     }
 }

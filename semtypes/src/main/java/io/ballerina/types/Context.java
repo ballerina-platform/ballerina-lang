@@ -90,21 +90,31 @@ public final class Context {
         }
     }
 
-    void heatUp(Atom atom) {
+    TypeAtomWithTemperature typeAtomWithTemperature(TypeAtomKind kind, Atom atom) {
         assert atom != null : "Atom cannot be null";
-        ListAtomicType listAtomType = listAtomType(atom);
-        listAtomType.temperature++;
+        return switch (kind) {
+            case LIST_ATOM -> listAtomType(atom);
+            case MAPPING_ATOM -> mappingAtomType(atom);
+        };
     }
 
-    void coolDown(Atom atom) {
-        assert atom != null : "Atom cannot be null";
-        ListAtomicType listAtomType = listAtomType(atom);
-        listAtomType.temperature--;
+    void heatUp(TypeAtomKind kind, Atom atom) {
+        TypeAtomWithTemperature typeAtom = typeAtomWithTemperature(kind, atom);
+        typeAtom.heatUp();
     }
 
-    int temperature(Atom atom) {
-        assert atom != null : "Atom cannot be null";
-        ListAtomicType listAtomType = listAtomType(atom);
-        return listAtomType.temperature;
+    void coolDown(TypeAtomKind kind, Atom atom) {
+        TypeAtomWithTemperature typeAtom = typeAtomWithTemperature(kind, atom);
+        typeAtom.coolDown();
+    }
+
+    int temperature(TypeAtomKind kind, Atom atom) {
+        TypeAtomWithTemperature typeAtom = typeAtomWithTemperature(kind, atom);
+        return typeAtom.temperature();
+    }
+
+    public enum TypeAtomKind {
+        LIST_ATOM,
+        MAPPING_ATOM,
     }
 }
