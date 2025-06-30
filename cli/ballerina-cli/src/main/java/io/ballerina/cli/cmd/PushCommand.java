@@ -379,7 +379,7 @@ public class PushCommand implements BLauncherCmd {
         } catch (IOException e) {
             throw new ProjectException("error while validating the bala file: " + e.getMessage(), e);
         }
-        throw new ProjectException("README file is missing in the bala file:" + balaPath);
+        throw new ProjectException("README.md file is missing in the bala file:" + balaPath);
     }
 
     private void pushBalaToCustomRepo(Path balaFilePath) {
