@@ -112,10 +112,13 @@ public class ListOps extends CommonOps implements BasicTypeOps {
         }
         List<Integer> indices = listSamples(cx, members, rest, neg);
         TwoTuple<List<ListMember<CellSemType>>, Integer> sampleTypes = listSampleTypesInner(cx, members, rest, indices);
+        Integer[] indicesArray = indices.toArray(new Integer[0]);
+        ListMember[] memberTypesArray = sampleTypes.item1.toArray(ListMember[]::new);
+        if (listFormulaEmptyApproximation(cx, indicesArray, memberTypesArray, sampleTypes.item2, neg)) {
+            return true;
+        }
         Conjunction reOrderedNeg = Conjunction.reorderByTemperature(cx, Context.TypeAtomKind.LIST_ATOM, neg);
-        return !listInhabited(cx, indices.toArray(new Integer[0]),
-                sampleTypes.item1.toArray(ListMember[]::new),
-                sampleTypes.item2, reOrderedNeg);
+        return !listInhabited(cx, indicesArray, memberTypesArray, sampleTypes.item2, reOrderedNeg);
     }
 
     public static TwoTuple<List<CellSemType>, Integer> listSampleTypes(Context cx, FixedLengthArray members,
@@ -244,6 +247,31 @@ public class ListOps extends CommonOps implements BasicTypeOps {
 
     record ListMember<E extends SemType>(E semType, boolean isRest) {
 
+    }
+
+    static boolean listFormulaEmptyApproximation(Context cx, Integer[] indices, ListMember<SemType>[] memberTypes,
+                                                 int nRequired, Conjunction neg) {
+        if (neg == null) {
+            return false;
+        }
+        final ListAtomicType nt = cx.listAtomType(neg.atom);
+        int negLen = nt.members().fixedLength();
+        if (negLen > 0) { // Negative is tuple
+            int len = memberTypes.length;
+            if (len < indices.length && indices[len] < negLen) { // Negative is too large skip
+                return listFormulaEmptyApproximation(cx, indices, memberTypes, nRequired, neg.next);
+            } else if (!(len < indices.length && indices[len] > negLen)) { // Positive "may be" too large
+                // TODO: think about how to make sure positive is too large not may be
+                return listFormulaEmptyApproximation(cx, indices, memberTypes, nRequired, neg.next);
+            }
+        }
+        for (int i = 0; i < memberTypes.length; i++) {
+            if (!Core.isSubtype(cx, memberTypes[i].semType, listMemberAt(nt.members(), nt.rest(), indices[i]))) {
+                return listFormulaEmptyApproximation(cx, indices, memberTypes, nRequired, neg.next);
+            }
+        }
+        assert !listInhabited(cx, indices, memberTypes, nRequired, neg) : "invalid approximation";
+        return true;
     }
 
     // This function determines whether a list type P & N is inhabited.
