@@ -61,13 +61,21 @@ import java.util.Optional;
 import java.util.StringJoiner;
 import java.util.stream.IntStream;
 
+import static org.ballerinalang.debugadapter.JBallerinaDebugServer.LOGGER;
 import static org.ballerinalang.debugadapter.evaluation.EvaluationException.createEvaluationException;
 import static org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind.CLASS_LOADING_FAILED;
 import static org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind.HELPER_UTIL_NOT_FOUND;
 import static org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind.NAME_REF_RESOLVING_ERROR;
+import static org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind.TYPE_RESOLVING_ERROR;
 import static org.ballerinalang.debugadapter.evaluation.IdentifierModifier.encodeModuleName;
+import static org.ballerinalang.debugadapter.evaluation.utils.VariableUtils.loadClassRef;
 import static org.ballerinalang.debugadapter.utils.PackageUtils.BAL_FILE_EXT;
-import static org.ballerinalang.debugadapter.utils.PackageUtils.INIT_CLASS_NAME;
+import static org.ballerinalang.debugadapter.utils.PackageUtils.GLOBAL_CONSTANTS_PACKAGE_NAME;
+import static org.ballerinalang.debugadapter.utils.PackageUtils.GLOBAL_VARIABLES_PACKAGE_NAME;
+import static org.ballerinalang.debugadapter.utils.PackageUtils.TYPE_PREFIXES;
+import static org.ballerinalang.debugadapter.utils.PackageUtils.TYPE_VAR_NAME;
+import static org.ballerinalang.debugadapter.utils.PackageUtils.VALUE_VAR_NAME;
+import static org.ballerinalang.debugadapter.utils.PackageUtils.getQualifiedClassName;
 
 /**
  * Debug expression evaluation utils.
@@ -669,29 +677,21 @@ public final class EvaluationUtils {
      * @return the JDI value instance of the global variable
      */
     private static Optional<BExpressionValue> searchGlobalVariables(SuspendedContext context, String nameReference) {
-        String classQName = PackageUtils.getQualifiedClassName(context, INIT_CLASS_NAME);
-        return getFieldValue(context, classQName, nameReference);
+       return getFieldValue(context, nameReference);
     }
 
-    private static Optional<BExpressionValue> getFieldValue(SuspendedContext context, String qualifiedClassName,
-                                                            String fieldName) {
-        List<ReferenceType> classesRef = context.getAttachedVm().classesByName(qualifiedClassName);
-        // Tries to load the required class instance using "java.lang.Class.forName()" method.
-        if (classesRef == null || classesRef.isEmpty()) {
-            try {
-                classesRef = Collections.singletonList(loadClass(context, qualifiedClassName, ""));
-            } catch (EvaluationException e) {
-                return Optional.empty();
-            }
+    private static Optional<BExpressionValue> getFieldValue(SuspendedContext context, String fieldName) {
+        String varClassName = getQualifiedClassName(context, fieldName, GLOBAL_VARIABLES_PACKAGE_NAME);
+        ReferenceType classesRef = loadClassRef(context, varClassName);
+        if (classesRef == null) {
+            varClassName = getQualifiedClassName(context, fieldName, GLOBAL_CONSTANTS_PACKAGE_NAME);
+            classesRef = loadClassRef(context, varClassName);
         }
-        if (classesRef.size() != 1) {
-            return Optional.empty();
+        if (classesRef != null) {
+            Field field = classesRef.fieldByName(VALUE_VAR_NAME);
+            return Optional.of(new BExpressionValue(context, classesRef.getValue(field)));
         }
+        return Optional.empty();
 
-        Field field = classesRef.get(0).fieldByName(fieldName);
-        if (field == null) {
-            return Optional.empty();
-        }
-        return Optional.of(new BExpressionValue(context, classesRef.get(0).getValue(field)));
     }
 }

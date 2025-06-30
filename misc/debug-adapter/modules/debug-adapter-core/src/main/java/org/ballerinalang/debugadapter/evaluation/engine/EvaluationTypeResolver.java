@@ -33,6 +33,7 @@ import org.ballerinalang.debugadapter.evaluation.EvaluationException;
 import org.ballerinalang.debugadapter.evaluation.IdentifierModifier;
 import org.ballerinalang.debugadapter.evaluation.engine.invokable.RuntimeStaticMethod;
 import org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils;
+import org.ballerinalang.debugadapter.utils.PackageUtils;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -41,6 +42,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.StringJoiner;
 
+import static org.ballerinalang.debugadapter.JBallerinaDebugServer.LOGGER;
 import static org.ballerinalang.debugadapter.evaluation.EvaluationException.createEvaluationException;
 import static org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind.NON_PUBLIC_OR_UNDEFINED_ACCESS;
 import static org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind.TYPE_RESOLVING_ERROR;
@@ -55,8 +57,10 @@ import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.JA
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.MODULE_VERSION_SEPARATOR_REGEX;
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.VALUE_FROM_STRING_METHOD;
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.getRuntimeMethod;
-import static org.ballerinalang.debugadapter.utils.PackageUtils.INIT_CLASS_NAME;
+import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.loadClass;
 import static org.ballerinalang.debugadapter.utils.PackageUtils.INIT_TYPE_INSTANCE_PREFIX;
+import static org.ballerinalang.debugadapter.utils.PackageUtils.TYPE_PREFIXES;
+import static org.ballerinalang.debugadapter.utils.PackageUtils.TYPE_VAR_NAME;
 
 /**
  * Ballerina type resolver implementation for resolving ballerina runtime types using type descriptors.
@@ -129,16 +133,6 @@ public abstract class EvaluationTypeResolver<T> {
                 .findAny();
     }
 
-    protected String constructInitClassNameFrom(Symbol typeSymbol) {
-        ModuleID moduleMeta = typeSymbol.getModule().get().id();
-        return new StringJoiner(".")
-                .add(encodeModuleName(moduleMeta.orgName()))
-                .add(encodeModuleName(moduleMeta.moduleName()))
-                .add(moduleMeta.version().split(MODULE_VERSION_SEPARATOR_REGEX)[0])
-                .add(INIT_CLASS_NAME)
-                .toString();
-    }
-
     protected Value createBArrayType(Value type) throws EvaluationException {
         List<String> argTypeNames = new ArrayList<>();
         argTypeNames.add(EvaluationUtils.B_TYPE_CLASS);
@@ -158,18 +152,38 @@ public abstract class EvaluationTypeResolver<T> {
         } else if (!isPublicSymbol(typeDefinition.get())) {
             throw createEvaluationException(NON_PUBLIC_OR_UNDEFINED_ACCESS, modulePrefix, typeName);
         }
-
-        String packageInitClass = constructInitClassNameFrom(typeDefinition.get());
-        List<ReferenceType> classRef = context.getAttachedVm().classesByName(packageInitClass);
-        if (classRef.isEmpty()) {
-            throw createEvaluationException(TYPE_RESOLVING_ERROR, typeName);
+        for (String prefix : TYPE_PREFIXES) {
+            String typeClassName = constructClassNameFrom(typeDefinition.get(), typeName, prefix);
+            List<ReferenceType> classRefs;
+            try {
+                classRefs = context.getAttachedVm().classesByName(typeClassName);
+                if (classRefs.isEmpty()) {
+                    ReferenceType referenceType = loadClass(context, typeClassName, "");
+                    classRefs = Collections.singletonList(referenceType);
+                }
+            } catch (EvaluationException e) {
+                continue;
+            }
+            ReferenceType classRef = classRefs.getFirst();
+            Field typeField = classRef.fieldByName(TYPE_VAR_NAME);
+            if (typeField == null) {
+                throw createEvaluationException(TYPE_RESOLVING_ERROR, typeName);
+            }
+            return Optional.ofNullable(classRef.getValue(typeField));
         }
+        throw createEvaluationException(TYPE_RESOLVING_ERROR, typeName);
+    }
 
-        Field typeField = classRef.get(0).fieldByName(INIT_TYPE_INSTANCE_PREFIX + typeName);
-        if (typeField == null) {
-            throw createEvaluationException(TYPE_RESOLVING_ERROR, typeName);
+    protected String constructClassNameFrom(Symbol typeSymbol, String typeName, String... packageNames) {
+        ModuleID moduleMeta = typeSymbol.getModule().get().id();
+        StringJoiner classNameJoiner = new StringJoiner(".")
+                .add(encodeModuleName(moduleMeta.orgName()))
+                .add(encodeModuleName(moduleMeta.moduleName()))
+                .add(moduleMeta.version().split(MODULE_VERSION_SEPARATOR_REGEX)[0]);
+        for (String packageName : packageNames) {
+            classNameJoiner.add(packageName);
         }
-        return Optional.ofNullable(classRef.get(0).getValue(typeField));
+        return classNameJoiner.add(typeName).toString();
     }
 
     /**

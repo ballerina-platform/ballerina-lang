@@ -57,7 +57,6 @@ public final class PackageUtils {
 
     public static final String BAL_FILE_EXT = ".bal";
     public static final String BAL_TOML_FILE_NAME = "Ballerina.toml";
-    public static final String INIT_CLASS_NAME = "$_init";
     public static final String INIT_TYPE_INSTANCE_PREFIX = "$type$";
     public static final String GENERATED_VAR_PREFIX = "$";
     static final String USER_MODULE_DIR = "modules";
@@ -66,8 +65,21 @@ public final class PackageUtils {
     static final String TEST_PKG_POSTFIX = "$test";
     private static final String URI_SCHEME_FILE = "file";
     public static final String URI_SCHEME_BALA = "bala";
-
+    public static final String[] TYPE_PREFIXES = {
+            "types.record_types",
+            "types.union_types",
+            "types.object_types",
+            "types.error_types",
+            "types.tuple_types"
+    };
+    public static final String GLOBAL_VARIABLES_PACKAGE_NAME = "identifiers.global_vars";
+    public static final String GLOBAL_CONSTANTS_PACKAGE_NAME = "identifiers.constants";
+    public static final String ALL_GLOBAL_VAR_CLASS_NAME = "$global_vars";
+    public static final String ALL_CONSTANTS_CLASS_NAME = "$constants";
+    public static final String TYPE_VAR_NAME = "$type";
+    public static final String VALUE_VAR_NAME = "$value";
     private static final String FILE_SEPARATOR_REGEX = File.separatorChar == '\\' ? "\\\\" : File.separator;
+
 
     private PackageUtils() {
     }
@@ -213,15 +225,17 @@ public final class PackageUtils {
      * @param className class name
      * @return full-qualified class name
      */
-    public static String getQualifiedClassName(SuspendedContext context, String className) {
-        if (context.getSourceType() == DebugSourceType.SINGLE_FILE) {
-            return className;
-        }
+    public static String getQualifiedClassName(SuspendedContext context, String className, String... packageNames) {
         StringJoiner classNameJoiner = new StringJoiner(".");
-        classNameJoiner.add(context.getPackageOrg().get())
-                .add(context.getModuleName().get())
-                .add(context.getPackageMajorVersion().get())
-                .add(className);
+        if (context.getSourceType() != DebugSourceType.SINGLE_FILE) {
+            classNameJoiner.add(context.getPackageOrg().get())
+                    .add(context.getModuleName().get())
+                    .add(context.getPackageMajorVersion().get());
+        }
+        for (String packageName : packageNames) {
+            classNameJoiner.add(packageName);
+        }
+        classNameJoiner.add(className);
         return classNameJoiner.toString();
     }
 
