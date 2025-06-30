@@ -22,12 +22,12 @@ import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.wso2.ballerinalang.compiler.bir.codegen.BallerinaClassWriter;
-import org.wso2.ballerinalang.compiler.bir.codegen.JarEntries;
-import org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmTypeGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.BIRVarToJVMIndexMap;
+import org.wso2.ballerinalang.compiler.bir.codegen.internal.JarEntries;
 import org.wso2.ballerinalang.compiler.bir.codegen.split.JvmCreateTypeGen;
+import org.wso2.ballerinalang.compiler.bir.codegen.utils.JvmCodeGenUtil;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 
@@ -45,9 +45,6 @@ import static org.objectweb.asm.Opcodes.INVOKESPECIAL;
 import static org.objectweb.asm.Opcodes.INVOKESTATIC;
 import static org.objectweb.asm.Opcodes.NEW;
 import static org.objectweb.asm.Opcodes.V21;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil.NAME_HASH_COMPARATOR;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil.createDefaultCase;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil.getModuleLevelClassName;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CLASS_FILE_SUFFIX;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CREATE_ERROR_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ERROR_VALUE;
@@ -58,6 +55,9 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBJECT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.VISIT_MAX_SAFE_MARGIN;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.CREATE_ERROR;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.ERROR_INIT;
+import static org.wso2.ballerinalang.compiler.bir.codegen.utils.JvmModuleUtils.getModuleLevelClassName;
+import static org.wso2.ballerinalang.compiler.bir.codegen.utils.JvmCodeGenUtil.NAME_HASH_COMPARATOR;
+import static org.wso2.ballerinalang.compiler.bir.codegen.utils.JvmCodeGenUtil.createDefaultCase;
 
 /**
  * Ballerina error value creation related JVM byte code generation class.
@@ -66,17 +66,17 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.ERROR_IN
  */
 public class JvmErrorCreatorGen {
 
-    private final String errorsClass;
     private final JvmTypeGen jvmTypeGen;
+    private final String errorsClass;
 
     public JvmErrorCreatorGen(PackageID packageID, JvmTypeGen jvmTypeGen) {
-       this.errorsClass = getModuleLevelClassName(packageID, MODULE_ERRORS_CREATOR_CLASS_NAME);
         this.jvmTypeGen = jvmTypeGen;
+        this.errorsClass = getModuleLevelClassName(packageID, MODULE_ERRORS_CREATOR_CLASS_NAME);
     }
 
     public void generateErrorsClass(JvmPackageGen jvmPackageGen, BIRNode.BIRPackage module,
-                                    JarEntries jarEntries,
-                                    List<BIRNode.BIRTypeDefinition> errorTypeDefList, SymbolTable symbolTable) {
+                                    JarEntries jarEntries, List<BIRNode.BIRTypeDefinition> errorTypeDefList,
+                                    SymbolTable symbolTable) {
         ClassWriter cw = new BallerinaClassWriter(COMPUTE_FRAMES);
         cw.visit(V21, ACC_PUBLIC + ACC_SUPER, errorsClass, null, OBJECT, null);
         generateCreateErrorMethods(cw, errorTypeDefList, errorsClass, symbolTable);

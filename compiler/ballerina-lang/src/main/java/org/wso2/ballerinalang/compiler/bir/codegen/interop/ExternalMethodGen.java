@@ -38,7 +38,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 
 import java.util.List;
 
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmDesugarPhase.addDefaultableBooleanVarsToSignature;
+import static org.wso2.ballerinalang.compiler.bir.codegen.desugar.BirDesugar.addDefaultBooleanVarsToSignature;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.getFunctionWrapper;
 import static org.wso2.ballerinalang.compiler.bir.codegen.interop.InteropMethodGen.desugarInteropFuncs;
 import static org.wso2.ballerinalang.compiler.bir.codegen.interop.InteropMethodGen.genJFieldForInteropField;
@@ -87,7 +87,7 @@ public final class ExternalMethodGen {
     public static BIRFunctionWrapper createExternalFunctionWrapper(Env env, boolean isEntry, BIRFunction birFunc,
                                                                    PackageID packageID, String birModuleClassName) {
         if (isEntry) {
-            addDefaultableBooleanVarsToSignature(env, birFunc);
+            addDefaultBooleanVarsToSignature(env, birFunc);
         }
         return getFunctionWrapper(env, birFunc, packageID, birModuleClassName);
     }

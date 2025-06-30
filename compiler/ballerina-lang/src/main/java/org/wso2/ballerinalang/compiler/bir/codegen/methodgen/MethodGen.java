@@ -27,7 +27,6 @@ import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmCastGen;
-import org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmErrorGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmInstructionGen;
@@ -43,13 +42,13 @@ import org.wso2.ballerinalang.compiler.bir.codegen.interop.InteropMethodGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.model.JType;
 import org.wso2.ballerinalang.compiler.bir.codegen.model.JTypeTags;
 import org.wso2.ballerinalang.compiler.bir.codegen.split.JvmConstantsGen;
+import org.wso2.ballerinalang.compiler.bir.codegen.utils.JvmCodeGenUtil;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRBasicBlock;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRFunction;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRPackage;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRVariableDcl;
 import org.wso2.ballerinalang.compiler.bir.model.BIRTerminator;
-import org.wso2.ballerinalang.compiler.bir.model.BIRTerminator.Return;
 import org.wso2.ballerinalang.compiler.bir.model.BirScope;
 import org.wso2.ballerinalang.compiler.bir.model.InstructionKind;
 import org.wso2.ballerinalang.compiler.bir.model.VarKind;
@@ -96,11 +95,7 @@ import static org.objectweb.asm.Opcodes.LRETURN;
 import static org.objectweb.asm.Opcodes.LSTORE;
 import static org.objectweb.asm.Opcodes.NEW;
 import static org.objectweb.asm.Opcodes.PUTSTATIC;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil.SCOPE_PREFIX;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil.getModuleLevelClassName;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ANNOTATIONS_METHOD_PREFIX;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JVM_INIT_METHOD;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_ANNOTATIONS_CLASS_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_INIT_CLASS_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_STARTED;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_START_ATTEMPTED;
@@ -109,6 +104,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBJECT_SE
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.PARENT_MODULE_START_ATTEMPTED;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.RECEIVE_WORKER_CHANNEL_NAMES_VAR_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SEND_WORKER_CHANNEL_NAMES_VAR_NAME;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.START_FUNCTION_SUFFIX;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRAND;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRAND_LOCAL_VARIABLE_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRING_VALUE;
@@ -137,6 +133,8 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_XML;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.VOID_METHOD_DESC;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.WORKER_CHANNELS_ADD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.WORKER_CHANNELS_COMPLETE_WITH_PANIC;
+import static org.wso2.ballerinalang.compiler.bir.codegen.utils.JvmCodeGenUtil.SCOPE_PREFIX;
+import static org.wso2.ballerinalang.compiler.bir.codegen.utils.JvmModuleUtils.getModuleLevelClassName;
 
 /**
  * BIR function to JVM byte code generation class.
@@ -285,10 +283,11 @@ public class MethodGen {
                 jvmCastGen, jvmConstantsGen, asyncDataCollector, types);
         JvmErrorGen errorGen = new JvmErrorGen(mv, indexMap, instGen);
         JvmTerminatorGen termGen = new JvmTerminatorGen(mv, indexMap, labelGen, errorGen, module.packageID, instGen,
-                jvmPackageGen, jvmTypeGen, jvmCastGen, jvmConstantsGen, asyncDataCollector);
+                jvmPackageGen, jvmTypeGen, jvmCastGen, asyncDataCollector);
 
-        generateBasicBlocks(mv, labelGen, errorGen, instGen, termGen, func, returnVarRefIndex, channelMapVarIndex,
-                localVarOffset, module, attachedType, sendWorkerChannelNamesVar, receiveWorkerChannelNamesVar);
+        generateBasicBlocks(mv, labelGen, errorGen, instGen, termGen, moduleClassName, func, returnVarRefIndex,
+                channelMapVarIndex, localVarOffset, module, attachedType, sendWorkerChannelNamesVar,
+                receiveWorkerChannelNamesVar);
         termGen.genReturnTerm(returnVarRefIndex, func, channelMapVarIndex, sendWorkerChannelNamesVar,
                 receiveWorkerChannelNamesVar, localVarOffset);
         handleWorkerPanic(func, mv, tryLabel, catchLabel, handleThrowableLabel, channelMapVarIndex,
@@ -307,7 +306,7 @@ public class MethodGen {
 
     private void handleDependantModuleForInit(MethodVisitor mv, PackageID packageID, String funcName) {
         if (isModuleInitFunction(funcName)) {
-            String moduleClass = JvmCodeGenUtil.getModuleLevelClassName(packageID, MODULE_INIT_CLASS_NAME);
+            String moduleClass = getModuleLevelClassName(packageID, MODULE_INIT_CLASS_NAME);
             mv.visitFieldInsn(GETSTATIC, moduleClass, NO_OF_DEPENDANT_MODULES, "I");
             mv.visitInsn(ICONST_1);
             mv.visitInsn(IADD);
@@ -325,7 +324,7 @@ public class MethodGen {
 
     private void handleParentModuleStart(MethodVisitor mv, PackageID packageID, String funcName) {
         if (isModuleStartFunction(funcName)) {
-            String moduleClass = JvmCodeGenUtil.getModuleLevelClassName(packageID, MODULE_INIT_CLASS_NAME);
+            String moduleClass = getModuleLevelClassName(packageID, MODULE_INIT_CLASS_NAME);
             mv.visitFieldInsn(GETSTATIC, moduleClass, PARENT_MODULE_START_ATTEMPTED, "Z");
             Label labelIf = new Label();
             mv.visitJumpInsn(IFEQ, labelIf);
@@ -350,7 +349,7 @@ public class MethodGen {
             return;
         }
         mv.visitInsn(ICONST_1);
-        mv.visitFieldInsn(PUTSTATIC, JvmCodeGenUtil.getModuleLevelClassName(packageID, MODULE_INIT_CLASS_NAME),
+        mv.visitFieldInsn(PUTSTATIC, getModuleLevelClassName(packageID, MODULE_INIT_CLASS_NAME),
                 MODULE_START_ATTEMPTED, "Z");
     }
 
@@ -518,7 +517,7 @@ public class MethodGen {
     }
 
     void generateBasicBlocks(MethodVisitor mv, LabelGenerator labelGen, JvmErrorGen errorGen, JvmInstructionGen instGen,
-                             JvmTerminatorGen termGen, BIRFunction func, int returnVarRefIndex,
+                             JvmTerminatorGen termGen, String moduleClassName, BIRFunction func, int returnVarRefIndex,
                              int channelMapVarIndex, int localVarOffset, BIRPackage module, BType attachedType,
                              int sendWorkerChannelNamesVar, int receiveWorkerChannelNamesVar) {
 
@@ -538,8 +537,8 @@ public class MethodGen {
             mv.visitLabel(bbEndLabel);
             BIRTerminator terminator = bb.terminator;
             processTerminator(mv, func, module, funcName, terminator);
-            termGen.genTerminator(terminator, func, funcName, localVarOffset, returnVarRefIndex, attachedType,
-                    channelMapVarIndex, sendWorkerChannelNamesVar, receiveWorkerChannelNamesVar);
+            termGen.genTerminator(terminator, moduleClassName, func, funcName, localVarOffset, returnVarRefIndex,
+                    attachedType, channelMapVarIndex, sendWorkerChannelNamesVar, receiveWorkerChannelNamesVar);
             lastScope = JvmCodeGenUtil.getLastScopeFromTerminator(mv, bb, funcName, labelGen, lastScope,
                     visitedScopesSet);
             errorGen.generateTryCatch(func, funcName, bb, termGen, labelGen, channelMapVarIndex,
@@ -594,18 +593,12 @@ public class MethodGen {
         } else if (terminator.kind != InstructionKind.RETURN) {
             JvmCodeGenUtil.generateDiagnosticPos(terminator.pos, mv);
         }
-        if ((MethodGenUtils.isModuleInitFunction(func) || isModuleTestInitFunction(func)) &&
-                terminator instanceof Return) {
-            String moduleAnnotationsClass = getModuleLevelClassName(module.packageID, MODULE_ANNOTATIONS_CLASS_NAME);
-            mv.visitMethodInsn(INVOKESTATIC, moduleAnnotationsClass, ANNOTATIONS_METHOD_PREFIX, VOID_METHOD_DESC,
-                    false);
-        }
+
         //set module start success to true for $_init class
         if (isStartFunction(funcName) && terminator.kind == InstructionKind.RETURN) {
             mv.visitInsn(ICONST_1);
-            mv.visitFieldInsn(PUTSTATIC, JvmCodeGenUtil.getModuleLevelClassName(module.packageID,
-                            MODULE_INIT_CLASS_NAME),
-                    MODULE_STARTED, "Z");
+            mv.visitFieldInsn(PUTSTATIC, getModuleLevelClassName(module.packageID,
+                            MODULE_INIT_CLASS_NAME), MODULE_STARTED, "Z");
         }
     }
 
@@ -614,7 +607,7 @@ public class MethodGen {
     }
 
     private boolean isStartFunction(String functionName) {
-        return functionName.equals(MethodGenUtils.encodeModuleSpecialFuncName(MethodGenUtils.START_FUNCTION_SUFFIX));
+        return functionName.equals(MethodGenUtils.encodeModuleSpecialFuncName(START_FUNCTION_SUFFIX));
     }
 
     private boolean isModuleInitFunction(String functionName) {

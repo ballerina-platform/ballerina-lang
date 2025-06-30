@@ -16,14 +16,13 @@
  * under the License.
  */
 
-package org.wso2.ballerinalang.compiler.bir.codegen;
+package org.wso2.ballerinalang.compiler.bir.codegen.utils;
 
 import io.ballerina.identifier.Utils;
 import io.ballerina.tools.diagnostics.Location;
 import io.ballerina.types.Env;
 import org.apache.commons.lang3.StringUtils;
 import org.ballerinalang.compiler.BLangCompilerException;
-import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Handle;
@@ -31,6 +30,8 @@ import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
+import org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants;
+import org.wso2.ballerinalang.compiler.bir.codegen.JvmInstructionGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.LabelGenerator;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.NameHashComparator;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.InteropMethodGen;
@@ -47,7 +48,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BIntersectionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeReferenceType;
 import org.wso2.ballerinalang.compiler.util.Name;
-import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.compiler.util.Unifier;
 import org.wso2.ballerinalang.util.Flags;
@@ -57,7 +57,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.regex.Pattern;
 
-import static io.ballerina.runtime.api.constants.RuntimeConstants.UNDERSCORE;
 import static org.objectweb.asm.Opcodes.ACONST_NULL;
 import static org.objectweb.asm.Opcodes.ALOAD;
 import static org.objectweb.asm.Opcodes.ASTORE;
@@ -74,22 +73,18 @@ import static org.objectweb.asm.Opcodes.INVOKESTATIC;
 import static org.objectweb.asm.Opcodes.INVOKEVIRTUAL;
 import static org.objectweb.asm.Opcodes.NEW;
 import static org.objectweb.asm.Opcodes.RETURN;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BALLERINA;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BAL_EXTENSION;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BUILT_IN_PACKAGE_NAME;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BSTRING_VAR_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_STRING_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_STRING_VAR_PREFIX;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.DECIMAL_VALUE;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ENCODED_DOT_CHARACTER;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ERROR_VALUE;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.FILE_NAME_PERIOD_SEPERATOR;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.FUNCTION_POINTER;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.GET_VALUE_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JAVA_PACKAGE_SEPERATOR;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JAVA_RUNTIME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JVM_INIT_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JVM_TO_STRING_METHOD;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAX_STRINGS_PER_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_INIT_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_START_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OVERFLOW_LINE_NUMBER;
@@ -139,7 +134,6 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.RETURN_T
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.RETURN_XML_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.STRING_BUILDER_APPEND;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.VOID_METHOD_DESC;
-import static org.wso2.ballerinalang.compiler.util.CompilerUtils.getMajorVersion;
 import static org.wso2.ballerinalang.compiler.util.Constants.RECORD_DELIMITER;
 
 /**
@@ -152,7 +146,11 @@ public final class JvmCodeGenUtil {
     public static final String SCOPE_PREFIX = "_SCOPE_";
     public static final NameHashComparator NAME_HASH_COMPARATOR = new NameHashComparator();
 
-    static void visitInvokeDynamic(MethodVisitor mv, String currentClass, String lambdaName, int size) {
+
+    private JvmCodeGenUtil() {
+    }
+
+    public static void visitInvokeDynamic(MethodVisitor mv, String currentClass, String lambdaName, int size) {
         String mapDesc = getMapsDesc(size);
         Handle handle = new Handle(Opcodes.H_INVOKESTATIC, "java/lang/invoke/LambdaMetafactory",
                                    "metafactory", "(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;" +
@@ -276,64 +274,10 @@ public final class JvmCodeGenUtil {
         return (func.flags & Flags.NATIVE) == Flags.NATIVE;
     }
 
-    public static String getPackageName(PackageID packageID) {
-        return getPackageNameWithSeparator(packageID, "/");
-    }
-
-    private static String getPackageNameWithSeparator(PackageID packageID, String separator) {
-        String packageName = "";
-        String orgName = Utils.encodeNonFunctionIdentifier(packageID.orgName.value);
-        String moduleName;
-        if (!packageID.isTestPkg) {
-            moduleName = Utils.encodeNonFunctionIdentifier(packageID.name.value);
-        } else {
-            moduleName = Utils.encodeNonFunctionIdentifier(packageID.name.value) + Names.TEST_PACKAGE.value;
-        }
-        if (!moduleName.equals(ENCODED_DOT_CHARACTER)) {
-            if (!packageID.version.value.isEmpty()) {
-                packageName = getMajorVersion(packageID.version.value) + separator;
-            }
-            packageName = moduleName + separator + packageName;
-        }
-
-        if (!orgName.equalsIgnoreCase("$anon")) {
-            packageName = orgName + separator + packageName;
-        }
-        return packageName;
-    }
-
-    public static String getModuleLevelClassName(PackageID packageID, String sourceFileName) {
-        return getModuleLevelClassName(packageID, sourceFileName, "/");
-    }
-
     public static void generateExitRuntime(MethodVisitor mv) {
         mv.visitMethodInsn(INVOKESTATIC , JAVA_RUNTIME, "getRuntime", GET_RUNTIME, false);
         mv.visitInsn(ICONST_0);
         mv.visitMethodInsn(INVOKEVIRTUAL , JAVA_RUNTIME, "exit", "(I)V", false);
-    }
-
-    static String getModuleLevelClassName(PackageID packageID, String sourceFileName, String separator) {
-        String className = cleanupSourceFileName(sourceFileName);
-        // handle source file path start with '/'.
-        if (className.startsWith(JAVA_PACKAGE_SEPERATOR)) {
-            className = className.substring(1);
-        }
-        return getPackageNameWithSeparator(packageID, separator) + className;
-    }
-
-    public static String getModuleLevelClassName(PackageID packageID, String prefix, String sourceFileName,
-                                                 String separator) {
-        String className = cleanupSourceFileName(sourceFileName);
-        // handle source file path start with '/'.
-        if (className.startsWith(JAVA_PACKAGE_SEPERATOR)) {
-            className = className.substring(1);
-        }
-        return getPackageNameWithSeparator(packageID, separator) + prefix + className;
-    }
-
-
-    private static String cleanupSourceFileName(String name) {
-        return name.replace(".", FILE_NAME_PERIOD_SEPERATOR);
     }
 
     public static String getMethodDesc(Env typeEnv, List<BType> paramTypes, BType retType) {
@@ -440,10 +384,6 @@ public final class JvmCodeGenUtil {
         return Utils.encodeNonFunctionIdentifier(typeSymbol.name.value);
     }
 
-    public static boolean isBallerinaBuiltinModule(String orgName, String moduleName) {
-        return orgName.equals("ballerina") && moduleName.equals("builtin");
-    }
-
     public static BirScope getLastScopeFromBBInsGen(MethodVisitor mv, LabelGenerator labelGen,
                                                     JvmInstructionGen instGen, int localVarOffset,
                                                     String funcName, BIRNode.BIRBasicBlock bb,
@@ -520,28 +460,6 @@ public final class JvmCodeGenUtil {
         }
     }
 
-    public static PackageID cleanupPackageID(PackageID pkgID) {
-        Name org = new Name(Utils.encodeNonFunctionIdentifier(pkgID.orgName.value));
-        Name module = new Name(Utils.encodeNonFunctionIdentifier(pkgID.name.value));
-        return new PackageID(org, module, pkgID.version);
-    }
-
-    public static boolean isBuiltInPackage(PackageID packageID) {
-        packageID = cleanupPackageID(packageID);
-        return BALLERINA.equals(packageID.orgName.value) && BUILT_IN_PACKAGE_NAME.equals(packageID.name.value);
-    }
-
-    public static boolean isSameModule(PackageID moduleId, PackageID importModule) {
-        PackageID cleanedPkg = cleanupPackageID(importModule);
-        if (!moduleId.orgName.value.equals(cleanedPkg.orgName.value)) {
-            return false;
-        } else if (!moduleId.name.value.equals(cleanedPkg.name.value)) {
-            return false;
-        } else {
-            return getMajorVersion(moduleId.version.value).equals(getMajorVersion(cleanedPkg.version.value));
-        }
-    }
-
     public static String cleanupFunctionName(String functionName) {
         return StringUtils.containsAny(functionName, "\\.:/<>") ?
                 "$" + JVM_RESERVED_CHAR_SET.matcher(functionName).replaceAll("_") : functionName;
@@ -588,7 +506,7 @@ public final class JvmCodeGenUtil {
     }
 
     public static void loadConstantValue(BType bType, Object constVal, MethodVisitor mv,
-                                         JvmConstantsGen jvmConstantsGen) {
+                                         JvmConstantsGen jvmConstantsGen, String stringConstantsClass) {
 
         int typeTag = getImpliedType(bType).tag;
         if (TypeTags.isIntegerTypeTag(typeTag)) {
@@ -599,8 +517,7 @@ public final class JvmCodeGenUtil {
             String val = String.valueOf(constVal);
             int index = jvmConstantsGen.getBStringConstantVarIndex(val);
             String varName = B_STRING_VAR_PREFIX + index;
-            String stringConstantsClass = getStringConstantsClass(index, jvmConstantsGen);
-            mv.visitFieldInsn(GETSTATIC, stringConstantsClass, varName, GET_BSTRING);
+            mv.visitFieldInsn(GETSTATIC, stringConstantsClass + varName, BSTRING_VAR_NAME, GET_BSTRING);
             return;
         }
 
@@ -630,12 +547,7 @@ public final class JvmCodeGenUtil {
         }
     }
 
-    static String getStringConstantsClass(int varIndex, JvmConstantsGen jvmConstantsGen) {
-        int classIndex = varIndex / MAX_STRINGS_PER_METHOD;
-        return jvmConstantsGen.getStringConstantsClass() + UNDERSCORE + classIndex;
-    }
-
-    static String removeDecimalDiscriminator(String value) {
+    public static String removeDecimalDiscriminator(String value) {
         int length = value.length();
         if (length < 2) {
             return value;
@@ -671,9 +583,6 @@ public final class JvmCodeGenUtil {
         mv.visitTypeInsn(CHECKCAST, B_STRING_VALUE);
         mv.visitMethodInsn(INVOKEINTERFACE, B_STRING_VALUE, GET_VALUE_METHOD, GET_JSTRING, true);
         mv.visitVarInsn(ASTORE, strKeyVarIndex);
-    }
-
-    private JvmCodeGenUtil() {
     }
 
     public static String getRefTypeConstantName(BTypeReferenceType type) {
@@ -755,5 +664,9 @@ public final class JvmCodeGenUtil {
             filteredFunctions.add(func);
         }
         return filteredFunctions;
+    }
+
+    public static String getVarStoreClass(String varClassPkgName, String varName) {
+        return varClassPkgName + varName;
     }
 }

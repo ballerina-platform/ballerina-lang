@@ -25,7 +25,7 @@ import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmCastGen;
-import org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil;
+import org.wso2.ballerinalang.compiler.bir.codegen.utils.JvmCodeGenUtil;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmErrorGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmInstructionGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen;
@@ -120,8 +120,8 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.HANDLE_VA
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JVM_INIT_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBJECT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRING_VALUE;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmDesugarPhase.getNextDesugarBBId;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmDesugarPhase.insertAndGetNextBasicBlock;
+import static org.wso2.ballerinalang.compiler.bir.codegen.desugar.BirDesugar.getNextDesugarBBId;
+import static org.wso2.ballerinalang.compiler.bir.codegen.desugar.BirDesugar.insertAndGetNextBasicBlock;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_BSTRING_FOR_ARRAY_INDEX;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_STRING_FROM_ARRAY;
 /**
@@ -150,11 +150,11 @@ public final class InteropMethodGen {
         int access = birFunc.receiver != null ? ACC_PUBLIC : ACC_PUBLIC + ACC_STATIC;
         MethodVisitor mv = classWriter.visitMethod(access, birFunc.name.value, desc, null, null);
         JvmInstructionGen instGen = new JvmInstructionGen(mv, indexMap, birModule, jvmPackageGen, jvmTypeGen,
-                                                          jvmCastGen, jvmConstantsGen, asyncDataCollector, types);
+                jvmCastGen, jvmConstantsGen, asyncDataCollector, types);
         JvmErrorGen errorGen = new JvmErrorGen(mv, indexMap, instGen);
         LabelGenerator labelGen = new LabelGenerator();
         JvmTerminatorGen termGen = new JvmTerminatorGen(mv, indexMap, labelGen, errorGen, birModule, instGen,
-                jvmPackageGen, jvmTypeGen, jvmCastGen, jvmConstantsGen, asyncDataCollector);
+                jvmPackageGen, jvmTypeGen, jvmCastGen, asyncDataCollector);
         mv.visitCode();
 
         Label paramLoadLabel = labelGen.getLabel("param_load");
@@ -206,7 +206,7 @@ public final class InteropMethodGen {
             BIRNode.BIRFunctionParameter birFuncParam = birFuncParams.get(birFuncParamIndex);
             int paramLocalVarIndex = indexMap.addIfNotExists(birFuncParam.name.value, birFuncParam.type);
             loadMethodParamToStackInInteropFunction(mv, birFuncParam, jFieldType,
-                                                    paramLocalVarIndex, instGen, jvmCastGen);
+                    paramLocalVarIndex, instGen, jvmCastGen);
         }
 
         if (jField.isStatic()) {
@@ -233,7 +233,7 @@ public final class InteropMethodGen {
         } else if (retTypeTag == TypeTags.HANDLE) {
             // Here the corresponding Java method parameter type is 'jvm:RefType'. This has been verified before
             int returnJObjectVarRefIndex = indexMap.addIfNotExists("$_ret_jobject_var_$",
-                                                                   jvmPackageGen.symbolTable.anyType);
+                    jvmPackageGen.symbolTable.anyType);
             mv.visitVarInsn(ASTORE, returnJObjectVarRefIndex);
             mv.visitTypeInsn(NEW, HANDLE_VALUE);
             mv.visitInsn(DUP);
@@ -577,13 +577,13 @@ public final class InteropMethodGen {
         mv.visitVarInsn(ALOAD, varArgIndex);
         mv.visitVarInsn(ILOAD, indexVarIndex);
         mv.visitInsn(I2L);
-        
+
         int elementTypeTag = JvmCodeGenUtil.getImpliedType(bElementType).tag;
         if (TypeTags.isIntegerTypeTag(elementTypeTag)) {
             mv.visitMethodInsn(INVOKEINTERFACE, ARRAY_VALUE, "getInt", "(J)J", true);
         } else if (TypeTags.isStringTypeTag(elementTypeTag)) {
             mv.visitMethodInsn(INVOKEINTERFACE, ARRAY_VALUE, "getBString",
-                               GET_BSTRING_FOR_ARRAY_INDEX, true);
+                    GET_BSTRING_FOR_ARRAY_INDEX, true);
         } else {
             switch (elementTypeTag) {
                 case TypeTags.BOOLEAN -> mv.visitMethodInsn(INVOKEINTERFACE, ARRAY_VALUE, "getBoolean", "(J)Z", true);

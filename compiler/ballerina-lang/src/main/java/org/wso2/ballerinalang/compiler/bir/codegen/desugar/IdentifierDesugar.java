@@ -1,34 +1,27 @@
 /*
- *  Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2025, WSO2 LLC. (https://www.wso2.com) All Rights Reserved.
  *
- *  WSO2 Inc. licenses this file to you under the Apache License,
- *  Version 2.0 (the "License"); you may not use this file except
- *  in compliance with the License.
- *  You may obtain a copy of the License at
+ * WSO2 LLC. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
- *  Unless required by applicable law or agreed to in writing,
- *  software distributed under the License is distributed on an
- *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- *  KIND, either express or implied.  See the License for the
- *  specific language governing permissions and limitations
- *  under the License.
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
 
-package org.wso2.ballerinalang.compiler.bir.codegen;
+package org.wso2.ballerinalang.compiler.bir.codegen.desugar;
 
 import io.ballerina.identifier.Utils;
-import io.ballerina.types.Env;
 import org.ballerinalang.model.elements.PackageID;
-import org.wso2.ballerinalang.compiler.bir.codegen.methodgen.InitMethodGen;
+import org.wso2.ballerinalang.compiler.bir.codegen.utils.JvmCodeGenUtil;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
-import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRBasicBlock;
-import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRFunction;
-import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRFunctionParameter;
-import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRTypeDefinition;
-import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRVariableDcl;
-import org.wso2.ballerinalang.compiler.bir.model.VarKind;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableTypeSymbol;
@@ -42,109 +35,14 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
-import org.wso2.ballerinalang.util.Lists;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
 
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil.toNameString;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.WRAPPER_GEN_BB_ID_NAME;
+public class IdentifierDesugar {
 
-/**
- * BIR desugar phase related methods at JVM code generation.
- *
- * @since 1.2.0
- */
-public final class JvmDesugarPhase {
-
-    private JvmDesugarPhase() {
-    }
-
-    public static void addDefaultableBooleanVarsToSignature(Env env, BIRFunction func) {
-        func.type =
-                new BInvokableType(env, func.type.paramTypes, func.type.restType, func.type.retType, func.type.tsymbol);
-        BInvokableType type = func.type;
-        func.type.paramTypes = updateParamTypesWithDefaultableBooleanVar(func.type.paramTypes,
-                                                                         type.restType);
-    }
-
-    public static BIRBasicBlock insertAndGetNextBasicBlock(List<BIRBasicBlock> basicBlocks,
-                                                           InitMethodGen initMethodGen) {
-        BIRBasicBlock nextbb = new BIRBasicBlock(WRAPPER_GEN_BB_ID_NAME, getNextDesugarBBId(initMethodGen));
-        basicBlocks.add(nextbb);
-        return nextbb;
-    }
-
-    public static int getNextDesugarBBId(InitMethodGen initMethodGen) {
-        return initMethodGen.incrementAndGetNextId();
-    }
-
-    private static List<BType> updateParamTypesWithDefaultableBooleanVar(List<BType> funcParams, BType restType) {
-        List<BType> paramTypes = new ArrayList<>();
-        int counter = 0;
-        int size = funcParams == null ? 0 : funcParams.size();
-        while (counter < size) {
-            paramTypes.add(counter, funcParams.get(counter));
-            counter += 1;
-        }
-        if (restType != null) {
-            paramTypes.add(counter, restType);
-        }
-        return paramTypes;
-    }
-
-    static void rewriteRecordInits(Env env, List<BIRTypeDefinition> typeDefs) {
-        for (BIRTypeDefinition typeDef : typeDefs) {
-            BType recordType = JvmCodeGenUtil.getImpliedType(typeDef.type);
-            if (recordType.tag != TypeTags.RECORD) {
-                continue;
-            }
-            List<BIRFunction> attachFuncs = typeDef.attachedFuncs;
-            for (BIRFunction func : attachFuncs) {
-                rewriteRecordInitFunction(env, func, (BRecordType) recordType);
-            }
-        }
-    }
-
-    private static void rewriteRecordInitFunction(Env env, BIRFunction func, BRecordType recordType) {
-
-        BIRVariableDcl receiver = func.receiver;
-
-        // Rename the function name by appending the record name to it.
-        // This done to avoid frame class name overlapping.
-        func.name = new Name(toNameString(recordType) + func.name.value);
-
-        // change the kind of receiver to 'ARG'
-        receiver.kind = VarKind.ARG;
-
-        // Update the name of the reciever. Then any instruction that was refering to the receiver will
-        // now refer to the injected parameter.
-        String paramName = "$_" + receiver.name.value;
-        receiver.name = new Name(paramName);
-
-        // Inject an additional parameter to accept the self-record value into the init function
-        BIRFunctionParameter selfParam = new BIRFunctionParameter(null, receiver.type, receiver.name,
-                receiver.scope, VarKind.ARG, paramName, false, false);
-
-        List<BType> updatedParamTypes = Lists.of(receiver.type);
-        updatedParamTypes.addAll(func.type.paramTypes);
-        func.type = new BInvokableType(env, updatedParamTypes, func.type.restType, func.type.retType, null);
-
-        List<BIRVariableDcl> localVars = func.localVars;
-        List<BIRVariableDcl> updatedLocalVars = new ArrayList<>();
-        updatedLocalVars.add(localVars.getFirst());
-        updatedLocalVars.add(selfParam);
-        int index = 1;
-        while (index < localVars.size()) {
-            updatedLocalVars.add(localVars.get(index));
-            index += 1;
-        }
-        func.localVars = updatedLocalVars;
-    }
-
-    static HashMap<String, String> encodeModuleIdentifiers(BIRNode.BIRPackage module) {
+    public static HashMap<String, String> encodeModuleIdentifiers(BIRNode.BIRPackage module) {
         HashMap<String, String> encodedVsInitialIds = new HashMap<>();
         encodePackageIdentifiers(module.packageID, encodedVsInitialIds);
         encodeGlobalVariableIdentifiers(module.globalVars, encodedVsInitialIds);
@@ -160,9 +58,9 @@ public final class JvmDesugarPhase {
         packageID.name = Names.fromString(encodeNonFunctionIdentifier(packageID.name.value, encodedVsInitialIds));
     }
 
-    private static void encodeTypeDefIdentifiers(List<BIRTypeDefinition> typeDefs,
+    private static void encodeTypeDefIdentifiers(List<BIRNode.BIRTypeDefinition> typeDefs,
                                                  HashMap<String, String> encodedVsInitialIds) {
-        for (BIRTypeDefinition typeDefinition : typeDefs) {
+        for (BIRNode.BIRTypeDefinition typeDefinition : typeDefs) {
             typeDefinition.type.tsymbol.name = Names.fromString(encodeNonFunctionIdentifier(
                     typeDefinition.type.tsymbol.name.value, encodedVsInitialIds));
             typeDefinition.internalName =
@@ -194,9 +92,9 @@ public final class JvmDesugarPhase {
         }
     }
 
-    private static void encodeFunctionIdentifiers(List<BIRFunction> functions,
+    private static void encodeFunctionIdentifiers(List<BIRNode.BIRFunction> functions,
                                                   HashMap<String, String> encodedVsInitialIds) {
-        for (BIRFunction function : functions) {
+        for (BIRNode.BIRFunction function : functions) {
             function.name = Names.fromString(encodeFunctionIdentifier(function.name.value, encodedVsInitialIds));
             for (BIRNode.BIRVariableDcl localVar : function.localVars) {
                 if (localVar.metaVarName == null) {
@@ -230,7 +128,7 @@ public final class JvmDesugarPhase {
         }
     }
 
-    private static void encodeWorkerName(BIRFunction function,
+    private static void encodeWorkerName(BIRNode.BIRFunction function,
                                          HashMap<String, String> encodedVsInitialIds) {
         if (function.workerName != null) {
             function.workerName = Names.fromString(encodeNonFunctionIdentifier(function.workerName.value,
@@ -261,7 +159,7 @@ public final class JvmDesugarPhase {
     }
 
     // Replace encoding identifiers
-    static void replaceEncodedModuleIdentifiers(BIRNode.BIRPackage module,
+    public static void replaceEncodedModuleIdentifiers(BIRNode.BIRPackage module,
                                                 HashMap<String, String> encodedVsInitialIds) {
         replaceEncodedPackageIdentifiers(module.packageID, encodedVsInitialIds);
         replaceEncodedGlobalVariableIdentifiers(module.globalVars, encodedVsInitialIds);
@@ -275,9 +173,9 @@ public final class JvmDesugarPhase {
         packageID.name = getInitialIdString(packageID.name, encodedVsInitialIds);
     }
 
-    private static void replaceEncodedTypeDefIdentifiers(List<BIRTypeDefinition> typeDefs,
+    private static void replaceEncodedTypeDefIdentifiers(List<BIRNode.BIRTypeDefinition> typeDefs,
                                                          HashMap<String, String> encodedVsInitialIds) {
-        for (BIRTypeDefinition typeDefinition : typeDefs) {
+        for (BIRNode.BIRTypeDefinition typeDefinition : typeDefs) {
             typeDefinition.type.tsymbol.name = getInitialIdString(typeDefinition.type.tsymbol.name,
                     encodedVsInitialIds);
             typeDefinition.internalName = getInitialIdString(typeDefinition.internalName, encodedVsInitialIds);
@@ -302,9 +200,9 @@ public final class JvmDesugarPhase {
         }
     }
 
-    private static void replaceEncodedFunctionIdentifiers(List<BIRFunction> functions,
+    private static void replaceEncodedFunctionIdentifiers(List<BIRNode.BIRFunction> functions,
                                                           HashMap<String, String> encodedVsInitialIds) {
-        for (BIRFunction function : functions) {
+        for (BIRNode.BIRFunction function : functions) {
             function.name = getInitialIdString(function.name, encodedVsInitialIds);
             for (BIRNode.BIRParameter parameter : function.requiredParams) {
                 parameter.name = getInitialIdString(parameter.name, encodedVsInitialIds);
@@ -330,7 +228,7 @@ public final class JvmDesugarPhase {
         }
     }
 
-    private static void replaceEncodedWorkerName(BIRFunction function,
+    private static void replaceEncodedWorkerName(BIRNode.BIRFunction function,
                                                  HashMap<String, String> encodedVsInitialIds) {
         if (function.workerName != null) {
             function.workerName = getInitialIdString(function.workerName, encodedVsInitialIds);

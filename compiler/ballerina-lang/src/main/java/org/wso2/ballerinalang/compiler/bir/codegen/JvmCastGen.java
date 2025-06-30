@@ -25,6 +25,7 @@ import org.wso2.ballerinalang.compiler.bir.codegen.internal.BIRVarToJVMIndexMap;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.LabelGenerator;
 import org.wso2.ballerinalang.compiler.bir.codegen.model.JType;
 import org.wso2.ballerinalang.compiler.bir.codegen.model.JTypeTags;
+import org.wso2.ballerinalang.compiler.bir.codegen.utils.JvmCodeGenUtil;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
