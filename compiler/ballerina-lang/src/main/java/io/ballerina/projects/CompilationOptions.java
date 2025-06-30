@@ -266,13 +266,6 @@ public class CompilationOptions {
         return bool;
     }
 
-    private boolean toBooleanTrueIfNull(Boolean bool) {
-        if (bool == null) {
-            return true;
-        }
-        return bool;
-    }
-
     private String toStringDefaultIfNull(String value) {
         if (value == null) {
             return "";
