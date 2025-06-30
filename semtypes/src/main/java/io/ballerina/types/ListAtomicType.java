@@ -17,18 +17,24 @@
  */
 package io.ballerina.types;
 
+import java.util.Objects;
+
 /**
  * ListAtomicType node.
  *
- * @param members for a given list type this represents the required members
- * @param rest    for a given list type this represents the rest type. This is NEVER if the list don't have a rest type
  * @since 2201.12.0
  */
-public record ListAtomicType(FixedLengthArray members, CellSemType rest) implements AtomicType {
+public final class ListAtomicType implements AtomicType {
 
-    public ListAtomicType {
+    private final FixedLengthArray members;
+    private final CellSemType rest;
+    public int temperature = 0;
+
+    public ListAtomicType(FixedLengthArray members, CellSemType rest) {
         assert members != null;
         assert rest != null;
+        this.members = members;
+        this.rest = rest;
     }
 
     public static ListAtomicType from(FixedLengthArray members, CellSemType rest) {
@@ -39,4 +45,34 @@ public record ListAtomicType(FixedLengthArray members, CellSemType rest) impleme
     public Atom.Kind atomKind() {
         return Atom.Kind.LIST_ATOM;
     }
+
+    public FixedLengthArray members() {
+        return members;
+    }
+
+    public CellSemType rest() {
+        return rest;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == this) return true;
+        if (obj == null || obj.getClass() != this.getClass()) return false;
+        var that = (ListAtomicType) obj;
+        return Objects.equals(this.members, that.members) &&
+                Objects.equals(this.rest, that.rest);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(members, rest);
+    }
+
+    @Override
+    public String toString() {
+        return "ListAtomicType[" +
+                "members=" + members + ", " +
+                "rest=" + rest + ']';
+    }
+
 }

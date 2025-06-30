@@ -112,9 +112,10 @@ public class ListOps extends CommonOps implements BasicTypeOps {
         }
         List<Integer> indices = listSamples(cx, members, rest, neg);
         TwoTuple<List<ListMember<CellSemType>>, Integer> sampleTypes = listSampleTypesInner(cx, members, rest, indices);
+        Conjunction reOrderedNeg = Conjunction.reorderByTemperature(cx, neg);
         return !listInhabited(cx, indices.toArray(new Integer[0]),
                 sampleTypes.item1.toArray(ListMember[]::new),
-                sampleTypes.item2, neg);
+                sampleTypes.item2, reOrderedNeg);
     }
 
     public static TwoTuple<List<CellSemType>, Integer> listSampleTypes(Context cx, FixedLengthArray members,
@@ -318,12 +319,15 @@ public class ListOps extends CommonOps implements BasicTypeOps {
             for (int i = 0; i < memberTypes.length; i++) {
                 SemType d = Core.diff(memberTypes[i].semType, listMemberAt(nt.members(), nt.rest(), indices[i]));
                 if (!Core.isEmpty(cx, d)) {
+                    neg.atom.coolDown(cx);
                     ListMember<SemType>[] t = memberTypes.clone();
                     t[i] = new ListMember<>(d, memberTypes[i].isRest);
                     // We need to make index i be required
                     if (listInhabited(cx, indices, t, Integer.max(nRequired, i + 1), neg.next)) {
                         return true;
                     }
+                } else {
+                    neg.atom.heatUp(cx);
                 }
             }
             // This is correct for length 0, because we know that the length of the

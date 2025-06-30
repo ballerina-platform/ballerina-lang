@@ -89,4 +89,22 @@ public final class Context {
             return (FunctionAtomicType) ((TypeAtom) atom).atomicType();
         }
     }
+
+    void heatUp(Atom atom) {
+        assert atom != null : "Atom cannot be null";
+        ListAtomicType listAtomType = listAtomType(atom);
+        listAtomType.temperature++;
+    }
+
+    void coolDown(Atom atom) {
+        assert atom != null : "Atom cannot be null";
+        ListAtomicType listAtomType = listAtomType(atom);
+        listAtomType.temperature--;
+    }
+
+    int temperature(Atom atom) {
+        assert atom != null : "Atom cannot be null";
+        ListAtomicType listAtomType = listAtomType(atom);
+        return listAtomType.temperature;
+    }
 }

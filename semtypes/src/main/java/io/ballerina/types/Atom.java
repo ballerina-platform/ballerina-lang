@@ -55,4 +55,32 @@ public interface Atom {
         XML_ATOM,
         DISTINCT_ATOM
     }
+
+    /**
+     * Increase the temperature of the atom by 1.
+     *
+     * @param cx the context
+     */
+    default void heatUp(Context cx) {
+        cx.heatUp(this);
+    }
+
+    /**
+     * Decrease the temperature of the atom by 1.
+     *
+     * @param cx the context
+     */
+    default void coolDown(Context cx) {
+        cx.coolDown(this);
+    }
+
+    /**
+     * Get the current temperature of the atom.
+     *
+     * @param cx the context
+     * @return the current temperature value
+     */
+    default int temperature(Context cx) {
+        return cx.temperature(this);
+    }
 }
