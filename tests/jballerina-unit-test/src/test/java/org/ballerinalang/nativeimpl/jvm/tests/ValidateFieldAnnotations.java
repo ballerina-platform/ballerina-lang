@@ -18,15 +18,15 @@
 
 package org.ballerinalang.nativeimpl.jvm.tests;
 
-import java.util.Arrays;
-import java.util.Set;
-import java.util.stream.Collectors;
-
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BTypedesc;
 import io.ballerina.runtime.internal.types.BAnnotatableType;
 import io.ballerina.runtime.internal.types.BTypedescType;
+
+import java.util.Arrays;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 public class ValidateFieldAnnotations {
 
