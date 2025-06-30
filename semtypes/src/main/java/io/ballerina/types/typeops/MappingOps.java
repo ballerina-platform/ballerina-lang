@@ -82,7 +82,8 @@ public class MappingOps extends CommonOps implements BasicTypeOps {
             }
 
         }
-        return !mappingInhabited(cx, combined, negList);
+        Conjunction reOrderedNeg = Conjunction.reorderByTemperature(cx, Context.TypeAtomKind.MAPPING_ATOM, negList);
+        return !mappingInhabited(cx, combined, reOrderedNeg);
     }
 
     private static boolean mappingInhabited(Context cx, MappingAtomicType pos, Conjunction negList) {
@@ -107,6 +108,7 @@ public class MappingOps extends CommonOps implements BasicTypeOps {
 
                 CellSemType d = (CellSemType) Core.diff(fieldPair.type1(), fieldPair.type2());
                 if (!Core.isEmpty(cx, d)) {
+                    neg.coolDown();
                     MappingAtomicType mt;
                     if (fieldPair.index1() == null) {
                         // the posType came from the rest type
@@ -119,6 +121,8 @@ public class MappingOps extends CommonOps implements BasicTypeOps {
                     if (mappingInhabited(cx, mt, negList.next)) {
                         return true;
                     }
+                } else {
+                    neg.heatUp();
                 }
             }
             return false;
