@@ -44,7 +44,6 @@ import org.ballerinalang.debugadapter.evaluation.engine.invokable.RuntimeInstanc
 import org.ballerinalang.debugadapter.evaluation.engine.invokable.RuntimeStaticMethod;
 import org.ballerinalang.debugadapter.jdi.JdiProxyException;
 import org.ballerinalang.debugadapter.jdi.LocalVariableProxyImpl;
-import org.ballerinalang.debugadapter.utils.PackageUtils;
 import org.ballerinalang.debugadapter.variable.BVariable;
 import org.ballerinalang.debugadapter.variable.BVariableType;
 import org.ballerinalang.debugadapter.variable.DebugVariableException;
@@ -61,19 +60,15 @@ import java.util.Optional;
 import java.util.StringJoiner;
 import java.util.stream.IntStream;
 
-import static org.ballerinalang.debugadapter.JBallerinaDebugServer.LOGGER;
 import static org.ballerinalang.debugadapter.evaluation.EvaluationException.createEvaluationException;
 import static org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind.CLASS_LOADING_FAILED;
 import static org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind.HELPER_UTIL_NOT_FOUND;
 import static org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind.NAME_REF_RESOLVING_ERROR;
-import static org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind.TYPE_RESOLVING_ERROR;
 import static org.ballerinalang.debugadapter.evaluation.IdentifierModifier.encodeModuleName;
 import static org.ballerinalang.debugadapter.evaluation.utils.VariableUtils.loadClassRef;
 import static org.ballerinalang.debugadapter.utils.PackageUtils.BAL_FILE_EXT;
 import static org.ballerinalang.debugadapter.utils.PackageUtils.GLOBAL_CONSTANTS_PACKAGE_NAME;
 import static org.ballerinalang.debugadapter.utils.PackageUtils.GLOBAL_VARIABLES_PACKAGE_NAME;
-import static org.ballerinalang.debugadapter.utils.PackageUtils.TYPE_PREFIXES;
-import static org.ballerinalang.debugadapter.utils.PackageUtils.TYPE_VAR_NAME;
 import static org.ballerinalang.debugadapter.utils.PackageUtils.VALUE_VAR_NAME;
 import static org.ballerinalang.debugadapter.utils.PackageUtils.getQualifiedClassName;
 

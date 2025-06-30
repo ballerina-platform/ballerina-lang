@@ -35,8 +35,8 @@ import org.ballerinalang.model.types.SelectivelyImmutableReferenceType;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.MethodVisitor;
 import org.wso2.ballerinalang.compiler.bir.codegen.split.JvmConstantsGen;
-import org.wso2.ballerinalang.compiler.bir.codegen.utils.JvmModuleUtils;
 import org.wso2.ballerinalang.compiler.bir.codegen.utils.JvmCodeGenUtil;
+import org.wso2.ballerinalang.compiler.bir.codegen.utils.JvmModuleUtils;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SemTypeHelper;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.TypeHashVisitor;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
@@ -216,9 +216,9 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.LONG_VAL
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.SET_TYPE_ARRAY;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.TYPE_PARAMETER;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.VOID_METHOD_DESC;
-import static org.wso2.ballerinalang.compiler.bir.codegen.utils.JvmModuleUtils.getModuleLevelClassName;
 import static org.wso2.ballerinalang.compiler.bir.codegen.utils.JvmCodeGenUtil.removeDecimalDiscriminator;
 import static org.wso2.ballerinalang.compiler.bir.codegen.utils.JvmCodeGenUtil.toNameString;
+import static org.wso2.ballerinalang.compiler.bir.codegen.utils.JvmModuleUtils.getModuleLevelClassName;
 
 /**
  * BIR types to JVM byte code generation class.
@@ -448,7 +448,8 @@ public class JvmTypeGen {
                     if (unionType.isCyclic) {
                         loadUserDefinedType(mv, bType);
                     } else {
-                        jvmConstantsGen.generateGetBUnionType(mv, jvmConstantsGen.getUnionTypeConstantsVar(bType, symbolTable));
+                        jvmConstantsGen.generateGetBUnionType(mv, jvmConstantsGen.getUnionTypeConstantsVar(bType,
+                                symbolTable));
                     }
                     return;
                 }
@@ -758,7 +759,8 @@ public class JvmTypeGen {
             String shape = typeToLoad.toString();
             typeHashVisitor.reset();
             mv.visitLdcInsn(hash);
-            mv.visitLdcInsn("Package: " + JvmModuleUtils.getPackageName(pkgID) + ", TypeName: " + fieldName + ", Shape: " + shape);
+            mv.visitLdcInsn("Package: " + JvmModuleUtils.getPackageName(pkgID) + ", TypeName: " + fieldName + ", " +
+                    "Shape: " + shape);
             mv.visitMethodInsn(INVOKEVIRTUAL, VALUE_CREATOR, GET_ANON_TYPE_METHOD, JvmSignatures.GET_ANON_TYPE, false);
         } else {
             if (samePackage && this.packageID.isTestPkg == pkgID.isTestPkg) {

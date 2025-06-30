@@ -205,7 +205,7 @@ public class LazyLoadingDesugar {
         for (int j = currentBBLastIndex; j >= 0 && !exitLoop; j--) {
             BIRNonTerminator ins = currentBB.instructions.get(j);
             switch (ins.kind) {
-                case CONST_LOAD, NEW_XML_COMMENT, NEW_XML_ELEMENT,NEW_XML_PI, NEW_XML_SEQUENCE, NEW_XML_TEXT,
+                case CONST_LOAD, NEW_XML_COMMENT, NEW_XML_ELEMENT, NEW_XML_PI, NEW_XML_SEQUENCE, NEW_XML_TEXT,
                      XML_SEQ_STORE, XML_ATTRIBUTE_LOAD, XML_ATTRIBUTE_STORE ->  {
                 }
                 case NEW_XML_QNAME -> lastQNameIns = j;

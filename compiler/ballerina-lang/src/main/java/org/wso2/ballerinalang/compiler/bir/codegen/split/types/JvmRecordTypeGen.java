@@ -91,7 +91,8 @@ public class JvmRecordTypeGen {
     }
 
     public void createRecordType(ClassWriter cw, MethodVisitor mv, BIRNode.BIRPackage module, String recordTypeClass,
-                                 BRecordType recordType, String varName, JarEntries jarEntries, SymbolTable symbolTable) {
+                                 BRecordType recordType, String varName, JarEntries jarEntries,
+                                 SymbolTable symbolTable) {
         FieldVisitor fv = cw.visitField(ACC_STATIC + ACC_PUBLIC, TYPE_VAR_NAME, GET_RECORD_TYPE_IMPL, null, null);
         fv.visitEnd();
         // Create the record type

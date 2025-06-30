@@ -89,7 +89,8 @@ public class JvmModuleConstantsGen {
         }
     }
 
-    private static void generateModuleConstant(ClassWriter cw, PackageID packageID, String moduleConstantClassName, String varName) {
+    private static void generateModuleConstant(ClassWriter cw, PackageID packageID, String moduleConstantClassName,
+                                               String varName) {
         MethodVisitor mv = cw.visitMethod(ACC_STATIC, JVM_STATIC_INIT_METHOD, VOID_METHOD_DESC, null, null);
         mv.visitTypeInsn(NEW, MODULE);
         mv.visitInsn(DUP);

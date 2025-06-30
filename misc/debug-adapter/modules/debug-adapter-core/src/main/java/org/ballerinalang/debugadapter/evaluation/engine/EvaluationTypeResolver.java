@@ -33,7 +33,6 @@ import org.ballerinalang.debugadapter.evaluation.EvaluationException;
 import org.ballerinalang.debugadapter.evaluation.IdentifierModifier;
 import org.ballerinalang.debugadapter.evaluation.engine.invokable.RuntimeStaticMethod;
 import org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils;
-import org.ballerinalang.debugadapter.utils.PackageUtils;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -42,7 +41,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.StringJoiner;
 
-import static org.ballerinalang.debugadapter.JBallerinaDebugServer.LOGGER;
 import static org.ballerinalang.debugadapter.evaluation.EvaluationException.createEvaluationException;
 import static org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind.NON_PUBLIC_OR_UNDEFINED_ACCESS;
 import static org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind.TYPE_RESOLVING_ERROR;
@@ -58,7 +56,6 @@ import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.MO
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.VALUE_FROM_STRING_METHOD;
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.getRuntimeMethod;
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.loadClass;
-import static org.ballerinalang.debugadapter.utils.PackageUtils.INIT_TYPE_INSTANCE_PREFIX;
 import static org.ballerinalang.debugadapter.utils.PackageUtils.TYPE_PREFIXES;
 import static org.ballerinalang.debugadapter.utils.PackageUtils.TYPE_VAR_NAME;
 

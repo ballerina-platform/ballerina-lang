@@ -180,8 +180,8 @@ public class JvmObjectTypeGen {
     }
 
     private int splitObjectAttachedFunctions(ClassWriter cw, String objectTypeClass, String methodName,
-                                             String moduleVar, List<BAttachedFunction> attachedFunctions, BObjectType objType,
-                                             SymbolTable symbolTable) {
+                                             String moduleVar, List<BAttachedFunction> attachedFunctions,
+                                             BObjectType objType, SymbolTable symbolTable) {
         int fTypeCount = 0;
         int methodCount = 0;
         MethodVisitor mv = null;

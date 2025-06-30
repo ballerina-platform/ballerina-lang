@@ -20,8 +20,8 @@ package org.wso2.ballerinalang.compiler.bir.codegen.split;
 import org.ballerinalang.model.elements.PackageID;
 import org.objectweb.asm.MethodVisitor;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen;
-import org.wso2.ballerinalang.compiler.bir.codegen.internal.JarEntries;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.BTypeHashComparator;
+import org.wso2.ballerinalang.compiler.bir.codegen.internal.JarEntries;
 import org.wso2.ballerinalang.compiler.bir.codegen.split.constants.JvmArrayTypeConstantsGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.split.constants.JvmBStringConstantsGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.split.constants.JvmErrorTypeConstantsGen;
@@ -43,8 +43,8 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeReferenceType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ALL_CONSTANTS_CLASS_NAME;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.GLOBAL_CONSTANTS_PACKAGE_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ALL_GLOBAL_VARIABLES_CLASS_NAME;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.GLOBAL_CONSTANTS_PACKAGE_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.GLOBAL_VARIABLES_PACKAGE_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.utils.JvmModuleUtils.getModuleLevelClassName;
 
@@ -107,7 +107,7 @@ public class JvmConstantsGen {
     }
 
     public void generateConstants(JvmPackageGen jvmPackageGen, JarEntries jarEntries) {
-        jvmBallerinaConstantsGen.generateConstantInit(jvmPackageGen,jarEntries);
+        jvmBallerinaConstantsGen.generateConstantInit(jvmPackageGen, jarEntries);
         functionTypeConstantsGen.generateClass(jarEntries);
         moduleConstantsGen.generateConstantInit(jarEntries);
         stringConstantsGen.generateConstantInit(jarEntries);

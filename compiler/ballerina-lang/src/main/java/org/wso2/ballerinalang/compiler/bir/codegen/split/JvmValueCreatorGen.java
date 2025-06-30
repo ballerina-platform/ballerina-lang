@@ -18,15 +18,15 @@
 package org.wso2.ballerinalang.compiler.bir.codegen.split;
 
 import org.ballerinalang.model.elements.PackageID;
-import org.wso2.ballerinalang.compiler.bir.codegen.internal.JarEntries;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmCastGen;
-import org.wso2.ballerinalang.compiler.bir.codegen.utils.JvmCodeGenUtil;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmTypeGen;
+import org.wso2.ballerinalang.compiler.bir.codegen.internal.JarEntries;
 import org.wso2.ballerinalang.compiler.bir.codegen.split.creators.JvmErrorCreatorGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.split.creators.JvmFunctionCallsCreatorsGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.split.creators.JvmObjectCreatorGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.split.creators.JvmRecordCreatorGen;
+import org.wso2.ballerinalang.compiler.bir.codegen.utils.JvmCodeGenUtil;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRTypeDefinition;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
@@ -82,7 +82,6 @@ public class JvmValueCreatorGen {
             }
         }
         ArrayList<BIRTypeDefinition> recordTypeDefList = new ArrayList<>(recordTypeDefSet);
-
         jvmRecordCreatorGen.generateRecordsClass(jvmPackageGen, module, jarEntries, recordTypeDefList);
         jvmObjectCreatorGen.generateObjectsClass(jvmPackageGen, module, jarEntries, objectTypeDefList, symbolTable);
         jvmErrorCreatorGen.generateErrorsClass(jvmPackageGen, module, jarEntries, errorTypeDefList, symbolTable);

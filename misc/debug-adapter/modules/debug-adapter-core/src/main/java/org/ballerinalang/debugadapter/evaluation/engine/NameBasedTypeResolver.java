@@ -29,7 +29,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 
-import static org.ballerinalang.debugadapter.JBallerinaDebugServer.LOGGER;
 import static org.ballerinalang.debugadapter.evaluation.EvaluationException.createEvaluationException;
 import static org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind.TYPE_RESOLVING_ERROR;
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.loadClass;

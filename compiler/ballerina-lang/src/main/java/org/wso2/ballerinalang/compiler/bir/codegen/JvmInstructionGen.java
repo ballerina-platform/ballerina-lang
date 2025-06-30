@@ -338,7 +338,6 @@ public class JvmInstructionGen {
     }
 
     private void generateJVarStore(MethodVisitor mv, JType jType, int valueIndex) {
-
         switch (jType.jTag) {
             case JTypeTags.JBYTE, JTypeTags.JCHAR, JTypeTags.JSHORT, JTypeTags.JINT, JTypeTags.JBOOLEAN ->
                     mv.visitVarInsn(ISTORE, valueIndex);
@@ -374,7 +373,7 @@ public class JvmInstructionGen {
         BType bType = JvmCodeGenUtil.getImpliedType(varDcl.type);
         switch (varDcl.kind) {
             case SELF -> mv.visitVarInsn(ALOAD, this.indexMap.get(OBJECT_SELF_INSTANCE));
-            case CONSTANT -> generateVarLoad(mv, varDcl, bType, jvmConstantsGen. constantsPkgName,
+            case CONSTANT -> generateVarLoad(mv, varDcl, bType, jvmConstantsGen.constantsPkgName,
                     GLOBAL_CONSTANTS_PACKAGE_NAME);
             case GLOBAL -> generateVarLoad(mv, varDcl, bType, jvmConstantsGen.globalVarsPkgName,
                     GLOBAL_VARIABLES_PACKAGE_NAME);
@@ -1703,7 +1702,8 @@ public class JvmInstructionGen {
             // Format of name `$anon$method$delegate$Foo.func$0`.
             this.mv.visitLdcInsn(name.startsWith(ANON_METHOD_DELEGATE) ?
                     name.subSequence(ANON_METHOD_DELEGATE.length(), name.lastIndexOf("$")) : name);
-            this.mv.visitMethodInsn(INVOKESTATIC, ANNOTATION_UTILS, "processFPValueAnnotations", PROCESS_FP_ANNOTATIONS, false);
+            this.mv.visitMethodInsn(INVOKESTATIC, ANNOTATION_UTILS, "processFPValueAnnotations",
+                    PROCESS_FP_ANNOTATIONS, false);
         }
         this.storeToVar(inst.lhsOp.variableDcl);
     }

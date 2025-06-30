@@ -30,7 +30,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.StringJoiner;
 
-import static org.ballerinalang.debugadapter.JBallerinaDebugServer.LOGGER;
 import static org.ballerinalang.debugadapter.evaluation.IdentifierModifier.encodeModuleName;
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.B_DEBUGGER_RUNTIME_UTILS_CLASS;
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.GET_BMAP_TYPE_METHOD;
@@ -80,7 +79,7 @@ public final class VariableUtils {
     }
 
     /**
-     * load the given global variable
+     * load the given global variable.
      * @param context context  suspended context
      * @param className global variable class name
      * @return global variable class reference

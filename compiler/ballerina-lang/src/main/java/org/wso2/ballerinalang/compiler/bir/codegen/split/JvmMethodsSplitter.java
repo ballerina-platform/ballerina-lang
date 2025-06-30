@@ -48,7 +48,8 @@ public class JvmMethodsSplitter {
         jvmConstantsGen.setJvmCreateTypeGen(jvmCreateTypeGen);
     }
 
-    public void generateMethods(JarEntries jarEntries, JvmCastGen jvmCastGen, List<BIRNode.BIRFunction> sortedFunctions) {
+    public void generateMethods(JarEntries jarEntries, JvmCastGen jvmCastGen,
+                                List<BIRNode.BIRFunction> sortedFunctions) {
         jvmCreateTypeGen.generateRefTypeConstants(module.typeDefs);
         jvmCreateTypeGen.createTypes(module, jarEntries, jvmPackageGen);
         jvmValueCreatorGen.generateValueCreatorClasses(jvmPackageGen, module, jarEntries,

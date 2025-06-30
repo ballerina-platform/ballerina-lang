@@ -105,7 +105,8 @@ public class JvmUnionTypeGen {
         jvmCreateTypeGen.addImmutableType(mv, bType, symbolTable);
     }
 
-    private void addUnionMembers(ClassWriter cw, MethodVisitor mv, BUnionType unionType, String className, String name) {
+    private void addUnionMembers(ClassWriter cw, MethodVisitor mv, BUnionType unionType, String className,
+                                 String name) {
         jvmTypeGen.createUnionMembersArray(cw, mv, unionType.getMemberTypes(), className, name);
         mv.visitMethodInsn(INVOKEVIRTUAL, UNION_TYPE_IMPL, SET_MEMBERS_METHOD, SET_TYPE_ARRAY, false);
         jvmTypeGen.createUnionMembersArray(cw, mv, unionType.getOriginalMemberTypes(), className, "original" + name);

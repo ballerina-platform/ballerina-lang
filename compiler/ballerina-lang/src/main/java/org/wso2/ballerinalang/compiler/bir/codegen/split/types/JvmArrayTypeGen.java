@@ -61,7 +61,8 @@ public class JvmArrayTypeGen {
         this.jvmTypeGen = jvmTypeGen;
     }
 
-    public void createArrayType(ClassWriter cw, MethodVisitor mv, BArrayType arrayType, Types types, String arrayConstantClass) {
+    public void createArrayType(ClassWriter cw, MethodVisitor mv, BArrayType arrayType, Types types,
+                                String arrayConstantClass) {
         // Create field for array type var
         FieldVisitor fv = cw.visitField(ACC_PUBLIC + ACC_STATIC, TYPE_VAR_NAME, GET_ARRAY_TYPE_IMPL, null, null);
         fv.visitEnd();
@@ -76,9 +77,10 @@ public class JvmArrayTypeGen {
             mv.visitInsn(L2I);
             jvmTypeGen.loadReadonlyFlag(mv, arrayType);
             mv.visitLdcInsn(jvmTypeGen.typeFlag(arrayType.eType));
-            mv.visitMethodInsn(INVOKESPECIAL, ARRAY_TYPE_IMPL, JVM_INIT_METHOD, INIT_BASIC_VALUE_ARRAY_TYPE_IMPL, false);
+            mv.visitMethodInsn(INVOKESPECIAL, ARRAY_TYPE_IMPL, JVM_INIT_METHOD, INIT_BASIC_VALUE_ARRAY_TYPE_IMPL,
+                    false);
             mv.visitFieldInsn(PUTSTATIC, arrayConstantClass, TYPE_VAR_NAME, GET_ARRAY_TYPE_IMPL);
-            populateArray(mv, arrayType,arrayConstantClass);
+            populateArray(mv, arrayType, arrayConstantClass);
             return;
         }
         mv.visitLdcInsn(jvmTypeGen.typeFlag(arrayType.eType));
@@ -90,7 +92,7 @@ public class JvmArrayTypeGen {
         // invoke the constructor
         mv.visitMethodInsn(INVOKESPECIAL, ARRAY_TYPE_IMPL, JVM_INIT_METHOD, INIT_COMPLEX_VALUE_ARRAY_TYPE_IMPL, false);
         mv.visitFieldInsn(PUTSTATIC, arrayConstantClass, TYPE_VAR_NAME, GET_ARRAY_TYPE_IMPL);
-        populateArray(mv, arrayType,arrayConstantClass);
+        populateArray(mv, arrayType, arrayConstantClass);
     }
 
     private void populateArray(MethodVisitor mv, BArrayType bType, String arrayConstantClass) {

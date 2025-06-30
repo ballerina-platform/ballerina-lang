@@ -114,8 +114,10 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.VISIT_MAX
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.ADD_TYPE_ID;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.ANY_TO_JBOOLEAN;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_FUNCTION_POINTER;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_FUNCTION_TYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_FUNCTION_TYPE_FOR_STRING;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_MAP_VALUE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_MODULE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INIT_FIELD_IMPL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.MAP_PUT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.PROCESS_ANNOTATIONS;
@@ -247,7 +249,7 @@ public class JvmCreateTypeGen {
         mv.visitInsn(DUP);
         // Load package
         String moduleVar = jvmConstantsGen.getModuleConstantVar(typeId.packageID);
-        mv.visitFieldInsn(GETSTATIC, jvmConstantsGen.getModuleConstantClass(moduleVar), moduleVar, JvmSignatures.GET_MODULE);
+        mv.visitFieldInsn(GETSTATIC, jvmConstantsGen.getModuleConstantClass(moduleVar), moduleVar, GET_MODULE);
 
         mv.visitLdcInsn(typeId.name);
         mv.visitInsn(isPrimaryTypeId ? ICONST_1 : ICONST_0);
@@ -298,7 +300,8 @@ public class JvmCreateTypeGen {
 
     public static List<Label> createLabelsForEqualCheck(MethodVisitor mv, int nameRegIndex,
                                                         List<? extends NamedNode> nodes, int start, int length,
-                                                        List<Label> labels, Label defaultCaseLabel, boolean decodeCase) {
+                                                        List<Label> labels, Label defaultCaseLabel,
+                                                        boolean decodeCase) {
         List<Label> targetLabels = new ArrayList<>();
         int i = 0;
         for (int j = start; j < start + length; j++) {
@@ -553,7 +556,8 @@ public class JvmCreateTypeGen {
             Label targetLabel = targetLabels.get(i);
             mv.visitLabel(targetLabel);
             String varName = jvmConstantsGen.getFunctionTypeVar(func.name.value);
-            mv.visitFieldInsn(GETSTATIC, jvmConstantsGen.getFunctionTypeConstantClass(varName), varName, JvmSignatures.GET_FUNCTION_TYPE);
+            String functionTypeConstantClass = jvmConstantsGen.getFunctionTypeConstantClass(varName);
+            mv.visitFieldInsn(GETSTATIC, functionTypeConstantClass, varName, GET_FUNCTION_TYPE);
             mv.visitInsn(ARETURN);
             i += 1;
             bTypesCount++;

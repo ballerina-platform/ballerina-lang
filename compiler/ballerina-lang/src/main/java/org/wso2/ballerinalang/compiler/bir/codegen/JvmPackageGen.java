@@ -368,7 +368,8 @@ public class JvmPackageGen {
                 jvmTypeGen.generateValueCreatorMethods(cw, moduleClass);
                 MainMethodGen mainMethodGen = new MainMethodGen(symbolTable, jvmTypeGen, isRemoteMgtEnabled,
                         this.globalVarsPkgName);
-                mainMethodGen.generateMainMethod(mainFunc, cw, currentModule, moduleClass, serviceEPAvailable, isTestable);
+                mainMethodGen.generateMainMethod(mainFunc, cw, currentModule, moduleClass, serviceEPAvailable,
+                        isTestable);
                 initMethodGen.generateLambdaForModuleExecuteFunction(cw, moduleClass, jvmCastGen, mainFunc,
                         testExecuteFunc);
                 initMethodGen.generateLambdaForPackageInit(cw, currentModule, moduleClass);
@@ -388,8 +389,8 @@ public class JvmPackageGen {
             cw.visitSource(javaClass.sourceFileName, null);
             // generate methods
             for (BIRFunction func : javaClass.functions) {
-                methodGen.generateMethod(func, cw, currentModule, null, moduleClass, jvmTypeGen, jvmCastGen, jvmConstantsGen
-                        , asyncDataCollector);
+                methodGen.generateMethod(func, cw, currentModule, null, moduleClass, jvmTypeGen, jvmCastGen,
+                        jvmConstantsGen, asyncDataCollector);
             }
             generateStaticInitializer(cw, moduleClass, currentModule, isInitClass, serviceEPAvailable, jvmConstantsGen);
             cw.visitEnd();
@@ -689,7 +690,8 @@ public class JvmPackageGen {
         // generate module classes
         generateModuleClasses(jarEntries, moduleInitClass, jvmTypeGen, jvmCastGen, jvmConstantsGen,
                 jvmClassMapping, serviceEPAvailable, mainFunc, testExecuteFunc, asyncDataCollector, immediateImports);
-        JvmGlobalVariablesGen jvmGlobalVariablesGen = new JvmGlobalVariablesGen(currentModule, lazyLoadingGlobalVarCollector);
+        JvmGlobalVariablesGen jvmGlobalVariablesGen = new JvmGlobalVariablesGen(currentModule,
+                lazyLoadingGlobalVarCollector);
         jvmGlobalVariablesGen.generateGlobalVarsInit(jarEntries, this, jvmTypeGen, jvmCastGen, jvmConstantsGen,
                 asyncDataCollector, types);
 

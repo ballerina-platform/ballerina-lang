@@ -112,7 +112,7 @@ public class JvmBStringConstantsGen {
             String bString = entry.getKey();
             int varIndex = entry.getValue();
             String bStringVarName = B_STRING_VAR_PREFIX + varIndex;
-            constantClassName = stringConstantsPkgName+ bStringVarName;
+            constantClassName = stringConstantsPkgName + bStringVarName;
             cw = new BallerinaClassWriter(COMPUTE_FRAMES);
             generateConstantsClassInit(cw, constantClassName);
             visitBStringField(cw);
