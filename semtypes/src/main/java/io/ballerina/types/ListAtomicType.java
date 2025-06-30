@@ -56,8 +56,12 @@ public final class ListAtomicType implements AtomicType, TypeAtomWithTemperature
 
     @Override
     public boolean equals(Object obj) {
-        if (obj == this) return true;
-        if (obj == null || obj.getClass() != this.getClass()) return false;
+        if (obj == this) {
+            return true;
+        }
+        if (obj == null || obj.getClass() != this.getClass()) {
+            return false;
+        }
         var that = (ListAtomicType) obj;
         return Objects.equals(this.members, that.members) &&
                 Objects.equals(this.rest, that.rest);
