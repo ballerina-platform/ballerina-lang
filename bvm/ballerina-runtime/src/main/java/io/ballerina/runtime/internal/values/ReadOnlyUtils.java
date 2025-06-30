@@ -158,7 +158,6 @@ public final class ReadOnlyUtils {
     }
 
     private static BIntersectionType setImmutableIntersectionType(Type type, Set<Type> unresolvedTypes) {
-
         Type immutableType = type.getTag() == TypeTags.TYPE_REFERENCED_TYPE_TAG ? null :
                 ((SelectivelyImmutableReferenceType) type).getImmutableType();
         if (immutableType != null) {
@@ -235,10 +234,7 @@ public final class ReadOnlyUtils {
                         origRecordType.flags |= SymbolFlags.READONLY, fields,
                         null, origRecordType.sealed,
                         origRecordType.typeFlags);
-                for (Map.Entry<String, BFunctionPointer> field : origRecordType.getDefaultValues()
-                        .entrySet()) {
-                    immutableRecordType.setDefaultValue(field.getKey(), field.getValue());
-                }
+                immutableRecordType.setDefaultValues(origRecordType.getDefaultValues());
                 BIntersectionType intersectionType = createAndSetImmutableIntersectionType(origRecordType,
                                                                                            immutableRecordType);
 
@@ -246,24 +242,18 @@ public final class ReadOnlyUtils {
                 if (origRecordRestFieldType != null) {
                     immutableRecordType.restFieldType = getImmutableType(origRecordRestFieldType, unresolvedTypes);
                 }
-
                 return intersectionType;
             case TypeTags.TABLE_TAG:
                 BTableType origTableType = (BTableType) type;
-
                 BTableType immutableTableType;
-
                 Type origKeyType = origTableType.getKeyType();
                 if (origKeyType != null) {
                     immutableTableType = new BTableType(getImmutableType(origTableType.getConstrainedType(),
-                                                                                     unresolvedTypes),
-                                                        getImmutableType(origKeyType, unresolvedTypes), true);
+                            unresolvedTypes), getImmutableType(origKeyType, unresolvedTypes), true);
                 } else {
                     immutableTableType = new BTableType(getImmutableType(origTableType.getConstrainedType(),
-                                                                         unresolvedTypes),
-                                                        origTableType.getFieldNames(), true);
+                            unresolvedTypes), origTableType.getFieldNames(), true);
                 }
-
                 return createAndSetImmutableIntersectionType(origTableType, immutableTableType);
             case TypeTags.OBJECT_TYPE_TAG:
                 BObjectType origObjectType = (BObjectType) type;
@@ -279,13 +269,13 @@ public final class ReadOnlyUtils {
                 immutableObjectType.setMethods(origObjectType.getMethods());
 
                 BIntersectionType objectIntersectionType = createAndSetImmutableIntersectionType(origObjectType,
-                                                                                                 immutableObjectType);
+                        immutableObjectType);
 
                 for (Map.Entry<String, Field> entry : originalObjectFields.entrySet()) {
                     Field originalField = entry.getValue();
-                    immutableObjectFields.put(entry.getKey(), new BField(getImmutableType(originalField.getFieldType(),
-                                                                                          unresolvedTypes),
-                                                          originalField.getFieldName(), originalField.getFlags()));
+                    immutableObjectFields.put(entry.getKey(),
+                            new BField(getImmutableType(originalField.getFieldType(), unresolvedTypes),
+                                    originalField.getFieldName(), originalField.getFlags()));
                 }
                 return objectIntersectionType;
             case TypeTags.TYPE_REFERENCED_TYPE_TAG:
@@ -301,25 +291,18 @@ public final class ReadOnlyUtils {
                 return (BIntersectionType) type.getImmutableType();
             default:
                 BUnionType origUnionType = (BUnionType) type;
-
-
                 Type resultantImmutableType;
-
                 List<Type> readOnlyMemTypes = new ArrayList<>();
-
                 for (Type memberType : origUnionType.getMemberTypes()) {
                     if (TypeChecker.isInherentlyImmutableType(memberType)) {
                         readOnlyMemTypes.add(memberType);
                         continue;
                     }
-
                     if (!TypeChecker.isSelectivelyImmutableType(memberType, unresolvedTypes)) {
                         continue;
                     }
-
                     readOnlyMemTypes.add(getImmutableType(memberType, unresolvedTypes));
                 }
-
                 if (readOnlyMemTypes.size() == 1) {
                     resultantImmutableType = readOnlyMemTypes.iterator().next();
                 } else if (!unresolvedTypes.add(type)) {

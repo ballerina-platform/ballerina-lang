@@ -81,7 +81,7 @@ public class BRecordType extends BStructureType implements RecordType, TypeWithS
     private final DefinitionContainer<MappingDefinition> acceptedTypeDefn = new DefinitionContainer<>();
     private byte couldInhereTypeBeDifferentCache = 0;
 
-    private final Map<String, BFunctionPointer> defaultValues = new LinkedHashMap<>();
+    private Map<String, BFunctionPointer> defaultValues = new LinkedHashMap<>();
 
     /**
      * Create a {@code BRecordType} which represents the user defined record type.
@@ -242,8 +242,16 @@ public class BRecordType extends BStructureType implements RecordType, TypeWithS
         return typeFlags;
     }
 
+    @SuppressWarnings("unused")
+    /*
+     * Used for codegen
+     */
     public void setDefaultValue(String fieldName, BFunctionPointer defaultValue) {
         defaultValues.put(fieldName, defaultValue);
+    }
+
+    public void setDefaultValues(Map<String, BFunctionPointer> fields) {
+        this.defaultValues = fields;
     }
 
     public Map<String, BFunctionPointer> getDefaultValues() {
