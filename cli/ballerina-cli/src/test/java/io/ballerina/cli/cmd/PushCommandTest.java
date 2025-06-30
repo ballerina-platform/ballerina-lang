@@ -372,7 +372,7 @@ public class PushCommandTest extends BaseCommandTest {
         Assert.assertTrue(projectPath.resolve("target/bala/foo-winery-any-0.1.0.bala").toFile().exists());
 
         // Push
-        String expected = "README file is missing in the bala file";
+        String expected = "README.md file is missing in the bala file";
 
         PushCommand pushCommand = new PushCommand(projectPath, printStream, printStream, false);
         new CommandLine(pushCommand).parseArgs();
