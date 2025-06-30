@@ -23,12 +23,13 @@ package io.ballerina.types;
  * @since 2201.12.0
  */
 public class Conjunction {
-    public Atom atom;
-    public Conjunction next;
+
+    private final Atom atom;
+    private Conjunction next;
 
     private Conjunction(Atom atom, Conjunction next) {
         this.atom = atom;
-        this.next = next;
+        this.next(next);
     }
 
     public static Conjunction and(Atom atom, Conjunction next) {

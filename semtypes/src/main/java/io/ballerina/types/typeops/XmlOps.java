@@ -94,7 +94,7 @@ public class XmlOps implements BasicTypeOps {
         Conjunction current = con;
         while (current != null) {
             bits &= getIndex(current);
-            current = current.next;
+            current = current.next();
         }
         return bits;
     }
@@ -109,12 +109,12 @@ public class XmlOps implements BasicTypeOps {
             if ((allBits & ~getIndex(con)) == 0) {
                 return true;
             }
-            n = n.next;
+            n = n.next();
         }
         return false;
     }
 
     private static int getIndex(Conjunction con) {
-        return ((RecAtom) con.atom).index;
+        return ((RecAtom) con.atom()).index;
     }
 }

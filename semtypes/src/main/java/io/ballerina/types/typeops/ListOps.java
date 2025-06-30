@@ -79,10 +79,10 @@ public class ListOps extends CommonOps implements BasicTypeOps {
             rest = atom.rest();
         } else {
             // combine all the positive tuples using intersection
-            ListAtomicType lt = cx.listAtomType(pos.atom);
+            ListAtomicType lt = cx.listAtomType(pos.atom());
             members = lt.members();
             rest = lt.rest();
-            Conjunction p = pos.next;
+            Conjunction p = pos.next();
             // the neg case is in case we grow the array in listInhabited
             if (p != null || neg != null) {
                 // Jbal note: we don't need this as we already created copies when converting from array to list.
@@ -93,8 +93,8 @@ public class ListOps extends CommonOps implements BasicTypeOps {
                 if (p == null) {
                     break;
                 } else {
-                    Atom d = p.atom;
-                    p = p.next;
+                    Atom d = p.atom();
+                    p = p.next();
                     lt = cx.listAtomType(d);
                     TwoTuple<FixedLengthArray, CellSemType>
                             intersected = listIntersectWith(cx.env, members, rest, lt.members(), lt.rest());
@@ -152,14 +152,14 @@ public class ListOps extends CommonOps implements BasicTypeOps {
         int nNeg = 0;
         while (true) {
             if (tem != null) {
-                ListAtomicType lt = cx.listAtomType(tem.atom);
+                ListAtomicType lt = cx.listAtomType(tem.atom());
                 FixedLengthArray m = lt.members();
                 maxInitialLength = Integer.max(maxInitialLength, m.initial().size());
                 if (m.fixedLength() > maxInitialLength) {
                     fixedLengths.add(m.fixedLength());
                 }
                 nNeg += 1;
-                tem = tem.next;
+                tem = tem.next();
             } else {
                 break;
             }
@@ -253,10 +253,10 @@ public class ListOps extends CommonOps implements BasicTypeOps {
         if (neg == null) {
             return true;
         } else {
-            final ListAtomicType nt = cx.listAtomType(neg.atom);
+            final ListAtomicType nt = cx.listAtomType(neg.atom());
             if (nRequired > 0 && Core.isNever(listMemberAtInnerVal(nt.members(), nt.rest(), indices[nRequired - 1]))) {
                 // Skip this negative if it is always shorter than the minimum required by the positive
-                return listInhabited(cx, indices, memberTypes, nRequired, neg.next);
+                return listInhabited(cx, indices, memberTypes, nRequired, neg.next());
             }
             for (int i = 0; i < memberTypes.length; i++) {
                 // If we have isEmpty(T1 & S1) or isEmpty(T2 & S2) then we have [T1, T2] / [S1, S2] = [T1, T2].
@@ -273,7 +273,7 @@ public class ListOps extends CommonOps implements BasicTypeOps {
                 // Consider cases we can avoid this negative by having a sufficiently short list
                 int len = memberTypes.length;
                 if (len < indices.length && indices[len] < negLen) {
-                    return listInhabited(cx, indices, memberTypes, nRequired, neg.next);
+                    return listInhabited(cx, indices, memberTypes, nRequired, neg.next());
                 }
                 for (int i = nRequired; i < memberTypes.length; i++) {
                     if (indices[i] >= negLen) {
@@ -312,7 +312,7 @@ public class ListOps extends CommonOps implements BasicTypeOps {
                     SemType[] t = memberTypes.clone();
                     t[i] = d;
                     // We need to make index i be required
-                    if (listInhabited(cx, indices, t, Integer.max(nRequired, i + 1), neg.next)) {
+                    if (listInhabited(cx, indices, t, Integer.max(nRequired, i + 1), neg.next())) {
                         return true;
                     }
                 }
