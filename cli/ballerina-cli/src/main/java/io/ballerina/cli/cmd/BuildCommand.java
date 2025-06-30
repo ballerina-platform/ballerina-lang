@@ -312,7 +312,7 @@ public class BuildCommand implements BLauncherCmd {
                 .addTask(new CreateExecutableTask(outStream, this.output, null, false,
                         !rebuildStatus))
                 .addTask(new DumpBuildTimeTask(outStream), !project.buildOptions().dumpBuildTime())
-                .addTask(new CreateFingerprintTask(false), !rebuildStatus || isSingleFileBuild)
+                .addTask(new CreateFingerprintTask(false, false), !rebuildStatus || isSingleFileBuild)
                 .build();
 
         taskExecutor.executeTasks(project);

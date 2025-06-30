@@ -1301,7 +1301,8 @@ public final class CommandUtil {
     }
 
 
-    public static boolean isFilesModifiedSinceLastBuild(BuildJson buildJson, Project project, boolean isTestExecution) throws IOException {
+    public static boolean isFilesModifiedSinceLastBuild(BuildJson buildJson, Project project, boolean isTestExecution)
+            throws IOException {
         List<File> srcFilesToEvaluate = getSrcFiles(project);
         List<File> testSrcFilesToEvaluate = getTestSrcFiles(project);
         if (isProjectFilesModified(buildJson.getSrcMetaInfo(), srcFilesToEvaluate, project)) {
@@ -1321,7 +1322,7 @@ public final class CommandUtil {
     }
 
     private static boolean isBallerinaTomlFileModified(BuildJson buildJson, Project project)  {
-        try{
+        try {
             File ballerinaTomlFile = project.sourceRoot().resolve(BALLERINA_TOML).toFile();
             if (ballerinaTomlFile.exists() && ballerinaTomlFile.isFile()) {
                 long lastModified = ballerinaTomlFile.lastModified();
@@ -1357,7 +1358,7 @@ public final class CommandUtil {
                         .filter(path -> path.toString().endsWith(JAR))
                         .toList();
         BuildJson.FileMetaInfo[] testArtifactMetaInfo = buildJson.getTestArtifactMetaInfo();
-        if (testArtifactMetaInfo == null || testArtifactMetaInfo.length != (testArtifactsPaths.size() + 1) ) {
+        if (testArtifactMetaInfo == null || testArtifactMetaInfo.length != (testArtifactsPaths.size() + 1)) {
             return true;
         }
         testArtifactsPaths = new ArrayList<>(testArtifactsPaths);
@@ -1513,7 +1514,8 @@ public final class CommandUtil {
                 }
                 return !getSHA256Digest(execFile).equals(targetExecMetaInfo.getHash());
             }
-            return true;
+            // It's from workspace build dependency
+            return execFile.exists() || buildJson.getTargetExecMetaInfo() != null;
         } catch (IOException | NoSuchAlgorithmException e) {
             return true;
         }
@@ -1536,7 +1538,7 @@ public final class CommandUtil {
                 }
                 return !getSHA256Digest(settingsFile).equals(settingsFileMetaInfo.getHash());
             }
-            return true;
+            return buildJson.getSettingsMetaInfo() != null;
         } catch (IOException | NoSuchAlgorithmException e) {
             return true;
         }

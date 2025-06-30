@@ -50,8 +50,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static io.ballerina.cli.cmd.Constants.TEST_COMMAND;
+import static io.ballerina.cli.launcher.LauncherUtils.createLauncherException;
 import static io.ballerina.projects.util.ProjectConstants.BUILD_FILE;
 import static io.ballerina.projects.util.ProjectUtils.isProjectUpdated;
 import static io.ballerina.projects.util.ProjectUtils.readBuildJson;
@@ -382,12 +384,13 @@ public class TestCommand implements BLauncherCmd {
         try {
             buildJson = readBuildJson(buildFilePath);
             prevTestClassPath = buildJson.getTestClassPath();
-            rebuildStatus = isRebuildNeeded(project, buildJson) || prevTestClassPath.isEmpty() ;
+            rebuildStatus = isRebuildNeeded(project, buildJson) || prevTestClassPath.isEmpty();
         } catch (IOException e) {
             //ignore exception
         }
 
         boolean isTestingDelegated = project.buildOptions().cloud().equals("docker");
+        AtomicInteger testResult = new AtomicInteger(0);
 
         // Run pre-build tasks to have the project reloaded.
         // In code coverage generation, the module map is duplicated.
@@ -395,7 +398,8 @@ public class TestCommand implements BLauncherCmd {
         // which has the newly generated code for code coverage calculation.
         // Hence, below tasks are executed before extracting the module map from the project.
         TaskExecutor preBuildTaskExecutor = new TaskExecutor.TaskBuilder()
-                .addTask(new CleanTargetCacheDirTask(), !rebuildStatus || isSingleFile) // clean the target cache dir(projects only)
+                // clean the target cache dir(projects only)
+                .addTask(new CleanTargetCacheDirTask(), !rebuildStatus || isSingleFile)
                 .addTask(new CleanTargetBinTestsDirTask(), !rebuildStatus || (isSingleFile || !isTestingDelegated))
                 .addTask(new RunBuildToolsTask(outStream), !rebuildStatus || isSingleFile) // run build tools
                 .build();
@@ -412,25 +416,28 @@ public class TestCommand implements BLauncherCmd {
         boolean isPackageModified = isProjectUpdated(project);
 
         TaskExecutor taskExecutor = new TaskExecutor.TaskBuilder()
-                .addTask(new ResolveMavenDependenciesTask(outStream, !rebuildStatus)) // resolve maven dependencies in Ballerina.toml
+                // resolve maven dependencies in Ballerina.toml
+                .addTask(new ResolveMavenDependenciesTask(outStream, !rebuildStatus))
                 // compile the modules
                 .addTask(new CompileTask(outStream, errStream, false, false,
                         isPackageModified, buildOptions.enableCache(), !rebuildStatus))
-//                .addTask(new CopyResourcesTask(), listGroups) // merged with CreateJarTask
                 .addTask(new CreateTestExecutableTask(outStream, groupList, disableGroupList, testList, listGroups,
                                 cliArgs, isParallelExecution), !isTestingDelegated)
                 .addTask(new RunTestsTask(outStream, errStream, rerunTests, groupList, disableGroupList,
                                 testList, includes, coverageFormat, moduleMap, listGroups, excludes, cliArgs,
-                                isParallelExecution, rebuildStatus, prevTestClassPath ),
+                                isParallelExecution, rebuildStatus, prevTestClassPath, testResult),
                         (project.buildOptions().nativeImage() || isTestingDelegated))
                 .addTask(new RunNativeImageTestTask(outStream, rerunTests, groupList, disableGroupList,
                                 testList, includes, coverageFormat, moduleMap, listGroups, isParallelExecution),
                         (!project.buildOptions().nativeImage() || isTestingDelegated))
                 .addTask(new DumpBuildTimeTask(outStream), !project.buildOptions().dumpBuildTime())
-                .addTask(new CreateFingerprintTask(true), !rebuildStatus || isSingleFile)
+                .addTask(new CreateFingerprintTask(true, false), !rebuildStatus || isSingleFile)
                 .build();
 
         taskExecutor.executeTasks(project);
+        if (testResult.get() != 0) {
+            throw createLauncherException("there are test failures");
+        }
         if (this.exitWhenFinish) {
             Runtime.getRuntime().exit(0);
         }
@@ -445,14 +452,15 @@ public class TestCommand implements BLauncherCmd {
             if (buildJson.isExpiredLastUpdateTime()) {
                 return true;
             }
-            if (CommandUtil.isFilesModifiedSinceLastBuild(buildJson, project, true )) {
+            if (CommandUtil.isFilesModifiedSinceLastBuild(buildJson, project, true)) {
                 return true;
             }
             if (isRebuildForCurrCmd()) {
                 return true;
             }
             //TODO :  Need to investigate further
-            if (!"".equals(project.buildOptions().cloud()) || project.buildOptions().nativeImage() || project.buildOptions().codeCoverage() ) {
+            if (!"".equals(project.buildOptions().cloud()) || project.buildOptions().nativeImage() ||
+                    project.buildOptions().codeCoverage()) {
                 return true;
             }
             return !CommandUtil.isPrevCurrCmdCompatible(project.buildOptions(), buildJson.getBuildOptions());

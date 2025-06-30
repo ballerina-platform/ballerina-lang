@@ -143,19 +143,17 @@ public final class TesterinaUtils {
 
         try {
             final Method method = initClazz.getDeclaredMethod(TESTERINA_MAIN_METHOD, parameterTypes);
-            Object invoke = method.invoke(null, (Object) args);
-            return invoke;
-        } catch (Exception e) {
-            Throwable targetException = e;
+            return method.invoke(null, (Object) args);
+        } catch (InvocationTargetException e) {
+            Throwable targetException = e.getTargetException();
             if (targetException instanceof BError) {
                 return targetException;
             }
             return targetException;
+        } catch (NoSuchMethodException | IllegalAccessException | IllegalArgumentException e) {
+            return new BallerinaTestException("Failed to invoke the function '" + TESTERINA_MAIN_METHOD + " due to " +
+                    RuntimeUtils.formatErrorMessage(e), e);
         }
-//        } catch (NoSuchMethodException | IllegalAccessException | IllegalArgumentException e) {
-//            return new BallerinaTestException("Failed to invoke the function '" + TESTERINA_MAIN_METHOD + " due to " +
-//                    RuntimeUtils.formatErrorMessage(e), e);
-//        }
     }
 
     private static int getTestExecutionState(Class<?> initClazz) {

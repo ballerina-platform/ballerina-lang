@@ -46,7 +46,6 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -57,6 +56,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
@@ -110,6 +110,7 @@ public class RunTestsTask implements Task {
     TestReport testReport;
     private final boolean rebuildStatus;
     private final String prevTestClassPath;
+    private AtomicInteger testResult;
 
     private static final Boolean isWindows = System.getProperty("os.name").toLowerCase(Locale.getDefault())
             .contains("win");
@@ -125,11 +126,12 @@ public class RunTestsTask implements Task {
     public RunTestsTask(PrintStream out, PrintStream err, boolean rerunTests, String groupList,
                         String disableGroupList, String testList, String includes, String coverageFormat,
                         Map<String, Module> modules, boolean listGroups, String excludes, String[] cliArgs,
-                        boolean isParallelExecution, boolean rebuildStatus, String prevTestClassPath)  {
+                        boolean isParallelExecution, boolean rebuildStatus, String prevTestClassPath,
+                        AtomicInteger testResult)  {
         this.out = out;
         this.err = err;
         this.isRerunTestExecution = rerunTests;
-        this. cliArgs = List.of(cliArgs);
+        this.cliArgs = List.of(cliArgs);
         this.isParallelExecution = isParallelExecution;
         this.prevTestClassPath = prevTestClassPath;
 
@@ -148,6 +150,7 @@ public class RunTestsTask implements Task {
         this.listGroups = listGroups;
         this.excludesInCoverage = excludes;
         this.rebuildStatus = rebuildStatus;
+        this.testResult = testResult;
     }
 
     @Override
@@ -231,7 +234,7 @@ public class RunTestsTask implements Task {
 
             if (testResult != 0) {
                 cleanTempCache(project, cachesRoot);
-                throw createLauncherException("there are test failures");
+                this.testResult.set(testResult);
             }
         } else {
             out.println("\tNo tests found");

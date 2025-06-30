@@ -755,7 +755,7 @@ public class BuildCommandTest extends BaseCommandTest {
         Path balFilePath = this.testResources.resolve("valid-bal-file").resolve("hello_world.bal");
 
         System.setProperty(USER_DIR_PROPERTY, this.testResources.resolve("valid-bal-file").toString());
-        BuildCommand buildCommand = new BuildCommand(balFilePath, printStream, printStream, false , true);
+        BuildCommand buildCommand = new BuildCommand(balFilePath, printStream, printStream, false, true);
         new CommandLine(buildCommand).parseArgs(balFilePath.toString());
         buildCommand.execute();
 
@@ -768,7 +768,7 @@ public class BuildCommandTest extends BaseCommandTest {
                 this.testResources.resolve("valid-bal-file").resolve("build-time.json").toFile().length() > 0);
     }
 
-    @Test (dependsOnMethods = "testBuildBalProjectFromADifferentDirectory")
+    @Test(dependsOnMethods = "testBuildBalProjectFromADifferentDirectory")
     public void testCustomTargetDir() {
         Path projectPath = this.testResources.resolve("validApplicationProject");
         Path customTargetDir = projectPath.resolve("customTargetDir");
@@ -784,7 +784,7 @@ public class BuildCommandTest extends BaseCommandTest {
         Assert.assertFalse(Files.exists(customTargetDir.resolve("report")));
     }
 
-    @Test (dependsOnMethods = "testCustomTargetDir")
+    @Test(dependsOnMethods = "testCustomTargetDir")
     public void testCustomTargetDirWithTests() {
         Path projectPath = this.testResources.resolve("validProjectWithTests");
         Path customTargetDir = projectPath.resolve("customTargetDir2");
@@ -901,10 +901,10 @@ public class BuildCommandTest extends BaseCommandTest {
                 buildLog.replaceAll("\r", ""),
                 getOutput("corrupted-dependencies-toml.txt").replaceAll("\r", ""));
         String depContent = Files.readString(projectPath.resolve("Dependencies.toml"), Charset.defaultCharset())
-                .replace("\r" , "");
+                .replace("\r", "");
         String ballerinaShortVersion = RepoUtils.getBallerinaShortVersion();
         String corrcetDepContent = Files.readString(projectPath.resolve("Dependencies-corrected.toml"),
-                        Charset.defaultCharset()).replace("\r" , "")
+                        Charset.defaultCharset()).replace("\r", "")
                 .replace("DIST_VERSION", ballerinaShortVersion);
         Assert.assertEquals(depContent, corrcetDepContent);
         Files.delete(destinationPath);
@@ -1243,7 +1243,7 @@ public class BuildCommandTest extends BaseCommandTest {
 
     @DataProvider(name = "toolPropertiesDiagnostics")
     public Object[][] provideToolPropertiesDiagnostics() {
-        return new Object[][] {
+        return new Object[][]{
                 {
                         "build-tool-with-invalid-missing-toml-properties",
                         "build-tool-with-invalid-missing-toml-properties.txt",
@@ -1443,6 +1443,7 @@ public class BuildCommandTest extends BaseCommandTest {
                 {"validProjectWithPlatformLibs4", notVerifiedWaring}
         };
     }
+
     @Test(description = "Check GraalVM compatibility of build project",
             dataProvider = "validProjectWithPlatformLibs")
     public void testGraalVMCompatibilityOfJavaProject(String projectName, String warning) throws IOException {
@@ -1477,25 +1478,6 @@ public class BuildCommandTest extends BaseCommandTest {
             Assert.assertTrue(buildLog.contains("Compiling source") && buildLog.contains("foo/winery:0.1.0")
                     && !buildLog.contains("WARNING: Package is not verified with GraalVM"));
         }
-    }
-
-    @Test()
-    public void testBuildAProjectTwice() throws IOException {
-        Path projectPath = this.testResources.resolve("validProject");
-        System.setProperty(USER_DIR_PROPERTY, projectPath.toString());
-
-        BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
-        new CommandLine(buildCommand).parseArgs();
-        buildCommand.execute();
-        String firstBuildLog = readOutput(true);
-        validateBuildTimeInfo(firstBuildLog);
-
-        // Execute the build command again
-        buildCommand.execute();
-        String secondBuildLog = readOutput(true);
-        validateBuildTimeInfo(secondBuildLog);
-
-        Assert.assertEquals(firstBuildLog, secondBuildLog);
     }
 
     @Test(description = "Build a project twice with the same flags and different flags")
