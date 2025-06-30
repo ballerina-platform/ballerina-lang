@@ -175,7 +175,7 @@ public class JBallerinaDebugServer implements BallerinaExtendedDebugServer {
     private static final String COMPILATION_ERROR_MESSAGE = "error: compilation contains errors";
     private static final String TERMINAL_TITLE = "Ballerina Debug Terminal";
     private static final String RUN_IN_TERMINAL_REQUEST = "runInTerminal";
-    public static final int VARIABLE_FETCH_TIMEOUT = 2000;
+    private static final int VARIABLE_FETCH_TIMEOUT = 2000;
     private static final Logger LOGGER = LoggerFactory.getLogger(JBallerinaDebugServer.class);
 
     public JBallerinaDebugServer() {

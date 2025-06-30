@@ -69,7 +69,7 @@ public class BreakpointProcessor {
     private final JDIEventProcessor jdiEventProcessor;
     private final Map<String, LinkedHashMap<Integer, BalBreakpoint>> userBreakpoints = new ConcurrentHashMap<>();
 
-    public static final int BP_EVALUATION_TIMEOUT = 5000;
+    private static final int BP_EVALUATION_TIMEOUT = 5000;
     private static final Logger LOGGER = LoggerFactory.getLogger(BreakpointProcessor.class);
 
     public BreakpointProcessor(ExecutionContext context, JDIEventProcessor jdiEventProcessor) {
