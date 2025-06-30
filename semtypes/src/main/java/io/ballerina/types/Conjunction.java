@@ -26,12 +26,13 @@ import java.util.Comparator;
  * @since 2201.12.0
  */
 public class Conjunction {
-    public Atom atom;
-    public Conjunction next;
+
+    private final Atom atom;
+    private Conjunction next;
 
     private Conjunction(Atom atom, Conjunction next) {
         this.atom = atom;
-        this.next = next;
+        this.next(next);
     }
 
     public static Conjunction and(Atom atom, Conjunction next) {
@@ -54,8 +55,8 @@ public class Conjunction {
 
         Conjunction current = conjunction;
         while (current != null) {
-            atoms.add(current.atom);
-            current = current.next;
+            atoms.add(current.atom());
+            current = current.next();
         }
 
         atoms.sort(Comparator.comparingInt((Atom atom) -> atom.temperature(cx, kind)).reversed());
@@ -64,10 +65,22 @@ public class Conjunction {
         Conjunction tail = head;
 
         for (int i = 1; i < atoms.size(); i++) {
-            tail.next = new Conjunction(atoms.get(i), null);
-            tail = tail.next;
+            tail.next(new Conjunction(atoms.get(i), null));
+            tail = tail.next();
         }
 
         return head;
+    }
+
+    public Atom atom() {
+        return atom;
+    }
+
+    public Conjunction next() {
+        return next;
+    }
+
+    public void next(Conjunction next) {
+        this.next = next;
     }
 }

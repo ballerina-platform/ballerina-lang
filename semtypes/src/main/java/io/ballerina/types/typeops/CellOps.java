@@ -59,11 +59,11 @@ public class CellOps extends CommonOps implements BasicTypeOps {
         if (posList == null) {
             combined = CellAtomicType.from(PredefinedType.VAL, CellAtomicType.CellMutability.CELL_MUT_UNLIMITED);
         } else {
-            combined = cellAtomType(posList.atom);
-            Conjunction p = posList.next;
+            combined = cellAtomType(posList.atom());
+            Conjunction p = posList.next();
             while (p != null) {
-                combined = intersectCellAtomicType(combined, cellAtomType(p.atom));
-                p = p.next;
+                combined = intersectCellAtomicType(combined, cellAtomType(p.atom()));
+                p = p.next();
             }
         }
         return !cellInhabited(cx, combined, negList);
@@ -92,8 +92,8 @@ public class CellOps extends CommonOps implements BasicTypeOps {
         SemType negUnion = PredefinedType.NEVER;
         Conjunction neg = negList;
         while (neg != null) {
-            negUnion = Core.union(negUnion, cellAtomType(neg.atom).ty());
-            neg = neg.next;
+            negUnion = Core.union(negUnion, cellAtomType(neg.atom()).ty());
+            neg = neg.next();
         }
         return negUnion;
     }
@@ -102,22 +102,22 @@ public class CellOps extends CommonOps implements BasicTypeOps {
         if (negList == null) {
             return true;
         }
-        CellAtomicType negAtomicCell = cellAtomType(negList.atom);
+        CellAtomicType negAtomicCell = cellAtomType(negList.atom());
         if ((negAtomicCell.mut().compareTo(CellAtomicType.CellMutability.CELL_MUT_LIMITED) >= 0) &&
                 Core.isEmpty(cx, Core.diff(pos, negAtomicCell.ty()))) {
             return false;
         }
-        return cellMutLimitedInhabited(cx, pos, negList.next);
+        return cellMutLimitedInhabited(cx, pos, negList.next());
     }
 
     private static boolean cellMutUnlimitedInhabited(Context cx, SemType pos, Conjunction negList) {
         Conjunction neg = negList;
         while (neg != null) {
-            if (cellAtomType(neg.atom).mut() == CellAtomicType.CellMutability.CELL_MUT_LIMITED &&
-                    Core.isSameType(cx, PredefinedType.VAL, cellAtomType(neg.atom).ty())) {
+            if (cellAtomType(neg.atom()).mut() == CellAtomicType.CellMutability.CELL_MUT_LIMITED &&
+                    Core.isSameType(cx, PredefinedType.VAL, cellAtomType(neg.atom()).ty())) {
                 return false;
             }
-            neg = neg.next;
+            neg = neg.next();
         }
         SemType negListUnionResult = cellNegListUnlimitedUnion(negList);
         // We expect `isNever` condition to be `true` when there are no negative atoms with unlimited mutability.
@@ -129,10 +129,10 @@ public class CellOps extends CommonOps implements BasicTypeOps {
         SemType negUnion = PredefinedType.NEVER;
         Conjunction neg = negList;
         while (neg != null) {
-            if (cellAtomType(neg.atom).mut() == CellAtomicType.CellMutability.CELL_MUT_UNLIMITED) {
-                negUnion = Core.union(negUnion, cellAtomType(neg.atom).ty());
+            if (cellAtomType(neg.atom()).mut() == CellAtomicType.CellMutability.CELL_MUT_UNLIMITED) {
+                negUnion = Core.union(negUnion, cellAtomType(neg.atom()).ty());
             }
-            neg = neg.next;
+            neg = neg.next();
         }
         return negUnion;
     }

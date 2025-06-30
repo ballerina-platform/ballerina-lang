@@ -104,10 +104,10 @@ public class ListProj {
             rest = cellContaining(cx.env, union(VAL, UNDEF));
         } else {
             // combine all the positive tuples using intersection
-            ListAtomicType lt = cx.listAtomType(pos.atom);
+            ListAtomicType lt = cx.listAtomType(pos.atom());
             members = lt.members();
             rest = lt.rest();
-            Conjunction p = pos.next;
+            Conjunction p = pos.next();
             // the neg case is in case we grow the array in listInhabited
             if (p != null || neg != null) {
                 members = fixedArrayShallowCopy(members);
@@ -117,8 +117,8 @@ public class ListProj {
                 if (p == null) {
                     break;
                 } else {
-                    Atom d = p.atom;
-                    p = p.next;
+                    Atom d = p.atom();
+                    p = p.next();
                     lt = cx.listAtomType(d);
                     TwoTuple<FixedLengthArray, CellSemType>
                             intersected = listIntersectWith(cx.env, members, rest, lt.members(), lt.rest());
@@ -200,15 +200,15 @@ public class ListProj {
                 }
             }
         } else {
-            final ListAtomicType nt = cx.listAtomType(neg.atom);
+            final ListAtomicType nt = cx.listAtomType(neg.atom());
             if (nRequired > 0 && isNever(listMemberAtInnerVal(nt.members(), nt.rest(), indices[nRequired - 1]))) {
-                return listProjExcludeInnerVal(cx, indices, keyIndices, memberTypes, nRequired, neg.next);
+                return listProjExcludeInnerVal(cx, indices, keyIndices, memberTypes, nRequired, neg.next());
             }
             int negLen = nt.members().fixedLength();
             if (negLen > 0) {
                 int len = memberTypes.length;
                 if (len < indices.length && indices[len] < negLen) {
-                    return listProjExcludeInnerVal(cx, indices, keyIndices, memberTypes, nRequired, neg.next);
+                    return listProjExcludeInnerVal(cx, indices, keyIndices, memberTypes, nRequired, neg.next());
                 }
                 for (int i = nRequired; i < memberTypes.length; i++) {
                     if (indices[i] >= negLen) {
@@ -216,7 +216,7 @@ public class ListProj {
                     }
                     // TODO: think about a way to avoid this allocation here and instead create view and pass it in
                     CellSemType[] t = Arrays.copyOfRange(memberTypes, 0, i);
-                    p = union(p, listProjExcludeInnerVal(cx, indices, keyIndices, t, nRequired, neg.next));
+                    p = union(p, listProjExcludeInnerVal(cx, indices, keyIndices, t, nRequired, neg.next()));
                 }
             }
             for (int i = 0; i < memberTypes.length; i++) {
@@ -227,7 +227,7 @@ public class ListProj {
                     t[i] = cellContaining(cx.env, d);
                     // We need to make index i be required
                     p = union(p, listProjExcludeInnerVal(cx, indices, keyIndices, t, Integer.max(nRequired, i + 1),
-                            neg.next));
+                            neg.next()));
                 }
             }
         }
