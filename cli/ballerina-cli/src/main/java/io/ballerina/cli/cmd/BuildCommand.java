@@ -293,7 +293,7 @@ public class BuildCommand implements BLauncherCmd {
                     "flag is not set");
         }
 
-        boolean rebuildStatus = isRebuildNeeded(project);
+        boolean rebuildStatus = isRebuildNeeded(project, false);
 
         // Check package files are modified after last build
         boolean isPackageModified = isProjectUpdated(project);
@@ -321,7 +321,7 @@ public class BuildCommand implements BLauncherCmd {
         }
     }
 
-    private boolean isRebuildNeeded(Project project) {
+    private boolean isRebuildNeeded(Project project, boolean isWorkspaceBuild) {
         Path buildFilePath = project.targetDir().resolve(BUILD_FILE);
         try {
             BuildJson buildJson = readBuildJson(buildFilePath);
@@ -331,7 +331,7 @@ public class BuildCommand implements BLauncherCmd {
             if (buildJson.isExpiredLastUpdateTime()) {
                 return true;
             }
-            if (CommandUtil.isFilesModifiedSinceLastBuild(buildJson, project, false)) {
+            if (CommandUtil.isFilesModifiedSinceLastBuild(buildJson, project, false, isWorkspaceBuild)) {
                 return true;
             }
             if (isRebuildForCurrCmd()) {

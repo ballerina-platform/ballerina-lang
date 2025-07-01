@@ -331,7 +331,7 @@ public class RunCommand implements BLauncherCmd {
             if (buildJson.isExpiredLastUpdateTime()) {
                 return true;
             }
-            if (CommandUtil.isFilesModifiedSinceLastBuild(buildJson, project, false)) {
+            if (CommandUtil.isFilesModifiedSinceLastBuild(buildJson, project, false, false)) {
                 return true;
             }
             if (isRebuildForCurrCmd()) {

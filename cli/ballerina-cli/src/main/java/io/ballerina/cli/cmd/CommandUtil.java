@@ -1301,7 +1301,8 @@ public final class CommandUtil {
     }
 
 
-    public static boolean isFilesModifiedSinceLastBuild(BuildJson buildJson, Project project, boolean isTestExecution)
+    public static boolean isFilesModifiedSinceLastBuild(BuildJson buildJson, Project project, boolean isTestExecution,
+                                                        boolean isWorkSpaceBuild)
             throws IOException {
         List<File> srcFilesToEvaluate = getSrcFiles(project);
         List<File> testSrcFilesToEvaluate = getTestSrcFiles(project);
@@ -1318,7 +1319,8 @@ public final class CommandUtil {
         if (isBallerinaTomlFileModified(buildJson, project)) {
             return true;
         }
-        return isTestExecution ? isTestArtifactsModified(buildJson, project) : isExecutableModified(buildJson, project);
+        return isTestExecution ? isTestArtifactsModified(buildJson, project) : isExecutableModified(buildJson, project,
+                isWorkSpaceBuild);
     }
 
     private static boolean isBallerinaTomlFileModified(BuildJson buildJson, Project project)  {
@@ -1498,7 +1500,7 @@ public final class CommandUtil {
         return filesToEvaluate;
     }
 
-    private static boolean isExecutableModified(BuildJson buildJson, Project project) {
+    private static boolean isExecutableModified(BuildJson buildJson, Project project, boolean isWorkSpaceBuild) {
         try {
             Target target = new Target(project.targetDir());
             File execFile = target.getExecutablePath(project.currentPackage()).toAbsolutePath().toFile();
@@ -1515,7 +1517,7 @@ public final class CommandUtil {
                 return !getSHA256Digest(execFile).equals(targetExecMetaInfo.getHash());
             }
             // It's from workspace build dependency
-            return execFile.exists() || buildJson.getTargetExecMetaInfo() != null;
+            return !isWorkSpaceBuild || buildJson.getTargetExecMetaInfo() != null;
         } catch (IOException | NoSuchAlgorithmException e) {
             return true;
         }
