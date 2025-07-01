@@ -58,7 +58,7 @@ public class CodegenErrorsTest {
     @Test
     public void testTooLargePackageVar() {
         CompileResult result = BCompileUtil.compile("test-src/jvm/too-large-package-variable.bal");
-        BAssertUtil.validateError(result, 0, "method is too large: '<clinit>'", ".", 1, 1);
+        BAssertUtil.validateError(result, 0, "method is too large: '.<init>'", ".", 1, 1);
     }
 
     @Test
