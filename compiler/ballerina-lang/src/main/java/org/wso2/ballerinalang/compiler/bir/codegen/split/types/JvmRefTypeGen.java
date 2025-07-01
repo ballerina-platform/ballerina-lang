@@ -25,7 +25,6 @@ import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmTypeGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.split.JvmConstantsGen;
-import org.wso2.ballerinalang.compiler.bir.codegen.split.JvmCreateTypeGen;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeReferenceType;
 
 import static org.objectweb.asm.Opcodes.ACC_PUBLIC;
@@ -50,13 +49,10 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.TYPE_PAR
  */
 public class JvmRefTypeGen {
 
-    private final JvmCreateTypeGen jvmCreateTypeGen;
     private final JvmTypeGen jvmTypeGen;
     private final JvmConstantsGen jvmConstantsGen;
 
-    public JvmRefTypeGen(JvmCreateTypeGen jvmCreateTypeGen, JvmTypeGen jvmTypeGen, JvmConstantsGen jvmConstantsGen) {
-
-        this.jvmCreateTypeGen = jvmCreateTypeGen;
+    public JvmRefTypeGen(JvmTypeGen jvmTypeGen, JvmConstantsGen jvmConstantsGen) {
         this.jvmTypeGen = jvmTypeGen;
         this.jvmConstantsGen = jvmConstantsGen;
     }
@@ -76,7 +72,6 @@ public class JvmRefTypeGen {
         mv.visitMethodInsn(INVOKESPECIAL, TYPE_REF_TYPE_IMPL, JVM_INIT_METHOD, INIT_TYPE_REF, false);
         mv.visitFieldInsn(Opcodes.PUTSTATIC, typeRefConstantClass, TYPE_VAR_NAME, GET_TYPE_REF_TYPE_IMPL);
         populateTypeRef(mv, typeRefType, typeRefConstantClass);
-        jvmCreateTypeGen.loadAnnotations(mv, typeRefType);
     }
 
     public void populateTypeRef(MethodVisitor mv, BTypeReferenceType referenceType, String typeRefConstantClass) {

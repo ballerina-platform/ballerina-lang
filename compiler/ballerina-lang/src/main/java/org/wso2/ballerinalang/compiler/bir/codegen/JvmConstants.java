@@ -289,6 +289,7 @@ public final class JvmConstants {
     public static final String MODULE_OBJECTS_CREATOR_CLASS_NAME = "creators/objects";
     public static final String MODULE_FUNCTION_CALLS_CLASS_NAME = "creators/function_calls";
     public static final String MODULE_ERRORS_CREATOR_CLASS_NAME = "creators/errors";
+    public static final String MODULE_ANNOTATIONS_CLASS_NAME = "annotations/annotations";
     public static final String MODULE_GENERATED_FUNCTIONS_CLASS_NAME = "functions/$generated";
     public static final String MODULE_LAMBDAS_CLASS_NAME = "lambdas/$";
     public static final String VALUE_CLASS_PREFIX = "values/$";

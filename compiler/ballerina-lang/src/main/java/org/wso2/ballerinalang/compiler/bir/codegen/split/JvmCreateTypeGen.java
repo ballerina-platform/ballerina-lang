@@ -91,8 +91,6 @@ import static org.objectweb.asm.Opcodes.RETURN;
 import static org.objectweb.asm.Opcodes.V21;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ADD_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ALL_TYPES_CLASS_NAME;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ANNOTATION_MAP_NAME;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ANNOTATION_UTILS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CLASS_FILE_SUFFIX;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.FIELD_IMPL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.GET_ANON_TYPE_METHOD;
@@ -116,11 +114,9 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.ANY_TO_J
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_FUNCTION_POINTER;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_FUNCTION_TYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_FUNCTION_TYPE_FOR_STRING;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_MAP_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_MODULE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INIT_FIELD_IMPL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.MAP_PUT;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.PROCESS_ANNOTATIONS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.SET_IMMUTABLE_TYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.SET_LINKED_HASH_MAP;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.VOID_METHOD_DESC;
@@ -152,7 +148,6 @@ public class JvmCreateTypeGen {
     private final TypeHashVisitor typeHashVisitor;
     public final TypeDefHashComparator typeDefHashComparator;
     private final String anonTypesClass;
-    private final String annotationVarClassName;
     private final String functionTypesClass;
     private final String allTypesVarClassName;
 
@@ -165,14 +160,13 @@ public class JvmCreateTypeGen {
         this.jvmErrorTypeGen = new JvmErrorTypeGen(this, jvmTypeGen, jvmConstantsGen);
         this.jvmUnionTypeGen = new JvmUnionTypeGen(this, jvmTypeGen, jvmConstantsGen);
         this.jvmTupleTypeGen = new JvmTupleTypeGen(this, jvmTypeGen, jvmConstantsGen);
-        this.jvmRefTypeGen = new JvmRefTypeGen(this, jvmTypeGen, jvmConstantsGen);
+        this.jvmRefTypeGen = new JvmRefTypeGen(jvmTypeGen, jvmConstantsGen);
         this.jvmArrayTypeGen = new JvmArrayTypeGen(jvmTypeGen);
         this.typeHashVisitor =  typeHashVisitor;
         this.typeDefHashComparator = new TypeDefHashComparator(typeHashVisitor);
         this.allTypesVarClassName =  getModuleLevelClassName(packageID, ALL_TYPES_CLASS_NAME);
         this.anonTypesClass = getModuleLevelClassName(packageID, MODULE_ANON_TYPES_CLASS_NAME);
         this.functionTypesClass = getModuleLevelClassName(packageID, MODULE_FUNCTION_TYPES_CLASS_NAME);
-        this.annotationVarClassName = getVarStoreClass(jvmConstantsGen.globalVarsPkgName , ANNOTATION_MAP_NAME);
     }
 
     public void createTypes(BIRNode.BIRPackage module, JarEntries jarEntries, JvmPackageGen jvmPackageGen) {
@@ -201,13 +195,6 @@ public class JvmCreateTypeGen {
                         jvmPackageGen.symbolTable);
                 default -> jvmUnionTypeGen.createUnionType(cw, mv, typeClass, varName, (BUnionType) bType,
                         jvmPackageGen.symbolTable);
-            }
-            if (!typeDef.isBuiltin || typeDef.referenceType == null || bTypeTag == TypeTags.RECORD) {
-                // Annotations for object constructors are populated at object init site.
-                boolean constructorsPopulated = Symbols.isFlagOn(bType.getFlags(), Flags.OBJECT_CTOR);
-                if (!constructorsPopulated) {
-                    loadAnnotations(mv, bType);
-                }
             }
             genMethodReturn(mv);
             cw.visitEnd();
@@ -325,16 +312,6 @@ public class JvmCreateTypeGen {
             i += 1;
         }
         return targetLabels;
-    }
-
-    // -------------------------------------------------------
-    //              Annotation processing related methods
-    // -------------------------------------------------------
-
-    public void loadAnnotations(MethodVisitor mv, BType type) {
-        mv.visitFieldInsn(GETSTATIC, this.annotationVarClassName, VALUE_VAR_NAME, GET_MAP_VALUE);
-        jvmTypeGen.loadType(mv, type);
-        mv.visitMethodInsn(INVOKESTATIC, ANNOTATION_UTILS, "processAnnotations", PROCESS_ANNOTATIONS, false);
     }
 
     // -------------------------------------------------------
