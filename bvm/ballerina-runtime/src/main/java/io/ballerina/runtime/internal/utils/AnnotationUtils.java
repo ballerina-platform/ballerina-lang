@@ -52,6 +52,9 @@ public final class AnnotationUtils {
      * @param bType          The type for which annotations need to be set
      */
     public static void processAnnotations(MapValue<BString, Object> globalAnnotMap, Type bType) {
+        if (globalAnnotMap == null) {
+            return;
+        }
         if (!(bType instanceof BAnnotatableType type)) {
             return;
         }
