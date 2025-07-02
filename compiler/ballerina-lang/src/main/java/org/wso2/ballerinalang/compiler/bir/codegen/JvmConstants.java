@@ -444,7 +444,7 @@ public final class JvmConstants {
     public static final int MAX_MEMBERS_PER_METHOD = 100;
     public static final int MAX_TYPES_PER_METHOD = 100;
     public static final int MAX_FIELDS_PER_SPLIT_METHOD = 500;
-    public static final int MAX_FUNCTION_TYPE_FIELDS_PER_SPLIT_METHOD = 140;
+    public static final int MAX_FUNCTION_TYPE_FIELDS_PER_SPLIT_METHOD = 130;
     public static final int MAX_MODULES_PER_METHOD = 100;
     public static final int MAX_CALLS_PER_CLIENT_METHOD = 100;
     public static final int MAX_CONSTANTS_PER_METHOD = 100;
