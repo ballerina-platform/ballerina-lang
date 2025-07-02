@@ -721,11 +721,6 @@ public abstract class BIRNode {
         public Name name;
 
         /**
-         * Original name of the constant.
-         */
-        public Name originalName;
-
-        /**
          * Value for the Flags.
          */
         public long flags;
@@ -750,11 +745,10 @@ public abstract class BIRNode {
          */
         public List<BIRAnnotationAttachment> annotAttachments;
 
-        public BIRConstant(Location pos, Name name, Name originalName, long flags,
-                           BType type, ConstValue constValue, SymbolOrigin origin) {
+        public BIRConstant(Location pos, Name name, long flags, BType type, ConstValue constValue,
+                           SymbolOrigin origin) {
             super(pos);
             this.name = name;
-            this.originalName = originalName;
             this.flags = flags;
             this.type = type;
             this.constValue = constValue;

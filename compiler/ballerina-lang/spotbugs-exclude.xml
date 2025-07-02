@@ -30,6 +30,9 @@
         <Package name="org.wso2.ballerinalang.compiler.bir.codegen" />
     </Match>
     <Match>
+        <Package name="org.wso2.ballerinalang.compiler.bir.codegen.desugar" />
+    </Match>
+    <Match>
         <Package name="org.wso2.ballerinalang.compiler.bir.codegen.interop" />
     </Match>
     <Match>
@@ -52,6 +55,9 @@
     </Match>
     <Match>
         <Package name="org.wso2.ballerinalang.compiler.bir.codegen.split.values" />
+    </Match>
+    <Match>
+        <Package name="org.wso2.ballerinalang.compiler.bir.codegen.utils" />
     </Match>
     <Match>
         <Package name="org.wso2.ballerinalang.compiler.bir.emit" />
