@@ -89,4 +89,32 @@ public final class Context {
             return (FunctionAtomicType) ((TypeAtom) atom).atomicType();
         }
     }
+
+    TypeAtomWithTemperature typeAtomWithTemperature(TypeAtomKind kind, Atom atom) {
+        assert atom != null : "Atom cannot be null";
+        return switch (kind) {
+            case LIST_ATOM -> listAtomType(atom);
+            case MAPPING_ATOM -> mappingAtomType(atom);
+        };
+    }
+
+    void heatUp(TypeAtomKind kind, Atom atom) {
+        TypeAtomWithTemperature typeAtom = typeAtomWithTemperature(kind, atom);
+        typeAtom.heatUp();
+    }
+
+    void coolDown(TypeAtomKind kind, Atom atom) {
+        TypeAtomWithTemperature typeAtom = typeAtomWithTemperature(kind, atom);
+        typeAtom.coolDown();
+    }
+
+    int temperature(TypeAtomKind kind, Atom atom) {
+        TypeAtomWithTemperature typeAtom = typeAtomWithTemperature(kind, atom);
+        return typeAtom.temperature();
+    }
+
+    public enum TypeAtomKind {
+        LIST_ATOM,
+        MAPPING_ATOM,
+    }
 }

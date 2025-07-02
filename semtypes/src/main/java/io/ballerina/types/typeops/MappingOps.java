@@ -60,19 +60,19 @@ public class MappingOps extends CommonOps implements BasicTypeOps {
             combined = MAPPING_ATOMIC_INNER;
         } else {
             // combine all the positive atoms using intersection
-            combined = cx.mappingAtomType(posList.atom);
-            Conjunction p = posList.next;
+            combined = cx.mappingAtomType(posList.atom());
+            Conjunction p = posList.next();
             while (true) {
                 if (p == null) {
                     break;
                 } else {
-                    MappingAtomicType m = intersectMapping(cx.env, combined, cx.mappingAtomType(p.atom));
+                    MappingAtomicType m = intersectMapping(cx.env, combined, cx.mappingAtomType(p.atom()));
                     if (m == null) {
                         return true;
                     } else {
                         combined = m;
                     }
-                    p = p.next;
+                    p = p.next();
                 }
             }
             for (SemType t : combined.types()) {
@@ -82,18 +82,19 @@ public class MappingOps extends CommonOps implements BasicTypeOps {
             }
 
         }
-        return !mappingInhabited(cx, combined, negList);
+        Conjunction reOrderedNeg = Conjunction.reorderByTemperature(cx, Context.TypeAtomKind.MAPPING_ATOM, negList);
+        return !mappingInhabited(cx, combined, reOrderedNeg);
     }
 
     private static boolean mappingInhabited(Context cx, MappingAtomicType pos, Conjunction negList) {
         if (negList == null) {
             return true;
         } else {
-            MappingAtomicType neg = cx.mappingAtomType(negList.atom);
+            MappingAtomicType neg = cx.mappingAtomType(negList.atom());
 
             FieldPairs pairing = new FieldPairs(pos, neg);
             if (!Core.isEmpty(cx, Core.diff(pos.rest(), neg.rest()))) {
-                return mappingInhabited(cx, pos, negList.next);
+                return mappingInhabited(cx, pos, negList.next());
             }
             for (FieldPair fieldPair : pairing) {
                 SemType intersect = Core.intersect(fieldPair.type1(), fieldPair.type2());
@@ -102,11 +103,12 @@ public class MappingOps extends CommonOps implements BasicTypeOps {
                 // i.e. if we have isEmpty(T1 & S1) or isEmpty(T2 & S2) then,
                 // record { T1 f1; T2 f2; } / record { S1 f1; S2 f2; } = record { T1 f1; T2 f2; }
                 if (Core.isEmpty(cx, intersect)) {
-                    return mappingInhabited(cx, pos, negList.next);
+                    return mappingInhabited(cx, pos, negList.next());
                 }
 
                 CellSemType d = (CellSemType) Core.diff(fieldPair.type1(), fieldPair.type2());
                 if (!Core.isEmpty(cx, d)) {
+                    neg.coolDown();
                     MappingAtomicType mt;
                     if (fieldPair.index1() == null) {
                         // the posType came from the rest type
@@ -116,9 +118,11 @@ public class MappingOps extends CommonOps implements BasicTypeOps {
                         posTypes[fieldPair.index1()] = d;
                         mt = MappingAtomicType.from(pos.names(), posTypes, pos.rest());
                     }
-                    if (mappingInhabited(cx, mt, negList.next)) {
+                    if (mappingInhabited(cx, mt, negList.next())) {
                         return true;
                     }
+                } else {
+                    neg.heatUp();
                 }
             }
             return false;

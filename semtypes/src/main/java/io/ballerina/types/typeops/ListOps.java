@@ -40,6 +40,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 import static io.ballerina.types.Common.bddSubtypeComplement;
 import static io.ballerina.types.Common.bddSubtypeDiff;
@@ -79,10 +80,10 @@ public class ListOps extends CommonOps implements BasicTypeOps {
             rest = atom.rest();
         } else {
             // combine all the positive tuples using intersection
-            ListAtomicType lt = cx.listAtomType(pos.atom);
+            ListAtomicType lt = cx.listAtomType(pos.atom());
             members = lt.members();
             rest = lt.rest();
-            Conjunction p = pos.next;
+            Conjunction p = pos.next();
             // the neg case is in case we grow the array in listInhabited
             if (p != null || neg != null) {
                 // Jbal note: we don't need this as we already created copies when converting from array to list.
@@ -93,8 +94,8 @@ public class ListOps extends CommonOps implements BasicTypeOps {
                 if (p == null) {
                     break;
                 } else {
-                    Atom d = p.atom;
-                    p = p.next;
+                    Atom d = p.atom();
+                    p = p.next();
                     lt = cx.listAtomType(d);
                     TwoTuple<FixedLengthArray, CellSemType>
                             intersected = listIntersectWith(cx.env, members, rest, lt.members(), lt.rest());
@@ -110,23 +111,37 @@ public class ListOps extends CommonOps implements BasicTypeOps {
             }
         }
         List<Integer> indices = listSamples(cx, members, rest, neg);
-        TwoTuple<List<CellSemType>, Integer> sampleTypes = listSampleTypes(cx, members, rest, indices);
-        return !listInhabited(cx, indices.toArray(new Integer[0]),
-                sampleTypes.item1.toArray(SemType[]::new),
-                sampleTypes.item2, neg);
+        TwoTuple<List<ListMember<CellSemType>>, Integer> sampleTypes = listSampleTypesInner(cx, members, rest, indices);
+        Integer[] indicesArray = indices.toArray(new Integer[0]);
+        ListMember[] memberTypesArray = sampleTypes.item1.toArray(ListMember[]::new);
+        if (listFormulaEmptyApproximation(cx, indicesArray, memberTypesArray, sampleTypes.item2, neg)) {
+            return true;
+        }
+        Conjunction reOrderedNeg = Conjunction.reorderByTemperature(cx, Context.TypeAtomKind.LIST_ATOM, neg);
+        return !listInhabited(cx, indicesArray, memberTypesArray, sampleTypes.item2, reOrderedNeg);
     }
 
     public static TwoTuple<List<CellSemType>, Integer> listSampleTypes(Context cx, FixedLengthArray members,
                                                                        CellSemType rest, List<Integer> indices) {
-        List<CellSemType> memberTypes = new ArrayList<>();
+        TwoTuple<List<ListMember<CellSemType>>, Integer> samples = listSampleTypesInner(cx, members, rest, indices);
+        List<CellSemType> sampleTypes = samples.item1.stream().map(ListMember::semType).toList();
+        return TwoTuple.from(sampleTypes, samples.item2);
+    }
+
+    static TwoTuple<List<ListMember<CellSemType>>, Integer> listSampleTypesInner(Context cx,
+                                                                                 FixedLengthArray members,
+                                                                                 CellSemType rest,
+                                                                                 List<Integer> indices) {
+        List<ListMember<CellSemType>> memberTypes = new ArrayList<>();
         int nRequired = 0;
         for (int i = 0; i < indices.size(); i++) {
             int index = indices.get(i);
-            CellSemType t = cellContainingInnerVal(cx.env, listMemberAt(members, rest, index));
+            ListMember<CellSemType> member = listMemberAtInner(members, rest, index);
+            CellSemType t = cellContainingInnerVal(cx.env, member.semType);
             if (Core.isEmpty(cx, t)) {
                 break;
             }
-            memberTypes.add(t);
+            memberTypes.add(new ListMember<>(t, member.isRest));
             if (index < members.fixedLength()) {
                 nRequired = i + 1;
             }
@@ -152,14 +167,14 @@ public class ListOps extends CommonOps implements BasicTypeOps {
         int nNeg = 0;
         while (true) {
             if (tem != null) {
-                ListAtomicType lt = cx.listAtomType(tem.atom);
+                ListAtomicType lt = cx.listAtomType(tem.atom());
                 FixedLengthArray m = lt.members();
                 maxInitialLength = Integer.max(maxInitialLength, m.initial().size());
                 if (m.fixedLength() > maxInitialLength) {
                     fixedLengths.add(m.fixedLength());
                 }
                 nNeg += 1;
-                tem = tem.next;
+                tem = tem.next();
             } else {
                 break;
             }
@@ -230,6 +245,35 @@ public class ListOps extends CommonOps implements BasicTypeOps {
         return FixedLengthArray.from(array.initial(), array.fixedLength());
     }
 
+    record ListMember<E extends SemType>(E semType, boolean isRest) {
+
+    }
+
+    static boolean listFormulaEmptyApproximation(Context cx, Integer[] indices, ListMember<SemType>[] memberTypes,
+                                                 int nRequired, Conjunction neg) {
+        if (neg == null) {
+            return false;
+        }
+        final ListAtomicType nt = cx.listAtomType(neg.atom());
+        int negLen = nt.members().fixedLength();
+        if (negLen > 0) { // Negative is tuple
+            int len = memberTypes.length;
+            if (len < indices.length && indices[len] < negLen) { // Negative is too large skip
+                return listFormulaEmptyApproximation(cx, indices, memberTypes, nRequired, neg.next());
+            } else if (!(len < indices.length && indices[len] > negLen)) { // Positive "may be" too large
+                // TODO: think about how to make sure positive is too large not may be
+                return listFormulaEmptyApproximation(cx, indices, memberTypes, nRequired, neg.next());
+            }
+        }
+        for (int i = 0; i < memberTypes.length; i++) {
+            if (!Core.isSubtype(cx, memberTypes[i].semType, listMemberAt(nt.members(), nt.rest(), indices[i]))) {
+                return listFormulaEmptyApproximation(cx, indices, memberTypes, nRequired, neg.next());
+            }
+        }
+        assert !listInhabited(cx, indices, memberTypes, nRequired, neg) : "invalid approximation";
+        return true;
+    }
+
     // This function determines whether a list type P & N is inhabited.
     // where P is a positive list type and N is a list of negative list types.
     // With just straightforward fixed-length tuples we can consider every index of the tuple.
@@ -241,7 +285,8 @@ public class ListOps extends CommonOps implements BasicTypeOps {
     // `memberTypes[i]` is the type that P gives to `indices[i]`;
     // `nRequired` is the number of members of `memberTypes` that are required by P.
     // `neg` represents N.
-    static boolean listInhabited(Context cx, Integer[] indices, SemType[] memberTypes, int nRequired, Conjunction neg) {
+    static boolean listInhabited(Context cx, Integer[] indices, ListMember<SemType>[] memberTypes, int nRequired,
+                                 Conjunction neg) {
         // TODO: Way `listInhabited` method works is essentially removing negative atoms one by one until either we
         //  run-out of negative atoms or there is nothing left in the positive (intersection) atom. While correctness
         //  of this method is independent of the order of negative atoms, the performance of this method is dependent
@@ -253,38 +298,28 @@ public class ListOps extends CommonOps implements BasicTypeOps {
         if (neg == null) {
             return true;
         } else {
-            final ListAtomicType nt = cx.listAtomType(neg.atom);
+            final ListAtomicType nt = cx.listAtomType(neg.atom());
             if (nRequired > 0 && Core.isNever(listMemberAtInnerVal(nt.members(), nt.rest(), indices[nRequired - 1]))) {
                 // Skip this negative if it is always shorter than the minimum required by the positive
-                return listInhabited(cx, indices, memberTypes, nRequired, neg.next);
+                return listInhabited(cx, indices, memberTypes, nRequired, neg.next());
+            }
+            if (pruningCandidates(indices, memberTypes, nt).anyMatch(each -> Core.isEmpty(cx, each))) {
+                return listInhabited(cx, indices, memberTypes, nRequired, neg.next());
             }
             int negLen = nt.members().fixedLength();
             if (negLen > 0) {
-                // If we have isEmpty(T1 & S1) or isEmpty(T2 & S2) then we have [T1, T2] / [S1, S2] = [T1, T2].
-                // Therefore, we can skip the negative
-                for (int i = 0; i < memberTypes.length; i++) {
-                    int index = indices[i];
-                    if (index >= negLen) {
-                        break;
-                    }
-                    SemType negMemberType = listMemberAt(nt.members(), nt.rest(), index);
-                    SemType common = Core.intersect(memberTypes[i], negMemberType);
-                    if (Core.isEmpty(cx, common)) {
-                        return listInhabited(cx, indices, memberTypes, nRequired, neg.next);
-                    }
-                }
                 // Consider cases we can avoid this negative by having a sufficiently short list
                 int len = memberTypes.length;
                 if (len < indices.length && indices[len] < negLen) {
-                    return listInhabited(cx, indices, memberTypes, nRequired, neg.next);
+                    return listInhabited(cx, indices, memberTypes, nRequired, neg.next());
                 }
                 for (int i = nRequired; i < memberTypes.length; i++) {
                     if (indices[i] >= negLen) {
                         break;
                     }
                     // TODO: avoid creating new arrays here
-                    SemType[] t = Arrays.copyOfRange(memberTypes, 0, i);
-                    if (listInhabited(cx, indices, t, nRequired, neg.next)) {
+                    ListMember<SemType>[] t = Arrays.copyOfRange(memberTypes, 0, i);
+                    if (listInhabited(cx, indices, t, nRequired, neg.next())) {
                         return true;
                     }
                 }
@@ -310,20 +345,39 @@ public class ListOps extends CommonOps implements BasicTypeOps {
             // return !isEmpty(cx, d1) &&  tupleInhabited(cx, [s[0], d1], neg.rest);
             // We can generalize this to tuples of arbitrary length.
             for (int i = 0; i < memberTypes.length; i++) {
-                SemType d = Core.diff(memberTypes[i], listMemberAt(nt.members(), nt.rest(), indices[i]));
+                SemType d = Core.diff(memberTypes[i].semType, listMemberAt(nt.members(), nt.rest(), indices[i]));
                 if (!Core.isEmpty(cx, d)) {
-                    SemType[] t = memberTypes.clone();
-                    t[i] = d;
+                    nt.coolDown();
+                    ListMember<SemType>[] t = memberTypes.clone();
+                    t[i] = new ListMember<>(d, memberTypes[i].isRest);
                     // We need to make index i be required
-                    if (listInhabited(cx, indices, t, Integer.max(nRequired, i + 1), neg.next)) {
+                    if (listInhabited(cx, indices, t, Integer.max(nRequired, i + 1), neg.next())) {
                         return true;
                     }
+                } else {
+                    nt.heatUp();
                 }
             }
             // This is correct for length 0, because we know that the length of the
             // negative is 0, and [] - [] is empty.
             return false;
         }
+    }
+
+    // If we have isEmpty(T1 & S1) or isEmpty(T2 & S2) then we have [T1, T2] / [S1, S2] = [T1, T2].
+    // Therefore, we can skip the negative. More generally, if we have a member type t that is not the rest in either
+    // the positive or the negative and the intersection with the corresponding member of the other atom is empty
+    // we can skip the negative atom.
+    static Stream<SemType> pruningCandidates(Integer[] indices, ListMember<SemType>[] listMembers,
+                                             ListAtomicType negAtom) {
+        record Data(ListMember<SemType> pos, ListMember<CellSemType> neg) {
+
+        }
+        return IntStream.range(0, listMembers.length)
+                .mapToObj(
+                        i -> new Data(listMembers[i], listMemberAtInner(negAtom.members(), negAtom.rest(), indices[i])))
+                .filter(each -> !each.pos().isRest() || !each.neg().isRest())
+                .map(each -> Core.intersect(each.pos.semType, each.neg.semType));
     }
 
     static SemType listMemberAtInnerVal(FixedLengthArray fixedArray, CellSemType rest, int index) {
@@ -344,10 +398,14 @@ public class ListOps extends CommonOps implements BasicTypeOps {
     }
 
     static CellSemType listMemberAt(FixedLengthArray fixedArray, CellSemType rest, int index) {
+        return listMemberAtInner(fixedArray, rest, index).semType;
+    }
+
+    static ListMember<CellSemType> listMemberAtInner(FixedLengthArray fixedArray, CellSemType rest, int index) {
         if (index < fixedArray.fixedLength()) {
-            return fixedArrayGet(fixedArray, index);
+            return new ListMember<>(fixedArrayGet(fixedArray, index), false);
         }
-        return rest;
+        return new ListMember<>(rest, true);
     }
 
     static boolean fixedArrayAnyEmpty(Context cx, FixedLengthArray array) {

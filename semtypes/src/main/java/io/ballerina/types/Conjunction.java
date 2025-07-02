@@ -17,21 +17,70 @@
  */
 package io.ballerina.types;
 
+import java.util.ArrayList;
+import java.util.Comparator;
+
 /**
  * Represents the Conjunction record type.
  *
  * @since 2201.12.0
  */
 public class Conjunction {
-    public Atom atom;
-    public Conjunction next;
+
+    private final Atom atom;
+    private Conjunction next;
 
     private Conjunction(Atom atom, Conjunction next) {
         this.atom = atom;
-        this.next = next;
+        this.next(next);
     }
 
     public static Conjunction and(Atom atom, Conjunction next) {
         return new Conjunction(atom, next);
+    }
+
+    /**
+     * Reorders the conjunction linked list based on atom temperature. Hotter atoms (higher temperature values) will
+     * come first.
+     *
+     * @param cx          the context
+     * @param conjunction the conjunction to reorder
+     * @return the head of the reordered linked list
+     */
+    public static Conjunction reorderByTemperature(Context cx, Context.TypeAtomKind kind, Conjunction conjunction) {
+        if (conjunction == null) {
+            return null;
+        }
+        ArrayList<Atom> atoms = new ArrayList<>();
+
+        Conjunction current = conjunction;
+        while (current != null) {
+            atoms.add(current.atom());
+            current = current.next();
+        }
+
+        atoms.sort(Comparator.comparingInt((Atom atom) -> atom.temperature(cx, kind)).reversed());
+
+        Conjunction head = new Conjunction(atoms.get(0), null);
+        Conjunction tail = head;
+
+        for (int i = 1; i < atoms.size(); i++) {
+            tail.next(new Conjunction(atoms.get(i), null));
+            tail = tail.next();
+        }
+
+        return head;
+    }
+
+    public Atom atom() {
+        return atom;
+    }
+
+    public Conjunction next() {
+        return next;
+    }
+
+    public void next(Conjunction next) {
+        this.next = next;
     }
 }
