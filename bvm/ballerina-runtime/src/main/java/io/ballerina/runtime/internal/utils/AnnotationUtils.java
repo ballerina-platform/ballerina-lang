@@ -52,18 +52,13 @@ public final class AnnotationUtils {
      * @param bType          The type for which annotations need to be set
      */
     public static void processAnnotations(MapValue<BString, Object> globalAnnotMap, Type bType) {
-        if (globalAnnotMap == null) {
-            return;
-        }
         if (!(bType instanceof BAnnotatableType type)) {
             return;
         }
-
         BString annotationKey = StringUtils.fromString(type.getAnnotationKey());
         if (globalAnnotMap.containsKey(annotationKey)) {
             type.setAnnotations((MapValue<BString, Object>) globalAnnotMap.get(annotationKey));
         }
-
         if (type.getTag() == TypeTags.TYPE_REFERENCED_TYPE_TAG) {
             Type impliedType = TypeUtils.getImpliedType(type);
             if (isNonObjectType(impliedType.getTag())) {
