@@ -19,6 +19,7 @@
 package org.wso2.ballerinalang.compiler.bir.codegen.internal;
 
 import org.wso2.ballerinalang.compiler.bir.model.BIRInstruction;
+import org.wso2.ballerinalang.compiler.bir.model.BIRTerminator;
 
 import java.util.HashMap;
 import java.util.List;
@@ -29,15 +30,27 @@ public class LazyLoadingGlobalVarCollector {
     // Map use to store global var name vs instructions
     private final Map<String, List<BIRInstruction>> lazyLoadingInsMap;
 
+    // Map use to store global var name vs call terminator
+    private final Map<String, BIRTerminator.Call> lazyLoadingCallMap;
+
     public LazyLoadingGlobalVarCollector() {
         this.lazyLoadingInsMap = new HashMap<>();
+        this.lazyLoadingCallMap = new HashMap<>();
     }
 
     public void add(String varName, List<BIRInstruction> instructions) {
         lazyLoadingInsMap.put(varName, instructions);
     }
 
+    public void add(String varName, BIRTerminator.Call call) {
+        lazyLoadingCallMap.put(varName, call);
+    }
+
     public Map<String, List<BIRInstruction>> getLazyLoadingMap() {
         return lazyLoadingInsMap;
+    }
+
+    public Map<String, BIRTerminator.Call> getLazyLoadingCallMap() {
+        return lazyLoadingCallMap;
     }
 }

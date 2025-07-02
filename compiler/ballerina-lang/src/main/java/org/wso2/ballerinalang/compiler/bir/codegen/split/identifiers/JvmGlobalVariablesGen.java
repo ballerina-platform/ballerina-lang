@@ -18,21 +18,26 @@
 
 package org.wso2.ballerinalang.compiler.bir.codegen.split.identifiers;
 
+import org.ballerinalang.model.elements.PackageID;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.MethodVisitor;
 import org.wso2.ballerinalang.compiler.bir.codegen.BallerinaClassWriter;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmCastGen;
+import org.wso2.ballerinalang.compiler.bir.codegen.JvmErrorGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmInstructionGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen;
+import org.wso2.ballerinalang.compiler.bir.codegen.JvmTerminatorGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmTypeGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.AsyncDataCollector;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.BIRVarToJVMIndexMap;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.JarEntries;
+import org.wso2.ballerinalang.compiler.bir.codegen.internal.LabelGenerator;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.LazyLoadingGlobalVarCollector;
 import org.wso2.ballerinalang.compiler.bir.codegen.split.JvmConstantsGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.utils.JvmCodeGenUtil;
 import org.wso2.ballerinalang.compiler.bir.model.BIRInstruction;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
+import org.wso2.ballerinalang.compiler.bir.model.BIRTerminator;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 
@@ -44,6 +49,8 @@ import static org.objectweb.asm.ClassWriter.COMPUTE_FRAMES;
 import static org.objectweb.asm.Opcodes.ACC_PUBLIC;
 import static org.objectweb.asm.Opcodes.ACC_STATIC;
 import static org.objectweb.asm.Opcodes.ACC_SUPER;
+import static org.objectweb.asm.Opcodes.ACONST_NULL;
+import static org.objectweb.asm.Opcodes.ASTORE;
 import static org.objectweb.asm.Opcodes.V21;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CLASS_FILE_SUFFIX;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.GLOBAL_VARIABLES_PACKAGE_NAME;
@@ -89,6 +96,7 @@ public class JvmGlobalVariablesGen {
             return;
         }
         Map<String, List<BIRInstruction>> lazyLoadingMap = lazyLoadingGlobalVarCollector.getLazyLoadingMap();
+        Map<String, BIRTerminator.Call> lazyLoadingCallMap = lazyLoadingGlobalVarCollector.getLazyLoadingCallMap();
         Collection<BIRNode.BIRGlobalVariableDcl> globalVariableDcls = module.globalVars;
         ClassWriter allGlobalVarsCW = new BallerinaClassWriter(COMPUTE_FRAMES);
         allGlobalVarsCW.visit(V21, ACC_PUBLIC | ACC_SUPER, jvmConstantsGen.allGlobalVarsClassName, null, OBJECT, null);
@@ -106,15 +114,28 @@ public class JvmGlobalVariablesGen {
             genLazyLoadingClass(cw, globalVarClassName, descriptor);
             addField(allGlobalVarsCW, varName);
             List<BIRInstruction> instructions = lazyLoadingMap.get(varName);
-            if (instructions != null) {
+            BIRTerminator.Call call = lazyLoadingCallMap.get(varName);
+            if (instructions != null || call != null) {
                 // Initialize global value
                 MethodVisitor mv = cw.visitMethod(ACC_STATIC, JVM_STATIC_INIT_METHOD, VOID_METHOD_DESC, null, null);
                 mv.visitCode();
                 BIRVarToJVMIndexMap indexMap = new BIRVarToJVMIndexMap();
                 JvmInstructionGen instructionGen = new JvmInstructionGen(mv, indexMap, this.module.packageID,
                         jvmPackageGen, jvmTypeGen, jvmCastGen, jvmConstantsGen, asyncDataCollector, types);
-                for (BIRInstruction instruction : instructions) {
-                    instructionGen.generateInstructions(0, instruction);
+                if (instructions != null) {
+                    for (BIRInstruction instruction : instructions) {
+                        instructionGen.generateInstructions(0, instruction);
+                    }
+                } else {
+                    JvmErrorGen errorGen = new JvmErrorGen(mv, indexMap, instructionGen);
+                    LabelGenerator labelGen = new LabelGenerator();
+                    PackageID packageID = module.packageID;
+                    JvmTerminatorGen termGen = new JvmTerminatorGen(mv, indexMap, labelGen, errorGen, packageID,
+                            instructionGen, jvmPackageGen, jvmTypeGen, jvmCastGen, asyncDataCollector);
+                    mv.visitInsn(ACONST_NULL);
+                    mv.visitVarInsn(ASTORE, 1);
+                    termGen.genCall(call, call.calleePkg, 1);
+                    termGen.storeReturnFromCallIns(call.lhsOp != null ? call.lhsOp.variableDcl : null);
                 }
                 genMethodReturn(mv);
             }

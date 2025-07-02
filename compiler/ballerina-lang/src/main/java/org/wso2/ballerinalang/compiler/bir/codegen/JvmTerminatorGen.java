@@ -313,7 +313,7 @@ public class JvmTerminatorGen {
         this.mv.visitJumpInsn(GOTO, falseBBLabel);
     }
 
-    private void genCall(BIRTerminator.Call callIns, PackageID packageID, int localVarOffset) {
+    public void genCall(BIRTerminator.Call callIns, PackageID packageID, int localVarOffset) {
 
         if (!callIns.isVirtual) {
             this.genFuncCall(callIns, packageID, localVarOffset);
@@ -542,7 +542,7 @@ public class JvmTerminatorGen {
         }
     }
 
-    private void storeReturnFromCallIns(BIRNode.BIRVariableDcl lhsOpVarDcl) {
+    public void storeReturnFromCallIns(BIRNode.BIRVariableDcl lhsOpVarDcl) {
         if (lhsOpVarDcl != null) {
             this.storeToVar(lhsOpVarDcl);
         } else {

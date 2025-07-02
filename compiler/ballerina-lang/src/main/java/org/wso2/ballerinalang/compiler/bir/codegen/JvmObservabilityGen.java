@@ -863,7 +863,7 @@ class JvmObservabilityGen {
     private BIROperand generateGlobalConstantOperand(BIRPackage pkg, BType constantType, Object constantValue) {
         PackageID pkgId = pkg.packageID;
         Name name = new Name("$observabilityConst" + constantIndex++);
-        BIRNode.BIRConstant birConstant = new BIRNode.BIRConstant(COMPILE_TIME_CONST_POS, name, name, 0, constantType,
+        BIRNode.BIRConstant birConstant = new BIRNode.BIRConstant(COMPILE_TIME_CONST_POS, name, 0, constantType,
                 new BIRNode.ConstValue(constantValue, constantType), VIRTUAL);
         BIRGlobalVariableDcl constLoadVariableDcl = new BIRGlobalVariableDcl(COMPILE_TIME_CONST_POS, 0, constantType,
                 pkgId, name, name, VarScope.GLOBAL, VarKind.CONSTANT, "", VIRTUAL);

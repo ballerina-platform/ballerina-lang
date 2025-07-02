@@ -18,14 +18,16 @@
 
 package org.wso2.ballerinalang.compiler.bir.codegen.desugar;
 
-import org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.LazyLoadingGlobalVarCollector;
+import org.wso2.ballerinalang.compiler.bir.codegen.optimizer.LargeMethodOptimizer;
 import org.wso2.ballerinalang.compiler.bir.model.BIRInstruction;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator;
 import org.wso2.ballerinalang.compiler.bir.model.BIROperand;
+import org.wso2.ballerinalang.compiler.bir.model.BIRTerminator;
 import org.wso2.ballerinalang.compiler.bir.model.InstructionKind;
 import org.wso2.ballerinalang.compiler.bir.model.VarKind;
+import org.wso2.ballerinalang.compiler.util.Names;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -43,7 +45,7 @@ public class LazyLoadingDesugar {
 
     public void lazyLoadInitFunctionsGlobalVars(List<BIRNode.BIRFunction> functions) {
         for (BIRNode.BIRFunction function : functions) {
-            if (function.originalName.value.contains(JvmConstants.INIT_FUNCTION_SUFFIX)) {
+            if (function.originalName.value.contains(Names.INIT_FUNCTION_SUFFIX.value)) {
                 lazyLoadInitFunctionsGlobalVars(function);
                 function.basicBlocks = newBBs;
                 newBBs = new ArrayList<>();
@@ -55,15 +57,26 @@ public class LazyLoadingDesugar {
         for (BIRNode.BIRBasicBlock basicBlock : function.basicBlocks) {
             List<BIRNonTerminator> instructions = basicBlock.instructions;
             currentBB = new BIRNode.BIRBasicBlock(basicBlock.id, basicBlock.number);
-            currentBB.terminator = basicBlock.terminator;
+            BIRTerminator terminator = basicBlock.terminator;
+            if (instructions.isEmpty() && terminator != null && terminator.kind == InstructionKind.CALL) {
+                BIRTerminator.Call call = (BIRTerminator.Call) terminator;
+                if (call.lhsOp != null) {
+                    BIRNode.BIRVariableDcl variableDcl = call.lhsOp.variableDcl;
+                    if (variableDcl.kind == VarKind.GLOBAL &&
+                            call.name.value.contains(LargeMethodOptimizer.SPLIT_METHOD)) {
+                        lazyLoadingGlobalVarCollector.add(variableDcl.name.value, call);
+                        continue;
+                    }
+                }
+            }
+            currentBB.terminator = terminator;
             newBBs.add(currentBB);
             for (int i = 0; i < instructions.size(); i++) {
                 BIRNonTerminator instruction = instructions.get(i);
                 switch (instruction.kind) {
                     case CONST_LOAD -> lazyLoadConstantLoad((BIRNonTerminator.ConstantLoad) instruction);
                     case FP_LOAD -> i = lazyLoadFpLoad((BIRNonTerminator.FPLoad) instruction, instructions, i);
-                    case NEW_TYPEDESC -> i = lazyLoadNewTypeDesc((BIRNonTerminator.NewTypeDesc) instruction,
-                            i);
+                    case NEW_TYPEDESC -> i = lazyLoadNewTypeDesc((BIRNonTerminator.NewTypeDesc) instruction, i);
                     case NEW_STRUCTURE -> lazyLoadNewStructure((BIRNonTerminator.NewStructure) instruction);
                     case NEW_ARRAY-> lazyLoadNewArray((BIRNonTerminator.NewArray) instruction);
                     case TYPE_CAST-> lazyLoadTypeCast((BIRNonTerminator.TypeCast) instruction);

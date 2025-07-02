@@ -549,7 +549,7 @@ public class BIRGen extends BLangNodeVisitor {
         ConstValue constantValue = getBIRConstantVal(constantSymbol.value);
 
         // Create a new constant info object.
-        BIRConstant birConstant = new BIRConstant(astConstant.pos, constName, constOriginalName, constantSymbol.flags,
+        BIRConstant birConstant = new BIRConstant(astConstant.pos, constName, constantSymbol.flags,
                                                   type, constantValue, constantSymbol.origin.toBIROrigin());
         birConstant.constValue = constantValue;
 
