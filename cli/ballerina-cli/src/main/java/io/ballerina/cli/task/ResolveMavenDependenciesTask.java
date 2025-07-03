@@ -104,7 +104,7 @@ public class ResolveMavenDependenciesTask implements Task {
         }
 
         if (!mavenDependencies.isEmpty()) {
-            out.println("Resolving Maven dependencies" + (skipTask ? "(skipped)\n" :
+            out.println("Resolving Maven dependencies" + (skipTask ? " (UP-TO-DATE)\n" :
                     "\n\tDownloading dependencies into " + targetRepo));
             if (skipTask) {
                 return;

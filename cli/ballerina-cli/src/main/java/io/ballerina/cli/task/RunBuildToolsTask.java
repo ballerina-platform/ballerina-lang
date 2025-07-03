@@ -102,7 +102,7 @@ public class RunBuildToolsTask implements Task {
         if (toolEntries.isEmpty()) {
             return;
         }
-        this.outStream.println("\nExecuting Build Tools" + (skipTask ? "(skipped)" : ""));
+        this.outStream.println("\nExecuting Build Tools" + (skipTask ? " (UP-TO-DATE)" : ""));
         if (skipTask) {
             return;
         }

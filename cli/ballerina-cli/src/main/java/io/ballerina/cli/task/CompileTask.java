@@ -109,10 +109,7 @@ public class CompileTask implements Task {
         if (ProjectUtils.isProjectEmpty(project) && skipCompilationForBalPack(project)) {
             throw createLauncherException("package is empty. Please add at least one .bal file.");
         }
-        this.out.println("Compiling source" + (skipTask ? "(skipped)" : ""));
-        if (skipTask) {
-            return;
-        }
+        this.out.println("Compiling source" + (skipTask ? " (UP-TO-DATE)" : ""));
 
         String sourceName;
         if (project instanceof SingleFileProject) {
@@ -125,7 +122,9 @@ public class CompileTask implements Task {
         }
         // Print the source
         this.out.println("\t" + sourceName);
-
+        if (skipTask) {
+            return;
+        }
         System.setProperty(CentralClientConstants.ENABLE_OUTPUT_STREAM, "true");
 
         try {

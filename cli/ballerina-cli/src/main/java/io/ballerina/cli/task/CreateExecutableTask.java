@@ -78,19 +78,19 @@ public class CreateExecutableTask implements Task {
 
     @Override
     public void execute(Project project) {
+        if (target == null) {
+            target = getTarget(project);
+        }
+        this.currentDir = Path.of(System.getProperty(USER_DIR));
         if (!isHideTaskOutput) {
             this.out.println();
             if (!project.buildOptions().nativeImage()) {
-                this.out.println("Generating executable" + (skipTask ? "(skipped)" : ""));
+                this.out.println("Generating executable" + (skipTask ? " (UP-TO-DATE)\n\t" +
+                        currentDir.relativize(getExecutablePath(project, target)) : ""));
             }
         }
         if (skipTask) {
             return;
-        }
-
-        this.currentDir = Path.of(System.getProperty(USER_DIR));
-        if (target == null) {
-            target = getTarget(project);
         }
         Path executablePath = getExecutablePath(project, target);
         try {

@@ -1291,8 +1291,8 @@ public final class CommandUtil {
 
 
     public static boolean isPrevCurrCmdCompatible(BuildOptions buildOptions, BuildOptions prevBuildOptions) {
+       // Didn't add the sticky check as sticky is the default behaviour within 24Hr(regardless of sticky is false/true)
        return  prevBuildOptions.offlineBuild() == buildOptions.offlineBuild() &&
-               prevBuildOptions.sticky() == buildOptions.sticky() &&
                prevBuildOptions.optimizeDependencyCompilation() == buildOptions.optimizeDependencyCompilation() &&
                prevBuildOptions.experimental() == buildOptions.experimental() &&
                prevBuildOptions.remoteManagement() == buildOptions.remoteManagement() &&
