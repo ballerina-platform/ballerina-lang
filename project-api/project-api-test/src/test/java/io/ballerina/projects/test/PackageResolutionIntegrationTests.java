@@ -130,7 +130,7 @@ public class PackageResolutionIntegrationTests extends BaseTest {
         // Compare Dependencies.toml file
         // package_a ---> 1.0.2 patch version
         assertTomlFilesEquals(projectDirPath.resolve(DEPENDENCIES_TOML),
-                projectDirPath.resolve(RESOURCE_DIR_NAME).resolve("Dependencies-0001-2.toml"));
+                projectDirPath.resolve(RESOURCE_DIR_NAME).resolve("Dependencies-0001-3.toml"));
 
         // 5. Build package_c again after deleting Dependencies.toml and build file, and setting sticky == false
         deleteDependenciesTomlAndBuildFile(projectDirPath);
@@ -212,7 +212,7 @@ public class PackageResolutionIntegrationTests extends BaseTest {
         // Compare Dependencies.toml file
         // package_a ---> 1.0.2 version
         assertTomlFilesEquals(projectDirPath.resolve(DEPENDENCIES_TOML),
-                projectDirPath.resolve(RESOURCE_DIR_NAME).resolve("Dependencies-0003-2.toml"));
+                projectDirPath.resolve(RESOURCE_DIR_NAME).resolve("Dependencies-0003-1.toml"));
 
         // 4. Build package_c again after deleting Dependencies.toml and build file, and setting sticky == false
         deleteDependenciesTomlAndBuildFile(projectDirPath);
@@ -386,7 +386,7 @@ public class PackageResolutionIntegrationTests extends BaseTest {
         failIfDiagnosticsExists(buildProject2);
 
         assertTomlFilesEquals(projectDirPath.resolve(DEPENDENCIES_TOML),
-                projectDirPath.resolve(RESOURCE_DIR_NAME).resolve("Dependencies-0007-1.toml"));
+                projectDirPath.resolve(RESOURCE_DIR_NAME).resolve("Dependencies_NoSticky.toml"));
 
         // No Sticky
         deleteBuildFile(projectDirPath);

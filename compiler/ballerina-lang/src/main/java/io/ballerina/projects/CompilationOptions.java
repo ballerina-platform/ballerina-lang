@@ -78,7 +78,7 @@ public class CompilationOptions {
     }
 
     boolean sticky() {
-        return toBooleanTrueIfNull(this.sticky);
+        return toBooleanDefaultIfNull(this.sticky);
     }
 
     boolean experimental() {
@@ -262,13 +262,6 @@ public class CompilationOptions {
     private boolean toBooleanDefaultIfNull(Boolean bool) {
         if (bool == null) {
             return false;
-        }
-        return bool;
-    }
-
-    private boolean toBooleanTrueIfNull(Boolean bool) {
-        if (bool == null) {
-            return true;
         }
         return bool;
     }
