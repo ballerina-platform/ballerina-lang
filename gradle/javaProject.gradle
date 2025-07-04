@@ -29,7 +29,7 @@ dependencies {
     implementation 'org.slf4j:slf4j-api:1.7.26'
 
     constraints {
-        implementation 'commons-beanutils:commons-beanutils:1.9.4'
+        implementation 'commons-beanutils:commons-beanutils:1.11.0'
         implementation 'commons-codec:commons-codec:1.15'
         implementation 'commons-io:commons-io:2.14.0'
         implementation 'commons-logging:commons-logging:1.1.1'
@@ -37,7 +37,7 @@ dependencies {
         implementation 'com.atlassian.commonmark:commonmark-ext-gfm-tables:0.11.0'
         implementation 'com.fasterxml.jackson.core:jackson-databind:2.15.2'
         implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.15.2'
-        implementation 'com.h2database:h2:1.4.199'
+        implementation 'com.h2database:h2:2.2.220'
         implementation 'org.hsqldb:hsqldb:2.2.7'
         implementation 'com.wix:wix-embedded-mysql:4.6.1'
         implementation 'mysql:mysql-connector-java:8.0.19'
@@ -60,7 +60,7 @@ dependencies {
         implementation 'org.apache.directory.server:apacheds-all:2.0.0-M24'
         implementation 'org.apache.geronimo.specs:geronimo-stax-api_1.0_spec:1.0.1'
         implementation 'org.apache.kafka:kafka-clients:2.8.2'
-        implementation 'org.apache.kafka:kafka_2.13:2.8.2'
+        implementation 'org.apache.kafka:kafka_2.13:3.9.1'
         implementation 'org.apache.avro:avro:1.9.2'
         implementation 'org.apache.james:apache-mime4j-core:0.8.11'
         implementation 'org.apache.mina:mina-core:2.0.16'
