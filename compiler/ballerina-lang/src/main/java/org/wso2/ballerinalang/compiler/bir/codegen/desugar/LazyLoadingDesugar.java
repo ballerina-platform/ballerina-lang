@@ -18,9 +18,8 @@
 
 package org.wso2.ballerinalang.compiler.bir.codegen.desugar;
 
-import org.wso2.ballerinalang.compiler.bir.codegen.internal.LazyLoadingGlobalVarCollector;
-import org.wso2.ballerinalang.compiler.bir.codegen.optimizer.LargeMethodOptimizer;
-import org.wso2.ballerinalang.compiler.bir.model.BIRInstruction;
+import org.wso2.ballerinalang.compiler.bir.codegen.internal.LazyLoadBirBasicBlock;
+import org.wso2.ballerinalang.compiler.bir.codegen.internal.LazyLoadingDataCollector;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator;
 import org.wso2.ballerinalang.compiler.bir.model.BIROperand;
@@ -32,14 +31,17 @@ import org.wso2.ballerinalang.compiler.util.Names;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ANNOTATION_FUNC;
+import static org.wso2.ballerinalang.compiler.bir.codegen.optimizer.LargeMethodOptimizer.SPLIT_METHOD;
+
 public class LazyLoadingDesugar {
 
-    LazyLoadingGlobalVarCollector lazyLoadingGlobalVarCollector;
+    LazyLoadingDataCollector lazyLoadingDataCollector;
     List<BIRNode.BIRBasicBlock> newBBs;
     BIRNode.BIRBasicBlock currentBB;
 
-    public LazyLoadingDesugar(LazyLoadingGlobalVarCollector lazyLoadingGlobalVarCollector) {
-        this.lazyLoadingGlobalVarCollector = lazyLoadingGlobalVarCollector;
+    public LazyLoadingDesugar(LazyLoadingDataCollector lazyLoadingDataCollector) {
+        this.lazyLoadingDataCollector = lazyLoadingDataCollector;
         this.newBBs = new ArrayList<>();
     }
 
@@ -54,36 +56,90 @@ public class LazyLoadingDesugar {
     }
 
     private void lazyLoadInitFunctionsGlobalVars(BIRNode.BIRFunction function) {
-        for (BIRNode.BIRBasicBlock basicBlock : function.basicBlocks) {
+        List<BIRNode.BIRBasicBlock> basicBlocks = function.basicBlocks;
+        for (int i = 0; i < basicBlocks.size(); i++) {
+            BIRNode.BIRBasicBlock basicBlock = basicBlocks.get(i);
             List<BIRNonTerminator> instructions = basicBlock.instructions;
             currentBB = new BIRNode.BIRBasicBlock(basicBlock.id, basicBlock.number);
+            lazyLoadInstructions(instructions);
             BIRTerminator terminator = basicBlock.terminator;
-            if (instructions.isEmpty() && terminator != null && terminator.kind == InstructionKind.CALL) {
-                BIRTerminator.Call call = (BIRTerminator.Call) terminator;
-                if (call.lhsOp != null) {
-                    BIRNode.BIRVariableDcl variableDcl = call.lhsOp.variableDcl;
-                    if (variableDcl.kind == VarKind.GLOBAL &&
-                            call.name.value.contains(LargeMethodOptimizer.SPLIT_METHOD)) {
-                        lazyLoadingGlobalVarCollector.add(variableDcl.name.value, call);
-                        continue;
-                    }
-                }
-            }
             currentBB.terminator = terminator;
+            if (terminator.kind == InstructionKind.CALL) {
+                lazyLoadCall((BIRTerminator.Call) terminator, currentBB, basicBlocks, i);
+            }
             newBBs.add(currentBB);
-            for (int i = 0; i < instructions.size(); i++) {
-                BIRNonTerminator instruction = instructions.get(i);
-                switch (instruction.kind) {
-                    case CONST_LOAD -> lazyLoadConstantLoad((BIRNonTerminator.ConstantLoad) instruction);
-                    case FP_LOAD -> i = lazyLoadFpLoad((BIRNonTerminator.FPLoad) instruction, instructions, i);
-                    case NEW_TYPEDESC -> i = lazyLoadNewTypeDesc((BIRNonTerminator.NewTypeDesc) instruction, i);
-                    case NEW_STRUCTURE -> lazyLoadNewStructure((BIRNonTerminator.NewStructure) instruction);
-                    case NEW_ARRAY-> lazyLoadNewArray((BIRNonTerminator.NewArray) instruction);
-                    case TYPE_CAST-> lazyLoadTypeCast((BIRNonTerminator.TypeCast) instruction);
-                    default -> currentBB.instructions.add(instruction);
-                }
+        }
+    }
+
+    private void lazyLoadInstructions(List<BIRNonTerminator> instructions) {
+        for (int j = 0; j < instructions.size(); j++) {
+            BIRNonTerminator instruction = instructions.get(j);
+            switch (instruction.kind) {
+                case CONST_LOAD -> lazyLoadConstantLoad((BIRNonTerminator.ConstantLoad) instruction);
+                case FP_LOAD -> j = lazyLoadFpLoad((BIRNonTerminator.FPLoad) instruction, instructions, j);
+                case NEW_TYPEDESC -> lazyLoadNewTypeDesc((BIRNonTerminator.NewTypeDesc) instruction);
+                case NEW_STRUCTURE -> lazyLoadNewStructure((BIRNonTerminator.NewStructure) instruction);
+                case TYPE_CAST -> lazyLoadTypeCast((BIRNonTerminator.TypeCast) instruction);
+                case NEW_ARRAY -> lazyLoadNewArray((BIRNonTerminator.NewArray) instruction);
+                default -> currentBB.instructions.add(instruction);
             }
         }
+    }
+
+    private void lazyLoadCall(BIRTerminator.Call terminator, BIRNode.BIRBasicBlock currentBB,
+                              List<BIRNode.BIRBasicBlock> basicBlocks, int currentBBIndex) {
+
+        BIRNode.BIRBasicBlock nextBB = basicBlocks.get(currentBBIndex + 1);
+        if (terminator.lhsOp != null) {
+            BIRNode.BIRVariableDcl variableDcl = terminator.lhsOp.variableDcl;
+            if (variableDcl.kind == VarKind.GLOBAL && terminator.name.value.contains(SPLIT_METHOD)) {
+                lazyLoadSplitCall(terminator, currentBB, terminator, variableDcl, nextBB);
+            } else if (terminator.name.value.contains(ANNOTATION_FUNC)) {
+                lazyLoadAnnotationProcessCall(terminator, currentBB, nextBB, terminator);
+            }
+        }
+    }
+
+    private void lazyLoadAnnotationProcessCall(BIRTerminator.Call terminator, BIRNode.BIRBasicBlock currentBB, BIRNode.BIRBasicBlock nextBB,
+                           BIRTerminator.Call call) {
+        // Extract type annotations
+        List<BIRNonTerminator> instructions = nextBB.instructions;
+        if (nextBB.instructions.isEmpty()) {
+            // function annotation
+            return;
+        }
+        List<BIRNonTerminator> annotationsInsList = new ArrayList<>();
+        List<BIRNonTerminator> nextBBInstructions = new ArrayList<>();
+        int size = instructions.size();
+        int i = 0;
+        String typeName = null;
+        for (; i < size; i++) {
+            BIRNonTerminator instruction = instructions.get(i);
+            annotationsInsList.add(instruction);
+            if (instruction.kind == InstructionKind.MAP_STORE) {
+                typeName = ((BIRNonTerminator.ConstantLoad) instructions.get(i - 1)).value.toString();
+                break;
+            }
+        }
+        for (int j = i + 1; j < instructions.size(); j++) {
+            nextBBInstructions.add(instructions.get(j));
+        }
+        nextBB.instructions = nextBBInstructions;
+        LazyLoadBirBasicBlock lazyBB = new LazyLoadBirBasicBlock(annotationsInsList, call);
+        lazyLoadingDataCollector.lazyLoadingAnnotationsBBMap.put(typeName, lazyBB);
+        currentBB.terminator = new BIRTerminator.GOTO(terminator.pos, nextBB);
+    }
+
+    private void lazyLoadSplitCall(BIRTerminator.Call terminator, BIRNode.BIRBasicBlock currentBB, BIRTerminator.Call call,
+                           BIRNode.BIRVariableDcl variableDcl, BIRNode.BIRBasicBlock nextBB) {
+        if (!call.args.isEmpty()) {
+            // This can be split method with multiple calls
+            return;
+        }
+        // Extract split method call
+        LazyLoadBirBasicBlock lazyBB = new LazyLoadBirBasicBlock(null, call);
+        this.lazyLoadingDataCollector.lazyLoadingBBMap.put(variableDcl.name.value, lazyBB);
+        currentBB.terminator = new BIRTerminator.GOTO(terminator.pos, nextBB);
     }
 
     private void lazyLoadConstantLoad(BIRNonTerminator.ConstantLoad constantLoad) {
@@ -92,17 +148,18 @@ public class LazyLoadingDesugar {
             return;
         }
         String varName = constantLoad.lhsOp.variableDcl.name.value;
-        this.lazyLoadingGlobalVarCollector.add(varName, List.of(constantLoad));
+        LazyLoadBirBasicBlock lazyBB = new LazyLoadBirBasicBlock(List.of(constantLoad), null);
+        this.lazyLoadingDataCollector.lazyLoadingBBMap.put(varName, lazyBB);
     }
 
-    private int lazyLoadNewTypeDesc(BIRNonTerminator.NewTypeDesc newTypeDesc, int i) {
+    private void lazyLoadNewTypeDesc(BIRNonTerminator.NewTypeDesc newTypeDesc) {
         if (newTypeDesc.lhsOp.variableDcl.kind != VarKind.GLOBAL) {
             currentBB.instructions.add(newTypeDesc);
-            return i;
+            return;
         }
         String varName = newTypeDesc.lhsOp.variableDcl.name.value;
-        this.lazyLoadingGlobalVarCollector.add(varName, List.of(newTypeDesc));
-        return i;
+        LazyLoadBirBasicBlock lazyBB = new LazyLoadBirBasicBlock(List.of(newTypeDesc), null);
+        this.lazyLoadingDataCollector.lazyLoadingBBMap.put(varName, lazyBB);
     }
 
     private void lazyLoadNewStructure(BIRNonTerminator.NewStructure newStructure) {
@@ -121,7 +178,8 @@ public class LazyLoadingDesugar {
         }
         List<BIRNode.BIRMappingConstructorEntry> initialValues = newStructure.initialValues;
         if (initialValues.isEmpty()) {
-            this.lazyLoadingGlobalVarCollector.add(varName, List.of(newStructure));
+            LazyLoadBirBasicBlock lazyBB = new LazyLoadBirBasicBlock(List.of(newStructure), null);
+            this.lazyLoadingDataCollector.lazyLoadingBBMap.put(varName, lazyBB);
             return;
         }
         BIRNode.BIRMappingConstructorEntry firstEntry = initialValues.getFirst();
@@ -139,7 +197,8 @@ public class LazyLoadingDesugar {
             currentBB.instructions.add(newStructure);
             return;
         }
-        this.lazyLoadingGlobalVarCollector.add(varName, List.of(newStructure));
+        LazyLoadBirBasicBlock lazyBB = new LazyLoadBirBasicBlock(List.of(newStructure), null);
+        this.lazyLoadingDataCollector.lazyLoadingBBMap.put(varName, lazyBB);
     }
 
     private int lazyLoadFpLoad(BIRNonTerminator.FPLoad fpLoad, List<BIRNonTerminator> instructions, int i) {
@@ -151,15 +210,17 @@ public class LazyLoadingDesugar {
         if (instructions.size() > i + 1) {
             BIRNonTerminator nextIns = instructions.get(i + 1);
             if (nextIns.kind == InstructionKind.RECORD_DEFAULT_FP_LOAD) {
-                this.lazyLoadingGlobalVarCollector.add(varName, List.of(fpLoad, nextIns));
+                LazyLoadBirBasicBlock lazyBB = new LazyLoadBirBasicBlock(List.of(fpLoad, nextIns), null);
+                this.lazyLoadingDataCollector.lazyLoadingBBMap.put(varName, lazyBB);
                 return ++i;
             }
-            this.lazyLoadingGlobalVarCollector.add(varName, List.of(fpLoad));
+            LazyLoadBirBasicBlock lazyBB = new LazyLoadBirBasicBlock(List.of(fpLoad), null);
+            this.lazyLoadingDataCollector.lazyLoadingBBMap.put(varName, lazyBB);
             return i;
         }
-        this.lazyLoadingGlobalVarCollector.add(varName, List.of(fpLoad));
+        LazyLoadBirBasicBlock lazyBB = new LazyLoadBirBasicBlock(List.of(fpLoad), null);
+        this.lazyLoadingDataCollector.lazyLoadingBBMap.put(varName, lazyBB);
         return i;
-
     }
 
     private void lazyLoadNewArray(BIRNonTerminator.NewArray newArray) {
@@ -200,13 +261,14 @@ public class LazyLoadingDesugar {
         int currentBBInsSize = currentBB.instructions.size();
         int lastQNameIns = getLastQNameIns(currentBBInsSize - 1);
         if (lastQNameIns != -1) {
-            List<BIRInstruction> newInstructions = new ArrayList<>();
+            List<BIRNonTerminator> newInstructions = new ArrayList<>();
             int nsURIOpIndex = lastQNameIns - 3;
             for (int k = nsURIOpIndex; k < currentBBInsSize; k++) {
                 newInstructions.add(currentBB.instructions.remove(nsURIOpIndex));
             }
             newInstructions.add(typeCast);
-            this.lazyLoadingGlobalVarCollector.add(varName, newInstructions);
+            LazyLoadBirBasicBlock lazyBB = new LazyLoadBirBasicBlock(newInstructions, null);
+            this.lazyLoadingDataCollector.lazyLoadingBBMap.put(varName, lazyBB);
             return true;
         }
         return false;
@@ -228,7 +290,7 @@ public class LazyLoadingDesugar {
         return lastQNameIns;
     }
 
-    private boolean copyAndRemovePreviousInstructions(BIRInstruction instruction, BIROperand birOperand,
+    private boolean copyAndRemovePreviousInstructions(BIRNonTerminator instruction, BIROperand birOperand,
                                                       String varName) {
         BIROperand matchOp = birOperand;
         int currentBBInsSize = currentBB.instructions.size();
@@ -237,12 +299,13 @@ public class LazyLoadingDesugar {
             if (ins.lhsOp.equals(matchOp)) {
                 switch (ins.kind) {
                     case CONST_LOAD, NEW_TYPEDESC, FP_LOAD -> {
-                        List<BIRInstruction> newInstructions = new ArrayList<>();
+                        List<BIRNonTerminator> newInstructions = new ArrayList<>();
                         for (int k = j; k < currentBBInsSize; k++) {
                             newInstructions.add(currentBB.instructions.remove(j));
                         }
                         newInstructions.add(instruction);
-                        this.lazyLoadingGlobalVarCollector.add(varName, newInstructions);
+                        LazyLoadBirBasicBlock lazyBB = new LazyLoadBirBasicBlock(newInstructions, null);
+                        this.lazyLoadingDataCollector.lazyLoadingBBMap.put(varName, lazyBB);
                         return true;
                     }
                     case null, default -> {

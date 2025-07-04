@@ -21,7 +21,9 @@ package org.wso2.ballerinalang.compiler.bir.codegen.split;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmCastGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmTypeGen;
+import org.wso2.ballerinalang.compiler.bir.codegen.internal.AsyncDataCollector;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.JarEntries;
+import org.wso2.ballerinalang.compiler.bir.codegen.internal.LazyLoadingDataCollector;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.TypeHashVisitor;
 
@@ -48,12 +50,14 @@ public class JvmMethodsSplitter {
         jvmConstantsGen.setJvmCreateTypeGen(jvmCreateTypeGen);
     }
 
-    public void generateMethods(JarEntries jarEntries, JvmCastGen jvmCastGen,
-                                List<BIRNode.BIRFunction> sortedFunctions) {
-        jvmCreateTypeGen.generateRefTypeConstants(module.typeDefs);
-        jvmCreateTypeGen.createTypes(module, jarEntries, jvmPackageGen);
-        jvmValueCreatorGen.generateValueCreatorClasses(jvmPackageGen, module, jarEntries,
-                jvmPackageGen.symbolTable, jvmCastGen, sortedFunctions);
+    public void generateMethods(JarEntries jarEntries, JvmCastGen jvmCastGen, List<BIRNode.BIRFunction> sortedFunctions,
+                                AsyncDataCollector asyncDataCollector,
+                                LazyLoadingDataCollector lazyLoadingDataCollector) {
+        jvmCreateTypeGen.generateRefTypeConstants(module.typeDefs, jvmPackageGen, jvmCastGen, asyncDataCollector,
+                lazyLoadingDataCollector);
+        jvmCreateTypeGen.createTypes(module, jarEntries, jvmPackageGen, jvmCastGen, asyncDataCollector,
+                lazyLoadingDataCollector);
+        jvmValueCreatorGen.generateValueCreatorClasses(jvmPackageGen, module, jarEntries, jvmCastGen, sortedFunctions);
         jvmCreateTypeGen.generateAnonTypeClass(jvmPackageGen, module, jarEntries);
         jvmCreateTypeGen.generateFunctionTypeClass(jvmPackageGen, module, jarEntries, sortedFunctions);
     }

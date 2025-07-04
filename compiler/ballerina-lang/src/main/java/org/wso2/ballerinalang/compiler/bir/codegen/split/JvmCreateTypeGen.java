@@ -24,11 +24,19 @@ import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.wso2.ballerinalang.compiler.bir.codegen.BallerinaClassWriter;
+import org.wso2.ballerinalang.compiler.bir.codegen.JvmCastGen;
+import org.wso2.ballerinalang.compiler.bir.codegen.JvmErrorGen;
+import org.wso2.ballerinalang.compiler.bir.codegen.JvmInstructionGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures;
+import org.wso2.ballerinalang.compiler.bir.codegen.JvmTerminatorGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmTypeGen;
+import org.wso2.ballerinalang.compiler.bir.codegen.internal.AsyncDataCollector;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.BIRVarToJVMIndexMap;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.JarEntries;
+import org.wso2.ballerinalang.compiler.bir.codegen.internal.LabelGenerator;
+import org.wso2.ballerinalang.compiler.bir.codegen.internal.LazyLoadBirBasicBlock;
+import org.wso2.ballerinalang.compiler.bir.codegen.internal.LazyLoadingDataCollector;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.TypeDefHashComparator;
 import org.wso2.ballerinalang.compiler.bir.codegen.split.types.JvmArrayTypeGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.split.types.JvmErrorTypeGen;
@@ -40,6 +48,8 @@ import org.wso2.ballerinalang.compiler.bir.codegen.split.types.JvmUnionTypeGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.utils.JvmCodeGenUtil;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRTypeDefinition;
+import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator;
+import org.wso2.ballerinalang.compiler.bir.model.BIRTerminator;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.TypeHashVisitor;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
@@ -72,8 +82,10 @@ import static org.objectweb.asm.Opcodes.ACC_PRIVATE;
 import static org.objectweb.asm.Opcodes.ACC_PUBLIC;
 import static org.objectweb.asm.Opcodes.ACC_STATIC;
 import static org.objectweb.asm.Opcodes.ACC_SUPER;
+import static org.objectweb.asm.Opcodes.ACONST_NULL;
 import static org.objectweb.asm.Opcodes.ALOAD;
 import static org.objectweb.asm.Opcodes.ARETURN;
+import static org.objectweb.asm.Opcodes.ASTORE;
 import static org.objectweb.asm.Opcodes.DUP;
 import static org.objectweb.asm.Opcodes.GETSTATIC;
 import static org.objectweb.asm.Opcodes.GOTO;
@@ -175,7 +187,8 @@ public class JvmCreateTypeGen {
         this.annotationVarClassName = getVarStoreClass(jvmConstantsGen.globalVarsPkgName , ANNOTATION_MAP_NAME);
     }
 
-    public void createTypes(BIRNode.BIRPackage module, JarEntries jarEntries, JvmPackageGen jvmPackageGen) {
+    public void createTypes(BIRNode.BIRPackage module, JarEntries jarEntries, JvmPackageGen jvmPackageGen,
+                            JvmCastGen jvmCastGen, AsyncDataCollector asyncDataCollector, LazyLoadingDataCollector lazyLoadingDataCollector) {
         ClassWriter allTypesCW = new BallerinaClassWriter(COMPUTE_FRAMES);
         allTypesCW.visit(V21, ACC_PUBLIC | ACC_SUPER, allTypesVarClassName, null, OBJECT, null);
         // Create the type
@@ -206,7 +219,8 @@ public class JvmCreateTypeGen {
                 // Annotations for object constructors are populated at object init site.
                 boolean constructorsPopulated = Symbols.isFlagOn(bType.getFlags(), Flags.OBJECT_CTOR);
                 if (!constructorsPopulated) {
-                    loadAnnotations(mv, bType);
+                    loadAnnotations(mv, bType, typeDef.originalName.value, jvmPackageGen, jvmCastGen, asyncDataCollector,
+                            lazyLoadingDataCollector);
                 }
             }
             genMethodReturn(mv);
@@ -331,7 +345,29 @@ public class JvmCreateTypeGen {
     //              Annotation processing related methods
     // -------------------------------------------------------
 
-    public void loadAnnotations(MethodVisitor mv, BType type) {
+    public void loadAnnotations(MethodVisitor mv, BType type, String typeName, JvmPackageGen jvmPackageGen,
+                                JvmCastGen jvmCastGen, AsyncDataCollector asyncDataCollector,
+                                LazyLoadingDataCollector lazyLoadingDataCollector) {
+
+        LazyLoadBirBasicBlock lazyBB = lazyLoadingDataCollector.lazyLoadingAnnotationsBBMap.get(typeName);
+        if (lazyBB != null) {
+            BIRVarToJVMIndexMap indexMap = new BIRVarToJVMIndexMap();
+            PackageID packageID = jvmPackageGen.currentModule.packageID;
+            JvmInstructionGen instructionGen = new JvmInstructionGen(mv, indexMap, packageID, jvmPackageGen, jvmTypeGen,
+                    jvmCastGen, jvmConstantsGen, asyncDataCollector);
+            JvmErrorGen errorGen = new JvmErrorGen(mv, indexMap, instructionGen);
+            LabelGenerator labelGen = new LabelGenerator();
+            JvmTerminatorGen termGen = new JvmTerminatorGen(mv, indexMap, labelGen, errorGen, packageID,
+                    instructionGen, jvmPackageGen, jvmTypeGen, jvmCastGen, asyncDataCollector);
+            mv.visitInsn(ACONST_NULL);
+            mv.visitVarInsn(ASTORE, 1);
+            BIRTerminator.Call call = lazyBB.call();
+            termGen.genCall(call, call.calleePkg, 1);
+            termGen.storeReturnFromCallIns(call.lhsOp != null ? call.lhsOp.variableDcl : null);
+            for (BIRNonTerminator instruction : lazyBB.instructions()) {
+                instructionGen.generateInstructions(0, instruction);
+            }
+        }
         mv.visitFieldInsn(GETSTATIC, this.annotationVarClassName, VALUE_VAR_NAME, GET_MAP_VALUE);
         jvmTypeGen.loadType(mv, type);
         mv.visitMethodInsn(INVOKESTATIC, ANNOTATION_UTILS, "processAnnotations", PROCESS_ANNOTATIONS, false);
@@ -470,10 +506,13 @@ public class JvmCreateTypeGen {
         return new AnonTypeHashInfo(hashes, labels, labelFieldMapping, nameTypeMapping);
     }
 
-    public void generateRefTypeConstants(List<BIRTypeDefinition> typeDefs) {
+    public void generateRefTypeConstants(List<BIRTypeDefinition> typeDefs, JvmPackageGen jvmPackageGen,
+                                         JvmCastGen jvmCastGen, AsyncDataCollector asyncDataCollector,
+                                         LazyLoadingDataCollector lazyLoadingDataCollector) {
         for (BIRTypeDefinition typeDef : typeDefs) {
             if (typeDef.referenceType != null) {
-                jvmConstantsGen.getRefTypeConstantsVar(typeDef.referenceType);
+                jvmConstantsGen.getRefTypeConstantsVar(typeDef, jvmPackageGen, jvmCastGen, asyncDataCollector,
+                        lazyLoadingDataCollector);
             }
         }
     }

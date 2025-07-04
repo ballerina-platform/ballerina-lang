@@ -22,11 +22,16 @@ import org.ballerinalang.model.elements.PackageID;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.MethodVisitor;
 import org.wso2.ballerinalang.compiler.bir.codegen.BallerinaClassWriter;
+import org.wso2.ballerinalang.compiler.bir.codegen.JvmCastGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants;
+import org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen;
+import org.wso2.ballerinalang.compiler.bir.codegen.internal.AsyncDataCollector;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.BTypeHashComparator;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.JarEntries;
+import org.wso2.ballerinalang.compiler.bir.codegen.internal.LazyLoadingDataCollector;
 import org.wso2.ballerinalang.compiler.bir.codegen.split.types.JvmRefTypeGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.utils.JvmCodeGenUtil;
+import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeReferenceType;
 
 import java.util.Map;
@@ -64,22 +69,29 @@ public class JvmRefTypeConstantsGen {
         this.jvmRefTypeGen = jvmRefTypeGen;
     }
 
-    public String add(BTypeReferenceType type) {
-        String varName = typeRefVarMap.get(type);
+    public String add(BIRNode.BIRTypeDefinition typeDef, JvmPackageGen jvmPackageGen, JvmCastGen jvmCastGen,
+                      AsyncDataCollector asyncDataCollector, LazyLoadingDataCollector lazyLoadingDataCollector) {
+        BTypeReferenceType referenceType = (BTypeReferenceType)typeDef.referenceType;
+        String varName = typeRefVarMap.get(referenceType);
         if (varName == null) {
-            varName = generateTypeRefTypeInitMethod(type);
-            typeRefVarMap.put(type, varName);
+            varName = generateTypeRefTypeInitMethod(typeDef, referenceType, jvmPackageGen, jvmCastGen, asyncDataCollector,
+                    lazyLoadingDataCollector);
+            typeRefVarMap.put(referenceType, varName);
         }
         return varName;
     }
 
-    private String generateTypeRefTypeInitMethod(BTypeReferenceType type) {
+    private String generateTypeRefTypeInitMethod(BIRNode.BIRTypeDefinition typeDef, BTypeReferenceType referenceType,
+                                                 JvmPackageGen jvmPackageGen, JvmCastGen jvmCastGen,
+                                                 AsyncDataCollector asyncDataCollector,
+                                                 LazyLoadingDataCollector lazyLoadingDataCollector) {
         ClassWriter cw = new BallerinaClassWriter(COMPUTE_FRAMES);
-        String varName = JvmCodeGenUtil.getRefTypeConstantName(type);
+        String varName = JvmCodeGenUtil.getRefTypeConstantName(referenceType);
         String typeRefConstantClass = this.typeRefVarConstantsPkgName + varName;
         generateConstantsClassInit(cw, typeRefConstantClass);
         MethodVisitor mv = cw.visitMethod(ACC_STATIC, JVM_STATIC_INIT_METHOD, VOID_METHOD_DESC, null, null);
-        jvmRefTypeGen.createTypeRefType(cw, mv, type, typeRefConstantClass);
+        jvmRefTypeGen.createTypeRefType(cw, mv, typeDef, referenceType, typeRefConstantClass,
+                jvmPackageGen, jvmCastGen, asyncDataCollector, lazyLoadingDataCollector);
         genMethodReturn(mv);
         cw.visitEnd();
         jarEntries.put(typeRefConstantClass + CLASS_FILE_SUFFIX, cw.toByteArray());

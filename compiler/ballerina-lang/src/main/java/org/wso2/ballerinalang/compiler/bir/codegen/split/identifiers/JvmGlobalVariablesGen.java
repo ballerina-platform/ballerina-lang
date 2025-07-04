@@ -32,11 +32,13 @@ import org.wso2.ballerinalang.compiler.bir.codegen.internal.AsyncDataCollector;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.BIRVarToJVMIndexMap;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.JarEntries;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.LabelGenerator;
-import org.wso2.ballerinalang.compiler.bir.codegen.internal.LazyLoadingGlobalVarCollector;
+import org.wso2.ballerinalang.compiler.bir.codegen.internal.LazyLoadBirBasicBlock;
+import org.wso2.ballerinalang.compiler.bir.codegen.internal.LazyLoadingDataCollector;
 import org.wso2.ballerinalang.compiler.bir.codegen.split.JvmConstantsGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.utils.JvmCodeGenUtil;
 import org.wso2.ballerinalang.compiler.bir.model.BIRInstruction;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
+import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator;
 import org.wso2.ballerinalang.compiler.bir.model.BIRTerminator;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
@@ -71,13 +73,13 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.utils.JvmModuleUtils.g
 public class JvmGlobalVariablesGen {
 
     private final BIRNode.BIRPackage module;
-    private final LazyLoadingGlobalVarCollector lazyLoadingGlobalVarCollector;
+    private final LazyLoadingDataCollector lazyLoadingDataCollector;
     private final String globalVarsPkgName;
 
     public JvmGlobalVariablesGen(BIRNode.BIRPackage module,
-                                 LazyLoadingGlobalVarCollector lazyLoadingGlobalVarCollector) {
+                                 LazyLoadingDataCollector lazyLoadingDataCollector) {
         this.module = module;
-        this.lazyLoadingGlobalVarCollector = lazyLoadingGlobalVarCollector;
+        this.lazyLoadingDataCollector = lazyLoadingDataCollector;
         this.globalVarsPkgName = getModuleLevelClassName(module.packageID, GLOBAL_VARIABLES_PACKAGE_NAME);
     }
 
@@ -86,17 +88,16 @@ public class JvmGlobalVariablesGen {
                                        AsyncDataCollector asyncDataCollector, Types types) {
         // populate global variable to classes
         generateGlobalVarClasses(jarEntries, jvmPackageGen, jvmTypeGen, jvmCastGen, jvmConstantsGen,
-                asyncDataCollector, types);
+                asyncDataCollector);
     }
 
     private void generateGlobalVarClasses(JarEntries jarEntries, JvmPackageGen jvmPackageGen, JvmTypeGen jvmTypeGen,
                                           JvmCastGen jvmCastGen, JvmConstantsGen jvmConstantsGen,
-                                          AsyncDataCollector asyncDataCollector, Types types) {
+                                          AsyncDataCollector asyncDataCollector) {
         if (module.globalVars.isEmpty()) {
             return;
         }
-        Map<String, List<BIRInstruction>> lazyLoadingMap = lazyLoadingGlobalVarCollector.getLazyLoadingMap();
-        Map<String, BIRTerminator.Call> lazyLoadingCallMap = lazyLoadingGlobalVarCollector.getLazyLoadingCallMap();
+        Map<String, LazyLoadBirBasicBlock> lazyBBMap = lazyLoadingDataCollector.lazyLoadingBBMap;
         Collection<BIRNode.BIRGlobalVariableDcl> globalVariableDcls = module.globalVars;
         ClassWriter allGlobalVarsCW = new BallerinaClassWriter(COMPUTE_FRAMES);
         allGlobalVarsCW.visit(V21, ACC_PUBLIC | ACC_SUPER, jvmConstantsGen.allGlobalVarsClassName, null, OBJECT, null);
@@ -113,20 +114,22 @@ public class JvmGlobalVariablesGen {
             // Create lazy loading class
             genLazyLoadingClass(cw, globalVarClassName, descriptor);
             addField(allGlobalVarsCW, varName);
-            List<BIRInstruction> instructions = lazyLoadingMap.get(varName);
-            BIRTerminator.Call call = lazyLoadingCallMap.get(varName);
-            if (instructions != null || call != null) {
+            LazyLoadBirBasicBlock lazyBB = lazyBBMap.get(varName);
+            if (lazyBB != null) {
                 // Initialize global value
                 MethodVisitor mv = cw.visitMethod(ACC_STATIC, JVM_STATIC_INIT_METHOD, VOID_METHOD_DESC, null, null);
                 mv.visitCode();
                 BIRVarToJVMIndexMap indexMap = new BIRVarToJVMIndexMap();
                 JvmInstructionGen instructionGen = new JvmInstructionGen(mv, indexMap, this.module.packageID,
-                        jvmPackageGen, jvmTypeGen, jvmCastGen, jvmConstantsGen, asyncDataCollector, types);
+                        jvmPackageGen, jvmTypeGen, jvmCastGen, jvmConstantsGen, asyncDataCollector);
+                List<BIRNonTerminator> instructions = lazyBB.instructions();
                 if (instructions != null) {
                     for (BIRInstruction instruction : instructions) {
                         instructionGen.generateInstructions(0, instruction);
                     }
-                } else {
+                }
+                BIRTerminator.Call call = lazyBB.call();
+                if (call != null) {
                     JvmErrorGen errorGen = new JvmErrorGen(mv, indexMap, instructionGen);
                     LabelGenerator labelGen = new LabelGenerator();
                     PackageID packageID = module.packageID;

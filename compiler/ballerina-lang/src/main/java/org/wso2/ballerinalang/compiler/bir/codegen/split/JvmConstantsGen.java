@@ -19,9 +19,12 @@ package org.wso2.ballerinalang.compiler.bir.codegen.split;
 
 import org.ballerinalang.model.elements.PackageID;
 import org.objectweb.asm.MethodVisitor;
+import org.wso2.ballerinalang.compiler.bir.codegen.JvmCastGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen;
+import org.wso2.ballerinalang.compiler.bir.codegen.internal.AsyncDataCollector;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.BTypeHashComparator;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.JarEntries;
+import org.wso2.ballerinalang.compiler.bir.codegen.internal.LazyLoadingDataCollector;
 import org.wso2.ballerinalang.compiler.bir.codegen.split.constants.JvmArrayTypeConstantsGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.split.constants.JvmBStringConstantsGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.split.constants.JvmErrorTypeConstantsGen;
@@ -39,7 +42,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BErrorType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeReferenceType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ALL_CONSTANTS_CLASS_NAME;
@@ -137,8 +139,11 @@ public class JvmConstantsGen {
         return tupleTypeConstantsGen.add((BTupleType) type, symbolTable);
     }
 
-    public void getRefTypeConstantsVar(BType type) {
-        refTypeConstantsGen.add((BTypeReferenceType) type);
+    public void getRefTypeConstantsVar(BIRNode.BIRTypeDefinition typeDef, JvmPackageGen jvmPackageGen,
+                                       JvmCastGen jvmCastGen, AsyncDataCollector asyncDataCollector,
+                                       LazyLoadingDataCollector lazyLoadingDataCollector) {
+        refTypeConstantsGen.add(typeDef, jvmPackageGen, jvmCastGen, asyncDataCollector,
+                lazyLoadingDataCollector);
     }
 
     public String getUnionTypeConstantsVar(BType type, SymbolTable symbolTable) {

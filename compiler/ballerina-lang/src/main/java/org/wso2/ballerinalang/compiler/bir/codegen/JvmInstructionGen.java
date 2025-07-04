@@ -306,7 +306,7 @@ public class JvmInstructionGen {
 
     public JvmInstructionGen(MethodVisitor mv, BIRVarToJVMIndexMap indexMap, PackageID currentPackage,
                              JvmPackageGen jvmPackageGen, JvmTypeGen jvmTypeGen, JvmCastGen jvmCastGen,
-                             JvmConstantsGen jvmConstantsGen, AsyncDataCollector asyncDataCollector, Types types) {
+                             JvmConstantsGen jvmConstantsGen, AsyncDataCollector asyncDataCollector) {
         this.mv = mv;
         this.indexMap = indexMap;
         this.jvmPackageGen = jvmPackageGen;
@@ -315,7 +315,7 @@ public class JvmInstructionGen {
         this.asyncDataCollector = asyncDataCollector;
         this.jvmCastGen = jvmCastGen;
         this.jvmConstantsGen = jvmConstantsGen;
-        this.typeTestGen = new JvmTypeTestGen(this, types, mv, jvmTypeGen, jvmCastGen);
+        this.typeTestGen = new JvmTypeTestGen(this, jvmPackageGen.types, mv, jvmTypeGen, jvmCastGen);
         this.functions = new HashMap<>();
         this.currentPackage = currentPackage;
         this.moduleInitClass = getModuleLevelClassName(currentPackage, MODULE_INIT_CLASS_NAME);

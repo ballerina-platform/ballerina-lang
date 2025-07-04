@@ -36,7 +36,7 @@ import org.wso2.ballerinalang.compiler.bir.codegen.internal.AsyncDataCollector;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.CompiledJarFile;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.JarEntries;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.JavaClass;
-import org.wso2.ballerinalang.compiler.bir.codegen.internal.LazyLoadingGlobalVarCollector;
+import org.wso2.ballerinalang.compiler.bir.codegen.internal.LazyLoadingDataCollector;
 import org.wso2.ballerinalang.compiler.bir.codegen.methodgen.ConfigMethodGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.methodgen.InitMethodGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.methodgen.LambdaGen;
@@ -150,10 +150,10 @@ public class JvmPackageGen {
     private final ConfigMethodGen configMethodGen;
     private final Map<String, BIRFunctionWrapper> birFunctionMap;
     private final BLangDiagnosticLog dlog;
-    private final Types types;
+    public final Types types;
     private final boolean isRemoteMgtEnabled;
     private final Env typeEnv;
-    private final BIRPackage currentModule;
+    public final BIRPackage currentModule;
     public final String globalVarsPkgName;
 
     JvmPackageGen(BIRNode.BIRPackage currentModule, SymbolTable symbolTable, PackageCache packageCache,
@@ -677,8 +677,8 @@ public class JvmPackageGen {
         rewriteRecordInits(typeEnv, currentModule.typeDefs);
 
         // desugar module init function to lazy load global variables and constants
-        LazyLoadingGlobalVarCollector lazyLoadingGlobalVarCollector = new LazyLoadingGlobalVarCollector();
-        LazyLoadingDesugar lazyLoadingDesugar = new LazyLoadingDesugar(lazyLoadingGlobalVarCollector);
+        LazyLoadingDataCollector lazyLoadingDataCollector = new LazyLoadingDataCollector();
+        LazyLoadingDesugar lazyLoadingDesugar = new LazyLoadingDesugar(lazyLoadingDataCollector);
         lazyLoadingDesugar.lazyLoadInitFunctionsGlobalVars(currentModule.functions);
 
         // generate object/record value classes
@@ -691,13 +691,13 @@ public class JvmPackageGen {
         generateModuleClasses(jarEntries, moduleInitClass, jvmTypeGen, jvmCastGen, jvmConstantsGen,
                 jvmClassMapping, serviceEPAvailable, mainFunc, testExecuteFunc, asyncDataCollector, immediateImports);
         JvmGlobalVariablesGen jvmGlobalVariablesGen = new JvmGlobalVariablesGen(currentModule,
-                lazyLoadingGlobalVarCollector);
+                lazyLoadingDataCollector);
         jvmGlobalVariablesGen.generateGlobalVarsInit(jarEntries, this, jvmTypeGen, jvmCastGen, jvmConstantsGen,
                 asyncDataCollector, types);
-
         List<BIRNode.BIRFunction> sortedFunctions = new ArrayList<>(currentModule.functions);
         sortedFunctions.sort(NAME_HASH_COMPARATOR);
-        jvmMethodsSplitter.generateMethods(jarEntries, jvmCastGen, sortedFunctions);
+        jvmMethodsSplitter.generateMethods(jarEntries, jvmCastGen, sortedFunctions, asyncDataCollector,
+                lazyLoadingDataCollector);
         jvmConstantsGen.generateConstants(this, jarEntries);
         lambdaGen.generateLambdaClasses(asyncDataCollector, jarEntries);
 

@@ -23,9 +23,14 @@ import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
+import org.wso2.ballerinalang.compiler.bir.codegen.JvmCastGen;
+import org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmTypeGen;
+import org.wso2.ballerinalang.compiler.bir.codegen.internal.AsyncDataCollector;
+import org.wso2.ballerinalang.compiler.bir.codegen.internal.LazyLoadingDataCollector;
 import org.wso2.ballerinalang.compiler.bir.codegen.split.JvmConstantsGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.split.JvmCreateTypeGen;
+import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeReferenceType;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 
@@ -56,14 +61,16 @@ public class JvmRefTypeGen {
     private final JvmConstantsGen jvmConstantsGen;
 
     public JvmRefTypeGen(JvmCreateTypeGen jvmCreateTypeGen, JvmTypeGen jvmTypeGen, JvmConstantsGen jvmConstantsGen) {
-
         this.jvmCreateTypeGen = jvmCreateTypeGen;
         this.jvmTypeGen = jvmTypeGen;
         this.jvmConstantsGen = jvmConstantsGen;
     }
 
-    public void createTypeRefType(ClassWriter cw, MethodVisitor mv, BTypeReferenceType typeRefType,
-                                  String typeRefConstantClass) {
+    public void createTypeRefType(ClassWriter cw, MethodVisitor mv, BIRNode.BIRTypeDefinition typeDef,
+                                  BTypeReferenceType typeRefType, String typeRefConstantClass,
+                                  JvmPackageGen jvmPackageGen, JvmCastGen jvmCastGen,
+                                  AsyncDataCollector asyncDataCollector,
+                                  LazyLoadingDataCollector lazyLoadingDataCollector) {
         // Create field for type ref type var
         FieldVisitor fv = cw.visitField(ACC_STATIC + ACC_PUBLIC, TYPE_VAR_NAME, GET_TYPE_REF_TYPE_IMPL, null, null);
         fv.visitEnd();
@@ -78,7 +85,8 @@ public class JvmRefTypeGen {
         mv.visitFieldInsn(Opcodes.PUTSTATIC, typeRefConstantClass, TYPE_VAR_NAME, GET_TYPE_REF_TYPE_IMPL);
         populateTypeRef(mv, typeRefType, typeRefConstantClass);
         if (typeRefType.referredType.tag != TypeTags.RECORD) {
-            jvmCreateTypeGen.loadAnnotations(mv, typeRefType);
+            jvmCreateTypeGen.loadAnnotations(mv, typeRefType, typeDef.originalName.value, jvmPackageGen, jvmCastGen,
+                    asyncDataCollector, lazyLoadingDataCollector);
         }
     }
 

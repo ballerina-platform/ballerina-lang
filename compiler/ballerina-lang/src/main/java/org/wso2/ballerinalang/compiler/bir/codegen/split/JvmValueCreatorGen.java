@@ -62,10 +62,8 @@ public class JvmValueCreatorGen {
     }
 
     public void generateValueCreatorClasses(JvmPackageGen jvmPackageGen, BIRNode.BIRPackage module,
-                                            JarEntries jarEntries,
-                                            SymbolTable symbolTable, JvmCastGen jvmCastGen,
+                                            JarEntries jarEntries, JvmCastGen jvmCastGen,
                                             List<BIRNode.BIRFunction> sortedFunctions) {
-
         // due to structural type same name can appear twice, need to remove duplicates
         Set<BIRTypeDefinition> recordTypeDefSet = new TreeSet<>(NAME_HASH_COMPARATOR);
         List<BIRTypeDefinition> objectTypeDefList = new ArrayList<>();
@@ -81,6 +79,7 @@ public class JvmValueCreatorGen {
                 errorTypeDefList.add(optionalTypeDef);
             }
         }
+        SymbolTable symbolTable = jvmPackageGen.symbolTable;
         ArrayList<BIRTypeDefinition> recordTypeDefList = new ArrayList<>(recordTypeDefSet);
         jvmRecordCreatorGen.generateRecordsClass(jvmPackageGen, module, jarEntries, recordTypeDefList);
         jvmObjectCreatorGen.generateObjectsClass(jvmPackageGen, module, jarEntries, objectTypeDefList, symbolTable);

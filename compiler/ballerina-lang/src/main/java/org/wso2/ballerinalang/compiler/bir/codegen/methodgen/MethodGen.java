@@ -145,13 +145,11 @@ public class MethodGen {
 
     private final JvmPackageGen jvmPackageGen;
     private final SymbolTable symbolTable;
-    private final Types types;
     private final Env typeEnv;
 
     public MethodGen(JvmPackageGen jvmPackageGen, Types types) {
         this.jvmPackageGen = jvmPackageGen;
         this.symbolTable = jvmPackageGen.symbolTable;
-        this.types = types;
         this.typeEnv = types.typeEnv();
     }
 
@@ -160,8 +158,7 @@ public class MethodGen {
                                JvmConstantsGen jvmConstantsGen, AsyncDataCollector asyncDataCollector) {
         if (JvmCodeGenUtil.isExternFunc(birFunc)) {
             ExternalMethodGen.genJMethodForBExternalFunc(birFunc, cw, birModule, attachedType, this, jvmPackageGen,
-                    jvmTypeGen, jvmCastGen, jvmConstantsGen, moduleClassName,
-                    asyncDataCollector, types);
+                    jvmTypeGen, jvmCastGen, jvmConstantsGen, moduleClassName, asyncDataCollector, jvmPackageGen.types);
         } else {
             genJMethodForBFunc(birFunc, cw, birModule, jvmTypeGen, jvmCastGen, jvmConstantsGen, moduleClassName,
                     attachedType, asyncDataCollector, false);
@@ -184,7 +181,7 @@ public class MethodGen {
         Label methodStartLabel = new Label();
         mv.visitLabel(methodStartLabel);
         JvmInstructionGen instGen = new JvmInstructionGen(mv, indexMap, module.packageID, jvmPackageGen, jvmTypeGen,
-                jvmCastGen, jvmConstantsGen, asyncDataCollector, types);
+                jvmCastGen, jvmConstantsGen, asyncDataCollector);
         mv.visitVarInsn(ALOAD, 1); // load strand
         mv.visitVarInsn(ALOAD, 0); // load self
         String encodedMethodName = Utils.encodeFunctionIdentifier(funcName);
@@ -280,7 +277,7 @@ public class MethodGen {
         Label handleThrowableLabel = new Label();
         createWorkerPanicLabels(func, mv, tryLabel);
         JvmInstructionGen instGen = new JvmInstructionGen(mv, indexMap, module.packageID, jvmPackageGen, jvmTypeGen,
-                jvmCastGen, jvmConstantsGen, asyncDataCollector, types);
+                jvmCastGen, jvmConstantsGen, asyncDataCollector);
         JvmErrorGen errorGen = new JvmErrorGen(mv, indexMap, instGen);
         JvmTerminatorGen termGen = new JvmTerminatorGen(mv, indexMap, labelGen, errorGen, module.packageID, instGen,
                 jvmPackageGen, jvmTypeGen, jvmCastGen, asyncDataCollector);
