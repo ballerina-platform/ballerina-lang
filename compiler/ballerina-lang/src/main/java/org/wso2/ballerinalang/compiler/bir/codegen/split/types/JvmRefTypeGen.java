@@ -85,7 +85,7 @@ public class JvmRefTypeGen {
         mv.visitFieldInsn(Opcodes.PUTSTATIC, typeRefConstantClass, TYPE_VAR_NAME, GET_TYPE_REF_TYPE_IMPL);
         populateTypeRef(mv, typeRefType, typeRefConstantClass);
         if (typeRefType.referredType.tag != TypeTags.RECORD) {
-            jvmCreateTypeGen.loadAnnotations(mv, typeRefType, typeDef.originalName.value, jvmPackageGen, jvmCastGen,
+            jvmCreateTypeGen.loadAnnotations(mv, typeRefType, typeDef.internalName.value, jvmPackageGen, jvmCastGen,
                     asyncDataCollector, lazyLoadingDataCollector);
         }
     }

@@ -37,6 +37,7 @@ import org.objectweb.asm.MethodVisitor;
 import org.wso2.ballerinalang.compiler.bir.codegen.split.JvmConstantsGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.utils.JvmCodeGenUtil;
 import org.wso2.ballerinalang.compiler.bir.codegen.utils.JvmModuleUtils;
+import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SemTypeHelper;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.TypeHashVisitor;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
@@ -1013,53 +1014,53 @@ public class JvmTypeGen {
         mv.visitMethodInsn(INVOKESTATIC, BOOLEAN_VALUE, VALUE_OF_METHOD, BOOLEAN_VALUE_OF_METHOD, false);
     }
 
-    public String getTypeClass(BType bType) {
-        String typesPkgName = switch (bType.tag) {
+    public String getTypeClass(BIRNode.BIRTypeDefinition typeDef) {
+        String typesPkgName = switch (typeDef.type.tag) {
             case TypeTags.RECORD -> this.recordTypesPkgName;
             case TypeTags.OBJECT -> this.objectTypesPkgName;
             case TypeTags.ERROR -> this.errorTypesPkgName;
             case TypeTags.TUPLE -> this.tupleTypesPkgName;
             default -> this.unionTypesPkgName;
         };
-        return typesPkgName + toNameString(bType);
+        return typesPkgName + typeDef.internalName.value;
     }
 
     public void getUserDefinedType(MethodVisitor mv, BType bType) {
+        String varName = toNameString(bType);
         switch (bType.tag) {
             case TypeTags.RECORD ->
-                    mv.visitFieldInsn(GETSTATIC, this.recordTypesPkgName + toNameString(bType), TYPE_VAR_NAME,
+                    mv.visitFieldInsn(GETSTATIC, this.recordTypesPkgName + varName, TYPE_VAR_NAME,
                             GET_RECORD_TYPE_IMPL);
             case TypeTags.OBJECT ->
-                    mv.visitFieldInsn(GETSTATIC, this.objectTypesPkgName + toNameString(bType), TYPE_VAR_NAME,
+                    mv.visitFieldInsn(GETSTATIC, this.objectTypesPkgName + varName, TYPE_VAR_NAME,
                             GET_OBJECT_TYPE_IMPL);
             case TypeTags.ERROR ->
-                    mv.visitFieldInsn(GETSTATIC, this.errorTypesPkgName + toNameString(bType), TYPE_VAR_NAME,
-                            GET_ERROR_TYPE_IMPL);
+                    mv.visitFieldInsn(GETSTATIC, this.errorTypesPkgName + varName, TYPE_VAR_NAME, GET_ERROR_TYPE_IMPL);
             case TypeTags.TUPLE ->
-                    mv.visitFieldInsn(GETSTATIC, this.tupleTypesPkgName + toNameString(bType), TYPE_VAR_NAME,
-                            GET_TUPLE_TYPE_IMPL);
-            default -> mv.visitFieldInsn(GETSTATIC, this.unionTypesPkgName + toNameString(bType), TYPE_VAR_NAME,
+                    mv.visitFieldInsn(GETSTATIC, this.tupleTypesPkgName + varName, TYPE_VAR_NAME, GET_TUPLE_TYPE_IMPL);
+            default -> mv.visitFieldInsn(GETSTATIC, this.unionTypesPkgName + varName, TYPE_VAR_NAME,
                     GET_UNION_TYPE_IMPL);
         }
     }
 
     public void getUserDefinedType(MethodVisitor mv, PackageID pkgId, BType bType) {
+        String varName = toNameString(bType);
         switch (bType.tag) {
             case TypeTags.RECORD -> mv.visitFieldInsn(GETSTATIC,
-                    getModuleLevelClassName(pkgId, MODULE_RECORD_TYPES_PACKAGE_NAME) + toNameString(bType),
-                    TYPE_VAR_NAME, GET_RECORD_TYPE_IMPL);
+                    getModuleLevelClassName(pkgId, MODULE_RECORD_TYPES_PACKAGE_NAME) + varName, TYPE_VAR_NAME,
+                    GET_RECORD_TYPE_IMPL);
             case TypeTags.OBJECT -> mv.visitFieldInsn(GETSTATIC,
-                    getModuleLevelClassName(pkgId, MODULE_OBJECT_TYPES_PACKAGE_NAME) + toNameString(bType),
-                    TYPE_VAR_NAME, GET_OBJECT_TYPE_IMPL);
+                    getModuleLevelClassName(pkgId, MODULE_OBJECT_TYPES_PACKAGE_NAME) + varName, TYPE_VAR_NAME,
+                    GET_OBJECT_TYPE_IMPL);
             case TypeTags.ERROR -> mv.visitFieldInsn(GETSTATIC,
-                    getModuleLevelClassName(pkgId, MODULE_ERROR_TYPES_PACKAGE_NAME) + toNameString(bType),
-                    TYPE_VAR_NAME, GET_ERROR_TYPE_IMPL);
+                    getModuleLevelClassName(pkgId, MODULE_ERROR_TYPES_PACKAGE_NAME) + varName, TYPE_VAR_NAME,
+                    GET_ERROR_TYPE_IMPL);
             case TypeTags.TUPLE -> mv.visitFieldInsn(GETSTATIC,
-                    getModuleLevelClassName(pkgId, MODULE_TUPLE_TYPES_PACKAGE_NAME) + toNameString(bType),
-                    TYPE_VAR_NAME, GET_TUPLE_TYPE_IMPL);
+                    getModuleLevelClassName(pkgId, MODULE_TUPLE_TYPES_PACKAGE_NAME) + varName, TYPE_VAR_NAME,
+                    GET_TUPLE_TYPE_IMPL);
             default -> mv.visitFieldInsn(GETSTATIC,
-                    getModuleLevelClassName(pkgId, MODULE_UNION_TYPES_PACKAGE_NAME) + toNameString(bType),
-                    TYPE_VAR_NAME, GET_UNION_TYPE_IMPL);
+                    getModuleLevelClassName(pkgId, MODULE_UNION_TYPES_PACKAGE_NAME) + varName, TYPE_VAR_NAME,
+                    GET_UNION_TYPE_IMPL);
         }
     }
 }

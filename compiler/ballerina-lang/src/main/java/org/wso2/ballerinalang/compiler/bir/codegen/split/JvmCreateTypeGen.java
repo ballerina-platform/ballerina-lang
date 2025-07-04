@@ -53,6 +53,7 @@ import org.wso2.ballerinalang.compiler.bir.model.BIRTerminator;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.TypeHashVisitor;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BStructureTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BErrorType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
@@ -200,9 +201,9 @@ public class JvmCreateTypeGen {
                 // do not generate anything for other types (e.g.: finite type, type reference types etc.)
                 continue;
             }
-            String varName = toNameString(typeDef.type);
+            String varName = typeDef.internalName.value;
             ClassWriter cw = new BallerinaClassWriter(COMPUTE_FRAMES);
-            String typeClass = jvmTypeGen.getTypeClass(bType);
+            String typeClass = jvmTypeGen.getTypeClass(typeDef);
             generateConstantsClassInit(cw, typeClass);
             MethodVisitor mv = cw.visitMethod(ACC_STATIC, JVM_STATIC_INIT_METHOD, VOID_METHOD_DESC, null, null);
             switch (bTypeTag) {
@@ -220,8 +221,8 @@ public class JvmCreateTypeGen {
                 // Annotations for object constructors are populated at object init site.
                 boolean constructorsPopulated = Symbols.isFlagOn(bType.getFlags(), Flags.OBJECT_CTOR);
                 if (!constructorsPopulated) {
-                    loadAnnotations(mv, bType, typeDef.originalName.value, jvmPackageGen, jvmCastGen,
-                            asyncDataCollector, lazyLoadingDataCollector);
+                    loadAnnotations(mv, bType, varName, jvmPackageGen, jvmCastGen, asyncDataCollector,
+                            lazyLoadingDataCollector);
                 }
             }
             genMethodReturn(mv);
