@@ -144,7 +144,7 @@ public class AnnotationRuntimeTest {
 
         MapValueImpl<BString, Object> mapValue = (MapValueImpl<BString, Object>) annotValue;
         Assert.assertEquals(mapValue.size(), 1);
-        Assert.assertEquals(mapValue.get(StringUtils.fromString("p")), 2L);
+        Assert.assertEquals(mapValue.get(StringUtils.fromString("p")), 123L);
 
         annotatableType = (AnnotatableType) ((TypedescValue) tupleValue.get(1)).getDescribingType();
         Assert.assertEquals(annotatableType.getAnnotation(StringUtils.fromString("W")), true);
