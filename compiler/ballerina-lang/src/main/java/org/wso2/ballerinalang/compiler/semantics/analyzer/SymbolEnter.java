@@ -193,6 +193,7 @@ import static org.ballerinalang.model.elements.PackageID.FUNCTION;
 import static org.ballerinalang.model.elements.PackageID.FUTURE;
 import static org.ballerinalang.model.elements.PackageID.INT;
 import static org.ballerinalang.model.elements.PackageID.MAP;
+import static org.ballerinalang.model.elements.PackageID.NATURAL;
 import static org.ballerinalang.model.elements.PackageID.OBJECT;
 import static org.ballerinalang.model.elements.PackageID.QUERY;
 import static org.ballerinalang.model.elements.PackageID.REGEXP;
@@ -3508,6 +3509,10 @@ public class SymbolEnter extends BLangNodeVisitor {
         }
         if (langLib.equals(MAP)) {
             symTable.langMapModuleSymbol = packageSymbol;
+            return;
+        }
+        if (langLib.equals(NATURAL)) {
+            symTable.langNaturalModuleSymbol = packageSymbol;
             return;
         }
         if (langLib.equals(OBJECT)) {

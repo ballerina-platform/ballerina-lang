@@ -10153,6 +10153,7 @@ public class BallerinaParser extends AbstractParser {
                  FUTURE_KEYWORD,
                  INT_KEYWORD,
                  MAP_KEYWORD,
+                 NATURAL_KEYWORD,
                  OBJECT_KEYWORD,
                  STREAM_KEYWORD,
                  STRING_KEYWORD,

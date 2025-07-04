@@ -44,6 +44,7 @@ import static org.ballerinalang.model.elements.PackageID.INT;
 import static org.ballerinalang.model.elements.PackageID.INTERNAL;
 import static org.ballerinalang.model.elements.PackageID.JAVA;
 import static org.ballerinalang.model.elements.PackageID.MAP;
+import static org.ballerinalang.model.elements.PackageID.NATURAL;
 import static org.ballerinalang.model.elements.PackageID.OBJECT;
 import static org.ballerinalang.model.elements.PackageID.QUERY;
 import static org.ballerinalang.model.elements.PackageID.REGEXP;
@@ -194,6 +195,8 @@ public class Bootstrap {
         symbolTable.langObjectModuleSymbol = loadLangLibFromBala(OBJECT, compilerContext);
         symResolver.loadRawTemplateType();
         symResolver.bootstrapIterableType();
+        symbolTable.langNaturalModuleSymbol = loadLangLibFromBala(NATURAL, compilerContext);
+        symResolver.loadNaturalGeneratorType();
         symbolTable.langStreamModuleSymbol = loadLangLibFromBala(STREAM, compilerContext);
         symbolTable.langTableModuleSymbol = loadLangLibFromBala(TABLE, compilerContext);
         symbolTable.langRegexpModuleSymbol = loadLangLibFromBala(REGEXP, compilerContext);

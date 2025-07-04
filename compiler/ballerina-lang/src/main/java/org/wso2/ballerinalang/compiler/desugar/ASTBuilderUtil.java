@@ -73,6 +73,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchGuard;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNamedArgsExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangRawTemplateLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangReCharSet;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangReFlagExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangReFlagsOnOff;
@@ -1088,5 +1089,15 @@ public final class ASTBuilderUtil {
         flagExpr.flags = ASTBuilderUtil.createLiteral(pos, valueType, "");
         flagExpr.setBType(exprType);
         return flagExpr;
+    }
+
+    static BLangRawTemplateLiteral createRawTemplateExpression(Location location, BType type,
+            List<BLangLiteral> strings, List<BLangExpression> insertions) {
+        BLangRawTemplateLiteral rawTemplateExpr = (BLangRawTemplateLiteral) TreeBuilder.createRawTemplateLiteralNode();
+        rawTemplateExpr.pos = location;
+        rawTemplateExpr.strings = strings;
+        rawTemplateExpr.insertions = insertions;
+        rawTemplateExpr.setBType(type);
+        return rawTemplateExpr;
     }
 }
