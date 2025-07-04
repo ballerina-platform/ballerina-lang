@@ -47,6 +47,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.util.Name;
+import org.wso2.ballerinalang.compiler.util.Names;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -74,7 +75,7 @@ public class LargeMethodOptimizer {
 
     private static final Name DEFAULT_WORKER_NAME = new Name("function");
     private static final String OBJECT_INITIALIZATION_FUNCTION_NAME = "$init$";
-    private static final String SPLIT_METHOD = "$split$method$_";
+    public static final String SPLIT_METHOD = "$split$method$_";
     private final SymbolTable symbolTable;
     // splits are done only if the original function has more instructions than the below number
     private static final int FUNCTION_INSTRUCTION_COUNT_THRESHOLD = 1000;
@@ -88,6 +89,8 @@ public class LargeMethodOptimizer {
     private PackageID currentPackageId;
     // newly created split BIR function number
     private int splitFuncNum;
+    // newly created split BIR function number for init Function
+    private int splitInitFuncNum;
     // newly created temporary variable number to handle split function return value
     private int splitTempVarNum;
 
@@ -98,6 +101,7 @@ public class LargeMethodOptimizer {
     public void splitLargeBIRFunctions(BIRPackage birPkg) {
         currentPackageId = birPkg.packageID;
         splitFuncNum = 0;
+        splitInitFuncNum = 0;
         splitTempVarNum = 0;
 
         List<BIRFunction> newlyAddedBIRFunctions = new ArrayList<>();
@@ -801,8 +805,7 @@ public class LargeMethodOptimizer {
         }
         BType funcRetType = splitFuncEnv.returnValAssigned ? symbolTable.errorOrNilType : symbolTable.nilType;
         BInvokableType type = new BInvokableType(symbolTable.typeEnv(), paramTypes, funcRetType, null);
-        splitFuncNum += 1;
-        String splitFuncName = SPLIT_METHOD + splitFuncNum;
+        String splitFuncName = getSplitFunctionName(parentFunc);
         Name newFuncName = new Name(splitFuncName);
         BIRFunction splitBirFunc = new BIRFunction(null, newFuncName, newFuncName, 0, type, DEFAULT_WORKER_NAME, 0,
                 SymbolOrigin.VIRTUAL);
@@ -1432,8 +1435,7 @@ public class LargeMethodOptimizer {
                 currentBB.instructions.addAll(basicBlocks.get(bbNum).instructions.subList(startInsNum,
                         possibleSplits.get(splitNum).firstIns));
             }
-            splitFuncNum += 1;
-            String newFunctionName = SPLIT_METHOD + splitFuncNum;
+            String newFunctionName = getSplitFunctionName(function);
             Name newFuncName = new Name(newFunctionName);
             Split currSplit = possibleSplits.get(splitNum);
             splitNum += 1;
@@ -1785,8 +1787,7 @@ public class LargeMethodOptimizer {
                                                  BIRBasicBlock currentBB, boolean fromAttachedFunction) {
         List<BIRNonTerminator> instructionList = function.basicBlocks.get(bbNum).instructions;
         for (Split possibleSplit : possibleSplits) {
-            splitFuncNum += 1;
-            String newFunctionName = SPLIT_METHOD + splitFuncNum;
+            String newFunctionName = getSplitFunctionName(function);
             Name newFuncName = new Name(newFunctionName);
             BIROperand currentBBTerminatorLhsOp =
                     new BIROperand(instructionList.get(possibleSplit.lastIns).lhsOp.variableDcl);
@@ -2134,5 +2135,12 @@ public class LargeMethodOptimizer {
         private ParentFuncEnv(BIRBasicBlock returnBB) {
             this.returnBB = returnBB;
         }
+    }
+
+    private String getSplitFunctionName(BIRFunction originalFunction) {
+        if (originalFunction.name.value.contains(Names.INIT_FUNCTION_SUFFIX.value)) {
+            return SPLIT_METHOD + Names.INIT_FUNCTION_SUFFIX.value + ++splitInitFuncNum;
+        }
+        return SPLIT_METHOD + ++splitFuncNum;
     }
 }

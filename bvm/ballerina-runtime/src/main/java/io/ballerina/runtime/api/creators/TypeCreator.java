@@ -156,8 +156,8 @@ public final class TypeCreator {
      * @param readonly  whether immutable
      * @return the new tuple type
      */
-    public static TupleType createTupleType(List<Type> typeList, Type restType,
-                                            int typeFlags, boolean isCyclic, boolean readonly) {
+    public static TupleType createTupleType(List<Type> typeList, Type restType, int typeFlags, boolean isCyclic,
+                                            boolean readonly) {
         return new BTupleType(typeList, restType, typeFlags, isCyclic, readonly);
     }
 
@@ -171,8 +171,8 @@ public final class TypeCreator {
      * @param readonly  whether immutable
      * @return the new tuple type
      */
-    public static TupleType createTupleType(String name, Module pkg,
-                                            int typeFlags, boolean isCyclic, boolean readonly) {
+    public static TupleType createTupleType(String name, Module pkg, int typeFlags, boolean isCyclic,
+                                            boolean readonly) {
         return new BTupleType(name, pkg, typeFlags, isCyclic, readonly);
     }
 

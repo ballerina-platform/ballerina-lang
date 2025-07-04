@@ -10,7 +10,7 @@ Running Tests
 	[fail] beforeEach[before each function for the test]:
 	    error("{ballerina}DivisionByZero",message=" / by zero")
 			callableName: beforeEach  fileName: skip-when-beforeEach-fails.bal lineNumber: 25
-			callableName: beforeEach$lambda1$  fileName: skip-when-beforeEach-fails.bal lineNumber: 54
+			callableName: beforeEach$lambda0$  fileName: skip-when-beforeEach-fails.bal lineNumber: 54
 			callableName: call moduleName: ballerina.lang.function.0 fileName: function.bal lineNumber: 37
 			callableName: executeFunction moduleName: ballerina.test.0 fileName: serialExecuter.bal lineNumber: 142
 			callableName: executeFunctions moduleName: ballerina.test.0 fileName: serialExecuter.bal lineNumber: 96

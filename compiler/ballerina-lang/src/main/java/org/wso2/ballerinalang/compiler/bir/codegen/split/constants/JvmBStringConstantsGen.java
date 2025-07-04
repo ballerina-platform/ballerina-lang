@@ -23,8 +23,8 @@ import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.MethodVisitor;
 import org.wso2.ballerinalang.compiler.bir.codegen.BallerinaClassWriter;
-import org.wso2.ballerinalang.compiler.bir.codegen.JarEntries;
-import org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil;
+import org.wso2.ballerinalang.compiler.bir.codegen.internal.JarEntries;
+import org.wso2.ballerinalang.compiler.bir.codegen.utils.JvmCodeGenUtil;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -32,7 +32,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import static io.ballerina.runtime.api.constants.RuntimeConstants.UNDERSCORE;
 import static org.objectweb.asm.ClassWriter.COMPUTE_FRAMES;
 import static org.objectweb.asm.Opcodes.ACC_PUBLIC;
 import static org.objectweb.asm.Opcodes.ACC_STATIC;
@@ -51,16 +50,15 @@ import static org.objectweb.asm.Opcodes.PUTSTATIC;
 import static org.objectweb.asm.Opcodes.RETURN;
 import static org.objectweb.asm.Opcodes.T_INT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BMP_STRING_VALUE;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_STRING_INIT_METHOD_PREFIX;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BSTRING_VAR_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_STRING_VAR_PREFIX;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CLASS_FILE_SUFFIX;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.GET_SURROGATE_ARRAY_METHOD_PREFIX;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JVM_INIT_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JVM_STATIC_INIT_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.LARGE_STRING_VAR_PREFIX;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAX_STRINGS_PER_METHOD;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_STRING_CONSTANT_CLASS_NAME;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_SURROGATES_CLASS_NAME;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAX_SURROGATE_FILLS_PER_METHOD;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_STRING_CONSTANT_PACKAGE_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.NON_BMP_STRING_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRING_BUILDER;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_BSTRING;
@@ -70,8 +68,9 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INIT_WIT
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.STRING_BUILDER_APPEND;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.TO_STRING_RETURN;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.VOID_METHOD_DESC;
-import static org.wso2.ballerinalang.compiler.bir.codegen.split.constants.JvmConstantGenCommons.genMethodReturn;
-import static org.wso2.ballerinalang.compiler.bir.codegen.split.constants.JvmConstantGenCommons.generateConstantsClassInit;
+import static org.wso2.ballerinalang.compiler.bir.codegen.utils.JvmConstantGenUtils.genMethodReturn;
+import static org.wso2.ballerinalang.compiler.bir.codegen.utils.JvmConstantGenUtils.generateConstantsClassInit;
+import static org.wso2.ballerinalang.compiler.bir.codegen.utils.JvmModuleUtils.getModuleLevelClassName;
 
 /**
  * Generates Jvm class for the ballerina string constants for given module.
@@ -81,16 +80,13 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.split.constants.JvmCon
 public class JvmBStringConstantsGen {
 
     private final Map<String, Integer> bStringVarIndexMap;
-    private final String stringConstantsClass;
-    private final String surrogatesMethodsClass;
-    private final Map<String, int[]> highSurrogatesMap = new HashMap<>();
     private final Map<String, Map<String, String>> largeStringVarMap = new HashMap<>();
     private int bStringConstantIndex = 0;
+    private final String stringConstantsPkgName;
 
-    public JvmBStringConstantsGen(PackageID module) {
+    public JvmBStringConstantsGen(PackageID packageID) {
         this.bStringVarIndexMap = new LinkedHashMap<>();
-        this.stringConstantsClass = JvmCodeGenUtil.getModuleLevelClassName(module, MODULE_STRING_CONSTANT_CLASS_NAME);
-        this.surrogatesMethodsClass = JvmCodeGenUtil.getModuleLevelClassName(module, MODULE_SURROGATES_CLASS_NAME);
+        this.stringConstantsPkgName = getModuleLevelClassName(packageID, MODULE_STRING_CONSTANT_PACKAGE_NAME);
     }
 
     public int addBStringConstantVarIndex(String val) {
@@ -105,29 +101,44 @@ public class JvmBStringConstantsGen {
     }
 
     public void generateConstantInit(JarEntries jarEntries) {
-        if (bStringVarIndexMap.isEmpty()) {
-            return;
-        }
+        generateBStringClasses(largeStringVarMap, jarEntries);
+    }
+    private void generateBStringClasses(Map<String, Map<String, String>> stringVarMap,
+                                        JarEntries jarEntries) {
+        ClassWriter cw;
+        MethodVisitor mv;
+        String constantClassName;
+        for (Map.Entry<String, Integer> entry : bStringVarIndexMap.entrySet()) {
+            String bString = entry.getKey();
+            int varIndex = entry.getValue();
+            String bStringVarName = B_STRING_VAR_PREFIX + varIndex;
+            constantClassName = stringConstantsPkgName + bStringVarName;
+            cw = new BallerinaClassWriter(COMPUTE_FRAMES);
+            generateConstantsClassInit(cw, constantClassName);
+            visitBStringField(cw);
+            mv = cw.visitMethod(ACC_STATIC, JVM_STATIC_INIT_METHOD, VOID_METHOD_DESC, null, null);
+            int[] highSurrogates = listHighSurrogates(bString);
+            if (stringVarMap.containsKey(bStringVarName)) {
+                visitStringField(cw, stringVarMap.get(bStringVarName));
+                Map<String, String> stringChunkMap = stringVarMap.get(bStringVarName);
+                createConcatenatedBString(mv, highSurrogates, bStringVarName, stringChunkMap, constantClassName);
+            } else {
+                createDirectBString(mv, bString, bStringVarName, highSurrogates, constantClassName);
+            }
+            genMethodReturn(mv);
 
-        generateBStringInitMethodClasses(largeStringVarMap, jarEntries);
-        if (!highSurrogatesMap.isEmpty()) {
-            generateSurrogatesClass(jarEntries);
+            // Create methods to return int array to pass when creating non-Bmp string values.
+            if (highSurrogates.length > 0) {
+                generateGetHighSurrogateArrayMethod(cw, constantClassName, bStringVarName, highSurrogates);
+            }
+            cw.visitEnd();
+            jarEntries.put(constantClassName + CLASS_FILE_SUFFIX, cw.toByteArray());
         }
     }
 
-    private void generateSurrogatesClass(JarEntries jarEntries) {
-        ClassWriter cw = new BallerinaClassWriter(COMPUTE_FRAMES);
-        generateConstantsClassInit(cw, surrogatesMethodsClass);
-
-        // Create methods to return int array to pass when creating non-Bmp string values.
-        highSurrogatesMap.forEach((key, value) -> generateGetHighSurrogateArrayMethod(cw, key, value));
-
-        cw.visitEnd();
-        jarEntries.put(surrogatesMethodsClass + CLASS_FILE_SUFFIX, cw.toByteArray());
-    }
-
-    private void generateGetHighSurrogateArrayMethod(ClassWriter cw, String varName, int[] values) {
-        List<String> splitMethodNames = generateSplitGetSurrogateArrayMethod(cw, varName, values);
+    private void generateGetHighSurrogateArrayMethod(ClassWriter cw, String constantClassName, String varName,
+                                                     int[] values) {
+        List<String> splitMethodNames = generateSplitGetSurrogateArrayMethod(cw, constantClassName, varName, values);
         String highSurrogateMethodName = getHighSurrogateMethodName(varName);
         MethodVisitor mv = cw.visitMethod(ACC_STATIC, highSurrogateMethodName, "()[I", null, null);
         mv.visitLdcInsn(values.length);
@@ -136,22 +147,23 @@ public class JvmBStringConstantsGen {
         // Call the get surrogate array methods to populate int array
         for (String methodName : splitMethodNames) {
             mv.visitVarInsn(ALOAD, 0);
-            mv.visitMethodInsn(INVOKESTATIC, surrogatesMethodsClass, methodName, "([I)V", false);
+            mv.visitMethodInsn(INVOKESTATIC, constantClassName, methodName, "([I)V", false);
         }
         mv.visitVarInsn(ALOAD, 0);
         mv.visitInsn(ARETURN);
-        JvmCodeGenUtil.visitMaxStackForMethod(mv, highSurrogateMethodName, surrogatesMethodsClass);
+        JvmCodeGenUtil.visitMaxStackForMethod(mv, highSurrogateMethodName, constantClassName);
         mv.visitEnd();
     }
 
-    private List<String> generateSplitGetSurrogateArrayMethod(ClassWriter cw, String varName, int[] values) {
+    private List<String> generateSplitGetSurrogateArrayMethod(ClassWriter cw, String constantClassName,
+                                                              String varName, int[] values) {
         List<String> methods = new ArrayList<>();
         MethodVisitor mv = null;
         int indexCount = 0;
         int methodCount = 0;
         String methodName = getHighSurrogateMethodName(varName);
         for (int i = 0; i < values.length; i++) {
-            if (indexCount % MAX_STRINGS_PER_METHOD == 0) {
+            if (indexCount % MAX_SURROGATE_FILLS_PER_METHOD == 0) {
                 methodName = methodName + methodCount++;
                 mv = cw.visitMethod(ACC_STATIC, methodName, "([I)V", null,
                         null);
@@ -163,16 +175,16 @@ public class JvmBStringConstantsGen {
             mv.visitLdcInsn(values[i]);
             mv.visitInsn(IASTORE);
             indexCount++;
-            if (indexCount % MAX_STRINGS_PER_METHOD == 0) {
+            if (indexCount % MAX_SURROGATE_FILLS_PER_METHOD == 0) {
                 mv.visitInsn(RETURN);
-                JvmCodeGenUtil.visitMaxStackForMethod(mv, methodName, surrogatesMethodsClass);
+                JvmCodeGenUtil.visitMaxStackForMethod(mv, methodName, constantClassName);
                 mv.visitEnd();
             }
         }
         // Visit the previously started get surrogate array method if not ended.
-        if (indexCount % MAX_STRINGS_PER_METHOD != 0) {
+        if (indexCount % MAX_SURROGATE_FILLS_PER_METHOD != 0) {
             mv.visitInsn(RETURN);
-            JvmCodeGenUtil.visitMaxStackForMethod(mv, methodName, surrogatesMethodsClass);
+            JvmCodeGenUtil.visitMaxStackForMethod(mv, methodName, constantClassName);
             mv.visitEnd();
         }
         return methods;
@@ -228,61 +240,10 @@ public class JvmBStringConstantsGen {
         return splitStrings;
     }
 
-    private void visitBStringField(ClassWriter cw, String varName) {
+    private void visitBStringField(ClassWriter cw) {
         FieldVisitor fv;
-        fv = cw.visitField(ACC_PUBLIC + ACC_STATIC, varName, GET_BSTRING, null, null);
+        fv = cw.visitField(ACC_PUBLIC + ACC_STATIC, BSTRING_VAR_NAME, GET_BSTRING, null, null);
         fv.visitEnd();
-    }
-
-    private void generateBStringInitMethodClasses(Map<String, Map<String, String>> stringVarMap,
-                                                  JarEntries jarEntries) {
-        ClassWriter cw = null;
-        MethodVisitor mv = null;
-        String constantClassName = null;
-        int bStringCount = 0;
-        for (Map.Entry<String, Integer> entry : bStringVarIndexMap.entrySet()) {
-            String bString = entry.getKey();
-            int varIndex = entry.getValue();
-            String bStringVarName = B_STRING_VAR_PREFIX + varIndex;
-
-            int classIndex = varIndex / MAX_STRINGS_PER_METHOD;
-            constantClassName = stringConstantsClass + UNDERSCORE + classIndex;
-
-            if (bStringCount % MAX_STRINGS_PER_METHOD == 0) {
-                cw = new BallerinaClassWriter(COMPUTE_FRAMES);
-                generateConstantsClassInit(cw, constantClassName);
-                mv = cw.visitMethod(ACC_PUBLIC + ACC_STATIC, B_STRING_INIT_METHOD_PREFIX, VOID_METHOD_DESC, null, null);
-            }
-
-            visitBStringField(cw, bStringVarName);
-            int[] highSurrogates = listHighSurrogates(bString);
-            if (highSurrogates.length > 0) {
-                highSurrogatesMap.put(bStringVarName, highSurrogates);
-            }
-            if (stringVarMap.containsKey(bStringVarName)) {
-                visitStringField(cw, stringVarMap.get(bStringVarName));
-                Map<String, String> stringChunkMap = stringVarMap.get(bStringVarName);
-                createConcatenatedBString(mv, highSurrogates, bStringVarName, stringChunkMap, constantClassName);
-                bStringCount += stringChunkMap.size() + 1;
-            } else {
-                createDirectBString(mv, bString, bStringVarName, highSurrogates, constantClassName);
-                bStringCount++;
-            }
-
-            if (bStringCount % MAX_STRINGS_PER_METHOD == 0) {
-                genMethodReturn(mv);
-                generateStaticClassInitializer(cw, constantClassName);
-                cw.visitEnd();
-                jarEntries.put(constantClassName + CLASS_FILE_SUFFIX, cw.toByteArray());
-            }
-        }
-
-        if (bStringCount % MAX_STRINGS_PER_METHOD != 0) {
-            genMethodReturn(mv);
-            generateStaticClassInitializer(cw, constantClassName);
-            cw.visitEnd();
-            jarEntries.put(constantClassName + CLASS_FILE_SUFFIX, cw.toByteArray());
-        }
     }
 
     private String getHighSurrogateMethodName(String bStringVar) {
@@ -298,7 +259,7 @@ public class JvmBStringConstantsGen {
         if (highSurrogates.length > 0) {
             mv.visitTypeInsn(NEW, NON_BMP_STRING_VALUE);
             generateAppendStringConstants(mv, stringChunks, constantClassName);
-            mv.visitMethodInsn(INVOKESTATIC, surrogatesMethodsClass, getHighSurrogateMethodName(bStringVarName), "()[I",
+            mv.visitMethodInsn(INVOKESTATIC, constantClassName, getHighSurrogateMethodName(bStringVarName), "()[I",
                     false);
             mv.visitMethodInsn(INVOKESPECIAL, NON_BMP_STRING_VALUE, JVM_INIT_METHOD, INIT_NON_BMP_STRING_VALUE, false);
         } else {
@@ -306,7 +267,7 @@ public class JvmBStringConstantsGen {
             generateAppendStringConstants(mv, stringChunks, constantClassName);
             mv.visitMethodInsn(INVOKESPECIAL, BMP_STRING_VALUE, JVM_INIT_METHOD, INIT_WITH_STRING, false);
         }
-        mv.visitFieldInsn(PUTSTATIC, constantClassName, bStringVarName, GET_BSTRING);
+        mv.visitFieldInsn(PUTSTATIC, constantClassName, BSTRING_VAR_NAME, GET_BSTRING);
     }
 
     private void generateAppendStringConstants(MethodVisitor mv, Map<String, String> stringChunks,
@@ -327,37 +288,25 @@ public class JvmBStringConstantsGen {
         if (highSurrogates.length > 0) {
             createNonBmpString(mv, bString, bStringVarName, constantClassName);
         } else {
-            createBmpString(mv, bString, bStringVarName, constantClassName);
+            createBmpString(mv, bString, constantClassName);
         }
     }
 
-    private void generateStaticClassInitializer(ClassWriter cw, String className) {
-        MethodVisitor mv =
-                cw.visitMethod(ACC_PUBLIC + ACC_STATIC, JVM_STATIC_INIT_METHOD, VOID_METHOD_DESC, null, null);
-        mv.visitMethodInsn(INVOKESTATIC, className, B_STRING_INIT_METHOD_PREFIX, VOID_METHOD_DESC, false);
-        genMethodReturn(mv);
-    }
-
-    private void createBmpString(MethodVisitor mv, String val, String varName, String constantClassName) {
+    private void createBmpString(MethodVisitor mv, String val, String constantClassName) {
         mv.visitTypeInsn(NEW, BMP_STRING_VALUE);
         mv.visitInsn(DUP);
         mv.visitLdcInsn(val);
-        mv.visitMethodInsn(INVOKESPECIAL, BMP_STRING_VALUE, JVM_INIT_METHOD,
-                INIT_WITH_STRING, false);
-        mv.visitFieldInsn(PUTSTATIC, constantClassName, varName, GET_BSTRING);
+        mv.visitMethodInsn(INVOKESPECIAL, BMP_STRING_VALUE, JVM_INIT_METHOD, INIT_WITH_STRING, false);
+        mv.visitFieldInsn(PUTSTATIC, constantClassName, BSTRING_VAR_NAME, GET_BSTRING);
     }
 
     private void createNonBmpString(MethodVisitor mv, String val, String varName, String constantClassName) {
         mv.visitTypeInsn(NEW, NON_BMP_STRING_VALUE);
         mv.visitInsn(DUP);
         mv.visitLdcInsn(val);
-        mv.visitMethodInsn(INVOKESTATIC, surrogatesMethodsClass, getHighSurrogateMethodName(varName), "()[I", false);
+        mv.visitMethodInsn(INVOKESTATIC, constantClassName, getHighSurrogateMethodName(varName), "()[I", false);
         mv.visitMethodInsn(INVOKESPECIAL, NON_BMP_STRING_VALUE, JVM_INIT_METHOD, INIT_NON_BMP_STRING_VALUE, false);
-        mv.visitFieldInsn(PUTSTATIC, constantClassName, varName, GET_BSTRING);
-    }
-
-    public String getStringConstantsClass() {
-        return stringConstantsClass;
+        mv.visitFieldInsn(PUTSTATIC, constantClassName, BSTRING_VAR_NAME, GET_BSTRING);
     }
 
     private int[] listHighSurrogates(String str) {

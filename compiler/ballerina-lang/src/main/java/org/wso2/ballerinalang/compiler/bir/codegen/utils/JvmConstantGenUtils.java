@@ -16,19 +16,23 @@
  * under the License.
  */
 
-package org.wso2.ballerinalang.compiler.bir.codegen.split.constants;
+package org.wso2.ballerinalang.compiler.bir.codegen.utils;
 
 import org.objectweb.asm.ClassWriter;
+import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.MethodVisitor;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants;
 
 import static org.objectweb.asm.Opcodes.ACC_PRIVATE;
 import static org.objectweb.asm.Opcodes.ACC_PUBLIC;
+import static org.objectweb.asm.Opcodes.ACC_STATIC;
 import static org.objectweb.asm.Opcodes.ACC_SUPER;
 import static org.objectweb.asm.Opcodes.ALOAD;
 import static org.objectweb.asm.Opcodes.INVOKESPECIAL;
 import static org.objectweb.asm.Opcodes.RETURN;
 import static org.objectweb.asm.Opcodes.V21;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBJECT;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.VALUE_VAR_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.VOID_METHOD_DESC;
 
 /**
@@ -36,9 +40,9 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.VOID_MET
  *
  * @since 2201.2.0
  */
-public final class JvmConstantGenCommons {
+public final class JvmConstantGenUtils {
 
-    private JvmConstantGenCommons() {
+    private JvmConstantGenUtils() {
     }
 
     public static void generateConstantsClassInit(ClassWriter cw, String constantsClass) {
@@ -58,4 +62,15 @@ public final class JvmConstantGenCommons {
         methodVisitor.visitEnd();
     }
 
+    public static void genLazyLoadingClass(ClassWriter cw, String lazyLoadingClass, String descriptor) {
+        cw.visit(V21, ACC_PUBLIC | ACC_SUPER, lazyLoadingClass, null, OBJECT, null);
+        FieldVisitor fv = cw.visitField(ACC_PUBLIC + ACC_STATIC, VALUE_VAR_NAME, descriptor, null, null);
+        fv.visitEnd();
+        generateConstantsClassInit(cw, lazyLoadingClass);
+    }
+
+    public static void addField(ClassWriter cw, String varName) {
+        FieldVisitor fv = cw.visitField(ACC_PUBLIC + ACC_STATIC, varName, "B", null, null);
+        fv.visitEnd();
+    }
 }

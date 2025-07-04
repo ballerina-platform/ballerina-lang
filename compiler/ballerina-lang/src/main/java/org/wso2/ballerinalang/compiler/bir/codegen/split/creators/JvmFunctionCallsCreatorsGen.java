@@ -23,12 +23,13 @@ import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.wso2.ballerinalang.compiler.bir.codegen.BallerinaClassWriter;
-import org.wso2.ballerinalang.compiler.bir.codegen.JarEntries;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmCastGen;
-import org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen;
+import org.wso2.ballerinalang.compiler.bir.codegen.internal.JarEntries;
 import org.wso2.ballerinalang.compiler.bir.codegen.model.BIRFunctionWrapper;
 import org.wso2.ballerinalang.compiler.bir.codegen.split.JvmCreateTypeGen;
+import org.wso2.ballerinalang.compiler.bir.codegen.utils.JvmCodeGenUtil;
+import org.wso2.ballerinalang.compiler.bir.codegen.utils.JvmModuleUtils;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
@@ -47,8 +48,6 @@ import static org.objectweb.asm.Opcodes.ARETURN;
 import static org.objectweb.asm.Opcodes.INVOKESTATIC;
 import static org.objectweb.asm.Opcodes.L2I;
 import static org.objectweb.asm.Opcodes.V21;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil.createDefaultCase;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil.getModuleLevelClassName;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CALL_FUNCTION;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CLASS_FILE_SUFFIX;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAX_CALLS_PER_FUNCTION_CALL_METHOD;
@@ -56,6 +55,9 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_FU
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBJECT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.VISIT_MAX_SAFE_MARGIN;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.FUNCTION_CALL;
+import static org.wso2.ballerinalang.compiler.bir.codegen.utils.JvmCodeGenUtil.createDefaultCase;
+import static org.wso2.ballerinalang.compiler.bir.codegen.utils.JvmCodeGenUtil.skipRecordDefaultValueFunctions;
+import static org.wso2.ballerinalang.compiler.bir.codegen.utils.JvmModuleUtils.getModuleLevelClassName;
 
 /**
  * Ballerina function calls creation related JVM byte code generation class. This is required to call function by its
@@ -95,22 +97,25 @@ public class JvmFunctionCallsCreatorsGen {
         int i = 0;
         List<Label> targetLabels = new ArrayList<>();
         String callMethod = CALL_FUNCTION;
-        for (BIRNode.BIRFunction func : functions) {
+        // Skip function calls for record default value functions since they can be called directly from function
+        // pointers instead of the function name
+        List<BIRNode.BIRFunction> filteredFunctions = skipRecordDefaultValueFunctions(functions);
+        for (BIRNode.BIRFunction func : filteredFunctions) {
             String encodedMethodName = Utils.encodeFunctionIdentifier(func.name.value);
-            String packageName = JvmCodeGenUtil.getPackageName(packageID);
+            String packageName = JvmModuleUtils.getPackageName(packageID);
             BIRFunctionWrapper functionWrapper =
                     jvmPackageGen.lookupBIRFunctionWrapper(packageName + encodedMethodName);
             if (bTypesCount % MAX_CALLS_PER_FUNCTION_CALL_METHOD == 0) {
                 mv = cw.visitMethod(ACC_PUBLIC + ACC_STATIC, callMethod, FUNCTION_CALL, null, null);
                 mv.visitCode();
                 defaultCaseLabel = new Label();
-                int remainingCases = functions.size() - bTypesCount;
+                int remainingCases = filteredFunctions.size() - bTypesCount;
                 if (remainingCases > MAX_CALLS_PER_FUNCTION_CALL_METHOD) {
                     remainingCases = MAX_CALLS_PER_FUNCTION_CALL_METHOD;
                 }
-                List<Label> labels = JvmCreateTypeGen.createLabelsForSwitch(mv, funcNameRegIndex, functions,
+                List<Label> labels = JvmCreateTypeGen.createLabelsForSwitch(mv, funcNameRegIndex, filteredFunctions,
                         bTypesCount, remainingCases, defaultCaseLabel, false);
-                targetLabels = JvmCreateTypeGen.createLabelsForEqualCheck(mv, funcNameRegIndex, functions,
+                targetLabels = JvmCreateTypeGen.createLabelsForEqualCheck(mv, funcNameRegIndex, filteredFunctions,
                         bTypesCount, remainingCases, labels, defaultCaseLabel, false);
                 i = 0;
                 callMethod = CALL_FUNCTION + ++methodCount;

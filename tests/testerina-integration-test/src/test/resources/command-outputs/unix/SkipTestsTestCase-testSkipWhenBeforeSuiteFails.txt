@@ -10,7 +10,7 @@ Running Tests
 	[fail] beforeSuite[before test suite function]:
 	    error("{ballerina}DivisionByZero",message=" / by zero")
 			callableName: beforeSuite  fileName: skip-when-beforeSuite-fails.bal lineNumber: 24
-			callableName: beforeSuite$lambda1$  fileName: skip-when-beforeSuite-fails.bal lineNumber: 76
+			callableName: beforeSuite$lambda0$  fileName: skip-when-beforeSuite-fails.bal lineNumber: 76
 			callableName: call moduleName: ballerina.lang.function.0 fileName: function.bal lineNumber: 37
 			callableName: executeFunction moduleName: ballerina.test.0 fileName: serialExecuter.bal lineNumber: 142
 			callableName: executeFunctions moduleName: ballerina.test.0 fileName: serialExecuter.bal lineNumber: 96

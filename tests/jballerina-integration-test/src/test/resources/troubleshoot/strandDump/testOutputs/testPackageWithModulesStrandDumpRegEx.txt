@@ -14,84 +14,84 @@ Isolated Strands:
 \tStrand #\d* \"\w*\" :
 \t\tat       ballerina.lang&0046runtime.0.runtime.sleep\(runtime.bal:\d*\)
 \t\t         testOrg.testPackageWithModules.0.main.balfunc\(main.bal:\d*\)
-\t\t         testOrg.testPackageWithModules.0.lambdas.\$_generated1main.balfunc\$lambda\$0\$\(main.bal:\d*\)
+\t\t         testOrg.testPackageWithModules.0.lambdas.\$1main.balfunc\$lambda\$0\$\(main.bal:\d*\)
 
 \tStrand #\d* \"\w*\" :
 \t\tat       testOrg.testPackageWithModules.0.main.\$lambda\$_2\(main.bal:\d*\)
-\t\t         testOrg.testPackageWithModules.0.lambdas.\$_generated1main.\$lambda\$_2\$lambda5\$\(main.bal:\d*\)
+\t\t         testOrg.testPackageWithModules.0.lambdas.\$1main.\$lambda\$_2\$lambda5\$\(main.bal:\d*\)
 
 \tStrand #\d* \"\w*\" :
 \t\tat       testOrg.testPackageWithModules.0.main.\$lambda\$_3\(main.bal:\d*\)
-\t\t         testOrg.testPackageWithModules.0.lambdas.\$_generated1main.\$lambda\$_3\$lambda6\$\(main.bal:\d*\)
+\t\t         testOrg.testPackageWithModules.0.lambdas.\$1main.\$lambda\$_3\$lambda6\$\(main.bal:\d*\)
 
 \tStrand #\d* \"\w*\" :
 \t\tat       testOrg.testPackageWithModules&0046anotherutils.0.anotherutils.func3\(anotherutils.bal:\d*\)
 \t\t         testOrg.testPackageWithModules&0046anotherutils.0.anotherutils.func2\(anotherutils.bal:\d*\)
 \t\t         testOrg.testPackageWithModules&0046anotherutils.0.anotherutils.func1\(anotherutils.bal:\d*\)
 \t\t         testOrg.testPackageWithModules&0046anotherutils.0.anotherutils.entryfunc\(anotherutils.bal:\d*\)
-\t\t         testOrg.testPackageWithModules&0046anotherutils.0.creators.\$_function_calls.call\(Unknown Source\)
-\t\t         testOrg.testPackageWithModules.0.lambdas.\$_generated1main.entryfunc\$lambda\$2\$\(main.bal:\d*\)
+\t\t         testOrg.testPackageWithModules&0046anotherutils.0.creators.function_calls.call\(Unknown Source\)
+\t\t         testOrg.testPackageWithModules.0.lambdas.\$1main.entryfunc\$lambda\$2\$\(main.bal:\d*\)
 
 Non Isolated Strands:
 
 \tStrand #\d* \"\w*\" :
 \t\tat       testOrg.testPackageWithModules.0.main.\$lambda\$_4\(main.bal:\d*\)
-\t\t         testOrg.testPackageWithModules.0.lambdas.\$_generated1main.\$lambda\$_4\$lambda7\$\(main.bal:\d*\)
+\t\t         testOrg.testPackageWithModules.0.lambdas.\$1main.\$lambda\$_4\$lambda7\$\(main.bal:\d*\)
 
 \tStrand #\d* \"\w*\" :
 \t\tat       ballerina.lang&0046runtime.0.runtime.sleep\(runtime.bal:\d*\)
 \t\t         testOrg.testPackageWithModules.0.main.\$lambda\$_5\(main.bal:\d*\)
-\t\t         testOrg.testPackageWithModules.0.lambdas.\$_generated1main.\$lambda\$_5\$lambda8\$\(main.bal:\d*\)
+\t\t         testOrg.testPackageWithModules.0.lambdas.\$1main.\$lambda\$_5\$lambda8\$\(main.bal:\d*\)
 
 \tStrand #\d* \"\w*\" :
 \t\tat       testOrg.testPackageWithModules.0.main.\$lambda\$_6\(main.bal:\d*\)
-\t\t         testOrg.testPackageWithModules.0.lambdas.\$_generated1main.\$lambda\$_6\$lambda9\$\(main.bal:\d*\)
+\t\t         testOrg.testPackageWithModules.0.lambdas.\$1main.\$lambda\$_6\$lambda9\$\(main.bal:\d*\)
 
 \tStrand #\d* \"\w*\" :
 \t\tat       ballerina.lang&0046runtime.0.runtime.sleep\(runtime.bal:\d*\)
 \t\t         testOrg.testPackageWithModules.0.main.\$lambda\$_7\(main.bal:\d*\)
-\t\t         testOrg.testPackageWithModules.0.lambdas.\$_generated1main.\$lambda\$_7\$lambda10\$\(main.bal:\d*\)
+\t\t         testOrg.testPackageWithModules.0.lambdas.\$1main.\$lambda\$_7\$lambda10\$\(main.bal:\d*\)
 
 \tStrand #\d* \"\w*\" :
 \t\tat       testOrg.testPackageWithModules.0.main.\$lambda\$_8\(main.bal:\d*\)
-\t\t         testOrg.testPackageWithModules.0.lambdas.\$_generated1main.\$lambda\$_8\$lambda11\$\(main.bal:\d*\)
+\t\t         testOrg.testPackageWithModules.0.lambdas.\$1main.\$lambda\$_8\$lambda11\$\(main.bal:\d*\)
 
 \tStrand #\d* \"\w*\" :
 \t\tat       testOrg.testPackageWithModules.0.main.\$lambda\$_9\(main.bal:\d*\)
-\t\t         testOrg.testPackageWithModules.0.lambdas.\$_generated1main.\$lambda\$_9\$lambda12\$\(main.bal:\d*\)
+\t\t         testOrg.testPackageWithModules.0.lambdas.\$1main.\$lambda\$_9\$lambda12\$\(main.bal:\d*\)
 
 \tStrand #\d* \"\w*\" :
 \t\tat       ballerina.lang&0046runtime.0.runtime.sleep\(runtime.bal:\d*\)
 \t\t         testOrg.testPackageWithModules&0046utils.0.utils.sleep_and_wait_nested\(utils.bal:\d*\)
 \t\t         testOrg.testPackageWithModules&0046utils.0.utils.sleep_and_wait\(utils.bal:\d*\)
 \t\t         testOrg.testPackageWithModules&0046utils.0.utils.\$lambda\$_0\(utils.bal:\d*\)
-\t\t         testOrg.testPackageWithModules&0046utils.0.lambdas.\$_generated1utils.\$lambda\$_0\$lambda0\$\(utils.bal:\d*\)
+\t\t         testOrg.testPackageWithModules&0046utils.0.lambdas.\$1utils.\$lambda\$_0\$lambda0\$\(utils.bal:\d*\)
 
 \tStrand #\d* \"\w*\" :
 \t\tat       testOrg.testPackageWithModules&0046utils.0.utils.\$lambda\$_1\(utils.bal:\d*\)
-\t\t         testOrg.testPackageWithModules&0046utils.0.lambdas.\$_generated1utils.\$lambda\$_1\$lambda1\$\(utils.bal:\d*\)
+\t\t         testOrg.testPackageWithModules&0046utils.0.lambdas.\$1utils.\$lambda\$_1\$lambda1\$\(utils.bal:\d*\)
 
 \tStrand #\d* \"\w*\" :
 \t\tat       ballerina.lang&0046runtime.0.runtime.sleep\(runtime.bal:\d*\)
 \t\t         testOrg.testPackageWithModules.0.main.sleep_and_wait_nested\(main.bal:\d*\)
 \t\t         testOrg.testPackageWithModules.0.main.sleep_and_wait\(main.bal:\d*\)
 \t\t         testOrg.testPackageWithModules.0.main.\$lambda\$_0\(main.bal:\d*\)
-\t\t         testOrg.testPackageWithModules.0.lambdas.\$_generated1main.\$lambda\$_0\$lambda3\$\(main.bal:\d*\)
+\t\t         testOrg.testPackageWithModules.0.lambdas.\$1main.\$lambda\$_0\$lambda3\$\(main.bal:\d*\)
 
 \tStrand #\d* \"\w*\" :
 \t\tat       testOrg.testPackageWithModules.0.main.\$lambda\$_1\(main.bal:\d*\)
-\t\t         testOrg.testPackageWithModules.0.lambdas.\$_generated1main.\$lambda\$_1\$lambda4\$\(main.bal:\d*\)
+\t\t         testOrg.testPackageWithModules.0.lambdas.\$1main.\$lambda\$_1\$lambda4\$\(main.bal:\d*\)
 
 \tStrand #\d* \"\w*\" :
 \t\tat       ballerina.lang&0046runtime.0.runtime.sleep\(runtime.bal:\d*\)
 \t\t         testOrg.testPackageWithModules&0046anotherutils.0.anotherutils.sleep_and_wait_nested\(anotherutils.bal:\d*\)
 \t\t         testOrg.testPackageWithModules&0046anotherutils.0.anotherutils.sleep_and_wait\(anotherutils.bal:\d*\)
 \t\t         testOrg.testPackageWithModules&0046anotherutils.0.anotherutils.\$lambda\$_0\(anotherutils.bal:\d*\)
-\t\t         testOrg.testPackageWithModules&0046anotherutils.0.lambdas.\$_generated1anotherutils.\$lambda\$_0\$lambda0\$\(anotherutils.bal:\d*\)
+\t\t         testOrg.testPackageWithModules&0046anotherutils.0.lambdas.\$1anotherutils.\$lambda\$_0\$lambda0\$\(anotherutils.bal:\d*\)
 
 \tStrand #\d* \"\w*\" :
 \t\tat       testOrg.testPackageWithModules&0046anotherutils.0.anotherutils.\$lambda\$_1\(anotherutils.bal:\d*\)
-\t\t         testOrg.testPackageWithModules&0046anotherutils.0.lambdas.\$_generated1anotherutils.\$lambda\$_1\$lambda1\$\(anotherutils.bal:\d*\)
+\t\t         testOrg.testPackageWithModules&0046anotherutils.0.lambdas.\$1anotherutils.\$lambda\$_1\$lambda1\$\(anotherutils.bal:\d*\)
 
 \tStrand #\d* \"\w*\" :
 \t\tat       testOrg.testPackageWithModules.0.main.bar\(main.bal:\d*\)
