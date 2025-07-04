@@ -100,8 +100,8 @@ public class LazyLoadingDesugar {
         }
     }
 
-    private void lazyLoadAnnotationProcessCall(BIRTerminator.Call terminator, BIRNode.BIRBasicBlock currentBB, BIRNode.BIRBasicBlock nextBB,
-                           BIRTerminator.Call call) {
+    private void lazyLoadAnnotationProcessCall(BIRTerminator.Call terminator, BIRNode.BIRBasicBlock currentBB,
+                                               BIRNode.BIRBasicBlock nextBB, BIRTerminator.Call call) {
         // Extract type annotations
         List<BIRNonTerminator> instructions = nextBB.instructions;
         if (nextBB.instructions.isEmpty()) {
@@ -130,8 +130,9 @@ public class LazyLoadingDesugar {
         currentBB.terminator = new BIRTerminator.GOTO(terminator.pos, nextBB);
     }
 
-    private void lazyLoadSplitCall(BIRTerminator.Call terminator, BIRNode.BIRBasicBlock currentBB, BIRTerminator.Call call,
-                           BIRNode.BIRVariableDcl variableDcl, BIRNode.BIRBasicBlock nextBB) {
+    private void lazyLoadSplitCall(BIRTerminator.Call terminator, BIRNode.BIRBasicBlock currentBB,
+                                   BIRTerminator.Call call, BIRNode.BIRVariableDcl variableDcl,
+                                   BIRNode.BIRBasicBlock nextBB) {
         if (!call.args.isEmpty()) {
             // This can be split method with multiple calls
             return;

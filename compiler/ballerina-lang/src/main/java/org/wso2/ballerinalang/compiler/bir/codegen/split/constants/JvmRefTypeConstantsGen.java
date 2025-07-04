@@ -71,11 +71,12 @@ public class JvmRefTypeConstantsGen {
 
     public String add(BIRNode.BIRTypeDefinition typeDef, JvmPackageGen jvmPackageGen, JvmCastGen jvmCastGen,
                       AsyncDataCollector asyncDataCollector, LazyLoadingDataCollector lazyLoadingDataCollector) {
-        BTypeReferenceType referenceType = (BTypeReferenceType)typeDef.referenceType;
+        BTypeReferenceType referenceType = (BTypeReferenceType) typeDef.referenceType;
         String varName = typeRefVarMap.get(referenceType);
         if (varName == null) {
-            varName = generateTypeRefTypeInitMethod(typeDef, referenceType, jvmPackageGen, jvmCastGen, asyncDataCollector,
-                    lazyLoadingDataCollector);
+            varName =
+                    generateTypeRefTypeInitMethod(typeDef, referenceType, jvmPackageGen, jvmCastGen, asyncDataCollector,
+                            lazyLoadingDataCollector);
             typeRefVarMap.put(referenceType, varName);
         }
         return varName;

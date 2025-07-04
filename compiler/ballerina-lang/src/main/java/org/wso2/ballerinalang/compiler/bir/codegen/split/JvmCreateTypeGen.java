@@ -188,7 +188,8 @@ public class JvmCreateTypeGen {
     }
 
     public void createTypes(BIRNode.BIRPackage module, JarEntries jarEntries, JvmPackageGen jvmPackageGen,
-                            JvmCastGen jvmCastGen, AsyncDataCollector asyncDataCollector, LazyLoadingDataCollector lazyLoadingDataCollector) {
+                            JvmCastGen jvmCastGen, AsyncDataCollector asyncDataCollector,
+                            LazyLoadingDataCollector lazyLoadingDataCollector) {
         ClassWriter allTypesCW = new BallerinaClassWriter(COMPUTE_FRAMES);
         allTypesCW.visit(V21, ACC_PUBLIC | ACC_SUPER, allTypesVarClassName, null, OBJECT, null);
         // Create the type
@@ -219,8 +220,8 @@ public class JvmCreateTypeGen {
                 // Annotations for object constructors are populated at object init site.
                 boolean constructorsPopulated = Symbols.isFlagOn(bType.getFlags(), Flags.OBJECT_CTOR);
                 if (!constructorsPopulated) {
-                    loadAnnotations(mv, bType, typeDef.originalName.value, jvmPackageGen, jvmCastGen, asyncDataCollector,
-                            lazyLoadingDataCollector);
+                    loadAnnotations(mv, bType, typeDef.originalName.value, jvmPackageGen, jvmCastGen,
+                            asyncDataCollector, lazyLoadingDataCollector);
                 }
             }
             genMethodReturn(mv);

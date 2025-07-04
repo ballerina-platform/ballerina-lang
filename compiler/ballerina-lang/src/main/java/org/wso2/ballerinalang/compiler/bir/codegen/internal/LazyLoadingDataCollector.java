@@ -18,10 +18,7 @@
 
 package org.wso2.ballerinalang.compiler.bir.codegen.internal;
 
-import org.wso2.ballerinalang.compiler.bir.model.BIRInstruction;
-
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 public class LazyLoadingDataCollector {
