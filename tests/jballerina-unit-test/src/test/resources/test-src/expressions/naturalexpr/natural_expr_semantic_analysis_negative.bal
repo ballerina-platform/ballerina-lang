@@ -60,7 +60,7 @@ function f4() returns string|error => natural (mdl) {
     What day is it today?
 };
 
-isolated class MyGenerator {
-    public isolated function generate(
+isolated client class MyGenerator {
+    remote isolated function generate(
             'natural:Prompt prompt, typedesc<anydata> td) returns td|error = external;
 }

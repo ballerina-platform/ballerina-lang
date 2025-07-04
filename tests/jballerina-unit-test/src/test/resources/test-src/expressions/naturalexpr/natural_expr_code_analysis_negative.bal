@@ -80,16 +80,16 @@ string val = check natural (new MyGeneratorWithInit({
         }
     };
 
-isolated class MyGenerator {
-    public isolated function generate(
+isolated client class MyGenerator {
+    isolated remote function generate(
             'natural:Prompt prompt, typedesc<anydata> td) returns td|error = external;
 }
 
-isolated class MyGeneratorWithInit {
+isolated client class MyGeneratorWithInit {
     isolated function init(record { int id; } inp) {
 
     }
 
-    public isolated function generate(
+    remote isolated function generate(
             'natural:Prompt prompt, typedesc<anydata> td) returns td|error = external;
 }

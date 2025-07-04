@@ -28,7 +28,7 @@ function f2(int a, int b) returns int|error = @natural:code {
     prompt: "What's the sum of these values?"
 } external;
 
-isolated class MyGenerator {
-    public isolated function generate(
+isolated client class MyGenerator {
+    remote isolated function generate(
             'natural:Prompt prompt, typedesc<anydata> td) returns td|error = external;
 }

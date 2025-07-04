@@ -36,8 +36,8 @@ function getPopularSportsPerson(string nameSegment, int decadeStart)
     from ${decadeStart} with ${nameSegment} in their name?
 };
 
-isolated class Generator {
-    public isolated function generate(
+isolated client class Generator {
+    remote isolated function generate(
             'natural:Prompt prompt, typedesc<anydata> td) returns td|error = @java:Method {
                 'class: "org.ballerinalang.test.expressions.natural.NaturalExpressionTest",
                 name: "generateProxy"

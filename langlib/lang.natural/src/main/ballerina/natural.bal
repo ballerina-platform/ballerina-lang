@@ -28,7 +28,7 @@ public type Prompt object {
 };
 
 # Type representing implementations that generate values for natural expressions.
-public type Generator isolated object {
+public type Generator isolated client object {
 
     # Generates a value of the specified type based on the given prompt.
     #
@@ -36,7 +36,7 @@ public type Generator isolated object {
     #           to a value of type `Prompt`.
     # + td - The type descriptor for the expected type
     # + return - Generated data of the specified type or an error if generation fails
-    public isolated function generate(
+    isolated remote function generate(
             Prompt prompt, typedesc<anydata> td) returns td|error;
 };
 
