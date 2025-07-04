@@ -164,7 +164,7 @@ ballerina-log-api-1.1.0.jar                                                     
 netty-common-4.1.39.Final.jar                                                                       bundle         apache2
 ballerina-formatter-1.1.0.jar                                                                       jar            apache2
 ballerina-kafka-1.1.0.jar                                                                           jar            apache2
-kafka_2.13-3.9.1.jar                                                                                jar            apache2
+kafka_2.13-3.7.2.jar                                                                                jar            apache2
 broker-coordination-0.970.0.jar                                                                     bundle         apache2
 org.wso2.carbon.messaging-2.3.7.jar                                                                 bundle         apache2
 bir.jar                                                                                             jar            apache2
