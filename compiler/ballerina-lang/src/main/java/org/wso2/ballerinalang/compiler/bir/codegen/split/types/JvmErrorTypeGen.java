@@ -20,7 +20,6 @@ package org.wso2.ballerinalang.compiler.bir.codegen.split.types;
 import io.ballerina.identifier.Utils;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.FieldVisitor;
-import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmTypeGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.split.JvmConstantsGen;
@@ -28,36 +27,24 @@ import org.wso2.ballerinalang.compiler.bir.codegen.split.JvmCreateTypeGen;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BErrorType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeIdSet;
 
-import static org.objectweb.asm.Opcodes.ACC_PRIVATE;
-import static org.objectweb.asm.Opcodes.ACC_PUBLIC;
 import static org.objectweb.asm.Opcodes.ACC_STATIC;
-import static org.objectweb.asm.Opcodes.ARETURN;
 import static org.objectweb.asm.Opcodes.DUP;
 import static org.objectweb.asm.Opcodes.GETSTATIC;
-import static org.objectweb.asm.Opcodes.ICONST_1;
-import static org.objectweb.asm.Opcodes.IFNE;
 import static org.objectweb.asm.Opcodes.INVOKESPECIAL;
-import static org.objectweb.asm.Opcodes.INVOKESTATIC;
 import static org.objectweb.asm.Opcodes.INVOKEVIRTUAL;
 import static org.objectweb.asm.Opcodes.NEW;
 import static org.objectweb.asm.Opcodes.PUTSTATIC;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ERROR_TYPE_IMPL;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.GET_TYPE_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JVM_INIT_METHOD;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.LOAD_ANNOTATIONS_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SET_DETAIL_TYPE_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SET_TYPEID_SET_METHOD;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPE_INIT_VAR_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPE_VAR_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_ERROR_TYPE_IMPL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_ERROR_TYPE_METHOD;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_JBOOLEAN_TYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_MODULE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INIT_ERROR_TYPE_IMPL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.SET_TYPE_ID_SET;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.TYPE_PARAMETER;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.VOID_METHOD_DESC;
-import static org.wso2.ballerinalang.compiler.bir.codegen.split.JvmCreateTypeGen.setTypeInitialized;
 
 /**
  * BIR error type to JVM byte code generation class.
@@ -94,39 +81,20 @@ public class JvmErrorTypeGen {
         // initialize the error type
         mv.visitMethodInsn(INVOKESPECIAL, ERROR_TYPE_IMPL, JVM_INIT_METHOD, INIT_ERROR_TYPE_IMPL, false);
         mv.visitFieldInsn(PUTSTATIC, errorTypeClass, TYPE_VAR_NAME, GET_ERROR_TYPE_IMPL);
-        genGetTypeMethod(cw, errorType, errorTypeClass, isAnnotatedType);
-    }
-
-    private void genGetTypeMethod(ClassWriter cw, BErrorType errorType, String errorTypeClass,
-                                  boolean isAnnotatedType) {
-        FieldVisitor f = cw.visitField(ACC_STATIC + ACC_PRIVATE, TYPE_INIT_VAR_NAME, GET_JBOOLEAN_TYPE, null, null);
-        f.visitEnd();
-        MethodVisitor mv = cw.visitMethod(ACC_PUBLIC | ACC_STATIC, GET_TYPE_METHOD, GET_ERROR_TYPE_METHOD, null, null);
-        mv.visitCode();
-        mv.visitFieldInsn(GETSTATIC, errorTypeClass, TYPE_INIT_VAR_NAME, GET_JBOOLEAN_TYPE);
-        Label ifLabel = new Label();
-        mv.visitJumpInsn(IFNE, ifLabel);
-        setTypeInitialized(mv, ICONST_1, errorTypeClass);
         populateError(mv, errorType, errorTypeClass);
-        if (isAnnotatedType) {
-            mv.visitMethodInsn(INVOKESTATIC, errorTypeClass, LOAD_ANNOTATIONS_METHOD, VOID_METHOD_DESC, false);
-        }
-        mv.visitLabel(ifLabel);
-        mv.visitFieldInsn(GETSTATIC, errorTypeClass, TYPE_VAR_NAME, GET_ERROR_TYPE_IMPL);
-        mv.visitInsn(ARETURN);
-        mv.visitMaxs(0, 0);
-        mv.visitEnd();
+        jvmCreateTypeGen.genGetTypeMethod(cw, errorTypeClass, GET_ERROR_TYPE_METHOD, GET_ERROR_TYPE_IMPL,
+                isAnnotatedType);
     }
 
-    private void populateError(MethodVisitor mv, BErrorType errorType, String errorTypeClass) {
+    public  void populateError(MethodVisitor mv, BErrorType errorType, String errorTypeClass) {
         mv.visitFieldInsn(GETSTATIC, errorTypeClass, TYPE_VAR_NAME, GET_ERROR_TYPE_IMPL);
+        mv.visitInsn(DUP);
+        mv.visitInsn(DUP);
+        jvmTypeGen.loadType(mv, errorType.detailType);
+        mv.visitMethodInsn(INVOKEVIRTUAL, ERROR_TYPE_IMPL, SET_DETAIL_TYPE_METHOD, TYPE_PARAMETER, false);
         BTypeIdSet typeIdSet = errorType.typeIdSet;
         if (!typeIdSet.isEmpty()) {
             mv.visitInsn(DUP);
-        }
-        jvmTypeGen.loadType(mv, errorType.detailType);
-        mv.visitMethodInsn(INVOKEVIRTUAL, ERROR_TYPE_IMPL, SET_DETAIL_TYPE_METHOD, TYPE_PARAMETER, false);
-        if (!typeIdSet.isEmpty()) {
             jvmCreateTypeGen.loadTypeIdSet(mv, typeIdSet);
             mv.visitMethodInsn(INVOKEVIRTUAL, ERROR_TYPE_IMPL, SET_TYPEID_SET_METHOD, SET_TYPE_ID_SET, false);
         }

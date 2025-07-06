@@ -21,6 +21,7 @@ import io.ballerina.identifier.Utils;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.types.SelectivelyImmutableReferenceType;
 import org.objectweb.asm.ClassWriter;
+import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.wso2.ballerinalang.compiler.bir.codegen.BallerinaClassWriter;
@@ -111,8 +112,10 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CLASS_FIL
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.FIELD_IMPL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.GET_ANON_TYPE_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.GET_FUNCTION_TYPE_METHOD;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.GET_TYPE_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JVM_INIT_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JVM_STATIC_INIT_METHOD;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.LOAD_ANNOTATIONS_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAP;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAX_FIELDS_PER_SPLIT_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAX_TYPES_PER_METHOD;
@@ -248,10 +251,10 @@ public class JvmCreateTypeGen {
             }
         }
         MethodVisitor mv = cw.visitMethod(ACC_STATIC, JVM_STATIC_INIT_METHOD, VOID_METHOD_DESC, null, null);
-        setTypeInitialized(mv, ICONST_1, typeClass);
+        setTypeInitialized(mv, ICONST_1, typeClass, isAnnotatedType);
         jvmRecordTypeGen.createRecordType(cw, mv, module, typeClass, (BRecordType) bType, varName, isAnnotatedType,
                 jarEntries, jvmPackageGen.symbolTable);
-        setTypeInitialized(mv, ICONST_0, typeClass);
+        setTypeInitialized(mv, ICONST_0, typeClass, isAnnotatedType);
 
         genMethodReturn(mv);
         cw.visitEnd();
@@ -259,8 +262,11 @@ public class JvmCreateTypeGen {
         addField(allTypesCW, varName);
     }
 
-    public static void setTypeInitialized(MethodVisitor mv, int iconst1, String typeClass) {
-        mv.visitInsn(iconst1);
+    public static void setTypeInitialized(MethodVisitor mv, int status, String typeClass, boolean isAnnotatedType) {
+        if (!isAnnotatedType) {
+            return;
+        }
+        mv.visitInsn(status);
         mv.visitFieldInsn(PUTSTATIC, typeClass, TYPE_INIT_VAR_NAME, GET_JBOOLEAN_TYPE);
     }
 
@@ -288,10 +294,10 @@ public class JvmCreateTypeGen {
             }
         }
         MethodVisitor mv = cw.visitMethod(ACC_STATIC, JVM_STATIC_INIT_METHOD, VOID_METHOD_DESC, null, null);
-        setTypeInitialized(mv, ICONST_1, typeClass);
+        setTypeInitialized(mv, ICONST_1, typeClass, isAnnotatedType);
         jvmObjectTypeGen.createObjectType(cw, mv, typeClass, (BObjectType) bType, varName, isAnnotatedType,
                 new BIRVarToJVMIndexMap(), jvmPackageGen.symbolTable);
-        setTypeInitialized(mv, ICONST_0, typeClass);
+        setTypeInitialized(mv, ICONST_0, typeClass, isAnnotatedType);
         genMethodReturn(mv);
         cw.visitEnd();
         jarEntries.put(typeClass + CLASS_FILE_SUFFIX, cw.toByteArray());
@@ -322,9 +328,9 @@ public class JvmCreateTypeGen {
             }
         }
         MethodVisitor mv = cw.visitMethod(ACC_STATIC, JVM_STATIC_INIT_METHOD, VOID_METHOD_DESC, null, null);
-        setTypeInitialized(mv, ICONST_1, typeClass);
+        setTypeInitialized(mv, ICONST_1, typeClass, isAnnotatedType);
         jvmErrorTypeGen.createErrorType(cw, mv, (BErrorType) bType, typeClass, ACC_PRIVATE, isAnnotatedType);
-        setTypeInitialized(mv, ICONST_0, typeClass);
+        setTypeInitialized(mv, ICONST_0, typeClass, isAnnotatedType);
         genMethodReturn(mv);
         cw.visitEnd();
         jarEntries.put(typeClass + CLASS_FILE_SUFFIX, cw.toByteArray());
@@ -356,10 +362,10 @@ public class JvmCreateTypeGen {
             }
         }
         MethodVisitor mv = cw.visitMethod(ACC_STATIC, JVM_STATIC_INIT_METHOD, VOID_METHOD_DESC, null, null);
-        setTypeInitialized(mv, ICONST_1, typeClass);
+        setTypeInitialized(mv, ICONST_1, typeClass, isAnnotatedType);
         jvmTupleTypeGen.createTupleType(cw, mv, typeClass, (BTupleType) bType, isAnnotatedType,
                 jvmPackageGen.symbolTable, ACC_PRIVATE);
-        setTypeInitialized(mv, ICONST_0, typeClass);
+        setTypeInitialized(mv, ICONST_0, typeClass, isAnnotatedType);
         genMethodReturn(mv);
         cw.visitEnd();
         jarEntries.put(typeClass + CLASS_FILE_SUFFIX, cw.toByteArray());
@@ -390,18 +396,37 @@ public class JvmCreateTypeGen {
             }
         }
         MethodVisitor mv = cw.visitMethod(ACC_STATIC, JVM_STATIC_INIT_METHOD, VOID_METHOD_DESC, null, null);
-        setTypeInitialized(mv, ICONST_1, typeClass);
+        setTypeInitialized(mv, ICONST_1, typeClass, isAnnotatedType);
         jvmUnionTypeGen.createUnionType(cw, mv, typeClass, varName, (BUnionType) bType, isAnnotatedType,
                 jvmPackageGen.symbolTable, ACC_PRIVATE);
-        setTypeInitialized(mv, ICONST_0, typeClass);
+        setTypeInitialized(mv, ICONST_0, typeClass, isAnnotatedType);
         genMethodReturn(mv);
         cw.visitEnd();
         jarEntries.put(typeClass + CLASS_FILE_SUFFIX, cw.toByteArray());
         addField(allTypesCW, varName);
     }
 
-    public void addImmutableType(MethodVisitor mv, BType type, String typeClass,
-                                 String descriptor, SymbolTable symbolTable) {
+    public void genGetTypeMethod(ClassWriter cw, String typeClass, String methodDescriptor, String typeDescriptor,
+                                 boolean isAnnotatedType) {
+        FieldVisitor f = cw.visitField(ACC_STATIC + ACC_PRIVATE, TYPE_INIT_VAR_NAME, GET_JBOOLEAN_TYPE, null, null);
+        f.visitEnd();
+        MethodVisitor mv = cw.visitMethod(ACC_PUBLIC | ACC_STATIC, GET_TYPE_METHOD, methodDescriptor, null, null);
+        mv.visitCode();
+        if (isAnnotatedType) {
+            mv.visitFieldInsn(GETSTATIC, typeClass, TYPE_INIT_VAR_NAME, GET_JBOOLEAN_TYPE);
+            Label ifLabel = new Label();
+            mv.visitJumpInsn(IFNE, ifLabel);
+            setTypeInitialized(mv, ICONST_1, typeClass, isAnnotatedType);
+            mv.visitMethodInsn(INVOKESTATIC, typeClass, LOAD_ANNOTATIONS_METHOD, VOID_METHOD_DESC, false);
+            mv.visitLabel(ifLabel);
+        }
+        mv.visitFieldInsn(GETSTATIC, typeClass, TYPE_VAR_NAME, typeDescriptor);
+        mv.visitInsn(ARETURN);
+        mv.visitMaxs(0, 0);
+        mv.visitEnd();
+    }
+
+    public void addImmutableType(MethodVisitor mv, BType type, SymbolTable symbolTable) {
         if (type.tsymbol == null) {
             return;
         }
@@ -410,7 +435,7 @@ public class JvmCreateTypeGen {
         if (immutableType.isEmpty()) {
             return;
         }
-        mv.visitFieldInsn(GETSTATIC, typeClass, TYPE_VAR_NAME, descriptor);
+        mv.visitInsn(DUP);
         jvmTypeGen.loadType(mv, immutableType.get());
         mv.visitMethodInsn(INVOKEINTERFACE, TYPE, SET_IMMUTABLE_TYPE_METHOD, SET_IMMUTABLE_TYPE, true);
     }

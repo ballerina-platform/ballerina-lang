@@ -33,6 +33,7 @@ import org.wso2.ballerinalang.compiler.bir.codegen.split.types.JvmRefTypeGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.utils.JvmCodeGenUtil;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeReferenceType;
+import org.wso2.ballerinalang.compiler.util.TypeTags;
 
 import java.util.Map;
 import java.util.TreeMap;
@@ -94,10 +95,11 @@ public class JvmRefTypeConstantsGen {
         String typeRefConstantClass = this.typeRefVarConstantsPkgName + varName;
         generateConstantsClassInit(cw, typeRefConstantClass);
         MethodVisitor mv = cw.visitMethod(ACC_STATIC, JVM_STATIC_INIT_METHOD, VOID_METHOD_DESC, null, null);
-        setTypeInitialized(mv, ICONST_1, typeRefConstantClass);
-        jvmRefTypeGen.createTypeRefType(cw, mv, typeDef, referenceType, typeRefConstantClass,
+        boolean isAnnotatedType = referenceType.referredType.tag != TypeTags.RECORD;
+        setTypeInitialized(mv, ICONST_1, typeRefConstantClass, isAnnotatedType);
+        jvmRefTypeGen.createTypeRefType(cw, mv, typeDef, referenceType, typeRefConstantClass, isAnnotatedType,
                 jvmPackageGen, jvmCastGen, asyncDataCollector, lazyLoadingDataCollector);
-        setTypeInitialized(mv, ICONST_0, typeRefConstantClass);
+        setTypeInitialized(mv, ICONST_0, typeRefConstantClass, isAnnotatedType);
         genMethodReturn(mv);
         cw.visitEnd();
         jarEntries.put(typeRefConstantClass + CLASS_FILE_SUFFIX, cw.toByteArray());

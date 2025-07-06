@@ -19,6 +19,7 @@ package io.ballerina.runtime.api.utils;
 
 import io.ballerina.runtime.api.constants.TypeConstants;
 import io.ballerina.runtime.api.types.IntersectionType;
+import io.ballerina.runtime.api.types.ReferenceType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.TypeTags;
 import io.ballerina.runtime.internal.TypeChecker;
@@ -136,10 +137,8 @@ public final class TypeUtils {
             return referredType;
         }
         if (type.getTag() == TypeTags.TYPE_REFERENCED_TYPE_TAG) {
-            BTypeReferenceType refType = (BTypeReferenceType) type;
-            Type rType = refType.getReferredType();
+            Type rType = ((ReferenceType) type).getReferredType();
             if (rType == null) {
-                refType.setReferredType(referredType);
                 referredType = type;
             } else {
                 referredType = getReferredType(rType);
