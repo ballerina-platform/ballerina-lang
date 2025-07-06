@@ -586,7 +586,7 @@ public final class JvmCodeGenUtil {
     }
 
     public static String getRefTypeConstantName(BTypeReferenceType type) {
-        return JvmConstants.TYPEREF_TYPE_VAR_PREFIX + Utils.encodeNonFunctionIdentifier(type.tsymbol.name.value);
+        return JvmConstants.TYPE_REF_TYPE_VAR_PREFIX + Utils.encodeNonFunctionIdentifier(type.tsymbol.name.value);
     }
 
     public static void visitMaxStackForMethod(MethodVisitor mv, String funcName, String className) {

@@ -233,6 +233,7 @@ public final class JvmSignatures {
     public static final String GET_CONFIG_DETAILS = "()L" + CONFIG_DETAILS + ";";
     public static final String GET_ERROR_TYPE = "L" + ERROR_TYPE + ";";
     public static final String GET_ERROR_TYPE_IMPL = "L" + ERROR_TYPE_IMPL + ";";
+    public static final String GET_ERROR_TYPE_METHOD = "()L" + ERROR_TYPE_IMPL + ";";
     public static final String GET_ERROR_VALUE = "L" + ERROR_VALUE + ";";
     public static final String GET_FUNCTION = "L" + FUNCTION + ";";
     public static final String GET_FUNCTION_POINTER = "L" + FUNCTION_POINTER + ";";
@@ -251,8 +252,10 @@ public final class JvmSignatures {
     public static final String GET_OBJECT = "L" + OBJECT + ";";
     public static final String GET_OBJECT_FOR_STRING = "(L" + STRING_VALUE + ";)L" + OBJECT + ";";
     public static final String GET_OBJECT_TYPE_IMPL = "L" + OBJECT_TYPE_IMPL + ";";
+    public static final String GET_OBJECT_TYPE_METHOD = "()L" + OBJECT_TYPE_IMPL + ";";
     public static final String GET_PATH = "[L" + PATH + ";";
     public static final String GET_RECORD_TYPE_IMPL = "L" + RECORD_TYPE_IMPL + ";";
+    public static final String GET_RECORD_TYPE_METHOD = "()L" + RECORD_TYPE_IMPL + ";";
     public static final String GET_REGEXP = "L" + REG_EXP_VALUE + ";";
     public static final String GET_RUNTIME = "()L" + JvmConstants.JAVA_RUNTIME + ";";
     public static final String GET_RUNTIME_ERROR = "L" + ERROR_CODES + ";";
@@ -270,11 +273,14 @@ public final class JvmSignatures {
     public static final String GET_TEST_CONFIG_PATH = "(L" + MODULE + ";L" + STRING_VALUE + ";L" + STRING_VALUE +
             ";)L" + CONFIG_DETAILS + ";";
     public static final String GET_TUPLE_TYPE_IMPL = "L" + TUPLE_TYPE_IMPL + ";";
+    public static final String GET_TUPLE_TYPE_METHOD = "()L" + TUPLE_TYPE_IMPL + ";";
     public static final String GET_TYPE = "L" + TYPE + ";";
     public static final String GET_TYPE_REF_TYPE_IMPL = "L" + TYPE_REF_TYPE_IMPL + ";";
+    public static final String GET_TYPE_REF_TYPE_METHOD = "()L" + TYPE_REF_TYPE_IMPL + ";";
     public static final String GET_TYPEDESC = "L" + TYPEDESC_VALUE + ";";
     public static final String GET_TYPEDESC_OF_OBJECT = "(L" + OBJECT + ";)L" + TYPEDESC_VALUE + ";";
     public static final String GET_UNION_TYPE_IMPL = "L" + UNION_TYPE_IMPL + ";";
+    public static final String GET_UNION_TYPE_METHOD = "()L" + UNION_TYPE_IMPL + ";";
     public static final String GET_VALUE_CREATOR = "(L" + STRING_VALUE + ";)L" + VALUE_CREATOR + ";";
     public static final String GET_WORKER_CHANNEL_MAP = "L" + WORKER_CHANNEL_MAP + ";";
     public static final String GET_XML = "L" + XML_VALUE + ";";

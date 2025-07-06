@@ -168,9 +168,12 @@ public final class JvmConstants {
     public static final String GET_SURROGATE_ARRAY_METHOD_PREFIX = "getSurrogateArray";
     public static final String UNION_TYPE_VAR_PREFIX = "$unionType";
     public static final String ERROR_TYPE_VAR_PREFIX = "$errorType";
-    public static final String TYPEREF_TYPE_VAR_PREFIX = "$typeRefType$";
+    public static final String TYPE_REF_TYPE_VAR_PREFIX = "$typeRefType$";
+    public static final String SET_REFERRED_TYPE_METHOD = "setReferredType";
     public static final String TUPLE_TYPE_VAR_PREFIX = "$tupleType";
     public static final String TYPE_VAR_NAME = "$type";
+    public static final String TYPE_INIT_VAR_NAME = "$isTypeInit";
+    public static final String GET_TYPE_METHOD = "getType";
     public static final String VALUE_VAR_NAME = "$value";
     public static final String BSTRING_VAR_NAME = "$bString";
     public static final String ARRAY_TYPE_VAR_PREFIX = "$arrayType";
@@ -245,6 +248,7 @@ public final class JvmConstants {
     public static final String ANNOTATION_MAP_NAME = "$annotation_data";
     public static final String ANNOTATION_FUNC = "$annot_func$";
     public static final String ANNOTATIONS_FIELD = "$annotations";
+    public static final String LOAD_ANNOTATIONS_METHOD = "loadAnnotations";
     public static final String DEFAULTABLE_ARGS_ANOT_NAME = "DefaultableArgs";
     public static final String DEFAULTABLE_ARGS_ANOT_FIELD = "args";
 

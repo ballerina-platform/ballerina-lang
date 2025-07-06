@@ -53,13 +53,13 @@ import org.wso2.ballerinalang.compiler.bir.model.BIRTerminator;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.TypeHashVisitor;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BStructureTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BErrorType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BIntersectionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BStructureType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeIdSet;
@@ -100,6 +100,7 @@ import static org.objectweb.asm.Opcodes.INVOKESTATIC;
 import static org.objectweb.asm.Opcodes.INVOKEVIRTUAL;
 import static org.objectweb.asm.Opcodes.NEW;
 import static org.objectweb.asm.Opcodes.POP;
+import static org.objectweb.asm.Opcodes.PUTSTATIC;
 import static org.objectweb.asm.Opcodes.RETURN;
 import static org.objectweb.asm.Opcodes.V21;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ADD_METHOD;
@@ -122,15 +123,23 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SET_IMMUT
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRING_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPE_ID_SET;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPE_INIT_VAR_NAME;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPE_VAR_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.VALUE_VAR_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.VISIT_MAX_SAFE_MARGIN;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.ADD_TYPE_ID;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.ANY_TO_JBOOLEAN;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_ERROR_TYPE_IMPL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_FUNCTION_POINTER;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_FUNCTION_TYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_FUNCTION_TYPE_FOR_STRING;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_JBOOLEAN_TYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_MAP_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_MODULE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_OBJECT_TYPE_IMPL;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_RECORD_TYPE_IMPL;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_TUPLE_TYPE_IMPL;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_UNION_TYPE_IMPL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INIT_FIELD_IMPL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.MAP_PUT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.PROCESS_ANNOTATIONS;
@@ -140,7 +149,6 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.VOID_MET
 import static org.wso2.ballerinalang.compiler.bir.codegen.utils.JvmCodeGenUtil.createDefaultCase;
 import static org.wso2.ballerinalang.compiler.bir.codegen.utils.JvmCodeGenUtil.getVarStoreClass;
 import static org.wso2.ballerinalang.compiler.bir.codegen.utils.JvmCodeGenUtil.skipRecordDefaultValueFunctions;
-import static org.wso2.ballerinalang.compiler.bir.codegen.utils.JvmCodeGenUtil.toNameString;
 import static org.wso2.ballerinalang.compiler.bir.codegen.utils.JvmConstantGenUtils.addField;
 import static org.wso2.ballerinalang.compiler.bir.codegen.utils.JvmConstantGenUtils.genMethodReturn;
 import static org.wso2.ballerinalang.compiler.bir.codegen.utils.JvmConstantGenUtils.generateConstantsClassInit;
@@ -197,44 +205,203 @@ public class JvmCreateTypeGen {
         for (BIRTypeDefinition typeDef : module.typeDefs) {
             BType bType = typeDef.type;
             int bTypeTag = bType.tag;
-            if (JvmCodeGenUtil.needNoTypeGeneration(bTypeTag)) {
-                // do not generate anything for other types (e.g.: finite type, type reference types etc.)
-                continue;
-            }
-            String varName = typeDef.internalName.value;
-            ClassWriter cw = new BallerinaClassWriter(COMPUTE_FRAMES);
-            String typeClass = jvmTypeGen.getTypeClass(typeDef);
-            generateConstantsClassInit(cw, typeClass);
-            MethodVisitor mv = cw.visitMethod(ACC_STATIC, JVM_STATIC_INIT_METHOD, VOID_METHOD_DESC, null, null);
             switch (bTypeTag) {
-                case TypeTags.RECORD -> jvmRecordTypeGen.createRecordType(cw, mv, module, typeClass,
-                        (BRecordType) bType, varName, jarEntries, jvmPackageGen.symbolTable);
-                case TypeTags.OBJECT -> jvmObjectTypeGen.createObjectType(cw, mv, typeClass, (BObjectType) bType,
-                        varName, jvmPackageGen.symbolTable, new BIRVarToJVMIndexMap());
-                case TypeTags.ERROR -> jvmErrorTypeGen.createErrorType(cw, mv, (BErrorType) bType, typeClass);
-                case TypeTags.TUPLE -> jvmTupleTypeGen.createTupleType(cw, mv, typeClass, (BTupleType) bType,
-                        jvmPackageGen.symbolTable);
-                default -> jvmUnionTypeGen.createUnionType(cw, mv, typeClass, varName, (BUnionType) bType,
-                        jvmPackageGen.symbolTable);
+                case TypeTags.RECORD ->    createRecordType(typeDef, allTypesCW, module, jvmPackageGen, jvmCastGen,
+                        asyncDataCollector, lazyLoadingDataCollector, jarEntries);
+                case TypeTags.OBJECT -> createObjectType(typeDef, allTypesCW, jvmPackageGen, jvmCastGen,
+                        asyncDataCollector, lazyLoadingDataCollector, jarEntries);
+                case TypeTags.ERROR -> createErrorType(typeDef, allTypesCW, jvmPackageGen, jvmCastGen,
+                        asyncDataCollector, lazyLoadingDataCollector, jarEntries);
+                case TypeTags.TUPLE -> createTupleType(typeDef, allTypesCW, jvmPackageGen, jvmCastGen,
+                        asyncDataCollector, lazyLoadingDataCollector, jarEntries);
+                default -> createUnionType(typeDef, allTypesCW, jvmPackageGen, jvmCastGen,
+                        asyncDataCollector, lazyLoadingDataCollector, jarEntries);
             }
-            if (!typeDef.isBuiltin || typeDef.referenceType == null || bTypeTag == TypeTags.RECORD) {
-                // Annotations for object constructors are populated at object init site.
-                boolean constructorsPopulated = Symbols.isFlagOn(bType.getFlags(), Flags.OBJECT_CTOR);
-                if (!constructorsPopulated) {
-                    loadAnnotations(mv, bType, varName, jvmPackageGen, jvmCastGen, asyncDataCollector,
-                            lazyLoadingDataCollector);
-                }
-            }
-            genMethodReturn(mv);
-            cw.visitEnd();
-            jarEntries.put(typeClass + CLASS_FILE_SUFFIX, cw.toByteArray());
-            addField(allTypesCW, varName);
         }
         allTypesCW.visitEnd();
         String typesClass = allTypesVarClassName + CLASS_FILE_SUFFIX;
         jarEntries.put(typesClass, jvmPackageGen.getBytes(allTypesCW, module));
     }
-    public void addImmutableType(MethodVisitor mv, BType type, SymbolTable symbolTable) {
+
+    private void createRecordType(BIRTypeDefinition typeDef, ClassWriter allTypesCW, BIRNode.BIRPackage module,
+                                  JvmPackageGen jvmPackageGen, JvmCastGen jvmCastGen,
+                                  AsyncDataCollector asyncDataCollector,
+                                  LazyLoadingDataCollector lazyLoadingDataCollector, JarEntries jarEntries) {
+        BType bType = typeDef.type;
+        int bTypeTag = bType.tag;
+        if (JvmCodeGenUtil.needNoTypeGeneration(bTypeTag)) {
+            // do not generate anything for other types (e.g.: finite type, type reference types etc.)
+            return;
+        }
+        String varName = typeDef.internalName.value;
+        ClassWriter cw = new BallerinaClassWriter(COMPUTE_FRAMES);
+        String typeClass =  jvmTypeGen.recordTypesPkgName + typeDef.internalName.value;
+        generateConstantsClassInit(cw, typeClass);
+        boolean isAnnotatedType = false;
+        if (!typeDef.isBuiltin || typeDef.referenceType == null || bTypeTag == TypeTags.RECORD) {
+            // Annotations for object constructors are populated at object init site.
+            boolean constructorsPopulated = Symbols.isFlagOn(bType.getFlags(), Flags.OBJECT_CTOR);
+            if (!constructorsPopulated) {
+                loadAnnotations(cw, varName, typeClass, GET_RECORD_TYPE_IMPL, jvmPackageGen, jvmCastGen,
+                        asyncDataCollector, lazyLoadingDataCollector);
+                isAnnotatedType = true;
+            }
+        }
+        MethodVisitor mv = cw.visitMethod(ACC_STATIC, JVM_STATIC_INIT_METHOD, VOID_METHOD_DESC, null, null);
+        setTypeInitialized(mv, ICONST_1, typeClass);
+        jvmRecordTypeGen.createRecordType(cw, mv, module, typeClass, (BRecordType) bType, varName, isAnnotatedType,
+                jarEntries, jvmPackageGen.symbolTable);
+        setTypeInitialized(mv, ICONST_0, typeClass);
+
+        genMethodReturn(mv);
+        cw.visitEnd();
+        jarEntries.put(typeClass + CLASS_FILE_SUFFIX, cw.toByteArray());
+        addField(allTypesCW, varName);
+    }
+
+    public static void setTypeInitialized(MethodVisitor mv, int iconst1, String typeClass) {
+        mv.visitInsn(iconst1);
+        mv.visitFieldInsn(PUTSTATIC, typeClass, TYPE_INIT_VAR_NAME, GET_JBOOLEAN_TYPE);
+    }
+
+    private void createObjectType(BIRTypeDefinition typeDef, ClassWriter allTypesCW, JvmPackageGen jvmPackageGen,
+                                  JvmCastGen jvmCastGen, AsyncDataCollector asyncDataCollector,
+                                  LazyLoadingDataCollector lazyLoadingDataCollector, JarEntries jarEntries) {
+        BType bType = typeDef.type;
+        int bTypeTag = bType.tag;
+        if (JvmCodeGenUtil.needNoTypeGeneration(bTypeTag)) {
+            // do not generate anything for other types (e.g.: finite type, type reference types etc.)
+            return;
+        }
+        String varName = typeDef.internalName.value;
+        ClassWriter cw = new BallerinaClassWriter(COMPUTE_FRAMES);
+        String typeClass =  jvmTypeGen.objectTypesPkgName + typeDef.internalName.value;
+        generateConstantsClassInit(cw, typeClass);
+        boolean isAnnotatedType = false;
+        if (!typeDef.isBuiltin || typeDef.referenceType == null || bTypeTag == TypeTags.RECORD) {
+            // Annotations for object constructors are populated at object init site.
+            boolean constructorsPopulated = Symbols.isFlagOn(bType.getFlags(), Flags.OBJECT_CTOR);
+            if (!constructorsPopulated) {
+                loadAnnotations(cw, varName, typeClass, GET_OBJECT_TYPE_IMPL, jvmPackageGen, jvmCastGen,
+                        asyncDataCollector, lazyLoadingDataCollector);
+                isAnnotatedType = true;
+            }
+        }
+        MethodVisitor mv = cw.visitMethod(ACC_STATIC, JVM_STATIC_INIT_METHOD, VOID_METHOD_DESC, null, null);
+        setTypeInitialized(mv, ICONST_1, typeClass);
+        jvmObjectTypeGen.createObjectType(cw, mv, typeClass, (BObjectType) bType, varName, isAnnotatedType,
+                new BIRVarToJVMIndexMap(), jvmPackageGen.symbolTable);
+        setTypeInitialized(mv, ICONST_0, typeClass);
+        genMethodReturn(mv);
+        cw.visitEnd();
+        jarEntries.put(typeClass + CLASS_FILE_SUFFIX, cw.toByteArray());
+        addField(allTypesCW, varName);
+    }
+
+    private void createErrorType(BIRTypeDefinition typeDef, ClassWriter allTypesCW, JvmPackageGen jvmPackageGen,
+                                 JvmCastGen jvmCastGen, AsyncDataCollector asyncDataCollector,
+                                 LazyLoadingDataCollector lazyLoadingDataCollector, JarEntries jarEntries) {
+        BType bType = typeDef.type;
+        int bTypeTag = bType.tag;
+        if (JvmCodeGenUtil.needNoTypeGeneration(bTypeTag)) {
+            // do not generate anything for other types (e.g.: finite type, type reference types etc.)
+            return;
+        }
+        String varName = typeDef.internalName.value;
+        ClassWriter cw = new BallerinaClassWriter(COMPUTE_FRAMES);
+        String typeClass =  jvmTypeGen.errorTypesPkgName + typeDef.internalName.value;
+        generateConstantsClassInit(cw, typeClass);
+        boolean isAnnotatedType = false;
+        if (!typeDef.isBuiltin || typeDef.referenceType == null || bTypeTag == TypeTags.RECORD) {
+            // Annotations for object constructors are populated at object init site.
+            boolean constructorsPopulated = Symbols.isFlagOn(bType.getFlags(), Flags.OBJECT_CTOR);
+            if (!constructorsPopulated) {
+                loadAnnotations(cw, varName, typeClass, GET_ERROR_TYPE_IMPL, jvmPackageGen, jvmCastGen,
+                        asyncDataCollector, lazyLoadingDataCollector);
+                isAnnotatedType = true;
+            }
+        }
+        MethodVisitor mv = cw.visitMethod(ACC_STATIC, JVM_STATIC_INIT_METHOD, VOID_METHOD_DESC, null, null);
+        setTypeInitialized(mv, ICONST_1, typeClass);
+        jvmErrorTypeGen.createErrorType(cw, mv, (BErrorType) bType, typeClass, ACC_PRIVATE, isAnnotatedType);
+        setTypeInitialized(mv, ICONST_0, typeClass);
+        genMethodReturn(mv);
+        cw.visitEnd();
+        jarEntries.put(typeClass + CLASS_FILE_SUFFIX, cw.toByteArray());
+        addField(allTypesCW, varName);
+    }
+
+
+    private void createTupleType(BIRTypeDefinition typeDef, ClassWriter allTypesCW, JvmPackageGen jvmPackageGen,
+                                 JvmCastGen jvmCastGen, AsyncDataCollector asyncDataCollector,
+                                 LazyLoadingDataCollector lazyLoadingDataCollector, JarEntries jarEntries) {
+        BType bType = typeDef.type;
+        int bTypeTag = bType.tag;
+        if (JvmCodeGenUtil.needNoTypeGeneration(bTypeTag)) {
+            // do not generate anything for other types (e.g.: finite type, type reference types etc.)
+            return;
+        }
+        String varName = typeDef.internalName.value;
+        ClassWriter cw = new BallerinaClassWriter(COMPUTE_FRAMES);
+        String typeClass =  jvmTypeGen.tupleTypesPkgName + typeDef.internalName.value;
+        generateConstantsClassInit(cw, typeClass);
+        boolean isAnnotatedType = false;
+        if (!typeDef.isBuiltin || typeDef.referenceType == null || bTypeTag == TypeTags.RECORD) {
+            // Annotations for object constructors are populated at object init site.
+            boolean constructorsPopulated = Symbols.isFlagOn(bType.getFlags(), Flags.OBJECT_CTOR);
+            if (!constructorsPopulated) {
+                loadAnnotations(cw, varName, typeClass, GET_TUPLE_TYPE_IMPL, jvmPackageGen, jvmCastGen,
+                        asyncDataCollector, lazyLoadingDataCollector);
+                isAnnotatedType = true;
+            }
+        }
+        MethodVisitor mv = cw.visitMethod(ACC_STATIC, JVM_STATIC_INIT_METHOD, VOID_METHOD_DESC, null, null);
+        setTypeInitialized(mv, ICONST_1, typeClass);
+        jvmTupleTypeGen.createTupleType(cw, mv, typeClass, (BTupleType) bType, isAnnotatedType,
+                jvmPackageGen.symbolTable, ACC_PRIVATE);
+        setTypeInitialized(mv, ICONST_0, typeClass);
+        genMethodReturn(mv);
+        cw.visitEnd();
+        jarEntries.put(typeClass + CLASS_FILE_SUFFIX, cw.toByteArray());
+        addField(allTypesCW, varName);
+    }
+
+    private void createUnionType(BIRTypeDefinition typeDef, ClassWriter allTypesCW, JvmPackageGen jvmPackageGen,
+                                 JvmCastGen jvmCastGen, AsyncDataCollector asyncDataCollector,
+                                 LazyLoadingDataCollector lazyLoadingDataCollector, JarEntries jarEntries) {
+        BType bType = typeDef.type;
+        int bTypeTag = bType.tag;
+        if (JvmCodeGenUtil.needNoTypeGeneration(bTypeTag)) {
+            // do not generate anything for other types (e.g.: finite type, type reference types etc.)
+            return;
+        }
+        String varName = typeDef.internalName.value;
+        ClassWriter cw = new BallerinaClassWriter(COMPUTE_FRAMES);
+        String typeClass =  jvmTypeGen.unionTypesPkgName + typeDef.internalName.value;
+        generateConstantsClassInit(cw, typeClass);
+        boolean isAnnotatedType = false;
+        if (!typeDef.isBuiltin || typeDef.referenceType == null || bTypeTag == TypeTags.RECORD) {
+            // Annotations for object constructors are populated at object init site.
+            boolean constructorsPopulated = Symbols.isFlagOn(bType.getFlags(), Flags.OBJECT_CTOR);
+            if (!constructorsPopulated) {
+                loadAnnotations(cw, varName, typeClass, GET_UNION_TYPE_IMPL, jvmPackageGen, jvmCastGen,
+                        asyncDataCollector, lazyLoadingDataCollector);
+                isAnnotatedType = true;
+            }
+        }
+        MethodVisitor mv = cw.visitMethod(ACC_STATIC, JVM_STATIC_INIT_METHOD, VOID_METHOD_DESC, null, null);
+        setTypeInitialized(mv, ICONST_1, typeClass);
+        jvmUnionTypeGen.createUnionType(cw, mv, typeClass, varName, (BUnionType) bType, isAnnotatedType,
+                jvmPackageGen.symbolTable, ACC_PRIVATE);
+        setTypeInitialized(mv, ICONST_0, typeClass);
+        genMethodReturn(mv);
+        cw.visitEnd();
+        jarEntries.put(typeClass + CLASS_FILE_SUFFIX, cw.toByteArray());
+        addField(allTypesCW, varName);
+    }
+
+    public void addImmutableType(MethodVisitor mv, BType type, String typeClass,
+                                 String descriptor, SymbolTable symbolTable) {
         if (type.tsymbol == null) {
             return;
         }
@@ -243,7 +410,7 @@ public class JvmCreateTypeGen {
         if (immutableType.isEmpty()) {
             return;
         }
-        mv.visitInsn(DUP);
+        mv.visitFieldInsn(GETSTATIC, typeClass, TYPE_VAR_NAME, descriptor);
         jvmTypeGen.loadType(mv, immutableType.get());
         mv.visitMethodInsn(INVOKEINTERFACE, TYPE, SET_IMMUTABLE_TYPE_METHOD, SET_IMMUTABLE_TYPE, true);
     }
@@ -347,10 +514,12 @@ public class JvmCreateTypeGen {
     //              Annotation processing related methods
     // -------------------------------------------------------
 
-    public void loadAnnotations(MethodVisitor mv, BType type, String typeName, JvmPackageGen jvmPackageGen,
-                                JvmCastGen jvmCastGen, AsyncDataCollector asyncDataCollector,
+    public void loadAnnotations(ClassWriter cw, String typeName, String typeClass, String descriptor,
+                                JvmPackageGen jvmPackageGen, JvmCastGen jvmCastGen,
+                                AsyncDataCollector asyncDataCollector,
                                 LazyLoadingDataCollector lazyLoadingDataCollector) {
-
+        MethodVisitor mv = cw.visitMethod(ACC_PUBLIC | ACC_STATIC, "loadAnnotations", "()V", null, null);
+        mv.visitCode();
         LazyLoadBirBasicBlock lazyBB = lazyLoadingDataCollector.lazyLoadingAnnotationsBBMap.get(typeName);
         if (lazyBB != null) {
             BIRVarToJVMIndexMap indexMap = new BIRVarToJVMIndexMap();
@@ -371,8 +540,9 @@ public class JvmCreateTypeGen {
             }
         }
         mv.visitFieldInsn(GETSTATIC, this.annotationVarClassName, VALUE_VAR_NAME, GET_MAP_VALUE);
-        jvmTypeGen.loadType(mv, type);
+        mv.visitFieldInsn(GETSTATIC, typeClass, TYPE_VAR_NAME, descriptor);
         mv.visitMethodInsn(INVOKESTATIC, ANNOTATION_UTILS, "processAnnotations", PROCESS_ANNOTATIONS, false);
+        genMethodReturn(mv);
     }
 
     // -------------------------------------------------------
@@ -623,13 +793,13 @@ public class JvmCreateTypeGen {
         }
     }
 
-    public void splitAddFields(ClassWriter cw, String typeClassName, Map<String, BField> fields) {
+    public void splitAddFields(ClassWriter cw, BStructureType bType, String typeClassName) {
         int fieldMapIndex = 0;
         MethodVisitor mv = null;
         int methodCount = 0;
         int fieldsCount = 0;
         String addFieldMethod = "addFields";
-        for (BField field : fields.values()) {
+        for (BField field : bType.fields.values()) {
             if (fieldsCount % MAX_FIELDS_PER_SPLIT_METHOD == 0) {
                 mv = cw.visitMethod(ACC_STATIC + ACC_PRIVATE, addFieldMethod, SET_LINKED_HASH_MAP, null, null);
                 mv.visitCode();
@@ -646,7 +816,7 @@ public class JvmCreateTypeGen {
             mv.visitInsn(POP);
             fieldsCount++;
             if (fieldsCount % MAX_FIELDS_PER_SPLIT_METHOD == 0) {
-                if (fieldsCount != fields.size()) {
+                if (fieldsCount != bType.fields.size()) {
                     mv.visitVarInsn(ALOAD, fieldMapIndex);
                     mv.visitMethodInsn(INVOKESTATIC, typeClassName, addFieldMethod, SET_LINKED_HASH_MAP, false);
                 }

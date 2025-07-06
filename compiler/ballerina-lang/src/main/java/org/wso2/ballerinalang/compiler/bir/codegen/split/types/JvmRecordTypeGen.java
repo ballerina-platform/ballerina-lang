@@ -21,6 +21,7 @@ import io.ballerina.identifier.Utils;
 import org.ballerinalang.model.elements.PackageID;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.FieldVisitor;
+import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.wso2.ballerinalang.compiler.bir.codegen.BallerinaClassWriter;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmTypeGen;
@@ -29,18 +30,21 @@ import org.wso2.ballerinalang.compiler.bir.codegen.split.JvmConstantsGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.split.JvmCreateTypeGen;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 
 import java.util.Map;
 
 import static org.objectweb.asm.ClassWriter.COMPUTE_FRAMES;
+import static org.objectweb.asm.Opcodes.ACC_PRIVATE;
 import static org.objectweb.asm.Opcodes.ACC_PUBLIC;
 import static org.objectweb.asm.Opcodes.ACC_STATIC;
 import static org.objectweb.asm.Opcodes.ACONST_NULL;
+import static org.objectweb.asm.Opcodes.ARETURN;
 import static org.objectweb.asm.Opcodes.DUP;
 import static org.objectweb.asm.Opcodes.GETSTATIC;
+import static org.objectweb.asm.Opcodes.ICONST_1;
+import static org.objectweb.asm.Opcodes.IFNE;
 import static org.objectweb.asm.Opcodes.INVOKESPECIAL;
 import static org.objectweb.asm.Opcodes.INVOKESTATIC;
 import static org.objectweb.asm.Opcodes.INVOKEVIRTUAL;
@@ -48,14 +52,19 @@ import static org.objectweb.asm.Opcodes.NEW;
 import static org.objectweb.asm.Opcodes.PUTFIELD;
 import static org.objectweb.asm.Opcodes.PUTSTATIC;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CLASS_FILE_SUFFIX;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.GET_TYPE_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JVM_INIT_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JVM_STATIC_INIT_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.LINKED_HASH_MAP;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.LOAD_ANNOTATIONS_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.RECORD_TYPE_IMPL;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPE_INIT_VAR_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPE_VAR_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.VALUE_VAR_NAME;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_JBOOLEAN_TYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_MODULE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_RECORD_TYPE_IMPL;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_RECORD_TYPE_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_TYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_TYPEDESC;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.RECORD_TYPE_IMPL_INIT;
@@ -64,6 +73,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.SET_MAP;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.TYPE_DESC_CONSTRUCTOR;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.VOID_METHOD_DESC;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmValueGen.getTypeDescClassName;
+import static org.wso2.ballerinalang.compiler.bir.codegen.split.JvmCreateTypeGen.setTypeInitialized;
 import static org.wso2.ballerinalang.compiler.bir.codegen.utils.JvmCodeGenUtil.getVarStoreClass;
 import static org.wso2.ballerinalang.compiler.bir.codegen.utils.JvmCodeGenUtil.toNameString;
 import static org.wso2.ballerinalang.compiler.bir.codegen.utils.JvmConstantGenUtils.genLazyLoadingClass;
@@ -91,9 +101,9 @@ public class JvmRecordTypeGen {
     }
 
     public void createRecordType(ClassWriter cw, MethodVisitor mv, BIRNode.BIRPackage module, String recordTypeClass,
-                                 BRecordType recordType, String varName, JarEntries jarEntries,
+                                 BRecordType recordType, String varName, boolean isAnnotatedType, JarEntries jarEntries,
                                  SymbolTable symbolTable) {
-        FieldVisitor fv = cw.visitField(ACC_STATIC + ACC_PUBLIC, TYPE_VAR_NAME, GET_RECORD_TYPE_IMPL, null, null);
+        FieldVisitor fv = cw.visitField(ACC_STATIC + ACC_PRIVATE, TYPE_VAR_NAME, GET_RECORD_TYPE_IMPL, null, null);
         fv.visitEnd();
         // Create the record type
         mv.visitTypeInsn(NEW, RECORD_TYPE_IMPL);
@@ -115,36 +125,59 @@ public class JvmRecordTypeGen {
         // initialize the record type
         mv.visitMethodInsn(INVOKESPECIAL, RECORD_TYPE_IMPL, JVM_INIT_METHOD, RECORD_TYPE_IMPL_INIT, false);
         mv.visitFieldInsn(PUTSTATIC, recordTypeClass, TYPE_VAR_NAME, GET_RECORD_TYPE_IMPL);
-        populateRecord(cw, mv, module, recordTypeClass, recordType, jarEntries, symbolTable);
+        genGetTypeMethod(cw, module, recordType, recordTypeClass, isAnnotatedType, symbolTable);
+        createTypedescClass(recordType, recordTypeClass, jarEntries);
     }
 
-    public void populateRecord(ClassWriter cw, MethodVisitor mv, BIRNode.BIRPackage module, String recordTypeClass,
-                               BRecordType bType, JarEntries jarEntries, SymbolTable symbolTable) {
+    private void genGetTypeMethod(ClassWriter cw, BIRNode.BIRPackage module, BRecordType recordType,
+                                  String recordTypeClass, boolean isAnnotatedType, SymbolTable symbolTable) {
+        FieldVisitor f = cw.visitField(ACC_STATIC + ACC_PRIVATE, TYPE_INIT_VAR_NAME, GET_JBOOLEAN_TYPE, null, null);
+        f.visitEnd();
+        MethodVisitor mv = cw.visitMethod(ACC_PUBLIC | ACC_STATIC, GET_TYPE_METHOD, GET_RECORD_TYPE_METHOD, null, null);
+        mv.visitCode();
+        mv.visitFieldInsn(GETSTATIC, recordTypeClass, TYPE_INIT_VAR_NAME, GET_JBOOLEAN_TYPE);
+        Label ifLabel = new Label();
+        mv.visitJumpInsn(IFNE, ifLabel);
+        setTypeInitialized(mv, ICONST_1, recordTypeClass);
+        populateRecord(cw, mv, module, recordTypeClass, recordType, symbolTable);
+        if (isAnnotatedType) {
+            mv.visitMethodInsn(INVOKESTATIC, recordTypeClass, LOAD_ANNOTATIONS_METHOD, VOID_METHOD_DESC, false);
+        }
+        mv.visitLabel(ifLabel);
         mv.visitFieldInsn(GETSTATIC, recordTypeClass, TYPE_VAR_NAME, GET_RECORD_TYPE_IMPL);
-        mv.visitInsn(DUP);
+        mv.visitInsn(ARETURN);
+        mv.visitMaxs(0, 0);
+        mv.visitEnd();
+    }
+
+
+
+    private void populateRecord(ClassWriter cw, MethodVisitor mv, BIRNode.BIRPackage module, String recordTypeClass,
+                               BRecordType bType, SymbolTable symbolTable) {
+        mv.visitFieldInsn(GETSTATIC, recordTypeClass, TYPE_VAR_NAME, GET_RECORD_TYPE_IMPL);
         mv.visitInsn(DUP);
         Map<String, String> fieldNameFPNameMap = module.recordDefaultValueMap.get(bType.tsymbol.name.value);
         if (fieldNameFPNameMap != null) {
             mv.visitInsn(DUP);
         }
-        addRecordFields(cw, mv, recordTypeClass, bType.fields);
+        addRecordFields(cw, mv, recordTypeClass, bType);
         if (fieldNameFPNameMap != null) {
             addRecordDefaultValues(cw, mv, recordTypeClass, bType, fieldNameFPNameMap);
         }
         addRecordRestField(mv, bType.restFieldType);
-        jvmCreateTypeGen.addImmutableType(mv, bType, symbolTable);
-        createTypedescClass(bType, recordTypeClass, jarEntries);
+        jvmCreateTypeGen.addImmutableType(mv, bType, recordTypeClass, GET_RECORD_TYPE_IMPL, symbolTable);
+
     }
 
-    private void addRecordFields(ClassWriter cw, MethodVisitor mv, String typeClass, Map<String, BField> fields) {
+    private void addRecordFields(ClassWriter cw, MethodVisitor mv, String typeClass, BRecordType bType) {
         // Create the fields map
         mv.visitTypeInsn(NEW, LINKED_HASH_MAP);
         mv.visitInsn(DUP);
         mv.visitMethodInsn(INVOKESPECIAL, LINKED_HASH_MAP, JVM_INIT_METHOD, VOID_METHOD_DESC, false);
-        if (!fields.isEmpty()) {
+        if (!bType.fields.isEmpty()) {
             mv.visitInsn(DUP);
             mv.visitMethodInsn(INVOKESTATIC, typeClass, "addFields", SET_LINKED_HASH_MAP, false);
-            jvmCreateTypeGen.splitAddFields(cw, typeClass, fields);
+            jvmCreateTypeGen.splitAddFields(cw, bType, typeClass);
         }
         // Set the fields of the record
         mv.visitMethodInsn(INVOKEVIRTUAL, RECORD_TYPE_IMPL, "setFields", SET_MAP, false);
@@ -193,7 +226,7 @@ public class JvmRecordTypeGen {
         mv.visitCode();
         mv.visitTypeInsn(NEW, className);
         mv.visitInsn(DUP);
-        mv.visitFieldInsn(GETSTATIC, recordTypeClass, TYPE_VAR_NAME, GET_RECORD_TYPE_IMPL);
+        mv.visitMethodInsn(INVOKESTATIC, recordTypeClass, GET_TYPE_METHOD, GET_RECORD_TYPE_METHOD, false);
         mv.visitInsn(ACONST_NULL);
         mv.visitMethodInsn(INVOKESPECIAL, className, JVM_INIT_METHOD, TYPE_DESC_CONSTRUCTOR, false);
         mv.visitFieldInsn(PUTSTATIC, globalVarClassName, VALUE_VAR_NAME, GET_TYPEDESC);

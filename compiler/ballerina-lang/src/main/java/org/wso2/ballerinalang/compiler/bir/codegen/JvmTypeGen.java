@@ -117,6 +117,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.FUNCTION_
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.FUTURE_TYPE_IMPL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.GET_ANON_TYPE_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.GET_FUNCTION_TYPE_METHOD;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.GET_TYPE_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.INTERSECTION_TYPE_IMPL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.INT_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JVM_INIT_METHOD;
@@ -144,7 +145,6 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TABLE_TYP
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPEDESC_TYPE_IMPL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPES_ERROR;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPE_VAR_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.VALUE_CREATOR;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.VALUE_OF_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.XML_TYPE_IMPL;
@@ -161,7 +161,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_BDEC
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_BOBJECT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_BSTRING;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_ERROR_TYPE;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_ERROR_TYPE_IMPL;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_ERROR_TYPE_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_ERROR_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_FUNCTION_POINTER;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_FUNCTION_TYPE_FOR_STRING;
@@ -171,15 +171,15 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_LOOK
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_MAP_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_MODULE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_OBJECT;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_OBJECT_TYPE_IMPL;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_RECORD_TYPE_IMPL;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_OBJECT_TYPE_METHOD;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_RECORD_TYPE_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_REGEXP;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_STREAM_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_TABLE_VALUE;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_TUPLE_TYPE_IMPL;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_TUPLE_TYPE_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_TYPEDESC;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_TYPE_REF_TYPE_IMPL;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_UNION_TYPE_IMPL;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_TYPE_REF_TYPE_METHOD;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_UNION_TYPE_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_VALUE_CREATOR;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_XML;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INIT_FINITE_TYPE_IMPL;
@@ -240,11 +240,11 @@ public class JvmTypeGen {
     private final String functionCallsClass;
     private final String stringConstantsClass;
     private final Context semTypeCtx;
-    private final String recordTypesPkgName;
-    private final String objectTypesPkgName;
-    private final String errorTypesPkgName;
-    private final String tupleTypesPkgName;
-    private final String unionTypesPkgName;
+    public final String recordTypesPkgName;
+    public final String objectTypesPkgName;
+    public final String errorTypesPkgName;
+    public final String tupleTypesPkgName;
+    public final String unionTypesPkgName;
 
     public JvmTypeGen(JvmConstantsGen jvmConstantsGen, PackageID packageID, TypeHashVisitor typeHashVisitor,
                       SymbolTable symbolTable) {
@@ -493,7 +493,8 @@ public class JvmTypeGen {
                     String typeOwner = JvmModuleUtils.getModuleLevelClassName(bType.tsymbol.pkgID,
                             JvmConstants.TYPE_REF_TYPE_CONSTANT_PACKAGE_NAME);
                     String varName = JvmCodeGenUtil.getRefTypeConstantName((BTypeReferenceType) bType);
-                    mv.visitFieldInsn(GETSTATIC, typeOwner + varName, TYPE_VAR_NAME, GET_TYPE_REF_TYPE_IMPL);
+                    String typeRefClass = typeOwner + varName;
+                    mv.visitMethodInsn(INVOKESTATIC, typeRefClass, GET_TYPE_METHOD, GET_TYPE_REF_TYPE_METHOD, false);
                     return;
                 }
                 default -> {
@@ -633,7 +634,7 @@ public class JvmTypeGen {
         } else {
             String typeName = toNameString(errorType);
             String typeOwner = getModuleLevelClassName(pkgID, MODULE_ERROR_TYPES_PACKAGE_NAME) + typeName;
-            mv.visitFieldInsn(GETSTATIC, typeOwner, TYPE_VAR_NAME, GET_ERROR_TYPE_IMPL);
+            mv.visitMethodInsn(INVOKESTATIC, typeOwner, GET_TYPE_METHOD, GET_ERROR_TYPE_METHOD, false);
         }
     }
 
@@ -1028,39 +1029,32 @@ public class JvmTypeGen {
     public void getUserDefinedType(MethodVisitor mv, BType bType) {
         String varName = toNameString(bType);
         switch (bType.tag) {
-            case TypeTags.RECORD ->
-                    mv.visitFieldInsn(GETSTATIC, this.recordTypesPkgName + varName, TYPE_VAR_NAME,
-                            GET_RECORD_TYPE_IMPL);
-            case TypeTags.OBJECT ->
-                    mv.visitFieldInsn(GETSTATIC, this.objectTypesPkgName + varName, TYPE_VAR_NAME,
-                            GET_OBJECT_TYPE_IMPL);
-            case TypeTags.ERROR ->
-                    mv.visitFieldInsn(GETSTATIC, this.errorTypesPkgName + varName, TYPE_VAR_NAME, GET_ERROR_TYPE_IMPL);
-            case TypeTags.TUPLE ->
-                    mv.visitFieldInsn(GETSTATIC, this.tupleTypesPkgName + varName, TYPE_VAR_NAME, GET_TUPLE_TYPE_IMPL);
-            default -> mv.visitFieldInsn(GETSTATIC, this.unionTypesPkgName + varName, TYPE_VAR_NAME,
-                    GET_UNION_TYPE_IMPL);
+            case TypeTags.RECORD -> mv.visitMethodInsn(INVOKESTATIC, this.recordTypesPkgName + varName,
+                    GET_TYPE_METHOD, GET_RECORD_TYPE_METHOD, false);
+            case TypeTags.OBJECT -> mv.visitMethodInsn(INVOKESTATIC, this.objectTypesPkgName + varName,
+                    GET_TYPE_METHOD, GET_OBJECT_TYPE_METHOD, false);
+            case TypeTags.ERROR -> mv.visitMethodInsn(INVOKESTATIC, this.errorTypesPkgName + varName, GET_TYPE_METHOD
+                    , GET_ERROR_TYPE_METHOD, false);
+            case TypeTags.TUPLE -> mv.visitMethodInsn(INVOKESTATIC, this.tupleTypesPkgName + varName, GET_TYPE_METHOD
+                    , GET_TUPLE_TYPE_METHOD, false);
+            default -> mv.visitMethodInsn(INVOKESTATIC, this.unionTypesPkgName + varName, GET_TYPE_METHOD,
+                    GET_UNION_TYPE_METHOD, false);
         }
     }
 
     public void getUserDefinedType(MethodVisitor mv, PackageID pkgId, BType bType) {
         String varName = toNameString(bType);
         switch (bType.tag) {
-            case TypeTags.RECORD -> mv.visitFieldInsn(GETSTATIC,
-                    getModuleLevelClassName(pkgId, MODULE_RECORD_TYPES_PACKAGE_NAME) + varName, TYPE_VAR_NAME,
-                    GET_RECORD_TYPE_IMPL);
-            case TypeTags.OBJECT -> mv.visitFieldInsn(GETSTATIC,
-                    getModuleLevelClassName(pkgId, MODULE_OBJECT_TYPES_PACKAGE_NAME) + varName, TYPE_VAR_NAME,
-                    GET_OBJECT_TYPE_IMPL);
-            case TypeTags.ERROR -> mv.visitFieldInsn(GETSTATIC,
-                    getModuleLevelClassName(pkgId, MODULE_ERROR_TYPES_PACKAGE_NAME) + varName, TYPE_VAR_NAME,
-                    GET_ERROR_TYPE_IMPL);
-            case TypeTags.TUPLE -> mv.visitFieldInsn(GETSTATIC,
-                    getModuleLevelClassName(pkgId, MODULE_TUPLE_TYPES_PACKAGE_NAME) + varName, TYPE_VAR_NAME,
-                    GET_TUPLE_TYPE_IMPL);
-            default -> mv.visitFieldInsn(GETSTATIC,
-                    getModuleLevelClassName(pkgId, MODULE_UNION_TYPES_PACKAGE_NAME) + varName, TYPE_VAR_NAME,
-                    GET_UNION_TYPE_IMPL);
+            case TypeTags.RECORD -> mv.visitMethodInsn(INVOKESTATIC,  getModuleLevelClassName(pkgId,
+                    MODULE_RECORD_TYPES_PACKAGE_NAME) + varName, GET_TYPE_METHOD, GET_RECORD_TYPE_METHOD, false);
+            case TypeTags.OBJECT -> mv.visitMethodInsn(INVOKESTATIC,  getModuleLevelClassName(pkgId,
+                    MODULE_OBJECT_TYPES_PACKAGE_NAME) + varName, GET_TYPE_METHOD, GET_OBJECT_TYPE_METHOD, false);
+            case TypeTags.ERROR -> mv.visitMethodInsn(INVOKESTATIC, getModuleLevelClassName(pkgId,
+                    MODULE_ERROR_TYPES_PACKAGE_NAME) + varName, GET_TYPE_METHOD, GET_ERROR_TYPE_METHOD, false);
+            case TypeTags.TUPLE -> mv.visitMethodInsn(INVOKESTATIC, getModuleLevelClassName(pkgId,
+                    MODULE_TUPLE_TYPES_PACKAGE_NAME) + varName, GET_TYPE_METHOD, GET_TUPLE_TYPE_METHOD, false);
+            default -> mv.visitMethodInsn(INVOKESTATIC,  getModuleLevelClassName(pkgId,
+                    MODULE_UNION_TYPES_PACKAGE_NAME) + varName, GET_TYPE_METHOD, GET_UNION_TYPE_METHOD, false);
         }
     }
 }

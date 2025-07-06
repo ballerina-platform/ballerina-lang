@@ -32,12 +32,13 @@ import java.util.Map;
 import java.util.TreeMap;
 
 import static org.objectweb.asm.ClassWriter.COMPUTE_FRAMES;
+import static org.objectweb.asm.Opcodes.ACC_PUBLIC;
 import static org.objectweb.asm.Opcodes.ACC_STATIC;
-import static org.objectweb.asm.Opcodes.GETSTATIC;
+import static org.objectweb.asm.Opcodes.INVOKESTATIC;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CLASS_FILE_SUFFIX;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.GET_TYPE_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JVM_STATIC_INIT_METHOD;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPE_VAR_NAME;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_ERROR_TYPE_IMPL;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_ERROR_TYPE_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.VOID_METHOD_DESC;
 import static org.wso2.ballerinalang.compiler.bir.codegen.utils.JvmConstantGenUtils.genMethodReturn;
 import static org.wso2.ballerinalang.compiler.bir.codegen.utils.JvmConstantGenUtils.generateConstantsClassInit;
@@ -84,7 +85,7 @@ public class JvmErrorTypeConstantsGen {
         String errorTypeClass = this.errorVarConstantsPkgName + varName;
         generateConstantsClassInit(cw, errorTypeClass);
         MethodVisitor mv = cw.visitMethod(ACC_STATIC, JVM_STATIC_INIT_METHOD, VOID_METHOD_DESC, null, null);
-        jvmErrorTypeGen.createErrorType(cw, mv, errorType, errorTypeClass);
+        jvmErrorTypeGen.createErrorType(cw, mv, errorType, errorTypeClass, ACC_PUBLIC, false);
         genMethodReturn(mv);
         cw.visitEnd();
         jarEntries.put(errorTypeClass + CLASS_FILE_SUFFIX, cw.toByteArray());
@@ -92,6 +93,7 @@ public class JvmErrorTypeConstantsGen {
     }
 
     public void generateGetBErrorType(MethodVisitor mv, String varName) {
-        mv.visitFieldInsn(GETSTATIC, errorVarConstantsPkgName + varName, TYPE_VAR_NAME, GET_ERROR_TYPE_IMPL);
+        String typeClass = this.errorVarConstantsPkgName + varName;
+        mv.visitMethodInsn(INVOKESTATIC, typeClass, GET_TYPE_METHOD, GET_ERROR_TYPE_METHOD, false);
     }
 }
