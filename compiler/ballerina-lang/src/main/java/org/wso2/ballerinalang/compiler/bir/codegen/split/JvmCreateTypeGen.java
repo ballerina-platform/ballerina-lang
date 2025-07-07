@@ -329,7 +329,7 @@ public class JvmCreateTypeGen {
         }
         MethodVisitor mv = cw.visitMethod(ACC_STATIC, JVM_STATIC_INIT_METHOD, VOID_METHOD_DESC, null, null);
         setTypeInitialized(mv, ICONST_1, typeClass, isAnnotatedType);
-        jvmErrorTypeGen.createErrorType(cw, mv, (BErrorType) bType, typeClass, ACC_PRIVATE, isAnnotatedType);
+        jvmErrorTypeGen.createErrorType(cw, mv, (BErrorType) bType, typeClass, isAnnotatedType);
         setTypeInitialized(mv, ICONST_0, typeClass, isAnnotatedType);
         genMethodReturn(mv);
         cw.visitEnd();

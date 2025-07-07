@@ -27,6 +27,7 @@ import org.wso2.ballerinalang.compiler.bir.codegen.split.JvmCreateTypeGen;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BErrorType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeIdSet;
 
+import static org.objectweb.asm.Opcodes.ACC_PUBLIC;
 import static org.objectweb.asm.Opcodes.ACC_STATIC;
 import static org.objectweb.asm.Opcodes.DUP;
 import static org.objectweb.asm.Opcodes.GETSTATIC;
@@ -65,9 +66,9 @@ public class JvmErrorTypeGen {
     }
 
     public void createErrorType(ClassWriter cw, MethodVisitor mv, BErrorType errorType, String errorTypeClass,
-                                int access, boolean isAnnotatedType) {
+                                boolean isAnnotatedType) {
         // Create field for error type var
-        FieldVisitor fv = cw.visitField(ACC_STATIC + access, TYPE_VAR_NAME, GET_ERROR_TYPE_IMPL, null, null);
+        FieldVisitor fv = cw.visitField(ACC_STATIC + ACC_PUBLIC, TYPE_VAR_NAME, GET_ERROR_TYPE_IMPL, null, null);
         fv.visitEnd();
         String name  = errorType.tsymbol.name.value;
         // Create the error type

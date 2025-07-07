@@ -32,7 +32,6 @@ import java.util.Map;
 import java.util.TreeMap;
 
 import static org.objectweb.asm.ClassWriter.COMPUTE_FRAMES;
-import static org.objectweb.asm.Opcodes.ACC_PUBLIC;
 import static org.objectweb.asm.Opcodes.ACC_STATIC;
 import static org.objectweb.asm.Opcodes.INVOKESTATIC;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CLASS_FILE_SUFFIX;
@@ -85,7 +84,7 @@ public class JvmErrorTypeConstantsGen {
         String errorTypeClass = this.errorVarConstantsPkgName + varName;
         generateConstantsClassInit(cw, errorTypeClass);
         MethodVisitor mv = cw.visitMethod(ACC_STATIC, JVM_STATIC_INIT_METHOD, VOID_METHOD_DESC, null, null);
-        jvmErrorTypeGen.createErrorType(cw, mv, errorType, errorTypeClass, ACC_PUBLIC, false);
+        jvmErrorTypeGen.createErrorType(cw, mv, errorType, errorTypeClass, false);
         genMethodReturn(mv);
         cw.visitEnd();
         jarEntries.put(errorTypeClass + CLASS_FILE_SUFFIX, cw.toByteArray());

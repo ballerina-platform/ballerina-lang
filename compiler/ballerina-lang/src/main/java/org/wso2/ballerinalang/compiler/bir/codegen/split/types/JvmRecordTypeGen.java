@@ -35,7 +35,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import java.util.Map;
 
 import static org.objectweb.asm.ClassWriter.COMPUTE_FRAMES;
-import static org.objectweb.asm.Opcodes.ACC_PRIVATE;
+import static org.objectweb.asm.Opcodes.ACC_PUBLIC;
 import static org.objectweb.asm.Opcodes.ACC_STATIC;
 import static org.objectweb.asm.Opcodes.ACONST_NULL;
 import static org.objectweb.asm.Opcodes.DUP;
@@ -94,7 +94,7 @@ public class JvmRecordTypeGen {
     public void createRecordType(ClassWriter cw, MethodVisitor mv, BIRNode.BIRPackage module, String recordTypeClass,
                                  BRecordType recordType, String varName, boolean isAnnotatedType, JarEntries jarEntries,
                                  SymbolTable symbolTable) {
-        FieldVisitor fv = cw.visitField(ACC_STATIC + ACC_PRIVATE, TYPE_VAR_NAME, GET_RECORD_TYPE_IMPL, null, null);
+        FieldVisitor fv = cw.visitField(ACC_STATIC + ACC_PUBLIC, TYPE_VAR_NAME, GET_RECORD_TYPE_IMPL, null, null);
         fv.visitEnd();
         // Create the record type
         mv.visitTypeInsn(NEW, RECORD_TYPE_IMPL);

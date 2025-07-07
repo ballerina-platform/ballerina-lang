@@ -95,7 +95,7 @@ public class JvmRefTypeGen {
 
     public void populateTypeRef(MethodVisitor mv, BTypeReferenceType referenceType, String typeRefConstantClass) {
         mv.visitFieldInsn(GETSTATIC, typeRefConstantClass, TYPE_VAR_NAME, GET_TYPE_REF_TYPE_IMPL);
-        jvmTypeGen.loadType(mv, referenceType.referredType);
+        jvmTypeGen.loadReferredType(mv, referenceType);
         mv.visitMethodInsn(INVOKEVIRTUAL, TYPE_REF_TYPE_IMPL, SET_REFERRED_TYPE_METHOD, TYPE_PARAMETER, false);
     }
 }

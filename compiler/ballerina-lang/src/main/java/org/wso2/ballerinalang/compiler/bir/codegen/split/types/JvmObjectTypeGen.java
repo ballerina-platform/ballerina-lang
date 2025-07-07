@@ -40,7 +40,6 @@ import java.util.List;
 
 import static io.ballerina.identifier.Utils.decodeIdentifier;
 import static org.objectweb.asm.Opcodes.AASTORE;
-import static org.objectweb.asm.Opcodes.ACC_PRIVATE;
 import static org.objectweb.asm.Opcodes.ACC_PUBLIC;
 import static org.objectweb.asm.Opcodes.ACC_STATIC;
 import static org.objectweb.asm.Opcodes.ALOAD;
@@ -113,7 +112,7 @@ public class JvmObjectTypeGen {
                                  String fieldName, boolean isAnnotatedType, BIRVarToJVMIndexMap indexMap,
                                  SymbolTable symbolTable) {
         // Create type field
-        FieldVisitor fv = cw.visitField(ACC_STATIC + ACC_PRIVATE, TYPE_VAR_NAME, GET_OBJECT_TYPE_IMPL, null, null);
+        FieldVisitor fv = cw.visitField(ACC_STATIC + ACC_PUBLIC, TYPE_VAR_NAME, GET_OBJECT_TYPE_IMPL, null, null);
         fv.visitEnd();
         // Create the object type
         String objectClassName = Symbols.isService(objectType.tsymbol) ? SERVICE_TYPE_IMPL :

@@ -145,6 +145,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TABLE_TYP
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPEDESC_TYPE_IMPL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPES_ERROR;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPE_VAR_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.VALUE_CREATOR;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.VALUE_OF_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.XML_TYPE_IMPL;
@@ -161,6 +162,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_BDEC
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_BOBJECT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_BSTRING;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_ERROR_TYPE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_ERROR_TYPE_IMPL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_ERROR_TYPE_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_ERROR_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_FUNCTION_POINTER;
@@ -171,7 +173,9 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_LOOK
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_MAP_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_MODULE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_OBJECT;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_OBJECT_TYPE_IMPL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_OBJECT_TYPE_METHOD;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_RECORD_TYPE_IMPL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_RECORD_TYPE_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_REGEXP;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_STREAM_VALUE;
@@ -220,6 +224,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.VOID_MET
 import static org.wso2.ballerinalang.compiler.bir.codegen.utils.JvmCodeGenUtil.removeDecimalDiscriminator;
 import static org.wso2.ballerinalang.compiler.bir.codegen.utils.JvmCodeGenUtil.toNameString;
 import static org.wso2.ballerinalang.compiler.bir.codegen.utils.JvmModuleUtils.getModuleLevelClassName;
+import static org.wso2.ballerinalang.compiler.bir.codegen.utils.JvmModuleUtils.isSameModule;
 
 /**
  * BIR types to JVM byte code generation class.
@@ -1055,6 +1060,50 @@ public class JvmTypeGen {
                     MODULE_TUPLE_TYPES_PACKAGE_NAME) + varName, GET_TYPE_METHOD, GET_TUPLE_TYPE_METHOD, false);
             default -> mv.visitMethodInsn(INVOKESTATIC,  getModuleLevelClassName(pkgId,
                     MODULE_UNION_TYPES_PACKAGE_NAME) + varName, GET_TYPE_METHOD, GET_UNION_TYPE_METHOD, false);
+        }
+    }
+
+    public void loadReferredType(MethodVisitor mv, BTypeReferenceType referenceType) {
+        BType referredType = referenceType.referredType;
+        if (referredType == null || Symbols.isFlagOn(referredType.getFlags(),
+                Flags.ANONYMOUS)) {
+            this.loadType(mv, referredType);
+            return;
+
+        }
+        if (isSameModule(referenceType.tsymbol.pkgID, referredType.tsymbol.pkgID)) {
+            loadInternalType(mv, referredType);
+        } else {
+            loadInternalType(mv, referredType.tsymbol.pkgID, referredType);
+        }
+    }
+
+    private void loadInternalType(MethodVisitor mv, BType bType) {
+        String varName = toNameString(bType);
+        switch (bType.tag) {
+            case TypeTags.RECORD -> mv.visitFieldInsn(GETSTATIC, this.recordTypesPkgName + varName, TYPE_VAR_NAME,
+                    GET_RECORD_TYPE_IMPL);
+            case TypeTags.OBJECT -> mv.visitFieldInsn(GETSTATIC, this.objectTypesPkgName + varName, TYPE_VAR_NAME,
+                    GET_OBJECT_TYPE_IMPL);
+            case TypeTags.ERROR -> mv.visitFieldInsn(GETSTATIC, this.errorTypesPkgName + varName, TYPE_VAR_NAME,
+                    GET_ERROR_TYPE_IMPL);
+            default -> this.loadType(mv, bType);
+        }
+    }
+
+    private void loadInternalType(MethodVisitor mv, PackageID pkgId, BType bType) {
+        String varName = toNameString(bType);
+        switch (bType.tag) {
+            case TypeTags.RECORD ->
+                    mv.visitFieldInsn(GETSTATIC, getModuleLevelClassName(pkgId, MODULE_RECORD_TYPES_PACKAGE_NAME) +
+                            varName, TYPE_VAR_NAME, GET_RECORD_TYPE_IMPL);
+            case TypeTags.OBJECT ->
+                    mv.visitFieldInsn(GETSTATIC, getModuleLevelClassName(pkgId, MODULE_OBJECT_TYPES_PACKAGE_NAME) +
+                            varName, TYPE_VAR_NAME, GET_OBJECT_TYPE_IMPL);
+            case TypeTags.ERROR ->
+                    mv.visitFieldInsn(GETSTATIC, getModuleLevelClassName(pkgId, MODULE_ERROR_TYPES_PACKAGE_NAME) +
+                            varName, TYPE_VAR_NAME, GET_ERROR_TYPE_IMPL);
+            default -> this.loadType(mv, bType);
         }
     }
 }
