@@ -897,7 +897,7 @@ public class ManifestBuilder {
         Boolean dumpBuildTime =
                 getBooleanFromBuildOptionsTableNode(tableNode, BuildOptions.OptionName.DUMP_BUILD_TIME.toString());
         Boolean sticky =
-                getTrueFromBuildOptionsTableNode(tableNode, CompilerOptionName.STICKY.toString());
+                getBooleanFromBuildOptionsTableNode(tableNode, CompilerOptionName.STICKY.toString());
         String cloud = "";
         if (topLevelNode != null) {
             cloud = getStringFromTomlTableNode(topLevelNode);
@@ -998,23 +998,6 @@ public class ManifestBuilder {
             }
         }
         return false;
-    }
-
-    private boolean getTrueFromBuildOptionsTableNode(TomlTableNode tableNode, String key) {
-        TopLevelNode topLevelNode = tableNode.entries().get(key);
-        if (topLevelNode == null || topLevelNode.kind() == TomlType.NONE) {
-            return true;
-        }
-
-        if (topLevelNode.kind() == TomlType.KEY_VALUE) {
-            TomlKeyValueNode keyValueNode = (TomlKeyValueNode) topLevelNode;
-            TomlValueNode value = keyValueNode.value();
-            if (value.kind() == TomlType.BOOLEAN) {
-                TomlBooleanValueNode tomlBooleanValueNode = (TomlBooleanValueNode) value;
-                return tomlBooleanValueNode.getValue();
-            }
-        }
-        return true;
     }
 
     public static String getStringValueFromTomlTableNode(TomlTableNode tomlTableNode, String key) {
