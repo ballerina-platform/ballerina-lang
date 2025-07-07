@@ -1063,22 +1063,22 @@ public class JvmTypeGen {
         }
     }
 
-    public void loadReferredType(MethodVisitor mv, BTypeReferenceType referenceType) {
+    public boolean loadReferredType(MethodVisitor mv, BTypeReferenceType referenceType) {
         BType referredType = referenceType.referredType;
         if (referredType == null || Symbols.isFlagOn(referredType.getFlags(),
                 Flags.ANONYMOUS)) {
             this.loadType(mv, referredType);
-            return;
+            return false;
 
         }
         if (isSameModule(referenceType.tsymbol.pkgID, referredType.tsymbol.pkgID)) {
-            loadInternalType(mv, referredType);
+            return loadInternalType(mv, referredType);
         } else {
-            loadInternalType(mv, referredType.tsymbol.pkgID, referredType);
+            return loadInternalType(mv, referredType.tsymbol.pkgID, referredType);
         }
     }
 
-    private void loadInternalType(MethodVisitor mv, BType bType) {
+    private boolean loadInternalType(MethodVisitor mv, BType bType) {
         String varName = toNameString(bType);
         switch (bType.tag) {
             case TypeTags.RECORD -> mv.visitFieldInsn(GETSTATIC, this.recordTypesPkgName + varName, TYPE_VAR_NAME,
@@ -1087,11 +1087,15 @@ public class JvmTypeGen {
                     GET_OBJECT_TYPE_IMPL);
             case TypeTags.ERROR -> mv.visitFieldInsn(GETSTATIC, this.errorTypesPkgName + varName, TYPE_VAR_NAME,
                     GET_ERROR_TYPE_IMPL);
-            default -> this.loadType(mv, bType);
+            default -> {
+                this.loadType(mv, bType);
+                return false;
+            }
         }
+        return true;
     }
 
-    private void loadInternalType(MethodVisitor mv, PackageID pkgId, BType bType) {
+    private boolean loadInternalType(MethodVisitor mv, PackageID pkgId, BType bType) {
         String varName = toNameString(bType);
         switch (bType.tag) {
             case TypeTags.RECORD ->
@@ -1103,7 +1107,11 @@ public class JvmTypeGen {
             case TypeTags.ERROR ->
                     mv.visitFieldInsn(GETSTATIC, getModuleLevelClassName(pkgId, MODULE_ERROR_TYPES_PACKAGE_NAME) +
                             varName, TYPE_VAR_NAME, GET_ERROR_TYPE_IMPL);
-            default -> this.loadType(mv, bType);
+            default -> {
+                this.loadType(mv, bType);
+                return false;
+            }
         }
+        return true;
     }
 }

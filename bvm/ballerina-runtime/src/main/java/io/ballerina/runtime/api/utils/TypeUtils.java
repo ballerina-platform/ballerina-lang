@@ -25,7 +25,6 @@ import io.ballerina.runtime.api.types.TypeTags;
 import io.ballerina.runtime.internal.TypeChecker;
 import io.ballerina.runtime.internal.types.BArrayType;
 import io.ballerina.runtime.internal.types.BFiniteType;
-import io.ballerina.runtime.internal.types.BTypeReferenceType;
 
 import static io.ballerina.runtime.api.types.PredefinedTypes.TYPE_ANY;
 import static io.ballerina.runtime.api.types.PredefinedTypes.TYPE_ANYDATA;
