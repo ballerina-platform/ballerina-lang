@@ -13,31 +13,31 @@ Isolated Strands:
 
 \tStrand #\d* \"\w*\" :
 \t\tat       balProgram1.\$lambda\$_0\(balProgram1.bal:\d*\)
-\t\t         lambdas.\$_generated1balProgram1.\$lambda\$_0\$lambda0\$\(balProgram1.bal:\d*\)
+\t\t         lambdas.\$1balProgram1.\$lambda\$_0\$lambda0\$\(balProgram1.bal:\d*\)
 
 \tStrand #\d* \"\w*\" :
 \t\tat       balProgram1.\$lambda\$_1\(balProgram1.bal:\d*\)
-\t\t         lambdas.\$_generated1balProgram1.\$lambda\$_1\$lambda1\$\(balProgram1.bal:\d*\)
+\t\t         lambdas.\$1balProgram1.\$lambda\$_1\$lambda1\$\(balProgram1.bal:\d*\)
 
 Non Isolated Strands:
 
 \tStrand #\d* \"\w*\" :
 \t\tat       balProgram1.\$lambda\$_2\(balProgram1.bal:\d*\)
-\t\t         lambdas.\$_generated1balProgram1.\$lambda\$_2\$lambda2\$\(balProgram1.bal:\d*\)
+\t\t         lambdas.\$1balProgram1.\$lambda\$_2\$lambda2\$\(balProgram1.bal:\d*\)
 
 \tStrand #\d* \"\w*\" :
 \t\tat       ballerina.lang&0046runtime.0.runtime.sleep\(runtime.bal:\d*\)
 \t\t         balProgram1.\$lambda\$_3\(balProgram1.bal:\d*\)
-\t\t         lambdas.\$_generated1balProgram1.\$lambda\$_3\$lambda3\$\(balProgram1.bal:\d*\)
+\t\t         lambdas.\$1balProgram1.\$lambda\$_3\$lambda3\$\(balProgram1.bal:\d*\)
 
 \tStrand #\d* \"\w*\" :
 \t\tat       balProgram1.\$lambda\$_4\(balProgram1.bal:\d*\)
-\t\t         lambdas.\$_generated1balProgram1.\$lambda\$_4\$lambda4\$\(balProgram1.bal:\d*\)
+\t\t         lambdas.\$1balProgram1.\$lambda\$_4\$lambda4\$\(balProgram1.bal:\d*\)
 
 \tStrand #\d* \"\w*\" :
 \t\tat       ballerina.lang&0046runtime.0.runtime.sleep\(runtime.bal:\d*\)
 \t\t         balProgram1.\$lambda\$_5\(balProgram1.bal:\d*\)
-\t\t         lambdas.\$_generated1balProgram1.\$lambda\$_5\$lambda5\$\(balProgram1.bal:\d*\)
+\t\t         lambdas.\$1balProgram1.\$lambda\$_5\$lambda5\$\(balProgram1.bal:\d*\)
 
 \tStrand #\d* \"\w*\" :
 \t\tat       ballerina.lang&0046runtime.0.runtime.sleep\(runtime.bal:\d*\)
@@ -49,8 +49,8 @@ Non Isolated Strands:
 
 \tStrand #\d* \"\w*\" :
 \t\tat       balProgram1.\$lambda\$_6\(balProgram1.bal:\d*\)
-\t\t         lambdas.\$_generated1balProgram1.\$lambda\$_6\$lambda6\$\(balProgram1.bal:\d*\)
+\t\t         lambdas.\$1balProgram1.\$lambda\$_6\$lambda6\$\(balProgram1.bal:\d*\)
 
 \tStrand #\d* \"\w*\" :
 \t\tat       balProgram1.\$lambda\$_7\(balProgram1.bal:\d*\)
-\t\t         lambdas.\$_generated1balProgram1.\$lambda\$_7\$lambda7\$\(balProgram1.bal:\d*\)
+\t\t         lambdas.\$1balProgram1.\$lambda\$_7\$lambda7\$\(balProgram1.bal:\d*\)

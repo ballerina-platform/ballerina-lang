@@ -34,6 +34,7 @@ import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.OperatorKind;
 import org.ballerinalang.model.tree.TopLevelNode;
 import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
+import org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRAnnotation;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRAnnotationAttachment;
@@ -82,6 +83,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BXMLNSSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BIntersectionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
@@ -212,6 +214,7 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -546,7 +549,7 @@ public class BIRGen extends BLangNodeVisitor {
         ConstValue constantValue = getBIRConstantVal(constantSymbol.value);
 
         // Create a new constant info object.
-        BIRConstant birConstant = new BIRConstant(astConstant.pos, constName, constOriginalName, constantSymbol.flags,
+        BIRConstant birConstant = new BIRConstant(astConstant.pos, constName, constantSymbol.flags,
                                                   type, constantValue, constantSymbol.origin.toBIROrigin());
         birConstant.constValue = constantValue;
 
@@ -637,7 +640,9 @@ public class BIRGen extends BLangNodeVisitor {
         }
 
         this.env.enclFunc = birFunc;
-
+        if (birFunc.originalName.value.contains(JvmConstants.INIT_FUNCTION_SUFFIX)) {
+            this.env.isInitFunc = true;
+        }
         // TODO: Return variable with NIL type should be written to BIR
         // Special %0 location for storing return values
         BType retType = unifier.build(symTable.typeEnv(), astFunc.symbol.type.getReturnType());
@@ -817,8 +822,7 @@ public class BIRGen extends BLangNodeVisitor {
     public void visit(BLangLambdaFunction lambdaExpr) {
         //fpload instruction
         BIRVariableDcl tempVarLambda = new BIRVariableDcl(lambdaExpr.pos, lambdaExpr.getBType(),
-                                                          this.env.nextLocalVarId(names), VarScope.FUNCTION,
-                                                          VarKind.TEMP, null);
+                this.env.nextLocalVarId(names), VarScope.FUNCTION, VarKind.TEMP, null);
         this.env.enclFunc.localVars.add(tempVarLambda);
         BIROperand lhsOp = new BIROperand(tempVarLambda);
         Name funcName = getFuncName(lambdaExpr.function.symbol);
@@ -826,7 +830,6 @@ public class BIRGen extends BLangNodeVisitor {
         List<BIRVariableDcl> params = new ArrayList<>();
 
         lambdaExpr.function.requiredParams.forEach(param -> {
-
             BIRVariableDcl birVarDcl = new BIRVariableDcl(param.pos, param.symbol.type,
                     this.env.nextLambdaVarId(names), VarScope.FUNCTION, VarKind.ARG, param.name.value);
             params.add(birVarDcl);
@@ -847,15 +850,37 @@ public class BIRGen extends BLangNodeVisitor {
                 lambdaExpr.function.symbol.schedulerPolicy, boundMethodPkgId);
         setScopeAndEmit(fpLoad);
         BType targetType = getRecordTargetType(funcName.value);
+        // If the function is for record type and has captured variables, then we need to create a
+        // temp value in the type and keep it
         if (lambdaExpr.function.flagSet.contains(Flag.RECORD) && targetType != null &&
                 targetType.tag == TypeTags.RECORD) {
-            // If the function is for record type and has captured variables, then we need to create a
-            // temp value in the type and keep it
-            setScopeAndEmit(
-                    new BIRNonTerminator.RecordDefaultFPLoad(lhsOp.pos, lhsOp, targetType,
-                            getFieldName(funcName.value, targetType.tsymbol.name.value)));
+            // If function is init function or split init function, fp values are global variables. So we can lazy
+            // load them. Else, fp loading in same function since those record types are inside function
+            // scope.
+            String recordName = targetType.tsymbol.name.value;
+            if (env.isInitFunc) {
+                String fieldName = getFieldName(funcName.value, recordName);
+                BRecordType recordType = (BRecordType) targetType;
+                String encodedFuncName = Utils.encodeFunctionIdentifier(funcName.value);
+                setDefaultValue(recordName, fieldName, encodedFuncName);
+                Optional<BIntersectionType> immutableType = Types.getImmutableType(this.symTable,
+                        recordType.tsymbol.pkgID, recordType);
+                if (immutableType.isPresent()) {
+                    BRecordType effectiveType = (BRecordType) immutableType.get().effectiveType;
+                    setDefaultValue(effectiveType.tsymbol.name.value, fieldName, encodedFuncName);
+                }
+            } else {
+                setScopeAndEmit(new BIRNonTerminator.RecordDefaultFPLoad(lhsOp.pos, lhsOp, targetType,
+                        getFieldName(funcName.value, recordName)));
+            }
         }
         this.env.targetOperand = lhsOp;
+    }
+
+    private void setDefaultValue(String recordName, String fieldName, String funcName) {
+        Map<String, String> fieldNameFpMap =
+                this.env.enclPkg.recordDefaultValueMap.computeIfAbsent(recordName, k -> new HashMap<>());
+        fieldNameFpMap.put(fieldName, funcName);
     }
 
     private String getFieldName(String funcName, String typeName) {
@@ -1944,8 +1969,12 @@ public class BIRGen extends BLangNodeVisitor {
         BSymbol symbol = astPackageVarRefExpr.symbol;
         BIRGlobalVariableDcl globalVarDcl = this.globalVarMap.get(symbol);
         if (globalVarDcl == null) {
+            VarKind varKind = VarKind.GLOBAL;
+            if (symbol.kind == SymbolKind.CONSTANT) {
+                varKind = VarKind.CONSTANT;
+            }
             globalVarDcl = new BIRGlobalVariableDcl(astPackageVarRefExpr.pos, symbol.flags, symbol.type, symbol.pkgID,
-                    symbol.name, symbol.getOriginalName(), VarScope.GLOBAL, VarKind.CONSTANT, symbol.name.getValue(),
+                    symbol.name, symbol.getOriginalName(), VarScope.GLOBAL, varKind, symbol.name.getValue(),
                     symbol.origin.toBIROrigin());
             this.globalVarMap.put(symbol, globalVarDcl);
         }

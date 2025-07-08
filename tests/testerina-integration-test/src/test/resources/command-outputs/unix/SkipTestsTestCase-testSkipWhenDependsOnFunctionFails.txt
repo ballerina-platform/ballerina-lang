@@ -17,7 +17,7 @@ Running Tests
 
 		    error("{ballerina}DivisionByZero",message=" / by zero")
 				callableName: test2  fileName: dependson-skip-test.bal lineNumber: 34
-				callableName: test2$lambda2$  fileName: dependson-skip-test.bal lineNumber: 60
+				callableName: test2$lambda1$  fileName: dependson-skip-test.bal lineNumber: 60
 				callableName: call moduleName: ballerina.lang.function.0 fileName: function.bal lineNumber: 37
 				callableName: executeTestFunction moduleName: ballerina.test.0 fileName: serialExecuter.bal lineNumber: 128
 				callableName: executeNonDataDrivenTest moduleName: ballerina.test.0 fileName: serialExecuter.bal lineNumber: 74

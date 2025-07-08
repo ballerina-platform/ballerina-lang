@@ -24,6 +24,7 @@ import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.AsyncDataCollector;
+import org.wso2.ballerinalang.compiler.bir.codegen.internal.JarEntries;
 import org.wso2.ballerinalang.compiler.bir.codegen.methodgen.InitMethodGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.methodgen.MethodGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.model.JFieldBIRFunction;
@@ -31,6 +32,7 @@ import org.wso2.ballerinalang.compiler.bir.codegen.model.JMethodBIRFunction;
 import org.wso2.ballerinalang.compiler.bir.codegen.split.JvmConstantsGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.split.values.JvmObjectGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.split.values.JvmRecordGen;
+import org.wso2.ballerinalang.compiler.bir.codegen.utils.JvmCodeGenUtil;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRFunction;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.TypeHashVisitor;
@@ -49,7 +51,6 @@ import java.util.Map;
 
 import static org.objectweb.asm.ClassWriter.COMPUTE_FRAMES;
 import static org.objectweb.asm.Opcodes.ACC_FINAL;
-import static org.objectweb.asm.Opcodes.ACC_PROTECTED;
 import static org.objectweb.asm.Opcodes.ACC_PUBLIC;
 import static org.objectweb.asm.Opcodes.ACC_SUPER;
 import static org.objectweb.asm.Opcodes.ALOAD;
@@ -70,12 +71,12 @@ import static org.objectweb.asm.Opcodes.PUTFIELD;
 import static org.objectweb.asm.Opcodes.RETURN;
 import static org.objectweb.asm.Opcodes.SWAP;
 import static org.objectweb.asm.Opcodes.V21;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil.toNameString;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ABSTRACT_OBJECT_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ANNOTATIONS_FIELD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BAL_OPTIONAL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_OBJECT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CLASS_FILE_SUFFIX;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CLASS_LOCK_VAR_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.INSTANTIATE_FUNCTION;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JVM_INIT_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAP_VALUE;
@@ -84,6 +85,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAX_METHO
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBJECT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.POPULATE_INITIAL_VALUES_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.RECORD_INIT_WRAPPER_NAME;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.REENTRANT_LOCK;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SPLIT_CLASS_SUFFIX;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPEDESC_CLASS_PREFIX;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPEDESC_VALUE;
@@ -92,13 +94,13 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPEDESC_
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPE_IMPL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.UNSUPPORTED_OPERATION_EXCEPTION;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.VALUE_CLASS_PREFIX;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmDesugarPhase.addDefaultableBooleanVarsToSignature;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.CAST_B_MAPPING_INITIAL_VALUE_ENTRY;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_MAP_ARRAY;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_MAP_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INIT_TYPEDESC;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INSTANTIATE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INSTANTIATE_WITH_INITIAL_VALUES;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.LOAD_LOCK;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.OBJECT_TYPE_IMPL_INIT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.POPULATE_INITIAL_VALUES;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.RECORD_VALUE_CLASS;
@@ -108,7 +110,10 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.TYPE_DES
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.TYPE_PARAMETER;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.VOID_METHOD_DESC;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmTypeGen.getTypeDesc;
+import static org.wso2.ballerinalang.compiler.bir.codegen.desugar.BirDesugar.addDefaultBooleanVarsToSignature;
 import static org.wso2.ballerinalang.compiler.bir.codegen.interop.InteropMethodGen.desugarInteropFuncs;
+import static org.wso2.ballerinalang.compiler.bir.codegen.utils.JvmCodeGenUtil.toNameString;
+import static org.wso2.ballerinalang.compiler.bir.codegen.utils.JvmModuleUtils.getPackageName;
 
 /**
  * BIR values to JVM byte code generation class.
@@ -160,7 +165,7 @@ public class JvmValueGen {
                     initMethodGen.resetIds();
                 }
             } else {
-                addDefaultableBooleanVarsToSignature(env, birFunc);
+                addDefaultBooleanVarsToSignature(env, birFunc);
                 initMethodGen.resetIds();
             }
         }
@@ -184,7 +189,7 @@ public class JvmValueGen {
 
     void generateValueClasses(JarEntries jarEntries, JvmConstantsGen jvmConstantsGen, JvmTypeGen jvmTypeGen,
                               AsyncDataCollector asyncDataCollector) {
-        String packageName = JvmCodeGenUtil.getPackageName(module.packageID);
+        String packageName = getPackageName(module.packageID);
         module.typeDefs.forEach(optionalTypeDef -> {
             if (optionalTypeDef.type.tag == TypeTags.TYPEREFDESC) {
                 return;
@@ -292,7 +297,7 @@ public class JvmValueGen {
     }
 
     public static String getTypeValueClassName(PackageID packageID, String typeName) {
-        return getTypeValueClassName(JvmCodeGenUtil.getPackageName(packageID), typeName);
+        return getTypeValueClassName(getPackageName(packageID), typeName);
     }
 
     private byte[] createRecordValueClass(BRecordType recordType, String className, BIRNode.BIRTypeDefinition typeDef,
@@ -365,8 +370,7 @@ public class JvmValueGen {
         mv.visitVarInsn(ALOAD, 3);
         // invoke `super(type)`;
         mv.visitMethodInsn(INVOKESPECIAL, TYPEDESC_VALUE_IMPL, JVM_INIT_METHOD, TYPE_DESC_CONSTRUCTOR_WITH_ANNOTATIONS,
-                           false);
-
+                false);
         mv.visitInsn(RETURN);
         JvmCodeGenUtil.visitMaxStackForMethod(mv, JVM_INIT_METHOD, name);
         mv.visitEnd();
@@ -440,7 +444,7 @@ public class JvmValueGen {
     }
 
     private void createRecordPopulateInitialValuesMethod(ClassWriter cw, String className) {
-        MethodVisitor mv = cw.visitMethod(ACC_PROTECTED, POPULATE_INITIAL_VALUES_METHOD,
+        MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, POPULATE_INITIAL_VALUES_METHOD,
                                           POPULATE_INITIAL_VALUES, null, null);
         mv.visitCode();
         mv.visitVarInsn(ALOAD, 0);
@@ -475,7 +479,7 @@ public class JvmValueGen {
                     jvmConstantsGen, asyncDataCollector);
         }
 
-        this.createObjectInit(cw);
+        this.createObjectInit(cw, className);
         jvmObjectGen.createAndSplitCallMethod(cw, attachedFuncs, className, jvmCastGen);
         jvmObjectGen.createAndSplitGetMethod(cw, fields, className, jvmCastGen);
         jvmObjectGen.createAndSplitSetMethod(cw, fields, className, jvmCastGen);
@@ -492,6 +496,9 @@ public class JvmValueGen {
             FieldVisitor fvb = cw.visitField(0, field.name.value, getTypeDesc(field.type), null, null);
             fvb.visitEnd();
         }
+        // visit object self lock field.
+        FieldVisitor fv = cw.visitField(ACC_PUBLIC, CLASS_LOCK_VAR_NAME, LOAD_LOCK, null, null);
+        fv.visitEnd();
     }
 
     private void createObjectMethods(ClassWriter cw, List<BIRFunction> attachedFuncs, String moduleClassName,
@@ -549,20 +556,23 @@ public class JvmValueGen {
         }
     }
 
-    private void createObjectInit(ClassWriter cw) {
-
-        MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, JVM_INIT_METHOD, OBJECT_TYPE_IMPL_INIT, null,
-                null);
+    private void createObjectInit(ClassWriter cw, String className) {
+        MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, JVM_INIT_METHOD, OBJECT_TYPE_IMPL_INIT, null, null);
         mv.visitCode();
-
         // load super
         mv.visitVarInsn(ALOAD, 0);
         // load type
         mv.visitVarInsn(ALOAD, 1);
         // invoke super(type);
         mv.visitMethodInsn(INVOKESPECIAL, ABSTRACT_OBJECT_VALUE, JVM_INIT_METHOD, OBJECT_TYPE_IMPL_INIT, false);
+        // create object self lock
+        mv.visitVarInsn(ALOAD, 0);
+        mv.visitTypeInsn(NEW, REENTRANT_LOCK);
+        mv.visitInsn(DUP);
+        mv.visitMethodInsn(INVOKESPECIAL, REENTRANT_LOCK, JVM_INIT_METHOD, VOID_METHOD_DESC, false);
+        mv.visitFieldInsn(PUTFIELD, className, CLASS_LOCK_VAR_NAME, LOAD_LOCK);
         mv.visitInsn(RETURN);
-        mv.visitMaxs(5, 5);
+        mv.visitMaxs(0, 0);
         mv.visitEnd();
     }
 
