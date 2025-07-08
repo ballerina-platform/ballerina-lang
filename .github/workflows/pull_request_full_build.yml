@@ -109,7 +109,7 @@ jobs:
           for module_name in $(jq -r '.standard_library | .[] | select(.level==${{ matrix.level }} and (.name != "module-ballerina-ai" and .name != "module-ballerina-np")) | .name' extensions.json); do
             echo "Cloning module: ${module_name}"
             repo_url=https://github.com/ballerina-platform/${module_name}.git
-            branch=metrics-logs
+            branch=2201.12.x
             if git ls-remote --heads "$repo_url" "$branch" | grep -q "$branch"; then
               echo "Branch '$branch' found."
               git clone -b "$branch" --single-branch "$repo_url"
