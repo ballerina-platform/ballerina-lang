@@ -33,10 +33,11 @@ import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.types.SelectivelyImmutableReferenceType;
 import org.objectweb.asm.ClassWriter;
-import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.MethodVisitor;
 import org.wso2.ballerinalang.compiler.bir.codegen.split.JvmConstantsGen;
-import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRTypeDefinition;
+import org.wso2.ballerinalang.compiler.bir.codegen.utils.JvmCodeGenUtil;
+import org.wso2.ballerinalang.compiler.bir.codegen.utils.JvmModuleUtils;
+import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SemTypeHelper;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.TypeHashVisitor;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
@@ -71,6 +72,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
+import static io.ballerina.identifier.Utils.encodeNonFunctionIdentifier;
 import static io.ballerina.types.BasicTypeCode.BT_BOOLEAN;
 import static io.ballerina.types.BasicTypeCode.BT_DECIMAL;
 import static io.ballerina.types.BasicTypeCode.BT_FLOAT;
@@ -99,12 +101,9 @@ import static org.objectweb.asm.Opcodes.L2I;
 import static org.objectweb.asm.Opcodes.NEW;
 import static org.objectweb.asm.Opcodes.POP;
 import static org.objectweb.asm.Opcodes.RETURN;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil.getModuleLevelClassName;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil.getStringConstantsClass;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil.removeDecimalDiscriminator;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil.toNameString;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ADD_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BOOLEAN_VALUE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BSTRING_VAR_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_STRING_VAR_PREFIX;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CALL_FUNCTION;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CREATE_ERROR_VALUE;
@@ -118,6 +117,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.FUNCTION_
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.FUTURE_TYPE_IMPL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.GET_ANON_TYPE_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.GET_FUNCTION_TYPE_METHOD;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.GET_TYPE_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.INTERSECTION_TYPE_IMPL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.INT_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JVM_INIT_METHOD;
@@ -126,11 +126,16 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.LONG_VALU
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAP_TYPE_IMPL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_ANON_TYPES_CLASS_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_ERRORS_CREATOR_CLASS_NAME;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_ERROR_TYPES_PACKAGE_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_FUNCTION_CALLS_CLASS_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_FUNCTION_TYPES_CLASS_NAME;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_INIT_CLASS_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_OBJECTS_CREATOR_CLASS_NAME;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_OBJECT_TYPES_PACKAGE_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_RECORDS_CREATOR_CLASS_NAME;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_RECORD_TYPES_PACKAGE_NAME;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_STRING_CONSTANT_PACKAGE_NAME;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_TUPLE_TYPES_PACKAGE_NAME;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_UNION_TYPES_PACKAGE_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.PARAMETERIZED_TYPE_IMPL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.PREDEFINED_TYPES;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SET;
@@ -140,6 +145,8 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TABLE_TYP
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPEDESC_TYPE_IMPL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPES_ERROR;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPE_VAR_NAME;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.VALUE_CREATOR;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.VALUE_OF_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.XML_TYPE_IMPL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.ANY_TO_JBOOLEAN;
@@ -155,22 +162,30 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_BDEC
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_BOBJECT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_BSTRING;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_ERROR_TYPE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_ERROR_TYPE_IMPL;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_ERROR_TYPE_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_ERROR_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_FUNCTION_POINTER;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_FUNCTION_TYPE_FOR_STRING;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_FUTURE_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_HANDLE_VALUE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_LOOKUP_KEY;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_MAP_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_MODULE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_OBJECT;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_OBJECT_TYPE_IMPL;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_OBJECT_TYPE_METHOD;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_RECORD_TYPE_IMPL;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_RECORD_TYPE_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_REGEXP;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_STREAM_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_TABLE_VALUE;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_TYPE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_TUPLE_TYPE_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_TYPEDESC;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_TYPE_REF_TYPE_IMPL;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_TYPE_REF_TYPE_METHOD;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_UNION_TYPE_METHOD;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_VALUE_CREATOR;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_XML;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INIT_CLASS_CONSTRUCTOR;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INIT_FINITE_TYPE_IMPL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INIT_FUNCTION_PARAM;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INIT_FUNCTION_TYPE_IMPL;
@@ -206,6 +221,10 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.LONG_VAL
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.SET_TYPE_ARRAY;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.TYPE_PARAMETER;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.VOID_METHOD_DESC;
+import static org.wso2.ballerinalang.compiler.bir.codegen.utils.JvmCodeGenUtil.removeDecimalDiscriminator;
+import static org.wso2.ballerinalang.compiler.bir.codegen.utils.JvmCodeGenUtil.toNameString;
+import static org.wso2.ballerinalang.compiler.bir.codegen.utils.JvmModuleUtils.getModuleLevelClassName;
+import static org.wso2.ballerinalang.compiler.bir.codegen.utils.JvmModuleUtils.isSameModule;
 
 /**
  * BIR types to JVM byte code generation class.
@@ -224,7 +243,13 @@ public class JvmTypeGen {
     private final String objectsClass;
     private final String errorsClass;
     private final String functionCallsClass;
+    private final String stringConstantsClass;
     private final Context semTypeCtx;
+    public final String recordTypesPkgName;
+    public final String objectTypesPkgName;
+    public final String errorTypesPkgName;
+    public final String tupleTypesPkgName;
+    public final String unionTypesPkgName;
 
     public JvmTypeGen(JvmConstantsGen jvmConstantsGen, PackageID packageID, TypeHashVisitor typeHashVisitor,
                       SymbolTable symbolTable) {
@@ -232,46 +257,20 @@ public class JvmTypeGen {
         this.packageID = packageID;
         this.typeHashVisitor = typeHashVisitor;
         this.symbolTable = symbolTable;
+        this.semTypeCtx = Context.from(symbolTable.typeEnv());
         this.anonTypesClass = getModuleLevelClassName(packageID, MODULE_ANON_TYPES_CLASS_NAME);
         this.functionTypesClass = getModuleLevelClassName(packageID, MODULE_FUNCTION_TYPES_CLASS_NAME);
         this.recordsClass = getModuleLevelClassName(packageID, MODULE_RECORDS_CREATOR_CLASS_NAME);
         this.objectsClass = getModuleLevelClassName(packageID, MODULE_OBJECTS_CREATOR_CLASS_NAME);
         this.errorsClass = getModuleLevelClassName(packageID, MODULE_ERRORS_CREATOR_CLASS_NAME);
         this.functionCallsClass = getModuleLevelClassName(packageID, MODULE_FUNCTION_CALLS_CLASS_NAME);
-        this.semTypeCtx = Context.from(symbolTable.typeEnv());
-    }
+        this.stringConstantsClass = getModuleLevelClassName(packageID, MODULE_STRING_CONSTANT_PACKAGE_NAME);
+        this.recordTypesPkgName = getModuleLevelClassName(packageID, MODULE_RECORD_TYPES_PACKAGE_NAME);
+        this.objectTypesPkgName = getModuleLevelClassName(packageID, MODULE_OBJECT_TYPES_PACKAGE_NAME);
+        this.errorTypesPkgName = getModuleLevelClassName(packageID, MODULE_ERROR_TYPES_PACKAGE_NAME);
+        this.tupleTypesPkgName = getModuleLevelClassName(packageID, MODULE_TUPLE_TYPES_PACKAGE_NAME);
+        this.unionTypesPkgName = getModuleLevelClassName(packageID, MODULE_UNION_TYPES_PACKAGE_NAME);
 
-    /**
-     * Create static fields to hold the user defined types.
-     *
-     * @param cw       class writer
-     * @param typeDefs array of type definitions
-     */
-    void generateUserDefinedTypeFields(ClassWriter cw, List<BIRTypeDefinition> typeDefs) {
-        // create the type
-        for (BIRTypeDefinition typeDef : typeDefs) {
-            BType bType = typeDef.type;
-            int bTypeTag = bType.tag;
-            if (JvmCodeGenUtil.needNoTypeGeneration(bTypeTag)) {
-                // do not generate anything for other types (e.g.: finite type, type reference types etc.)
-                continue;
-            }
-            String name = typeDef.internalName.value;
-            generateTypeField(cw, name);
-            generateTypedescField(cw, name);
-        }
-    }
-
-    private void generateTypeField(ClassWriter cw, String name) {
-        String fieldName = getTypeFieldName(name);
-        FieldVisitor fv = cw.visitField(ACC_STATIC + ACC_PUBLIC, fieldName, GET_TYPE, null, null);
-        fv.visitEnd();
-    }
-
-    private void generateTypedescField(ClassWriter cw, String name) {
-        String typedescFieldName = getTypedescFieldName(name);
-        FieldVisitor fvTypeDesc = cw.visitField(ACC_STATIC + ACC_PUBLIC, typedescFieldName, GET_TYPEDESC, null, null);
-        fvTypeDesc.visitEnd();
     }
 
     // -------------------------------------------------------
@@ -283,8 +282,7 @@ public class JvmTypeGen {
         generateGetFunctionTypeMethod(cw);
     }
     void generateGetAnonTypeMethod(ClassWriter cw,  String moduleClass) {
-        MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, GET_ANON_TYPE_METHOD,
-                JvmSignatures.GET_ANON_TYPE, null, null);
+        MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, GET_ANON_TYPE_METHOD, JvmSignatures.GET_ANON_TYPE, null, null);
         mv.visitCode();
         mv.visitVarInsn(ILOAD, 1);
         mv.visitVarInsn(ALOAD, 2);
@@ -378,14 +376,6 @@ public class JvmTypeGen {
     // -------------------------------------------------------
     //              Type loading methods
     // -------------------------------------------------------
-
-    /**
-     * Generate code to load an instance of the given type
-     * to the top of the stack.
-     *
-     * @param mv    method visitor
-     * @param bType type to load
-     */
     public void loadType(MethodVisitor mv, BType bType) {
         String typeFieldName;
         if (bType == null || bType.tag == TypeTags.NIL) {
@@ -440,7 +430,7 @@ public class JvmTypeGen {
                 }
                 case TypeTags.HANDLE -> typeFieldName = "TYPE_HANDLE";
                 case TypeTags.ARRAY -> {
-                    jvmConstantsGen.generateGetBArrayType(mv, jvmConstantsGen.getTypeConstantsVar(bType, symbolTable));
+                    jvmConstantsGen.generateGetBArrayType(mv, jvmConstantsGen.getArrayTypeConstantsVar(bType));
                     return;
                 }
                 case TypeTags.MAP -> {
@@ -464,8 +454,8 @@ public class JvmTypeGen {
                     if (unionType.isCyclic) {
                         loadUserDefinedType(mv, bType);
                     } else {
-                        jvmConstantsGen.generateGetBUnionType(mv,
-                                jvmConstantsGen.getTypeConstantsVar(bType, symbolTable));
+                        jvmConstantsGen.generateGetBUnionType(mv, jvmConstantsGen.getUnionTypeConstantsVar(bType,
+                                symbolTable));
                     }
                     return;
                 }
@@ -486,7 +476,7 @@ public class JvmTypeGen {
                     if (tupleType.isCyclic) {
                         loadUserDefinedType(mv, bType);
                     } else {
-                        jvmConstantsGen.generateGetBTupleType(mv, jvmConstantsGen.getTypeConstantsVar(tupleType,
+                        jvmConstantsGen.generateGetBTupleType(mv, jvmConstantsGen.getTupleTypeConstantsVar(tupleType,
                                 symbolTable));
                     }
                     return;
@@ -505,10 +495,11 @@ public class JvmTypeGen {
                     return;
                 }
                 case TypeTags.TYPEREFDESC -> {
-                    String typeOwner = JvmCodeGenUtil.getModuleLevelClassName(bType.tsymbol.pkgID,
-                            JvmConstants.TYPEREF_TYPE_CONSTANT_CLASS_NAME);
-                    mv.visitFieldInsn(GETSTATIC, typeOwner,
-                            JvmCodeGenUtil.getRefTypeConstantName((BTypeReferenceType) bType), GET_TYPE_REF_TYPE_IMPL);
+                    String typeOwner = JvmModuleUtils.getModuleLevelClassName(bType.tsymbol.pkgID,
+                            JvmConstants.TYPE_REF_TYPE_CONSTANT_PACKAGE_NAME);
+                    String varName = JvmCodeGenUtil.getRefTypeConstantName((BTypeReferenceType) bType);
+                    String typeRefClass = typeOwner + varName;
+                    mv.visitMethodInsn(INVOKESTATIC, typeRefClass, GET_TYPE_METHOD, GET_TYPE_REF_TYPE_METHOD, false);
                     return;
                 }
                 default -> {
@@ -549,43 +540,24 @@ public class JvmTypeGen {
         }
     }
 
-    /**
-     * Generate code to load an instance of the given typedesc type
-     * to the top of the stack.
-     *
-     * @param mv    method visitor
-     * @param bType typedesc type to load
-     */
     private void loadTypedescType(MethodVisitor mv, BTypedescType bType) {
         // Create a new map type
         mv.visitTypeInsn(NEW, TYPEDESC_TYPE_IMPL);
         mv.visitInsn(DUP);
-
         // Load the constraint type
         loadType(mv, bType.constraint);
-
-        // invoke the constructor
+        // Invoke the constructor
         mv.visitMethodInsn(INVOKESPECIAL, TYPEDESC_TYPE_IMPL, JVM_INIT_METHOD, TYPE_PARAMETER, false);
     }
 
-    /**
-     * Generate code to load an instance of the given map type
-     * to the top of the stack.
-     *
-     * @param mv    method visitor
-     * @param bType map type to load
-     */
-    private void loadMapType(MethodVisitor mv, BMapType bType) {
+    void loadMapType(MethodVisitor mv, BMapType bType) {
         // Create a new map type
         mv.visitTypeInsn(NEW, MAP_TYPE_IMPL);
         mv.visitInsn(DUP);
-
         // Load the constraint type
         loadType(mv, bType.constraint);
-
         loadReadonlyFlag(mv, bType);
-
-        // invoke the constructor
+        // Invoke the constructor
         mv.visitMethodInsn(INVOKESPECIAL, MAP_TYPE_IMPL, JVM_INIT_METHOD, INIT_WITH_BOOLEAN, false);
     }
 
@@ -597,13 +569,6 @@ public class JvmTypeGen {
         }
     }
 
-    /**
-     * Generate code to load an instance of the given xml sequence type
-     * to the top of the stack.
-     *
-     * @param mv    method visitor
-     * @param bType xml type to load
-     */
     private void loadXmlType(MethodVisitor mv, BXMLType bType) {
         // Create a new xml type
         mv.visitTypeInsn(NEW, XML_TYPE_IMPL);
@@ -618,18 +583,10 @@ public class JvmTypeGen {
         mv.visitMethodInsn(INVOKESPECIAL, XML_TYPE_IMPL, JVM_INIT_METHOD, INIT_WITH_BOOLEAN, false);
     }
 
-    /**
-     * Generate code to load an instance of the given table type
-     * to the top of the stack.
-     *
-     * @param mv    method visitor
-     * @param bType table type to load
-     */
     private void loadTableType(MethodVisitor mv, BTableType bType) {
         // Create a new table type
         mv.visitTypeInsn(NEW, TABLE_TYPE_IMPL);
         mv.visitInsn(DUP);
-
         loadType(mv, bType.constraint);
         if (!bType.fieldNameList.isEmpty()) {
             // Create the field names array
@@ -647,7 +604,6 @@ public class JvmTypeGen {
                 mv.visitInsn(AASTORE);
                 i += 1;
             }
-
             loadReadonlyFlag(mv, bType);
             mv.visitMethodInsn(INVOKESPECIAL, TABLE_TYPE_IMPL, JVM_INIT_METHOD, INIT_TABLE_TYPE_WITH_FIELD_NAME_LIST,
                     false);
@@ -665,37 +621,25 @@ public class JvmTypeGen {
         // Create a new stream type
         mv.visitTypeInsn(NEW, STREAM_TYPE_IMPL);
         mv.visitInsn(DUP);
-
         // Load constraint type and completion type
         loadType(mv, bType.constraint);
         loadType(mv, bType.completionType);
-
-        // invoke the constructor
+        // Invoke the constructor
         mv.visitMethodInsn(INVOKESPECIAL, STREAM_TYPE_IMPL, JVM_INIT_METHOD, INIT_STREAM_TYPE_IMPL, false);
     }
 
-    /**
-     * Generate code to load an instance of the given error type
-     * to the top of the stack.
-     *
-     * @param mv        method visitor
-     * @param errorType error type to load
-     */
     private void loadErrorType(MethodVisitor mv, BErrorType errorType) {
-
         PackageID pkgID = errorType.tsymbol.pkgID;
-        // TODO: Builtin error type will be loaded from BTypes java class. Need to handle this properly.
-        if (JvmCodeGenUtil.isBuiltInPackage(pkgID)) {
+        if (JvmModuleUtils.isBuiltInPackage(pkgID)) {
             mv.visitFieldInsn(GETSTATIC, PREDEFINED_TYPES, TYPES_ERROR, GET_ERROR_TYPE);
             return;
         }
-        
         if (Symbols.isFlagOn(errorType.getFlags(), Flags.ANONYMOUS)) {
-            jvmConstantsGen.generateGetBErrorType(mv, jvmConstantsGen.getTypeConstantsVar(errorType, symbolTable));
+            jvmConstantsGen.generateGetBErrorType(mv, jvmConstantsGen.getErrorTypeConstantsVar(errorType));
         } else {
-            String typeOwner = JvmCodeGenUtil.getPackageName(pkgID) + MODULE_INIT_CLASS_NAME;
-            String fieldName = getTypeFieldName(toNameString(errorType));
-            mv.visitFieldInsn(GETSTATIC, typeOwner, fieldName, GET_TYPE);
+            String typeName = toNameString(errorType);
+            String typeOwner = getModuleLevelClassName(pkgID, MODULE_ERROR_TYPES_PACKAGE_NAME) + typeName;
+            mv.visitMethodInsn(INVOKESTATIC, typeOwner, GET_TYPE_METHOD, GET_ERROR_TYPE_METHOD, false);
         }
     }
 
@@ -759,20 +703,13 @@ public class JvmTypeGen {
         methodVisitor.visitMethodInsn(INVOKESTATIC, className, curMethodName, SET_TYPE_ARRAY, false);
     }
 
-    /**
-     * Generate code to load an instance of the given intersection type to the top of the stack.
-     *
-     * @param mv    method visitor
-     * @param bType intersection type to load
-     */
     private void loadIntersectionType(MethodVisitor mv, BIntersectionType bType) {
         // Create the intersection type
         mv.visitTypeInsn(NEW, INTERSECTION_TYPE_IMPL);
         mv.visitInsn(DUP);
-
         mv.visitLdcInsn(Utils.decodeIdentifier(bType.tsymbol.name.value));
-        String varName = jvmConstantsGen.getModuleConstantVar(bType.tsymbol.pkgID);
-        mv.visitFieldInsn(GETSTATIC, jvmConstantsGen.getModuleConstantClass(), varName, GET_MODULE);
+        String moduleVar = jvmConstantsGen.getModuleConstantVar(bType.tsymbol.pkgID);
+        mv.visitFieldInsn(GETSTATIC, jvmConstantsGen.getModuleConstantClass(moduleVar), moduleVar, GET_MODULE);
         // Create the constituent types array.
         Set<BType> constituentTypes = bType.getConstituentTypes();
         generateCreateNewArray(mv, constituentTypes);
@@ -781,21 +718,16 @@ public class JvmTypeGen {
             mv.visitInsn(DUP);
             mv.visitLdcInsn((long) i);
             mv.visitInsn(L2I);
-
             // Load the member type.
             loadType(mv, memberType);
-
             // Add the member to the array.
             mv.visitInsn(AASTORE);
             i += 1;
         }
-
         // Load the effective type of the intersection.
         loadType(mv, bType.effectiveType);
-
         // Load type flags.
         mv.visitLdcInsn(typeFlag(bType));
-
         loadReadonlyFlag(mv, bType);
         String effectiveTypeClass;
         if (bType.effectiveType instanceof SelectivelyImmutableReferenceType) {
@@ -812,108 +744,74 @@ public class JvmTypeGen {
         methodVisitor.visitTypeInsn(ANEWARRAY, TYPE);
     }
 
-    /**
-     * Load a user defined type instance to the top of the stack.
-     *
-     * @param mv    method visitor
-     * @param bType user defined type
-     */
     private void loadUserDefinedType(MethodVisitor mv, BType bType) {
         BTypeSymbol typeSymbol = bType.tsymbol.isTypeParamResolved ? bType.tsymbol.typeParamTSymbol : bType.tsymbol;
         BType typeToLoad = bType.tsymbol.isTypeParamResolved ? typeSymbol.type : bType;
         PackageID pkgID = typeSymbol.pkgID;
-        String typeOwner = JvmCodeGenUtil.getPackageName(pkgID) + MODULE_INIT_CLASS_NAME;
         String defName = "";
         if ((typeSymbol.kind == SymbolKind.RECORD || typeSymbol.kind == SymbolKind.OBJECT)
                 && typeSymbol.name.value.isEmpty()) {
-            defName = Utils
-                    .encodeNonFunctionIdentifier(((BStructureTypeSymbol) typeSymbol).typeDefinitionSymbol.name.value);
+            defName = encodeNonFunctionIdentifier(((BStructureTypeSymbol) typeSymbol).typeDefinitionSymbol.name.value);
         }
         //class symbols
-        String fieldName = defName.isEmpty() ? getTypeFieldName(toNameString(typeToLoad)) : defName;
-
-        boolean samePackage = JvmCodeGenUtil.isSameModule(this.packageID, pkgID);
-
+        String fieldName = defName.isEmpty() ? toNameString(typeToLoad) : defName;
+        boolean samePackage = JvmModuleUtils.isSameModule(this.packageID, pkgID);
         // if name contains $anon and doesn't belong to the same package, load type using getAnonType() method.
         if (!samePackage && Symbols.isFlagOn(typeToLoad.getFlags(), Flags.ANONYMOUS)) {
+            String moduleVar = jvmConstantsGen.getModuleConstantVar(pkgID);
+            mv.visitFieldInsn(GETSTATIC, jvmConstantsGen.getModuleConstantClass(moduleVar), moduleVar, GET_MODULE);
+            mv.visitMethodInsn(INVOKESTATIC, VALUE_CREATOR, "getLookupKey", GET_LOOKUP_KEY, false);
+            mv.visitMethodInsn(INVOKESTATIC, VALUE_CREATOR, "getValueCreator", GET_VALUE_CREATOR, false);
             Integer hash = typeHashVisitor.visit(typeToLoad);
             String shape = typeToLoad.toString();
             typeHashVisitor.reset();
-
-            mv.visitTypeInsn(NEW, typeOwner);
-            mv.visitInsn(DUP);
-            mv.visitInsn(ACONST_NULL);
-            mv.visitMethodInsn(INVOKESPECIAL, typeOwner, JVM_INIT_METHOD, INIT_CLASS_CONSTRUCTOR, false);
-
             mv.visitLdcInsn(hash);
-            mv.visitLdcInsn("Package: " + typeOwner + ", TypeName: " + fieldName + ", Shape: " + shape);
-            mv.visitMethodInsn(INVOKEVIRTUAL, typeOwner, GET_ANON_TYPE_METHOD, JvmSignatures.GET_ANON_TYPE, false);
+            mv.visitLdcInsn("Package: " + JvmModuleUtils.getPackageName(pkgID) + ", TypeName: " + fieldName + ", " +
+                    "Shape: " + shape);
+            mv.visitMethodInsn(INVOKEVIRTUAL, VALUE_CREATOR, GET_ANON_TYPE_METHOD, JvmSignatures.GET_ANON_TYPE, false);
         } else {
-            mv.visitFieldInsn(GETSTATIC, typeOwner, fieldName, GET_TYPE);
+            if (samePackage && this.packageID.isTestPkg == pkgID.isTestPkg) {
+                getUserDefinedType(mv, bType);
+            } else {
+                getUserDefinedType(mv, pkgID, bType);
+            }
         }
-    }
-
-    /**
-     * Return the name of the field that holds the instance of a given type.
-     *
-     * @param typeName type name
-     * @return name of the field that holds the type instance
-     */
-    public static String getTypeFieldName(String typeName) {
-        if (typeName.isEmpty()) {
-            throw new AssertionError("Could not resolve the field for type");
-        }
-        return "$type$" + typeName;
     }
 
     public String getTypedescFieldName(String name) {
-        return "$typedesce$" + name;
+        return "$typedesc$" + name;
     }
 
     private void loadFutureType(MethodVisitor mv, BFutureType bType) {
-
         mv.visitTypeInsn(NEW, FUTURE_TYPE_IMPL);
         mv.visitInsn(DUP);
-
         loadType(mv, bType.constraint);
         mv.visitMethodInsn(INVOKESPECIAL, FUTURE_TYPE_IMPL, JVM_INIT_METHOD, TYPE_PARAMETER, false);
     }
 
-    /**
-     * Create and load an invokable type.
-     *
-     * @param mv    method visitor
-     * @param bType invokable type to be created
-     */
     public void loadInvokableType(MethodVisitor mv, BInvokableType bType) {
-
         mv.visitTypeInsn(NEW, FUNCTION_TYPE_IMPL);
         mv.visitInsn(DUP);
         if (bType.tsymbol == null) {
             mv.visitInsn(ACONST_NULL);
         } else {
-            String moduleName = jvmConstantsGen.getModuleConstantVar(bType.tsymbol.pkgID);
-            mv.visitFieldInsn(GETSTATIC, jvmConstantsGen.getModuleConstantClass(), moduleName, GET_MODULE);
+            String moduleVar = jvmConstantsGen.getModuleConstantVar(bType.tsymbol.pkgID);
+            mv.visitFieldInsn(GETSTATIC, jvmConstantsGen.getModuleConstantClass(moduleVar), moduleVar, GET_MODULE);
         }
-
         if (Symbols.isFlagOn(bType.getFlags(), Flags.ANY_FUNCTION)) {
             mv.visitLdcInsn(bType.getFlags());
             mv.visitMethodInsn(INVOKESPECIAL, FUNCTION_TYPE_IMPL, JVM_INIT_METHOD, INIT_FUNCTION_TYPE_IMPL, false);
             return;
         }
-
         loadFunctionParameters(mv, bType);
-
         BType restType = bType.restType;
         if (restType == null) {
             mv.visitInsn(ACONST_NULL);
         } else {
             loadType(mv, restType);
         }
-
         // load return type
         loadType(mv, bType.retType);
-
         mv.visitLdcInsn(bType.getFlags());
         mv.visitLdcInsn(bType.name.getValue());
         // initialize the function type using the param types array and the return type
@@ -1003,10 +901,8 @@ public class JvmTypeGen {
     private void loadParameterizedType(MethodVisitor mv, BParameterizedType bType) {
         mv.visitTypeInsn(NEW, PARAMETERIZED_TYPE_IMPL);
         mv.visitInsn(DUP);
-
         loadType(mv, bType.paramValueType);
         mv.visitLdcInsn(bType.paramIndex);
-
         mv.visitMethodInsn(INVOKESPECIAL, PARAMETERIZED_TYPE_IMPL, JVM_INIT_METHOD, INIT_PARAMETERIZED_TYPE_IMPL,
                 false);
     }
@@ -1048,13 +944,11 @@ public class JvmTypeGen {
 
         mv.visitTypeInsn(NEW, FINITE_TYPE_IMPL);
         mv.visitInsn(DUP);
-
         // load type name
         String name = Utils.decodeIdentifier(toNameString(finiteType));
         mv.visitLdcInsn(name);
         // load original type name
         mv.visitLdcInsn(finiteType.tsymbol.originalName.value);
-
         mv.visitTypeInsn(NEW, LINKED_HASH_SET);
         mv.visitInsn(DUP);
         mv.visitMethodInsn(INVOKESPECIAL, LINKED_HASH_SET, JVM_INIT_METHOD, VOID_METHOD_DESC, false);
@@ -1082,10 +976,8 @@ public class JvmTypeGen {
             mv.visitMethodInsn(INVOKEINTERFACE, SET, ADD_METHOD, ANY_TO_JBOOLEAN, true);
             mv.visitInsn(POP);
         }
-
         // Load type flags
         mv.visitLdcInsn(typeFlag(finiteType));
-
         // initialize the finite type using the value space
         mv.visitMethodInsn(INVOKESPECIAL, FINITE_TYPE_IMPL, JVM_INIT_METHOD, INIT_FINITE_TYPE_IMPL, false);
     }
@@ -1094,8 +986,7 @@ public class JvmTypeGen {
         String stringVal = StringSubtype.stringSubtypeSingleValue(getComplexSubtypeData(s, BT_STRING)).orElseThrow();
         int index = jvmConstantsGen.getBStringConstantVarIndex(stringVal);
         String varName = B_STRING_VAR_PREFIX + index;
-        String stringConstantsClass = getStringConstantsClass(index, jvmConstantsGen);
-        mv.visitFieldInsn(GETSTATIC, stringConstantsClass, varName, GET_BSTRING);
+        mv.visitFieldInsn(GETSTATIC, this.stringConstantsClass + varName, BSTRING_VAR_NAME, GET_BSTRING);
     }
 
     private static void loadConstDecimal(MethodVisitor mv, ComplexSemType s) {
@@ -1127,5 +1018,100 @@ public class JvmTypeGen {
         boolean boolVal = BooleanSubtype.booleanSubtypeSingleValue(getComplexSubtypeData(s, BT_BOOLEAN)).orElseThrow();
         mv.visitLdcInsn(boolVal);
         mv.visitMethodInsn(INVOKESTATIC, BOOLEAN_VALUE, VALUE_OF_METHOD, BOOLEAN_VALUE_OF_METHOD, false);
+    }
+
+    public String getTypeClass(BIRNode.BIRTypeDefinition typeDef) {
+        String typesPkgName = switch (typeDef.type.tag) {
+            case TypeTags.RECORD -> this.recordTypesPkgName;
+            case TypeTags.OBJECT -> this.objectTypesPkgName;
+            case TypeTags.ERROR -> this.errorTypesPkgName;
+            case TypeTags.TUPLE -> this.tupleTypesPkgName;
+            default -> this.unionTypesPkgName;
+        };
+        return typesPkgName + typeDef.internalName.value;
+    }
+
+    public void getUserDefinedType(MethodVisitor mv, BType bType) {
+        String varName = toNameString(bType);
+        switch (bType.tag) {
+            case TypeTags.RECORD -> mv.visitMethodInsn(INVOKESTATIC, this.recordTypesPkgName + varName,
+                    GET_TYPE_METHOD, GET_RECORD_TYPE_METHOD, false);
+            case TypeTags.OBJECT -> mv.visitMethodInsn(INVOKESTATIC, this.objectTypesPkgName + varName,
+                    GET_TYPE_METHOD, GET_OBJECT_TYPE_METHOD, false);
+            case TypeTags.ERROR -> mv.visitMethodInsn(INVOKESTATIC, this.errorTypesPkgName + varName, GET_TYPE_METHOD
+                    , GET_ERROR_TYPE_METHOD, false);
+            case TypeTags.TUPLE -> mv.visitMethodInsn(INVOKESTATIC, this.tupleTypesPkgName + varName, GET_TYPE_METHOD
+                    , GET_TUPLE_TYPE_METHOD, false);
+            default -> mv.visitMethodInsn(INVOKESTATIC, this.unionTypesPkgName + varName, GET_TYPE_METHOD,
+                    GET_UNION_TYPE_METHOD, false);
+        }
+    }
+
+    public void getUserDefinedType(MethodVisitor mv, PackageID pkgId, BType bType) {
+        String varName = toNameString(bType);
+        switch (bType.tag) {
+            case TypeTags.RECORD -> mv.visitMethodInsn(INVOKESTATIC,  getModuleLevelClassName(pkgId,
+                    MODULE_RECORD_TYPES_PACKAGE_NAME) + varName, GET_TYPE_METHOD, GET_RECORD_TYPE_METHOD, false);
+            case TypeTags.OBJECT -> mv.visitMethodInsn(INVOKESTATIC,  getModuleLevelClassName(pkgId,
+                    MODULE_OBJECT_TYPES_PACKAGE_NAME) + varName, GET_TYPE_METHOD, GET_OBJECT_TYPE_METHOD, false);
+            case TypeTags.ERROR -> mv.visitMethodInsn(INVOKESTATIC, getModuleLevelClassName(pkgId,
+                    MODULE_ERROR_TYPES_PACKAGE_NAME) + varName, GET_TYPE_METHOD, GET_ERROR_TYPE_METHOD, false);
+            case TypeTags.TUPLE -> mv.visitMethodInsn(INVOKESTATIC, getModuleLevelClassName(pkgId,
+                    MODULE_TUPLE_TYPES_PACKAGE_NAME) + varName, GET_TYPE_METHOD, GET_TUPLE_TYPE_METHOD, false);
+            default -> mv.visitMethodInsn(INVOKESTATIC,  getModuleLevelClassName(pkgId,
+                    MODULE_UNION_TYPES_PACKAGE_NAME) + varName, GET_TYPE_METHOD, GET_UNION_TYPE_METHOD, false);
+        }
+    }
+
+    public boolean loadReferredType(MethodVisitor mv, BTypeReferenceType referenceType) {
+        BType referredType = referenceType.referredType;
+        if (referredType == null || Symbols.isFlagOn(referredType.getFlags(),
+                Flags.ANONYMOUS)) {
+            this.loadType(mv, referredType);
+            return false;
+
+        }
+        if (isSameModule(referenceType.tsymbol.pkgID, referredType.tsymbol.pkgID)) {
+            return loadInternalType(mv, referredType);
+        } else {
+            return loadInternalType(mv, referredType.tsymbol.pkgID, referredType);
+        }
+    }
+
+    private boolean loadInternalType(MethodVisitor mv, BType bType) {
+        String varName = toNameString(bType);
+        switch (bType.tag) {
+            case TypeTags.RECORD -> mv.visitFieldInsn(GETSTATIC, this.recordTypesPkgName + varName, TYPE_VAR_NAME,
+                    GET_RECORD_TYPE_IMPL);
+            case TypeTags.OBJECT -> mv.visitFieldInsn(GETSTATIC, this.objectTypesPkgName + varName, TYPE_VAR_NAME,
+                    GET_OBJECT_TYPE_IMPL);
+            case TypeTags.ERROR -> mv.visitFieldInsn(GETSTATIC, this.errorTypesPkgName + varName, TYPE_VAR_NAME,
+                    GET_ERROR_TYPE_IMPL);
+            default -> {
+                this.loadType(mv, bType);
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private boolean loadInternalType(MethodVisitor mv, PackageID pkgId, BType bType) {
+        String varName = toNameString(bType);
+        switch (bType.tag) {
+            case TypeTags.RECORD ->
+                    mv.visitFieldInsn(GETSTATIC, getModuleLevelClassName(pkgId, MODULE_RECORD_TYPES_PACKAGE_NAME) +
+                            varName, TYPE_VAR_NAME, GET_RECORD_TYPE_IMPL);
+            case TypeTags.OBJECT ->
+                    mv.visitFieldInsn(GETSTATIC, getModuleLevelClassName(pkgId, MODULE_OBJECT_TYPES_PACKAGE_NAME) +
+                            varName, TYPE_VAR_NAME, GET_OBJECT_TYPE_IMPL);
+            case TypeTags.ERROR ->
+                    mv.visitFieldInsn(GETSTATIC, getModuleLevelClassName(pkgId, MODULE_ERROR_TYPES_PACKAGE_NAME) +
+                            varName, TYPE_VAR_NAME, GET_ERROR_TYPE_IMPL);
+            default -> {
+                this.loadType(mv, bType);
+                return false;
+            }
+        }
+        return true;
     }
 }

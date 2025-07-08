@@ -27,6 +27,7 @@ import org.ballerinalang.model.symbols.SymbolKind;
 import org.wso2.ballerinalang.compiler.PackageCache;
 import org.wso2.ballerinalang.compiler.bir.codegen.model.JIMethodCall;
 import org.wso2.ballerinalang.compiler.bir.codegen.model.JMethodCallInstruction;
+import org.wso2.ballerinalang.compiler.bir.codegen.utils.JvmCodeGenUtil;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRBasicBlock;
@@ -99,6 +100,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.ERROR_CA
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.START_CALLABLE_OBSERVATION;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.START_RESOURCE_OBSERVATION;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.STOP_OBSERVATION;
+import static org.wso2.ballerinalang.compiler.bir.codegen.utils.JvmModuleUtils.getPackageName;
 
 /**
  * BIR desugar to inject observations class.
@@ -123,14 +125,11 @@ class JvmObservabilityGen {
     private int localVarIndex;
     private int constantIndex;
     private int defaultServiceIndex;
-
-    private final Map<Object, BIROperand> compileTimeConstants;
     private final Map<Name, String> svcAttachPoints;
     private final Map<String, BIROperand> tempLocalVarsMap;
     private final Map<BIRBasicBlock, List<BIRBasicBlock>> predecessorMap;
 
     JvmObservabilityGen(PackageCache packageCache, SymbolTable symbolTable) {
-        this.compileTimeConstants = new HashMap<>();
         this.svcAttachPoints = new HashMap<>();
         this.tempLocalVarsMap = new HashMap<>();
         this.predecessorMap = new HashMap<>();
@@ -213,22 +212,13 @@ class JvmObservabilityGen {
                 if (isService) {
                     if ((func.flags & Flags.RESOURCE) == Flags.RESOURCE) {
                         rewriteObservableFunctionBody(func, pkg, typeDef, func.name.getValue(), serviceName,
-                                                      true, false, false, false);
+                                true, false, false, false);
                     } else if ((func.flags & Flags.REMOTE) == Flags.REMOTE) {
                         rewriteObservableFunctionBody(func, pkg, typeDef, func.name.getValue(), serviceName,
-                                                      false, true, false, false);
+                                false, true, false, false);
                     }
                 }
             }
-        }
-        // Adding initializing instructions for all compile time known constants
-        BIRFunction initFunc = pkg.functions.getFirst();
-        BIRBasicBlock constInitBB = initFunc.basicBlocks.getFirst();
-        for (Map.Entry<Object, BIROperand> entry : compileTimeConstants.entrySet()) {
-            BIROperand operand = entry.getValue();
-            ConstantLoad constLoadIns = new ConstantLoad(COMPILE_TIME_CONST_POS, entry.getKey(),
-                    operand.variableDcl.type, operand);
-            constInitBB.instructions.add(constLoadIns);
         }
     }
 
@@ -383,7 +373,7 @@ class JvmObservabilityGen {
             List<BVarSymbol> list = new ArrayList<>();
             for (BIROperand arg : asyncCallIns.args) {
                 BVarSymbol bVarSymbol = new BVarSymbol(0, arg.variableDcl.name, currentPkgId, arg.variableDcl.type,
-                                                       invokableSymbol, arg.pos, VIRTUAL);
+                        invokableSymbol, arg.pos, VIRTUAL);
                 list.add(bVarSymbol);
             }
             invokableSymbol.params = list;
@@ -428,7 +418,7 @@ class JvmObservabilityGen {
             asyncCallIns.isVirtual = attachedTypeDef != null;
             if (attachedTypeDef != null) {
                 asyncCallIns.args.addFirst(new BIROperand(new BIRVariableDcl(attachedTypeDef.type, selfArgName,
-                                                                           VarScope.FUNCTION, VarKind.SELF)));
+                        VarScope.FUNCTION, VarKind.SELF)));
             }
         }
     }
@@ -716,7 +706,7 @@ class JvmObservabilityGen {
                                                     Location originalInsPosition) {
         BIROperand serviceNameOperand = generateGlobalConstantOperand(pkg, symbolTable.stringType, serviceName);
         BIROperand resourcePathOrFunctionOperand = generateGlobalConstantOperand(pkg, symbolTable.stringType,
-                                                                                 resourcePathOrFunction);
+                resourcePathOrFunction);
         BIROperand resourceAccessorOperand = generateGlobalConstantOperand(pkg, symbolTable.stringType,
                 resourceAccessor);
         BIROperand isResourceOperand = generateGlobalConstantOperand(pkg, symbolTable.booleanType, isResource);
@@ -871,18 +861,15 @@ class JvmObservabilityGen {
      * @return The generated operand which will pass the constant
      */
     private BIROperand generateGlobalConstantOperand(BIRPackage pkg, BType constantType, Object constantValue) {
-        return compileTimeConstants.computeIfAbsent(constantValue, k -> {
-            PackageID pkgId = pkg.packageID;
-            Name name = new Name("$observabilityConst" + constantIndex++);
-            BIRGlobalVariableDcl constLoadVariableDcl =
-                    new BIRGlobalVariableDcl(COMPILE_TIME_CONST_POS, 0,
-                            constantType, pkgId, name, name,
-                            VarScope.GLOBAL, VarKind.CONSTANT, "", VIRTUAL);
-            pkg.globalVars.add(constLoadVariableDcl);
-            return new BIROperand(constLoadVariableDcl);
-        });
+        PackageID pkgId = pkg.packageID;
+        Name name = new Name("$observabilityConst" + constantIndex++);
+        BIRNode.BIRConstant birConstant = new BIRNode.BIRConstant(COMPILE_TIME_CONST_POS, name, 0, constantType,
+                new BIRNode.ConstValue(constantValue, constantType), VIRTUAL);
+        BIRGlobalVariableDcl constLoadVariableDcl = new BIRGlobalVariableDcl(COMPILE_TIME_CONST_POS, 0, constantType,
+                pkgId, name, name, VarScope.GLOBAL, VarKind.CONSTANT, "", VIRTUAL);
+        pkg.constants.add(birConstant);
+        return new BIROperand(constLoadVariableDcl);
     }
-
     /**
      * Create and insert a new basic block into a function in the specified index.
      *
@@ -969,8 +956,7 @@ class JvmObservabilityGen {
         boolean isObservableAnnotationPresent = false;
         for (BIRAnnotationAttachment annot : callIns.calleeAnnotAttachments) {
             if (OBSERVABLE_ANNOTATION.equals(
-                    JvmCodeGenUtil.getPackageName(
-                            new PackageID(annot.annotPkgId.orgName, annot.annotPkgId.name, Names.EMPTY)) +
+                    getPackageName(new PackageID(annot.annotPkgId.orgName, annot.annotPkgId.name, Names.EMPTY)) +
                             annot.annotTagRef.getValue())) {
                 isObservableAnnotationPresent = true;
                 break;

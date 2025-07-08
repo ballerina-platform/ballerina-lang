@@ -19,6 +19,7 @@ package org.wso2.ballerinalang.compiler.bir.codegen;
 
 import org.wso2.ballerinalang.compiler.PackageCache;
 import org.wso2.ballerinalang.compiler.bir.BIRGenUtils;
+import org.wso2.ballerinalang.compiler.bir.codegen.internal.CompiledJarFile;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
@@ -28,6 +29,9 @@ import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
 import java.util.HashMap;
+
+import static org.wso2.ballerinalang.compiler.bir.codegen.desugar.IdentifierDesugar.encodeModuleIdentifiers;
+import static org.wso2.ballerinalang.compiler.bir.codegen.desugar.IdentifierDesugar.replaceEncodedModuleIdentifiers;
 
 /**
  * JVM byte code generator from BIR model.
@@ -76,17 +80,17 @@ public class CodeGenerator {
         BIRGenUtils.rearrangeBasicBlocks(packageSymbol.bir);
 
         dlog.setCurrentPackageId(packageSymbol.pkgID);
-        final JvmPackageGen jvmPackageGen = new JvmPackageGen(symbolTable, packageCache, dlog, types,
+        final JvmPackageGen jvmPackageGen = new JvmPackageGen(packageSymbol.bir, symbolTable, packageCache, dlog, types,
                 isRemoteMgtEnabled);
 
         //Rewrite identifier names with encoding special characters
-        HashMap<String, String> originalIdentifierMap = JvmDesugarPhase.encodeModuleIdentifiers(packageSymbol.bir);
+        HashMap<String, String> originalIdentifierMap = encodeModuleIdentifiers(packageSymbol.bir);
 
         // TODO Get-rid of the following assignment
-        CompiledJarFile compiledJarFile = jvmPackageGen.generate(packageSymbol.bir);
+        CompiledJarFile compiledJarFile = jvmPackageGen.generate();
         cleanUpBirPackage(packageSymbol);
         //Revert encoding identifier names
-        JvmDesugarPhase.replaceEncodedModuleIdentifiers(packageSymbol.bir, originalIdentifierMap);
+        replaceEncodedModuleIdentifiers(packageSymbol.bir, originalIdentifierMap);
         return compiledJarFile;
     }
 

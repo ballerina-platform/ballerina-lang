@@ -32,7 +32,7 @@ import java.util.Map;
  */
 public class BObject extends NamedCompoundVariable {
 
-    private static final String OBJECT_FIELD_PATTERN_IDENTIFIER = "$value$";
+    private static final String OBJECT_FIELD_PATTERN_IDENTIFIER = "values.$";
 
     public BObject(SuspendedContext context, String name, Value value) {
         this(context, name, BVariableType.OBJECT, value);

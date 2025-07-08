@@ -21,13 +21,15 @@ package org.wso2.ballerinalang.compiler.bir.codegen.methodgen;
 import io.ballerina.identifier.Utils;
 import org.ballerinalang.model.elements.PackageID;
 import org.objectweb.asm.MethodVisitor;
-import org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil;
+import org.wso2.ballerinalang.compiler.bir.codegen.utils.JvmCodeGenUtil;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.util.Names;
 
 import static org.objectweb.asm.Opcodes.ARETURN;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ENCODED_DOT_CHARACTER;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.INIT_FUNCTION_SUFFIX;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.LAMBDA_PREFIX;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STOP_FUNCTION_SUFFIX;
 import static org.wso2.ballerinalang.compiler.util.CompilerUtils.getMajorVersion;
 
 /**
@@ -36,11 +38,6 @@ import static org.wso2.ballerinalang.compiler.util.CompilerUtils.getMajorVersion
  * @since 2.0.0
  */
 public final class MethodGenUtils {
-
-    public static final String FRAMES = "frames";
-    static final String INIT_FUNCTION_SUFFIX = ".<init>";
-    static final String STOP_FUNCTION_SUFFIX = ".<stop>";
-    static final String START_FUNCTION_SUFFIX = ".<start>";
 
     static boolean hasInitFunction(BIRNode.BIRPackage pkg) {
         for (BIRNode.BIRFunction func : pkg.functions) {
@@ -74,7 +71,7 @@ public final class MethodGenUtils {
             moduleName = id.name.value;
         }
         String version = getMajorVersion(id.version.value);
-        String funcSuffix = MethodGenUtils.STOP_FUNCTION_SUFFIX;
+        String funcSuffix = STOP_FUNCTION_SUFFIX;
 
         String funcName;
         if (moduleName.equals(ENCODED_DOT_CHARACTER)) {

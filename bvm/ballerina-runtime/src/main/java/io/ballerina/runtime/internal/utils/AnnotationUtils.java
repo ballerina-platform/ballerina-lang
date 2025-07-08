@@ -55,12 +55,10 @@ public final class AnnotationUtils {
         if (!(bType instanceof BAnnotatableType type)) {
             return;
         }
-
         BString annotationKey = StringUtils.fromString(type.getAnnotationKey());
         if (globalAnnotMap.containsKey(annotationKey)) {
             type.setAnnotations((MapValue<BString, Object>) globalAnnotMap.get(annotationKey));
         }
-
         if (type.getTag() == TypeTags.TYPE_REFERENCED_TYPE_TAG) {
             Type impliedType = TypeUtils.getImpliedType(type);
             if (isNonObjectType(impliedType.getTag())) {

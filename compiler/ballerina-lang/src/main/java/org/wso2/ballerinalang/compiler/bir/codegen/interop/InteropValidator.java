@@ -47,7 +47,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil.isExternFunc;
+import static org.wso2.ballerinalang.compiler.bir.codegen.utils.JvmCodeGenUtil.isExternFunc;
 import static org.wso2.ballerinalang.compiler.bir.codegen.interop.AnnotationProc.getInteropAnnotValue;
 
 /**

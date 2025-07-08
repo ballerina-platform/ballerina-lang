@@ -10,7 +10,7 @@ Running Tests
 	[fail] beforeGroupsFunc2[before groups function for the test]:
 	    error("{ballerina}DivisionByZero",message=" / by zero")
 			callableName: beforeGroupsFunc2  fileName: skip-when-beforeGroups-fails.bal lineNumber: 32
-			callableName: beforeGroupsFunc2$lambda2$  fileName: skip-when-beforeGroups-fails.bal lineNumber: 86
+			callableName: beforeGroupsFunc2$lambda1$  fileName: skip-when-beforeGroups-fails.bal lineNumber: 86
 			callableName: call moduleName: ballerina.lang.function.0 fileName: function.bal lineNumber: 37
 			callableName: executeFunction moduleName: ballerina.test.0 fileName: serialExecuter.bal lineNumber: 142
 			callableName: executeFunctions moduleName: ballerina.test.0 fileName: serialExecuter.bal lineNumber: 96
@@ -39,7 +39,7 @@ Running Tests
 			callableName: createBallerinaError moduleName: ballerina.test.0 fileName: assert.bal lineNumber: 41
 			callableName: assertEquals moduleName: ballerina.test.0 fileName: assert.bal lineNumber: 109
 			callableName: afterSuiteFunc  fileName: skip-when-beforeGroups-fails.bal lineNumber: 81
-			callableName: afterSuiteFunc$lambda4$  fileName: skip-when-beforeGroups-fails.bal lineNumber: 88
+			callableName: afterSuiteFunc$lambda3$  fileName: skip-when-beforeGroups-fails.bal lineNumber: 88
 			callableName: call moduleName: ballerina.lang.function.0 fileName: function.bal lineNumber: 37
 			callableName: executeFunction moduleName: ballerina.test.0 fileName: serialExecuter.bal lineNumber: 142
 			callableName: executeFunctions moduleName: ballerina.test.0 fileName: serialExecuter.bal lineNumber: 96
