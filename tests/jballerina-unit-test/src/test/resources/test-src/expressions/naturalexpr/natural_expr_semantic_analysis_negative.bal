@@ -60,7 +60,32 @@ function f4() returns string|error => natural (mdl) {
     What day is it today?
 };
 
+function f5() returns string|error => natural () {
+    What day is it today?
+};
+
+function f6() returns string|error => natural (new MyGenerator2()) {
+    What day is it today?
+};
+
+function f7() returns string|error => natural (new MyGenerator2(), 2) {
+    What day is it today?
+};
+
+function f8() returns string|error => natural (new MyGenerator(), 2) {
+    What day is it today?
+};
+
+function f9() returns string[]|error => const natural (new MyGenerator(), 2) {
+    Tell me the top 10 movies this week?
+};
+
 isolated client class MyGenerator {
     remote isolated function generate(
             'natural:Prompt prompt, typedesc<anydata> td) returns td|error = external;
+}
+
+isolated client class MyGenerator2 {
+    remote isolated function generate(
+            'natural:Prompt prompt, typedesc<anydata> td) returns anydata|error => 1;
 }

@@ -69,6 +69,18 @@ public class NaturalExpressionTest {
         BAssertUtil.validateError(negativeRes, i++,
                 "the expected type for a 'const' 'natural' expression must be a subtype of 'anydata'", 55, 18);
         BAssertUtil.validateError(negativeRes, i++, "undefined symbol 'mdl'", 59, 48);
+        BAssertUtil.validateError(negativeRes, i++, "expected a single argument of type 'natural:Generator' in " +
+                "a non-const 'natural' expression, found '0' argument(s)", 63, 39);
+        BAssertUtil.validateError(negativeRes, i++, "incompatible types: expected " +
+                "'ballerina/lang.natural:0.0.0:Generator', found 'MyGenerator2'", 67, 48);
+        BAssertUtil.validateError(negativeRes, i++, "expected a single argument of type 'natural:Generator' in " +
+                "a non-const 'natural' expression, found '2' argument(s)", 71, 39);
+        BAssertUtil.validateError(negativeRes, i++, "incompatible types: expected " +
+                "'ballerina/lang.natural:0.0.0:Generator', found 'MyGenerator2'", 71, 48);
+        BAssertUtil.validateError(negativeRes, i++, "expected a single argument of type 'natural:Generator' in " +
+                "a non-const 'natural' expression, found '2' argument(s)", 75, 39);
+        BAssertUtil.validateError(negativeRes, i++, "expected no arguments in a const 'natural' expression, " +
+                "found '2' argument(s)", 79, 56);
         Assert.assertEquals(negativeRes.getErrorCount(), i);
     }
 
