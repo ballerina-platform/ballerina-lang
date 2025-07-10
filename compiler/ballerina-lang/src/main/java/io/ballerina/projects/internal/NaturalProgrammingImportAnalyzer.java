@@ -44,6 +44,7 @@ public class NaturalProgrammingImportAnalyzer extends NodeVisitor {
     private Optional<String> naturalLangLibPrefix = Optional.of(NATURAL_WITH_QUOTE);
 
     private static final String BALLERINA = "ballerina";
+    private static final String NATURAL = "natural";
     private static final String NATURAL_WITH_QUOTE = "'natural";
     private static final String CODE_ANNOTATION = "code";
 
@@ -82,9 +83,9 @@ public class NaturalProgrammingImportAnalyzer extends NodeVisitor {
 
     @Override
     public void visit(NaturalExpressionNode naturalExpressionNode) {
-        if (naturalExpressionNode.constKeyword().isPresent()) {
-            this.shouldImportNaturalProgrammingModule = true;
-        }
+        // For now, we will import the np module for runtime natural expressions also, to add the schema annotation
+        // for expected type of natural expressions.
+        this.shouldImportNaturalProgrammingModule = true;
     }
 
     @Override
@@ -113,7 +114,8 @@ public class NaturalProgrammingImportAnalyzer extends NodeVisitor {
         return externalFunctionBodyNode.annotations().stream()
                 .anyMatch(annotation ->
                         annotation.annotReference() instanceof QualifiedNameReferenceNode qualifiedNameReferenceNode &&
-                                naturalLangLibPrefix.get().equals(qualifiedNameReferenceNode.modulePrefix().text()) &&
+                                isNaturalPrefix(naturalLangLibPrefix.get()) &&
+                                isNaturalPrefix(qualifiedNameReferenceNode.modulePrefix().text()) &&
                                 CODE_ANNOTATION.equals(qualifiedNameReferenceNode.identifier().text()));
     }
 
@@ -135,5 +137,9 @@ public class NaturalProgrammingImportAnalyzer extends NodeVisitor {
         return moduleName.size() == 2 &&
                 moduleName.get(0).text().equals("lang") &&
                 moduleName.get(1).text().equals(NATURAL_WITH_QUOTE);
+    }
+
+    private boolean isNaturalPrefix(String prefix) {
+        return NATURAL.equals(prefix) || NATURAL_WITH_QUOTE.equals(prefix);
     }
 }
