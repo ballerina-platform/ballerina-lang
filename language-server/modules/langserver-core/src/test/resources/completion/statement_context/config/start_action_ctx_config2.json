@@ -4,6 +4,7 @@
     "character": 31
   },
   "source": "statement_context/source/start_action_ctx_source2.bal",
+  "description": "",
   "items": [
     {
       "label": "Thread",
@@ -590,6 +591,14 @@
       "detail": "Typedesc",
       "sortText": "BN",
       "insertText": "typedesc",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "natural",
+      "kind": "Unit",
+      "detail": "type",
+      "sortText": "BR",
+      "insertText": "natural",
       "insertTextFormat": "Snippet"
     }
   ]

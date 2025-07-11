@@ -812,6 +812,14 @@
         "title": "editor.action.triggerParameterHints",
         "command": "editor.action.triggerParameterHints"
       }
+    },
+    {
+      "label": "natural",
+      "kind": "Unit",
+      "detail": "type",
+      "sortText": "CR",
+      "insertText": "natural",
+      "insertTextFormat": "Snippet"
     }
   ]
 }

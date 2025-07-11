@@ -907,6 +907,14 @@
       "sortText": "N",
       "insertText": "module13",
       "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "natural",
+      "kind": "Unit",
+      "detail": "type",
+      "sortText": "R",
+      "insertText": "natural",
+      "insertTextFormat": "Snippet"
     }
   ]
 }

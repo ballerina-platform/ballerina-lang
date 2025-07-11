@@ -894,6 +894,14 @@
       "sortText": "BL",
       "insertText": "module1:E2",
       "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "natural",
+      "kind": "Unit",
+      "detail": "type",
+      "sortText": "G",
+      "insertText": "natural",
+      "insertTextFormat": "Snippet"
     }
   ]
 }

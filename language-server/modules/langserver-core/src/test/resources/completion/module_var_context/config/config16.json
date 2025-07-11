@@ -539,6 +539,14 @@
       "sortText": "C",
       "insertText": "typedesc",
       "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "natural",
+      "kind": "Unit",
+      "detail": "type",
+      "sortText": "C",
+      "insertText": "natural",
+      "insertTextFormat": "Snippet"
     }
   ]
 }
