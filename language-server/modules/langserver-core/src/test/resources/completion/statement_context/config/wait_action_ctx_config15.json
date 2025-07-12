@@ -4,6 +4,7 @@
     "character": 46
   },
   "source": "statement_context/source/wait_action_ctx_source15.bal",
+  "description": "",
   "items": [
     {
       "label": "WB",
@@ -427,6 +428,14 @@
       "detail": "Typedesc",
       "sortText": "R",
       "insertText": "typedesc",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "natural",
+      "kind": "Unit",
+      "detail": "type",
+      "sortText": "R",
+      "insertText": "natural",
       "insertTextFormat": "Snippet"
     }
   ]

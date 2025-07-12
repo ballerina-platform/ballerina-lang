@@ -4,6 +4,7 @@
     "character": 30
   },
   "source": "annotation_ctx/source/paramAnnotation9.bal",
+  "description": "",
   "items": [
     {
       "label": "IntType",
@@ -568,6 +569,14 @@
       "detail": "Typedesc",
       "sortText": "BN",
       "insertText": "typedesc",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "natural",
+      "kind": "Unit",
+      "detail": "type",
+      "sortText": "G",
+      "insertText": "natural",
       "insertTextFormat": "Snippet"
     }
   ]

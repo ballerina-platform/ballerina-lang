@@ -17,10 +17,14 @@
 package org.ballerinalang.test.expressions.natural;
 
 import io.ballerina.projects.BuildOptions;
+import io.ballerina.runtime.api.Environment;
+import io.ballerina.runtime.api.values.BObject;
+import io.ballerina.runtime.api.values.BTypedesc;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.Test;
@@ -35,8 +39,17 @@ import java.util.List;
 public class NaturalExpressionTest {
 
     @Test
+    public void testNaturalExpr() {
+        BuildOptions.BuildOptionsBuilder buildOptionsBuilder = BuildOptions.builder();
+        BuildOptions buildOptions = buildOptionsBuilder.setExperimental(Boolean.TRUE).build();
+        CompileResult result = BCompileUtil.compile("test-src/expressions/naturalexpr/natural_expr.bal", buildOptions);
+        Assert.assertEquals(result.getDiagnostics().length, 0);
+        BRunUtil.invoke(result, "testNaturalExpr");
+    }
+
+    @Test
     public void testNaturalExprSemanticAnalysisNegative() {
-        CompileResult negativeRes = BCompileUtil.compile(
+        CompileResult negativeRes = BCompileUtil.compileWithoutInitInvocation(
                 "test-src/expressions/naturalexpr/natural_expr_semantic_analysis_negative.bal");
         int i = 0;
         BAssertUtil.validateError(negativeRes, i++,
@@ -56,6 +69,18 @@ public class NaturalExpressionTest {
         BAssertUtil.validateError(negativeRes, i++,
                 "the expected type for a 'const' 'natural' expression must be a subtype of 'anydata'", 55, 18);
         BAssertUtil.validateError(negativeRes, i++, "undefined symbol 'mdl'", 59, 48);
+        BAssertUtil.validateError(negativeRes, i++, "expected a single argument of type 'natural:Generator' in " +
+                "a non-const 'natural' expression, found '0' argument(s)", 63, 39);
+        BAssertUtil.validateError(negativeRes, i++, "incompatible types: expected " +
+                "'ballerina/lang.natural:0.0.0:Generator', found 'MyGenerator2'", 67, 48);
+        BAssertUtil.validateError(negativeRes, i++, "expected a single argument of type 'natural:Generator' in " +
+                "a non-const 'natural' expression, found '2' argument(s)", 71, 39);
+        BAssertUtil.validateError(negativeRes, i++, "incompatible types: expected " +
+                "'ballerina/lang.natural:0.0.0:Generator', found 'MyGenerator2'", 71, 48);
+        BAssertUtil.validateError(negativeRes, i++, "expected a single argument of type 'natural:Generator' in " +
+                "a non-const 'natural' expression, found '2' argument(s)", 75, 39);
+        BAssertUtil.validateError(negativeRes, i++, "expected no arguments in a const 'natural' expression, " +
+                "found '2' argument(s)", 79, 56);
         Assert.assertEquals(negativeRes.getErrorCount(), i);
     }
 
@@ -69,16 +94,18 @@ public class NaturalExpressionTest {
                         .currentPackage().getCompilation().defaultModuleBLangPackage().getDiagnostics();
 
         int i = 0;
-        validateError(negativeRes, i++, "variable 'mdl1' is not initialized", 23, 13);
-        validateError(negativeRes, i++, "variable 'day2' is not initialized", 29, 13);
+        validateError(negativeRes, i++, "variable 'mdl1' is not initialized", 19, 34);
+        validateError(negativeRes, i++, "variable 'day2' is not initialized", 28, 13);
         validateError(negativeRes, i++, "invalid access of mutable storage in an 'isolated' function",
-                49, 9);
+                47, 17);
         validateError(negativeRes, i++, "invalid access of mutable storage in an 'isolated' function",
-                52, 9);
+                50, 17);
+        validateError(negativeRes, i++, "invalid access of mutable storage in an 'isolated' function",
+                58, 17);
         validateError(negativeRes, i++, "invalid key 'name': identifiers cannot be used as rest " +
-                "field keys, expected a string literal or an expression", 66, 9);
+                "field keys, expected a string literal or an expression", 70, 9);
         validateError(negativeRes, i++, "invalid key 'interests': identifiers cannot be used as rest " +
-                "field keys, expected a string literal or an expression", 73, 17);
+                "field keys, expected a string literal or an expression", 77, 17);
         Assert.assertEquals(negativeRes.size(), i);
     }
 
@@ -91,5 +118,9 @@ public class NaturalExpressionTest {
                 "incorrect line number:");
         Assert.assertEquals(diag.location().lineRange().startLine().offset() + 1, expectedErrCol,
                 "incorrect column position:");
+    }
+
+    public static Object generateProxy(Environment env, BObject object, BObject prompt, BTypedesc td) {
+        return env.getRuntime().callMethod(object, "generateData", null, prompt, td);
     }
 }

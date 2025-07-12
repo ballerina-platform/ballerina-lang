@@ -661,6 +661,14 @@
       "sortText": "BM",
       "insertText": "module1:TestRecord2",
       "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "natural",
+      "kind": "Unit",
+      "detail": "type",
+      "sortText": "G",
+      "insertText": "natural",
+      "insertTextFormat": "Snippet"
     }
   ]
 }

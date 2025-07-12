@@ -4,6 +4,7 @@
     "character": 22
   },
   "source": "statement_context/source/worker_declaration_ctx_source5.bal",
+  "description": "",
   "items": [
     {
       "label": "Thread",
@@ -579,6 +580,14 @@
       "detail": "Typedesc",
       "sortText": "BN",
       "insertText": "typedesc",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "natural",
+      "kind": "Unit",
+      "detail": "type",
+      "sortText": "G",
+      "insertText": "natural",
       "insertTextFormat": "Snippet"
     }
   ]

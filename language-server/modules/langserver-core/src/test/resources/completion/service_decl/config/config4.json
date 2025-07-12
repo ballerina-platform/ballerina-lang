@@ -400,6 +400,14 @@
       "sortText": "B",
       "insertText": "typedesc",
       "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "natural",
+      "kind": "Unit",
+      "detail": "type",
+      "sortText": "D",
+      "insertText": "natural",
+      "insertTextFormat": "Snippet"
     }
   ]
 }

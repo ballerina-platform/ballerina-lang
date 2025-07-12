@@ -436,6 +436,14 @@
       "sortText": "A",
       "insertText": "typedesc",
       "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "natural",
+      "kind": "Unit",
+      "detail": "type",
+      "sortText": "A",
+      "insertText": "natural",
+      "insertTextFormat": "Snippet"
     }
   ]
 }

@@ -4,6 +4,7 @@
     "character": 24
   },
   "source": "expression_context/source/typeof_expression_ctx_source5.bal",
+  "description": "",
   "items": [
     {
       "label": "ballerina/lang.array",
@@ -471,13 +472,12 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "code",
-      "kind": "Property",
-      "detail": "Annotation",
-      "sortText": "B",
-      "insertText": "code {\n\tprompt: ${1:\"\"}\n}",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": []
+      "label": "natural",
+      "kind": "Unit",
+      "detail": "type",
+      "sortText": "R",
+      "insertText": "natural",
+      "insertTextFormat": "Snippet"
     }
   ]
 }

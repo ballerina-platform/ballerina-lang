@@ -4,6 +4,7 @@
     "character": 40
   },
   "source": "query_expression/source/query_expr_ctx_source31.bal",
+  "description": "",
   "items": [
     {
       "label": "Customer",
@@ -569,6 +570,14 @@
       "detail": "Typedesc",
       "sortText": "R",
       "insertText": "typedesc",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "natural",
+      "kind": "Unit",
+      "detail": "type",
+      "sortText": "R",
+      "insertText": "natural",
       "insertTextFormat": "Snippet"
     }
   ]

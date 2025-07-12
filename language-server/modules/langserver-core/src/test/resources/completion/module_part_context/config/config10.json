@@ -410,6 +410,14 @@
       "sortText": "CA",
       "insertText": "typedesc",
       "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "natural",
+      "kind": "Unit",
+      "detail": "type",
+      "sortText": "E",
+      "insertText": "natural",
+      "insertTextFormat": "Snippet"
     }
   ]
 }

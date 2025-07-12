@@ -4,6 +4,7 @@
     "character": 49
   },
   "source": "let_expression_context/source/let_expr_ctx_source9.bal",
+  "description": "",
   "items": [
     {
       "label": "start",
@@ -748,6 +749,23 @@
       "sortText": "T",
       "filterText": "xml ``",
       "insertText": "xml `${1}`",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "natural",
+      "kind": "Unit",
+      "detail": "type",
+      "sortText": "R",
+      "insertText": "natural",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "natural (..) {..}",
+      "kind": "Snippet",
+      "detail": "Snippet",
+      "sortText": "T",
+      "filterText": "natural (..) {..}",
+      "insertText": "natural (${1}) {${2}}",
       "insertTextFormat": "Snippet"
     }
   ]

@@ -47,6 +47,7 @@ public class BLangAnonymousModelHelper {
     private final Map<PackageID, Integer> errorVarCount;
     private final Map<PackageID, Integer> intersectionRecordCount;
     private final Map<PackageID, Integer> intersectionErrorCount;
+    private final Map<PackageID, Integer> naturalGeneratorCount;
     private final Map<PackageID, Map<String, Integer>> anonTypesNamesPerPkg;
 
     public static final String ANON_PREFIX = "$anon";
@@ -63,6 +64,7 @@ public class BLangAnonymousModelHelper {
     private static final String TUPLE_VAR = "$tupleVar$";
     private static final String RECORD_VAR = "$recordVar$";
     private static final String ERROR_VAR = "$errorVar$";
+    private static final String NATURAL_GENERATOR_VAR = "$naturalGeneratorVar$";
     private static final String DOLLAR = "$";
 
     private static final CompilerContext.Key<BLangAnonymousModelHelper> ANONYMOUS_MODEL_HELPER_KEY =
@@ -81,6 +83,7 @@ public class BLangAnonymousModelHelper {
         intersectionRecordCount = new HashMap<>();
         intersectionErrorCount = new HashMap<>();
         distinctTypeIdCount = new HashMap<>();
+        naturalGeneratorCount = new HashMap<>();
         anonTypesNamesPerPkg = new HashMap<>();
     }
 
@@ -189,5 +192,11 @@ public class BLangAnonymousModelHelper {
         Integer nextValue = intersectionErrorCount.getOrDefault(packageID, 0);
         intersectionErrorCount.put(packageID, nextValue + 1);
         return ANON_INTERSECTION_ERROR_TYPE + UNDERSCORE + nextValue;
+    }
+
+    public String getNextNaturalGeneratorVariableName(PackageID packageID) {
+        Integer nextValue = naturalGeneratorCount.getOrDefault(packageID, 0);
+        naturalGeneratorCount.put(packageID, nextValue + 1);
+        return NATURAL_GENERATOR_VAR + UNDERSCORE + nextValue;
     }
 }

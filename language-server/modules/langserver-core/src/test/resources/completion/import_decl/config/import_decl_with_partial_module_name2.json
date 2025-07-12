@@ -511,6 +511,29 @@
           "newText": ""
         }
       ]
+    },
+    {
+      "label": "lang.natural",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "A",
+      "insertText": "lang.'natural;",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 17
+            },
+            "end": {
+              "line": 0,
+              "character": 22
+            }
+          },
+          "newText": ""
+        }
+      ]
     }
   ]
 }

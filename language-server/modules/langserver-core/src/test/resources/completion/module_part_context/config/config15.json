@@ -842,6 +842,14 @@
       "insertText": "service ${1} on new Listener() {\n\n    remote function method1() {\n        ${2}\n    }\n\n}\n",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": []
+    },
+    {
+      "label": "natural",
+      "kind": "Unit",
+      "detail": "type",
+      "sortText": "E",
+      "insertText": "natural",
+      "insertTextFormat": "Snippet"
     }
   ]
 }

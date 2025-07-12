@@ -556,6 +556,14 @@
       "sortText": "D",
       "insertText": "i",
       "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "natural",
+      "kind": "Unit",
+      "detail": "type",
+      "sortText": "G",
+      "insertText": "natural",
+      "insertTextFormat": "Snippet"
     }
   ]
 }

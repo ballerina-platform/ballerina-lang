@@ -4,6 +4,7 @@
     "character": 23
   },
   "source": "typedesc_context/source/table_typedesc11.bal",
+  "description": "",
   "items": [
     {
       "label": "ballerina/lang.array",
@@ -449,6 +450,14 @@
       "detail": "Typedesc",
       "sortText": "BN",
       "insertText": "typedesc",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "natural",
+      "kind": "Unit",
+      "detail": "type",
+      "sortText": "G",
+      "insertText": "natural",
       "insertTextFormat": "Snippet"
     }
   ]

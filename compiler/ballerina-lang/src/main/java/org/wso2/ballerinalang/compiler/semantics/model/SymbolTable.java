@@ -158,6 +158,7 @@ public class SymbolTable {
     public BArrayType arrayAllType;
     public BObjectType rawTemplateType;
     public BObjectType iterableType;
+    public BObjectType naturalGeneratorType;
 
     // builtin subtypes
     public final BIntSubType signed32IntType = BIntSubType.SIGNED32;
@@ -206,6 +207,7 @@ public class SymbolTable {
     public BPackageSymbol langFunctionModuleSymbol;
     public BPackageSymbol langIntModuleSymbol;
     public BPackageSymbol langMapModuleSymbol;
+    public BPackageSymbol langNaturalModuleSymbol;
     public BPackageSymbol langObjectModuleSymbol;
     public BPackageSymbol langStreamModuleSymbol;
     public BPackageSymbol langStringModuleSymbol;
@@ -410,6 +412,7 @@ public class SymbolTable {
                                                 Map.entry(Names.FUTURE, this.langFutureModuleSymbol),
                                                 Map.entry(Names.INT, this.langIntModuleSymbol),
                                                 Map.entry(Names.MAP, this.langMapModuleSymbol),
+                                                Map.entry(Names.NATURAL, this.langNaturalModuleSymbol),
                                                 Map.entry(Names.OBJECT, this.langObjectModuleSymbol),
                                                 Map.entry(Names.STREAM, this.langStreamModuleSymbol),
                                                 Map.entry(Names.STRING, this.langStringModuleSymbol),

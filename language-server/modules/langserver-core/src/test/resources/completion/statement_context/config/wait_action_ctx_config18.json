@@ -4,6 +4,7 @@
     "character": 35
   },
   "source": "statement_context/source/wait_action_ctx_source18.bal",
+  "description": "",
   "items": [
     {
       "label": "ballerina/lang.test",
@@ -618,6 +619,14 @@
       "detail": "Typedesc",
       "sortText": "P",
       "insertText": "typedesc",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "natural",
+      "kind": "Unit",
+      "detail": "type",
+      "sortText": "R",
+      "insertText": "natural",
       "insertTextFormat": "Snippet"
     }
   ]

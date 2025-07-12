@@ -64,6 +64,8 @@ public class PackageID {
             Lists.of(Names.LANG, Names.INT), DEFAULT_VERSION);
     public static final PackageID MAP = new PackageID(Names.BALLERINA_ORG,
             Lists.of(Names.LANG, Names.MAP), DEFAULT_VERSION);
+    public static final PackageID NATURAL = new PackageID(Names.BALLERINA_ORG,
+            Lists.of(Names.LANG, Names.NATURAL), DEFAULT_VERSION);
     public static final PackageID OBJECT = new PackageID(Names.BALLERINA_ORG,
             Lists.of(Names.LANG, Names.OBJECT), DEFAULT_VERSION);
     public static final PackageID STREAM = new PackageID(Names.BALLERINA_ORG,

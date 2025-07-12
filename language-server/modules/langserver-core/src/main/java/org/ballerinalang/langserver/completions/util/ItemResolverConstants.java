@@ -90,7 +90,8 @@ public final class ItemResolverConstants {
     public static final String REG_EXP = "re ``";
     public static final String STRING_TEMP = "string ``";
     public static final String XML_TEMP = "xml ``";
-    
+    public static final String NATURAL_TEMP = "natural (..) {..}";
+
     public static final String FROM_CLAUSE = "from clause";
     public static final String LET_CLAUSE = "let clause";
     public static final String JOIN_CLAUSE = "join clause";

@@ -286,7 +286,7 @@
       "label": "map",
       "kind": "Unit",
       "detail": "type",
-      "sortText": "RV",
+      "sortText": "RW",
       "insertText": "map",
       "insertTextFormat": "Snippet"
     },
@@ -294,7 +294,7 @@
       "label": "object",
       "kind": "Unit",
       "detail": "type",
-      "sortText": "RR",
+      "sortText": "RS",
       "insertText": "object",
       "insertTextFormat": "Snippet"
     },
@@ -302,7 +302,7 @@
       "label": "stream",
       "kind": "Unit",
       "detail": "type",
-      "sortText": "RW",
+      "sortText": "RX",
       "insertText": "stream",
       "insertTextFormat": "Snippet"
     },
@@ -310,7 +310,7 @@
       "label": "table",
       "kind": "Unit",
       "detail": "type",
-      "sortText": "RU",
+      "sortText": "RV",
       "insertText": "table",
       "insertTextFormat": "Snippet"
     },
@@ -318,7 +318,7 @@
       "label": "transaction",
       "kind": "Unit",
       "detail": "type",
-      "sortText": "RS",
+      "sortText": "RT",
       "insertText": "transaction",
       "insertTextFormat": "Snippet"
     },
@@ -326,7 +326,7 @@
       "label": "service",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "QZF",
+      "sortText": "QZG",
       "filterText": "service",
       "insertText": "service",
       "insertTextFormat": "Snippet"
@@ -335,7 +335,7 @@
       "label": "new",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "QZG",
+      "sortText": "QZH",
       "filterText": "new",
       "insertText": "new ",
       "insertTextFormat": "Snippet"
@@ -344,7 +344,7 @@
       "label": "isolated",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "QZH",
+      "sortText": "QZI",
       "filterText": "isolated",
       "insertText": "isolated ",
       "insertTextFormat": "Snippet"
@@ -353,7 +353,7 @@
       "label": "transactional",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "QZI",
+      "sortText": "QZJ",
       "filterText": "transactional",
       "insertText": "transactional",
       "insertTextFormat": "Snippet"
@@ -362,7 +362,7 @@
       "label": "function",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "QZJ",
+      "sortText": "QZK",
       "filterText": "function",
       "insertText": "function ",
       "insertTextFormat": "Snippet"
@@ -371,7 +371,7 @@
       "label": "let",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "QZK",
+      "sortText": "QZL",
       "filterText": "let",
       "insertText": "let",
       "insertTextFormat": "Snippet"
@@ -380,7 +380,7 @@
       "label": "typeof",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "QZL",
+      "sortText": "QZM",
       "filterText": "typeof",
       "insertText": "typeof ",
       "insertTextFormat": "Snippet"
@@ -389,7 +389,7 @@
       "label": "trap",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "QZM",
+      "sortText": "QZN",
       "filterText": "trap",
       "insertText": "trap",
       "insertTextFormat": "Snippet"
@@ -398,7 +398,7 @@
       "label": "client",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "QZN",
+      "sortText": "QZO",
       "filterText": "client",
       "insertText": "client ",
       "insertTextFormat": "Snippet"
@@ -407,7 +407,7 @@
       "label": "true",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "QZO",
+      "sortText": "QZP",
       "filterText": "true",
       "insertText": "true",
       "insertTextFormat": "Snippet"
@@ -416,7 +416,7 @@
       "label": "false",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "QZP",
+      "sortText": "QZQ",
       "filterText": "false",
       "insertText": "false",
       "insertTextFormat": "Snippet"
@@ -425,7 +425,7 @@
       "label": "null",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "QZQ",
+      "sortText": "QZR",
       "filterText": "null",
       "insertText": "null",
       "insertTextFormat": "Snippet"
@@ -434,7 +434,7 @@
       "label": "check",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "QZR",
+      "sortText": "QZS",
       "filterText": "check",
       "insertText": "check ",
       "insertTextFormat": "Snippet"
@@ -443,7 +443,7 @@
       "label": "checkpanic",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "QZS",
+      "sortText": "QZT",
       "filterText": "checkpanic",
       "insertText": "checkpanic ",
       "insertTextFormat": "Snippet"
@@ -452,7 +452,7 @@
       "label": "is",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "QZT",
+      "sortText": "QZU",
       "filterText": "is",
       "insertText": "is",
       "insertTextFormat": "Snippet"
@@ -461,7 +461,7 @@
       "label": "error constructor",
       "kind": "Snippet",
       "detail": "Snippet",
-      "sortText": "PZU",
+      "sortText": "PZV",
       "filterText": "error",
       "insertText": "error(\"${1}\")",
       "insertTextFormat": "Snippet"
@@ -470,7 +470,7 @@
       "label": "object constructor",
       "kind": "Snippet",
       "detail": "Snippet",
-      "sortText": "PZV",
+      "sortText": "PZW",
       "filterText": "object",
       "insertText": "object {${1}}",
       "insertTextFormat": "Snippet"
@@ -479,7 +479,7 @@
       "label": "base16",
       "kind": "Snippet",
       "detail": "Snippet",
-      "sortText": "PZW",
+      "sortText": "PZX",
       "filterText": "base16",
       "insertText": "base16 `${1}`",
       "insertTextFormat": "Snippet"
@@ -488,7 +488,7 @@
       "label": "base64",
       "kind": "Snippet",
       "detail": "Snippet",
-      "sortText": "PZX",
+      "sortText": "PZZ",
       "filterText": "base64",
       "insertText": "base64 `${1}`",
       "insertTextFormat": "Snippet"
@@ -497,7 +497,7 @@
       "label": "from",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "QZZ",
+      "sortText": "QZZA",
       "filterText": "from",
       "insertText": "from ",
       "insertTextFormat": "Snippet"
@@ -506,7 +506,7 @@
       "label": "MyClient",
       "kind": "Interface",
       "detail": "Class",
-      "sortText": "KZZD",
+      "sortText": "KZZF",
       "insertText": "MyClient",
       "insertTextFormat": "Snippet"
     },
@@ -514,7 +514,7 @@
       "label": "cl",
       "kind": "Variable",
       "detail": "MyClient",
-      "sortText": "BZZG",
+      "sortText": "BZZI",
       "insertText": "cl",
       "insertTextFormat": "Snippet"
     },
@@ -525,7 +525,7 @@
       "documentation": {
         "left": "Describes Strand execution details for the runtime.\n"
       },
-      "sortText": "MZZE",
+      "sortText": "MZZG",
       "insertText": "StrandData",
       "insertTextFormat": "Snippet"
     },
@@ -539,7 +539,7 @@
           "value": "**Package:** _._  \n  \n  \n"
         }
       },
-      "sortText": "CZZJ",
+      "sortText": "CZZL",
       "filterText": "test",
       "insertText": "test()",
       "insertTextFormat": "Snippet"
@@ -548,7 +548,7 @@
       "label": "i",
       "kind": "Variable",
       "detail": "int",
-      "sortText": "BZZH",
+      "sortText": "BZZJ",
       "insertText": "i",
       "insertTextFormat": "Snippet"
     },
@@ -556,7 +556,7 @@
       "label": "Thread",
       "kind": "TypeParameter",
       "detail": "Union",
-      "sortText": "NZZF",
+      "sortText": "NZZH",
       "insertText": "Thread",
       "insertTextFormat": "Snippet"
     },
@@ -564,7 +564,7 @@
       "label": "s",
       "kind": "Variable",
       "detail": "string",
-      "sortText": "BZZI",
+      "sortText": "BZZK",
       "insertText": "s",
       "insertTextFormat": "Snippet"
     },
@@ -596,7 +596,7 @@
       "label": "re ``",
       "kind": "Snippet",
       "detail": "Snippet",
-      "sortText": "PZZA",
+      "sortText": "PZZB",
       "filterText": "re ``",
       "insertText": "re `${1}`",
       "insertTextFormat": "Snippet"
@@ -605,7 +605,7 @@
       "label": "decimal",
       "kind": "TypeParameter",
       "detail": "Decimal",
-      "sortText": "NP",
+      "sortText": "NQ",
       "insertText": "decimal",
       "insertTextFormat": "Snippet"
     },
@@ -613,7 +613,7 @@
       "label": "error",
       "kind": "Event",
       "detail": "Error",
-      "sortText": "LQ",
+      "sortText": "LR",
       "insertText": "error",
       "insertTextFormat": "Snippet"
     },
@@ -621,7 +621,7 @@
       "label": "xml",
       "kind": "TypeParameter",
       "detail": "Xml",
-      "sortText": "NT",
+      "sortText": "NU",
       "insertText": "xml",
       "insertTextFormat": "Snippet"
     },
@@ -629,7 +629,7 @@
       "label": "boolean",
       "kind": "TypeParameter",
       "detail": "Boolean",
-      "sortText": "NX",
+      "sortText": "NZ",
       "insertText": "boolean",
       "insertTextFormat": "Snippet"
     },
@@ -637,7 +637,7 @@
       "label": "future",
       "kind": "TypeParameter",
       "detail": "Future",
-      "sortText": "NZ",
+      "sortText": "NZA",
       "insertText": "future",
       "insertTextFormat": "Snippet"
     },
@@ -645,7 +645,7 @@
       "label": "int",
       "kind": "TypeParameter",
       "detail": "Int",
-      "sortText": "NZA",
+      "sortText": "NZB",
       "insertText": "int",
       "insertTextFormat": "Snippet"
     },
@@ -653,7 +653,7 @@
       "label": "float",
       "kind": "TypeParameter",
       "detail": "Float",
-      "sortText": "NZB",
+      "sortText": "NZC",
       "insertText": "float",
       "insertTextFormat": "Snippet"
     },
@@ -661,7 +661,7 @@
       "label": "function",
       "kind": "TypeParameter",
       "detail": "Function",
-      "sortText": "NZC",
+      "sortText": "NZD",
       "insertText": "function",
       "insertTextFormat": "Snippet"
     },
@@ -669,7 +669,7 @@
       "label": "string",
       "kind": "TypeParameter",
       "detail": "String",
-      "sortText": "NZD",
+      "sortText": "NZE",
       "insertText": "string",
       "insertTextFormat": "Snippet"
     },
@@ -677,7 +677,7 @@
       "label": "typedesc",
       "kind": "TypeParameter",
       "detail": "Typedesc",
-      "sortText": "NZE",
+      "sortText": "NZF",
       "insertText": "typedesc",
       "insertTextFormat": "Snippet"
     },
@@ -685,7 +685,7 @@
       "label": "readonly",
       "kind": "TypeParameter",
       "detail": "Readonly",
-      "sortText": "NZZK",
+      "sortText": "NZZM",
       "insertText": "readonly",
       "insertTextFormat": "Snippet"
     },
@@ -693,7 +693,7 @@
       "label": "handle",
       "kind": "TypeParameter",
       "detail": "Handle",
-      "sortText": "NZZL",
+      "sortText": "NZZN",
       "insertText": "handle",
       "insertTextFormat": "Snippet"
     },
@@ -701,7 +701,7 @@
       "label": "never",
       "kind": "TypeParameter",
       "detail": "Never",
-      "sortText": "NZZM",
+      "sortText": "NZZO",
       "insertText": "never",
       "insertTextFormat": "Snippet"
     },
@@ -709,7 +709,7 @@
       "label": "json",
       "kind": "TypeParameter",
       "detail": "Json",
-      "sortText": "NZZN",
+      "sortText": "NZZP",
       "insertText": "json",
       "insertTextFormat": "Snippet"
     },
@@ -717,7 +717,7 @@
       "label": "anydata",
       "kind": "TypeParameter",
       "detail": "Anydata",
-      "sortText": "NZZO",
+      "sortText": "NZZQ",
       "insertText": "anydata",
       "insertTextFormat": "Snippet"
     },
@@ -725,7 +725,7 @@
       "label": "any",
       "kind": "TypeParameter",
       "detail": "Any",
-      "sortText": "NZZP",
+      "sortText": "NZZR",
       "insertText": "any",
       "insertTextFormat": "Snippet"
     },
@@ -733,7 +733,7 @@
       "label": "byte",
       "kind": "TypeParameter",
       "detail": "Byte",
-      "sortText": "NZZQ",
+      "sortText": "NZZS",
       "insertText": "byte",
       "insertTextFormat": "Snippet"
     },
@@ -741,7 +741,7 @@
       "label": "string ``",
       "kind": "Snippet",
       "detail": "Snippet",
-      "sortText": "PZZB",
+      "sortText": "PZZC",
       "filterText": "string ``",
       "insertText": "string `${1}`",
       "insertTextFormat": "Snippet"
@@ -750,7 +750,7 @@
       "label": "xml ``",
       "kind": "Snippet",
       "detail": "Snippet",
-      "sortText": "PZZC",
+      "sortText": "PZZD",
       "filterText": "xml ``",
       "insertText": "xml `${1}`",
       "insertTextFormat": "Snippet"
@@ -762,6 +762,23 @@
       "sortText": "AR",
       "filterText": "b",
       "insertText": "b = ${1:\"\"}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "natural",
+      "kind": "Unit",
+      "detail": "type",
+      "sortText": "RP",
+      "insertText": "natural",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "natural (..) {..}",
+      "kind": "Snippet",
+      "detail": "Snippet",
+      "sortText": "PZZE",
+      "filterText": "natural (..) {..}",
+      "insertText": "natural (${1}) {${2}}",
       "insertTextFormat": "Snippet"
     }
   ]

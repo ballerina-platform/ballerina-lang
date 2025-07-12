@@ -120,7 +120,8 @@ public final class CommonUtil {
     //lang.array, regexp, lang.value, lang.runtime, jballerina.java are not pre-declared.
     public static final List<String> PRE_DECLARED_LANG_LIBS = Arrays.asList("lang.boolean", "lang.decimal",
             "lang.error", "lang.float", "lang.function", "lang.future", "lang.int", "lang.map", "lang.object",
-            "lang.stream", "lang.string", "lang.table", "lang.transaction", "lang.typedesc", "lang.xml");
+            "lang.stream", "lang.string", "lang.table", "lang.transaction", "lang.typedesc", "lang.xml",
+            "lang.natural");
 
     public static final List<String> BALLERINA_KEYWORDS = SyntaxInfo.keywords();
 

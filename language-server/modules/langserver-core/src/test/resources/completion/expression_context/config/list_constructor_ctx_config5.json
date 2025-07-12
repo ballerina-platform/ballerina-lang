@@ -4,6 +4,7 @@
     "character": 18
   },
   "source": "expression_context/source/list_constructor_ctx_source5.bal",
+  "description": "",
   "items": [
     {
       "label": "ballerina/lang.value",
@@ -700,6 +701,23 @@
       "sortText": "ATP",
       "filterText": "xml ``",
       "insertText": "xml `${1}`",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "natural",
+      "kind": "Unit",
+      "detail": "type",
+      "sortText": "ARR",
+      "insertText": "natural",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "natural (..) {..}",
+      "kind": "Snippet",
+      "detail": "Snippet",
+      "sortText": "ATP",
+      "filterText": "natural (..) {..}",
+      "insertText": "natural (${1}) {${2}}",
       "insertTextFormat": "Snippet"
     }
   ]

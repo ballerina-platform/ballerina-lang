@@ -96,32 +96,19 @@ public final class BCompileUtil {
     public static CompileResult compile(String sourceFilePath) {
         TypeCheckCacheFactory.reset();
         Project project = loadProject(sourceFilePath);
+        return compileProject(project);
+    }
 
-        Package currentPackage = project.currentPackage();
-        JBallerinaBackend jBallerinaBackend = jBallerinaBackend(currentPackage);
-        if (jBallerinaBackend.diagnosticResult().hasErrors()) {
-            return new CompileResult(currentPackage, jBallerinaBackend);
-        }
-
-        CompileResult compileResult = new CompileResult(currentPackage, jBallerinaBackend);
-        invokeModuleInit(compileResult);
-        return compileResult;
+    public static CompileResult compile(String sourceFilePath, BuildOptions buildOptions) {
+        TypeCheckCacheFactory.reset();
+        Project project = loadProject(sourceFilePath, buildOptions);
+        return compileProject(project);
     }
 
     public static CompileResult compileOffline(String sourceFilePath) {
         BuildOptions.BuildOptionsBuilder buildOptionsBuilder = BuildOptions.builder();
         BuildOptions buildOptions = buildOptionsBuilder.setOffline(Boolean.TRUE).build();
-        Project project = loadProject(sourceFilePath, buildOptions);
-
-        Package currentPackage = project.currentPackage();
-        JBallerinaBackend jBallerinaBackend = jBallerinaBackend(currentPackage);
-        if (jBallerinaBackend.diagnosticResult().hasErrors()) {
-            return new CompileResult(currentPackage, jBallerinaBackend);
-        }
-
-        CompileResult compileResult = new CompileResult(currentPackage, jBallerinaBackend);
-        invokeModuleInit(compileResult);
-        return compileResult;
+        return compile(sourceFilePath, buildOptions);
     }
 
     public static PackageSyntaxTreePair compileSemType(String sourceFilePath) {
@@ -353,5 +340,17 @@ public final class BCompileUtil {
             this.bLangPackage = bLangPackage;
             this.syntaxTree = syntaxTree;
         }
+    }
+
+    private static CompileResult compileProject(Project project) {
+        Package currentPackage = project.currentPackage();
+        JBallerinaBackend jBallerinaBackend = jBallerinaBackend(currentPackage);
+        if (jBallerinaBackend.diagnosticResult().hasErrors()) {
+            return new CompileResult(currentPackage, jBallerinaBackend);
+        }
+
+        CompileResult compileResult = new CompileResult(currentPackage, jBallerinaBackend);
+        invokeModuleInit(compileResult);
+        return compileResult;
     }
 }

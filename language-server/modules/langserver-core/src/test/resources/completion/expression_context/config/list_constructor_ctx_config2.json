@@ -4,6 +4,7 @@
     "character": 32
   },
   "source": "expression_context/source/list_constructor_ctx_source2.bal",
+  "description": "",
   "items": [
     {
       "label": "ballerina/lang.test",
@@ -747,6 +748,23 @@
       "sortText": "AAC",
       "filterText": "numberList",
       "insertText": "...numberList",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "natural",
+      "kind": "Unit",
+      "detail": "type",
+      "sortText": "ARR",
+      "insertText": "natural",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "natural (..) {..}",
+      "kind": "Snippet",
+      "detail": "Snippet",
+      "sortText": "ATP",
+      "filterText": "natural (..) {..}",
+      "insertText": "natural (${1}) {${2}}",
       "insertTextFormat": "Snippet"
     }
   ]

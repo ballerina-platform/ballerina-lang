@@ -942,6 +942,14 @@
       "filterText": "worker",
       "insertText": "worker ${1:name} {\n\t${2}\n}",
       "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "natural",
+      "kind": "Unit",
+      "detail": "type",
+      "sortText": "R",
+      "insertText": "natural",
+      "insertTextFormat": "Snippet"
     }
   ]
 }

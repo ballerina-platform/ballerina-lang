@@ -4,6 +4,7 @@
     "character": 9
   },
   "source": "query_expression/source/query_expr_ctx_from_clause_source2.bal",
+  "description": "",
   "items": [
     {
       "label": "Thread",
@@ -561,6 +562,14 @@
       "detail": "Typedesc",
       "sortText": "R",
       "insertText": "typedesc",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "natural",
+      "kind": "Unit",
+      "detail": "type",
+      "sortText": "R",
+      "insertText": "natural",
       "insertTextFormat": "Snippet"
     }
   ]
