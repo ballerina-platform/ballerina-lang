@@ -16,7 +16,7 @@
 
 import ballerina/jballerina.java;
 
-final 'natural:Generator generator = new Generator();
+final natural:Generator generator = new Generator();
 
 # Represents a person who plays a sport.
 type SportsPerson record {|
@@ -38,7 +38,7 @@ function getPopularSportsPerson(string nameSegment, int decadeStart)
 
 isolated client class Generator {
     remote isolated function generate(
-            'natural:Prompt prompt, typedesc<anydata> td) returns td|error = @java:Method {
+            natural:Prompt prompt, typedesc<anydata> td) returns td|error = @java:Method {
                 'class: "org.ballerinalang.test.expressions.natural.NaturalExpressionTest",
                 name: "generateProxy"
             } external;

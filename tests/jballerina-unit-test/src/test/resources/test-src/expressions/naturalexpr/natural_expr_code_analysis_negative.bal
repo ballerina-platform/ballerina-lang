@@ -82,7 +82,7 @@ string val = check natural (new MyGeneratorWithInit({
 
 isolated client class MyGenerator {
     isolated remote function generate(
-            'natural:Prompt prompt, typedesc<anydata> td) returns td|error = external;
+            natural:Prompt prompt, typedesc<anydata> td) returns td|error = external;
 }
 
 isolated client class MyGeneratorWithInit {
@@ -91,5 +91,5 @@ isolated client class MyGeneratorWithInit {
     }
 
     remote isolated function generate(
-            'natural:Prompt prompt, typedesc<anydata> td) returns td|error = external;
+            natural:Prompt prompt, typedesc<anydata> td) returns td|error = external;
 }

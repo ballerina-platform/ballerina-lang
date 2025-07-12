@@ -82,10 +82,10 @@ function f9() returns string[]|error => const natural (new MyGenerator(), 2) {
 
 isolated client class MyGenerator {
     remote isolated function generate(
-            'natural:Prompt prompt, typedesc<anydata> td) returns td|error = external;
+            natural:Prompt prompt, typedesc<anydata> td) returns td|error = external;
 }
 
 isolated client class MyGenerator2 {
     remote isolated function generate(
-            'natural:Prompt prompt, typedesc<anydata> td) returns anydata|error => 1;
+            natural:Prompt prompt, typedesc<anydata> td) returns anydata|error => 1;
 }

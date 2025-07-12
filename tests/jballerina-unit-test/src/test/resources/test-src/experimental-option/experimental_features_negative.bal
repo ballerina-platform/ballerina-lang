@@ -30,5 +30,5 @@ function f2(int a, int b) returns int|error = @natural:code {
 
 isolated client class MyGenerator {
     remote isolated function generate(
-            'natural:Prompt prompt, typedesc<anydata> td) returns td|error = external;
+            natural:Prompt prompt, typedesc<anydata> td) returns td|error = external;
 }

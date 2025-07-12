@@ -10095,6 +10095,7 @@ public class BallerinaParser extends AbstractParser {
             case ISOLATED_KEYWORD:
             case TRANSACTIONAL_KEYWORD:
             case TRANSACTION_KEYWORD:
+            case NATURAL_KEYWORD:
                 return true;
             default:
                 if (isParameterizedTypeToken(nextTokenKind)) {
