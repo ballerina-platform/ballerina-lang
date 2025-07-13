@@ -418,6 +418,14 @@
       "sortText": "R",
       "insertText": "lang",
       "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "natural",
+      "kind": "Unit",
+      "detail": "type",
+      "sortText": "R",
+      "insertText": "natural",
+      "insertTextFormat": "Snippet"
     }
   ]
 }

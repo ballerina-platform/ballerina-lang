@@ -391,6 +391,14 @@
       "sortText": "A",
       "insertText": "l1",
       "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "natural",
+      "kind": "Unit",
+      "detail": "type",
+      "sortText": "BC",
+      "insertText": "natural",
+      "insertTextFormat": "Snippet"
     }
   ]
 }

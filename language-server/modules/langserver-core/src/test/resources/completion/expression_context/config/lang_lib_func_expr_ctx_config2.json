@@ -754,6 +754,23 @@
       "filterText": "function",
       "insertText": "function (string s) returns string {\n    return \"\";\n}",
       "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "natural",
+      "kind": "Unit",
+      "detail": "type",
+      "sortText": "CR",
+      "insertText": "natural",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "natural (..) {..}",
+      "kind": "Snippet",
+      "detail": "Snippet",
+      "sortText": "CR",
+      "filterText": "natural (..) {..}",
+      "insertText": "natural (${1}) {${2}}",
+      "insertTextFormat": "Snippet"
     }
   ]
 }

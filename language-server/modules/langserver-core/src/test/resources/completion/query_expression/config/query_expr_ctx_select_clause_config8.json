@@ -710,6 +710,23 @@
       "sortText": "D",
       "insertText": "buyers",
       "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "natural",
+      "kind": "Unit",
+      "detail": "type",
+      "sortText": "R",
+      "insertText": "natural",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "natural (..) {..}",
+      "kind": "Snippet",
+      "detail": "Snippet",
+      "sortText": "R",
+      "filterText": "natural (..) {..}",
+      "insertText": "natural (${1}) {${2}}",
+      "insertTextFormat": "Snippet"
     }
   ]
 }

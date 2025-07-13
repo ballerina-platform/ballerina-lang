@@ -926,6 +926,14 @@
           "newText": "import lsproject.module3;\n"
         }
       ]
+    },
+    {
+      "label": "natural",
+      "kind": "Unit",
+      "detail": "type",
+      "sortText": "E",
+      "insertText": "natural",
+      "insertTextFormat": "Snippet"
     }
   ]
 }
