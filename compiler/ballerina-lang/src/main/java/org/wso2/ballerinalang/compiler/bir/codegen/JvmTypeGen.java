@@ -778,10 +778,6 @@ public class JvmTypeGen {
         }
     }
 
-    public String getTypedescFieldName(String name) {
-        return "$typedesc$" + name;
-    }
-
     private void loadFutureType(MethodVisitor mv, BFutureType bType) {
         mv.visitTypeInsn(NEW, FUTURE_TYPE_IMPL);
         mv.visitInsn(DUP);

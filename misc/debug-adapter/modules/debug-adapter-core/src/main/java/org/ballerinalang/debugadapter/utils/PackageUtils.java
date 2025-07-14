@@ -78,6 +78,7 @@ public final class PackageUtils {
     public static final String ALL_CONSTANTS_CLASS_NAME = "$constants";
     public static final String TYPE_VAR_NAME = "$type";
     public static final String VALUE_VAR_NAME = "$value";
+    private static final String OBJECT_CLASS_PATTERN = "values/";
     private static final String FILE_SEPARATOR_REGEX = File.separatorChar == '\\' ? "\\\\" : File.separator;
 
 
@@ -309,7 +310,11 @@ public final class PackageUtils {
 
             // Removes ".bal" extension if exists.
             srcFileName = srcFileName.replaceAll(BAL_FILE_EXT + "$", "");
-            path = path.replaceAll(name + "$", srcFileName);
+            if (path.contains(OBJECT_CLASS_PATTERN)) {
+                path = path.replaceAll(OBJECT_CLASS_PATTERN + name + "$", srcFileName);
+            } else {
+                path = path.replaceAll(name + "$", srcFileName);
+            }
             return replaceSeparators(path);
         } catch (Exception e) {
             return referenceType.name();

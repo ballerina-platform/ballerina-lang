@@ -1458,7 +1458,7 @@ public class JvmInstructionGen {
         BType elementType = JvmCodeGenUtil.getImpliedType(type);
         PackageID packageID = elementType.tsymbol.pkgID;
         String varClassPkgName = getModuleLevelClassName(packageID, GLOBAL_VARIABLES_PACKAGE_NAME);
-        String typeDescVarName = jvmTypeGen.getTypedescFieldName(toNameString(type));
+        String typeDescVarName = toNameString(type);
         mv.visitFieldInsn(GETSTATIC, getVarStoreClass(varClassPkgName, typeDescVarName), VALUE_VAR_NAME, GET_TYPEDESC);
         this.mv.visitMethodInsn(INVOKESPECIAL, ARRAY_VALUE_IMPL, JVM_INIT_METHOD,
                 INIT_ARRAY_WITH_INITIAL_VALUES, false);
@@ -2030,7 +2030,7 @@ public class JvmInstructionGen {
         List<BIROperand> closureVars = newTypeDesc.closureVars;
         if (isNonReferredRecord(newTypeDesc.type)) {
             BType type = JvmCodeGenUtil.getImpliedType(newTypeDesc.type);
-            String typeDescVarName = jvmTypeGen.getTypedescFieldName(toNameString(type));
+            String typeDescVarName = toNameString(type);
             PackageID packageID = type.tsymbol.pkgID;
             String varClassPkgName = getModuleLevelClassName(packageID, GLOBAL_VARIABLES_PACKAGE_NAME);
             String typeDescGlobalVarClass = getVarStoreClass(varClassPkgName, typeDescVarName);

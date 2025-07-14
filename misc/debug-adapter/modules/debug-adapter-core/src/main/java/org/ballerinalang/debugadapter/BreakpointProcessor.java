@@ -177,6 +177,9 @@ public class BreakpointProcessor {
         }
 
         context.getEventManager().deleteAllBreakpoints();
+        if (userBreakpoints.isEmpty()) {
+            return;
+        }
         context.getDebuggeeVM().allClasses().forEach(ref -> activateUserBreakPoints(ref, false));
     }
 

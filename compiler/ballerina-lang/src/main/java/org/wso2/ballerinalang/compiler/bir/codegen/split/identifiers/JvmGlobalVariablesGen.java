@@ -40,7 +40,6 @@ import org.wso2.ballerinalang.compiler.bir.model.BIRInstruction;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator;
 import org.wso2.ballerinalang.compiler.bir.model.BIRTerminator;
-import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 
 import java.util.Collection;
@@ -85,7 +84,7 @@ public class JvmGlobalVariablesGen {
 
     public void generateGlobalVarsInit(JarEntries jarEntries, JvmPackageGen jvmPackageGen, JvmTypeGen jvmTypeGen,
                                        JvmCastGen jvmCastGen, JvmConstantsGen jvmConstantsGen,
-                                       AsyncDataCollector asyncDataCollector, Types types) {
+                                       AsyncDataCollector asyncDataCollector) {
         // populate global variable to classes
         generateGlobalVarClasses(jarEntries, jvmPackageGen, jvmTypeGen, jvmCastGen, jvmConstantsGen,
                 asyncDataCollector);
