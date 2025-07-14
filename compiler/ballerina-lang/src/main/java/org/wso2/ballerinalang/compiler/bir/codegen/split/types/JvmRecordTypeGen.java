@@ -185,9 +185,8 @@ public class JvmRecordTypeGen {
 
     private void createTypedescClass(BRecordType bType, String recordTypeClass, JarEntries jarEntries) {
         ClassWriter cw = new BallerinaClassWriter(COMPUTE_FRAMES);
-        String typeName = toNameString(bType);
-        String typeDescVarName = jvmTypeGen.getTypedescFieldName(typeName);
-        String className = getTypeDescClassName(this.packageName, typeName);
+        String typeDescVarName = toNameString(bType);
+        String className = getTypeDescClassName(this.packageName, typeDescVarName);
         String globalVarClassName = getVarStoreClass(jvmConstantsGen.globalVarsPkgName, typeDescVarName);
         // Create typedesc global var class
         genLazyLoadingClass(cw, globalVarClassName, GET_TYPEDESC);

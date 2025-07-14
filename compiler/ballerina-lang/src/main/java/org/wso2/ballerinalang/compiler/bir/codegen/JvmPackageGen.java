@@ -693,7 +693,7 @@ public class JvmPackageGen {
         JvmGlobalVariablesGen jvmGlobalVariablesGen = new JvmGlobalVariablesGen(currentModule,
                 lazyLoadingDataCollector);
         jvmGlobalVariablesGen.generateGlobalVarsInit(jarEntries, this, jvmTypeGen, jvmCastGen, jvmConstantsGen,
-                asyncDataCollector, types);
+                asyncDataCollector);
         List<BIRNode.BIRFunction> sortedFunctions = new ArrayList<>(currentModule.functions);
         sortedFunctions.sort(NAME_HASH_COMPARATOR);
         jvmMethodsSplitter.generateMethods(jarEntries, jvmCastGen, sortedFunctions, asyncDataCollector,

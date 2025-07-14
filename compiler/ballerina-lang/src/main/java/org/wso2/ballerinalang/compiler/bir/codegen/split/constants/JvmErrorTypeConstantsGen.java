@@ -35,6 +35,7 @@ import static org.objectweb.asm.ClassWriter.COMPUTE_FRAMES;
 import static org.objectweb.asm.Opcodes.ACC_STATIC;
 import static org.objectweb.asm.Opcodes.INVOKESTATIC;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CLASS_FILE_SUFFIX;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ERROR_TYPE_VAR_PREFIX;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.GET_TYPE_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JVM_STATIC_INIT_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_ERROR_TYPE_METHOD;
@@ -80,7 +81,7 @@ public class JvmErrorTypeConstantsGen {
 
     private String generateBErrorInits(BErrorType errorType) {
         ClassWriter cw = new BallerinaClassWriter(COMPUTE_FRAMES);
-        String varName = JvmConstants.ERROR_TYPE_VAR_PREFIX + constantIndex++;
+        String varName = ERROR_TYPE_VAR_PREFIX + constantIndex++;
         String errorTypeClass = this.errorVarConstantsPkgName + varName;
         generateConstantsClassInit(cw, errorTypeClass);
         MethodVisitor mv = cw.visitMethod(ACC_STATIC, JVM_STATIC_INIT_METHOD, VOID_METHOD_DESC, null, null);
