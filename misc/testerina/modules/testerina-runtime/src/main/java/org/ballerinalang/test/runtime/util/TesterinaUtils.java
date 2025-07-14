@@ -57,7 +57,7 @@ public final class TesterinaUtils {
 
     private static final PrintStream errStream = System.err;
 
-    private static final String GENERATE_OBJECT_CLASS_PREFIX = ".$value$";
+    private static final String GENERATE_OBJECT_CLASS_PREFIX = ".values.\\$";
     private static final String GENERATE_PKG_INIT = "___init_";
     private static final String GENERATE_PKG_START = "___start_";
     private static final String GENERATE_PKG_STOP = "___stop_";
