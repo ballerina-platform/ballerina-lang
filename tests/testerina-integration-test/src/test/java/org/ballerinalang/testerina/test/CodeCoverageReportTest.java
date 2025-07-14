@@ -244,8 +244,8 @@ public class CodeCoverageReportTest extends BaseTestCase {
         HashMap<String, List<String>> coverageClassMap = new HashMap<>();
         coverageClassMap.put(multiModuleTestRoot,
                 Arrays.asList(multiModuleTestRoot + "/main", multiModuleTestRoot + "/foo",
-                        multiModuleTestRoot + "/$value$Record", multiModuleTestRoot + "/$typedesc$Record",
-                        multiModuleTestRoot + "/$value$ABC"));
+                        multiModuleTestRoot + "/values/$Record", multiModuleTestRoot + "/typedescs/$Record",
+                        multiModuleTestRoot + "/values/$ABC"));
         coverageClassMap.put(multiModuleTestRoot + "/modules/bar",
                 List.of(multiModuleTestRoot + "/modules/bar/main"));
         coverageClassMap.put(multiModuleTestRoot + "/modules/math",
@@ -255,7 +255,7 @@ public class CodeCoverageReportTest extends BaseTestCase {
                 List.of(multiModuleTestRoot + "/modules/bar.tests/foo$$$bar$$$tests"));
         coverageClassMap.put(multiModuleTestRoot + "modules/annot",
                 Arrays.asList(multiModuleTestRoot + "/modules/annot/main",
-                multiModuleTestRoot + "/modules/annot/$value$ZeroDiffAnnot"));
+                multiModuleTestRoot + "/modules/annot/values/$ZeroDiffAnnot"));
         return coverageClassMap;
     }
 
