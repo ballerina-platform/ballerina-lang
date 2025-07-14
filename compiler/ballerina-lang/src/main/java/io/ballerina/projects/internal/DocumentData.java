@@ -72,7 +72,9 @@ public abstract class DocumentData {
 
         @Override
         public String content() {
-            return contentSupplier.get();
+            String s = contentSupplier.get();
+            assert s != null : "LazyDocumentData content supplier should not return null";
+            return s;
         }
     }
 }
