@@ -44,6 +44,7 @@ public class NaturalProgrammingImportAnalyzer extends NodeVisitor {
     private Optional<String> naturalLangLibPrefix = Optional.of(NATURAL_WITH_QUOTE);
 
     private static final String BALLERINA = "ballerina";
+    private static final String LANG = "lang";
     private static final String NATURAL = "natural";
     private static final String NATURAL_WITH_QUOTE = "'natural";
     private static final String CODE_ANNOTATION = "code";
@@ -135,7 +136,7 @@ public class NaturalProgrammingImportAnalyzer extends NodeVisitor {
 
         SeparatedNodeList<IdentifierToken> moduleName = importDeclarationNode.moduleName();
         return moduleName.size() == 2 &&
-                moduleName.get(0).text().equals("lang") &&
+                moduleName.get(0).text().equals(LANG) &&
                 moduleName.get(1).text().equals(NATURAL_WITH_QUOTE);
     }
 

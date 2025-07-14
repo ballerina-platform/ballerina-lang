@@ -1179,11 +1179,12 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
     public void loadNaturalGeneratorType() {
         ScopeEntry entry = symTable.langNaturalModuleSymbol.scope.lookup(Names.NATURAL_GENERATOR);
         while (entry != NOT_FOUND_ENTRY) {
-            if ((entry.symbol.tag & SymTag.TYPE) != SymTag.TYPE) {
+            BSymbol symbol = entry.symbol;
+            if ((symbol.tag & SymTag.TYPE) != SymTag.TYPE) {
                 entry = entry.next;
                 continue;
             }
-            symTable.naturalGeneratorType = (BObjectType) entry.symbol.type;
+            symTable.naturalGeneratorType = (BObjectType) symbol.type;
             return;
         }
         throw new IllegalStateException("'lang.natural:Generator' type not found");

@@ -42,8 +42,8 @@ public class NaturalExpressionTest {
     private CompileResult result;
 
     @BeforeClass
-    public void setup() {BuildOptions.BuildOptionsBuilder buildOptionsBuilder =
-        BuildOptions.builder();
+    public void setup() {
+        BuildOptions.BuildOptionsBuilder buildOptionsBuilder = BuildOptions.builder();
         BuildOptions buildOptions = buildOptionsBuilder.setExperimental(Boolean.TRUE).build();
         result = BCompileUtil.compile("test-src/expressions/naturalexpr/natural_expr.bal", buildOptions);
         Assert.assertEquals(result.getDiagnostics().length, 0);
