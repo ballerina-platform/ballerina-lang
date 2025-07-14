@@ -146,6 +146,7 @@ abstract class StringTextDocument extends TextDocument {
                 cached = text.get();
                 cachedText = new WeakReference<>(cached);
             }
+            assert cached != null : "LazyStringTextDocument text supplier should not return null";
             return cached;
         }
     }
