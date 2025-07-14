@@ -31,6 +31,7 @@ import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
+import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
@@ -313,28 +314,7 @@ public final class ProjectFiles {
         } catch (UnsupportedOperationException ignore) {
             // ignore for zip entries
         }
-
-        FileSystem fileSystem = documentFilePath.getFileSystem();
-        if (fileSystem.equals(FileSystems.getDefault())) {
-            // For default file system, use lazy loading for better performance
-            Supplier<String> contentSupplier = () -> {
-                try {
-                    return Files.readString(documentFilePath, StandardCharsets.UTF_8);
-                } catch (IOException e) {
-                    throw new ProjectException(e);
-                }
-            };
-            return DocumentData.from(Optional.of(documentFilePath.getFileName()).get().toString(), contentSupplier);
-        } else {
-            // For non-default file systems (like ZipFileSystem), read content immediately
-            // to avoid ClosedFileSystemException
-            try {
-                String content = Files.readString(documentFilePath, StandardCharsets.UTF_8);
-                return DocumentData.from(Optional.of(documentFilePath.getFileName()).get().toString(), content);
-            } catch (IOException e) {
-                throw new ProjectException(e);
-            }
-        }
+        return getDocumentData(documentFilePath, false);
     }
 
     private static DocumentData loadTestDocument(Path documentFilePath) {
@@ -343,26 +323,32 @@ public final class ProjectFiles {
         } catch (UnsupportedOperationException ignore) {
             // ignore for zip entries
         }
+        return getDocumentData(documentFilePath, true);
+    }
 
+    // Helper method to handle file system logic for loading document content
+    private static DocumentData getDocumentData(Path documentFilePath, boolean isTest) {
+        return getDocumentData(documentFilePath, isTest, StandardCharsets.UTF_8);
+    }
+
+    // Overloaded helper to allow custom Charset
+    public static DocumentData getDocumentData(Path documentFilePath, boolean isTest, Charset charset) {
         FileSystem fileSystem = documentFilePath.getFileSystem();
+        String documentName = Optional.of(documentFilePath.getFileName()).get().toString();
+        String finalName = isTest ? ProjectConstants.TEST_DIR_NAME + "/" + documentName : documentName;
         if (fileSystem.equals(FileSystems.getDefault())) {
-            // For default file system, use lazy loading for better performance
             Supplier<String> contentSupplier = () -> {
                 try {
-                    return Files.readString(documentFilePath, StandardCharsets.UTF_8);
+                    return Files.readString(documentFilePath, charset);
                 } catch (IOException e) {
                     throw new ProjectException(e);
                 }
             };
-            String documentName = Optional.of(documentFilePath.getFileName()).get().toString();
-            return DocumentData.from(ProjectConstants.TEST_DIR_NAME + "/" + documentName, contentSupplier);
+            return DocumentData.from(finalName, contentSupplier);
         } else {
-            // For non-default file systems (like ZipFileSystem), read content immediately
-            // to avoid ClosedFileSystemException
             try {
-                String content = Files.readString(documentFilePath, StandardCharsets.UTF_8);
-                String documentName = Optional.of(documentFilePath.getFileName()).get().toString();
-                return DocumentData.from(ProjectConstants.TEST_DIR_NAME + "/" + documentName, content);
+                String content = Files.readString(documentFilePath, charset);
+                return DocumentData.from(finalName, content);
             } catch (IOException e) {
                 throw new ProjectException(e);
             }
