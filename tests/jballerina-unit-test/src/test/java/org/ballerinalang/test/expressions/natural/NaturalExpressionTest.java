@@ -27,6 +27,7 @@ import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import java.util.List;
@@ -38,13 +39,24 @@ import java.util.List;
  */
 public class NaturalExpressionTest {
 
+    private CompileResult result;
+
+    @BeforeClass
+    public void setup() {BuildOptions.BuildOptionsBuilder buildOptionsBuilder =
+        BuildOptions.builder();
+        BuildOptions buildOptions = buildOptionsBuilder.setExperimental(Boolean.TRUE).build();
+        result = BCompileUtil.compile("test-src/expressions/naturalexpr/natural_expr.bal", buildOptions);
+        Assert.assertEquals(result.getDiagnostics().length, 0);
+    }
+
     @Test
     public void testNaturalExpr() {
-        BuildOptions.BuildOptionsBuilder buildOptionsBuilder = BuildOptions.builder();
-        BuildOptions buildOptions = buildOptionsBuilder.setExperimental(Boolean.TRUE).build();
-        CompileResult result = BCompileUtil.compile("test-src/expressions/naturalexpr/natural_expr.bal", buildOptions);
-        Assert.assertEquals(result.getDiagnostics().length, 0);
         BRunUtil.invoke(result, "testNaturalExpr");
+    }
+
+    @Test
+    public void testNaturalExprWithSpecialChars() {
+        BRunUtil.invoke(result, "testNaturalExprWithSpecialChars");
     }
 
     @Test

@@ -44,18 +44,18 @@ isolated client class Generator {
             } external;
 
     public isolated function generateData('natural:Prompt prompt, typedesc<anydata> td) returns anydata|error {
+        if td is typedesc<int> {
+            return getCodeSnippetResponse(prompt, td);
+        }
+
         if td !is typedesc<SportsPerson?> {
             return error("Unexpected type: " + td.toString());
         }
 
-        string[] & readonly strings = prompt.strings;
-        anydata[] insertions = prompt.insertions;
-
-        if strings != [string `    Who is a popular sportsperson that was born in the decade starting
+        assertEquals([string `    Who is a popular sportsperson that was born in the decade starting
     from `, " with ", string ` in their name?
-`] || insertions != [1990, "Simone"] {
-            return error("Unexpected prompt");
-        }
+`], prompt.strings);
+        assertEquals([1990, "Simone"], prompt.insertions);
 
         return <SportsPerson> {
             firstName: "Simone",
@@ -66,9 +66,26 @@ isolated client class Generator {
     }
 }
 
+isolated function getCodeSnippetResponse(natural:Prompt prompt, typedesc<anydata> td) returns anydata|error {
+    assertEquals([string `        What's the output of the Ballerina code below?
+
+        `, "", "",string `ballerina
+        import ballerina/io;
+
+        public function main() {
+            int x = 10;
+            int y = 20;
+            io:println(x + y);
+        }
+        `, "", "", string `
+    `], prompt.strings);
+    assertEquals(["`", "`", "`", "`", "`", "`"], prompt.insertions);
+    return 30;
+}
+
 function testNaturalExpr() {
     SportsPerson? person = checkpanic getPopularSportsPerson("Simone", 1990);
-    assertTrue({
+    assertEquals({
         firstName: "Simone",
         lastName: "Biles",
         yearOfBirth: 1997,
@@ -76,7 +93,24 @@ function testNaturalExpr() {
     }, person);
 }
 
-isolated function assertTrue(anydata expected, anydata actual) {
+function testNaturalExprWithSpecialChars() {
+    int res = checkpanic natural (generator) {
+        What's the output of the Ballerina code below?
+
+        ```ballerina
+        import ballerina/io;
+
+        public function main() {
+            int x = 10;
+            int y = 20;
+            io:println(x + y);
+        \}
+        ```
+    };
+    assertEquals(30, res);
+}
+
+isolated function assertEquals(anydata expected, anydata actual) {
     if expected != actual {
         panic error(string `Expected ${expected.toString()}, found ${actual.toString()}`);
     }

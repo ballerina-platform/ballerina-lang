@@ -11092,13 +11092,13 @@ public class Desugar extends BLangNodeVisitor {
                 for (int j = 0; j < length - 1; j++) {
                     String part = split[j];
                     updatedStrings.add(ASTBuilderUtil.createLiteral(pos, symTable.stringType, part));
-                    updatedInsertions.add(ASTBuilderUtil.createLiteral(pos, symTable.stringType, ESCAPED_BACKTICK));
+                    updatedInsertions.add(ASTBuilderUtil.createLiteral(pos, symTable.stringType, "`"));
                 }
 
                 updatedStrings.add(ASTBuilderUtil.createLiteral(pos, symTable.stringType, split[length - 1]));
 
                 if (updatedText.endsWith(ESCAPED_BACKTICK)) {
-                    updatedInsertions.add(ASTBuilderUtil.createLiteral(pos, symTable.stringType, ESCAPED_BACKTICK));
+                    updatedInsertions.add(ASTBuilderUtil.createLiteral(pos, symTable.stringType, "`"));
                 }
             }
 
