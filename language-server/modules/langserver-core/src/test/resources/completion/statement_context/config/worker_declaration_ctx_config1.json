@@ -4,6 +4,7 @@
     "character": 8
   },
   "source": "statement_context/source/worker_declaration_ctx_source1.bal",
+  "description": "",
   "items": [
     {
       "label": "xmlns",
@@ -906,6 +907,14 @@
       "detail": "Typedesc",
       "sortText": "N",
       "insertText": "typedesc",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "natural",
+      "kind": "Unit",
+      "detail": "type",
+      "sortText": "R",
+      "insertText": "natural",
       "insertTextFormat": "Snippet"
     }
   ]

@@ -1336,6 +1336,14 @@
       "sortText": "L",
       "insertText": "module1:E2",
       "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "natural",
+      "kind": "Unit",
+      "detail": "type",
+      "sortText": "R",
+      "insertText": "natural",
+      "insertTextFormat": "Snippet"
     }
   ]
 }

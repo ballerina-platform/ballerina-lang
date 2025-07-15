@@ -203,6 +203,15 @@
       "insertText": "lang.regexp;",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": []
+    },
+    {
+      "label": "lang.natural",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "D",
+      "insertText": "lang.'natural;",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": []
     }
   ]
 }

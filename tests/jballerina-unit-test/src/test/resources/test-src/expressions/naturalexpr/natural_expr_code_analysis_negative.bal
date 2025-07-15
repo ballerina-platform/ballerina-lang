@@ -15,12 +15,11 @@
 // under the License.
 
 function fn() returns string[]|error {
-    int mdl1;
-    int mdl2 = 1;
-    string day1 = "2025-04-16";
+    MyGenerator mdl1;
+    string day1 = check natural (mdl1) { What is the date today? }; // error
+    MyGenerator mdl2 = new;
     string day2;
     return natural (
-            mdl1, // error
             mdl2 // OK
         ) {
         What days were ${
@@ -39,32 +38,37 @@ type Blog record {|
 string[] categories = [];
 final int[] & readonly ratings = [1, 2, 3];
 
-type IsolatedObject isolated object {};
+final MyGenerator finalIsolatedGenerator = new;
+MyGenerator nonFinalModuleLevelGenerator = new;
 
-final IsolatedObject finalIsolatedModel = object {};
-final object {} nonIsolatedModel = object {};
-
-isolated function categorize(Blog blog) returns string|error? => natural (
-        finalIsolatedModel, // OK
-        nonIsolatedModel // error
-    ) {
-    Select a suitable category for this blog from ${
-        categories // error
-    } and a rating out of ${
-        ratings // OK
-    }
-};
+isolated function categorize(Blog blog, boolean rate) returns string|error? =>
+    rate ?
+        natural (
+                nonFinalModuleLevelGenerator // error
+            ) {
+            Select a suitable category for this blog from ${
+                categories // error
+            } and a rating out of ${
+                ratings // OK
+            }
+        } : natural (
+                finalIsolatedGenerator // OK
+            ) {
+            Select a suitable category for this blog from ${
+                categories // error
+            }
+        };
 
 type Person record {
     string firstName;
     string lastName;
 };
 
-string val = check natural (<record { int id; }> {
+string val = check natural (new MyGeneratorWithInit({
         id: 1,
         "kind": "basic", // OK
         name: "default" // error
-    }) {
+    })) {
         Describe this person in one sentence.
 
         ${<Person> {
@@ -75,3 +79,17 @@ string val = check natural (<record { int id; }> {
             }
         }
     };
+
+isolated client class MyGenerator {
+    isolated remote function generate(
+            natural:Prompt prompt, typedesc<anydata> td) returns td|error = external;
+}
+
+isolated client class MyGeneratorWithInit {
+    isolated function init(record { int id; } inp) {
+
+    }
+
+    remote isolated function generate(
+            natural:Prompt prompt, typedesc<anydata> td) returns td|error = external;
+}

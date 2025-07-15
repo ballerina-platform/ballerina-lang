@@ -20,11 +20,18 @@ package io.ballerina.projects.internal;
 
 import io.ballerina.compiler.syntax.tree.ExternalFunctionBodyNode;
 import io.ballerina.compiler.syntax.tree.FunctionDefinitionNode;
+import io.ballerina.compiler.syntax.tree.IdentifierToken;
+import io.ballerina.compiler.syntax.tree.ImportDeclarationNode;
+import io.ballerina.compiler.syntax.tree.ImportOrgNameNode;
+import io.ballerina.compiler.syntax.tree.ImportPrefixNode;
 import io.ballerina.compiler.syntax.tree.ModulePartNode;
 import io.ballerina.compiler.syntax.tree.NaturalExpressionNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NodeVisitor;
-import io.ballerina.compiler.syntax.tree.SimpleNameReferenceNode;
+import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
+import io.ballerina.compiler.syntax.tree.SeparatedNodeList;
+
+import java.util.Optional;
 
 /**
  * Check and add an import for the natural programming module if there is a natural expression.
@@ -34,6 +41,12 @@ import io.ballerina.compiler.syntax.tree.SimpleNameReferenceNode;
 public class NaturalProgrammingImportAnalyzer extends NodeVisitor {
 
     private boolean shouldImportNaturalProgrammingModule = false;
+    private Optional<String> naturalLangLibPrefix = Optional.of(NATURAL_WITH_QUOTE);
+
+    private static final String BALLERINA = "ballerina";
+    private static final String LANG = "lang";
+    private static final String NATURAL = "natural";
+    private static final String NATURAL_WITH_QUOTE = "'natural";
     private static final String CODE_ANNOTATION = "code";
 
     public boolean shouldImportNaturalProgrammingModule(ModulePartNode modulePartNode) {
@@ -42,7 +55,37 @@ public class NaturalProgrammingImportAnalyzer extends NodeVisitor {
     }
 
     @Override
+    public void visit(ImportDeclarationNode importDeclarationNode) {
+        Optional<String> prefixStr = Optional.empty();
+        boolean isNaturalPrefix = false;
+
+        Optional<ImportPrefixNode> prefix = importDeclarationNode.prefix();
+        if (prefix.isPresent()) {
+            String prefixValue = prefix.get().prefix().text();
+            if (NATURAL_WITH_QUOTE.equals(prefixValue)) {
+                isNaturalPrefix = true;
+            }
+            prefixStr = Optional.of(prefixValue);
+        }
+
+        if (isNaturalLangLibImport(importDeclarationNode)) {
+            if (prefixStr.isPresent() && !isNaturalPrefix) {
+                naturalLangLibPrefix = prefixStr;
+            }
+            return;
+        }
+
+        if (isNaturalPrefix &&
+                naturalLangLibPrefix.isPresent() &&
+                NATURAL_WITH_QUOTE.equals(naturalLangLibPrefix.get())) {
+            naturalLangLibPrefix = Optional.empty();
+        }
+    }
+
+    @Override
     public void visit(NaturalExpressionNode naturalExpressionNode) {
+        // For now, we will import the np module for runtime natural expressions also, to add the schema annotation
+        // for expected type of natural expressions.
         this.shouldImportNaturalProgrammingModule = true;
     }
 
@@ -65,10 +108,16 @@ public class NaturalProgrammingImportAnalyzer extends NodeVisitor {
             return false;
         }
 
+        if (naturalLangLibPrefix.isEmpty()) {
+            return false;
+        }
+
         return externalFunctionBodyNode.annotations().stream()
                 .anyMatch(annotation ->
-                        annotation.annotReference() instanceof SimpleNameReferenceNode annotReference &&
-                                CODE_ANNOTATION.equals(annotReference.name().text()));
+                        annotation.annotReference() instanceof QualifiedNameReferenceNode qualifiedNameReferenceNode &&
+                                isNaturalPrefix(naturalLangLibPrefix.get()) &&
+                                isNaturalPrefix(qualifiedNameReferenceNode.modulePrefix().text()) &&
+                                CODE_ANNOTATION.equals(qualifiedNameReferenceNode.identifier().text()));
     }
 
     @Override
@@ -77,5 +126,21 @@ public class NaturalProgrammingImportAnalyzer extends NodeVisitor {
             return;
         }
         super.visitSyntaxNode(node);
+    }
+
+    private boolean isNaturalLangLibImport(ImportDeclarationNode importDeclarationNode) {
+        Optional<ImportOrgNameNode> importOrgNameNode = importDeclarationNode.orgName();
+        if (importOrgNameNode.isEmpty() || !BALLERINA.equals(importOrgNameNode.get().orgName().text())) {
+            return false;
+        }
+
+        SeparatedNodeList<IdentifierToken> moduleName = importDeclarationNode.moduleName();
+        return moduleName.size() == 2 &&
+                moduleName.get(0).text().equals(LANG) &&
+                moduleName.get(1).text().equals(NATURAL_WITH_QUOTE);
+    }
+
+    private boolean isNaturalPrefix(String prefix) {
+        return NATURAL.equals(prefix) || NATURAL_WITH_QUOTE.equals(prefix);
     }
 }

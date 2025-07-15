@@ -334,7 +334,7 @@ public class SymbolBIRTest {
                         {"deprecated", ANNOTATION}, {"untainted", ANNOTATION}, {"tainted", ANNOTATION},
                         {"display", ANNOTATION}, {"strand", ANNOTATION}, {"StrandData", TYPE_DEFINITION},
                         {"typeParam", ANNOTATION}, {"Thread", TYPE_DEFINITION}, {"builtinSubtype", ANNOTATION},
-                        {"isolatedParam", ANNOTATION}, {"error", TYPE_DEFINITION}, {"code", ANNOTATION}
+                        {"isolatedParam", ANNOTATION}, {"error", TYPE_DEFINITION}
                 });
     }
 
@@ -351,7 +351,7 @@ public class SymbolBIRTest {
                         {"xml", MODULE}, {"testproject", MODULE}, {"object", MODULE}, {"error", MODULE},
                         {"boolean", MODULE}, {"decimal", MODULE}, {"typedesc", MODULE}, {"float", MODULE},
                         {"function", MODULE}, {"future", MODULE}, {"int", MODULE}, {"map", MODULE}, {"stream", MODULE},
-                        {"string", MODULE}, {"table", MODULE}, {"transaction", MODULE}
+                        {"string", MODULE}, {"table", MODULE}, {"transaction", MODULE}, {"natural", MODULE}
                 });
     }
 
