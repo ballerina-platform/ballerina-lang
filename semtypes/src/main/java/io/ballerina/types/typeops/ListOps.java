@@ -258,18 +258,21 @@ public class ListOps extends CommonOps implements BasicTypeOps {
                 // Skip this negative if it is always shorter than the minimum required by the positive
                 return listInhabited(cx, indices, memberTypes, nRequired, neg.next);
             }
-            for (int i = 0; i < memberTypes.length; i++) {
-                // If we have isEmpty(T1 & S1) or isEmpty(T2 & S2) then we have [T1, T2] / [S1, S2] = [T1, T2].
-                // Therefore, we can skip the negative
-                SemType t1 = memberTypes[i];
-                SemType t2 = listMemberAt(nt.members(), nt.rest(), indices[i]);
-                SemType common = Core.intersect(t1, t2);
-                if (Core.isEmpty(cx, common)) {
-                    return listInhabited(cx, indices, memberTypes, nRequired, neg.next);
-                }
-            }
             int negLen = nt.members().fixedLength();
             if (negLen > 0) {
+                // If we have isEmpty(T1 & S1) or isEmpty(T2 & S2) then we have [T1, T2] / [S1, S2] = [T1, T2].
+                // Therefore, we can skip the negative
+                for (int i = 0; i < memberTypes.length; i++) {
+                    int index = indices[i];
+                    if (index >= negLen) {
+                        break;
+                    }
+                    SemType negMemberType = listMemberAt(nt.members(), nt.rest(), index);
+                    SemType common = Core.intersect(memberTypes[i], negMemberType);
+                    if (Core.isEmpty(cx, common)) {
+                        return listInhabited(cx, indices, memberTypes, nRequired, neg.next);
+                    }
+                }
                 // Consider cases we can avoid this negative by having a sufficiently short list
                 int len = memberTypes.length;
                 if (len < indices.length && indices[len] < negLen) {
