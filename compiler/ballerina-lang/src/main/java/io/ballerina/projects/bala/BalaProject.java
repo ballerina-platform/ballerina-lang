@@ -55,7 +55,8 @@ public class BalaProject extends Project {
      */
     public static BalaProject loadProject(ProjectEnvironmentBuilder environmentBuilder, Path balaPath) {
         PackageConfig packageConfig = PackageConfigCreator.createBalaProjectConfig(balaPath);
-        BalaProject balaProject = new BalaProject(environmentBuilder, balaPath, BuildOptions.builder().build());
+        BalaProject balaProject = new BalaProject(environmentBuilder, balaPath, BuildOptions.builder().setSticky(true)
+                .build());
         balaProject.addPackage(packageConfig);
         return balaProject;
     }

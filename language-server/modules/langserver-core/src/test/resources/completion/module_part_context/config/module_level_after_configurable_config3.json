@@ -788,6 +788,14 @@
       "filterText": "service",
       "insertText": "service on ${1:listenerName} {\n\t${2}\n}",
       "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "natural",
+      "kind": "Unit",
+      "detail": "type",
+      "sortText": "C",
+      "insertText": "natural",
+      "insertTextFormat": "Snippet"
     }
   ]
 }

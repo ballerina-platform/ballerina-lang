@@ -1080,6 +1080,23 @@
         "title": "editor.action.triggerParameterHints",
         "command": "editor.action.triggerParameterHints"
       }
+    },
+    {
+      "label": "natural",
+      "kind": "Unit",
+      "detail": "type",
+      "sortText": "BR",
+      "insertText": "natural",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "natural (..) {..}",
+      "kind": "Snippet",
+      "detail": "Snippet",
+      "sortText": "BP",
+      "filterText": "natural (..) {..}",
+      "insertText": "natural (${1}) {${2}}",
+      "insertTextFormat": "Snippet"
     }
   ]
 }

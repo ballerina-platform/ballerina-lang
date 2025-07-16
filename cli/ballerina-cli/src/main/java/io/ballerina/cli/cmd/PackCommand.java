@@ -159,10 +159,6 @@ public class PackCommand implements BLauncherCmd {
 
         Project project;
 
-        if (sticky == null) {
-            sticky = false;
-        }
-
         BuildOptions buildOptions = constructBuildOptions();
 
         // Throw an error if its a single file

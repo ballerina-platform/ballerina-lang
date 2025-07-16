@@ -124,9 +124,9 @@ import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.ballerinalang.debugadapter.DebugExecutionManager.LOCAL_HOST;
@@ -168,7 +168,6 @@ public class JBallerinaDebugServer implements BallerinaExtendedDebugServer {
     // Multi-threading is avoided here due to observed intermittent VM crashes, likely related to JDI limitations.
     private final ExecutorService variableExecutor = Executors.newSingleThreadExecutor();
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(JBallerinaDebugServer.class);
     private static final String SCOPE_NAME_LOCAL = "Local";
     private static final String SCOPE_NAME_GLOBAL = "Global";
     private static final String VALUE_UNKNOWN = "unknown";
@@ -176,6 +175,8 @@ public class JBallerinaDebugServer implements BallerinaExtendedDebugServer {
     private static final String COMPILATION_ERROR_MESSAGE = "error: compilation contains errors";
     private static final String TERMINAL_TITLE = "Ballerina Debug Terminal";
     private static final String RUN_IN_TERMINAL_REQUEST = "runInTerminal";
+    private static final int VARIABLE_FETCH_TIMEOUT = 2000;
+    private static final Logger LOGGER = LoggerFactory.getLogger(JBallerinaDebugServer.class);
 
     public JBallerinaDebugServer() {
         context = new ExecutionContext(this);
@@ -978,10 +979,9 @@ public class JBallerinaDebugServer implements BallerinaExtendedDebugServer {
         return scheduledVariables.stream()
                 .map(varFuture -> {
                     try {
-                        return varFuture.get();
-                    } catch (Exception ignored) {
-                        // Todo - Refactor after implementing debug/trace logger
-                        LOGGER.error("Failed to load some debug variables due to runtime exceptions.");
+                        return varFuture.get(VARIABLE_FETCH_TIMEOUT, TimeUnit.MILLISECONDS);
+                    } catch (Exception e) {
+                        LOGGER.error("Failed to load some debug variables due to runtime exceptions.", e);
                         return null;
                     }
                 })
@@ -1010,25 +1010,23 @@ public class JBallerinaDebugServer implements BallerinaExtendedDebugServer {
         List<Variable> resolvedVariables = new ArrayList<>();
         scheduledVariables.forEach(varFuture -> {
             try {
-                Variable variable = varFuture.get();
+                Variable variable = varFuture.get(VARIABLE_FETCH_TIMEOUT, TimeUnit.MILLISECONDS);
                 if (variable != null) {
                     resolvedVariables.add(variable);
                 }
-            } catch (InterruptedException | ExecutionException e) {
-                // Todo - Refactor after implementing debug/trace logger
-                LOGGER.error("Failed to load some debug variables due to runtime exceptions.");
+            } catch (Exception e) {
+                LOGGER.error("Failed to load some debug variables due to runtime exceptions.", e);
             }
         });
 
         scheduledLambdaMapVariables.forEach(varFuture -> {
             try {
-                Variable[] variables = varFuture.get();
+                Variable[] variables = varFuture.get(VARIABLE_FETCH_TIMEOUT, TimeUnit.MILLISECONDS);
                 if (variables != null) {
                     resolvedVariables.addAll(Arrays.asList(variables));
                 }
-            } catch (InterruptedException | ExecutionException e) {
-                // Todo - Refactor after implementing debug/trace logger
-                LOGGER.error("Failed to load some debug variables due to runtime exceptions.");
+            } catch (Exception e) {
+                LOGGER.error("Failed to load some debug variables due to runtime exceptions.", e);
             }
         });
         return resolvedVariables.toArray(new Variable[0]);

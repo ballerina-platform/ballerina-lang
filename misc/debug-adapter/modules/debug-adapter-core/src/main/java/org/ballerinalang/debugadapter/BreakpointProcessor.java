@@ -68,6 +68,8 @@ public class BreakpointProcessor {
     private final ExecutionContext context;
     private final JDIEventProcessor jdiEventProcessor;
     private final Map<String, LinkedHashMap<Integer, BalBreakpoint>> userBreakpoints = new ConcurrentHashMap<>();
+
+    private static final int BP_EVALUATION_TIMEOUT = 5000;
     private static final Logger LOGGER = LoggerFactory.getLogger(BreakpointProcessor.class);
 
     public BreakpointProcessor(ExecutionContext context, JDIEventProcessor jdiEventProcessor) {
@@ -142,7 +144,7 @@ public class BreakpointProcessor {
 
         CompletableFuture<Boolean> resultFuture = evaluateBreakpointCondition(condition, event.thread(), lineNumber);
         try {
-            Boolean result = resultFuture.get(5000, TimeUnit.MILLISECONDS);
+            Boolean result = resultFuture.get(BP_EVALUATION_TIMEOUT, TimeUnit.MILLISECONDS);
             if (result) {
                 if (logMessage.isPresent()) {
                     printLogMessage(event, logMessage.get(), lineNumber);
