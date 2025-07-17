@@ -22,6 +22,7 @@ import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectEnvironmentBuilder;
 import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.bala.BalaProject;
+import io.ballerina.projects.environment.EnvironmentBuilder;
 import io.ballerina.projects.repos.TempDirCompilationCache;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectPaths;
@@ -52,62 +53,75 @@ public final class ProjectLoader {
         return loadProject(path, projectEnvironmentBuilder, BuildOptions.builder().build());
     }
 
+    public static Project loadProject(Path path, EnvironmentBuilder environmentBuilder, BuildOptions buildOptions) {
+        Path projectRoot = getProjectRoot(Optional.of(path.toAbsolutePath().normalize()).get());
+        if (ProjectPaths.isWorkspaceProjectRoot(projectRoot)) {
+            return WorkspaceProject.load(projectRoot, environmentBuilder, buildOptions);
+        }
+        ProjectEnvironmentBuilder projectEnvironmentBuilder =
+                ProjectEnvironmentBuilder.getBuilder(environmentBuilder.build());
+        return loadProject(path, projectEnvironmentBuilder, buildOptions);
+    }
+
     /**
      * Returns a project by deriving the type from the path provided.
      *
      * @param path path of a .bal file or a .bala file
-     * @return 
+     * @return Project instance
      * @throws ProjectException if an invalid path is provided
      */
     public static Project loadProject(Path path, ProjectEnvironmentBuilder projectEnvironmentBuilder,
                                       BuildOptions buildOptions) throws ProjectException {
-        Path absFilePath = Optional.of(path.toAbsolutePath()).get();
+        Path projectRoot = getProjectRoot(Optional.of(path.toAbsolutePath().normalize()).get());
+
+        if (ProjectPaths.isWorkspaceProjectRoot(projectRoot)) {
+            // projectEnvironmentBuilder cannot be used for WorkspaceProject since there are
+            // multiple projects in a workspace, and they can't share the same project environment.
+            return WorkspaceProject.load(projectRoot, buildOptions);
+        }
+
+        boolean isPackageRoot = ProjectPaths.isBuildProjectRoot(projectRoot);
+        if (isPackageRoot) {
+            Path parent = projectRoot.getParent();
+            if (parent != null && ProjectPaths.isBuildProjectRoot(parent)) {
+                return WorkspaceProject.load(projectRoot, buildOptions);
+            }
+        }
+        if (isPackageRoot) {
+            return BuildProject.load(projectEnvironmentBuilder, projectRoot, buildOptions);
+        } else if (ProjectPaths.isBalaProjectRoot(projectRoot)) {
+            projectEnvironmentBuilder.addCompilationCacheFactory(TempDirCompilationCache::from);
+            return BalaProject.loadProject(projectEnvironmentBuilder, projectRoot, buildOptions);
+        }
+
+        return SingleFileProject.load(projectEnvironmentBuilder, path, buildOptions);
+    }
+
+    private static Path getProjectRoot(Path filePath) {
         Path projectRoot;
-        if (!Files.exists(path)) {
+        if (!Files.exists(filePath)) {
             throw new ProjectException("provided file path does not exist");
         }
-        if (absFilePath.toFile().isDirectory()) {
+        if (filePath.toFile().isDirectory()) {
             if (ProjectConstants.MODULES_ROOT.equals(
-                    Optional.of(absFilePath.getParent()).get().toFile().getName())) {
-                projectRoot = Optional.of(Optional.of(absFilePath.getParent()).get().getParent()).get();
-            } else if (ProjectConstants.GENERATED_MODULES_ROOT.equals(absFilePath.toFile().getName())) {
+                    Optional.of(filePath.getParent()).get().toFile().getName())) {
+                projectRoot = Optional.of(Optional.of(filePath.getParent()).get().getParent()).get();
+            } else if (ProjectConstants.GENERATED_MODULES_ROOT.equals(filePath.toFile().getName())) {
                 // Generated default module
-                projectRoot = Optional.of(absFilePath.getParent()).get();
+                projectRoot = Optional.of(filePath.getParent()).get();
             } else if (ProjectConstants.GENERATED_MODULES_ROOT.
-                    equals(Optional.of(absFilePath.getParent()).get().toFile().getName())) {
+                    equals(Optional.of(filePath.getParent()).get().toFile().getName())) {
                 // Generated non default module
-                projectRoot = Optional.of(Optional.of(absFilePath.getParent()).get().getParent()).get();
+                projectRoot = Optional.of(Optional.of(filePath.getParent()).get().getParent()).get();
             } else {
-                projectRoot = absFilePath;
+                projectRoot = filePath;
             }
-            if (Files.exists(projectRoot.resolve(ProjectConstants.BALLERINA_TOML))) {
-                return BuildProject.load(projectEnvironmentBuilder, projectRoot, buildOptions);
-            } else if (Files.exists(projectRoot.resolve(ProjectConstants.PACKAGE_JSON))) {
-                projectEnvironmentBuilder.addCompilationCacheFactory(TempDirCompilationCache::from);
-                return BalaProject.loadProject(projectEnvironmentBuilder, projectRoot, buildOptions);
-            } else {
-                throw new ProjectException("provided directory does not belong to any supported project types");
-            }
+        } else if (ProjectPaths.isBalFile(filePath)) {
+            projectRoot = filePath;
+        } else {
+            throw new ProjectException("'" + filePath + "' is not a valid Ballerina source file");
         }
-        if (absFilePath.toString().endsWith(ProjectConstants.BLANG_COMPILED_PKG_BINARY_EXT)) {
-            projectEnvironmentBuilder.addCompilationCacheFactory(TempDirCompilationCache::from);
-            return BalaProject.loadProject(projectEnvironmentBuilder, absFilePath);
-        }
-
-        if (!ProjectPaths.isBalFile(absFilePath)) {
-            throw new ProjectException("'" + absFilePath + "' is not a valid Ballerina source file");
-        }
-
-        try {
-            projectRoot = ProjectPaths.packageRoot(absFilePath);
-        } catch (ProjectException e) {
-            return SingleFileProject.load(projectEnvironmentBuilder, path, buildOptions);
-        }
-        try {
-            return BuildProject.load(projectEnvironmentBuilder, projectRoot, buildOptions);
-        } catch (ProjectException e) {
-            projectEnvironmentBuilder.addCompilationCacheFactory(TempDirCompilationCache::from);
-            return BalaProject.loadProject(projectEnvironmentBuilder, projectRoot);
-        }
+        return projectRoot;
     }
+
 }

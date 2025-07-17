@@ -54,7 +54,7 @@ public final class ProjectPaths {
         }
 
         if (Files.isDirectory(filepath)) {
-            if (isPackageRoot(filepath) || hasPackageJson(filepath)) {
+            if (isBuildProjectRoot(filepath) || hasPackageJson(filepath)) {
                 return filepath;
             }
             if (isModulesRoot(filepath) || isGeneratedModulesRoot(filepath) || isAModuleRoot(filepath) ||
@@ -77,7 +77,7 @@ public final class ProjectPaths {
         }
 
         Path absFilePath = filepath.toAbsolutePath().normalize();
-        if (isPackageRoot(projectRoot.get())) {
+        if (isBuildProjectRoot(projectRoot.get())) {
             // check if the file is a ballerina project related toml file
             if (isBallerinaRelatedToml(filepath)) {
                 return filepath.getParent();
@@ -298,7 +298,7 @@ public final class ProjectPaths {
         if (ProjectConstants.GENERATED_MODULES_ROOT.equals(Optional.of(parentPath).get().toFile().getName())) {
             parentPath = parentPath.getParent();
         }
-        return isPackageRoot(Optional.of(parentPath).get());
+        return isBuildProjectRoot(Optional.of(parentPath).get());
     }
 
     static boolean isDefaultModuleTestFile(Path filePath) {
@@ -311,7 +311,7 @@ public final class ProjectPaths {
         if (ProjectConstants.GENERATED_MODULES_ROOT.equals(projectRoot.toFile().getName())) {
             projectRoot = projectRoot.getParent();
         }
-        return projectRoot != null && isPackageRoot(projectRoot);
+        return projectRoot != null && isBuildProjectRoot(projectRoot);
     }
 
     static boolean isNonDefaultModuleSrcFile(Path filePath) {
@@ -321,7 +321,7 @@ public final class ProjectPaths {
         Path projectRoot = modulesRoot.getParent();
         return (ProjectConstants.MODULES_ROOT.equals(modulesRoot.toFile().getName()) ||
                 ProjectConstants.GENERATED_MODULES_ROOT.equals(modulesRoot.toFile().getName()))
-                && isPackageRoot(projectRoot);
+                && isBuildProjectRoot(projectRoot);
     }
 
     static boolean isBalaProjectSrcFile(Path filePath) {
@@ -343,7 +343,7 @@ public final class ProjectPaths {
         Path projectRoot = modulesRoot.getParent();
         return (ProjectConstants.MODULES_ROOT.equals(modulesRoot.toFile().getName()) ||
                 ProjectConstants.GENERATED_MODULES_ROOT.equals(modulesRoot.toFile().getName()))
-                && isPackageRoot(projectRoot);
+                && isBuildProjectRoot(projectRoot);
     }
 
     private static boolean hasPackageJson(Path filePath) {
@@ -355,7 +355,7 @@ public final class ProjectPaths {
         if (filePath != null) {
             filePath = filePath.toAbsolutePath().normalize();
             if (filePath.toFile().isDirectory()) {
-                if (isPackageRoot(filePath) || hasPackageJson(filePath)) {
+                if (isBuildProjectRoot(filePath) || hasPackageJson(filePath)) {
                     return Optional.of(filePath);
                 }
             }
@@ -364,33 +364,10 @@ public final class ProjectPaths {
         return Optional.empty();
     }
 
-    public static Optional<Path> findWorkspaceRoot(Path filePath) {
-        Path absFilePath = filePath.toAbsolutePath().normalize();
-        if (isWorkspaceRoot(absFilePath)) {
-            return Optional.of(absFilePath);
+    public static boolean isBuildProjectRoot(Path filePath) {
+        if (!filePath.toFile().isDirectory()) {
+            return false;
         }
-        Path packageRoot;
-        try {
-            packageRoot = packageRoot(absFilePath);
-        } catch (ProjectException e) {
-            // the filepath does not belong to a package
-            return Optional.empty();
-        }
-        return findWorkspaceRootInner(packageRoot);
-    }
-
-    private static Optional<Path> findWorkspaceRootInner(Path filePath) {
-        if (filePath != null) {
-            filePath = filePath.toAbsolutePath().normalize();
-            if (isWorkspaceRoot(filePath)) {
-                return Optional.of(filePath);
-            }
-            return findWorkspaceRootInner(filePath.getParent());
-        }
-        return Optional.empty();
-    }
-
-    public static boolean isPackageRoot(Path filePath) {
         Path absFilePath = filePath.resolve(BALLERINA_TOML).toAbsolutePath().normalize();
         if (absFilePath.toFile().exists()) {
             try {
@@ -404,14 +381,17 @@ public final class ProjectPaths {
         return false;
     }
 
-    public static boolean isBalaRoot(Path filePath) {
+    public static boolean isBalaProjectRoot(Path filePath) {
         if (FileUtils.hasExtension(filePath)) {
             return filePath.toAbsolutePath().normalize().endsWith(ProjectConstants.BLANG_COMPILED_PKG_BINARY_EXT);
         }
         return hasPackageJson(filePath);
     }
 
-    public static boolean isWorkspaceRoot(Path filePath) {
+    public static boolean isWorkspaceProjectRoot(Path filePath) {
+        if (!filePath.toFile().isDirectory()) {
+            return false;
+        }
         Path absFilePath = filePath.resolve(BALLERINA_TOML).toAbsolutePath().normalize();
         if (absFilePath.toFile().exists()) {
             try {

@@ -48,7 +48,6 @@ import java.util.List;
 import java.util.Optional;
 
 import static io.ballerina.cli.cmd.Constants.BUILD_COMMAND;
-import static io.ballerina.projects.util.ProjectUtils.isProjectUpdated;
 
 /**
  * This class represents the "bal build" command.
@@ -275,11 +274,11 @@ public class BuildCommand implements BLauncherCmd {
                     BuildTime.getInstance().timestamp = start;
                 }
 
-                if (ProjectPaths.isWorkspaceRoot(this.projectPath)) {
+                if (ProjectPaths.isWorkspaceProjectRoot(this.projectPath)) {
                     project = WorkspaceProject.load(this.projectPath, buildOptions);
                 } else {
                     Path parent = absProjectPath.getParent();
-                    if (parent != null && ProjectPaths.isWorkspaceRoot(parent)) {
+                    if (parent != null && ProjectPaths.isWorkspaceProjectRoot(parent)) {
                         project = WorkspaceProject.load(parent, buildOptions);
                     } else {
                         project = BuildProject.load(this.projectPath, buildOptions);

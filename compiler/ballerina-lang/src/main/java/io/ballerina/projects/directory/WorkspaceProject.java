@@ -43,7 +43,6 @@ import java.nio.file.Path;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
@@ -81,7 +80,7 @@ public class WorkspaceProject extends Project {
 
     public static WorkspaceProject load(Path path, EnvironmentBuilder environmentBuilder,
                                         BuildOptions buildOptions) {
-        if (ProjectPaths.isWorkspaceRoot(path)) {
+        if (ProjectPaths.isWorkspaceProjectRoot(path)) {
             try {
                 TomlDocument tomlDocument = TomlDocument.from(BALLERINA_TOML,
                         Files.readString(path.resolve(BALLERINA_TOML)));
