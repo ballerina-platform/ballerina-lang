@@ -370,10 +370,6 @@ public final class ProjectFiles {
                     ", cannot find 'Ballerina.toml' file.");
         }
 
-        if (ProjectUtils.findProjectRoot(projectDirPath.toAbsolutePath().getParent()) != null) {
-            throw new ProjectException("'" + projectDirPath + "' is already within a Ballerina package");
-        }
-
         checkReadPermission(projectDirPath);
     }
 

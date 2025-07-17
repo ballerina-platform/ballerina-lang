@@ -36,7 +36,7 @@ import java.util.Optional;
 /**
  * {@code SingleFileProject} represents a Ballerina standalone file.
  */
-public class SingleFileProject extends Project {
+public class SingleFileProject extends Project implements Comparable<Project> {
 
     private Path targetDir;
 
@@ -138,5 +138,10 @@ public class SingleFileProject extends Project {
             }
         }
         return generatedResourcesPath;
+    }
+
+    @Override
+    public int compareTo(Project other) {
+        return this.sourceRoot.compareTo(other.sourceRoot());
     }
 }

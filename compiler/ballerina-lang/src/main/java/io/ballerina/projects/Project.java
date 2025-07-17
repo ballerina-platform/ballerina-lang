@@ -19,6 +19,7 @@ package io.ballerina.projects;
 
 import io.ballerina.projects.buildtools.ToolContext;
 import io.ballerina.projects.environment.ProjectEnvironment;
+import io.ballerina.projects.internal.WorkspaceDependencyGraphBuilder;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 
@@ -43,24 +44,23 @@ public abstract class Project {
     private final ProjectKind projectKind;
     private Map<PackageManifest.Tool.Field, ToolContext> toolContextMap;
     private final List<CompilerPluginContextIml> compilerPluginContexts;
+    protected DependencyGraph<Project> dependencyGraph;
 
     protected Project(ProjectKind projectKind,
                       Path projectPath,
                       ProjectEnvironmentBuilder projectEnvironmentBuilder, BuildOptions buildOptions) {
         this.projectKind = projectKind;
-        this.sourceRoot = projectPath;
+        this.sourceRoot = projectPath.toAbsolutePath().normalize();
         this.buildOptions = buildOptions;
         this.projectEnvironment = projectEnvironmentBuilder.build(this);
         this.compilerPluginContexts = new ArrayList<>();
+        this.dependencyGraph = buildDependencyGraph();
     }
 
-    protected Project(ProjectKind projectKind,
-                      Path projectPath,
-                      ProjectEnvironmentBuilder projectEnvironmentBuilder) {
+    protected Project(ProjectKind projectKind, Path projectPath, BuildOptions buildOptions) {
         this.projectKind = projectKind;
-        this.sourceRoot = projectPath;
-        this.projectEnvironment = projectEnvironmentBuilder.build(this);
-        this.buildOptions = BuildOptions.builder().build();
+        this.sourceRoot = projectPath.toAbsolutePath().normalize();
+        this.buildOptions = buildOptions;
         this.compilerPluginContexts = new ArrayList<>();
     }
 
@@ -160,7 +160,22 @@ public abstract class Project {
 
     public abstract void save();
 
+    /**
+     * Returns the dependency graph of this project.
+     *
+     * @return DependencyGraph of this project
+     */
+    public DependencyGraph<Project> dependencyGraph() {
+        return dependencyGraph;
+    }
+
     List<CompilerPluginContextIml> compilerPluginContexts() {
         return this.compilerPluginContexts;
+    }
+
+    private DependencyGraph<Project> buildDependencyGraph() {
+        WorkspaceDependencyGraphBuilder graphBuilder = new WorkspaceDependencyGraphBuilder();
+        graphBuilder.addPackage(this);
+        return graphBuilder.buildGraph();
     }
 }

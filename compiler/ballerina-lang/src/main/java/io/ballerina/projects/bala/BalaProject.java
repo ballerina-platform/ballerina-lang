@@ -43,7 +43,7 @@ import java.util.Optional;
  *
  * @since 2.0.0
  */
-public class BalaProject extends Project {
+public class BalaProject extends Project implements Comparable<Project> {
     private final String platform;
     private final String balaVersion;
 
@@ -160,5 +160,10 @@ public class BalaProject extends Project {
     @Override
     public Path generatedResourcesDir() {
         throw new UnsupportedOperationException("generated resources directory is not supported for BalaProject");
+    }
+
+    @Override
+    public int compareTo(Project other) {
+        return this.sourceRoot.compareTo(other.sourceRoot());
     }
 }

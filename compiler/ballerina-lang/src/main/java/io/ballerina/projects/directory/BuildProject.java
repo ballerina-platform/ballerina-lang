@@ -71,7 +71,7 @@ import static io.ballerina.projects.util.ProjectUtils.readBuildJson;
  *
  * @since 2.0.0
  */
-public class BuildProject extends Project {
+public class BuildProject extends Project implements Comparable<Project> {
 
     /**
      * Loads a BuildProject from the provided path.
@@ -378,6 +378,10 @@ public class BuildProject extends Project {
             Dependency dependency = new Dependency(aPackage.packageOrg().toString(), aPackage.packageName().value(),
                                                    aPackage.packageVersion().toString());
 
+            if (aPackage.project().kind().equals(ProjectKind.BUILD_PROJECT)) { //TODO
+                // if the direct dependency is a build project, skip it
+                continue;
+            }
             // get modules of the direct dependency package
             BalaFiles.DependencyGraphResult packageDependencyGraph = BalaFiles
                     .createPackageDependencyGraph(directDependency.packageInstance().project().sourceRoot());
@@ -537,5 +541,10 @@ public class BuildProject extends Project {
             }
         }
         return generatedResourcesPath;
+    }
+
+    @Override
+    public int compareTo(Project other) {
+        return this.sourceRoot.compareTo(other.sourceRoot());
     }
 }

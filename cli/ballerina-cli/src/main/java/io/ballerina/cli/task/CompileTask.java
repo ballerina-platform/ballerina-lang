@@ -85,7 +85,6 @@ public class CompileTask implements Task {
         this.isPackageModified = isPackageModified;
         this.cachesEnabled = cachesEnabled;
     }
-
     @Override
     public void execute(Project project) {
         if (ProjectUtils.isProjectEmpty(project) && skipCompilationForBalPack(project)) {
