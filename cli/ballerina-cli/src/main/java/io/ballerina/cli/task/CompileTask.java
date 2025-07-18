@@ -90,7 +90,7 @@ public class CompileTask implements Task {
         if (ProjectUtils.isProjectEmpty(project) && skipCompilationForBalPack(project)) {
             throw createLauncherException("package is empty. Please add at least one .bal file.");
         }
-        this.out.println("Compiling source");
+        this.out.println("\nCompiling source");
 
         String sourceName;
         if (project instanceof SingleFileProject) {

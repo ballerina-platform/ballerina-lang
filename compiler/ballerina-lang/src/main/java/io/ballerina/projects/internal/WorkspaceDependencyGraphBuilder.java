@@ -19,6 +19,7 @@ package io.ballerina.projects.internal;
 
 import io.ballerina.projects.DependencyGraph;
 import io.ballerina.projects.Project;
+import io.ballerina.projects.directory.BuildProject;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -26,30 +27,30 @@ import java.util.Map;
 import java.util.Set;
 
 public class WorkspaceDependencyGraphBuilder {
-    private final Map<Project, Set<Project>> depGraph = new HashMap<>();
-    private final DependencyGraph.DependencyGraphBuilder<Project> rawGraphBuilder;
+    private final Map<BuildProject, Set<BuildProject>> depGraph = new HashMap<>();
+    private final DependencyGraph.DependencyGraphBuilder<BuildProject> rawGraphBuilder;
 
     public WorkspaceDependencyGraphBuilder() {
         this.rawGraphBuilder = DependencyGraph.DependencyGraphBuilder.getBuilder(null);
     }
 
-    public DependencyGraph<Project> buildGraph() {
-        DependencyGraph.DependencyGraphBuilder<Project> graphBuilder =
+    public DependencyGraph<BuildProject> buildGraph() {
+        DependencyGraph.DependencyGraphBuilder<BuildProject> graphBuilder =
                 DependencyGraph.DependencyGraphBuilder.getBuilder(null);
-        for (Map.Entry<Project, Set<Project>> entry : depGraph.entrySet()) {
+        for (Map.Entry<BuildProject, Set<BuildProject>> entry : depGraph.entrySet()) {
             graphBuilder.addDependencies(entry.getKey(), entry.getValue());
         }
 
         return graphBuilder.build();
     }
 
-    public void addPackage(Project project) {
+    public void addPackage(BuildProject project) {
         if (!depGraph.containsKey(project)) {
             depGraph.put(project, new HashSet<>());
         }
     }
 
-    public void addDependency(Project dependent, Project dependency) {
+    public void addDependency(BuildProject dependent, BuildProject dependency) {
         if (!depGraph.containsKey(dependent)) {
             throw new IllegalStateException("Dependent package does not exist in the graph: " + dependent);
         }

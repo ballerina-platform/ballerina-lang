@@ -24,12 +24,12 @@ import io.ballerina.cli.task.CompileTask;
 import io.ballerina.cli.task.CreateExecutableTask;
 import io.ballerina.cli.task.DumpBuildTimeTask;
 import io.ballerina.cli.task.ResolveMavenDependenciesTask;
+import io.ballerina.cli.task.ResolveWorkspaceDependenciesTask;
 import io.ballerina.cli.task.RunBuildToolsTask;
 import io.ballerina.cli.utils.BuildTime;
 import io.ballerina.cli.utils.FileUtils;
 import io.ballerina.projects.BuildOptions;
 import io.ballerina.projects.DependencyGraph;
-import io.ballerina.projects.PackageCompilation;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.ProjectKind;
@@ -49,6 +49,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static io.ballerina.cli.cmd.Constants.BUILD_COMMAND;
+import static io.ballerina.projects.util.ProjectUtils.isProjectUpdated;
 
 /**
  * This class represents the "bal build" command.
@@ -304,33 +305,39 @@ public class BuildCommand implements BLauncherCmd {
         }
 
         // Check package files are modified after last build
-//        boolean isPackageModified = isProjectUpdated(project);
-        boolean isPackageModified = true;
-        for (Project project1 : project.dependencyGraph().toTopologicallySortedList()) {
-            PackageCompilation compilation = project1.currentPackage().getCompilation();
-        }
-
-        DependencyGraph<Project> projectDependencyGraph = project.dependencyGraph();
-        List<Project> topologicallySortedList = new ArrayList<>(projectDependencyGraph.toTopologicallySortedList());
-
-        if (project.kind() == ProjectKind.WORKSPACE_PROJECT && !project.sourceRoot().equals(absProjectPath)) {
-            // If the project path is not the workspace root, filter the topologically sorted list to include only
-            // the projects that are dependencies of the project at the specified path.
-            Optional<Project> buildProjectOptional = projectDependencyGraph.getNodes().stream()
-                    .filter(node -> node.sourceRoot().equals(absProjectPath)).findFirst();
-            Collection<Project> projectDependencies = projectDependencyGraph.getAllDependencies(
-                    buildProjectOptional.orElseThrow());
-            // remove projects that are not dependencies of the project at the specified path
-            topologicallySortedList.removeIf(prj -> !projectDependencies.contains(prj)
-                    && prj != buildProjectOptional.get());
-        }
-
-        for (Project prj : topologicallySortedList) {
-            executeTasks(isPackageModified, isSingleFileBuild, prj);
+        if (project.kind() == ProjectKind.WORKSPACE_PROJECT) {
+            WorkspaceProject workspaceProject = (WorkspaceProject) project;
+            DependencyGraph<BuildProject> projectDependencyGraph = resolveWorkspaceDependencies(workspaceProject);
+            List<BuildProject> topologicallySortedList = new ArrayList<>(projectDependencyGraph.toTopologicallySortedList());
+            if (!project.sourceRoot().equals(absProjectPath)) {
+                // If the project path is not the workspace root, filter the topologically sorted list to include only
+                // the projects that are dependencies of the project at the specified path.
+                Optional<BuildProject> buildProjectOptional = projectDependencyGraph.getNodes().stream()
+                        .filter(node -> node.sourceRoot().equals(absProjectPath)).findFirst();
+                Collection<BuildProject> projectDependencies = projectDependencyGraph.getAllDependencies(
+                        buildProjectOptional.orElseThrow());
+                // remove projects that are not dependencies of the project at the specified path
+                topologicallySortedList.removeIf(prj -> !projectDependencies.contains(prj)
+                        && prj != buildProjectOptional.get());
+            }
+            for (BuildProject buildProject : topologicallySortedList) {
+                executeTasks(true, false, buildProject);
+            }
+        } else {
+            boolean isPackageModified = isProjectUpdated(project);
+            executeTasks(isPackageModified, isSingleFileBuild, project);
         }
         if (this.exitWhenFinish) {
             Runtime.getRuntime().exit(0);
         }
+    }
+
+    private DependencyGraph<BuildProject> resolveWorkspaceDependencies(WorkspaceProject workspaceProject) {
+        TaskExecutor taskExecutor = new TaskExecutor.TaskBuilder()
+                .addTask(new ResolveWorkspaceDependenciesTask(outStream))
+                .build();
+        taskExecutor.executeTasks(workspaceProject);
+        return workspaceProject.getResolution().dependencyGraph();
     }
 
     private void executeTasks(boolean isPackageModified, boolean isSingleFileBuild,

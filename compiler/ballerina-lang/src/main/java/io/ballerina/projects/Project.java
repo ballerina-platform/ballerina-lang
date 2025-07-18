@@ -44,7 +44,6 @@ public abstract class Project {
     private final ProjectKind projectKind;
     private Map<PackageManifest.Tool.Field, ToolContext> toolContextMap;
     private final List<CompilerPluginContextIml> compilerPluginContexts;
-    protected DependencyGraph<Project> dependencyGraph;
 
     protected Project(ProjectKind projectKind,
                       Path projectPath,
@@ -54,7 +53,6 @@ public abstract class Project {
         this.buildOptions = buildOptions;
         this.projectEnvironment = projectEnvironmentBuilder.build(this);
         this.compilerPluginContexts = new ArrayList<>();
-        this.dependencyGraph = buildDependencyGraph();
     }
 
     protected Project(ProjectKind projectKind, Path projectPath, BuildOptions buildOptions) {
@@ -160,22 +158,7 @@ public abstract class Project {
 
     public abstract void save();
 
-    /**
-     * Returns the dependency graph of this project.
-     *
-     * @return DependencyGraph of this project
-     */
-    public DependencyGraph<Project> dependencyGraph() {
-        return dependencyGraph;
-    }
-
     List<CompilerPluginContextIml> compilerPluginContexts() {
         return this.compilerPluginContexts;
-    }
-
-    private DependencyGraph<Project> buildDependencyGraph() {
-        WorkspaceDependencyGraphBuilder graphBuilder = new WorkspaceDependencyGraphBuilder();
-        graphBuilder.addPackage(this);
-        return graphBuilder.buildGraph();
     }
 }

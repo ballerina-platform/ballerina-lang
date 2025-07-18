@@ -18,29 +18,24 @@
 package io.ballerina.projects.directory;
 
 import io.ballerina.projects.BuildOptions;
-import io.ballerina.projects.DependencyGraph;
 import io.ballerina.projects.DocumentId;
-import io.ballerina.projects.PackageDependencyScope;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectEnvironmentBuilder;
 import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.ProjectKind;
-import io.ballerina.projects.ResolvedPackageDependency;
 import io.ballerina.projects.TomlDocument;
 import io.ballerina.projects.WorkspaceBallerinaToml;
 import io.ballerina.projects.WorkspaceManifest;
+import io.ballerina.projects.WorkspaceResolution;
 import io.ballerina.projects.environment.Environment;
 import io.ballerina.projects.environment.EnvironmentBuilder;
 import io.ballerina.projects.environment.ProjectEnvironment;
-import io.ballerina.projects.environment.ResolutionOptions;
-import io.ballerina.projects.internal.WorkspaceDependencyGraphBuilder;
 import io.ballerina.projects.internal.WorkspaceManifestBuilder;
 import io.ballerina.projects.util.ProjectPaths;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Optional;
@@ -49,10 +44,11 @@ import java.util.Set;
 import static io.ballerina.projects.util.ProjectConstants.BALLERINA_TOML;
 
 public class WorkspaceProject extends Project {
-    private final Set<Project> projectSet;
+    private final Set<BuildProject> projectSet;
     private final WorkspaceBallerinaToml workspaceBallerinaToml;
     private final BuildOptions buildOptions;
     private final WorkspaceManifest workspaceManifest;
+    private WorkspaceResolution workspaceResolution;
 
     private WorkspaceProject(Path projectPath, BuildOptions buildOptions, TomlDocument tomlDocument,
                              EnvironmentBuilder environmentBuilder) {
@@ -62,18 +58,16 @@ public class WorkspaceProject extends Project {
         this.workspaceManifest = WorkspaceManifestBuilder.from(tomlDocument, projectPath).manifest();
         this.projectSet = new HashSet<>();
         loadProjects(environmentBuilder.setWorkspace(this).build());
-        this.dependencyGraph = buildDependencyGraph();
         setCurrentPackage(this.projectSet.iterator().next().currentPackage());
     }
 
     private WorkspaceProject(Path projectPath, BuildOptions buildOptions, TomlDocument tomlDocument,
-                             Set<Project> projects) {
+                             Set<BuildProject> projects) {
         super(ProjectKind.WORKSPACE_PROJECT, projectPath, buildOptions);
         this.workspaceBallerinaToml = WorkspaceBallerinaToml.from(tomlDocument, this);
         this.buildOptions = buildOptions;
         this.workspaceManifest = WorkspaceManifestBuilder.from(tomlDocument, projectPath).manifest();
         this.projectSet = projects;
-        this.dependencyGraph = buildDependencyGraph();
         setCurrentPackage(this.projectSet.iterator().next().currentPackage());
     }
 
@@ -122,14 +116,14 @@ public class WorkspaceProject extends Project {
         for (Project project : this.projectSet) {
             project.clearCaches();
         }
-        this.dependencyGraph = null;
+        this.workspaceResolution = null;
     }
 
     @Override
     public Project duplicate() {
-        Set<Project> projects = new HashSet<>();
+        Set<BuildProject> projects = new HashSet<>();
         for (Project project : this.projectSet) {
-            projects.add(project.duplicate());
+            projects.add((BuildProject) project.duplicate());
         }
         return new WorkspaceProject(this.sourceRoot, this.buildOptions,
                 this.workspaceBallerinaToml.tomlDocument(), projects);
@@ -167,45 +161,38 @@ public class WorkspaceProject extends Project {
         return this.projectSet.iterator().next().projectEnvironmentContext();
     }
 
-    public Set<Project> projects() {
+    public WorkspaceResolution getResolution() {
+        if (this.workspaceResolution == null) {
+            this.workspaceResolution = WorkspaceResolution.from(this);
+        }
+        return this.workspaceResolution;
+    }
+
+    public Set<BuildProject> projects() {
         return Collections.unmodifiableSet(this.projectSet);
+    }
+
+    public WorkspaceManifest workspaceManifest() {
+        return this.workspaceManifest;
+    }
+
+    public WorkspaceBallerinaToml ballerinaToml() {
+        return this.workspaceBallerinaToml;
     }
 
     private void loadProjects(Environment environment) {
         for (Path packagePath : this.workspaceManifest.packages()) {
             Path ballerinaTomlPath = packagePath.resolve(BALLERINA_TOML);
             if (Files.exists(ballerinaTomlPath)) {
-                ProjectEnvironmentBuilder projectEnvironmentBuilder = ProjectEnvironmentBuilder.getBuilder(environment);
-                BuildProject project = BuildProject.load(projectEnvironmentBuilder, packagePath, buildOptions);
+                BuildProject project = loadBuildProject(environment, packagePath);
                 this.projectSet.add(project);
             }
         }
     }
 
-    private DependencyGraph<Project> buildDependencyGraph() {
-        WorkspaceDependencyGraphBuilder graphBuilder = new WorkspaceDependencyGraphBuilder();
-        for (Project project : this.projectSet) {
-            graphBuilder.addPackage(project);
-            Collection<ResolvedPackageDependency> directDependencies = project.currentPackage()
-                    .getResolution(ResolutionOptions.builder().setOffline(true).build())
-                    .dependencyGraph()
-                    .getDirectDependencies(new ResolvedPackageDependency(project.currentPackage(),
-                            PackageDependencyScope.DEFAULT));
-            addDependencies(project, directDependencies, graphBuilder);
-        }
-        return graphBuilder.buildGraph();
+    private BuildProject loadBuildProject(Environment environment, Path packagePath) {
+        ProjectEnvironmentBuilder projectEnvironmentBuilder = ProjectEnvironmentBuilder.getBuilder(environment);
+        return BuildProject.load(projectEnvironmentBuilder, packagePath, buildOptions);
     }
 
-    private static void addDependencies(Project pkg, Collection<ResolvedPackageDependency> directDependencies,
-                                        WorkspaceDependencyGraphBuilder graphBuilder) {
-        graphBuilder.addPackage(pkg);
-        for (ResolvedPackageDependency directDependency : directDependencies) {
-            if (directDependency.packageInstance().project().kind() == ProjectKind.BUILD_PROJECT) {
-                graphBuilder.addDependency(pkg, directDependency.packageInstance().project());
-                addDependencies(directDependency.packageInstance().project(), directDependency.packageInstance()
-                        .getResolution(ResolutionOptions.builder().setOffline(true).build())
-                        .dependencyGraph().getDirectDependencies(directDependency), graphBuilder);
-            }
-        }
-    }
 }
