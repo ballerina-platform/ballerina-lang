@@ -29,6 +29,7 @@ import io.ballerina.cli.utils.BuildTime;
 import io.ballerina.cli.utils.FileUtils;
 import io.ballerina.projects.BuildOptions;
 import io.ballerina.projects.DependencyGraph;
+import io.ballerina.projects.PackageCompilation;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.ProjectKind;
@@ -305,6 +306,10 @@ public class BuildCommand implements BLauncherCmd {
         // Check package files are modified after last build
 //        boolean isPackageModified = isProjectUpdated(project);
         boolean isPackageModified = true;
+        for (Project project1 : project.dependencyGraph().toTopologicallySortedList()) {
+            PackageCompilation compilation = project1.currentPackage().getCompilation();
+        }
+
         DependencyGraph<Project> projectDependencyGraph = project.dependencyGraph();
         List<Project> topologicallySortedList = new ArrayList<>(projectDependencyGraph.toTopologicallySortedList());
 

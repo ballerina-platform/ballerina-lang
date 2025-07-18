@@ -66,6 +66,18 @@ public class WorkspaceProject extends Project {
         setCurrentPackage(this.projectSet.iterator().next().currentPackage());
     }
 
+    private WorkspaceProject(Path projectPath, BuildOptions buildOptions, TomlDocument tomlDocument,
+                             Set<Project> projects) {
+        super(ProjectKind.WORKSPACE_PROJECT, projectPath, buildOptions);
+        this.workspaceBallerinaToml = WorkspaceBallerinaToml.from(tomlDocument, this);
+        this.buildOptions = buildOptions;
+        this.workspaceManifest = WorkspaceManifestBuilder.from(tomlDocument, projectPath).manifest();
+        this.projectSet = projects;
+        this.dependencyGraph = buildDependencyGraph();
+        setCurrentPackage(this.projectSet.iterator().next().currentPackage());
+    }
+
+
     public static WorkspaceProject load(Path workspacePath) {
         return load(workspacePath, BuildOptions.builder().build());
     }
@@ -115,16 +127,33 @@ public class WorkspaceProject extends Project {
 
     @Override
     public Project duplicate() {
-        return null;
+        Set<Project> projects = new HashSet<>();
+        for (Project project : this.projectSet) {
+            projects.add(project.duplicate());
+        }
+        return new WorkspaceProject(this.sourceRoot, this.buildOptions,
+                this.workspaceBallerinaToml.tomlDocument(), projects);
     }
 
     @Override
     public DocumentId documentId(Path file) {
-        return null;
+        for (Project project : this.projectSet) {
+            try {
+                return project.documentId(file);
+            } catch (ProjectException e) {
+                // Ignore the exception as we are checking all projects
+            }
+        }
+        throw new ProjectException("'" + file.toString() + "' does not belong to the current workspace");
     }
 
     @Override
     public Optional<Path> documentPath(DocumentId documentId) {
+        for (Project project : this.projectSet) {
+            if (project.documentPath(documentId).isPresent()) {
+                return project.documentPath(documentId);
+            }
+        }
         return Optional.empty();
     }
 
