@@ -264,6 +264,7 @@ public final class JvmSignatures {
     public static final String GET_RUNTIME_REGISTRY = "L" + RUNTIME_REGISTRY_CLASS + ";";
     public static final String GET_SCHEDULER = "L" + SCHEDULER + ";";
     public static final String GET_STRAND = "L" + STRAND_CLASS + ";";
+    public static final String GET_STRAND_METHOD = "()L" + STRAND_CLASS + ";";
     public static final String GET_STREAM_VALUE = "L" + STREAM_VALUE + ";";
     public static final String GET_STRING = "L" + STRING_VALUE + ";";
     public static final String GET_STRING_ARRAY = "()[L" + STRING_VALUE + ";";

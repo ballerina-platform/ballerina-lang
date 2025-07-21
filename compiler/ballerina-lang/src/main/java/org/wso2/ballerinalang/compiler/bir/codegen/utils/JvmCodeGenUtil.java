@@ -80,6 +80,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_STRING_
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.DECIMAL_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ERROR_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.FUNCTION_POINTER;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.GET_STRAND;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.GET_VALUE_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JAVA_PACKAGE_SEPERATOR;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JAVA_RUNTIME;
@@ -88,6 +89,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JVM_TO_ST
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_INIT_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_START_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OVERFLOW_LINE_NUMBER;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SCHEDULER;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRAND_CLASS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRAND_WORKER_CHANNEL_MAP;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRING_BUILDER;
@@ -108,6 +110,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_MAP_
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_OBJECT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_REGEXP;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_RUNTIME;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_STRAND_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_STREAM_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_TABLE_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_TYPEDESC;
@@ -644,12 +647,20 @@ public final class JvmCodeGenUtil {
         }
     }
 
+    public static void loadStrand(MethodVisitor mv, int localVarOffset) {
+        if (localVarOffset == -1) {
+            mv.visitMethodInsn(INVOKESTATIC, SCHEDULER, GET_STRAND, GET_STRAND_METHOD, false);
+        } else {
+            mv.visitVarInsn(ALOAD, localVarOffset);
+        }
+    }
+
     public static void loadWorkerChannelMap(MethodVisitor mv, BIRNode.BIRFunction func, int channelMapVarIndex,
                                             int localVarOffset) {
         if (func.hasWorkers) {
             mv.visitVarInsn(ALOAD, channelMapVarIndex);
         } else {
-            mv.visitVarInsn(ALOAD, localVarOffset);
+            loadStrand(mv, localVarOffset);
             mv.visitFieldInsn(GETFIELD, STRAND_CLASS, STRAND_WORKER_CHANNEL_MAP, GET_WORKER_CHANNEL_MAP);
         }
     }

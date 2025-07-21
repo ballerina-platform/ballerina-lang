@@ -407,6 +407,7 @@ public final class JvmConstants {
     public static final String WAIT_ON_LISTENERS_METHOD_NAME = "waitOnListeners";
     public static final String DEFAULT_STRAND_DISPATCHER = "DEFAULT";
     public static final String DEFAULT_STRAND_NAME = "anon";
+    public static final String GET_STRAND = "getStrand";
 
     // observability related constants
     public static final String OBSERVE_UTILS = "io/ballerina/runtime/observability/ObserveUtils";

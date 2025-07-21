@@ -273,6 +273,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmValueGen.getTypeDes
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmValueGen.getTypeValueClassName;
 import static org.wso2.ballerinalang.compiler.bir.codegen.utils.JvmCodeGenUtil.getVarStoreClass;
 import static org.wso2.ballerinalang.compiler.bir.codegen.utils.JvmCodeGenUtil.loadConstantValue;
+import static org.wso2.ballerinalang.compiler.bir.codegen.utils.JvmCodeGenUtil.loadStrand;
 import static org.wso2.ballerinalang.compiler.bir.codegen.utils.JvmCodeGenUtil.toNameString;
 import static org.wso2.ballerinalang.compiler.bir.codegen.utils.JvmModuleUtils.getModuleLevelClassName;
 import static org.wso2.ballerinalang.compiler.bir.codegen.utils.JvmModuleUtils.getPackageName;
@@ -551,7 +552,7 @@ public class JvmInstructionGen {
             mv.visitTypeInsn(NEW, BAL_ENV_CLASS);
             mv.visitInsn(DUP);
             // load the strand
-            this.mv.visitVarInsn(ALOAD, localVarOffset);
+            loadStrand(mv, localVarOffset);
             // load the current Module
             mv.visitFieldInsn(GETSTATIC, this.moduleInitClass, CURRENT_MODULE_VAR_NAME, GET_MODULE);
             mv.visitInsn(ACONST_NULL);
@@ -1642,7 +1643,7 @@ public class JvmInstructionGen {
             mv.visitMethodInsn(INVOKEVIRTUAL, OBJECT_TYPE_IMPL, "duplicate", OBJECT_TYPE_DUPLICATE, false);
             this.mv.visitInsn(DUP);
             this.mv.visitFieldInsn(GETSTATIC, this.annotationVarClassName, VALUE_VAR_NAME, GET_MAP_VALUE);
-            this.mv.visitVarInsn(ALOAD, strandIndex);
+            loadStrand(this.mv, strandIndex);
             this.mv.visitMethodInsn(INVOKESTATIC, ANNOTATION_UTILS, "processObjectCtorAnnotations",
                     PROCESS_OBJ_CTR_ANNOTATIONS, false);
         }

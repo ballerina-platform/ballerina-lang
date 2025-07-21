@@ -29,79 +29,102 @@ import org.wso2.ballerinalang.compiler.bir.model.VarKind;
 import org.wso2.ballerinalang.compiler.util.Names;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ANNOTATION_FUNC;
 import static org.wso2.ballerinalang.compiler.bir.codegen.optimizer.LargeMethodOptimizer.SPLIT_METHOD;
 
 public class LazyLoadingDesugar {
 
-    LazyLoadingDataCollector lazyLoadingDataCollector;
-    List<BIRNode.BIRBasicBlock> newBBs;
-    BIRNode.BIRBasicBlock currentBB;
+    private final LazyLoadingDataCollector lazyLoadingDataCollector;
+    private int nextLocalVarBBIndex = 0;
+    private int nextLocalVarIndex = 0;
 
     public LazyLoadingDesugar(LazyLoadingDataCollector lazyLoadingDataCollector) {
         this.lazyLoadingDataCollector = lazyLoadingDataCollector;
-        this.newBBs = new ArrayList<>();
     }
 
-    public void lazyLoadInitFunctionsGlobalVars(List<BIRNode.BIRFunction> functions) {
+    public void lazyLoadInitFunctions(List<BIRNode.BIRFunction> functions) {
         for (BIRNode.BIRFunction function : functions) {
             if (function.originalName.value.contains(Names.INIT_FUNCTION_SUFFIX.value)) {
-                lazyLoadInitFunctionsGlobalVars(function);
-                function.basicBlocks = newBBs;
-                newBBs = new ArrayList<>();
+                lazyLoadInitFunction(function);
+                removeUnusedLocalVars(function);
+                reset();
             }
         }
     }
 
-    private void lazyLoadInitFunctionsGlobalVars(BIRNode.BIRFunction function) {
+    private void lazyLoadInitFunction(BIRNode.BIRFunction function) {
         List<BIRNode.BIRBasicBlock> basicBlocks = function.basicBlocks;
         for (int i = 0; i < basicBlocks.size(); i++) {
             BIRNode.BIRBasicBlock basicBlock = basicBlocks.get(i);
-            List<BIRNonTerminator> instructions = basicBlock.instructions;
-            currentBB = new BIRNode.BIRBasicBlock(basicBlock.id, basicBlock.number);
-            lazyLoadInstructions(instructions);
-            BIRTerminator terminator = basicBlock.terminator;
-            currentBB.terminator = terminator;
-            if (terminator.kind == InstructionKind.CALL) {
-                lazyLoadCall((BIRTerminator.Call) terminator, currentBB, basicBlocks, i);
-            }
-            newBBs.add(currentBB);
-        }
-    }
-
-    private void lazyLoadInstructions(List<BIRNonTerminator> instructions) {
-        for (int j = 0; j < instructions.size(); j++) {
-            BIRNonTerminator instruction = instructions.get(j);
-            switch (instruction.kind) {
-                case CONST_LOAD -> lazyLoadConstantLoad((BIRNonTerminator.ConstantLoad) instruction);
-                case FP_LOAD -> j = lazyLoadFpLoad((BIRNonTerminator.FPLoad) instruction, instructions, j);
-                case NEW_TYPEDESC -> lazyLoadNewTypeDesc((BIRNonTerminator.NewTypeDesc) instruction);
-                case NEW_STRUCTURE -> lazyLoadNewStructure((BIRNonTerminator.NewStructure) instruction);
-                case TYPE_CAST -> lazyLoadTypeCast((BIRNonTerminator.TypeCast) instruction);
-                case NEW_ARRAY -> lazyLoadNewArray((BIRNonTerminator.NewArray) instruction);
-                default -> currentBB.instructions.add(instruction);
+            boolean isLastInstructionGlobalVar = lazyLoadInstructions(basicBlock, i);
+            boolean isLastTerminatorsIsGlobal = lazyLoadTerminator(function.basicBlocks, basicBlock, i);
+            if (isLastInstructionGlobalVar && isLastTerminatorsIsGlobal) {
+                nextLocalVarIndex = 0;
+                nextLocalVarBBIndex++;
             }
         }
     }
 
-    private void lazyLoadCall(BIRTerminator.Call terminator, BIRNode.BIRBasicBlock currentBB,
-                              List<BIRNode.BIRBasicBlock> basicBlocks, int currentBBIndex) {
-
-        BIRNode.BIRBasicBlock nextBB = basicBlocks.get(currentBBIndex + 1);
-        if (terminator.lhsOp != null) {
-            BIRNode.BIRVariableDcl variableDcl = terminator.lhsOp.variableDcl;
-            if (variableDcl.kind == VarKind.GLOBAL && terminator.name.value.contains(SPLIT_METHOD)) {
-                lazyLoadSplitCall(terminator, currentBB, terminator, variableDcl, nextBB);
-            } else if (terminator.name.value.contains(ANNOTATION_FUNC)) {
-                lazyLoadAnnotationProcessCall(terminator, currentBB, nextBB, terminator);
+    private boolean lazyLoadInstructions(BIRNode.BIRBasicBlock bb , int currentBBIndex) {
+        BIROperand lhsOp = null;
+        List<BIRNonTerminator> instructions = bb.instructions;
+        for (int i = 0; i < instructions.size(); i++) {
+            BIRNonTerminator instruction = instructions.get(i);
+            lhsOp = instruction.lhsOp;
+            if (lhsOp == null || lhsOp.variableDcl.kind != VarKind.GLOBAL) {
+                continue;
             }
+            if (currentBBIndex != nextLocalVarBBIndex) {
+                nextLocalVarIndex = i + 1;
+                nextLocalVarBBIndex = currentBBIndex;
+                continue;
+            }
+            copyInstructions(lhsOp, instructions, i);
+            i = nextLocalVarIndex - 1;
         }
+        return lhsOp != null && lhsOp.variableDcl.kind == VarKind.GLOBAL;
     }
 
-    private void lazyLoadAnnotationProcessCall(BIRTerminator.Call terminator, BIRNode.BIRBasicBlock currentBB,
-                                               BIRNode.BIRBasicBlock nextBB, BIRTerminator.Call call) {
+    private boolean lazyLoadTerminator(List<BIRNode.BIRBasicBlock> basicBlocks,  BIRNode.BIRBasicBlock bb,
+                                    int currentBBIndex) {
+        BIRTerminator terminator = bb.terminator;
+        BIROperand lhsOp = terminator.lhsOp;
+        if (terminator.kind == InstructionKind.CALL) {
+            BIRTerminator.Call call = (BIRTerminator.Call) terminator;
+            // Handle annotation functions
+            if (call.name.value.contains(ANNOTATION_FUNC)) {
+                lazyLoadAnnotationProcessCall(bb, basicBlocks.get(currentBBIndex + 1), call);
+                return false;
+            }
+            if (call.args.isEmpty() && lhsOp != null && lhsOp.variableDcl.kind == VarKind.GLOBAL &&
+                    call.name.value.contains(SPLIT_METHOD)) {
+                lazyLoadSplitCall(call, lhsOp.variableDcl.name.value, bb, basicBlocks, currentBBIndex);
+            }
+        }
+        return (lhsOp != null && lhsOp.variableDcl.kind == VarKind.GLOBAL) || terminator.kind == InstructionKind.GOTO;
+    }
+
+    private void copyInstructions(BIROperand lhsOp, List<BIRNonTerminator> instructions, int currentInsIndex) {
+        String varName = lhsOp.variableDcl.name.value;
+        int startIndex = nextLocalVarIndex;
+        List<BIRNonTerminator> lazyInsList = new ArrayList<>();
+        for (int i = startIndex; i <= currentInsIndex; i++) {
+            lazyInsList.add(instructions.remove(startIndex));
+        }
+        LazyLoadBirBasicBlock lazyLoadBirBasicBlock = lazyLoadingDataCollector.lazyLoadingBBMap.get(varName);
+        if (lazyLoadBirBasicBlock != null) {
+            lazyLoadBirBasicBlock.instructions().addAll(lazyInsList);
+            return;
+        }
+        lazyLoadingDataCollector.lazyLoadingBBMap.put(varName, new LazyLoadBirBasicBlock(lazyInsList, null));
+    }
+
+    private void lazyLoadAnnotationProcessCall(BIRNode.BIRBasicBlock currentBB, BIRNode.BIRBasicBlock nextBB,
+                                               BIRTerminator.Call call) {
         // Extract type annotations
         List<BIRNonTerminator> instructions = nextBB.instructions;
         if (nextBB.instructions.isEmpty()) {
@@ -127,199 +150,48 @@ public class LazyLoadingDesugar {
         nextBB.instructions = nextBBInstructions;
         LazyLoadBirBasicBlock lazyBB = new LazyLoadBirBasicBlock(annotationsInsList, call);
         lazyLoadingDataCollector.lazyLoadingAnnotationsBBMap.put(typeName, lazyBB);
-        currentBB.terminator = new BIRTerminator.GOTO(terminator.pos, nextBB);
+        currentBB.terminator = new BIRTerminator.GOTO(call.pos, nextBB);
     }
 
-    private void lazyLoadSplitCall(BIRTerminator.Call terminator, BIRNode.BIRBasicBlock currentBB,
-                                   BIRTerminator.Call call, BIRNode.BIRVariableDcl variableDcl,
-                                   BIRNode.BIRBasicBlock nextBB) {
-        if (!call.args.isEmpty()) {
-            // This can be split method with multiple calls
-            return;
-        }
-        // Extract split method call
+    private void lazyLoadSplitCall(BIRTerminator.Call call, String varName, BIRNode.BIRBasicBlock bb,
+                                   List<BIRNode.BIRBasicBlock> basicBlocks, int currentBBIndex) {
+        BIRNode.BIRBasicBlock nextBB = basicBlocks.get(currentBBIndex + 1);
         LazyLoadBirBasicBlock lazyBB = new LazyLoadBirBasicBlock(null, call);
-        this.lazyLoadingDataCollector.lazyLoadingBBMap.put(variableDcl.name.value, lazyBB);
-        currentBB.terminator = new BIRTerminator.GOTO(terminator.pos, nextBB);
-    }
-
-    private void lazyLoadConstantLoad(BIRNonTerminator.ConstantLoad constantLoad) {
-        if (constantLoad.lhsOp.variableDcl.kind != VarKind.GLOBAL) {
-            currentBB.instructions.add(constantLoad);
-            return;
-        }
-        String varName = constantLoad.lhsOp.variableDcl.name.value;
-        LazyLoadBirBasicBlock lazyBB = new LazyLoadBirBasicBlock(List.of(constantLoad), null);
         this.lazyLoadingDataCollector.lazyLoadingBBMap.put(varName, lazyBB);
+        bb.terminator = new BIRTerminator.GOTO(call.pos, nextBB);
     }
 
-    private void lazyLoadNewTypeDesc(BIRNonTerminator.NewTypeDesc newTypeDesc) {
-        if (newTypeDesc.lhsOp.variableDcl.kind != VarKind.GLOBAL) {
-            currentBB.instructions.add(newTypeDesc);
-            return;
-        }
-        String varName = newTypeDesc.lhsOp.variableDcl.name.value;
-        LazyLoadBirBasicBlock lazyBB = new LazyLoadBirBasicBlock(List.of(newTypeDesc), null);
-        this.lazyLoadingDataCollector.lazyLoadingBBMap.put(varName, lazyBB);
-    }
-
-    private void lazyLoadNewStructure(BIRNonTerminator.NewStructure newStructure) {
-        if (newStructure.lhsOp.variableDcl.kind != VarKind.GLOBAL) {
-            currentBB.instructions.add(newStructure);
-            return;
-        }
-        BIROperand rhsOp = newStructure.rhsOp;
-        String varName = newStructure.lhsOp.variableDcl.name.value;
-        if (rhsOp.variableDcl.kind != VarKind.GLOBAL) {
-            if (copyAndRemovePreviousInstructions(newStructure, rhsOp, varName)) {
-                return;
-            }
-            currentBB.instructions.add(newStructure);
-            return;
-        }
-        List<BIRNode.BIRMappingConstructorEntry> initialValues = newStructure.initialValues;
-        if (initialValues.isEmpty()) {
-            LazyLoadBirBasicBlock lazyBB = new LazyLoadBirBasicBlock(List.of(newStructure), null);
-            this.lazyLoadingDataCollector.lazyLoadingBBMap.put(varName, lazyBB);
-            return;
-        }
-        BIRNode.BIRMappingConstructorEntry firstEntry = initialValues.getFirst();
-        if (firstEntry.isKeyValuePair()) {
-            BIRNode.BIRMappingConstructorKeyValueEntry keyValueEntry =
-                    (BIRNode.BIRMappingConstructorKeyValueEntry) firstEntry;
-            if (copyAndRemovePreviousInstructions(newStructure, keyValueEntry.keyOp, varName)) {
-                return;
-            }
-            currentBB.instructions.add(newStructure);
-            return;
-        }
-        BIROperand exprOp = ((BIRNode.BIRMappingConstructorSpreadFieldEntry) firstEntry).exprOp;
-        if (exprOp.variableDcl.kind != VarKind.GLOBAL) {
-            currentBB.instructions.add(newStructure);
-            return;
-        }
-        LazyLoadBirBasicBlock lazyBB = new LazyLoadBirBasicBlock(List.of(newStructure), null);
-        this.lazyLoadingDataCollector.lazyLoadingBBMap.put(varName, lazyBB);
-    }
-
-    private int lazyLoadFpLoad(BIRNonTerminator.FPLoad fpLoad, List<BIRNonTerminator> instructions, int i) {
-        if (fpLoad.lhsOp.variableDcl.kind != VarKind.GLOBAL) {
-            currentBB.instructions.add(fpLoad);
-            return i;
-        }
-        String varName = fpLoad.lhsOp.variableDcl.name.value;
-        if (instructions.size() > i + 1) {
-            BIRNonTerminator nextIns = instructions.get(i + 1);
-            if (nextIns.kind == InstructionKind.RECORD_DEFAULT_FP_LOAD) {
-                LazyLoadBirBasicBlock lazyBB = new LazyLoadBirBasicBlock(List.of(fpLoad, nextIns), null);
-                this.lazyLoadingDataCollector.lazyLoadingBBMap.put(varName, lazyBB);
-                return ++i;
-            }
-            LazyLoadBirBasicBlock lazyBB = new LazyLoadBirBasicBlock(List.of(fpLoad), null);
-            this.lazyLoadingDataCollector.lazyLoadingBBMap.put(varName, lazyBB);
-            return i;
-        }
-        LazyLoadBirBasicBlock lazyBB = new LazyLoadBirBasicBlock(List.of(fpLoad), null);
-        this.lazyLoadingDataCollector.lazyLoadingBBMap.put(varName, lazyBB);
-        return i;
-    }
-
-    private void lazyLoadNewArray(BIRNonTerminator.NewArray newArray) {
-        if (newArray.lhsOp.variableDcl.kind != VarKind.GLOBAL) {
-            currentBB.instructions.add(newArray);
-            return;
-        }
-        String varName = newArray.lhsOp.variableDcl.name.value;
-        BIROperand extractedOp;
-        if (newArray.typedescOp != null) {
-            extractedOp = newArray.typedescOp;
-        } else {
-            extractedOp = newArray.sizeOp;
-        }
-        if (copyAndRemovePreviousInstructions(newArray, extractedOp, varName)) {
-            return;
-        }
-        currentBB.instructions.add(newArray);
-    }
-
-    private void lazyLoadTypeCast(BIRNonTerminator.TypeCast typeCast) {
-        if (typeCast.lhsOp.variableDcl.kind != VarKind.GLOBAL || currentBB.instructions.isEmpty()) {
-            currentBB.instructions.add(typeCast);
-            return;
-        }
-        String varName = typeCast.lhsOp.variableDcl.name.value;
-        BIROperand extractedOp = typeCast.rhsOp;
-        if (currentBB.instructions.getLast().kind == InstructionKind.XML_SEQ_STORE && extractXMLValue(typeCast,
-                varName)) {
-            return;
-        } else if (copyAndRemovePreviousInstructions(typeCast, extractedOp, varName)) {
-            return;
-        }
-        currentBB.instructions.add(typeCast);
-    }
-
-    private boolean extractXMLValue(BIRNonTerminator.TypeCast typeCast, String varName) {
-        int currentBBInsSize = currentBB.instructions.size();
-        int lastQNameIns = getLastQNameIns(currentBBInsSize - 1);
-        if (lastQNameIns != -1) {
-            List<BIRNonTerminator> newInstructions = new ArrayList<>();
-            int nsURIOpIndex = lastQNameIns - 3;
-            for (int k = nsURIOpIndex; k < currentBBInsSize; k++) {
-                newInstructions.add(currentBB.instructions.remove(nsURIOpIndex));
-            }
-            newInstructions.add(typeCast);
-            LazyLoadBirBasicBlock lazyBB = new LazyLoadBirBasicBlock(newInstructions, null);
-            this.lazyLoadingDataCollector.lazyLoadingBBMap.put(varName, lazyBB);
-            return true;
-        }
-        return false;
-    }
-
-    private int getLastQNameIns(int currentBBLastIndex) {
-        int lastQNameIns = -1;
-        boolean exitLoop = false;
-        for (int j = currentBBLastIndex; j >= 0 && !exitLoop; j--) {
-            BIRNonTerminator ins = currentBB.instructions.get(j);
-            switch (ins.kind) {
-                case CONST_LOAD, NEW_XML_COMMENT, NEW_XML_ELEMENT, NEW_XML_PI, NEW_XML_SEQUENCE, NEW_XML_TEXT,
-                     XML_SEQ_STORE, XML_ATTRIBUTE_LOAD, XML_ATTRIBUTE_STORE ->  {
+    private void removeUnusedLocalVars(BIRNode.BIRFunction function) {
+        Set<BIRNode.BIRVariableDcl> usedLocalVars = new HashSet<>();
+        List<BIRNode.BIRBasicBlock> basicBlocks = function.basicBlocks;
+        for (BIRNode.BIRBasicBlock basicBlock : basicBlocks) {
+            List<BIRNonTerminator> instructions = basicBlock.instructions;
+            BIRTerminator terminator = basicBlock.terminator;
+            for (BIRNonTerminator instruction : instructions) {
+                BIROperand lhsOp = instruction.lhsOp;
+                if (lhsOp != null) {
+                    usedLocalVars.add(lhsOp.variableDcl);
                 }
-                case NEW_XML_QNAME -> lastQNameIns = j;
-                case null, default -> exitLoop = true;
-            }
-        }
-        return lastQNameIns;
-    }
-
-    private boolean copyAndRemovePreviousInstructions(BIRNonTerminator instruction, BIROperand birOperand,
-                                                      String varName) {
-        BIROperand matchOp = birOperand;
-        int currentBBInsSize = currentBB.instructions.size();
-        for (int j = currentBBInsSize - 1; j >= 0; j--) {
-            BIRNonTerminator ins = currentBB.instructions.get(j);
-            if (ins.lhsOp.equals(matchOp)) {
-                switch (ins.kind) {
-                    case CONST_LOAD, NEW_TYPEDESC, FP_LOAD -> {
-                        List<BIRNonTerminator> newInstructions = new ArrayList<>();
-                        for (int k = j; k < currentBBInsSize; k++) {
-                            newInstructions.add(currentBB.instructions.remove(j));
-                        }
-                        newInstructions.add(instruction);
-                        LazyLoadBirBasicBlock lazyBB = new LazyLoadBirBasicBlock(newInstructions, null);
-                        this.lazyLoadingDataCollector.lazyLoadingBBMap.put(varName, lazyBB);
-                        return true;
-                    }
-                    case null, default -> {
-                        BIROperand[] rhsOperands = ins.getRhsOperands();
-                        if (rhsOperands.length == 1) {
-                            matchOp = rhsOperands[0];
-                        } else {
-                            return false;
-                        }
-                    }
+                for (BIROperand rhsOperand : instruction.getRhsOperands()) {
+                    usedLocalVars.add(rhsOperand.variableDcl);
                 }
             }
+            BIROperand lhsOp = terminator.lhsOp;
+            if (lhsOp != null) {
+                usedLocalVars.add(lhsOp.variableDcl);
+            }
         }
-        return false;
+        List<BIRNode.BIRVariableDcl> newLocalVars = new ArrayList<>();
+        for (BIRNode.BIRVariableDcl localVar : function.localVars) {
+            if (usedLocalVars.contains(localVar)) {
+                newLocalVars.add(localVar);
+            }
+        }
+        function.localVars = newLocalVars;
+    }
+
+    private void reset() {
+        nextLocalVarIndex = 0;
+        nextLocalVarBBIndex = 0;
     }
 }

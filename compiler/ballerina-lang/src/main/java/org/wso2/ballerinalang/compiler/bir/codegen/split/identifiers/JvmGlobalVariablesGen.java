@@ -124,7 +124,7 @@ public class JvmGlobalVariablesGen {
                 List<BIRNonTerminator> instructions = lazyBB.instructions();
                 if (instructions != null) {
                     for (BIRInstruction instruction : instructions) {
-                        instructionGen.generateInstructions(0, instruction);
+                        instructionGen.generateInstructions(-1, instruction);
                     }
                 }
                 BIRTerminator.Call call = lazyBB.call();
@@ -136,7 +136,7 @@ public class JvmGlobalVariablesGen {
                             instructionGen, jvmPackageGen, jvmTypeGen, jvmCastGen, asyncDataCollector);
                     mv.visitInsn(ACONST_NULL);
                     mv.visitVarInsn(ASTORE, 1);
-                    termGen.genCall(call, call.calleePkg, 1);
+                    termGen.genCall(call, call.calleePkg, -1);
                     termGen.storeReturnFromCallIns(call.lhsOp != null ? call.lhsOp.variableDcl : null);
                 }
                 genMethodReturn(mv);

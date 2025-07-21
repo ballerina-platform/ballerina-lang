@@ -679,7 +679,7 @@ public class JvmPackageGen {
         // desugar module init function to lazy load global variables and constants
         LazyLoadingDataCollector lazyLoadingDataCollector = new LazyLoadingDataCollector();
         LazyLoadingDesugar lazyLoadingDesugar = new LazyLoadingDesugar(lazyLoadingDataCollector);
-        lazyLoadingDesugar.lazyLoadInitFunctionsGlobalVars(currentModule.functions);
+        lazyLoadingDesugar.lazyLoadInitFunctions(currentModule.functions);
 
         // generate object/record value classes
         JvmValueGen valueGen = new JvmValueGen(currentModule, this, methodGen, typeHashVisitor, types);

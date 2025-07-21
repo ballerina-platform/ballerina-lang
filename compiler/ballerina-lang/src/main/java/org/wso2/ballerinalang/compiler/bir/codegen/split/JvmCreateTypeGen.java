@@ -240,21 +240,13 @@ public class JvmCreateTypeGen {
         ClassWriter cw = new BallerinaClassWriter(COMPUTE_FRAMES);
         String typeClass =  jvmTypeGen.recordTypesPkgName + typeDef.internalName.value;
         generateConstantsClassInit(cw, typeClass);
-        boolean isAnnotatedType = false;
-        if (!typeDef.isBuiltin || typeDef.referenceType == null || bTypeTag == TypeTags.RECORD) {
-            // Annotations for object constructors are populated at object init site.
-            boolean constructorsPopulated = Symbols.isFlagOn(bType.getFlags(), Flags.OBJECT_CTOR);
-            if (!constructorsPopulated) {
-                loadAnnotations(cw, varName, typeClass, GET_RECORD_TYPE_IMPL, jvmPackageGen, jvmCastGen,
-                        asyncDataCollector, lazyLoadingDataCollector);
-                isAnnotatedType = true;
-            }
-        }
+        loadAnnotations(cw, varName, typeClass, GET_RECORD_TYPE_IMPL, false, jvmPackageGen, jvmCastGen,
+                asyncDataCollector, lazyLoadingDataCollector);
         MethodVisitor mv = cw.visitMethod(ACC_STATIC, JVM_STATIC_INIT_METHOD, VOID_METHOD_DESC, null, null);
-        setTypeInitialized(mv, ICONST_1, typeClass, isAnnotatedType);
-        jvmRecordTypeGen.createRecordType(cw, mv, module, typeClass, (BRecordType) bType, varName, isAnnotatedType,
+        setTypeInitialized(mv, ICONST_1, typeClass, true);
+        jvmRecordTypeGen.createRecordType(cw, mv, module, typeClass, (BRecordType) bType, varName, true,
                 jarEntries, jvmPackageGen.symbolTable);
-        setTypeInitialized(mv, ICONST_0, typeClass, isAnnotatedType);
+        setTypeInitialized(mv, ICONST_0, typeClass, true);
 
         genMethodReturn(mv);
         cw.visitEnd();
@@ -284,14 +276,11 @@ public class JvmCreateTypeGen {
         String typeClass =  jvmTypeGen.objectTypesPkgName + typeDef.internalName.value;
         generateConstantsClassInit(cw, typeClass);
         boolean isAnnotatedType = false;
-        if (!typeDef.isBuiltin || typeDef.referenceType == null || bTypeTag == TypeTags.RECORD) {
-            // Annotations for object constructors are populated at object init site.
+        if (!typeDef.isBuiltin || typeDef.referenceType == null) {
             boolean constructorsPopulated = Symbols.isFlagOn(bType.getFlags(), Flags.OBJECT_CTOR);
-            if (!constructorsPopulated) {
-                loadAnnotations(cw, varName, typeClass, GET_OBJECT_TYPE_IMPL, jvmPackageGen, jvmCastGen,
-                        asyncDataCollector, lazyLoadingDataCollector);
-                isAnnotatedType = true;
-            }
+            loadAnnotations(cw, varName, typeClass, GET_OBJECT_TYPE_IMPL, constructorsPopulated, jvmPackageGen,
+                    jvmCastGen, asyncDataCollector, lazyLoadingDataCollector);
+            isAnnotatedType = true;
         }
         MethodVisitor mv = cw.visitMethod(ACC_STATIC, JVM_STATIC_INIT_METHOD, VOID_METHOD_DESC, null, null);
         setTypeInitialized(mv, ICONST_1, typeClass, isAnnotatedType);
@@ -318,14 +307,11 @@ public class JvmCreateTypeGen {
         String typeClass =  jvmTypeGen.errorTypesPkgName + typeDef.internalName.value;
         generateConstantsClassInit(cw, typeClass);
         boolean isAnnotatedType = false;
-        if (!typeDef.isBuiltin || typeDef.referenceType == null || bTypeTag == TypeTags.RECORD) {
+        if (!typeDef.isBuiltin || typeDef.referenceType == null) {
             // Annotations for object constructors are populated at object init site.
-            boolean constructorsPopulated = Symbols.isFlagOn(bType.getFlags(), Flags.OBJECT_CTOR);
-            if (!constructorsPopulated) {
-                loadAnnotations(cw, varName, typeClass, GET_ERROR_TYPE_IMPL, jvmPackageGen, jvmCastGen,
-                        asyncDataCollector, lazyLoadingDataCollector);
-                isAnnotatedType = true;
-            }
+            loadAnnotations(cw, varName, typeClass, GET_ERROR_TYPE_IMPL, false, jvmPackageGen, jvmCastGen,
+                    asyncDataCollector, lazyLoadingDataCollector);
+            isAnnotatedType = true;
         }
         MethodVisitor mv = cw.visitMethod(ACC_STATIC, JVM_STATIC_INIT_METHOD, VOID_METHOD_DESC, null, null);
         setTypeInitialized(mv, ICONST_1, typeClass, isAnnotatedType);
@@ -352,14 +338,11 @@ public class JvmCreateTypeGen {
         String typeClass =  jvmTypeGen.tupleTypesPkgName + typeDef.internalName.value;
         generateConstantsClassInit(cw, typeClass);
         boolean isAnnotatedType = false;
-        if (!typeDef.isBuiltin || typeDef.referenceType == null || bTypeTag == TypeTags.RECORD) {
+        if (!typeDef.isBuiltin || typeDef.referenceType == null) {
             // Annotations for object constructors are populated at object init site.
-            boolean constructorsPopulated = Symbols.isFlagOn(bType.getFlags(), Flags.OBJECT_CTOR);
-            if (!constructorsPopulated) {
-                loadAnnotations(cw, varName, typeClass, GET_TUPLE_TYPE_IMPL, jvmPackageGen, jvmCastGen,
+            loadAnnotations(cw, varName, typeClass, GET_TUPLE_TYPE_IMPL, false, jvmPackageGen, jvmCastGen,
                         asyncDataCollector, lazyLoadingDataCollector);
-                isAnnotatedType = true;
-            }
+            isAnnotatedType = true;
         }
         MethodVisitor mv = cw.visitMethod(ACC_STATIC, JVM_STATIC_INIT_METHOD, VOID_METHOD_DESC, null, null);
         setTypeInitialized(mv, ICONST_1, typeClass, isAnnotatedType);
@@ -387,13 +370,9 @@ public class JvmCreateTypeGen {
         generateConstantsClassInit(cw, typeClass);
         boolean isAnnotatedType = false;
         if (!typeDef.isBuiltin || typeDef.referenceType == null || bTypeTag == TypeTags.RECORD) {
-            // Annotations for object constructors are populated at object init site.
-            boolean constructorsPopulated = Symbols.isFlagOn(bType.getFlags(), Flags.OBJECT_CTOR);
-            if (!constructorsPopulated) {
-                loadAnnotations(cw, varName, typeClass, GET_UNION_TYPE_IMPL, jvmPackageGen, jvmCastGen,
-                        asyncDataCollector, lazyLoadingDataCollector);
-                isAnnotatedType = true;
-            }
+            loadAnnotations(cw, varName, typeClass, GET_UNION_TYPE_IMPL, false, jvmPackageGen, jvmCastGen,
+                    asyncDataCollector, lazyLoadingDataCollector);
+            isAnnotatedType = true;
         }
         MethodVisitor mv = cw.visitMethod(ACC_STATIC, JVM_STATIC_INIT_METHOD, VOID_METHOD_DESC, null, null);
         setTypeInitialized(mv, ICONST_1, typeClass, isAnnotatedType);
@@ -540,33 +519,39 @@ public class JvmCreateTypeGen {
     // -------------------------------------------------------
 
     public void loadAnnotations(ClassWriter cw, String typeName, String typeClass, String descriptor,
-                                JvmPackageGen jvmPackageGen, JvmCastGen jvmCastGen,
+                                boolean constructorsPopulated, JvmPackageGen jvmPackageGen, JvmCastGen jvmCastGen,
                                 AsyncDataCollector asyncDataCollector,
                                 LazyLoadingDataCollector lazyLoadingDataCollector) {
-        MethodVisitor mv = cw.visitMethod(ACC_PUBLIC | ACC_STATIC, "loadAnnotations", "()V", null, null);
+
+        MethodVisitor mv = cw.visitMethod(ACC_PUBLIC | ACC_STATIC, LOAD_ANNOTATIONS_METHOD, "()V", null, null);
         mv.visitCode();
         LazyLoadBirBasicBlock lazyBB = lazyLoadingDataCollector.lazyLoadingAnnotationsBBMap.get(typeName);
         if (lazyBB != null) {
+            BIRTerminator.Call call = lazyBB.call();
             BIRVarToJVMIndexMap indexMap = new BIRVarToJVMIndexMap();
             PackageID packageID = jvmPackageGen.currentModule.packageID;
-            JvmInstructionGen instructionGen = new JvmInstructionGen(mv, indexMap, packageID, jvmPackageGen, jvmTypeGen,
-                    jvmCastGen, jvmConstantsGen, asyncDataCollector);
-            JvmErrorGen errorGen = new JvmErrorGen(mv, indexMap, instructionGen);
-            LabelGenerator labelGen = new LabelGenerator();
-            JvmTerminatorGen termGen = new JvmTerminatorGen(mv, indexMap, labelGen, errorGen, packageID,
-                    instructionGen, jvmPackageGen, jvmTypeGen, jvmCastGen, asyncDataCollector);
-            mv.visitInsn(ACONST_NULL);
-            mv.visitVarInsn(ASTORE, 1);
-            BIRTerminator.Call call = lazyBB.call();
-            termGen.genCall(call, call.calleePkg, 1);
-            termGen.storeReturnFromCallIns(call.lhsOp != null ? call.lhsOp.variableDcl : null);
+            JvmInstructionGen instructionGen =
+                    new JvmInstructionGen(mv, indexMap, packageID, jvmPackageGen, jvmTypeGen,
+                            jvmCastGen, jvmConstantsGen, asyncDataCollector);
+            if (call != null) {
+                JvmErrorGen errorGen = new JvmErrorGen(mv, indexMap, instructionGen);
+                LabelGenerator labelGen = new LabelGenerator();
+                JvmTerminatorGen termGen = new JvmTerminatorGen(mv, indexMap, labelGen, errorGen, packageID,
+                        instructionGen, jvmPackageGen, jvmTypeGen, jvmCastGen, asyncDataCollector);
+                mv.visitInsn(ACONST_NULL);
+                mv.visitVarInsn(ASTORE, 1);
+                termGen.genCall(call, call.calleePkg, 1);
+                termGen.storeReturnFromCallIns(call.lhsOp != null ? call.lhsOp.variableDcl : null);
+            }
             for (BIRNonTerminator instruction : lazyBB.instructions()) {
                 instructionGen.generateInstructions(0, instruction);
             }
         }
-        mv.visitFieldInsn(GETSTATIC, this.annotationVarClassName, VALUE_VAR_NAME, GET_MAP_VALUE);
-        mv.visitFieldInsn(GETSTATIC, typeClass, TYPE_VAR_NAME, descriptor);
-        mv.visitMethodInsn(INVOKESTATIC, ANNOTATION_UTILS, "processAnnotations", PROCESS_ANNOTATIONS, false);
+        if (!constructorsPopulated) {
+            mv.visitFieldInsn(GETSTATIC, this.annotationVarClassName, VALUE_VAR_NAME, GET_MAP_VALUE);
+            mv.visitFieldInsn(GETSTATIC, typeClass, TYPE_VAR_NAME, descriptor);
+            mv.visitMethodInsn(INVOKESTATIC, ANNOTATION_UTILS, "processAnnotations", PROCESS_ANNOTATIONS, false);
+        }
         genMethodReturn(mv);
     }
 
