@@ -49,6 +49,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static io.ballerina.cli.cmd.Constants.BUILD_COMMAND;
+import static io.ballerina.cli.launcher.LauncherUtils.createLauncherException;
 import static io.ballerina.projects.util.ProjectUtils.isProjectUpdated;
 
 /**
@@ -278,13 +279,14 @@ public class BuildCommand implements BLauncherCmd {
                 if (ProjectPaths.isWorkspaceProjectRoot(this.projectPath)) {
                     project = WorkspaceProject.load(this.projectPath, buildOptions);
                 } else {
-                    Path parent = absProjectPath.getParent();
-                    if (parent != null && ProjectPaths.isWorkspaceProjectRoot(parent)) {
-                        project = WorkspaceProject.load(parent, buildOptions);
+                    Optional<Path> workspaceRoot = ProjectPaths.workspaceRoot(absProjectPath);
+                    if (workspaceRoot.isPresent()) {
+                        project = WorkspaceProject.load(workspaceRoot.get(), buildOptions);
                     } else {
                         project = BuildProject.load(this.projectPath, buildOptions);
                     }
                 }
+
                 if (buildOptions.dumpBuildTime()) {
                     BuildTime.getInstance().projectLoadDuration = System.currentTimeMillis() - start;
                 }
@@ -303,7 +305,6 @@ public class BuildCommand implements BLauncherCmd {
                     "flag is not set");
         }
 
-        // Check package files are modified after last build
         if (project.kind() == ProjectKind.WORKSPACE_PROJECT) {
             WorkspaceProject workspaceProject = (WorkspaceProject) project;
             DependencyGraph<BuildProject> projectDependencyGraph = resolveWorkspaceDependencies(workspaceProject);
@@ -339,14 +340,13 @@ public class BuildCommand implements BLauncherCmd {
         return workspaceProject.getResolution().dependencyGraph();
     }
 
-    private void executeTasks(boolean isPackageModified, boolean isSingleFileBuild,
-                              Project project) {
+    private void executeTasks(boolean isPackageModified, boolean isSingleFile, Project project) {
         BuildOptions buildOptions = project.buildOptions();
         TaskExecutor taskExecutor = new TaskExecutor.TaskBuilder()
                 // clean the target directory(projects only)
-                .addTask(new CleanTargetDirTask(isPackageModified, buildOptions.enableCache()), isSingleFileBuild)
+                .addTask(new CleanTargetDirTask(isPackageModified, buildOptions.enableCache()), isSingleFile)
                 // Run build tools
-                .addTask(new RunBuildToolsTask(outStream), isSingleFileBuild)
+                .addTask(new RunBuildToolsTask(outStream), isSingleFile)
                 // resolve maven dependencies in Ballerina.toml
                 .addTask(new ResolveMavenDependenciesTask(outStream))
                 // compile the modules

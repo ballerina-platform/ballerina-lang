@@ -25,26 +25,33 @@ import io.ballerina.cli.task.CompileTask;
 import io.ballerina.cli.task.CreateTestExecutableTask;
 import io.ballerina.cli.task.DumpBuildTimeTask;
 import io.ballerina.cli.task.ResolveMavenDependenciesTask;
+import io.ballerina.cli.task.ResolveWorkspaceDependenciesTask;
 import io.ballerina.cli.task.RunBuildToolsTask;
 import io.ballerina.cli.task.RunNativeImageTestTask;
 import io.ballerina.cli.task.RunTestsTask;
 import io.ballerina.cli.utils.BuildTime;
 import io.ballerina.cli.utils.FileUtils;
 import io.ballerina.projects.BuildOptions;
+import io.ballerina.projects.DependencyGraph;
 import io.ballerina.projects.Module;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectException;
+import io.ballerina.projects.ProjectKind;
 import io.ballerina.projects.directory.BuildProject;
 import io.ballerina.projects.directory.SingleFileProject;
+import io.ballerina.projects.directory.WorkspaceProject;
 import io.ballerina.projects.util.ProjectConstants;
+import io.ballerina.projects.util.ProjectPaths;
 import picocli.CommandLine;
 
 import java.io.PrintStream;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import static io.ballerina.cli.cmd.Constants.TEST_COMMAND;
 import static io.ballerina.projects.util.ProjectUtils.isProjectUpdated;
@@ -273,6 +280,7 @@ public class TestCommand implements BLauncherCmd {
         BuildOptions buildOptions = constructBuildOptions();
 
         boolean isSingleFile = false;
+        Path absProjectPath = this.projectPath.toAbsolutePath().normalize();
         if (FileUtils.hasExtension(this.projectPath)) {
             try {
                 if (buildOptions.dumpBuildTime()) {
@@ -295,7 +303,16 @@ public class TestCommand implements BLauncherCmd {
                     start = System.currentTimeMillis();
                     BuildTime.getInstance().timestamp = start;
                 }
-                project = BuildProject.load(this.projectPath, buildOptions);
+                if (ProjectPaths.isWorkspaceProjectRoot(this.projectPath)) {
+                    project = WorkspaceProject.load(this.projectPath, buildOptions);
+                } else {
+                    Optional<Path> workspaceRoot = ProjectPaths.workspaceRoot(absProjectPath);
+                    if (workspaceRoot.isPresent()) {
+                        project = WorkspaceProject.load(workspaceRoot.get(), buildOptions);
+                    } else {
+                        project = BuildProject.load(this.projectPath, buildOptions);
+                    }
+                }
                 if (buildOptions.dumpBuildTime()) {
                     BuildTime.getInstance().projectLoadDuration = System.currentTimeMillis() - start;
                 }
@@ -367,6 +384,36 @@ public class TestCommand implements BLauncherCmd {
 
         boolean isTestingDelegated = project.buildOptions().cloud().equals("docker");
 
+        if (project.kind() == ProjectKind.WORKSPACE_PROJECT) {
+            WorkspaceProject workspaceProject = (WorkspaceProject) project;
+            DependencyGraph<BuildProject> projectDependencyGraph = resolveWorkspaceDependencies(workspaceProject);
+            List<BuildProject> topologicallySortedList = new ArrayList<>(projectDependencyGraph.toTopologicallySortedList());
+            if (!project.sourceRoot().equals(absProjectPath)) {
+                // If the project path is not the workspace root, filter the topologically sorted list to include only
+                // the projects that are dependencies of the project at the specified path.
+                Optional<BuildProject> buildProjectOptional = projectDependencyGraph.getNodes().stream()
+                        .filter(node -> node.sourceRoot().equals(absProjectPath)).findFirst();
+                Collection<BuildProject> projectDependencies = projectDependencyGraph.getAllDependencies(
+                        buildProjectOptional.orElseThrow());
+                // remove projects that are not dependencies of the project at the specified path
+                topologicallySortedList.removeIf(prj -> !projectDependencies.contains(prj)
+                        && prj != buildProjectOptional.get());
+            }
+            for (BuildProject buildProject : topologicallySortedList) {
+                executeTasks(true, false, isTestingDelegated, buildProject, cliArgs);
+            }
+        } else {
+            boolean isPackageModified = isProjectUpdated(project);
+            executeTasks(isPackageModified, isSingleFile, isTestingDelegated, project, cliArgs);
+        }
+
+        if (this.exitWhenFinish) {
+            Runtime.getRuntime().exit(0);
+        }
+    }
+
+    private void executeTasks(boolean isPackageModified, boolean isSingleFile, boolean isTestingDelegated,
+                              Project project, String[] cliArgs) {
         // Run pre-build tasks to have the project reloaded.
         // In code coverage generation, the module map is duplicated.
         // Therefore, the project needs to be reloaded beforehand to provide the latest project instance
@@ -386,17 +433,13 @@ public class TestCommand implements BLauncherCmd {
             moduleMap.put(originalModule.moduleName().toString(), originalModule);
         }
 
-        // Check package files are modified after last build
-        boolean isPackageModified = isProjectUpdated(project);
-
         TaskExecutor taskExecutor = new TaskExecutor.TaskBuilder()
                 .addTask(new ResolveMavenDependenciesTask(outStream)) // resolve maven dependencies in Ballerina.toml
                 // compile the modules
                 .addTask(new CompileTask(outStream, errStream, false, false,
-                        isPackageModified, buildOptions.enableCache()))
-//                .addTask(new CopyResourcesTask(), listGroups) // merged with CreateJarTask
+                        isPackageModified, false))
                 .addTask(new CreateTestExecutableTask(outStream, groupList, disableGroupList, testList, listGroups,
-                                cliArgs, isParallelExecution), !isTestingDelegated)
+                        cliArgs, isParallelExecution), !isTestingDelegated)
                 .addTask(new RunTestsTask(outStream, errStream, rerunTests, groupList, disableGroupList,
                                 testList, includes, coverageFormat, moduleMap, listGroups, excludes, cliArgs,
                                 isParallelExecution),
@@ -408,9 +451,14 @@ public class TestCommand implements BLauncherCmd {
                 .build();
 
         taskExecutor.executeTasks(project);
-        if (this.exitWhenFinish) {
-            Runtime.getRuntime().exit(0);
-        }
+    }
+
+    private DependencyGraph<BuildProject> resolveWorkspaceDependencies(WorkspaceProject workspaceProject) {
+        TaskExecutor taskExecutor = new TaskExecutor.TaskBuilder()
+                .addTask(new ResolveWorkspaceDependenciesTask(outStream))
+                .build();
+        taskExecutor.executeTasks(workspaceProject);
+        return workspaceProject.getResolution().dependencyGraph();
     }
 
     private BuildOptions constructBuildOptions() {

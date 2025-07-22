@@ -25,19 +25,23 @@ import io.ballerina.cli.task.CompileTask;
 import io.ballerina.cli.task.CreateExecutableTask;
 import io.ballerina.cli.task.DumpBuildTimeTask;
 import io.ballerina.cli.task.ResolveMavenDependenciesTask;
+import io.ballerina.cli.task.ResolveWorkspaceDependenciesTask;
 import io.ballerina.cli.task.RunBuildToolsTask;
 import io.ballerina.cli.task.RunExecutableTask;
 import io.ballerina.cli.utils.BuildTime;
 import io.ballerina.cli.utils.FileUtils;
 import io.ballerina.cli.utils.ProjectWatcher;
 import io.ballerina.projects.BuildOptions;
+import io.ballerina.projects.DependencyGraph;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.ProjectKind;
 import io.ballerina.projects.directory.BuildProject;
 import io.ballerina.projects.directory.SingleFileProject;
+import io.ballerina.projects.directory.WorkspaceProject;
 import io.ballerina.projects.internal.model.Target;
 import io.ballerina.projects.util.ProjectConstants;
+import io.ballerina.projects.util.ProjectPaths;
 import io.ballerina.projects.util.ProjectUtils;
 import picocli.CommandLine;
 
@@ -48,7 +52,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.PathMatcher;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 
 import static io.ballerina.cli.cmd.Constants.RUN_COMMAND;
 import static io.ballerina.cli.launcher.LauncherUtils.createLauncherException;
@@ -161,6 +167,7 @@ public class RunCommand implements BLauncherCmd {
         this.errStream = outStream;
         this.offline = true;
     }
+
     RunCommand(Path projectPath, PrintStream outStream, boolean exitWhenFinish, Boolean optimizeDependencyCompilation) {
         this.projectPath = projectPath;
         this.exitWhenFinish = exitWhenFinish;
@@ -239,6 +246,7 @@ public class RunCommand implements BLauncherCmd {
         BuildOptions buildOptions = constructBuildOptions();
 
         boolean isSingleFileBuild = false;
+        Path absProjectPath = this.projectPath.toAbsolutePath().normalize();
         if (FileUtils.hasExtension(this.projectPath)) {
             try {
                 if (buildOptions.dumpBuildTime()) {
@@ -261,7 +269,17 @@ public class RunCommand implements BLauncherCmd {
                     start = System.currentTimeMillis();
                     BuildTime.getInstance().timestamp = start;
                 }
-                project = BuildProject.load(this.projectPath, buildOptions);
+                if (ProjectPaths.isWorkspaceProjectRoot(this.projectPath)) {
+                    throw createLauncherException("cannot run a workspace directly. " +
+                            "Please specify a package path to run.");
+                } else {
+                    Optional<Path> workspaceRoot = ProjectPaths.workspaceRoot(absProjectPath);
+                    if (workspaceRoot.isPresent()) {
+                        project = WorkspaceProject.load(workspaceRoot.get(), buildOptions);
+                    } else {
+                        project = BuildProject.load(this.projectPath, buildOptions);
+                    }
+                }
                 if (buildOptions.dumpBuildTime()) {
                     BuildTime.getInstance().projectLoadDuration = System.currentTimeMillis() - start;
                 }
@@ -286,8 +304,36 @@ public class RunCommand implements BLauncherCmd {
             throw createLauncherException("unable to create the executable:" + e.getMessage());
         }
 
-        // Check package files are modified after last build
-        boolean isPackageModified = isProjectUpdated(project);
+        if (project.kind() == ProjectKind.WORKSPACE_PROJECT) {
+            WorkspaceProject workspaceProject = (WorkspaceProject) project;
+            DependencyGraph<BuildProject> projectDependencyGraph = resolveWorkspaceDependencies(workspaceProject);
+            // If the project path is not the workspace root, filter the topologically sorted list to include only
+            // the projects that are dependencies of the project at the specified path.
+            Optional<BuildProject> buildProjectOptional = projectDependencyGraph.getNodes().stream().filter(node ->
+                    node.sourceRoot().equals(absProjectPath)).findFirst();
+            boolean isPackageModified = isProjectUpdated(project);
+            if (buildProjectOptional.isEmpty()) {
+                throw createLauncherException("no package found at the specified path: " + absProjectPath);
+            }
+            executeTasks(isPackageModified, project.buildOptions(), false, target, args,
+                    buildProjectOptional.get());
+
+        } else {
+            boolean isPackageModified = isProjectUpdated(project);
+            executeTasks(isPackageModified, buildOptions, isSingleFileBuild, target, args, project);
+        }
+    }
+
+    private DependencyGraph<BuildProject> resolveWorkspaceDependencies(WorkspaceProject workspaceProject) {
+        TaskExecutor taskExecutor = new TaskExecutor.TaskBuilder()
+                .addTask(new ResolveWorkspaceDependenciesTask(outStream))
+                .build();
+        taskExecutor.executeTasks(workspaceProject);
+        return workspaceProject.getResolution().dependencyGraph();
+    }
+
+    private void executeTasks(boolean isPackageModified, BuildOptions buildOptions, boolean isSingleFileBuild,
+                              Target target, String[] args, Project project) {
         TaskExecutor taskExecutor = new TaskExecutor.TaskBuilder()
                 // clean target dir for projects
                 .addTask(new CleanTargetDirTask(isPackageModified, buildOptions.enableCache()), isSingleFileBuild)
@@ -298,7 +344,6 @@ public class RunCommand implements BLauncherCmd {
                 // compile the modules
                 .addTask(new CompileTask(outStream, errStream, false, false,
                         isPackageModified, buildOptions.enableCache()))
-//                .addTask(new CopyResourcesTask(), isSingleFileBuild)
                 .addTask(new CreateExecutableTask(outStream, null, target, true))
                 .addTask(runExecutableTask = new RunExecutableTask(args, outStream, errStream, target))
                 .addTask(new DumpBuildTimeTask(outStream), !project.buildOptions().dumpBuildTime())
