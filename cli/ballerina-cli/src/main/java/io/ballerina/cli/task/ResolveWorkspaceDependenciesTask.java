@@ -17,10 +17,13 @@
  */
 package io.ballerina.cli.task;
 
+import io.ballerina.projects.DiagnosticResult;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.directory.WorkspaceProject;
 
 import java.io.PrintStream;
+
+import static io.ballerina.cli.launcher.LauncherUtils.createLauncherException;
 
 public class ResolveWorkspaceDependenciesTask implements Task {
     private final PrintStream outStream;
@@ -31,8 +34,14 @@ public class ResolveWorkspaceDependenciesTask implements Task {
 
     @Override
     public void execute(Project project) {
-        this.outStream.println("\nResolving workspace dependencies\n");
+        this.outStream.println("\nResolving workspace dependencies");
         WorkspaceProject workspaceProject = (WorkspaceProject) project;
-        workspaceProject.getResolution();
+        DiagnosticResult diagnosticResult = workspaceProject.getResolution().diagnosticResult();
+        diagnosticResult.diagnostics().forEach(diagnostic -> {
+            this.outStream.println(diagnostic.toString());
+        });
+        if (diagnosticResult.hasErrors()) {
+            throw createLauncherException("workspace resolution contains errors");
+        }
     }
 }

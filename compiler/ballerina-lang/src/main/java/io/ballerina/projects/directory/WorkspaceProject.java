@@ -172,7 +172,7 @@ public class WorkspaceProject extends Project {
         return Collections.unmodifiableSet(this.projectSet);
     }
 
-    public WorkspaceManifest workspaceManifest() {
+    public WorkspaceManifest manifest() {
         return this.workspaceManifest;
     }
 

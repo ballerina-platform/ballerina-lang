@@ -19,18 +19,25 @@ package io.ballerina.projects;
 
 import io.ballerina.projects.directory.BuildProject;
 import io.ballerina.projects.directory.WorkspaceProject;
+import io.ballerina.projects.internal.DefaultDiagnosticResult;
 import io.ballerina.projects.internal.WorkspaceDependencyGraphBuilder;
+import io.ballerina.tools.diagnostics.Diagnostic;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 public class WorkspaceResolution {
-
     private final WorkspaceProject workspaceProject;
     private final DependencyGraph<BuildProject> projectDependencyGraph;
+    private final List<Diagnostic> diagnosticList;
+    private DefaultDiagnosticResult diagnosticResult;
 
     public WorkspaceResolution(WorkspaceProject workspaceProject) {
         this.workspaceProject = workspaceProject;
         this.projectDependencyGraph = buildDependencyGraph();
+        this.diagnosticList = new ArrayList<>();
+        this.diagnosticList.addAll(workspaceProject.manifest().diagnostics().allDiagnostics);
     }
 
     public static WorkspaceResolution from(WorkspaceProject workspaceProject) {
@@ -65,5 +72,12 @@ public class WorkspaceResolution {
 
     public DependencyGraph<BuildProject> dependencyGraph() {
         return projectDependencyGraph;
+    }
+
+    public DiagnosticResult diagnosticResult() {
+        if (this.diagnosticResult == null) {
+            this.diagnosticResult = new DefaultDiagnosticResult(this.diagnosticList);
+        }
+        return diagnosticResult;
     }
 }
