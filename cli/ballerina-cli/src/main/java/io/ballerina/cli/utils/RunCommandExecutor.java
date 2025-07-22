@@ -51,6 +51,7 @@ public class RunCommandExecutor extends Thread {
         // build options passed by the developer.
         try {
             runCommand.unsetWatch();
+            runCommand.setInitialWatch();
             runCommand.execute();
         } catch (BLangCompilerException e) {
             if (!(e.getMessage().contains(COMPILATION_ERROR_MESSAGE))) {
