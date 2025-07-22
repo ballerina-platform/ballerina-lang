@@ -1,5 +1,6 @@
 package io.ballerina.projects;
 
+import io.ballerina.projects.directory.BuildProject;
 import io.ballerina.projects.environment.ResolutionOptions;
 import io.ballerina.projects.internal.DefaultDiagnosticResult;
 import io.ballerina.projects.internal.DependencyManifestBuilder;
@@ -25,6 +26,7 @@ import java.util.Set;
 import java.util.Spliterator;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 /**
  * {@code Package} represents a Ballerina Package.
@@ -689,6 +691,14 @@ public class Package {
             DependencyGraph<ResolvedPackageDependency> newDepGraph = this.project.currentPackage().packageContext()
                     .getResolution(offlineCompOptions, true).dependencyGraph();
             cleanPackageCache(this.dependencyGraph, newDepGraph);
+            if (this.project.kind() == ProjectKind.BUILD_PROJECT && this.project.workspaceProject().isPresent()) {
+                Collection<BuildProject> wpDependents = this.project.workspaceProject().get().getResolution()
+                        .dependencyGraph().getAllDependents((BuildProject) this.project);
+                for (BuildProject dependent : wpDependents) {
+                    dependent.resetPackage(dependent);
+                }
+            }
+
             return this.project.currentPackage();
         }
 

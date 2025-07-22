@@ -70,7 +70,7 @@ public class BalaProject extends Project implements Comparable<Project> {
     }
 
     private BalaProject(ProjectEnvironmentBuilder environmentBuilder, Path balaPath, BuildOptions buildOptions) {
-        super(ProjectKind.BALA_PROJECT, balaPath, environmentBuilder, buildOptions);
+        super(ProjectKind.BALA_PROJECT, balaPath, environmentBuilder, buildOptions, null);
         this.platform = BalaFiles.readPackageJson(balaPath).getPlatform();
         this.balaVersion = BalaFiles.readBalaJson(balaPath).getBala_version();
     }

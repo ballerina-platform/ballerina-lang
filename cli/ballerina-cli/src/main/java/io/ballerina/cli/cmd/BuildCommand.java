@@ -235,7 +235,6 @@ public class BuildCommand implements BLauncherCmd {
             return;
         }
 
-
         // load project
         Project project;
         BuildOptions buildOptions = constructBuildOptions();

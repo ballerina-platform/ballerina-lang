@@ -192,7 +192,7 @@ public class WorkspaceProject extends Project {
 
     private BuildProject loadBuildProject(Environment environment, Path packagePath) {
         ProjectEnvironmentBuilder projectEnvironmentBuilder = ProjectEnvironmentBuilder.getBuilder(environment);
-        return BuildProject.load(projectEnvironmentBuilder, packagePath, buildOptions);
+        return BuildProject.load(projectEnvironmentBuilder, packagePath, buildOptions, this);
     }
 
 }

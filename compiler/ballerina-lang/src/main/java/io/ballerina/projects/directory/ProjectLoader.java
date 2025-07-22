@@ -54,10 +54,6 @@ public final class ProjectLoader {
     }
 
     public static Project loadProject(Path path, EnvironmentBuilder environmentBuilder, BuildOptions buildOptions) {
-        Path projectRoot = getProjectRoot(Optional.of(path.toAbsolutePath().normalize()).get());
-        if (ProjectPaths.isWorkspaceProjectRoot(projectRoot)) {
-            return WorkspaceProject.load(projectRoot, environmentBuilder, buildOptions);
-        }
         ProjectEnvironmentBuilder projectEnvironmentBuilder =
                 ProjectEnvironmentBuilder.getBuilder(environmentBuilder.build());
         return loadProject(path, projectEnvironmentBuilder, buildOptions);
@@ -72,13 +68,12 @@ public final class ProjectLoader {
      */
     public static Project loadProject(Path path, ProjectEnvironmentBuilder projectEnvironmentBuilder,
                                       BuildOptions buildOptions) throws ProjectException {
-        Path projectRoot = getProjectRoot(Optional.of(path.toAbsolutePath().normalize()).get());
-
-        if (ProjectPaths.isWorkspaceProjectRoot(projectRoot)) {
-            // projectEnvironmentBuilder cannot be used for WorkspaceProject since there are
-            // multiple projects in a workspace, and they can't share the same project environment.
-            return WorkspaceProject.load(projectRoot, buildOptions);
+        if (ProjectPaths.workspaceRoot(path).isPresent()) {
+            // If the path is in a workspace, load the workspace project
+            return WorkspaceProject.load(path, buildOptions);
         }
+
+        Path projectRoot = getProjectRoot(Optional.of(path.toAbsolutePath().normalize()).get());
 
         boolean isPackageRoot = ProjectPaths.isBuildProjectRoot(projectRoot);
         if (isPackageRoot) {

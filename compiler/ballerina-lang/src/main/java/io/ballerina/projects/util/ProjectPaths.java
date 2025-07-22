@@ -20,6 +20,8 @@ package io.ballerina.projects.util;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.TomlDocument;
+import io.ballerina.projects.WorkspaceManifest;
+import io.ballerina.projects.internal.WorkspaceManifestBuilder;
 import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
 
 import java.io.IOException;
@@ -360,6 +362,50 @@ public final class ProjectPaths {
                 }
             }
             return findProjectRoot(filePath.getParent());
+        }
+        return Optional.empty();
+    }
+
+    private static Optional<Path> findWorkspaceRoot(Path filePath) {
+        if (filePath != null) {
+            filePath = filePath.toAbsolutePath().normalize();
+            if (filePath.toFile().isDirectory()) {
+                if (isWorkspaceProjectRoot(filePath) ) {
+                    return Optional.of(filePath);
+                }
+            }
+            return findWorkspaceRoot(filePath.getParent());
+        }
+        return Optional.empty();
+    }
+
+    public static Optional<Path> workspaceRoot(Path filePath) {
+        Path absFilePath = filePath.toAbsolutePath().normalize();
+        if (isWorkspaceProjectRoot(absFilePath)) {
+            return Optional.of(absFilePath);
+        }
+        Path packageRoot;
+        try {
+            packageRoot = packageRoot(filePath);
+        } catch (ProjectException e) {
+            return Optional.empty();
+        }
+
+        Optional<Path> workspaceRoot = findWorkspaceRoot(absFilePath);
+        if (workspaceRoot.isPresent()) {
+            try {
+                TomlDocument tomlDocument = TomlDocument.from(BALLERINA_TOML, Files.readString(workspaceRoot.get()
+                        .resolve(BALLERINA_TOML)));
+                WorkspaceManifest wpManifest = WorkspaceManifestBuilder.from(tomlDocument, workspaceRoot.get()).manifest();
+
+                for (Path pkgPath : wpManifest.packages()) {
+                    if (packageRoot.equals(pkgPath.toAbsolutePath().normalize())) {
+                        return workspaceRoot;
+                    }
+                }
+            } catch (IOException e) {
+                return Optional.empty();
+            }
         }
         return Optional.empty();
     }

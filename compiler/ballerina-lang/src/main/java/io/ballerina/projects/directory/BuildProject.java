@@ -115,17 +115,24 @@ public class BuildProject extends Project implements Comparable<Project> {
      */
     public static BuildProject load(ProjectEnvironmentBuilder environmentBuilder, Path projectPath,
                                     BuildOptions buildOptions) {
+        return load(environmentBuilder, projectPath, buildOptions, null);
+    }
+
+    public static BuildProject load(ProjectEnvironmentBuilder environmentBuilder, Path projectPath,
+                                    BuildOptions buildOptions, WorkspaceProject workspaceProject) {
         PackageConfig packageConfig = PackageConfigCreator.createBuildProjectConfig(projectPath,
                 buildOptions.disableSyntaxTree());
         BuildOptions mergedBuildOptions = ProjectFiles.createBuildOptions(packageConfig, buildOptions, projectPath);
 
-        BuildProject buildProject = new BuildProject(environmentBuilder, projectPath, mergedBuildOptions);
+        BuildProject buildProject = new BuildProject(environmentBuilder, projectPath, mergedBuildOptions,
+                workspaceProject);
         buildProject.addPackage(packageConfig);
         return buildProject;
     }
 
-    private BuildProject(ProjectEnvironmentBuilder environmentBuilder, Path projectPath, BuildOptions buildOptions) {
-        super(ProjectKind.BUILD_PROJECT, projectPath, environmentBuilder, buildOptions);
+    private BuildProject(ProjectEnvironmentBuilder environmentBuilder, Path projectPath, BuildOptions buildOptions,
+                         WorkspaceProject workspaceProject) {
+        super(ProjectKind.BUILD_PROJECT, projectPath, environmentBuilder, buildOptions, workspaceProject);
         populateCompilerContext();
     }
 
@@ -204,7 +211,8 @@ public class BuildProject extends Project implements Comparable<Project> {
     public Project duplicate() {
         BuildOptions duplicateBuildOptions = BuildOptions.builder().build().acceptTheirs(buildOptions());
         BuildProject buildProject = new BuildProject(
-                ProjectEnvironmentBuilder.getDefaultBuilder(), this.sourceRoot, duplicateBuildOptions);
+                ProjectEnvironmentBuilder.getDefaultBuilder(), this.sourceRoot, duplicateBuildOptions,
+                this.workspaceProject);
         return resetPackage(buildProject);
     }
 
