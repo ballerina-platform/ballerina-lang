@@ -22,7 +22,9 @@ import io.ballerina.cli.BLauncherCmd;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.directory.BuildProject;
+import io.ballerina.projects.directory.WorkspaceProject;
 import io.ballerina.projects.util.ProjectConstants;
+import io.ballerina.projects.util.ProjectPaths;
 import io.ballerina.projects.util.ProjectUtils;
 import picocli.CommandLine;
 
@@ -104,10 +106,21 @@ public class CleanCommand implements BLauncherCmd {
             }
         }
 
-        // delete the generated directory
+        if (ProjectPaths.isWorkspaceProjectRoot(this.projectPath)) {
+            WorkspaceProject workspaceProject = WorkspaceProject.load(this.projectPath);
+            for (BuildProject project : workspaceProject.getResolution().dependencyGraph().getNodes()) {
+                cleanProject(project);
+            }
+        } else {
+            Project project = BuildProject.load(this.projectPath);
+            cleanProject(project);
+        }
+    }
+
+    private void cleanProject(Project project) {
         Path generatedDir;
         try {
-            Project project = BuildProject.load(this.projectPath);
+            // delete the generated directory
             generatedDir = project.sourceRoot().resolve(ProjectConstants.GENERATED_MODULES_ROOT);
         } catch (ProjectException e) {
             CommandUtil.printError(this.outStream, e.getMessage(), null, false);
@@ -119,7 +132,7 @@ public class CleanCommand implements BLauncherCmd {
             this.outStream.println("Successfully deleted '" + generatedDir + "'.");
         }
     }
-    
+
     @Override
     public String getName() {
         return CLEAN_COMMAND;
