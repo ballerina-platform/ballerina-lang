@@ -316,7 +316,6 @@ public final class JvmConstants {
     public static final String MODULE_ERROR_TYPES_PACKAGE_NAME = "types/error_types/";
     public static final String MODULE_TUPLE_TYPES_PACKAGE_NAME = "types/tuple_types/";
     public static final String MODULE_UNION_TYPES_PACKAGE_NAME = "types/union_types/";
-    public static final String ANNOTATIONS_METHOD_PREFIX = "$process_annotations";
     public static final String CURRENT_MODULE_INIT_METHOD = "$currentModuleInit";
     public static final String CURRENT_MODULE_STOP_METHOD = "$currentModuleStop";
     public static final String MODULE_INIT_METHOD = "$moduleInit";

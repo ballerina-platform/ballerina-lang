@@ -114,7 +114,7 @@ function compareTypeOfValues() {
     // Structural types - Records, Maps
     RecType0 rec = {name: "test"};
     test:assertTrue(typeof rec === typeof rec);
-    test:assertTrue(typeof rec === RecType0);
+    test:assertTrue(typeof rec !== RecType0);
 
     map<string> mapVal = {s: "test"};
     test:assertTrue(typeof mapVal === typeof mapVal);

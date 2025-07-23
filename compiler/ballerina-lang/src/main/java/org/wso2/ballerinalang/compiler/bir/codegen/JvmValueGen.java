@@ -218,7 +218,6 @@ public class JvmValueGen {
 
     private byte[] createRecordTypeDescClass(BRecordType recordType, String className,
                                              BIRNode.BIRTypeDefinition typeDef, JvmTypeGen jvmTypeGen) {
-
         ClassWriter cw = new BallerinaClassWriter(COMPUTE_FRAMES);
         if (typeDef.pos != null) {
             cw.visitSource(typeDef.pos.lineRange().fileName(), null);
@@ -226,15 +225,12 @@ public class JvmValueGen {
             cw.visitSource(className, null);
         }
         cw.visit(V21, ACC_PUBLIC + ACC_SUPER, className, null, TYPEDESC_VALUE_IMPL, new String[]{TYPEDESC_VALUE});
-
         FieldVisitor fv = cw.visitField(0, ANNOTATIONS_FIELD, GET_MAP_VALUE, null, null);
         fv.visitEnd();
-
         this.createTypeDescConstructor(cw, className);
         this.createTypeDescConstructorWithAnnotations(cw, className);
         this.createInstantiateMethod(cw, recordType, jvmTypeGen, className);
         this.createInstantiateMethodWithInitialValues(cw, recordType, typeDef, className);
-
         cw.visitEnd();
         return jvmPackageGen.getBytes(cw, typeDef);
     }

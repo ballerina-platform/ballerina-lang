@@ -533,7 +533,7 @@ public class MethodGen {
             Label bbEndLabel = labelGen.getLabel(funcName + bb.id.value + "beforeTerm");
             mv.visitLabel(bbEndLabel);
             BIRTerminator terminator = bb.terminator;
-            processTerminator(mv, func, module, funcName, terminator);
+            processTerminator(mv, module, funcName, terminator);
             termGen.genTerminator(terminator, moduleClassName, func, funcName, localVarOffset, returnVarRefIndex,
                     attachedType, channelMapVarIndex, sendWorkerChannelNamesVar, receiveWorkerChannelNamesVar);
             lastScope = JvmCodeGenUtil.getLastScopeFromTerminator(mv, bb, funcName, labelGen, lastScope,
@@ -576,8 +576,7 @@ public class MethodGen {
         mv.visitLabel(label3);
     }
 
-    private void processTerminator(MethodVisitor mv, BIRFunction func, BIRPackage module, String funcName,
-                                   BIRTerminator terminator) {
+    private void processTerminator(MethodVisitor mv, BIRPackage module, String funcName, BIRTerminator terminator) {
         if (terminator.kind == InstructionKind.GOTO &&
                 ((BIRTerminator.GOTO) terminator).targetBB.terminator.kind == InstructionKind.RETURN &&
                 ((BIRTerminator.GOTO) terminator).targetBB.terminator.pos != null) {

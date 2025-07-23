@@ -36,6 +36,11 @@ import java.util.Set;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ANNOTATION_FUNC;
 import static org.wso2.ballerinalang.compiler.bir.codegen.optimizer.LargeMethodOptimizer.SPLIT_METHOD;
 
+/**
+ * Lazy loading desugar phase related methods at JVM code generation.
+ *
+ * @since 2201.12.8
+ */
 public class LazyLoadingDesugar {
 
     private final LazyLoadingDataCollector lazyLoadingDataCollector;
@@ -117,7 +122,12 @@ public class LazyLoadingDesugar {
         }
         LazyLoadBirBasicBlock lazyLoadBirBasicBlock = lazyLoadingDataCollector.lazyLoadingBBMap.get(varName);
         if (lazyLoadBirBasicBlock != null) {
-            lazyLoadBirBasicBlock.instructions().addAll(lazyInsList);
+            List<BIRNonTerminator> insList = lazyLoadBirBasicBlock.instructions;
+            if (insList == null) {
+                lazyLoadBirBasicBlock.instructions = lazyInsList;
+                return;
+            }
+            insList.addAll(lazyInsList);
             return;
         }
         lazyLoadingDataCollector.lazyLoadingBBMap.put(varName, new LazyLoadBirBasicBlock(lazyInsList, null));

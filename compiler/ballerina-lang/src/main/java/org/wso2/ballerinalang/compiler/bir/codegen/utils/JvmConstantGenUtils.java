@@ -56,10 +56,10 @@ public final class JvmConstantGenUtils {
         genMethodReturn(methodVisitor);
     }
 
-    public static void genMethodReturn(MethodVisitor methodVisitor) {
-        methodVisitor.visitInsn(RETURN);
-        methodVisitor.visitMaxs(0, 0);
-        methodVisitor.visitEnd();
+    public static void genMethodReturn(MethodVisitor mv) {
+        mv.visitInsn(RETURN);
+        mv.visitMaxs(0, 0);
+        mv.visitEnd();
     }
 
     public static void genLazyLoadingClass(ClassWriter cw, String lazyLoadingClass, String descriptor) {
@@ -69,8 +69,11 @@ public final class JvmConstantGenUtils {
         generateConstantsClassInit(cw, lazyLoadingClass);
     }
 
-    public static void addField(ClassWriter cw, String varName) {
-        FieldVisitor fv = cw.visitField(ACC_PUBLIC + ACC_STATIC, varName, "B", null, null);
+    public static void addDebugField(ClassWriter cw, String varName) {
+        if (varName.startsWith("$")) {
+            return;
+        }
+        FieldVisitor fv = cw.visitField(ACC_PRIVATE, varName, "B", null, null);
         fv.visitEnd();
     }
 }

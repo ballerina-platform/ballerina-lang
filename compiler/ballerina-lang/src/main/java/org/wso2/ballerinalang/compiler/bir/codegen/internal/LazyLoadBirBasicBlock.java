@@ -23,6 +23,18 @@ import org.wso2.ballerinalang.compiler.bir.model.BIRTerminator;
 
 import java.util.List;
 
-public record LazyLoadBirBasicBlock(List<BIRNonTerminator> instructions, BIRTerminator.Call call) {
+/**
+ * Keeps instructions and call for lazy loading.
+ *
+ * @since 2201.12.8
+ */
+public class LazyLoadBirBasicBlock {
 
+    public List<BIRNonTerminator> instructions;
+    public BIRTerminator.Call call;
+
+    public LazyLoadBirBasicBlock(List<BIRNonTerminator> instructions, BIRTerminator.Call call) {
+        this.instructions = instructions;
+        this.call = call;
+    }
 }

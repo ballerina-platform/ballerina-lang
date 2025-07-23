@@ -40,6 +40,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
 
+/**
+ * Identifier desugar phase related methods at JVM code generation.
+ *
+ * @since 2201.12.8
+ */
 public class IdentifierDesugar {
 
     public static HashMap<String, String> encodeModuleIdentifiers(BIRNode.BIRPackage module) {

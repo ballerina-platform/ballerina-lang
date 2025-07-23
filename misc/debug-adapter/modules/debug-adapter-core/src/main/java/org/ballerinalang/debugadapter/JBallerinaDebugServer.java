@@ -138,7 +138,6 @@ import static org.ballerinalang.debugadapter.completion.util.CompletionUtil.trig
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.loadClass;
 import static org.ballerinalang.debugadapter.utils.PackageUtils.ALL_CONSTANTS_CLASS_NAME;
 import static org.ballerinalang.debugadapter.utils.PackageUtils.ALL_GLOBAL_VAR_CLASS_NAME;
-import static org.ballerinalang.debugadapter.utils.PackageUtils.GENERATED_VAR_PREFIX;
 import static org.ballerinalang.debugadapter.utils.PackageUtils.GLOBAL_CONSTANTS_PACKAGE_NAME;
 import static org.ballerinalang.debugadapter.utils.PackageUtils.GLOBAL_VARIABLES_PACKAGE_NAME;
 import static org.ballerinalang.debugadapter.utils.PackageUtils.VALUE_VAR_NAME;
@@ -988,13 +987,8 @@ public class JBallerinaDebugServer implements BallerinaExtendedDebugServer {
         ReferenceType allGlobalVarClassRef = cls.getFirst();
         for (Field field : allGlobalVarClassRef.allFields()) {
             String fieldName = field.name();
-            if (!field.isPublic() || !field.isStatic() || fieldName.startsWith(GENERATED_VAR_PREFIX)) {
-                continue;
-            }
-            String globalVarClassName = PackageUtils.getQualifiedClassName(suspendedContext, fieldName,
-                    varClassPkg);
-            List<ReferenceType> classRefs = Collections.singletonList(loadClass(suspendedContext,
-                    globalVarClassName, ""));
+            String varClassName = PackageUtils.getQualifiedClassName(suspendedContext, fieldName, varClassPkg);
+            List<ReferenceType> classRefs = Collections.singletonList(loadClass(suspendedContext, varClassName, ""));
             ReferenceType classRef = classRefs.getFirst();
             Field valueField = classRef.fieldByName(VALUE_VAR_NAME);
             Value fieldValue = classRef.getValue(valueField);

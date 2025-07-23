@@ -85,10 +85,10 @@ public class JvmConstantsGen {
         this.arrayTypeConstantsGen = new JvmArrayTypeConstantsGen(module.packageID, bTypeHashComparator, types,
                 jarEntries);
         this.refTypeConstantsGen = new JvmRefTypeConstantsGen(module.packageID, bTypeHashComparator, jarEntries);
-        this.allConstantsClassName = getModuleLevelClassName(module.packageID, ALL_CONSTANTS_CLASS_NAME);
+        this.globalVarsPkgName = getModuleLevelClassName(module.packageID, GLOBAL_VARIABLES_PACKAGE_NAME);
         this.constantsPkgName = getModuleLevelClassName(module.packageID, GLOBAL_CONSTANTS_PACKAGE_NAME);
         this.allGlobalVarsClassName = getModuleLevelClassName(module.packageID, ALL_GLOBAL_VARIABLES_CLASS_NAME);
-        this.globalVarsPkgName = getModuleLevelClassName(module.packageID, GLOBAL_VARIABLES_PACKAGE_NAME);
+        this.allConstantsClassName = getModuleLevelClassName(module.packageID, ALL_CONSTANTS_CLASS_NAME);
     }
 
     public int getBStringConstantVarIndex(String value) {
@@ -142,8 +142,7 @@ public class JvmConstantsGen {
     public void getRefTypeConstantsVar(BIRNode.BIRTypeDefinition typeDef, JvmPackageGen jvmPackageGen,
                                        JvmCastGen jvmCastGen, AsyncDataCollector asyncDataCollector,
                                        LazyLoadingDataCollector lazyLoadingDataCollector) {
-        refTypeConstantsGen.add(typeDef, jvmPackageGen, jvmCastGen, asyncDataCollector,
-                lazyLoadingDataCollector);
+        refTypeConstantsGen.add(typeDef, jvmPackageGen, jvmCastGen, asyncDataCollector, lazyLoadingDataCollector);
     }
 
     public String getUnionTypeConstantsVar(BType type, SymbolTable symbolTable) {

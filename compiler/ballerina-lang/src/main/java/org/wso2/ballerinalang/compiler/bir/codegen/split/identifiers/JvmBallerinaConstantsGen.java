@@ -41,7 +41,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBJECT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.VALUE_VAR_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.VOID_METHOD_DESC;
 import static org.wso2.ballerinalang.compiler.bir.codegen.utils.JvmCodeGenUtil.getVarStoreClass;
-import static org.wso2.ballerinalang.compiler.bir.codegen.utils.JvmConstantGenUtils.addField;
+import static org.wso2.ballerinalang.compiler.bir.codegen.utils.JvmConstantGenUtils.addDebugField;
 import static org.wso2.ballerinalang.compiler.bir.codegen.utils.JvmConstantGenUtils.genLazyLoadingClass;
 import static org.wso2.ballerinalang.compiler.bir.codegen.utils.JvmConstantGenUtils.genMethodReturn;
 import static org.wso2.ballerinalang.compiler.bir.codegen.utils.JvmModuleUtils.getModuleLevelClassName;
@@ -83,7 +83,7 @@ public class JvmBallerinaConstantsGen {
             String descriptor = JvmCodeGenUtil.getFieldTypeSignature(bType);
             // Create lazy loading class
             genLazyLoadingClass(cw, constantVarClassName, descriptor);
-            addField(allConstantsCW, varName);
+            addDebugField(allConstantsCW, varName);
             if (JvmCodeGenUtil.isSimpleBasicType(bType)) {
                 // load basic constant value
                 MethodVisitor mv = cw.visitMethod(ACC_STATIC, JVM_STATIC_INIT_METHOD, VOID_METHOD_DESC, null, null);

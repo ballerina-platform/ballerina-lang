@@ -152,7 +152,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.VOID_MET
 import static org.wso2.ballerinalang.compiler.bir.codegen.utils.JvmCodeGenUtil.createDefaultCase;
 import static org.wso2.ballerinalang.compiler.bir.codegen.utils.JvmCodeGenUtil.getVarStoreClass;
 import static org.wso2.ballerinalang.compiler.bir.codegen.utils.JvmCodeGenUtil.skipRecordDefaultValueFunctions;
-import static org.wso2.ballerinalang.compiler.bir.codegen.utils.JvmConstantGenUtils.addField;
+import static org.wso2.ballerinalang.compiler.bir.codegen.utils.JvmConstantGenUtils.addDebugField;
 import static org.wso2.ballerinalang.compiler.bir.codegen.utils.JvmConstantGenUtils.genMethodReturn;
 import static org.wso2.ballerinalang.compiler.bir.codegen.utils.JvmConstantGenUtils.generateConstantsClassInit;
 import static org.wso2.ballerinalang.compiler.bir.codegen.utils.JvmModuleUtils.getModuleLevelClassName;
@@ -184,7 +184,7 @@ public class JvmCreateTypeGen {
                             TypeHashVisitor typeHashVisitor) {
         this.jvmTypeGen = jvmTypeGen;
         this.jvmConstantsGen = jvmConstantsGen;
-        this.jvmRecordTypeGen = new JvmRecordTypeGen(this, jvmTypeGen, jvmConstantsGen, packageID);
+        this.jvmRecordTypeGen = new JvmRecordTypeGen(this, jvmTypeGen, jvmConstantsGen);
         this.jvmObjectTypeGen = new JvmObjectTypeGen(this, jvmTypeGen, jvmConstantsGen);
         this.jvmErrorTypeGen = new JvmErrorTypeGen(this, jvmTypeGen, jvmConstantsGen);
         this.jvmUnionTypeGen = new JvmUnionTypeGen(this, jvmTypeGen, jvmConstantsGen);
@@ -209,7 +209,7 @@ public class JvmCreateTypeGen {
             BType bType = typeDef.type;
             int bTypeTag = bType.tag;
             switch (bTypeTag) {
-                case TypeTags.RECORD ->    createRecordType(typeDef, allTypesCW, module, jvmPackageGen, jvmCastGen,
+                case TypeTags.RECORD -> createRecordType(typeDef, allTypesCW, module, jvmPackageGen, jvmCastGen,
                         asyncDataCollector, lazyLoadingDataCollector, jarEntries);
                 case TypeTags.OBJECT -> createObjectType(typeDef, allTypesCW, jvmPackageGen, jvmCastGen,
                         asyncDataCollector, lazyLoadingDataCollector, jarEntries);
@@ -243,15 +243,16 @@ public class JvmCreateTypeGen {
         loadAnnotations(cw, varName, typeClass, GET_RECORD_TYPE_IMPL, false, jvmPackageGen, jvmCastGen,
                 asyncDataCollector, lazyLoadingDataCollector);
         MethodVisitor mv = cw.visitMethod(ACC_STATIC, JVM_STATIC_INIT_METHOD, VOID_METHOD_DESC, null, null);
+        mv.visitCode();
         setTypeInitialized(mv, ICONST_1, typeClass, true);
         jvmRecordTypeGen.createRecordType(cw, mv, module, typeClass, (BRecordType) bType, varName, true,
-                jarEntries, jvmPackageGen.symbolTable);
+                jvmPackageGen.symbolTable);
         setTypeInitialized(mv, ICONST_0, typeClass, true);
 
         genMethodReturn(mv);
         cw.visitEnd();
         jarEntries.put(typeClass + CLASS_FILE_SUFFIX, cw.toByteArray());
-        addField(allTypesCW, varName);
+        addDebugField(allTypesCW, varName);
     }
 
     public static void setTypeInitialized(MethodVisitor mv, int status, String typeClass, boolean isAnnotatedType) {
@@ -283,6 +284,7 @@ public class JvmCreateTypeGen {
             isAnnotatedType = true;
         }
         MethodVisitor mv = cw.visitMethod(ACC_STATIC, JVM_STATIC_INIT_METHOD, VOID_METHOD_DESC, null, null);
+        mv.visitCode();
         setTypeInitialized(mv, ICONST_1, typeClass, isAnnotatedType);
         jvmObjectTypeGen.createObjectType(cw, mv, typeClass, (BObjectType) bType, varName, isAnnotatedType,
                 new BIRVarToJVMIndexMap(), jvmPackageGen.symbolTable);
@@ -290,7 +292,7 @@ public class JvmCreateTypeGen {
         genMethodReturn(mv);
         cw.visitEnd();
         jarEntries.put(typeClass + CLASS_FILE_SUFFIX, cw.toByteArray());
-        addField(allTypesCW, varName);
+        addDebugField(allTypesCW, varName);
     }
 
     private void createErrorType(BIRTypeDefinition typeDef, ClassWriter allTypesCW, JvmPackageGen jvmPackageGen,
@@ -314,13 +316,14 @@ public class JvmCreateTypeGen {
             isAnnotatedType = true;
         }
         MethodVisitor mv = cw.visitMethod(ACC_STATIC, JVM_STATIC_INIT_METHOD, VOID_METHOD_DESC, null, null);
+        mv.visitCode();
         setTypeInitialized(mv, ICONST_1, typeClass, isAnnotatedType);
         jvmErrorTypeGen.createErrorType(cw, mv, (BErrorType) bType, typeClass, isAnnotatedType);
         setTypeInitialized(mv, ICONST_0, typeClass, isAnnotatedType);
         genMethodReturn(mv);
         cw.visitEnd();
         jarEntries.put(typeClass + CLASS_FILE_SUFFIX, cw.toByteArray());
-        addField(allTypesCW, varName);
+        addDebugField(allTypesCW, varName);
     }
 
 
@@ -345,6 +348,7 @@ public class JvmCreateTypeGen {
             isAnnotatedType = true;
         }
         MethodVisitor mv = cw.visitMethod(ACC_STATIC, JVM_STATIC_INIT_METHOD, VOID_METHOD_DESC, null, null);
+        mv.visitCode();
         setTypeInitialized(mv, ICONST_1, typeClass, isAnnotatedType);
         jvmTupleTypeGen.createTupleType(cw, mv, typeClass, (BTupleType) bType, isAnnotatedType,
                 jvmPackageGen.symbolTable, ACC_PRIVATE);
@@ -352,7 +356,7 @@ public class JvmCreateTypeGen {
         genMethodReturn(mv);
         cw.visitEnd();
         jarEntries.put(typeClass + CLASS_FILE_SUFFIX, cw.toByteArray());
-        addField(allTypesCW, varName);
+        addDebugField(allTypesCW, varName);
     }
 
     private void createUnionType(BIRTypeDefinition typeDef, ClassWriter allTypesCW, JvmPackageGen jvmPackageGen,
@@ -375,6 +379,7 @@ public class JvmCreateTypeGen {
             isAnnotatedType = true;
         }
         MethodVisitor mv = cw.visitMethod(ACC_STATIC, JVM_STATIC_INIT_METHOD, VOID_METHOD_DESC, null, null);
+        mv.visitCode();
         setTypeInitialized(mv, ICONST_1, typeClass, isAnnotatedType);
         jvmUnionTypeGen.createUnionType(cw, mv, typeClass, varName, (BUnionType) bType, isAnnotatedType,
                 jvmPackageGen.symbolTable, ACC_PRIVATE);
@@ -382,7 +387,7 @@ public class JvmCreateTypeGen {
         genMethodReturn(mv);
         cw.visitEnd();
         jarEntries.put(typeClass + CLASS_FILE_SUFFIX, cw.toByteArray());
-        addField(allTypesCW, varName);
+        addDebugField(allTypesCW, varName);
     }
 
     public void genGetTypeMethod(ClassWriter cw, String typeClass, String methodDescriptor, String typeDescriptor,
@@ -395,7 +400,7 @@ public class JvmCreateTypeGen {
             mv.visitFieldInsn(GETSTATIC, typeClass, TYPE_INIT_VAR_NAME, GET_JBOOLEAN_TYPE);
             Label ifLabel = new Label();
             mv.visitJumpInsn(IFNE, ifLabel);
-            setTypeInitialized(mv, ICONST_1, typeClass, isAnnotatedType);
+            setTypeInitialized(mv, ICONST_1, typeClass, true);
             mv.visitMethodInsn(INVOKESTATIC, typeClass, LOAD_ANNOTATIONS_METHOD, VOID_METHOD_DESC, false);
             mv.visitLabel(ifLabel);
         }
@@ -527,7 +532,7 @@ public class JvmCreateTypeGen {
         mv.visitCode();
         LazyLoadBirBasicBlock lazyBB = lazyLoadingDataCollector.lazyLoadingAnnotationsBBMap.get(typeName);
         if (lazyBB != null) {
-            BIRTerminator.Call call = lazyBB.call();
+            BIRTerminator.Call call = lazyBB.call;
             BIRVarToJVMIndexMap indexMap = new BIRVarToJVMIndexMap();
             PackageID packageID = jvmPackageGen.currentModule.packageID;
             JvmInstructionGen instructionGen =
@@ -543,7 +548,7 @@ public class JvmCreateTypeGen {
                 termGen.genCall(call, call.calleePkg, 1);
                 termGen.storeReturnFromCallIns(call.lhsOp != null ? call.lhsOp.variableDcl : null);
             }
-            for (BIRNonTerminator instruction : lazyBB.instructions()) {
+            for (BIRNonTerminator instruction : lazyBB.instructions) {
                 instructionGen.generateInstructions(0, instruction);
             }
         }

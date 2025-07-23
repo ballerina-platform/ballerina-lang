@@ -59,7 +59,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JVM_STATI
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBJECT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.VOID_METHOD_DESC;
 import static org.wso2.ballerinalang.compiler.bir.codegen.utils.JvmCodeGenUtil.getVarStoreClass;
-import static org.wso2.ballerinalang.compiler.bir.codegen.utils.JvmConstantGenUtils.addField;
+import static org.wso2.ballerinalang.compiler.bir.codegen.utils.JvmConstantGenUtils.addDebugField;
 import static org.wso2.ballerinalang.compiler.bir.codegen.utils.JvmConstantGenUtils.genLazyLoadingClass;
 import static org.wso2.ballerinalang.compiler.bir.codegen.utils.JvmConstantGenUtils.genMethodReturn;
 import static org.wso2.ballerinalang.compiler.bir.codegen.utils.JvmModuleUtils.getModuleLevelClassName;
@@ -112,7 +112,7 @@ public class JvmGlobalVariablesGen {
             String descriptor = JvmCodeGenUtil.getFieldTypeSignature(bType);
             // Create lazy loading class
             genLazyLoadingClass(cw, globalVarClassName, descriptor);
-            addField(allGlobalVarsCW, varName);
+            addDebugField(allGlobalVarsCW, varName);
             LazyLoadBirBasicBlock lazyBB = lazyBBMap.get(varName);
             if (lazyBB != null) {
                 // Initialize global value
@@ -121,13 +121,13 @@ public class JvmGlobalVariablesGen {
                 BIRVarToJVMIndexMap indexMap = new BIRVarToJVMIndexMap();
                 JvmInstructionGen instructionGen = new JvmInstructionGen(mv, indexMap, this.module.packageID,
                         jvmPackageGen, jvmTypeGen, jvmCastGen, jvmConstantsGen, asyncDataCollector);
-                List<BIRNonTerminator> instructions = lazyBB.instructions();
+                List<BIRNonTerminator> instructions = lazyBB.instructions;
                 if (instructions != null) {
                     for (BIRInstruction instruction : instructions) {
                         instructionGen.generateInstructions(-1, instruction);
                     }
                 }
-                BIRTerminator.Call call = lazyBB.call();
+                BIRTerminator.Call call = lazyBB.call;
                 if (call != null) {
                     JvmErrorGen errorGen = new JvmErrorGen(mv, indexMap, instructionGen);
                     LabelGenerator labelGen = new LabelGenerator();
