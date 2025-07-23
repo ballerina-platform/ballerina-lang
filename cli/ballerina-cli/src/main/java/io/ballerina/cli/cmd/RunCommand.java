@@ -36,6 +36,7 @@ import io.ballerina.projects.DependencyGraph;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.ProjectKind;
+import io.ballerina.projects.ProjectLoadResult;
 import io.ballerina.projects.directory.BuildProject;
 import io.ballerina.projects.directory.SingleFileProject;
 import io.ballerina.projects.directory.WorkspaceProject;
@@ -269,17 +270,15 @@ public class RunCommand implements BLauncherCmd {
                     start = System.currentTimeMillis();
                     BuildTime.getInstance().timestamp = start;
                 }
-                if (ProjectPaths.isWorkspaceProjectRoot(this.projectPath)) {
-                    throw createLauncherException("cannot run a workspace directly. " +
-                            "Please specify a package path to run.");
-                } else {
-                    Optional<Path> workspaceRoot = ProjectPaths.workspaceRoot(absProjectPath);
-                    if (workspaceRoot.isPresent()) {
-                        project = WorkspaceProject.load(workspaceRoot.get(), buildOptions);
-                    } else {
-                        project = BuildProject.load(this.projectPath, buildOptions);
-                    }
+                ProjectLoadResult projectLoadResult = io.ballerina.cli.utils.ProjectUtils.loadProject(
+                        absProjectPath, buildOptions, absProjectPath, this.outStream);
+
+                if (projectLoadResult.diagnostics().hasErrors()) {
+                    CommandUtil.printError(this.errStream, "project loading contains errors", null, false);
+                    CommandUtil.exitError(this.exitWhenFinish);
+                    return;
                 }
+                project = projectLoadResult.project();
                 if (buildOptions.dumpBuildTime()) {
                     BuildTime.getInstance().projectLoadDuration = System.currentTimeMillis() - start;
                 }

@@ -18,26 +18,33 @@
 package io.ballerina.projects.directory;
 
 import io.ballerina.projects.BuildOptions;
+import io.ballerina.projects.BuildProjectLoadResult;
 import io.ballerina.projects.DocumentId;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectEnvironmentBuilder;
 import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.ProjectKind;
+import io.ballerina.projects.ProjectLoadResult;
 import io.ballerina.projects.TomlDocument;
 import io.ballerina.projects.WorkspaceBallerinaToml;
 import io.ballerina.projects.WorkspaceManifest;
+import io.ballerina.projects.WorkspaceProjectLoadResult;
 import io.ballerina.projects.WorkspaceResolution;
 import io.ballerina.projects.environment.Environment;
 import io.ballerina.projects.environment.EnvironmentBuilder;
 import io.ballerina.projects.environment.ProjectEnvironment;
+import io.ballerina.projects.internal.DefaultDiagnosticResult;
 import io.ballerina.projects.internal.WorkspaceManifestBuilder;
 import io.ballerina.projects.util.ProjectPaths;
+import io.ballerina.tools.diagnostics.Diagnostic;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
@@ -50,15 +57,12 @@ public class WorkspaceProject extends Project {
     private final WorkspaceManifest workspaceManifest;
     private WorkspaceResolution workspaceResolution;
 
-    private WorkspaceProject(Path projectPath, BuildOptions buildOptions, TomlDocument tomlDocument,
-                             EnvironmentBuilder environmentBuilder) {
+    private WorkspaceProject(Path projectPath, BuildOptions buildOptions, TomlDocument tomlDocument) {
         super(ProjectKind.WORKSPACE_PROJECT, projectPath, buildOptions);
         this.workspaceBallerinaToml = WorkspaceBallerinaToml.from(tomlDocument, this);
         this.buildOptions = buildOptions;
         this.workspaceManifest = WorkspaceManifestBuilder.from(tomlDocument, projectPath).manifest();
         this.projectSet = new HashSet<>();
-        loadProjects(environmentBuilder.setWorkspace(this).build());
-        setCurrentPackage(this.projectSet.iterator().next().currentPackage());
     }
 
     private WorkspaceProject(Path projectPath, BuildOptions buildOptions, TomlDocument tomlDocument,
@@ -68,29 +72,40 @@ public class WorkspaceProject extends Project {
         this.buildOptions = buildOptions;
         this.workspaceManifest = WorkspaceManifestBuilder.from(tomlDocument, projectPath).manifest();
         this.projectSet = projects;
-        setCurrentPackage(this.projectSet.iterator().next().currentPackage());
     }
 
 
-    public static WorkspaceProject load(Path workspacePath) {
-        return load(workspacePath, BuildOptions.builder().build());
+    public static WorkspaceProjectLoadResult from(Path workspacePath) {
+        return from(workspacePath, BuildOptions.builder().build());
     }
 
-    public static WorkspaceProject load(Path path, BuildOptions buildOptions) {
-        return load(path, EnvironmentBuilder.getBuilder(), buildOptions);
+    public static WorkspaceProjectLoadResult from(Path path, BuildOptions buildOptions) {
+        return from(path, EnvironmentBuilder.getBuilder(), buildOptions);
     }
 
-    public static WorkspaceProject load(Path path, EnvironmentBuilder environmentBuilder) {
-        return load(path, environmentBuilder, BuildOptions.builder().build());
+    public static WorkspaceProjectLoadResult from(Path path, EnvironmentBuilder environmentBuilder) {
+        return from(path, environmentBuilder, BuildOptions.builder().build());
     }
 
-    public static WorkspaceProject load(Path path, EnvironmentBuilder environmentBuilder,
+    public static WorkspaceProjectLoadResult from(Path path, EnvironmentBuilder environmentBuilder,
                                         BuildOptions buildOptions) {
         if (ProjectPaths.isWorkspaceProjectRoot(path)) {
             try {
                 TomlDocument tomlDocument = TomlDocument.from(BALLERINA_TOML,
                         Files.readString(path.resolve(BALLERINA_TOML)));
-                return new WorkspaceProject(path, buildOptions, tomlDocument, environmentBuilder);
+                WorkspaceProject workspaceProject = new WorkspaceProject(path, buildOptions, tomlDocument);
+                List<Diagnostic> diagnostics = new ArrayList<>(workspaceProject.manifest().diagnostics().diagnostics());
+                for (Path pkgPath : workspaceProject.manifest().packages()) {
+                    BuildProjectLoadResult buildProjectLoadResult = loadBuildProject(
+                            environmentBuilder.setWorkspace(workspaceProject).build(), pkgPath, workspaceProject);
+                    if (buildProjectLoadResult.diagnostics().hasErrors()) {
+                        diagnostics.addAll(buildProjectLoadResult.diagnostics().diagnostics());
+                        continue; // Skip adding this project if there are errors
+                    }
+                    workspaceProject.projectSet.add(buildProjectLoadResult.project());
+                    diagnostics.addAll(buildProjectLoadResult.diagnostics().diagnostics());
+                }
+                return new WorkspaceProjectLoadResult(workspaceProject, new DefaultDiagnosticResult(diagnostics));
             } catch (IOException e) {
                 throw new ProjectException("Error reading " + BALLERINA_TOML + " file in workspace: "
                         + path.toAbsolutePath(), e);
@@ -180,19 +195,9 @@ public class WorkspaceProject extends Project {
         return this.workspaceBallerinaToml;
     }
 
-    private void loadProjects(Environment environment) {
-        for (Path packagePath : this.workspaceManifest.packages()) {
-            Path ballerinaTomlPath = packagePath.resolve(BALLERINA_TOML);
-            if (Files.exists(ballerinaTomlPath)) {
-                BuildProject project = loadBuildProject(environment, packagePath);
-                this.projectSet.add(project);
-            }
-        }
-    }
-
-    private BuildProject loadBuildProject(Environment environment, Path packagePath) {
+    private static BuildProjectLoadResult loadBuildProject(Environment environment, Path packagePath,
+                                                           WorkspaceProject workspaceProject) {
         ProjectEnvironmentBuilder projectEnvironmentBuilder = ProjectEnvironmentBuilder.getBuilder(environment);
-        return BuildProject.load(projectEnvironmentBuilder, packagePath, buildOptions, this);
+        return BuildProject.from(packagePath, projectEnvironmentBuilder, workspaceProject.buildOptions, workspaceProject);
     }
-
 }

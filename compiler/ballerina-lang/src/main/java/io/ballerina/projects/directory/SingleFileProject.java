@@ -18,13 +18,16 @@
 package io.ballerina.projects.directory;
 
 import io.ballerina.projects.BuildOptions;
+import io.ballerina.projects.BuildProjectLoadResult;
 import io.ballerina.projects.DocumentId;
 import io.ballerina.projects.PackageConfig;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectEnvironmentBuilder;
 import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.ProjectKind;
+import io.ballerina.projects.SingleFileProjectLoadResult;
 import io.ballerina.projects.internal.PackageConfigCreator;
+import io.ballerina.projects.internal.ProjectFiles;
 import io.ballerina.projects.repos.TempDirCompilationCache;
 import io.ballerina.projects.util.ProjectConstants;
 
@@ -39,6 +42,26 @@ import java.util.Optional;
 public class SingleFileProject extends Project implements Comparable<Project> {
 
     private Path targetDir;
+
+    public static SingleFileProjectLoadResult from(Path projectPath) {
+        return from(projectPath, BuildOptions.builder().build());
+    }
+
+    public static SingleFileProjectLoadResult from(Path projectPath, BuildOptions buildOptions) {
+        ProjectEnvironmentBuilder environmentBuilder = ProjectEnvironmentBuilder.getDefaultBuilder();
+        return from(projectPath, environmentBuilder, buildOptions);
+    }
+
+    public static SingleFileProjectLoadResult from(Path projectPath, ProjectEnvironmentBuilder environmentBuilder) {
+        return from(projectPath, environmentBuilder, BuildOptions.builder().build());
+    }
+
+    public static SingleFileProjectLoadResult from(Path projectPath, ProjectEnvironmentBuilder environmentBuilder,
+                                              BuildOptions buildOptions) {
+        SingleFileProject singleFileProject = load(environmentBuilder, projectPath, buildOptions);
+        return new SingleFileProjectLoadResult(singleFileProject,
+                singleFileProject.currentPackage().manifest().diagnostics());
+    }
 
     /**
      * Loads a single file project from the provided path.

@@ -21,6 +21,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonSyntaxException;
 import io.ballerina.projects.BuildOptions;
+import io.ballerina.projects.BuildProjectLoadResult;
 import io.ballerina.projects.BuildTool;
 import io.ballerina.projects.BuildToolResolution;
 import io.ballerina.projects.DependencyGraph;
@@ -74,51 +75,62 @@ import static io.ballerina.projects.util.ProjectUtils.readBuildJson;
 public class BuildProject extends Project implements Comparable<Project> {
 
     /**
-     * Loads a BuildProject from the provided path.
+     * Creates a {@code BuildProjectLoadResult} from the provided project path.
      *
      * @param projectPath Ballerina project path
-     * @return build project
+     * @return build project load result
      */
-    public static BuildProject load(ProjectEnvironmentBuilder environmentBuilder, Path projectPath) {
-        return load(environmentBuilder, projectPath, BuildOptions.builder().build());
+    public static BuildProjectLoadResult from(Path projectPath) {
+        return from(projectPath, BuildOptions.builder().build());
     }
 
     /**
-     * Loads a BuildProject from the provided path.
+     * Creates a {@code BuildProjectLoadResult} from the provided project path and build options.
      *
      * @param projectPath Ballerina project path
-     * @return BuildProject instance
-     */
-    public static BuildProject load(Path projectPath) {
-        return load(projectPath, BuildOptions.builder().build());
-    }
-
-    /**
-     * Loads a BuildProject from provided path and build options.
-     *
-     * @param projectPath  Ballerina project path
      * @param buildOptions build options
-     * @return BuildProject instance
+     * @return build project load result
      */
-    public static BuildProject load(Path projectPath, BuildOptions buildOptions) {
+    public static BuildProjectLoadResult from(Path projectPath, BuildOptions buildOptions) {
         ProjectEnvironmentBuilder environmentBuilder = ProjectEnvironmentBuilder.getDefaultBuilder();
-        return load(environmentBuilder, projectPath, buildOptions);
+        return from(projectPath, environmentBuilder, buildOptions);
     }
 
     /**
-     * Loads a BuildProject from provided environment builder, path, build options.
+     * Creates a {@code BuildProjectLoadResult} from the provided project path and environment builder.
      *
-     * @param environmentBuilder custom environment builder
      * @param projectPath Ballerina project path
-     * @param buildOptions build options
-     * @return BuildProject instance
+     * @param environmentBuilder custom environment builder
+     * @return build project load result
      */
-    public static BuildProject load(ProjectEnvironmentBuilder environmentBuilder, Path projectPath,
-                                    BuildOptions buildOptions) {
-        return load(environmentBuilder, projectPath, buildOptions, null);
+    public static BuildProjectLoadResult from(Path projectPath, ProjectEnvironmentBuilder environmentBuilder) {
+        return from(projectPath, environmentBuilder, BuildOptions.builder().build());
     }
 
-    public static BuildProject load(ProjectEnvironmentBuilder environmentBuilder, Path projectPath,
+    /**
+     * Creates a {@code BuildProjectLoadResult} from the provided project path, environment builder and build options.
+     *
+     * @param projectPath Ballerina project path
+     * @param environmentBuilder custom environment builder
+     * @param buildOptions build options
+     * @return build project load result
+     */
+    public static BuildProjectLoadResult from(Path projectPath, ProjectEnvironmentBuilder environmentBuilder,
+                                    BuildOptions buildOptions) {
+        return from(projectPath, environmentBuilder, buildOptions, null);
+    }
+
+    /**
+     * Creates a {@code BuildProjectLoadResult} from the provided project path, environment builder, build options,
+     * and workspace project.
+     *
+     * @param projectPath Ballerina project path
+     * @param environmentBuilder custom environment builder
+     * @param buildOptions build options
+     * @param workspaceProject workspace project
+     * @return build project load result
+     */
+    public static BuildProjectLoadResult from(Path projectPath, ProjectEnvironmentBuilder environmentBuilder,
                                     BuildOptions buildOptions, WorkspaceProject workspaceProject) {
         PackageConfig packageConfig = PackageConfigCreator.createBuildProjectConfig(projectPath,
                 buildOptions.disableSyntaxTree());
@@ -126,6 +138,66 @@ public class BuildProject extends Project implements Comparable<Project> {
 
         BuildProject buildProject = new BuildProject(environmentBuilder, projectPath, mergedBuildOptions,
                 workspaceProject);
+        buildProject.addPackage(packageConfig);
+        return new BuildProjectLoadResult(buildProject, buildProject.currentPackage().manifest().diagnostics());
+    }
+
+    /**
+     * @deprecated Use {@link #from(Path, ProjectEnvironmentBuilder)}  instead.
+     * Loads a BuildProject from the provided path.
+     *
+     * @param projectPath Ballerina project path
+     * @return build project
+     */
+    @Deprecated(since = "2201.13.0", forRemoval = true)
+    public static BuildProject load(ProjectEnvironmentBuilder environmentBuilder, Path projectPath) {
+        return load(environmentBuilder, projectPath, BuildOptions.builder().build());
+    }
+
+    /**
+     * @deprecated Use {@link #from(Path, ProjectEnvironmentBuilder, BuildOptions)} instead.
+     * Loads a BuildProject from the provided path.
+     *
+     * @param projectPath Ballerina project path
+     * @return BuildProject instance
+     */
+    @Deprecated(since = "2201.13.0", forRemoval = true)
+    public static BuildProject load(Path projectPath) {
+        return load(projectPath, BuildOptions.builder().build());
+    }
+
+    /**
+     * @deprecated Use {@link #from(Path, ProjectEnvironmentBuilder, BuildOptions)} instead.
+     * Loads a BuildProject from provided path and build options.
+     *
+     * @param projectPath  Ballerina project path
+     * @param buildOptions build options
+     * @return BuildProject instance
+     */
+    @Deprecated(since = "2201.13.0", forRemoval = true)
+    public static BuildProject load(Path projectPath, BuildOptions buildOptions) {
+        ProjectEnvironmentBuilder environmentBuilder = ProjectEnvironmentBuilder.getDefaultBuilder();
+        return load(environmentBuilder, projectPath, buildOptions);
+    }
+
+    /**
+     * @deprecated Use {@link #from(Path, ProjectEnvironmentBuilder, BuildOptions)}  instead.
+     * Loads a BuildProject from provided environment builder, path, build options.
+     *
+     * @param environmentBuilder custom environment builder
+     * @param projectPath Ballerina project path
+     * @param buildOptions build options
+     * @return BuildProject instance
+     */
+    @Deprecated(since = "2201.13.0", forRemoval = true)
+    public static BuildProject load(ProjectEnvironmentBuilder environmentBuilder, Path projectPath,
+                                    BuildOptions buildOptions) {
+        PackageConfig packageConfig = PackageConfigCreator.createBuildProjectConfig(projectPath,
+                buildOptions.disableSyntaxTree());
+        BuildOptions mergedBuildOptions = ProjectFiles.createBuildOptions(packageConfig, buildOptions, projectPath);
+
+        BuildProject buildProject = new BuildProject(environmentBuilder, projectPath, mergedBuildOptions,
+                null);
         buildProject.addPackage(packageConfig);
         return buildProject;
     }

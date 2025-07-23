@@ -71,6 +71,12 @@ public class WorkspaceManifestBuilder {
             if (topLevelPkgNode != null && topLevelPkgNode.kind() == TomlType.TABLE) {
                 TomlTableNode pkgNode = (TomlTableNode) topLevelPkgNode;
                 List<String> packages = getStringArrayFromTableNode(pkgNode, "packages");
+                if (packages.isEmpty()) {
+                    diagnosticList.add(createDiagnostic(pkgNode,
+                            "no packages found in the workspace Ballerina.toml file",
+                            ProjectDiagnosticErrorCode.MISSING_PACKAGES_IN_WORKSPACE_BALLERINA_TOML,
+                            DiagnosticSeverity.ERROR));
+                }
                 for (String packagePath : packages) {
                     Path projectRoot = this.workspaceRoot.resolve(packagePath);
                     Path ballerinaTomlPath = projectRoot.resolve(BALLERINA_TOML);

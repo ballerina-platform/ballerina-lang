@@ -18,7 +18,9 @@
 
 package io.ballerina.projects.bala;
 
+import io.ballerina.projects.BalaProjectLoadResult;
 import io.ballerina.projects.BuildOptions;
+import io.ballerina.projects.BuildProjectLoadResult;
 import io.ballerina.projects.Document;
 import io.ballerina.projects.DocumentId;
 import io.ballerina.projects.Module;
@@ -47,12 +49,24 @@ public class BalaProject extends Project implements Comparable<Project> {
     private final String platform;
     private final String balaVersion;
 
+    public static BalaProjectLoadResult from(Path projectPath, ProjectEnvironmentBuilder environmentBuilder) {
+        return from(projectPath, environmentBuilder, BuildOptions.builder().build());
+    }
+
+    public static BalaProjectLoadResult from(Path projectPath, ProjectEnvironmentBuilder environmentBuilder,
+                                              BuildOptions buildOptions) {
+        BalaProject balaProject = loadProject(environmentBuilder, projectPath, buildOptions);
+        return new BalaProjectLoadResult(balaProject, balaProject.currentPackage().manifest().diagnostics());
+    }
+
     /**
+     * @deprecated Use {@link #from(Path, ProjectEnvironmentBuilder)} instead.
      * Loads a BalaProject from the provided bala path.
      *
      * @param balaPath Bala path
      * @return bala project
      */
+    @Deprecated(since = "2201.13.0", forRemoval = true)
     public static BalaProject loadProject(ProjectEnvironmentBuilder environmentBuilder, Path balaPath) {
         PackageConfig packageConfig = PackageConfigCreator.createBalaProjectConfig(balaPath);
         BalaProject balaProject = new BalaProject(environmentBuilder, balaPath, BuildOptions.builder().setSticky(true)
@@ -61,6 +75,15 @@ public class BalaProject extends Project implements Comparable<Project> {
         return balaProject;
     }
 
+    /**
+     * @deprecated Use {@link #from(Path, ProjectEnvironmentBuilder, BuildOptions)} instead.
+     * Loads a BalaProject from the provided bala path with build options.
+     *
+     * @param balaPath Bala path
+     * @param buildOptions Build options
+     * @return bala project
+     */
+    @Deprecated(since = "2201.13.0", forRemoval = true)
     public static BalaProject loadProject(ProjectEnvironmentBuilder environmentBuilder, Path balaPath,
                                           BuildOptions buildOptions) {
         PackageConfig packageConfig = PackageConfigCreator.createBalaProjectConfig(balaPath);

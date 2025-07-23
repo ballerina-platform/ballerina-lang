@@ -91,28 +91,16 @@ public class CleanCommand implements BLauncherCmd {
                 ProjectUtils.deleteDirectory(this.targetDir);
                 this.outStream.println("Successfully deleted '" + this.targetDir + "'.");
             }
-        } else {
-            try {
-                Project project = BuildProject.load(this.projectPath);
-                this.targetDir = project.targetDir();
-            } catch (ProjectException e) {
-                CommandUtil.printError(this.outStream, e.getMessage(), null, false);
-                CommandUtil.exitError(this.exitWhenFinish);
-                return;
-            }
-            if (Files.exists(this.targetDir)) {
-                ProjectUtils.deleteDirectory(this.targetDir);
-                this.outStream.println("Successfully deleted '" + this.targetDir + "'.");
-            }
+            return;
         }
 
         if (ProjectPaths.isWorkspaceProjectRoot(this.projectPath)) {
-            WorkspaceProject workspaceProject = WorkspaceProject.load(this.projectPath);
+            WorkspaceProject workspaceProject = WorkspaceProject.from(this.projectPath).project();
             for (BuildProject project : workspaceProject.getResolution().dependencyGraph().getNodes()) {
                 cleanProject(project);
             }
         } else {
-            Project project = BuildProject.load(this.projectPath);
+            Project project = BuildProject.from(this.projectPath).project();
             cleanProject(project);
         }
     }
