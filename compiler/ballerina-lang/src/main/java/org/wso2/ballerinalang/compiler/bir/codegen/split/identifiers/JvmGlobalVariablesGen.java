@@ -121,12 +121,6 @@ public class JvmGlobalVariablesGen {
                 BIRVarToJVMIndexMap indexMap = new BIRVarToJVMIndexMap();
                 JvmInstructionGen instructionGen = new JvmInstructionGen(mv, indexMap, this.module.packageID,
                         jvmPackageGen, jvmTypeGen, jvmCastGen, jvmConstantsGen, asyncDataCollector);
-                List<BIRNonTerminator> instructions = lazyBB.instructions;
-                if (instructions != null) {
-                    for (BIRInstruction instruction : instructions) {
-                        instructionGen.generateInstructions(-1, instruction);
-                    }
-                }
                 BIRTerminator.Call call = lazyBB.call;
                 if (call != null) {
                     JvmErrorGen errorGen = new JvmErrorGen(mv, indexMap, instructionGen);
@@ -138,6 +132,12 @@ public class JvmGlobalVariablesGen {
                     mv.visitVarInsn(ASTORE, 1);
                     termGen.genCall(call, call.calleePkg, -1);
                     termGen.storeReturnFromCallIns(call.lhsOp != null ? call.lhsOp.variableDcl : null);
+                }
+                List<BIRNonTerminator> instructions = lazyBB.instructions;
+                if (instructions != null) {
+                    for (BIRInstruction instruction : instructions) {
+                        instructionGen.generateInstructions(-1, instruction);
+                    }
                 }
                 genMethodReturn(mv);
             }
