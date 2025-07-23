@@ -22,6 +22,9 @@ import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.TomlDocument;
 import io.ballerina.projects.WorkspaceManifest;
 import io.ballerina.projects.internal.WorkspaceManifestBuilder;
+import io.ballerina.toml.semantic.TomlType;
+import io.ballerina.toml.semantic.ast.TomlTableNode;
+import io.ballerina.toml.semantic.ast.TopLevelNode;
 import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
 
 import java.io.IOException;
@@ -384,24 +387,16 @@ public final class ProjectPaths {
         if (isWorkspaceProjectRoot(absFilePath)) {
             return Optional.of(absFilePath);
         }
-        Path packageRoot;
-        try {
-            packageRoot = packageRoot(filePath);
-        } catch (ProjectException e) {
-            return Optional.empty();
-        }
 
         Optional<Path> workspaceRoot = findWorkspaceRoot(absFilePath);
         if (workspaceRoot.isPresent()) {
             try {
                 TomlDocument tomlDocument = TomlDocument.from(BALLERINA_TOML, Files.readString(workspaceRoot.get()
                         .resolve(BALLERINA_TOML)));
-                WorkspaceManifest wpManifest = WorkspaceManifestBuilder.from(tomlDocument, workspaceRoot.get()).manifest();
-
-                for (Path pkgPath : wpManifest.packages()) {
-                    if (packageRoot.equals(pkgPath.toAbsolutePath().normalize())) {
-                        return workspaceRoot;
-                    }
+                TomlTableNode tomlAstNode = tomlDocument.toml().rootNode();
+                TopLevelNode topLevelPkgNode = tomlAstNode.entries().get("workspace");
+                if (topLevelPkgNode != null && topLevelPkgNode.kind() == TomlType.TABLE) {
+                    return workspaceRoot;
                 }
             } catch (IOException e) {
                 return Optional.empty();

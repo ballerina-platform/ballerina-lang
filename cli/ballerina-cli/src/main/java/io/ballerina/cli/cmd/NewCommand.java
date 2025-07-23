@@ -20,9 +20,20 @@ package io.ballerina.cli.cmd;
 
 import io.ballerina.cli.BLauncherCmd;
 import io.ballerina.cli.launcher.BLauncherException;
+import io.ballerina.projects.BuildProjectLoadResult;
+import io.ballerina.projects.PackageManifest;
+import io.ballerina.projects.ProjectException;
+import io.ballerina.projects.TomlDocument;
+import io.ballerina.projects.directory.BuildProject;
+import io.ballerina.projects.internal.WorkspaceManifestBuilder;
 import io.ballerina.projects.util.FileUtils;
 import io.ballerina.projects.util.ProjectConstants;
+import io.ballerina.projects.util.ProjectPaths;
 import io.ballerina.projects.util.ProjectUtils;
+import io.ballerina.toml.api.Toml;
+import io.ballerina.toml.semantic.TomlType;
+import io.ballerina.toml.semantic.ast.TomlTableNode;
+import io.ballerina.toml.semantic.ast.TopLevelNode;
 import org.wso2.ballerinalang.util.RepoUtils;
 import picocli.CommandLine;
 
@@ -32,15 +43,20 @@ import java.net.URISyntaxException;
 import java.nio.file.AccessDeniedException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import static io.ballerina.cli.cmd.CommandUtil.DEFAULT_TEMPLATE;
 import static io.ballerina.cli.cmd.CommandUtil.balFilesExists;
 import static io.ballerina.cli.cmd.CommandUtil.checkPackageFilesExists;
 import static io.ballerina.cli.cmd.CommandUtil.initPackageFromCentral;
 import static io.ballerina.cli.cmd.Constants.NEW_COMMAND;
+import static io.ballerina.projects.util.TomlUtil.getStringArrayFromTableNode;
 
 /**
  * New command for creating a ballerina project.
@@ -63,6 +79,9 @@ public class NewCommand implements BLauncherCmd {
     @CommandLine.Option(names = {"--template", "-t"}, description = "Acceptable values: [main, service, lib] " +
             "default: default")
     public String template = "default";
+
+    @CommandLine.Option(names = {"--workspace"})
+    private boolean workspace;
 
     public NewCommand() {
         this.errStream = System.err;
@@ -208,47 +227,50 @@ public class NewCommand implements BLauncherCmd {
                 CommandUtil.exitError(this.exitWhenFinish);
                 return;
             }
+        }
 
-            // If the parent directory is a ballerina project, fail the command.
-            if (ProjectUtils.isBallerinaProject(parent)) {
+        if (this.workspace) {
+            String tplPackageName = "hello";
+            try {
+                Files.createDirectories(packagePath);
+                if (DEFAULT_TEMPLATE.equals(template) || "main".equals(template)) {
+                    tplPackageName += "-app";
+                } else if ("service".equals(template)) {
+                    tplPackageName += "-service";
+                } else if ("lib".equals(template)) {
+                    tplPackageName += "-lib";
+                }
+                Files.writeString(packagePath.resolve(ProjectConstants.BALLERINA_TOML),
+                        "[workspace]\n");
+                packagePath = packagePath.resolve(tplPackageName);
+                packageName = tplPackageName.replace("_", "-");
+            } catch (IOException e) {
                 CommandUtil.printError(errStream,
-                        "directory is already within the Ballerina project '" +
-                                parent + "'",
+                        "error while creating the workspace directory '" + packagePath + "'",
                         null,
                         false);
                 CommandUtil.exitError(this.exitWhenFinish);
                 return;
             }
-        }
+        } else {
+            if (!ProjectUtils.validateNameLength(packageName)) {
+                CommandUtil.printError(errStream,
+                        "invalid package name : '" + packageName + "' :\n" +
+                                "Maximum length of package name is 256 characters.",
+                        null,
+                        false);
+                CommandUtil.exitError(this.exitWhenFinish);
+                return;
+            }
 
-        // Check if the command is executed inside a ballerina project
-        Path projectRoot = ProjectUtils.findProjectRoot(packagePath);
-        if (projectRoot != null) {
-            CommandUtil.printError(errStream,
-                    "directory is already within the Ballerina project '" +
-                            projectRoot + "'",
-                    null,
-                    false);
-            CommandUtil.exitError(this.exitWhenFinish);
-            return;
+            if (!ProjectUtils.validatePackageName(packageName)) {
+                packageName = ProjectUtils.guessPkgName(packageName, template);
+                errStream.println("Package name is derived as '" + packageName
+                        + "'. Edit the Ballerina.toml to change it.");
+                errStream.println();
+            }
         }
-
-        if (!ProjectUtils.validateNameLength(packageName)) {
-            CommandUtil.printError(errStream,
-                                   "invalid package name : '" + packageName + "' :\n" +
-                                           "Maximum length of package name is 256 characters.",
-                                   null,
-                                   false);
-            CommandUtil.exitError(this.exitWhenFinish);
-            return;
-        }
-
-        if (!ProjectUtils.validatePackageName(packageName)) {
-            packageName = ProjectUtils.guessPkgName(packageName, template);
-            errStream.println("Package name is derived as '" + packageName
-                    + "'. Edit the Ballerina.toml to change it.");
-            errStream.println();
-        }
+        Optional<Path> workspaceRoot = ProjectPaths.workspaceRoot(packagePath);
 
         try {
             // check if the template matches with one of the inbuilt template types
@@ -267,13 +289,20 @@ public class NewCommand implements BLauncherCmd {
                         return;
                     }
                 }
-                CommandUtil.initPackageByTemplate(packagePath, packageName, template, balFilesExist);
+                String orgName;
+                if (workspaceRoot.isEmpty()) {
+                    orgName = ProjectUtils.guessOrgName();
+                } else {
+                    orgName = getOrgName(workspaceRoot.get());
+                }
+                CommandUtil.initPackageByTemplate(packagePath, orgName, packageName, template, balFilesExist);
             } else {
                 Path balaCache = homeCache.resolve(ProjectConstants.REPOSITORIES_DIR)
                         .resolve(ProjectConstants.CENTRAL_REPOSITORY_CACHE_NAME)
                         .resolve(ProjectConstants.BALA_DIR_NAME);
                 initPackageFromCentral(balaCache, packagePath, packageName, template, filesInDir);
             }
+            workspaceRoot = ProjectPaths.workspaceRoot(packagePath);
         } catch (AccessDeniedException e) {
             CommandUtil.printError(errStream,
                     "error occurred while creating project : " + "Insufficient Permission : " + e.getMessage(),
@@ -305,8 +334,29 @@ public class NewCommand implements BLauncherCmd {
             }
             errStream.println("Created new package '" + packageName + "' at " + packagePath + ".");
         }
-        if (this.exitWhenFinish) {
-            Runtime.getRuntime().exit(0);
+        if (workspaceRoot.isPresent()) {
+            Path wpBallerinaToml = workspaceRoot.get().resolve(ProjectConstants.BALLERINA_TOML);
+            try {
+                TomlDocument tomlDocument = TomlDocument.from(ProjectConstants.BALLERINA_TOML,
+                        Files.readString(wpBallerinaToml));
+                String relativePackagePath;
+                if (workspace) {
+                    relativePackagePath = workspaceRoot.get().relativize(workspaceRoot.get().resolve(packageName))
+                            .toString();
+                } else {
+                    if(packagePath.isAbsolute()) {
+                        relativePackagePath = workspaceRoot.get().relativize(packagePath).toString();
+                    } else {
+                        relativePackagePath = workspaceRoot.get().relativize(packagePath.toAbsolutePath()).toString();
+                    }
+                }
+                replacePackagesInWpBalToml(tomlDocument.toml(), wpBallerinaToml, relativePackagePath);
+            } catch (IOException e) {
+                CommandUtil.printError(errStream, e.getMessage(),
+                        null,
+                        false);
+                CommandUtil.exitError(this.exitWhenFinish);
+            }
         }
     }
 
@@ -329,4 +379,66 @@ public class NewCommand implements BLauncherCmd {
     public void setParentCmdParser(CommandLine parentCmdParser) {
     }
 
+    private void replacePackagesInWpBalToml(Toml toml, Path balTomlPath, String packagePath) throws IOException {
+        StringBuilder replacementStr = new StringBuilder();
+        TomlTableNode tomlAstNode = toml.rootNode();
+        TopLevelNode topLevelPkgNode = tomlAstNode.entries().get("workspace");
+        if (topLevelPkgNode == null || topLevelPkgNode.kind() != TomlType.TABLE) {
+            replacementStr.append("[workspace]\n");
+        }
+        TomlTableNode pkgNode = (TomlTableNode) topLevelPkgNode;
+        if (pkgNode == null) {
+            CommandUtil.printError(errStream, "error while parsing the 'workspace' table in " + balTomlPath,
+                    null,
+                    false);
+            CommandUtil.exitError(this.exitWhenFinish);
+            return;
+        }
+
+        List<String> packages = getStringArrayFromTableNode(pkgNode, "packages");
+        replacementStr.append("packages = [");
+        for (String pkg : packages) {
+            replacementStr.append("\"").append(pkg).append("\", ");
+        }
+        replacementStr.append("\"").append(packagePath).append("\"").append("]");
+
+        String content = Files.readString(balTomlPath);
+        Pattern pattern = Pattern.compile("packages\\s*=\\s*\\[\\s*(?:\"[^\"]*\"\\s*,\\s*)*\"[^\"]*\"\\s*]",
+                Pattern.DOTALL);
+        Matcher matcher = pattern.matcher(content);
+        String modifiedContent;
+        if (matcher.find()) {
+            String existingStr = matcher.group();
+            modifiedContent = content.replace(existingStr, replacementStr);
+        } else {
+            modifiedContent = content + replacementStr;
+        }
+        Files.writeString(balTomlPath, modifiedContent, StandardOpenOption.TRUNCATE_EXISTING);
+    }
+
+    private String getOrgName(Path workspaceRoot) throws IOException {
+        TomlDocument tomlDocument = TomlDocument.from(ProjectConstants.BALLERINA_TOML,
+                Files.readString(workspaceRoot.resolve(ProjectConstants.BALLERINA_TOML)));
+        TomlTableNode tomlAstNode = tomlDocument.toml().rootNode();
+        TopLevelNode topLevelPkgNode = tomlAstNode.entries().get("workspace");
+        if (topLevelPkgNode != null && topLevelPkgNode.kind() == TomlType.TABLE) {
+            TomlTableNode pkgNode = (TomlTableNode) topLevelPkgNode;
+            List<String> packages = getStringArrayFromTableNode(pkgNode, "packages");
+            if (!packages.isEmpty()) {
+                String packageName = packages.get(0);
+                Path pkgBalToml = workspaceRoot.resolve(packageName);
+                try {
+                    BuildProjectLoadResult buildProjectLoadResult = BuildProject.from(pkgBalToml);
+                    PackageManifest manifest = buildProjectLoadResult.project().currentPackage().manifest();
+                    if (manifest.diagnostics().hasErrors()) {
+                        return ProjectUtils.guessOrgName();
+                    }
+                    return manifest.org().toString();
+                } catch (ProjectException e) {
+                    // ignore the exception and return the guessed org name
+                }
+            }
+        }
+        return ProjectUtils.guessOrgName();
+    }
 }
