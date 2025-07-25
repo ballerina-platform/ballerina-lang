@@ -45,6 +45,7 @@ public class ConfigurableTest extends BaseTest {
             .toAbsolutePath().toString();
     private BMainInstance bMainInstance;
     private final String testsPassed = "Tests passed";
+    
 
     @BeforeClass
     public void setup() throws BallerinaTestException {
