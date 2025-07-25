@@ -89,6 +89,7 @@ public class RunTestsTask implements Task {
     private final PrintStream err;
     private final String includesInCoverage;
     private final String excludesInCoverage;
+    private final Float minCoverage;
     private String groupList;
     private String disableGroupList;
     private boolean report;
@@ -115,7 +116,7 @@ public class RunTestsTask implements Task {
     public RunTestsTask(PrintStream out, PrintStream err, boolean rerunTests, String groupList,
                         String disableGroupList, String testList, String includes, String coverageFormat,
                         Map<String, Module> modules, boolean listGroups, String excludes, String[] cliArgs,
-                        boolean isParallelExecution)  {
+                        boolean isParallelExecution, Float minCoverage)  {
         this.out = out;
         this.err = err;
         this.isRerunTestExecution = rerunTests;
@@ -136,6 +137,7 @@ public class RunTestsTask implements Task {
         this.coverageModules = modules;
         this.listGroups = listGroups;
         this.excludesInCoverage = excludes;
+        this.minCoverage = minCoverage;
     }
 
     @Override
@@ -200,6 +202,7 @@ public class RunTestsTask implements Task {
 
         if (hasTests) {
             int testResult;
+            boolean isCoverageMet =  true;
             try {
                 Set<String> exclusionClassList = new HashSet<>();
                 testResult = runTestSuite(target, project.currentPackage(), jBallerinaBackend, mockClassNames,
@@ -207,6 +210,11 @@ public class RunTestsTask implements Task {
 
                 performPostTestsTasks(project, target, testsCachePath, jBallerinaBackend,
                         cachesRoot, moduleNamesList, exclusionClassList);
+                if (minCoverage != null && coverage) {
+                    if (testReport.getCoveragePercentage() < minCoverage) {
+                        isCoverageMet = false;
+                    }
+                }
             } catch (IOException | InterruptedException | ClassNotFoundException e) {
                 cleanTempCache(project, cachesRoot);
                 throw createLauncherException("error occurred while running tests", e);
@@ -215,6 +223,12 @@ public class RunTestsTask implements Task {
             if (testResult != 0) {
                 cleanTempCache(project, cachesRoot);
                 throw createLauncherException("there are test failures");
+            }
+
+            if (!isCoverageMet) {
+                cleanTempCache(project, cachesRoot);
+                throw createLauncherException("code coverage is below the minimum threshold of " + minCoverage
+                        + "%, current coverage is " + testReport.getCoveragePercentage() + "%");
             }
         } else {
             out.println("\tNo tests found");
