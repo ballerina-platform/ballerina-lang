@@ -33,7 +33,6 @@ import org.wso2.ballerinalang.compiler.bir.codegen.split.constants.JvmModuleCons
 import org.wso2.ballerinalang.compiler.bir.codegen.split.constants.JvmRefTypeConstantsGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.split.constants.JvmTupleTypeConstantsGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.split.constants.JvmUnionTypeConstantsGen;
-import org.wso2.ballerinalang.compiler.bir.codegen.split.identifiers.JvmBallerinaConstantsGen;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.TypeHashVisitor;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
@@ -57,7 +56,6 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.utils.JvmModuleUtils.g
  */
 public class JvmConstantsGen {
 
-    private final JvmBallerinaConstantsGen jvmBallerinaConstantsGen;
     private final JvmUnionTypeConstantsGen unionTypeConstantsGen;
     private final JvmErrorTypeConstantsGen errorTypeConstantsGen;
     private final JvmBStringConstantsGen stringConstantsGen;
@@ -78,7 +76,6 @@ public class JvmConstantsGen {
         this.stringConstantsGen = new JvmBStringConstantsGen(module.packageID);
         this.moduleConstantsGen = new JvmModuleConstantsGen(module);
         this.functionTypeConstantsGen = new JvmFunctionTypeConstantsGen(module.packageID, module.functions);
-        this.jvmBallerinaConstantsGen = new JvmBallerinaConstantsGen(module, this);
         this.unionTypeConstantsGen = new JvmUnionTypeConstantsGen(module.packageID, bTypeHashComparator, jarEntries);
         this.errorTypeConstantsGen = new JvmErrorTypeConstantsGen(module.packageID, bTypeHashComparator, jarEntries);
         this.tupleTypeConstantsGen = new JvmTupleTypeConstantsGen(module.packageID, bTypeHashComparator, jarEntries);
@@ -108,8 +105,7 @@ public class JvmConstantsGen {
         functionTypeConstantsGen.setJvmTypeGen(jvmCreateTypeGen.getJvmTypeGen());
     }
 
-    public void generateConstants(JvmPackageGen jvmPackageGen, JarEntries jarEntries) {
-        jvmBallerinaConstantsGen.generateConstantInit(jvmPackageGen, jarEntries);
+    public void generateConstants(JarEntries jarEntries) {
         functionTypeConstantsGen.generateClass(jarEntries);
         moduleConstantsGen.generateConstantInit(jarEntries);
         stringConstantsGen.generateConstantInit(jarEntries);

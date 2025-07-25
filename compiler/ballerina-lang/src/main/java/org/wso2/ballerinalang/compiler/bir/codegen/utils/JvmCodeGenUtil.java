@@ -680,4 +680,10 @@ public final class JvmCodeGenUtil {
     public static String getVarStoreClass(String varClassPkgName, String varName) {
         return varClassPkgName + varName;
     }
+
+    public static void genMethodReturn(MethodVisitor mv) {
+        mv.visitInsn(RETURN);
+        mv.visitMaxs(0, 0);
+        mv.visitEnd();
+    }
 }

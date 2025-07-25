@@ -1102,20 +1102,6 @@ public class AnnotationDesugar {
 
     private int calculateIndex(List<BLangStatement> statements, BTypeSymbol symbol) {
         return calculateOCEExprIndex(statements, symbol);
-//        for (int i = 0; i < statements.size(); i++) {
-//            BLangStatement stmt = statements.get(i);
-//
-//            if (stmt.getKind() != NodeKind.ASSIGNMENT) {
-//                continue;
-//            }
-//
-//            BLangExpression expr = ((BLangAssignment) stmt).expr;
-//            if ((desugar.isMappingOrObjectConstructorOrObjInit(expr))
-//                    && isMappingOrObjectCtorOrObjInitWithSymbol(expr, symbol)) {
-//                return i;
-//            }
-//        }
-//        return statements.size();
     }
 
     private int calculateOCEExprIndex(List<BLangStatement> statements, BTypeSymbol symbol) {

@@ -68,7 +68,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INIT_WIT
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.STRING_BUILDER_APPEND;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.TO_STRING_RETURN;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.VOID_METHOD_DESC;
-import static org.wso2.ballerinalang.compiler.bir.codegen.utils.JvmConstantGenUtils.genMethodReturn;
+import static org.wso2.ballerinalang.compiler.bir.codegen.utils.JvmCodeGenUtil.genMethodReturn;
 import static org.wso2.ballerinalang.compiler.bir.codegen.utils.JvmConstantGenUtils.generateConstantsClassInit;
 import static org.wso2.ballerinalang.compiler.bir.codegen.utils.JvmModuleUtils.getModuleLevelClassName;
 
@@ -126,7 +126,6 @@ public class JvmBStringConstantsGen {
                 createDirectBString(mv, bString, bStringVarName, highSurrogates, constantClassName);
             }
             genMethodReturn(mv);
-
             // Create methods to return int array to pass when creating non-Bmp string values.
             if (highSurrogates.length > 0) {
                 generateGetHighSurrogateArrayMethod(cw, constantClassName, bStringVarName, highSurrogates);

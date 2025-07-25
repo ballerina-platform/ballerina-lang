@@ -47,6 +47,7 @@ import org.wso2.ballerinalang.compiler.bir.codegen.methodgen.ModuleStopMethodGen
 import org.wso2.ballerinalang.compiler.bir.codegen.model.BIRFunctionWrapper;
 import org.wso2.ballerinalang.compiler.bir.codegen.split.JvmConstantsGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.split.JvmMethodsSplitter;
+import org.wso2.ballerinalang.compiler.bir.codegen.split.identifiers.JvmBallerinaConstantsGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.split.identifiers.JvmGlobalVariablesGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.utils.JvmCodeGenUtil;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
@@ -690,15 +691,21 @@ public class JvmPackageGen {
         // generate module classes
         generateModuleClasses(jarEntries, moduleInitClass, jvmTypeGen, jvmCastGen, jvmConstantsGen,
                 jvmClassMapping, serviceEPAvailable, mainFunc, testExecuteFunc, asyncDataCollector, immediateImports);
+
+        // Generate global vars and constants
         JvmGlobalVariablesGen jvmGlobalVariablesGen = new JvmGlobalVariablesGen(currentModule,
                 lazyLoadingDataCollector);
-        jvmGlobalVariablesGen.generateGlobalVarsInit(jarEntries, this, jvmTypeGen, jvmCastGen, jvmConstantsGen,
-                asyncDataCollector);
+        JvmBallerinaConstantsGen jvmBallerinaConstantsGen = new JvmBallerinaConstantsGen(currentModule,
+                jvmConstantsGen, lazyLoadingDataCollector);
+        jvmGlobalVariablesGen.generateGlobalVarClasses(this, jvmTypeGen, jvmCastGen, jvmConstantsGen,
+                asyncDataCollector, jarEntries);
+        jvmBallerinaConstantsGen.generateConstantsClasses(this, jvmTypeGen, jvmCastGen, asyncDataCollector, jarEntries);
+
         List<BIRNode.BIRFunction> sortedFunctions = new ArrayList<>(currentModule.functions);
         sortedFunctions.sort(NAME_HASH_COMPARATOR);
         jvmMethodsSplitter.generateMethods(jarEntries, jvmCastGen, sortedFunctions, asyncDataCollector,
                 lazyLoadingDataCollector);
-        jvmConstantsGen.generateConstants(this, jarEntries);
+        jvmConstantsGen.generateConstants(jarEntries);
         lambdaGen.generateLambdaClasses(asyncDataCollector, jarEntries);
 
         // clear class name mappings

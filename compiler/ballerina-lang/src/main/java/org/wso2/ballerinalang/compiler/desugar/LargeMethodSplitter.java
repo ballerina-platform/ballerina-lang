@@ -32,7 +32,9 @@ import org.wso2.ballerinalang.compiler.tree.BLangBlockFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckedExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement;
@@ -126,17 +128,22 @@ public class LargeMethodSplitter {
 
         // until we get to a varDef, stmts are independent, divide it based on methodSize
         int varDefIndex = 0;
-        for (int i = 0; i < stmts.size(); i++) {
-            BLangStatement statement = stmts.get(i);
+        int count = 0;
+        for (BLangStatement statement : stmts) {
             if (statement.getKind() == NodeKind.VARIABLE_DEF) {
                 break;
             }
             varDefIndex++;
-            if (i > 0 && (i % INIT_METHOD_SPLIT_SIZE == 0 || isAssignmentWithInitOrRecordLiteralExpr(statement))) {
+            if (isGlobalOrConstantAssignment(statement, env)) {
+                newFuncBody.stmts.add(statement);
+                continue;
+            }
+            count++;
+            if (count % INIT_METHOD_SPLIT_SIZE == 0) {
                 generatedFunctions.add(newFunc);
                 newFunc = createIntermediateInitFunction(packageNode, env);
                 splitFuncCount++;
-                if (splitFuncCount % INIT_FUNC_COUNT_PER_CLASS == 0) {
+                if ((splitFuncCount % INIT_FUNC_COUNT_PER_CLASS) == 0) {
                     newFuncPos = getNewFuncPos(packageNodePos, packageFileName, splitInitFuncClassCount);
                     splitInitFuncClassCount++;
                 }
@@ -144,12 +151,10 @@ public class LargeMethodSplitter {
                 newFuncBody = (BLangBlockFunctionBody) newFunc.body;
                 symTable.rootScope.define(names.fromIdNode(newFunc.name), newFunc.symbol);
             }
-            newFuncBody.stmts.add(stmts.get(i));
+            newFuncBody.stmts.add(statement);
         }
-
         newFuncBody.stmts.addAll(stmts.subList(varDefIndex, stmts.size()));
         generatedFunctions.add(newFunc);
-
         for (int j = 0; j < generatedFunctions.size() - 1; j++) {
             BLangFunction thisFunction = generatedFunctions.get(j);
 
@@ -171,15 +176,18 @@ public class LargeMethodSplitter {
                 packageNode.topLevelNodes.add(thisFunction);
             }
         }
-
         rewriteLastSplitFunction(packageNode, env, generatedFunctions);
         initFuncIndex = 0;
         return generatedFunctions.get(0);
     }
 
-    private boolean isAssignmentWithInitOrRecordLiteralExpr(BLangStatement statement) {
+    private boolean isGlobalOrConstantAssignment(BLangStatement statement, SymbolEnv env) {
+        // These will be removed from init method during lazy load desugar
         if (statement.getKind() == NodeKind.ASSIGNMENT) {
-            return desugar.isMappingOrObjectConstructorOrObjInit(((BLangAssignment) statement).getExpression());
+            BLangAssignment assignment = (BLangAssignment) statement;
+            BLangExpression varRef = assignment.varRef;
+            return varRef.getKind() == NodeKind.SIMPLE_VARIABLE_REF &&
+                    (((BLangSimpleVarRef) varRef).symbol.owner == env.enclPkg.symbol);
         }
         return false;
     }

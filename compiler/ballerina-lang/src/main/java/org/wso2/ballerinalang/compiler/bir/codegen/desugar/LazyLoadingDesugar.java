@@ -80,7 +80,8 @@ public class LazyLoadingDesugar {
         for (int i = 0; i < instructions.size(); i++) {
             BIRNonTerminator instruction = instructions.get(i);
             lhsOp = instruction.lhsOp;
-            if (lhsOp == null || lhsOp.variableDcl.kind != VarKind.GLOBAL) {
+            if (lhsOp == null || (lhsOp.variableDcl.kind != VarKind.GLOBAL &&
+                    lhsOp.variableDcl.kind != VarKind.CONSTANT)) {
                 continue;
             }
             if (currentBBIndex != nextLocalVarBBIndex) {
@@ -91,7 +92,8 @@ public class LazyLoadingDesugar {
             copyInstructions(lhsOp, instructions, i);
             i = nextLocalVarIndex - 1;
         }
-        return lhsOp != null && lhsOp.variableDcl.kind == VarKind.GLOBAL;
+        return lhsOp != null && (lhsOp.variableDcl.kind == VarKind.GLOBAL ||
+                lhsOp.variableDcl.kind == VarKind.CONSTANT);
     }
 
     private boolean lazyLoadTerminator(List<BIRNode.BIRBasicBlock> basicBlocks,  BIRNode.BIRBasicBlock bb,
@@ -105,12 +107,13 @@ public class LazyLoadingDesugar {
                 lazyLoadAnnotationProcessCall(bb, basicBlocks.get(currentBBIndex + 1), call);
                 return false;
             }
-            if (call.args.isEmpty() && lhsOp != null && lhsOp.variableDcl.kind == VarKind.GLOBAL &&
-                    call.name.value.contains(SPLIT_METHOD)) {
+            if (call.args.isEmpty() && lhsOp != null && (lhsOp.variableDcl.kind == VarKind.GLOBAL ||
+                    lhsOp.variableDcl.kind == VarKind.CONSTANT) && call.name.value.contains(SPLIT_METHOD)) {
                 lazyLoadSplitCall(call, lhsOp.variableDcl.name.value, bb, basicBlocks, currentBBIndex);
             }
         }
-        return (lhsOp != null && lhsOp.variableDcl.kind == VarKind.GLOBAL) || terminator.kind == InstructionKind.GOTO;
+        return (lhsOp != null && (lhsOp.variableDcl.kind == VarKind.GLOBAL ||
+                lhsOp.variableDcl.kind == VarKind.CONSTANT)) || terminator.kind == InstructionKind.GOTO;
     }
 
     private void copyInstructions(BIROperand lhsOp, List<BIRNonTerminator> instructions, int currentInsIndex) {
