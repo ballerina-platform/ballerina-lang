@@ -3,7 +3,7 @@
 ballerina run counter_metrics.bal --b7a.observability.enabled=true
 [ballerina/http] started HTTP/WS listener 0.0.0.0:9797
 ballerina: started Prometheus HTTP listener 0.0.0.0:9797
-ballerina: started publishing tracers to Jaeger on localhost:5775
+ballerina: started publishing tracers to Jaeger on localhost:4317
 [ballerina/http] started HTTP/WS listener 0.0.0.0:9090
 ------------------------------------------
 Global Counter = 1

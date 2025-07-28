@@ -21,11 +21,34 @@ dependencies {
     implementation project(':ballerina-lang')
     implementation project(':ballerina-config')
     implementation project(':ballerina-runtime')
-    implementation 'io.jaegertracing:jaeger-core'
-    implementation 'io.jaegertracing:jaeger-thrift'
-    implementation 'org.apache.thrift:libthrift'
-    implementation 'com.squareup.okhttp3:okhttp'
-    implementation 'com.squareup.okio:okio'
+    implementation "io.opentelemetry:opentelemetry-context:1.32.0"
+    implementation "io.opentelemetry:opentelemetry-sdk-trace:1.32.0"
+    implementation "io.opentelemetry:opentelemetry-sdk-common:1.32.0"
+    implementation "io.opentelemetry.semconv:opentelemetry-semconv:1.21.0-alpha"
+    implementation "io.opentelemetry:opentelemetry-exporter-otlp:1.32.0"
+    implementation "io.opentelemetry:opentelemetry-extension-trace-propagators:1.32.0"
+    implementation "io.opentelemetry:opentelemetry-sdk-extension-jaeger-remote-sampler:1.32.0"
+    implementation "io.netty:netty-handler:4.1.108.Final"
+    implementation("io.grpc:grpc-core:1.54.1") {
+        exclude group: 'io.grpc', module: 'grpc-context'
+        exclude group: 'com.google.code.findbugs', module: 'jsr305'
+    }
+    implementation("io.grpc:grpc-stub:1.54.1") {
+        exclude group: 'io.grpc', module: 'grpc-context'
+        exclude group: 'com.google.code.findbugs', module: 'jsr305'
+    }
+    implementation("io.grpc:grpc-protobuf:1.54.1") {
+        exclude group: 'io.grpc', module: 'grpc-context'
+        exclude group: 'com.google.code.findbugs', module: 'jsr305'
+    }
+    implementation("io.grpc:grpc-protobuf-lite:1.54.1") {
+        exclude group: 'io.grpc', module: 'grpc-context'
+        exclude group: 'com.google.code.findbugs', module: 'jsr305'
+    }
+    implementation("io.grpc:grpc-netty-shaded:1.54.1") {
+        exclude group: 'io.grpc', module: 'grpc-context'
+        exclude group: 'com.google.code.findbugs', module: 'jsr305'
+    }
 }
 
 description = 'Ballerina - Jaeger Tracing Extension'

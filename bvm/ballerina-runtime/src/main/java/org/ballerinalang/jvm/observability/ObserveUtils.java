@@ -18,6 +18,9 @@
 
 package org.ballerinalang.jvm.observability;
 
+import io.opentelemetry.api.common.Attributes;
+import io.opentelemetry.api.common.AttributesBuilder;
+import io.opentelemetry.api.trace.StatusCode;
 import org.ballerinalang.config.ConfigRegistry;
 import org.ballerinalang.jvm.observability.tracer.BSpan;
 import org.ballerinalang.jvm.scheduling.Strand;
@@ -163,7 +166,7 @@ public class ObserveUtils {
     public static Map<String, String> getContextProperties(ObserverContext observerContext) {
         BSpan bSpan = (BSpan) observerContext.getProperty(KEY_SPAN);
         if (bSpan != null) {
-            return bSpan.getTraceContext();
+            return bSpan.extractContextAsHttpHeaders();
         }
         return Collections.emptyMap();
     }
@@ -191,11 +194,15 @@ public class ObserveUtils {
         }
         HashMap<String, Object> logs = new HashMap<>(1);
         logs.put(logLevel, logMessage.get());
-        if (!isError) {
-            span.log(logs);
-        } else {
-            span.logError(logs);
+        AttributesBuilder attributesBuilder = Attributes.builder()
+                .put("level", logLevel)
+                .put("message", logMessage.get());
+
+        if (isError) {
+            attributesBuilder.put("error", true);
+            span.setStatus(StatusCode.ERROR);
         }
+        span.addEvent("log", attributesBuilder.build());
     }
 
     /**

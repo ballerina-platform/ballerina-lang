@@ -19,7 +19,6 @@ package org.ballerinalang.jvm.observability.tracer;
 
 import org.ballerinalang.jvm.observability.BallerinaObserver;
 import org.ballerinalang.jvm.observability.ObserverContext;
-import org.ballerinalang.jvm.observability.TracingUtils;
 
 /**
  * Observe the runtime and start/stop tracing.

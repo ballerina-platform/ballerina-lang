@@ -15,11 +15,15 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
 package org.ballerinalang.jvm.observability.tracer;
 
-import io.opentracing.Tracer;
+import io.opentelemetry.api.trace.Tracer;
+import io.opentelemetry.context.propagation.ContextPropagators;
 import org.ballerinalang.config.ConfigRegistry;
+import org.ballerinalang.jvm.BallerinaErrors;
+import org.ballerinalang.jvm.StringUtils;
+import org.ballerinalang.jvm.observability.InvalidConfigurationException;
+import org.ballerinalang.jvm.observability.tracer.spi.TracerProvider;
 
 import java.io.PrintStream;
 import java.util.HashMap;
@@ -35,10 +39,11 @@ import static org.ballerinalang.jvm.observability.tracer.TraceConstants.TRACER_N
  */
 public class TracersStore {
 
-    private TracerGenerator tracer;
-    private Map<String, Tracer> tracerStore = null;
+    private TracerProvider tracerProvider;
+    private Map<String, Tracer> store;
     private static final PrintStream consoleError = System.err;
-    private static TracersStore instance = new TracersStore();
+    private static final TracersStore instance = new TracersStore();
+    private ContextPropagators propagators;
 
     public static TracersStore getInstance() {
         return instance;
@@ -47,32 +52,32 @@ public class TracersStore {
     private TracersStore() {
     }
 
+    public void setTracerGenerator(TracerProvider tracerProvider) {
+        this.tracerProvider = tracerProvider;
+        if (tracerProvider != null) {
+            propagators = tracerProvider.getPropagators();
+        }
+        store = new HashMap<>();
+    }
+
     public void loadTracers() {
         ConfigRegistry configRegistry = ConfigRegistry.getInstance();
         if (configRegistry.getAsBoolean(CONFIG_TRACING_ENABLED)) {
-
-            this.tracerStore = new HashMap<>();
-
-            ServiceLoader<OpenTracer> openTracers = ServiceLoader.load(OpenTracer.class);
-            HashMap<String, OpenTracer> tracerMap = new HashMap<>();
-            openTracers.forEach(t -> tracerMap.put(t.getName().toLowerCase(), t));
+            this.store = new HashMap<>();
 
             String tracerName = configRegistry.getConfigOrDefault(TRACER_NAME_CONFIG, JAEGER);
-
-            OpenTracer openTracer = tracerMap.get(tracerName.toLowerCase());
-            if (openTracer != null) {
-                try {
-                    openTracer.init();
-                    tracer = new TracerGenerator(openTracer.getName(), openTracer);
-                } catch (InvalidConfigurationException e) {
-                    consoleError.println("error: error in observability tracing configurations: " + e.getMessage());
+            for (TracerProvider providerFactory : ServiceLoader.load(TracerProvider.class)) {
+                if (tracerName.equalsIgnoreCase(providerFactory.getName())) {
+                    tracerProvider = providerFactory;
+                    try {
+                        tracerProvider.init();
+                    } catch (InvalidConfigurationException e) {
+                        throw new RuntimeException(e);
+                    }
                 }
-            } else {
-                consoleError.println(
-                        "error: observability enabled but no tracing extension found for name " + tracerName);
             }
         } else {
-            this.tracerStore = new HashMap<>();
+            this.store = new HashMap<>();
         }
     }
 
@@ -83,37 +88,36 @@ public class TracersStore {
      * @return trace implementations i.e: zipkin, jaeger
      */
     public Tracer getTracer(String serviceName) {
-        if (tracerStore.containsKey(serviceName)) {
-            return tracerStore.get(serviceName);
-        } else {
-            Tracer openTracer = null;
-            if (tracer != null) {
-                try {
-                    openTracer = tracer.generate(serviceName);
-                } catch (Throwable e) {
-                    consoleError.println("error: error getting tracer for " + tracer.name + ". " + e.getMessage());
-                }
-            }
-            tracerStore.put(serviceName, openTracer);
-            return openTracer;
+        if (!isInitialized()) {
+            throw BallerinaErrors.createError(StringUtils.fromString("error: the tracer store is not initialized " +
+                    "because observability has not been enabled."));
         }
+        Tracer tracer;
+        if (store.containsKey(serviceName)) {
+            tracer = store.get(serviceName);
+        } else {
+            if (tracerProvider != null) {
+                try {
+                    tracer = tracerProvider.getTracer(serviceName);
+                } catch (Throwable e) {
+                    tracer = io.opentelemetry.api.trace.TracerProvider.noop().get("");
+                    consoleError.println("error: tracing disabled as getting tracer for " + serviceName + " service. "
+                            + e.getMessage());
+                }
+                store.put(serviceName, tracer);
+            } else {
+                tracer = io.opentelemetry.api.trace.TracerProvider.noop().get("");
+                consoleError.println("error: tracing disabled as the tracer provider had not been initialized.");
+            }
+        }
+        return tracer;
     }
 
-    /**
-     * Holds the tracerExt and generates a tracer upon request.
-     */
-    private static class TracerGenerator {
-        String name;
-        OpenTracer tracer;
-
-        TracerGenerator(String name, OpenTracer tracer) {
-            this.name = name;
-            this.tracer = tracer;
+    public ContextPropagators getPropagators() {
+        if (propagators != null) {
+            return propagators;
         }
-
-        Tracer generate(String serviceName) {
-            return tracer.getTracer(name, serviceName);
-        }
+        return ContextPropagators.noop();
     }
 
     /**
@@ -122,6 +126,6 @@ public class TracersStore {
      * @return boolean value whether it's initialized.
      */
     public boolean isInitialized() {
-        return this.tracerStore != null;
+        return this.store != null;
     }
 }

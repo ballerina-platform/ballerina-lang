@@ -30,7 +30,9 @@ dependencies {
     shadow project(':ballerina-lang')
     shadow project(':ballerina-lang:annotations')
     shadow 'com.google.code.gson:gson'
-    implementation 'io.opentracing:opentracing-mock'
+    implementation 'io.opentelemetry:opentelemetry-api:1.32.0'
+    implementation 'io.opentelemetry:opentelemetry-sdk-trace:1.32.0'
+    implementation 'io.opentelemetry:opentelemetry-sdk-testing:1.32.0'
     implementation project(':ballerina-runtime')
 }
 

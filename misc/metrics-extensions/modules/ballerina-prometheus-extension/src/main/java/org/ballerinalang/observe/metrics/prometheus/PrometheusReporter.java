@@ -19,9 +19,9 @@ package org.ballerinalang.observe.metrics.prometheus;
 
 import org.ballerinalang.config.ConfigRegistry;
 import org.ballerinalang.jvm.annotation.JavaSPIService;
+import org.ballerinalang.jvm.observability.InvalidConfigurationException;
 import org.ballerinalang.jvm.observability.ObservabilityConstants;
 import org.ballerinalang.jvm.observability.metrics.spi.MetricReporter;
-import org.ballerinalang.jvm.observability.tracer.InvalidConfigurationException;
 import org.ballerinalang.jvm.services.EmbeddedExecutorProvider;
 import org.ballerinalang.jvm.services.spi.EmbeddedExecutor;
 

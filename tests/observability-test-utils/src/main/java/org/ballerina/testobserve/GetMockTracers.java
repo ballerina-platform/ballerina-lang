@@ -20,16 +20,19 @@
 package org.ballerina.testobserve;
 
 import com.google.gson.Gson;
-import io.opentracing.mock.MockTracer;
-import org.ballerina.testobserve.extension.BMockTracer;
+import io.opentelemetry.sdk.testing.exporter.InMemorySpanExporter;
+import io.opentelemetry.sdk.trace.data.SpanData;
+import org.ballerina.testobserve.extension.BMockSpan;
+import org.ballerina.testobserve.extension.BMockTracerProvider;
 import org.ballerinalang.jvm.JSONParser;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * This function returns the span context of a given span.
@@ -42,16 +45,23 @@ import java.util.List;
         isPublic = true
 )
 public class GetMockTracers {
-    public static Object getMockTracers(Strand strand) {
-        List<MockTracer> mockTracers = BMockTracer.getTracerMap();
-        List<BMockSpan> mockSpans = new ArrayList<>();
-        mockTracers.forEach(mockTracer -> mockTracer.finishedSpans()
-                .forEach(mockSpan -> mockSpans.add(
-                        new BMockSpan(mockSpan.operationName(),
-                                mockSpan.context().traceId(),
-                                mockSpan.context().spanId(),
-                                mockSpan.parentId(),
-                                mockSpan.tags()))));
+    public static Object getMockTracers(Strand strand, String serviceName) {
+        InMemorySpanExporter spanExporter = BMockTracerProvider.getExporterMap().get(serviceName);
+
+        List<BMockSpan> mockSpans;
+        if (spanExporter == null) {
+            mockSpans = Collections.emptyList();
+        } else {
+            List<SpanData> finishedSpanList = spanExporter.getFinishedSpanItems();
+            mockSpans = finishedSpanList.stream()
+                    .map(spanData -> new BMockSpan(spanData.getName(),
+                            spanData.getTraceId(),
+                            spanData.getSpanId(),
+                            spanData.getParentSpanId(),
+                            spanData.getAttributes(),
+                            spanData.getEvents()))
+                    .collect(Collectors.toList());
+        }
         return JSONParser.parse(new Gson().toJson(mockSpans));
     }
 }

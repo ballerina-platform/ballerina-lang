@@ -19,12 +19,12 @@
 
 package org.ballerinalang.observe.nativeimpl;
 
-import io.opentracing.Tracer;
+import io.opentelemetry.api.trace.Tracer;
 import org.ballerinalang.config.ConfigRegistry;
 import org.ballerinalang.jvm.observability.ObserveUtils;
 import org.ballerinalang.jvm.observability.ObserverContext;
-import org.ballerinalang.jvm.observability.TracingUtils;
 import org.ballerinalang.jvm.observability.tracer.TracersStore;
+import org.ballerinalang.jvm.observability.tracer.TracingUtils;
 import org.ballerinalang.jvm.scheduling.Strand;
 
 import java.util.Map;

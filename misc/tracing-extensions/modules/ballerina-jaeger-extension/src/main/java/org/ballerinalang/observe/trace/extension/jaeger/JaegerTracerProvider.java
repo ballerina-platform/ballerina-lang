@@ -15,21 +15,29 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
 package org.ballerinalang.observe.trace.extension.jaeger;
 
-import io.jaegertracing.Configuration;
-import io.jaegertracing.internal.samplers.ConstSampler;
-import io.jaegertracing.internal.samplers.ProbabilisticSampler;
-import io.jaegertracing.internal.samplers.RateLimitingSampler;
-import io.opentracing.Tracer;
+import io.grpc.ManagedChannel;
+import io.grpc.netty.shaded.io.grpc.netty.NettyChannelProvider;
+import io.opentelemetry.api.common.Attributes;
+import io.opentelemetry.api.trace.Tracer;
+import io.opentelemetry.api.trace.propagation.W3CTraceContextPropagator;
+import io.opentelemetry.context.propagation.ContextPropagators;
+import io.opentelemetry.exporter.otlp.trace.OtlpGrpcSpanExporter;
+import io.opentelemetry.sdk.resources.Resource;
+import io.opentelemetry.sdk.trace.SdkTracerProvider;
+import io.opentelemetry.sdk.trace.SdkTracerProviderBuilder;
+import io.opentelemetry.sdk.trace.export.BatchSpanProcessor;
+import io.opentelemetry.sdk.trace.samplers.Sampler;
 import org.ballerinalang.config.ConfigRegistry;
-import org.ballerinalang.jvm.observability.tracer.InvalidConfigurationException;
-import org.ballerinalang.jvm.observability.tracer.OpenTracer;
+import org.ballerinalang.jvm.observability.InvalidConfigurationException;
+import org.ballerinalang.jvm.observability.tracer.spi.TracerProvider;
+import org.ballerinalang.observe.trace.extension.jaeger.sampler.RateLimitingSampler;
 
 import java.io.PrintStream;
-import java.util.Objects;
+import java.util.concurrent.TimeUnit;
 
+import static io.opentelemetry.semconv.ResourceAttributes.SERVICE_NAME;
 import static org.ballerinalang.observe.trace.extension.jaeger.Constants.DEFAULT_REPORTER_FLUSH_INTERVAL;
 import static org.ballerinalang.observe.trace.extension.jaeger.Constants.DEFAULT_REPORTER_HOSTNAME;
 import static org.ballerinalang.observe.trace.extension.jaeger.Constants.DEFAULT_REPORTER_MAX_BUFFER_SPANS;
@@ -45,10 +53,9 @@ import static org.ballerinalang.observe.trace.extension.jaeger.Constants.SAMPLER
 import static org.ballerinalang.observe.trace.extension.jaeger.Constants.TRACER_NAME;
 
 /**
- * This is the open tracing extension class for {@link OpenTracer}.
+ * This is the Jaeger tracing extension class for {@link TracerProvider}.
  */
-public class OpenTracingExtension implements OpenTracer {
-
+public class JaegerTracerProvider implements TracerProvider {
     private ConfigRegistry configRegistry;
     private String hostname;
     private int port;
@@ -58,25 +65,23 @@ public class OpenTracingExtension implements OpenTracer {
     private int reporterBufferSize;
 
     private static final PrintStream console = System.out;
-    private static final PrintStream consoleError = System.err;
+
+    private SdkTracerProviderBuilder tracerProviderBuilder;
+
+    @Override
+    public String getName() {
+        return TRACER_NAME;
+    }
 
     @Override
     public void init() throws InvalidConfigurationException {
         configRegistry = ConfigRegistry.getInstance();
-
         try {
             port = Integer.parseInt(
                     configRegistry.getConfigOrDefault(REPORTER_PORT_CONFIG, String.valueOf(DEFAULT_REPORTER_PORT)));
             hostname = configRegistry.getConfigOrDefault(REPORTER_HOST_NAME_CONFIG, DEFAULT_REPORTER_HOSTNAME);
 
             samplerType = configRegistry.getConfigOrDefault(SAMPLER_TYPE_CONFIG, DEFAULT_SAMPLER_TYPE);
-            if (!(samplerType.equals(ConstSampler.TYPE) || samplerType.equals(RateLimitingSampler.TYPE)
-                    || samplerType.equals(ProbabilisticSampler.TYPE))) {
-                samplerType = DEFAULT_SAMPLER_TYPE;
-                consoleError.println(
-                        "error: Jaeger configuration: \"sampler type\" invalid. Defaulted to const sampling");
-            }
-
             samplerParam = Float.valueOf(
                     configRegistry.getConfigOrDefault(SAMPLER_PARAM_CONFIG, String.valueOf(DEFAULT_SAMPLER_PARAM)));
             reporterFlushInterval = Integer.parseInt(configRegistry.getConfigOrDefault(
@@ -87,35 +92,56 @@ public class OpenTracingExtension implements OpenTracer {
         } catch (IllegalArgumentException | ArithmeticException e) {
             throw new InvalidConfigurationException(e.getMessage());
         }
-        console.println("ballerina: started publishing tracers to Jaeger on " + hostname + ":" + port);
-    }
 
-    @Override
-    public Tracer getTracer(String tracerName, String serviceName) {
+        String reporterEndpoint = hostname + ":" + port;
 
-        if (Objects.isNull(configRegistry)) {
-            throw new IllegalStateException("Tracer not initialized with configurations");
-        }
-
-        return new Configuration(serviceName)
-                .withSampler(new Configuration.SamplerConfiguration()
-                        .withType(samplerType)
-                        .withParam(samplerParam))
-                .withReporter(new Configuration.ReporterConfiguration()
-                        .withLogSpans(Boolean.FALSE)
-                        .withSender(new Configuration.SenderConfiguration()
-                                .withAgentHost(hostname)
-                                .withAgentPort(port))
-                        .withFlushInterval(reporterFlushInterval)
-                        .withMaxQueueSize(reporterBufferSize))
-                .getTracerBuilder()
-                .withScopeManager(NoOpScopeManager.INSTANCE)
+        ManagedChannel jaegerChannel = new NettyChannelProvider()
+                .builderForTarget(reporterEndpoint)
+                .usePlaintext()
                 .build();
+
+        OtlpGrpcSpanExporter exporter = OtlpGrpcSpanExporter.builder()
+                .setChannel(jaegerChannel)
+                .build();
+
+        tracerProviderBuilder = SdkTracerProvider.builder()
+                .addSpanProcessor(BatchSpanProcessor
+                        .builder(exporter)
+                        .setMaxExportBatchSize(reporterBufferSize)
+                        .setExporterTimeout(reporterFlushInterval, TimeUnit.MILLISECONDS)
+                        .build());
+
+        tracerProviderBuilder.setSampler(selectSampler(samplerType, samplerParam));
+
+        console.println("ballerina: started publishing tracers to Jaeger on " + reporterEndpoint);
+    }
+
+    private static Sampler selectSampler(String samplerType, Number samplerParam) {
+        switch (samplerType) {
+            default:
+            case "const":
+                if (samplerParam.intValue() == 0) {
+                    return Sampler.alwaysOff();
+                } else {
+                    return Sampler.alwaysOn();
+                }
+            case "probabilistic":
+                return Sampler.traceIdRatioBased(samplerParam.doubleValue());
+            case RateLimitingSampler.TYPE:
+                return new RateLimitingSampler(samplerParam.intValue());
+        }
     }
 
     @Override
-    public String getName() {
-        return TRACER_NAME;
+    public Tracer getTracer(String serviceName) {
+        return tracerProviderBuilder.setResource(
+                Resource.create(Attributes.of(SERVICE_NAME, serviceName)))
+                .build().get("jaeger");
     }
 
+    @Override
+    public ContextPropagators getPropagators() {
+
+        return ContextPropagators.create(W3CTraceContextPropagator.getInstance());
+    }
 }
