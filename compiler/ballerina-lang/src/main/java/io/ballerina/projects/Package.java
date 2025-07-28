@@ -486,8 +486,8 @@ public class Package {
             this.compilerPluginTomlContext = oldPackage.packageContext.compilerPluginTomlContext().orElse(null);
             this.balToolTomlContext = oldPackage.packageContext.balToolTomlContext().orElse(null);
             this.readmeMdContext = oldPackage.packageContext.readmeMdContext().orElse(null);
-            resourceContextMap = copyResources(oldPackage, oldPackage.packageContext.resourceIds());
-            testResourceContextMap = copyResources(oldPackage, oldPackage.packageContext.testResourceIds());
+            this.resourceContextMap = copyResources(oldPackage, oldPackage.packageContext.resourceIds());
+            this.testResourceContextMap = copyResources(oldPackage, oldPackage.packageContext.testResourceIds());
         }
 
         Modifier updateModules(Set<ModuleContext> newModuleContexts) {

@@ -91,9 +91,7 @@ public abstract class Project {
     public abstract Path generatedResourcesDir();
 
     protected void setCurrentPackage(Package currentPackage) {
-        if (this.currentPackage == null) {
-            this.currentPackage = currentPackage;
-        }
+        this.currentPackage = currentPackage;
     }
 
     public ProjectEnvironment projectEnvironmentContext() {

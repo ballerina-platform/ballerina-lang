@@ -310,10 +310,10 @@ public class RunCommand implements BLauncherCmd {
             // the projects that are dependencies of the project at the specified path.
             Optional<BuildProject> buildProjectOptional = projectDependencyGraph.getNodes().stream().filter(node ->
                     node.sourceRoot().equals(absProjectPath)).findFirst();
-            boolean isPackageModified = isProjectUpdated(project);
             if (buildProjectOptional.isEmpty()) {
                 throw createLauncherException("no package found at the specified path: " + absProjectPath);
             }
+            boolean isPackageModified = isProjectUpdated(buildProjectOptional.get());
             executeTasks(isPackageModified, project.buildOptions(), false, target, args,
                     buildProjectOptional.get());
 
