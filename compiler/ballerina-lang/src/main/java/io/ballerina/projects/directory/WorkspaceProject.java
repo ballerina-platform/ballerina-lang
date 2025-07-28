@@ -94,10 +94,11 @@ public class WorkspaceProject extends Project {
                 TomlDocument tomlDocument = TomlDocument.from(BALLERINA_TOML,
                         Files.readString(path.resolve(BALLERINA_TOML)));
                 WorkspaceProject workspaceProject = new WorkspaceProject(path, buildOptions, tomlDocument);
+                Environment environment = environmentBuilder.setWorkspace(workspaceProject).build();
                 List<Diagnostic> diagnostics = new ArrayList<>(workspaceProject.manifest().diagnostics().diagnostics());
                 for (Path pkgPath : workspaceProject.manifest().packages()) {
-                    BuildProjectLoadResult buildProjectLoadResult = loadBuildProject(
-                            environmentBuilder.setWorkspace(workspaceProject).build(), pkgPath, workspaceProject);
+                    BuildProjectLoadResult buildProjectLoadResult = loadBuildProject(environment, pkgPath,
+                            workspaceProject);
                     if (buildProjectLoadResult.diagnostics().hasErrors()) {
                         diagnostics.addAll(buildProjectLoadResult.diagnostics().diagnostics());
                         continue; // Skip adding this project if there are errors
