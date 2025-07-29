@@ -26,7 +26,6 @@ import static org.ballerinalang.jvm.observability.ObservabilityConstants.CONFIG_
  */
 public class Constants {
     private Constants() {
-
     }
 
     static final String TRACER_NAME = "zipkin";
