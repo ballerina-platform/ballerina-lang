@@ -37,4 +37,4 @@ dependencies {
     implementation "io.opentelemetry:opentelemetry-extension-trace-propagators:1.32.0"
 }
 
-description = 'Ballerina - Jaeger Tracing Extension'
+description = 'Ballerina - Zipkin Tracing Extension'
