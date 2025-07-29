@@ -49,7 +49,6 @@ public final class TracingUtils {
     public static void startObservation(ObserverContext observerContext, boolean isClient) {
         BSpan span;
         String serviceName = observerContext.getServiceName();
-//        String operationName = observerContext.getOperationName();
         String operationName = observerContext.getResourceName() != null ? observerContext.getResourceName() :
                 observerContext.getActionName() != null ? observerContext.getActionName() : UNKNOWN_SERVICE;
         if (observerContext.getParent() != null) {
