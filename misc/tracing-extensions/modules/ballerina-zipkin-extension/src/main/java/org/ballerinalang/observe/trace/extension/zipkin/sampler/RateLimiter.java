@@ -9,7 +9,7 @@ import io.opentelemetry.sdk.common.Clock;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
- * This class is copied from https://github.com/open-telemetry/opentelemetry-java/blob/v1.0.0/sdk-extensions/
+ * This class is copied from https://github.com/open-telemetry/opentelemetry-java/blob/v1.32.0/sdk-extensions/
  * jaeger-remote-sampler/src/main/java/io/opentelemetry/sdk/extension/trace/jaeger/sampler/RateLimiter.java.
  */
 class RateLimiter {
