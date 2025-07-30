@@ -36,7 +36,6 @@ import java.util.List;
  */
 public class ObservabilityDesugar {
     private static final CompilerContext.Key<ObservabilityDesugar> OBSERVE_DESUGAR_KEY = new CompilerContext.Key<>();
-    private final boolean observabilityIncluded;
     private final PackageCache packageCache;
 
     public static ObservabilityDesugar getInstance(CompilerContext context) {
@@ -49,15 +48,13 @@ public class ObservabilityDesugar {
 
     private ObservabilityDesugar(CompilerContext context) {
         context.put(OBSERVE_DESUGAR_KEY, this);
-        observabilityIncluded = Boolean.parseBoolean(CompilerOptions.getInstance(context)
-                .get(CompilerOptionName.OBSERVABILITY_INCLUDED));
         // TODO: Merge both modules into one user facing module
         packageCache = PackageCache.getInstance(context);
     }
 
     void addObserveInternalModuleImport(BLangPackage pkgNode) {
-        if (observabilityIncluded && (pkgNode.moduleContextDataHolder != null
-                && !pkgNode.moduleContextDataHolder.projectKind().equals(ProjectKind.BALA_PROJECT))) {
+        if (pkgNode.moduleContextDataHolder != null && pkgNode.moduleContextDataHolder.isObservabiltyIncluded()
+                && !pkgNode.moduleContextDataHolder.projectKind().equals(ProjectKind.BALA_PROJECT)) {
             BLangImportPackage importDcl = (BLangImportPackage) TreeBuilder.createImportPackageNode();
             List<BLangIdentifier> pkgNameComps = new ArrayList<>();
             pkgNameComps.add(ASTBuilderUtil.createIdentifier(pkgNode.pos, Names.OBSERVE.value));

@@ -385,7 +385,8 @@ class ModuleContext {
                 moduleContext.descriptor(),
                 moduleContext.project.kind(),
                 moduleContext.project.buildOptions().skipTests(),
-                moduleContext.project().sourceRoot());
+                moduleContext.project().sourceRoot(),
+                moduleContext.project().buildOptions().observabilityIncluded());
         packageCache.put(moduleCompilationId, pkgNode);
 
         // Parse source files

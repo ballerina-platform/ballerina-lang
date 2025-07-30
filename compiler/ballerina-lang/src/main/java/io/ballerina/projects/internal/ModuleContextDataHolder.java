@@ -34,14 +34,16 @@ public class ModuleContextDataHolder {
     private final ProjectKind projectKind;
     private final boolean skipTests;
     private final Path sourceRoot;
+    private final boolean isObservabiltyIncluded;
 
     public ModuleContextDataHolder(boolean exported, ModuleDescriptor descriptor, ProjectKind projectKind,
-                                   boolean skipTests, Path sourceRoot) {
+                                   boolean skipTests, Path sourceRoot, boolean isObservabiltyIncluded) {
         this.exported = exported;
         this.descriptor = descriptor;
         this.projectKind = projectKind;
         this.skipTests = skipTests;
         this.sourceRoot = sourceRoot;
+        this.isObservabiltyIncluded = isObservabiltyIncluded;
     }
 
     public boolean isExported() {
@@ -62,5 +64,9 @@ public class ModuleContextDataHolder {
 
     public Path sourceRoot() {
         return sourceRoot;
+    }
+
+    public boolean isObservabiltyIncluded() {
+        return isObservabiltyIncluded;
     }
 }
