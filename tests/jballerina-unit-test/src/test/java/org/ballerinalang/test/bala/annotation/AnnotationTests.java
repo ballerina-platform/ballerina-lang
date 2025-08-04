@@ -85,6 +85,11 @@ public class AnnotationTests {
         BRunUtil.invoke(result, "testConstAnnotationAccess");
     }
 
+    @Test
+    public void testAnnotationInclusion() {
+        BRunUtil.invoke(result, "testAnnotationInclusion");
+    }
+
     @Test(description = "Test the deprecated construct from external module")
     public void testDeprecation() {
         CompileResult result = BCompileUtil.compile("test-src/bala/test_bala/annotations/deprecation_annotation.bal");
