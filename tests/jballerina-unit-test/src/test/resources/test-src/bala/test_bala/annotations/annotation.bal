@@ -167,6 +167,71 @@ function testConstAnnotationAccess() {
     assertTrue(config2.examples is readonly);
 }
 
+type FieldAnnotation record {|
+    string label;
+|};
+
+annotation FieldAnnotation fieldAnnot on record field;
+
+type Base1 record {|
+    @fieldAnnot {label: "Base"}
+    int x;
+|};
+
+type Derived3 record {|
+    *Derived1;
+    @fieldAnnot {label: "Derived3"}
+    int a;
+|};
+
+type Derived1 record {|
+    *Base1;
+    @fieldAnnot {label: "Derived1"}
+    int y;
+|};
+
+type Derived2 record {|
+    *Derived1;
+    @fieldAnnot {label: "Derived2"}
+    int z;
+|};
+
+type Override1 record {|
+    *Base1;
+    int x;
+|};
+
+function testAnnotationInclusion() {
+    Derived1 d = {x: 1, y: 2};
+    typedesc<any> t = typeof d;
+    assertTrue(testDerived1(t));
+
+    Derived2 d2 = {x: 1, y: 2, z: 3};
+    typedesc<any> t2 = typeof d2;
+    assertTrue(testDerived2(t2));
+
+    Derived3 d3 = {x: 1, y: 2, a: 3};
+    typedesc<any> t3 = typeof d3;
+    assertTrue(testDerived3(t3));
+
+    Override1 o = {x: 1};
+    typedesc<any> tO = typeof o;
+    assertTrue(testOverride1(tO));
+}
+
+
+function testDerived1(typedesc<any> t) returns boolean =
+    @java:Method { 'class: "org.ballerinalang.nativeimpl.jvm.tests.ValidateFieldAnnotations" } external;
+
+function testDerived2(typedesc<any> t) returns boolean =
+    @java:Method { 'class: "org.ballerinalang.nativeimpl.jvm.tests.ValidateFieldAnnotations" } external;
+
+function testDerived3(typedesc<any> t) returns boolean =
+    @java:Method { 'class: "org.ballerinalang.nativeimpl.jvm.tests.ValidateFieldAnnotations" } external;
+
+function testOverride1(typedesc<any> t) returns boolean =
+    @java:Method { 'class: "org.ballerinalang.nativeimpl.jvm.tests.ValidateFieldAnnotations" } external;
+
 function assertTrue(anydata actual) {
     assertEquality(true, actual);
 }
