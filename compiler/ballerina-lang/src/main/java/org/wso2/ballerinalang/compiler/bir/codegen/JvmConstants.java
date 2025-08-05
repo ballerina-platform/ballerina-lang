@@ -386,6 +386,8 @@ public final class JvmConstants {
     // scheduler related constants
     public static final String START_ISOLATED_WORKER = "startIsolatedWorker";
     public static final String START_NON_ISOLATED_WORKER = "startNonIsolatedWorker";
+
+    // values related constants
     public static final String CREATE_RECORD_VALUE = "createRecordValue";
     public static final String CREATE_OBJECT_VALUE = "createObjectValue";
     public static final String CREATE_ERROR_VALUE = "createErrorValue";

@@ -227,6 +227,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_MAP_
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_MODULE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_STRING_AT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_STRING_FROM_ARRAY;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_TYPEDESC;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_TYPEDESC_OF_OBJECT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.HANDLE_MAP_STORE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.HANDLE_TABLE_STORE;
@@ -1456,14 +1457,10 @@ public class JvmInstructionGen {
 
     private void visitNewRecordArray(BType type) {
         BType elementType = JvmCodeGenUtil.getImpliedType(type);
-        String typeDescClass = getTypeDescClassName(getPackageName(type.tsymbol.pkgID), toNameString(type));
-        mv.visitTypeInsn(NEW, typeDescClass);
-        mv.visitInsn(DUP);
-        jvmTypeGen.loadType(mv, elementType);
-        mv.visitInsn(ACONST_NULL);
-        mv.visitMethodInsn(INVOKESPECIAL, typeDescClass, JVM_INIT_METHOD, TYPE_DESC_CONSTRUCTOR, false);
-        this.mv.visitMethodInsn(INVOKESPECIAL, ARRAY_VALUE_IMPL, JVM_INIT_METHOD, INIT_ARRAY_WITH_INITIAL_VALUES,
-                false);
+        String typeDescClassName = getTypeDescClassName(getPackageName(elementType.tsymbol.pkgID), toNameString(type));
+        mv.visitFieldInsn(GETSTATIC, typeDescClassName, VALUE_VAR_NAME, GET_TYPEDESC);
+        this.mv.visitMethodInsn(INVOKESPECIAL, ARRAY_VALUE_IMPL, JVM_INIT_METHOD,
+                INIT_ARRAY_WITH_INITIAL_VALUES, false);
     }
 
     void generateArrayStoreIns(BIRNonTerminator.FieldAccess inst) {
@@ -2030,11 +2027,13 @@ public class JvmInstructionGen {
 
     void generateNewTypedescIns(BIRNonTerminator.NewTypeDesc newTypeDesc) {
         List<BIROperand> closureVars = newTypeDesc.closureVars;
-        BType type = newTypeDesc.type;
         if (isNonReferredRecord(newTypeDesc.type)) {
-            type = JvmCodeGenUtil.getImpliedType(newTypeDesc.type);
+            BType type = JvmCodeGenUtil.getImpliedType(newTypeDesc.type);
+            String typeDescClassName = getTypeDescClassName(getPackageName(type.tsymbol.pkgID), toNameString(type));
+            mv.visitFieldInsn(GETSTATIC, typeDescClassName, VALUE_VAR_NAME, GET_TYPEDESC);
+        } else {
+            generateNewTypedescCreate(newTypeDesc.type, closureVars, newTypeDesc.annotations);
         }
-        generateNewTypedescCreate(type, closureVars, newTypeDesc.annotations);
         this.storeToVar(newTypeDesc.lhsOp.variableDcl);
     }
 

@@ -56,7 +56,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBJECT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.VISIT_MAX_SAFE_MARGIN;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.FUNCTION_CALL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.utils.JvmCodeGenUtil.createDefaultCase;
-import static org.wso2.ballerinalang.compiler.bir.codegen.utils.JvmCodeGenUtil.skipRecordDefaultValueFunctions;
+import static org.wso2.ballerinalang.compiler.bir.codegen.utils.JvmCodeGenUtil.filterUserDefinedFunctions;
 import static org.wso2.ballerinalang.compiler.bir.codegen.utils.JvmModuleUtils.getModuleLevelClassName;
 
 /**
@@ -99,7 +99,7 @@ public class JvmFunctionCallsCreatorsGen {
         String callMethod = CALL_FUNCTION;
         // Skip function calls for record default value functions since they can be called directly from function
         // pointers instead of the function name
-        List<BIRNode.BIRFunction> filteredFunctions = skipRecordDefaultValueFunctions(functions);
+        List<BIRNode.BIRFunction> filteredFunctions = filterUserDefinedFunctions(functions);
         for (BIRNode.BIRFunction func : filteredFunctions) {
             String encodedMethodName = Utils.encodeFunctionIdentifier(func.name.value);
             String packageName = JvmModuleUtils.getPackageName(packageID);
@@ -152,7 +152,7 @@ public class JvmFunctionCallsCreatorsGen {
             i += 1;
             bTypesCount++;
             if (bTypesCount % MAX_CALLS_PER_FUNCTION_CALL_METHOD == 0) {
-                if (bTypesCount == functions.size()) {
+                if (bTypesCount == filteredFunctions.size()) {
                     createDefaultCase(mv, defaultCaseLabel, funcNameRegIndex, "No such function: ");
                 } else {
                     mv.visitLabel(defaultCaseLabel);

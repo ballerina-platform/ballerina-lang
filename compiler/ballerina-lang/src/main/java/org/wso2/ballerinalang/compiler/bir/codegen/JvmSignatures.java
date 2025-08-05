@@ -292,7 +292,7 @@ public final class JvmSignatures {
     public static final String HANDLE_MAP_STORE = "(L" + MAP_VALUE + ";L" + B_STRING_VALUE + ";L" + OBJECT + ";)V";
     public static final String HANDLE_OBJECT_LONG_ARGS = "(" + GET_HANDLE_VALUE + GET_OBJECT + "J)V";
     public static final String HANDLE_TABLE_STORE = "(L" + TABLE_VALUE + ";L" + OBJECT + ";L" + OBJECT + ";)V";
-    public static final String HANDLE_THROWABLE = "(L" +  "java/lang/Error" + ";)V";
+    public static final String HANDLE_THROWABLE = "(L" +   JvmConstants.THROWABLE + ";)V";
     public static final String HANDLE_WAIT = "(L" + STRAND_CLASS + ";L" + FUTURE_VALUE + ";)L" + OBJECT + ";";
     public static final String HANDLE_WAIT_ANY = "(L" + STRAND_CLASS + ";L" + LIST + ";)L" + OBJECT + ";";
     public static final String HANDLE_WAIT_MULTIPLE = "(L" + STRAND_CLASS + ";L" + MAP + ";L" + MAP_VALUE + ";)V";

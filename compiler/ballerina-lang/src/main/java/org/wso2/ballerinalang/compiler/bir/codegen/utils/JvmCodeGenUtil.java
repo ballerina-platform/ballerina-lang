@@ -665,7 +665,7 @@ public final class JvmCodeGenUtil {
         }
     }
 
-    public static List<BIRNode.BIRFunction> skipRecordDefaultValueFunctions(List<BIRNode.BIRFunction> functions) {
+    public static List<BIRNode.BIRFunction> filterUserDefinedFunctions(List<BIRNode.BIRFunction> functions) {
         List<BIRNode.BIRFunction> filteredFunctions = new ArrayList<>();
         for (BIRNode.BIRFunction func : functions) {
             String funcName = func.name.value;

@@ -152,7 +152,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.VOID_MET
 import static org.wso2.ballerinalang.compiler.bir.codegen.utils.JvmCodeGenUtil.createDefaultCase;
 import static org.wso2.ballerinalang.compiler.bir.codegen.utils.JvmCodeGenUtil.genMethodReturn;
 import static org.wso2.ballerinalang.compiler.bir.codegen.utils.JvmCodeGenUtil.getVarStoreClass;
-import static org.wso2.ballerinalang.compiler.bir.codegen.utils.JvmCodeGenUtil.skipRecordDefaultValueFunctions;
+import static org.wso2.ballerinalang.compiler.bir.codegen.utils.JvmCodeGenUtil.filterUserDefinedFunctions;
 import static org.wso2.ballerinalang.compiler.bir.codegen.utils.JvmConstantGenUtils.generateConstantsClassInit;
 import static org.wso2.ballerinalang.compiler.bir.codegen.utils.JvmModuleUtils.getModuleLevelClassName;
 import static org.wso2.ballerinalang.compiler.bir.codegen.utils.LazyLoadingCodeGenUtils.addDebugField;
@@ -508,8 +508,7 @@ public class JvmCreateTypeGen {
             } else {
                 mv.visitLdcInsn(node.getName().value);
             }
-            mv.visitMethodInsn(INVOKEVIRTUAL, STRING_VALUE, "equals",
-                    ANY_TO_JBOOLEAN, false);
+            mv.visitMethodInsn(INVOKEVIRTUAL, STRING_VALUE, "equals", ANY_TO_JBOOLEAN, false);
             Label targetLabel = new Label();
             mv.visitJumpInsn(IFNE, targetLabel);
             mv.visitJumpInsn(GOTO, defaultCaseLabel);
@@ -762,7 +761,7 @@ public class JvmCreateTypeGen {
         List<Label> targetLabels = new ArrayList<>();
         // Skip function types for record default value functions since they can be called directly from function
         // pointers instead of the function name
-        List<BIRNode.BIRFunction> filteredFunctions = skipRecordDefaultValueFunctions(functions);
+        List<BIRNode.BIRFunction> filteredFunctions = filterUserDefinedFunctions(functions);
         for (BIRNode.BIRFunction func : filteredFunctions) {
             if (bTypesCount % MAX_TYPES_PER_METHOD == 0) {
                 mv = cw.visitMethod(ACC_PRIVATE + ACC_STATIC, GET_FUNCTION_TYPE_METHOD + methodCount++,
