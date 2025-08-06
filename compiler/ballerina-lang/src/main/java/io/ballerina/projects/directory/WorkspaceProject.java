@@ -20,6 +20,7 @@ package io.ballerina.projects.directory;
 import io.ballerina.projects.BuildOptions;
 import io.ballerina.projects.BuildProjectLoadResult;
 import io.ballerina.projects.DocumentId;
+import io.ballerina.projects.PackageOrg;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectEnvironmentBuilder;
 import io.ballerina.projects.ProjectException;
@@ -36,6 +37,7 @@ import io.ballerina.projects.environment.ProjectEnvironment;
 import io.ballerina.projects.internal.DefaultDiagnosticResult;
 import io.ballerina.projects.internal.WorkspaceManifestBuilder;
 import io.ballerina.projects.util.ProjectPaths;
+import io.ballerina.toml.semantic.diagnostics.TomlDiagnostic;
 import io.ballerina.tools.diagnostics.Diagnostic;
 
 import java.io.IOException;
@@ -73,7 +75,6 @@ public class WorkspaceProject extends Project {
         this.workspaceManifest = WorkspaceManifestBuilder.from(tomlDocument, projectPath).manifest();
         this.projectSet = projects;
     }
-
 
     public static WorkspaceProjectLoadResult from(Path workspacePath) {
         return from(workspacePath, BuildOptions.builder().build());

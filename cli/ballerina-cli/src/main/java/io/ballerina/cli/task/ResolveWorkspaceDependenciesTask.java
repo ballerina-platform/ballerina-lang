@@ -34,7 +34,7 @@ public class ResolveWorkspaceDependenciesTask implements Task {
 
     @Override
     public void execute(Project project) {
-        this.outStream.println("\nResolving workspace dependencies");
+        this.outStream.println("Resolving workspace dependencies");
         WorkspaceProject workspaceProject = (WorkspaceProject) project;
         DiagnosticResult diagnosticResult = workspaceProject.getResolution().diagnosticResult();
         diagnosticResult.diagnostics().forEach(diagnostic -> {

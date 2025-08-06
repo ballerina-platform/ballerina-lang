@@ -163,7 +163,7 @@ public abstract class Project {
         return this.compilerPluginContexts;
     }
 
-    Optional<WorkspaceProject> workspaceProject () {
+    public Optional<WorkspaceProject> workspaceProject () {
         return Optional.ofNullable(this.workspaceProject);
     }
 }

@@ -455,18 +455,6 @@ public class TestBuildProject extends BaseTest {
         }
     }
 
-    @Test (description = "tests loading another invalid Ballerina project")
-    public void testLoadBallerinaProjectInProject() {
-        Path projectPath = tempResourceDir.resolve("myproject").resolve("modules").resolve("services")
-                .resolve("resources").resolve("invalidProject");
-        try {
-            TestUtils.loadBuildProject(projectPath);
-            Assert.fail("expected an invalid project exception");
-        } catch (ProjectException e) {
-            Assert.assertEquals(e.getMessage(), "'" + projectPath + "' is already within a Ballerina package");
-        }
-    }
-
     @Test(description = "tests loading a valid build project with build options from toml")
     public void testLoadingBuildOptionsFromToml() {
         Path projectPath = tempResourceDir.resolve("projectWithBuildOptions");

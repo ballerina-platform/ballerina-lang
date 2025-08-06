@@ -1466,7 +1466,7 @@ public class BuildCommandTest extends BaseCommandTest {
         Path projectPath = this.testResources.resolve("validApplicationProject");
         System.setProperty(USER_DIR_PROPERTY, projectPath.toString());
         BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
-        // non existing bal file
+        // non-existing bal file
         new CommandLine(buildCommand).parseArgs("--graalvm");
         try {
             buildCommand.execute();
@@ -1475,5 +1475,91 @@ public class BuildCommandTest extends BaseCommandTest {
             Assert.assertTrue(buildLog.contains("Compiling source") && buildLog.contains("foo/winery:0.1.0")
                     && !buildLog.contains("WARNING: Package is not verified with GraalVM"));
         }
+    }
+
+    @Test(description = "Build a simple workspace project")
+    public void testSimpleWorkspaceProject() throws IOException {
+        // Project contains platform Java dependencies
+        Path projectPath = this.testResources.resolve("workspaces/wp-simple");
+        System.setProperty(USER_DIR_PROPERTY, projectPath.toString());
+        BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
+        // non-existing bal file
+        new CommandLine(buildCommand);
+        buildCommand.execute();
+        Assert.assertEquals(readOutput(), getOutput("wp-simple.txt"));
+    }
+
+    @Test(description = "Build a single root workspace project")
+    public void testSingleRootWorkspaceProject() throws IOException {
+        // Project contains platform Java dependencies
+        Path projectPath = this.testResources.resolve("workspaces/wp-one-root");
+        System.setProperty(USER_DIR_PROPERTY, projectPath.toString());
+        BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
+        // non-existing bal file
+        new CommandLine(buildCommand);
+        buildCommand.execute();
+        Assert.assertEquals(readOutput(), getOutput("wp-one-root.txt"));
+    }
+
+    @Test(description = "Build a workspace project containing multiple roots")
+    public void testMultipleRootWorkspaceProject() throws IOException {
+        // Project contains platform Java dependencies
+        Path projectPath = this.testResources.resolve("workspaces/wp-multiple-roots");
+        System.setProperty(USER_DIR_PROPERTY, projectPath.toString());
+        BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
+        // non-existing bal file
+        new CommandLine(buildCommand);
+        buildCommand.execute();
+        Assert.assertEquals(readOutput(), getOutput("wp-multiple-roots.txt"));
+    }
+
+    @Test(description = "Build workspace project containing nested paths")
+    public void testNestedPathWorkspaceProject() throws IOException {
+        // Project contains platform Java dependencies
+        Path projectPath = this.testResources.resolve("workspaces/wp-nested-path");
+        System.setProperty(USER_DIR_PROPERTY, projectPath.toString());
+        BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
+        // non-existing bal file
+        new CommandLine(buildCommand);
+        buildCommand.execute();
+        Assert.assertEquals(readOutput(), getOutput("wp-nested-path.txt"));
+    }
+
+    @Test(description = "Build a specific package in a simple workspace project")
+    public void testSimpleWorkspaceProjectBuildSpecificProject() throws IOException {
+        // Project contains platform Java dependencies
+        Path projectRoot = this.testResources.resolve("workspaces/wp-simple");
+        System.setProperty(USER_DIR_PROPERTY, projectRoot.toString());
+        Path projectPath = projectRoot.resolve("hello-app");
+        BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
+        // non-existing bal file
+        new CommandLine(buildCommand);
+        buildCommand.execute();
+        Assert.assertEquals(readOutput(), getOutput("wp-simple-hello-app.txt"));
+    }
+
+    @Test(description = "Build a specific package in a multiple root workspace project")
+    public void testMultipleRootProjectBuildSpecificProject() throws IOException {
+        // Project contains platform Java dependencies
+        Path projectRoot = this.testResources.resolve("workspaces");
+        System.setProperty(USER_DIR_PROPERTY, projectRoot.toString());
+        Path projectPath = projectRoot.resolve("wp-multiple-roots/hello-app");
+        BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
+        // non-existing bal file
+        new CommandLine(buildCommand);
+        buildCommand.execute();
+        Assert.assertEquals(readOutput(), getOutput("wp-multiple-roots-hello-app.txt"));
+    }
+
+    @Test(description = "Build a specific package in a multiple root workspace project")
+    public void testWorkspaceProjectWithWrongPackagePath() throws IOException {
+        // Project contains platform Java dependencies
+        Path projectPath = this.testResources.resolve("workspaces/wp-wrong-path");
+        System.setProperty(USER_DIR_PROPERTY, projectPath.toString());
+        BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
+        // non-existing bal file
+        new CommandLine(buildCommand);
+        buildCommand.execute();
+        Assert.assertEquals(readOutput(), getOutput("wp-wrong-path.txt"));
     }
 }

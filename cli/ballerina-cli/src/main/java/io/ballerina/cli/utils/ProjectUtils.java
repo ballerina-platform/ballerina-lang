@@ -19,6 +19,7 @@ package io.ballerina.cli.utils;
 
 import io.ballerina.projects.BuildOptions;
 import io.ballerina.projects.Project;
+import io.ballerina.projects.ProjectKind;
 import io.ballerina.projects.ProjectLoadResult;
 import io.ballerina.projects.directory.BuildProject;
 import io.ballerina.projects.directory.WorkspaceProject;
@@ -47,9 +48,11 @@ public class ProjectUtils {
                 loadResult = BuildProject.from(projectPath, buildOptions);
             }
         }
-        loadResult.diagnostics().diagnostics().forEach(diagnostic -> {
-            outStream.println(diagnostic.toString());
-        });
+        if (loadResult.project().kind() == ProjectKind.WORKSPACE_PROJECT) {
+            loadResult.diagnostics().diagnostics().forEach(diagnostic -> {
+                outStream.println(diagnostic.toString());
+            });
+        }
         return loadResult;
     }
 }
