@@ -16,10 +16,10 @@
  * under the License.
  */
 
-package org.ballerinalang.jvm.observability.tracer;
+package org.ballerinalang.jvm.observability;
 
 import io.opentelemetry.api.trace.StatusCode;
-import org.ballerinalang.jvm.observability.ObserverContext;
+import org.ballerinalang.jvm.observability.tracer.BOtelSpan;
 import org.ballerinalang.jvm.values.ErrorValue;
 
 import java.util.Collections;
@@ -36,9 +36,9 @@ import static org.ballerinalang.jvm.observability.tracer.TraceConstants.TAG_KEY_
 /**
  * Util class to hold tracing specific util methods.
  */
-public final class TracingUtils {
+public final class OtelTracingUtils {
 
-    private TracingUtils() {
+    private OtelTracingUtils() {
     }
 
     /**
@@ -48,20 +48,20 @@ public final class TracingUtils {
      * @param isClient        true if the starting span is a client
      */
     public static void startObservation(ObserverContext observerContext, boolean isClient) {
-        BSpan span;
+        BOtelSpan span;
         String serviceName = observerContext.getServiceName();
         String operationName = observerContext.getResourceName() != null ? observerContext.getResourceName() :
                 observerContext.getActionName() != null ? observerContext.getActionName() : UNKNOWN_SERVICE;
         if (observerContext.getParent() != null) {
-            BSpan parentSpan = (BSpan) observerContext.getParent().getProperty(KEY_SPAN);
-            span = BSpan.start(parentSpan, serviceName, operationName, isClient);
+            BOtelSpan parentSpan = (BOtelSpan) observerContext.getParent().getProperty(KEY_SPAN);
+            span = BOtelSpan.start(parentSpan, serviceName, operationName, isClient);
         } else {
             Map<String, String> httpHeaders =
                     (Map<String, String>) observerContext.getProperty(PROPERTY_TRACE_PROPERTIES);
             if (httpHeaders != null) {
-                span = BSpan.start(httpHeaders, serviceName, operationName, isClient);
+                span = BOtelSpan.start(httpHeaders, serviceName, operationName, isClient);
             } else {
-                span = BSpan.start(serviceName, operationName, isClient);
+                span = BOtelSpan.start(serviceName, operationName, isClient);
             }
         }
         if (isClient) {
@@ -76,7 +76,7 @@ public final class TracingUtils {
      * @param observerContext context that holds the span to be finished
      */
     public static void stopObservation(ObserverContext observerContext) {
-        BSpan span = (BSpan) observerContext.getProperty(KEY_SPAN);
+        BOtelSpan span = (BOtelSpan) observerContext.getProperty(KEY_SPAN);
         if (span != null) {
             // Adding error message to Trace Span
             ErrorValue bError = (ErrorValue) observerContext.getProperty(PROPERTY_ERROR_VALUE);

@@ -15,29 +15,21 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+
 package org.ballerinalang.jvm.observability.tracer;
 
-import io.opentelemetry.api.common.Attributes;
-import io.opentelemetry.api.trace.Span;
-import io.opentelemetry.api.trace.SpanBuilder;
-import io.opentelemetry.api.trace.SpanContext;
-import io.opentelemetry.api.trace.SpanKind;
-import io.opentelemetry.api.trace.StatusCode;
-import io.opentelemetry.api.trace.Tracer;
-import io.opentelemetry.context.Context;
-import io.opentelemetry.context.propagation.TextMapGetter;
-import io.opentelemetry.context.propagation.TextMapPropagator;
-import io.opentelemetry.context.propagation.TextMapSetter;
-import org.ballerinalang.jvm.StringUtils;
-import org.ballerinalang.jvm.types.BMapType;
-import org.ballerinalang.jvm.types.BTypes;
-import org.ballerinalang.jvm.values.MapValueImpl;
-import org.ballerinalang.jvm.values.api.BMap;
-import org.ballerinalang.jvm.values.api.BString;
+import io.opentracing.Span;
+import org.ballerinalang.jvm.observability.ObserverContext;
 
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+
+import static org.ballerinalang.jvm.observability.tracer.TraceConstants.DEFAULT_ACTION_NAME;
+import static org.ballerinalang.jvm.observability.tracer.TraceConstants.DEFAULT_CONNECTOR_NAME;
+import static org.ballerinalang.jvm.observability.tracer.TraceConstants.KEY_SPAN;
+import static org.ballerinalang.jvm.observability.tracer.TraceConstants.TAG_KEY_STR_ERROR;
+import static org.ballerinalang.jvm.observability.tracer.TraceConstants.TAG_STR_TRUE;
 
 /**
  * {@code BSpan} holds the trace of the current context.
@@ -45,148 +37,127 @@ import java.util.Map;
  * @since 0.964.1
  */
 public class BSpan {
-    private final Tracer tracer;
-    private final Span span;
-    private BMap<BString, Object> bSpanContext;
 
-    private static final BMapType IMMUTABLE_STRING_MAP_TYPE = new BMapType(BTypes.typeString);
-    private static final PropagatingParentContextGetter GETTER = new PropagatingParentContextGetter();
-    private static final PropagatingParentContextSetter SETTER = new PropagatingParentContextSetter();
+    private static final TraceManager manager = TraceManager.getInstance();
 
-    static class PropagatingParentContextGetter implements TextMapGetter<Map<String, String>> {
-        @Override
-        public String get(Map<String, String> carrier, String key) {
-            return carrier.get(key);
+    /**
+     * {@link Map} of properties, which used to represent
+     * the span contexts of each tracer.
+     */
+    private Map<String, String> properties;
+    /**
+     * {@link Map} of tags, which will get injected to span.
+     */
+    private Map<String, String> tags;
+    /**
+     * Name of the service.
+     */
+    private String connectorName = DEFAULT_CONNECTOR_NAME;
+    /**
+     * Name of the resource.
+     */
+    private String actionName = DEFAULT_ACTION_NAME;
+    /**
+     * Active Ballerina {@link ObserverContext}.
+     */
+    private ObserverContext observerContext = null;
+    /**
+     * Open tracer specific span.
+     */
+    private Span span;
+
+    public BSpan(ObserverContext observerContext, boolean isClientContext) {
+        this.properties = new HashMap<>();
+        this.tags = new HashMap<>();
+        this.observerContext = observerContext;
+        this.tags.put(TraceConstants.TAG_KEY_SPAN_KIND, isClientContext
+                ? TraceConstants.TAG_SPAN_KIND_CLIENT
+                : TraceConstants.TAG_SPAN_KIND_SERVER);
+    }
+
+    public void startSpan() {
+        manager.startSpan(getParentBSpan(), this);
+    }
+
+    public void finishSpan() {
+        manager.finishSpan(this);
+    }
+
+    public void log(Map<String, Object> fields) {
+        manager.log(this, fields);
+    }
+
+    public void logError(Map<String, Object> fields) {
+        addTags(Collections.singletonMap(TAG_KEY_STR_ERROR, TAG_STR_TRUE));
+        manager.log(this, fields);
+
+    }
+
+    public void addTags(Map<String, String> tags) {
+        if (span != null) {
+            //span has started, therefore add tags to the span.
+            manager.addTags(this, tags);
+        } else {
+            //otherwise keep the tags in a map, and add it once
+            //the span get created.
+            this.tags.putAll(tags);
         }
 
-        @Override
-        public Iterable<String> keys(Map<String, String> carrier) {
-            return carrier.keySet();
+    }
+
+    public String getConnectorName() {
+        return connectorName;
+    }
+
+    public void setConnectorName(String connectorName) {
+        this.connectorName = connectorName;
+    }
+
+    public String getActionName() {
+        return actionName;
+    }
+
+    public void setActionName(String actionName) {
+        this.actionName = actionName;
+    }
+
+    public Map<String, String> getProperties() {
+        return properties;
+    }
+
+    public void addProperty(String key, String value) {
+        if (properties != null) {
+            properties.put(key, value);
         }
     }
 
-    static class PropagatingParentContextSetter implements TextMapSetter<Map<String, String>> {
-        @Override
-        public void set(Map<String, String> carrier, String key, String value) {
-            carrier.put(key, value);
+    public String getProperty(String key) {
+        if (properties != null) {
+            return properties.get(key);
         }
+        return null;
     }
 
-    private BSpan(Tracer tracer, Span span) {
-        this.tracer = tracer;
-        this.span = span;
+    public Map<String, String> getTags() {
+        return tags;
     }
 
     public Span getSpan() {
         return span;
     }
 
-    private static BSpan start(Tracer tracer, Context parentContext, String operationName, boolean isClient) {
-        SpanBuilder builder = tracer.spanBuilder(operationName);
-        if (parentContext != null) {
-            builder.setParent(parentContext);
+    public void setSpan(Span span) {
+        this.span = span;
+    }
+
+    public Map<String, String> getTraceContext() {
+        return manager.extractTraceContext(span, connectorName);
+    }
+
+    private BSpan getParentBSpan() {
+        if (observerContext.getParent() != null) {
+            return (BSpan) observerContext.getParent().getProperty(KEY_SPAN);
         }
-        builder.setAttribute(TraceConstants.TAG_KEY_SPAN_KIND, isClient
-                ? TraceConstants.TAG_SPAN_KIND_CLIENT
-                : TraceConstants.TAG_SPAN_KIND_SERVER);
-        builder.setSpanKind(isClient ? SpanKind.CLIENT : SpanKind.SERVER);
-        Span span = builder.startSpan();
-        return new BSpan(tracer, span);
-    }
-
-    /**
-     * Start a new span without a parent. The started span will be a root span.
-     *
-     * @param serviceName   The name of the service the span belongs to
-     * @param operationName The name of the operation the span corresponds to
-     * @param isClient      True if this is a client span
-     * @return The new span
-     */
-    public static BSpan start(String serviceName, String operationName, boolean isClient) {
-        Tracer tracer = TracersStore.getInstance().getTracer(serviceName);
-        return start(tracer, null, operationName, isClient);
-    }
-
-    /**
-     * Start a new span with a parent using parent span.
-     *
-     * @param parentSpan    The parent span of the new span
-     * @param serviceName   The name of the service the span belongs to
-     * @param operationName The name of the operation the span corresponds to
-     * @param isClient      True if this is a client span
-     * @return The new span
-     */
-    public static BSpan start(BSpan parentSpan, String serviceName, String operationName, boolean isClient) {
-        Tracer tracer = TracersStore.getInstance().getTracer(serviceName);
-        Context parentContext = Context.current().with(parentSpan.span);
-        return start(tracer, parentContext, operationName, isClient);
-    }
-
-    /**
-     * Start a new span with a parent using parent trace context.
-     * The started span is part of a trace which had spanned across multiple services and the parent is in the service
-     * which called the current service.
-     *
-     * @param parentTraceContext Contains http headers of request received
-     * @param serviceName        The name of the service the span belongs to
-     * @param operationName      The name of the operation the span corresponds to
-     * @param isClient           True if this is a client span
-     * @return The new span
-     */
-    public static BSpan start(Map<String, String> parentTraceContext, String serviceName, String operationName,
-                              boolean isClient) {
-
-        Tracer tracer = TracersStore.getInstance().getTracer(serviceName);
-        Context parentContext = TracersStore.getInstance().getPropagators()
-                .getTextMapPropagator().extract(Context.current(), parentTraceContext, GETTER);
-        return start(tracer, parentContext, operationName, isClient);
-    }
-
-    public void finishSpan() {
-        span.end();
-    }
-
-    public void addEvent(String eventName, Attributes attributes) {
-        span.addEvent(eventName, attributes);
-    }
-
-    public void setStatus(StatusCode statusCode) {
-        span.setStatus(statusCode);
-    }
-
-    public void addTags(Map<String, String> tags) {
-        for (Map.Entry<String, String> entry : tags.entrySet()) {
-            span.setAttribute(entry.getKey(), entry.getValue());
-        }
-    }
-
-    public void addTag(String tagKey, String tagValue) {
-        span.setAttribute(tagKey, tagValue);
-    }
-
-    public Map<String, String> extractContextAsHttpHeaders() {
-
-        Map<String, String> carrierMap;
-        if (span != null) {
-            carrierMap = new HashMap<>();
-            TextMapPropagator propagator = TracersStore.getInstance().getPropagators().getTextMapPropagator();
-            propagator.inject(Context.current().with(span), carrierMap, SETTER);
-        } else {
-            carrierMap = Collections.emptyMap();
-        }
-        return carrierMap;
-    }
-
-    public BMap<BString, Object> getBSpanContext() {
-
-        if (bSpanContext == null) {
-            bSpanContext = new MapValueImpl<>(IMMUTABLE_STRING_MAP_TYPE);
-            SpanContext spanContext = span.getSpanContext();
-            bSpanContext.put(TraceConstants.SPAN_CONTEXT_MAP_KEY_TRACE_ID,
-                    StringUtils.fromString(spanContext.getTraceId()));
-            bSpanContext.put(TraceConstants.SPAN_CONTEXT_MAP_KEY_SPAN_ID,
-                    StringUtils.fromString(spanContext.getSpanId()));
-        }
-        return bSpanContext;
+        return null;
     }
 }

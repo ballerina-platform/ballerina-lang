@@ -29,7 +29,7 @@ configurations {
 }
 
 dependencies {
-    
+
     // Lang lib Bir
     dist project(path: ':ballerina-lang:internal', configuration: 'birJar')
     dist project(path: ':ballerina-lang:annotations', configuration: 'birJar')
@@ -70,7 +70,7 @@ dependencies {
     dist project(':ballerina-lang:xml')
     dist project(':ballerina-lang:bool')
     dist project(':ballerina-observability')
-    
+
     // Third party jars
     // config
     dist 'org.slf4j:slf4j-jdk14:1.7.22'
@@ -87,7 +87,27 @@ dependencies {
     dist 'org.apache.ws.commons.axiom:axiom-api:1.2.20'
     dist 'org.apache.ws.commons.axiom:axiom-dom:1.2.22'
     dist 'commons-logging:commons-logging:1.1.1'
+    dist 'io.opentracing:opentracing-api:0.33.0'
+    dist 'io.opentracing:opentracing-util:0.33.0'
+    dist 'org.awaitility:awaitility:3.1.6'
+    dist 'org.hdrhistogram:HdrHistogram:2.1.10'
+    dist 'com.h2database:h2:2.2.220'
+    dist 'org.hdrhistogram:HdrHistogram:2.1.10'
 
+    // observability extensions
+    //// metrics
+    dist project(':metrics-extensions:ballerina-metrics-extension')
+    dist project(':metrics-extensions:ballerina-prometheus-extension')
+    //// tracing
+    dist project(':tracing-extensions:ballerina-jaeger-extension')
+    dist project(':tracing-extensions:ballerina-jaeger-otel-extension')
+    dist project(':tracing-extensions:ballerina-zipkin-otel-extension')
+    dist 'io.jaegertracing:jaeger-core:1.6.0'
+    dist 'io.jaegertracing:jaeger-thrift:1.6.0'
+    dist 'org.apache.thrift:libthrift:0.14.1'
+    dist 'com.squareup.okhttp3:okhttp:4.11.0'
+    dist 'com.squareup.okio:okio:3.5.0'
+    dist 'com.squareup.okio:okio-jvm:3.5.0'
     dist 'io.opentelemetry:opentelemetry-api:1.32.0'
     dist 'io.opentelemetry:opentelemetry-context:1.32.0'
     dist 'io.opentelemetry:opentelemetry-sdk-trace:1.32.0'
@@ -117,23 +137,6 @@ dependencies {
     dist 'org.jetbrains.kotlin:kotlin-stdlib:1.8.22'
     dist 'io.opentelemetry:opentelemetry-exporter-zipkin:1.32.0'
     dist 'io.opentelemetry:opentelemetry-exporter-common:1.32.0'
-
-    dist 'org.awaitility:awaitility:3.1.6'
-    dist 'org.hdrhistogram:HdrHistogram:2.1.10'
-    dist 'com.h2database:h2:2.2.220'
-    dist 'org.hdrhistogram:HdrHistogram:2.1.10'
-    
-    // observability extensions
-    //// metrics
-    dist project(':metrics-extensions:ballerina-metrics-extension')
-    dist project(':metrics-extensions:ballerina-prometheus-extension')
-    //// tracing
-    dist project(':tracing-extensions:ballerina-jaeger-extension')
-    dist project(':tracing-extensions:ballerina-zipkin-extension')
-    dist 'org.apache.thrift:libthrift:0.14.1'
-    dist 'com.squareup.okhttp3:okhttp:4.11.0'
-    dist 'com.squareup.okio:okio:3.5.0'
-    dist 'com.squareup.okio:okio-jvm:3.5.0'
 
     // Temporary adding . Need to Remove once fix #17878
     dist 'com.google.code.gson:gson:2.8.9'

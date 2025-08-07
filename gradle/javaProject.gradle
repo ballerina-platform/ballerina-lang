@@ -51,6 +51,8 @@ dependencies {
         implementation 'com.sun.mail:javax.mail:1.6.2'
         implementation 'com.squareup.okhttp3:okhttp:4.11.0'
         implementation 'com.squareup.okio:okio:3.5.0'
+        implementation 'io.jaegertracing:jaeger-core:1.6.0'
+        implementation 'io.jaegertracing:jaeger-thrift:1.6.0'
         implementation 'com.zaxxer:HikariCP:3.3.1'
 
         implementation 'org.apache.commons:commons-lang3:3.8.1'
@@ -101,7 +103,7 @@ dependencies {
         implementation 'org.wso2.transport.file:org.wso2.transport.local-file-system:6.0.55'
         implementation 'org.wso2.staxon:staxon-core:1.2.0.wso2v2'
         implementation 'org.quartz-scheduler:quartz:2.3.2'
-        
+
         implementation 'info.picocli:picocli:4.0.1'
         implementation 'io.ballerina.messaging:broker-common:0.970.5'
         implementation 'io.ballerina.messaging:broker-core:0.970.5'
@@ -124,6 +126,9 @@ dependencies {
         implementation 'io.netty:netty-transport:4.1.118.Final'
         implementation 'io.nats:java-nats-streaming:2.2.1'
         implementation 'io.nats:jnats:2.6.0'
+        implementation 'io.opentracing:opentracing-api:0.33.0'
+        implementation 'io.opentracing:opentracing-util:0.33.0'
+        implementation 'io.opentracing:opentracing-mock:0.33.0'
         implementation 'io.swagger.core.v3:swagger-models:2.1.11'
         implementation 'io.swagger.parser.v3:swagger-parser-v2-converter:2.1.14'
         implementation 'io.swagger.parser.v3:swagger-parser:2.1.14'

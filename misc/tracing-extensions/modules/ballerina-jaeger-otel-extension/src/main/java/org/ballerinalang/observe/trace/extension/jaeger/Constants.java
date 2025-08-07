@@ -1,4 +1,3 @@
-
 /*
  * Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
@@ -23,7 +22,7 @@ import static org.ballerinalang.jvm.observability.ObservabilityConstants.CONFIG_
 
 /**
  * This is the constants class that defines all the constants
- * that are used by the {@link OpenTracingExtension}.
+ * that are used by the {@link JaegerTracerProvider}.
  */
 public class Constants {
     private Constants() {
@@ -43,7 +42,7 @@ public class Constants {
     static final String DEFAULT_SAMPLER_TYPE = "const";
     static final int DEFAULT_SAMPLER_PARAM = 1;
     static final String DEFAULT_REPORTER_HOSTNAME = "localhost";
-    static final int DEFAULT_REPORTER_PORT = 5775;
+    static final int DEFAULT_REPORTER_PORT = 4317;
     static final int DEFAULT_REPORTER_FLUSH_INTERVAL = 1000;
     static final int DEFAULT_REPORTER_MAX_BUFFER_SPANS = 10000;
 

@@ -19,12 +19,13 @@
 
 package org.ballerinalang.observe.nativeimpl;
 
-import io.opentelemetry.api.trace.Tracer;
 import org.ballerinalang.config.ConfigRegistry;
 import org.ballerinalang.jvm.observability.ObserveUtils;
 import org.ballerinalang.jvm.observability.ObserverContext;
+import org.ballerinalang.jvm.observability.OtelTracingUtils;
+import org.ballerinalang.jvm.observability.TracingUtils;
+import org.ballerinalang.jvm.observability.tracer.OtelTracersStore;
 import org.ballerinalang.jvm.observability.tracer.TracersStore;
-import org.ballerinalang.jvm.observability.tracer.TracingUtils;
 import org.ballerinalang.jvm.scheduling.Strand;
 
 import java.util.Map;
@@ -35,6 +36,7 @@ import java.util.concurrent.atomic.AtomicLong;
 
 import static org.ballerinalang.jvm.observability.ObservabilityConstants.CONFIG_TRACING_ENABLED;
 import static org.ballerinalang.jvm.observability.ObservabilityConstants.UNKNOWN_SERVICE;
+import static org.ballerinalang.jvm.observability.tracer.TraceConstants.OTEL_TRACING_PROTOCOL;
 
 /**
  * This class wraps opentracing apis and exposes extern functions to use within ballerina.
@@ -43,6 +45,7 @@ public class OpenTracerBallerinaWrapper {
 
     private static OpenTracerBallerinaWrapper instance = new OpenTracerBallerinaWrapper();
     private TracersStore tracerStore;
+    private OtelTracersStore otelTracersStore;
     private final boolean enabled;
     private ConcurrentMap<Long, ObserverContext> observerContextList = new ConcurrentHashMap<>();
     private AtomicLong spanId = new AtomicLong();
@@ -54,6 +57,7 @@ public class OpenTracerBallerinaWrapper {
     private OpenTracerBallerinaWrapper() {
         enabled = ConfigRegistry.getInstance().getAsBoolean(CONFIG_TRACING_ENABLED);
         tracerStore = TracersStore.getInstance();
+        otelTracersStore = OtelTracersStore.getInstance();
     }
 
     public static OpenTracerBallerinaWrapper getInstance() {
@@ -62,7 +66,11 @@ public class OpenTracerBallerinaWrapper {
 
     private long startSpan(ObserverContext observerContext, boolean isClient, String spanName) {
         observerContext.setActionName(spanName);
-        TracingUtils.startObservation(observerContext, isClient);
+        if (ObserveUtils.getTracingProtocol().equals(OTEL_TRACING_PROTOCOL)) {
+            OtelTracingUtils.startObservation(observerContext, isClient);
+        } else {
+            TracingUtils.startObservation(observerContext, isClient);
+        }
         long spanId = this.spanId.getAndIncrement();
         observerContextList.put(spanId, observerContext);
         return spanId;
@@ -88,9 +96,14 @@ public class OpenTracerBallerinaWrapper {
             serviceName = UNKNOWN_SERVICE;
         }
 
-        Tracer tracer = tracerStore.getTracer(serviceName);
-        if (tracer == null) {
-            return -1;
+        if (ObserveUtils.getTracingProtocol().equals(OTEL_TRACING_PROTOCOL)) {
+            if (otelTracersStore.getTracer(serviceName) == null) {
+                return -1;
+            }
+        } else {
+            if (tracerStore.getTracer(serviceName) == null) {
+                return -1;
+            }
         }
 
         ObserverContext observerContext = new ObserverContext();
@@ -132,7 +145,11 @@ public class OpenTracerBallerinaWrapper {
             if (observerContext.isSystemSpan()) {
                 ObserveUtils.setObserverContextToCurrentFrame(strand, observerContext.getParent());
             }
-            TracingUtils.stopObservation(observerContext);
+            if (ObserveUtils.getTracingProtocol().equals(OTEL_TRACING_PROTOCOL)) {
+                OtelTracingUtils.stopObservation(observerContext);
+            } else {
+                TracingUtils.stopObservation(observerContext);
+            }
             observerContext.setFinished();
             observerContextList.remove(spanId);
             return true;

@@ -15,6 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+
 package org.ballerinalang.jvm.observability.tracer;
 
 import org.ballerinalang.jvm.StringUtils;
@@ -27,14 +28,18 @@ import static org.ballerinalang.jvm.observability.ObservabilityConstants.CONFIG_
  *
  * @since 0.964.1
  */
-public final class TraceConstants {
+public class TraceConstants {
 
     private TraceConstants() {
     }
+
+    static final String DEFAULT_CONNECTOR_NAME = "BallerinaConnector";
+    static final String DEFAULT_ACTION_NAME = "BallerinaAction";
     public static final String KEY_SPAN = "_span_";
 
     public static final String TAG_KEY_SPAN_KIND = "span.kind";
 
+    public static final String TAG_KEY_STR_ERROR = "error";
     public static final String TAG_KEY_STR_ERROR_MESSAGE = "error.message";
     public static final String TAG_STR_TRUE = "true";
 
@@ -44,6 +49,16 @@ public final class TraceConstants {
     public static final BString SPAN_CONTEXT_MAP_KEY_TRACE_ID = StringUtils.fromString("traceId");
     public static final BString SPAN_CONTEXT_MAP_KEY_SPAN_ID = StringUtils.fromString("spanId");
 
+    public static final String LOG_KEY_MESSAGE = "message";
+    public static final String LOG_KEY_ERROR_KIND = "error.kind";
+    public static final String LOG_KEY_EVENT_TYPE = "event";
+    public static final String LOG_ERROR_KIND_EXCEPTION = "Exception";
+    public static final String LOG_EVENT_TYPE_ERROR = "error";
+
     public static final String JAEGER = "jaeger";
     public static final String TRACER_NAME_CONFIG = CONFIG_TABLE_TRACING + ".name";
+
+    public static final String CONFIG_TRACING_PROTOCOL = CONFIG_TABLE_TRACING + ".protocol";
+    public static final String DEFAULT_TRACING_PROTOCOL = "opentracing";
+    public static final String OTEL_TRACING_PROTOCOL = "opentelemetry";
 }

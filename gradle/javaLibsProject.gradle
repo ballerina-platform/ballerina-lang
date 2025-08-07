@@ -27,6 +27,8 @@ dependencies {
     dist 'com.squareup.okhttp3:okhttp:4.11.0'
     dist 'com.squareup.okio:okio:3.5.0'
     dist 'com.squareup.okio:okio-jvm:3.5.0'
+    dist 'io.jaegertracing:jaeger-core:1.6.0'
+    dist 'io.jaegertracing:jaeger-thrift:1.6.0'
     dist 'com.zaxxer:HikariCP:3.3.1'
     dist 'io.dropwizard.metrics:metrics-core:3.1.0'
     dist 'javax.transaction:javax.transaction-api:1.2'
@@ -136,7 +138,8 @@ dependencies {
     dist project(':metrics-extensions:ballerina-metrics-extension')
     dist project(':metrics-extensions:ballerina-prometheus-extension')
     dist project(':tracing-extensions:ballerina-jaeger-extension')
-    dist project(':tracing-extensions:ballerina-zipkin-extension')
+    dist project(':tracing-extensions:ballerina-jaeger-otel-extension')
+    dist project(':tracing-extensions:ballerina-zipkin-otel-extension')
     dist project(':ballerina-kafka')
     dist project(':ballerina-nats')
     dist project(':ballerina-rabbitmq')

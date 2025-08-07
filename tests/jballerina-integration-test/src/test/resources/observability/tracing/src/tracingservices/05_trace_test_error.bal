@@ -77,9 +77,9 @@ service echoService4 on new http:Listener(9094) {
         checkpanic caller->respond(res);
     }
 
-    resource function getMockTracers(http:Caller caller, http:Request clientRequest, string serviceName) {
+    resource function getMockTracers(http:Caller caller, http:Request clientRequest) {
         http:Response res = new;
-        json returnString = testobserve:getMockTracers(serviceName);
+        json returnString = testobserve:getMockTracers();
         res.setJsonPayload(returnString);
         checkpanic caller->respond(res);
     }
