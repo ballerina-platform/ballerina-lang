@@ -377,24 +377,19 @@ public class TestCommand implements BLauncherCmd {
         }
 
         boolean isTestingDelegated = project.buildOptions().cloud().equals("docker");
-
         if (project.kind() == ProjectKind.WORKSPACE_PROJECT) {
             WorkspaceProject workspaceProject = (WorkspaceProject) project;
             DependencyGraph<BuildProject> projectDependencyGraph = resolveWorkspaceDependencies(workspaceProject);
-            List<BuildProject> topologicallySortedList = new ArrayList<>(projectDependencyGraph.toTopologicallySortedList());
             if (!project.sourceRoot().equals(absProjectPath)) {
                 // If the project path is not the workspace root, filter the topologically sorted list to include only
                 // the projects that are dependencies of the project at the specified path.
                 Optional<BuildProject> buildProjectOptional = projectDependencyGraph.getNodes().stream()
                         .filter(node -> node.sourceRoot().equals(absProjectPath)).findFirst();
-                Collection<BuildProject> projectDependencies = projectDependencyGraph.getAllDependencies(
-                        buildProjectOptional.orElseThrow());
-                // remove projects that are not dependencies of the project at the specified path
-                topologicallySortedList.removeIf(prj -> !projectDependencies.contains(prj)
-                        && prj != buildProjectOptional.get());
-            }
-            for (BuildProject buildProject : topologicallySortedList) {
-                executeTasks(true, false, isTestingDelegated, buildProject, cliArgs);
+                executeTasks(true, false, isTestingDelegated, buildProjectOptional.orElseThrow(), cliArgs);
+            } else {
+                for (BuildProject buildProject : projectDependencyGraph.toTopologicallySortedList()) {
+                    executeTasks(true, false, isTestingDelegated, buildProject, cliArgs);
+                }
             }
         } else {
             boolean isPackageModified = isProjectUpdated(project);
@@ -406,7 +401,7 @@ public class TestCommand implements BLauncherCmd {
         }
     }
 
-    private void executeTasks(boolean isPackageModified, boolean isSingleFile, boolean isTestingDelegated,
+    private void executeTasks(boolean isPackageModified, boolean skip, boolean isTestingDelegated,
                               Project project, String[] cliArgs) {
         // Run pre-build tasks to have the project reloaded.
         // In code coverage generation, the module map is duplicated.
@@ -414,9 +409,9 @@ public class TestCommand implements BLauncherCmd {
         // which has the newly generated code for code coverage calculation.
         // Hence, below tasks are executed before extracting the module map from the project.
         TaskExecutor preBuildTaskExecutor = new TaskExecutor.TaskBuilder()
-                .addTask(new CleanTargetCacheDirTask(), isSingleFile) // clean the target cache dir(projects only)
-                .addTask(new CleanTargetBinTestsDirTask(), (isSingleFile || !isTestingDelegated))
-                .addTask(new RunBuildToolsTask(outStream), isSingleFile) // run build tools
+                .addTask(new CleanTargetCacheDirTask(), skip) // clean the target cache dir(projects only)
+                .addTask(new CleanTargetBinTestsDirTask(), (skip || !isTestingDelegated))
+                .addTask(new RunBuildToolsTask(outStream), skip) // run build tools
                 .build();
         preBuildTaskExecutor.executeTasks(project);
 
@@ -443,7 +438,6 @@ public class TestCommand implements BLauncherCmd {
                         (!project.buildOptions().nativeImage() || isTestingDelegated))
                 .addTask(new DumpBuildTimeTask(outStream), !project.buildOptions().dumpBuildTime())
                 .build();
-
         taskExecutor.executeTasks(project);
     }
 

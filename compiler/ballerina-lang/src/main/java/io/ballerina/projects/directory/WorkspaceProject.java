@@ -19,6 +19,7 @@ package io.ballerina.projects.directory;
 
 import io.ballerina.projects.BuildOptions;
 import io.ballerina.projects.DocumentId;
+import io.ballerina.projects.Package;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectEnvironmentBuilder;
 import io.ballerina.projects.ProjectException;
@@ -116,6 +117,11 @@ public class WorkspaceProject extends Project {
             project.clearCaches();
         }
         this.workspaceResolution = null;
+    }
+
+    @Override
+    public Package currentPackage() {
+        return this.projectList.iterator().next().currentPackage();
     }
 
     @Override

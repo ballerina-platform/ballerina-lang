@@ -730,4 +730,39 @@ public class TestCommandTest extends BaseCommandTest {
             Assert.assertTrue(buildLog.contains("WARNING: Package is not compatible with GraalVM."));
         }
     }
+
+    @Test(description = "Execute tests of a workspace")
+    public void testWorkspaceProject() throws IOException {
+        Path projectPath = this.testResources.resolve("workspaces/wp-with-tests");
+        System.setProperty(ProjectConstants.USER_DIR, projectPath.toString());
+        TestCommand testCommand = new TestCommand(projectPath, printStream, printStream, false);
+        new CommandLine(testCommand);
+        testCommand.execute();
+        String output = readOutput();
+        Assert.assertTrue(output.contains(getOutput("wp-with-tests.txt")), output);
+    }
+
+    @Test(description = "Execute tests of a specific package in the workspace")
+    public void testSpecificPackageInTheWorkspace() throws IOException {
+        Path projectRoot = this.testResources.resolve("workspaces/wp-with-tests");
+        Path projectPath = projectRoot.resolve("hello-app");
+        System.setProperty(ProjectConstants.USER_DIR, projectPath.toString());
+        TestCommand testCommand = new TestCommand(projectPath, printStream, printStream, false);
+        new CommandLine(testCommand);
+        testCommand.execute();
+        String output = readOutput();
+        Assert.assertTrue(output.contains(getOutput("wp-with-tests-hello-app.txt")), output);
+    }
+
+    @Test(description = "Execute tests of a specific package in the workspace that has no tests")
+    public void testSpecificPackageWithNoTestsInTheWorkspace() throws IOException {
+        Path projectRoot = this.testResources.resolve("workspaces/wp-with-tests");
+        Path projectPath = projectRoot.resolve("bye");
+        System.setProperty(ProjectConstants.USER_DIR, projectPath.toString());
+        TestCommand testCommand = new TestCommand(projectPath, printStream, printStream, false);
+        new CommandLine(testCommand);
+        testCommand.execute();
+        String output = readOutput();
+        Assert.assertTrue(output.contains(getOutput("wp-with-tests-bye.txt")), output);
+    }
 }

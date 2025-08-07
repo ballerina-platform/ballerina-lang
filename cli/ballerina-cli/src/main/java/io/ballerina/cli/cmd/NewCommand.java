@@ -22,9 +22,11 @@ import io.ballerina.cli.BLauncherCmd;
 import io.ballerina.cli.launcher.BLauncherException;
 import io.ballerina.projects.PackageManifest;
 import io.ballerina.projects.ProjectException;
+import io.ballerina.projects.ProjectKind;
 import io.ballerina.projects.ProjectLoadResult;
 import io.ballerina.projects.TomlDocument;
 import io.ballerina.projects.directory.ProjectLoader;
+import io.ballerina.projects.directory.WorkspaceProject;
 import io.ballerina.projects.util.FileUtils;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectPaths;
@@ -426,11 +428,8 @@ public class NewCommand implements BLauncherCmd {
                 String packageName = packages.get(0);
                 Path pkgRoot = workspaceRoot.resolve(packageName);
                 try {
-                    ProjectLoadResult buildProjectLoadResult = ProjectLoader.load(pkgRoot);
-                    PackageManifest manifest = buildProjectLoadResult.project().currentPackage().manifest();
-                    if (manifest.diagnostics().hasErrors()) {
-                        return ProjectUtils.guessOrgName();
-                    }
+                    ProjectLoadResult projectLoadResult = ProjectLoader.load(pkgRoot);
+                    PackageManifest manifest = projectLoadResult.project().currentPackage().manifest();
                     return manifest.org().toString();
                 } catch (ProjectException e) {
                     // ignore the exception and return the guessed org name
