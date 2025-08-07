@@ -6,5 +6,5 @@ docker run -d -p 13133:13133 -p 16686:16686 -p 4317:4317 jaegertracing/all-in-on
 ballerina run tracing.bal --b7a.observability.enabled=true
 [ballerina/http] started HTTP/WS listener 0.0.0.0:9797
 ballerina: started Prometheus HTTP listener 0.0.0.0:9797
-ballerina: started publishing tracers to Jaeger on localhost:4317
+ballerina: started publishing tracers to Jaeger on localhost:5775
 [ballerina/http] started HTTP/WS listener 0.0.0.0:9234
