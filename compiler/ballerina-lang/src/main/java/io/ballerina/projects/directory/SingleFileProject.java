@@ -18,16 +18,14 @@
 package io.ballerina.projects.directory;
 
 import io.ballerina.projects.BuildOptions;
-import io.ballerina.projects.BuildProjectLoadResult;
 import io.ballerina.projects.DocumentId;
 import io.ballerina.projects.PackageConfig;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectEnvironmentBuilder;
 import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.ProjectKind;
-import io.ballerina.projects.SingleFileProjectLoadResult;
+import io.ballerina.projects.ProjectLoadResult;
 import io.ballerina.projects.internal.PackageConfigCreator;
-import io.ballerina.projects.internal.ProjectFiles;
 import io.ballerina.projects.repos.TempDirCompilationCache;
 import io.ballerina.projects.util.ProjectConstants;
 
@@ -43,37 +41,39 @@ public class SingleFileProject extends Project implements Comparable<Project> {
 
     private Path targetDir;
 
-    public static SingleFileProjectLoadResult from(Path projectPath) {
-        return from(projectPath, BuildOptions.builder().build());
-    }
-
-    public static SingleFileProjectLoadResult from(Path projectPath, BuildOptions buildOptions) {
-        ProjectEnvironmentBuilder environmentBuilder = ProjectEnvironmentBuilder.getDefaultBuilder();
-        return from(projectPath, environmentBuilder, buildOptions);
-    }
-
-    public static SingleFileProjectLoadResult from(Path projectPath, ProjectEnvironmentBuilder environmentBuilder) {
-        return from(projectPath, environmentBuilder, BuildOptions.builder().build());
-    }
-
-    public static SingleFileProjectLoadResult from(Path projectPath, ProjectEnvironmentBuilder environmentBuilder,
-                                              BuildOptions buildOptions) {
-        SingleFileProject singleFileProject = load(environmentBuilder, projectPath, buildOptions);
-        return new SingleFileProjectLoadResult(singleFileProject,
-                singleFileProject.currentPackage().manifest().diagnostics());
+    static ProjectLoadResult loadProject(Path projectPath, ProjectEnvironmentBuilder environmentBuilder,
+                                         BuildOptions buildOptions) {
+        PackageConfig packageConfig = PackageConfigCreator.createSingleFileProjectConfig(projectPath);
+        SingleFileProject singleFileProject = new SingleFileProject(
+                environmentBuilder, projectPath, buildOptions);
+        singleFileProject.addPackage(packageConfig);
+        return new ProjectLoadResult(singleFileProject, singleFileProject.currentPackage().manifest().diagnostics());
     }
 
     /**
+     * @deprecated Use {@link io.ballerina.projects.directory.ProjectLoader#load(Path, ProjectEnvironmentBuilder)}
      * Loads a single file project from the provided path.
      *
      * @param filePath ballerina standalone file path
      * @return single file project
      */
+    @Deprecated(forRemoval = true, since = "2201.0.0")
     public static SingleFileProject load(ProjectEnvironmentBuilder environmentBuilder, Path filePath) {
         final BuildOptions.BuildOptionsBuilder buildOptionsBuilder = BuildOptions.builder();
         return load(environmentBuilder, filePath, buildOptionsBuilder.build());
     }
 
+    /**
+     * @deprecated Use
+     * {@link io.ballerina.projects.directory.ProjectLoader#load(Path, ProjectEnvironmentBuilder, BuildOptions)}
+     * Loads a single file project from the provided path.
+     *
+     * @param environmentBuilder the project environment builder
+     * @param filePath ballerina standalone file path
+     * @param buildOptions build options
+     * @return single file project
+     */
+    @Deprecated(forRemoval = true, since = "2201.0.0")
     public static SingleFileProject load(ProjectEnvironmentBuilder environmentBuilder, Path filePath,
                                          BuildOptions buildOptions) {
         PackageConfig packageConfig = PackageConfigCreator.createSingleFileProjectConfig(filePath);
@@ -83,10 +83,27 @@ public class SingleFileProject extends Project implements Comparable<Project> {
         return singleFileProject;
     }
 
+    /**
+     * @deprecated Use {@link io.ballerina.projects.directory.ProjectLoader#load(Path)}
+     * Loads a single file project from the provided path.
+     *
+     * @param filePath ballerina standalone file path
+     * @return single file project
+     */
+    @Deprecated(forRemoval = true, since = "2201.0.0")
     public static SingleFileProject load(Path filePath) {
         return load(filePath, BuildOptions.builder().build());
     }
 
+    /**
+     * @deprecated Use {@link io.ballerina.projects.directory.ProjectLoader#load(Path, BuildOptions)}
+     * Loads a single file project from the provided path with build options.
+     *
+     * @param filePath ballerina standalone file path
+     * @param buildOptions build options
+     * @return single file project
+     */
+    @Deprecated(forRemoval = true, since = "2201.0.0")
     public static SingleFileProject load(Path filePath, BuildOptions buildOptions) {
         PackageConfig packageConfig = PackageConfigCreator.createSingleFileProjectConfig(filePath,
                 buildOptions.disableSyntaxTree());

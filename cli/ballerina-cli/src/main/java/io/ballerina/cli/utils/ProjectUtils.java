@@ -22,7 +22,9 @@ import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectKind;
 import io.ballerina.projects.ProjectLoadResult;
 import io.ballerina.projects.directory.BuildProject;
+import io.ballerina.projects.directory.ProjectLoader;
 import io.ballerina.projects.directory.WorkspaceProject;
+import io.ballerina.projects.environment.EnvironmentBuilder;
 import io.ballerina.projects.util.ProjectPaths;
 
 import java.io.PrintStream;
@@ -37,17 +39,17 @@ public class ProjectUtils {
 
     public static ProjectLoadResult loadProject(Path projectPath, BuildOptions buildOptions, Path absProjectPath,
                                                 PrintStream outStream) {
-        ProjectLoadResult loadResult;
-        if (ProjectPaths.isWorkspaceProjectRoot(projectPath)) {
-            loadResult = WorkspaceProject.from(projectPath, buildOptions);
-        } else {
-            Optional<Path> workspaceRoot = ProjectPaths.workspaceRoot(absProjectPath);
-            if (workspaceRoot.isPresent()) {
-                loadResult = WorkspaceProject.from(workspaceRoot.get(), buildOptions);
-            } else {
-                loadResult = BuildProject.from(projectPath, buildOptions);
-            }
-        }
+        ProjectLoadResult loadResult = ProjectLoader.load(projectPath, buildOptions);
+//        if (ProjectPaths.isWorkspaceProjectRoot(projectPath)) {
+//            loadResult = WorkspaceProject.from(projectPath, EnvironmentBuilder.getBuilder(), buildOptions);
+//        } else {
+//            Optional<Path> workspaceRoot = ProjectPaths.workspaceRoot(absProjectPath);
+//            if (workspaceRoot.isPresent()) {
+//                loadResult = WorkspaceProject.from(workspaceRoot.get(), EnvironmentBuilder.getBuilder(), buildOptions);
+//            } else {
+//                loadResult = BuildProject.from(projectPath, EnvironmentBuilder.getBuilder(), buildOptions);
+//            }
+//        }
         if (loadResult.project().kind() == ProjectKind.WORKSPACE_PROJECT) {
             loadResult.diagnostics().diagnostics().forEach(diagnostic -> {
                 outStream.println(diagnostic.toString());

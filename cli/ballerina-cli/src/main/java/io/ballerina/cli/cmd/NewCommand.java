@@ -20,12 +20,11 @@ package io.ballerina.cli.cmd;
 
 import io.ballerina.cli.BLauncherCmd;
 import io.ballerina.cli.launcher.BLauncherException;
-import io.ballerina.projects.BuildProjectLoadResult;
 import io.ballerina.projects.PackageManifest;
 import io.ballerina.projects.ProjectException;
+import io.ballerina.projects.ProjectLoadResult;
 import io.ballerina.projects.TomlDocument;
-import io.ballerina.projects.directory.BuildProject;
-import io.ballerina.projects.internal.WorkspaceManifestBuilder;
+import io.ballerina.projects.directory.ProjectLoader;
 import io.ballerina.projects.util.FileUtils;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectPaths;
@@ -43,7 +42,6 @@ import java.net.URISyntaxException;
 import java.nio.file.AccessDeniedException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.List;
@@ -426,9 +424,9 @@ public class NewCommand implements BLauncherCmd {
             List<String> packages = getStringArrayFromTableNode(pkgNode, "packages");
             if (!packages.isEmpty()) {
                 String packageName = packages.get(0);
-                Path pkgBalToml = workspaceRoot.resolve(packageName);
+                Path pkgRoot = workspaceRoot.resolve(packageName);
                 try {
-                    BuildProjectLoadResult buildProjectLoadResult = BuildProject.from(pkgBalToml);
+                    ProjectLoadResult buildProjectLoadResult = ProjectLoader.load(pkgRoot);
                     PackageManifest manifest = buildProjectLoadResult.project().currentPackage().manifest();
                     if (manifest.diagnostics().hasErrors()) {
                         return ProjectUtils.guessOrgName();

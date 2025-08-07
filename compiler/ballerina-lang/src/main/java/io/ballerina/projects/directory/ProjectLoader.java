@@ -22,7 +22,7 @@ import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectEnvironmentBuilder;
 import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.ProjectLoadResult;
-import io.ballerina.projects.bala.BalaProject;
+import io.ballerina.projects.environment.EnvironmentBuilder;
 import io.ballerina.projects.repos.TempDirCompilationCache;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectPaths;
@@ -64,26 +64,25 @@ public final class ProjectLoader {
                                       BuildOptions buildOptions) throws ProjectException {
         if (ProjectPaths.workspaceRoot(path).isPresent()) {
             // If the path is in a workspace, load the workspace project
-            return WorkspaceProject.from(path, buildOptions);
+            return WorkspaceProject.loadProject(path, EnvironmentBuilder.getBuilder(), buildOptions);
         }
 
         Path projectRoot = getProjectRoot(Optional.of(path.toAbsolutePath().normalize()).get());
-
         boolean isPackageRoot = ProjectPaths.isBuildProjectRoot(projectRoot);
         if (isPackageRoot) {
             Path parent = projectRoot.getParent();
             if (parent != null && ProjectPaths.isBuildProjectRoot(parent)) {
-                return WorkspaceProject.from(projectRoot, buildOptions);
+                return WorkspaceProject.loadProject(projectRoot, EnvironmentBuilder.getBuilder(), buildOptions);
             }
         }
         if (isPackageRoot) {
-            return BuildProject.from(projectRoot, projectEnvironmentBuilder, buildOptions);
+            return BuildProject.loadProject(projectRoot, projectEnvironmentBuilder, buildOptions, null);
         } else if (ProjectPaths.isBalaProjectRoot(projectRoot)) {
             projectEnvironmentBuilder.addCompilationCacheFactory(TempDirCompilationCache::from);
-            return BalaProject.from(projectRoot, projectEnvironmentBuilder, buildOptions);
+            return BalaProject.load(projectRoot, projectEnvironmentBuilder, buildOptions);
         }
 
-        return SingleFileProject.from(path, projectEnvironmentBuilder, buildOptions);
+        return SingleFileProject.loadProject(path, projectEnvironmentBuilder, buildOptions);
     }
 
     private static Path getProjectRoot(Path filePath) {
@@ -188,14 +187,14 @@ public final class ProjectLoader {
                 return BuildProject.load(projectEnvironmentBuilder, projectRoot, buildOptions);
             } else if (Files.exists(projectRoot.resolve(ProjectConstants.PACKAGE_JSON))) {
                 projectEnvironmentBuilder.addCompilationCacheFactory(TempDirCompilationCache::from);
-                return BalaProject.loadProject(projectEnvironmentBuilder, projectRoot, buildOptions);
+                return io.ballerina.projects.bala.BalaProject.loadProject(projectEnvironmentBuilder, projectRoot, buildOptions);
             } else {
                 throw new ProjectException("provided directory does not belong to any supported project types");
             }
         }
         if (absFilePath.toString().endsWith(ProjectConstants.BLANG_COMPILED_PKG_BINARY_EXT)) {
             projectEnvironmentBuilder.addCompilationCacheFactory(TempDirCompilationCache::from);
-            return BalaProject.loadProject(projectEnvironmentBuilder, absFilePath);
+            return io.ballerina.projects.bala.BalaProject.loadProject(projectEnvironmentBuilder, absFilePath);
         }
 
         if (!ProjectPaths.isBalFile(absFilePath)) {
@@ -211,7 +210,7 @@ public final class ProjectLoader {
             return BuildProject.load(projectEnvironmentBuilder, projectRoot, buildOptions);
         } catch (ProjectException e) {
             projectEnvironmentBuilder.addCompilationCacheFactory(TempDirCompilationCache::from);
-            return BalaProject.loadProject(projectEnvironmentBuilder, projectRoot);
+            return io.ballerina.projects.bala.BalaProject.loadProject(projectEnvironmentBuilder, projectRoot);
         }
     }
 }

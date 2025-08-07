@@ -19,17 +19,14 @@
 package io.ballerina.projects.test;
 
 import io.ballerina.projects.BuildOptions;
-import io.ballerina.projects.BuildProjectLoadResult;
 import io.ballerina.projects.DiagnosticResult;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectEnvironmentBuilder;
 import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.ProjectLoadResult;
-import io.ballerina.projects.WorkspaceProjectLoadResult;
 import io.ballerina.projects.directory.BuildProject;
 import io.ballerina.projects.directory.ProjectLoader;
 import io.ballerina.projects.directory.SingleFileProject;
-import io.ballerina.projects.directory.WorkspaceProject;
 import io.ballerina.projects.util.ProjectConstants;
 import org.testng.Assert;
 import org.wso2.ballerinalang.util.RepoUtils;
@@ -62,9 +59,9 @@ public final class TestUtils {
     private TestUtils() {
     }
 
-    public static WorkspaceProjectLoadResult loadWorkspaceProject(Path projectPath) {
+    public static ProjectLoadResult loadWorkspaceProject(Path projectPath) {
         BuildOptions buildOptions = BuildOptions.builder().setOffline(true).build();
-        return WorkspaceProject.from(projectPath, buildOptions);
+        return ProjectLoader.load(projectPath, buildOptions);
     }
 
     public static String getDiagnosticsAsString(DiagnosticResult diagnosticResult) {

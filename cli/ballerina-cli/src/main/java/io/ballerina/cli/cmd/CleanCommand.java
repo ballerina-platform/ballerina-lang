@@ -21,7 +21,10 @@ package io.ballerina.cli.cmd;
 import io.ballerina.cli.BLauncherCmd;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectException;
+import io.ballerina.projects.ProjectKind;
+import io.ballerina.projects.ProjectLoadResult;
 import io.ballerina.projects.directory.BuildProject;
+import io.ballerina.projects.directory.ProjectLoader;
 import io.ballerina.projects.directory.WorkspaceProject;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectPaths;
@@ -94,14 +97,14 @@ public class CleanCommand implements BLauncherCmd {
             return;
         }
 
-        if (ProjectPaths.isWorkspaceProjectRoot(this.projectPath)) {
-            WorkspaceProject workspaceProject = WorkspaceProject.from(this.projectPath).project();
-            for (BuildProject project : workspaceProject.getResolution().dependencyGraph().getNodes()) {
-                cleanProject(project);
+        ProjectLoadResult loadResult = ProjectLoader.load(this.projectPath);
+        if (loadResult.project().kind().equals(ProjectKind.WORKSPACE_PROJECT)) {
+            WorkspaceProject workspaceProject = (WorkspaceProject) loadResult.project();
+            for (BuildProject buildProject : workspaceProject.projects()) {
+                cleanProject(buildProject);
             }
         } else {
-            Project project = BuildProject.from(this.projectPath).project();
-            cleanProject(project);
+            cleanProject(loadResult.project());
         }
     }
 

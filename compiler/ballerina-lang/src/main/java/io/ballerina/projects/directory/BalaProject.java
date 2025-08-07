@@ -16,7 +16,7 @@
  *  under the License.
  */
 
-package io.ballerina.projects.bala;
+package io.ballerina.projects.directory;
 
 import io.ballerina.projects.BuildOptions;
 import io.ballerina.projects.Document;
@@ -40,43 +40,20 @@ import java.nio.file.Path;
 import java.util.Optional;
 
 /**
- * @deprecated Use {@link io.ballerina.projects.directory.BalaProject} instead.
  * {@code BalaProject} represents a Ballerina project instance created from a bala.
  *
  * @since 2.0.0
  */
-@Deprecated(since = "2201.13.0", forRemoval = true)
 public class BalaProject extends Project implements Comparable<Project> {
     private final String platform;
     private final String balaVersion;
 
-    /**
-     * Loads a BalaProject from the provided bala path.
-     *
-     * @param balaPath Bala path
-     * @return bala project
-     */
-    public static BalaProject loadProject(ProjectEnvironmentBuilder environmentBuilder, Path balaPath) {
-        PackageConfig packageConfig = PackageConfigCreator.createBalaProjectConfig(balaPath);
-        BalaProject balaProject = new BalaProject(environmentBuilder, balaPath, BuildOptions.builder().setSticky(true)
-                .build());
+    static ProjectLoadResult load(Path projectPath, ProjectEnvironmentBuilder environmentBuilder,
+                                  BuildOptions buildOptions) {
+        PackageConfig packageConfig = PackageConfigCreator.createBalaProjectConfig(projectPath);
+        BalaProject balaProject = new BalaProject(environmentBuilder, projectPath, buildOptions);
         balaProject.addPackage(packageConfig);
-        return balaProject;
-    }
-
-    /**
-     * Loads a BalaProject from the provided bala path with build options.
-     *
-     * @param balaPath Bala path
-     * @param buildOptions Build options
-     * @return bala project
-     */
-    public static BalaProject loadProject(ProjectEnvironmentBuilder environmentBuilder, Path balaPath,
-                                          BuildOptions buildOptions) {
-        PackageConfig packageConfig = PackageConfigCreator.createBalaProjectConfig(balaPath);
-        BalaProject balaProject = new BalaProject(environmentBuilder, balaPath, buildOptions);
-        balaProject.addPackage(packageConfig);
-        return balaProject;
+        return new ProjectLoadResult(balaProject, balaProject.currentPackage().manifest().diagnostics());
     }
 
     private BalaProject(ProjectEnvironmentBuilder environmentBuilder, Path balaPath, BuildOptions buildOptions) {

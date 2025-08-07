@@ -18,9 +18,7 @@
 package io.ballerina.projects.directory;
 
 import io.ballerina.projects.BuildOptions;
-import io.ballerina.projects.BuildProjectLoadResult;
 import io.ballerina.projects.DocumentId;
-import io.ballerina.projects.PackageOrg;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectEnvironmentBuilder;
 import io.ballerina.projects.ProjectException;
@@ -29,7 +27,6 @@ import io.ballerina.projects.ProjectLoadResult;
 import io.ballerina.projects.TomlDocument;
 import io.ballerina.projects.WorkspaceBallerinaToml;
 import io.ballerina.projects.WorkspaceManifest;
-import io.ballerina.projects.WorkspaceProjectLoadResult;
 import io.ballerina.projects.WorkspaceResolution;
 import io.ballerina.projects.environment.Environment;
 import io.ballerina.projects.environment.EnvironmentBuilder;
@@ -37,7 +34,6 @@ import io.ballerina.projects.environment.ProjectEnvironment;
 import io.ballerina.projects.internal.DefaultDiagnosticResult;
 import io.ballerina.projects.internal.WorkspaceManifestBuilder;
 import io.ballerina.projects.util.ProjectPaths;
-import io.ballerina.toml.semantic.diagnostics.TomlDiagnostic;
 import io.ballerina.tools.diagnostics.Diagnostic;
 
 import java.io.IOException;
@@ -45,15 +41,13 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 
 import static io.ballerina.projects.util.ProjectConstants.BALLERINA_TOML;
 
 public class WorkspaceProject extends Project {
-    private final Set<BuildProject> projectSet;
+    private final List<BuildProject> projectList;
     private final WorkspaceBallerinaToml workspaceBallerinaToml;
     private final BuildOptions buildOptions;
     private final WorkspaceManifest workspaceManifest;
@@ -64,32 +58,20 @@ public class WorkspaceProject extends Project {
         this.workspaceBallerinaToml = WorkspaceBallerinaToml.from(tomlDocument, this);
         this.buildOptions = buildOptions;
         this.workspaceManifest = WorkspaceManifestBuilder.from(tomlDocument, projectPath).manifest();
-        this.projectSet = new HashSet<>();
+        this.projectList = new ArrayList<>();
     }
 
     private WorkspaceProject(Path projectPath, BuildOptions buildOptions, TomlDocument tomlDocument,
-                             Set<BuildProject> projects) {
+                             List<BuildProject> projects) {
         super(ProjectKind.WORKSPACE_PROJECT, projectPath, buildOptions);
         this.workspaceBallerinaToml = WorkspaceBallerinaToml.from(tomlDocument, this);
         this.buildOptions = buildOptions;
         this.workspaceManifest = WorkspaceManifestBuilder.from(tomlDocument, projectPath).manifest();
-        this.projectSet = projects;
+        this.projectList = projects;
     }
 
-    public static WorkspaceProjectLoadResult from(Path workspacePath) {
-        return from(workspacePath, BuildOptions.builder().build());
-    }
-
-    public static WorkspaceProjectLoadResult from(Path path, BuildOptions buildOptions) {
-        return from(path, EnvironmentBuilder.getBuilder(), buildOptions);
-    }
-
-    public static WorkspaceProjectLoadResult from(Path path, EnvironmentBuilder environmentBuilder) {
-        return from(path, environmentBuilder, BuildOptions.builder().build());
-    }
-
-    public static WorkspaceProjectLoadResult from(Path path, EnvironmentBuilder environmentBuilder,
-                                        BuildOptions buildOptions) {
+    static ProjectLoadResult loadProject(Path path, EnvironmentBuilder environmentBuilder,
+                                                  BuildOptions buildOptions) {
         if (ProjectPaths.isWorkspaceProjectRoot(path)) {
             try {
                 TomlDocument tomlDocument = TomlDocument.from(BALLERINA_TOML,
@@ -98,16 +80,16 @@ public class WorkspaceProject extends Project {
                 Environment environment = environmentBuilder.setWorkspace(workspaceProject).build();
                 List<Diagnostic> diagnostics = new ArrayList<>(workspaceProject.manifest().diagnostics().diagnostics());
                 for (Path pkgPath : workspaceProject.manifest().packages()) {
-                    BuildProjectLoadResult buildProjectLoadResult = loadBuildProject(environment, pkgPath,
+                    ProjectLoadResult buildProjectLoadResult = loadBuildProject(environment, pkgPath,
                             workspaceProject);
                     if (buildProjectLoadResult.diagnostics().hasErrors()) {
                         diagnostics.addAll(buildProjectLoadResult.diagnostics().diagnostics());
                         continue; // Skip adding this project if there are errors
                     }
-                    workspaceProject.projectSet.add(buildProjectLoadResult.project());
+                    workspaceProject.projectList.add((BuildProject) buildProjectLoadResult.project());
                     diagnostics.addAll(buildProjectLoadResult.diagnostics().diagnostics());
                 }
-                return new WorkspaceProjectLoadResult(workspaceProject, new DefaultDiagnosticResult(diagnostics));
+                return new ProjectLoadResult(workspaceProject, new DefaultDiagnosticResult(diagnostics));
             } catch (IOException e) {
                 throw new ProjectException("Error reading " + BALLERINA_TOML + " file in workspace: "
                         + path.toAbsolutePath(), e);
@@ -120,17 +102,17 @@ public class WorkspaceProject extends Project {
 
     @Override
     public Path targetDir() {
-        return this.projectSet.iterator().next().targetDir();
+        return this.projectList.iterator().next().targetDir();
     }
 
     @Override
     public Path generatedResourcesDir() {
-        return this.projectSet.iterator().next().generatedResourcesDir();
+        return this.projectList.iterator().next().generatedResourcesDir();
     }
 
     @Override
     public void clearCaches() {
-        for (Project project : this.projectSet) {
+        for (Project project : this.projectList) {
             project.clearCaches();
         }
         this.workspaceResolution = null;
@@ -138,8 +120,8 @@ public class WorkspaceProject extends Project {
 
     @Override
     public Project duplicate() {
-        Set<BuildProject> projects = new HashSet<>();
-        for (Project project : this.projectSet) {
+        List<BuildProject> projects = new ArrayList<>();
+        for (Project project : this.projectList) {
             projects.add((BuildProject) project.duplicate());
         }
         return new WorkspaceProject(this.sourceRoot, this.buildOptions,
@@ -148,7 +130,7 @@ public class WorkspaceProject extends Project {
 
     @Override
     public DocumentId documentId(Path file) {
-        for (Project project : this.projectSet) {
+        for (Project project : this.projectList) {
             try {
                 return project.documentId(file);
             } catch (ProjectException e) {
@@ -160,7 +142,7 @@ public class WorkspaceProject extends Project {
 
     @Override
     public Optional<Path> documentPath(DocumentId documentId) {
-        for (Project project : this.projectSet) {
+        for (Project project : this.projectList) {
             if (project.documentPath(documentId).isPresent()) {
                 return project.documentPath(documentId);
             }
@@ -170,12 +152,12 @@ public class WorkspaceProject extends Project {
 
     @Override
     public void save() {
-        this.projectSet.forEach(Project::save);
+        this.projectList.forEach(Project::save);
     }
 
     @Override
     public ProjectEnvironment projectEnvironmentContext() {
-        return this.projectSet.iterator().next().projectEnvironmentContext();
+        return this.projectList.iterator().next().projectEnvironmentContext();
     }
 
     public WorkspaceResolution getResolution() {
@@ -185,8 +167,8 @@ public class WorkspaceProject extends Project {
         return this.workspaceResolution;
     }
 
-    public Set<BuildProject> projects() {
-        return Collections.unmodifiableSet(this.projectSet);
+    public List<BuildProject> projects() {
+        return Collections.unmodifiableList(this.projectList);
     }
 
     public WorkspaceManifest manifest() {
@@ -197,9 +179,10 @@ public class WorkspaceProject extends Project {
         return this.workspaceBallerinaToml;
     }
 
-    private static BuildProjectLoadResult loadBuildProject(Environment environment, Path packagePath,
+    private static ProjectLoadResult loadBuildProject(Environment environment, Path packagePath,
                                                            WorkspaceProject workspaceProject) {
         ProjectEnvironmentBuilder projectEnvironmentBuilder = ProjectEnvironmentBuilder.getBuilder(environment);
-        return BuildProject.from(packagePath, projectEnvironmentBuilder, workspaceProject.buildOptions, workspaceProject);
+        return BuildProject.loadProject(packagePath, projectEnvironmentBuilder, workspaceProject.buildOptions,
+                workspaceProject);
     }
 }

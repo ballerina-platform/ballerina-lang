@@ -17,13 +17,10 @@
  */
 package io.ballerina.projects.test;
 
-import io.ballerina.projects.DependencyGraph;
 import io.ballerina.projects.JBallerinaBackend;
 import io.ballerina.projects.JvmTarget;
-import io.ballerina.projects.Module;
 import io.ballerina.projects.PackageCompilation;
 import io.ballerina.projects.ProjectLoadResult;
-import io.ballerina.projects.WorkspaceProjectLoadResult;
 import io.ballerina.projects.directory.BuildProject;
 import io.ballerina.projects.directory.ProjectLoader;
 import io.ballerina.projects.directory.WorkspaceProject;
@@ -36,9 +33,7 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 public class TestWorkspaceProject extends BaseTest {
     private static final Path RESOURCE_DIRECTORY = Path.of("src/test/resources/workspaces");
@@ -54,9 +49,9 @@ public class TestWorkspaceProject extends BaseTest {
     @Test
     public void testSimpleWorkspaceProject() {
         Path projectPath = tempResourceDir.resolve("wp-simple");
-        WorkspaceProjectLoadResult projectLoadResult = TestUtils.loadWorkspaceProject(projectPath);
+        ProjectLoadResult projectLoadResult = TestUtils.loadWorkspaceProject(projectPath);
         Assert.assertTrue(projectLoadResult.diagnostics().errors().isEmpty());
-        WorkspaceProject project = projectLoadResult.project();
+        WorkspaceProject project = (WorkspaceProject) projectLoadResult.project();
         List<BuildProject> topologicallySortedList = project.getResolution().dependencyGraph()
                 .toTopologicallySortedList();
         Assert.assertEquals(topologicallySortedList.size(), 3);
@@ -71,9 +66,9 @@ public class TestWorkspaceProject extends BaseTest {
     @Test
     public void testWorkspaceWithOneRoot() {
         Path projectPath = tempResourceDir.resolve("wp-one-root");
-        WorkspaceProjectLoadResult projectLoadResult = TestUtils.loadWorkspaceProject(projectPath);
+        ProjectLoadResult projectLoadResult = TestUtils.loadWorkspaceProject(projectPath);
         Assert.assertTrue(projectLoadResult.diagnostics().errors().isEmpty());
-        WorkspaceProject project = projectLoadResult.project();
+        WorkspaceProject project = (WorkspaceProject) projectLoadResult.project();
         List<BuildProject> topologicallySortedList = project.getResolution().dependencyGraph()
                 .toTopologicallySortedList();
         Assert.assertEquals(topologicallySortedList.size(), 3);
@@ -94,9 +89,9 @@ public class TestWorkspaceProject extends BaseTest {
     @Test
     public void testWorkspaceWithMultipleRoots() {
         Path projectPath = tempResourceDir.resolve("wp-multiple-roots");
-        WorkspaceProjectLoadResult projectLoadResult = TestUtils.loadWorkspaceProject(projectPath);
+        ProjectLoadResult projectLoadResult = TestUtils.loadWorkspaceProject(projectPath);
         Assert.assertTrue(projectLoadResult.diagnostics().errors().isEmpty());
-        WorkspaceProject project = projectLoadResult.project();
+        WorkspaceProject project = (WorkspaceProject) projectLoadResult.project();
         List<BuildProject> topologicallySortedList = project.getResolution().dependencyGraph()
                 .toTopologicallySortedList();
         if (topologicallySortedList.get(0).currentPackage().descriptor().name().toString().equals("depB")) {
@@ -131,9 +126,9 @@ public class TestWorkspaceProject extends BaseTest {
     @Test
     public void testWorkspaceWithDifferentBuildOptions() {
         Path projectPath = tempResourceDir.resolve("wp-different-build-options");
-        WorkspaceProjectLoadResult projectLoadResult = WorkspaceProject.from(projectPath);
+        ProjectLoadResult projectLoadResult = ProjectLoader.load(projectPath);
         Assert.assertTrue(projectLoadResult.diagnostics().errors().isEmpty());
-        WorkspaceProject project = projectLoadResult.project();
+        WorkspaceProject project = (WorkspaceProject) projectLoadResult.project();
         List<BuildProject> topologicallySortedList = project.getResolution().dependencyGraph()
                 .toTopologicallySortedList();
 
@@ -148,9 +143,9 @@ public class TestWorkspaceProject extends BaseTest {
     @Test
     public void testWorkspaceWithNestedPaths() {
         Path projectPath = tempResourceDir.resolve("wp-nested-path");
-        WorkspaceProjectLoadResult projectLoadResult = TestUtils.loadWorkspaceProject(projectPath);
+        ProjectLoadResult projectLoadResult = TestUtils.loadWorkspaceProject(projectPath);
         Assert.assertTrue(projectLoadResult.diagnostics().errors().isEmpty());
-        WorkspaceProject project = projectLoadResult.project();
+        WorkspaceProject project = (WorkspaceProject) projectLoadResult.project();
         List<BuildProject> topologicallySortedList = project.getResolution().dependencyGraph()
                 .toTopologicallySortedList();
         Assert.assertEquals(topologicallySortedList.size(), 3);
@@ -165,7 +160,7 @@ public class TestWorkspaceProject extends BaseTest {
     @Test
     public void testWorkspaceWithWrongPackagePath() {
         Path projectPath = tempResourceDir.resolve("wp-wrong-path");
-        WorkspaceProjectLoadResult projectLoadResult = TestUtils.loadWorkspaceProject(projectPath);
+        ProjectLoadResult projectLoadResult = TestUtils.loadWorkspaceProject(projectPath);
         Assert.assertEquals(projectLoadResult.diagnostics().errorCount(), 1);
         Assert.assertEquals(projectLoadResult.diagnostics().errors().iterator().next().toString(),
                 "ERROR [Ballerina.toml:(1:1,2:33)] could not locate the package path 'pkgB'");

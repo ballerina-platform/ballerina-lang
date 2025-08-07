@@ -21,7 +21,6 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonSyntaxException;
 import io.ballerina.projects.BuildOptions;
-import io.ballerina.projects.BuildProjectLoadResult;
 import io.ballerina.projects.BuildTool;
 import io.ballerina.projects.BuildToolResolution;
 import io.ballerina.projects.DependencyGraph;
@@ -37,6 +36,7 @@ import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectEnvironmentBuilder;
 import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.ProjectKind;
+import io.ballerina.projects.ProjectLoadResult;
 import io.ballerina.projects.ResolvedPackageDependency;
 import io.ballerina.projects.internal.BalaFiles;
 import io.ballerina.projects.internal.PackageConfigCreator;
@@ -74,64 +74,8 @@ import static io.ballerina.projects.util.ProjectUtils.readBuildJson;
  */
 public class BuildProject extends Project implements Comparable<Project> {
 
-    /**
-     * Creates a {@code BuildProjectLoadResult} from the provided project path.
-     *
-     * @param projectPath Ballerina project path
-     * @return build project load result
-     */
-    public static BuildProjectLoadResult from(Path projectPath) {
-        return from(projectPath, BuildOptions.builder().build());
-    }
-
-    /**
-     * Creates a {@code BuildProjectLoadResult} from the provided project path and build options.
-     *
-     * @param projectPath Ballerina project path
-     * @param buildOptions build options
-     * @return build project load result
-     */
-    public static BuildProjectLoadResult from(Path projectPath, BuildOptions buildOptions) {
-        ProjectEnvironmentBuilder environmentBuilder = ProjectEnvironmentBuilder.getDefaultBuilder();
-        return from(projectPath, environmentBuilder, buildOptions);
-    }
-
-    /**
-     * Creates a {@code BuildProjectLoadResult} from the provided project path and environment builder.
-     *
-     * @param projectPath Ballerina project path
-     * @param environmentBuilder custom environment builder
-     * @return build project load result
-     */
-    public static BuildProjectLoadResult from(Path projectPath, ProjectEnvironmentBuilder environmentBuilder) {
-        return from(projectPath, environmentBuilder, BuildOptions.builder().build());
-    }
-
-    /**
-     * Creates a {@code BuildProjectLoadResult} from the provided project path, environment builder and build options.
-     *
-     * @param projectPath Ballerina project path
-     * @param environmentBuilder custom environment builder
-     * @param buildOptions build options
-     * @return build project load result
-     */
-    public static BuildProjectLoadResult from(Path projectPath, ProjectEnvironmentBuilder environmentBuilder,
-                                    BuildOptions buildOptions) {
-        return from(projectPath, environmentBuilder, buildOptions, null);
-    }
-
-    /**
-     * Creates a {@code BuildProjectLoadResult} from the provided project path, environment builder, build options,
-     * and workspace project.
-     *
-     * @param projectPath Ballerina project path
-     * @param environmentBuilder custom environment builder
-     * @param buildOptions build options
-     * @param workspaceProject workspace project
-     * @return build project load result
-     */
-    public static BuildProjectLoadResult from(Path projectPath, ProjectEnvironmentBuilder environmentBuilder,
-                                    BuildOptions buildOptions, WorkspaceProject workspaceProject) {
+    static ProjectLoadResult loadProject(Path projectPath, ProjectEnvironmentBuilder environmentBuilder,
+                                         BuildOptions buildOptions, WorkspaceProject workspaceProject) {
         PackageConfig packageConfig = PackageConfigCreator.createBuildProjectConfig(projectPath,
                 buildOptions.disableSyntaxTree());
         BuildOptions mergedBuildOptions = ProjectFiles.createBuildOptions(packageConfig, buildOptions, projectPath);
@@ -139,11 +83,12 @@ public class BuildProject extends Project implements Comparable<Project> {
         BuildProject buildProject = new BuildProject(environmentBuilder, projectPath, mergedBuildOptions,
                 workspaceProject);
         buildProject.addPackage(packageConfig);
-        return new BuildProjectLoadResult(buildProject, buildProject.currentPackage().manifest().diagnostics());
+        return new ProjectLoadResult(buildProject, buildProject.currentPackage().manifest().diagnostics());
     }
 
     /**
-     * @deprecated Use {@link #from(Path, ProjectEnvironmentBuilder)}  instead.
+     * @deprecated Use {@link io.ballerina.projects.directory.ProjectLoader#load(Path, ProjectEnvironmentBuilder)}
+     * instead.
      * Loads a BuildProject from the provided path.
      *
      * @param projectPath Ballerina project path
@@ -155,7 +100,7 @@ public class BuildProject extends Project implements Comparable<Project> {
     }
 
     /**
-     * @deprecated Use {@link #from(Path, ProjectEnvironmentBuilder, BuildOptions)} instead.
+     * @deprecated Use {@link ProjectLoader#load(Path)} instead.
      * Loads a BuildProject from the provided path.
      *
      * @param projectPath Ballerina project path
@@ -167,7 +112,7 @@ public class BuildProject extends Project implements Comparable<Project> {
     }
 
     /**
-     * @deprecated Use {@link #from(Path, ProjectEnvironmentBuilder, BuildOptions)} instead.
+     * @deprecated Use {@link ProjectLoader#load(Path, ProjectEnvironmentBuilder, BuildOptions)} instead.
      * Loads a BuildProject from provided path and build options.
      *
      * @param projectPath  Ballerina project path
@@ -181,7 +126,7 @@ public class BuildProject extends Project implements Comparable<Project> {
     }
 
     /**
-     * @deprecated Use {@link #from(Path, ProjectEnvironmentBuilder, BuildOptions)}  instead.
+     * @deprecated Use {@link ProjectLoader#load(Path, ProjectEnvironmentBuilder, BuildOptions)}  instead.
      * Loads a BuildProject from provided environment builder, path, build options.
      *
      * @param environmentBuilder custom environment builder
