@@ -18,6 +18,9 @@
 
 package org.ballerinalang.jvm.observability.tracer;
 
+import org.ballerinalang.jvm.StringUtils;
+import org.ballerinalang.jvm.values.api.BString;
+
 import static org.ballerinalang.jvm.observability.ObservabilityConstants.CONFIG_TABLE_TRACING;
 
 /**
@@ -37,10 +40,14 @@ public class TraceConstants {
     public static final String TAG_KEY_SPAN_KIND = "span.kind";
 
     public static final String TAG_KEY_STR_ERROR = "error";
+    public static final String TAG_KEY_STR_ERROR_MESSAGE = "error.message";
     public static final String TAG_STR_TRUE = "true";
 
     public static final String TAG_SPAN_KIND_SERVER = "server";
     public static final String TAG_SPAN_KIND_CLIENT = "client";
+
+    public static final BString SPAN_CONTEXT_MAP_KEY_TRACE_ID = StringUtils.fromString("traceId");
+    public static final BString SPAN_CONTEXT_MAP_KEY_SPAN_ID = StringUtils.fromString("spanId");
 
     public static final String LOG_KEY_MESSAGE = "message";
     public static final String LOG_KEY_ERROR_KIND = "error.kind";
@@ -51,4 +58,7 @@ public class TraceConstants {
     public static final String JAEGER = "jaeger";
     public static final String TRACER_NAME_CONFIG = CONFIG_TABLE_TRACING + ".name";
 
+    public static final String CONFIG_TRACING_PROTOCOL = CONFIG_TABLE_TRACING + ".protocol";
+    public static final String DEFAULT_TRACING_PROTOCOL = "opentracing";
+    public static final String OTEL_TRACING_PROTOCOL = "opentelemetry";
 }

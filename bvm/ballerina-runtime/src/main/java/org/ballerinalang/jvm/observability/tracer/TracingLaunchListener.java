@@ -22,6 +22,7 @@ import org.ballerinalang.jvm.launch.LaunchListener;
 import org.ballerinalang.jvm.observability.ObserveUtils;
 
 import static org.ballerinalang.jvm.observability.ObservabilityConstants.CONFIG_TRACING_ENABLED;
+import static org.ballerinalang.jvm.observability.tracer.TraceConstants.OTEL_TRACING_PROTOCOL;
 
 /**
  * Listen to Launcher events and initialize Tracing.
@@ -30,11 +31,22 @@ public class TracingLaunchListener implements LaunchListener {
 
     @Override
     public void beforeRunProgram(boolean service) {
-        if (!TracersStore.getInstance().isInitialized()) {
-            ConfigRegistry configRegistry = ConfigRegistry.getInstance();
-            if (configRegistry.getAsBoolean(CONFIG_TRACING_ENABLED)) {
-                ObserveUtils.addObserver(new BallerinaTracingObserver());
-                TracersStore.getInstance().loadTracers();
+        if (ObserveUtils.getTracingProtocol().equals(OTEL_TRACING_PROTOCOL)) {
+            if (!OtelTracersStore.getInstance().isInitialized()) {
+                ConfigRegistry configRegistry = ConfigRegistry.getInstance();
+                if (configRegistry.getAsBoolean(CONFIG_TRACING_ENABLED)) {
+                    ObserveUtils.addObserver(new BallerinaTracingObserver());
+                    OtelTracersStore.getInstance().loadTracers();
+                }
+            }
+        } else {
+            if (!TracersStore.getInstance().isInitialized()) {
+                ConfigRegistry configRegistry = ConfigRegistry.getInstance();
+                if (configRegistry.getAsBoolean(CONFIG_TRACING_ENABLED)) {
+                    ObserveUtils.addObserver(new BallerinaTracingObserver());
+
+                    TracersStore.getInstance().loadTracers();
+                }
             }
         }
     }

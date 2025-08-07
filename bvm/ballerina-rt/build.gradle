@@ -100,11 +100,43 @@ dependencies {
     dist project(':metrics-extensions:ballerina-prometheus-extension')
     //// tracing
     dist project(':tracing-extensions:ballerina-jaeger-extension')
+    dist project(':tracing-extensions:ballerina-jaeger-otel-extension')
+    dist project(':tracing-extensions:ballerina-zipkin-otel-extension')
     dist 'io.jaegertracing:jaeger-core:1.6.0'
     dist 'io.jaegertracing:jaeger-thrift:1.6.0'
     dist 'org.apache.thrift:libthrift:0.14.1'
-    dist 'com.squareup.okhttp3:okhttp:4.12.0'
-    dist 'com.squareup.okio:okio:3.4.0'
+    dist 'com.squareup.okhttp3:okhttp:4.11.0'
+    dist 'com.squareup.okio:okio:3.5.0'
+    dist 'com.squareup.okio:okio-jvm:3.5.0'
+    dist 'io.opentelemetry:opentelemetry-api:1.32.0'
+    dist 'io.opentelemetry:opentelemetry-context:1.32.0'
+    dist 'io.opentelemetry:opentelemetry-sdk-trace:1.32.0'
+    dist 'io.opentelemetry:opentelemetry-sdk-common:1.32.0'
+    dist 'io.opentelemetry.semconv:opentelemetry-semconv:1.21.0-alpha'
+    dist 'io.opentelemetry:opentelemetry-proto:1.7.1-alpha'
+    dist 'io.opentelemetry:opentelemetry-exporter-otlp:1.32.0'
+    dist 'io.opentelemetry:opentelemetry-exporter-otlp-common:1.32.0'
+    dist 'io.opentelemetry:opentelemetry-extension-trace-propagators:1.32.0'
+    dist "io.opentelemetry:opentelemetry-exporter-sender-okhttp:1.32.0"
+    dist 'io.grpc:grpc-api:1.54.1'
+    dist 'io.grpc:grpc-context:1.54.1'
+    dist 'io.grpc:grpc-core:1.54.1'
+    dist 'io.grpc:grpc-stub:1.54.1'
+    dist 'io.grpc:grpc-protobuf:1.54.1'
+    dist 'io.grpc:grpc-protobuf-lite:1.54.1'
+    dist 'io.grpc:grpc-netty-shaded:1.54.1'
+    dist 'com.google.protobuf:protobuf-java:3.25.5'
+    dist 'io.netty:netty-handler:4.1.108.Final'
+    dist 'io.perfmark:perfmark-api:0.23.0'
+    dist 'com.google.guava:guava:33.2.0-jre'
+    dist 'com.google.guava:failureaccess:1.0.1'
+    dist 'io.zipkin.zipkin2:zipkin:2.24.0'
+    dist 'io.zipkin.reporter2:zipkin-reporter:2.16.0'
+    dist 'io.zipkin.reporter2:zipkin-sender-okhttp3:2.16.0'
+    dist 'org.jetbrains.kotlin:kotlin-runtime:1.2.71'
+    dist 'org.jetbrains.kotlin:kotlin-stdlib:1.8.22'
+    dist 'io.opentelemetry:opentelemetry-exporter-zipkin:1.32.0'
+    dist 'io.opentelemetry:opentelemetry-exporter-common:1.32.0'
 
     // Temporary adding . Need to Remove once fix #17878
     dist 'com.google.code.gson:gson:2.8.9'
