@@ -38,7 +38,10 @@ import java.util.function.Supplier;
 import static org.ballerinalang.jvm.observability.ObservabilityConstants.CONFIG_METRICS_ENABLED;
 import static org.ballerinalang.jvm.observability.ObservabilityConstants.CONFIG_TRACING_ENABLED;
 import static org.ballerinalang.jvm.observability.ObservabilityConstants.UNKNOWN_SERVICE;
-import static org.ballerinalang.jvm.observability.tracer.TraceConstants.*;
+import static org.ballerinalang.jvm.observability.tracer.TraceConstants.CONFIG_TRACING_PROTOCOL;
+import static org.ballerinalang.jvm.observability.tracer.TraceConstants.DEFAULT_TRACING_PROTOCOL;
+import static org.ballerinalang.jvm.observability.tracer.TraceConstants.KEY_SPAN;
+import static org.ballerinalang.jvm.observability.tracer.TraceConstants.OTEL_TRACING_PROTOCOL;
 
 /**
  * Util class used for observability.
