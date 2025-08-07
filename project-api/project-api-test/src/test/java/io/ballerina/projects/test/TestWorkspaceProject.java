@@ -17,9 +17,13 @@
  */
 package io.ballerina.projects.test;
 
+import io.ballerina.projects.DocumentId;
 import io.ballerina.projects.JBallerinaBackend;
 import io.ballerina.projects.JvmTarget;
+import io.ballerina.projects.ModuleId;
+import io.ballerina.projects.Package;
 import io.ballerina.projects.PackageCompilation;
+import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectLoadResult;
 import io.ballerina.projects.directory.BuildProject;
 import io.ballerina.projects.directory.ProjectLoader;
@@ -164,5 +168,72 @@ public class TestWorkspaceProject extends BaseTest {
         Assert.assertEquals(projectLoadResult.diagnostics().errorCount(), 1);
         Assert.assertEquals(projectLoadResult.diagnostics().errors().iterator().next().toString(),
                 "ERROR [Ballerina.toml:(1:1,2:33)] could not locate the package path 'pkgB'");
+    }
+
+    @Test
+    public void testWorkspaceEdit() {
+        Path projectPath = tempResourceDir.resolve("wp-edit");
+        ProjectLoadResult projectLoadResult = TestUtils.loadWorkspaceProject(projectPath);
+        Assert.assertEquals(projectLoadResult.diagnostics().errorCount(), 0);
+        WorkspaceProject project = (WorkspaceProject) projectLoadResult.project();
+        List<BuildProject> topologicallySortedList = project.getResolution().dependencyGraph()
+                .toTopologicallySortedList();
+        Assert.assertEquals(topologicallySortedList.size(), 4);
+        Project depAProject = null;
+        Project depBProject = null;
+        Project helloProject = null;
+        Project byeProject = null;
+        Package depAPackage = null;
+        Package depBPackage = null;
+        Package helloPackage = null;
+        Package byePackage = null;
+        for (BuildProject buildProject : topologicallySortedList) {
+            PackageCompilation compilation = buildProject.currentPackage().getCompilation();
+            Assert.assertTrue(compilation.diagnosticResult().diagnostics().isEmpty());
+            if (buildProject.currentPackage().descriptor().name().toString().equals("depA")) {
+                depAProject = buildProject;
+                depAPackage = buildProject.currentPackage();
+            } else if (buildProject.currentPackage().descriptor().name().toString().equals("depB")) {
+                depBProject = buildProject;
+                depBPackage = buildProject.currentPackage();
+            } else if (buildProject.currentPackage().descriptor().name().toString().equals("hello_app")){
+                helloProject = buildProject;
+                helloPackage = buildProject.currentPackage();
+            } else {
+                byeProject = buildProject;
+                byePackage = buildProject.currentPackage();
+            }
+        }
+
+        // edit the depB package
+        Assert.assertNotNull(depBProject);
+        Assert.assertNotNull(depAProject);
+        Assert.assertNotNull(helloProject);
+        Assert.assertNotNull(byeProject);
+        ModuleId moduleId = depBProject.currentPackage().moduleIds().stream().findFirst().orElseThrow();
+        DocumentId documentId = depBProject.currentPackage().module(moduleId).documentIds().stream().findFirst()
+                .orElseThrow();
+        depBProject.currentPackage().module(moduleId).document(documentId).modify().withContent(
+                """
+                public function bye(string name) returns string {
+                     return "Bye, World!";
+                }
+                """).apply();
+
+        Assert.assertNotEquals(depBPackage, depBProject.currentPackage());
+        Assert.assertNotEquals(depAPackage, depAProject.currentPackage());
+        PackageCompilation compilation = depAProject.currentPackage().getCompilation();
+        Assert.assertTrue(compilation.diagnosticResult().hasErrors());
+        Assert.assertEquals(compilation.diagnosticResult().errors().iterator().next().toString(),
+                "ERROR [depA.bal:(4:12,4:28)] undefined function 'hello'");
+
+        // hello_app and bye_app should not have changed
+        Assert.assertEquals(helloProject.currentPackage(), helloPackage);
+        compilation = helloProject.currentPackage().getCompilation();
+        Assert.assertFalse(compilation.diagnosticResult().hasErrors());
+
+        Assert.assertEquals(byeProject.currentPackage(), byePackage);
+        compilation = byeProject.currentPackage().getCompilation();
+        Assert.assertFalse(compilation.diagnosticResult().hasErrors());
     }
 }

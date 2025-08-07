@@ -693,7 +693,7 @@ public class Package {
             cleanPackageCache(this.dependencyGraph, newDepGraph);
             if (this.project.kind() == ProjectKind.BUILD_PROJECT && this.project.workspaceProject().isPresent()) {
                 Collection<BuildProject> wpDependents = this.project.workspaceProject().get().getResolution()
-                        .dependencyGraph().getAllDependents((BuildProject) this.project);
+                        .dependencyGraph().getDirectDependents((BuildProject) this.project);
                 for (BuildProject dependent : wpDependents) {
                     dependent.resetPackage(dependent);
                 }

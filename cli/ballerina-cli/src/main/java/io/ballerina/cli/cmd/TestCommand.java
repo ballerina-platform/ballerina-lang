@@ -305,15 +305,8 @@ public class TestCommand implements BLauncherCmd {
                     start = System.currentTimeMillis();
                     BuildTime.getInstance().timestamp = start;
                 }
-                ProjectLoadResult projectLoadResult = ProjectUtils.loadProject(
-                        absProjectPath, buildOptions, absProjectPath, this.outStream);
+                project = ProjectUtils.loadProject(absProjectPath, buildOptions, absProjectPath, this.outStream);
 
-                if (projectLoadResult.diagnostics().hasErrors()) {
-                    CommandUtil.printError(this.errStream, "project loading contains errors", null, false);
-                    CommandUtil.exitError(this.exitWhenFinish);
-                    return;
-                }
-                project = projectLoadResult.project();
                 if (buildOptions.dumpBuildTime()) {
                     BuildTime.getInstance().projectLoadDuration = System.currentTimeMillis() - start;
                 }

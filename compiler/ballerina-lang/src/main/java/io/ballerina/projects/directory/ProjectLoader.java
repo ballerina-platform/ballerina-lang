@@ -62,9 +62,10 @@ public final class ProjectLoader {
      */
     public static ProjectLoadResult load(Path path, ProjectEnvironmentBuilder projectEnvironmentBuilder,
                                       BuildOptions buildOptions) throws ProjectException {
-        if (ProjectPaths.workspaceRoot(path).isPresent()) {
+        Optional<Path> workspaceRoot = ProjectPaths.workspaceRoot(path);
+        if (workspaceRoot.isPresent()) {
             // If the path is in a workspace, load the workspace project
-            return WorkspaceProject.loadProject(path, EnvironmentBuilder.getBuilder(), buildOptions);
+            return WorkspaceProject.loadProject(workspaceRoot.get(), EnvironmentBuilder.getBuilder(), buildOptions);
         }
 
         Path projectRoot = getProjectRoot(Optional.of(path.toAbsolutePath().normalize()).get());

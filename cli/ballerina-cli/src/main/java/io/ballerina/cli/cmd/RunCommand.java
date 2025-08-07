@@ -248,6 +248,13 @@ public class RunCommand implements BLauncherCmd {
 
         boolean isSingleFileBuild = false;
         Path absProjectPath = this.projectPath.toAbsolutePath().normalize();
+        if (ProjectPaths.isWorkspaceProjectRoot(absProjectPath)) {
+            CommandUtil.printError(this.errStream, "'bal run' command is not supported for workspaces. " +
+                    "Specify a package to run", runCmd, false);
+            CommandUtil.exitError(this.exitWhenFinish);
+            return;
+        }
+
         if (FileUtils.hasExtension(this.projectPath)) {
             try {
                 if (buildOptions.dumpBuildTime()) {
@@ -270,15 +277,9 @@ public class RunCommand implements BLauncherCmd {
                     start = System.currentTimeMillis();
                     BuildTime.getInstance().timestamp = start;
                 }
-                ProjectLoadResult projectLoadResult = io.ballerina.cli.utils.ProjectUtils.loadProject(
+                project = io.ballerina.cli.utils.ProjectUtils.loadProject(
                         absProjectPath, buildOptions, absProjectPath, this.outStream);
 
-                if (projectLoadResult.diagnostics().hasErrors()) {
-                    CommandUtil.printError(this.errStream, "project loading contains errors", null, false);
-                    CommandUtil.exitError(this.exitWhenFinish);
-                    return;
-                }
-                project = projectLoadResult.project();
                 if (buildOptions.dumpBuildTime()) {
                     BuildTime.getInstance().projectLoadDuration = System.currentTimeMillis() - start;
                 }

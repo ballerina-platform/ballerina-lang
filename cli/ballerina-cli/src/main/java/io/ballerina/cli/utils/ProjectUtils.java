@@ -18,6 +18,7 @@
 package io.ballerina.cli.utils;
 
 import io.ballerina.projects.BuildOptions;
+import io.ballerina.projects.DependencyGraph;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectKind;
 import io.ballerina.projects.ProjectLoadResult;
@@ -37,24 +38,14 @@ public class ProjectUtils {
         // Prevent instantiation
     }
 
-    public static ProjectLoadResult loadProject(Path projectPath, BuildOptions buildOptions, Path absProjectPath,
+    public static Project loadProject(Path projectPath, BuildOptions buildOptions, Path absProjectPath,
                                                 PrintStream outStream) {
         ProjectLoadResult loadResult = ProjectLoader.load(projectPath, buildOptions);
-//        if (ProjectPaths.isWorkspaceProjectRoot(projectPath)) {
-//            loadResult = WorkspaceProject.from(projectPath, EnvironmentBuilder.getBuilder(), buildOptions);
-//        } else {
-//            Optional<Path> workspaceRoot = ProjectPaths.workspaceRoot(absProjectPath);
-//            if (workspaceRoot.isPresent()) {
-//                loadResult = WorkspaceProject.from(workspaceRoot.get(), EnvironmentBuilder.getBuilder(), buildOptions);
-//            } else {
-//                loadResult = BuildProject.from(projectPath, EnvironmentBuilder.getBuilder(), buildOptions);
-//            }
-//        }
         if (loadResult.project().kind() == ProjectKind.WORKSPACE_PROJECT) {
             loadResult.diagnostics().diagnostics().forEach(diagnostic -> {
                 outStream.println(diagnostic.toString());
             });
         }
-        return loadResult;
+        return loadResult.project();
     }
 }
