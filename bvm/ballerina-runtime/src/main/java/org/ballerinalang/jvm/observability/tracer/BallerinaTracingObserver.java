@@ -20,8 +20,8 @@ package org.ballerinalang.jvm.observability.tracer;
 import org.ballerinalang.jvm.observability.BallerinaObserver;
 import org.ballerinalang.jvm.observability.ObserveUtils;
 import org.ballerinalang.jvm.observability.ObserverContext;
-import org.ballerinalang.jvm.observability.TracingUtils;
 import org.ballerinalang.jvm.observability.OtelTracingUtils;
+import org.ballerinalang.jvm.observability.TracingUtils;
 
 import static org.ballerinalang.jvm.observability.tracer.TraceConstants.OTEL_TRACING_PROTOCOL;
 
