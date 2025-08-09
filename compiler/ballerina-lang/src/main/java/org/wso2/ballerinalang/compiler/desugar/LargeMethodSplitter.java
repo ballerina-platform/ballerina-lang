@@ -18,6 +18,7 @@
 
 package org.wso2.ballerinalang.compiler.desugar;
 
+import io.ballerina.runtime.api.flags.SymbolFlags;
 import io.ballerina.tools.diagnostics.Location;
 import io.ballerina.tools.text.LinePosition;
 import io.ballerina.tools.text.LineRange;
@@ -28,6 +29,7 @@ import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolResolver;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangBlockFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
@@ -41,6 +43,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
+import org.wso2.ballerinalang.util.Flags;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -186,8 +189,10 @@ public class LargeMethodSplitter {
         if (statement.getKind() == NodeKind.ASSIGNMENT) {
             BLangAssignment assignment = (BLangAssignment) statement;
             BLangExpression varRef = assignment.varRef;
-            return varRef.getKind() == NodeKind.SIMPLE_VARIABLE_REF &&
-                    (((BLangSimpleVarRef) varRef).symbol.owner == env.enclPkg.symbol);
+            if (varRef.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
+                BSymbol symbol = ((BLangSimpleVarRef) varRef).symbol;
+                return symbol.owner == env.enclPkg.symbol && !SymbolFlags.isFlagOn(symbol.flags, Flags.CONFIGURABLE);
+            }
         }
         return false;
     }
