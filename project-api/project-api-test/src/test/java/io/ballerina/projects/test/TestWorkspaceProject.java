@@ -25,6 +25,7 @@ import io.ballerina.projects.Package;
 import io.ballerina.projects.PackageCompilation;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectLoadResult;
+import io.ballerina.projects.WorkspaceBallerinaToml;
 import io.ballerina.projects.directory.BuildProject;
 import io.ballerina.projects.directory.ProjectLoader;
 import io.ballerina.projects.directory.WorkspaceProject;
@@ -171,7 +172,7 @@ public class TestWorkspaceProject extends BaseTest {
     }
 
     @Test
-    public void testWorkspaceEdit() {
+    public void testWorkspacePackageEdit() {
         Path projectPath = tempResourceDir.resolve("wp-edit");
         ProjectLoadResult projectLoadResult = TestUtils.loadWorkspaceProject(projectPath);
         Assert.assertEquals(projectLoadResult.diagnostics().errorCount(), 0);
@@ -235,5 +236,39 @@ public class TestWorkspaceProject extends BaseTest {
         Assert.assertEquals(byeProject.currentPackage(), byePackage);
         compilation = byeProject.currentPackage().getCompilation();
         Assert.assertFalse(compilation.diagnosticResult().hasErrors());
+    }
+
+    @Test
+    public void testWorkspaceBalTomlEdit() {
+        Path projectPath = tempResourceDir.resolve("wp-edit");
+        ProjectLoadResult projectLoadResult = TestUtils.loadWorkspaceProject(projectPath);
+        Assert.assertEquals(projectLoadResult.diagnostics().errorCount(), 0);
+        WorkspaceProject project = (WorkspaceProject) projectLoadResult.project();
+        List<BuildProject> topologicallySortedList = project.getResolution().dependencyGraph()
+                .toTopologicallySortedList();
+        Assert.assertEquals(topologicallySortedList.size(), 4);
+
+        // Edit the workspace Ballerina.toml file and remove bye_app
+        WorkspaceBallerinaToml workspaceBallerinaToml = project.ballerinaToml().modify().withContent(
+                """
+                [workspace]
+                packages = ["hello-app", "depA", "depB"]
+                """).apply();
+        project = workspaceBallerinaToml.project();
+        topologicallySortedList = project.getResolution().dependencyGraph().toTopologicallySortedList();
+        Assert.assertEquals(topologicallySortedList.size(), 3);
+
+        // Edit again to remove depB
+        workspaceBallerinaToml = project.ballerinaToml().modify().withContent(
+                """
+                [workspace]
+                packages = ["hello-app", "depA"]
+                """).apply();
+        project = workspaceBallerinaToml.project();
+        topologicallySortedList = project.getResolution().dependencyGraph()
+                .toTopologicallySortedList();
+        Assert.assertEquals(topologicallySortedList.size(), 2);
+        PackageCompilation compilation = topologicallySortedList.get(0).currentPackage().getCompilation();
+        Assert.assertEquals(compilation.diagnosticResult().errorCount(), 3);
     }
 }

@@ -49,9 +49,9 @@ import static io.ballerina.projects.util.ProjectConstants.BALLERINA_TOML;
 
 public class WorkspaceProject extends Project {
     private final List<BuildProject> projectList;
-    private final WorkspaceBallerinaToml workspaceBallerinaToml;
+    private WorkspaceBallerinaToml workspaceBallerinaToml;
     private final BuildOptions buildOptions;
-    private final WorkspaceManifest workspaceManifest;
+    private WorkspaceManifest workspaceManifest;
     private WorkspaceResolution workspaceResolution;
 
     private WorkspaceProject(Path projectPath, BuildOptions buildOptions, TomlDocument tomlDocument) {
@@ -183,6 +183,33 @@ public class WorkspaceProject extends Project {
 
     public WorkspaceBallerinaToml ballerinaToml() {
         return this.workspaceBallerinaToml;
+    }
+
+
+    /**
+     * Reloads the workspace project with the provided TomlDocument.
+     * This method creates a new instance of WorkspaceProject with the updated TomlDocument.
+     *
+     * @param tomlDocument The new TomlDocument to reload the workspace project
+     */
+    public ProjectLoadResult reload(TomlDocument tomlDocument) {
+        this.workspaceBallerinaToml = WorkspaceBallerinaToml.from(tomlDocument, this);
+        this.workspaceManifest = WorkspaceManifestBuilder.from(tomlDocument, sourceRoot).manifest();
+        this.projectList.clear();
+        this.workspaceResolution = null; // Reset the workspace resolution
+
+        Environment environment = EnvironmentBuilder.getBuilder().setWorkspace(this).build();
+        List<Diagnostic> diagnostics = new ArrayList<>();
+        for (Path pkgPath : this.workspaceManifest.packages()) {
+            ProjectLoadResult buildProjectLoadResult = loadBuildProject(environment, pkgPath, this);
+            if (buildProjectLoadResult.diagnostics().hasErrors()) {
+                diagnostics.addAll(buildProjectLoadResult.diagnostics().diagnostics());
+                continue; // Skip adding this project if there are errors
+            }
+            this.projectList.add((BuildProject) buildProjectLoadResult.project());
+            diagnostics.addAll(buildProjectLoadResult.diagnostics().diagnostics());
+        }
+        return new ProjectLoadResult(this, new DefaultDiagnosticResult(diagnostics));
     }
 
     private static ProjectLoadResult loadBuildProject(Environment environment, Path packagePath,

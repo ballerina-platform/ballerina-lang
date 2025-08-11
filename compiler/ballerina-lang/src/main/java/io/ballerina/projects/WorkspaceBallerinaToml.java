@@ -17,21 +17,9 @@
  */
 package io.ballerina.projects;
 
-import io.ballerina.projects.directory.BuildProject;
 import io.ballerina.projects.directory.WorkspaceProject;
-import io.ballerina.projects.environment.Environment;
-import io.ballerina.projects.environment.EnvironmentBuilder;
-import io.ballerina.projects.internal.WorkspaceManifestBuilder;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.toml.semantic.ast.TomlTableNode;
-
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.HashSet;
-import java.util.Optional;
-import java.util.Set;
-
-import static io.ballerina.projects.util.ProjectConstants.BALLERINA_TOML;
 
 public class WorkspaceBallerinaToml {
     private final TomlDocumentContext balWorkspaceTomlContext;
@@ -99,14 +87,10 @@ public class WorkspaceBallerinaToml {
          * @return document with updated content
          */
         public WorkspaceBallerinaToml apply() {
-
-            /* TODO: packages might have been changed, so we need to reload the projects
-                reuse existing projects as much as possible compilation might change,
-                dependency paths might change, reload the packages */
-
             WorkspaceBallerinaToml balWorkspaceToml = WorkspaceBallerinaToml
                     .from(this.tomlDocument, this.workspaceProject);
-            return balWorkspaceToml;
+            ProjectLoadResult projectLoadResult = balWorkspaceToml.project().reload(this.tomlDocument);
+            return ((WorkspaceProject) projectLoadResult.project()).ballerinaToml();
         }
     }
 }
