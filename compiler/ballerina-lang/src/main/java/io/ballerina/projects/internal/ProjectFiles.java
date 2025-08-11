@@ -339,7 +339,7 @@ public final class ProjectFiles {
     }
 
     public static BuildOptions createBuildOptions(PackageConfig packageConfig, BuildOptions theirOptions,
-                                                  Path projectDirPath) {
+                                                  Path projectDirPath, String org) {
         // Todo figure out how to pass the build options without a performance hit
         TomlDocument ballerinaToml = TomlDocument.from(ProjectConstants.BALLERINA_TOML,
                 packageConfig.ballerinaToml().map(DocumentConfig::content).orElse(""));
@@ -348,7 +348,7 @@ public final class ProjectFiles {
         TomlDocument balToolToml = TomlDocument.from(ProjectConstants.BAL_TOOL_TOML,
                 packageConfig.balToolToml().map(DocumentConfig::content).orElse(""));
         ManifestBuilder manifestBuilder = ManifestBuilder
-                .from(ballerinaToml, pluginToml, balToolToml, projectDirPath);
+                .from(ballerinaToml, pluginToml, balToolToml, projectDirPath, org);
         BuildOptions defaultBuildOptions = manifestBuilder.buildOptions();
         if (defaultBuildOptions == null) {
             defaultBuildOptions = BuildOptions.builder().build();

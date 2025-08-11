@@ -77,7 +77,7 @@ public final class ProjectLoader {
             }
         }
         if (isPackageRoot) {
-            return BuildProject.loadProject(projectRoot, projectEnvironmentBuilder, buildOptions, null);
+            return BuildProject.loadProject(projectRoot, projectEnvironmentBuilder, buildOptions, null, null);
         } else if (ProjectPaths.isBalaProjectRoot(projectRoot)) {
             projectEnvironmentBuilder.addCompilationCacheFactory(TempDirCompilationCache::from);
             return BalaProject.load(projectRoot, projectEnvironmentBuilder, buildOptions);

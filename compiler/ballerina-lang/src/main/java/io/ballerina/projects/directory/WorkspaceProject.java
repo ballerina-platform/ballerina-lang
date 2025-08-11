@@ -20,6 +20,7 @@ package io.ballerina.projects.directory;
 import io.ballerina.projects.BuildOptions;
 import io.ballerina.projects.DocumentId;
 import io.ballerina.projects.Package;
+import io.ballerina.projects.PackageOrg;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectEnvironmentBuilder;
 import io.ballerina.projects.ProjectException;
@@ -80,15 +81,18 @@ public class WorkspaceProject extends Project {
                 WorkspaceProject workspaceProject = new WorkspaceProject(path, buildOptions, tomlDocument);
                 Environment environment = environmentBuilder.setWorkspace(workspaceProject).build();
                 List<Diagnostic> diagnostics = new ArrayList<>(workspaceProject.manifest().diagnostics().diagnostics());
+                String org = null;
                 for (Path pkgPath : workspaceProject.manifest().packages()) {
                     ProjectLoadResult buildProjectLoadResult = loadBuildProject(environment, pkgPath,
-                            workspaceProject);
+                            workspaceProject, org);
+                    if (org == null) {
+                        org = buildProjectLoadResult.project().currentPackage().packageOrg().toString();
+                    }
                     if (buildProjectLoadResult.diagnostics().hasErrors()) {
                         diagnostics.addAll(buildProjectLoadResult.diagnostics().diagnostics());
                         continue; // Skip adding this project if there are errors
                     }
                     workspaceProject.projectList.add((BuildProject) buildProjectLoadResult.project());
-                    diagnostics.addAll(buildProjectLoadResult.diagnostics().diagnostics());
                 }
                 return new ProjectLoadResult(workspaceProject, new DefaultDiagnosticResult(diagnostics));
             } catch (IOException e) {
@@ -200,8 +204,12 @@ public class WorkspaceProject extends Project {
 
         Environment environment = EnvironmentBuilder.getBuilder().setWorkspace(this).build();
         List<Diagnostic> diagnostics = new ArrayList<>();
+        String org = null;
         for (Path pkgPath : this.workspaceManifest.packages()) {
-            ProjectLoadResult buildProjectLoadResult = loadBuildProject(environment, pkgPath, this);
+            ProjectLoadResult buildProjectLoadResult = loadBuildProject(environment, pkgPath, this, org);
+            if (org == null) {
+                org = buildProjectLoadResult.project().currentPackage().packageOrg().toString();
+            }
             if (buildProjectLoadResult.diagnostics().hasErrors()) {
                 diagnostics.addAll(buildProjectLoadResult.diagnostics().diagnostics());
                 continue; // Skip adding this project if there are errors
@@ -213,9 +221,9 @@ public class WorkspaceProject extends Project {
     }
 
     private static ProjectLoadResult loadBuildProject(Environment environment, Path packagePath,
-                                                           WorkspaceProject workspaceProject) {
+                                                      WorkspaceProject workspaceProject, String org) {
         ProjectEnvironmentBuilder projectEnvironmentBuilder = ProjectEnvironmentBuilder.getBuilder(environment);
         return BuildProject.loadProject(packagePath, projectEnvironmentBuilder, workspaceProject.buildOptions,
-                workspaceProject);
+                workspaceProject, org);
     }
 }

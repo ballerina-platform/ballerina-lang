@@ -31,6 +31,7 @@ import io.ballerina.projects.ModuleId;
 import io.ballerina.projects.Package;
 import io.ballerina.projects.PackageConfig;
 import io.ballerina.projects.PackageDependencyScope;
+import io.ballerina.projects.PackageOrg;
 import io.ballerina.projects.PackageResolution;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectEnvironmentBuilder;
@@ -75,10 +76,10 @@ import static io.ballerina.projects.util.ProjectUtils.readBuildJson;
 public class BuildProject extends Project implements Comparable<Project> {
 
     static ProjectLoadResult loadProject(Path projectPath, ProjectEnvironmentBuilder environmentBuilder,
-                                         BuildOptions buildOptions, WorkspaceProject workspaceProject) {
+                                         BuildOptions buildOptions, WorkspaceProject workspaceProject, String org) {
         PackageConfig packageConfig = PackageConfigCreator.createBuildProjectConfig(projectPath,
-                buildOptions.disableSyntaxTree());
-        BuildOptions mergedBuildOptions = ProjectFiles.createBuildOptions(packageConfig, buildOptions, projectPath);
+                buildOptions.disableSyntaxTree(), org);
+        BuildOptions mergedBuildOptions = ProjectFiles.createBuildOptions(packageConfig, buildOptions, projectPath, org);
 
         BuildProject buildProject = new BuildProject(environmentBuilder, projectPath, mergedBuildOptions,
                 workspaceProject);
@@ -139,7 +140,7 @@ public class BuildProject extends Project implements Comparable<Project> {
                                     BuildOptions buildOptions) {
         PackageConfig packageConfig = PackageConfigCreator.createBuildProjectConfig(projectPath,
                 buildOptions.disableSyntaxTree());
-        BuildOptions mergedBuildOptions = ProjectFiles.createBuildOptions(packageConfig, buildOptions, projectPath);
+        BuildOptions mergedBuildOptions = ProjectFiles.createBuildOptions(packageConfig, buildOptions, projectPath, null);
 
         BuildProject buildProject = new BuildProject(environmentBuilder, projectPath, mergedBuildOptions,
                 null);

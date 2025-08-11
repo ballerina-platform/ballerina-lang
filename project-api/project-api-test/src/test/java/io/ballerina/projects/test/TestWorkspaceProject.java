@@ -172,6 +172,26 @@ public class TestWorkspaceProject extends BaseTest {
     }
 
     @Test
+    public void testWorkspaceWithMultipleOrgs() {
+        Path projectPath = tempResourceDir.resolve("wp-multiple-orgs");
+        ProjectLoadResult projectLoadResult = TestUtils.loadWorkspaceProject(projectPath);
+        Assert.assertEquals(projectLoadResult.diagnostics().errorCount(), 0);
+        WorkspaceProject project = (WorkspaceProject) projectLoadResult.project();
+        for (BuildProject buildProject : project.getResolution().dependencyGraph().toTopologicallySortedList()) {
+            if (buildProject.currentPackage().descriptor().name().toString().equals("bye_app")) {
+                Assert.assertEquals(buildProject.currentPackage().packageOrg().toString(), "asmaj");
+                Assert.assertEquals(buildProject.currentPackage().manifest().diagnostics().warningCount(), 1);
+                Assert.assertEquals(buildProject.currentPackage().manifest().diagnostics().warnings().iterator().next()
+                        .toString(), "WARNING [Ballerina.toml:(2:1,2:12)] multiple orgs are not allowed in a " +
+                        "workspace. Found 'foo', defaulting to 'asmaj'");
+            } else {
+                Assert.assertEquals(buildProject.currentPackage().packageOrg().toString(), "asmaj");
+                Assert.assertEquals(buildProject.currentPackage().manifest().diagnostics().warningCount(), 0);
+            }
+        }
+    }
+
+    @Test
     public void testWorkspacePackageEdit() {
         Path projectPath = tempResourceDir.resolve("wp-edit");
         ProjectLoadResult projectLoadResult = TestUtils.loadWorkspaceProject(projectPath);

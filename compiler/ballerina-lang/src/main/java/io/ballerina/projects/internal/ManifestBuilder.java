@@ -92,6 +92,7 @@ public class ManifestBuilder {
     private final TomlDocument ballerinaToml;
     private final TomlDocument compilerPluginToml;
     private final TomlDocument balToolToml;
+    private final String packageOrg;
     private DiagnosticResult diagnostics;
     private final List<Diagnostic> diagnosticList;
     private final PackageManifest packageManifest;
@@ -136,12 +137,14 @@ public class ManifestBuilder {
     private ManifestBuilder(TomlDocument ballerinaToml,
                             TomlDocument compilerPluginToml,
                             TomlDocument balToolToml,
-                            Path projectPath) {
+                            Path projectPath,
+                            String packageOrg) {
         this.projectPath = projectPath;
         this.ballerinaToml = ballerinaToml;
         this.compilerPluginToml = compilerPluginToml;
         this.balToolToml = balToolToml;
         this.diagnosticList = new ArrayList<>();
+        this.packageOrg = packageOrg;
         this.packageManifest = parseAsPackageManifest();
         this.buildOptions = parseBuildOptions();
     }
@@ -150,7 +153,14 @@ public class ManifestBuilder {
                                        TomlDocument compilerPluginToml,
                                        TomlDocument balToolToml,
                                        Path projectPath) {
-        return new ManifestBuilder(ballerinaToml, compilerPluginToml, balToolToml, projectPath);
+        return new ManifestBuilder(ballerinaToml, compilerPluginToml, balToolToml, projectPath, null);
+    }
+
+    public static ManifestBuilder from(TomlDocument ballerinaToml,
+                                       TomlDocument compilerPluginToml,
+                                       TomlDocument balToolToml,
+                                       Path projectPath, String packageOrg) {
+        return new ManifestBuilder(ballerinaToml, compilerPluginToml, balToolToml, projectPath, packageOrg);
     }
 
     public DiagnosticResult diagnostics() {
@@ -597,6 +607,13 @@ public class ManifestBuilder {
                             "Defaulting to 'org = \"" + org + "\"'",
                     ProjectDiagnosticErrorCode.MISSING_PKG_INFO_IN_BALLERINA_TOML,
                     DiagnosticSeverity.WARNING);
+        } else if (this.packageOrg != null && !this.packageOrg.equals(org)) {
+            // If the org is set in the project, use that instead of the one in Ballerina.toml
+            reportDiagnostic(pkgNode.entries().get(ORG),
+                    "multiple orgs are not allowed in a workspace. Found '" +
+                            org + "', defaulting to '" + this.packageOrg + "'",
+                    ProjectDiagnosticErrorCode.ORG_NAME_MISMATCH_IN_WORKSPACE, DiagnosticSeverity.WARNING);
+            org = this.packageOrg;
         }
         name = getStringValueFromTomlTableNode(pkgNode, NAME, "");
         if (pkgNode.entries().get(NAME) == null) {
