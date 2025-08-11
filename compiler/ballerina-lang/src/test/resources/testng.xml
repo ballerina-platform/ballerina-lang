@@ -23,7 +23,6 @@ under the License.
     <test name="ballerina-blang-node-transformer-test-suite" preserve-order="true">
         <classes>
             <class name="org.wso2.ballerinalang.compiler.BLangNodeTransformerTest"/>
-            <class name="org.wso2.ballerinalang.compiler.SourceDirectoryManagerTest"/>
         </classes>
     </test>
     <test name="ballerina-toml-parser-test-suite" preserve-order="true">

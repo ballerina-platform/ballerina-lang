@@ -245,7 +245,6 @@ public class SymbolEnter extends BLangNodeVisitor {
     private final List<BLangNode> intersectionTypes;
 
     private SymbolEnv env;
-    private final boolean projectAPIInitiatedCompilation;
 
     private static final String DEPRECATION_ANNOTATION = "deprecated";
     private static final String ANONYMOUS_RECORD_NAME = "anonymous-record";
@@ -277,10 +276,6 @@ public class SymbolEnter extends BLangNodeVisitor {
         this.packageCache = PackageCache.getInstance(context);
         this.constResolver = ConstantValueResolver.getInstance(context);
         this.intersectionTypes = new ArrayList<>();
-
-        CompilerOptions options = CompilerOptions.getInstance(context);
-        projectAPIInitiatedCompilation = Boolean.parseBoolean(
-                options.get(CompilerOptionName.PROJECT_API_INITIATED_COMPILATION));
     }
 
     private void cleanup() {
@@ -981,20 +976,7 @@ public class SymbolEnter extends BLangNodeVisitor {
             if (!isNullOrEmpty(importPkgNode.version.value)) {
                 version = names.fromIdNode(importPkgNode.version);
             } else {
-                // TODO We are removing the version in the import declaration anyway
-                if (projectAPIInitiatedCompilation) {
-                    version = Names.EMPTY;
-                } else {
-                    String pkgNameComps = importPkgNode.getPackageName().stream()
-                            .map(id -> id.value)
-                            .collect(Collectors.joining("."));
-                    if (this.sourceDirectory.getSourcePackageNames().contains(pkgNameComps)
-                            && orgName.value.equals(enclPackageID.orgName.value)) {
-                        version = enclPackageID.version;
-                    } else {
-                        version = Names.EMPTY;
-                    }
-                }
+                version = Names.EMPTY;
             }
         } else {
             orgName = enclPackageID.orgName;

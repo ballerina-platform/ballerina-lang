@@ -19,6 +19,7 @@
 package io.ballerina.projects.internal;
 
 import io.ballerina.projects.BuildOptions;
+import io.ballerina.projects.CompilationOptions;
 import io.ballerina.projects.DiagnosticResult;
 import io.ballerina.projects.Diagnostics;
 import io.ballerina.projects.PackageDescriptor;
@@ -901,11 +902,12 @@ public class ManifestBuilder {
 
         BuildOptions.BuildOptionsBuilder buildOptionsBuilder = BuildOptions.builder();
 
-        Boolean offline = getBooleanFromBuildOptionsTableNode(tableNode, CompilerOptionName.OFFLINE.toString());
+        Boolean offline = getBooleanFromBuildOptionsTableNode(tableNode, BuildOptions.OptionName.OFFLINE.toString());
         Boolean experimental =
-                getBooleanFromBuildOptionsTableNode(tableNode, CompilerOptionName.EXPERIMENTAL.toString());
+                getBooleanFromBuildOptionsTableNode(tableNode, BuildOptions.OptionName.EXPERIMENTAL.toString());
         Boolean observabilityIncluded =
-                getBooleanFromBuildOptionsTableNode(tableNode, CompilerOptionName.OBSERVABILITY_INCLUDED.toString());
+                getBooleanFromBuildOptionsTableNode(tableNode, BuildOptions.OptionName.OBSERVABILITY_INCLUDED
+                        .toString());
         Boolean testReport =
                 getBooleanFromBuildOptionsTableNode(tableNode, BuildOptions.OptionName.TEST_REPORT.toString());
         Boolean codeCoverage =
@@ -914,17 +916,17 @@ public class ManifestBuilder {
         Boolean dumpBuildTime =
                 getBooleanFromBuildOptionsTableNode(tableNode, BuildOptions.OptionName.DUMP_BUILD_TIME.toString());
         Boolean sticky =
-                getBooleanFromBuildOptionsTableNode(tableNode, CompilerOptionName.STICKY.toString());
+                getBooleanFromBuildOptionsTableNode(tableNode, BuildOptions.OptionName.STICKY.toString());
         String cloud = "";
         if (topLevelNode != null) {
             cloud = getStringFromTomlTableNode(topLevelNode);
         }
         Boolean listConflictedClasses = getBooleanFromBuildOptionsTableNode(tableNode,
-                CompilerOptionName.LIST_CONFLICTED_CLASSES.toString());
+                BuildOptions.OptionName.LIST_CONFLICTED_CLASSES.toString());
         String targetDir = getStringFromBuildOptionsTableNode(tableNode,
                 BuildOptions.OptionName.TARGET_DIR.toString());
         Boolean enableCache = getBooleanFromBuildOptionsTableNode(tableNode,
-                CompilerOptionName.ENABLE_CACHE.toString());
+                BuildOptions.OptionName.ENABLE_CACHE.toString());
         Boolean nativeImage = getBooleanFromBuildOptionsTableNode(tableNode,
                 BuildOptions.OptionName.NATIVE_IMAGE.toString());
         Boolean exportComponentModel = getBooleanFromBuildOptionsTableNode(tableNode,
@@ -932,13 +934,13 @@ public class ManifestBuilder {
         String graalVMBuildOptions = getStringFromBuildOptionsTableNode(tableNode,
                 BuildOptions.OptionName.GRAAL_VM_BUILD_OPTIONS.toString());
         Boolean remoteManagement = getBooleanFromBuildOptionsTableNode(tableNode,
-                CompilerOptionName.REMOTE_MANAGEMENT.toString());
+                BuildOptions.OptionName.REMOTE_MANAGEMENT.toString());
         Boolean showDependencyDiagnostics = getBooleanFromBuildOptionsTableNode(tableNode,
                 BuildOptions.OptionName.SHOW_DEPENDENCY_DIAGNOSTICS.toString());
         Boolean optimizeDependencyCompilation = getBooleanFromBuildOptionsTableNode(tableNode,
                 BuildOptions.OptionName.OPTIMIZE_DEPENDENCY_COMPILATION.toString());
         String lockingMode = getStringFromBuildOptionsTableNode(tableNode,
-                CompilerOptionName.LOCKING_MODE.toString());
+                BuildOptions.OptionName.LOCKING_MODE.toString());
 
         buildOptionsBuilder
                 .setOffline(offline)

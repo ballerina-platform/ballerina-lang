@@ -414,6 +414,9 @@ public final class ProjectPaths {
             try {
                 TomlDocument tomlDocument = TomlDocument.from(BALLERINA_TOML,
                         Files.readString(absFilePath));
+                if (tomlDocument.textDocument().toString().isEmpty()) {
+                    return true;
+                }
                 return tomlDocument.toml().getTable("package").isPresent();
             } catch (IOException e) {
                 throw new ProjectException("error while validating workspace root: " + e);

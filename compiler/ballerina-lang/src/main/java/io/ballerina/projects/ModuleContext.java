@@ -481,10 +481,13 @@ class ModuleContext {
                 moduleContext.descriptor().org(), moduleContext.descriptor().packageName().toString())) {
             return true;
         }
-        CompilerOptions compilerOptions = CompilerOptions.getInstance(compilerContext);
-        if (Boolean.parseBoolean(compilerOptions.get(CompilerOptionName.DUMP_BIR_FILE))) {
+//        CompilerOptions compilerOptions = CompilerOptions.getInstance(compilerContext);
+        if (moduleContext.project.buildOptions().compilationOptions().dumpBirFile()) {
             return true;
         }
+//        if (Boolean.parseBoolean(compilerOptions.get(CompilerOptionName.DUMP_BIR_FILE))) {
+//            return true;
+//        }
         return moduleContext.project.kind().equals(ProjectKind.BUILD_PROJECT)
                 && moduleContext.project().buildOptions().enableCache();
     }

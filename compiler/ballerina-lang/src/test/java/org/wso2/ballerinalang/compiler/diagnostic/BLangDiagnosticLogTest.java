@@ -56,8 +56,6 @@ public class BLangDiagnosticLogTest {
     @BeforeClass
     public void setup() {
         context = new CompilerContext();
-        CompilerOptions options = CompilerOptions.getInstance(context);
-        options.put(CompilerOptionName.PROJECT_API_INITIATED_COMPILATION, String.valueOf(true));
         dlog = BLangDiagnosticLog.getInstance(context);
     }
 

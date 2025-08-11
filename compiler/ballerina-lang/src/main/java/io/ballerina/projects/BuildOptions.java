@@ -246,16 +246,24 @@ public class BuildOptions {
      * Enum to represent build options.
      */
     public enum OptionName {
+        OFFLINE("offline"),
+        STICKY("sticky"),
+        LOCKING_MODE("lockingMode"),
+        OBSERVABILITY_INCLUDED("observabilityIncluded"),
+        EXPERIMENTAL("experimental"),
         SKIP_TESTS("skipTests"),
         TEST_REPORT("testReport"),
         CODE_COVERAGE("codeCoverage"),
+        LIST_CONFLICTED_CLASSES("listConflictedClasses"),
         DUMP_BUILD_TIME("dumpBuildTime"),
         TARGET_DIR("targetDir"),
         NATIVE_IMAGE("graalvm"),
         EXPORT_COMPONENT_MODEL("exportComponentModel"),
         GRAAL_VM_BUILD_OPTIONS("graalvmBuildOptions"),
         SHOW_DEPENDENCY_DIAGNOSTICS("showDependencyDiagnostics"),
-        OPTIMIZE_DEPENDENCY_COMPILATION("optimizeDependencyCompilation");
+        OPTIMIZE_DEPENDENCY_COMPILATION("optimizeDependencyCompilation"),
+        ENABLE_CACHE("enableCache"),
+        REMOTE_MANAGEMENT("remoteManagement"),;
 
         private final String name;
 

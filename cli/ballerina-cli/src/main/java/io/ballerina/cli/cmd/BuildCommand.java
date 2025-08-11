@@ -34,7 +34,6 @@ import io.ballerina.projects.DependencyGraph;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.ProjectKind;
-import io.ballerina.projects.ProjectLoadResult;
 import io.ballerina.projects.directory.BuildProject;
 import io.ballerina.projects.directory.SingleFileProject;
 import io.ballerina.projects.directory.WorkspaceProject;

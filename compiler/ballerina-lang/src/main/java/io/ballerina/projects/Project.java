@@ -29,8 +29,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import static org.ballerinalang.compiler.CompilerOptionName.PROJECT_DIR;
-
 /**
  * The class {code Project} provides an abstract representation of a Ballerina project.
  *
@@ -125,7 +123,7 @@ public abstract class Project {
     protected void populateCompilerContext() {
         CompilerContext compilerContext = this.projectEnvironmentContext().getService(CompilerContext.class);
         CompilerOptions options = CompilerOptions.getInstance(compilerContext);
-        options.put(PROJECT_DIR, this.sourceRoot().toAbsolutePath().toString());
+//        options.put(PROJECT_DIR, this.sourceRoot().toAbsolutePath().toString());
     }
 
     /**
