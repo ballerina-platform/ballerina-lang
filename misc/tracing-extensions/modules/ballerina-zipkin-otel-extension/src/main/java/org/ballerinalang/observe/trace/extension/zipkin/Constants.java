@@ -39,7 +39,6 @@ public class Constants {
     static final String REPORTER_MAX_BUFFER_SPANS_CONFIG = ZIPKIN_CONFIG_TABLE + ".reporter.max.buffer.spans";
     static final String REPORTER_API_CONTEXT_CONFIG = "reporter.api.context";
     static final String REPORTER_COMPRESSION_ENABLED_CONFIG = "reporter.compression.enabled";
-    static final String REPORTER_API_VERSION = "reporter.api.version";
 
     static final String DEFAULT_SAMPLER_TYPE = "const";
     static final int DEFAULT_SAMPLER_PARAM = 1;
@@ -49,9 +48,6 @@ public class Constants {
     static final int DEFAULT_REPORTER_MAX_BUFFER_SPANS = 10000;
     static final String DEFAULT_REPORTER_API_CONTEXT = "/api/v2/spans";
     static final boolean DEFAULT_REPORTER_COMPRESSION_ENABLED = true;
-    static final String DEFAULT_REPORTER_API_VERSION = "v2";
 
     static final String APPLICATION_LAYER_PROTOCOL = "http";
-    static final String COMPRESSION_METHOD_ENABLED = "gzip";
-    static final String COMPRESSION_METHOD_DISABLED = "none";
 }
