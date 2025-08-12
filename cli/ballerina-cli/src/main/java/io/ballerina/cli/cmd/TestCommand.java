@@ -302,7 +302,7 @@ public class TestCommand implements BLauncherCmd {
                     start = System.currentTimeMillis();
                     BuildTime.getInstance().timestamp = start;
                 }
-                project = ProjectUtils.loadProject(absProjectPath, buildOptions, absProjectPath, this.outStream);
+                project = ProjectUtils.loadProject(absProjectPath, buildOptions, this.outStream);
 
                 if (buildOptions.dumpBuildTime()) {
                     BuildTime.getInstance().projectLoadDuration = System.currentTimeMillis() - start;

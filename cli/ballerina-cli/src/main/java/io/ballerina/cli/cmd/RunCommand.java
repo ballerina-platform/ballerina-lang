@@ -275,8 +275,7 @@ public class RunCommand implements BLauncherCmd {
                     start = System.currentTimeMillis();
                     BuildTime.getInstance().timestamp = start;
                 }
-                project = io.ballerina.cli.utils.ProjectUtils.loadProject(
-                        absProjectPath, buildOptions, absProjectPath, this.outStream);
+                project = io.ballerina.cli.utils.ProjectUtils.loadProject(absProjectPath, buildOptions, this.outStream);
 
                 if (buildOptions.dumpBuildTime()) {
                     BuildTime.getInstance().projectLoadDuration = System.currentTimeMillis() - start;

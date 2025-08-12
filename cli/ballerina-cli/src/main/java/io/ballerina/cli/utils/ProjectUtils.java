@@ -32,8 +32,7 @@ public class ProjectUtils {
         // Prevent instantiation
     }
 
-    public static Project loadProject(Path projectPath, BuildOptions buildOptions, Path absProjectPath,
-                                                PrintStream outStream) {
+    public static Project loadProject(Path projectPath, BuildOptions buildOptions, PrintStream outStream) {
         ProjectLoadResult loadResult = ProjectLoader.load(projectPath, buildOptions);
         if (loadResult.project().kind() == ProjectKind.WORKSPACE_PROJECT) {
             loadResult.diagnostics().diagnostics().forEach(diagnostic -> {

@@ -274,7 +274,7 @@ public class BuildCommand implements BLauncherCmd {
                     start = System.currentTimeMillis();
                     BuildTime.getInstance().timestamp = start;
                 }
-                project = ProjectUtils.loadProject(absProjectPath, buildOptions, absProjectPath, this.outStream);
+                project = ProjectUtils.loadProject(absProjectPath, buildOptions, this.outStream);
 
                 if (buildOptions.dumpBuildTime()) {
                     BuildTime.getInstance().projectLoadDuration = System.currentTimeMillis() - start;
@@ -299,7 +299,7 @@ public class BuildCommand implements BLauncherCmd {
             DependencyGraph<BuildProject> projectDependencyGraph = resolveWorkspaceDependencies(workspaceProject);
             List<BuildProject> topologicallySortedList = new ArrayList<>(
                     projectDependencyGraph.toTopologicallySortedList());
-            if (!project.sourceRoot().equals(absProjectPath)) {
+            if (!workspaceProject.sourceRoot().equals(absProjectPath)) {
                 // If the project path is not the workspace root, filter the topologically sorted list to include only
                 // the projects that are dependencies of the project at the specified path.
                 Optional<BuildProject> buildProjectOptional = projectDependencyGraph.getNodes().stream()
@@ -311,15 +311,31 @@ public class BuildCommand implements BLauncherCmd {
                         && prj != buildProjectOptional.get());
             }
             for (BuildProject buildProject : topologicallySortedList) {
-                executeTasks(true, false, buildProject);
+                boolean skipExecutable = false;
+                if (workspaceProject.sourceRoot().equals(absProjectPath)) {
+                    if (hasDependents(buildProject, projectDependencyGraph)) {
+                        // If the project is a dependency of another project, skip creating an executable JAR.
+                        skipExecutable = true;
+                    }
+                } else if (!buildProject.sourceRoot().equals(absProjectPath)) {
+                    if (hasDependents(buildProject, projectDependencyGraph)) {
+                        // If the project is a dependency of another project, skip creating an executable JAR.
+                        skipExecutable = true;
+                    }
+                }
+                executeTasks(true, false, buildProject, skipExecutable);
             }
         } else {
             boolean isPackageModified = isProjectUpdated(project);
-            executeTasks(isPackageModified, isSingleFileBuild, project);
+            executeTasks(isPackageModified, isSingleFileBuild, project, false);
         }
         if (this.exitWhenFinish) {
             Runtime.getRuntime().exit(0);
         }
+    }
+
+    private boolean hasDependents(BuildProject buildProject, DependencyGraph<BuildProject> projectDependencyGraph) {
+        return !projectDependencyGraph.getDirectDependents(buildProject).isEmpty();
     }
 
     private DependencyGraph<BuildProject> resolveWorkspaceDependencies(WorkspaceProject workspaceProject) {
@@ -330,7 +346,8 @@ public class BuildCommand implements BLauncherCmd {
         return workspaceProject.getResolution().dependencyGraph();
     }
 
-    private void executeTasks(boolean isPackageModified, boolean isSingleFile, Project project) {
+    private void executeTasks(boolean isPackageModified, boolean isSingleFile, Project project,
+                              boolean skipExecutable) {
         BuildOptions buildOptions = project.buildOptions();
         TaskExecutor taskExecutor = new TaskExecutor.TaskBuilder()
                 // clean the target directory(projects only)
@@ -342,7 +359,8 @@ public class BuildCommand implements BLauncherCmd {
                 // compile the modules
                 .addTask(new CompileTask(outStream, errStream, false, true,
                         isPackageModified, buildOptions.enableCache()))
-                .addTask(new CreateExecutableTask(outStream, this.output, null, false))
+                .addTask(new CreateExecutableTask(outStream, this.output, null, false),
+                        skipExecutable)
                 .addTask(new DumpBuildTimeTask(outStream), !buildOptions.dumpBuildTime())
                 .build();
 
