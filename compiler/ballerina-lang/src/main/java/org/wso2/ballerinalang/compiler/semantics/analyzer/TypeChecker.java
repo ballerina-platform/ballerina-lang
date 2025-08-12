@@ -2558,6 +2558,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                     continue;
                 }
 
+                
                 BType listCompatibleMemType = getMappingConstructorCompatibleNonUnionType(memberType, data);
                 if (listCompatibleMemType == symTable.semanticError) {
                     continue;
