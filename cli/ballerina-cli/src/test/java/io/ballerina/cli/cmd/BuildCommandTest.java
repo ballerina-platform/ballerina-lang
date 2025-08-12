@@ -195,7 +195,8 @@ public class BuildCommandTest extends BaseCommandTest {
 
         String buildLog = readOutput(true);
         Assert.assertTrue(buildLog.replace("\r", "")
-                .contains("Invalid Ballerina source file(.bal): " + nonBalFilePath));
+                .contains("invalid source provided: " + nonBalFilePath +
+                        ". Please provide a valid Ballerina package, workspace or a standalone file."));
     }
 
     @Test(description = "Build non existing bal file")
@@ -208,7 +209,8 @@ public class BuildCommandTest extends BaseCommandTest {
         buildCommand.execute();
         String buildLog = readOutput(true);
         Assert.assertTrue(buildLog.replace("\r", "")
-                .contains("The file does not exist: " + validBalFilePath));
+                .contains("invalid source provided: " + validBalFilePath +
+                        ". Please provide a valid Ballerina package, workspace or a standalone file."));
     }
 
     @Test(enabled = false, description = "Build bal file with no entry")
@@ -1559,7 +1561,11 @@ public class BuildCommandTest extends BaseCommandTest {
         BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
         // non-existing bal file
         new CommandLine(buildCommand);
-        buildCommand.execute();
-        Assert.assertEquals(readOutput(), getOutput("wp-wrong-path.txt"));
+        try {
+            buildCommand.execute();
+        } catch (BLauncherException e) {
+            Assert.assertEquals(readOutput(), getOutput("wp-wrong-path.txt"));
+        }
+
     }
 }

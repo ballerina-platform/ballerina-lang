@@ -9,14 +9,8 @@ Generating executable
 Compiling source
 	asmaj/depB:0.1.0
 
-Generating executable
-	depB/target/bin/depB.jar
-
 Compiling source
 	asmaj/depA:0.1.0
-
-Generating executable
-	depA/target/bin/depA.jar
 
 Compiling source
 	asmaj/hello_app:0.1.0

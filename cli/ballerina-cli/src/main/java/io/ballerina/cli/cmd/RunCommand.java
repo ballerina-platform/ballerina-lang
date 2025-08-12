@@ -37,6 +37,7 @@ import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.ProjectKind;
 import io.ballerina.projects.WorkspaceResolution;
 import io.ballerina.projects.directory.BuildProject;
+import io.ballerina.projects.directory.ProjectLoader;
 import io.ballerina.projects.directory.WorkspaceProject;
 import io.ballerina.projects.environment.ResolutionOptions;
 import io.ballerina.projects.internal.model.Target;
@@ -249,7 +250,7 @@ public class RunCommand implements BLauncherCmd {
                 start = System.currentTimeMillis();
                 BuildTime.getInstance().timestamp = start;
             }
-            project = io.ballerina.cli.utils.ProjectUtils.loadProject(absProjectPath, buildOptions, this.outStream);
+            project = ProjectLoader.load(projectPath, buildOptions).project();
             if (project.kind().equals(ProjectKind.WORKSPACE_PROJECT)) {
                 WorkspaceProject workspaceProject = (WorkspaceProject) project;
                 WorkspaceResolution workspaceResolution = workspaceProject.getResolution(

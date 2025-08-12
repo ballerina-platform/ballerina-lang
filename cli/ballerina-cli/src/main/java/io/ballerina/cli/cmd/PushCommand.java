@@ -421,7 +421,7 @@ public class PushCommand implements BLauncherCmd {
         if (this.balaPath != null) {
             relativePathToBalaFile = balaFilePath;
         } else {
-            relativePathToBalaFile = userDir.relativize(balaFilePath);
+            relativePathToBalaFile = userDir.toAbsolutePath().relativize(balaFilePath);
         }
         outStream.println("Successfully pushed " + relativePathToBalaFile
                 + " to '" + repositoryName + "' repository.");

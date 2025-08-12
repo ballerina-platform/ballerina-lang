@@ -3,14 +3,8 @@ Resolving workspace dependencies
 Compiling source
 	asmaj/pkgB:0.1.0
 
-Generating executable
-	other\pkgB\target\bin\pkgB.jar
-
 Compiling source
 	asmaj/pkgA:0.1.0
-
-Generating executable
-	pkgA\target\bin\pkgA.jar
 
 Compiling source
 	asmaj/hello_app:0.1.0

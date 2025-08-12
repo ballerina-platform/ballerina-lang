@@ -17,6 +17,7 @@ import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.ProjectKind;
 import io.ballerina.projects.directory.BuildProject;
+import io.ballerina.projects.directory.ProjectLoader;
 import io.ballerina.projects.directory.WorkspaceProject;
 import io.ballerina.projects.internal.ProjectDiagnosticErrorCode;
 import io.ballerina.projects.util.ProjectConstants;
@@ -177,11 +178,11 @@ public class PackCommand implements BLauncherCmd {
                 start = System.currentTimeMillis();
                 BuildTime.getInstance().timestamp = start;
             }
-            if (!ProjectPaths.isBuildProjectRoot(projectPath) || !ProjectPaths.isWorkspaceProjectRoot(projectPath)) {
+            if (!ProjectPaths.isBuildProjectRoot(projectPath) && !ProjectPaths.isWorkspaceProjectRoot(projectPath)) {
                 throw new ProjectException("invalid package path: " + absProjectPath +
                         ". Please provide a valid Ballerina package or a workspace.");
             }
-            project = io.ballerina.cli.utils.ProjectUtils.loadProject(absProjectPath, buildOptions, this.outStream);
+            project = ProjectLoader.load(projectPath, buildOptions).project();
             if (buildOptions.dumpBuildTime()) {
                 BuildTime.getInstance().projectLoadDuration = System.currentTimeMillis() - start;
             }

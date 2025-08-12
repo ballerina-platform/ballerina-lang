@@ -27,13 +27,13 @@ import io.ballerina.cli.task.ResolveMavenDependenciesTask;
 import io.ballerina.cli.task.ResolveWorkspaceDependenciesTask;
 import io.ballerina.cli.task.RunBuildToolsTask;
 import io.ballerina.cli.utils.BuildTime;
-import io.ballerina.cli.utils.ProjectUtils;
 import io.ballerina.projects.BuildOptions;
 import io.ballerina.projects.DependencyGraph;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.ProjectKind;
 import io.ballerina.projects.directory.BuildProject;
+import io.ballerina.projects.directory.ProjectLoader;
 import io.ballerina.projects.directory.WorkspaceProject;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectPaths;
@@ -244,12 +244,13 @@ public class BuildCommand implements BLauncherCmd {
                 BuildTime.getInstance().timestamp = start;
             }
             if (!ProjectPaths.isBuildProjectRoot(projectPath)
-                    || !ProjectPaths.isStandaloneBalFile(projectPath)
-                    || !ProjectPaths.isWorkspaceProjectRoot(projectPath)) {
-                throw new ProjectException("invalid package path: " + absProjectPath +
+                    && !ProjectPaths.isStandaloneBalFile(projectPath)
+                    && !ProjectPaths.isWorkspaceProjectRoot(projectPath)) {
+                throw new ProjectException("invalid source provided: " + absProjectPath +
                         ". Please provide a valid Ballerina package, workspace or a standalone file.");
             }
-            project = ProjectUtils.loadProject(absProjectPath, buildOptions, this.outStream);
+
+            project = ProjectLoader.load(projectPath, buildOptions).project();
             if (buildOptions.dumpBuildTime()) {
                 BuildTime.getInstance().projectLoadDuration = System.currentTimeMillis() - start;
             }

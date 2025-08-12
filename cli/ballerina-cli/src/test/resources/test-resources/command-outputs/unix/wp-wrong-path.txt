@@ -1,2 +1,2 @@
+Resolving workspace dependencies
 ERROR [Ballerina.toml:(1:1,2:33)] could not locate the package path 'pkgB'
-ballerina: project loading contains errors

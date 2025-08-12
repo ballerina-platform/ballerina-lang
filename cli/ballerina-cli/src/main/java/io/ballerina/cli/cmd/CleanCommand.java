@@ -117,6 +117,10 @@ public class CleanCommand implements BLauncherCmd {
             CommandUtil.exitError(this.exitWhenFinish);
             return;
         }
+        if (Files.exists(project.targetDir())) {
+            ProjectUtils.deleteDirectory(project.targetDir());
+            this.outStream.println("Successfully deleted '" + this.targetDir + "'.");
+        }
         if (Files.exists(generatedDir)) {
             ProjectUtils.deleteDirectory(generatedDir);
             this.outStream.println("Successfully deleted '" + generatedDir + "'.");
