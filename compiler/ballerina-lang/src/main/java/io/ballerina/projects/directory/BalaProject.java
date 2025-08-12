@@ -150,6 +150,24 @@ public class BalaProject extends Project implements Comparable<Project> {
     }
 
     @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (!(obj instanceof BalaProject other)) {
+            return false;
+        }
+
+        return this.sourceRoot.equals(other.sourceRoot());
+    }
+
+    @Override
+    public int hashCode() {
+        return sourceRoot.hashCode();
+    }
+
+
+    @Override
     public int compareTo(Project other) {
         return this.sourceRoot.compareTo(other.sourceRoot());
     }

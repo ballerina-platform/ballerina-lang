@@ -17,7 +17,6 @@
 package org.wso2.ballerinalang.compiler.desugar;
 
 import io.ballerina.projects.ProjectKind;
-import org.ballerinalang.compiler.CompilerOptionName;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.PackageID;
 import org.wso2.ballerinalang.compiler.PackageCache;
@@ -25,7 +24,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
-import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 import org.wso2.ballerinalang.compiler.util.Names;
 
 import java.util.ArrayList;

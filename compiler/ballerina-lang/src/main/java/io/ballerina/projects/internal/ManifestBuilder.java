@@ -19,7 +19,6 @@
 package io.ballerina.projects.internal;
 
 import io.ballerina.projects.BuildOptions;
-import io.ballerina.projects.CompilationOptions;
 import io.ballerina.projects.DiagnosticResult;
 import io.ballerina.projects.Diagnostics;
 import io.ballerina.projects.PackageDescriptor;

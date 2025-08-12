@@ -31,7 +31,6 @@ import io.ballerina.projects.ModuleId;
 import io.ballerina.projects.Package;
 import io.ballerina.projects.PackageConfig;
 import io.ballerina.projects.PackageDependencyScope;
-import io.ballerina.projects.PackageOrg;
 import io.ballerina.projects.PackageResolution;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectEnvironmentBuilder;
@@ -79,7 +78,8 @@ public class BuildProject extends Project implements Comparable<Project> {
                                          BuildOptions buildOptions, WorkspaceProject workspaceProject, String org) {
         PackageConfig packageConfig = PackageConfigCreator.createBuildProjectConfig(projectPath,
                 buildOptions.disableSyntaxTree(), org);
-        BuildOptions mergedBuildOptions = ProjectFiles.createBuildOptions(packageConfig, buildOptions, projectPath, org);
+        BuildOptions mergedBuildOptions = ProjectFiles.createBuildOptions(
+                packageConfig, buildOptions, projectPath, org);
 
         BuildProject buildProject = new BuildProject(environmentBuilder, projectPath, mergedBuildOptions,
                 workspaceProject);
@@ -140,7 +140,8 @@ public class BuildProject extends Project implements Comparable<Project> {
                                     BuildOptions buildOptions) {
         PackageConfig packageConfig = PackageConfigCreator.createBuildProjectConfig(projectPath,
                 buildOptions.disableSyntaxTree());
-        BuildOptions mergedBuildOptions = ProjectFiles.createBuildOptions(packageConfig, buildOptions, projectPath, null);
+        BuildOptions mergedBuildOptions = ProjectFiles.createBuildOptions(
+                packageConfig, buildOptions, projectPath, null);
 
         BuildProject buildProject = new BuildProject(environmentBuilder, projectPath, mergedBuildOptions,
                 null);
@@ -567,6 +568,23 @@ public class BuildProject extends Project implements Comparable<Project> {
             }
         }
         return generatedResourcesPath;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (!(obj instanceof BuildProject other)) {
+            return false;
+        }
+
+        return this.sourceRoot.equals(other.sourceRoot());
+    }
+
+    @Override
+    public int hashCode() {
+        return sourceRoot.hashCode();
     }
 
     @Override

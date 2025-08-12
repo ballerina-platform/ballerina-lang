@@ -49,7 +49,6 @@ import java.util.List;
 import java.util.Optional;
 
 import static io.ballerina.cli.cmd.Constants.BUILD_COMMAND;
-import static io.ballerina.cli.launcher.LauncherUtils.createLauncherException;
 import static io.ballerina.projects.util.ProjectUtils.isProjectUpdated;
 
 /**
@@ -298,7 +297,8 @@ public class BuildCommand implements BLauncherCmd {
         if (project.kind() == ProjectKind.WORKSPACE_PROJECT) {
             WorkspaceProject workspaceProject = (WorkspaceProject) project;
             DependencyGraph<BuildProject> projectDependencyGraph = resolveWorkspaceDependencies(workspaceProject);
-            List<BuildProject> topologicallySortedList = new ArrayList<>(projectDependencyGraph.toTopologicallySortedList());
+            List<BuildProject> topologicallySortedList = new ArrayList<>(
+                    projectDependencyGraph.toTopologicallySortedList());
             if (!project.sourceRoot().equals(absProjectPath)) {
                 // If the project path is not the workspace root, filter the topologically sorted list to include only
                 // the projects that are dependencies of the project at the specified path.

@@ -28,7 +28,6 @@ import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectEnvironmentBuilder;
 import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.ProjectKind;
-import io.ballerina.projects.ProjectLoadResult;
 import io.ballerina.projects.internal.BalaFiles;
 import io.ballerina.projects.internal.PackageConfigCreator;
 import io.ballerina.projects.repos.TempDirCompilationCache;
@@ -46,7 +45,7 @@ import java.util.Optional;
  * @since 2.0.0
  */
 @Deprecated(since = "2201.13.0", forRemoval = true)
-public class BalaProject extends Project implements Comparable<Project> {
+public class BalaProject extends Project {
     private final String platform;
     private final String balaVersion;
 
@@ -170,10 +169,5 @@ public class BalaProject extends Project implements Comparable<Project> {
     @Override
     public Path generatedResourcesDir() {
         throw new UnsupportedOperationException("generated resources directory is not supported for BalaProject");
-    }
-
-    @Override
-    public int compareTo(Project other) {
-        return this.sourceRoot.compareTo(other.sourceRoot());
     }
 }

@@ -217,7 +217,7 @@ public class TestWorkspaceProject extends BaseTest {
             } else if (buildProject.currentPackage().descriptor().name().toString().equals("depB")) {
                 depBProject = buildProject;
                 depBPackage = buildProject.currentPackage();
-            } else if (buildProject.currentPackage().descriptor().name().toString().equals("hello_app")){
+            } else if (buildProject.currentPackage().descriptor().name().toString().equals("hello_app")) {
                 helloProject = buildProject;
                 helloPackage = buildProject.currentPackage();
             } else {

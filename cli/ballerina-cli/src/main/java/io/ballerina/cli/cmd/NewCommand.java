@@ -22,11 +22,9 @@ import io.ballerina.cli.BLauncherCmd;
 import io.ballerina.cli.launcher.BLauncherException;
 import io.ballerina.projects.PackageManifest;
 import io.ballerina.projects.ProjectException;
-import io.ballerina.projects.ProjectKind;
 import io.ballerina.projects.ProjectLoadResult;
 import io.ballerina.projects.TomlDocument;
 import io.ballerina.projects.directory.ProjectLoader;
-import io.ballerina.projects.directory.WorkspaceProject;
 import io.ballerina.projects.util.FileUtils;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectPaths;
@@ -344,7 +342,7 @@ public class NewCommand implements BLauncherCmd {
                     relativePackagePath = workspaceRoot.get().relativize(workspaceRoot.get().resolve(packageName))
                             .toString();
                 } else {
-                    if(packagePath.isAbsolute()) {
+                    if (packagePath.isAbsolute()) {
                         relativePackagePath = workspaceRoot.get().relativize(packagePath).toString();
                     } else {
                         relativePackagePath = workspaceRoot.get().relativize(packagePath.toAbsolutePath()).toString();

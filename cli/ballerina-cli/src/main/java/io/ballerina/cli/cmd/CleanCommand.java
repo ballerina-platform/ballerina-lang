@@ -27,7 +27,6 @@ import io.ballerina.projects.directory.BuildProject;
 import io.ballerina.projects.directory.ProjectLoader;
 import io.ballerina.projects.directory.WorkspaceProject;
 import io.ballerina.projects.util.ProjectConstants;
-import io.ballerina.projects.util.ProjectPaths;
 import io.ballerina.projects.util.ProjectUtils;
 import picocli.CommandLine;
 

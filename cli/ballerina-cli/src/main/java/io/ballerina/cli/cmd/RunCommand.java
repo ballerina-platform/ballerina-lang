@@ -36,7 +36,6 @@ import io.ballerina.projects.DependencyGraph;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.ProjectKind;
-import io.ballerina.projects.ProjectLoadResult;
 import io.ballerina.projects.directory.BuildProject;
 import io.ballerina.projects.directory.SingleFileProject;
 import io.ballerina.projects.directory.WorkspaceProject;
@@ -53,7 +52,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.PathMatcher;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 

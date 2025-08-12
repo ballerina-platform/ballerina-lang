@@ -38,18 +38,15 @@ import io.ballerina.projects.Module;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.ProjectKind;
-import io.ballerina.projects.ProjectLoadResult;
 import io.ballerina.projects.directory.BuildProject;
 import io.ballerina.projects.directory.SingleFileProject;
 import io.ballerina.projects.directory.WorkspaceProject;
 import io.ballerina.projects.util.ProjectConstants;
-import io.ballerina.projects.util.ProjectPaths;
 import picocli.CommandLine;
 
 import java.io.PrintStream;
 import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;

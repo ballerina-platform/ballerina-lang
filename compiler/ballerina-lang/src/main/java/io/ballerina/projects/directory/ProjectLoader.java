@@ -188,7 +188,8 @@ public final class ProjectLoader {
                 return BuildProject.load(projectEnvironmentBuilder, projectRoot, buildOptions);
             } else if (Files.exists(projectRoot.resolve(ProjectConstants.PACKAGE_JSON))) {
                 projectEnvironmentBuilder.addCompilationCacheFactory(TempDirCompilationCache::from);
-                return io.ballerina.projects.bala.BalaProject.loadProject(projectEnvironmentBuilder, projectRoot, buildOptions);
+                return io.ballerina.projects.bala.BalaProject.loadProject(
+                        projectEnvironmentBuilder, projectRoot, buildOptions);
             } else {
                 throw new ProjectException("provided directory does not belong to any supported project types");
             }

@@ -18,7 +18,6 @@
 package io.ballerina.projects.internal;
 
 import io.ballerina.projects.DependencyGraph;
-import io.ballerina.projects.Project;
 import io.ballerina.projects.directory.BuildProject;
 
 import java.util.HashMap;

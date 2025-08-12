@@ -18,19 +18,13 @@
 package io.ballerina.cli.utils;
 
 import io.ballerina.projects.BuildOptions;
-import io.ballerina.projects.DependencyGraph;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectKind;
 import io.ballerina.projects.ProjectLoadResult;
-import io.ballerina.projects.directory.BuildProject;
 import io.ballerina.projects.directory.ProjectLoader;
-import io.ballerina.projects.directory.WorkspaceProject;
-import io.ballerina.projects.environment.EnvironmentBuilder;
-import io.ballerina.projects.util.ProjectPaths;
 
 import java.io.PrintStream;
 import java.nio.file.Path;
-import java.util.Optional;
 
 public class ProjectUtils {
 

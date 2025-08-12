@@ -33,7 +33,6 @@ import io.ballerina.projects.environment.ResolutionResponse;
 import io.ballerina.projects.environment.ResolutionResponse.ResolutionStatus;
 import io.ballerina.projects.internal.ImportModuleRequest;
 import io.ballerina.projects.internal.ImportModuleResponse;
-import io.ballerina.projects.internal.repositories.WorkspaceRepository;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectUtils;
 

@@ -20,8 +20,6 @@ package io.ballerina.projects.util;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.TomlDocument;
-import io.ballerina.projects.WorkspaceManifest;
-import io.ballerina.projects.internal.WorkspaceManifestBuilder;
 import io.ballerina.toml.semantic.TomlType;
 import io.ballerina.toml.semantic.ast.TomlTableNode;
 import io.ballerina.toml.semantic.ast.TopLevelNode;
@@ -373,7 +371,7 @@ public final class ProjectPaths {
         if (filePath != null) {
             filePath = filePath.toAbsolutePath().normalize();
             if (filePath.toFile().isDirectory()) {
-                if (isWorkspaceProjectRoot(filePath) ) {
+                if (isWorkspaceProjectRoot(filePath)) {
                     return Optional.of(filePath);
                 }
             }

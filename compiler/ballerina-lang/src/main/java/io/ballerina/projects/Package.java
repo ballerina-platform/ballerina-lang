@@ -26,7 +26,6 @@ import java.util.Set;
 import java.util.Spliterator;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 
 /**
  * {@code Package} represents a Ballerina Package.
