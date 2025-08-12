@@ -18,6 +18,7 @@
 package org.ballerinalang.jvm.observability.tracer;
 
 import io.opentracing.Tracer;
+import org.ballerinalang.jvm.observability.InvalidConfigurationException;
 
 /**
  * This represents the Java SPI interface that OpenTracerManager will be using

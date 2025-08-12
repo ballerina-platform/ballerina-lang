@@ -18,8 +18,12 @@
 package org.ballerinalang.jvm.observability.tracer;
 
 import org.ballerinalang.jvm.observability.BallerinaObserver;
+import org.ballerinalang.jvm.observability.ObserveUtils;
 import org.ballerinalang.jvm.observability.ObserverContext;
+import org.ballerinalang.jvm.observability.OtelTracingUtils;
 import org.ballerinalang.jvm.observability.TracingUtils;
+
+import static org.ballerinalang.jvm.observability.tracer.TraceConstants.OTEL_TRACING_PROTOCOL;
 
 /**
  * Observe the runtime and start/stop tracing.
@@ -28,21 +32,39 @@ public class BallerinaTracingObserver implements BallerinaObserver {
 
     @Override
     public void startServerObservation(ObserverContext observerContext) {
-        TracingUtils.startObservation(observerContext, false);
+        if (ObserveUtils.getTracingProtocol().equals(OTEL_TRACING_PROTOCOL)) {
+            OtelTracingUtils.startObservation(observerContext, false);
+
+        } else {
+            TracingUtils.startObservation(observerContext, false);
+        }
     }
 
     @Override
     public void startClientObservation(ObserverContext observerContext) {
-        TracingUtils.startObservation(observerContext, true);
+        if (ObserveUtils.getTracingProtocol().equals(OTEL_TRACING_PROTOCOL)) {
+            OtelTracingUtils.startObservation(observerContext, true);
+
+        } else {
+            TracingUtils.startObservation(observerContext, true);
+        }
     }
 
     @Override
     public void stopServerObservation(ObserverContext observerContext) {
-        TracingUtils.stopObservation(observerContext);
+        if (ObserveUtils.getTracingProtocol().equals(OTEL_TRACING_PROTOCOL)) {
+            OtelTracingUtils.stopObservation(observerContext);
+        } else {
+            TracingUtils.stopObservation(observerContext);
+        }
     }
 
     @Override
     public void stopClientObservation(ObserverContext observerContext) {
-        TracingUtils.stopObservation(observerContext);
+        if (ObserveUtils.getTracingProtocol().equals(OTEL_TRACING_PROTOCOL)) {
+            OtelTracingUtils.stopObservation(observerContext);
+        } else {
+            TracingUtils.stopObservation(observerContext);
+        }
     }
 }

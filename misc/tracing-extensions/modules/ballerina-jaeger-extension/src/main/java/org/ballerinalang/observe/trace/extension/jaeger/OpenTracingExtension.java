@@ -24,7 +24,7 @@ import io.jaegertracing.internal.samplers.ProbabilisticSampler;
 import io.jaegertracing.internal.samplers.RateLimitingSampler;
 import io.opentracing.Tracer;
 import org.ballerinalang.config.ConfigRegistry;
-import org.ballerinalang.jvm.observability.tracer.InvalidConfigurationException;
+import org.ballerinalang.jvm.observability.InvalidConfigurationException;
 import org.ballerinalang.jvm.observability.tracer.OpenTracer;
 
 import java.io.PrintStream;

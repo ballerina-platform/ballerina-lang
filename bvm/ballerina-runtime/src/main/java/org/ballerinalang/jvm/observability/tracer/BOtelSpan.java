@@ -1,0 +1,193 @@
+/*
+ * Copyright (c) 2025, WSO2 LLC. (https://www.wso2.com) All Rights Reserved.
+ *
+ * WSO2 LLC. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+
+package org.ballerinalang.jvm.observability.tracer;
+
+import io.opentelemetry.api.common.Attributes;
+import io.opentelemetry.api.trace.Span;
+import io.opentelemetry.api.trace.SpanBuilder;
+import io.opentelemetry.api.trace.SpanContext;
+import io.opentelemetry.api.trace.SpanKind;
+import io.opentelemetry.api.trace.StatusCode;
+import io.opentelemetry.api.trace.Tracer;
+import io.opentelemetry.context.Context;
+import io.opentelemetry.context.propagation.TextMapGetter;
+import io.opentelemetry.context.propagation.TextMapPropagator;
+import io.opentelemetry.context.propagation.TextMapSetter;
+import org.ballerinalang.jvm.StringUtils;
+import org.ballerinalang.jvm.types.BMapType;
+import org.ballerinalang.jvm.types.BTypes;
+import org.ballerinalang.jvm.values.MapValueImpl;
+import org.ballerinalang.jvm.values.api.BMap;
+import org.ballerinalang.jvm.values.api.BString;
+
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+
+/**
+ * {@code BOtelSpan} holds the opentelemetry trace of the current context.
+ *
+ * @since 0.964.1
+ */
+public class BOtelSpan {
+    private final Tracer tracer;
+    private final Span span;
+    private BMap<BString, Object> bOtelSpanContext;
+
+    private static final BMapType IMMUTABLE_STRING_MAP_TYPE = new BMapType(BTypes.typeString);
+    private static final PropagatingParentContextGetter GETTER = new PropagatingParentContextGetter();
+    private static final PropagatingParentContextSetter SETTER = new PropagatingParentContextSetter();
+
+    static class PropagatingParentContextGetter implements TextMapGetter<Map<String, String>> {
+        @Override
+        public String get(Map<String, String> carrier, String key) {
+            return carrier.get(key);
+        }
+
+        @Override
+        public Iterable<String> keys(Map<String, String> carrier) {
+            return carrier.keySet();
+        }
+    }
+
+    static class PropagatingParentContextSetter implements TextMapSetter<Map<String, String>> {
+        @Override
+        public void set(Map<String, String> carrier, String key, String value) {
+            carrier.put(key, value);
+        }
+    }
+
+    private BOtelSpan(Tracer tracer, Span span) {
+        this.tracer = tracer;
+        this.span = span;
+    }
+
+    public Span getSpan() {
+        return span;
+    }
+
+    private static BOtelSpan start(Tracer tracer, Context parentContext, String operationName, boolean isClient) {
+        SpanBuilder builder = tracer.spanBuilder(operationName);
+        if (parentContext != null) {
+            builder.setParent(parentContext);
+        }
+        builder.setAttribute(TraceConstants.TAG_KEY_SPAN_KIND, isClient
+                ? TraceConstants.TAG_SPAN_KIND_CLIENT
+                : TraceConstants.TAG_SPAN_KIND_SERVER);
+        builder.setSpanKind(isClient ? SpanKind.CLIENT : SpanKind.SERVER);
+        Span span = builder.startSpan();
+        return new BOtelSpan(tracer, span);
+    }
+
+    /**
+     * Start a new span without a parent. The started span will be a root span.
+     *
+     * @param serviceName   The name of the service the span belongs to
+     * @param operationName The name of the operation the span corresponds to
+     * @param isClient      True if this is a client span
+     * @return The new span
+     */
+    public static BOtelSpan start(String serviceName, String operationName, boolean isClient) {
+        Tracer tracer = OtelTracersStore.getInstance().getTracer(serviceName);
+        return start(tracer, null, operationName, isClient);
+    }
+
+    /**
+     * Start a new span with a parent using parent span.
+     *
+     * @param parentSpan    The parent span of the new span
+     * @param serviceName   The name of the service the span belongs to
+     * @param operationName The name of the operation the span corresponds to
+     * @param isClient      True if this is a client span
+     * @return The new span
+     */
+    public static BOtelSpan start(BOtelSpan parentSpan, String serviceName, String operationName, boolean isClient) {
+        Tracer tracer = OtelTracersStore.getInstance().getTracer(serviceName);
+        Context parentContext = Context.current().with(parentSpan.span);
+        return start(tracer, parentContext, operationName, isClient);
+    }
+
+    /**
+     * Start a new span with a parent using parent trace context.
+     * The started span is part of a trace which had spanned across multiple services and the parent is in the service
+     * which called the current service.
+     *
+     * @param parentTraceContext Contains http headers of request received
+     * @param serviceName        The name of the service the span belongs to
+     * @param operationName      The name of the operation the span corresponds to
+     * @param isClient           True if this is a client span
+     * @return The new span
+     */
+    public static BOtelSpan start(Map<String, String> parentTraceContext, String serviceName, String operationName,
+                              boolean isClient) {
+
+        Tracer tracer = OtelTracersStore.getInstance().getTracer(serviceName);
+        Context parentContext = OtelTracersStore.getInstance().getPropagators()
+                .getTextMapPropagator().extract(Context.current(), parentTraceContext, GETTER);
+        return start(tracer, parentContext, operationName, isClient);
+    }
+
+    public void finishSpan() {
+        span.end();
+    }
+
+    public void addEvent(String eventName, Attributes attributes) {
+        span.addEvent(eventName, attributes);
+    }
+
+    public void setStatus(StatusCode statusCode) {
+        span.setStatus(statusCode);
+    }
+
+    public void addTags(Map<String, String> tags) {
+        for (Map.Entry<String, String> entry : tags.entrySet()) {
+            span.setAttribute(entry.getKey(), entry.getValue());
+        }
+    }
+
+    public void addTag(String tagKey, String tagValue) {
+        span.setAttribute(tagKey, tagValue);
+    }
+
+    public Map<String, String> extractContextAsHttpHeaders() {
+
+        Map<String, String> carrierMap;
+        if (span != null) {
+            carrierMap = new HashMap<>();
+            TextMapPropagator propagator = OtelTracersStore.getInstance().getPropagators().getTextMapPropagator();
+            propagator.inject(Context.current().with(span), carrierMap, SETTER);
+        } else {
+            carrierMap = Collections.emptyMap();
+        }
+        return carrierMap;
+    }
+
+    public BMap<BString, Object> getBOtelSpanContext() {
+
+        if (bOtelSpanContext == null) {
+            bOtelSpanContext = new MapValueImpl<>(IMMUTABLE_STRING_MAP_TYPE);
+            SpanContext spanContext = span.getSpanContext();
+            bOtelSpanContext.put(TraceConstants.SPAN_CONTEXT_MAP_KEY_TRACE_ID,
+                    StringUtils.fromString(spanContext.getTraceId()));
+            bOtelSpanContext.put(TraceConstants.SPAN_CONTEXT_MAP_KEY_SPAN_ID,
+                    StringUtils.fromString(spanContext.getSpanId()));
+        }
+        return bOtelSpanContext;
+    }
+}

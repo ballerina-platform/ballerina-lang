@@ -59,6 +59,8 @@ public class ObservabilityConstants {
     public static final String PROPERTY_ERROR = "error";
     public static final String PROPERTY_ERROR_MESSAGE = "error_message";
     public static final String PROPERTY_BSTRUCT_ERROR = "bstruct_error";
+    public static final String PROPERTY_ERROR_VALUE = "_ballerina_error_value_";
+    public static final String PROPERTY_KEY_HTTP_STATUS_CODE = "_http_status_code_";
 
     // TOML Configs
     public static final String CONFIG_TABLE_OBSERVABILITY = "b7a.observability";
@@ -77,4 +79,11 @@ public class ObservabilityConstants {
     // Client http.url Metrics Config
     public static final String CONFIG_CLIENT_HTTP_URL_DISABLED =
             CONFIG_TABLE_METRICS + ".client." + TAG_KEY_HTTP_URL + ".disabled";
+
+    // Checkpoint Configs
+    public static final String CHECKPOINT_EVENT_NAME = "CHECKPOINT";
+
+    // Source related tags
+    public static final String TAG_KEY_SRC_MODULE = "src.module";
+    public static final String TAG_KEY_SRC_POSITION = "src.position";
 }

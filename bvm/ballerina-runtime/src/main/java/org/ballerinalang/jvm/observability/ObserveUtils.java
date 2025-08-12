@@ -18,7 +18,11 @@
 
 package org.ballerinalang.jvm.observability;
 
+import io.opentelemetry.api.common.Attributes;
+import io.opentelemetry.api.common.AttributesBuilder;
+import io.opentelemetry.api.trace.StatusCode;
 import org.ballerinalang.config.ConfigRegistry;
+import org.ballerinalang.jvm.observability.tracer.BOtelSpan;
 import org.ballerinalang.jvm.observability.tracer.BSpan;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.ErrorValue;
@@ -34,7 +38,10 @@ import java.util.function.Supplier;
 import static org.ballerinalang.jvm.observability.ObservabilityConstants.CONFIG_METRICS_ENABLED;
 import static org.ballerinalang.jvm.observability.ObservabilityConstants.CONFIG_TRACING_ENABLED;
 import static org.ballerinalang.jvm.observability.ObservabilityConstants.UNKNOWN_SERVICE;
+import static org.ballerinalang.jvm.observability.tracer.TraceConstants.CONFIG_TRACING_PROTOCOL;
+import static org.ballerinalang.jvm.observability.tracer.TraceConstants.DEFAULT_TRACING_PROTOCOL;
 import static org.ballerinalang.jvm.observability.tracer.TraceConstants.KEY_SPAN;
+import static org.ballerinalang.jvm.observability.tracer.TraceConstants.OTEL_TRACING_PROTOCOL;
 
 /**
  * Util class used for observability.
@@ -46,12 +53,14 @@ public class ObserveUtils {
     private static final boolean enabled;
     private static final boolean metricsEnabled;
     private static final boolean tracingEnabled;
+    private static final String tracingProtocol;
 
     static {
         ConfigRegistry configRegistry = ConfigRegistry.getInstance();
         tracingEnabled = configRegistry.getAsBoolean(CONFIG_TRACING_ENABLED);
         metricsEnabled = configRegistry.getAsBoolean(CONFIG_METRICS_ENABLED);
         enabled = metricsEnabled || tracingEnabled;
+        tracingProtocol = configRegistry.getConfigOrDefault(CONFIG_TRACING_PROTOCOL, DEFAULT_TRACING_PROTOCOL);
     }
 
     /**
@@ -185,16 +194,35 @@ public class ObserveUtils {
         if (!observerContext.isPresent()) {
             return;
         }
-        BSpan span = (BSpan) observerContext.get().getProperty(KEY_SPAN);
-        if (span == null) {
-            return;
-        }
-        HashMap<String, Object> logs = new HashMap<>(1);
-        logs.put(logLevel, logMessage.get());
-        if (!isError) {
-            span.log(logs);
+
+        if (getTracingProtocol().equals(OTEL_TRACING_PROTOCOL)) {
+            BOtelSpan span = (BOtelSpan) observerContext.get().getProperty(KEY_SPAN);
+            if (span == null) {
+                return;
+            }
+            HashMap<String, Object> logs = new HashMap<>(1);
+            logs.put(logLevel, logMessage.get());
+            AttributesBuilder attributesBuilder = Attributes.builder()
+                    .put("level", logLevel)
+                    .put("message", logMessage.get());
+
+            if (isError) {
+                attributesBuilder.put("error", true);
+                span.setStatus(StatusCode.ERROR);
+            }
+            span.addEvent("log", attributesBuilder.build());
         } else {
-            span.logError(logs);
+            BSpan span = (BSpan) observerContext.get().getProperty(KEY_SPAN);
+            if (span == null) {
+                return;
+            }
+            HashMap<String, Object> logs = new HashMap<>(1);
+            logs.put(logLevel, logMessage.get());
+            if (!isError) {
+                span.log(logs);
+            } else {
+                span.logError(logs);
+            }
         }
     }
 
@@ -223,6 +251,15 @@ public class ObserveUtils {
      */
     public static boolean isTracingEnabled() {
         return tracingEnabled;
+    }
+
+    /**
+     * Get the tracing protocol.
+     *
+     * @return tracing protocol
+     */
+    public static String getTracingProtocol() {
+        return tracingProtocol;
     }
 
     /**

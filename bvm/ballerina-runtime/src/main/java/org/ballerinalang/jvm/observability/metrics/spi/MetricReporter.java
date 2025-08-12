@@ -18,7 +18,7 @@
 
 package org.ballerinalang.jvm.observability.metrics.spi;
 
-import org.ballerinalang.jvm.observability.tracer.InvalidConfigurationException;
+import org.ballerinalang.jvm.observability.InvalidConfigurationException;
 
 /**
  * Metrics Reporter interface that needs to be implemented by external metric reporters from Ballerina.

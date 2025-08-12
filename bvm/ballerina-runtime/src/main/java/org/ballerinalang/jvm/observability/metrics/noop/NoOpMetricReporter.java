@@ -18,8 +18,8 @@
 
 package org.ballerinalang.jvm.observability.metrics.noop;
 
+import org.ballerinalang.jvm.observability.InvalidConfigurationException;
 import org.ballerinalang.jvm.observability.metrics.spi.MetricReporter;
-import org.ballerinalang.jvm.observability.tracer.InvalidConfigurationException;
 
 /**
  * No operation metrics reporter extension implementation.

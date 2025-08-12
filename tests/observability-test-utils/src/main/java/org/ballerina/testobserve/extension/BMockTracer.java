@@ -20,7 +20,7 @@ package org.ballerina.testobserve.extension;
 
 import io.opentracing.Tracer;
 import io.opentracing.mock.MockTracer;
-import org.ballerinalang.jvm.observability.tracer.InvalidConfigurationException;
+import org.ballerinalang.jvm.observability.InvalidConfigurationException;
 import org.ballerinalang.jvm.observability.tracer.OpenTracer;
 
 import java.util.ArrayList;

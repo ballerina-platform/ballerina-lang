@@ -20,6 +20,7 @@ package org.ballerinalang.jvm.observability.tracer;
 
 import io.opentracing.Tracer;
 import org.ballerinalang.config.ConfigRegistry;
+import org.ballerinalang.jvm.observability.InvalidConfigurationException;
 
 import java.io.PrintStream;
 import java.util.HashMap;

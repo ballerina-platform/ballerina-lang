@@ -15,7 +15,7 @@
 * under the License.
 *
 */
-package org.ballerinalang.jvm.observability.tracer;
+package org.ballerinalang.jvm.observability;
 
 /**
  * This is the exception class which is thrown for any unexpected/wrong

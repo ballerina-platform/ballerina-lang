@@ -37,7 +37,7 @@ dependencies {
         implementation 'com.atlassian.commonmark:commonmark-ext-gfm-tables:0.11.0'
         implementation 'com.fasterxml.jackson.core:jackson-databind:2.15.2'
         implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.15.2'
-        implementation 'com.h2database:h2:2.2.220'
+        implementation 'com.h2database:h2:1.4.199'
         implementation 'org.hsqldb:hsqldb:2.2.7'
         implementation 'com.wix:wix-embedded-mysql:4.6.1'
         implementation 'mysql:mysql-connector-java:8.0.19'
@@ -49,8 +49,8 @@ dependencies {
         implementation 'com.google.guava:guava:32.1.1-jre'
         implementation 'com.moandjiezana.toml:toml4j:0.7.2'
         implementation 'com.sun.mail:javax.mail:1.6.2'
-        implementation 'com.squareup.okhttp3:okhttp:4.12.0'
-        implementation 'com.squareup.okio:okio:3.4.0'
+        implementation 'com.squareup.okhttp3:okhttp:4.11.0'
+        implementation 'com.squareup.okio:okio:3.5.0'
         implementation 'io.jaegertracing:jaeger-core:1.6.0'
         implementation 'io.jaegertracing:jaeger-thrift:1.6.0'
         implementation 'com.zaxxer:HikariCP:3.3.1'
@@ -103,7 +103,7 @@ dependencies {
         implementation 'org.wso2.transport.file:org.wso2.transport.local-file-system:6.0.55'
         implementation 'org.wso2.staxon:staxon-core:1.2.0.wso2v2'
         implementation 'org.quartz-scheduler:quartz:2.3.2'
-        
+
         implementation 'info.picocli:picocli:4.0.1'
         implementation 'io.ballerina.messaging:broker-common:0.970.5'
         implementation 'io.ballerina.messaging:broker-core:0.970.5'
