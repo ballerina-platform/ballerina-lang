@@ -32,6 +32,7 @@ import io.ballerina.projects.WorkspaceResolution;
 import io.ballerina.projects.environment.Environment;
 import io.ballerina.projects.environment.EnvironmentBuilder;
 import io.ballerina.projects.environment.ProjectEnvironment;
+import io.ballerina.projects.environment.ResolutionOptions;
 import io.ballerina.projects.internal.DefaultDiagnosticResult;
 import io.ballerina.projects.internal.WorkspaceManifestBuilder;
 import io.ballerina.projects.util.ProjectPaths;
@@ -172,6 +173,13 @@ public class WorkspaceProject extends Project {
     public WorkspaceResolution getResolution() {
         if (this.workspaceResolution == null) {
             this.workspaceResolution = WorkspaceResolution.from(this);
+        }
+        return this.workspaceResolution;
+    }
+
+    public WorkspaceResolution getResolution(ResolutionOptions resolutionOptions) {
+        if (this.workspaceResolution == null) {
+            this.workspaceResolution = WorkspaceResolution.from(this, resolutionOptions);
         }
         return this.workspaceResolution;
     }

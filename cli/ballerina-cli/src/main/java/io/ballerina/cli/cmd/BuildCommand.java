@@ -27,7 +27,6 @@ import io.ballerina.cli.task.ResolveMavenDependenciesTask;
 import io.ballerina.cli.task.ResolveWorkspaceDependenciesTask;
 import io.ballerina.cli.task.RunBuildToolsTask;
 import io.ballerina.cli.utils.BuildTime;
-import io.ballerina.cli.utils.FileUtils;
 import io.ballerina.cli.utils.ProjectUtils;
 import io.ballerina.projects.BuildOptions;
 import io.ballerina.projects.DependencyGraph;
@@ -35,9 +34,9 @@ import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.ProjectKind;
 import io.ballerina.projects.directory.BuildProject;
-import io.ballerina.projects.directory.SingleFileProject;
 import io.ballerina.projects.directory.WorkspaceProject;
 import io.ballerina.projects.util.ProjectConstants;
+import io.ballerina.projects.util.ProjectPaths;
 import org.wso2.ballerinalang.util.RepoUtils;
 import picocli.CommandLine;
 
@@ -238,49 +237,35 @@ public class BuildCommand implements BLauncherCmd {
         // load project
         Project project;
         BuildOptions buildOptions = constructBuildOptions();
-
-        boolean isSingleFileBuild = false;
         Path absProjectPath = this.projectPath.toAbsolutePath().normalize();
-        if (FileUtils.hasExtension(this.projectPath)) {
-            try {
-                if (buildOptions.dumpBuildTime()) {
-                    start = System.currentTimeMillis();
-                    BuildTime.getInstance().timestamp = start;
-                }
-                project = SingleFileProject.load(this.projectPath, buildOptions);
-                if (buildOptions.dumpBuildTime()) {
-                    BuildTime.getInstance().projectLoadDuration = System.currentTimeMillis() - start;
-                }
-            } catch (ProjectException e) {
-                CommandUtil.printError(this.errStream, e.getMessage(), null, false);
-                CommandUtil.exitError(this.exitWhenFinish);
-                return;
+        try {
+            if (buildOptions.dumpBuildTime()) {
+                start = System.currentTimeMillis();
+                BuildTime.getInstance().timestamp = start;
             }
-            isSingleFileBuild = true;
-        } else {
-            // Check if the output flag is set when building all the modules.
-            if (null != this.output) {
+            if (!ProjectPaths.isBuildProjectRoot(projectPath)
+                    || !ProjectPaths.isStandaloneBalFile(projectPath)
+                    || !ProjectPaths.isWorkspaceProjectRoot(projectPath)) {
+                throw new ProjectException("invalid package path: " + absProjectPath +
+                        ". Please provide a valid Ballerina package, workspace or a standalone file.");
+            }
+            project = ProjectUtils.loadProject(absProjectPath, buildOptions, this.outStream);
+            if (buildOptions.dumpBuildTime()) {
+                BuildTime.getInstance().projectLoadDuration = System.currentTimeMillis() - start;
+            }
+        } catch (ProjectException e) {
+            CommandUtil.printError(this.errStream, e.getMessage(), null, false);
+            CommandUtil.exitError(this.exitWhenFinish);
+            return;
+        }
+
+        if (!project.kind().equals(ProjectKind.SINGLE_FILE_PROJECT)) {
+            if (this.output != null) {
                 CommandUtil.printError(this.errStream,
                         "'-o' and '--output' are only supported when building a single Ballerina " +
                                 "file.",
                         "bal build -o <output-file> <ballerina-file> ",
                         true);
-                CommandUtil.exitError(this.exitWhenFinish);
-                return;
-            }
-
-            try {
-                if (buildOptions.dumpBuildTime()) {
-                    start = System.currentTimeMillis();
-                    BuildTime.getInstance().timestamp = start;
-                }
-                project = ProjectUtils.loadProject(absProjectPath, buildOptions, this.outStream);
-
-                if (buildOptions.dumpBuildTime()) {
-                    BuildTime.getInstance().projectLoadDuration = System.currentTimeMillis() - start;
-                }
-            } catch (ProjectException e) {
-                CommandUtil.printError(this.errStream, e.getMessage(), null, false);
                 CommandUtil.exitError(this.exitWhenFinish);
                 return;
             }
@@ -327,7 +312,7 @@ public class BuildCommand implements BLauncherCmd {
             }
         } else {
             boolean isPackageModified = isProjectUpdated(project);
-            executeTasks(isPackageModified, isSingleFileBuild, project, false);
+            executeTasks(isPackageModified, project.kind().equals(ProjectKind.SINGLE_FILE_PROJECT), project, false);
         }
         if (this.exitWhenFinish) {
             Runtime.getRuntime().exit(0);

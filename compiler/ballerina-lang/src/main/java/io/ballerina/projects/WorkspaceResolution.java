@@ -19,6 +19,7 @@ package io.ballerina.projects;
 
 import io.ballerina.projects.directory.BuildProject;
 import io.ballerina.projects.directory.WorkspaceProject;
+import io.ballerina.projects.environment.ResolutionOptions;
 import io.ballerina.projects.internal.DefaultDiagnosticResult;
 import io.ballerina.projects.internal.WorkspaceDependencyGraphBuilder;
 import io.ballerina.tools.diagnostics.Diagnostic;
@@ -32,23 +33,31 @@ public class WorkspaceResolution {
     private final DependencyGraph<BuildProject> projectDependencyGraph;
     private final List<Diagnostic> diagnosticList;
     private DefaultDiagnosticResult diagnosticResult;
+    private final boolean offline;
 
-    public WorkspaceResolution(WorkspaceProject workspaceProject) {
+    private WorkspaceResolution(WorkspaceProject workspaceProject, ResolutionOptions resolutionOptions) {
         this.workspaceProject = workspaceProject;
+        this.offline = resolutionOptions.offline();
         this.projectDependencyGraph = buildDependencyGraph();
         this.diagnosticList = new ArrayList<>();
         this.diagnosticList.addAll(workspaceProject.manifest().diagnostics().allDiagnostics);
     }
 
     public static WorkspaceResolution from(WorkspaceProject workspaceProject) {
-        return new WorkspaceResolution(workspaceProject);
+        return new WorkspaceResolution(workspaceProject, ResolutionOptions.builder().build());
+    }
+
+    public static WorkspaceResolution from(WorkspaceProject workspaceProject, ResolutionOptions resolutionOptions) {
+        return new WorkspaceResolution(workspaceProject, resolutionOptions);
     }
 
     private DependencyGraph<BuildProject> buildDependencyGraph() {
         WorkspaceDependencyGraphBuilder graphBuilder = new WorkspaceDependencyGraphBuilder();
         for (BuildProject project : this.workspaceProject.projects()) {
             graphBuilder.addPackage(project);
-            Collection<ResolvedPackageDependency> directDependencies = project.currentPackage().getResolution()
+            CompilationOptions compilationOptions = CompilationOptions.builder().setOffline(offline).build();
+            Collection<ResolvedPackageDependency> directDependencies = project.currentPackage()
+                    .getResolution(compilationOptions)
                     .dependencyGraph()
                     .getDirectDependencies(new ResolvedPackageDependency(project.currentPackage(),
                             PackageDependencyScope.DEFAULT));

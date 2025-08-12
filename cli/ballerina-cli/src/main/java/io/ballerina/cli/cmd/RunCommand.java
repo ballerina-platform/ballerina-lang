@@ -29,19 +29,18 @@ import io.ballerina.cli.task.ResolveWorkspaceDependenciesTask;
 import io.ballerina.cli.task.RunBuildToolsTask;
 import io.ballerina.cli.task.RunExecutableTask;
 import io.ballerina.cli.utils.BuildTime;
-import io.ballerina.cli.utils.FileUtils;
 import io.ballerina.cli.utils.ProjectWatcher;
 import io.ballerina.projects.BuildOptions;
 import io.ballerina.projects.DependencyGraph;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.ProjectKind;
+import io.ballerina.projects.WorkspaceResolution;
 import io.ballerina.projects.directory.BuildProject;
-import io.ballerina.projects.directory.SingleFileProject;
 import io.ballerina.projects.directory.WorkspaceProject;
+import io.ballerina.projects.environment.ResolutionOptions;
 import io.ballerina.projects.internal.model.Target;
 import io.ballerina.projects.util.ProjectConstants;
-import io.ballerina.projects.util.ProjectPaths;
 import io.ballerina.projects.util.ProjectUtils;
 import picocli.CommandLine;
 
@@ -51,6 +50,7 @@ import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.PathMatcher;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -243,48 +243,34 @@ public class RunCommand implements BLauncherCmd {
 
         // load project
         BuildOptions buildOptions = constructBuildOptions();
-
-        boolean isSingleFileBuild = false;
         Path absProjectPath = this.projectPath.toAbsolutePath().normalize();
-        if (ProjectPaths.isWorkspaceProjectRoot(absProjectPath)) {
-            CommandUtil.printError(this.errStream, "'bal run' command is not supported for workspaces. " +
-                    "Specify a package to run", runCmd, false);
+        try {
+            if (buildOptions.dumpBuildTime()) {
+                start = System.currentTimeMillis();
+                BuildTime.getInstance().timestamp = start;
+            }
+            project = io.ballerina.cli.utils.ProjectUtils.loadProject(absProjectPath, buildOptions, this.outStream);
+            if (project.kind().equals(ProjectKind.WORKSPACE_PROJECT)) {
+                WorkspaceProject workspaceProject = (WorkspaceProject) project;
+                WorkspaceResolution workspaceResolution = workspaceProject.getResolution(
+                        ResolutionOptions.builder().setOffline(true).build());
+                List<BuildProject> topologicallySortedList = workspaceResolution.dependencyGraph()
+                        .toTopologicallySortedList();
+                BuildProject buildProject = topologicallySortedList.get(topologicallySortedList.size() - 1);
+                Path relativePath = Paths.get(System.getProperty("user.dir")).relativize(buildProject.sourceRoot());
+
+                CommandUtil.printError(this.errStream, "'bal run' command is not supported for workspaces. " +
+                        "Please specify a package to run. \nExample:\n\tbal run " + relativePath, runCmd, false);
+                CommandUtil.exitError(this.exitWhenFinish);
+                return;
+            }
+            if (buildOptions.dumpBuildTime()) {
+                BuildTime.getInstance().projectLoadDuration = System.currentTimeMillis() - start;
+            }
+        } catch (ProjectException e) {
+            CommandUtil.printError(this.errStream, e.getMessage(), runCmd, false);
             CommandUtil.exitError(this.exitWhenFinish);
             return;
-        }
-
-        if (FileUtils.hasExtension(this.projectPath)) {
-            try {
-                if (buildOptions.dumpBuildTime()) {
-                    start = System.currentTimeMillis();
-                    BuildTime.getInstance().timestamp = start;
-                }
-                project = SingleFileProject.load(this.projectPath, buildOptions);
-                if (buildOptions.dumpBuildTime()) {
-                    BuildTime.getInstance().projectLoadDuration = System.currentTimeMillis() - start;
-                }
-            } catch (ProjectException e) {
-                CommandUtil.printError(this.errStream, e.getMessage(), runCmd, false);
-                CommandUtil.exitError(this.exitWhenFinish);
-                return;
-            }
-            isSingleFileBuild = true;
-        } else {
-            try {
-                if (buildOptions.dumpBuildTime()) {
-                    start = System.currentTimeMillis();
-                    BuildTime.getInstance().timestamp = start;
-                }
-                project = io.ballerina.cli.utils.ProjectUtils.loadProject(absProjectPath, buildOptions, this.outStream);
-
-                if (buildOptions.dumpBuildTime()) {
-                    BuildTime.getInstance().projectLoadDuration = System.currentTimeMillis() - start;
-                }
-            } catch (ProjectException e) {
-                CommandUtil.printError(this.errStream, e.getMessage(), runCmd, false);
-                CommandUtil.exitError(this.exitWhenFinish);
-                return;
-            }
         }
 
         Target target;
@@ -317,7 +303,8 @@ public class RunCommand implements BLauncherCmd {
 
         } else {
             boolean isPackageModified = isProjectUpdated(project);
-            executeTasks(isPackageModified, buildOptions, isSingleFileBuild, target, args, project);
+            executeTasks(isPackageModified, buildOptions, project.kind().equals(ProjectKind.SINGLE_FILE_PROJECT),
+                    target, args, project);
         }
     }
 

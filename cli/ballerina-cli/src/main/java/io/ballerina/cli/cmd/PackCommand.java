@@ -20,6 +20,7 @@ import io.ballerina.projects.directory.BuildProject;
 import io.ballerina.projects.directory.WorkspaceProject;
 import io.ballerina.projects.internal.ProjectDiagnosticErrorCode;
 import io.ballerina.projects.util.ProjectConstants;
+import io.ballerina.projects.util.ProjectPaths;
 import io.ballerina.projects.util.ProjectUtils;
 import io.ballerina.toml.semantic.TomlType;
 import io.ballerina.toml.semantic.ast.TomlTableNode;
@@ -153,7 +154,6 @@ public class PackCommand implements BLauncherCmd {
     @Override
     public void execute() {
         long start = 0;
-        boolean isSingleFileBuild = false; // Packing cannot be done for single files
 
         if (this.helpFlag) {
             String commandUsageInfo = BLauncherCmd.getCommandUsageInfo(PACK_COMMAND);
@@ -176,6 +176,10 @@ public class PackCommand implements BLauncherCmd {
             if (buildOptions.dumpBuildTime()) {
                 start = System.currentTimeMillis();
                 BuildTime.getInstance().timestamp = start;
+            }
+            if (!ProjectPaths.isBuildProjectRoot(projectPath) || !ProjectPaths.isWorkspaceProjectRoot(projectPath)) {
+                throw new ProjectException("invalid package path: " + absProjectPath +
+                        ". Please provide a valid Ballerina package or a workspace.");
             }
             project = io.ballerina.cli.utils.ProjectUtils.loadProject(absProjectPath, buildOptions, this.outStream);
             if (buildOptions.dumpBuildTime()) {

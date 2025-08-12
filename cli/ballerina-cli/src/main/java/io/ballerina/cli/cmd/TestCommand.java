@@ -39,9 +39,9 @@ import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.ProjectKind;
 import io.ballerina.projects.directory.BuildProject;
-import io.ballerina.projects.directory.SingleFileProject;
 import io.ballerina.projects.directory.WorkspaceProject;
 import io.ballerina.projects.util.ProjectConstants;
+import io.ballerina.projects.util.ProjectPaths;
 import picocli.CommandLine;
 
 import java.io.PrintStream;
@@ -276,42 +276,29 @@ public class TestCommand implements BLauncherCmd {
             coverage = false;
             testReport = false;
         }
+
         BuildOptions buildOptions = constructBuildOptions();
-
-        boolean isSingleFile = false;
         Path absProjectPath = this.projectPath.toAbsolutePath().normalize();
-        if (FileUtils.hasExtension(this.projectPath)) {
-            try {
-                if (buildOptions.dumpBuildTime()) {
-                    start = System.currentTimeMillis();
-                    BuildTime.getInstance().timestamp = start;
-                }
-                project = SingleFileProject.load(this.projectPath, buildOptions);
-                if (buildOptions.dumpBuildTime()) {
-                    BuildTime.getInstance().projectLoadDuration = System.currentTimeMillis() - start;
-                }
-            } catch (ProjectException e) {
-                CommandUtil.printError(this.errStream, e.getMessage(), testCmd, false);
-                CommandUtil.exitError(this.exitWhenFinish);
-                return;
+        try {
+            if (buildOptions.dumpBuildTime()) {
+                start = System.currentTimeMillis();
+                BuildTime.getInstance().timestamp = start;
             }
-            isSingleFile = true;
-        } else {
-            try {
-                if (buildOptions.dumpBuildTime()) {
-                    start = System.currentTimeMillis();
-                    BuildTime.getInstance().timestamp = start;
-                }
-                project = ProjectUtils.loadProject(absProjectPath, buildOptions, this.outStream);
+            if (!ProjectPaths.isBuildProjectRoot(projectPath)
+                    || !ProjectPaths.isStandaloneBalFile(projectPath)
+                    || !ProjectPaths.isWorkspaceProjectRoot(projectPath)) {
+                throw new ProjectException("invalid package path: " + absProjectPath +
+                        ". Please provide a valid Ballerina package, workspace or a standalone file.");
+            }
+            project = ProjectUtils.loadProject(absProjectPath, buildOptions, this.outStream);
 
-                if (buildOptions.dumpBuildTime()) {
-                    BuildTime.getInstance().projectLoadDuration = System.currentTimeMillis() - start;
-                }
-            } catch (ProjectException e) {
-                CommandUtil.printError(this.errStream, e.getMessage(), testCmd, false);
-                CommandUtil.exitError(this.exitWhenFinish);
-                return;
+            if (buildOptions.dumpBuildTime()) {
+                BuildTime.getInstance().projectLoadDuration = System.currentTimeMillis() - start;
             }
+        } catch (ProjectException e) {
+            CommandUtil.printError(this.errStream, e.getMessage(), testCmd, false);
+            CommandUtil.exitError(this.exitWhenFinish);
+            return;
         }
 
         // Sets the debug port as a system property, which will be used when setting up debug args before running tests.
@@ -390,7 +377,8 @@ public class TestCommand implements BLauncherCmd {
             }
         } else {
             boolean isPackageModified = isProjectUpdated(project);
-            executeTasks(isPackageModified, isSingleFile, isTestingDelegated, project, cliArgs);
+            executeTasks(isPackageModified, project.kind().equals(ProjectKind.SINGLE_FILE_PROJECT),
+                    isTestingDelegated, project, cliArgs);
         }
 
         if (this.exitWhenFinish) {
