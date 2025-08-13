@@ -62,55 +62,25 @@ public final class ProjectLoader {
      */
     public static ProjectLoadResult load(Path path, ProjectEnvironmentBuilder projectEnvironmentBuilder,
                                       BuildOptions buildOptions) throws ProjectException {
+        if (!Files.exists(path)) {
+            throw new ProjectException("provided file path does not exist");
+        }
         Optional<Path> workspaceRoot = ProjectPaths.workspaceRoot(path);
         if (workspaceRoot.isPresent()) {
             // If the path is in a workspace, load the workspace project
             return WorkspaceProject.loadProject(workspaceRoot.get(), EnvironmentBuilder.getBuilder(), buildOptions);
         }
-
-        Path projectRoot = getProjectRoot(Optional.of(path.toAbsolutePath().normalize()).get());
-        boolean isPackageRoot = ProjectPaths.isBuildProjectRoot(projectRoot);
-        if (isPackageRoot) {
-            Path parent = projectRoot.getParent();
-            if (parent != null && ProjectPaths.isBuildProjectRoot(parent)) {
-                return WorkspaceProject.loadProject(projectRoot, EnvironmentBuilder.getBuilder(), buildOptions);
+        try {
+            Path packageRoot = ProjectPaths.packageRoot(path);
+            if (ProjectPaths.isBuildProjectRoot(packageRoot)) {
+                return BuildProject.loadProject(packageRoot, projectEnvironmentBuilder, buildOptions, null, null);
             }
-        }
-        if (isPackageRoot) {
-            return BuildProject.loadProject(projectRoot, projectEnvironmentBuilder, buildOptions, null, null);
-        } else if (ProjectPaths.isBalaProjectRoot(projectRoot)) {
             projectEnvironmentBuilder.addCompilationCacheFactory(TempDirCompilationCache::from);
-            return BalaProject.load(projectRoot, projectEnvironmentBuilder, buildOptions);
+            return BalaProject.load(packageRoot, projectEnvironmentBuilder, buildOptions);
+        } catch (ProjectException e) {
+            // If the path is not a valid package root, it might be a single file project
+            return SingleFileProject.loadProject(path, projectEnvironmentBuilder, buildOptions);
         }
-
-        return SingleFileProject.loadProject(path, projectEnvironmentBuilder, buildOptions);
-    }
-
-    private static Path getProjectRoot(Path filePath) {
-        Path projectRoot;
-        if (!Files.exists(filePath)) {
-            throw new ProjectException("provided file path does not exist");
-        }
-        if (filePath.toFile().isDirectory()) {
-            if (ProjectConstants.MODULES_ROOT.equals(
-                    Optional.of(filePath.getParent()).get().toFile().getName())) {
-                projectRoot = Optional.of(Optional.of(filePath.getParent()).get().getParent()).get();
-            } else if (ProjectConstants.GENERATED_MODULES_ROOT.equals(filePath.toFile().getName())) {
-                // Generated default module
-                projectRoot = Optional.of(filePath.getParent()).get();
-            } else if (ProjectConstants.GENERATED_MODULES_ROOT.
-                    equals(Optional.of(filePath.getParent()).get().toFile().getName())) {
-                // Generated non default module
-                projectRoot = Optional.of(Optional.of(filePath.getParent()).get().getParent()).get();
-            } else {
-                projectRoot = filePath;
-            }
-        } else if (ProjectPaths.isBalFile(filePath)) {
-            projectRoot = filePath;
-        } else {
-            throw new ProjectException("'" + filePath + "' is not a valid Ballerina source file");
-        }
-        return projectRoot;
     }
 
     /**

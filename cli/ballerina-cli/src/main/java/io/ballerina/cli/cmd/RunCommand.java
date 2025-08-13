@@ -259,11 +259,12 @@ public class RunCommand implements BLauncherCmd {
                         .toTopologicallySortedList();
                 BuildProject buildProject = topologicallySortedList.get(topologicallySortedList.size() - 1);
                 Path relativePath = Paths.get(System.getProperty("user.dir")).relativize(buildProject.sourceRoot());
-
-                CommandUtil.printError(this.errStream, "'bal run' command is not supported for workspaces. " +
-                        "Please specify a package to run. \nExample:\n\tbal run " + relativePath, runCmd, false);
-                CommandUtil.exitError(this.exitWhenFinish);
-                return;
+                if (project.sourceRoot().equals(absProjectPath)) {
+                    CommandUtil.printError(this.errStream, "'bal run' command is not supported for workspaces. " +
+                            "Please specify a package to run. \nExample:\n\tbal run " + relativePath, runCmd, false);
+                    CommandUtil.exitError(this.exitWhenFinish);
+                    return;
+                }
             }
             if (buildOptions.dumpBuildTime()) {
                 BuildTime.getInstance().projectLoadDuration = System.currentTimeMillis() - start;

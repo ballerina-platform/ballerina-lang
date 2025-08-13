@@ -133,19 +133,21 @@ public class TestCommandTest extends BaseCommandTest {
 
         String buildLog = readOutput(true);
         Assert.assertTrue(buildLog.replace("\r", "")
-                .contains("Invalid Ballerina source file(.bal): " + nonBalFilePath));
+                .contains("invalid package path: " + nonBalFilePath +
+                        ". Please provide a valid Ballerina package, workspace or a standalone file."), buildLog);
     }
 
     @Test(description = "Test non existing bal file")
     public void testNonExistingBalFile() throws IOException {
         // valid source root path
-        Path validBalFilePath = this.testResources.resolve("valid-non-bal-file/xyz.bal");
-        TestCommand testCommand = new TestCommand(validBalFilePath, printStream, printStream, false);
-        new CommandLine(testCommand).parseArgs(validBalFilePath.toString());
+        Path balFilePath = this.testResources.resolve("valid-non-bal-file/xyz.bal");
+        TestCommand testCommand = new TestCommand(balFilePath, printStream, printStream, false);
+        new CommandLine(testCommand).parseArgs(balFilePath.toString());
         testCommand.execute();
         String buildLog = readOutput(true);
         Assert.assertTrue(buildLog.replace("\r", "")
-                .contains("The file does not exist: " + validBalFilePath));
+                .contains("invalid package path: " + balFilePath +
+                        ". Please provide a valid Ballerina package, workspace or a standalone file."), buildLog);
 
     }
 
