@@ -24,4 +24,4 @@ Running Tests with Coverage
 		Test execution time :*****s
 
 Generating Test Report
-	sourceless-modules-test/target/report/test_results.json
+	<projectPath>/sourceless-modules-test/target/report/test_results.json

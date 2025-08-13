@@ -28,4 +28,4 @@ Running Tests with Coverage
 		Test execution time :*****s
 
 Generating Test Report
-	data-providers/target/report/test_results.json
+	<projectPath>/data-providers/target/report/test_results.json

@@ -60,7 +60,7 @@ public class InvalidDataProviderTestCase extends BaseTestCase {
         String[] args = mergeCoverageArgs(new String[]{"invalid-data-provider-test.bal"});
         String output = balClient.runMainAndReadStdOut("test", args,
                 new HashMap<>(), projectPath, false);
-        AssertionUtils.assertOutput("InvalidDataProviderTestCase-testInvalidDataProvider.txt", output);
+        AssertionUtils.assertOutput(projectPath, "InvalidDataProviderTestCase-testInvalidDataProvider.txt", output);
     }
 
     @Test
@@ -72,7 +72,7 @@ public class InvalidDataProviderTestCase extends BaseTestCase {
         String[] args = mergeCoverageArgs(new String[]{"invalid-data-provider-test2.bal"});
         String output = balClient.runMainAndReadStdOut("test", args,
                 new HashMap<>(), projectPath, false);
-        AssertionUtils.assertOutput("InvalidDataProviderTestCase-testInvalidDataProvider2.txt", output);
+        AssertionUtils.assertOutput(projectPath, "InvalidDataProviderTestCase-testInvalidDataProvider2.txt", output);
     }
 
     @Test
@@ -84,7 +84,7 @@ public class InvalidDataProviderTestCase extends BaseTestCase {
         String[] args = mergeCoverageArgs(new String[]{"invalid-data-provider-test3.bal"});
         String output = balClient.runMainAndReadStdOut("test", args,
                 new HashMap<>(), projectPath, false);
-        AssertionUtils.assertOutput("InvalidDataProviderTestCase-testInvalidTupleDataProvider.txt",
+        AssertionUtils.assertOutput(projectPath, "InvalidDataProviderTestCase-testInvalidTupleDataProvider.txt",
                 output);
     }
 
@@ -97,7 +97,7 @@ public class InvalidDataProviderTestCase extends BaseTestCase {
         String[] args = mergeCoverageArgs(new String[]{"empty-data-provider-test.bal"});
         String output = balClient.runMainAndReadStdOut("test", args,
                 new HashMap<>(), projectPath, false);
-        AssertionUtils.assertOutput("InvalidDataProviderTestCase-testEmptyDataProvider.txt",
+        AssertionUtils.assertOutput(projectPath, "InvalidDataProviderTestCase-testEmptyDataProvider.txt",
                 output);
     }
 }

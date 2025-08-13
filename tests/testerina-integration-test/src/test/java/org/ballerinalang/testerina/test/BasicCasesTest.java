@@ -48,7 +48,7 @@ public class BasicCasesTest extends BaseTestCase {
         String[] args = mergeCoverageArgs(new String[]{"assertions"});
         String output = balClient.runMainAndReadStdOut("test", args,
                 new HashMap<>(), projectPath, true);
-        AssertionUtils.assertOutput("BasicCasesTest-testAssertions.txt", output);
+        AssertionUtils.assertOutput(projectPath, "BasicCasesTest-testAssertions.txt", output);
     }
 
     @Test
@@ -56,7 +56,7 @@ public class BasicCasesTest extends BaseTestCase {
         String[] args = mergeCoverageArgs(new String[]{"assertions-diff-error"});
         String output = balClient.runMainAndReadStdOut("test", args,
                 new HashMap<>(), projectPath, true);
-        AssertionUtils.assertOutput("BasicCasesTest-testAssertDiffError.txt", output);
+        AssertionUtils.assertOutput(projectPath, "BasicCasesTest-testAssertDiffError.txt", output);
     }
 
     @Test
@@ -64,7 +64,7 @@ public class BasicCasesTest extends BaseTestCase {
         String[] args = mergeCoverageArgs(new String[]{"assertions-error-messages"});
         String output = balClient.runMainAndReadStdOut("test", args,
                 new HashMap<>(), projectPath, true);
-        AssertionUtils.assertOutput("BasicCasesTest-testAssertionErrorMessage.txt", output);
+        AssertionUtils.assertOutput(projectPath, "BasicCasesTest-testAssertionErrorMessage.txt", output);
     }
 
     @Test
@@ -72,7 +72,7 @@ public class BasicCasesTest extends BaseTestCase {
         String[] args = mergeCoverageArgs(new String[]{"assertions-behavioral-types"});
         String output = balClient.runMainAndReadStdOut("test", args,
                 new HashMap<>(), projectPath, true);
-        AssertionUtils.assertOutput("BasicCasesTest-testAssertBehavioralTypes.txt", output);
+        AssertionUtils.assertOutput(projectPath, "BasicCasesTest-testAssertBehavioralTypes.txt", output);
     }
 
     @Test
@@ -80,7 +80,7 @@ public class BasicCasesTest extends BaseTestCase {
         String[] args = mergeCoverageArgs(new String[]{"assertions-structural-types"});
         String output = balClient.runMainAndReadStdOut("test", args,
                 new HashMap<>(), projectPath, true);
-        AssertionUtils.assertOutput("BasicCasesTest-testAssertStructuralTypes.txt", output);
+        AssertionUtils.assertOutput(projectPath, "BasicCasesTest-testAssertStructuralTypes.txt", output);
     }
 
     @Test
@@ -88,7 +88,7 @@ public class BasicCasesTest extends BaseTestCase {
         String[] args = mergeCoverageArgs(new String[]{"assertions-sequence-types"});
         String output = balClient.runMainAndReadStdOut("test", args,
                 new HashMap<>(), projectPath, true);
-        AssertionUtils.assertOutput("BasicCasesTest-testAssertSequenceTypes.txt", output);
+        AssertionUtils.assertOutput(projectPath, "BasicCasesTest-testAssertSequenceTypes.txt", output);
     }
 
     @Test
@@ -96,7 +96,7 @@ public class BasicCasesTest extends BaseTestCase {
         String[] args = mergeCoverageArgs(new String[]{"annotation-access"});
         String output = balClient.runMainAndReadStdOut("test", args,
                 new HashMap<>(), projectPath, true);
-        AssertionUtils.assertOutput("BasicCasesTest-testAnnotationAccess.txt", output);
+        AssertionUtils.assertOutput(projectPath, "BasicCasesTest-testAnnotationAccess.txt", output);
     }
 
     @Test
@@ -104,7 +104,7 @@ public class BasicCasesTest extends BaseTestCase {
         String[] args = mergeCoverageArgs(new String[]{"interops"});
         String output = balClient.runMainAndReadStdOut("test", args,
                 new HashMap<>(), projectPath, true);
-        AssertionUtils.assertOutput("BasicCasesTest-testJavaInterops.txt", output);
+        AssertionUtils.assertOutput(projectPath, "BasicCasesTest-testJavaInterops.txt", output);
     }
 
     @Test
@@ -112,7 +112,7 @@ public class BasicCasesTest extends BaseTestCase {
         String[] args = mergeCoverageArgs(new String[]{"runtime-api-tests"});
         String output = balClient.runMainAndReadStdOut("test", args,
                 new HashMap<>(), projectPath, true);
-        AssertionUtils.assertOutput("BasicCasesTest-testRuntimeApi.txt", output);
+        AssertionUtils.assertOutput(projectPath, "BasicCasesTest-testRuntimeApi.txt", output);
     }
 
     @Test
@@ -120,7 +120,7 @@ public class BasicCasesTest extends BaseTestCase {
         String[] args = mergeCoverageArgs(new String[]{"before-after"});
         String output = balClient.runMainAndReadStdOut("test", args,
                 new HashMap<>(), projectPath, true);
-        AssertionUtils.assertOutput("BasicCasesTest-testBeforeAfter.txt", output);
+        AssertionUtils.assertOutput(projectPath, "BasicCasesTest-testBeforeAfter.txt", output);
     }
 
     @Test
@@ -128,7 +128,7 @@ public class BasicCasesTest extends BaseTestCase {
         String[] args = mergeCoverageArgs(new String[]{"before-each-after-each"});
         String output = balClient.runMainAndReadStdOut("test", args,
                 new HashMap<>(), projectPath, true);
-        AssertionUtils.assertOutput("BasicCasesTest-testBeforeEachAfterEach.txt", output);
+        AssertionUtils.assertOutput(projectPath, "BasicCasesTest-testBeforeEachAfterEach.txt", output);
     }
 
     @Test(dependsOnMethods = "testBeforeAfter")
@@ -136,7 +136,7 @@ public class BasicCasesTest extends BaseTestCase {
         String[] args = mergeCoverageArgs(new String[]{"depends-on"});
         String output = balClient.runMainAndReadStdOut("test", args,
                 new HashMap<>(), projectPath, true);
-        AssertionUtils.assertOutput("BasicCasesTest-testDependsOn.txt", output);
+        AssertionUtils.assertOutput(projectPath, "BasicCasesTest-testDependsOn.txt", output);
     }
 
     @Test(dependsOnMethods = "testDependsOn")
@@ -144,7 +144,7 @@ public class BasicCasesTest extends BaseTestCase {
         String[] args = mergeCoverageArgs(new String[]{"annotations"});
         String output = balClient.runMainAndReadStdOut("test", args,
                 new HashMap<>(), projectPath, true);
-        AssertionUtils.assertOutput("BasicCasesTest-testAnnotations.txt", output);
+        AssertionUtils.assertOutput(projectPath, "BasicCasesTest-testAnnotations.txt", output);
     }
 
     @Test
@@ -152,7 +152,7 @@ public class BasicCasesTest extends BaseTestCase {
         String[] args = mergeCoverageArgs(new String[]{"isolated-functions"});
         String output = balClient.runMainAndReadStdOut("test", args,
                 new HashMap<>(), projectPath, true);
-        AssertionUtils.assertOutput("BasicCasesTest-testIsolatedFunctions.txt", output);
+        AssertionUtils.assertOutput(projectPath, "BasicCasesTest-testIsolatedFunctions.txt", output);
     }
 
     @Test
@@ -160,7 +160,7 @@ public class BasicCasesTest extends BaseTestCase {
         String[] args = mergeCoverageArgs(new String[]{"intersection-type-test"});
         String output = balClient.runMainAndReadStdOut("test", args,
                 new HashMap<>(), projectPath, true);
-        AssertionUtils.assertOutput("BasicCasesTest-testIntersectionTypes.txt", output);
+        AssertionUtils.assertOutput(projectPath, "BasicCasesTest-testIntersectionTypes.txt", output);
     }
 
     @Test
@@ -168,7 +168,7 @@ public class BasicCasesTest extends BaseTestCase {
         String[] args = mergeCoverageArgs(new String[]{"anydata-type-test"});
         String output = balClient.runMainAndReadStdOut("test", args,
                 new HashMap<>(), projectPath, true);
-        AssertionUtils.assertOutput("BasicCasesTest-testAnydataType.txt", output);
+        AssertionUtils.assertOutput(projectPath, "BasicCasesTest-testAnydataType.txt", output);
     }
 
     @Test
@@ -176,6 +176,6 @@ public class BasicCasesTest extends BaseTestCase {
         String[] args = mergeCoverageArgs(new String[]{"async"});
         String output = balClient.runMainAndReadStdOut("test", args,
                 new HashMap<>(), projectPath, true);
-        AssertionUtils.assertOutput("BasicCasesTest-testAsyncInvocation.txt", output);
+        AssertionUtils.assertOutput(projectPath, "BasicCasesTest-testAsyncInvocation.txt", output);
     }
 }

@@ -53,7 +53,7 @@ public class TestExecutionWithInitFailuresTest {
         String firstString = "tests.test_execute-generated_";
         String endString = "lineNumber";
         output = CommonUtils.replaceVaryingString(firstString, endString, output);
-        AssertionUtils.assertOutput("TestExecutionWithInitFailures.txt", output);
+        AssertionUtils.assertOutput(projectPath, "TestExecutionWithInitFailures.txt", output);
     }
 
     @AfterMethod

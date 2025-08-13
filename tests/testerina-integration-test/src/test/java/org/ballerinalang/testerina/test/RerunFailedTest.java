@@ -54,7 +54,7 @@ public class RerunFailedTest extends BaseTestCase {
         String firstString = "tests.test_execute-generated_";
         String endString = "lineNumber";
         output = CommonUtils.replaceVaryingString(firstString, endString, output);
-        AssertionUtils.assertOutput("RerunFailedTest-testFullTest.txt", output.replaceAll("\r", ""));
+        AssertionUtils.assertOutput(projectPath, "RerunFailedTest-testFullTest.txt", output.replaceAll("\r", ""));
     }
 
     @Test (dependsOnMethods = "testFullTest")
@@ -65,7 +65,8 @@ public class RerunFailedTest extends BaseTestCase {
         String firstString = "tests.test_execute-generated_";
         String endString = "lineNumber";
         output = CommonUtils.replaceVaryingString(firstString, endString, output);
-        AssertionUtils.assertOutput("RerunFailedTest-testRerunFailedTest.txt", output.replaceAll("\r", ""));
+        AssertionUtils.assertOutput(projectPath,
+                "RerunFailedTest-testRerunFailedTest.txt", output.replaceAll("\r", ""));
     }
 
     @Test (dependsOnMethods = "testRerunFailedTest")
@@ -76,7 +77,7 @@ public class RerunFailedTest extends BaseTestCase {
 
         String[] args = new String[]{"--rerun-failed", packageDirName};
         String output = balClient.runMainAndReadStdOut("test", args, new HashMap<>(), projectPath, false);
-        AssertionUtils.assertOutput("RerunFailedTest-testRerunFailedTestWithoutAnInitialRun.txt",
+        AssertionUtils.assertOutput(projectPath, "RerunFailedTest-testRerunFailedTestWithoutAnInitialRun.txt",
                 output.replaceAll("\r", ""));
     }
 
@@ -85,7 +86,7 @@ public class RerunFailedTest extends BaseTestCase {
         String[] args = new String[]{"--rerun-failed", "rerun-failed-tests-with-invalid-json"};
         String output = balClient.runMainAndReadStdOut("test", args,
                 new HashMap<>(), projectPath, false);
-        AssertionUtils.assertOutput("RerunFailedTest-testRerunFailedTestWithInvalidRunTestJson.txt",
+        AssertionUtils.assertOutput(projectPath, "RerunFailedTest-testRerunFailedTestWithInvalidRunTestJson.txt",
                 output.replaceAll("\r", ""));
     }
 
@@ -94,7 +95,8 @@ public class RerunFailedTest extends BaseTestCase {
         String[] args = new String[]{"--rerun-failed", "rerun-failed-tests-with-missing-module-name"};
         String output = balClient.runMainAndReadStdOut("test", args,
                 new HashMap<>(), projectPath, false);
-        AssertionUtils.assertOutput("RerunFailedTest-testRerunFailedTestWithMissingModuleNameInRunTestJson.txt",
+        AssertionUtils.assertOutput(projectPath,
+                "RerunFailedTest-testRerunFailedTestWithMissingModuleNameInRunTestJson.txt",
                 output.replaceAll("\r", ""));
     }
 

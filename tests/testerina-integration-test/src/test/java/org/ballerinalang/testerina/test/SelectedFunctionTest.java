@@ -45,7 +45,7 @@ public class SelectedFunctionTest extends BaseTestCase {
         String[] args = mergeCoverageArgs(new String[]{"--tests", "testFunc", "single-test-execution.bal"});
         String output = balClient.runMainAndReadStdOut("test", args,
                 new HashMap<>(), projectPath, true);
-        AssertionUtils.assertOutput("SelectedFunctionTest-testSingleFunctionExecution.txt", output);
+        AssertionUtils.assertOutput(projectPath, "SelectedFunctionTest-testSingleFunctionExecution.txt", output);
     }
 
     @Test
@@ -53,7 +53,7 @@ public class SelectedFunctionTest extends BaseTestCase {
         String[] args = mergeCoverageArgs(new String[]{"--tests", "testFunc2", "single-test-execution.bal"});
         String output = balClient.runMainAndReadStdOut("test", args,
                 new HashMap<>(), projectPath, true);
-        AssertionUtils.assertOutput("SelectedFunctionTest-testDependentFunctionExecution.txt", output);
+        AssertionUtils.assertOutput(projectPath, "SelectedFunctionTest-testDependentFunctionExecution.txt", output);
     }
 
     @Test
@@ -61,7 +61,7 @@ public class SelectedFunctionTest extends BaseTestCase {
         String[] args = mergeCoverageArgs(new String[]{"--tests", "testFunc,testFunc2", "single-test-execution.bal"});
         String output = balClient.runMainAndReadStdOut("test", args,
                 new HashMap<>(), projectPath, true);
-        AssertionUtils.assertOutput("SelectedFunctionTest-testMultipleFunctionExecution.txt", output);
+        AssertionUtils.assertOutput(projectPath, "SelectedFunctionTest-testMultipleFunctionExecution.txt", output);
     }
 
     @Test
@@ -69,7 +69,7 @@ public class SelectedFunctionTest extends BaseTestCase {
         String[] args = mergeCoverageArgs(new String[]{"--tests", "nonExistingFunc", "single-test-execution.bal"});
         String output = balClient.runMainAndReadStdOut("test", args,
                 new HashMap<>(), projectPath, false);
-        AssertionUtils.assertOutput("SelectedFunctionTest-testNonExistingFunctionExecution.txt", output);
+        AssertionUtils.assertOutput(projectPath, "SelectedFunctionTest-testNonExistingFunctionExecution.txt", output);
     }
 
     @Test
@@ -77,7 +77,7 @@ public class SelectedFunctionTest extends BaseTestCase {
         String[] args = mergeCoverageArgs(new String[]{"--tests", "testDisabledFunc", "single-test-execution.bal"});
         String output = balClient.runMainAndReadStdOut("test", args,
                 new HashMap<>(), projectPath, true);
-        AssertionUtils.assertOutput("SelectedFunctionTest-testDisabledFunctionExecution.txt", output);
+        AssertionUtils.assertOutput(projectPath, "SelectedFunctionTest-testDisabledFunctionExecution.txt", output);
     }
 
     @Test
@@ -86,7 +86,7 @@ public class SelectedFunctionTest extends BaseTestCase {
                 new String[]{"--tests", "testDependentDisabledFunc", "single-test-execution.bal"});
         String output = balClient.runMainAndReadStdOut("test", args,
                 new HashMap<>(), projectPath, false);
-        AssertionUtils.assertOutput("SelectedFunctionTest-testDependentDisabledFunctionExecution.txt",
+        AssertionUtils.assertOutput(projectPath, "SelectedFunctionTest-testDependentDisabledFunctionExecution.txt",
                 output);
     }
 }

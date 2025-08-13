@@ -57,7 +57,7 @@ public class ModuleExecutionWithInitStartFailuresTest {
         String firstString = "tests.test_execute-generated_";
         String endString = "lineNumber";
         output = CommonUtils.replaceVaryingString(firstString, endString, output);
-        AssertionUtils.assertOutput("ModuleExecutionWithInitStartFailures.txt", output);
+        AssertionUtils.assertOutput(projectPath, "ModuleExecutionWithInitStartFailures.txt", output);
     }
 
     @AfterMethod

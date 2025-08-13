@@ -51,7 +51,7 @@ public class ModuleExecutionFlowTest extends BaseTestCase {
         String[] args = new String[]{};
         String output = balClient.runMainAndReadStdOut("test", args,
                 new HashMap<>(), projectPath, false);
-        AssertionUtils.assertOutput("ModuleExecutionFlowTest-test-listener-shutdown.txt", output);
+        AssertionUtils.assertOutput(projectPath, "ModuleExecutionFlowTest-test-listener-shutdown.txt", output);
     }
 
     @AfterMethod

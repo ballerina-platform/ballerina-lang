@@ -44,7 +44,8 @@ public class InvalidFunctionMockingTestCase extends BaseTestCase {
     public void testMockingNonExistingFunction() throws BallerinaTestException, IOException {
         String projectPath = projectBasedTestsPath.resolve("non-existent-function-mock").toString();
         String output = balClient.runMainAndReadStdOut("test", new String[0], new HashMap<>(), projectPath, true);
-        AssertionUtils.assertOutput("InvalidFunctionMockingTestCase-testMockingNonExistingFunction.txt",
+        AssertionUtils.assertOutput(projectPath,
+                "InvalidFunctionMockingTestCase-testMockingNonExistingFunction.txt",
                 output.replaceAll("\r\n|\r|\n", "\n"));
     }
 
@@ -52,7 +53,8 @@ public class InvalidFunctionMockingTestCase extends BaseTestCase {
     public void testLegacyMockingNonExistingFunction() throws BallerinaTestException, IOException {
         String projectPath = projectBasedTestsPath.resolve("non-existent-function-legacy-mock").toString();
         String output = balClient.runMainAndReadStdOut("test", new String[0], new HashMap<>(), projectPath, true);
-        AssertionUtils.assertOutput("InvalidFunctionMockingTestCase-testLegacyMockingNonExistingFunction.txt",
+        AssertionUtils.assertOutput(projectPath,
+                "InvalidFunctionMockingTestCase-testLegacyMockingNonExistingFunction.txt",
                 output.replaceAll("\r\n|\r|\n", "\n"));
     }
 
@@ -60,7 +62,8 @@ public class InvalidFunctionMockingTestCase extends BaseTestCase {
     public void testMockingWithoutAnnotationRecord() throws BallerinaTestException, IOException {
         String projectPath = projectBasedTestsPath.resolve("record-less-annotation-function-mock").toString();
         String output = balClient.runMainAndReadStdOut("test", new String[0], new HashMap<>(), projectPath, true);
-        AssertionUtils.assertOutput("InvalidFunctionMockingTestCase-testMockingWithoutAnnotationRecord.txt",
+        AssertionUtils.assertOutput(projectPath,
+                "InvalidFunctionMockingTestCase-testMockingWithoutAnnotationRecord.txt",
                 output.replaceAll("\r\n|\r|\n", "\n"));
     }
 
@@ -68,7 +71,8 @@ public class InvalidFunctionMockingTestCase extends BaseTestCase {
     public void testLegacyMockingWithoutAnnotationRecord() throws BallerinaTestException, IOException {
         String projectPath = projectBasedTestsPath.resolve("record-less-annotation-function-legacy-mock").toString();
         String output = balClient.runMainAndReadStdOut("test", new String[0], new HashMap<>(), projectPath, true);
-        AssertionUtils.assertOutput("InvalidFunctionMockingTestCase-testLegacyMockingWithoutAnnotationRecord.txt",
+        AssertionUtils.assertOutput(projectPath,
+                "InvalidFunctionMockingTestCase-testLegacyMockingWithoutAnnotationRecord.txt",
                 output.replaceAll("\r\n|\r|\n", "\n"));
     }
 
@@ -76,7 +80,8 @@ public class InvalidFunctionMockingTestCase extends BaseTestCase {
     public void testMockingWithEmptyAnnotationRecord() throws BallerinaTestException, IOException {
         String projectPath = projectBasedTestsPath.resolve("empty-annotation-record-function-mock").toString();
         String output = balClient.runMainAndReadStdOut("test", new String[0], new HashMap<>(), projectPath, true);
-        AssertionUtils.assertOutput("InvalidFunctionMockingTestCase-testMockingWithEmptyAnnotationRecord.txt",
+        AssertionUtils.assertOutput(projectPath,
+                "InvalidFunctionMockingTestCase-testMockingWithEmptyAnnotationRecord.txt",
                 output.replaceAll("\r\n|\r|\n", "\n"));
     }
 
@@ -84,7 +89,8 @@ public class InvalidFunctionMockingTestCase extends BaseTestCase {
     public void testLegacyMockingWithEmptyAnnotationRecord() throws BallerinaTestException, IOException {
         String projectPath = projectBasedTestsPath.resolve("empty-annotation-record-function-legacy-mock").toString();
         String output = balClient.runMainAndReadStdOut("test", new String[0], new HashMap<>(), projectPath, true);
-        AssertionUtils.assertOutput("InvalidFunctionMockingTestCase-testLegacyMockingWithEmptyAnnotationRecord.txt",
+        AssertionUtils.assertOutput(projectPath,
+                "InvalidFunctionMockingTestCase-testLegacyMockingWithEmptyAnnotationRecord.txt",
                 output.replaceAll("\r\n|\r|\n", "\n"));
     }
 
@@ -92,7 +98,8 @@ public class InvalidFunctionMockingTestCase extends BaseTestCase {
     public void testMockingFunctionInNonExistingModule() throws BallerinaTestException, IOException {
         String projectPath = projectBasedTestsPath.resolve("non-existent-module-mock").toString();
         String output = balClient.runMainAndReadStdOut("test", new String[0], new HashMap<>(), projectPath, true);
-        AssertionUtils.assertOutput("InvalidFunctionMockingTestCase-testMockingFunctionInNonExistingModule.txt",
+        AssertionUtils.assertOutput(projectPath,
+                "InvalidFunctionMockingTestCase-testMockingFunctionInNonExistingModule.txt",
                 output.replaceAll("\r\n|\r|\n", "\n"));
     }
 
@@ -100,7 +107,8 @@ public class InvalidFunctionMockingTestCase extends BaseTestCase {
     public void testLegacyMockingFunctionInNonExistingModule() throws BallerinaTestException, IOException {
         String projectPath = projectBasedTestsPath.resolve("non-existent-module-legacy-mock").toString();
         String output = balClient.runMainAndReadStdOut("test", new String[0], new HashMap<>(), projectPath, true);
-        AssertionUtils.assertOutput("InvalidFunctionMockingTestCase-testLegacyMockingFunctionInNonExistingModule.txt",
+        AssertionUtils.assertOutput(projectPath,
+                "InvalidFunctionMockingTestCase-testLegacyMockingFunctionInNonExistingModule.txt",
                 output.replaceAll("\r\n|\r|\n", "\n"));
     }
 
@@ -111,7 +119,8 @@ public class InvalidFunctionMockingTestCase extends BaseTestCase {
         String firstString = "tests.test_execute-generated_";
         String endString = "lineNumber";
         output = CommonUtils.replaceVaryingString(firstString, endString, output);
-        AssertionUtils.assertOutput("InvalidFunctionMockingTestCase-testMockingFunctionWithIncompatibleTypes.txt",
+        AssertionUtils.assertOutput(projectPath,
+                "InvalidFunctionMockingTestCase-testMockingFunctionWithIncompatibleTypes.txt",
                 output.replaceAll("(?m)^[ \t]*\r?\n", "\n").replaceAll("\r\n|\r|\n", "\n"));
     }
 
@@ -119,7 +128,8 @@ public class InvalidFunctionMockingTestCase extends BaseTestCase {
     public void testLegacyMockingFunctionWithIncompatibleTypes() throws BallerinaTestException, IOException {
         String projectPath = projectBasedTestsPath.resolve("incompatible-type-legacy-mock").toString();
         String output = balClient.runMainAndReadStdOut("test", new String[0], new HashMap<>(), projectPath, true);
-        AssertionUtils.assertOutput("InvalidFunctionMockingTestCase-testLegacyMockingFunctionWithIncompatibleTypes.txt",
+        AssertionUtils.assertOutput(projectPath,
+                "InvalidFunctionMockingTestCase-testLegacyMockingFunctionWithIncompatibleTypes.txt",
                 output.replaceAll("\r\n|\r|\n", "\n"));
     }
 
@@ -128,7 +138,8 @@ public class InvalidFunctionMockingTestCase extends BaseTestCase {
         String projectPath = singleFileTestsPath.resolve("mocking").toString();
         String[] args = mergeCoverageArgs(new String[]{"function-mock.bal"});
         String output = balClient.runMainAndReadStdOut("test", args, new HashMap<>(), projectPath, true);
-        AssertionUtils.assertOutput("InvalidFunctionMockingTestCase-testMockingFunctionInSingleFileProject.txt",
+        AssertionUtils.assertOutput(projectPath,
+                "InvalidFunctionMockingTestCase-testMockingFunctionInSingleFileProject.txt",
                 output.replaceAll("\r\n|\r|\n", "\n"));
     }
 
@@ -137,7 +148,8 @@ public class InvalidFunctionMockingTestCase extends BaseTestCase {
         String projectPath = singleFileTestsPath.resolve("mocking").toString();
         String[] args = mergeCoverageArgs(new String[]{"function-legacy-mock.bal"});
         String output = balClient.runMainAndReadStdOut("test", args, new HashMap<>(), projectPath, true);
-        AssertionUtils.assertOutput("InvalidFunctionMockingTestCase-testLegacyMockingFunctionInSingleFileProject.txt",
+        AssertionUtils.assertOutput(projectPath,
+                "InvalidFunctionMockingTestCase-testLegacyMockingFunctionInSingleFileProject.txt",
                 output.replaceAll("\r\n|\r|\n", "\n"));
     }
 }

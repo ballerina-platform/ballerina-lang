@@ -22,6 +22,7 @@ import org.testng.Assert;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Locale;
 
 /**
@@ -48,15 +49,18 @@ public final class AssertionUtils {
         }
     }
 
-    public static void assertOutput(String outputFileName, String output) throws IOException {
+    public static void assertOutput(String projectPath, String outputFileName, String output) throws IOException {
+        Path absProjectPath = Paths.get(projectPath).toAbsolutePath().toRealPath();
         if (isWindows) {
             output = CommonUtils.replaceExecutionTime(output);
             String fileContent =  Files.readString(commandOutputsDir.resolve("windows").resolve(outputFileName));
-            Assert.assertEquals(output.replaceAll("\r\n|\r", "\n"), fileContent.replaceAll("\r\n|\r", "\n"));
+            Assert.assertEquals(output.replaceAll("\r\n|\r", "\n"),
+                    fileContent.replaceAll("\r\n|\r", "\n").replaceAll("<projectPath>", absProjectPath.toString()));
         } else {
             output = CommonUtils.replaceExecutionTime(output);
             String fileContent = Files.readString(commandOutputsDir.resolve("unix").resolve(outputFileName));
-            Assert.assertEquals(output.stripTrailing(), fileContent.stripTrailing());
+            Assert.assertEquals(output.stripTrailing(),
+                    fileContent.stripTrailing().replaceAll("<projectPath>", absProjectPath.toString()));
         }
     }
 }

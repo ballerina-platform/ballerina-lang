@@ -45,7 +45,7 @@ public class GroupingTest extends BaseTestCase {
         String[] args = mergeCoverageArgs(new String[]{"--groups", "g1", "groups-test.bal"});
         String output = balClient.runMainAndReadStdOut("test", args,
                 new HashMap<>(), projectPath, false);
-        AssertionUtils.assertOutput("GroupingTest-testSingleGroupExecution.txt", output);
+        AssertionUtils.assertOutput(projectPath, "GroupingTest-testSingleGroupExecution.txt", output);
     }
 
     @Test
@@ -53,7 +53,7 @@ public class GroupingTest extends BaseTestCase {
         String[] args = mergeCoverageArgs(new String[]{"--groups", "g2,g4", "groups-test.bal"});
         String output = balClient.runMainAndReadStdOut("test", args,
                 new HashMap<>(), projectPath, false);
-        AssertionUtils.assertOutput("GroupingTest-testMultipleGroupExecution.txt", output);
+        AssertionUtils.assertOutput(projectPath, "GroupingTest-testMultipleGroupExecution.txt", output);
     }
 
     @Test
@@ -61,7 +61,7 @@ public class GroupingTest extends BaseTestCase {
         String[] args = mergeCoverageArgs(new String[]{"--disable-groups", "g5", "groups-test.bal"});
         String output = balClient.runMainAndReadStdOut("test", args,
                 new HashMap<>(), projectPath, false);
-        AssertionUtils.assertOutput("GroupingTest-testSingleGroupExclusion.txt", output);
+        AssertionUtils.assertOutput(projectPath, "GroupingTest-testSingleGroupExclusion.txt", output);
     }
 
     @Test
@@ -69,7 +69,7 @@ public class GroupingTest extends BaseTestCase {
         String[] args = mergeCoverageArgs(new String[]{"--disable-groups", "g1,g5,g6", "groups-test.bal"});
         String output = balClient.runMainAndReadStdOut("test", args,
                 new HashMap<>(), projectPath, false);
-        AssertionUtils.assertOutput("GroupingTest-testMultipleGroupExclusion.txt", output);
+        AssertionUtils.assertOutput(projectPath, "GroupingTest-testMultipleGroupExclusion.txt", output);
     }
 
     @Test
@@ -77,7 +77,7 @@ public class GroupingTest extends BaseTestCase {
         String[] args = mergeCoverageArgs(new String[]{"--groups", "g10", "groups-test.bal"});
         String output = balClient.runMainAndReadStdOut("test", args,
                 new HashMap<>(), projectPath, false);
-        AssertionUtils.assertOutput("GroupingTest-testNonExistingGroupInclusion.txt", output);
+        AssertionUtils.assertOutput(projectPath, "GroupingTest-testNonExistingGroupInclusion.txt", output);
     }
 
     @Test
@@ -85,7 +85,7 @@ public class GroupingTest extends BaseTestCase {
         String[] args = mergeCoverageArgs(new String[]{"--disable-groups", "g10", "groups-test.bal"});
         String output = balClient.runMainAndReadStdOut("test", args,
                 new HashMap<>(), projectPath, false);
-        AssertionUtils.assertOutput("GroupingTest-testNonExistingGroupExclusion.txt", output);
+        AssertionUtils.assertOutput(projectPath, "GroupingTest-testNonExistingGroupExclusion.txt", output);
     }
 
     @Test
@@ -93,7 +93,7 @@ public class GroupingTest extends BaseTestCase {
         String[] args = mergeCoverageArgs(new String[]{"--list-groups", "groups-test.bal"});
         String output = balClient.runMainAndReadStdOut("test", args,
                 new HashMap<>(), projectPath, false);
-        AssertionUtils.assertOutput("GroupingTest-testListingOfSingleTestGroups.txt", output);
+        AssertionUtils.assertOutput(projectPath, "GroupingTest-testListingOfSingleTestGroups.txt", output);
     }
 
     @Test
@@ -103,7 +103,7 @@ public class GroupingTest extends BaseTestCase {
                 new HashMap<>(),
                 projectBasedTestsPath.resolve("group-test").toString(),
                 false);
-        AssertionUtils.assertOutput("GroupingTest-testListingOfTestGroups.txt", output);
+        AssertionUtils.assertOutput(projectPath, "GroupingTest-testListingOfTestGroups.txt", output);
     }
 
     @Test
@@ -111,7 +111,7 @@ public class GroupingTest extends BaseTestCase {
         String[] args = mergeCoverageArgs(new String[]{"--groups", "g1", "--list-groups", "groups-test.bal"});
         String output = balClient.runMainAndReadStdOut("test", args,
                 new HashMap<>(), projectPath, false);
-        AssertionUtils.assertOutput("GroupingTest-testListGroupsWithOtherFlags.txt", output);
+        AssertionUtils.assertOutput(projectPath, "GroupingTest-testListGroupsWithOtherFlags.txt", output);
     }
 
     /**
@@ -124,7 +124,7 @@ public class GroupingTest extends BaseTestCase {
         String[] args = mergeCoverageArgs(new String[]{"before-groups-after-groups-test.bal"});
         String output = balClient.runMainAndReadStdOut("test", args,
                 new HashMap<>(), projectPath, true);
-        AssertionUtils.assertOutput("GroupingTest-beforeGroupsAfterGroups1.txt", output);
+        AssertionUtils.assertOutput(projectPath, "GroupingTest-beforeGroupsAfterGroups1.txt", output);
     }
 
     /**
@@ -137,7 +137,7 @@ public class GroupingTest extends BaseTestCase {
         String[] args = mergeCoverageArgs(new String[]{"before-groups-after-groups-test2.bal"});
         String output = balClient.runMainAndReadStdOut("test", args,
                 new HashMap<>(), projectPath, true);
-        AssertionUtils.assertOutput("GroupingTest-beforeGroupsAfterGroups2.txt", output);
+        AssertionUtils.assertOutput(projectPath, "GroupingTest-beforeGroupsAfterGroups2.txt", output);
     }
 
     @Test
@@ -145,7 +145,7 @@ public class GroupingTest extends BaseTestCase {
         String[] args = mergeCoverageArgs(new String[]{"--groups", "g1", "after-groups-with-disabled-test.bal"});
         String output = balClient.runMainAndReadStdOut("test", args,
                 new HashMap<>(), projectPath, true);
-        AssertionUtils.assertOutput("GroupingTest-afterGroupsWithDisabledTest.txt", output);
+        AssertionUtils.assertOutput(projectPath, "GroupingTest-afterGroupsWithDisabledTest.txt", output);
     }
 
     @Test
@@ -153,7 +153,7 @@ public class GroupingTest extends BaseTestCase {
         String[] args = mergeCoverageArgs(new String[]{"failed-before-groups-test.bal"});
         String output = balClient.runMainAndReadStdOut("test", args,
                 new HashMap<>(), projectPath, true);
-        AssertionUtils.assertOutput("GroupingTest-failedBeforeGroupTest.txt", output);
+        AssertionUtils.assertOutput(projectPath, "GroupingTest-failedBeforeGroupTest.txt", output);
     }
 
     @Test
@@ -161,7 +161,7 @@ public class GroupingTest extends BaseTestCase {
         String[] args = mergeCoverageArgs(new String[]{"failed-before-each-with-groups.bal"});
         String output = balClient.runMainAndReadStdOut("test", args,
                 new HashMap<>(), projectPath, true);
-        AssertionUtils.assertOutput("GroupingTest-failedBeforeEachTest.txt", output);
+        AssertionUtils.assertOutput(projectPath, "GroupingTest-failedBeforeEachTest.txt", output);
     }
 
     @Test
@@ -169,7 +169,7 @@ public class GroupingTest extends BaseTestCase {
         String[] args = mergeCoverageArgs(new String[]{"failed-after-groups-test.bal"});
         String output = balClient.runMainAndReadStdOut("test", args,
                 new HashMap<>(), projectPath, false);
-        AssertionUtils.assertOutput("GroupingTest-testWhenAfterGroupsFails.txt", output);
+        AssertionUtils.assertOutput(projectPath, "GroupingTest-testWhenAfterGroupsFails.txt", output);
     }
 
 }

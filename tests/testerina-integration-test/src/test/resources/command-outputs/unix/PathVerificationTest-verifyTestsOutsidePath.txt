@@ -15,4 +15,4 @@ Running Tests with Coverage
 		Test execution time :*****s
 
 Generating Test Report
-	path-verification/target/report/test_results.json
+	<projectPath>/path-verification/target/report/test_results.json

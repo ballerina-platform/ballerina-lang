@@ -202,6 +202,6 @@ Running Tests with Coverage
 		Test execution time :*****s
 
 Generating Test Report
-	resource-mocking-tests/target/report/test_results.json
+	<projectPath>/resource-mocking-tests/target/report/test_results.json
 
 error: there are test failures
