@@ -53,7 +53,6 @@ import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.diagnostics.DiagnosticInfo;
 import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 import org.apache.commons.io.FilenameUtils;
-import org.ballerinalang.compiler.CompilerOptionName;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -911,7 +910,7 @@ public class ManifestBuilder {
                 getBooleanFromBuildOptionsTableNode(tableNode, BuildOptions.OptionName.TEST_REPORT.toString());
         Boolean codeCoverage =
                 getBooleanFromBuildOptionsTableNode(tableNode, BuildOptions.OptionName.CODE_COVERAGE.toString());
-        final TopLevelNode topLevelNode = tableNode.entries().get(CompilerOptionName.CLOUD.toString());
+        final TopLevelNode topLevelNode = tableNode.entries().get(BuildOptions.OptionName.CLOUD.toString());
         Boolean dumpBuildTime =
                 getBooleanFromBuildOptionsTableNode(tableNode, BuildOptions.OptionName.DUMP_BUILD_TIME.toString());
         Boolean sticky =

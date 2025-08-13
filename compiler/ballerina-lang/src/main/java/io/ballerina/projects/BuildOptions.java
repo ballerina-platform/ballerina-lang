@@ -263,7 +263,8 @@ public class BuildOptions {
         SHOW_DEPENDENCY_DIAGNOSTICS("showDependencyDiagnostics"),
         OPTIMIZE_DEPENDENCY_COMPILATION("optimizeDependencyCompilation"),
         ENABLE_CACHE("enableCache"),
-        REMOTE_MANAGEMENT("remoteManagement"),;
+        REMOTE_MANAGEMENT("remoteManagement"),
+        CLOUD("cloud");
 
         private final String name;
 

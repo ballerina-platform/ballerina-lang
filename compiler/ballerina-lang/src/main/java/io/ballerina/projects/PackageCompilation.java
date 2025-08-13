@@ -38,8 +38,6 @@ import java.util.Map;
 import java.util.ServiceLoader;
 import java.util.function.Function;
 
-import static org.ballerinalang.compiler.CompilerOptionName.CLOUD;
-import static org.ballerinalang.compiler.CompilerOptionName.DUMP_BIR;
 import static org.ballerinalang.compiler.CompilerOptionName.EXPERIMENTAL;
 
 /**
@@ -82,8 +80,6 @@ public class PackageCompilation {
     private void setCompilerOptions(CompilationOptions compilationOptions) {
         CompilerOptions options = CompilerOptions.getInstance(compilerContext);
         options.put(EXPERIMENTAL, Boolean.toString(compilationOptions.experimental()));
-        options.put(DUMP_BIR, Boolean.toString(compilationOptions.dumpBir()));
-        options.put(CLOUD, compilationOptions.getCloud());
     }
 
     static PackageCompilation from(PackageContext rootPackageContext, CompilationOptions compilationOptions) {

@@ -24,10 +24,7 @@ package org.ballerinalang.compiler;
  */
 public enum CompilerOptionName {
     COMPILER_PHASE("compilerPhase"),
-    DUMP_BIR("dumpBIR"),
-    CLOUD("cloud"),
-    EXPERIMENTAL("experimental"),
-    TOOLING_COMPILATION("toolingCompilation");
+    EXPERIMENTAL("experimental");
 
     public final String name;
 

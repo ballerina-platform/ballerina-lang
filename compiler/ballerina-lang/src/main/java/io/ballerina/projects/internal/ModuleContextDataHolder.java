@@ -35,15 +35,20 @@ public class ModuleContextDataHolder {
     private final boolean skipTests;
     private final Path sourceRoot;
     private final boolean isObservabiltyIncluded;
+    private final boolean dumpBir;
+    private final String cloud;
 
     public ModuleContextDataHolder(boolean exported, ModuleDescriptor descriptor, ProjectKind projectKind,
-                                   boolean skipTests, Path sourceRoot, boolean isObservabiltyIncluded) {
+                                   boolean skipTests, Path sourceRoot, boolean isObservabiltyIncluded,
+                                   boolean dumpBir, String cloud) {
         this.exported = exported;
         this.descriptor = descriptor;
         this.projectKind = projectKind;
         this.skipTests = skipTests;
         this.sourceRoot = sourceRoot;
         this.isObservabiltyIncluded = isObservabiltyIncluded;
+        this.dumpBir = dumpBir;
+        this.cloud = cloud;
     }
 
     public boolean isExported() {
@@ -68,5 +73,13 @@ public class ModuleContextDataHolder {
 
     public boolean isObservabiltyIncluded() {
         return isObservabiltyIncluded;
+    }
+
+    public boolean isDumpBir() {
+        return dumpBir;
+    }
+
+    public String cloud() {
+        return cloud;
     }
 }
