@@ -55,7 +55,7 @@ dependencies {
         implementation 'io.jaegertracing:jaeger-thrift:1.6.0'
         implementation 'com.zaxxer:HikariCP:3.3.1'
 
-        implementation 'org.apache.commons:commons-lang3:3.8.1'
+        implementation 'org.apache.commons:commons-lang3:3.18.0'
         implementation 'org.apache.commons:commons-text:1.10.0'
         implementation 'org.apache.directory.server:apacheds-all:2.0.0-M24'
         implementation 'org.apache.geronimo.specs:geronimo-stax-api_1.0_spec:1.0.1'
