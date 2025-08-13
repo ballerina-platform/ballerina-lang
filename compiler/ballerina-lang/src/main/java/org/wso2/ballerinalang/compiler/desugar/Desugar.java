@@ -808,7 +808,6 @@ public class Desugar extends BLangNodeVisitor {
 
         pkgNode.services.forEach(service -> serviceDesugar.engageCustomServiceDesugar(service, env));
 
-        pkgNode.typeDefinitions = rewrite(pkgNode.typeDefinitions, env);
         annotationDesugar.rewritePackageAnnotations(pkgNode, env);
 
         // Add invocation for user specified module init function (`init()`) if present and return.
@@ -817,6 +816,7 @@ public class Desugar extends BLangNodeVisitor {
         //Sort type definitions with precedence
         pkgNode.typeDefinitions.sort(Comparator.comparing(t -> t.precedence));
 
+        pkgNode.typeDefinitions = rewrite(pkgNode.typeDefinitions, env);
         pkgNode.xmlnsList = rewrite(pkgNode.xmlnsList, env);
         pkgNode.constants = rewrite(pkgNode.constants, env);
         pkgNode.globalVars = rewrite(pkgNode.globalVars, env);
