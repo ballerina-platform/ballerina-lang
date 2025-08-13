@@ -96,14 +96,9 @@ jobs:
 
       - name: Download Module Data
         run: |
-          wget https://raw.githubusercontent.com/ballerina-platform/ballerina-release/master/dependabot/resources/extensions.json
-          wget https://raw.githubusercontent.com/ballerina-platform/ballerina-distribution/2201.0.x/gradle.properties
+          wget https://raw.githubusercontent.com/ballerina-platform/ballerina-release/2201.12.x/dependabot/resources/extensions.json
+          wget https://raw.githubusercontent.com/ballerina-platform/ballerina-distribution/2201.12.x/gradle.properties
 
-#      - name: Clone Modules
-#        run: |
-#          for module_name in $(jq -r '.standard_library| .[] | select(.level==${{ matrix.level }}) | .name' extensions.json); \
-#          do git clone https://github.com/ballerina-platform/${module_name}.git; \
-#          done
       - name: Clone Modules
         run: |
           for module_name in $(jq -r '.standard_library| .[] | select(.level==${{ matrix.level }}) | .name' extensions.json); do
@@ -124,15 +119,6 @@ jobs:
         run: |
           for module_name in $(jq -r '.standard_library| .[] | select(.level==${{ matrix.level }}) | .name' extensions.json); do \
           perl -pi -e "s/^\s*ballerinaLangVersion=.*/ballerinaLangVersion=${{ needs.build-lang.outputs.lang_version }}/" ${module_name}/gradle.properties; \
-          done
-
-      - name: Update Observe Module Version
-        run: |
-          OBSERVE_VERSION=1.5.0-20250304-140800-d60274b
-          OBSERVE_INTERNAL_VERSION=1.5.0-20250305-160800-51dc066
-          for module_name in $(jq -r '.standard_library| .[] | select(.level==${{ matrix.level }}) | .name' extensions.json); do \
-          perl -pi -e "s/^\s*observeVersion=.*/observeVersion=${OBSERVE_VERSION}/" ${module_name}/gradle.properties && \
-          perl -pi -e "s/^\s*observeInternalVersion=.*/observeInternalVersion=${OBSERVE_INTERNAL_VERSION}/" ${module_name}/gradle.properties; \
           done
 
       - name: Build Module
