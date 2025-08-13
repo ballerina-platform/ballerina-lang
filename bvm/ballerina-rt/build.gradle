@@ -77,7 +77,7 @@ dependencies {
     dist 'org.slf4j:slf4j-api:1.7.22'
     dist 'com.moandjiezana.toml:toml4j:0.7.2'
     dist 'org.wso2.orbit.org.antlr:antlr4-runtime:4.5.1.wso2v1'
-    dist 'org.apache.commons:commons-lang3:3.8.1'
+    dist 'org.apache.commons:commons-lang3:3.18.0'
     dist 'com.fasterxml.woodstox:woodstox-core:6.5.0'
     dist 'org.codehaus.woodstox:stax2-api:4.2.1'
 
