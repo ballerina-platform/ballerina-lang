@@ -159,6 +159,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: 'ballerina-platform/ballerina-distribution'
+          ref: '2201.12.x'
 
       - name: Set up JDK 21
         uses: actions/setup-java@v4
@@ -175,13 +176,6 @@ jobs:
       - name: Update Lang Version in Module
         run: |
           perl -pi -e "s/^\s*ballerinaLangVersion=.*/ballerinaLangVersion=${{ needs.build-lang.outputs.lang_version }}/" gradle.properties
-
-      - name: Update Observe Module Version
-        run: |
-          OBSERVE_VERSION=1.5.0-20250304-140800-d60274b
-          OBSERVE_INTERNAL_VERSION=1.5.0-20250305-160800-51dc066
-          perl -pi -e "s/^\s*observeVersion=.*/observeVersion=${OBSERVE_VERSION}/" gradle.properties
-          perl -pi -e "s/^\s*observeInternalVersion=.*/observeInternalVersion=${OBSERVE_INTERNAL_VERSION}/" gradle.properties
 
       - name: Build Module
         run: ./gradlew clean build --stacktrace --scan --console=plain --no-daemon --continue -x :project-api-tests:test
