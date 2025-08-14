@@ -708,8 +708,8 @@ public class JvmPackageGen {
 
         List<BIRTypeDefinition> recordTypeDefList = filterRecordTypes();
         recordTypeDefList.sort(NAME_HASH_COMPARATOR);
-        jvmMethodsSplitter.generateMethods(jarEntries, jvmCastGen, sortedFunctions, recordTypeDefList, asyncDataCollector,
-                lazyLoadingDataCollector);
+        jvmMethodsSplitter.generateMethods(jarEntries, jvmCastGen, sortedFunctions, recordTypeDefList,
+                asyncDataCollector, lazyLoadingDataCollector);
         jvmConstantsGen.generateConstants(jarEntries);
         lambdaGen.generateLambdaClasses(asyncDataCollector, jarEntries);
 

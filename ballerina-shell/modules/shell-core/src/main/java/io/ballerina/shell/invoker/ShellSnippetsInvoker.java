@@ -37,7 +37,6 @@ import io.ballerina.projects.util.ProjectUtils;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.internal.BalRuntime;
 import io.ballerina.runtime.internal.scheduling.ClassloaderRuntime;
-import io.ballerina.runtime.internal.values.ErrorValue;
 import io.ballerina.shell.DiagnosticReporter;
 import io.ballerina.shell.exceptions.InvokerException;
 import io.ballerina.shell.exceptions.InvokerPanicException;

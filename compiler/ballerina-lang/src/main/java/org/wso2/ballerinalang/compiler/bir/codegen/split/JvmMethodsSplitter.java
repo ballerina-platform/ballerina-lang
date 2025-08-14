@@ -51,7 +51,8 @@ public class JvmMethodsSplitter {
     }
 
     public void generateMethods(JarEntries jarEntries, JvmCastGen jvmCastGen, List<BIRNode.BIRFunction> sortedFunctions,
-                                List<BIRNode.BIRTypeDefinition> recordTypeDefList, AsyncDataCollector asyncDataCollector,
+                                List<BIRNode.BIRTypeDefinition> recordTypeDefList,
+                                AsyncDataCollector asyncDataCollector,
                                 LazyLoadingDataCollector lazyLoadingDataCollector) {
         jvmCreateTypeGen.generateRefTypeConstants(module.typeDefs, jvmPackageGen, jvmCastGen, asyncDataCollector,
                 lazyLoadingDataCollector);
