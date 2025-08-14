@@ -84,6 +84,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OPERAND;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OPTION;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.PATH;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.READONLY_TYPE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.RECORD_TYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.RECORD_TYPE_IMPL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.REENTRANT_LOCK;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.REG_EXP_ASSERTION;
@@ -256,6 +257,7 @@ public final class JvmSignatures {
     public static final String GET_PATH = "[L" + PATH + ";";
     public static final String GET_RECORD_TYPE_IMPL = "L" + RECORD_TYPE_IMPL + ";";
     public static final String GET_RECORD_TYPE_METHOD = "()L" + RECORD_TYPE_IMPL + ";";
+    public static final String GET_RECORD_TYPE_FOR_STRING = "(L" + STRING_VALUE + ";)L" + RECORD_TYPE + ";";
     public static final String GET_REGEXP = "L" + REG_EXP_VALUE + ";";
     public static final String GET_RUNTIME = "()L" + JvmConstants.JAVA_RUNTIME + ";";
     public static final String GET_RUNTIME_ERROR = "L" + ERROR_CODES + ";";

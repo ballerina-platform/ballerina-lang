@@ -63,7 +63,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INIT_TYP
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmValueGen.getTypeDescClassName;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmValueGen.getTypeValueClassName;
 import static org.wso2.ballerinalang.compiler.bir.codegen.utils.JvmCodeGenUtil.NAME_HASH_COMPARATOR;
-import static org.wso2.ballerinalang.compiler.bir.codegen.utils.JvmCodeGenUtil.createDefaultCase;
+import static org.wso2.ballerinalang.compiler.bir.codegen.utils.JvmCodeGenUtil.createDefaultCaseThrowError;
 import static org.wso2.ballerinalang.compiler.bir.codegen.utils.JvmCodeGenUtil.toNameString;
 import static org.wso2.ballerinalang.compiler.bir.codegen.utils.JvmModuleUtils.getModuleLevelClassName;
 import static org.wso2.ballerinalang.compiler.bir.codegen.utils.JvmModuleUtils.getPackageName;
@@ -98,7 +98,7 @@ public class JvmRecordCreatorGen {
                 CREATE_RECORD_WITH_MAP, null);
         mv.visitCode();
         if (recordTypeDefList.isEmpty()) {
-            createDefaultCase(mv, new Label(), 0, "No such record: ");
+            createDefaultCaseThrowError(mv, new Label(), 0, "No such record: ");
         } else {
             mv.visitVarInsn(ALOAD, 0);
             mv.visitMethodInsn(INVOKESTATIC, typeOwnerClass, CREATE_RECORD_VALUE + 0, CREATE_RECORD, false);
@@ -166,7 +166,7 @@ public class JvmRecordCreatorGen {
             bTypesCount++;
             if (bTypesCount % MAX_TYPES_PER_METHOD == 0) {
                 if (bTypesCount == recordTypeDefList.size()) {
-                    createDefaultCase(mv, defaultCaseLabel, fieldNameRegIndex, "No such record: ");
+                    createDefaultCaseThrowError(mv, defaultCaseLabel, fieldNameRegIndex, "No such record: ");
                 } else {
                     mv.visitLabel(defaultCaseLabel);
                     mv.visitVarInsn(ALOAD, fieldNameRegIndex);
@@ -179,7 +179,7 @@ public class JvmRecordCreatorGen {
             }
         }
         if (methodCount != 0 && bTypesCount % MAX_TYPES_PER_METHOD != 0) {
-            createDefaultCase(mv, defaultCaseLabel, fieldNameRegIndex, "No such record: ");
+            createDefaultCaseThrowError(mv, defaultCaseLabel, fieldNameRegIndex, "No such record: ");
             mv.visitMaxs(i + VISIT_MAX_SAFE_MARGIN, i + VISIT_MAX_SAFE_MARGIN);
             mv.visitEnd();
         }

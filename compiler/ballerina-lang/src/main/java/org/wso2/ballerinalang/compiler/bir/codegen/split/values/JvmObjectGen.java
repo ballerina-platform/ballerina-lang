@@ -74,7 +74,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.SET_VALU
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmTypeGen.getTypeDesc;
 import static org.wso2.ballerinalang.compiler.bir.codegen.utils.JvmCodeGenUtil.NAME_HASH_COMPARATOR;
 import static org.wso2.ballerinalang.compiler.bir.codegen.utils.JvmCodeGenUtil.castToJavaString;
-import static org.wso2.ballerinalang.compiler.bir.codegen.utils.JvmCodeGenUtil.createDefaultCase;
+import static org.wso2.ballerinalang.compiler.bir.codegen.utils.JvmCodeGenUtil.createDefaultCaseThrowError;
 
 /**
  * Class for generate {@link io.ballerina.runtime.api.values.BObject} related methods.
@@ -163,7 +163,7 @@ public class JvmObjectGen {
             bTypesCount++;
             if (bTypesCount % MAX_CALLS_PER_CLIENT_METHOD == 0) {
                 if (bTypesCount == functions.size()) {
-                    createDefaultCase(mv, defaultCaseLabel, funcNameRegIndex, "No such method: ");
+                    createDefaultCaseThrowError(mv, defaultCaseLabel, funcNameRegIndex, "No such method: ");
                 } else {
                     mv.visitLabel(defaultCaseLabel);
                     mv.visitVarInsn(ALOAD, 0);
@@ -178,7 +178,7 @@ public class JvmObjectGen {
             }
         }
         if (methodCount != 0 && bTypesCount % MAX_CALLS_PER_CLIENT_METHOD != 0) {
-            createDefaultCase(mv, defaultCaseLabel, funcNameRegIndex, "No such method: ");
+            createDefaultCaseThrowError(mv, defaultCaseLabel, funcNameRegIndex, "No such method: ");
             mv.visitMaxs(i + VISIT_MAX_SAFE_MARGIN, i + VISIT_MAX_SAFE_MARGIN);
             mv.visitEnd();
         }
@@ -212,7 +212,7 @@ public class JvmObjectGen {
             return;
         }
         Label defaultCaseLabel = new Label();
-        createDefaultCase(mv, defaultCaseLabel, strKeyVarIndex, "No such field: ");
+        createDefaultCaseThrowError(mv, defaultCaseLabel, strKeyVarIndex, "No such field: ");
         JvmCodeGenUtil.visitMaxStackForMethod(mv, "get", className);
         mv.visitEnd();
     }
@@ -262,7 +262,7 @@ public class JvmObjectGen {
             bTypesCount++;
             if (bTypesCount % MAX_FIELDS_PER_SPLIT_METHOD == 0) {
                 if (bTypesCount == sortedFields.size()) {
-                    createDefaultCase(mv, defaultCaseLabel, strKeyVarIndex, "No such field: ");
+                    createDefaultCaseThrowError(mv, defaultCaseLabel, strKeyVarIndex, "No such field: ");
                 } else {
                     mv.visitLabel(defaultCaseLabel);
                     mv.visitVarInsn(ALOAD, selfRegIndex);
@@ -275,7 +275,7 @@ public class JvmObjectGen {
             }
         }
         if (methodCount != 0 && bTypesCount % MAX_FIELDS_PER_SPLIT_METHOD != 0) {
-            createDefaultCase(mv, defaultCaseLabel, strKeyVarIndex, "No such field: ");
+            createDefaultCaseThrowError(mv, defaultCaseLabel, strKeyVarIndex, "No such field: ");
             mv.visitMaxs(i + VISIT_MAX_SAFE_MARGIN, i + VISIT_MAX_SAFE_MARGIN);
             mv.visitEnd();
         }
@@ -307,7 +307,7 @@ public class JvmObjectGen {
             return;
         }
         Label defaultCaseLabel = new Label();
-        createDefaultCase(mv, defaultCaseLabel, strKeyVarIndex, "No such field: ");
+        createDefaultCaseThrowError(mv, defaultCaseLabel, strKeyVarIndex, "No such field: ");
         JvmCodeGenUtil.visitMaxStackForMethod(mv, "set", className);
         mv.visitEnd();
     }
@@ -330,7 +330,7 @@ public class JvmObjectGen {
             return;
         }
         Label defaultCaseLabel = new Label();
-        createDefaultCase(mv, defaultCaseLabel, strKeyVarIndex, "No such field: ");
+        createDefaultCaseThrowError(mv, defaultCaseLabel, strKeyVarIndex, "No such field: ");
         JvmCodeGenUtil.visitMaxStackForMethod(mv, "setOnInitialization", className);
         mv.visitEnd();
     }
@@ -394,7 +394,7 @@ public class JvmObjectGen {
             bTypesCount++;
             if (bTypesCount % MAX_FIELDS_PER_SPLIT_METHOD == 0) {
                 if (bTypesCount == sortedFields.size()) {
-                    createDefaultCase(mv, defaultCaseLabel, strKeyVarIndex, "No such field: ");
+                    createDefaultCaseThrowError(mv, defaultCaseLabel, strKeyVarIndex, "No such field: ");
                 } else {
                     mv.visitLabel(defaultCaseLabel);
                     mv.visitVarInsn(ALOAD, selfRegIndex);
@@ -409,7 +409,7 @@ public class JvmObjectGen {
             }
         }
         if (methodCount != 0 && bTypesCount % MAX_FIELDS_PER_SPLIT_METHOD != 0) {
-            createDefaultCase(mv, defaultCaseLabel, strKeyVarIndex, "No such field: ");
+            createDefaultCaseThrowError(mv, defaultCaseLabel, strKeyVarIndex, "No such field: ");
             JvmCodeGenUtil.visitMaxStackForMethod(mv, setMethod, className);
             mv.visitEnd();
         }

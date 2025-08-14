@@ -18,7 +18,6 @@
 
 package org.wso2.ballerinalang.compiler.bir.codegen.split.constants;
 
-import org.ballerinalang.model.elements.PackageID;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.MethodVisitor;
 import org.wso2.ballerinalang.compiler.bir.codegen.BallerinaClassWriter;
@@ -62,11 +61,12 @@ public class JvmRefTypeConstantsGen {
     private final Map<BTypeReferenceType, String> typeRefVarMap;
     private final String typeRefVarConstantsPkgName;
 
-    public JvmRefTypeConstantsGen(PackageID packageID, BTypeHashComparator bTypeHashComparator, JarEntries jarEntries) {
+    public JvmRefTypeConstantsGen(BIRNode.BIRPackage module, BTypeHashComparator bTypeHashComparator,
+                                  JarEntries jarEntries) {
         this.typeRefVarMap = new TreeMap<>(bTypeHashComparator);
         this.jarEntries = jarEntries;
-        this.typeRefVarConstantsPkgName = getModuleLevelClassName(packageID, JvmConstants.
-                TYPE_REF_TYPE_CONSTANT_PACKAGE_NAME);
+        this.typeRefVarConstantsPkgName = getModuleLevelClassName(module.packageID,
+                JvmConstants.TYPE_REF_TYPE_CONSTANT_PACKAGE_NAME);
     }
 
     public void setJvmRefTypeGen(JvmRefTypeGen jvmRefTypeGen) {
@@ -78,9 +78,8 @@ public class JvmRefTypeConstantsGen {
         BTypeReferenceType referenceType = (BTypeReferenceType) typeDef.referenceType;
         String varName = typeRefVarMap.get(referenceType);
         if (varName == null) {
-            varName =
-                    generateTypeRefTypeInitMethod(typeDef, referenceType, jvmPackageGen, jvmCastGen, asyncDataCollector,
-                            lazyLoadingDataCollector);
+            varName = generateTypeRefTypeInitMethod(typeDef, referenceType, jvmPackageGen, jvmCastGen,
+                    asyncDataCollector, lazyLoadingDataCollector);
             typeRefVarMap.put(referenceType, varName);
         }
         return varName;

@@ -37,7 +37,6 @@ import org.objectweb.asm.MethodVisitor;
 import org.wso2.ballerinalang.compiler.bir.codegen.split.JvmConstantsGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.utils.JvmCodeGenUtil;
 import org.wso2.ballerinalang.compiler.bir.codegen.utils.JvmModuleUtils;
-import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SemTypeHelper;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.TypeHashVisitor;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
@@ -132,6 +131,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_FU
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_OBJECTS_CREATOR_CLASS_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_OBJECT_TYPES_PACKAGE_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_RECORDS_CREATOR_CLASS_NAME;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_RECORD_TYPES_CLASS_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_RECORD_TYPES_PACKAGE_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_STRING_CONSTANT_PACKAGE_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_TUPLE_TYPES_PACKAGE_NAME;
@@ -175,6 +175,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_MODU
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_OBJECT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_OBJECT_TYPE_IMPL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_OBJECT_TYPE_METHOD;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_RECORD_TYPE_FOR_STRING;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_RECORD_TYPE_IMPL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_RECORD_TYPE_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_REGEXP;
@@ -238,6 +239,7 @@ public class JvmTypeGen {
     private final SymbolTable symbolTable;
     private final PackageID packageID;
     private final String anonTypesClass;
+    private final String recordTypesClass;
     private final String functionTypesClass;
     private final String recordsClass;
     private final String objectsClass;
@@ -259,6 +261,7 @@ public class JvmTypeGen {
         this.symbolTable = symbolTable;
         this.semTypeCtx = Context.from(symbolTable.typeEnv());
         this.anonTypesClass = getModuleLevelClassName(packageID, MODULE_ANON_TYPES_CLASS_NAME);
+        this.recordTypesClass = getModuleLevelClassName(packageID, MODULE_RECORD_TYPES_CLASS_NAME);
         this.functionTypesClass = getModuleLevelClassName(packageID, MODULE_FUNCTION_TYPES_CLASS_NAME);
         this.recordsClass = getModuleLevelClassName(packageID, MODULE_RECORDS_CREATOR_CLASS_NAME);
         this.objectsClass = getModuleLevelClassName(packageID, MODULE_OBJECTS_CREATOR_CLASS_NAME);
@@ -279,6 +282,7 @@ public class JvmTypeGen {
 
     void generateGetTypeMethod(ClassWriter cw, String moduleClass) {
         generateGetAnonTypeMethod(cw, moduleClass);
+        generateGetRecordTypeMethod(cw);
         generateGetFunctionTypeMethod(cw);
     }
     void generateGetAnonTypeMethod(ClassWriter cw,  String moduleClass) {
@@ -289,6 +293,18 @@ public class JvmTypeGen {
         mv.visitMethodInsn(INVOKESTATIC, anonTypesClass, GET_ANON_TYPE_METHOD, JvmSignatures.GET_ANON_TYPE, false);
         mv.visitInsn(ARETURN);
         JvmCodeGenUtil.visitMaxStackForMethod(mv, GET_ANON_TYPE_METHOD, moduleClass);
+        mv.visitEnd();
+    }
+
+    void generateGetRecordTypeMethod(ClassWriter cw) {
+        MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, JvmConstants.GET_RECORD_TYPE_METHOD, GET_RECORD_TYPE_FOR_STRING
+                , null, null);
+        mv.visitCode();
+        mv.visitVarInsn(ALOAD, 1);
+        mv.visitMethodInsn(INVOKESTATIC, recordTypesClass, JvmConstants.GET_RECORD_TYPE_METHOD,
+                GET_RECORD_TYPE_FOR_STRING, false);
+        mv.visitInsn(ARETURN);
+        mv.visitMaxs(0, 0);
         mv.visitEnd();
     }
 
@@ -1014,17 +1030,6 @@ public class JvmTypeGen {
         boolean boolVal = BooleanSubtype.booleanSubtypeSingleValue(getComplexSubtypeData(s, BT_BOOLEAN)).orElseThrow();
         mv.visitLdcInsn(boolVal);
         mv.visitMethodInsn(INVOKESTATIC, BOOLEAN_VALUE, VALUE_OF_METHOD, BOOLEAN_VALUE_OF_METHOD, false);
-    }
-
-    public String getTypeClass(BIRNode.BIRTypeDefinition typeDef) {
-        String typesPkgName = switch (typeDef.type.tag) {
-            case TypeTags.RECORD -> this.recordTypesPkgName;
-            case TypeTags.OBJECT -> this.objectTypesPkgName;
-            case TypeTags.ERROR -> this.errorTypesPkgName;
-            case TypeTags.TUPLE -> this.tupleTypesPkgName;
-            default -> this.unionTypesPkgName;
-        };
-        return typesPkgName + typeDef.internalName.value;
     }
 
     public void getUserDefinedType(MethodVisitor mv, BType bType) {

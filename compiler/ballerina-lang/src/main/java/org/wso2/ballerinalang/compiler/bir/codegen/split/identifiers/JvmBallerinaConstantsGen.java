@@ -86,6 +86,7 @@ public class JvmBallerinaConstantsGen {
             BIRNode.ConstValue constValue = constant.constValue;
             BType bType = JvmCodeGenUtil.getImpliedType(constValue.type);
             ClassWriter cw = new BallerinaClassWriter(COMPUTE_FRAMES);
+            cw.visitSource(constant.pos.lineRange().fileName(), null);
             String varName = constant.name.value;
             String constantVarClassName = getVarStoreClass(jvmConstantsGen.constantsPkgName, varName);
             String descriptor = JvmCodeGenUtil.getFieldTypeSignature(bType);

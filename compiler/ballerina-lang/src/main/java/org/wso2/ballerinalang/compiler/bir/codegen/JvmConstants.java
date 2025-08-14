@@ -289,6 +289,7 @@ public final class JvmConstants {
     public static final String MODULE_INIT_CLASS_NAME = "$_init";
     public static final String OBJECT_SELF_INSTANCE = "self";
     public static final String MODULE_ANON_TYPES_CLASS_NAME = "types/anon_types";
+    public static final String MODULE_RECORD_TYPES_CLASS_NAME = "types/record_types";
     public static final String MODULE_FUNCTION_TYPES_CLASS_NAME = "types/function_types";
     public static final String MODULE_RECORDS_CREATOR_CLASS_NAME = "creators/records";
     public static final String MODULE_OBJECTS_CREATOR_CLASS_NAME = "creators/objects";
@@ -396,6 +397,7 @@ public final class JvmConstants {
 
     public static final String GET_ANON_TYPE_METHOD = "getAnonType";
     public static final String GET_FUNCTION_TYPE_METHOD = "getFunctionType";
+    public static final String GET_RECORD_TYPE_METHOD = "getRecordType";
 
     // strand data related constants
     public static final String STRAND = "strand";

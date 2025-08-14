@@ -84,6 +84,9 @@ public class JvmGlobalVariablesGen {
             }
             ClassWriter cw = new BallerinaClassWriter(COMPUTE_FRAMES);
             String globalVarClassName = getVarStoreClass(globalVarsPkgName, varName);
+            if (globalVar.pos != null) {
+                cw.visitSource(globalVar.pos.lineRange().fileName(), null);
+            }
             BType bType = JvmCodeGenUtil.getImpliedType(globalVar.type);
             String descriptor = JvmCodeGenUtil.getFieldTypeSignature(bType);
             // Create lazy loading class

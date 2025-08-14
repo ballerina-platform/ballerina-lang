@@ -56,6 +56,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBJECT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.VALUE_VAR_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.VOID_METHOD_DESC;
 import static org.wso2.ballerinalang.compiler.bir.codegen.utils.JvmCodeGenUtil.genMethodReturn;
+import static org.wso2.ballerinalang.compiler.bir.codegen.utils.JvmCodeGenUtil.generateDiagnosticPos;
 
 /**
  * The common functions used in lazy loading constructs generation.
@@ -114,6 +115,7 @@ public final class LazyLoadingCodeGenUtils {
             PackageID packageID = module.packageID;
             JvmTerminatorGen termGen = new JvmTerminatorGen(mv, indexMap, labelGen, errorGen, packageID,
                     instructionGen, jvmPackageGen, jvmTypeGen, jvmCastGen, asyncDataCollector);
+            JvmCodeGenUtil.generateDiagnosticPos(call.pos, mv);
             mv.visitInsn(ACONST_NULL);
             mv.visitVarInsn(ASTORE, 1);
             termGen.genCall(call, call.calleePkg, -1);
@@ -121,7 +123,8 @@ public final class LazyLoadingCodeGenUtils {
         }
         List<BIRNonTerminator> instructions = lazyBB.instructions;
         if (instructions != null) {
-            for (BIRInstruction instruction : instructions) {
+            for (BIRNonTerminator instruction : instructions) {
+                generateDiagnosticPos(instruction.pos, mv);
                 instructionGen.generateInstructions(-1, instruction);
             }
         }

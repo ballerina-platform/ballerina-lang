@@ -206,7 +206,8 @@ public class JvmValueGen {
                 return;
             }
             BType bType = optionalTypeDef.type;
-            String className = getTypeValueClassName(packageName, optionalTypeDef.internalName.value);
+            String varName = optionalTypeDef.internalName.value;
+            String className = getTypeValueClassName(packageName, varName);
             String valueClass = VALUE_CLASS_PREFIX + optionalTypeDef.internalName.value;
             asyncDataCollector.setCurrentSourceFileName(valueClass);
             asyncDataCollector.setCurrentSourceFileWithoutExt(valueClass);
@@ -219,7 +220,7 @@ public class JvmValueGen {
                 BRecordType recordType = (BRecordType) bType;
                 byte[] bytes = this.createRecordValueClass(recordType, className, optionalTypeDef, jvmTypeGen);
                 jarEntries.put(className + CLASS_FILE_SUFFIX, bytes);
-                String typedescClass = getTypeDescClassName(packageName, optionalTypeDef.internalName.value);
+                String typedescClass = getTypeDescClassName(packageName, varName);
                 bytes = createRecordTypeDescClass(optionalTypeDef, recordType, typedescClass, jvmTypeGen);
                 jarEntries.put(typedescClass + CLASS_FILE_SUFFIX, bytes);
             }
@@ -231,8 +232,6 @@ public class JvmValueGen {
         ClassWriter cw = new BallerinaClassWriter(COMPUTE_FRAMES);
         if (typeDef.pos != null) {
             cw.visitSource(typeDef.pos.lineRange().fileName(), null);
-        } else {
-            cw.visitSource(className, null);
         }
         cw.visit(V21, ACC_PUBLIC + ACC_SUPER, className, null, TYPEDESC_VALUE_IMPL, new String[]{TYPEDESC_VALUE});
         FieldVisitor fv = cw.visitField(0, ANNOTATIONS_FIELD, GET_MAP_VALUE, null, null);
@@ -329,8 +328,6 @@ public class JvmValueGen {
         ClassWriter cw = new BallerinaClassWriter(COMPUTE_FRAMES);
         if (typeDef.pos != null) {
             cw.visitSource(typeDef.pos.lineRange().fileName(), null);
-        } else {
-            cw.visitSource(className, null);
         }
         JvmCastGen jvmCastGen = new JvmCastGen(jvmPackageGen.symbolTable, jvmTypeGen, types);
         cw.visit(V21, ACC_PUBLIC + ACC_SUPER + ACC_FINAL, className, RECORD_VALUE_CLASS, MAP_VALUE_IMPL,

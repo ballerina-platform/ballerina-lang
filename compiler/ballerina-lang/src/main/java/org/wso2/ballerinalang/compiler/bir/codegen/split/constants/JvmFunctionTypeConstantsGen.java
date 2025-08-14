@@ -42,7 +42,6 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JVM_STATI
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBJECT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.VOID_METHOD_DESC;
 import static org.wso2.ballerinalang.compiler.bir.codegen.utils.JvmCodeGenUtil.genMethodReturn;
-import static org.wso2.ballerinalang.compiler.bir.codegen.utils.JvmCodeGenUtil.filterUserDefinedFunctions;
 import static org.wso2.ballerinalang.compiler.bir.codegen.utils.JvmModuleUtils.getModuleLevelClassName;
 
 /**
@@ -57,11 +56,8 @@ public class JvmFunctionTypeConstantsGen {
     private final String functionTypeConstantsPkgName;
 
     public JvmFunctionTypeConstantsGen(PackageID module, List<BIRNode.BIRFunction> functions) {
-        // Skip function types for record default value functions since they can be called directly from function
-        // pointers instead of the function name
-        this.functions = filterUserDefinedFunctions(functions);
-        this.functionTypeConstantsPkgName = getModuleLevelClassName(module,
-                FUNCTION_TYPE_CONSTANT_PACKAGE_NAME);
+        this.functions = functions;
+        this.functionTypeConstantsPkgName = getModuleLevelClassName(module, FUNCTION_TYPE_CONSTANT_PACKAGE_NAME);
     }
 
     public void generateClass(JarEntries jarEntries) {

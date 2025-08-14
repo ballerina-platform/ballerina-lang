@@ -57,7 +57,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.CREATE_E
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.ERROR_INIT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.utils.JvmModuleUtils.getModuleLevelClassName;
 import static org.wso2.ballerinalang.compiler.bir.codegen.utils.JvmCodeGenUtil.NAME_HASH_COMPARATOR;
-import static org.wso2.ballerinalang.compiler.bir.codegen.utils.JvmCodeGenUtil.createDefaultCase;
+import static org.wso2.ballerinalang.compiler.bir.codegen.utils.JvmCodeGenUtil.createDefaultCaseThrowError;
 
 /**
  * Ballerina error value creation related JVM byte code generation class.
@@ -92,7 +92,7 @@ public class JvmErrorCreatorGen {
                 CREATE_ERROR, null, null);
         mv.visitCode();
         if (errorTypeDefList.isEmpty()) {
-            createDefaultCase(mv, new Label(), 0, "No such error: ");
+            createDefaultCaseThrowError(mv, new Label(), 0, "No such error: ");
         } else {
             mv.visitVarInsn(ALOAD, 0);
             mv.visitVarInsn(ALOAD, 1);
@@ -154,7 +154,7 @@ public class JvmErrorCreatorGen {
             bTypesCount++;
             if (bTypesCount % MAX_TYPES_PER_METHOD == 0) {
                 if (bTypesCount == errorTypeDefList.size()) {
-                    createDefaultCase(mv, defaultCaseLabel, errorNameIndex, "No such error: ");
+                    createDefaultCaseThrowError(mv, defaultCaseLabel, errorNameIndex, "No such error: ");
                 } else {
                     mv.visitLabel(defaultCaseLabel);
                     mv.visitVarInsn(ALOAD, 0);
@@ -170,7 +170,7 @@ public class JvmErrorCreatorGen {
             }
         }
         if (methodCount != 0 && bTypesCount % MAX_TYPES_PER_METHOD != 0) {
-            createDefaultCase(mv, defaultCaseLabel, errorNameIndex, "No such error: ");
+            createDefaultCaseThrowError(mv, defaultCaseLabel, errorNameIndex, "No such error: ");
             mv.visitMaxs(i + VISIT_MAX_SAFE_MARGIN, i + VISIT_MAX_SAFE_MARGIN);
             mv.visitEnd();
         }

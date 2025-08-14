@@ -70,7 +70,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_OBJE
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.OBJECT_TYPE_IMPL_INIT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmValueGen.getTypeValueClassName;
 import static org.wso2.ballerinalang.compiler.bir.codegen.utils.JvmCodeGenUtil.NAME_HASH_COMPARATOR;
-import static org.wso2.ballerinalang.compiler.bir.codegen.utils.JvmCodeGenUtil.createDefaultCase;
+import static org.wso2.ballerinalang.compiler.bir.codegen.utils.JvmCodeGenUtil.createDefaultCaseThrowError;
 import static org.wso2.ballerinalang.compiler.bir.codegen.utils.JvmCodeGenUtil.toNameString;
 import static org.wso2.ballerinalang.compiler.bir.codegen.utils.JvmModuleUtils.getModuleLevelClassName;
 
@@ -106,7 +106,7 @@ public class JvmObjectCreatorGen {
         MethodVisitor mv = cw.visitMethod(ACC_PUBLIC + ACC_STATIC, CREATE_OBJECT_VALUE, CREATE_OBJECT, null, null);
         mv.visitCode();
         if (objectTypeDefList.isEmpty()) {
-            createDefaultCase(mv, new Label(), 0, "No such object: ");
+            createDefaultCaseThrowError(mv, new Label(), 0, "No such object: ");
         } else {
             mv.visitVarInsn(ALOAD, 0);
             mv.visitVarInsn(ALOAD, 1);
@@ -185,7 +185,7 @@ public class JvmObjectCreatorGen {
             bTypesCount++;
             if (bTypesCount % MAX_TYPES_PER_METHOD == 0) {
                 if (bTypesCount == objectTypeDefList.size()) {
-                    createDefaultCase(mv, defaultCaseLabel, var1Index, "No such object: ");
+                    createDefaultCaseThrowError(mv, defaultCaseLabel, var1Index, "No such object: ");
                 } else {
                     mv.visitLabel(defaultCaseLabel);
                     mv.visitVarInsn(ALOAD, 0);
@@ -200,7 +200,7 @@ public class JvmObjectCreatorGen {
             }
         }
         if (methodCount != 0 && bTypesCount % MAX_TYPES_PER_METHOD != 0) {
-            createDefaultCase(mv, defaultCaseLabel, var1Index, "No such object: ");
+            createDefaultCaseThrowError(mv, defaultCaseLabel, var1Index, "No such object: ");
             mv.visitMaxs(i + VISIT_MAX_SAFE_MARGIN, i + VISIT_MAX_SAFE_MARGIN);
             mv.visitEnd();
         }

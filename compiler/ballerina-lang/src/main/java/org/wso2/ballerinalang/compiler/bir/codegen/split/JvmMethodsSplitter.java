@@ -45,13 +45,13 @@ public class JvmMethodsSplitter {
                               TypeHashVisitor typeHashVisitor, JvmTypeGen jvmTypeGen) {
         this.module = module;
         this.jvmPackageGen = jvmPackageGen;
-        this.jvmCreateTypeGen = new JvmCreateTypeGen(jvmTypeGen, jvmConstantsGen, module.packageID, typeHashVisitor);
+        this.jvmCreateTypeGen = new JvmCreateTypeGen(jvmTypeGen, jvmConstantsGen, module, typeHashVisitor);
         this.jvmValueCreatorGen = new JvmValueCreatorGen(module.packageID, jvmTypeGen);
         jvmConstantsGen.setJvmCreateTypeGen(jvmCreateTypeGen);
     }
 
     public void generateMethods(JarEntries jarEntries, JvmCastGen jvmCastGen, List<BIRNode.BIRFunction> sortedFunctions,
-                                AsyncDataCollector asyncDataCollector,
+                                List<BIRNode.BIRTypeDefinition> recordTypeDefList, AsyncDataCollector asyncDataCollector,
                                 LazyLoadingDataCollector lazyLoadingDataCollector) {
         jvmCreateTypeGen.generateRefTypeConstants(module.typeDefs, jvmPackageGen, jvmCastGen, asyncDataCollector,
                 lazyLoadingDataCollector);
@@ -59,6 +59,7 @@ public class JvmMethodsSplitter {
                 lazyLoadingDataCollector);
         jvmValueCreatorGen.generateValueCreatorClasses(jvmPackageGen, module, jarEntries, jvmCastGen, sortedFunctions);
         jvmCreateTypeGen.generateAnonTypeClass(jvmPackageGen, module, jarEntries);
+        jvmCreateTypeGen.generateRecordTypeClass(jvmPackageGen, module, jarEntries, recordTypeDefList);
         jvmCreateTypeGen.generateFunctionTypeClass(jvmPackageGen, module, jarEntries, sortedFunctions);
     }
 }

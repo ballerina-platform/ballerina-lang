@@ -43,6 +43,8 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 
+import java.util.List;
+
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ALL_CONSTANTS_CLASS_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ALL_GLOBAL_VARIABLES_CLASS_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.GLOBAL_CONSTANTS_PACKAGE_NAME;
@@ -70,18 +72,19 @@ public class JvmConstantsGen {
     public final String constantsPkgName;
     public final String globalVarsPkgName;
 
-    public JvmConstantsGen(BIRNode.BIRPackage module, Types types, TypeHashVisitor typeHashVisitor,
+    public JvmConstantsGen(BIRNode.BIRPackage module, Types types, List<BIRNode.BIRFunction> sortedFunctions,
+                           TypeHashVisitor typeHashVisitor,
                            JarEntries jarEntries) {
         this.bTypeHashComparator = new BTypeHashComparator(typeHashVisitor);
         this.stringConstantsGen = new JvmBStringConstantsGen(module.packageID);
         this.moduleConstantsGen = new JvmModuleConstantsGen(module);
-        this.functionTypeConstantsGen = new JvmFunctionTypeConstantsGen(module.packageID, module.functions);
+        this.functionTypeConstantsGen = new JvmFunctionTypeConstantsGen(module.packageID, sortedFunctions);
         this.unionTypeConstantsGen = new JvmUnionTypeConstantsGen(module.packageID, bTypeHashComparator, jarEntries);
         this.errorTypeConstantsGen = new JvmErrorTypeConstantsGen(module.packageID, bTypeHashComparator, jarEntries);
         this.tupleTypeConstantsGen = new JvmTupleTypeConstantsGen(module.packageID, bTypeHashComparator, jarEntries);
         this.arrayTypeConstantsGen = new JvmArrayTypeConstantsGen(module.packageID, bTypeHashComparator, types,
                 jarEntries);
-        this.refTypeConstantsGen = new JvmRefTypeConstantsGen(module.packageID, bTypeHashComparator, jarEntries);
+        this.refTypeConstantsGen = new JvmRefTypeConstantsGen(module, bTypeHashComparator, jarEntries);
         this.globalVarsPkgName = getModuleLevelClassName(module.packageID, GLOBAL_VARIABLES_PACKAGE_NAME);
         this.constantsPkgName = getModuleLevelClassName(module.packageID, GLOBAL_CONSTANTS_PACKAGE_NAME);
         this.allGlobalVarsClassName = getModuleLevelClassName(module.packageID, ALL_GLOBAL_VARIABLES_CLASS_NAME);

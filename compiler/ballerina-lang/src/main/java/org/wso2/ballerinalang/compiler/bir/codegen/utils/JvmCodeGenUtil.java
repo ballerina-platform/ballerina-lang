@@ -52,13 +52,13 @@ import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.compiler.util.Unifier;
 import org.wso2.ballerinalang.util.Flags;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.regex.Pattern;
 
 import static org.objectweb.asm.Opcodes.ACONST_NULL;
 import static org.objectweb.asm.Opcodes.ALOAD;
+import static org.objectweb.asm.Opcodes.ARETURN;
 import static org.objectweb.asm.Opcodes.ASTORE;
 import static org.objectweb.asm.Opcodes.ATHROW;
 import static org.objectweb.asm.Opcodes.CHECKCAST;
@@ -137,7 +137,6 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.RETURN_T
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.RETURN_XML_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.STRING_BUILDER_APPEND;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.VOID_METHOD_DESC;
-import static org.wso2.ballerinalang.compiler.util.Constants.RECORD_DELIMITER;
 
 /**
  * The common functions used in CodeGen.
@@ -562,8 +561,15 @@ public final class JvmCodeGenUtil {
         return value;
     }
 
-    public static void createDefaultCase(MethodVisitor mv, Label defaultCaseLabel, int nameRegIndex,
-                                         String errorMessage) {
+
+    public static void createDefaultCaseReturnNull(MethodVisitor mv, Label defaultCaseLabel) {
+        mv.visitLabel(defaultCaseLabel);
+        mv.visitInsn(ACONST_NULL);
+        mv.visitInsn(ARETURN);
+    }
+
+    public static void createDefaultCaseThrowError(MethodVisitor mv, Label defaultCaseLabel, int nameRegIndex,
+                                                   String errorMessage) {
         mv.visitLabel(defaultCaseLabel);
         mv.visitTypeInsn(NEW, ERROR_VALUE);
         mv.visitInsn(DUP);
@@ -663,18 +669,6 @@ public final class JvmCodeGenUtil {
             loadStrand(mv, localVarOffset);
             mv.visitFieldInsn(GETFIELD, STRAND_CLASS, STRAND_WORKER_CHANNEL_MAP, GET_WORKER_CHANNEL_MAP);
         }
-    }
-
-    public static List<BIRNode.BIRFunction> filterUserDefinedFunctions(List<BIRNode.BIRFunction> functions) {
-        List<BIRNode.BIRFunction> filteredFunctions = new ArrayList<>();
-        for (BIRNode.BIRFunction func : functions) {
-            String funcName = func.name.value;
-            if (funcName.contains(RECORD_DELIMITER)) {
-                continue;
-            }
-            filteredFunctions.add(func);
-        }
-        return filteredFunctions;
     }
 
     public static String getVarStoreClass(String varClassPkgName, String varName) {

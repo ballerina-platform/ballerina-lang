@@ -135,6 +135,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.utils.JvmModuleUtils.g
 import static org.wso2.ballerinalang.compiler.bir.codegen.utils.JvmModuleUtils.getPackageName;
 import static org.wso2.ballerinalang.compiler.bir.codegen.utils.JvmModuleUtils.isBallerinaBuiltinModule;
 import static org.wso2.ballerinalang.compiler.bir.codegen.utils.JvmModuleUtils.isSameModule;
+import static org.wso2.ballerinalang.compiler.util.Constants.RECORD_DELIMITER;
 
 /**
  * BIR module to JVM byte code generation class.
@@ -663,7 +664,11 @@ public class JvmPackageGen {
                 immediateImports, mainFunc, testExecuteFunc);
         TypeHashVisitor typeHashVisitor = new TypeHashVisitor();
         AsyncDataCollector asyncDataCollector = new AsyncDataCollector(currentModule);
-        JvmConstantsGen jvmConstantsGen = new JvmConstantsGen(currentModule, types, typeHashVisitor, jarEntries);
+        List<BIRNode.BIRFunction> sortedFunctions =
+                new ArrayList<>(filterUserDefinedFunctions(currentModule.functions));
+        sortedFunctions.sort(NAME_HASH_COMPARATOR);
+        JvmConstantsGen jvmConstantsGen = new JvmConstantsGen(currentModule, types, sortedFunctions, typeHashVisitor,
+                jarEntries);
         JvmTypeGen jvmTypeGen = new JvmTypeGen(jvmConstantsGen, currentModule.packageID, typeHashVisitor, symbolTable);
         JvmMethodsSplitter jvmMethodsSplitter = new JvmMethodsSplitter(this, jvmConstantsGen, currentModule,
                 typeHashVisitor,  jvmTypeGen);
@@ -701,9 +706,9 @@ public class JvmPackageGen {
                 asyncDataCollector, jarEntries);
         jvmBallerinaConstantsGen.generateConstantsClasses(this, jvmTypeGen, jvmCastGen, asyncDataCollector, jarEntries);
 
-        List<BIRNode.BIRFunction> sortedFunctions = new ArrayList<>(currentModule.functions);
-        sortedFunctions.sort(NAME_HASH_COMPARATOR);
-        jvmMethodsSplitter.generateMethods(jarEntries, jvmCastGen, sortedFunctions, asyncDataCollector,
+        List<BIRTypeDefinition> recordTypeDefList = filterRecordTypes();
+        recordTypeDefList.sort(NAME_HASH_COMPARATOR);
+        jvmMethodsSplitter.generateMethods(jarEntries, jvmCastGen, sortedFunctions, recordTypeDefList, asyncDataCollector,
                 lazyLoadingDataCollector);
         jvmConstantsGen.generateConstants(jarEntries);
         lambdaGen.generateLambdaClasses(asyncDataCollector, jarEntries);
@@ -711,6 +716,16 @@ public class JvmPackageGen {
         // clear class name mappings
         clearPackageGenInfo();
         return compiledJarFile;
+    }
+
+    private List<BIRTypeDefinition> filterRecordTypes() {
+        List<BIRTypeDefinition> recordTypes = new ArrayList<>();
+        for (BIRTypeDefinition typeDef : currentModule.typeDefs) {
+            if (typeDef.type.tag == TypeTags.RECORD && !Symbols.isFlagOn(typeDef.type.tsymbol.flags, Flags.ANONYMOUS)) {
+                recordTypes.add(typeDef);
+            }
+        }
+        return recordTypes;
     }
 
     private void removeSourceAnnotationTypeDefs(List<BIRTypeDefinition> typeDefs) {
@@ -761,5 +776,17 @@ public class JvmPackageGen {
             }
         }
         return false;
+    }
+
+    private static List<BIRNode.BIRFunction> filterUserDefinedFunctions(List<BIRNode.BIRFunction> functions) {
+        List<BIRNode.BIRFunction> filteredFunctions = new ArrayList<>();
+        for (BIRNode.BIRFunction func : functions) {
+            String funcName = func.name.value;
+            if (funcName.contains(RECORD_DELIMITER)) {
+                continue;
+            }
+            filteredFunctions.add(func);
+        }
+        return filteredFunctions;
     }
 }
