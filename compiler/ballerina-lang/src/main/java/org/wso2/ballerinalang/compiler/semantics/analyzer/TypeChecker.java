@@ -8056,7 +8056,6 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
 
         if (computedKey) {
             checkExpr(keyExpr, symTable.stringType, data);
-
             if (keyExpr.getBType() == symTable.semanticError) {
                 return new TypeSymbolPair(null, symTable.semanticError);
             }
