@@ -44,7 +44,10 @@ public class WorkspaceResolution {
     }
 
     public static WorkspaceResolution from(WorkspaceProject workspaceProject) {
-        return new WorkspaceResolution(workspaceProject, ResolutionOptions.builder().build());
+        return new WorkspaceResolution(workspaceProject, ResolutionOptions.builder()
+                .setOffline(workspaceProject.buildOptions().offlineBuild())
+                .setSticky(workspaceProject.buildOptions().sticky())
+                .build());
     }
 
     public static WorkspaceResolution from(WorkspaceProject workspaceProject, ResolutionOptions resolutionOptions) {

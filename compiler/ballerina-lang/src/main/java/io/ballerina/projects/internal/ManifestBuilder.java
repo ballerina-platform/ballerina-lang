@@ -130,6 +130,7 @@ public class ManifestBuilder {
     private static final String TOOL = "tool";
     private static final String DESCRIPTION = "description";
     private static final String README = "readme";
+    private static final String SKIP_WORKSPACE = "skipWorkspace";
 
     private boolean isOldStructure;
 
@@ -858,6 +859,7 @@ public class ManifestBuilder {
                 String org = getStringValueFromDependencyNode(dependencyNode, ORG);
                 String version = getStringValueFromDependencyNode(dependencyNode, VERSION);
                 String repository = getStringValueFromDependencyNode(dependencyNode, REPOSITORY);
+                Boolean skipWorkspace = getBooleanValueFromTomlTableNode(dependencyNode, SKIP_WORKSPACE);
 
                 PackageName depName = PackageName.from(name);
                 PackageOrg depOrg = PackageOrg.from(org);
@@ -871,7 +873,8 @@ public class ManifestBuilder {
                 }
 
                 dependencies.add(new PackageManifest.Dependency(
-                        depName, depOrg, depVersion, repository, dependencyNode.location()));
+                        depName, depOrg, depVersion, repository, dependencyNode.location(),
+                        Boolean.TRUE.equals(skipWorkspace)));
             }
         }
         return dependencies;

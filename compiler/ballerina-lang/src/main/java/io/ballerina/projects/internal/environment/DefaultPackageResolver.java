@@ -142,8 +142,9 @@ public class DefaultPackageResolver implements PackageResolver {
                     requestList.add(request);
                     customRepoRequestMap.put(customRepository, requestList);
                 }
-            } else if (workspaceRepo != null &&
-                    !ProjectUtils.isBuiltInPackage(request.orgName(), request.packageName().toString())) {
+            } else if (workspaceRepo != null
+                    && !ProjectUtils.isBuiltInPackage(request.orgName(), request.packageName().toString())
+                    && !request.skipWorkspace()) {
                 workspaceRequests.add(request);
             }
         }

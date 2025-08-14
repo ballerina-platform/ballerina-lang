@@ -29,6 +29,7 @@ import io.ballerina.projects.WorkspaceBallerinaToml;
 import io.ballerina.projects.directory.BuildProject;
 import io.ballerina.projects.directory.ProjectLoader;
 import io.ballerina.projects.directory.WorkspaceProject;
+import io.ballerina.tools.diagnostics.Diagnostic;
 import org.apache.commons.io.FileUtils;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
@@ -38,6 +39,7 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.List;
 
 public class TestWorkspaceProject extends BaseTest {
@@ -290,5 +292,34 @@ public class TestWorkspaceProject extends BaseTest {
         Assert.assertEquals(topologicallySortedList.size(), 2);
         PackageCompilation compilation = topologicallySortedList.get(0).currentPackage().getCompilation();
         Assert.assertEquals(compilation.diagnosticResult().errorCount(), 3);
+    }
+
+    @Test
+    public void testWorkspaceWithMinVersion() {
+        Path projectPath = tempResourceDir.resolve("wp-with-minversion");
+        ProjectLoadResult projectLoadResult = TestUtils.loadWorkspaceProject(projectPath);
+        Assert.assertEquals(projectLoadResult.diagnostics().errorCount(), 0);
+        WorkspaceProject project = (WorkspaceProject) projectLoadResult.project();
+        List<BuildProject> topologicallySortedList = project.getResolution().dependencyGraph()
+                .toTopologicallySortedList();
+        Assert.assertEquals(topologicallySortedList.size(), 3);
+        Assert.assertEquals(project.getResolution().diagnosticResult().diagnosticCount(), 0);
+    }
+
+    @Test (enabled = false, description = "The test is disabled due to the blocker #44240")
+    public void testWorkspaceWithNonExistentMinVersion() {
+        Path projectPath = tempResourceDir.resolve("wp-with-non-existent-minversion");
+        ProjectLoadResult projectLoadResult = TestUtils.loadWorkspaceProject(projectPath);
+        WorkspaceProject project = (WorkspaceProject) projectLoadResult.project();
+        List<BuildProject> topologicallySortedList = project.getResolution().dependencyGraph()
+                .toTopologicallySortedList();
+        List<Diagnostic> diagnostics = new ArrayList<>();
+        for (BuildProject buildProject : topologicallySortedList) {
+            PackageCompilation compilation = buildProject.currentPackage().getCompilation();
+            diagnostics.addAll(compilation.diagnosticResult().diagnostics());
+        }
+        Assert.assertEquals(diagnostics.size(), 1);
+        Assert.assertEquals(diagnostics.get(0).toString(),
+                "ERROR [depA.bal:(1:1,1:24)] cannot resolve module 'asmaj/depA as _'");
     }
 }
