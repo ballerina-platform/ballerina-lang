@@ -715,7 +715,7 @@ public final class StaticMethods {
                 .createField(PredefinedTypes.TYPE_STRING, "name", SymbolFlags.REQUIRED + SymbolFlags.PUBLIC));
         fieldMap.put("id", TypeCreator
                 .createField(PredefinedTypes.TYPE_INT, "id", SymbolFlags.REQUIRED + SymbolFlags.PUBLIC));
-        RecordType recordType = TypeCreator.createRecordType("Details", module, SymbolFlags.READONLY
+        RecordType recordType = TypeCreator.createRecordType("Details & readonly", module, SymbolFlags.READONLY
                 , fieldMap, null, true, 0);
         BMapInitialValueEntry[] mapInitialValueEntries = {ValueCreator.createKeyFieldEntry(
                 StringUtils.fromString("name"), StringUtils.fromString("aee")), ValueCreator.createKeyFieldEntry(
