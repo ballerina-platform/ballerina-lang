@@ -63,6 +63,7 @@ public final class StackTrace {
 
     private StackTrace() {
     }
+    private static final Module MODULE = new Module("ballerina", "lang.error", "1");
 
     private static final ObjectType CALLSTACK_TYPE = createCallStackType();
 
@@ -75,9 +76,9 @@ public final class StackTrace {
     }
 
     private static ObjectType createCallStackType() {
-        Module module = new Module("ballerina", "lang.error", null);
+
         RecordType callStackElementType =
-                TypeCreator.createRecordType("CallStackElement", module, 0, Map.of(
+                TypeCreator.createRecordType("CallStackElement", MODULE, 0, Map.of(
                         "callableName", TypeCreator.createField(PredefinedTypes.TYPE_STRING, "callableName", 0),
                         "moduleName", TypeCreator.createField(PredefinedTypes.TYPE_STRING, "moduleName", OPTIONAL),
                         "fileName", TypeCreator.createField(PredefinedTypes.TYPE_STRING, "fileName", 0),
@@ -85,7 +86,7 @@ public final class StackTrace {
                 ), PredefinedTypes.TYPE_NEVER, false, 0);
 
         ObjectType callStackObjType = TypeCreator
-                .createObjectType("CallStack", module, 0);
+                .createObjectType("CallStack", MODULE, 0);
         callStackObjType.setMethods(new MethodType[]{});
         callStackObjType
                 .setFields(Collections.singletonMap("callStack",

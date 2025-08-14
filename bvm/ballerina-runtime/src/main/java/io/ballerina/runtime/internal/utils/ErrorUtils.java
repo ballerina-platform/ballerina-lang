@@ -58,9 +58,12 @@ public final class ErrorUtils {
      * @return ballerina error
      */
     public static ErrorValue createInteropError(Throwable e) {
+        Throwable cause = e.getCause();
+        if (cause instanceof ErrorValue bError) {
+            return bError;
+        }
         MappingInitialValueEntry[] initialValues;
         String message = e.getMessage();
-        Throwable cause = e.getCause();
         if (message != null && cause != null) {
             initialValues = new MappingInitialValueEntry[2];
             initialValues[0] = new MappingInitialValueEntry.KeyValueEntry(ERROR_MESSAGE_FIELD,
