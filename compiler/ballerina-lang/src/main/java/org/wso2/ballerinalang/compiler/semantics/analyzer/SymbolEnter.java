@@ -46,7 +46,6 @@ import org.wso2.ballerinalang.compiler.desugar.ASTBuilderUtil;
 import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.compiler.parser.BLangAnonymousModelHelper;
 import org.wso2.ballerinalang.compiler.parser.BLangMissingNodesHelper;
-import org.wso2.ballerinalang.compiler.parser.NodeCloner;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope.ScopeEntry;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
@@ -243,22 +242,12 @@ public class SymbolEnter extends BLangNodeVisitor {
     private final BLangMissingNodesHelper missingNodesHelper;
     private final PackageCache packageCache;
     private final List<BLangNode> intersectionTypes;
-    private final NodeCloner nodeCloner;
 
     private SymbolEnv env;
     private final boolean projectAPIInitiatedCompilation;
 
     private static final String DEPRECATION_ANNOTATION = "deprecated";
     private static final String ANONYMOUS_RECORD_NAME = "anonymous-record";
-    private final Map<BLangStructureTypeNodeLookupKey, BLangStructureTypeNode> visitedStructuredTypeNodes =
-            new HashMap<>();
-
-    private record BLangStructureTypeNodeLookupKey(PackageID packageID, Name name) {
-
-        static BLangStructureTypeNodeLookupKey from(BSymbol symbol) {
-            return new BLangStructureTypeNodeLookupKey(symbol.pkgID, symbol.name);
-        }
-    }
 
     public static SymbolEnter getInstance(CompilerContext context) {
         SymbolEnter symbolEnter = context.get(SYMBOL_ENTER_KEY);
@@ -287,7 +276,6 @@ public class SymbolEnter extends BLangNodeVisitor {
         this.packageCache = PackageCache.getInstance(context);
         this.constResolver = ConstantValueResolver.getInstance(context);
         this.intersectionTypes = new ArrayList<>();
-        this.nodeCloner = NodeCloner.getInstance(context);
 
         CompilerOptions options = CompilerOptions.getInstance(context);
         projectAPIInitiatedCompilation = Boolean.parseBoolean(
@@ -296,7 +284,6 @@ public class SymbolEnter extends BLangNodeVisitor {
 
     private void cleanup() {
         unknownTypeRefs.clear();
-        visitedStructuredTypeNodes.clear();
     }
 
     public BLangPackage definePackage(BLangPackage pkgNode) {
@@ -4861,8 +4848,6 @@ public class SymbolEnter extends BLangNodeVisitor {
     }
 
     private void resolveIncludedFields(BLangStructureTypeNode structureTypeNode) {
-        visitedStructuredTypeNodes.put(BLangStructureTypeNodeLookupKey.from(structureTypeNode.symbol),
-                structureTypeNode);
         SymbolEnv typeDefEnv = structureTypeNode.typeDefEnv;
         List<BLangType> typeRefs = structureTypeNode.typeRefs;
         int typeRefSize = typeRefs.size();
@@ -4876,7 +4861,6 @@ public class SymbolEnter extends BLangNodeVisitor {
         }
 
         structureTypeNode.includedFields = typeRefs.stream().flatMap(typeRef -> {
-            Optional<BLangIdentifier> pkgAlias = getPkgAlias(typeRef);
             BType referredType = symResolver.resolveTypeNode(typeRef, typeDefEnv);
             referredType = Types.getReferredType(referredType);
             if (referredType == symTable.semanticError) {
@@ -4961,7 +4945,6 @@ public class SymbolEnter extends BLangNodeVisitor {
                 }
             }
 
-            BType finalReferredType = referredType;
             return ((BStructureType) referredType).fields.values().stream().filter(f -> {
                 if (fieldNames.containsKey(f.name.value)) {
                     BLangSimpleVariable existingVariable = fieldNames.get(f.name.value);
@@ -4977,60 +4960,10 @@ public class SymbolEnter extends BLangNodeVisitor {
             }).map(field -> {
                 BLangSimpleVariable var = ASTBuilderUtil.createVariable(typeRef.pos, field.name.value, field.type);
                 var.flagSet = field.symbol.getFlags();
-                var structuredTypeNode =
-                        visitedStructuredTypeNodes.get(BLangStructureTypeNodeLookupKey.from(finalReferredType.tsymbol));
-                if (structuredTypeNode != null) {
-                    copyMatchingConstAnnotations(field, structuredTypeNode, var, typeDefEnv, pkgAlias);
-                }
                 return var;
             });
         }).toList();
         structureTypeNode.typeRefs.removeAll(invalidTypeRefs);
-    }
-
-    private static Optional<BLangIdentifier> getPkgAlias(BLangType typeRef) {
-        return typeRef instanceof BLangUserDefinedType userDefinedType ? Optional.ofNullable(userDefinedType.pkgAlias) :
-                Optional.empty();
-    }
-
-    private BSymbol getTypeSymbol(BLangType type, SymbolEnv typeDefEnv) {
-        return type instanceof BLangUserDefinedType userDefinedTypeNode ? userDefinedTypeNode.symbol :
-                Types.getReferredType(
-                        symResolver.resolveTypeNode(type, typeDefEnv)).tsymbol;
-    }
-
-    private boolean copyMatchingConstAnnotations(BField field, BLangStructureTypeNode parentTypeNode,
-                                                 BLangSimpleVariable targetVariable, SymbolEnv typeDefEnv,
-                                                 Optional<BLangIdentifier> pkgAlias) {
-        assert parentTypeNode != null;
-        Optional<BLangSimpleVariable> matchingFieldVar = parentTypeNode.fields.stream()
-                .filter(f -> f.name.value.equals(field.name.value))
-                .findFirst();
-        if (matchingFieldVar.isPresent()) {
-            var sourceVariable = matchingFieldVar.get();
-            sourceVariable.annAttachments.stream()
-                    .map(this.nodeCloner::cloneNode).forEach(
-                            annAttachment -> {
-                                annAttachment.pos = targetVariable.pos;
-                                pkgAlias.ifPresent(alias -> annAttachment.pkgAlias = alias);
-                                targetVariable.addAnnotationAttachment(annAttachment);
-                            });
-            return true;
-        } else {
-            for (BLangType each : parentTypeNode.typeRefs) {
-                Optional<BLangIdentifier> eachAlias = getPkgAlias(each);
-                BLangStructureTypeNode structuredTypeNode =
-                        visitedStructuredTypeNodes.get(
-                                BLangStructureTypeNodeLookupKey.from(getTypeSymbol(each, typeDefEnv)));
-                if (structuredTypeNode == null) {
-                    continue;
-                }
-                if (copyMatchingConstAnnotations(field, structuredTypeNode, targetVariable, typeDefEnv, eachAlias)) {
-                    return true;
-                }
-            }
-            return false;
-        }
     }
 
     private void defineReferencedFunction(Location location, Set<Flag> flagSet, SymbolEnv objEnv,
