@@ -54,6 +54,7 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -328,9 +329,9 @@ public class CoverageReport {
     private void createReport(final IBundleCoverage bundleCoverage, Map<String, ModuleCoverage> moduleCoverageMap,
                               List<DocumentId> exclusionList, Set<String> exclusionClassList) {
         boolean containsSourceFiles = true;
-
-        for (IPackageCoverage packageCoverage : bundleCoverage.getPackages()) {
-
+        ArrayList<IPackageCoverage> packages = (ArrayList<IPackageCoverage>) bundleCoverage.getPackages();
+        packages.sort(Comparator.comparing(IPackageCoverage::getName));
+        for (IPackageCoverage packageCoverage : packages) {
             if (TesterinaConstants.DOT.equals(this.module.moduleName().toString())) {
                 containsSourceFiles = packageCoverage.getName().isEmpty();
             }
