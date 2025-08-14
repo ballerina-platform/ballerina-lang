@@ -98,7 +98,6 @@ public class BRecordType extends BStructureType implements RecordType, TypeWithS
         this.sealed = sealed;
         this.typeFlags = typeFlags;
         this.readonly = SymbolFlags.isFlagOn(flags, SymbolFlags.READONLY);
-        TypeCreator.registerRecordType(this);
     }
 
     /**
@@ -128,7 +127,6 @@ public class BRecordType extends BStructureType implements RecordType, TypeWithS
             this.fields = fields;
         }
         this.internalName = typeName;
-        TypeCreator.registerRecordType(this);
     }
 
     private Map<String, Field> getReadOnlyFields(Map<String, Field> fields) {
