@@ -37,6 +37,7 @@ import io.ballerina.projects.util.ProjectUtils;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.internal.BalRuntime;
 import io.ballerina.runtime.internal.scheduling.ClassloaderRuntime;
+import io.ballerina.runtime.internal.values.ErrorValue;
 import io.ballerina.shell.DiagnosticReporter;
 import io.ballerina.shell.exceptions.InvokerException;
 import io.ballerina.shell.exceptions.InvokerPanicException;
@@ -408,6 +409,10 @@ public abstract class ShellSnippetsInvoker extends DiagnosticReporter {
                 throw new InvokerPanicException(throwable);
             }
         } catch (Throwable throwable) {
+            Throwable cause = throwable.getCause();
+            if (cause instanceof BError bError) {
+                throw new InvokerPanicException(bError);
+            }
             throw new InvokerPanicException(throwable);
         } finally {
             try {
