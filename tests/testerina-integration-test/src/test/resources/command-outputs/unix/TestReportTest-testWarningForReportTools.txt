@@ -1,6 +1,8 @@
 Compiling source
 	testerina_report/foo:0.0.0
 WARNING [main.bal:(36:5,36:19)] unused variable 'b'
+WARNING [modules/annot/main.bal:(109:5,109:53)] unused variable 's'
+WARNING [modules/annot/main.bal:(112:5,112:42)] unused variable 'r'
 
 Running Tests with Coverage
 

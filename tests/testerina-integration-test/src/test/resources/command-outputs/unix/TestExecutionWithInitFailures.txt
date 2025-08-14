@@ -14,10 +14,25 @@ Running Tests
 		Test execution time :*****s
 
 	testExecutionWithModuleInitFailure
-error: {ballerina}DivisionByZero {"message":" / by zero"}
+		[pass] testFunc
+		[pass] testFunc2
+
+
+		2 passing
+		0 failing
+		0 skipped
+
+		Test execution time :*****s
 
 	testExecutionWithModuleInitFailure.moduleA
-error: {ballerina}DivisionByZero {"message":" / by zero"}
+		[pass] testFunc
+
+
+		1 passing
+		0 failing
+		0 skipped
+
+		Test execution time :*****s
 
 	testExecutionWithModuleInitFailure.moduleC
 		[pass] testFunc
@@ -30,5 +45,28 @@ error: {ballerina}DivisionByZero {"message":" / by zero"}
 		Test execution time :*****s
 
 	testExecutionWithModuleInitFailure.moduleB
-error: {ballerina}DivisionByZero {"message":" / by zero"}
+
+	testFunc has failed.
+
+
+		[fail] testFunc:
+
+		    error("{ballerina}DivisionByZero",message=" / by zero")
+				callableName: testFunc moduleName: wso2.testExecutionWithModuleInitFailure.moduleB$test.0.tests.test fileName: tests/test.bal lineNumber: 22
+				callableName: testFunc$lambda0$ moduleName: wso2.testExecutionWithModuleInitFailure.moduleB$test.0.tests.test_execute-generated_*****lineNumber: 4
+				callableName: call moduleName: ballerina.lang.function.0 fileName: function.bal lineNumber: 37
+				callableName: executeTestFunction moduleName: ballerina.test.0 fileName: serialExecuter.bal lineNumber: 128
+				callableName: executeNonDataDrivenTest moduleName: ballerina.test.0 fileName: serialExecuter.bal lineNumber: 74
+				callableName: executeTest moduleName: ballerina.test.0 fileName: serialExecuter.bal lineNumber: 30
+				callableName: executeTests moduleName: ballerina.test.0 fileName: execute.bal lineNumber: 81
+				callableName: startSuite moduleName: ballerina.test.0 fileName: execute.bal lineNumber: 53
+				callableName: __execute__ moduleName: wso2.testExecutionWithModuleInitFailure.moduleB$test.0.tests.test_execute-generated_*****lineNumber: 8
+			
+
+
+		0 passing
+		1 failing
+		0 skipped
+
+		Test execution time :*****s
 error: there are test failures
