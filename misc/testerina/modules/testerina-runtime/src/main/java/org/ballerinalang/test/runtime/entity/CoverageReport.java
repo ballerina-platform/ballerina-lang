@@ -54,7 +54,7 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Comparator;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -322,16 +322,10 @@ public class CoverageReport {
         return coverageBuilder;
     }
 
-    private void createReport(final IBundleCoverage bundleCoverage, Map<String, ModuleCoverage> moduleCoverageMap) {
-        createReport(bundleCoverage, moduleCoverageMap, null, null);
-    }
-
     private void createReport(final IBundleCoverage bundleCoverage, Map<String, ModuleCoverage> moduleCoverageMap,
                               List<DocumentId> exclusionList, Set<String> exclusionClassList) {
         boolean containsSourceFiles = true;
-        ArrayList<IPackageCoverage> packages = (ArrayList<IPackageCoverage>) bundleCoverage.getPackages();
-        packages.sort(Comparator.comparing(IPackageCoverage::getName));
-        for (IPackageCoverage packageCoverage : packages) {
+        for (IPackageCoverage packageCoverage : bundleCoverage.getPackages()) {
             if (TesterinaConstants.DOT.equals(this.module.moduleName().toString())) {
                 containsSourceFiles = packageCoverage.getName().isEmpty();
             }
@@ -373,11 +367,14 @@ public class CoverageReport {
                                             sourceFileCoverage.getName());
                             Optional<List<Integer>> emptyLinesList = moduleCoverage.getEmptyLinesList(
                                     sourceFileCoverage.getName());
+                            Optional<Set<Integer>> allLinesSet =
+                                    moduleCoverage.getAllLines(sourceFileCoverage.getName());
                             if (missedLinesList.isPresent() && coveredLinesList.isPresent() &&
-                                    emptyLinesList.isPresent()) {
+                                    emptyLinesList.isPresent() && allLinesSet.isPresent()) {
                                 List<Integer> missedLines = missedLinesList.get();
                                 List<Integer> coveredLines = coveredLinesList.get();
                                 List<Integer> emptyLines = emptyLinesList.get();
+                                Set<Integer> allLines = allLinesSet.get();
                                 List<Integer> existingMissedLines = new ArrayList<>(missedLines);
                                 List<Integer> existingEmptyLines =  new ArrayList<>(emptyLines);
                                 boolean isCoverageUpdated = false;
@@ -394,6 +391,15 @@ public class CoverageReport {
                                         missedLines.remove(missedLine);
                                         coveredLines.add(missedLine);
                                         coveredMissedLineCount++;
+                                    }
+                                }
+                                // Check any missing lines
+                                int firstLine = sourceFileCoverage.getFirstLine();
+                                int lastLine = sourceFileCoverage.getLastLine();
+                                for (int i = firstLine; i <= lastLine; i++) {
+                                    if (!allLines.contains(i)) {
+                                        existingEmptyLines.add(i);
+                                        allLines.add(i);
                                     }
                                 }
                                 for (Integer emptyLine : existingEmptyLines) {
@@ -420,7 +426,8 @@ public class CoverageReport {
                                         Collections.sort(coveredLines);
                                         Collections.sort(missedLines);
                                         moduleCoverage.updateCoverage(document, coveredLines, missedLines, emptyLines,
-                                                coveredMissedLineCount, coveredEmptyLineCount, missedEmptyLineCount);
+                                                allLines, coveredMissedLineCount, coveredEmptyLineCount,
+                                                missedEmptyLineCount);
                                     }
                                 }
                             }
@@ -429,6 +436,7 @@ public class CoverageReport {
                             List<Integer> coveredLines = new ArrayList<>();
                             List<Integer> missedLines = new ArrayList<>();
                             List<Integer> emptyLines = new ArrayList<>();
+                            Set<Integer> allLines = new HashSet<>();
                             int firstLine = sourceFileCoverage.getFirstLine();
                             int lastLine = sourceFileCoverage.getLastLine();
                             for (int i = firstLine; i <= lastLine; i++) {
@@ -441,10 +449,11 @@ public class CoverageReport {
                                 } else if (line.getStatus() == EMPTY) {
                                     emptyLines.add(i);
                                 }
+                                allLines.add(i);
                             }
                             if (document != null && firstLine != -1) {
-                                moduleCoverage.addSourceFileCoverage(document, coveredLines,
-                                        missedLines, emptyLines);
+                                moduleCoverage.addSourceFileCoverage(document, coveredLines, missedLines, emptyLines,
+                                        allLines);
                             }
                             moduleCoverageMap.put(sourceFileModule, moduleCoverage);
                         }
@@ -532,6 +541,7 @@ public class CoverageReport {
                     List<Integer> newCoveredLines = new ArrayList<>();
                     List<Integer> newMissedLines = new ArrayList<>();
                     List<Integer> newEmptyLines = new ArrayList<>();
+                    Set<Integer> newAllLines = new HashSet<>();
 
                     // Go through line status and get the new covered and missed lines
                     for (int i = 0; i < originalDocLineStatus.size(); i++) {
@@ -542,11 +552,13 @@ public class CoverageReport {
                         } else if (originalDocLineStatus.get(i).equals(EMPTY)) {
                             newEmptyLines.add(i + 1);
                         }
+                        newAllLines.add(i);
                     }
 
                     // Remove previous source file module and replace it with new module coverage
                     moduleCoverageMap.remove(originalModule.moduleName().toString());
-                    moduleCoverage.replaceCoverage(originalDocument, newCoveredLines, newMissedLines, newEmptyLines);
+                    moduleCoverage.replaceCoverage(originalDocument, newCoveredLines, newMissedLines, newEmptyLines,
+                            newAllLines);
                     moduleCoverageMap.put(originalModule.moduleName().toString(), moduleCoverage);
                 }
 
