@@ -52,6 +52,7 @@ Running Tests
 		[fail] testFunc:
 
 		    error("{ballerina}DivisionByZero",message=" / by zero")
+				callableName: ..<init> moduleName: wso2.testExecutionWithModuleInitFailure.moduleB.0.a fileName: main.bal lineNumber: 19
 				callableName: testFunc moduleName: wso2.testExecutionWithModuleInitFailure.moduleB$test.0.tests.test fileName: tests/test.bal lineNumber: 22
 				callableName: testFunc$lambda0$ moduleName: wso2.testExecutionWithModuleInitFailure.moduleB$test.0.tests.test_execute-generated_*****lineNumber: 4
 				callableName: call moduleName: ballerina.lang.function.0 fileName: function.bal lineNumber: 37

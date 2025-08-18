@@ -13,6 +13,7 @@ Running Tests
 		[fail] testFunc:
 
 		    error("{ballerina}DivisionByZero",message=" / by zero")
+				callableName: ..<init> moduleName: a fileName: bal-test-with-init-failure.bal lineNumber: 19
 				callableName: testFunc  fileName: bal-test-with-init-failure.bal lineNumber: 23
 				callableName: testFunc$lambda0$  fileName: bal-test-with-init-failure.bal lineNumber: 27
 				callableName: call moduleName: ballerina.lang.function.0 fileName: function.bal lineNumber: 37
