@@ -80,10 +80,12 @@ public class ErrorValue extends BError implements RefValue {
     private final BError cause;
     private final BMap<BString, Object> details;
 
-    private static final String GENERATED_CLASS_TEXTS_REGEX = "values.\\$|\\$split\\$\\d|lambdas.\\$\\d*";
+    private static final String GENERATED_CLASS_TEXTS_REGEX =
+            "values.\\$|\\$split\\$\\d|lambdas.\\$\\d*|identifiers.global_vars.|identifiers.constants.";
     private static final String GENERATE_PKG_INIT = "___init_";
     private static final String GENERATE_PKG_START = "___start_";
     private static final String GENERATE_PKG_STOP = "___stop_";
+    public static final String JVM_STATIC_INIT_METHOD = "<clinit>";
     private static final String INIT_FUNCTION_SUFFIX = "..<init>";
     private static final String START_FUNCTION_SUFFIX = ".<start>";
     private static final String STOP_FUNCTION_SUFFIX = ".<stop>";
@@ -424,12 +426,15 @@ public class ErrorValue extends BError implements RefValue {
     private Optional<StackTraceElement> filterStackTraceElement(StackTraceElement stackFrame, int currentIndex) {
         String fileName = stackFrame.getFileName();
         int lineNo = stackFrame.getLineNumber();
-        if (lineNo < 0) {
+        String methodName = stackFrame.getMethodName();
+        if (lineNo < 0 || (fileName != null && !fileName.endsWith(BLANG_SRC_FILE_SUFFIX))
+                || isCompilerAddedName(methodName)) {
+            // Remove java sources for bal stacktrace if they are not extern functions or
+            // the stack frames which have compiler added method names
             return Optional.empty();
         }
         // Handle init function
         String className = stackFrame.getClassName();
-        String methodName = stackFrame.getMethodName();
         if (className.equals(MODULE_INIT_CLASS_NAME)) {
             if (currentIndex == 0) {
                 return Optional.empty();
@@ -450,11 +455,8 @@ public class ErrorValue extends BError implements RefValue {
             return Optional.of(new StackTraceElement(cleanupClassName(className), methodName, fileName,
                                                      stackFrame.getLineNumber()));
 
-        }
-        if (fileName != null && !fileName.endsWith(BLANG_SRC_FILE_SUFFIX) || isCompilerAddedName(methodName)) {
-            // Remove java sources for bal stacktrace if they are not extern functions or
-            // the stack frames which have compiler added method names
-            return Optional.empty();
+        } else if (methodName.equals(JVM_STATIC_INIT_METHOD)) {
+            methodName = INIT_FUNCTION_SUFFIX;
         }
         return Optional.of(new StackTraceElement(cleanupClassName(className), methodName, fileName,
                 stackFrame.getLineNumber()));
