@@ -43,18 +43,17 @@ import static io.ballerina.projects.util.TomlUtil.getStringArrayFromTableNode;
 public class WorkspaceManifestBuilder {
     private final TomlDocument workspaceBallerinaToml;
     private final Path workspaceRoot;
-    private final ArrayList<Path> packages;
-    private final ArrayList<Diagnostic> diagnosticList;
+    private final List<Path> packages;
+    private final List<Diagnostic> diagnosticList;
 
     private WorkspaceManifestBuilder(TomlDocument tomlDocument, Path workspaceRoot) {
         this.workspaceBallerinaToml = tomlDocument;
         this.workspaceRoot = workspaceRoot;
         this.diagnosticList = new ArrayList<>();
-        this.packages = new ArrayList<>();
-        validateBallerinaToml();
+        this.packages = extractPackages(validateAndGetBallerinaToml());
     }
 
-    private void validateBallerinaToml() {
+    private TomlTableNode validateAndGetBallerinaToml() {
         TomlValidator wpBallerinaTomlValidator;
         try {
             wpBallerinaTomlValidator = new TomlValidator(
@@ -64,8 +63,11 @@ public class WorkspaceManifestBuilder {
         }
         Toml toml = workspaceBallerinaToml.toml();
         wpBallerinaTomlValidator.validate(toml);
-        TomlTableNode tomlAstNode = toml.rootNode();
+        return toml.rootNode();
+    }
 
+    private List<Path> extractPackages(TomlTableNode tomlAstNode) {
+        ArrayList<Path> packageList = new ArrayList<>();
         if (!tomlAstNode.entries().isEmpty()) {
             TopLevelNode topLevelPkgNode = tomlAstNode.entries().get("workspace");
             if (topLevelPkgNode != null && topLevelPkgNode.kind() == TomlType.TABLE) {
@@ -94,10 +96,11 @@ public class WorkspaceManifestBuilder {
                         diagnosticList.add(diagnostic);
                         continue;
                     }
-                    this.packages.add(workspaceRoot.resolve(packagePath).toAbsolutePath().normalize());
+                    packageList.add(workspaceRoot.resolve(packagePath).toAbsolutePath().normalize());
                 }
             }
         }
+        return packageList;
     }
 
     public static WorkspaceManifestBuilder from(TomlDocument tomlDocument, Path workspaceRoot) {

@@ -45,7 +45,7 @@ public class FunctionNameValidationTest extends BaseTestCase {
         String[] args = mergeCoverageArgs(new String[]{"validate-function-names"});
         String output = balClient.runMainAndReadStdOut("test", args,
                 new HashMap<>(), projectPath, true);
-        AssertionUtils.assertOutput(projectPath, "FunctionNameValidationTest-validateFunctionNamesTest.txt", output);
+        AssertionUtils.assertOutput("FunctionNameValidationTest-validateFunctionNamesTest.txt", output);
     }
 
 }

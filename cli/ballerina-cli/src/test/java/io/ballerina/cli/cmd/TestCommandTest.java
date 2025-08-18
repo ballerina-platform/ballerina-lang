@@ -740,7 +740,7 @@ public class TestCommandTest extends BaseCommandTest {
         TestCommand testCommand = new TestCommand(projectPath, printStream, printStream, false);
         new CommandLine(testCommand);
         testCommand.execute();
-        String output = readOutput();
+        String output = readOutput().replace("\r", "");
         Assert.assertTrue(output.contains(getOutput("wp-with-tests.txt")), output);
     }
 
@@ -752,7 +752,7 @@ public class TestCommandTest extends BaseCommandTest {
         TestCommand testCommand = new TestCommand(projectPath, printStream, printStream, false);
         new CommandLine(testCommand);
         testCommand.execute();
-        String output = readOutput();
+        String output = readOutput().replace("\r", "");
         Assert.assertTrue(output.contains(getOutput("wp-with-tests-hello-app.txt")), output);
     }
 
@@ -764,7 +764,7 @@ public class TestCommandTest extends BaseCommandTest {
         TestCommand testCommand = new TestCommand(projectPath, printStream, printStream, false);
         new CommandLine(testCommand);
         testCommand.execute();
-        String output = readOutput();
+        String output = readOutput().replace("\r", "");
         Assert.assertTrue(output.contains(getOutput("wp-with-tests-bye.txt")), output);
     }
 }

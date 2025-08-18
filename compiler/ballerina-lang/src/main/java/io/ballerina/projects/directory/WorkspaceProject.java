@@ -178,10 +178,7 @@ public class WorkspaceProject extends Project {
     }
 
     public WorkspaceResolution getResolution(ResolutionOptions resolutionOptions) {
-        if (this.workspaceResolution == null) {
-            this.workspaceResolution = WorkspaceResolution.from(this, resolutionOptions);
-        }
-        return this.workspaceResolution;
+        return WorkspaceResolution.from(this, resolutionOptions);
     }
 
     public List<BuildProject> projects() {

@@ -16,4 +16,4 @@ Running Tests with Coverage
 		Test execution time :*****s
 
 Generating Test Report
-	<projectPath>/before-each-after-each/target/report/test_results.json
+	before-each-after-each/target/report/test_results.json

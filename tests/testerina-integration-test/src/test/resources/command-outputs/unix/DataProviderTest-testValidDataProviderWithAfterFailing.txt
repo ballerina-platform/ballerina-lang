@@ -42,6 +42,6 @@ Running Tests with Coverage
 		Test execution time :*****s
 
 Generating Test Report
-	<projectPath>/data-providers/target/report/test_results.json
+	data-providers/target/report/test_results.json
 
 error: there are test failures

@@ -49,4 +49,4 @@ Running Tests with Coverage
 		Test execution time :*****s
 
 Generating Test Report
-	<projectPath>/assertions/target/report/test_results.json
+	assertions/target/report/test_results.json

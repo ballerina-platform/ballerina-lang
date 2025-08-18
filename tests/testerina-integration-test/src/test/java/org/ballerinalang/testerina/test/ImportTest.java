@@ -46,6 +46,6 @@ public class ImportTest extends BaseTestCase {
         String[] args = mergeCoverageArgs(new String[]{"predeclared-import-tests"});
         String output = balClient.runMainAndReadStdOut("test", args,
                 new HashMap<>(), projectPath, true);
-        AssertionUtils.assertOutput(projectPath, "ImportTest-testImportTest.txt", output);
+        AssertionUtils.assertOutput("ImportTest-testImportTest.txt", output);
     }
 }

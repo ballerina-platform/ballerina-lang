@@ -73,7 +73,7 @@ public class TestReportTest extends BaseTestCase {
         firstString = "tests.test_execute-generated_";
         endString = "lineNumber";
         output = CommonUtils.replaceVaryingString(firstString, endString, output);
-        AssertionUtils.assertOutput(projectPath, "TestReportTest-testWarningForReportTools.txt", output);
+        AssertionUtils.assertOutput("TestReportTest-testWarningForReportTools.txt", output);
     }
 
     @Test ()
@@ -85,7 +85,7 @@ public class TestReportTest extends BaseTestCase {
         String firstString = "tests.test_execute-generated_";
         String endString = "lineNumber";
         output = CommonUtils.replaceVaryingString(firstString, endString, output);
-        AssertionUtils.assertOutput(projectPath, "TestReportTest-testWarningForCoverageFormatFlag.txt", output);
+        AssertionUtils.assertOutput("TestReportTest-testWarningForCoverageFormatFlag.txt", output);
     }
 
     @Test()

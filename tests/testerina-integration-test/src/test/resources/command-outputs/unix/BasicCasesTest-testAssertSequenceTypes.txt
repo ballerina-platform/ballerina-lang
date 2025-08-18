@@ -21,4 +21,4 @@ Running Tests with Coverage
 		Test execution time :*****s
 
 Generating Test Report
-	<projectPath>/assertions-sequence-types/target/report/test_results.json
+	assertions-sequence-types/target/report/test_results.json

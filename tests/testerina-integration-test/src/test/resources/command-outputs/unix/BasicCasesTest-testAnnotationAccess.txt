@@ -18,4 +18,4 @@ Running Tests with Coverage
 		Test execution time :*****s
 
 Generating Test Report
-	<projectPath>/annotation-access/target/report/test_results.json
+	annotation-access/target/report/test_results.json

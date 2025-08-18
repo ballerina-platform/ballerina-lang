@@ -29,6 +29,7 @@ import io.ballerina.projects.WorkspaceBallerinaToml;
 import io.ballerina.projects.directory.BuildProject;
 import io.ballerina.projects.directory.ProjectLoader;
 import io.ballerina.projects.directory.WorkspaceProject;
+import io.ballerina.projects.environment.ResolutionOptions;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import org.apache.commons.io.FileUtils;
 import org.testng.Assert;
@@ -136,8 +137,9 @@ public class TestWorkspaceProject extends BaseTest {
         ProjectLoadResult projectLoadResult = ProjectLoader.load(projectPath);
         Assert.assertTrue(projectLoadResult.diagnostics().errors().isEmpty());
         WorkspaceProject project = (WorkspaceProject) projectLoadResult.project();
-        List<BuildProject> topologicallySortedList = project.getResolution().dependencyGraph()
-                .toTopologicallySortedList();
+        List<BuildProject> topologicallySortedList = project.getResolution(
+                ResolutionOptions.builder().setOffline(true).build()) // set offline build to avoid network calls
+                .dependencyGraph().toTopologicallySortedList();
 
         Assert.assertTrue(topologicallySortedList.get(0).buildOptions().offlineBuild());
         Assert.assertFalse(topologicallySortedList.get(0).buildOptions().observabilityIncluded());

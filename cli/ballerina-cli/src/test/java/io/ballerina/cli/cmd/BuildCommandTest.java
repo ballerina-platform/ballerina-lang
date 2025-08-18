@@ -1488,7 +1488,7 @@ public class BuildCommandTest extends BaseCommandTest {
         // non-existing bal file
         new CommandLine(buildCommand);
         buildCommand.execute();
-        Assert.assertEquals(readOutput(), getOutput("wp-simple.txt"));
+        Assert.assertEquals(readOutput().replace("\r", ""), getOutput("wp-simple.txt"));
     }
 
     @Test(description = "Build a single root workspace project")
@@ -1500,7 +1500,7 @@ public class BuildCommandTest extends BaseCommandTest {
         // non-existing bal file
         new CommandLine(buildCommand);
         buildCommand.execute();
-        Assert.assertEquals(readOutput(), getOutput("wp-one-root.txt"));
+        Assert.assertEquals(readOutput().replace("\r", ""), getOutput("wp-one-root.txt"));
     }
 
     @Test(description = "Build a workspace project containing multiple roots")
@@ -1512,7 +1512,7 @@ public class BuildCommandTest extends BaseCommandTest {
         // non-existing bal file
         new CommandLine(buildCommand);
         buildCommand.execute();
-        Assert.assertEquals(readOutput(), getOutput("wp-multiple-roots.txt"));
+        Assert.assertEquals(readOutput().replace("\r", ""), getOutput("wp-multiple-roots.txt"));
     }
 
     @Test(description = "Build workspace project containing nested paths")
@@ -1524,7 +1524,7 @@ public class BuildCommandTest extends BaseCommandTest {
         // non-existing bal file
         new CommandLine(buildCommand);
         buildCommand.execute();
-        Assert.assertEquals(readOutput(), getOutput("wp-nested-path.txt"));
+        Assert.assertEquals(readOutput().replace("\r", ""), getOutput("wp-nested-path.txt"));
     }
 
     @Test(description = "Build a specific package in a simple workspace project")
@@ -1537,7 +1537,7 @@ public class BuildCommandTest extends BaseCommandTest {
         // non-existing bal file
         new CommandLine(buildCommand);
         buildCommand.execute();
-        Assert.assertEquals(readOutput(), getOutput("wp-simple-hello-app.txt"));
+        Assert.assertEquals(readOutput().replace("\r", ""), getOutput("wp-simple-hello-app.txt"));
     }
 
     @Test(description = "Build a specific package in a multiple root workspace project")
@@ -1550,7 +1550,7 @@ public class BuildCommandTest extends BaseCommandTest {
         // non-existing bal file
         new CommandLine(buildCommand);
         buildCommand.execute();
-        Assert.assertEquals(readOutput(), getOutput("wp-multiple-roots-hello-app.txt"));
+        Assert.assertEquals(readOutput().replace("\r", ""), getOutput("wp-multiple-roots-hello-app.txt"));
     }
 
     @Test(description = "Build a specific package in a multiple root workspace project")
@@ -1564,8 +1564,7 @@ public class BuildCommandTest extends BaseCommandTest {
         try {
             buildCommand.execute();
         } catch (BLauncherException e) {
-            Assert.assertEquals(readOutput(), getOutput("wp-wrong-path.txt"));
+            Assert.assertEquals(readOutput().replace("\r", ""), getOutput("wp-wrong-path.txt"));
         }
-
     }
 }

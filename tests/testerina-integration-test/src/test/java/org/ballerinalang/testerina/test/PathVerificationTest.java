@@ -45,7 +45,7 @@ public class PathVerificationTest extends BaseTestCase {
         String[] args = mergeCoverageArgs(new String[]{"path-verification"});
         String output = balClient.runMainAndReadStdOut("test", args,
                 new HashMap<>(), projectPath, true);
-        AssertionUtils.assertOutput(projectPath, "PathVerificationTest-verifyTestsOutsidePath.txt", output);
+        AssertionUtils.assertOutput("PathVerificationTest-verifyTestsOutsidePath.txt", output);
     }
 
     @Test
@@ -53,6 +53,6 @@ public class PathVerificationTest extends BaseTestCase {
         String[] args = mergeCoverageArgs(new String[]{"missing-tests-dir"});
         String output = balClient.runMainAndReadStdOut("test", args,
                 new HashMap<>(), projectPath, true);
-        AssertionUtils.assertOutput(projectPath, "PathVerificationTest-verifyMissingTestsDirectory.txt", output);
+        AssertionUtils.assertOutput("PathVerificationTest-verifyMissingTestsDirectory.txt", output);
     }
 }

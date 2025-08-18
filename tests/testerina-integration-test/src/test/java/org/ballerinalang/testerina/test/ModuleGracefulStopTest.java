@@ -54,7 +54,7 @@ public class ModuleGracefulStopTest extends BaseTestCase {
         String firstString = "tests.test_execute-generated_";
         String endString = "lineNumber";
         output = CommonUtils.replaceVaryingString(firstString, endString, output);
-        AssertionUtils.assertOutput(projectPath, "ModuleGracefulStopTest-test-listener-shutdown.txt", output);
+        AssertionUtils.assertOutput("ModuleGracefulStopTest-test-listener-shutdown.txt", output);
     }
 
     @AfterMethod

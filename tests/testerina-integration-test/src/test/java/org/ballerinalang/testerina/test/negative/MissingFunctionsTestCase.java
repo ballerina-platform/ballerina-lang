@@ -47,7 +47,7 @@ public class MissingFunctionsTestCase extends BaseTestCase {
         String[] args = mergeCoverageArgs(new String[]{"before-func-negative.bal"});
         String output = balClient.runMainAndReadStdOut("test", args,
                 new HashMap<>(), projectPath, true);
-        AssertionUtils.assertOutput(projectPath, "MissingFunctionsTestCase-testMissingBeforeFunction.txt", output);
+        AssertionUtils.assertOutput("MissingFunctionsTestCase-testMissingBeforeFunction.txt", output);
     }
 
     @Test
@@ -56,7 +56,7 @@ public class MissingFunctionsTestCase extends BaseTestCase {
         String[] args = mergeCoverageArgs(new String[]{"after-func-negative.bal"});
         String output = balClient.runMainAndReadStdOut("test", args,
                 new HashMap<>(), projectPath, true);
-        AssertionUtils.assertOutput(projectPath, "MissingFunctionsTestCase-testMissingAfterFunction.txt", output);
+        AssertionUtils.assertOutput("MissingFunctionsTestCase-testMissingAfterFunction.txt", output);
     }
 
     @Test
@@ -65,7 +65,7 @@ public class MissingFunctionsTestCase extends BaseTestCase {
         String[] args = mergeCoverageArgs(new String[]{"depends-on-negative.bal"});
         String output = balClient.runMainAndReadStdOut("test", args,
                 new HashMap<>(), projectPath, true);
-        AssertionUtils.assertOutput(projectPath, "MissingFunctionsTestCase-testMissingDependsOnFunction.txt", output);
+        AssertionUtils.assertOutput("MissingFunctionsTestCase-testMissingDependsOnFunction.txt", output);
     }
 
 }

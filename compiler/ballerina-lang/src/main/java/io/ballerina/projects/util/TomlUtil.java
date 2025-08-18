@@ -65,7 +65,16 @@ public class TomlUtil {
         return elements;
     }
 
-    // TODO: Fix code and messageFormat parameters in usages.
+
+    /**
+     * Creates a diagnostic message for a given TOML table node.
+     *
+     * @param tomlTableNode toml table node
+     * @param message diagnostic message
+     * @param errorCode diagnostic error code
+     * @param severity diagnostic severity
+     * @return created diagnostic
+     */
     public static Diagnostic createDiagnostic(TopLevelNode tomlTableNode,
                                               String message,
                                               ProjectDiagnosticErrorCode errorCode,

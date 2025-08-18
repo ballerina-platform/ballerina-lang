@@ -42,6 +42,6 @@ public class SingleTestExecutionWithInitFailuresTest extends BaseTestCase {
     public void testSingleBalTestExecutionWithInitFailure() throws BallerinaTestException, IOException {
         String[] args = mergeCoverageArgs(new String[]{"--tests", "testFunc", "bal-test-with-init-failure.bal"});
         String output = balClient.runMainAndReadStdOut("test", args, new HashMap<>(), projectPath, false);
-        AssertionUtils.assertOutput(projectPath, "SingleFileTestExecutionWithInitFailure.txt", output);
+        AssertionUtils.assertOutput("SingleFileTestExecutionWithInitFailure.txt", output);
     }
 }

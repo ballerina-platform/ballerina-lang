@@ -49,7 +49,7 @@ public class SkipTestsTestCase extends BaseTestCase {
         String[] args = mergeCoverageArgs(new String[]{"dependson-skip-test.bal"});
         String output = balClient.runMainAndReadStdOut("test", args,
                 new HashMap<>(), projectPath, false);
-        AssertionUtils.assertOutput(projectPath, "SkipTestsTestCase-testSkipWhenDependsOnFunctionFails.txt", output);
+        AssertionUtils.assertOutput("SkipTestsTestCase-testSkipWhenDependsOnFunctionFails.txt", output);
     }
 
     @Test
@@ -60,7 +60,7 @@ public class SkipTestsTestCase extends BaseTestCase {
         String[] args = mergeCoverageArgs(new String[]{"skip-when-before-fails.bal"});
         String output = balClient.runMainAndReadStdOut("test", args,
                 new HashMap<>(), projectPath, false);
-        AssertionUtils.assertOutput(projectPath, "SkipTestsTestCase-testSkipWhenBeforeFails.txt", output);
+        AssertionUtils.assertOutput("SkipTestsTestCase-testSkipWhenBeforeFails.txt", output);
     }
 
     @Test
@@ -71,7 +71,7 @@ public class SkipTestsTestCase extends BaseTestCase {
         String[] args = mergeCoverageArgs(new String[]{"skip-when-after-fails.bal"});
         String output = balClient.runMainAndReadStdOut("test", args,
                 new HashMap<>(), projectPath, false);
-        AssertionUtils.assertOutput(projectPath, "SkipTestsTestCase-testSkipWhenAfterFails.txt", output);
+        AssertionUtils.assertOutput("SkipTestsTestCase-testSkipWhenAfterFails.txt", output);
     }
 
     @Test
@@ -82,7 +82,7 @@ public class SkipTestsTestCase extends BaseTestCase {
         String[] args = mergeCoverageArgs(new String[]{"skip-when-beforeEach-fails.bal"});
         String output = balClient.runMainAndReadStdOut("test", args,
                 new HashMap<>(), projectPath, false);
-        AssertionUtils.assertOutput(projectPath, "SkipTestsTestCase-testSkipWhenBeforeEachFails.txt", output);
+        AssertionUtils.assertOutput("SkipTestsTestCase-testSkipWhenBeforeEachFails.txt", output);
     }
 
 
@@ -94,7 +94,7 @@ public class SkipTestsTestCase extends BaseTestCase {
         String[] args = mergeCoverageArgs(new String[]{"skip-when-afterEach-fails.bal"});
         String output = balClient.runMainAndReadStdOut("test", args,
                 new HashMap<>(), projectPath, false);
-        AssertionUtils.assertOutput(projectPath, "SkipTestsTestCase-testSkipWhenAfterEachFails.txt", output);
+        AssertionUtils.assertOutput("SkipTestsTestCase-testSkipWhenAfterEachFails.txt", output);
     }
 
     @Test
@@ -105,7 +105,7 @@ public class SkipTestsTestCase extends BaseTestCase {
         String[] args = mergeCoverageArgs(new String[]{"skip-when-beforeSuite-fails.bal"});
         String output = balClient.runMainAndReadStdOut("test", args,
                 new HashMap<>(), projectPath, false);
-        AssertionUtils.assertOutput(projectPath, "SkipTestsTestCase-testSkipWhenBeforeSuiteFails.txt", output);
+        AssertionUtils.assertOutput("SkipTestsTestCase-testSkipWhenBeforeSuiteFails.txt", output);
     }
 
     @Test
@@ -116,7 +116,7 @@ public class SkipTestsTestCase extends BaseTestCase {
         String[] args = mergeCoverageArgs(new String[]{"skip-when-beforeGroups-fails.bal"});
         String output = balClient.runMainAndReadStdOut("test", args,
                 new HashMap<>(), projectPath, false);
-        AssertionUtils.assertOutput(projectPath, "SkipTestsTestCase-testSkipWhenBeforeGroupsFails.txt", output);
+        AssertionUtils.assertOutput("SkipTestsTestCase-testSkipWhenBeforeGroupsFails.txt", output);
     }
 
 }

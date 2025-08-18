@@ -1648,7 +1648,7 @@ public class TestBuildProject extends BaseTest {
         Files.deleteIfExists(projectDirPath.resolve(TARGET_DIR_NAME).resolve(BUILD_FILE));
         Files.deleteIfExists(projectDirPath.resolve(DEPENDENCIES_TOML));
 
-        BuildProject buildProject = BuildProject.load(projectDirPath);
+        BuildProject buildProject = TestUtils.loadBuildProject(projectDirPath);
         buildProject.save();
         PackageCompilation compilation = buildProject.currentPackage().getCompilation();
 

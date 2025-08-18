@@ -45,7 +45,7 @@ public class DisableTestsTestCase extends BaseTestCase {
         String[] args = mergeCoverageArgs(new String[]{"disable-test.bal"});
         String output = balClient.runMainAndReadStdOut("test", args,
                 new HashMap<>(), projectPath, true);
-        AssertionUtils.assertOutput(projectPath, "DisableTestsTestCase-testDisablingTests.txt", output);
+        AssertionUtils.assertOutput("DisableTestsTestCase-testDisablingTests.txt", output);
     }
 
     @Test
@@ -53,6 +53,6 @@ public class DisableTestsTestCase extends BaseTestCase {
         String[] args = mergeCoverageArgs(new String[]{"disable-with-depends-on.bal"});
         String output = balClient.runMainAndReadStdOut("test", args,
                 new HashMap<>(), projectPath, false);
-        AssertionUtils.assertOutput(projectPath, "DisableTestsTestCase-testDisablingTestsWithDependsOn.txt", output);
+        AssertionUtils.assertOutput("DisableTestsTestCase-testDisablingTestsWithDependsOn.txt", output);
     }
 }

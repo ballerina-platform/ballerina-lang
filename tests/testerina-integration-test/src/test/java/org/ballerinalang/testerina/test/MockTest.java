@@ -67,7 +67,7 @@ public class MockTest extends BaseTestCase {
         String firstString = "tests.test_execute-generated_";
         String endString = "lineNumber";
         output = CommonUtils.replaceVaryingString(firstString, endString, output);
-        AssertionUtils.assertOutput(projectPath, "MockTest-testFunctionMocking.txt", output);
+        AssertionUtils.assertOutput("MockTest-testFunctionMocking.txt", output);
     }
 
     @Test
@@ -75,7 +75,7 @@ public class MockTest extends BaseTestCase {
         String[] args = mergeCoverageArgs(new String[]{"legacy-function-mocking-tests"});
         String output = balClient.runMainAndReadStdOut("test", args,
                 new HashMap<>(), projectPath, false);
-        AssertionUtils.assertOutput(projectPath, "MockTest-testFunctionMockingLegacy.txt", output);
+        AssertionUtils.assertOutput("MockTest-testFunctionMockingLegacy.txt", output);
     }
 
     @Test()
@@ -86,7 +86,7 @@ public class MockTest extends BaseTestCase {
         String firstString = "tests.test_execute-generated_";
         String endString = "lineNumber";
         output = CommonUtils.replaceVaryingString(firstString, endString, output);
-        AssertionUtils.assertOutput(projectPath, "MockTest-testObjectMocking.txt", output);
+        AssertionUtils.assertOutput("MockTest-testObjectMocking.txt", output);
     }
 
     /**
@@ -99,7 +99,7 @@ public class MockTest extends BaseTestCase {
         String[] args = mergeCoverageArgs(new String[]{"object-mocking-tests2"});
         String output = balClient.runMainAndReadStdOut("test", args,
                 new HashMap<>(), projectPath, false);
-        AssertionUtils.assertOutput(projectPath, "MockTest-testObjectMockDouble.txt", output);
+        AssertionUtils.assertOutput("MockTest-testObjectMockDouble.txt", output);
     }
 
     @Test()
@@ -107,7 +107,7 @@ public class MockTest extends BaseTestCase {
         String[] args = mergeCoverageArgs(new String[]{"resource-mocking-tests"});
         String output = balClient.runMainAndReadStdOut("test", args,
                 new HashMap<>(), projectPath, false);
-        AssertionUtils.assertOutput(projectPath, "MockTest-testResourceMocking.txt", output);
+        AssertionUtils.assertOutput("MockTest-testResourceMocking.txt", output);
     }
 
     @Test()
@@ -118,7 +118,7 @@ public class MockTest extends BaseTestCase {
         String firstString = "tests.test_execute-generated_";
         String endString = "lineNumber";
         output = CommonUtils.replaceVaryingString(firstString, endString, output);
-        AssertionUtils.assertOutput(projectPath, "MockTest-testFunctionMockingModuleLevel.txt", output);
+        AssertionUtils.assertOutput("MockTest-testFunctionMockingModuleLevel.txt", output);
     }
 
     @Test()
@@ -126,7 +126,7 @@ public class MockTest extends BaseTestCase {
         String[] args = mergeCoverageArgs(new String[]{"mocking-coverage-tests"});
         String output = balClient.runMainAndReadStdOut("test", args,
                 new HashMap<>(), projectPath, false);
-        AssertionUtils.assertOutput(projectPath, "MockTest-testCoverageWithMocking.txt", output);
+        AssertionUtils.assertOutput("MockTest-testCoverageWithMocking.txt", output);
         Path resultsJsonPath = projectBasedTestsPath.resolve("mocking-coverage-tests").resolve("target")
                 .resolve("report").resolve("test_results.json");
         JsonObject resultObj;
@@ -159,7 +159,7 @@ public class MockTest extends BaseTestCase {
     public void testFunctionMockingInMultipleModulesWithDependencies() throws BallerinaTestException, IOException {
         String[] args = mergeCoverageArgs(new String[]{"function-mocking-tests-with-dependencies"});
         String output = balClient.runMainAndReadStdOut("test", args, new HashMap<>(), projectPath, false);
-        AssertionUtils.assertOutput(projectPath, "MockTest-testFuncMockInMultiModulesWDepen.txt", output);
+        AssertionUtils.assertOutput("MockTest-testFuncMockInMultiModulesWDepen.txt", output);
     }
 
     @Test
@@ -169,7 +169,7 @@ public class MockTest extends BaseTestCase {
         String firstString = "tests.test_execute-generated_";
         String endString = "lineNumber";
         output = CommonUtils.replaceVaryingString(firstString, endString, output);
-        AssertionUtils.assertOutput(projectPath, "MockTest-testFunctionMockingThenReturnWithNilRetVal.txt",
+        AssertionUtils.assertOutput("MockTest-testFunctionMockingThenReturnWithNilRetVal.txt",
                 output.replaceAll("\r\n|\r", "\n"));
     }
 
@@ -187,7 +187,7 @@ public class MockTest extends BaseTestCase {
         firstString = "tests.test_execute-generated_";
         endString = "lineNumber";
         output = CommonUtils.replaceVaryingString(firstString, endString, output);
-        AssertionUtils.assertOutput(projectPath, baseOutputFile, output);
+        AssertionUtils.assertOutput(baseOutputFile, output);
     }
 
     @Test
@@ -200,7 +200,7 @@ public class MockTest extends BaseTestCase {
         String firstString = "Generating Test Report";
         String endString = "project-based-tests";
         output = CommonUtils.replaceVaryingString(firstString, endString, output);
-        AssertionUtils.assertOutput(projectPath, "MockTest-testObjectMocking_NonPublicField.txt", output);
+        AssertionUtils.assertOutput("MockTest-testObjectMocking_NonPublicField.txt", output);
     }
 
     @DataProvider(name = "testNegativeCases")

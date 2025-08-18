@@ -14,4 +14,4 @@ Running Tests with Coverage
 		Test execution time :*****s
 
 Generating Test Report
-	<projectPath>/runtime-api-tests/target/report/test_results.json
+	runtime-api-tests/target/report/test_results.json

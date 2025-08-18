@@ -44,7 +44,7 @@ public class EscapedIdentifiersValidationTest extends BaseTestCase {
         String[] args = mergeCoverageArgs(new String[]{"validate-escaped-identifiers"});
         String output = balClient.runMainAndReadStdOut("test", args,
                 new HashMap<>(), projectPath, true);
-        AssertionUtils.assertOutput(projectPath, "EscapedIdentifiersValidationTest-validateEscapedIdentifiersTest.txt",
+        AssertionUtils.assertOutput("EscapedIdentifiersValidationTest-validateEscapedIdentifiersTest.txt",
                 output);
     }
 }

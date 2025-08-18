@@ -53,7 +53,7 @@ public class ModuleExecutionTest extends BaseTestCase {
         String firstString = "Generating Test Report";
         String endString = "project-based-tests";
         output = CommonUtils.replaceVaryingString(firstString, endString, output);
-        AssertionUtils.assertOutput(projectPath, "ModuleExecutionTest-test_DefaultModule_AllTests.txt", output);
+        AssertionUtils.assertOutput("ModuleExecutionTest-test_DefaultModule_AllTests.txt", output);
     }
 
     @Test()
@@ -64,7 +64,7 @@ public class ModuleExecutionTest extends BaseTestCase {
         String firstString = "Generating Test Report";
         String endString = "project-based-tests";
         output = CommonUtils.replaceVaryingString(firstString, endString, output);
-        AssertionUtils.assertOutput(projectPath, "ModuleExecutionTest-test_DefaultModule_SingleTest.txt", output);
+        AssertionUtils.assertOutput("ModuleExecutionTest-test_DefaultModule_SingleTest.txt", output);
     }
 
     @Test()
@@ -75,7 +75,7 @@ public class ModuleExecutionTest extends BaseTestCase {
         String firstString = "Generating Test Report";
         String endString = "project-based-tests";
         output = CommonUtils.replaceVaryingString(firstString, endString, output);
-        AssertionUtils.assertOutput(projectPath, "ModuleExecutionTest-test_DefaultModule_StartWildCardTest.txt",
+        AssertionUtils.assertOutput("ModuleExecutionTest-test_DefaultModule_StartWildCardTest.txt",
                 output);
     }
 
@@ -87,7 +87,7 @@ public class ModuleExecutionTest extends BaseTestCase {
         String firstString = "Generating Test Report";
         String endString = "project-based-tests";
         output = CommonUtils.replaceVaryingString(firstString, endString, output);
-        AssertionUtils.assertOutput(projectPath, "ModuleExecutionTest-test_DefaultModule_MiddleWildCardTest.txt",
+        AssertionUtils.assertOutput("ModuleExecutionTest-test_DefaultModule_MiddleWildCardTest.txt",
                 output);
     }
 
@@ -99,7 +99,7 @@ public class ModuleExecutionTest extends BaseTestCase {
         String firstString = "Generating Test Report";
         String endString = "project-based-tests";
         output = CommonUtils.replaceVaryingString(firstString, endString, output);
-        AssertionUtils.assertOutput(projectPath, "ModuleExecutionTest-test_DefaultModule_EndWildCardTest.txt",
+        AssertionUtils.assertOutput("ModuleExecutionTest-test_DefaultModule_EndWildCardTest.txt",
                 output);
     }
 
@@ -111,7 +111,7 @@ public class ModuleExecutionTest extends BaseTestCase {
         String firstString = "Generating Test Report";
         String endString = "project-based-tests";
         output = CommonUtils.replaceVaryingString(firstString, endString, output);
-        AssertionUtils.assertOutput(projectPath, "ModuleExecutionTest-test_Module1_AllTests.txt",
+        AssertionUtils.assertOutput("ModuleExecutionTest-test_Module1_AllTests.txt",
                 output);
     }
 
@@ -124,7 +124,7 @@ public class ModuleExecutionTest extends BaseTestCase {
         String firstString = "Generating Test Report";
         String endString = "project-based-tests";
         output = CommonUtils.replaceVaryingString(firstString, endString, output);
-        AssertionUtils.assertOutput(projectPath, "ModuleExecutionTest-test_Module1_SingleTest.txt",
+        AssertionUtils.assertOutput("ModuleExecutionTest-test_Module1_SingleTest.txt",
                 output);
     }
 
@@ -139,7 +139,7 @@ public class ModuleExecutionTest extends BaseTestCase {
         String firstString = "Generating Test Report";
         String endString = "project-based-tests";
         output = CommonUtils.replaceVaryingString(firstString, endString, output);
-        AssertionUtils.assertOutput(projectPath, "ModuleExecutionTest-test_Module1_WildCardTest.txt",
+        AssertionUtils.assertOutput("ModuleExecutionTest-test_Module1_WildCardTest.txt",
                 output);
     }
 
@@ -151,7 +151,7 @@ public class ModuleExecutionTest extends BaseTestCase {
         String firstString = "Generating Test Report";
         String endString = "project-based-tests";
         output = CommonUtils.replaceVaryingString(firstString, endString, output);
-        AssertionUtils.assertOutput(projectPath, "ModuleExecutionTest-test_WildCardTest.txt", output);
+        AssertionUtils.assertOutput("ModuleExecutionTest-test_WildCardTest.txt", output);
     }
 
     @Test()
@@ -161,7 +161,7 @@ public class ModuleExecutionTest extends BaseTestCase {
         String firstString = "Generating Test Report";
         String endString = "project-based-tests";
         output = CommonUtils.replaceVaryingString(firstString, endString, output);
-        AssertionUtils.assertOutput(projectPath, "ModuleExecutionTest-test_Module1_WithGroups.txt",
+        AssertionUtils.assertOutput("ModuleExecutionTest-test_Module1_WithGroups.txt",
                 output);
     }
 

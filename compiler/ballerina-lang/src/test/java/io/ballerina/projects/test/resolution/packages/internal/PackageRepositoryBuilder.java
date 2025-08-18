@@ -47,7 +47,7 @@ public class PackageRepositoryBuilder {
     private final DefaultPackageRepository centralRepo;
     private final DefaultPackageRepository distRepo;
     private final LocalPackageRepository localRepo;
-    private WorkspaceRepository workspaceRepo;
+    private final WorkspaceRepository workspaceRepo;
 
     public PackageRepositoryBuilder(TestCaseFilePaths filePaths) {
         this.centralRepo = (DefaultPackageRepository) buildInternal(filePaths, RepositoryKind.CENTRAL);
@@ -91,7 +91,7 @@ public class PackageRepositoryBuilder {
 
     private PackageRepository buildLocalRepo(Path localRepoDirPath) {
         if (localRepoDirPath == null) {
-            return DefaultPackageRepository.EMPTY_REPO;
+            return LocalPackageRepository.EMPTY_REPO;
         }
 
         try (Stream<Path> paths = Files.list(localRepoDirPath)) {
