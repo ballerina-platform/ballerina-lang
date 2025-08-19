@@ -22,6 +22,7 @@ import com.sun.jdi.ClassType;
 import com.sun.jdi.DoubleValue;
 import com.sun.jdi.Field;
 import com.sun.jdi.FloatValue;
+import com.sun.jdi.IncompatibleThreadStateException;
 import com.sun.jdi.IntegerValue;
 import com.sun.jdi.InvocationException;
 import com.sun.jdi.LongValue;
@@ -42,6 +43,7 @@ import org.ballerinalang.debugadapter.evaluation.engine.NameBasedTypeResolver;
 import org.ballerinalang.debugadapter.evaluation.engine.invokable.GeneratedStaticMethod;
 import org.ballerinalang.debugadapter.evaluation.engine.invokable.RuntimeInstanceMethod;
 import org.ballerinalang.debugadapter.evaluation.engine.invokable.RuntimeStaticMethod;
+import org.ballerinalang.debugadapter.jdi.JDIUtils;
 import org.ballerinalang.debugadapter.jdi.JdiProxyException;
 import org.ballerinalang.debugadapter.jdi.LocalVariableProxyImpl;
 import org.ballerinalang.debugadapter.variable.BVariable;
@@ -274,12 +276,25 @@ public final class EvaluationUtils {
             args.add(evaluationContext.getAttachedVm().mirrorOf(qName));
             args.add(evaluationContext.getAttachedVm().mirrorOf(true));
             args.add(evaluationContext.getDebuggeeClassLoader());
-            Value classReference = classType.invokeMethod(evaluationContext.getOwningThread().getThreadReference(),
-                    forNameMethod, args, ObjectReference.INVOKE_SINGLE_THREADED);
-            return ((ClassObjectReference) classReference).reflectedType();
+            int maxRetries = 20;   // limit retries to avoid infinite loops
+            int retryCount = 0;
+            while (retryCount < maxRetries) {
+                try {
+                    // Attempt to invoke method
+                    Value classReference =
+                            classType.invokeMethod(evaluationContext.getOwningThread().getThreadReference(),
+                                    forNameMethod, args, ObjectReference.INVOKE_SINGLE_THREADED);
+                    return ((ClassObjectReference) classReference).reflectedType();
+                } catch (IncompatibleThreadStateException e) {
+                    // Not at safe point yet; retry after delay
+                    JDIUtils.sleepMillis(50);
+                    retryCount++;
+                }
+            }
         } catch (Exception e) {
             throw createEvaluationException(CLASS_LOADING_FAILED, methodName);
         }
+        throw createEvaluationException(CLASS_LOADING_FAILED, methodName);
     }
 
     /**
