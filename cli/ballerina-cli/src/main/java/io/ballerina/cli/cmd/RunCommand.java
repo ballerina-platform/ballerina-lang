@@ -42,6 +42,7 @@ import io.ballerina.projects.directory.ProjectLoader;
 import io.ballerina.projects.directory.WorkspaceProject;
 import io.ballerina.projects.environment.ResolutionOptions;
 import io.ballerina.projects.internal.model.BuildJson;
+import io.ballerina.projects.environment.PackageLockingMode;
 import io.ballerina.projects.internal.model.Target;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectUtils;
@@ -148,7 +149,7 @@ public class RunCommand implements BLauncherCmd {
 
     @CommandLine.Option(names = "--locking-mode", hidden = true,
             description = "allow passing the package locking mode.")
-    private String lockingMode;
+    private PackageLockingMode lockingMode;
 
     private static final String runCmd =
             """
@@ -413,7 +414,6 @@ public class RunCommand implements BLauncherCmd {
 
     private BuildOptions constructBuildOptions() {
         BuildOptions.BuildOptionsBuilder buildOptionsBuilder = BuildOptions.builder();
-
         buildOptionsBuilder
                 .setCodeCoverage(false)
                 .setExperimental(experimentalFlag)
