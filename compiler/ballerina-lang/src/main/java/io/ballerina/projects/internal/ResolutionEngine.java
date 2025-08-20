@@ -215,8 +215,7 @@ public class ResolutionEngine {
 
     private Collection<PackageMetadataResponse> resolveDirectDependencies(Collection<DependencyNode> directDeps) {
         // Set the default locking mode based on the sticky build option.
-        PackageLockingMode defaultLockingMode = resolutionOptions.sticky() ?
-                PackageLockingMode.HARD : resolutionOptions.packageLockingMode();
+        PackageLockingMode defaultLockingMode = resolutionOptions.packageLockingMode();
         List<ResolutionRequest> resolutionRequests = new ArrayList<>();
 
         for (DependencyNode directDependency : directDeps) {
@@ -372,7 +371,7 @@ public class ResolutionEngine {
                 unresolvedNode.pkgDesc().version());
         if (versionCompResult == VersionCompatibilityResult.GREATER_THAN ||
                 versionCompResult == VersionCompatibilityResult.EQUAL) {
-            PackageLockingMode lockingMode = resolutionOptions.sticky() || blendedDep.isFromLocalRepository() ?
+            PackageLockingMode lockingMode = blendedDep.isFromLocalRepository() ?
                     PackageLockingMode.HARD : resolutionOptions.packageLockingMode();
             PackageDescriptor blendedDepPkgDesc = PackageDescriptor.from(blendedDep.org(), blendedDep.name(),
                     blendedDep.version(), blendedDep.repository());
@@ -403,7 +402,7 @@ public class ResolutionEngine {
     }
 
     private Collection<DependencyNode> getUnresolvedNode() {
-        if (resolutionOptions.sticky()) {
+        if (resolutionOptions.packageLockingMode().equals(PackageLockingMode.HARD)) {
             return graphBuilder.getUnresolvedNodes();
         } else {
             // Since sticky = false, we have to update all dependency nodes.
