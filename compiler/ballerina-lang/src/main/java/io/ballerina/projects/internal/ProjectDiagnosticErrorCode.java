@@ -51,6 +51,8 @@ public enum ProjectDiagnosticErrorCode implements DiagnosticCode {
     DEPRECATED_PACKAGE("BCE5203", "deprecated.package"),
     BUILT_WITH_OLDER_SL_UPDATE_DISTRIBUTION("BCE5204", "built.with.older.sl.update.distribution"),
     CUSTOM_REPOSITORY_NOT_FOUND("BCE5205", "custom.repository.not.found"),
+    NEW_IMPORTS_WITH_LOCKED_MODE("BCE5206", "new.imports.with.locked.mode"),
+    MISSING_DEPENDENCIES_TOML_WITH_LOCKED_MODE("BCE5207", "missing.dependencies.toml.with.locked.mode"),
 
     // Error codes related to build tools.
     MISSING_TOOL_PROPERTIES_IN_BALLERINA_TOML("BCE5301", "missing.tool.properties"),

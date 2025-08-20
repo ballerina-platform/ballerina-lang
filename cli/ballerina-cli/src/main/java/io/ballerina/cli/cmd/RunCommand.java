@@ -43,6 +43,7 @@ import io.ballerina.projects.directory.WorkspaceProject;
 import io.ballerina.projects.environment.ResolutionOptions;
 import io.ballerina.projects.internal.model.BuildJson;
 import io.ballerina.projects.environment.PackageLockingMode;
+import io.ballerina.projects.environment.ResolutionOptions;
 import io.ballerina.projects.internal.model.Target;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectUtils;
