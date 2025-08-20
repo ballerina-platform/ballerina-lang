@@ -111,7 +111,9 @@ public class CompileTask implements Task {
         System.setProperty(CentralClientConstants.ENABLE_OUTPUT_STREAM, "true");
 
         try {
-            printWarningForHigherDistribution(project);
+            if (project.buildOptions().lockingMode() != PackageLockingMode.SOFT) {
+                printWarningForHigherDistribution(project);
+            }
             List<Diagnostic> diagnostics = new ArrayList<>();
             if (this.compileForBalBuild) {
                 addDiagnosticForProvidedPlatformLibs(project, diagnostics);
@@ -183,7 +185,10 @@ public class CompileTask implements Task {
             Set<String> newPackageImports = ProjectUtils.getPackageImports(project.currentPackage());
             ResolutionOptions resolutionOptions = ResolutionOptions.builder().setOffline(true).build();
             if (!packageImports.equals(newPackageImports)) {
-                resolutionOptions = ResolutionOptions.builder().setOffline(false).build();
+                resolutionOptions = ResolutionOptions.builder()
+                        .setOffline(false)
+                        .setPackageLockingMode(project.buildOptions().lockingMode())
+                        .build();
             }
 
             if (packageResolution != project.currentPackage().getResolution(resolutionOptions)) {
@@ -299,14 +304,8 @@ public class CompileTask implements Task {
                 // Built with a previous Update. Therefore, we issue a warning
                 warning = "Detected an attempt to compile this package using Swan Lake Update "
                         + currentVersionForDiagnostic +
-                        ". However, this package was built using Swan Lake Update " + prevVersionForDiagnostic + ".";
-                if (project.buildOptions().lockingMode().equals(PackageLockingMode.LOCKED)
-                        || project.buildOptions().lockingMode().equals(PackageLockingMode.HARD)) {
-                    warning += "\nHINT: Execute the bal command with --locking-mode=SOFT";
-                } else {
-                    warning += " To ensure compatibility, the Dependencies.toml file will be updated with the " +
-                            "latest versions that are compatible with Update " + currentVersionForDiagnostic + ".";
-                }
+                        ". However, this package was built using Swan Lake Update " + prevVersionForDiagnostic +
+                        ".\nHINT: Execute the bal command with --locking-mode=SOFT";
             }
             if (warning != null) {
                 DiagnosticInfo diagnosticInfo = new DiagnosticInfo(

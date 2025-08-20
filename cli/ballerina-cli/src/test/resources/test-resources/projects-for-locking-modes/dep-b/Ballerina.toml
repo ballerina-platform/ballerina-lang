@@ -1,0 +1,9 @@
+[package]
+org = "asmaj"
+name = "dep_b"
+version = "2.0.0"
+distribution = "2201.12.7"
+
+[build-options]
+observabilityIncluded = true
+
