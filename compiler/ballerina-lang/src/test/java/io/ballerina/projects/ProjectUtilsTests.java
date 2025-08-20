@@ -51,7 +51,8 @@ public class ProjectUtilsTests {
     public void setUp() throws IOException {
         tempDirectory = Files.createTempDirectory("b7a-project-utils-test-" + System.nanoTime());
         buildJson = new BuildJson(1629359520, 1629259520, RepoUtils.getBallerinaShortVersion(),
-                Collections.emptyMap());
+                Collections.emptyMap(), new ArrayList<>(), 0);
+        // TODO
     }
 
     @Test

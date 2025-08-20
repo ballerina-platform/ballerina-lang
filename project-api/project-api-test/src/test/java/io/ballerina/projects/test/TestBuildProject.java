@@ -1474,13 +1474,11 @@ public class TestBuildProject extends BaseTest {
         Assert.assertTrue(secondBuildJson.lastBuildTime() > initialBuildJson.lastBuildTime());
         assertEquals(initialBuildJson.lastUpdateTime(), secondBuildJson.lastUpdateTime());
         Assert.assertFalse(secondBuildJson.isExpiredLastUpdateTime());
-        Assert.assertFalse(projectSecondBuild.currentPackage().getResolution().autoUpdate());
 
         // 3) Change `last_update-time` in `build` file to a timestamp older than one day and build the project again
         secondBuildJson.setLastUpdateTime(secondBuildJson.lastUpdateTime() - (24 * 60 * 60 * 1000 + 1));
         ProjectUtils.writeBuildFile(buildFile, secondBuildJson);
         BuildProject projectThirdBuild = loadBuildProject(projectPath, buildOptions);
-        Assert.assertTrue(projectThirdBuild.currentPackage().getResolution().autoUpdate());
         projectThirdBuild.save();
 
         Assert.assertTrue(buildFile.toFile().exists());
@@ -1530,7 +1528,6 @@ public class TestBuildProject extends BaseTest {
         assertEquals(initialBuildJson.lastUpdateTime(), secondBuildJson.lastUpdateTime(),
                      "last_update_time has updated for the second build");
         Assert.assertFalse(secondBuildJson.isExpiredLastUpdateTime(), "last_update_time is expired");
-        Assert.assertFalse(projectSecondBuild.currentPackage().getResolution().autoUpdate());
         assertTomlFilesEquals(projectPath.resolve(DEPENDENCIES_TOML),
                 projectPath.resolve(RESOURCE_DIR_NAME).resolve("expectedDependencies.toml"));
 
@@ -1577,7 +1574,6 @@ public class TestBuildProject extends BaseTest {
         assertTrue(secondBuildJson.lastUpdateTime() > initialBuildJson.lastUpdateTime(),
                 "last_update_time has not updated for the second build");
         Assert.assertFalse(secondBuildJson.isExpiredLastUpdateTime(), "last_update_time is expired");
-        Assert.assertTrue(projectSecondBuild.currentPackage().getResolution().autoUpdate());
 
         // 3) Build project again after setting dist version as null
         initialBuildJson.setDistributionVersion(null);
@@ -1593,7 +1589,6 @@ public class TestBuildProject extends BaseTest {
         assertTrue(thirdBuildJson.lastUpdateTime() > secondBuildJson.lastUpdateTime(),
                 "last_update_time has not updated for the second build");
         Assert.assertFalse(thirdBuildJson.isExpiredLastUpdateTime(), "last_update_time is expired");
-        Assert.assertTrue(projectThirdBuild.currentPackage().getResolution().autoUpdate());
 
         // Remove generated files
         Files.deleteIfExists(projectSecondBuild.targetDir().resolve(BUILD_FILE));

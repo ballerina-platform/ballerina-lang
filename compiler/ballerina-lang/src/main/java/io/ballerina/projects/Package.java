@@ -1,6 +1,7 @@
 package io.ballerina.projects;
 
 import io.ballerina.projects.directory.BuildProject;
+import io.ballerina.projects.environment.PackageLockingMode;
 import io.ballerina.projects.environment.ResolutionOptions;
 import io.ballerina.projects.internal.DefaultDiagnosticResult;
 import io.ballerina.projects.internal.DependencyManifestBuilder;
@@ -426,8 +427,11 @@ public class Package {
 
     public PackageResolution getResolution(ResolutionOptions resolutionOptions) {
         boolean offline = resolutionOptions.offline();
-        boolean sticky = resolutionOptions.sticky();
-        CompilationOptions newCompOptions = CompilationOptions.builder().setOffline(offline).setSticky(sticky).build();
+        PackageLockingMode packageLockingMode = resolutionOptions.packageLockingMode();
+        CompilationOptions newCompOptions = CompilationOptions.builder()
+                .setOffline(offline)
+                .setLockingMode(packageLockingMode)
+                .build();
         newCompOptions = newCompOptions.acceptTheirs(project.currentPackage().compilationOptions());
         return this.packageContext.getResolution(newCompOptions, true);
     }

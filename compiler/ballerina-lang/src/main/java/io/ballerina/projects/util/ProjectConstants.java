@@ -150,7 +150,7 @@ public final class ProjectConstants {
     public static final String ORG = "org";
     public static final String PACKAGE_NAME = "name";
     public static final String LOCAL_TOOLS_JSON = "local-tools.json";
-    public static final String STICKY_FLAG = "--sticky";
+    public static final String LOCKING_MODE_OPTION = "--locking-mode";
     public static final String OFFLINE_FLAG = "--offline";
     public static final String REPOSITORY_FLAG = "--repository";
     public static final String WILD_CARD = "*";

@@ -59,6 +59,7 @@ public class ResolutionOptions {
      *
      * @return true if sticky model is enabled, otherwise false
      */
+    @Deprecated
     public boolean sticky() {
         return sticky;
     }
@@ -86,7 +87,7 @@ public class ResolutionOptions {
      */
     public static class ResolutionOptionBuilder {
         private boolean offline = false;
-        private boolean sticky = true;
+        private boolean sticky = false;
         private boolean dumpGraph = false;
         private boolean dumpRawGraphs = false;
         private PackageLockingMode packageLockingMode = PackageLockingMode.MEDIUM;

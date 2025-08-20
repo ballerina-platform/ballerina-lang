@@ -1048,13 +1048,18 @@ public final class ProjectUtils {
     /**
      * Read build file from given path.
      *
-     * @param buildJsonPath build file path
+     * @param target target path
      * @return build json object
      * @throws JsonSyntaxException incorrect json syntax
      * @throws IOException if json read fails
      */
-    public static BuildJson readBuildJson(Path buildJsonPath) throws JsonSyntaxException, IOException {
-        try (BufferedReader bufferedReader = Files.newBufferedReader(buildJsonPath)) {
+    public static BuildJson readBuildJson(Path target) throws JsonSyntaxException, IOException {
+        Path buildFilePath = target.resolve(BUILD_FILE);
+        if (!Files.exists(buildFilePath) || buildFilePath.toFile().length() <= 0) {
+            return null;
+        }
+
+        try (BufferedReader bufferedReader = Files.newBufferedReader(buildFilePath)) {
             return new Gson().fromJson(bufferedReader, BuildJson.class);
         }
     }
@@ -1081,32 +1086,29 @@ public final class ProjectUtils {
             return true;
         }
 
-        Path buildFile = project.sourceRoot().resolve(TARGET_DIR_NAME).resolve(BUILD_FILE);
-        if (buildFile.toFile().exists()) {
-            try {
-                BuildJson buildJson = readBuildJson(buildFile);
-                long lastProjectUpdatedTime = FileUtils.lastModifiedTimeOfBalProject(project.sourceRoot());
-                if (buildJson != null
-                        && buildJson.getLastModifiedTime() != null
-                        && !buildJson.getLastModifiedTime().entrySet().isEmpty()) {
-                    Long defaultModuleLastModifiedTime = buildJson.getLastModifiedTime()
-                            .get(project.currentPackage().packageName().value());
-                    if (defaultModuleLastModifiedTime == null) {
-                        // package name has changed
-                        return true;
-                    }
-                    return lastProjectUpdatedTime > defaultModuleLastModifiedTime;
+        try {
+            BuildJson buildJson = readBuildJson(project.sourceRoot().resolve(TARGET_DIR_NAME));
+            long lastProjectUpdatedTime = FileUtils.lastModifiedTimeOfBalProject(project.sourceRoot());
+            if (buildJson != null
+                    && buildJson.getLastModifiedTime() != null
+                    && !buildJson.getLastModifiedTime().entrySet().isEmpty()) {
+                Long defaultModuleLastModifiedTime = buildJson.getLastModifiedTime()
+                        .get(project.currentPackage().packageName().value());
+                if (defaultModuleLastModifiedTime == null) {
+                    // package name has changed
+                    return true;
                 }
-            } catch (IOException e) {
-                // if reading `build` file fails
-                // delete `build` file and return true
-                try {
-                    Files.deleteIfExists(buildFile);
-                } catch (IOException ex) {
-                    // ignore
-                }
-                return true;
+                return lastProjectUpdatedTime > defaultModuleLastModifiedTime;
             }
+        } catch (IOException e) {
+            // if reading `build` file fails
+            // delete `build` file and return true
+            try {
+                Files.deleteIfExists(project.sourceRoot().resolve(TARGET_DIR_NAME).resolve(BUILD_FILE));
+            } catch (IOException ex) {
+                // ignore
+            }
+            return true;
         }
         return true; // return true if `build` file does not exist
     }
@@ -1311,22 +1313,57 @@ public final class ProjectUtils {
 
         // set sticky only if `build` file exists and `last_update_time` not passed 24 hours
         if (project.kind() == ProjectKind.BUILD_PROJECT) {
-            Path buildFilePath = project.targetDir().resolve(BUILD_FILE);
-            if (Files.exists(buildFilePath) && buildFilePath.toFile().length() > 0) {
-                try {
-                    BuildJson buildJson = readBuildJson(buildFilePath);
-                    // if distribution is not same, we anyway return sticky as false
-                    if (buildJson != null && buildJson.distributionVersion() != null &&
-                            buildJson.distributionVersion().equals(RepoUtils.getBallerinaShortVersion()) &&
-                            !buildJson.isExpiredLastUpdateTime()) {
-                        return true;
-                    }
-                } catch (IOException | JsonSyntaxException e) {
-                    // ignore
+            try {
+                BuildJson buildJson = readBuildJson(project.targetDir());
+                // if distribution is not same, we anyway return sticky as false
+                if (buildJson != null && buildJson.distributionVersion() != null &&
+                        buildJson.distributionVersion().equals(RepoUtils.getBallerinaShortVersion()) &&
+                        !buildJson.isExpiredLastUpdateTime()) {
+                    return true;
                 }
+            } catch (IOException | JsonSyntaxException e) {
+                // ignore
             }
         }
         return false;
+    }
+
+    public static PackageLockingMode getPackageLockingMode(Path target, Path projectPath,
+                                                           PackageLockingMode originalMode) {
+        BuildJson buildJson;
+        try {
+            buildJson = readBuildJson(target);
+        } catch (IOException e) {
+            return originalMode;
+        }
+
+        if (buildJson == null) {
+            return originalMode;
+        }
+
+        long lastModifiedOfBalToml = projectPath.resolve(BALLERINA_TOML).toFile().lastModified();
+        long lastModifiedofBalTomlRecorded = buildJson.lastBalTomlUpdateTime();
+        if (lastModifiedofBalTomlRecorded == 0) {
+            // if last modified time of `Ballerina.toml` is not recorded, return SOFT
+            return originalMode;
+        } else if (lastModifiedOfBalToml > lastModifiedofBalTomlRecorded) {
+            // if `Ballerina.toml` is modified after the last recorded time, return SOFT
+            return originalMode;
+        }
+
+        if (ProjectUtils.isLessThan24Hours(buildJson)) {
+            return PackageLockingMode.HARD;
+        }
+
+        return originalMode;
+    }
+
+
+    private static boolean isLessThan24Hours(BuildJson buildJson) {
+        // set sticky only if `build` file exists and `last_update_time` not passed 24 hours
+        return buildJson != null && buildJson.distributionVersion() != null &&
+                buildJson.distributionVersion().equals(RepoUtils.getBallerinaShortVersion()) &&
+                !buildJson.isExpiredLastUpdateTime();
     }
 
     /**

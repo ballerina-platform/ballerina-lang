@@ -236,6 +236,7 @@ public class BuildToolResolution {
                 case HARD -> ToolResolutionCentralRequest.Mode.HARD;
                 case MEDIUM -> ToolResolutionCentralRequest.Mode.MEDIUM;
                 case SOFT -> ToolResolutionCentralRequest.Mode.SOFT;
+                case LOCKED -> ToolResolutionCentralRequest.Mode.LOCKED;
             };
             String version = resolutionRequest.version().map(v -> v.value().toString()).orElse("");
             toolResolutionRequest.addTool(resolutionRequest.id().toString(), version, mode);

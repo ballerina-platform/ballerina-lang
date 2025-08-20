@@ -19,6 +19,7 @@ import io.ballerina.projects.ProjectKind;
 import io.ballerina.projects.directory.BuildProject;
 import io.ballerina.projects.directory.ProjectLoader;
 import io.ballerina.projects.directory.WorkspaceProject;
+import io.ballerina.projects.environment.PackageLockingMode;
 import io.ballerina.projects.internal.ProjectDiagnosticErrorCode;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectPaths;
@@ -33,6 +34,7 @@ import java.io.PrintStream;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 import static io.ballerina.cli.cmd.Constants.PACK_COMMAND;
@@ -110,7 +112,7 @@ public class PackCommand implements BLauncherCmd {
 
     @CommandLine.Option(names = "--locking-mode", hidden = true,
             description = "allow passing the package locking mode.")
-    private String lockingMode;
+    private PackageLockingMode lockingMode;
 
     public PackCommand() {
         this.projectPath = Path.of(System.getProperty(ProjectConstants.USER_DIR));
