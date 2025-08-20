@@ -20,7 +20,6 @@ package io.ballerina.runtime.internal.types;
 
 import io.ballerina.identifier.Utils;
 import io.ballerina.runtime.api.Module;
-import io.ballerina.runtime.api.creators.TypeCreator;
 import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.flags.SymbolFlags;
 import io.ballerina.runtime.api.flags.TypeFlags;
@@ -80,8 +79,7 @@ public class BRecordType extends BStructureType implements RecordType, TypeWithS
     private final DefinitionContainer<MappingDefinition> defn = new DefinitionContainer<>();
     private final DefinitionContainer<MappingDefinition> acceptedTypeDefn = new DefinitionContainer<>();
     private byte couldInhereTypeBeDifferentCache = 0;
-
-    private final Map<String, BFunctionPointer> defaultValues = new LinkedHashMap<>();
+    private Map<String, BFunctionPointer> defaultValues = new LinkedHashMap<>();
 
     /**
      * Create a {@code BRecordType} which represents the user defined record type.
@@ -98,7 +96,6 @@ public class BRecordType extends BStructureType implements RecordType, TypeWithS
         this.sealed = sealed;
         this.typeFlags = typeFlags;
         this.readonly = SymbolFlags.isFlagOn(flags, SymbolFlags.READONLY);
-        TypeCreator.registerRecordType(this);
     }
 
     /**
@@ -128,7 +125,6 @@ public class BRecordType extends BStructureType implements RecordType, TypeWithS
             this.fields = fields;
         }
         this.internalName = typeName;
-        TypeCreator.registerRecordType(this);
     }
 
     private Map<String, Field> getReadOnlyFields(Map<String, Field> fields) {
@@ -137,7 +133,7 @@ public class BRecordType extends BStructureType implements RecordType, TypeWithS
             Field field = fieldEntry.getValue();
             if (!field.getFieldType().isReadOnly()) {
                 field = new BField(ReadOnlyUtils.getReadOnlyType(field.getFieldType()), field.getFieldName(),
-                                   field.getFlags());
+                        field.getFlags());
             }
             fieldMap.put(fieldEntry.getKey(), field);
         }
@@ -242,8 +238,16 @@ public class BRecordType extends BStructureType implements RecordType, TypeWithS
         return typeFlags;
     }
 
+    @SuppressWarnings("unused")
+    /*
+     * Used for codegen
+     */
     public void setDefaultValue(String fieldName, BFunctionPointer defaultValue) {
         defaultValues.put(fieldName, defaultValue);
+    }
+
+    public void setDefaultValues(Map<String, BFunctionPointer> fields) {
+        this.defaultValues = fields;
     }
 
     public Map<String, BFunctionPointer> getDefaultValues() {
