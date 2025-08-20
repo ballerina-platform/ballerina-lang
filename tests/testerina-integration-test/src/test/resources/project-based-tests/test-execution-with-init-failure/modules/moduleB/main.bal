@@ -16,7 +16,7 @@
 
 import testExecutionWithModuleInitFailure.moduleC;
 
-int a = 1/0;
+final int a = 1/0;
 
 public function main() {
 }
