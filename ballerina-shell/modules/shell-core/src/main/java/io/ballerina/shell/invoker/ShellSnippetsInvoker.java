@@ -407,7 +407,13 @@ public abstract class ShellSnippetsInvoker extends DiagnosticReporter {
             if (result instanceof Throwable throwable) {
                 throw new InvokerPanicException(throwable);
             }
+        } catch (BError bError) {
+            throw new InvokerPanicException(bError);
         } catch (Throwable throwable) {
+            Throwable cause = throwable.getCause();
+            if (cause instanceof BError bError) {
+                throw new InvokerPanicException(bError);
+            }
             throw new InvokerPanicException(throwable);
         } finally {
             try {
