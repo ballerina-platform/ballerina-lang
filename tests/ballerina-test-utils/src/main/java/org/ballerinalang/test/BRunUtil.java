@@ -43,7 +43,7 @@ import io.ballerina.runtime.internal.values.ObjectValue;
 import io.ballerina.runtime.internal.values.XmlValue;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import org.ballerinalang.test.exceptions.BLangTestException;
-import org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil;
+import org.wso2.ballerinalang.compiler.bir.codegen.utils.JvmCodeGenUtil;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.desugar.ASTBuilderUtil;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
@@ -345,10 +345,8 @@ public final class BRunUtil {
                 new Object[]{new HashMap<>(), new String[]{},
                         configurationDetails.paths, configurationDetails.configContent, runtime});
         FutureValue future = runOnSchedule(initClazz, "$moduleInit", runtime);
-        // TODO - check this (Below 2 lines were interchanged in the original code)
-        // Reported here - https://github.com/ballerina-platform/ballerina-lang/issues/43957
-        runtime.moduleInitialized = true;
         AsyncUtils.getFutureResult(future.completableFuture);
+        runtime.moduleInitialized = true;
         AsyncUtils.getFutureResult(runOnSchedule(initClazz, "$moduleStart", runtime).completableFuture);
     }
 
