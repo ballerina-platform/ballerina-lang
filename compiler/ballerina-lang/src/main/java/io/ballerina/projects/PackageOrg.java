@@ -29,8 +29,10 @@ import java.util.Objects;
 public class PackageOrg {
     private final String packageOrgStr;
     private static final String BALLERINA_ORG_NAME = "ballerina";
+    private static final String BALLERINA_I_ORG_NAME = "ballerinai";
     private static final String BALLERINA_X_ORG_NAME = "ballerinax";
     public static final PackageOrg BALLERINA_ORG = new PackageOrg(BALLERINA_ORG_NAME);
+    public static final PackageOrg BALLERINA_I_ORG = new PackageOrg(BALLERINA_I_ORG_NAME);
     public static final PackageOrg BALLERINA_X_ORG = new PackageOrg(BALLERINA_X_ORG_NAME);
 
     private PackageOrg(String packageOrgStr) {

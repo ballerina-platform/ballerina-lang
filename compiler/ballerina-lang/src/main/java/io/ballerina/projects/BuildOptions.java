@@ -17,6 +17,8 @@
  */
 package io.ballerina.projects;
 
+import io.ballerina.projects.environment.PackageLockingMode;
+
 import java.util.Objects;
 
 /**
@@ -74,6 +76,10 @@ public class BuildOptions {
         return this.compilationOptions.offlineBuild();
     }
 
+    /**
+     * @deprecated Use {@link #lockingMode()} instead.
+     */
+    @Deprecated (forRemoval = true, since = "2201.13.0")
     public boolean sticky() {
         return this.compilationOptions.sticky();
     }
@@ -137,6 +143,10 @@ public class BuildOptions {
 
     public boolean showDependencyDiagnostics() {
         return toBooleanDefaultIfNull(this.showDependencyDiagnostics);
+    }
+
+    public PackageLockingMode lockingMode() {
+        return this.compilationOptions.lockingMode();
     }
 
     /**
@@ -439,7 +449,7 @@ public class BuildOptions {
             return this;
         }
 
-        public BuildOptionsBuilder setLockingMode(String value) {
+        public BuildOptionsBuilder setLockingMode(PackageLockingMode value) {
             compilationOptionsBuilder.setLockingMode(value);
             return this;
         }

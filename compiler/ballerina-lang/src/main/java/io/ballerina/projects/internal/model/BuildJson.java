@@ -20,6 +20,7 @@ package io.ballerina.projects.internal.model;
 
 import com.google.gson.annotations.SerializedName;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -37,6 +38,10 @@ public class BuildJson {
     @SerializedName(SERIALIZED_NAME_LAST_UPDATE_TIME)
     private long lastUpdateTime;
 
+    public static final String SERIALIZED_NAME_LAST_BAL_TOML_UPDATE_TIME = "last_bal_toml_update_time";
+    @SerializedName(SERIALIZED_NAME_LAST_BAL_TOML_UPDATE_TIME)
+    private long lastBalTomlUpdateTime;
+
     public static final String SERIALIZED_NAME_DISTRIBUTION_VERSION = "distribution_version";
     @SerializedName(SERIALIZED_NAME_DISTRIBUTION_VERSION)
     private String distributionVersion;
@@ -45,16 +50,24 @@ public class BuildJson {
     @SerializedName(SERIALIZED_NAME_LAST_MODIFIED_TIME)
     private Map<String, Long> lastModifiedTime;
 
+    public static final String SERIALIZED_NAME_IMPORTS = "imports";
+    @SerializedName(SERIALIZED_NAME_IMPORTS)
+    private List<String> imports;
+
     private static final long ONE_DAY = 24 * 60 * 60 * 1000;
 
     public BuildJson(long lastBuildTime,
                      long lastUpdateTime,
                      String distributionVersion,
-                     Map<String, Long> lastModifiedTime) {
+                     Map<String, Long> lastModifiedTime,
+                     List<String> imports,
+                     long lastBalTomlUpdateTime) {
         this.lastBuildTime = lastBuildTime;
         this.lastUpdateTime = lastUpdateTime;
         this.distributionVersion = distributionVersion;
         this.lastModifiedTime = lastModifiedTime;
+        this.imports = imports;
+        this.lastBalTomlUpdateTime = lastBalTomlUpdateTime;
     }
 
     public long lastBuildTime() {
@@ -67,6 +80,21 @@ public class BuildJson {
 
     public long lastUpdateTime() {
         return lastUpdateTime;
+    }
+
+    public void setLastBalTomlUpdateTime(long lastBalTomlUpdateTime) {
+        this.lastBalTomlUpdateTime = lastBalTomlUpdateTime;
+    }
+
+    public long lastBalTomlUpdateTime() {
+        return lastBalTomlUpdateTime;
+    }
+
+    public void setImports(List<String> imports) {
+        this.imports = imports;
+    }
+    public List<String> imports() {
+        return imports;
     }
 
     public void setLastUpdateTime(long lastUpdateTime) {

@@ -108,7 +108,7 @@ public class RemotePackageRepository implements PackageRepository {
         // If environment is online pull from central
         if (!options.offline()) {
             String supportedPlatform = Arrays.stream(JvmTarget.values())
-                    .map(target -> target.code())
+                    .map(JvmTarget::code)
                     .collect(Collectors.joining(","));
             try {
                 this.client.pullPackage(orgName, packageName, version, packagePathInBalaCache, supportedPlatform,
@@ -421,6 +421,7 @@ public class RemotePackageRepository implements PackageRepository {
                 case HARD -> PackageResolutionRequest.Mode.HARD;
                 case MEDIUM -> PackageResolutionRequest.Mode.MEDIUM;
                 case SOFT -> PackageResolutionRequest.Mode.SOFT;
+                case LOCKED -> PackageResolutionRequest.Mode.LOCKED;
             };
             String version = resolutionRequest.version().map(v -> v.value().toString()).orElse("");
             packageResolutionRequest.addPackage(resolutionRequest.orgName().value(),
