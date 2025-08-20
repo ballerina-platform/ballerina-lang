@@ -308,10 +308,11 @@ public class Package {
         }
 
         // There are engaged compiler plugins or there is no cached compilation. We have to compile anyway
-        CompilationOptions compOptions = CompilationOptions.builder()
+        CompilationOptions compilationOptions = CompilationOptions.builder()
                 .withCodeGenerators(true)
                 .withCodeModifiers(true)
                 .build();
+        CompilationOptions compOptions = compilationOptions.acceptTheirs(project.currentPackage().compilationOptions());
         CompilerPluginManager compilerPluginManager = this.getCompilation(compOptions).compilerPluginManager();
         List<Diagnostic> diagnostics = new ArrayList<>();
         if (compilerPluginManager.engagedCodeGeneratorCount() > 0) {
@@ -362,7 +363,8 @@ public class Package {
         }
 
         // There are engaged code generators or there is no cached compilation. We have to compile anyway
-        CompilationOptions compOptions = CompilationOptions.builder().withCodeGenerators(true).build();
+        CompilationOptions compilationOptions = CompilationOptions.builder().withCodeGenerators(true).build();
+        CompilationOptions compOptions = compilationOptions.acceptTheirs(project.currentPackage().compilationOptions());
         // TODO We can avoid this compilation. Move CompilerPluginManagers out of the PackageCompilation
         // TODO How about PackageResolution
         CompilerPluginManager compilerPluginManager = this.getCompilation(compOptions).compilerPluginManager();
@@ -404,7 +406,8 @@ public class Package {
         }
 
         // There are engaged code modifiers or there is no cached compilation. We have to compile anyway
-        CompilationOptions compOptions = CompilationOptions.builder().withCodeModifiers(true).build();
+        CompilationOptions compilationOptions = CompilationOptions.builder().withCodeModifiers(true).build();
+        CompilationOptions compOptions = compilationOptions.acceptTheirs(project.currentPackage().compilationOptions());
         // TODO We can avoid this compilation. Move CompilerPluginManagers out of the PackageCompilation
         // TODO How about PackageResolution
         CompilerPluginManager compilerPluginManager = this.getCompilation(compOptions).compilerPluginManager();

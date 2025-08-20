@@ -255,6 +255,9 @@ public class CompilationOptions {
         }
         if (theirOptions.lockingMode != null) {
             compilationOptionsBuilder.setLockingMode(theirOptions.lockingMode);
+        } else if (compilationOptionsBuilder.sticky != null && compilationOptionsBuilder.sticky) {
+            // If sticky is true, set locking mode to HARD unless theirOptions has a locking mode
+            compilationOptionsBuilder.setLockingMode(PackageLockingMode.HARD);
         } else {
             compilationOptionsBuilder.setLockingMode(this.lockingMode);
         }

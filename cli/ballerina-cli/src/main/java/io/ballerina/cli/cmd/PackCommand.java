@@ -34,7 +34,6 @@ import java.io.PrintStream;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 
 import static io.ballerina.cli.cmd.Constants.PACK_COMMAND;

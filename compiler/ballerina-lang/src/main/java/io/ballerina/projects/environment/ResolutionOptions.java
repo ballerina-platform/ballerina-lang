@@ -90,13 +90,14 @@ public class ResolutionOptions {
         private boolean sticky = false;
         private boolean dumpGraph = false;
         private boolean dumpRawGraphs = false;
-        private PackageLockingMode packageLockingMode = PackageLockingMode.MEDIUM;
+        private PackageLockingMode packageLockingMode = PackageLockingMode.SOFT;
 
         public ResolutionOptionBuilder setOffline(boolean value) {
             offline = value;
             return this;
         }
 
+        @Deprecated (forRemoval = true, since = "2201.13.0")
         public ResolutionOptionBuilder setSticky(boolean value) {
             sticky = value;
             return this;
