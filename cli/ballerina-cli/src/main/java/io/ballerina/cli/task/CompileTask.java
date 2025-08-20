@@ -32,6 +32,7 @@ import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.ProjectKind;
 import io.ballerina.projects.SemanticVersion;
 import io.ballerina.projects.directory.SingleFileProject;
+import io.ballerina.projects.environment.PackageLockingMode;
 import io.ballerina.projects.environment.ResolutionOptions;
 import io.ballerina.projects.internal.PackageDiagnostic;
 import io.ballerina.projects.internal.ProjectDiagnosticErrorCode;
@@ -304,8 +305,9 @@ public class CompileTask implements Task {
                 warning = "Detected an attempt to compile this package using Swan Lake Update "
                         + currentVersionForDiagnostic +
                         ". However, this package was built using Swan Lake Update " + prevVersionForDiagnostic + ".";
-                if (project.buildOptions().sticky()) {
-                    warning += "\nHINT: Execute the bal command with --sticky=false";
+                if (project.buildOptions().lockingMode().equals(PackageLockingMode.LOCKED)
+                        || project.buildOptions().lockingMode().equals(PackageLockingMode.HARD)) {
+                    warning += "\nHINT: Execute the bal command with --locking-mode=SOFT";
                 } else {
                     warning += " To ensure compatibility, the Dependencies.toml file will be updated with the " +
                             "latest versions that are compatible with Update " + currentVersionForDiagnostic + ".";

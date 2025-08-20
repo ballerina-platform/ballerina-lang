@@ -25,6 +25,7 @@ package io.ballerina.projects.environment;
 public enum PackageLockingMode {
     /**
      * Locks to major versions of dependencies.
+     * This is the default mode.
      */
     SOFT,
     /**
@@ -32,9 +33,9 @@ public enum PackageLockingMode {
      * major never
      * minor as needed
      * patch always
-     *
-     * Locks to major versions of dependencies.
-     *
+     * <p>
+     * Locks to major and minor versions of dependencies.
+     * <p>
      * For every dependency we always update to latest patch version
      * (not conservative about patch versions)
      *
@@ -44,10 +45,18 @@ public enum PackageLockingMode {
      *
      * Flag allows upgrade to latest minor version available overriding
      * the need question
+     *
      */
     MEDIUM,
     /**
      * Locks to exact major.minor.patch versions of dependencies.
+     * If a conflict is detected, if the versions are semver compatible,
+     * the latest version is picked. Else, the build will fail.
      */
-    HARD
+    HARD,
+    /**
+     * Locks to exact major.minor.patch versions of dependencies.
+     * If a conflict is detected, the build will fail.
+     */
+    LOCKED
 }
