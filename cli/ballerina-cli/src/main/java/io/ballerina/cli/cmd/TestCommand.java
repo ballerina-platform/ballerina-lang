@@ -230,6 +230,9 @@ public class TestCommand implements BLauncherCmd {
             description = "allow passing the package locking mode.")
     private String lockingMode;
 
+    @CommandLine.Option(names = "--min-coverage", description = "minimum code coverage percentage to pass the test")
+    private Float minCoverage;
+
     private static final String testCmd = "bal test [--OPTIONS]\n" +
             "                   [<ballerina-file> | <package-path>] [(-Ckey=value)...]";
 
@@ -399,7 +402,7 @@ public class TestCommand implements BLauncherCmd {
                         project.buildOptions().cloud().isEmpty())
                 .addTask(new RunTestsTask(outStream, errStream, rerunTests, groupList, disableGroupList,
                                 testList, includes, coverageFormat, moduleMap, listGroups, excludes, cliArgs,
-                                isParallelExecution),
+                                isParallelExecution, minCoverage),
                         (project.buildOptions().nativeImage() ||
                         !project.buildOptions().cloud().isEmpty()))
                 .addTask(new RunNativeImageTestTask(outStream, rerunTests, groupList, disableGroupList,
