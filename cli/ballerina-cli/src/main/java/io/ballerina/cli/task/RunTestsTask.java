@@ -101,6 +101,7 @@ public class RunTestsTask implements Task {
     private final List<String> cliArgs;
     private final boolean isParallelExecution;
     TestReport testReport;
+    Float minCoverage;
     private static final Boolean isWindows = System.getProperty("os.name").toLowerCase(Locale.getDefault())
             .contains("win");
     public static final String EXCLUDES_PATTERN_PATH_SEPARATOR = isWindows ? "\\\\" : "/";
@@ -115,7 +116,7 @@ public class RunTestsTask implements Task {
     public RunTestsTask(PrintStream out, PrintStream err, boolean rerunTests, String groupList,
                         String disableGroupList, String testList, String includes, String coverageFormat,
                         Map<String, Module> modules, boolean listGroups, String excludes, String[] cliArgs,
-                        boolean isParallelExecution)  {
+                        boolean isParallelExecution, Float minCoverage)  {
         this.out = out;
         this.err = err;
         this.isRerunTestExecution = rerunTests;
@@ -136,6 +137,7 @@ public class RunTestsTask implements Task {
         this.coverageModules = modules;
         this.listGroups = listGroups;
         this.excludesInCoverage = excludes;
+        this.minCoverage = minCoverage;
     }
 
     @Override
@@ -220,6 +222,21 @@ public class RunTestsTask implements Task {
             if (testResult != 0) {
                 cleanTempCache(project, cachesRoot);
                 throw createLauncherException("there are test failures");
+            }
+
+            boolean isCoverageMet = true;
+            if (minCoverage != null && coverage) {
+                if (testReport == null) {
+                    throw createLauncherException("Test report is not available for coverage evaluation.");
+                }
+                if (testReport.getCoveragePercentage() < minCoverage) {
+                    isCoverageMet = false;
+                }
+            }
+            if (!isCoverageMet) {
+                cleanTempCache(project, cachesRoot);
+                throw createLauncherException("code coverage is below the minimum threshold of " + minCoverage
+                        + "%, current coverage is " + testReport.getCoveragePercentage() + "%");
             }
         } else {
             out.println("\tNo tests found");
