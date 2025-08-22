@@ -20,6 +20,8 @@ import ballerina/jballerina.java;
 configurable int intVar = 5;
 configurable byte byteVar = ?;
 configurable float floatVar = 9.5;
+configurable float floatIntVar = ?;
+configurable decimal decimalIntVar = ?;
 configurable string stringVar = ?;
 configurable boolean booleanVar = ?;
 configurable decimal decimalVar = ?;
@@ -51,11 +53,15 @@ public function main() {
 function testSimpleValues() {
     test:assertEquals(42, intVar);
     test:assertEquals(3.5, floatVar);
+    test:assertEquals(35.0, floatIntVar);
     test:assertEquals("waru=na", stringVar);
     test:assertTrue(booleanVar);
 
     decimal result = 24.87;
     test:assertEquals(result, decimalVar);
+
+    result = 45;
+    test:assertEquals(result, decimalIntVar);
 
     byte result2 = 22;
     test:assertEquals(byteVar, result2);
