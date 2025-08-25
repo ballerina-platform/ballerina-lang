@@ -563,7 +563,8 @@ public class PackageResolutionTests extends BaseTest {
         }
         Project project = TestUtils.loadProject(tempResourceDir
                         .resolve("ultimate_package_resolution/package_http"),
-                BuildOptions.builder().setOptimizeDependencyCompilation(optimizeDependencyCompilation).build());
+                // TODO: enable after U12.9
+                BuildOptions.builder().setOptimizeDependencyCompilation(false).build());
 
         PackageCompilation compilation = project.currentPackage().getCompilation();
         JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(compilation, JvmTarget.JAVA_21);

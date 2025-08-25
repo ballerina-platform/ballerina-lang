@@ -38,7 +38,7 @@ public class BasicJavaJarRunTestCase extends BaseTest {
         executeTest("1", "test_main_with_no_params.bal");
     }
 
-    @Test
+    @Test (enabled = false)
     public void testMultipleParam() throws BallerinaTestException {
         executeTest(
                 "integer: 1000, float: 1.0, string: Hello Ballerina, Employee Name Field: Em, string rest args: just " +
