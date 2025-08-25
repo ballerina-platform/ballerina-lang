@@ -36,6 +36,7 @@ import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectEnvironmentBuilder;
 import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.ProjectKind;
+import io.ballerina.projects.ProjectLoadResult;
 import io.ballerina.projects.ResolvedPackageDependency;
 import io.ballerina.projects.internal.BalaFiles;
 import io.ballerina.projects.internal.PackageConfigCreator;
@@ -71,41 +72,62 @@ import static io.ballerina.projects.util.ProjectUtils.readBuildJson;
  *
  * @since 2.0.0
  */
-public class BuildProject extends Project {
+public class BuildProject extends Project implements Comparable<Project> {
+
+    static ProjectLoadResult loadProject(Path projectPath, ProjectEnvironmentBuilder environmentBuilder,
+                                         BuildOptions buildOptions, WorkspaceProject workspaceProject, String org) {
+        PackageConfig packageConfig = PackageConfigCreator.createBuildProjectConfig(projectPath,
+                buildOptions.disableSyntaxTree(), org);
+        BuildOptions mergedBuildOptions = ProjectFiles.createBuildOptions(
+                packageConfig, buildOptions, projectPath, org);
+
+        BuildProject buildProject = new BuildProject(environmentBuilder, projectPath, mergedBuildOptions,
+                workspaceProject);
+        buildProject.addPackage(packageConfig);
+        return new ProjectLoadResult(buildProject, buildProject.currentPackage().manifest().diagnostics());
+    }
 
     /**
+     * @deprecated Use {@link io.ballerina.projects.directory.ProjectLoader#load(Path, ProjectEnvironmentBuilder)}
+     * instead.
      * Loads a BuildProject from the provided path.
      *
      * @param projectPath Ballerina project path
      * @return build project
      */
+    @Deprecated(since = "2201.13.0", forRemoval = true)
     public static BuildProject load(ProjectEnvironmentBuilder environmentBuilder, Path projectPath) {
         return load(environmentBuilder, projectPath, BuildOptions.builder().build());
     }
 
     /**
+     * @deprecated Use {@link ProjectLoader#load(Path)} instead.
      * Loads a BuildProject from the provided path.
      *
      * @param projectPath Ballerina project path
      * @return BuildProject instance
      */
+    @Deprecated(since = "2201.13.0", forRemoval = true)
     public static BuildProject load(Path projectPath) {
         return load(projectPath, BuildOptions.builder().build());
     }
 
     /**
+     * @deprecated Use {@link ProjectLoader#load(Path, ProjectEnvironmentBuilder, BuildOptions)} instead.
      * Loads a BuildProject from provided path and build options.
      *
      * @param projectPath  Ballerina project path
      * @param buildOptions build options
      * @return BuildProject instance
      */
+    @Deprecated(since = "2201.13.0", forRemoval = true)
     public static BuildProject load(Path projectPath, BuildOptions buildOptions) {
         ProjectEnvironmentBuilder environmentBuilder = ProjectEnvironmentBuilder.getDefaultBuilder();
         return load(environmentBuilder, projectPath, buildOptions);
     }
 
     /**
+     * @deprecated Use {@link ProjectLoader#load(Path, ProjectEnvironmentBuilder, BuildOptions)}  instead.
      * Loads a BuildProject from provided environment builder, path, build options.
      *
      * @param environmentBuilder custom environment builder
@@ -113,19 +135,23 @@ public class BuildProject extends Project {
      * @param buildOptions build options
      * @return BuildProject instance
      */
+    @Deprecated(since = "2201.13.0", forRemoval = true)
     public static BuildProject load(ProjectEnvironmentBuilder environmentBuilder, Path projectPath,
                                     BuildOptions buildOptions) {
         PackageConfig packageConfig = PackageConfigCreator.createBuildProjectConfig(projectPath,
                 buildOptions.disableSyntaxTree());
-        BuildOptions mergedBuildOptions = ProjectFiles.createBuildOptions(packageConfig, buildOptions, projectPath);
+        BuildOptions mergedBuildOptions = ProjectFiles.createBuildOptions(
+                packageConfig, buildOptions, projectPath, null);
 
-        BuildProject buildProject = new BuildProject(environmentBuilder, projectPath, mergedBuildOptions);
+        BuildProject buildProject = new BuildProject(environmentBuilder, projectPath, mergedBuildOptions,
+                null);
         buildProject.addPackage(packageConfig);
         return buildProject;
     }
 
-    private BuildProject(ProjectEnvironmentBuilder environmentBuilder, Path projectPath, BuildOptions buildOptions) {
-        super(ProjectKind.BUILD_PROJECT, projectPath, environmentBuilder, buildOptions);
+    private BuildProject(ProjectEnvironmentBuilder environmentBuilder, Path projectPath, BuildOptions buildOptions,
+                         WorkspaceProject workspaceProject) {
+        super(ProjectKind.BUILD_PROJECT, projectPath, environmentBuilder, buildOptions, workspaceProject);
         populateCompilerContext();
     }
 
@@ -204,7 +230,8 @@ public class BuildProject extends Project {
     public Project duplicate() {
         BuildOptions duplicateBuildOptions = BuildOptions.builder().build().acceptTheirs(buildOptions());
         BuildProject buildProject = new BuildProject(
-                ProjectEnvironmentBuilder.getDefaultBuilder(), this.sourceRoot, duplicateBuildOptions);
+                ProjectEnvironmentBuilder.getDefaultBuilder(), this.sourceRoot, duplicateBuildOptions,
+                this.workspaceProject);
         return resetPackage(buildProject);
     }
 
@@ -378,6 +405,10 @@ public class BuildProject extends Project {
             Dependency dependency = new Dependency(aPackage.packageOrg().toString(), aPackage.packageName().value(),
                                                    aPackage.packageVersion().toString());
 
+            if (aPackage.project().kind().equals(ProjectKind.BUILD_PROJECT)) { //TODO
+                // if the direct dependency is a build project, skip it
+                continue;
+            }
             // get modules of the direct dependency package
             BalaFiles.DependencyGraphResult packageDependencyGraph = BalaFiles
                     .createPackageDependencyGraph(directDependency.packageInstance().project().sourceRoot());
@@ -537,5 +568,27 @@ public class BuildProject extends Project {
             }
         }
         return generatedResourcesPath;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (!(obj instanceof BuildProject other)) {
+            return false;
+        }
+
+        return this.sourceRoot.equals(other.sourceRoot());
+    }
+
+    @Override
+    public int hashCode() {
+        return sourceRoot.hashCode();
+    }
+
+    @Override
+    public int compareTo(Project other) {
+        return this.sourceRoot.compareTo(other.sourceRoot());
     }
 }

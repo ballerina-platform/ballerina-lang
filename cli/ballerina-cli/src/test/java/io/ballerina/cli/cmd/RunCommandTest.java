@@ -96,13 +96,12 @@ public class RunCommandTest extends BaseCommandTest {
     @Test(description = "Run non existing bal file")
     public void testRunNonExistingBalFile() throws IOException {
         // valid source root path
-        Path validBalFilePath = this.testResources.resolve("valid-run-bal-file/xyz.bal");
-        RunCommand runCommand = new RunCommand(validBalFilePath, printStream, false);
-        new CommandLine(runCommand).parseArgs(validBalFilePath.toString());
+        Path balFilePath = this.testResources.resolve("valid-run-bal-file/xyz.bal");
+        RunCommand runCommand = new RunCommand(balFilePath, printStream, false);
+        new CommandLine(runCommand).parseArgs(balFilePath.toString());
         runCommand.execute();
         String buildLog = readOutput(true);
-        Assert.assertTrue(buildLog.replace("\r", "")
-                .contains("The file does not exist: " + validBalFilePath));
+        Assert.assertTrue(buildLog.replace("\r", "").contains(" provided file path does not exist"));
     }
 
     @Test(description = "Run bal file containing syntax error")

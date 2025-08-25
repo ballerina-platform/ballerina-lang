@@ -75,6 +75,7 @@ processResources {
     include 'META-INF/services/*'
     include '**/tool.properties'
     include 'ballerina-toml-schema.json'
+    include 'workspace-ballerina-toml-schema.json'
     include 'compiler.properties'
     include 'dependencies-toml-schema.json'
     include 'old-dependencies-toml-schema.json'

@@ -17,7 +17,6 @@
 package org.wso2.ballerinalang.compiler.desugar;
 
 import io.ballerina.projects.ProjectKind;
-import org.ballerinalang.compiler.CompilerOptionName;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.PackageID;
 import org.wso2.ballerinalang.compiler.PackageCache;
@@ -26,7 +25,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
-import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 import org.wso2.ballerinalang.compiler.util.Names;
 
 import java.util.ArrayList;
@@ -39,14 +37,11 @@ import java.util.List;
  */
 public class Code2CloudDesugar {
     private static final CompilerContext.Key<Code2CloudDesugar> CODE2CLOUD_DESUGAR_KEY = new CompilerContext.Key<>();
-    private final boolean c2cEnabled;
     private final PackageCache packageCache;
     private PackageID c2cPkgID;
 
     private Code2CloudDesugar(CompilerContext context) {
         context.put(CODE2CLOUD_DESUGAR_KEY, this);
-        String cloudOption = CompilerOptions.getInstance(context).get(CompilerOptionName.CLOUD);
-        c2cEnabled = "k8s".equals(cloudOption) || "docker".equals(cloudOption) || "choreo".equals(cloudOption);
         packageCache = PackageCache.getInstance(context);
         final BPackageSymbol symbol = PackageCache.getInstance(context).getSymbol(Names.BALLERINA_ORG.value
                 + Names.ORG_NAME_SEPARATOR.value + Names.CLOUD.value);
@@ -64,20 +59,24 @@ public class Code2CloudDesugar {
     }
 
     void addCode2CloudModuleImport(BLangPackage pkgNode) {
-        if (c2cEnabled && (pkgNode.moduleContextDataHolder != null
-                && !pkgNode.moduleContextDataHolder.projectKind().equals(ProjectKind.BALA_PROJECT))
-                && c2cPkgID != null) {
-            BLangImportPackage importDcl = (BLangImportPackage) TreeBuilder.createImportPackageNode();
-            List<BLangIdentifier> pkgNameComps = new ArrayList<>();
-            pkgNameComps.add(ASTBuilderUtil.createIdentifier(pkgNode.pos, Names.CLOUD.value));
-            importDcl.pkgNameComps = pkgNameComps;
-            importDcl.pos = pkgNode.symbol.pos;
-            importDcl.orgName = ASTBuilderUtil.createIdentifier(pkgNode.pos, Names.BALLERINA_ORG.value);
-            importDcl.alias = ASTBuilderUtil.createIdentifier(pkgNode.pos, "_");
-            importDcl.version = ASTBuilderUtil.createIdentifier(pkgNode.pos, "");
-            importDcl.symbol = packageCache.getSymbol(c2cPkgID);
-            pkgNode.imports.add(importDcl);
-            pkgNode.symbol.imports.add(importDcl.symbol);
+        if (pkgNode.moduleContextDataHolder != null) {
+            boolean c2cEnabled = pkgNode.moduleContextDataHolder.cloud().equals("k8s")
+                    || pkgNode.moduleContextDataHolder.cloud().equals("docker")
+                    || pkgNode.moduleContextDataHolder.cloud().equals("choreo");
+            if (c2cEnabled && !pkgNode.moduleContextDataHolder.projectKind().equals(ProjectKind.BALA_PROJECT)
+                    && c2cPkgID != null) {
+                BLangImportPackage importDcl = (BLangImportPackage) TreeBuilder.createImportPackageNode();
+                List<BLangIdentifier> pkgNameComps = new ArrayList<>();
+                pkgNameComps.add(ASTBuilderUtil.createIdentifier(pkgNode.pos, Names.CLOUD.value));
+                importDcl.pkgNameComps = pkgNameComps;
+                importDcl.pos = pkgNode.symbol.pos;
+                importDcl.orgName = ASTBuilderUtil.createIdentifier(pkgNode.pos, Names.BALLERINA_ORG.value);
+                importDcl.alias = ASTBuilderUtil.createIdentifier(pkgNode.pos, "_");
+                importDcl.version = ASTBuilderUtil.createIdentifier(pkgNode.pos, "");
+                importDcl.symbol = packageCache.getSymbol(c2cPkgID);
+                pkgNode.imports.add(importDcl);
+                pkgNode.symbol.imports.add(importDcl.symbol);
+            }
         }
     }
 }

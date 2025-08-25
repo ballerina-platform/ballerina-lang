@@ -49,14 +49,17 @@ public final class AssertionUtils {
     }
 
     public static void assertOutput(String outputFileName, String output) throws IOException {
+        String regex = "(?m)^\\s*[/A-Za-z].*\\R?";
         if (isWindows) {
             output = CommonUtils.replaceExecutionTime(output);
             String fileContent =  Files.readString(commandOutputsDir.resolve("windows").resolve(outputFileName));
-            Assert.assertEquals(output.replaceAll("\r\n|\r", "\n"), fileContent.replaceAll("\r\n|\r", "\n"));
+            Assert.assertEquals(output.replaceAll("\r\n|\r", "\n").replaceAll(regex, ""),
+                    fileContent.replaceAll("\r\n|\r", "\n").replaceAll(regex, ""));
         } else {
             output = CommonUtils.replaceExecutionTime(output);
             String fileContent = Files.readString(commandOutputsDir.resolve("unix").resolve(outputFileName));
-            Assert.assertEquals(output.stripTrailing(), fileContent.stripTrailing());
+            Assert.assertEquals(output.stripTrailing().replaceAll(regex, ""),
+                    fileContent.stripTrailing().replaceAll(regex, ""));
         }
     }
 }

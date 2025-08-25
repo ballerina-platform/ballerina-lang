@@ -113,7 +113,7 @@ public class SubsequentBuildTests {
         BCompileUtil.compileAndCacheBala("projects_for_resolution_tests/package_c");
 
         // Build the project
-        BuildProject buildProject = BuildProject.load(packagePath);
+        BuildProject buildProject = TestUtils.loadBuildProject(packagePath);
         buildProject.save();
         PackageCompilation compilation = buildProject.currentPackage().getCompilation();
 
