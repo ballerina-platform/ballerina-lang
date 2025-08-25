@@ -18,7 +18,6 @@
 package io.ballerina.runtime.api.values;
 
 import io.ballerina.runtime.api.types.Type;
-import io.ballerina.runtime.internal.scheduling.Strand;
 
 /**
  * <p>
@@ -39,23 +38,4 @@ public interface BTypedesc extends BValue {
      * @return describing type
      */
     Type getDescribingType();
-
-    // TODO: remove this with https://github.com/ballerina-platform/ballerina-lang/issues/40175
-    /**
-     * @param strand strand to be used to run the user-defined-type initialization code.
-     * @return instantiated object
-     * @deprecated
-     */
-    @Deprecated(since = "2201.6.0", forRemoval = true)
-    Object instantiate(Strand strand);
-
-    // TODO: remove this with https://github.com/ballerina-platform/ballerina-lang/issues/40175
-    /**
-     * @param strand        strand to be used to run the user-defined-type initialization code.
-     * @param initialValues the initial values provided in the constructor expression
-     * @return instantiated object
-     * @deprecated
-     */
-    @Deprecated(since = "2201.6.0", forRemoval = true)
-    Object instantiate(Strand strand, BInitialValueEntry[] initialValues);
 }
