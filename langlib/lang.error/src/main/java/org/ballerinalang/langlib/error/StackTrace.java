@@ -63,11 +63,11 @@ public final class StackTrace {
 
     private StackTrace() {
     }
+    private static final Module MODULE = new Module("ballerina", "lang.error", "1");
 
     private static final ObjectType CALLSTACK_TYPE = createCallStackType();
 
     public static BObject stackTrace(BError value) {
-
         CallStack callStack = new CallStack(CALLSTACK_TYPE);
         callStack.callStack = getCallStackArray(value.getStackTrace());
         callStack.callStack.freezeDirect();
@@ -75,22 +75,16 @@ public final class StackTrace {
     }
 
     private static ObjectType createCallStackType() {
-        Module module = new Module("ballerina", "lang.error", null);
-        RecordType callStackElementType =
-                TypeCreator.createRecordType("CallStackElement", module, 0, Map.of(
-                        "callableName", TypeCreator.createField(PredefinedTypes.TYPE_STRING, "callableName", 0),
+        RecordType callStackElementType = TypeCreator.createRecordType("CallStackElement", MODULE, 0,
+                Map.of("callableName", TypeCreator.createField(PredefinedTypes.TYPE_STRING, "callableName", 0),
                         "moduleName", TypeCreator.createField(PredefinedTypes.TYPE_STRING, "moduleName", OPTIONAL),
                         "fileName", TypeCreator.createField(PredefinedTypes.TYPE_STRING, "fileName", 0),
-                        "lineNumber", TypeCreator.createField(PredefinedTypes.TYPE_INT, "lineNumber", 0)
-                ), PredefinedTypes.TYPE_NEVER, false, 0);
-
-        ObjectType callStackObjType = TypeCreator
-                .createObjectType("CallStack", module, 0);
+                        "lineNumber", TypeCreator.createField(PredefinedTypes.TYPE_INT, "lineNumber", 0)),
+                PredefinedTypes.TYPE_NEVER, false, 0);
+        ObjectType callStackObjType = TypeCreator.createObjectType("CallStack", MODULE, 0);
         callStackObjType.setMethods(new MethodType[]{});
-        callStackObjType
-                .setFields(Collections.singletonMap("callStack",
-                        TypeCreator.createField(TypeCreator.createArrayType(callStackElementType), "callStack",
-                                PUBLIC)));
+        callStackObjType.setFields(Collections.singletonMap("callStack",
+                TypeCreator.createField(TypeCreator.createArrayType(callStackElementType), "callStack", PUBLIC)));
         return callStackObjType;
     }
 
