@@ -16,110 +16,100 @@
  * under the License.
  */
 
-package org.wso2.ballerinalang.compiler.bir.codegen.split.constants;
+package org.wso2.ballerinalang.compiler.bir.codegen.split.identifiers;
 
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.MethodVisitor;
 import org.wso2.ballerinalang.compiler.bir.codegen.BallerinaClassWriter;
+import org.wso2.ballerinalang.compiler.bir.codegen.JvmCastGen;
+import org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen;
+import org.wso2.ballerinalang.compiler.bir.codegen.JvmTypeGen;
+import org.wso2.ballerinalang.compiler.bir.codegen.internal.AsyncDataCollector;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.JarEntries;
-import org.wso2.ballerinalang.compiler.bir.codegen.utils.JvmCodeGenUtil;
+import org.wso2.ballerinalang.compiler.bir.codegen.internal.LazyLoadBirBasicBlock;
+import org.wso2.ballerinalang.compiler.bir.codegen.internal.LazyLoadingDataCollector;
 import org.wso2.ballerinalang.compiler.bir.codegen.split.JvmConstantsGen;
+import org.wso2.ballerinalang.compiler.bir.codegen.utils.JvmCodeGenUtil;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+
+import java.util.Map;
 
 import static org.objectweb.asm.ClassWriter.COMPUTE_FRAMES;
 import static org.objectweb.asm.Opcodes.ACC_PUBLIC;
 import static org.objectweb.asm.Opcodes.ACC_STATIC;
-import static org.objectweb.asm.Opcodes.INVOKESTATIC;
+import static org.objectweb.asm.Opcodes.ACC_SUPER;
 import static org.objectweb.asm.Opcodes.PUTSTATIC;
-import static org.wso2.ballerinalang.compiler.bir.codegen.utils.JvmCodeGenUtil.getModuleLevelClassName;
+import static org.objectweb.asm.Opcodes.V21;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CLASS_FILE_SUFFIX;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CONSTANTS_CLASS_NAME;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CONSTANT_INIT_METHOD_PREFIX;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAX_CONSTANTS_PER_METHOD;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JVM_STATIC_INIT_METHOD;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_STRING_CONSTANT_PACKAGE_NAME;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBJECT;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.VALUE_VAR_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.VOID_METHOD_DESC;
-import static org.wso2.ballerinalang.compiler.bir.codegen.utils.JvmConstantGenUtils.genMethodReturn;
-import static org.wso2.ballerinalang.compiler.bir.codegen.utils.JvmConstantGenUtils.generateConstantsClassInit;
+import static org.wso2.ballerinalang.compiler.bir.codegen.utils.JvmCodeGenUtil.genMethodReturn;
+import static org.wso2.ballerinalang.compiler.bir.codegen.utils.JvmCodeGenUtil.getVarStoreClass;
+import static org.wso2.ballerinalang.compiler.bir.codegen.utils.JvmModuleUtils.getModuleLevelClassName;
+import static org.wso2.ballerinalang.compiler.bir.codegen.utils.LazyLoadingCodeGenUtils.addDebugField;
+import static org.wso2.ballerinalang.compiler.bir.codegen.utils.LazyLoadingCodeGenUtils.genLazyLoadingClass;
+import static org.wso2.ballerinalang.compiler.bir.codegen.utils.LazyLoadingCodeGenUtils.loadIdentifierValue;
 
 /**
- * Generates Jvm class for the used ballerina module constants for given module.
+ * Generates Jvm classes for the used ballerina module constants for given module.
  *
  * @since 2.0.0
  */
 public class JvmBallerinaConstantsGen {
 
-    private final String constantClass;
-    private final String moduleInitClass;
     private final JvmConstantsGen jvmConstantsGen;
     private final BIRNode.BIRPackage module;
+    private final String stringConstantsPkgName;
+    private final LazyLoadingDataCollector lazyLoadingDataCollector;
 
-    public JvmBallerinaConstantsGen(BIRNode.BIRPackage module, String moduleInitClass,
-                                    JvmConstantsGen jvmConstantsGen) {
-        this.moduleInitClass = moduleInitClass;
-        this.constantClass = getModuleLevelClassName(module.packageID, CONSTANTS_CLASS_NAME);
+    public JvmBallerinaConstantsGen(BIRNode.BIRPackage module, JvmConstantsGen jvmConstantsGen,
+                                    LazyLoadingDataCollector lazyLoadingDataCollector) {
         this.jvmConstantsGen = jvmConstantsGen;
         this.module = module;
+        this.lazyLoadingDataCollector = lazyLoadingDataCollector;
+        this.stringConstantsPkgName = getModuleLevelClassName(module.packageID, MODULE_STRING_CONSTANT_PACKAGE_NAME);
     }
 
-    public void generateConstantInit(JarEntries jarEntries) {
-
+    public void generateConstantsClasses(JvmPackageGen jvmPackageGen, JvmTypeGen jvmTypeGen, JvmCastGen jvmCastGen,
+                                         AsyncDataCollector asyncDataCollector, JarEntries jarEntries) {
         if (module.constants.isEmpty()) {
             return;
         }
-
-        ClassWriter cw = new BallerinaClassWriter(COMPUTE_FRAMES);
-        generateConstantsClassInit(cw, constantClass);
-        // Create multiple module constant init methods based on module count.
-        generateConstantsInits(cw);
-        // Create static initializer which will call previously generated module init methods.
-        generateConstantInitPublicMethod(cw);
-        cw.visitEnd();
-        jarEntries.put(constantClass + CLASS_FILE_SUFFIX, cw.toByteArray());
-    }
-
-    private void generateConstantsInits(ClassWriter cw) {
-        MethodVisitor mv = null;
-        int moduleCount = 0;
-        int methodCount = 0;
+        Map<String, LazyLoadBirBasicBlock> lazyBBMap = lazyLoadingDataCollector.lazyLoadingBBMap;
+        ClassWriter allConstantsCW = new BallerinaClassWriter(COMPUTE_FRAMES);
+        allConstantsCW.visit(V21, ACC_PUBLIC | ACC_SUPER, jvmConstantsGen.allConstantsClassName, null, OBJECT, null);
         for (BIRNode.BIRConstant constant : module.constants) {
-            if (moduleCount % MAX_CONSTANTS_PER_METHOD == 0) {
-                mv = cw.visitMethod(ACC_STATIC, CONSTANT_INIT_METHOD_PREFIX + methodCount++, VOID_METHOD_DESC, null,
-                        null);
-            }
-            setConstantField(mv, constant, moduleInitClass, jvmConstantsGen);
-            moduleCount++;
-            if (moduleCount % MAX_CONSTANTS_PER_METHOD == 0) {
-                if (moduleCount != module.constants.size()) {
-                    mv.visitMethodInsn(INVOKESTATIC, constantClass, CONSTANT_INIT_METHOD_PREFIX + methodCount,
-                            VOID_METHOD_DESC, false);
-                }
+            BIRNode.ConstValue constValue = constant.constValue;
+            BType bType = JvmCodeGenUtil.getImpliedType(constValue.type);
+            ClassWriter cw = new BallerinaClassWriter(COMPUTE_FRAMES);
+            cw.visitSource(constant.pos.lineRange().fileName(), null);
+            String varName = constant.name.value;
+            String constantVarClassName = getVarStoreClass(jvmConstantsGen.constantsPkgName, varName);
+            String descriptor = JvmCodeGenUtil.getFieldTypeSignature(bType);
+            // Create lazy loading class
+            genLazyLoadingClass(cw, constantVarClassName, descriptor);
+            addDebugField(allConstantsCW, varName);
+            if (JvmCodeGenUtil.isSimpleBasicType(bType)) {
+                // load basic constant value
+                MethodVisitor mv = cw.visitMethod(ACC_STATIC, JVM_STATIC_INIT_METHOD, VOID_METHOD_DESC, null, null);
+                mv.visitCode();
+                JvmCodeGenUtil.loadConstantValue(constValue.type, constValue.value, mv, this.jvmConstantsGen,
+                        this.stringConstantsPkgName);
+                mv.visitFieldInsn(PUTSTATIC, constantVarClassName, VALUE_VAR_NAME, descriptor);
                 genMethodReturn(mv);
             }
+            loadIdentifierValue(cw, varName, module, lazyBBMap, jvmPackageGen, jvmTypeGen, jvmCastGen,
+                    jvmConstantsGen, asyncDataCollector);
+            cw.visitEnd();
+            jarEntries.put(constantVarClassName + CLASS_FILE_SUFFIX, jvmPackageGen.getBytes(cw, module));
         }
-        // Visit the previously started module init method if not ended.
-        if (moduleCount % MAX_CONSTANTS_PER_METHOD != 0) {
-            genMethodReturn(mv);
-        }
-    }
-
-    private void generateConstantInitPublicMethod(ClassWriter cw) {
-        MethodVisitor mv =
-                cw.visitMethod(ACC_STATIC + ACC_PUBLIC, CONSTANT_INIT_METHOD_PREFIX, VOID_METHOD_DESC, null, null);
-        mv.visitMethodInsn(INVOKESTATIC, constantClass, CONSTANT_INIT_METHOD_PREFIX + 0, VOID_METHOD_DESC, false);
-        genMethodReturn(mv);
-    }
-
-    private static void setConstantField(MethodVisitor mv, BIRNode.BIRConstant constant, String className,
-                                         JvmConstantsGen jvmConstantsGen) {
-        BIRNode.ConstValue constValue = constant.constValue;
-        if (JvmCodeGenUtil.isSimpleBasicType(constValue.type)) {
-            String descriptor = JvmCodeGenUtil.getFieldTypeSignature(constValue.type);
-            JvmCodeGenUtil.loadConstantValue(constValue.type, constValue.value, mv, jvmConstantsGen);
-            mv.visitFieldInsn(PUTSTATIC, className, constant.name.value, descriptor);
-        }
-    }
-
-    public String getConstantClass() {
-        return constantClass;
+        allConstantsCW.visitEnd();
+        String constantsClass = jvmConstantsGen.allConstantsClassName + CLASS_FILE_SUFFIX;
+        jarEntries.put(constantsClass, jvmPackageGen.getBytes(allConstantsCW, module));
     }
 }
 

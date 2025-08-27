@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.wso2.ballerinalang.compiler.bir.codegen.split.constants;
+package org.wso2.ballerinalang.compiler.bir.codegen.utils;
 
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.MethodVisitor;
@@ -27,18 +27,19 @@ import static org.objectweb.asm.Opcodes.ACC_PUBLIC;
 import static org.objectweb.asm.Opcodes.ACC_SUPER;
 import static org.objectweb.asm.Opcodes.ALOAD;
 import static org.objectweb.asm.Opcodes.INVOKESPECIAL;
-import static org.objectweb.asm.Opcodes.RETURN;
 import static org.objectweb.asm.Opcodes.V21;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.VOID_METHOD_DESC;
+import static org.wso2.ballerinalang.compiler.bir.codegen.utils.JvmCodeGenUtil.genMethodReturn;
 
 /**
  * The common functions used in jvm constants generation.
  *
  * @since 2201.2.0
  */
-public final class JvmConstantGenCommons {
+public final class JvmConstantGenUtils {
 
-    private JvmConstantGenCommons() {
+    private JvmConstantGenUtils() {
+
     }
 
     public static void generateConstantsClassInit(ClassWriter cw, String constantsClass) {
@@ -51,11 +52,4 @@ public final class JvmConstantGenCommons {
                 VOID_METHOD_DESC, false);
         genMethodReturn(methodVisitor);
     }
-
-    public static void genMethodReturn(MethodVisitor methodVisitor) {
-        methodVisitor.visitInsn(RETURN);
-        methodVisitor.visitMaxs(0, 0);
-        methodVisitor.visitEnd();
-    }
-
 }
