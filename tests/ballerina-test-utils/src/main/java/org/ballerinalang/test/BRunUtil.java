@@ -345,8 +345,11 @@ public final class BRunUtil {
                 new Object[]{new HashMap<>(), new String[]{},
                         configurationDetails.paths, configurationDetails.configContent, runtime});
         FutureValue future = runOnSchedule(initClazz, "$moduleInit", runtime);
-        AsyncUtils.getFutureResult(future.completableFuture);
         runtime.moduleInitialized = true;
+        Object result = AsyncUtils.getFutureResult(future.completableFuture);
+        if (result instanceof BError error) {
+            throw error;
+        }
         AsyncUtils.getFutureResult(runOnSchedule(initClazz, "$moduleStart", runtime).completableFuture);
     }
 
