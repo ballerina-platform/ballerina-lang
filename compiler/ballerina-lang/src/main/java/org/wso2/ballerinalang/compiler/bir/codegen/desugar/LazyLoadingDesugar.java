@@ -75,8 +75,11 @@ public class LazyLoadingDesugar {
     }
 
     private boolean lazyLoadInstructions(BIRNode.BIRBasicBlock bb , int currentBBIndex) {
-        BIROperand lhsOp = null;
         List<BIRNonTerminator> instructions = bb.instructions;
+        if (bb.instructions.isEmpty()) {
+            return true;
+        }
+        BIROperand lhsOp = null;
         for (int i = 0; i < instructions.size(); i++) {
             BIRNonTerminator instruction = instructions.get(i);
             lhsOp = instruction.lhsOp;
@@ -104,8 +107,7 @@ public class LazyLoadingDesugar {
             BIRTerminator.Call call = (BIRTerminator.Call) terminator;
             // Handle annotation functions
             if (call.name.value.contains(ANNOTATION_FUNC)) {
-                lazyLoadAnnotationProcessCall(bb, basicBlocks.get(currentBBIndex + 1), call);
-                return false;
+                return lazyLoadAnnotationProcessCall(bb, basicBlocks.get(currentBBIndex + 1), call);
             }
             if (call.args.isEmpty() && lhsOp != null && (lhsOp.variableDcl.kind == VarKind.GLOBAL ||
                     lhsOp.variableDcl.kind == VarKind.CONSTANT) && call.name.value.contains(SPLIT_METHOD)) {
@@ -136,13 +138,13 @@ public class LazyLoadingDesugar {
         lazyLoadingDataCollector.lazyLoadingBBMap.put(varName, new LazyLoadBirBasicBlock(lazyInsList, null));
     }
 
-    private void lazyLoadAnnotationProcessCall(BIRNode.BIRBasicBlock currentBB, BIRNode.BIRBasicBlock nextBB,
+    private boolean lazyLoadAnnotationProcessCall(BIRNode.BIRBasicBlock currentBB, BIRNode.BIRBasicBlock nextBB,
                                                BIRTerminator.Call call) {
         // Extract type annotations
         List<BIRNonTerminator> instructions = nextBB.instructions;
         if (nextBB.instructions.isEmpty()) {
             // function annotation
-            return;
+            return false;
         }
         List<BIRNonTerminator> annotationsInsList = new ArrayList<>();
         List<BIRNonTerminator> nextBBInstructions = new ArrayList<>();
@@ -164,6 +166,7 @@ public class LazyLoadingDesugar {
         LazyLoadBirBasicBlock lazyBB = new LazyLoadBirBasicBlock(annotationsInsList, call);
         lazyLoadingDataCollector.lazyLoadingAnnotationsBBMap.put(typeName, lazyBB);
         currentBB.terminator = new BIRTerminator.GOTO(call.pos, nextBB);
+        return true;
     }
 
     private void lazyLoadSplitCall(BIRTerminator.Call call, String varName, BIRNode.BIRBasicBlock bb,
