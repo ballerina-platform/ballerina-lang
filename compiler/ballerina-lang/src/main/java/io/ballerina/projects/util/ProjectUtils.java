@@ -66,6 +66,7 @@ import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -1055,8 +1056,8 @@ public final class ProjectUtils {
      */
     public static BuildJson readBuildJson(Path target) throws JsonSyntaxException, IOException {
         Path buildFilePath = target.resolve(BUILD_FILE);
-        if (!Files.exists(buildFilePath) || buildFilePath.toFile().length() <= 0) {
-            return null;
+        if (!Files.exists(buildFilePath)) {
+            throw new FileNotFoundException("Cannot find " + BUILD_FILE + " file at '" + buildFilePath + "'");
         }
 
         try (BufferedReader bufferedReader = Files.newBufferedReader(buildFilePath)) {
