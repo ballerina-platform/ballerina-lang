@@ -370,11 +370,9 @@ public class PackageResolution {
         List<String> previousImports = new ArrayList<>();
         try {
             BuildJson buildJson = ProjectUtils.readBuildJson(this.rootPackageContext.project().targetDir());
-            if (buildJson != null) {
-                List<String> imports = buildJson.imports();
-                if (imports != null) {
-                    previousImports.addAll(imports);
-                }
+            List<String> imports = buildJson.imports();
+            if (imports != null) {
+                previousImports.addAll(imports);
             }
         } catch (IOException e) {
             // ignore
