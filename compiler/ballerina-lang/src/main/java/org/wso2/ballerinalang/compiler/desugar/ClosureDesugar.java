@@ -1398,17 +1398,14 @@ public class ClosureDesugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangLambdaFunction bLangLambdaFunction) {
-
-        SymbolEnv symbolEnv = env.createClone();
-        bLangLambdaFunction.capturedClosureEnv = symbolEnv;
-        bLangLambdaFunction.function = rewrite(bLangLambdaFunction.function, symbolEnv);
-
-        if (symbolEnv.enclInvokable != null) {
-            BLangFunction enclInvokable = (BLangFunction) symbolEnv.enclInvokable;
+        bLangLambdaFunction.capturedClosureEnv = env;
+        bLangLambdaFunction.function = rewrite(bLangLambdaFunction.function, env);
+        if (env.enclInvokable != null) {
+            BLangFunction enclInvokable = (BLangFunction) env.enclInvokable;
             // Save param closure map of the encl invokable.
             bLangLambdaFunction.paramMapSymbolsOfEnclInvokable = enclInvokable.paramClosureMap;
             boolean isWorker = bLangLambdaFunction.function.flagSet.contains(Flag.WORKER);
-            bLangLambdaFunction.enclMapSymbols = collectClosureMapSymbols(symbolEnv, enclInvokable, isWorker);
+            bLangLambdaFunction.enclMapSymbols = collectClosureMapSymbols(env, enclInvokable, isWorker);
         }
         bLangLambdaFunction.capturedClosureEnv = null;
         result = bLangLambdaFunction;
