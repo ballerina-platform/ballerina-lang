@@ -111,9 +111,71 @@ public class ListOps extends CommonOps implements BasicTypeOps {
         }
         List<Integer> indices = listSamples(cx, members, rest, neg);
         TwoTuple<List<CellSemType>, Integer> sampleTypes = listSampleTypes(cx, members, rest, indices);
-        return !listInhabited(cx, indices.toArray(new Integer[0]),
-                sampleTypes.item1.toArray(SemType[]::new),
-                sampleTypes.item2, neg);
+        Integer[] indicesArray = indices.toArray(new Integer[0]);
+        SemType[] memberTypesArray = sampleTypes.item1.toArray(SemType[]::new);
+        Integer nRequired = sampleTypes.item2;
+        if (!listInhabitedFast(cx, indicesArray, memberTypesArray, nRequired, neg)) {
+            assert !listInhabited(cx, indicesArray, memberTypesArray, nRequired, neg);
+            return true;
+        }
+        return !listInhabited(cx, indicesArray, memberTypesArray, nRequired, neg);
+    }
+
+    // listInhabited is O(n * m) where n is the number of negative atoms and m is the number of member types.
+    // But if we can find a single negative atom that can fully cancel out the positive atom (which we can do in O(n))
+    // we can avoid the more expensive listInhabited check.
+    // TODO: Also at the same time if we can prove that a negative atom don't have an effect we should also remove it
+    //  from the negative atoms to be checked in listInhabited.
+    // TODO: We can potentially implement the reordering of negative atoms with this as well.
+    static boolean listInhabitedFast(Context cx, Integer[] indices, SemType[] memberTypes, int nRequired,
+                                     Conjunction neg) {
+        if (neg == null) {
+            return true;
+        }
+        final ListAtomicType nt = cx.listAtomType(neg.atom);
+        if (nRequired > 0 && Core.isNever(listMemberAtInnerVal(nt.members(), nt.rest(), indices[nRequired - 1]))) {
+            // Skip this negative if it is always shorter than the minimum required by the positive
+            return listInhabitedFast(cx, indices, memberTypes, nRequired, neg.next);
+        }
+        int negLen = nt.members().fixedLength();
+        if (negLen > 0) {
+            // If we have isEmpty(T1 & S1) or isEmpty(T2 & S2) then we have [T1, T2] / [S1, S2] = [T1, T2].
+            // Therefore, we can skip the negative
+            // NOTE: this can't be skipped in listInhabited case because it mutates the member types.
+            for (int i = 0; i < memberTypes.length; i++) {
+                int index = indices[i];
+                if (index >= negLen) {
+                    break;
+                }
+                SemType negMemberType = listMemberAt(nt.members(), nt.rest(), index);
+                SemType common = Core.intersect(memberTypes[i], negMemberType);
+                if (Core.isEmpty(cx, common)) {
+                    return listInhabitedFast(cx, indices, memberTypes, nRequired, neg.next);
+                }
+            }
+            // Consider cases we can avoid this negative by having a sufficiently short list
+            int len = memberTypes.length;
+            if (len < indices.length && indices[len] < negLen) {
+                return listInhabitedFast(cx, indices, memberTypes, nRequired, neg.next);
+            }
+            for (int i = nRequired; i < memberTypes.length; i++) {
+                if (indices[i] >= negLen) {
+                    break;
+                }
+                SemType[] t = Arrays.copyOfRange(memberTypes, 0, i);
+                if (listInhabitedFast(cx, indices, t, nRequired, neg.next)) {
+                    return true;
+                }
+            }
+        }
+        for (int i = 0; i < memberTypes.length; i++) {
+            SemType d = Core.diff(memberTypes[i], listMemberAt(nt.members(), nt.rest(), indices[i]));
+            if (!Core.isEmpty(cx, d)) {
+                // This negative can't fully cancel out the positive check next
+                return listInhabitedFast(cx, indices, memberTypes, nRequired, neg.next);
+            }
+        }
+        return false;
     }
 
     public static TwoTuple<List<CellSemType>, Integer> listSampleTypes(Context cx, FixedLengthArray members,
