@@ -57,9 +57,8 @@ public class ProjectUtilsTests {
 
     @Test
     public void testReadBuildJson() {
-        Path buildFilePath = PROJECT_UTILS_RESOURCES.resolve(ProjectConstants.BUILD_FILE);
         try {
-            BuildJson buildJson = ProjectUtils.readBuildJson(buildFilePath);
+            BuildJson buildJson = ProjectUtils.readBuildJson(PROJECT_UTILS_RESOURCES);
             Assert.assertEquals(buildJson.lastBuildTime(), 1629359520);
             Assert.assertEquals(buildJson.lastUpdateTime(), 1629259520);
             Assert.assertEquals(buildJson.distributionVersion(), "slbeta4");
@@ -76,7 +75,7 @@ public class ProjectUtilsTests {
 
     @Test()
     public void testReadBuildJsonForInvalidBuildFile() {
-        Path buildFilePath = PROJECT_UTILS_RESOURCES.resolve("invalid-build");
+        Path buildFilePath = PROJECT_UTILS_RESOURCES.resolve("invalid-file");
         Assert.assertThrows(JsonSyntaxException.class, () -> ProjectUtils.readBuildJson(buildFilePath));
     }
 
