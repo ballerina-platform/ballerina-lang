@@ -471,7 +471,7 @@ public class PackageResolution {
 
     private ResolutionRequest createFromDepNode(DependencyNode depNode) {
         return ResolutionRequest.from(depNode.pkgDesc(), depNode.scope(), depNode.resolutionType(),
-                resolutionOptions.packageLockingMode());
+                resolutionOptions.packageLockingMode(), depNode.skipWorkspace());
     }
 
     private DependencyGraph<DependencyNode> createDependencyNodeGraph(

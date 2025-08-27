@@ -31,6 +31,7 @@ public class TestCaseFilePaths {
     private final Path centralRepoPath;
     private final Path distRepoPath;
     private final Path localRepoDirPath;
+    private final Path workspaceRepoPath;
     private final Path appPath;
     private final Path dependenciesTomlPath;
     private final Path ballerinaTomlPath;
@@ -40,6 +41,7 @@ public class TestCaseFilePaths {
     TestCaseFilePaths(Path centralRepoPath,
                       Path distRepoPath,
                       Path localRepoDirPath,
+                      Path workspaceRepoPath,
                       Path appPath,
                       Path dependenciesTomlPath,
                       Path ballerinaTomlPath,
@@ -48,6 +50,7 @@ public class TestCaseFilePaths {
         this.centralRepoPath = centralRepoPath;
         this.distRepoPath = distRepoPath;
         this.localRepoDirPath = localRepoDirPath;
+        this.workspaceRepoPath = workspaceRepoPath;
         this.appPath = appPath;
         this.dependenciesTomlPath = dependenciesTomlPath;
         this.ballerinaTomlPath = ballerinaTomlPath;
@@ -65,6 +68,10 @@ public class TestCaseFilePaths {
 
     public Optional<Path> localRepoDirPath() {
         return Optional.ofNullable(localRepoDirPath);
+    }
+
+    public Optional<Path> workspaceRepoPath() {
+        return Optional.ofNullable(workspaceRepoPath);
     }
 
     public Path appPath() {
@@ -115,6 +122,8 @@ public class TestCaseFilePaths {
                     Path.of(Constants.REPO_DIR_NAME).resolve(Constants.DIST_REPO_FILE_NAME));
             Path localRepoDirPath = getFilePath(testSuitePath, testCasePath,
                     Path.of(Constants.REPO_DIR_NAME).resolve(Constants.LOCAL_REPO_DIR_NAME));
+            Path workspaceRepoPath = getFilePath(testSuitePath, testCasePath,
+                    Path.of(Constants.REPO_DIR_NAME).resolve(Constants.WORKSPACE_REPO_FILE_NAME));
 
             Path depsTomlPath = getFilePath(testSuitePath, testCasePath, Path.of(Constants.DEPS_TOML_FILE_NAME));
             Path balTomlPath = getFilePath(testSuitePath, testCasePath, Path.of(Constants.BAL_TOML_FILE_NAME));
@@ -123,7 +132,7 @@ public class TestCaseFilePaths {
             Path expGraphNoStickyPath = getFilePath(testSuitePath, testCasePath,
                     Path.of(Constants.EXP_GRAPH_NO_STICKY_FILE_NAME));
 
-            return new TestCaseFilePaths(centralRepoPath, distRepoPath, localRepoDirPath,
+            return new TestCaseFilePaths(centralRepoPath, distRepoPath, localRepoDirPath, workspaceRepoPath,
                     appPath, depsTomlPath, balTomlPath, expGraphStickyPath, expGraphNoStickyPath);
         }
 

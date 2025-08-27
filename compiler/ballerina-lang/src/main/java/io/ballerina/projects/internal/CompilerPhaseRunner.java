@@ -36,8 +36,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 
-import static org.ballerinalang.compiler.CompilerOptionName.TOOLING_COMPILATION;
-
 /**
  * This class drives the compilation of packages through various phases
  * such as symbol enter, semantic analysis, type checking, code analysis,
@@ -64,7 +62,6 @@ public class CompilerPhaseRunner {
     private final CompilerPhase compilerPhase;
     private final DataflowAnalyzer dataflowAnalyzer;
     private final IsolationAnalyzer isolationAnalyzer;
-    private final boolean isToolingCompilation;
 
 
     public static CompilerPhaseRunner getInstance(CompilerContext context) {
@@ -92,8 +89,6 @@ public class CompilerPhaseRunner {
         this.compilerPhase = this.options.getCompilerPhase();
         this.dataflowAnalyzer = DataflowAnalyzer.getInstance(context);
         this.isolationAnalyzer = IsolationAnalyzer.getInstance(context);
-        this.isToolingCompilation = this.options.isSet(TOOLING_COMPILATION)
-                && Boolean.parseBoolean(this.options.get(TOOLING_COMPILATION));
     }
 
     public void performTypeCheckPhases(BLangPackage pkgNode) {
@@ -222,7 +217,7 @@ public class CompilerPhaseRunner {
     }
 
     private boolean checkNextPhase(CompilerPhase nextPhase) {
-        return (!isToolingCompilation && nextPhase == CompilerPhase.CODE_ANALYZE) ||
+        return (nextPhase == CompilerPhase.CODE_ANALYZE) ||
                 nextPhase == CompilerPhase.COMPILER_PLUGIN || nextPhase == CompilerPhase.DESUGAR ||
                 nextPhase == CompilerPhase.BIR_GEN;
                 // only added BIR_GEN temporary until we fully support closures for OCE

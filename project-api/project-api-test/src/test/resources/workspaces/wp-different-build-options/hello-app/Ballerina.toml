@@ -1,0 +1,5 @@
+[package]
+org = "asmaj"
+name = "hello_app"
+version = "0.1.0"
+distribution = "2201.13.0-m3"

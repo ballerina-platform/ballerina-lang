@@ -26,7 +26,6 @@ import io.ballerina.projects.internal.ModuleContextDataHolder;
 import io.ballerina.projects.util.ProjectUtils;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.diagnostics.Location;
-import org.ballerinalang.compiler.CompilerOptionName;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.PackageID;
@@ -41,7 +40,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangTestablePackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
-import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 import org.wso2.ballerinalang.programfile.CompiledBinaryFile;
 import org.wso2.ballerinalang.programfile.PackageFileWriter;
 
@@ -385,7 +383,10 @@ class ModuleContext {
                 moduleContext.descriptor(),
                 moduleContext.project.kind(),
                 moduleContext.project.buildOptions().skipTests(),
-                moduleContext.project().sourceRoot());
+                moduleContext.project().sourceRoot(),
+                moduleContext.project().buildOptions().observabilityIncluded(),
+                moduleContext.project().buildOptions().compilationOptions().dumpBir(),
+                moduleContext.project().buildOptions().cloud());
         packageCache.put(moduleCompilationId, pkgNode);
 
         // Parse source files
@@ -472,7 +473,7 @@ class ModuleContext {
         moduleContext.compilationCache.cacheBir(moduleContext.moduleName(), birContent);
     }
 
-    private static boolean shouldGenerateBir(ModuleContext moduleContext, CompilerContext compilerContext) {
+    private static boolean shouldGenerateBir(ModuleContext moduleContext) {
         if (moduleContext.project.kind().equals(ProjectKind.BALA_PROJECT)) {
             return true;
         }
@@ -480,8 +481,7 @@ class ModuleContext {
                 moduleContext.descriptor().org(), moduleContext.descriptor().packageName().toString())) {
             return true;
         }
-        CompilerOptions compilerOptions = CompilerOptions.getInstance(compilerContext);
-        if (Boolean.parseBoolean(compilerOptions.get(CompilerOptionName.DUMP_BIR_FILE))) {
+        if (moduleContext.project.buildOptions().compilationOptions().dumpBirFile()) {
             return true;
         }
         return moduleContext.project.kind().equals(ProjectKind.BUILD_PROJECT)
@@ -489,7 +489,7 @@ class ModuleContext {
     }
 
     private static ByteArrayOutputStream generateBIR(ModuleContext moduleContext, CompilerContext compilerContext) {
-        if (!shouldGenerateBir(moduleContext, compilerContext)) {
+        if (!shouldGenerateBir(moduleContext)) {
             return null;
         }
         // Can we improve this logic

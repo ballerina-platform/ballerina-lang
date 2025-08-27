@@ -412,6 +412,9 @@
           },
           "repository": {
             "type": "string"
+          },
+          "skipWorkspace": {
+            "type": "boolean"
           }
         },
         "required": [

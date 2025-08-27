@@ -17,11 +17,9 @@
  */
 package org.wso2.ballerinalang.compiler.bir.emit;
 
-import org.ballerinalang.compiler.CompilerOptionName;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
-import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 
 import java.io.PrintStream;
 import java.util.List;
@@ -39,7 +37,6 @@ import static org.wso2.ballerinalang.compiler.bir.emit.InstructionEmitter.emitIn
 import static org.wso2.ballerinalang.compiler.bir.emit.InstructionEmitter.emitTerminator;
 import static org.wso2.ballerinalang.compiler.bir.emit.TypeEmitter.emitType;
 import static org.wso2.ballerinalang.compiler.bir.emit.TypeEmitter.emitTypeRef;
-import static org.wso2.ballerinalang.compiler.util.CompilerUtils.getBooleanValueIfSet;
 
 /**
  * BIR module emitter which prints the BIR model to console.
@@ -50,7 +47,6 @@ public class BIREmitter {
 
     private static final CompilerContext.Key<BIREmitter> BIR_EMITTER = new CompilerContext.Key<>();
     private static final PrintStream console = System.out;
-    private final boolean dumpBIR;
 
     public static BIREmitter getInstance(CompilerContext context) {
         BIREmitter birEmitter = context.get(BIR_EMITTER);
@@ -62,19 +58,17 @@ public class BIREmitter {
 
     private BIREmitter(CompilerContext context) {
         context.put(BIR_EMITTER, this);
-        CompilerOptions compilerOptions = CompilerOptions.getInstance(context);
-        this.dumpBIR = getBooleanValueIfSet(compilerOptions, CompilerOptionName.DUMP_BIR);
     }
 
     public BLangPackage emit(BLangPackage bLangPackage) {
-        emit(bLangPackage.symbol.bir);
+        if (bLangPackage.moduleContextDataHolder.isDumpBir()) {
+            emit(bLangPackage.symbol.bir);
+        }
         return bLangPackage;
     }
 
     public void emit(BIRNode.BIRPackage birPackage) {
-        if (dumpBIR) {
-            console.println(emitModule(birPackage));
-        }
+        console.println(emitModule(birPackage));
     }
 
     public static String emitModule(BIRNode.BIRPackage mod) {

@@ -1,0 +1,3 @@
+digraph "example1" {
+    "samejs/app:0.1.0" -> "samjs/hr.leave:1.0.0"
+}

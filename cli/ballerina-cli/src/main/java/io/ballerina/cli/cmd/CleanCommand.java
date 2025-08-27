@@ -21,7 +21,11 @@ package io.ballerina.cli.cmd;
 import io.ballerina.cli.BLauncherCmd;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectException;
+import io.ballerina.projects.ProjectKind;
+import io.ballerina.projects.ProjectLoadResult;
 import io.ballerina.projects.directory.BuildProject;
+import io.ballerina.projects.directory.ProjectLoader;
+import io.ballerina.projects.directory.WorkspaceProject;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectUtils;
 import picocli.CommandLine;
@@ -89,37 +93,40 @@ public class CleanCommand implements BLauncherCmd {
                 ProjectUtils.deleteDirectory(this.targetDir);
                 this.outStream.println("Successfully deleted '" + this.targetDir + "'.");
             }
-        } else {
-            try {
-                Project project = BuildProject.load(this.projectPath);
-                this.targetDir = project.targetDir();
-            } catch (ProjectException e) {
-                CommandUtil.printError(this.outStream, e.getMessage(), null, false);
-                CommandUtil.exitError(this.exitWhenFinish);
-                return;
-            }
-            if (Files.exists(this.targetDir)) {
-                ProjectUtils.deleteDirectory(this.targetDir);
-                this.outStream.println("Successfully deleted '" + this.targetDir + "'.");
-            }
+            return;
         }
 
-        // delete the generated directory
+        ProjectLoadResult loadResult = ProjectLoader.load(this.projectPath);
+        if (loadResult.project().kind().equals(ProjectKind.WORKSPACE_PROJECT)) {
+            WorkspaceProject workspaceProject = (WorkspaceProject) loadResult.project();
+            for (BuildProject buildProject : workspaceProject.projects()) {
+                cleanProject(buildProject);
+            }
+        } else {
+            cleanProject(loadResult.project());
+        }
+    }
+
+    private void cleanProject(Project project) {
         Path generatedDir;
         try {
-            Project project = BuildProject.load(this.projectPath);
+            // delete the generated directory
             generatedDir = project.sourceRoot().resolve(ProjectConstants.GENERATED_MODULES_ROOT);
         } catch (ProjectException e) {
             CommandUtil.printError(this.outStream, e.getMessage(), null, false);
             CommandUtil.exitError(this.exitWhenFinish);
             return;
         }
+        if (Files.exists(project.targetDir())) {
+            ProjectUtils.deleteDirectory(project.targetDir());
+            this.outStream.println("Successfully deleted '" + this.targetDir + "'.");
+        }
         if (Files.exists(generatedDir)) {
             ProjectUtils.deleteDirectory(generatedDir);
             this.outStream.println("Successfully deleted '" + generatedDir + "'.");
         }
     }
-    
+
     @Override
     public String getName() {
         return CLEAN_COMMAND;

@@ -40,33 +40,35 @@ public final class ResolutionRequest {
 
     // TODO rethink about this
     private final PackageLockingMode packageLockingMode;
+    private final boolean skipWorkspace;
 
     private ResolutionRequest(PackageDescriptor packageDescriptor,
                               PackageDependencyScope scope,
                               DependencyResolutionType dependencyResolutionType,
-                              PackageLockingMode packageLockingMode) {
+                              PackageLockingMode packageLockingMode, boolean skipWorkspace) {
         this.packageDesc = packageDescriptor;
         this.scope = scope;
         this.dependencyResolutionType = dependencyResolutionType;
         this.packageLockingMode = packageLockingMode;
+        this.skipWorkspace = skipWorkspace;
     }
 
     public static ResolutionRequest from(PackageDescriptor packageDescriptor) {
         return new ResolutionRequest(packageDescriptor, PackageDependencyScope.DEFAULT,
-                DependencyResolutionType.SOURCE, PackageLockingMode.MEDIUM);
+                DependencyResolutionType.SOURCE, PackageLockingMode.MEDIUM, false);
     }
 
     public static ResolutionRequest from(PackageDescriptor packageDescriptor,
                                          PackageDependencyScope scope) {
         return new ResolutionRequest(packageDescriptor, scope,
-                DependencyResolutionType.SOURCE, PackageLockingMode.MEDIUM);
+                DependencyResolutionType.SOURCE, PackageLockingMode.MEDIUM, false);
     }
 
     public static ResolutionRequest from(PackageDescriptor packageDescriptor,
                                          PackageDependencyScope scope,
                                          DependencyResolutionType resolutionType) {
         return new ResolutionRequest(packageDescriptor, scope,
-                resolutionType, PackageLockingMode.MEDIUM);
+                resolutionType, PackageLockingMode.MEDIUM, false);
     }
 
     public static ResolutionRequest from(PackageDescriptor packageDescriptor,
@@ -75,7 +77,17 @@ public final class ResolutionRequest {
                                          PackageLockingMode packageLockingMode) {
         return new ResolutionRequest(packageDescriptor, scope,
                 dependencyResolutionType,
-                packageLockingMode);
+                packageLockingMode, false);
+    }
+
+    public static ResolutionRequest from(PackageDescriptor packageDescriptor,
+                                         PackageDependencyScope scope,
+                                         DependencyResolutionType dependencyResolutionType,
+                                         PackageLockingMode packageLockingMode,
+                                         boolean skipWorkspace) {
+        return new ResolutionRequest(packageDescriptor, scope,
+                dependencyResolutionType,
+                packageLockingMode, skipWorkspace);
     }
 
     public PackageOrg orgName() {
@@ -108,6 +120,10 @@ public final class ResolutionRequest {
 
     public DependencyResolutionType resolutionType() {
         return dependencyResolutionType;
+    }
+
+    public boolean skipWorkspace() {
+        return skipWorkspace;
     }
 
     @Override
