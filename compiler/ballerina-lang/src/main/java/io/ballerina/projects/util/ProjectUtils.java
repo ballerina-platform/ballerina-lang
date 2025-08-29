@@ -1072,21 +1072,6 @@ public final class ProjectUtils {
      * @return is project files are updated
      */
     public static boolean isProjectUpdated(Project project) {
-        // If observability included and Syntax Tree Json not in the caches, return true
-        Path observeJarCachePath = project.targetDir()
-                .resolve(CACHES_DIR_NAME)
-                .resolve(project.currentPackage().packageOrg().value())
-                .resolve(project.currentPackage().packageName().value())
-                .resolve(project.currentPackage().packageVersion().value().toString())
-                .resolve("observe")
-                .resolve(project.currentPackage().packageOrg().value() + "-"
-                        + project.currentPackage().packageName().value()
-                        + "-observability-symbols.jar");
-        if (project.buildOptions().observabilityIncluded() &&
-                !observeJarCachePath.toFile().exists()) {
-            return true;
-        }
-
         try {
             BuildJson buildJson = readBuildJson(project.sourceRoot().resolve(TARGET_DIR_NAME));
             long lastProjectUpdatedTime = FileUtils.lastModifiedTimeOfBalProject(project.sourceRoot());
@@ -1329,7 +1314,7 @@ public final class ProjectUtils {
         return false;
     }
 
-    public static PackageLockingMode getPackageLockingMode(Path target, Path projectPath,
+    public static PackageLockingMode getPackageLockingMode(Path target, Project project,
                                                            PackageLockingMode originalMode) {
         BuildJson buildJson;
         try {
@@ -1342,13 +1327,7 @@ public final class ProjectUtils {
             return originalMode;
         }
 
-        long lastModifiedOfBalToml = projectPath.resolve(BALLERINA_TOML).toFile().lastModified();
-        long lastModifiedofBalTomlRecorded = buildJson.lastBalTomlUpdateTime();
-        if (lastModifiedofBalTomlRecorded == 0) {
-            // if last modified time of `Ballerina.toml` is not recorded, return SOFT
-            return originalMode;
-        } else if (lastModifiedOfBalToml > lastModifiedofBalTomlRecorded) {
-            // if `Ballerina.toml` is modified after the last recorded time, return SOFT
+        if (isProjectUpdated(project)) {
             return originalMode;
         }
 
@@ -1358,7 +1337,6 @@ public final class ProjectUtils {
 
         return originalMode;
     }
-
 
     private static boolean isLessThan24Hours(BuildJson buildJson) {
         // set sticky only if `build` file exists and `last_update_time` not passed 24 hours
@@ -1409,7 +1387,8 @@ public final class ProjectUtils {
         if (version == null) {
             return CompatibleRange.LATEST;
         }
-        if (packageLockingMode.equals(PackageLockingMode.HARD)) {
+        if (packageLockingMode.equals(PackageLockingMode.HARD)
+                || packageLockingMode.equals(PackageLockingMode.LOCKED)) {
             return CompatibleRange.EXACT;
         }
         if (packageLockingMode.equals(PackageLockingMode.MEDIUM) || version.isInitialVersion()) {

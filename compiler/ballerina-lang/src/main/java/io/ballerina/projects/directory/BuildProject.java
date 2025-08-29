@@ -319,7 +319,7 @@ public class BuildProject extends Project implements Comparable<Project> {
             writeDependencies();
 
             // check whether buildJson is null and last updated time has expired
-            if (buildJson != null && shouldUpdate) {
+            if (buildJson != null && !shouldUpdate) {
                 buildJson.setLastBuildTime(System.currentTimeMillis());
 
                 Path projectPath = this.currentPackage().project().sourceRoot();
@@ -329,14 +329,12 @@ public class BuildProject extends Project implements Comparable<Project> {
                 buildJson.setLastModifiedTime(lastModifiedTime);
                 buildJson.setLastBalTomlUpdateTime(projectPath.resolve(BALLERINA_TOML).toFile().lastModified());
 
-                List<String> imports = this.currentPackage().getResolution().dependencyGraph().getDirectDependencies(
-                                new ResolvedPackageDependency(this.currentPackage(), PackageDependencyScope.DEFAULT))
-                        .stream().map(dep -> dep.packageInstance().packageOrg() + "/" +
-                                dep.packageInstance().packageName().value()).toList();
+                List<String> imports = this.currentPackage().getResolution().imports();
                 buildJson.setImports(imports);
 
                 writeBuildFile(buildFilePath, buildJson);
             } else {
+
                 writeBuildFile(buildFilePath);
             }
         }
@@ -541,10 +539,7 @@ public class BuildProject extends Project implements Comparable<Project> {
         lastModifiedTime.put(this.currentPackage().packageName().value(),
                 FileUtils.lastModifiedTimeOfBalProject(projectPath));
 
-        List<String> imports = this.currentPackage().getResolution().dependencyGraph().getDirectDependencies(
-                        new ResolvedPackageDependency(this.currentPackage(), PackageDependencyScope.DEFAULT))
-                .stream().map(dep -> dep.packageInstance().packageOrg() + "/" +
-                        dep.packageInstance().packageName().value()).toList();
+        List<String> imports = this.currentPackage().getResolution().imports();
         long balTomlLastModified = projectPath.resolve(BALLERINA_TOML).toFile().lastModified();
         BuildJson buildJson = new BuildJson(System.currentTimeMillis(), System.currentTimeMillis(),
                 RepoUtils.getBallerinaShortVersion(), lastModifiedTime, imports, balTomlLastModified);
