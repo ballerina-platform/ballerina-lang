@@ -402,7 +402,8 @@ public class ResolutionEngine {
     }
 
     private Collection<DependencyNode> getUnresolvedNode() {
-        if (resolutionOptions.packageLockingMode().equals(PackageLockingMode.HARD)) {
+        if (resolutionOptions.packageLockingMode().equals(PackageLockingMode.HARD)
+                || resolutionOptions.packageLockingMode().equals(PackageLockingMode.LOCKED)) {
             return graphBuilder.getUnresolvedNodes();
         } else {
             // Since sticky = false, we have to update all dependency nodes.

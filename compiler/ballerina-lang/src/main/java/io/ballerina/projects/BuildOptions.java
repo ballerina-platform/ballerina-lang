@@ -326,6 +326,7 @@ public class BuildOptions {
             return this;
         }
 
+        @Deprecated (forRemoval = true, since = "2201.13.0")
         public BuildOptionsBuilder setSticky(Boolean value) {
             compilationOptionsBuilder.setSticky(value);
             return this;

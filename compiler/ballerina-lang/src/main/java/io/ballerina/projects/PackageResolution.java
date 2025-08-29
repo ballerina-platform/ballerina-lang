@@ -17,6 +17,7 @@
  */
 package io.ballerina.projects;
 
+import com.google.gson.JsonSyntaxException;
 import io.ballerina.projects.DependencyGraph.DependencyGraphBuilder;
 import io.ballerina.projects.environment.ModuleLoadRequest;
 import io.ballerina.projects.environment.PackageCache;
@@ -89,6 +90,7 @@ public class PackageResolution {
 
     private List<ModuleContext> topologicallySortedModuleList;
     private Collection<ResolvedPackageDependency> dependenciesWithTransitives;
+    private List<String> imports;
 
     private static final Boolean isWindows = System.getProperty("os.name").toLowerCase(Locale.getDefault())
             .contains("win");
@@ -366,15 +368,30 @@ public class PackageResolution {
         if (project.kind() != ProjectKind.BUILD_PROJECT) {
             return;
         }
+        if (resolutionOptions.packageLockingMode() == PackageLockingMode.HARD) {
+            return;
+        }
+
+        if (compilationOptions.sticky()) {
+            this.resolutionOptions = ResolutionOptions.builder()
+                    .setOffline(resolutionOptions.offline())
+                    .setDumpGraph(resolutionOptions.dumpGraph())
+                    .setDumpRawGraphs(resolutionOptions.dumpRawGraphs())
+                    .setPackageLockingMode(PackageLockingMode.HARD)
+                    .build();
+            return;
+        }
 
         List<String> previousImports = new ArrayList<>();
         try {
             BuildJson buildJson = ProjectUtils.readBuildJson(this.rootPackageContext.project().targetDir());
-            List<String> imports = buildJson.imports();
-            if (imports != null) {
-                previousImports.addAll(imports);
+            if (buildJson != null) {
+                List<String> imports = buildJson.imports();
+                if (imports != null) {
+                    previousImports.addAll(imports);
+                }
             }
-        } catch (IOException e) {
+        } catch (IOException | JsonSyntaxException e) {
             // ignore
         }
         List<String> currentImports = new ArrayList<>(moduleLoadRequests.stream().filter(
@@ -411,7 +428,7 @@ public class PackageResolution {
 
             if (resolutionOptions.packageLockingMode().equals(PackageLockingMode.MEDIUM)) {
                 PackageLockingMode packageLockingMode = ProjectUtils.getPackageLockingMode(
-                        project.targetDir(), project.sourceRoot, resolutionOptions.packageLockingMode());
+                        project.targetDir(), project, resolutionOptions.packageLockingMode());
                 this.resolutionOptions = ResolutionOptions.builder()
                         .setOffline(resolutionOptions.offline())
                         .setDumpGraph(resolutionOptions.dumpGraph())
@@ -433,7 +450,7 @@ public class PackageResolution {
                 packageLockingMode = resolutionOptions.packageLockingMode();
             } else {
                 // No new imports, so we derive the locking mode depending on the time after the last build
-                packageLockingMode = ProjectUtils.getPackageLockingMode(project.targetDir(), project.sourceRoot,
+                packageLockingMode = ProjectUtils.getPackageLockingMode(project.targetDir(), project,
                         resolutionOptions.packageLockingMode());
             }
         }
@@ -717,6 +734,20 @@ public class PackageResolution {
 
     public ResolutionOptions resolutionOptions() {
         return resolutionOptions;
+    }
+
+    public List<String> imports() {
+        if (imports == null) {
+            imports = new ArrayList<>();
+            imports = getModuleLoadRequestsOfDirectDependencies().stream()
+                    .filter(moduleLoadRequest -> moduleLoadRequest.orgName().isPresent()
+                            && !moduleLoadRequest.orgName().get().equals(PackageOrg.BALLERINA_I_ORG))
+                    .map(moduleLoadRequest -> moduleLoadRequest.orgName()
+                            .orElse(this.rootPackageContext.packageOrg())
+                            + "/" + moduleLoadRequest.moduleName())
+                    .toList();
+        }
+        return imports;
     }
 
     /**
