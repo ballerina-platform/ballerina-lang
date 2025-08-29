@@ -105,12 +105,17 @@ public class LazyLoadingDesugar {
         BIROperand lhsOp = terminator.lhsOp;
         if (terminator.kind == InstructionKind.CALL) {
             BIRTerminator.Call call = (BIRTerminator.Call) terminator;
+            String callName = call.name.value;
             // Handle annotation functions
-            if (call.name.value.contains(ANNOTATION_FUNC)) {
+            if (callName.contains(ANNOTATION_FUNC)) {
                 return lazyLoadAnnotationProcessCall(bb, basicBlocks.get(currentBBIndex + 1), call);
             }
+            // Handle start transaction coordinator
+            if (callName.equals(Names.START_TRANSACTION_COORDINATOR.value)) {
+                return true;
+            }
             if (call.args.isEmpty() && lhsOp != null && (lhsOp.variableDcl.kind == VarKind.GLOBAL ||
-                    lhsOp.variableDcl.kind == VarKind.CONSTANT) && call.name.value.contains(SPLIT_METHOD)) {
+                    lhsOp.variableDcl.kind == VarKind.CONSTANT) && callName.contains(SPLIT_METHOD)) {
                 lazyLoadSplitCall(call, lhsOp.variableDcl.name.value, bb, basicBlocks, currentBBIndex);
             }
         }
