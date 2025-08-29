@@ -24,6 +24,7 @@ import io.ballerina.projects.ProjectEnvironmentBuilder;
 import io.ballerina.projects.directory.BuildProject;
 import io.ballerina.projects.environment.Environment;
 import io.ballerina.projects.environment.EnvironmentBuilder;
+import io.ballerina.projects.environment.PackageLockingMode;
 import org.apache.commons.io.FileUtils;
 import org.ballerinalang.test.BCompileUtil;
 import org.testng.Assert;
@@ -111,10 +112,11 @@ public class PackageResolutionIntegrationTests extends BaseTest {
         assertTomlFilesEquals(projectDirPath.resolve(DEPENDENCIES_TOML),
                 projectDirPath.resolve(RESOURCE_DIR_NAME).resolve("Dependencies-0001-1.toml"));
 
-        // 3. Build package_c w/o deleting Dependencies.toml, after deleting build file and setting sticky == false
+        // 3. Build package_c w/o deleting Dependencies.toml, after deleting build file and setting package locking
+        // mode to MEDIUM
         deleteBuildFile(projectDirPath);
         BuildProject buildProject3 = BuildProject.load(projectEnvironmentBuilder, projectDirPath,
-                BuildOptions.builder().setSticky(false).build());
+                BuildOptions.builder().setLockingMode(PackageLockingMode.MEDIUM).build());
         buildProject3.save();
         failIfDiagnosticsExists(buildProject3);
         // Compare Dependencies.toml file
@@ -135,12 +137,24 @@ public class PackageResolutionIntegrationTests extends BaseTest {
         // 5. Build package_c again after deleting Dependencies.toml and build file, and setting sticky == false
         deleteDependenciesTomlAndBuildFile(projectDirPath);
         BuildProject buildProject5 = BuildProject.load(projectEnvironmentBuilder, projectDirPath,
-                BuildOptions.builder().setSticky(false).build());
+                BuildOptions.builder().build());
         buildProject5.save();
         // Compare Dependencies.toml file
         // package_a ---> 1.1.0 minor version
         assertTomlFilesEquals(projectDirPath.resolve(DEPENDENCIES_TOML),
                 projectDirPath.resolve(RESOURCE_DIR_NAME).resolve("Dependencies-0001-3.toml"));
+
+        // 3. Build package_c w/o deleting Dependencies.toml, after deleting build file and setting package locking
+        // mode to MEDIUM
+        deleteBuildFile(projectDirPath);
+        BuildProject buildProject6 = BuildProject.load(projectEnvironmentBuilder, projectDirPath,
+                BuildOptions.builder().setLockingMode(PackageLockingMode.MEDIUM).build());
+        buildProject6.save();
+        failIfDiagnosticsExists(buildProject3);
+        // Compare Dependencies.toml file
+        // package_a ---> 1.1.0
+        assertTomlFilesEquals(projectDirPath.resolve(DEPENDENCIES_TOML),
+                projectDirPath.resolve(RESOURCE_DIR_NAME).resolve("Dependencies-0001-4.toml"));
     }
 
     @Test(description = "Adding of a new import which is already there as a transitive in the graph " +
@@ -642,7 +656,7 @@ public class PackageResolutionIntegrationTests extends BaseTest {
         // build package_y
         deleteDirectory(projectDirPath.resolve(TARGET_DIR_NAME));
         BuildProject buildProject1 = BuildProject.load(projectEnvironmentBuilder, projectDirPath,
-                BuildOptions.builder().setSticky(false).build());
+                BuildOptions.builder().setLockingMode(PackageLockingMode.MEDIUM).build());
         buildProject1.save();
         assertDiagnosticCount(buildProject1, 1, "Should contain only one diagnostic regarding the distribution " +
                 "version increment");
@@ -672,7 +686,7 @@ public class PackageResolutionIntegrationTests extends BaseTest {
         // build package_y
         deleteDirectory(projectDirPath.resolve(TARGET_DIR_NAME));
         BuildProject buildProject1 = BuildProject.load(projectEnvironmentBuilder, projectDirPath,
-                BuildOptions.builder().setSticky(false).build());
+                BuildOptions.builder().build());
         buildProject1.save();
 
         failIfDiagnosticsExists(buildProject1);
@@ -699,7 +713,7 @@ public class PackageResolutionIntegrationTests extends BaseTest {
         // build package_y
         deleteDirectory(projectDirPath.resolve(TARGET_DIR_NAME));
         BuildProject buildProject1 = BuildProject.load(projectEnvironmentBuilder, projectDirPath,
-                BuildOptions.builder().setSticky(false).build());
+                BuildOptions.builder().setLockingMode(PackageLockingMode.MEDIUM).build());
         buildProject1.save();
         assertDiagnosticCount(buildProject1, 1, "Should contain only one diagnostic regarding the distribution " +
                 "version increment");
@@ -729,10 +743,9 @@ public class PackageResolutionIntegrationTests extends BaseTest {
 
          // build package_y
         BuildProject buildProject1 = BuildProject.load(projectEnvironmentBuilder, projectDirPath,
-                BuildOptions.builder().setSticky(false).build());
+                BuildOptions.builder().build());
         buildProject1.save();
-        assertDiagnosticCount(buildProject1, 1, "Should contain only one diagnostic regarding the distribution " +
-                "version increment");
+        assertDiagnosticCount(buildProject1, 0, "Should not contain any diagnostics");
 
         // Compare Dependencies.toml
          // Possible candidates for package_x are 1.1.1, 1.2.0, and 2.0.0
@@ -779,10 +792,9 @@ public class PackageResolutionIntegrationTests extends BaseTest {
         // build package_y
         deleteDirectory(projectDirPath.resolve(TARGET_DIR_NAME));
         BuildProject buildProject1 = BuildProject.load(projectEnvironmentBuilder, projectDirPath,
-                BuildOptions.builder().setSticky(false).build());
+                BuildOptions.builder().build());
         buildProject1.save();
-        assertDiagnosticCount(buildProject1, 1, "Should contain only one diagnostic regarding the distribution " +
-                "version increment");
+        assertDiagnosticCount(buildProject1, 0, "Should not contain any diagnostics");
 
         // Compare Dependencies.toml
         // Possible candidates for package_w are 1.0.1 and 1.0.2
@@ -808,7 +820,7 @@ public class PackageResolutionIntegrationTests extends BaseTest {
         // build package_y
         deleteDirectory(projectDirPath.resolve(TARGET_DIR_NAME));
         BuildProject buildProject1 = BuildProject.load(projectEnvironmentBuilder, projectDirPath,
-                BuildOptions.builder().setSticky(false).build());
+                BuildOptions.builder().setLockingMode(PackageLockingMode.MEDIUM).build());
         buildProject1.save();
 
         failIfDiagnosticsExists(buildProject1);
@@ -835,10 +847,9 @@ public class PackageResolutionIntegrationTests extends BaseTest {
         // build package_y
         deleteDirectory(projectDirPath.resolve(TARGET_DIR_NAME));
         BuildProject buildProject1 = BuildProject.load(projectEnvironmentBuilder, projectDirPath,
-                BuildOptions.builder().setSticky(false).build());
+                BuildOptions.builder().build());
         buildProject1.save();
-        assertDiagnosticCount(buildProject1, 1, "Should contain only one diagnostic regarding the distribution " +
-                "version increment");
+        assertDiagnosticCount(buildProject1, 0, "Should not contain any diagnostics");
 
         // Compare Dependencies.toml
         // Possible candidates for package_w are 1.0.4, 1.1.0, and 2.0.0
@@ -865,10 +876,9 @@ public class PackageResolutionIntegrationTests extends BaseTest {
 
         // build package_y
         BuildProject buildProject1 = BuildProject.load(projectEnvironmentBuilder, projectDirPath,
-                BuildOptions.builder().setSticky(false).build());
+                BuildOptions.builder().build());
         buildProject1.save();
-        assertDiagnosticCount(buildProject1, 1, "Should contain only one diagnostic regarding the distribution " +
-                "version increment");
+        assertDiagnosticCount(buildProject1, 0, "Should not contain any diagnostics");
 
         // Compare Dependencies.toml
         // Possible candidates for package_w are 1.1.1, 1.2.0, and 2.0.0

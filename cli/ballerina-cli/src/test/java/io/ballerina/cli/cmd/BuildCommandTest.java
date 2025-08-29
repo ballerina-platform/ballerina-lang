@@ -1629,6 +1629,12 @@ public class BuildCommandTest extends BaseCommandTest {
     public void testDifferentUpdatePoliciesForFreshProject(String args, String fileName) throws IOException {
         Path projectPath = this.testResources.resolve("projects-for-locking-modes/testLockingMode");
         System.setProperty(USER_DIR_PROPERTY, projectPath.toString());
+        cleanTarget(projectPath);
+        // Delete dependencies.toml and the target/ from the project
+        Path depsTomlActual = projectPath.resolve("Dependencies.toml");
+        if (Files.exists(depsTomlActual)) {
+            Files.delete(depsTomlActual);
+        }
         BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
         if (args.isEmpty()) {
             new CommandLine(buildCommand).parseArgs();
@@ -1638,21 +1644,16 @@ public class BuildCommandTest extends BaseCommandTest {
         try {
             buildCommand.execute();
         } catch (BLauncherException e) {
-            String buildLog = readOutput(true);
+            String buildLog = readOutput(true).replace("\r", "");
             Assert.fail("Build failed with error: \n" + buildLog);
         }
 
         String buildLog = readOutput(true);
         Assert.assertTrue(buildLog.contains("Generating executable"));
 
-        Path depsTomlActual = projectPath.resolve("Dependencies.toml");
         Path depsTomlExpected = projectPath.resolve("resources").resolve("Dependencies-" + fileName);
-        Assert.assertEquals(Files.readString(depsTomlActual, Charset.defaultCharset()),
-                Files.readString(depsTomlExpected, Charset.defaultCharset()));
-
-        // Delete dependencies.toml and the target/ from the project
-        Files.delete(depsTomlActual);
-        FileUtils.deleteDirectory(projectPath.resolve(TARGET_DIR_NAME).toFile());
+        Assert.assertEquals(Files.readString(depsTomlActual, Charset.defaultCharset()).replace("\r", ""),
+                Files.readString(depsTomlExpected, Charset.defaultCharset()).replace("\r", ""));
     }
 
     @Test(dataProvider = "differentUpdatePolicies")
@@ -1679,8 +1680,8 @@ public class BuildCommandTest extends BaseCommandTest {
 
         Path depsTomlActual = projectPath.resolve("Dependencies.toml");
         Path depsTomlExpected = projectPath.resolve("resources").resolve("Dependencies-existing-" + fileName);
-        Assert.assertEquals(Files.readString(depsTomlActual, Charset.defaultCharset()),
-                Files.readString(depsTomlExpected, Charset.defaultCharset()));
+        Assert.assertEquals(Files.readString(depsTomlActual, Charset.defaultCharset()).replace("\r", ""),
+                Files.readString(depsTomlExpected, Charset.defaultCharset()).replace("\r", ""));
 
         // Delete dependencies.toml and the target/ from the project
         Files.delete(depsTomlActual);
@@ -1701,9 +1702,11 @@ public class BuildCommandTest extends BaseCommandTest {
             new CommandLine(buildCommand).parseArgs(args);
         }
         try {
+            buildCommand.execute(); // build once to create the target/build file for the next run
+            Assert.assertTrue(Files.exists(projectPath.resolve("target").resolve(BUILD_FILE)));
             buildCommand.execute();
         } catch (BLauncherException e) {
-            String buildLog = readOutput(true);
+            String buildLog = readOutput(true).replace("\r", "");
             Assert.fail("Build failed with error: \n" + buildLog);
         }
 
@@ -1712,11 +1715,8 @@ public class BuildCommandTest extends BaseCommandTest {
 
         Path depsTomlActual = projectPath.resolve("Dependencies.toml");
         Path depsTomlExpected = projectPath.resolve("resources").resolve("Dependencies-existing-hard.toml");
-        Assert.assertEquals(Files.readString(depsTomlActual, Charset.defaultCharset()),
-                Files.readString(depsTomlExpected, Charset.defaultCharset()));
-
-        // Assert that the build file exists
-        Assert.assertTrue(Files.exists(projectPath.resolve("target").resolve(BUILD_FILE)));
+        Assert.assertEquals(Files.readString(depsTomlActual, Charset.defaultCharset()).replace("\r", ""),
+                Files.readString(depsTomlExpected, Charset.defaultCharset()).replace("\r", ""));
 
         // Delete dependencies.toml from the project
         Files.delete(depsTomlActual);
