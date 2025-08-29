@@ -8321,7 +8321,7 @@ public class Desugar extends BLangNodeVisitor {
                                                                    bLangArrowFunction.funcType,
                                                                    env.enclEnv.enclVarSym, true,
                                                                    bLangArrowFunction.pos, VIRTUAL);
-
+        funcSymbol.type.tsymbol.pkgID = funcSymbol.pkgID;
         funcSymbol.originalName = new Name(funcNode.name.originalValue);
 
         SymbolEnv invokableEnv = SymbolEnv.createFunctionEnv(funcNode, funcSymbol.scope, env);
