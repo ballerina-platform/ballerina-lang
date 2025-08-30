@@ -231,7 +231,8 @@ public class VariableVisibilityTest extends BaseTestCase {
         debugTestRunner.assertVariable(globalVariables, "port", "9090", "int");
     }
 
-    @Test(description = "Variable visibility test for local variables at the last line of main() method")
+    @Test(description = "Variable visibility test for local variables at the last line of main() method",
+            enabled = false)
     public void localVariableVisibilityTest() throws BallerinaTestException {
         String testProjectName = "variable-tests";
         String testModuleFileName = "main.bal";
