@@ -18,11 +18,12 @@
 package io.ballerina.runtime.api.values;
 
 import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.internal.scheduling.Strand;
 
 /**
  * <p>
  * Ballerina runtime value representation of a {@link Type}.
- *
+ * <p>
  * {@code BTypedesc} is used to describe type of a value in Ballerina.
  * For example {@code BTypedesc} of number 5 is {@code int}, where as {@code BTypedesc} of a record value is the
  * record type that used to create this particular value instance.
@@ -38,4 +39,31 @@ public interface BTypedesc extends BValue {
      * @return describing type
      */
     Type getDescribingType();
+
+    // TODO: remove this with https://github.com/ballerina-platform/ballerina-lang/issues/40175
+
+    /**
+     * @param strand strand to be used to run the user-defined-type initialization code.
+     * @return instantiated object
+     * @deprecated
+     */
+    @Deprecated(since = "2201.6.0", forRemoval = true)
+    default Object instantiate(Strand strand) {
+
+        return null;
+    }
+
+    // TODO: remove this with https://github.com/ballerina-platform/ballerina-lang/issues/40175
+
+    /**
+     * @param strand        strand to be used to run the user-defined-type initialization code.
+     * @param initialValues the initial values provided in the constructor expression
+     * @return instantiated object
+     * @deprecated
+     */
+    @Deprecated(since = "2201.6.0", forRemoval = true)
+    default Object instantiate(Strand strand, BInitialValueEntry[] initialValues) {
+
+        return null;
+    }
 }
