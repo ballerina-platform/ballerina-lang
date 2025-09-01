@@ -85,7 +85,7 @@ public final class BFileUtil {
             });
         } catch (IOException e) {
             throw new BLangTestException(
-                    "error occured while copying from '" + sourcePath + "' " + "to '" + targetPath + "'", e);
+                    "error occurred while copying from '" + sourcePath + "' " + "to '" + targetPath + "'", e);
         }
     }
 
