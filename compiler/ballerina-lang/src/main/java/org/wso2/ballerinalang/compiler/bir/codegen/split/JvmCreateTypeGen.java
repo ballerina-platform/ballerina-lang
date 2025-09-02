@@ -550,7 +550,7 @@ public class JvmCreateTypeGen {
         BObjectTypeSymbol objectTypeSymbol = (BObjectTypeSymbol) bObjectType.tsymbol;
         List<BAttachedFunction> attachedFunctions = objectTypeSymbol.attachedFuncs;
         for (BAttachedFunction attachedFunction : attachedFunctions) {
-            lazyBB = lazyLoadingAnnotationsBBMap.get(typeName + "." + attachedFunction.funcName);
+            lazyBB = lazyLoadingAnnotationsBBMap.get(typeName + "." + attachedFunction.symbol.originalName);
             if (lazyBB != null) {
                 lazyLoadAnnotations(mv, lazyBB, jvmPackageGen, jvmCastGen, jvmConstantsGen, jvmTypeGen,
                         asyncDataCollector);
