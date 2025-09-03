@@ -41,7 +41,7 @@ import org.slf4j.LoggerFactory;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
-import org.wso2.ballerinalang.programfile.CompiledBinaryFile;
+import org.wso2.ballerinalang.programfile.BIRPackageFile;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -133,12 +133,12 @@ public final class BCompileUtil {
             return null;
         }
 
-        CompiledBinaryFile.BIRPackageFile birPackageFile = bPackageSymbol.birPackageFile;
+        BIRPackageFile birPackageFile = bPackageSymbol.birPackageFile;
         if (birPackageFile == null) {
             return null;
         }
 
-        return new BIRCompileResult(bPackageSymbol.bir, birPackageFile.pkgBirBinaryContent);
+        return new BIRCompileResult(bPackageSymbol.bir, birPackageFile.getPkgBirBinaryContent());
     }
 
     public static CompileResult compileWithoutInitInvocation(String sourceFilePath) {
