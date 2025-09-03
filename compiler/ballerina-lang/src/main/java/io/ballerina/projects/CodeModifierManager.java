@@ -579,8 +579,7 @@ class CodeModifierManager {
 
         private void updateModifiedDocument(String newDocFilename, TextDocument textDocument,
                                             Module.Modifier modifier, DocumentId documentId) {
-            DocumentConfig documentConfig = DocumentConfig.from(documentId,
-                    textDocument.toString(), newDocFilename);
+            DocumentConfig documentConfig = DocumentConfig.from(documentId, textDocument::toString, newDocFilename);
             DocumentContext documentContext = DocumentContext.from(documentConfig, false);
             modifier.updateDocument(documentContext);
         }
