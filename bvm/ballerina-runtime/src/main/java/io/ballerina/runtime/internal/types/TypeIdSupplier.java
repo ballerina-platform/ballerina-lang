@@ -44,7 +44,7 @@ public final class TypeIdSupplier {
     private static final AtomicInteger nextNamedId = new AtomicInteger(MAX_RESERVED_ID);
     private static final AtomicInteger nextReservedId = new AtomicInteger(0);
     private static final AtomicInteger nextAnonId = new AtomicInteger(-2);
-    private static boolean reservedIdsExhausted = false;
+    private static volatile boolean reservedIdsExhausted = false;
 
     private TypeIdSupplier() {
 
@@ -63,14 +63,18 @@ public final class TypeIdSupplier {
         return newId;
     }
 
-    public static int getReservedId() {
+    public static synchronized int getReservedId() {
         // This can happen if there are a lot of maps and arrays with reserved ids (T[][][][]). In that case we will
         // gracefully overflow to named ids.
-        if (reservedIdsExhausted || nextReservedId.get() >= MAX_RESERVED_ID) {
+        if (reservedIdsExhausted) {
+            return getNamedId();
+        }
+        int id = nextReservedId.getAndIncrement();
+        if (id >= MAX_RESERVED_ID) {
             reservedIdsExhausted = true;
             return getNamedId();
         }
-        return nextReservedId.getAndIncrement();
+        return id;
     }
 
     public static int getNamedId() {
