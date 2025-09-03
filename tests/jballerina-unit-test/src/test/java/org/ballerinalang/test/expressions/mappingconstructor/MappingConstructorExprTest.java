@@ -76,36 +76,23 @@ public class MappingConstructorExprTest {
     public void diagnosticsTest() {
         CompileResult result = BCompileUtil.compile(
                 "test-src/expressions/mappingconstructor/mapping_constructor_negative.bal");
-        int index = 0;
-        validateError(result, index++, "incompatible mapping constructor expression for type '(string|Person)'", 33,
-                23);
-        validateError(result, index++, "ambiguous type '(PersonTwo|PersonThree)'", 37, 31);
-        validateError(result, index++,
-                "a type compatible with mapping constructor expressions not found in type '(int|float)'", 41, 19);
-        validateError(result, index++, "ambiguous type '(map<int>|map<string>)'", 45, 31);
-        validateError(result, index++, "ambiguous type '(map<(int|string)>|map<(string|boolean)>)'", 47, 46);
-        validateError(result, index++, "unknown type 'NoRecord'", 55, 5);
-        validateError(result, index++, "incompatible types: 'int' cannot be cast to 'string'", 55, 22);
-        validateError(result, index++,
-                "invalid field access: 'salary' is not a required field in record 'PersonThree', use" +
-                        " member access to access a field that may have been specified as a rest field", 55, 41);
-        validateError(result, index++, "undefined symbol 'c'", 55, 55);
-        validateError(result, index++, "unknown type 'Foo'", 59, 5);
-        validateError(result, index++, "incompatible types: 'string' cannot be cast to 'boolean'", 59, 17);
-        validateError(result, index++, "unknown type 'Foo'", 60, 5);
-        validateError(result, index++, "incompatible types: 'int' cannot be cast to 'boolean'", 60, 30);
-        validateError(result, index++, "ambiguous type '(any|map)'", 64, 22);
-        validateError(result, index++, "incompatible mapping constructor expression for type 'map<string>?'", 68,
-                22);
-        validateError(result, index++, "undefined symbol 'NAME'", 68, 24);
-        validateError(result, index++, "incompatible mapping constructor expression for type 'map<string>?'", 69,
-                22);
-        validateError(result, index++, "undefined symbol 'NAME'", 69, 24);
-        validateError(result, index++, "undefined symbol 'NAME'", 69, 32);
-        validateError(result, index++, "missing non-defaultable required record field 'name'", 70, 34);
-        validateError(result, index++, "undefined symbol 'NAME'", 70, 36);
-        validateError(result, index++, "undefined symbol 'NAME'", 70, 44);
-        Assert.assertEquals(result.getErrorCount(), index);
+        Assert.assertEquals(result.getErrorCount(), 14);
+        validateError(result, 0, "incompatible mapping constructor expression for type '(string|Person)'", 33, 23);
+        validateError(result, 1, "ambiguous type '(PersonTwo|PersonThree)'", 37, 31);
+        validateError(result, 2,
+                      "a type compatible with mapping constructor expressions not found in type '(int|float)'", 41, 19);
+        validateError(result, 3, "ambiguous type '(map<int>|map<string>)'", 45, 31);
+        validateError(result, 4, "ambiguous type '(map<(int|string)>|map<(string|boolean)>)'", 47, 46);
+        validateError(result, 5, "unknown type 'NoRecord'", 55, 5);
+        validateError(result, 6, "incompatible types: 'int' cannot be cast to 'string'", 55, 22);
+        validateError(result, 7, "invalid field access: 'salary' is not a required field in record 'PersonThree', use" +
+                " member access to access a field that may have been specified as a rest field", 55, 41);
+        validateError(result, 8, "undefined symbol 'c'", 55, 55);
+        validateError(result, 9, "unknown type 'Foo'", 59, 5);
+        validateError(result, 10, "incompatible types: 'string' cannot be cast to 'boolean'", 59, 17);
+        validateError(result, 11, "unknown type 'Foo'", 60, 5);
+        validateError(result, 12, "incompatible types: 'int' cannot be cast to 'boolean'", 60, 30);
+        validateError(result, 13, "ambiguous type '(any|map)'", 64, 22);
     }
 
     @Test
@@ -424,8 +411,6 @@ public class MappingConstructorExprTest {
                       33, 35);
         validateError(compileResult, index++,
                       "incompatible mapping constructor expression for type '(Employee|Details)'", 34, 27);
-        validateError(compileResult, index++,
-                "incompatible types: expected 'readonly', found 'Details'", 34, 64);
         validateError(compileResult, index++, "incompatible types: expected '(Employee & readonly)', found 'Employee'",
                       40, 18);
         validateError(compileResult, index++, "incompatible types: expected '(Details & readonly)', found 'Details'",
@@ -435,8 +420,6 @@ public class MappingConstructorExprTest {
         validateError(compileResult, index++,
                       "incompatible mapping constructor expression for type '(map<string>|map<(Details|string)>)'",
                       55, 42);
-        validateError(compileResult, index++,
-                "incompatible types: expected 'readonly', found 'Details'", 55, 79);
         validateError(compileResult, index++,
                       "incompatible types: expected '(map<(Details|string)> & readonly)', " +
                               "found 'map<(Details|string)>'", 61, 18);
@@ -449,20 +432,12 @@ public class MappingConstructorExprTest {
         validateError(compileResult, index++, "incompatible mapping constructor expression for type '(" +
                 "record {| future<any>...; |}|NonReadOnlyFields)'", 78, 57);
         validateError(compileResult, index++,
-                "incompatible types: expected 'readonly', found 'future<int>'", 78, 67);
-        validateError(compileResult, index++,
-                "incompatible types: expected 'readonly', found 'stream<boolean>'", 78, 84);
-        validateError(compileResult, index++,
                       "incompatible types: expected '((any|error) & readonly)', found 'future<int>'", 81, 39);
         validateError(compileResult, index++,
                       "incompatible types: expected '((any|error) & readonly)', found 'stream<boolean>'", 81, 51);
         validateError(compileResult, index++,
                       "incompatible mapping constructor expression for type '(map<(any|error)>|map<future<int>>)'",
                       82, 43);
-        validateError(compileResult, index++,
-                "incompatible types: expected 'readonly', found 'future<int>'", 82, 62);
-        validateError(compileResult, index++,
-                "incompatible types: expected 'readonly', found 'stream<boolean>'", 82, 74);
         validateError(compileResult, index++, "incompatible types: expected 'record {| int i; anydata...; |}', found " +
                 "'record {| readonly (Details & readonly) d1; readonly (Details & readonly) d2; " +
                 "record {| string str; |} d3; readonly record {| string str; readonly int count; |} & readonly d4; " +
