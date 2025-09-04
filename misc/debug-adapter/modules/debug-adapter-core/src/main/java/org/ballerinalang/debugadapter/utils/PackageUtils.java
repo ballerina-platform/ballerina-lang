@@ -43,6 +43,8 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.StringJoiner;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import static io.ballerina.projects.util.ProjectConstants.BALLERINA_TOML;
 import static io.ballerina.projects.util.ProjectPaths.isBalFile;
@@ -78,7 +80,7 @@ public final class PackageUtils {
     public static final String ALL_CONSTANTS_CLASS_NAME = "$constants";
     public static final String TYPE_VAR_NAME = "$type";
     public static final String VALUE_VAR_NAME = "$value";
-    private static final String OBJECT_CLASS_PATTERN = "values/";
+    private static final String OBJECT_CLASS_PATTERN = "values" + File.separator;
     private static final String FILE_SEPARATOR_REGEX = File.separatorChar == '\\' ? "\\\\" : File.separator;
 
     private PackageUtils() {
@@ -310,9 +312,10 @@ public final class PackageUtils {
             // Removes ".bal" extension if exists.
             srcFileName = srcFileName.replaceAll(BAL_FILE_EXT + "$", "");
             if (path.contains(OBJECT_CLASS_PATTERN)) {
-                path = path.replaceAll(OBJECT_CLASS_PATTERN + name + "$", srcFileName);
+                path = path.replaceAll(Pattern.quote(OBJECT_CLASS_PATTERN + name) + "$",
+                        Matcher.quoteReplacement(srcFileName));
             } else {
-                path = path.replaceAll(name + "$", srcFileName);
+                path = path.replaceAll(Pattern.quote(name) + "$", Matcher.quoteReplacement(srcFileName));
             }
             return replaceSeparators(path);
         } catch (Exception e) {
