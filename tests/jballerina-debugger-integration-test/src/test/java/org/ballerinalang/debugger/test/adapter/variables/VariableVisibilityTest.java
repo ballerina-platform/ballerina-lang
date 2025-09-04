@@ -231,8 +231,7 @@ public class VariableVisibilityTest extends BaseTestCase {
         debugTestRunner.assertVariable(globalVariables, "port", "9090", "int");
     }
 
-    @Test(description = "Variable visibility test for local variables at the last line of main() method",
-            enabled = false)
+    @Test(description = "Variable visibility test for local variables at the last line of main() method")
     public void localVariableVisibilityTest() throws BallerinaTestException {
         String testProjectName = "variable-tests";
         String testModuleFileName = "main.bal";
@@ -251,7 +250,6 @@ public class VariableVisibilityTest extends BaseTestCase {
         debugTestRunner.assertVariable(localVariables, "a", "3", "int");
         debugTestRunner.assertVariable(localVariables, "b", "3", "int");
         debugTestRunner.assertVariable(localVariables, "c", "34", "int");
-        debugTestRunner.assertVariable(globalVariables, "port", "9090", "int");
 
         debugTestRunner.resumeProgram(debugHitInfo.getRight(), DebugTestRunner.DebugResumeKind.NEXT_BREAKPOINT);
         debugHitInfo = debugTestRunner.waitForDebugHit(10000);
