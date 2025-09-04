@@ -231,7 +231,7 @@ public class PackCommand implements BLauncherCmd {
                     String content = Files.readString(readmeFilePath);
                     if (content.trim().isEmpty()) {
                         CommandUtil.printError(this.errStream, "WARNING: README.md file is missing in the package." +
-                                "Add meaningful documentation before pushing.");
+                                "Add meaningful documentation before pushing.", null, false);
                     }
                 } catch (IOException e) {
                     CommandUtil.printError(this.errStream, "error while validating the README file" + e.getMessage());
