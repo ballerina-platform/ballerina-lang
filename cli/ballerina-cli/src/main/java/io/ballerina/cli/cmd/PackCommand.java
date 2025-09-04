@@ -224,8 +224,24 @@ public class PackCommand implements BLauncherCmd {
 
             // 3. Warn if the resolved readme file is missing or empty
             if (readmeFilePath == null || !Files.exists(readmeFilePath)) {
-                CommandUtil.printError(this.errStream,"warning: Package.md is missing. " +
-                        "It is required when pushing to Ballerina Central.");
+                String missingFilesMsg;
+                Optional<String> readmePathOpt = project.currentPackage().manifest().readme();
+                if (readmePathOpt.isPresent()) {
+                    missingFilesMsg = String.format("warning: The specified readme file '%s' is missing. It is required when pushing to Ballerina Central.",
+                            readmePathOpt.get());
+                } else {
+                    boolean readmeExists = Files.exists(this.projectPath.resolve("README.md"));
+                    boolean packageMdExists = Files.exists(this.projectPath.resolve("Package.md"));
+                    if (!readmeExists && !packageMdExists) {
+                        missingFilesMsg = "warning: Neither README.md nor Package.md is present in the package. " +
+                                "At least one is required when pushing to Ballerina Central.";
+                    } else if (!readmeExists) {
+                        missingFilesMsg = "warning: README.md is missing. It is recommended to add documentation before pushing to Ballerina Central.";
+                    } else {
+                        missingFilesMsg = "warning: Package.md is missing. It is recommended to add documentation before pushing to Ballerina Central.";
+                    }
+                }
+                CommandUtil.printError(this.errStream, missingFilesMsg);
             } else {
                 try {
                     String content = Files.readString(readmeFilePath);
