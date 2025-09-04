@@ -18,8 +18,8 @@
 package org.wso2.ballerinalang.compiler.bir.codegen.model;
 
 import io.ballerina.runtime.api.Environment;
-import org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil;
 import org.wso2.ballerinalang.compiler.bir.codegen.exceptions.JInteropException;
+import org.wso2.ballerinalang.compiler.bir.codegen.utils.JvmCodeGenUtil;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 
 import java.lang.reflect.Constructor;
@@ -49,40 +49,33 @@ public class JMethod {
     public boolean hasBundledFunctionParams = false;
 
     private JMethod(JMethodKind kind, Executable executable, BType receiverType) {
-
         this.kind = kind;
         this.method = executable;
         this.receiverType = receiverType;
     }
 
     public static JMethod build(JMethodKind kind, Executable executable, BType receiverType) {
-
         return new JMethod(kind, executable, receiverType);
     }
 
 
     public String getClassName() {
-
         return method.getDeclaringClass().getName();
     }
 
     public boolean isDeclaringClassInterface() {
-
         return this.method.getDeclaringClass().isInterface();
     }
 
     public boolean isStatic() {
-
         return Modifier.isStatic(method.getModifiers());
     }
 
     public boolean isInstanceMethod() {
-
         return !isStatic() && !(method instanceof Constructor);
     }
 
     public String getName() {
-
         if (kind == JMethodKind.CONSTRUCTOR) {
             return JVM_INIT_METHOD;
         } else {
@@ -91,17 +84,14 @@ public class JMethod {
     }
 
     public JMethodKind getKind() {
-
         return kind;
     }
 
     public Executable getMethod() {
-
         return method;
     }
 
     public String getSignature() {
-
         if (kind == JMethodKind.CONSTRUCTOR) {
             return JvmCodeGenUtil.getMethodSig(void.class, method.getParameterTypes());
         } else {
@@ -114,7 +104,6 @@ public class JMethod {
     }
 
     public Class<?> getReturnType() {
-
         if (kind == JMethodKind.CONSTRUCTOR) {
             return method.getDeclaringClass();
         } else {
@@ -131,7 +120,6 @@ public class JMethod {
     }
 
     public Class<?>[] getExceptionTypes() {
-
         List<Class<?>> checkedExceptions = new ArrayList<>();
         try {
             Class<?> runtimeException = ClassLoader.getSystemClassLoader().

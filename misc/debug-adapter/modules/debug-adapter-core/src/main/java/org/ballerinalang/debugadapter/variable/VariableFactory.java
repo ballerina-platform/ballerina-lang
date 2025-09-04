@@ -105,7 +105,7 @@ import static org.ballerinalang.debugadapter.variable.VariableUtils.isService;
  */
 public final class VariableFactory {
 
-    private static final String TYPEDESC_IDENTIFIER = "$typedesc$";
+    private static final String TYPEDESC_IDENTIFIER = "typedescs.$";
 
     private VariableFactory() {
     }

@@ -47,20 +47,20 @@ public final class AnnotationUtils {
 
     /**
      * Method to retrieve annotations of the type from the global annotation map and set it to the type.
+     * Used for codegen
      *
      * @param globalAnnotMap The global annotation map
      * @param bType          The type for which annotations need to be set
      */
+    @SuppressWarnings("unused")
     public static void processAnnotations(MapValue<BString, Object> globalAnnotMap, Type bType) {
         if (!(bType instanceof BAnnotatableType type)) {
             return;
         }
-
         BString annotationKey = StringUtils.fromString(type.getAnnotationKey());
         if (globalAnnotMap.containsKey(annotationKey)) {
             type.setAnnotations((MapValue<BString, Object>) globalAnnotMap.get(annotationKey));
         }
-
         if (type.getTag() == TypeTags.TYPE_REFERENCED_TYPE_TAG) {
             Type impliedType = TypeUtils.getImpliedType(type);
             if (isNonObjectType(impliedType.getTag())) {
@@ -95,6 +95,10 @@ public final class AnnotationUtils {
         }
     }
 
+    @SuppressWarnings("unused")
+    /*
+     * Used for codegen
+     */
     public static void processObjectCtorAnnotations(BObjectType bType,
                                                     MapValue<BString, Object> globalAnnotMap, Strand strand) {
         BString annotationKey = StringUtils.fromString(bType.getAnnotationKey());
@@ -128,11 +132,13 @@ public final class AnnotationUtils {
 
     /**
      * Method to retrieve annotations of a function type from the global annotation map and set it to the type.
+     * Used for codegen
      *
      * @param fpValue        The {@link FPValue} representing the function reference
      * @param globalAnnotMap The global annotation map
      * @param name           The function name that acts as the annotation key
      */
+    @SuppressWarnings("unused")
     public static void processFPValueAnnotations(FPValue fpValue, MapValue<BString, Object> globalAnnotMap,
                                                  String name) {
         BAnnotatableType type = (BAnnotatableType) fpValue.getType();

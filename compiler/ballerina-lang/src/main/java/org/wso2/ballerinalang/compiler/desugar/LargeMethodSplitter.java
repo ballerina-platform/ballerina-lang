@@ -18,6 +18,7 @@
 
 package org.wso2.ballerinalang.compiler.desugar;
 
+import io.ballerina.runtime.api.flags.SymbolFlags;
 import io.ballerina.tools.diagnostics.Location;
 import io.ballerina.tools.text.LinePosition;
 import io.ballerina.tools.text.LineRange;
@@ -28,17 +29,21 @@ import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolResolver;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangBlockFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckedExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
+import org.wso2.ballerinalang.util.Flags;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -126,17 +131,22 @@ public class LargeMethodSplitter {
 
         // until we get to a varDef, stmts are independent, divide it based on methodSize
         int varDefIndex = 0;
-        for (int i = 0; i < stmts.size(); i++) {
-            BLangStatement statement = stmts.get(i);
+        int count = 0;
+        for (BLangStatement statement : stmts) {
             if (statement.getKind() == NodeKind.VARIABLE_DEF) {
                 break;
             }
             varDefIndex++;
-            if (i > 0 && (i % INIT_METHOD_SPLIT_SIZE == 0 || isAssignmentWithInitOrRecordLiteralExpr(statement))) {
+            if (isGlobalOrConstantAssignment(statement, env)) {
+                newFuncBody.stmts.add(statement);
+                continue;
+            }
+            count++;
+            if (count % INIT_METHOD_SPLIT_SIZE == 0) {
                 generatedFunctions.add(newFunc);
                 newFunc = createIntermediateInitFunction(packageNode, env);
                 splitFuncCount++;
-                if (splitFuncCount % INIT_FUNC_COUNT_PER_CLASS == 0) {
+                if ((splitFuncCount % INIT_FUNC_COUNT_PER_CLASS) == 0) {
                     newFuncPos = getNewFuncPos(packageNodePos, packageFileName, splitInitFuncClassCount);
                     splitInitFuncClassCount++;
                 }
@@ -144,22 +154,17 @@ public class LargeMethodSplitter {
                 newFuncBody = (BLangBlockFunctionBody) newFunc.body;
                 symTable.rootScope.define(names.fromIdNode(newFunc.name), newFunc.symbol);
             }
-            newFuncBody.stmts.add(stmts.get(i));
+            newFuncBody.stmts.add(statement);
         }
-
         newFuncBody.stmts.addAll(stmts.subList(varDefIndex, stmts.size()));
         generatedFunctions.add(newFunc);
-
         for (int j = 0; j < generatedFunctions.size() - 1; j++) {
             BLangFunction thisFunction = generatedFunctions.get(j);
 
-            BLangCheckedExpr checkedExpr =
-                    ASTBuilderUtil.createCheckExpr(initFunction.pos,
-                            desugar.createInvocationNode(generatedFunctions.get(j + 1).name.value,
-                                    new ArrayList<>(), symTable.errorOrNilType),
-                            symTable.nilType);
+            BLangCheckedExpr checkedExpr = ASTBuilderUtil.createCheckExpr(initFunction.pos,
+                    desugar.createInvocationNode(generatedFunctions.get(j + 1).name.value, new ArrayList<>(),
+                            symTable.errorOrNilType), symTable.nilType);
             checkedExpr.equivalentErrorTypeList.add(symTable.errorType);
-
             BLangExpressionStmt expressionStmt = ASTBuilderUtil
                     .createExpressionStmt(thisFunction.pos, (BLangBlockFunctionBody) thisFunction.body);
             expressionStmt.expr = checkedExpr;
@@ -171,15 +176,20 @@ public class LargeMethodSplitter {
                 packageNode.topLevelNodes.add(thisFunction);
             }
         }
-
         rewriteLastSplitFunction(packageNode, env, generatedFunctions);
         initFuncIndex = 0;
-        return generatedFunctions.get(0);
+        return generatedFunctions.getFirst();
     }
 
-    private boolean isAssignmentWithInitOrRecordLiteralExpr(BLangStatement statement) {
+    private boolean isGlobalOrConstantAssignment(BLangStatement statement, SymbolEnv env) {
+        // These will be removed from init method during lazy load desugar
         if (statement.getKind() == NodeKind.ASSIGNMENT) {
-            return desugar.isMappingOrObjectConstructorOrObjInit(((BLangAssignment) statement).getExpression());
+            BLangAssignment assignment = (BLangAssignment) statement;
+            BLangExpression varRef = assignment.varRef;
+            if (varRef.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
+                BSymbol symbol = ((BLangSimpleVarRef) varRef).symbol;
+                return symbol.owner == env.enclPkg.symbol && !SymbolFlags.isFlagOn(symbol.flags, Flags.CONFIGURABLE);
+            }
         }
         return false;
     }
@@ -215,7 +225,7 @@ public class LargeMethodSplitter {
         }
 
         // original return statement is added to the start function created last
-        newFuncBody.stmts.add(stmts.get(stmts.size() - 1));
+        newFuncBody.stmts.add(stmts.getLast());
         generatedFunctions.add(newFunc);
 
         // statement is added to each function except the last created function
@@ -246,7 +256,7 @@ public class LargeMethodSplitter {
         // start function created last is also added to the function list
         rewriteLastSplitFunction(packageNode, env, generatedFunctions);
         startFuncIndex = 0;
-        return generatedFunctions.get(0);
+        return generatedFunctions.getFirst();
     }
 
     /**
@@ -276,7 +286,7 @@ public class LargeMethodSplitter {
             newFuncBody.stmts.add(stmts.get(i));
         }
 
-        newFuncBody.stmts.add(stmts.get(stmts.size() - 1));
+        newFuncBody.stmts.add(stmts.getLast());
         generatedFunctions.add(newFunc);
 
         // For the stop function, splitting is done the same as the start function except here.
@@ -304,14 +314,14 @@ public class LargeMethodSplitter {
 
         rewriteLastSplitFunction(packageNode, env, generatedFunctions);
         stopFuncIndex = 0;
-        return generatedFunctions.get(0);
+        return generatedFunctions.getFirst();
     }
 
     private void rewriteLastSplitFunction(BLangPackage packageNode, SymbolEnv env,
                                           List<BLangFunction> generatedFunctions) {
         if (generatedFunctions.size() > 1) {
             // add last func
-            BLangFunction lastFunc = generatedFunctions.get(generatedFunctions.size() - 1);
+            BLangFunction lastFunc = generatedFunctions.getLast();
             lastFunc = desugar.rewrite(lastFunc, env);
             packageNode.functions.add(lastFunc);
             packageNode.topLevelNodes.add(lastFunc);

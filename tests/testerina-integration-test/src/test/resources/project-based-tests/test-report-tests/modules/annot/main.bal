@@ -106,5 +106,9 @@ function foo(int n)
 
 @MyAnnot
 function bar() returns int {
+    Student s = { person: p, school: "ABC College"};
+    INT i = 10;
+    int x = foo(i);
+    Review r = new(1, "hello", x, 1.234);
     return 1;
 }

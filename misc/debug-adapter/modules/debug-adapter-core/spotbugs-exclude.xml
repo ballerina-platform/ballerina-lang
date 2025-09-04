@@ -72,6 +72,12 @@
                     <Class name="org.ballerinalang.debugadapter.utils.ServerUtils"/>
                 </Or>
             </And>
+            <And>
+                <Bug pattern="MS_MUTABLE_ARRAY"/>
+                <Or>
+                    <Class name="org.ballerinalang.debugadapter.utils.PackageUtils"/>
+                </Or>
+            </And>
         </Or>
     </Match>
     <Match>

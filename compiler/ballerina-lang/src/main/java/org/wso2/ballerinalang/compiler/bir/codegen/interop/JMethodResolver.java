@@ -33,10 +33,10 @@ import io.ballerina.runtime.api.values.BTable;
 import io.ballerina.runtime.api.values.BTypedesc;
 import io.ballerina.runtime.api.values.BXml;
 import org.ballerinalang.util.diagnostic.DiagnosticErrorCode;
-import org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil;
 import org.wso2.ballerinalang.compiler.bir.codegen.exceptions.JInteropException;
 import org.wso2.ballerinalang.compiler.bir.codegen.model.JMethod;
 import org.wso2.ballerinalang.compiler.bir.codegen.model.JMethodKind;
+import org.wso2.ballerinalang.compiler.bir.codegen.utils.JvmCodeGenUtil;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SemTypeHelper;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
@@ -349,11 +349,8 @@ class JMethodResolver {
     }
 
     private void validateMethodSignature(JMethodRequest jMethodRequest, JMethod jMethod) {
-
         validateExceptionTypes(jMethodRequest, jMethod);
-
         validateArgumentTypes(jMethodRequest, jMethod);
-
         validateReturnTypes(jMethodRequest, jMethod);
     }
 

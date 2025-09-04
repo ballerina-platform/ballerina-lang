@@ -20,4 +20,5 @@ int a = 1/0;
 
 @test:Config {}
 public function testFunc() {
+    test:assertEquals(a, 0);
 }

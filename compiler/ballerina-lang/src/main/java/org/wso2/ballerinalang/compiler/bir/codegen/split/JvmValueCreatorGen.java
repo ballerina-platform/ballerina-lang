@@ -18,15 +18,15 @@
 package org.wso2.ballerinalang.compiler.bir.codegen.split;
 
 import org.ballerinalang.model.elements.PackageID;
-import org.wso2.ballerinalang.compiler.bir.codegen.JarEntries;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmCastGen;
-import org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmTypeGen;
+import org.wso2.ballerinalang.compiler.bir.codegen.internal.JarEntries;
 import org.wso2.ballerinalang.compiler.bir.codegen.split.creators.JvmErrorCreatorGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.split.creators.JvmFunctionCallsCreatorsGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.split.creators.JvmObjectCreatorGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.split.creators.JvmRecordCreatorGen;
+import org.wso2.ballerinalang.compiler.bir.codegen.utils.JvmCodeGenUtil;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRTypeDefinition;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
@@ -40,7 +40,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil.NAME_HASH_COMPARATOR;
+import static org.wso2.ballerinalang.compiler.bir.codegen.utils.JvmCodeGenUtil.NAME_HASH_COMPARATOR;
 
 /**
  * Ballerina value creation related JVM byte code generation class.
@@ -62,10 +62,8 @@ public class JvmValueCreatorGen {
     }
 
     public void generateValueCreatorClasses(JvmPackageGen jvmPackageGen, BIRNode.BIRPackage module,
-                                            String moduleInitClass, JarEntries jarEntries,
-                                            SymbolTable symbolTable, JvmCastGen jvmCastGen,
+                                            JarEntries jarEntries, JvmCastGen jvmCastGen,
                                             List<BIRNode.BIRFunction> sortedFunctions) {
-
         // due to structural type same name can appear twice, need to remove duplicates
         Set<BIRTypeDefinition> recordTypeDefSet = new TreeSet<>(NAME_HASH_COMPARATOR);
         List<BIRTypeDefinition> objectTypeDefList = new ArrayList<>();
@@ -81,11 +79,10 @@ public class JvmValueCreatorGen {
                 errorTypeDefList.add(optionalTypeDef);
             }
         }
+        SymbolTable symbolTable = jvmPackageGen.symbolTable;
         ArrayList<BIRTypeDefinition> recordTypeDefList = new ArrayList<>(recordTypeDefSet);
-
         jvmRecordCreatorGen.generateRecordsClass(jvmPackageGen, module, jarEntries, recordTypeDefList);
-        jvmObjectCreatorGen.generateObjectsClass(jvmPackageGen, module, moduleInitClass, jarEntries,
-                objectTypeDefList, symbolTable);
+        jvmObjectCreatorGen.generateObjectsClass(jvmPackageGen, module, jarEntries, objectTypeDefList, symbolTable);
         jvmErrorCreatorGen.generateErrorsClass(jvmPackageGen, module, jarEntries, errorTypeDefList, symbolTable);
         jvmFunctionCallsCreatorsGen.generateFunctionCallsClass(jvmPackageGen, module, jarEntries, jvmCastGen,
                 sortedFunctions);

@@ -19,4 +19,5 @@ import ballerina/test;
 @test:Config {}
 function testFunc() {
    test:assertEquals(add("World"), "World!");
+   test:assertEquals(a, 0);
 }

@@ -26,7 +26,6 @@ import com.sun.jdi.request.EventRequestManager;
 import com.sun.jdi.request.StepRequest;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
-import io.ballerina.identifier.Utils;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.directory.SingleFileProject;
 import org.ballerinalang.debugadapter.BreakpointProcessor.DynamicBreakpointMode;
@@ -115,6 +114,7 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -135,8 +135,12 @@ import static org.ballerinalang.debugadapter.completion.util.CompletionUtil.getR
 import static org.ballerinalang.debugadapter.completion.util.CompletionUtil.getTriggerCharacters;
 import static org.ballerinalang.debugadapter.completion.util.CompletionUtil.getVisibleSymbolCompletions;
 import static org.ballerinalang.debugadapter.completion.util.CompletionUtil.triggerCharactersFound;
-import static org.ballerinalang.debugadapter.utils.PackageUtils.GENERATED_VAR_PREFIX;
-import static org.ballerinalang.debugadapter.utils.PackageUtils.INIT_CLASS_NAME;
+import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.loadClass;
+import static org.ballerinalang.debugadapter.utils.PackageUtils.ALL_CONSTANTS_CLASS_NAME;
+import static org.ballerinalang.debugadapter.utils.PackageUtils.ALL_GLOBAL_VAR_CLASS_NAME;
+import static org.ballerinalang.debugadapter.utils.PackageUtils.GLOBAL_CONSTANTS_PACKAGE_NAME;
+import static org.ballerinalang.debugadapter.utils.PackageUtils.GLOBAL_VARIABLES_PACKAGE_NAME;
+import static org.ballerinalang.debugadapter.utils.PackageUtils.VALUE_VAR_NAME;
 import static org.ballerinalang.debugadapter.utils.PackageUtils.getQualifiedClassName;
 import static org.ballerinalang.debugadapter.utils.ServerUtils.isBalStackFrame;
 import static org.ballerinalang.debugadapter.utils.ServerUtils.isBalStrand;
@@ -167,7 +171,6 @@ public class JBallerinaDebugServer implements BallerinaExtendedDebugServer {
     private final Map<Integer, BCompoundVariable> loadedCompoundVariables = new ConcurrentHashMap<>();
     // Multi-threading is avoided here due to observed intermittent VM crashes, likely related to JDI limitations.
     private final ExecutorService variableExecutor = Executors.newSingleThreadExecutor();
-
     private static final String SCOPE_NAME_LOCAL = "Local";
     private static final String SCOPE_NAME_GLOBAL = "Global";
     private static final String VALUE_UNKNOWN = "unknown";
@@ -958,24 +961,13 @@ public class JBallerinaDebugServer implements BallerinaExtendedDebugServer {
         context.setPrevInstruction(instruction);
     }
 
-    private Variable[] computeGlobalScopeVariables(VariablesArguments requestArgs) {
+    private Variable[] computeGlobalScopeVariables(VariablesArguments requestArgs) throws EvaluationException {
         int stackFrameReference = requestArgs.getVariablesReference();
-        String classQName = PackageUtils.getQualifiedClassName(suspendedContext, INIT_CLASS_NAME);
-        List<ReferenceType> cls = suspendedContext.getAttachedVm().classesByName(classQName);
-        if (cls.size() != 1) {
-            return new Variable[0];
-        }
         List<CompletableFuture<Variable>> scheduledVariables = new ArrayList<>();
-        ReferenceType initClassReference = cls.get(0);
-        for (Field field : initClassReference.allFields()) {
-            String fieldName = Utils.decodeIdentifier(field.name());
-            if (!field.isPublic() || !field.isStatic() || fieldName.startsWith(GENERATED_VAR_PREFIX)) {
-                continue;
-            }
-            Value fieldValue = initClassReference.getValue(field);
-            scheduledVariables.add(computeVariableAsync(fieldName, fieldValue, stackFrameReference));
-        }
-
+        String allGlobalVarClassName = PackageUtils.getQualifiedClassName(suspendedContext, ALL_GLOBAL_VAR_CLASS_NAME);
+        String allConstantsClassName = PackageUtils.getQualifiedClassName(suspendedContext, ALL_CONSTANTS_CLASS_NAME);
+        loadVariables(allGlobalVarClassName, scheduledVariables, stackFrameReference, GLOBAL_VARIABLES_PACKAGE_NAME);
+        loadVariables(allConstantsClassName, scheduledVariables, stackFrameReference, GLOBAL_CONSTANTS_PACKAGE_NAME);
         return scheduledVariables.stream()
                 .map(varFuture -> {
                     try {
@@ -987,6 +979,21 @@ public class JBallerinaDebugServer implements BallerinaExtendedDebugServer {
                 })
                 .filter(Objects::nonNull)
                 .toArray(Variable[]::new);
+    }
+
+    private void loadVariables(String classQName, List<CompletableFuture<Variable>> scheduledVariables,
+                               int stackFrameReference, String varClassPkg) throws EvaluationException {
+        List<ReferenceType> cls = Collections.singletonList(loadClass(suspendedContext, classQName, ""));
+        ReferenceType allGlobalVarClassRef = cls.getFirst();
+        for (Field field : allGlobalVarClassRef.allFields()) {
+            String fieldName = field.name();
+            String varClassName = PackageUtils.getQualifiedClassName(suspendedContext, fieldName, varClassPkg);
+            List<ReferenceType> classRefs = Collections.singletonList(loadClass(suspendedContext, varClassName, ""));
+            ReferenceType classRef = classRefs.getFirst();
+            Field valueField = classRef.fieldByName(VALUE_VAR_NAME);
+            Value fieldValue = classRef.getValue(valueField);
+            scheduledVariables.add(computeVariableAsync(fieldName, fieldValue, stackFrameReference));
+        }
     }
 
     private Variable[] computeLocalScopeVariables(VariablesArguments args) throws Exception {

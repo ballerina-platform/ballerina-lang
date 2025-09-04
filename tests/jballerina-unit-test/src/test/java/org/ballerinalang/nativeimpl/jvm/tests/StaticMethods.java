@@ -85,9 +85,9 @@ public final class StaticMethods {
 
     private static final BArrayType INT_ARRAY_TYPE = new BArrayType(PredefinedTypes.TYPE_INT);
     private static final BArrayType JSON_ARRAY_TYPE = new BArrayType(PredefinedTypes.TYPE_JSON);
-    private static final BTupleType TUPLE_TYPE = new BTupleType(
-            Arrays.asList(PredefinedTypes.TYPE_INT, PredefinedTypes.TYPE_FLOAT, PredefinedTypes.TYPE_STRING,
-                          PredefinedTypes.TYPE_INT, PredefinedTypes.TYPE_STRING));
+    private static final BTupleType TUPLE_TYPE = new BTupleType(Arrays.asList(PredefinedTypes.TYPE_INT,
+            PredefinedTypes.TYPE_FLOAT, PredefinedTypes.TYPE_STRING, PredefinedTypes.TYPE_INT,
+            PredefinedTypes.TYPE_STRING));
     private static final Module ERROR_MODULE = new Module("testorg", "distinct_error.errors", "1");
 
     private StaticMethods() {
@@ -361,10 +361,8 @@ public final class StaticMethods {
         AtomicLong runCount = new AtomicLong(0L);
         ArrayValue arrayValue = new ArrayValueImpl(new BArrayType(ValueCreator.createRecordValue(new Module(
                 "", "."), "ResourceDefinition").getType()));
-        BMap<BString, Object> apiDefinitions = ValueCreator.createRecordValue(new Module("",
-                                                                        "."), "ApiDefinition");
-        BMap<BString, Object> resource = ValueCreator.createRecordValue(new Module("",
-                                                                  "."), "ResourceDefinition");
+        BMap<BString, Object> apiDefinitions = ValueCreator.createRecordValue(new Module("", "."), "ApiDefinition");
+        BMap<BString, Object> resource = ValueCreator.createRecordValue(new Module("", "."), "ResourceDefinition");
         resource.put(StringUtils.fromString("path"), finalBasePath);
         resource.put(StringUtils.fromString("method"), StringUtils.fromString("Method string"));
         arrayValue.add(runCount.getAndIncrement(), resource);
@@ -374,7 +372,7 @@ public final class StaticMethods {
 
     public static Object returnObjectOrError() {
         return ErrorCreator.createError(StringUtils.fromString("some reason"),
-                                        new MapValueImpl<>(PredefinedTypes.TYPE_ERROR_DETAIL));
+                new MapValueImpl<>(PredefinedTypes.TYPE_ERROR_DETAIL));
     }
 
     public static TupleValueImpl getArrayValue() throws BError {
@@ -580,14 +578,13 @@ public final class StaticMethods {
     public static BString getCurrentModule(Environment env, long b) {
         Module callerModule = env.getCurrentModule();
         return StringUtils.fromString(callerModule.getOrg() + "#" + callerModule.getName() + "#" +
-                                              callerModule.getMajorVersion() + "#" + b);
+                callerModule.getMajorVersion() + "#" + b);
     }
 
     public static BString getCurrentModuleForObject(Environment env, ObjectValue a, long b) {
         Module callerModule = env.getCurrentModule();
         return StringUtils.fromString(callerModule.getOrg() + "#" + callerModule.getName() + "#" +
-                                              callerModule.getMajorVersion() + "#" +
-                                              a.get(StringUtils.fromString("age")) + "#" + b);
+                callerModule.getMajorVersion() + "#" + a.get(StringUtils.fromString("age")) + "#" + b);
     }
 
     public static long getDefaultValueWithBEnv(Environment env, long b) {
@@ -715,8 +712,8 @@ public final class StaticMethods {
                 .createField(PredefinedTypes.TYPE_STRING, "name", SymbolFlags.REQUIRED + SymbolFlags.PUBLIC));
         fieldMap.put("id", TypeCreator
                 .createField(PredefinedTypes.TYPE_INT, "id", SymbolFlags.REQUIRED + SymbolFlags.PUBLIC));
-        RecordType recordType = TypeCreator.createRecordType("Details", module, SymbolFlags.READONLY
-                , fieldMap, null, true, 0);
+        RecordType recordType = TypeCreator.createRecordType("Details & readonly", module, SymbolFlags.READONLY,
+                fieldMap, null, true, 0);
         BMapInitialValueEntry[] mapInitialValueEntries = {ValueCreator.createKeyFieldEntry(
                 StringUtils.fromString("name"), StringUtils.fromString("aee")), ValueCreator.createKeyFieldEntry(
                 StringUtils.fromString("id"), 123L)};
@@ -805,7 +802,7 @@ public final class StaticMethods {
     }
 
     public static BMap<BString, Object> getMapValueWithBalEnv(Environment env, BString name, long age,
-                                             MapValue<BString, Object> results) {
+                                                              MapValue<BString, Object> results) {
         BMap<BString, Object> output = ValueCreator.createMapValue();
         output.put(StringUtils.fromString("name"), name);
         output.put(StringUtils.fromString("age"), age);

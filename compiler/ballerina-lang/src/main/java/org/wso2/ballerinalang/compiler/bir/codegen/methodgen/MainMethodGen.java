@@ -24,10 +24,10 @@ import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
-import org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmTypeGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.BIRVarToJVMIndexMap;
+import org.wso2.ballerinalang.compiler.bir.codegen.utils.JvmCodeGenUtil;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
@@ -93,7 +93,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.START_NON
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TEST_ARGUMENTS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TEST_CONFIG_ARGS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TEST_EXECUTION_STATE;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.THROWABLE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.VALUE_VAR_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.WAIT_ON_LISTENERS_METHOD_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.ADD_BALLERINA_INFO;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.ADD_SHUTDOWN_HOOK;
@@ -122,6 +122,8 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.MAIN_MET
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.METHOD_STRING_PARAM;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.SCHEDULE_CALL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.VOID_METHOD_DESC;
+import static org.wso2.ballerinalang.compiler.bir.codegen.utils.JvmCodeGenUtil.getVarStoreClass;
+import static org.wso2.ballerinalang.compiler.bir.codegen.utils.JvmModuleUtils.getModuleLevelClassName;
 
 /**
  * Generates Jvm byte code for the main method.
@@ -135,16 +137,19 @@ public class MainMethodGen {
     public static final String SCHEDULER_VAR = "$schedulerVar";
     public static final String CONFIG_VAR = "$configVar";
     private final SymbolTable symbolTable;
+    private final String globalVarsPkgName;
     private final BIRVarToJVMIndexMap indexMap;
     private final JvmTypeGen jvmTypeGen;
     private final boolean isRemoteMgtEnabled;
 
-    public MainMethodGen(SymbolTable symbolTable, JvmTypeGen jvmTypeGen, boolean isRemoteMgtEnabled) {
+    public MainMethodGen(SymbolTable symbolTable, JvmTypeGen jvmTypeGen, boolean isRemoteMgtEnabled,
+                         String globalVarsPkgName) {
         this.symbolTable = symbolTable;
         // add main string[] args param first
         indexMap = new BIRVarToJVMIndexMap(1);
         this.jvmTypeGen = jvmTypeGen;
         this.isRemoteMgtEnabled = isRemoteMgtEnabled;
+        this.globalVarsPkgName = globalVarsPkgName;
     }
 
     public void generateMainMethod(BIRNode.BIRFunction userMainFunc, ClassWriter cw, BIRNode.BIRPackage pkg,
@@ -160,7 +165,7 @@ public class MainMethodGen {
         Label tryCatchStart = new Label();
         Label tryCatchEnd = new Label();
         Label tryCatchHandle = new Label();
-        mv.visitTryCatchBlock(tryCatchStart, tryCatchEnd, tryCatchHandle, THROWABLE);
+        mv.visitTryCatchBlock(tryCatchStart, tryCatchEnd, tryCatchHandle, "java/lang/Error");
         mv.visitLabel(tryCatchStart);
 
         // check for java compatibility
@@ -179,7 +184,7 @@ public class MainMethodGen {
         // handle calling init and start during module initialization.
         generateSetModuleInitialedAndStarted(mv, runtimeVarIndex);
         generateExecuteFunctionCall(initClass, mv, userMainFunc, isTestable, schedulerVarIndex, futureVarIndex);
-        handleFutureValue(mv, initClass, isTestable, futureVarIndex);
+        handleFutureValue(mv, isTestable, futureVarIndex);
         if (isTestable) {
             generateModuleStopCall(initClass, mv, runtimeVarIndex);
         } else {
@@ -235,7 +240,7 @@ public class MainMethodGen {
     }
 
     private void invokeConfigInit(MethodVisitor mv, PackageID packageID, int runtimeVarIndex) {
-        String configClass = JvmCodeGenUtil.getModuleLevelClassName(packageID, CONFIGURATION_CLASS_NAME);
+        String configClass = getModuleLevelClassName(packageID, CONFIGURATION_CLASS_NAME);
         mv.visitTypeInsn(NEW, HASH_MAP);
         mv.visitInsn(DUP);
         mv.visitMethodInsn(INVOKESPECIAL, HASH_MAP, JVM_INIT_METHOD, VOID_METHOD_DESC, false);
@@ -248,7 +253,7 @@ public class MainMethodGen {
                     false);
         } else {
             loadCLIArgsForTestConfigInit(mv);
-            String initClass = JvmCodeGenUtil.getModuleLevelClassName(packageID, MODULE_INIT_CLASS_NAME);
+            String initClass = getModuleLevelClassName(packageID, MODULE_INIT_CLASS_NAME);
             mv.visitFieldInsn(GETSTATIC, initClass, CURRENT_MODULE_VAR_NAME, GET_MODULE);
             mv.visitLdcInsn(packageID.pkgName.toString());
             mv.visitLdcInsn(packageID.sourceRoot);
@@ -264,7 +269,7 @@ public class MainMethodGen {
         mv.visitFieldInsn(GETFIELD, CONFIG_DETAILS, "configContent", GET_STRING);
         mv.visitVarInsn(ALOAD, runtimeVarIndex);
         mv.visitMethodInsn(INVOKESTATIC, configClass, CONFIGURE_INIT, INIT_CONFIG, false);
-        String moduleInitClass = JvmCodeGenUtil.getModuleLevelClassName(packageID, MODULE_INIT_CLASS_NAME);
+        String moduleInitClass = getModuleLevelClassName(packageID, MODULE_INIT_CLASS_NAME);
         mv.visitFieldInsn(GETSTATIC, moduleInitClass, CURRENT_MODULE_VAR_NAME, GET_MODULE);
         mv.visitVarInsn(ALOAD, 6);
         mv.visitVarInsn(ALOAD, 0);
@@ -277,8 +282,7 @@ public class MainMethodGen {
 
     private void generateJavaCompatibilityCheck(MethodVisitor mv) {
         mv.visitLdcInsn(getJavaVersion());
-        mv.visitMethodInsn(INVOKESTATIC, COMPATIBILITY_CHECKER, "verifyJavaCompatibility",
-                           METHOD_STRING_PARAM, false);
+        mv.visitMethodInsn(INVOKESTATIC, COMPATIBILITY_CHECKER, "verifyJavaCompatibility", METHOD_STRING_PARAM, false);
     }
 
     private String getJavaVersion() {
@@ -317,7 +321,7 @@ public class MainMethodGen {
         mv.visitVarInsn(ALOAD, runtimeVarIndex);
         if (serviceEPAvailable) {
             mv.visitInsn(ICONST_1);
-         } else {
+        } else {
             mv.visitInsn(ICONST_0);
         }
         mv.visitMethodInsn(INVOKEVIRTUAL , BAL_RUNTIME, WAIT_ON_LISTENERS_METHOD_NAME, "(Z)V", false);
@@ -460,7 +464,7 @@ public class MainMethodGen {
         mv.visitVarInsn(ASTORE, futureVarIndex);
     }
 
-    private void handleFutureValue(MethodVisitor mv, String initClass, boolean isTestable, int futureVarIndex) {
+    private void handleFutureValue(MethodVisitor mv, boolean isTestable, int futureVarIndex) {
         mv.visitVarInsn(ALOAD, futureVarIndex);
         if (isTestable) {
             mv.visitMethodInsn(INVOKESTATIC, RUNTIME_UTILS, HANDLE_FUTURE_AND_RETURN_IS_PANIC_METHOD,
@@ -468,9 +472,9 @@ public class MainMethodGen {
             Label ifLabel = new Label();
             mv.visitJumpInsn(IFEQ, ifLabel);
             mv.visitInsn(LCONST_1);
-            mv.visitFieldInsn(PUTSTATIC, initClass, TEST_EXECUTION_STATE, "J");
+            String testExecutionStateGlobalClass = getVarStoreClass(this.globalVarsPkgName, TEST_EXECUTION_STATE);
+            mv.visitFieldInsn(PUTSTATIC, testExecutionStateGlobalClass, VALUE_VAR_NAME, "J");
             mv.visitLabel(ifLabel);
-
         } else {
             mv.visitMethodInsn(INVOKESTATIC, RUNTIME_UTILS, HANDLE_FUTURE_AND_EXIT_METHOD, HANDLE_FUTURE, false);
         }
