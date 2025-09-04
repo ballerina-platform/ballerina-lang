@@ -66,6 +66,7 @@ import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -1048,13 +1049,18 @@ public final class ProjectUtils {
     /**
      * Read build file from given path.
      *
-     * @param buildJsonPath build file path
+     * @param target target path
      * @return build json object
      * @throws JsonSyntaxException incorrect json syntax
      * @throws IOException if json read fails
      */
-    public static BuildJson readBuildJson(Path buildJsonPath) throws JsonSyntaxException, IOException {
-        try (BufferedReader bufferedReader = Files.newBufferedReader(buildJsonPath)) {
+    public static BuildJson readBuildJson(Path target) throws JsonSyntaxException, IOException {
+        Path buildFilePath = target.resolve(BUILD_FILE);
+        if (!Files.exists(buildFilePath)) {
+            throw new FileNotFoundException("Cannot find " + BUILD_FILE + " file at '" + buildFilePath + "'");
+        }
+
+        try (BufferedReader bufferedReader = Files.newBufferedReader(buildFilePath)) {
             return new Gson().fromJson(bufferedReader, BuildJson.class);
         }
     }
@@ -1066,47 +1072,29 @@ public final class ProjectUtils {
      * @return is project files are updated
      */
     public static boolean isProjectUpdated(Project project) {
-        // If observability included and Syntax Tree Json not in the caches, return true
-        Path observeJarCachePath = project.targetDir()
-                .resolve(CACHES_DIR_NAME)
-                .resolve(project.currentPackage().packageOrg().value())
-                .resolve(project.currentPackage().packageName().value())
-                .resolve(project.currentPackage().packageVersion().value().toString())
-                .resolve("observe")
-                .resolve(project.currentPackage().packageOrg().value() + "-"
-                        + project.currentPackage().packageName().value()
-                        + "-observability-symbols.jar");
-        if (project.buildOptions().observabilityIncluded() &&
-                !observeJarCachePath.toFile().exists()) {
-            return true;
-        }
-
-        Path buildFile = project.sourceRoot().resolve(TARGET_DIR_NAME).resolve(BUILD_FILE);
-        if (buildFile.toFile().exists()) {
-            try {
-                BuildJson buildJson = readBuildJson(buildFile);
-                long lastProjectUpdatedTime = FileUtils.lastModifiedTimeOfBalProject(project.sourceRoot());
-                if (buildJson != null
-                        && buildJson.getLastModifiedTime() != null
-                        && !buildJson.getLastModifiedTime().entrySet().isEmpty()) {
-                    Long defaultModuleLastModifiedTime = buildJson.getLastModifiedTime()
-                            .get(project.currentPackage().packageName().value());
-                    if (defaultModuleLastModifiedTime == null) {
-                        // package name has changed
-                        return true;
-                    }
-                    return lastProjectUpdatedTime > defaultModuleLastModifiedTime;
+        try {
+            BuildJson buildJson = readBuildJson(project.sourceRoot().resolve(TARGET_DIR_NAME));
+            long lastProjectUpdatedTime = FileUtils.lastModifiedTimeOfBalProject(project.sourceRoot());
+            if (buildJson != null
+                    && buildJson.getLastModifiedTime() != null
+                    && !buildJson.getLastModifiedTime().entrySet().isEmpty()) {
+                Long defaultModuleLastModifiedTime = buildJson.getLastModifiedTime()
+                        .get(project.currentPackage().packageName().value());
+                if (defaultModuleLastModifiedTime == null) {
+                    // package name has changed
+                    return true;
                 }
-            } catch (IOException e) {
-                // if reading `build` file fails
-                // delete `build` file and return true
-                try {
-                    Files.deleteIfExists(buildFile);
-                } catch (IOException ex) {
-                    // ignore
-                }
-                return true;
+                return lastProjectUpdatedTime > defaultModuleLastModifiedTime;
             }
+        } catch (IOException e) {
+            // if reading `build` file fails
+            // delete `build` file and return true
+            try {
+                Files.deleteIfExists(project.sourceRoot().resolve(TARGET_DIR_NAME).resolve(BUILD_FILE));
+            } catch (IOException ex) {
+                // ignore
+            }
+            return true;
         }
         return true; // return true if `build` file does not exist
     }
@@ -1311,22 +1299,50 @@ public final class ProjectUtils {
 
         // set sticky only if `build` file exists and `last_update_time` not passed 24 hours
         if (project.kind() == ProjectKind.BUILD_PROJECT) {
-            Path buildFilePath = project.targetDir().resolve(BUILD_FILE);
-            if (Files.exists(buildFilePath) && buildFilePath.toFile().length() > 0) {
-                try {
-                    BuildJson buildJson = readBuildJson(buildFilePath);
-                    // if distribution is not same, we anyway return sticky as false
-                    if (buildJson != null && buildJson.distributionVersion() != null &&
-                            buildJson.distributionVersion().equals(RepoUtils.getBallerinaShortVersion()) &&
-                            !buildJson.isExpiredLastUpdateTime()) {
-                        return true;
-                    }
-                } catch (IOException | JsonSyntaxException e) {
-                    // ignore
+            try {
+                BuildJson buildJson = readBuildJson(project.targetDir());
+                // if distribution is not same, we anyway return sticky as false
+                if (buildJson != null && buildJson.distributionVersion() != null &&
+                        buildJson.distributionVersion().equals(RepoUtils.getBallerinaShortVersion()) &&
+                        !buildJson.isExpiredLastUpdateTime()) {
+                    return true;
                 }
+            } catch (IOException | JsonSyntaxException e) {
+                // ignore
             }
         }
         return false;
+    }
+
+    public static PackageLockingMode getPackageLockingMode(Path target, Project project,
+                                                           PackageLockingMode originalMode) {
+        BuildJson buildJson;
+        try {
+            buildJson = readBuildJson(target);
+        } catch (IOException e) {
+            return originalMode;
+        }
+
+        if (buildJson == null) {
+            return originalMode;
+        }
+
+        if (isProjectUpdated(project)) {
+            return originalMode;
+        }
+
+        if (ProjectUtils.isLessThan24Hours(buildJson)) {
+            return PackageLockingMode.HARD;
+        }
+
+        return originalMode;
+    }
+
+    private static boolean isLessThan24Hours(BuildJson buildJson) {
+        // set sticky only if `build` file exists and `last_update_time` not passed 24 hours
+        return buildJson != null && buildJson.distributionVersion() != null &&
+                buildJson.distributionVersion().equals(RepoUtils.getBallerinaShortVersion()) &&
+                !buildJson.isExpiredLastUpdateTime();
     }
 
     /**
@@ -1371,7 +1387,8 @@ public final class ProjectUtils {
         if (version == null) {
             return CompatibleRange.LATEST;
         }
-        if (packageLockingMode.equals(PackageLockingMode.HARD)) {
+        if (packageLockingMode.equals(PackageLockingMode.HARD)
+                || packageLockingMode.equals(PackageLockingMode.LOCKED)) {
             return CompatibleRange.EXACT;
         }
         if (packageLockingMode.equals(PackageLockingMode.MEDIUM) || version.isInitialVersion()) {

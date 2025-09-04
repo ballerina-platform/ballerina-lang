@@ -20,6 +20,7 @@ package io.ballerina.projects.test.resolution.packages.internal;
 import io.ballerina.projects.DependencyGraph;
 import io.ballerina.projects.PackageDescriptor;
 import io.ballerina.projects.environment.ModuleLoadRequest;
+import io.ballerina.projects.environment.PackageLockingMode;
 import io.ballerina.projects.environment.PackageResolver;
 import io.ballerina.projects.environment.ResolutionOptions;
 import io.ballerina.projects.internal.BlendedManifest;
@@ -41,46 +42,69 @@ public class PackageResolutionTestCase {
     private final PackageResolver packageResolver;
     private final ModuleResolver moduleResolver;
     private final Collection<ModuleLoadRequest> moduleLoadRequests;
-    private final DependencyGraph<DependencyNode> expectedGraphSticky;
-    private final DependencyGraph<DependencyNode> expectedGraphNoSticky;
+    private final DependencyGraph<DependencyNode> expectedGraphHard;
+    private final DependencyGraph<DependencyNode> expectedGraphMedium;
+    private final DependencyGraph<DependencyNode> expectedGraphSoft;
 
     public PackageResolutionTestCase(PackageDescriptor rootPkgDesc,
                                      BlendedManifest blendedManifest,
                                      PackageResolver packageResolver,
                                      ModuleResolver moduleResolver,
                                      Collection<ModuleLoadRequest> moduleLoadRequests,
-                                     DependencyGraph<DependencyNode> expectedGraphSticky,
-                                     DependencyGraph<DependencyNode> expectedGraphNoSticky) {
+                                     DependencyGraph<DependencyNode> expectedGraphHard,
+                                     DependencyGraph<DependencyNode> expectedGraphMedium,
+                                     DependencyGraph<DependencyNode> expectedGraphSoft) {
         this.rootPkgDesc = rootPkgDesc;
         this.blendedManifest = blendedManifest;
         this.packageResolver = packageResolver;
         this.moduleResolver = moduleResolver;
         this.moduleLoadRequests = moduleLoadRequests;
-        this.expectedGraphSticky = expectedGraphSticky;
-        this.expectedGraphNoSticky = expectedGraphNoSticky;
+        this.expectedGraphHard = expectedGraphHard;
+        this.expectedGraphMedium = expectedGraphMedium;
+        this.expectedGraphSoft = expectedGraphSoft;
     }
 
     public DependencyGraph<DependencyNode> execute(boolean sticky) {
-        ResolutionOptions options = ResolutionOptions.builder().setOffline(true).setSticky(sticky).build();
+        PackageLockingMode packageLockingMode = sticky ?
+                PackageLockingMode.HARD : PackageLockingMode.SOFT;
+        return execute(packageLockingMode);
+    }
+
+    public DependencyGraph<DependencyNode> execute(PackageLockingMode lockingMode) {
+        ResolutionOptions options = ResolutionOptions.builder().setOffline(true)
+                .setPackageLockingMode(lockingMode).build();
         ResolutionEngine resolutionEngine = new ResolutionEngine(rootPkgDesc, blendedManifest,
                 packageResolver, moduleResolver, options);
         return resolutionEngine.resolveDependencies(moduleLoadRequests);
     }
 
     public DependencyGraph<DependencyNode> getExpectedGraph(boolean sticky) {
-        if (sticky) {
-            if (expectedGraphSticky == null) {
-                throw new IllegalStateException(Constants.EXP_GRAPH_STICKY_FILE_NAME +
+        PackageLockingMode packageLockingMode = sticky ?
+                PackageLockingMode.HARD : PackageLockingMode.SOFT;
+        return getExpectedGraph(packageLockingMode);
+    }
+
+    public DependencyGraph<DependencyNode> getExpectedGraph(PackageLockingMode lockingMode) {
+        if (lockingMode.equals(PackageLockingMode.HARD)) {
+            if (expectedGraphHard == null) {
+                throw new IllegalStateException(Constants.EXP_GRAPH_HARD_FILE_NAME +
                         " file cannot be found in the test case");
             } else {
-                return expectedGraphSticky;
+                return expectedGraphHard;
+            }
+        } else if (lockingMode.equals(PackageLockingMode.MEDIUM)) {
+            if (expectedGraphMedium == null) {
+                throw new IllegalStateException(Constants.EXP_GRAPH_MEDIUM_FILE_NAME +
+                        " file cannot be found in the test case");
+            } else {
+                return expectedGraphMedium;
             }
         } else {
-            if (expectedGraphNoSticky == null) {
-                throw new IllegalStateException(Constants.EXP_GRAPH_NO_STICKY_FILE_NAME +
+            if (expectedGraphSoft == null) {
+                throw new IllegalStateException(Constants.EXP_GRAPH_SOFT_FILE_NAME +
                         " file cannot be found in the test case");
             } else {
-                return expectedGraphNoSticky;
+                return expectedGraphSoft;
             }
         }
     }

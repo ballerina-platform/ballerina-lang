@@ -30,6 +30,7 @@ import io.ballerina.projects.PackageDescriptor;
 import io.ballerina.projects.PackageManifest;
 import io.ballerina.projects.environment.ModuleLoadRequest;
 import io.ballerina.projects.environment.PackageCache;
+import io.ballerina.projects.environment.PackageLockingMode;
 import io.ballerina.projects.environment.ResolutionOptions;
 import io.ballerina.projects.internal.BlendedManifest;
 import io.ballerina.projects.internal.ModuleResolver;
@@ -81,11 +82,11 @@ public final class PackageResolutionTestCaseBuilder {
 
         // Create expected dependency graph with sticky
         DependencyGraph<DependencyNode> expectedGraphSticky = getPkgDescGraph(
-                filePaths.expectedGraphStickyPath().orElse(null));
+                filePaths.expectedGraphHardPath().orElse(null));
 
         // Create expected dependency graph with no sticky
         DependencyGraph<DependencyNode> expectedGraphNoSticky = getPkgDescGraph(
-                filePaths.expectedGraphNoStickyPath().orElse(null));
+                filePaths.expectedGraphSoftPath().orElse(null));
 
         BlendedManifest blendedManifest = BlendedManifest.from(dependencyManifest,
                 packageManifest, packageResolver.localRepo(), new HashMap<>(), false);
@@ -94,7 +95,45 @@ public final class PackageResolutionTestCaseBuilder {
                 blendedManifest, packageResolver, ResolutionOptions.builder().setSticky(sticky).build());
         return new PackageResolutionTestCase(rootPkgDes, blendedManifest,
                 packageResolver, moduleResolver, moduleLoadRequests,
-                expectedGraphSticky, expectedGraphNoSticky);
+                expectedGraphSticky, expectedGraphNoSticky, expectedGraphNoSticky);
+    }
+
+    public static PackageResolutionTestCase build(TestCaseFilePaths filePaths, PackageLockingMode lockingMode) {
+        // Create PackageResolver
+        DotGraphBasedPackageResolver packageResolver = buildPackageResolver(filePaths);
+
+        // Create module load requests
+        Collection<ModuleLoadRequest> moduleLoadRequests = getModuleLoadRequests(filePaths.appPath());
+
+        // Root Package Descriptor
+        PackageDescWrapper rootPkgDescWrapper = getRootPkgDescWrapper(filePaths.appPath());
+        PackageDescriptor rootPkgDes = rootPkgDescWrapper.pkgDesc();
+
+        // Create dependencyManifest
+        DependencyManifest dependencyManifest = getDependencyManifest(
+                filePaths.dependenciesTomlPath().orElse(null));
+
+        // Create packageManifest
+        PackageManifest packageManifest = getPackageManifest(
+                filePaths.ballerinaTomlPath().orElse(null), rootPkgDes);
+
+
+        DependencyGraph<DependencyNode> expectedGraphHard = getPkgDescGraph(
+                filePaths.expectedGraphHardPath().orElse(null));
+        DependencyGraph<DependencyNode> expectedGraphMedium = getPkgDescGraph(
+                filePaths.expectedGraphMediumPath().orElse(null));
+        DependencyGraph<DependencyNode> expectedGraphSoft = getPkgDescGraph(
+                filePaths.expectedGraphSoftPath().orElse(null));
+
+        BlendedManifest blendedManifest = BlendedManifest.from(dependencyManifest,
+                packageManifest, packageResolver.localRepo(), new HashMap<>(), false);
+        ModuleResolver moduleResolver = new ModuleResolver(rootPkgDes,
+                getModulesInRootPackage(rootPkgDescWrapper, rootPkgDes),
+                blendedManifest, packageResolver, ResolutionOptions.builder().setPackageLockingMode(lockingMode)
+                .build());
+        return new PackageResolutionTestCase(rootPkgDes, blendedManifest,
+                packageResolver, moduleResolver, moduleLoadRequests, expectedGraphHard, expectedGraphMedium,
+                expectedGraphSoft);
     }
 
     private static List<ModuleName> getModulesInRootPackage(PackageDescWrapper rootPkgDescWrapper,

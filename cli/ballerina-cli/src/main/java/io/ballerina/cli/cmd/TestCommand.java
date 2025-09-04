@@ -40,6 +40,7 @@ import io.ballerina.projects.ProjectKind;
 import io.ballerina.projects.directory.BuildProject;
 import io.ballerina.projects.directory.ProjectLoader;
 import io.ballerina.projects.directory.WorkspaceProject;
+import io.ballerina.projects.environment.PackageLockingMode;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectPaths;
 import picocli.CommandLine;
@@ -234,7 +235,7 @@ public class TestCommand implements BLauncherCmd {
 
     @CommandLine.Option(names = "--locking-mode", hidden = true,
             description = "allow passing the package locking mode.")
-    private String lockingMode;
+    private PackageLockingMode lockingMode;
 
     private static final String testCmd = "bal test [--OPTIONS]\n" +
             "                   [<ballerina-file> | <package-path>] [(-Ckey=value)...]";
