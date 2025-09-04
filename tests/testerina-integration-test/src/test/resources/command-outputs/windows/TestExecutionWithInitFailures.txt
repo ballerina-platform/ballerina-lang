@@ -1,3 +1,9 @@
+Compiling source
+	wso2/testExecutionWithModuleInitFailure:0.0.0
+
+Running Tests
+
+	testExecutionWithModuleInitFailure.moduleD
 		[pass] testFunc
 
 
@@ -56,6 +62,8 @@
 				callableName: executeTests moduleName: ballerina.test.0 fileName: execute.bal lineNumber: 81
 				callableName: startSuite moduleName: ballerina.test.0 fileName: execute.bal lineNumber: 53
 				callableName: __execute__ moduleName: wso2.testExecutionWithModuleInitFailure.moduleB$test.0.tests.test_execute-generated_*****lineNumber: 8
+			
+
 
 		0 passing
 		1 failing

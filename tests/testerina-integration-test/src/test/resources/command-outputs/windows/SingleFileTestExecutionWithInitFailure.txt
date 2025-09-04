@@ -23,6 +23,8 @@ Running Tests
 				callableName: executeTests moduleName: ballerina.test.0 fileName: execute.bal lineNumber: 81
 				callableName: startSuite moduleName: ballerina.test.0 fileName: execute.bal lineNumber: 53
 				callableName: __execute__  fileName: bal-test-with-init-failure.bal lineNumber: 31
+			
+
 
 		0 passing
 		1 failing
