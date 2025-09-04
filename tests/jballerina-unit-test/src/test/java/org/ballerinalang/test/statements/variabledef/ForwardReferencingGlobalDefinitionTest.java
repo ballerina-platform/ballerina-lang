@@ -44,7 +44,7 @@ public class ForwardReferencingGlobalDefinitionTest {
         BAssertUtil.validateError(resultNegativeCycleFound, 0, "illegal cyclic reference '[person, employee]'", 17, 1);
         BAssertUtil.validateError(resultNegativeCycleFound, 1, "illegal cyclic reference '[dep2, dep1]'", 24, 1);
         BAssertUtil.validateError(resultNegativeCycleFound, 2,
-                "illegal cyclic reference '[myBool, $lambda$_0]'", 30, 1);
+                "illegal cyclic reference '[lambdaFoo, $lambda$_0, myBool]'", 26, 1);
     }
 
     @Test(description = "Test re-ordering global variable initializations to satisfy dependency order")
@@ -110,15 +110,13 @@ public class ForwardReferencingGlobalDefinitionTest {
         CompileResult cycle = BCompileUtil.compile("test-src/statements/variabledef/globalcycle/viaRecordFieldDefault");
         int i = 0;
         BAssertUtil.validateError(cycle, i++,
-                "illegal cyclic reference '[gVarNested, nestedRec, $anonType$$nestedRec$$_1, " +
-                        "$anonType$$nestedRec$$_0]'", 26, 1);
+                "illegal cyclic reference '[gVarNested, nestedRec]'", 26, 1);
         BAssertUtil.validateError(cycle, i++, "illegal cyclic reference '[name, person, Person]'", 17, 1);
-        BAssertUtil.validateError(cycle, i++, "illegal cyclic reference '[gVar, p, $anonType$$p$$_0]'", 19, 1);
+        BAssertUtil.validateError(cycle, i++, "illegal cyclic reference '[gVar, p]'", 19, 1);
         BAssertUtil.validateError(cycle, i++,
-                "illegal cyclic reference '[nillableNestedRecordGVar, nillableNestedRec, " +
-                        "$anonType$$nillableNestedRec$$_1, $anonType$$nillableNestedRec$$_0]'", 21, 1);
+                "illegal cyclic reference '[nillableNestedRecordGVar, nillableNestedRec]'", 21, 1);
         BAssertUtil.validateError(cycle, i++,
-                "illegal cyclic reference '[nestedRecordFieldDefaultValue, A, $anonType$_0]'", 23, 1);
+                "illegal cyclic reference '[nestedRecordFieldDefaultValue, A]'", 23, 1);
         Assert.assertEquals(cycle.getDiagnostics().length, i);
     }
 
