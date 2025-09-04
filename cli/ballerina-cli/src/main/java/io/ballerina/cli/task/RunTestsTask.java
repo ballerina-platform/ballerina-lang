@@ -202,7 +202,6 @@ public class RunTestsTask implements Task {
 
         if (hasTests) {
             int testResult;
-            boolean isCoverageMet =  true;
             try {
                 Set<String> exclusionClassList = new HashSet<>();
                 testResult = runTestSuite(target, project.currentPackage(), jBallerinaBackend, mockClassNames,
@@ -210,11 +209,6 @@ public class RunTestsTask implements Task {
 
                 performPostTestsTasks(project, target, testsCachePath, jBallerinaBackend,
                         cachesRoot, moduleNamesList, exclusionClassList);
-                if (minCoverage != null && coverage) {
-                    if (testReport.getCoveragePercentage() < minCoverage) {
-                        isCoverageMet = false;
-                    }
-                }
             } catch (IOException | InterruptedException | ClassNotFoundException e) {
                 cleanTempCache(project, cachesRoot);
                 throw createLauncherException("error occurred while running tests", e);
@@ -225,6 +219,12 @@ public class RunTestsTask implements Task {
                 throw createLauncherException("there are test failures");
             }
 
+            boolean isCoverageMet =  true;
+            if (minCoverage != null && coverage) {
+                if (testReport.getCoveragePercentage() < minCoverage) {
+                    isCoverageMet = false;
+                }
+            }
             if (!isCoverageMet) {
                 cleanTempCache(project, cachesRoot);
                 throw createLauncherException("code coverage is below the minimum threshold of " + minCoverage

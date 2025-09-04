@@ -402,7 +402,7 @@ public class TestCommand implements BLauncherCmd {
                         cliArgs, isParallelExecution), !isTestingDelegated)
                 .addTask(new RunTestsTask(outStream, errStream, rerunTests, groupList, disableGroupList,
                                 testList, includes, coverageFormat, moduleMap, listGroups, excludes, cliArgs,
-                                isParallelExecution),
+                                isParallelExecution, minCoverage),
                         (project.buildOptions().nativeImage() || isTestingDelegated))
                 .addTask(new RunNativeImageTestTask(outStream, rerunTests, groupList, disableGroupList,
                                 testList, includes, coverageFormat, moduleMap, listGroups, isParallelExecution),
