@@ -74,7 +74,7 @@ public class BlendedManifest {
                     BUILTIN_PACKAGE_VERSION : pkgInDepManifest.version();
             depContainer.add(pkgOrg, pkgName, new Dependency(pkgOrg, pkgName, pkgVersion,
                     getRelation(pkgInDepManifest.isTransitive()),
-                    REPOSITORY_NOT_SPECIFIED, moduleNames(pkgInDepManifest), DependencyOrigin.LOCKED));
+                    REPOSITORY_NOT_SPECIFIED, moduleNames(pkgInDepManifest), DependencyOrigin.LOCKED, false));
         }
 
         for (PackageManifest.Dependency depInPkgManifest : packageManifest.dependencies()) {
@@ -138,7 +138,7 @@ public class BlendedManifest {
                 depContainer.add(depInPkgManifest.org(), depInPkgManifest.name(), new Dependency(
                         depInPkgManifest.org(), depInPkgManifest.name(), depInPkgManifest.version(),
                         DependencyRelation.UNKNOWN, REPOSITORY_NOT_SPECIFIED,
-                        moduleNames, DependencyOrigin.USER_SPECIFIED));
+                        moduleNames, DependencyOrigin.USER_SPECIFIED, depInPkgManifest.skipWorkspace()));
                 continue;
             }
 
@@ -147,7 +147,7 @@ public class BlendedManifest {
                         new Dependency(depInPkgManifest.org(),
                                 depInPkgManifest.name(), depInPkgManifest.version(), DependencyRelation.UNKNOWN,
                                 depInPkgManifestRepo, moduleNames(depInPkgManifest, targetRepository),
-                                DependencyOrigin.USER_SPECIFIED));
+                                DependencyOrigin.USER_SPECIFIED, depInPkgManifest.skipWorkspace()));
             } else {
                 Dependency existingDep = existingDepOptional.get();
                 VersionCompatibilityResult compatibilityResult =
@@ -156,7 +156,8 @@ public class BlendedManifest {
                         compatibilityResult == VersionCompatibilityResult.GREATER_THAN) {
                     Dependency newDep = new Dependency(depInPkgManifest.org(), depInPkgManifest.name(),
                             depInPkgManifest.version(), DependencyRelation.UNKNOWN, depInPkgManifestRepo,
-                            moduleNames(depInPkgManifest, targetRepository), DependencyOrigin.USER_SPECIFIED);
+                            moduleNames(depInPkgManifest, targetRepository), DependencyOrigin.USER_SPECIFIED,
+                            depInPkgManifest.skipWorkspace());
                     depContainer.add(depInPkgManifest.org(), depInPkgManifest.name(), newDep);
                 } else if (compatibilityResult == VersionCompatibilityResult.INCOMPATIBLE) {
                     DiagnosticInfo diagnosticInfo = new DiagnosticInfo(
@@ -171,7 +172,7 @@ public class BlendedManifest {
                     diagnostics.add(diagnostic);
                     Dependency newDep = new Dependency(existingDep.org(), existingDep.name(),
                             existingDep.version(), existingDep.relation, existingDep.repository,
-                            existingDep.modules, existingDep.origin, true);
+                            existingDep.modules, existingDep.origin, true, existingDep.skipWorkspace);
                     depContainer.add(depInPkgManifest.org(), depInPkgManifest.name(), newDep);
                 }
             }
@@ -257,6 +258,7 @@ public class BlendedManifest {
         private final Collection<String> modules;
         private final DependencyOrigin origin;
         private final boolean isError;
+        private final boolean skipWorkspace;
 
 
         private Dependency(PackageOrg org,
@@ -264,7 +266,9 @@ public class BlendedManifest {
                            PackageVersion version,
                            DependencyRelation relation,
                            Repository repository,
-                           Collection<String> modules, DependencyOrigin origin) {
+                           Collection<String> modules,
+                           DependencyOrigin origin,
+                           boolean skipWorkspace) {
             this.org = org;
             this.name = name;
             this.version = version;
@@ -273,6 +277,7 @@ public class BlendedManifest {
             this.modules = modules;
             this.origin = origin;
             this.isError = false;
+            this.skipWorkspace = skipWorkspace;
         }
 
         private Dependency(PackageOrg org,
@@ -282,7 +287,8 @@ public class BlendedManifest {
                            Repository repository,
                            Collection<String> modules,
                            DependencyOrigin origin,
-                           boolean isError) {
+                           boolean isError,
+                           boolean skipWorkspace) {
             this.org = org;
             this.name = name;
             this.version = version;
@@ -291,6 +297,7 @@ public class BlendedManifest {
             this.modules = modules;
             this.origin = origin;
             this.isError = isError;
+            this.skipWorkspace = skipWorkspace;
         }
 
         public PackageName name() {
@@ -332,6 +339,10 @@ public class BlendedManifest {
 
         public boolean isError() {
             return isError;
+        }
+
+        public boolean skipWorkspace() {
+            return skipWorkspace;
         }
     }
 

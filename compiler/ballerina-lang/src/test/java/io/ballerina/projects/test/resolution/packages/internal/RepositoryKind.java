@@ -25,7 +25,8 @@ package io.ballerina.projects.test.resolution.packages.internal;
 public enum RepositoryKind {
     LOCAL("local.dot"),
     CENTRAL("central.dot"),
-    DIST("dist.dot");
+    DIST("dist.dot"),
+    WORKSPACE("workspace.dot");
 
     final String filename;
 

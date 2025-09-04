@@ -47,11 +47,13 @@ public class PackageRepositoryBuilder {
     private final DefaultPackageRepository centralRepo;
     private final DefaultPackageRepository distRepo;
     private final LocalPackageRepository localRepo;
+    private final WorkspaceRepository workspaceRepo;
 
     public PackageRepositoryBuilder(TestCaseFilePaths filePaths) {
         this.centralRepo = (DefaultPackageRepository) buildInternal(filePaths, RepositoryKind.CENTRAL);
         this.distRepo = (DefaultPackageRepository) buildInternal(filePaths, RepositoryKind.DIST);
         this.localRepo = (LocalPackageRepository) buildLocalRepo(filePaths.localRepoDirPath().orElse(null));
+        this.workspaceRepo = (WorkspaceRepository) buildInternal(filePaths, RepositoryKind.WORKSPACE);
     }
 
     public AbstractPackageRepository buildCentralRepo() {
@@ -69,6 +71,9 @@ public class PackageRepositoryBuilder {
     private PackageRepository buildInternal(TestCaseFilePaths filePaths, RepositoryKind repoKind) {
         Optional<Path> repoDotFilePath = getRepPath(filePaths, repoKind);
         if (repoDotFilePath.isEmpty()) {
+            if (repoKind == RepositoryKind.WORKSPACE) {
+                return WorkspaceRepository.EMPTY_REPO;
+            }
             return DefaultPackageRepository.EMPTY_REPO;
         }
 
@@ -80,12 +85,13 @@ public class PackageRepositoryBuilder {
             case DIST -> filePaths.distRepoPath();
             case CENTRAL -> filePaths.centralRepoPath();
             case LOCAL -> filePaths.localRepoDirPath();
+            case WORKSPACE -> filePaths.workspaceRepoPath();
         };
     }
 
     private PackageRepository buildLocalRepo(Path localRepoDirPath) {
         if (localRepoDirPath == null) {
-            return DefaultPackageRepository.EMPTY_REPO;
+            return LocalPackageRepository.EMPTY_REPO;
         }
 
         try (Stream<Path> paths = Files.list(localRepoDirPath)) {
@@ -188,7 +194,12 @@ public class PackageRepositoryBuilder {
         return switch (repoKind) {
             case LOCAL -> new LocalPackageRepository(pkgContainer, graphMap);
             case CENTRAL, DIST -> new DefaultPackageRepository(pkgContainer, graphMap);
+            case WORKSPACE ->  new WorkspaceRepository(pkgContainer, graphMap);
         };
+    }
+
+    public AbstractPackageRepository buildWorkspaceRepo() {
+        return workspaceRepo;
     }
 
     private static class GraphNodeMarker {

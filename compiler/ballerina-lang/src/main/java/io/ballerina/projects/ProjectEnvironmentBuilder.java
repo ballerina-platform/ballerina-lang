@@ -60,7 +60,7 @@ public class ProjectEnvironmentBuilder {
             compilationCache = compilationCacheFactory.createCompilationCache(project);
         } else {
             compilationCache = switch (project.kind()) {
-                case BUILD_PROJECT -> BuildProjectCompilationCache.from(project);
+                case BUILD_PROJECT, WORKSPACE_PROJECT -> BuildProjectCompilationCache.from(project);
                 case SINGLE_FILE_PROJECT -> TempDirCompilationCache.from(project);
                 case BALA_PROJECT ->
                         throw new IllegalStateException("BALAProject should always be created with a CompilationCache");

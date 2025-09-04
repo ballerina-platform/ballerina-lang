@@ -410,6 +410,7 @@ public class PackageManifest {
         private final PackageVersion version;
         private final String repository;
         private final Location location;
+        private final boolean skipWorkspace;
 
         public Dependency(PackageName packageName, PackageOrg packageOrg, PackageVersion version) {
             this.packageName = packageName;
@@ -417,6 +418,7 @@ public class PackageManifest {
             this.version = version;
             this.location = null;
             this.repository = null;
+            this.skipWorkspace = false;
         }
 
         public Dependency(PackageName packageName, PackageOrg packageOrg, PackageVersion version,
@@ -426,6 +428,7 @@ public class PackageManifest {
             this.version = version;
             this.repository = repository;
             this.location = null;
+            this.skipWorkspace = false;
         }
 
         public Dependency(PackageName packageName, PackageOrg packageOrg, PackageVersion version,
@@ -435,6 +438,17 @@ public class PackageManifest {
             this.version = version;
             this.repository = repository;
             this.location = location;
+            this.skipWorkspace = false;
+        }
+
+        public Dependency(PackageName packageName, PackageOrg packageOrg, PackageVersion version,
+                          String repository, Location location, boolean skipWorkspace) {
+            this.packageName = packageName;
+            this.packageOrg = packageOrg;
+            this.version = version;
+            this.repository = repository;
+            this.location = location;
+            this.skipWorkspace = skipWorkspace;
         }
 
         public PackageName name() {
@@ -455,6 +469,10 @@ public class PackageManifest {
 
         public Optional<Location> location() {
             return Optional.ofNullable(location);
+        }
+
+        public boolean skipWorkspace() {
+            return skipWorkspace;
         }
     }
 

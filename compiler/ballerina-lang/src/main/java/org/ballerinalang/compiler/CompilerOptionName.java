@@ -23,58 +23,8 @@ package org.ballerinalang.compiler;
  * @since 0.94
  */
 public enum CompilerOptionName {
-
-    PROJECT_DIR("projectDirectory"),
-
-    SOURCE_TYPE("sourceType"),
-
-    PRESERVE_WHITESPACE("preserveWhitespace"),
-
-    OFFLINE("offline"),
-
-    OBSERVABILITY_INCLUDED("observabilityIncluded"),
-
     COMPILER_PHASE("compilerPhase"),
-
-    TRANSACTION_EXISTS("transactionBlockExists"),
-
-    BUILD_COMPILED_MODULE("buildCompiledModule"),
-
-    GEN_NATIVE_BINARY("genNativeBinary"),
-
-    TEST_ENABLED("testEnabled"),
-
-    TARGET_BINARY_PATH("targetBinaryPath"),
-
-    BALA_GENERATION("genBala"),
-
-    SKIP_MODULE_DEPENDENCIES("skipModuleDependencies"),
-
-    DUMP_BIR("dumpBIR"),
-
-    DUMP_BIR_FILE("dumpBIRFile"),
-
-    CLOUD("cloud"),
-
-    LOCK_ENABLED("lockEnabled"),
-
-    EXPERIMENTAL("experimental"),
-
-    LIST_CONFLICTED_CLASSES("listConflictedClasses"),
-
-    STICKY("sticky"),
-
-    ENABLE_CACHE("enableCache"),
-    REMOTE_MANAGEMENT("remoteManagement"),
-    LOCKING_MODE("lockingMode"),
-
-    /**
-     * We've introduced this temporary option to support old-project structure and the new package structure.
-     * If the option is set, then the compilation is initiated by the Project APT.
-     */
-    PROJECT_API_INITIATED_COMPILATION("projectAPTInitiatedCompilation"),
-
-    TOOLING_COMPILATION("toolingCompilation");
+    EXPERIMENTAL("experimental");
 
     public final String name;
 

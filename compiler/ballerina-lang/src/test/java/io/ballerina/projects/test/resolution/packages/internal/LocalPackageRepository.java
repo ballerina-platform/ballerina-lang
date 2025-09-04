@@ -25,6 +25,7 @@ import io.ballerina.projects.PackageVersion;
 import io.ballerina.projects.internal.PackageVersionContainer;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -35,6 +36,9 @@ import java.util.stream.Collectors;
  * @since 2.0.0
  */
 public class LocalPackageRepository extends DefaultPackageRepository {
+    public static final LocalPackageRepository EMPTY_REPO = new LocalPackageRepository(
+            new PackageVersionContainer<>(), new HashMap<>());
+
     public LocalPackageRepository(PackageVersionContainer<PackageDescWrapper> pkgContainer,
                                   Map<PackageDescriptor, DependencyGraph<PackageDescriptor>> graphMap) {
         super(pkgContainer, graphMap);
