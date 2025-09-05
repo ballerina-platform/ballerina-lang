@@ -128,7 +128,7 @@ function testAssertFalse () {
 function testAssertFail1 () {
     // I'm expecting a error
     error err = error("");
-    var e = trap test:assertFail(msg = "Exception Never occured");
+    var e = trap test:assertFail(msg = "Exception Never occurred");
 
 }
 
