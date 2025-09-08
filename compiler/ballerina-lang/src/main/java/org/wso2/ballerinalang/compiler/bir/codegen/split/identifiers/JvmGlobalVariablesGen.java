@@ -46,6 +46,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.utils.JvmCodeGenUtil.g
 import static org.wso2.ballerinalang.compiler.bir.codegen.utils.JvmModuleUtils.getModuleLevelClassName;
 import static org.wso2.ballerinalang.compiler.bir.codegen.utils.LazyLoadingCodeGenUtils.addDebugField;
 import static org.wso2.ballerinalang.compiler.bir.codegen.utils.LazyLoadingCodeGenUtils.genLazyLoadingClass;
+import static org.wso2.ballerinalang.compiler.bir.codegen.utils.LazyLoadingCodeGenUtils.genLoadDebugVariablesMethod;
 import static org.wso2.ballerinalang.compiler.bir.codegen.utils.LazyLoadingCodeGenUtils.loadIdentifierValue;
 
 /**
@@ -97,6 +98,7 @@ public class JvmGlobalVariablesGen {
             cw.visitEnd();
             jarEntries.put(globalVarClassName + CLASS_FILE_SUFFIX, jvmPackageGen.getBytes(cw, this.module));
         }
+        genLoadDebugVariablesMethod(allGlobalVarsCW);
         allGlobalVarsCW.visitEnd();
         String globalVarsClass = jvmConstantsGen.allGlobalVarsClassName + CLASS_FILE_SUFFIX;
         jarEntries.put(globalVarsClass, jvmPackageGen.getBytes(allGlobalVarsCW, module));

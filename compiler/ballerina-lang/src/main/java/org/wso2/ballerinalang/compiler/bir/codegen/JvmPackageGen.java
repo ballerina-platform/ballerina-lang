@@ -380,9 +380,11 @@ public class JvmPackageGen {
                 generateLockStoreVariable(cw);
                 initMethodGen.generateModuleInitializer(cw, currentModule, moduleInitClass);
                 initMethodGen.generateModuleStop(cw, moduleInitClass);
+                initMethodGen.genInitLoadDebugVariablesMethod(cw, jvmConstantsGen);
                 ModuleStopMethodGen stopMethodGen = new ModuleStopMethodGen(jvmTypeGen, jvmConstantsGen);
                 stopMethodGen.generateExecutionStopMethod(cw, moduleInitClass, currentModule, asyncDataCollector,
                         immediateImports);
+                
             } else {
                 cw.visit(V21, ACC_PUBLIC + ACC_SUPER, moduleClass, null, OBJECT, null);
                 JvmCodeGenUtil.generateDefaultConstructor(cw, OBJECT);

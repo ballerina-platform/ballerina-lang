@@ -382,6 +382,9 @@ public final class JvmConstants {
     public static final String STRAND_LOCAL_VARIABLE_NAME = "__strand";
     public static final String CLASS_FILE_SUFFIX = ".class";
 
+    // debugger related constants
+    public static final String LOAD_DEBUG_VARIABLES_METHOD = "loadDebugVariables";
+
     // scheduler related constants
     public static final String START_ISOLATED_WORKER = "startIsolatedWorker";
     public static final String START_NON_ISOLATED_WORKER = "startNonIsolatedWorker";

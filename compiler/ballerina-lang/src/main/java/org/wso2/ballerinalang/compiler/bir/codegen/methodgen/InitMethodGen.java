@@ -29,6 +29,7 @@ import org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.JavaClass;
 import org.wso2.ballerinalang.compiler.bir.codegen.model.BIRFunctionWrapper;
 import org.wso2.ballerinalang.compiler.bir.codegen.model.JIMethodCLICall;
+import org.wso2.ballerinalang.compiler.bir.codegen.split.JvmConstantsGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.utils.JvmCodeGenUtil;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator;
@@ -83,6 +84,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.INIT_FUNC
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JVM_INIT_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JVM_STATIC_INIT_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.LAMBDA_PREFIX;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.LOAD_DEBUG_VARIABLES_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAIN_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_EXECUTE_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_INIT_METHOD;
@@ -116,6 +118,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.MODULE_S
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.PASS_OBJECT_ARRAY_RETURN_OBJECT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.PASS_STRAND;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.SCHEDULE_CALL;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.VOID_METHOD_DESC;
 import static org.wso2.ballerinalang.compiler.bir.codegen.utils.JvmCodeGenUtil.getVarStoreClass;
 import static org.wso2.ballerinalang.compiler.bir.codegen.utils.JvmModuleUtils.getPackageName;
 import static org.wso2.ballerinalang.compiler.bir.codegen.utils.JvmModuleUtils.isBuiltInPackage;
@@ -258,6 +261,19 @@ public class InitMethodGen {
         mv.visitMethodInsn(INVOKESTATIC, moduleInitClass, MODULE_STOP_METHOD, MODULE_STOP, false);
         mv.visitInsn(RETURN);
         JvmCodeGenUtil.visitMaxStackForMethod(mv, CURRENT_MODULE_STOP_METHOD, moduleInitClass);
+        mv.visitEnd();
+    }
+
+    public void genInitLoadDebugVariablesMethod(ClassWriter cw, JvmConstantsGen jvmConstantsGen) {
+        MethodVisitor mv = cw.visitMethod(ACC_PUBLIC | ACC_STATIC, LOAD_DEBUG_VARIABLES_METHOD, VOID_METHOD_DESC,
+                null, null);
+        mv.visitCode();
+        mv.visitMethodInsn(INVOKESTATIC, jvmConstantsGen.allGlobalVarsClassName, LOAD_DEBUG_VARIABLES_METHOD,
+                VOID_METHOD_DESC, false);
+        mv.visitMethodInsn(INVOKESTATIC, jvmConstantsGen.allConstantsClassName, LOAD_DEBUG_VARIABLES_METHOD,
+                VOID_METHOD_DESC, false);
+        mv.visitInsn(RETURN);
+        mv.visitMaxs(0, 0);
         mv.visitEnd();
     }
 
@@ -605,15 +621,6 @@ public class InitMethodGen {
         return nextbb;
     }
 
-    public void resetIds() {
-        nextId = 0;
-        nextVarId = 0;
-    }
-
-    public int incrementAndGetNextId() {
-        return nextId++;
-    }
-
     public void generateGetTestExecutionState(ClassWriter cw) {
         MethodVisitor mv = cw.visitMethod(ACC_PUBLIC | ACC_STATIC, GET_TEST_EXECUTION_STATE, "()J", null, null);
         mv.visitCode();
@@ -622,5 +629,14 @@ public class InitMethodGen {
         mv.visitInsn(LRETURN);
         JvmCodeGenUtil.visitMaxStackForMethod(mv, GET_TEST_EXECUTION_STATE, testExecutionStateGlobalClass);
         mv.visitEnd();
+    }
+
+    public void resetIds() {
+        nextId = 0;
+        nextVarId = 0;
+    }
+
+    public int incrementAndGetNextId() {
+        return nextId++;
     }
 }
