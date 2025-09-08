@@ -57,7 +57,8 @@ public final class PackageUtils {
             Project project = PackageUtils.loadProject(filePath);
             return switch (project.kind()) {
                 case BUILD_PROJECT,
-                     BALA_PROJECT -> project.currentPackage();
+                     BALA_PROJECT,
+                     WORKSPACE_PROJECT -> project.currentPackage();
                 case SINGLE_FILE_PROJECT -> throw new SemverToolException(
                         "semver checker tool is not applicable for single file projects.");
             };

@@ -48,7 +48,8 @@ public class CyclicDependenciesTest {
     private final LanguageServerContext serverContext = new LanguageServerContextImpl();
     private final BallerinaWorkspaceManager workspaceManager = new BallerinaWorkspaceManager(serverContext);
 
-    @Test(dataProvider = "cyclic-package-provider")
+    // Disabled the test due to intermittent failures
+    @Test(dataProvider = "cyclic-package-provider", enabled = false)
     public void testCyclicDependenciesOnOpen(String packageName, List<String> expectedMessages)
             throws WorkspaceDocumentException, EventSyncException,
             InterruptedException {

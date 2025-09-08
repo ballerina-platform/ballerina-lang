@@ -46,6 +46,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
@@ -117,9 +118,10 @@ public final class PackageResolutionTestCaseBuilder {
         AbstractPackageRepository centralRepo = repoBuilder.buildCentralRepo();
         AbstractPackageRepository distRepo = repoBuilder.buildDistRepo();
         AbstractPackageRepository localRepo = repoBuilder.buildLocalRepo();
+        AbstractPackageRepository workspaceRepo = repoBuilder.buildWorkspaceRepo();
 
         // Package cache is not needed for now.
-        return new DotGraphBasedPackageResolver(distRepo, centralRepo, localRepo, null);
+        return new DotGraphBasedPackageResolver(distRepo, centralRepo, localRepo, workspaceRepo, null);
     }
 
     private static Collection<ModuleLoadRequest> getModuleLoadRequests(Path appDotFilePath) {
@@ -203,8 +205,9 @@ public final class PackageResolutionTestCaseBuilder {
         public DotGraphBasedPackageResolver(AbstractPackageRepository distributionRepo,
                                             AbstractPackageRepository centralRepo,
                                             AbstractPackageRepository localRepo,
+                                            AbstractPackageRepository workspaceRepo,
                                             PackageCache packageCache) {
-            super(distributionRepo, centralRepo, localRepo, packageCache);
+            super(distributionRepo, centralRepo, localRepo, Map.of(), workspaceRepo, packageCache);
             this.localRepo = localRepo;
         }
 

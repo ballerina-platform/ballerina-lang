@@ -1,5 +1,6 @@
 package io.ballerina.projects;
 
+import io.ballerina.projects.directory.BuildProject;
 import io.ballerina.projects.environment.ResolutionOptions;
 import io.ballerina.projects.internal.DefaultDiagnosticResult;
 import io.ballerina.projects.internal.DependencyManifestBuilder;
@@ -484,8 +485,8 @@ public class Package {
             this.compilerPluginTomlContext = oldPackage.packageContext.compilerPluginTomlContext().orElse(null);
             this.balToolTomlContext = oldPackage.packageContext.balToolTomlContext().orElse(null);
             this.readmeMdContext = oldPackage.packageContext.readmeMdContext().orElse(null);
-            resourceContextMap = copyResources(oldPackage, oldPackage.packageContext.resourceIds());
-            testResourceContextMap = copyResources(oldPackage, oldPackage.packageContext.testResourceIds());
+            this.resourceContextMap = copyResources(oldPackage, oldPackage.packageContext.resourceIds());
+            this.testResourceContextMap = copyResources(oldPackage, oldPackage.packageContext.testResourceIds());
         }
 
         Modifier updateModules(Set<ModuleContext> newModuleContexts) {
@@ -689,6 +690,14 @@ public class Package {
             DependencyGraph<ResolvedPackageDependency> newDepGraph = this.project.currentPackage().packageContext()
                     .getResolution(offlineCompOptions, true).dependencyGraph();
             cleanPackageCache(this.dependencyGraph, newDepGraph);
+            if (this.project.kind() == ProjectKind.BUILD_PROJECT && this.project.workspaceProject().isPresent()) {
+                Collection<BuildProject> wpDependents = this.project.workspaceProject().get().getResolution()
+                        .dependencyGraph().getDirectDependents((BuildProject) this.project);
+                for (BuildProject dependent : wpDependents) {
+                    dependent.resetPackage(dependent);
+                }
+            }
+
             return this.project.currentPackage();
         }
 

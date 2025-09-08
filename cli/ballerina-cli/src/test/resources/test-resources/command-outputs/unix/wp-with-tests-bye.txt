@@ -1,0 +1,5 @@
+Resolving workspace dependencies
+
+Compiling source
+	asmaj/bye:0.1.0
+	No tests found

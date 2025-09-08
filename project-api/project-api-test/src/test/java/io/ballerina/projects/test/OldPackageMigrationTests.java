@@ -79,7 +79,7 @@ public class OldPackageMigrationTests extends BaseTest {
         Files.write(packagePath.resolve(DEPENDENCIES_TOML), Collections.singleton(oldDepsToml));
 
         // Build the project
-        BuildProject buildProject = BuildProject.load(packagePath);
+        BuildProject buildProject = TestUtils.loadBuildProject(packagePath);
         buildProject.save();
         PackageCompilation compilation = buildProject.currentPackage().getCompilation();
 
@@ -123,7 +123,7 @@ public class OldPackageMigrationTests extends BaseTest {
         Files.write(packagePath.resolve(DEPENDENCIES_TOML), Collections.singleton(oldDepsToml));
 
         // Build the project
-        BuildProject buildProject = BuildProject.load(packagePath);
+        BuildProject buildProject = TestUtils.loadBuildProject(packagePath);
         buildProject.save();
         PackageCompilation compilation = buildProject.currentPackage().getCompilation();
 

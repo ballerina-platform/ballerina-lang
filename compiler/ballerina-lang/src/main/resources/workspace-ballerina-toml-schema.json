@@ -1,0 +1,29 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Workspace Ballerina Toml Spec",
+  "description": "Schema for Workspace Ballerina Toml",
+  "type": "object",
+  "additionalProperties": true,
+  "properties": {
+    "workspace": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "packages": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^[a-zA-Z0-9_.]*$",
+            "maxLength": 256,
+            "minLength": 1,
+            "message": {
+              "pattern": "invalid 'name' under [package]: 'name' can only contain alphanumerics, underscores and periods",
+              "maxLength": "invalid 'name' under [package]: maximum length of 'name' is 256 characters",
+              "minLength": "invalid 'name' under [package]: 'name' cannot be empty"
+            }
+          }
+        }
+      }
+    }
+  }
+}

@@ -24,20 +24,28 @@ import io.ballerina.cli.task.CompileTask;
 import io.ballerina.cli.task.CreateExecutableTask;
 import io.ballerina.cli.task.DumpBuildTimeTask;
 import io.ballerina.cli.task.ResolveMavenDependenciesTask;
+import io.ballerina.cli.task.ResolveWorkspaceDependenciesTask;
 import io.ballerina.cli.task.RunBuildToolsTask;
 import io.ballerina.cli.utils.BuildTime;
-import io.ballerina.cli.utils.FileUtils;
 import io.ballerina.projects.BuildOptions;
+import io.ballerina.projects.DependencyGraph;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectException;
+import io.ballerina.projects.ProjectKind;
 import io.ballerina.projects.directory.BuildProject;
-import io.ballerina.projects.directory.SingleFileProject;
+import io.ballerina.projects.directory.ProjectLoader;
+import io.ballerina.projects.directory.WorkspaceProject;
 import io.ballerina.projects.util.ProjectConstants;
+import io.ballerina.projects.util.ProjectPaths;
 import org.wso2.ballerinalang.util.RepoUtils;
 import picocli.CommandLine;
 
 import java.io.PrintStream;
 import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Optional;
 
 import static io.ballerina.cli.cmd.Constants.BUILD_COMMAND;
 import static io.ballerina.projects.util.ProjectUtils.isProjectUpdated;
@@ -226,51 +234,39 @@ public class BuildCommand implements BLauncherCmd {
             return;
         }
 
-
         // load project
         Project project;
         BuildOptions buildOptions = constructBuildOptions();
-
-        boolean isSingleFileBuild = false;
-        if (FileUtils.hasExtension(this.projectPath)) {
-            try {
-                if (buildOptions.dumpBuildTime()) {
-                    start = System.currentTimeMillis();
-                    BuildTime.getInstance().timestamp = start;
-                }
-                project = SingleFileProject.load(this.projectPath, buildOptions);
-                if (buildOptions.dumpBuildTime()) {
-                    BuildTime.getInstance().projectLoadDuration = System.currentTimeMillis() - start;
-                }
-            } catch (ProjectException e) {
-                CommandUtil.printError(this.errStream, e.getMessage(), null, false);
-                CommandUtil.exitError(this.exitWhenFinish);
-                return;
+        Path absProjectPath = this.projectPath.toAbsolutePath().normalize();
+        try {
+            if (buildOptions.dumpBuildTime()) {
+                start = System.currentTimeMillis();
+                BuildTime.getInstance().timestamp = start;
             }
-            isSingleFileBuild = true;
-        } else {
-            // Check if the output flag is set when building all the modules.
-            if (null != this.output) {
+            if (!ProjectPaths.isBuildProjectRoot(projectPath)
+                    && !ProjectPaths.isStandaloneBalFile(projectPath)
+                    && !ProjectPaths.isWorkspaceProjectRoot(projectPath)) {
+                throw new ProjectException("invalid source provided: " + absProjectPath +
+                        ". Please provide a valid Ballerina package, workspace or a standalone file.");
+            }
+
+            project = ProjectLoader.load(projectPath, buildOptions).project();
+            if (buildOptions.dumpBuildTime()) {
+                BuildTime.getInstance().projectLoadDuration = System.currentTimeMillis() - start;
+            }
+        } catch (ProjectException e) {
+            CommandUtil.printError(this.errStream, e.getMessage(), null, false);
+            CommandUtil.exitError(this.exitWhenFinish);
+            return;
+        }
+
+        if (!project.kind().equals(ProjectKind.SINGLE_FILE_PROJECT)) {
+            if (this.output != null) {
                 CommandUtil.printError(this.errStream,
                         "'-o' and '--output' are only supported when building a single Ballerina " +
                                 "file.",
                         "bal build -o <output-file> <ballerina-file> ",
                         true);
-                CommandUtil.exitError(this.exitWhenFinish);
-                return;
-            }
-
-            try {
-                if (buildOptions.dumpBuildTime()) {
-                    start = System.currentTimeMillis();
-                    BuildTime.getInstance().timestamp = start;
-                }
-                project = BuildProject.load(this.projectPath, buildOptions);
-                if (buildOptions.dumpBuildTime()) {
-                    BuildTime.getInstance().projectLoadDuration = System.currentTimeMillis() - start;
-                }
-            } catch (ProjectException e) {
-                CommandUtil.printError(this.errStream, e.getMessage(), null, false);
                 CommandUtil.exitError(this.exitWhenFinish);
                 return;
             }
@@ -284,27 +280,77 @@ public class BuildCommand implements BLauncherCmd {
                     "flag is not set");
         }
 
-        // Check package files are modified after last build
-        boolean isPackageModified = isProjectUpdated(project);
+        if (project.kind() == ProjectKind.WORKSPACE_PROJECT) {
+            WorkspaceProject workspaceProject = (WorkspaceProject) project;
+            DependencyGraph<BuildProject> projectDependencyGraph = resolveWorkspaceDependencies(workspaceProject);
+            List<BuildProject> topologicallySortedList = new ArrayList<>(
+                    projectDependencyGraph.toTopologicallySortedList());
+            if (!workspaceProject.sourceRoot().equals(absProjectPath)) {
+                // If the project path is not the workspace root, filter the topologically sorted list to include only
+                // the projects that are dependencies of the project at the specified path.
+                Optional<BuildProject> buildProjectOptional = projectDependencyGraph.getNodes().stream()
+                        .filter(node -> node.sourceRoot().equals(absProjectPath)).findFirst();
+                Collection<BuildProject> projectDependencies = projectDependencyGraph.getAllDependencies(
+                        buildProjectOptional.orElseThrow());
+                // remove projects that are not dependencies of the project at the specified path
+                topologicallySortedList.removeIf(prj -> !projectDependencies.contains(prj)
+                        && prj != buildProjectOptional.get());
+            }
+            for (BuildProject buildProject : topologicallySortedList) {
+                boolean skipExecutable = false;
+                if (workspaceProject.sourceRoot().equals(absProjectPath)) {
+                    if (hasDependents(buildProject, projectDependencyGraph)) {
+                        // If the project is a dependency of another project, skip creating an executable JAR.
+                        skipExecutable = true;
+                    }
+                } else if (!buildProject.sourceRoot().equals(absProjectPath)) {
+                    if (hasDependents(buildProject, projectDependencyGraph)) {
+                        // If the project is a dependency of another project, skip creating an executable JAR.
+                        skipExecutable = true;
+                    }
+                }
+                executeTasks(true, false, buildProject, skipExecutable);
+            }
+        } else {
+            boolean isPackageModified = isProjectUpdated(project);
+            executeTasks(isPackageModified, project.kind().equals(ProjectKind.SINGLE_FILE_PROJECT), project, false);
+        }
+        if (this.exitWhenFinish) {
+            Runtime.getRuntime().exit(0);
+        }
+    }
 
+    private boolean hasDependents(BuildProject buildProject, DependencyGraph<BuildProject> projectDependencyGraph) {
+        return !projectDependencyGraph.getDirectDependents(buildProject).isEmpty();
+    }
+
+    private DependencyGraph<BuildProject> resolveWorkspaceDependencies(WorkspaceProject workspaceProject) {
+        TaskExecutor taskExecutor = new TaskExecutor.TaskBuilder()
+                .addTask(new ResolveWorkspaceDependenciesTask(outStream))
+                .build();
+        taskExecutor.executeTasks(workspaceProject);
+        return workspaceProject.getResolution().dependencyGraph();
+    }
+
+    private void executeTasks(boolean isPackageModified, boolean isSingleFile, Project project,
+                              boolean skipExecutable) {
+        BuildOptions buildOptions = project.buildOptions();
         TaskExecutor taskExecutor = new TaskExecutor.TaskBuilder()
                 // clean the target directory(projects only)
-                .addTask(new CleanTargetDirTask(isPackageModified, buildOptions.enableCache()), isSingleFileBuild)
+                .addTask(new CleanTargetDirTask(isPackageModified, buildOptions.enableCache()), isSingleFile)
                 // Run build tools
-                .addTask(new RunBuildToolsTask(outStream), isSingleFileBuild)
+                .addTask(new RunBuildToolsTask(outStream), isSingleFile)
                 // resolve maven dependencies in Ballerina.toml
                 .addTask(new ResolveMavenDependenciesTask(outStream))
                 // compile the modules
                 .addTask(new CompileTask(outStream, errStream, false, true,
                         isPackageModified, buildOptions.enableCache()))
-                .addTask(new CreateExecutableTask(outStream, this.output, null, false))
-                .addTask(new DumpBuildTimeTask(outStream), !project.buildOptions().dumpBuildTime())
+                .addTask(new CreateExecutableTask(outStream, this.output, null, false),
+                        skipExecutable)
+                .addTask(new DumpBuildTimeTask(outStream), !buildOptions.dumpBuildTime())
                 .build();
 
         taskExecutor.executeTasks(project);
-        if (this.exitWhenFinish) {
-            Runtime.getRuntime().exit(0);
-        }
     }
 
     private BuildOptions constructBuildOptions() {
