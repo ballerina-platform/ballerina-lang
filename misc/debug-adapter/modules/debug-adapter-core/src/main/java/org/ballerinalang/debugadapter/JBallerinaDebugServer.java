@@ -17,6 +17,7 @@
 package org.ballerinalang.debugadapter;
 
 import com.sun.jdi.Field;
+import com.sun.jdi.Method;
 import com.sun.jdi.ReferenceType;
 import com.sun.jdi.ThreadReference;
 import com.sun.jdi.Value;
@@ -40,6 +41,7 @@ import org.ballerinalang.debugadapter.evaluation.BExpressionValue;
 import org.ballerinalang.debugadapter.evaluation.DebugExpressionEvaluator;
 import org.ballerinalang.debugadapter.evaluation.EvaluationException;
 import org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind;
+import org.ballerinalang.debugadapter.evaluation.engine.invokable.RuntimeStaticMethod;
 import org.ballerinalang.debugadapter.jdi.JDIUtils;
 import org.ballerinalang.debugadapter.jdi.JdiProxyException;
 import org.ballerinalang.debugadapter.jdi.LocalVariableProxyImpl;
@@ -129,17 +131,21 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import static io.ballerina.runtime.api.constants.RuntimeConstants.MODULE_INIT_CLASS_NAME;
 import static org.ballerinalang.debugadapter.DebugExecutionManager.LOCAL_HOST;
 import static org.ballerinalang.debugadapter.completion.util.CompletionUtil.getInjectedExpressionNode;
 import static org.ballerinalang.debugadapter.completion.util.CompletionUtil.getResolverNode;
 import static org.ballerinalang.debugadapter.completion.util.CompletionUtil.getTriggerCharacters;
 import static org.ballerinalang.debugadapter.completion.util.CompletionUtil.getVisibleSymbolCompletions;
 import static org.ballerinalang.debugadapter.completion.util.CompletionUtil.triggerCharactersFound;
+import static org.ballerinalang.debugadapter.evaluation.EvaluationException.createEvaluationException;
+import static org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind.CLASS_LOADING_FAILED;
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.loadClass;
 import static org.ballerinalang.debugadapter.utils.PackageUtils.ALL_CONSTANTS_CLASS_NAME;
 import static org.ballerinalang.debugadapter.utils.PackageUtils.ALL_GLOBAL_VAR_CLASS_NAME;
 import static org.ballerinalang.debugadapter.utils.PackageUtils.GLOBAL_CONSTANTS_PACKAGE_NAME;
 import static org.ballerinalang.debugadapter.utils.PackageUtils.GLOBAL_VARIABLES_PACKAGE_NAME;
+import static org.ballerinalang.debugadapter.utils.PackageUtils.LOAD_DEBUG_VARIABLES_METHOD;
 import static org.ballerinalang.debugadapter.utils.PackageUtils.VALUE_VAR_NAME;
 import static org.ballerinalang.debugadapter.utils.PackageUtils.getQualifiedClassName;
 import static org.ballerinalang.debugadapter.utils.ServerUtils.isBalStackFrame;
@@ -981,10 +987,12 @@ public class JBallerinaDebugServer implements BallerinaExtendedDebugServer {
                 .toArray(Variable[]::new);
     }
 
-    private void loadVariables(String classQName, List<CompletableFuture<Variable>> scheduledVariables,
+    private void loadVariables(String variablesClassName, List<CompletableFuture<Variable>> scheduledVariables,
                                int stackFrameReference, String varClassPkg) throws EvaluationException {
-        List<ReferenceType> cls = Collections.singletonList(loadClass(suspendedContext, classQName, ""));
-        ReferenceType allGlobalVarClassRef = cls.getFirst();
+        ReferenceType allGlobalVarClassRef = loadAllVarsClass(suspendedContext, variablesClassName);
+        if (allGlobalVarClassRef == null) {
+            throw createEvaluationException(CLASS_LOADING_FAILED, variablesClassName);
+        }
         for (Field field : allGlobalVarClassRef.allFields()) {
             String fieldName = field.name();
             String varClassName = PackageUtils.getQualifiedClassName(suspendedContext, fieldName, varClassPkg);
@@ -993,6 +1001,25 @@ public class JBallerinaDebugServer implements BallerinaExtendedDebugServer {
             Field valueField = classRef.fieldByName(VALUE_VAR_NAME);
             Value fieldValue = classRef.getValue(valueField);
             scheduledVariables.add(computeVariableAsync(fieldName, fieldValue, stackFrameReference));
+        }
+    }
+
+    public static ReferenceType loadAllVarsClass(SuspendedContext context, String className) {
+        List<ReferenceType> classRefs = context.getAttachedVm().classesByName(className);
+        if (classRefs != null && !classRefs.isEmpty()) {
+            classRefs.getFirst();
+        }
+        // Tries to load from init class
+        try {
+            String initClass = PackageUtils.getQualifiedClassName(context, MODULE_INIT_CLASS_NAME);
+            ReferenceType initClassRef = context.getAttachedVm().classesByName(initClass).getFirst();
+            Method loadVarMethod = initClassRef.methodsByName(LOAD_DEBUG_VARIABLES_METHOD).getFirst();
+            RuntimeStaticMethod loadVarStaticMethod = new RuntimeStaticMethod(context, initClassRef, loadVarMethod);
+            loadVarStaticMethod.setArgValues(new ArrayList<>());
+            loadVarStaticMethod.invokeSafely();
+            return context.getAttachedVm().classesByName(className).getFirst();
+        } catch (EvaluationException e) {
+            return null;
         }
     }
 

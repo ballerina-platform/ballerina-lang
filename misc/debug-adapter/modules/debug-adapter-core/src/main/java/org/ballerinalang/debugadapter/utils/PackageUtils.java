@@ -78,6 +78,7 @@ public final class PackageUtils {
     public static final String GLOBAL_CONSTANTS_PACKAGE_NAME = "identifiers.constants";
     public static final String ALL_GLOBAL_VAR_CLASS_NAME = "$global_vars";
     public static final String ALL_CONSTANTS_CLASS_NAME = "$constants";
+    public static final String LOAD_DEBUG_VARIABLES_METHOD = "loadDebugVariables";
     public static final String TYPE_VAR_NAME = "$type";
     public static final String VALUE_VAR_NAME = "$value";
     private static final String OBJECT_CLASS_PATTERN = "values" + File.separator;
