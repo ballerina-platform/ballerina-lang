@@ -113,7 +113,7 @@ target = "java8"
     [[platform.libraries]]
     artifactId = "bcpkix-jdk18on"
     version = "1.78.1"
-    path = "./lib/bcpkix-jdk18on-1.78.1.jar"
+    path = "./lib/bcpkix-jdk18on-1.79.jar"
     groupId = "org.bouncycastle"
     modules = ["http"]
 
