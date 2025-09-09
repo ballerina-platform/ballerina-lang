@@ -119,6 +119,7 @@ public class ResolutionEngine {
             PackageVersion depVersion;
             String repository;
             boolean errorNode = false;
+            boolean skipWorkspace = false;
             PackageDescriptor depPkgDesc = directPkgDependency.pkgDesc();
             if (directPkgDependency.dependencyKind() == ModuleResolver.DirectPackageDependencyKind.NEW) {
                 // This blendedDep may be resolved from the local repository as well.
@@ -126,6 +127,7 @@ public class ResolutionEngine {
                         depPkgDesc.org(), depPkgDesc.name());
                 if (blendedDepOptional.isPresent()) {
                     errorNode = blendedDepOptional.get().isError();
+                    skipWorkspace = blendedDepOptional.get().skipWorkspace();
                 }
 
                 // If the package version is not null, use it
@@ -154,7 +156,7 @@ public class ResolutionEngine {
             }
             directDeps.add(new ResolutionEngine.DependencyNode(
                     PackageDescriptor.from(depPkgDesc.org(), depPkgDesc.name(), depVersion, repository),
-                    directPkgDependency.scope(), directPkgDependency.resolutionType(), errorNode));
+                    directPkgDependency.scope(), directPkgDependency.resolutionType(), errorNode, skipWorkspace));
         }
 
         return directDeps;
@@ -241,7 +243,7 @@ public class ResolutionEngine {
                 }
             }
             resolutionRequests.add(ResolutionRequest.from(pkgDesc, directDependency.scope(),
-                    directDependency.resolutionType(), lockingMode));
+                    directDependency.resolutionType(), lockingMode, directDependency.skipWorkspace()));
         }
 
         return packageResolver.resolvePackageMetadata(resolutionRequests, resolutionOptions);
@@ -355,7 +357,8 @@ public class ResolutionEngine {
                                                           BlendedManifest.Dependency blendedDep) {
         if (blendedDep == null) {
             return ResolutionRequest.from(unresolvedNode.pkgDesc(), unresolvedNode.scope(),
-                    unresolvedNode.resolutionType(), resolutionOptions.packageLockingMode());
+                    unresolvedNode.resolutionType(), resolutionOptions.packageLockingMode(),
+                    unresolvedNode.skipWorkspace());
         }
 
         if (blendedDep.isError()) {
@@ -374,10 +377,11 @@ public class ResolutionEngine {
             PackageDescriptor blendedDepPkgDesc = PackageDescriptor.from(blendedDep.org(), blendedDep.name(),
                     blendedDep.version(), blendedDep.repository());
             return ResolutionRequest.from(blendedDepPkgDesc, unresolvedNode.scope(),
-                    unresolvedNode.resolutionType(), lockingMode);
+                    unresolvedNode.resolutionType(), lockingMode, unresolvedNode.skipWorkspace);
         } else if (versionCompResult == VersionCompatibilityResult.LESS_THAN) {
             return ResolutionRequest.from(unresolvedNode.pkgDesc(), unresolvedNode.scope(),
-                    unresolvedNode.resolutionType(), resolutionOptions.packageLockingMode());
+                    unresolvedNode.resolutionType(), resolutionOptions.packageLockingMode(),
+                    unresolvedNode.skipWorkspace);
         } else {
             // Blended Dep version is incompatible with the unresolved node.
             // We report a diagnostic and return null.
@@ -539,6 +543,7 @@ public class ResolutionEngine {
         private final PackageDependencyScope scope;
         private final DependencyResolutionType resolutionType;
         private final boolean isError;
+        private final boolean skipWorkspace;
 
         public DependencyNode(PackageDescriptor pkgDesc,
                               PackageDependencyScope scope,
@@ -547,6 +552,7 @@ public class ResolutionEngine {
             this.scope = Objects.requireNonNull(scope);
             this.resolutionType = Objects.requireNonNull(resolutionType);
             this.isError = false;
+            this.skipWorkspace = false;
         }
 
         public DependencyNode(PackageDescriptor pkgDesc,
@@ -557,6 +563,18 @@ public class ResolutionEngine {
             this.scope = Objects.requireNonNull(scope);
             this.resolutionType = Objects.requireNonNull(resolutionType);
             this.isError = errorNode;
+            this.skipWorkspace = false;
+        }
+
+        public DependencyNode(PackageDescriptor pkgDesc,
+                              PackageDependencyScope scope,
+                              DependencyResolutionType resolutionType,
+                              boolean errorNode, boolean skipWorkspace) {
+            this.pkgDesc = Objects.requireNonNull(pkgDesc);
+            this.scope = Objects.requireNonNull(scope);
+            this.resolutionType = Objects.requireNonNull(resolutionType);
+            this.isError = errorNode;
+            this.skipWorkspace = skipWorkspace;
         }
 
         public DependencyNode(PackageDescriptor pkgDesc) {
@@ -614,6 +632,10 @@ public class ResolutionEngine {
         @Override
         public int compareTo(ResolutionEngine.DependencyNode other) {
             return this.pkgDesc.toString().compareTo(other.pkgDesc.toString());
+        }
+
+        public boolean skipWorkspace() {
+            return skipWorkspace;
         }
     }
 }

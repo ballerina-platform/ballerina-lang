@@ -4,6 +4,7 @@
     "character": 22
   },
   "source": "expression_context/source/list_constructor_ctx_source6.bal",
+  "description": "",
   "items": [
     {
       "label": "test/project2",
@@ -830,6 +831,23 @@
       "sortText": "AAC",
       "filterText": "intArr4",
       "insertText": "...intArr4",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "natural",
+      "kind": "Unit",
+      "detail": "type",
+      "sortText": "ARR",
+      "insertText": "natural",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "natural (..) {..}",
+      "kind": "Snippet",
+      "detail": "Snippet",
+      "sortText": "ATP",
+      "filterText": "natural (..) {..}",
+      "insertText": "natural (${1}) {${2}}",
       "insertTextFormat": "Snippet"
     }
   ]

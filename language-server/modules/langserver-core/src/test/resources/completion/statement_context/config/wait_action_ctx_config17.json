@@ -4,6 +4,7 @@
     "character": 21
   },
   "source": "statement_context/source/wait_action_ctx_source17.bal",
+  "description": "",
   "items": [
     {
       "label": "fint",
@@ -427,6 +428,14 @@
       "detail": "Typedesc",
       "sortText": "R",
       "insertText": "typedesc",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "natural",
+      "kind": "Unit",
+      "detail": "type",
+      "sortText": "R",
+      "insertText": "natural",
       "insertTextFormat": "Snippet"
     }
   ]

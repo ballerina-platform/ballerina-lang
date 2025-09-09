@@ -23,6 +23,7 @@ import io.ballerina.projects.DiagnosticResult;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectEnvironmentBuilder;
 import io.ballerina.projects.ProjectException;
+import io.ballerina.projects.ProjectLoadResult;
 import io.ballerina.projects.directory.BuildProject;
 import io.ballerina.projects.directory.ProjectLoader;
 import io.ballerina.projects.directory.SingleFileProject;
@@ -56,6 +57,11 @@ public final class TestUtils {
     private static final String OS = System.getProperty("os.name").toLowerCase(Locale.getDefault());
 
     private TestUtils() {
+    }
+
+    public static ProjectLoadResult loadWorkspaceProject(Path projectPath) {
+        BuildOptions buildOptions = BuildOptions.builder().setOffline(true).build();
+        return ProjectLoader.load(projectPath, buildOptions);
     }
 
     public static String getDiagnosticsAsString(DiagnosticResult diagnosticResult) {

@@ -103,13 +103,16 @@ public class CompileTask implements Task {
         this.cachesEnabled = cachesEnabled;
         this.skipTask = skipTask;
     }
-
     @Override
     public void execute(Project project) {
         if (ProjectUtils.isProjectEmpty(project) && skipCompilationForBalPack(project)) {
             throw createLauncherException("package is empty. Please add at least one .bal file.");
         }
+        if (project.workspaceProject().isPresent()) {
+            this.out.println();
+        }
         this.out.println("Compiling source" + (skipTask ? " (UP-TO-DATE)" : ""));
+
 
         String sourceName;
         if (project instanceof SingleFileProject) {

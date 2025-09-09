@@ -60,12 +60,13 @@ public class Names {
     public static final Name INT = new Name("int");
     public static final Name BOOLEAN = new Name("boolean");
     public static final Name MAP = new Name("map");
+    public static final Name NATURAL = new Name("natural");
     public static final Name OBJECT = new Name("object");
     public static final Name STREAM = new Name("stream");
     public static final Name QUERY = new Name("query");
     public static final Name RUNTIME = new Name("runtime");
     public static final Name TRANSACTION = new Name("transaction");
-    public static final Name NATURAL_PROGRAMMING = new Name("np");
+    public static final Name NATURAL_PROGRAMMING = new Name("ai.np");
     public static final Name OBSERVE = new Name("observe");
     public static final Name CLOUD = new Name("cloud");
     public static final Name TABLE = new Name("table");
@@ -114,6 +115,7 @@ public class Names {
     public static final Name CLONEABLE = new Name("Cloneable");
     public static final Name CLONEABLE_INTERNAL = new Name("__Cloneable");
     public static final Name OBJECT_ITERABLE = new Name("Iterable");
+    public static final Name NATURAL_GENERATOR = new Name("Generator");
 
     // Subtypes
     public static final Name SIGNED32 = new Name(STRING_SIGNED32);

@@ -238,6 +238,8 @@ import static io.ballerina.types.Core.getComplexSubtypeData;
 import static io.ballerina.types.Core.widenToBasicTypes;
 import static org.ballerinalang.model.symbols.SymbolOrigin.SOURCE;
 import static org.ballerinalang.model.symbols.SymbolOrigin.VIRTUAL;
+import static org.ballerinalang.util.diagnostic.DiagnosticErrorCode.EXPECTED_A_SINGLE_ARG_OF_TYPE_GENERATOR_IN_A_NATURAL_EXPR;
+import static org.ballerinalang.util.diagnostic.DiagnosticErrorCode.EXPECTED_NO_ARGS_IN_A_CONST_NATURAL_EXPR;
 import static org.ballerinalang.util.diagnostic.DiagnosticErrorCode.INVALID_NUM_INSERTIONS;
 import static org.ballerinalang.util.diagnostic.DiagnosticErrorCode.INVALID_NUM_STRINGS;
 import static org.wso2.ballerinalang.compiler.tree.BLangInvokableNode.DEFAULT_WORKER_NAME;
@@ -6678,8 +6680,34 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
     }
 
     private void checkNaturalExprArguments(BLangNaturalExpression naturalExpression, AnalyzerData data) {
-        for (BLangExpression expr : naturalExpression.arguments) {
-            checkExpr(expr, symTable.anyType, data);
+        List<BLangExpression> arguments = naturalExpression.arguments;
+        int size = arguments.size();
+
+        if (naturalExpression.isConstExpr) {
+            if (arguments.isEmpty()) {
+                return;
+            }
+            dlog.error(arguments.getFirst().pos, EXPECTED_NO_ARGS_IN_A_CONST_NATURAL_EXPR, size);
+            for (BLangExpression argument : arguments) {
+                checkExpr(argument, symTable.anyType, data);
+            }
+            return;
+        }
+
+        if (size == 0) {
+            dlog.error(naturalExpression.pos, EXPECTED_A_SINGLE_ARG_OF_TYPE_GENERATOR_IN_A_NATURAL_EXPR, size);
+            return;
+        }
+
+        checkExpr(arguments.getFirst(), symTable.naturalGeneratorType, data);
+
+        if (size == 1) {
+            return;
+        }
+
+        dlog.error(naturalExpression.pos, EXPECTED_A_SINGLE_ARG_OF_TYPE_GENERATOR_IN_A_NATURAL_EXPR, size);
+        for (int i = 0; i < size; i++) {
+            checkExpr(arguments.get(i), symTable.anyType, data);
         }
     }
 

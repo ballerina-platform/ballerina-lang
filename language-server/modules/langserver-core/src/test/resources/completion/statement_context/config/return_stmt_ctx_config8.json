@@ -4,6 +4,7 @@
     "character": 5
   },
   "source": "statement_context/source/return_stmt_ctx_source8.bal",
+  "description": "",
   "items": [
     {
       "label": "xmlns",
@@ -884,6 +885,14 @@
       "detail": "Typedesc",
       "sortText": "N",
       "insertText": "typedesc",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "natural",
+      "kind": "Unit",
+      "detail": "type",
+      "sortText": "R",
+      "insertText": "natural",
       "insertTextFormat": "Snippet"
     }
   ]

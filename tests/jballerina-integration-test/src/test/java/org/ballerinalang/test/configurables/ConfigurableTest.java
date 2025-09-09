@@ -73,7 +73,8 @@ public class ConfigurableTest extends BaseTest {
     public void testConfigurableVariablesWithCliArgs() throws BallerinaTestException {
         LogLeecher logLeecher = new LogLeecher(testsPassed);
         bMainInstance.runMain(testFileLocation + "/configurableSimpleProject", "main", null,
-                              new String[]{"-CintVar=42", "-CbyteVar=22", "-CstringVar=waru=na", "-CbooleanVar=true",
+                              new String[]{"-CintVar=42", "-CbyteVar=22", "-CfloatIntVar=35", "-CdecimalIntVar=45",
+                                      "-CstringVar=waru=na", "-CbooleanVar=true",
                                       "-CxmlVar=<book>The Lost World</book>", "-CtestOrg.main.floatVar=3.5",
                                       "-Cmain.decimalVar=24.87", "-Cmain.color=RED", "-Cmain.countryCode=Sri Lanka",
                                       "-Cfiles=pqr-1.toml", "-Cdata=intVar=bbb"},
@@ -86,6 +87,8 @@ public class ConfigurableTest extends BaseTest {
         Map<String, String> envVariables = Map.ofEntries(
                 Map.entry(ENV_VAR_PREFIX + "INTVAR", "42"),
                 Map.entry(ENV_VAR_PREFIX + "BYTEVAR", "22"),
+                Map.entry(ENV_VAR_PREFIX + "FLOATINTVAR", "35"),
+                Map.entry(ENV_VAR_PREFIX + "DECIMALINTVAR", "45"),
                 Map.entry(ENV_VAR_PREFIX + "STRINGVAR", "waru=na"),
                 Map.entry(ENV_VAR_PREFIX + "BOOLEANVAR", "true"),
                 Map.entry(ENV_VAR_PREFIX + "XMLVAR", "<book>The Lost World</book>"),

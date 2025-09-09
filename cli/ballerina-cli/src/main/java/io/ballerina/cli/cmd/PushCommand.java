@@ -379,7 +379,7 @@ public class PushCommand implements BLauncherCmd {
         } catch (IOException e) {
             throw new ProjectException("error while validating the bala file: " + e.getMessage(), e);
         }
-        throw new ProjectException("README file is missing in the bala file:" + balaPath);
+        throw new ProjectException("README.md file is missing in the bala file:" + balaPath);
     }
 
     private void pushBalaToCustomRepo(Path balaFilePath) {
@@ -421,7 +421,7 @@ public class PushCommand implements BLauncherCmd {
         if (this.balaPath != null) {
             relativePathToBalaFile = balaFilePath;
         } else {
-            relativePathToBalaFile = userDir.relativize(balaFilePath);
+            relativePathToBalaFile = userDir.toAbsolutePath().relativize(balaFilePath);
         }
         outStream.println("Successfully pushed " + relativePathToBalaFile
                 + " to '" + repositoryName + "' repository.");

@@ -1176,6 +1176,20 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
         throw new IllegalStateException("'lang.object:RawTemplate' type not found");
     }
 
+    public void loadNaturalGeneratorType() {
+        ScopeEntry entry = symTable.langNaturalModuleSymbol.scope.lookup(Names.NATURAL_GENERATOR);
+        while (entry != NOT_FOUND_ENTRY) {
+            BSymbol symbol = entry.symbol;
+            if ((symbol.tag & SymTag.TYPE) != SymTag.TYPE) {
+                entry = entry.next;
+                continue;
+            }
+            symTable.naturalGeneratorType = (BObjectType) symbol.type;
+            return;
+        }
+        throw new IllegalStateException("'lang.natural:Generator' type not found");
+    }
+
     // visit type nodes
 
     @Override

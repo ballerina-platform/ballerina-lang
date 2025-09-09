@@ -14,10 +14,10 @@
 // specific language governing permissions and limitations
 // under the License.
 
-function f1() = @code external;
+function f1() = @natural:code external;
 
-function f2() = @code {} external;
+function f2() = @natural:code {} external;
 
-function f3(string str) returns int[] = @code {
+function f3(string str) returns int[] = @natural:code {
     prompt: 1
 } external;

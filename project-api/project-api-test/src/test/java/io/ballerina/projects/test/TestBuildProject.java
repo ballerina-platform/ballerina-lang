@@ -455,18 +455,6 @@ public class TestBuildProject extends BaseTest {
         }
     }
 
-    @Test (description = "tests loading another invalid Ballerina project")
-    public void testLoadBallerinaProjectInProject() {
-        Path projectPath = tempResourceDir.resolve("myproject").resolve("modules").resolve("services")
-                .resolve("resources").resolve("invalidProject");
-        try {
-            TestUtils.loadBuildProject(projectPath);
-            Assert.fail("expected an invalid project exception");
-        } catch (ProjectException e) {
-            Assert.assertEquals(e.getMessage(), "'" + projectPath + "' is already within a Ballerina package");
-        }
-    }
-
     @Test(description = "tests loading a valid build project with build options from toml")
     public void testLoadingBuildOptionsFromToml() {
         Path projectPath = tempResourceDir.resolve("projectWithBuildOptions");
@@ -1660,7 +1648,7 @@ public class TestBuildProject extends BaseTest {
         Files.deleteIfExists(projectDirPath.resolve(TARGET_DIR_NAME).resolve(BUILD_FILE));
         Files.deleteIfExists(projectDirPath.resolve(DEPENDENCIES_TOML));
 
-        BuildProject buildProject = BuildProject.load(projectDirPath);
+        BuildProject buildProject = TestUtils.loadBuildProject(projectDirPath);
         buildProject.save();
         PackageCompilation compilation = buildProject.currentPackage().getCompilation();
 
@@ -2453,6 +2441,48 @@ public class TestBuildProject extends BaseTest {
         Assert.assertEquals(diagnostics.get(1).toString(), "WARNING [platformLibNonBalPkg3] detected conflicting jar" +
                 " files. 'lib3-2.0.1.jar' dependency of 'platformlib/pkg2' conflicts with 'lib3-2.0.0.jar'" +
                 " dependency of 'platformlib/pkg1'. Picking 'lib3-2.0.1.jar' over 'lib3-2.0.0.jar'.");
+    }
+
+    @Test(description = "Test sticky flag when not defined in Ballerina.toml")
+    public void testStickyFlagNotDefinedInToml() throws IOException {
+        Path projectPath = tempResourceDir.resolve("stickyTestProjs/projNullStickyInBalTom");
+        BuildOptions buildOptions = BuildOptions.builder().setSticky(false).build(); // CLI Sticky
+        BuildProject project = loadBuildProject(projectPath, buildOptions);
+        Assert.assertFalse(project.buildOptions().sticky());
+        buildOptions = BuildOptions.builder().setSticky(true).build(); // CLI Sticky
+        project = loadBuildProject(projectPath, buildOptions);
+        Assert.assertTrue(project.buildOptions().sticky());
+        buildOptions = BuildOptions.builder().build(); // CLI Sticky
+        project = loadBuildProject(projectPath, buildOptions);
+        Assert.assertFalse(project.buildOptions().sticky());
+    }
+
+    @Test(description = "Test sticky flag when set to false in Ballerina.toml")
+    public void testStickyFlagFalseInToml() throws IOException {
+        Path projectPath = tempResourceDir.resolve("stickyTestProjs/projFalseStickyInBalTom");
+        BuildOptions buildOptions = BuildOptions.builder().setSticky(false).build(); // CLI Sticky
+        BuildProject project = loadBuildProject(projectPath, buildOptions);
+        Assert.assertFalse(project.buildOptions().sticky());
+        buildOptions = BuildOptions.builder().setSticky(true).build(); // CLI Sticky
+        project = loadBuildProject(projectPath, buildOptions);
+        Assert.assertTrue(project.buildOptions().sticky());
+        buildOptions = BuildOptions.builder().build(); // CLI Sticky
+        project = loadBuildProject(projectPath, buildOptions);
+        Assert.assertFalse(project.buildOptions().sticky());
+    }
+
+    @Test(description = "Test sticky flag when set to true in Ballerina.toml")
+    public void testStickyFlagTrueInToml() throws IOException {
+        Path projectPath = tempResourceDir.resolve("stickyTestProjs/projTrueStickyInBalTom");
+        BuildOptions buildOptions = BuildOptions.builder().setSticky(false).build(); // CLI Sticky
+        BuildProject project = loadBuildProject(projectPath, buildOptions);
+        Assert.assertFalse(project.buildOptions().sticky());
+        buildOptions = BuildOptions.builder().setSticky(true).build(); // CLI Sticky
+        project = loadBuildProject(projectPath, buildOptions);
+        Assert.assertTrue(project.buildOptions().sticky());
+        buildOptions = BuildOptions.builder().build(); // CLI Sticky
+        project = loadBuildProject(projectPath, buildOptions);
+        Assert.assertTrue(project.buildOptions().sticky());
     }
 
     private static BuildProject loadBuildProject(Path projectPath) {

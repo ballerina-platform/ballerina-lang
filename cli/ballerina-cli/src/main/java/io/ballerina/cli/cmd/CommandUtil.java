@@ -884,6 +884,18 @@ public final class CommandUtil {
         // - .gitignore       <- git ignore file
         // - .devcontainer.json
 
+        initPackageByTemplate(path, ProjectUtils.guessOrgName(), packageName, template, balFilesExist);
+    }
+
+    public static void initPackageByTemplate(Path path, String orgName, String packageName, String template,
+                                             boolean balFilesExist)
+            throws IOException, URISyntaxException {
+        // We will be creating following in the project directory
+        // - Ballerina.toml
+        // - main.bal
+        // - .gitignore       <- git ignore file
+        // - .devcontainer.json
+
         applyTemplate(path, template, balFilesExist);
         if (template.equalsIgnoreCase(LIB_DIR)) {
             initLibPackage(path, packageName);
@@ -893,7 +905,7 @@ public final class CommandUtil {
         } else if (template.equalsIgnoreCase(TOOL_DIR)) {
             initToolPackage(path, packageName);
         } else {
-            initPackage(path, packageName);
+            initPackage(path, packageName, orgName);
         }
         createDefaultGitignore(path);
         createDefaultDevContainer(path);
@@ -1002,14 +1014,14 @@ public final class CommandUtil {
      * @param path Project path
      * @throws IOException If any IO exception occurred
      */
-    public static void initPackage(Path path, String packageName) throws IOException {
+    public static void initPackage(Path path, String packageName, String org) throws IOException {
         Path ballerinaToml = path.resolve(ProjectConstants.BALLERINA_TOML);
         Files.createFile(ballerinaToml);
 
         String defaultManifest = FileUtils.readFileAsString(NEW_CMD_DEFAULTS + "/" + "manifest-app.toml");
         // replace manifest distribution with a guessed value
         defaultManifest = defaultManifest
-                .replace(ORG_NAME, ProjectUtils.guessOrgName())
+                .replace(ORG_NAME, org)
                 .replace(PKG_NAME, guessPkgName(packageName, "app"))
                 .replace(DIST_VERSION, RepoUtils.getBallerinaShortVersion());
         Files.writeString(ballerinaToml, defaultManifest);

@@ -51,11 +51,13 @@ import org.wso2.ballerinalang.util.RepoUtils;
 
 import java.io.IOException;
 import java.io.PrintStream;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -88,6 +90,8 @@ public class PackageResolution {
     private List<ModuleContext> topologicallySortedModuleList;
     private Collection<ResolvedPackageDependency> dependenciesWithTransitives;
 
+    private static final Boolean isWindows = System.getProperty("os.name").toLowerCase(Locale.getDefault())
+            .contains("win");
     private PackageResolution(PackageContext rootPackageContext, CompilationOptions compilationOptions) {
         this.rootPackageContext = rootPackageContext;
         this.diagnosticList = new ArrayList<>();
@@ -133,7 +137,8 @@ public class PackageResolution {
 
             // We use the pull command to generate the BIR of the dependency.
             List<String> cmdArgs = new ArrayList<>();
-            cmdArgs.add(System.getProperty(BALLERINA_HOME) + "/bin/bal");
+            String balExecutable = isWindows ? "bal.bat" : "bal";
+            cmdArgs.add(Paths.get(System.getProperty(BALLERINA_HOME), "bin", balExecutable).toString());
             cmdArgs.add("pull");
             cmdArgs.add(STICKY_FLAG + EQUAL + resolutionOptions.sticky());
             cmdArgs.add(OFFLINE_FLAG + EQUAL + resolutionOptions.offline());
@@ -466,7 +471,7 @@ public class PackageResolution {
 
     private ResolutionRequest createFromDepNode(DependencyNode depNode) {
         return ResolutionRequest.from(depNode.pkgDesc(), depNode.scope(), depNode.resolutionType(),
-                resolutionOptions.packageLockingMode());
+                resolutionOptions.packageLockingMode(), depNode.skipWorkspace());
     }
 
     private DependencyGraph<DependencyNode> createDependencyNodeGraph(

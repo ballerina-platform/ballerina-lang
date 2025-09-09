@@ -7,15 +7,21 @@ import io.ballerina.cli.task.CompileTask;
 import io.ballerina.cli.task.CreateBalaTask;
 import io.ballerina.cli.task.DumpBuildTimeTask;
 import io.ballerina.cli.task.ResolveMavenDependenciesTask;
+import io.ballerina.cli.task.ResolveWorkspaceDependenciesTask;
 import io.ballerina.cli.task.RunBuildToolsTask;
 import io.ballerina.cli.utils.BuildTime;
 import io.ballerina.cli.utils.FileUtils;
 import io.ballerina.projects.BuildOptions;
+import io.ballerina.projects.DependencyGraph;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectException;
+import io.ballerina.projects.ProjectKind;
 import io.ballerina.projects.directory.BuildProject;
+import io.ballerina.projects.directory.ProjectLoader;
+import io.ballerina.projects.directory.WorkspaceProject;
 import io.ballerina.projects.internal.ProjectDiagnosticErrorCode;
 import io.ballerina.projects.util.ProjectConstants;
+import io.ballerina.projects.util.ProjectPaths;
 import io.ballerina.projects.util.ProjectUtils;
 import io.ballerina.toml.semantic.TomlType;
 import io.ballerina.toml.semantic.ast.TomlTableNode;
@@ -149,7 +155,6 @@ public class PackCommand implements BLauncherCmd {
     @Override
     public void execute() {
         long start = 0;
-        boolean isSingleFileBuild = false; // Packing cannot be done for single files
 
         if (this.helpFlag) {
             String commandUsageInfo = BLauncherCmd.getCommandUsageInfo(PACK_COMMAND);
@@ -158,11 +163,7 @@ public class PackCommand implements BLauncherCmd {
         }
 
         Project project;
-
-        if (sticky == null) {
-            sticky = false;
-        }
-
+        Path absProjectPath = this.projectPath.toAbsolutePath().normalize();
         BuildOptions buildOptions = constructBuildOptions();
 
         // Throw an error if its a single file
@@ -177,7 +178,11 @@ public class PackCommand implements BLauncherCmd {
                 start = System.currentTimeMillis();
                 BuildTime.getInstance().timestamp = start;
             }
-            project = BuildProject.load(this.projectPath, buildOptions);
+            if (!ProjectPaths.isBuildProjectRoot(projectPath) && !ProjectPaths.isWorkspaceProjectRoot(projectPath)) {
+                throw new ProjectException("invalid package path: " + absProjectPath +
+                        ". Please provide a valid Ballerina package or a workspace.");
+            }
+            project = ProjectLoader.load(projectPath, buildOptions).project();
             if (buildOptions.dumpBuildTime()) {
                 BuildTime.getInstance().projectLoadDuration = System.currentTimeMillis() - start;
             }
@@ -257,29 +262,55 @@ public class PackCommand implements BLauncherCmd {
         // Validate Settings.toml file
         RepoUtils.readSettings();
 
-        // Check package files are modified after last build
-        boolean isPackageModified = isProjectUpdated(project);
+        if (project.kind() == ProjectKind.WORKSPACE_PROJECT) {
+            WorkspaceProject workspaceProject = (WorkspaceProject) project;
+            DependencyGraph<BuildProject> projectDependencyGraph = resolveWorkspaceDependencies(workspaceProject);
+            if (!project.sourceRoot().equals(absProjectPath)) {
+                // If the project path is not the workspace root, filter the topologically sorted list to include only
+                // the projects that are dependencies of the project at the specified path.
+                Optional<BuildProject> buildProjectOptional = projectDependencyGraph.getNodes().stream()
+                        .filter(node -> node.sourceRoot().equals(absProjectPath)).findFirst();
+                executeTasks(true, buildProjectOptional.orElseThrow());
+            } else {
+                for (BuildProject buildProject : projectDependencyGraph.toTopologicallySortedList()) {
+                    executeTasks(true, buildProject);
+                }
+            }
+        } else {
+            // Check package files are modified after last build
+            boolean isPackageModified = isProjectUpdated(project);
+            Optional<Diagnostic> deprecatedDocWarning = ProjectUtils.getProjectLoadingDiagnostic().stream().filter(
+                    diagnostic -> diagnostic.diagnosticInfo().code().equals(
+                            ProjectDiagnosticErrorCode.DEPRECATED_DOC_FILE.diagnosticId())).findAny();
+            deprecatedDocWarning.ifPresent(this.errStream::println);
+            executeTasks(isPackageModified, project);
+        }
 
-        Optional<Diagnostic> deprecatedDocWarning = ProjectUtils.getProjectLoadingDiagnostic().stream().filter(
-                diagnostic -> diagnostic.diagnosticInfo().code().equals(
-                        ProjectDiagnosticErrorCode.DEPRECATED_DOC_FILE.diagnosticId())).findAny();
+        if (this.exitWhenFinish) {
+            Runtime.getRuntime().exit(0);
+        }
+    }
 
-        deprecatedDocWarning.ifPresent(this.errStream::println);
-
+    private void executeTasks(boolean isPackageModified, Project project) {
+        BuildOptions buildOptions = project.buildOptions();
         TaskExecutor taskExecutor = new TaskExecutor.TaskBuilder()
-                .addTask(new CleanTargetDirTask(isPackageModified, buildOptions.enableCache()), isSingleFileBuild)
-                .addTask(new RunBuildToolsTask(outStream), isSingleFileBuild)
+                .addTask(new CleanTargetDirTask(isPackageModified, buildOptions.enableCache()))
+                .addTask(new RunBuildToolsTask(outStream))
                 .addTask(new ResolveMavenDependenciesTask(outStream))
                 .addTask(new CompileTask(outStream, errStream, true, false,
                         isPackageModified, buildOptions.enableCache()))
                 .addTask(new CreateBalaTask(outStream))
                 .addTask(new DumpBuildTimeTask(outStream), !project.buildOptions().dumpBuildTime())
                 .build();
-
         taskExecutor.executeTasks(project);
-        if (this.exitWhenFinish) {
-            Runtime.getRuntime().exit(0);
-        }
+    }
+
+    private DependencyGraph<BuildProject> resolveWorkspaceDependencies(WorkspaceProject workspaceProject) {
+        TaskExecutor taskExecutor = new TaskExecutor.TaskBuilder()
+                .addTask(new ResolveWorkspaceDependenciesTask(outStream))
+                .build();
+        taskExecutor.executeTasks(workspaceProject);
+        return workspaceProject.getResolution().dependencyGraph();
     }
 
     private BuildOptions constructBuildOptions() {

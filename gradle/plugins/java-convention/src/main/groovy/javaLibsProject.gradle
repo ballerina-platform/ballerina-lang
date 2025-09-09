@@ -77,6 +77,7 @@ dependencies {
     dist project(':ballerina-lang:future')
     dist project(':ballerina-lang:integer')
     dist project(':ballerina-lang:map')
+    dist project(':ballerina-lang:natural')
     dist project(':ballerina-lang:object')
     dist project(':ballerina-lang:stream')
     dist project(':ballerina-lang:table')

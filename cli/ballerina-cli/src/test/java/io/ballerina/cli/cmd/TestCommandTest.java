@@ -136,19 +136,21 @@ public class TestCommandTest extends BaseCommandTest {
 
         String buildLog = readOutput(true);
         Assert.assertTrue(buildLog.replace("\r", "")
-                .contains("Invalid Ballerina source file(.bal): " + nonBalFilePath));
+                .contains("invalid package path: " + nonBalFilePath +
+                        ". Please provide a valid Ballerina package, workspace or a standalone file."), buildLog);
     }
 
     @Test(description = "Test non existing bal file")
     public void testNonExistingBalFile() throws IOException {
         // valid source root path
-        Path validBalFilePath = this.testResources.resolve("valid-non-bal-file/xyz.bal");
-        TestCommand testCommand = new TestCommand(validBalFilePath, printStream, printStream, false);
-        new CommandLine(testCommand).parseArgs(validBalFilePath.toString());
+        Path balFilePath = this.testResources.resolve("valid-non-bal-file/xyz.bal");
+        TestCommand testCommand = new TestCommand(balFilePath, printStream, printStream, false);
+        new CommandLine(testCommand).parseArgs(balFilePath.toString());
         testCommand.execute();
         String buildLog = readOutput(true);
         Assert.assertTrue(buildLog.replace("\r", "")
-                .contains("The file does not exist: " + validBalFilePath));
+                .contains("invalid package path: " + balFilePath +
+                        ". Please provide a valid Ballerina package, workspace or a standalone file."), buildLog);
 
     }
 
@@ -732,6 +734,41 @@ public class TestCommandTest extends BaseCommandTest {
             String buildLog = readOutput(true);
             Assert.assertTrue(buildLog.contains("WARNING: Package is not compatible with GraalVM."));
         }
+    }
+
+    @Test(description = "Execute tests of a workspace")
+    public void testWorkspaceProject() throws IOException {
+        Path projectPath = this.testResources.resolve("workspaces/wp-with-tests");
+        System.setProperty(ProjectConstants.USER_DIR, projectPath.toString());
+        TestCommand testCommand = new TestCommand(projectPath, printStream, printStream, false);
+        new CommandLine(testCommand);
+        testCommand.execute();
+        String output = readOutput().replace("\r", "");
+        Assert.assertTrue(output.contains(getOutput("wp-with-tests.txt")), output);
+    }
+
+    @Test(description = "Execute tests of a specific package in the workspace")
+    public void testSpecificPackageInTheWorkspace() throws IOException {
+        Path projectRoot = this.testResources.resolve("workspaces/wp-with-tests");
+        Path projectPath = projectRoot.resolve("hello-app");
+        System.setProperty(ProjectConstants.USER_DIR, projectPath.toString());
+        TestCommand testCommand = new TestCommand(projectPath, printStream, printStream, false);
+        new CommandLine(testCommand);
+        testCommand.execute();
+        String output = readOutput().replace("\r", "");
+        Assert.assertTrue(output.contains(getOutput("wp-with-tests-hello-app.txt")), output);
+    }
+
+    @Test(description = "Execute tests of a specific package in the workspace that has no tests")
+    public void testSpecificPackageWithNoTestsInTheWorkspace() throws IOException {
+        Path projectRoot = this.testResources.resolve("workspaces/wp-with-tests");
+        Path projectPath = projectRoot.resolve("bye");
+        System.setProperty(ProjectConstants.USER_DIR, projectPath.toString());
+        TestCommand testCommand = new TestCommand(projectPath, printStream, printStream, false);
+        new CommandLine(testCommand);
+        testCommand.execute();
+        String output = readOutput().replace("\r", "");
+        Assert.assertTrue(output.contains(getOutput("wp-with-tests-bye.txt")), output);
     }
 
 

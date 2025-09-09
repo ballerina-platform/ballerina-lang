@@ -54,7 +54,7 @@ public class ResolveMavenDependenciesTask implements Task {
     public void execute(Project project) {
         List<Map<String, Object>> platformLibraries = new ArrayList<>();
         List<Map<String, Object>> platformRepositories = new ArrayList<>();
-        PackageManifest.Platform platform = null;
+        PackageManifest.Platform platform;
         for (JvmTarget jvmTarget : JvmTarget.values()) {
             platform = project.currentPackage().manifest().platform(jvmTarget.code());
             if (platform != null) {
