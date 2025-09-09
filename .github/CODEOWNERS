@@ -3,7 +3,7 @@
 
 # See: https://help.github.com/articles/about-codeowners/
 
-*       @gimantha
+*       @keizer619 @gimantha 
 
 # Components
 /compiler/ @sameerajayasoma @hasithaa @gimantha @MaryamZi
