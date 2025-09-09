@@ -926,8 +926,6 @@ public class ManifestBuilder {
                 BuildOptions.OptionName.LIST_CONFLICTED_CLASSES.toString());
         String targetDir = getStringFromBuildOptionsTableNode(tableNode,
                 BuildOptions.OptionName.TARGET_DIR.toString());
-        Boolean enableCache = getBooleanFromBuildOptionsTableNode(tableNode,
-                BuildOptions.OptionName.ENABLE_CACHE.toString());
         Boolean nativeImage = getBooleanFromBuildOptionsTableNode(tableNode,
                 BuildOptions.OptionName.NATIVE_IMAGE.toString());
         Boolean exportComponentModel = getBooleanFromBuildOptionsTableNode(tableNode,
@@ -953,7 +951,6 @@ public class ManifestBuilder {
                 .setListConflictedClasses(listConflictedClasses)
                 .setDumpBuildTime(dumpBuildTime)
                 .setSticky(sticky)
-                .setEnableCache(enableCache)
                 .setNativeImage(nativeImage)
                 .setExportComponentModel(exportComponentModel)
                 .setGraalVMBuildOptions(graalVMBuildOptions)

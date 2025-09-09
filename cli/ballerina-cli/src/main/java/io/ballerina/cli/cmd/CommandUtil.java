@@ -1301,20 +1301,18 @@ public final class CommandUtil {
         return !providedDeps.isEmpty();
     }
 
-
     public static boolean isPrevCurrCmdCompatible(BuildOptions buildOptions, BuildOptions prevBuildOptions) {
        // Didn't add the sticky check as sticky is the default behaviour within 24Hr(regardless of sticky is false/true)
-       return  prevBuildOptions.offlineBuild() == buildOptions.offlineBuild() &&
-               prevBuildOptions.optimizeDependencyCompilation() == buildOptions.optimizeDependencyCompilation() &&
-               prevBuildOptions.experimental() == buildOptions.experimental() &&
-               prevBuildOptions.remoteManagement() == buildOptions.remoteManagement() &&
-               buildOptions.lockingMode().equals(prevBuildOptions.lockingMode()) &&
-               buildOptions.observabilityIncluded() == prevBuildOptions.observabilityIncluded();
+       return prevBuildOptions.offlineBuild() != buildOptions.offlineBuild() ||
+               prevBuildOptions.optimizeDependencyCompilation() != buildOptions.optimizeDependencyCompilation() ||
+               prevBuildOptions.experimental() != buildOptions.experimental() ||
+               prevBuildOptions.remoteManagement() != buildOptions.remoteManagement() ||
+               !buildOptions.lockingMode().equals(prevBuildOptions.lockingMode()) ||
+               buildOptions.observabilityIncluded() != prevBuildOptions.observabilityIncluded();
     }
 
 
-    public static boolean isFilesModifiedSinceLastBuild(BuildJson buildJson, Project project, boolean isTestExecution,
-                                                        boolean isWorkSpaceBuild)
+    public static boolean isFilesModifiedSinceLastBuild(BuildJson buildJson, Project project, boolean isTestExecution)
             throws IOException {
         List<File> srcFilesToEvaluate = getSrcFiles(project);
         List<File> testSrcFilesToEvaluate = getTestSrcFiles(project);
@@ -1331,8 +1329,7 @@ public final class CommandUtil {
         if (isBallerinaTomlFileModified(buildJson, project)) {
             return true;
         }
-        return isTestExecution ? isTestArtifactsModified(buildJson, project) : isExecutableModified(buildJson, project,
-                isWorkSpaceBuild);
+        return isTestExecution ? isTestArtifactsModified(buildJson, project) : isExecutableModified(buildJson, project);
     }
 
     private static boolean isBallerinaTomlFileModified(BuildJson buildJson, Project project)  {
@@ -1512,7 +1509,7 @@ public final class CommandUtil {
         return filesToEvaluate;
     }
 
-    private static boolean isExecutableModified(BuildJson buildJson, Project project, boolean isWorkSpaceBuild) {
+    private static boolean isExecutableModified(BuildJson buildJson, Project project) {
         try {
             Target target = new Target(project.targetDir());
             File execFile = target.getExecutablePath(project.currentPackage()).toAbsolutePath().toFile();
@@ -1529,7 +1526,7 @@ public final class CommandUtil {
                 return !getSHA256Digest(execFile).equals(targetExecMetaInfo.getHash());
             }
             // It's from workspace build dependency
-            return !isWorkSpaceBuild || buildJson.getTargetExecMetaInfo() != null;
+            return buildJson.getTargetExecMetaInfo() != null;
         } catch (IOException | NoSuchAlgorithmException e) {
             return true;
         }

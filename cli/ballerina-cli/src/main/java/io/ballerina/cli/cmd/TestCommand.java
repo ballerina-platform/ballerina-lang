@@ -61,7 +61,6 @@ import java.util.Objects;
 import static io.ballerina.cli.cmd.Constants.TEST_COMMAND;
 import static io.ballerina.cli.launcher.LauncherUtils.createLauncherException;
 import static io.ballerina.projects.util.ProjectConstants.BUILD_FILE;
-import static io.ballerina.projects.util.ProjectUtils.isProjectUpdated;
 import static io.ballerina.projects.util.ProjectUtils.readBuildJson;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.SYSTEM_PROP_BAL_DEBUG;
 import static org.ballerinalang.test.runtime.util.TesterinaConstants.JACOCO_XML_FORMAT;
@@ -212,9 +211,6 @@ public class TestCommand implements BLauncherCmd {
     @CommandLine.Option(names = "--dump-raw-graphs", description = "Print all intermediate graphs created in the " +
             "dependency resolution process.", hidden = true)
     private boolean dumpRawGraphs;
-
-    @CommandLine.Option(names = "--enable-cache", description = "enable caches for the compilation", hidden = true)
-    private Boolean enableCache;
 
     @CommandLine.Option(names = "--graalvm", description = "enable running test suite against native image")
     private Boolean nativeImage;
@@ -369,6 +365,40 @@ public class TestCommand implements BLauncherCmd {
             this.outStream.println("WARNING: Test report generation is not supported with Ballerina cloud test");
         }
 
+        boolean isTestingDelegated = project.buildOptions().cloud().equals("docker");
+        AtomicInteger testResult = new AtomicInteger(0);
+
+        if (project.kind() == ProjectKind.WORKSPACE_PROJECT) {
+            WorkspaceProject workspaceProject = (WorkspaceProject) project;
+            DependencyGraph<BuildProject> projectDependencyGraph = resolveWorkspaceDependencies(workspaceProject);
+            if (!project.sourceRoot().equals(absProjectPath)) {
+                // If the project path is not the workspace root, filter the topologically sorted list to include only
+                // the projects that are dependencies of the project at the specified path.
+                Optional<BuildProject> buildProjectOptional = projectDependencyGraph.getNodes().stream()
+                        .filter(node -> node.sourceRoot().equals(absProjectPath)).findFirst();
+
+                executeTasks(false, isTestingDelegated, buildProjectOptional.orElseThrow(), testResult, cliArgs);
+            } else {
+                for (BuildProject buildProject : projectDependencyGraph.toTopologicallySortedList()) {
+                    executeTasks(false, isTestingDelegated, buildProject, testResult, cliArgs);
+                }
+            }
+        } else {
+            executeTasks(project.kind().equals(ProjectKind.SINGLE_FILE_PROJECT), isTestingDelegated, project,
+                    testResult, cliArgs);
+        }
+
+        if (testResult.get() != 0) {
+            throw createLauncherException("there are test failures");
+        }
+
+        if (this.exitWhenFinish) {
+            Runtime.getRuntime().exit(0);
+        }
+    }
+
+    private void executeTasks(boolean skip, boolean isTestingDelegated,
+                              Project project, AtomicInteger testResult, String[] cliArgs) {
         Path buildFilePath = project.targetDir().resolve(BUILD_FILE);
         boolean rebuildStatus = true;
         String prevTestClassPath = "";
@@ -381,42 +411,6 @@ public class TestCommand implements BLauncherCmd {
             //ignore exception
         }
 
-        boolean isTestingDelegated = project.buildOptions().cloud().equals("docker");
-        AtomicInteger testResult = new AtomicInteger(0);
-
-        if (project.kind() == ProjectKind.WORKSPACE_PROJECT) {
-            WorkspaceProject workspaceProject = (WorkspaceProject) project;
-            DependencyGraph<BuildProject> projectDependencyGraph = resolveWorkspaceDependencies(workspaceProject);
-            if (!project.sourceRoot().equals(absProjectPath)) {
-                // If the project path is not the workspace root, filter the topologically sorted list to include only
-                // the projects that are dependencies of the project at the specified path.
-                Optional<BuildProject> buildProjectOptional = projectDependencyGraph.getNodes().stream()
-                        .filter(node -> node.sourceRoot().equals(absProjectPath)).findFirst();
-                executeTasks(true, false, isTestingDelegated, buildProjectOptional.orElseThrow(),
-                        prevTestClassPath, testResult, cliArgs);
-            } else {
-                for (BuildProject buildProject : projectDependencyGraph.toTopologicallySortedList()) {
-                    executeTasks(true, false, isTestingDelegated, buildProject, prevTestClassPath,
-                            testResult, cliArgs);
-                }
-            }
-        } else {
-            boolean isPackageModified = isProjectUpdated(project);
-            executeTasks(isPackageModified, project.kind().equals(ProjectKind.SINGLE_FILE_PROJECT),
-                    isTestingDelegated, project, prevTestClassPath, testResult, cliArgs);
-        }
-
-        if (testResult.get() != 0) {
-            throw createLauncherException("there are test failures");
-        }
-
-        if (this.exitWhenFinish) {
-            Runtime.getRuntime().exit(0);
-        }
-    }
-
-    private void executeTasks(boolean rebuildStatus, boolean skip, boolean isTestingDelegated,
-                              Project project, String prevTestClassPath, AtomicInteger testResult, String[] cliArgs) {
         // Run pre-build tasks to have the project reloaded.
         // In code coverage generation, the module map is duplicated.
         // Therefore, the project needs to be reloaded beforehand to provide the latest project instance
@@ -440,8 +434,7 @@ public class TestCommand implements BLauncherCmd {
                 // resolve maven dependencies in Ballerina.toml
                 .addTask(new ResolveMavenDependenciesTask(outStream, !rebuildStatus))
                 // compile the modules
-                .addTask(new CompileTask(outStream, errStream, false, false,
-                        true, false, !rebuildStatus))
+                .addTask(new CompileTask(outStream, errStream, false, false, !rebuildStatus))
                 .addTask(new CreateTestExecutableTask(outStream, groupList, disableGroupList, testList, listGroups,
                         cliArgs, isParallelExecution), !isTestingDelegated)
                 .addTask(new RunTestsTask(outStream, errStream, rerunTests, groupList, disableGroupList,
@@ -466,7 +459,6 @@ public class TestCommand implements BLauncherCmd {
     }
 
     private boolean isRebuildNeeded(Project project, BuildJson buildJson) {
-
         try {
             if (!Objects.equals(buildJson.distributionVersion(), RepoUtils.getBallerinaVersion())) {
                 return true;
@@ -474,7 +466,7 @@ public class TestCommand implements BLauncherCmd {
             if (buildJson.isExpiredLastUpdateTime()) {
                 return true;
             }
-            if (CommandUtil.isFilesModifiedSinceLastBuild(buildJson, project, true, false)) {
+            if (CommandUtil.isFilesModifiedSinceLastBuild(buildJson, project, true)) {
                 return true;
             }
             if (isRebuildForCurrCmd()) {
@@ -485,7 +477,7 @@ public class TestCommand implements BLauncherCmd {
                     project.buildOptions().codeCoverage()) {
                 return true;
             }
-            return !CommandUtil.isPrevCurrCmdCompatible(project.buildOptions(), buildJson.getBuildOptions());
+            return CommandUtil.isPrevCurrCmdCompatible(project.buildOptions(), buildJson.getBuildOptions());
         } catch (IOException e) {
             // ignore
         }
@@ -496,7 +488,6 @@ public class TestCommand implements BLauncherCmd {
         return  this.dumpGraph
                 || this.dumpRawGraphs
                 || this.targetDir != null
-                || Boolean.TRUE.equals(this.enableCache)
                 || Boolean.TRUE.equals(this.disableSyntaxTreeCaching)
                 || Boolean.TRUE.equals(this.dumpBuildTime)
                 || Boolean.TRUE.equals(this.showDependencyDiagnostics);
@@ -518,7 +509,6 @@ public class TestCommand implements BLauncherCmd {
                 .setDumpGraph(dumpGraph)
                 .setDumpRawGraphs(dumpRawGraphs)
                 .setNativeImage(nativeImage)
-                .setEnableCache(enableCache)
                 .disableSyntaxTreeCaching(disableSyntaxTreeCaching)
                 .setGraalVMBuildOptions(graalVMBuildOptions)
                 .setShowDependencyDiagnostics(showDependencyDiagnostics)

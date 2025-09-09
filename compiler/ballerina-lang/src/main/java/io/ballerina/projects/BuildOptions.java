@@ -31,13 +31,12 @@ public class BuildOptions {
     private final Boolean skipTests;
     private final CompilationOptions compilationOptions;
     private final String targetDir;
-    private final Boolean enableCache;
     private final Boolean nativeImage;
     private final Boolean exportComponentModel;
     private final String graalVMBuildOptions;
 
     BuildOptions(Boolean testReport, Boolean codeCoverage, Boolean dumpBuildTime, Boolean skipTests,
-                 CompilationOptions compilationOptions, String targetPath, Boolean enableCache,
+                 CompilationOptions compilationOptions, String targetPath,
                  Boolean nativeImage, Boolean exportComponentModel, String graalVMBuildOptions,
                  Boolean showDependencyDiagnostics) {
         this.testReport = testReport;
@@ -46,7 +45,6 @@ public class BuildOptions {
         this.skipTests = skipTests;
         this.compilationOptions = compilationOptions;
         this.targetDir = targetPath;
-        this.enableCache = enableCache;
         this.nativeImage = nativeImage;
         this.exportComponentModel = exportComponentModel;
         this.graalVMBuildOptions = graalVMBuildOptions;
@@ -127,10 +125,6 @@ public class BuildOptions {
         return this.compilationOptions.exportComponentModel();
     }
 
-    public boolean enableCache() {
-        return this.compilationOptions.enableCache();
-    }
-
     public boolean nativeImage() {
         return toBooleanDefaultIfNull(this.nativeImage);
     }
@@ -176,11 +170,6 @@ public class BuildOptions {
         } else {
             buildOptionsBuilder.targetDir(this.targetDir);
         }
-        if (theirOptions.enableCache != null) {
-            buildOptionsBuilder.setEnableCache(theirOptions.enableCache);
-        } else {
-            buildOptionsBuilder.setEnableCache(this.enableCache);
-        }
         if (theirOptions.nativeImage != null) {
             buildOptionsBuilder.setNativeImage(theirOptions.nativeImage);
         } else {
@@ -216,7 +205,6 @@ public class BuildOptions {
         buildOptionsBuilder.setConfigSchemaGen(compilationOptions.configSchemaGen);
         buildOptionsBuilder.setExportOpenAPI(compilationOptions.exportOpenAPI);
         buildOptionsBuilder.setExportComponentModel(compilationOptions.exportComponentModel);
-        buildOptionsBuilder.setEnableCache(compilationOptions.enableCache);
         buildOptionsBuilder.setRemoteManagement(compilationOptions.remoteManagement);
         buildOptionsBuilder.setOptimizeDependencyCompilation(compilationOptions.optimizeDependencyCompilation);
         buildOptionsBuilder.setLockingMode(compilationOptions.lockingMode);
@@ -266,7 +254,6 @@ public class BuildOptions {
         GRAAL_VM_BUILD_OPTIONS("graalvmBuildOptions"),
         SHOW_DEPENDENCY_DIAGNOSTICS("showDependencyDiagnostics"),
         OPTIMIZE_DEPENDENCY_COMPILATION("optimizeDependencyCompilation"),
-        ENABLE_CACHE("enableCache"),
         REMOTE_MANAGEMENT("remoteManagement"),
         CLOUD("cloud");
 
@@ -294,7 +281,6 @@ public class BuildOptions {
         private Boolean dumpBuildTime;
         private Boolean skipTests;
         private String targetPath;
-        private Boolean enableCache;
         private final CompilationOptions.CompilationOptionsBuilder compilationOptionsBuilder;
         private Boolean nativeImage;
         private Boolean exportComponentModel;
@@ -411,12 +397,6 @@ public class BuildOptions {
             return this;
         }
 
-        public BuildOptionsBuilder setEnableCache(Boolean value) {
-            compilationOptionsBuilder.setEnableCache(value);
-            enableCache = value;
-            return this;
-        }
-
         public BuildOptionsBuilder setNativeImage(Boolean value) {
             nativeImage = value;
             return this;
@@ -451,7 +431,7 @@ public class BuildOptions {
         public BuildOptions build() {
             CompilationOptions compilationOptions = compilationOptionsBuilder.build();
             return new BuildOptions(testReport, codeCoverage, dumpBuildTime, skipTests, compilationOptions,
-                    targetPath, enableCache, nativeImage, exportComponentModel, graalVMBuildOptions,
+                    targetPath, nativeImage, exportComponentModel, graalVMBuildOptions,
                     showDependencyDiagnostics);
         }
     }

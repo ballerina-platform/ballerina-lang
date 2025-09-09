@@ -37,7 +37,6 @@ import java.util.Optional;
 
 import static io.ballerina.cli.cmd.Constants.PACK_COMMAND;
 import static io.ballerina.projects.internal.ManifestBuilder.getStringValueFromTomlTableNode;
-import static io.ballerina.projects.util.ProjectUtils.isProjectUpdated;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.SYSTEM_PROP_BAL_DEBUG;
 
 /**
@@ -92,9 +91,6 @@ public class PackCommand implements BLauncherCmd {
 
     @CommandLine.Option(names = "--generate-config-schema", hidden = true)
     private Boolean configSchemaGen;
-
-    @CommandLine.Option(names = "--enable-cache", description = "enable caches for the compilation", hidden = true)
-    private Boolean enableCache;
 
     @CommandLine.Option(names = "--disable-syntax-tree-caching", hidden = true, description = "disable syntax tree " +
             "caching for source files", defaultValue = "false")
@@ -270,20 +266,19 @@ public class PackCommand implements BLauncherCmd {
                 // the projects that are dependencies of the project at the specified path.
                 Optional<BuildProject> buildProjectOptional = projectDependencyGraph.getNodes().stream()
                         .filter(node -> node.sourceRoot().equals(absProjectPath)).findFirst();
-                executeTasks(true, buildProjectOptional.orElseThrow());
+                executeTasks(buildProjectOptional.orElseThrow());
             } else {
                 for (BuildProject buildProject : projectDependencyGraph.toTopologicallySortedList()) {
-                    executeTasks(true, buildProject);
+                    executeTasks(buildProject);
                 }
             }
         } else {
             // Check package files are modified after last build
-            boolean isPackageModified = isProjectUpdated(project);
             Optional<Diagnostic> deprecatedDocWarning = ProjectUtils.getProjectLoadingDiagnostic().stream().filter(
                     diagnostic -> diagnostic.diagnosticInfo().code().equals(
                             ProjectDiagnosticErrorCode.DEPRECATED_DOC_FILE.diagnosticId())).findAny();
             deprecatedDocWarning.ifPresent(this.errStream::println);
-            executeTasks(isPackageModified, project);
+            executeTasks(project);
         }
 
         if (this.exitWhenFinish) {
@@ -291,14 +286,12 @@ public class PackCommand implements BLauncherCmd {
         }
     }
 
-    private void executeTasks(boolean isPackageModified, Project project) {
-        BuildOptions buildOptions = project.buildOptions();
+    private void executeTasks(Project project) {
         TaskExecutor taskExecutor = new TaskExecutor.TaskBuilder()
-                .addTask(new CleanTargetDirTask(isPackageModified, buildOptions.enableCache()))
+                .addTask(new CleanTargetDirTask())
                 .addTask(new RunBuildToolsTask(outStream))
                 .addTask(new ResolveMavenDependenciesTask(outStream))
-                .addTask(new CompileTask(outStream, errStream, true, false,
-                        isPackageModified, buildOptions.enableCache()))
+                .addTask(new CompileTask(outStream, errStream, true, false))
                 .addTask(new CreateBalaTask(outStream))
                 .addTask(new DumpBuildTimeTask(outStream), !project.buildOptions().dumpBuildTime())
                 .build();
@@ -325,7 +318,6 @@ public class PackCommand implements BLauncherCmd {
                 .setDumpBuildTime(dumpBuildTime)
                 .setSticky(sticky)
                 .setConfigSchemaGen(configSchemaGen)
-                .setEnableCache(enableCache)
                 .disableSyntaxTreeCaching(disableSyntaxTreeCaching)
                 .setShowDependencyDiagnostics(showDependencyDiagnostics)
                 .setOptimizeDependencyCompilation(optimizeDependencyCompilation)

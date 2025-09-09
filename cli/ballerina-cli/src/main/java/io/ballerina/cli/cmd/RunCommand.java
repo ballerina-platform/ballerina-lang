@@ -24,7 +24,6 @@ import io.ballerina.cli.task.CleanTargetDirTask;
 import io.ballerina.cli.task.CompileTask;
 import io.ballerina.cli.task.CreateExecutableTask;
 import io.ballerina.cli.task.CreateFingerprintTask;
-import io.ballerina.cli.task.CreateFingerprintTask;
 import io.ballerina.cli.task.DumpBuildTimeTask;
 import io.ballerina.cli.task.ResolveMavenDependenciesTask;
 import io.ballerina.cli.task.ResolveWorkspaceDependenciesTask;
@@ -64,7 +63,6 @@ import java.util.Objects;
 import static io.ballerina.cli.cmd.Constants.RUN_COMMAND;
 import static io.ballerina.cli.launcher.LauncherUtils.createLauncherException;
 import static io.ballerina.projects.util.ProjectConstants.BUILD_FILE;
-import static io.ballerina.projects.util.ProjectUtils.isProjectUpdated;
 import static io.ballerina.projects.util.ProjectUtils.readBuildJson;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.SYSTEM_PROP_BAL_DEBUG;
 
@@ -132,9 +130,6 @@ public class RunCommand implements BLauncherCmd {
 
     @CommandLine.Option(names = "--target-dir", description = "target directory path")
     private Path targetDir;
-
-    @CommandLine.Option(names = "--enable-cache", description = "enable caches for the compilation", hidden = true)
-    private Boolean enableCache;
 
     @CommandLine.Option(names = "--disable-syntax-tree-caching", hidden = true, description = "disable syntax tree " +
             "caching for source files", defaultValue = "false")
@@ -307,14 +302,10 @@ public class RunCommand implements BLauncherCmd {
             if (buildProjectOptional.isEmpty()) {
                 throw createLauncherException("no package found at the specified path: " + absProjectPath);
             }
-            boolean isPackageModified = isProjectUpdated(buildProjectOptional.get());
-            executeTasks(isPackageModified, project.buildOptions(), false, target, args,
-                    buildProjectOptional.get());
+            executeTasks(false, target, args, buildProjectOptional.get());
 
         } else {
-            boolean rebuildStatus = isRebuildNeeded(project);
-            executeTasks(rebuildStatus, buildOptions, project.kind().equals(ProjectKind.SINGLE_FILE_PROJECT),
-                    target, args, project);
+            executeTasks(project.kind().equals(ProjectKind.SINGLE_FILE_PROJECT), target, args, project);
         }
     }
 
@@ -326,19 +317,18 @@ public class RunCommand implements BLauncherCmd {
         return workspaceProject.getResolution().dependencyGraph();
     }
 
-    private void executeTasks(boolean rebuildStatus, BuildOptions buildOptions, boolean isSingleFileBuild,
-                              Target target, String[] args, Project project) {
+    private void executeTasks(boolean isSingleFileBuild, Target target, String[] args, Project project) {
+        boolean rebuildStatus = isRebuildNeeded(project);
         TaskExecutor taskExecutor = new TaskExecutor.TaskBuilder()
                 // clean target dir for projects
-                .addTask(new CleanTargetDirTask(true, buildOptions.enableCache()), !rebuildStatus
+                .addTask(new CleanTargetDirTask(), !rebuildStatus
                         || isSingleFileBuild)
                 // Run build tools
                 .addTask(new RunBuildToolsTask(outStream, !rebuildStatus), isSingleFileBuild)
                 // resolve maven dependencies in Ballerina.toml
                 .addTask(new ResolveMavenDependenciesTask(outStream, !rebuildStatus))
                 // compile the modules
-                .addTask(new CompileTask(outStream, errStream, false, false,
-                        true, buildOptions.enableCache(), !rebuildStatus))
+                .addTask(new CompileTask(outStream, errStream, false, false, !rebuildStatus))
                 .addTask(new CreateExecutableTask(outStream, null, target, true, !rebuildStatus))
                 .addTask(new CreateFingerprintTask(false, false), !rebuildStatus || isSingleFileBuild)
                 .addTask(runExecutableTask = new RunExecutableTask(args, outStream, errStream, target))
@@ -357,13 +347,13 @@ public class RunCommand implements BLauncherCmd {
             if (buildJson.isExpiredLastUpdateTime()) {
                 return true;
             }
-            if (CommandUtil.isFilesModifiedSinceLastBuild(buildJson, project, false, false)) {
+            if (CommandUtil.isFilesModifiedSinceLastBuild(buildJson, project, false)) {
                 return true;
             }
             if (isRebuildForCurrCmd()) {
                 return true;
             }
-            return !CommandUtil.isPrevCurrCmdCompatible(project.buildOptions(), buildJson.getBuildOptions());
+            return CommandUtil.isPrevCurrCmdCompatible(project.buildOptions(), buildJson.getBuildOptions());
         } catch (IOException e) {
             // ignore
         }
@@ -378,7 +368,6 @@ public class RunCommand implements BLauncherCmd {
                 || this.dumpRawGraphs
                 || Boolean.TRUE.equals(this.configSchemaGen)
                 || this.targetDir != null
-                || Boolean.TRUE.equals(this.enableCache)
                 || Boolean.TRUE.equals(this.disableSyntaxTreeCaching)
                 || Boolean.TRUE.equals(this.dumpBuildTime)
                 || Boolean.TRUE.equals(this.showDependencyDiagnostics);

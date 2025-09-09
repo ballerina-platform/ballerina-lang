@@ -268,8 +268,7 @@ class ModuleContext {
         // TODO This logic needs to be updated. We need a proper way to decide on the initial state
         if (compilationCache.getBir(moduleDescriptor.name()).length == 0) {
             moduleCompState = ModuleCompilationState.LOADED_FROM_SOURCES;
-        } else if (this.project().kind() == ProjectKind.BUILD_PROJECT
-                && !this.project.buildOptions().enableCache()) {
+        } else if (this.project().kind() == ProjectKind.BUILD_PROJECT) {
             moduleCompState = ModuleCompilationState.LOADED_FROM_SOURCES;
         } else {
             moduleCompState = ModuleCompilationState.LOADED_FROM_CACHE;
@@ -484,8 +483,7 @@ class ModuleContext {
         if (moduleContext.project.buildOptions().compilationOptions().dumpBirFile()) {
             return true;
         }
-        return moduleContext.project.kind().equals(ProjectKind.BUILD_PROJECT)
-                && moduleContext.project().buildOptions().enableCache();
+        return moduleContext.project.kind().equals(ProjectKind.BUILD_PROJECT);
     }
 
     private static ByteArrayOutputStream generateBIR(ModuleContext moduleContext, CompilerContext compilerContext) {

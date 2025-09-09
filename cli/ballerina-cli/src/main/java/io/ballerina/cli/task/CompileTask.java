@@ -65,42 +65,28 @@ public class CompileTask implements Task {
     private final transient PrintStream err;
     private final boolean compileForBalPack;
     private final boolean compileForBalBuild;
-    private final boolean isPackageModified;
-    private final boolean cachesEnabled;
     private final boolean skipTask;
 
     public CompileTask(PrintStream out, PrintStream err) {
-        this(out, err, false, false, true, false);
+        this(out, err, false, false);
+    }
+
+    public CompileTask(PrintStream out,
+                       PrintStream err,
+                       boolean compileForBalPack,
+                       boolean compileForBalBuild) {
+        this(out, err, compileForBalPack, compileForBalBuild, false);
     }
 
     public CompileTask(PrintStream out,
                        PrintStream err,
                        boolean compileForBalPack,
                        boolean compileForBalBuild,
-                       boolean isPackageModified,
-                       boolean cachesEnabled) {
-        this.out = out;
-        this.err = err;
-        this.compileForBalPack = compileForBalPack;
-        this.compileForBalBuild = compileForBalBuild;
-        this.isPackageModified = isPackageModified;
-        this.cachesEnabled = cachesEnabled;
-        this.skipTask = false;
-    }
-
-    public CompileTask(PrintStream out,
-                       PrintStream err,
-                       boolean compileForBalPack,
-                       boolean compileForBalBuild,
-                       boolean isPackageModified,
-                       boolean cachesEnabled,
                        boolean skipTask) {
         this.out = out;
         this.err = err;
         this.compileForBalPack = compileForBalPack;
         this.compileForBalBuild = compileForBalBuild;
-        this.isPackageModified = isPackageModified;
-        this.cachesEnabled = cachesEnabled;
         this.skipTask = skipTask;
     }
     @Override
@@ -175,23 +161,21 @@ public class CompileTask implements Task {
                         // SingleFileProject cannot hold additional sources or resources
                         // and BalaProjects is a read-only project.r
                         // Hence, we run the code generators only for BuildProject.
-                        if (this.isPackageModified || !this.cachesEnabled) {
-                            // Run code gen and modify plugins, if project has updated only
-                            CodeGeneratorResult codeGeneratorResult = project.currentPackage()
-                                    .runCodeGeneratorPlugins();
-                            diagnostics.addAll(codeGeneratorResult.reportedDiagnostics().diagnostics());
-                            if (project.buildOptions().dumpBuildTime()) {
-                                BuildTime.getInstance().codeGeneratorPluginDuration =
-                                        System.currentTimeMillis() - start;
-                                start = System.currentTimeMillis();
-                            }
-                            CodeModifierResult codeModifierResult = project.currentPackage()
-                                    .runCodeModifierPlugins();
-                            diagnostics.addAll(codeModifierResult.reportedDiagnostics().diagnostics());
-                            if (project.buildOptions().dumpBuildTime()) {
-                                BuildTime.getInstance().codeModifierPluginDuration =
-                                        System.currentTimeMillis() - start;
-                            }
+                        // Run code gen and modify plugins, if project has updated only
+                        CodeGeneratorResult codeGeneratorResult = project.currentPackage()
+                                .runCodeGeneratorPlugins();
+                        diagnostics.addAll(codeGeneratorResult.reportedDiagnostics().diagnostics());
+                        if (project.buildOptions().dumpBuildTime()) {
+                            BuildTime.getInstance().codeGeneratorPluginDuration =
+                                    System.currentTimeMillis() - start;
+                            start = System.currentTimeMillis();
+                        }
+                        CodeModifierResult codeModifierResult = project.currentPackage()
+                                .runCodeModifierPlugins();
+                        diagnostics.addAll(codeModifierResult.reportedDiagnostics().diagnostics());
+                        if (project.buildOptions().dumpBuildTime()) {
+                            BuildTime.getInstance().codeModifierPluginDuration =
+                                    System.currentTimeMillis() - start;
                         }
                     }
                 }

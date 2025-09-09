@@ -43,7 +43,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static io.ballerina.cli.cmd.Constants.PROFILE_COMMAND;
-import static io.ballerina.projects.util.ProjectUtils.isProjectUpdated;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.SYSTEM_PROP_BAL_DEBUG;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.SYSTEM_PROP_PROFILE_DEBUG;
 
@@ -78,9 +77,6 @@ public class ProfileCommand implements BLauncherCmd {
 
     @CommandLine.Option(names = "--target-dir", description = "target directory path")
     private Path targetDir;
-
-    @CommandLine.Option(names = "--enable-cache", description = "enable caches for the compilation", hidden = true)
-    private Boolean enableCache;
 
     @CommandLine.Option(names = "--disable-syntax-tree-caching", hidden = true, description = "disable syntax tree " +
             "caching for source files", defaultValue = "false")
@@ -125,9 +121,7 @@ public class ProfileCommand implements BLauncherCmd {
             CommandUtil.exitError(this.exitWhenFinish);
             return;
         }
-        boolean isPackageModified = isProjectUpdated(project);
-        TaskExecutor taskExecutor = createTaskExecutor(isPackageModified, args, buildOptions,
-                project.kind() == ProjectKind.SINGLE_FILE_PROJECT);
+        TaskExecutor taskExecutor = createTaskExecutor(project.kind() == ProjectKind.SINGLE_FILE_PROJECT);
         taskExecutor.executeTasks(project);
     }
 
@@ -192,14 +186,12 @@ public class ProfileCommand implements BLauncherCmd {
         }
     }
 
-    private TaskExecutor createTaskExecutor(boolean isPackageModified, String[] args, BuildOptions buildOptions,
-                                            boolean isSingleFileBuild) {
+    private TaskExecutor createTaskExecutor(boolean isSingleFileBuild) {
         return new TaskExecutor.TaskBuilder()
-                .addTask(new CleanTargetDirTask(isPackageModified, buildOptions.enableCache()), isSingleFileBuild)
+                .addTask(new CleanTargetDirTask(), isSingleFileBuild)
                 .addTask(new RunBuildToolsTask(outStream), isSingleFileBuild)
                 .addTask(new ResolveMavenDependenciesTask(outStream))
-                .addTask(new CompileTask(outStream, errStream, false, false, isPackageModified,
-                        buildOptions.enableCache()))
+                .addTask(new CompileTask(outStream, errStream, false, false))
                 .addTask(new CreateExecutableTask(outStream, null, null, false), false)
                 .addTask(new DumpBuildTimeTask(outStream), false)
                 .addTask(new RunProfilerTask(errStream), false).build();
