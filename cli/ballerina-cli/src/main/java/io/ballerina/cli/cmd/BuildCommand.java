@@ -48,8 +48,8 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.Optional;
 import java.util.Objects;
+import java.util.Optional;
 
 import static io.ballerina.cli.cmd.Constants.BUILD_COMMAND;
 import static io.ballerina.projects.util.ProjectConstants.BUILD_FILE;
@@ -335,7 +335,7 @@ public class BuildCommand implements BLauncherCmd {
 
     private void executeTasks(boolean isSingleFile, Project project, boolean skipExecutable) {
         BuildOptions buildOptions = project.buildOptions();
-        boolean rebuildStatus = isRebuildNeeded(project);
+        boolean rebuildStatus = isRebuildNeeded(project, skipExecutable);
         TaskExecutor taskExecutor = new TaskExecutor.TaskBuilder()
                 // clean the target directory(projects only)
                 .addTask(new CleanTargetDirTask(), !rebuildStatus || isSingleFile)
@@ -346,15 +346,15 @@ public class BuildCommand implements BLauncherCmd {
                 // compile the modules
                 .addTask(new CompileTask(outStream, errStream, false, true, !rebuildStatus))
                 .addTask(new CreateExecutableTask(outStream, this.output, null, false,
-                        skipExecutable || !rebuildStatus))
+                         !rebuildStatus, skipExecutable))
                 .addTask(new DumpBuildTimeTask(outStream), !buildOptions.dumpBuildTime())
-                .addTask(new CreateFingerprintTask(false, false), !rebuildStatus || isSingleFile)
+                .addTask(new CreateFingerprintTask(false, skipExecutable), !rebuildStatus || isSingleFile)
                 .build();
 
         taskExecutor.executeTasks(project);
     }
 
-    private boolean isRebuildNeeded(Project project) {
+    private boolean isRebuildNeeded(Project project, boolean skipExecutable) {
         Path buildFilePath = project.targetDir().resolve(BUILD_FILE);
         try {
             BuildJson buildJson = readBuildJson(buildFilePath);
@@ -364,7 +364,7 @@ public class BuildCommand implements BLauncherCmd {
             if (buildJson.isExpiredLastUpdateTime()) {
                 return true;
             }
-            if (CommandUtil.isFilesModifiedSinceLastBuild(buildJson, project, false)) {
+            if (CommandUtil.isFilesModifiedSinceLastBuild(buildJson, project, false, skipExecutable)) {
                 return true;
             }
             if (isRebuildForCurrCmd()) {

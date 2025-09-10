@@ -121,7 +121,7 @@ public class ProfileCommand implements BLauncherCmd {
             CommandUtil.exitError(this.exitWhenFinish);
             return;
         }
-        TaskExecutor taskExecutor = createTaskExecutor(project.kind() == ProjectKind.SINGLE_FILE_PROJECT);
+        TaskExecutor taskExecutor = createTaskExecutor(args, project.kind() == ProjectKind.SINGLE_FILE_PROJECT);
         taskExecutor.executeTasks(project);
     }
 
@@ -186,7 +186,7 @@ public class ProfileCommand implements BLauncherCmd {
         }
     }
 
-    private TaskExecutor createTaskExecutor(boolean isSingleFileBuild) {
+    private TaskExecutor createTaskExecutor(String[] args, boolean isSingleFileBuild) {
         return new TaskExecutor.TaskBuilder()
                 .addTask(new CleanTargetDirTask(), isSingleFileBuild)
                 .addTask(new RunBuildToolsTask(outStream), isSingleFileBuild)

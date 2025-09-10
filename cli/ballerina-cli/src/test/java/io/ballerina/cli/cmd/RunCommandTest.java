@@ -449,12 +449,18 @@ public class RunCommandTest extends BaseCommandTest {
             runCommand.execute();
             String secondBuildLog = readOutput(true);
             Assert.assertTrue(firstBuildLog.contains("Compiling source"));
-            Assert.assertFalse(firstBuildLog.contains("Compiling source(skipped)"));
-            Assert.assertTrue(secondBuildLog.contains("Compiling source(skipped)"));
+            Assert.assertFalse(firstBuildLog.contains("Compiling source (UP-TO-DATE)"));
+            Assert.assertTrue(secondBuildLog.contains("Compiling source (UP-TO-DATE)"),
+                    "Second build is not up-to-date for " + arg);
         }
 
-        //Use different flags that affect jar generation differently in the consecutive builds
+        // Use different flags that affect jar generation differently in the consecutive builds
         for (String arg : argsList1) {
+            if (arg.equals("--sticky") || arg.equals("--offline")) {
+                // Skip --sticky since the second build will sticky anyway within 24 hours
+                // Skip --offline since tests are always run offline
+                continue;
+            }
             Path projectPath = this.testResources.resolve("buildAProjectTwice");
             deleteDirectory(projectPath.resolve("target"));
             System.setProperty(USER_DIR_PROPERTY, projectPath.toString());
@@ -467,9 +473,9 @@ public class RunCommandTest extends BaseCommandTest {
             runCommand.execute();
             String secondBuildLog = readOutput(true);
             Assert.assertTrue(firstBuildLog.contains("Compiling source"));
-            Assert.assertFalse(firstBuildLog.contains("Compiling source(skipped)"));
+            Assert.assertFalse(firstBuildLog.contains("Compiling source (UP-TO-DATE)"));
             Assert.assertTrue(secondBuildLog.contains("Compiling source"));
-            Assert.assertFalse(secondBuildLog.contains("Compiling source(skipped)"));
+            Assert.assertFalse(secondBuildLog.contains("Compiling source (UP-TO-DATE)"));
         }
 
         String[] argsList2 = {
@@ -478,13 +484,12 @@ public class RunCommandTest extends BaseCommandTest {
                 "--dump-graph",
                 "--dump-raw-graphs",
                 "--generate-config-schema",
-                "--enable-cache",
                 "--disable-syntax-tree-caching",
                 "--dump-build-time",
                 "--show-dependency-diagnostics"
         };
 
-        //Use different flags that doesn't affect jar generation in the consecutive builds
+        // Use different flags that doesn't affect jar generation in the consecutive builds
         for (String arg : argsList2) {
             Path projectPath = this.testResources.resolve("buildAProjectTwice");
             deleteDirectory(projectPath.resolve("target"));
@@ -498,8 +503,8 @@ public class RunCommandTest extends BaseCommandTest {
             runCommand.execute();
             String secondBuildLog = readOutput(true);
             Assert.assertTrue(firstBuildLog.contains("Compiling source"));
-            Assert.assertFalse(firstBuildLog.contains("Compiling source(skipped)"));
-            Assert.assertTrue(secondBuildLog.contains("Compiling source(skipped)"));
+            Assert.assertFalse(firstBuildLog.contains("Compiling source (UP-TO-DATE)"));
+            Assert.assertTrue(secondBuildLog.contains("Compiling source (UP-TO-DATE)"));
         }
 
         String[] argsList3 = {
@@ -508,7 +513,6 @@ public class RunCommandTest extends BaseCommandTest {
                 "--dump-graph",
                 "--dump-raw-graphs",
                 "--generate-config-schema",
-                "--enable-cache",
                 "--disable-syntax-tree-caching",
                 "--dump-build-time",
                 "--show-dependency-diagnostics"
@@ -527,9 +531,9 @@ public class RunCommandTest extends BaseCommandTest {
             runCommand.execute();
             String secondBuildLog = readOutput(true);
             Assert.assertTrue(firstBuildLog.contains("Compiling source"));
-            Assert.assertFalse(firstBuildLog.contains("Compiling source(skipped)"));
+            Assert.assertFalse(firstBuildLog.contains("Compiling source (UP-TO-DATE)"));
             Assert.assertTrue(secondBuildLog.contains("Compiling source"));
-            Assert.assertFalse(secondBuildLog.contains("Compiling source(skipped)"));
+            Assert.assertFalse(secondBuildLog.contains("Compiling source (UP-TO-DATE)"));
         }
     }
 
@@ -558,10 +562,10 @@ public class RunCommandTest extends BaseCommandTest {
         runCommand.execute();
         String thirdBuildLog = readOutput(true);
         Assert.assertTrue(firstBuildLog.contains("Compiling source"));
-        Assert.assertFalse(firstBuildLog.contains("Compiling source(skipped)"));
-        Assert.assertTrue(secondBuildLog.contains("Compiling source(skipped)"));
+        Assert.assertFalse(firstBuildLog.contains("Compiling source (UP-TO-DATE)"));
+        Assert.assertTrue(secondBuildLog.contains("Compiling source (UP-TO-DATE)"));
         Assert.assertTrue(thirdBuildLog.contains("Compiling source"));
-        Assert.assertFalse(thirdBuildLog.contains("Compiling source(skipped)"));
+        Assert.assertFalse(thirdBuildLog.contains("Compiling source (UP-TO-DATE)"));
     }
 
     @Test(description = "Run a project with a new file within 24 hours of the last build")
@@ -581,9 +585,9 @@ public class RunCommandTest extends BaseCommandTest {
         runCommand.execute();
         String secondBuildLog = readOutput(true);
         Assert.assertTrue(firstBuildLog.contains("Compiling source"));
-        Assert.assertFalse(firstBuildLog.contains("Compiling source(skipped)"));
+        Assert.assertFalse(firstBuildLog.contains("Compiling source (UP-TO-DATE)"));
         Assert.assertTrue(secondBuildLog.contains("Compiling source"));
-        Assert.assertFalse(secondBuildLog.contains("Compiling source(skipped)"));
+        Assert.assertFalse(secondBuildLog.contains("Compiling source (UP-TO-DATE)"));
     }
 
     @Test(description = "Run a project with a new file within 24 hours of the last build")
@@ -596,16 +600,16 @@ public class RunCommandTest extends BaseCommandTest {
         runCommand.execute();
         String firstBuildLog = readOutput(true);
         Path balFilePath = projectPath.resolve("main.bal");
-        String balContent = "public function main2() {\n}\n";
+        String balContent = "public function math() {\n}\n";
         Files.writeString(balFilePath, balContent);
         runCommand = new RunCommand(projectPath, printStream, false);
         new CommandLine(runCommand).parseArgs();
         runCommand.execute();
         String secondBuildLog = readOutput(true);
         Assert.assertTrue(firstBuildLog.contains("Compiling source"));
-        Assert.assertFalse(firstBuildLog.contains("Compiling source(skipped)"));
+        Assert.assertFalse(firstBuildLog.contains("Compiling source (UP-TO-DATE)"));
         Assert.assertTrue(secondBuildLog.contains("Compiling source"));
-        Assert.assertFalse(secondBuildLog.contains("Compiling source(skipped)"));
+        Assert.assertFalse(secondBuildLog.contains("Compiling source (UP-TO-DATE)"));
     }
 
     @Test(description = "Run a project with no content change")
@@ -618,15 +622,18 @@ public class RunCommandTest extends BaseCommandTest {
         runCommand.execute();
         String firstBuildLog = readOutput(true);
         Path balFilePath = projectPath.resolve("main.bal");
-        String balContent = "public function main() {\n\n}\n";
+        String balContent = "public function math() {\n\n}\n";
         Files.writeString(balFilePath, balContent);
         runCommand = new RunCommand(projectPath, printStream, false);
         new CommandLine(runCommand).parseArgs();
         runCommand.execute();
         String secondBuildLog = readOutput(true);
         Assert.assertTrue(firstBuildLog.contains("Compiling source"));
-        Assert.assertFalse(firstBuildLog.contains("Compiling source(skipped)"));
-        Assert.assertTrue(secondBuildLog.contains("Compiling source(skipped)"));
+        // Though the content is the same, the file modification time is changed.
+        // Hence, the build should not be up-to-date
+        Assert.assertFalse(firstBuildLog.contains("Compiling source (UP-TO-DATE)"));
+        Assert.assertTrue(secondBuildLog.contains("Compiling source"));
+        Assert.assertFalse(secondBuildLog.contains("Compiling source (UP-TO-DATE)"));
     }
 
     @Test(description = "Run a project after a build")
@@ -643,7 +650,7 @@ public class RunCommandTest extends BaseCommandTest {
         runCommand.execute();
         String secondBuildLog = readOutput(true);
         Assert.assertTrue(firstBuildLog.contains("buildAProjectTwice.jar"));
-        Assert.assertTrue(secondBuildLog.contains("Compiling source(skipped)"));
+        Assert.assertTrue(secondBuildLog.contains("Compiling source (UP-TO-DATE)"));
     }
 
     @AfterSuite

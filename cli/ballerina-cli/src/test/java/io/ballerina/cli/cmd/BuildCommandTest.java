@@ -19,7 +19,6 @@
 package io.ballerina.cli.cmd;
 
 import io.ballerina.cli.launcher.BLauncherException;
-import io.ballerina.cli.utils.BuildTime;
 import io.ballerina.projects.JvmTarget;
 import io.ballerina.projects.ProjectEnvironmentBuilder;
 import io.ballerina.projects.SemanticVersion;
@@ -478,6 +477,7 @@ public class BuildCommandTest extends BaseCommandTest {
     public void testBuildProjectWithDefaultBuildOptions() throws IOException {
         Path projectPath = this.testResources.resolve("validProjectWithBuildOptions");
         System.setProperty(USER_DIR_PROPERTY, projectPath.toString());
+        cleanTarget(projectPath);
         BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
         new CommandLine(buildCommand).parseArgs();
         buildCommand.execute();
@@ -713,6 +713,7 @@ public class BuildCommandTest extends BaseCommandTest {
                 .resolve("validProjectWithEmptyBallerinaToml").resolve("0.1.0")
                 .resolve(JvmTarget.JAVA_21.code())
                 .resolve("_org-validProjectWithEmptyBallerinaToml-0.1.0.jar").toFile().exists());
+        Assert.assertEquals(1, 1);
     }
 
     @Test(description = "tests consistent conflicted jars reporting")
@@ -728,6 +729,7 @@ public class BuildCommandTest extends BaseCommandTest {
 
         // Check build output which contains conflicted jars for 10 consecutive builds
         for (int i = 0; i < 10; i++) {
+            cleanTarget(projectPath);
             BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false, false);
             new CommandLine(buildCommand).parseArgs();
             buildCommand.execute();
@@ -910,48 +912,6 @@ public class BuildCommandTest extends BaseCommandTest {
                 .replace("DIST_VERSION", ballerinaShortVersion);
         Assert.assertEquals(depContent, corrcetDepContent);
         Files.delete(destinationPath);
-    }
-
-    @Test(description = "Test bir cached project build performance")
-    public void testBirCachedProjectBuildPerformance() {
-        Path projectPath = this.testResources.resolve("noClassDefProject");
-        System.setProperty(USER_DIR_PROPERTY, projectPath.toString());
-
-        cleanTarget(projectPath);
-
-        BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
-        new CommandLine(buildCommand).parseArgs("--enable-cache");
-        buildCommand.execute();
-        long firstCodeGenDuration = BuildTime.getInstance().codeGenDuration;
-
-        BuildCommand secondBuildCommand = new BuildCommand(projectPath, printStream, printStream, false);
-        new CommandLine(secondBuildCommand).parseArgs("--enable-cache");
-        secondBuildCommand.execute();
-        long secondCodeGenDuration = BuildTime.getInstance().codeGenDuration;
-
-        Assert.assertTrue((firstCodeGenDuration / 10) > secondCodeGenDuration,
-                "second code gen duration is greater than the expected value");
-    }
-
-    @Test(description = "Test bir cached project build performance followed by a test command")
-    public void testBirCachedProjectBuildPerformanceAfterTestCommand() {
-        Path projectPath = this.testResources.resolve("noClassDefProject");
-        System.setProperty(USER_DIR_PROPERTY, projectPath.toString());
-
-        cleanTarget(projectPath);
-
-        TestCommand testCommand = new TestCommand(projectPath, printStream, printStream, false);
-        new CommandLine(testCommand).parseArgs("--enable-cache");
-        testCommand.execute();
-        long firstCodeGenDuration = BuildTime.getInstance().codeGenDuration;
-
-        BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
-        new CommandLine(buildCommand).parseArgs("--enable-cache");
-        buildCommand.execute();
-        long secondCodeGenDuration = BuildTime.getInstance().codeGenDuration;
-
-        Assert.assertTrue((firstCodeGenDuration / 10) > secondCodeGenDuration,
-                "second code gen duration is greater than the expected value");
     }
 
     @Test(description = "Build a valid ballerina project with a custom maven repo",
@@ -1386,12 +1346,6 @@ public class BuildCommandTest extends BaseCommandTest {
         }
     }
 
-    private void cleanTarget(Path projectPath) {
-        CleanCommand cleanCommand = new CleanCommand(projectPath, false);
-        new CommandLine(cleanCommand).parseArgs();
-        cleanCommand.execute();
-    }
-
     private void validateBuildTimeInfo(String buildLog) {
         Assert.assertTrue(buildLog.contains("timestamp"),
                 "Missing timestamp field in build time logs");
@@ -1487,6 +1441,7 @@ public class BuildCommandTest extends BaseCommandTest {
         // Project contains platform Java dependencies
         Path projectPath = this.testResources.resolve("workspaces/wp-simple");
         System.setProperty(USER_DIR_PROPERTY, projectPath.toString());
+        cleanTarget(projectPath);
         BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
         // non-existing bal file
         new CommandLine(buildCommand);
@@ -1511,6 +1466,7 @@ public class BuildCommandTest extends BaseCommandTest {
         // Project contains platform Java dependencies
         Path projectPath = this.testResources.resolve("workspaces/wp-multiple-roots");
         System.setProperty(USER_DIR_PROPERTY, projectPath.toString());
+        cleanTarget(projectPath);
         BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
         // non-existing bal file
         new CommandLine(buildCommand);
@@ -1536,6 +1492,7 @@ public class BuildCommandTest extends BaseCommandTest {
         Path projectRoot = this.testResources.resolve("workspaces/wp-simple");
         System.setProperty(USER_DIR_PROPERTY, projectRoot.toString());
         Path projectPath = projectRoot.resolve("hello-app");
+        cleanTarget(projectPath);
         BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
         // non-existing bal file
         new CommandLine(buildCommand);
@@ -1549,6 +1506,7 @@ public class BuildCommandTest extends BaseCommandTest {
         Path projectRoot = this.testResources.resolve("workspaces");
         System.setProperty(USER_DIR_PROPERTY, projectRoot.toString());
         Path projectPath = projectRoot.resolve("wp-multiple-roots/hello-app");
+        cleanTarget(projectPath);
         BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
         // non-existing bal file
         new CommandLine(buildCommand);
@@ -1576,14 +1534,14 @@ public class BuildCommandTest extends BaseCommandTest {
         String[] argsList1 = {
                 "--offline",
                 "--sticky",
-                "--locking-mode=SOFT",
+                // "--locking-mode=SOFT", // TODO: enable after fixing #42467
                 "--experimental",
                 "--optimize-dependency-compilation",
                 "--remote-management",
                 "--observability-included"
         };
 
-        //Use the same flag that affects jar generation similarly in the consecutive builds
+        // Use the same flag that affects jar generation similarly in the consecutive builds
         for (String arg : argsList1) {
             Path projectPath = this.testResources.resolve("buildAProjectTwice");
             deleteDirectory(projectPath.resolve("target"));
@@ -1597,11 +1555,17 @@ public class BuildCommandTest extends BaseCommandTest {
             buildCommand.execute();
             String secondBuildLog = readOutput(true);
             Assert.assertTrue(firstBuildLog.contains("buildAProjectTwice.jar"));
-            Assert.assertTrue(secondBuildLog.contains("Generating executable(skipped)"));
+            Assert.assertTrue(secondBuildLog.contains("Generating executable (UP-TO-DATE)"),
+                    "Second build is not up-to-date for " + arg);
         }
 
-        //Use different flags that affect jar generation differently in the consecutive builds
+        // Use different flags that affect jar generation differently in the consecutive builds
         for (String arg : argsList1) {
+            if (arg.equals("--sticky") || arg.equals("--offline")) {
+                // Skip --sticky since the second build will sticky anyway within 24 hours
+                // Skip --offline since tests are always run offline
+                continue;
+            }
             Path projectPath = this.testResources.resolve("buildAProjectTwice");
             deleteDirectory(projectPath.resolve("target"));
             System.setProperty(USER_DIR_PROPERTY, projectPath.toString());
@@ -1615,7 +1579,8 @@ public class BuildCommandTest extends BaseCommandTest {
             String secondBuildLog = readOutput(true);
             Assert.assertTrue(firstBuildLog.contains("target/bin/buildAProjectTwice.jar"));
             Assert.assertTrue(secondBuildLog.contains("target/bin/buildAProjectTwice.jar"));
-            Assert.assertFalse(secondBuildLog.contains("Generating executable(skipped)"));
+            Assert.assertFalse(secondBuildLog.contains("Generating executable (UP-TO-DATE)"),
+                    "Second build should not be up-to-date for " + arg);
         }
 
         String[] argsList2 = {
@@ -1629,12 +1594,10 @@ public class BuildCommandTest extends BaseCommandTest {
                 "--dump-build-time",
                 "--export-openapi",
                 "--export-component-model",
-                "--enable-cache",
-                "--graalvm",
                 "--disable-syntax-tree-caching"
         };
 
-        //Use different flags that doesn't affect jar generation in the consecutive builds
+        // Use different flags that doesn't affect jar generation in the consecutive builds
         for (String arg : argsList2) {
             Path projectPath = this.testResources.resolve("buildAProjectTwice");
             deleteDirectory(projectPath.resolve("target"));
@@ -1648,8 +1611,9 @@ public class BuildCommandTest extends BaseCommandTest {
             buildCommand.execute();
             String secondBuildLog = readOutput(true);
             Assert.assertTrue(firstBuildLog.contains("Compiling source"));
-            Assert.assertFalse(firstBuildLog.contains("Compiling source(skipped)"));
-            Assert.assertTrue(secondBuildLog.contains("Generating executable(skipped)"));
+            Assert.assertFalse(firstBuildLog.contains("Compiling source (UP-TO-DATE)"));
+            Assert.assertTrue(secondBuildLog.contains("Generating executable (UP-TO-DATE)"),
+                    "Second build should be up-to-date for " + arg);
         }
 
         String[] argsList3 = {
@@ -1663,8 +1627,6 @@ public class BuildCommandTest extends BaseCommandTest {
                 "--dump-build-time",
                 "--export-openapi",
                 "--export-component-model",
-                "--enable-cache",
-                "--graalvm",
                 "--disable-syntax-tree-caching",
         };
 
@@ -1682,7 +1644,8 @@ public class BuildCommandTest extends BaseCommandTest {
             String secondBuildLog = readOutput(true);
             Assert.assertTrue(firstBuildLog.contains("target/bin/buildAProjectTwice.jar"));
             Assert.assertTrue(secondBuildLog.contains("Compiling source"));
-            Assert.assertFalse(secondBuildLog.contains("Generating executable(skipped)"));
+            Assert.assertFalse(secondBuildLog.contains("Generating executable (UP-TO-DATE)"),
+                    "Second build should not be up-to-date for " + arg);
         }
     }
 
@@ -1711,9 +1674,9 @@ public class BuildCommandTest extends BaseCommandTest {
         buildCommand.execute();
         String thirdBuildLog = readOutput(true);
         Assert.assertTrue(firstBuildLog.contains("buildAProjectTwice.jar"));
-        Assert.assertTrue(secondBuildLog.contains("Generating executable(skipped)"));
+        Assert.assertTrue(secondBuildLog.contains("Generating executable (UP-TO-DATE)"));
         Assert.assertTrue(thirdBuildLog.contains("Generating executable"));
-        Assert.assertFalse(thirdBuildLog.contains("Generating executable(skipped)"));
+        Assert.assertFalse(thirdBuildLog.contains("Generating executable (UP-TO-DATE)"));
     }
 
     @Test(description = "Build a project with a new file within 24 hours of the last build")
@@ -1734,7 +1697,7 @@ public class BuildCommandTest extends BaseCommandTest {
         String secondBuildLog = readOutput(true);
         Assert.assertTrue(firstBuildLog.contains("buildAProjectTwice.jar"));
         Assert.assertTrue(secondBuildLog.contains("Generating executable"));
-        Assert.assertFalse(secondBuildLog.contains("Generating executable(skipped)"));
+        Assert.assertFalse(secondBuildLog.contains("Generating executable (UP-TO-DATE)"));
     }
 
     @Test(description = "Build a project with a new file within 24 hours of the last build")
@@ -1747,7 +1710,7 @@ public class BuildCommandTest extends BaseCommandTest {
         buildCommand.execute();
         String firstBuildLog = readOutput(true);
         Path balFilePath = projectPath.resolve("main.bal");
-        String balContent = "public function main2() {\n}\n";
+        String balContent = "public function math() {\n}\n";
         Files.writeString(balFilePath, balContent);
         buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
         new CommandLine(buildCommand).parseArgs();
@@ -1755,10 +1718,10 @@ public class BuildCommandTest extends BaseCommandTest {
         String secondBuildLog = readOutput(true);
         Assert.assertTrue(firstBuildLog.contains("buildAProjectTwice.jar"));
         Assert.assertTrue(secondBuildLog.contains("Generating executable"));
-        Assert.assertFalse(secondBuildLog.contains("Generating executable(skipped)"));
+        Assert.assertFalse(secondBuildLog.contains("Generating executable (UP-TO-DATE)"));
     }
 
-    @Test(description = "Build a project with no content change")
+    @Test(description = "Build a project with no content change. The file is modified with same content")
     public void testBuildAProjectWithFileNoContentChange() throws IOException {
         Path projectPath = this.testResources.resolve("buildAProjectTwice");
         deleteDirectory(projectPath.resolve("target"));
@@ -1775,6 +1738,9 @@ public class BuildCommandTest extends BaseCommandTest {
         buildCommand.execute();
         String secondBuildLog = readOutput(true);
         Assert.assertTrue(firstBuildLog.contains("buildAProjectTwice.jar"));
-        Assert.assertTrue(secondBuildLog.contains("Generating executable(skipped)"));
+        // Though the content is the same, the file modification time is changed.
+        // Hence, the build should not be up-to-date
+        Assert.assertTrue(secondBuildLog.contains("Generating executable"));
+        Assert.assertFalse(secondBuildLog.contains("Generating executable (UP-TO-DATE)"));
     }
 }

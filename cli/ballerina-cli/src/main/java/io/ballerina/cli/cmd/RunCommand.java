@@ -57,8 +57,8 @@ import java.nio.file.PathMatcher;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.Objects;
+import java.util.Optional;
 
 import static io.ballerina.cli.cmd.Constants.RUN_COMMAND;
 import static io.ballerina.cli.launcher.LauncherUtils.createLauncherException;
@@ -318,7 +318,7 @@ public class RunCommand implements BLauncherCmd {
     }
 
     private void executeTasks(boolean isSingleFileBuild, Target target, String[] args, Project project) {
-        boolean rebuildStatus = isRebuildNeeded(project);
+        boolean rebuildStatus = isRebuildNeeded(project, true);
         TaskExecutor taskExecutor = new TaskExecutor.TaskBuilder()
                 // clean target dir for projects
                 .addTask(new CleanTargetDirTask(), !rebuildStatus
@@ -337,7 +337,7 @@ public class RunCommand implements BLauncherCmd {
         taskExecutor.executeTasks(project);
     }
 
-    private boolean isRebuildNeeded(Project project) {
+    private boolean isRebuildNeeded(Project project, boolean skipExecutable) {
         Path buildFilePath = project.targetDir().resolve(BUILD_FILE);
         try {
             BuildJson buildJson = readBuildJson(buildFilePath);
@@ -347,7 +347,7 @@ public class RunCommand implements BLauncherCmd {
             if (buildJson.isExpiredLastUpdateTime()) {
                 return true;
             }
-            if (CommandUtil.isFilesModifiedSinceLastBuild(buildJson, project, false)) {
+            if (CommandUtil.isFilesModifiedSinceLastBuild(buildJson, project, false, skipExecutable)) {
                 return true;
             }
             if (isRebuildForCurrCmd()) {

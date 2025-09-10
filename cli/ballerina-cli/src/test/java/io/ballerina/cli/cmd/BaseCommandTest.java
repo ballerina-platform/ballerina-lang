@@ -33,6 +33,7 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.BeforeSuite;
 import org.testng.annotations.DataProvider;
 import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
+import picocli.CommandLine;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -209,5 +210,11 @@ public abstract class BaseCommandTest {
     public void cleanup() {
         ProjectUtils.deleteDirectory(this.tmpDir);
         System.setProperty("user.dir", userDir);
+    }
+
+    protected void cleanTarget(Path projectPath) {
+        CleanCommand cleanCommand = new CleanCommand(projectPath, false);
+        new CommandLine(cleanCommand).parseArgs();
+        cleanCommand.execute();
     }
 }

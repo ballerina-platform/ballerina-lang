@@ -44,11 +44,11 @@ import static io.ballerina.projects.util.ProjectUtils.readBuildJson;
 public class CreateFingerprintTask implements Task {
     public static final String JAR = ".jar";
     private final boolean isTestExecution;
-    private final boolean isWorkspaceDependency;
+    private final boolean skipExecutable;
 
-    public CreateFingerprintTask(boolean isTestExecution, boolean isWorkspaceDependency) {
+    public CreateFingerprintTask(boolean isTestExecution, boolean skipExecutable) {
         this.isTestExecution = isTestExecution;
-        this.isWorkspaceDependency = isWorkspaceDependency;
+        this.skipExecutable = skipExecutable;
     }
 
     @Override
@@ -61,7 +61,7 @@ public class CreateFingerprintTask implements Task {
             BuildJson buildJson = readBuildJson(buildFilePath);
             buildJson.setBuildOptions(project.buildOptions());
             createFingerPrintForProjectFiles(project, buildJson, isTestExecution);
-            createFingerPrintForArtifacts(project, buildJson, isTestExecution, isWorkspaceDependency);
+            createFingerPrintForArtifacts(project, buildJson, isTestExecution, skipExecutable);
             createFingerPrintForSettingsToml(buildJson);
             createFingerPrintForBallerinaToml(buildJson, project);
             writeBuildFile(buildFilePath, buildJson);
@@ -107,7 +107,7 @@ public class CreateFingerprintTask implements Task {
     }
 
     private static void createFingerPrintForArtifacts(Project project, BuildJson buildJson, boolean isTestExecution,
-                                                      boolean isWorkspace)
+                                                      boolean skipExecutable)
                                                         throws IOException, NoSuchAlgorithmException {
         Target target = new Target(project.targetDir());
         if (isTestExecution) {
@@ -129,7 +129,7 @@ public class CreateFingerprintTask implements Task {
             buildJson.setTestArtifactMetaInfo(testArtifactMetaInfoList.toArray(new BuildJson.FileMetaInfo[0]));
             return;
         }
-        if (!isWorkspace) {
+        if (!skipExecutable) {
             File execFile = target.getExecutablePath(project.currentPackage()).toAbsolutePath().toFile();
             buildJson.setTargetExecMetaInfo(getFileMetaInfo(execFile));
         }

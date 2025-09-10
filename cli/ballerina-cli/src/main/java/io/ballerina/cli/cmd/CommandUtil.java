@@ -1312,8 +1312,8 @@ public final class CommandUtil {
     }
 
 
-    public static boolean isFilesModifiedSinceLastBuild(BuildJson buildJson, Project project, boolean isTestExecution)
-            throws IOException {
+    public static boolean isFilesModifiedSinceLastBuild(BuildJson buildJson, Project project, boolean isTestExecution,
+                                                        boolean skipExecutable) throws IOException {
         List<File> srcFilesToEvaluate = getSrcFiles(project);
         List<File> testSrcFilesToEvaluate = getTestSrcFiles(project);
         if (isProjectFilesModified(buildJson.getSrcMetaInfo(), srcFilesToEvaluate, project)) {
@@ -1329,7 +1329,13 @@ public final class CommandUtil {
         if (isBallerinaTomlFileModified(buildJson, project)) {
             return true;
         }
-        return isTestExecution ? isTestArtifactsModified(buildJson, project) : isExecutableModified(buildJson, project);
+        if (isTestExecution) {
+            return isTestArtifactsModified(buildJson, project);
+        }
+        if (skipExecutable) {
+            return false;
+        }
+        return isExecutableModified(buildJson, project);
     }
 
     private static boolean isBallerinaTomlFileModified(BuildJson buildJson, Project project)  {

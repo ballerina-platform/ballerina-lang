@@ -302,9 +302,11 @@ public class RunTestsTask implements Task {
         List<String> cmdArgs = getInitialCmdArgs(null, null);
         // TODO: May be we can change this build file as part of the project so that we can avoid reading and writing
         //  again and again.
-        BuildJson buildJson = readBuildJson(target.path().resolve(ProjectConstants.BUILD_FILE));
-        buildJson.setTestClassPath(classPath);
-        writeBuildFile(target.path().resolve(ProjectConstants.BUILD_FILE), buildJson);
+        if (currentPackage.project().kind().equals(ProjectKind.BUILD_PROJECT)) {
+            BuildJson buildJson = readBuildJson(target.path().resolve(ProjectConstants.BUILD_FILE));
+            buildJson.setTestClassPath(classPath);
+            writeBuildFile(target.path().resolve(ProjectConstants.BUILD_FILE), buildJson);
+        }
 
         String mainClassName = TesterinaConstants.TESTERINA_LAUNCHER_CLASS_NAME;
         String jacocoAgentJarPath = getJacocoAgentJarPath();
