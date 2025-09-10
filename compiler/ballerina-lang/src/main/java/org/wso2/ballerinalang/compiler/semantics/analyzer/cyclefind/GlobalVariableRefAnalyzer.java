@@ -18,16 +18,17 @@
 package org.wso2.ballerinalang.compiler.semantics.analyzer.cyclefind;
 
 import org.ballerinalang.model.symbols.SymbolKind;
+import org.ballerinalang.model.symbols.SymbolOrigin;
 import org.ballerinalang.model.tree.Node;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.TopLevelNode;
 import org.ballerinalang.util.diagnostic.DiagnosticErrorCode;
 import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLog;
-import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
+import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangClassDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
@@ -36,8 +37,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
-import org.wso2.ballerinalang.compiler.tree.types.BLangStructureTypeNode;
-import org.wso2.ballerinalang.compiler.tree.types.BLangType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
 import java.util.ArrayDeque;
@@ -317,9 +316,11 @@ public class GlobalVariableRefAnalyzer {
     private BSymbol getSymbolFromTopLevelNode(TopLevelNode topLevelNode) {
         return switch (topLevelNode.getKind()) {
             case VARIABLE, RECORD_VARIABLE, TUPLE_VARIABLE, ERROR_VARIABLE -> ((BLangVariable) topLevelNode).symbol;
-            case TYPE_DEFINITION -> Types.getImpliedType(((BLangTypeDefinition) topLevelNode).symbol.type).tsymbol;
+            case TYPE_DEFINITION -> ((BLangTypeDefinition) topLevelNode).symbol;
             case CONSTANT -> ((BLangConstant) topLevelNode).symbol;
             case FUNCTION -> ((BLangFunction) topLevelNode).symbol;
+            case ANNOTATION -> ((BLangAnnotation) topLevelNode).symbol;
+            case CLASS_DEFN -> ((BLangClassDefinition) topLevelNode).symbol;
             default -> null;
         };
     }
@@ -423,9 +424,9 @@ public class GlobalVariableRefAnalyzer {
                 } else if (node.getKind() == NodeKind.CLASS_DEFN) {
                     return ((BLangClassDefinition) node).name;
                 } else if (node.getKind() == NodeKind.TYPE_DEFINITION) {
-                    BLangType typeNode = ((BLangTypeDefinition) node).typeNode;
-                    if (typeNode.getKind() == NodeKind.OBJECT_TYPE || typeNode.getKind() == NodeKind.RECORD_TYPE) {
-                        return ((BLangTypeDefinition) node).name;
+                    BLangTypeDefinition typeDefinition =  (BLangTypeDefinition) node;
+                    if (typeDefinition.symbol.origin != SymbolOrigin.VIRTUAL) {
+                        return typeDefinition.name;
                     }
                 }
             }
@@ -441,10 +442,7 @@ public class GlobalVariableRefAnalyzer {
         } else if (node.getKind() == NodeKind.CLASS_DEFN) {
             return ((BLangClassDefinition) node).symbol;
         } else if (node.getKind() == NodeKind.TYPE_DEFINITION) {
-            BLangType typeNode = ((BLangTypeDefinition) node).typeNode;
-            if (typeNode.getKind() == NodeKind.OBJECT_TYPE || typeNode.getKind() == NodeKind.RECORD_TYPE) {
-                return ((BLangStructureTypeNode) typeNode).symbol;
-            }
+            return ((BLangTypeDefinition) node).symbol;
         }
         return null;
     }
