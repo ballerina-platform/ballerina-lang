@@ -71,7 +71,7 @@ public class ModuleDescriptor implements Comparable<ModuleDescriptor> {
         return moduleName;
     }
 
-    PackageID moduleCompilationId() {
+    public PackageID moduleCompilationId() {
         return moduleCompilationId;
     }
 

@@ -17,7 +17,6 @@
  */
 package org.wso2.ballerinalang.programfile;
 
-import static org.wso2.ballerinalang.programfile.ProgramFileConstants.BIR_VERSION_NUMBER;
 import static org.wso2.ballerinalang.programfile.ProgramFileConstants.VERSION_NUMBER;
 
 /**
@@ -45,20 +44,4 @@ public class CompiledBinaryFile {
         }
     }
 
-    /**
-     * {@code BirPackageFile} is the representation of a compiled Ballerina package (BIR).
-     *
-     * @since 0.995.0
-     */
-    public static class BIRPackageFile extends CompiledBinaryFile {
-
-        public static final byte[] BIR_MAGIC = {(byte) 0xba, (byte) 0x10, (byte) 0xc0, (byte) 0xde};
-        public static final int BIR_VERSION = BIR_VERSION_NUMBER;
-
-        public byte[] pkgBirBinaryContent;
-
-        public BIRPackageFile(byte[] pkgBirBinaryContent) {
-            this.pkgBirBinaryContent = pkgBirBinaryContent;
-        }
-    }
 }
