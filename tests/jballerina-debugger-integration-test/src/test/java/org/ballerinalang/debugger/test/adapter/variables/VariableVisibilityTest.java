@@ -250,6 +250,7 @@ public class VariableVisibilityTest extends BaseTestCase {
         debugTestRunner.assertVariable(localVariables, "a", "3", "int");
         debugTestRunner.assertVariable(localVariables, "b", "3", "int");
         debugTestRunner.assertVariable(localVariables, "c", "34", "int");
+        debugTestRunner.assertVariable(globalVariables, "port", "9090", "int");
 
         debugTestRunner.resumeProgram(debugHitInfo.getRight(), DebugTestRunner.DebugResumeKind.NEXT_BREAKPOINT);
         debugHitInfo = debugTestRunner.waitForDebugHit(10000);
