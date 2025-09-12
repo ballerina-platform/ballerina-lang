@@ -1041,6 +1041,10 @@ public final class CommandUtil {
 
         // Create README.md
         String readmeMd = FileUtils.readFileAsString(NEW_CMD_DEFAULTS + "/" + "lib-readme.md");
+        // replace lib org and name with a guessed value.
+        readmeMd = readmeMd.replace(ORG_NAME, ProjectUtils.guessOrgName())
+                .replace(PKG_NAME, guessPkgName(packageName, "lib"));
+
         Files.writeString(path.resolve(ProjectConstants.README_MD_FILE_NAME), readmeMd);
     }
 

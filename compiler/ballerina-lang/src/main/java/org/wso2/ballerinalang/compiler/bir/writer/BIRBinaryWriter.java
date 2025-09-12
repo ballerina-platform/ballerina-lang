@@ -33,7 +33,7 @@ import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.StringCPEntry;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
-import org.wso2.ballerinalang.programfile.CompiledBinaryFile;
+import org.wso2.ballerinalang.programfile.BIRPackageFile;
 
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
@@ -88,8 +88,8 @@ public class BIRBinaryWriter {
         // Write the constant pool entries.
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         try (DataOutputStream dataOut = new DataOutputStream(baos)) {
-            dataOut.write(CompiledBinaryFile.BIRPackageFile.BIR_MAGIC);
-            dataOut.writeInt(CompiledBinaryFile.BIRPackageFile.BIR_VERSION);
+            dataOut.write(BIRPackageFile.BIR_MAGIC);
+            dataOut.writeInt(BIRPackageFile.BIR_VERSION);
             dataOut.write(cp.serialize());
             dataOut.write(birbuf.nioBuffer().array(), 0, birbuf.nioBuffer().limit());
             return baos.toByteArray();

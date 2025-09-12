@@ -17,6 +17,7 @@
  */
 package org.wso2.ballerinalang.compiler;
 
+import io.ballerina.projects.ModuleContext;
 import io.ballerina.tools.diagnostics.Location;
 import io.ballerina.types.Atom;
 import io.ballerina.types.AtomicType;
@@ -126,8 +127,7 @@ import org.wso2.ballerinalang.compiler.util.ImmutableTypeCloner;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
-import org.wso2.ballerinalang.programfile.CompiledBinaryFile;
-import org.wso2.ballerinalang.programfile.CompiledBinaryFile.BIRPackageFile;
+import org.wso2.ballerinalang.programfile.BIRPackageFile;
 import org.wso2.ballerinalang.util.Flags;
 
 import java.io.ByteArrayInputStream;
@@ -207,13 +207,12 @@ public class BIRPackageSymbolEnter {
         this.offsets = null;
     }
 
-    public BPackageSymbol definePackage(PackageID packageId, byte[] packageBinaryContent) {
+    public BPackageSymbol definePackage(ModuleContext moduleContext) {
+        PackageID packageId = moduleContext.descriptor().moduleCompilationId();
+        byte[] packageBinaryContent = moduleContext.getBirBytes();
         BPackageSymbol pkgSymbol = definePackage(packageId, new ByteArrayInputStream(packageBinaryContent));
 
-        // Strip magic value (4 bytes) and the version (2 bytes) off from the binary content of the package.
-        byte[] modifiedPkgBinaryContent = Arrays.copyOfRange(
-                packageBinaryContent, 8, packageBinaryContent.length);
-        pkgSymbol.birPackageFile = new CompiledBinaryFile.BIRPackageFile(modifiedPkgBinaryContent);
+        pkgSymbol.birPackageFile = new BIRPackageFile.LazyBirPackageFile(moduleContext);
         SymbolEnv builtinEnv = this.symTable.pkgEnvMap.get(symTable.langAnnotationModuleSymbol);
         SymbolEnv pkgEnv = SymbolEnv.createPkgEnv(null, pkgSymbol.scope, builtinEnv);
         this.symTable.pkgEnvMap.put(pkgSymbol, pkgEnv);
