@@ -85,15 +85,8 @@ public class OldPackageMigrationTests extends BaseTest {
 
         DiagnosticResult diagnosticResult = compilation.diagnosticResult();
         diagnosticResult.diagnostics().forEach(OUT::println);
-        Assert.assertEquals(diagnosticResult.diagnosticCount(), 2, "Unexpected compilation diagnostics");
+        Assert.assertEquals(diagnosticResult.diagnosticCount(), 1, "Unexpected compilation diagnostics");
         Iterator<Diagnostic> diagnosticIterator = diagnosticResult.diagnostics().iterator();
-        // Check the warnings
-        String distributionVersion = getDistributionVersionForDiagnostics();
-        Assert.assertEquals(diagnosticIterator.next().message(),
-                "Detected an attempt to compile this package using Swan Lake Update " + distributionVersion + ". " +
-                        "However, this package was built using Swan Lake Update 4 or an older Update. " +
-                        "To ensure compatibility, execute `bal build` with Swan Lake Update " + distributionVersion
-                        + " to update the dependencies with the latest compatible versions.");
         Assert.assertEquals(diagnosticIterator.next().message(),
                 "Detected an old version of Dependencies.toml file. This will be updated to v2 format.");
         // Check updating to v2 the warning
@@ -129,15 +122,8 @@ public class OldPackageMigrationTests extends BaseTest {
 
         DiagnosticResult diagnosticResult = compilation.diagnosticResult();
         diagnosticResult.diagnostics().forEach(OUT::println);
-        Assert.assertEquals(diagnosticResult.diagnosticCount(), 4, "Unexpected compilation diagnostics");
+        Assert.assertEquals(diagnosticResult.diagnosticCount(), 3, "Unexpected compilation diagnostics");
         Iterator<Diagnostic> diagnosticIterator = diagnosticResult.diagnostics().iterator();
-        // Check the older distribution version warning
-        String distributionVersion = getDistributionVersionForDiagnostics();
-        Assert.assertEquals(diagnosticIterator.next().message(),
-                "Detected an attempt to compile this package using Swan Lake Update " + distributionVersion + ". " +
-                        "However, this package was built using Swan Lake Update 4 or an older Update. " +
-                        "To ensure compatibility, execute `bal build` with Swan Lake Update " + distributionVersion +
-                        " to update the dependencies with the latest compatible versions.");
         // Check updating to v2 the warning
         Assert.assertEquals(diagnosticIterator.next().message(),
                 "Detected an old version of Dependencies.toml file. This will be updated to v2 format.");

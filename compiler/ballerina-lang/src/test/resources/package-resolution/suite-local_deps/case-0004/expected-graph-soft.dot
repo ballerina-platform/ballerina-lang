@@ -1,0 +1,5 @@
+digraph "example1" {
+    "samejs/app:0.1.0" -> "samjs/yaml:1.0.0"
+
+    "samjs/yaml:1.0.0" [repo = "local"] [scope = "testOnly"]
+}

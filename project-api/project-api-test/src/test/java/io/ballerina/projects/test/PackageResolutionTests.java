@@ -44,6 +44,7 @@ import io.ballerina.projects.bala.BalaProject;
 import io.ballerina.projects.directory.BuildProject;
 import io.ballerina.projects.environment.Environment;
 import io.ballerina.projects.environment.EnvironmentBuilder;
+import io.ballerina.projects.environment.PackageLockingMode;
 import io.ballerina.projects.environment.ResolutionOptions;
 import io.ballerina.projects.internal.ImportModuleRequest;
 import io.ballerina.projects.internal.ImportModuleResponse;
@@ -188,7 +189,7 @@ public class PackageResolutionTests extends BaseTest {
         Path projectDirPath = tempResourceDir.resolve("package_n");
 
         BCompileUtil.compileAndCacheBala("projects_for_resolution_tests/package_o_1_0_0");
-        BCompileUtil.compileAndCacheBala("projects_for_resolution_tests/package_o_1_0_2");
+        BCompileUtil.compileAndCacheBala("projects_for_resolution_tests/package_o_1_1_0");
 
         BuildOptions.BuildOptionsBuilder buildOptionsBuilder = BuildOptions.builder();
         buildOptionsBuilder.setSticky(false);
@@ -202,7 +203,7 @@ public class PackageResolutionTests extends BaseTest {
                 dependencyGraph.getNodes().stream().filter(
                         node -> node.packageInstance().manifest().name().toString().equals("package_o")
                 ).findFirst().orElseThrow();
-        Assert.assertEquals(packageO.packageInstance().manifest().version().toString(), "1.0.2");
+        Assert.assertEquals(packageO.packageInstance().manifest().version().toString(), "1.1.0");
     }
 
     @Test(description = "tests resolution with toml dependency")
@@ -217,7 +218,7 @@ public class PackageResolutionTests extends BaseTest {
         Path projectDirPath = tempResourceDir.resolve("package_p_withoutDep");
 
         BuildOptions.BuildOptionsBuilder buildOptionsBuilder = BuildOptions.builder();
-        buildOptionsBuilder.setSticky(false);
+        buildOptionsBuilder.setLockingMode(PackageLockingMode.MEDIUM);
         BuildOptions buildOptions = buildOptionsBuilder.build();
 
         Project loadProject = TestUtils.loadBuildProject(projectDirPath, buildOptions);
@@ -258,7 +259,7 @@ public class PackageResolutionTests extends BaseTest {
         loadProject.save();
 
         Assert.assertTrue(Files.exists(buildPath));
-        BuildJson buildJson = ProjectUtils.readBuildJson(buildPath);
+        BuildJson buildJson = ProjectUtils.readBuildJson(loadProject.targetDir());
         Assert.assertFalse(buildJson.isExpiredLastUpdateTime());
     }
 
@@ -275,7 +276,7 @@ public class PackageResolutionTests extends BaseTest {
         loadProject.save();
 
         Assert.assertTrue(Files.exists(buildPath));
-        BuildJson buildJson = ProjectUtils.readBuildJson(buildPath);
+        BuildJson buildJson = ProjectUtils.readBuildJson(loadProject.targetDir());
         Assert.assertFalse(buildJson.isExpiredLastUpdateTime());
     }
 
@@ -297,7 +298,7 @@ public class PackageResolutionTests extends BaseTest {
         loadProject.save();
 
         Assert.assertTrue(Files.exists(buildPath));
-        BuildJson buildJson = ProjectUtils.readBuildJson(buildPath);
+        BuildJson buildJson = ProjectUtils.readBuildJson(loadProject.targetDir());
         Assert.assertFalse(buildJson.isExpiredLastUpdateTime());
     }
 
@@ -325,7 +326,7 @@ public class PackageResolutionTests extends BaseTest {
         if (!readable) {
             Assert.fail("could not set readable permission");
         }
-        BuildJson buildJson = ProjectUtils.readBuildJson(buildPath);
+        BuildJson buildJson = ProjectUtils.readBuildJson(loadProject.targetDir());
         Assert.assertFalse(buildJson.isExpiredLastUpdateTime());
     }
 
@@ -348,7 +349,7 @@ public class PackageResolutionTests extends BaseTest {
 
         PackageCompilation compilation = loadProject.currentPackage().getCompilation();
         Assert.assertTrue(Files.exists(buildPath));
-        BuildJson buildJson = ProjectUtils.readBuildJson(buildPath);
+        BuildJson buildJson = ProjectUtils.readBuildJson(loadProject.targetDir());
         Assert.assertFalse(buildJson.isExpiredLastUpdateTime());
     }
 
