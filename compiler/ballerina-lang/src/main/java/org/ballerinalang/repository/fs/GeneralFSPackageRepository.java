@@ -39,6 +39,7 @@ import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.function.Supplier;
 import java.util.stream.Stream;
 
 /**
@@ -279,11 +280,21 @@ public class GeneralFSPackageRepository implements PackageRepository {
                 Path filePath = basePath.resolve(name);
                 try {
                     this.code = Files.readAllBytes(basePath.resolve(pkgPath).resolve(name));
-                    this.tree = SyntaxTree.from(TextDocuments.from(new String(this.code)), name);
+                    this.tree = SyntaxTree.from(TextDocuments.from(getCodeSupplier(name, basePath, pkgPath)), name);
                 } catch (IOException e) {
                     throw new RuntimeException("Error in loading module source entry '" + filePath +
                             "': " + e.getMessage(), e);
                 }
+            }
+
+            private static Supplier<String> getCodeSupplier(String name, Path basePath, Path pkgPath) {
+                return () -> {
+                    try {
+                        return new String(Files.readAllBytes(basePath.resolve(pkgPath).resolve(name)));
+                    } catch (IOException e) {
+                        throw new RuntimeException("Error reading source file " + name, e);
+                    }
+                };
             }
 
             @Override
