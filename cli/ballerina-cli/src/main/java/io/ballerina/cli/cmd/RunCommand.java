@@ -318,7 +318,7 @@ public class RunCommand implements BLauncherCmd {
     }
 
     private void executeTasks(boolean isSingleFileBuild, Target target, String[] args, Project project) {
-        boolean rebuildStatus = isRebuildNeeded(project, true);
+        boolean rebuildStatus = isRebuildNeeded(project, false);
         TaskExecutor taskExecutor = new TaskExecutor.TaskBuilder()
                 // clean target dir for projects
                 .addTask(new CleanTargetDirTask(), !rebuildStatus

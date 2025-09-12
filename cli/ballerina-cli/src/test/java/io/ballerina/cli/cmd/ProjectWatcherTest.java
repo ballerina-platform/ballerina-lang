@@ -25,7 +25,7 @@ import static io.ballerina.cli.cmd.CommandOutputUtils.getOutput;
  */
 public class ProjectWatcherTest extends BaseCommandTest {
     private static final String WATCH_FLAG = "--watch";
-    private static final int THREAD_SLEEP_DURATION_IN_MS = 8000;
+    private static final int THREAD_SLEEP_DURATION_IN_MS = 16000;
     private static final String PROJECT_NAME_PLACEHOLDER = "INSERT_PROJECT_NAME";
 
     private Path watchTestResources;

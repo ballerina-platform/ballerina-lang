@@ -2160,8 +2160,8 @@ public class TestBuildProject extends BaseTest {
     public void testAccessSemanticModelAfterFirstBuild() throws IOException {
         Path projectPath = tempResourceDir.resolve("myproject");
         // Delete build file if already exists
-        if (projectPath.resolve(TARGET_DIR_NAME).resolve(BUILD_FILE).toFile().exists()) {
-            Files.delete(projectPath.resolve(TARGET_DIR_NAME).resolve(BUILD_FILE));
+        if (projectPath.resolve(TARGET_DIR_NAME).toFile().exists()) {
+            ProjectUtils.deleteDirectory(projectPath.resolve(TARGET_DIR_NAME));
         }
         // Set sticky false, to imitate the default build command behavior
         BuildOptions.BuildOptionsBuilder buildOptionsBuilder = BuildOptions.builder();
@@ -2173,7 +2173,7 @@ public class TestBuildProject extends BaseTest {
         PackageCompilation compilation = project.currentPackage().getCompilation();
         compilation.diagnosticResult().diagnostics().forEach(OUT::println);
         Assert.assertFalse(compilation.diagnosticResult().hasErrors());
-        // BIR is not expected to be generated after the frontend opetations
+        // BIR is not expected to be generated after the frontend operations
         Assert.assertFalse(project.targetDir().resolve(CACHES_DIR_NAME).resolve("sameera").resolve("myproject")
                 .resolve("0.1.0").resolve(REPO_BIR_CACHE_NAME).resolve("myproject.bir").toFile().exists());
         // Call `JBallerinaBackend`

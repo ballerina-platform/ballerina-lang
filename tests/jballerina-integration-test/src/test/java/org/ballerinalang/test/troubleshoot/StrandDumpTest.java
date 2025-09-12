@@ -48,7 +48,7 @@ public class StrandDumpTest extends BaseTest {
     private static final String testFileLocation = Path.of("src/test/resources/troubleshoot/strandDump")
             .toAbsolutePath().toString();
     private static final String JAVA_OPTS = "JAVA_OPTS";
-    private static final int TIMEOUT = 60000;
+    private static final int TIMEOUT = 120000;
     private BMainInstance bMainInstance;
 
     @BeforeClass

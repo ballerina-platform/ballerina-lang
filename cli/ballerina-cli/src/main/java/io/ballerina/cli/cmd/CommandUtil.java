@@ -1535,8 +1535,8 @@ public final class CommandUtil {
                 }
                 return !getSHA256Digest(execFile).equals(targetExecMetaInfo.getHash());
             }
-            // It's from workspace build dependency
-            return buildJson.getTargetExecMetaInfo() != null;
+            // Executable is deleted or the previous command is bal test
+            return buildJson.getTargetExecMetaInfo() == null;
         } catch (IOException | NoSuchAlgorithmException e) {
             return true;
         }
