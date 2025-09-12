@@ -117,7 +117,7 @@ public class TestCommand implements BLauncherCmd {
     }
 
     TestCommand(Path projectPath, PrintStream outStream, PrintStream errStream, boolean exitWhenFinish,
-                       Boolean testReport, Path targetDir) {
+                Boolean testReport, Path targetDir) {
         this.projectPath = projectPath;
         this.outStream = outStream;
         this.errStream = errStream;
@@ -235,6 +235,9 @@ public class TestCommand implements BLauncherCmd {
     @CommandLine.Option(names = "--locking-mode", hidden = true,
             description = "allow passing the package locking mode.")
     private String lockingMode;
+
+    @CommandLine.Option(names = "--min-coverage", description = "minimum code coverage percentage to pass the test")
+    private Float minCoverage;
 
     private static final String testCmd = "bal test [--OPTIONS]\n" +
             "                   [<ballerina-file> | <package-path>] [(-Ckey=value)...]";
@@ -416,7 +419,7 @@ public class TestCommand implements BLauncherCmd {
                         cliArgs, isParallelExecution), !isTestingDelegated)
                 .addTask(new RunTestsTask(outStream, errStream, rerunTests, groupList, disableGroupList,
                                 testList, includes, coverageFormat, moduleMap, listGroups, excludes, cliArgs,
-                                isParallelExecution),
+                                isParallelExecution, minCoverage),
                         (project.buildOptions().nativeImage() || isTestingDelegated))
                 .addTask(new RunNativeImageTestTask(outStream, rerunTests, groupList, disableGroupList,
                                 testList, includes, coverageFormat, moduleMap, listGroups, isParallelExecution),
