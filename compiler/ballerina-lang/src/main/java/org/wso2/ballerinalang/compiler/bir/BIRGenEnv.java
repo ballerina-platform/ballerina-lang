@@ -45,6 +45,8 @@ class BIRGenEnv {
 
     BIRFunction enclFunc;
 
+    boolean isInitFunc;
+
     List<BIRBasicBlock> enclBasicBlocks;
 
     // This is a cache which can be stored inside the BIRFunction
@@ -103,6 +105,7 @@ class BIRGenEnv {
         this.enclBB = null;
         this.returnBB = null;
         this.enclFunc = null;
+        this.isInitFunc = false;
         this.varDclsByBlock.clear();
         this.unlockVars.clear();
     }

@@ -1242,10 +1242,9 @@ public class BIRPackageSymbolEnter {
             BType type = readTypeFromCp();
             int pkgCpIndex = inputStream.readInt();
             PackageID pkgId = getPackageId(pkgCpIndex);
-
-            BInvokableSymbol invokableSymbol = Symbols.createFunctionSymbol(flags, Names.fromString(name),
-                                               Names.fromString(name), pkgId, type, null, false,
-                                               symTable.builtinPos, VIRTUAL);
+            BInvokableSymbol invokableSymbol = Symbols.createInvokableSymbol(SymTag.VARIABLE, flags,
+                    Names.fromString(name), Names.fromString(name), pkgId, type, env.pkgSymbol.owner,
+                    symTable.builtinPos,  VIRTUAL);
             invokableSymbol.retType = invokableSymbol.type.getReturnType();
 
             int parameters = inputStream.readInt();

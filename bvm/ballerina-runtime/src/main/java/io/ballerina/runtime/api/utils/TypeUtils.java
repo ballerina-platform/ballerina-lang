@@ -136,7 +136,12 @@ public final class TypeUtils {
             return referredType;
         }
         if (type.getTag() == TypeTags.TYPE_REFERENCED_TYPE_TAG) {
-            referredType = getReferredType(((ReferenceType) type).getReferredType());
+            Type rType = ((ReferenceType) type).getReferredType();
+            if (rType == null) {
+                referredType = type;
+            } else {
+                referredType = getReferredType(rType);
+            }
         } else {
             referredType = type;
         }

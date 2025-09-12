@@ -38,7 +38,7 @@ import org.ballerinalang.maven.MavenResolver;
 import org.ballerinalang.maven.Utils;
 import org.ballerinalang.maven.exceptions.MavenResolverException;
 import org.wso2.ballerinalang.compiler.bir.codegen.CodeGenerator;
-import org.wso2.ballerinalang.compiler.bir.codegen.CompiledJarFile;
+import org.wso2.ballerinalang.compiler.bir.codegen.internal.CompiledJarFile;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.InteropValidator;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;

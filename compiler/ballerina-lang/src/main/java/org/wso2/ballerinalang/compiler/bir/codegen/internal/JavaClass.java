@@ -34,7 +34,6 @@ public class JavaClass {
     public final List<BIRNode.BIRFunction> functions;
 
     public JavaClass(String sourceFileName, String cleanedBalFileName) {
-
         this.sourceFileName = sourceFileName;
         this.cleanedBalFileName = cleanedBalFileName;
         this.functions = new ArrayList<>();

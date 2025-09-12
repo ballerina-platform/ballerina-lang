@@ -53,18 +53,23 @@ public final class ErrorUtils {
 
     /**
      * Create Ballerina error using java exception for interop.
+     * Used for codegen
      *
      * @param e java exception
      * @return ballerina error
      */
+    @SuppressWarnings("unused")
     public static ErrorValue createInteropError(Throwable e) {
+        Throwable cause = e.getCause();
+        if (cause instanceof ErrorValue bError) {
+            return bError;
+        }
         MappingInitialValueEntry[] initialValues;
         String message = e.getMessage();
-        Throwable cause = e.getCause();
         if (message != null && cause != null) {
             initialValues = new MappingInitialValueEntry[2];
             initialValues[0] = new MappingInitialValueEntry.KeyValueEntry(ERROR_MESSAGE_FIELD,
-                                                                            StringUtils.fromString(message));
+                    StringUtils.fromString(message));
             initialValues[1] = new MappingInitialValueEntry.KeyValueEntry(ERROR_CAUSE_FIELD, createError(StringUtils.
                     fromString(cause.getClass().getName()), StringUtils.fromString(cause.getMessage())));
 
@@ -75,7 +80,7 @@ public final class ErrorUtils {
                         StringUtils.fromString(message));
             } else {
                 initialValues[0] = new MappingInitialValueEntry.KeyValueEntry(ERROR_CAUSE_FIELD, createError(StringUtils
-                                  .fromString(cause.getClass().getName()), StringUtils.fromString(cause.getMessage())));
+                        .fromString(cause.getClass().getName()), StringUtils.fromString(cause.getMessage())));
             }
         } else {
             initialValues = new MappingInitialValueEntry[0];
@@ -85,13 +90,10 @@ public final class ErrorUtils {
         return (ErrorValue) createError(StringUtils.fromString(e.getClass().getName()), detailMap);
     }
 
-    public static Object handleResourceError(Object returnValue) {
-        if (returnValue instanceof BError error) {
-            throw error;
-        }
-        return returnValue;
-    }
-
+    @SuppressWarnings("unused")
+    /*
+     * Used for codegen
+     */
     public static ErrorValue trapError(Throwable throwable) {
         // Used to trap and create error value for non error value exceptions. At the moment, we can trap
         // stack overflow exceptions in addition to error value.
@@ -116,22 +118,20 @@ public final class ErrorUtils {
     }
 
     public static BError createTypeCastError(Object sourceVal, Type targetType) {
-        throw createError(ErrorReasons.TYPE_CAST_ERROR,
-                          ErrorHelper.getErrorDetails(ErrorCodes.TYPE_CAST_ERROR,
-                                                               TypeChecker.getType(sourceVal), targetType));
+        throw createError(ErrorReasons.TYPE_CAST_ERROR, ErrorHelper.getErrorDetails(ErrorCodes.TYPE_CAST_ERROR,
+                TypeChecker.getType(sourceVal), targetType));
 
     }
 
     public static BError createTypeCastError(Object sourceVal, Type targetType, String detailMessage) {
-        return createError(ErrorReasons.TYPE_CAST_ERROR, ErrorHelper.getErrorMessage(
-                ErrorCodes.TYPE_CAST_ERROR, TypeChecker.getType(sourceVal), targetType)
-                .concat(StringUtils.fromString(": " + detailMessage)));
+        return createError(ErrorReasons.TYPE_CAST_ERROR, ErrorHelper.getErrorMessage(ErrorCodes.TYPE_CAST_ERROR,
+                        TypeChecker.getType(sourceVal), targetType).concat(
+                                StringUtils.fromString(": " + detailMessage)));
     }
 
     public static BError createBToJTypeCastError(Object sourceVal, String targetType) {
-        throw createError(ErrorReasons.TYPE_CAST_ERROR,
-                          ErrorHelper.getErrorDetails(ErrorCodes.J_TYPE_CAST_ERROR,
-                                                               TypeChecker.getType(sourceVal), targetType));
+        throw createError(ErrorReasons.TYPE_CAST_ERROR, ErrorHelper.getErrorDetails(ErrorCodes.J_TYPE_CAST_ERROR,
+                TypeChecker.getType(sourceVal), targetType));
     }
 
     public static BError createJToBTypeCastError(Object sourceVal, Type targetType) {
@@ -146,9 +146,8 @@ public final class ErrorUtils {
 
     public static BError createNumericConversionError(Object inputValue, Type targetType) {
         throw createError(ErrorReasons.NUMBER_CONVERSION_ERROR,
-                          ErrorHelper.getErrorDetails(
-                                  ErrorCodes.INCOMPATIBLE_SIMPLE_TYPE_CONVERT_OPERATION,
-                                  TypeChecker.getType(inputValue), inputValue, targetType));
+                ErrorHelper.getErrorDetails(ErrorCodes.INCOMPATIBLE_SIMPLE_TYPE_CONVERT_OPERATION,
+                        TypeChecker.getType(inputValue), inputValue, targetType));
     }
 
     public static BError createNumericConversionError(Object inputValue, Type inputType, Type targetType) {
@@ -175,9 +174,8 @@ public final class ErrorUtils {
 
     public static BError createConversionError(Object inputValue, Type targetType, String detailMessage) {
         return createError(ErrorReasons.BALLERINA_PREFIXED_CONVERSION_ERROR,
-                ErrorHelper.getErrorMessage(
-                INCOMPATIBLE_CONVERT_OPERATION, TypeChecker.getType(inputValue), targetType)
-                .concat(StringUtils.fromString(": " + detailMessage)));
+                ErrorHelper.getErrorMessage(INCOMPATIBLE_CONVERT_OPERATION, TypeChecker.getType(inputValue), targetType)
+                        .concat(StringUtils.fromString(": " + detailMessage)));
     }
 
     public static BError createInvalidDecimalError(String value) {
@@ -186,8 +184,7 @@ public final class ErrorUtils {
     }
 
     public static BError createInvalidFractionDigitsError() {
-        throw createError(getModulePrefixedReason(FLOAT_LANG_LIB,
-                ErrorReasons.INVALID_FRACTION_DIGITS_ERROR),
+        throw createError(getModulePrefixedReason(FLOAT_LANG_LIB, ErrorReasons.INVALID_FRACTION_DIGITS_ERROR),
                 ErrorHelper.getErrorDetails(ErrorCodes.INVALID_FRACTION_DIGITS));
     }
 

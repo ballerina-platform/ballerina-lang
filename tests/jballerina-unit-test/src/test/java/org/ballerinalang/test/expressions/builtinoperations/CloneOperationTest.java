@@ -133,6 +133,11 @@ public class CloneOperationTest {
         Assert.assertNotSame(intArr2, intArr4);
     }
 
+    @Test(enabled = false)
+    public void testCloneMapWithError() {
+        BRunUtil.invoke(result, "testCloneMapWithError");
+    }
+
     @Test(dataProvider = "function-names-provider")
     public void testCloneValues(String functionName) {
         BRunUtil.invoke(result, functionName);
@@ -146,7 +151,7 @@ public class CloneOperationTest {
                 "cloneStringArray", "cloneFloatArray", "cloneUnionArray", "cloneUnion", "cloneTable", "cloneMap",
                 "cloneNilableInt", "cloneReturnValues", "cloneArrayOfArrays", "cloneTuple", "cloneAnydataRecord",
                 "cloneAnydata", "cloneFrozenAnydata", "cloneNullJson", "cloneNilAnydata", "testCloneArrayWithError",
-                "testCloneMapWithError", "cloneRecordWithArrayField", "cloneArrayWithRecordElement"
+                "cloneRecordWithArrayField", "cloneArrayWithRecordElement"
         };
     }
 

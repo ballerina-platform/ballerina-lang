@@ -43,6 +43,8 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.StringJoiner;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import static io.ballerina.projects.util.ProjectConstants.BALLERINA_TOML;
 import static io.ballerina.projects.util.ProjectPaths.isBalFile;
@@ -57,7 +59,6 @@ public final class PackageUtils {
 
     public static final String BAL_FILE_EXT = ".bal";
     public static final String BAL_TOML_FILE_NAME = "Ballerina.toml";
-    public static final String INIT_CLASS_NAME = "$_init";
     public static final String INIT_TYPE_INSTANCE_PREFIX = "$type$";
     public static final String GENERATED_VAR_PREFIX = "$";
     static final String USER_MODULE_DIR = "modules";
@@ -66,7 +67,21 @@ public final class PackageUtils {
     static final String TEST_PKG_POSTFIX = "$test";
     private static final String URI_SCHEME_FILE = "file";
     public static final String URI_SCHEME_BALA = "bala";
-
+    public static final String[] TYPE_PREFIXES = {
+            "types.record_types",
+            "types.union_types",
+            "types.object_types",
+            "types.error_types",
+            "types.tuple_types"
+    };
+    public static final String GLOBAL_VARIABLES_PACKAGE_NAME = "identifiers.global_vars";
+    public static final String GLOBAL_CONSTANTS_PACKAGE_NAME = "identifiers.constants";
+    public static final String ALL_GLOBAL_VAR_CLASS_NAME = "$global_vars";
+    public static final String ALL_CONSTANTS_CLASS_NAME = "$constants";
+    public static final String LOAD_DEBUG_VARIABLES_METHOD = "loadDebugVariables";
+    public static final String TYPE_VAR_NAME = "$type";
+    public static final String VALUE_VAR_NAME = "$value";
+    private static final String OBJECT_CLASS_PATTERN = "values" + File.separator;
     private static final String FILE_SEPARATOR_REGEX = File.separatorChar == '\\' ? "\\\\" : File.separator;
 
     private PackageUtils() {
@@ -213,15 +228,17 @@ public final class PackageUtils {
      * @param className class name
      * @return full-qualified class name
      */
-    public static String getQualifiedClassName(SuspendedContext context, String className) {
-        if (context.getSourceType() == DebugSourceType.SINGLE_FILE) {
-            return className;
-        }
+    public static String getQualifiedClassName(SuspendedContext context, String className, String... packageNames) {
         StringJoiner classNameJoiner = new StringJoiner(".");
-        classNameJoiner.add(context.getPackageOrg().get())
-                .add(context.getModuleName().get())
-                .add(context.getPackageMajorVersion().get())
-                .add(className);
+        if (context.getSourceType() != DebugSourceType.SINGLE_FILE) {
+            classNameJoiner.add(context.getPackageOrg().get())
+                    .add(context.getModuleName().get())
+                    .add(context.getPackageMajorVersion().get());
+        }
+        for (String packageName : packageNames) {
+            classNameJoiner.add(packageName);
+        }
+        classNameJoiner.add(className);
         return classNameJoiner.toString();
     }
 
@@ -284,8 +301,8 @@ public final class PackageUtils {
             if (paths.isEmpty() || names.isEmpty()) {
                 return referenceType.name();
             }
-            String path = paths.get(0);
-            String name = names.get(0);
+            String path = paths.getFirst();
+            String name = names.getFirst();
             String[] nameParts = getQModuleNameParts(name);
             String srcFileName = nameParts[nameParts.length - 1];
 
@@ -295,7 +312,12 @@ public final class PackageUtils {
 
             // Removes ".bal" extension if exists.
             srcFileName = srcFileName.replaceAll(BAL_FILE_EXT + "$", "");
-            path = path.replaceAll(name + "$", srcFileName);
+            if (path.contains(OBJECT_CLASS_PATTERN)) {
+                path = path.replaceAll(Pattern.quote(OBJECT_CLASS_PATTERN + name) + "$",
+                        Matcher.quoteReplacement(srcFileName));
+            } else {
+                path = path.replaceAll(Pattern.quote(name) + "$", Matcher.quoteReplacement(srcFileName));
+            }
             return replaceSeparators(path);
         } catch (Exception e) {
             return referenceType.name();

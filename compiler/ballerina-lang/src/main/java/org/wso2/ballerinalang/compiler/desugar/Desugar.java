@@ -426,6 +426,7 @@ public class Desugar extends BLangNodeVisitor {
     private int lambdaFunctionCount = 0;
     private int recordCount = 0;
     private int errorCount = 0;
+    private int errorDetailCount = 0;
     private int annonVarCount = 0;
     private int indexExprCount = 0;
     private int letCount = 0;
@@ -1652,11 +1653,15 @@ public class Desugar extends BLangNodeVisitor {
         // Create a simple var for the array 'any[] x = (tuple)' based on the dimension for x
 
         String name = anonModelHelper.getNextTupleVarKey(env.enclPkg.packageID);
-        final BLangSimpleVariable tuple =
-                ASTBuilderUtil.createVariable(varNode.pos, name, symTable.arrayAllType, null,
-                                              new BVarSymbol(0, Names.fromString(name), this.env.scope.owner.pkgID,
-                                                             symTable.arrayAllType, this.env.scope.owner, varNode.pos,
-                                                             VIRTUAL));
+        BSymbol owner;
+        if (varNode.symbol != null) {
+            owner = varNode.symbol.owner;
+        } else {
+            owner = this.env.scope.owner;
+        }
+        final BLangSimpleVariable tuple = ASTBuilderUtil.createVariable(varNode.pos, name, symTable.arrayAllType,
+                null, new BVarSymbol(0, Names.fromString(name), this.env.scope.owner.pkgID, symTable.arrayAllType,
+                        owner, varNode.pos, VIRTUAL));
         tuple.expr = varNode.expr;
         final BLangSimpleVariableDef variableDef = ASTBuilderUtil.createVariableDefStmt(varNode.pos, blockStmt);
         variableDef.var = tuple;
@@ -1674,11 +1679,15 @@ public class Desugar extends BLangNodeVisitor {
         varNode.typeNode = rewrite(varNode.typeNode, env);
         final BLangBlockStmt blockStmt = ASTBuilderUtil.createBlockStmt(varNode.pos);
         String name = anonModelHelper.getNextRecordVarKey(env.enclPkg.packageID);
-        final BLangSimpleVariable mapVariable =
-                ASTBuilderUtil.createVariable(varNode.pos, name, symTable.mapAllType, null,
-                                              new BVarSymbol(0, Names.fromString(name), this.env.scope.owner.pkgID,
-                                                             symTable.mapAllType, this.env.scope.owner, varNode.pos,
-                                                             VIRTUAL));
+        BSymbol owner;
+        if (varNode.symbol != null) {
+            owner = varNode.symbol.owner;
+        } else {
+            owner = this.env.scope.owner;
+        }
+        final BLangSimpleVariable mapVariable = ASTBuilderUtil.createVariable(varNode.pos, name, symTable.mapAllType,
+                null, new BVarSymbol(0, Names.fromString(name), this.env.scope.owner.pkgID, symTable.mapAllType,
+                        owner, varNode.pos, VIRTUAL));
         mapVariable.expr = varNode.expr;
         final BLangSimpleVariableDef variableDef = ASTBuilderUtil.createVariableDefStmt(varNode.pos, blockStmt);
         variableDef.var = mapVariable;
@@ -1696,8 +1705,14 @@ public class Desugar extends BLangNodeVisitor {
         BType errorType = varNode.getBType() == null ? symTable.errorType : varNode.getBType();
         // Create a simple var for the error 'error x = ($error$)'.
         String name = anonModelHelper.getNextErrorVarKey(env.enclPkg.packageID);
-        BVarSymbol errorVarSymbol = new BVarSymbol(0, Names.fromString(name), this.env.scope.owner.pkgID,
-                                                   errorType, this.env.scope.owner, varNode.pos, VIRTUAL);
+        BSymbol owner;
+        if (varNode.symbol != null) {
+            owner = varNode.symbol.owner;
+        } else {
+            owner = this.env.scope.owner;
+        }
+        BVarSymbol errorVarSymbol = new BVarSymbol(0, Names.fromString(name), this.env.scope.owner.pkgID, errorType,
+                owner, varNode.pos, VIRTUAL);
         final BLangSimpleVariable error = ASTBuilderUtil.createVariable(varNode.pos, name, errorType, null,
                 errorVarSymbol);
         error.expr = varNode.expr;
@@ -2080,9 +2095,9 @@ public class Desugar extends BLangNodeVisitor {
                 parentErrorVariable.pos,
                 convertedErrorVarSymbol, null);
 
-        BLangSimpleVariableDef detailTempVarDef = createVarDef("$error$detail",
-                                                               parentErrorVariable.detailExpr.getBType(),
-                                                               parentErrorVariable.detailExpr, parentErrorVariable.pos);
+        BLangSimpleVariableDef detailTempVarDef = createVarDef("$error$detail" + UNDERSCORE + errorDetailCount++,
+                parentErrorVariable.detailExpr.getBType(), parentErrorVariable.detailExpr, parentErrorVariable.pos);
+        detailTempVarDef.var.symbol.owner = errorVariableSymbol.owner;
         detailTempVarDef.setBType(parentErrorVariable.detailExpr.getBType());
         parentBlockStmt.addStatement(detailTempVarDef);
 
@@ -8306,7 +8321,7 @@ public class Desugar extends BLangNodeVisitor {
                                                                    bLangArrowFunction.funcType,
                                                                    env.enclEnv.enclVarSym, true,
                                                                    bLangArrowFunction.pos, VIRTUAL);
-
+        funcSymbol.type.tsymbol.pkgID = funcSymbol.pkgID;
         funcSymbol.originalName = new Name(funcNode.name.originalValue);
 
         SymbolEnv invokableEnv = SymbolEnv.createFunctionEnv(funcNode, funcSymbol.scope, env);
@@ -8326,7 +8341,11 @@ public class Desugar extends BLangNodeVisitor {
         List<BType> paramTypes = new ArrayList<>(paramSymbols.stream().map(paramSym -> paramSym.type).toList());
         funcNode.setBType(new BInvokableType(symTable.typeEnv(), paramTypes, getRestType(funcSymbol),
                 funcNode.returnTypeNode.getBType(), funcSymbol.type.tsymbol));
-
+        BType bType = bLangArrowFunction.getBType();
+        if (bType != null && Symbols.isFlagOn(bType.getFlags(), Flags.ISOLATED)) {
+            funcSymbol.flags |= Flags.ISOLATED;
+            funcNode.getBType().addFlags(Flags.ISOLATED);
+        }
         lambdaFunction.function.pos = bLangArrowFunction.pos;
         lambdaFunction.function.body.pos = bLangArrowFunction.pos;
         // At this phase lambda function is semantically correct. Therefore simply env can be assigned.

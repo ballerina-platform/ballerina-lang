@@ -221,8 +221,8 @@ public class TestReportTest extends BaseTestCase {
         float mathPercentage = (float) (Math.round(mathPercentageVal * 100.0) / 100.0);
 
         //foo module
-        int[] fooMainCovered = new int[]{19, 22, 23, 24, 29, 30, 36, 37, 50, 55, 56, 57, 60, 61, 64, 65, 69,
-                70, 71, 74, 75}, fooMainMissed = new int[]{26};
+        int[] fooMainCovered = new int[]{19, 22, 23, 24, 29, 30, 36, 37, 40, 50, 55, 56, 57, 60, 61, 64, 65, 69, 70,
+                71, 74, 75}, fooMainMissed = new int[]{26, 48};
         float fooMainPercentageVal =
                 (float) (fooMainCovered.length) / (fooMainCovered.length + fooMainMissed.length) * 100;
         float fooMainPercentage =
@@ -240,9 +240,9 @@ public class TestReportTest extends BaseTestCase {
         int barCovered = barMainCovered.length, barMissed = barMainMissed.length;
 
         //annot module
-        int[] annotMainCovered = new int[]{22, 26, 33, 34, 38, 41, 42, 43, 44, 48, 49, 50, 51, 55, 59, 61, 79, 80, 82,
-                83, 84, 85, 86, 87, 88, 92, 93, 94, 107, 109, 110},
-                annotMainMissed = new int[]{46, 63, 64, 65, 66, 67, 96, 98, 100, 101, 102, 104, 105};
+        int[] annotMainCovered = new int[]{20, 22, 26, 27, 33, 34, 41, 42, 43, 44, 46, 48, 49, 50, 51, 55, 63, 64, 65
+                , 66, 67, 70, 104, 105, 109, 110, 111, 112, 113, 114},
+                annotMainMissed = new int[]{38, 59, 61, 100, 101, 102, 107};
         float annotMainPercentageVal =
                 (float) (annotMainCovered.length) / (annotMainMissed.length + annotMainCovered.length) * 100;
         float annotMainPercentage = (float) (Math.round(annotMainPercentageVal * 100.0) / 100.0);
@@ -357,8 +357,8 @@ public class TestReportTest extends BaseTestCase {
         float mathPercentage = (float) (Math.round(mathPercentageVal * 100.0) / 100.0);
 
         //foo module
-        int[] fooMainCovered = new int[]{}, fooMainMissed = new int[]{19, 22, 23, 24, 26, 29, 30, 36, 37,
-                50, 55, 56, 57, 60, 61, 64, 65, 69, 70, 71, 74, 75};
+        int[] fooMainCovered = new int[]{}, fooMainMissed = new int[]{19, 22, 23, 24, 26, 29, 30, 36, 37, 40, 48, 50,
+                55, 56, 57, 60, 61, 64, 65, 69, 70, 71, 74, 75};
         float fooMainPercentageVal =
                 (float) (fooMainCovered.length) / (fooMainCovered.length + fooMainMissed.length) * 100;
         float fooMainPercentage = (float) (Math.round(fooMainPercentageVal * 100.0) / 100.0);
@@ -374,9 +374,9 @@ public class TestReportTest extends BaseTestCase {
         int barCovered = barMainCovered.length, barMissed = barMainMissed.length;
 
         //annot module
-        int[] annotMainCovered = new int[]{22, 26, 33, 34, 38, 41, 42, 43, 44, 48, 49, 50, 51, 55, 59, 61, 79, 80, 82,
-                83, 84, 85, 86, 87, 88, 92, 93, 94, 107},
-                annotMainMissed = new int[]{46, 63, 64, 65, 66, 67, 96, 98, 100, 101, 102, 104, 105, 109, 110};
+        int[] annotMainCovered = new int[]{20, 22, 33, 34},
+                annotMainMissed = new int[]{26, 27, 38, 41, 42, 43, 44, 46, 48, 49, 50, 51, 55, 59, 61, 63, 64, 65,
+                        66, 67, 70, 100, 101, 102, 104, 105, 107, 109, 110, 111, 112, 113, 114};
         float annotMainPercentageVal =
                 (float) (annotMainCovered.length) / (annotMainMissed.length + annotMainCovered.length) * 100;
         float annotMainPercentage = (float) (Math.round(annotMainPercentageVal * 100.0) / 100.0);
