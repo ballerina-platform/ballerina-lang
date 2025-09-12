@@ -29,12 +29,6 @@ import io.opentelemetry.context.Context;
 import io.opentelemetry.context.propagation.TextMapGetter;
 import io.opentelemetry.context.propagation.TextMapPropagator;
 import io.opentelemetry.context.propagation.TextMapSetter;
-import org.ballerinalang.jvm.StringUtils;
-import org.ballerinalang.jvm.types.BMapType;
-import org.ballerinalang.jvm.types.BTypes;
-import org.ballerinalang.jvm.values.MapValueImpl;
-import org.ballerinalang.jvm.values.api.BMap;
-import org.ballerinalang.jvm.values.api.BString;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -48,9 +42,8 @@ import java.util.Map;
 public class BOtelSpan {
     private final Tracer tracer;
     private final Span span;
-    private BMap<BString, Object> bOtelSpanContext;
+    private Map<String, String> bOtelSpanContext;
 
-    private static final BMapType IMMUTABLE_STRING_MAP_TYPE = new BMapType(BTypes.typeString);
     private static final PropagatingParentContextGetter GETTER = new PropagatingParentContextGetter();
     private static final PropagatingParentContextSetter SETTER = new PropagatingParentContextSetter();
 
@@ -178,15 +171,12 @@ public class BOtelSpan {
         return carrierMap;
     }
 
-    public BMap<BString, Object> getBOtelSpanContext() {
-
+    public Map<String, String> getBOtelSpanContext() {
         if (bOtelSpanContext == null) {
-            bOtelSpanContext = new MapValueImpl<>(IMMUTABLE_STRING_MAP_TYPE);
+            bOtelSpanContext = new HashMap<>();
             SpanContext spanContext = span.getSpanContext();
-            bOtelSpanContext.put(TraceConstants.SPAN_CONTEXT_MAP_KEY_TRACE_ID,
-                    StringUtils.fromString(spanContext.getTraceId()));
-            bOtelSpanContext.put(TraceConstants.SPAN_CONTEXT_MAP_KEY_SPAN_ID,
-                    StringUtils.fromString(spanContext.getSpanId()));
+            bOtelSpanContext.put(TraceConstants.SPAN_CONTEXT_MAP_KEY_TRACE_ID.getValue(), spanContext.getTraceId());
+            bOtelSpanContext.put(TraceConstants.SPAN_CONTEXT_MAP_KEY_SPAN_ID.getValue(), spanContext.getSpanId());
         }
         return bOtelSpanContext;
     }

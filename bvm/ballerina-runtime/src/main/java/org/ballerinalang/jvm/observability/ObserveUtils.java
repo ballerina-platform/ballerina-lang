@@ -170,9 +170,16 @@ public class ObserveUtils {
      * @return property map
      */
     public static Map<String, String> getContextProperties(ObserverContext observerContext) {
-        BSpan bSpan = (BSpan) observerContext.getProperty(KEY_SPAN);
-        if (bSpan != null) {
-            return bSpan.getTraceContext();
+        if (getTracingProtocol().equals(OTEL_TRACING_PROTOCOL)) {
+            BOtelSpan bOtelSpan = (BOtelSpan) observerContext.getProperty(KEY_SPAN);
+            if (bOtelSpan != null) {
+                return bOtelSpan.getBOtelSpanContext();
+            }
+        } else {
+            BSpan bSpan = (BSpan) observerContext.getProperty(KEY_SPAN);
+            if (bSpan != null) {
+                return bSpan.getTraceContext();
+            }
         }
         return Collections.emptyMap();
     }
