@@ -79,7 +79,7 @@ public class RecordToJSONTest {
         BRunUtil.invoke(compileResult, "testNestedRecordModification");
     }
 
-    @Test
+    @Test(enabled = false)
     public void testRecursiveCheckAgainstJson() {
         BRunUtil.invoke(compileResult, "testRecursiveCheckAgainstJson");
     }

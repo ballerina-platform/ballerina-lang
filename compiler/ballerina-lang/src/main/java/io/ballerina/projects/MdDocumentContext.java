@@ -31,16 +31,16 @@ class MdDocumentContext {
     private TextDocument textDocument;
     private final DocumentId documentId;
     private final String name;
-    private final String content;
+    private final DocumentConfig documentConfig;
 
-    private MdDocumentContext(DocumentId documentId, String name, String content) {
+    private MdDocumentContext(DocumentId documentId, String name, DocumentConfig config) {
         this.documentId = documentId;
         this.name = name;
-        this.content = content;
+        this.documentConfig = config;
     }
 
     static MdDocumentContext from(DocumentConfig documentConfig) {
-        return new MdDocumentContext(documentConfig.documentId(), documentConfig.name(), documentConfig.content());
+        return new MdDocumentContext(documentConfig.documentId(), documentConfig.name(), documentConfig);
     }
 
     DocumentId documentId() {
@@ -53,12 +53,12 @@ class MdDocumentContext {
 
     public TextDocument textDocument() {
         if (this.textDocument == null) {
-            this.textDocument = TextDocuments.from(this.content);
+            this.textDocument = TextDocuments.from(this.documentConfig::content);
         }
         return this.textDocument;
     }
 
     String content() {
-        return this.content;
+        return this.documentConfig.content();
     }
 }

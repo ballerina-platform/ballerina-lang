@@ -263,7 +263,7 @@ public final class PackageConfigCreator {
 
     static DocumentConfig createDocumentConfig(DocumentData documentData, ModuleId moduleId) {
         final DocumentId documentId = DocumentId.create(documentData.name(), moduleId);
-        return DocumentConfig.from(documentId, documentData.content(), documentData.name());
+        return DocumentConfig.from(documentId, documentData::content, documentData.name());
     }
 
     private static List<ModuleDescriptor> getModuleDependencies(Map<ModuleDescriptor, List<ModuleDescriptor>>
