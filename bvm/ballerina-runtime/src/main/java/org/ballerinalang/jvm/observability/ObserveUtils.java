@@ -175,14 +175,13 @@ public class ObserveUtils {
             if (bOtelSpan != null) {
                 return bOtelSpan.getBOtelSpanContext();
             }
-            return Collections.emptyMap();
         } else {
             BSpan bSpan = (BSpan) observerContext.getProperty(KEY_SPAN);
             if (bSpan != null) {
                 return bSpan.getTraceContext();
             }
-            return Collections.emptyMap();
         }
+        return Collections.emptyMap();
     }
 
     /**
