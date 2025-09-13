@@ -228,7 +228,8 @@ public class PackCommand implements BLauncherCmd {
                 Optional<String> readmePathOpt = Optional.ofNullable(project.currentPackage().manifest().readme());
                 if (readmePathOpt.isPresent()) {
                     missingFilesMsg = String.format(
-                            "warning: The specified readme file '%s' is missing. It is required when pushing to Ballerina Central.",
+                            "warning: The specified readme file '%s' is missing. It is required when " 
+                            + "pushing to Ballerina Central.",
                             readmePathOpt.get()
                     );
                 } else {
