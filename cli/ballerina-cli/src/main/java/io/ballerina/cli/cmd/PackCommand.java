@@ -227,8 +227,10 @@ public class PackCommand implements BLauncherCmd {
                 String missingFilesMsg;
                 Optional<String> readmePathOpt = Optional.ofNullable(project.currentPackage().manifest().readme());
                 if (readmePathOpt.isPresent()) {
-                    missingFilesMsg = String.format("warning: The specified readme file '%s' is missing. It is required when pushing to Ballerina Central.",
-                            readmePathOpt.get());
+                    missingFilesMsg = String.format(
+                            "warning: The specified readme file '%s' is missing. It is required when pushing to Ballerina Central.",
+                            readmePathOpt.get()
+                    );
                 } else {
                     boolean readmeExists = Files.exists(this.projectPath.resolve("README.md"));
                     boolean packageMdExists = Files.exists(this.projectPath.resolve("Package.md"));
@@ -236,9 +238,11 @@ public class PackCommand implements BLauncherCmd {
                         missingFilesMsg = "warning: Neither README.md nor Package.md is present in the package. " +
                                 "At least one is required when pushing to Ballerina Central.";
                     } else if (!readmeExists) {
-                        missingFilesMsg = "warning: README.md is missing. It is recommended to add documentation before pushing to Ballerina Central.";
+                        missingFilesMsg = "warning: README.md is missing. It is recommended to add documentation " + 
+                                "before pushing to Ballerina Central.";
                     } else {
-                        missingFilesMsg = "warning: Package.md is missing. It is recommended to add documentation before pushing to Ballerina Central.";
+                        missingFilesMsg = "warning: Package.md is missing. It is recommended to add documentation " + 
+                                "before pushing to Ballerina Central.";
                     }
                 }
                 CommandUtil.printError(this.errStream, missingFilesMsg, "", false);
