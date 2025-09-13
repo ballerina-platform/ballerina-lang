@@ -205,7 +205,7 @@ public class PackCommand implements BLauncherCmd {
             Path readmeFilePath = null;
 
             // 1. Check if a custom readme path is defined in Ballerina.toml
-            Optional<String> readmePathOptional = project.currentPackage().manifest().readme();
+            Optional<String> readmePathOptional = Optional.ofNullable(project.currentPackage().manifest().readme());
             if (readmePathOptional.isPresent()) {
                 Path customPath = Paths.get(readmePathOptional.get());
                 readmeFilePath = customPath.isAbsolute()
@@ -225,7 +225,7 @@ public class PackCommand implements BLauncherCmd {
             // 3. Warn if the resolved readme file is missing or empty
             if (readmeFilePath == null || !Files.exists(readmeFilePath)) {
                 String missingFilesMsg;
-                Optional<String> readmePathOpt = project.currentPackage().manifest().readme();
+                Optional<String> readmePathOpt = Optional.ofNullable(project.currentPackage().manifest().readme());
                 if (readmePathOpt.isPresent()) {
                     missingFilesMsg = String.format("warning: The specified readme file '%s' is missing. It is required when pushing to Ballerina Central.",
                             readmePathOpt.get());
@@ -241,7 +241,7 @@ public class PackCommand implements BLauncherCmd {
                         missingFilesMsg = "warning: Package.md is missing. It is recommended to add documentation before pushing to Ballerina Central.";
                     }
                 }
-                CommandUtil.printError(this.errStream, missingFilesMsg);
+                CommandUtil.printError(this.errStream, missingFilesMsg, "", false);
             } else {
                 try {
                     String content = Files.readString(readmeFilePath);
