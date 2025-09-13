@@ -263,7 +263,6 @@ class PackageContext {
                 .setDumpRawGraphs(this.compilationOptions.dumpRawGraphs())
                 .setListConflictedClasses(this.compilationOptions.listConflictedClasses())
                 .setConfigSchemaGen(this.compilationOptions.configSchemaGen())
-                .setEnableCache(this.compilationOptions.enableCache())
                 .setRemoteManagement(this.compilationOptions.remoteManagement())
                 .build();
         CompilationOptions mergedOptions = options.acceptTheirs(compilationOptions);

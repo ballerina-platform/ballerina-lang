@@ -2173,10 +2173,13 @@ public class TestBuildProject extends BaseTest {
         PackageCompilation compilation = project.currentPackage().getCompilation();
         compilation.diagnosticResult().diagnostics().forEach(OUT::println);
         Assert.assertFalse(compilation.diagnosticResult().hasErrors());
+        // BIR is not expected to be generated after the frontend opetations
+        Assert.assertFalse(project.targetDir().resolve(CACHES_DIR_NAME).resolve("sameera").resolve("myproject")
+                .resolve("0.1.0").resolve(REPO_BIR_CACHE_NAME).resolve("myproject.bir").toFile().exists());
         // Call `JBallerinaBackend`
         JBallerinaBackend.from(compilation, JvmTarget.JAVA_21);
-        // BIR is not expected to be generated since the enable-cache option is not set
-        Assert.assertFalse(project.targetDir().resolve(CACHES_DIR_NAME).resolve("sameera").resolve("myproject")
+        // BIR is expected to be generated aftr the backend operations
+        Assert.assertTrue(project.targetDir().resolve(CACHES_DIR_NAME).resolve("sameera").resolve("myproject")
                 .resolve("0.1.0").resolve(REPO_BIR_CACHE_NAME).resolve("myproject.bir").toFile().exists());
 
         // 2) Build project again with build file

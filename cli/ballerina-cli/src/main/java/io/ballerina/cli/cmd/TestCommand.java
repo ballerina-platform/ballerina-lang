@@ -22,6 +22,7 @@ import io.ballerina.cli.TaskExecutor;
 import io.ballerina.cli.task.CleanTargetBinTestsDirTask;
 import io.ballerina.cli.task.CleanTargetCacheDirTask;
 import io.ballerina.cli.task.CompileTask;
+import io.ballerina.cli.task.CreateFingerprintTask;
 import io.ballerina.cli.task.CreateTestExecutableTask;
 import io.ballerina.cli.task.DumpBuildTimeTask;
 import io.ballerina.cli.task.ResolveMavenDependenciesTask;
@@ -40,20 +41,27 @@ import io.ballerina.projects.ProjectKind;
 import io.ballerina.projects.directory.BuildProject;
 import io.ballerina.projects.directory.ProjectLoader;
 import io.ballerina.projects.directory.WorkspaceProject;
+import io.ballerina.projects.internal.model.BuildJson;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectPaths;
+import org.wso2.ballerinalang.util.RepoUtils;
 import picocli.CommandLine;
 
+import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static io.ballerina.cli.cmd.Constants.TEST_COMMAND;
-import static io.ballerina.projects.util.ProjectUtils.isProjectUpdated;
+import static io.ballerina.cli.launcher.LauncherUtils.createLauncherException;
+import static io.ballerina.projects.util.ProjectConstants.BUILD_FILE;
+import static io.ballerina.projects.util.ProjectUtils.readBuildJson;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.SYSTEM_PROP_BAL_DEBUG;
 import static org.ballerinalang.test.runtime.util.TesterinaConstants.JACOCO_XML_FORMAT;
 
@@ -203,9 +211,6 @@ public class TestCommand implements BLauncherCmd {
     @CommandLine.Option(names = "--dump-raw-graphs", description = "Print all intermediate graphs created in the " +
             "dependency resolution process.", hidden = true)
     private boolean dumpRawGraphs;
-
-    @CommandLine.Option(names = "--enable-cache", description = "enable caches for the compilation", hidden = true)
-    private Boolean enableCache;
 
     @CommandLine.Option(names = "--graalvm", description = "enable running test suite against native image")
     private Boolean nativeImage;
@@ -364,6 +369,8 @@ public class TestCommand implements BLauncherCmd {
         }
 
         boolean isTestingDelegated = project.buildOptions().cloud().equals("docker");
+        AtomicInteger testResult = new AtomicInteger(0);
+
         if (project.kind() == ProjectKind.WORKSPACE_PROJECT) {
             WorkspaceProject workspaceProject = (WorkspaceProject) project;
             DependencyGraph<BuildProject> projectDependencyGraph = resolveWorkspaceDependencies(workspaceProject);
@@ -372,16 +379,20 @@ public class TestCommand implements BLauncherCmd {
                 // the projects that are dependencies of the project at the specified path.
                 Optional<BuildProject> buildProjectOptional = projectDependencyGraph.getNodes().stream()
                         .filter(node -> node.sourceRoot().equals(absProjectPath)).findFirst();
-                executeTasks(true, false, isTestingDelegated, buildProjectOptional.orElseThrow(), cliArgs);
+
+                executeTasks(false, isTestingDelegated, buildProjectOptional.orElseThrow(), testResult, cliArgs);
             } else {
                 for (BuildProject buildProject : projectDependencyGraph.toTopologicallySortedList()) {
-                    executeTasks(true, false, isTestingDelegated, buildProject, cliArgs);
+                    executeTasks(false, isTestingDelegated, buildProject, testResult, cliArgs);
                 }
             }
         } else {
-            boolean isPackageModified = isProjectUpdated(project);
-            executeTasks(isPackageModified, project.kind().equals(ProjectKind.SINGLE_FILE_PROJECT),
-                    isTestingDelegated, project, cliArgs);
+            executeTasks(project.kind().equals(ProjectKind.SINGLE_FILE_PROJECT), isTestingDelegated, project,
+                    testResult, cliArgs);
+        }
+
+        if (testResult.get() != 0) {
+            throw createLauncherException("there are test failures");
         }
 
         if (this.exitWhenFinish) {
@@ -389,17 +400,34 @@ public class TestCommand implements BLauncherCmd {
         }
     }
 
-    private void executeTasks(boolean isPackageModified, boolean skip, boolean isTestingDelegated,
-                              Project project, String[] cliArgs) {
+    private void executeTasks(boolean skip, boolean isTestingDelegated,
+                              Project project, AtomicInteger testResult, String[] cliArgs) {
+        Path buildFilePath = project.targetDir().resolve(BUILD_FILE);
+        boolean rebuildStatus = true;
+        String prevTestClassPath  = "";
+        BuildJson buildJson;
+        try {
+            buildJson = readBuildJson(buildFilePath);
+            if (buildJson.getTestClassPath() != null) {
+                prevTestClassPath = buildJson.getTestClassPath();
+            }
+
+            rebuildStatus = isRebuildNeeded(project, buildJson) || prevTestClassPath == null
+                    || prevTestClassPath.isEmpty();
+        } catch (IOException e) {
+            //ignore exception
+        }
+
         // Run pre-build tasks to have the project reloaded.
         // In code coverage generation, the module map is duplicated.
         // Therefore, the project needs to be reloaded beforehand to provide the latest project instance
         // which has the newly generated code for code coverage calculation.
         // Hence, below tasks are executed before extracting the module map from the project.
         TaskExecutor preBuildTaskExecutor = new TaskExecutor.TaskBuilder()
-                .addTask(new CleanTargetCacheDirTask(), skip) // clean the target cache dir(projects only)
-                .addTask(new CleanTargetBinTestsDirTask(), (skip || !isTestingDelegated))
-                .addTask(new RunBuildToolsTask(outStream), skip) // run build tools
+                .addTask(new CleanTargetCacheDirTask(),
+                        !rebuildStatus || skip) // clean the target cache dir(projects only)
+                .addTask(new CleanTargetBinTestsDirTask(), !rebuildStatus || (skip || !isTestingDelegated))
+                .addTask(new RunBuildToolsTask(outStream), !rebuildStatus || skip) // run build tools
                 .build();
         preBuildTaskExecutor.executeTasks(project);
 
@@ -411,20 +439,21 @@ public class TestCommand implements BLauncherCmd {
         }
 
         TaskExecutor taskExecutor = new TaskExecutor.TaskBuilder()
-                .addTask(new ResolveMavenDependenciesTask(outStream)) // resolve maven dependencies in Ballerina.toml
+                // resolve maven dependencies in Ballerina.toml
+                .addTask(new ResolveMavenDependenciesTask(outStream, !rebuildStatus))
                 // compile the modules
-                .addTask(new CompileTask(outStream, errStream, false, false,
-                        isPackageModified, false))
+                .addTask(new CompileTask(outStream, errStream, false, false, !rebuildStatus))
                 .addTask(new CreateTestExecutableTask(outStream, groupList, disableGroupList, testList, listGroups,
                         cliArgs, isParallelExecution), !isTestingDelegated)
                 .addTask(new RunTestsTask(outStream, errStream, rerunTests, groupList, disableGroupList,
                                 testList, includes, coverageFormat, moduleMap, listGroups, excludes, cliArgs,
-                                isParallelExecution, minCoverage),
+                                isParallelExecution, rebuildStatus, prevTestClassPath, testResult, minCoverage),
                         (project.buildOptions().nativeImage() || isTestingDelegated))
                 .addTask(new RunNativeImageTestTask(outStream, rerunTests, groupList, disableGroupList,
                                 testList, includes, coverageFormat, moduleMap, listGroups, isParallelExecution),
                         (!project.buildOptions().nativeImage() || isTestingDelegated))
                 .addTask(new DumpBuildTimeTask(outStream), !project.buildOptions().dumpBuildTime())
+                .addTask(new CreateFingerprintTask(true, false), !rebuildStatus || skip)
                 .build();
         taskExecutor.executeTasks(project);
     }
@@ -435,6 +464,41 @@ public class TestCommand implements BLauncherCmd {
                 .build();
         taskExecutor.executeTasks(workspaceProject);
         return workspaceProject.getResolution().dependencyGraph();
+    }
+
+    private boolean isRebuildNeeded(Project project, BuildJson buildJson) {
+        try {
+            if (!Objects.equals(buildJson.distributionVersion(), RepoUtils.getBallerinaVersion())) {
+                return true;
+            }
+            if (buildJson.isExpiredLastUpdateTime()) {
+                return true;
+            }
+            if (CommandUtil.isFilesModifiedSinceLastBuild(buildJson, project, true, true)) {
+                return true;
+            }
+            if (isRebuildForCurrCmd()) {
+                return true;
+            }
+            //TODO :  Need to investigate further
+            if (!"".equals(project.buildOptions().cloud()) || project.buildOptions().nativeImage() ||
+                    project.buildOptions().codeCoverage()) {
+                return true;
+            }
+            return CommandUtil.isPrevCurrCmdCompatible(project.buildOptions(), buildJson.getBuildOptions());
+        } catch (IOException e) {
+            // ignore
+        }
+        return true;
+    }
+
+    private boolean isRebuildForCurrCmd() {
+        return  this.dumpGraph
+                || this.dumpRawGraphs
+                || this.targetDir != null
+                || Boolean.TRUE.equals(this.disableSyntaxTreeCaching)
+                || Boolean.TRUE.equals(this.dumpBuildTime)
+                || Boolean.TRUE.equals(this.showDependencyDiagnostics);
     }
 
     private BuildOptions constructBuildOptions() {
@@ -453,7 +517,6 @@ public class TestCommand implements BLauncherCmd {
                 .setDumpGraph(dumpGraph)
                 .setDumpRawGraphs(dumpRawGraphs)
                 .setNativeImage(nativeImage)
-                .setEnableCache(enableCache)
                 .disableSyntaxTreeCaching(disableSyntaxTreeCaching)
                 .setGraalVMBuildOptions(graalVMBuildOptions)
                 .setShowDependencyDiagnostics(showDependencyDiagnostics)
