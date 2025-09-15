@@ -133,6 +133,7 @@ public final class CommandUtil {
     public static final String SHA_256 = "SHA-256";
     public static final String BYTE_TO_HEX_FORMAT = "%02x";
     public static final String JAR = ".jar";
+    public static final String TEST_FAILURES_ERROR = "error: there are test failures";
     private static FileSystem jarFs;
     private static Map<String, String> env;
     private static PrintStream errStream;
