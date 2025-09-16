@@ -328,14 +328,12 @@ public class PackageResolution {
         }
 
         // TODO: Move to compiler extension once new Compiler Extension model is introduced
-        if (compilationOptions.observabilityIncluded()) {
-            {
-                String moduleName = Names.OBSERVE.getValue();
-                ModuleLoadRequest observeModuleLoadReq = new ModuleLoadRequest(
+        if (rootPackageContext.project().buildOptions().observabilityIncluded()) {
+            String moduleName = Names.OBSERVE.getValue();
+            ModuleLoadRequest observeModuleLoadReq = new ModuleLoadRequest(
                         PackageOrg.from(Names.BALLERINA_INTERNAL_ORG.value), moduleName,
                         PackageDependencyScope.DEFAULT, DependencyResolutionType.PLATFORM_PROVIDED);
-                allModuleLoadRequests.add(observeModuleLoadReq);
-            }
+            allModuleLoadRequests.add(observeModuleLoadReq);
         }
 
         // TODO Can we make this a builtin compiler plugin

@@ -18,6 +18,8 @@
 
 package io.ballerina.cli.task;
 
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import io.ballerina.cli.utils.BuildTime;
 import io.ballerina.projects.JBallerinaBackend;
 import io.ballerina.projects.JarResolver;
@@ -28,6 +30,7 @@ import io.ballerina.projects.Package;
 import io.ballerina.projects.PackageCompilation;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectKind;
+import io.ballerina.projects.internal.model.BuildJson;
 import io.ballerina.projects.internal.model.Target;
 import io.ballerina.projects.util.ProjectConstants;
 import org.ballerinalang.test.runtime.entity.ModuleStatus;
@@ -38,6 +41,7 @@ import org.ballerinalang.test.runtime.util.TesterinaConstants;
 import org.ballerinalang.testerina.core.TestProcessor;
 import org.wso2.ballerinalang.util.Lists;
 
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.net.MalformedURLException;
@@ -52,6 +56,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
@@ -71,6 +76,8 @@ import static io.ballerina.cli.utils.TestUtils.loadModuleStatusFromFile;
 import static io.ballerina.cli.utils.TestUtils.writeToTestSuiteJson;
 import static io.ballerina.projects.util.ProjectConstants.GENERATED_MODULES_ROOT;
 import static io.ballerina.projects.util.ProjectConstants.MODULES_ROOT;
+import static io.ballerina.projects.util.ProjectUtils.readBuildJson;
+import static io.ballerina.projects.util.ProjectUtils.writeBuildFile;
 import static org.ballerinalang.test.runtime.util.TesterinaConstants.FULLY_QULAIFIED_MODULENAME_SEPRATOR;
 import static org.ballerinalang.test.runtime.util.TesterinaConstants.IGNORE_PATTERN;
 import static org.ballerinalang.test.runtime.util.TesterinaConstants.STANDALONE_SRC_PACKAGENAME;
@@ -89,6 +96,7 @@ public class RunTestsTask implements Task {
     private final PrintStream err;
     private final String includesInCoverage;
     private final String excludesInCoverage;
+    private final Float minCoverage;
     private String groupList;
     private String disableGroupList;
     private boolean report;
@@ -101,6 +109,10 @@ public class RunTestsTask implements Task {
     private final List<String> cliArgs;
     private final boolean isParallelExecution;
     TestReport testReport;
+    private final boolean rebuildStatus;
+    private final String prevTestClassPath;
+    private AtomicInteger testResult;
+
     private static final Boolean isWindows = System.getProperty("os.name").toLowerCase(Locale.getDefault())
             .contains("win");
     public static final String EXCLUDES_PATTERN_PATH_SEPARATOR = isWindows ? "\\\\" : "/";
@@ -115,12 +127,14 @@ public class RunTestsTask implements Task {
     public RunTestsTask(PrintStream out, PrintStream err, boolean rerunTests, String groupList,
                         String disableGroupList, String testList, String includes, String coverageFormat,
                         Map<String, Module> modules, boolean listGroups, String excludes, String[] cliArgs,
-                        boolean isParallelExecution)  {
+                        boolean isParallelExecution, boolean rebuildStatus, String prevTestClassPath,
+                        AtomicInteger testResult, Float minCoverage)  {
         this.out = out;
         this.err = err;
         this.isRerunTestExecution = rerunTests;
         this.cliArgs = List.of(cliArgs);
         this.isParallelExecution = isParallelExecution;
+        this.prevTestClassPath = prevTestClassPath;
 
         if (disableGroupList != null) {
             this.disableGroupList = disableGroupList;
@@ -136,6 +150,9 @@ public class RunTestsTask implements Task {
         this.coverageModules = modules;
         this.listGroups = listGroups;
         this.excludesInCoverage = excludes;
+        this.rebuildStatus = rebuildStatus;
+        this.testResult = testResult;
+        this.minCoverage = minCoverage;
     }
 
     @Override
@@ -168,6 +185,11 @@ public class RunTestsTask implements Task {
             testsCachePath = target.getTestsCachePath();
         } catch (IOException e) {
             throw createLauncherException("error while creating target directory: ", e);
+        }
+
+        if (!rebuildStatus) {
+            runTestsUsingSuiteJSONCache(project, target, testsCachePath, cachesRoot);
+            return;
         }
 
         PackageCompilation packageCompilation = project.currentPackage().getCompilation();
@@ -214,7 +236,43 @@ public class RunTestsTask implements Task {
 
             if (testResult != 0) {
                 cleanTempCache(project, cachesRoot);
+                this.testResult.set(testResult);
+            }
+        } else {
+            out.println("\tNo tests found");
+        }
+    }
+
+    private void runTestsUsingSuiteJSONCache(Project project, Target target,
+                                            Path testsCachePath, Path cachesRoot) {
+        Map<String, TestSuite> testSuiteMap = readTestSuiteJson(testsCachePath.resolve(TESTERINA_TEST_SUITE));
+        List<String> moduleNamesList = testSuiteMap.keySet().stream().toList();
+        if (!testSuiteMap.isEmpty()) {
+            int testResult;
+            try {
+                testResult = runTestSuiteFromCache(target, project.currentPackage(), this.prevTestClassPath);
+                performPostTestsTasks(project, target, testsCachePath, null,
+                        cachesRoot, moduleNamesList, null);
+            } catch (IOException | InterruptedException | ClassNotFoundException e) {
+                cleanTempCache(project, cachesRoot);
+                throw createLauncherException("error occurred while running tests", e);
+            }
+
+            if (testResult != 0) {
+                cleanTempCache(project, cachesRoot);
                 throw createLauncherException("there are test failures");
+            }
+
+            boolean isCoverageMet =  true;
+            if (minCoverage != null && coverage) {
+                if (testReport.getCoveragePercentage() < minCoverage) {
+                    isCoverageMet = false;
+                }
+            }
+            if (!isCoverageMet) {
+                cleanTempCache(project, cachesRoot);
+                throw createLauncherException("code coverage is below the minimum threshold of " + minCoverage
+                        + "%, current coverage is " + testReport.getCoveragePercentage() + "%");
             }
         } else {
             out.println("\tNo tests found");
@@ -256,6 +314,13 @@ public class RunTestsTask implements Task {
         String orgName = currentPackage.packageOrg().toString();
         String classPath = getClassPath(jBallerinaBackend, currentPackage);
         List<String> cmdArgs = getInitialCmdArgs(null, null);
+        // TODO: May be we can change this build file as part of the project so that we can avoid reading and writing
+        //  again and again.
+        if (currentPackage.project().kind().equals(ProjectKind.BUILD_PROJECT)) {
+            BuildJson buildJson = readBuildJson(target.path().resolve(ProjectConstants.BUILD_FILE));
+            buildJson.setTestClassPath(classPath);
+            writeBuildFile(target.path().resolve(ProjectConstants.BUILD_FILE), buildJson);
+        }
 
         String mainClassName = TesterinaConstants.TESTERINA_LAUNCHER_CLASS_NAME;
         String jacocoAgentJarPath = getJacocoAgentJarPath();
@@ -277,6 +342,31 @@ public class RunTestsTask implements Task {
         cmdArgs.add(mainClassName);
 
         // Adds arguments to be read at the Test Runner
+
+        Path testSuiteJsonPath = target.path().resolve(ProjectConstants.CACHES_DIR_NAME)
+                .resolve(ProjectConstants.TESTS_CACHE_DIR_NAME).resolve(TESTERINA_TEST_SUITE);
+
+        appendRequiredArgs(cmdArgs, target.path().toString(), jacocoAgentJarPath,
+                testSuiteJsonPath.toString(), this.report, this.coverage,
+                this.groupList, this.disableGroupList, this.singleExecTests, this.isRerunTestExecution,
+                this.listGroups, this.cliArgs, false, isParallelExecution);
+
+        ProcessBuilder processBuilder = new ProcessBuilder(cmdArgs).inheritIO();
+        Process proc = processBuilder.start();
+        return proc.waitFor();
+    }
+
+    private int runTestSuiteFromCache(Target target, Package currentPackage, String classPath) throws IOException,
+            InterruptedException, ClassNotFoundException {
+        List<String> cmdArgs = getInitialCmdArgs(null, null);
+
+        String mainClassName = TesterinaConstants.TESTERINA_LAUNCHER_CLASS_NAME;
+        String jacocoAgentJarPath = getJacocoAgentJarPath();
+        cmdArgs.addAll(Lists.of("-cp", classPath));
+        if (isInDebugMode()) {
+            cmdArgs.add(getDebugArgs(this.err));
+        }
+        cmdArgs.add(mainClassName);
 
         Path testSuiteJsonPath = target.path().resolve(ProjectConstants.CACHES_DIR_NAME)
                 .resolve(ProjectConstants.TESTS_CACHE_DIR_NAME).resolve(TESTERINA_TEST_SUITE);
@@ -471,4 +561,12 @@ public class RunTestsTask implements Task {
         return moduleJarUrls;
     }
 
+    private static Map<String, TestSuite> readTestSuiteJson(Path testSuiteJsonPath) {
+        try (BufferedReader bufferedReader = Files.newBufferedReader(testSuiteJsonPath)) {
+            return new Gson().fromJson(bufferedReader, new TypeToken<>() { });
+        } catch (IOException e) {
+            //ignore exception
+        }
+        return new HashMap<>();
+    }
 }

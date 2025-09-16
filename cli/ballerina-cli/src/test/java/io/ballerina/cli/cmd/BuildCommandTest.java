@@ -19,12 +19,12 @@
 package io.ballerina.cli.cmd;
 
 import io.ballerina.cli.launcher.BLauncherException;
-import io.ballerina.cli.utils.BuildTime;
 import io.ballerina.projects.JvmTarget;
 import io.ballerina.projects.ProjectEnvironmentBuilder;
 import io.ballerina.projects.SemanticVersion;
 import io.ballerina.projects.environment.Environment;
 import io.ballerina.projects.environment.EnvironmentBuilder;
+import io.ballerina.projects.internal.model.BuildJson;
 import io.ballerina.projects.util.ProjectUtils;
 import org.ballerinalang.test.BCompileUtil;
 import org.testng.Assert;
@@ -57,6 +57,7 @@ import static io.ballerina.projects.util.ProjectConstants.DOT;
 import static io.ballerina.projects.util.ProjectConstants.USER_DIR_PROPERTY;
 import static io.ballerina.projects.util.ProjectConstants.USER_NAME;
 import static io.ballerina.projects.util.ProjectUtils.deleteDirectory;
+import static io.ballerina.projects.util.ProjectUtils.readBuildJson;
 
 /**
  * Build command tests.
@@ -86,7 +87,7 @@ public class BuildCommandTest extends BaseCommandTest {
         }
         Path validBalFilePath = this.testResources.resolve("valid-bal-file").resolve("hello_world.bal");
         Files.copy(validBalFilePath, Files.createDirectory(
-                        this.testResources.resolve("valid-bal-file-no-permission")).resolve("hello_world.bal"));
+                this.testResources.resolve("valid-bal-file-no-permission")).resolve("hello_world.bal"));
         Path validProjectPath = this.testResources.resolve("validApplicationProject");
         Files.copy(validProjectPath, this.testResources.resolve("validProject-no-permission"));
     }
@@ -101,7 +102,12 @@ public class BuildCommandTest extends BaseCommandTest {
                 optimizeDependencyCompilation);
         // name of the file as argument
         new CommandLine(buildCommand).parseArgs(validBalFilePath.toString());
-        buildCommand.execute();
+        try {
+            buildCommand.execute();
+        } catch (BLauncherException e) {
+            String failureLog = readOutput(true);
+            Assert.fail(failureLog + "\n error message: " + e.getDetailedMessages().get(0));
+        }
 
         String buildLog = readOutput(true);
         Assert.assertEquals(buildLog.replace("\r", ""), getOutput("build-hello-world-bal.txt"));
@@ -130,7 +136,12 @@ public class BuildCommandTest extends BaseCommandTest {
         BuildCommand buildCommand = new BuildCommand(validBalFilePath, printStream, printStream, false, "foo.jar");
         // name of the file as argument
         new CommandLine(buildCommand).parseArgs("-o", "foo.jar", validBalFilePath.toString());
-        buildCommand.execute();
+        try {
+            buildCommand.execute();
+        } catch (BLauncherException e) {
+            String failureLog = readOutput(true);
+            Assert.fail(failureLog + "\n error message: " + e.getDetailedMessages().get(0));
+        }
 
         String buildLog = readOutput(true);
         Assert.assertEquals(buildLog.replace("\r", ""), getOutput("build-foo-bal.txt"));
@@ -142,7 +153,12 @@ public class BuildCommandTest extends BaseCommandTest {
         // only give the name of the file without extension
         buildCommand = new BuildCommand(validBalFilePath, printStream, printStream, false, "bar");
         new CommandLine(buildCommand).parseArgs("-o", "bar", validBalFilePath.toString());
-        buildCommand.execute();
+        try {
+            buildCommand.execute();
+        } catch (BLauncherException e) {
+            String failureLog = readOutput(true);
+            Assert.fail(failureLog + "\n error message: " + e.getDetailedMessages().get(0));
+        }
 
         buildLog = readOutput(true);
         Assert.assertEquals(buildLog.replace("\r", ""), getOutput("build-bar-bal.txt"));
@@ -158,12 +174,17 @@ public class BuildCommandTest extends BaseCommandTest {
                 helloExecutableTmpDir.toAbsolutePath().toString());
         new CommandLine(buildCommand).parseArgs("-o", helloExecutableTmpDir.toAbsolutePath().toString(),
                 validBalFilePath.toString());
-        buildCommand.execute();
+        try {
+            buildCommand.execute();
+        } catch (BLauncherException e) {
+            String failureLog = readOutput(true);
+            Assert.fail(failureLog + "\n error message: " + e.getDetailedMessages().get(0));
+        }
 
         buildLog = readOutput(true);
         String helloWorldJarLog = getOutput("build-bal-with-absolute-jar-path.txt")
                 .replace("<ABSOLUTE_JAR_PATH>",
-                         helloExecutableTmpDir.toAbsolutePath().resolve("hello_world.jar").toString());
+                        helloExecutableTmpDir.toAbsolutePath().resolve("hello_world.jar").toString());
         Assert.assertEquals(buildLog.replace("\r", ""), helloWorldJarLog);
 
         Assert.assertTrue(Files.exists(helloExecutableTmpDir.toAbsolutePath().resolve("hello_world.jar")));
@@ -174,12 +195,17 @@ public class BuildCommandTest extends BaseCommandTest {
         new CommandLine(buildCommand).parseArgs("-o",
                 helloExecutableTmpDir.toAbsolutePath().resolve("hippo.jar").toString(),
                 validBalFilePath.toString());
-        buildCommand.execute();
+        try {
+            buildCommand.execute();
+        } catch (BLauncherException e) {
+            String failureLog = readOutput(true);
+            Assert.fail(failureLog + "\n error message: " + e.getDetailedMessages().get(0));
+        }
 
         buildLog = readOutput(true);
         String hippoJarLog = getOutput("build-bal-with-absolute-jar-path.txt")
                 .replace("<ABSOLUTE_JAR_PATH>",
-                         helloExecutableTmpDir.toAbsolutePath().resolve("hippo.jar").toString());
+                        helloExecutableTmpDir.toAbsolutePath().resolve("hippo.jar").toString());
         Assert.assertEquals(buildLog.replace("\r", ""), hippoJarLog);
 
         Assert.assertTrue(Files.exists(helloExecutableTmpDir.toAbsolutePath().resolve("hippo.jar")));
@@ -191,7 +217,12 @@ public class BuildCommandTest extends BaseCommandTest {
         Path nonBalFilePath = this.testResources.resolve("non-bal-file").resolve("hello_world.txt");
         BuildCommand buildCommand = new BuildCommand(nonBalFilePath, printStream, printStream, false);
         new CommandLine(buildCommand).parseArgs(nonBalFilePath.toString());
-        buildCommand.execute();
+        try {
+            buildCommand.execute();
+        } catch (BLauncherException e) {
+            String failureLog = readOutput(true);
+            Assert.fail(failureLog + "\n error message: " + e.getDetailedMessages().get(0));
+        }
 
         String buildLog = readOutput(true);
         Assert.assertTrue(buildLog.replace("\r", "")
@@ -206,7 +237,12 @@ public class BuildCommandTest extends BaseCommandTest {
         BuildCommand buildCommand = new BuildCommand(validBalFilePath, printStream, printStream, false);
         // non existing bal file
         new CommandLine(buildCommand).parseArgs(validBalFilePath.toString());
-        buildCommand.execute();
+        try {
+            buildCommand.execute();
+        } catch (BLauncherException e) {
+            String failureLog = readOutput(true);
+            Assert.fail(failureLog + "\n error message: " + e.getDetailedMessages().get(0));
+        }
         String buildLog = readOutput(true);
         Assert.assertTrue(buildLog.replace("\r", "")
                 .contains("invalid source provided: " + validBalFilePath +
@@ -222,7 +258,6 @@ public class BuildCommandTest extends BaseCommandTest {
         new CommandLine(buildCommand).parseArgs(projectPath.toString());
         try {
             buildCommand.execute();
-
         } catch (BLauncherException e) {
             Assert.assertTrue(e.getDetailedMessages().get(0).contains("no entrypoint found in package"));
         }
@@ -270,10 +305,15 @@ public class BuildCommandTest extends BaseCommandTest {
                 optimizeDependencyCompilation);
         // non existing bal file
         new CommandLine(buildCommand).parseArgs();
-        buildCommand.execute();
+        try {
+            buildCommand.execute();
+        } catch (BLauncherException e) {
+            String failureLog = readOutput(true);
+            Assert.fail(failureLog + "\n error message: " + e.getDetailedMessages().get(0));
+        }
         String buildLog = readOutput(true);
         Assert.assertEquals(buildLog.replace("\r", ""),
-                            getOutput("build-bal-project.txt"));
+                getOutput("build-bal-project.txt"));
 
         Assert.assertTrue(projectPath.resolve("target").resolve("bin").resolve("winery.jar").toFile().exists());
         Assert.assertTrue(projectPath.resolve("target").resolve("cache").resolve("foo")
@@ -353,17 +393,22 @@ public class BuildCommandTest extends BaseCommandTest {
         System.setProperty(USER_DIR_PROPERTY, projectPath.toString());
         BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
         new CommandLine(buildCommand).parseArgs();
-        buildCommand.execute();
+        try {
+            buildCommand.execute();
+        } catch (BLauncherException e) {
+            String failureLog = readOutput(true);
+            Assert.fail(failureLog + "\n error message: " + e.getDetailedMessages().get(0));
+        }
         String buildLog = readOutput(true);
 
         Assert.assertEquals(buildLog.replace("\r", ""),
-                            getOutput("build-bal-project-with-jar-conflicts.txt"));
+                getOutput("build-bal-project-with-jar-conflicts.txt"));
 
         Assert.assertTrue(
                 projectPath.resolve("target").resolve("bin").resolve("conflictProject.jar").toFile().exists());
         Assert.assertTrue(projectPath.resolve("target").resolve("cache").resolve("pramodya")
-                                  .resolve("conflictProject").resolve("0.1.7").resolve(JvmTarget.JAVA_21.code())
-                                  .resolve("pramodya-conflictProject-0.1.7.jar").toFile().exists());
+                .resolve("conflictProject").resolve("0.1.7").resolve(JvmTarget.JAVA_21.code())
+                .resolve("pramodya-conflictProject-0.1.7.jar").toFile().exists());
     }
 
     @Test(description = "Build a ballerina project with provided scope platform jars",
@@ -389,7 +434,12 @@ public class BuildCommandTest extends BaseCommandTest {
         System.setProperty(USER_DIR_PROPERTY, projectPath.toString());
         BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
         new CommandLine(buildCommand).parseArgs();
-        buildCommand.execute();
+        try {
+            buildCommand.execute();
+        } catch (BLauncherException e) {
+            String failureLog = readOutput(true);
+            Assert.fail(failureLog + "\n error message: " + e.getDetailedMessages().get(0));
+        }
         String buildLog = readOutput(true);
 
         Assert.assertEquals(buildLog.replace("\r", ""),
@@ -404,15 +454,20 @@ public class BuildCommandTest extends BaseCommandTest {
         BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false,
                 optimizeDependencyCompilation);
         new CommandLine(buildCommand).parseArgs();
-        buildCommand.execute();
+        try {
+            buildCommand.execute();
+        } catch (BLauncherException e) {
+            String failureLog = readOutput(true);
+            Assert.fail(failureLog + "\n error message: " + e.getDetailedMessages().get(0));
+        }
         String buildLog = readOutput(true);
         Assert.assertEquals(buildLog.replace("\r", ""),
                 getOutput("build-bal-project.txt"));
 
         Assert.assertTrue(projectPath.resolve("target").resolve("bin").resolve("winery.jar").toFile().exists());
         Assert.assertTrue(projectPath.resolve("target").resolve("cache").resolve("foo")
-                                  .resolve("winery").resolve("0.1.0").resolve(JvmTarget.JAVA_21.code())
-                                  .resolve("foo-winery-0.1.0.jar").toFile().exists());
+                .resolve("winery").resolve("0.1.0").resolve(JvmTarget.JAVA_21.code())
+                .resolve("foo-winery-0.1.0.jar").toFile().exists());
     }
 
     @Test(dataProvider = "optimizeDependencyCompilation")
@@ -421,7 +476,12 @@ public class BuildCommandTest extends BaseCommandTest {
         BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false,
                 optimizeDependencyCompilation);
         new CommandLine(buildCommand).parseArgs(projectPath.toString());
-        buildCommand.execute();
+        try {
+            buildCommand.execute();
+        } catch (BLauncherException e) {
+            String failureLog = readOutput(true);
+            Assert.fail(failureLog + "\n error message: " + e.getDetailedMessages().get(0));
+        }
         String buildLog = readOutput(true);
         Assert.assertEquals(buildLog.replace("\r", ""), getOutput("build-bal-project.txt"));
 
@@ -438,7 +498,12 @@ public class BuildCommandTest extends BaseCommandTest {
         BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false,
                 optimizeDependencyCompilation);
         new CommandLine(buildCommand).parseArgs();
-        buildCommand.execute();
+        try {
+            buildCommand.execute();
+        } catch (BLauncherException e) {
+            String failureLog = readOutput(true);
+            Assert.fail(failureLog + "\n error message: " + e.getDetailedMessages().get(0));
+        }
         String buildLog = readOutput(true);
         Assert.assertEquals(buildLog.replace("\r", ""), getOutput("build-bal-project-with-tests.txt"));
 
@@ -455,7 +520,12 @@ public class BuildCommandTest extends BaseCommandTest {
         BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false,
                 optimizeDependencyCompilation);
         new CommandLine(buildCommand).parseArgs();
-        buildCommand.execute();
+        try {
+            buildCommand.execute();
+        } catch (BLauncherException e) {
+            String failureLog = readOutput(true);
+            Assert.fail(failureLog + "\n error message: " + e.getDetailedMessages().get(0));
+        }
         String buildLog = readOutput(true);
         String actualOutput1 = getOutput("build-multi-module-project-winery.txt");
         String actualOutput2 = getOutput("build-multi-module-project-winery-storage.txt");
@@ -476,9 +546,15 @@ public class BuildCommandTest extends BaseCommandTest {
     public void testBuildProjectWithDefaultBuildOptions() throws IOException {
         Path projectPath = this.testResources.resolve("validProjectWithBuildOptions");
         System.setProperty(USER_DIR_PROPERTY, projectPath.toString());
+        cleanTarget(projectPath);
         BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
         new CommandLine(buildCommand).parseArgs();
-        buildCommand.execute();
+        try {
+            buildCommand.execute();
+        } catch (BLauncherException e) {
+            String failureLog = readOutput(true);
+            Assert.fail(failureLog + "\n error message: " + e.getDetailedMessages().get(0));
+        }
         String buildLog = readOutput(true);
         Assert.assertEquals(buildLog.replace("\r", ""), getOutput("build-project-default-build-options.txt"));
 
@@ -506,7 +582,7 @@ public class BuildCommandTest extends BaseCommandTest {
         String buildLog = readOutput(true);
         String expectedLog = getOutput("build-bal-project-override-build-options.txt")
                 .replace("<TEST_RESULTS_JSON_PATH>",
-                         projectPath.resolve("target").resolve("report").resolve("test_results.json").toString());
+                        projectPath.resolve("target").resolve("report").resolve("test_results.json").toString());
         Assert.assertEquals(buildLog.replace("\r", ""), expectedLog);
 
         Assert.assertTrue(projectPath.resolve("target").resolve("bin").resolve("winery.jar").toFile().exists());
@@ -609,9 +685,14 @@ public class BuildCommandTest extends BaseCommandTest {
         System.setProperty(USER_NAME, "john");
 
         BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
-        // non-existing bal file
+        cleanTarget(projectPath);
         new CommandLine(buildCommand).parseArgs();
-        buildCommand.execute();
+        try {
+            buildCommand.execute();
+        } catch (BLauncherException e) {
+            String failureLog = readOutput(true);
+            Assert.fail(failureLog + "\n error message: " + e.getDetailedMessages().get(0));
+        }
         String buildLog = readOutput(true);
         Assert.assertEquals(buildLog.replace("\r", ""), getOutput("build-project-with-empty-ballerina-toml.txt"));
 
@@ -644,7 +725,12 @@ public class BuildCommandTest extends BaseCommandTest {
         BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false,
                 optimizeDependencyCompilation);
         new CommandLine(buildCommand).parseArgs();
-        buildCommand.execute();
+        try {
+            buildCommand.execute();
+        } catch (BLauncherException e) {
+            String failureLog = readOutput(true);
+            Assert.fail(failureLog + "\n error message: " + e.getDetailedMessages().get(0));
+        }
         String buildLog = readOutput(true);
 
         Assert.assertEquals(buildLog.replace("\r", ""),
@@ -658,7 +744,12 @@ public class BuildCommandTest extends BaseCommandTest {
 
         BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
         new CommandLine(buildCommand).parseArgs();
-        buildCommand.execute();
+        try {
+            buildCommand.execute();
+        } catch (BLauncherException e) {
+            String failureLog = readOutput(true);
+            Assert.fail(failureLog + "\n error message: " + e.getDetailedMessages().get(0));
+        }
         String buildLog = readOutput(true);
 
         Assert.assertEquals(buildLog.replace("\r", ""),
@@ -672,7 +763,12 @@ public class BuildCommandTest extends BaseCommandTest {
 
         BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
         new CommandLine(buildCommand).parseArgs();
-        buildCommand.execute();
+        try {
+            buildCommand.execute();
+        } catch (BLauncherException e) {
+            String failureLog = readOutput(true);
+            Assert.fail(failureLog + "\n error message: " + e.getDetailedMessages().get(0));
+        }
         String buildLog = readOutput(true);
 
         Assert.assertEquals(buildLog.replace("\r", ""),
@@ -701,9 +797,14 @@ public class BuildCommandTest extends BaseCommandTest {
         System.setProperty(USER_DIR_PROPERTY, projectPath.toString());
         System.setProperty("user.name", "$org");
         BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
-        // non existing bal file
+        cleanTarget(projectPath);
         new CommandLine(buildCommand).parseArgs();
-        buildCommand.execute();
+        try {
+            buildCommand.execute();
+        } catch (BLauncherException e) {
+            String failureLog = readOutput(true);
+            Assert.fail(failureLog + "\n error message: " + e.getDetailedMessages().get(0));
+        }
         String buildLog = readOutput(true);
 
         Assert.assertTrue(buildLog.contains("_org/validProjectWithEmptyBallerinaToml:0.1.0"));
@@ -726,6 +827,7 @@ public class BuildCommandTest extends BaseCommandTest {
 
         // Check build output which contains conflicted jars for 10 consecutive builds
         for (int i = 0; i < 10; i++) {
+            cleanTarget(projectPath);
             BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false, false);
             new CommandLine(buildCommand).parseArgs();
             buildCommand.execute();
@@ -740,7 +842,12 @@ public class BuildCommandTest extends BaseCommandTest {
         System.setProperty(USER_DIR_PROPERTY, projectPath.toString());
         BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false , true);
         new CommandLine(buildCommand).parseArgs();
-        buildCommand.execute();
+        try {
+            buildCommand.execute();
+        } catch (BLauncherException e) {
+            String failureLog = readOutput(true);
+            Assert.fail(failureLog + "\n error message: " + e.getDetailedMessages().get(0));
+        }
 
         String buildLog = readOutput(true);
         Assert.assertTrue(buildLog.replace("\r", "").contains(getOutput("dump-build-time-package.txt")));
@@ -755,9 +862,14 @@ public class BuildCommandTest extends BaseCommandTest {
         Path balFilePath = this.testResources.resolve("valid-bal-file").resolve("hello_world.bal");
 
         System.setProperty(USER_DIR_PROPERTY, this.testResources.resolve("valid-bal-file").toString());
-        BuildCommand buildCommand = new BuildCommand(balFilePath, printStream, printStream, false , true);
+        BuildCommand buildCommand = new BuildCommand(balFilePath, printStream, printStream, false, true);
         new CommandLine(buildCommand).parseArgs(balFilePath.toString());
-        buildCommand.execute();
+        try {
+            buildCommand.execute();
+        } catch (BLauncherException e) {
+            String failureLog = readOutput(true);
+            Assert.fail(failureLog + "\n error message: " + e.getDetailedMessages().get(0));
+        }
 
         String buildLog = readOutput(true);
         Assert.assertTrue(buildLog.replace("\r", "").contains(getOutput("dump-build-time-standalone.txt")));
@@ -768,15 +880,20 @@ public class BuildCommandTest extends BaseCommandTest {
                 this.testResources.resolve("valid-bal-file").resolve("build-time.json").toFile().length() > 0);
     }
 
-    @Test (dependsOnMethods = "testBuildBalProjectFromADifferentDirectory")
-    public void testCustomTargetDir() {
+    @Test(dependsOnMethods = "testBuildBalProjectFromADifferentDirectory")
+    public void testCustomTargetDir() throws IOException {
         Path projectPath = this.testResources.resolve("validApplicationProject");
         Path customTargetDir = projectPath.resolve("customTargetDir");
         System.setProperty(USER_DIR_PROPERTY, projectPath.toString());
 
         BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false, customTargetDir);
         new CommandLine(buildCommand).parseArgs();
-        buildCommand.execute();
+        try {
+            buildCommand.execute();
+        } catch (BLauncherException e) {
+            String failureLog = readOutput(true);
+            Assert.fail(failureLog + "\n error message: " + e.getDetailedMessages().get(0));
+        }
 
         Assert.assertTrue(Files.exists(customTargetDir.resolve("bin")));
         Assert.assertTrue(Files.exists(customTargetDir.resolve("cache")));
@@ -784,15 +901,20 @@ public class BuildCommandTest extends BaseCommandTest {
         Assert.assertFalse(Files.exists(customTargetDir.resolve("report")));
     }
 
-    @Test (dependsOnMethods = "testCustomTargetDir")
-    public void testCustomTargetDirWithTests() {
+    @Test(dependsOnMethods = "testCustomTargetDir")
+    public void testCustomTargetDirWithTests() throws IOException {
         Path projectPath = this.testResources.resolve("validProjectWithTests");
         Path customTargetDir = projectPath.resolve("customTargetDir2");
         System.setProperty(USER_DIR_PROPERTY, projectPath.toString());
 
         BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false, customTargetDir);
         new CommandLine(buildCommand).parseArgs();
-        buildCommand.execute();
+        try {
+            buildCommand.execute();
+        } catch (BLauncherException e) {
+            String failureLog = readOutput(true);
+            Assert.fail(failureLog + "\n error message: " + e.getDetailedMessages().get(0));
+        }
 
         Assert.assertTrue(Files.exists(customTargetDir.resolve("bin")));
         Assert.assertTrue(Files.exists(customTargetDir.resolve("cache")));
@@ -849,7 +971,12 @@ public class BuildCommandTest extends BaseCommandTest {
         BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false,
                 optimizeDependencyCompilation);
         new CommandLine(buildCommand).parseArgs("--dump-graph");
-        buildCommand.execute();
+        try {
+            buildCommand.execute();
+        } catch (BLauncherException e) {
+            String failureLog = readOutput(true);
+            Assert.fail(failureLog + "\n error message: " + e.getDetailedMessages().get(0));
+        }
         String buildLog = readOutput(true).replace("\r", "").strip();
 
         Assert.assertEquals(buildLog, getOutput("build-project-with-dump-graph.txt"));
@@ -874,7 +1001,12 @@ public class BuildCommandTest extends BaseCommandTest {
         BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false,
                 optimizeDependencyCompilation);
         new CommandLine(buildCommand).parseArgs("--dump-raw-graphs");
-        buildCommand.execute();
+        try {
+            buildCommand.execute();
+        } catch (BLauncherException e) {
+            String failureLog = readOutput(true);
+            Assert.fail(failureLog + "\n error message: " + e.getDetailedMessages().get(0));
+        }
         String buildLog = readOutput(true).replace("\r", "").strip();
 
         Assert.assertEquals(buildLog, getOutput("build-project-with-dump-raw-graphs.txt"));
@@ -895,61 +1027,24 @@ public class BuildCommandTest extends BaseCommandTest {
         Files.copy(sourcePath, destinationPath);
         BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
         new CommandLine(buildCommand);
-        buildCommand.execute();
+        try {
+            buildCommand.execute();
+        } catch (BLauncherException e) {
+            String failureLog = readOutput(true);
+            Assert.fail(failureLog + "\n error message: " + e.getDetailedMessages().get(0));
+        }
         String buildLog = readOutput(true);
         Assert.assertEquals(
                 buildLog.replaceAll("\r", ""),
                 getOutput("corrupted-dependencies-toml.txt").replaceAll("\r", ""));
         String depContent = Files.readString(projectPath.resolve("Dependencies.toml"), Charset.defaultCharset())
-                .replace("\r" , "");
+                .replace("\r", "");
         String ballerinaShortVersion = RepoUtils.getBallerinaShortVersion();
         String corrcetDepContent = Files.readString(projectPath.resolve("Dependencies-corrected.toml"),
-                        Charset.defaultCharset()).replace("\r" , "")
-                        .replace("DIST_VERSION", ballerinaShortVersion);
+                        Charset.defaultCharset()).replace("\r", "")
+                .replace("DIST_VERSION", ballerinaShortVersion);
         Assert.assertEquals(depContent, corrcetDepContent);
         Files.delete(destinationPath);
-    }
-
-    @Test(description = "Test bir cached project build performance")
-    public void testBirCachedProjectBuildPerformance() {
-        Path projectPath = this.testResources.resolve("noClassDefProject");
-        System.setProperty(USER_DIR_PROPERTY, projectPath.toString());
-
-        cleanTarget(projectPath);
-
-        BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
-        new CommandLine(buildCommand).parseArgs("--enable-cache");
-        buildCommand.execute();
-        long firstCodeGenDuration = BuildTime.getInstance().codeGenDuration;
-
-        BuildCommand secondBuildCommand = new BuildCommand(projectPath, printStream, printStream, false);
-        new CommandLine(secondBuildCommand).parseArgs("--enable-cache");
-        secondBuildCommand.execute();
-        long secondCodeGenDuration = BuildTime.getInstance().codeGenDuration;
-
-        Assert.assertTrue((firstCodeGenDuration / 10) > secondCodeGenDuration,
-                "second code gen duration is greater than the expected value");
-    }
-
-    @Test(description = "Test bir cached project build performance followed by a test command")
-    public void testBirCachedProjectBuildPerformanceAfterTestCommand() {
-        Path projectPath = this.testResources.resolve("noClassDefProject");
-        System.setProperty(USER_DIR_PROPERTY, projectPath.toString());
-
-        cleanTarget(projectPath);
-
-        TestCommand testCommand = new TestCommand(projectPath, printStream, printStream, false);
-        new CommandLine(testCommand).parseArgs("--enable-cache");
-        testCommand.execute();
-        long firstCodeGenDuration = BuildTime.getInstance().codeGenDuration;
-
-        BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
-        new CommandLine(buildCommand).parseArgs("--enable-cache");
-        buildCommand.execute();
-        long secondCodeGenDuration = BuildTime.getInstance().codeGenDuration;
-
-        Assert.assertTrue((firstCodeGenDuration / 10) > secondCodeGenDuration,
-                "second code gen duration is greater than the expected value");
     }
 
     @Test(description = "Build a valid ballerina project with a custom maven repo",
@@ -1003,7 +1098,12 @@ public class BuildCommandTest extends BaseCommandTest {
                 optimizeDependencyCompilation);
 
         new CommandLine(buildCommand).parseArgs();
-        buildCommand.execute();
+        try {
+            buildCommand.execute();
+        } catch (BLauncherException e) {
+            String failureLog = readOutput(true);
+            Assert.fail(failureLog + "\n error message: " + e.getDetailedMessages().get(0));
+        }
         String buildLog = readOutput(true);
         Assert.assertEquals(buildLog.replace("\r", ""), getOutput("build-new-proj-with-dep.txt"));
 
@@ -1028,7 +1128,12 @@ public class BuildCommandTest extends BaseCommandTest {
                 optimizeDependencyCompilation);
 
         new CommandLine(buildCommand).parseArgs("--sticky");
-        buildCommand.execute();
+        try {
+            buildCommand.execute();
+        } catch (BLauncherException e) {
+            String failureLog = readOutput(true);
+            Assert.fail(failureLog + "\n error message: " + e.getDetailedMessages().get(0));
+        }
         String buildLog = readOutput(true);
         Assert.assertEquals(buildLog.replace("\r", ""), getOutput("build-new-proj-with-dep.txt"));
 
@@ -1055,7 +1160,12 @@ public class BuildCommandTest extends BaseCommandTest {
                 optimizeDependencyCompilation);
 
         new CommandLine(buildCommand).parseArgs();
-        buildCommand.execute();
+        try {
+            buildCommand.execute();
+        } catch (BLauncherException e) {
+            String failureLog = readOutput(true);
+            Assert.fail(failureLog + "\n error message: " + e.getDetailedMessages().get(0));
+        }
         String buildLog = readOutput(true);
         Assert.assertEquals(
                 buildLog.replace("\r", ""),
@@ -1090,7 +1200,12 @@ public class BuildCommandTest extends BaseCommandTest {
                 optimizeDependencyCompilation);
 
         new CommandLine(buildCommand).parseArgs("--sticky");
-        buildCommand.execute();
+        try {
+            buildCommand.execute();
+        } catch (BLauncherException e) {
+            String failureLog = readOutput(true);
+            Assert.fail(failureLog + "\n error message: " + e.getDetailedMessages().get(0));
+        }
         String buildLog = readOutput(true);
         Assert.assertEquals(
                 buildLog.replace("\r", ""),
@@ -1125,7 +1240,12 @@ public class BuildCommandTest extends BaseCommandTest {
                 optimizeDependencyCompilation);
 
         new CommandLine(buildCommand).parseArgs();
-        buildCommand.execute();
+        try {
+            buildCommand.execute();
+        } catch (BLauncherException e) {
+            String failureLog = readOutput(true);
+            Assert.fail(failureLog + "\n error message: " + e.getDetailedMessages().get(0));
+        }
         String buildLog = readOutput(true);
         Assert.assertEquals(
                 buildLog.replace("\r", ""),
@@ -1159,7 +1279,12 @@ public class BuildCommandTest extends BaseCommandTest {
         BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
 
         new CommandLine(buildCommand).parseArgs("--sticky");
-        buildCommand.execute();
+        try {
+            buildCommand.execute();
+        } catch (BLauncherException e) {
+            String failureLog = readOutput(true);
+            Assert.fail(failureLog + "\n error message: " + e.getDetailedMessages().get(0));
+        }
         String buildLog = readOutput(true);
         Assert.assertEquals(
                 buildLog.replace("\r", ""),
@@ -1192,7 +1317,12 @@ public class BuildCommandTest extends BaseCommandTest {
         BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
 
         new CommandLine(buildCommand).parseArgs();
-        buildCommand.execute();
+        try {
+            buildCommand.execute();
+        } catch (BLauncherException e) {
+            String failureLog = readOutput(true);
+            Assert.fail(failureLog + "\n error message: " + e.getDetailedMessages().get(0));
+        }
         String buildLog = readOutput(true);
         Assert.assertEquals(buildLog.replace("\r", ""), getOutput("build-curr-dist-precomp-proj-with-dep.txt"));
 
@@ -1222,7 +1352,12 @@ public class BuildCommandTest extends BaseCommandTest {
         BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
 
         new CommandLine(buildCommand).parseArgs("--sticky");
-        buildCommand.execute();
+        try {
+            buildCommand.execute();
+        } catch (BLauncherException e) {
+            String failureLog = readOutput(true);
+            Assert.fail(failureLog + "\n error message: " + e.getDetailedMessages().get(0));
+        }
         String buildLog = readOutput(true);
         Assert.assertEquals(buildLog.replace("\r", ""), getOutput("build-curr-dist-precomp-proj-with-dep.txt"));
 
@@ -1243,7 +1378,7 @@ public class BuildCommandTest extends BaseCommandTest {
 
     @DataProvider(name = "toolPropertiesDiagnostics")
     public Object[][] provideToolPropertiesDiagnostics() {
-        return new Object[][] {
+        return new Object[][]{
                 {
                         "build-tool-with-invalid-missing-toml-properties",
                         "build-tool-with-invalid-missing-toml-properties.txt",
@@ -1268,9 +1403,9 @@ public class BuildCommandTest extends BaseCommandTest {
     }
 
     @Test(description = "Build a project with invalid or missing toml entries for build tools",
-        dataProvider = "toolPropertiesDiagnostics")
+            dataProvider = "toolPropertiesDiagnostics")
     public void testBuildProjectWithBuildToolTomlPropertyDiagnostics(String projectName, String outputFile,
-        String error) throws IOException {
+                                                                     String error) throws IOException {
         Path projectPath = this.testResources.resolve(projectName);
         System.setProperty(USER_DIR_PROPERTY, projectPath.toString());
         BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
@@ -1280,7 +1415,7 @@ public class BuildCommandTest extends BaseCommandTest {
         } catch (BLauncherException e) {
             String buildLog = readOutput(true);
             Assert.assertEquals(buildLog.replace("\r", ""),
-                getOutput(outputFile));
+                    getOutput(outputFile));
             Assert.assertEquals(error, e.getDetailedMessages().get(0));
         }
     }
@@ -1291,10 +1426,15 @@ public class BuildCommandTest extends BaseCommandTest {
         System.setProperty(USER_DIR_PROPERTY, projectPath.toString());
         BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
         new CommandLine(buildCommand).parseArgs();
-        buildCommand.execute();
+        try {
+            buildCommand.execute();
+        } catch (BLauncherException e) {
+            String failureLog = readOutput(true);
+            Assert.fail(failureLog + "\n error message: " + e.getDetailedMessages().get(0));
+        }
         String buildLog = readOutput(true);
         Assert.assertEquals(buildLog.replace("\r", "").replace("\\", "/"),
-            getOutput("build-bal-project-with-build-tool.txt"));
+                getOutput("build-bal-project-with-build-tool.txt"));
     }
 
     @Test(description = "Build a project with a build tool not found")
@@ -1384,12 +1524,6 @@ public class BuildCommandTest extends BaseCommandTest {
         }
     }
 
-    private void cleanTarget(Path projectPath) {
-        CleanCommand cleanCommand = new CleanCommand(projectPath, false);
-        new CommandLine(cleanCommand).parseArgs();
-        cleanCommand.execute();
-    }
-
     private void validateBuildTimeInfo(String buildLog) {
         Assert.assertTrue(buildLog.contains("timestamp"),
                 "Missing timestamp field in build time logs");
@@ -1443,6 +1577,7 @@ public class BuildCommandTest extends BaseCommandTest {
                 {"validProjectWithPlatformLibs4", notVerifiedWaring}
         };
     }
+
     @Test(description = "Check GraalVM compatibility of build project",
             dataProvider = "validProjectWithPlatformLibs")
     public void testGraalVMCompatibilityOfJavaProject(String projectName, String warning) throws IOException {
@@ -1484,10 +1619,16 @@ public class BuildCommandTest extends BaseCommandTest {
         // Project contains platform Java dependencies
         Path projectPath = this.testResources.resolve("workspaces/wp-simple");
         System.setProperty(USER_DIR_PROPERTY, projectPath.toString());
+        cleanTarget(projectPath);
         BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
         // non-existing bal file
         new CommandLine(buildCommand);
-        buildCommand.execute();
+        try {
+            buildCommand.execute();
+        } catch (BLauncherException e) {
+            String failureLog = readOutput(true);
+            Assert.fail(failureLog + "\n error message: " + e.getDetailedMessages().get(0));
+        }
         Assert.assertEquals(readOutput().replace("\r", ""), getOutput("wp-simple.txt"));
     }
 
@@ -1499,7 +1640,12 @@ public class BuildCommandTest extends BaseCommandTest {
         BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
         // non-existing bal file
         new CommandLine(buildCommand);
-        buildCommand.execute();
+        try {
+            buildCommand.execute();
+        } catch (BLauncherException e) {
+            String failureLog = readOutput(true);
+            Assert.fail(failureLog + "\n error message: " + e.getDetailedMessages().get(0));
+        }
         Assert.assertEquals(readOutput().replace("\r", ""), getOutput("wp-one-root.txt"));
     }
 
@@ -1508,10 +1654,16 @@ public class BuildCommandTest extends BaseCommandTest {
         // Project contains platform Java dependencies
         Path projectPath = this.testResources.resolve("workspaces/wp-multiple-roots");
         System.setProperty(USER_DIR_PROPERTY, projectPath.toString());
+        cleanTarget(projectPath);
         BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
         // non-existing bal file
         new CommandLine(buildCommand);
-        buildCommand.execute();
+        try {
+            buildCommand.execute();
+        } catch (BLauncherException e) {
+            String failureLog = readOutput(true);
+            Assert.fail(failureLog + "\n error message: " + e.getDetailedMessages().get(0));
+        }
         Assert.assertEquals(readOutput().replace("\r", ""), getOutput("wp-multiple-roots.txt"));
     }
 
@@ -1523,7 +1675,12 @@ public class BuildCommandTest extends BaseCommandTest {
         BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
         // non-existing bal file
         new CommandLine(buildCommand);
-        buildCommand.execute();
+        try {
+            buildCommand.execute();
+        } catch (BLauncherException e) {
+            String failureLog = readOutput(true);
+            Assert.fail(failureLog + "\n error message: " + e.getDetailedMessages().get(0));
+        }
         Assert.assertEquals(readOutput().replace("\r", ""), getOutput("wp-nested-path.txt"));
     }
 
@@ -1533,10 +1690,16 @@ public class BuildCommandTest extends BaseCommandTest {
         Path projectRoot = this.testResources.resolve("workspaces/wp-simple");
         System.setProperty(USER_DIR_PROPERTY, projectRoot.toString());
         Path projectPath = projectRoot.resolve("hello-app");
+        cleanTarget(projectPath);
         BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
         // non-existing bal file
         new CommandLine(buildCommand);
-        buildCommand.execute();
+        try {
+            buildCommand.execute();
+        } catch (BLauncherException e) {
+            String failureLog = readOutput(true);
+            Assert.fail(failureLog + "\n error message: " + e.getDetailedMessages().get(0));
+        }
         Assert.assertEquals(readOutput().replace("\r", ""), getOutput("wp-simple-hello-app.txt"));
     }
 
@@ -1546,10 +1709,16 @@ public class BuildCommandTest extends BaseCommandTest {
         Path projectRoot = this.testResources.resolve("workspaces");
         System.setProperty(USER_DIR_PROPERTY, projectRoot.toString());
         Path projectPath = projectRoot.resolve("wp-multiple-roots/hello-app");
+        cleanTarget(projectPath);
         BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
         // non-existing bal file
         new CommandLine(buildCommand);
-        buildCommand.execute();
+        try {
+            buildCommand.execute();
+        } catch (BLauncherException e) {
+            String failureLog = readOutput(true);
+            Assert.fail(failureLog + "\n error message: " + e.getDetailedMessages().get(0));
+        }
         Assert.assertEquals(readOutput().replace("\r", ""), getOutput("wp-multiple-roots-hello-app.txt"));
     }
 
@@ -1566,5 +1735,265 @@ public class BuildCommandTest extends BaseCommandTest {
         } catch (BLauncherException e) {
             Assert.assertEquals(readOutput().replace("\r", ""), getOutput("wp-wrong-path.txt"));
         }
+    }
+
+    @Test(description = "Build a project twice with the same flags and different flags")
+    public void testBuildAProjectTwiceWithFlags() throws IOException {
+        String[] argsList1 = {
+                "--offline",
+                "--sticky",
+                // "--locking-mode=SOFT", // TODO: enable after fixing #42467
+                "--experimental",
+                "--optimize-dependency-compilation",
+                "--remote-management",
+                "--observability-included"
+        };
+
+        // Use the same flag that affects jar generation similarly in the consecutive builds
+        for (String arg : argsList1) {
+            Path projectPath = this.testResources.resolve("buildAProjectTwice");
+            deleteDirectory(projectPath.resolve("target"));
+            System.setProperty(USER_DIR_PROPERTY, projectPath.toString());
+            BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
+            new CommandLine(buildCommand).parseArgs(arg);
+            buildCommand.execute();
+            String firstBuildLog = readOutput(true);
+            buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
+            new CommandLine(buildCommand).parseArgs(arg);
+            buildCommand.execute();
+            String secondBuildLog = readOutput(true);
+            Assert.assertTrue(firstBuildLog.contains("buildAProjectTwice.jar"));
+            Assert.assertTrue(secondBuildLog.contains("Generating executable (UP-TO-DATE)"),
+                    "Second build is not up-to-date for " + arg);
+        }
+
+        // Use different flags that affect jar generation differently in the consecutive builds
+        for (String arg : argsList1) {
+            if (arg.equals("--sticky") || arg.equals("--offline")) {
+                // Skip --sticky since the second build will sticky anyway within 24 hours
+                // Skip --offline since tests are always run offline
+                continue;
+            }
+            Path projectPath = this.testResources.resolve("buildAProjectTwice");
+            deleteDirectory(projectPath.resolve("target"));
+            System.setProperty(USER_DIR_PROPERTY, projectPath.toString());
+            BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
+            new CommandLine(buildCommand).parseArgs(arg);
+            buildCommand.execute();
+            String firstBuildLog = readOutput(true);
+            buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
+            new CommandLine(buildCommand).parseArgs();
+            buildCommand.execute();
+            String secondBuildLog = readOutput(true);
+            Assert.assertTrue(firstBuildLog.contains("buildAProjectTwice.jar"));
+            Assert.assertTrue(secondBuildLog.contains("buildAProjectTwice.jar"));
+            Assert.assertFalse(secondBuildLog.contains("Generating executable (UP-TO-DATE)"),
+                    "Second build should not be up-to-date for " + arg);
+        }
+
+        String[] argsList2 = {
+                "--dump-bir",
+                "--dump-bir-file",
+                "--dump-graph",
+                "--dump-raw-graphs",
+                "--generate-config-schema",
+                "--show-dependency-diagnostics",
+                "--list-conflicted-classes",
+                "--dump-build-time",
+                "--export-openapi",
+                "--export-component-model",
+                "--disable-syntax-tree-caching"
+        };
+
+        // Use different flags that doesn't affect jar generation in the consecutive builds
+        for (String arg : argsList2) {
+            Path projectPath = this.testResources.resolve("buildAProjectTwice");
+            deleteDirectory(projectPath.resolve("target"));
+            System.setProperty(USER_DIR_PROPERTY, projectPath.toString());
+            BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
+            new CommandLine(buildCommand).parseArgs(arg);
+            buildCommand.execute();
+            String firstBuildLog = readOutput(true);
+            buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
+            new CommandLine(buildCommand).parseArgs();
+            buildCommand.execute();
+            String secondBuildLog = readOutput(true);
+            Assert.assertTrue(firstBuildLog.contains("Compiling source"));
+            Assert.assertFalse(firstBuildLog.contains("Compiling source (UP-TO-DATE)"));
+            Assert.assertTrue(secondBuildLog.contains("Generating executable (UP-TO-DATE)"),
+                    "Second build should be up-to-date for " + arg);
+        }
+
+        String[] argsList3 = {
+                "--dump-bir",
+                "--dump-bir-file",
+                "--dump-graph",
+                "--dump-raw-graphs",
+                "--generate-config-schema",
+                "--show-dependency-diagnostics",
+                "--list-conflicted-classes",
+                "--dump-build-time",
+                "--export-openapi",
+                "--export-component-model",
+                "--disable-syntax-tree-caching",
+        };
+
+        for (String arg : argsList3) {
+            Path projectPath = this.testResources.resolve("buildAProjectTwice");
+            deleteDirectory(projectPath.resolve("target"));
+            System.setProperty(USER_DIR_PROPERTY, projectPath.toString());
+            BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
+            new CommandLine(buildCommand).parseArgs();
+            buildCommand.execute();
+            String firstBuildLog = readOutput(true);
+            buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
+            new CommandLine(buildCommand).parseArgs(arg);
+            buildCommand.execute();
+            String secondBuildLog = readOutput(true);
+            Assert.assertTrue(firstBuildLog.contains("buildAProjectTwice.jar"));
+            Assert.assertTrue(secondBuildLog.contains("Compiling source"));
+            Assert.assertFalse(secondBuildLog.contains("Generating executable (UP-TO-DATE)"),
+                    "Second build should not be up-to-date for " + arg);
+        }
+    }
+
+    @Test(description = "Build a project after 24 hours of the last build")
+    public void testBuildAProjectTwiceBeforeAfter24Hr() throws IOException {
+        Path projectPath = this.testResources.resolve("buildAProjectTwice");
+        System.setProperty(USER_DIR_PROPERTY, projectPath.toString());
+        BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
+        cleanTarget(projectPath);
+        new CommandLine(buildCommand).parseArgs();
+        try {
+            buildCommand.execute();
+        } catch (BLauncherException e) {
+            String failureLog = readOutput(true);
+            Assert.fail(failureLog + "\n error message: " + e.getDetailedMessages().get(0));
+        }
+        String firstBuildLog = readOutput(true);
+
+        // Second build within 24 hours
+        buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
+        new CommandLine(buildCommand).parseArgs();
+        try {
+            buildCommand.execute();
+        } catch (BLauncherException e) {
+            String failureLog = readOutput(true);
+            Assert.fail(failureLog + "\n error message: " + e.getDetailedMessages().get(0));
+        }
+        String secondBuildLog = readOutput(true);
+
+        Path buildFilePath = projectPath.resolve("target").resolve("build");
+        BuildJson buildJson = readBuildJson(buildFilePath);
+        buildJson.setLastUpdateTime(buildJson.lastUpdateTime() - (24 * 60 * 60 * 1000 + 1));
+        ProjectUtils.writeBuildFile(buildFilePath, buildJson);
+        buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
+        new CommandLine(buildCommand).parseArgs();
+        try {
+            buildCommand.execute();
+        } catch (BLauncherException e) {
+            String failureLog = readOutput(true);
+            Assert.fail(failureLog + "\n error message: " + e.getDetailedMessages().get(0));
+        }
+        String thirdBuildLog = readOutput(true);
+        Assert.assertTrue(firstBuildLog.contains("buildAProjectTwice.jar"));
+        Assert.assertTrue(secondBuildLog.contains("Generating executable (UP-TO-DATE)"));
+        Assert.assertTrue(thirdBuildLog.contains("Generating executable"));
+        Assert.assertFalse(thirdBuildLog.contains("Generating executable (UP-TO-DATE)"));
+    }
+
+    @Test(description = "Build a project with a new file within 24 hours of the last build")
+    public void testBuildAProjectWithFileAddition() throws IOException {
+        Path projectPath = this.testResources.resolve("buildAProjectTwice");
+        deleteDirectory(projectPath.resolve("target"));
+        System.setProperty(USER_DIR_PROPERTY, projectPath.toString());
+        BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
+        new CommandLine(buildCommand).parseArgs();
+        try {
+            buildCommand.execute();
+        } catch (BLauncherException e) {
+            String failureLog = readOutput(true);
+            Assert.fail(failureLog + "\n error message: " + e.getDetailedMessages().get(0));
+        }
+        String firstBuildLog = readOutput(true);
+        Path balFilePath = projectPath.resolve("main2.bal");
+        String balContent = "public function main2() {\n}\n";
+        Files.writeString(balFilePath, balContent);
+        buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
+        new CommandLine(buildCommand).parseArgs();
+        try {
+            buildCommand.execute();
+        } catch (BLauncherException e) {
+            String failureLog = readOutput(true);
+            Assert.fail(failureLog + "\n error message: " + e.getDetailedMessages().get(0));
+        }
+        String secondBuildLog = readOutput(true);
+        Assert.assertTrue(firstBuildLog.contains("buildAProjectTwice.jar"));
+        Assert.assertTrue(secondBuildLog.contains("Generating executable"));
+        Assert.assertFalse(secondBuildLog.contains("Generating executable (UP-TO-DATE)"));
+    }
+
+    @Test(description = "Build a project with a new file within 24 hours of the last build")
+    public void testBuildAProjectWithFileModification() throws IOException {
+        Path projectPath = this.testResources.resolve("buildAProjectTwice");
+        deleteDirectory(projectPath.resolve("target"));
+        System.setProperty(USER_DIR_PROPERTY, projectPath.toString());
+        BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
+        new CommandLine(buildCommand).parseArgs();
+        try {
+            buildCommand.execute();
+        } catch (BLauncherException e) {
+            String failureLog = readOutput(true);
+            Assert.fail(failureLog + "\n error message: " + e.getDetailedMessages().get(0));
+        }
+        String firstBuildLog = readOutput(true);
+        Path balFilePath = projectPath.resolve("main.bal");
+        String balContent = "public function math() {\n}\n";
+        Files.writeString(balFilePath, balContent);
+        buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
+        new CommandLine(buildCommand).parseArgs();
+        try {
+            buildCommand.execute();
+        } catch (BLauncherException e) {
+            String failureLog = readOutput(true);
+            Assert.fail(failureLog + "\n error message: " + e.getDetailedMessages().get(0));
+        }
+        String secondBuildLog = readOutput(true);
+        Assert.assertTrue(firstBuildLog.contains("buildAProjectTwice.jar"));
+        Assert.assertTrue(secondBuildLog.contains("Generating executable"));
+        Assert.assertFalse(secondBuildLog.contains("Generating executable (UP-TO-DATE)"));
+    }
+
+    @Test(description = "Build a project with no content change. The file is modified with same content")
+    public void testBuildAProjectWithFileNoContentChange() throws IOException {
+        Path projectPath = this.testResources.resolve("buildAProjectTwice");
+        deleteDirectory(projectPath.resolve("target"));
+        System.setProperty(USER_DIR_PROPERTY, projectPath.toString());
+        BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
+        new CommandLine(buildCommand).parseArgs();
+        try {
+            buildCommand.execute();
+        } catch (BLauncherException e) {
+            String failureLog = readOutput(true);
+            Assert.fail(failureLog + "\n error message: " + e.getDetailedMessages().get(0));
+        }
+        String firstBuildLog = readOutput(true);
+        Path balFilePath = projectPath.resolve("main.bal");
+        String balContent = "public function main() {\n\n}\n";
+        Files.writeString(balFilePath, balContent);
+        buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
+        new CommandLine(buildCommand).parseArgs();
+        try {
+            buildCommand.execute();
+        } catch (BLauncherException e) {
+            String failureLog = readOutput(true);
+            Assert.fail(failureLog + "\n error message: " + e.getDetailedMessages().get(0));
+        }
+        String secondBuildLog = readOutput(true);
+        Assert.assertTrue(firstBuildLog.contains("buildAProjectTwice.jar"));
+        // Though the content is the same, the file modification time is changed.
+        // Hence, the build should not be up-to-date
+        Assert.assertTrue(secondBuildLog.contains("Generating executable"));
+        Assert.assertFalse(secondBuildLog.contains("Generating executable (UP-TO-DATE)"));
     }
 }

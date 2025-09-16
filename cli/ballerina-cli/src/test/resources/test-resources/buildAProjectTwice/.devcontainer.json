@@ -1,0 +1,4 @@
+{
+    "image": "ballerina/ballerina-devcontainer:2201.9.6-20241126-132400-6d946a2a",
+    "extensions": ["WSO2.ballerina"],
+}

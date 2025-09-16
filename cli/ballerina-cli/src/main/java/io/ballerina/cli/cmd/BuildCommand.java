@@ -22,6 +22,7 @@ import io.ballerina.cli.TaskExecutor;
 import io.ballerina.cli.task.CleanTargetDirTask;
 import io.ballerina.cli.task.CompileTask;
 import io.ballerina.cli.task.CreateExecutableTask;
+import io.ballerina.cli.task.CreateFingerprintTask;
 import io.ballerina.cli.task.DumpBuildTimeTask;
 import io.ballerina.cli.task.ResolveMavenDependenciesTask;
 import io.ballerina.cli.task.ResolveWorkspaceDependenciesTask;
@@ -35,20 +36,24 @@ import io.ballerina.projects.ProjectKind;
 import io.ballerina.projects.directory.BuildProject;
 import io.ballerina.projects.directory.ProjectLoader;
 import io.ballerina.projects.directory.WorkspaceProject;
+import io.ballerina.projects.internal.model.BuildJson;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectPaths;
 import org.wso2.ballerinalang.util.RepoUtils;
 import picocli.CommandLine;
 
+import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 import static io.ballerina.cli.cmd.Constants.BUILD_COMMAND;
-import static io.ballerina.projects.util.ProjectUtils.isProjectUpdated;
+import static io.ballerina.projects.util.ProjectConstants.BUILD_FILE;
+import static io.ballerina.projects.util.ProjectUtils.readBuildJson;
 
 /**
  * This class represents the "bal build" command.
@@ -203,9 +208,6 @@ public class BuildCommand implements BLauncherCmd {
             hidden = true)
     private Boolean exportComponentModel;
 
-    @CommandLine.Option(names = "--enable-cache", description = "enable caches for the compilation", hidden = true)
-    private Boolean enableCache;
-
     @CommandLine.Option(names = "--graalvm", description = "enable native image generation")
     private Boolean nativeImage;
 
@@ -309,11 +311,10 @@ public class BuildCommand implements BLauncherCmd {
                         skipExecutable = true;
                     }
                 }
-                executeTasks(true, false, buildProject, skipExecutable);
+                executeTasks(false, buildProject, skipExecutable);
             }
         } else {
-            boolean isPackageModified = isProjectUpdated(project);
-            executeTasks(isPackageModified, project.kind().equals(ProjectKind.SINGLE_FILE_PROJECT), project, false);
+            executeTasks(project.kind().equals(ProjectKind.SINGLE_FILE_PROJECT), project, false);
         }
         if (this.exitWhenFinish) {
             Runtime.getRuntime().exit(0);
@@ -332,25 +333,58 @@ public class BuildCommand implements BLauncherCmd {
         return workspaceProject.getResolution().dependencyGraph();
     }
 
-    private void executeTasks(boolean isPackageModified, boolean isSingleFile, Project project,
-                              boolean skipExecutable) {
+    private void executeTasks(boolean isSingleFile, Project project, boolean skipExecutable) {
         BuildOptions buildOptions = project.buildOptions();
+        boolean rebuildStatus = isRebuildNeeded(project, skipExecutable);
         TaskExecutor taskExecutor = new TaskExecutor.TaskBuilder()
                 // clean the target directory(projects only)
-                .addTask(new CleanTargetDirTask(isPackageModified, buildOptions.enableCache()), isSingleFile)
+                .addTask(new CleanTargetDirTask(), !rebuildStatus || isSingleFile)
                 // Run build tools
-                .addTask(new RunBuildToolsTask(outStream), isSingleFile)
+                .addTask(new RunBuildToolsTask(outStream, !rebuildStatus), isSingleFile)
                 // resolve maven dependencies in Ballerina.toml
-                .addTask(new ResolveMavenDependenciesTask(outStream))
+                .addTask(new ResolveMavenDependenciesTask(outStream, !rebuildStatus))
                 // compile the modules
-                .addTask(new CompileTask(outStream, errStream, false, true,
-                        isPackageModified, buildOptions.enableCache()))
-                .addTask(new CreateExecutableTask(outStream, this.output, null, false),
-                        skipExecutable)
+                .addTask(new CompileTask(outStream, errStream, false, true, !rebuildStatus))
+                .addTask(new CreateExecutableTask(outStream, this.output, null, false,
+                         !rebuildStatus, skipExecutable))
                 .addTask(new DumpBuildTimeTask(outStream), !buildOptions.dumpBuildTime())
+                .addTask(new CreateFingerprintTask(false, skipExecutable), !rebuildStatus || isSingleFile)
                 .build();
 
         taskExecutor.executeTasks(project);
+    }
+
+    private boolean isRebuildNeeded(Project project, boolean skipExecutable) {
+        Path buildFilePath = project.targetDir().resolve(BUILD_FILE);
+        try {
+            BuildJson buildJson = readBuildJson(buildFilePath);
+            if (!Objects.equals(buildJson.distributionVersion(), RepoUtils.getBallerinaVersion())) {
+                return true;
+            }
+            if (buildJson.isExpiredLastUpdateTime()) {
+                return true;
+            }
+            if (CommandUtil.isFilesModifiedSinceLastBuild(buildJson, project, false, skipExecutable)) {
+                return true;
+            }
+            if (isRebuildForCurrCmd()) {
+                return true;
+            }
+            return CommandUtil.isPrevCurrCmdCompatible(project.buildOptions(), buildJson.getBuildOptions());
+        } catch (IOException e) {
+            // ignore
+        }
+        return true;
+    }
+
+    private boolean isRebuildForCurrCmd() {
+        return dumpBIR
+                || Boolean.TRUE.equals(dumpBIRFile) || dumpGraph || dumpRawGraphs
+                || Boolean.TRUE.equals(configSchemaGen) || Boolean.TRUE.equals(showDependencyDiagnostics)
+                || Boolean.TRUE.equals(listConflictedClasses) || Boolean.TRUE.equals(dumpBuildTime)
+                || targetDir != null || Boolean.TRUE.equals(exportOpenAPI) || Boolean.TRUE.equals(exportComponentModel)
+                || Boolean.TRUE.equals(nativeImage)
+                || Boolean.TRUE.equals(disableSyntaxTreeCaching) || graalVMBuildOptions != null;
     }
 
     private BuildOptions constructBuildOptions() {
@@ -372,7 +406,6 @@ public class BuildCommand implements BLauncherCmd {
                 .setConfigSchemaGen(configSchemaGen)
                 .setExportOpenAPI(exportOpenAPI)
                 .setExportComponentModel(exportComponentModel)
-                .setEnableCache(enableCache)
                 .setNativeImage(nativeImage)
                 .disableSyntaxTreeCaching(disableSyntaxTreeCaching)
                 .setGraalVMBuildOptions(graalVMBuildOptions)
