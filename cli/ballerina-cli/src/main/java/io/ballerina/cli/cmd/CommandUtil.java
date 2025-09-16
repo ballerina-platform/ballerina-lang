@@ -29,6 +29,7 @@ import io.ballerina.projects.PackageCompilation;
 import io.ballerina.projects.PackageManifest;
 import io.ballerina.projects.PackageVersion;
 import io.ballerina.projects.PlatformLibraryScope;
+import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectEnvironmentBuilder;
 import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.ResolvedPackageDependency;
@@ -40,7 +41,9 @@ import io.ballerina.projects.internal.bala.BalaJson;
 import io.ballerina.projects.internal.bala.DependencyGraphJson;
 import io.ballerina.projects.internal.bala.ModuleDependency;
 import io.ballerina.projects.internal.bala.PackageJson;
+import io.ballerina.projects.internal.model.BuildJson;
 import io.ballerina.projects.internal.model.Dependency;
+import io.ballerina.projects.internal.model.Target;
 import io.ballerina.projects.repos.FileSystemCache;
 import io.ballerina.projects.util.FileUtils;
 import io.ballerina.projects.util.ProjectConstants;
@@ -52,6 +55,7 @@ import org.ballerinalang.central.client.exceptions.CentralClientException;
 import org.ballerinalang.central.client.exceptions.PackageAlreadyExistsException;
 import org.wso2.ballerinalang.util.RepoUtils;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -67,9 +71,12 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.StandardOpenOption;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Formatter;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -83,12 +90,17 @@ import java.util.stream.Stream;
 
 import static io.ballerina.cli.launcher.LauncherUtils.createLauncherException;
 import static io.ballerina.projects.util.ProjectConstants.BALA_JSON;
+import static io.ballerina.projects.util.ProjectConstants.BALLERINA_TOML;
 import static io.ballerina.projects.util.ProjectConstants.BAL_TOOL_JSON;
 import static io.ballerina.projects.util.ProjectConstants.BAL_TOOL_TOML;
+import static io.ballerina.projects.util.ProjectConstants.BLANG_SOURCE_EXT;
 import static io.ballerina.projects.util.ProjectConstants.DEPENDENCIES_TOML;
 import static io.ballerina.projects.util.ProjectConstants.DEPENDENCY_GRAPH_JSON;
 import static io.ballerina.projects.util.ProjectConstants.LIB_DIR;
+import static io.ballerina.projects.util.ProjectConstants.MODULES_ROOT;
 import static io.ballerina.projects.util.ProjectConstants.PACKAGE_JSON;
+import static io.ballerina.projects.util.ProjectConstants.SETTINGS_FILE_NAME;
+import static io.ballerina.projects.util.ProjectConstants.TEST_DIR_NAME;
 import static io.ballerina.projects.util.ProjectConstants.TOOL_DIR;
 import static io.ballerina.projects.util.ProjectUtils.deleteDirectory;
 import static io.ballerina.projects.util.ProjectUtils.getAccessTokenOfCLI;
@@ -118,6 +130,9 @@ public final class CommandUtil {
     public static final String DEFAULT_TEMPLATE = "default";
     public static final String MAIN_TEMPLATE = "main";
     public static final String FILE_STRING_SEPARATOR = ", ";
+    public static final String SHA_256 = "SHA-256";
+    public static final String BYTE_TO_HEX_FORMAT = "%02x";
+    public static final String JAR = ".jar";
     private static FileSystem jarFs;
     private static Map<String, String> env;
     private static PrintStream errStream;
@@ -1170,7 +1185,7 @@ public final class CommandUtil {
      */
     public static String checkPackageFilesExists(Path packagePath) {
         String[] packageFiles = {DEPENDENCIES_TOML, BAL_TOOL_TOML, ProjectConstants.PACKAGE_MD_FILE_NAME,
-                ProjectConstants.MODULE_MD_FILE_NAME, ProjectConstants.MODULES_ROOT, ProjectConstants.TEST_DIR_NAME};
+                ProjectConstants.MODULE_MD_FILE_NAME, ProjectConstants.MODULES_ROOT, TEST_DIR_NAME};
         StringBuilder existingFiles = new StringBuilder();
         for (String file : packageFiles) {
             if (Files.exists(packagePath.resolve(file))) {
@@ -1290,5 +1305,280 @@ public final class CommandUtil {
         return !providedDeps.isEmpty();
     }
 
+    public static boolean isPrevCurrCmdCompatible(BuildOptions buildOptions, BuildOptions prevBuildOptions) {
+       // Didn't add the sticky check as sticky is the default behaviour within 24Hr(regardless of sticky is false/true)
+       return prevBuildOptions.offlineBuild() != buildOptions.offlineBuild() ||
+               prevBuildOptions.optimizeDependencyCompilation() != buildOptions.optimizeDependencyCompilation() ||
+               prevBuildOptions.experimental() != buildOptions.experimental() ||
+               prevBuildOptions.remoteManagement() != buildOptions.remoteManagement() ||
+               !buildOptions.lockingMode().equals(prevBuildOptions.lockingMode()) ||
+               buildOptions.observabilityIncluded() != prevBuildOptions.observabilityIncluded();
+    }
 
+
+    public static boolean isFilesModifiedSinceLastBuild(BuildJson buildJson, Project project, boolean isTestExecution,
+                                                        boolean skipExecutable) throws IOException {
+        List<File> srcFilesToEvaluate = getSrcFiles(project);
+        List<File> testSrcFilesToEvaluate = getTestSrcFiles(project);
+        if (isProjectFilesModified(buildJson.getSrcMetaInfo(), srcFilesToEvaluate, project)) {
+            return true;
+        }
+        if (isTestExecution && isProjectFilesModified(buildJson.getTestSrcMetaInfo(), testSrcFilesToEvaluate,
+                project)) {
+            return true;
+        }
+        if (isSettingsFileModified(buildJson)) {
+            return true;
+        }
+        if (isBallerinaTomlFileModified(buildJson, project)) {
+            return true;
+        }
+        if (isTestExecution) {
+            return isTestArtifactsModified(buildJson, project);
+        }
+        if (skipExecutable) {
+            return false;
+        }
+        return isExecutableModified(buildJson, project);
+    }
+
+    private static boolean isBallerinaTomlFileModified(BuildJson buildJson, Project project)  {
+        try {
+            File ballerinaTomlFile = project.sourceRoot().resolve(BALLERINA_TOML).toFile();
+            if (ballerinaTomlFile.exists() && ballerinaTomlFile.isFile()) {
+                long lastModified = ballerinaTomlFile.lastModified();
+                long size = Files.size(ballerinaTomlFile.toPath());
+                BuildJson.FileMetaInfo ballerinaTomlFileMetaInfo = buildJson.getBallerinaTomlMetaInfo();
+                if (ballerinaTomlFileMetaInfo == null) {
+                    return true;
+                }
+                if (ballerinaTomlFileMetaInfo.getSize() == size &&
+                        ballerinaTomlFileMetaInfo.getLastModifiedTime() == lastModified) {
+                    return false;
+                }
+                return !getSHA256Digest(ballerinaTomlFile).equals(ballerinaTomlFileMetaInfo.getHash());
+            }
+            return true;
+        } catch (IOException | NoSuchAlgorithmException e) {
+            return true;
+        }
+    }
+
+    private static boolean isTestArtifactsModified(BuildJson buildJson, Project project) throws IOException {
+        Target target = new Target(project.targetDir());
+        Path testSuitePath = target.getTestsCachePath().resolve(ProjectConstants.TEST_SUITE_JSON);
+        if (!Files.exists(testSuitePath)) {
+            return true;
+        }
+        String packageOrg = project.currentPackage().packageOrg().toString();
+        String packageName = project.currentPackage().packageName().toString();
+        String packageVersion = project.currentPackage().packageVersion().toString();
+        List<Path> testArtifactsPaths =
+                Files.walk(target.cachesPath().resolve(packageOrg).resolve(packageName).resolve(packageVersion))
+                        .filter(Files::isRegularFile)
+                        .filter(path -> path.toString().endsWith(JAR))
+                        .toList();
+        BuildJson.FileMetaInfo[] testArtifactMetaInfo = buildJson.getTestArtifactMetaInfo();
+        if (testArtifactMetaInfo == null || testArtifactMetaInfo.length != (testArtifactsPaths.size() + 1)) {
+            return true;
+        }
+        testArtifactsPaths = new ArrayList<>(testArtifactsPaths);
+        testArtifactsPaths.add(testSuitePath);
+        for (BuildJson.FileMetaInfo fileMetaInfo : testArtifactMetaInfo) {
+            boolean fileExist = false;
+            for (Path artifactPath : testArtifactsPaths) {
+                if (!artifactPath.toString().equals(fileMetaInfo.getFile())) {
+                    continue;
+                }
+                fileExist = true;
+                try {
+                    long lastModified = Files.getLastModifiedTime(artifactPath).toMillis();
+                    long size = Files.size(artifactPath);
+                    if (fileMetaInfo.getSize() == size && fileMetaInfo.getLastModifiedTime() == lastModified) {
+                        break;
+                    }
+                    if (getSHA256Digest(artifactPath.toFile()).equals(fileMetaInfo.getHash())) {
+                        break;
+                    }
+                    return true;
+                } catch (IOException | NoSuchAlgorithmException e) {
+                    return true;
+                }
+            }
+            if (!fileExist) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private static boolean isProjectFilesModified(BuildJson.FileMetaInfo[] fileMetaInfos, List<File> filesToEvaluate,
+                                                  Project project) {
+        if (fileMetaInfos == null || filesToEvaluate.size() != fileMetaInfos.length) {
+            return true;
+        }
+        for (BuildJson.FileMetaInfo fileMetaInfo : fileMetaInfos) {
+            boolean fileExist = false;
+            for (File file : filesToEvaluate) {
+                if (!file.getAbsolutePath().equals(fileMetaInfo.getFile())) {
+                    continue;
+                }
+                fileExist = true;
+                try {
+                    long lastModified = file.lastModified();
+                    long size = Files.size(file.toPath());
+                    if (fileMetaInfo.getSize() == size && fileMetaInfo.getLastModifiedTime() == lastModified) {
+                        break;
+                    }
+                    if (getSHA256Digest(file).equals(fileMetaInfo.getHash())) {
+                        break;
+                    }
+                    return true;
+                } catch (IOException | NoSuchAlgorithmException e) {
+                    return true;
+                }
+            }
+            if (!fileExist) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public static List<File> getSrcFiles(Project project) {
+        File[] filesInRoot = project.sourceRoot().toAbsolutePath().toFile().listFiles();
+        List<File> filesToEvaluate = new ArrayList<>();
+        for (File file : filesInRoot) {
+            if (file.getName().endsWith(BLANG_SOURCE_EXT) || file.getName().equals(BALLERINA_TOML)) {
+                filesToEvaluate.add(file);
+            }
+        }
+        List<String> moduleNames = new ArrayList<>();
+        project.currentPackage().modules().forEach(
+                module -> moduleNames.add(module.moduleName().moduleNamePart()));
+        for (String moduleName : moduleNames) {
+            if (moduleName == null) {
+                continue;
+            }
+            File[] moduleSrcs = project.sourceRoot().resolve(MODULES_ROOT).resolve(moduleName)
+                    .toFile().listFiles();
+            if (moduleSrcs == null) {
+                continue;
+            }
+            for (File moduleSrc : moduleSrcs) {
+                if (moduleSrc.getName().endsWith(BLANG_SOURCE_EXT)) {
+                    filesToEvaluate.add(moduleSrc);
+                }
+            }
+        }
+        return filesToEvaluate;
+    }
+
+    public static List<File> getTestSrcFiles(Project project) {
+        List<File> filesToEvaluate = new ArrayList<>();
+        File testDir = project.sourceRoot().resolve(TEST_DIR_NAME).toFile();
+        if (testDir.exists() && testDir.isDirectory()) {
+            File[] testFiles = testDir.listFiles();
+            if (testFiles != null) {
+                for (File testFile : testFiles) {
+                    if (testFile.getName().endsWith(BLANG_SOURCE_EXT)) {
+                        filesToEvaluate.add(testFile);
+                    }
+                }
+            }
+
+        }
+
+        List<String> moduleNames = new ArrayList<>();
+        project.currentPackage().modules().forEach(
+                module -> moduleNames.add(module.moduleName().moduleNamePart()));
+        for (String moduleName : moduleNames) {
+            if (moduleName == null) {
+                continue;
+            }
+            File[] moduleSrcs = project.sourceRoot().resolve(MODULES_ROOT).resolve(moduleName)
+                    .toFile().listFiles();
+            if (moduleSrcs == null) {
+                continue;
+            }
+            File moduleTestDir = project.sourceRoot().resolve(MODULES_ROOT).resolve(moduleName)
+                    .resolve(TEST_DIR_NAME).toFile();
+            if (!moduleTestDir.exists() || !moduleTestDir.isDirectory()) {
+                continue;
+            }
+            File[] testFiles = moduleTestDir.listFiles();
+            if (testFiles == null) {
+                continue;
+            }
+            for (File testFile : testFiles) {
+                if (testFile.getName().endsWith(BLANG_SOURCE_EXT)) {
+                    filesToEvaluate.add(testFile);
+                }
+            }
+        }
+        return filesToEvaluate;
+    }
+
+    private static boolean isExecutableModified(BuildJson buildJson, Project project) {
+        try {
+            Target target = new Target(project.targetDir());
+            File execFile = target.getExecutablePath(project.currentPackage()).toAbsolutePath().toFile();
+            if (execFile.exists() && execFile.isFile()) {
+                long lastModified = execFile.lastModified();
+                long size = Files.size(execFile.toPath());
+                BuildJson.FileMetaInfo targetExecMetaInfo = buildJson.getTargetExecMetaInfo();
+                if (targetExecMetaInfo == null) {
+                    return true;
+                }
+                if (targetExecMetaInfo.getSize() == size && targetExecMetaInfo.getLastModifiedTime() == lastModified) {
+                    return false;
+                }
+                return !getSHA256Digest(execFile).equals(targetExecMetaInfo.getHash());
+            }
+            // Executable is deleted or the previous command is bal test
+            return buildJson.getTargetExecMetaInfo() == null;
+        } catch (IOException | NoSuchAlgorithmException e) {
+            return true;
+        }
+    }
+
+    private static boolean isSettingsFileModified(BuildJson buildJson) {
+        try {
+            File settingsFile = RepoUtils.createAndGetHomeReposPath().resolve(SETTINGS_FILE_NAME)
+                    .toFile();
+            if (settingsFile.exists() && settingsFile.isFile()) {
+                long lastModified = settingsFile.lastModified();
+                long size = Files.size(settingsFile.toPath());
+                BuildJson.FileMetaInfo settingsFileMetaInfo = buildJson.getSettingsMetaInfo();
+                if (settingsFileMetaInfo == null) {
+                    return true;
+                }
+                if (settingsFileMetaInfo.getSize() == size &&
+                        settingsFileMetaInfo.getLastModifiedTime() == lastModified) {
+                    return false;
+                }
+                return !getSHA256Digest(settingsFile).equals(settingsFileMetaInfo.getHash());
+            }
+            return buildJson.getSettingsMetaInfo() != null;
+        } catch (IOException | NoSuchAlgorithmException e) {
+            return true;
+        }
+    }
+
+    public static String getSHA256Digest(File fileToEvaluate) throws NoSuchAlgorithmException, IOException {
+        MessageDigest digest = MessageDigest.getInstance(SHA_256);
+        byte[] fileBytes = Files.readAllBytes(fileToEvaluate.toPath());
+        byte[] hashBytes = digest.digest(fileBytes);
+        return bytesToHex(hashBytes);
+    }
+
+    private static String bytesToHex(byte[] bytes) {
+        Formatter formatter = new Formatter();
+        for (byte b : bytes) {
+            formatter.format(BYTE_TO_HEX_FORMAT, b);
+        }
+        String result = formatter.toString();
+        formatter.close();
+        return result;
+    }
 }

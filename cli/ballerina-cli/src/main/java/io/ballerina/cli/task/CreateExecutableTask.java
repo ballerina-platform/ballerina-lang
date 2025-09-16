@@ -53,11 +53,25 @@ public class CreateExecutableTask implements Task {
     private Path currentDir;
     private Target target;
     private final boolean isHideTaskOutput;
+    private final boolean skipTask;
+    private final boolean skipExecutable;
 
     public CreateExecutableTask(PrintStream out, String output, Target target, boolean isHideTaskOutput) {
+        this(out, output, target, isHideTaskOutput, false);
+    }
+
+    public CreateExecutableTask(PrintStream out, String output, Target target, boolean isHideTaskOutput,
+                                boolean skipTask) {
+        this(out, output, target, isHideTaskOutput, skipTask, false);
+    }
+
+    public CreateExecutableTask(PrintStream out, String output, Target target, boolean isHideTaskOutput,
+                                boolean skipTask, boolean skipExecutable) {
         this.out = out;
         this.target = target;
         this.isHideTaskOutput = isHideTaskOutput;
+        this.skipTask = skipTask;
+        this.skipExecutable = skipExecutable;
         if (output != null) {
             this.output = Path.of(output);
         }
@@ -65,16 +79,19 @@ public class CreateExecutableTask implements Task {
 
     @Override
     public void execute(Project project) {
-        if (!isHideTaskOutput) {
-            this.out.println();
-            if (!project.buildOptions().nativeImage()) {
-                this.out.println("Generating executable");
-            }
-        }
-
         this.currentDir = Path.of(System.getProperty(USER_DIR));
         if (target == null) {
             target = getTarget(project);
+        }
+        if (!isHideTaskOutput && !skipExecutable) {
+            this.out.println();
+            if (!project.buildOptions().nativeImage()) {
+                this.out.println("Generating executable" + (skipTask ? " (UP-TO-DATE)\n\t" +
+                        currentDir.relativize(getExecutablePath(project, target)) : ""));
+            }
+        }
+        if (skipTask) {
+            return;
         }
         Path executablePath = getExecutablePath(project, target);
         try {
@@ -83,6 +100,10 @@ public class CreateExecutableTask implements Task {
             long start = 0;
             if (project.buildOptions().dumpBuildTime()) {
                 start = System.currentTimeMillis();
+            }
+
+            if (skipExecutable) {
+                return;
             }
             EmitResult emitResult;
             if (project.buildOptions().nativeImage() && project.buildOptions().cloud().isEmpty()) {

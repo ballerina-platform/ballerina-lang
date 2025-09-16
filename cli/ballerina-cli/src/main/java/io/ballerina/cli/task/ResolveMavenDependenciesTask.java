@@ -38,9 +38,16 @@ import static io.ballerina.cli.launcher.LauncherUtils.createLauncherException;
  */
 public class ResolveMavenDependenciesTask implements Task {
     private final transient PrintStream out;
+    private final boolean skipTask;
 
     public ResolveMavenDependenciesTask(PrintStream out) {
         this.out = out;
+        skipTask = false;
+    }
+
+    public ResolveMavenDependenciesTask(PrintStream out, boolean skipTask) {
+        this.out = out;
+        this.skipTask = skipTask;
     }
 
     @Override
@@ -97,7 +104,11 @@ public class ResolveMavenDependenciesTask implements Task {
         }
 
         if (!mavenDependencies.isEmpty()) {
-            out.println("Resolving Maven dependencies\n\tDownloading dependencies into " + targetRepo);
+            out.println("Resolving Maven dependencies" + (skipTask ? " (UP-TO-DATE)\n" :
+                    "\n\tDownloading dependencies into " + targetRepo));
+            if (skipTask) {
+                return;
+            }
             for (Map<String, Object> library : mavenDependencies) {
                 try {
                     Dependency dependency = resolver.resolve(library.get("groupId").toString(),
