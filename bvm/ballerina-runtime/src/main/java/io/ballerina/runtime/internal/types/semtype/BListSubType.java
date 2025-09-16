@@ -143,7 +143,67 @@ public class BListSubType extends SubType implements DelegatedSubType {
         }
         Integer[] indices = listSamples(cx, members, rest, neg);
         Pair<SemType[], Integer> sampleTypes = listSampleTypes(cx, members, rest, indices);
+        if (!listInhabitedFast(cx, indices, sampleTypes.first(), sampleTypes.second(), neg)) {
+            assert !listInhabited(cx, indices, sampleTypes.first(), sampleTypes.second(), neg);
+            return true;
+        }
         return !listInhabited(cx, indices, sampleTypes.first(), sampleTypes.second(), neg);
+    }
+
+    // listInhabited is O(n * m) where n is the number of negative atoms and m is the number of member types.
+    // But if we can find a single negative atom that can fully cancel out the positive atom (which we can do in O(n))
+    // we can avoid the more expensive listInhabited check. Also at the same time if we can prove that a negative atom
+    // doesn't have an effect we can also remove it from the negative atoms to be checked in listInhabited.
+    // TODO: We can potentially implement the reordering of negative atoms with this as well.
+    private static boolean listInhabitedFast(Context cx, Integer[] indices, SemType[] memberTypes, int nRequired,
+                                             Conjunction neg) {
+        if (neg == null) {
+            return true;
+        }
+        final ListAtomicType nt = cx.listAtomType(neg.atom());
+        if (nRequired > 0 && Core.isNever(listMemberAtInnerVal(nt.members(), nt.rest(), indices[nRequired - 1]))) {
+            // Skip this negative if it is always shorter than the minimum required by the positive
+            return listInhabitedFast(cx, indices, memberTypes, nRequired, neg.next());
+        }
+        int negLen = nt.members().fixedLength();
+        if (negLen > 0) {
+            // If we have isEmpty(T1 & S1) or isEmpty(T2 & S2) then we have [T1, T2] / [S1, S2] = [T1, T2].
+            // Therefore, we can skip the negative
+            for (int i = 0; i < memberTypes.length; i++) {
+                int index = indices[i];
+                if (index >= negLen) {
+                    break;
+                }
+                SemType negMemberType = listMemberAt(nt.members(), nt.rest(), index);
+                SemType common = Core.intersect(memberTypes[i], negMemberType);
+                if (Core.isEmpty(cx, common)) {
+                    return listInhabitedFast(cx, indices, memberTypes, nRequired, neg.next());
+                }
+            }
+            // Consider cases we can avoid this negative by having a sufficiently short list
+            int len = memberTypes.length;
+            if (len < indices.length && indices[len] < negLen) {
+                return listInhabitedFast(cx, indices, memberTypes, nRequired, neg.next());
+            }
+            for (int i = nRequired; i < memberTypes.length; i++) {
+                if (indices[i] >= negLen) {
+                    break;
+                }
+                // TODO: avoid creating new arrays here, maybe use an object pool for this
+                //  -- Or use a copy on write array?
+                SemType[] t = Arrays.copyOfRange(memberTypes, 0, i);
+                if (listInhabitedFast(cx, indices, t, nRequired, neg.next())) {
+                    return true;
+                }
+            }
+        }
+        for (int i = 0; i < memberTypes.length; i++) {
+            SemType d = Core.diff(memberTypes[i], listMemberAt(nt.members(), nt.rest(), indices[i]));
+            if (!Core.isEmpty(cx, d)) {
+                return listInhabitedFast(cx, indices, memberTypes, nRequired, neg.next());
+            }
+        }
+        return false;
     }
 
     // This function determines whether a list type P & N is inhabited.

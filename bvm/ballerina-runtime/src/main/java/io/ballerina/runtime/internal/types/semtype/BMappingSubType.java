@@ -119,7 +119,45 @@ public class BMappingSubType extends SubType implements DelegatedSubType {
             }
 
         }
+        if (!mappingInhabitedFast(cx, combined, negList)) {
+            assert !mappingInhabited(cx, combined, negList);
+            return true;
+        }
         return !mappingInhabited(cx, combined, negList);
+    }
+
+    // mappingInhabited is O(n * m) where n is the number of negative atoms and m is the number of member types.
+    // But if we can find a single negative atom that can fully cancel out the positive atom (which we can do in O(n))
+    // we can avoid the more expensive mappingInhabited check. Also at the same time if we can prove that a negative
+    // atom doesn't have an effect we can also remove it from the negative atoms to be checked in listInhabited.
+    // TODO: We can potentially implement the reordering of negative atoms with this as well.
+    // TODO: Implement the atom filtering similar to list, but it is not as obvious as list.
+    private static boolean mappingInhabitedFast(Context cx, MappingAtomicType pos, Conjunction negList) {
+        if (negList == null) {
+            return true;
+        } else {
+            MappingAtomicType neg = cx.mappingAtomType(negList.atom());
+
+            if (!Core.isEmpty(cx, Core.diff(pos.rest(), neg.rest()))) {
+                return mappingInhabitedFast(cx, pos, negList.next());
+            }
+            for (FieldPair fieldPair : new FieldPairs(pos, neg)) {
+                SemType intersect = Core.intersect(fieldPair.type1(), fieldPair.type2());
+                // if types of at least one field are disjoint, the neg atom will not contribute to the next iteration.
+                // Therefore, we can skip the current neg atom.
+                // i.e. if we have isEmpty(T1 & S1) or isEmpty(T2 & S2) then,
+                // record { T1 f1; T2 f2; } / record { S1 f1; S2 f2; } = record { T1 f1; T2 f2; }
+                if (Core.isEmpty(cx, intersect)) {
+                    return mappingInhabitedFast(cx, pos, negList.next());
+                }
+
+                SemType d = Core.diff(fieldPair.type1(), fieldPair.type2());
+                if (!Core.isEmpty(cx, d)) {
+                    return mappingInhabitedFast(cx, pos, negList.next());
+                }
+            }
+            return false;
+        }
     }
 
     private static boolean mappingInhabited(Context cx, MappingAtomicType pos, Conjunction negList) {
