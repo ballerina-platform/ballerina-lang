@@ -73,8 +73,7 @@ public class JvmErrorGen {
 
     void genPanic(BIRTerminator.Panic panicTerm) {
         BIRNode.BIRVariableDcl varDcl = panicTerm.errorOp.variableDcl;
-        int errorIndex = this.getJVMIndexOfVarRef(varDcl);
-        jvmInstructionGen.generateVarLoad(this.mv, varDcl, errorIndex);
+        jvmInstructionGen.generateVarLoad(this.mv, varDcl);
         this.mv.visitTypeInsn(CHECKCAST, BERROR);
         this.mv.visitInsn(ATHROW);
     }
@@ -96,21 +95,23 @@ public class JvmErrorGen {
         this.mv.visitJumpInsn(GOTO, jumpLabel);
         if (currentEE instanceof JErrorEntry jCurrentEE) {
             BIRNode.BIRVariableDcl retVarDcl = currentEE.errorOp.variableDcl;
-            int retIndex = this.indexMap.addIfNotExists(retVarDcl.name.value, retVarDcl.type);
             boolean exeptionExist = false;
-            for (CatchIns catchIns : jCurrentEE.catchIns) {
-                if (ERROR_VALUE.equals(catchIns.errorClass)) {
-                    exeptionExist = true;
+            if (!jCurrentEE.catchIns.isEmpty()) {
+                int retIndex = this.indexMap.addIfNotExists(retVarDcl.name.value, retVarDcl.type);
+                for (CatchIns catchIns : jCurrentEE.catchIns) {
+                    if (ERROR_VALUE.equals(catchIns.errorClass)) {
+                        exeptionExist = true;
+                    }
+                    Label errorValueLabel = new Label();
+                    this.mv.visitTryCatchBlock(startLabel, endLabel, errorValueLabel, catchIns.errorClass);
+                    this.mv.visitLabel(errorValueLabel);
+                    this.mv.visitMethodInsn(INVOKESTATIC, ERROR_UTILS, CREATE_INTEROP_ERROR_METHOD,
+                            CREATE_ERROR_FROM_THROWABLE, false);
+                    jvmInstructionGen.generateVarStore(this.mv, retVarDcl);
+                    termGen.genReturnTerm(retIndex, func, channelMapVarIndex, sendWorkerChannelNamesVar,
+                            receiveWorkerChannelNamesVar, localVarOffset);
+                    this.mv.visitJumpInsn(GOTO, jumpLabel);
                 }
-                Label errorValueLabel = new Label();
-                this.mv.visitTryCatchBlock(startLabel, endLabel, errorValueLabel, catchIns.errorClass);
-                this.mv.visitLabel(errorValueLabel);
-                this.mv.visitMethodInsn(INVOKESTATIC, ERROR_UTILS, CREATE_INTEROP_ERROR_METHOD,
-                        CREATE_ERROR_FROM_THROWABLE, false);
-                jvmInstructionGen.generateVarStore(this.mv, retVarDcl, retIndex);
-                termGen.genReturnTerm(retIndex, func, channelMapVarIndex, sendWorkerChannelNamesVar,
-                        receiveWorkerChannelNamesVar, localVarOffset);
-                this.mv.visitJumpInsn(GOTO, jumpLabel);
             }
             if (!exeptionExist) {
                 Label errorValErrorLabel = new Label();
@@ -145,16 +146,11 @@ public class JvmErrorGen {
 
         BIRNode.BIRVariableDcl varDcl = currentEE.errorOp.variableDcl;
         int lhsIndex = this.indexMap.addIfNotExists(varDcl.name.value, varDcl.type);
-        jvmInstructionGen.generateVarStore(this.mv, varDcl, lhsIndex);
+        jvmInstructionGen.generateVarStore(this.mv, varDcl);
         this.mv.visitJumpInsn(GOTO, jumpLabel);
         this.mv.visitLabel(otherErrorLabel);
-        this.mv.visitMethodInsn(INVOKESTATIC, ERROR_UTILS, TRAP_ERROR_METHOD,
-                CREATE_ERROR_FROM_THROWABLE, false);
+        this.mv.visitMethodInsn(INVOKESTATIC, ERROR_UTILS, TRAP_ERROR_METHOD, CREATE_ERROR_FROM_THROWABLE, false);
         this.mv.visitVarInsn(ASTORE, lhsIndex);
         this.mv.visitLabel(jumpLabel);
-    }
-
-    private int getJVMIndexOfVarRef(BIRNode.BIRVariableDcl varDcl) {
-        return this.indexMap.addIfNotExists(varDcl.name.value, varDcl.type);
     }
 }
