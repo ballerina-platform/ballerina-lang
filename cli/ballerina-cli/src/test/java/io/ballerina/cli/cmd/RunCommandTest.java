@@ -590,7 +590,7 @@ public class RunCommandTest extends BaseCommandTest {
         Assert.assertFalse(secondBuildLog.contains("Compiling source (UP-TO-DATE)"));
     }
 
-    @Test(description = "Run a project with a new file within 24 hours of the last build")
+    @Test(description = "Run a project with a file modification within 24 hours of the last build")
     public void testRunAProjectWithFileModification() throws IOException {
         Path projectPath = this.testResources.resolve("buildAProjectTwice");
         deleteDirectory(projectPath.resolve("target"));

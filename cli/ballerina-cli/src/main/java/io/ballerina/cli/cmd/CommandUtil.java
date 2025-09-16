@@ -131,7 +131,7 @@ public final class CommandUtil {
     public static final String MAIN_TEMPLATE = "main";
     public static final String FILE_STRING_SEPARATOR = ", ";
     public static final String SHA_256 = "SHA-256";
-    public static final String BYTE_TO_HEX_FROMAT = "%02x";
+    public static final String BYTE_TO_HEX_FORMAT = "%02x";
     public static final String JAR = ".jar";
     private static FileSystem jarFs;
     private static Map<String, String> env;
@@ -1575,7 +1575,7 @@ public final class CommandUtil {
     private static String bytesToHex(byte[] bytes) {
         Formatter formatter = new Formatter();
         for (byte b : bytes) {
-            formatter.format(BYTE_TO_HEX_FROMAT, b);
+            formatter.format(BYTE_TO_HEX_FORMAT, b);
         }
         String result = formatter.toString();
         formatter.close();

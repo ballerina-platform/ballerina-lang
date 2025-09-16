@@ -191,7 +191,7 @@ public class BuildJson {
         this.testClassPath = testClassPath;
     }
 
-    public  static class FileMetaInfo {
+    public static class FileMetaInfo {
         private String file;
         private String hash;
         private long size;
