@@ -39,3 +39,18 @@ org = "ballerina"
 name = "tool_dummyToolF"
 version = "1.0.0"
 active = true
+
+[[tool]]
+id = "dummyToolG"
+org = "ballerina"
+name = "tool_dummyToolG"
+version = "2.4.0"
+active = true
+repository = "local"
+
+[[tool]]
+id = "dummyToolH"
+org = "ballerina"
+name = "tool_dummyToolH"
+version = "1.2.0"
+active = true

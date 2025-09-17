@@ -91,6 +91,36 @@ version = "1.0.2"
 active = false
 
 [[tool]]
+id = "dummyToolG"
+org = "ballerina"
+name = "tool_dummyToolG"
+version = "2.4.0"
+active = true
+repository = "local"
+
+[[tool]]
+id = "dummyToolH"
+org = "ballerina"
+name = "tool_dummyToolH"
+version = "1.1.0"
+active = true
+repository = "local"
+
+[[tool]]
+id = "dummyToolH"
+org = "ballerina"
+name = "tool_dummyToolH"
+version = "1.1.0"
+active = false
+
+[[tool]]
+id = "dummyToolH"
+org = "ballerina"
+name = "tool_dummyToolH"
+version = "1.1.1"
+active = false
+
+[[tool]]
 id = "bindgen"
 org = "ballerina"
 name = "tool_scan"
