@@ -5082,7 +5082,7 @@ public class BallerinaParser extends AbstractParser {
             case TRANSACTION_KEYWORD:
                 return parseQualifiedIdentWithTransactionPrefix(ParserRuleContext.VARIABLE_REF);
             case IDENTIFIER_TOKEN:
-                if (isNaturalKeyword(nextToken)) {
+                if (isNaturalKeyword(nextToken) && getNextNextToken().kind == OPEN_BRACE_TOKEN) {
                     return parseNaturalExpression();
                 }
                 return parseQualifiedIdentifier(ParserRuleContext.VARIABLE_REF, isInConditionalExpr);
@@ -5118,6 +5118,22 @@ public class BallerinaParser extends AbstractParser {
                 consume() : STNodeFactory.createEmptyNode();
         STNode naturalKeyword = parseNaturalKeyword();
         STNode optionalParenthesizedArgList = parseOptionalParenthesizedArgList();
+        return parseNaturalExprBody(optionalConstKeyword, naturalKeyword, optionalParenthesizedArgList);
+    }
+
+    /**
+     * <p>
+     * Parse natural expression body.
+     * </p>
+     * <code>
+     * natural-expr-body := { prompt }
+     * prompt := ^ (`}`, `\`, `$`)
+     * </code>
+     *
+     * @return Parsed node.
+     */
+    private STNode parseNaturalExprBody(STNode optionalConstKeyword, STNode naturalKeyword,
+                                        STNode optionalParenthesizedArgList) {
         STNode openBrace = parseOpenBrace();
 
         if (openBrace.isMissing()) {
@@ -5548,7 +5564,7 @@ public class BallerinaParser extends AbstractParser {
         STNode operator;
         switch (nextTokenKind) {
             case OPEN_PAREN_TOKEN:
-                newLhsExpr = parseFuncCall(lhsExpr);
+                newLhsExpr = parseFuncCallOrNaturalExpr(lhsExpr);
                 break;
             case OPEN_BRACKET_TOKEN:
                 newLhsExpr = parseMemberAccessExpr(lhsExpr, isRhsExpr);
@@ -6093,13 +6109,36 @@ public class BallerinaParser extends AbstractParser {
      * function-reference := variable-reference</code>
      *
      * @param identifier Function name
-     * @return Function call expression
+     * @return Parsed node
      */
-    private STNode parseFuncCall(STNode identifier) {
+    private STNode parseFuncCallOrNaturalExpr(STNode identifier) {
         STNode openParen = parseArgListOpenParenthesis();
         STNode args = parseArgsList();
         STNode closeParen = parseArgListCloseParenthesis();
+        if (peek().kind == SyntaxKind.OPEN_BRACE_TOKEN && isNaturalKeyword(identifier)) {
+            return parseNaturalExpression((STSimpleNameReferenceNode) identifier, openParen, args, closeParen);
+        }
         return STNodeFactory.createFunctionCallExpressionNode(identifier, openParen, args, closeParen);
+    }
+
+    /**
+     * <p>
+     * Parse a natural expression.
+     * </p>
+     * <code>
+     * natural-expr := [const] natural [(arg-list)] { prompt }
+     * prompt := ^ (`}`, `\`, `$`)
+     * </code>
+     *
+     * @return Parsed NaturalExpression node.
+     */
+    private STNode parseNaturalExpression(STSimpleNameReferenceNode nameRef, STNode openParen, STNode args,
+                                          STNode closeParen) {
+        startContext(ParserRuleContext.NATURAL_EXPRESSION);
+        STNode optionalConstKeyword = STNodeFactory.createEmptyNode();
+        STNode naturalKeyword = getNaturalKeyword((STToken) nameRef.name);
+        STNode parenthesizedArgList = STNodeFactory.createParenthesizedArgList(openParen, args, closeParen);
+        return parseNaturalExprBody(optionalConstKeyword, naturalKeyword, parenthesizedArgList);
     }
 
     private STNode parseErrorBindingPatternOrErrorConstructor() {
@@ -10675,6 +10714,11 @@ public class BallerinaParser extends AbstractParser {
 
     static boolean isNaturalKeyword(STToken token) {
         return token.kind == SyntaxKind.IDENTIFIER_TOKEN && LexerTerminals.NATURAL.equals(token.text());
+    }
+
+    private boolean isNaturalKeyword(STNode node) {
+        return node.kind == SyntaxKind.SIMPLE_NAME_REFERENCE &&
+                isNaturalKeyword((STToken) ((STSimpleNameReferenceNode) node).name);
     }
 
     private STNode getNaturalKeyword(STToken token) {
