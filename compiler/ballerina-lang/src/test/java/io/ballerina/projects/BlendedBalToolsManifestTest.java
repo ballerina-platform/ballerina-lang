@@ -48,7 +48,8 @@ public class BlendedBalToolsManifestTest {
     private BalToolsManifest balToolsManifest;
     private BalToolsManifest distBalToolsManifest;
     private final Set<String> toolCommands = Set.of(
-            "dummyToolA", "dummyToolB", "dummyToolC", "dummyToolD", "dummyToolE", "dummyToolF");
+            "dummyToolA", "dummyToolB", "dummyToolC", "dummyToolD", "dummyToolE", "dummyToolF", "dummyToolG",
+            "dummyToolH");
 
     /* Test cases
      * 1. Only in dist - dummyToolE
@@ -61,6 +62,7 @@ public class BlendedBalToolsManifestTest {
      * 3.2.1 Dist > locals - dummyToolA
      * 3.2.2 Locals > dist - dummyToolB
      * 4 No locally active versions - dummyToolF
+     * 5 Local repo test
      * */
 
     @BeforeClass
@@ -185,6 +187,48 @@ public class BlendedBalToolsManifestTest {
                     .from(balToolsManifest, distBalToolsManifest);
             Optional<BalToolsManifest.Tool> activeDummyToolF = blendedBalToolsManifest.getActiveTool("dummyToolF");
             Assert.assertEquals(activeDummyToolF.orElseThrow().version(), "1.0.0");
+        }
+    }
+
+    @Test
+    public void sameToolVersionActiveInLocalRepoAndDist() {
+        try (MockedStatic<BalToolsUtil> utils = Mockito.mockStatic(BalToolsUtil.class, CALLS_REAL_METHODS)) {
+            utils.when(() -> BalToolsUtil.compareToolDistWithCurrentDist(anyString(), anyString(), anyString(), any()))
+                    .thenReturn(SemanticVersion.VersionCompatibilityResult.EQUAL);
+            utils.when(() -> BalToolsUtil.compareToolDistWithCurrentDist(
+                            eq("ballerina"), eq("tool_dummyToolG"), eq("2.4.0"), any()))
+                    .thenReturn(SemanticVersion.VersionCompatibilityResult.GREATER_THAN);
+            when(BalToolsUtil.getInBuiltToolCommands(distBalToolsManifest)).thenReturn(this.toolCommands);
+
+            BlendedBalToolsManifest blendedBalToolsManifest = BlendedBalToolsManifest
+                    .from(balToolsManifest, distBalToolsManifest);
+            Optional<BalToolsManifest.Tool> activeDummyToolF = blendedBalToolsManifest.getActiveTool("dummyToolG");
+            Assert.assertEquals(activeDummyToolF.orElseThrow().version(), "2.4.0");
+            Assert.assertEquals(activeDummyToolF.orElseThrow().repository(), "local");
+        }
+    }
+
+    @Test
+    public void olderToolVersionActiveInLocalRepo() {
+        try (MockedStatic<BalToolsUtil> utils = Mockito.mockStatic(BalToolsUtil.class, CALLS_REAL_METHODS)) {
+            utils.when(() -> BalToolsUtil.compareToolDistWithCurrentDist(anyString(), anyString(), anyString(), any()))
+                    .thenReturn(SemanticVersion.VersionCompatibilityResult.EQUAL);
+            utils.when(() -> BalToolsUtil.compareToolDistWithCurrentDist(
+                            eq("ballerina"), eq("tool_dummyToolH"), eq("1.1.0"), any()))
+                    .thenReturn(SemanticVersion.VersionCompatibilityResult.EQUAL);
+            utils.when(() -> BalToolsUtil.compareToolDistWithCurrentDist(
+                            eq("ballerina"), eq("tool_dummyToolH"), eq("1.1.1"), any()))
+                    .thenReturn(SemanticVersion.VersionCompatibilityResult.EQUAL);
+            utils.when(() -> BalToolsUtil.compareToolDistWithCurrentDist(
+                            eq("ballerina"), eq("tool_dummyToolH"), eq("1.2.0"), any()))
+                    .thenReturn(SemanticVersion.VersionCompatibilityResult.EQUAL);
+            when(BalToolsUtil.getInBuiltToolCommands(distBalToolsManifest)).thenReturn(this.toolCommands);
+
+            BlendedBalToolsManifest blendedBalToolsManifest = BlendedBalToolsManifest
+                    .from(balToolsManifest, distBalToolsManifest);
+            Optional<BalToolsManifest.Tool> activeDummyToolF = blendedBalToolsManifest.getActiveTool("dummyToolH");
+            Assert.assertEquals(activeDummyToolF.orElseThrow().version(), "1.1.0");
+            Assert.assertEquals(activeDummyToolF.orElseThrow().repository(), "local");
         }
     }
 }

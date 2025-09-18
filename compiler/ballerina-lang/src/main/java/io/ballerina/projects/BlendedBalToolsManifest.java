@@ -134,10 +134,6 @@ public class BlendedBalToolsManifest {
             BalToolsManifest.Tool localTool = activeToolLocal.get();
             if (LOCAL_REPOSITORY_NAME.equals(localTool.repository())) {
                 // Tool is set to use from the local repo. Prioritize this version
-                BalToolsManifest.Tool toolNew = new BalToolsManifest.Tool(
-                        distTool.id(), distTool.org(), distTool.name(), distTool.version(),
-                        false, DISTRIBUTION_REPOSITORY_NAME);
-                mergedTools.get(toolCommand).put(distTool.version(), Map.of(DISTRIBUTION_REPOSITORY_NAME, toolNew));
                 continue;
             }
 
