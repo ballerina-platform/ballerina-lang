@@ -186,7 +186,7 @@ public class MethodGen {
         mv.visitVarInsn(ALOAD, 0); // load self
         String encodedMethodName = Utils.encodeFunctionIdentifier(funcName);
         for (BIRNode.BIRFunctionParameter parameter : func.parameters) {
-            instGen.generateVarLoad(mv, parameter, indexMap.addIfNotExists(parameter.name.value, parameter.type));
+            instGen.generateVarLoad(mv, parameter);
         }
         String methodDesc = JvmCodeGenUtil.getMethodDesc(typeEnv, func.type.paramTypes, retType, moduleClassName);
         mv.visitMethodInsn(INVOKESTATIC, splitClassName, encodedMethodName, methodDesc, false);

@@ -52,7 +52,7 @@ public class RecordEvaluatorTest extends AbstractEvaluatorTest {
         testEvaluate(REF_TESTCASE);
     }
 
-    @Test (enabled = false)
+    @Test
     public void testRecordReadonly() {
         testEvaluate(READONLY_TESTCASE);
     }

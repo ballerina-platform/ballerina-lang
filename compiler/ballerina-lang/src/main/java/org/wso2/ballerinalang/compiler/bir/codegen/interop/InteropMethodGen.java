@@ -248,7 +248,7 @@ public final class InteropMethodGen {
             }
         }
 
-        instGen.generateVarStore(mv, retVarDcl, returnVarRefIndex);
+        instGen.generateVarStore(mv, retVarDcl);
 
         Label retLabel = labelGen.getLabel("return_lable");
         mv.visitLabel(retLabel);
@@ -471,13 +471,14 @@ public final class InteropMethodGen {
         }
     }
 
-    private static void loadMethodParamToStackInInteropFunction(
-            MethodVisitor mv, BIRNode.BIRFunctionParameter birFuncParam, JType jMethodParamType, int localVarIndex,
-            JvmInstructionGen jvmInstructionGen, JvmCastGen jvmCastGen) {
-
+    private static void loadMethodParamToStackInInteropFunction(MethodVisitor mv,
+                                                                BIRNode.BIRFunctionParameter birFuncParam,
+                                                                JType jMethodParamType, int localVarIndex,
+                                                                JvmInstructionGen jvmInstructionGen,
+                                                                JvmCastGen jvmCastGen) {
         BType bFuncParamType = birFuncParam.type;
         // Load the parameter value to the stack
-        jvmInstructionGen.generateVarLoad(mv, birFuncParam, localVarIndex);
+        jvmInstructionGen.generateVarLoad(mv, birFuncParam);
         jvmCastGen.generateBToJCheckCast(mv, bFuncParamType, jMethodParamType);
     }
 

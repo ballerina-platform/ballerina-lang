@@ -2453,9 +2453,12 @@ public class BIRGen extends BLangNodeVisitor {
             }
         }
 
-        BIRVariableDcl variableDcl = findInLocalSymbolVarMap(type, env.symbolVarMap);
-        if (variableDcl != null && variableDcl.initialized) {
-            return variableDcl;
+        BIRVariableDcl variableDcl;
+        if (!env.isInitFunc) {
+            variableDcl = findInLocalSymbolVarMap(type, env.symbolVarMap);
+            if (variableDcl != null && variableDcl.initialized) {
+                return variableDcl;
+            }
         }
 
         variableDcl = findInGlobalSymbolVarMap(type, this.globalVarMap);

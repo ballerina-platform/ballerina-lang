@@ -370,7 +370,7 @@ public class JvmInstructionGen {
         }
     }
 
-    public void generateVarLoad(MethodVisitor mv, BIRNode.BIRVariableDcl varDcl, int valueIndex) {
+    public void generateVarLoad(MethodVisitor mv, BIRNode.BIRVariableDcl varDcl) {
         BType bType = JvmCodeGenUtil.getImpliedType(varDcl.type);
         switch (varDcl.kind) {
             case SELF -> mv.visitVarInsn(ALOAD, this.indexMap.get(OBJECT_SELF_INSTANCE));
@@ -378,7 +378,7 @@ public class JvmInstructionGen {
                     GLOBAL_CONSTANTS_PACKAGE_NAME);
             case GLOBAL -> generateVarLoad(mv, varDcl, bType, jvmConstantsGen.globalVarsPkgName,
                     GLOBAL_VARIABLES_PACKAGE_NAME);
-            default -> generateVarLoadForType(mv, bType, valueIndex);
+            default -> generateVarLoadForType(mv, bType, this.indexMap.addIfNotExists(varDcl.name.value, varDcl.type));
         }
     }
 
@@ -424,14 +424,14 @@ public class JvmInstructionGen {
         }
     }
 
-    public void generateVarStore(MethodVisitor mv, BIRNode.BIRVariableDcl varDcl, int valueIndex) {
+    public void generateVarStore(MethodVisitor mv, BIRNode.BIRVariableDcl varDcl) {
         BType bType = JvmCodeGenUtil.getImpliedType(varDcl.type);
         switch (varDcl.kind) {
             case GLOBAL -> generateVarsStore(mv, varDcl, bType, jvmConstantsGen.globalVarsPkgName,
                     GLOBAL_VARIABLES_PACKAGE_NAME);
             case CONSTANT -> generateVarsStore(mv, varDcl, bType, jvmConstantsGen.constantsPkgName,
                     GLOBAL_CONSTANTS_PACKAGE_NAME);
-            default -> generateVarStoreForType(mv, bType, valueIndex);
+            default -> generateVarStoreForType(mv, bType, this.indexMap.addIfNotExists(varDcl.name.value, varDcl.type));
         }
     }
 
@@ -1212,10 +1212,6 @@ public class JvmInstructionGen {
         }
 
         this.storeToVar(binaryIns.lhsOp.variableDcl);
-    }
-
-    private int getJVMIndexOfVarRef(BIRNode.BIRVariableDcl varDcl) {
-        return this.indexMap.addIfNotExists(varDcl.name.value, varDcl.type);
     }
 
     void generateMapNewIns(BIRNonTerminator.NewStructure mapNewIns) {
@@ -2043,11 +2039,11 @@ public class JvmInstructionGen {
     }
 
     void loadVar(BIRNode.BIRVariableDcl varDcl) {
-        generateVarLoad(this.mv, varDcl, this.getJVMIndexOfVarRef(varDcl));
+        generateVarLoad(this.mv, varDcl);
     }
 
     void storeToVar(BIRNode.BIRVariableDcl varDcl) {
-        generateVarStore(this.mv, varDcl, this.getJVMIndexOfVarRef(varDcl));
+        generateVarStore(this.mv, varDcl);
     }
 
     void generateConstantLoadIns(BIRNonTerminator.ConstantLoad loadIns) {
