@@ -5015,8 +5015,6 @@ public class BallerinaParser extends AbstractParser {
             case DECIMAL_FLOATING_POINT_LITERAL_TOKEN:
             case HEX_FLOATING_POINT_LITERAL_TOKEN:
                 return parseBasicLiteral();
-            case IDENTIFIER_TOKEN:
-                return parseQualifiedIdentifier(ParserRuleContext.VARIABLE_REF, isInConditionalExpr);
             case OPEN_PAREN_TOKEN:
                 return parseBracedExpression(isRhsExpr, allowActions);
             case CHECK_KEYWORD:
@@ -5083,10 +5081,13 @@ public class BallerinaParser extends AbstractParser {
                 return parseByteArrayLiteral();
             case TRANSACTION_KEYWORD:
                 return parseQualifiedIdentWithTransactionPrefix(ParserRuleContext.VARIABLE_REF);
-            case NATURAL_KEYWORD:
-                return parseNaturalExpression();
+            case IDENTIFIER_TOKEN:
+                if (isNaturalKeyword(nextToken)) {
+                    return parseNaturalExpression();
+                }
+                return parseQualifiedIdentifier(ParserRuleContext.VARIABLE_REF, isInConditionalExpr);
             case CONST_KEYWORD:
-                if (getNextNextToken().kind == SyntaxKind.NATURAL_KEYWORD) {
+                if (isNaturalKeyword(getNextNextToken())) {
                     return parseNaturalExpression();
                 }
                 // fall through
@@ -5115,7 +5116,7 @@ public class BallerinaParser extends AbstractParser {
         startContext(ParserRuleContext.NATURAL_EXPRESSION);
         STNode optionalConstKeyword = peek().kind == SyntaxKind.CONST_KEYWORD ?
                 consume() : STNodeFactory.createEmptyNode();
-        STNode naturalKeyword = consume();
+        STNode naturalKeyword = parseNaturalKeyword();
         STNode optionalParenthesizedArgList = parseOptionalParenthesizedArgList();
         STNode openBrace = parseOpenBrace();
 
@@ -10650,6 +10651,35 @@ public class BallerinaParser extends AbstractParser {
     private STToken getUnderscoreKeyword(STToken token) {
         return STNodeFactory.createToken(SyntaxKind.UNDERSCORE_KEYWORD, token.leadingMinutiae(),
                 token.trailingMinutiae(), token.diagnostics());
+    }
+
+    /**
+     * Parse natural-keyword.
+     *
+     * @return natural-keyword node
+     */
+    private STNode parseNaturalKeyword() {
+        STToken token = peek();
+        if (token.kind == SyntaxKind.NATURAL_KEYWORD) {
+            return consume();
+        }
+
+        if (isNaturalKeyword(token)) {
+            // this is to treat "natural" as a keyword, even if its parsed as an identifier from lexer.
+            return getNaturalKeyword(consume());
+        }
+
+        recover(token, ParserRuleContext.NATURAL_KEYWORD);
+        return parseNaturalKeyword();
+    }
+
+    static boolean isNaturalKeyword(STToken token) {
+        return token.kind == SyntaxKind.IDENTIFIER_TOKEN && LexerTerminals.NATURAL.equals(token.text());
+    }
+
+    private STNode getNaturalKeyword(STToken token) {
+        return STNodeFactory.createToken(SyntaxKind.NATURAL_KEYWORD, token.leadingMinutiae(), token.trailingMinutiae(),
+                token.diagnostics());
     }
 
     /**

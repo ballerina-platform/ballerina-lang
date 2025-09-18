@@ -1165,7 +1165,12 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                     hasMatch = nextToken.kind == SyntaxKind.SLASH_ASTERISK_TOKEN;
                     break;
                 case KEY_KEYWORD:
-                    hasMatch = BallerinaParser.isKeyKeyword(nextToken);
+                    hasMatch = nextToken.kind == SyntaxKind.KEY_KEYWORD ||
+                            BallerinaParser.isKeyKeyword(nextToken);
+                    break;
+                case NATURAL_KEYWORD:
+                    hasMatch = nextToken.kind == SyntaxKind.NATURAL_KEYWORD ||
+                            BallerinaParser.isNaturalKeyword(nextToken);
                     break;
                 case VAR_KEYWORD:
                     hasMatch = nextToken.kind == SyntaxKind.VAR_KEYWORD;
