@@ -18,13 +18,14 @@
 package io.ballerina.runtime.api.values;
 
 import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.internal.values.JIteratorValue;
 
 /**
  * Interface representing ballerina strings.
  *
  * @since 1.1.0
  */
-public interface BString extends IterableValue {
+public interface BString extends JIteratorValue {
 
     String getValue();
 

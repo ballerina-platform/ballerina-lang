@@ -25,7 +25,7 @@ import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.api.values.BStream;
 import io.ballerina.runtime.api.values.BString;
-import io.ballerina.runtime.api.values.IterableValue;
+import io.ballerina.runtime.internal.values.JIteratorValue;
 import io.ballerina.runtime.internal.values.ErrorValue;
 
 import java.util.Iterator;
@@ -68,7 +68,7 @@ public class IteratorUtils {
     public static Iterator<?> getIterator(Environment env, Object collection) {
         try {
             switch (collection) {
-                case IterableValue iterable -> {
+                case JIteratorValue iterable -> {
                     return iterable.getJavaIterator();
                 }
                 case BStream bStream -> {
