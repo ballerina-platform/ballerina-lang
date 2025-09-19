@@ -70,6 +70,14 @@ id=444
 name="hinduja"
 id=888
 
+[[personWithRefTable]]
+personType = "refType"
+name = "ravin"
+
+[[personWithRefTable]]
+personType = "refType"
+name = "ravin2"
+
 [[personTable]]
 name = "riyafa"
 id = 13

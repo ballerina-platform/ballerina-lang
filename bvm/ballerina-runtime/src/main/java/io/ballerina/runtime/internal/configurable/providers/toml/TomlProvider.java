@@ -343,6 +343,9 @@ public class TomlProvider implements ConfigProvider {
             case TypeTags.TYPE_REFERENCED_TYPE_TAG:
                 validateValue(tomlValue, variableName, ((ReferenceType) type).getReferredType());
                 break;
+            case TypeTags.FINITE_TYPE_TAG:
+                validateAndGetFiniteValue(tomlValue, variableName, (BFiniteType) type);
+                break;
             default:
                 invalidTomlLines.add(tomlValue.location().lineRange());
                 throw new ConfigException(CONFIG_TYPE_NOT_SUPPORTED, variableName, type.toString());
@@ -711,6 +714,9 @@ public class TomlProvider implements ConfigProvider {
                 tomlValue = getValueFromKeyValueNode(tomlValue);
                 validateUnionValueArray(tomlValue, variableName, arrayType, (BUnionType) elementType);
                 break;
+            case TypeTags.FINITE_TYPE_TAG:
+                validateFiniteValueArray(tomlValue, variableName, arrayType, (BFiniteType) elementType);
+                break;
             case TypeTags.TABLE_TAG:
                 validateTableValueArray(tomlValue, variableName, arrayType, (BTableType) elementType);
                 break;
@@ -736,6 +742,26 @@ public class TomlProvider implements ConfigProvider {
                 visitedNodes.add(tomlValue);
                 tomlValue = ((TomlKeyValueNode) tomlValue).value();
                 validateTableValueArray(tomlValue, variableName, arrayType, elementType);
+                return;
+            default:
+                throwTypeIncompatibleError(tomlValue, variableName, arrayType);
+        }
+    }
+
+    private void validateFiniteValueArray(TomlNode tomlValue, String variableName, ArrayType arrayType, BFiniteType elementType) {
+        TomlType tomlType = tomlValue.kind();
+        switch (tomlType) {
+            case ARRAY:
+                visitedNodes.add(tomlValue);
+                List<TomlValueNode> nodeList = ((TomlArrayValueNode) tomlValue).elements();
+                for (int i = 0; i < nodeList.size(); i++) {
+                    validateAndGetFiniteValue(nodeList.get(i), variableName, elementType);
+                }
+                return;
+            case KEY_VALUE:
+                visitedNodes.add(tomlValue);
+                tomlValue = ((TomlKeyValueNode) tomlValue).value();
+                validateFiniteValueArray(tomlValue, variableName, arrayType, elementType);
                 return;
             default:
                 throwTypeIncompatibleError(tomlValue, variableName, arrayType);

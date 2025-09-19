@@ -10,6 +10,14 @@ id = 12
 address.city="London"
 address.country.name="UK"
 
+[[personWithRefArray]]
+personType = "refType"
+name = "ravin"
+
+[[personWithRefArray]]
+personType = "refType"
+name = "ravin2"
+
 [[personArray1]]
 name = "waruna"
 id = 700

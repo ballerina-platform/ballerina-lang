@@ -38,6 +38,7 @@ import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BTable;
 import io.ballerina.runtime.internal.TypeConverter;
+import io.ballerina.runtime.internal.types.BFiniteType;
 import io.ballerina.runtime.internal.types.BIntersectionType;
 import io.ballerina.runtime.internal.types.BUnionType;
 import io.ballerina.runtime.internal.values.ArrayValue;
@@ -49,13 +50,18 @@ import io.ballerina.runtime.internal.values.TableValueImpl;
 import io.ballerina.toml.semantic.TomlType;
 import io.ballerina.toml.semantic.ast.TomlArrayValueNode;
 import io.ballerina.toml.semantic.ast.TomlBasicValueNode;
+import io.ballerina.toml.semantic.ast.TomlBooleanValueNode;
+import io.ballerina.toml.semantic.ast.TomlDoubleValueNodeNode;
 import io.ballerina.toml.semantic.ast.TomlInlineTableValueNode;
 import io.ballerina.toml.semantic.ast.TomlKeyValueNode;
+import io.ballerina.toml.semantic.ast.TomlLongValueNode;
 import io.ballerina.toml.semantic.ast.TomlNode;
+import io.ballerina.toml.semantic.ast.TomlStringValueNode;
 import io.ballerina.toml.semantic.ast.TomlTableArrayNode;
 import io.ballerina.toml.semantic.ast.TomlTableNode;
 import io.ballerina.toml.semantic.ast.TomlValueNode;
 import io.ballerina.toml.semantic.ast.TopLevelNode;
+import io.ballerina.tools.text.LineRange;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -64,6 +70,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
 import static io.ballerina.runtime.internal.configurable.providers.toml.Utils.getEffectiveType;
 import static io.ballerina.runtime.internal.configurable.providers.toml.Utils.getValueFromKeyValueNode;
@@ -118,6 +125,8 @@ public class ConfigValueCreator {
                 return createTupleValue(tomlValue, (TupleType) type);
             case TypeTags.TYPE_REFERENCED_TYPE_TAG:
                 return  createValue(tomlValue, ((ReferenceType) type).getReferredType());
+            case TypeTags.FINITE_TYPE_TAG:
+                return createFiniteBalValue(tomlValue, (BFiniteType) type);
             default:
                 Type effectiveType = ((IntersectionType) type).getEffectiveType();
                 if (effectiveType.getTag() == TypeTags.RECORD_TYPE_TAG) {
@@ -317,7 +326,8 @@ public class ConfigValueCreator {
 
     private Object createBalValue(Type type, TomlValueNode tomlValueNode) {
         Object tomlValue = ((TomlBasicValueNode<?>) tomlValueNode).getValue();
-        return switch (TypeUtils.getImpliedType(type).getTag()) {
+        Type impliedType = TypeUtils.getImpliedType(type);
+        return switch (impliedType.getTag()) {
             case TypeTags.BYTE_TAG -> ((Long) tomlValue).intValue();
             case TypeTags.DECIMAL_TAG -> ValueCreator.createDecimalValue(BigDecimal.valueOf((Double) tomlValue));
             case TypeTags.STRING_TAG -> StringUtils.fromString((String) tomlValue);
@@ -327,6 +337,7 @@ public class ConfigValueCreator {
                  TypeTags.XML_PI_TAG,
                  TypeTags.XML_TAG,
                  TypeTags.XML_TEXT_TAG -> createReadOnlyXmlValue((String) tomlValue);
+            case TypeTags.FINITE_TYPE_TAG -> createFiniteBalValue(tomlValueNode, (BFiniteType) impliedType);
             default -> tomlValue;
         };
     }
@@ -347,6 +358,28 @@ public class ConfigValueCreator {
 
         }
         return ValueCreator.createMapValue(mapType, keyValueEntries);
+    }
+
+    private static Object createFiniteBalValue(TomlNode tomlNode, BFiniteType finiteType) {
+        return switch (tomlNode.kind()) {
+            case STRING -> StringUtils.fromString(((TomlStringValueNode) tomlNode).getValue());
+            case INTEGER -> ((TomlLongValueNode) tomlNode).getValue();
+            case DOUBLE -> createFiniteDoubleValue((TomlDoubleValueNodeNode) tomlNode, finiteType);
+            case BOOLEAN -> ((TomlBooleanValueNode) tomlNode).getValue();
+            case KEY_VALUE -> createFiniteBalValue(((TomlKeyValueNode) tomlNode).value(), finiteType);
+            // should not come here
+            default -> null;
+        };
+
+    }
+
+    private static Object createFiniteDoubleValue(TomlDoubleValueNodeNode tomlNode, BFiniteType finiteType) {
+        Double value = tomlNode.getValue();
+        boolean floatValueFound = Utils.checkDoubleValue(finiteType, TypeTags.FLOAT_TAG, value);
+        if (floatValueFound) {
+            return value;
+        }
+        return ValueCreator.createDecimalValue(BigDecimal.valueOf(value));
     }
 
     private Object createUnionValue(TomlNode tomlValue, BUnionType unionType) {

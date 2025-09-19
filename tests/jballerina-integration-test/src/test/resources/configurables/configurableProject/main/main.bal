@@ -46,9 +46,12 @@ type CustomArrayType1 int[];
 
 type CustomArrayType2 int[][];
 
+type refType "refType";
+
 configurable CustomArrayType1[] & readonly customType1Array = ?;
 configurable CustomArrayType2 & readonly customType2Array = ?;
 configurable CustomArrayType2[] & readonly customType3DArray = ?;
+configurable refType[] & readonly refArr = ?;
 
 type AuthInfo record {|
     readonly string username;
@@ -157,6 +160,7 @@ function testArrayValues() {
     test:assertEquals(["red", "yellow", "green"], stringArr);
     test:assertEquals([true, false, false, true], booleanArr);
     test:assertEquals([], nilArr);
+    test:assertEquals(["refType"], refArr);
 
     decimal[] & readonly resultArr = [8.9, 4.5, 6.2];
     test:assertEquals(resultArr, decimalArr);

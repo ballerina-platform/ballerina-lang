@@ -64,3 +64,5 @@ tableOfTuple = [{ id = 999, t = [111, { m = 9, n = 0 }] }, { id = 222, t = [333,
 mapArrayOfTuple = [{ g = [555, { h = 5, i = 6 }], j = [666, { k = 5, l = 6 }] }, { a = [555, { b = 5, c = 6 }], d = [666, { e = 5, f = 6 }] }]
 
 recordArrayOfTuple = [{ id = 777, t = [888, { m = 7, n = 8 }] }, { id = 111, t = [222, { m = 4, n = 9 }] }]
+
+refTuple = ["ravin", "refType"]
