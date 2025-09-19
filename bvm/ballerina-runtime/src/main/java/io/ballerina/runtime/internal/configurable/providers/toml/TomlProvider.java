@@ -748,7 +748,8 @@ public class TomlProvider implements ConfigProvider {
         }
     }
 
-    private void validateFiniteValueArray(TomlNode tomlValue, String variableName, ArrayType arrayType, BFiniteType elementType) {
+    private void validateFiniteValueArray(TomlNode tomlValue, String variableName, ArrayType arrayType,
+                                          BFiniteType elementType) {
         TomlType tomlType = tomlValue.kind();
         switch (tomlType) {
             case ARRAY:
