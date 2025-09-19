@@ -29,6 +29,13 @@ public type Officer record {|
     readonly int id = 0;
 |};
 
+public type refType "refType";
+
+public type PersonWithRef record {
+    refType personType;
+    string name;
+};
+
 public type Person readonly & record {
     string name;
     int id;

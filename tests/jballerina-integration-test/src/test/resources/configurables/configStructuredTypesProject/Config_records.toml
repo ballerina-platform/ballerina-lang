@@ -43,6 +43,10 @@ address.city="Nugegoda"
 name = "riyafa"
 id = 12
 
+[personWithRef]
+personType = "refType"
+name = "ravin"
+
 [lecturer]
 name="hinduja"
 department1.name="IT"
