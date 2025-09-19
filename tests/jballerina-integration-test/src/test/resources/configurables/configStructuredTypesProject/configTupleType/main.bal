@@ -34,6 +34,8 @@ public enum CountryCodes {
     US = "United States"
 }
 
+type refType "refType";
+
 // Tuple with simple types
 configurable [int, string, float, decimal, byte, boolean] simpleTuple = ?;
 // configurable [xml, xml:Comment, xml:Element, xml:ProcessingInstruction, xml:Text] xmlTuple = ?;
@@ -59,6 +61,7 @@ configurable [int, CountryCodes...] enumRestTuple = ?;
 configurable [int, int|string...] unionRestTuple = ?;
 configurable [string, map<string>[]...] mapArrayRestTuple = ?;
 configurable [string, Student[]...] recordArrayRestTuple = ?;
+configurable [string, refType] refTuple = ?;
 
 type Tuple [int, map<int>];
 
@@ -135,6 +138,7 @@ function testTuples() {
     "\"marks\":{\"Maths\":88,\"History\":97}}]]");
 
     // Other types contain tuple type elements 
+    test:assertEquals(refTuple.toString(), "[\"ravin\",\"refType\"]");
     test:assertEquals(tupleArray.toString(), "[[111,{\"a\":1,\"b\":2}],[222,{\"c\":3,\"d\":4}]]");
     test:assertEquals(tupleOfTuple.toString(), "[333,[444,{\"e\":5,\"f\":6}]]");
     test:assertEquals(mapOfTuple.toString(), "{\"g\":[555,{\"h\":5,\"i\":6}],\"j\":[666,{\"k\":5,\"l\":6}]}");

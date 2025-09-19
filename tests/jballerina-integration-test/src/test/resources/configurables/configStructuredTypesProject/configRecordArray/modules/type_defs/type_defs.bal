@@ -20,6 +20,13 @@ public type Person readonly & record {
     Address address;
 };
 
+public type refType "refType";
+
+public type PersonWithRef record {
+    refType personType;
+    string name;
+};
+
 public type Address record {
     string city;
     Country country = {};

@@ -20,6 +20,8 @@ person2 = { name = "manu", id = 11, address = { city = "Nugegoda" } }
 
 person3 = { name = "riyafa", id = 12 }
 
+personWithRef = { personType = "refType", name = "ravin" }
+
 lecturer = { name = "hinduja", department1 = { name = "IT" }, department2 = { name = "Finance" }, department3 = { name = "HR" } }
 
 lawyer = { name = "riyafa", address1 = { city = "Colombo" }, address2 = { city = "Kandy" }, address3 = { city = "Galle" } }
