@@ -19,6 +19,13 @@ public type Student record {
     int id = 444;
 };
 
+public type refType "refType";
+
+public type PersonWithRef record {
+    refType personType;
+    string name;
+};
+
 public type Employee readonly & record {
     string name = "";
     int id = 0;
