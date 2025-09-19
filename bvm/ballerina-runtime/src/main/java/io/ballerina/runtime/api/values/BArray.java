@@ -18,6 +18,7 @@
 package io.ballerina.runtime.api.values;
 
 import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.internal.values.JIteratorValue;
 
 /**
  * <p>
@@ -26,7 +27,7 @@ import io.ballerina.runtime.api.types.Type;
  * 
  * @since 1.1.0
  */
-public interface BArray extends BRefValue, BCollection, IterableValue {
+public interface BArray extends BRefValue, BCollection, JIteratorValue {
 
     /**
      * Get value in the given array index.

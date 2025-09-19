@@ -19,6 +19,7 @@ package io.ballerina.runtime.api.values;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.XmlNodeType;
 import io.ballerina.runtime.api.utils.StringUtils;
+import io.ballerina.runtime.internal.values.JIteratorValue;
 
 import java.util.List;
 
@@ -39,7 +40,7 @@ import javax.xml.XMLConstants;
  *
  * @since 1.1.0
  */
-public interface BXml extends BRefValue, BCollection, IterableValue {
+public interface BXml extends BRefValue, BCollection, JIteratorValue {
 
     /**
      * Start of a XML comment.
