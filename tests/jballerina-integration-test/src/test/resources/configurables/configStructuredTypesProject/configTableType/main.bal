@@ -34,6 +34,7 @@ configurable table<type_defs:Employee & readonly> & readonly employeeTable1 = ?;
 configurable table<type_defs:Lecturer> & readonly lecturerTable2 = ?;
 configurable table<type_defs:Lawyer> & readonly lawyerTable2 = ?;
 configurable type_defs:StaffTable staffTable1 = ?;
+configurable table<type_defs:PersonWithRef> personWithRefTable = ?;
 
 // Complex records
 configurable table<type_defs:Person> & readonly personTable = ?;
@@ -64,6 +65,8 @@ function testTables() {
     "{\"id\":555,\"name\":\"Mary\",\"salary\":67000.0}]");
     test:assertEquals(staffTable2.toString(), "[{\"id\":666,\"name\":\"Default\",\"salary\":78000.0}," + 
     "{\"id\":777,\"name\":\"Amy\",\"salary\":89000.0}]");
+    test:assertEquals(personWithRefTable.toString(), "[{\"personType\":\"refType\",\"name\":\"ravin\"}," +
+    "{\"personType\":\"refType\",\"name\":\"ravin2\"}]");
 }
 
 public function main() {

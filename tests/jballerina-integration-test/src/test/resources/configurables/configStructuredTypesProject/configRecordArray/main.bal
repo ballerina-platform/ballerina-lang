@@ -21,6 +21,7 @@ import ballerina/test;
 
 configurable type_defs:Person[] & readonly personArray = ?;
 configurable (type_defs:Person & readonly)[] & readonly personArray1 = ?;
+configurable type_defs:PersonWithRef[] personWithRefArray = ?;
 
 type PersonArray type_defs:Person;
 
@@ -36,6 +37,8 @@ public function testArrays() {
     test:assertEquals(personArray2.toString(), "[{\"name\":\"gabilan\",\"id\":900," +
     "\"address\":{\"city\":\"Abu Dhabi\",\"country\":{\"name\":\"UAE\"}}},{\"name\":\"hinduja\"," +
     "\"id\":901,\"address\":{\"city\":\"Mumbai\",\"country\":{\"name\":\"India\"}}}]");
+    test:assertEquals(personWithRefArray.toString(), "[{\"personType\":\"refType\",\"name\":\"ravin\"}," +
+    "{\"personType\":\"refType\",\"name\":\"ravin2\"}]");
 }
 
 public function main() {
