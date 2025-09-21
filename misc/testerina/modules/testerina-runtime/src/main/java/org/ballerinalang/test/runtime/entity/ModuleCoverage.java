@@ -142,7 +142,7 @@ public class ModuleCoverage {
 
     private void setCoveragePercentage() {
         float coverageVal = (float) this.coveredLines / (this.coveredLines + this.missedLines) * 100;
-        this.coveragePercentage = (float) (Math.round(coverageVal * 100.0) / 100.0);
+        this.coveragePercentage = Math.round(coverageVal * 100.0f) / 100.0f;
     }
 
     public float getCoveragePercentage() {
@@ -163,6 +163,10 @@ public class ModuleCoverage {
 
     public String getName() {
         return name;
+    }
+
+    public List<SourceFile> getSourceFiles() {
+        return sourceFiles;
     }
 
     /**
@@ -229,7 +233,7 @@ public class ModuleCoverage {
     /**
      * Inner class for the SourceFile in Json.
      */
-    private static class SourceFile {
+    public static class SourceFile {
         private final String name;
         private final List<Integer> coveredLines;
         private final List<Integer> missedLines;

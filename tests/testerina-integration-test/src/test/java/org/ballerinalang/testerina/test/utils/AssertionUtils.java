@@ -53,8 +53,10 @@ public final class AssertionUtils {
         if (isWindows) {
             output = CommonUtils.replaceExecutionTime(output);
             String fileContent =  Files.readString(commandOutputsDir.resolve("windows").resolve(outputFileName));
-            Assert.assertEquals(output.replaceAll("\r\n|\r", "\n").replaceAll(regex, ""),
-                    fileContent.replaceAll("\r\n|\r", "\n").replaceAll(regex, ""));
+            Assert.assertEquals(output.replaceAll("\r\n|\r", "\n").replaceAll(regex, "")
+                            .stripTrailing(),
+                    fileContent.replaceAll("\r\n|\r", "\n").replaceAll(regex, "")
+                            .stripTrailing());
         } else {
             output = CommonUtils.replaceExecutionTime(output);
             String fileContent = Files.readString(commandOutputsDir.resolve("unix").resolve(outputFileName));

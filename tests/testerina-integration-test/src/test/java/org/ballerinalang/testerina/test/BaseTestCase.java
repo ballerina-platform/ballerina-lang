@@ -40,6 +40,7 @@ public class BaseTestCase {
     Path tempProjectDirectory;
     protected static Path singleFileTestsPath;
     protected static Path projectBasedTestsPath;
+    protected static Path workspaceProjectPath;
     String[] coverageArgs = new String[]{"--code-coverage", "--includes=*"};
 
     @BeforeSuite(alwaysRun = true)
@@ -55,6 +56,10 @@ public class BaseTestCase {
         Path originalProjTestsDir = Path.of("src/test/resources/project-based-tests").toAbsolutePath();
         projectBasedTestsPath = tempProjectDirectory.resolve("project-based-tests");
         FileUtils.copyFolder(originalProjTestsDir, projectBasedTestsPath);
+
+        Path workspaceProject = Path.of("src/test/resources/workspace-with-tests").toAbsolutePath();
+        workspaceProjectPath = tempProjectDirectory.resolve("workspace-with-tests");
+        FileUtils.copyFolder(workspaceProject, workspaceProjectPath);
     }
 
     @AfterSuite(alwaysRun = true)

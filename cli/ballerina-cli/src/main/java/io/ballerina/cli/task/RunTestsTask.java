@@ -21,6 +21,7 @@ package io.ballerina.cli.task;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import io.ballerina.cli.utils.BuildTime;
+import io.ballerina.cli.utils.TestUtils;
 import io.ballerina.projects.JBallerinaBackend;
 import io.ballerina.projects.JarResolver;
 import io.ballerina.projects.JvmTarget;
@@ -33,7 +34,9 @@ import io.ballerina.projects.ProjectKind;
 import io.ballerina.projects.internal.model.BuildJson;
 import io.ballerina.projects.internal.model.Target;
 import io.ballerina.projects.util.ProjectConstants;
+import org.ballerinalang.test.runtime.entity.ModuleCoverage;
 import org.ballerinalang.test.runtime.entity.ModuleStatus;
+import org.ballerinalang.test.runtime.entity.PackageTestResult;
 import org.ballerinalang.test.runtime.entity.TestReport;
 import org.ballerinalang.test.runtime.entity.TestSuite;
 import org.ballerinalang.test.runtime.util.JacocoInstrumentUtils;
@@ -128,7 +131,7 @@ public class RunTestsTask implements Task {
                         String disableGroupList, String testList, String includes, String coverageFormat,
                         Map<String, Module> modules, boolean listGroups, String excludes, String[] cliArgs,
                         boolean isParallelExecution, boolean rebuildStatus, String prevTestClassPath,
-                        AtomicInteger testResult, Float minCoverage)  {
+                        AtomicInteger testResult, Float minCoverage, TestReport testReport) {
         this.out = out;
         this.err = err;
         this.isRerunTestExecution = rerunTests;
@@ -153,6 +156,7 @@ public class RunTestsTask implements Task {
         this.rebuildStatus = rebuildStatus;
         this.testResult = testResult;
         this.minCoverage = minCoverage;
+        this.testReport = testReport;
     }
 
     @Override
@@ -165,10 +169,6 @@ public class RunTestsTask implements Task {
 
         report = project.buildOptions().testReport();
         coverage = project.buildOptions().codeCoverage();
-
-        if (report || coverage) {
-            testReport = new TestReport();
-        }
 
         Path cachesRoot;
         Target target;
@@ -227,7 +227,7 @@ public class RunTestsTask implements Task {
                 testResult = runTestSuite(target, project.currentPackage(), jBallerinaBackend, mockClassNames,
                         exclusionClassList);
 
-                performPostTestsTasks(project, target, testsCachePath, jBallerinaBackend,
+                performPostTestsTasks(project, testsCachePath, jBallerinaBackend,
                         cachesRoot, moduleNamesList, exclusionClassList);
             } catch (IOException | InterruptedException | ClassNotFoundException e) {
                 cleanTempCache(project, cachesRoot);
@@ -240,6 +240,33 @@ public class RunTestsTask implements Task {
             }
         } else {
             out.println("\tNo tests found");
+            if (!project.buildOptions().testReport() && !coverage) {
+                return;
+            }
+            PackageTestResult pkgTestResult = new PackageTestResult();
+            pkgTestResult.setProjectName(project.currentPackage().packageName().toString());
+
+            // Add module status entries for all modules even when there are no tests
+            for (Module module : project.currentPackage().modules()) {
+                ModuleStatus moduleStatus = new ModuleStatus();
+                String moduleName = module.moduleName().toString();
+                if (!moduleName.equals(project.currentPackage().packageName().toString())) {
+                    moduleName = ModuleName.from(project.currentPackage().packageName(),
+                            module.moduleName().moduleNamePart()).toString();
+                }
+                moduleStatus.setName(moduleName);
+                pkgTestResult.addModuleStatus(moduleStatus);
+            }
+
+            testReport.addPackage(pkgTestResult);
+            if (coverage) {
+                generateCoverageForNoTests(project, pkgTestResult);
+            }
+            try {
+                generateTesterinaReports(project, pkgTestResult);
+            } catch (IOException e) {
+                throw createLauncherException("error occurred while generating test report :", e);
+            }
         }
     }
 
@@ -251,7 +278,7 @@ public class RunTestsTask implements Task {
             int testResult;
             try {
                 testResult = runTestSuiteFromCache(target, project.currentPackage(), this.prevTestClassPath);
-                performPostTestsTasks(project, target, testsCachePath, null,
+                performPostTestsTasks(project, testsCachePath, null,
                         cachesRoot, moduleNamesList, null);
             } catch (IOException | InterruptedException | ClassNotFoundException e) {
                 cleanTempCache(project, cachesRoot);
@@ -276,14 +303,95 @@ public class RunTestsTask implements Task {
             }
         } else {
             out.println("\tNo tests found");
+            if (!project.buildOptions().testReport() && !coverage) {
+                return;
+            }
+            PackageTestResult pkgTestResult = new PackageTestResult();
+            pkgTestResult.setProjectName(project.currentPackage().packageName().toString());
+
+            // Add module status entries for all modules even when there are no tests
+            for (Module module : project.currentPackage().modules()) {
+                ModuleStatus moduleStatus = new ModuleStatus();
+                String moduleName = module.moduleName().toString();
+                if (!moduleName.equals(project.currentPackage().packageName().toString())) {
+                    moduleName = ModuleName.from(project.currentPackage().packageName(),
+                            module.moduleName().moduleNamePart()).toString();
+                }
+                moduleStatus.setName(moduleName);
+                pkgTestResult.addModuleStatus(moduleStatus);
+            }
+
+            testReport.addPackage(pkgTestResult);
+            if (coverage) {
+                generateCoverageForNoTests(project, pkgTestResult);
+            }
+            try {
+                generateTesterinaReports(project, pkgTestResult);
+            } catch (IOException e) {
+                throw createLauncherException("error occurred while generating test report :", e);
+            }
         }
     }
 
-    private void performPostTestsTasks(Project project, Target target, Path testsCachePath,
+    private void generateCoverageForNoTests(Project project, PackageTestResult pkgTestResult) {
+        Map<String, ModuleCoverage> moduleCoverageMap = TestUtils.initializeCoverageMap(project);
+
+        // For packages without tests, analyze all source files and mark all lines as uncovered
+        for (Module module : project.currentPackage().modules()) {
+            ModuleCoverage moduleCoverage = moduleCoverageMap.get(module.moduleName().toString());
+
+            // Process all source documents in the module
+            module.documentIds().forEach(documentId -> {
+                var document = module.document(documentId);
+                if (document.name().endsWith(".bal")) {
+                    // Get all lines in the source file
+                    List<String> lines = document.textDocument().textLines();
+                    List<Integer> missedLines = new ArrayList<>();
+                    List<Integer> coveredLines = new ArrayList<>(); // Empty for packages without tests
+                    List<Integer> emptyLines = new ArrayList<>();
+                    Set<Integer> allLines = new HashSet<>();
+
+                    // Mark all non-empty lines as missed (uncovered)
+                    for (int i = 0; i < lines.size(); i++) {
+                        int lineNumber = i + 1;
+                        String line = lines.get(i).trim();
+                        if (line.isEmpty() || line.startsWith("//") || line.startsWith("import ")
+                                || line.startsWith("#") || line.endsWith("{")) {
+                            emptyLines.add(lineNumber);
+                        } else {
+                            missedLines.add(lineNumber);
+                        }
+                        allLines.add(lineNumber);
+                    }
+
+                    // Add source file coverage with all executable lines marked as uncovered
+                    moduleCoverage.addSourceFileCoverage(document, coveredLines, missedLines, emptyLines, allLines);
+                }
+            });
+        }
+
+        for (Map.Entry<String, ModuleCoverage> mapElement : moduleCoverageMap.entrySet()) {
+            String moduleName = mapElement.getKey();
+            ModuleCoverage moduleCoverage = mapElement.getValue();
+            moduleCoverage.setName(moduleName);
+            pkgTestResult.addModuleCoverage(moduleCoverage);
+        }
+
+        try {
+            generateTesterinaReports(project, pkgTestResult);
+        } catch (IOException e) {
+            throw createLauncherException("error occurred while generating test report :", e);
+        }
+    }
+
+    private void performPostTestsTasks(Project project, Path testsCachePath,
                                                  JBallerinaBackend jBallerinaBackend, Path cachesRoot,
                                                  List<String> moduleNamesList, Set<String> exclusionClassList)
             throws IOException {
         if (report || coverage) {
+            PackageTestResult pkgTestResult = new PackageTestResult();
+            pkgTestResult.setProjectName(project.currentPackage().packageName().toString());
+            testReport.addPackage(pkgTestResult);
             for (String moduleName : moduleNamesList) {
                 ModuleStatus moduleStatus = loadModuleStatusFromFile(
                         testsCachePath.resolve(moduleName).resolve(TesterinaConstants.STATUS_FILE));
@@ -293,13 +401,16 @@ public class RunTestsTask implements Task {
 
                 if (!moduleName.equals(project.currentPackage().packageName().toString())) {
                     moduleName = ModuleName.from(project.currentPackage().packageName(), moduleName).toString();
+                    moduleStatus.setName(moduleName);
+                } else {
+                    moduleStatus.setName(moduleName);
                 }
-                testReport.addModuleStatus(moduleName, moduleStatus);
+                pkgTestResult.addModuleStatus(moduleStatus);
             }
             try {
-                generateCoverage(project, testReport, jBallerinaBackend, this.includesInCoverage,
+                generateCoverage(project, pkgTestResult, jBallerinaBackend, this.includesInCoverage,
                         this.coverageReportFormat, this.coverageModules, exclusionClassList);
-                generateTesterinaReports(project, testReport, this.out, target);
+                generateTesterinaReports(project, pkgTestResult);
             } catch (IOException e) {
                 cleanTempCache(project, cachesRoot);
                 throw createLauncherException("error occurred while generating test report :", e);
