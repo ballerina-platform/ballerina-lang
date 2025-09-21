@@ -18,6 +18,7 @@
 package io.ballerina.runtime.api.values;
 
 import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.internal.values.JIteratorValue;
 
 import java.util.Collection;
 import java.util.Map;
@@ -33,7 +34,7 @@ import java.util.Set;
  *
  * @since 2.0.0
  */
-public interface BTable<K, V> extends BRefValue, BCollection, IterableValue {
+public interface BTable<K, V> extends BRefValue, BCollection, JIteratorValue {
 
     /**
      * Returns the value to which the specified key is mapped, or {@code null} if this map contains no

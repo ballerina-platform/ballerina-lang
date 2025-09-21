@@ -17,7 +17,7 @@
  *
  */
 
-package io.ballerina.runtime.api.values;
+package io.ballerina.runtime.internal.values;
 
 import java.util.Iterator;
 
@@ -26,10 +26,22 @@ import java.util.Iterator;
  *
  * @since 2201.13.0
  */
-public interface IterableValue {
+public interface JIteratorValue {
 
     /**
      * @return Java iterator from ballerina collection.
      */
-    Iterator<?> getJavaIterator();
+    default Iterator<?> getJavaIterator() {
+        return new Iterator<>() {
+            @Override
+            public boolean hasNext() {
+                return false;
+            }
+
+            @Override
+            public Object next() {
+                return null;
+            }
+        };
+    }
 }
