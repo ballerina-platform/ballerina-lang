@@ -25,8 +25,8 @@ import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.api.values.BStream;
 import io.ballerina.runtime.api.values.BString;
-import io.ballerina.runtime.internal.values.JIteratorValue;
 import io.ballerina.runtime.internal.values.ErrorValue;
+import io.ballerina.runtime.internal.values.JIteratorValue;
 
 import java.util.Iterator;
 import java.util.stream.Stream;
