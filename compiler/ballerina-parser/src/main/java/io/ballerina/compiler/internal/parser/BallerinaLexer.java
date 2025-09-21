@@ -926,7 +926,6 @@ public class BallerinaLexer extends AbstractLexer {
             case LexerTerminals.ASCENDING -> getSyntaxToken(SyntaxKind.ASCENDING_KEYWORD);
             case LexerTerminals.DESCENDING -> getSyntaxToken(SyntaxKind.DESCENDING_KEYWORD);
             case LexerTerminals.JOIN -> getSyntaxToken(SyntaxKind.JOIN_KEYWORD);
-            case LexerTerminals.NATURAL -> getSyntaxToken(SyntaxKind.NATURAL_KEYWORD);
             case LexerTerminals.RE -> {
                 if (getNextNonWSOrNonCommentChar() == LexerTerminals.BACKTICK) {
                     yield getSyntaxToken(SyntaxKind.RE_KEYWORD);

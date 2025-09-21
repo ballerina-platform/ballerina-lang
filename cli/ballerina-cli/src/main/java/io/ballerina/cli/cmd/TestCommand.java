@@ -17,8 +17,10 @@
  */
 package io.ballerina.cli.cmd;
 
+import com.google.gson.Gson;
 import io.ballerina.cli.BLauncherCmd;
 import io.ballerina.cli.TaskExecutor;
+import io.ballerina.cli.launcher.BLauncherException;
 import io.ballerina.cli.task.CleanTargetBinTestsDirTask;
 import io.ballerina.cli.task.CleanTargetCacheDirTask;
 import io.ballerina.cli.task.CompileTask;
@@ -42,13 +44,23 @@ import io.ballerina.projects.directory.BuildProject;
 import io.ballerina.projects.directory.ProjectLoader;
 import io.ballerina.projects.directory.WorkspaceProject;
 import io.ballerina.projects.internal.model.BuildJson;
+import io.ballerina.projects.internal.model.Target;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectPaths;
+import org.ballerinalang.test.runtime.entity.TestReport;
+import org.ballerinalang.test.runtime.util.CodeCoverageUtils;
 import org.wso2.ballerinalang.util.RepoUtils;
 import picocli.CommandLine;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
 import java.io.PrintStream;
+import java.io.Writer;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -58,12 +70,23 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import static io.ballerina.cli.cmd.CommandUtil.TEST_FAILURES_ERROR;
 import static io.ballerina.cli.cmd.Constants.TEST_COMMAND;
 import static io.ballerina.cli.launcher.LauncherUtils.createLauncherException;
+import static io.ballerina.cli.utils.TestUtils.getReportToolsPath;
+import static io.ballerina.projects.util.ProjectUtils.getBalHomePath;
 import static io.ballerina.projects.util.ProjectConstants.BUILD_FILE;
 import static io.ballerina.projects.util.ProjectUtils.readBuildJson;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.SYSTEM_PROP_BAL_DEBUG;
+import static org.ballerinalang.test.runtime.util.TesterinaConstants.COVERAGE_DIR;
+import static org.ballerinalang.test.runtime.util.TesterinaConstants.FILE_PROTOCOL;
 import static org.ballerinalang.test.runtime.util.TesterinaConstants.JACOCO_XML_FORMAT;
+import static org.ballerinalang.test.runtime.util.TesterinaConstants.REPORT_DATA_PLACEHOLDER;
+import static org.ballerinalang.test.runtime.util.TesterinaConstants.REPORT_ZIP_NAME;
+import static org.ballerinalang.test.runtime.util.TesterinaConstants.RESULTS_HTML_FILE;
+import static org.ballerinalang.test.runtime.util.TesterinaConstants.RESULTS_JSON_FILE;
+import static org.ballerinalang.test.runtime.util.TesterinaConstants.TOOLS_DIR_NAME;
+import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BALLERINA_HOME_LIB;
 
 /**
  * This class represents the "bal test" command.
@@ -371,7 +394,15 @@ public class TestCommand implements BLauncherCmd {
         boolean isTestingDelegated = project.buildOptions().cloud().equals("docker");
         AtomicInteger testResult = new AtomicInteger(0);
 
+        TestReport testReport = null;
+        if (project.buildOptions().testReport() || project.buildOptions().codeCoverage()) {
+            testReport = new TestReport();
+        }
+
         if (project.kind() == ProjectKind.WORKSPACE_PROJECT) {
+            if (testReport != null) {
+                testReport.setWorkspaceName(Optional.of(project.sourceRoot().getFileName()).get().toString());
+            }
             WorkspaceProject workspaceProject = (WorkspaceProject) project;
             DependencyGraph<BuildProject> projectDependencyGraph = resolveWorkspaceDependencies(workspaceProject);
             if (!project.sourceRoot().equals(absProjectPath)) {
@@ -379,29 +410,130 @@ public class TestCommand implements BLauncherCmd {
                 // the projects that are dependencies of the project at the specified path.
                 Optional<BuildProject> buildProjectOptional = projectDependencyGraph.getNodes().stream()
                         .filter(node -> node.sourceRoot().equals(absProjectPath)).findFirst();
-
-                executeTasks(false, isTestingDelegated, buildProjectOptional.orElseThrow(), testResult, cliArgs);
+                try {
+                    executeTasks(isTestingDelegated, buildProjectOptional.orElseThrow(), testResult,
+                            cliArgs, testReport);
+                } catch (BLauncherException e) {
+                    if (!e.getDetailedMessages().isEmpty()
+                            && e.getDetailedMessages().get(0).equals(TEST_FAILURES_ERROR)) {
+                        generateTestReport(project, testReport);
+                    }
+                    throw e;
+                }
             } else {
+                int execResult = 0;
                 for (BuildProject buildProject : projectDependencyGraph.toTopologicallySortedList()) {
-                    executeTasks(false, isTestingDelegated, buildProject, testResult, cliArgs);
+                    try {
+                        executeTasks(isTestingDelegated, buildProject, testResult, cliArgs, testReport);
+                    } catch (BLauncherException e) {
+                        if (!e.getDetailedMessages().isEmpty()
+                                && !e.getDetailedMessages().get(0).equals(TEST_FAILURES_ERROR)) {
+                            throw e;
+                        }
+                        execResult = 1;
+                    }
+                }
+                if (execResult == 1) {
+                    generateTestReport(project, testReport);
+                    throw createLauncherException(TEST_FAILURES_ERROR);
                 }
             }
         } else {
-            executeTasks(project.kind().equals(ProjectKind.SINGLE_FILE_PROJECT), isTestingDelegated, project,
-                    testResult, cliArgs);
+            if (testReport != null) {
+                String projectName = project.currentPackage().packageName().toString();
+                if (project.kind() == ProjectKind.SINGLE_FILE_PROJECT) {
+                    projectName = Optional.of(project.sourceRoot().getFileName()).get().toString();
+                }
+                testReport.setWorkspaceName(projectName);
+            }
+            try {
+                executeTasks(isTestingDelegated, project, testResult, cliArgs, testReport);
+            } catch (BLauncherException e) {
+                if (!e.getDetailedMessages().isEmpty()
+                        && e.getDetailedMessages().get(0).equals(TEST_FAILURES_ERROR)) {
+                    generateTestReport(project, testReport);
+                }
+                throw e;
+            }
         }
-
-        if (testResult.get() != 0) {
-            throw createLauncherException("there are test failures");
-        }
+        generateTestReport(project, testReport);
 
         if (this.exitWhenFinish) {
             Runtime.getRuntime().exit(0);
         }
     }
 
-    private void executeTasks(boolean skip, boolean isTestingDelegated,
-                              Project project, AtomicInteger testResult, String[] cliArgs) {
+    private void generateTestReport(Project project, TestReport report) {
+        if (!project.buildOptions().testReport() && !project.buildOptions().codeCoverage()) {
+            return;
+        }
+        if (report == null || report.getPackages().isEmpty()) {
+            // no tests found
+            return;
+        }
+        outStream.println();
+        outStream.println("Generating Test Report");
+        report.finalizeTestResults(project.buildOptions().codeCoverage());
+        Gson gson = new Gson();
+        String json;
+        if (project.kind() == ProjectKind.WORKSPACE_PROJECT) {
+            json = gson.toJson(report);
+        } else {
+            json = gson.toJson(report.getPackages().get(0));
+        }
+
+        Path reportDir;
+        try {
+            Files.createDirectories(project.targetDir());
+            Target target = new Target(project.targetDir());
+            reportDir = target.getReportPath();
+            File jsonFile = new File(reportDir.resolve(RESULTS_JSON_FILE).toString());
+            try (FileOutputStream fileOutputStream = new FileOutputStream(jsonFile)) {
+                try (Writer writer = new OutputStreamWriter(fileOutputStream, StandardCharsets.UTF_8)) {
+                    writer.write(json);
+                    outStream.println("\t" + jsonFile.toPath() + "\n");
+                }
+            }
+        } catch (IOException e) {
+            throw createLauncherException("error occurred while generating test report: " + e);
+        }
+
+        // Dump the Testerina html report only if '--test-report' flag is provided
+        Path reportZipPath = getReportToolsPath();
+        if (Files.exists(reportZipPath)) {
+            String content;
+            try {
+                try (FileInputStream fileInputStream = new FileInputStream(reportZipPath.toFile())) {
+                    CodeCoverageUtils.unzipReportResources(fileInputStream, reportDir.toFile());
+                }
+                content = Files.readString(reportDir.resolve(RESULTS_HTML_FILE));
+                content = content.replace(REPORT_DATA_PLACEHOLDER, json);
+            } catch (IOException e) {
+                throw createLauncherException("error occurred while preparing test report: " + e);
+            }
+
+            try {
+                File htmlFile = new File(reportDir.resolve(RESULTS_HTML_FILE).toString());
+                try (FileOutputStream fileOutputStream = new FileOutputStream(htmlFile)) {
+                    try (Writer writer = new OutputStreamWriter(fileOutputStream, StandardCharsets.UTF_8)) {
+                        writer.write(content);
+                        outStream.println("\tView the test report at: " +
+                                FILE_PROTOCOL + Path.of(htmlFile.getPath()).toAbsolutePath().normalize());
+                    }
+                }
+            } catch (IOException e) {
+                throw createLauncherException("error occurred while writing test report to file: " + e);
+            }
+        } else {
+            String reportToolsPath = getBalHomePath().resolve(BALLERINA_HOME_LIB).resolve(TOOLS_DIR_NAME)
+                    .resolve(COVERAGE_DIR).resolve(REPORT_ZIP_NAME).toString();
+            outStream.println("warning: Could not find the required HTML report tools for code coverage at "
+                    + reportToolsPath);
+        }
+    }
+
+    private void executeTasks(boolean isTestingDelegated, Project project, AtomicInteger testResult,
+                              String[] cliArgs, TestReport testReport) {
         Path buildFilePath = project.targetDir().resolve(BUILD_FILE);
         boolean rebuildStatus = true;
         String prevTestClassPath  = "";
@@ -415,19 +547,19 @@ public class TestCommand implements BLauncherCmd {
             rebuildStatus = isRebuildNeeded(project, buildJson) || prevTestClassPath == null
                     || prevTestClassPath.isEmpty();
         } catch (IOException e) {
-            //ignore exception
+            // ignore exception
         }
-
         // Run pre-build tasks to have the project reloaded.
         // In code coverage generation, the module map is duplicated.
         // Therefore, the project needs to be reloaded beforehand to provide the latest project instance
         // which has the newly generated code for code coverage calculation.
         // Hence, below tasks are executed before extracting the module map from the project.
+        boolean isSingleFile = project.kind().equals(ProjectKind.SINGLE_FILE_PROJECT);
         TaskExecutor preBuildTaskExecutor = new TaskExecutor.TaskBuilder()
                 .addTask(new CleanTargetCacheDirTask(),
-                        !rebuildStatus || skip) // clean the target cache dir(projects only)
-                .addTask(new CleanTargetBinTestsDirTask(), !rebuildStatus || (skip || !isTestingDelegated))
-                .addTask(new RunBuildToolsTask(outStream), !rebuildStatus || skip) // run build tools
+                        !rebuildStatus || isSingleFile) // clean the target cache dir(projects only)
+                .addTask(new CleanTargetBinTestsDirTask(), !rebuildStatus || (isSingleFile || !isTestingDelegated))
+                .addTask(new RunBuildToolsTask(outStream), !rebuildStatus || isSingleFile) // run build tools
                 .build();
         preBuildTaskExecutor.executeTasks(project);
 
@@ -447,13 +579,16 @@ public class TestCommand implements BLauncherCmd {
                         cliArgs, isParallelExecution), !isTestingDelegated)
                 .addTask(new RunTestsTask(outStream, errStream, rerunTests, groupList, disableGroupList,
                                 testList, includes, coverageFormat, moduleMap, listGroups, excludes, cliArgs,
-                                isParallelExecution, rebuildStatus, prevTestClassPath, testResult, minCoverage),
+                                isParallelExecution, rebuildStatus, prevTestClassPath, testResult, minCoverage,
+                                testReport),
                         (project.buildOptions().nativeImage() || isTestingDelegated))
                 .addTask(new RunNativeImageTestTask(outStream, rerunTests, groupList, disableGroupList,
-                                testList, includes, coverageFormat, moduleMap, listGroups, isParallelExecution),
+                                testList, includes, coverageFormat, moduleMap, listGroups, isParallelExecution,
+                                testReport),
                         (!project.buildOptions().nativeImage() || isTestingDelegated))
                 .addTask(new DumpBuildTimeTask(outStream), !project.buildOptions().dumpBuildTime())
-                .addTask(new CreateFingerprintTask(true, false), !rebuildStatus || skip)
+                .addTask(new CreateFingerprintTask(true, false),
+                        !rebuildStatus || isSingleFile)
                 .build();
         taskExecutor.executeTasks(project);
     }

@@ -35,6 +35,7 @@ import io.ballerina.projects.environment.ProjectEnvironment;
 import io.ballerina.projects.environment.ResolutionOptions;
 import io.ballerina.projects.internal.DefaultDiagnosticResult;
 import io.ballerina.projects.internal.WorkspaceManifestBuilder;
+import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectPaths;
 import io.ballerina.tools.diagnostics.Diagnostic;
 
@@ -107,7 +108,11 @@ public class WorkspaceProject extends Project {
 
     @Override
     public Path targetDir() {
-        return this.projectList.iterator().next().targetDir();
+        if (this.buildOptions().getTargetPath() == null) {
+            return this.sourceRoot.resolve(ProjectConstants.TARGET_DIR_NAME);
+        } else {
+            return Path.of(this.buildOptions().getTargetPath());
+        }
     }
 
     @Override

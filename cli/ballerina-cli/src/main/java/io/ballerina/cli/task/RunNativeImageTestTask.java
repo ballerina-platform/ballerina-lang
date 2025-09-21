@@ -36,6 +36,7 @@ import io.ballerina.projects.ProjectKind;
 import io.ballerina.projects.internal.model.Target;
 import io.ballerina.projects.util.ProjectConstants;
 import org.ballerinalang.test.runtime.entity.ModuleStatus;
+import org.ballerinalang.test.runtime.entity.PackageTestResult;
 import org.ballerinalang.test.runtime.entity.TestReport;
 import org.ballerinalang.test.runtime.entity.TestSuite;
 import org.ballerinalang.test.runtime.util.TesterinaConstants;
@@ -109,7 +110,8 @@ public class RunNativeImageTestTask implements Task {
 
     public RunNativeImageTestTask(PrintStream out, boolean rerunTests, String groupList,
                                   String disableGroupList, String testList, String includes, String coverageFormat,
-                                  Map<String, Module> modules, boolean listGroups, boolean isParallelExecution) {
+                                  Map<String, Module> modules, boolean listGroups, boolean isParallelExecution,
+                                  TestReport testReport) {
         this.out = out;
         this.isRerunTestExecution = rerunTests;
 
@@ -124,6 +126,7 @@ public class RunNativeImageTestTask implements Task {
         }
         this.listGroups = listGroups;
         this.isParallelExecution = isParallelExecution;
+        this.testReport = testReport;
     }
 
     @Override
@@ -135,11 +138,6 @@ public class RunNativeImageTestTask implements Task {
 
         report = project.buildOptions().testReport();
         coverage = project.buildOptions().codeCoverage();
-
-
-        if (report) {
-            testReport = new TestReport();
-        }
 
         Path cachesRoot;
         Target target;
@@ -207,6 +205,32 @@ public class RunNativeImageTestTask implements Task {
 
         if (!hasTests) {
             out.println("\tNo tests found");
+            // Create test report structure even when there are no tests
+            if (report) {
+                PackageTestResult packageTestResult = new PackageTestResult();
+                packageTestResult.setProjectName(project.currentPackage().packageName().toString());
+
+                // Add module status entries for all modules even when there are no tests
+                for (ModuleDescriptor moduleDescriptor :
+                        project.currentPackage().moduleDependencyGraph().toTopologicallySortedList()) {
+                    Module module = project.currentPackage().module(moduleDescriptor.name());
+                    ModuleStatus moduleStatus = new ModuleStatus();
+                    String moduleName = module.moduleName().toString();
+                    if (!moduleName.equals(project.currentPackage().packageName().toString())) {
+                        moduleName = ModuleName.from(project.currentPackage().packageName(),
+                                module.moduleName().moduleNamePart()).toString();
+                    }
+                    moduleStatus.setName(moduleName);
+                    packageTestResult.addModuleStatus(moduleStatus);
+                }
+
+                testReport.addPackage(packageTestResult);
+                try {
+                    generateTesterinaReports(project, packageTestResult);
+                } catch (IOException e) {
+                    throw createLauncherException("error occurred while generating test report:", e);
+                }
+            }
         }
 
         // If the function mocking does not exist, combine all test suite map entries
@@ -239,9 +263,7 @@ public class RunNativeImageTestTask implements Task {
                 }
             }
 
-
-
-            //Remove all mock function entries from test suites
+            // Remove all mock function entries from test suites
             for (Map.Entry<String, TestSuite> testSuiteEntry : testSuiteMap.entrySet()) {
                 TestSuite testSuite = testSuiteEntry.getValue();
                 if (!testSuite.getMockFunctionNamesMap().isEmpty()) {
@@ -249,7 +271,7 @@ public class RunNativeImageTestTask implements Task {
                 }
             }
 
-            //Write the testsuite to the disk
+            // Write the testsuite to the disk
             TestUtils.writeToTestSuiteJson(testSuiteMap, testsCachePath);
 
             int testResult;
@@ -264,6 +286,8 @@ public class RunNativeImageTestTask implements Task {
                     accumulatedTestResult = testResult;
                 }
                 if (report) {
+                    PackageTestResult packageTestResult = new PackageTestResult();
+                    packageTestResult.setProjectName(project.currentPackage().packageName().toString());
                     for (Map.Entry<String, TestSuite> testSuiteEntry : testSuiteMap.entrySet()) {
                         String moduleName = testSuiteEntry.getKey();
                         ModuleStatus moduleStatus = TestUtils.loadModuleStatusFromFile(
@@ -275,8 +299,15 @@ public class RunNativeImageTestTask implements Task {
                         if (!moduleName.equals(project.currentPackage().packageName().toString())) {
                             moduleName = ModuleName.from(project.currentPackage().packageName(),
                                     moduleName).toString();
+                            moduleStatus.setName(moduleName);
                         }
-                        testReport.addModuleStatus(moduleName, moduleStatus);
+                        packageTestResult.addModuleStatus(moduleStatus);
+                    }
+                    try {
+                        generateTesterinaReports(project, packageTestResult);
+                    } catch (IOException e) {
+                        TestUtils.cleanTempCache(project, cachesRoot);
+                        throw createLauncherException("error occurred while generating test report:", e);
                     }
                 }
             } catch (IOException e) {
@@ -284,14 +315,6 @@ public class RunNativeImageTestTask implements Task {
                     throw createLauncherException("error occurred while running tests: ", e);
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
-            }
-        }
-        if (report && hasTests) {
-            try {
-                generateTesterinaReports(project, testReport, this.out, target);
-            } catch (IOException e) {
-                TestUtils.cleanTempCache(project, cachesRoot);
-                throw createLauncherException("error occurred while generating test report:", e);
             }
         }
 
