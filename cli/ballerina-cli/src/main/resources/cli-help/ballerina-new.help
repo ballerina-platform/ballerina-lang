@@ -2,7 +2,7 @@ NAME
        ballerina-new - Create a new Ballerina package
 
 SYNOPSIS
-       bal new <package-path> [-t |--template <template-name> ]
+       bal new <package-path> [--workspace] [-t |--template <template-name> ]
 
 
 DESCRIPTION
@@ -41,8 +41,28 @@ DESCRIPTION
        template is not specified, this command creates a package with the
        default template.
 
+       A Ballerina workspace is a collection of multiple packages that can be
+       developed and built together. When the --workspace flag is used, this
+       command creates a workspace directory containing a sample package and
+       a workspace-level Ballerina.toml file that lists all packages in the
+       workspace.
+
+       The workspace directory will have the structure below.
+            .
+            ├── Ballerina.toml     (workspace-level)
+            └── hello-app/
+                ├── Ballerina.toml (package-level)
+                ├── .devcontainer.json
+                ├── .gitignore
+                └── main.bal
+
 
 OPTIONS
+       --workspace
+           Create a Ballerina workspace with a sample package. The workspace
+           will contain a workspace-level Ballerina.toml file and a sample
+           package based on the specified template.
+
        -t <template-name>, --template <template-name>
            Create a package using a predefined template.
 
@@ -53,7 +73,7 @@ OPTIONS
 
 EXAMPLES
        Create a package with the 'main' function.
-           $ bal new myPackage
+           $ bal new my-package
 
        Initialize a package in the current directory.
            $ bal new .
@@ -64,8 +84,17 @@ EXAMPLES
        Create a package with the 'main' function with tests.
            $ bal new -t main myApp
 
-      Create a package with a Ballerina service template.
-           $ bal new -t service myService
+       Create a package with a Ballerina service template.
+           $ bal new -t service my-service
 
-      Create a package with a Ballerina library template.
-           $ bal new -t lib myLib
+       Create a package with a Ballerina library template.
+           $ bal new -t lib my-lib
+
+       Create a workspace with a sample main package.
+           $ bal new --workspace my-workspace
+
+       Create a workspace with a sample service package.
+           $ bal new --workspace -t service my-workspace
+
+       Create a workspace with a sample library package.
+           $ bal new --workspace -t lib my-workspace

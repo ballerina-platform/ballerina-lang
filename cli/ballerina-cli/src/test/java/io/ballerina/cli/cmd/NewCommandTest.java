@@ -1319,20 +1319,35 @@ public class NewCommandTest extends BaseCommandTest {
     @Test
     public void testNewCommandForWorkspace() throws IOException {
         Path packageDir = tmpDir.resolve("my-workspace");
-        String[] args = {"--workspace", packageDir.toString()};
+        String[] args = {"--workspace", "-t=lib", packageDir.toString()};
         NewCommand newCommand = new NewCommand(printStream, false);
         new CommandLine(newCommand).parseArgs(args);
-        newCommand.execute();
-        String buildLog = readOutput().replace("\r", "");
-        Assert.assertTrue(Files.exists(packageDir));
-        Assert.assertTrue(Files.exists(packageDir.resolve(BALLERINA_TOML)));
-        Assert.assertTrue(ProjectPaths.isWorkspaceProjectRoot(packageDir));
-        Assert.assertTrue(Files.exists(packageDir.resolve("hello-app")));
-        Assert.assertTrue(buildLog.contains("Created new workspace at " + packageDir));
-        new BuildCommand(packageDir, printStream, printStream, false).execute();
+        String buildLog;
+        try {
+            newCommand.execute();
+            buildLog = readOutput().replace("\r", "");
+            Assert.assertTrue(Files.exists(packageDir));
+            Assert.assertTrue(Files.exists(packageDir.resolve(BALLERINA_TOML)));
+            Assert.assertTrue(ProjectPaths.isWorkspaceProjectRoot(packageDir));
+            Assert.assertTrue(Files.exists(packageDir.resolve("hello-lib")));
+            Assert.assertTrue(buildLog.contains("Created new workspace at " + packageDir), buildLog);
+            // Remove tests/ to avoid the ballerina-io import
+            ProjectUtils.deleteDirectory(packageDir.resolve("hello-lib").resolve("tests"));
+        } catch (BLauncherException e) {
+            Assert.fail(e.getDetailedMessages().toString());
+        }
+
+        BuildCommand buildCommand = new BuildCommand(packageDir, printStream, printStream, false);
+        new CommandLine(buildCommand).parseArgs();
+        try {
+            buildCommand.execute();
+        } catch (BLauncherException e) {
+            errStream.println(e.getDetailedMessages().toString());
+        }
+
         buildLog = readOutput(true);
-        Assert.assertTrue(buildLog.contains("Resolving workspace dependencies"));
-        Assert.assertTrue(buildLog.contains("Generating executable"));
+        Assert.assertTrue(buildLog.contains("Resolving workspace dependencies"), buildLog);
+        Assert.assertTrue(buildLog.contains("Generating executable"), buildLog);
     }
     static class Copy extends SimpleFileVisitor<Path> {
         private final Path fromPath;

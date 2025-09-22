@@ -19,7 +19,7 @@ OPTIONS
            Target directory path.
 
 EXAMPLES
-       Clean the default target directory of the current package.
+       Clean the default target directory of the current package or the workspace.
            $ bal clean
 
        Clean the provided target directory.

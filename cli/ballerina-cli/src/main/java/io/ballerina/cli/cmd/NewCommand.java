@@ -269,7 +269,7 @@ public class NewCommand implements BLauncherCmd {
                 errStream.println();
             }
         }
-        Optional<Path> workspaceRoot = ProjectPaths.workspaceRoot(packagePath.getParent());
+        Optional<Path> workspaceRoot = ProjectPaths.workspaceRoot(Optional.of(packagePath.getParent()).get());
 
         try {
             // check if the template matches with one of the inbuilt template types
