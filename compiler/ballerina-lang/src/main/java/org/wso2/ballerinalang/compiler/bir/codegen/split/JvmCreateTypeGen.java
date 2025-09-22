@@ -825,11 +825,11 @@ public class JvmCreateTypeGen {
         jarEntries.put(functionTypesClass + ".class", bytes);
     }
 
-    private void generateGetFunctionTypeMainMethod(ClassWriter cw, List<BIRNode.BIRFunction> functions) {
+    private void generateGetFunctionTypeMainMethod(ClassWriter cw, List<BIRNode.BIRFunction> sortedFunctions) {
         MethodVisitor mv = cw.visitMethod(ACC_PUBLIC + ACC_STATIC, GET_FUNCTION_TYPE_METHOD,
                 GET_FUNCTION_TYPE_FOR_STRING, null, null);
         mv.visitCode();
-        if (functions.isEmpty()) {
+        if (sortedFunctions.isEmpty()) {
             Label defaultCaseLabel = new Label();
             createDefaultCaseThrowError(mv, defaultCaseLabel, 1, "No such function type: ");
         } else {
@@ -837,13 +837,13 @@ public class JvmCreateTypeGen {
             mv.visitMethodInsn(INVOKESTATIC, functionTypesClass, GET_FUNCTION_TYPE_METHOD + 0,
                     GET_FUNCTION_TYPE_FOR_STRING, false);
             mv.visitInsn(ARETURN);
-            generateGetFunctionTypeSplitMethods(cw, functions);
+            generateGetFunctionTypeSplitMethods(cw, sortedFunctions);
         }
         mv.visitMaxs(0, 0);
         mv.visitEnd();
     }
 
-    void generateGetFunctionTypeSplitMethods(ClassWriter cw, List<BIRNode.BIRFunction> functions) {
+    void generateGetFunctionTypeSplitMethods(ClassWriter cw, List<BIRNode.BIRFunction> sortedFunctions) {
         int bTypesCount = 0;
         int methodCount = 0;
         MethodVisitor mv = null;
@@ -852,19 +852,19 @@ public class JvmCreateTypeGen {
         // case body
         int i = 0;
         List<Label> targetLabels = new ArrayList<>();
-        for (BIRNode.BIRFunction func : functions) {
+        for (BIRNode.BIRFunction func : sortedFunctions) {
             if (bTypesCount % MAX_TYPES_PER_METHOD == 0) {
                 mv = cw.visitMethod(ACC_PRIVATE + ACC_STATIC, GET_FUNCTION_TYPE_METHOD + methodCount++,
                         GET_FUNCTION_TYPE_FOR_STRING, null, null);
                 mv.visitCode();
                 defaultCaseLabel = new Label();
-                int remainingCases = functions.size() - bTypesCount;
+                int remainingCases = sortedFunctions.size() - bTypesCount;
                 if (remainingCases > MAX_TYPES_PER_METHOD) {
                     remainingCases = MAX_TYPES_PER_METHOD;
                 }
-                List<Label> labels = JvmCreateTypeGen.createLabelsForSwitch(mv, funcNameRegIndex, functions,
+                List<Label> labels = JvmCreateTypeGen.createLabelsForSwitch(mv, funcNameRegIndex, sortedFunctions,
                         bTypesCount, remainingCases, defaultCaseLabel, false);
-                targetLabels = JvmCreateTypeGen.createLabelsForEqualCheck(mv, funcNameRegIndex, functions,
+                targetLabels = JvmCreateTypeGen.createLabelsForEqualCheck(mv, funcNameRegIndex, sortedFunctions,
                         bTypesCount, remainingCases, labels, defaultCaseLabel, false);
                 i = 0;
             }
@@ -877,7 +877,7 @@ public class JvmCreateTypeGen {
             i += 1;
             bTypesCount++;
             if (bTypesCount % MAX_TYPES_PER_METHOD == 0) {
-                if (bTypesCount == (functions.size())) {
+                if (bTypesCount == (sortedFunctions.size())) {
                     createDefaultCaseThrowError(mv, defaultCaseLabel, funcNameRegIndex, "No such function type: ");
                 } else {
                     mv.visitLabel(defaultCaseLabel);
