@@ -746,27 +746,6 @@ public class TomlProvider implements ConfigProvider {
         }
     }
 
-    private void validateFiniteValueArray(TomlNode tomlValue, String variableName, ArrayType arrayType,
-                                          BFiniteType elementType) {
-        TomlType tomlType = tomlValue.kind();
-        switch (tomlType) {
-            case ARRAY:
-                visitedNodes.add(tomlValue);
-                List<TomlValueNode> nodeList = ((TomlArrayValueNode) tomlValue).elements();
-                for (int i = 0; i < nodeList.size(); i++) {
-                    validateAndGetFiniteValue(nodeList.get(i), variableName, elementType);
-                }
-                return;
-            case KEY_VALUE:
-                visitedNodes.add(tomlValue);
-                tomlValue = ((TomlKeyValueNode) tomlValue).value();
-                validateFiniteValueArray(tomlValue, variableName, arrayType, elementType);
-                return;
-            default:
-                throwTypeIncompatibleError(tomlValue, variableName, arrayType);
-        }
-    }
-
     private void validateMapValueArray(TomlNode tomlValue, String variableName, ArrayType arrayType, Type elementType) {
         TomlType tomlType = tomlValue.kind();
         switch (tomlType) {
