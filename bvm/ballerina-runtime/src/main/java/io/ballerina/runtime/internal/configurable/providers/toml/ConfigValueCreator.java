@@ -50,13 +50,9 @@ import io.ballerina.runtime.internal.values.TableValueImpl;
 import io.ballerina.toml.semantic.TomlType;
 import io.ballerina.toml.semantic.ast.TomlArrayValueNode;
 import io.ballerina.toml.semantic.ast.TomlBasicValueNode;
-import io.ballerina.toml.semantic.ast.TomlBooleanValueNode;
-import io.ballerina.toml.semantic.ast.TomlDoubleValueNodeNode;
 import io.ballerina.toml.semantic.ast.TomlInlineTableValueNode;
 import io.ballerina.toml.semantic.ast.TomlKeyValueNode;
-import io.ballerina.toml.semantic.ast.TomlLongValueNode;
 import io.ballerina.toml.semantic.ast.TomlNode;
-import io.ballerina.toml.semantic.ast.TomlStringValueNode;
 import io.ballerina.toml.semantic.ast.TomlTableArrayNode;
 import io.ballerina.toml.semantic.ast.TomlTableNode;
 import io.ballerina.toml.semantic.ast.TomlValueNode;
@@ -124,7 +120,8 @@ public class ConfigValueCreator {
             case TypeTags.TYPE_REFERENCED_TYPE_TAG:
                 return  createValue(tomlValue, ((ReferenceType) type).getReferredType());
             case TypeTags.FINITE_TYPE_TAG:
-                return createFiniteBalValue(tomlValue, (BFiniteType) type);
+                return Utils.getFiniteBalValue(tomlValue, new HashSet<>(),
+                        (BFiniteType) type, new HashSet<>(), "");
             default:
                 Type effectiveType = ((IntersectionType) type).getEffectiveType();
                 if (effectiveType.getTag() == TypeTags.RECORD_TYPE_TAG) {
@@ -335,7 +332,8 @@ public class ConfigValueCreator {
                  TypeTags.XML_PI_TAG,
                  TypeTags.XML_TAG,
                  TypeTags.XML_TEXT_TAG -> createReadOnlyXmlValue((String) tomlValue);
-            case TypeTags.FINITE_TYPE_TAG -> createFiniteBalValue(tomlValueNode, (BFiniteType) impliedType);
+            case TypeTags.FINITE_TYPE_TAG -> Utils.getFiniteBalValue(tomlValueNode, new HashSet<>(),
+                    (BFiniteType) impliedType, new HashSet<>(), "");
             default -> tomlValue;
         };
     }
@@ -356,28 +354,6 @@ public class ConfigValueCreator {
 
         }
         return ValueCreator.createMapValue(mapType, keyValueEntries);
-    }
-
-    private static Object createFiniteBalValue(TomlNode tomlNode, BFiniteType finiteType) {
-        return switch (tomlNode.kind()) {
-            case STRING -> StringUtils.fromString(((TomlStringValueNode) tomlNode).getValue());
-            case INTEGER -> ((TomlLongValueNode) tomlNode).getValue();
-            case DOUBLE -> createFiniteDoubleValue((TomlDoubleValueNodeNode) tomlNode, finiteType);
-            case BOOLEAN -> ((TomlBooleanValueNode) tomlNode).getValue();
-            case KEY_VALUE -> createFiniteBalValue(((TomlKeyValueNode) tomlNode).value(), finiteType);
-            // should not come here
-            default -> null;
-        };
-
-    }
-
-    private static Object createFiniteDoubleValue(TomlDoubleValueNodeNode tomlNode, BFiniteType finiteType) {
-        Double value = tomlNode.getValue();
-        boolean floatValueFound = Utils.checkDoubleValue(finiteType, TypeTags.FLOAT_TAG, value);
-        if (floatValueFound) {
-            return value;
-        }
-        return ValueCreator.createDecimalValue(BigDecimal.valueOf(value));
     }
 
     private Object createUnionValue(TomlNode tomlValue, BUnionType unionType) {

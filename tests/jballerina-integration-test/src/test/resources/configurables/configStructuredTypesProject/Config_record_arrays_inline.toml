@@ -4,7 +4,7 @@ personArray1 = [{ name = "waruna", id = 700, address = { city = "Abu Dhabi", cou
 
 personArray2 = [{ name = "gabilan", id = 900, address = { city = "Abu Dhabi", country = { name = "UAE" } } }, { name = "hinduja", id = 901, address = { city = "Mumbai", country = { name = "India" } } }]
 
-personWithRefArray = [{ personType = "refType", name = "ravin" }, { personType = "refType", name = "ravin2" }]
+personWithFiniteFieldsArray = [{ stringRef = "stringRefType", intRef = 10, floatRef = 3.14, doubleRef = 2.71828, booleanRef = true }, { stringRef = "stringRefType", intRef = 10, floatRef = 3.14, doubleRef = 2.71828, booleanRef = true }]    
 
 configRecordArray.imported_records.personArray = [{ name = "waruna", id = 111, address = { city = "Abu Dhabi", country = { name = "UAE" } } }, { name = "manu", id = 122, address = { city = "Mumbai", country = { name = "India" } } }]
 

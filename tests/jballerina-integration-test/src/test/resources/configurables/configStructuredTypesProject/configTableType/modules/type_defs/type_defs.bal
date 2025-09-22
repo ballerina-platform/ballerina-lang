@@ -19,11 +19,18 @@ public type Student record {
     int id = 444;
 };
 
-public type refType "refType";
+public type StringRefType "stringRefType";
+public type IntRefType 10;
+public type FloatRefType 3.14;
+public type DoubleRefType 2.71828;
+public type BooleanRefType true;
 
-public type PersonWithRef record {
-    refType personType;
-    string name;
+public type PersonWithFiniteFields record {
+    StringRefType stringRef;
+    IntRefType intRef;
+    FloatRefType floatRef;
+    DoubleRefType doubleRef;
+    BooleanRefType booleanRef;
 };
 
 public type Employee readonly & record {

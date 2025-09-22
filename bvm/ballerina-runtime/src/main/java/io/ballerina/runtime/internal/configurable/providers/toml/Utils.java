@@ -377,14 +377,22 @@ public final class Utils {
         visitedNodes.add(tomlNode);
         return switch (tomlNode.kind()) {
             case STRING -> StringUtils.fromString(((TomlStringValueNode) tomlNode).getValue());
-            case INTEGER -> ((TomlLongValueNode) tomlNode).getValue();
+            case INTEGER -> {
+                Long val = ((TomlLongValueNode) tomlNode).getValue();
+                if (TypeUtils.getType(val).getTag() == TypeTags.INT_TAG) {
+                    yield val.intValue();
+                } else {
+                    yield val;
+                }
+            }
             case DOUBLE -> validateAndGetFiniteDoubleValue(
                     (TomlDoubleValueNodeNode) tomlNode, finiteType, invalidTomlLines, variableName);
             case BOOLEAN -> ((TomlBooleanValueNode) tomlNode).getValue();
             case KEY_VALUE -> getFiniteBalValue(
                     ((TomlKeyValueNode) tomlNode).value(), visitedNodes, finiteType, invalidTomlLines, variableName);
             // should not come here
-            default -> null;
+            default -> throw new IllegalArgumentException("Unsupported TOML node kind '" + tomlNode.kind() +
+                    "' encountered when creating finite Ballerina value for type: " + finiteType.getName());
         };
 
     }
