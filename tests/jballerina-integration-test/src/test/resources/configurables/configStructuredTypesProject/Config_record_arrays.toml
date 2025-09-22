@@ -10,13 +10,19 @@ id = 12
 address.city="London"
 address.country.name="UK"
 
-[[personWithRefArray]]
-personType = "refType"
-name = "ravin"
+[[personWithFiniteFieldsArray]]
+stringRef = "stringRefType"
+intRef = 10
+floatRef = 3.14
+doubleRef = 2.71828
+booleanRef = true
 
-[[personWithRefArray]]
-personType = "refType"
-name = "ravin2"
+[[personWithFiniteFieldsArray]]
+stringRef = "stringRefType"
+intRef = 10
+floatRef = 3.14
+doubleRef = 2.71828
+booleanRef = true
 
 [[personArray1]]
 name = "waruna"

@@ -18,7 +18,7 @@ farmerTable = [{ name = "waruna", id = 444 }, { name = "hinduja", id = 888 }]
 
 personTable = [{ name = "riyafa", id = 13, address = { city = "Canberra", country = { name = "Australia" } } }, { name = "gabilan", id = 14, address = { city = "Paris", country = { name = "France" } } }]
 
-personWithRefTable = [{ personType = "refType", name = "ravin" }, { personType = "refType", name = "ravin2" }]
+personWithFiniteFieldsTable = [{ stringRef = "stringRefType", intRef = 10, floatRef = 3.14, doubleRef = 2.71828, booleanRef = true }, { stringRef = "stringRefType", intRef = 10, floatRef = 3.14, doubleRef = 2.71828, booleanRef = true }]
 
 lecturerTable = [{ name = "manu", department1 = { name = "IT" }, department2 = { name = "Sales" }, department3 = { name = "HR" } }, { name = "waruna", department1 = { name = "IT" }, department3 = { name = "HR" } }]
 

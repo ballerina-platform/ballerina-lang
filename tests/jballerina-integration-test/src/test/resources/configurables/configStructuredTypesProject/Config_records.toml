@@ -43,9 +43,12 @@ address.city="Nugegoda"
 name = "riyafa"
 id = 12
 
-[personWithRef]
-personType = "refType"
-name = "ravin"
+[personWithFiniteFields]
+stringRef = "stringRefType"
+intRef = 10
+floatRef = 3.14
+doubleRef = 2.71828
+booleanRef = true
 
 [lecturer]
 name="hinduja"

@@ -70,13 +70,19 @@ id=444
 name="hinduja"
 id=888
 
-[[personWithRefTable]]
-personType = "refType"
-name = "ravin"
+[[personWithFiniteFieldsTable]]
+stringRef = "stringRefType"
+intRef = 10
+floatRef = 3.14
+doubleRef = 2.71828
+booleanRef = true
 
-[[personWithRefTable]]
-personType = "refType"
-name = "ravin2"
+[[personWithFiniteFieldsTable]]
+stringRef = "stringRefType"
+intRef = 10
+floatRef = 3.14
+doubleRef = 2.71828
+booleanRef = true
 
 [[personTable]]
 name = "riyafa"

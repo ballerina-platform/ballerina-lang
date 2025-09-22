@@ -698,6 +698,7 @@ public class TomlProvider implements ConfigProvider {
             case TypeTags.XML_PI_TAG:
             case TypeTags.XML_TAG:
             case TypeTags.XML_TEXT_TAG:
+            case TypeTags.FINITE_TYPE_TAG:
             case TypeTags.TUPLE_TAG:
                 visitedNodes.add(tomlValue);
                 tomlValue = getValueFromKeyValueNode(tomlValue);
@@ -713,9 +714,6 @@ public class TomlProvider implements ConfigProvider {
                 visitedNodes.add(tomlValue);
                 tomlValue = getValueFromKeyValueNode(tomlValue);
                 validateUnionValueArray(tomlValue, variableName, arrayType, (BUnionType) elementType);
-                break;
-            case TypeTags.FINITE_TYPE_TAG:
-                validateFiniteValueArray(tomlValue, variableName, arrayType, (BFiniteType) elementType);
                 break;
             case TypeTags.TABLE_TAG:
                 validateTableValueArray(tomlValue, variableName, arrayType, (BTableType) elementType);
@@ -848,6 +846,9 @@ public class TomlProvider implements ConfigProvider {
                 case TypeTags.UNION_TAG:
                 case TypeTags.JSON_TAG:
                     validateUnionValue(tomlValueNode, variableName, (BUnionType) elementType);
+                    break;
+                case TypeTags.FINITE_TYPE_TAG:
+                    validateAndGetFiniteValue(tomlValueNode, variableName, (BFiniteType) elementType);
                     break;
                 default:
                     validateSimpleValue(elementName, elementType, tomlValueNode);

@@ -20,7 +20,7 @@ person2 = { name = "manu", id = 11, address = { city = "Nugegoda" } }
 
 person3 = { name = "riyafa", id = 12 }
 
-personWithRef = { personType = "refType", name = "ravin" }
+personWithFiniteFields = { stringRef = "stringRefType", intRef = 10, floatRef = 3.14, doubleRef = 2.71828, booleanRef = true }
 
 lecturer = { name = "hinduja", department1 = { name = "IT" }, department2 = { name = "Finance" }, department3 = { name = "HR" } }
 
