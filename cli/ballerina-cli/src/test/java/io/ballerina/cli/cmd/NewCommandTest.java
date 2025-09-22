@@ -21,6 +21,7 @@ package io.ballerina.cli.cmd;
 import io.ballerina.cli.launcher.BLauncherException;
 import io.ballerina.projects.util.FileUtils;
 import io.ballerina.projects.util.ProjectConstants;
+import io.ballerina.projects.util.ProjectPaths;
 import io.ballerina.projects.util.ProjectUtils;
 import org.testng.Assert;
 import org.testng.SkipException;
@@ -46,6 +47,7 @@ import java.util.Locale;
 import static io.ballerina.cli.cmd.CommandOutputUtils.getOutput;
 import static io.ballerina.cli.cmd.CommandOutputUtils.readFileAsString;
 import static io.ballerina.cli.utils.OsUtils.isWindows;
+import static io.ballerina.projects.util.ProjectConstants.BALLERINA_TOML;
 import static io.ballerina.projects.util.ProjectConstants.TOOL_DIR;
 import static io.ballerina.projects.util.ProjectConstants.USER_NAME;
 
@@ -1314,6 +1316,24 @@ public class NewCommandTest extends BaseCommandTest {
                 "Created new package '" + derivedPkgName + "' at " + packageDir + ".\n");
     }
 
+    @Test
+    public void testNewCommandForWorkspace() throws IOException {
+        Path packageDir = tmpDir.resolve("my-workspace");
+        String[] args = {"--workspace", packageDir.toString()};
+        NewCommand newCommand = new NewCommand(printStream, false);
+        new CommandLine(newCommand).parseArgs(args);
+        newCommand.execute();
+        String buildLog = readOutput().replace("\r", "");
+        Assert.assertTrue(Files.exists(packageDir));
+        Assert.assertTrue(Files.exists(packageDir.resolve(BALLERINA_TOML)));
+        Assert.assertTrue(ProjectPaths.isWorkspaceProjectRoot(packageDir));
+        Assert.assertTrue(Files.exists(packageDir.resolve("hello-app")));
+        Assert.assertTrue(buildLog.contains("Created new workspace at " + packageDir));
+        new BuildCommand(packageDir, printStream, printStream, false).execute();
+        buildLog = readOutput(true);
+        Assert.assertTrue(buildLog.contains("Resolving workspace dependencies"));
+        Assert.assertTrue(buildLog.contains("Generating executable"));
+    }
     static class Copy extends SimpleFileVisitor<Path> {
         private final Path fromPath;
         private final Path toPath;
