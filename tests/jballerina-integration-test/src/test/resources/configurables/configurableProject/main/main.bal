@@ -46,12 +46,12 @@ type CustomArrayType1 int[];
 
 type CustomArrayType2 int[][];
 
-type refType "refType";
+type RefType "refType";
 
 configurable CustomArrayType1[] & readonly customType1Array = ?;
 configurable CustomArrayType2 & readonly customType2Array = ?;
 configurable CustomArrayType2[] & readonly customType3DArray = ?;
-configurable refType[] & readonly refArr = ?;
+configurable RefType[] & readonly refArr = ?;
 
 type AuthInfo record {|
     readonly string username;
