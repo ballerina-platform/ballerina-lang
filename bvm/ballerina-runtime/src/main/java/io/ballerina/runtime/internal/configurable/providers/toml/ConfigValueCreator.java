@@ -121,7 +121,7 @@ public class ConfigValueCreator {
                 return  createValue(tomlValue, ((ReferenceType) type).getReferredType());
             case TypeTags.FINITE_TYPE_TAG:
                 return Utils.getFiniteBalValue(tomlValue, new HashSet<>(),
-                        (BFiniteType) type, new HashSet<>(), "");
+                        (BFiniteType) type, null, null);
             default:
                 Type effectiveType = ((IntersectionType) type).getEffectiveType();
                 if (effectiveType.getTag() == TypeTags.RECORD_TYPE_TAG) {
@@ -333,7 +333,7 @@ public class ConfigValueCreator {
                  TypeTags.XML_TAG,
                  TypeTags.XML_TEXT_TAG -> createReadOnlyXmlValue((String) tomlValue);
             case TypeTags.FINITE_TYPE_TAG -> Utils.getFiniteBalValue(tomlValueNode, new HashSet<>(),
-                    (BFiniteType) impliedType, new HashSet<>(), "");
+                    (BFiniteType) impliedType, null, null);
             default -> tomlValue;
         };
     }
