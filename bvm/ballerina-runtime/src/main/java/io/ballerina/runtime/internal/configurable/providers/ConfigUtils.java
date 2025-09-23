@@ -77,15 +77,16 @@ public final class ConfigUtils {
 
     public static boolean containsUnsupportedMembers(BUnionType unionType) {
         for (Type memberType : unionType.getMemberTypes()) {
-            if (!isPrimitiveOrSequenceType(TypeUtils.getImpliedType(memberType).getTag())) {
+            if (!isPrimitiveOrSequenceOrFiniteType(TypeUtils.getImpliedType(memberType).getTag())) {
                 return true;
             }
         }
         return false;
     }
 
-    private static boolean isPrimitiveOrSequenceType(int tag) {
-        return tag == TypeTags.NULL_TAG || tag <= TypeTags.BOOLEAN_TAG || TypeTags.isXMLTypeTag(tag);
+    private static boolean isPrimitiveOrSequenceOrFiniteType(int tag) {
+        return tag == TypeTags.NULL_TAG || tag <= TypeTags.BOOLEAN_TAG || TypeTags.isXMLTypeTag(tag) ||
+                tag == TypeTags.FINITE_TYPE_TAG;
     }
 
     public static Object getUnionValue(VariableKey key, BUnionType unionType, String value, String arg) {
