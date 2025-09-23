@@ -343,6 +343,9 @@ public class TomlProvider implements ConfigProvider {
             case TypeTags.TYPE_REFERENCED_TYPE_TAG:
                 validateValue(tomlValue, variableName, ((ReferenceType) type).getReferredType());
                 break;
+            case TypeTags.FINITE_TYPE_TAG:
+                validateAndGetFiniteValue(tomlValue, variableName, (BFiniteType) type);
+                break;
             default:
                 invalidTomlLines.add(tomlValue.location().lineRange());
                 throw new ConfigException(CONFIG_TYPE_NOT_SUPPORTED, variableName, type.toString());
@@ -695,6 +698,7 @@ public class TomlProvider implements ConfigProvider {
             case TypeTags.XML_PI_TAG:
             case TypeTags.XML_TAG:
             case TypeTags.XML_TEXT_TAG:
+            case TypeTags.FINITE_TYPE_TAG:
             case TypeTags.TUPLE_TAG:
                 visitedNodes.add(tomlValue);
                 tomlValue = getValueFromKeyValueNode(tomlValue);
@@ -821,6 +825,9 @@ public class TomlProvider implements ConfigProvider {
                 case TypeTags.UNION_TAG:
                 case TypeTags.JSON_TAG:
                     validateUnionValue(tomlValueNode, variableName, (BUnionType) elementType);
+                    break;
+                case TypeTags.FINITE_TYPE_TAG:
+                    validateAndGetFiniteValue(tomlValueNode, variableName, (BFiniteType) elementType);
                     break;
                 default:
                     validateSimpleValue(elementName, elementType, tomlValueNode);
