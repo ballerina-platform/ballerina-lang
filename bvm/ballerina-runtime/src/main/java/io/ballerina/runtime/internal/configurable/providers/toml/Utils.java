@@ -280,7 +280,7 @@ public final class Utils {
         return ValueCreator.createDecimalValue(BigDecimal.valueOf(value));
     }
 
-    public static boolean checkDoubleValue(BFiniteType type, int tag, double doubleValue) {
+    private static boolean checkDoubleValue(BFiniteType type, int tag, double doubleValue) {
         for (Object value : type.getValueSpace()) {
             if (TypeUtils.getImpliedType(TypeChecker.getType(value)).getTag() == tag) {
                 if (tag == TypeTags.DECIMAL_TAG) {
