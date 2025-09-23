@@ -391,8 +391,7 @@ public final class Utils {
             case KEY_VALUE -> getFiniteBalValue(
                     ((TomlKeyValueNode) tomlNode).value(), visitedNodes, finiteType, invalidTomlLines, variableName);
             // should not come here
-            default -> throw new IllegalArgumentException("Unsupported TOML node kind '" + tomlNode.kind() +
-                    "' encountered when creating finite Ballerina value for type: " + finiteType.getName());
+            default -> null;
         };
 
     }
