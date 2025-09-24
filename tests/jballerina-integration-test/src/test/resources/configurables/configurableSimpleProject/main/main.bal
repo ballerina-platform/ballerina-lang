@@ -40,8 +40,18 @@ enum CountryCodes {
     US = "United States"
 }
 
+enum Fruit {
+    APPLE,
+    ORANGE,
+    BANANA
+}
+
+type FiniteColor "Red" | "Green";
+
 configurable Colors & readonly color = ?;
 configurable CountryCodes & readonly countryCode = ?;
+configurable Fruit? fruit = ();
+configurable FiniteColor? finiteValueColor = ();
 
 public function main() {
     testSimpleValues();
@@ -68,6 +78,7 @@ function testSimpleValues() {
 
     test:assertEquals("pqr-1.toml", files);
     test:assertEquals("intVar=bbb", data);
+    test:assertEquals("Green", finiteValueColor);
 }
 
 function testXmlValues() {
@@ -78,6 +89,7 @@ function testXmlValues() {
 function testEnumValues() {
     test:assertEquals(color, RED);
     test:assertEquals(countryCode, SL);
+    test:assertEquals(fruit, APPLE);
 }
 
 //Extern methods to verify no errors while testing
