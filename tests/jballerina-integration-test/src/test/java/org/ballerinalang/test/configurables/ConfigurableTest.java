@@ -77,7 +77,8 @@ public class ConfigurableTest extends BaseTest {
                                       "-CstringVar=waru=na", "-CbooleanVar=true",
                                       "-CxmlVar=<book>The Lost World</book>", "-CtestOrg.main.floatVar=3.5",
                                       "-Cmain.decimalVar=24.87", "-Cmain.color=RED", "-Cmain.countryCode=Sri Lanka",
-                                      "-Cfiles=pqr-1.toml", "-Cdata=intVar=bbb"},
+                                      "-Cfiles=pqr-1.toml", "-Cdata=intVar=bbb", "-Cfruit=APPLE",
+                                      "-CfiniteValueColor=Green"},
                               null, null, new LogLeecher[]{logLeecher});
         logLeecher.waitForText(5000);
     }
