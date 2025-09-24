@@ -16,7 +16,6 @@
 
 package io.ballerina.runtime.internal.configurable.providers;
 
-import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.TypeTags;
 import io.ballerina.runtime.api.types.UnionType;
@@ -99,7 +98,7 @@ public final class ConfigUtils {
         if (matchingValues.size() == 1) {
             return matchingValues.getFirst();
         }
-        for(int i = 0; i < unionType.getMemberTypes().size(); i++) {
+        for (int i = 0; i < unionType.getMemberTypes().size(); i++) {
             if (TypeChecker.checkIsType(matchingValues.get(i), unionType.getMemberTypes().get(i))) {
                 assignableValues.add(matchingValues.get(i));
             }
