@@ -97,7 +97,9 @@ public class ConfigurableTest extends BaseTest {
                 Map.entry(ENV_VAR_PREFIX + "MAIN_COLOR", "RED"),
                 Map.entry(ENV_VAR_PREFIX + "MAIN_COUNTRYCODE", "Sri Lanka"),
                 Map.entry(ENV_VAR_PREFIX + "FILES", "pqr-1.toml"),
-                Map.entry(ENV_VAR_PREFIX + "DATA", "intVar=bbb")
+                Map.entry(ENV_VAR_PREFIX + "DATA", "intVar=bbb"),
+                Map.entry(ENV_VAR_PREFIX + "FRUIT", "APPLE"),
+                Map.entry(ENV_VAR_PREFIX + "FINITEVALUECOLOR", "Green")
         );
         executeBalCommand("/configurableSimpleProject", "main",
                 addEnvironmentVariables(envVariables));

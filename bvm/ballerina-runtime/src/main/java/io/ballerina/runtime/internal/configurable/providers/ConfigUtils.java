@@ -16,13 +16,16 @@
 
 package io.ballerina.runtime.internal.configurable.providers;
 
+import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.TypeTags;
 import io.ballerina.runtime.api.types.UnionType;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BError;
+import io.ballerina.runtime.api.values.BNever;
 import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.internal.TypeChecker;
 import io.ballerina.runtime.internal.TypeConverter;
 import io.ballerina.runtime.internal.configurable.VariableKey;
 import io.ballerina.runtime.internal.configurable.exceptions.ConfigException;
@@ -30,6 +33,7 @@ import io.ballerina.runtime.internal.types.BFiniteType;
 import io.ballerina.runtime.internal.types.BUnionType;
 
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.function.Function;
 
@@ -91,11 +95,20 @@ public final class ConfigUtils {
 
     public static Object getUnionValue(VariableKey key, BUnionType unionType, String value, String arg) {
         List<Object> matchingValues = getConvertibleMemberValues(value, unionType);
+        List<Object> assignableValues = new ArrayList<>();
         if (matchingValues.size() == 1) {
-            return matchingValues.get(0);
+            return matchingValues.getFirst();
+        }
+        for(int i = 0; i < unionType.getMemberTypes().size(); i++) {
+            if (TypeChecker.checkIsType(matchingValues.get(i), unionType.getMemberTypes().get(i))) {
+                assignableValues.add(matchingValues.get(i));
+            }
+        }
+        if (assignableValues.size() == 1) {
+            return assignableValues.getFirst();
         }
         String typeName = decodeIdentifier(unionType.toString());
-        if (matchingValues.isEmpty()) {
+        if (assignableValues.isEmpty()) {
             throw new ConfigException(CONFIG_INCOMPATIBLE_TYPE, arg, key.variable, typeName, value);
         }
         throw new ConfigException(CONFIG_UNION_VALUE_AMBIGUOUS_TARGET, arg, key.variable, typeName);
@@ -104,32 +117,46 @@ public final class ConfigUtils {
     private static List<Object> getConvertibleMemberValues(String value, UnionType unionType) {
         List<Object> matchingValues = new ArrayList<>();
         for (Type type : unionType.getMemberTypes()) {
-            switch (TypeUtils.getImpliedType(type).getTag()) {
-                case TypeTags.NULL_TAG:
-                    break;
-                case TypeTags.BYTE_TAG:
-                    convertAndGetValuesFromString(matchingValues, TypeConverter::stringToByte, value);
-                    break;
-                case TypeTags.INT_TAG:
-                    convertAndGetValuesFromString(matchingValues, TypeConverter::stringToInt, value);
-                    break;
-                case TypeTags.BOOLEAN_TAG:
-                    convertAndGetValuesFromString(matchingValues, TypeConverter::stringToBoolean, value);
-                    break;
-                case TypeTags.FLOAT_TAG:
-                    convertAndGetValuesFromString(matchingValues, TypeConverter::stringToFloat, value);
-                    break;
-                case TypeTags.DECIMAL_TAG:
-                    convertAndGetValuesFromString(matchingValues, TypeConverter::stringToDecimal, value);
-                    break;
-                case TypeTags.STRING_TAG:
-                    convertAndGetValuesFromString(matchingValues, StringUtils::fromString, value);
-                    break;
-                default:
-                    convertAndGetValuesFromString(matchingValues, TypeConverter::stringToXml, value);
-            }
+            addMatchingValues(type, matchingValues, value);
         }
         return matchingValues;
+    }
+
+    private static void addMatchingValues(Type type, List<Object> matchingValues, String value) {
+        Type impliedType = TypeUtils.getImpliedType(type);
+        switch (impliedType.getTag()) {
+            case TypeTags.NULL_TAG:
+                matchingValues.add(BNever.getValue());
+                break;
+            case TypeTags.BYTE_TAG:
+                convertAndGetValuesFromString(matchingValues, TypeConverter::stringToByte, value);
+                break;
+            case TypeTags.INT_TAG:
+                convertAndGetValuesFromString(matchingValues, TypeConverter::stringToInt, value);
+                break;
+            case TypeTags.BOOLEAN_TAG:
+                convertAndGetValuesFromString(matchingValues, TypeConverter::stringToBoolean, value);
+                break;
+            case TypeTags.FLOAT_TAG:
+                convertAndGetValuesFromString(matchingValues, TypeConverter::stringToFloat, value);
+                break;
+            case TypeTags.DECIMAL_TAG:
+                convertAndGetValuesFromString(matchingValues, TypeConverter::stringToDecimal, value);
+                break;
+            case TypeTags.STRING_TAG:
+                convertAndGetValuesFromString(matchingValues, StringUtils::fromString, value);
+                break;
+            case TypeTags.TYPE_REFERENCED_TYPE_TAG:
+                addMatchingValues(type.getCachedReferredType(), matchingValues, value);
+                break;
+            case TypeTags.FINITE_TYPE_TAG:
+                addMatchingValues(TypeUtils.getType(
+                        ((LinkedHashSet<?>) ((BFiniteType) impliedType).getValueSpace()).getFirst()),
+                        matchingValues, value);
+                break;
+            default:
+                convertAndGetValuesFromString(matchingValues, TypeConverter::stringToXml, value);
+        }
     }
 
     private static void convertAndGetValuesFromString(List<Object> matchingValues,
