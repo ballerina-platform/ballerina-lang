@@ -98,7 +98,7 @@ public final class ConfigUtils {
         if (matchingValues.size() == 1) {
             return matchingValues.getFirst();
         }
-        for (int i = 0; i < unionType.getMemberTypes().size(); i++) {
+        for (int i = 0; i < unionType.getMemberTypes().size() && i < matchingValues.size(); i++) {
             if (TypeChecker.checkIsType(matchingValues.get(i), unionType.getMemberTypes().get(i))) {
                 assignableValues.add(matchingValues.get(i));
             }
