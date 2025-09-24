@@ -86,6 +86,11 @@ public class BlendedBalToolsManifest {
             SemanticVersion.VersionCompatibilityResult versionCompatibilityResult =
                     BalToolsUtil.compareToolDistWithCurrentDist(org, name, version, tool.repository());
 
+            if (versionCompatibilityResult.equals(SemanticVersion.VersionCompatibilityResult.INCOMPATIBLE)) {
+                // Current active version is incompatible with the distribution
+                continue;
+            }
+
             if (!versionCompatibilityResult.equals(SemanticVersion.VersionCompatibilityResult.EQUAL)) {
                 Optional<PackageVersion> highestVersion = getHighestCompatibleLocalVersion(localBalToolsManifest,
                         toolId, org, name);
@@ -174,9 +179,12 @@ public class BlendedBalToolsManifest {
                 .toList());
 
         // Check if there are any compatible versions in the local bal-tools.toml
-        toolVersions.removeIf(version -> BalToolsUtil
-                .compareToolDistWithCurrentDist(org, name, version.toString(), null)
-                .equals(SemanticVersion.VersionCompatibilityResult.GREATER_THAN));
+        toolVersions.removeIf(version -> {
+            SemanticVersion.VersionCompatibilityResult versionCompatibilityResult = BalToolsUtil
+                    .compareToolDistWithCurrentDist(org, name, version.toString(), null);
+            return versionCompatibilityResult.equals(SemanticVersion.VersionCompatibilityResult.GREATER_THAN) ||
+                    versionCompatibilityResult.equals(SemanticVersion.VersionCompatibilityResult.INCOMPATIBLE);
+        });
 
         if (toolVersions.isEmpty()) {
             return Optional.empty();

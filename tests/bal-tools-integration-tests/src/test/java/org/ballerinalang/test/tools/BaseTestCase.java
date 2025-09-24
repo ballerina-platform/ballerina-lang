@@ -81,6 +81,10 @@ public class BaseTestCase {
                 .forEach(flattenedTools::add);
 
         for (BalToolsManifest.Tool flattenedTool : flattenedTools) {
+            if (flattenedTool.id().equals("manually-deleted")) {
+                // Skip manually-deleted-tool as it is used to test manually deleted tool scenario
+                continue;
+            }
             FileUtils.copyDirectory(new File("src/test/resources/bala-template"), balaTemplate.toFile());
             Path balToolToml = balaTemplate.resolve("BalTool.toml");
             String balToolTplContent = Files.readString(balToolToml);

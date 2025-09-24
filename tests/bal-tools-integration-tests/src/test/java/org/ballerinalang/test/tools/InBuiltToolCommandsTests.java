@@ -115,6 +115,7 @@ public class InBuiltToolCommandsTests extends BaseTestCase {
     @Test (description = "No bal-tools.toml present in the user home. The tool is only available in the distribution")
     public void testNoLocalBalToolsToml1() throws BallerinaTestException {
         Map<String, String> env = new HashMap<>();
+        // Set a temporary home directory to ignore the bal-tool.toml in the user home
         env.put("BALLERINA_HOME_DIR", Paths.get("build/tmp-home/.ballerina").toAbsolutePath().toString());
         balClient = new BMainInstance(balServer);
         String output = balClient.runMainAndReadStdOut("dummytoolF", new String[]{},
@@ -126,11 +127,21 @@ public class InBuiltToolCommandsTests extends BaseTestCase {
             "The highest version must be from the distribution")
     public void testNoLocalBalToolsToml2() throws BallerinaTestException {
         Map<String, String> env = new HashMap<>();
+        // Set a temporary home directory to ignore the bal-tool.toml in the user home
         env.put("BALLERINA_HOME_DIR", Paths.get("build/tmp-home/.ballerina").toAbsolutePath().toString());
         balClient = new BMainInstance(balServer);
-
         String output = balClient.runMainAndReadStdOut("dummytoolD", new String[]{},
                 env, userDir, true);
         Assert.assertTrue(output.contains("dummytoolD 1.1.0"));
+    }
+
+    @Test (description = "Tool is manually deleted from ~/.ballerina/")
+    public void testManuallyDeletedTool() throws BallerinaTestException {
+        balClient = new BMainInstance(balServer);
+        String output = balClient.runMainAndReadStdOut("manually-deleted", new String[]{},
+                new HashMap<>(), userDir, true);
+        Assert.assertTrue(output.contains("error: The tool 'manually-deleted' has been removed manually. " +
+                "Please run 'bal tool remove manually-deleted' to clean up, and then run " +
+                "'bal tool pull manually-deleted' to reinstall the tool."));
     }
 }
