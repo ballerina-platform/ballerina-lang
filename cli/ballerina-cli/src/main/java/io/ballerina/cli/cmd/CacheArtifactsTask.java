@@ -38,7 +38,7 @@ public class CacheArtifactsTask implements Task {
             Target target = new Target(targetDir);
             if ((this.currTask.equals(BUILD_COMMAND) || this.currTask.equals(RUN_COMMAND)) && !skipExecutable) {
                 copyFile(target.getExecutablePath(project.currentPackage()), targetDir, backupDir);
-            }else if (this.currTask.equals(TEST_COMMAND)) {
+            } else if (this.currTask.equals(TEST_COMMAND)) {
                 Path testSuitePath = target.getTestsCachePath().resolve(ProjectConstants.TEST_SUITE_JSON);
                 String packageOrg = project.currentPackage().packageOrg().toString();
                 String packageName = project.currentPackage().packageName().toString();
