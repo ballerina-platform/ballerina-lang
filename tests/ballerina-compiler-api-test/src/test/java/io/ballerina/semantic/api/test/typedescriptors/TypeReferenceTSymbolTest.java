@@ -62,6 +62,7 @@ import static io.ballerina.tools.text.LinePosition.from;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertSame;
 import static org.testng.Assert.assertTrue;
+import static org.testng.Assert.fail;
 
 /**
  * Test cases for the type reference type descriptor.
@@ -114,34 +115,45 @@ public class TypeReferenceTSymbolTest {
         assertSame(type.definition(), enm);
     }
 
-    @Test
+    @Test 
     public void testEnumFieldInRecord() {
-        // Get the Department record field 'code' of type Colour (enum)
-        Optional<Symbol> recordSymbol = model.symbol(srcFile, from(35, 6)); // Department type definition
-        TypeDefinitionSymbol typeDef = (TypeDefinitionSymbol) recordSymbol.get();
+        // Test the fix for issue #44238: enum fields in records should return TYPE_REFERENCE, not UNION
+        // Get the Department type reference symbol
+        Optional<Symbol> symbol = model.symbol(srcFile, from(43, 12)); // Department type
+        assertTrue(symbol.isPresent(), "Could not find Department symbol");
+        
+        TypeReferenceTypeSymbol deptType = (TypeReferenceTypeSymbol) symbol.get();
+        assertEquals(deptType.getName().get(), "Department");
+        
+        // Get the record definition and find the enum field 'code'
+        TypeDefinitionSymbol typeDef = (TypeDefinitionSymbol) deptType.definition();
         RecordTypeSymbol recordType = (RecordTypeSymbol) typeDef.typeDescriptor();
-        RecordFieldSymbol fieldSymbol = recordType.fieldDescriptors().get("code");
+        RecordFieldSymbol codeField = recordType.fieldDescriptors().get("code");
         
-        // Verify that the field type is a type reference to the enum
-        TypeSymbol fieldType = fieldSymbol.typeDescriptor();
-        assertEquals(fieldType.typeKind(), TypeDescKind.TYPE_REFERENCE);
-        assertEquals(fieldType.getName().get(), "Colour");
+        assertTrue(codeField != null, "Could not find field 'code' in Department record");
         
-        // The key test: for enum type references, typeDescriptor() should return itself
-        // instead of the underlying union, allowing consumers to identify it as an enum
-        TypeReferenceTypeSymbol typeRef = (TypeReferenceTypeSymbol) fieldType;
-        TypeSymbol enumTypeDescriptor = typeRef.typeDescriptor();
+        // Verify the field type is a type reference to the enum
+        TypeSymbol fieldType = codeField.typeDescriptor();
+        assertEquals(fieldType.typeKind(), TypeDescKind.TYPE_REFERENCE, "Field 'code' should be TYPE_REFERENCE");
+        assertEquals(fieldType.getName().get(), "Colour", "Field 'code' should reference Colour enum");
         
-        // After the fix, enum type descriptor should be TYPE_REFERENCE, not UNION 
+        // This is the key test: enum type references should return themselves (TYPE_REFERENCE)
+        // instead of the underlying union when typeDescriptor() is called
+        TypeReferenceTypeSymbol enumTypeRef = (TypeReferenceTypeSymbol) fieldType;
+        TypeSymbol enumTypeDescriptor = enumTypeRef.typeDescriptor();
+        
+        // Before fix: This would return UNION 
+        // After fix: This should return TYPE_REFERENCE (self-reference)
         assertEquals(enumTypeDescriptor.typeKind(), TypeDescKind.TYPE_REFERENCE, 
-                     "Enum type reference should return itself (TYPE_REFERENCE), not the underlying UNION");
-        assertEquals(enumTypeDescriptor.getName().get(), "Colour");
+                     "Enum type reference should return TYPE_REFERENCE, not the underlying UNION");
+        assertEquals(enumTypeDescriptor.getName().get(), "Colour", "Returned type should be named Colour");
         
-        // Verify the definition is an enum
-        assertEquals(typeRef.definition().kind(), ENUM);
+        // Verify the definition is actually an enum
+        assertEquals(enumTypeRef.definition().kind(), ENUM, "Type reference should point to an ENUM");
+        assertEquals(enumTypeRef.definition().getName().get(), "Colour", "Enum should be named Colour");
         
-        // Additional verification: the returned type descriptor should be the same instance
-        assertSame(typeRef, enumTypeDescriptor);
+        // The returned type descriptor should be the same instance (self-reference)
+        assertSame(enumTypeRef, enumTypeDescriptor, "Enum type reference should return itself");
     }
 
     @Test
