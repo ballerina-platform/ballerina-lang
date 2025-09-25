@@ -77,7 +77,7 @@ public class BallerinaTypeReferenceTypeSymbol extends AbstractTypeSymbol impleme
         if (this.typeDescriptorImpl == null) {
             // For enum types, return the type reference itself instead of the underlying union
             // This allows consumers to distinguish enum types from regular union types
-            if (tSymbol != null && tSymbol.kind == SymbolKind.ENUM) {
+            if (tSymbol != null && tSymbol.kind == org.ballerinalang.model.symbols.SymbolKind.ENUM) {
                 return this;
             }
             
