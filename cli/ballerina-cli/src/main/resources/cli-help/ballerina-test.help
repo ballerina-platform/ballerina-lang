@@ -132,7 +132,7 @@ ARGUMENTS
 
 
 EXAMPLES
-       Run all the test functions in the current package.
+       Run all the test functions in the current package or the workspace.
            $ bal test
 
        Run all test cases using the GraalVM native image.
