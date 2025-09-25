@@ -338,7 +338,8 @@ public class BuildCommand implements BLauncherCmd {
         boolean rebuildStatus = isRebuildNeeded(project, skipExecutable);
         TaskExecutor taskExecutor = new TaskExecutor.TaskBuilder()
                 // clean the target directory(projects only)
-                .addTask(new CleanTargetDirTask(), !rebuildStatus || isSingleFile)
+                .addTask(new CleanTargetDirTask(),  isSingleFile)
+                .addTask(new RestoreCachedArtifactsTask(), rebuildStatus)
                 // Run build tools
                 .addTask(new RunBuildToolsTask(outStream, !rebuildStatus), isSingleFile)
                 // resolve maven dependencies in Ballerina.toml
@@ -348,6 +349,7 @@ public class BuildCommand implements BLauncherCmd {
                 .addTask(new CreateExecutableTask(outStream, this.output, null, false,
                          !rebuildStatus, skipExecutable))
                 .addTask(new DumpBuildTimeTask(outStream), !buildOptions.dumpBuildTime())
+                .addTask(new CacheArtifactsTask(BUILD_COMMAND, skipExecutable), !rebuildStatus || isSingleFile)
                 .addTask(new CreateFingerprintTask(false, skipExecutable), !rebuildStatus || isSingleFile)
                 .build();
 

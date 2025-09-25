@@ -653,6 +653,30 @@ public class RunCommandTest extends BaseCommandTest {
         Assert.assertTrue(secondBuildLog.contains("Compiling source (UP-TO-DATE)"));
     }
 
+    @Test(description = "Run a project twice with the pack command in the middle")
+    public void testBuildAProjectTwiceWithPackCommandMiddle() throws IOException {
+        Path projectPath = this.testResources.resolve("buildAProjectTwice");
+        deleteDirectory(projectPath.resolve("target"));
+        System.setProperty(USER_DIR_PROPERTY, projectPath.toString());
+        RunCommand runCommand = new RunCommand(projectPath, printStream, false);
+        new CommandLine(runCommand).parseArgs();
+        runCommand.execute();
+        String firstBuildLog = readOutput(true);
+        PackCommand packCommand = new PackCommand(projectPath, printStream, printStream, false, true);
+        new CommandLine(packCommand).parseArgs();
+        packCommand.execute();
+        String middleBuildLog = readOutput(true);
+        runCommand = new RunCommand(projectPath, printStream, false);
+        new CommandLine(runCommand).parseArgs();
+        runCommand.execute();
+        String secondBuildLog = readOutput(true);
+        Assert.assertTrue(firstBuildLog.contains("Compiling source"));
+        Assert.assertFalse(firstBuildLog.contains("Compiling source (UP-TO-DATE)"));
+        Assert.assertTrue(middleBuildLog.contains("Compiling source"));
+        Assert.assertFalse(middleBuildLog.contains("Compiling source (UP-TO-DATE)"));
+        Assert.assertTrue(secondBuildLog.contains("Compiling source (UP-TO-DATE)"));
+    }
+
     @AfterSuite
     public void cleanUp() throws IOException {
         Files.deleteIfExists(logFile);

@@ -64,7 +64,7 @@ import static io.ballerina.projects.util.ProjectUtils.readBuildJson;
  *
  * @since 2.0.0
  */
-public class BuildCommandTest extends BaseCommandTest {
+public class    BuildCommandTest extends BaseCommandTest {
     private Path testResources;
     private static final Path testBuildDirectory = Path.of("build").toAbsolutePath();
     private static final Path testDistCacheDirectory = testBuildDirectory.resolve(DIST_CACHE_DIRECTORY);
@@ -1995,5 +1995,29 @@ public class BuildCommandTest extends BaseCommandTest {
         // Hence, the build should not be up-to-date
         Assert.assertTrue(secondBuildLog.contains("Generating executable"));
         Assert.assertFalse(secondBuildLog.contains("Generating executable (UP-TO-DATE)"));
+    }
+
+    @Test(description = "Build a project twice with the pack command in the middle")
+    public void testBuildAProjectTwiceWithPackCommandMiddle() throws IOException {
+        Path projectPath = this.testResources.resolve("buildAProjectTwice");
+        deleteDirectory(projectPath.resolve("target"));
+        System.setProperty(USER_DIR_PROPERTY, projectPath.toString());
+        BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
+        new CommandLine(buildCommand).parseArgs();
+        buildCommand.execute();
+        String firstBuildLog = readOutput(true);
+        PackCommand packCommand = new PackCommand(projectPath, printStream, printStream, false, true);
+        new CommandLine(packCommand).parseArgs();
+        packCommand.execute();
+        String middleBuildLog = readOutput(true);
+        buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
+        new CommandLine(buildCommand).parseArgs();
+        buildCommand.execute();
+        String secondBuildLog = readOutput(true);
+        Assert.assertTrue(firstBuildLog.contains("Compiling source"));
+        Assert.assertFalse(firstBuildLog.contains("Compiling source (UP-TO-DATE)"));
+        Assert.assertTrue(middleBuildLog.contains("Compiling source"));
+        Assert.assertFalse(middleBuildLog.contains("Compiling source (UP-TO-DATE)"));
+        Assert.assertTrue(secondBuildLog.contains("Compiling source (UP-TO-DATE)"));
     }
 }

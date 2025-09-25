@@ -67,10 +67,13 @@ import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
+import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.SimpleFileVisitor;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.StandardOpenOption;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
@@ -88,6 +91,7 @@ import java.util.StringJoiner;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static io.ballerina.cli.cmd.Constants.BACKUP;
 import static io.ballerina.cli.launcher.LauncherUtils.createLauncherException;
 import static io.ballerina.projects.util.ProjectConstants.BALA_JSON;
 import static io.ballerina.projects.util.ProjectConstants.BALLERINA_TOML;
@@ -1366,7 +1370,7 @@ public final class CommandUtil {
     }
 
     private static boolean isTestArtifactsModified(BuildJson buildJson, Project project) throws IOException {
-        Target target = new Target(project.targetDir());
+        Target target = new Target(project.targetDir().resolve(BACKUP));
         Path testSuitePath = target.getTestsCachePath().resolve(ProjectConstants.TEST_SUITE_JSON);
         if (!Files.exists(testSuitePath)) {
             return true;
@@ -1522,7 +1526,7 @@ public final class CommandUtil {
 
     private static boolean isExecutableModified(BuildJson buildJson, Project project) {
         try {
-            Target target = new Target(project.targetDir());
+            Target target = new Target(project.targetDir().resolve(BACKUP));
             File execFile = target.getExecutablePath(project.currentPackage()).toAbsolutePath().toFile();
             if (execFile.exists() && execFile.isFile()) {
                 long lastModified = execFile.lastModified();
@@ -1581,5 +1585,30 @@ public final class CommandUtil {
         String result = formatter.toString();
         formatter.close();
         return result;
+    }
+
+    public static void copyOneDirectoryUp(Path sourcePath) throws IOException {
+        Path parentPath = sourcePath.getParent();
+        Files.walkFileTree(sourcePath, new SimpleFileVisitor<Path>() {
+            @Override
+            public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+                Path relativePath = sourcePath.relativize(file);
+                Path destFile = parentPath.resolve(relativePath);
+                Files.createDirectories(destFile.getParent());
+                Files.copy(file, destFile, StandardCopyOption.REPLACE_EXISTING);
+                return FileVisitResult.CONTINUE;
+            }
+
+            @Override
+            public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
+                if (dir.equals(sourcePath)) {
+                    return FileVisitResult.CONTINUE;
+                }
+                Path relativePath = sourcePath.relativize(dir);
+                Path destDir = parentPath.resolve(relativePath);
+                Files.createDirectories(destDir);
+                return FileVisitResult.CONTINUE;
+            }
+        });
     }
 }

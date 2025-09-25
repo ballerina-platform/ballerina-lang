@@ -321,8 +321,8 @@ public class RunCommand implements BLauncherCmd {
         boolean rebuildStatus = isRebuildNeeded(project, false);
         TaskExecutor taskExecutor = new TaskExecutor.TaskBuilder()
                 // clean target dir for projects
-                .addTask(new CleanTargetDirTask(), !rebuildStatus
-                        || isSingleFileBuild)
+                .addTask(new CleanTargetDirTask(), isSingleFileBuild)
+                .addTask(new RestoreCachedArtifactsTask(), rebuildStatus)
                 // Run build tools
                 .addTask(new RunBuildToolsTask(outStream, !rebuildStatus), isSingleFileBuild)
                 // resolve maven dependencies in Ballerina.toml
@@ -330,6 +330,7 @@ public class RunCommand implements BLauncherCmd {
                 // compile the modules
                 .addTask(new CompileTask(outStream, errStream, false, false, !rebuildStatus))
                 .addTask(new CreateExecutableTask(outStream, null, target, true, !rebuildStatus))
+                .addTask(new CacheArtifactsTask(RUN_COMMAND), !rebuildStatus || isSingleFileBuild)
                 .addTask(new CreateFingerprintTask(false, false), !rebuildStatus || isSingleFileBuild)
                 .addTask(runExecutableTask = new RunExecutableTask(args, outStream, errStream, target))
                 .addTask(new DumpBuildTimeTask(outStream), !project.buildOptions().dumpBuildTime())
