@@ -31,15 +31,22 @@ enum Colour {
     RED, GREEN, BLUE
 }
 
+# Record with enum field to test the enum type reference issue
+type Department record {
+    string name;
+    Colour code;
+};
+
 function test() {
     Person p;
     Employee e;
     Colour c;
+    Department d;
 }
 
 type Age int;
 
-function test() {
+function testAge() {
     record {|
         Age age;
     |} p;

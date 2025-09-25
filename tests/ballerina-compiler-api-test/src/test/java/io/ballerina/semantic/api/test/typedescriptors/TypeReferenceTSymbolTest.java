@@ -1,5 +1,14 @@
 /*
- * Copyright (c) 2021, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2021import io.ballerina.compiler.api.symbols.ClassSymbol;
+import io.ballerina.compiler.api.symbols.EnumSymbol;
+import io.ballerina.compiler.api.symbols.RecordFieldSymbol;
+import io.ballerina.compiler.api.symbols.RecordTypeSymbol;
+import io.ballerina.compiler.api.symbols.SymbolKind;
+import io.ballerina.compiler.api.symbols.TypeDefinitionSymbol;
+import io.ballerina.compiler.api.symbols.TypeDescKind;
+import io.ballerina.compiler.api.symbols.TypeReferenceTypeSymbol;
+import io.ballerina.compiler.api.symbols.TypeSymbol;
+import io.ballerina.compiler.api.symbols.VariableSymbol;nc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -96,13 +105,43 @@ public class TypeReferenceTSymbolTest {
 
     @Test
     public void testEnum() {
-        Optional<Symbol> symbol = model.symbol(srcFile, from(36, 11));
+        Optional<Symbol> symbol = model.symbol(srcFile, from(43, 11));
         TypeReferenceTypeSymbol type = (TypeReferenceTypeSymbol) ((VariableSymbol) symbol.get()).typeDescriptor();
         Symbol enm = type.definition();
         assertEquals(enm.kind(), ENUM);
         assertEquals(enm.getName().get(), type.getName().get());
         assertEquals(((EnumSymbol) enm).documentation().get().description().get(), "An enumeration of colours.");
         assertSame(type.definition(), enm);
+    }
+
+    @Test
+    public void testEnumFieldInRecord() {
+        // Get the Department record field 'code' of type Colour (enum)
+        Optional<Symbol> recordSymbol = model.symbol(srcFile, from(35, 6)); // Department type definition
+        TypeDefinitionSymbol typeDef = (TypeDefinitionSymbol) recordSymbol.get();
+        RecordTypeSymbol recordType = (RecordTypeSymbol) typeDef.typeDescriptor();
+        RecordFieldSymbol fieldSymbol = recordType.fieldDescriptors().get("code");
+        
+        // Verify that the field type is a type reference to the enum
+        TypeSymbol fieldType = fieldSymbol.typeDescriptor();
+        assertEquals(fieldType.typeKind(), TypeDescKind.TYPE_REFERENCE);
+        assertEquals(fieldType.getName().get(), "Colour");
+        
+        // The key test: for enum type references, typeDescriptor() should return itself
+        // instead of the underlying union, allowing consumers to identify it as an enum
+        TypeReferenceTypeSymbol typeRef = (TypeReferenceTypeSymbol) fieldType;
+        TypeSymbol enumTypeDescriptor = typeRef.typeDescriptor();
+        
+        // After the fix, enum type descriptor should be TYPE_REFERENCE, not UNION 
+        assertEquals(enumTypeDescriptor.typeKind(), TypeDescKind.TYPE_REFERENCE, 
+                     "Enum type reference should return itself (TYPE_REFERENCE), not the underlying UNION");
+        assertEquals(enumTypeDescriptor.getName().get(), "Colour");
+        
+        // Verify the definition is an enum
+        assertEquals(typeRef.definition().kind(), ENUM);
+        
+        // Additional verification: the returned type descriptor should be the same instance
+        assertSame(typeRef, enumTypeDescriptor);
     }
 
     @Test
