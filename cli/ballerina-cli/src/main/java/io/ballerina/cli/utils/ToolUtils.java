@@ -102,8 +102,7 @@ public class ToolUtils {
                     "Ballerina distribution version. Run 'bal tool list' to see compatible versions.");
             return true;
         }
-        if (isToolVersionAlreadyActive(toolId, version, repository)) {
-            printStream.println("tool '" + toolId + ":" + version + "' is already active.");
+        if (isToolVersionAlreadyAvailable(toolId, version, repository)) {
             return true;
         }
         balToolsManifest.addTool(toolId, org, name, version, true, repository);
@@ -139,7 +138,7 @@ public class ToolUtils {
         return Optional.empty();
     }
 
-    private static boolean isToolVersionAlreadyActive(String toolId, String version, String repository) {
+    private static boolean isToolVersionAlreadyAvailable(String toolId, String version, String repository) {
         if (version.equals(Names.EMPTY.getValue())) {
             return false;
         }
@@ -151,8 +150,7 @@ public class ToolUtils {
                 from(balToolsManifest, distBalToolsManifest);
         if (blendedBalToolsManifest.tools().containsKey(toolId)) {
             Map<String, Map<String, BalToolsManifest.Tool>> toolVersions = blendedBalToolsManifest.tools().get(toolId);
-            return toolVersions.containsKey(version) && toolVersions.get(version).containsKey(repository) &&
-                    toolVersions.get(version).get(repository).active();
+            return toolVersions.containsKey(version) && toolVersions.get(version).get(LOCAL_REPOSITORY_NAME) == null;
         }
         return false;
     }
