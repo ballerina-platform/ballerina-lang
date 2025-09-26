@@ -97,7 +97,7 @@ public class TypeReferenceTSymbolTest {
 
     @Test
     public void testEnum() {
-        Optional<Symbol> symbol = model.symbol(srcFile, from(37, 10));
+        Optional<Symbol> symbol = model.symbol(srcFile, from(37, 12)); // Variable 'c' for Colour
         TypeReferenceTypeSymbol type = (TypeReferenceTypeSymbol) ((VariableSymbol) symbol.get()).typeDescriptor();
         Symbol enm = type.definition();
         assertEquals(enm.kind(), ENUM);
@@ -149,8 +149,8 @@ public class TypeReferenceTSymbolTest {
 
     @Test
     public void testRecordField() {
-        Optional<Symbol> fieldSymbol = model.symbol(srcFile, from(44, 7));
-        Optional<Symbol> typeSymbol = model.symbol(srcFile, from(39, 6));
+        Optional<Symbol> fieldSymbol = model.symbol(srcFile, from(46, 8)); // Variable 'p' in testAge()
+        Optional<Symbol> typeSymbol = model.symbol(srcFile, from(41, 5));  // Type 'Age'
 
         TypeSymbol variableSymbol = ((VariableSymbol) fieldSymbol.get()).typeDescriptor();
         assertEquals(variableSymbol.typeKind(), TypeDescKind.RECORD);
@@ -165,7 +165,7 @@ public class TypeReferenceTSymbolTest {
 
     @Test
     public void testReferringATypeRef1() {
-        Optional<Symbol> symbol = model.symbol(srcFile, from(46, 8));
+        Optional<Symbol> symbol = model.symbol(srcFile, from(49, 8)); // Variable 'f' for Foo
         TypeSymbol type = ((VariableSymbol) symbol.get()).typeDescriptor();
 
         assertEquals(type.typeKind(), TypeDescKind.TYPE_REFERENCE);
@@ -181,7 +181,7 @@ public class TypeReferenceTSymbolTest {
 
     @Test
     public void testReferringATypeRef2() {
-        Optional<Symbol> symbol = model.symbol(srcFile, from(47, 8));
+        Optional<Symbol> symbol = model.symbol(srcFile, from(50, 8)); // Variable 'b' for Bar
         TypeSymbol type = ((VariableSymbol) symbol.get()).typeDescriptor();
 
         assertEquals(type.typeKind(), TypeDescKind.TYPE_REFERENCE);
