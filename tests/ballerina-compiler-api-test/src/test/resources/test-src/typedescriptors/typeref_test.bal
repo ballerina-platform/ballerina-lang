@@ -31,12 +31,6 @@ enum Colour {
     RED, GREEN, BLUE
 }
 
-# Record with enum field to test the enum type reference issue
-type Department record {
-    string name;
-    Colour code;
-};
-
 function test() {
     Person p;
     Employee e;
@@ -92,3 +86,9 @@ type Bar Foo;
 type Baz decimal;
 
 function fn() returns readonly & Person|error => error("");
+
+# Record with enum field to test the enum type reference issue
+type Department record {
+    string name;
+    Colour code;
+};

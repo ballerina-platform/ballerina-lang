@@ -97,7 +97,7 @@ public class TypeReferenceTSymbolTest {
 
     @Test
     public void testEnum() {
-        Optional<Symbol> symbol = model.symbol(srcFile, from(43, 11));
+        Optional<Symbol> symbol = model.symbol(srcFile, from(37, 10));
         TypeReferenceTypeSymbol type = (TypeReferenceTypeSymbol) ((VariableSymbol) symbol.get()).typeDescriptor();
         Symbol enm = type.definition();
         assertEquals(enm.kind(), ENUM);
@@ -109,11 +109,11 @@ public class TypeReferenceTSymbolTest {
     @Test 
     public void testEnumFieldInRecord() {
         // Test the fix for issue #44238: enum fields in records should return TYPE_REFERENCE, not UNION
-        // Get the Department type reference symbol
-        Optional<Symbol> symbol = model.symbol(srcFile, from(43, 12)); // Department type
-        assertTrue(symbol.isPresent(), "Could not find Department symbol");
+        // Get the Department variable symbol
+        Optional<Symbol> symbol = model.symbol(srcFile, from(38, 16)); // Department variable 'd'
+        assertTrue(symbol.isPresent(), "Could not find Department variable");
         
-        TypeReferenceTypeSymbol deptType = (TypeReferenceTypeSymbol) symbol.get();
+        TypeReferenceTypeSymbol deptType = (TypeReferenceTypeSymbol) ((VariableSymbol) symbol.get()).typeDescriptor();
         assertEquals(deptType.getName().get(), "Department");
         
         // Get the record definition and find the enum field 'code'
