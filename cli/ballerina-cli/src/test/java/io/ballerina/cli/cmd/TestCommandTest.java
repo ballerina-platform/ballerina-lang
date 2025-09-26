@@ -295,6 +295,7 @@ public class TestCommandTest extends BaseCommandTest {
     @Test(description = "Test a ballerina project with --test-report", dataProvider = "optimizeDependencyCompilation")
     public void testTestWithReport(Boolean optimizeDependencyCompilation) {
         Path projectPath = this.testResources.resolve("validProjectWithTests");
+        deleteDirectory(projectPath.resolve("target"));
         TestCommand testCommand = new TestCommand(
                 projectPath, printStream, printStream, false, true, false, null, optimizeDependencyCompilation);
         new CommandLine(testCommand).parseArgs();
@@ -967,6 +968,54 @@ public class TestCommandTest extends BaseCommandTest {
         Assert.assertTrue(secondBuildLog.contains("Compiling source (UP-TO-DATE)"));
         Assert.assertTrue(thirdBuildLog.contains("Compiling source"));
         Assert.assertFalse(thirdBuildLog.contains("Compiling source (UP-TO-DATE)"));
+    }
+
+    @Test(description = "Test a project twice with the build command in the middle")
+    public void testBuildAProjectTwiceWithBuildCommandMiddle() throws IOException {
+        Path projectPath = this.testResources.resolve("buildAProjectTwice");
+        deleteDirectory(projectPath.resolve("target"));
+        System.setProperty(USER_DIR_PROPERTY, projectPath.toString());
+        TestCommand testCommand = new TestCommand(projectPath, printStream, printStream, false);
+        new CommandLine(testCommand).parseArgs();
+        testCommand.execute();
+        String firstBuildLog = readOutput(true);
+        BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
+        new CommandLine(buildCommand).parseArgs();
+        buildCommand.execute();
+        String middleBuildLog = readOutput(true);
+        testCommand = new TestCommand(projectPath, printStream, printStream, false);
+        new CommandLine(testCommand).parseArgs();
+        testCommand.execute();
+        String secondBuildLog = readOutput(true);
+        Assert.assertTrue(firstBuildLog.contains("Compiling source"));
+        Assert.assertFalse(firstBuildLog.contains("Compiling source (UP-TO-DATE)"));
+        Assert.assertTrue(middleBuildLog.contains("Compiling source"));
+        Assert.assertFalse(middleBuildLog.contains("Compiling source (UP-TO-DATE)"));
+        Assert.assertTrue(secondBuildLog.contains("Compiling source (UP-TO-DATE)"));
+    }
+
+    @Test(description = "Test a project twice with the pack command in the middle")
+    public void testBuildAProjectTwiceWithPackCommandMiddle() throws IOException {
+        Path projectPath = this.testResources.resolve("buildAProjectTwice");
+        deleteDirectory(projectPath.resolve("target"));
+        System.setProperty(USER_DIR_PROPERTY, projectPath.toString());
+        TestCommand testCommand = new TestCommand(projectPath, printStream, printStream, false);
+        new CommandLine(testCommand).parseArgs();
+        testCommand.execute();
+        String firstBuildLog = readOutput(true);
+        PackCommand packCommand = new PackCommand(projectPath, printStream, printStream, false, true);
+        new CommandLine(packCommand).parseArgs();
+        packCommand.execute();
+        String middleBuildLog = readOutput(true);
+        testCommand = new TestCommand(projectPath, printStream, printStream, false);
+        new CommandLine(testCommand).parseArgs();
+        testCommand.execute();
+        String secondBuildLog = readOutput(true);
+        Assert.assertTrue(firstBuildLog.contains("Compiling source"));
+        Assert.assertFalse(firstBuildLog.contains("Compiling source (UP-TO-DATE)"));
+        Assert.assertTrue(middleBuildLog.contains("Compiling source"));
+        Assert.assertFalse(middleBuildLog.contains("Compiling source (UP-TO-DATE)"));
+        Assert.assertTrue(secondBuildLog.contains("Compiling source (UP-TO-DATE)"));
     }
 
     @Test(description = "Test a project with a new file within 24 hours of the last build")

@@ -557,8 +557,9 @@ public class TestCommand implements BLauncherCmd {
         boolean isSingleFile = project.kind().equals(ProjectKind.SINGLE_FILE_PROJECT);
         TaskExecutor preBuildTaskExecutor = new TaskExecutor.TaskBuilder()
                 .addTask(new CleanTargetCacheDirTask(),
-                        !rebuildStatus || isSingleFile) // clean the target cache dir(projects only)
-                .addTask(new CleanTargetBinTestsDirTask(), !rebuildStatus || (isSingleFile || !isTestingDelegated))
+                         isSingleFile) // clean the target cache dir(projects only)
+                .addTask(new CleanTargetBinTestsDirTask(),  (isSingleFile || !isTestingDelegated))
+                .addTask(new RestoreCachedArtifactsTask(), rebuildStatus)
                 .addTask(new RunBuildToolsTask(outStream), !rebuildStatus || isSingleFile) // run build tools
                 .build();
         preBuildTaskExecutor.executeTasks(project);
@@ -587,6 +588,7 @@ public class TestCommand implements BLauncherCmd {
                                 testReport),
                         (!project.buildOptions().nativeImage() || isTestingDelegated))
                 .addTask(new DumpBuildTimeTask(outStream), !project.buildOptions().dumpBuildTime())
+                .addTask(new CacheArtifactsTask(TEST_COMMAND), !rebuildStatus || isSingleFile)
                 .addTask(new CreateFingerprintTask(true, false),
                         !rebuildStatus || isSingleFile)
                 .build();
