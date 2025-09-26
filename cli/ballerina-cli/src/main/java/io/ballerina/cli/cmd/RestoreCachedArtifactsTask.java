@@ -14,6 +14,7 @@ public class RestoreCachedArtifactsTask implements Task {
         try {
             CommandUtil.copyOneDirectoryUp(project.targetDir().resolve(BACKUP));
         } catch (IOException e) {
+            System.out.println(e.getMessage());
             throw createLauncherException("unable to restore the cache: " + e.getMessage());
         }
     }
