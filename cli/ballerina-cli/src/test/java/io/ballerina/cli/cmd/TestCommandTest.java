@@ -295,6 +295,7 @@ public class TestCommandTest extends BaseCommandTest {
     @Test(description = "Test a ballerina project with --test-report", dataProvider = "optimizeDependencyCompilation")
     public void testTestWithReport(Boolean optimizeDependencyCompilation) {
         Path projectPath = this.testResources.resolve("validProjectWithTests");
+        deleteDirectory(projectPath.resolve("target"));
         TestCommand testCommand = new TestCommand(
                 projectPath, printStream, printStream, false, true, false, null, optimizeDependencyCompilation);
         new CommandLine(testCommand).parseArgs();
