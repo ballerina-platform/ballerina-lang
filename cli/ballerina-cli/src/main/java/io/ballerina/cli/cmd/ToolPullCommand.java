@@ -202,18 +202,15 @@ public class ToolPullCommand implements BLauncherCmd {
             return;
         }
         try {
-            boolean isError;
             Optional<BalToolsManifest.Tool> toolAvailableLocally =
                     getToolAvailableLocally(toolId, version, repositoryName);
             if (toolAvailableLocally.isPresent()) {
                 outStream.println("tool '" + toolId + ":" + version + "' is already available locally.");
-                isError = addToBalToolsToml(toolAvailableLocally.orElseThrow(), errStream);
             } else {
                 BalToolsManifest.Tool toolFromCentral = pullToolFromCentral(supportedPlatform, balaCacheDirPath);
-                isError = addToBalToolsToml(toolFromCentral, errStream);
-            }
-            if (isError) {
-                CommandUtil.exitError(this.exitWhenFinish);
+                if (addToBalToolsToml(toolFromCentral, errStream)) {
+                    CommandUtil.exitError(this.exitWhenFinish);
+                }
             }
         } catch (PackageAlreadyExistsException e) {
             errStream.println(e.getMessage());
