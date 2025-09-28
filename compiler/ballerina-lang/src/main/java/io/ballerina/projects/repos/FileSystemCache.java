@@ -118,6 +118,10 @@ public class FileSystemCache extends CompilationCache {
         }
     }
 
+    public Path cachePath() {
+        return Optional.of(getBirPath().getParent()).get();
+    }
+
     private Path getTargetPlatformCacheDirPath(CompilerBackend compilerBackend) {
         String targetPlatformCode = compilerBackend.targetPlatform().code();
         return packageCacheDirPath().resolve(targetPlatformCode);

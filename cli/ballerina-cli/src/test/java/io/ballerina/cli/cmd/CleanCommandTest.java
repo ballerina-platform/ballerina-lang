@@ -18,20 +18,26 @@
 
 package io.ballerina.cli.cmd;
 
-import io.ballerina.projects.util.ProjectConstants;
+import io.ballerina.cli.launcher.BLauncherException;
 import org.apache.commons.io.FileUtils;
+import org.ballerinalang.test.BCompileUtil;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+import org.wso2.ballerinalang.util.RepoUtils;
 
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Objects;
 
 import static io.ballerina.cli.cmd.CommandOutputUtils.getOutput;
+import static io.ballerina.projects.util.ProjectConstants.DIST_CACHE_DIRECTORY;
+import static io.ballerina.projects.util.ProjectConstants.USER_DIR_PROPERTY;
+import static io.ballerina.runtime.api.constants.RuntimeConstants.USER_HOME;
 
 /**
  * Clean command tests.
@@ -86,7 +92,6 @@ public class CleanCommandTest extends BaseCommandTest {
         Path customTargetDir = projectPath.resolve("customTargetDir4");
         FileUtils.copyDirectory(projectPath.resolve("target-dir").toFile(), customTargetDir.toFile());
 
-
         Assert.assertTrue(Objects.requireNonNull(
                 customTargetDir.resolve("bala").toFile().listFiles()).length > 0);
         Assert.assertTrue(Objects.requireNonNull(
@@ -104,7 +109,6 @@ public class CleanCommandTest extends BaseCommandTest {
     public void testCleanCommandNonExistentTargetAndGenerated() throws IOException {
         Path projectPath = this.testResources.resolve("validProjectWithTargetAndGenerated");
         Path customTargetDir = Path.of("customTargetDirNotExists");
-        Path generatedDir = projectPath.resolve(ProjectConstants.GENERATED_MODULES_ROOT);
         Assert.assertTrue(Files.notExists(customTargetDir));
 
         CleanCommand cleanCommand = new CleanCommand(projectPath, printStream, false, customTargetDir);
@@ -127,5 +131,87 @@ public class CleanCommandTest extends BaseCommandTest {
         Assert.assertEquals(buildLog.replace("\r", ""),
                 getOutput("clean-regular-file.txt")
                 .replace("%TARGET_LOCATION%", customTargetDir.toString()));
+    }
+
+    @Test
+    public void testCleanInValidTargetDir() throws IOException {
+        Path projectPath = this.testResources.resolve("validProjectWithTargetAndGenerated");
+        Assert.assertTrue(Files.exists(projectPath));
+        Assert.assertTrue(Files.exists(projectPath.resolve("Ballerina.toml")));
+        Assert.assertTrue(Files.exists(projectPath.resolve("main.bal")));
+        Assert.assertTrue(Files.exists(projectPath.resolve("target-dir/bala")));
+        Assert.assertTrue(Files.exists(projectPath.resolve("target-dir/cache")));
+        Assert.assertTrue(Files.exists(projectPath.resolve("target-dir/report")));
+        Assert.assertTrue(Files.exists(projectPath.resolve("generated-dir/gen.bal")));
+        Assert.assertTrue(Files.notExists(projectPath.resolve("tests/main_test.bal")));
+        CleanCommand cleanCommand = new CleanCommand(projectPath, printStream, false, projectPath);
+        cleanCommand.execute();
+        String buildLog = readOutput(true);
+        Assert.assertTrue(buildLog.replace("\r", "")
+                .contains("provided target directory '" + projectPath + "' is not a valid target directory."));
+        Assert.assertTrue(Files.exists(projectPath));
+        Assert.assertTrue(Files.exists(projectPath.resolve("Ballerina.toml")));
+        Assert.assertTrue(Files.exists(projectPath.resolve("main.bal")));
+        Assert.assertTrue(Files.exists(projectPath.resolve("target-dir/bala")));
+        Assert.assertTrue(Files.exists(projectPath.resolve("target-dir/cache")));
+        Assert.assertTrue(Files.exists(projectPath.resolve("target-dir/report")));
+        Assert.assertTrue(Files.exists(projectPath.resolve("generated-dir/gen.bal")));
+        Assert.assertTrue(Files.notExists(projectPath.resolve("tests/main_test.bal")));
+    }
+
+    @Test (enabled = false)
+    public void testDependencyCacheDelete() throws IOException {
+        Path projectsRoot = this.testResources.resolve("clean-cache-project");
+        Path projectPath = projectsRoot.resolve("mainPackage");
+        String userHomeDir = System.getProperty(USER_HOME);
+        System.setProperty(USER_HOME, testDotBallerina.getParent().toString());
+
+        BCompileUtil.compileAndCacheBala(projectsRoot.resolve("depFromDist").toString());
+        BCompileUtil.compileAndCacheBala(projectsRoot.resolve("depFromCentral").toString(), testCentralRepoCache);
+
+        String userDir = System.getProperty(USER_DIR_PROPERTY);
+        System.setProperty(USER_DIR_PROPERTY, projectPath.toString());
+        // Execute the build command to cache the dependencies
+        BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
+        try {
+            buildCommand.execute();
+        } catch (BLauncherException e) {
+            Assert.fail("build command failed: " + e.getDetailedMessages().get(0));
+        } finally {
+            System.setProperty(USER_DIR_PROPERTY, userDir); // reset user dir for other tests
+        }
+
+        CleanCommand cleanCommand = new CleanCommand(projectPath, printStream, true, false);
+        try {
+            cleanCommand.execute();
+        } catch (BLauncherException e) {
+            Assert.fail("clean command failed: " + e.getDetailedMessages().get(0));
+        } finally {
+            System.setProperty(USER_HOME, userHomeDir); // reset user home for other tests
+            System.setProperty(USER_DIR_PROPERTY, userDir); // reset user dir for other tests
+        }
+        String buildLog = readOutput();
+
+        Path testDistRepoCache = Paths.get(userHomeDir).resolve(DIST_CACHE_DIRECTORY);
+        Path depFromDistBalaPath = testDistRepoCache.resolve("bala/asmaj/depFromDist/2.0.0/any");
+        Path depFromDistCachePath = testDistRepoCache.resolve(
+                "cache-" + RepoUtils.getBallerinaShortVersion() + "/asmaj/depFromDist/2.0.0/");
+        Path depFromCentralBalaPath = testCentralRepoCache.resolve("bala/asmaj/depFromCentral/2.0.0/any");
+        Path depFromCentralCachePath = testCentralRepoCache.resolve(
+                "cache-" + RepoUtils.getBallerinaShortVersion() + "/asmaj/depFromCentral/2.0.0/");
+
+        Assert.assertTrue(Files.exists(depFromDistBalaPath), depFromDistBalaPath.toString());
+        Assert.assertFalse(buildLog.replace("\r", "")
+                .contains("Successfully deleted " + depFromDistBalaPath), buildLog);
+        Assert.assertTrue(Files.exists(depFromDistCachePath), depFromDistCachePath.toString());
+        Assert.assertFalse(buildLog.replace("\r", "")
+                .contains("Successfully deleted " + depFromDistCachePath), buildLog);
+
+        Assert.assertFalse(Files.exists(depFromCentralBalaPath), depFromCentralBalaPath.toString());
+        Assert.assertTrue(buildLog.replace("\r", "")
+                .contains("Successfully deleted " + depFromCentralBalaPath), buildLog);
+        Assert.assertFalse(Files.notExists(depFromCentralCachePath), depFromCentralCachePath.toString());
+        Assert.assertTrue(buildLog.replace("\r", "")
+                .contains("Successfully deleted " + depFromCentralCachePath), buildLog);
     }
 }

@@ -1420,6 +1420,14 @@ public final class ProjectUtils {
                 DOT + WILD_CARD + "'";
     }
 
+    public static Path getBallerinaHomePath() {
+        String ballerinaHome = System.getProperty(BALLERINA_HOME);
+        if (ballerinaHome == null) {
+            throw new IllegalStateException("ballerina.home property is not set");
+        }
+        return Path.of(ballerinaHome);
+    }
+
     /**
      * Denote the compatibility range of a given tool version.
      */
