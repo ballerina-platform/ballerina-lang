@@ -74,7 +74,7 @@ public class TracersStore {
                     tracer = tracerProvider.getTracer(serviceName);
                 } catch (Throwable e) {
                     tracer = io.opentelemetry.api.trace.TracerProvider.noop().get("");
-                    console.println("warning: tracing disabled as getting tracer for " + serviceName + " service.");
+                    console.println("warning: tracing disabled while getting tracer for " + serviceName + " service.");
                 }
                 store.put(serviceName, tracer);
             } else {
