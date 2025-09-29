@@ -147,6 +147,19 @@ public final class ObserveUtils {
     }
 
     /**
+     * Add a default tag to be added to all spans and metrics.
+     *
+     * @param tagKey   key of the tag
+     * @param tagValue value of the tag
+     */
+    public static void addDefaultTag(String tagKey, String tagValue) {
+        if (!enabled) {
+            return;
+        }
+        defaultTags.put(tagKey, tagValue);
+    }
+
+    /**
      * Add metrics and tracing observers.
      *
      * @param observer metrics or tracing observer
