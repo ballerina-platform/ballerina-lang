@@ -19,7 +19,6 @@ package io.ballerina.runtime.internal.configurable.providers.env;
 import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.flags.SymbolFlags;
 import io.ballerina.runtime.api.types.IntersectionType;
-import io.ballerina.runtime.api.types.ReferenceType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.TypeTags;
 import io.ballerina.runtime.api.utils.StringUtils;
@@ -235,7 +234,7 @@ public class EnvVarProvider implements ConfigProvider {
             type = (BFiniteType) ((IntersectionType) key.type).getEffectiveType();
         } else if (key.type.getTag() == TypeTags.TYPE_REFERENCED_TYPE_TAG) {
             type = (BFiniteType) ((BTypeReferenceType) key.type).getReferredType();
-        }else {
+        } else {
             type = (BFiniteType) key.type;
         }
         Object value = ConfigUtils.getFiniteBalValue(envVar.value, type, key, envVar.toString());
