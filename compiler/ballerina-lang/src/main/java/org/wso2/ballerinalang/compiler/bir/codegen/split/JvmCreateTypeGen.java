@@ -255,8 +255,8 @@ public class JvmCreateTypeGen {
         addDebugField(allTypesCW, varName);
     }
 
-    public static void setTypeInitialized(MethodVisitor mv, int status, String typeClass, boolean isAnnotatedType) {
-        if (!isAnnotatedType) {
+    public static void setTypeInitialized(MethodVisitor mv, int status, String typeClass, boolean setTypeInitialized) {
+        if (!setTypeInitialized) {
             return;
         }
         mv.visitInsn(status);
@@ -391,17 +391,23 @@ public class JvmCreateTypeGen {
     }
 
     public void genGetTypeMethod(ClassWriter cw, String typeClass, String methodDescriptor, String typeDescriptor,
-                                 boolean isAnnotatedType) {
+                                 boolean isAnnotatedType, BType internalType) {
         FieldVisitor f = cw.visitField(ACC_STATIC + ACC_PRIVATE, TYPE_INIT_VAR_NAME, GET_JBOOLEAN_TYPE, null, null);
         f.visitEnd();
         MethodVisitor mv = cw.visitMethod(ACC_PUBLIC | ACC_STATIC, GET_TYPE_METHOD, methodDescriptor, null, null);
         mv.visitCode();
-        if (isAnnotatedType) {
+        if (isAnnotatedType || internalType != null) {
             mv.visitFieldInsn(GETSTATIC, typeClass, TYPE_INIT_VAR_NAME, GET_JBOOLEAN_TYPE);
             Label ifLabel = new Label();
             mv.visitJumpInsn(IFNE, ifLabel);
             setTypeInitialized(mv, ICONST_1, typeClass, true);
-            mv.visitMethodInsn(INVOKESTATIC, typeClass, LOAD_ANNOTATIONS_METHOD, VOID_METHOD_DESC, false);
+            if (isAnnotatedType) {
+                mv.visitMethodInsn(INVOKESTATIC, typeClass, LOAD_ANNOTATIONS_METHOD, VOID_METHOD_DESC, false);
+            }
+            if (internalType != null) {
+                jvmTypeGen.loadType(mv, internalType);
+                mv.visitInsn(POP);
+            }
             mv.visitLabel(ifLabel);
         }
         mv.visitFieldInsn(GETSTATIC, typeClass, TYPE_VAR_NAME, typeDescriptor);

@@ -31,6 +31,7 @@ import org.wso2.ballerinalang.compiler.bir.codegen.internal.LazyLoadingDataColle
 import org.wso2.ballerinalang.compiler.bir.codegen.split.JvmConstantsGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.split.JvmCreateTypeGen;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeReferenceType;
 
 import static org.objectweb.asm.Opcodes.ACC_PRIVATE;
@@ -40,7 +41,6 @@ import static org.objectweb.asm.Opcodes.GETSTATIC;
 import static org.objectweb.asm.Opcodes.INVOKESPECIAL;
 import static org.objectweb.asm.Opcodes.INVOKEVIRTUAL;
 import static org.objectweb.asm.Opcodes.NEW;
-import static org.objectweb.asm.Opcodes.POP;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JVM_INIT_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SET_REFERRED_TYPE_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPE_REF_TYPE_IMPL;
@@ -68,7 +68,7 @@ public class JvmRefTypeGen {
         this.jvmConstantsGen = jvmConstantsGen;
     }
 
-    public void createTypeRefType(ClassWriter cw, MethodVisitor mv, BIRNode.BIRTypeDefinition typeDef,
+    public boolean createTypeRefType(ClassWriter cw, MethodVisitor mv, BIRNode.BIRTypeDefinition typeDef,
                                   BTypeReferenceType typeRefType, String typeRefConstantClass,
                                   boolean isAnnotatedType, JvmPackageGen jvmPackageGen, JvmCastGen jvmCastGen,
                                   AsyncDataCollector asyncDataCollector,
@@ -90,18 +90,17 @@ public class JvmRefTypeGen {
                     GET_TYPE_REF_TYPE_IMPL, jvmPackageGen, jvmCastGen, asyncDataCollector,
                     lazyLoadingDataCollector);
         }
-        populateTypeRef(mv, typeRefType, typeRefConstantClass);
+        boolean isInternalTypeLoaded = populateTypeRef(mv, typeRefType, typeRefConstantClass);
+        BType internalType = isInternalTypeLoaded ? typeRefType.referredType : null;
         jvmCreateTypeGen.genGetTypeMethod(cw, typeRefConstantClass, GET_TYPE_REF_TYPE_METHOD, GET_TYPE_REF_TYPE_IMPL,
-                isAnnotatedType);
+                isAnnotatedType, internalType);
+        return isInternalTypeLoaded;
     }
 
-    public void populateTypeRef(MethodVisitor mv, BTypeReferenceType referenceType, String typeRefConstantClass) {
+    private boolean populateTypeRef(MethodVisitor mv, BTypeReferenceType referenceType, String typeRefConstantClass) {
         mv.visitFieldInsn(GETSTATIC, typeRefConstantClass, TYPE_VAR_NAME, GET_TYPE_REF_TYPE_IMPL);
         boolean isInternalTypeLoaded = jvmTypeGen.loadReferredType(mv, referenceType);
         mv.visitMethodInsn(INVOKEVIRTUAL, TYPE_REF_TYPE_IMPL, SET_REFERRED_TYPE_METHOD, TYPE_PARAMETER, false);
-        if (isInternalTypeLoaded) {
-            jvmTypeGen.loadType(mv, referenceType.referredType);
-            mv.visitInsn(POP);
-        }
+        return isInternalTypeLoaded;
     }
 }
