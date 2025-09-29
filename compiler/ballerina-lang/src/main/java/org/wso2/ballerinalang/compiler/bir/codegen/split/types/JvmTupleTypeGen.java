@@ -102,7 +102,7 @@ public class JvmTupleTypeGen {
         mv.visitFieldInsn(PUTSTATIC, tupleTypeClass, TYPE_VAR_NAME, GET_TUPLE_TYPE_IMPL);
         populateTuple(mv, tupleType, tupleTypeClass, symbolTable);
         jvmCreateTypeGen.genGetTypeMethod(cw, tupleTypeClass, GET_TUPLE_TYPE_METHOD, GET_TUPLE_TYPE_IMPL,
-                isAnnotatedType);
+                isAnnotatedType, null);
     }
 
     public void populateTuple(MethodVisitor mv, BTupleType bType, String tupleTypeClass, SymbolTable symbolTable) {

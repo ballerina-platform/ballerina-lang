@@ -96,9 +96,10 @@ public class JvmRefTypeConstantsGen {
         MethodVisitor mv = cw.visitMethod(ACC_STATIC, JVM_STATIC_INIT_METHOD, VOID_METHOD_DESC, null, null);
         boolean isAnnotatedType = referenceType.referredType.tag != TypeTags.RECORD;
         setTypeInitialized(mv, ICONST_1, typeRefConstantClass, isAnnotatedType);
-        jvmRefTypeGen.createTypeRefType(cw, mv, typeDef, referenceType, typeRefConstantClass, isAnnotatedType,
-                jvmPackageGen, jvmCastGen, asyncDataCollector, lazyLoadingDataCollector);
-        setTypeInitialized(mv, ICONST_0, typeRefConstantClass, isAnnotatedType);
+        boolean isInternalTypeLoaded = jvmRefTypeGen.createTypeRefType(cw, mv, typeDef, referenceType,
+                typeRefConstantClass, isAnnotatedType, jvmPackageGen, jvmCastGen, asyncDataCollector,
+                lazyLoadingDataCollector);
+        setTypeInitialized(mv, ICONST_0, typeRefConstantClass, isAnnotatedType || isInternalTypeLoaded);
         genMethodReturn(mv);
         cw.visitEnd();
         jarEntries.put(typeRefConstantClass + CLASS_FILE_SUFFIX, cw.toByteArray());
