@@ -98,3 +98,7 @@ EXAMPLES
 
        Create a workspace with a sample library package.
            $ bal new --workspace -t lib my-workspace
+
+       Create a new package in a workspace.
+           $ cd my-workspace
+           $ bal new my-new-package
