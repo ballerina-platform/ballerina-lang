@@ -386,6 +386,7 @@ public class BuildCommand implements BLauncherCmd {
                 || Boolean.TRUE.equals(listConflictedClasses) || Boolean.TRUE.equals(dumpBuildTime)
                 || targetDir != null || Boolean.TRUE.equals(exportOpenAPI) || Boolean.TRUE.equals(exportComponentModel)
                 || Boolean.TRUE.equals(nativeImage)
+                || cloud != null
                 || Boolean.TRUE.equals(disableSyntaxTreeCaching) || graalVMBuildOptions != null;
     }
 
