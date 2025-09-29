@@ -35,7 +35,7 @@ public class TracersStore {
     private TracerProvider tracerProvider;
     private Map<String, Tracer> store;
     private static final PrintStream consoleError = System.err;
-    private static final PrintStream consoleOut = System.out;
+    private static final PrintStream console = System.out;
     private static final TracersStore instance = new TracersStore();
     private ContextPropagators propagators;
 
@@ -74,8 +74,7 @@ public class TracersStore {
                     tracer = tracerProvider.getTracer(serviceName);
                 } catch (Throwable e) {
                     tracer = io.opentelemetry.api.trace.TracerProvider.noop().get("");
-                    consoleOut.println("warning: tracing disabled as getting tracer for " + serviceName + " service. "
-                            + e.getMessage());
+                    console.println("warning: tracing disabled as getting tracer for " + serviceName + " service.");
                 }
                 store.put(serviceName, tracer);
             } else {
