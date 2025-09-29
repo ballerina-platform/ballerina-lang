@@ -32,6 +32,7 @@ import io.ballerina.runtime.observability.tracer.BSpan;
 import io.opentelemetry.api.common.Attributes;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -66,6 +67,7 @@ import static io.ballerina.runtime.observability.ObservabilityConstants.TAG_TRUE
 public final class ObserveUtils {
 
     private static final List<BallerinaObserver> observers = new CopyOnWriteArrayList<>();
+    private static final Map<String, String> defaultTags = new HashMap<>();
     private static final boolean enabled;
     private static final boolean metricsEnabled;
     private static final BString metricsProvider;
@@ -237,6 +239,12 @@ public final class ObserveUtils {
         if (observerContext.getEntrypointResourceAccessor() != null) {
             observerContext.addTag(TAG_KEY_ENTRYPOINT_RESOURCE_ACCESSOR,
                     observerContext.getEntrypointResourceAccessor());
+        }
+
+        if (!defaultTags.isEmpty()) {
+            for (String tagKey : defaultTags.keySet()) {
+                observerContext.addTag(tagKey, defaultTags.get(tagKey));
+            }
         }
 
         observerContext.setServer();
@@ -416,6 +424,12 @@ public final class ObserveUtils {
         }
         if (newObContext.getEntrypointResourceAccessor() != null) {
             newObContext.addTag(TAG_KEY_ENTRYPOINT_RESOURCE_ACCESSOR, newObContext.getEntrypointResourceAccessor());
+        }
+
+        if (!defaultTags.isEmpty()) {
+            for (String tagKey : defaultTags.keySet()) {
+                newObContext.addTag(tagKey, defaultTags.get(tagKey));
+            }
         }
 
         newObContext.setStarted();
