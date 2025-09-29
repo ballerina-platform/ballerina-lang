@@ -149,6 +149,9 @@ public class CompileTask implements Task {
                 start = System.currentTimeMillis();
             }
 
+            // Add tool resolution diagnostics to diagnostics
+            diagnostics.addAll(project.currentPackage().getBuildToolResolution().getDiagnosticList());
+
             // run built-in code generator compiler plugins
             // We only continue with next steps if package resolution does not have errors.
             // Errors in package resolution denotes version incompatibility errors. Hence, we do not continue further.
@@ -252,8 +255,6 @@ public class CompileTask implements Task {
                     err.println(d);
                 }
             });
-            // Add tool resolution diagnostics to diagnostics
-            diagnostics.addAll(project.currentPackage().getBuildToolResolution().getDiagnosticList());
             boolean hasErrors = false;
             for (Diagnostic d : diagnostics) {
                 if (d.diagnosticInfo().severity().equals(DiagnosticSeverity.ERROR)) {

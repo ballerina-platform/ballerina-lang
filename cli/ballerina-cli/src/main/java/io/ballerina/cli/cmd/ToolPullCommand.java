@@ -119,8 +119,10 @@ public class ToolPullCommand implements BLauncherCmd {
         String toolIdAndVersion = argList.get(0);
         String[] toolInfo = toolIdAndVersion.split(":");
         if (toolInfo.length == 2) {
-            outStream.println("WARNING: Specifying a version of the tool is deprecated and may be removed " +
-                    "in a future version. Use 'bal tool pull <tool-id>' to pull the latest version of the tool.");
+            if (repositoryName == null) {
+                outStream.println("WARNING: Specifying a version of the tool is deprecated and may be removed " +
+                        "in a future version. Use 'bal tool pull <tool-id>' to pull the latest version of the tool.");
+            }
             toolId = toolInfo[0];
             version = toolInfo[1];
         } else if (toolInfo.length == 1) {
