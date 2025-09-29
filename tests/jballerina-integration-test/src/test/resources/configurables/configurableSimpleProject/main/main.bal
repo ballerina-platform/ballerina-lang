@@ -46,12 +46,18 @@ enum Fruit {
     BANANA
 }
 
+type A int | "stringA" | "stringB";
+type B boolean | "stringB" | "stringC";
+type C A | B;
+
 type FiniteColor "Red" | "Green";
 
 configurable Colors & readonly color = ?;
 configurable CountryCodes & readonly countryCode = ?;
 configurable Fruit? fruit = ();
 configurable FiniteColor? finiteValueColor = ();
+configurable Fruit fruit2 = ?;
+configurable C cValue = ?;
 
 public function main() {
     testSimpleValues();
@@ -79,6 +85,8 @@ function testSimpleValues() {
     test:assertEquals("pqr-1.toml", files);
     test:assertEquals("intVar=bbb", data);
     test:assertEquals("Green", finiteValueColor);
+    test:assertEquals("ORANGE", fruit2);
+    test:assertEquals("stringB", cValue);
 }
 
 function testXmlValues() {
