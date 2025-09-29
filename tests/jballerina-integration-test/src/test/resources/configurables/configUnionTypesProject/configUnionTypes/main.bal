@@ -30,12 +30,33 @@ type HttpResponse record {|
     configLib:HttpVersion httpVersion;
 |};
 
+type Colors "Green" | "Red" | "Blue";
+enum Fruits {
+    Apple,
+    Banana,
+    Mango
+};
+
+type A int | "stringA" | "stringB";
+type B boolean | "stringB" | "stringC";
+type C A | B;
+
+type RecordWithRef record {
+    Colors color;
+    Fruits fruit;
+};
+
 type Person record {
     readonly string name;
     int age?;
 };
 
 configurable HttpResponse httpResponse = ?;
+configurable Colors color = ?;
+configurable Fruits fruit = ?;
+configurable Colors? color2 = ();
+configurable Fruits? fruit2 = ();
+configurable C cValue = ?;
 configurable type_defs:Country country = ?;
 
 configurable anydata anydataVar = ?;
@@ -54,6 +75,7 @@ configurable map<configLib:ClientCredentialsGrantConfig>|map<configLib:RefreshTo
 configurable map<configLib:ClientCredentialsGrantConfig|configLib:PasswordGrantConfig> configMap2 = ?;
 
 configurable int|Person recordUnionVar = ?;
+configurable RecordWithRef|Fruits recordWithRefUnionEnum = ?;
 configurable float|table<Person> key(name) tableUnionVar = ?;
 
 configurable ConnectionConfig config = ?;
@@ -117,6 +139,10 @@ public enum Oauth2HttpVersion {
 
 function testEnumValues() {
     test:assertEquals(httpVersion, configLib:HTTP_1_1);
+    test:assertEquals(color, "Green");
+    test:assertEquals(fruit, Apple);
+    test:assertEquals(color2, ());
+    test:assertEquals(fruit2, ());
     test:assertEquals(countryCode, type_defs:SL);
     test:assertEquals(httpResponse.httpVersion, configLib:HTTP_2);
     test:assertEquals(country.countryCode, type_defs:US);
@@ -152,6 +178,7 @@ function testEnumValues() {
                                             "\"customHeaders\":{\"header1\":\"header1\"," +
                                             "\"header2\":\"header2\"}}},\"config2\":{\"password\":[\"1\",2,3]}}");
     test:assertEquals(recordUnionVar.toString(), "{\"name\":\"Manu\",\"age\":12}");
+    test:assertEquals(recordWithRefUnionEnum.toString(), "{\"color\":\"Red\",\"fruit\":\"Banana\"}");
     test:assertEquals(tableUnionVar.toString(), "[{\"name\":\"Nadeeshan\",\"age\":11},{\"name\":\"Gabilan\"}," +
     "{\"name\":\"Hinduja\",\"age\":15}]");
 }
