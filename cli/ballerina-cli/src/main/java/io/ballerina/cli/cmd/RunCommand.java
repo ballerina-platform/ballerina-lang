@@ -281,32 +281,31 @@ public class RunCommand implements BLauncherCmd {
 
         Target target;
         try {
-            if (project.kind().equals(ProjectKind.BUILD_PROJECT)) {
-                target = new Target(project.targetDir());
-            } else {
+            if (project.kind().equals(ProjectKind.SINGLE_FILE_PROJECT)) {
                 target = new Target(Files.createTempDirectory("ballerina-cache" + System.nanoTime()));
                 target.setOutputPath(target.getBinPath());
+            }
+            if (project.kind() == ProjectKind.WORKSPACE_PROJECT) {
+                WorkspaceProject workspaceProject = (WorkspaceProject) project;
+                DependencyGraph<BuildProject> projectDependencyGraph = resolveWorkspaceDependencies(workspaceProject);
+                // If the project path is not the workspace root, filter the topologically sorted list to include only
+                // the projects that are dependencies of the project at the specified path.
+                Optional<BuildProject> buildProjectOptional = projectDependencyGraph.getNodes().stream().filter(node ->
+                        node.sourceRoot().equals(absProjectPath)).findFirst();
+                if (buildProjectOptional.isEmpty()) {
+                    throw createLauncherException("no package found at the specified path: " + absProjectPath);
+                }
+                target = new Target(buildProjectOptional.get().targetDir());
+                executeTasks(false, target, args, buildProjectOptional.get());
+
+            } else {
+                target = new Target(project.targetDir());
+                executeTasks(project.kind().equals(ProjectKind.SINGLE_FILE_PROJECT), target, args, project);
             }
         } catch (IOException e) {
             throw createLauncherException("unable to resolve the target path:" + e.getMessage());
         } catch (ProjectException e) {
             throw createLauncherException("unable to create the executable:" + e.getMessage());
-        }
-
-        if (project.kind() == ProjectKind.WORKSPACE_PROJECT) {
-            WorkspaceProject workspaceProject = (WorkspaceProject) project;
-            DependencyGraph<BuildProject> projectDependencyGraph = resolveWorkspaceDependencies(workspaceProject);
-            // If the project path is not the workspace root, filter the topologically sorted list to include only
-            // the projects that are dependencies of the project at the specified path.
-            Optional<BuildProject> buildProjectOptional = projectDependencyGraph.getNodes().stream().filter(node ->
-                    node.sourceRoot().equals(absProjectPath)).findFirst();
-            if (buildProjectOptional.isEmpty()) {
-                throw createLauncherException("no package found at the specified path: " + absProjectPath);
-            }
-            executeTasks(false, target, args, buildProjectOptional.get());
-
-        } else {
-            executeTasks(project.kind().equals(ProjectKind.SINGLE_FILE_PROJECT), target, args, project);
         }
     }
 
