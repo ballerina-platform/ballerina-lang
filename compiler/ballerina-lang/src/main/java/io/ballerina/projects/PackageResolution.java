@@ -161,6 +161,10 @@ public class PackageResolution {
                 continue;
             }
 
+            if (packageInstance.project().kind().equals(ProjectKind.BUILD_PROJECT)) {
+                continue;
+            }
+
             // We use the pull command to generate the BIR of the dependency.
             List<String> cmdArgs = new ArrayList<>();
             String balExecutable = isWindows ? "bal.bat" : "bal";
