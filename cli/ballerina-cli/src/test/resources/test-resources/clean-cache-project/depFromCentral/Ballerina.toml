@@ -1,5 +1,5 @@
 [package]
-org = "asmaj"
+org = "testorg"
 name = "depFromCentral"
 version = "2.0.0"
 distribution = "2201.5.0"

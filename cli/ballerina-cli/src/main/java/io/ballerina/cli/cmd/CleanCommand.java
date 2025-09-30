@@ -77,7 +77,7 @@ public class CleanCommand implements BLauncherCmd {
 
     public CleanCommand(Path projectPath, PrintStream printStream, boolean exitWhenFinish, Path targetDir) {
         this.projectPath = projectPath;
-        this.outStream =  printStream;
+        this.outStream = printStream;
         this.exitWhenFinish = exitWhenFinish;
         this.targetDir = targetDir;
     }
@@ -186,7 +186,7 @@ public class CleanCommand implements BLauncherCmd {
                 this.outStream.println("Successfully deleted " + dependency.sourceRoot());
                 Path birPath = ((FileSystemCache) dependency.projectEnvironmentContext()
                         .getService(CompilationCache.class)).cachePath();
-                if (Files.notExists(birPath)) {
+                if (birPath == null || Files.notExists(birPath)) {
                     continue;
                 }
                 ProjectUtils.deleteDirectory(birPath);

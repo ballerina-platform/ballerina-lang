@@ -1,5 +1,5 @@
-import asmaj/depFromDist;
-import asmaj/depFromCentral;
+import testorg/depFromDist;
+import testorg/depFromCentral;
 
 public function main() {
     depFromDist:funcA();

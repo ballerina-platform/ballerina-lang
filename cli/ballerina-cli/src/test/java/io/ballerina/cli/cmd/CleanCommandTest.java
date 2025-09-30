@@ -193,12 +193,12 @@ public class CleanCommandTest extends BaseCommandTest {
         String buildLog = readOutput();
 
         Path testDistRepoCache = Paths.get(userHomeDir).resolve(DIST_CACHE_DIRECTORY);
-        Path depFromDistBalaPath = testDistRepoCache.resolve("bala/asmaj/depFromDist/2.0.0/any");
+        Path depFromDistBalaPath = testDistRepoCache.resolve("bala/testorg/depFromDist/2.0.0/any");
         Path depFromDistCachePath = testDistRepoCache.resolve(
-                "cache-" + RepoUtils.getBallerinaShortVersion() + "/asmaj/depFromDist/2.0.0/");
-        Path depFromCentralBalaPath = testCentralRepoCache.resolve("bala/asmaj/depFromCentral/2.0.0/any");
+                "cache-" + RepoUtils.getBallerinaShortVersion() + "/testorg/depFromDist/2.0.0/");
+        Path depFromCentralBalaPath = testCentralRepoCache.resolve("bala/testorg/depFromCentral/2.0.0/any");
         Path depFromCentralCachePath = testCentralRepoCache.resolve(
-                "cache-" + RepoUtils.getBallerinaShortVersion() + "/asmaj/depFromCentral/2.0.0/");
+                "cache-" + RepoUtils.getBallerinaShortVersion() + "/testorg/depFromCentral/2.0.0/");
 
         Assert.assertTrue(Files.exists(depFromDistBalaPath), depFromDistBalaPath.toString());
         Assert.assertFalse(buildLog.replace("\r", "")
@@ -210,7 +210,7 @@ public class CleanCommandTest extends BaseCommandTest {
         Assert.assertFalse(Files.exists(depFromCentralBalaPath), depFromCentralBalaPath.toString());
         Assert.assertTrue(buildLog.replace("\r", "")
                 .contains("Successfully deleted " + depFromCentralBalaPath), buildLog);
-        Assert.assertFalse(Files.notExists(depFromCentralCachePath), depFromCentralCachePath.toString());
+        Assert.assertFalse(Files.exists(depFromCentralCachePath), depFromCentralCachePath.toString());
         Assert.assertTrue(buildLog.replace("\r", "")
                 .contains("Successfully deleted " + depFromCentralCachePath), buildLog);
     }
