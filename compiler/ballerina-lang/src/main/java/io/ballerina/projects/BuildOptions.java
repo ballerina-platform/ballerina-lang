@@ -90,7 +90,7 @@ public class BuildOptions {
         return this.compilationOptions.optimizeDependencyCompilation();
     }
 
-    public String lockingMode() {
+    public PackageLockingMode lockingMode() {
         return this.compilationOptions.lockingMode();
     }
 
@@ -141,10 +141,6 @@ public class BuildOptions {
 
     public boolean showDependencyDiagnostics() {
         return toBooleanDefaultIfNull(this.showDependencyDiagnostics);
-    }
-
-    public PackageLockingMode lockingMode() {
-        return this.compilationOptions.lockingMode();
     }
 
     /**
