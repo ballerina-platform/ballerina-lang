@@ -211,14 +211,50 @@ public class DebugTestRunner {
 
         debugClientConnector = new DAPClientConnector(balServer.getServerHome(), testProjectPath, testEntryFilePath,
                 port, clientSupportsRunInTerminal);
-        debugClientConnector.createConnection();
-        if (debugClientConnector.isConnected()) {
-            isConnected = true;
-            LOGGER.info(String.format("Connected to the remote server at %s.%n%n", debugClientConnector.getAddress()),
-                    false);
-        } else {
-            throw new BallerinaTestException(String.format("Failed to connect to the debug server at %s%n",
-                    debugClientConnector.getAddress()));
+        
+        // Retry connection establishment with exponential backoff
+        int maxRetries = 10;
+        int retryDelayMs = 1000; // Start with 1 second
+        boolean connected = false;
+        
+        for (int attempt = 1; attempt <= maxRetries; attempt++) {
+            try {
+                LOGGER.info(String.format("Attempting to connect to debug server (attempt %d/%d)...", attempt, maxRetries));
+                debugClientConnector.createConnection();
+                
+                if (debugClientConnector.isConnected()) {
+                    connected = true;
+                    isConnected = true;
+                    LOGGER.info(String.format("Connected to the remote server at %s.%n%n", debugClientConnector.getAddress()),
+                            false);
+                    break;
+                } else {
+                    LOGGER.warn(String.format("Connection attempt %d failed. Retrying in %d ms...", attempt, retryDelayMs));
+                    Thread.sleep(retryDelayMs);
+                    retryDelayMs = Math.min(retryDelayMs * 2, 8000); // Exponential backoff, max 8 seconds
+                }
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                throw new BallerinaTestException("Connection attempt interrupted", e);
+            } catch (Exception e) {
+                LOGGER.warn(String.format("Exception during connection attempt %d: %s", attempt, e.getMessage()));
+                if (attempt == maxRetries) {
+                    throw new BallerinaTestException(String.format("Failed to connect to the debug server at %s after %d attempts%n",
+                            debugClientConnector.getAddress(), maxRetries), e);
+                }
+                try {
+                    Thread.sleep(retryDelayMs);
+                    retryDelayMs = Math.min(retryDelayMs * 2, 8000);
+                } catch (InterruptedException ie) {
+                    Thread.currentThread().interrupt();
+                    throw new BallerinaTestException("Connection retry interrupted", ie);
+                }
+            }
+        }
+        
+        if (!connected) {
+            throw new BallerinaTestException(String.format("Failed to connect to the debug server at %s after %d attempts%n",
+                    debugClientConnector.getAddress(), maxRetries));
         }
 
         setBreakpoints(testBreakpoints);
