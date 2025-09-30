@@ -171,8 +171,25 @@ public class DefaultPackageResolver implements PackageResolver {
         Collection<PackageMetadataResponse> latestVersionsInDist =
                 distributionRepo.getPackageMetadata(requests, options);
 
-        // Send non built in packages to central
-        Collection<ResolutionRequest> centralLoadRequests = requests.stream()
+        Collection<ResolutionRequest> centralLoadRequests;
+        List<PackageMetadataResponse> resolvedRequests = new ArrayList<>(workspacePackages.stream()
+                .filter(r -> r.resolutionStatus().equals(ResolutionStatus.RESOLVED))
+                .toList());
+
+        if (options.sticky()) {
+            // If sticky is enabled, filter out packages that are resolved from the dist repo
+            resolvedRequests.addAll(latestVersionsInDist.stream()
+                    .filter(r -> r.resolutionStatus().equals(ResolutionStatus.RESOLVED))
+                    .toList());
+        }
+
+        // Remove already workspace resolved requests from the central request list
+        centralLoadRequests = requests.stream().filter(r -> resolvedRequests.stream()
+                        .noneMatch(resolvedReq -> resolvedReq.packageLoadRequest().equals(r)))
+                .toList();
+
+        // Remove built-in packages from the central requests
+        centralLoadRequests = centralLoadRequests.stream()
                 .filter(r -> !r.packageDescriptor().isBuiltInPackage())
                 .toList();
         Collection<PackageMetadataResponse> latestVersionsInCentral =
