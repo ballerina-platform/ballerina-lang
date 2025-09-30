@@ -16,7 +16,6 @@ import static io.ballerina.cli.cmd.Constants.BACKUP;
 import static io.ballerina.cli.cmd.Constants.BUILD_COMMAND;
 import static io.ballerina.cli.cmd.Constants.RUN_COMMAND;
 import static io.ballerina.cli.cmd.Constants.TEST_COMMAND;
-import static io.ballerina.cli.launcher.LauncherUtils.createLauncherException;
 
 public class CacheArtifactsTask implements Task {
     private final String currTask;
@@ -40,24 +39,27 @@ public class CacheArtifactsTask implements Task {
                 copyFile(target.getExecutablePath(project.currentPackage()), targetDir, backupDir);
             } else if (this.currTask.equals(TEST_COMMAND)) {
                 Path testSuitePath = target.getTestsCachePath().resolve(ProjectConstants.TEST_SUITE_JSON);
+                if (Files.exists(testSuitePath)) {
+                    copyFile(testSuitePath, targetDir, backupDir);
+                }
                 String packageOrg = project.currentPackage().packageOrg().toString();
                 String packageName = project.currentPackage().packageName().toString();
                 String packageVersion = project.currentPackage().packageVersion().toString();
-                List<Path> testArtifactsPaths =
-                        Files.walk(target.cachesPath().resolve(packageOrg).resolve(packageName).resolve(packageVersion))
-                                .filter(Files::isRegularFile)
-                                .filter(path -> path.toString().endsWith(JAR))
-                                .toList();
-                copyFile(testSuitePath, targetDir, backupDir);
+                List<Path> testArtifactsPaths;
+                try (var paths = Files.walk(
+                        target.cachesPath().resolve(packageOrg).resolve(packageName).resolve(packageVersion))) {
+                    testArtifactsPaths = paths
+                            .filter(Files::isRegularFile)
+                            .filter(path -> path.toString().endsWith(JAR))
+                            .toList();
+                }
                 for (Path testArtifactPath : testArtifactsPaths) {
                     copyFile(testArtifactPath, targetDir, backupDir);
                 }
             }
         } catch (IOException e) {
-            throw createLauncherException("unable to create the cache: " + e.getMessage());
+            // ignore
         }
-
-
     }
 
     private static void copyFile(Path sourceFilePath , Path sourceRootPath, Path destRootPath) throws IOException {
