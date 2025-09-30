@@ -870,15 +870,20 @@ public class DebugTestRunner {
             try {
                 debugClientConnector.disconnectFromServer();
             } catch (Exception e) {
-                LOGGER.warn("Error occurred when terminating debug session");
+                LOGGER.warn("Error occurred when terminating debug session: {}", e.getMessage(), e);
             }
         }
         isConnected = false;
         debugClientConnector = null;
 
         if (balClient != null) {
-            balClient.terminateProcessWithDescendants(debuggeeProcess);
-            balClient = null;
+            try {
+                balClient.terminateProcessWithDescendants(debuggeeProcess);
+            } catch (Exception e) {
+                LOGGER.warn("Error occurred when terminating debug process: {}", e.getMessage(), e);
+            } finally {
+                balClient = null;
+            }
         }
     }
 
