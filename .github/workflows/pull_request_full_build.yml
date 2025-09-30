@@ -97,7 +97,7 @@ jobs:
       - name: Download Module Data
         run: |
           wget https://raw.githubusercontent.com/ballerina-platform/ballerina-release/master/dependabot/resources/extensions.json
-          wget https://raw.githubusercontent.com/ballerina-platform/ballerina-distribution/2201.0.x/gradle.properties
+          wget https://raw.githubusercontent.com/ballerina-platform/ballerina-distribution/master/gradle.properties
 
 #      - name: Clone Modules
 #        run: |
