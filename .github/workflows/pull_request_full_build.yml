@@ -109,14 +109,7 @@ jobs:
           for module_name in $(jq -r '.standard_library| .[] | select(.level==${{ matrix.level }}) | .name' extensions.json); do
             echo "Cloning module: ${module_name}"
             repo_url=https://github.com/ballerina-platform/${module_name}.git
-            branch=metrics-logs
-            if git ls-remote --heads "$repo_url" "$branch" | grep -q "$branch"; then
-              echo "Branch '$branch' found."
-              git clone -b "$branch" --single-branch "$repo_url"
-            else
-              echo "Branch '$branch' not found. Cloning default branch '$default_branch' instead."
-              git clone $repo_url
-            fi
+            git clone $repo_url
           done
         shell: bash
 
