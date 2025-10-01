@@ -66,28 +66,26 @@ public class CompileTask implements Task {
     private final boolean compileForBalPack;
     private final boolean compileForBalBuild;
     private final boolean skipTask;
-
-    public CompileTask(PrintStream out, PrintStream err) {
-        this(out, err, false, false);
-    }
+    private final List<Diagnostic> buildToolDiagnostics;
 
     public CompileTask(PrintStream out,
                        PrintStream err,
                        boolean compileForBalPack,
                        boolean compileForBalBuild) {
-        this(out, err, compileForBalPack, compileForBalBuild, false);
+        this(out, err, compileForBalPack, compileForBalBuild, false, new ArrayList<>());
     }
 
     public CompileTask(PrintStream out,
                        PrintStream err,
                        boolean compileForBalPack,
                        boolean compileForBalBuild,
-                       boolean skipTask) {
+                       boolean skipTask, List<Diagnostic> buildToolDiagnostics) {
         this.out = out;
         this.err = err;
         this.compileForBalPack = compileForBalPack;
         this.compileForBalBuild = compileForBalBuild;
         this.skipTask = skipTask;
+        this.buildToolDiagnostics = buildToolDiagnostics;
     }
     @Override
     public void execute(Project project) {
@@ -118,7 +116,7 @@ public class CompileTask implements Task {
 
         try {
             printWarningForHigherDistribution(project);
-            List<Diagnostic> diagnostics = new ArrayList<>();
+            List<Diagnostic> diagnostics = new ArrayList<>(buildToolDiagnostics);
             if (this.compileForBalBuild) {
                 addDiagnosticForProvidedPlatformLibs(project, diagnostics);
             }
@@ -148,9 +146,6 @@ public class CompileTask implements Task {
                 BuildTime.getInstance().codeModifierPluginDuration = 0;
                 start = System.currentTimeMillis();
             }
-
-            // Add tool resolution diagnostics to diagnostics
-            diagnostics.addAll(project.currentPackage().getBuildToolResolution().getDiagnosticList());
 
             // run built-in code generator compiler plugins
             // We only continue with next steps if package resolution does not have errors.
