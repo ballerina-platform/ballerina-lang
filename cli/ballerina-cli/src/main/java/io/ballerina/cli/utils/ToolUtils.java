@@ -22,7 +22,6 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import io.ballerina.projects.BalToolsManifest;
 import io.ballerina.projects.BalToolsToml;
-import io.ballerina.projects.BlendedBalToolsManifest;
 import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.internal.BalToolsManifestBuilder;
 import io.ballerina.projects.util.ProjectConstants;
@@ -35,12 +34,10 @@ import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Stream;
 
 import static io.ballerina.projects.util.BalToolsUtil.BAL_TOOLS_TOML_PATH;
-import static io.ballerina.projects.util.BalToolsUtil.DIST_BAL_TOOLS_TOML_PATH;
 import static io.ballerina.projects.util.BalToolsUtil.isCompatibleWithPlatform;
 import static io.ballerina.projects.util.ProjectConstants.BALA_DIR_NAME;
 import static io.ballerina.projects.util.ProjectConstants.CENTRAL_REPOSITORY_CACHE_NAME;
@@ -102,9 +99,6 @@ public class ToolUtils {
                     "Ballerina distribution version. Run 'bal tool list' to see compatible versions.");
             return true;
         }
-        if (isToolVersionAlreadyAvailable(toolId, version, repository)) {
-            return true;
-        }
         balToolsManifest.addTool(toolId, org, name, version, true, repository);
         balToolsToml.modify(balToolsManifest);
         return false;
@@ -136,22 +130,5 @@ public class ToolUtils {
             }
         }
         return Optional.empty();
-    }
-
-    private static boolean isToolVersionAlreadyAvailable(String toolId, String version, String repository) {
-        if (version.equals(Names.EMPTY.getValue())) {
-            return false;
-        }
-        BalToolsToml balToolsToml = BalToolsToml.from(BAL_TOOLS_TOML_PATH);
-        BalToolsManifest balToolsManifest = BalToolsManifestBuilder.from(balToolsToml).build();
-        BalToolsToml distBalToolsToml = BalToolsToml.from(DIST_BAL_TOOLS_TOML_PATH);
-        BalToolsManifest distBalToolsManifest = BalToolsManifestBuilder.from(distBalToolsToml).build();
-        BlendedBalToolsManifest blendedBalToolsManifest = BlendedBalToolsManifest.
-                from(balToolsManifest, distBalToolsManifest);
-        if (blendedBalToolsManifest.tools().containsKey(toolId)) {
-            Map<String, Map<String, BalToolsManifest.Tool>> toolVersions = blendedBalToolsManifest.tools().get(toolId);
-            return toolVersions.containsKey(version) && toolVersions.get(version).get(LOCAL_REPOSITORY_NAME) == null;
-        }
-        return false;
     }
 }
