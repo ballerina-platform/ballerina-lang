@@ -19,10 +19,12 @@ package io.ballerina.cli.cmd;
 
 import io.ballerina.cli.BLauncherCmd;
 import io.ballerina.projects.BalToolsManifest;
+import io.ballerina.projects.BalToolsToml;
 import io.ballerina.projects.JvmTarget;
 import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.SemanticVersion;
 import io.ballerina.projects.Settings;
+import io.ballerina.projects.internal.BalToolsManifestBuilder;
 import io.ballerina.projects.util.ProjectConstants;
 import org.ballerinalang.central.client.CentralAPIClient;
 import org.ballerinalang.central.client.CentralClientConstants;
@@ -44,6 +46,7 @@ import static io.ballerina.cli.cmd.Constants.TOOL_PULL_COMMAND;
 import static io.ballerina.cli.utils.ToolUtils.addToBalToolsToml;
 import static io.ballerina.cli.utils.ToolUtils.getToolFromLocalRepo;
 import static io.ballerina.cli.utils.ToolUtils.getToolAvailableLocally;
+import static io.ballerina.projects.util.BalToolsUtil.DIST_BAL_TOOLS_TOML_PATH;
 import static io.ballerina.projects.util.ProjectConstants.CENTRAL_REPOSITORY_CACHE_NAME;
 import static io.ballerina.projects.util.ProjectConstants.LOCAL_REPOSITORY_NAME;
 import static io.ballerina.projects.util.ProjectConstants.REPOSITORIES_DIR;
@@ -220,7 +223,15 @@ public class ToolPullCommand implements BLauncherCmd {
         } catch (CentralClientException | ProjectException e) {
             CommandUtil.printError(errStream, "unexpected error occurred while pulling tool:" + e.getMessage(),
                     null, false);
-            CommandUtil.exitError(this.exitWhenFinish);
+            BalToolsToml balToolsToml = BalToolsToml.from(DIST_BAL_TOOLS_TOML_PATH);
+            BalToolsManifest balToolsManifest = BalToolsManifestBuilder.from(balToolsToml).build();
+            Optional<BalToolsManifest.Tool> toolOptional = balToolsManifest.getActiveTool(toolId);
+            if (toolOptional.isEmpty()) {
+                CommandUtil.exitError(this.exitWhenFinish);
+                return;
+            }
+            outStream.println("tool '" + toolId + ":" + toolOptional.get().version()
+                    + "' from the distribution is set as the active version.");
         }
     }
 
