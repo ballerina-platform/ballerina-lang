@@ -85,7 +85,7 @@ public class JvmUnionTypeGen {
     }
 
     public void createUnionType(ClassWriter cw, MethodVisitor mv, String unionTypeClass, String varName,
-                                BUnionType unionType, boolean isAnnotatedType, SymbolTable symbolTable) {
+                                BUnionType unionType, boolean isAnnotatedType, SymbolTable symbolTable, int access) {
         // Create field for union type var
         FieldVisitor fv = cw.visitField(ACC_STATIC + ACC_PUBLIC, TYPE_VAR_NAME, GET_UNION_TYPE_IMPL, null, null);
         fv.visitEnd();
@@ -124,7 +124,7 @@ public class JvmUnionTypeGen {
         mv.visitFieldInsn(GETSTATIC, unionTypeClass, TYPE_INIT_VAR_NAME, GET_JBOOLEAN_TYPE);
         Label ifLabel = new Label();
         mv.visitJumpInsn(IFNE, ifLabel);
-        setTypeInitialized(mv, ICONST_1, unionTypeClass);
+        setTypeInitialized(mv, ICONST_1, unionTypeClass, true);
         populateUnion(cw, mv, unionType, unionTypeClass, varName, symbolTable);
         if (isAnnotatedType) {
             mv.visitMethodInsn(INVOKESTATIC, unionTypeClass, LOAD_ANNOTATIONS_METHOD, VOID_METHOD_DESC, false);

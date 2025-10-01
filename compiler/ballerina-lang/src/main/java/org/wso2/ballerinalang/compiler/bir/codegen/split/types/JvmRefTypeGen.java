@@ -115,7 +115,7 @@ public class JvmRefTypeGen {
         mv.visitFieldInsn(GETSTATIC, typeRefClass, TYPE_INIT_VAR_NAME, GET_JBOOLEAN_TYPE);
         Label ifLabel = new Label();
         mv.visitJumpInsn(IFNE, ifLabel);
-        setTypeInitialized(mv, ICONST_1, typeRefClass);
+        setTypeInitialized(mv, ICONST_1, typeRefClass, true);
         populateTypeRef(mv, typeRefType, typeRefClass);
         if (isAnnotatedType) {
             mv.visitMethodInsn(INVOKESTATIC, typeRefClass, LOAD_ANNOTATIONS_METHOD, VOID_METHOD_DESC, false);

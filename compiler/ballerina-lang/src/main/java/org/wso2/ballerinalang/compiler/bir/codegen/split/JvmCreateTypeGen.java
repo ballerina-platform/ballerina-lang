@@ -380,10 +380,10 @@ public class JvmCreateTypeGen {
         }
         MethodVisitor mv = cw.visitMethod(ACC_STATIC, JVM_STATIC_INIT_METHOD, VOID_METHOD_DESC, null, null);
         mv.visitCode();
-        setTypeInitialized(mv, ICONST_1, typeClass, isAnnotatedType);
+        setTypeInitialized(mv, ICONST_1, typeClass, true);
         jvmUnionTypeGen.createUnionType(cw, mv, typeClass, varName, (BUnionType) bType, isAnnotatedType,
                 jvmPackageGen.symbolTable, ACC_PRIVATE);
-        setTypeInitialized(mv, ICONST_0, typeClass, isAnnotatedType);
+        setTypeInitialized(mv, ICONST_0, typeClass, true);
         genMethodReturn(mv);
         cw.visitEnd();
         jarEntries.put(typeClass + CLASS_FILE_SUFFIX, cw.toByteArray());
@@ -414,6 +414,13 @@ public class JvmCreateTypeGen {
         mv.visitInsn(ARETURN);
         mv.visitMaxs(0, 0);
         mv.visitEnd();
+    }
+
+    public Optional<BIntersectionType> getImmutableType(BType type, SymbolTable symbolTable) {
+        if (type.tsymbol == null) {
+            return Optional.empty();
+        }
+        return Types.getImmutableType(symbolTable, type.tsymbol.pkgID, (SelectivelyImmutableReferenceType) type);
     }
 
     public void addImmutableType(MethodVisitor mv, BType type, SymbolTable symbolTable) {

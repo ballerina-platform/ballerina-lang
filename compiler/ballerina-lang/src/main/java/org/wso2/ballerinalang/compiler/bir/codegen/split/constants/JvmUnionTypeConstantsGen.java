@@ -32,6 +32,7 @@ import java.util.Map;
 import java.util.TreeMap;
 
 import static org.objectweb.asm.ClassWriter.COMPUTE_FRAMES;
+import static org.objectweb.asm.Opcodes.ACC_PUBLIC;
 import static org.objectweb.asm.Opcodes.ACC_STATIC;
 import static org.objectweb.asm.Opcodes.INVOKESTATIC;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CLASS_FILE_SUFFIX;
@@ -87,7 +88,7 @@ public class JvmUnionTypeConstantsGen {
         String unionTypeClass = this.unionVarConstantsPkgName + varName;
         generateConstantsClassInit(cw, unionTypeClass);
         MethodVisitor mv = cw.visitMethod(ACC_STATIC, JVM_STATIC_INIT_METHOD, VOID_METHOD_DESC, null, null);
-        jvmUnionTypeGen.createUnionType(cw, mv, unionTypeClass, varName, type, false, symbolTable);
+        jvmUnionTypeGen.createUnionType(cw, mv, unionTypeClass, varName, type, false, symbolTable, ACC_PUBLIC);
         genMethodReturn(mv);
         cw.visitEnd();
         jarEntries.put(unionTypeClass + CLASS_FILE_SUFFIX, cw.toByteArray());

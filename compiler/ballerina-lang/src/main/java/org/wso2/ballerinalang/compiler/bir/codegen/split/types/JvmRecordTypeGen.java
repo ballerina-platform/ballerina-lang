@@ -125,7 +125,7 @@ public class JvmRecordTypeGen {
         mv.visitFieldInsn(GETSTATIC, recordTypeClass, TYPE_INIT_VAR_NAME, GET_JBOOLEAN_TYPE);
         Label ifLabel = new Label();
         mv.visitJumpInsn(IFNE, ifLabel);
-        setTypeInitialized(mv, ICONST_1, recordTypeClass);
+        setTypeInitialized(mv, ICONST_1, recordTypeClass, true);
         populateRecord(cw, mv, module, recordTypeClass, recordType, symbolTable);
         if (isAnnotatedType) {
             mv.visitMethodInsn(INVOKESTATIC, recordTypeClass, LOAD_ANNOTATIONS_METHOD, VOID_METHOD_DESC, false);
