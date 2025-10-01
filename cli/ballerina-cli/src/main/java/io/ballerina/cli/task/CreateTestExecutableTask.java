@@ -170,6 +170,10 @@ public class CreateTestExecutableTask implements Task {
         for (ModuleDescriptor moduleDescriptor :
                 project.currentPackage().moduleDependencyGraph().toTopologicallySortedList()) {
             Module module = project.currentPackage().module(moduleDescriptor.name());
+            if (module.testDocumentIds().isEmpty()) {
+                continue;
+            }
+
             testExecDependencies.addAll(jBallerinaBackend.jarResolver()
                     .getJarFilePathsRequiredForTestExecution(module.moduleName())
             );
