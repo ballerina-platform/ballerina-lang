@@ -99,19 +99,11 @@ jobs:
           wget https://raw.githubusercontent.com/ballerina-platform/ballerina-release/master/dependabot/resources/extensions.json
           wget https://raw.githubusercontent.com/ballerina-platform/ballerina-distribution/master/gradle.properties
 
-#      - name: Clone Modules
-#        run: |
-#          for module_name in $(jq -r '.standard_library| .[] | select(.level==${{ matrix.level }}) | .name' extensions.json); \
-#          do git clone https://github.com/ballerina-platform/${module_name}.git; \
-#          done
       - name: Clone Modules
         run: |
-          for module_name in $(jq -r '.standard_library| .[] | select(.level==${{ matrix.level }}) | .name' extensions.json); do
-            echo "Cloning module: ${module_name}"
-            repo_url=https://github.com/ballerina-platform/${module_name}.git
-            git clone $repo_url
+          for module_name in $(jq -r '.standard_library| .[] | select(.level==${{ matrix.level }}) | .name' extensions.json); \
+          do git clone https://github.com/ballerina-platform/${module_name}.git; \
           done
-        shell: bash
 
 #      - name: Checkout non-default branch
 #        run: |
