@@ -40,6 +40,7 @@ import io.ballerina.projects.environment.PackageLockingMode;
 import io.ballerina.projects.internal.model.BuildJson;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectPaths;
+import io.ballerina.tools.diagnostics.Diagnostic;
 import org.wso2.ballerinalang.util.RepoUtils;
 import picocli.CommandLine;
 
@@ -337,16 +338,19 @@ public class BuildCommand implements BLauncherCmd {
     private void executeTasks(boolean isSingleFile, Project project, boolean skipExecutable) {
         BuildOptions buildOptions = project.buildOptions();
         boolean rebuildStatus = isRebuildNeeded(project, skipExecutable);
+
+        List<Diagnostic> buildToolDiagnostics = new ArrayList<>();
         TaskExecutor taskExecutor = new TaskExecutor.TaskBuilder()
                 // clean the target directory(projects only)
                 .addTask(new CleanTargetDirTask(),  isSingleFile)
                 .addTask(new RestoreCachedArtifactsTask(), rebuildStatus)
                 // Run build tools
-                .addTask(new RunBuildToolsTask(outStream, !rebuildStatus), isSingleFile)
+                .addTask(new RunBuildToolsTask(outStream, !rebuildStatus, buildToolDiagnostics), isSingleFile)
                 // resolve maven dependencies in Ballerina.toml
                 .addTask(new ResolveMavenDependenciesTask(outStream, !rebuildStatus))
                 // compile the modules
-                .addTask(new CompileTask(outStream, errStream, false, true, !rebuildStatus))
+                .addTask(new CompileTask(outStream, errStream, false, true,
+                        !rebuildStatus, buildToolDiagnostics))
                 .addTask(new CreateExecutableTask(outStream, this.output, null, false,
                          !rebuildStatus, skipExecutable))
                 .addTask(new DumpBuildTimeTask(outStream), !buildOptions.dumpBuildTime())

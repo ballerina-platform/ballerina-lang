@@ -25,7 +25,6 @@ import io.ballerina.projects.BuildTool;
 import io.ballerina.projects.BuildToolResolution;
 import io.ballerina.projects.Diagnostics;
 import io.ballerina.projects.PackageConfig;
-import io.ballerina.projects.PackageManifest;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.buildtools.CodeGeneratorTool;
@@ -71,18 +70,15 @@ import static io.ballerina.projects.util.ProjectConstants.TOOL_DIAGNOSTIC_CODE_P
  */
 public class RunBuildToolsTask implements Task {
     private final PrintStream outStream;
+    private final List<Diagnostic> diagnostics;
     private final boolean exitWhenFinish;
     private final Map<Tool.Field, ToolContext> toolContextMap = new HashMap<>();
-    private boolean skipTask = false;
+    private final boolean skipTask;
 
-    public RunBuildToolsTask(PrintStream out) {
-        this.outStream = out;
-        this.exitWhenFinish = true;
-    }
-
-    public RunBuildToolsTask(PrintStream out, boolean skipTask) {
+    public RunBuildToolsTask(PrintStream out, boolean skipTask, List<Diagnostic> diagnostics) {
         this.skipTask = skipTask;
         this.outStream = out;
+        this.diagnostics = diagnostics;
         this.exitWhenFinish = true;
     }
 
@@ -128,7 +124,7 @@ public class RunBuildToolsTask implements Task {
         Map<String, ClassLoader> classLoaderMap = createToolClassLoader(resolvedTools);
 
         // We run only the entries of resolved tools.
-        List<PackageManifest.Tool> resolvedToolEntries = toolEntries.stream()
+        List<Tool> resolvedToolEntries = toolEntries.stream()
                 .filter(toolEntry -> resolvedTools.stream()
                         .anyMatch(tool -> tool.id().value().equals(toolEntry.type().value().split("\\.")[0])))
                 .toList();
@@ -208,6 +204,7 @@ public class RunBuildToolsTask implements Task {
         if (hasErrors) {
             throw createLauncherException("build tool execution contains errors");
         }
+        diagnostics.addAll(buildToolResolution.getDiagnosticList());
         Thread.currentThread().setContextClassLoader(ClassLoader.getSystemClassLoader());
         // Reload the project to load the generated code
         reloadProject(project);
@@ -262,7 +259,7 @@ public class RunBuildToolsTask implements Task {
         return classLoaderMap;
     }
 
-    private void printToolSkipWarning(PackageManifest.Tool toolEntry) {
+    private void printToolSkipWarning(Tool toolEntry) {
         outStream.printf("WARNING: Execution of '%s:%s' is skipped due to errors%n", toolEntry
                 .type().value(), toolEntry.id() != null ? toolEntry.id().value() : "");
     }

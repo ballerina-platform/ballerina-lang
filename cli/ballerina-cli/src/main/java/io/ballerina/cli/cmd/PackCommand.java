@@ -288,11 +288,12 @@ public class PackCommand implements BLauncherCmd {
     }
 
     private void executeTasks(Project project) {
+        List<Diagnostic> buildToolDiagnostics = new ArrayList<>();
         TaskExecutor taskExecutor = new TaskExecutor.TaskBuilder()
                 .addTask(new CleanTargetDirTask())
-                .addTask(new RunBuildToolsTask(outStream))
+                .addTask(new RunBuildToolsTask(outStream, false, buildToolDiagnostics))
                 .addTask(new ResolveMavenDependenciesTask(outStream))
-                .addTask(new CompileTask(outStream, errStream, true, false))
+                .addTask(new CompileTask(outStream, errStream, true, false, false, buildToolDiagnostics))
                 .addTask(new CreateBalaTask(outStream))
                 .addTask(new DumpBuildTimeTask(outStream), !project.buildOptions().dumpBuildTime())
                 .build();
