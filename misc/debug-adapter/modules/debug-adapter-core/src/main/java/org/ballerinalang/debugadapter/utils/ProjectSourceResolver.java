@@ -64,31 +64,13 @@ public class ProjectSourceResolver extends SourceResolver {
                     return true;
                 }
                 // 2. if not matched, check in the workspace packages
-                return locationFoundInwWorkspacePkg(sourceLocation);
+                return isLocationInWorkspace(sourceLocation);
             } else {
                 return false;
             }
         } catch (AbsentInformationException e) {
             return false;
         }
-    }
-
-    private boolean locationFoundInwWorkspacePkg(DebugSourceLocation debugSourceLocation) {
-        Optional<Path> workspaceRoot = PackageUtils.findWorkspaceRoot(sourceProject.sourceRoot().toAbsolutePath());
-        if (workspaceRoot.isPresent()) {
-            boolean isSupported = false;
-            List<BuildProject> projects = ((WorkspaceProject) sourceProject).projects();
-            for (BuildProject project : projects) {
-                String projectOrg = getOrgName(project);
-                if (debugSourceLocation.orgName().equals(projectOrg)) {
-                    isSupported = true;
-                    break;
-                }
-            }
-            return isSupported;
-        }
-
-        return false;
     }
 
     @Override
@@ -155,6 +137,24 @@ public class ProjectSourceResolver extends SourceResolver {
         } catch (AbsentInformationException e) {
             return Optional.empty();
         }
+    }
+
+    private boolean isLocationInWorkspace(DebugSourceLocation debugSourceLocation) {
+        Optional<Path> workspaceRoot = PackageUtils.findWorkspaceRoot(sourceProject.sourceRoot().toAbsolutePath());
+        if (workspaceRoot.isPresent()) {
+            boolean isSupported = false;
+            List<BuildProject> projects = ((WorkspaceProject) sourceProject).projects();
+            for (BuildProject project : projects) {
+                String projectOrg = getOrgName(project);
+                if (debugSourceLocation.orgName().equals(projectOrg)) {
+                    isSupported = true;
+                    break;
+                }
+            }
+            return isSupported;
+        }
+
+        return false;
     }
 
     private Optional<Path> findLocationInWorkspacePackages(Project sourceProject, Location location) {
