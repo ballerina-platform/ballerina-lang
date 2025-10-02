@@ -18,6 +18,7 @@ configurations {
 
 dependencies {
     implementation project(':ballerina-lang')
+    implementation project(':toml-parser')
     implementation project(':ballerina-parser')
     implementation project(':ballerina-tools-api')
     implementation project(':ballerina-runtime')

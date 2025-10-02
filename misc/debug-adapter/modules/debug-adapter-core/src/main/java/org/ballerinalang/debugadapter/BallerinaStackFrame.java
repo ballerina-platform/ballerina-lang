@@ -100,7 +100,7 @@ public class BallerinaStackFrame {
             dapStackFrame.setColumn(0);
 
             Optional<Map.Entry<Path, DebugSourceType>> sourcePathAndType =
-                    PackageUtils.getStackFrameSourcePath(jStackFrame.location(), context.getSourceProject());
+                    PackageUtils.getStackFrameSourcePath(context, context.getSourceProject(), jStackFrame.location());
             if (sourcePathAndType.isEmpty()) {
                 return null;
             }

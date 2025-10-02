@@ -22,18 +22,23 @@ import io.ballerina.projects.Document;
 import io.ballerina.projects.DocumentId;
 import io.ballerina.projects.Module;
 import io.ballerina.projects.Project;
+import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.ProjectKind;
+import io.ballerina.projects.TomlDocument;
 import io.ballerina.projects.directory.BuildProject;
 import io.ballerina.projects.directory.SingleFileProject;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectPaths;
+import org.ballerinalang.debugadapter.DebugProjectCache;
 import org.ballerinalang.debugadapter.DebugSourceType;
 import org.ballerinalang.debugadapter.ExecutionContext;
 import org.ballerinalang.debugadapter.SuspendedContext;
 
 import java.io.File;
+import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.nio.file.Files;
 import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.util.AbstractMap;
@@ -83,6 +88,7 @@ public final class PackageUtils {
     public static final String VALUE_VAR_NAME = "$value";
     private static final String OBJECT_CLASS_PATTERN = "values" + File.separator;
     private static final String FILE_SEPARATOR_REGEX = File.separatorChar == '\\' ? "\\\\" : File.separator;
+    private static final String WORKSPACE_KEY = "workspace";
 
     private PackageUtils() {
     }
@@ -91,11 +97,12 @@ public final class PackageUtils {
      * Returns the corresponding debug source path based on the given stack frame location.
      *
      * @param stackFrameLocation stack frame location
-     * @param sourceProject      project instance of the detected debug source
      */
-    public static Optional<Map.Entry<Path, DebugSourceType>> getStackFrameSourcePath(Location stackFrameLocation,
-                                                                                     Project sourceProject) {
-        // Source resolving is processed according to the following order .
+    public static Optional<Map.Entry<Path, DebugSourceType>> getStackFrameSourcePath(ExecutionContext context,
+                                                                                     Project sourceProject,
+                                                                                     Location stackFrameLocation) {
+        DebugProjectCache projectCache = context.getProjectCache();
+        // Source resolving is processed according to the following order.
         // 1. Checks whether debug hit location resides within the current debug source project and if so, returns
         // the absolute path of the project file source.
         // 2. Checks whether the debug hit location resides within a internal dependency (lang library) and if so,
@@ -103,9 +110,9 @@ public final class PackageUtils {
         // 3. Checks whether the debug hit location resides within a external dependency (standard library or central
         // module) and if so, returns the dependency file path resolved using package resolution.
         List<SourceResolver> sourceResolvers = new ArrayList<>();
-        sourceResolvers.add(new ProjectSourceResolver(sourceProject));
-        sourceResolvers.add(new LangLibSourceResolver(sourceProject));
-        sourceResolvers.add(new DependencySourceResolver(sourceProject));
+        sourceResolvers.add(new ProjectSourceResolver(sourceProject, projectCache));
+        sourceResolvers.add(new LangLibSourceResolver(sourceProject, projectCache));
+        sourceResolvers.add(new DependencySourceResolver(sourceProject, projectCache));
 
         for (SourceResolver sourceResolver : sourceResolvers) {
             if (sourceResolver.isSupported(stackFrameLocation)) {
@@ -128,10 +135,21 @@ public final class PackageUtils {
      * @param path file path
      * @return A pair of project kind and the project root.
      */
-    public static Map.Entry<ProjectKind, Path> computeProjectKindAndRoot(Path path) {
+    public static Map.Entry<ProjectKind, Path> computeProjectKindAndRoot(Path path, boolean allowWorkspaceProjects) {
         if (ProjectPaths.isStandaloneBalFile(path) && !isBalToolSpecificFile(path)) {
             return new AbstractMap.SimpleEntry<>(ProjectKind.SINGLE_FILE_PROJECT, path);
         }
+
+        if (allowWorkspaceProjects) {
+            // TODO: Revert 'findWorkspaceRoot()' to `ProjectPaths.workspaceRoot()` API once
+            //   https://github.com/ballerina-platform/ballerina-lang/issues/43538#issuecomment-2469488458
+            //   is addressed from the Ballerina platform side.
+            Optional<Path> workspaceRoot = findWorkspaceRoot(path);
+            if (workspaceRoot.isPresent()) {
+                return new AbstractMap.SimpleEntry<>(ProjectKind.WORKSPACE_PROJECT, workspaceRoot.get());
+            }
+        }
+
         // TODO: Revert 'findProjectRoot()' to `ProjectPaths.packageRoot()` API once
         //  https://github.com/ballerina-platform/ballerina-lang/issues/43538#issuecomment-2469488458
         //  is addressed from the Ballerina platform side.
@@ -175,6 +193,35 @@ public final class PackageUtils {
             }
         }
         return findProjectRoot(filePath.getParent());
+    }
+
+    public static Optional<Path> findWorkspaceRoot(Path filePath) {
+        if (filePath != null) {
+            filePath = filePath.toAbsolutePath().normalize();
+            if (filePath.toFile().isDirectory()) {
+                if (isWorkspaceProjectRoot(filePath)) {
+                    return Optional.of(filePath);
+                }
+            }
+            return findWorkspaceRoot(filePath.getParent());
+        }
+        return Optional.empty();
+    }
+
+    public static boolean isWorkspaceProjectRoot(Path filePath) {
+        if (!filePath.toFile().isDirectory()) {
+            return false;
+        }
+        Path absFilePath = filePath.resolve(BALLERINA_TOML).toAbsolutePath().normalize();
+        if (absFilePath.toFile().exists()) {
+            try {
+                TomlDocument tomlDocument = TomlDocument.from(BALLERINA_TOML, Files.readString(absFilePath));
+                return tomlDocument.toml().getTable(WORKSPACE_KEY).isPresent();
+            } catch (IOException e) {
+                throw new ProjectException("error while validating workspace root: " + e);
+            }
+        }
+        return false;
     }
 
     private static boolean hasPackageJson(Path filePath) {
