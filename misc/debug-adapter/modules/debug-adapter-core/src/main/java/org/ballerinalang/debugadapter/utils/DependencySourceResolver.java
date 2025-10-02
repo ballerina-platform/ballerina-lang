@@ -24,6 +24,7 @@ import io.ballerina.projects.Package;
 import io.ballerina.projects.PackageResolution;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ResolvedPackageDependency;
+import org.ballerinalang.debugadapter.DebugProjectCache;
 
 import java.nio.file.Path;
 import java.util.Collection;
@@ -36,8 +37,8 @@ import java.util.Optional;
  */
 public class DependencySourceResolver extends SourceResolver {
 
-    DependencySourceResolver(Project sourceProject) {
-        super(sourceProject);
+    DependencySourceResolver(Project sourceProject, DebugProjectCache projectCache) {
+        super(sourceProject, projectCache);
     }
 
     @Override
