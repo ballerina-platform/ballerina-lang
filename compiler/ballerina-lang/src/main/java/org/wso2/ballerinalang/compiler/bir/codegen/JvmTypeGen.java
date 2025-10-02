@@ -184,6 +184,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_TABL
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_TUPLE_TYPE_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_TYPEDESC;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_TYPE_REF_TYPE_METHOD;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_UNION_TYPE_IMPL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_UNION_TYPE_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_VALUE_CREATOR;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_XML;
@@ -1082,7 +1083,8 @@ public class JvmTypeGen {
             return false;
 
         }
-        if (isSameModule(referenceType.tsymbol.pkgID, referredType.tsymbol.pkgID)) {
+        if (isSameModule(referenceType.tsymbol.pkgID, referredType.tsymbol.pkgID) && 
+                referenceType.tsymbol.pkgID.isTestPkg == referredType.tsymbol.pkgID.isTestPkg) {
             return loadInternalType(mv, referredType);
         } else {
             return loadInternalType(mv, referredType.tsymbol.pkgID, referredType);
@@ -1098,6 +1100,15 @@ public class JvmTypeGen {
                     GET_OBJECT_TYPE_IMPL);
             case TypeTags.ERROR -> mv.visitFieldInsn(GETSTATIC, this.errorTypesPkgName + varName, TYPE_VAR_NAME,
                     GET_ERROR_TYPE_IMPL);
+            case TypeTags.UNION -> {
+                BUnionType unionType = (BUnionType) bType;
+                if (unionType.isCyclic) {
+                    mv.visitFieldInsn(GETSTATIC, this.unionTypesPkgName + varName, TYPE_VAR_NAME, GET_UNION_TYPE_IMPL);
+                } else {
+                    jvmConstantsGen.generateGetBUnionType(mv, jvmConstantsGen.getUnionTypeConstantsVar(bType,
+                            symbolTable));
+                }
+            }
             default -> {
                 this.loadType(mv, bType);
                 return false;
@@ -1118,6 +1129,16 @@ public class JvmTypeGen {
             case TypeTags.ERROR ->
                     mv.visitFieldInsn(GETSTATIC, getModuleLevelClassName(pkgId, MODULE_ERROR_TYPES_PACKAGE_NAME) +
                             varName, TYPE_VAR_NAME, GET_ERROR_TYPE_IMPL);
+            case TypeTags.UNION -> {
+                BUnionType unionType = (BUnionType) bType;
+                if (unionType.isCyclic) {
+                    mv.visitFieldInsn(GETSTATIC, getModuleLevelClassName(pkgId, MODULE_UNION_TYPES_PACKAGE_NAME) +
+                            varName, TYPE_VAR_NAME, GET_UNION_TYPE_IMPL);
+                } else {
+                    jvmConstantsGen.generateGetBUnionType(mv, jvmConstantsGen.getUnionTypeConstantsVar(bType,
+                            symbolTable));
+                }
+            }
             default -> {
                 this.loadType(mv, bType);
                 return false;

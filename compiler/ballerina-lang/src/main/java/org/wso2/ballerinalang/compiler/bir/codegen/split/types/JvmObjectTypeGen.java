@@ -132,7 +132,7 @@ public class JvmObjectTypeGen {
         mv.visitFieldInsn(PUTSTATIC, objectTypeClass, TYPE_VAR_NAME, GET_OBJECT_TYPE_IMPL);
         populateObject(cw, mv, objectTypeClass, fieldName, moduleVar, objectType, symbolTable, indexMap);
         jvmCreateTypeGen.genGetTypeMethod(cw, objectTypeClass, GET_OBJECT_TYPE_METHOD, GET_OBJECT_TYPE_IMPL,
-                isAnnotatedType);
+                isAnnotatedType, null);
     }
 
     public void populateObject(ClassWriter cw, MethodVisitor mv, String objectTypeClass, String fieldName,
