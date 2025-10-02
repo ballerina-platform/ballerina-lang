@@ -50,7 +50,17 @@ public class DebugProjectCache {
      * @return project instance.
      */
     public Project getProject(Path filePath) {
-        Map.Entry<ProjectKind, Path> projectKindAndRoot = computeProjectKindAndRoot(filePath);
+        return getProject(filePath, false);
+    }
+
+    /**
+     * Returns the project instance which contains the given file path, from the project cache.
+     *
+     * @param filePath source root of the Ballerina project that need to be retrieved.
+     * @return project instance.
+     */
+    public Project getProject(Path filePath, boolean allowWorkspaceProjects) {
+        Map.Entry<ProjectKind, Path> projectKindAndRoot = computeProjectKindAndRoot(filePath, allowWorkspaceProjects);
         Path projectRoot = projectKindAndRoot.getValue();
 
         return loadedProjects.computeIfAbsent(projectRoot, key -> loadProject(projectKindAndRoot));
@@ -76,7 +86,7 @@ public class DebugProjectCache {
         } else if (projectKind == ProjectKind.SINGLE_FILE_PROJECT) {
             return SingleFileProject.load(projectRoot, options);
         } else {
-            return ProjectLoader.loadProject(projectRoot, options);
+            return ProjectLoader.load(projectRoot, options).project();
         }
     }
 }
