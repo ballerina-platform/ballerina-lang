@@ -1460,7 +1460,7 @@ public class TestBuildProject extends BaseTest {
         Assert.assertEquals(project.currentPackage().packageName().toString(), "myproject");
         Path buildFile = project.targetDir().resolve(BUILD_FILE);
         Assert.assertTrue(buildFile.toFile().exists());
-        BuildJson initialBuildJson = readBuildJson(project.targetDir());
+        BuildJson initialBuildJson = readBuildJson(buildFile);
         Assert.assertTrue(initialBuildJson.lastBuildTime() > 0);
         Assert.assertTrue(initialBuildJson.lastUpdateTime() > 0);
         Assert.assertFalse(initialBuildJson.isExpiredLastUpdateTime());
@@ -1470,7 +1470,7 @@ public class TestBuildProject extends BaseTest {
         projectSecondBuild.save();
 
         Assert.assertTrue(buildFile.toFile().exists());
-        BuildJson secondBuildJson = readBuildJson(project.targetDir());
+        BuildJson secondBuildJson = readBuildJson(buildFile);
         Assert.assertTrue(secondBuildJson.lastBuildTime() > initialBuildJson.lastBuildTime());
         assertEquals(initialBuildJson.lastUpdateTime(), secondBuildJson.lastUpdateTime());
         Assert.assertFalse(secondBuildJson.isExpiredLastUpdateTime());
@@ -1482,14 +1482,14 @@ public class TestBuildProject extends BaseTest {
         projectThirdBuild.save();
 
         Assert.assertTrue(buildFile.toFile().exists());
-        BuildJson thirdBuildJson = readBuildJson(project.targetDir());
+        BuildJson thirdBuildJson = readBuildJson(buildFile);
         Assert.assertTrue(thirdBuildJson.lastBuildTime() > initialBuildJson.lastBuildTime());
         Assert.assertTrue(thirdBuildJson.lastUpdateTime() > initialBuildJson.lastUpdateTime());
         Assert.assertFalse(thirdBuildJson.isExpiredLastUpdateTime());
     }
 
     @Test(description = "test auto updating dependencies with build file after removing Dependencies.toml")
-    public void testAutoUpdateWithBuildFileWithoutDepsToml() throws IOException {
+    public void testAutoUpdateWithBuildFileWithoutDepsToml() throws IOException, InterruptedException {
         Path projectPath = tempResourceDir.resolve("myproject");
         // Delete build file and Dependencies.toml file if already exists
         Files.deleteIfExists(projectPath.resolve(TARGET_DIR_NAME).resolve(BUILD_FILE));
@@ -1507,7 +1507,7 @@ public class TestBuildProject extends BaseTest {
         Assert.assertEquals(project.currentPackage().packageName().toString(), "myproject");
         Path buildFile = project.targetDir().resolve(BUILD_FILE);
         Assert.assertTrue(buildFile.toFile().exists());
-        BuildJson initialBuildJson = readBuildJson(project.targetDir());
+        BuildJson initialBuildJson = readBuildJson(buildFile);
         Assert.assertTrue(initialBuildJson.lastBuildTime() > 0, "invalid last_build_time in the build file");
         Assert.assertTrue(initialBuildJson.lastUpdateTime() > 0, "invalid last_update_time in the build file");
         Assert.assertFalse(initialBuildJson.isExpiredLastUpdateTime(), "last_update_time is expired");
@@ -1522,11 +1522,11 @@ public class TestBuildProject extends BaseTest {
         projectSecondBuild.save();
 
         Assert.assertTrue(buildFile.toFile().exists());
-        BuildJson secondBuildJson = readBuildJson(project.targetDir());
+        BuildJson secondBuildJson = readBuildJson(buildFile);
         Assert.assertTrue(secondBuildJson.lastBuildTime() > initialBuildJson.lastBuildTime(),
                           "last_build_time has not updated for the second build");
-        assertTrue(secondBuildJson.lastUpdateTime() > initialBuildJson.lastUpdateTime(),
-                     "last_update_time has updated for the second build");
+        assertEquals(initialBuildJson.lastUpdateTime(), secondBuildJson.lastUpdateTime(),
+                "last_update_time has updated for the second build");
         Assert.assertFalse(secondBuildJson.isExpiredLastUpdateTime(), "last_update_time is expired");
         assertTomlFilesEquals(projectPath.resolve(DEPENDENCIES_TOML),
                 projectPath.resolve(RESOURCE_DIR_NAME).resolve("expectedDependencies.toml"));
@@ -1554,7 +1554,7 @@ public class TestBuildProject extends BaseTest {
         Assert.assertEquals(project.currentPackage().packageName().toString(), "myproject");
         Path buildFile = project.targetDir().resolve(BUILD_FILE);
         Assert.assertTrue(buildFile.toFile().exists());
-        BuildJson initialBuildJson = readBuildJson(project.targetDir());
+        BuildJson initialBuildJson = readBuildJson(buildFile);
         Assert.assertTrue(initialBuildJson.lastBuildTime() > 0, "invalid last_build_time in the build file");
         Assert.assertTrue(initialBuildJson.lastUpdateTime() > 0, "invalid last_update_time in the build file");
         Assert.assertFalse(initialBuildJson.isExpiredLastUpdateTime(), "last_update_time is expired");
@@ -1568,7 +1568,7 @@ public class TestBuildProject extends BaseTest {
         projectSecondBuild.save();
 
         Assert.assertTrue(buildFile.toFile().exists());
-        BuildJson secondBuildJson = readBuildJson(project.targetDir());
+        BuildJson secondBuildJson = readBuildJson(buildFile);
         Assert.assertTrue(secondBuildJson.lastBuildTime() > initialBuildJson.lastBuildTime(),
                 "last_build_time has not updated for the second build");
         assertTrue(secondBuildJson.lastUpdateTime() > initialBuildJson.lastUpdateTime(),
@@ -1583,7 +1583,7 @@ public class TestBuildProject extends BaseTest {
         projectThirdBuild.save();
 
         Assert.assertTrue(buildFile.toFile().exists());
-        BuildJson thirdBuildJson = readBuildJson(project.targetDir());
+        BuildJson thirdBuildJson = readBuildJson(buildFile);
         Assert.assertTrue(thirdBuildJson.lastBuildTime() > secondBuildJson.lastBuildTime(),
                 "last_build_time has not updated for the second build");
         assertTrue(thirdBuildJson.lastUpdateTime() > secondBuildJson.lastUpdateTime(),

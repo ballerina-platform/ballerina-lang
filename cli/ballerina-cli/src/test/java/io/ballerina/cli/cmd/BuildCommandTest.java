@@ -1202,9 +1202,6 @@ public class    BuildCommandTest extends BaseCommandTest {
             throws IOException {
         Path projectPath = testResources.resolve("dep-dist-version-projects").resolve("preCompiledPackage");
         System.setProperty(USER_DIR_PROPERTY, projectPath.toString());
-        Path actualDependenciesToml = projectPath.resolve("Dependencies.toml");
-        Files.copy(projectPath.resolve("resources/Dependencies.toml"), actualDependenciesToml,
-                StandardCopyOption.REPLACE_EXISTING);
         replaceDependenciesTomlContent(projectPath, "**INSERT_DISTRIBUTION_VERSION_HERE**", "2201.5.0");
         cleanTarget(projectPath);
         BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false,
@@ -1217,13 +1214,16 @@ public class    BuildCommandTest extends BaseCommandTest {
             Assert.fail(failureLog + "\n error message: " + e.getDetailedMessages().get(0));
         }
         String buildLog = readOutput(true);
-        Assert.assertEquals(buildLog.replace("\r", ""),
-                getOutput("build-old-dist-precomp-proj-without-sticky.txt"));
+        Assert.assertEquals(
+                buildLog.replace("\r", ""),
+                getOutput("build-old-dist-precomp-proj-without-sticky.txt")
+                        .replace("INSERT_NEW_DIST_VERSION_HERE", getNewVersionForOldDistWarning())
+                        .replace("INSERT_OLD_DIST_VERSION_HERE", getOldVersionForOldDistWarning("2201.5.0")));
 
         // Dependencies.toml should be updated to the latest minor versions.
         // depA:1.0.0 -> depA:1.1.0
         // depB:1.0.0 -> depB:1.1.0
-
+        Path actualDependenciesToml = projectPath.resolve("Dependencies.toml");
         Path expectedDependenciesToml = testResources.resolve("dep-dist-version-projects").resolve("expected-dep-tomls")
                 .resolve("old-dist-precomp-pkg-with-no-sticky.toml");
         Assert.assertTrue(actualDependenciesToml.toFile().exists());
@@ -1240,11 +1240,8 @@ public class    BuildCommandTest extends BaseCommandTest {
     public void testBuildProjectPrecompiledWithOlderDistWithStickyFlag(Boolean optimizeDependencyCompilation)
             throws IOException {
         Path projectPath = testResources.resolve("dep-dist-version-projects").resolve("preCompiledPackage");
-        System.setProperty(USER_DIR_PROPERTY, projectPath.toString());
-        Path actualDependenciesToml = projectPath.resolve("Dependencies.toml");
-        Files.copy(projectPath.resolve("resources/Dependencies.toml"), actualDependenciesToml,
-                StandardCopyOption.REPLACE_EXISTING);
         replaceDependenciesTomlContent(projectPath, "**INSERT_DISTRIBUTION_VERSION_HERE**", "2201.5.0");
+        System.setProperty(USER_DIR_PROPERTY, projectPath.toString());
         cleanTarget(projectPath);
         BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false,
                 optimizeDependencyCompilation);
@@ -1266,6 +1263,7 @@ public class    BuildCommandTest extends BaseCommandTest {
         // Dependencies should stick to the ones already in Dependencies.toml.
         // depA:1.0.0 -> depA:1.0.0
         // depB:1.0.0 -> depB:1.0.0
+        Path actualDependenciesToml = projectPath.resolve("Dependencies.toml");
         Path expectedDependenciesToml = testResources.resolve("dep-dist-version-projects").resolve("expected-dep-tomls")
                 .resolve("precomp-pkg-with-sticky.toml");
         Assert.assertTrue(actualDependenciesToml.toFile().exists());
@@ -1281,9 +1279,6 @@ public class    BuildCommandTest extends BaseCommandTest {
     public void testBuildProjectPrecompiledWithNoDistWithoutStickyFlag(Boolean optimizeDependencyCompilation)
             throws IOException {
         Path projectPath = testResources.resolve("dep-dist-version-projects").resolve("preCompiledPackage");
-        Path actualDependenciesToml = projectPath.resolve("Dependencies.toml");
-        Files.copy(projectPath.resolve("resources/Dependencies.toml"), actualDependenciesToml,
-                StandardCopyOption.REPLACE_EXISTING);
         replaceDependenciesTomlContent(
                 projectPath, "distribution-version = \"**INSERT_DISTRIBUTION_VERSION_HERE**\"", "");
         cleanTarget(projectPath);
@@ -1308,6 +1303,7 @@ public class    BuildCommandTest extends BaseCommandTest {
         // Dependencies.toml should be updated to the latest minor versions.
         // depA:1.0.0 -> depA:1.1.0
         // depB:1.0.0 -> depB:1.1.0
+        Path actualDependenciesToml = projectPath.resolve("Dependencies.toml");
         Path expectedDependenciesToml = testResources.resolve("dep-dist-version-projects").resolve("expected-dep-tomls")
                 .resolve("old-dist-precomp-pkg-with-no-sticky.toml");
         Assert.assertTrue(actualDependenciesToml.toFile().exists());
@@ -1323,9 +1319,6 @@ public class    BuildCommandTest extends BaseCommandTest {
             groups = {"proj-with-deps-update-policy"})
     public void testBuildProjectPrecompiledWithNoDistWithStickyFlag() throws IOException {
         Path projectPath = testResources.resolve("dep-dist-version-projects").resolve("preCompiledPackage");
-        Path actualDependenciesToml = projectPath.resolve("Dependencies.toml");
-        Files.copy(projectPath.resolve("resources/Dependencies.toml"), actualDependenciesToml,
-                StandardCopyOption.REPLACE_EXISTING);
         replaceDependenciesTomlContent(
                 projectPath, "distribution-version = \"**INSERT_DISTRIBUTION_VERSION_HERE**\"", "");
         cleanTarget(projectPath);
@@ -1349,6 +1342,7 @@ public class    BuildCommandTest extends BaseCommandTest {
         // Dependencies should stick to the ones already in Dependencies.toml.
         // depA:1.0.0 -> depA:1.0.0
         // depB:1.0.0 -> depB:1.0.0
+        Path actualDependenciesToml = projectPath.resolve("Dependencies.toml");
         Path expectedDependenciesToml = testResources.resolve("dep-dist-version-projects").resolve("expected-dep-tomls")
                 .resolve("precomp-pkg-with-sticky.toml");
         Assert.assertTrue(actualDependenciesToml.toFile().exists());
@@ -1363,13 +1357,10 @@ public class    BuildCommandTest extends BaseCommandTest {
             groups = {"proj-with-deps-update-policy"})
     public void testBuildProjectPrecompiledWithCurrentDistWithoutStickyFlag() throws IOException {
         Path projectPath = testResources.resolve("dep-dist-version-projects").resolve("preCompiledPackage");
-        System.setProperty(USER_DIR_PROPERTY, projectPath.toString());
-        Path actualDependenciesToml = projectPath.resolve("Dependencies.toml");
-        Files.copy(projectPath.resolve("resources/Dependencies.toml"), actualDependenciesToml,
-                StandardCopyOption.REPLACE_EXISTING);
         replaceDependenciesTomlContent(projectPath, "**INSERT_DISTRIBUTION_VERSION_HERE**",
                 RepoUtils.getBallerinaShortVersion());
         cleanTarget(projectPath);
+        System.setProperty(USER_DIR_PROPERTY, projectPath.toString());
         BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
 
         new CommandLine(buildCommand).parseArgs();
@@ -1380,12 +1371,12 @@ public class    BuildCommandTest extends BaseCommandTest {
             Assert.fail(failureLog + "\n error message: " + e.getDetailedMessages().get(0));
         }
         String buildLog = readOutput(true);
-        Assert.assertEquals(buildLog.replace("\r", ""),
-                getOutput("build-curr-dist-precomp-proj-with-dep.txt"));
+        Assert.assertEquals(buildLog.replace("\r", ""), getOutput("build-curr-dist-precomp-proj-with-dep.txt"));
 
         // Dependencies.toml should be updated to the latest patch versions.
-        // depA:1.0.0 -> depA:1.1.0
-        // depB:1.0.0 -> depB:1.1.0
+        // depA:1.0.0 -> depA:1.0.1
+        // depB:1.0.0 -> depB:1.0.1
+        Path actualDependenciesToml = projectPath.resolve("Dependencies.toml");
         Path expectedDependenciesToml = testResources.resolve("dep-dist-version-projects").resolve("expected-dep-tomls")
                 .resolve("curr-dist-precomp-pkg-with-no-sticky.toml");
         Assert.assertTrue(actualDependenciesToml.toFile().exists());
@@ -1401,13 +1392,10 @@ public class    BuildCommandTest extends BaseCommandTest {
             groups = {"proj-with-deps-update-policy"})
     public void testBuildProjectPrecompiledWithCurrentDistWithStickyFlag() throws IOException {
         Path projectPath = testResources.resolve("dep-dist-version-projects").resolve("preCompiledPackage");
-        System.setProperty(USER_DIR_PROPERTY, projectPath.toString());
-        Path actualDependenciesToml = projectPath.resolve("Dependencies.toml");
-        Files.copy(projectPath.resolve("resources/Dependencies.toml"), actualDependenciesToml,
-                StandardCopyOption.REPLACE_EXISTING);
         replaceDependenciesTomlContent(projectPath, "**INSERT_DISTRIBUTION_VERSION_HERE**",
                 RepoUtils.getBallerinaShortVersion());
         cleanTarget(projectPath);
+        System.setProperty(USER_DIR_PROPERTY, projectPath.toString());
         BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
 
         new CommandLine(buildCommand).parseArgs("--sticky");
@@ -1423,6 +1411,7 @@ public class    BuildCommandTest extends BaseCommandTest {
         // Dependencies should stick to the ones already in Dependencies.toml.
         // depA:1.0.0 -> depA:1.0.0
         // depB:1.0.0 -> depB:1.0.0
+        Path actualDependenciesToml = projectPath.resolve("Dependencies.toml");
         Path expectedDependenciesToml = testResources.resolve("dep-dist-version-projects").resolve("expected-dep-tomls")
                 .resolve("precomp-pkg-with-sticky.toml");
         Assert.assertTrue(actualDependenciesToml.toFile().exists());
@@ -2077,7 +2066,7 @@ public class    BuildCommandTest extends BaseCommandTest {
         Assert.assertTrue(secondBuildLog.contains("Compiling source (UP-TO-DATE)"));
     }
 
-    @Test(dataProvider = "differentUpdatePolicies")
+    @Test(dataProvider = "differentUpdatePoliciesForFreshProject")
     public void testDifferentUpdatePoliciesForFreshProject(String args, String fileName) throws IOException {
         Path projectPath = this.testResources.resolve("projects-for-locking-modes/testLockingMode");
         System.setProperty(USER_DIR_PROPERTY, projectPath.toString());
@@ -2115,6 +2104,7 @@ public class    BuildCommandTest extends BaseCommandTest {
                 projectPath.resolve("Dependencies.toml").toFile(), StandardCopyOption.REPLACE_EXISTING);
         System.setProperty(USER_DIR_PROPERTY, projectPath.toString());
         BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
+        cleanTarget(projectPath);
         if (args.isEmpty()) {
             new CommandLine(buildCommand).parseArgs();
         } else {
@@ -2137,7 +2127,6 @@ public class    BuildCommandTest extends BaseCommandTest {
 
         // Delete dependencies.toml and the target/ from the project
         Files.delete(depsTomlActual);
-        FileUtils.deleteDirectory(projectPath.resolve(TARGET_DIR_NAME).toFile());
     }
 
     @Test(dataProvider = "differentUpdatePolicies")
@@ -2176,6 +2165,16 @@ public class    BuildCommandTest extends BaseCommandTest {
 
     @DataProvider(name = "differentUpdatePolicies")
     public Object[][] provideDifferentUpdatePolicies() {
+        return new Object[][]{
+                {"--locking-mode=HARD", "hard.toml"},
+                {"--locking-mode=MEDIUM", "medium.toml"},
+                {"--locking-mode=SOFT", "soft.toml"},
+                {"", "medium.toml"}
+        };
+    }
+
+    @DataProvider(name = "differentUpdatePoliciesForFreshProject")
+    public Object[][] provideDifferentUpdatePoliciesForFreshProject() {
         return new Object[][]{
                 {"--locking-mode=HARD", "hard.toml"},
                 {"--locking-mode=MEDIUM", "medium.toml"},

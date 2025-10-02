@@ -66,7 +66,6 @@ import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -1048,18 +1047,13 @@ public final class ProjectUtils {
     /**
      * Read build file from given path.
      *
-     * @param target target path
+     * @param buildJsonPath build file path
      * @return build json object
      * @throws JsonSyntaxException incorrect json syntax
      * @throws IOException if json read fails
      */
-    public static BuildJson readBuildJson(Path target) throws JsonSyntaxException, IOException {
-        Path buildFilePath = target.resolve(BUILD_FILE);
-        if (!Files.exists(buildFilePath)) {
-            throw new FileNotFoundException("Cannot find " + BUILD_FILE + " file at '" + buildFilePath + "'");
-        }
-
-        try (BufferedReader bufferedReader = Files.newBufferedReader(buildFilePath)) {
+    public static BuildJson readBuildJson(Path buildJsonPath) throws JsonSyntaxException, IOException {
+        try (BufferedReader bufferedReader = Files.newBufferedReader(buildJsonPath)) {
             return new Gson().fromJson(bufferedReader, BuildJson.class);
         }
     }
@@ -1072,7 +1066,7 @@ public final class ProjectUtils {
      */
     public static boolean isProjectUpdated(Project project) {
         try {
-            BuildJson buildJson = readBuildJson(project.sourceRoot().resolve(TARGET_DIR_NAME));
+            BuildJson buildJson = readBuildJson(project.sourceRoot().resolve(TARGET_DIR_NAME).resolve(BUILD_FILE));
             long lastProjectUpdatedTime = FileUtils.lastModifiedTimeOfBalProject(project.sourceRoot());
             if (buildJson != null
                     && buildJson.getLastModifiedTime() != null
@@ -1299,9 +1293,9 @@ public final class ProjectUtils {
         // set sticky only if `build` file exists and `last_update_time` not passed 24 hours
         if (project.kind() == ProjectKind.BUILD_PROJECT) {
             try {
-                BuildJson buildJson = readBuildJson(project.targetDir());
+                BuildJson buildJson = readBuildJson(project.targetDir().resolve(BUILD_FILE));
                 // if distribution is not same, we anyway return sticky as false
-                if (buildJson != null && buildJson.distributionVersion() != null &&
+                if (buildJson.distributionVersion() != null &&
                         buildJson.distributionVersion().equals(RepoUtils.getBallerinaShortVersion()) &&
                         !buildJson.isExpiredLastUpdateTime()) {
                     return true;
@@ -1317,12 +1311,8 @@ public final class ProjectUtils {
                                                            PackageLockingMode originalMode) {
         BuildJson buildJson;
         try {
-            buildJson = readBuildJson(target);
-        } catch (IOException e) {
-            return originalMode;
-        }
-
-        if (buildJson == null) {
+            buildJson = readBuildJson(target.resolve(BUILD_FILE));
+        } catch (IOException | JsonSyntaxException e) {
             return originalMode;
         }
 

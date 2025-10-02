@@ -19,8 +19,6 @@ package io.ballerina.projects;
 
 import io.ballerina.projects.environment.PackageLockingMode;
 
-import java.util.Objects;
-
 /**
  * The class {@code CompilationOptions} holds various Ballerina compilation options.
  *
@@ -146,7 +144,7 @@ public class CompilationOptions {
     }
 
     PackageLockingMode lockingMode() {
-        return Objects.requireNonNullElse(this.lockingMode, PackageLockingMode.SOFT);
+        return this.lockingMode;
     }
 
     /**

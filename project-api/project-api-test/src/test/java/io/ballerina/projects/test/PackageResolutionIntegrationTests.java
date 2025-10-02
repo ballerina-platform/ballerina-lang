@@ -24,7 +24,6 @@ import io.ballerina.projects.ProjectEnvironmentBuilder;
 import io.ballerina.projects.directory.BuildProject;
 import io.ballerina.projects.environment.Environment;
 import io.ballerina.projects.environment.EnvironmentBuilder;
-import io.ballerina.projects.environment.PackageLockingMode;
 import org.apache.commons.io.FileUtils;
 import org.ballerinalang.test.BCompileUtil;
 import org.testng.Assert;
@@ -90,7 +89,7 @@ public class PackageResolutionIntegrationTests extends BaseTest {
         ctx.getCurrentXmlTest().addParameter("packagePath", String.valueOf(projectDirPath));
         ctx.getCurrentXmlTest().addParameter("deleteDependenciesToml", "true");
 
-        BuildProject buildProject = BuildProject.load(projectEnvironmentBuilder, projectDirPath);
+        BuildProject buildProject = TestUtils.loadBuildProject(projectEnvironmentBuilder, projectDirPath);
         buildProject.save();
         failIfDiagnosticsExists(buildProject);
         // Compare Dependencies.toml file
@@ -104,7 +103,7 @@ public class PackageResolutionIntegrationTests extends BaseTest {
         cacheDependencyToCentralRepository(tempResourceDir.resolve("package_a_1_1_0"));
 
         // 2. Build package_c again w/o deleting Dependencies.toml and build file
-        BuildProject buildProjectAgain = BuildProject.load(projectEnvironmentBuilder, projectDirPath);
+        BuildProject buildProjectAgain = TestUtils.loadBuildProject(projectEnvironmentBuilder, projectDirPath);
         buildProjectAgain.save();
         failIfDiagnosticsExists(buildProjectAgain);
         // Compare Dependencies.toml file
@@ -112,11 +111,9 @@ public class PackageResolutionIntegrationTests extends BaseTest {
         assertTomlFilesEquals(projectDirPath.resolve(DEPENDENCIES_TOML),
                 projectDirPath.resolve(RESOURCE_DIR_NAME).resolve("Dependencies-0001-1.toml"));
 
-        // 3. Build package_c w/o deleting Dependencies.toml, after deleting build file and setting package locking
-        // mode to MEDIUM
+        // 3. Build package_c w/o deleting Dependencies.toml, after deleting build file and setting sticky == false
         deleteBuildFile(projectDirPath);
-        BuildProject buildProject3 = BuildProject.load(projectEnvironmentBuilder, projectDirPath,
-                BuildOptions.builder().setLockingMode(PackageLockingMode.MEDIUM).build());
+        BuildProject buildProject3 = TestUtils.loadBuildProject(projectEnvironmentBuilder, projectDirPath);
         buildProject3.save();
         failIfDiagnosticsExists(buildProject3);
         // Compare Dependencies.toml file
@@ -126,7 +123,7 @@ public class PackageResolutionIntegrationTests extends BaseTest {
 
         // 4. Build package_c again after deleting Dependencies.toml and build file
         deleteDependenciesTomlAndBuildFile(projectDirPath);
-        BuildProject buildProject4 = BuildProject.load(projectEnvironmentBuilder, projectDirPath);
+        BuildProject buildProject4 = TestUtils.loadBuildProject(projectEnvironmentBuilder, projectDirPath);
         buildProject4.save();
         failIfDiagnosticsExists(buildProject4);
         // Compare Dependencies.toml file
@@ -136,25 +133,12 @@ public class PackageResolutionIntegrationTests extends BaseTest {
 
         // 5. Build package_c again after deleting Dependencies.toml and build file, and setting sticky == false
         deleteDependenciesTomlAndBuildFile(projectDirPath);
-        BuildProject buildProject5 = BuildProject.load(projectEnvironmentBuilder, projectDirPath,
-                BuildOptions.builder().build());
+        BuildProject buildProject5 = TestUtils.loadBuildProject(projectEnvironmentBuilder, projectDirPath);
         buildProject5.save();
         // Compare Dependencies.toml file
         // package_a ---> 1.1.0 minor version
         assertTomlFilesEquals(projectDirPath.resolve(DEPENDENCIES_TOML),
                 projectDirPath.resolve(RESOURCE_DIR_NAME).resolve("Dependencies-0001-3.toml"));
-
-        // 3. Build package_c w/o deleting Dependencies.toml, after deleting build file and setting package locking
-        // mode to MEDIUM
-        deleteBuildFile(projectDirPath);
-        BuildProject buildProject6 = BuildProject.load(projectEnvironmentBuilder, projectDirPath,
-                BuildOptions.builder().setLockingMode(PackageLockingMode.MEDIUM).build());
-        buildProject6.save();
-        failIfDiagnosticsExists(buildProject3);
-        // Compare Dependencies.toml file
-        // package_a ---> 1.1.0
-        assertTomlFilesEquals(projectDirPath.resolve(DEPENDENCIES_TOML),
-                projectDirPath.resolve(RESOURCE_DIR_NAME).resolve("Dependencies-0001-4.toml"));
     }
 
     @Test(description = "Adding of a new import which is already there as a transitive in the graph " +
@@ -175,7 +159,7 @@ public class PackageResolutionIntegrationTests extends BaseTest {
         ctx.getCurrentXmlTest().addParameter("packagePath", String.valueOf(projectDirPath));
         ctx.getCurrentXmlTest().addParameter("deleteDependenciesToml", "true");
 
-        BuildProject buildProject = BuildProject.load(projectEnvironmentBuilder, projectDirPath);
+        BuildProject buildProject = TestUtils.loadBuildProject(projectEnvironmentBuilder, projectDirPath);
         buildProject.save();
         failIfDiagnosticsExists(buildProject);
         // Compare Dependencies.toml file
@@ -199,7 +183,7 @@ public class PackageResolutionIntegrationTests extends BaseTest {
         ctx.getCurrentXmlTest().addParameter("packagePath", String.valueOf(projectDirPath));
         ctx.getCurrentXmlTest().addParameter("deleteDependenciesToml", "true");
 
-        BuildProject buildProject = BuildProject.load(projectEnvironmentBuilder, projectDirPath);
+        BuildProject buildProject = TestUtils.loadBuildProject(projectEnvironmentBuilder, projectDirPath);
         buildProject.save();
         failIfDiagnosticsExists(buildProject);
         // Compare Dependencies.toml file
@@ -209,7 +193,7 @@ public class PackageResolutionIntegrationTests extends BaseTest {
 
         // 2. Build package_c w/o deleting Dependencies.toml, after deleting build file and setting sticky == false
         deleteBuildFile(projectDirPath);
-        BuildProject buildProject3 = BuildProject.load(projectEnvironmentBuilder, projectDirPath,
+        BuildProject buildProject3 = TestUtils.loadBuildProject(projectEnvironmentBuilder, projectDirPath,
                 BuildOptions.builder().setSticky(false).build());
         buildProject3.save();
         failIfDiagnosticsExists(buildProject3);
@@ -220,7 +204,7 @@ public class PackageResolutionIntegrationTests extends BaseTest {
 
         // 3. Build package_c again after deleting Dependencies.toml and build file
         deleteDependenciesTomlAndBuildFile(projectDirPath);
-        BuildProject buildProject4 = BuildProject.load(projectEnvironmentBuilder, projectDirPath);
+        BuildProject buildProject4 = TestUtils.loadBuildProject(projectEnvironmentBuilder, projectDirPath);
         buildProject4.save();
         failIfDiagnosticsExists(buildProject4);
         // Compare Dependencies.toml file
@@ -230,7 +214,7 @@ public class PackageResolutionIntegrationTests extends BaseTest {
 
         // 4. Build package_c again after deleting Dependencies.toml and build file, and setting sticky == false
         deleteDependenciesTomlAndBuildFile(projectDirPath);
-        BuildProject buildProject5 = BuildProject.load(projectEnvironmentBuilder, projectDirPath,
+        BuildProject buildProject5 = TestUtils.loadBuildProject(projectEnvironmentBuilder, projectDirPath,
                 BuildOptions.builder().setSticky(false).build());
         buildProject5.save();
         // Compare Dependencies.toml file
@@ -253,7 +237,7 @@ public class PackageResolutionIntegrationTests extends BaseTest {
         ctx.getCurrentXmlTest().addParameter("packagePath", String.valueOf(projectDirPath));
         ctx.getCurrentXmlTest().addParameter("deleteDependenciesToml", "true");
 
-        BuildProject buildProject = BuildProject.load(projectEnvironmentBuilder, projectDirPath);
+        BuildProject buildProject = TestUtils.loadBuildProject(projectEnvironmentBuilder, projectDirPath);
         buildProject.save();
         failIfDiagnosticsExists(buildProject);
         // Compare Dependencies.toml file
@@ -287,7 +271,7 @@ public class PackageResolutionIntegrationTests extends BaseTest {
         ctx.getCurrentXmlTest().addParameter("packagePath", String.valueOf(projectDirPath));
         ctx.getCurrentXmlTest().addParameter("deleteDependenciesToml", "true");
 
-        BuildProject buildProject = BuildProject.load(projectEnvironmentBuilder, projectDirPath);
+        BuildProject buildProject = TestUtils.loadBuildProject(projectEnvironmentBuilder, projectDirPath);
         buildProject.save();
         failIfDiagnosticsExists(buildProject);
         // Compare Dependencies.toml file
@@ -307,7 +291,7 @@ public class PackageResolutionIntegrationTests extends BaseTest {
         BCompileUtil.compileAndCacheBala(tempResourceDir.resolve("package_j_2_0_0"), testDistCacheDirectory,
                 projectEnvironmentBuilder);
         // Build package_l again
-        BuildProject buildProject1 = BuildProject.load(projectEnvironmentBuilder, projectDirPath);
+        BuildProject buildProject1 = TestUtils.loadBuildProject(projectEnvironmentBuilder, projectDirPath);
         buildProject1.save();
         failIfDiagnosticsExists(buildProject1);
         // Compare Dependencies.toml file
@@ -328,7 +312,7 @@ public class PackageResolutionIntegrationTests extends BaseTest {
         ctx.getCurrentXmlTest().addParameter("packagePath", String.valueOf(projectDirPath));
         ctx.getCurrentXmlTest().addParameter("deleteDependenciesToml", "true");
 
-        BuildProject buildProject = BuildProject.load(projectEnvironmentBuilder, projectDirPath);
+        BuildProject buildProject = TestUtils.loadBuildProject(projectEnvironmentBuilder, projectDirPath);
         buildProject.save();
         failIfDiagnosticsExists(buildProject);
         // Compare Dependencies.toml file
@@ -349,7 +333,7 @@ public class PackageResolutionIntegrationTests extends BaseTest {
         // Build package_f w/o deleting Dependencies.toml and build file
         // package_f       ---> package_e 2.0.0, 2.0.2
         // package_e 2.0.2 ---> package_d 1.0.0
-        BuildProject buildProject2 = BuildProject.load(projectEnvironmentBuilder, projectDirPath2);
+        BuildProject buildProject2 = TestUtils.loadBuildProject(projectEnvironmentBuilder, projectDirPath2);
         buildProject2.save();
         failIfDiagnosticsExists(buildProject2);
         // Compare Dependencies.toml file
@@ -359,7 +343,7 @@ public class PackageResolutionIntegrationTests extends BaseTest {
 
         // 3. Build package_f after deleting build file and Dependencies.toml
         deleteDependenciesTomlAndBuildFile(projectDirPath2);
-        BuildProject buildProject3 = BuildProject.load(projectEnvironmentBuilder, projectDirPath2);
+        BuildProject buildProject3 = TestUtils.loadBuildProject(projectEnvironmentBuilder, projectDirPath2);
         buildProject3.save();
         failIfDiagnosticsExists(buildProject3);
         // Compare Dependencies.toml file
@@ -383,7 +367,7 @@ public class PackageResolutionIntegrationTests extends BaseTest {
         // project --> package_protobuf:0.6.0
         BCompileUtil.compileAndCacheBala(tempResourceDir.resolve("package_r_0_6_0"), testDistCacheDirectory,
                 projectEnvironmentBuilder);
-        BuildProject buildProject1 = BuildProject.load(projectEnvironmentBuilder, projectDirPath);
+        BuildProject buildProject1 = TestUtils.loadBuildProject(projectEnvironmentBuilder, projectDirPath);
         buildProject1.save();
         failIfDiagnosticsExists(buildProject1);
 
@@ -395,7 +379,7 @@ public class PackageResolutionIntegrationTests extends BaseTest {
                 projectEnvironmentBuilder);
         // Sticky
         deleteBuildFile(projectDirPath);
-        BuildProject buildProject2 = BuildProject.load(projectEnvironmentBuilder, projectDirPath);
+        BuildProject buildProject2 = TestUtils.loadBuildProject(projectEnvironmentBuilder, projectDirPath);
         buildProject2.save();
         failIfDiagnosticsExists(buildProject2);
 
@@ -404,7 +388,7 @@ public class PackageResolutionIntegrationTests extends BaseTest {
 
         // No Sticky
         deleteBuildFile(projectDirPath);
-        BuildProject buildProject3 = BuildProject.load(projectEnvironmentBuilder, projectDirPath,
+        BuildProject buildProject3 = TestUtils.loadBuildProject(projectEnvironmentBuilder, projectDirPath,
                 BuildOptions.builder().setSticky(false).build());
         buildProject3.save();
         failIfDiagnosticsExists(buildProject3);
@@ -422,7 +406,7 @@ public class PackageResolutionIntegrationTests extends BaseTest {
         // project --> package_protobuf:0.6.0
         BCompileUtil.compileAndCacheBala(tempResourceDir.resolve("package_r_0_6_0"), testDistCacheDirectory,
                 projectEnvironmentBuilder);
-        BuildProject buildProject1 = BuildProject.load(projectEnvironmentBuilder, projectDirPath);
+        BuildProject buildProject1 = TestUtils.loadBuildProject(projectEnvironmentBuilder, projectDirPath);
         buildProject1.save();
         failIfDiagnosticsExists(buildProject1);
 
@@ -433,7 +417,7 @@ public class PackageResolutionIntegrationTests extends BaseTest {
         BCompileUtil.compileAndCacheBala(tempResourceDir.resolve("package_r.types.timestamp_0_6_0"),
                 testDistCacheDirectory, projectEnvironmentBuilder);
         Path projectDirPath2 = tempResourceDir.resolve("project_t_with_import");
-        BuildProject buildProject2 = BuildProject.load(projectEnvironmentBuilder, projectDirPath2);
+        BuildProject buildProject2 = TestUtils.loadBuildProject(projectEnvironmentBuilder, projectDirPath2);
         buildProject2.save();
         failIfDiagnosticsExists(buildProject2);
 
@@ -458,7 +442,7 @@ public class PackageResolutionIntegrationTests extends BaseTest {
                 projectEnvironmentBuilder);
 
         //1. Build project_o
-        BuildProject buildProject1 = BuildProject.load(projectEnvironmentBuilder, projectDirPath);
+        BuildProject buildProject1 = TestUtils.loadBuildProject(projectEnvironmentBuilder, projectDirPath);
         buildProject1.save();
         failIfDiagnosticsExists(buildProject1);
 
@@ -476,7 +460,7 @@ public class PackageResolutionIntegrationTests extends BaseTest {
 
         //2. Build project_o with sticky == true
         deleteBuildFile(projectDirPath);
-        BuildProject buildProject2 = BuildProject.load(projectEnvironmentBuilder, projectDirPath);
+        BuildProject buildProject2 = TestUtils.loadBuildProject(projectEnvironmentBuilder, projectDirPath);
         buildProject2.save();
         failIfDiagnosticsExists(buildProject2);
 
@@ -485,7 +469,7 @@ public class PackageResolutionIntegrationTests extends BaseTest {
 
         //3. Build project_o with sticky == false
         deleteBuildFile(projectDirPath);
-        BuildProject buildProject3 = BuildProject.load(projectEnvironmentBuilder, projectDirPath,
+        BuildProject buildProject3 = TestUtils.loadBuildProject(projectEnvironmentBuilder, projectDirPath,
                 BuildOptions.builder().setSticky(false).build());
         buildProject3.save();
         failIfDiagnosticsExists(buildProject3);
@@ -496,7 +480,7 @@ public class PackageResolutionIntegrationTests extends BaseTest {
         //4. Directly import package_m
         projectDirPath = tempResourceDir.resolve("project_o_with_import");
         deleteBuildFile(projectDirPath);
-        BuildProject buildProject4 = BuildProject.load(projectEnvironmentBuilder, projectDirPath,
+        BuildProject buildProject4 = TestUtils.loadBuildProject(projectEnvironmentBuilder, projectDirPath,
                 BuildOptions.builder().setSticky(false).build());
         buildProject4.save();
 
@@ -519,8 +503,7 @@ public class PackageResolutionIntegrationTests extends BaseTest {
         ctx.getCurrentXmlTest().addParameter("packagePath", String.valueOf(projectDirPath));
         ctx.getCurrentXmlTest().addParameter("deleteDependenciesToml", "true");
 
-        BuildProject buildProject2 = BuildProject.load(projectEnvironmentBuilder, projectDirPath,
-                BuildOptions.builder().build());
+        BuildProject buildProject2 = TestUtils.loadBuildProject(projectEnvironmentBuilder, projectDirPath);
         buildProject2.save();
         failIfDiagnosticsExists(buildProject2);
 
@@ -529,7 +512,7 @@ public class PackageResolutionIntegrationTests extends BaseTest {
 
         // 3. Check sticky false
         deleteBuildFile(projectDirPath);
-        BuildProject buildProject3 = BuildProject.load(projectEnvironmentBuilder, projectDirPath,
+        BuildProject buildProject3 = TestUtils.loadBuildProject(projectEnvironmentBuilder, projectDirPath,
                 BuildOptions.builder().setSticky(false).build());
         buildProject3.save();
         failIfDiagnosticsExists(buildProject3);
@@ -547,7 +530,7 @@ public class PackageResolutionIntegrationTests extends BaseTest {
         cacheDependencyToCentralRepository(tempResourceDir.resolve("package_p_1_0_0_alpha"));
 
         //1. Build project_q_pre_release_only
-        BuildProject buildProject1 = BuildProject.load(projectEnvironmentBuilder, projectDirPath);
+        BuildProject buildProject1 = TestUtils.loadBuildProject(projectEnvironmentBuilder, projectDirPath);
         buildProject1.save();
         failIfDiagnosticsExists(buildProject1);
 
@@ -562,7 +545,7 @@ public class PackageResolutionIntegrationTests extends BaseTest {
         cacheDependencyToCentralRepository(tempResourceDir.resolve("package_p_1_0_0_beta"));
 
         //2. User builds the project_q again with sticky = true as default
-        BuildProject buildProject2 = BuildProject.load(projectEnvironmentBuilder, projectDirPath);
+        BuildProject buildProject2 = TestUtils.loadBuildProject(projectEnvironmentBuilder, projectDirPath);
         buildProject2.save();
         failIfDiagnosticsExists(buildProject2);
 
@@ -572,7 +555,7 @@ public class PackageResolutionIntegrationTests extends BaseTest {
         //3. User deletes the project_q build file
         deleteBuildFile(projectDirPath);
 
-        BuildProject buildProject3 = BuildProject.load(projectEnvironmentBuilder, projectDirPath,
+        BuildProject buildProject3 = TestUtils.loadBuildProject(projectEnvironmentBuilder, projectDirPath,
                 BuildOptions.builder().setSticky(false).build());
         buildProject3.save();
         failIfDiagnosticsExists(buildProject3);
@@ -600,7 +583,7 @@ public class PackageResolutionIntegrationTests extends BaseTest {
         cacheDependencyToCentralRepository(distVersionResourcesDirectory.resolve("package_x_1_0_0"));
 
         // build package_y
-        BuildProject buildProject1 = BuildProject.load(projectEnvironmentBuilder, projectDirPath);
+        BuildProject buildProject1 = TestUtils.loadBuildProject(projectEnvironmentBuilder, projectDirPath);
         buildProject1.save();
         failIfDiagnosticsExists(buildProject1);
 
@@ -624,7 +607,7 @@ public class PackageResolutionIntegrationTests extends BaseTest {
 
         // build package_y
         deleteDirectory(projectDirPath.resolve(TARGET_DIR_NAME));
-        BuildProject buildProject1 = BuildProject.load(projectEnvironmentBuilder, projectDirPath,
+        BuildProject buildProject1 = TestUtils.loadBuildProject(projectEnvironmentBuilder, projectDirPath,
                 BuildOptions.builder().setSticky(false).build());
         buildProject1.save();
 
@@ -655,8 +638,7 @@ public class PackageResolutionIntegrationTests extends BaseTest {
 
         // build package_y
         deleteDirectory(projectDirPath.resolve(TARGET_DIR_NAME));
-        BuildProject buildProject1 = BuildProject.load(projectEnvironmentBuilder, projectDirPath,
-                BuildOptions.builder().setLockingMode(PackageLockingMode.MEDIUM).build());
+        BuildProject buildProject1 = TestUtils.loadBuildProject(projectEnvironmentBuilder, projectDirPath);
         buildProject1.save();
         assertDiagnosticCount(buildProject1, 1, "Should contain only one diagnostic regarding the distribution " +
                 "version increment");
@@ -685,8 +667,7 @@ public class PackageResolutionIntegrationTests extends BaseTest {
 
         // build package_y
         deleteDirectory(projectDirPath.resolve(TARGET_DIR_NAME));
-        BuildProject buildProject1 = BuildProject.load(projectEnvironmentBuilder, projectDirPath,
-                BuildOptions.builder().build());
+        BuildProject buildProject1 = TestUtils.loadBuildProject(projectEnvironmentBuilder, projectDirPath);
         buildProject1.save();
 
         failIfDiagnosticsExists(buildProject1);
@@ -712,8 +693,7 @@ public class PackageResolutionIntegrationTests extends BaseTest {
 
         // build package_y
         deleteDirectory(projectDirPath.resolve(TARGET_DIR_NAME));
-        BuildProject buildProject1 = BuildProject.load(projectEnvironmentBuilder, projectDirPath,
-                BuildOptions.builder().setLockingMode(PackageLockingMode.MEDIUM).build());
+        BuildProject buildProject1 = TestUtils.loadBuildProject(projectEnvironmentBuilder, projectDirPath);
         buildProject1.save();
         assertDiagnosticCount(buildProject1, 1, "Should contain only one diagnostic regarding the distribution " +
                 "version increment");
@@ -742,10 +722,10 @@ public class PackageResolutionIntegrationTests extends BaseTest {
 
 
          // build package_y
-        BuildProject buildProject1 = BuildProject.load(projectEnvironmentBuilder, projectDirPath,
-                BuildOptions.builder().build());
+        BuildProject buildProject1 = TestUtils.loadBuildProject(projectEnvironmentBuilder, projectDirPath);
         buildProject1.save();
-        assertDiagnosticCount(buildProject1, 0, "Should not contain any diagnostics");
+        assertDiagnosticCount(buildProject1, 1, "Should contain only one diagnostic regarding the distribution " +
+                "version increment");
 
         // Compare Dependencies.toml
          // Possible candidates for package_x are 1.1.1, 1.2.0, and 2.0.0
@@ -765,7 +745,7 @@ public class PackageResolutionIntegrationTests extends BaseTest {
         cacheDependencyToCentralRepository(distVersionResourcesDirectory.resolve("package_w_1_0_1"));
 
         // build package_y
-        BuildProject buildProject1 = BuildProject.load(projectEnvironmentBuilder, projectDirPath,
+        BuildProject buildProject1 = TestUtils.loadBuildProject(projectEnvironmentBuilder, projectDirPath,
                 BuildOptions.builder().setSticky(false).build());
         buildProject1.save();
 
@@ -791,10 +771,10 @@ public class PackageResolutionIntegrationTests extends BaseTest {
 
         // build package_y
         deleteDirectory(projectDirPath.resolve(TARGET_DIR_NAME));
-        BuildProject buildProject1 = BuildProject.load(projectEnvironmentBuilder, projectDirPath,
-                BuildOptions.builder().build());
+        BuildProject buildProject1 = TestUtils.loadBuildProject(projectEnvironmentBuilder, projectDirPath);
         buildProject1.save();
-        assertDiagnosticCount(buildProject1, 0, "Should not contain any diagnostics");
+        assertDiagnosticCount(buildProject1, 1, "Should contain only one diagnostic regarding the distribution " +
+                "version increment");
 
         // Compare Dependencies.toml
         // Possible candidates for package_w are 1.0.1 and 1.0.2
@@ -819,8 +799,7 @@ public class PackageResolutionIntegrationTests extends BaseTest {
 
         // build package_y
         deleteDirectory(projectDirPath.resolve(TARGET_DIR_NAME));
-        BuildProject buildProject1 = BuildProject.load(projectEnvironmentBuilder, projectDirPath,
-                BuildOptions.builder().setLockingMode(PackageLockingMode.MEDIUM).build());
+        BuildProject buildProject1 = TestUtils.loadBuildProject(projectEnvironmentBuilder, projectDirPath);
         buildProject1.save();
 
         failIfDiagnosticsExists(buildProject1);
@@ -846,10 +825,10 @@ public class PackageResolutionIntegrationTests extends BaseTest {
 
         // build package_y
         deleteDirectory(projectDirPath.resolve(TARGET_DIR_NAME));
-        BuildProject buildProject1 = BuildProject.load(projectEnvironmentBuilder, projectDirPath,
-                BuildOptions.builder().build());
+        BuildProject buildProject1 = TestUtils.loadBuildProject(projectEnvironmentBuilder, projectDirPath);
         buildProject1.save();
-        assertDiagnosticCount(buildProject1, 0, "Should not contain any diagnostics");
+        assertDiagnosticCount(buildProject1, 1, "Should contain only one diagnostic regarding the distribution " +
+                "version increment");
 
         // Compare Dependencies.toml
         // Possible candidates for package_w are 1.0.4, 1.1.0, and 2.0.0
@@ -875,10 +854,10 @@ public class PackageResolutionIntegrationTests extends BaseTest {
 
 
         // build package_y
-        BuildProject buildProject1 = BuildProject.load(projectEnvironmentBuilder, projectDirPath,
-                BuildOptions.builder().build());
+        BuildProject buildProject1 = TestUtils.loadBuildProject(projectEnvironmentBuilder, projectDirPath);
         buildProject1.save();
-        assertDiagnosticCount(buildProject1, 0, "Should not contain any diagnostics");
+        assertDiagnosticCount(buildProject1, 1, "Should contain only one diagnostic regarding the distribution " +
+                "version increment");
 
         // Compare Dependencies.toml
         // Possible candidates for package_w are 1.1.1, 1.2.0, and 2.0.0

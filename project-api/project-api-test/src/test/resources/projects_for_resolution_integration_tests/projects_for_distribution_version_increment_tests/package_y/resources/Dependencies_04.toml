@@ -15,7 +15,7 @@ version = "1.0.0"
 [[package]]
 org = "adv_res"
 name = "package_x"
-version = "1.1.0"
+version = "1.0.3"
 dependencies = [
 	{org = "adv_res", name = "package_w"}
 ]

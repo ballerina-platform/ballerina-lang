@@ -91,6 +91,9 @@ public class BuildOptions {
     }
 
     public PackageLockingMode lockingMode() {
+        if (this.compilationOptions.lockingMode() == null) {
+            return PackageLockingMode.MEDIUM;
+        }
         return this.compilationOptions.lockingMode();
     }
 

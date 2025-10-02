@@ -44,7 +44,6 @@ import io.ballerina.projects.bala.BalaProject;
 import io.ballerina.projects.directory.BuildProject;
 import io.ballerina.projects.environment.Environment;
 import io.ballerina.projects.environment.EnvironmentBuilder;
-import io.ballerina.projects.environment.PackageLockingMode;
 import io.ballerina.projects.environment.ResolutionOptions;
 import io.ballerina.projects.internal.ImportModuleRequest;
 import io.ballerina.projects.internal.ImportModuleResponse;
@@ -189,6 +188,7 @@ public class PackageResolutionTests extends BaseTest {
         Path projectDirPath = tempResourceDir.resolve("package_n");
 
         BCompileUtil.compileAndCacheBala("projects_for_resolution_tests/package_o_1_0_0");
+        BCompileUtil.compileAndCacheBala("projects_for_resolution_tests/package_o_1_0_2");
         BCompileUtil.compileAndCacheBala("projects_for_resolution_tests/package_o_1_1_0");
 
         BuildOptions.BuildOptionsBuilder buildOptionsBuilder = BuildOptions.builder();
@@ -203,7 +203,7 @@ public class PackageResolutionTests extends BaseTest {
                 dependencyGraph.getNodes().stream().filter(
                         node -> node.packageInstance().manifest().name().toString().equals("package_o")
                 ).findFirst().orElseThrow();
-        Assert.assertEquals(packageO.packageInstance().manifest().version().toString(), "1.1.0");
+        Assert.assertEquals(packageO.packageInstance().manifest().version().toString(), "1.0.2");
     }
 
     @Test(description = "tests resolution with toml dependency")
@@ -217,11 +217,7 @@ public class PackageResolutionTests extends BaseTest {
         // Stage 1 : Package P without dep in Ballerina toml
         Path projectDirPath = tempResourceDir.resolve("package_p_withoutDep");
 
-        BuildOptions.BuildOptionsBuilder buildOptionsBuilder = BuildOptions.builder();
-        buildOptionsBuilder.setLockingMode(PackageLockingMode.MEDIUM);
-        BuildOptions buildOptions = buildOptionsBuilder.build();
-
-        Project loadProject = TestUtils.loadBuildProject(projectDirPath, buildOptions);
+        Project loadProject = TestUtils.loadBuildProject(projectDirPath);
         PackageCompilation compilation = loadProject.currentPackage().getCompilation();
 
         DependencyGraph<ResolvedPackageDependency> dependencyGraph = compilation.getResolution().dependencyGraph();
@@ -233,11 +229,8 @@ public class PackageResolutionTests extends BaseTest {
 
         // Stage 2 : Package P with deps
         projectDirPath = tempResourceDir.resolve("package_p_withDep");
-        buildOptionsBuilder = BuildOptions.builder();
-        buildOptionsBuilder.setSticky(false);
-        buildOptions = buildOptionsBuilder.build();
 
-        loadProject = TestUtils.loadBuildProject(projectDirPath, buildOptions);
+        loadProject = TestUtils.loadBuildProject(projectDirPath);
         compilation = loadProject.currentPackage().getCompilation();
 
         dependencyGraph = compilation.getResolution().dependencyGraph();
@@ -259,7 +252,7 @@ public class PackageResolutionTests extends BaseTest {
         loadProject.save();
 
         Assert.assertTrue(Files.exists(buildPath));
-        BuildJson buildJson = ProjectUtils.readBuildJson(loadProject.targetDir());
+        BuildJson buildJson = ProjectUtils.readBuildJson(buildPath);
         Assert.assertFalse(buildJson.isExpiredLastUpdateTime());
     }
 
@@ -276,7 +269,7 @@ public class PackageResolutionTests extends BaseTest {
         loadProject.save();
 
         Assert.assertTrue(Files.exists(buildPath));
-        BuildJson buildJson = ProjectUtils.readBuildJson(loadProject.targetDir());
+        BuildJson buildJson = ProjectUtils.readBuildJson(buildPath);
         Assert.assertFalse(buildJson.isExpiredLastUpdateTime());
     }
 
@@ -298,7 +291,7 @@ public class PackageResolutionTests extends BaseTest {
         loadProject.save();
 
         Assert.assertTrue(Files.exists(buildPath));
-        BuildJson buildJson = ProjectUtils.readBuildJson(loadProject.targetDir());
+        BuildJson buildJson = ProjectUtils.readBuildJson(buildPath);
         Assert.assertFalse(buildJson.isExpiredLastUpdateTime());
     }
 
@@ -326,7 +319,7 @@ public class PackageResolutionTests extends BaseTest {
         if (!readable) {
             Assert.fail("could not set readable permission");
         }
-        BuildJson buildJson = ProjectUtils.readBuildJson(loadProject.targetDir());
+        BuildJson buildJson = ProjectUtils.readBuildJson(buildPath);
         Assert.assertFalse(buildJson.isExpiredLastUpdateTime());
     }
 
@@ -349,7 +342,7 @@ public class PackageResolutionTests extends BaseTest {
 
         PackageCompilation compilation = loadProject.currentPackage().getCompilation();
         Assert.assertTrue(Files.exists(buildPath));
-        BuildJson buildJson = ProjectUtils.readBuildJson(loadProject.targetDir());
+        BuildJson buildJson = ProjectUtils.readBuildJson(buildPath);
         Assert.assertFalse(buildJson.isExpiredLastUpdateTime());
     }
 

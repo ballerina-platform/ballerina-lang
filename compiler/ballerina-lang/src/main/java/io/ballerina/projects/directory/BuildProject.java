@@ -299,8 +299,7 @@ public class BuildProject extends Project implements Comparable<Project> {
         Path buildFilePath = this.targetDir().resolve(BUILD_FILE);
         PackageLockingMode packageLockingMode = this.currentPackage().getResolution().resolutionOptions()
                 .packageLockingMode();
-        boolean shouldUpdate = !packageLockingMode.equals(PackageLockingMode.HARD)
-                && !packageLockingMode.equals(PackageLockingMode.LOCKED);
+        boolean shouldUpdate = !packageLockingMode.equals(PackageLockingMode.HARD);
 
         // if build file does not exists
         if (!buildFilePath.toFile().exists()) {
@@ -310,7 +309,7 @@ public class BuildProject extends Project implements Comparable<Project> {
         } else {
             BuildJson buildJson = null;
             try {
-                buildJson = readBuildJson(this.targetDir());
+                buildJson = readBuildJson(buildFilePath);
             } catch (JsonSyntaxException | IOException e) {
                 // ignore
             }

@@ -64,12 +64,14 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static io.ballerina.projects.util.ProjectConstants.BALLERINA_HOME;
+import static io.ballerina.projects.util.ProjectConstants.BUILD_FILE;
 import static io.ballerina.projects.util.ProjectConstants.DEPENDENCIES_TOML;
 import static io.ballerina.projects.util.ProjectConstants.DOT;
 import static io.ballerina.projects.util.ProjectConstants.EQUAL;
 import static io.ballerina.projects.util.ProjectConstants.LOCKING_MODE_OPTION;
 import static io.ballerina.projects.util.ProjectConstants.OFFLINE_FLAG;
 import static io.ballerina.projects.util.ProjectConstants.REPOSITORY_FLAG;
+import static io.ballerina.projects.util.ProjectUtils.isNewUpdateDistribution;
 
 /**
  * Resolves dependencies and handles version conflicts in the dependency graph.
@@ -312,8 +314,8 @@ public class PackageResolution {
     private DependencyGraph<ResolvedPackageDependency> buildDependencyGraph() {
         // TODO We should get diagnostics as well. Need to design that contract
         if (rootPackageContext.project().kind() == ProjectKind.BALA_PROJECT &&
-                (this.resolutionOptions.packageLockingMode().equals(PackageLockingMode.HARD) ||
-                        this.resolutionOptions.packageLockingMode().equals(PackageLockingMode.LOCKED))) {
+                (PackageLockingMode.HARD.equals(this.resolutionOptions.packageLockingMode()) ||
+                        PackageLockingMode.LOCKED.equals(this.resolutionOptions.packageLockingMode()))) {
             return resolveBALADependencies();
         } else {
             return resolveSourceDependencies();
@@ -363,96 +365,67 @@ public class PackageResolution {
                 packageResolver);
     }
 
-    private void updateResolutionOptions(LinkedHashSet<ModuleLoadRequest> moduleLoadRequests) {
+    private void updateResolutionOptions() {
         Project project = this.rootPackageContext.project();
-        if (project.kind() != ProjectKind.BUILD_PROJECT) {
-            return;
-        }
-        if (resolutionOptions.packageLockingMode() == PackageLockingMode.HARD) {
-            return;
-        }
 
-        if (compilationOptions.sticky()) {
+        if (project.kind() == ProjectKind.SINGLE_FILE_PROJECT) {
             this.resolutionOptions = ResolutionOptions.builder()
                     .setOffline(resolutionOptions.offline())
                     .setDumpGraph(resolutionOptions.dumpGraph())
                     .setDumpRawGraphs(resolutionOptions.dumpRawGraphs())
-                    .setPackageLockingMode(PackageLockingMode.HARD)
+                    .setPackageLockingMode(PackageLockingMode.SOFT)
                     .build();
             return;
         }
 
-        List<String> previousImports = new ArrayList<>();
-        try {
-            BuildJson buildJson = ProjectUtils.readBuildJson(this.rootPackageContext.project().targetDir());
-            if (buildJson != null) {
-                List<String> imports = buildJson.imports();
-                if (imports != null) {
-                    previousImports.addAll(imports);
+        PackageLockingMode packageLockingMode = resolutionOptions.packageLockingMode();
+        boolean isExistingPackage = rootPackageContext.dependenciesTomlContext().isPresent();
+        if (isExistingPackage) {
+            SemanticVersion prevDistributionVersion = rootPackageContext.dependencyManifest().distributionVersion();
+            SemanticVersion currentDistributionVersion = SemanticVersion.from(RepoUtils.getBallerinaShortVersion());
+            if (prevDistributionVersion == null) {
+                // Built with Update 4 or less
+                if (PackageLockingMode.SOFT != packageLockingMode) {
+                    //  issue a warning unless the update policy is set to SOFT
+                    addOlderSLUpdateDistributionDiagnostic(null, currentDistributionVersion);
+                    if (packageLockingMode == null) {
+                        packageLockingMode = PackageLockingMode.SOFT;
+                    }
                 }
-            }
-        } catch (IOException | JsonSyntaxException e) {
-            // ignore
-        }
-        List<String> currentImports = new ArrayList<>(moduleLoadRequests.stream().filter(
-                moduleLoadRequest -> moduleLoadRequest.orgName().isPresent()
-                        && !moduleLoadRequest.orgName().get().equals(PackageOrg.BALLERINA_I_ORG)).map(
-                moduleLoadRequest -> moduleLoadRequest.orgName()
-                        .orElse(this.rootPackageContext.packageOrg())
-                        + "/" + moduleLoadRequest.moduleName()).toList());
-        currentImports.removeAll(previousImports);
-
-        if (resolutionOptions.packageLockingMode() != PackageLockingMode.SOFT) {
-            if (resolutionOptions.packageLockingMode() == PackageLockingMode.LOCKED) {
-                if (!currentImports.isEmpty()) {
-                    String message = "cannot add new imports with --locking-mode=LOCKED. "
-                            + "Use --locking-mode=SOFT or --locking-mode=MEDIUM to build with new imports";
-                    reportDiagnostic(message,
-                            ProjectDiagnosticErrorCode.NEW_IMPORTS_WITH_LOCKED_MODE.diagnosticId(),
-                            DiagnosticSeverity.ERROR, null, project.currentPackage().descriptor());
+            } else if (isNewUpdateDistribution(prevDistributionVersion, currentDistributionVersion)) {
+                // Built with Update 5 or above, but older than the current Update distribution
+                if (PackageLockingMode.SOFT != packageLockingMode) {
+                    //  issue a warning unless the update policy is set to SOFT
+                    addOlderSLUpdateDistributionDiagnostic(null, currentDistributionVersion);
+                    if (packageLockingMode == null) {
+                        packageLockingMode = PackageLockingMode.SOFT;
+                    }
                 }
-                this.resolutionOptions = ResolutionOptions.builder()
-                        .setOffline(resolutionOptions.offline())
-                        .setDumpGraph(resolutionOptions.dumpGraph())
-                        .setDumpRawGraphs(resolutionOptions.dumpRawGraphs())
-                        .setPackageLockingMode(PackageLockingMode.HARD)
-                        .build();
-                return;
+            } else if (packageLockingMode == null) {
+                packageLockingMode = PackageLockingMode.MEDIUM;
             }
-            String warning = getWarningForHigherDistribution(project);
-            if (warning != null) {
-                reportDiagnostic(warning,
-                        ProjectDiagnosticErrorCode.BUILT_WITH_OLDER_SL_UPDATE_DISTRIBUTION.diagnosticId(),
-                        DiagnosticSeverity.WARNING, null, project.currentPackage().descriptor());
-            }
-
-            if (resolutionOptions.packageLockingMode().equals(PackageLockingMode.MEDIUM)) {
-                PackageLockingMode packageLockingMode = ProjectUtils.getPackageLockingMode(
-                        project.targetDir(), project, resolutionOptions.packageLockingMode());
-                this.resolutionOptions = ResolutionOptions.builder()
-                        .setOffline(resolutionOptions.offline())
-                        .setDumpGraph(resolutionOptions.dumpGraph())
-                        .setDumpRawGraphs(resolutionOptions.dumpRawGraphs())
-                        .setPackageLockingMode(packageLockingMode)
-                        .build();
-                return;
-            }
-            return;
-        }
-
-        // Package locking mode is SOFT or not set, so we check for new imports
-        PackageLockingMode packageLockingMode;
-        if (!currentImports.isEmpty()) {
-            // There are new imports, so we set the package locking mode to SOFT
-            packageLockingMode = PackageLockingMode.SOFT;
         } else {
-            if (this.rootPackageContext.dependenciesTomlContext().isEmpty()) {
-                packageLockingMode = resolutionOptions.packageLockingMode();
-            } else {
-                // No new imports, so we derive the locking mode depending on the time after the last build
-                packageLockingMode = ProjectUtils.getPackageLockingMode(project.targetDir(), project,
-                        resolutionOptions.packageLockingMode());
+            // new package
+            if (packageLockingMode == null) {
+                if (project.kind() == ProjectKind.BALA_PROJECT) {
+                    packageLockingMode = PackageLockingMode.MEDIUM;
+                    this.resolutionOptions = ResolutionOptions.builder()
+                            .setOffline(resolutionOptions.offline())
+                            .setDumpGraph(resolutionOptions.dumpGraph())
+                            .setDumpRawGraphs(resolutionOptions.dumpRawGraphs())
+                            .setPackageLockingMode(packageLockingMode)
+                            .build();
+                    return;
+                }
+                packageLockingMode = PackageLockingMode.SOFT;
+            } else if (PackageLockingMode.LOCKED.equals(packageLockingMode) || compilationOptions.sticky()) {
+                packageLockingMode = PackageLockingMode.HARD;
             }
+        }
+
+        // set to hard if the build is within 24 hours
+        if (packageLockingMode == PackageLockingMode.SOFT || packageLockingMode == PackageLockingMode.MEDIUM) {
+            packageLockingMode = ProjectUtils.getPackageLockingMode(project.targetDir(), project, packageLockingMode);
         }
 
         this.resolutionOptions = ResolutionOptions.builder()
@@ -463,20 +436,78 @@ public class PackageResolution {
                 .build();
     }
 
-    private DependencyGraph<ResolvedPackageDependency> resolveSourceDependencies() {
-        if (this.rootPackageContext.dependenciesTomlContext().isEmpty()
-                && this.resolutionOptions.packageLockingMode().equals(PackageLockingMode.LOCKED)) {
-            reportDiagnostic("'LOCKED' locking mode cannot be used without the " + DEPENDENCIES_TOML + " file",
-                    ProjectDiagnosticErrorCode.MISSING_DEPENDENCIES_TOML_WITH_LOCKED_MODE.diagnosticId(),
-                    DiagnosticSeverity.ERROR, null, rootPackageContext.descriptor());
-
-            return DependencyGraph.emptyGraph();
+    private void addOlderSLUpdateDistributionDiagnostic(SemanticVersion prevDistributionVersion,
+                                                        SemanticVersion currentDistributionVersion) {
+        String currentVersionForDiagnostic = String.valueOf(currentDistributionVersion.minor());
+        if (currentDistributionVersion.patch() != 0) {
+            currentVersionForDiagnostic += DOT + currentDistributionVersion.patch();
         }
+        String prevVersionForDiagnostic;
+        if (null != prevDistributionVersion) {
+            prevVersionForDiagnostic = String.valueOf(prevDistributionVersion.minor());
+            if (prevDistributionVersion.patch() != 0) {
+                prevVersionForDiagnostic += DOT + prevDistributionVersion.patch();
+            }
+        } else {
+            prevVersionForDiagnostic = "4 or an older Update";
+        }
+        DiagnosticInfo diagnosticInfo = new DiagnosticInfo(
+                ProjectDiagnosticErrorCode.BUILT_WITH_OLDER_SL_UPDATE_DISTRIBUTION.diagnosticId(),
+                "Detected an attempt to compile this package using Swan Lake Update " + currentVersionForDiagnostic +
+                        ". However, this package was built using Swan Lake Update " + prevVersionForDiagnostic +
+                        ". To ensure compatibility, execute `bal build --locking-mode=SOFT` with Swan Lake Update "
+                        + currentVersionForDiagnostic + " to update the dependencies with the " +
+                        "latest compatible versions.",
+                DiagnosticSeverity.WARNING);
+        PackageDiagnostic diagnostic = new PackageDiagnostic(diagnosticInfo,
+                rootPackageContext.descriptor().name().toString());
+        diagnosticList.add(diagnostic);
+    }
+
+    private DependencyGraph<ResolvedPackageDependency> resolveSourceDependencies() {
         // 1) Get PackageLoadRequests for all the direct dependencies of this package
         LinkedHashSet<ModuleLoadRequest> moduleLoadRequests = getModuleLoadRequestsOfDirectDependencies();
 
+        if (PackageLockingMode.LOCKED.equals(this.resolutionOptions.packageLockingMode())) {
+            if (this.rootPackageContext.dependenciesTomlContext().isEmpty()) {
+                reportDiagnostic("'LOCKED' locking mode cannot be used without the " + DEPENDENCIES_TOML + " file",
+                        ProjectDiagnosticErrorCode.MISSING_DEPENDENCIES_TOML_WITH_LOCKED_MODE.diagnosticId(),
+                        DiagnosticSeverity.ERROR, null, rootPackageContext.descriptor());
+
+                return DependencyGraph.emptyGraph();
+            } else {
+
+                List<String> previousImports = new ArrayList<>();
+                try {
+                    BuildJson buildJson = ProjectUtils.readBuildJson(
+                            this.rootPackageContext.project().targetDir().resolve(BUILD_FILE));
+                    List<String> imports = buildJson.imports();
+                    if (imports != null) {
+                        previousImports.addAll(imports);
+                    }
+                } catch (IOException | JsonSyntaxException e) {
+                    // ignore
+                }
+                List<String> currentImports = new ArrayList<>(moduleLoadRequests.stream().filter(
+                        moduleLoadRequest -> moduleLoadRequest.orgName().isPresent()
+                                && !moduleLoadRequest.orgName().get().equals(PackageOrg.BALLERINA_I_ORG)).map(
+                        moduleLoadRequest -> moduleLoadRequest.orgName()
+                                .orElse(this.rootPackageContext.packageOrg())
+                                + "/" + moduleLoadRequest.moduleName()).toList());
+                currentImports.removeAll(previousImports);
+                if (!currentImports.isEmpty()) {
+                    reportDiagnostic("cannot add new imports with --locking-mode=LOCKED. " +
+                                    "Use --locking-mode=SOFT or --locking-mode=MEDIUM to build with new imports",
+                            ProjectDiagnosticErrorCode.NEW_IMPORTS_WITH_LOCKED_MODE.diagnosticId(),
+                            DiagnosticSeverity.ERROR, null, rootPackageContext.descriptor());
+
+                    return DependencyGraph.emptyGraph();
+                }
+            }
+        }
+
         // 2 Update the package locking mode if necessary
-        updateResolutionOptions(moduleLoadRequests);
+        updateResolutionOptions();
 
         // 3) Resolve imports to packages and create the complete dependency graph with package metadata
         ResolutionEngine resolutionEngine = new ResolutionEngine(rootPackageContext.descriptor(),
@@ -511,38 +542,6 @@ public class PackageResolution {
 
         // TODO convert this to a debug log
         return Optional.of(resolvedModule);
-    }
-
-    private String getWarningForHigherDistribution(Project project) {
-        SemanticVersion prevDistributionVersion = project.currentPackage().dependencyManifest().distributionVersion();
-        SemanticVersion currentDistributionVersion = SemanticVersion.from(RepoUtils.getBallerinaShortVersion());
-        String warning = null;
-
-        if (project.currentPackage().dependencyManifest().dependenciesTomlVersion() != null) {
-            String currentVersionForDiagnostic = String.valueOf(currentDistributionVersion.minor());
-            if (currentDistributionVersion.patch() != 0) {
-                currentVersionForDiagnostic += DOT + currentDistributionVersion.patch();
-            }
-            String prevVersionForDiagnostic;
-            if (null != prevDistributionVersion) {
-                prevVersionForDiagnostic = String.valueOf(prevDistributionVersion.minor());
-                if (prevDistributionVersion.patch() != 0) {
-                    prevVersionForDiagnostic += DOT + prevDistributionVersion.patch();
-                }
-            } else {
-                prevVersionForDiagnostic = "4 or an older Update";
-            }
-            // existing project
-            if (prevDistributionVersion == null
-                    || ProjectUtils.isNewUpdateDistribution(prevDistributionVersion, currentDistributionVersion)) {
-                // Built with a previous Update. Therefore, we issue a warning
-                warning = "Detected an attempt to compile this package using Swan Lake Update "
-                        + currentVersionForDiagnostic +
-                        ". However, this package was built using Swan Lake Update " + prevVersionForDiagnostic +
-                        ".\nHINT: Execute the bal command with --locking-mode=SOFT";
-            }
-        }
-        return warning;
     }
 
     private DependencyGraph<ResolvedPackageDependency> buildPackageGraph(DependencyGraph<DependencyNode> depGraph,

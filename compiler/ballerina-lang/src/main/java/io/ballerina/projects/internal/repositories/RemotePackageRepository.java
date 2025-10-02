@@ -418,10 +418,9 @@ public class RemotePackageRepository implements PackageRepository {
         PackageResolutionRequest packageResolutionRequest = new PackageResolutionRequest();
         for (ResolutionRequest resolutionRequest : resolutionRequests) {
             PackageResolutionRequest.Mode mode = switch (resolutionRequest.packageLockingMode()) {
-                case HARD -> PackageResolutionRequest.Mode.HARD;
+                case HARD, LOCKED -> PackageResolutionRequest.Mode.HARD;
                 case MEDIUM -> PackageResolutionRequest.Mode.MEDIUM;
                 case SOFT -> PackageResolutionRequest.Mode.SOFT;
-                case LOCKED -> PackageResolutionRequest.Mode.LOCKED;
             };
             String version = resolutionRequest.version().map(v -> v.value().toString()).orElse("");
             packageResolutionRequest.addPackage(resolutionRequest.orgName().value(),
