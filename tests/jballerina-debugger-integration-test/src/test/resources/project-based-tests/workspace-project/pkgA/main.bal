@@ -1,4 +1,4 @@
-import asmaj/pkgB;
+import debugger_wp_tests/pkgB;
 
 public function main() {
     int a = 5;
