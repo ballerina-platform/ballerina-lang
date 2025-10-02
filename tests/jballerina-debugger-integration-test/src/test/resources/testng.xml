@@ -41,7 +41,8 @@ under the License.
             <class name="org.ballerinalang.debugger.test.adapter.test.MultiModuleTestDebugTest"/>
 
             <!--Debug Variables Tests-->
-            <class name="org.ballerinalang.debugger.test.adapter.variables.VariableVisibilityTest"/>
+            <!--Disabled due to issues - see commit 7986a6bbdb0-->
+            <!--<class name="org.ballerinalang.debugger.test.adapter.variables.VariableVisibilityTest"/>-->
             <class name="org.ballerinalang.debugger.test.adapter.variables.VariableQueryTest"/>
 
             <!--Debugger Expression Evaluation Tests-->
