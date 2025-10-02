@@ -23,7 +23,6 @@ SUBCOMMANDS
         pull        Pull a tool from the Ballerina Central.
         remove      Remove a tool from the local environment.
         update      Update a tool to the latest version.
-        use         Set a tool version as the active version.
         list        List all tools available in the local environment.
         search      Search the Ballerina Central for tools.
 
@@ -42,9 +41,6 @@ EXAMPLES
 
        Update a tool to the latest version compatible with the current distribution.
            $ bal tool update health
-
-       Change the active version of a tool.
-           $ bal tool use health:1.0.0
 
        List all tools available in the local environment.
            $ bal tool list
