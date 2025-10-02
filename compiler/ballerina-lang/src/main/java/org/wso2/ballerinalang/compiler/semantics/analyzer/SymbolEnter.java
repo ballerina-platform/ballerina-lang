@@ -3745,15 +3745,19 @@ public class SymbolEnter extends BLangNodeVisitor {
     }
 
     private void resolveFields(BStructureType structureType, BLangStructureTypeNode structureTypeNode) {
-        SymbolEnv typeDefEnv = structureTypeNode.typeDefEnv;
-        structureType.fields = structureTypeNode.fields.stream()
-                .peek((BLangSimpleVariable field) -> defineNode(field, typeDefEnv))
-                .filter(field -> field.symbol.type != symTable.semanticError) // filter out erroneous fields
-                .map((BLangSimpleVariable field) -> {
-                    field.symbol.isDefaultable = field.expr != null;
-                    return new BField(names.fromIdNode(field.name), field.pos, field.symbol);
-                })
-                .collect(getFieldCollector());
+        LinkedHashMap<String, BField> result = new LinkedHashMap<>();
+        for (BLangSimpleVariable field : structureTypeNode.fields) {
+            defineNode(field, structureTypeNode.typeDefEnv);
+            Name key = names.fromIdNode(field.name);
+            BField bField = new BField(key, field.pos, field.symbol);
+            if (field.symbol.type == symTable.semanticError) {
+                result.put(key.value, bField);
+                continue;
+            }
+            field.symbol.isDefaultable = (field.expr != null);
+            result.put(key.value, bField);
+        }
+        structureType.fields = result;
     }
 
     public void defineReferencedFieldsOfRecordTypeDef(BLangTypeDefinition typeDef) {
