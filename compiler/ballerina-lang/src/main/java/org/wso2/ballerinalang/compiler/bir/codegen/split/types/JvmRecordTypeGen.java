@@ -98,7 +98,7 @@ public class JvmRecordTypeGen {
         mv.visitFieldInsn(PUTSTATIC, recordTypeClass, TYPE_VAR_NAME, GET_RECORD_TYPE_IMPL);
         populateRecord(cw, mv, module, recordTypeClass, recordType, symbolTable);
         jvmCreateTypeGen.genGetTypeMethod(cw, recordTypeClass, GET_RECORD_TYPE_METHOD, GET_RECORD_TYPE_IMPL,
-                isAnnotatedType);
+                isAnnotatedType, null);
     }
 
     public void populateRecord(ClassWriter cw, MethodVisitor mv, BIRNode.BIRPackage module, String recordTypeClass,

@@ -84,7 +84,7 @@ public class JvmErrorTypeGen {
         mv.visitFieldInsn(PUTSTATIC, errorTypeClass, TYPE_VAR_NAME, GET_ERROR_TYPE_IMPL);
         populateError(mv, errorType, errorTypeClass);
         jvmCreateTypeGen.genGetTypeMethod(cw, errorTypeClass, GET_ERROR_TYPE_METHOD, GET_ERROR_TYPE_IMPL,
-                isAnnotatedType);
+                isAnnotatedType, null);
     }
 
     public  void populateError(MethodVisitor mv, BErrorType errorType, String errorTypeClass) {

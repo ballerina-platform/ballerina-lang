@@ -94,7 +94,7 @@ public class JvmUnionTypeGen {
         mv.visitFieldInsn(PUTSTATIC, unionTypeClass, TYPE_VAR_NAME, GET_UNION_TYPE_IMPL);
         populateUnion(cw, mv, unionType, unionTypeClass, varName, symbolTable);
         jvmCreateTypeGen.genGetTypeMethod(cw, unionTypeClass, GET_UNION_TYPE_METHOD, GET_UNION_TYPE_IMPL,
-                isAnnotatedType);
+                isAnnotatedType, null);
     }
 
     public void populateUnion(ClassWriter cw, MethodVisitor mv, BUnionType bType, String unionTypeClass, String name,
