@@ -165,7 +165,8 @@ public class CleanCommand implements BLauncherCmd {
 
     private void cleanDependencyCaches(Project project) {
         ResolutionOptions resolutionOptions = ResolutionOptions.builder().setOffline(true)
-                .setSticky(project.buildOptions().sticky()).build();
+                .setSticky(project.buildOptions().sticky()).setPackageLockingMode(project.buildOptions().lockingMode())
+                .build();
         PackageResolution packageResolution = project.currentPackage().getResolution(resolutionOptions);
         for (ResolvedPackageDependency packageDependency : packageResolution.allDependencies()) {
             Project dependency = packageDependency.packageInstance().project();

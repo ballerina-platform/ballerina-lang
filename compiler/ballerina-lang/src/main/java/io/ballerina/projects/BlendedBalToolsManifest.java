@@ -232,6 +232,10 @@ public class BlendedBalToolsManifest {
         if (versions == null) {
             return new HashMap<>();
         }
+        versions.keySet().removeIf(version -> !BalToolsUtil.isCompatibleWithPlatform(
+                        versions.get(version).values().iterator().next().org(),
+                        versions.get(version).values().iterator().next().name(), version,
+                        versions.get(version).values().iterator().next().repository()));
         return versions;
     }
 

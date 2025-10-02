@@ -24,6 +24,7 @@ import io.ballerina.projects.PackageDependencyScope;
 import io.ballerina.projects.PackageDescriptor;
 import io.ballerina.projects.PackageVersion;
 import io.ballerina.projects.environment.PackageCache;
+import io.ballerina.projects.environment.PackageLockingMode;
 import io.ballerina.projects.environment.PackageMetadataResponse;
 import io.ballerina.projects.environment.PackageRepository;
 import io.ballerina.projects.environment.PackageResolver;
@@ -176,7 +177,7 @@ public class DefaultPackageResolver implements PackageResolver {
                 .filter(r -> r.resolutionStatus().equals(ResolutionStatus.RESOLVED))
                 .toList());
 
-        if (options.sticky()) {
+        if (options.packageLockingMode().equals(PackageLockingMode.HARD) || options.sticky()) {
             // If sticky is enabled, filter out packages that are resolved from the dist repo
             resolvedRequests.addAll(latestVersionsInDist.stream()
                     .filter(r -> r.resolutionStatus().equals(ResolutionStatus.RESOLVED))
