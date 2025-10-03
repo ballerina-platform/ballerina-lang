@@ -101,9 +101,17 @@ jobs:
 
       - name: Clone Modules
         run: |
-          for module_name in $(jq -r '.standard_library| .[] | select(.level==${{ matrix.level }}) | .name' extensions.json); \
-          do git clone https://github.com/ballerina-platform/${module_name}.git; \
+          for module_name in $(jq -r '.standard_library| .[] | select(.level==${{ matrix.level }}) | .name' extensions.json); do
+            echo "Cloning module: ${module_name}"
+            if [[ $module_name == *-tool ]]; then
+              repo_name="${module_name}s"
+            else
+              repo_name="${module_name}"
+            fi
+            repo_url="https://github.com/ballerina-platform/${repo_name}.git"
+            git clone $repo_url
           done
+        shell: bash
 
 #      - name: Checkout non-default branch
 #        run: |
