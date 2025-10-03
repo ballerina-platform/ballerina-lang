@@ -232,12 +232,10 @@ public class BlendedBalToolsManifest {
         if (versions == null) {
             return new HashMap<>();
         }
-        versions.keySet().removeIf(version ->
-                LOCAL_REPOSITORY_NAME.equals(versions.get(version).values().iterator().next().repository())
-                        || !BalToolsUtil.isCompatibleWithPlatform(
-                                versions.get(version).values().iterator().next().org(),
-                                versions.get(version).values().iterator().next().name(), version,
-                                versions.get(version).values().iterator().next().repository()));
+        versions.keySet().removeIf(version -> !BalToolsUtil.isCompatibleWithPlatform(
+                        versions.get(version).values().iterator().next().org(),
+                        versions.get(version).values().iterator().next().name(), version,
+                        versions.get(version).values().iterator().next().repository()));
         return versions;
     }
 
@@ -271,19 +269,5 @@ public class BlendedBalToolsManifest {
                     v -> v.values().stream()).filter(BalToolsManifest.Tool::active).findFirst();
         }
         return Optional.empty();
-    }
-
-    /**
-     * Sets a specific tool version as active.
-     *
-     * @param id         tool id
-     * @param version    tool version
-     * @param repository repository that the tool is in
-     */
-    public void setActiveToolVersion(String id, String version, String repository) {
-        if (tools.containsKey(id)) {
-            tools.get(id).forEach((k, v) -> v.forEach((k1, v1) -> v1.setActive(false)));
-            tools.get(id).get(version).get(repository).setActive(true);
-        }
     }
 }

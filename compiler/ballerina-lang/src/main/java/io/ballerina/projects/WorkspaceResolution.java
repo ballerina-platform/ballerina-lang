@@ -58,10 +58,10 @@ public class WorkspaceResolution {
         WorkspaceDependencyGraphBuilder graphBuilder = new WorkspaceDependencyGraphBuilder();
         for (BuildProject project : this.workspaceProject.projects()) {
             graphBuilder.addPackage(project);
-            CompilationOptions compilationOptions = CompilationOptions.builder().setOffline(offline).build();
+            CompilationOptions compilationOptions = workspaceProject.buildOptions().compilationOptions().acceptTheirs(
+                    CompilationOptions.builder().setOffline(this.offline).build());
             Collection<ResolvedPackageDependency> directDependencies = project.currentPackage()
-                    .getResolution(compilationOptions)
-                    .dependencyGraph()
+                    .getResolution(compilationOptions).dependencyGraph()
                     .getDirectDependencies(new ResolvedPackageDependency(project.currentPackage(),
                             PackageDependencyScope.DEFAULT));
             addDependencies(project, directDependencies, graphBuilder);
