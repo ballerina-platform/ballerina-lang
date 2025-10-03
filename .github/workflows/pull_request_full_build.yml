@@ -126,10 +126,15 @@ jobs:
 
       - name: Build Module
         run: |
-          for module_name in $(jq -r '.standard_library| .[] | select(.level==${{ matrix.level }}) | .name' extensions.json); do \
-          echo "Building Standard Library: $module_name" && \
-          cd $module_name && ./gradlew clean build --stacktrace --scan && cd ..; \
+          for module_name in $(jq -r '.standard_library| .[] | select(.level==${{ matrix.level }}) | .name' extensions.json); do
+            if [[ $module_name == *-tool ]]; then
+              repo_name="${module_name}s"
+            else
+              repo_name="${module_name}"
+            fi
+            echo "Building Standard Library: $repo_name" && cd $repo_name && ./gradlew clean build --stacktrace --scan && cd ..
           done
+        shell: bash
         env:
           packageUser: ${{ secrets.BALLERINA_BOT_USERNAME }}
           packagePAT: ${{ secrets.GITHUB_TOKEN }}
