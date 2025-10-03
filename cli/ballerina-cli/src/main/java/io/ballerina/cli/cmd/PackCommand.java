@@ -239,7 +239,7 @@ public class PackCommand implements BLauncherCmd {
                                 "Add meaningful documentation before pushing.", null, false);
                     }
                 } catch (IOException e) {
-                    CommandUtil.printError(this.errStream, "error while validating the README file" + e.getMessage(), 
+                    CommandUtil.printError(this.errStream, "error while validating the README file: " + e.getMessage(), 
                     null, false);
                 }
             }
