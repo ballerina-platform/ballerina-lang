@@ -102,8 +102,6 @@ import static org.objectweb.asm.Opcodes.POP;
 import static org.objectweb.asm.Opcodes.RETURN;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ADD_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BOOLEAN_VALUE;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BSTRING_VAR_NAME;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_STRING_VAR_PREFIX;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CALL_FUNCTION;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CREATE_ERROR_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CREATE_OBJECT_VALUE;
@@ -133,7 +131,6 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_OB
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_RECORDS_CREATOR_CLASS_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_RECORD_TYPES_CLASS_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_RECORD_TYPES_PACKAGE_NAME;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_STRING_CONSTANT_PACKAGE_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_TUPLE_TYPES_PACKAGE_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_UNION_TYPES_PACKAGE_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.PARAMETERIZED_TYPE_IMPL;
@@ -145,7 +142,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TABLE_TYP
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPEDESC_TYPE_IMPL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPES_ERROR;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPE_VAR_NAME;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPE_VAR_FIELD_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.VALUE_CREATOR;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.VALUE_OF_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.XML_TYPE_IMPL;
@@ -246,7 +243,6 @@ public class JvmTypeGen {
     private final String objectsClass;
     private final String errorsClass;
     private final String functionCallsClass;
-    private final String stringConstantsClass;
     private final Context semTypeCtx;
     public final String recordTypesPkgName;
     public final String objectTypesPkgName;
@@ -268,13 +264,11 @@ public class JvmTypeGen {
         this.objectsClass = getModuleLevelClassName(packageID, MODULE_OBJECTS_CREATOR_CLASS_NAME);
         this.errorsClass = getModuleLevelClassName(packageID, MODULE_ERRORS_CREATOR_CLASS_NAME);
         this.functionCallsClass = getModuleLevelClassName(packageID, MODULE_FUNCTION_CALLS_CLASS_NAME);
-        this.stringConstantsClass = getModuleLevelClassName(packageID, MODULE_STRING_CONSTANT_PACKAGE_NAME);
         this.recordTypesPkgName = getModuleLevelClassName(packageID, MODULE_RECORD_TYPES_PACKAGE_NAME);
         this.objectTypesPkgName = getModuleLevelClassName(packageID, MODULE_OBJECT_TYPES_PACKAGE_NAME);
         this.errorTypesPkgName = getModuleLevelClassName(packageID, MODULE_ERROR_TYPES_PACKAGE_NAME);
         this.tupleTypesPkgName = getModuleLevelClassName(packageID, MODULE_TUPLE_TYPES_PACKAGE_NAME);
         this.unionTypesPkgName = getModuleLevelClassName(packageID, MODULE_UNION_TYPES_PACKAGE_NAME);
-
     }
 
     // -------------------------------------------------------
@@ -1007,9 +1001,7 @@ public class JvmTypeGen {
 
     private void loadConstString(MethodVisitor mv, ComplexSemType s) {
         String stringVal = StringSubtype.stringSubtypeSingleValue(getComplexSubtypeData(s, BT_STRING)).orElseThrow();
-        int index = jvmConstantsGen.getBStringConstantVarIndex(stringVal);
-        String varName = B_STRING_VAR_PREFIX + index;
-        mv.visitFieldInsn(GETSTATIC, this.stringConstantsClass + varName, BSTRING_VAR_NAME, GET_BSTRING);
+        jvmConstantsGen.loadBStringConstant(mv, stringVal, null, null, false);
     }
 
     private static void loadConstDecimal(MethodVisitor mv, ComplexSemType s) {
@@ -1094,16 +1086,17 @@ public class JvmTypeGen {
     private boolean loadInternalType(MethodVisitor mv, BType bType) {
         String varName = toNameString(bType);
         switch (bType.tag) {
-            case TypeTags.RECORD -> mv.visitFieldInsn(GETSTATIC, this.recordTypesPkgName + varName, TYPE_VAR_NAME,
+            case TypeTags.RECORD -> mv.visitFieldInsn(GETSTATIC, this.recordTypesPkgName + varName, TYPE_VAR_FIELD_NAME,
                     GET_RECORD_TYPE_IMPL);
-            case TypeTags.OBJECT -> mv.visitFieldInsn(GETSTATIC, this.objectTypesPkgName + varName, TYPE_VAR_NAME,
+            case TypeTags.OBJECT -> mv.visitFieldInsn(GETSTATIC, this.objectTypesPkgName + varName, TYPE_VAR_FIELD_NAME,
                     GET_OBJECT_TYPE_IMPL);
-            case TypeTags.ERROR -> mv.visitFieldInsn(GETSTATIC, this.errorTypesPkgName + varName, TYPE_VAR_NAME,
+            case TypeTags.ERROR -> mv.visitFieldInsn(GETSTATIC, this.errorTypesPkgName + varName, TYPE_VAR_FIELD_NAME,
                     GET_ERROR_TYPE_IMPL);
             case TypeTags.UNION -> {
                 BUnionType unionType = (BUnionType) bType;
                 if (unionType.isCyclic) {
-                    mv.visitFieldInsn(GETSTATIC, this.unionTypesPkgName + varName, TYPE_VAR_NAME, GET_UNION_TYPE_IMPL);
+                    mv.visitFieldInsn(GETSTATIC, this.unionTypesPkgName + varName, TYPE_VAR_FIELD_NAME,
+                            GET_UNION_TYPE_IMPL);
                 } else {
                     jvmConstantsGen.generateGetBUnionType(mv, jvmConstantsGen.getUnionTypeConstantsVar(bType,
                             symbolTable));
@@ -1122,18 +1115,18 @@ public class JvmTypeGen {
         switch (bType.tag) {
             case TypeTags.RECORD ->
                     mv.visitFieldInsn(GETSTATIC, getModuleLevelClassName(pkgId, MODULE_RECORD_TYPES_PACKAGE_NAME) +
-                            varName, TYPE_VAR_NAME, GET_RECORD_TYPE_IMPL);
+                            varName, TYPE_VAR_FIELD_NAME, GET_RECORD_TYPE_IMPL);
             case TypeTags.OBJECT ->
                     mv.visitFieldInsn(GETSTATIC, getModuleLevelClassName(pkgId, MODULE_OBJECT_TYPES_PACKAGE_NAME) +
-                            varName, TYPE_VAR_NAME, GET_OBJECT_TYPE_IMPL);
+                            varName, TYPE_VAR_FIELD_NAME, GET_OBJECT_TYPE_IMPL);
             case TypeTags.ERROR ->
                     mv.visitFieldInsn(GETSTATIC, getModuleLevelClassName(pkgId, MODULE_ERROR_TYPES_PACKAGE_NAME) +
-                            varName, TYPE_VAR_NAME, GET_ERROR_TYPE_IMPL);
+                            varName, TYPE_VAR_FIELD_NAME, GET_ERROR_TYPE_IMPL);
             case TypeTags.UNION -> {
                 BUnionType unionType = (BUnionType) bType;
                 if (unionType.isCyclic) {
                     mv.visitFieldInsn(GETSTATIC, getModuleLevelClassName(pkgId, MODULE_UNION_TYPES_PACKAGE_NAME) +
-                            varName, TYPE_VAR_NAME, GET_UNION_TYPE_IMPL);
+                            varName, TYPE_VAR_FIELD_NAME, GET_UNION_TYPE_IMPL);
                 } else {
                     jvmConstantsGen.generateGetBUnionType(mv, jvmConstantsGen.getUnionTypeConstantsVar(bType,
                             symbolTable));
