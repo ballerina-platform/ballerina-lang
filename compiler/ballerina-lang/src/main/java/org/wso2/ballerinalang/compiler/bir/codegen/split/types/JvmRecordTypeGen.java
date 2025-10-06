@@ -57,7 +57,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.RECORD_TY
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SET_IMMUTABLE_TYPE_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPE_INIT_VAR_NAME;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPE_VAR_NAME;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPE_VAR_FIELD_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_JBOOLEAN_TYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_MODULE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_RECORD_TYPE_IMPL;
@@ -90,7 +90,7 @@ public class JvmRecordTypeGen {
     public void createRecordType(ClassWriter cw, MethodVisitor mv, BIRNode.BIRPackage module, String recordTypeClass,
                                  BRecordType recordType, String varName, boolean isAnnotatedType,
                                  SymbolTable symbolTable) {
-        FieldVisitor fv = cw.visitField(ACC_STATIC + ACC_PUBLIC, TYPE_VAR_NAME, GET_RECORD_TYPE_IMPL, null, null);
+        FieldVisitor fv = cw.visitField(ACC_STATIC + ACC_PUBLIC, TYPE_VAR_FIELD_NAME, GET_RECORD_TYPE_IMPL, null, null);
         fv.visitEnd();
         // Create the record type
         mv.visitTypeInsn(NEW, RECORD_TYPE_IMPL);
@@ -111,7 +111,7 @@ public class JvmRecordTypeGen {
         mv.visitLdcInsn(jvmTypeGen.typeFlag(recordType));
         // initialize the record type
         mv.visitMethodInsn(INVOKESPECIAL, RECORD_TYPE_IMPL, JVM_INIT_METHOD, RECORD_TYPE_IMPL_INIT, false);
-        mv.visitFieldInsn(PUTSTATIC, recordTypeClass, TYPE_VAR_NAME, GET_RECORD_TYPE_IMPL);
+        mv.visitFieldInsn(PUTSTATIC, recordTypeClass, TYPE_VAR_FIELD_NAME, GET_RECORD_TYPE_IMPL);
         genGetTypeMethod(cw, recordType, recordTypeClass, module, isAnnotatedType, symbolTable);
     }
 
@@ -125,13 +125,13 @@ public class JvmRecordTypeGen {
         mv.visitFieldInsn(GETSTATIC, recordTypeClass, TYPE_INIT_VAR_NAME, GET_JBOOLEAN_TYPE);
         Label ifLabel = new Label();
         mv.visitJumpInsn(IFNE, ifLabel);
-        setTypeInitialized(mv, ICONST_1, recordTypeClass, true);
+        setTypeInitialized(mv, ICONST_1, recordTypeClass);
         populateRecord(cw, mv, module, recordTypeClass, recordType, symbolTable);
         if (isAnnotatedType) {
             mv.visitMethodInsn(INVOKESTATIC, recordTypeClass, LOAD_ANNOTATIONS_METHOD, VOID_METHOD_DESC, false);
         }
         mv.visitLabel(ifLabel);
-        mv.visitFieldInsn(GETSTATIC, recordTypeClass, TYPE_VAR_NAME, GET_RECORD_TYPE_IMPL);
+        mv.visitFieldInsn(GETSTATIC, recordTypeClass, TYPE_VAR_FIELD_NAME, GET_RECORD_TYPE_IMPL);
         mv.visitInsn(ARETURN);
         mv.visitMaxs(0, 0);
         mv.visitEnd();
@@ -139,9 +139,13 @@ public class JvmRecordTypeGen {
 
     public void populateRecord(ClassWriter cw, MethodVisitor mv, BIRNode.BIRPackage module, String recordTypeClass,
                                BRecordType bType, SymbolTable symbolTable) {
-        mv.visitFieldInsn(GETSTATIC, recordTypeClass, TYPE_VAR_NAME, GET_RECORD_TYPE_IMPL);
-        mv.visitInsn(DUP);
+        Optional<BIntersectionType> immutableType = jvmCreateTypeGen.getImmutableType(bType, symbolTable);
         Map<String, String> fieldNameFPNameMap = module.recordDefaultValueMap.get(bType.tsymbol.name.value);
+        mv.visitFieldInsn(GETSTATIC, recordTypeClass, TYPE_VAR_FIELD_NAME, GET_RECORD_TYPE_IMPL);
+        mv.visitInsn(DUP);
+        if (immutableType.isPresent()) {
+            mv.visitInsn(DUP);
+        }
         if (fieldNameFPNameMap != null) {
             mv.visitInsn(DUP);
         }
@@ -150,9 +154,7 @@ public class JvmRecordTypeGen {
             addRecordDefaultValues(cw, mv, recordTypeClass, bType, fieldNameFPNameMap);
         }
         addRecordRestField(mv, bType.restFieldType);
-        Optional<BIntersectionType> immutableType = jvmCreateTypeGen.getImmutableType(bType, symbolTable);
         if (immutableType.isPresent()) {
-            mv.visitFieldInsn(GETSTATIC, recordTypeClass, TYPE_VAR_NAME, GET_RECORD_TYPE_IMPL);
             jvmTypeGen.loadType(mv, immutableType.get());
             mv.visitMethodInsn(INVOKEINTERFACE, TYPE, SET_IMMUTABLE_TYPE_METHOD, SET_IMMUTABLE_TYPE, true);
         }
