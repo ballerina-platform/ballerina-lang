@@ -43,6 +43,8 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 
+import java.util.List;
+
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ALL_CONSTANTS_CLASS_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ALL_GLOBAL_VARIABLES_CLASS_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.GLOBAL_CONSTANTS_PACKAGE_NAME;
@@ -75,7 +77,7 @@ public class JvmConstantsGen {
         this.bTypeHashComparator = new BTypeHashComparator(typeHashVisitor);
         this.stringConstantsGen = new JvmBStringConstantsGen(module.packageID);
         this.moduleConstantsGen = new JvmModuleConstantsGen(module);
-        this.functionTypeConstantsGen = new JvmFunctionTypeConstantsGen(module.packageID, module.functions, this);
+        this.functionTypeConstantsGen = new JvmFunctionTypeConstantsGen(module.packageID, this);
         this.unionTypeConstantsGen = new JvmUnionTypeConstantsGen(module.packageID, bTypeHashComparator, jarEntries);
         this.errorTypeConstantsGen = new JvmErrorTypeConstantsGen(module.packageID, bTypeHashComparator, jarEntries);
         this.tupleTypeConstantsGen = new JvmTupleTypeConstantsGen(module.packageID, bTypeHashComparator, jarEntries);
@@ -88,8 +90,9 @@ public class JvmConstantsGen {
         this.allConstantsClassName = getModuleLevelClassName(module.packageID, ALL_CONSTANTS_CLASS_NAME);
     }
 
-    public int getBStringConstantVarIndex(String value) {
-        return stringConstantsGen.addBStringConstantVarIndex(value);
+    public void loadBStringConstant(MethodVisitor mv, String value, String varName, String constantVarClassName,
+                            boolean isConstant) {
+        stringConstantsGen.loadBStringConstant(mv, value, varName, constantVarClassName, isConstant);
     }
 
     public String getModuleConstantVar(PackageID packageID) {
@@ -105,11 +108,11 @@ public class JvmConstantsGen {
         functionTypeConstantsGen.setJvmTypeGen(jvmCreateTypeGen.getJvmTypeGen());
     }
 
-    public void generateConstants(JarEntries jarEntries, JvmPackageGen jvmPackageGen,
-                                  JvmCastGen jvmCastGen, AsyncDataCollector asyncDataCollector,
-                                  LazyLoadingDataCollector lazyLoadingDataCollector) {
-        functionTypeConstantsGen.generateClass(jarEntries, jvmPackageGen, jvmCastGen, asyncDataCollector,
-                lazyLoadingDataCollector);
+    public void generateConstants(JvmPackageGen jvmPackageGen, JvmCastGen jvmCastGen,
+                                  List<BIRNode.BIRFunction> sortedFunctions, AsyncDataCollector asyncDataCollector,
+                                  LazyLoadingDataCollector lazyLoadingDataCollector, JarEntries jarEntries) {
+        functionTypeConstantsGen.generateClass(jvmPackageGen, jvmCastGen, sortedFunctions, asyncDataCollector,
+                lazyLoadingDataCollector, jarEntries);
         moduleConstantsGen.generateConstantInit(jarEntries);
         stringConstantsGen.generateConstantInit(jarEntries);
     }
