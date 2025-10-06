@@ -69,7 +69,7 @@ import static org.ballerinalang.debugadapter.evaluation.utils.VariableUtils.load
 import static org.ballerinalang.debugadapter.utils.PackageUtils.BAL_FILE_EXT;
 import static org.ballerinalang.debugadapter.utils.PackageUtils.GLOBAL_CONSTANTS_PACKAGE_NAME;
 import static org.ballerinalang.debugadapter.utils.PackageUtils.GLOBAL_VARIABLES_PACKAGE_NAME;
-import static org.ballerinalang.debugadapter.utils.PackageUtils.VALUE_VAR_NAME;
+import static org.ballerinalang.debugadapter.utils.PackageUtils.VALUE_VAR_FIELD_NAME;
 import static org.ballerinalang.debugadapter.utils.PackageUtils.getQualifiedClassName;
 
 /**
@@ -683,7 +683,7 @@ public final class EvaluationUtils {
             classesRef = loadClassRef(context, varClassName);
         }
         if (classesRef != null) {
-            Field field = classesRef.fieldByName(VALUE_VAR_NAME);
+            Field field = classesRef.fieldByName(VALUE_VAR_FIELD_NAME);
             return Optional.of(new BExpressionValue(context, classesRef.getValue(field)));
         }
         return Optional.empty();

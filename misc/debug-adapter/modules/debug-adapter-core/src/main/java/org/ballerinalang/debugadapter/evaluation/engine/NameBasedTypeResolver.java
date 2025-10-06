@@ -33,7 +33,7 @@ import static org.ballerinalang.debugadapter.evaluation.EvaluationException.crea
 import static org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind.TYPE_RESOLVING_ERROR;
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.loadClass;
 import static org.ballerinalang.debugadapter.utils.PackageUtils.TYPE_PREFIXES;
-import static org.ballerinalang.debugadapter.utils.PackageUtils.TYPE_VAR_NAME;
+import static org.ballerinalang.debugadapter.utils.PackageUtils.TYPE_VAR_FIELD_NAME;
 
 /**
  * Ballerina type resolver implementation for resolving ballerina runtime types from type name.
@@ -117,7 +117,7 @@ public class NameBasedTypeResolver extends EvaluationTypeResolver<String> {
                 continue;
             }
             ReferenceType classRef = classRefs.getFirst();
-            Field typeField = classRef.fieldByName(TYPE_VAR_NAME);
+            Field typeField = classRef.fieldByName(TYPE_VAR_FIELD_NAME);
             if (typeField == null) {
                 return Optional.empty();
             }
