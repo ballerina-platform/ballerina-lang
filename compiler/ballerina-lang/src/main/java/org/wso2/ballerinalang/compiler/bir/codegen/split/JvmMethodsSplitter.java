@@ -27,11 +27,7 @@ import org.wso2.ballerinalang.compiler.bir.codegen.internal.LazyLoadingDataColle
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.TypeHashVisitor;
 
-import java.util.ArrayList;
 import java.util.List;
-
-import static org.wso2.ballerinalang.compiler.bir.codegen.utils.JvmCodeGenUtil.NAME_HASH_COMPARATOR;
-import static org.wso2.ballerinalang.compiler.util.Constants.RECORD_DELIMITER;
 
 /**
  * Split initialization of types and other type related methods.
@@ -56,10 +52,8 @@ public class JvmMethodsSplitter {
 
     public void generateMethods(JarEntries jarEntries, JvmCastGen jvmCastGen,
                                 List<BIRNode.BIRTypeDefinition> recordTypeDefList,
-                                AsyncDataCollector asyncDataCollector,
+                                List<BIRNode.BIRFunction> sortedFunctions, AsyncDataCollector asyncDataCollector,
                                 LazyLoadingDataCollector lazyLoadingDataCollector) {
-        List<BIRNode.BIRFunction> sortedFunctions = new ArrayList<>(filterUserDefinedFunctions(module.functions));
-        sortedFunctions.sort(NAME_HASH_COMPARATOR);
         jvmCreateTypeGen.generateRefTypeConstants(module.typeDefs, jvmPackageGen, jvmCastGen, asyncDataCollector,
                 lazyLoadingDataCollector);
         jvmCreateTypeGen.createTypes(module, jarEntries, jvmPackageGen, jvmCastGen, asyncDataCollector,
@@ -68,17 +62,5 @@ public class JvmMethodsSplitter {
         jvmCreateTypeGen.generateAnonTypeClass(jvmPackageGen, module, jarEntries);
         jvmCreateTypeGen.generateRecordTypeClass(jvmPackageGen, module, jarEntries, recordTypeDefList);
         jvmCreateTypeGen.generateFunctionTypeClass(jvmPackageGen, module, jarEntries, sortedFunctions);
-    }
-
-    private List<BIRNode.BIRFunction> filterUserDefinedFunctions(List<BIRNode.BIRFunction> functions) {
-        List<BIRNode.BIRFunction> filteredFunctions = new ArrayList<>();
-        for (BIRNode.BIRFunction func : functions) {
-            String funcName = func.name.value;
-            if (funcName.contains(RECORD_DELIMITER)) {
-                continue;
-            }
-            filteredFunctions.add(func);
-        }
-        return filteredFunctions;
     }
 }
