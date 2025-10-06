@@ -46,7 +46,7 @@ mapInits function() -> (string|(), int|()) {
         %10 = ConstLoad 25;
         %11 = ConstLoad address;
         %12 = ConstLoad Usa;
-        %5 = NewMap $typedesc$Person{%7:%8,%9:%10,%11:%12};
+        %5 = NewMap $td$Person{%7:%8,%9:%10,%11:%12};
         %13 = <Employee> %5;
         %7 = ConstLoad jack;
         %3[%7] = %13;

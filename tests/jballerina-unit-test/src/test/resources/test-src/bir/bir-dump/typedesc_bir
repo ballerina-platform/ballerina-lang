@@ -49,9 +49,9 @@ public $anonType$_3 error{$anonType$_2}
 
 
 $annotation_data map<any>;
-$typedesc$Foo typeDesc<Foo>;
-$typedesc$A typeDesc<A>;
-$typedesc$$anonType$_4 typeDesc<$anonType$_4>;
+$td$Foo typeDesc<Foo>;
+$td$A typeDesc<A>;
+$td$$anonType$_4 typeDesc<$anonType$_4>;
 
 
 public .<init> function() -> error{map<ballerina/lang.value:0.0.0:Cloneable>}|() {
@@ -61,9 +61,9 @@ public .<init> function() -> error{map<ballerina/lang.value:0.0.0:Cloneable>}|()
     bb0 {
         %2 = newType map<any>;
         $annotation_data = NewMap %2{};
-        $typedesc$Foo = newType Foo;
-        $typedesc$A = newType A;
-        $typedesc$$anonType$_4 = newType $anonType$_4;
+        $td$Foo = newType Foo;
+        $td$A = newType A;
+        $td$$anonType$_4 = newType $anonType$_4;
         %0 = ConstLoad 0;
         GOTO bb1;
     }
@@ -144,7 +144,7 @@ testSameTypeDesc function() -> () {
     %85(LOCAL) error;
 
     bb0 {
-        %1 = NewMap $typedesc$Foo{};
+        %1 = NewMap $td$Foo{};
         %3 = newType $anonType$_0;
         %7 = ConstLoad a;
         %8 = ConstLoad 1;
@@ -155,16 +155,16 @@ testSameTypeDesc function() -> () {
         %8 = ConstLoad 2;
         %15 = ConstLoad 1;
         %7 = ConstLoad a;
-        %12 = newArray $typedesc$A[%8]{%15,%7};
+        %12 = newArray $td$A[%8]{%15,%7};
         %8 = ConstLoad 2;
         %15 = ConstLoad 2;
         %7 = ConstLoad b;
-        %17 = newArray $typedesc$A[%8]{%15,%7};
+        %17 = newArray $td$A[%8]{%15,%7};
         %22 = %12;
         %8 = ConstLoad 2;
         %15 = ConstLoad 3;
         %7 = ConstLoad c;
-        %12 = newArray $typedesc$A[%8]{%15,%7};
+        %12 = newArray $td$A[%8]{%15,%7};
         %28 = newType (int, string);
         %8 = ConstLoad 2;
         %15 = ConstLoad 1;
@@ -174,9 +174,9 @@ testSameTypeDesc function() -> () {
         %15 = ConstLoad 2;
         %7 = ConstLoad b;
         %30 = newArray %28[%8]{%15,%7};
-        %41 = <typeDesc<A>> $typedesc$A;
+        %41 = <typeDesc<A>> $td$A;
         %39 = <typeDesc<any|error>> %41;
-        %44 = <typeDesc<Foo>> $typedesc$Foo;
+        %44 = <typeDesc<Foo>> $td$Foo;
         %42 = <typeDesc<any|error>> %44;
         %45 = %39 === %42;
         %49 = newType $anonType$_1;
@@ -207,7 +207,7 @@ testSameTypeDesc function() -> () {
         %80 = ConstLoad value;
         %8 = ConstLoad 0;
         %82 = <any> %8;
-        %77 = NewMap $typedesc$$anonType$_4{%59:%79,%80:%82};
+        %77 = NewMap $td$$anonType$_4{%59:%79,%80:%82};
         %84 = cloneReadOnly(%77) -> bb1;
     }
     bb1 {
