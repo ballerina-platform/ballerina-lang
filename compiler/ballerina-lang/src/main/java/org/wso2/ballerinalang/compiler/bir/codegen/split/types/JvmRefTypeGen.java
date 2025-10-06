@@ -53,7 +53,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.LOAD_ANNO
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SET_REFERRED_TYPE_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPE_INIT_VAR_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPE_REF_TYPE_IMPL;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPE_VAR_NAME;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPE_VAR_FIELD_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_JBOOLEAN_TYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_MODULE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_TYPE_REF_TYPE_IMPL;
@@ -86,7 +86,8 @@ public class JvmRefTypeGen {
                                   AsyncDataCollector asyncDataCollector,
                                   LazyLoadingDataCollector lazyLoadingDataCollector) {
         // Create field for type ref type var
-        FieldVisitor f = cw.visitField(ACC_STATIC + ACC_PRIVATE, TYPE_VAR_NAME, GET_TYPE_REF_TYPE_IMPL, null, null);
+        FieldVisitor f = cw.visitField(ACC_STATIC + ACC_PRIVATE,
+                TYPE_VAR_FIELD_NAME, GET_TYPE_REF_TYPE_IMPL, null, null);
         f.visitEnd();
         mv.visitTypeInsn(NEW, TYPE_REF_TYPE_IMPL);
         mv.visitInsn(DUP);
@@ -96,7 +97,7 @@ public class JvmRefTypeGen {
         mv.visitLdcInsn(jvmTypeGen.typeFlag(typeRefType.referredType));
         jvmTypeGen.loadReadonlyFlag(mv, typeRefType.referredType);
         mv.visitMethodInsn(INVOKESPECIAL, TYPE_REF_TYPE_IMPL, JVM_INIT_METHOD, INIT_TYPE_REF, false);
-        mv.visitFieldInsn(Opcodes.PUTSTATIC, typeRefConstantClass, TYPE_VAR_NAME, GET_TYPE_REF_TYPE_IMPL);
+        mv.visitFieldInsn(Opcodes.PUTSTATIC, typeRefConstantClass, TYPE_VAR_FIELD_NAME, GET_TYPE_REF_TYPE_IMPL);
         genGetTypeMethod(cw, typeRefType, typeRefConstantClass, isAnnotatedType);
         if (isAnnotatedType) {
             jvmCreateTypeGen.loadAnnotations(cw, typeDef.internalName.value, typeRefConstantClass,
@@ -115,20 +116,20 @@ public class JvmRefTypeGen {
         mv.visitFieldInsn(GETSTATIC, typeRefClass, TYPE_INIT_VAR_NAME, GET_JBOOLEAN_TYPE);
         Label ifLabel = new Label();
         mv.visitJumpInsn(IFNE, ifLabel);
-        setTypeInitialized(mv, ICONST_1, typeRefClass, true);
+        setTypeInitialized(mv, ICONST_1, typeRefClass);
         populateTypeRef(mv, typeRefType, typeRefClass);
         if (isAnnotatedType) {
             mv.visitMethodInsn(INVOKESTATIC, typeRefClass, LOAD_ANNOTATIONS_METHOD, VOID_METHOD_DESC, false);
         }
         mv.visitLabel(ifLabel);
-        mv.visitFieldInsn(GETSTATIC, typeRefClass, TYPE_VAR_NAME, GET_TYPE_REF_TYPE_IMPL);
+        mv.visitFieldInsn(GETSTATIC, typeRefClass, TYPE_VAR_FIELD_NAME, GET_TYPE_REF_TYPE_IMPL);
         mv.visitInsn(ARETURN);
         mv.visitMaxs(0, 0);
         mv.visitEnd();
     }
 
     private void populateTypeRef(MethodVisitor mv, BTypeReferenceType referenceType, String typeRefConstantClass) {
-        mv.visitFieldInsn(GETSTATIC, typeRefConstantClass, TYPE_VAR_NAME, GET_TYPE_REF_TYPE_IMPL);
+        mv.visitFieldInsn(GETSTATIC, typeRefConstantClass, TYPE_VAR_FIELD_NAME, GET_TYPE_REF_TYPE_IMPL);
         boolean isInternalTypeLoaded = jvmTypeGen.loadReferredType(mv, referenceType);
         mv.visitMethodInsn(INVOKEVIRTUAL, TYPE_REF_TYPE_IMPL, SET_REFERRED_TYPE_METHOD, TYPE_PARAMETER, false);
         if (isInternalTypeLoaded) {
