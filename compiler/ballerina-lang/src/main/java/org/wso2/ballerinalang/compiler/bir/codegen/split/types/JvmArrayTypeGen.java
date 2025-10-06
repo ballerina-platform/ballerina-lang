@@ -42,7 +42,7 @@ import static org.objectweb.asm.Opcodes.NEW;
 import static org.objectweb.asm.Opcodes.PUTSTATIC;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ARRAY_TYPE_IMPL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JVM_INIT_METHOD;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPE_VAR_NAME;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPE_VAR_FIELD_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_ARRAY_TYPE_IMPL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INIT_BASIC_VALUE_ARRAY_TYPE_IMPL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INIT_COMPLEX_VALUE_ARRAY_TYPE_IMPL;
@@ -64,7 +64,7 @@ public class JvmArrayTypeGen {
     public void createArrayType(ClassWriter cw, MethodVisitor mv, BArrayType arrayType, Types types,
                                 String arrayConstantClass) {
         // Create field for array type var
-        FieldVisitor fv = cw.visitField(ACC_PUBLIC + ACC_STATIC, TYPE_VAR_NAME, GET_ARRAY_TYPE_IMPL, null, null);
+        FieldVisitor fv = cw.visitField(ACC_PUBLIC + ACC_STATIC, TYPE_VAR_FIELD_NAME, GET_ARRAY_TYPE_IMPL, null, null);
         fv.visitEnd();
         // Create a new array type
         mv.visitTypeInsn(NEW, ARRAY_TYPE_IMPL);
@@ -79,7 +79,7 @@ public class JvmArrayTypeGen {
             mv.visitLdcInsn(jvmTypeGen.typeFlag(arrayType.eType));
             mv.visitMethodInsn(INVOKESPECIAL, ARRAY_TYPE_IMPL, JVM_INIT_METHOD, INIT_BASIC_VALUE_ARRAY_TYPE_IMPL,
                     false);
-            mv.visitFieldInsn(PUTSTATIC, arrayConstantClass, TYPE_VAR_NAME, GET_ARRAY_TYPE_IMPL);
+            mv.visitFieldInsn(PUTSTATIC, arrayConstantClass, TYPE_VAR_FIELD_NAME, GET_ARRAY_TYPE_IMPL);
             populateArray(mv, arrayType, arrayConstantClass);
             return;
         }
@@ -91,12 +91,12 @@ public class JvmArrayTypeGen {
         mv.visitInsn(types.hasFillerValue(arrayType.eType) ? ICONST_1 : ICONST_0);
         // invoke the constructor
         mv.visitMethodInsn(INVOKESPECIAL, ARRAY_TYPE_IMPL, JVM_INIT_METHOD, INIT_COMPLEX_VALUE_ARRAY_TYPE_IMPL, false);
-        mv.visitFieldInsn(PUTSTATIC, arrayConstantClass, TYPE_VAR_NAME, GET_ARRAY_TYPE_IMPL);
+        mv.visitFieldInsn(PUTSTATIC, arrayConstantClass, TYPE_VAR_FIELD_NAME, GET_ARRAY_TYPE_IMPL);
         populateArray(mv, arrayType, arrayConstantClass);
     }
 
     private void populateArray(MethodVisitor mv, BArrayType bType, String arrayConstantClass) {
-        mv.visitFieldInsn(GETSTATIC, arrayConstantClass, TYPE_VAR_NAME, GET_ARRAY_TYPE_IMPL);
+        mv.visitFieldInsn(GETSTATIC, arrayConstantClass, TYPE_VAR_FIELD_NAME, GET_ARRAY_TYPE_IMPL);
         jvmTypeGen.loadType(mv, bType.eType);
         loadDimension(mv, bType.eType, 1);
         jvmTypeGen.loadReadonlyFlag(mv, bType.eType);
