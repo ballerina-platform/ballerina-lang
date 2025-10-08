@@ -53,6 +53,7 @@ public enum ProjectDiagnosticErrorCode implements DiagnosticCode {
     CUSTOM_REPOSITORY_NOT_FOUND("BCE5205", "custom.repository.not.found"),
     NEW_IMPORTS_WITH_LOCKED_MODE("BCE5206", "new.imports.with.locked.mode"),
     MISSING_DEPENDENCIES_TOML_WITH_LOCKED_MODE("BCE5207", "missing.dependencies.toml.with.locked.mode"),
+    OLD_IMPORTS("BCE5208", "old.imports"),
 
     // Error codes related to build tools.
     MISSING_TOOL_PROPERTIES_IN_BALLERINA_TOML("BCE5301", "missing.tool.properties"),

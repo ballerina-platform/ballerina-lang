@@ -561,8 +561,14 @@ public class PackageResolution {
                         && !depNode.errorNode()) // Remove error nodes from the requests
                 .map(this::createFromDepNode)
                 .toList();
+
         Collection<ResolutionResponse> resolutionResponses =
                 packageResolver.resolvePackages(resolutionRequests, resolutionOptions);
+        List<PackageDescriptor> oldDependencies = new ArrayList<>();
+        List<PackageDescriptor> directDependencies = depGraph.getDirectDependencies(rootNode)
+                .stream()
+                .map(DependencyNode::pkgDesc)
+                .toList();
 
         // Add resolved packages to the container
         for (ResolutionResponse resolutionResp : resolutionResponses) {
@@ -572,6 +578,13 @@ public class PackageResolution {
                 if (Optional.ofNullable(pkgDesc.getDeprecated()).orElse(false)) {
                     addDeprecationDiagnostic(pkgDesc);
                 }
+                String ballerinaVersion = resolutionResp.resolvedPackage().manifest().ballerinaVersion();
+                SemanticVersion distVersion = SemanticVersion.from(ballerinaVersion);
+                if (distVersion.lessThan(SemanticVersion.from("2201.12.0"))) {
+                    if (!directDependencies.contains(pkgDesc)) {
+                        oldDependencies.add(pkgDesc);
+                    }
+                }
                 ResolutionRequest resolutionReq = resolutionResp.resolutionRequest();
                 ResolvedPackageDependency resolvedPkg = new ResolvedPackageDependency(
                         resolutionResp.resolvedPackage(),
@@ -579,6 +592,17 @@ public class PackageResolution {
                         resolutionReq.resolutionType());
                 resolvedPkgContainer.add(pkgDesc.org(), pkgDesc.name(), resolvedPkg);
             }
+        }
+        if (!oldDependencies.isEmpty()) {
+            StringBuilder warning = new StringBuilder("The following transitive dependencies were published with a " +
+                    "distribution older than Swan Lake Update 12. It is recommended to execute " +
+                    "'bal build --locking-mode=SOFT' to ensure compatibility:");
+            // Append the list of old dependencies to the warning message
+            for (PackageDescriptor pkgDesc : oldDependencies) {
+                warning.append("\n\t- ").append(pkgDesc);
+            }
+            reportDiagnostic(warning.toString(), ProjectDiagnosticErrorCode.OLD_IMPORTS.diagnosticId(),
+                    DiagnosticSeverity.WARNING, null, rootPackageContext.descriptor());
         }
 
         // Build the resolved package dependency graph

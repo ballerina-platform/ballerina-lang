@@ -27,7 +27,7 @@ public enum PackageLockingMode {
      * Locks to major versions of dependencies.
      * This is the default mode.
      */
-    SOFT,
+    SOFT("soft"),
     /**
      * Summary:
      * major never
@@ -47,16 +47,40 @@ public enum PackageLockingMode {
      * the need question
      *
      */
-    MEDIUM,
+    MEDIUM("medium"),
     /**
      * Locks to exact major.minor.patch versions of dependencies.
      * If a conflict is detected, if the versions are semver compatible,
      * the latest version is picked. Else, the build will fail.
      */
-    HARD,
+    HARD("hard"),
     /**
      * Locks to exact major.minor.patch versions of dependencies.
      * If a conflict is detected, the build will fail.
      */
-    LOCKED
+    LOCKED("locked");
+
+    final String lockingMode;
+
+    PackageLockingMode(String lockingMode) {
+        this.lockingMode = lockingMode;
+    }
+
+    public String value() {
+        return lockingMode;
+    }
+
+    @Override
+    public String toString() {
+        return lockingMode;
+    }
+
+    public static PackageLockingMode parse(String value) {
+        for (PackageLockingMode mode : PackageLockingMode.values()) {
+            if (mode.lockingMode.equalsIgnoreCase(value)) {
+                return mode;
+            }
+        }
+        throw new IllegalArgumentException("Invalid locking mode: " + value);
+    }
 }
