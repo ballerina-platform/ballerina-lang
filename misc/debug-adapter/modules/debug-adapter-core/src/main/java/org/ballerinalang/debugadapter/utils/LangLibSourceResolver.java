@@ -36,7 +36,7 @@ import java.util.Optional;
  *
  * @since 2.0.0
  */
-public class LangLibSourceResolver extends SourceResolver {
+public class LangLibSourceResolver extends DependencySourceResolver {
 
     LangLibSourceResolver(Project sourceProject, DebugProjectCache projectCache) {
         super(sourceProject, projectCache);
@@ -77,8 +77,8 @@ public class LangLibSourceResolver extends SourceResolver {
                 return Optional.empty();
             }
 
-            for (ModuleId moduleId : langLibPackage.get(0).moduleIds()) {
-                Module module = langLibPackage.get(0).module(moduleId);
+            for (ModuleId moduleId : langLibPackage.getFirst().moduleIds()) {
+                Module module = langLibPackage.getFirst().module(moduleId);
                 for (DocumentId docId : module.documentIds()) {
                     if (module.document(docId).name().equals(locationInfo.fileName())) {
                         return module.project().documentPath(docId);
