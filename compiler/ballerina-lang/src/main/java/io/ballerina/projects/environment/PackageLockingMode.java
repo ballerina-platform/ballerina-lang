@@ -81,6 +81,6 @@ public enum PackageLockingMode {
                 return mode;
             }
         }
-        throw new IllegalArgumentException("Invalid locking mode: " + value);
+        throw new IllegalArgumentException("expected one of [soft, medium, hard, locked]");
     }
 }

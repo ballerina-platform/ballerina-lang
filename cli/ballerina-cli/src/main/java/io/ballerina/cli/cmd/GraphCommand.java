@@ -30,6 +30,7 @@ import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.directory.BuildProject;
 import io.ballerina.projects.directory.SingleFileProject;
+import io.ballerina.projects.environment.PackageLockingMode;
 import io.ballerina.projects.util.ProjectConstants;
 import org.wso2.ballerinalang.util.RepoUtils;
 import picocli.CommandLine;
@@ -68,6 +69,10 @@ public class GraphCommand implements BLauncherCmd {
     @CommandLine.Option(names = "--sticky", description = "stick to exact versions locked (if exists)",
             defaultValue = "false")
     private boolean sticky;
+
+    @CommandLine.Option(names = "--locking-mode", hidden = true,
+            description = "allow passing the package locking mode.", converter = PackageLockingModeConverter.class)
+    private PackageLockingMode lockingMode;
 
     public GraphCommand() {
         this.projectPath = Path.of(System.getProperty(ProjectConstants.USER_DIR));

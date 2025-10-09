@@ -106,7 +106,7 @@ public class PackCommand implements BLauncherCmd {
     private Boolean optimizeDependencyCompilation;
 
     @CommandLine.Option(names = "--locking-mode", hidden = true,
-            description = "allow passing the package locking mode.")
+            description = "allow passing the package locking mode.", converter = PackageLockingModeConverter.class)
     private PackageLockingMode lockingMode;
 
     public PackCommand() {
