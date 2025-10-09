@@ -66,11 +66,11 @@ import java.util.stream.Collectors;
 import static io.ballerina.projects.util.ProjectConstants.BALLERINA_HOME;
 import static io.ballerina.projects.util.ProjectConstants.BUILD_FILE;
 import static io.ballerina.projects.util.ProjectConstants.DEPENDENCIES_TOML;
-import static io.ballerina.projects.util.ProjectConstants.DOT;
 import static io.ballerina.projects.util.ProjectConstants.EQUAL;
 import static io.ballerina.projects.util.ProjectConstants.LOCKING_MODE_OPTION;
 import static io.ballerina.projects.util.ProjectConstants.OFFLINE_FLAG;
 import static io.ballerina.projects.util.ProjectConstants.REPOSITORY_FLAG;
+import static io.ballerina.projects.util.ProjectUtils.getWarningForHigherDistribution;
 import static io.ballerina.projects.util.ProjectUtils.isNewUpdateDistribution;
 
 /**
@@ -387,7 +387,7 @@ public class PackageResolution {
                 // Built with Update 4 or less
                 if (PackageLockingMode.SOFT != packageLockingMode) {
                     //  issue a warning unless the update policy is set to SOFT
-                    addOlderSLUpdateDistributionDiagnostic(null, currentDistributionVersion);
+                    getWarningForHigherDistribution(project, packageLockingMode).ifPresent(diagnosticList::add);
                     if (packageLockingMode == null) {
                         packageLockingMode = PackageLockingMode.SOFT;
                     }
@@ -396,7 +396,7 @@ public class PackageResolution {
                 // Built with Update 5 or above, but older than the current Update distribution
                 if (PackageLockingMode.SOFT != packageLockingMode) {
                     //  issue a warning unless the update policy is set to SOFT
-                    addOlderSLUpdateDistributionDiagnostic(null, currentDistributionVersion);
+                    getWarningForHigherDistribution(project, packageLockingMode).ifPresent(diagnosticList::add);
                     if (packageLockingMode == null) {
                         packageLockingMode = PackageLockingMode.SOFT;
                     }
@@ -436,34 +436,6 @@ public class PackageResolution {
                 .build();
     }
 
-    private void addOlderSLUpdateDistributionDiagnostic(SemanticVersion prevDistributionVersion,
-                                                        SemanticVersion currentDistributionVersion) {
-        String currentVersionForDiagnostic = String.valueOf(currentDistributionVersion.minor());
-        if (currentDistributionVersion.patch() != 0) {
-            currentVersionForDiagnostic += DOT + currentDistributionVersion.patch();
-        }
-        String prevVersionForDiagnostic;
-        if (null != prevDistributionVersion) {
-            prevVersionForDiagnostic = String.valueOf(prevDistributionVersion.minor());
-            if (prevDistributionVersion.patch() != 0) {
-                prevVersionForDiagnostic += DOT + prevDistributionVersion.patch();
-            }
-        } else {
-            prevVersionForDiagnostic = "4 or an older Update";
-        }
-        DiagnosticInfo diagnosticInfo = new DiagnosticInfo(
-                ProjectDiagnosticErrorCode.BUILT_WITH_OLDER_SL_UPDATE_DISTRIBUTION.diagnosticId(),
-                "Detected an attempt to compile this package using Swan Lake Update " + currentVersionForDiagnostic +
-                        ". However, this package was built using Swan Lake Update " + prevVersionForDiagnostic +
-                        ". To ensure compatibility, execute `bal build --locking-mode=SOFT` with Swan Lake Update "
-                        + currentVersionForDiagnostic + " to update the dependencies with the " +
-                        "latest compatible versions.",
-                DiagnosticSeverity.WARNING);
-        PackageDiagnostic diagnostic = new PackageDiagnostic(diagnosticInfo,
-                rootPackageContext.descriptor().name().toString());
-        diagnosticList.add(diagnostic);
-    }
-
     private DependencyGraph<ResolvedPackageDependency> resolveSourceDependencies() {
         // 1) Get PackageLoadRequests for all the direct dependencies of this package
         LinkedHashSet<ModuleLoadRequest> moduleLoadRequests = getModuleLoadRequestsOfDirectDependencies();
@@ -496,8 +468,8 @@ public class PackageResolution {
                                 + "/" + moduleLoadRequest.moduleName()).toList());
                 currentImports.removeAll(previousImports);
                 if (!currentImports.isEmpty()) {
-                    reportDiagnostic("cannot add new imports with --locking-mode=LOCKED. " +
-                                    "Use --locking-mode=SOFT or --locking-mode=MEDIUM to build with new imports",
+                    reportDiagnostic("cannot add new imports with --locking-mode=locked. " +
+                                    "Use one of [soft, medium, hard] to build with new imports",
                             ProjectDiagnosticErrorCode.NEW_IMPORTS_WITH_LOCKED_MODE.diagnosticId(),
                             DiagnosticSeverity.ERROR, null, rootPackageContext.descriptor());
 
@@ -578,13 +550,18 @@ public class PackageResolution {
                 if (Optional.ofNullable(pkgDesc.getDeprecated()).orElse(false)) {
                     addDeprecationDiagnostic(pkgDesc);
                 }
-                String ballerinaVersion = resolutionResp.resolvedPackage().manifest().ballerinaVersion();
-                SemanticVersion distVersion = SemanticVersion.from(ballerinaVersion);
-                if (distVersion.lessThan(SemanticVersion.from("2201.12.0"))) {
-                    if (!directDependencies.contains(pkgDesc)) {
-                        oldDependencies.add(pkgDesc);
+                try {
+                    String ballerinaVersion = resolutionResp.resolvedPackage().manifest().ballerinaVersion();
+                    SemanticVersion distVersion = SemanticVersion.from(ballerinaVersion);
+                    if (distVersion.lessThan(SemanticVersion.from("2201.12.0"))) {
+                        if (!directDependencies.contains(pkgDesc)) {
+                            oldDependencies.add(pkgDesc);
+                        }
                     }
+                } catch (ProjectException e) {
+                    // ignore version exception
                 }
+
                 ResolutionRequest resolutionReq = resolutionResp.resolutionRequest();
                 ResolvedPackageDependency resolvedPkg = new ResolvedPackageDependency(
                         resolutionResp.resolvedPackage(),
@@ -596,7 +573,7 @@ public class PackageResolution {
         if (!oldDependencies.isEmpty()) {
             StringBuilder warning = new StringBuilder("The following transitive dependencies were published with a " +
                     "distribution older than Swan Lake Update 12. It is recommended to execute " +
-                    "'bal build --locking-mode=SOFT' to ensure compatibility:");
+                    "'bal build --locking-mode=soft' to ensure compatibility:");
             // Append the list of old dependencies to the warning message
             for (PackageDescriptor pkgDesc : oldDependencies) {
                 warning.append("\n\t- ").append(pkgDesc);

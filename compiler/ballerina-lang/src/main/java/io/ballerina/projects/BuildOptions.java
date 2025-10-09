@@ -90,10 +90,22 @@ public class BuildOptions {
         return this.compilationOptions.optimizeDependencyCompilation();
     }
 
+    /**
+     * Returns the package locking mode. If not specified, returns {@code PackageLockingMode.MEDIUM}
+     * @return the package locking mode
+     */
     public PackageLockingMode lockingMode() {
         if (this.compilationOptions.lockingMode() == null) {
             return PackageLockingMode.MEDIUM;
         }
+        return this.compilationOptions.lockingMode();
+    }
+
+    /**
+     * Returns the raw package locking mode. If not specified, returns {@code null}
+     * @return the raw package locking mode
+     */
+    public PackageLockingMode rawLockingMode() {
         return this.compilationOptions.lockingMode();
     }
 

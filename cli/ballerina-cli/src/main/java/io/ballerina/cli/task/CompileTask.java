@@ -30,7 +30,6 @@ import io.ballerina.projects.PlatformLibraryScope;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.ProjectKind;
-import io.ballerina.projects.SemanticVersion;
 import io.ballerina.projects.directory.SingleFileProject;
 import io.ballerina.projects.environment.PackageLockingMode;
 import io.ballerina.projects.environment.ResolutionOptions;
@@ -41,7 +40,6 @@ import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.diagnostics.DiagnosticInfo;
 import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 import org.ballerinalang.central.client.CentralClientConstants;
-import org.wso2.ballerinalang.util.RepoUtils;
 
 import java.io.PrintStream;
 import java.util.ArrayList;
@@ -53,7 +51,6 @@ import java.util.Set;
 
 import static io.ballerina.cli.launcher.LauncherUtils.createLauncherException;
 import static io.ballerina.projects.internal.ProjectDiagnosticErrorCode.CORRUPTED_DEPENDENCIES_TOML;
-import static io.ballerina.projects.util.ProjectConstants.DOT;
 import static io.ballerina.projects.util.ProjectConstants.TOOL_DIAGNOSTIC_CODE_PREFIX;
 
 /**
@@ -119,7 +116,8 @@ public class CompileTask implements Task {
 
         try {
             if (project.buildOptions().lockingMode() != PackageLockingMode.SOFT) {
-                printWarningForHigherDistribution(project);
+                ProjectUtils.getWarningForHigherDistribution(project, project.buildOptions().rawLockingMode())
+                        .ifPresent(err::println);
             }
             List<Diagnostic> diagnostics = new ArrayList<>();
             if (this.compileForBalBuild) {
@@ -285,50 +283,6 @@ public class CompileTask implements Task {
 
     private boolean isPackCmdForATemplatePkg(Project project) {
         return compileForBalPack && project.currentPackage().manifest().template();
-    }
-
-    /**
-     * Prints the warning that explains the dependency update due to the detection of a new distribution.
-     *
-     * @param project project instance
-     */
-    private void printWarningForHigherDistribution(Project project) {
-        SemanticVersion prevDistributionVersion = project.currentPackage().dependencyManifest().distributionVersion();
-        SemanticVersion currentDistributionVersion = SemanticVersion.from(RepoUtils.getBallerinaShortVersion());
-
-        if (project.currentPackage().dependencyManifest().dependenciesTomlVersion() != null) {
-            String currentVersionForDiagnostic = String.valueOf(currentDistributionVersion.minor());
-            if (currentDistributionVersion.patch() != 0) {
-                currentVersionForDiagnostic += DOT + currentDistributionVersion.patch();
-            }
-            String prevVersionForDiagnostic;
-            if (null != prevDistributionVersion) {
-                prevVersionForDiagnostic = String.valueOf(prevDistributionVersion.minor());
-                if (prevDistributionVersion.patch() != 0) {
-                    prevVersionForDiagnostic += DOT + prevDistributionVersion.patch();
-                }
-            } else {
-                prevVersionForDiagnostic = "4 or an older Update";
-            }
-            String warning = null;
-            // existing project
-            if (prevDistributionVersion == null
-                    || ProjectUtils.isNewUpdateDistribution(prevDistributionVersion, currentDistributionVersion)) {
-                // Built with a previous Update. Therefore, we issue a warning
-                warning = "Detected an attempt to compile this package using Swan Lake Update "
-                        + currentVersionForDiagnostic +
-                        ". However, this package was built using Swan Lake Update " + prevVersionForDiagnostic +
-                        ".\nHINT: Execute the bal command with --locking-mode=SOFT";
-            }
-            if (warning != null) {
-                DiagnosticInfo diagnosticInfo = new DiagnosticInfo(
-                        ProjectDiagnosticErrorCode.BUILT_WITH_OLDER_SL_UPDATE_DISTRIBUTION.diagnosticId(),
-                        warning, DiagnosticSeverity.WARNING);
-                PackageDiagnostic diagnostic = new PackageDiagnostic(diagnosticInfo,
-                        project.currentPackage().descriptor().name().toString());
-                err.println(diagnostic);
-            }
-        }
     }
 
     private void addDiagnosticForProvidedPlatformLibs(Project project, List<Diagnostic> diagnostics) {
