@@ -787,7 +787,7 @@ public class TestCommandTest extends BaseCommandTest {
         String[] argsList1 = {
                 "--offline",
                 "--sticky",
-                // "--locking-mode=soft", // TODO: enable after fixing #42467
+                 "--locking-mode=soft",
                 "--experimental",
                 "--optimize-dependency-compilation",
                 "--observability-included"

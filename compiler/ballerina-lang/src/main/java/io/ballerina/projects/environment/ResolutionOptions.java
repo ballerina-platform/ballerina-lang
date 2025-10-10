@@ -97,7 +97,7 @@ public class ResolutionOptions {
             return this;
         }
 
-        @Deprecated (forRemoval = true, since = "2201.13.0")
+        @Deprecated(forRemoval = true, since = "2201.13.0")
         public ResolutionOptionBuilder setSticky(boolean value) {
             sticky = value;
             return this;

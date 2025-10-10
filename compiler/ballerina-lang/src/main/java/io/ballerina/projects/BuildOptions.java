@@ -77,7 +77,7 @@ public class BuildOptions {
     /**
      * @deprecated Use {@link #lockingMode()} instead.
      */
-    @Deprecated (forRemoval = true, since = "2201.13.0")
+    @Deprecated(forRemoval = true, since = "2201.13.0")
     public boolean sticky() {
         return this.compilationOptions.sticky();
     }
@@ -337,7 +337,7 @@ public class BuildOptions {
             return this;
         }
 
-        @Deprecated (forRemoval = true, since = "2201.13.0")
+        @Deprecated(forRemoval = true, since = "2201.13.0")
         public BuildOptionsBuilder setSticky(Boolean value) {
             compilationOptionsBuilder.setSticky(value);
             return this;

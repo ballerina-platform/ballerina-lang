@@ -8,43 +8,6 @@ dependencies-toml-version = "2"
 distribution-version = "2201.13.0-m3"
 
 [[package]]
-org = "asmaj"
-name = "dep_a"
-version = "1.2.0"
-modules = [
-	{org = "asmaj", packageName = "dep_a", moduleName = "dep_a"}
-]
-
-[[package]]
-org = "asmaj"
-name = "dep_b"
-version = "2.0.0"
-dependencies = [
-	{org = "asmaj", name = "dep_c"}
-]
-modules = [
-	{org = "asmaj", packageName = "dep_b", moduleName = "dep_b"}
-]
-
-[[package]]
-org = "asmaj"
-name = "dep_c"
-version = "2.1.1"
-
-[[package]]
-org = "asmaj"
-name = "testLockingMode"
-version = "0.1.0"
-dependencies = [
-	{org = "asmaj", name = "dep_a"},
-	{org = "asmaj", name = "dep_b"},
-	{org = "ballerina", name = "test"}
-]
-modules = [
-	{org = "asmaj", packageName = "testLockingMode", moduleName = "testLockingMode"}
-]
-
-[[package]]
 org = "ballerina"
 name = "jballerina.java"
 version = "0.0.0"
@@ -97,5 +60,42 @@ dependencies = [
 ]
 modules = [
 	{org = "ballerina", packageName = "test", moduleName = "test"}
+]
+
+[[package]]
+org = "testorg"
+name = "dep_a"
+version = "1.2.0"
+modules = [
+	{org = "testorg", packageName = "dep_a", moduleName = "dep_a"}
+]
+
+[[package]]
+org = "testorg"
+name = "dep_b"
+version = "2.0.0"
+dependencies = [
+	{org = "testorg", name = "dep_c"}
+]
+modules = [
+	{org = "testorg", packageName = "dep_b", moduleName = "dep_b"}
+]
+
+[[package]]
+org = "testorg"
+name = "dep_c"
+version = "2.1.1"
+
+[[package]]
+org = "testorg"
+name = "testLockingMode"
+version = "0.1.0"
+dependencies = [
+	{org = "ballerina", name = "test"},
+	{org = "testorg", name = "dep_a"},
+	{org = "testorg", name = "dep_b"}
+]
+modules = [
+	{org = "testorg", packageName = "testLockingMode", moduleName = "testLockingMode"}
 ]
 

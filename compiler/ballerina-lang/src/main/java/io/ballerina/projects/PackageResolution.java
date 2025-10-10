@@ -292,7 +292,7 @@ public class PackageResolution {
         this.diagnosticResult = new DefaultDiagnosticResult(this.diagnosticList);
     }
 
-    @Deprecated (forRemoval = true, since = "2201.13.0")
+    @Deprecated(forRemoval = true, since = "2201.13.0")
     public boolean autoUpdate() {
         return true;
     }

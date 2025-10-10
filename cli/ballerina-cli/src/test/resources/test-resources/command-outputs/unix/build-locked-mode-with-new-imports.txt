@@ -1,8 +1,8 @@
 Compiling source
-	asmaj/testLockingMode:0.1.0
+	testorg/testLockingMode:0.1.0
 
 Generating executable
 	target/bin/testLockingMode.jar
 Compiling source
-	asmaj/testLockingMode:0.1.0
+	testorg/testLockingMode:0.1.0
 ERROR [testLockingMode] cannot add new imports with --locking-mode=locked. Use one of [soft, medium, hard] to build with new imports
