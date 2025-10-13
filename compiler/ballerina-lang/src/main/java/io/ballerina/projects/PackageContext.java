@@ -299,6 +299,13 @@ class PackageContext {
         return buildToolResolution;
     }
 
+    BuildToolResolution getBuildToolResolution(CompilationOptions compilationOptions) {
+        if (buildToolResolution == null) {
+            buildToolResolution = BuildToolResolution.from(this, compilationOptions);
+        }
+        return buildToolResolution;
+    }
+
    PackageResolution getResolution(PackageResolution oldResolution) {
         if (packageResolution == null) {
             packageResolution = PackageResolution.from(oldResolution, this, this.compilationOptions);

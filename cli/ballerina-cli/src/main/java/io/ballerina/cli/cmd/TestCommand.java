@@ -48,6 +48,7 @@ import io.ballerina.projects.internal.model.BuildJson;
 import io.ballerina.projects.internal.model.Target;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectPaths;
+import io.ballerina.tools.diagnostics.Diagnostic;
 import org.ballerinalang.test.runtime.entity.TestReport;
 import org.ballerinalang.test.runtime.util.CodeCoverageUtils;
 import org.wso2.ballerinalang.util.RepoUtils;
@@ -556,12 +557,14 @@ public class TestCommand implements BLauncherCmd {
         // which has the newly generated code for code coverage calculation.
         // Hence, below tasks are executed before extracting the module map from the project.
         boolean isSingleFile = project.kind().equals(ProjectKind.SINGLE_FILE_PROJECT);
+        List<Diagnostic> buildToolDiagnostics = new ArrayList<>();
         TaskExecutor preBuildTaskExecutor = new TaskExecutor.TaskBuilder()
                 .addTask(new CleanTargetCacheDirTask(),
                          isSingleFile) // clean the target cache dir(projects only)
                 .addTask(new CleanTargetBinTestsDirTask(),  (isSingleFile || !isTestingDelegated))
                 .addTask(new RestoreCachedArtifactsTask(), rebuildStatus)
-                .addTask(new RunBuildToolsTask(outStream), !rebuildStatus || isSingleFile) // run build tools
+                .addTask(new RunBuildToolsTask(outStream, !rebuildStatus, buildToolDiagnostics),
+                        isSingleFile) // run build tools
                 .build();
         preBuildTaskExecutor.executeTasks(project);
 
@@ -576,7 +579,8 @@ public class TestCommand implements BLauncherCmd {
                 // resolve maven dependencies in Ballerina.toml
                 .addTask(new ResolveMavenDependenciesTask(outStream, !rebuildStatus))
                 // compile the modules
-                .addTask(new CompileTask(outStream, errStream, false, false, !rebuildStatus))
+                .addTask(new CompileTask(outStream, errStream, false, false,
+                        !rebuildStatus, buildToolDiagnostics))
                 .addTask(new CreateTestExecutableTask(outStream, groupList, disableGroupList, testList, listGroups,
                         cliArgs, isParallelExecution), !isTestingDelegated)
                 .addTask(new RunTestsTask(outStream, errStream, rerunTests, groupList, disableGroupList,
