@@ -25,16 +25,17 @@ package io.ballerina.projects.environment;
 public enum PackageLockingMode {
     /**
      * Locks to major versions of dependencies.
+     * This is the default mode.
      */
-    SOFT,
+    SOFT("soft"),
     /**
      * Summary:
      * major never
      * minor as needed
      * patch always
-     *
-     * Locks to major versions of dependencies.
-     *
+     * <p>
+     * Locks to major and minor versions of dependencies.
+     * <p>
      * For every dependency we always update to latest patch version
      * (not conservative about patch versions)
      *
@@ -44,10 +45,42 @@ public enum PackageLockingMode {
      *
      * Flag allows upgrade to latest minor version available overriding
      * the need question
+     *
      */
-    MEDIUM,
+    MEDIUM("medium"),
     /**
      * Locks to exact major.minor.patch versions of dependencies.
+     * If a conflict is detected, if the versions are semver compatible,
+     * the latest version is picked. Else, the build will fail.
      */
-    HARD
+    HARD("hard"),
+    /**
+     * Locks to exact major.minor.patch versions of dependencies.
+     * If a conflict is detected, the build will fail.
+     */
+    LOCKED("locked");
+
+    final String lockingMode;
+
+    PackageLockingMode(String lockingMode) {
+        this.lockingMode = lockingMode;
+    }
+
+    public String value() {
+        return lockingMode;
+    }
+
+    @Override
+    public String toString() {
+        return lockingMode;
+    }
+
+    public static PackageLockingMode parse(String value) {
+        for (PackageLockingMode mode : PackageLockingMode.values()) {
+            if (mode.lockingMode.equalsIgnoreCase(value)) {
+                return mode;
+            }
+        }
+        throw new IllegalArgumentException("expected one of [soft, medium, hard, locked]");
+    }
 }

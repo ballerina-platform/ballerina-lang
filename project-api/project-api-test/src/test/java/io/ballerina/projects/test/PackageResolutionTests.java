@@ -189,6 +189,7 @@ public class PackageResolutionTests extends BaseTest {
 
         BCompileUtil.compileAndCacheBala("projects_for_resolution_tests/package_o_1_0_0");
         BCompileUtil.compileAndCacheBala("projects_for_resolution_tests/package_o_1_0_2");
+        BCompileUtil.compileAndCacheBala("projects_for_resolution_tests/package_o_1_1_0");
 
         BuildOptions.BuildOptionsBuilder buildOptionsBuilder = BuildOptions.builder();
         buildOptionsBuilder.setSticky(false);
@@ -216,11 +217,7 @@ public class PackageResolutionTests extends BaseTest {
         // Stage 1 : Package P without dep in Ballerina toml
         Path projectDirPath = tempResourceDir.resolve("package_p_withoutDep");
 
-        BuildOptions.BuildOptionsBuilder buildOptionsBuilder = BuildOptions.builder();
-        buildOptionsBuilder.setSticky(false);
-        BuildOptions buildOptions = buildOptionsBuilder.build();
-
-        Project loadProject = TestUtils.loadBuildProject(projectDirPath, buildOptions);
+        Project loadProject = TestUtils.loadBuildProject(projectDirPath);
         PackageCompilation compilation = loadProject.currentPackage().getCompilation();
 
         DependencyGraph<ResolvedPackageDependency> dependencyGraph = compilation.getResolution().dependencyGraph();
@@ -232,11 +229,8 @@ public class PackageResolutionTests extends BaseTest {
 
         // Stage 2 : Package P with deps
         projectDirPath = tempResourceDir.resolve("package_p_withDep");
-        buildOptionsBuilder = BuildOptions.builder();
-        buildOptionsBuilder.setSticky(false);
-        buildOptions = buildOptionsBuilder.build();
 
-        loadProject = TestUtils.loadBuildProject(projectDirPath, buildOptions);
+        loadProject = TestUtils.loadBuildProject(projectDirPath);
         compilation = loadProject.currentPackage().getCompilation();
 
         dependencyGraph = compilation.getResolution().dependencyGraph();

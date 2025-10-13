@@ -428,7 +428,7 @@ public class RunCommandTest extends BaseCommandTest {
         String[] argsList1 = {
                 "--offline",
                 "--sticky",
-                "--locking-mode=SOFT",
+                "--locking-mode=soft",
                 "--experimental",
                 "--optimize-dependency-compilation",
                 "--remote-management",

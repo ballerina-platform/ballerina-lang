@@ -233,7 +233,7 @@ public class BuildToolResolution {
         ToolResolutionCentralRequest toolResolutionRequest = new ToolResolutionCentralRequest();
         for (ToolResolutionRequest resolutionRequest : resolutionRequests) {
             ToolResolutionCentralRequest.Mode mode = switch (resolutionRequest.packageLockingMode()) {
-                case HARD -> ToolResolutionCentralRequest.Mode.HARD;
+                case HARD, LOCKED -> ToolResolutionCentralRequest.Mode.HARD;
                 case MEDIUM -> ToolResolutionCentralRequest.Mode.MEDIUM;
                 case SOFT -> ToolResolutionCentralRequest.Mode.SOFT;
             };
