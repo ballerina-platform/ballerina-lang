@@ -101,4 +101,4 @@ EXAMPLES
 
        Create a new package in a workspace.
            $ cd my-workspace
-           $ bal new my-new-package
+           $ bal new my-package
