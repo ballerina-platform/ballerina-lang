@@ -300,7 +300,7 @@ public class JBallerinaDebugServer implements BallerinaExtendedDebugServer {
             try {
                 clientConfigHolder = new ClientAttachConfigHolder(args);
                 context.setDebugMode(ExecutionContext.DebugMode.ATTACH);
-                Project srcProject = context.getProjectCache().getProject(Path.of(clientConfigHolder.getSourcePath()));
+                Project srcProject = context.getProjectCache().getOrLoadProject(Path.of(clientConfigHolder.getSourcePath()));
                 context.setSourceProject(srcProject);
                 ClientAttachConfigHolder configHolder = (ClientAttachConfigHolder) clientConfigHolder;
 
@@ -479,7 +479,7 @@ public class JBallerinaDebugServer implements BallerinaExtendedDebugServer {
 
     private void launchDebuggeeProgram() throws Exception {
         context.setDebugMode(ExecutionContext.DebugMode.LAUNCH);
-        Project sourceProject = context.getProjectCache().getProject(Path.of(clientConfigHolder.getSourcePath()));
+        Project sourceProject = context.getProjectCache().getOrLoadProject(Path.of(clientConfigHolder.getSourcePath()));
         context.setSourceProject(sourceProject);
         String sourceProjectRoot = context.getSourceProjectRoot();
         // if the debug server runs in fast-run mode, send a notification to the client to re-run the remote program and

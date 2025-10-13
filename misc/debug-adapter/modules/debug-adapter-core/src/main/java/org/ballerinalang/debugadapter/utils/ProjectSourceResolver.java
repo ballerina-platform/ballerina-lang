@@ -24,6 +24,7 @@ import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectKind;
 import io.ballerina.projects.directory.BuildProject;
 import io.ballerina.projects.directory.WorkspaceProject;
+import io.ballerina.projects.util.ProjectPaths;
 import org.ballerinalang.debugadapter.DebugProjectCache;
 
 import java.io.File;
@@ -140,7 +141,7 @@ public class ProjectSourceResolver extends SourceResolver {
     }
 
     private boolean isLocationInWorkspace(DebugSourceLocation debugSourceLocation) {
-        Optional<Path> workspaceRoot = PackageUtils.findWorkspaceRoot(sourceProject.sourceRoot().toAbsolutePath());
+        Optional<Path> workspaceRoot = ProjectPaths.workspaceRoot(sourceProject.sourceRoot().toAbsolutePath());
         if (workspaceRoot.isPresent()) {
             boolean isSupported = false;
             List<BuildProject> projects = ((WorkspaceProject) sourceProject).projects();
@@ -159,12 +160,12 @@ public class ProjectSourceResolver extends SourceResolver {
 
     private Optional<Path> findLocationInWorkspacePackages(Project sourceProject, Location location) {
         try {
-            Optional<Path> workspaceRoot = PackageUtils.findWorkspaceRoot(sourceProject.sourceRoot().toAbsolutePath());
+            Optional<Path> workspaceRoot = ProjectPaths.workspaceRoot(sourceProject.sourceRoot().toAbsolutePath());
             if (workspaceRoot.isEmpty()) {
                 return Optional.empty();
             }
 
-            Project workpaceProject = projectCache.getProject(workspaceRoot.get(), true);
+            Project workpaceProject = projectCache.getOrLoadProject(workspaceRoot.get(), true);
             if (workpaceProject.kind() != ProjectKind.WORKSPACE_PROJECT) {
                 return Optional.empty();
             }

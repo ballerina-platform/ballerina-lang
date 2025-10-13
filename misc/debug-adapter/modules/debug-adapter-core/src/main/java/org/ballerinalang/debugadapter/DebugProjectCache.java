@@ -49,8 +49,8 @@ public class DebugProjectCache {
      * @param filePath source root of the Ballerina project that need to be retrieved.
      * @return project instance.
      */
-    public Project getProject(Path filePath) {
-        return getProject(filePath, false);
+    public Project getOrLoadProject(Path filePath) {
+        return getOrLoadProject(filePath, false);
     }
 
     /**
@@ -59,7 +59,7 @@ public class DebugProjectCache {
      * @param filePath source root of the Ballerina project that need to be retrieved.
      * @return project instance.
      */
-    public Project getProject(Path filePath, boolean allowWorkspaceProjects) {
+    public Project getOrLoadProject(Path filePath, boolean allowWorkspaceProjects) {
         Map.Entry<ProjectKind, Path> projectKindAndRoot = computeProjectKindAndRoot(filePath, allowWorkspaceProjects);
         Path projectRoot = projectKindAndRoot.getValue();
 

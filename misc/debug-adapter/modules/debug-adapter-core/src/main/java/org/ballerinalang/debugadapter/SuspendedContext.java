@@ -259,7 +259,7 @@ public class SuspendedContext {
     private Project resolveCurrentProject(Project sourceProject) {
         Optional<Path> breakPointSourcePath = getBreakPointSourcePath(sourceProject);
         if (breakPointSourcePath.isPresent()) {
-            return executionContext.getProjectCache().getProject(breakPointSourcePath.get());
+            return executionContext.getProjectCache().getOrLoadProject(breakPointSourcePath.get());
         }
         return sourceProject;
     }

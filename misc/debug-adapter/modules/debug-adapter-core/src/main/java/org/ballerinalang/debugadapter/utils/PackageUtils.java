@@ -141,10 +141,7 @@ public final class PackageUtils {
         }
 
         if (allowWorkspaceProjects) {
-            // TODO: Revert 'findWorkspaceRoot()' to `ProjectPaths.workspaceRoot()` API once
-            //   https://github.com/ballerina-platform/ballerina-lang/issues/43538#issuecomment-2469488458
-            //   is addressed from the Ballerina platform side.
-            Optional<Path> workspaceRoot = findWorkspaceRoot(path);
+            Optional<Path> workspaceRoot = ProjectPaths.workspaceRoot(path);
             if (workspaceRoot.isPresent()) {
                 return new AbstractMap.SimpleEntry<>(ProjectKind.WORKSPACE_PROJECT, workspaceRoot.get());
             }
@@ -193,35 +190,6 @@ public final class PackageUtils {
             }
         }
         return findProjectRoot(filePath.getParent());
-    }
-
-    public static Optional<Path> findWorkspaceRoot(Path filePath) {
-        if (filePath != null) {
-            filePath = filePath.toAbsolutePath().normalize();
-            if (filePath.toFile().isDirectory()) {
-                if (isWorkspaceProjectRoot(filePath)) {
-                    return Optional.of(filePath);
-                }
-            }
-            return findWorkspaceRoot(filePath.getParent());
-        }
-        return Optional.empty();
-    }
-
-    public static boolean isWorkspaceProjectRoot(Path filePath) {
-        if (!filePath.toFile().isDirectory()) {
-            return false;
-        }
-        Path absFilePath = filePath.resolve(BALLERINA_TOML).toAbsolutePath().normalize();
-        if (absFilePath.toFile().exists()) {
-            try {
-                TomlDocument tomlDocument = TomlDocument.from(BALLERINA_TOML, Files.readString(absFilePath));
-                return tomlDocument.toml().getTable(WORKSPACE_KEY).isPresent();
-            } catch (IOException e) {
-                throw new ProjectException("error while validating workspace root: " + e);
-            }
-        }
-        return false;
     }
 
     private static boolean hasPackageJson(Path filePath) {
@@ -302,7 +270,7 @@ public final class PackageUtils {
                 return Optional.empty();
             }
 
-            Project project = context.getProjectCache().getProject(path.get());
+            Project project = context.getProjectCache().getOrLoadProject(path.get());
             // This triggers a resolution request to load all the generated modules, if not loaded already.
             project.currentPackage().getResolution();
 
