@@ -45,7 +45,6 @@ import org.wso2.ballerinalang.compiler.bir.codegen.methodgen.MethodGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.methodgen.MethodGenUtils;
 import org.wso2.ballerinalang.compiler.bir.codegen.methodgen.ModuleStopMethodGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.model.BIRFunctionWrapper;
-import org.wso2.ballerinalang.compiler.bir.codegen.optimizer.LargeMethodOptimizer;
 import org.wso2.ballerinalang.compiler.bir.codegen.split.JvmConstantsGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.split.JvmMethodsSplitter;
 import org.wso2.ballerinalang.compiler.bir.codegen.split.identifiers.JvmBallerinaConstantsGen;
@@ -130,13 +129,13 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.desugar.BirDesugar.rew
 import static org.wso2.ballerinalang.compiler.bir.codegen.interop.ExternalMethodGen.createExternalFunctionWrapper;
 import static org.wso2.ballerinalang.compiler.bir.codegen.interop.ExternalMethodGen.injectDefaultParamInits;
 import static org.wso2.ballerinalang.compiler.bir.codegen.utils.JvmCodeGenUtil.NAME_HASH_COMPARATOR;
+import static org.wso2.ballerinalang.compiler.bir.codegen.utils.JvmCodeGenUtil.canSkipFromCallByFunctionName;
 import static org.wso2.ballerinalang.compiler.bir.codegen.utils.JvmCodeGenUtil.isExternFunc;
 import static org.wso2.ballerinalang.compiler.bir.codegen.utils.JvmCodeGenUtil.toNameString;
 import static org.wso2.ballerinalang.compiler.bir.codegen.utils.JvmModuleUtils.getModuleLevelClassName;
 import static org.wso2.ballerinalang.compiler.bir.codegen.utils.JvmModuleUtils.getPackageName;
 import static org.wso2.ballerinalang.compiler.bir.codegen.utils.JvmModuleUtils.isBallerinaBuiltinModule;
 import static org.wso2.ballerinalang.compiler.bir.codegen.utils.JvmModuleUtils.isSameModule;
-import static org.wso2.ballerinalang.compiler.util.Constants.RECORD_DELIMITER;
 
 /**
  * BIR module to JVM byte code generation class.
@@ -734,7 +733,7 @@ public class JvmPackageGen {
         List<BIRNode.BIRFunction> filteredFunctions = new ArrayList<>();
         for (BIRNode.BIRFunction func : functions) {
             String funcName = func.name.value;
-            if (funcName.contains(RECORD_DELIMITER) || funcName.contains(LargeMethodOptimizer.SPLIT_METHOD)) {
+            if (canSkipFromCallByFunctionName(funcName)) {
                 continue;
             }
             filteredFunctions.add(func);
