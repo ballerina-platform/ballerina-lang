@@ -7,7 +7,7 @@ setOptionalField function() -> () {
     %7(TEMP) ();
 
     bb0 {
-        %1 = NewMap $typedesc$R3{};
+        %1 = NewMap $td$R3{};
         %3 = ConstLoad 2;
         %5 = ConstLoad x;
         %1[%5] = %3;

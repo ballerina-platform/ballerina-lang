@@ -79,7 +79,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.POPULATE_
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.VARIABLE_KEY;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.ADD_MODULE_CONFIG_DATA;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.CURRENT_MODULE_INIT;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_JBOOLEAN_TYPE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_JBOOLEAN;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_MODULE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INIT_CONFIG;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INTI_VARIABLE_KEY;
@@ -119,11 +119,11 @@ public class ConfigMethodGen {
 
     private void generateStaticFields(ClassWriter cw, String innerClassName) {
         MethodVisitor mv = cw.visitMethod(ACC_STATIC, JVM_STATIC_INIT_METHOD, VOID_METHOD_DESC, null, null);
-        FieldVisitor fv = cw.visitField(ACC_PUBLIC + ACC_STATIC, CONFIGURE_INIT_ATTEMPTED, GET_JBOOLEAN_TYPE,
+        FieldVisitor fv = cw.visitField(ACC_PUBLIC + ACC_STATIC, CONFIGURE_INIT_ATTEMPTED, GET_JBOOLEAN,
                 null, null);
         fv.visitEnd();
         mv.visitInsn(ICONST_0);
-        mv.visitFieldInsn(PUTSTATIC, innerClassName, CONFIGURE_INIT_ATTEMPTED, GET_JBOOLEAN_TYPE);
+        mv.visitFieldInsn(PUTSTATIC, innerClassName, CONFIGURE_INIT_ATTEMPTED, GET_JBOOLEAN);
         mv.visitInsn(RETURN);
         JvmCodeGenUtil.visitMaxStackForMethod(mv, JVM_STATIC_INIT_METHOD, innerClassName);
         mv.visitEnd();
@@ -133,13 +133,13 @@ public class ConfigMethodGen {
                                     String innerClassName) {
         MethodVisitor mv = cw.visitMethod(ACC_PUBLIC | ACC_STATIC, CONFIGURE_INIT, INIT_CONFIG, null, null);
         mv.visitCode();
-        mv.visitFieldInsn(GETSTATIC, innerClassName, CONFIGURE_INIT_ATTEMPTED, GET_JBOOLEAN_TYPE);
+        mv.visitFieldInsn(GETSTATIC, innerClassName, CONFIGURE_INIT_ATTEMPTED, GET_JBOOLEAN);
         Label labelIf = new Label();
         mv.visitJumpInsn(IFEQ, labelIf);
         mv.visitInsn(RETURN);
         mv.visitLabel(labelIf);
         mv.visitInsn(ICONST_1);
-        mv.visitFieldInsn(PUTSTATIC, innerClassName, CONFIGURE_INIT_ATTEMPTED, GET_JBOOLEAN_TYPE);
+        mv.visitFieldInsn(PUTSTATIC, innerClassName, CONFIGURE_INIT_ATTEMPTED, GET_JBOOLEAN);
         for (PackageID id : imprtMods) {
             generateInvokeConfigureInit(mv, id);
         }

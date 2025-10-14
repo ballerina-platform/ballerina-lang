@@ -86,7 +86,7 @@ public class LargeMethodOptimizer {
 
     private static final Name DEFAULT_WORKER_NAME = new Name("function");
     private static final String OBJECT_INITIALIZATION_FUNCTION_NAME = "$init$";
-    public static final String SPLIT_METHOD = "$split$method$_";
+    public static final String SPLIT_METHOD = "$split$_";
     private static final String ARG_INDEX = "%argIndex";
     private static final String ARG_TUPLE_SIZE = "%argTupleSize";
     private static final String ARG_TUPLE_TYPEDESC = "%argTupleTypeDesc_";

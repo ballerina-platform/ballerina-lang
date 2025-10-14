@@ -104,7 +104,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRAND_CL
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TEST_EXECUTE_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TEST_EXECUTION_STATE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.VALUE_CREATOR;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.VALUE_VAR_NAME;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.VALUE_VAR_FIELD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.ADD_VALUE_CREATOR;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.CURRENT_MODULE_INIT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.CURRENT_MODULE_STOP;
@@ -625,7 +625,7 @@ public class InitMethodGen {
         MethodVisitor mv = cw.visitMethod(ACC_PUBLIC | ACC_STATIC, GET_TEST_EXECUTION_STATE, "()J", null, null);
         mv.visitCode();
         String testExecutionStateGlobalClass = getVarStoreClass(this.globalVarsPkgName, TEST_EXECUTION_STATE);
-        mv.visitFieldInsn(GETSTATIC, testExecutionStateGlobalClass, VALUE_VAR_NAME, "J");
+        mv.visitFieldInsn(GETSTATIC, testExecutionStateGlobalClass, VALUE_VAR_FIELD, "J");
         mv.visitInsn(LRETURN);
         JvmCodeGenUtil.visitMaxStackForMethod(mv, GET_TEST_EXECUTION_STATE, testExecutionStateGlobalClass);
         mv.visitEnd();
