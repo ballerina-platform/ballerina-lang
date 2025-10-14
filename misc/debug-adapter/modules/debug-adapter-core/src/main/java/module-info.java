@@ -9,7 +9,6 @@ module ballerina.debug.adapter.core {
     requires org.eclipse.lsp4j.jsonrpc;
     requires io.ballerina.identifier;
     requires org.apache.commons.lang3;
-    requires io.ballerina.toml;
 
     exports org.ballerinalang.debugadapter.launcher;
 }
