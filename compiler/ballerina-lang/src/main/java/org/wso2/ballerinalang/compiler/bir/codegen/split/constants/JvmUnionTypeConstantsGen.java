@@ -33,8 +33,6 @@ import java.util.TreeMap;
 
 import static org.objectweb.asm.ClassWriter.COMPUTE_FRAMES;
 import static org.objectweb.asm.Opcodes.ACC_STATIC;
-import static org.objectweb.asm.Opcodes.ICONST_0;
-import static org.objectweb.asm.Opcodes.ICONST_1;
 import static org.objectweb.asm.Opcodes.INVOKESTATIC;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CLASS_FILE_SUFFIX;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.GET_TYPE_METHOD;
@@ -44,7 +42,6 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.UNION_TYP
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_UNION_TYPE_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.VOID_METHOD_DESC;
 import static org.wso2.ballerinalang.compiler.bir.codegen.split.JvmCreateTypeGen.genFieldsForInitFlags;
-import static org.wso2.ballerinalang.compiler.bir.codegen.split.JvmCreateTypeGen.setTypeInitialized;
 import static org.wso2.ballerinalang.compiler.bir.codegen.utils.JvmCodeGenUtil.genMethodReturn;
 import static org.wso2.ballerinalang.compiler.bir.codegen.utils.JvmConstantGenUtils.generateConstantsClassInit;
 import static org.wso2.ballerinalang.compiler.bir.codegen.utils.JvmModuleUtils.getModuleLevelClassName;
@@ -92,9 +89,7 @@ public class JvmUnionTypeConstantsGen {
         String unionTypeClass = this.unionVarConstantsPkgName + varName;
         generateConstantsClassInit(cw, unionTypeClass);
         MethodVisitor mv = cw.visitMethod(ACC_STATIC, JVM_STATIC_INIT_METHOD, VOID_METHOD_DESC, null, null);
-        setTypeInitialized(mv, ICONST_1, unionTypeClass);
         jvmUnionTypeGen.createUnionType(cw, mv, unionTypeClass, varName, type, false, symbolTable);
-        setTypeInitialized(mv, ICONST_0, unionTypeClass);
         genMethodReturn(mv);
         cw.visitEnd();
         jarEntries.put(unionTypeClass + CLASS_FILE_SUFFIX, cw.toByteArray());

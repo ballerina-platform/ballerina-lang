@@ -251,11 +251,8 @@ public class JvmCreateTypeGen {
                 asyncDataCollector, lazyLoadingDataCollector);
         MethodVisitor mv = cw.visitMethod(ACC_STATIC, JVM_STATIC_INIT_METHOD, VOID_METHOD_DESC, null, null);
         mv.visitCode();
-        setTypeInitialized(mv, ICONST_1, typeClass);
         jvmRecordTypeGen.createRecordType(cw, mv, module, typeClass, (BRecordType) bType, varName, true,
                 jvmPackageGen.symbolTable);
-        setTypeInitialized(mv, ICONST_0, typeClass);
-
         genMethodReturn(mv);
         cw.visitEnd();
         jarEntries.put(typeClass + CLASS_FILE_SUFFIX, cw.toByteArray());
@@ -285,10 +282,8 @@ public class JvmCreateTypeGen {
         }
         MethodVisitor mv = cw.visitMethod(ACC_STATIC, JVM_STATIC_INIT_METHOD, VOID_METHOD_DESC, null, null);
         mv.visitCode();
-        setTypeInitialized(mv, ICONST_1, typeClass);
         jvmObjectTypeGen.createObjectType(cw, mv, typeClass, bType, varName, isAnnotatedType,
                 new BIRVarToJVMIndexMap(), jvmPackageGen.symbolTable);
-        setTypeInitialized(mv, ICONST_0, typeClass);
         genMethodReturn(mv);
         cw.visitEnd();
         jarEntries.put(typeClass + CLASS_FILE_SUFFIX, cw.toByteArray());
@@ -318,9 +313,7 @@ public class JvmCreateTypeGen {
         }
         MethodVisitor mv = cw.visitMethod(ACC_STATIC, JVM_STATIC_INIT_METHOD, VOID_METHOD_DESC, null, null);
         mv.visitCode();
-        setTypeInitialized(mv, ICONST_1, typeClass);
         jvmErrorTypeGen.createErrorType(cw, mv, (BErrorType) bType, typeClass, isAnnotatedType);
-        setTypeInitialized(mv, ICONST_0, typeClass);
         genMethodReturn(mv);
         cw.visitEnd();
         jarEntries.put(typeClass + CLASS_FILE_SUFFIX, cw.toByteArray());
@@ -351,10 +344,8 @@ public class JvmCreateTypeGen {
         }
         MethodVisitor mv = cw.visitMethod(ACC_STATIC, JVM_STATIC_INIT_METHOD, VOID_METHOD_DESC, null, null);
         mv.visitCode();
-        setTypeInitialized(mv, ICONST_1, typeClass);
         jvmTupleTypeGen.createTupleType(cw, mv, typeClass, (BTupleType) bType, isAnnotatedType,
                 jvmPackageGen.symbolTable, ACC_PRIVATE);
-        setTypeInitialized(mv, ICONST_0, typeClass);
         genMethodReturn(mv);
         cw.visitEnd();
         jarEntries.put(typeClass + CLASS_FILE_SUFFIX, cw.toByteArray());
@@ -383,10 +374,8 @@ public class JvmCreateTypeGen {
         }
         MethodVisitor mv = cw.visitMethod(ACC_STATIC, JVM_STATIC_INIT_METHOD, VOID_METHOD_DESC, null, null);
         mv.visitCode();
-        setTypeInitialized(mv, ICONST_1, typeClass);
         jvmUnionTypeGen.createUnionType(cw, mv, typeClass, varName, (BUnionType) bType, isAnnotatedType,
                 jvmPackageGen.symbolTable);
-        setTypeInitialized(mv, ICONST_0, typeClass);
         genMethodReturn(mv);
         cw.visitEnd();
         jarEntries.put(typeClass + CLASS_FILE_SUFFIX, cw.toByteArray());
@@ -396,12 +385,6 @@ public class JvmCreateTypeGen {
     public static void genFieldsForInitFlags(ClassWriter cw) {
         cw.visitField(ACC_STATIC | ACC_PRIVATE | ACC_VOLATILE, TYPE_INIT_FIELD, GET_JBOOLEAN, null, null).visitEnd();
         cw.visitField(ACC_STATIC | ACC_PRIVATE | ACC_VOLATILE, TYPE_INIT_ON_FIELD, GET_JBOOLEAN, null, null).visitEnd();
-    }
-
-
-    public static void setTypeInitialized(MethodVisitor mv, int status, String typeClass) {
-//        mv.visitInsn(status);
-//        mv.visitFieldInsn(PUTSTATIC, typeClass, TYPE_INIT_FIELD, GET_JBOOLEAN);
     }
 
     public static DoubleCheckLabelsRecord genDoubleCheckGetStart(MethodVisitor mv, String typeClass,
