@@ -186,7 +186,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPEDESC_
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPE_CHECKER;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.VALUE_COMPARISON_UTILS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.VALUE_OF_METHOD;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.VALUE_VAR_FIELD_NAME;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.VALUE_VAR_FIELD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.XML_FACTORY;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.XML_QNAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.XML_VALUE;
@@ -270,7 +270,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.XML_SET_
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmTypeGen.getTypeDesc;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmValueGen.getTypeDescClassName;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmValueGen.getTypeValueClassName;
-import static org.wso2.ballerinalang.compiler.bir.codegen.optimizer.LargeMethodOptimizer.SPLIT_METHOD;
+import static org.wso2.ballerinalang.compiler.bir.codegen.utils.JvmCodeGenUtil.canSkipFromCallByFunctionName;
 import static org.wso2.ballerinalang.compiler.bir.codegen.utils.JvmCodeGenUtil.getVarStoreClass;
 import static org.wso2.ballerinalang.compiler.bir.codegen.utils.JvmCodeGenUtil.loadConstantValue;
 import static org.wso2.ballerinalang.compiler.bir.codegen.utils.JvmCodeGenUtil.loadStrand;
@@ -386,10 +386,10 @@ public class JvmInstructionGen {
         PackageID moduleId = ((BIRNode.BIRGlobalVariableDcl) varDcl).pkgId;
         String typeSig = getTypeDesc(bType);
         if (moduleId.equals(currentPackage) && moduleId.isTestPkg == currentPackage.isTestPkg) {
-            mv.visitFieldInsn(GETSTATIC, getVarStoreClass(varClass, varName), VALUE_VAR_FIELD_NAME, typeSig);
+            mv.visitFieldInsn(GETSTATIC, getVarStoreClass(varClass, varName), VALUE_VAR_FIELD, typeSig);
         } else {
             mv.visitFieldInsn(GETSTATIC, getVarStoreClass(getModuleLevelClassName(moduleId, className), varName),
-                    VALUE_VAR_FIELD_NAME, typeSig);
+                    VALUE_VAR_FIELD, typeSig);
         }
     }
 
@@ -439,10 +439,10 @@ public class JvmInstructionGen {
         PackageID moduleId = ((BIRNode.BIRGlobalVariableDcl) varDcl).pkgId;
         String typeSig = getTypeDesc(bType);
         if (moduleId.equals(currentPackage) && moduleId.isTestPkg == currentPackage.isTestPkg) {
-            mv.visitFieldInsn(PUTSTATIC, getVarStoreClass(varClass, varName), VALUE_VAR_FIELD_NAME, typeSig);
+            mv.visitFieldInsn(PUTSTATIC, getVarStoreClass(varClass, varName), VALUE_VAR_FIELD, typeSig);
         } else {
             mv.visitFieldInsn(PUTSTATIC, getVarStoreClass(getModuleLevelClassName(moduleId, className), varName),
-                    VALUE_VAR_FIELD_NAME, typeSig);
+                    VALUE_VAR_FIELD, typeSig);
         }
     }
 
@@ -1623,7 +1623,7 @@ public class JvmInstructionGen {
             this.mv.visitTypeInsn(CHECKCAST, OBJECT_TYPE_IMPL);
             mv.visitMethodInsn(INVOKEVIRTUAL, OBJECT_TYPE_IMPL, "duplicate", OBJECT_TYPE_DUPLICATE, false);
             this.mv.visitInsn(DUP);
-            this.mv.visitFieldInsn(GETSTATIC, this.annotationVarClassName, VALUE_VAR_FIELD_NAME, GET_MAP_VALUE);
+            this.mv.visitFieldInsn(GETSTATIC, this.annotationVarClassName, VALUE_VAR_FIELD, GET_MAP_VALUE);
             loadStrand(this.mv, strandIndex);
             this.mv.visitMethodInsn(INVOKESTATIC, ANNOTATION_UTILS, "processObjectCtorAnnotations",
                     PROCESS_OBJ_CTR_ANNOTATIONS, false);
@@ -1655,7 +1655,7 @@ public class JvmInstructionGen {
         // Need to remove once we fix #37875
         type = inst.lhsOp.variableDcl.type.tag == TypeTags.TYPEREFDESC ? inst.lhsOp.variableDcl.type : type;
         if (type.tsymbol == null || type.name.getValue().isEmpty() || Symbols.isFlagOn(type.tsymbol.flags,
-                Flags.ATTACHED) || name.contains(RECORD_DELIMITER) || name.contains(SPLIT_METHOD)) {
+                Flags.ATTACHED) || canSkipFromCallByFunctionName(name)) {
             jvmTypeGen.loadType(this.mv, type);
         } else {
             PackageID moduleId = type.tsymbol.pkgID;
@@ -1666,7 +1666,7 @@ public class JvmInstructionGen {
                 functionTypeConstantClass = getModuleLevelClassName(moduleId, FUNCTION_TYPE_CONSTANT_PACKAGE_NAME)
                         + Utils.encodeFunctionIdentifier(name);
             }
-            mv.visitFieldInsn(GETSTATIC, functionTypeConstantClass, VALUE_VAR_FIELD_NAME, GET_FUNCTION_TYPE);
+            mv.visitFieldInsn(GETSTATIC, functionTypeConstantClass, VALUE_VAR_FIELD, GET_FUNCTION_TYPE);
         }
         if (inst.strandName != null) {
             mv.visitLdcInsn(inst.strandName);
@@ -1687,11 +1687,11 @@ public class JvmInstructionGen {
         if (hasFPAnnotations(name, funcPkgName)) {
             this.mv.visitInsn(DUP);
             if (pkgId.equals(currentPackage) && pkgId.isTestPkg == currentPackage.isTestPkg) {
-                this.mv.visitFieldInsn(GETSTATIC, this.annotationVarClassName, VALUE_VAR_FIELD_NAME, GET_MAP_VALUE);
+                this.mv.visitFieldInsn(GETSTATIC, this.annotationVarClassName, VALUE_VAR_FIELD, GET_MAP_VALUE);
             } else {
                 String annotationMapClass = getVarStoreClass(getModuleLevelClassName(pkgId,
                         GLOBAL_VARIABLES_PACKAGE_NAME), ANNOTATION_MAP_NAME);
-                this.mv.visitFieldInsn(GETSTATIC, annotationMapClass, VALUE_VAR_FIELD_NAME, GET_MAP_VALUE);
+                this.mv.visitFieldInsn(GETSTATIC, annotationMapClass, VALUE_VAR_FIELD, GET_MAP_VALUE);
             }
             // Format of name `$anon$method$delegate$Foo.func$0`.
             this.mv.visitLdcInsn(name.startsWith(ANON_METHOD_DELEGATE) ?
