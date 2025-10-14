@@ -32,7 +32,6 @@ import java.util.Map;
 import java.util.TreeMap;
 
 import static org.objectweb.asm.ClassWriter.COMPUTE_FRAMES;
-import static org.objectweb.asm.Opcodes.ACC_PUBLIC;
 import static org.objectweb.asm.Opcodes.ACC_STATIC;
 import static org.objectweb.asm.Opcodes.ICONST_0;
 import static org.objectweb.asm.Opcodes.ICONST_1;
@@ -44,6 +43,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPE_VAR_
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.UNION_TYPE_CONSTANT_PACKAGE_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_UNION_TYPE_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.VOID_METHOD_DESC;
+import static org.wso2.ballerinalang.compiler.bir.codegen.split.JvmCreateTypeGen.genFieldsForInitFlags;
 import static org.wso2.ballerinalang.compiler.bir.codegen.split.JvmCreateTypeGen.setTypeInitialized;
 import static org.wso2.ballerinalang.compiler.bir.codegen.utils.JvmCodeGenUtil.genMethodReturn;
 import static org.wso2.ballerinalang.compiler.bir.codegen.utils.JvmConstantGenUtils.generateConstantsClassInit;
@@ -88,11 +88,12 @@ public class JvmUnionTypeConstantsGen {
 
     private void generateBUnionInits(BUnionType type, String varName, SymbolTable symbolTable) {
         ClassWriter cw = new BallerinaClassWriter(COMPUTE_FRAMES);
+        genFieldsForInitFlags(cw);
         String unionTypeClass = this.unionVarConstantsPkgName + varName;
         generateConstantsClassInit(cw, unionTypeClass);
-        MethodVisitor mv = cw.visitMethod(ACC_STATIC, JVM_STATIC_INIT_METHOD, VOID_METHOD_DESC, null, null); 
+        MethodVisitor mv = cw.visitMethod(ACC_STATIC, JVM_STATIC_INIT_METHOD, VOID_METHOD_DESC, null, null);
         setTypeInitialized(mv, ICONST_1, unionTypeClass);
-        jvmUnionTypeGen.createUnionType(cw, mv, unionTypeClass, varName, type, false, symbolTable, ACC_PUBLIC);
+        jvmUnionTypeGen.createUnionType(cw, mv, unionTypeClass, varName, type, false, symbolTable);
         setTypeInitialized(mv, ICONST_0, unionTypeClass);
         genMethodReturn(mv);
         cw.visitEnd();

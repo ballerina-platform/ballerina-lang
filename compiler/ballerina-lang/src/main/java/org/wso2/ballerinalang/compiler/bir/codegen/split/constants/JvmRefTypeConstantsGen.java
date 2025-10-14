@@ -44,6 +44,7 @@ import static org.objectweb.asm.Opcodes.ICONST_1;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CLASS_FILE_SUFFIX;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JVM_STATIC_INIT_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.VOID_METHOD_DESC;
+import static org.wso2.ballerinalang.compiler.bir.codegen.split.JvmCreateTypeGen.genFieldsForInitFlags;
 import static org.wso2.ballerinalang.compiler.bir.codegen.split.JvmCreateTypeGen.setTypeInitialized;
 import static org.wso2.ballerinalang.compiler.bir.codegen.utils.JvmCodeGenUtil.genMethodReturn;
 import static org.wso2.ballerinalang.compiler.bir.codegen.utils.JvmConstantGenUtils.generateConstantsClassInit;
@@ -90,6 +91,7 @@ public class JvmRefTypeConstantsGen {
                                                  AsyncDataCollector asyncDataCollector,
                                                  LazyLoadingDataCollector lazyLoadingDataCollector) {
         ClassWriter cw = new BallerinaClassWriter(COMPUTE_FRAMES);
+        genFieldsForInitFlags(cw);
         String varName = JvmCodeGenUtil.getRefTypeConstantName(referenceType);
         String typeRefConstantClass = this.typeRefVarConstantsPkgName + varName;
         generateConstantsClassInit(cw, typeRefConstantClass);

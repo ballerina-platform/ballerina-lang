@@ -44,6 +44,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TUPLE_TYP
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPE_VAR_PREFIX;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_TUPLE_TYPE_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.VOID_METHOD_DESC;
+import static org.wso2.ballerinalang.compiler.bir.codegen.split.JvmCreateTypeGen.genFieldsForInitFlags;
 import static org.wso2.ballerinalang.compiler.bir.codegen.split.JvmCreateTypeGen.setTypeInitialized;
 import static org.wso2.ballerinalang.compiler.bir.codegen.utils.JvmCodeGenUtil.genMethodReturn;
 import static org.wso2.ballerinalang.compiler.bir.codegen.utils.JvmConstantGenUtils.generateConstantsClassInit;
@@ -87,6 +88,7 @@ public class JvmTupleTypeConstantsGen {
 
     private void generateBTupleInits(BTupleType type, String varName, SymbolTable symbolTable) {
         ClassWriter cw = new BallerinaClassWriter(COMPUTE_FRAMES);
+        genFieldsForInitFlags(cw);
         String tupleTypeClass = this.tupleVarConstantsPkgName + varName;
         generateConstantsClassInit(cw, tupleTypeClass);
         MethodVisitor mv = cw.visitMethod(ACC_STATIC, JVM_STATIC_INIT_METHOD, VOID_METHOD_DESC, null, null);
