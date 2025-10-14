@@ -142,7 +142,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TABLE_TYP
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPEDESC_TYPE_IMPL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPES_ERROR;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPE_VAR_FIELD_NAME;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPE_VAR_FIELD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.VALUE_CREATOR;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.VALUE_OF_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.XML_TYPE_IMPL;
@@ -175,12 +175,12 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_OBJE
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_RECORD_TYPE_FOR_STRING;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_RECORD_TYPE_IMPL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_RECORD_TYPE_METHOD;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_REF_TYPE_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_REGEXP;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_STREAM_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_TABLE_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_TUPLE_TYPE_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_TYPEDESC;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_TYPE_REF_TYPE_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_UNION_TYPE_IMPL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_UNION_TYPE_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_VALUE_CREATOR;
@@ -510,7 +510,7 @@ public class JvmTypeGen {
                             JvmConstants.TYPE_REF_TYPE_CONSTANT_PACKAGE_NAME);
                     String varName = JvmCodeGenUtil.getRefTypeConstantName((BTypeReferenceType) bType);
                     String typeRefClass = typeOwner + varName;
-                    mv.visitMethodInsn(INVOKESTATIC, typeRefClass, GET_TYPE_METHOD, GET_TYPE_REF_TYPE_METHOD, false);
+                    mv.visitMethodInsn(INVOKESTATIC, typeRefClass, GET_TYPE_METHOD, GET_REF_TYPE_METHOD, false);
                     return;
                 }
                 default -> {
@@ -1086,16 +1086,16 @@ public class JvmTypeGen {
     private boolean loadInternalType(MethodVisitor mv, BType bType) {
         String varName = toNameString(bType);
         switch (bType.tag) {
-            case TypeTags.RECORD -> mv.visitFieldInsn(GETSTATIC, this.recordTypesPkgName + varName, TYPE_VAR_FIELD_NAME,
+            case TypeTags.RECORD -> mv.visitFieldInsn(GETSTATIC, this.recordTypesPkgName + varName, TYPE_VAR_FIELD,
                     GET_RECORD_TYPE_IMPL);
-            case TypeTags.OBJECT -> mv.visitFieldInsn(GETSTATIC, this.objectTypesPkgName + varName, TYPE_VAR_FIELD_NAME,
+            case TypeTags.OBJECT -> mv.visitFieldInsn(GETSTATIC, this.objectTypesPkgName + varName, TYPE_VAR_FIELD,
                     GET_OBJECT_TYPE_IMPL);
-            case TypeTags.ERROR -> mv.visitFieldInsn(GETSTATIC, this.errorTypesPkgName + varName, TYPE_VAR_FIELD_NAME,
+            case TypeTags.ERROR -> mv.visitFieldInsn(GETSTATIC, this.errorTypesPkgName + varName, TYPE_VAR_FIELD,
                     GET_ERROR_TYPE_IMPL);
             case TypeTags.UNION -> {
                 BUnionType unionType = (BUnionType) bType;
                 if (unionType.isCyclic) {
-                    mv.visitFieldInsn(GETSTATIC, this.unionTypesPkgName + varName, TYPE_VAR_FIELD_NAME,
+                    mv.visitFieldInsn(GETSTATIC, this.unionTypesPkgName + varName, TYPE_VAR_FIELD,
                             GET_UNION_TYPE_IMPL);
                 } else {
                     jvmConstantsGen.generateGetBUnionType(mv, jvmConstantsGen.getUnionTypeConstantsVar(bType,
@@ -1115,18 +1115,18 @@ public class JvmTypeGen {
         switch (bType.tag) {
             case TypeTags.RECORD ->
                     mv.visitFieldInsn(GETSTATIC, getModuleLevelClassName(pkgId, MODULE_RECORD_TYPES_PACKAGE_NAME) +
-                            varName, TYPE_VAR_FIELD_NAME, GET_RECORD_TYPE_IMPL);
+                            varName, TYPE_VAR_FIELD, GET_RECORD_TYPE_IMPL);
             case TypeTags.OBJECT ->
                     mv.visitFieldInsn(GETSTATIC, getModuleLevelClassName(pkgId, MODULE_OBJECT_TYPES_PACKAGE_NAME) +
-                            varName, TYPE_VAR_FIELD_NAME, GET_OBJECT_TYPE_IMPL);
+                            varName, TYPE_VAR_FIELD, GET_OBJECT_TYPE_IMPL);
             case TypeTags.ERROR ->
                     mv.visitFieldInsn(GETSTATIC, getModuleLevelClassName(pkgId, MODULE_ERROR_TYPES_PACKAGE_NAME) +
-                            varName, TYPE_VAR_FIELD_NAME, GET_ERROR_TYPE_IMPL);
+                            varName, TYPE_VAR_FIELD, GET_ERROR_TYPE_IMPL);
             case TypeTags.UNION -> {
                 BUnionType unionType = (BUnionType) bType;
                 if (unionType.isCyclic) {
                     mv.visitFieldInsn(GETSTATIC, getModuleLevelClassName(pkgId, MODULE_UNION_TYPES_PACKAGE_NAME) +
-                            varName, TYPE_VAR_FIELD_NAME, GET_UNION_TYPE_IMPL);
+                            varName, TYPE_VAR_FIELD, GET_UNION_TYPE_IMPL);
                 } else {
                     jvmConstantsGen.generateGetBUnionType(mv, jvmConstantsGen.getUnionTypeConstantsVar(bType,
                             symbolTable));
