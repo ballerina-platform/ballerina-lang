@@ -167,10 +167,11 @@ public final class JvmConstants {
     public static final String GET_SURROGATE_ARRAY_METHOD_PREFIX = "getSurrogateArray";
     public static final String SET_REFERRED_TYPE_METHOD = "setReferredType";
     public static final String TYPE_VAR_PREFIX = "t";
-    public static final String TYPE_VAR_FIELD_NAME = "t";
-    public static final String TYPE_INIT_VAR_NAME = "isInit";
+    public static final String TYPE_VAR_FIELD = "t";
+    public static final String TYPE_INIT_FIELD = "i";
+    public static final String TYPE_INIT_ON_FIELD = "o";
     public static final String GET_TYPE_METHOD = "get";
-    public static final String VALUE_VAR_FIELD_NAME = "v";
+    public static final String VALUE_VAR_FIELD = "v";
     public static final String BSTRING_VAR_NAME = "s";
     public static final String MODULE_VAR_PREFIX = "m";
 
@@ -353,6 +354,7 @@ public final class JvmConstants {
     public static final String SERVICE_EP_AVAILABLE = "$serviceEPAvailable";
     public static final String BAL_RUNTIME_VAR_NAME = "$balRuntime";
     public static final String LOCK_STORE_VAR_NAME = "$lockStore";
+    public static final String TYPE_INITIALIZING_GLOBAL_LOCK_VAR_NAME = "TYPE_INITIALIZING_GLOBAL_LOCK";
     public static final String WORKER_CHANNEL_MAP_VAR_NAME = "$channelMap";
     public static final String SEND_WORKER_CHANNEL_NAMES_VAR_NAME = "$sendWorkerChannelNames";
     public static final String RECEIVE_WORKER_CHANNEL_NAMES_VAR_NAME = "$receiveWorkerChannelNames";
