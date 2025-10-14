@@ -61,7 +61,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAX_SURRO
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_STRING_CONSTANT_PACKAGE_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.NON_BMP_STRING_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRING_BUILDER;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.VALUE_VAR_FIELD_NAME;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.VALUE_VAR_FIELD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_BSTRING;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_STRING;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INIT_NON_BMP_STRING_VALUE;
@@ -102,7 +102,7 @@ public class JvmBStringConstantsGen {
         }
         String stringConstantClass = bStringBallerinaConstantMap.get(value);
         if (stringConstantClass != null) {
-            mv.visitFieldInsn(GETSTATIC, stringConstantClass, VALUE_VAR_FIELD_NAME, GET_BSTRING);
+            mv.visitFieldInsn(GETSTATIC, stringConstantClass, VALUE_VAR_FIELD, GET_BSTRING);
             return;
         }
         if (isConstant) {

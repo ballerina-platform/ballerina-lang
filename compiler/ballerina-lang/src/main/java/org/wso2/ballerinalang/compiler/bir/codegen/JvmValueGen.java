@@ -97,7 +97,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPEDESC_
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPE_IMPL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.UNSUPPORTED_OPERATION_EXCEPTION;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.VALUE_CLASS_PREFIX;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.VALUE_VAR_FIELD_NAME;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.VALUE_VAR_FIELD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.CAST_B_MAPPING_INITIAL_VALUE_ENTRY;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_MAP_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_RECORD_TYPE_METHOD;
@@ -243,14 +243,14 @@ public class JvmValueGen {
     private void createTypedescInstance(ClassWriter cw, BRecordType recordType, String className) {
         String recordTypeClass = getModuleLevelClassName(recordType.tsymbol.pkgID, MODULE_RECORD_TYPES_PACKAGE_NAME) +
                 toNameString(recordType);
-        FieldVisitor fv = cw.visitField(ACC_STATIC + ACC_PUBLIC, VALUE_VAR_FIELD_NAME, GET_TYPEDESC, null, null);
+        FieldVisitor fv = cw.visitField(ACC_STATIC + ACC_PUBLIC, VALUE_VAR_FIELD, GET_TYPEDESC, null, null);
         fv.visitEnd();
         MethodVisitor mv = cw.visitMethod(ACC_STATIC, JVM_STATIC_INIT_METHOD, VOID_METHOD_DESC, null, null);
         mv.visitTypeInsn(NEW, className);
         mv.visitInsn(DUP);
         mv.visitMethodInsn(INVOKESTATIC, recordTypeClass, GET_TYPE_METHOD, GET_RECORD_TYPE_METHOD, false);
         mv.visitMethodInsn(INVOKESPECIAL, className, JVM_INIT_METHOD, TYPE_DESC_CONSTRUCTOR, false);
-        mv.visitFieldInsn(PUTSTATIC, className, VALUE_VAR_FIELD_NAME, GET_TYPEDESC);
+        mv.visitFieldInsn(PUTSTATIC, className, VALUE_VAR_FIELD, GET_TYPEDESC);
         mv.visitInsn(RETURN);
         JvmCodeGenUtil.visitMaxStackForMethod(mv, JVM_STATIC_INIT_METHOD, className);
         mv.visitEnd();

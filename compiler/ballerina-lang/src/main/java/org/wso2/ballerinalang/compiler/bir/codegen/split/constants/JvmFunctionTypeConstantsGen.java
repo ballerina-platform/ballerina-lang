@@ -45,7 +45,7 @@ import static org.objectweb.asm.Opcodes.V21;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.FUNCTION_TYPE_CONSTANT_PACKAGE_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JVM_STATIC_INIT_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBJECT;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.VALUE_VAR_FIELD_NAME;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.VALUE_VAR_FIELD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_FUNCTION_TYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.VOID_METHOD_DESC;
 import static org.wso2.ballerinalang.compiler.bir.codegen.utils.JvmCodeGenUtil.genMethodReturn;
@@ -87,7 +87,7 @@ public class JvmFunctionTypeConstantsGen {
             cw.visit(V21, ACC_PUBLIC | ACC_SUPER, functionTypeConstantClassName, null, OBJECT, null);
             MethodVisitor mv = cw.visitMethod(ACC_STATIC, JVM_STATIC_INIT_METHOD, VOID_METHOD_DESC, null, null);
             jvmTypeGen.loadFunctionType(mv, function.type, functionName);
-            mv.visitFieldInsn(PUTSTATIC, functionTypeConstantClassName, VALUE_VAR_FIELD_NAME, GET_FUNCTION_TYPE);
+            mv.visitFieldInsn(PUTSTATIC, functionTypeConstantClassName, VALUE_VAR_FIELD, GET_FUNCTION_TYPE);
             LazyLoadBirBasicBlock lazyBB = lazyLoadingDataCollector.lazyLoadingAnnotationsBBMap.get(functionName);
             if (lazyBB != null) {
                 lazyLoadAnnotations(mv, lazyBB, jvmPackageGen, jvmCastGen, jvmConstantsGen, jvmTypeGen,
@@ -101,7 +101,7 @@ public class JvmFunctionTypeConstantsGen {
     }
 
     private void visitFunctionTypeFields(ClassWriter cw) {
-        FieldVisitor fv = cw.visitField(ACC_PUBLIC + ACC_STATIC, VALUE_VAR_FIELD_NAME, GET_FUNCTION_TYPE, null, null);
+        FieldVisitor fv = cw.visitField(ACC_PUBLIC + ACC_STATIC, VALUE_VAR_FIELD, GET_FUNCTION_TYPE, null, null);
         fv.visitEnd();
     }
 

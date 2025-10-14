@@ -44,7 +44,7 @@ import static org.objectweb.asm.Opcodes.V21;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CLASS_FILE_SUFFIX;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JVM_STATIC_INIT_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBJECT;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.VALUE_VAR_FIELD_NAME;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.VALUE_VAR_FIELD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.VOID_METHOD_DESC;
 import static org.wso2.ballerinalang.compiler.bir.codegen.utils.JvmCodeGenUtil.genMethodReturn;
 import static org.wso2.ballerinalang.compiler.bir.codegen.utils.JvmCodeGenUtil.getVarStoreClass;
@@ -96,7 +96,7 @@ public class JvmBallerinaConstantsGen {
                 mv.visitCode();
                 JvmCodeGenUtil.loadConstantValue(constValue.type, constValue.value, varName, mv, this.jvmConstantsGen,
                         constantVarClassName, true);
-                mv.visitFieldInsn(PUTSTATIC, constantVarClassName, VALUE_VAR_FIELD_NAME, descriptor);
+                mv.visitFieldInsn(PUTSTATIC, constantVarClassName, VALUE_VAR_FIELD, descriptor);
                 genMethodReturn(mv);
             }
             loadIdentifierValue(cw, varName, module, lazyBBMap, jvmPackageGen, jvmTypeGen, jvmCastGen,
