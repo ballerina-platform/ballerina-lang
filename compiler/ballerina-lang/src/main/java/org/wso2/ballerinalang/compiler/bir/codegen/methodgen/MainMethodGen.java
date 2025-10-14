@@ -93,7 +93,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.START_NON
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TEST_ARGUMENTS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TEST_CONFIG_ARGS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TEST_EXECUTION_STATE;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.VALUE_VAR_FIELD_NAME;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.VALUE_VAR_FIELD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.WAIT_ON_LISTENERS_METHOD_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.ADD_BALLERINA_INFO;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.ADD_SHUTDOWN_HOOK;
@@ -473,7 +473,7 @@ public class MainMethodGen {
             mv.visitJumpInsn(IFEQ, ifLabel);
             mv.visitInsn(LCONST_1);
             String testExecutionStateGlobalClass = getVarStoreClass(this.globalVarsPkgName, TEST_EXECUTION_STATE);
-            mv.visitFieldInsn(PUTSTATIC, testExecutionStateGlobalClass, VALUE_VAR_FIELD_NAME, "J");
+            mv.visitFieldInsn(PUTSTATIC, testExecutionStateGlobalClass, VALUE_VAR_FIELD, "J");
             mv.visitLabel(ifLabel);
         } else {
             mv.visitMethodInsn(INVOKESTATIC, RUNTIME_UTILS, HANDLE_FUTURE_AND_EXIT_METHOD, HANDLE_FUTURE, false);
