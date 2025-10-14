@@ -38,6 +38,7 @@ import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.ProjectKind;
 import io.ballerina.projects.ProjectLoadResult;
 import io.ballerina.projects.ResolvedPackageDependency;
+import io.ballerina.projects.environment.PackageLockingMode;
 import io.ballerina.projects.internal.BalaFiles;
 import io.ballerina.projects.internal.PackageConfigCreator;
 import io.ballerina.projects.internal.ProjectFiles;
@@ -62,6 +63,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
+import static io.ballerina.projects.util.ProjectConstants.BALLERINA_TOML;
 import static io.ballerina.projects.util.ProjectConstants.BUILD_FILE;
 import static io.ballerina.projects.util.ProjectConstants.DEPENDENCIES_TOML;
 import static io.ballerina.projects.util.ProjectUtils.getDependenciesTomlContent;
@@ -295,7 +297,9 @@ public class BuildProject extends Project implements Comparable<Project> {
     @Override
     public void save() {
         Path buildFilePath = this.targetDir().resolve(BUILD_FILE);
-        boolean shouldUpdate = this.currentPackage().getResolution().autoUpdate();
+        PackageLockingMode packageLockingMode = this.currentPackage().getResolution().resolutionOptions()
+                .packageLockingMode();
+        boolean shouldUpdate = !packageLockingMode.equals(PackageLockingMode.HARD);
 
         // if build file does not exists
         if (!buildFilePath.toFile().exists()) {
@@ -322,9 +326,14 @@ public class BuildProject extends Project implements Comparable<Project> {
                 lastModifiedTime.put(this.currentPackage().packageName().value(),
                         FileUtils.lastModifiedTimeOfBalProject(projectPath));
                 buildJson.setLastModifiedTime(lastModifiedTime);
+                buildJson.setLastBalTomlUpdateTime(projectPath.resolve(BALLERINA_TOML).toFile().lastModified());
+
+                List<String> imports = this.currentPackage().getResolution().imports();
+                buildJson.setImports(imports);
 
                 writeBuildFile(buildFilePath, buildJson);
             } else {
+
                 writeBuildFile(buildFilePath);
             }
         }
@@ -529,8 +538,10 @@ public class BuildProject extends Project implements Comparable<Project> {
         lastModifiedTime.put(this.currentPackage().packageName().value(),
                 FileUtils.lastModifiedTimeOfBalProject(projectPath));
 
+        List<String> imports = this.currentPackage().getResolution().imports();
+        long balTomlLastModified = projectPath.resolve(BALLERINA_TOML).toFile().lastModified();
         BuildJson buildJson = new BuildJson(System.currentTimeMillis(), System.currentTimeMillis(),
-                RepoUtils.getBallerinaShortVersion(), lastModifiedTime);
+                RepoUtils.getBallerinaShortVersion(), lastModifiedTime, imports, balTomlLastModified);
         writeBuildFile(buildFilePath, buildJson);
     }
 

@@ -428,7 +428,7 @@ public class RunCommandTest extends BaseCommandTest {
         String[] argsList1 = {
                 "--offline",
                 "--sticky",
-                "--locking-mode=SOFT",
+                "--locking-mode=soft",
                 "--experimental",
                 "--optimize-dependency-compilation",
                 "--remote-management",
@@ -675,6 +675,15 @@ public class RunCommandTest extends BaseCommandTest {
         Assert.assertTrue(middleBuildLog.contains("Compiling source"));
         Assert.assertFalse(middleBuildLog.contains("Compiling source (UP-TO-DATE)"));
         Assert.assertTrue(secondBuildLog.contains("Compiling source (UP-TO-DATE)"));
+    }
+
+    @Test
+    public void testRunPackageInWorkspace() {
+        Path projectPath = this.testResources.resolve("workspaces/wp-simple");
+        System.setProperty(USER_DIR_PROPERTY, projectPath.toString());
+        RunCommand runCommand = new RunCommand(projectPath, printStream, false);
+        new CommandLine(runCommand).parseArgs("hello-app");
+        runCommand.execute();
     }
 
     @AfterSuite

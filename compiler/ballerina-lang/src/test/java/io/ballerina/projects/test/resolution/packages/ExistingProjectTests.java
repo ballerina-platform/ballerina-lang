@@ -1,5 +1,6 @@
 package io.ballerina.projects.test.resolution.packages;
 
+import io.ballerina.projects.environment.PackageLockingMode;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
@@ -10,12 +11,89 @@ import org.testng.annotations.Test;
  */
 public class ExistingProjectTests extends AbstractPackageResolutionTest {
     @Test(dataProvider = "resolutionTestCaseProvider")
-    public void testcaseExistingProjWithNoChanges(String testSuite, String testCase, boolean sticky) {
-        runTestCase(testSuite, testCase, sticky);
+    public void testcaseExistingProjWithNoChanges(String testSuite, String testCase, PackageLockingMode lockingMode) {
+        runTestCase(testSuite, testCase, lockingMode);
     }
 
     @DataProvider(name = "resolutionTestCaseProvider")
     public static Object[][] testCaseProvider() {
+        return new Object[][]{
+                // 1. A new patch and minor version of a transitive has been released to central
+                {"suite-existing_project", "case-0001", PackageLockingMode.HARD},
+                {"suite-existing_project", "case-0001", PackageLockingMode.MEDIUM},
+                {"suite-existing_project", "case-0001", PackageLockingMode.SOFT},
+                // 2. Adding of a new import which is already there as a transitive in the graph with an old version
+                {"suite-existing_project", "case-0002", PackageLockingMode.HARD},
+                {"suite-existing_project", "case-0002", PackageLockingMode.MEDIUM},
+                {"suite-existing_project", "case-0002", PackageLockingMode.SOFT},
+                // 3. Remove existing import which is also a transitive dependency from another import
+                {"suite-existing_project", "case-0003", PackageLockingMode.HARD},
+                {"suite-existing_project", "case-0003", PackageLockingMode.MEDIUM},
+                {"suite-existing_project", "case-0003", PackageLockingMode.SOFT},
+                // 4. Package contains a built-in transitive dependency with a non-zero version
+                {"suite-existing_project", "case-0004", PackageLockingMode.HARD},
+                {"suite-existing_project", "case-0004", PackageLockingMode.MEDIUM},
+                {"suite-existing_project", "case-0004", PackageLockingMode.SOFT},
+                // 5. Package contains a built-in transitive dependency which has its dependencies changed
+                //    in the current dist
+                {"suite-existing_project", "case-0005", PackageLockingMode.HARD},
+                {"suite-existing_project", "case-0005", PackageLockingMode.MEDIUM},
+                {"suite-existing_project", "case-0005", PackageLockingMode.SOFT},
+                // 6. Remove existing import which also is a dependency of a newer patch version of another import
+                {"suite-existing_project", "case-0006", PackageLockingMode.HARD},
+                {"suite-existing_project", "case-0006", PackageLockingMode.MEDIUM},
+                {"suite-existing_project", "case-0006", PackageLockingMode.SOFT},
+                // 7. Package contains hierarchical imports
+                {"suite-existing_project", "case-0007", PackageLockingMode.HARD},
+                {"suite-existing_project", "case-0007", PackageLockingMode.MEDIUM},
+                {"suite-existing_project", "case-0007", PackageLockingMode.SOFT},
+                // 8. Add a new hierarchical import which has a possible package name in the Dependencies.toml
+                {"suite-existing_project", "case-0008", PackageLockingMode.HARD},
+                {"suite-existing_project", "case-0008", PackageLockingMode.MEDIUM},
+                {"suite-existing_project", "case-0008", PackageLockingMode.SOFT},
+                // 9. Package uses a module available in the newer minor version of an existing dependency
+                {"suite-existing_project", "case-0009", PackageLockingMode.HARD},
+                {"suite-existing_project", "case-0009", PackageLockingMode.MEDIUM},
+                {"suite-existing_project", "case-0009", PackageLockingMode.SOFT},
+                // 10. package contains dependencies with pre-release versions
+                {"suite-existing_project", "case-0010", PackageLockingMode.HARD},
+                {"suite-existing_project", "case-0010", PackageLockingMode.MEDIUM},
+                {"suite-existing_project", "case-0010", PackageLockingMode.SOFT},
+                // 11. package contains dependencies with pre-release versions specified from local repo
+                {"suite-existing_project", "case-0011", PackageLockingMode.HARD},
+                {"suite-existing_project", "case-0011", PackageLockingMode.MEDIUM},
+                {"suite-existing_project", "case-0011", PackageLockingMode.SOFT},
+                // 12. package contains dependencies which only has pre-release versions published
+                {"suite-existing_project", "case-0012", PackageLockingMode.HARD},
+                {"suite-existing_project", "case-0012", PackageLockingMode.MEDIUM},
+                {"suite-existing_project", "case-0012", PackageLockingMode.SOFT},
+                // 13. package contains dependency which specified in the Ballerina toml file thats not local
+                {"suite-existing_project", "case-0013", PackageLockingMode.HARD},
+                {"suite-existing_project", "case-0013", PackageLockingMode.MEDIUM},
+                {"suite-existing_project", "case-0013", PackageLockingMode.SOFT},
+                // 14. package contains 2 dependencies one of which is in Ballerina toml file thats not local
+                {"suite-existing_project", "case-0014", PackageLockingMode.HARD},
+                {"suite-existing_project", "case-0014", PackageLockingMode.MEDIUM},
+                {"suite-existing_project", "case-0014", PackageLockingMode.SOFT},
+                // 15. package updates transitive dependency from the Ballerina toml file that is not local
+                {"suite-existing_project", "case-0015", PackageLockingMode.HARD},
+                {"suite-existing_project", "case-0015", PackageLockingMode.MEDIUM},
+                {"suite-existing_project", "case-0015", PackageLockingMode.SOFT},
+                // 16. package name is hierarchical, there are new versions in the central,
+                // and the older version is specified in Ballerina.toml and Dependencies.toml
+                {"suite-existing_project", "case-0016", PackageLockingMode.HARD},
+                {"suite-existing_project", "case-0016", PackageLockingMode.MEDIUM},
+                {"suite-existing_project", "case-0016", PackageLockingMode.SOFT}
+        };
+    }
+
+    @Test(dataProvider = "resolutionTestCaseProviderOld")
+    public void testcaseExistingProjWithNoChangesWithOldStickyFlag(String testSuite, String testCase, boolean sticky) {
+        runTestCase(testSuite, testCase, sticky);
+    }
+
+    @DataProvider(name = "resolutionTestCaseProviderOld")
+    public static Object[][] testCaseProviderOld() {
         return new Object[][]{
                 // 1. A new patch and minor version of a transitive has been released to central
                 {"suite-existing_project", "case-0001", true},

@@ -65,12 +65,12 @@ public final class ProjectLoader {
         if (!Files.exists(path)) {
             throw new ProjectException("provided file path does not exist");
         }
-        Optional<Path> workspaceRoot = ProjectPaths.workspaceRoot(path);
-        if (workspaceRoot.isPresent()) {
-            // If the path is in a workspace, load the workspace project
-            return WorkspaceProject.loadProject(workspaceRoot.get(), EnvironmentBuilder.getBuilder(), buildOptions);
-        }
         try {
+            Optional<Path> workspaceRoot = ProjectPaths.workspaceRoot(path);
+            if (workspaceRoot.isPresent()) {
+                // If the path is in a workspace, load the workspace project
+                return WorkspaceProject.loadProject(workspaceRoot.get(), EnvironmentBuilder.getBuilder(), buildOptions);
+            }
             Path packageRoot = ProjectPaths.packageRoot(path);
             if (ProjectPaths.isBuildProjectRoot(packageRoot)) {
                 return BuildProject.loadProject(packageRoot, projectEnvironmentBuilder, buildOptions, null, null);
