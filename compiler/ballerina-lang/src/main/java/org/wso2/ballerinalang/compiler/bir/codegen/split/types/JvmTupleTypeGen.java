@@ -18,10 +18,9 @@
 package org.wso2.ballerinalang.compiler.bir.codegen.split.types;
 
 import org.objectweb.asm.ClassWriter;
-import org.objectweb.asm.FieldVisitor;
-import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmTypeGen;
+import org.wso2.ballerinalang.compiler.bir.codegen.model.DoubleCheckLabelsRecord;
 import org.wso2.ballerinalang.compiler.bir.codegen.split.JvmConstantsGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.split.JvmCreateTypeGen;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
@@ -35,15 +34,12 @@ import java.util.List;
 import java.util.Optional;
 
 import static io.ballerina.identifier.Utils.decodeIdentifier;
-import static org.objectweb.asm.Opcodes.ACC_PRIVATE;
+import static org.objectweb.asm.Opcodes.ACC_FINAL;
 import static org.objectweb.asm.Opcodes.ACC_PUBLIC;
 import static org.objectweb.asm.Opcodes.ACC_STATIC;
 import static org.objectweb.asm.Opcodes.ACONST_NULL;
-import static org.objectweb.asm.Opcodes.ARETURN;
 import static org.objectweb.asm.Opcodes.DUP;
 import static org.objectweb.asm.Opcodes.GETSTATIC;
-import static org.objectweb.asm.Opcodes.ICONST_1;
-import static org.objectweb.asm.Opcodes.IFNE;
 import static org.objectweb.asm.Opcodes.INVOKEINTERFACE;
 import static org.objectweb.asm.Opcodes.INVOKESPECIAL;
 import static org.objectweb.asm.Opcodes.INVOKESTATIC;
@@ -62,10 +58,8 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SET_IMMUT
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SET_MEMBERS_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TUPLE_TYPE_IMPL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPE;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPE_INIT_VAR_NAME;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPE_VAR_FIELD_NAME;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPE_VAR_FIELD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.ANY_TO_JBOOLEAN;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_JBOOLEAN_TYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_MODULE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_TUPLE_TYPE_IMPL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_TUPLE_TYPE_METHOD;
@@ -73,7 +67,8 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INIT_TUP
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.SET_IMMUTABLE_TYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.TUPLE_SET_MEMBERS_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.VOID_METHOD_DESC;
-import static org.wso2.ballerinalang.compiler.bir.codegen.split.JvmCreateTypeGen.setTypeInitialized;
+import static org.wso2.ballerinalang.compiler.bir.codegen.split.JvmCreateTypeGen.endDoubleCheckGetEnd;
+import static org.wso2.ballerinalang.compiler.bir.codegen.split.JvmCreateTypeGen.genDoubleCheckGetStart;
 
 /**
  * BIR tuple types to JVM byte code generation class.
@@ -96,8 +91,7 @@ public class JvmTupleTypeGen {
     public void createTupleType(ClassWriter cw, MethodVisitor mv, String tupleTypeClass, BTupleType tupleType,
                                 boolean isAnnotatedType, SymbolTable symbolTable, int access) {
         // Create field for tuple type var
-        FieldVisitor fv = cw.visitField(ACC_STATIC + access, TYPE_VAR_FIELD_NAME, GET_TUPLE_TYPE_IMPL, null, null);
-        fv.visitEnd();
+        cw.visitField(ACC_STATIC | access | ACC_FINAL, TYPE_VAR_FIELD, GET_TUPLE_TYPE_IMPL, null, null).visitEnd();
         mv.visitTypeInsn(NEW, TUPLE_TYPE_IMPL);
         mv.visitInsn(DUP);
         // Load type name
@@ -115,34 +109,27 @@ public class JvmTupleTypeGen {
         jvmTypeGen.loadReadonlyFlag(mv, tupleType);
         // initialize the tuple type without the members array
         mv.visitMethodInsn(INVOKESPECIAL, TUPLE_TYPE_IMPL, JVM_INIT_METHOD, INIT_TUPLE_TYPE_IMPL, false);
-        mv.visitFieldInsn(PUTSTATIC, tupleTypeClass, TYPE_VAR_FIELD_NAME, GET_TUPLE_TYPE_IMPL);
+        mv.visitFieldInsn(PUTSTATIC, tupleTypeClass, TYPE_VAR_FIELD, GET_TUPLE_TYPE_IMPL);
         genGetTypeMethod(cw, tupleType, tupleTypeClass, isAnnotatedType, symbolTable);
     }
 
     private void genGetTypeMethod(ClassWriter cw, BTupleType tupleType, String tupleTypeClass, boolean isAnnotatedType,
                                   SymbolTable symbolTable) {
-        FieldVisitor f = cw.visitField(ACC_STATIC + ACC_PRIVATE, TYPE_INIT_VAR_NAME, GET_JBOOLEAN_TYPE, null, null);
-        f.visitEnd();
         MethodVisitor mv = cw.visitMethod(ACC_PUBLIC | ACC_STATIC, GET_TYPE_METHOD, GET_TUPLE_TYPE_METHOD, null, null);
         mv.visitCode();
-        mv.visitFieldInsn(GETSTATIC, tupleTypeClass, TYPE_INIT_VAR_NAME, GET_JBOOLEAN_TYPE);
-        Label ifLabel = new Label();
-        mv.visitJumpInsn(IFNE, ifLabel);
-        setTypeInitialized(mv, ICONST_1, tupleTypeClass);
+        DoubleCheckLabelsRecord checkLabelsRecord = genDoubleCheckGetStart(mv, tupleTypeClass, GET_TUPLE_TYPE_IMPL);
         populateTuple(mv, tupleType, tupleTypeClass, symbolTable);
         if (isAnnotatedType) {
             mv.visitMethodInsn(INVOKESTATIC, tupleTypeClass, LOAD_ANNOTATIONS_METHOD, VOID_METHOD_DESC, false);
         }
-        mv.visitLabel(ifLabel);
-        mv.visitFieldInsn(GETSTATIC, tupleTypeClass, TYPE_VAR_FIELD_NAME, GET_TUPLE_TYPE_IMPL);
-        mv.visitInsn(ARETURN);
+        endDoubleCheckGetEnd(mv, tupleTypeClass, GET_TUPLE_TYPE_IMPL, checkLabelsRecord);
         mv.visitMaxs(0, 0);
         mv.visitEnd();
     }
 
     public void populateTuple(MethodVisitor mv, BTupleType bType, String tupleTypeClass, SymbolTable symbolTable) {
         Optional<BIntersectionType> immutableType = jvmCreateTypeGen.getImmutableType(bType, symbolTable);
-        mv.visitFieldInsn(GETSTATIC, tupleTypeClass, TYPE_VAR_FIELD_NAME, GET_TUPLE_TYPE_IMPL);
+        mv.visitFieldInsn(GETSTATIC, tupleTypeClass, TYPE_VAR_FIELD, GET_TUPLE_TYPE_IMPL);
         mv.visitInsn(DUP);
         if (immutableType.isPresent()) {
             mv.visitInsn(DUP);
