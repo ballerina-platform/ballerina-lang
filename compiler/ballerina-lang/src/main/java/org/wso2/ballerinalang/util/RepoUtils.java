@@ -97,7 +97,7 @@ public final class RepoUtils {
 
         homeRepoPath = homeRepoPath.toAbsolutePath();
         if (Files.exists(homeRepoPath) && !Files.isDirectory(homeRepoPath, LinkOption.NOFOLLOW_LINKS)) {
-            throw new BLangCompilerException("Home repository is not a directory: " + homeRepoPath.toString());
+            throw new BLangCompilerException("Home repository is not a directory: " + homeRepoPath);
         }
         return homeRepoPath;
     }

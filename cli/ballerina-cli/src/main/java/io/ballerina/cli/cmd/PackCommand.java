@@ -19,6 +19,7 @@ import io.ballerina.projects.ProjectKind;
 import io.ballerina.projects.directory.BuildProject;
 import io.ballerina.projects.directory.ProjectLoader;
 import io.ballerina.projects.directory.WorkspaceProject;
+import io.ballerina.projects.environment.PackageLockingMode;
 import io.ballerina.projects.internal.ProjectDiagnosticErrorCode;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectPaths;
@@ -107,9 +108,9 @@ public class PackCommand implements BLauncherCmd {
             description = "experimental memory optimization for large projects")
     private Boolean optimizeDependencyCompilation;
 
-    @CommandLine.Option(names = "--locking-mode", hidden = true, 
-            description = "allow passing the package locking mode.")
-    private String lockingMode;
+    @CommandLine.Option(names = "--locking-mode", hidden = true,
+            description = "allow passing the package locking mode.", converter = PackageLockingModeConverter.class)
+    private PackageLockingMode lockingMode;
 
     public PackCommand() {
         this.projectPath = Path.of(System.getProperty(ProjectConstants.USER_DIR));
@@ -348,11 +349,12 @@ public class PackCommand implements BLauncherCmd {
     }
 
     private void executeTasks(Project project) {
+        List<Diagnostic> buildToolDiagnostics = new ArrayList<>();
         TaskExecutor taskExecutor = new TaskExecutor.TaskBuilder()
                 .addTask(new CleanTargetDirTask())
-                .addTask(new RunBuildToolsTask(outStream))
+                .addTask(new RunBuildToolsTask(outStream, false, buildToolDiagnostics))
                 .addTask(new ResolveMavenDependenciesTask(outStream))
-                .addTask(new CompileTask(outStream, errStream, true, false))
+                .addTask(new CompileTask(outStream, errStream, true, false, false, buildToolDiagnostics))
                 .addTask(new CreateBalaTask(outStream))
                 .addTask(new DumpBuildTimeTask(outStream), !project.buildOptions().dumpBuildTime())
                 .build();

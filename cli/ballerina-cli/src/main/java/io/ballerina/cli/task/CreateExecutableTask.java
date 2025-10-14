@@ -83,17 +83,17 @@ public class CreateExecutableTask implements Task {
         if (target == null) {
             target = getTarget(project);
         }
+        Path executablePath = getExecutablePath(project, target);
         if (!isHideTaskOutput && !skipExecutable) {
             this.out.println();
             if (!project.buildOptions().nativeImage()) {
                 this.out.println("Generating executable" + (skipTask ? " (UP-TO-DATE)\n\t" +
-                        currentDir.relativize(getExecutablePath(project, target)) : ""));
+                        currentDir.relativize(executablePath) : ""));
             }
         }
         if (skipTask) {
             return;
         }
-        Path executablePath = getExecutablePath(project, target);
         try {
             PackageCompilation pkgCompilation = project.currentPackage().getCompilation();
             JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(pkgCompilation, JvmTarget.JAVA_21);

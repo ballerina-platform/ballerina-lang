@@ -86,6 +86,11 @@ public class BlendedBalToolsManifest {
             SemanticVersion.VersionCompatibilityResult versionCompatibilityResult =
                     BalToolsUtil.compareToolDistWithCurrentDist(org, name, version, tool.repository());
 
+            if (versionCompatibilityResult.equals(SemanticVersion.VersionCompatibilityResult.INCOMPATIBLE)) {
+                // Current active version is incompatible with the distribution
+                continue;
+            }
+
             if (!versionCompatibilityResult.equals(SemanticVersion.VersionCompatibilityResult.EQUAL)) {
                 Optional<PackageVersion> highestVersion = getHighestCompatibleLocalVersion(localBalToolsManifest,
                         toolId, org, name);
@@ -174,9 +179,12 @@ public class BlendedBalToolsManifest {
                 .toList());
 
         // Check if there are any compatible versions in the local bal-tools.toml
-        toolVersions.removeIf(version -> BalToolsUtil
-                .compareToolDistWithCurrentDist(org, name, version.toString(), null)
-                .equals(SemanticVersion.VersionCompatibilityResult.GREATER_THAN));
+        toolVersions.removeIf(version -> {
+            SemanticVersion.VersionCompatibilityResult versionCompatibilityResult = BalToolsUtil
+                    .compareToolDistWithCurrentDist(org, name, version.toString(), null);
+            return versionCompatibilityResult.equals(SemanticVersion.VersionCompatibilityResult.GREATER_THAN) ||
+                    versionCompatibilityResult.equals(SemanticVersion.VersionCompatibilityResult.INCOMPATIBLE);
+        });
 
         if (toolVersions.isEmpty()) {
             return Optional.empty();
@@ -224,12 +232,10 @@ public class BlendedBalToolsManifest {
         if (versions == null) {
             return new HashMap<>();
         }
-        versions.keySet().removeIf(version ->
-                LOCAL_REPOSITORY_NAME.equals(versions.get(version).values().iterator().next().repository())
-                        || !BalToolsUtil.isCompatibleWithPlatform(
-                                versions.get(version).values().iterator().next().org(),
-                                versions.get(version).values().iterator().next().name(), version,
-                                versions.get(version).values().iterator().next().repository()));
+        versions.keySet().removeIf(version -> !BalToolsUtil.isCompatibleWithPlatform(
+                        versions.get(version).values().iterator().next().org(),
+                        versions.get(version).values().iterator().next().name(), version,
+                        versions.get(version).values().iterator().next().repository()));
         return versions;
     }
 
@@ -263,19 +269,5 @@ public class BlendedBalToolsManifest {
                     v -> v.values().stream()).filter(BalToolsManifest.Tool::active).findFirst();
         }
         return Optional.empty();
-    }
-
-    /**
-     * Sets a specific tool version as active.
-     *
-     * @param id         tool id
-     * @param version    tool version
-     * @param repository repository that the tool is in
-     */
-    public void setActiveToolVersion(String id, String version, String repository) {
-        if (tools.containsKey(id)) {
-            tools.get(id).forEach((k, v) -> v.forEach((k1, v1) -> v1.setActive(false)));
-            tools.get(id).get(version).get(repository).setActive(true);
-        }
     }
 }

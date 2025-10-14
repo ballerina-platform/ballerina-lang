@@ -19,7 +19,7 @@
               "character": 0
             }
           },
-          "newText": "i = 0\npp = 0\nb = 0\nf = 0.0\n\n[input]\nfood.name = \"\"\nfood.cal = 0\nage = 0\n\n"
+          "newText": "i = 0\npp = 0\nb = 0\nf = 0.0\n\n[input]\nfood = \nage = 0\n\n"
         }
       ],
       "resolvable": false

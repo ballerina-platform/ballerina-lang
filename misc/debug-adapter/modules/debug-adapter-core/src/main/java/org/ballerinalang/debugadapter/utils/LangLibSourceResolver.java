@@ -25,6 +25,7 @@ import io.ballerina.projects.PackageName;
 import io.ballerina.projects.PackageOrg;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.environment.PackageCache;
+import org.ballerinalang.debugadapter.DebugProjectCache;
 
 import java.nio.file.Path;
 import java.util.List;
@@ -37,8 +38,8 @@ import java.util.Optional;
  */
 public class LangLibSourceResolver extends DependencySourceResolver {
 
-    LangLibSourceResolver(Project sourceProject) {
-        super(sourceProject);
+    LangLibSourceResolver(Project sourceProject, DebugProjectCache projectCache) {
+        super(sourceProject, projectCache);
     }
 
     @Override
@@ -76,8 +77,8 @@ public class LangLibSourceResolver extends DependencySourceResolver {
                 return Optional.empty();
             }
 
-            for (ModuleId moduleId : langLibPackage.get(0).moduleIds()) {
-                Module module = langLibPackage.get(0).module(moduleId);
+            for (ModuleId moduleId : langLibPackage.getFirst().moduleIds()) {
+                Module module = langLibPackage.getFirst().module(moduleId);
                 for (DocumentId docId : module.documentIds()) {
                     if (module.document(docId).name().equals(locationInfo.fileName())) {
                         return module.project().documentPath(docId);

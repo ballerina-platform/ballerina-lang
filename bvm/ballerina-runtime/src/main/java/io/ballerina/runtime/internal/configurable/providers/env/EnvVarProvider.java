@@ -32,6 +32,7 @@ import io.ballerina.runtime.internal.configurable.providers.ConfigUtils;
 import io.ballerina.runtime.internal.diagnostics.RuntimeDiagnosticLog;
 import io.ballerina.runtime.internal.types.BFiniteType;
 import io.ballerina.runtime.internal.types.BIntersectionType;
+import io.ballerina.runtime.internal.types.BTypeReferenceType;
 import io.ballerina.runtime.internal.types.BUnionType;
 
 import java.util.HashMap;
@@ -210,11 +211,11 @@ public class EnvVarProvider implements ConfigProvider {
         EnvVar envVar = getEnvVar(module, key);
         BUnionType unionType = (BUnionType) ((BIntersectionType) key.type).getEffectiveType();
         boolean isEnum = SymbolFlags.isFlagOn(unionType.getFlags(), SymbolFlags.ENUM);
-        if (!isEnum && ConfigUtils.containsUnsupportedMembers(unionType)) {
-            throw new ConfigException(CONFIG_ENV_TYPE_NOT_SUPPORTED, key.variable, unionType);
-        }
         if (envVar.value == null) {
             return Optional.empty();
+        }
+        if (!isEnum && ConfigUtils.containsUnsupportedMembers(unionType)) {
+            throw new ConfigException(CONFIG_ENV_TYPE_NOT_SUPPORTED, key.variable, unionType);
         }
         if (isEnum) {
             return getEnvConfigValue(ConfigUtils.getFiniteValue(key, unionType, envVar.value, envVar.toString()));
@@ -231,6 +232,8 @@ public class EnvVarProvider implements ConfigProvider {
         BFiniteType type;
         if (key.type.getTag() == TypeTags.INTERSECTION_TAG) {
             type = (BFiniteType) ((IntersectionType) key.type).getEffectiveType();
+        } else if (key.type.getTag() == TypeTags.TYPE_REFERENCED_TYPE_TAG) {
+            type = (BFiniteType) ((BTypeReferenceType) key.type).getReferredType();
         } else {
             type = (BFiniteType) key.type;
         }

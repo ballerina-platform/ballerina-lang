@@ -161,7 +161,7 @@ public class NewCommand implements BLauncherCmd {
                 CommandUtil.exitError(this.exitWhenFinish);
                 return;
             }
-            if (FileUtils.checkBallerinaTomlInExistingDir(packagePath)) {
+            if (!workspace && FileUtils.checkBallerinaTomlInExistingDir(packagePath)) {
                 CommandUtil.printError(errStream,
                         "directory already contains a Ballerina project",
                         null,
@@ -240,6 +240,7 @@ public class NewCommand implements BLauncherCmd {
                 }
                 Files.writeString(packagePath.resolve(ProjectConstants.BALLERINA_TOML),
                         "[workspace]\n");
+                errStream.println("Created new workspace at " + packagePath + ".");
                 packagePath = packagePath.resolve(tplPackageName);
                 packageName = tplPackageName.replace("_", "-");
             } catch (IOException e) {
@@ -268,7 +269,7 @@ public class NewCommand implements BLauncherCmd {
                 errStream.println();
             }
         }
-        Optional<Path> workspaceRoot = ProjectPaths.workspaceRoot(packagePath);
+        Optional<Path> workspaceRoot = ProjectPaths.workspaceRoot(Optional.of(packagePath.getParent()).get());
 
         try {
             // check if the template matches with one of the inbuilt template types
@@ -300,7 +301,6 @@ public class NewCommand implements BLauncherCmd {
                         .resolve(ProjectConstants.BALA_DIR_NAME);
                 initPackageFromCentral(balaCache, packagePath, packageName, template, filesInDir);
             }
-            workspaceRoot = ProjectPaths.workspaceRoot(packagePath);
         } catch (AccessDeniedException e) {
             CommandUtil.printError(errStream,
                     "error occurred while creating project : " + "Insufficient Permission : " + e.getMessage(),

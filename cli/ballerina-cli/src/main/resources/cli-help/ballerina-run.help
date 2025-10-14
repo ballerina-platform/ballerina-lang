@@ -6,8 +6,7 @@ SYNOPSIS
 
 
 DESCRIPTION
-       Compile the current package and run it. This command does not produce
-       an executable program.
+       Compile the current package and run it.
 
        The `run` command executes the program when a JAR file produced by
        'bal build' is given as the argument. If not, compiles and runs the given

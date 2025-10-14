@@ -38,6 +38,7 @@ import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BTable;
 import io.ballerina.runtime.internal.TypeConverter;
+import io.ballerina.runtime.internal.types.BFiniteType;
 import io.ballerina.runtime.internal.types.BIntersectionType;
 import io.ballerina.runtime.internal.types.BUnionType;
 import io.ballerina.runtime.internal.values.ArrayValue;
@@ -118,6 +119,9 @@ public class ConfigValueCreator {
                 return createTupleValue(tomlValue, (TupleType) type);
             case TypeTags.TYPE_REFERENCED_TYPE_TAG:
                 return  createValue(tomlValue, ((ReferenceType) type).getReferredType());
+            case TypeTags.FINITE_TYPE_TAG:
+                return Utils.getFiniteBalValue(tomlValue, new HashSet<>(),
+                        (BFiniteType) type, null, null);
             default:
                 Type effectiveType = ((IntersectionType) type).getEffectiveType();
                 if (effectiveType.getTag() == TypeTags.RECORD_TYPE_TAG) {
@@ -317,7 +321,8 @@ public class ConfigValueCreator {
 
     private Object createBalValue(Type type, TomlValueNode tomlValueNode) {
         Object tomlValue = ((TomlBasicValueNode<?>) tomlValueNode).getValue();
-        return switch (TypeUtils.getImpliedType(type).getTag()) {
+        Type impliedType = TypeUtils.getImpliedType(type);
+        return switch (impliedType.getTag()) {
             case TypeTags.BYTE_TAG -> ((Long) tomlValue).intValue();
             case TypeTags.DECIMAL_TAG -> ValueCreator.createDecimalValue(BigDecimal.valueOf((Double) tomlValue));
             case TypeTags.STRING_TAG -> StringUtils.fromString((String) tomlValue);
@@ -327,6 +332,8 @@ public class ConfigValueCreator {
                  TypeTags.XML_PI_TAG,
                  TypeTags.XML_TAG,
                  TypeTags.XML_TEXT_TAG -> createReadOnlyXmlValue((String) tomlValue);
+            case TypeTags.FINITE_TYPE_TAG -> Utils.getFiniteBalValue(tomlValueNode, new HashSet<>(),
+                    (BFiniteType) impliedType, null, null);
             default -> tomlValue;
         };
     }

@@ -1,5 +1,7 @@
 NAME
        ballerina-tool-use - Set a tool version as the active version.
+                            This command is deprecated.
+                            The tool version is automatically set.
 
 SYNOPSIS
        bal tool use <tool-id>:<version>

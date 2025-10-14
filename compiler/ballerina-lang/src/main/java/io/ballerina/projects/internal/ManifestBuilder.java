@@ -30,6 +30,7 @@ import io.ballerina.projects.PlatformLibraryScope;
 import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.SemanticVersion;
 import io.ballerina.projects.TomlDocument;
+import io.ballerina.projects.environment.PackageLockingMode;
 import io.ballerina.projects.internal.model.BalToolDescriptor;
 import io.ballerina.projects.internal.model.CompilerPluginDescriptor;
 import io.ballerina.projects.util.FileUtils;
@@ -302,7 +303,8 @@ public class ManifestBuilder {
         }
         return PackageManifest.from(packageDescriptor, pluginDescriptor, balToolDescriptor, platforms,
                 localRepoDependencies, otherEntries, diagnostics(), license, authors, keywords, exported, includes,
-                repository, ballerinaVersion, visibility, template, icon, tools, readme, description, moduleEntries);
+                repository, ballerinaVersion, visibility, template, icon, tools, readme, description, moduleEntries,
+                buildOptions);
     }
 
     private List<PackageManifest.Module> getModuleEntries(
@@ -938,8 +940,9 @@ public class ManifestBuilder {
                 BuildOptions.OptionName.SHOW_DEPENDENCY_DIAGNOSTICS.toString());
         Boolean optimizeDependencyCompilation = getBooleanFromBuildOptionsTableNode(tableNode,
                 BuildOptions.OptionName.OPTIMIZE_DEPENDENCY_COMPILATION.toString());
-        String lockingMode = getStringFromBuildOptionsTableNode(tableNode,
+        String lockingModeVal = getStringFromBuildOptionsTableNode(tableNode,
                 BuildOptions.OptionName.LOCKING_MODE.toString());
+        PackageLockingMode lockingMode = getPackageLockingMode(lockingModeVal, tableNode);
 
         buildOptionsBuilder
                 .setOffline(offline)
@@ -964,6 +967,24 @@ public class ManifestBuilder {
         }
 
         return buildOptionsBuilder.build();
+    }
+
+    private PackageLockingMode getPackageLockingMode(String value, TomlTableNode tableNode) {
+        if (value != null) {
+            if (value.equalsIgnoreCase("soft")) {
+                return PackageLockingMode.SOFT;
+            } else if (value.equalsIgnoreCase("medium")) {
+                return PackageLockingMode.MEDIUM;
+            } else if (value.equalsIgnoreCase("hard")) {
+                return PackageLockingMode.HARD;
+            } else if (value.equalsIgnoreCase("locked")) {
+                return PackageLockingMode.LOCKED;
+            } else {
+                reportDiagnostic(tableNode, "invalid locking mode '" + value + "'",
+                        ProjectDiagnosticErrorCode.INVALID_LOCKING_MODE, DiagnosticSeverity.ERROR);
+            }
+        }
+        return null;
     }
 
     private Boolean getBooleanFromBuildOptionsTableNode(TomlTableNode tableNode, String key) {

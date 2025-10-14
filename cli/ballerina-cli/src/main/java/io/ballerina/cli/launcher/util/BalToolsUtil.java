@@ -198,6 +198,15 @@ public final class BalToolsUtil {
         Optional<BalToolsManifest.Tool> toolOpt = blendedBalToolsManifest.getActiveTool(commandName);
         if (toolOpt.isPresent()) {
             BalToolsManifest.Tool tool = toolOpt.get();
+            Path platformPath = CommandUtil.getPlatformSpecificBalaPath(
+                    tool.org(), tool.name(), tool.version(), getRepoPath(tool.repository()));
+            if (!Files.exists(platformPath)) {
+                // tool has been deleted manually. Give instructions to uninstall and re-install
+                String errMsg = "The tool '" + tool.id() +
+                        "' has been removed manually. Please run 'bal tool remove " + tool.id() +
+                        "' to clean up, and then run 'bal tool pull " + tool.id() + "' to reinstall the tool.";
+                throw LauncherUtils.createLauncherException(errMsg);
+            }
             if (!isToolDistCompatibilityWithCurrentDist(tool)) {
                 String errMsg = "tool '" + tool.id() + ":" + tool.version() +
                         "' is not compatible with the current Ballerina distribution '" +
@@ -206,8 +215,6 @@ public final class BalToolsUtil {
                         "current Ballerina distribution.";
                 throw LauncherUtils.createLauncherException(errMsg);
             }
-            Path platformPath = CommandUtil.getPlatformSpecificBalaPath(
-                    tool.org(), tool.name(), tool.version(), getRepoPath(tool.repository()));
             File libsDir = platformPath.resolve(Path.of(TOOL, LIBS)).toFile();
             return findJarFiles(libsDir);
         }

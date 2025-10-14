@@ -244,3 +244,11 @@ function testMultipleReceive() {
         _ = <- {a: w1, b: w2};
     }
 }
+
+type AuthUser record {|
+    string id;
+    Name name;
+    string email;
+    string password;
+    Permission[] permissions;
+|};

@@ -82,3 +82,10 @@ org = "ballerina"
 name = "tool_dummytoolE"
 version = "1.0.2"
 active = true
+
+[[tool]]
+id = "manually-deleted"
+org = "ballerinax"
+name = "tool_manually_deleted"
+version = "2.0.0"
+active = true

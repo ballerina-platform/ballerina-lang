@@ -1,0 +1,8 @@
+digraph "example1" {
+    "samejs/app:0.1.0" -> "samjs/testutils:1.1.0"
+    "samejs/app:0.1.0" -> "ballerina/http:1.3.1"
+    "ballerina/http:1.3.1" -> "ballerina/cache:1.2.1"
+    "ballerina/http:1.3.1" -> "ballerina/io:1.0.1"
+
+    "samjs/testutils:1.1.0" [scope = "testOnly"]
+}

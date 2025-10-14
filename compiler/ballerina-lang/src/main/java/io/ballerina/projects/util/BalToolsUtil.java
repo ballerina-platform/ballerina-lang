@@ -19,6 +19,7 @@ package io.ballerina.projects.util;
 
 import io.ballerina.projects.BalToolsManifest;
 import io.ballerina.projects.JvmTarget;
+import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.SemanticVersion;
 import io.ballerina.projects.Settings;
 import io.ballerina.projects.internal.BalaFiles;
@@ -32,6 +33,7 @@ import org.wso2.ballerinalang.util.RepoUtils;
 
 import java.nio.file.Path;
 import java.util.Arrays;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -82,8 +84,9 @@ public class BalToolsUtil {
      */
     public static boolean isCompatibleWithPlatform(String org, String name, String version, String repository) {
         SemanticVersion currentDistVersion = SemanticVersion.from(RepoUtils.getBallerinaShortVersion());
-        SemanticVersion toolDistVersion = getToolDistVersionFromCache(org, name, version, repository);
-        return isCompatibleWithDistVersion(currentDistVersion, toolDistVersion);
+        Optional<SemanticVersion> toolDistVersion = getToolDistVersionFromCache(org, name, version, repository);
+        return toolDistVersion.filter(semanticVersion ->
+                isCompatibleWithDistVersion(currentDistVersion, semanticVersion)).isPresent();
     }
 
     /**
@@ -96,10 +99,7 @@ public class BalToolsUtil {
      * @return true if compatible, false otherwise
      */
     public static boolean isCompatibleWithPlatform(String org, String name, String version) {
-        SemanticVersion currentDistVersion = SemanticVersion.from(RepoUtils.getBallerinaShortVersion());
-        SemanticVersion toolDistVersion = getToolDistVersionFromCache(org, name, version,
-                CENTRAL_REPOSITORY_CACHE_NAME);
-        return isCompatibleWithDistVersion(currentDistVersion, toolDistVersion);
+        return isCompatibleWithPlatform(org, name, version, CENTRAL_REPOSITORY_CACHE_NAME);
     }
 
     /**
@@ -114,8 +114,11 @@ public class BalToolsUtil {
     public static SemanticVersion.VersionCompatibilityResult compareToolDistWithCurrentDist(
             String org, String name, String versions, String repository) {
         SemanticVersion currentDistVersion = SemanticVersion.from(RepoUtils.getBallerinaShortVersion());
-        SemanticVersion toolDistVersion = getToolDistVersionFromCache(org, name, versions, repository);
-        return toolDistVersion.compareTo(currentDistVersion);
+        Optional<SemanticVersion> toolDistVersion = getToolDistVersionFromCache(org, name, versions, repository);
+        if (toolDistVersion.isEmpty()) {
+            return SemanticVersion.VersionCompatibilityResult.INCOMPATIBLE;
+        }
+        return toolDistVersion.get().compareTo(currentDistVersion);
     }
 
     /**
@@ -183,10 +186,16 @@ public class BalToolsUtil {
         return new BalToolsManifest.Tool(toolId, toolInfo[0], toolInfo[1], toolInfo[2], true, null);
     }
 
-    private static SemanticVersion getToolDistVersionFromCache(
+    private static Optional<SemanticVersion> getToolDistVersionFromCache(
             String org, String name, String version, String repository) {
         Path balaPath = ProjectUtils.getPackagePath(getRepoPath(repository), org, name, version);
-        PackageJson packageJson = BalaFiles.readPackageJson(balaPath);
-        return SemanticVersion.from(packageJson.getBallerinaVersion());
+        PackageJson packageJson;
+        try {
+            packageJson = BalaFiles.readPackageJson(balaPath);
+        } catch (ProjectException e) {
+            return Optional.empty();
+        }
+
+        return Optional.of(SemanticVersion.from(packageJson.getBallerinaVersion()));
     }
 }

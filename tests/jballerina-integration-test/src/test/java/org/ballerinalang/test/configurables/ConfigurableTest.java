@@ -77,7 +77,8 @@ public class ConfigurableTest extends BaseTest {
                                       "-CstringVar=waru=na", "-CbooleanVar=true",
                                       "-CxmlVar=<book>The Lost World</book>", "-CtestOrg.main.floatVar=3.5",
                                       "-Cmain.decimalVar=24.87", "-Cmain.color=RED", "-Cmain.countryCode=Sri Lanka",
-                                      "-Cfiles=pqr-1.toml", "-Cdata=intVar=bbb"},
+                                      "-Cfiles=pqr-1.toml", "-Cdata=intVar=bbb", "-Cfruit=APPLE",
+                                      "-CfiniteValueColor=Green", "-CcValue=stringB", "-Cfruit2=ORANGE"},
                               null, null, new LogLeecher[]{logLeecher});
         logLeecher.waitForText(5000);
     }
@@ -97,7 +98,11 @@ public class ConfigurableTest extends BaseTest {
                 Map.entry(ENV_VAR_PREFIX + "MAIN_COLOR", "RED"),
                 Map.entry(ENV_VAR_PREFIX + "MAIN_COUNTRYCODE", "Sri Lanka"),
                 Map.entry(ENV_VAR_PREFIX + "FILES", "pqr-1.toml"),
-                Map.entry(ENV_VAR_PREFIX + "DATA", "intVar=bbb")
+                Map.entry(ENV_VAR_PREFIX + "DATA", "intVar=bbb"),
+                Map.entry(ENV_VAR_PREFIX + "FRUIT", "APPLE"),
+                Map.entry(ENV_VAR_PREFIX + "FINITEVALUECOLOR", "Green"),
+                Map.entry(ENV_VAR_PREFIX + "CVALUE", "stringB"),
+                Map.entry(ENV_VAR_PREFIX + "FRUIT2", "ORANGE")
         );
         executeBalCommand("/configurableSimpleProject", "main",
                 addEnvironmentVariables(envVariables));

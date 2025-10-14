@@ -17,6 +17,8 @@
  */
 package io.ballerina.projects;
 
+import io.ballerina.projects.environment.PackageLockingMode;
+
 /**
  * The class {@code CompilationOptions} holds various Ballerina compilation options.
  *
@@ -41,7 +43,7 @@ public class CompilationOptions {
     Boolean disableSyntaxTree;
     Boolean remoteManagement;
     Boolean optimizeDependencyCompilation;
-    String lockingMode;
+    PackageLockingMode lockingMode;
 
     CompilationOptions(Boolean offlineBuild, Boolean experimental,
                        Boolean observabilityIncluded, Boolean dumpBir, Boolean dumpBirFile,
@@ -49,7 +51,8 @@ public class CompilationOptions {
                        Boolean dumpGraph, Boolean dumpRawGraphs, Boolean withCodeGenerators,
                        Boolean withCodeModifiers, Boolean configSchemaGen, Boolean exportOpenAPI,
                        Boolean exportComponentModel, Boolean disableSyntaxTree,
-                       Boolean remoteManagement, Boolean optimizeDependencyCompilation, String lockingMode) {
+                       Boolean remoteManagement, Boolean optimizeDependencyCompilation,
+                       PackageLockingMode lockingMode) {
         this.offlineBuild = offlineBuild;
         this.experimental = experimental;
         this.observabilityIncluded = observabilityIncluded;
@@ -75,6 +78,7 @@ public class CompilationOptions {
         return toBooleanDefaultIfNull(this.offlineBuild);
     }
 
+    // TODO: remove this after removing the sticky option
     boolean sticky() {
         return toBooleanDefaultIfNull(this.sticky);
     }
@@ -139,8 +143,8 @@ public class CompilationOptions {
         return toBooleanDefaultIfNull(this.optimizeDependencyCompilation);
     }
 
-    public String lockingMode() {
-        return toStringDefaultIfNull(this.lockingMode);
+    PackageLockingMode lockingMode() {
+        return this.lockingMode;
     }
 
     /**
@@ -238,6 +242,9 @@ public class CompilationOptions {
         }
         if (theirOptions.lockingMode != null) {
             compilationOptionsBuilder.setLockingMode(theirOptions.lockingMode);
+        } else if (compilationOptionsBuilder.sticky != null && compilationOptionsBuilder.sticky) {
+            // If sticky is true, set locking mode to HARD unless theirOptions has a locking mode
+            compilationOptionsBuilder.setLockingMode(PackageLockingMode.HARD);
         } else {
             compilationOptionsBuilder.setLockingMode(this.lockingMode);
         }
@@ -291,7 +298,7 @@ public class CompilationOptions {
         private Boolean remoteManagement;
         private Boolean optimizeDependencyCompilation;
         // TODO: remove this after fixing https://github.com/ballerina-platform/ballerina-library/issues/7755
-        private String lockingMode;
+        private PackageLockingMode lockingMode;
 
         public CompilationOptionsBuilder setOffline(Boolean value) {
             offline = value;
@@ -383,7 +390,7 @@ public class CompilationOptions {
             return this;
         }
 
-        public CompilationOptionsBuilder setLockingMode(String value) {
+        public CompilationOptionsBuilder setLockingMode(PackageLockingMode value) {
             lockingMode = value;
             return this;
         }

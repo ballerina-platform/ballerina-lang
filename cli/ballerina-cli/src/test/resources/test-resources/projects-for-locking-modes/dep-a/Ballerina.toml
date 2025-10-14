@@ -1,0 +1,9 @@
+[package]
+org = "testorg"
+name = "dep_a"
+version = "<version>"
+distribution = "2201.12.7"
+
+[build-options]
+observabilityIncluded = true
+

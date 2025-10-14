@@ -35,6 +35,7 @@ import io.ballerina.projects.ProjectKind;
 import io.ballerina.projects.directory.BuildProject;
 import io.ballerina.projects.directory.SingleFileProject;
 import io.ballerina.projects.util.ProjectConstants;
+import io.ballerina.tools.diagnostics.Diagnostic;
 import picocli.CommandLine;
 
 import java.io.PrintStream;
@@ -187,11 +188,12 @@ public class ProfileCommand implements BLauncherCmd {
     }
 
     private TaskExecutor createTaskExecutor(String[] args, boolean isSingleFileBuild) {
+        List<Diagnostic> buildToolDiagnostics = new ArrayList<>();
         return new TaskExecutor.TaskBuilder()
                 .addTask(new CleanTargetDirTask(), isSingleFileBuild)
-                .addTask(new RunBuildToolsTask(outStream), isSingleFileBuild)
+                .addTask(new RunBuildToolsTask(outStream, false, buildToolDiagnostics), isSingleFileBuild)
                 .addTask(new ResolveMavenDependenciesTask(outStream))
-                .addTask(new CompileTask(outStream, errStream, false, false))
+                .addTask(new CompileTask(outStream, errStream, false, false, false, buildToolDiagnostics))
                 .addTask(new CreateExecutableTask(outStream, null, null, false), false)
                 .addTask(new DumpBuildTimeTask(outStream), false)
                 .addTask(new RunProfilerTask(errStream), false).build();

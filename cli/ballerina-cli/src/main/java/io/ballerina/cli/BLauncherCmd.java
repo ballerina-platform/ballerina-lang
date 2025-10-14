@@ -66,11 +66,15 @@ public interface BLauncherCmd {
     void setParentCmdParser(CommandLine parentCmdParser);
 
     /**
+     * @deprecated (forRemoval = true, since = "2201.13.0")
+     * Use {@link #getCommandUsageInfo(String, ClassLoader)} instead.
+     * <p>
      * Retrieve command usage info from the help text file using the system classloader.
      *
      * @param  commandName the name of the command
      * @return usage info for the specified command
      */
+    @Deprecated (forRemoval = true, since = "2201.13.0")
     static String getCommandUsageInfo(String commandName) {
         String fileName = "cli-help/ballerina-" + commandName + ".help";
         try {

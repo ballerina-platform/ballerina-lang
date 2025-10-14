@@ -17,6 +17,7 @@
  */
 package io.ballerina.projects.test.resolution.packages;
 
+import io.ballerina.projects.environment.PackageLockingMode;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
@@ -26,12 +27,35 @@ import org.testng.annotations.Test;
 public class AllInOneResolutionTests extends AbstractPackageResolutionTest {
 
     @Test(dataProvider = "resolutionTestCaseProvider")
-    public void testcase(String testSuite, String testCase, boolean sticky) {
-        runTestCase(testSuite, testCase, sticky);
+    public void testcase(String testSuite, String testCase, PackageLockingMode lockingMode) {
+        runTestCase(testSuite, testCase, lockingMode);
     }
 
     @DataProvider(name = "resolutionTestCaseProvider")
     public static Object[][] testCaseProvider() {
+        return new Object[][]{
+                {"suite-all_in_one", "case-0001", PackageLockingMode.HARD},
+                {"suite-all_in_one", "case-0001", PackageLockingMode.MEDIUM},
+                {"suite-all_in_one", "case-0001", PackageLockingMode.SOFT},
+                {"suite-all_in_one", "case-0002", PackageLockingMode.HARD},
+                {"suite-all_in_one", "case-0002", PackageLockingMode.MEDIUM},
+                {"suite-all_in_one", "case-0002", PackageLockingMode.SOFT},
+                {"suite-all_in_one", "case-0003", PackageLockingMode.HARD},
+                {"suite-all_in_one", "case-0003", PackageLockingMode.MEDIUM},
+                {"suite-all_in_one", "case-0003", PackageLockingMode.SOFT},
+                {"suite-all_in_one", "case-0004", PackageLockingMode.HARD},
+                {"suite-all_in_one", "case-0004", PackageLockingMode.MEDIUM},
+                {"suite-all_in_one", "case-0004", PackageLockingMode.SOFT},
+        };
+    }
+
+    @Test(dataProvider = "resolutionTestCaseProviderOld")
+    public void testcaseWithOldStickyFlag(String testSuite, String testCase, boolean sticky) {
+        runTestCase(testSuite, testCase, sticky);
+    }
+
+    @DataProvider(name = "resolutionTestCaseProviderOld")
+    public static Object[][] testCaseProviderOld() {
         return new Object[][]{
                 {"suite-all_in_one", "case-0001", true},
                 {"suite-all_in_one", "case-0001", false},

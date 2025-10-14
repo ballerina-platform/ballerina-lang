@@ -377,7 +377,14 @@ public final class Utils {
         visitedNodes.add(tomlNode);
         return switch (tomlNode.kind()) {
             case STRING -> StringUtils.fromString(((TomlStringValueNode) tomlNode).getValue());
-            case INTEGER -> ((TomlLongValueNode) tomlNode).getValue();
+            case INTEGER -> {
+                Long val = ((TomlLongValueNode) tomlNode).getValue();
+                if (TypeUtils.getType(val).getTag() == TypeTags.INT_TAG) {
+                    yield val.intValue();
+                } else {
+                    yield val;
+                }
+            }
             case DOUBLE -> validateAndGetFiniteDoubleValue(
                     (TomlDoubleValueNodeNode) tomlNode, finiteType, invalidTomlLines, variableName);
             case BOOLEAN -> ((TomlBooleanValueNode) tomlNode).getValue();

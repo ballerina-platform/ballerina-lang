@@ -40,6 +40,7 @@ import static io.ballerina.cli.cmd.Constants.TOOL_COMMAND;
 import static io.ballerina.cli.cmd.Constants.TOOL_REMOVE_COMMAND;
 import static io.ballerina.projects.util.BalToolsUtil.BAL_TOOLS_TOML_PATH;
 import static io.ballerina.projects.util.BalToolsUtil.DIST_BAL_TOOLS_TOML_PATH;
+import static io.ballerina.projects.util.BalToolsUtil.getRepoPath;
 import static io.ballerina.projects.util.BalToolsUtil.isCompatibleWithPlatform;
 import static io.ballerina.projects.util.ProjectConstants.BALA_DIR_NAME;
 import static io.ballerina.projects.util.ProjectConstants.CENTRAL_REPOSITORY_CACHE_NAME;
@@ -176,6 +177,15 @@ public class ToolRemoveCommand implements BLauncherCmd {
         Optional<Map<String, Map<String, BalToolsManifest.Tool>>> toolVersions =
                 Optional.ofNullable(balToolsManifest.tools().get(toolId));
         if (toolVersions.isEmpty() || toolVersions.get().isEmpty()) {
+            BalToolsToml distBalToolsToml = BalToolsToml.from(DIST_BAL_TOOLS_TOML_PATH);
+            BalToolsManifest distBalToolsManifest = BalToolsManifestBuilder.from(distBalToolsToml).build();
+            toolVersions = Optional.ofNullable(distBalToolsManifest.tools().get(toolId));
+            if (toolVersions.isPresent() && !toolVersions.get().isEmpty()) {
+                CommandUtil.printError(errStream, "tools cannot be removed from the distribution repository.",
+                        null, false);
+                CommandUtil.exitError(this.exitWhenFinish);
+                return;
+            }
             CommandUtil.printError(errStream, "tool '" + toolId + "' not found.", null, false);
             CommandUtil.exitError(this.exitWhenFinish);
             return;
@@ -219,23 +229,24 @@ public class ToolRemoveCommand implements BLauncherCmd {
         String name = tool.get().name();
 
         boolean isCompatibleWithPlatform;
-        isCompatibleWithPlatform = isCompatibleWithPlatform(org, name, version, repositoryName);
-        if (!isCompatibleWithPlatform) {
-            CommandUtil.printError(errStream, "tool '" + toolId + ":" + version + "' is not compatible with the " +
-                            "current Ballerina distribution '" + RepoUtils.getBallerinaShortVersion() +
-                            "'. Use 'bal tool search' to select a version compatible with the current " +
-                            "Ballerina distribution.",
-                    null, false);
-            CommandUtil.exitError(this.exitWhenFinish);
-            return;
+        Path toolBalaPath = CommandUtil.getPlatformSpecificBalaPath(
+                org, name, tool.get().version(), getRepoPath(tool.get().repository()));
+        if (Files.exists(toolBalaPath)) {
+            isCompatibleWithPlatform = isCompatibleWithPlatform(org, name, version, repositoryName);
+            if (!isCompatibleWithPlatform) {
+                CommandUtil.printError(errStream, "tool '" + toolId + ":" + version + "' is not compatible with the " +
+                                "current Ballerina distribution '" + RepoUtils.getBallerinaShortVersion() +
+                                "'. Use 'bal tool search' to select a version compatible with the current " +
+                                "Ballerina distribution.",
+                        null, false);
+                CommandUtil.exitError(this.exitWhenFinish);
+                return;
+            }
+            deleteCachedToolVersion(tool.get().org(), tool.get().name(), version);
         }
+
         balToolsManifest.removeToolVersion(toolId, version, repositoryName);
         balToolsToml.modify(balToolsManifest);
-        if (repositoryName != null) {
-            outStream.println("tool '" + toolId + ":" + version + "' successfully removed.");
-            return;
-        }
-        deleteCachedToolVersion(tool.get().org(), tool.get().name(), version);
         outStream.println("tool '" + toolId + ":" + version + "' successfully removed.");
     }
 

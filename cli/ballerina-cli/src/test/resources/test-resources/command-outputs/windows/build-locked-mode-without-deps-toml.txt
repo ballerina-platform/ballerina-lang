@@ -1,0 +1,3 @@
+Compiling source
+	testorg/testLockingMode:0.1.0
+ERROR [testLockingMode] 'LOCKED' locking mode cannot be used without the Dependencies.toml file

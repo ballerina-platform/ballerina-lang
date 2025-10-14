@@ -287,19 +287,20 @@ public class DebugTestRunner {
             sourceBreakpoints.get(bp.getSource()).add(bp.getDAPBreakPoint());
         }
 
+        SetBreakpointsResponse response = null;
         // Sends "setBreakpoints()" requests per source file.
         for (Map.Entry<Source, List<SourceBreakpoint>> entry : sourceBreakpoints.entrySet()) {
             SetBreakpointsArguments breakpointRequestArgs = new SetBreakpointsArguments();
             breakpointRequestArgs.setSource(entry.getKey());
             breakpointRequestArgs.setBreakpoints(entry.getValue().toArray(new SourceBreakpoint[0]));
             try {
-                return debugClientConnector.getRequestManager().setBreakpoints(breakpointRequestArgs);
+                response = debugClientConnector.getRequestManager().setBreakpoints(breakpointRequestArgs);
             } catch (Exception e) {
                 LOGGER.error("SetBreakpoints request failed.", e);
                 throw new BallerinaTestException("Breakpoints request failed.", e);
             }
         }
-        return null;
+        return response;
     }
 
     /**

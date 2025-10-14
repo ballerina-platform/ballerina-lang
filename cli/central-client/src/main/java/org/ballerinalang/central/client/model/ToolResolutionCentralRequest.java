@@ -95,7 +95,10 @@ public class ToolResolutionCentralRequest {
         MEDIUM("medium"),
 
         @SerializedName("hard")
-        HARD("hard");
+        HARD("hard"),
+
+        @SerializedName("locked")
+        LOCKED("locked");
 
         private final String text;
 

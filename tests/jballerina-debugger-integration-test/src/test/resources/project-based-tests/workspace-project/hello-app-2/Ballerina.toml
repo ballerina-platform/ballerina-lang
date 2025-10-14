@@ -1,0 +1,8 @@
+[package]
+org = "debugger_wp_tests"
+name = "hello_app_2"
+version = "0.1.0"
+distribution = "2201.13.0-m3"
+
+[build-options]
+observabilityIncluded = true

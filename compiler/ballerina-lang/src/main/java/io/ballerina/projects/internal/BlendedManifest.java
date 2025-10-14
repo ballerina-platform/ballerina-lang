@@ -99,7 +99,6 @@ public class BlendedManifest {
                     continue;
                 }
 
-
                 if (depInPkgManifest.repository().equals(ProjectConstants.LOCAL_REPOSITORY_NAME) &&
                         !localPackageRepository.isPackageExists(depInPkgManifest.org(), depInPkgManifest.name(),
                         depInPkgManifest.version())) {
@@ -135,6 +134,11 @@ public class BlendedManifest {
             } else {
                 Collection<String> moduleNames = existingDepOptional.isPresent() ?
                         existingDepOptional.get().modules : Collections.emptyList();
+                Optional<Dependency> dependency = depContainer.get(depInPkgManifest.org(), depInPkgManifest.name());
+                if (dependency.isPresent() && dependency.get().version().compareTo(depInPkgManifest.version())
+                        == VersionCompatibilityResult.GREATER_THAN) {
+                    continue;
+                }
                 depContainer.add(depInPkgManifest.org(), depInPkgManifest.name(), new Dependency(
                         depInPkgManifest.org(), depInPkgManifest.name(), depInPkgManifest.version(),
                         DependencyRelation.UNKNOWN, REPOSITORY_NOT_SPECIFIED,
