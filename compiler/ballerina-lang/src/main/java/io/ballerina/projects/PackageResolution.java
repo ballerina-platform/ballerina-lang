@@ -429,7 +429,7 @@ public class PackageResolution {
 
         // set to hard if the build is within 24 hours
         if (packageLockingMode == PackageLockingMode.SOFT || packageLockingMode == PackageLockingMode.MEDIUM) {
-            packageLockingMode = ProjectUtils.getPackageLockingMode(project.targetDir(), project, packageLockingMode);
+            packageLockingMode = ProjectUtils.getPackageLockingMode(project, packageLockingMode);
         }
 
         this.resolutionOptions = ResolutionOptions.builder()
