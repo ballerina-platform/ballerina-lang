@@ -1,5 +1,8 @@
 [configUnionTypes]
 httpVersion = "HTTP_1_1"
+color = "Green"
+fruit = "Apple"
+cValue = "stringB"
 countryCode = "Sri Lanka"
 countryCodes = ["United States","Sri Lanka"]
 
@@ -12,6 +15,10 @@ number="three"
 [configUnionTypes.recordUnionVar]
 name = "Manu"
 age = 12
+
+[configUnionTypes.recordWithRefUnionEnum]
+color = "Red"
+fruit = "Banana"
 
 [[configUnionTypes.tableUnionVar]]
 name = "Nadeeshan"

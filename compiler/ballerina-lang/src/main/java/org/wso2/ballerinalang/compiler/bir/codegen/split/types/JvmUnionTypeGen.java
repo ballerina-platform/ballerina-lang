@@ -18,33 +18,48 @@
 package org.wso2.ballerinalang.compiler.bir.codegen.split.types;
 
 import org.objectweb.asm.ClassWriter;
-import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.MethodVisitor;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmTypeGen;
+import org.wso2.ballerinalang.compiler.bir.codegen.model.DoubleCheckLabelsRecord;
 import org.wso2.ballerinalang.compiler.bir.codegen.split.JvmConstantsGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.split.JvmCreateTypeGen;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BIntersectionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 
+import java.util.Optional;
+
+import static org.objectweb.asm.Opcodes.ACC_FINAL;
+import static org.objectweb.asm.Opcodes.ACC_PUBLIC;
 import static org.objectweb.asm.Opcodes.ACC_STATIC;
 import static org.objectweb.asm.Opcodes.ACONST_NULL;
 import static org.objectweb.asm.Opcodes.DUP;
 import static org.objectweb.asm.Opcodes.GETSTATIC;
+import static org.objectweb.asm.Opcodes.INVOKEINTERFACE;
 import static org.objectweb.asm.Opcodes.INVOKESPECIAL;
+import static org.objectweb.asm.Opcodes.INVOKESTATIC;
 import static org.objectweb.asm.Opcodes.INVOKEVIRTUAL;
 import static org.objectweb.asm.Opcodes.NEW;
 import static org.objectweb.asm.Opcodes.PUTSTATIC;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.GET_TYPE_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JVM_INIT_METHOD;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.LOAD_ANNOTATIONS_METHOD;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SET_IMMUTABLE_TYPE_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SET_MEMBERS_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SET_ORIGINAL_MEMBERS_METHOD;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPE_VAR_NAME;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPE_VAR_FIELD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.UNION_TYPE_IMPL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_MODULE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_UNION_TYPE_IMPL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_UNION_TYPE_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INIT_UNION_TYPE_IMPL;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.SET_IMMUTABLE_TYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.SET_TYPE_ARRAY;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.VOID_METHOD_DESC;
+import static org.wso2.ballerinalang.compiler.bir.codegen.split.JvmCreateTypeGen.endDoubleCheckGetEnd;
+import static org.wso2.ballerinalang.compiler.bir.codegen.split.JvmCreateTypeGen.genDoubleCheckGetStart;
 
 /**
  * BIR union types to JVM byte code generation class.
@@ -65,10 +80,9 @@ public class JvmUnionTypeGen {
     }
 
     public void createUnionType(ClassWriter cw, MethodVisitor mv, String unionTypeClass, String varName,
-                                BUnionType unionType, boolean isAnnotatedType, SymbolTable symbolTable, int access) {
+                                BUnionType unionType, boolean isAnnotatedType, SymbolTable symbolTable) {
         // Create field for union type var
-        FieldVisitor fv = cw.visitField(ACC_STATIC + access, TYPE_VAR_NAME, GET_UNION_TYPE_IMPL, null, null);
-        fv.visitEnd();
+        cw.visitField(ACC_STATIC | ACC_PUBLIC | ACC_FINAL, TYPE_VAR_FIELD, GET_UNION_TYPE_IMPL, null, null).visitEnd();
         // Create union type instance
         mv.visitTypeInsn(NEW, UNION_TYPE_IMPL);
         mv.visitInsn(DUP);
@@ -91,20 +105,38 @@ public class JvmUnionTypeGen {
         } else {
             mv.visitMethodInsn(INVOKESPECIAL, UNION_TYPE_IMPL, JVM_INIT_METHOD, "(IZJ)V", false);
         }
-        mv.visitFieldInsn(PUTSTATIC, unionTypeClass, TYPE_VAR_NAME, GET_UNION_TYPE_IMPL);
+        mv.visitFieldInsn(PUTSTATIC, unionTypeClass, TYPE_VAR_FIELD, GET_UNION_TYPE_IMPL);
+        genGetTypeMethod(cw, unionType, unionTypeClass, varName, isAnnotatedType, symbolTable);
+    }
+
+    private void genGetTypeMethod(ClassWriter cw, BUnionType unionType, String unionTypeClass,
+                                  String varName, boolean isAnnotatedType, SymbolTable symbolTable) {
+        MethodVisitor mv = cw.visitMethod(ACC_PUBLIC | ACC_STATIC, GET_TYPE_METHOD, GET_UNION_TYPE_METHOD, null, null);
+        mv.visitCode();
+        DoubleCheckLabelsRecord checkLabelsRecord = genDoubleCheckGetStart(mv, unionTypeClass, GET_UNION_TYPE_IMPL);
         populateUnion(cw, mv, unionType, unionTypeClass, varName, symbolTable);
-        jvmCreateTypeGen.genGetTypeMethod(cw, unionTypeClass, GET_UNION_TYPE_METHOD, GET_UNION_TYPE_IMPL,
-                isAnnotatedType);
+        if (isAnnotatedType) {
+            mv.visitMethodInsn(INVOKESTATIC, unionTypeClass, LOAD_ANNOTATIONS_METHOD, VOID_METHOD_DESC, false);
+        }
+        endDoubleCheckGetEnd(mv, unionTypeClass, GET_UNION_TYPE_IMPL, checkLabelsRecord);
+        mv.visitMaxs(0, 0);
+        mv.visitEnd();
     }
 
     public void populateUnion(ClassWriter cw, MethodVisitor mv, BUnionType bType, String unionTypeClass, String name,
                               SymbolTable symbolTable) {
-        mv.visitFieldInsn(GETSTATIC, unionTypeClass, TYPE_VAR_NAME, GET_UNION_TYPE_IMPL);
+        Optional<BIntersectionType> immutableType = jvmCreateTypeGen.getImmutableType(bType, symbolTable);
+        mv.visitFieldInsn(GETSTATIC, unionTypeClass, TYPE_VAR_FIELD, GET_UNION_TYPE_IMPL);
         mv.visitInsn(DUP);
-        mv.visitInsn(DUP);
+        if (immutableType.isPresent()) {
+            mv.visitInsn(DUP);
+        }
         // populate member fields
         addUnionMembers(cw, mv, bType, unionTypeClass, name);
-        jvmCreateTypeGen.addImmutableType(mv, bType, symbolTable);
+        if (immutableType.isPresent()) {
+            jvmTypeGen.loadType(mv, immutableType.get());
+            mv.visitMethodInsn(INVOKEINTERFACE, TYPE, SET_IMMUTABLE_TYPE_METHOD, SET_IMMUTABLE_TYPE, true);
+        }
     }
 
     private void addUnionMembers(ClassWriter cw, MethodVisitor mv, BUnionType unionType, String className,

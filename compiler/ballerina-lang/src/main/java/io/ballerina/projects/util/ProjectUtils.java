@@ -47,10 +47,13 @@ import io.ballerina.projects.ResolvedPackageDependency;
 import io.ballerina.projects.SemanticVersion;
 import io.ballerina.projects.Settings;
 import io.ballerina.projects.environment.PackageLockingMode;
+import io.ballerina.projects.internal.PackageDiagnostic;
+import io.ballerina.projects.internal.ProjectDiagnosticErrorCode;
 import io.ballerina.projects.internal.model.BuildJson;
 import io.ballerina.projects.internal.model.Dependency;
 import io.ballerina.projects.internal.model.ToolDependency;
 import io.ballerina.tools.diagnostics.Diagnostic;
+import io.ballerina.tools.diagnostics.DiagnosticInfo;
 import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 import org.apache.commons.compress.archivers.jar.JarArchiveEntry;
 import org.apache.commons.compress.archivers.zip.ZipArchiveEntryPredicate;
@@ -106,7 +109,6 @@ import static io.ballerina.projects.util.ProjectConstants.BALLERINA_TOML;
 import static io.ballerina.projects.util.ProjectConstants.BLANG_COMPILED_JAR_EXT;
 import static io.ballerina.projects.util.ProjectConstants.BLANG_COMPILED_PKG_BINARY_EXT;
 import static io.ballerina.projects.util.ProjectConstants.BUILD_FILE;
-import static io.ballerina.projects.util.ProjectConstants.CACHES_DIR_NAME;
 import static io.ballerina.projects.util.ProjectConstants.DIFF_UTILS_JAR;
 import static io.ballerina.projects.util.ProjectConstants.DIR_PATH_SEPARATOR;
 import static io.ballerina.projects.util.ProjectConstants.DOT;
@@ -201,6 +203,51 @@ public final class ProjectUtils {
             getPackageImports(imports, module, testDocumentIds);
         }
         return imports;
+    }
+
+    public static Optional<PackageDiagnostic> getWarningForHigherDistribution(
+            Project project, PackageLockingMode packageLockingMode) {
+        SemanticVersion prevDistributionVersion = project.currentPackage().dependencyManifest().distributionVersion();
+        SemanticVersion currentDistributionVersion = SemanticVersion.from(RepoUtils.getBallerinaShortVersion());
+
+        if (project.currentPackage().dependencyManifest().dependenciesTomlVersion() != null) {
+            String currentVersionForDiagnostic = String.valueOf(currentDistributionVersion.minor());
+            if (currentDistributionVersion.patch() != 0) {
+                currentVersionForDiagnostic += DOT + currentDistributionVersion.patch();
+            }
+            String prevVersionForDiagnostic;
+            if (null != prevDistributionVersion) {
+                prevVersionForDiagnostic = String.valueOf(prevDistributionVersion.minor());
+                if (prevDistributionVersion.patch() != 0) {
+                    prevVersionForDiagnostic += DOT + prevDistributionVersion.patch();
+                }
+            } else {
+                prevVersionForDiagnostic = "4 or an older Update";
+            }
+            String warning = null;
+            // existing project
+            if (prevDistributionVersion == null
+                    || ProjectUtils.isNewUpdateDistribution(prevDistributionVersion, currentDistributionVersion)) {
+                // Built with a previous Update. Therefore, we issue a warning
+                warning = "Detected an attempt to compile this package using Swan Lake Update "
+                        + currentVersionForDiagnostic +
+                        ". However, this package was built using Swan Lake Update " + prevVersionForDiagnostic + ".";
+                if (packageLockingMode != null && !packageLockingMode.equals(PackageLockingMode.SOFT)) {
+                    warning += "\nHINT: Execute the bal command with --locking-mode=soft";
+                } else {
+                    warning += " To ensure compatibility, the Dependencies.toml file will be updated with the " +
+                            "latest versions that are compatible with Update " + currentVersionForDiagnostic + ".";
+                }
+            }
+            if (warning != null) {
+                DiagnosticInfo diagnosticInfo = new DiagnosticInfo(
+                        ProjectDiagnosticErrorCode.BUILT_WITH_OLDER_SL_UPDATE_DISTRIBUTION.diagnosticId(),
+                        warning, DiagnosticSeverity.WARNING);
+                return Optional.of(new PackageDiagnostic(diagnosticInfo,
+                        project.currentPackage().descriptor().name().toString()));
+            }
+        }
+        return Optional.empty();
     }
 
     private static void getPackageImports(Set<String> imports, Module module, Collection<DocumentId> documentIds) {
@@ -1066,47 +1113,29 @@ public final class ProjectUtils {
      * @return is project files are updated
      */
     public static boolean isProjectUpdated(Project project) {
-        // If observability included and Syntax Tree Json not in the caches, return true
-        Path observeJarCachePath = project.targetDir()
-                .resolve(CACHES_DIR_NAME)
-                .resolve(project.currentPackage().packageOrg().value())
-                .resolve(project.currentPackage().packageName().value())
-                .resolve(project.currentPackage().packageVersion().value().toString())
-                .resolve("observe")
-                .resolve(project.currentPackage().packageOrg().value() + "-"
-                        + project.currentPackage().packageName().value()
-                        + "-observability-symbols.jar");
-        if (project.buildOptions().observabilityIncluded() &&
-                !observeJarCachePath.toFile().exists()) {
-            return true;
-        }
-
-        Path buildFile = project.sourceRoot().resolve(TARGET_DIR_NAME).resolve(BUILD_FILE);
-        if (buildFile.toFile().exists()) {
-            try {
-                BuildJson buildJson = readBuildJson(buildFile);
-                long lastProjectUpdatedTime = FileUtils.lastModifiedTimeOfBalProject(project.sourceRoot());
-                if (buildJson != null
-                        && buildJson.getLastModifiedTime() != null
-                        && !buildJson.getLastModifiedTime().entrySet().isEmpty()) {
-                    Long defaultModuleLastModifiedTime = buildJson.getLastModifiedTime()
-                            .get(project.currentPackage().packageName().value());
-                    if (defaultModuleLastModifiedTime == null) {
-                        // package name has changed
-                        return true;
-                    }
-                    return lastProjectUpdatedTime > defaultModuleLastModifiedTime;
+        try {
+            BuildJson buildJson = readBuildJson(project.sourceRoot().resolve(TARGET_DIR_NAME).resolve(BUILD_FILE));
+            long lastProjectUpdatedTime = FileUtils.lastModifiedTimeOfBalProject(project.sourceRoot());
+            if (buildJson != null
+                    && buildJson.getLastModifiedTime() != null
+                    && !buildJson.getLastModifiedTime().entrySet().isEmpty()) {
+                Long defaultModuleLastModifiedTime = buildJson.getLastModifiedTime()
+                        .get(project.currentPackage().packageName().value());
+                if (defaultModuleLastModifiedTime == null) {
+                    // package name has changed
+                    return true;
                 }
-            } catch (IOException e) {
-                // if reading `build` file fails
-                // delete `build` file and return true
-                try {
-                    Files.deleteIfExists(buildFile);
-                } catch (IOException ex) {
-                    // ignore
-                }
-                return true;
+                return lastProjectUpdatedTime > defaultModuleLastModifiedTime;
             }
+        } catch (IOException e) {
+            // if reading `build` file fails
+            // delete `build` file and return true
+            try {
+                Files.deleteIfExists(project.sourceRoot().resolve(TARGET_DIR_NAME).resolve(BUILD_FILE));
+            } catch (IOException ex) {
+                // ignore
+            }
+            return true;
         }
         return true; // return true if `build` file does not exist
     }
@@ -1311,22 +1340,46 @@ public final class ProjectUtils {
 
         // set sticky only if `build` file exists and `last_update_time` not passed 24 hours
         if (project.kind() == ProjectKind.BUILD_PROJECT) {
-            Path buildFilePath = project.targetDir().resolve(BUILD_FILE);
-            if (Files.exists(buildFilePath) && buildFilePath.toFile().length() > 0) {
-                try {
-                    BuildJson buildJson = readBuildJson(buildFilePath);
-                    // if distribution is not same, we anyway return sticky as false
-                    if (buildJson != null && buildJson.distributionVersion() != null &&
-                            buildJson.distributionVersion().equals(RepoUtils.getBallerinaShortVersion()) &&
-                            !buildJson.isExpiredLastUpdateTime()) {
-                        return true;
-                    }
-                } catch (IOException | JsonSyntaxException e) {
-                    // ignore
+            try {
+                BuildJson buildJson = readBuildJson(project.targetDir().resolve(BUILD_FILE));
+                // if distribution is not same, we anyway return sticky as false
+                if (buildJson.distributionVersion() != null &&
+                        buildJson.distributionVersion().equals(RepoUtils.getBallerinaShortVersion()) &&
+                        !buildJson.isExpiredLastUpdateTime()) {
+                    return true;
                 }
+            } catch (IOException | JsonSyntaxException e) {
+                // ignore
             }
         }
         return false;
+    }
+
+    public static PackageLockingMode getPackageLockingMode(Path target, Project project,
+                                                           PackageLockingMode originalMode) {
+        BuildJson buildJson;
+        try {
+            buildJson = readBuildJson(target.resolve(BUILD_FILE));
+        } catch (IOException | JsonSyntaxException e) {
+            return originalMode;
+        }
+
+        if (isProjectUpdated(project)) {
+            return originalMode;
+        }
+
+        if (ProjectUtils.isLessThan24Hours(buildJson)) {
+            return PackageLockingMode.HARD;
+        }
+
+        return originalMode;
+    }
+
+    private static boolean isLessThan24Hours(BuildJson buildJson) {
+        // set sticky only if `build` file exists and `last_update_time` not passed 24 hours
+        return buildJson != null && buildJson.distributionVersion() != null &&
+                buildJson.distributionVersion().equals(RepoUtils.getBallerinaShortVersion()) &&
+                !buildJson.isExpiredLastUpdateTime();
     }
 
     /**
@@ -1371,7 +1424,8 @@ public final class ProjectUtils {
         if (version == null) {
             return CompatibleRange.LATEST;
         }
-        if (packageLockingMode.equals(PackageLockingMode.HARD)) {
+        if (packageLockingMode.equals(PackageLockingMode.HARD)
+                || packageLockingMode.equals(PackageLockingMode.LOCKED)) {
             return CompatibleRange.EXACT;
         }
         if (packageLockingMode.equals(PackageLockingMode.MEDIUM) || version.isInitialVersion()) {

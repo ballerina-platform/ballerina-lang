@@ -146,7 +146,7 @@ import static org.ballerinalang.debugadapter.utils.PackageUtils.ALL_GLOBAL_VAR_C
 import static org.ballerinalang.debugadapter.utils.PackageUtils.GLOBAL_CONSTANTS_PACKAGE_NAME;
 import static org.ballerinalang.debugadapter.utils.PackageUtils.GLOBAL_VARIABLES_PACKAGE_NAME;
 import static org.ballerinalang.debugadapter.utils.PackageUtils.LOAD_DEBUG_VARIABLES_METHOD;
-import static org.ballerinalang.debugadapter.utils.PackageUtils.VALUE_VAR_NAME;
+import static org.ballerinalang.debugadapter.utils.PackageUtils.VALUE_VAR_FIELD_NAME;
 import static org.ballerinalang.debugadapter.utils.PackageUtils.getQualifiedClassName;
 import static org.ballerinalang.debugadapter.utils.ServerUtils.isBalStackFrame;
 import static org.ballerinalang.debugadapter.utils.ServerUtils.isBalStrand;
@@ -300,7 +300,8 @@ public class JBallerinaDebugServer implements BallerinaExtendedDebugServer {
             try {
                 clientConfigHolder = new ClientAttachConfigHolder(args);
                 context.setDebugMode(ExecutionContext.DebugMode.ATTACH);
-                Project srcProject = context.getProjectCache().getProject(Path.of(clientConfigHolder.getSourcePath()));
+                Path sourcePath = Path.of(clientConfigHolder.getSourcePath());
+                Project srcProject = context.getProjectCache().getOrLoadProject(sourcePath);
                 context.setSourceProject(srcProject);
                 ClientAttachConfigHolder configHolder = (ClientAttachConfigHolder) clientConfigHolder;
 
@@ -479,7 +480,7 @@ public class JBallerinaDebugServer implements BallerinaExtendedDebugServer {
 
     private void launchDebuggeeProgram() throws Exception {
         context.setDebugMode(ExecutionContext.DebugMode.LAUNCH);
-        Project sourceProject = context.getProjectCache().getProject(Path.of(clientConfigHolder.getSourcePath()));
+        Project sourceProject = context.getProjectCache().getOrLoadProject(Path.of(clientConfigHolder.getSourcePath()));
         context.setSourceProject(sourceProject);
         String sourceProjectRoot = context.getSourceProjectRoot();
         // if the debug server runs in fast-run mode, send a notification to the client to re-run the remote program and
@@ -998,7 +999,7 @@ public class JBallerinaDebugServer implements BallerinaExtendedDebugServer {
             String varClassName = PackageUtils.getQualifiedClassName(suspendedContext, fieldName, varClassPkg);
             List<ReferenceType> classRefs = Collections.singletonList(loadClass(suspendedContext, varClassName, ""));
             ReferenceType classRef = classRefs.getFirst();
-            Field valueField = classRef.fieldByName(VALUE_VAR_NAME);
+            Field valueField = classRef.fieldByName(VALUE_VAR_FIELD_NAME);
             Value fieldValue = classRef.getValue(valueField);
             scheduledVariables.add(computeVariableAsync(fieldName, fieldValue, stackFrameReference));
         }

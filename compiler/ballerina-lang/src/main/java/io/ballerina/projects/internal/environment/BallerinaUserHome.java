@@ -11,12 +11,14 @@ import io.ballerina.projects.internal.repositories.LocalPackageRepository;
 import io.ballerina.projects.internal.repositories.MavenPackageRepository;
 import io.ballerina.projects.internal.repositories.RemotePackageRepository;
 import io.ballerina.projects.util.ProjectConstants;
+import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
 import org.wso2.ballerinalang.util.RepoUtils;
 
 import java.io.IOException;
 import java.nio.file.AccessDeniedException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -80,12 +82,17 @@ public final class BallerinaUserHome {
     }
 
     public static BallerinaUserHome from(Environment environment) {
-        String userHomeDir = System.getProperty(USER_HOME);
-        if (userHomeDir == null || userHomeDir.isEmpty()) {
-            throw new ProjectException("unable to get user home directory");
+        String homeRepoDir = System.getenv(ProjectDirConstants.HOME_REPO_ENV_KEY);
+        Path homeRepoPath;
+        if (homeRepoDir == null || homeRepoDir.isEmpty()) {
+            String userHomeDir = System.getProperty(USER_HOME);
+            if (userHomeDir == null || userHomeDir.isEmpty()) {
+                throw new ProjectException("unable to get user home directory");
+            }
+            homeRepoPath = Path.of(userHomeDir, ProjectConstants.HOME_REPO_DEFAULT_DIRNAME);
+        } else {
+            homeRepoPath = Paths.get(homeRepoDir);
         }
-
-        Path homeRepoPath = Path.of(userHomeDir, ProjectConstants.HOME_REPO_DEFAULT_DIRNAME);
         return from(environment, homeRepoPath);
     }
 

@@ -57,7 +57,7 @@ import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.VA
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.getRuntimeMethod;
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.loadClass;
 import static org.ballerinalang.debugadapter.utils.PackageUtils.TYPE_PREFIXES;
-import static org.ballerinalang.debugadapter.utils.PackageUtils.TYPE_VAR_NAME;
+import static org.ballerinalang.debugadapter.utils.PackageUtils.TYPE_VAR_FIELD_NAME;
 
 /**
  * Ballerina type resolver implementation for resolving ballerina runtime types using type descriptors.
@@ -162,7 +162,7 @@ public abstract class EvaluationTypeResolver<T> {
                 continue;
             }
             ReferenceType classRef = classRefs.getFirst();
-            Field typeField = classRef.fieldByName(TYPE_VAR_NAME);
+            Field typeField = classRef.fieldByName(TYPE_VAR_FIELD_NAME);
             if (typeField == null) {
                 throw createEvaluationException(TYPE_RESOLVING_ERROR, typeName);
             }

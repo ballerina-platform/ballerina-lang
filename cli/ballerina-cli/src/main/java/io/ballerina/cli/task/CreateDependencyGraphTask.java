@@ -41,10 +41,12 @@ import static io.ballerina.cli.launcher.LauncherUtils.createLauncherException;
 public class CreateDependencyGraphTask implements Task {
     private final transient PrintStream out;
     private final transient PrintStream err;
+    private final List<Diagnostic> buildToolDiagnostics;
 
-    public CreateDependencyGraphTask(PrintStream err, PrintStream out) {
+    public CreateDependencyGraphTask(PrintStream err, PrintStream out, List<Diagnostic> buildToolDiagnostics) {
         this.out = out;
         this.err = err;
+        this.buildToolDiagnostics = buildToolDiagnostics;
     }
 
     @Override
@@ -55,7 +57,7 @@ public class CreateDependencyGraphTask implements Task {
         System.setProperty(CentralClientConstants.ENABLE_OUTPUT_STREAM, "true");
 
         try {
-            List<Diagnostic> diagnostics = new ArrayList<>();
+            List<Diagnostic> diagnostics = new ArrayList<>(buildToolDiagnostics);
 
             PackageResolution packageResolution = project.currentPackage().getResolution();
 

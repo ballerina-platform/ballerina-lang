@@ -39,6 +39,7 @@ import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.locks.ReentrantLock;
 
 import static io.ballerina.identifier.Utils.encodeNonFunctionIdentifier;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.ANON_ORG;
@@ -60,6 +61,12 @@ public class BalRuntime extends Runtime {
     public boolean moduleInitialized = false;
     public boolean moduleStarted = false;
     public boolean moduleStopped = false;
+    
+    @SuppressWarnings("unused")
+    /*
+     * Used for codegen for block on global lock while initializing the types
+     */
+    public static final ReentrantLock TYPE_INITIALIZING_GLOBAL_LOCK = new ReentrantLock();
 
     public BalRuntime(Module rootModule) {
         this.scheduler = new Scheduler(this);

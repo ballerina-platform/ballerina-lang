@@ -37,7 +37,8 @@ import static org.objectweb.asm.Opcodes.ACC_STATIC;
 import static org.objectweb.asm.Opcodes.GETSTATIC;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CLASS_FILE_SUFFIX;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JVM_STATIC_INIT_METHOD;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPE_VAR_NAME;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPE_VAR_FIELD;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPE_VAR_PREFIX;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_ARRAY_TYPE_IMPL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.VOID_METHOD_DESC;
 import static org.wso2.ballerinalang.compiler.bir.codegen.utils.JvmCodeGenUtil.genMethodReturn;
@@ -81,7 +82,7 @@ public class JvmArrayTypeConstantsGen {
 
     private String generateBArrayInits(BArrayType arrayType) {
         ClassWriter cw = new BallerinaClassWriter(COMPUTE_FRAMES);
-        String varName = JvmConstants.ARRAY_TYPE_VAR_PREFIX + constantIndex++;
+        String varName = TYPE_VAR_PREFIX + constantIndex++;
         String arrayConstantClass = this.arrayConstantsPkgName + varName;
         generateConstantsClassInit(cw, arrayConstantClass);
         MethodVisitor mv = cw.visitMethod(ACC_STATIC, JVM_STATIC_INIT_METHOD, VOID_METHOD_DESC, null, null);
@@ -93,6 +94,6 @@ public class JvmArrayTypeConstantsGen {
     }
 
     public void generateGetBArrayType(MethodVisitor mv, String varName) {
-        mv.visitFieldInsn(GETSTATIC, arrayConstantsPkgName + varName, TYPE_VAR_NAME, GET_ARRAY_TYPE_IMPL);
+        mv.visitFieldInsn(GETSTATIC, arrayConstantsPkgName + varName, TYPE_VAR_FIELD, GET_ARRAY_TYPE_IMPL);
     }
 }

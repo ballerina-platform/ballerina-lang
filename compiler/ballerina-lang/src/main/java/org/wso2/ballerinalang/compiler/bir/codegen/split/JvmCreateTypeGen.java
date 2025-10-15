@@ -20,7 +20,6 @@ package org.wso2.ballerinalang.compiler.bir.codegen.split;
 import io.ballerina.identifier.Utils;
 import org.ballerinalang.model.types.SelectivelyImmutableReferenceType;
 import org.objectweb.asm.ClassWriter;
-import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.wso2.ballerinalang.compiler.bir.codegen.BallerinaClassWriter;
@@ -34,6 +33,7 @@ import org.wso2.ballerinalang.compiler.bir.codegen.internal.JarEntries;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.LazyLoadBirBasicBlock;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.LazyLoadingDataCollector;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.TypeDefHashComparator;
+import org.wso2.ballerinalang.compiler.bir.codegen.model.DoubleCheckLabelsRecord;
 import org.wso2.ballerinalang.compiler.bir.codegen.split.types.JvmArrayTypeGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.split.types.JvmErrorTypeGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.split.types.JvmObjectTypeGen;
@@ -79,14 +79,18 @@ import static org.objectweb.asm.Opcodes.ACC_PRIVATE;
 import static org.objectweb.asm.Opcodes.ACC_PUBLIC;
 import static org.objectweb.asm.Opcodes.ACC_STATIC;
 import static org.objectweb.asm.Opcodes.ACC_SUPER;
+import static org.objectweb.asm.Opcodes.ACC_VOLATILE;
 import static org.objectweb.asm.Opcodes.ACONST_NULL;
 import static org.objectweb.asm.Opcodes.ALOAD;
 import static org.objectweb.asm.Opcodes.ARETURN;
+import static org.objectweb.asm.Opcodes.ASTORE;
+import static org.objectweb.asm.Opcodes.ATHROW;
 import static org.objectweb.asm.Opcodes.DUP;
 import static org.objectweb.asm.Opcodes.GETSTATIC;
 import static org.objectweb.asm.Opcodes.GOTO;
 import static org.objectweb.asm.Opcodes.ICONST_0;
 import static org.objectweb.asm.Opcodes.ICONST_1;
+import static org.objectweb.asm.Opcodes.IFEQ;
 import static org.objectweb.asm.Opcodes.IFNE;
 import static org.objectweb.asm.Opcodes.ILOAD;
 import static org.objectweb.asm.Opcodes.INVOKEINTERFACE;
@@ -102,12 +106,12 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ADD_METHO
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ALL_TYPES_CLASS_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ANNOTATION_MAP_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ANNOTATION_UTILS;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BAL_RUNTIME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CLASS_FILE_SUFFIX;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.FIELD_IMPL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.GET_ANON_TYPE_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.GET_FUNCTION_TYPE_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.GET_RECORD_TYPE_METHOD;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.GET_TYPE_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JVM_INIT_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JVM_STATIC_INIT_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.LOAD_ANNOTATIONS_METHOD;
@@ -118,13 +122,14 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_AN
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_FUNCTION_TYPES_CLASS_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_RECORD_TYPES_CLASS_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBJECT;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SET_IMMUTABLE_TYPE_METHOD;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.REENTRANT_LOCK;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRING_VALUE;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPE_ID_SET;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPE_INIT_VAR_NAME;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPE_VAR_NAME;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.VALUE_VAR_NAME;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPE_INITIALIZING_GLOBAL_LOCK_VAR_NAME;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPE_INIT_FIELD;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPE_INIT_ON_FIELD;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPE_VAR_FIELD;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.VALUE_VAR_FIELD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.VISIT_MAX_SAFE_MARGIN;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.ADD_TYPE_ID;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.ANY_TO_JBOOLEAN;
@@ -132,7 +137,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_ERRO
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_FUNCTION_POINTER;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_FUNCTION_TYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_FUNCTION_TYPE_FOR_STRING;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_JBOOLEAN_TYPE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_JBOOLEAN;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_MAP_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_MODULE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_OBJECT_TYPE_IMPL;
@@ -141,9 +146,10 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_RECO
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_TUPLE_TYPE_IMPL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_UNION_TYPE_IMPL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INIT_FIELD_IMPL;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.LOAD_LOCK;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.MAP_PUT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.PROCESS_ANNOTATIONS;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.SET_IMMUTABLE_TYPE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.RETURN_JBOOLEAN;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.SET_LINKED_HASH_MAP;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.VOID_METHOD_DESC;
 import static org.wso2.ballerinalang.compiler.bir.codegen.utils.JvmCodeGenUtil.createDefaultCaseReturnNull;
@@ -238,29 +244,19 @@ public class JvmCreateTypeGen {
         }
         String varName = typeDef.internalName.value;
         ClassWriter cw = new BallerinaClassWriter(COMPUTE_FRAMES);
+        genFieldsForInitFlags(cw);
         String typeClass =  jvmTypeGen.recordTypesPkgName + typeDef.internalName.value;
         generateConstantsClassInit(cw, typeClass);
         loadAnnotations(cw, varName, typeClass, GET_RECORD_TYPE_IMPL, jvmPackageGen, jvmCastGen,
                 asyncDataCollector, lazyLoadingDataCollector);
         MethodVisitor mv = cw.visitMethod(ACC_STATIC, JVM_STATIC_INIT_METHOD, VOID_METHOD_DESC, null, null);
         mv.visitCode();
-        setTypeInitialized(mv, ICONST_1, typeClass, true);
         jvmRecordTypeGen.createRecordType(cw, mv, module, typeClass, (BRecordType) bType, varName, true,
                 jvmPackageGen.symbolTable);
-        setTypeInitialized(mv, ICONST_0, typeClass, true);
-
         genMethodReturn(mv);
         cw.visitEnd();
         jarEntries.put(typeClass + CLASS_FILE_SUFFIX, cw.toByteArray());
         addDebugField(allTypesCW, varName);
-    }
-
-    public static void setTypeInitialized(MethodVisitor mv, int status, String typeClass, boolean isAnnotatedType) {
-        if (!isAnnotatedType) {
-            return;
-        }
-        mv.visitInsn(status);
-        mv.visitFieldInsn(PUTSTATIC, typeClass, TYPE_INIT_VAR_NAME, GET_JBOOLEAN_TYPE);
     }
 
     private void createObjectType(BIRTypeDefinition typeDef, ClassWriter allTypesCW, JvmPackageGen jvmPackageGen,
@@ -274,6 +270,7 @@ public class JvmCreateTypeGen {
         }
         String varName = typeDef.internalName.value;
         ClassWriter cw = new BallerinaClassWriter(COMPUTE_FRAMES);
+        genFieldsForInitFlags(cw);
         String typeClass =  jvmTypeGen.objectTypesPkgName + typeDef.internalName.value;
         generateConstantsClassInit(cw, typeClass);
         boolean isAnnotatedType = false;
@@ -285,10 +282,8 @@ public class JvmCreateTypeGen {
         }
         MethodVisitor mv = cw.visitMethod(ACC_STATIC, JVM_STATIC_INIT_METHOD, VOID_METHOD_DESC, null, null);
         mv.visitCode();
-        setTypeInitialized(mv, ICONST_1, typeClass, isAnnotatedType);
         jvmObjectTypeGen.createObjectType(cw, mv, typeClass, bType, varName, isAnnotatedType,
                 new BIRVarToJVMIndexMap(), jvmPackageGen.symbolTable);
-        setTypeInitialized(mv, ICONST_0, typeClass, isAnnotatedType);
         genMethodReturn(mv);
         cw.visitEnd();
         jarEntries.put(typeClass + CLASS_FILE_SUFFIX, cw.toByteArray());
@@ -306,6 +301,7 @@ public class JvmCreateTypeGen {
         }
         String varName = typeDef.internalName.value;
         ClassWriter cw = new BallerinaClassWriter(COMPUTE_FRAMES);
+        genFieldsForInitFlags(cw);
         String typeClass =  jvmTypeGen.errorTypesPkgName + typeDef.internalName.value;
         generateConstantsClassInit(cw, typeClass);
         boolean isAnnotatedType = false;
@@ -317,9 +313,7 @@ public class JvmCreateTypeGen {
         }
         MethodVisitor mv = cw.visitMethod(ACC_STATIC, JVM_STATIC_INIT_METHOD, VOID_METHOD_DESC, null, null);
         mv.visitCode();
-        setTypeInitialized(mv, ICONST_1, typeClass, isAnnotatedType);
         jvmErrorTypeGen.createErrorType(cw, mv, (BErrorType) bType, typeClass, isAnnotatedType);
-        setTypeInitialized(mv, ICONST_0, typeClass, isAnnotatedType);
         genMethodReturn(mv);
         cw.visitEnd();
         jarEntries.put(typeClass + CLASS_FILE_SUFFIX, cw.toByteArray());
@@ -338,6 +332,7 @@ public class JvmCreateTypeGen {
         }
         String varName = typeDef.internalName.value;
         ClassWriter cw = new BallerinaClassWriter(COMPUTE_FRAMES);
+        genFieldsForInitFlags(cw);
         String typeClass =  jvmTypeGen.tupleTypesPkgName + typeDef.internalName.value;
         generateConstantsClassInit(cw, typeClass);
         boolean isAnnotatedType = false;
@@ -349,10 +344,8 @@ public class JvmCreateTypeGen {
         }
         MethodVisitor mv = cw.visitMethod(ACC_STATIC, JVM_STATIC_INIT_METHOD, VOID_METHOD_DESC, null, null);
         mv.visitCode();
-        setTypeInitialized(mv, ICONST_1, typeClass, isAnnotatedType);
         jvmTupleTypeGen.createTupleType(cw, mv, typeClass, (BTupleType) bType, isAnnotatedType,
                 jvmPackageGen.symbolTable, ACC_PRIVATE);
-        setTypeInitialized(mv, ICONST_0, typeClass, isAnnotatedType);
         genMethodReturn(mv);
         cw.visitEnd();
         jarEntries.put(typeClass + CLASS_FILE_SUFFIX, cw.toByteArray());
@@ -370,6 +363,7 @@ public class JvmCreateTypeGen {
         }
         String varName = typeDef.internalName.value;
         ClassWriter cw = new BallerinaClassWriter(COMPUTE_FRAMES);
+        genFieldsForInitFlags(cw);
         String typeClass =  jvmTypeGen.unionTypesPkgName + typeDef.internalName.value;
         generateConstantsClassInit(cw, typeClass);
         boolean isAnnotatedType = false;
@@ -380,48 +374,78 @@ public class JvmCreateTypeGen {
         }
         MethodVisitor mv = cw.visitMethod(ACC_STATIC, JVM_STATIC_INIT_METHOD, VOID_METHOD_DESC, null, null);
         mv.visitCode();
-        setTypeInitialized(mv, ICONST_1, typeClass, isAnnotatedType);
         jvmUnionTypeGen.createUnionType(cw, mv, typeClass, varName, (BUnionType) bType, isAnnotatedType,
-                jvmPackageGen.symbolTable, ACC_PRIVATE);
-        setTypeInitialized(mv, ICONST_0, typeClass, isAnnotatedType);
+                jvmPackageGen.symbolTable);
         genMethodReturn(mv);
         cw.visitEnd();
         jarEntries.put(typeClass + CLASS_FILE_SUFFIX, cw.toByteArray());
         addDebugField(allTypesCW, varName);
     }
 
-    public void genGetTypeMethod(ClassWriter cw, String typeClass, String methodDescriptor, String typeDescriptor,
-                                 boolean isAnnotatedType) {
-        FieldVisitor f = cw.visitField(ACC_STATIC + ACC_PRIVATE, TYPE_INIT_VAR_NAME, GET_JBOOLEAN_TYPE, null, null);
-        f.visitEnd();
-        MethodVisitor mv = cw.visitMethod(ACC_PUBLIC | ACC_STATIC, GET_TYPE_METHOD, methodDescriptor, null, null);
-        mv.visitCode();
-        if (isAnnotatedType) {
-            mv.visitFieldInsn(GETSTATIC, typeClass, TYPE_INIT_VAR_NAME, GET_JBOOLEAN_TYPE);
-            Label ifLabel = new Label();
-            mv.visitJumpInsn(IFNE, ifLabel);
-            setTypeInitialized(mv, ICONST_1, typeClass, true);
-            mv.visitMethodInsn(INVOKESTATIC, typeClass, LOAD_ANNOTATIONS_METHOD, VOID_METHOD_DESC, false);
-            mv.visitLabel(ifLabel);
-        }
-        mv.visitFieldInsn(GETSTATIC, typeClass, TYPE_VAR_NAME, typeDescriptor);
-        mv.visitInsn(ARETURN);
-        mv.visitMaxs(0, 0);
-        mv.visitEnd();
+    public static void genFieldsForInitFlags(ClassWriter cw) {
+        cw.visitField(ACC_STATIC | ACC_PRIVATE | ACC_VOLATILE, TYPE_INIT_FIELD, GET_JBOOLEAN, null, null).visitEnd();
+        cw.visitField(ACC_STATIC | ACC_PRIVATE | ACC_VOLATILE, TYPE_INIT_ON_FIELD, GET_JBOOLEAN, null, null).visitEnd();
     }
 
-    public void addImmutableType(MethodVisitor mv, BType type, SymbolTable symbolTable) {
+    public static DoubleCheckLabelsRecord genDoubleCheckGetStart(MethodVisitor mv, String typeClass,
+                                                                 String typeDescriptor) {
+        Label tryStart = new Label();
+        Label tryEnd = new Label();
+        Label tryHandler = new Label();
+        mv.visitTryCatchBlock(tryStart, tryEnd, tryHandler, null);
+        mv.visitFieldInsn(GETSTATIC, typeClass, TYPE_INIT_FIELD, GET_JBOOLEAN);
+        Label ifIsInit = new Label();
+        mv.visitJumpInsn(IFEQ, ifIsInit);
+        mv.visitFieldInsn(GETSTATIC, typeClass, TYPE_VAR_FIELD, typeDescriptor);
+        mv.visitInsn(ARETURN);
+        mv.visitLabel(ifIsInit);
+        mv.visitFieldInsn(GETSTATIC, typeClass, TYPE_INIT_ON_FIELD, GET_JBOOLEAN);
+        Label ifIsOnInit = new Label();
+        mv.visitJumpInsn(IFEQ, ifIsOnInit);
+        mv.visitFieldInsn(GETSTATIC, BAL_RUNTIME, TYPE_INITIALIZING_GLOBAL_LOCK_VAR_NAME,
+                LOAD_LOCK);
+        mv.visitMethodInsn(INVOKEVIRTUAL, REENTRANT_LOCK, "isHeldByCurrentThread", RETURN_JBOOLEAN, false);
+        mv.visitJumpInsn(IFEQ, ifIsOnInit);
+        mv.visitFieldInsn(GETSTATIC, typeClass, TYPE_VAR_FIELD, typeDescriptor);
+        mv.visitInsn(ARETURN);
+        mv.visitLabel(ifIsOnInit);
+        mv.visitFieldInsn(GETSTATIC, BAL_RUNTIME, TYPE_INITIALIZING_GLOBAL_LOCK_VAR_NAME, LOAD_LOCK);
+        mv.visitMethodInsn(INVOKEVIRTUAL, REENTRANT_LOCK, "lock", VOID_METHOD_DESC, false);
+        mv.visitLabel(tryStart);
+        mv.visitFieldInsn(GETSTATIC, typeClass, TYPE_INIT_FIELD, GET_JBOOLEAN);
+        mv.visitJumpInsn(IFNE, tryEnd);
+        mv.visitInsn(ICONST_1);
+        mv.visitFieldInsn(PUTSTATIC, typeClass, TYPE_INIT_ON_FIELD, GET_JBOOLEAN);
+        return new DoubleCheckLabelsRecord(tryEnd, tryHandler);
+    }
+
+    public static void endDoubleCheckGetEnd(MethodVisitor mv, String typeClass, String typeDescriptor,
+                                            DoubleCheckLabelsRecord checkLabelsRecord) {
+        mv.visitInsn(ICONST_1);
+        mv.visitFieldInsn(PUTSTATIC, typeClass, TYPE_INIT_FIELD, GET_JBOOLEAN);
+        mv.visitInsn(ICONST_0);
+        mv.visitFieldInsn(PUTSTATIC, typeClass, TYPE_INIT_ON_FIELD, GET_JBOOLEAN);
+        mv.visitLabel(checkLabelsRecord.tryEnd());
+        mv.visitFieldInsn(GETSTATIC, BAL_RUNTIME, TYPE_INITIALIZING_GLOBAL_LOCK_VAR_NAME, LOAD_LOCK);
+        mv.visitMethodInsn(INVOKEVIRTUAL, REENTRANT_LOCK, "unlock", VOID_METHOD_DESC, false);
+        Label label5 = new Label();
+        mv.visitJumpInsn(GOTO, label5);
+        mv.visitLabel(checkLabelsRecord.tryHandler());
+        mv.visitVarInsn(ASTORE, 0);
+        mv.visitFieldInsn(GETSTATIC, BAL_RUNTIME, TYPE_INITIALIZING_GLOBAL_LOCK_VAR_NAME, LOAD_LOCK);
+        mv.visitMethodInsn(INVOKEVIRTUAL, REENTRANT_LOCK, "unlock", VOID_METHOD_DESC, false);
+        mv.visitVarInsn(ALOAD, 0);
+        mv.visitInsn(ATHROW);
+        mv.visitLabel(label5);
+        mv.visitFieldInsn(GETSTATIC, typeClass, TYPE_VAR_FIELD, typeDescriptor);
+        mv.visitInsn(ARETURN);
+    }
+
+    public Optional<BIntersectionType> getImmutableType(BType type, SymbolTable symbolTable) {
         if (type.tsymbol == null) {
-            return;
+            return Optional.empty();
         }
-        Optional<BIntersectionType> immutableType = Types.getImmutableType(symbolTable, type.tsymbol.pkgID,
-                (SelectivelyImmutableReferenceType) type);
-        if (immutableType.isEmpty()) {
-            return;
-        }
-        mv.visitInsn(DUP);
-        jvmTypeGen.loadType(mv, immutableType.get());
-        mv.visitMethodInsn(INVOKEINTERFACE, TYPE, SET_IMMUTABLE_TYPE_METHOD, SET_IMMUTABLE_TYPE, true);
+        return Types.getImmutableType(symbolTable, type.tsymbol.pkgID, (SelectivelyImmutableReferenceType) type);
     }
 
     public void loadTypeIdSet(MethodVisitor mv, BTypeIdSet typeIdSet) {
@@ -564,8 +588,8 @@ public class JvmCreateTypeGen {
 
     private void processAnnotations(String typeClass, String descriptor, MethodVisitor mv) {
 
-        mv.visitFieldInsn(GETSTATIC, annotationVarClassName, VALUE_VAR_NAME, GET_MAP_VALUE);
-        mv.visitFieldInsn(GETSTATIC, typeClass, TYPE_VAR_NAME, descriptor);
+        mv.visitFieldInsn(GETSTATIC, annotationVarClassName, VALUE_VAR_FIELD, GET_MAP_VALUE);
+        mv.visitFieldInsn(GETSTATIC, typeClass, TYPE_VAR_FIELD, descriptor);
         mv.visitMethodInsn(INVOKESTATIC, ANNOTATION_UTILS, "processAnnotations", PROCESS_ANNOTATIONS, false);
     }
 
@@ -872,7 +896,7 @@ public class JvmCreateTypeGen {
             mv.visitLabel(targetLabel);
             String functionName = func.name.value;
             String functionTypeConstantClass = jvmConstantsGen.getFunctionTypeConstantClass(functionName);
-            mv.visitFieldInsn(GETSTATIC, functionTypeConstantClass, VALUE_VAR_NAME, GET_FUNCTION_TYPE);
+            mv.visitFieldInsn(GETSTATIC, functionTypeConstantClass, VALUE_VAR_FIELD, GET_FUNCTION_TYPE);
             mv.visitInsn(ARETURN);
             i += 1;
             bTypesCount++;
@@ -991,7 +1015,7 @@ public class JvmCreateTypeGen {
 
     private void loadDefaultValueFp(MethodVisitor mv, String functionName) {
         String varClass = getVarStoreClass(jvmConstantsGen.globalVarsPkgName, functionName);
-        mv.visitFieldInsn(GETSTATIC, varClass, VALUE_VAR_NAME, GET_FUNCTION_POINTER);
+        mv.visitFieldInsn(GETSTATIC, varClass, VALUE_VAR_FIELD, GET_FUNCTION_POINTER);
     }
 
     public JvmUnionTypeGen getJvmUnionTypeGen() {

@@ -17,6 +17,7 @@
  */
 package io.ballerina.projects.test.resolution.packages;
 
+import io.ballerina.projects.environment.PackageLockingMode;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
@@ -28,12 +29,47 @@ import org.testng.annotations.Test;
 public class LocalRepoDependencyTest extends AbstractPackageResolutionTest {
 
     @Test(dataProvider = "unpublishedNewPackagesTestCaseProvider")
-    public void testUnpublishedNewPackages(String testSuite, String testCase, boolean sticky) {
-        runTestCase(testSuite, testCase, sticky);
+    public void testUnpublishedNewPackages(String testSuite, String testCase, PackageLockingMode lockingMode) {
+        runTestCase(testSuite, testCase, lockingMode);
     }
 
     @DataProvider(name = "unpublishedNewPackagesTestCaseProvider")
     public static Object[][] unpublishedNewPackagesTestCaseProvider() {
+        return new Object[][]{
+                {"suite-local_deps", "case-0001", PackageLockingMode.HARD},
+                {"suite-local_deps", "case-0001", PackageLockingMode.MEDIUM},
+                {"suite-local_deps", "case-0001", PackageLockingMode.SOFT},
+                {"suite-local_deps", "case-0002", PackageLockingMode.HARD},
+                {"suite-local_deps", "case-0002", PackageLockingMode.MEDIUM},
+                {"suite-local_deps", "case-0002", PackageLockingMode.SOFT},
+                {"suite-local_deps", "case-0003", PackageLockingMode.HARD},
+                {"suite-local_deps", "case-0003", PackageLockingMode.MEDIUM},
+                {"suite-local_deps", "case-0003", PackageLockingMode.SOFT},
+                {"suite-local_deps", "case-0004", PackageLockingMode.HARD},
+                {"suite-local_deps", "case-0004", PackageLockingMode.MEDIUM},
+                {"suite-local_deps", "case-0004", PackageLockingMode.SOFT},
+                {"suite-local_deps", "case-0005", PackageLockingMode.HARD},
+                {"suite-local_deps", "case-0005", PackageLockingMode.MEDIUM},
+                {"suite-local_deps", "case-0005", PackageLockingMode.SOFT},
+                {"suite-local_deps", "case-0006", PackageLockingMode.HARD},
+                {"suite-local_deps", "case-0006", PackageLockingMode.MEDIUM},
+                {"suite-local_deps", "case-0006", PackageLockingMode.SOFT},
+                {"suite-local_deps", "case-0007", PackageLockingMode.HARD},
+                {"suite-local_deps", "case-0007", PackageLockingMode.MEDIUM},
+                {"suite-local_deps", "case-0007", PackageLockingMode.SOFT},
+                {"suite-local_deps", "case-0008", PackageLockingMode.HARD},
+                {"suite-local_deps", "case-0008", PackageLockingMode.MEDIUM},
+                {"suite-local_deps", "case-0008", PackageLockingMode.SOFT},
+        };
+    }
+
+    @Test(dataProvider = "unpublishedNewPackagesTestCaseProviderOld")
+    public void testUnpublishedNewPackagesWithOldStickyFlag(String testSuite, String testCase, boolean sticky) {
+        runTestCase(testSuite, testCase, sticky);
+    }
+
+    @DataProvider(name = "unpublishedNewPackagesTestCaseProviderOld")
+    public static Object[][] unpublishedNewPackagesTestCaseProviderOld() {
         return new Object[][]{
                 {"suite-local_deps", "case-0001", true},
                 {"suite-local_deps", "case-0001", false},
@@ -55,12 +91,32 @@ public class LocalRepoDependencyTest extends AbstractPackageResolutionTest {
     }
 
     @Test(dataProvider = "patchedExistingPackagesTestCaseProvider")
-    public void testPatchedExistingPackages(String testSuite, String testCase, boolean sticky) {
-        runTestCase(testSuite, testCase, sticky);
+    public void testPatchedExistingPackages(String testSuite, String testCase, PackageLockingMode lockingMode) {
+        runTestCase(testSuite, testCase, lockingMode);
     }
 
     @DataProvider(name = "patchedExistingPackagesTestCaseProvider")
     public static Object[][] patchedExistingPackagesTestCaseProvider() {
+        return new Object[][]{
+                {"suite-local_deps", "case-0101", PackageLockingMode.HARD},
+                {"suite-local_deps", "case-0101", PackageLockingMode.MEDIUM},
+                {"suite-local_deps", "case-0101", PackageLockingMode.SOFT},
+                {"suite-local_deps", "case-0102", PackageLockingMode.HARD},
+                {"suite-local_deps", "case-0102", PackageLockingMode.MEDIUM},
+                {"suite-local_deps", "case-0102", PackageLockingMode.SOFT},
+                {"suite-local_deps", "case-0103", PackageLockingMode.HARD},
+                {"suite-local_deps", "case-0103", PackageLockingMode.MEDIUM},
+                {"suite-local_deps", "case-0103", PackageLockingMode.SOFT},
+        };
+    }
+
+    @Test(dataProvider = "patchedExistingPackagesTestCaseProviderOld")
+    public void testPatchedExistingPackagesWithOldStickyFlag(String testSuite, String testCase, boolean sticky) {
+        runTestCase(testSuite, testCase, sticky);
+    }
+
+    @DataProvider(name = "patchedExistingPackagesTestCaseProviderOld")
+    public static Object[][] patchedExistingPackagesTestCaseProviderOld() {
         return new Object[][]{
                 {"suite-local_deps", "case-0101", true},
                 {"suite-local_deps", "case-0101", false},

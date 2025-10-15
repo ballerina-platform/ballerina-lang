@@ -18,6 +18,7 @@ package org.ballerinalang.debugadapter.utils;
 
 import com.sun.jdi.Location;
 import io.ballerina.projects.Project;
+import org.ballerinalang.debugadapter.DebugProjectCache;
 
 import java.nio.file.Path;
 import java.util.Optional;
@@ -30,9 +31,11 @@ import java.util.Optional;
 public abstract class SourceResolver {
 
     protected final Project sourceProject;
+    protected final DebugProjectCache projectCache;
 
-    SourceResolver(Project sourceProject) {
+    SourceResolver(Project sourceProject, DebugProjectCache projectCache) {
         this.sourceProject = sourceProject;
+        this.projectCache = projectCache;
     }
 
     /**

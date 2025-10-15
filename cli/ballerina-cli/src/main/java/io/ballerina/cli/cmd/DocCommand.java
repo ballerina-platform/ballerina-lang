@@ -30,14 +30,17 @@ import io.ballerina.projects.ProjectEnvironmentBuilder;
 import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.bala.BalaProject;
 import io.ballerina.projects.directory.BuildProject;
+import io.ballerina.projects.environment.PackageLockingMode;
 import io.ballerina.projects.repos.TempDirCompilationCache;
 import io.ballerina.projects.util.ProjectConstants;
+import io.ballerina.tools.diagnostics.Diagnostic;
 import org.ballerinalang.docgen.docs.BallerinaDocGenerator;
 import picocli.CommandLine;
 
 import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.List;
 
 import static io.ballerina.cli.cmd.Constants.DOC_COMMAND;
@@ -120,6 +123,10 @@ public class DocCommand implements BLauncherCmd {
             description = "experimental memory optimization for large projects")
     private Boolean optimizeDependencyCompilation;
 
+    @CommandLine.Option(names = "--locking-mode", hidden = true,
+            description = "allow passing the package locking mode.", converter = PackageLockingModeConverter.class)
+    private PackageLockingMode lockingMode;
+
     @Override
     public void execute() {
         if (this.helpFlag) {
@@ -191,11 +198,13 @@ public class DocCommand implements BLauncherCmd {
         this.projectPath = this.projectPath.normalize();
         this.outputPath = this.outputLoc != null ? Path.of(this.outputLoc).toAbsolutePath() : null;
 
+        List<Diagnostic> buildToolDiagnostics = new ArrayList<>();
         TaskExecutor taskExecutor = new TaskExecutor.TaskBuilder()
                 .addTask(new CreateTargetDirTask()) // create target directory.
-                .addTask(new RunBuildToolsTask(outStream)) // run build tools
+                .addTask(new RunBuildToolsTask(outStream, false, buildToolDiagnostics)) // run build tools
                 .addTask(new ResolveMavenDependenciesTask(outStream)) // resolve maven dependencies in Ballerina.toml
-                .addTask(new CompileTask(outStream, errStream)) // compile the modules
+                .addTask(new CompileTask(outStream, errStream, false, false,
+                        false, buildToolDiagnostics)) // compile the modules
                 .addTask(new CreateDocsTask(outStream, outputPath)) // creates API documentation
                 .build();
 

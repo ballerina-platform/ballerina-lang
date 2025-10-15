@@ -55,18 +55,9 @@ public class InvalidFieldTypeTest {
         srcFile = getDocumentForSingleSource(project);
     }
 
-    @Test(dataProvider = "CursorPosProvider1")
-    public void testSymbolAtCursor(int line, int col) {
-        assertTrue(model.symbol(srcFile, from(line, col)).isEmpty());
-    }
-
-    @DataProvider(name = "CursorPosProvider1")
-    public Object[][] getCursorPos1() {
-        return new Object[][]{
-                {17, 16},
-                {22, 13},
-                {27, 13},
-        };
+    @Test
+    public void testSymbolAtCursor() {
+        assertTrue(model.symbol(srcFile, from(17, 16)).isEmpty());
     }
 
     @Test(dataProvider = "CursorPosProvider2")

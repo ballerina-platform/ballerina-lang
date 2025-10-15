@@ -4,6 +4,7 @@
     "character": 19
   },
   "source": "expression_context/source/mapping_expr_ctx_source37.bal",
+  "description": "",
   "items": [
     {
       "label": "readonly",
@@ -79,14 +80,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "myMap",
-      "kind": "Field",
-      "detail": "MyConfig.myMap",
-      "sortText": "K",
-      "insertText": "myMap: ${1:{}}",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "myTable",
       "kind": "Field",
       "detail": "MyConfig.myTable",
@@ -111,21 +104,29 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "Fill MyConfig Required Fields",
-      "kind": "Property",
-      "detail": "MyConfig",
-      "sortText": "R",
-      "filterText": "fill",
-      "insertText": "node: new (${1:{}}, ${2:0}, ${3:\"\"}),\nisAlive: ${4:false},\nerr1: error(\"\", message = ${5:\"\"}),\nmyXML: ${6:xml ``},\nkeywords: [${7:[]}],\ncredentials: {ip: ${8:\"\"}, port: ${9:0}, username: ${10:\"\"}, files: ${11:new ()}},\nrecord2: {f1: ${12:0}},\nrecord1: {},\nmyMap: ${13:{}},\nmyTable: table [${14:}],\nmyError: error(\"\"),\nrandomNum: ${15:error(\"\")}",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "...config",
       "kind": "Variable",
       "detail": "MyConfig",
       "sortText": "AC",
       "filterText": "config",
       "insertText": "...config",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "Fill MyConfig Required Fields",
+      "kind": "Property",
+      "detail": "MyConfig",
+      "sortText": "R",
+      "filterText": "fill",
+      "insertText": "node: new (${1:{}}, ${2:0}, ${3:\"\"}),\nisAlive: ${4:false},\nerr1: error(\"\", message = ${5:\"\"}),\nmyXML: ${6:xml ``},\nkeywords: [${7:[]}],\ncredentials: {ip: ${8:\"\"}, port: ${9:0}, username: ${10:\"\"}, files: ${11:new ()}},\nrecord2: {f1: ${12:0}},\nrecord1: {},\nmyMap:  ,\nmyTable: table [${13:}],\nmyError: error(\"\"),\nrandomNum: ${14:error(\"\")}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "myMap",
+      "kind": "Field",
+      "detail": "MyConfig.myMap",
+      "sortText": "AG",
+      "insertText": "myMap:  ",
       "insertTextFormat": "Snippet"
     }
   ]

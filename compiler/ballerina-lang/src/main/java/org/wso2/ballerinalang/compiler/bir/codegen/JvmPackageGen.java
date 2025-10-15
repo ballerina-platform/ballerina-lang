@@ -129,6 +129,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.desugar.BirDesugar.rew
 import static org.wso2.ballerinalang.compiler.bir.codegen.interop.ExternalMethodGen.createExternalFunctionWrapper;
 import static org.wso2.ballerinalang.compiler.bir.codegen.interop.ExternalMethodGen.injectDefaultParamInits;
 import static org.wso2.ballerinalang.compiler.bir.codegen.utils.JvmCodeGenUtil.NAME_HASH_COMPARATOR;
+import static org.wso2.ballerinalang.compiler.bir.codegen.utils.JvmCodeGenUtil.canSkipFromCallByFunctionName;
 import static org.wso2.ballerinalang.compiler.bir.codegen.utils.JvmCodeGenUtil.isExternFunc;
 import static org.wso2.ballerinalang.compiler.bir.codegen.utils.JvmCodeGenUtil.toNameString;
 import static org.wso2.ballerinalang.compiler.bir.codegen.utils.JvmModuleUtils.getModuleLevelClassName;
@@ -665,8 +666,7 @@ public class JvmPackageGen {
                 immediateImports, mainFunc, testExecuteFunc);
         TypeHashVisitor typeHashVisitor = new TypeHashVisitor();
         AsyncDataCollector asyncDataCollector = new AsyncDataCollector(currentModule);
-        JvmConstantsGen jvmConstantsGen = new JvmConstantsGen(currentModule, types, typeHashVisitor,
-                jarEntries);
+        JvmConstantsGen jvmConstantsGen = new JvmConstantsGen(currentModule, types, typeHashVisitor, jarEntries);
         JvmTypeGen jvmTypeGen = new JvmTypeGen(jvmConstantsGen, currentModule.packageID, typeHashVisitor, symbolTable);
         JvmMethodsSplitter jvmMethodsSplitter = new JvmMethodsSplitter(this, jvmConstantsGen, currentModule,
                 typeHashVisitor,  jvmTypeGen);
@@ -704,11 +704,14 @@ public class JvmPackageGen {
                 asyncDataCollector, jarEntries);
         jvmBallerinaConstantsGen.generateConstantsClasses(this, jvmTypeGen, jvmCastGen, asyncDataCollector, jarEntries);
 
+        List<BIRNode.BIRFunction> sortedFunctions = filterUserDefinedFunctions(currentModule.functions);
+        sortedFunctions.sort(NAME_HASH_COMPARATOR);
         List<BIRTypeDefinition> recordTypeDefList = filterRecordTypes();
         recordTypeDefList.sort(NAME_HASH_COMPARATOR);
-        jvmMethodsSplitter.generateMethods(jarEntries, jvmCastGen, recordTypeDefList, asyncDataCollector,
-                lazyLoadingDataCollector);
-        jvmConstantsGen.generateConstants(jarEntries, this, jvmCastGen, asyncDataCollector, lazyLoadingDataCollector);
+        jvmMethodsSplitter.generateMethods(jarEntries, jvmCastGen, recordTypeDefList, sortedFunctions,
+                asyncDataCollector, lazyLoadingDataCollector);
+        jvmConstantsGen.generateConstants(this, jvmCastGen, sortedFunctions, asyncDataCollector,
+                lazyLoadingDataCollector, jarEntries);
         lambdaGen.generateLambdaClasses(asyncDataCollector, jarEntries);
 
         // clear class name mappings
@@ -724,6 +727,18 @@ public class JvmPackageGen {
             }
         }
         return recordTypes;
+    }
+
+    private List<BIRNode.BIRFunction> filterUserDefinedFunctions(List<BIRNode.BIRFunction> functions) {
+        List<BIRNode.BIRFunction> filteredFunctions = new ArrayList<>();
+        for (BIRNode.BIRFunction func : functions) {
+            String funcName = func.name.value;
+            if (canSkipFromCallByFunctionName(funcName)) {
+                continue;
+            }
+            filteredFunctions.add(func);
+        }
+        return filteredFunctions;
     }
 
     private void removeSourceAnnotationTypeDefs(List<BIRTypeDefinition> typeDefs) {
