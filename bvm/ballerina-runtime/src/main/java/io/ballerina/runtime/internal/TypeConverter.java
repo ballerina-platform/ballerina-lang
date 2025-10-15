@@ -973,7 +973,7 @@ public final class TypeConverter {
     }
 
     public static BXml stringToXml(String value) throws BError {
-        BXml item = XmlUtils.parse(value);
+        BXml item = XmlUtils.parse("<root>" + value + "</root>");
         return item.children();
     }
 
