@@ -174,12 +174,16 @@ public class XmlTreeBuilder {
         }
 
         if (encoding != null) {
-            if (!piData.isEmpty()) piData.append(" ");
+            if (!piData.isEmpty()) {
+                piData.append(" ");
+            }
             piData.append("encoding=\"").append(encoding).append("\"");
         }
 
         if (standalone) {
-            if (!piData.isEmpty()) piData.append(" ");
+            if (!piData.isEmpty()) {
+                piData.append(" ");
+            }
             piData.append("standalone=\"").append("yes").append("\"");
         }
 
