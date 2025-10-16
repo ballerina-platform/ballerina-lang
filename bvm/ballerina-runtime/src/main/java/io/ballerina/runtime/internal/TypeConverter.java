@@ -113,6 +113,7 @@ public final class TypeConverter {
     public static final String ERROR_MESSAGE_UNION_START = "{";
     public static final String ERROR_MESSAGE_UNION_END = "}";
     public static final String ERROR_MESSAGE_UNION_SEPARATOR = "or";
+    public static final String XML_START_ELEMENT = "<";
 
     public static Object convertValues(Type targetType, Object inputValue) {
         Type inputType = TypeChecker.getType(inputValue);
@@ -973,8 +974,11 @@ public final class TypeConverter {
     }
 
     public static BXml stringToXml(String value) throws BError {
-        BXml item = XmlUtils.parse("<root>" + value + "</root>");
-        return item.children();
+        String xml = value.trim();
+        if (!xml.startsWith(XML_START_ELEMENT)) {
+            return XmlUtils.parse("<root>" + value + "</root>").children();
+        }
+        return XmlUtils.parse(xml);
     }
 
     public static RegExpValue stringToRegExp(String value) throws BError {
