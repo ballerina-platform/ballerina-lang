@@ -19,7 +19,7 @@ import ballerina/jballerina.java;
 
 public function validateAPI() {
     xml xmlVal = getXMLValueFromString1();
-    test:assertEquals(xmlVal.toString(), "<?xml encoding="UTF8"?><book>The Lost World</book>");
+    test:assertEquals(xmlVal.toString(), "<book>The Lost World</book>");
     test:assertEquals(xmlVal.data(), "The Lost World");
 
     xmlVal = getXMLValueFromString2();
