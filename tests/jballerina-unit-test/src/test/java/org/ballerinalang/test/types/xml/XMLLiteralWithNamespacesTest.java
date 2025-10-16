@@ -204,7 +204,7 @@ public class XMLLiteralWithNamespacesTest {
     public void testXMLToString() {
         BXml xml = XmlFactory.parse("<?xml version=\"1.0\" encoding=\"UTF-8\"?>" +
                 "<!DOCTYPE foo [<!ELEMENT foo ANY ><!ENTITY data \"Example\" >]><foo>&data;</foo>");
-        Assert.assertEquals(xml.toString(), "<foo>Example</foo>");
+        Assert.assertEquals(xml.toString(), "<?xml version=\"1.0\"?><foo>Example</foo>");
     }
 
     @Test (dataProvider = "xmlValueFunctions")
