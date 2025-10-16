@@ -140,8 +140,7 @@ public final class LauncherUtils {
                     activeToolsVsRepos.put(toolName, tool.repository() == null ? "" : "[" + tool.repository()
                             .toUpperCase() + "] ")));
             helpBuilder.append("\n\n   Tool Commands:");
-            toolNames.forEach(key -> generateCommandDescription(subCommands.get(key), helpBuilder,
-                    activeToolsVsRepos.get(key)));
+            toolNames.forEach(key -> generateCommandDescription(subCommands.get(key), helpBuilder));
         }
         return helpBuilder.toString();
     }
@@ -156,8 +155,7 @@ public final class LauncherUtils {
         return commandUsageInfo.toString();
     }
 
-    private static void generateCommandDescription(CommandLine command, StringBuilder stringBuilder,
-                                                   String repository) {
+    private static void generateCommandDescription(CommandLine command, StringBuilder stringBuilder) {
         String commandName = command.getCommandName();
         BLauncherCmd bLauncherCmd = (BLauncherCmd) command.getCommandSpec().userObject();
         CommandLine.Command annotation = bLauncherCmd.getClass().getAnnotation(CommandLine.Command.class);
@@ -166,12 +164,12 @@ public final class LauncherUtils {
             String[] descValues = annotation.description();
             if (descValues != null && descValues.length > 0) {
                 // wrapLength, indent selected to match `ballerina-help.help` formatting
-                commandDescription = wrapString(descValues[0], 64, 24);
+                commandDescription = wrapString(descValues[0], 64, 33);
             }
         }
         stringBuilder.append("\n")
                 .append("        ")
-                .append(String.format("%-15s %s", commandName, repository + commandDescription));
+                .append(String.format("%-25s%s", commandName, commandDescription));
     }
 
     static String wrapString(String str, int wrapLength, int indent) {

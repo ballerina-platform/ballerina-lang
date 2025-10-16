@@ -2105,8 +2105,12 @@ public class    BuildCommandTest extends BaseCommandTest {
         Assert.assertTrue(buildLog.contains("Generating executable"));
 
         Path depsTomlExpected = projectPath.resolve("resources").resolve("Dependencies-" + fileName);
-        Assert.assertEquals(Files.readString(depsTomlActual, Charset.defaultCharset()).replace("\r", ""),
-                Files.readString(depsTomlExpected, Charset.defaultCharset()).replace("\r", ""));
+        Assert.assertEquals(Files.readString(depsTomlActual, Charset.defaultCharset())
+                        .replace("**INSERT_DISTRIBUTION_VERSION_HERE**", RepoUtils.getBallerinaShortVersion())
+                        .replace("\r", ""),
+                Files.readString(depsTomlExpected, Charset.defaultCharset())
+                        .replace("**INSERT_DISTRIBUTION_VERSION_HERE**", RepoUtils.getBallerinaShortVersion())
+                        .replace("\r", ""));
     }
 
     @Test(dataProvider = "differentUpdatePolicies")
@@ -2114,6 +2118,8 @@ public class    BuildCommandTest extends BaseCommandTest {
         Path projectPath = this.testResources.resolve("projects-for-locking-modes/testLockingMode");
         FileUtils.copyFile(projectPath.resolve("resources").resolve("Dependencies-existing-hard.toml").toFile(),
                 projectPath.resolve("Dependencies.toml").toFile(), StandardCopyOption.REPLACE_EXISTING);
+        replaceDependenciesTomlContent(projectPath, "**INSERT_DISTRIBUTION_VERSION_HERE**",
+                RepoUtils.getBallerinaShortVersion());
         System.setProperty(USER_DIR_PROPERTY, projectPath.toString());
         BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
         cleanTarget(projectPath);
@@ -2135,7 +2141,9 @@ public class    BuildCommandTest extends BaseCommandTest {
         Path depsTomlActual = projectPath.resolve("Dependencies.toml");
         Path depsTomlExpected = projectPath.resolve("resources").resolve("Dependencies-existing-" + fileName);
         Assert.assertEquals(Files.readString(depsTomlActual, Charset.defaultCharset()).replace("\r", ""),
-                Files.readString(depsTomlExpected, Charset.defaultCharset()).replace("\r", ""));
+                Files.readString(depsTomlExpected, Charset.defaultCharset())
+                        .replace("**INSERT_DISTRIBUTION_VERSION_HERE**", RepoUtils.getBallerinaShortVersion())
+                        .replace("\r", ""));
 
         // Delete dependencies.toml and the target/ from the project
         Files.delete(depsTomlActual);
@@ -2147,6 +2155,8 @@ public class    BuildCommandTest extends BaseCommandTest {
         Path projectPath = this.testResources.resolve("projects-for-locking-modes/testLockingMode");
         FileUtils.copyFile(projectPath.resolve("resources").resolve("Dependencies-existing-hard.toml").toFile(),
                 projectPath.resolve("Dependencies.toml").toFile(), StandardCopyOption.REPLACE_EXISTING);
+        replaceDependenciesTomlContent(projectPath, "**INSERT_DISTRIBUTION_VERSION_HERE**",
+                RepoUtils.getBallerinaShortVersion());
         System.setProperty(USER_DIR_PROPERTY, projectPath.toString());
         BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
         if (args.isEmpty()) {
@@ -2169,7 +2179,9 @@ public class    BuildCommandTest extends BaseCommandTest {
         Path depsTomlActual = projectPath.resolve("Dependencies.toml");
         Path depsTomlExpected = projectPath.resolve("resources").resolve("Dependencies-existing-hard.toml");
         Assert.assertEquals(Files.readString(depsTomlActual, Charset.defaultCharset()).replace("\r", ""),
-                Files.readString(depsTomlExpected, Charset.defaultCharset()).replace("\r", ""));
+                Files.readString(depsTomlExpected, Charset.defaultCharset())
+                        .replace("**INSERT_DISTRIBUTION_VERSION_HERE**", RepoUtils.getBallerinaShortVersion())
+                        .replace("\r", ""));
 
         // Delete dependencies.toml from the project
         Files.delete(depsTomlActual);

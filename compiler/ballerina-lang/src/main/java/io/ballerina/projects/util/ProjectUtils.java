@@ -1355,11 +1355,14 @@ public final class ProjectUtils {
         return false;
     }
 
-    public static PackageLockingMode getPackageLockingMode(Path target, Project project,
+    public static PackageLockingMode getPackageLockingMode(Project project,
                                                            PackageLockingMode originalMode) {
+        if (project.kind() != ProjectKind.BUILD_PROJECT) {
+            return originalMode;
+        }
         BuildJson buildJson;
         try {
-            buildJson = readBuildJson(target.resolve(BUILD_FILE));
+            buildJson = readBuildJson(project.targetDir().resolve(BUILD_FILE));
         } catch (IOException | JsonSyntaxException e) {
             return originalMode;
         }
