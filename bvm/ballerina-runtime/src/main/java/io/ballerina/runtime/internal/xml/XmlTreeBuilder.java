@@ -164,7 +164,7 @@ public class XmlTreeBuilder {
 
     public static void addXmlDeclaration(XMLStreamReader reader, Deque<List<BXml>> siblingDeque) {
         String version = reader.getVersion();
-        String encoding = reader.getEncoding();
+        String encoding = reader.getCharacterEncodingScheme();
         boolean standalone = reader.isStandalone();
 
         StringBuilder piData = new StringBuilder();
