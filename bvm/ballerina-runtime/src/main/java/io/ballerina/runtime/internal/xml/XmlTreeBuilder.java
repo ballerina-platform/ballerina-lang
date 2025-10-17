@@ -168,18 +168,15 @@ public class XmlTreeBuilder {
         boolean standalone = reader.isStandalone();
 
         StringBuilder piData = new StringBuilder();
-
         if (version != null) {
             piData.append("version=\"").append(version).append("\"");
         }
-
         if (encoding != null) {
             if (!piData.isEmpty()) {
                 piData.append(" ");
             }
             piData.append("encoding=\"").append(encoding).append("\"");
         }
-
         if (standalone) {
             if (!piData.isEmpty()) {
                 piData.append(" ");
