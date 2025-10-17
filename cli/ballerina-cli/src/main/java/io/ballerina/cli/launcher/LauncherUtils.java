@@ -164,12 +164,12 @@ public final class LauncherUtils {
             String[] descValues = annotation.description();
             if (descValues != null && descValues.length > 0) {
                 // wrapLength, indent selected to match `ballerina-help.help` formatting
-                commandDescription = wrapString(descValues[0], 64, 33);
+                commandDescription = wrapString(descValues[0], 64, 34);
             }
         }
         stringBuilder.append("\n")
                 .append("        ")
-                .append(String.format("%-25s%s", commandName, commandDescription));
+                .append(String.format("%-26s%s", commandName, commandDescription));
     }
 
     static String wrapString(String str, int wrapLength, int indent) {
