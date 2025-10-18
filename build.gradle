@@ -1,3 +1,9 @@
+buildscript {
+    dependencies {
+        classpath 'net.researchgate:gradle-release:2.8.0'
+    }
+}
+
 plugins {
     id 'base'
     alias libs.plugins.spotbugs
