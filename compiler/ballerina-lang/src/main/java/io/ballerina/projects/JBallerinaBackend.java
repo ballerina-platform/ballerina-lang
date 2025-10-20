@@ -180,8 +180,11 @@ public class JBallerinaBackend extends CompilerBackend {
                 if (this.packageContext.project().buildOptions().showDependencyDiagnostics() ||
                         !ProjectKind.BALA_PROJECT.equals(moduleContext.project().kind()) ||
                         (diagnostic.diagnosticInfo().severity() == DiagnosticSeverity.ERROR)) {
-                    moduleDiagnostics.add(
-                            new PackageDiagnostic(diagnostic, moduleContext.descriptor(), moduleContext.project()));
+                    boolean isWorkspaceDep = !this.packageContext.getResolution().dependencyGraph().getRoot()
+                            .packageInstance().descriptor().equals(
+                                    moduleContext.project().currentPackage().descriptor());
+                    moduleDiagnostics.add(new PackageDiagnostic(diagnostic, moduleContext.descriptor(),
+                            moduleContext.project(), isWorkspaceDep));
                 }
             }
 
