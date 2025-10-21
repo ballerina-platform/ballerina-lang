@@ -159,7 +159,8 @@ public class ToolUpdateCommand implements BLauncherCmd {
                     t.setActive(false);
                 });
 
-        BalToolsManifest.Tool highestCompatibleToolVersion = balToolsManifest.getHighestCompatibleToolVersion(toolId);
+        BalToolsManifest.Tool highestCompatibleToolVersion = blendedBalToolsManifest
+                .getHighestCompatibleToolVersion(toolId);
         if (offline) {
             currentActiveTool.ifPresent(activeTool -> {
                 if (SemanticVersion.from(activeTool.version())
@@ -167,9 +168,14 @@ public class ToolUpdateCommand implements BLauncherCmd {
                     outStream.println("tool '" + toolId + "' is already up-to-date.");
                 } else {
                     outStream.println("tool '" + toolId + ":" + highestCompatibleToolVersion.version() +
-                            "' is set as the active version.");
-                    balToolsManifest.setActiveToolVersion(toolId, highestCompatibleToolVersion.version(),
-                            highestCompatibleToolVersion.repository(), false);
+                            "' successfully set as the active version.");
+                    balToolsManifest.tools().get(toolId).values().stream()
+                            .flatMap(map -> map.values().stream())
+                            .filter(t -> !t.version().equals(highestCompatibleToolVersion.version()))
+                            .forEach(t -> {
+                                t.setActive(false);
+                                t.setForce(false);
+                            });
                 }
             });
             balToolsToml.modify(balToolsManifest);
@@ -191,12 +197,13 @@ public class ToolUpdateCommand implements BLauncherCmd {
             if (toolAvailableLocally.isPresent()) {
                 outStream.println("tool '" + toolId + ":" + version + "' is already available locally.");
                 addToBalToolsToml(balToolsToml, balToolsManifest, toolAvailableLocally.orElseThrow(), errStream);
-                outStream.println("tool '" + toolId + ":" + version + "' is set as the active version.");
+                outStream.println("tool '" + toolId + ":" + version + "' successfully set as the active version.");
                 return;
             }
 
             BalToolsManifest.Tool toolFromCentral = BalToolsUtil.pullToolPackageFromRemote(toolId, version);
             addToBalToolsToml(balToolsToml, balToolsManifest, toolFromCentral, errStream);
+            outStream.println("tool '" + toolId + ":" + version + "' successfully set as the active version.");
         } catch (PackageAlreadyExistsException e) {
             errStream.println(e.getMessage());
             CommandUtil.exitError(this.exitWhenFinish);

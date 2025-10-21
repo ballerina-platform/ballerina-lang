@@ -55,7 +55,7 @@ public class InBuiltToolCommandsTests extends BaseTestCase {
         balClient = new BMainInstance(balServer);
         String output = balClient.runMainAndReadStdOut("dummytoolF", new String[]{},
                 new HashMap<>(), userDir, true);
-        Assert.assertTrue(output.contains("dummytoolF 0.9.0"));
+        Assert.assertTrue(output.contains("dummytoolF 0.9.0"), output);
     }
 
     @Test (description = "Test a tool that is only available in central cache")
@@ -63,7 +63,7 @@ public class InBuiltToolCommandsTests extends BaseTestCase {
         balClient = new BMainInstance(balServer);
         String output = balClient.runMainAndReadStdOut("dummyToolX", new String[]{},
                 new HashMap<>(), userDir, true);
-        Assert.assertTrue(output.contains("dummyToolX 0.1.7"));
+        Assert.assertTrue(output.contains("dummyToolX 0.1.7"), output);
     }
 
     @Test (description = "Test a tool that is available in both dist and local. " +
@@ -72,7 +72,7 @@ public class InBuiltToolCommandsTests extends BaseTestCase {
         balClient = new BMainInstance(balServer);
         String output = balClient.runMainAndReadStdOut("dummytoolD", new String[]{},
                 new HashMap<>(), userDir, true);
-        Assert.assertTrue(output.contains("dummytoolD 1.1.5"));
+        Assert.assertTrue(output.contains("dummytoolD 1.1.5"), output);
     }
 
     @Test (description = "Test a tool that is available in both dist and local. " +
@@ -81,7 +81,7 @@ public class InBuiltToolCommandsTests extends BaseTestCase {
         balClient = new BMainInstance(balServer);
         String output = balClient.runMainAndReadStdOut("dummytoolC", new String[]{},
                 new HashMap<>(), userDir, true);
-        Assert.assertTrue(output.contains("dummytoolC 1.1.0"));
+        Assert.assertTrue(output.contains("dummytoolC 1.1.0"), output);
     }
 
     @Test (description = "Locally active version is incompatible. Dist has the highest compatible version")
@@ -90,7 +90,7 @@ public class InBuiltToolCommandsTests extends BaseTestCase {
         balClient = new BMainInstance(balServer);
         String output = balClient.runMainAndReadStdOut("dummytoolA", new String[]{},
                 new HashMap<>(), userDir, true);
-        Assert.assertTrue(output.contains("dummytoolA 1.2.1"));
+        Assert.assertTrue(output.contains("dummytoolA 1.2.1"), output);
     }
 
     @Test (description = "Locally active version is incompatible. Local has the highest compatible version")
@@ -98,7 +98,7 @@ public class InBuiltToolCommandsTests extends BaseTestCase {
         balClient = new BMainInstance(balServer);
         String output = balClient.runMainAndReadStdOut("dummytoolB", new String[]{},
                 new HashMap<>(), userDir, true);
-        Assert.assertTrue(output.contains("dummytoolB 1.1.0"));
+        Assert.assertTrue(output.contains("dummytoolB 1.1.0"), output);
     }
 
     @Test (description = "Locally active version is compatible. Dist has upgraded")
@@ -112,7 +112,7 @@ public class InBuiltToolCommandsTests extends BaseTestCase {
         balClient = new BMainInstance(balServer);
         String output = balClient.runMainAndReadStdOut("dummytoolE", new String[]{},
                 new HashMap<>(), userDir, true);
-        Assert.assertTrue(output.contains("dummytoolE 1.1.0"));
+        Assert.assertTrue(output.contains("dummytoolE 1.1.0"), output);
     }
 
     @Test (description = "No bal-tools.toml present in the user home. The tool is only available in the distribution")
@@ -123,7 +123,7 @@ public class InBuiltToolCommandsTests extends BaseTestCase {
         balClient = new BMainInstance(balServer);
         String output = balClient.runMainAndReadStdOut("dummytoolF", new String[]{},
                 env, userDir, true);
-        Assert.assertTrue(output.contains("dummytoolF 0.9.0"));
+        Assert.assertTrue(output.contains("dummytoolF 0.9.0"), output);
     }
 
     @Test (description = "No bal-tools.toml present in the user home. " +
@@ -135,7 +135,7 @@ public class InBuiltToolCommandsTests extends BaseTestCase {
         balClient = new BMainInstance(balServer);
         String output = balClient.runMainAndReadStdOut("dummytoolD", new String[]{},
                 env, userDir, true);
-        Assert.assertTrue(output.contains("dummytoolD 1.1.0"));
+        Assert.assertTrue(output.contains("dummytoolD 1.1.0"), output);
     }
 
     @Test (description = "Tool is manually deleted from ~/.ballerina/")
@@ -145,7 +145,7 @@ public class InBuiltToolCommandsTests extends BaseTestCase {
                 new HashMap<>(), userDir, true);
         Assert.assertTrue(output.contains("error: The tool 'manually-deleted' has been removed manually. " +
                 "Please run 'bal tool remove manually-deleted' to clean up, and then run " +
-                "'bal tool pull manually-deleted' to reinstall the tool."));
+                "'bal tool pull manually-deleted' to reinstall the tool."), output);
     }
 
     @Test (description = "Get location of the active tool version")
@@ -156,7 +156,7 @@ public class InBuiltToolCommandsTests extends BaseTestCase {
         String distVersion = RepoUtils.getBallerinaShortVersion();
         Assert.assertEquals(output.replace("\r", ""),
                 Paths.get(System.getProperty(USER_DIR) + "/build/extractedDistribution/jballerina-tools-"
-                        + distVersion + "/repo/bala/ballerina/tool_dummytoolC/1.1.0/java21").toString());
+                        + distVersion + "/repo/bala/ballerina/tool_dummytoolC/1.1.0/java21").toString(), output);
     }
 
     @Test (description = "Get location of a specific tool version")
@@ -166,6 +166,83 @@ public class InBuiltToolCommandsTests extends BaseTestCase {
                 new HashMap<>(), userDir, true);
         Assert.assertEquals(output.replace("\r", ""),
                 Paths.get(System.getProperty(USER_DIR) + "/build/user-home/.ballerina/repositories/" +
-                        "central.ballerina.io/bala/ballerina/tool_dummytoolC/1.0.0/java21").toString());
+                        "central.ballerina.io/bala/ballerina/tool_dummytoolC/1.0.0/java21").toString(), output);
+    }
+
+    @Test (description = "Set force an older version from the central cache when dist has the latest",
+            dependsOnMethods = {"testManuallyDeletedTool"})
+    public void testForceSetOldToolVersion() throws BallerinaTestException {
+        // Dist contains dummytoolC 1.1.0, central has 1.0.0
+
+        // 1. Verify that the current active version is the latest - 1.1.0
+        balClient = new BMainInstance(balServer);
+        String output = balClient.runMainAndReadStdOut("dummytoolC", new String[]{},
+                new HashMap<>(), userDir, true);
+        Assert.assertTrue(output.contains("dummytoolC 1.1.0"), output);
+
+        // 2. Force set an older version - 1.0.0
+        output = balClient.runMainAndReadStdOut("tool", new String[]{"use", "dummytoolC:1.0.0"},
+                new HashMap<>(), userDir, true);
+        Assert.assertTrue(output.contains("tool 'dummytoolC:1.0.0' successfully set as the active version."), output);
+
+        // 3. Verify that the active version is now 1.0.0
+        output = balClient.runMainAndReadStdOut("dummytoolC", new String[]{},
+                new HashMap<>(), userDir, true);
+        Assert.assertTrue(output.contains("dummytoolC 1.0.0"), output);
+
+        // 4. Revert back to the latest version - 1.1.0
+        output = balClient.runMainAndReadStdOut("tool", new String[]{"update", "--offline", "dummytoolC"},
+                new HashMap<>(), userDir, true);
+        Assert.assertTrue(output.contains("tool 'dummytoolC:1.1.0' successfully set as the active version."), output);
+        output = balClient.runMainAndReadStdOut("dummytoolC", new String[]{},
+                new HashMap<>(), userDir, true);
+        Assert.assertTrue(output.contains("dummytoolC 1.1.0"), output);
+    }
+
+    @Test (description = "Set force an older version from the central cache when the central cache itself " +
+            "has the latest", dependsOnMethods = {"testManuallyDeletedTool"})
+    public void testForceSetOldToolVersion2() throws BallerinaTestException {
+        // Central contains dummytoolD 1.1.5 and 1.0.0, dist has 1.1.0
+
+        // 1. Verify that the current active version is the latest - 1.1.0
+        balClient = new BMainInstance(balServer);
+        String output = balClient.runMainAndReadStdOut("dummytoolD", new String[]{},
+                new HashMap<>(), userDir, true);
+        Assert.assertTrue(output.contains("dummytoolD 1.1.5"), output);
+
+        // Verify that the location command shows the dist version for 1.0.0
+        output = balClient.runMainAndReadStdOut("tool", new String[]{"location", "dummytoolD:1.1.0"},
+                new HashMap<>(), userDir, true);
+        String distVersion = RepoUtils.getBallerinaShortVersion();
+        Assert.assertEquals(output.replace("\r", ""),
+                Paths.get(System.getProperty(USER_DIR) + "/build/extractedDistribution/jballerina-tools-"
+                        + distVersion + "/repo/bala/ballerina/tool_dummytoolD/1.1.0/java21").toString(), output);
+
+        // 2. Force set an older version - 1.0.0
+        output = balClient.runMainAndReadStdOut("tool", new String[]{"use", "dummytoolD:1.1.0"},
+                new HashMap<>(), userDir, true);
+        Assert.assertTrue(output.contains("tool 'dummytoolD:1.1.0' successfully set as the active version."), output);
+
+        // Verify that the location command shows the central version for 1.0.0. This is because we copy the tool to
+        // central cache when it is forced used even if dist has it to support the forced version
+        // with other distributions.
+        output = balClient.runMainAndReadStdOut("tool", new String[]{"location", "dummytoolD:1.1.0"},
+                new HashMap<>(), userDir, true);
+        Assert.assertEquals(output.replace("\r", ""),
+                Paths.get(System.getProperty(USER_DIR) + "/build/user-home/.ballerina/repositories/" +
+                        "central.ballerina.io/bala/ballerina/tool_dummytoolD/1.1.0/java21").toString(), output);
+
+        // 3. Verify that the active version is now 1.0.0
+        output = balClient.runMainAndReadStdOut("dummytoolD", new String[]{},
+                new HashMap<>(), userDir, true);
+        Assert.assertTrue(output.contains("dummytoolD 1.1.0"), output);
+
+        // 4. Revert back to the latest version - 1.1.0
+        output = balClient.runMainAndReadStdOut("tool", new String[]{"update", "--offline", "dummytoolD"},
+                new HashMap<>(), userDir, true);
+        Assert.assertTrue(output.contains("tool 'dummytoolD:1.1.5' successfully set as the active version."), output);
+        output = balClient.runMainAndReadStdOut("dummytoolD", new String[]{},
+                new HashMap<>(), userDir, true);
+        Assert.assertTrue(output.contains("dummytoolD 1.1.5"), output);
     }
 }

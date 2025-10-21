@@ -21,12 +21,18 @@ import io.ballerina.cli.BLauncherCmd;
 import io.ballerina.projects.BalToolsManifest;
 import io.ballerina.projects.BalToolsToml;
 import io.ballerina.projects.BlendedBalToolsManifest;
+import io.ballerina.projects.JvmTarget;
 import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.SemanticVersion;
 import io.ballerina.projects.internal.BalToolsManifestBuilder;
+import io.ballerina.projects.util.ProjectUtils;
 import picocli.CommandLine;
 
+import java.io.IOException;
 import java.io.PrintStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -36,9 +42,12 @@ import static io.ballerina.cli.cmd.Constants.TOOL_USE_COMMAND;
 import static io.ballerina.cli.utils.ToolUtils.getToolFromLocalRepo;
 import static io.ballerina.projects.util.BalToolsUtil.BAL_TOOLS_TOML_PATH;
 import static io.ballerina.projects.util.BalToolsUtil.DIST_BAL_TOOLS_TOML_PATH;
+import static io.ballerina.projects.util.BalToolsUtil.getRepoPath;
 import static io.ballerina.projects.util.BalToolsUtil.isCompatibleWithPlatform;
+import static io.ballerina.projects.util.BuildToolsUtil.getCentralBalaDirPath;
 import static io.ballerina.projects.util.ProjectConstants.DISTRIBUTION_REPOSITORY_NAME;
 import static io.ballerina.projects.util.ProjectConstants.LOCAL_REPOSITORY_NAME;
+import static io.ballerina.projects.util.ProjectConstants.PLATFORM;
 import static io.ballerina.projects.util.ProjectUtils.validateToolName;
 import static org.ballerinalang.test.runtime.util.TesterinaConstants.HYPHEN;
 
@@ -145,7 +154,6 @@ public class ToolUseCommand implements BLauncherCmd {
         }
 
         Optional<BalToolsManifest.Tool> tool = blendedBalToolsManifest.getTool(toolId, version, repositoryName);
-
         if (tool.isEmpty()) {
             Optional<BalToolsManifest.Tool> toolFromLocalRepo = getToolFromLocalRepo(toolId, version);
             if (toolFromLocalRepo.isEmpty()) {
@@ -181,12 +189,55 @@ public class ToolUseCommand implements BLauncherCmd {
         }
 
         balToolsManifest.resetCurrentActiveVersion(toolId);
-        if (!DISTRIBUTION_REPOSITORY_NAME.equals(tool.get().repository())) {
+        if (DISTRIBUTION_REPOSITORY_NAME.equals(tool.get().repository())) {
+            copyToolToCentralCache(tool.get());
+            balToolsManifest.addTool(tool.get().id(), tool.get().org(), tool.get().name(), tool.get().version(),
+                    true, null, true);
+        } else {
             balToolsManifest.setActiveToolVersion(toolId, version, tool.get().repository(), true);
             currentActiveTool.ifPresent(tool1 -> tool1.setForce(false));
         }
         balToolsToml.modify(balToolsManifest);
         outStream.println("tool '" + toolId + ":" + version + "' successfully set as the active version.");
+    }
+
+    private void copyToolToCentralCache(BalToolsManifest.Tool tool) {
+        Path relativeBalaPath = ProjectUtils.getRelativeBalaPath(
+                tool.org(), tool.name(), tool.version(), JvmTarget.JAVA_21.code());
+        Path distBalaPath = getRepoPath(tool.repository()).resolve(relativeBalaPath);
+        Path centralCacheBalaPath = getCentralBalaDirPath().resolve(relativeBalaPath);
+
+        try {
+            // Create parent directories if they don't exist
+            if (!Files.exists(centralCacheBalaPath.getParent())) {
+                Files.createDirectories(centralCacheBalaPath.getParent());
+            }
+
+            // Copy the tool bala directory from distribution repo to central cache repo
+            if (Files.exists(distBalaPath) && Files.isDirectory(distBalaPath)) {
+                copyDirectory(distBalaPath, centralCacheBalaPath);
+            }
+        } catch (IOException e) {
+            CommandUtil.printError(errStream, "failed to copy tool to central cache: " + e.getMessage(), null, false);
+            CommandUtil.exitError(this.exitWhenFinish);
+        }
+    }
+
+    private void copyDirectory(Path source, Path target) throws IOException {
+        try (var walk = Files.walk(source)) {
+            walk.forEach(sourcePath -> {
+                try {
+                    Path targetPath = target.resolve(source.relativize(sourcePath));
+                    if (Files.isDirectory(sourcePath)) {
+                        Files.createDirectories(targetPath);
+                    } else {
+                        Files.copy(sourcePath, targetPath, StandardCopyOption.REPLACE_EXISTING);
+                    }
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+            });
+        }
     }
 
     @Override

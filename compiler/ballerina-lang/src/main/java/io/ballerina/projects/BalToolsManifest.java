@@ -144,22 +144,6 @@ public class BalToolsManifest {
         return compatibleTools;
     }
 
-    public BalToolsManifest.Tool getHighestCompatibleToolVersion(String toolId) {
-        Map<String, Map<String, Map<String, Tool>>> compatibleTools = compatibleTools();
-        List<PackageVersion> toolVersions = new ArrayList<>(compatibleTools
-                .get(toolId).keySet().stream()
-                .map(PackageVersion::from)
-                .filter(version -> !compatibleTools.get(toolId).get(version.toString())
-                        .containsKey(LOCAL_REPOSITORY_NAME))
-                .toList());
-
-        PackageVersion highestVersion = toolVersions.stream().findFirst().orElseThrow();
-        for (PackageVersion toolVersion : toolVersions) {
-            highestVersion = ProjectUtils.getLatest(highestVersion, toolVersion);
-        }
-        return compatibleTools.get(toolId).get(highestVersion.toString()).values().iterator().next();
-    }
-
     /**
      * Represents a tool in bal-tools.toml.
      *

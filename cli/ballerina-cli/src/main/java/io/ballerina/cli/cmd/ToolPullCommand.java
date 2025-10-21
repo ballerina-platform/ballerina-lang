@@ -229,26 +229,46 @@ public class ToolPullCommand implements BLauncherCmd {
                     activeTool.ifPresent(tool -> tool.setForce(false));
                 } else {
                     if (activeTool.isPresent()) {
-                        String warning;
-                        if (activeTool.get().force()) {
-                            warning = "WARNING: tool '" + toolId + ":" + activeTool.get().version()
-                                    + "' is forcefully set as the active version.";
-                            if (SemanticVersion.from(toolFromCentral.version()).greaterThan(
-                                    SemanticVersion.from(activeTool.get().version()))) {
-                                warning += " Run 'bal tool update --offline " + toolId + "' to set the '" +
-                                        toolFromCentral.version() + "' as the active version.";
-                            }
-                            toolFromCentral.setActive(false);
-                        } else {
-                            warning = "WARNING: a higher version of the tool'" +
+                        if (SemanticVersion.from(activeTool.get().version()).greaterThan(
+                                SemanticVersion.from(toolFromCentral.version()))) {
+                            String warning = "WARNING: a higher version of the tool'" +
                                     activeTool.get().version() + ": " + toolId +
                                     "' is available locally and will be used as the active version. Run 'bal tool use "
                                     + toolId + ":" + toolFromCentral.version() +
                                     "' to use the pulled version forcefully." ;
+                            outStream.println(warning);
+                            toolFromCentral.setActive(false);
+                        } else if (activeTool.get().force()) {
+                            String warning = "WARNING: tool '" + toolId + ":" + activeTool.get().version() +
+                                    "' is forcefully set as the active version. Run 'bal tool update --offline " +
+                                    toolId + "' to set '" + toolFromCentral.version() + "' as the active version.";
+                            outStream.println(warning);
                             toolFromCentral.setActive(false);
                         }
 
-                        outStream.println(warning);
+
+//                        if (activeTool.get().force()) {
+//                            if (SemanticVersion.from(toolFromCentral.version()).greaterThan(
+//                                    SemanticVersion.from(activeTool.get().version()))) {
+//                                String warning = "WARNING: tool '" + toolId + ":" + activeTool.get().version() +
+//                                        "' is forcefully set as the active version. Run 'bal tool update --offline " +
+//                                        toolId + "' to set the '" + toolFromCentral.version() +
+//                                        "' as the active version.";
+//                                outStream.println(warning);
+//                            }
+//                            toolFromCentral.setActive(false);
+//                        } else {
+//                            if (SemanticVersion.from(activeTool.get().version()).greaterThan(
+//                                    SemanticVersion.from(toolFromCentral.version()))) {
+//                                String warning = "WARNING: a higher version of the tool'" +
+//                                        activeTool.get().version() + ": " + toolId +
+//                                        "' is available locally and will be used as the active version. Run 'bal tool use "
+//                                        + toolId + ":" + toolFromCentral.version() +
+//                                        "' to use the pulled version forcefully." ;
+//                                toolFromCentral.setActive(false);
+//                                outStream.println(warning);
+//                            }
+//                        }
                     }
                 }
 

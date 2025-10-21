@@ -128,22 +128,61 @@ public class BlendedBalToolsManifest {
                 continue;
             }
 
+            // Check if the activeToolDist is already present in the local bal-tools.toml
+            Optional<BalToolsManifest.Tool> sameToolInLocal = mergedTools.get(toolCommand).values().stream()
+                    .flatMap(v -> v.values().stream())
+                    .filter(tool1 -> tool1.id().equals(activeToolDist.orElseThrow().id()) &&
+                            tool1.version().equals(activeToolDist.orElseThrow().version()))
+                    .findFirst();
+            if (sameToolInLocal.isEmpty()) {
+                // Version not present locally. Add the version to the blended tool manifest
+                BalToolsManifest.Tool toolDist = activeToolDist.orElseThrow();
+                BalToolsManifest.Tool toolNew = new BalToolsManifest.Tool(
+                        toolDist.id(), toolDist.org(), toolDist.name(), toolDist.version(), false, DISTRIBUTION_REPOSITORY_NAME);
+
+                if (mergedTools.containsKey(toolDist.id())) {
+                    mergedTools.get(toolDist.id()).put(toolDist.version(),
+                            Map.of(DISTRIBUTION_REPOSITORY_NAME, toolNew));
+                } else {
+                    mergedTools.put(toolDist.id(), Map.of(toolDist.version(),
+                            Map.of(DISTRIBUTION_REPOSITORY_NAME, toolNew)));
+                }
+            }
+
             Optional<BalToolsManifest.Tool> activeToolLocal = mergedTools.get(toolCommand).values().stream()
                     .flatMap(v -> v.values().stream()).filter(BalToolsManifest.Tool::active).findFirst();
 
             BalToolsManifest.Tool distTool = activeToolDist.orElseThrow();
             if (activeToolLocal.isEmpty()) {
-                // 2. No locally installed versions => set the version in the distribution as active
-                BalToolsManifest.Tool toolNew = new BalToolsManifest.Tool(
-                        distTool.id(), distTool.org(), distTool.name(), distTool.version(),
-                        true, DISTRIBUTION_REPOSITORY_NAME);
-                mergedTools.get(toolCommand).put(distTool.version(), Map.of(DISTRIBUTION_REPOSITORY_NAME, toolNew));
+                Optional<PackageVersion> highestVersion = getHighestCompatibleLocalVersion(localBalToolsManifest,
+                        activeToolDist.get().id(), activeToolDist.get().org(), activeToolDist.get().name());
+                if (highestVersion.isEmpty()) {
+                    // 2. No locally installed versions => set the version in the distribution as active
+                    BalToolsManifest.Tool toolNew = new BalToolsManifest.Tool(
+                            distTool.id(), distTool.org(), distTool.name(), distTool.version(),
+                            true, DISTRIBUTION_REPOSITORY_NAME);
+                    if (mergedTools.containsKey(distTool.id())) {
+                        mergedTools.get(distTool.id()).put(distTool.version(),
+                                Map.of(DISTRIBUTION_REPOSITORY_NAME, toolNew));
+                    } else {
+                        mergedTools.put(distTool.id(), Map.of(distTool.version(),
+                                Map.of(DISTRIBUTION_REPOSITORY_NAME, toolNew)));
+                    }
+                    continue;
+                }
+                activeToolLocal = mergedTools.get(toolCommand).values().stream()
+                        .flatMap(v -> v.values().stream()).filter(tool -> tool.version().equals(
+                                highestVersion.get().toString())).findFirst();
+            }
+
+            BalToolsManifest.Tool localTool = activeToolLocal.orElseThrow();
+            if (LOCAL_REPOSITORY_NAME.equals(localTool.repository())) {
+                // Tool is set to use from the local repo. Prioritize this version
                 continue;
             }
 
-            BalToolsManifest.Tool localTool = activeToolLocal.get();
-            if (LOCAL_REPOSITORY_NAME.equals(localTool.repository())) {
-                // Tool is set to use from the local repo. Prioritize this version
+            if (localTool.force()) {
+                // The active tool version is forced. Prioritize this version
                 continue;
             }
 
@@ -159,7 +198,13 @@ public class BlendedBalToolsManifest {
                 BalToolsManifest.Tool tool = activeToolDist.orElseThrow();
                 BalToolsManifest.Tool toolNew = new BalToolsManifest.Tool(
                         tool.id(), tool.org(), tool.name(), tool.version(), true, DISTRIBUTION_REPOSITORY_NAME);
-                mergedTools.get(toolCommand).put(tool.version(), Map.of(DISTRIBUTION_REPOSITORY_NAME, toolNew));
+                if (mergedTools.containsKey(distTool.id())) {
+                    mergedTools.get(distTool.id()).put(distTool.version(),
+                            Map.of(DISTRIBUTION_REPOSITORY_NAME, toolNew));
+                } else {
+                    mergedTools.put(distTool.id(), Map.of(distTool.version(),
+                            Map.of(DISTRIBUTION_REPOSITORY_NAME, toolNew)));
+                }
                 continue;
             }
 
@@ -169,6 +214,27 @@ public class BlendedBalToolsManifest {
                     highestVersion.toString(), true, localTool.repository());
             mergedTools.get(localTool.id()).forEach((k, v) -> v.forEach((k1, v1) -> v1.setActive(false)));
             mergedTools.get(tool.id()).get(highestVersion.get().toString()).get(null).setActive(true);
+
+            // Check if the activeToolDist is already present in the local bal-tools.toml
+            Optional<BalToolsManifest.Tool> distToolInLocal = mergedTools.get(toolCommand).values().stream()
+                    .flatMap(v -> v.values().stream())
+                    .filter(tool1 -> tool1.id().equals(activeToolDist.orElseThrow().id()) &&
+                            tool1.version().equals(activeToolDist.orElseThrow().version()))
+                    .findFirst();
+            if (distToolInLocal.isEmpty()) {
+                // Version not present locally. Add the version to the blended tool manifest
+                BalToolsManifest.Tool toolDist = activeToolDist.orElseThrow();
+                BalToolsManifest.Tool toolNew = new BalToolsManifest.Tool(
+                        toolDist.id(), toolDist.org(), toolDist.name(), toolDist.version(), false, DISTRIBUTION_REPOSITORY_NAME);
+
+                if (mergedTools.containsKey(toolDist.id())) {
+                    mergedTools.get(toolDist.id()).put(toolDist.version(),
+                            Map.of(DISTRIBUTION_REPOSITORY_NAME, toolNew));
+                } else {
+                    mergedTools.put(toolDist.id(), Map.of(toolDist.version(),
+                            Map.of(DISTRIBUTION_REPOSITORY_NAME, toolNew)));
+                }
+            }
         }
 
         return new BlendedBalToolsManifest(mergedTools);
@@ -279,5 +345,27 @@ public class BlendedBalToolsManifest {
             return activeTool;
         }
         return Optional.empty();
+    }
+
+    /**
+     * Retrieves the highest compatible version of a specific tool that is not from the local repository.
+     *
+     * @param toolId tool id
+     * @return the highest compatible tool version
+     */
+    public BalToolsManifest.Tool getHighestCompatibleToolVersion(String toolId) {
+        Map<String, Map<String, Map<String, BalToolsManifest.Tool>>> compatibleTools = compatibleTools();
+        List<PackageVersion> toolVersions = new ArrayList<>(compatibleTools
+                .get(toolId).keySet().stream()
+                .map(PackageVersion::from)
+                .filter(version -> !compatibleTools.get(toolId).get(version.toString())
+                        .containsKey(LOCAL_REPOSITORY_NAME))
+                .toList());
+
+        PackageVersion highestVersion = toolVersions.stream().findFirst().orElseThrow();
+        for (PackageVersion toolVersion : toolVersions) {
+            highestVersion = ProjectUtils.getLatest(highestVersion, toolVersion);
+        }
+        return compatibleTools.get(toolId).get(highestVersion.toString()).values().iterator().next();
     }
 }
