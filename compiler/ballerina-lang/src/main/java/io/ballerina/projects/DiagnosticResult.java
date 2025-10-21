@@ -48,9 +48,9 @@ public abstract class DiagnosticResult {
         return includeInternal ? allDiagnostics : getInternalExcluded(allDiagnostics);
     }
 
-    public Collection<Diagnostic> diagnostics(boolean includeInternal, boolean excludeDependencyDiagnostics) {
+    public Collection<Diagnostic> diagnostics(boolean includeInternal, boolean hideDependencyDiagnostics) {
         Collection<Diagnostic> diagnostics = includeInternal ? allDiagnostics : getInternalExcluded(allDiagnostics);
-        if (excludeDependencyDiagnostics) {
+        if (hideDependencyDiagnostics) {
             List<Diagnostic> filteredDiagnostics = new ArrayList<>();
             for (Diagnostic diagnostic : diagnostics) {
                 if (diagnostic.toString().contains("::")) {
