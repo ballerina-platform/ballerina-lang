@@ -1,4 +1,4 @@
-import asmaj/depA as _;
+import testorg/depA as _;
 
 public function main() {
 }

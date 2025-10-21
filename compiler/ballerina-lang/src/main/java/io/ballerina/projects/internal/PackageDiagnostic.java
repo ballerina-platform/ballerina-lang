@@ -46,6 +46,7 @@ import static io.ballerina.projects.util.ProjectConstants.TEST_DIR_NAME;
  * @since 2.0.0
  */
 public class PackageDiagnostic extends Diagnostic {
+    private boolean workspaceDependency;
     protected Diagnostic diagnostic;
     protected Location location;
     protected Project project;
@@ -58,6 +59,12 @@ public class PackageDiagnostic extends Diagnostic {
 
     public PackageDiagnostic(DiagnosticInfo diagnosticInfo, String filePath) {
         this(diagnosticInfo, new NullLocation(filePath));
+    }
+
+    public PackageDiagnostic(Diagnostic diagnostic, ModuleDescriptor moduleDescriptor, Project project,
+                             boolean workspaceDependency) {
+        this (diagnostic, moduleDescriptor, project);
+        this.workspaceDependency = workspaceDependency;
     }
 
     public PackageDiagnostic(Diagnostic diagnostic, ModuleDescriptor moduleDescriptor, Project project) {
@@ -118,7 +125,8 @@ public class PackageDiagnostic extends Diagnostic {
     public String toString() {
         String filePath = this.location.lineRange().filePath();
         // add package info if it is a dependency
-        if (this.project != null && ProjectKind.BALA_PROJECT.equals(this.project.kind())) {
+        if ((this.project != null && ProjectKind.BALA_PROJECT.equals(this.project.kind())) ||
+                this.workspaceDependency) {
             filePath = moduleDescriptor.org() + "/" +
                     moduleDescriptor.name().toString() + "/" +
                     moduleDescriptor.version() + "::" + Optional.of(Path.of(filePath).getFileName()).get();

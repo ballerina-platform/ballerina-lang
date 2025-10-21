@@ -200,11 +200,14 @@ public class PackageCompilation {
             for (ModuleContext moduleContext : packageResolution.topologicallySortedModuleList()) {
                 moduleContext.compile(compilerContext);
                 for (Diagnostic diagnostic : moduleContext.diagnostics()) {
-                    if (!ProjectKind.BALA_PROJECT.equals(moduleContext.project().kind()) ||
-                            (diagnostic.diagnosticInfo().severity() == DiagnosticSeverity.ERROR)) {
-                        diagnostics.add(new PackageDiagnostic(diagnostic, moduleContext.descriptor(),
-                                moduleContext.project()));
+                    if (ProjectKind.BALA_PROJECT.equals(moduleContext.project().kind()) &&
+                            (diagnostic.diagnosticInfo().severity() != DiagnosticSeverity.ERROR)) {
+                        continue;
                     }
+                    boolean isWorkspaceDep = !packageResolution.dependencyGraph().getRoot().packageInstance()
+                            .descriptor().equals(moduleContext.project().currentPackage().descriptor());
+                    diagnostics.add(new PackageDiagnostic(diagnostic, moduleContext.descriptor(),
+                            moduleContext.project(), isWorkspaceDep));
                 }
             }
         }
