@@ -38,6 +38,7 @@ import java.util.Objects;
 import java.util.Optional;
 
 import static io.ballerina.cli.cmd.CommandOutputUtils.getOutput;
+import static io.ballerina.projects.util.ProjectConstants.USER_DIR;
 
 /**
  * Tool command tests.
@@ -128,7 +129,6 @@ public class ToolCommandTest extends BaseCommandTest {
         Assert.assertEquals(tool.get().repository(), "local");
         Assert.assertEquals(tool.get().org(), "gayaldassanayake");
         Assert.assertEquals(tool.get().name(), "tool_gayal");
-
     }
 
     @Test(description = "Remove a tool from local repository")
@@ -357,5 +357,16 @@ public class ToolCommandTest extends BaseCommandTest {
     @DataProvider(name = "invalidToolIds")
     public Object[] invalidToolIds() {
         return new String[] { "_underscore", "underscore_", "under__score", "1initialnumeric", "..", "special$char"};
+    }
+
+    @Test (dependsOnMethods = {"testPullToolFromLocal"})
+    public void testToolLocationCommandWithNoArgs() throws IOException {
+        ToolLocationCommand toolLocationCommand = new ToolLocationCommand(printStream, printStream, false);
+        new CommandLine(toolLocationCommand).parseArgs("luhee");
+        toolLocationCommand.execute();
+        String buildLog = readOutput(true);
+        Assert.assertEquals(buildLog.replace("\r", ""),
+                System.getProperty(USER_DIR) + "/build/user-home/.ballerina/repositories/local/bala/" +
+                "gayaldassanayake/tool_gayal/1.1.0/java17\n");
     }
 }

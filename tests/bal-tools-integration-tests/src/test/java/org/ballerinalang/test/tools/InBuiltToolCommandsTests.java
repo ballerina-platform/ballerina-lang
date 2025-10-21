@@ -21,6 +21,7 @@ import org.ballerinalang.test.context.BMainInstance;
 import org.ballerinalang.test.context.BallerinaTestException;
 import org.testng.Assert;
 import org.testng.annotations.Test;
+import org.wso2.ballerinalang.util.RepoUtils;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -28,6 +29,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
+
+import static io.ballerina.projects.util.ProjectConstants.USER_DIR;
 
 public class InBuiltToolCommandsTests extends BaseTestCase {
     private BMainInstance balClient;
@@ -143,5 +146,26 @@ public class InBuiltToolCommandsTests extends BaseTestCase {
         Assert.assertTrue(output.contains("error: The tool 'manually-deleted' has been removed manually. " +
                 "Please run 'bal tool remove manually-deleted' to clean up, and then run " +
                 "'bal tool pull manually-deleted' to reinstall the tool."));
+    }
+
+    @Test (description = "Get location of the active tool version")
+    public void testGetToolLocation() throws BallerinaTestException {
+        balClient = new BMainInstance(balServer);
+        String output = balClient.runMainAndReadStdOut("tool", new String[]{"location", "dummytoolC"},
+                new HashMap<>(), userDir, true);
+        String distVersion = RepoUtils.getBallerinaShortVersion();
+        Assert.assertEquals(output.replace("\r", ""),
+                Paths.get(System.getProperty(USER_DIR) + "/build/extractedDistribution/jballerina-tools-"
+                        + distVersion + "/repo/bala/ballerina/tool_dummytoolC/1.1.0/java21").toString());
+    }
+
+    @Test (description = "Get location of a specific tool version")
+    public void testGetToolLocationOfExactVersion() throws BallerinaTestException {
+        balClient = new BMainInstance(balServer);
+        String output = balClient.runMainAndReadStdOut("tool", new String[]{"location", "dummytoolC:1.0.0"},
+                new HashMap<>(), userDir, true);
+        Assert.assertEquals(output.replace("\r", ""),
+                Paths.get(System.getProperty(USER_DIR) + "/build/user-home/.ballerina/repositories/" +
+                        "central.ballerina.io/bala/ballerina/tool_dummytoolC/1.0.0/java21").toString());
     }
 }
