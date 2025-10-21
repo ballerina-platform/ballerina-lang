@@ -74,6 +74,11 @@ public class BlendedBalToolsManifest {
                 continue;
             }
 
+            if (activeTool.isPresent() && activeTool.get().force()) {
+                // The active tool version is forced. Prioritize this version
+                continue;
+            }
+
             BalToolsManifest.Tool tool = mergedTools.get(toolId).values().stream()
                     .flatMap(map -> map.values().stream())
                     .findFirst().orElseThrow();
@@ -265,8 +270,13 @@ public class BlendedBalToolsManifest {
      */
     public Optional<BalToolsManifest.Tool> getActiveTool(String id) {
         if (tools.containsKey(id)) {
-            return tools.get(id).values().stream().flatMap(
-                    v -> v.values().stream()).filter(BalToolsManifest.Tool::active).findFirst();
+            Optional<BalToolsManifest.Tool> activeTool = tools.get(id).values().stream().flatMap(
+                    v -> v.values().stream()).filter(BalToolsManifest.Tool::force).findFirst();
+            if (activeTool.isEmpty()) {
+                activeTool = tools.get(id).values().stream().flatMap(
+                        v -> v.values().stream()).filter(BalToolsManifest.Tool::active).findFirst();
+            }
+            return activeTool;
         }
         return Optional.empty();
     }

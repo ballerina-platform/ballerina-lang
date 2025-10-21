@@ -81,7 +81,7 @@ public final class PrintUtils {
             outStream.println();
         }
         outStream.println();
-        outStream.println(tools.size() + " tools found.");
+        outStream.println(tools.size() + (all ? "" : " active") + " tool versions found.");
     }
 
     private static void printListLocalTableHeader(int toolIdColWidth, int versionColWidth) {

@@ -44,8 +44,8 @@ import static org.ballerinalang.test.runtime.util.TesterinaConstants.HYPHEN;
 
 /**
  * Command to set a tool version as the active version.
- * @deprecated This command is deprecated and may be removed in a future version.
- * @since 2201.13.0
+ *
+ * @since 2201.6.0
  */
 @CommandLine.Command(name = TOOL_USE_COMMAND, description = "Set a tool version as the active version.")
 public class ToolUseCommand implements BLauncherCmd {
@@ -78,8 +78,6 @@ public class ToolUseCommand implements BLauncherCmd {
 
     @Override
     public void execute() {
-        outStream.println("WARNING: This command is deprecated and may be removed in a future version.");
-
         if (helpFlag) {
             outStream.println(BLauncherCmd.getCommandUsageInfo(TOOL_COMMAND + HYPHEN + TOOL_USE_COMMAND));
             return;
@@ -139,6 +137,13 @@ public class ToolUseCommand implements BLauncherCmd {
 
         BlendedBalToolsManifest blendedBalToolsManifest = BlendedBalToolsManifest.
                 from(balToolsManifest, distBalToolsManifest);
+        Optional<BalToolsManifest.Tool> activeTool = blendedBalToolsManifest.getActiveTool(toolId);
+        if (activeTool.isPresent() && SemanticVersion.from(activeTool.get().version())
+                .greaterThan(SemanticVersion.from(version))) {
+            outStream.println("WARNING: " + activeTool.get().id() + ":" + activeTool.get().version() +
+                    ". is available locally. Run 'bal tool update " + toolId + "' to update to the latest version.\n");
+        }
+
         Optional<BalToolsManifest.Tool> tool = blendedBalToolsManifest.getTool(toolId, version, repositoryName);
 
         if (tool.isEmpty()) {
@@ -169,13 +174,16 @@ public class ToolUseCommand implements BLauncherCmd {
         boolean isCompatibleWithPlatform = isCompatibleWithPlatform(
                 org, name, version, tool.get().repository());
         if (!isCompatibleWithPlatform) {
+            CommandUtil.printError(errStream, "tool '" + toolId + ":" + version + "' is not compatible with the "
+                    + "current distribution.", null, false);
             CommandUtil.exitError(this.exitWhenFinish);
             return;
         }
 
         balToolsManifest.resetCurrentActiveVersion(toolId);
         if (!DISTRIBUTION_REPOSITORY_NAME.equals(tool.get().repository())) {
-            balToolsManifest.setActiveToolVersion(toolId, version, tool.get().repository());
+            balToolsManifest.setActiveToolVersion(toolId, version, tool.get().repository(), true);
+            currentActiveTool.ifPresent(tool1 -> tool1.setForce(false));
         }
         balToolsToml.modify(balToolsManifest);
         outStream.println("tool '" + toolId + ":" + version + "' successfully set as the active version.");

@@ -83,27 +83,6 @@ public class ToolUtils {
         return Optional.empty();
     }
 
-    public static boolean addToBalToolsToml(BalToolsManifest.Tool tool, PrintStream printStream) {
-        BalToolsToml balToolsToml = BalToolsToml.from(BAL_TOOLS_TOML_PATH);
-        BalToolsManifest balToolsManifest = BalToolsManifestBuilder.from(balToolsToml).build();
-
-        String toolId = tool.id();
-        String org = tool.org();
-        String name = tool.name();
-        String version = tool.version();
-        String repository = tool.repository();
-
-        boolean isCompatibleWithPlatform = isCompatibleWithPlatform(org, name, version, repository);
-        if (!isCompatibleWithPlatform) {
-            printStream.println("Tool '" + toolId + ":" + version + "' is not compatible with the current " +
-                    "Ballerina distribution version. Run 'bal tool list' to see compatible versions.");
-            return true;
-        }
-        balToolsManifest.addTool(toolId, org, name, version, true, repository);
-        balToolsToml.modify(balToolsManifest);
-        return false;
-    }
-
     public static Optional<BalToolsManifest.Tool> getToolAvailableLocally(
             String toolId, String version, String repository) {
         if (version.equals(Names.EMPTY.getValue())) {

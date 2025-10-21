@@ -42,7 +42,7 @@ import static org.ballerinalang.test.runtime.util.TesterinaConstants.HYPHEN;
 /**
  * Command to list all tools available in the local environment.
  *
- * @since 2201.13.0
+ * @since 2201.6.0
  */
 @CommandLine.Command(name = TOOL_LIST_COMMAND, description = "List all tools available in the local environment.")
 public class ToolListCommand implements BLauncherCmd {
@@ -87,7 +87,12 @@ public class ToolListCommand implements BLauncherCmd {
                     .flatMap(map -> map.values().stream()).flatMap(map -> map.values().stream())
                     .sorted(Comparator.comparing(BalToolsManifest.Tool::id)
                             .thenComparing(BalToolsManifest.Tool::version).reversed())
-                    .forEach(flattenedTools::add);
+                    .forEach(tool -> {
+                        // Check if this tool is the active version
+                        Optional<BalToolsManifest.Tool> activeTool = blendedBalToolsManifest.getActiveTool(tool.id());
+                        tool.setActive(activeTool.isPresent() && activeTool.get().version().equals(tool.version()));
+                        flattenedTools.add(tool);
+                    });
         } else {
             for (Map.Entry<String, Map<String, Map<String, BalToolsManifest.Tool>>> toolEntry :
                     blendedBalToolsManifest.compatibleTools().entrySet()) {
