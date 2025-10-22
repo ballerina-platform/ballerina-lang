@@ -91,7 +91,6 @@ import java.util.StringJoiner;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static io.ballerina.cli.cmd.Constants.BACKUP;
 import static io.ballerina.cli.launcher.LauncherUtils.createLauncherException;
 import static io.ballerina.projects.util.ProjectConstants.BALA_JSON;
 import static io.ballerina.projects.util.ProjectConstants.BALLERINA_TOML;
@@ -100,6 +99,7 @@ import static io.ballerina.projects.util.ProjectConstants.BAL_TOOL_TOML;
 import static io.ballerina.projects.util.ProjectConstants.BLANG_SOURCE_EXT;
 import static io.ballerina.projects.util.ProjectConstants.DEPENDENCIES_TOML;
 import static io.ballerina.projects.util.ProjectConstants.DEPENDENCY_GRAPH_JSON;
+import static io.ballerina.projects.util.ProjectConstants.EXEC_BACKUP_DIR_NAME;
 import static io.ballerina.projects.util.ProjectConstants.LIB_DIR;
 import static io.ballerina.projects.util.ProjectConstants.MODULES_ROOT;
 import static io.ballerina.projects.util.ProjectConstants.PACKAGE_JSON;
@@ -1370,7 +1370,7 @@ public final class CommandUtil {
     }
 
     private static boolean isTestArtifactsModified(BuildJson buildJson, Project project) throws IOException {
-        Target target = new Target(project.targetDir().resolve(BACKUP));
+        Target target = new Target(project.targetDir().resolve(EXEC_BACKUP_DIR_NAME));
         Path testSuitePath = target.getTestsCachePath().resolve(ProjectConstants.TEST_SUITE_JSON);
         if (!Files.exists(testSuitePath)) {
             return true;
@@ -1526,7 +1526,7 @@ public final class CommandUtil {
 
     private static boolean isExecutableModified(BuildJson buildJson, Project project) {
         try {
-            Target target = new Target(project.targetDir().resolve(BACKUP));
+            Target target = new Target(project.targetDir().resolve(EXEC_BACKUP_DIR_NAME));
             File execFile = target.getExecutablePath(project.currentPackage()).toAbsolutePath().toFile();
             if (execFile.exists() && execFile.isFile()) {
                 long lastModified = execFile.lastModified();
@@ -1540,11 +1540,10 @@ public final class CommandUtil {
                 }
                 return !getSHA256Digest(execFile).equals(targetExecMetaInfo.getHash());
             }
-            // Executable is deleted or the previous command is bal test
-            return buildJson.getTargetExecMetaInfo() == null;
         } catch (IOException | NoSuchAlgorithmException e) {
-            return true;
+           // ignore
         }
+        return true;
     }
 
     private static boolean isSettingsFileModified(BuildJson buildJson) {

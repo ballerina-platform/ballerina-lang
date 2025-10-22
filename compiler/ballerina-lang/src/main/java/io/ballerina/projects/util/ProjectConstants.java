@@ -113,6 +113,7 @@ public final class ProjectConstants {
     public static final String REPO_BALA_DIR_NAME = TARGET_BALA_DIR_NAME;
     public static final String REPO_CACHE_DIR_NAME = "cache";
     public static final String REPO_BIR_CACHE_NAME = "bir";
+    public static final String EXEC_BACKUP_DIR_NAME = "backup";
 
     // Test framework related constants
     public static final String TEST_RUNTIME_JAR_PREFIX = "testerina-runtime-";
