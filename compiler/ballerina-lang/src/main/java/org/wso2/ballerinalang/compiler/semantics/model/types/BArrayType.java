@@ -127,14 +127,24 @@ public class BArrayType extends BType implements ArrayType {
 
     @Override
     public String toString() {
-        StringBuilder sb = new StringBuilder(eType.toString());
+        String elementTypeStr = eType.toString();
+
+        // Add parentheses for unnamed unions or finite types like (1|2|3)[]
+        if ((eType instanceof BUnionType || eType instanceof BFiniteType)
+            && elementTypeStr.contains("|")
+            && !elementTypeStr.startsWith("(")) {
+            elementTypeStr = "(" + elementTypeStr + ")";
+        }
+
+        StringBuilder sb = new StringBuilder(elementTypeStr);
         String tempSize = (state == BArrayState.INFERRED) ? "*" : String.valueOf(size);
+
         if (eType.tag == TypeTags.ARRAY) {
-            if (state != BArrayState.OPEN) {
-                sb.insert(sb.indexOf("["), "[" + tempSize + "]");
-            } else {
-                sb.insert(sb.indexOf("["), "[]");
-            }
+        if (state != BArrayState.OPEN) {
+            sb.insert(sb.indexOf("["), "[" + tempSize + "]");
+        } else {
+            sb.insert(sb.indexOf("["), "[]");
+        }
         } else {
             if (state != BArrayState.OPEN) {
                 sb.append("[").append(tempSize).append("]");
@@ -142,8 +152,12 @@ public class BArrayType extends BType implements ArrayType {
                 sb.append("[]");
             }
         }
-        return !Symbols.isFlagOn(getFlags(), Flags.READONLY) ? sb.toString() : sb.append(" & readonly").toString();
+
+        return !Symbols.isFlagOn(getFlags(), Flags.READONLY)
+            ? sb.toString()
+            : sb.append(" & readonly").toString();
     }
+
 
     private boolean hasTypeHoles() {
         return eType instanceof BNoType;
