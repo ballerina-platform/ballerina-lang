@@ -1,4 +1,3 @@
-WARNING: This command is deprecated and may be removed in a future version.
 ballerina: invalid tool id.
 
 USAGE:

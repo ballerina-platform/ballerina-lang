@@ -37,7 +37,6 @@ import picocli.CommandLine;
 import java.io.PrintStream;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -250,7 +249,8 @@ public class ToolUpdateCommand implements BLauncherCmd {
     private void addToBalToolsToml(BalToolsToml balToolsToml, BalToolsManifest balToolsManifest,
                                             BalToolsManifest.Tool tool, PrintStream printStream) {
 
-        boolean isCompatibleWithPlatform = isCompatibleWithPlatform(tool.org(), tool.name(), tool.version(), tool.repository());
+        boolean isCompatibleWithPlatform = isCompatibleWithPlatform(tool.org(), tool.name(), tool.version(),
+                tool.repository());
         if (!isCompatibleWithPlatform) {
             printStream.println("Tool '" + toolId + ":" + tool.version() + "' is not compatible with the current " +
                     "Ballerina distribution version. Run 'bal tool list' to see compatible versions.");

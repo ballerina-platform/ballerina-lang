@@ -30,7 +30,6 @@ import org.wso2.ballerinalang.util.RepoUtils;
 
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -38,7 +37,6 @@ import java.util.Optional;
 import java.util.stream.Stream;
 
 import static io.ballerina.projects.util.BalToolsUtil.BAL_TOOLS_TOML_PATH;
-import static io.ballerina.projects.util.BalToolsUtil.isCompatibleWithPlatform;
 import static io.ballerina.projects.util.ProjectConstants.BALA_DIR_NAME;
 import static io.ballerina.projects.util.ProjectConstants.CENTRAL_REPOSITORY_CACHE_NAME;
 import static io.ballerina.projects.util.ProjectConstants.LOCAL_REPOSITORY_NAME;
@@ -73,7 +71,7 @@ public class ToolUtils {
             String org = pkgDesc.get(ProjectConstants.ORG).getAsString();
             String name = pkgDesc.get(ProjectConstants.PACKAGE_NAME).getAsString();
             BalToolsManifest.Tool tool = new BalToolsManifest.Tool(toolId,
-                   org, name, version, false, LOCAL_REPOSITORY_NAME);
+                   org, name, version, true, LOCAL_REPOSITORY_NAME);
             if (Files.exists(localBalaPath.resolve(org).resolve(name).resolve(version))) {
                 return Optional.of(tool);
             }

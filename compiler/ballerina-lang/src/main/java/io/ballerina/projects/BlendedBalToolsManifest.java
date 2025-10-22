@@ -138,7 +138,8 @@ public class BlendedBalToolsManifest {
                 // Version not present locally. Add the version to the blended tool manifest
                 BalToolsManifest.Tool toolDist = activeToolDist.orElseThrow();
                 BalToolsManifest.Tool toolNew = new BalToolsManifest.Tool(
-                        toolDist.id(), toolDist.org(), toolDist.name(), toolDist.version(), false, DISTRIBUTION_REPOSITORY_NAME);
+                        toolDist.id(), toolDist.org(), toolDist.name(), toolDist.version(), false,
+                        DISTRIBUTION_REPOSITORY_NAME);
 
                 if (mergedTools.containsKey(toolDist.id())) {
                     mergedTools.get(toolDist.id()).put(toolDist.version(),
@@ -225,7 +226,8 @@ public class BlendedBalToolsManifest {
                 // Version not present locally. Add the version to the blended tool manifest
                 BalToolsManifest.Tool toolDist = activeToolDist.orElseThrow();
                 BalToolsManifest.Tool toolNew = new BalToolsManifest.Tool(
-                        toolDist.id(), toolDist.org(), toolDist.name(), toolDist.version(), false, DISTRIBUTION_REPOSITORY_NAME);
+                        toolDist.id(), toolDist.org(), toolDist.name(), toolDist.version(), false,
+                        DISTRIBUTION_REPOSITORY_NAME);
 
                 if (mergedTools.containsKey(toolDist.id())) {
                     mergedTools.get(toolDist.id()).put(toolDist.version(),

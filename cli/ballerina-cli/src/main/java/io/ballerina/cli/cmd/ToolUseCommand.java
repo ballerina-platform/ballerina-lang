@@ -47,7 +47,6 @@ import static io.ballerina.projects.util.BalToolsUtil.isCompatibleWithPlatform;
 import static io.ballerina.projects.util.BuildToolsUtil.getCentralBalaDirPath;
 import static io.ballerina.projects.util.ProjectConstants.DISTRIBUTION_REPOSITORY_NAME;
 import static io.ballerina.projects.util.ProjectConstants.LOCAL_REPOSITORY_NAME;
-import static io.ballerina.projects.util.ProjectConstants.PLATFORM;
 import static io.ballerina.projects.util.ProjectUtils.validateToolName;
 import static org.ballerinalang.test.runtime.util.TesterinaConstants.HYPHEN;
 
@@ -209,8 +208,9 @@ public class ToolUseCommand implements BLauncherCmd {
 
         try {
             // Create parent directories if they don't exist
-            if (!Files.exists(centralCacheBalaPath.getParent())) {
-                Files.createDirectories(centralCacheBalaPath.getParent());
+            Path optionalPath = Optional.of(centralCacheBalaPath.getParent()).get();
+            if (!Files.exists(optionalPath)) {
+                Files.createDirectories(optionalPath);
             }
 
             // Copy the tool bala directory from distribution repo to central cache repo

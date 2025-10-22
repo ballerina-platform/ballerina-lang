@@ -100,8 +100,7 @@ public class ToolListCommand implements BLauncherCmd {
                 if (activeTool.isEmpty()) {
                     continue;
                 }
-                flattenedTools.add(toolEntry.getValue().get(
-                        activeTool.get().version()).entrySet().iterator().next().getValue());
+                flattenedTools.add(activeTool.get());
             }
         }
         return flattenedTools;

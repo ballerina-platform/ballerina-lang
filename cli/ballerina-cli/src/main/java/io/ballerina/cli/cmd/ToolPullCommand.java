@@ -235,7 +235,7 @@ public class ToolPullCommand implements BLauncherCmd {
                                     activeTool.get().version() + ": " + toolId +
                                     "' is available locally and will be used as the active version. Run 'bal tool use "
                                     + toolId + ":" + toolFromCentral.version() +
-                                    "' to use the pulled version forcefully." ;
+                                    "' to use the pulled version forcefully.";
                             outStream.println(warning);
                             toolFromCentral.setActive(false);
                         } else if (activeTool.get().force()) {
@@ -245,30 +245,6 @@ public class ToolPullCommand implements BLauncherCmd {
                             outStream.println(warning);
                             toolFromCentral.setActive(false);
                         }
-
-
-//                        if (activeTool.get().force()) {
-//                            if (SemanticVersion.from(toolFromCentral.version()).greaterThan(
-//                                    SemanticVersion.from(activeTool.get().version()))) {
-//                                String warning = "WARNING: tool '" + toolId + ":" + activeTool.get().version() +
-//                                        "' is forcefully set as the active version. Run 'bal tool update --offline " +
-//                                        toolId + "' to set the '" + toolFromCentral.version() +
-//                                        "' as the active version.";
-//                                outStream.println(warning);
-//                            }
-//                            toolFromCentral.setActive(false);
-//                        } else {
-//                            if (SemanticVersion.from(activeTool.get().version()).greaterThan(
-//                                    SemanticVersion.from(toolFromCentral.version()))) {
-//                                String warning = "WARNING: a higher version of the tool'" +
-//                                        activeTool.get().version() + ": " + toolId +
-//                                        "' is available locally and will be used as the active version. Run 'bal tool use "
-//                                        + toolId + ":" + toolFromCentral.version() +
-//                                        "' to use the pulled version forcefully." ;
-//                                toolFromCentral.setActive(false);
-//                                outStream.println(warning);
-//                            }
-//                        }
                     }
                 }
 

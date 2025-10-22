@@ -18,15 +18,10 @@
 package io.ballerina.projects;
 
 import io.ballerina.projects.util.BalToolsUtil;
-import io.ballerina.projects.util.ProjectUtils;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-
-import static io.ballerina.projects.util.ProjectConstants.LOCAL_REPOSITORY_NAME;
 
 /**
  * Represents a bal-tools.toml file.
