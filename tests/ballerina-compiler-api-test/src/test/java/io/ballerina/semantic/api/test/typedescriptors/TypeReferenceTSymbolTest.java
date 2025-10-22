@@ -53,6 +53,7 @@ import static io.ballerina.tools.text.LinePosition.from;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertSame;
 import static org.testng.Assert.assertTrue;
+import static org.testng.Assert.fail;
 
 /**
  * Test cases for the type reference type descriptor.
@@ -96,7 +97,7 @@ public class TypeReferenceTSymbolTest {
 
     @Test
     public void testEnum() {
-        Optional<Symbol> symbol = model.symbol(srcFile, from(36, 11));
+        Optional<Symbol> symbol = model.symbol(srcFile, from(37, 12)); // Variable 'c' for Colour
         TypeReferenceTypeSymbol type = (TypeReferenceTypeSymbol) ((VariableSymbol) symbol.get()).typeDescriptor();
         Symbol enm = type.definition();
         assertEquals(enm.kind(), ENUM);
@@ -105,10 +106,51 @@ public class TypeReferenceTSymbolTest {
         assertSame(type.definition(), enm);
     }
 
+    @Test 
+    public void testEnumFieldInRecord() {
+        // Test the fix for issue #44238: enum fields in records should return TYPE_REFERENCE, not UNION
+        // Get the Department variable symbol
+        Optional<Symbol> symbol = model.symbol(srcFile, from(38, 16)); // Department variable 'd'
+        assertTrue(symbol.isPresent(), "Could not find Department variable");
+        
+        TypeReferenceTypeSymbol deptType = (TypeReferenceTypeSymbol) ((VariableSymbol) symbol.get()).typeDescriptor();
+        assertEquals(deptType.getName().get(), "Department");
+        
+        // Get the record definition and find the enum field 'code'
+        TypeDefinitionSymbol typeDef = (TypeDefinitionSymbol) deptType.definition();
+        RecordTypeSymbol recordType = (RecordTypeSymbol) typeDef.typeDescriptor();
+        RecordFieldSymbol codeField = recordType.fieldDescriptors().get("code");
+        
+        assertTrue(codeField != null, "Could not find field 'code' in Department record");
+        
+        // Verify the field type is a type reference to the enum
+        TypeSymbol fieldType = codeField.typeDescriptor();
+        assertEquals(fieldType.typeKind(), TypeDescKind.TYPE_REFERENCE, "Field 'code' should be TYPE_REFERENCE");
+        assertEquals(fieldType.getName().get(), "Colour", "Field 'code' should reference Colour enum");
+        
+        // This is the key test: enum type references should return themselves (TYPE_REFERENCE)
+        // instead of the underlying union when typeDescriptor() is called
+        TypeReferenceTypeSymbol enumTypeRef = (TypeReferenceTypeSymbol) fieldType;
+        TypeSymbol enumTypeDescriptor = enumTypeRef.typeDescriptor();
+        
+        // Before fix: This would return UNION 
+        // After fix: This should return TYPE_REFERENCE (self-reference)
+        assertEquals(enumTypeDescriptor.typeKind(), TypeDescKind.TYPE_REFERENCE, 
+                     "Enum type reference should return TYPE_REFERENCE, not the underlying UNION");
+        assertEquals(enumTypeDescriptor.getName().get(), "Colour", "Returned type should be named Colour");
+        
+        // Verify the definition is actually an enum
+        assertEquals(enumTypeRef.definition().kind(), ENUM, "Type reference should point to an ENUM");
+        assertEquals(enumTypeRef.definition().getName().get(), "Colour", "Enum should be named Colour");
+        
+        // The returned type descriptor should be the same instance (self-reference)
+        assertSame(enumTypeRef, enumTypeDescriptor, "Enum type reference should return itself");
+    }
+
     @Test
     public void testRecordField() {
-        Optional<Symbol> fieldSymbol = model.symbol(srcFile, from(44, 7));
-        Optional<Symbol> typeSymbol = model.symbol(srcFile, from(39, 6));
+        Optional<Symbol> fieldSymbol = model.symbol(srcFile, from(46, 8)); // Variable 'p' in testAge()
+        Optional<Symbol> typeSymbol = model.symbol(srcFile, from(41, 5));  // Type 'Age'
 
         TypeSymbol variableSymbol = ((VariableSymbol) fieldSymbol.get()).typeDescriptor();
         assertEquals(variableSymbol.typeKind(), TypeDescKind.RECORD);
@@ -123,7 +165,7 @@ public class TypeReferenceTSymbolTest {
 
     @Test
     public void testReferringATypeRef1() {
-        Optional<Symbol> symbol = model.symbol(srcFile, from(46, 8));
+        Optional<Symbol> symbol = model.symbol(srcFile, from(49, 8)); // Variable 'f' for Foo
         TypeSymbol type = ((VariableSymbol) symbol.get()).typeDescriptor();
 
         assertEquals(type.typeKind(), TypeDescKind.TYPE_REFERENCE);
@@ -139,7 +181,7 @@ public class TypeReferenceTSymbolTest {
 
     @Test
     public void testReferringATypeRef2() {
-        Optional<Symbol> symbol = model.symbol(srcFile, from(47, 8));
+        Optional<Symbol> symbol = model.symbol(srcFile, from(50, 8)); // Variable 'b' for Bar
         TypeSymbol type = ((VariableSymbol) symbol.get()).typeDescriptor();
 
         assertEquals(type.typeKind(), TypeDescKind.TYPE_REFERENCE);
