@@ -190,8 +190,8 @@ public class BlendedBalToolsManifest {
             Optional<PackageVersion> highestVersion = getHighestCompatibleLocalVersion(localBalToolsManifest,
                     localTool.id(), localTool.org(), localTool.name());
             if (highestVersion.isEmpty() ||
-                    highestVersion.get().compareTo(PackageVersion.from(activeToolDist.orElseThrow().version()))
-                            .equals(SemanticVersion.VersionCompatibilityResult.LESS_THAN)) {
+                    SemanticVersion.from(highestVersion.get().toString()).lessThan(
+                            SemanticVersion.from(activeToolDist.orElseThrow().version()))) {
                 // 3.1 Highest compatible version is in the distribution
                 mergedTools.get(localTool.id()).forEach((k, v) -> v.forEach((k1, v1) -> v1.setActive(false)));
 
