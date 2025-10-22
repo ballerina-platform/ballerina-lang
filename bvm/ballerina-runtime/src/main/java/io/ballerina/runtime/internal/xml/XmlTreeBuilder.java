@@ -46,6 +46,7 @@ import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 
+import static io.ballerina.runtime.internal.xml.XmlFactory.createXMLProcessingInstruction;
 import static javax.xml.stream.XMLStreamConstants.CDATA;
 import static javax.xml.stream.XMLStreamConstants.CHARACTERS;
 import static javax.xml.stream.XMLStreamConstants.COMMENT;
@@ -107,6 +108,7 @@ public class XmlTreeBuilder {
         boolean readNext = false;
         int next;
         try {
+            addXmlDeclaration(xmlStreamReader, siblingDeque);
             while (xmlStreamReader.hasNext()) {
                 if (readNext) {
                     readNext = false;
@@ -158,6 +160,37 @@ public class XmlTreeBuilder {
         XmlPi xmlItem = (XmlPi) XmlFactory.createXMLProcessingInstruction(xmlStreamReader.getPITarget(),
                                                                           xmlStreamReader.getPIData());
         siblingDeque.peek().add(xmlItem);
+    }
+
+    public static void addXmlDeclaration(XMLStreamReader reader, Deque<List<BXml>> siblingDeque) {
+        String version = reader.getVersion();
+        String encoding = reader.getCharacterEncodingScheme();
+        boolean standalone = reader.isStandalone();
+
+        StringBuilder piData = new StringBuilder();
+
+        if (version != null) {
+            piData.append("version=\"").append(version).append("\"");
+        }
+
+        if (encoding != null) {
+            if (!piData.isEmpty()) {
+                piData.append(" ");
+            }
+            piData.append("encoding=\"").append(encoding).append("\"");
+        }
+
+        if (standalone) {
+            if (!piData.isEmpty()) {
+                piData.append(" ");
+            }
+            piData.append("standalone=\"").append("yes").append("\"");
+        }
+
+        // Only add the declaration if there is something
+        if (!piData.isEmpty()) {
+            siblingDeque.peek().add(createXMLProcessingInstruction("xml", piData.toString()));
+        }
     }
 
     private void readCData(XMLStreamReader xmlStreamReader) {

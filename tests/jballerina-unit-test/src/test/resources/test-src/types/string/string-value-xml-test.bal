@@ -39,6 +39,12 @@ function testXmlStr() returns int {
      return x1.toString().length();
 }
 
+function testXmlFromString() returns int|error {
+     string body = string `<?xml version="1.1" encoding="UTF8"?><A><B>123</B></A>`;
+     xml val = check xml:fromString(body);
+     return val.length();
+}
+
 function testComplexXml() returns int {
      xml x1 = xml `<book>
                          <name>Sherlock😀 Holmes</name>

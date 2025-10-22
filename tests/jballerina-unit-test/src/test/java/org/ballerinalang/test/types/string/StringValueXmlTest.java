@@ -73,6 +73,11 @@ public class StringValueXmlTest extends BStringTestCommons {
         testAndAssert("testXmlInterpolation", 249);
     }
 
+    @Test
+    public void testXmlFromString() {
+        testAndAssert("testXmlFromString", 2);
+    }
+
     @Override
     @AfterClass
     public void tearDown() {
