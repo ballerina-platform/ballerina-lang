@@ -149,7 +149,7 @@ public class ToolUseCommand implements BLauncherCmd {
         if (activeTool.isPresent() && SemanticVersion.from(activeTool.get().version())
                 .greaterThan(SemanticVersion.from(version))) {
             outStream.println("WARNING: " + activeTool.get().id() + ":" + activeTool.get().version() +
-                    ". is available locally. Run 'bal tool update " + toolId + "' to update to the latest version.\n");
+                    " is available locally. Run 'bal tool update " + toolId + "' to update to the latest version.\n");
         }
 
         Optional<BalToolsManifest.Tool> tool = blendedBalToolsManifest.getTool(toolId, version, repositoryName);

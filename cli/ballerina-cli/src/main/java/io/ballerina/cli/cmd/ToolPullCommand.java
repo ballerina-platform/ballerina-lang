@@ -232,7 +232,7 @@ public class ToolPullCommand implements BLauncherCmd {
                         if (SemanticVersion.from(activeTool.get().version()).greaterThan(
                                 SemanticVersion.from(toolFromCentral.version()))) {
                             String warning = "WARNING: a higher version of the tool'" +
-                                    activeTool.get().version() + ": " + toolId +
+                                    toolId + ":" + activeTool.get().version() +
                                     "' is available locally and will be used as the active version. Run 'bal tool use "
                                     + toolId + ":" + toolFromCentral.version() +
                                     "' to use the pulled version forcefully.";

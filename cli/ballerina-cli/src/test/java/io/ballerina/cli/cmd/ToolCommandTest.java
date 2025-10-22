@@ -34,11 +34,11 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Objects;
 import java.util.Optional;
 
 import static io.ballerina.cli.cmd.CommandOutputUtils.getOutput;
-import static io.ballerina.projects.util.ProjectConstants.USER_DIR;
 
 /**
  * Tool command tests.
@@ -365,8 +365,7 @@ public class ToolCommandTest extends BaseCommandTest {
         new CommandLine(toolLocationCommand).parseArgs("luhee");
         toolLocationCommand.execute();
         String buildLog = readOutput(true);
-        Assert.assertEquals(buildLog.replace("\r", ""),
-                System.getProperty(USER_DIR) + "/build/user-home/.ballerina/repositories/local/bala/" +
-                "gayaldassanayake/tool_gayal/1.1.0/java17\n");
+        Assert.assertEquals(buildLog.replace("\r", ""), Paths.get("build/user-home/" +
+                ".ballerina/repositories/local/bala/gayaldassanayake/tool_gayal/1.1.0/java17").toAbsolutePath() + "\n");
     }
 }

@@ -76,6 +76,13 @@ public class BalToolsManifest {
         tools.get(id).get(version).put(repository, new Tool(id, org, name, version, active, repository, force));
     }
 
+    public void setActiveToolVersion(String id, String version, String repository) {
+        if (tools.containsKey(id)) {
+            resetCurrentActiveVersion(id);
+            tools.get(id).get(version).get(repository).setActive(true);
+        }
+    }
+
     public Optional<Tool> getTool(String id, String version, String repository) {
         if (tools.containsKey(id) && tools.get(id).containsKey(version)) {
             return Optional.ofNullable(tools.get(id).get(version).get(repository));

@@ -257,7 +257,7 @@ public class ToolUpdateCommand implements BLauncherCmd {
             return;
         }
         Optional<BalToolsManifest.Tool> currentActiveTool = balToolsManifest.getActiveTool(toolId);
-        currentActiveTool.ifPresent(activeTool -> currentActiveTool.get().setForce(false));
+        currentActiveTool.ifPresent(activeTool -> activeTool.setForce(false));
         balToolsManifest.addTool(tool.id(), tool.org(), tool.name(), tool.version(), true, tool.repository());
         balToolsToml.modify(balToolsManifest);
     }
