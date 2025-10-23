@@ -20,6 +20,7 @@ package io.ballerina.cli.cmd;
 import io.ballerina.cli.BLauncherCmd;
 import io.ballerina.projects.BalToolsManifest;
 import io.ballerina.projects.BalToolsToml;
+import io.ballerina.projects.BlendedBalToolsManifest;
 import io.ballerina.projects.JvmTarget;
 import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.SemanticVersion;
@@ -43,10 +44,11 @@ import java.util.stream.Collectors;
 
 import static io.ballerina.cli.cmd.Constants.TOOL_COMMAND;
 import static io.ballerina.cli.cmd.Constants.TOOL_PULL_COMMAND;
-import static io.ballerina.cli.utils.ToolUtils.addToBalToolsToml;
 import static io.ballerina.cli.utils.ToolUtils.getToolFromLocalRepo;
 import static io.ballerina.cli.utils.ToolUtils.getToolAvailableLocally;
+import static io.ballerina.projects.util.BalToolsUtil.BAL_TOOLS_TOML_PATH;
 import static io.ballerina.projects.util.BalToolsUtil.DIST_BAL_TOOLS_TOML_PATH;
+import static io.ballerina.projects.util.BalToolsUtil.isCompatibleWithPlatform;
 import static io.ballerina.projects.util.ProjectConstants.CENTRAL_REPOSITORY_CACHE_NAME;
 import static io.ballerina.projects.util.ProjectConstants.LOCAL_REPOSITORY_NAME;
 import static io.ballerina.projects.util.ProjectConstants.REPOSITORIES_DIR;
@@ -58,7 +60,7 @@ import static org.ballerinalang.test.runtime.util.TesterinaConstants.HYPHEN;
 /**
  * Command to pull a tool from the central or local repository.
  *
- * @since 2201.13.0
+ * @since 2201.6.0
  */
 @CommandLine.Command(name = TOOL_PULL_COMMAND, description = "Pull the specified tool")
 public class ToolPullCommand implements BLauncherCmd {
@@ -80,6 +82,9 @@ public class ToolPullCommand implements BLauncherCmd {
 
     @CommandLine.Option(names = {"--help", "-h"}, hidden = true)
     private boolean helpFlag;
+
+    @CommandLine.Option(names = {"--force"}, hidden = true)
+    private boolean force;
 
     public ToolPullCommand() {
         this.exitWhenFinish = true;
@@ -122,10 +127,6 @@ public class ToolPullCommand implements BLauncherCmd {
         String toolIdAndVersion = argList.get(0);
         String[] toolInfo = toolIdAndVersion.split(":");
         if (toolInfo.length == 2) {
-            if (repositoryName == null) {
-                outStream.println("WARNING: Specifying a version of the tool is deprecated and may be removed " +
-                        "in a future version. Use 'bal tool pull <tool-id>' to pull the latest version of the tool.");
-            }
             toolId = toolInfo[0];
             version = toolInfo[1];
         } else if (toolInfo.length == 1) {
@@ -202,7 +203,9 @@ public class ToolPullCommand implements BLauncherCmd {
                 CommandUtil.exitError(this.exitWhenFinish);
             }
 
-            addToBalToolsToml(toolFromLocalRepo.orElseThrow(), errStream);
+            BalToolsToml balToolsToml = BalToolsToml.from(BAL_TOOLS_TOML_PATH);
+            BalToolsManifest balToolsManifest = BalToolsManifestBuilder.from(balToolsToml).build();
+            addToBalToolsToml(balToolsToml, balToolsManifest, toolFromLocalRepo.orElseThrow(), errStream);
             outStream.println("tool '" + toolId + ":" + version + "' successfully set as the active version.");
             return;
         }
@@ -213,8 +216,44 @@ public class ToolPullCommand implements BLauncherCmd {
                 outStream.println("tool '" + toolId + ":" + version + "' is already available locally.");
             } else {
                 BalToolsManifest.Tool toolFromCentral = pullToolFromCentral(supportedPlatform, balaCacheDirPath);
-                if (addToBalToolsToml(toolFromCentral, errStream)) {
+                BalToolsToml balToolsToml = BalToolsToml.from(BAL_TOOLS_TOML_PATH);
+                BalToolsManifest balToolsManifest = BalToolsManifestBuilder.from(balToolsToml).build();
+
+                BalToolsToml distBalToolsToml = BalToolsToml.from(DIST_BAL_TOOLS_TOML_PATH);
+                BalToolsManifest distBalToolsManifest = BalToolsManifestBuilder.from(distBalToolsToml).build();
+                BlendedBalToolsManifest blendedBalToolsManifest = BlendedBalToolsManifest.from(
+                        balToolsManifest, distBalToolsManifest);
+                Optional<BalToolsManifest.Tool> activeTool = blendedBalToolsManifest.getActiveTool(toolId);
+                if (force) {
+                    toolFromCentral.setForce(true);
+                    activeTool.ifPresent(tool -> tool.setForce(false));
+                } else {
+                    if (activeTool.isPresent()) {
+                        if (SemanticVersion.from(activeTool.get().version()).greaterThan(
+                                SemanticVersion.from(toolFromCentral.version()))) {
+                            String warning = "WARNING: a higher version of the tool'" +
+                                    toolId + ":" + activeTool.get().version() +
+                                    "' is available locally and will be used as the active version. Run 'bal tool use "
+                                    + toolId + ":" + toolFromCentral.version() +
+                                    "' to use the pulled version forcefully.";
+                            outStream.println(warning);
+                            toolFromCentral.setActive(false);
+                        } else if (activeTool.get().force()) {
+                            String warning = "WARNING: tool '" + toolId + ":" + activeTool.get().version() +
+                                    "' is forcefully set as the active version. Run 'bal tool update --offline " +
+                                    toolId + "' to set '" + toolFromCentral.version() + "' as the active version.";
+                            outStream.println(warning);
+                            toolFromCentral.setActive(false);
+                        }
+                    }
+                }
+
+                if (!addToBalToolsToml(balToolsToml, balToolsManifest, toolFromCentral, errStream)) {
                     CommandUtil.exitError(this.exitWhenFinish);
+                } else if (force || toolFromCentral.active()) {
+                    outStream.println("tool '" + toolId + ":" + toolFromCentral.version()
+                            + "' successfully set as the active version.");
+
                 }
             }
         } catch (PackageAlreadyExistsException e) {
@@ -259,5 +298,21 @@ public class ToolPullCommand implements BLauncherCmd {
             outStream.println("tool '" + toolId + ":" + version + "' pulled successfully.");
         }
         return new BalToolsManifest.Tool(toolId, org, name, version, true, null);
+    }
+
+    private boolean addToBalToolsToml(BalToolsToml balToolsToml, BalToolsManifest balToolsManifest,
+                                            BalToolsManifest.Tool tool, PrintStream printStream) {
+
+        boolean isCompatibleWithPlatform = isCompatibleWithPlatform(
+                tool.org(), tool.name(), tool.version(), tool.repository());
+        if (!isCompatibleWithPlatform) {
+            printStream.println("Tool '" + toolId + ":" + tool.version() + "' is not compatible with the current " +
+                    "Ballerina distribution version. Run 'bal tool list' to see compatible versions.");
+            return false;
+        }
+        balToolsManifest.addTool(tool.id(), tool.org(), tool.name(), tool.version(), tool.active(),
+                tool.repository(), tool.force());
+        balToolsToml.modify(balToolsManifest);
+        return true;
     }
 }

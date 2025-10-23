@@ -1,5 +1,5 @@
 [package]
-org = "asmaj"
+org = "testorg"
 name = "bye_app"
 version = "0.1.0"
 distribution = "2201.13.0-m3"

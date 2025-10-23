@@ -1,4 +1,4 @@
-import asmaj/depB as _;
+import testorg/depB as _;
 
 # Returns the string `Hello` with the input string name.
 #
