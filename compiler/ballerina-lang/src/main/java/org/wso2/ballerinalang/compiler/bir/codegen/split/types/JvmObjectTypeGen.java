@@ -64,7 +64,6 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CLIENT_TY
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.GET_TYPE_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JVM_INIT_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.LINKED_HASH_MAP;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.LOAD_ANNOTATIONS_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAX_TYPES_PER_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.METHOD_TYPE_IMPL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBJECT_TYPE_IMPL;
@@ -147,12 +146,10 @@ public class JvmObjectTypeGen {
                                   BIRVarToJVMIndexMap indexMap) {
         MethodVisitor mv = cw.visitMethod(ACC_PUBLIC | ACC_STATIC, GET_TYPE_METHOD, GET_OBJECT_TYPE_METHOD, null, null);
         mv.visitCode();
-        DoubleCheckLabelsRecord checkLabelsRecord = genDoubleCheckGetStart(mv, objectTypeClass, GET_OBJECT_TYPE_IMPL);
+        DoubleCheckLabelsRecord checkLabelsRecord = genDoubleCheckGetStart(mv, objectTypeClass, GET_OBJECT_TYPE_IMPL
+                                                                          );
         populateObject(cw, mv, objectTypeClass, fieldName, moduleVar, objectType, symbolTable, indexMap);
-        if (isAnnotatedType) {
-            mv.visitMethodInsn(INVOKESTATIC, objectTypeClass, LOAD_ANNOTATIONS_METHOD, VOID_METHOD_DESC, false);
-        }
-        endDoubleCheckGetEnd(mv, objectTypeClass, GET_OBJECT_TYPE_IMPL, checkLabelsRecord);
+        endDoubleCheckGetEnd(mv, objectTypeClass, GET_OBJECT_TYPE_IMPL, checkLabelsRecord, isAnnotatedType);
         mv.visitMaxs(0, 0);
         mv.visitEnd();
     }

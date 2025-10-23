@@ -88,12 +88,12 @@ public class JvmRefTypeConstantsGen {
                                                  AsyncDataCollector asyncDataCollector,
                                                  LazyLoadingDataCollector lazyLoadingDataCollector) {
         ClassWriter cw = new BallerinaClassWriter(COMPUTE_FRAMES);
+        boolean isAnnotatedType = referenceType.referredType.tag != TypeTags.RECORD;
         genFieldsForInitFlags(cw);
         String varName = JvmCodeGenUtil.getRefTypeConstantName(referenceType);
         String typeRefConstantClass = this.typeRefVarConstantsPkgName + varName;
         generateConstantsClassInit(cw, typeRefConstantClass);
         MethodVisitor mv = cw.visitMethod(ACC_STATIC, JVM_STATIC_INIT_METHOD, VOID_METHOD_DESC, null, null);
-        boolean isAnnotatedType = referenceType.referredType.tag != TypeTags.RECORD;
         jvmRefTypeGen.createTypeRefType(cw, mv, typeDef, referenceType, typeRefConstantClass, isAnnotatedType,
                 jvmPackageGen, jvmCastGen, asyncDataCollector, lazyLoadingDataCollector);
         genMethodReturn(mv);
