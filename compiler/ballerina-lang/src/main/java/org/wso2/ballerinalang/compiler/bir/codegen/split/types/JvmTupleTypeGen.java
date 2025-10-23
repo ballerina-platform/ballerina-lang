@@ -42,7 +42,6 @@ import static org.objectweb.asm.Opcodes.DUP;
 import static org.objectweb.asm.Opcodes.GETSTATIC;
 import static org.objectweb.asm.Opcodes.INVOKEINTERFACE;
 import static org.objectweb.asm.Opcodes.INVOKESPECIAL;
-import static org.objectweb.asm.Opcodes.INVOKESTATIC;
 import static org.objectweb.asm.Opcodes.INVOKEVIRTUAL;
 import static org.objectweb.asm.Opcodes.NEW;
 import static org.objectweb.asm.Opcodes.POP;
@@ -52,7 +51,6 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ARRAY_LIS
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.GET_TYPE_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JVM_INIT_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.LIST;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.LOAD_ANNOTATIONS_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SET_CYCLIC_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SET_IMMUTABLE_TYPE_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SET_MEMBERS_METHOD;
@@ -119,10 +117,7 @@ public class JvmTupleTypeGen {
         mv.visitCode();
         DoubleCheckLabelsRecord checkLabelsRecord = genDoubleCheckGetStart(mv, tupleTypeClass, GET_TUPLE_TYPE_IMPL);
         populateTuple(mv, tupleType, tupleTypeClass, symbolTable);
-        if (isAnnotatedType) {
-            mv.visitMethodInsn(INVOKESTATIC, tupleTypeClass, LOAD_ANNOTATIONS_METHOD, VOID_METHOD_DESC, false);
-        }
-        endDoubleCheckGetEnd(mv, tupleTypeClass, GET_TUPLE_TYPE_IMPL, checkLabelsRecord);
+        endDoubleCheckGetEnd(mv, tupleTypeClass, GET_TUPLE_TYPE_IMPL, checkLabelsRecord, isAnnotatedType);
         mv.visitMaxs(0, 0);
         mv.visitEnd();
     }
