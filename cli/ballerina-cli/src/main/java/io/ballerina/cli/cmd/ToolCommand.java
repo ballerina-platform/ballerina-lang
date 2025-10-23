@@ -37,7 +37,8 @@ subcommands = {
         ToolListCommand.class,
         ToolSearchCommand.class,
         ToolRemoveCommand.class,
-        ToolUpdateCommand.class
+        ToolUpdateCommand.class,
+        ToolLocationCommand.class
 })
 public class ToolCommand implements BLauncherCmd {
     private static final String TOOL_USAGE_TEXT = "bal tool <sub-command> [args]";

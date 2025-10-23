@@ -43,7 +43,7 @@ import static org.ballerinalang.test.runtime.util.TesterinaConstants.HYPHEN;
 /**
  * Command to search for tools in Ballerina Central.
  *
- * @since 2201.13.0
+ * @since 2201.6.0
  */
 @CommandLine.Command(name = TOOL_SEARCH_COMMAND, description = "Search the Ballerina Central for tools.")
 public class ToolSearchCommand implements BLauncherCmd {
