@@ -37,8 +37,8 @@ import java.util.Collections;
 import java.util.List;
 
 import static io.ballerina.cli.cmd.CommandUtil.getSHA256Digest;
-import static io.ballerina.cli.cmd.Constants.BACKUP;
 import static io.ballerina.projects.util.ProjectConstants.BUILD_FILE;
+import static io.ballerina.projects.util.ProjectConstants.EXEC_BACKUP_DIR_NAME;
 import static io.ballerina.projects.util.ProjectUtils.readBuildJson;
 
 
@@ -110,7 +110,7 @@ public class CreateFingerprintTask implements Task {
     private static void createFingerPrintForArtifacts(Project project, BuildJson buildJson, boolean isTestExecution,
                                                       boolean skipExecutable)
                                                         throws IOException, NoSuchAlgorithmException {
-        Target target = new Target(project.targetDir().resolve(BACKUP));
+        Target target = new Target(project.targetDir().resolve(EXEC_BACKUP_DIR_NAME));
         if (isTestExecution) {
             List<BuildJson.FileMetaInfo> testArtifactMetaInfoList = new ArrayList<>();
             File testSuiteFile = target.getTestsCachePath().resolve(ProjectConstants.TEST_SUITE_JSON).toFile();

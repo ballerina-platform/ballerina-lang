@@ -12,7 +12,6 @@ import java.nio.file.StandardCopyOption;
 import java.util.List;
 
 import static io.ballerina.cli.cmd.CommandUtil.JAR;
-import static io.ballerina.cli.cmd.Constants.BACKUP;
 import static io.ballerina.cli.cmd.Constants.BUILD_COMMAND;
 import static io.ballerina.cli.cmd.Constants.RUN_COMMAND;
 import static io.ballerina.cli.cmd.Constants.TEST_COMMAND;
@@ -33,7 +32,7 @@ public class CacheArtifactsTask implements Task {
     public void execute(Project project) {
         try {
             Path targetDir = project.targetDir();
-            Path backupDir = project.targetDir().resolve(BACKUP);
+            Path backupDir = project.targetDir().resolve(ProjectConstants.EXEC_BACKUP_DIR_NAME);
             Target target = new Target(targetDir);
             if ((this.currTask.equals(BUILD_COMMAND) || this.currTask.equals(RUN_COMMAND)) && !skipExecutable) {
                 copyFile(target.getExecutablePath(project.currentPackage()), targetDir, backupDir);

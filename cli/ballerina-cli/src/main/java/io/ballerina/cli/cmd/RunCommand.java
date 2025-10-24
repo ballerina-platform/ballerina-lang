@@ -58,7 +58,10 @@ import java.nio.file.Path;
 import java.nio.file.PathMatcher;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -289,6 +292,8 @@ public class RunCommand implements BLauncherCmd {
             if (project.kind() == ProjectKind.WORKSPACE_PROJECT) {
                 WorkspaceProject workspaceProject = (WorkspaceProject) project;
                 DependencyGraph<BuildProject> projectDependencyGraph = resolveWorkspaceDependencies(workspaceProject);
+                List<BuildProject> topologicallySortedList = new ArrayList<>(
+                        projectDependencyGraph.toTopologicallySortedList());
                 // If the project path is not the workspace root, filter the topologically sorted list to include only
                 // the projects that are dependencies of the project at the specified path.
                 Optional<BuildProject> buildProjectOptional = projectDependencyGraph.getNodes().stream().filter(node ->
@@ -296,12 +301,32 @@ public class RunCommand implements BLauncherCmd {
                 if (buildProjectOptional.isEmpty()) {
                     throw createLauncherException("no package found at the specified path: " + absProjectPath);
                 }
-                target = new Target(buildProjectOptional.get().targetDir());
-                executeTasks(false, target, args, buildProjectOptional.get());
 
+                Collection<BuildProject> projectDependencies = projectDependencyGraph.getAllDependencies(
+                        buildProjectOptional.orElseThrow());
+                // remove projects that are not dependencies of the project at the specified path
+                topologicallySortedList.removeIf(prj -> !projectDependencies.contains(prj)
+                        && prj != buildProjectOptional.get());
+
+                Map<BuildProject, Boolean> rebuildCache = new HashMap<>();
+                for (BuildProject buildProject : topologicallySortedList) {
+                    boolean skipExecution = buildProject != buildProjectOptional.get();
+                    boolean isRebuildNeeded = isRebuildNeeded(buildProject, skipExecution);
+                    rebuildCache.put(buildProject, isRebuildNeeded);
+                    if (!isRebuildNeeded) {
+                        // Check if any of the dependencies need to be rebuilt.
+                        for (BuildProject dependency : projectDependencyGraph.getDirectDependencies(buildProject)) {
+                            isRebuildNeeded = rebuildCache.get(dependency);
+                            if (isRebuildNeeded) {
+                                rebuildCache.put(buildProject, true);
+                                break;
+                            }
+                        }
+                    }
+                    executeTasks(args, buildProject, skipExecution, isRebuildNeeded);
+                }
             } else {
-                target = new Target(project.targetDir());
-                executeTasks(project.kind().equals(ProjectKind.SINGLE_FILE_PROJECT), target, args, project);
+                executeTasks(args, project, false, isRebuildNeeded(project, false));
             }
         } catch (IOException e) {
             throw createLauncherException("unable to resolve the target path:" + e.getMessage());
@@ -318,25 +343,28 @@ public class RunCommand implements BLauncherCmd {
         return workspaceProject.getResolution().dependencyGraph();
     }
 
-    private void executeTasks(boolean isSingleFileBuild, Target target, String[] args, Project project) {
-        boolean rebuildStatus = isRebuildNeeded(project, false);
+    private void executeTasks(String[] args, Project project, boolean skipExecution, boolean rebuildNeeded)
+            throws IOException {
+        boolean isSingleFile = project.kind().equals(ProjectKind.SINGLE_FILE_PROJECT);
+        Target target = new Target(project.targetDir());
         List<Diagnostic> buildToolDiagnostics = new ArrayList<>();
 
         TaskExecutor taskExecutor = new TaskExecutor.TaskBuilder()
                 // clean target dir for projects
-                .addTask(new CleanTargetDirTask(), isSingleFileBuild)
-                .addTask(new RestoreCachedArtifactsTask(), rebuildStatus)
+                .addTask(new CleanTargetDirTask(), isSingleFile || !rebuildNeeded)
+                .addTask(new RestoreCachedArtifactsTask(), rebuildNeeded)
                 // Run build tools
-                .addTask(new RunBuildToolsTask(outStream, !rebuildStatus, buildToolDiagnostics), isSingleFileBuild)
+                .addTask(new RunBuildToolsTask(outStream, !rebuildNeeded, buildToolDiagnostics), isSingleFile)
                 // resolve maven dependencies in Ballerina.toml
-                .addTask(new ResolveMavenDependenciesTask(outStream, !rebuildStatus))
+                .addTask(new ResolveMavenDependenciesTask(outStream, !rebuildNeeded))
                 // compile the modules
                 .addTask(new CompileTask(outStream, errStream, false, false,
-                        !rebuildStatus, buildToolDiagnostics))
-                .addTask(new CreateExecutableTask(outStream, null, target, true, !rebuildStatus))
-                .addTask(new CacheArtifactsTask(RUN_COMMAND), !rebuildStatus || isSingleFileBuild)
-                .addTask(new CreateFingerprintTask(false, false), !rebuildStatus || isSingleFileBuild)
-                .addTask(runExecutableTask = new RunExecutableTask(args, outStream, errStream, target))
+                        !rebuildNeeded, buildToolDiagnostics))
+                .addTask(new CreateExecutableTask(outStream, null, target, true, !rebuildNeeded),
+                        skipExecution)
+                .addTask(new CacheArtifactsTask(RUN_COMMAND), !rebuildNeeded || isSingleFile)
+                .addTask(new CreateFingerprintTask(false, skipExecution), !rebuildNeeded || isSingleFile)
+                .addTask(runExecutableTask = new RunExecutableTask(args, outStream, errStream, target), skipExecution)
                 .addTask(new DumpBuildTimeTask(outStream), !project.buildOptions().dumpBuildTime())
                 .build();
         taskExecutor.executeTasks(project);

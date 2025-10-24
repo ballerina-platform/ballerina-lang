@@ -37,9 +37,7 @@ public class ResolveWorkspaceDependenciesTask implements Task {
         this.outStream.println("Resolving workspace dependencies");
         WorkspaceProject workspaceProject = (WorkspaceProject) project;
         DiagnosticResult diagnosticResult = workspaceProject.getResolution().diagnosticResult();
-        diagnosticResult.diagnostics().forEach(diagnostic -> {
-            this.outStream.println(diagnostic.toString());
-        });
+        diagnosticResult.diagnostics().forEach(diagnostic -> this.outStream.println(diagnostic.toString()));
         if (diagnosticResult.hasErrors()) {
             throw createLauncherException("workspace resolution contains errors");
         }
