@@ -51,7 +51,6 @@ import io.ballerina.projects.util.ProjectPaths;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import org.ballerinalang.test.runtime.entity.TestReport;
 import org.ballerinalang.test.runtime.util.CodeCoverageUtils;
-import org.wso2.ballerinalang.util.RepoUtils;
 import picocli.CommandLine;
 
 import java.io.File;
@@ -69,7 +68,6 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -624,42 +622,6 @@ public class TestCommand implements BLauncherCmd {
                 .build();
         taskExecutor.executeTasks(workspaceProject);
         return workspaceProject.getResolution().dependencyGraph();
-    }
-
-
-    private boolean isRebuildNeeded(Project project, BuildJson buildJson) {
-        try {
-            if (!Objects.equals(buildJson.distributionVersion(), RepoUtils.getBallerinaVersion())) {
-                return true;
-            }
-            if (buildJson.isExpiredLastUpdateTime()) {
-                return true;
-            }
-            if (CommandUtil.isFilesModifiedSinceLastBuild(buildJson, project, true, true)) {
-                return true;
-            }
-            if (isRebuildForCurrCmd()) {
-                return true;
-            }
-            //TODO :  Need to investigate further
-            if (!"".equals(project.buildOptions().cloud()) || project.buildOptions().nativeImage() ||
-                    project.buildOptions().codeCoverage()) {
-                return true;
-            }
-            return CommandUtil.isPrevCurrCmdCompatible(project.buildOptions(), buildJson.getBuildOptions());
-        } catch (IOException e) {
-            // ignore
-        }
-        return true;
-    }
-
-    private boolean isRebuildForCurrCmd() {
-        return  this.dumpGraph
-                || this.dumpRawGraphs
-                || this.targetDir != null
-                || Boolean.TRUE.equals(this.disableSyntaxTreeCaching)
-                || Boolean.TRUE.equals(this.dumpBuildTime)
-                || Boolean.TRUE.equals(this.showDependencyDiagnostics);
     }
 
     private BuildOptions constructBuildOptions() {
