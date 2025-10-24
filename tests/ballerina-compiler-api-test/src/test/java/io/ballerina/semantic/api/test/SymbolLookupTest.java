@@ -155,7 +155,7 @@ public class SymbolLookupTest {
 
         List<String> expectedNameList = asList("SimpleRecordTYPE_DEFINITION", "func1ANNOTATION", "func1FUNCTION");
 
-        assert symbolStringList.containsAll(expectedNameList);
+        assertTrue(symbolStringList.containsAll(expectedNameList));
     }
 
     @Test
