@@ -42,10 +42,10 @@ import java.util.stream.Collectors;
 
 import static io.ballerina.cli.cmd.Constants.TOOL_COMMAND;
 import static io.ballerina.cli.cmd.Constants.TOOL_UPDATE_COMMAND;
-import static io.ballerina.cli.utils.ToolUtils.addToBalToolsToml;
 import static io.ballerina.cli.utils.ToolUtils.getToolAvailableLocally;
 import static io.ballerina.projects.util.BalToolsUtil.BAL_TOOLS_TOML_PATH;
 import static io.ballerina.projects.util.BalToolsUtil.DIST_BAL_TOOLS_TOML_PATH;
+import static io.ballerina.projects.util.BalToolsUtil.isCompatibleWithPlatform;
 import static io.ballerina.projects.util.ProjectConstants.LOCAL_REPOSITORY_NAME;
 import static io.ballerina.projects.util.ProjectUtils.getAccessTokenOfCLI;
 import static io.ballerina.projects.util.ProjectUtils.initializeProxy;
@@ -55,7 +55,7 @@ import static org.ballerinalang.test.runtime.util.TesterinaConstants.HYPHEN;
 /**
  * Command to update a tool to the latest version.
  *
- * @since 2201.13.0
+ * @since 2201.6.0
  */
 @CommandLine.Command(name = TOOL_UPDATE_COMMAND, description = "Search the Ballerina Central for tools.")
 public class ToolUpdateCommand implements BLauncherCmd {
@@ -72,6 +72,9 @@ public class ToolUpdateCommand implements BLauncherCmd {
 
     @CommandLine.Option(names = {"--help", "-h"}, hidden = true)
     private boolean helpFlag;
+
+    @CommandLine.Option(names = {"--offline"}, hidden = true)
+    private boolean offline;
 
     public ToolUpdateCommand() {
         this.exitWhenFinish = true;
@@ -145,25 +148,61 @@ public class ToolUpdateCommand implements BLauncherCmd {
             CommandUtil.exitError(this.exitWhenFinish);
         }
 
+        Optional<BalToolsManifest.Tool> currentActiveTool = balToolsManifest.getActiveTool(toolId);
+        // remove force version from the tool entries
+        balToolsManifest.compatibleTools().values().stream()
+                .flatMap(map -> map.values().stream()).flatMap(map -> map.values().stream())
+                .filter(t -> t.id().equals(toolId) && t.force())
+                .forEach(t -> {
+                    t.setForce(false);
+                    t.setActive(false);
+                });
+
+        BalToolsManifest.Tool highestCompatibleToolVersion = blendedBalToolsManifest
+                .getHighestCompatibleToolVersion(toolId);
+        if (offline) {
+            currentActiveTool.ifPresent(activeTool -> {
+                if (SemanticVersion.from(activeTool.version())
+                        .greaterThanOrEqualTo(SemanticVersion.from(highestCompatibleToolVersion.version()))) {
+                    outStream.println("tool '" + toolId + "' is already up-to-date.");
+                } else {
+                    outStream.println("tool '" + toolId + ":" + highestCompatibleToolVersion.version() +
+                            "' successfully set as the active version.");
+                    balToolsManifest.tools().get(toolId).values().stream()
+                            .flatMap(map -> map.values().stream())
+                            .filter(t -> !t.version().equals(highestCompatibleToolVersion.version()))
+                            .forEach(t -> {
+                                t.setActive(false);
+                                t.setForce(false);
+                            });
+                }
+            });
+            balToolsToml.modify(balToolsManifest);
+            return;
+        }
+
         String supportedPlatform = Arrays.stream(JvmTarget.values())
                 .map(JvmTarget::code)
                 .collect(Collectors.joining(","));
         try {
             String version = getLatestVersionForUpdateCommand(supportedPlatform, tool.get());
-            if (tool.get().version().equals(version)) {
+            if (SemanticVersion.from(tool.get().version()).greaterThanOrEqualTo(SemanticVersion.from(version))) {
                 outStream.println("tool '" + toolId + "' is already up-to-date.");
+                balToolsToml.modify(balToolsManifest);
                 CommandUtil.exitError(this.exitWhenFinish);
                 return;
             }
             Optional<BalToolsManifest.Tool> toolAvailableLocally = getToolAvailableLocally(toolId, version, null);
             if (toolAvailableLocally.isPresent()) {
                 outStream.println("tool '" + toolId + ":" + version + "' is already available locally.");
-                addToBalToolsToml(toolAvailableLocally.orElseThrow(), errStream);
+                addToBalToolsToml(balToolsToml, balToolsManifest, toolAvailableLocally.orElseThrow(), errStream);
+                outStream.println("tool '" + toolId + ":" + version + "' successfully set as the active version.");
                 return;
             }
 
             BalToolsManifest.Tool toolFromCentral = BalToolsUtil.pullToolPackageFromRemote(toolId, version);
-            addToBalToolsToml(toolFromCentral, errStream);
+            addToBalToolsToml(balToolsToml, balToolsManifest, toolFromCentral, errStream);
+            outStream.println("tool '" + toolId + ":" + version + "' successfully set as the active version.");
         } catch (PackageAlreadyExistsException e) {
             errStream.println(e.getMessage());
             CommandUtil.exitError(this.exitWhenFinish);
@@ -205,5 +244,21 @@ public class ToolUpdateCommand implements BLauncherCmd {
                 })
                 .map(SemanticVersion::toString);
         return latestVersionInSameMinor.orElse(currentVersionStr);
+    }
+
+    private void addToBalToolsToml(BalToolsToml balToolsToml, BalToolsManifest balToolsManifest,
+                                            BalToolsManifest.Tool tool, PrintStream printStream) {
+
+        boolean isCompatibleWithPlatform = isCompatibleWithPlatform(tool.org(), tool.name(), tool.version(),
+                tool.repository());
+        if (!isCompatibleWithPlatform) {
+            printStream.println("Tool '" + toolId + ":" + tool.version() + "' is not compatible with the current " +
+                    "Ballerina distribution version. Run 'bal tool list' to see compatible versions.");
+            return;
+        }
+        Optional<BalToolsManifest.Tool> currentActiveTool = balToolsManifest.getActiveTool(toolId);
+        currentActiveTool.ifPresent(activeTool -> activeTool.setForce(false));
+        balToolsManifest.addTool(tool.id(), tool.org(), tool.name(), tool.version(), true, tool.repository());
+        balToolsToml.modify(balToolsManifest);
     }
 }

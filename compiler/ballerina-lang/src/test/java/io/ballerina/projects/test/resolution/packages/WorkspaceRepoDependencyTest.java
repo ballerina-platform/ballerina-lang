@@ -17,6 +17,7 @@
  */
 package io.ballerina.projects.test.resolution.packages;
 
+import io.ballerina.projects.environment.PackageLockingMode;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
@@ -28,12 +29,41 @@ import org.testng.annotations.Test;
 public class WorkspaceRepoDependencyTest extends AbstractPackageResolutionTest {
 
     @Test(dataProvider = "resolutionTestCaseProvider")
-    public void testcase(String testSuite, String testCase, boolean sticky) {
+    public void testcase(String testSuite, String testCase, PackageLockingMode lockingMode) {
+        runTestCase(testSuite, testCase, lockingMode);
+    }
+
+    @Test(dataProvider = "resolutionTestCaseProviderForOldFormat")
+    public void testcaseForOldStickyFlag(String testSuite, String testCase, boolean sticky) {
         runTestCase(testSuite, testCase, sticky);
     }
 
     @DataProvider(name = "resolutionTestCaseProvider")
     public static Object[][] testCaseProvider() {
+        return new Object[][]{
+                {"suite-workspace_deps", "case-0001", PackageLockingMode.HARD},
+                {"suite-workspace_deps", "case-0001", PackageLockingMode.MEDIUM},
+                {"suite-workspace_deps", "case-0001", PackageLockingMode.SOFT},
+                {"suite-workspace_deps", "case-0002", PackageLockingMode.HARD},
+                {"suite-workspace_deps", "case-0002", PackageLockingMode.MEDIUM},
+                {"suite-workspace_deps", "case-0002", PackageLockingMode.SOFT},
+                {"suite-workspace_deps", "case-0003", PackageLockingMode.HARD},
+                {"suite-workspace_deps", "case-0003", PackageLockingMode.MEDIUM},
+                {"suite-workspace_deps", "case-0003", PackageLockingMode.SOFT},
+                {"suite-workspace_deps", "case-0004", PackageLockingMode.HARD},
+                {"suite-workspace_deps", "case-0004", PackageLockingMode.MEDIUM},
+                {"suite-workspace_deps", "case-0004", PackageLockingMode.SOFT},
+                {"suite-workspace_deps", "case-0005", PackageLockingMode.HARD},
+                {"suite-workspace_deps", "case-0005", PackageLockingMode.MEDIUM},
+                {"suite-workspace_deps", "case-0005", PackageLockingMode.SOFT},
+                {"suite-workspace_deps", "case-0006", PackageLockingMode.HARD},
+                {"suite-workspace_deps", "case-0006", PackageLockingMode.MEDIUM},
+                {"suite-workspace_deps", "case-0006", PackageLockingMode.SOFT},
+        };
+    }
+
+    @DataProvider(name = "resolutionTestCaseProviderForOldFormat")
+    public static Object[][] testCaseProviderForOldFormat() {
         return new Object[][]{
                 {"suite-workspace_deps", "case-0001", true},
                 {"suite-workspace_deps", "case-0001", false},

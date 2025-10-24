@@ -36,9 +36,11 @@ import io.ballerina.projects.ProjectKind;
 import io.ballerina.projects.directory.BuildProject;
 import io.ballerina.projects.directory.ProjectLoader;
 import io.ballerina.projects.directory.WorkspaceProject;
+import io.ballerina.projects.environment.PackageLockingMode;
 import io.ballerina.projects.internal.model.BuildJson;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectPaths;
+import io.ballerina.tools.diagnostics.Diagnostic;
 import org.wso2.ballerinalang.util.RepoUtils;
 import picocli.CommandLine;
 
@@ -224,8 +226,8 @@ public class BuildCommand implements BLauncherCmd {
     private Boolean optimizeDependencyCompilation;
 
     @CommandLine.Option(names = "--locking-mode", hidden = true,
-            description = "allow passing the package locking mode.")
-    private String lockingMode;
+            description = "allow passing the package locking mode.", converter = PackageLockingModeConverter.class)
+    private PackageLockingMode lockingMode;
 
     @Override
     public void execute() {
@@ -336,16 +338,19 @@ public class BuildCommand implements BLauncherCmd {
     private void executeTasks(boolean isSingleFile, Project project, boolean skipExecutable) {
         BuildOptions buildOptions = project.buildOptions();
         boolean rebuildStatus = isRebuildNeeded(project, skipExecutable);
+
+        List<Diagnostic> buildToolDiagnostics = new ArrayList<>();
         TaskExecutor taskExecutor = new TaskExecutor.TaskBuilder()
                 // clean the target directory(projects only)
                 .addTask(new CleanTargetDirTask(),  isSingleFile)
                 .addTask(new RestoreCachedArtifactsTask(), rebuildStatus)
                 // Run build tools
-                .addTask(new RunBuildToolsTask(outStream, !rebuildStatus), isSingleFile)
+                .addTask(new RunBuildToolsTask(outStream, !rebuildStatus, buildToolDiagnostics), isSingleFile)
                 // resolve maven dependencies in Ballerina.toml
                 .addTask(new ResolveMavenDependenciesTask(outStream, !rebuildStatus))
                 // compile the modules
-                .addTask(new CompileTask(outStream, errStream, false, true, !rebuildStatus))
+                .addTask(new CompileTask(outStream, errStream, false, true,
+                        !rebuildStatus, buildToolDiagnostics))
                 .addTask(new CreateExecutableTask(outStream, this.output, null, false,
                          !rebuildStatus, skipExecutable))
                 .addTask(new DumpBuildTimeTask(outStream), !buildOptions.dumpBuildTime())
@@ -392,7 +397,6 @@ public class BuildCommand implements BLauncherCmd {
 
     private BuildOptions constructBuildOptions() {
         BuildOptions.BuildOptionsBuilder buildOptionsBuilder = BuildOptions.builder();
-
         buildOptionsBuilder
                 .setExperimental(experimentalFlag)
                 .setOffline(offline)
@@ -405,7 +409,7 @@ public class BuildCommand implements BLauncherCmd {
                 .setDumpRawGraphs(dumpRawGraphs)
                 .setListConflictedClasses(listConflictedClasses)
                 .setDumpBuildTime(dumpBuildTime)
-                .setSticky(sticky)
+                .setSticky(this.sticky)
                 .setConfigSchemaGen(configSchemaGen)
                 .setExportOpenAPI(exportOpenAPI)
                 .setExportComponentModel(exportComponentModel)

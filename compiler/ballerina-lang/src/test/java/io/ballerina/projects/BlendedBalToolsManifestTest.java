@@ -186,7 +186,7 @@ public class BlendedBalToolsManifestTest {
             BlendedBalToolsManifest blendedBalToolsManifest = BlendedBalToolsManifest
                     .from(balToolsManifest, distBalToolsManifest);
             Optional<BalToolsManifest.Tool> activeDummyToolF = blendedBalToolsManifest.getActiveTool("dummyToolF");
-            Assert.assertEquals(activeDummyToolF.orElseThrow().version(), "1.0.0");
+            Assert.assertEquals(activeDummyToolF.orElseThrow().version(), "1.0.2"); // from the local repo
         }
     }
 

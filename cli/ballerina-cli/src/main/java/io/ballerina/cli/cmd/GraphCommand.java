@@ -31,12 +31,16 @@ import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.directory.BuildProject;
 import io.ballerina.projects.directory.SingleFileProject;
+import io.ballerina.projects.environment.PackageLockingMode;
 import io.ballerina.projects.util.ProjectConstants;
+import io.ballerina.tools.diagnostics.Diagnostic;
 import org.wso2.ballerinalang.util.RepoUtils;
 import picocli.CommandLine;
 
 import java.io.PrintStream;
 import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.List;
 
 import static io.ballerina.cli.cmd.Constants.GRAPH_COMMAND;
 
@@ -70,6 +74,10 @@ public class GraphCommand implements BLauncherCmd {
             defaultValue = "false")
     private boolean sticky;
 
+    @CommandLine.Option(names = "--locking-mode", hidden = true,
+            description = "allow passing the package locking mode.", converter = PackageLockingModeConverter.class)
+    private PackageLockingMode lockingMode;
+
     public GraphCommand() {
         this.projectPath = Path.of(System.getProperty(ProjectConstants.USER_DIR));
         this.outStream = System.out;
@@ -101,11 +109,13 @@ public class GraphCommand implements BLauncherCmd {
 
         validateSettingsToml();
 
+        List<Diagnostic> buildToolDiagnostics = new ArrayList<>();
         TaskExecutor taskExecutor = new TaskExecutor.TaskBuilder()
                 .addTask(new CleanTargetDirTask(), isSingleFileProject())
-                .addTask(new RunBuildToolsTask(outStream), isSingleFileProject())
+                .addTask(new RunBuildToolsTask(outStream, false, buildToolDiagnostics), isSingleFileProject())
                 .addTask(new ResolveMavenDependenciesTask(outStream))
                 .addTask(new CreateDependencyTreeTask(outStream))
+                .addTask(new CreateDependencyGraphTask(outStream, errStream, buildToolDiagnostics))
                 .build();
         taskExecutor.executeTasks(this.project);
 

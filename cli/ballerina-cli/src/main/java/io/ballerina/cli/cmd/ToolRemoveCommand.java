@@ -53,7 +53,7 @@ import static org.ballerinalang.test.runtime.util.TesterinaConstants.HYPHEN;
 /**
  * Command to remove a tool from the local environment.
  *
- * @since 2201.13.0
+ * @since 2201.6.0
  */
 @CommandLine.Command(name = TOOL_REMOVE_COMMAND, description = "Search the Ballerina Central for tools.")
 public class ToolRemoveCommand implements BLauncherCmd {

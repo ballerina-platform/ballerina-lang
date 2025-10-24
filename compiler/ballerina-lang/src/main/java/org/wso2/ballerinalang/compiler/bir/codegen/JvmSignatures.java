@@ -242,12 +242,11 @@ public final class JvmSignatures {
     public static final String GET_FUNCTION_TYPE_FOR_STRING = "(L" + STRING_VALUE + ";)" + GET_FUNCTION_TYPE;
     public static final String GET_FUTURE_VALUE = "L" + FUTURE_VALUE + ";";
     public static final String GET_HANDLE_VALUE = "L" + HANDLE_VALUE + ";";
-    public static final String GET_JBOOLEAN_TYPE = "Z";
+    public static final String GET_JBOOLEAN = "Z";
     public static final String GET_JSTRING = "()L" + STRING_VALUE + ";";
     public static final String GET_LOCK_STORE = "L" + LOCK_STORE + ";";
     public static final String GET_LOOKUP_KEY =  "(L" + MODULE + ";)L" + STRING_VALUE + ";";
     public static final String GET_MAIN_ARGS = "()[L" + OBJECT + ";";
-    public static final String GET_MAP_ARRAY = "[L" + MAP_VALUE + ";";
     public static final String GET_MAP_VALUE = "L" + MAP_VALUE + ";";
     public static final String GET_MODULE = "L" + MODULE + ";";
     public static final String GET_OBJECT = "L" + OBJECT + ";";
@@ -259,6 +258,8 @@ public final class JvmSignatures {
     public static final String GET_RECORD_TYPE_METHOD = "()L" + RECORD_TYPE_IMPL + ";";
     public static final String GET_RECORD_TYPE_FOR_STRING = "(L" + STRING_VALUE + ";)L" + RECORD_TYPE + ";";
     public static final String GET_REGEXP = "L" + REG_EXP_VALUE + ";";
+    public static final String GET_REF_TYPE_IMPL = "L" + TYPE_REF_TYPE_IMPL + ";";
+    public static final String GET_REF_TYPE_METHOD = "()L" + TYPE_REF_TYPE_IMPL + ";";
     public static final String GET_RUNTIME = "()L" + JvmConstants.JAVA_RUNTIME + ";";
     public static final String GET_RUNTIME_ERROR = "L" + ERROR_CODES + ";";
     public static final String GET_RUNTIME_EXCEPTION = "(L" + STRING_VALUE + ";L" + ERROR_CODES + ";[L" + OBJECT +
@@ -278,8 +279,6 @@ public final class JvmSignatures {
     public static final String GET_TUPLE_TYPE_IMPL = "L" + TUPLE_TYPE_IMPL + ";";
     public static final String GET_TUPLE_TYPE_METHOD = "()L" + TUPLE_TYPE_IMPL + ";";
     public static final String GET_TYPE = "L" + TYPE + ";";
-    public static final String GET_TYPE_REF_TYPE_IMPL = "L" + TYPE_REF_TYPE_IMPL + ";";
-    public static final String GET_TYPE_REF_TYPE_METHOD = "()L" + TYPE_REF_TYPE_IMPL + ";";
     public static final String GET_TYPEDESC = "L" + TYPEDESC_VALUE + ";";
     public static final String GET_TYPEDESC_OF_OBJECT = "(L" + OBJECT + ";)L" + TYPEDESC_VALUE + ";";
     public static final String GET_UNION_TYPE_IMPL = "L" + UNION_TYPE_IMPL + ";";
@@ -445,6 +444,7 @@ public final class JvmSignatures {
     public static final String RETURN_FUNCTION_POINTER = ")L" + FUNCTION_POINTER + ";";
     public static final String RETURN_FUTURE_VALUE = ")L" + FUTURE_VALUE + ";";
     public static final String RETURN_HANDLE_VALUE = ")L" + HANDLE_VALUE + ";";
+    public static final String RETURN_JBOOLEAN = "()Z";
     public static final String RETURN_JOBJECT = ")L" + OBJECT + ";";
     public static final String RETURN_MAP_VALUE = ")L" + MAP_VALUE + ";";
     public static final String RETURN_OBJECT = "()L" + OBJECT + ";";

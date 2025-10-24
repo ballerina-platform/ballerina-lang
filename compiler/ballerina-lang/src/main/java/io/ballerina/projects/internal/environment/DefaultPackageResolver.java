@@ -24,6 +24,7 @@ import io.ballerina.projects.PackageDependencyScope;
 import io.ballerina.projects.PackageDescriptor;
 import io.ballerina.projects.PackageVersion;
 import io.ballerina.projects.environment.PackageCache;
+import io.ballerina.projects.environment.PackageLockingMode;
 import io.ballerina.projects.environment.PackageMetadataResponse;
 import io.ballerina.projects.environment.PackageRepository;
 import io.ballerina.projects.environment.PackageResolver;
@@ -171,8 +172,25 @@ public class DefaultPackageResolver implements PackageResolver {
         Collection<PackageMetadataResponse> latestVersionsInDist =
                 distributionRepo.getPackageMetadata(requests, options);
 
-        // Send non built in packages to central
-        Collection<ResolutionRequest> centralLoadRequests = requests.stream()
+        Collection<ResolutionRequest> centralLoadRequests;
+        List<PackageMetadataResponse> resolvedRequests = new ArrayList<>(workspacePackages.stream()
+                .filter(r -> r.resolutionStatus().equals(ResolutionStatus.RESOLVED))
+                .toList());
+
+        if (options.packageLockingMode().equals(PackageLockingMode.HARD) || options.sticky()) {
+            // If sticky is enabled, filter out packages that are resolved from the dist repo
+            resolvedRequests.addAll(latestVersionsInDist.stream()
+                    .filter(r -> r.resolutionStatus().equals(ResolutionStatus.RESOLVED))
+                    .toList());
+        }
+
+        // Remove already workspace resolved requests from the central request list
+        centralLoadRequests = requests.stream().filter(r -> resolvedRequests.stream()
+                        .noneMatch(resolvedReq -> resolvedReq.packageLoadRequest().equals(r)))
+                .toList();
+
+        // Remove built-in packages from the central requests
+        centralLoadRequests = centralLoadRequests.stream()
                 .filter(r -> !r.packageDescriptor().isBuiltInPackage())
                 .toList();
         Collection<PackageMetadataResponse> latestVersionsInCentral =

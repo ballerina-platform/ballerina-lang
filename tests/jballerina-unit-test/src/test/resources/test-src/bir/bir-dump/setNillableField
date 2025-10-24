@@ -10,7 +10,7 @@ setNillableField function() -> () {
         %3 = ConstLoad x;
         %5 = ConstLoad 1;
         %4 = <int|()> %5;
-        %1 = NewMap $typedesc$R2{%3:%4};
+        %1 = NewMap $td$R2{%3:%4};
         %5 = ConstLoad 2;
         %4 = <int|()> %5;
         %3 = ConstLoad x;

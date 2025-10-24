@@ -129,6 +129,7 @@ public class BalToolsManifestBuilder {
                 String version = getStringValueFromToolNode(toolNode, "version");
                 Optional<Boolean> active = getBooleanFromToolNode(toolNode, "active");
                 String repository = getStringValueFromToolNode(toolNode, "repository");
+                boolean force = getBooleanFromToolNode(toolNode, "force").orElse(false);
 
                 // If id, org or name, one of the value is null, ignore tool record
                 if (id == null || org == null || name == null) {
@@ -153,7 +154,7 @@ public class BalToolsManifestBuilder {
                     tools.get(id).put(version, new HashMap<>());
                 }
                 tools.get(id).get(version).put(repository, new BalToolsManifest.Tool(id, org, name, version,
-                        active.get(), repository));
+                        active.get(), repository, force));
             }
         }
         return tools;

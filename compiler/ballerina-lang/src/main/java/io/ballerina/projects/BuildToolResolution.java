@@ -56,16 +56,22 @@ public class BuildToolResolution {
     private final PackageContext packageContext;
     private final List<BuildTool> resolvedTools;
     private final List<Diagnostic> diagnosticList;
+    private final boolean offline;
 
-    private BuildToolResolution(PackageContext packageContext) {
+    private BuildToolResolution(PackageContext packageContext, boolean offline) {
         resolvedTools = new ArrayList<>();
         diagnosticList = new ArrayList<>();
         this.packageContext = packageContext;
         resolveToolDependencies();
+        this.offline = offline;
     }
 
     static BuildToolResolution from(PackageContext packageContext) {
-        return new BuildToolResolution(packageContext);
+        return new BuildToolResolution(packageContext, packageContext.project().buildOptions().offlineBuild());
+    }
+
+    static BuildToolResolution from(PackageContext packageContext, CompilationOptions compilationOptions) {
+        return new BuildToolResolution(packageContext, compilationOptions.offlineBuild());
     }
 
     /**
@@ -106,8 +112,7 @@ public class BuildToolResolution {
 
         PackageLockingMode packageLockingMode = getPackageLockingMode(currentProject);
         updateLockedToolDependencyVersions(buildTools, currentProject);
-        List<BuildTool> resolvedTools = resolveToolVersions(packageLockingMode,
-                currentProject.buildOptions().offlineBuild(), buildTools);
+        List<BuildTool> resolvedTools = resolveToolVersions(packageLockingMode, offline, buildTools);
         this.resolvedTools.addAll(resolvedTools);
     }
 
@@ -233,7 +238,7 @@ public class BuildToolResolution {
         ToolResolutionCentralRequest toolResolutionRequest = new ToolResolutionCentralRequest();
         for (ToolResolutionRequest resolutionRequest : resolutionRequests) {
             ToolResolutionCentralRequest.Mode mode = switch (resolutionRequest.packageLockingMode()) {
-                case HARD -> ToolResolutionCentralRequest.Mode.HARD;
+                case HARD, LOCKED -> ToolResolutionCentralRequest.Mode.HARD;
                 case MEDIUM -> ToolResolutionCentralRequest.Mode.MEDIUM;
                 case SOFT -> ToolResolutionCentralRequest.Mode.SOFT;
             };

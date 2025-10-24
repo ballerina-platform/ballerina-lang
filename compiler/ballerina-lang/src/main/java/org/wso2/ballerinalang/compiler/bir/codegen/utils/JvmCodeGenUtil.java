@@ -74,7 +74,6 @@ import static org.objectweb.asm.Opcodes.ATHROW;
 import static org.objectweb.asm.Opcodes.CHECKCAST;
 import static org.objectweb.asm.Opcodes.DUP;
 import static org.objectweb.asm.Opcodes.GETFIELD;
-import static org.objectweb.asm.Opcodes.GETSTATIC;
 import static org.objectweb.asm.Opcodes.GOTO;
 import static org.objectweb.asm.Opcodes.ICONST_0;
 import static org.objectweb.asm.Opcodes.INVOKEINTERFACE;
@@ -83,10 +82,9 @@ import static org.objectweb.asm.Opcodes.INVOKESTATIC;
 import static org.objectweb.asm.Opcodes.INVOKEVIRTUAL;
 import static org.objectweb.asm.Opcodes.NEW;
 import static org.objectweb.asm.Opcodes.RETURN;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ANNOTATION_FUNC;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BAL_EXTENSION;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BSTRING_VAR_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_STRING_VALUE;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_STRING_VAR_PREFIX;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.DECIMAL_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ERROR_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.FUNCTION_POINTER;
@@ -147,6 +145,8 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.RETURN_T
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.RETURN_XML_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.STRING_BUILDER_APPEND;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.VOID_METHOD_DESC;
+import static org.wso2.ballerinalang.compiler.bir.codegen.optimizer.LargeMethodOptimizer.SPLIT_METHOD;
+import static org.wso2.ballerinalang.compiler.util.Constants.RECORD_DELIMITER;
 
 /**
  * The common functions used in CodeGen.
@@ -544,9 +544,9 @@ public final class JvmCodeGenUtil {
         return type;
     }
 
-    public static void loadConstantValue(BType bType, Object constVal, MethodVisitor mv,
-                                         JvmConstantsGen jvmConstantsGen, String stringConstantsClass) {
-
+    public static void loadConstantValue(BType bType, Object constVal, String varName, MethodVisitor mv,
+                                         JvmConstantsGen jvmConstantsGen, String constantVarClassName,
+                                         boolean isConstant) {
         int typeTag = getImpliedType(bType).tag;
         if (TypeTags.isIntegerTypeTag(typeTag)) {
             long intValue = constVal instanceof Long ? (long) constVal : Long.parseLong(String.valueOf(constVal));
@@ -554,12 +554,9 @@ public final class JvmCodeGenUtil {
             return;
         } else if (TypeTags.isStringTypeTag(typeTag)) {
             String val = String.valueOf(constVal);
-            int index = jvmConstantsGen.getBStringConstantVarIndex(val);
-            String varName = B_STRING_VAR_PREFIX + index;
-            mv.visitFieldInsn(GETSTATIC, stringConstantsClass + varName, BSTRING_VAR_NAME, GET_BSTRING);
+            jvmConstantsGen.loadBStringConstant(mv, val, varName, constantVarClassName, isConstant);
             return;
         }
-
         switch (typeTag) {
             case TypeTags.BYTE -> {
                 int byteValue = ((Number) constVal).intValue();
@@ -632,7 +629,7 @@ public final class JvmCodeGenUtil {
     }
 
     public static String getRefTypeConstantName(BTypeReferenceType type) {
-        return JvmConstants.TYPE_REF_TYPE_VAR_PREFIX + Utils.encodeNonFunctionIdentifier(type.tsymbol.name.value);
+        return Utils.encodeNonFunctionIdentifier(type.tsymbol.name.value);
     }
 
     public static void visitMaxStackForMethod(MethodVisitor mv, String funcName, String className) {
@@ -716,5 +713,14 @@ public final class JvmCodeGenUtil {
         mv.visitInsn(RETURN);
         mv.visitMaxs(0, 0);
         mv.visitEnd();
+    }
+
+    public static boolean canSkipFromCallByFunctionName(String functionName) {
+        if (functionName.charAt(0) != '$') {
+            return false;
+        }
+        return functionName.startsWith(RECORD_DELIMITER)
+                || functionName.startsWith(SPLIT_METHOD)
+                || functionName.startsWith(ANNOTATION_FUNC);
     }
 }

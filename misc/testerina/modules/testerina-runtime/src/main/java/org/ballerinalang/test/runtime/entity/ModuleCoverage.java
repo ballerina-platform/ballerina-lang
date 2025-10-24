@@ -237,8 +237,8 @@ public class ModuleCoverage {
         private final String name;
         private final List<Integer> coveredLines;
         private final List<Integer> missedLines;
-        private List<Integer> emptyLines;
-        private Set<Integer> allLines;
+        private final List<Integer> emptyLines;
+        private final transient Set<Integer> allLines;
         private float coveragePercentage;
         private String sourceCode;
 

@@ -49,6 +49,7 @@ public final class Constants {
     public static final String TOOL_SEARCH_COMMAND = "search";
     public static final String TOOL_REMOVE_COMMAND = "remove";
     public static final String TOOL_UPDATE_COMMAND = "update";
+    public static final String TOOL_LOCATION_COMMAND = "location";
     public static final String SEMVER_COMMAND = "semver";
     public static final String DIST_COMMAND = "dist";
     public static final String UPDATE_COMMAND = "update";
