@@ -88,7 +88,8 @@ public class CompileTask implements Task {
 
     @Override
     public void execute(Project project) {
-        if (ProjectUtils.isProjectEmpty(project) && skipCompilationForBalPack(project)) {
+        if (ProjectUtils.isProjectEmpty(project) && skipCompilationForBalPack(project) &&
+                project.currentPackage().balToolToml().isEmpty()) {
             throw createLauncherException("package is empty. Please add at least one .bal file.");
         }
         if (project.workspaceProject().isPresent()) {
@@ -106,7 +107,7 @@ public class CompileTask implements Task {
                     project.currentPackage().packageVersion();
         }
         // Print the source
-        this.out.println("\t" + sourceName);
+        this.out.println("	" + sourceName);
         if (skipTask) {
             return;
         }
@@ -239,7 +240,8 @@ public class CompileTask implements Task {
 
             Optional<Diagnostic> projectLoadingDiagnostic = ProjectUtils.getProjectLoadingDiagnostic().stream().filter(
                     diagnostic -> diagnostic.diagnosticInfo().code().equals(
-                            ProjectDiagnosticErrorCode.DEPRECATED_RESOURCES_STRUCTURE.diagnosticId())).findAny();
+                            ProjectDiagnosticErrorCode.DEPRECATED_RESOURCES_STRUCTURE.diagnosticId())).
+                    findAny();
 
             projectLoadingDiagnostic.ifPresent(out::println);
             PackageCompilation packageCompilation = project.currentPackage().getCompilation();
