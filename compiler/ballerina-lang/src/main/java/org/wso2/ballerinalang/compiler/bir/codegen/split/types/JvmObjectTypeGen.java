@@ -146,8 +146,7 @@ public class JvmObjectTypeGen {
                                   BIRVarToJVMIndexMap indexMap) {
         MethodVisitor mv = cw.visitMethod(ACC_PUBLIC | ACC_STATIC, GET_TYPE_METHOD, GET_OBJECT_TYPE_METHOD, null, null);
         mv.visitCode();
-        DoubleCheckLabelsRecord checkLabelsRecord = genDoubleCheckGetStart(mv, objectTypeClass, GET_OBJECT_TYPE_IMPL
-                                                                          );
+        DoubleCheckLabelsRecord checkLabelsRecord = genDoubleCheckGetStart(mv, objectTypeClass, GET_OBJECT_TYPE_IMPL);
         populateObject(cw, mv, objectTypeClass, fieldName, moduleVar, objectType, symbolTable, indexMap);
         endDoubleCheckGetEnd(mv, objectTypeClass, GET_OBJECT_TYPE_IMPL, checkLabelsRecord, isAnnotatedType);
         mv.visitMaxs(0, 0);

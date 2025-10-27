@@ -443,10 +443,9 @@ public class JvmCreateTypeGen {
         } else {
             mv.visitMethodInsn(INVOKESTATIC, TYPE_INITIALIZER, LOAD_TYPE_ANNOTATIONS_METHOD, VOID_METHOD_DESC, false);
         }
-        mv.visitInsn(ICONST_1);
-        mv.visitFieldInsn(PUTSTATIC, typeClass, TYPE_INIT_FIELD, GET_JBOOLEAN);
-        mv.visitInsn(ICONST_0);
-        mv.visitFieldInsn(PUTSTATIC, typeClass, TYPE_ON_INIT_FIELD, GET_JBOOLEAN);
+        if (!isAnnotatedType) {
+            setTypeInitStatus(mv, typeClass);
+        }
         mv.visitLabel(checkLabelsRecord.tryEnd());
         mv.visitFieldInsn(GETSTATIC, TYPE_INITIALIZER, TYPE_INITIALIZING_GLOBAL_LOCK_VAR_NAME, LOAD_LOCK);
         mv.visitMethodInsn(INVOKEVIRTUAL, REENTRANT_LOCK, "unlock", VOID_METHOD_DESC, false);
@@ -461,6 +460,13 @@ public class JvmCreateTypeGen {
         mv.visitLabel(label5);
         mv.visitFieldInsn(GETSTATIC, typeClass, TYPE_VAR_FIELD, typeDescriptor);
         mv.visitInsn(ARETURN);
+    }
+
+    private static void setTypeInitStatus(MethodVisitor mv, String typeClass) {
+        mv.visitInsn(ICONST_1);
+        mv.visitFieldInsn(PUTSTATIC, typeClass, TYPE_INIT_FIELD, GET_JBOOLEAN);
+        mv.visitInsn(ICONST_0);
+        mv.visitFieldInsn(PUTSTATIC, typeClass, TYPE_ON_INIT_FIELD, GET_JBOOLEAN);
     }
 
     public Optional<BIntersectionType> getImmutableType(BType type, SymbolTable symbolTable) {
@@ -578,6 +584,7 @@ public class JvmCreateTypeGen {
             lazyLoadAnnotations(mv, lazyBB, jvmPackageGen, jvmCastGen, jvmConstantsGen, jvmTypeGen, asyncDataCollector);
         }
         processAnnotations(typeClass, descriptor, mv);
+        setTypeInitStatus(mv, typeClass);
         genMethodReturn(mv);
     }
 
@@ -605,11 +612,11 @@ public class JvmCreateTypeGen {
         if (!constructorsPopulated) {
             processAnnotations(typeClass, GET_OBJECT_TYPE_IMPL, mv);
         }
+        setTypeInitStatus(mv, typeClass);
         genMethodReturn(mv);
     }
 
     private void processAnnotations(String typeClass, String descriptor, MethodVisitor mv) {
-
         mv.visitFieldInsn(GETSTATIC, annotationVarClassName, VALUE_VAR_FIELD, GET_MAP_VALUE);
         mv.visitFieldInsn(GETSTATIC, typeClass, TYPE_VAR_FIELD, descriptor);
         mv.visitMethodInsn(INVOKESTATIC, ANNOTATION_UTILS, "processAnnotations", PROCESS_ANNOTATIONS, false);
