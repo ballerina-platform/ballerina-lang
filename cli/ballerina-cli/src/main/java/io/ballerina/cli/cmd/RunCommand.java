@@ -26,7 +26,6 @@ import io.ballerina.cli.task.CreateExecutableTask;
 import io.ballerina.cli.task.CreateFingerprintTask;
 import io.ballerina.cli.task.DumpBuildTimeTask;
 import io.ballerina.cli.task.ResolveMavenDependenciesTask;
-import io.ballerina.cli.task.ResolveWorkspaceDependenciesTask;
 import io.ballerina.cli.task.RunBuildToolsTask;
 import io.ballerina.cli.task.RunExecutableTask;
 import io.ballerina.cli.utils.BuildTime;
@@ -36,12 +35,10 @@ import io.ballerina.projects.DependencyGraph;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.ProjectKind;
-import io.ballerina.projects.WorkspaceResolution;
 import io.ballerina.projects.directory.BuildProject;
 import io.ballerina.projects.directory.ProjectLoader;
 import io.ballerina.projects.directory.WorkspaceProject;
 import io.ballerina.projects.environment.PackageLockingMode;
-import io.ballerina.projects.environment.ResolutionOptions;
 import io.ballerina.projects.internal.model.BuildJson;
 import io.ballerina.projects.internal.model.Target;
 import io.ballerina.projects.util.ProjectConstants;
@@ -65,6 +62,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 
+import static io.ballerina.cli.cmd.CommandUtil.resolveWorkspaceDependencies;
 import static io.ballerina.cli.cmd.Constants.RUN_COMMAND;
 import static io.ballerina.cli.launcher.LauncherUtils.createLauncherException;
 import static io.ballerina.projects.util.ProjectConstants.BUILD_FILE;
@@ -259,21 +257,6 @@ public class RunCommand implements BLauncherCmd {
                 BuildTime.getInstance().timestamp = start;
             }
             project = ProjectLoader.load(projectPath, buildOptions).project();
-            if (project.kind().equals(ProjectKind.WORKSPACE_PROJECT)) {
-                WorkspaceProject workspaceProject = (WorkspaceProject) project;
-                WorkspaceResolution workspaceResolution = workspaceProject.getResolution(
-                        ResolutionOptions.builder().setOffline(true).build());
-                List<BuildProject> topologicallySortedList = workspaceResolution.dependencyGraph()
-                        .toTopologicallySortedList();
-                BuildProject buildProject = topologicallySortedList.get(topologicallySortedList.size() - 1);
-                Path relativePath = Paths.get(System.getProperty("user.dir")).relativize(buildProject.sourceRoot());
-                if (project.sourceRoot().equals(absProjectPath)) {
-                    CommandUtil.printError(this.errStream, "'bal run' command is not supported for workspaces. " +
-                            "Please specify a package to run. \nExample:\n\tbal run " + relativePath, runCmd, false);
-                    CommandUtil.exitError(this.exitWhenFinish);
-                    return;
-                }
-            }
             if (buildOptions.dumpBuildTime()) {
                 BuildTime.getInstance().projectLoadDuration = System.currentTimeMillis() - start;
             }
@@ -291,7 +274,8 @@ public class RunCommand implements BLauncherCmd {
             }
             if (project.kind() == ProjectKind.WORKSPACE_PROJECT) {
                 WorkspaceProject workspaceProject = (WorkspaceProject) project;
-                DependencyGraph<BuildProject> projectDependencyGraph = resolveWorkspaceDependencies(workspaceProject);
+                DependencyGraph<BuildProject> projectDependencyGraph = resolveWorkspaceDependencies(
+                        workspaceProject, this.outStream);
                 List<BuildProject> topologicallySortedList = new ArrayList<>(
                         projectDependencyGraph.toTopologicallySortedList());
                 // If the project path is not the workspace root, filter the topologically sorted list to include only
@@ -300,6 +284,14 @@ public class RunCommand implements BLauncherCmd {
                         node.sourceRoot().equals(absProjectPath)).findFirst();
                 if (buildProjectOptional.isEmpty()) {
                     throw createLauncherException("no package found at the specified path: " + absProjectPath);
+                }
+                Path relativePath = Paths.get(System.getProperty("user.dir")).relativize(
+                        buildProjectOptional.get().sourceRoot());
+                if (project.sourceRoot().equals(absProjectPath)) {
+                    CommandUtil.printError(this.errStream, "'bal run' command is not supported for workspaces. " +
+                            "Please specify a package to run. \nExample:\n\tbal run " + relativePath, runCmd, false);
+                    CommandUtil.exitError(this.exitWhenFinish);
+                    return;
                 }
 
                 Collection<BuildProject> projectDependencies = projectDependencyGraph.getAllDependencies(
@@ -333,14 +325,6 @@ public class RunCommand implements BLauncherCmd {
         } catch (ProjectException e) {
             throw createLauncherException("unable to create the executable:" + e.getMessage());
         }
-    }
-
-    private DependencyGraph<BuildProject> resolveWorkspaceDependencies(WorkspaceProject workspaceProject) {
-        TaskExecutor taskExecutor = new TaskExecutor.TaskBuilder()
-                .addTask(new ResolveWorkspaceDependenciesTask(outStream))
-                .build();
-        taskExecutor.executeTasks(workspaceProject);
-        return workspaceProject.getResolution().dependencyGraph();
     }
 
     private void executeTasks(String[] args, Project project, boolean skipExecution, boolean rebuildNeeded)

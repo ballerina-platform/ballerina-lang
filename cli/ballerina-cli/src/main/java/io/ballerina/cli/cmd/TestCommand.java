@@ -28,7 +28,6 @@ import io.ballerina.cli.task.CreateFingerprintTask;
 import io.ballerina.cli.task.CreateTestExecutableTask;
 import io.ballerina.cli.task.DumpBuildTimeTask;
 import io.ballerina.cli.task.ResolveMavenDependenciesTask;
-import io.ballerina.cli.task.ResolveWorkspaceDependenciesTask;
 import io.ballerina.cli.task.RunBuildToolsTask;
 import io.ballerina.cli.task.RunNativeImageTestTask;
 import io.ballerina.cli.task.RunTestsTask;
@@ -72,6 +71,7 @@ import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static io.ballerina.cli.cmd.CommandUtil.TEST_FAILURES_ERROR;
+import static io.ballerina.cli.cmd.CommandUtil.resolveWorkspaceDependencies;
 import static io.ballerina.cli.cmd.Constants.TEST_COMMAND;
 import static io.ballerina.cli.launcher.LauncherUtils.createLauncherException;
 import static io.ballerina.cli.utils.TestUtils.getReportToolsPath;
@@ -405,7 +405,8 @@ public class TestCommand implements BLauncherCmd {
                 testReport.setWorkspaceName(Optional.of(project.sourceRoot().getFileName()).get().toString());
             }
             WorkspaceProject workspaceProject = (WorkspaceProject) project;
-            DependencyGraph<BuildProject> projectDependencyGraph = resolveWorkspaceDependencies(workspaceProject);
+            DependencyGraph<BuildProject> projectDependencyGraph = resolveWorkspaceDependencies(
+                    workspaceProject, this.outStream);
             List<BuildProject> topologicallySortedList = new ArrayList<>(
                     projectDependencyGraph.toTopologicallySortedList());
 
@@ -609,19 +610,11 @@ public class TestCommand implements BLauncherCmd {
                                 testReport),
                         (!project.buildOptions().nativeImage() || isTestingDelegated) || skipExecution)
                 .addTask(new DumpBuildTimeTask(outStream), !project.buildOptions().dumpBuildTime())
-                .addTask(new CacheArtifactsTask(TEST_COMMAND), !rebuildNeeded || isSingleFile)
+                .addTask(new CacheArtifactsTask(TEST_COMMAND, skipExecution), !rebuildNeeded || isSingleFile)
                 .addTask(new CreateFingerprintTask(true, false),
                         !rebuildNeeded || isSingleFile)
                 .build();
         taskExecutor.executeTasks(project);
-    }
-
-    private DependencyGraph<BuildProject> resolveWorkspaceDependencies(WorkspaceProject workspaceProject) {
-        TaskExecutor taskExecutor = new TaskExecutor.TaskBuilder()
-                .addTask(new ResolveWorkspaceDependenciesTask(outStream))
-                .build();
-        taskExecutor.executeTasks(workspaceProject);
-        return workspaceProject.getResolution().dependencyGraph();
     }
 
     private BuildOptions constructBuildOptions() {

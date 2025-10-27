@@ -22,6 +22,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import io.ballerina.projects.BuildOptions;
+import io.ballerina.projects.DependencyGraph;
 import io.ballerina.projects.JBallerinaBackend;
 import io.ballerina.projects.JvmTarget;
 import io.ballerina.projects.Package;
@@ -36,6 +37,10 @@ import io.ballerina.projects.ResolvedPackageDependency;
 import io.ballerina.projects.SemanticVersion;
 import io.ballerina.projects.Settings;
 import io.ballerina.projects.bala.BalaProject;
+import io.ballerina.projects.directory.BuildProject;
+import io.ballerina.projects.directory.WorkspaceProject;
+import io.ballerina.projects.environment.PackageLockingMode;
+import io.ballerina.projects.environment.ResolutionOptions;
 import io.ballerina.projects.internal.bala.BalToolJson;
 import io.ballerina.projects.internal.bala.BalaJson;
 import io.ballerina.projects.internal.bala.DependencyGraphJson;
@@ -1345,6 +1350,20 @@ public final class CommandUtil {
             return false;
         }
         return isExecutableModified(buildJson, project);
+    }
+
+    public static DependencyGraph<BuildProject> resolveWorkspaceDependencies(
+            WorkspaceProject workspaceProject, PrintStream outStream) {
+        outStream.println("Resolving workspace dependencies");
+        ResolutionOptions resolutionOptions = ResolutionOptions.builder()
+                .setOffline(true)
+                .setPackageLockingMode(PackageLockingMode.HARD)
+                .build();
+        DependencyGraph<BuildProject> projectDependencyGraph = workspaceProject.getResolution(resolutionOptions)
+                .dependencyGraph();
+        projectDependencyGraph.toTopologicallySortedList();
+        workspaceProject.clearCaches();
+        return projectDependencyGraph;
     }
 
     private static boolean isBallerinaTomlFileModified(BuildJson buildJson, Project project)  {
