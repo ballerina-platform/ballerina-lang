@@ -24,8 +24,8 @@ import io.ballerina.runtime.api.types.semtype.Core;
 import io.ballerina.runtime.api.types.semtype.SemType;
 import io.ballerina.runtime.api.types.semtype.TypeAtom;
 
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * CellAtomicType node.
@@ -67,9 +67,9 @@ public record CellAtomicType(SemType ty, CellMutability mut) implements AtomicTy
 
     private static final class CellAtomCache {
 
-        private static final Map<Integer, CellAtomicType> NONE_CACHE = new HashMap<>();
-        private static final Map<Integer, CellAtomicType> LIMITED_CACHE = new HashMap<>();
-        private static final Map<Integer, CellAtomicType> UNLIMITED_CACHE = new HashMap<>();
+        private static final Map<Integer, CellAtomicType> NONE_CACHE = new ConcurrentHashMap<>();
+        private static final Map<Integer, CellAtomicType> LIMITED_CACHE = new ConcurrentHashMap<>();
+        private static final Map<Integer, CellAtomicType> UNLIMITED_CACHE = new ConcurrentHashMap<>();
 
         private static CellAtomicType get(SemType semType, CellMutability mut) {
             if (semType.some() != 0) {
