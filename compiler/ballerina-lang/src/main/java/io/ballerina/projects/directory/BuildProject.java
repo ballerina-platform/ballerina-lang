@@ -233,7 +233,15 @@ public class BuildProject extends Project implements Comparable<Project> {
         }
     }
 
-     void setEnvironment(Environment environment) {
+    /**
+     * Sets the project environment for this build project.
+     * <p>
+     * This method is typically called for workspace projects since the environment
+     * needs to be shared with all projects that belongs to a workspace.
+     *
+     * @param environment the environment configuration to set for this project
+     */
+    void setEnvironment(Environment environment) {
         this.projectEnvironment = ProjectEnvironmentBuilder.getBuilder(environment).build(this);
     }
 

@@ -410,7 +410,7 @@ public class TestCommand implements BLauncherCmd {
             List<BuildProject> topologicallySortedList = new ArrayList<>(
                     projectDependencyGraph.toTopologicallySortedList());
 
-            Optional<BuildProject> buildProjectOptional = Optional.empty();
+            Optional<BuildProject> buildProjectOptional;
             if (!workspaceProject.sourceRoot().equals(absProjectPath)) {
                 // If the project path is not the workspace root, filter the topologically sorted list to include only
                 // the projects that are dependencies of the project at the specified path.
@@ -419,9 +419,10 @@ public class TestCommand implements BLauncherCmd {
                 Collection<BuildProject> projectDependencies = projectDependencyGraph.getAllDependencies(
                         buildProjectOptional.orElseThrow());
                 // Remove projects that are not dependencies of the project at the specified path
-                Optional<BuildProject> finalBuildProjectOptional = buildProjectOptional;
                 topologicallySortedList.removeIf(prj -> !projectDependencies.contains(prj)
-                        && prj != finalBuildProjectOptional.get());
+                        && prj != buildProjectOptional.get());
+            } else {
+                buildProjectOptional = Optional.empty();
             }
 
             int execResult = 0;

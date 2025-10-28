@@ -1560,7 +1560,7 @@ public final class CommandUtil {
                 return !getSHA256Digest(execFile).equals(targetExecMetaInfo.getHash());
             }
         } catch (IOException | NoSuchAlgorithmException e) {
-           // ignore
+           // ignore the error and rebuild again
         }
         return true;
     }
