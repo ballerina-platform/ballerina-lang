@@ -58,8 +58,8 @@ public class ToolLocationCommand implements BLauncherCmd {
     @CommandLine.Option(names = "--repository", description = "Repository name")
     private String repository;
 
-    @CommandLine.Option(names = "--jars", description = "Get the location of JAR files instead of tool base path")
-    private boolean jarsFlag;
+    @CommandLine.Option(names = "--lib", description = "Get the location of JAR files instead of tool base path")
+    private boolean lib;
 
     @CommandLine.Option(names = {"--help", "-h"}, hidden = true)
     private boolean helpFlag;
@@ -152,7 +152,7 @@ public class ToolLocationCommand implements BLauncherCmd {
             BalToolsManifest.Tool tool = toolOpt.get();
             Path toolPath = getToolPath(tool);
 
-            if (jarsFlag) {
+            if (lib) {
                 toolPath = toolPath.resolve(ProjectConstants.TOOL_DIR).resolve(CommandUtil.LIBS_DIR);
             }
 

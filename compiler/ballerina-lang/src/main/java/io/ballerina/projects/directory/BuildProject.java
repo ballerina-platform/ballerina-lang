@@ -38,6 +38,8 @@ import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.ProjectKind;
 import io.ballerina.projects.ProjectLoadResult;
 import io.ballerina.projects.ResolvedPackageDependency;
+import io.ballerina.projects.environment.Environment;
+import io.ballerina.projects.environment.EnvironmentBuilder;
 import io.ballerina.projects.environment.PackageLockingMode;
 import io.ballerina.projects.internal.BalaFiles;
 import io.ballerina.projects.internal.PackageConfigCreator;
@@ -225,15 +227,30 @@ public class BuildProject extends Project implements Comparable<Project> {
     @Override
     public void clearCaches() {
         resetPackage(this);
-        this.projectEnvironment = ProjectEnvironmentBuilder.getDefaultBuilder().build(this);
+        if (this.workspaceProject == null) {
+            // We assume that the project environment is already set via the #setEnvironment method
+            this.projectEnvironment = ProjectEnvironmentBuilder.getDefaultBuilder().build(this);
+        }
+    }
+
+    /**
+     * Sets the project environment for this build project.
+     * <p>
+     * This method is typically called for workspace projects since the environment
+     * needs to be shared with all projects that belongs to a workspace.
+     *
+     * @param environment the environment configuration to set for this project
+     */
+    void setEnvironment(Environment environment) {
+        this.projectEnvironment = ProjectEnvironmentBuilder.getBuilder(environment).build(this);
     }
 
     @Override
     public Project duplicate() {
         BuildOptions duplicateBuildOptions = BuildOptions.builder().build().acceptTheirs(buildOptions());
-        BuildProject buildProject = new BuildProject(
-                ProjectEnvironmentBuilder.getDefaultBuilder(), this.sourceRoot, duplicateBuildOptions,
-                this.workspaceProject);
+        Environment environment = EnvironmentBuilder.getBuilder().setWorkspace(workspaceProject).build();
+        BuildProject buildProject = new BuildProject(ProjectEnvironmentBuilder.getBuilder(environment),
+                this.sourceRoot, duplicateBuildOptions, this.workspaceProject);
         return resetPackage(buildProject);
     }
 

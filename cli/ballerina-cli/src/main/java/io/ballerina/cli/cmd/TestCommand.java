@@ -28,7 +28,6 @@ import io.ballerina.cli.task.CreateFingerprintTask;
 import io.ballerina.cli.task.CreateTestExecutableTask;
 import io.ballerina.cli.task.DumpBuildTimeTask;
 import io.ballerina.cli.task.ResolveMavenDependenciesTask;
-import io.ballerina.cli.task.ResolveWorkspaceDependenciesTask;
 import io.ballerina.cli.task.RunBuildToolsTask;
 import io.ballerina.cli.task.RunNativeImageTestTask;
 import io.ballerina.cli.task.RunTestsTask;
@@ -51,7 +50,6 @@ import io.ballerina.projects.util.ProjectPaths;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import org.ballerinalang.test.runtime.entity.TestReport;
 import org.ballerinalang.test.runtime.util.CodeCoverageUtils;
-import org.wso2.ballerinalang.util.RepoUtils;
 import picocli.CommandLine;
 
 import java.io.File;
@@ -65,14 +63,15 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static io.ballerina.cli.cmd.CommandUtil.TEST_FAILURES_ERROR;
+import static io.ballerina.cli.cmd.CommandUtil.resolveWorkspaceDependencies;
 import static io.ballerina.cli.cmd.Constants.TEST_COMMAND;
 import static io.ballerina.cli.launcher.LauncherUtils.createLauncherException;
 import static io.ballerina.cli.utils.TestUtils.getReportToolsPath;
@@ -406,39 +405,60 @@ public class TestCommand implements BLauncherCmd {
                 testReport.setWorkspaceName(Optional.of(project.sourceRoot().getFileName()).get().toString());
             }
             WorkspaceProject workspaceProject = (WorkspaceProject) project;
-            DependencyGraph<BuildProject> projectDependencyGraph = resolveWorkspaceDependencies(workspaceProject);
-            if (!project.sourceRoot().equals(absProjectPath)) {
+            DependencyGraph<BuildProject> projectDependencyGraph = resolveWorkspaceDependencies(
+                    workspaceProject, this.outStream);
+            List<BuildProject> topologicallySortedList = new ArrayList<>(
+                    projectDependencyGraph.toTopologicallySortedList());
+
+            Optional<BuildProject> buildProjectOptional;
+            if (!workspaceProject.sourceRoot().equals(absProjectPath)) {
                 // If the project path is not the workspace root, filter the topologically sorted list to include only
                 // the projects that are dependencies of the project at the specified path.
-                Optional<BuildProject> buildProjectOptional = projectDependencyGraph.getNodes().stream()
+                buildProjectOptional = projectDependencyGraph.getNodes().stream()
                         .filter(node -> node.sourceRoot().equals(absProjectPath)).findFirst();
+                Collection<BuildProject> projectDependencies = projectDependencyGraph.getAllDependencies(
+                        buildProjectOptional.orElseThrow());
+                // Remove projects that are not dependencies of the project at the specified path
+                topologicallySortedList.removeIf(prj -> !projectDependencies.contains(prj)
+                        && prj != buildProjectOptional.get());
+            } else {
+                buildProjectOptional = Optional.empty();
+            }
+
+            int execResult = 0;
+            for (BuildProject buildProject : topologicallySortedList) {
+                boolean skipExecution = false;
+                String prevTestClassPath = "";
+                boolean rebuildNeeded = true;
                 try {
-                    executeTasks(isTestingDelegated, buildProjectOptional.orElseThrow(), testResult,
-                            cliArgs, testReport);
+                    Path buildFilePath = buildProject.targetDir().resolve(BUILD_FILE);
+                    BuildJson buildJson = readBuildJson(buildFilePath);
+                    if (buildJson.getTestClassPath() != null) {
+                        prevTestClassPath = buildJson.getTestClassPath();
+                    }
+                } catch (IOException e) {
+                    // ignore exception
+                }
+
+                try {
+                    if (buildProjectOptional.isPresent()) {
+                        if (buildProject != buildProjectOptional.get()) {
+                            skipExecution = true;
+                        }
+                    }
+                    executeTasks(isTestingDelegated, buildProject, testResult, cliArgs, testReport, rebuildNeeded,
+                            prevTestClassPath, skipExecution);
                 } catch (BLauncherException e) {
                     if (!e.getDetailedMessages().isEmpty()
-                            && e.getDetailedMessages().get(0).equals(TEST_FAILURES_ERROR)) {
-                        generateTestReport(project, testReport);
+                            && !e.getDetailedMessages().get(0).equals(TEST_FAILURES_ERROR)) {
+                        throw e;
                     }
-                    throw e;
+                    execResult = 1;
                 }
-            } else {
-                int execResult = 0;
-                for (BuildProject buildProject : projectDependencyGraph.toTopologicallySortedList()) {
-                    try {
-                        executeTasks(isTestingDelegated, buildProject, testResult, cliArgs, testReport);
-                    } catch (BLauncherException e) {
-                        if (!e.getDetailedMessages().isEmpty()
-                                && !e.getDetailedMessages().get(0).equals(TEST_FAILURES_ERROR)) {
-                            throw e;
-                        }
-                        execResult = 1;
-                    }
-                }
-                if (execResult == 1) {
-                    generateTestReport(project, testReport);
-                    throw createLauncherException(TEST_FAILURES_ERROR);
-                }
+            }
+            if (execResult == 1) {
+                generateTestReport(project, testReport);
+                throw createLauncherException(TEST_FAILURES_ERROR);
             }
         } else {
             if (testReport != null) {
@@ -449,7 +469,19 @@ public class TestCommand implements BLauncherCmd {
                 testReport.setWorkspaceName(projectName);
             }
             try {
-                executeTasks(isTestingDelegated, project, testResult, cliArgs, testReport);
+                String prevTestClassPath = "";
+                boolean rebuildNeeded = true;
+                try {
+                    Path buildFilePath = project.targetDir().resolve(BUILD_FILE);
+                    BuildJson buildJson = readBuildJson(buildFilePath);
+                    if (buildJson.getTestClassPath() != null) {
+                        prevTestClassPath = buildJson.getTestClassPath();
+                    }
+                } catch (IOException e) {
+                    // ignore exception
+                }
+                executeTasks(isTestingDelegated, project, testResult, cliArgs, testReport, rebuildNeeded,
+                        prevTestClassPath, false);
             } catch (BLauncherException e) {
                 if (!e.getDetailedMessages().isEmpty()
                         && e.getDetailedMessages().get(0).equals(TEST_FAILURES_ERROR)) {
@@ -535,22 +567,8 @@ public class TestCommand implements BLauncherCmd {
     }
 
     private void executeTasks(boolean isTestingDelegated, Project project, AtomicInteger testResult,
-                              String[] cliArgs, TestReport testReport) {
-        Path buildFilePath = project.targetDir().resolve(BUILD_FILE);
-        boolean rebuildStatus = true;
-        String prevTestClassPath  = "";
-        BuildJson buildJson;
-        try {
-            buildJson = readBuildJson(buildFilePath);
-            if (buildJson.getTestClassPath() != null) {
-                prevTestClassPath = buildJson.getTestClassPath();
-            }
-
-            rebuildStatus = isRebuildNeeded(project, buildJson) || prevTestClassPath == null
-                    || prevTestClassPath.isEmpty();
-        } catch (IOException e) {
-            // ignore exception
-        }
+                              String[] cliArgs, TestReport testReport, boolean rebuildNeeded,
+                              String prevTestClassPath, boolean skipExecution) {
         // Run pre-build tasks to have the project reloaded.
         // In code coverage generation, the module map is duplicated.
         // Therefore, the project needs to be reloaded beforehand to provide the latest project instance
@@ -562,8 +580,8 @@ public class TestCommand implements BLauncherCmd {
                 .addTask(new CleanTargetCacheDirTask(),
                          isSingleFile) // clean the target cache dir(projects only)
                 .addTask(new CleanTargetBinTestsDirTask(),  (isSingleFile || !isTestingDelegated))
-                .addTask(new RestoreCachedArtifactsTask(), rebuildStatus)
-                .addTask(new RunBuildToolsTask(outStream, !rebuildStatus, buildToolDiagnostics),
+                .addTask(new RestoreCachedArtifactsTask(), rebuildNeeded)
+                .addTask(new RunBuildToolsTask(outStream, !rebuildNeeded, buildToolDiagnostics),
                         isSingleFile) // run build tools
                 .build();
         preBuildTaskExecutor.executeTasks(project);
@@ -577,70 +595,27 @@ public class TestCommand implements BLauncherCmd {
 
         TaskExecutor taskExecutor = new TaskExecutor.TaskBuilder()
                 // resolve maven dependencies in Ballerina.toml
-                .addTask(new ResolveMavenDependenciesTask(outStream, !rebuildStatus))
+                .addTask(new ResolveMavenDependenciesTask(outStream, !rebuildNeeded))
                 // compile the modules
                 .addTask(new CompileTask(outStream, errStream, false, false,
-                        !rebuildStatus, buildToolDiagnostics))
+                        !rebuildNeeded, buildToolDiagnostics))
                 .addTask(new CreateTestExecutableTask(outStream, groupList, disableGroupList, testList, listGroups,
-                        cliArgs, isParallelExecution), !isTestingDelegated)
+                        cliArgs, isParallelExecution), !isTestingDelegated || skipExecution)
                 .addTask(new RunTestsTask(outStream, errStream, rerunTests, groupList, disableGroupList,
                                 testList, includes, coverageFormat, moduleMap, listGroups, excludes, cliArgs,
-                                isParallelExecution, rebuildStatus, prevTestClassPath, testResult, minCoverage,
+                                isParallelExecution, rebuildNeeded, prevTestClassPath, testResult, minCoverage,
                                 testReport),
-                        (project.buildOptions().nativeImage() || isTestingDelegated))
+                        (project.buildOptions().nativeImage() || isTestingDelegated) || skipExecution)
                 .addTask(new RunNativeImageTestTask(outStream, rerunTests, groupList, disableGroupList,
                                 testList, includes, coverageFormat, moduleMap, listGroups, isParallelExecution,
                                 testReport),
-                        (!project.buildOptions().nativeImage() || isTestingDelegated))
+                        (!project.buildOptions().nativeImage() || isTestingDelegated) || skipExecution)
                 .addTask(new DumpBuildTimeTask(outStream), !project.buildOptions().dumpBuildTime())
-                .addTask(new CacheArtifactsTask(TEST_COMMAND), !rebuildStatus || isSingleFile)
+                .addTask(new CacheArtifactsTask(TEST_COMMAND, skipExecution), !rebuildNeeded || isSingleFile)
                 .addTask(new CreateFingerprintTask(true, false),
-                        !rebuildStatus || isSingleFile)
+                        !rebuildNeeded || isSingleFile)
                 .build();
         taskExecutor.executeTasks(project);
-    }
-
-    private DependencyGraph<BuildProject> resolveWorkspaceDependencies(WorkspaceProject workspaceProject) {
-        TaskExecutor taskExecutor = new TaskExecutor.TaskBuilder()
-                .addTask(new ResolveWorkspaceDependenciesTask(outStream))
-                .build();
-        taskExecutor.executeTasks(workspaceProject);
-        return workspaceProject.getResolution().dependencyGraph();
-    }
-
-    private boolean isRebuildNeeded(Project project, BuildJson buildJson) {
-        try {
-            if (!Objects.equals(buildJson.distributionVersion(), RepoUtils.getBallerinaVersion())) {
-                return true;
-            }
-            if (buildJson.isExpiredLastUpdateTime()) {
-                return true;
-            }
-            if (CommandUtil.isFilesModifiedSinceLastBuild(buildJson, project, true, true)) {
-                return true;
-            }
-            if (isRebuildForCurrCmd()) {
-                return true;
-            }
-            //TODO :  Need to investigate further
-            if (!"".equals(project.buildOptions().cloud()) || project.buildOptions().nativeImage() ||
-                    project.buildOptions().codeCoverage()) {
-                return true;
-            }
-            return CommandUtil.isPrevCurrCmdCompatible(project.buildOptions(), buildJson.getBuildOptions());
-        } catch (IOException e) {
-            // ignore
-        }
-        return true;
-    }
-
-    private boolean isRebuildForCurrCmd() {
-        return  this.dumpGraph
-                || this.dumpRawGraphs
-                || this.targetDir != null
-                || Boolean.TRUE.equals(this.disableSyntaxTreeCaching)
-                || Boolean.TRUE.equals(this.dumpBuildTime)
-                || Boolean.TRUE.equals(this.showDependencyDiagnostics);
     }
 
     private BuildOptions constructBuildOptions() {

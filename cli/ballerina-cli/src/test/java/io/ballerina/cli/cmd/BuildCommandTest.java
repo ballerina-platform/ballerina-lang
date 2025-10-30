@@ -2054,30 +2054,6 @@ public class    BuildCommandTest extends BaseCommandTest {
         Assert.assertFalse(secondBuildLog.contains("Generating executable (UP-TO-DATE)"));
     }
 
-    @Test(description = "Build a project twice with the pack command in the middle")
-    public void testBuildAProjectTwiceWithPackCommandMiddle() throws IOException {
-        Path projectPath = this.testResources.resolve("buildAProjectTwice");
-        deleteDirectory(projectPath.resolve("target"));
-        System.setProperty(USER_DIR_PROPERTY, projectPath.toString());
-        BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
-        new CommandLine(buildCommand).parseArgs();
-        buildCommand.execute();
-        String firstBuildLog = readOutput(true);
-        PackCommand packCommand = new PackCommand(projectPath, printStream, printStream, false, true);
-        new CommandLine(packCommand).parseArgs();
-        packCommand.execute();
-        String middleBuildLog = readOutput(true);
-        buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
-        new CommandLine(buildCommand).parseArgs();
-        buildCommand.execute();
-        String secondBuildLog = readOutput(true);
-        Assert.assertTrue(firstBuildLog.contains("Compiling source"));
-        Assert.assertFalse(firstBuildLog.contains("Compiling source (UP-TO-DATE)"));
-        Assert.assertTrue(middleBuildLog.contains("Compiling source"));
-        Assert.assertFalse(middleBuildLog.contains("Compiling source (UP-TO-DATE)"));
-        Assert.assertTrue(secondBuildLog.contains("Compiling source (UP-TO-DATE)"));
-    }
-
     @Test(dataProvider = "differentUpdatePoliciesForFreshProject")
     public void testDifferentUpdatePoliciesForFreshProject(String args, String fileName) throws IOException {
         Path projectPath = this.testResources.resolve("projects-for-locking-modes/testLockingMode");

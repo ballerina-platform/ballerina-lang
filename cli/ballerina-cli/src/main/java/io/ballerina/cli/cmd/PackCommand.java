@@ -7,7 +7,6 @@ import io.ballerina.cli.task.CompileTask;
 import io.ballerina.cli.task.CreateBalaTask;
 import io.ballerina.cli.task.DumpBuildTimeTask;
 import io.ballerina.cli.task.ResolveMavenDependenciesTask;
-import io.ballerina.cli.task.ResolveWorkspaceDependenciesTask;
 import io.ballerina.cli.task.RunBuildToolsTask;
 import io.ballerina.cli.utils.BuildTime;
 import io.ballerina.cli.utils.FileUtils;
@@ -36,6 +35,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import static io.ballerina.cli.cmd.CommandUtil.resolveWorkspaceDependencies;
 import static io.ballerina.cli.cmd.Constants.PACK_COMMAND;
 import static io.ballerina.projects.internal.ManifestBuilder.getStringValueFromTomlTableNode;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.SYSTEM_PROP_BAL_DEBUG;
@@ -261,7 +261,8 @@ public class PackCommand implements BLauncherCmd {
 
         if (project.kind() == ProjectKind.WORKSPACE_PROJECT) {
             WorkspaceProject workspaceProject = (WorkspaceProject) project;
-            DependencyGraph<BuildProject> projectDependencyGraph = resolveWorkspaceDependencies(workspaceProject);
+            DependencyGraph<BuildProject> projectDependencyGraph = resolveWorkspaceDependencies(
+                    workspaceProject, this.outStream);
             if (!project.sourceRoot().equals(absProjectPath)) {
                 // If the project path is not the workspace root, filter the topologically sorted list to include only
                 // the projects that are dependencies of the project at the specified path.
@@ -298,14 +299,6 @@ public class PackCommand implements BLauncherCmd {
                 .addTask(new DumpBuildTimeTask(outStream), !project.buildOptions().dumpBuildTime())
                 .build();
         taskExecutor.executeTasks(project);
-    }
-
-    private DependencyGraph<BuildProject> resolveWorkspaceDependencies(WorkspaceProject workspaceProject) {
-        TaskExecutor taskExecutor = new TaskExecutor.TaskBuilder()
-                .addTask(new ResolveWorkspaceDependenciesTask(outStream))
-                .build();
-        taskExecutor.executeTasks(workspaceProject);
-        return workspaceProject.getResolution().dependencyGraph();
     }
 
     private BuildOptions constructBuildOptions() {
