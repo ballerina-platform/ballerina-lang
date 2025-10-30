@@ -39,13 +39,10 @@ import static org.objectweb.asm.Opcodes.ACC_STATIC;
 import static org.objectweb.asm.Opcodes.DUP;
 import static org.objectweb.asm.Opcodes.GETSTATIC;
 import static org.objectweb.asm.Opcodes.INVOKESPECIAL;
-import static org.objectweb.asm.Opcodes.INVOKESTATIC;
 import static org.objectweb.asm.Opcodes.INVOKEVIRTUAL;
 import static org.objectweb.asm.Opcodes.NEW;
-import static org.objectweb.asm.Opcodes.POP;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.GET_TYPE_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JVM_INIT_METHOD;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.LOAD_ANNOTATIONS_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SET_REFERRED_TYPE_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPE_REF_TYPE_IMPL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPE_VAR_FIELD;
@@ -54,7 +51,6 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_REF_
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_REF_TYPE_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INIT_TYPE_REF;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.TYPE_PARAMETER;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.VOID_METHOD_DESC;
 import static org.wso2.ballerinalang.compiler.bir.codegen.split.JvmCreateTypeGen.endDoubleCheckGetEnd;
 import static org.wso2.ballerinalang.compiler.bir.codegen.split.JvmCreateTypeGen.genDoubleCheckGetStart;
 
@@ -105,21 +101,14 @@ public class JvmRefTypeGen {
         mv.visitCode();
         DoubleCheckLabelsRecord checkLabelsRecord = genDoubleCheckGetStart(mv, typeRefClass, GET_REF_TYPE_IMPL);
         populateTypeRef(mv, typeRefType, typeRefClass);
-        if (isAnnotatedType) {
-            mv.visitMethodInsn(INVOKESTATIC, typeRefClass, LOAD_ANNOTATIONS_METHOD, VOID_METHOD_DESC, false);
-        }
-        endDoubleCheckGetEnd(mv, typeRefClass, GET_REF_TYPE_IMPL, checkLabelsRecord);
+        endDoubleCheckGetEnd(mv, typeRefClass, GET_REF_TYPE_IMPL, checkLabelsRecord, isAnnotatedType);
         mv.visitMaxs(0, 0);
         mv.visitEnd();
     }
 
     private void populateTypeRef(MethodVisitor mv, BTypeReferenceType referenceType, String typeRefConstantClass) {
         mv.visitFieldInsn(GETSTATIC, typeRefConstantClass, TYPE_VAR_FIELD, GET_REF_TYPE_IMPL);
-        boolean isInternalTypeLoaded = jvmTypeGen.loadReferredType(mv, referenceType);
+        jvmTypeGen.loadType(mv, referenceType.referredType);
         mv.visitMethodInsn(INVOKEVIRTUAL, TYPE_REF_TYPE_IMPL, SET_REFERRED_TYPE_METHOD, TYPE_PARAMETER, false);
-        if (isInternalTypeLoaded) {
-            jvmTypeGen.loadType(mv, referenceType.referredType);
-            mv.visitInsn(POP);
-        }
     }
 }
