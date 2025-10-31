@@ -1787,11 +1787,8 @@ public class    BuildCommandTest extends BaseCommandTest {
         BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
         // non-existing bal file
         new CommandLine(buildCommand);
-        try {
-            buildCommand.execute();
-        } catch (BLauncherException e) {
-            Assert.assertEquals(readOutput().replace("\r", ""), getOutput("wp-wrong-path.txt"));
-        }
+        buildCommand.execute();
+        Assert.assertEquals(readOutput().replace("\r", ""), getOutput("wp-wrong-path.txt"));
     }
 
     @Test(description = "Build a project twice with the same flags and different flags")

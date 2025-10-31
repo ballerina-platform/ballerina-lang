@@ -314,6 +314,7 @@ public class TestCommand implements BLauncherCmd {
 
         BuildOptions buildOptions = constructBuildOptions();
         Path absProjectPath = this.projectPath.toAbsolutePath().normalize();
+        DiagnosticResult diagnosticResult;
         try {
             if (buildOptions.dumpBuildTime()) {
                 start = System.currentTimeMillis();
@@ -326,11 +327,10 @@ public class TestCommand implements BLauncherCmd {
                         ". Please provide a valid Ballerina package, workspace or a standalone file.");
             }
             ProjectLoadResult loadResult = ProjectLoader.load(projectPath, buildOptions);
-            DiagnosticResult diagnosticResult = loadResult.diagnostics();
+            diagnosticResult = loadResult.diagnostics();
             if (diagnosticResult.hasErrors()) {
                 exitCode = 1;
             }
-            diagnosticResult.diagnostics().forEach(diagnostic -> this.errStream.println(diagnostic.toString()));
             project = loadResult.project();
 
             if (buildOptions.dumpBuildTime()) {
@@ -410,6 +410,7 @@ public class TestCommand implements BLauncherCmd {
         }
 
         if (project.kind() == ProjectKind.WORKSPACE_PROJECT) {
+            diagnosticResult.diagnostics().forEach(diagnostic -> this.errStream.println(diagnostic.toString()));
             if (testReport != null) {
                 testReport.setWorkspaceName(Optional.of(project.sourceRoot().getFileName()).get().toString());
             }

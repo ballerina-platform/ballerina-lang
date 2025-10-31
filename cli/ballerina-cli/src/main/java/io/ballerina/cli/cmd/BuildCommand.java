@@ -247,6 +247,7 @@ public class BuildCommand implements BLauncherCmd {
         Project project;
         BuildOptions buildOptions = constructBuildOptions();
         Path absProjectPath = this.projectPath.toAbsolutePath().normalize();
+        DiagnosticResult wpDiagnosticResult;
         try {
             if (buildOptions.dumpBuildTime()) {
                 start = System.currentTimeMillis();
@@ -260,11 +261,10 @@ public class BuildCommand implements BLauncherCmd {
             }
 
             ProjectLoadResult loadResult = ProjectLoader.load(projectPath, buildOptions);
-            DiagnosticResult diagnosticResult = loadResult.diagnostics();
-            if (diagnosticResult.hasErrors()) {
+            wpDiagnosticResult = loadResult.diagnostics();
+            if (wpDiagnosticResult.hasErrors()) {
                 exitCode = 1;
             }
-            diagnosticResult.diagnostics().forEach(diagnostic -> this.errStream.println(diagnostic.toString()));
             project = loadResult.project();
             if (buildOptions.dumpBuildTime()) {
                 BuildTime.getInstance().projectLoadDuration = System.currentTimeMillis() - start;
@@ -296,6 +296,7 @@ public class BuildCommand implements BLauncherCmd {
         }
 
         if (project.kind() == ProjectKind.WORKSPACE_PROJECT) {
+            wpDiagnosticResult.diagnostics().forEach(diagnostic -> this.errStream.println(diagnostic.toString()));
             WorkspaceProject workspaceProject = (WorkspaceProject) project;
             DependencyGraph<BuildProject> projectDependencyGraph = resolveWorkspaceDependencies(
                     workspaceProject, this.outStream);

@@ -254,17 +254,17 @@ public class RunCommand implements BLauncherCmd {
         // load project
         BuildOptions buildOptions = constructBuildOptions();
         Path absProjectPath = this.projectPath.toAbsolutePath().normalize();
+        DiagnosticResult diagnosticResult;
         try {
             if (buildOptions.dumpBuildTime()) {
                 start = System.currentTimeMillis();
                 BuildTime.getInstance().timestamp = start;
             }
             ProjectLoadResult loadResult = ProjectLoader.load(projectPath, buildOptions);
-            DiagnosticResult diagnosticResult = loadResult.diagnostics();
+            diagnosticResult = loadResult.diagnostics();
             if (diagnosticResult.hasErrors()) {
                 exitCode = 1;
             }
-            diagnosticResult.diagnostics().forEach(diagnostic -> this.errStream.println(diagnostic.toString()));
             project = loadResult.project();
             if (buildOptions.dumpBuildTime()) {
                 BuildTime.getInstance().projectLoadDuration = System.currentTimeMillis() - start;
@@ -282,6 +282,7 @@ public class RunCommand implements BLauncherCmd {
                 target.setOutputPath(target.getBinPath());
             }
             if (project.kind() == ProjectKind.WORKSPACE_PROJECT) {
+                diagnosticResult.diagnostics().forEach(diagnostic -> this.errStream.println(diagnostic.toString()));
                 WorkspaceProject workspaceProject = (WorkspaceProject) project;
                 DependencyGraph<BuildProject> projectDependencyGraph = resolveWorkspaceDependencies(
                         workspaceProject, this.outStream);
