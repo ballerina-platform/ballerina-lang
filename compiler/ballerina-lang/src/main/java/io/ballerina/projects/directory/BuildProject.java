@@ -23,6 +23,7 @@ import com.google.gson.JsonSyntaxException;
 import io.ballerina.projects.BuildOptions;
 import io.ballerina.projects.BuildTool;
 import io.ballerina.projects.BuildToolResolution;
+import io.ballerina.projects.CompilationOptions;
 import io.ballerina.projects.DependencyGraph;
 import io.ballerina.projects.DocumentId;
 import io.ballerina.projects.Module;
@@ -484,7 +485,8 @@ public class BuildProject extends Project implements Comparable<Project> {
 
     private List<ToolDependency> getToolDependencies() {
         List<ToolDependency> toolDependencies = new ArrayList<>();
-        BuildToolResolution buildToolResolution = this.currentPackage().getBuildToolResolution();
+        CompilationOptions resolutionOptions = CompilationOptions.builder().setOffline(true).build();
+        BuildToolResolution buildToolResolution = this.currentPackage().getBuildToolResolution(resolutionOptions);
         if (buildToolResolution != null) {
             List<BuildTool> tools = buildToolResolution.getResolvedTools();
             for (BuildTool tool : tools) {

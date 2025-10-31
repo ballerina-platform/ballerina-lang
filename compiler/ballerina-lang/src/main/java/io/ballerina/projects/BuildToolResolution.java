@@ -62,8 +62,8 @@ public class BuildToolResolution {
         resolvedTools = new ArrayList<>();
         diagnosticList = new ArrayList<>();
         this.packageContext = packageContext;
-        resolveToolDependencies();
         this.offline = offline;
+        resolveToolDependencies();
     }
 
     static BuildToolResolution from(PackageContext packageContext) {
