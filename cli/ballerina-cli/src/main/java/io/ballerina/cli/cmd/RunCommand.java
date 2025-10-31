@@ -32,9 +32,11 @@ import io.ballerina.cli.utils.BuildTime;
 import io.ballerina.cli.utils.ProjectWatcher;
 import io.ballerina.projects.BuildOptions;
 import io.ballerina.projects.DependencyGraph;
+import io.ballerina.projects.DiagnosticResult;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.ProjectKind;
+import io.ballerina.projects.ProjectLoadResult;
 import io.ballerina.projects.directory.BuildProject;
 import io.ballerina.projects.directory.ProjectLoader;
 import io.ballerina.projects.directory.WorkspaceProject;
@@ -195,6 +197,7 @@ public class RunCommand implements BLauncherCmd {
     @Override
     public void execute() {
         long start = 0;
+        int exitCode = 0;
         if (this.helpFlag) {
             String commandUsageInfo = BLauncherCmd.getCommandUsageInfo(RUN_COMMAND);
             this.errStream.println(commandUsageInfo);
@@ -256,7 +259,13 @@ public class RunCommand implements BLauncherCmd {
                 start = System.currentTimeMillis();
                 BuildTime.getInstance().timestamp = start;
             }
-            project = ProjectLoader.load(projectPath, buildOptions).project();
+            ProjectLoadResult loadResult = ProjectLoader.load(projectPath, buildOptions);
+            DiagnosticResult diagnosticResult = loadResult.diagnostics();
+            if (diagnosticResult.hasErrors()) {
+                exitCode = 1;
+            }
+            diagnosticResult.diagnostics().forEach(diagnostic -> this.errStream.println(diagnostic.toString()));
+            project = loadResult.project();
             if (buildOptions.dumpBuildTime()) {
                 BuildTime.getInstance().projectLoadDuration = System.currentTimeMillis() - start;
             }
@@ -324,6 +333,9 @@ public class RunCommand implements BLauncherCmd {
             throw createLauncherException("unable to resolve the target path:" + e.getMessage());
         } catch (ProjectException e) {
             throw createLauncherException("unable to create the executable:" + e.getMessage());
+        }
+        if (this.exitWhenFinish) {
+            Runtime.getRuntime().exit(exitCode);
         }
     }
 
