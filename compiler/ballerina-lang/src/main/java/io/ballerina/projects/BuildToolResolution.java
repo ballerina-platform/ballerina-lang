@@ -112,11 +112,11 @@ public class BuildToolResolution {
 
         PackageLockingMode packageLockingMode = getPackageLockingMode(currentProject);
         updateLockedToolDependencyVersions(buildTools, currentProject);
-        List<BuildTool> resolvedTools = resolveToolVersions(packageLockingMode, offline, buildTools);
+        List<BuildTool> resolvedTools = resolveToolVersions(packageLockingMode, buildTools);
         this.resolvedTools.addAll(resolvedTools);
     }
 
-    private List<BuildTool> resolveToolVersions(PackageLockingMode packageLockingMode, boolean offline,
+    private List<BuildTool> resolveToolVersions(PackageLockingMode packageLockingMode,
                                                 List<BuildTool> unresolvedTools) {
         List<BuildTool> toolResolutionResponseOffline =
                 getToolResolutionResponseOffline(unresolvedTools, packageLockingMode);

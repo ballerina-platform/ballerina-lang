@@ -5,4 +5,4 @@ Compiling source
 	asmaj/hello_app:0.1.0
 
 Generating executable
-	hello-app/target/bin/hello_app.jar
+	hello-app\target\bin\hello_app.jar
