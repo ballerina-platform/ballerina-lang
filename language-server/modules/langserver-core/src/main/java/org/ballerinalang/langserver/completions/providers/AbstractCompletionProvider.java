@@ -540,7 +540,8 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
         completionItems.add(new SnippetCompletionItem(context, Snippet.DEF_REG_EXP.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.DEF_STRING.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.DEF_XML.get()));
-        
+        completionItems.add(new SnippetCompletionItem(context, Snippet.DEF_NATURAL_EXPR.get()));
+
         Predicate<Symbol> symbolFilter = getExpressionContextSymbolFilter();
         List<Symbol> filteredList = visibleSymbols.stream()
                 .filter(symbolFilter)

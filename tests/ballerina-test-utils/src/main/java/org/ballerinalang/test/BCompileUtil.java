@@ -41,7 +41,7 @@ import org.slf4j.LoggerFactory;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
-import org.wso2.ballerinalang.programfile.CompiledBinaryFile;
+import org.wso2.ballerinalang.programfile.BIRPackageFile;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -96,32 +96,19 @@ public final class BCompileUtil {
     public static CompileResult compile(String sourceFilePath) {
         TypeCheckCacheFactory.reset();
         Project project = loadProject(sourceFilePath);
+        return compileProject(project);
+    }
 
-        Package currentPackage = project.currentPackage();
-        JBallerinaBackend jBallerinaBackend = jBallerinaBackend(currentPackage);
-        if (jBallerinaBackend.diagnosticResult().hasErrors()) {
-            return new CompileResult(currentPackage, jBallerinaBackend);
-        }
-
-        CompileResult compileResult = new CompileResult(currentPackage, jBallerinaBackend);
-        invokeModuleInit(compileResult);
-        return compileResult;
+    public static CompileResult compile(String sourceFilePath, BuildOptions buildOptions) {
+        TypeCheckCacheFactory.reset();
+        Project project = loadProject(sourceFilePath, buildOptions);
+        return compileProject(project);
     }
 
     public static CompileResult compileOffline(String sourceFilePath) {
         BuildOptions.BuildOptionsBuilder buildOptionsBuilder = BuildOptions.builder();
         BuildOptions buildOptions = buildOptionsBuilder.setOffline(Boolean.TRUE).build();
-        Project project = loadProject(sourceFilePath, buildOptions);
-
-        Package currentPackage = project.currentPackage();
-        JBallerinaBackend jBallerinaBackend = jBallerinaBackend(currentPackage);
-        if (jBallerinaBackend.diagnosticResult().hasErrors()) {
-            return new CompileResult(currentPackage, jBallerinaBackend);
-        }
-
-        CompileResult compileResult = new CompileResult(currentPackage, jBallerinaBackend);
-        invokeModuleInit(compileResult);
-        return compileResult;
+        return compile(sourceFilePath, buildOptions);
     }
 
     public static PackageSyntaxTreePair compileSemType(String sourceFilePath) {
@@ -146,12 +133,12 @@ public final class BCompileUtil {
             return null;
         }
 
-        CompiledBinaryFile.BIRPackageFile birPackageFile = bPackageSymbol.birPackageFile;
+        BIRPackageFile birPackageFile = bPackageSymbol.birPackageFile;
         if (birPackageFile == null) {
             return null;
         }
 
-        return new BIRCompileResult(bPackageSymbol.bir, birPackageFile.pkgBirBinaryContent);
+        return new BIRCompileResult(bPackageSymbol.bir, birPackageFile.getPkgBirBinaryContent());
     }
 
     public static CompileResult compileWithoutInitInvocation(String sourceFilePath) {
@@ -353,5 +340,17 @@ public final class BCompileUtil {
             this.bLangPackage = bLangPackage;
             this.syntaxTree = syntaxTree;
         }
+    }
+
+    private static CompileResult compileProject(Project project) {
+        Package currentPackage = project.currentPackage();
+        JBallerinaBackend jBallerinaBackend = jBallerinaBackend(currentPackage);
+        if (jBallerinaBackend.diagnosticResult().hasErrors()) {
+            return new CompileResult(currentPackage, jBallerinaBackend);
+        }
+
+        CompileResult compileResult = new CompileResult(currentPackage, jBallerinaBackend);
+        invokeModuleInit(compileResult);
+        return compileResult;
     }
 }

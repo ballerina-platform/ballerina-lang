@@ -24,13 +24,12 @@ import java.util.Comparator;
 import java.util.List;
 
 /**
- * Final test report with coverage (if enabled).
+ * Final test report with coverage (if enabled) matching test_result.json format.
  *
  * @since 1.2.0
  */
 public class TestReport {
-    private String projectName;
-    private String orgName;
+    private String workspaceName;
 
     // attributes related to overall test results summary
     private int totalTests;
@@ -43,52 +42,52 @@ public class TestReport {
     private int missedLines;
     private float coveragePercentage;
 
-    private List<ModuleStatus> moduleStatus = new ArrayList<>();
-    private List<ModuleCoverage> moduleCoverage = new ArrayList<>();
+    private final List<PackageTestResult> packages = new ArrayList<>();
 
-    public String getProjectName() {
-        return projectName;
+    public String getWorkspaceName() {
+        return workspaceName;
     }
 
-    public void setProjectName(String projectName) {
-        this.projectName = projectName;
+    public void setWorkspaceName(String workspaceName) {
+        this.workspaceName = workspaceName;
     }
 
-    public List<ModuleStatus> getModuleStatus() {
-        return moduleStatus;
+    public List<PackageTestResult> getPackages() {
+        return packages;
     }
 
-    public void setModuleStatus(List<ModuleStatus> moduleStatus) {
-        this.moduleStatus = moduleStatus;
+    public void addPackage(PackageTestResult packageObj) {
+        this.packages.add(packageObj);
     }
 
-    public void addModuleStatus(String moduleName, ModuleStatus status) {
-        status.setName(moduleName);
-        this.moduleStatus.add(status);
+    public int getTotalTests() {
+        return totalTests;
     }
 
-    public List<ModuleCoverage> getModuleCoverage() {
-        return moduleCoverage;
+    public int getPassed() {
+        return passed;
     }
 
-    public void setModuleCoverage(List<ModuleCoverage> moduleCoverage) {
-        this.moduleCoverage = moduleCoverage;
+    public int getFailed() {
+        return failed;
     }
 
-    public void addCoverage(String moduleName, ModuleCoverage coverage) {
-        if (coverage != null) {
-            coverage.setName(moduleName);
-            this.moduleCoverage.add(coverage);
-        }
+    public int getSkipped() {
+        return skipped;
     }
 
-    public void setOrgName(String orgName) {
-        this.orgName = orgName;
+    public int getCoveredLines() {
+        return coveredLines;
     }
 
-    public String getOrgName() {
-        return orgName;
+    public int getMissedLines() {
+        return missedLines;
     }
+
+    public float getCoveragePercentage() {
+        return coveragePercentage;
+    }
+
 
     /**
      * Calculates the project level results summary by getting the totals and averages.
@@ -96,61 +95,102 @@ public class TestReport {
      * @param coverage if coverage is enabled or not
      */
     public void finalizeTestResults(boolean coverage) {
-        for (ModuleStatus modStatus : moduleStatus) {
-            if (TesterinaConstants.DOT.equals(modStatus.getName())) {
-                modStatus.setName(projectName);
-            }
-            passed += modStatus.getPassed();
-            failed += modStatus.getFailed();
-            skipped += modStatus.getSkipped();
-            totalTests = passed + failed + skipped;
-        }
-        if (coverage) {
-            for (ModuleCoverage modCov : moduleCoverage) {
-                if (TesterinaConstants.DOT.equals(modCov.getName())) {
-                    modCov.setName(projectName);
+        int totalTestsSum = 0;
+        int passedSum = 0;
+        int failedSum = 0;
+        int skippedSum = 0;
+        int coveredLinesSum = 0;
+        int missedLinesSum = 0;
+
+        for (PackageTestResult pkg : packages) {
+            // Calculate package-level totals from its modules
+            int pkgTotalTests = 0;
+            int pkgPassed = 0;
+            int pkgFailed = 0;
+            int pkgSkipped = 0;
+            int pkgCoveredLines = 0;
+            int pkgMissedLines = 0;
+
+            for (ModuleStatus modStatus : pkg.getModuleStatus()) {
+                if (TesterinaConstants.DOT.equals(modStatus.getName())) {
+                    modStatus.setName(pkg.getProjectName());
                 }
-                coveredLines += modCov.getCoveredLines();
-                missedLines += modCov.getMissedLines();
-                float coverageVal = (float) coveredLines / (coveredLines + missedLines) * 100;
-                coveragePercentage = (float) (Math.round(coverageVal * 100.0) / 100.0);
+                pkgPassed += modStatus.getPassed();
+                pkgFailed += modStatus.getFailed();
+                pkgSkipped += modStatus.getSkipped();
+                pkgTotalTests = pkgPassed + pkgFailed + pkgSkipped;
             }
-        }
 
-        // For each module coverage, check if there is a module status as well
-        // If module status doesnt exist, it doesnt show up in the HTML report
-        for (ModuleCoverage modCov : moduleCoverage) {
-            boolean doesExist = false;
-
-            for (ModuleStatus modStatus : moduleStatus) {
-                if (modCov.getName().equals(modStatus.getName())) {
-                    doesExist = true;
+            if (coverage) {
+                for (ModuleCoverage modCov : pkg.getModuleCoverage()) {
+                    if (TesterinaConstants.DOT.equals(modCov.getName())) {
+                        modCov.setName(pkg.getProjectName());
+                    }
+                    pkgCoveredLines += modCov.getCoveredLines();
+                    pkgMissedLines += modCov.getMissedLines();
+                }
+                if (pkgCoveredLines + pkgMissedLines > 0) {
+                    float pkgCoverageVal = (float) pkgCoveredLines / (pkgCoveredLines + pkgMissedLines) * 100;
+                    pkg.setCoveragePercentage((float) (Math.round(pkgCoverageVal * 100.0) / 100.0));
                 }
             }
 
-            if (!doesExist) {
-                ModuleStatus missingModuleStatus = new ModuleStatus();
-                missingModuleStatus.setName(modCov.getName());
-                moduleStatus.add(missingModuleStatus);
+            // Set package-level totals
+            pkg.setTotalTests(pkgTotalTests);
+            pkg.setPassed(pkgPassed);
+            pkg.setFailed(pkgFailed);
+            pkg.setSkipped(pkgSkipped);
+            pkg.setCoveredLines(pkgCoveredLines);
+            pkg.setMissedLines(pkgMissedLines);
+
+            // Add to project-level totals
+            totalTestsSum += pkgTotalTests;
+            passedSum += pkgPassed;
+            failedSum += pkgFailed;
+            skippedSum += pkgSkipped;
+            coveredLinesSum += pkgCoveredLines;
+            missedLinesSum += pkgMissedLines;
+
+            // For each module coverage, check if there is a module status as well
+            for (ModuleCoverage modCov : pkg.getModuleCoverage()) {
+                boolean doesExist = false;
+                for (ModuleStatus modStatus : pkg.getModuleStatus()) {
+                    if (modCov.getName().equals(modStatus.getName())) {
+                        doesExist = true;
+                        break;
+                    }
+                }
+                if (!doesExist) {
+                    ModuleStatus missingModuleStatus = new ModuleStatus();
+                    missingModuleStatus.setName(modCov.getName());
+                    pkg.addModuleStatus(missingModuleStatus);
+                }
             }
+
+            // sort the module list to be in the alphabetical order
+            pkg.setModuleStatus(pkg.getModuleStatus().stream()
+                    .sorted(Comparator.comparing(ModuleStatus::getName))
+                    .toList());
+
+            pkg.setModuleCoverage(pkg.getModuleCoverage().stream()
+                    .sorted(Comparator.comparing(ModuleCoverage::getName))
+                    .toList());
         }
 
-        // sort the module list to be in the alphabetical order
-        moduleStatus = moduleStatus.stream()
-                .sorted(Comparator.comparing(ModuleStatus::getName))
-                .toList();
+        // Set project-level totals
+        this.totalTests = totalTestsSum;
+        this.passed = passedSum;
+        this.failed = failedSum;
+        this.skipped = skippedSum;
+        this.coveredLines = coveredLinesSum;
+        this.missedLines = missedLinesSum;
 
-        moduleCoverage = moduleCoverage.stream()
-                .sorted(Comparator.comparing(ModuleCoverage::getName))
-                .toList();
+        if (coverage && (coveredLinesSum + missedLinesSum > 0)) {
+            float coverageVal = (float) coveredLinesSum / (coveredLinesSum + missedLinesSum) * 100;
+            this.coveragePercentage = (float) (Math.round(coverageVal * 100.0) / 100.0);
+        }
+
+        // Sort packages alphabetically
+        packages.sort(Comparator.comparing(PackageTestResult::getProjectName));
     }
-
-    public float getCoveragePercentage() {
-        return coveragePercentage;
-    }
-
-    public int getTotalTests() {
-        return totalTests;
-    }
-
 }

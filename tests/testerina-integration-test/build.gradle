@@ -40,6 +40,7 @@ dependencies {
 
     implementation project(path: ':ballerina-test-utils')
     implementation project(':ballerina-runtime')
+    testImplementation project(':testerina:testerina-runtime')
 
     implementation libs.jacoco.core
     implementation libs.jacoco.report

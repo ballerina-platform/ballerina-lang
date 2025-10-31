@@ -17,6 +17,8 @@
  */
 package io.ballerina.projects;
 
+import io.ballerina.projects.environment.PackageLockingMode;
+
 import java.util.Objects;
 
 /**
@@ -31,13 +33,12 @@ public class BuildOptions {
     private final Boolean skipTests;
     private final CompilationOptions compilationOptions;
     private final String targetDir;
-    private final Boolean enableCache;
     private final Boolean nativeImage;
     private final Boolean exportComponentModel;
     private final String graalVMBuildOptions;
 
     BuildOptions(Boolean testReport, Boolean codeCoverage, Boolean dumpBuildTime, Boolean skipTests,
-                 CompilationOptions compilationOptions, String targetPath, Boolean enableCache,
+                 CompilationOptions compilationOptions, String targetPath,
                  Boolean nativeImage, Boolean exportComponentModel, String graalVMBuildOptions,
                  Boolean showDependencyDiagnostics) {
         this.testReport = testReport;
@@ -46,7 +47,6 @@ public class BuildOptions {
         this.skipTests = skipTests;
         this.compilationOptions = compilationOptions;
         this.targetDir = targetPath;
-        this.enableCache = enableCache;
         this.nativeImage = nativeImage;
         this.exportComponentModel = exportComponentModel;
         this.graalVMBuildOptions = graalVMBuildOptions;
@@ -74,6 +74,10 @@ public class BuildOptions {
         return this.compilationOptions.offlineBuild();
     }
 
+    /**
+     * @deprecated Use {@link #lockingMode()} instead.
+     */
+    @Deprecated(forRemoval = true, since = "2201.13.0")
     public boolean sticky() {
         return this.compilationOptions.sticky();
     }
@@ -84,6 +88,25 @@ public class BuildOptions {
 
     public boolean optimizeDependencyCompilation() {
         return this.compilationOptions.optimizeDependencyCompilation();
+    }
+
+    /**
+     * Returns the package locking mode. If not specified, returns {@code PackageLockingMode.MEDIUM}
+     * @return the package locking mode
+     */
+    public PackageLockingMode lockingMode() {
+        if (this.compilationOptions.lockingMode() == null) {
+            return PackageLockingMode.MEDIUM;
+        }
+        return this.compilationOptions.lockingMode();
+    }
+
+    /**
+     * Returns the raw package locking mode. If not specified, returns {@code null}
+     * @return the raw package locking mode
+     */
+    public PackageLockingMode rawLockingMode() {
+        return this.compilationOptions.lockingMode();
     }
 
     /**
@@ -121,10 +144,6 @@ public class BuildOptions {
 
     public boolean exportComponentModel() {
         return this.compilationOptions.exportComponentModel();
-    }
-
-    public boolean enableCache() {
-        return this.compilationOptions.enableCache();
     }
 
     public boolean nativeImage() {
@@ -172,11 +191,6 @@ public class BuildOptions {
         } else {
             buildOptionsBuilder.targetDir(this.targetDir);
         }
-        if (theirOptions.enableCache != null) {
-            buildOptionsBuilder.setEnableCache(theirOptions.enableCache);
-        } else {
-            buildOptionsBuilder.setEnableCache(this.enableCache);
-        }
         if (theirOptions.nativeImage != null) {
             buildOptionsBuilder.setNativeImage(theirOptions.nativeImage);
         } else {
@@ -212,7 +226,6 @@ public class BuildOptions {
         buildOptionsBuilder.setConfigSchemaGen(compilationOptions.configSchemaGen);
         buildOptionsBuilder.setExportOpenAPI(compilationOptions.exportOpenAPI);
         buildOptionsBuilder.setExportComponentModel(compilationOptions.exportComponentModel);
-        buildOptionsBuilder.setEnableCache(compilationOptions.enableCache);
         buildOptionsBuilder.setRemoteManagement(compilationOptions.remoteManagement);
         buildOptionsBuilder.setOptimizeDependencyCompilation(compilationOptions.optimizeDependencyCompilation);
         buildOptionsBuilder.setLockingMode(compilationOptions.lockingMode);
@@ -246,16 +259,24 @@ public class BuildOptions {
      * Enum to represent build options.
      */
     public enum OptionName {
+        OFFLINE("offline"),
+        STICKY("sticky"),
+        LOCKING_MODE("lockingMode"),
+        OBSERVABILITY_INCLUDED("observabilityIncluded"),
+        EXPERIMENTAL("experimental"),
         SKIP_TESTS("skipTests"),
         TEST_REPORT("testReport"),
         CODE_COVERAGE("codeCoverage"),
+        LIST_CONFLICTED_CLASSES("listConflictedClasses"),
         DUMP_BUILD_TIME("dumpBuildTime"),
         TARGET_DIR("targetDir"),
         NATIVE_IMAGE("graalvm"),
         EXPORT_COMPONENT_MODEL("exportComponentModel"),
         GRAAL_VM_BUILD_OPTIONS("graalvmBuildOptions"),
         SHOW_DEPENDENCY_DIAGNOSTICS("showDependencyDiagnostics"),
-        OPTIMIZE_DEPENDENCY_COMPILATION("optimizeDependencyCompilation");
+        OPTIMIZE_DEPENDENCY_COMPILATION("optimizeDependencyCompilation"),
+        REMOTE_MANAGEMENT("remoteManagement"),
+        CLOUD("cloud");
 
         private final String name;
 
@@ -281,7 +302,6 @@ public class BuildOptions {
         private Boolean dumpBuildTime;
         private Boolean skipTests;
         private String targetPath;
-        private Boolean enableCache;
         private final CompilationOptions.CompilationOptionsBuilder compilationOptionsBuilder;
         private Boolean nativeImage;
         private Boolean exportComponentModel;
@@ -317,6 +337,7 @@ public class BuildOptions {
             return this;
         }
 
+        @Deprecated(forRemoval = true, since = "2201.13.0")
         public BuildOptionsBuilder setSticky(Boolean value) {
             compilationOptionsBuilder.setSticky(value);
             return this;
@@ -398,12 +419,6 @@ public class BuildOptions {
             return this;
         }
 
-        public BuildOptionsBuilder setEnableCache(Boolean value) {
-            compilationOptionsBuilder.setEnableCache(value);
-            enableCache = value;
-            return this;
-        }
-
         public BuildOptionsBuilder setNativeImage(Boolean value) {
             nativeImage = value;
             return this;
@@ -430,7 +445,7 @@ public class BuildOptions {
             return this;
         }
 
-        public BuildOptionsBuilder setLockingMode(String value) {
+        public BuildOptionsBuilder setLockingMode(PackageLockingMode value) {
             compilationOptionsBuilder.setLockingMode(value);
             return this;
         }
@@ -438,7 +453,7 @@ public class BuildOptions {
         public BuildOptions build() {
             CompilationOptions compilationOptions = compilationOptionsBuilder.build();
             return new BuildOptions(testReport, codeCoverage, dumpBuildTime, skipTests, compilationOptions,
-                    targetPath, enableCache, nativeImage, exportComponentModel, graalVMBuildOptions,
+                    targetPath, nativeImage, exportComponentModel, graalVMBuildOptions,
                     showDependencyDiagnostics);
         }
     }

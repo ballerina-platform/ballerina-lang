@@ -24,18 +24,16 @@ import io.ballerina.cli.utils.FileUtils;
 import io.ballerina.projects.BuildTool;
 import io.ballerina.projects.BuildToolResolution;
 import io.ballerina.projects.Diagnostics;
-import io.ballerina.projects.JvmTarget;
 import io.ballerina.projects.PackageConfig;
-import io.ballerina.projects.PackageManifest;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectException;
-import io.ballerina.projects.Settings;
 import io.ballerina.projects.buildtools.CodeGeneratorTool;
 import io.ballerina.projects.buildtools.ToolContext;
 import io.ballerina.projects.internal.PackageConfigCreator;
 import io.ballerina.projects.internal.PackageDiagnostic;
 import io.ballerina.projects.internal.ProjectDiagnosticErrorCode;
-import io.ballerina.projects.util.BuildToolUtils;
+import io.ballerina.projects.util.BalToolsUtil;
+import io.ballerina.projects.util.BuildToolsUtil;
 import io.ballerina.projects.util.CustomURLClassLoader;
 import io.ballerina.toml.api.Toml;
 import io.ballerina.toml.semantic.diagnostics.TomlDiagnostic;
@@ -44,28 +42,19 @@ import io.ballerina.toml.validator.schema.Schema;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.diagnostics.DiagnosticInfo;
 import io.ballerina.tools.diagnostics.DiagnosticSeverity;
-import org.ballerinalang.central.client.CentralAPIClient;
-import org.ballerinalang.central.client.CentralClientConstants;
-import org.ballerinalang.central.client.exceptions.CentralClientException;
-import org.wso2.ballerinalang.util.RepoUtils;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.ServiceLoader;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static io.ballerina.cli.launcher.LauncherUtils.createLauncherException;
 import static io.ballerina.cli.launcher.util.BalToolsUtil.findJarFiles;
@@ -73,8 +62,6 @@ import static io.ballerina.projects.JBallerinaBalaWriter.LIBS;
 import static io.ballerina.projects.JBallerinaBalaWriter.TOOL;
 import static io.ballerina.projects.PackageManifest.Tool;
 import static io.ballerina.projects.util.ProjectConstants.TOOL_DIAGNOSTIC_CODE_PREFIX;
-import static io.ballerina.projects.util.ProjectUtils.getAccessTokenOfCLI;
-import static io.ballerina.projects.util.ProjectUtils.initializeProxy;
 
 /**
  * Task for running tools integrated with the build.
@@ -82,15 +69,16 @@ import static io.ballerina.projects.util.ProjectUtils.initializeProxy;
  * @since 2201.9.0
  */
 public class RunBuildToolsTask implements Task {
-    public static final String DEFAULT_VERSION = "0.0.0";
     private final PrintStream outStream;
+    private final List<Diagnostic> diagnostics;
     private final boolean exitWhenFinish;
-    private ClassLoader toolClassLoader = this.getClass().getClassLoader();
-    ServiceLoader<CodeGeneratorTool> toolServiceLoader = ServiceLoader.load(CodeGeneratorTool.class, toolClassLoader);
     private final Map<Tool.Field, ToolContext> toolContextMap = new HashMap<>();
+    private final boolean skipTask;
 
-    public RunBuildToolsTask(PrintStream out) {
+    public RunBuildToolsTask(PrintStream out, boolean skipTask, List<Diagnostic> diagnostics) {
+        this.skipTask = skipTask;
         this.outStream = out;
+        this.diagnostics = diagnostics;
         this.exitWhenFinish = true;
     }
 
@@ -110,7 +98,10 @@ public class RunBuildToolsTask implements Task {
         if (toolEntries.isEmpty()) {
             return;
         }
-        this.outStream.println("\nExecuting Build Tools");
+        this.outStream.println("\nExecuting Build Tools" + (skipTask ? " (UP-TO-DATE)" : ""));
+        if (skipTask) {
+            return;
+        }
 
         // Populate the tool context map
         for (Tool toolEntry : toolEntries) {
@@ -129,29 +120,25 @@ public class RunBuildToolsTask implements Task {
         buildToolResolution.getDiagnosticList().forEach(outStream::println);
         toolDiagnostics.addAll(buildToolResolution.getDiagnosticList());
         List<BuildTool> resolvedTools = buildToolResolution.getResolvedTools();
-        List<BuildTool> centralDeliveredResolvedTools = resolvedTools.stream().filter(tool -> !DEFAULT_VERSION
-                .equals(tool.version().toString())).toList();
-        if (!centralDeliveredResolvedTools.isEmpty()) {
-            if (!project.buildOptions().offlineBuild()) {
-                pullLocallyUnavailableTools(centralDeliveredResolvedTools, buildToolResolution);
-            }
-            toolClassLoader = createToolClassLoader(centralDeliveredResolvedTools);
-            Thread.currentThread().setContextClassLoader(toolClassLoader);
-            toolServiceLoader = ServiceLoader.load(CodeGeneratorTool.class, toolClassLoader);
-        }
+
+        Map<String, ClassLoader> classLoaderMap = createToolClassLoader(resolvedTools);
 
         // We run only the entries of resolved tools.
-        List<PackageManifest.Tool> resolvedToolEntries = toolEntries.stream()
+        List<Tool> resolvedToolEntries = toolEntries.stream()
                 .filter(toolEntry -> resolvedTools.stream()
                         .anyMatch(tool -> tool.id().value().equals(toolEntry.type().value().split("\\.")[0])))
                 .toList();
         for (Tool toolEntry : resolvedToolEntries) {
             String commandName = toolEntry.type().value();
             ToolContext toolContext = toolContextMap.get(toolEntry.id());
-            Optional<CodeGeneratorTool> targetTool = BuildToolUtils.getTargetTool(commandName, toolServiceLoader);
+            ClassLoader toolClassLoader = classLoaderMap.get(commandName.split("\\.")[0]);
+            Thread.currentThread().setContextClassLoader(toolClassLoader);
+            ServiceLoader<CodeGeneratorTool> toolServiceLoader = ServiceLoader.load(
+                    CodeGeneratorTool.class, toolClassLoader);
+            Optional<CodeGeneratorTool> targetTool = BuildToolsUtil.getTargetTool(commandName, toolServiceLoader);
             if (targetTool.isEmpty()) {
                 // If the tool is not found, we skip the execution and report a diagnostic
-                Diagnostic diagnostic = BuildToolUtils.getBuildToolCommandNotFoundDiagnostic(
+                Diagnostic diagnostic = BuildToolsUtil.getBuildToolCommandNotFoundDiagnostic(
                         commandName, toolEntry.type().location());
                 toolContext.reportDiagnostic(diagnostic);
                 this.outStream.println(diagnostic);
@@ -161,7 +148,7 @@ public class RunBuildToolsTask implements Task {
             // Here, we can safely pass the tool type value given in Ballerina.toml instead of
             // the aggregation of the ToolConfig annotation name fields of a command/ subcommand field
             // since we have verified that those two are identical in the ToolUtils.getTargetTool method
-            Optional<TomlDiagnostic> cmdNameDiagnostic = BuildToolUtils
+            Optional<TomlDiagnostic> cmdNameDiagnostic = BuildToolsUtil
                     .getDiagnosticIfInvalidCommandName(commandName, toolEntry.id().location());
             if (cmdNameDiagnostic.isPresent()) {
                 toolContext.reportDiagnostic(cmdNameDiagnostic.get());
@@ -172,7 +159,7 @@ public class RunBuildToolsTask implements Task {
             boolean hasOptionErrors = false;
             try {
                 // validate the options toml and report diagnostics
-                hasOptionErrors = validateOptionsToml(toolEntry.optionsToml(), toolEntry.type());
+                hasOptionErrors = validateOptionsToml(toolEntry.optionsToml(), toolEntry.type(), toolClassLoader);
                 if (hasOptionErrors) {
                     DiagnosticInfo diagnosticInfo = new DiagnosticInfo(
                             ProjectDiagnosticErrorCode.TOOL_OPTIONS_VALIDATION_FAILED.diagnosticId(),
@@ -217,22 +204,24 @@ public class RunBuildToolsTask implements Task {
         if (hasErrors) {
             throw createLauncherException("build tool execution contains errors");
         }
+        diagnostics.addAll(buildToolResolution.getDiagnosticList());
         Thread.currentThread().setContextClassLoader(ClassLoader.getSystemClassLoader());
         // Reload the project to load the generated code
         reloadProject(project);
         this.outStream.println();
     }
 
-    private boolean validateOptionsToml(Toml optionsToml, Tool.Field toolType) throws IOException {
+    private boolean validateOptionsToml(Toml optionsToml, Tool.Field toolType, ClassLoader toolClassLoader)
+            throws IOException {
         if (optionsToml == null) {
-            return validateEmptyOptionsToml(toolType);
+            return validateEmptyOptionsToml(toolType, toolClassLoader);
         }
         FileUtils.validateToml(optionsToml, toolType.value(), toolClassLoader);
         optionsToml.diagnostics().forEach(outStream::println);
         return !Diagnostics.filterErrors(optionsToml.diagnostics()).isEmpty();
     }
 
-    private boolean validateEmptyOptionsToml(Tool.Field toolType) throws IOException {
+    private boolean validateEmptyOptionsToml(Tool.Field toolType, ClassLoader toolClassLoader) throws IOException {
         Schema schema = Schema.from(FileUtils.readSchema(toolType.value(), toolClassLoader));
         List<String> requiredFields = schema.required();
         if (!requiredFields.isEmpty()) {
@@ -250,100 +239,27 @@ public class RunBuildToolsTask implements Task {
         return false;
     }
 
-    private void pullLocallyUnavailableTools(List<BuildTool> tools, BuildToolResolution buildToolResolution) {
-        for (BuildTool tool: tools) {
-            String toolId = tool.id().value();
-            String version = tool.version().toString();
-            String org = tool.org().value();
-            String name = tool.name().value();
-            try {
-                if (isToolLocallyAvailable(org, name, version)) {
-                    continue;
-                }
-                pullToolFromCentral(toolId, version);
-            } catch (CentralClientException e) {
-                String message = "failed to pull build tool '" + toolId + ":" + version + "' from Ballerina Central: "
-                        + e.getMessage();
-                DiagnosticInfo diagnosticInfo = new DiagnosticInfo(
-                        ProjectDiagnosticErrorCode.BUILD_TOOL_NOT_FOUND.diagnosticId(),
-                        ProjectDiagnosticErrorCode.BUILD_TOOL_NOT_FOUND.messageKey(),
-                        DiagnosticSeverity.ERROR);
-                TomlDiagnostic diagnostic = new TomlDiagnostic(tool.location(), diagnosticInfo, message);
-                outStream.println(diagnostic);
-                buildToolResolution.getDiagnosticList().add(diagnostic);
-                tools.remove(tool);
-            } catch (ProjectException e) {
-                String message = "failed to resolve build tool '" + toolId + ":" + version +
-                        "' from the local cache: " + e.getMessage();
-                DiagnosticInfo diagnosticInfo = new DiagnosticInfo(
-                        ProjectDiagnosticErrorCode.BUILD_TOOL_NOT_FOUND.diagnosticId(),
-                        ProjectDiagnosticErrorCode.BUILD_TOOL_NOT_FOUND.messageKey(),
-                        DiagnosticSeverity.ERROR);
-                TomlDiagnostic diagnostic = new TomlDiagnostic(tool.location(), diagnosticInfo, message);
-                outStream.println(diagnostic);
-                buildToolResolution.getDiagnosticList().add(diagnostic);
-                tools.remove(tool);
-            }
+    private Map<String, ClassLoader> createToolClassLoader(List<BuildTool> resolvedTools) {
+        Map<String, ClassLoader> classLoaderMap = new HashMap<>();
+        for (BuildTool resolvedTool : resolvedTools) {
+            List<File> toolJars = getToolCommandJarAndDependencyJars(resolvedTool);
+            URL[] urls = toolJars.stream()
+                    .map(file -> {
+                        try {
+                            return file.toURI().toURL();
+                        } catch (MalformedURLException e) {
+                            throw LauncherUtils.createUsageExceptionWithHelp("invalid tool jar: " + file
+                                    .getAbsolutePath());
+                        }
+                    })
+                    .toArray(URL[]::new);
+            ClassLoader systemClassLoader = this.getClass().getClassLoader();
+            classLoaderMap.put(resolvedTool.id().value(), new CustomURLClassLoader(urls, systemClassLoader));
         }
+        return classLoaderMap;
     }
 
-    private boolean isToolLocallyAvailable(String org, String name, String version) {
-        Path toolCacheDir = BuildToolUtils.getCentralBalaDirPath().resolve(org).resolve(name);
-        if (toolCacheDir.toFile().isDirectory()) {
-            try (Stream<Path> versions = Files.list(toolCacheDir)) {
-                return versions.anyMatch(path ->
-                        path != null && path.getFileName() != null && version != null
-                                && version.equals(path.getFileName().toString()));
-            } catch (IOException e) {
-                throw new ProjectException("Error while looking for locally available tools: " + e);
-            }
-        }
-        return false;
-    }
-
-    private void pullToolFromCentral(String toolId, String version) throws CentralClientException {
-        String supportedPlatform = Arrays.stream(JvmTarget.values())
-                .map(JvmTarget::code)
-                .collect(Collectors.joining(","));
-        Path balaCacheDirPath = BuildToolUtils.getCentralBalaDirPath();
-        Settings settings;
-        settings = RepoUtils.readSettings();
-        // Ignore Settings.toml diagnostics in the pull command
-
-        System.setProperty(CentralClientConstants.ENABLE_OUTPUT_STREAM, Boolean.TRUE.toString());
-        CentralAPIClient client = new CentralAPIClient(RepoUtils.getRemoteRepoURL(),
-                initializeProxy(settings.getProxy()), settings.getProxy().username(),
-                settings.getProxy().password(), getAccessTokenOfCLI(settings),
-                settings.getCentral().getConnectTimeout(),
-                settings.getCentral().getReadTimeout(), settings.getCentral().getWriteTimeout(),
-                settings.getCentral().getCallTimeout(), settings.getCentral().getMaxRetries());
-        String[] toolInfo = client.pullTool(toolId, version, balaCacheDirPath, supportedPlatform,
-                RepoUtils.getBallerinaVersion(), false);
-        boolean isPulled = Boolean.parseBoolean(toolInfo[0]);
-        if (isPulled) {
-            outStream.println("tool '" + toolId + ":" + version + "' pulled successfully.");
-        } else {
-            outStream.println("tool '" + toolId + ":" + version + "' is already available locally.");
-        }
-    }
-
-    private ClassLoader createToolClassLoader(List<BuildTool> resolvedTools) {
-        List<File> toolJars = getToolCommandJarAndDependencyJars(resolvedTools);
-        URL[] urls = toolJars.stream()
-                .map(file -> {
-                    try {
-                        return file.toURI().toURL();
-                    } catch (MalformedURLException e) {
-                        throw LauncherUtils.createUsageExceptionWithHelp("invalid tool jar: " + file
-                                .getAbsolutePath());
-                    }
-                })
-                .toArray(URL[]::new);
-        ClassLoader systemClassLoader = this.getClass().getClassLoader();
-        return new CustomURLClassLoader(urls, systemClassLoader);
-    }
-
-    private void printToolSkipWarning(PackageManifest.Tool toolEntry) {
+    private void printToolSkipWarning(Tool toolEntry) {
         outStream.printf("WARNING: Execution of '%s:%s' is skipped due to errors%n", toolEntry
                 .type().value(), toolEntry.id() != null ? toolEntry.id().value() : "");
     }
@@ -354,17 +270,13 @@ public class RunBuildToolsTask implements Task {
         project.addPackage(packageConfig);
     }
 
-    private static List<File> getToolCommandJarAndDependencyJars(List<BuildTool> resolvedTools) {
-        Path centralBalaDirPath = BuildToolUtils.getCentralBalaDirPath();
-        return resolvedTools.stream()
-                .map(tool -> findJarFiles(CommandUtil.getPlatformSpecificBalaPath(
-                                tool.org().value(),
-                                tool.name().value(),
-                                tool.version().toString(),
-                                centralBalaDirPath)
-                        .resolve(TOOL).resolve(LIBS)
-                        .toFile()))
-                .flatMap(List::stream)
-                .toList();
+    private static List<File> getToolCommandJarAndDependencyJars(BuildTool buildTool) {
+        return findJarFiles(CommandUtil.getPlatformSpecificBalaPath(
+                        buildTool.org().value(),
+                        buildTool.name().value(),
+                        buildTool.version().toString(),
+                        BalToolsUtil.getRepoPath(buildTool.repository().orElse(null)))
+                .resolve(TOOL).resolve(LIBS)
+                .toFile());
     }
 }

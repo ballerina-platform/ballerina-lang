@@ -139,7 +139,8 @@ public class JDIEventProcessor {
 
     private void processEvent(EventSet eventSet, Event event) {
         if (event instanceof ClassPrepareEvent evt) {
-            if (context.getPrevInstruction() != DebugInstruction.STEP_OVER) {
+            if (!breakpointProcessor.getUserBreakpoints().isEmpty() &&
+                    context.getPrevInstruction() != DebugInstruction.STEP_OVER) {
                 breakpointProcessor.activateUserBreakPoints(evt.referenceType(), true);
             }
             eventSet.resume();
@@ -225,6 +226,9 @@ public class JDIEventProcessor {
 
         // Setting breakpoints to an already running debug session.
         context.getEventManager().deleteAllBreakpoints();
+        if (breakpointProcessor.getUserBreakpoints().isEmpty()) {
+            return;
+        }
         context.getDebuggeeVM().allClasses().forEach(ref -> breakpointProcessor.activateUserBreakPoints(ref, false));
     }
 

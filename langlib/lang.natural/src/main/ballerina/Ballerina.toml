@@ -1,0 +1,4 @@
+[package]
+org = "ballerina"
+name = "lang.natural"
+version = "0.0.0"

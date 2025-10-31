@@ -20,6 +20,8 @@ import ballerina/jballerina.java;
 configurable int intVar = 5;
 configurable byte byteVar = ?;
 configurable float floatVar = 9.5;
+configurable float floatIntVar = ?;
+configurable decimal decimalIntVar = ?;
 configurable string stringVar = ?;
 configurable boolean booleanVar = ?;
 configurable decimal decimalVar = ?;
@@ -38,8 +40,24 @@ enum CountryCodes {
     US = "United States"
 }
 
+enum Fruit {
+    APPLE,
+    ORANGE,
+    BANANA
+}
+
+type A int | "stringA" | "stringB";
+type B boolean | "stringB" | "stringC";
+type C A | B;
+
+type FiniteColor "Red" | "Green";
+
 configurable Colors & readonly color = ?;
 configurable CountryCodes & readonly countryCode = ?;
+configurable Fruit? fruit = ();
+configurable FiniteColor? finiteValueColor = ();
+configurable Fruit fruit2 = ?;
+configurable C cValue = ?;
 
 public function main() {
     testSimpleValues();
@@ -51,17 +69,24 @@ public function main() {
 function testSimpleValues() {
     test:assertEquals(42, intVar);
     test:assertEquals(3.5, floatVar);
+    test:assertEquals(35.0, floatIntVar);
     test:assertEquals("waru=na", stringVar);
     test:assertTrue(booleanVar);
 
     decimal result = 24.87;
     test:assertEquals(result, decimalVar);
 
+    result = 45;
+    test:assertEquals(result, decimalIntVar);
+
     byte result2 = 22;
     test:assertEquals(byteVar, result2);
 
     test:assertEquals("pqr-1.toml", files);
     test:assertEquals("intVar=bbb", data);
+    test:assertEquals("Green", finiteValueColor);
+    test:assertEquals("ORANGE", fruit2);
+    test:assertEquals("stringB", cValue);
 }
 
 function testXmlValues() {
@@ -72,6 +97,7 @@ function testXmlValues() {
 function testEnumValues() {
     test:assertEquals(color, RED);
     test:assertEquals(countryCode, SL);
+    test:assertEquals(fruit, APPLE);
 }
 
 //Extern methods to verify no errors while testing

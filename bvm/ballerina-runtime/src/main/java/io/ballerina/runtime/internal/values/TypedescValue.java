@@ -19,7 +19,6 @@ package io.ballerina.runtime.internal.values;
 
 import io.ballerina.runtime.api.values.BInitialValueEntry;
 import io.ballerina.runtime.api.values.BTypedesc;
-import io.ballerina.runtime.internal.scheduling.Strand;
 
 /**
  * <p>
@@ -29,9 +28,7 @@ import io.ballerina.runtime.internal.scheduling.Strand;
  */
 public interface TypedescValue extends RefValue, BTypedesc {
 
-    @Override
-    Object instantiate(Strand strand);
+    Object instantiate();
 
-    @Override
-    Object instantiate(Strand strand, BInitialValueEntry[] initialValues);
+    Object instantiate(BInitialValueEntry[] initialValues);
 }

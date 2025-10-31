@@ -24,13 +24,16 @@ import org.ballerinalang.debugadapter.EvaluationContext;
 import org.ballerinalang.debugadapter.evaluation.EvaluationException;
 import org.ballerinalang.debugadapter.utils.PackageUtils;
 
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 
 import static org.ballerinalang.debugadapter.evaluation.EvaluationException.createEvaluationException;
 import static org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind.TYPE_RESOLVING_ERROR;
-import static org.ballerinalang.debugadapter.utils.PackageUtils.INIT_TYPE_INSTANCE_PREFIX;
+import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.loadClass;
+import static org.ballerinalang.debugadapter.utils.PackageUtils.TYPE_PREFIXES;
+import static org.ballerinalang.debugadapter.utils.PackageUtils.TYPE_VAR_FIELD_NAME;
 
 /**
  * Ballerina type resolver implementation for resolving ballerina runtime types from type name.
@@ -101,17 +104,25 @@ public class NameBasedTypeResolver extends EvaluationTypeResolver<String> {
         if (typeDefinition.isEmpty()) {
             return Optional.empty();
         }
-
-        String packageInitClass = PackageUtils.getQualifiedClassName(context, PackageUtils.INIT_CLASS_NAME);
-        List<ReferenceType> classRef = context.getAttachedVm().classesByName(packageInitClass);
-        if (classRef.isEmpty()) {
-            return Optional.empty();
+        for (String prefix : TYPE_PREFIXES) {
+            String typeClassName = PackageUtils.getQualifiedClassName(context, typeName, prefix);
+            List<ReferenceType> classRefs;
+            try {
+                classRefs = context.getAttachedVm().classesByName(typeClassName);
+                if (classRefs.isEmpty()) {
+                    ReferenceType referenceType = loadClass(context, typeClassName, "");
+                    classRefs = Collections.singletonList(referenceType);
+                }
+            } catch (EvaluationException e) {
+                continue;
+            }
+            ReferenceType classRef = classRefs.getFirst();
+            Field typeField = classRef.fieldByName(TYPE_VAR_FIELD_NAME);
+            if (typeField == null) {
+                return Optional.empty();
+            }
+            return Optional.ofNullable(classRef.getValue(typeField));
         }
-
-        Field typeField = classRef.get(0).fieldByName(INIT_TYPE_INSTANCE_PREFIX + typeName);
-        if (typeField == null) {
-            return Optional.empty();
-        }
-        return Optional.of(classRef.get(0).getValue(typeField));
+        return Optional.empty();
     }
 }

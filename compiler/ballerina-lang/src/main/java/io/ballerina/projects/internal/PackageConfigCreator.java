@@ -60,6 +60,10 @@ public final class PackageConfigCreator {
     }
 
     public static PackageConfig createBuildProjectConfig(Path projectDirPath, boolean disableSyntaxTree) {
+        return createBuildProjectConfig(projectDirPath, disableSyntaxTree, null);
+    }
+
+    public static PackageConfig createBuildProjectConfig(Path projectDirPath, boolean disableSyntaxTree, String org) {
         ProjectFiles.validateBuildProjectDirPath(projectDirPath);
 
         // TODO Create the PackageManifest from the BallerinaToml file
@@ -79,7 +83,7 @@ public final class PackageConfigCreator {
         TomlDocument balToolToml = packageData.balToolToml()
                 .map(d -> TomlDocument.from(ProjectConstants.BAL_TOOL_TOML, d.content())).orElse(null);
         ManifestBuilder manifestBuilder = ManifestBuilder
-                .from(ballerinaToml, pluginToml, balToolToml, projectDirPath);
+                .from(ballerinaToml, pluginToml, balToolToml, projectDirPath, org);
         PackageManifest packageManifest = manifestBuilder.packageManifest();
         DependencyManifestBuilder dependencyManifestBuilder =
                 DependencyManifestBuilder.from(dependenciesToml, packageManifest.descriptor());
@@ -89,9 +93,8 @@ public final class PackageConfigCreator {
                 Collections.emptyMap(), disableSyntaxTree);
     }
 
-
     public static PackageConfig createBuildProjectConfig(Path projectDirPath) {
-       return createBuildProjectConfig(projectDirPath, false);
+       return createBuildProjectConfig(projectDirPath, false, null);
     }
 
     public static PackageConfig createSingleFileProjectConfig(Path filePath, Boolean disableSyntaxTree) {
@@ -260,7 +263,7 @@ public final class PackageConfigCreator {
 
     static DocumentConfig createDocumentConfig(DocumentData documentData, ModuleId moduleId) {
         final DocumentId documentId = DocumentId.create(documentData.name(), moduleId);
-        return DocumentConfig.from(documentId, documentData.content(), documentData.name());
+        return DocumentConfig.from(documentId, documentData::content, documentData.name());
     }
 
     private static List<ModuleDescriptor> getModuleDependencies(Map<ModuleDescriptor, List<ModuleDescriptor>>

@@ -455,18 +455,6 @@ public class TestBuildProject extends BaseTest {
         }
     }
 
-    @Test (description = "tests loading another invalid Ballerina project")
-    public void testLoadBallerinaProjectInProject() {
-        Path projectPath = tempResourceDir.resolve("myproject").resolve("modules").resolve("services")
-                .resolve("resources").resolve("invalidProject");
-        try {
-            TestUtils.loadBuildProject(projectPath);
-            Assert.fail("expected an invalid project exception");
-        } catch (ProjectException e) {
-            Assert.assertEquals(e.getMessage(), "'" + projectPath + "' is already within a Ballerina package");
-        }
-    }
-
     @Test(description = "tests loading a valid build project with build options from toml")
     public void testLoadingBuildOptionsFromToml() {
         Path projectPath = tempResourceDir.resolve("projectWithBuildOptions");
@@ -1486,13 +1474,11 @@ public class TestBuildProject extends BaseTest {
         Assert.assertTrue(secondBuildJson.lastBuildTime() > initialBuildJson.lastBuildTime());
         assertEquals(initialBuildJson.lastUpdateTime(), secondBuildJson.lastUpdateTime());
         Assert.assertFalse(secondBuildJson.isExpiredLastUpdateTime());
-        Assert.assertFalse(projectSecondBuild.currentPackage().getResolution().autoUpdate());
 
         // 3) Change `last_update-time` in `build` file to a timestamp older than one day and build the project again
         secondBuildJson.setLastUpdateTime(secondBuildJson.lastUpdateTime() - (24 * 60 * 60 * 1000 + 1));
         ProjectUtils.writeBuildFile(buildFile, secondBuildJson);
         BuildProject projectThirdBuild = loadBuildProject(projectPath, buildOptions);
-        Assert.assertTrue(projectThirdBuild.currentPackage().getResolution().autoUpdate());
         projectThirdBuild.save();
 
         Assert.assertTrue(buildFile.toFile().exists());
@@ -1503,7 +1489,7 @@ public class TestBuildProject extends BaseTest {
     }
 
     @Test(description = "test auto updating dependencies with build file after removing Dependencies.toml")
-    public void testAutoUpdateWithBuildFileWithoutDepsToml() throws IOException {
+    public void testAutoUpdateWithBuildFileWithoutDepsToml() throws IOException, InterruptedException {
         Path projectPath = tempResourceDir.resolve("myproject");
         // Delete build file and Dependencies.toml file if already exists
         Files.deleteIfExists(projectPath.resolve(TARGET_DIR_NAME).resolve(BUILD_FILE));
@@ -1540,9 +1526,8 @@ public class TestBuildProject extends BaseTest {
         Assert.assertTrue(secondBuildJson.lastBuildTime() > initialBuildJson.lastBuildTime(),
                           "last_build_time has not updated for the second build");
         assertEquals(initialBuildJson.lastUpdateTime(), secondBuildJson.lastUpdateTime(),
-                     "last_update_time has updated for the second build");
+                "last_update_time has updated for the second build");
         Assert.assertFalse(secondBuildJson.isExpiredLastUpdateTime(), "last_update_time is expired");
-        Assert.assertFalse(projectSecondBuild.currentPackage().getResolution().autoUpdate());
         assertTomlFilesEquals(projectPath.resolve(DEPENDENCIES_TOML),
                 projectPath.resolve(RESOURCE_DIR_NAME).resolve("expectedDependencies.toml"));
 
@@ -1589,7 +1574,6 @@ public class TestBuildProject extends BaseTest {
         assertTrue(secondBuildJson.lastUpdateTime() > initialBuildJson.lastUpdateTime(),
                 "last_update_time has not updated for the second build");
         Assert.assertFalse(secondBuildJson.isExpiredLastUpdateTime(), "last_update_time is expired");
-        Assert.assertTrue(projectSecondBuild.currentPackage().getResolution().autoUpdate());
 
         // 3) Build project again after setting dist version as null
         initialBuildJson.setDistributionVersion(null);
@@ -1605,7 +1589,6 @@ public class TestBuildProject extends BaseTest {
         assertTrue(thirdBuildJson.lastUpdateTime() > secondBuildJson.lastUpdateTime(),
                 "last_update_time has not updated for the second build");
         Assert.assertFalse(thirdBuildJson.isExpiredLastUpdateTime(), "last_update_time is expired");
-        Assert.assertTrue(projectThirdBuild.currentPackage().getResolution().autoUpdate());
 
         // Remove generated files
         Files.deleteIfExists(projectSecondBuild.targetDir().resolve(BUILD_FILE));
@@ -1660,7 +1643,7 @@ public class TestBuildProject extends BaseTest {
         Files.deleteIfExists(projectDirPath.resolve(TARGET_DIR_NAME).resolve(BUILD_FILE));
         Files.deleteIfExists(projectDirPath.resolve(DEPENDENCIES_TOML));
 
-        BuildProject buildProject = BuildProject.load(projectDirPath);
+        BuildProject buildProject = TestUtils.loadBuildProject(projectDirPath);
         buildProject.save();
         PackageCompilation compilation = buildProject.currentPackage().getCompilation();
 
@@ -2172,8 +2155,8 @@ public class TestBuildProject extends BaseTest {
     public void testAccessSemanticModelAfterFirstBuild() throws IOException {
         Path projectPath = tempResourceDir.resolve("myproject");
         // Delete build file if already exists
-        if (projectPath.resolve(TARGET_DIR_NAME).resolve(BUILD_FILE).toFile().exists()) {
-            Files.delete(projectPath.resolve(TARGET_DIR_NAME).resolve(BUILD_FILE));
+        if (projectPath.resolve(TARGET_DIR_NAME).toFile().exists()) {
+            ProjectUtils.deleteDirectory(projectPath.resolve(TARGET_DIR_NAME));
         }
         // Set sticky false, to imitate the default build command behavior
         BuildOptions.BuildOptionsBuilder buildOptionsBuilder = BuildOptions.builder();
@@ -2185,10 +2168,13 @@ public class TestBuildProject extends BaseTest {
         PackageCompilation compilation = project.currentPackage().getCompilation();
         compilation.diagnosticResult().diagnostics().forEach(OUT::println);
         Assert.assertFalse(compilation.diagnosticResult().hasErrors());
+        // BIR is not expected to be generated after the frontend operations
+        Assert.assertFalse(project.targetDir().resolve(CACHES_DIR_NAME).resolve("sameera").resolve("myproject")
+                .resolve("0.1.0").resolve(REPO_BIR_CACHE_NAME).resolve("myproject.bir").toFile().exists());
         // Call `JBallerinaBackend`
         JBallerinaBackend.from(compilation, JvmTarget.JAVA_21);
-        // BIR is not expected to be generated since the enable-cache option is not set
-        Assert.assertFalse(project.targetDir().resolve(CACHES_DIR_NAME).resolve("sameera").resolve("myproject")
+        // BIR is expected to be generated aftr the backend operations
+        Assert.assertTrue(project.targetDir().resolve(CACHES_DIR_NAME).resolve("sameera").resolve("myproject")
                 .resolve("0.1.0").resolve(REPO_BIR_CACHE_NAME).resolve("myproject.bir").toFile().exists());
 
         // 2) Build project again with build file
@@ -2453,6 +2439,48 @@ public class TestBuildProject extends BaseTest {
         Assert.assertEquals(diagnostics.get(1).toString(), "WARNING [platformLibNonBalPkg3] detected conflicting jar" +
                 " files. 'lib3-2.0.1.jar' dependency of 'platformlib/pkg2' conflicts with 'lib3-2.0.0.jar'" +
                 " dependency of 'platformlib/pkg1'. Picking 'lib3-2.0.1.jar' over 'lib3-2.0.0.jar'.");
+    }
+
+    @Test(description = "Test sticky flag when not defined in Ballerina.toml")
+    public void testStickyFlagNotDefinedInToml() throws IOException {
+        Path projectPath = tempResourceDir.resolve("stickyTestProjs/projNullStickyInBalTom");
+        BuildOptions buildOptions = BuildOptions.builder().setSticky(false).build(); // CLI Sticky
+        BuildProject project = loadBuildProject(projectPath, buildOptions);
+        Assert.assertFalse(project.buildOptions().sticky());
+        buildOptions = BuildOptions.builder().setSticky(true).build(); // CLI Sticky
+        project = loadBuildProject(projectPath, buildOptions);
+        Assert.assertTrue(project.buildOptions().sticky());
+        buildOptions = BuildOptions.builder().build(); // CLI Sticky
+        project = loadBuildProject(projectPath, buildOptions);
+        Assert.assertFalse(project.buildOptions().sticky());
+    }
+
+    @Test(description = "Test sticky flag when set to false in Ballerina.toml")
+    public void testStickyFlagFalseInToml() throws IOException {
+        Path projectPath = tempResourceDir.resolve("stickyTestProjs/projFalseStickyInBalTom");
+        BuildOptions buildOptions = BuildOptions.builder().setSticky(false).build(); // CLI Sticky
+        BuildProject project = loadBuildProject(projectPath, buildOptions);
+        Assert.assertFalse(project.buildOptions().sticky());
+        buildOptions = BuildOptions.builder().setSticky(true).build(); // CLI Sticky
+        project = loadBuildProject(projectPath, buildOptions);
+        Assert.assertTrue(project.buildOptions().sticky());
+        buildOptions = BuildOptions.builder().build(); // CLI Sticky
+        project = loadBuildProject(projectPath, buildOptions);
+        Assert.assertFalse(project.buildOptions().sticky());
+    }
+
+    @Test(description = "Test sticky flag when set to true in Ballerina.toml")
+    public void testStickyFlagTrueInToml() throws IOException {
+        Path projectPath = tempResourceDir.resolve("stickyTestProjs/projTrueStickyInBalTom");
+        BuildOptions buildOptions = BuildOptions.builder().setSticky(false).build(); // CLI Sticky
+        BuildProject project = loadBuildProject(projectPath, buildOptions);
+        Assert.assertFalse(project.buildOptions().sticky());
+        buildOptions = BuildOptions.builder().setSticky(true).build(); // CLI Sticky
+        project = loadBuildProject(projectPath, buildOptions);
+        Assert.assertTrue(project.buildOptions().sticky());
+        buildOptions = BuildOptions.builder().build(); // CLI Sticky
+        project = loadBuildProject(projectPath, buildOptions);
+        Assert.assertTrue(project.buildOptions().sticky());
     }
 
     private static BuildProject loadBuildProject(Path projectPath) {

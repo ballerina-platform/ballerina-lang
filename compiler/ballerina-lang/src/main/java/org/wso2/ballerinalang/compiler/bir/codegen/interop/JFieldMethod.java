@@ -29,12 +29,10 @@ public enum JFieldMethod {
     private final String strValue;
 
     JFieldMethod(String strValue) {
-
         this.strValue = strValue;
     }
 
     public static JFieldMethod getKind(String value) {
-
         if ("access".equals(value)) {
             return ACCESS;
         }
@@ -42,7 +40,6 @@ public enum JFieldMethod {
     }
 
     public String getStringValue() {
-
         return this.strValue;
     }
 }

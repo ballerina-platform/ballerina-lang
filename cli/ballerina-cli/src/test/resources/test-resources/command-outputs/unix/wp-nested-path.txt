@@ -1,0 +1,13 @@
+Resolving workspace dependencies
+
+Compiling source
+	asmaj/pkgB:0.1.0
+
+Compiling source
+	asmaj/pkgA:0.1.0
+
+Compiling source
+	asmaj/hello_app:0.1.0
+
+Generating executable
+	hello-app/target/bin/hello_app.jar

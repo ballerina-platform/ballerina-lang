@@ -5015,8 +5015,6 @@ public class BallerinaParser extends AbstractParser {
             case DECIMAL_FLOATING_POINT_LITERAL_TOKEN:
             case HEX_FLOATING_POINT_LITERAL_TOKEN:
                 return parseBasicLiteral();
-            case IDENTIFIER_TOKEN:
-                return parseQualifiedIdentifier(ParserRuleContext.VARIABLE_REF, isInConditionalExpr);
             case OPEN_PAREN_TOKEN:
                 return parseBracedExpression(isRhsExpr, allowActions);
             case CHECK_KEYWORD:
@@ -5083,10 +5081,13 @@ public class BallerinaParser extends AbstractParser {
                 return parseByteArrayLiteral();
             case TRANSACTION_KEYWORD:
                 return parseQualifiedIdentWithTransactionPrefix(ParserRuleContext.VARIABLE_REF);
-            case NATURAL_KEYWORD:
-                return parseNaturalExpression();
+            case IDENTIFIER_TOKEN:
+                if (isNaturalKeyword(nextToken) && getNextNextToken().kind == OPEN_BRACE_TOKEN) {
+                    return parseNaturalExpression();
+                }
+                return parseQualifiedIdentifier(ParserRuleContext.VARIABLE_REF, isInConditionalExpr);
             case CONST_KEYWORD:
-                if (getNextNextToken().kind == SyntaxKind.NATURAL_KEYWORD) {
+                if (isNaturalKeyword(getNextNextToken())) {
                     return parseNaturalExpression();
                 }
                 // fall through
@@ -5115,8 +5116,24 @@ public class BallerinaParser extends AbstractParser {
         startContext(ParserRuleContext.NATURAL_EXPRESSION);
         STNode optionalConstKeyword = peek().kind == SyntaxKind.CONST_KEYWORD ?
                 consume() : STNodeFactory.createEmptyNode();
-        STNode naturalKeyword = consume();
+        STNode naturalKeyword = parseNaturalKeyword();
         STNode optionalParenthesizedArgList = parseOptionalParenthesizedArgList();
+        return parseNaturalExprBody(optionalConstKeyword, naturalKeyword, optionalParenthesizedArgList);
+    }
+
+    /**
+     * <p>
+     * Parse natural expression body.
+     * </p>
+     * <code>
+     * natural-expr-body := { prompt }
+     * prompt := ^ (`}`, `\`, `$`)
+     * </code>
+     *
+     * @return Parsed node.
+     */
+    private STNode parseNaturalExprBody(STNode optionalConstKeyword, STNode naturalKeyword,
+                                        STNode optionalParenthesizedArgList) {
         STNode openBrace = parseOpenBrace();
 
         if (openBrace.isMissing()) {
@@ -5547,7 +5564,7 @@ public class BallerinaParser extends AbstractParser {
         STNode operator;
         switch (nextTokenKind) {
             case OPEN_PAREN_TOKEN:
-                newLhsExpr = parseFuncCall(lhsExpr);
+                newLhsExpr = parseFuncCallOrNaturalExpr(lhsExpr);
                 break;
             case OPEN_BRACKET_TOKEN:
                 newLhsExpr = parseMemberAccessExpr(lhsExpr, isRhsExpr);
@@ -6092,13 +6109,36 @@ public class BallerinaParser extends AbstractParser {
      * function-reference := variable-reference</code>
      *
      * @param identifier Function name
-     * @return Function call expression
+     * @return Parsed node
      */
-    private STNode parseFuncCall(STNode identifier) {
+    private STNode parseFuncCallOrNaturalExpr(STNode identifier) {
         STNode openParen = parseArgListOpenParenthesis();
         STNode args = parseArgsList();
         STNode closeParen = parseArgListCloseParenthesis();
+        if (peek().kind == SyntaxKind.OPEN_BRACE_TOKEN && isNaturalKeyword(identifier)) {
+            return parseNaturalExpression((STSimpleNameReferenceNode) identifier, openParen, args, closeParen);
+        }
         return STNodeFactory.createFunctionCallExpressionNode(identifier, openParen, args, closeParen);
+    }
+
+    /**
+     * <p>
+     * Parse a natural expression.
+     * </p>
+     * <code>
+     * natural-expr := [const] natural [(arg-list)] { prompt }
+     * prompt := ^ (`}`, `\`, `$`)
+     * </code>
+     *
+     * @return Parsed NaturalExpression node.
+     */
+    private STNode parseNaturalExpression(STSimpleNameReferenceNode nameRef, STNode openParen, STNode args,
+                                          STNode closeParen) {
+        startContext(ParserRuleContext.NATURAL_EXPRESSION);
+        STNode optionalConstKeyword = STNodeFactory.createEmptyNode();
+        STNode naturalKeyword = getNaturalKeyword((STToken) nameRef.name);
+        STNode parenthesizedArgList = STNodeFactory.createParenthesizedArgList(openParen, args, closeParen);
+        return parseNaturalExprBody(optionalConstKeyword, naturalKeyword, parenthesizedArgList);
     }
 
     private STNode parseErrorBindingPatternOrErrorConstructor() {
@@ -10095,6 +10135,7 @@ public class BallerinaParser extends AbstractParser {
             case ISOLATED_KEYWORD:
             case TRANSACTIONAL_KEYWORD:
             case TRANSACTION_KEYWORD:
+            case NATURAL_KEYWORD:
                 return true;
             default:
                 if (isParameterizedTypeToken(nextTokenKind)) {
@@ -10153,6 +10194,7 @@ public class BallerinaParser extends AbstractParser {
                  FUTURE_KEYWORD,
                  INT_KEYWORD,
                  MAP_KEYWORD,
+                 NATURAL_KEYWORD,
                  OBJECT_KEYWORD,
                  STREAM_KEYWORD,
                  STRING_KEYWORD,
@@ -10648,6 +10690,40 @@ public class BallerinaParser extends AbstractParser {
     private STToken getUnderscoreKeyword(STToken token) {
         return STNodeFactory.createToken(SyntaxKind.UNDERSCORE_KEYWORD, token.leadingMinutiae(),
                 token.trailingMinutiae(), token.diagnostics());
+    }
+
+    /**
+     * Parse natural-keyword.
+     *
+     * @return natural-keyword node
+     */
+    private STNode parseNaturalKeyword() {
+        STToken token = peek();
+        if (token.kind == SyntaxKind.NATURAL_KEYWORD) {
+            return consume();
+        }
+
+        if (isNaturalKeyword(token)) {
+            // this is to treat "natural" as a keyword, even if its parsed as an identifier from lexer.
+            return getNaturalKeyword(consume());
+        }
+
+        recover(token, ParserRuleContext.NATURAL_KEYWORD);
+        return parseNaturalKeyword();
+    }
+
+    static boolean isNaturalKeyword(STToken token) {
+        return token.kind == SyntaxKind.IDENTIFIER_TOKEN && LexerTerminals.NATURAL.equals(token.text());
+    }
+
+    private boolean isNaturalKeyword(STNode node) {
+        return node.kind == SyntaxKind.SIMPLE_NAME_REFERENCE &&
+                isNaturalKeyword((STToken) ((STSimpleNameReferenceNode) node).name);
+    }
+
+    private STNode getNaturalKeyword(STToken token) {
+        return STNodeFactory.createToken(SyntaxKind.NATURAL_KEYWORD, token.leadingMinutiae(), token.trailingMinutiae(),
+                token.diagnostics());
     }
 
     /**

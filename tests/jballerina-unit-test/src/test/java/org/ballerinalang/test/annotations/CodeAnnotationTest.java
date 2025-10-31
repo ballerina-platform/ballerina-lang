@@ -34,13 +34,13 @@ public class CodeAnnotationTest {
     @Test
     public void testExternalDependencyAnnotation() {
         CompileResult compileResult =
-                BCompileUtil.compile("test-src/annotations/code_annotation_negative.bal");
+                BCompileUtil.compileWithoutInitInvocation("test-src/annotations/code_annotation_negative.bal");
         int i = 0;
         BAssertUtil.validateError(compileResult, i++,
                 "annotation value expected for annotation of record type " +
                         "'record {| string prompt; |}' with required fields", 17, 17);
         BAssertUtil.validateError(compileResult, i++,
-                "missing non-defaultable required record field 'prompt'", 19, 23);
+                "missing non-defaultable required record field 'prompt'", 19, 31);
         BAssertUtil.validateError(compileResult, i++,
                 "incompatible types: expected 'string', found 'int'", 22, 13);
         Assert.assertEquals(compileResult.getErrorCount(), i);

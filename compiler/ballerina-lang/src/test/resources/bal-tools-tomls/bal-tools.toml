@@ -1,0 +1,128 @@
+[[tool]]
+id = "scan"
+org = "ballerina"
+name = "tool_scan"
+version = "0.9.0"
+active = true
+
+[[tool]]
+id = "dummyToolX"
+org = "ballerinax"
+name = "tool_dummyToolX"
+version = "0.1.7"
+active = true
+
+[[tool]]
+id = "dummyToolC"
+org = "ballerina"
+name = "tool_dummyToolC"
+version = "1.0.0"
+active = false
+
+[[tool]]
+id = "dummyToolC"
+org = "ballerina"
+name = "tool_dummyToolC"
+version = "1.1.5"
+active = true
+
+[[tool]]
+id = "dummyToolD"
+org = "ballerina"
+name = "tool_dummyToolD"
+version = "1.0.0"
+active = true
+
+[[tool]]
+id = "dummyToolA"
+org = "ballerina"
+name = "tool_dummyToolA"
+version = "1.2.2"
+active = false
+repository = "local"
+
+[[tool]]
+id = "dummyToolA"
+org = "ballerina"
+name = "tool_dummyToolA"
+version = "1.2.0"
+active = false
+
+[[tool]]
+id = "dummyToolA"
+org = "ballerina"
+name = "tool_dummyToolA"
+version = "1.1.0"
+active = false
+
+[[tool]]
+id = "dummyToolA"
+org = "ballerina"
+name = "tool_dummyToolA"
+version = "1.3.0" # incompatible
+active = true
+
+[[tool]]
+id = "dummyToolB"
+org = "ballerina"
+name = "tool_dummyToolB"
+version = "1.2.0" # incompatible
+active = true
+
+[[tool]]
+id = "dummyToolB"
+org = "ballerina"
+name = "tool_dummyToolB"
+version = "1.1.0"
+active = false
+
+[[tool]]
+id = "dummyToolF"
+org = "ballerina"
+name = "tool_dummyToolF"
+version = "1.0.1"
+active = false
+
+[[tool]]
+id = "dummyToolF"
+org = "ballerina"
+name = "tool_dummyToolF"
+version = "1.0.2"
+active = false
+
+[[tool]]
+id = "dummyToolG"
+org = "ballerina"
+name = "tool_dummyToolG"
+version = "2.4.0"
+active = true
+repository = "local"
+
+[[tool]]
+id = "dummyToolH"
+org = "ballerina"
+name = "tool_dummyToolH"
+version = "1.1.0"
+active = true
+repository = "local"
+
+[[tool]]
+id = "dummyToolH"
+org = "ballerina"
+name = "tool_dummyToolH"
+version = "1.1.0"
+active = false
+
+[[tool]]
+id = "dummyToolH"
+org = "ballerina"
+name = "tool_dummyToolH"
+version = "1.1.1"
+active = false
+
+[[tool]]
+id = "bindgen"
+org = "ballerina"
+name = "tool_scan"
+version = "0.9.0"
+active = true

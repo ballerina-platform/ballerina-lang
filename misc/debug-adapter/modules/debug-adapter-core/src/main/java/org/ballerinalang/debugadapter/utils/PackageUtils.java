@@ -27,6 +27,7 @@ import io.ballerina.projects.directory.BuildProject;
 import io.ballerina.projects.directory.SingleFileProject;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectPaths;
+import org.ballerinalang.debugadapter.DebugProjectCache;
 import org.ballerinalang.debugadapter.DebugSourceType;
 import org.ballerinalang.debugadapter.ExecutionContext;
 import org.ballerinalang.debugadapter.SuspendedContext;
@@ -43,6 +44,8 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.StringJoiner;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import static io.ballerina.projects.util.ProjectConstants.BALLERINA_TOML;
 import static io.ballerina.projects.util.ProjectPaths.isBalFile;
@@ -57,7 +60,6 @@ public final class PackageUtils {
 
     public static final String BAL_FILE_EXT = ".bal";
     public static final String BAL_TOML_FILE_NAME = "Ballerina.toml";
-    public static final String INIT_CLASS_NAME = "$_init";
     public static final String INIT_TYPE_INSTANCE_PREFIX = "$type$";
     public static final String GENERATED_VAR_PREFIX = "$";
     static final String USER_MODULE_DIR = "modules";
@@ -66,8 +68,23 @@ public final class PackageUtils {
     static final String TEST_PKG_POSTFIX = "$test";
     private static final String URI_SCHEME_FILE = "file";
     public static final String URI_SCHEME_BALA = "bala";
-
+    public static final String[] TYPE_PREFIXES = {
+            "types.record_types",
+            "types.union_types",
+            "types.object_types",
+            "types.error_types",
+            "types.tuple_types"
+    };
+    public static final String GLOBAL_VARIABLES_PACKAGE_NAME = "identifiers.global_vars";
+    public static final String GLOBAL_CONSTANTS_PACKAGE_NAME = "identifiers.constants";
+    public static final String ALL_GLOBAL_VAR_CLASS_NAME = "$global_vars";
+    public static final String ALL_CONSTANTS_CLASS_NAME = "$constants";
+    public static final String LOAD_DEBUG_VARIABLES_METHOD = "loadDebugVariables";
+    public static final String TYPE_VAR_FIELD_NAME = "t";
+    public static final String VALUE_VAR_FIELD_NAME = "v";
+    private static final String OBJECT_CLASS_PATTERN = "values" + File.separator;
     private static final String FILE_SEPARATOR_REGEX = File.separatorChar == '\\' ? "\\\\" : File.separator;
+    private static final String WORKSPACE_KEY = "workspace";
 
     private PackageUtils() {
     }
@@ -76,11 +93,12 @@ public final class PackageUtils {
      * Returns the corresponding debug source path based on the given stack frame location.
      *
      * @param stackFrameLocation stack frame location
-     * @param sourceProject      project instance of the detected debug source
      */
-    public static Optional<Map.Entry<Path, DebugSourceType>> getStackFrameSourcePath(Location stackFrameLocation,
-                                                                                     Project sourceProject) {
-        // Source resolving is processed according to the following order .
+    public static Optional<Map.Entry<Path, DebugSourceType>> getStackFrameSourcePath(ExecutionContext context,
+                                                                                     Project sourceProject,
+                                                                                     Location stackFrameLocation) {
+        DebugProjectCache projectCache = context.getProjectCache();
+        // Source resolving is processed according to the following order.
         // 1. Checks whether debug hit location resides within the current debug source project and if so, returns
         // the absolute path of the project file source.
         // 2. Checks whether the debug hit location resides within a internal dependency (lang library) and if so,
@@ -88,9 +106,9 @@ public final class PackageUtils {
         // 3. Checks whether the debug hit location resides within a external dependency (standard library or central
         // module) and if so, returns the dependency file path resolved using package resolution.
         List<SourceResolver> sourceResolvers = new ArrayList<>();
-        sourceResolvers.add(new ProjectSourceResolver(sourceProject));
-        sourceResolvers.add(new LangLibSourceResolver(sourceProject));
-        sourceResolvers.add(new DependencySourceResolver(sourceProject));
+        sourceResolvers.add(new ProjectSourceResolver(sourceProject, projectCache));
+        sourceResolvers.add(new LangLibSourceResolver(sourceProject, projectCache));
+        sourceResolvers.add(new DependencySourceResolver(sourceProject, projectCache));
 
         for (SourceResolver sourceResolver : sourceResolvers) {
             if (sourceResolver.isSupported(stackFrameLocation)) {
@@ -113,10 +131,18 @@ public final class PackageUtils {
      * @param path file path
      * @return A pair of project kind and the project root.
      */
-    public static Map.Entry<ProjectKind, Path> computeProjectKindAndRoot(Path path) {
+    public static Map.Entry<ProjectKind, Path> computeProjectKindAndRoot(Path path, boolean allowWorkspaceProjects) {
         if (ProjectPaths.isStandaloneBalFile(path) && !isBalToolSpecificFile(path)) {
             return new AbstractMap.SimpleEntry<>(ProjectKind.SINGLE_FILE_PROJECT, path);
         }
+
+        if (allowWorkspaceProjects) {
+            Optional<Path> workspaceRoot = ProjectPaths.workspaceRoot(path);
+            if (workspaceRoot.isPresent()) {
+                return new AbstractMap.SimpleEntry<>(ProjectKind.WORKSPACE_PROJECT, workspaceRoot.get());
+            }
+        }
+
         // TODO: Revert 'findProjectRoot()' to `ProjectPaths.packageRoot()` API once
         //  https://github.com/ballerina-platform/ballerina-lang/issues/43538#issuecomment-2469488458
         //  is addressed from the Ballerina platform side.
@@ -213,15 +239,17 @@ public final class PackageUtils {
      * @param className class name
      * @return full-qualified class name
      */
-    public static String getQualifiedClassName(SuspendedContext context, String className) {
-        if (context.getSourceType() == DebugSourceType.SINGLE_FILE) {
-            return className;
-        }
+    public static String getQualifiedClassName(SuspendedContext context, String className, String... packageNames) {
         StringJoiner classNameJoiner = new StringJoiner(".");
-        classNameJoiner.add(context.getPackageOrg().get())
-                .add(context.getModuleName().get())
-                .add(context.getPackageMajorVersion().get())
-                .add(className);
+        if (context.getSourceType() != DebugSourceType.SINGLE_FILE) {
+            classNameJoiner.add(context.getPackageOrg().get())
+                    .add(context.getModuleName().get())
+                    .add(context.getPackageMajorVersion().get());
+        }
+        for (String packageName : packageNames) {
+            classNameJoiner.add(packageName);
+        }
+        classNameJoiner.add(className);
         return classNameJoiner.toString();
     }
 
@@ -238,7 +266,7 @@ public final class PackageUtils {
                 return Optional.empty();
             }
 
-            Project project = context.getProjectCache().getProject(path.get());
+            Project project = context.getProjectCache().getOrLoadProject(path.get());
             // This triggers a resolution request to load all the generated modules, if not loaded already.
             project.currentPackage().getResolution();
 
@@ -284,8 +312,8 @@ public final class PackageUtils {
             if (paths.isEmpty() || names.isEmpty()) {
                 return referenceType.name();
             }
-            String path = paths.get(0);
-            String name = names.get(0);
+            String path = paths.getFirst();
+            String name = names.getFirst();
             String[] nameParts = getQModuleNameParts(name);
             String srcFileName = nameParts[nameParts.length - 1];
 
@@ -295,7 +323,12 @@ public final class PackageUtils {
 
             // Removes ".bal" extension if exists.
             srcFileName = srcFileName.replaceAll(BAL_FILE_EXT + "$", "");
-            path = path.replaceAll(name + "$", srcFileName);
+            if (path.contains(OBJECT_CLASS_PATTERN)) {
+                path = path.replaceAll(Pattern.quote(OBJECT_CLASS_PATTERN + name) + "$",
+                        Matcher.quoteReplacement(srcFileName));
+            } else {
+                path = path.replaceAll(Pattern.quote(name) + "$", Matcher.quoteReplacement(srcFileName));
+            }
             return replaceSeparators(path);
         } catch (Exception e) {
             return referenceType.name();

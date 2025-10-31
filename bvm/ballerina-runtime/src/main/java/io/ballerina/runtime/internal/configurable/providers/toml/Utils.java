@@ -169,7 +169,7 @@ public final class Utils {
                  TypeTags.BYTE_TAG -> kind == TomlType.INTEGER;
             case TypeTags.BOOLEAN_TAG -> kind == TomlType.BOOLEAN;
             case TypeTags.FLOAT_TAG,
-                 TypeTags.DECIMAL_TAG -> kind == TomlType.DOUBLE;
+                 TypeTags.DECIMAL_TAG -> kind == TomlType.INTEGER || kind == TomlType.DOUBLE;
             case TypeTags.STRING_TAG,
                  TypeTags.UNION_TAG,
                  TypeTags.XML_ATTRIBUTES_TAG,
@@ -377,7 +377,14 @@ public final class Utils {
         visitedNodes.add(tomlNode);
         return switch (tomlNode.kind()) {
             case STRING -> StringUtils.fromString(((TomlStringValueNode) tomlNode).getValue());
-            case INTEGER -> ((TomlLongValueNode) tomlNode).getValue();
+            case INTEGER -> {
+                Long val = ((TomlLongValueNode) tomlNode).getValue();
+                if (TypeUtils.getType(val).getTag() == TypeTags.INT_TAG) {
+                    yield val.intValue();
+                } else {
+                    yield val;
+                }
+            }
             case DOUBLE -> validateAndGetFiniteDoubleValue(
                     (TomlDoubleValueNodeNode) tomlNode, finiteType, invalidTomlLines, variableName);
             case BOOLEAN -> ((TomlBooleanValueNode) tomlNode).getValue();

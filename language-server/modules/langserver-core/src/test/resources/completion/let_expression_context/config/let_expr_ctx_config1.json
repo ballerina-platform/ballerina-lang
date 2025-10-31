@@ -4,6 +4,7 @@
     "character": 8
   },
   "source": "let_expression_context/source/let_expr_ctx_source1.bal",
+  "description": "",
   "items": [
     {
       "label": "ballerina/lang.test",
@@ -561,6 +562,14 @@
       "detail": "Typedesc",
       "sortText": "BN",
       "insertText": "typedesc",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "natural",
+      "kind": "Unit",
+      "detail": "type",
+      "sortText": "G",
+      "insertText": "natural",
       "insertTextFormat": "Snippet"
     }
   ]

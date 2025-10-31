@@ -155,12 +155,9 @@ public class SuspendedContext {
 
     private Optional<Path> getSourcePath(Project sourceProject, StackFrameProxyImpl frame) {
         try {
-            Optional<Map.Entry<Path, DebugSourceType>> pathAndType = getStackFrameSourcePath(frame.location(),
-                    sourceProject);
-            if (pathAndType.isEmpty()) {
-                return Optional.empty();
-            }
-            return Optional.ofNullable(pathAndType.get().getKey());
+            Optional<Map.Entry<Path, DebugSourceType>> pathAndType = getStackFrameSourcePath(executionContext,
+                    sourceProject, frame.location());
+            return pathAndType.map(Map.Entry::getKey);
         } catch (InvalidStackFrameException | JdiProxyException e) {
             // Todo - How to handle InvalidStackFrameException?
             return Optional.empty();
@@ -262,7 +259,7 @@ public class SuspendedContext {
     private Project resolveCurrentProject(Project sourceProject) {
         Optional<Path> breakPointSourcePath = getBreakPointSourcePath(sourceProject);
         if (breakPointSourcePath.isPresent()) {
-            return executionContext.getProjectCache().getProject(breakPointSourcePath.get());
+            return executionContext.getProjectCache().getOrLoadProject(breakPointSourcePath.get());
         }
         return sourceProject;
     }

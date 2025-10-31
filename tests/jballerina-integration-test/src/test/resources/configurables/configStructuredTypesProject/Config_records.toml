@@ -43,6 +43,13 @@ address.city="Nugegoda"
 name = "riyafa"
 id = 12
 
+[personWithFiniteFields]
+stringRef = "stringRefType"
+intRef = 10
+floatRef = 3.14
+doubleRef = 2.71828
+booleanRef = true
+
 [lecturer]
 name="hinduja"
 department1.name="IT"

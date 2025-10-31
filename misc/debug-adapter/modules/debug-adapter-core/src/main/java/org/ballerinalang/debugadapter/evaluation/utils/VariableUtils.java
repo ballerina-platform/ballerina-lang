@@ -35,7 +35,9 @@ import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.B_
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.GET_BMAP_TYPE_METHOD;
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.MODULE_VERSION_SEPARATOR_REGEX;
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.loadClass;
-import static org.ballerinalang.debugadapter.utils.PackageUtils.INIT_CLASS_NAME;
+import static org.ballerinalang.debugadapter.utils.PackageUtils.GLOBAL_CONSTANTS_PACKAGE_NAME;
+import static org.ballerinalang.debugadapter.utils.PackageUtils.GLOBAL_VARIABLES_PACKAGE_NAME;
+import static org.ballerinalang.debugadapter.utils.PackageUtils.VALUE_VAR_FIELD_NAME;
 import static org.ballerinalang.debugadapter.variable.VariableUtils.UNKNOWN_VALUE;
 
 /**
@@ -54,8 +56,7 @@ public final class VariableUtils {
      */
     public static Optional<BExpressionValue> getModuleVariable(SuspendedContext context, ModuleSymbol moduleSymbol,
                                                                String nameReference) {
-        String classQName = getInitClassName(moduleSymbol);
-        return getFieldValue(context, classQName, nameReference);
+        return getFieldValue(context, moduleSymbol, nameReference);
     }
 
     /**
@@ -78,40 +79,63 @@ public final class VariableUtils {
     }
 
     /**
-     * Returns the fully-qualified name of the init class, for a given Ballerina module.
+     * load the given global variable.
+     * @param context context  suspended context
+     * @param className global variable class name
+     * @return global variable class reference
+     */
+    public static ReferenceType loadClassRef(SuspendedContext context, String className) {
+        List<ReferenceType> classRefs = context.getAttachedVm().classesByName(className);
+        if (classRefs != null && !classRefs.isEmpty()) {
+            classRefs.getFirst();
+        }
+        // Tries to load the required class instance using "java.lang.Class.forName()" method.
+        try {
+            classRefs = Collections.singletonList(loadClass(context, className, ""));
+            return classRefs.getFirst();
+        } catch (EvaluationException e) {
+            return null;
+        }
+    }
+
+    /**
+     * Returns the fully-qualified name of the global variable class, for a given Ballerina module.
      *
      * @param moduleSymbol module symbol retrieved from the semantic API
+     * @param varName      module variable name
+     * @param packageNames class package names
      * @return fully-qualified class name
      */
-    private static String getInitClassName(ModuleSymbol moduleSymbol) {
+    private static String getVariableClassName(ModuleSymbol moduleSymbol, String varName,
+                                               String... packageNames) {
         StringJoiner classNameJoiner = new StringJoiner(".");
         classNameJoiner.add(moduleSymbol.id().orgName())
                 .add(encodeModuleName(moduleSymbol.id().moduleName()))
-                .add(moduleSymbol.id().version().split(MODULE_VERSION_SEPARATOR_REGEX)[0])
-                .add(INIT_CLASS_NAME);
+                .add(moduleSymbol.id().version().split(MODULE_VERSION_SEPARATOR_REGEX)[0]);
+        for (String packageName : packageNames) {
+            classNameJoiner.add(packageName);
+        }
+        classNameJoiner.add(varName);
         return classNameJoiner.toString();
     }
 
-    private static Optional<BExpressionValue> getFieldValue(SuspendedContext context, String qualifiedClassName,
+
+    private static Optional<BExpressionValue> getFieldValue(SuspendedContext context, ModuleSymbol moduleSymbol,
                                                             String fieldName) {
-        List<ReferenceType> classesRef = context.getAttachedVm().classesByName(qualifiedClassName);
-        // Tries to load the required class instance using "java.lang.Class.forName()" method.
-        if (classesRef == null || classesRef.isEmpty()) {
-            try {
-                classesRef = Collections.singletonList(loadClass(context, qualifiedClassName, ""));
-            } catch (EvaluationException e) {
-                return Optional.empty();
-            }
+        String globalVarClassName = getVariableClassName(moduleSymbol, fieldName, GLOBAL_VARIABLES_PACKAGE_NAME);
+        ReferenceType classRef = loadClassRef(context, globalVarClassName);
+        if (classRef == null) {
+            String constantClassName = getVariableClassName(moduleSymbol, fieldName, GLOBAL_CONSTANTS_PACKAGE_NAME);
+            classRef = loadClassRef(context, constantClassName);
         }
-        if (classesRef.size() != 1) {
+        if (classRef == null) {
             return Optional.empty();
         }
-
-        Field field = classesRef.get(0).fieldByName(fieldName);
+        Field field = classRef.fieldByName(VALUE_VAR_FIELD_NAME);
         if (field == null) {
             return Optional.empty();
         }
-        return Optional.of(new BExpressionValue(context, classesRef.get(0).getValue(field)));
+        return Optional.of(new BExpressionValue(context, classRef.getValue(field)));
     }
 
     private VariableUtils() {

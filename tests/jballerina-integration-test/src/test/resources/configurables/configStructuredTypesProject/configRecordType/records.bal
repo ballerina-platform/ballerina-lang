@@ -39,6 +39,7 @@ configurable type_defs:Lawyer lawyer2 = ?;
 // Complex records
 configurable type_defs:Person person = ?;
 configurable type_defs:Person person2 = ?;
+configurable type_defs:PersonWithFiniteFields personWithFiniteFields = ?;
 
 //From non-default packages
 configurable configLib:Manager & readonly manager = ?;
@@ -72,6 +73,11 @@ public function testRecords() {
     test:assertEquals(person3.id, 12);
     test:assertEquals(person3.address.city, "Galle");
     test:assertEquals(person3.address.country.name, "SL");
+    test:assertEquals(personWithFiniteFields.stringRef, "stringRefType");
+    test:assertEquals(personWithFiniteFields.intRef, 10);
+    test:assertEquals(personWithFiniteFields.floatRef, 3.14);
+    test:assertEquals(personWithFiniteFields.doubleRef, 2.71828);
+    test:assertEquals(personWithFiniteFields.booleanRef, true);
 }
 
 public function testRecordIteration() {

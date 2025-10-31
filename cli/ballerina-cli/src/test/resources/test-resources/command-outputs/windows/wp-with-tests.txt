@@ -1,0 +1,14 @@
+Resolving workspace dependencies
+
+Compiling source
+	asmaj/depB:0.1.0
+
+Compiling source
+	asmaj/bye:0.1.0
+	No tests found
+
+Compiling source
+	asmaj/depA:0.1.0
+
+Compiling source
+	asmaj/hello_app:0.1.0

@@ -4,6 +4,7 @@
     "character": 36
   },
   "source": "query_expression/source/query_expr_ctx_source29.bal",
+  "description": "",
   "items": [
     {
       "label": "let",
@@ -754,6 +755,23 @@
       "sortText": "CP",
       "filterText": "xml ``",
       "insertText": "xml `${1}`",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "natural",
+      "kind": "Unit",
+      "detail": "type",
+      "sortText": "CR",
+      "insertText": "natural",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "natural (..) {..}",
+      "kind": "Snippet",
+      "detail": "Snippet",
+      "sortText": "CP",
+      "filterText": "natural (..) {..}",
+      "insertText": "natural (${1}) {${2}}",
       "insertTextFormat": "Snippet"
     }
   ]

@@ -31,7 +31,6 @@ import io.ballerina.runtime.api.values.BListInitialValueEntry;
 import io.ballerina.runtime.api.values.BMapInitialValueEntry;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BTypedesc;
-import io.ballerina.runtime.internal.scheduling.Strand;
 import io.ballerina.runtime.internal.types.BAnnotatableType;
 import io.ballerina.runtime.internal.types.BTypedescType;
 
@@ -84,17 +83,17 @@ public class TypedescValueImpl implements TypedescValue {
     }
 
     @Override
-    public Object instantiate(Strand s) {
+    public Object instantiate() {
         Type referredType = getImpliedType(this.describingType);
         if (referredType.getTag() == TypeTags.MAP_TAG || referredType.getTag() == TypeTags.RECORD_TYPE_TAG) {
-            return instantiate(s, new MappingInitialValueEntry[0]);
+            return instantiate(new MappingInitialValueEntry[0]);
         }
 
-        return instantiate(s, new BInitialValueEntry[0]);
+        return instantiate(new BInitialValueEntry[0]);
     }
 
     @Override
-    public Object instantiate(Strand s, BInitialValueEntry[] initialValues) {
+    public Object instantiate(BInitialValueEntry[] initialValues) {
         Type referredType = getImpliedType(this.describingType);
         if (referredType.getTag() == TypeTags.MAP_TAG) {
             return new MapValueImpl<>(this.describingType, (BMapInitialValueEntry[]) initialValues);

@@ -263,7 +263,6 @@ class PackageContext {
                 .setDumpRawGraphs(this.compilationOptions.dumpRawGraphs())
                 .setListConflictedClasses(this.compilationOptions.listConflictedClasses())
                 .setConfigSchemaGen(this.compilationOptions.configSchemaGen())
-                .setEnableCache(this.compilationOptions.enableCache())
                 .setRemoteManagement(this.compilationOptions.remoteManagement())
                 .build();
         CompilationOptions mergedOptions = options.acceptTheirs(compilationOptions);
@@ -296,6 +295,13 @@ class PackageContext {
     BuildToolResolution getBuildToolResolution() {
         if (buildToolResolution == null) {
             buildToolResolution = BuildToolResolution.from(this);
+        }
+        return buildToolResolution;
+    }
+
+    BuildToolResolution getBuildToolResolution(CompilationOptions compilationOptions) {
+        if (buildToolResolution == null) {
+            buildToolResolution = BuildToolResolution.from(this, compilationOptions);
         }
         return buildToolResolution;
     }

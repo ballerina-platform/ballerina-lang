@@ -70,6 +70,20 @@ id=444
 name="hinduja"
 id=888
 
+[[personWithFiniteFieldsTable]]
+stringRef = "stringRefType"
+intRef = 10
+floatRef = 3.14
+doubleRef = 2.71828
+booleanRef = true
+
+[[personWithFiniteFieldsTable]]
+stringRef = "stringRefType"
+intRef = 10
+floatRef = 3.14
+doubleRef = 2.71828
+booleanRef = true
+
 [[personTable]]
 name = "riyafa"
 id = 13

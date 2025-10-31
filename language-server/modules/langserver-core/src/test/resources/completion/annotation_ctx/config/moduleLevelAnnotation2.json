@@ -4,6 +4,7 @@
     "character": 1
   },
   "source": "annotation_ctx/source/moduleLevelAnnotation2.bal",
+  "description": "",
   "items": [
     {
       "label": "ballerina/jballerina.java",
@@ -498,13 +499,12 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "code",
-      "kind": "Property",
-      "detail": "Annotation",
-      "sortText": "B",
-      "insertText": "code {\n\tprompt: ${1:\"\"}\n}",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": []
+      "label": "natural",
+      "kind": "Unit",
+      "detail": "type",
+      "sortText": "R",
+      "insertText": "natural",
+      "insertTextFormat": "Snippet"
     }
   ]
 }

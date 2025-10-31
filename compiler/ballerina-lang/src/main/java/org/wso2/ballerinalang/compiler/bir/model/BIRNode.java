@@ -29,9 +29,11 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.NamedNode;
 import org.wso2.ballerinalang.compiler.util.Name;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -65,6 +67,7 @@ public abstract class BIRNode {
         public final List<BIRConstant> constants;
         public final List<BIRServiceDeclaration> serviceDecls;
         public boolean isListenerAvailable;
+        public Map<String, Map<String, String>> recordDefaultValueMap = new HashMap<>();
 
         public BIRPackage(Location pos, Name org, Name pkgName, Name name, Name version,
                           Name sourceFileName, String sourceRoot, boolean skipTest) {
@@ -381,15 +384,15 @@ public abstract class BIRNode {
         // Below fields will only be available on resource functions
         // TODO: consider creating a sub class for resource functions issue: #36964
         public List<BIRVariableDcl> pathParams;
-        
+
         public BIRVariableDcl restPathParam;
-        
+
         public List<Name> resourcePath;
-        
+
         public List<Location> resourcePathSegmentPosList;
-        
+
         public Name accessor;
-        
+
         public List<BType> pathSegmentTypeList;
 
         public boolean hasWorkers;
@@ -487,20 +490,20 @@ public abstract class BIRNode {
         public BIRTerminator terminator;
         public static final String BIR_BASIC_BLOCK_PREFIX = "bb";
 
-        public BIRBasicBlock(int number) {
+        public BIRBasicBlock(Name id, int number) {
             super(null);
             this.number = number;
-            this.id = new Name(BIR_BASIC_BLOCK_PREFIX + number);
+            this.id = id;
             this.instructions = new ArrayList<>();
             this.terminator = null;
         }
 
+        public BIRBasicBlock(int number) {
+            this(new Name(BIR_BASIC_BLOCK_PREFIX + number), number);
+        }
+
         public BIRBasicBlock(String idPrefix, int number) {
-            super(null);
-            this.number = number;
-            this.id = new Name(idPrefix + number);
-            this.instructions = new ArrayList<>();
-            this.terminator = null;
+            this(new Name(idPrefix + number), number);
         }
 
         @Override
@@ -719,11 +722,6 @@ public abstract class BIRNode {
         public Name name;
 
         /**
-         * Original name of the constant.
-         */
-        public Name originalName;
-
-        /**
          * Value for the Flags.
          */
         public long flags;
@@ -748,11 +746,10 @@ public abstract class BIRNode {
          */
         public List<BIRAnnotationAttachment> annotAttachments;
 
-        public BIRConstant(Location pos, Name name, Name originalName, long flags,
-                           BType type, ConstValue constValue, SymbolOrigin origin) {
+        public BIRConstant(Location pos, Name name, long flags, BType type, ConstValue constValue,
+                           SymbolOrigin origin) {
             super(pos);
             this.name = name;
-            this.originalName = originalName;
             this.flags = flags;
             this.type = type;
             this.constValue = constValue;

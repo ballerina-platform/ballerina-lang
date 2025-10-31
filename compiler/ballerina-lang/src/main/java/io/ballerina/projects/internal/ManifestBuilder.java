@@ -30,6 +30,7 @@ import io.ballerina.projects.PlatformLibraryScope;
 import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.SemanticVersion;
 import io.ballerina.projects.TomlDocument;
+import io.ballerina.projects.environment.PackageLockingMode;
 import io.ballerina.projects.internal.model.BalToolDescriptor;
 import io.ballerina.projects.internal.model.CompilerPluginDescriptor;
 import io.ballerina.projects.util.FileUtils;
@@ -53,7 +54,6 @@ import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.diagnostics.DiagnosticInfo;
 import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 import org.apache.commons.io.FilenameUtils;
-import org.ballerinalang.compiler.CompilerOptionName;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -92,6 +92,7 @@ public class ManifestBuilder {
     private final TomlDocument ballerinaToml;
     private final TomlDocument compilerPluginToml;
     private final TomlDocument balToolToml;
+    private final String packageOrg;
     private DiagnosticResult diagnostics;
     private final List<Diagnostic> diagnosticList;
     private final PackageManifest packageManifest;
@@ -130,18 +131,21 @@ public class ManifestBuilder {
     private static final String TOOL = "tool";
     private static final String DESCRIPTION = "description";
     private static final String README = "readme";
+    private static final String SKIP_WORKSPACE = "skipWorkspace";
 
     private boolean isOldStructure;
 
     private ManifestBuilder(TomlDocument ballerinaToml,
                             TomlDocument compilerPluginToml,
                             TomlDocument balToolToml,
-                            Path projectPath) {
+                            Path projectPath,
+                            String packageOrg) {
         this.projectPath = projectPath;
         this.ballerinaToml = ballerinaToml;
         this.compilerPluginToml = compilerPluginToml;
         this.balToolToml = balToolToml;
         this.diagnosticList = new ArrayList<>();
+        this.packageOrg = packageOrg;
         this.packageManifest = parseAsPackageManifest();
         this.buildOptions = parseBuildOptions();
     }
@@ -150,7 +154,14 @@ public class ManifestBuilder {
                                        TomlDocument compilerPluginToml,
                                        TomlDocument balToolToml,
                                        Path projectPath) {
-        return new ManifestBuilder(ballerinaToml, compilerPluginToml, balToolToml, projectPath);
+        return new ManifestBuilder(ballerinaToml, compilerPluginToml, balToolToml, projectPath, null);
+    }
+
+    public static ManifestBuilder from(TomlDocument ballerinaToml,
+                                       TomlDocument compilerPluginToml,
+                                       TomlDocument balToolToml,
+                                       Path projectPath, String packageOrg) {
+        return new ManifestBuilder(ballerinaToml, compilerPluginToml, balToolToml, projectPath, packageOrg);
     }
 
     public DiagnosticResult diagnostics() {
@@ -292,7 +303,8 @@ public class ManifestBuilder {
         }
         return PackageManifest.from(packageDescriptor, pluginDescriptor, balToolDescriptor, platforms,
                 localRepoDependencies, otherEntries, diagnostics(), license, authors, keywords, exported, includes,
-                repository, ballerinaVersion, visibility, template, icon, tools, readme, description, moduleEntries);
+                repository, ballerinaVersion, visibility, template, icon, tools, readme, description, moduleEntries,
+                buildOptions);
     }
 
     private List<PackageManifest.Module> getModuleEntries(
@@ -597,6 +609,13 @@ public class ManifestBuilder {
                             "Defaulting to 'org = \"" + org + "\"'",
                     ProjectDiagnosticErrorCode.MISSING_PKG_INFO_IN_BALLERINA_TOML,
                     DiagnosticSeverity.WARNING);
+        } else if (this.packageOrg != null && !this.packageOrg.equals(org)) {
+            // If the org is set in the project, use that instead of the one in Ballerina.toml
+            reportDiagnostic(pkgNode.entries().get(ORG),
+                    "multiple orgs are not allowed in a workspace. Found '" +
+                            org + "', defaulting to '" + this.packageOrg + "'",
+                    ProjectDiagnosticErrorCode.ORG_NAME_MISMATCH_IN_WORKSPACE, DiagnosticSeverity.WARNING);
+            org = this.packageOrg;
         }
         name = getStringValueFromTomlTableNode(pkgNode, NAME, "");
         if (pkgNode.entries().get(NAME) == null) {
@@ -842,6 +861,7 @@ public class ManifestBuilder {
                 String org = getStringValueFromDependencyNode(dependencyNode, ORG);
                 String version = getStringValueFromDependencyNode(dependencyNode, VERSION);
                 String repository = getStringValueFromDependencyNode(dependencyNode, REPOSITORY);
+                Boolean skipWorkspace = getBooleanValueFromTomlTableNode(dependencyNode, SKIP_WORKSPACE);
 
                 PackageName depName = PackageName.from(name);
                 PackageOrg depOrg = PackageOrg.from(org);
@@ -855,7 +875,8 @@ public class ManifestBuilder {
                 }
 
                 dependencies.add(new PackageManifest.Dependency(
-                        depName, depOrg, depVersion, repository, dependencyNode.location()));
+                        depName, depOrg, depVersion, repository, dependencyNode.location(),
+                        Boolean.TRUE.equals(skipWorkspace)));
             }
         }
         return dependencies;
@@ -884,30 +905,29 @@ public class ManifestBuilder {
 
         BuildOptions.BuildOptionsBuilder buildOptionsBuilder = BuildOptions.builder();
 
-        Boolean offline = getBooleanFromBuildOptionsTableNode(tableNode, CompilerOptionName.OFFLINE.toString());
+        Boolean offline = getBooleanFromBuildOptionsTableNode(tableNode, BuildOptions.OptionName.OFFLINE.toString());
         Boolean experimental =
-                getBooleanFromBuildOptionsTableNode(tableNode, CompilerOptionName.EXPERIMENTAL.toString());
+                getBooleanFromBuildOptionsTableNode(tableNode, BuildOptions.OptionName.EXPERIMENTAL.toString());
         Boolean observabilityIncluded =
-                getBooleanFromBuildOptionsTableNode(tableNode, CompilerOptionName.OBSERVABILITY_INCLUDED.toString());
+                getBooleanFromBuildOptionsTableNode(tableNode, BuildOptions.OptionName.OBSERVABILITY_INCLUDED
+                        .toString());
         Boolean testReport =
                 getBooleanFromBuildOptionsTableNode(tableNode, BuildOptions.OptionName.TEST_REPORT.toString());
         Boolean codeCoverage =
                 getBooleanFromBuildOptionsTableNode(tableNode, BuildOptions.OptionName.CODE_COVERAGE.toString());
-        final TopLevelNode topLevelNode = tableNode.entries().get(CompilerOptionName.CLOUD.toString());
+        final TopLevelNode topLevelNode = tableNode.entries().get(BuildOptions.OptionName.CLOUD.toString());
         Boolean dumpBuildTime =
                 getBooleanFromBuildOptionsTableNode(tableNode, BuildOptions.OptionName.DUMP_BUILD_TIME.toString());
         Boolean sticky =
-                getTrueFromBuildOptionsTableNode(tableNode, CompilerOptionName.STICKY.toString());
+                getBooleanFromBuildOptionsTableNode(tableNode, BuildOptions.OptionName.STICKY.toString());
         String cloud = "";
         if (topLevelNode != null) {
             cloud = getStringFromTomlTableNode(topLevelNode);
         }
         Boolean listConflictedClasses = getBooleanFromBuildOptionsTableNode(tableNode,
-                CompilerOptionName.LIST_CONFLICTED_CLASSES.toString());
+                BuildOptions.OptionName.LIST_CONFLICTED_CLASSES.toString());
         String targetDir = getStringFromBuildOptionsTableNode(tableNode,
                 BuildOptions.OptionName.TARGET_DIR.toString());
-        Boolean enableCache = getBooleanFromBuildOptionsTableNode(tableNode,
-                CompilerOptionName.ENABLE_CACHE.toString());
         Boolean nativeImage = getBooleanFromBuildOptionsTableNode(tableNode,
                 BuildOptions.OptionName.NATIVE_IMAGE.toString());
         Boolean exportComponentModel = getBooleanFromBuildOptionsTableNode(tableNode,
@@ -915,13 +935,14 @@ public class ManifestBuilder {
         String graalVMBuildOptions = getStringFromBuildOptionsTableNode(tableNode,
                 BuildOptions.OptionName.GRAAL_VM_BUILD_OPTIONS.toString());
         Boolean remoteManagement = getBooleanFromBuildOptionsTableNode(tableNode,
-                CompilerOptionName.REMOTE_MANAGEMENT.toString());
+                BuildOptions.OptionName.REMOTE_MANAGEMENT.toString());
         Boolean showDependencyDiagnostics = getBooleanFromBuildOptionsTableNode(tableNode,
                 BuildOptions.OptionName.SHOW_DEPENDENCY_DIAGNOSTICS.toString());
         Boolean optimizeDependencyCompilation = getBooleanFromBuildOptionsTableNode(tableNode,
                 BuildOptions.OptionName.OPTIMIZE_DEPENDENCY_COMPILATION.toString());
-        String lockingMode = getStringFromBuildOptionsTableNode(tableNode,
-                CompilerOptionName.LOCKING_MODE.toString());
+        String lockingModeVal = getStringFromBuildOptionsTableNode(tableNode,
+                BuildOptions.OptionName.LOCKING_MODE.toString());
+        PackageLockingMode lockingMode = getPackageLockingMode(lockingModeVal, tableNode);
 
         buildOptionsBuilder
                 .setOffline(offline)
@@ -933,7 +954,6 @@ public class ManifestBuilder {
                 .setListConflictedClasses(listConflictedClasses)
                 .setDumpBuildTime(dumpBuildTime)
                 .setSticky(sticky)
-                .setEnableCache(enableCache)
                 .setNativeImage(nativeImage)
                 .setExportComponentModel(exportComponentModel)
                 .setGraalVMBuildOptions(graalVMBuildOptions)
@@ -947,6 +967,24 @@ public class ManifestBuilder {
         }
 
         return buildOptionsBuilder.build();
+    }
+
+    private PackageLockingMode getPackageLockingMode(String value, TomlTableNode tableNode) {
+        if (value != null) {
+            if (value.equalsIgnoreCase("soft")) {
+                return PackageLockingMode.SOFT;
+            } else if (value.equalsIgnoreCase("medium")) {
+                return PackageLockingMode.MEDIUM;
+            } else if (value.equalsIgnoreCase("hard")) {
+                return PackageLockingMode.HARD;
+            } else if (value.equalsIgnoreCase("locked")) {
+                return PackageLockingMode.LOCKED;
+            } else {
+                reportDiagnostic(tableNode, "invalid locking mode '" + value + "'",
+                        ProjectDiagnosticErrorCode.INVALID_LOCKING_MODE, DiagnosticSeverity.ERROR);
+            }
+        }
+        return null;
     }
 
     private Boolean getBooleanFromBuildOptionsTableNode(TomlTableNode tableNode, String key) {
@@ -998,23 +1036,6 @@ public class ManifestBuilder {
             }
         }
         return false;
-    }
-
-    private boolean getTrueFromBuildOptionsTableNode(TomlTableNode tableNode, String key) {
-        TopLevelNode topLevelNode = tableNode.entries().get(key);
-        if (topLevelNode == null || topLevelNode.kind() == TomlType.NONE) {
-            return true;
-        }
-
-        if (topLevelNode.kind() == TomlType.KEY_VALUE) {
-            TomlKeyValueNode keyValueNode = (TomlKeyValueNode) topLevelNode;
-            TomlValueNode value = keyValueNode.value();
-            if (value.kind() == TomlType.BOOLEAN) {
-                TomlBooleanValueNode tomlBooleanValueNode = (TomlBooleanValueNode) value;
-                return tomlBooleanValueNode.getValue();
-            }
-        }
-        return true;
     }
 
     public static String getStringValueFromTomlTableNode(TomlTableNode tomlTableNode, String key) {

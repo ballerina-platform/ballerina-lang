@@ -17,6 +17,8 @@
  */
 package io.ballerina.projects;
 
+import io.ballerina.projects.environment.PackageLockingMode;
+
 /**
  * The class {@code CompilationOptions} holds various Ballerina compilation options.
  *
@@ -38,19 +40,19 @@ public class CompilationOptions {
     Boolean configSchemaGen;
     Boolean exportOpenAPI;
     Boolean exportComponentModel;
-    Boolean enableCache;
     Boolean disableSyntaxTree;
     Boolean remoteManagement;
     Boolean optimizeDependencyCompilation;
-    String lockingMode;
+    PackageLockingMode lockingMode;
 
     CompilationOptions(Boolean offlineBuild, Boolean experimental,
                        Boolean observabilityIncluded, Boolean dumpBir, Boolean dumpBirFile,
                        String cloud, Boolean listConflictedClasses, Boolean sticky,
                        Boolean dumpGraph, Boolean dumpRawGraphs, Boolean withCodeGenerators,
                        Boolean withCodeModifiers, Boolean configSchemaGen, Boolean exportOpenAPI,
-                       Boolean exportComponentModel, Boolean enableCache, Boolean disableSyntaxTree,
-                       Boolean remoteManagement, Boolean optimizeDependencyCompilation, String lockingMode) {
+                       Boolean exportComponentModel, Boolean disableSyntaxTree,
+                       Boolean remoteManagement, Boolean optimizeDependencyCompilation,
+                       PackageLockingMode lockingMode) {
         this.offlineBuild = offlineBuild;
         this.experimental = experimental;
         this.observabilityIncluded = observabilityIncluded;
@@ -66,7 +68,6 @@ public class CompilationOptions {
         this.configSchemaGen = configSchemaGen;
         this.exportOpenAPI = exportOpenAPI;
         this.exportComponentModel = exportComponentModel;
-        this.enableCache = enableCache;
         this.disableSyntaxTree = disableSyntaxTree;
         this.remoteManagement = remoteManagement;
         this.optimizeDependencyCompilation = optimizeDependencyCompilation;
@@ -77,8 +78,9 @@ public class CompilationOptions {
         return toBooleanDefaultIfNull(this.offlineBuild);
     }
 
+    // TODO: remove this after removing the sticky option
     boolean sticky() {
-        return toBooleanTrueIfNull(this.sticky);
+        return toBooleanDefaultIfNull(this.sticky);
     }
 
     boolean experimental() {
@@ -133,10 +135,6 @@ public class CompilationOptions {
         return toBooleanDefaultIfNull(this.exportComponentModel);
     }
 
-    public boolean enableCache() {
-        return toBooleanDefaultIfNull(this.enableCache);
-    }
-
     boolean remoteManagement() {
         return toBooleanDefaultIfNull(this.remoteManagement);
     }
@@ -145,8 +143,8 @@ public class CompilationOptions {
         return toBooleanDefaultIfNull(this.optimizeDependencyCompilation);
     }
 
-    public String lockingMode() {
-        return toStringDefaultIfNull(this.lockingMode);
+    PackageLockingMode lockingMode() {
+        return this.lockingMode;
     }
 
     /**
@@ -232,11 +230,6 @@ public class CompilationOptions {
         } else {
             compilationOptionsBuilder.setExportComponentModel(this.exportComponentModel);
         }
-        if (theirOptions.enableCache != null) {
-            compilationOptionsBuilder.setEnableCache(theirOptions.enableCache);
-        } else {
-            compilationOptionsBuilder.setEnableCache(this.enableCache);
-        }
         if (theirOptions.remoteManagement != null) {
             compilationOptionsBuilder.setRemoteManagement(theirOptions.remoteManagement);
         } else {
@@ -249,6 +242,9 @@ public class CompilationOptions {
         }
         if (theirOptions.lockingMode != null) {
             compilationOptionsBuilder.setLockingMode(theirOptions.lockingMode);
+        } else if (compilationOptionsBuilder.sticky != null && compilationOptionsBuilder.sticky) {
+            // If sticky is true, set locking mode to HARD unless theirOptions has a locking mode
+            compilationOptionsBuilder.setLockingMode(PackageLockingMode.HARD);
         } else {
             compilationOptionsBuilder.setLockingMode(this.lockingMode);
         }
@@ -262,13 +258,6 @@ public class CompilationOptions {
     private boolean toBooleanDefaultIfNull(Boolean bool) {
         if (bool == null) {
             return false;
-        }
-        return bool;
-    }
-
-    private boolean toBooleanTrueIfNull(Boolean bool) {
-        if (bool == null) {
-            return true;
         }
         return bool;
     }
@@ -305,12 +294,11 @@ public class CompilationOptions {
         private Boolean configSchemaGen;
         private Boolean exportOpenAPI;
         private Boolean exportComponentModel;
-        private Boolean enableCache;
         private Boolean disableSyntaxTree;
         private Boolean remoteManagement;
         private Boolean optimizeDependencyCompilation;
         // TODO: remove this after fixing https://github.com/ballerina-platform/ballerina-library/issues/7755
-        private String lockingMode;
+        private PackageLockingMode lockingMode;
 
         public CompilationOptionsBuilder setOffline(Boolean value) {
             offline = value;
@@ -392,11 +380,6 @@ public class CompilationOptions {
             return this;
         }
 
-        public CompilationOptionsBuilder setEnableCache(Boolean value) {
-            enableCache = value;
-            return this;
-        }
-
         public CompilationOptionsBuilder setRemoteManagement(Boolean value) {
             remoteManagement = value;
             return this;
@@ -407,7 +390,7 @@ public class CompilationOptions {
             return this;
         }
 
-        public CompilationOptionsBuilder setLockingMode(String value) {
+        public CompilationOptionsBuilder setLockingMode(PackageLockingMode value) {
             lockingMode = value;
             return this;
         }
@@ -416,7 +399,7 @@ public class CompilationOptions {
             return new CompilationOptions(offline, experimental, observabilityIncluded, dumpBir,
                     dumpBirFile, cloud, listConflictedClasses, sticky, dumpGraph, dumpRawGraph,
                     withCodeGenerators, withCodeModifiers, configSchemaGen, exportOpenAPI,
-                    exportComponentModel, enableCache, disableSyntaxTree, remoteManagement,
+                    exportComponentModel, disableSyntaxTree, remoteManagement,
                     optimizeDependencyCompilation, lockingMode);
         }
     }

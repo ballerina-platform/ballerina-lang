@@ -48,6 +48,6 @@ public final class Constants {
     public static final String STRING_TYPE = "string";
     public static final String UNDERSCORE = "_";
     public static final char DOLLAR = '$';
-    public static final String RECORD_DELIMITER = DOLLAR + "rec" + DOLLAR;
+    public static final String RECORD_DELIMITER = DOLLAR + "r" + DOLLAR;
 
 }

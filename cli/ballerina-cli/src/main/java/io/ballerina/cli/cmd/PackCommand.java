@@ -11,11 +11,17 @@ import io.ballerina.cli.task.RunBuildToolsTask;
 import io.ballerina.cli.utils.BuildTime;
 import io.ballerina.cli.utils.FileUtils;
 import io.ballerina.projects.BuildOptions;
+import io.ballerina.projects.DependencyGraph;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectException;
+import io.ballerina.projects.ProjectKind;
 import io.ballerina.projects.directory.BuildProject;
+import io.ballerina.projects.directory.ProjectLoader;
+import io.ballerina.projects.directory.WorkspaceProject;
+import io.ballerina.projects.environment.PackageLockingMode;
 import io.ballerina.projects.internal.ProjectDiagnosticErrorCode;
 import io.ballerina.projects.util.ProjectConstants;
+import io.ballerina.projects.util.ProjectPaths;
 import io.ballerina.projects.util.ProjectUtils;
 import io.ballerina.toml.semantic.TomlType;
 import io.ballerina.toml.semantic.ast.TomlTableNode;
@@ -29,9 +35,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import static io.ballerina.cli.cmd.CommandUtil.resolveWorkspaceDependencies;
 import static io.ballerina.cli.cmd.Constants.PACK_COMMAND;
 import static io.ballerina.projects.internal.ManifestBuilder.getStringValueFromTomlTableNode;
-import static io.ballerina.projects.util.ProjectUtils.isProjectUpdated;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.SYSTEM_PROP_BAL_DEBUG;
 
 /**
@@ -87,9 +93,6 @@ public class PackCommand implements BLauncherCmd {
     @CommandLine.Option(names = "--generate-config-schema", hidden = true)
     private Boolean configSchemaGen;
 
-    @CommandLine.Option(names = "--enable-cache", description = "enable caches for the compilation", hidden = true)
-    private Boolean enableCache;
-
     @CommandLine.Option(names = "--disable-syntax-tree-caching", hidden = true, description = "disable syntax tree " +
             "caching for source files", defaultValue = "false")
     private Boolean disableSyntaxTreeCaching;
@@ -103,8 +106,8 @@ public class PackCommand implements BLauncherCmd {
     private Boolean optimizeDependencyCompilation;
 
     @CommandLine.Option(names = "--locking-mode", hidden = true,
-            description = "allow passing the package locking mode.")
-    private String lockingMode;
+            description = "allow passing the package locking mode.", converter = PackageLockingModeConverter.class)
+    private PackageLockingMode lockingMode;
 
     public PackCommand() {
         this.projectPath = Path.of(System.getProperty(ProjectConstants.USER_DIR));
@@ -149,7 +152,6 @@ public class PackCommand implements BLauncherCmd {
     @Override
     public void execute() {
         long start = 0;
-        boolean isSingleFileBuild = false; // Packing cannot be done for single files
 
         if (this.helpFlag) {
             String commandUsageInfo = BLauncherCmd.getCommandUsageInfo(PACK_COMMAND);
@@ -158,11 +160,7 @@ public class PackCommand implements BLauncherCmd {
         }
 
         Project project;
-
-        if (sticky == null) {
-            sticky = false;
-        }
-
+        Path absProjectPath = this.projectPath.toAbsolutePath().normalize();
         BuildOptions buildOptions = constructBuildOptions();
 
         // Throw an error if its a single file
@@ -177,7 +175,11 @@ public class PackCommand implements BLauncherCmd {
                 start = System.currentTimeMillis();
                 BuildTime.getInstance().timestamp = start;
             }
-            project = BuildProject.load(this.projectPath, buildOptions);
+            if (!ProjectPaths.isBuildProjectRoot(projectPath) && !ProjectPaths.isWorkspaceProjectRoot(projectPath)) {
+                throw new ProjectException("invalid package path: " + absProjectPath +
+                        ". Please provide a valid Ballerina package or a workspace.");
+            }
+            project = ProjectLoader.load(projectPath, buildOptions).project();
             if (buildOptions.dumpBuildTime()) {
                 BuildTime.getInstance().projectLoadDuration = System.currentTimeMillis() - start;
             }
@@ -257,29 +259,46 @@ public class PackCommand implements BLauncherCmd {
         // Validate Settings.toml file
         RepoUtils.readSettings();
 
-        // Check package files are modified after last build
-        boolean isPackageModified = isProjectUpdated(project);
+        if (project.kind() == ProjectKind.WORKSPACE_PROJECT) {
+            WorkspaceProject workspaceProject = (WorkspaceProject) project;
+            DependencyGraph<BuildProject> projectDependencyGraph = resolveWorkspaceDependencies(
+                    workspaceProject, this.outStream);
+            if (!project.sourceRoot().equals(absProjectPath)) {
+                // If the project path is not the workspace root, filter the topologically sorted list to include only
+                // the projects that are dependencies of the project at the specified path.
+                Optional<BuildProject> buildProjectOptional = projectDependencyGraph.getNodes().stream()
+                        .filter(node -> node.sourceRoot().equals(absProjectPath)).findFirst();
+                executeTasks(buildProjectOptional.orElseThrow());
+            } else {
+                for (BuildProject buildProject : projectDependencyGraph.toTopologicallySortedList()) {
+                    executeTasks(buildProject);
+                }
+            }
+        } else {
+            // Check package files are modified after last build
+            Optional<Diagnostic> deprecatedDocWarning = ProjectUtils.getProjectLoadingDiagnostic().stream().filter(
+                    diagnostic -> diagnostic.diagnosticInfo().code().equals(
+                            ProjectDiagnosticErrorCode.DEPRECATED_DOC_FILE.diagnosticId())).findAny();
+            deprecatedDocWarning.ifPresent(this.errStream::println);
+            executeTasks(project);
+        }
 
-        Optional<Diagnostic> deprecatedDocWarning = ProjectUtils.getProjectLoadingDiagnostic().stream().filter(
-                diagnostic -> diagnostic.diagnosticInfo().code().equals(
-                        ProjectDiagnosticErrorCode.DEPRECATED_DOC_FILE.diagnosticId())).findAny();
-
-        deprecatedDocWarning.ifPresent(this.errStream::println);
-
-        TaskExecutor taskExecutor = new TaskExecutor.TaskBuilder()
-                .addTask(new CleanTargetDirTask(isPackageModified, buildOptions.enableCache()), isSingleFileBuild)
-                .addTask(new RunBuildToolsTask(outStream), isSingleFileBuild)
-                .addTask(new ResolveMavenDependenciesTask(outStream))
-                .addTask(new CompileTask(outStream, errStream, true, false,
-                        isPackageModified, buildOptions.enableCache()))
-                .addTask(new CreateBalaTask(outStream))
-                .addTask(new DumpBuildTimeTask(outStream), !project.buildOptions().dumpBuildTime())
-                .build();
-
-        taskExecutor.executeTasks(project);
         if (this.exitWhenFinish) {
             Runtime.getRuntime().exit(0);
         }
+    }
+
+    private void executeTasks(Project project) {
+        List<Diagnostic> buildToolDiagnostics = new ArrayList<>();
+        TaskExecutor taskExecutor = new TaskExecutor.TaskBuilder()
+                .addTask(new CleanTargetDirTask())
+                .addTask(new RunBuildToolsTask(outStream, false, buildToolDiagnostics))
+                .addTask(new ResolveMavenDependenciesTask(outStream))
+                .addTask(new CompileTask(outStream, errStream, true, false, false, buildToolDiagnostics))
+                .addTask(new CreateBalaTask(outStream))
+                .addTask(new DumpBuildTimeTask(outStream), !project.buildOptions().dumpBuildTime())
+                .build();
+        taskExecutor.executeTasks(project);
     }
 
     private BuildOptions constructBuildOptions() {
@@ -294,7 +313,6 @@ public class PackCommand implements BLauncherCmd {
                 .setDumpBuildTime(dumpBuildTime)
                 .setSticky(sticky)
                 .setConfigSchemaGen(configSchemaGen)
-                .setEnableCache(enableCache)
                 .disableSyntaxTreeCaching(disableSyntaxTreeCaching)
                 .setShowDependencyDiagnostics(showDependencyDiagnostics)
                 .setOptimizeDependencyCompilation(optimizeDependencyCompilation)

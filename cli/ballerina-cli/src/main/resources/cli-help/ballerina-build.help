@@ -6,8 +6,9 @@ SYNOPSIS
 
 
 DESCRIPTION
-       Compile the current package and its dependencies to produce a
-       standalone executable JAR (Java Archive) file.
+       Compile a package and its dependencies to produce a
+       standalone executable JAR (Java Archive) file or compile a workspace
+       and generate executables.
 
        Build writes the resulting executable to the `target/bin` directory
        when compiling the current package.
@@ -16,7 +17,9 @@ DESCRIPTION
        when compiling a single '.bal' file. The generated executable is named
        after the source file.
 
-       Note: Building individual '.bal' files of a package is not allowed.
+       Note: Building individual '.bal' files of a package is not allowed. For
+       workspaces, the executable is generated only for packages that do not
+       have dependents except when the package is built explicitly.
 
 
 OPTIONS
@@ -77,13 +80,18 @@ OPTIONS
 
 
 EXAMPLES
-       Build the current package. This will generate an 'app.jar' file in the
-       'target/bin' directory.
+       Build the current package or the workspace. This will generate an 'app.jar' file in the
+       'target/bin' directory of the package. For workspaces, this will generate executables
+       for all packages that does not have dependants in the workspace.
            $ bal build
 
        Build a single '.bal' file. This will generate an 'app.jar' file in the
        current directory.
            $ bal build app.bal
+
+       Build a specific package in the workspace. This will generate an
+       executable for the specified package.
+              $ bal build <package-path-in-workspace>
 
        Build the 'app' package from a different directory.
            $ bal build <app-package-path>

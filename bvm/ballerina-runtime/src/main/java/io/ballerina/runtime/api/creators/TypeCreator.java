@@ -49,6 +49,7 @@ import io.ballerina.runtime.internal.types.BTupleType;
 import io.ballerina.runtime.internal.types.BUnionType;
 import io.ballerina.runtime.internal.types.BXmlType;
 import io.ballerina.runtime.internal.types.semtype.CacheFactory;
+import io.ballerina.runtime.internal.values.ValueCreator;
 
 import java.util.Arrays;
 import java.util.IdentityHashMap;
@@ -63,8 +64,6 @@ import java.util.function.Function;
  * @since 2.0.0
  */
 public final class TypeCreator {
-
-    private static final RecordTypeCache registeredRecordTypes = new RecordTypeCache();
     /**
      * Creates a new array type with given element type.
      *
@@ -156,8 +155,8 @@ public final class TypeCreator {
      * @param readonly  whether immutable
      * @return the new tuple type
      */
-    public static TupleType createTupleType(List<Type> typeList, Type restType,
-                                            int typeFlags, boolean isCyclic, boolean readonly) {
+    public static TupleType createTupleType(List<Type> typeList, Type restType, int typeFlags, boolean isCyclic,
+                                            boolean readonly) {
         return new BTupleType(typeList, restType, typeFlags, isCyclic, readonly);
     }
 
@@ -171,8 +170,8 @@ public final class TypeCreator {
      * @param readonly  whether immutable
      * @return the new tuple type
      */
-    public static TupleType createTupleType(String name, Module pkg,
-                                            int typeFlags, boolean isCyclic, boolean readonly) {
+    public static TupleType createTupleType(String name, Module pkg, int typeFlags, boolean isCyclic,
+                                            boolean readonly) {
         return new BTupleType(name, pkg, typeFlags, isCyclic, readonly);
     }
 
@@ -234,9 +233,9 @@ public final class TypeCreator {
      */
     public static RecordType createRecordType(String typeName, Module module, long flags, boolean sealed,
                                               int typeFlags) {
-        BRecordType memo = registeredRecordType(typeName, module);
-        if (memo != null) {
-            return memo;
+        RecordType recordType = getRecordType(typeName, module);
+        if (recordType != null) {
+            return recordType;
         }
         return new BRecordType(typeName, typeName, module, flags, sealed, typeFlags);
     }
@@ -255,11 +254,31 @@ public final class TypeCreator {
      */
     public static RecordType createRecordType(String typeName, Module module, long flags, Map<String, Field> fields,
                                               Type restFieldType, boolean sealed, int typeFlags) {
-        BRecordType memo = registeredRecordType(typeName, module);
-        if (memo != null) {
-            return memo;
+        RecordType recordType = getRecordType(typeName, module);
+        if (recordType != null) {
+            return recordType;
         }
         return new BRecordType(typeName, module, flags, fields, restFieldType, sealed, typeFlags);
+    }
+
+    private static RecordType getRecordType(String typeName, Module module) {
+        if (module == null) {
+            return null;
+        }
+        String lookupKey = ValueCreator.getLookupKey(module, false);
+        RecordType recordType = null;
+        if (ValueCreator.containsValueCreator(lookupKey)) {
+            recordType = ValueCreator.getValueCreator(lookupKey).getRecordType(typeName);
+        }
+        if (recordType != null) {
+            return recordType;
+        }
+        // If record type definition not found, get it from test module.
+        lookupKey = ValueCreator.getLookupKey(module, true);
+        if (ValueCreator.containsValueCreator(lookupKey)) {
+            return ValueCreator.getValueCreator(lookupKey).getRecordType(typeName);
+        }
+        return null;
     }
 
     /**
@@ -539,26 +558,6 @@ public final class TypeCreator {
     }
 
     private TypeCreator() {
-    }
-
-    private static BRecordType registeredRecordType(String typeName, Module pkg) {
-        if (typeName == null || pkg == null) {
-            return null;
-        }
-        return registeredRecordTypes.get(new TypeIdentifier(pkg, typeName));
-    }
-
-    public static void registerRecordType(BRecordType recordType) {
-        String name = recordType.getName();
-        Module pkg = recordType.getPackage();
-        if (name == null || pkg == null) {
-            return;
-        }
-        TypeIdentifier typeIdentifier = new TypeIdentifier(pkg, name);
-        if (typeIdentifier.avoidCaching()) {
-            return;
-        }
-        registeredRecordTypes.put(typeIdentifier, recordType);
     }
 
     public static void resetAllCaches() {

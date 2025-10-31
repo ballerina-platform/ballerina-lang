@@ -4,6 +4,7 @@
     "character": 10
   },
   "source": "statement_context/source/wait_action_ctx_source3.bal",
+  "description": "",
   "items": [
     {
       "label": "fs",
@@ -395,6 +396,14 @@
       "detail": "Typedesc",
       "sortText": "N",
       "insertText": "typedesc",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "natural",
+      "kind": "Unit",
+      "detail": "type",
+      "sortText": "R",
+      "insertText": "natural",
       "insertTextFormat": "Snippet"
     }
   ]

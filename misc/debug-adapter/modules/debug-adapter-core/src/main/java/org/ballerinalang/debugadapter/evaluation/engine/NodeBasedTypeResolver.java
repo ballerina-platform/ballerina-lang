@@ -31,12 +31,15 @@ import org.ballerinalang.debugadapter.evaluation.EvaluationException;
 import org.ballerinalang.debugadapter.utils.PackageUtils;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
 import static org.ballerinalang.debugadapter.evaluation.EvaluationException.createEvaluationException;
 import static org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind.TYPE_RESOLVING_ERROR;
-import static org.ballerinalang.debugadapter.utils.PackageUtils.INIT_TYPE_INSTANCE_PREFIX;
+import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.loadClass;
+import static org.ballerinalang.debugadapter.utils.PackageUtils.TYPE_PREFIXES;
+import static org.ballerinalang.debugadapter.utils.PackageUtils.TYPE_VAR_FIELD_NAME;
 
 /**
  * Ballerina type resolver implementation for resolving ballerina runtime types from the syntax nodes.
@@ -95,18 +98,26 @@ public class NodeBasedTypeResolver extends EvaluationTypeResolver<Node> {
         if (typeDefinition.isEmpty()) {
             throw createEvaluationException(TYPE_RESOLVING_ERROR, typeName);
         }
-
-        String packageInitClass = PackageUtils.getQualifiedClassName(context, PackageUtils.INIT_CLASS_NAME);
-        List<ReferenceType> classRef = context.getAttachedVm().classesByName(packageInitClass);
-        if (classRef.isEmpty()) {
-            throw createEvaluationException(TYPE_RESOLVING_ERROR, typeName);
+        for (String prefix : TYPE_PREFIXES) {
+            String typeClassName = PackageUtils.getQualifiedClassName(context, typeName, prefix);
+            List<ReferenceType> classRefs;
+            try {
+                classRefs = context.getAttachedVm().classesByName(typeClassName);
+                if (classRefs.isEmpty()) {
+                    ReferenceType referenceType = loadClass(context, typeClassName, "");
+                    classRefs = Collections.singletonList(referenceType);
+                }
+            } catch (EvaluationException e) {
+                continue;
+            }
+            ReferenceType classRef = classRefs.getFirst();
+            Field typeField = classRef.fieldByName(TYPE_VAR_FIELD_NAME);
+            if (typeField == null) {
+                throw createEvaluationException(TYPE_RESOLVING_ERROR, typeName);
+            }
+            return classRef.getValue(typeField);
         }
-
-        Field typeField = classRef.get(0).fieldByName(INIT_TYPE_INSTANCE_PREFIX + typeName);
-        if (typeField == null) {
-            throw createEvaluationException(TYPE_RESOLVING_ERROR, typeName);
-        }
-        return classRef.get(0).getValue(typeField);
+        throw createEvaluationException(TYPE_RESOLVING_ERROR, typeName);
     }
 
     private Value resolveQualifiedType(QualifiedNameReferenceNode qualifiedNameRef) throws EvaluationException {

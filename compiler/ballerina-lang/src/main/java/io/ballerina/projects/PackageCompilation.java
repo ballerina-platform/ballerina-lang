@@ -38,13 +38,7 @@ import java.util.Map;
 import java.util.ServiceLoader;
 import java.util.function.Function;
 
-import static org.ballerinalang.compiler.CompilerOptionName.CLOUD;
-import static org.ballerinalang.compiler.CompilerOptionName.DUMP_BIR;
-import static org.ballerinalang.compiler.CompilerOptionName.DUMP_BIR_FILE;
-import static org.ballerinalang.compiler.CompilerOptionName.REMOTE_MANAGEMENT;
 import static org.ballerinalang.compiler.CompilerOptionName.EXPERIMENTAL;
-import static org.ballerinalang.compiler.CompilerOptionName.OBSERVABILITY_INCLUDED;
-import static org.ballerinalang.compiler.CompilerOptionName.OFFLINE;
 
 /**
  * Compilation at package level by resolving all the dependencies.
@@ -85,13 +79,7 @@ public class PackageCompilation {
 
     private void setCompilerOptions(CompilationOptions compilationOptions) {
         CompilerOptions options = CompilerOptions.getInstance(compilerContext);
-        options.put(OFFLINE, Boolean.toString(compilationOptions.offlineBuild()));
         options.put(EXPERIMENTAL, Boolean.toString(compilationOptions.experimental()));
-        options.put(OBSERVABILITY_INCLUDED, Boolean.toString(compilationOptions.observabilityIncluded()));
-        options.put(DUMP_BIR, Boolean.toString(compilationOptions.dumpBir()));
-        options.put(DUMP_BIR_FILE, Boolean.toString(compilationOptions.dumpBirFile()));
-        options.put(CLOUD, compilationOptions.getCloud());
-        options.put(REMOTE_MANAGEMENT, Boolean.toString(compilationOptions.remoteManagement()));
     }
 
     static PackageCompilation from(PackageContext rootPackageContext, CompilationOptions compilationOptions) {
@@ -212,11 +200,14 @@ public class PackageCompilation {
             for (ModuleContext moduleContext : packageResolution.topologicallySortedModuleList()) {
                 moduleContext.compile(compilerContext);
                 for (Diagnostic diagnostic : moduleContext.diagnostics()) {
-                    if (!ProjectKind.BALA_PROJECT.equals(moduleContext.project().kind()) ||
-                            (diagnostic.diagnosticInfo().severity() == DiagnosticSeverity.ERROR)) {
-                        diagnostics.add(new PackageDiagnostic(diagnostic, moduleContext.descriptor(),
-                                moduleContext.project()));
+                    if (ProjectKind.BALA_PROJECT.equals(moduleContext.project().kind()) &&
+                            (diagnostic.diagnosticInfo().severity() != DiagnosticSeverity.ERROR)) {
+                        continue;
                     }
+                    boolean isWorkspaceDep = !packageResolution.dependencyGraph().getRoot().packageInstance()
+                            .descriptor().equals(moduleContext.project().currentPackage().descriptor());
+                    diagnostics.add(new PackageDiagnostic(diagnostic, moduleContext.descriptor(),
+                            moduleContext.project(), isWorkspaceDep));
                 }
             }
         }

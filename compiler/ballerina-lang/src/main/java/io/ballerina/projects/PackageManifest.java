@@ -51,6 +51,7 @@ public class PackageManifest {
     private final List<String> includes;
     private final String ballerinaVersion;
     private final String visibility;
+    private final BuildOptions buildOptions;
     private boolean template;
     private final String icon;
     private final String readme;
@@ -89,6 +90,7 @@ public class PackageManifest {
         this.readme = "";
         this.description = "";
         this.moduleList = Collections.emptyList();
+        this.buildOptions = BuildOptions.builder().build();
     }
 
     private PackageManifest(PackageDescriptor packageDesc,
@@ -132,6 +134,7 @@ public class PackageManifest {
         this.readme = readme;
         this.description = description;
         this.moduleList = moduleList;
+        this.buildOptions = BuildOptions.builder().build();
     }
 
     private PackageManifest(PackageDescriptor packageDesc,
@@ -154,7 +157,8 @@ public class PackageManifest {
                             List<Tool> tools,
                             String readme,
                             String description,
-                            List<Module> moduleList) {
+                            List<Module> moduleList,
+                            BuildOptions buildOptions) {
         this.packageDesc = packageDesc;
         this.compilerPluginDesc = compilerPluginDesc;
         this.balToolDesc = balToolDesc;
@@ -176,6 +180,7 @@ public class PackageManifest {
         this.readme = readme;
         this.description = description;
         this.moduleList = moduleList;
+        this.buildOptions = buildOptions;
     }
     public static PackageManifest from(PackageDescriptor packageDesc) {
         return new PackageManifest(packageDesc, null, null, Collections.emptyMap(), Collections.emptyList(),
@@ -212,10 +217,11 @@ public class PackageManifest {
                                        List<Tool> tools,
                                        String readme,
                                        String description,
-                                       List<Module> moduleList) {
+                                       List<Module> moduleList,
+                                       BuildOptions buildOptions) {
         return new PackageManifest(packageDesc, compilerPluginDesc, balToolDesc, platforms, dependencies, otherEntries,
                 diagnostics, license, authors, keywords, export, include, repository, ballerinaVersion, visibility,
-                template, icon, tools, readme, description, moduleList);
+                template, icon, tools, readme, description, moduleList, buildOptions);
     }
 
     public static PackageManifest from(PackageDescriptor packageDesc,
@@ -342,6 +348,10 @@ public class PackageManifest {
         return description;
     }
 
+    public BuildOptions buildOptions() {
+        return buildOptions;
+    }
+
     /**
      * Represents the platform section in Ballerina.toml file.
      *
@@ -410,6 +420,7 @@ public class PackageManifest {
         private final PackageVersion version;
         private final String repository;
         private final Location location;
+        private final boolean skipWorkspace;
 
         public Dependency(PackageName packageName, PackageOrg packageOrg, PackageVersion version) {
             this.packageName = packageName;
@@ -417,6 +428,7 @@ public class PackageManifest {
             this.version = version;
             this.location = null;
             this.repository = null;
+            this.skipWorkspace = false;
         }
 
         public Dependency(PackageName packageName, PackageOrg packageOrg, PackageVersion version,
@@ -426,6 +438,7 @@ public class PackageManifest {
             this.version = version;
             this.repository = repository;
             this.location = null;
+            this.skipWorkspace = false;
         }
 
         public Dependency(PackageName packageName, PackageOrg packageOrg, PackageVersion version,
@@ -435,6 +448,17 @@ public class PackageManifest {
             this.version = version;
             this.repository = repository;
             this.location = location;
+            this.skipWorkspace = false;
+        }
+
+        public Dependency(PackageName packageName, PackageOrg packageOrg, PackageVersion version,
+                          String repository, Location location, boolean skipWorkspace) {
+            this.packageName = packageName;
+            this.packageOrg = packageOrg;
+            this.version = version;
+            this.repository = repository;
+            this.location = location;
+            this.skipWorkspace = skipWorkspace;
         }
 
         public PackageName name() {
@@ -455,6 +479,10 @@ public class PackageManifest {
 
         public Optional<Location> location() {
             return Optional.ofNullable(location);
+        }
+
+        public boolean skipWorkspace() {
+            return skipWorkspace;
         }
     }
 

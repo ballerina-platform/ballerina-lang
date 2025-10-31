@@ -24,6 +24,10 @@ import com.google.gson.JsonParser;
 import org.ballerinalang.test.context.BMainInstance;
 import org.ballerinalang.test.context.BallerinaTestException;
 import org.ballerinalang.test.context.LogLeecher;
+import org.ballerinalang.test.runtime.entity.ModuleCoverage;
+import org.ballerinalang.test.runtime.entity.ModuleStatus;
+import org.ballerinalang.test.runtime.entity.PackageTestResult;
+import org.ballerinalang.test.runtime.entity.TestReport;
 import org.ballerinalang.testerina.test.utils.AssertionUtils;
 import org.ballerinalang.testerina.test.utils.CommonUtils;
 import org.testng.Assert;
@@ -148,15 +152,12 @@ public class TestReportTest extends BaseTestCase {
 
     private void runCommand(String[] args) throws BallerinaTestException {
         balClient.runMain("test", args, null, new String[]{}, new LogLeecher[]{}, projectPath);
-
         Gson gson = new Gson();
-
         try (BufferedReader bufferedReader = Files.newBufferedReader(resultsJsonPath, StandardCharsets.UTF_8)) {
             resultObj = gson.fromJson(bufferedReader, JsonObject.class);
         } catch (IOException e) {
             throw new BallerinaTestException("Failed to read test_results.json");
         }
-
     }
 
     private void validateStatuses(int[] mathStatus, int[] fooStatus, int[] bartestStatus, int[] annotStatus) {
@@ -221,8 +222,8 @@ public class TestReportTest extends BaseTestCase {
         float mathPercentage = (float) (Math.round(mathPercentageVal * 100.0) / 100.0);
 
         //foo module
-        int[] fooMainCovered = new int[]{19, 22, 23, 24, 29, 30, 36, 37, 50, 55, 56, 57, 60, 61, 64, 65, 69,
-                70, 71, 74, 75}, fooMainMissed = new int[]{26};
+        int[] fooMainCovered = new int[]{19, 22, 23, 24, 29, 30, 36, 37, 40, 50, 55, 56, 57, 60, 61, 64, 65, 69, 70,
+                71, 74, 75}, fooMainMissed = new int[]{26, 48};
         float fooMainPercentageVal =
                 (float) (fooMainCovered.length) / (fooMainCovered.length + fooMainMissed.length) * 100;
         float fooMainPercentage =
@@ -240,9 +241,9 @@ public class TestReportTest extends BaseTestCase {
         int barCovered = barMainCovered.length, barMissed = barMainMissed.length;
 
         //annot module
-        int[] annotMainCovered = new int[]{22, 26, 33, 34, 38, 41, 42, 43, 44, 48, 49, 50, 51, 55, 59, 61, 79, 80, 82,
-                83, 84, 85, 86, 87, 88, 92, 93, 94, 107, 109, 110},
-                annotMainMissed = new int[]{46, 63, 64, 65, 66, 67, 96, 98, 100, 101, 102, 104, 105};
+        int[] annotMainCovered = new int[]{20, 22, 26, 27, 33, 34, 41, 42, 43, 44, 46, 48, 49, 50, 51, 55, 63, 64, 65
+                , 66, 67, 70, 104, 105, 109, 110, 111, 112, 113, 114},
+                annotMainMissed = new int[]{38, 59, 61, 100, 101, 102, 107};
         float annotMainPercentageVal =
                 (float) (annotMainCovered.length) / (annotMainMissed.length + annotMainCovered.length) * 100;
         float annotMainPercentage = (float) (Math.round(annotMainPercentageVal * 100.0) / 100.0);
@@ -357,8 +358,8 @@ public class TestReportTest extends BaseTestCase {
         float mathPercentage = (float) (Math.round(mathPercentageVal * 100.0) / 100.0);
 
         //foo module
-        int[] fooMainCovered = new int[]{}, fooMainMissed = new int[]{19, 22, 23, 24, 26, 29, 30, 36, 37,
-                50, 55, 56, 57, 60, 61, 64, 65, 69, 70, 71, 74, 75};
+        int[] fooMainCovered = new int[]{}, fooMainMissed = new int[]{19, 22, 23, 24, 26, 29, 30, 36, 37, 40, 48, 50,
+                55, 56, 57, 60, 61, 64, 65, 69, 70, 71, 74, 75};
         float fooMainPercentageVal =
                 (float) (fooMainCovered.length) / (fooMainCovered.length + fooMainMissed.length) * 100;
         float fooMainPercentage = (float) (Math.round(fooMainPercentageVal * 100.0) / 100.0);
@@ -374,9 +375,9 @@ public class TestReportTest extends BaseTestCase {
         int barCovered = barMainCovered.length, barMissed = barMainMissed.length;
 
         //annot module
-        int[] annotMainCovered = new int[]{22, 26, 33, 34, 38, 41, 42, 43, 44, 48, 49, 50, 51, 55, 59, 61, 79, 80, 82,
-                83, 84, 85, 86, 87, 88, 92, 93, 94, 107},
-                annotMainMissed = new int[]{46, 63, 64, 65, 66, 67, 96, 98, 100, 101, 102, 104, 105, 109, 110};
+        int[] annotMainCovered = new int[]{20, 22, 33, 34},
+                annotMainMissed = new int[]{26, 27, 38, 41, 42, 43, 44, 46, 48, 49, 50, 51, 55, 59, 61, 63, 64, 65,
+                        66, 67, 70, 100, 101, 102, 104, 105, 107, 109, 110, 111, 112, 113, 114};
         float annotMainPercentageVal =
                 (float) (annotMainCovered.length) / (annotMainMissed.length + annotMainCovered.length) * 100;
         float annotMainPercentage = (float) (Math.round(annotMainPercentageVal * 100.0) / 100.0);
@@ -470,5 +471,159 @@ public class TestReportTest extends BaseTestCase {
         Assert.assertEquals(totalCovered, resultObj.get("coveredLines").getAsInt());
         Assert.assertEquals(totalMissed, resultObj.get("missedLines").getAsInt());
         Assert.assertEquals(coveragePercentage, resultObj.get("coveragePercentage").getAsFloat());
+    }
+
+    @Test
+    public void testWorkspaceReport() throws BallerinaTestException {
+        String[] args = new String[]{"--test-report"};
+        balClient.runMain("test",  args, null, new String[]{}, new LogLeecher[]{},
+                workspaceProjectPath.toString());
+        Path resultsJsonPath = workspaceProjectPath.resolve("target").resolve("report")
+                .resolve("test_results.json");
+
+        TestReport testReport;
+        try (BufferedReader bufferedReader = Files.newBufferedReader(resultsJsonPath, StandardCharsets.UTF_8)) {
+            Gson gson = new Gson();
+            testReport = gson.fromJson(bufferedReader, TestReport.class);
+        } catch (IOException e) {
+            throw new BallerinaTestException("Failed to read test_results.json");
+        }
+
+        Assert.assertEquals(testReport.getWorkspaceName(), "workspace-with-tests");
+        Assert.assertEquals(testReport.getTotalTests(), 7);
+        Assert.assertEquals(testReport.getPassed(), 6);
+        Assert.assertEquals(testReport.getFailed(), 1);
+        Assert.assertEquals(testReport.getSkipped(), 0);
+        for (PackageTestResult pkg : testReport.getPackages()) {
+            if ("bye".equals(pkg.getProjectName())) {
+                Assert.assertEquals(pkg.getTotalTests(), 0);
+                Assert.assertEquals(pkg.getPassed(), 0);
+                Assert.assertEquals(pkg.getFailed(), 0);
+                Assert.assertEquals(pkg.getSkipped(), 0);
+
+                Assert.assertEquals(pkg.getModuleCoverage().size(), 0);
+                Assert.assertEquals(pkg.getModuleStatus().size(), 1);
+                Assert.assertEquals(pkg.getModuleStatus().get(0).getTotalTests(), 0);
+                Assert.assertEquals(pkg.getModuleStatus().get(0).getPassed(), 0);
+                Assert.assertEquals(pkg.getModuleStatus().get(0).getFailed(), 0);
+                Assert.assertEquals(pkg.getModuleStatus().get(0).getSkipped(), 0);
+            } else if ("depA".equals(pkg.getProjectName())) {
+                Assert.assertEquals(pkg.getTotalTests(), 2);
+                Assert.assertEquals(pkg.getPassed(), 2);
+                Assert.assertEquals(pkg.getFailed(), 0);
+                Assert.assertEquals(pkg.getSkipped(), 0);
+
+                Assert.assertEquals(pkg.getModuleCoverage().size(), 0);
+                Assert.assertEquals(pkg.getModuleStatus().size(), 1);
+                Assert.assertEquals(pkg.getModuleStatus().get(0).getTotalTests(), 2);
+                Assert.assertEquals(pkg.getModuleStatus().get(0).getPassed(), 2);
+                Assert.assertEquals(pkg.getModuleStatus().get(0).getFailed(), 0);
+                Assert.assertEquals(pkg.getModuleStatus().get(0).getSkipped(), 0);
+            } else if ("depB".equals(pkg.getProjectName())) {
+                Assert.assertEquals(pkg.getTotalTests(), 4);
+                Assert.assertEquals(pkg.getPassed(), 3);
+                Assert.assertEquals(pkg.getFailed(), 1);
+                Assert.assertEquals(pkg.getSkipped(), 0);
+
+                Assert.assertEquals(pkg.getModuleCoverage().size(), 0);
+                Assert.assertEquals(pkg.getModuleStatus().size(), 2);
+                for (ModuleStatus module : pkg.getModuleStatus()) {
+                    if ("depB.mod1".equals(module.getName())) {
+                        Assert.assertEquals(module.getTotalTests(), 2);
+                        Assert.assertEquals(module.getPassed(), 1);
+                        Assert.assertEquals(module.getFailed(), 1);
+                        Assert.assertEquals(module.getSkipped(), 0);
+                    } else if ("depB".equals(module.getName())) {
+                        Assert.assertEquals(module.getTotalTests(), 2);
+                        Assert.assertEquals(module.getPassed(), 2);
+                        Assert.assertEquals(module.getFailed(), 0);
+                        Assert.assertEquals(module.getSkipped(), 0);
+                    } else {
+                        Assert.fail("Unrecognized module: " + module.getName());
+                    }
+                }
+            } else if ("hello_app".equals(pkg.getProjectName())) {
+                Assert.assertEquals(pkg.getTotalTests(), 1);
+                Assert.assertEquals(pkg.getPassed(), 1);
+                Assert.assertEquals(pkg.getFailed(), 0);
+                Assert.assertEquals(pkg.getSkipped(), 0);
+                Assert.assertEquals(pkg.getModuleCoverage().size(), 0);
+                Assert.assertEquals(pkg.getModuleStatus().size(), 1);
+                Assert.assertEquals(pkg.getModuleStatus().get(0).getTotalTests(), 1);
+                Assert.assertEquals(pkg.getModuleStatus().get(0).getPassed(), 1);
+                Assert.assertEquals(pkg.getModuleStatus().get(0).getFailed(), 0);
+                Assert.assertEquals(pkg.getModuleStatus().get(0).getSkipped(), 0);
+            } else {
+                Assert.fail("Unrecognized package: " + pkg.getProjectName());
+            }
+        }
+    }
+
+    @Test
+    public void testWorkspaceCoverage() throws BallerinaTestException {
+        String[] args = new String[]{"--code-coverage"};
+        balClient.runMain("test", args, null, new String[]{}, new LogLeecher[]{},
+                workspaceProjectPath.toString());
+        Path resultsJsonPath = workspaceProjectPath.resolve("target").resolve("report")
+                .resolve("test_results.json");
+        TestReport testReport;
+        try (BufferedReader bufferedReader = Files.newBufferedReader(resultsJsonPath, StandardCharsets.UTF_8)) {
+            Gson gson = new Gson();
+            testReport = gson.fromJson(bufferedReader, TestReport.class);
+        } catch (IOException e) {
+            throw new BallerinaTestException("Failed to read test_results.json");
+        }
+        Assert.assertEquals(testReport.getCoveragePercentage(), 80.0);
+        Assert.assertEquals(testReport.getCoveredLines(), 12);
+        Assert.assertEquals(testReport.getMissedLines(), 3);
+        testReport.getPackages().forEach(pkg -> {
+            if (pkg.getProjectName().equals("bye")) {
+                Assert.assertEquals(pkg.getCoveragePercentage(), 0.0);
+                Assert.assertEquals(pkg.getCoveredLines(), 0);
+                Assert.assertEquals(pkg.getMissedLines(), 1);
+
+                Assert.assertEquals(pkg.getModuleCoverage().size(), 1);
+                ModuleCoverage moduleCoverage = pkg.getModuleCoverage().get(0);
+                Assert.assertEquals(moduleCoverage.getCoveragePercentage(), 0.0);
+                Assert.assertEquals(moduleCoverage.getCoveredLines(), 0);
+                Assert.assertEquals(moduleCoverage.getMissedLines(), 1);
+            } else if (pkg.getProjectName().equals("depA")) {
+                Assert.assertEquals(pkg.getCoveragePercentage(), 100.0);
+                Assert.assertEquals(pkg.getCoveredLines(), 4);
+                Assert.assertEquals(pkg.getMissedLines(), 0);
+
+                Assert.assertEquals(pkg.getModuleCoverage().size(), 1);
+                ModuleCoverage moduleCoverage = pkg.getModuleCoverage().get(0);
+                Assert.assertEquals(moduleCoverage.getCoveragePercentage(), 100.0);
+                Assert.assertEquals(moduleCoverage.getCoveredLines(), 4);
+                Assert.assertEquals(moduleCoverage.getMissedLines(), 0);
+            } else if (pkg.getProjectName().equals("depB")) {
+                Assert.assertEquals(pkg.getCoveragePercentage(), 100.0);
+                Assert.assertEquals(pkg.getCoveredLines(), 8);
+                Assert.assertEquals(pkg.getMissedLines(), 0);
+
+                Assert.assertEquals(pkg.getModuleCoverage().size(), 2);
+                Assert.assertEquals(pkg.getModuleCoverage().get(0).getCoveragePercentage(), 100.0);
+                Assert.assertEquals(pkg.getModuleCoverage().get(0).getCoveredLines(), 4);
+                Assert.assertEquals(pkg.getModuleCoverage().get(0).getMissedLines(), 0);
+
+                Assert.assertEquals(pkg.getModuleCoverage().get(1).getCoveragePercentage(), 100.0);
+                Assert.assertEquals(pkg.getModuleCoverage().get(1).getCoveredLines(), 4);
+                Assert.assertEquals(pkg.getModuleCoverage().get(1).getMissedLines(), 0);
+
+            } else if (pkg.getProjectName().equals("hello_app")) {
+                Assert.assertEquals(pkg.getCoveragePercentage(), 0.0);
+                Assert.assertEquals(pkg.getCoveredLines(), 0);
+                Assert.assertEquals(pkg.getMissedLines(), 2);
+
+                Assert.assertEquals(pkg.getModuleCoverage().size(), 1);
+                ModuleCoverage moduleCoverage = pkg.getModuleCoverage().get(0);
+                Assert.assertEquals(moduleCoverage.getCoveragePercentage(), 0.0);
+                Assert.assertEquals(moduleCoverage.getCoveredLines(), 0);
+                Assert.assertEquals(moduleCoverage.getMissedLines(), 2);
+            } else {
+                Assert.fail("Unrecognized package: " + pkg.getProjectName());
+            }
+        });
     }
 }

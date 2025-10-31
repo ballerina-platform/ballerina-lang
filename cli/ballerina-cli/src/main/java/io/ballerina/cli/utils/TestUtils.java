@@ -38,7 +38,7 @@ import io.ballerina.projects.util.ProjectUtils;
 import org.ballerinalang.test.runtime.entity.CoverageReport;
 import org.ballerinalang.test.runtime.entity.ModuleCoverage;
 import org.ballerinalang.test.runtime.entity.ModuleStatus;
-import org.ballerinalang.test.runtime.entity.TestReport;
+import org.ballerinalang.test.runtime.entity.PackageTestResult;
 import org.ballerinalang.test.runtime.entity.TestSuite;
 import org.ballerinalang.test.runtime.util.CodeCoverageUtils;
 import org.ballerinalang.test.runtime.util.TesterinaConstants;
@@ -50,11 +50,9 @@ import org.jacoco.core.data.SessionInfo;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
-import java.io.PrintStream;
 import java.io.Writer;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -69,16 +67,10 @@ import java.util.Set;
 import java.util.StringJoiner;
 
 import static io.ballerina.cli.launcher.LauncherUtils.createLauncherException;
-import static org.ballerinalang.test.runtime.util.TesterinaConstants.COVERAGE_DIR;
-import static org.ballerinalang.test.runtime.util.TesterinaConstants.FILE_PROTOCOL;
 import static org.ballerinalang.test.runtime.util.TesterinaConstants.MOCK_FN_DELIMITER;
 import static org.ballerinalang.test.runtime.util.TesterinaConstants.MOCK_LEGACY_DELIMITER;
-import static org.ballerinalang.test.runtime.util.TesterinaConstants.REPORT_DATA_PLACEHOLDER;
 import static org.ballerinalang.test.runtime.util.TesterinaConstants.REPORT_ZIP_NAME;
 import static org.ballerinalang.test.runtime.util.TesterinaConstants.RERUN_TEST_JSON_FILE;
-import static org.ballerinalang.test.runtime.util.TesterinaConstants.RESULTS_HTML_FILE;
-import static org.ballerinalang.test.runtime.util.TesterinaConstants.RESULTS_JSON_FILE;
-import static org.ballerinalang.test.runtime.util.TesterinaConstants.TOOLS_DIR_NAME;
 import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BALLERINA_HOME;
 import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BALLERINA_HOME_BRE;
 import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BALLERINA_HOME_LIB;
@@ -94,7 +86,8 @@ public final class TestUtils {
     private TestUtils() {
     }
 
-    public static void generateCoverage(Project project, TestReport testReport, JBallerinaBackend jBallerinaBackend,
+    public static void generateCoverage(Project project, PackageTestResult packageTestResult,
+                                        JBallerinaBackend jBallerinaBackend,
                                         String includesInCoverage, String coverageReportFormat,
                                         Map<String, Module> coverageModules, Set<String> exclusionClassList)
             throws IOException {
@@ -102,7 +95,7 @@ public final class TestUtils {
         if (!project.buildOptions().codeCoverage()) {
             return;
         }
-        if (testReport == null) { // This to avoid the spotbugs failure.
+        if (packageTestResult == null) { // This to avoid the spotbugs failure.
             return;
         }
 
@@ -125,7 +118,8 @@ public final class TestUtils {
         for (Map.Entry<String, ModuleCoverage> mapElement : moduleCoverageMap.entrySet()) {
             String moduleName = mapElement.getKey();
             ModuleCoverage moduleCoverage = mapElement.getValue();
-            testReport.addCoverage(moduleName, moduleCoverage);
+            moduleCoverage.setName(moduleName);
+            packageTestResult.addModuleCoverage(moduleCoverage);
         }
         if (CodeCoverageUtils.isRequestedReportFormat(coverageReportFormat,
                 TesterinaConstants.JACOCO_XML_FORMAT)) {
@@ -139,9 +133,9 @@ public final class TestUtils {
      * Initialize coverage map used for aggregating module wise coverage.
      *
      * @param project Project
-     * @return Map<String, ModuleCoverage>
+     * @return Map of module name and ModuleCoverage object
      */
-    private static Map<String, ModuleCoverage> initializeCoverageMap(Project project) {
+    public static Map<String, ModuleCoverage> initializeCoverageMap(Project project) {
         Map<String, ModuleCoverage> moduleCoverageMap = new HashMap<>();
         for (ModuleId moduleId : project.currentPackage().moduleIds()) {
             Module module = project.currentPackage().module(moduleId);
@@ -150,25 +144,14 @@ public final class TestUtils {
         return moduleCoverageMap;
     }
 
-    /**
-     * Write the test report content into testerina report formats(json and html).
-     *
-     * @param out        PrintStream object to print messages to console
-     * @param testReport Data that are parsed to the json
-     */
-    public static void generateTesterinaReports(Project project, TestReport testReport, PrintStream out, Target target)
+    public static void generateTesterinaReports(Project project, PackageTestResult packageTestResult)
             throws IOException {
         if (!project.buildOptions().testReport() && !project.buildOptions().codeCoverage()) {
             return;
         }
-        if (testReport.getModuleStatus().size() <= 0) {
+        if (packageTestResult.getModuleStatus().size() <= 0) {
             return;
         }
-
-        out.println();
-        out.println("Generating Test Report");
-
-        Path reportDir = target.getReportPath();
 
         // Set projectName in test report
         String projectName;
@@ -178,50 +161,7 @@ public final class TestUtils {
         } else {
             projectName = project.currentPackage().packageName().toString();
         }
-        testReport.setProjectName(projectName);
-        testReport.finalizeTestResults(project.buildOptions().codeCoverage());
-
-        Gson gson = new Gson();
-        String json = gson.toJson(testReport);
-
-        File jsonFile = new File(reportDir.resolve(RESULTS_JSON_FILE).toString());
-        try (FileOutputStream fileOutputStream = new FileOutputStream(jsonFile)) {
-            try (Writer writer = new OutputStreamWriter(fileOutputStream, StandardCharsets.UTF_8)) {
-                writer.write(new String(json.getBytes(StandardCharsets.UTF_8), StandardCharsets.UTF_8));
-                out.println("\t" + jsonFile.toPath() + "\n");
-            }
-        }
-
-        // Dump the Testerina html report only if '--test-report' flag is provided
-        if (project.buildOptions().testReport()) {
-            Path reportZipPath = getReportToolsPath();
-            if (Files.exists(reportZipPath)) {
-                String content;
-                try {
-                    try (FileInputStream fileInputStream = new FileInputStream(reportZipPath.toFile())) {
-                        CodeCoverageUtils.unzipReportResources(fileInputStream, reportDir.toFile());
-                    }
-                    content = Files.readString(reportDir.resolve(RESULTS_HTML_FILE));
-                    content = content.replace(REPORT_DATA_PLACEHOLDER, json);
-                } catch (IOException e) {
-                    throw createLauncherException("error occurred while preparing test report: " + e);
-                }
-                File htmlFile = new File(reportDir.resolve(RESULTS_HTML_FILE).toString());
-                try (FileOutputStream fileOutputStream = new FileOutputStream(htmlFile)) {
-                    try (Writer writer = new OutputStreamWriter(fileOutputStream, StandardCharsets.UTF_8)) {
-                        writer.write(new String(content.getBytes(StandardCharsets.UTF_8), StandardCharsets.UTF_8));
-                        out.println("\tView the test report at: " +
-                                FILE_PROTOCOL + Path.of(htmlFile.getPath()).toAbsolutePath().normalize());
-                    }
-                }
-            } else {
-                String reportToolsPath = "<" + BALLERINA_HOME + ">" + File.separator + BALLERINA_HOME_LIB +
-                        File.separator + TOOLS_DIR_NAME + File.separator + COVERAGE_DIR + File.separator +
-                        REPORT_ZIP_NAME;
-                out.println("warning: Could not find the required HTML report tools for code coverage at "
-                        + reportToolsPath);
-            }
-        }
+        packageTestResult.setProjectName(projectName);
     }
 
     /**

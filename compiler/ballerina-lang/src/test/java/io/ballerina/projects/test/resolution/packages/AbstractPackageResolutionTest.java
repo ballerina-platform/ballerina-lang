@@ -18,6 +18,7 @@
 package io.ballerina.projects.test.resolution.packages;
 
 import io.ballerina.projects.DependencyGraph;
+import io.ballerina.projects.environment.PackageLockingMode;
 import io.ballerina.projects.internal.ResolutionEngine.DependencyNode;
 import io.ballerina.projects.test.resolution.packages.internal.GraphComparisonResult;
 import io.ballerina.projects.test.resolution.packages.internal.GraphUtils;
@@ -53,6 +54,18 @@ public abstract class AbstractPackageResolutionTest {
         GraphComparisonResult compResult = GraphUtils.compareGraph(actualGraph, expectedGraph);
         Assert.assertTrue(compResult.isIdenticalGraphs(), getDiagnosticLine(compResult.diagnostics()));
     }
+
+    public void runTestCase(String testSuiteDirName, String testCaseDirName, PackageLockingMode lockingMode) {
+        Path testSuitePath = RESOURCE_DIRECTORY.resolve(testSuiteDirName);
+        TestCaseFilePaths filePaths = TestCaseFilePathsBuilder.build(testSuitePath,
+                testSuitePath.resolve(testCaseDirName));
+        PackageResolutionTestCase resolutionTestCase = PackageResolutionTestCaseBuilder.build(filePaths, lockingMode);
+        DependencyGraph<DependencyNode> actualGraph = resolutionTestCase.execute(lockingMode);
+        DependencyGraph<DependencyNode> expectedGraph = resolutionTestCase.getExpectedGraph(lockingMode);
+        GraphComparisonResult compResult = GraphUtils.compareGraph(actualGraph, expectedGraph);
+        Assert.assertTrue(compResult.isIdenticalGraphs(), getDiagnosticLine(compResult.diagnostics()));
+    }
+
 
     private String getDiagnosticLine(Collection<String> diagnostics) {
         StringJoiner strJoiner = new StringJoiner("\n");

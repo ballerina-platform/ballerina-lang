@@ -47,6 +47,7 @@ public class Target {
     private final Path nativeConfigPath;
     private final Path profilerPath;
     private final Path resourcesPath;
+    private final Path execBackupPath;
 
     public Target(Path targetPath) throws IOException {
         this.targetPath = targetPath;
@@ -62,6 +63,7 @@ public class Target {
         this.nativeConfigPath = this.testsCachePath.resolve(ProjectConstants.NATIVE_CONFIG_DIR_NAME);
         this.profilerPath = this.targetPath.resolve(ProjectConstants.PROFILER_DIR_NAME);
         this.resourcesPath = this.targetPath.resolve(ProjectConstants.RESOURCE_DIR_NAME);
+        execBackupPath = this.targetPath.resolve(ProjectConstants.EXEC_BACKUP_DIR_NAME);;
 
         if (Files.exists(this.targetPath)) {
             ProjectUtils.checkWritePermission(this.targetPath);
@@ -242,9 +244,26 @@ public class Target {
     /**
      * Clean any files that created from the build.
      */
+    public void clean() {
+        // Remove cache directory
+        ProjectUtils.deleteDirectory(this.cache);
+
+        // Remove any generated bala
+        ProjectUtils.deleteDirectory(this.balaCachePath);
+        ProjectUtils.deleteDirectory(this.binPath);
+        ProjectUtils.deleteDirectory(this.docPath);
+        ProjectUtils.deleteDirectory(this.reportPath);
+        ProjectUtils.deleteDirectory(this.resourcesPath);
+        ProjectUtils.deleteDirectory(this.execBackupPath);
+    }
+
+    /**
+     * Clean any files that created from the build.
+     */
+    @Deprecated (forRemoval = true)
     public void clean(boolean isModified, boolean cacheEnabled) {
         if (isModified || !cacheEnabled) {
-            // Remove from cache
+            // Remove cache directory
             ProjectUtils.deleteDirectory(this.cache);
         }
 

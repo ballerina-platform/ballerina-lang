@@ -1,0 +1,7 @@
+[package]
+org = "luheerathan"
+name = "projWStickyInBalTom"
+version = "0.1.0"
+
+[build-options]
+sticky = true

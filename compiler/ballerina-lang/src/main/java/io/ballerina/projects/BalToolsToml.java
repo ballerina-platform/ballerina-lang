@@ -93,6 +93,10 @@ public class BalToolsToml {
         return this.balToolsTomlContext.tomlDocument();
     }
 
+    public Path path() {
+        return this.balToolsTomlPath;
+    }
+
     public void modify(BalToolsManifest balToolsManifest) {
         String updatedContent = generateContent(balToolsManifest);
         this.balToolsTomlContext = TomlDocumentContext.from(TomlDocument.from(BAL_TOOLS_TOML, updatedContent));
@@ -112,6 +116,9 @@ public class BalToolsToml {
                     content.append("name = \"").append(tool.getValue().name()).append("\"\n");
                     content.append("version = \"").append(tool.getValue().version()).append("\"\n");
                     content.append("active = ").append(tool.getValue().active()).append("\n");
+                    if (tool.getValue().force()) {
+                        content.append("force = ").append(tool.getValue().force()).append("\n");
+                    }
                     if (tool.getValue().repository() != null) {
                         content.append("repository = \"").append(tool.getValue().repository()).append("\"\n");
                     }

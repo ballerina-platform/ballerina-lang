@@ -1,0 +1,8 @@
+[package]
+org = "foo"
+name = "tool_sample_build_tool"
+version = "1.0.0"
+distribution = "2201.13.0"
+
+[build-options]
+observabilityIncluded = true

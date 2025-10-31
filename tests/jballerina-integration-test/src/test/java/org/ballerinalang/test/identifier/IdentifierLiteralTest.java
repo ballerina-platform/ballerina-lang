@@ -18,6 +18,7 @@
 
 package org.ballerinalang.test.identifier;
 
+import org.apache.commons.io.FileUtils;
 import org.ballerinalang.test.BaseTest;
 import org.ballerinalang.test.context.BMainInstance;
 import org.ballerinalang.test.context.BallerinaTestException;
@@ -26,7 +27,9 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import java.io.File;
+import java.io.IOException;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.HashMap;
 
 /**
@@ -51,6 +54,11 @@ public class IdentifierLiteralTest  extends BaseTest {
     public void testModuleIdentifierClash() throws BallerinaTestException {
         Path projectPath = Path.of(testFileLocation, "ModuleNameClashProject")
                 .toAbsolutePath();
+        try {
+            FileUtils.deleteDirectory(projectPath.resolve("target").toFile());
+        } catch (IOException e) {
+            // ignore
+        }
         LogLeecher runLeecher = new LogLeecher("1 passing");
         bMainInstance.runMain("test", new String[0], new HashMap<>(), new String[0],
                 new LogLeecher[]{runLeecher}, projectPath.toString());
@@ -81,13 +89,19 @@ public class IdentifierLiteralTest  extends BaseTest {
     @Test()
     public void testResourceFunctionCall() throws BallerinaTestException {
         LogLeecher testLeecher = new LogLeecher("1 passing");
+        String projectPath = testFileLocation + File.separator + "ResourceCallProject";
+        try {
+            FileUtils.deleteDirectory(Paths.get(projectPath).resolve("target").toFile());
+        } catch (IOException e) {
+            // ignore
+        }
         bMainInstance.runMain("test", new String[0], null, new String[0], new LogLeecher[]{testLeecher},
-                testFileLocation + File.separator + "ResourceCallProject");
+                projectPath);
         testLeecher.waitForText(5000);
 
         LogLeecher runLeecher = new LogLeecher("Tests passed");
         bMainInstance.runMain("run", new String[0], null, new String[0], new LogLeecher[]{runLeecher},
-                testFileLocation + File.separator + "ResourceCallProject");
+                projectPath);
         runLeecher.waitForText(5000);
     }
 }

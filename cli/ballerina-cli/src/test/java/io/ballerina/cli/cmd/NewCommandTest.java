@@ -21,6 +21,7 @@ package io.ballerina.cli.cmd;
 import io.ballerina.cli.launcher.BLauncherException;
 import io.ballerina.projects.util.FileUtils;
 import io.ballerina.projects.util.ProjectConstants;
+import io.ballerina.projects.util.ProjectPaths;
 import io.ballerina.projects.util.ProjectUtils;
 import org.testng.Assert;
 import org.testng.SkipException;
@@ -46,7 +47,9 @@ import java.util.Locale;
 import static io.ballerina.cli.cmd.CommandOutputUtils.getOutput;
 import static io.ballerina.cli.cmd.CommandOutputUtils.readFileAsString;
 import static io.ballerina.cli.utils.OsUtils.isWindows;
+import static io.ballerina.projects.util.ProjectConstants.BALLERINA_TOML;
 import static io.ballerina.projects.util.ProjectConstants.TOOL_DIR;
+import static io.ballerina.projects.util.ProjectConstants.USER_DIR_PROPERTY;
 import static io.ballerina.projects.util.ProjectConstants.USER_NAME;
 
 /**
@@ -1314,6 +1317,43 @@ public class NewCommandTest extends BaseCommandTest {
                 "Created new package '" + derivedPkgName + "' at " + packageDir + ".\n");
     }
 
+    @Test
+    public void testNewCommandForWorkspace() throws IOException {
+        Path packageDir = tmpDir.resolve("my-workspace");
+        String[] args = {"--workspace", "-t=lib", packageDir.toString()};
+        NewCommand newCommand = new NewCommand(printStream, false);
+        new CommandLine(newCommand).parseArgs(args);
+        String buildLog;
+        String userHome = System.getProperty(USER_DIR_PROPERTY);
+        try {
+            newCommand.execute();
+            buildLog = readOutput().replace("\r", "");
+            Assert.assertTrue(Files.exists(packageDir));
+            Assert.assertTrue(Files.exists(packageDir.resolve(BALLERINA_TOML)));
+            Assert.assertTrue(ProjectPaths.isWorkspaceProjectRoot(packageDir));
+            Assert.assertTrue(Files.exists(packageDir.resolve("hello-lib")));
+            Assert.assertTrue(buildLog.contains("Created new workspace at " + packageDir), buildLog);
+            // Remove tests/ to avoid the ballerina-io import
+            ProjectUtils.deleteDirectory(packageDir.resolve("hello-lib").resolve("tests"));
+        } catch (BLauncherException e) {
+            System.setProperty(USER_DIR_PROPERTY, userHome); // Reset user.dir for other test cases
+            Assert.fail(e.getDetailedMessages().toString());
+        }
+        System.setProperty(USER_DIR_PROPERTY, packageDir.toString());
+        cleanTarget(packageDir);
+        BuildCommand buildCommand = new BuildCommand(packageDir, printStream, printStream, false);
+        new CommandLine(buildCommand).parseArgs();
+        try {
+            buildCommand.execute();
+        } catch (BLauncherException e) {
+            System.setProperty(USER_DIR_PROPERTY, userHome); // Reset user.dir for other test cases
+            Assert.fail("Build failed" + e.getDetailedMessages().toString());
+        }
+        buildLog = readOutput(true);
+        Assert.assertTrue(buildLog.contains("Resolving workspace dependencies"), buildLog);
+        Assert.assertTrue(buildLog.contains("Generating executable"), buildLog);
+        System.setProperty(USER_DIR_PROPERTY, userHome); // Reset user.dir for other test cases
+    }
     static class Copy extends SimpleFileVisitor<Path> {
         private final Path fromPath;
         private final Path toPath;

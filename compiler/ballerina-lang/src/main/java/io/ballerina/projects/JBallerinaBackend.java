@@ -38,7 +38,7 @@ import org.ballerinalang.maven.MavenResolver;
 import org.ballerinalang.maven.Utils;
 import org.ballerinalang.maven.exceptions.MavenResolverException;
 import org.wso2.ballerinalang.compiler.bir.codegen.CodeGenerator;
-import org.wso2.ballerinalang.compiler.bir.codegen.CompiledJarFile;
+import org.wso2.ballerinalang.compiler.bir.codegen.internal.CompiledJarFile;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.InteropValidator;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
@@ -180,8 +180,11 @@ public class JBallerinaBackend extends CompilerBackend {
                 if (this.packageContext.project().buildOptions().showDependencyDiagnostics() ||
                         !ProjectKind.BALA_PROJECT.equals(moduleContext.project().kind()) ||
                         (diagnostic.diagnosticInfo().severity() == DiagnosticSeverity.ERROR)) {
-                    moduleDiagnostics.add(
-                            new PackageDiagnostic(diagnostic, moduleContext.descriptor(), moduleContext.project()));
+                    boolean isWorkspaceDep = !this.packageContext.getResolution().dependencyGraph().getRoot()
+                            .packageInstance().descriptor().equals(
+                                    moduleContext.project().currentPackage().descriptor());
+                    moduleDiagnostics.add(new PackageDiagnostic(diagnostic, moduleContext.descriptor(),
+                            moduleContext.project(), isWorkspaceDep));
                 }
             }
 

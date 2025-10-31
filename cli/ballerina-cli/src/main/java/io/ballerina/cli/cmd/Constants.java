@@ -36,11 +36,6 @@ public final class Constants {
     public static final String SEARCH_COMMAND = "search";
     public static final String CLEAN_COMMAND = "clean";
     public static final String FORMAT_COMMAND = "format";
-    public static final String GRPC_COMMAND = "grpc";
-    public static final String GRAPHQL_COMMAND = "graphql";
-    public static final String OPENAPI_COMMAND = "openapi";
-    public static final String ASYNCAPI_COMMAND = "asyncapi";
-    public static final String PERSIST_COMMAND = "persist";
     public static final String VERSION_COMMAND = "version";
     public static final String BINDGEN_COMMAND = "bindgen";
     public static final String SHELL_COMMAND = "shell";
@@ -48,6 +43,13 @@ public final class Constants {
     public static final String GRAPH_COMMAND = "graph";
     public static final String DEPRECATE_COMMAND = "deprecate";
     public static final String TOOL_COMMAND = "tool";
+    public static final String TOOL_PULL_COMMAND = "pull";
+    public static final String TOOL_LIST_COMMAND = "list";
+    public static final String TOOL_USE_COMMAND = "use";
+    public static final String TOOL_SEARCH_COMMAND = "search";
+    public static final String TOOL_REMOVE_COMMAND = "remove";
+    public static final String TOOL_UPDATE_COMMAND = "update";
+    public static final String TOOL_LOCATION_COMMAND = "location";
     public static final String SEMVER_COMMAND = "semver";
     public static final String DIST_COMMAND = "dist";
     public static final String UPDATE_COMMAND = "update";

@@ -17,42 +17,46 @@
  */
 package org.wso2.ballerinalang.compiler.bir.codegen.split.types;
 
-import org.ballerinalang.model.elements.PackageID;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.MethodVisitor;
-import org.wso2.ballerinalang.compiler.bir.codegen.BallerinaClassWriter;
-import org.wso2.ballerinalang.compiler.bir.codegen.JarEntries;
-import org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmTypeGen;
+import org.wso2.ballerinalang.compiler.bir.codegen.model.DoubleCheckLabelsRecord;
 import org.wso2.ballerinalang.compiler.bir.codegen.split.JvmConstantsGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.split.JvmCreateTypeGen;
-import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BIntersectionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 
-import static org.objectweb.asm.ClassWriter.COMPUTE_FRAMES;
+import java.util.Optional;
+
+import static org.objectweb.asm.Opcodes.ACC_FINAL;
 import static org.objectweb.asm.Opcodes.ACC_PUBLIC;
-import static org.objectweb.asm.Opcodes.ACC_SUPER;
+import static org.objectweb.asm.Opcodes.ACC_STATIC;
 import static org.objectweb.asm.Opcodes.ACONST_NULL;
-import static org.objectweb.asm.Opcodes.CHECKCAST;
 import static org.objectweb.asm.Opcodes.DUP;
 import static org.objectweb.asm.Opcodes.GETSTATIC;
+import static org.objectweb.asm.Opcodes.INVOKEINTERFACE;
 import static org.objectweb.asm.Opcodes.INVOKESPECIAL;
 import static org.objectweb.asm.Opcodes.INVOKEVIRTUAL;
 import static org.objectweb.asm.Opcodes.NEW;
-import static org.objectweb.asm.Opcodes.V21;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil.getModuleLevelClassName;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CLASS_FILE_SUFFIX;
+import static org.objectweb.asm.Opcodes.PUTSTATIC;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.GET_TYPE_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JVM_INIT_METHOD;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_UNION_TYPES_CLASS_NAME;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBJECT;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SET_IMMUTABLE_TYPE_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SET_MEMBERS_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SET_ORIGINAL_MEMBERS_METHOD;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPE_VAR_FIELD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.UNION_TYPE_IMPL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_MODULE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_UNION_TYPE_IMPL;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_UNION_TYPE_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INIT_UNION_TYPE_IMPL;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.SET_IMMUTABLE_TYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.SET_TYPE_ARRAY;
+import static org.wso2.ballerinalang.compiler.bir.codegen.split.JvmCreateTypeGen.endDoubleCheckGetEnd;
+import static org.wso2.ballerinalang.compiler.bir.codegen.split.JvmCreateTypeGen.genDoubleCheckGetStart;
 
 /**
  * BIR union types to JVM byte code generation class.
@@ -61,89 +65,79 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.SET_TYPE
  */
 public class JvmUnionTypeGen {
 
-    public final String unionTypesClass;
-    public final ClassWriter unionTypesCw;
     private final JvmCreateTypeGen jvmCreateTypeGen;
     private final JvmTypeGen jvmTypeGen;
-    private final  JvmConstantsGen jvmConstantsGen;
+    private final JvmConstantsGen jvmConstantsGen;
+    public int methodCount = 0;
 
-    public JvmUnionTypeGen(JvmCreateTypeGen jvmCreateTypeGen, JvmTypeGen jvmTypeGen, JvmConstantsGen jvmConstantsGen,
-                           PackageID packageID) {
-        this.unionTypesClass = getModuleLevelClassName(packageID, MODULE_UNION_TYPES_CLASS_NAME);
+    public JvmUnionTypeGen(JvmCreateTypeGen jvmCreateTypeGen, JvmTypeGen jvmTypeGen, JvmConstantsGen jvmConstantsGen) {
         this.jvmCreateTypeGen = jvmCreateTypeGen;
         this.jvmTypeGen = jvmTypeGen;
         this.jvmConstantsGen = jvmConstantsGen;
-        this.unionTypesCw = new BallerinaClassWriter(COMPUTE_FRAMES);
-        this.unionTypesCw.visit(V21, ACC_PUBLIC + ACC_SUPER, unionTypesClass, null, OBJECT, null);
     }
 
-    public void visitEnd(JvmPackageGen jvmPackageGen, BIRNode.BIRPackage module, JarEntries jarEntries) {
-        unionTypesCw.visitEnd();
-        jarEntries.put(unionTypesClass + CLASS_FILE_SUFFIX, jvmPackageGen.getBytes(unionTypesCw, module));
-    }
-
-
-    /**
-     * Create a runtime type instance for union used in type definitions.
-     *
-     * @param mv        method visitor
-     * @param unionType union type
-     */
-    public void createUnionType(MethodVisitor mv, BUnionType unionType) {
+    public void createUnionType(ClassWriter cw, MethodVisitor mv, String unionTypeClass, String varName,
+                                BUnionType unionType, boolean isAnnotatedType, SymbolTable symbolTable) {
+        // Create field for union type var
+        cw.visitField(ACC_STATIC | ACC_PUBLIC | ACC_FINAL, TYPE_VAR_FIELD, GET_UNION_TYPE_IMPL, null, null).visitEnd();
+        // Create union type instance
         mv.visitTypeInsn(NEW, UNION_TYPE_IMPL);
         mv.visitInsn(DUP);
-
         boolean nameLoaded = jvmTypeGen.loadUnionName(mv, unionType);
         if (nameLoaded) {
-            BTypeSymbol tsymbol = unionType.tsymbol;
-            if (tsymbol == null) {
+            BTypeSymbol symbol = unionType.tsymbol;
+            if (symbol == null) {
                 mv.visitInsn(ACONST_NULL);
             } else {
-                String varName = jvmConstantsGen.getModuleConstantVar(unionType.tsymbol.pkgID);
-                mv.visitFieldInsn(GETSTATIC, jvmConstantsGen.getModuleConstantClass(), varName,
-                        GET_MODULE);
+                String moduleVar = jvmConstantsGen.getModuleConstantVar(unionType.tsymbol.pkgID);
+                mv.visitFieldInsn(GETSTATIC, jvmConstantsGen.getModuleConstantClass(moduleVar), moduleVar, GET_MODULE);
             }
         }
-
         mv.visitLdcInsn(jvmTypeGen.typeFlag(unionType));
-
         jvmTypeGen.loadCyclicFlag(mv, unionType);
-
         mv.visitLdcInsn(unionType.getFlags());
         // initialize the union type without the members array
         if (nameLoaded) {
-            mv.visitMethodInsn(INVOKESPECIAL, UNION_TYPE_IMPL, JVM_INIT_METHOD,
-                    INIT_UNION_TYPE_IMPL, false);
+            mv.visitMethodInsn(INVOKESPECIAL, UNION_TYPE_IMPL, JVM_INIT_METHOD, INIT_UNION_TYPE_IMPL, false);
         } else {
             mv.visitMethodInsn(INVOKESPECIAL, UNION_TYPE_IMPL, JVM_INIT_METHOD, "(IZJ)V", false);
         }
+        mv.visitFieldInsn(PUTSTATIC, unionTypeClass, TYPE_VAR_FIELD, GET_UNION_TYPE_IMPL);
+        genGetTypeMethod(cw, unionType, unionTypeClass, varName, isAnnotatedType, symbolTable);
     }
 
-    public void populateUnion(ClassWriter cw, MethodVisitor mv, BUnionType bType, String className, String name,
+    private void genGetTypeMethod(ClassWriter cw, BUnionType unionType, String unionTypeClass,
+                                  String varName, boolean isAnnotatedType, SymbolTable symbolTable) {
+        MethodVisitor mv = cw.visitMethod(ACC_PUBLIC | ACC_STATIC, GET_TYPE_METHOD, GET_UNION_TYPE_METHOD, null, null);
+        mv.visitCode();
+        DoubleCheckLabelsRecord checkLabelsRecord = genDoubleCheckGetStart(mv, unionTypeClass, GET_UNION_TYPE_IMPL);
+        populateUnion(cw, mv, unionType, unionTypeClass, varName, symbolTable);
+        endDoubleCheckGetEnd(mv, unionTypeClass, GET_UNION_TYPE_IMPL, checkLabelsRecord, isAnnotatedType);
+        mv.visitMaxs(0, 0);
+        mv.visitEnd();
+    }
+
+    public void populateUnion(ClassWriter cw, MethodVisitor mv, BUnionType bType, String unionTypeClass, String name,
                               SymbolTable symbolTable) {
-        mv.visitTypeInsn(CHECKCAST, UNION_TYPE_IMPL);
+        Optional<BIntersectionType> immutableType = jvmCreateTypeGen.getImmutableType(bType, symbolTable);
+        mv.visitFieldInsn(GETSTATIC, unionTypeClass, TYPE_VAR_FIELD, GET_UNION_TYPE_IMPL);
         mv.visitInsn(DUP);
-        mv.visitInsn(DUP);
-
+        if (immutableType.isPresent()) {
+            mv.visitInsn(DUP);
+        }
         // populate member fields
-        addUnionMembers(cw, mv, bType, className, name);
-        jvmCreateTypeGen.addImmutableType(mv, bType, symbolTable);
+        addUnionMembers(cw, mv, bType, unionTypeClass, name);
+        if (immutableType.isPresent()) {
+            jvmTypeGen.loadType(mv, immutableType.get());
+            mv.visitMethodInsn(INVOKEINTERFACE, TYPE, SET_IMMUTABLE_TYPE_METHOD, SET_IMMUTABLE_TYPE, true);
+        }
     }
 
-    /**
-     * Add member type to unions in a type definition.
-     *
-     * @param mv        method visitor
-     * @param unionType unionType
-     */
     private void addUnionMembers(ClassWriter cw, MethodVisitor mv, BUnionType unionType, String className,
                                  String name) {
         jvmTypeGen.createUnionMembersArray(cw, mv, unionType.getMemberTypes(), className, name);
-        mv.visitMethodInsn(INVOKEVIRTUAL, UNION_TYPE_IMPL, SET_MEMBERS_METHOD,
-                SET_TYPE_ARRAY, false);
-
+        mv.visitMethodInsn(INVOKEVIRTUAL, UNION_TYPE_IMPL, SET_MEMBERS_METHOD, SET_TYPE_ARRAY, false);
         jvmTypeGen.createUnionMembersArray(cw, mv, unionType.getOriginalMemberTypes(), className, "original" + name);
-        mv.visitMethodInsn(INVOKEVIRTUAL, UNION_TYPE_IMPL, SET_ORIGINAL_MEMBERS_METHOD,
-                SET_TYPE_ARRAY, false);
+        mv.visitMethodInsn(INVOKEVIRTUAL, UNION_TYPE_IMPL, SET_ORIGINAL_MEMBERS_METHOD, SET_TYPE_ARRAY, false);
     }
 }

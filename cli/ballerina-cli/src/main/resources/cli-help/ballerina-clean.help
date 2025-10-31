@@ -10,17 +10,26 @@ DESCRIPTION
        all files and directories in the target directory.
 
        The default target directory that will be cleaned is the
-       '<package-root>/target'. You may also provide a custom target to be
-       cleaned.
+       '<project-root>/target'. You may also provide a custom target to be cleaned.
+
+       Additionally, the caches of the dependencies of the current package or
+       workspace can also be cleaned.
 
 
 OPTIONS
        --target-dir <path>
            Target directory path.
 
+       --dependency-cache
+           Clean the caches of the dependencies of the current package
+           or workspace.
+
 EXAMPLES
-       Clean the default target directory of the current package.
+       Clean the default target directory of the current package or workspace.
            $ bal clean
 
        Clean the provided target directory.
-           $ bal clean <target-directory-path>
+           $ bal clean --target-dir <target-directory-path>
+
+       Clean the caches of the dependencies of the current package or workspace.
+           $ bal clean --dependency-cache

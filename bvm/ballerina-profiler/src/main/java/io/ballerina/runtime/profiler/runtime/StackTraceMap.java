@@ -62,6 +62,6 @@ public final class StackTraceMap {
     }
 
     private static String decodeStackElement(String stackElement) {
-        return Utils.decodeIdentifier(stackElement.replace("$value$", ""));
+        return Utils.decodeIdentifier(stackElement.replace("values.\\$", ""));
     }
 }

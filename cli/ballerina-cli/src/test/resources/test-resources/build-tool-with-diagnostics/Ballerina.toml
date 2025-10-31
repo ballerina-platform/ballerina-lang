@@ -3,7 +3,7 @@ org = "foo"
 name = "winery"
 version = "0.1.0"
 
-[[tool.openapi]]
+[[tool.sample-build-tool]]
 id = "generate-delivery-client"
 filePath = "delivery.json"
 targetModule = "delivery"

@@ -1,0 +1,7 @@
+Resolving workspace dependencies
+
+Compiling source
+	asmaj/depA:0.1.0
+
+Compiling source
+	asmaj/hello_app:0.1.0

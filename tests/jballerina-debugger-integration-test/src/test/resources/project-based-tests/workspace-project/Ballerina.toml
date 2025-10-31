@@ -1,0 +1,2 @@
+[workspace]
+packages = ["hello-app", "pkgA", "other/pkgB", "hello-app-2"]

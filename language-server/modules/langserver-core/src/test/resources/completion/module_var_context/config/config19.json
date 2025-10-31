@@ -797,6 +797,14 @@
       "filterText": "public_function_main",
       "insertText": "function main() {\n\t${1}\n}",
       "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "natural",
+      "kind": "Unit",
+      "detail": "type",
+      "sortText": "R",
+      "insertText": "natural",
+      "insertTextFormat": "Snippet"
     }
   ]
 }

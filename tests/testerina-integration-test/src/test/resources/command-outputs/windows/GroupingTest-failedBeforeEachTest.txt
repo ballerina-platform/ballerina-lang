@@ -11,7 +11,7 @@ Running Tests
 			callableName: createBallerinaError moduleName: ballerina.test.0 fileName: assert.bal lineNumber: 41
 			callableName: assertFail moduleName: ballerina.test.0 fileName: assert.bal lineNumber: 232
 			callableName: beforeEachFunction  fileName: failed-before-each-with-groups.bal lineNumber: 43
-			callableName: beforeEachFunction$lambda4$  fileName: failed-before-each-with-groups.bal lineNumber: 86
+			callableName: beforeEachFunction$lambda3$  fileName: failed-before-each-with-groups.bal lineNumber: 86
 			callableName: call moduleName: ballerina.lang.function.0 fileName: function.bal lineNumber: 37
 			callableName: executeFunction moduleName: ballerina.test.0 fileName: serialExecuter.bal lineNumber: 142
 			callableName: executeFunctions moduleName: ballerina.test.0 fileName: serialExecuter.bal lineNumber: 96

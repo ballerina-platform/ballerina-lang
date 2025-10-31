@@ -26,7 +26,6 @@ import io.ballerina.projects.internal.ModuleContextDataHolder;
 import io.ballerina.projects.util.ProjectUtils;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.diagnostics.Location;
-import org.ballerinalang.compiler.CompilerOptionName;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.PackageID;
@@ -41,14 +40,14 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangTestablePackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
-import org.wso2.ballerinalang.compiler.util.CompilerOptions;
-import org.wso2.ballerinalang.programfile.CompiledBinaryFile;
+import org.wso2.ballerinalang.programfile.BIRPackageFile;
 import org.wso2.ballerinalang.programfile.PackageFileWriter;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.lang.ref.WeakReference;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
@@ -70,7 +69,10 @@ import static org.ballerinalang.model.tree.SourceKind.TEST_SOURCE;
  *
  * @since 2.0.0
  */
-class ModuleContext {
+public class ModuleContext {
+
+    private static final WeakReference<byte[]> DEFAULT_BIR_BYTE = new WeakReference<>(new byte[0]);
+
     private final ModuleId moduleId;
     private final ModuleDescriptor moduleDescriptor;
     private final Collection<DocumentId> srcDocIds;
@@ -86,7 +88,7 @@ class ModuleContext {
     private Set<ModuleDependency> moduleDependencies;
     private BLangPackage bLangPackage;
     private BPackageSymbol bPackageSymbol;
-    private byte[] birBytes = new byte[0];
+    private WeakReference<byte[]> birBytes = DEFAULT_BIR_BYTE;
     private final Bootstrap bootstrap;
     private ModuleCompilationState moduleCompState;
     private Set<ModuleLoadRequest> allModuleLoadRequests = null;
@@ -140,7 +142,7 @@ class ModuleContext {
         return this.moduleId;
     }
 
-    ModuleDescriptor descriptor() {
+    public ModuleDescriptor descriptor() {
         return moduleDescriptor;
     }
 
@@ -270,8 +272,7 @@ class ModuleContext {
         // TODO This logic needs to be updated. We need a proper way to decide on the initial state
         if (compilationCache.getBir(moduleDescriptor.name()).length == 0) {
             moduleCompState = ModuleCompilationState.LOADED_FROM_SOURCES;
-        } else if (this.project().kind() == ProjectKind.BUILD_PROJECT
-                && !this.project.buildOptions().enableCache()) {
+        } else if (this.project().kind() == ProjectKind.BUILD_PROJECT) {
             moduleCompState = ModuleCompilationState.LOADED_FROM_SOURCES;
         } else {
             moduleCompState = ModuleCompilationState.LOADED_FROM_CACHE;
@@ -385,7 +386,10 @@ class ModuleContext {
                 moduleContext.descriptor(),
                 moduleContext.project.kind(),
                 moduleContext.project.buildOptions().skipTests(),
-                moduleContext.project().sourceRoot());
+                moduleContext.project().sourceRoot(),
+                moduleContext.project().buildOptions().observabilityIncluded(),
+                moduleContext.project().buildOptions().compilationOptions().dumpBir(),
+                moduleContext.project().buildOptions().cloud());
         packageCache.put(moduleCompilationId, pkgNode);
 
         // Parse source files
@@ -472,7 +476,7 @@ class ModuleContext {
         moduleContext.compilationCache.cacheBir(moduleContext.moduleName(), birContent);
     }
 
-    private static boolean shouldGenerateBir(ModuleContext moduleContext, CompilerContext compilerContext) {
+    private static boolean shouldGenerateBir(ModuleContext moduleContext) {
         if (moduleContext.project.kind().equals(ProjectKind.BALA_PROJECT)) {
             return true;
         }
@@ -480,26 +484,23 @@ class ModuleContext {
                 moduleContext.descriptor().org(), moduleContext.descriptor().packageName().toString())) {
             return true;
         }
-        CompilerOptions compilerOptions = CompilerOptions.getInstance(compilerContext);
-        if (Boolean.parseBoolean(compilerOptions.get(CompilerOptionName.DUMP_BIR_FILE))) {
+        if (moduleContext.project.buildOptions().compilationOptions().dumpBirFile()) {
             return true;
         }
-        return moduleContext.project.kind().equals(ProjectKind.BUILD_PROJECT)
-                && moduleContext.project().buildOptions().enableCache();
+        return moduleContext.project.kind().equals(ProjectKind.BUILD_PROJECT);
     }
 
     private static ByteArrayOutputStream generateBIR(ModuleContext moduleContext, CompilerContext compilerContext) {
-        if (!shouldGenerateBir(moduleContext, compilerContext)) {
+        if (!shouldGenerateBir(moduleContext)) {
             return null;
         }
         // Can we improve this logic
         ByteArrayOutputStream birContent = new ByteArrayOutputStream();
         SymbolTable symTable = SymbolTable.getInstance(compilerContext);
         try {
-            CompiledBinaryFile.BIRPackageFile birPackageFile = moduleContext.bLangPackage.symbol.birPackageFile;
+            BIRPackageFile birPackageFile = moduleContext.bLangPackage.symbol.birPackageFile;
             if (birPackageFile == null) {
-                birPackageFile = new CompiledBinaryFile
-                        .BIRPackageFile(
+                birPackageFile = new BIRPackageFile.EagerBirPackageFile(
                         new BIRBinaryWriter(moduleContext.bLangPackage.symbol.bir, symTable.typeEnv()).serialize());
                 moduleContext.bLangPackage.symbol.birPackageFile = birPackageFile;
             }
@@ -513,7 +514,11 @@ class ModuleContext {
     }
 
     static void loadBirBytesInternal(ModuleContext moduleContext) {
-        moduleContext.birBytes = moduleContext.compilationCache.getBir(moduleContext.moduleName());
+        moduleContext.birBytes = new WeakReference<>(moduleContext.loadBirBytesInternalInner());
+    }
+
+    private byte[] loadBirBytesInternalInner() {
+        return compilationCache.getBir(this.moduleName());
     }
 
     static void resolveDependenciesFromBALAInternal(ModuleContext moduleContext) {
@@ -525,7 +530,8 @@ class ModuleContext {
         BIRPackageSymbolEnter birPackageSymbolEnter = BIRPackageSymbolEnter.getInstance(compilerContext);
 
         PackageID moduleCompilationId = moduleContext.descriptor().moduleCompilationId();
-        moduleContext.bPackageSymbol = birPackageSymbolEnter.definePackage(moduleCompilationId, moduleContext.birBytes);
+        moduleContext.bPackageSymbol =
+                birPackageSymbolEnter.definePackage(moduleContext);
         moduleContext.bPackageSymbol.exported = moduleContext.isExported();
         moduleContext.bPackageSymbol.descriptor = moduleContext.descriptor();
         packageCache.putSymbol(moduleCompilationId, moduleContext.bPackageSymbol);
@@ -594,5 +600,14 @@ class ModuleContext {
             }
             return super.add(moduleLoadRequest);
         }
+    }
+
+    public byte[] getBirBytes() {
+        byte[] birBytes = this.birBytes.get();
+        if (birBytes == null) {
+            birBytes = loadBirBytesInternalInner();
+            this.birBytes = new WeakReference<>(birBytes);
+        }
+        return birBytes;
     }
 }

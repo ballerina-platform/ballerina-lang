@@ -57,7 +57,7 @@ public final class TesterinaUtils {
 
     private static final PrintStream errStream = System.err;
 
-    private static final String GENERATE_OBJECT_CLASS_PREFIX = ".$value$";
+    private static final String GENERATE_OBJECT_CLASS_PREFIX = ".values.\\$";
     private static final String GENERATE_PKG_INIT = "___init_";
     private static final String GENERATE_PKG_START = "___start_";
     private static final String GENERATE_PKG_STOP = "___stop_";
@@ -81,8 +81,7 @@ public final class TesterinaUtils {
                 }
             }
         } catch (IOException e) {
-            errStream.println("Error occurred while deleting the dir : " + path + " with error : "
-                                      + e.getMessage());
+            errStream.println("Error occurred while deleting the dir : " + path + " with error : " + e.getMessage());
         }
     }
 
@@ -92,8 +91,8 @@ public final class TesterinaUtils {
      * @param sourceRootPath source root path
      * @param testSuite test meta data
      */
-    public static int executeTests(Path sourceRootPath, TestSuite testSuite,
-                                    ClassLoader classLoader, String[] args, PrintStream out) throws RuntimeException {
+    public static int executeTests(Path sourceRootPath, TestSuite testSuite, ClassLoader classLoader, String[] args,
+                                   PrintStream out) throws RuntimeException {
         try {
             int exitStatus = execute(testSuite, classLoader, args, out);
             cleanUpDir(sourceRootPath.resolve(TesterinaConstants.TESTERINA_TEMP_DIR));
@@ -206,7 +205,7 @@ public final class TesterinaUtils {
     public static String getQualifiedClassName(String orgName, String packageName,
                                                String version, String className) {
         if (!DOT.equals(packageName)) {
-            className = encodeNonFunctionIdentifier(packageName) + "." + 
+            className = encodeNonFunctionIdentifier(packageName) + "." +
                     RuntimeUtils.getMajorVersion(version) + "." + className;
         }
         if (!ANON_ORG.equals(orgName)) {

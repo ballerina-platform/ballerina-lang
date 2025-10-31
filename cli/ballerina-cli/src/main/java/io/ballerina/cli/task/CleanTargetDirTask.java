@@ -33,20 +33,11 @@ import static io.ballerina.cli.launcher.LauncherUtils.createLauncherException;
  */
 public class CleanTargetDirTask implements Task {
 
-    private final boolean isPackageModified;
-    private final boolean isCachesEnabled;
-
-    public CleanTargetDirTask(boolean isPackageModified,
-                              boolean isCachesEnabled) {
-        this.isPackageModified = isPackageModified;
-        this.isCachesEnabled = isCachesEnabled;
-    }
-
     @Override
     public void execute(Project project) {
         try {
             Target target = new Target(project.targetDir());
-            target.clean(this.isPackageModified, this.isCachesEnabled);
+            target.clean();
         } catch (IOException | ProjectException e) {
             throw createLauncherException("unable to clean the target directory: " + e.getMessage());
         }

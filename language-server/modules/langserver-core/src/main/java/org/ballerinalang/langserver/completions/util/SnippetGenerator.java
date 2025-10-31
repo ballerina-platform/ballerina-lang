@@ -1346,6 +1346,17 @@ public final class SnippetGenerator {
     }
 
     /**
+     * Get natural Snippet Block.
+     *
+     * @return {@link SnippetBlock}     Generated Snippet Block
+     */
+    public static SnippetBlock getNaturalSnippet() {
+        String snippet = "natural (${1}) {${2}}";
+        return new SnippetBlock(ItemResolverConstants.NATURAL_TEMP, ItemResolverConstants.NATURAL_TEMP, snippet,
+                ItemResolverConstants.SNIPPET_TYPE, Kind.SNIPPET);
+    }
+
+    /**
      * Get Paranthesis Snippet Block.
      *
      * @return {@link SnippetBlock}     Generated Snippet Block

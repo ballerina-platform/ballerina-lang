@@ -29,10 +29,12 @@ public final class Constants {
     public static final String CENTRAL_REPO_FILE_NAME = "central.dot";
     public static final String DIST_REPO_FILE_NAME = "dist.dot";
     public static final String LOCAL_REPO_DIR_NAME = "local";
+    public static final String WORKSPACE_REPO_FILE_NAME = "workspace.dot";
     public static final String DEPS_TOML_FILE_NAME = "Dependencies_toml.dot";
     public static final String BAL_TOML_FILE_NAME = "Ballerina_toml.dot";
-    public static final String EXP_GRAPH_STICKY_FILE_NAME = "expected-graph-sticky.dot";
-    public static final String EXP_GRAPH_NO_STICKY_FILE_NAME = "expected-graph-nosticky.dot";
+    public static final String EXP_GRAPH_HARD_FILE_NAME = "expected-graph-hard.dot";
+    public static final String EXP_GRAPH_MEDIUM_FILE_NAME = "expected-graph-medium.dot";
+    public static final String EXP_GRAPH_SOFT_FILE_NAME = "expected-graph-soft.dot";
 
     private Constants() {
     }

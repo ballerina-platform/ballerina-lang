@@ -33,6 +33,7 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -41,6 +42,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -312,14 +314,7 @@ public final class ProjectFiles {
         } catch (UnsupportedOperationException ignore) {
             // ignore for zip entries
         }
-
-        String content;
-        try {
-            content = Files.readString(documentFilePath, StandardCharsets.UTF_8);
-        } catch (IOException e) {
-            throw new ProjectException(e);
-        }
-        return DocumentData.from(Optional.of(documentFilePath.getFileName()).get().toString(), content);
+        return getDocumentData(documentFilePath, false);
     }
 
     private static DocumentData loadTestDocument(Path documentFilePath) {
@@ -328,18 +323,40 @@ public final class ProjectFiles {
         } catch (UnsupportedOperationException ignore) {
             // ignore for zip entries
         }
-        String content;
-        try {
-            content = Files.readString(documentFilePath, Charset.defaultCharset());
-        } catch (IOException e) {
-            throw new ProjectException(e);
-        }
+        return getDocumentData(documentFilePath, true);
+    }
+
+    // Helper method to handle file system logic for loading document content
+    private static DocumentData getDocumentData(Path documentFilePath, boolean isTest) {
+        return getDocumentData(documentFilePath, isTest, StandardCharsets.UTF_8);
+    }
+
+    // Overloaded helper to allow custom Charset
+    public static DocumentData getDocumentData(Path documentFilePath, boolean isTest, Charset charset) {
+        FileSystem fileSystem = documentFilePath.getFileSystem();
         String documentName = Optional.of(documentFilePath.getFileName()).get().toString();
-        return DocumentData.from(ProjectConstants.TEST_DIR_NAME + "/" + documentName, content);
+        String finalName = isTest ? ProjectConstants.TEST_DIR_NAME + "/" + documentName : documentName;
+        if (fileSystem.equals(FileSystems.getDefault())) {
+            Supplier<String> contentSupplier = () -> {
+                try {
+                    return Files.readString(documentFilePath, charset);
+                } catch (IOException e) {
+                    throw new ProjectException(e);
+                }
+            };
+            return DocumentData.from(finalName, contentSupplier);
+        } else {
+            try {
+                String content = Files.readString(documentFilePath, charset);
+                return DocumentData.from(finalName, content);
+            } catch (IOException e) {
+                throw new ProjectException(e);
+            }
+        }
     }
 
     public static BuildOptions createBuildOptions(PackageConfig packageConfig, BuildOptions theirOptions,
-                                                  Path projectDirPath) {
+                                                  Path projectDirPath, String org) {
         // Todo figure out how to pass the build options without a performance hit
         TomlDocument ballerinaToml = TomlDocument.from(ProjectConstants.BALLERINA_TOML,
                 packageConfig.ballerinaToml().map(DocumentConfig::content).orElse(""));
@@ -348,7 +365,7 @@ public final class ProjectFiles {
         TomlDocument balToolToml = TomlDocument.from(ProjectConstants.BAL_TOOL_TOML,
                 packageConfig.balToolToml().map(DocumentConfig::content).orElse(""));
         ManifestBuilder manifestBuilder = ManifestBuilder
-                .from(ballerinaToml, pluginToml, balToolToml, projectDirPath);
+                .from(ballerinaToml, pluginToml, balToolToml, projectDirPath, org);
         BuildOptions defaultBuildOptions = manifestBuilder.buildOptions();
         if (defaultBuildOptions == null) {
             defaultBuildOptions = BuildOptions.builder().build();
@@ -368,10 +385,6 @@ public final class ProjectFiles {
         if (!ProjectUtils.isBallerinaProject(projectDirPath)) {
             throw new ProjectException("Invalid Ballerina package directory: " + projectDirPath +
                     ", cannot find 'Ballerina.toml' file.");
-        }
-
-        if (ProjectUtils.findProjectRoot(projectDirPath.toAbsolutePath().getParent()) != null) {
-            throw new ProjectException("'" + projectDirPath + "' is already within a Ballerina package");
         }
 
         checkReadPermission(projectDirPath);

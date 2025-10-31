@@ -45,9 +45,11 @@ public final class PrintUtils {
     /**
      * Print locally available tool information as a table in the CLI.
      *
-     * @param tools       List of tools
+     * @param tools         list of tools
+     * @param terminalWidth terminal width
+     * @param all           whether to print all tools or only active tools
      */
-    public static void printLocalTools(List<BalToolsManifest.Tool> tools, String terminalWidth) {
+    public static void printLocalTools(List<BalToolsManifest.Tool> tools, String terminalWidth, boolean all) {
         int rightMargin = 3;
         int width = Integer.parseInt(terminalWidth) - rightMargin;
         int maxToolIdNameLength = 0;
@@ -56,36 +58,39 @@ public final class PrintUtils {
                 maxToolIdNameLength = tool.id().length();
             }
         }
-        int versionColWidth = 15;
-        int repositoryColWidth = 10;
+        int versionColWidth = 30;
         int padding = 2;
         int minimumToolIdColWidth = 20;
         int remainingWidth = Math.max(minimumToolIdColWidth, width - versionColWidth);
         int toolIdColWidth = Math.max(minimumToolIdColWidth, Math.min(maxToolIdNameLength, remainingWidth)) + padding;
 
-        printListLocalTableHeader(toolIdColWidth, versionColWidth, repositoryColWidth);
+        printListLocalTableHeader(toolIdColWidth, versionColWidth);
 
         for (BalToolsManifest.Tool tool: tools) {
-            String repository = ProjectConstants.LOCAL_REPOSITORY_NAME.equals(tool.repository()) ? "local" : "central";
-            String activeIndicator = tool.active() ? "* " : "  ";
+            String version = tool.version();
+            if (ProjectConstants.LOCAL_REPOSITORY_NAME.equals(tool.repository())) {
+                version += " [repo = " + tool.repository() + "]";
+            }
+            if (all) {
+                String activeIndicator = tool.active() ? "* " : "  ";
+                version = activeIndicator + version;
+            }
+
             printInCLI("|" + tool.id(), toolIdColWidth);
-            printInCLI(activeIndicator + tool.version(), versionColWidth);
-            printInCLI(repository, repositoryColWidth);
+            printInCLI(version, versionColWidth);
             outStream.println();
         }
         outStream.println();
-        outStream.println(tools.size() + " tools found.");
+        outStream.println(tools.size() + (all ? "" : " active") + " tool versions found.");
     }
 
-    private static void printListLocalTableHeader(int toolIdColWidth, int versionColWidth, int repositoryColWidth) {
+    private static void printListLocalTableHeader(int toolIdColWidth, int versionColWidth) {
         printInCLI("|TOOL ID", toolIdColWidth);
         printInCLI("VERSION", versionColWidth);
-        printInCLI("REPO", repositoryColWidth);
         outStream.println();
 
         printCharacter("|-", toolIdColWidth, "-", true);
         printCharacter("-", versionColWidth, "-", true);
-        printCharacter("-", repositoryColWidth, "-", true);
         outStream.println();
     }
 
@@ -191,7 +196,7 @@ public final class PrintUtils {
      * @param authorsColWidth authors column width
      */
     private static void printPackage(Package aPackage, int dateColWidth, int versionColWidth, int authorsColWidth,
-            int nameColWidth, int descColWidth, int minDescColWidth) {
+                                     int nameColWidth, int descColWidth, int minDescColWidth) {
         printInCLI(aPackage.getOrganization() + "/" + aPackage.getName(), nameColWidth);
 
         String summary = getSummary(aPackage);
@@ -233,7 +238,7 @@ public final class PrintUtils {
      * @param authorsColWidth authors column width
      */
     private static void printTool(Tool tool, int dateColWidth, int versionColWidth, int authorsColWidth,
-                                     int nameColWidth, int descColWidth, int minDescColWidth) {
+                                  int nameColWidth, int descColWidth, int minDescColWidth) {
         printInCLI(tool.getOrganization() + "/" + tool.getName(), nameColWidth);
 
         String summary = getSummary(tool);

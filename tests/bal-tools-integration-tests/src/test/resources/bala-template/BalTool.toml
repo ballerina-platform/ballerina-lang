@@ -1,0 +1,5 @@
+[tool]
+id = "<TOOL_NAME>"
+
+[[dependency]]
+path = "../libs/<TOOL_NAME>-<VERSION>.jar"
