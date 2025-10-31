@@ -38,6 +38,7 @@ import io.ballerina.toml.validator.schema.Schema;
 import io.ballerina.tools.diagnostics.Diagnostic;
 
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -51,6 +52,7 @@ public class SettingsBuilder {
 
     public static final String NAME = "name";
     public static final String MAVEN = "maven";
+    public static final String FS = "fs";
     private static final String CONNECT_TIMEOUT = "connectTimeout";
     private static final String READ_TIMEOUT = "readTimeout";
     private static final String WRITE_TIMEOUT = "writeTimeout";
@@ -129,6 +131,8 @@ public class SettingsBuilder {
         String url = "";
         String id = "";
         String repoName = "";
+        String type;
+        Path path = null;
         String repositoryUsername = "";
         String repositoryPassword = "";
         ArrayList<Repository> repositories = new ArrayList<>();
@@ -161,7 +165,7 @@ public class SettingsBuilder {
                 for (Map.Entry<String, TopLevelNode> entry : repoEntries.entrySet()) {
                     String repoKey = entry.getKey();
                     TopLevelNode repoValue = entry.getValue();
-                    if (!MAVEN.equals(repoKey)) {
+                    if (!MAVEN.equals(repoKey) && !FS.equals(repoKey)) {
                         continue;
                     }
                     List<TomlTableNode> repositoryNodes = ((TomlTableArrayNode) (repoValue)).children();
@@ -170,7 +174,12 @@ public class SettingsBuilder {
                         id = getStringOrDefaultFromTomlTableNode(repositoryNode, ID, "");
                         repositoryUsername = getStringOrDefaultFromTomlTableNode(repositoryNode, USERNAME, "");
                         repositoryPassword = getStringOrDefaultFromTomlTableNode(repositoryNode, ACCESS_TOKEN, "");
-                        repositories.add(Repository.from(id, url, repositoryUsername, repositoryPassword));
+                        String pathStr = getStringOrDefaultFromTomlTableNode(repositoryNode, "path", null);
+                        if (pathStr != null) {
+                            path = Path.of(pathStr);
+                        }
+                        repositories.add(Repository.from(
+                                id, url, repositoryUsername, repositoryPassword, repoKey, path));
                     }
                 }
             }
