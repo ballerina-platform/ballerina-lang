@@ -169,7 +169,7 @@ public class Package {
         return this.packageContext.getBuildToolResolution();
     }
 
-    BuildToolResolution getBuildToolResolution(CompilationOptions compilationOptions) {
+    public BuildToolResolution getBuildToolResolution(CompilationOptions compilationOptions) {
         return this.packageContext.getBuildToolResolution(compilationOptions);
     }
 
