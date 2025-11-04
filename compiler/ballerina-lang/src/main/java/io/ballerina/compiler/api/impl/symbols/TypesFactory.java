@@ -143,6 +143,23 @@ public class TypesFactory {
     }
 
     /**
+     * Get the type descriptor for the given type safely, handling null symbols.
+     * This is useful when processing anonymous types where symbols may be null.
+     *
+     * @param bType   {@link BType} of the type descriptor
+     * @param tSymbol The type symbol associated with the context in which this method is called (can be null)
+     * @return {@link TypeSymbol} generated, or null if bType is null
+     */
+    public TypeSymbol getTypeDescriptorSafe(BType bType, BSymbol tSymbol) {
+        if (bType == null) {
+            return null;
+        }
+        // If tSymbol is null, use the tsymbol from bType
+        BSymbol symbol = tSymbol != null ? tSymbol : bType.tsymbol;
+        return getTypeDescriptor(bType, symbol, false);
+    }
+
+    /**
      * Get the type descriptor for the given type. This method takes a type and a type symbol both because there are
      * instances where the tSymbol != tSymbol.type.tsymbol. e.g., a type symbol created for a type definition. Neither
      * bType nor tSymbol should be null.

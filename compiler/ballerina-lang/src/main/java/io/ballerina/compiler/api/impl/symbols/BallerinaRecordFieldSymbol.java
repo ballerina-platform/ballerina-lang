@@ -70,12 +70,12 @@ public class BallerinaRecordFieldSymbol extends BallerinaSymbol implements Recor
      */
     @Override
     public boolean isOptional() {
-        return Symbols.isFlagOn(this.bField.symbol.flags, Flags.OPTIONAL);
+        return bField.symbol != null && Symbols.isFlagOn(this.bField.symbol.flags, Flags.OPTIONAL);
     }
 
     @Override
     public boolean hasDefaultValue() {
-        return !isOptional() && !Symbols.isFlagOn(this.bField.symbol.flags, Flags.REQUIRED);
+        return bField.symbol != null && !isOptional() && !Symbols.isFlagOn(this.bField.symbol.flags, Flags.REQUIRED);
     }
 
     /**
@@ -98,9 +98,11 @@ public class BallerinaRecordFieldSymbol extends BallerinaSymbol implements Recor
         }
 
         List<AnnotationSymbol> annotationsList = new ArrayList<>();
-        SymbolFactory symbolFactory = SymbolFactory.getInstance(this.context);
-        for (org.ballerinalang.model.symbols.AnnotationAttachmentSymbol annot : bField.symbol.getAnnotations()) {
-            annotationsList.add(symbolFactory.createAnnotationSymbol((BAnnotationAttachmentSymbol) annot));
+        if (bField.symbol != null) {
+            SymbolFactory symbolFactory = SymbolFactory.getInstance(this.context);
+            for (org.ballerinalang.model.symbols.AnnotationAttachmentSymbol annot : bField.symbol.getAnnotations()) {
+                annotationsList.add(symbolFactory.createAnnotationSymbol((BAnnotationAttachmentSymbol) annot));
+            }
         }
 
         this.annots = Collections.unmodifiableList(annotationsList);
@@ -113,11 +115,12 @@ public class BallerinaRecordFieldSymbol extends BallerinaSymbol implements Recor
             return this.annotAttachments;
         }
 
-        SymbolFactory symbolFactory = SymbolFactory.getInstance(this.context);
         List<AnnotationAttachmentSymbol> annotAttachmentList = new ArrayList<>();
-
-        for (org.ballerinalang.model.symbols.AnnotationAttachmentSymbol annot : bField.symbol.getAnnotations()) {
-            annotAttachmentList.add(symbolFactory.createAnnotAttachment((BAnnotationAttachmentSymbol) annot));
+        if (bField.symbol != null) {
+            SymbolFactory symbolFactory = SymbolFactory.getInstance(this.context);
+            for (org.ballerinalang.model.symbols.AnnotationAttachmentSymbol annot : bField.symbol.getAnnotations()) {
+                annotAttachmentList.add(symbolFactory.createAnnotAttachment((BAnnotationAttachmentSymbol) annot));
+            }
         }
 
         this.annotAttachments = Collections.unmodifiableList(annotAttachmentList);
@@ -147,10 +150,12 @@ public class BallerinaRecordFieldSymbol extends BallerinaSymbol implements Recor
         }
 
         List<Qualifier> quals = new ArrayList<>();
-        final long symFlags = this.bField.symbol.flags;
+        if (bField.symbol != null) {
+            final long symFlags = this.bField.symbol.flags;
 
-        if (Symbols.isFlagOn(symFlags, Flags.READONLY)) {
-            quals.add(READONLY);
+            if (Symbols.isFlagOn(symFlags, Flags.READONLY)) {
+                quals.add(READONLY);
+            }
         }
 
         this.qualifiers = Collections.unmodifiableList(quals);
