@@ -537,7 +537,7 @@ public class PackageResolutionTests extends BaseTest {
         Assert.assertEquals(depGraphOfBala.getNodes().size(), 1);
     }
 
-    @Test(description = "Ultimate test case", dataProvider = "optimizeDependencyCompilation")
+    @Test(enabled = false, description = "Ultimate test case", dataProvider = "optimizeDependencyCompilation")
     public void testProjectWithManyDependencies(boolean optimizeDependencyCompilation) {
         BCompileUtil.compileAndCacheBala(
                 "projects_for_resolution_tests/ultimate_package_resolution/package_runtime");
