@@ -393,7 +393,26 @@ public class TestWorkspaceProject extends BaseTest {
                 Assert.assertEquals(compilation.diagnosticResult().diagnostics(false, true).size(), 0);
                 Assert.assertEquals(jBallerinaBackend.diagnosticResult().diagnostics(false, true).size(), 0);
             }
-
         }
+    }
+
+    @Test
+    public void testDuplicateBuildProjectInWorkspace() {
+        Path projectPath = tempResourceDir.resolve("wp-multiple-roots");
+        ProjectLoadResult projectLoadResult = TestUtils.loadWorkspaceProject(projectPath);
+        Assert.assertTrue(projectLoadResult.diagnostics().errors().isEmpty());
+        WorkspaceProject project = (WorkspaceProject) projectLoadResult.project();
+        List<BuildProject> topologicallySortedList = project.getResolution().dependencyGraph()
+                .toTopologicallySortedList();
+        Assert.assertEquals(topologicallySortedList.size(), 4);
+
+        Project buildProject = project.projects().stream().filter(prj ->
+                prj.currentPackage().descriptor().name().toString().equals("hello_app")).findFirst().orElseThrow();
+        Assert.assertFalse(buildProject.currentPackage().getCompilation().diagnosticResult()
+                .hasErrors());
+        Project duplicateWp = buildProject.workspaceProject().orElseThrow().duplicate();
+        Project duplicate = ((WorkspaceProject) duplicateWp).projects().stream().filter(prj ->
+                prj.currentPackage().descriptor().name().toString().equals("hello_app")).findFirst().orElseThrow();
+        Assert.assertFalse(duplicate.currentPackage().getCompilation().diagnosticResult().hasErrors());
     }
 }
