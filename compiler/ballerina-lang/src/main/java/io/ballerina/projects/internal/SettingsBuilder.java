@@ -174,8 +174,8 @@ public class SettingsBuilder {
                         id = getStringOrDefaultFromTomlTableNode(repositoryNode, ID, "");
                         repositoryUsername = getStringOrDefaultFromTomlTableNode(repositoryNode, USERNAME, "");
                         repositoryPassword = getStringOrDefaultFromTomlTableNode(repositoryNode, ACCESS_TOKEN, "");
-                        String pathStr = getStringOrDefaultFromTomlTableNode(repositoryNode, "path", null);
-                        if (pathStr != null) {
+                        String pathStr = getStringOrDefaultFromTomlTableNode(repositoryNode, "path", "");
+                        if (!pathStr.isEmpty()) {
                             path = Path.of(pathStr);
                         }
                         repositories.add(Repository.from(

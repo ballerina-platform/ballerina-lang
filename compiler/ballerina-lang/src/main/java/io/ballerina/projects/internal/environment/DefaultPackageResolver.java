@@ -152,8 +152,8 @@ public class DefaultPackageResolver implements PackageResolver {
                 workspaceRequests.add(request);
             } else {
                 String org = request.packageDescriptor().org().toString();
-                if (customRepos.containsKey(org)) {
-                    FileSystemRepository customFSRepository = (FileSystemRepository) customRepos.get(org);
+                if (customRepos.containsKey(org)
+                        && customRepos.get(org) instanceof FileSystemRepository customFSRepository) {
                     if (!customFSRepoRequestMap.containsKey(customFSRepository)) {
                         customFSRepoRequestMap.put(customFSRepository, new ArrayList<>());
                     }

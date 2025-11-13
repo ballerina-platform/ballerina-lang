@@ -90,11 +90,13 @@ public final class BallerinaUserHome {
             try {
                 Files.createDirectories(repositoryPath);
             } catch (IOException exception) {
-                throw new ProjectException("unable to create repository: " + ProjectConstants.LOCAL_REPOSITORY_NAME);
+                throw new ProjectException("unable to create repository: " + repositoryPath);
             }
 
-            customFSRepositories.put(repository.id(), new FileSystemRepository(environment, repositoryPath,
-                    RepoUtils.getBallerinaVersion()));
+            if (!customFSRepositories.containsKey(repository.id())) {
+                customFSRepositories.put(repository.id(), new FileSystemRepository(environment, repositoryPath,
+                        RepoUtils.getBallerinaVersion()));
+            }
         }
     }
 
