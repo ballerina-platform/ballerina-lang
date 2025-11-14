@@ -58,6 +58,14 @@ public class GlobalVarTest {
     }
 
     @Test
+    public void testConfigurableVarInRecordFieldDefaultValue() {
+        CompileResult result = BCompileUtil.compile("test-src/statements/variabledef" +
+                "/configurable_record_field_default.bal");
+        Assert.assertEquals(result.getErrorCount(), 0);
+        BRunUtil.invoke(result, "testConfigurableVarUsageInRecordDefault");
+    }
+
+    @Test
     public void testOCEDependOnGlobalVariable() {
         CompileResult result = BCompileUtil.compile(
                 "test-src/statements/variabledef/oce_depend_on_global_variable.bal");
