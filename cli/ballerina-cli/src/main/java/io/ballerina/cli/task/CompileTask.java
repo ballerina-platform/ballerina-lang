@@ -231,8 +231,7 @@ public class CompileTask implements Task {
 
             Optional<Diagnostic> projectLoadingDiagnostic = ProjectUtils.getProjectLoadingDiagnostic().stream().filter(
                     diagnostic -> diagnostic.diagnosticInfo().code().equals(
-                            ProjectDiagnosticErrorCode.DEPRECATED_RESOURCES_STRUCTURE.diagnosticId())).
-                    findAny();
+                            ProjectDiagnosticErrorCode.DEPRECATED_RESOURCES_STRUCTURE.diagnosticId())).findAny();
 
             projectLoadingDiagnostic.ifPresent(out::println);
             PackageCompilation packageCompilation = project.currentPackage().getCompilation();
