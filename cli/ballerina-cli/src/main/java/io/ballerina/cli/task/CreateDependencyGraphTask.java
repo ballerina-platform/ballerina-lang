@@ -49,7 +49,7 @@ public class CreateDependencyGraphTask implements Task {
 
     @Override
     public void execute(Project project) {
-        if (ProjectUtils.isProjectEmpty(project) && project.currentPackage().balToolToml().isEmpty()) {
+        if (ProjectUtils.isProjectEmpty(project)) {
             throw createLauncherException("package is empty. Please add at least one .bal file.");
         }
         System.setProperty(CentralClientConstants.ENABLE_OUTPUT_STREAM, "true");
