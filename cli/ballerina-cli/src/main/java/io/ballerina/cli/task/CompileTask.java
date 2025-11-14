@@ -111,7 +111,7 @@ public class CompileTask implements Task {
                     project.currentPackage().packageVersion();
         }
         // Print the source
-        this.out.println("	" + sourceName);
+        this.out.println("\t" + sourceName);
         if (skipTask) {
             return;
         }
