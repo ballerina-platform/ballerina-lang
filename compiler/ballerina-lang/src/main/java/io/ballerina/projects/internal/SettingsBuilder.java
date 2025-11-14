@@ -73,6 +73,7 @@ public class SettingsBuilder {
     private static final String REPOSITORY = "repository";
     private static final String ID = "id";
     private static final String URL = "url";
+    public static final String PATH = "path";
     private static final int DEFAULT_CONNECT_TIMEOUT = 60;
     private static final int DEFAULT_READ_TIMEOUT = 60;
     private static final int DEFAULT_WRITE_TIMEOUT = 60;
@@ -130,8 +131,6 @@ public class SettingsBuilder {
         int maxRetries = DEFAULT_MAX_RETRY;
         String url = "";
         String id = "";
-        String repoName = "";
-        String type;
         Path path = null;
         String repositoryUsername = "";
         String repositoryPassword = "";
@@ -174,7 +173,7 @@ public class SettingsBuilder {
                         id = getStringOrDefaultFromTomlTableNode(repositoryNode, ID, "");
                         repositoryUsername = getStringOrDefaultFromTomlTableNode(repositoryNode, USERNAME, "");
                         repositoryPassword = getStringOrDefaultFromTomlTableNode(repositoryNode, ACCESS_TOKEN, "");
-                        String pathStr = getStringOrDefaultFromTomlTableNode(repositoryNode, "path", "");
+                        String pathStr = getStringOrDefaultFromTomlTableNode(repositoryNode, PATH, "");
                         if (!pathStr.isEmpty()) {
                             path = Path.of(pathStr);
                         }

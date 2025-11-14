@@ -287,9 +287,8 @@ public class DefaultPackageResolver implements PackageResolver {
             return distributionRepo.getPackage(resolutionReq, options);
         }
 
-        if (customRepos.containsKey(pkgDesc.org().toString())) {
-            FileSystemRepository customFSRepository = (FileSystemRepository) customRepos.get(pkgDesc.org()
-                    .toString());
+        if (customRepos.containsKey(pkgDesc.org().toString()) &&
+                customRepos.get(pkgDesc.org().toString()) instanceof FileSystemRepository customFSRepository) {
             Optional<Package> resolvedPackage = customFSRepository.getPackage(resolutionReq, options);
             if (resolvedPackage.isPresent()) {
                 return resolvedPackage;
