@@ -384,6 +384,7 @@ public class PackageResolution {
 
         PackageLockingMode packageLockingMode = resolutionOptions.packageLockingMode();
         boolean isExistingPackage = rootPackageContext.dependenciesTomlContext().isPresent();
+        boolean isNewUpdateDist = false;
         if (isExistingPackage) {
             SemanticVersion prevDistributionVersion = rootPackageContext.dependencyManifest().distributionVersion();
             SemanticVersion currentDistributionVersion = SemanticVersion.from(RepoUtils.getBallerinaShortVersion());
@@ -396,17 +397,20 @@ public class PackageResolution {
                         packageLockingMode = PackageLockingMode.SOFT;
                     }
                 }
-            } else if (isNewUpdateDistribution(prevDistributionVersion, currentDistributionVersion)) {
-                // Built with Update 5 or above, but older than the current Update distribution
-                if (PackageLockingMode.SOFT != packageLockingMode) {
-                    //  issue a warning unless the update policy is set to SOFT
-                    getWarningForHigherDistribution(project, packageLockingMode).ifPresent(diagnosticList::add);
-                    if (packageLockingMode == null) {
-                        packageLockingMode = PackageLockingMode.SOFT;
+            } else {
+                isNewUpdateDist = isNewUpdateDistribution(prevDistributionVersion, currentDistributionVersion);
+                if (isNewUpdateDist) {
+                    // Built with Update 5 or above, but older than the current Update distribution
+                    if (PackageLockingMode.SOFT != packageLockingMode) {
+                        //  issue a warning unless the update policy is set to SOFT
+                        getWarningForHigherDistribution(project, packageLockingMode).ifPresent(diagnosticList::add);
+                        if (packageLockingMode == null) {
+                            packageLockingMode = PackageLockingMode.SOFT;
+                        }
                     }
+                } else if (packageLockingMode == null) {
+                    packageLockingMode = PackageLockingMode.MEDIUM;
                 }
-            } else if (packageLockingMode == null) {
-                packageLockingMode = PackageLockingMode.MEDIUM;
             }
         } else {
             // new package
@@ -429,7 +433,9 @@ public class PackageResolution {
 
         // set to hard if the build is within 24 hours
         if (packageLockingMode == PackageLockingMode.SOFT || packageLockingMode == PackageLockingMode.MEDIUM) {
-            packageLockingMode = ProjectUtils.getPackageLockingMode(project, packageLockingMode);
+            if (!isNewUpdateDist) {
+                packageLockingMode = ProjectUtils.getPackageLockingMode(project, packageLockingMode);
+            }
         }
 
         this.resolutionOptions = ResolutionOptions.builder()

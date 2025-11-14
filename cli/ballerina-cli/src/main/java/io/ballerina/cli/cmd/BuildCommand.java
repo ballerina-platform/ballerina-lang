@@ -29,9 +29,11 @@ import io.ballerina.cli.task.RunBuildToolsTask;
 import io.ballerina.cli.utils.BuildTime;
 import io.ballerina.projects.BuildOptions;
 import io.ballerina.projects.DependencyGraph;
+import io.ballerina.projects.DiagnosticResult;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.ProjectKind;
+import io.ballerina.projects.ProjectLoadResult;
 import io.ballerina.projects.directory.BuildProject;
 import io.ballerina.projects.directory.ProjectLoader;
 import io.ballerina.projects.directory.WorkspaceProject;
@@ -234,6 +236,7 @@ public class BuildCommand implements BLauncherCmd {
     @Override
     public void execute() {
         long start = 0;
+        int exitCode = 0;
         if (this.helpFlag) {
             String commandUsageInfo = BLauncherCmd.getCommandUsageInfo(BUILD_COMMAND);
             this.errStream.println(commandUsageInfo);
@@ -244,6 +247,7 @@ public class BuildCommand implements BLauncherCmd {
         Project project;
         BuildOptions buildOptions = constructBuildOptions();
         Path absProjectPath = this.projectPath.toAbsolutePath().normalize();
+        DiagnosticResult wpDiagnosticResult;
         try {
             if (buildOptions.dumpBuildTime()) {
                 start = System.currentTimeMillis();
@@ -256,7 +260,12 @@ public class BuildCommand implements BLauncherCmd {
                         ". Please provide a valid Ballerina package, workspace or a standalone file.");
             }
 
-            project = ProjectLoader.load(projectPath, buildOptions).project();
+            ProjectLoadResult loadResult = ProjectLoader.load(projectPath, buildOptions);
+            wpDiagnosticResult = loadResult.diagnostics();
+            if (wpDiagnosticResult.hasErrors()) {
+                exitCode = 1;
+            }
+            project = loadResult.project();
             if (buildOptions.dumpBuildTime()) {
                 BuildTime.getInstance().projectLoadDuration = System.currentTimeMillis() - start;
             }
@@ -287,6 +296,7 @@ public class BuildCommand implements BLauncherCmd {
         }
 
         if (project.kind() == ProjectKind.WORKSPACE_PROJECT) {
+            wpDiagnosticResult.diagnostics().forEach(diagnostic -> this.errStream.println(diagnostic.toString()));
             WorkspaceProject workspaceProject = (WorkspaceProject) project;
             DependencyGraph<BuildProject> projectDependencyGraph = resolveWorkspaceDependencies(
                     workspaceProject, this.outStream);
@@ -336,7 +346,7 @@ public class BuildCommand implements BLauncherCmd {
                     isRebuildNeeded(project, false));
         }
         if (this.exitWhenFinish) {
-            Runtime.getRuntime().exit(0);
+            Runtime.getRuntime().exit(exitCode);
         }
     }
 

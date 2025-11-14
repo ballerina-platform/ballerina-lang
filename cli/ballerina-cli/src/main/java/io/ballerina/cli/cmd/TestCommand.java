@@ -35,10 +35,12 @@ import io.ballerina.cli.utils.BuildTime;
 import io.ballerina.cli.utils.FileUtils;
 import io.ballerina.projects.BuildOptions;
 import io.ballerina.projects.DependencyGraph;
+import io.ballerina.projects.DiagnosticResult;
 import io.ballerina.projects.Module;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.ProjectKind;
+import io.ballerina.projects.ProjectLoadResult;
 import io.ballerina.projects.directory.BuildProject;
 import io.ballerina.projects.directory.ProjectLoader;
 import io.ballerina.projects.directory.WorkspaceProject;
@@ -274,6 +276,7 @@ public class TestCommand implements BLauncherCmd {
     @Override
     public void execute() {
         long start = 0;
+        int exitCode = 0;
         if (this.helpFlag) {
             String commandUsageInfo = BLauncherCmd.getCommandUsageInfo(TEST_COMMAND);
             this.errStream.println(commandUsageInfo);
@@ -311,6 +314,7 @@ public class TestCommand implements BLauncherCmd {
 
         BuildOptions buildOptions = constructBuildOptions();
         Path absProjectPath = this.projectPath.toAbsolutePath().normalize();
+        DiagnosticResult diagnosticResult;
         try {
             if (buildOptions.dumpBuildTime()) {
                 start = System.currentTimeMillis();
@@ -322,7 +326,12 @@ public class TestCommand implements BLauncherCmd {
                 throw new ProjectException("invalid package path: " + absProjectPath +
                         ". Please provide a valid Ballerina package, workspace or a standalone file.");
             }
-            project = ProjectLoader.load(projectPath, buildOptions).project();
+            ProjectLoadResult loadResult = ProjectLoader.load(projectPath, buildOptions);
+            diagnosticResult = loadResult.diagnostics();
+            if (diagnosticResult.hasErrors()) {
+                exitCode = 1;
+            }
+            project = loadResult.project();
 
             if (buildOptions.dumpBuildTime()) {
                 BuildTime.getInstance().projectLoadDuration = System.currentTimeMillis() - start;
@@ -401,6 +410,7 @@ public class TestCommand implements BLauncherCmd {
         }
 
         if (project.kind() == ProjectKind.WORKSPACE_PROJECT) {
+            diagnosticResult.diagnostics().forEach(diagnostic -> this.errStream.println(diagnostic.toString()));
             if (testReport != null) {
                 testReport.setWorkspaceName(Optional.of(project.sourceRoot().getFileName()).get().toString());
             }
@@ -493,7 +503,7 @@ public class TestCommand implements BLauncherCmd {
         generateTestReport(project, testReport);
 
         if (this.exitWhenFinish) {
-            Runtime.getRuntime().exit(0);
+            Runtime.getRuntime().exit(exitCode);
         }
     }
 
