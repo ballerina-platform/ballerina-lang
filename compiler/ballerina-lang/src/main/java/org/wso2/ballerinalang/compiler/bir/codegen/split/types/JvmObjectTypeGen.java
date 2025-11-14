@@ -18,10 +18,10 @@
 package org.wso2.ballerinalang.compiler.bir.codegen.split.types;
 
 import org.objectweb.asm.ClassWriter;
-import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.MethodVisitor;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmTypeGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.BIRVarToJVMIndexMap;
+import org.wso2.ballerinalang.compiler.bir.codegen.model.DoubleCheckLabelsRecord;
 import org.wso2.ballerinalang.compiler.bir.codegen.split.JvmConstantsGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.split.JvmCreateTypeGen;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
@@ -31,15 +31,18 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BResourceFunction
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BResourcePathSegmentSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BIntersectionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeIdSet;
 import org.wso2.ballerinalang.compiler.util.Name;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import static io.ballerina.identifier.Utils.decodeIdentifier;
 import static org.objectweb.asm.Opcodes.AASTORE;
+import static org.objectweb.asm.Opcodes.ACC_FINAL;
 import static org.objectweb.asm.Opcodes.ACC_PUBLIC;
 import static org.objectweb.asm.Opcodes.ACC_STATIC;
 import static org.objectweb.asm.Opcodes.ALOAD;
@@ -48,6 +51,7 @@ import static org.objectweb.asm.Opcodes.ASTORE;
 import static org.objectweb.asm.Opcodes.CHECKCAST;
 import static org.objectweb.asm.Opcodes.DUP;
 import static org.objectweb.asm.Opcodes.GETSTATIC;
+import static org.objectweb.asm.Opcodes.INVOKEINTERFACE;
 import static org.objectweb.asm.Opcodes.INVOKESPECIAL;
 import static org.objectweb.asm.Opcodes.INVOKESTATIC;
 import static org.objectweb.asm.Opcodes.INVOKEVIRTUAL;
@@ -57,6 +61,7 @@ import static org.objectweb.asm.Opcodes.POP;
 import static org.objectweb.asm.Opcodes.PUTSTATIC;
 import static org.objectweb.asm.Opcodes.RETURN;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CLIENT_TYPE_IMPL;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.GET_TYPE_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JVM_INIT_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.LINKED_HASH_MAP;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAX_TYPES_PER_METHOD;
@@ -67,10 +72,11 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.REMOTE_ME
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.RESOURCE_METHOD_TYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.RESOURCE_METHOD_TYPE_IMPL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SERVICE_TYPE_IMPL;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SET_IMMUTABLE_TYPE_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SET_TYPEID_SET_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRING_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPE;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPE_VAR_NAME;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPE_VAR_FIELD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_MODULE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_OBJECT_TYPE_IMPL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_OBJECT_TYPE_METHOD;
@@ -81,6 +87,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.METHOD_T
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.POPULATE_ATTACHED_FUNCTION;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.RESOURCE_METHOD_TYPE_ARRAY_PARAM;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.RESOURCE_METHOD_TYPE_IMPL_INIT;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.SET_IMMUTABLE_TYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.SET_INIT_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.SET_LINKED_HASH_MAP;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.SET_MAP;
@@ -88,6 +95,8 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.SET_METH
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.SET_RESOURCE_METHOD_TYPE_ARRAY;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.SET_TYPE_ID_SET;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.VOID_METHOD_DESC;
+import static org.wso2.ballerinalang.compiler.bir.codegen.split.JvmCreateTypeGen.endDoubleCheckGetEnd;
+import static org.wso2.ballerinalang.compiler.bir.codegen.split.JvmCreateTypeGen.genDoubleCheckGetStart;
 import static org.wso2.ballerinalang.compiler.bir.codegen.utils.JvmCodeGenUtil.toNameString;
 
 /**
@@ -112,8 +121,7 @@ public class JvmObjectTypeGen {
                                  String fieldName, boolean isAnnotatedType, BIRVarToJVMIndexMap indexMap,
                                  SymbolTable symbolTable) {
         // Create type field
-        FieldVisitor fv = cw.visitField(ACC_STATIC + ACC_PUBLIC, TYPE_VAR_NAME, GET_OBJECT_TYPE_IMPL, null, null);
-        fv.visitEnd();
+        cw.visitField(ACC_STATIC | ACC_PUBLIC | ACC_FINAL, TYPE_VAR_FIELD, GET_OBJECT_TYPE_IMPL, null, null).visitEnd();
         // Create the object type
         String objectClassName = Symbols.isService(objectType.tsymbol) ? SERVICE_TYPE_IMPL :
                 Symbols.isClient(objectType.tsymbol) ? CLIENT_TYPE_IMPL : OBJECT_TYPE_IMPL;
@@ -129,32 +137,50 @@ public class JvmObjectTypeGen {
         mv.visitLdcInsn(typeSymbol.flags);
         // initialize the object
         mv.visitMethodInsn(INVOKESPECIAL, objectClassName, JVM_INIT_METHOD, INIT_OBJECT, false);
-        mv.visitFieldInsn(PUTSTATIC, objectTypeClass, TYPE_VAR_NAME, GET_OBJECT_TYPE_IMPL);
+        mv.visitFieldInsn(PUTSTATIC, objectTypeClass, TYPE_VAR_FIELD, GET_OBJECT_TYPE_IMPL);
+        genGetTypeMethod(cw, objectType, objectTypeClass, fieldName, moduleVar, isAnnotatedType, symbolTable, indexMap);
+    }
+
+    private void genGetTypeMethod(ClassWriter cw, BObjectType objectType, String objectTypeClass, String fieldName,
+                                  String moduleVar, boolean isAnnotatedType, SymbolTable symbolTable,
+                                  BIRVarToJVMIndexMap indexMap) {
+        MethodVisitor mv = cw.visitMethod(ACC_PUBLIC | ACC_STATIC, GET_TYPE_METHOD, GET_OBJECT_TYPE_METHOD, null, null);
+        mv.visitCode();
+        DoubleCheckLabelsRecord checkLabelsRecord = genDoubleCheckGetStart(mv, objectTypeClass, GET_OBJECT_TYPE_IMPL);
         populateObject(cw, mv, objectTypeClass, fieldName, moduleVar, objectType, symbolTable, indexMap);
-        jvmCreateTypeGen.genGetTypeMethod(cw, objectTypeClass, GET_OBJECT_TYPE_METHOD, GET_OBJECT_TYPE_IMPL,
-                isAnnotatedType);
+        endDoubleCheckGetEnd(mv, objectTypeClass, GET_OBJECT_TYPE_IMPL, checkLabelsRecord, isAnnotatedType);
+        mv.visitMaxs(0, 0);
+        mv.visitEnd();
     }
 
     public void populateObject(ClassWriter cw, MethodVisitor mv, String objectTypeClass, String fieldName,
                                String moduleVar, BObjectType bType, SymbolTable symbolTable,
                                BIRVarToJVMIndexMap indexMap) {
-        mv.visitFieldInsn(GETSTATIC, objectTypeClass, TYPE_VAR_NAME, GET_OBJECT_TYPE_IMPL);
+        Optional<BIntersectionType> immutableType = jvmCreateTypeGen.getImmutableType(bType, symbolTable);
+        BTypeIdSet objTypeIdSet = bType.typeIdSet;
+        mv.visitFieldInsn(GETSTATIC, objectTypeClass, TYPE_VAR_FIELD, GET_OBJECT_TYPE_IMPL);
         mv.visitInsn(DUP);
-        mv.visitInsn(DUP);
+        if (immutableType.isPresent()) {
+            mv.visitInsn(DUP);
+        }
+        if (!objTypeIdSet.isEmpty()) {
+            mv.visitInsn(DUP);
+        }
         addObjectFields(cw, mv, objectTypeClass, bType);
         BObjectTypeSymbol objectTypeSymbol = (BObjectTypeSymbol) bType.tsymbol;
         addObjectInitFunction(mv, objectTypeClass, objectTypeSymbol.generatedInitializerFunc, bType, indexMap,
                 "$init$",  moduleVar, symbolTable, true);
         addObjectInitFunction(mv, objectTypeClass, objectTypeSymbol.initializerFunc, bType, indexMap, "init",
                 moduleVar, symbolTable, false);
-        addObjectAttachedFunctions(cw, mv, objectTypeClass, fieldName, moduleVar, objectTypeSymbol.attachedFuncs, bType,
-                symbolTable);
         addResourceMethods(cw, mv, objectTypeClass, fieldName, moduleVar, objectTypeSymbol.attachedFuncs, bType,
                 symbolTable);
-        jvmCreateTypeGen.addImmutableType(mv, bType, symbolTable);
-        BTypeIdSet objTypeIdSet = bType.typeIdSet;
+        addObjectAttachedFunctions(cw, mv, objectTypeClass, fieldName, moduleVar, objectTypeSymbol.attachedFuncs, bType,
+                symbolTable);
+        if (immutableType.isPresent()) {
+            jvmTypeGen.loadType(mv, immutableType.get());
+            mv.visitMethodInsn(INVOKEINTERFACE, TYPE, SET_IMMUTABLE_TYPE_METHOD, SET_IMMUTABLE_TYPE, true);
+        }
         if (!objTypeIdSet.isEmpty()) {
-            mv.visitInsn(DUP);
             jvmCreateTypeGen.loadTypeIdSet(mv, objTypeIdSet);
             mv.visitMethodInsn(INVOKEVIRTUAL, OBJECT_TYPE_IMPL, SET_TYPEID_SET_METHOD, SET_TYPE_ID_SET, false);
         }
@@ -240,7 +266,6 @@ public class JvmObjectTypeGen {
             return;
         }
         mv.visitInsn(DUP);
-        mv.visitFieldInsn(GETSTATIC, objectTypeClass, TYPE_VAR_NAME, GET_OBJECT_TYPE_IMPL);
         createObjectMemberFunction(mv, objectTypeClass, moduleVar, initFunction);
         int attachedFunctionVarIndex = indexMap.addIfNotExists(objType.name + initFunction.funcName.value,
                 symbolTable.anyType);
@@ -358,7 +383,7 @@ public class JvmObjectTypeGen {
         // Load module
         mv.visitFieldInsn(GETSTATIC, jvmConstantsGen.getModuleConstantClass(moduleVar), moduleVar, GET_MODULE);
         // Load the parent object type
-        mv.visitFieldInsn(GETSTATIC, objectTypeClass, TYPE_VAR_NAME, GET_OBJECT_TYPE_IMPL);
+        mv.visitFieldInsn(GETSTATIC, objectTypeClass, TYPE_VAR_FIELD, GET_OBJECT_TYPE_IMPL);
         mv.visitTypeInsn(CHECKCAST, OBJECT_TYPE_IMPL);
         // Load the field type
         jvmTypeGen.loadType(mv, attachedFunc.type);
@@ -376,7 +401,7 @@ public class JvmObjectTypeGen {
         // Load module
         mv.visitFieldInsn(GETSTATIC, jvmConstantsGen.getModuleConstantClass(moduleVar), moduleVar, GET_MODULE);
         // Load the parent object type
-        mv.visitFieldInsn(GETSTATIC, objectTypeClass, TYPE_VAR_NAME, GET_OBJECT_TYPE_IMPL);
+        mv.visitFieldInsn(GETSTATIC, objectTypeClass, TYPE_VAR_FIELD, GET_OBJECT_TYPE_IMPL);
         mv.visitTypeInsn(CHECKCAST, OBJECT_TYPE_IMPL);
         // Load the field type
         jvmTypeGen.loadType(mv, attachedFunc.type);
@@ -395,7 +420,7 @@ public class JvmObjectTypeGen {
         // Load module
         mv.visitFieldInsn(GETSTATIC, jvmConstantsGen.getModuleConstantClass(moduleVar), moduleVar, GET_MODULE);
         // Load the parent object type
-        mv.visitFieldInsn(GETSTATIC, objectTypeClass, TYPE_VAR_NAME, GET_OBJECT_TYPE_IMPL);
+        mv.visitFieldInsn(GETSTATIC, objectTypeClass, TYPE_VAR_FIELD, GET_OBJECT_TYPE_IMPL);
         mv.visitTypeInsn(CHECKCAST, OBJECT_TYPE_IMPL);
         // Load the invokable type
         jvmTypeGen.loadType(mv, resourceFunction.type);

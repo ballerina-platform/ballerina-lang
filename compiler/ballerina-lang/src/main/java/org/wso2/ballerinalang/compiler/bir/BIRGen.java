@@ -244,7 +244,7 @@ public class BIRGen extends BLangNodeVisitor {
             new CompilerContext.Key<>();
 
     public static final String DEFAULT_WORKER_NAME = "function";
-    private static final String TYPEDESC = "$typedesc$";
+    private static final String TYPEDESC = "$td$";
     private BIRGenEnv env;
     private final Names names;
     private final SymbolTable symTable;

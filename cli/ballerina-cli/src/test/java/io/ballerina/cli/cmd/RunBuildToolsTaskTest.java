@@ -37,6 +37,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -119,7 +120,7 @@ public class RunBuildToolsTaskTest extends BaseCommandTest {
         Path projectPath = buildToolResources.resolve(projectName);
         Project project = BuildProject.load(projectPath,
                 BuildOptions.builder().setOffline(true).setSticky(sticky).build());
-        RunBuildToolsTask runBuildToolsTask = new RunBuildToolsTask(printStream);
+        RunBuildToolsTask runBuildToolsTask = new RunBuildToolsTask(printStream, false, new ArrayList<>());
         try {
             runBuildToolsTask.execute(project);
         } catch (BLauncherException e) {
@@ -141,7 +142,7 @@ public class RunBuildToolsTaskTest extends BaseCommandTest {
     public void testProjectForAddedGeneratedCode() throws IOException {
         Path projectPath = buildToolResources.resolve("project-with-generate-file-tool");
         Project project = BuildProject.load(projectPath, BuildOptions.builder().setOffline(true).build());
-        RunBuildToolsTask runBuildToolsTask = new RunBuildToolsTask(printStream);
+        RunBuildToolsTask runBuildToolsTask = new RunBuildToolsTask(printStream, false, new ArrayList<>());
         runBuildToolsTask.execute(project);
         String buildLog = readOutput(true);
         Assert.assertEquals(buildLog.replace("\r", ""), getOutput("build-tool-generate-file.txt"));

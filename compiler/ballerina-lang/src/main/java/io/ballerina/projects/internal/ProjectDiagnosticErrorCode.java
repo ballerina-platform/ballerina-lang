@@ -35,6 +35,7 @@ public enum ProjectDiagnosticErrorCode implements DiagnosticCode {
     INVALID_PROVIDED_SCOPE_IN_BUILD("BCE5005", "invalid.provided.scope"),
     MISSING_PACKAGES_IN_WORKSPACE_BALLERINA_TOML("BCE5006", "missing.packages.in.ballerina.toml"),
     ORG_NAME_MISMATCH_IN_WORKSPACE("BCE5007", "org.name.mismatch.in.workspace"),
+    INVALID_LOCKING_MODE("BCE5008", "invalid.locking.mode"),
 
     // Error codes used in DependencyManifestBuilder.
     OLD_DEPENDENCIES_TOML("BCE5101", "old.dependencies.toml"),
@@ -50,6 +51,9 @@ public enum ProjectDiagnosticErrorCode implements DiagnosticCode {
     DEPRECATED_PACKAGE("BCE5203", "deprecated.package"),
     BUILT_WITH_OLDER_SL_UPDATE_DISTRIBUTION("BCE5204", "built.with.older.sl.update.distribution"),
     CUSTOM_REPOSITORY_NOT_FOUND("BCE5205", "custom.repository.not.found"),
+    NEW_IMPORTS_WITH_LOCKED_MODE("BCE5206", "new.imports.with.locked.mode"),
+    MISSING_DEPENDENCIES_TOML_WITH_LOCKED_MODE("BCE5207", "missing.dependencies.toml.with.locked.mode"),
+    OLD_IMPORTS("BCE5208", "old.imports"),
 
     // Error codes related to build tools.
     MISSING_TOOL_PROPERTIES_IN_BALLERINA_TOML("BCE5301", "missing.tool.properties"),

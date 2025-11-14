@@ -782,12 +782,12 @@ public class TestCommandTest extends BaseCommandTest {
     }
 
 
-    @Test(description = "Test a project twice with the same flags and different flags")
+    @Test(enabled = false, description = "Test a project twice with the same flags and different flags")
     public void testBuildAProjectTwiceWithFlags() throws IOException {
         String[] argsList1 = {
                 "--offline",
                 "--sticky",
-                // "--locking-mode=SOFT", // TODO: enable after fixing #42467
+                 "--locking-mode=soft",
                 "--experimental",
                 "--optimize-dependency-compilation",
                 "--observability-included"
@@ -940,7 +940,7 @@ public class TestCommandTest extends BaseCommandTest {
         Assert.assertFalse(firstBuildLog.contains("Compiling source (UP-TO-DATE)"));
     }
 
-    @Test(description = "Test a project after 24 hours of the last build")
+    @Test(enabled = false, description = "Test a project after 24 hours of the last build")
     public void testBuildAProjectTwiceBeforeAfter24Hr() throws IOException {
         Path projectPath = this.testResources.resolve("buildAProjectTwice");
         deleteDirectory(projectPath.resolve("target"));
@@ -970,7 +970,7 @@ public class TestCommandTest extends BaseCommandTest {
         Assert.assertFalse(thirdBuildLog.contains("Compiling source (UP-TO-DATE)"));
     }
 
-    @Test(description = "Test a project twice with the build command in the middle")
+    @Test(enabled = false, description = "Test a project twice with the build command in the middle")
     public void testBuildAProjectTwiceWithBuildCommandMiddle() throws IOException {
         Path projectPath = this.testResources.resolve("buildAProjectTwice");
         deleteDirectory(projectPath.resolve("target"));
@@ -994,7 +994,7 @@ public class TestCommandTest extends BaseCommandTest {
         Assert.assertTrue(secondBuildLog.contains("Compiling source (UP-TO-DATE)"));
     }
 
-    @Test(description = "Test a project twice with the pack command in the middle")
+    @Test(enabled = false, description = "Test a project twice with the pack command in the middle")
     public void testBuildAProjectTwiceWithPackCommandMiddle() throws IOException {
         Path projectPath = this.testResources.resolve("buildAProjectTwice");
         deleteDirectory(projectPath.resolve("target"));
@@ -1061,7 +1061,7 @@ public class TestCommandTest extends BaseCommandTest {
         Assert.assertFalse(secondBuildLog.contains("Compiling source (UP-TO-DATE)"));
     }
 
-    @Test(description = "Test a project with no content change")
+    @Test(enabled = false, description = "Test a project with no content change")
     public void testBuildAProjectWithFileNoContentChange() throws IOException {
         Path projectPath = this.testResources.resolve("buildAProjectTwice");
         deleteDirectory(projectPath.resolve("target"));

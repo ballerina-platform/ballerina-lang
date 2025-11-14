@@ -26,7 +26,6 @@ import io.ballerina.cli.task.CreateExecutableTask;
 import io.ballerina.cli.task.CreateFingerprintTask;
 import io.ballerina.cli.task.DumpBuildTimeTask;
 import io.ballerina.cli.task.ResolveMavenDependenciesTask;
-import io.ballerina.cli.task.ResolveWorkspaceDependenciesTask;
 import io.ballerina.cli.task.RunBuildToolsTask;
 import io.ballerina.cli.task.RunExecutableTask;
 import io.ballerina.cli.utils.BuildTime;
@@ -36,15 +35,15 @@ import io.ballerina.projects.DependencyGraph;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.ProjectKind;
-import io.ballerina.projects.WorkspaceResolution;
 import io.ballerina.projects.directory.BuildProject;
 import io.ballerina.projects.directory.ProjectLoader;
 import io.ballerina.projects.directory.WorkspaceProject;
-import io.ballerina.projects.environment.ResolutionOptions;
+import io.ballerina.projects.environment.PackageLockingMode;
 import io.ballerina.projects.internal.model.BuildJson;
 import io.ballerina.projects.internal.model.Target;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectUtils;
+import io.ballerina.tools.diagnostics.Diagnostic;
 import org.wso2.ballerinalang.util.RepoUtils;
 import picocli.CommandLine;
 
@@ -56,10 +55,14 @@ import java.nio.file.Path;
 import java.nio.file.PathMatcher;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 
+import static io.ballerina.cli.cmd.CommandUtil.resolveWorkspaceDependencies;
 import static io.ballerina.cli.cmd.Constants.RUN_COMMAND;
 import static io.ballerina.cli.launcher.LauncherUtils.createLauncherException;
 import static io.ballerina.projects.util.ProjectConstants.BUILD_FILE;
@@ -147,8 +150,8 @@ public class RunCommand implements BLauncherCmd {
     private Boolean optimizeDependencyCompilation;
 
     @CommandLine.Option(names = "--locking-mode", hidden = true,
-            description = "allow passing the package locking mode.")
-    private String lockingMode;
+            description = "allow passing the package locking mode.", converter = PackageLockingModeConverter.class)
+    private PackageLockingMode lockingMode;
 
     private static final String runCmd =
             """
@@ -254,21 +257,6 @@ public class RunCommand implements BLauncherCmd {
                 BuildTime.getInstance().timestamp = start;
             }
             project = ProjectLoader.load(projectPath, buildOptions).project();
-            if (project.kind().equals(ProjectKind.WORKSPACE_PROJECT)) {
-                WorkspaceProject workspaceProject = (WorkspaceProject) project;
-                WorkspaceResolution workspaceResolution = workspaceProject.getResolution(
-                        ResolutionOptions.builder().setOffline(true).build());
-                List<BuildProject> topologicallySortedList = workspaceResolution.dependencyGraph()
-                        .toTopologicallySortedList();
-                BuildProject buildProject = topologicallySortedList.get(topologicallySortedList.size() - 1);
-                Path relativePath = Paths.get(System.getProperty("user.dir")).relativize(buildProject.sourceRoot());
-                if (project.sourceRoot().equals(absProjectPath)) {
-                    CommandUtil.printError(this.errStream, "'bal run' command is not supported for workspaces. " +
-                            "Please specify a package to run. \nExample:\n\tbal run " + relativePath, runCmd, false);
-                    CommandUtil.exitError(this.exitWhenFinish);
-                    return;
-                }
-            }
             if (buildOptions.dumpBuildTime()) {
                 BuildTime.getInstance().projectLoadDuration = System.currentTimeMillis() - start;
             }
@@ -280,59 +268,87 @@ public class RunCommand implements BLauncherCmd {
 
         Target target;
         try {
-            if (project.kind().equals(ProjectKind.BUILD_PROJECT)) {
-                target = new Target(project.targetDir());
-            } else {
+            if (project.kind().equals(ProjectKind.SINGLE_FILE_PROJECT)) {
                 target = new Target(Files.createTempDirectory("ballerina-cache" + System.nanoTime()));
                 target.setOutputPath(target.getBinPath());
+            }
+            if (project.kind() == ProjectKind.WORKSPACE_PROJECT) {
+                WorkspaceProject workspaceProject = (WorkspaceProject) project;
+                DependencyGraph<BuildProject> projectDependencyGraph = resolveWorkspaceDependencies(
+                        workspaceProject, this.outStream);
+                List<BuildProject> topologicallySortedList = new ArrayList<>(
+                        projectDependencyGraph.toTopologicallySortedList());
+                // If the project path is not the workspace root, filter the topologically sorted list to include only
+                // the projects that are dependencies of the project at the specified path.
+                Optional<BuildProject> buildProjectOptional = projectDependencyGraph.getNodes().stream().filter(node ->
+                        node.sourceRoot().equals(absProjectPath)).findFirst();
+                if (buildProjectOptional.isEmpty()) {
+                    throw createLauncherException("no package found at the specified path: " + absProjectPath);
+                }
+                Path relativePath = Paths.get(System.getProperty("user.dir")).relativize(
+                        buildProjectOptional.get().sourceRoot());
+                if (project.sourceRoot().equals(absProjectPath)) {
+                    CommandUtil.printError(this.errStream, "'bal run' command is not supported for workspaces. " +
+                            "Please specify a package to run. \nExample:\n\tbal run " + relativePath, runCmd, false);
+                    CommandUtil.exitError(this.exitWhenFinish);
+                    return;
+                }
+
+                Collection<BuildProject> projectDependencies = projectDependencyGraph.getAllDependencies(
+                        buildProjectOptional.orElseThrow());
+                // remove projects that are not dependencies of the project at the specified path
+                topologicallySortedList.removeIf(prj -> !projectDependencies.contains(prj)
+                        && prj != buildProjectOptional.get());
+
+                Map<BuildProject, Boolean> rebuildCache = new HashMap<>();
+                for (BuildProject buildProject : topologicallySortedList) {
+                    boolean skipExecution = buildProject != buildProjectOptional.get();
+                    boolean isRebuildNeeded = isRebuildNeeded(buildProject, skipExecution);
+                    rebuildCache.put(buildProject, isRebuildNeeded);
+                    if (!isRebuildNeeded) {
+                        // Check if any of the dependencies need to be rebuilt.
+                        for (BuildProject dependency : projectDependencyGraph.getDirectDependencies(buildProject)) {
+                            isRebuildNeeded = rebuildCache.get(dependency);
+                            if (isRebuildNeeded) {
+                                rebuildCache.put(buildProject, true);
+                                break;
+                            }
+                        }
+                    }
+                    executeTasks(args, buildProject, skipExecution, isRebuildNeeded);
+                }
+            } else {
+                executeTasks(args, project, false, isRebuildNeeded(project, false));
             }
         } catch (IOException e) {
             throw createLauncherException("unable to resolve the target path:" + e.getMessage());
         } catch (ProjectException e) {
             throw createLauncherException("unable to create the executable:" + e.getMessage());
         }
-
-        if (project.kind() == ProjectKind.WORKSPACE_PROJECT) {
-            WorkspaceProject workspaceProject = (WorkspaceProject) project;
-            DependencyGraph<BuildProject> projectDependencyGraph = resolveWorkspaceDependencies(workspaceProject);
-            // If the project path is not the workspace root, filter the topologically sorted list to include only
-            // the projects that are dependencies of the project at the specified path.
-            Optional<BuildProject> buildProjectOptional = projectDependencyGraph.getNodes().stream().filter(node ->
-                    node.sourceRoot().equals(absProjectPath)).findFirst();
-            if (buildProjectOptional.isEmpty()) {
-                throw createLauncherException("no package found at the specified path: " + absProjectPath);
-            }
-            executeTasks(false, target, args, buildProjectOptional.get());
-
-        } else {
-            executeTasks(project.kind().equals(ProjectKind.SINGLE_FILE_PROJECT), target, args, project);
-        }
     }
 
-    private DependencyGraph<BuildProject> resolveWorkspaceDependencies(WorkspaceProject workspaceProject) {
-        TaskExecutor taskExecutor = new TaskExecutor.TaskBuilder()
-                .addTask(new ResolveWorkspaceDependenciesTask(outStream))
-                .build();
-        taskExecutor.executeTasks(workspaceProject);
-        return workspaceProject.getResolution().dependencyGraph();
-    }
+    private void executeTasks(String[] args, Project project, boolean skipExecution, boolean rebuildNeeded)
+            throws IOException {
+        boolean isSingleFile = project.kind().equals(ProjectKind.SINGLE_FILE_PROJECT);
+        Target target = new Target(project.targetDir());
+        List<Diagnostic> buildToolDiagnostics = new ArrayList<>();
 
-    private void executeTasks(boolean isSingleFileBuild, Target target, String[] args, Project project) {
-        boolean rebuildStatus = isRebuildNeeded(project, false);
         TaskExecutor taskExecutor = new TaskExecutor.TaskBuilder()
                 // clean target dir for projects
-                .addTask(new CleanTargetDirTask(), isSingleFileBuild)
-                .addTask(new RestoreCachedArtifactsTask(), rebuildStatus)
+                .addTask(new CleanTargetDirTask(), isSingleFile || !rebuildNeeded)
+                .addTask(new RestoreCachedArtifactsTask(), rebuildNeeded)
                 // Run build tools
-                .addTask(new RunBuildToolsTask(outStream, !rebuildStatus), isSingleFileBuild)
+                .addTask(new RunBuildToolsTask(outStream, !rebuildNeeded, buildToolDiagnostics), isSingleFile)
                 // resolve maven dependencies in Ballerina.toml
-                .addTask(new ResolveMavenDependenciesTask(outStream, !rebuildStatus))
+                .addTask(new ResolveMavenDependenciesTask(outStream, !rebuildNeeded))
                 // compile the modules
-                .addTask(new CompileTask(outStream, errStream, false, false, !rebuildStatus))
-                .addTask(new CreateExecutableTask(outStream, null, target, true, !rebuildStatus))
-                .addTask(new CacheArtifactsTask(RUN_COMMAND), !rebuildStatus || isSingleFileBuild)
-                .addTask(new CreateFingerprintTask(false, false), !rebuildStatus || isSingleFileBuild)
-                .addTask(runExecutableTask = new RunExecutableTask(args, outStream, errStream, target))
+                .addTask(new CompileTask(outStream, errStream, false, false,
+                        !rebuildNeeded, buildToolDiagnostics))
+                .addTask(new CreateExecutableTask(outStream, null, target, true, !rebuildNeeded),
+                        skipExecution)
+                .addTask(new CacheArtifactsTask(RUN_COMMAND), !rebuildNeeded || isSingleFile)
+                .addTask(new CreateFingerprintTask(false, skipExecution), !rebuildNeeded || isSingleFile)
+                .addTask(runExecutableTask = new RunExecutableTask(args, outStream, errStream, target), skipExecution)
                 .addTask(new DumpBuildTimeTask(outStream), !project.buildOptions().dumpBuildTime())
                 .build();
         taskExecutor.executeTasks(project);
@@ -413,7 +429,6 @@ public class RunCommand implements BLauncherCmd {
 
     private BuildOptions constructBuildOptions() {
         BuildOptions.BuildOptionsBuilder buildOptionsBuilder = BuildOptions.builder();
-
         buildOptionsBuilder
                 .setCodeCoverage(false)
                 .setExperimental(experimentalFlag)

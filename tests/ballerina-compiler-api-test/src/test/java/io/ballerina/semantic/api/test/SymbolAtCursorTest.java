@@ -354,5 +354,11 @@ public class SymbolAtCursorTest {
         typeSymbol =
                 ((UnionTypeSymbol) ((TypeDefinitionSymbol) (symbol)).typeDescriptor()).memberTypeDescriptors().get(0);
         assertEquals(typeSymbol.typeKind(), INTERSECTION);
+
+        symbol = model.symbol(srcFile, LinePosition.from(249, 9)).get();
+        assertEquals(symbol.kind(), RECORD_FIELD);
+
+        symbol = model.symbol(srcFile, LinePosition.from(252, 17)).get();
+        assertEquals(symbol.kind(), RECORD_FIELD);
     }
 }

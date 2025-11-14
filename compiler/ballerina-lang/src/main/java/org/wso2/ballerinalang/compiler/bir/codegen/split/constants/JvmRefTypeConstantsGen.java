@@ -39,12 +39,10 @@ import java.util.TreeMap;
 
 import static org.objectweb.asm.ClassWriter.COMPUTE_FRAMES;
 import static org.objectweb.asm.Opcodes.ACC_STATIC;
-import static org.objectweb.asm.Opcodes.ICONST_0;
-import static org.objectweb.asm.Opcodes.ICONST_1;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CLASS_FILE_SUFFIX;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JVM_STATIC_INIT_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.VOID_METHOD_DESC;
-import static org.wso2.ballerinalang.compiler.bir.codegen.split.JvmCreateTypeGen.setTypeInitialized;
+import static org.wso2.ballerinalang.compiler.bir.codegen.split.JvmCreateTypeGen.genFieldsForInitFlags;
 import static org.wso2.ballerinalang.compiler.bir.codegen.utils.JvmCodeGenUtil.genMethodReturn;
 import static org.wso2.ballerinalang.compiler.bir.codegen.utils.JvmConstantGenUtils.generateConstantsClassInit;
 import static org.wso2.ballerinalang.compiler.bir.codegen.utils.JvmModuleUtils.getModuleLevelClassName;
@@ -90,15 +88,14 @@ public class JvmRefTypeConstantsGen {
                                                  AsyncDataCollector asyncDataCollector,
                                                  LazyLoadingDataCollector lazyLoadingDataCollector) {
         ClassWriter cw = new BallerinaClassWriter(COMPUTE_FRAMES);
+        boolean isAnnotatedType = referenceType.referredType.tag != TypeTags.RECORD;
+        genFieldsForInitFlags(cw);
         String varName = JvmCodeGenUtil.getRefTypeConstantName(referenceType);
         String typeRefConstantClass = this.typeRefVarConstantsPkgName + varName;
         generateConstantsClassInit(cw, typeRefConstantClass);
         MethodVisitor mv = cw.visitMethod(ACC_STATIC, JVM_STATIC_INIT_METHOD, VOID_METHOD_DESC, null, null);
-        boolean isAnnotatedType = referenceType.referredType.tag != TypeTags.RECORD;
-        setTypeInitialized(mv, ICONST_1, typeRefConstantClass, isAnnotatedType);
         jvmRefTypeGen.createTypeRefType(cw, mv, typeDef, referenceType, typeRefConstantClass, isAnnotatedType,
                 jvmPackageGen, jvmCastGen, asyncDataCollector, lazyLoadingDataCollector);
-        setTypeInitialized(mv, ICONST_0, typeRefConstantClass, isAnnotatedType);
         genMethodReturn(mv);
         cw.visitEnd();
         jarEntries.put(typeRefConstantClass + CLASS_FILE_SUFFIX, cw.toByteArray());

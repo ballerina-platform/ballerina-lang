@@ -122,8 +122,10 @@ public class WorkspaceProject extends Project {
 
     @Override
     public void clearCaches() {
-        for (Project project : this.projectList) {
-            project.clearCaches();
+        Environment environment = EnvironmentBuilder.getBuilder().setWorkspace(this).build();
+        for (BuildProject buildProject : this.projectList) {
+            buildProject.setEnvironment(environment);
+            buildProject.clearCaches();
         }
         this.workspaceResolution = null;
     }

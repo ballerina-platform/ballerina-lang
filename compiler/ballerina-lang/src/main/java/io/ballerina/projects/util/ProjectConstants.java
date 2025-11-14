@@ -113,6 +113,7 @@ public final class ProjectConstants {
     public static final String REPO_BALA_DIR_NAME = TARGET_BALA_DIR_NAME;
     public static final String REPO_CACHE_DIR_NAME = "cache";
     public static final String REPO_BIR_CACHE_NAME = "bir";
+    public static final String EXEC_BACKUP_DIR_NAME = "backup";
 
     // Test framework related constants
     public static final String TEST_RUNTIME_JAR_PREFIX = "testerina-runtime-";
@@ -150,7 +151,7 @@ public final class ProjectConstants {
     public static final String ORG = "org";
     public static final String PACKAGE_NAME = "name";
     public static final String LOCAL_TOOLS_JSON = "local-tools.json";
-    public static final String STICKY_FLAG = "--sticky";
+    public static final String LOCKING_MODE_OPTION = "--locking-mode";
     public static final String OFFLINE_FLAG = "--offline";
     public static final String REPOSITORY_FLAG = "--repository";
     public static final String WILD_CARD = "*";

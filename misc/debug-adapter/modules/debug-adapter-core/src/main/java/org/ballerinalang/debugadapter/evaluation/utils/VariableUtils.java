@@ -37,7 +37,7 @@ import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.MO
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.loadClass;
 import static org.ballerinalang.debugadapter.utils.PackageUtils.GLOBAL_CONSTANTS_PACKAGE_NAME;
 import static org.ballerinalang.debugadapter.utils.PackageUtils.GLOBAL_VARIABLES_PACKAGE_NAME;
-import static org.ballerinalang.debugadapter.utils.PackageUtils.VALUE_VAR_NAME;
+import static org.ballerinalang.debugadapter.utils.PackageUtils.VALUE_VAR_FIELD_NAME;
 import static org.ballerinalang.debugadapter.variable.VariableUtils.UNKNOWN_VALUE;
 
 /**
@@ -131,7 +131,7 @@ public final class VariableUtils {
         if (classRef == null) {
             return Optional.empty();
         }
-        Field field = classRef.fieldByName(VALUE_VAR_NAME);
+        Field field = classRef.fieldByName(VALUE_VAR_FIELD_NAME);
         if (field == null) {
             return Optional.empty();
         }

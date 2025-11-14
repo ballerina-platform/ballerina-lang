@@ -22,6 +22,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import io.ballerina.projects.BuildOptions;
+import io.ballerina.projects.DependencyGraph;
 import io.ballerina.projects.JBallerinaBackend;
 import io.ballerina.projects.JvmTarget;
 import io.ballerina.projects.Package;
@@ -36,6 +37,10 @@ import io.ballerina.projects.ResolvedPackageDependency;
 import io.ballerina.projects.SemanticVersion;
 import io.ballerina.projects.Settings;
 import io.ballerina.projects.bala.BalaProject;
+import io.ballerina.projects.directory.BuildProject;
+import io.ballerina.projects.directory.WorkspaceProject;
+import io.ballerina.projects.environment.PackageLockingMode;
+import io.ballerina.projects.environment.ResolutionOptions;
 import io.ballerina.projects.internal.bala.BalToolJson;
 import io.ballerina.projects.internal.bala.BalaJson;
 import io.ballerina.projects.internal.bala.DependencyGraphJson;
@@ -91,7 +96,6 @@ import java.util.StringJoiner;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static io.ballerina.cli.cmd.Constants.BACKUP;
 import static io.ballerina.cli.launcher.LauncherUtils.createLauncherException;
 import static io.ballerina.projects.util.ProjectConstants.BALA_JSON;
 import static io.ballerina.projects.util.ProjectConstants.BALLERINA_TOML;
@@ -100,6 +104,7 @@ import static io.ballerina.projects.util.ProjectConstants.BAL_TOOL_TOML;
 import static io.ballerina.projects.util.ProjectConstants.BLANG_SOURCE_EXT;
 import static io.ballerina.projects.util.ProjectConstants.DEPENDENCIES_TOML;
 import static io.ballerina.projects.util.ProjectConstants.DEPENDENCY_GRAPH_JSON;
+import static io.ballerina.projects.util.ProjectConstants.EXEC_BACKUP_DIR_NAME;
 import static io.ballerina.projects.util.ProjectConstants.LIB_DIR;
 import static io.ballerina.projects.util.ProjectConstants.MODULES_ROOT;
 import static io.ballerina.projects.util.ProjectConstants.PACKAGE_JSON;
@@ -1347,6 +1352,20 @@ public final class CommandUtil {
         return isExecutableModified(buildJson, project);
     }
 
+    public static DependencyGraph<BuildProject> resolveWorkspaceDependencies(
+            WorkspaceProject workspaceProject, PrintStream outStream) {
+        outStream.println("Resolving workspace dependencies");
+        ResolutionOptions resolutionOptions = ResolutionOptions.builder()
+                .setOffline(true)
+                .setPackageLockingMode(PackageLockingMode.HARD)
+                .build();
+        DependencyGraph<BuildProject> projectDependencyGraph = workspaceProject.getResolution(resolutionOptions)
+                .dependencyGraph();
+        projectDependencyGraph.toTopologicallySortedList();
+        workspaceProject.clearCaches();
+        return projectDependencyGraph;
+    }
+
     private static boolean isBallerinaTomlFileModified(BuildJson buildJson, Project project)  {
         try {
             File ballerinaTomlFile = project.sourceRoot().resolve(BALLERINA_TOML).toFile();
@@ -1370,7 +1389,7 @@ public final class CommandUtil {
     }
 
     private static boolean isTestArtifactsModified(BuildJson buildJson, Project project) throws IOException {
-        Target target = new Target(project.targetDir().resolve(BACKUP));
+        Target target = new Target(project.targetDir().resolve(EXEC_BACKUP_DIR_NAME));
         Path testSuitePath = target.getTestsCachePath().resolve(ProjectConstants.TEST_SUITE_JSON);
         if (!Files.exists(testSuitePath)) {
             return true;
@@ -1526,7 +1545,7 @@ public final class CommandUtil {
 
     private static boolean isExecutableModified(BuildJson buildJson, Project project) {
         try {
-            Target target = new Target(project.targetDir().resolve(BACKUP));
+            Target target = new Target(project.targetDir().resolve(EXEC_BACKUP_DIR_NAME));
             File execFile = target.getExecutablePath(project.currentPackage()).toAbsolutePath().toFile();
             if (execFile.exists() && execFile.isFile()) {
                 long lastModified = execFile.lastModified();
@@ -1540,11 +1559,10 @@ public final class CommandUtil {
                 }
                 return !getSHA256Digest(execFile).equals(targetExecMetaInfo.getHash());
             }
-            // Executable is deleted or the previous command is bal test
-            return buildJson.getTargetExecMetaInfo() == null;
         } catch (IOException | NoSuchAlgorithmException e) {
-            return true;
+           // ignore the error and rebuild again
         }
+        return true;
     }
 
     private static boolean isSettingsFileModified(BuildJson buildJson) {

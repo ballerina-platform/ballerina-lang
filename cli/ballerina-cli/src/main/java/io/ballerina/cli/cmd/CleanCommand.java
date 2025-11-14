@@ -127,7 +127,16 @@ public class CleanCommand implements BLauncherCmd {
             return;
         }
 
-        ProjectLoadResult loadResult = ProjectLoader.load(this.projectPath);
+        ProjectLoadResult loadResult;
+        try {
+            loadResult = ProjectLoader.load(this.projectPath);
+        } catch (ProjectException e) {
+            CommandUtil.printError(this.outStream, "invalid project directory: " + e.getMessage(),
+                    null, false);
+            CommandUtil.exitError(this.exitWhenFinish);
+            return;
+        }
+
         Project project = loadResult.project();
         if (project.kind().equals(ProjectKind.SINGLE_FILE_PROJECT)) {
             CommandUtil.printError(this.outStream,
@@ -165,7 +174,8 @@ public class CleanCommand implements BLauncherCmd {
 
     private void cleanDependencyCaches(Project project) {
         ResolutionOptions resolutionOptions = ResolutionOptions.builder().setOffline(true)
-                .setSticky(project.buildOptions().sticky()).build();
+                .setSticky(project.buildOptions().sticky()).setPackageLockingMode(project.buildOptions().lockingMode())
+                .build();
         PackageResolution packageResolution = project.currentPackage().getResolution(resolutionOptions);
         for (ResolvedPackageDependency packageDependency : packageResolution.allDependencies()) {
             Project dependency = packageDependency.packageInstance().project();

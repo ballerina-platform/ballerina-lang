@@ -19,9 +19,12 @@
 package org.wso2.ballerinalang.compiler.bir.codegen;
 
 import org.ballerinalang.model.elements.PackageID;
+import org.objectweb.asm.Handle;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
 
+import static org.objectweb.asm.Opcodes.H_INVOKESTATIC;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.LAMBDA_META_FACTORY_DESC;
 import static org.wso2.ballerinalang.compiler.util.Names.DEFAULT_VERSION;
 
 /**
@@ -162,21 +165,18 @@ public final class JvmConstants {
     public static final String TYPE_IMPL = "io/ballerina/runtime/internal/types/BType";
     public static final String MODULE = "io/ballerina/runtime/api/Module";
     public static final String CURRENT_MODULE_VAR_NAME = "$currentModule";
-    public static final String B_STRING_VAR_PREFIX = "$bString";
-    public static final String LARGE_STRING_VAR_PREFIX = "$stringChunk";
+    public static final String B_STRING_VAR_PREFIX = "s";
+    public static final String LARGE_STRING_VAR_PREFIX = "sc";
     public static final String GET_SURROGATE_ARRAY_METHOD_PREFIX = "getSurrogateArray";
-    public static final String UNION_TYPE_VAR_PREFIX = "$unionType";
-    public static final String ERROR_TYPE_VAR_PREFIX = "$errorType";
-    public static final String TYPE_REF_TYPE_VAR_PREFIX = "$typeRefType$";
     public static final String SET_REFERRED_TYPE_METHOD = "setReferredType";
-    public static final String TUPLE_TYPE_VAR_PREFIX = "$tupleType";
-    public static final String TYPE_VAR_NAME = "$type";
-    public static final String TYPE_INIT_VAR_NAME = "$isTypeInit";
-    public static final String GET_TYPE_METHOD = "getType";
-    public static final String VALUE_VAR_NAME = "$value";
-    public static final String BSTRING_VAR_NAME = "$bString";
-    public static final String ARRAY_TYPE_VAR_PREFIX = "$arrayType";
-    public static final String MODULE_VAR_PREFIX = "$module";
+    public static final String TYPE_VAR_PREFIX = "t";
+    public static final String TYPE_VAR_FIELD = "t";
+    public static final String TYPE_INIT_FIELD = "i";
+    public static final String TYPE_ON_INIT_FIELD = "o";
+    public static final String GET_TYPE_METHOD = "get";
+    public static final String VALUE_VAR_FIELD = "v";
+    public static final String BSTRING_VAR_NAME = "s";
+    public static final String MODULE_VAR_PREFIX = "m";
 
     public static final String VARIABLE_KEY = "io/ballerina/runtime/internal/configurable/VariableKey";
     public static final String CONFIG_DETAILS = "io/ballerina/runtime/internal/configurable/providers/ConfigDetails";
@@ -187,6 +187,7 @@ public final class JvmConstants {
     // other jvm-specific classes
     public static final String BAL_RUNTIME = "io/ballerina/runtime/internal/BalRuntime";
     public static final String TYPE_CHECKER = "io/ballerina/runtime/internal/TypeChecker";
+    public static final String TYPE_INITIALIZER = "io/ballerina/runtime/internal/TypeInitializer";
     public static final String SCHEDULER = "io/ballerina/runtime/internal/scheduling/Scheduler";
     public static final String JSON_UTILS = "io/ballerina/runtime/internal/json/JsonInternalUtils";
     public static final String STRAND_CLASS = "io/ballerina/runtime/internal/scheduling/Strand";
@@ -227,6 +228,7 @@ public final class JvmConstants {
     public static final String LIST = "java/util/List";
     public static final String SET = "java/util/Set";
     public static final String LINKED_HASH_SET = "java/util/LinkedHashSet";
+    public static final String LAMBDA_META_FACTORY = "java/lang/invoke/LambdaMetafactory";
     public static final String STRING_BUILDER = "java/lang/StringBuilder";
     public static final String FUNCTION = "java/util/function/Function";
     public static final String LONG_STREAM = "java/util/stream/LongStream";
@@ -240,6 +242,11 @@ public final class JvmConstants {
     public static final String PATH = "java/nio/file/Path";
     public static final String SYSTEM = "java/lang/System";
     public static final String REENTRANT_LOCK = "java/util/concurrent/locks/ReentrantLock";
+    public static final String RUNNABLE = "java/lang/Runnable";
+    public static final String METHOD_HANDLES_LOOKUP = "java/lang/invoke/MethodHandles$Lookup";
+    public static final String INVOKE_METHOD_TYPE = "java/lang/invoke/MethodType";
+    public static final String METHOD_HANDLE = "java/lang/invoke/MethodHandle";
+    public static final String CALL_SITE = "java/lang/invoke/CallSite";
 
     // service objects, annotation processing related classes
     public static final String ANNOTATION_UTILS = "io/ballerina/runtime/internal/utils/AnnotationUtils";
@@ -247,6 +254,7 @@ public final class JvmConstants {
     public static final String ANNOTATION_FUNC = "$annot_func$";
     public static final String ANNOTATIONS_FIELD = "$annotations";
     public static final String LOAD_ANNOTATIONS_METHOD = "loadAnnotations";
+    public static final String LOAD_TYPE_ANNOTATIONS_METHOD = "loadTypeAnnotations";
     public static final String DEFAULTABLE_ARGS_ANOT_NAME = "DefaultableArgs";
     public static final String DEFAULTABLE_ARGS_ANOT_FIELD = "args";
 
@@ -357,6 +365,7 @@ public final class JvmConstants {
     public static final String SERVICE_EP_AVAILABLE = "$serviceEPAvailable";
     public static final String BAL_RUNTIME_VAR_NAME = "$balRuntime";
     public static final String LOCK_STORE_VAR_NAME = "$lockStore";
+    public static final String TYPE_INITIALIZING_GLOBAL_LOCK_VAR_NAME = "TYPE_INITIALIZING_GLOBAL_LOCK";
     public static final String WORKER_CHANNEL_MAP_VAR_NAME = "$channelMap";
     public static final String SEND_WORKER_CHANNEL_NAMES_VAR_NAME = "$sendWorkerChannelNames";
     public static final String RECEIVE_WORKER_CHANNEL_NAMES_VAR_NAME = "$receiveWorkerChannelNames";
@@ -399,6 +408,13 @@ public final class JvmConstants {
     public static final String GET_ANON_TYPE_METHOD = "getAnonType";
     public static final String GET_FUNCTION_TYPE_METHOD = "getFunctionType";
     public static final String GET_RECORD_TYPE_METHOD = "getRecordType";
+
+    // lambda related constants
+    public static final String META_FACTORY = "metafactory";
+    public static final String RUN = "run";
+    public static final String APPLY = "apply";
+    public static final Handle LAMBDA_META_FACTORY_HANDLE = new Handle(H_INVOKESTATIC, LAMBDA_META_FACTORY,
+            META_FACTORY, LAMBDA_META_FACTORY_DESC, false);
 
     // strand data related constants
     public static final String STRAND = "strand";

@@ -19,8 +19,10 @@ package io.ballerina.projects;
 
 import io.ballerina.tools.diagnostics.Diagnostic;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 
 /**
  * Represents a collection of diagnostics generated typically by the compiler.
@@ -44,6 +46,22 @@ public abstract class DiagnosticResult {
 
     public Collection<Diagnostic> diagnostics(boolean includeInternal) {
         return includeInternal ? allDiagnostics : getInternalExcluded(allDiagnostics);
+    }
+
+    public Collection<Diagnostic> diagnostics(boolean includeInternal, boolean hideDependencyDiagnostics) {
+        Collection<Diagnostic> diagnostics = includeInternal ? allDiagnostics : getInternalExcluded(allDiagnostics);
+        if (hideDependencyDiagnostics) {
+            List<Diagnostic> filteredDiagnostics = new ArrayList<>();
+            for (Diagnostic diagnostic : diagnostics) {
+                if (diagnostic.toString().contains("::")) {
+                    // This is a dependency diagnostic, skip it
+                    continue;
+                }
+                filteredDiagnostics.add(diagnostic);
+            }
+            return filteredDiagnostics;
+        }
+        return diagnostics;
     }
 
     public Collection<Diagnostic> errors() {

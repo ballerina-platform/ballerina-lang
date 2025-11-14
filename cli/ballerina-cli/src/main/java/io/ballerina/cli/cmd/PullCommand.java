@@ -26,6 +26,7 @@ import io.ballerina.projects.JvmTarget;
 import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.SemanticVersion;
 import io.ballerina.projects.Settings;
+import io.ballerina.projects.environment.PackageLockingMode;
 import io.ballerina.projects.internal.model.Proxy;
 import io.ballerina.projects.internal.model.Repository;
 import io.ballerina.projects.util.ProjectConstants;
@@ -49,6 +50,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import static io.ballerina.cli.cmd.Constants.PULL_COMMAND;
@@ -95,6 +97,10 @@ public class PullCommand implements BLauncherCmd {
 
     @CommandLine.Option(names = "--offline", hidden = true)
     private boolean offline;
+
+    @CommandLine.Option(names = "--locking-mode", hidden = true,
+            description = "allow passing the package locking mode.", converter = PackageLockingModeConverter.class)
+    private PackageLockingMode lockingMode;
 
     public PullCommand() {
         this.outStream = System.out;
@@ -327,7 +333,14 @@ public class PullCommand implements BLauncherCmd {
     private boolean resolveDependencies(String orgName, String packageName, String version) {
         CommandUtil.setPrintStream(errStream);
         try {
-            BuildOptions buildOptions = BuildOptions.builder().setSticky(sticky).setOffline(offline).build();
+            PackageLockingMode packageLockingMode;
+            if (sticky) {
+                packageLockingMode = PackageLockingMode.HARD;
+            }  else {
+                packageLockingMode = Objects.requireNonNullElse(lockingMode, PackageLockingMode.SOFT);
+            }
+            BuildOptions buildOptions = BuildOptions.builder().setLockingMode(packageLockingMode).setOffline(offline)
+                    .build();
             boolean hasCompilationErrors = CommandUtil.pullDependencyPackages(
                     orgName, packageName, version, buildOptions, repositoryName);
             if (hasCompilationErrors) {
