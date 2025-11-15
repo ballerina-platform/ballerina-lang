@@ -165,7 +165,26 @@ public class BArrayType extends BType implements ArrayType {
             : sb.append(" & readonly").toString();
     }
 
-
+    /**
+    * Find the index of the matching closing parenthesis for the first '(' in the string.
+    * Returns -1 if not found / malformed.
+    */
+    private int findMatchingParenIndex(String s) {
+        int depth = 0;
+        for (int i = 0; i < s.length(); i++) {
+         char c = s.charAt(i);
+         if (c == '(') {
+            depth++;
+         } else if (c == ')') {
+            depth--;
+            if (depth == 0) {
+                return i;
+            }
+            // if depth < 0 it's malformed; continue and fallback later
+         }
+        }
+        return -1;
+    }
     private boolean hasTypeHoles() {
         return eType instanceof BNoType;
     }
