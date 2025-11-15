@@ -131,9 +131,16 @@ public class BArrayType extends BType implements ArrayType {
 
         // Add parentheses for unnamed unions or finite types like (1|2|3)[]
         if ((eType instanceof BUnionType || eType instanceof BFiniteType)
-            && elementTypeStr.contains("|")
-            && !elementTypeStr.startsWith("(")) {
-            elementTypeStr = "(" + elementTypeStr + ")";
+            && elementTypeStr.startsWith("(")) {
+            int idx = findMatchingParenIndex(elementTypeStr);
+            if (idx > 0 && idx == elementTypeStr.length() - 1) {
+                String inner = elementTypeStr.substring(1, idx);
+
+                // Only unwrap if it's actually a union
+                if (inner.contains("|")) {
+                    elementTypeStr = inner; // unwrap
+                }
+            }
         }
 
         StringBuilder sb = new StringBuilder(elementTypeStr);
