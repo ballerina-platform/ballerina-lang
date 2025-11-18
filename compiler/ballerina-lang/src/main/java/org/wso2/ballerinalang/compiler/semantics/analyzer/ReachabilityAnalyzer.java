@@ -581,7 +581,7 @@ public class ReachabilityAnalyzer extends SimpleBLangNodeAnalyzer<ReachabilityAn
                     !data.hasFunctionTerminated) {
                 Location closeBracePos = getEndCharPos(funcNode.pos);
                 this.dlog.error(closeBracePos, DiagnosticErrorCode.INVOKABLE_MUST_RETURN,
-                        funcNode.getKind().toString().toLowerCase());
+                    getFunctionKindName(funcNode));
             } else if (isNeverReturn && !data.hasFunctionTerminated) {
                 this.dlog.error(funcNode.pos, DiagnosticErrorCode.THIS_FUNCTION_SHOULD_PANIC);
             }
@@ -597,7 +597,7 @@ public class ReachabilityAnalyzer extends SimpleBLangNodeAnalyzer<ReachabilityAn
             }
         }
     }
-
+}
     private Location getEndCharPos(Location pos) {
         LineRange lineRange = pos.lineRange();
         LinePosition endLinePos = lineRange.endLine();
@@ -838,7 +838,7 @@ public class ReachabilityAnalyzer extends SimpleBLangNodeAnalyzer<ReachabilityAn
     }
 
     private void validateAssignmentToNarrowedVariables(List<BLangExpression> exprs, Location location,
-                                                       AnalyzerData data) {
+                                                    AnalyzerData data) {
         for (BLangExpression expr : exprs) {
             if (expr == null) {
                 continue;
@@ -915,7 +915,7 @@ public class ReachabilityAnalyzer extends SimpleBLangNodeAnalyzer<ReachabilityAn
     }
 
     private void handleInvalidAssignmentToTypeNarrowedVariableInLoop(List<Location> locations,
-                                                                     DiagnosticErrorCode errorCode) {
+                                                                    DiagnosticErrorCode errorCode) {
         for (Location location : locations) {
             dlog.error(location, errorCode);
         }
@@ -1001,7 +1001,7 @@ public class ReachabilityAnalyzer extends SimpleBLangNodeAnalyzer<ReachabilityAn
         BLangInvokableNode enclInvokable;
 
         private PotentiallyInvalidAssignmentInfo(List<Location>  locations,
-                                                 BLangInvokableNode enclInvokable) {
+                                            BLangInvokableNode enclInvokable) {
             this.locations = locations;
             this.enclInvokable = enclInvokable;
         }
@@ -1031,4 +1031,12 @@ public class ReachabilityAnalyzer extends SimpleBLangNodeAnalyzer<ReachabilityAn
         Deque<SymbolEnv> loopAndDoClauseEnvs = new ArrayDeque<>();
         Deque<PotentiallyInvalidAssignmentInfo> potentiallyInvalidAssignmentInLoopsInfo = new ArrayDeque<>();
     }
+private String getFunctionKindName(BLangFunction funcNode) {
+    String kind = funcNode.getKind().toString().toLowerCase();
+    if (kind.equals("resource_func")) {
+        return "resource function";
+    }
+    return kind;
+}
+
 }
