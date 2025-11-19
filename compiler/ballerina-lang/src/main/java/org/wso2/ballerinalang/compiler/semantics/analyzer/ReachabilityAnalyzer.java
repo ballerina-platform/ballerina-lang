@@ -36,6 +36,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.tree.BLangBlockFunctionBody;
+import org.wso2.ballerinalang.compiler.tree.BLangNode.NodeKind;
 import org.wso2.ballerinalang.compiler.tree.BLangExprFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangExternalFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
@@ -343,7 +344,7 @@ public class ReachabilityAnalyzer extends SimpleBLangNodeAnalyzer<ReachabilityAn
     }
 
     private boolean checkAllBranchesTerminate(boolean ifStmtReturnsPanicsOrFails, boolean ifStmtBreakAsLastStatement,
-                                              boolean ifStmtContinueAsLastStatement, AnalyzerData data) {
+        boolean ifStmtContinueAsLastStatement, AnalyzerData data) {
         return (ifStmtReturnsPanicsOrFails || ifStmtBreakAsLastStatement
                 || ifStmtContinueAsLastStatement) && (data.statementReturnsPanicsOrFails
                 || data.breakAsLastStatement || data.continueAsLastStatement);
@@ -1000,7 +1001,7 @@ public class ReachabilityAnalyzer extends SimpleBLangNodeAnalyzer<ReachabilityAn
         List<Location> locations;
         BLangInvokableNode enclInvokable;
 
-        private PotentiallyInvalidAssignmentInfo(List<Location>  locations,
+    private PotentiallyInvalidAssignmentInfo(List<Location>  locations,
                                             BLangInvokableNode enclInvokable) {
             this.locations = locations;
             this.enclInvokable = enclInvokable;
@@ -1031,12 +1032,18 @@ public class ReachabilityAnalyzer extends SimpleBLangNodeAnalyzer<ReachabilityAn
         Deque<SymbolEnv> loopAndDoClauseEnvs = new ArrayDeque<>();
         Deque<PotentiallyInvalidAssignmentInfo> potentiallyInvalidAssignmentInLoopsInfo = new ArrayDeque<>();
     }
-private String getFunctionKindName(BLangFunction funcNode) {
-    String kind = funcNode.getKind().toString().toLowerCase();
-    if (kind.equals("resource_func")) {
-        return "resource function";
+/**
+ * Returns a user-friendly name for the function kind.
+ * Converts internal enum representation to readable format for error messages.
+ *
+ * @param funcNode the function node
+ * @return formatted function kind name
+ */
+    private String getFunctionKindName(BLangFunction funcNode) {
+        // Use enum comparison instead of string matching for better performance
+        if (funcNode.getKind() == NodeKind.RESOURCE_FUNC) {
+            return "resource function";
+        }
+        return funcNode.getKind().toString().toLowerCase();
     }
-    return kind;
-}
-
 }
