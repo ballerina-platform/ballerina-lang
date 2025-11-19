@@ -34,6 +34,7 @@ import io.ballerina.projects.environment.ResolutionResponse;
 import io.ballerina.projects.environment.ResolutionResponse.ResolutionStatus;
 import io.ballerina.projects.internal.ImportModuleRequest;
 import io.ballerina.projects.internal.ImportModuleResponse;
+import io.ballerina.projects.internal.repositories.FileSystemRepository;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectUtils;
 
@@ -129,6 +130,8 @@ public class DefaultPackageResolver implements PackageResolver {
         Collection<ResolutionRequest> localRepoRequests = new ArrayList<>();
         Map<PackageRepository, ArrayList<ResolutionRequest>> customRepoRequestMap = new HashMap<>();
         Collection<ResolutionRequest> workspaceRequests = new ArrayList<>();
+        Map<FileSystemRepository, ArrayList<ResolutionRequest>> customFSRepoRequestMap = new HashMap<>();
+
         for (ResolutionRequest request : requests) {
             Optional<String> repository = request.packageDescriptor().repository();
             if (repository.isPresent() && repository.get().equals(ProjectConstants.LOCAL_REPOSITORY_NAME)) {
@@ -147,6 +150,15 @@ public class DefaultPackageResolver implements PackageResolver {
                     && !ProjectUtils.isBuiltInPackage(request.orgName(), request.packageName().toString())
                     && !request.skipWorkspace()) {
                 workspaceRequests.add(request);
+            } else {
+                String org = request.packageDescriptor().org().toString();
+                if (customRepos.containsKey(org)
+                        && customRepos.get(org) instanceof FileSystemRepository customFSRepository) {
+                    if (!customFSRepoRequestMap.containsKey(customFSRepository)) {
+                        customFSRepoRequestMap.put(customFSRepository, new ArrayList<>());
+                    }
+                    customFSRepoRequestMap.get(customFSRepository).add(request);
+                }
             }
         }
 
@@ -162,6 +174,15 @@ public class DefaultPackageResolver implements PackageResolver {
             Collection<PackageMetadataResponse> customRepoPackages = customRepoRequests.isEmpty() ?
                     Collections.emptyList() : customRepository.getPackageMetadata(customRepoRequests, options);
             allCustomRepoPackages.addAll(customRepoPackages);
+        }
+
+        for (Map.Entry<FileSystemRepository, ArrayList<ResolutionRequest>> customFSRepoRequestEntry :
+                customFSRepoRequestMap.entrySet()) {
+            PackageRepository customFSRepository = customFSRepoRequestEntry.getKey();
+            ArrayList<ResolutionRequest> customFSRepoRequests = customFSRepoRequestEntry.getValue();
+            Collection<PackageMetadataResponse> customFSRepoPackages = customFSRepoRequests.isEmpty() ?
+                    Collections.emptyList() : customFSRepository.getPackageMetadata(customFSRepoRequests, options);
+            allCustomRepoPackages.addAll(customFSRepoPackages);
         }
 
         Collection<PackageMetadataResponse> workspacePackages = workspaceRequests.isEmpty() ?
@@ -264,6 +285,14 @@ public class DefaultPackageResolver implements PackageResolver {
         // 1) Try to load from the distribution repo, if the requested package is a built-in package.
         if (pkgDesc.isBuiltInPackage()) {
             return distributionRepo.getPackage(resolutionReq, options);
+        }
+
+        if (customRepos.containsKey(pkgDesc.org().toString()) &&
+                customRepos.get(pkgDesc.org().toString()) instanceof FileSystemRepository customFSRepository) {
+            Optional<Package> resolvedPackage = customFSRepository.getPackage(resolutionReq, options);
+            if (resolvedPackage.isPresent()) {
+                return resolvedPackage;
+            }
         }
 
         // 2) Try to load from the local repo, if it is requested from the local repo.
