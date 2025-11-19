@@ -566,26 +566,38 @@ public class ReachabilityAnalyzer extends SimpleBLangNodeAnalyzer<ReachabilityAn
     }
 
     @Override
-    public void visit(BLangFunction funcNode, AnalyzerData data) {
-        resetFunction(data);
-        if (funcNode.flagSet.contains(Flag.NATIVE)) {
-            return;
-        }
-        if (funcNode.body != null) {
-            analyzeReachability(funcNode.body, data);
-            boolean isNeverReturn = types.isNeverTypeOrStructureTypeWithARequiredNeverMember
-                    (funcNode.symbol.type.getReturnType());
-            // If the return signature is nil-able, an implicit return will be added in Desugar.
-            // Hence, this only checks for non-nil-able return signatures and uncertain return in the body.
-            if (!funcNode.symbol.type.getReturnType().isNullable() && !isNeverReturn &&
-                    !data.hasFunctionTerminated) {
-                Location closeBracePos = getEndCharPos(funcNode.pos);
-                this.dlog.error(closeBracePos, DiagnosticErrorCode.INVOKABLE_MUST_RETURN,
-                        funcNode.getKind().toString().toLowerCase());
-            } else if (isNeverReturn && !data.hasFunctionTerminated) {
-                this.dlog.error(funcNode.pos, DiagnosticErrorCode.THIS_FUNCTION_SHOULD_PANIC);
+public void visit(BLangFunction funcNode, AnalyzerData data) {
+    resetFunction(data);
+    if (funcNode.flagSet.contains(Flag.NATIVE)) {
+        return;
+    }
+    if (funcNode.body != null) {
+        analyzeReachability(funcNode.body, data);
+        boolean isNeverReturn = types.isNeverTypeOrStructureTypeWithARequiredNeverMember
+                (funcNode.symbol.type.getReturnType());
+        // If the return signature is nil-able, an implicit return will be added in Desugar.
+        // Hence, this only checks for non-nil-able return signatures and uncertain return in the body.
+        if (!funcNode.symbol.type.getReturnType().isNullable() && !isNeverReturn &&
+                !data.hasFunctionTerminated) {
+            Location closeBracePos = getEndCharPos(funcNode.pos);
+
+            String invokableName;
+
+            if (funcNode.getKind() == NodeKind.RESOURCE_FUNC) {
+                invokableName = "resource function";
+            } else {
+                invokableName = funcNode.getKind().toString().toLowerCase();
             }
+
+            this.dlog.error(closeBracePos, // Fixed typo here
+                    DiagnosticErrorCode.INVOKABLE_MUST_RETURN,
+                    invokableName);
+        } else if (isNeverReturn && !data.hasFunctionTerminated) {
+            this.dlog.error(funcNode.pos, DiagnosticErrorCode.THIS_FUNCTION_SHOULD_PANIC);
         }
+    } // Added missing closing brace for the if (funcNode.body != null) block
+
+
 
         BType returnType = Types.getImpliedType(funcNode.returnTypeNode.getBType());
         if (!funcNode.interfaceFunction && returnType.tag == TypeTags.UNION) {
