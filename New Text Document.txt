@@ -1,0 +1,17 @@
+@echo off
+echo Using local Ballerina build...
+set BAL_HOME=C:\Users\HP\Desktop\ballerina\my-ballerina-fork\distribution\zip\jballerina\build\distributions\jballerina-2201.13.0-m3
+set PATH=%BAL_HOME%\bin;%PATH%
+
+echo Ballerina Version:
+ballerina --version
+
+echo.
+echo Available commands:
+echo ballerina build
+echo ballerina run  
+echo ballerina test
+echo ballerina clean
+
+echo.
+cmd /k

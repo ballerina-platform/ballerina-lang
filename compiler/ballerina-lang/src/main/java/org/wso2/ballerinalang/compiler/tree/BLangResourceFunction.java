@@ -55,10 +55,6 @@ public class BLangResourceFunction extends BLangFunction {
         return "BLangResourceFunction: " + super.toString();
     }
 
-    @Override
-    public NodeKind getKind() {
-        return NodeKind.RESOURCE_FUNC;
-    }
 
     public void setRestPathParam(BLangSimpleVariable restParam) {
         this.restPathParam = restParam;
